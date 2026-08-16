@@ -14,8 +14,15 @@
 // turn's evidence is written to JSONL as it lands, so the run is scoreable
 // afterward and resumable in analysis even if the model dies mid-run.
 //
-//   node eval/dialogue.mjs [messages] [model]
+//   node eval/dialogue.mjs [messages] [deep model] [fast model]
 //   node eval/dialogue.mjs 100 gemma2:2b
+//   node eval/dialogue.mjs 100 qwen2.5:14b-instruct-q4_K_M
+//
+// Model routing is the app's own ladder (model-routing.js): plain turns, the
+// asker, and the summary refresh spend the FAST rung; the DEEP model is spent
+// only where the app spends it — a task, a decomposed question, /reflect. A
+// run that names a big model does not spend it on the little questions.
+// Override both explicitly to force everything onto one model.
 //
 // Budgets, named: answers are capped at ANSWER_MAX_TOKENS for throughput —
 // this eval measures grounding and the fold, not eloquence — and the
@@ -46,6 +53,7 @@ import { checkGrounding, unsupportedClaims } from "../grounding.js";
 import { attribute, attributedRefs } from "../cite.js";
 import { CONSTITUTION_PROMPT } from "../constitution.js";
 import { makeCastResolver } from "../cast.js";
+import { ROUTE_KINDS, routeModel } from "../model-routing.js";
 
 // The engine's own organs, by relative path — same organs the page loads
 // from /engine, same boundary discovery app.js runs.
@@ -61,7 +69,12 @@ import {
 const HERE = dirname(fileURLToPath(import.meta.url));
 const OLLAMA = "http://localhost:11434";
 const MESSAGES = Number(process.argv[2] ?? 100);
+// The routing ladder, same as the app: MODEL is the deep rung (spent by a
+// task, decomposed question, /reflect), FAST is the fastest rung for plain
+// turns, the asker, and the summary refresh. A run that names a big model
+// does not spend it on the little questions.
 const MODEL = process.argv[3] ?? "gemma2:2b";
+const FAST = process.argv[4] ?? routeModel(ROUTE_KINDS.FLAT, { selected: MODEL });
 const ANSWER_MAX_TOKENS = 512;
 const QUESTION_MAX_TOKENS = 100;
 const FOLD_MAX_TOKENS = 300;
@@ -91,14 +104,15 @@ const chunks = chunkSource(SOURCE_NAME, text, { boundaries: discoverBoundaries(t
 
 // ── one model call, with one retry and a typed failure ──────────────────────
 
-async function call(messages, { maxTokens, json } = {}) {
+async function call(messages, { maxTokens, json, model } = {}) {
+  const modelName = model ?? MODEL;
   for (let attempt = 0; attempt < 2; attempt++) {
     try {
       const res = await fetch(`${OLLAMA}/api/chat`, {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
-          model: MODEL,
+          model: modelName,
           messages,
           stream: false,
           ...(json ? { format: json === true ? "json" : json } : {}),
@@ -151,7 +165,7 @@ async function nextQuestion(lastAnswer, asked) {
         content: `The answer just given:\n${lastAnswer.slice(0, 2000)}\n\nQuestions already asked — do not repeat these:\n${recent}\n\nAsk the next question.`,
       },
     ],
-    { maxTokens: QUESTION_MAX_TOKENS },
+    { maxTokens: QUESTION_MAX_TOKENS, model: FAST },
   );
   const q = extractQuestion(reply);
   if (q && !asked.includes(q)) return { question: q, basis: "asker" };
@@ -184,7 +198,7 @@ async function answer(question) {
     sourceBlock,
   });
 
-  const text = await call(messages, { maxTokens: ANSWER_MAX_TOKENS });
+  const text = await call(messages, { maxTokens: ANSWER_MAX_TOKENS, model: FAST });
   state.history.push({ role: "user", content: question }, { role: "assistant", content: text });
 
   const { used, unsupported } = checkCitations(text, passages);
@@ -214,7 +228,7 @@ async function answer(question) {
         { role: "system", content: FOLD_SYSTEM_PROMPT },
         { role: "user", content: buildSummaryUpdatePrompt(state.summary, [...(state.summary.folds || []), fold]) },
       ],
-      { maxTokens: FOLD_MAX_TOKENS, json: FOLD_SCHEMA },
+      { maxTokens: FOLD_MAX_TOKENS, json: FOLD_SCHEMA, model: FAST },
     );
     state.summary = updateSummaryWithFold(state.summary, fold, raw);
   } catch {
@@ -230,7 +244,7 @@ mkdirSync(join(HERE, "results"), { recursive: true });
 const stamp = process.env.DIALOGUE_STAMP ?? String(process.pid);
 const outPath = join(HERE, "results", `dialogue-${stamp}.jsonl`);
 writeFileSync(outPath, "");
-console.log(`dialogue: ${MESSAGES} messages on ${MODEL}, corpus ${SOURCE_NAME} (${chunks.length} passages)`);
+console.log(`dialogue: ${MESSAGES} messages — deep ${MODEL}, fast ${FAST} — corpus ${SOURCE_NAME} (${chunks.length} passages)`);
 console.log(`writing ${outPath}`);
 
 const asked = [];
