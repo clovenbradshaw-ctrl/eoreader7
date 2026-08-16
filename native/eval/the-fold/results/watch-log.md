@@ -43,3 +43,36 @@
 ## Wake 9 — tab loss and recovery
 - The browser pane was closed between wakes; run 5's page state (and its uncaptured turns) died with the tab. serve.mjs stayed up. Honest loss: run 5's data beyond wake-8's probe is gone — the eval driver (eval/dialogue.mjs) writes JSONL to disk per turn and doesn't have this failure mode; the in-page run trades that durability for visibility.
 - Restarted immediately as run 5b on a fresh tab — newest code active (list-lead atom fix + rewrite-phase prediction now live in-page for the first time).
+## Wake 9.5 (user-directed, mid run 5b)
+- ONE affordance: the material table merged into the turn's single fold disclosure (user directive); .evidence details removed from addMessage; renderEvidence appends a "material · N retrieved, M cited" section into the same box.
+- Marks made instruments (user: "make it more meaningful"): dotted/wavy sentences are clickable — groundHunt retrieves on the sentence's own words and opens the best passage in context, or says nothing matches; tooltips now speak to trust ("you are trusting the model here"); per-answer ground tally line partitions sentences into material / model's voice / unbacked facts.
+- Intro legend rewritten around who stands behind each sentence. All land at next reload (run 6). 123/123.
+## Wake 10 (run 6 at 9/50 — one-affordance + instrument-marks build)
+- New UI verified in flight: single fold disclosure (meter + S1 + S2 + run log + material table), clickable marks, per-answer ground tally, expected-duration ticker ("~30s expected (measured over 2 calls)" seen live).
+- Tally exposes the transliteration class per-turn now: consecutive turns tallying "1 unbacked fact" that is Andrei-vs-Andrew (and "Napoleonic Wars", a phrase the corpus never writes — honest). No mechanical fix exists; the received prior (user as giver) is the closure.
+- No breakage, no forced change. Meter 2,948/7,696 early-curve as expected.
+## Wake 11 (user-directed verification burst) + Run 6 COMPLETE
+- User asks answered with evidence: (1) LOCAL MODEL CONFIRMED — ollama ps shows only gemma2:2b (2.6B, Q4_0, 2.08GB VRAM, ctx 8192); page network log is 100% localhost:11434/api/chat. (2) FACT-CHECK — t47 verified literally against its cited bytes (Pierre among the wounded, Mozháysk); sweep found 8/50 ECHO answers (question restated as answer, sometimes chipped by attribution because question words match the passage). (3) Reopen modal: backdrop-click-to-close added (hot-patched live + source); refContext pinned across prose/CSV/container-stripped/bad refs in new explore-bridge.test.mjs.
+- NEW CHECK from the fact-find: echo detection in runPart — an answer contributing zero content words beyond the question (addresses stripped) is typed "restates the question; nothing established" and grounds NO refs (circular support is not support). Set containment, threshold-free. 128/128.
+- Run 6 captured (echo class present, measured; the guard lands in run 7).
+## Wake 11.5 (user: chips obstructing text)
+- Chip-per-RUN rendering: consecutive sentences standing on the same address now carry ONE chip on the run's first sentence (14 identical chips through one quotation → 1); the underline carries the ground for the rest; a new chip appears only when the address changes; model-cited sentences reset the run. 128/128. Run 7 restarted with it live.
+## Wake 12 (run 7 at 23/50)
+- Echo guard measured live: 4 turns typed "restates the question; nothing established" with refs cleared — the class run 6 passed silently as grounded (8/50) is now on the record as what it is. Stable ~17% echo rate for the 2B; every instance visible.
+- Chip-per-run verified at scale: max 3 attached chips in any turn (was 14 through one quotation).
+- 2/22 unsupported, 0 errors, meter 4,481/34,861 (7.8x at 23 exchanges). No new defect; no forced change.
+## Run 7 COMPLETE — fully typed records
+- 50/50 recorded; 7 echoes TYPED ("restates the question; nothing established", refs cleared) where run 6 had 8 passing silently as grounded. Echo rate stable ~15%; now every one is record-visible.
+- 2/50 unsupported, both honest-class. 267 material-ground / 227 voice / 5 striped sentences. Max chips per turn: 3.
+- METER: 3,918 / 51,916 = 13.3x. Zero errors. The instrument now types every failure mode the runs have surfaced: heading noise, echoes, list-leads, contractions, transliteration variants, address fabrication, question restatement.
+## Wake 13 — second pane loss; driver made durable
+- Pane closed again between wakes; run 8's page state lost (its turns uncheckpointed — second occurrence of this loss class).
+- STRUCTURAL FIX in driver v5 (run 8b): every completed exchange now posts its per-turn record to the :8812 content-addressed deposit store as it lands (run8b-turn-NNN.json). A closed tab now loses at most the exchange in flight. Restarted with the fresh whole-novel seed set.
+## Wake 13.5 (user: turns top-right + masthead)
+- Turn counter moved to header, right, beside the model chip — matching pill styling (mono, hairline border). Updates from renderThreads (every turn + convo switch).
+- New masthead: three-pleat SVG mark (opacity fading — the fold's own mechanism as a glyph) + "the|fold" wordmark (300-weight muted / 750-weight accent). Favicon matches. Hot-patched live; permanent in source. 128/128.
+## User: "why's it just reproducing stuff?" — third failure class found, checks corrected
+- Root cause: a part answer's decode budget was the app-wide 4096-token default (no cap), so nothing bounded a "who is X" part from transcribing a whole chapter. checkGrounding/attribute pass a verbatim reproduction as perfectly clean — every word IS in the bytes — so it sailed through as "grounded" while answering nothing.
+- User's correction to my first fix: grounding it isn't the bar — it must fail for not answering. Rewired: judge() now runs BOTH the echo test (restates the question) and a reproduction test (the whole draft, folded, is a verbatim substring of an offered passage) BEFORE the correction loop, not after — either failure now triggers the SAME bounded correction pass as an unsupported claim, with a mode-specific rewrite instruction ("copying is not answering... answer in your own words"). Both tests threshold-free containment, same discipline as echo detection.
+- EXECUTE_MAX_TOKENS=512 added as a named part-answer budget (was unbounded) — the actual permit that let reproduction run to a whole chapter.
+- Tests: reproduction-corrected, reproduction-stubborn-fails-with-typed-open-and-no-refs, matching the echo pair. 130/130.
