@@ -57,14 +57,14 @@ import { ROUTE_KINDS, routeModel } from "../model-routing.js";
 
 // The engine's own organs, by relative path — same organs the page loads
 // from /engine, same boundary discovery app.js runs.
-import { lineIndex, outlineOfIndex } from "../../eoreader6/packages/engine/perceiver/text/segments.js";
-import { splitSentences as engineSentences } from "../../eoreader6/packages/engine/perceiver/text/spans.js";
+import { lineIndex, outlineOfIndex } from "../../eoreader6.1/packages/engine/perceiver/text/segments.js";
+import { splitSentences as engineSentences } from "../../eoreader6.1/packages/engine/perceiver/text/spans.js";
 import {
   extractSurfaces,
   discoverReferents,
   namesCorefer,
   diaNorm,
-} from "../../eoreader6/packages/engine/perceiver/text/surfaces.js";
+} from "../../eoreader6.1/packages/engine/perceiver/text/surfaces.js";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const OLLAMA = "http://localhost:11434";
