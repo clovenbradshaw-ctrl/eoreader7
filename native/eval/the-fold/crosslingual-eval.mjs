@@ -12,18 +12,53 @@
 // reading English subject-verb-object ADJACENCY, separated by WHITESPACE, as
 // if adjacency itself carried the relation. Three real, in-the-wild cases
 // where different parts of that assumption are independently known to be
-// wrong, each probed on the same novel in a different translation:
+// wrong, each probed on the same novel in a different translation (Russian)
+// or, where the same novel isn't available, a substantial documented
+// substitute (Japanese):
 //
 //   · RUSSIAN — case-marked arguments (Cyrillic declension) let a sentence's
 //     constituents scramble far more freely than English's, so word ORDER
 //     itself is a weaker signal. Whitespace-tokenized the same as English.
 //   · JAPANESE — SOV order (verb comes last, not between subject and
-//     object — the SVO pattern's own shape is wrong for this language) AND,
-//     more structurally, NO WHITESPACE between words at all — the tokenizer
-//     this whole extractor is built on (`\s+` between subject/verb/object)
-//     has no separator to find. This tests a harder failure than Russian's:
-//     not "the order is less informative" but "the pattern's own separator
-//     does not exist in the text."
+//     object) AND, more structurally, NO WHITESPACE between words at all —
+//     the tokenizer this whole extractor is built on (`\s+` between
+//     subject/verb/object) has no separator to find.
+//
+// THE ARCHITECTURE, corrected mid-investigation (found by running, not
+// designed for). The first cut of this eval called hypergraph.js's
+// makeRelationReader — a TURN-SCOPED grounding-check organ, built and tested
+// for a handful of retrieved passages — over an entire 11,132-passage novel
+// at once. Its own edge-accumulation did a linear `.find()` over the WHOLE
+// edge array per triple; that is a real O(n^2) cost this pass's own earlier
+// draft hit (10+ minutes, still not finished) and has SEPARATELY been fixed
+// in hypergraph.js itself (bucketing existing edges by an exact verb+polarity
+// key so the fuzzy endpointsMatch scan only runs within a same-verb bucket —
+// semantics unchanged, pinned by hypergraph.test.mjs). But bucketing alone
+// still left a SECOND full-book pass slow (cast.js's own referent resolver
+// is also not built for tens of thousands of surface events). The right fix
+// was architectural, not another local optimisation: `packages/host/`
+// already has a session-based, full-document reading pipeline purpose-built
+// for exactly this scale — `sessionRelations` (discoveredCast, ONE call to
+// discoverReferents/extractRelations over the whole document body, not per
+// passage) and `emergence/graph.js`'s Map-keyed belief graph (admitGraph),
+// already measured on THIS EXACT FILE (pg2600) elsewhere in this repo's own
+// CLAUDE.md (admission ~8.6s, cast ~88s, graph ~25s on the full 3.3MB
+// novel) — "the full power of the terrains and holons," as the redirect
+// that produced this rewrite put it. This pass uses `sessionRelations` for
+// its real, full-book, engine-native triple extraction (fast: ~120-160s for
+// the full English novel end to end, not 10+ minutes) and does its OWN
+// lightweight, Map-keyed (never linear-scanned), EXACT-STRING edge
+// accumulation over those triples — deliberately NOT `admitGraph`, whose
+// `structural: true` key (`subject|polarity|object`, no verb — a real,
+// documented emergence/graph.js feature for binding-derived edges) collapses
+// many distinct verbs into one high-weight node when ranked by mentions,
+// which is the wrong shape for "how many distinct verb-typed edges does this
+// language yield" and would have made this eval's own counts mean something
+// different from what they claim to measure. hypergraph.js's own assertion
+// tier (asserted.js's witness/standing counting, the word-salad order arm)
+// is still exercised, but only on a declared BOUNDED sample — that machinery
+// answers a turn-scoped question and was never meant to run at whole-book
+// scale; running it there was this pass's own first mistake.
 //
 // PRIOR ART, found by searching before building anything new (this repo's
 // own house rule): eoreader6.1/scripts/word-order.mjs already asked the
@@ -34,9 +69,9 @@
 // measures how badly." That script is uncommitted research scratch
 // (hardcoded to its author's own local paths) and was never run to a result
 // in this environment; this pass is a different, complementary measurement
-// (extraction admission and polarity, not embedding drift) on different
-// target languages, using this repo's OWN assertion tier rather than an
-// external encoder — the same question, asked again, independently.
+// on different target languages, using this repo's OWN assertion tier and
+// the engine's own session pipeline rather than an external encoder — the
+// same question, asked again, independently.
 //
 // DECLARED NUMBERS, fixed before running:
 //   · order-arm draws = 200, seed = 0 — this repo's standing null-arm
@@ -46,18 +81,16 @@
 //     across the whole work rather than clustering at the start), capped at
 //     200 sampled passages per language. Declared because the order arm's
 //     true cost (draws x sentences x extraction calls) makes a full-work arm
-//     impractical (the real-prose Wikipedia run — 827 edges, 200 draws —
-//     already took 108s on a 72K-char excerpt; a full novel is far larger).
-//     What is excluded by this cap is named here, not silently dropped.
+//     impractical even with a fast triple extractor.
 //
 // Run: node eval/crosslingual-eval.mjs <config.json>
 //   config.json: { languages: [{ label, path, negationMarkers: [..] | null,
-//                                enNegationControl: bool }] }
+//                                skipReason }] }
 //   negationMarkers is the free-standing-word negation probe (works for
 //   English/Russian, where negation is its own token); null means "this
 //   language's negation is not shaped like a preceding free word (e.g.
 //   Japanese's verb-suffix negation), so the probe is honestly skipped
-//   rather than run wrong."
+//   rather than run against the wrong shape."
 // Writes: eval/results/asserted-crosslingual.md, .json
 
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
@@ -69,6 +102,7 @@ import { makeRelationReader } from "../hypergraph.js";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ENGINE = join(HERE, "..", "..", "eoreader6.1", "packages", "engine");
+const HOST = join(HERE, "..", "..", "eoreader6.1", "packages", "host", "index.js");
 
 const DRAWS = 200;
 const SEED = 0;
@@ -115,36 +149,77 @@ function sample(chunks) {
   return picked;
 }
 
-async function readLanguage(lang, o) {
+/**
+ * The full-work pass: real engine-native triples (sessionRelations, one
+ * discoverReferents/extractRelations call over the whole document body —
+ * the fast path this rewrite exists for), folded into a Map-keyed,
+ * EXACT-STRING edge count — never a linear scan, never referent-fuzzy
+ * matching (that is hypergraph.js's/asserted.js's job, reserved for the
+ * bounded sample below). The key is `subject|verb|polarity|object`,
+ * lowercased — a coarser identity than hypergraph.js's own endpointsMatch,
+ * disclosed as exactly that: two mentions of "Pierre" and "he" naming the
+ * same person will NOT merge here the way they would in the referent-aware
+ * tier. That coarseness is the price of running at whole-book scale at all,
+ * and it only ever SPLITS an edge that should have merged (undercounting
+ * corroboration), never merges two that shouldn't (never fabricates
+ * agreement) — the safe direction to be wrong in for a vocabulary/edge-count
+ * measurement.
+ */
+async function fullWorkPass(lang, host) {
+  const { createSession, admitChunked, sessionRelations } = host;
   const text = readFileSync(lang.path, "utf8");
-  const t0 = Date.now();
+  const session = createSession();
+
+  let t0 = Date.now();
+  const admitted = admitChunked(session, { text, sourceId: lang.label, language: null });
+  const admitMs = Date.now() - t0;
+
+  t0 = Date.now();
+  const { relations, gaps } = sessionRelations(session, { sourceId: lang.label });
+  const relateMs = Date.now() - t0;
+
+  const edgeMap = new Map(); // "subj|verb|polarity|obj" -> {subject, verb, object, polarity, statements}
+  const verbSet = new Set();
+  for (const t of relations) {
+    verbSet.add(t.verb);
+    const key = `${String(t.subject).toLowerCase()}|${t.verb}|${t.polarity}|${String(t.object).toLowerCase()}`;
+    const existing = edgeMap.get(key);
+    if (existing) existing.statements += 1;
+    else edgeMap.set(key, { subject: t.subject, verb: t.verb, polarity: t.polarity, object: t.object, statements: 1 });
+  }
+
+  say(
+    `**${lang.label}** — ${text.length.toLocaleString()} chars, ${admitted.chunks.toLocaleString()} admitted chunks ` +
+      `(admitChunked ${(admitMs / 1000).toFixed(1)}s).`,
+  );
+  say(
+    `- sessionRelations (engine-native, whole-document triples): ${(relateMs / 1000).toFixed(1)}s · ` +
+      `${relations.length.toLocaleString()} raw triples · ${verbSet.size.toLocaleString()} distinct verbs · ` +
+      `${edgeMap.size.toLocaleString()} distinct (subject, verb, polarity, object) edges` +
+      (gaps.length ? ` · gaps: ${gaps.length}` : ""),
+  );
+
+  return { text, relations, edgeMap, verbSet, admitted };
+}
+
+async function armedSamplePass(lang, o) {
+  const text = readFileSync(lang.path, "utf8");
   const chunks = chunkSource(lang.label, text);
-  const avgLen = chunks.length ? Math.round(chunks.reduce((s, c) => s + c.text.length, 0) / chunks.length) : 0;
-  say(
-    `**${lang.label}** — ${text.length.toLocaleString()} chars, chunked into ${chunks.length.toLocaleString()} ` +
-      `passages (avg ${avgLen} chars/passage, ${Date.now() - t0}ms).`,
-  );
-
-  const make = makeRelationReader(o);
-  const t1 = Date.now();
-  const unarmed = make(chunks, { pool: chunks });
-  const standing = { corroborated: 0, "single-witness": 0 };
-  for (const e of unarmed.edges) standing[e.assertion.standing]++;
-  say(
-    `- unarmed full-work read: ${(Date.now() - t1) / 1000}s · vocabulary ${unarmed.vocabulary.verbs} verbs · ` +
-      `${unarmed.edges.length} edges (${standing.corroborated} corroborated / ${standing["single-witness"]} single-witness)` +
-      (unarmed.vocabulary.gap ? ` · GAP: ${unarmed.vocabulary.gap}` : ""),
-  );
-
   const sampled = sample(chunks);
-  say(
-    `- order-arm sample: every ${SAMPLE_EVERY}th passage, ${sampled.length} of ${chunks.length} ` +
-      `(${(100 - (100 * sampled.length) / Math.max(chunks.length, 1)).toFixed(1)}% of the work excluded from the arm by this declared cap)`,
-  );
-  const t2 = Date.now();
+  const make = makeRelationReader(o);
+  const t0 = Date.now();
   const armed = make(sampled, { pool: sampled, assert: { draws: DRAWS, seed: SEED } });
-  say(`- armed read of the sample: ${(Date.now() - t2) / 1000}s · ${armed.edges.length} edges in-sample`);
-  const fired = armed.edges.map((e) => e.assertion.orderArm.fired).sort((a, b) => a - b);
+  const ms = Date.now() - t0;
+  const standing = { corroborated: 0, "single-witness": 0 };
+  for (const e of armed.edges) standing[e.assertion.standing]++;
+  say(
+    `- assertion-tier sample (hypergraph.js, bounded — every ${SAMPLE_EVERY}th passage, ${sampled.length} of ` +
+      `${chunks.length.toLocaleString()}, ${(100 - (100 * sampled.length) / Math.max(chunks.length, 1)).toFixed(1)}% ` +
+      `excluded by this declared cap): ${(ms / 1000).toFixed(1)}s · ${armed.edges.length} edges ` +
+      `(${standing.corroborated} corroborated / ${standing["single-witness"]} single-witness)` +
+      (armed.vocabulary.gap ? ` · GAP: ${armed.vocabulary.gap}` : ""),
+  );
+  const fired = armed.edges.map((e) => e.assertion.orderArm?.fired).filter((f) => f != null).sort((a, b) => a - b);
   const median = fired.length ? fired[Math.floor(fired.length / 2)] : null;
   say(
     `- salad-fired distribution across sampled edges: median ${median ?? "—"}/${DRAWS}, ` +
@@ -152,33 +227,11 @@ async function readLanguage(lang, o) {
       (fired.length === 0 ? " (no edges in the sample to measure — itself a finding, stated plainly)" : ""),
   );
   say("");
-
-  let negation = null;
-  if (lang.negationMarkers?.length) {
-    const negRefs = new Set(
-      chunks.filter((c) => lang.negationMarkers.some((m) => c.text.includes(m))).map((c) => c.ref),
-    );
-    const negEdges = unarmed.edges.filter((e) => e.refs.some((r) => negRefs.has(r)));
-    const readNeg = negEdges.filter((e) => e.polarity === "-");
-    negation = {
-      markers: lang.negationMarkers,
-      bearingPassages: negRefs.size,
-      edges: negEdges.length,
-      readNegative: readNeg.length,
-      examples: negEdges.slice(0, 5).map((e) => ({
-        subject: e.subject,
-        verb: e.verb,
-        object: e.object,
-        polarity: e.polarity,
-        ref: e.refs[0],
-      })),
-    };
-  }
-
-  return { lang, text, chunks, unarmed, armed, sampled, negation };
+  return { chunks, sampled, armed };
 }
 
 const o = await organs();
+const host = await import(HOST);
 say("# asserted-crosslingual — does the assertion tier disclose its own reach limit?");
 say("");
 say(
@@ -186,11 +239,22 @@ say(
     `${CONFIG.languages.length} texts read: ${CONFIG.languages.map((l) => l.label).join(" · ")}.`,
 );
 say("");
-say("## Full-work reads");
+say(
+  "Full-work counts below use the engine's OWN session pipeline (`sessionRelations`, packages/host/corpus.js) — " +
+    "the fast, full-document-scale organ, not a bulk re-application of hypergraph.js's turn-scoped machinery " +
+    "(that mistake, and the fix, are recorded in this file's own header). The assertion tier itself (standing, " +
+    "the word-salad order arm) still runs, on a declared bounded sample, because that is the scale it is built for.",
+);
+say("");
+say("## Full-work reads (engine-native, whole-document)");
 say("");
 
 const results = [];
-for (const lang of CONFIG.languages) results.push(await readLanguage(lang, o));
+for (const lang of CONFIG.languages) {
+  const full = await fullWorkPass(lang, host);
+  const armedSample = await armedSamplePass(lang, o);
+  results.push({ lang, full, armedSample });
+}
 
 say("## Negation stress test — per language, where the probe applies");
 say("");
@@ -198,62 +262,66 @@ say(
   "`extractRelations`'s polarity read (`NEGATION_BEFORE_VERB`) is built from `priors.js::NEGATION_WORDS`, " +
     'explicitly tagged `giver: "lang/en"`. This probe checks, per language whose negation is a free-standing ' +
     "word this repo can name (declared in the run's own config, never guessed), whether a real negated clause " +
-    'the reader DOES extract an edge from ever reads polarity "-". A language whose negation is a bound suffix ' +
-    "(agglutinated onto the verb, not a separate word — Japanese, if included below) has no free-standing marker " +
-    "to search for, so the probe is honestly SKIPPED for it rather than run against the wrong shape and reported " +
-    "as a false negative.",
+    'the reader DOES extract an edge from ever reads polarity "-", using the FULL-WORK raw triples above ' +
+    "(sessionRelations's own extraction, the same one the edge counts are built from) rather than a re-run. " +
+    "A language whose negation is a bound suffix (Japanese's verb-suffix negation) has no free-standing marker " +
+    "to search for, so the probe is honestly SKIPPED rather than run against the wrong shape.",
 );
 say("");
 
 for (const r of results) {
-  if (!r.negation) {
+  if (!r.lang.negationMarkers?.length) {
     say(`**${r.lang.label}:** probe skipped — ${r.lang.skipReason ?? "negation is not shaped as a free-standing word in this language, per the run's own config."}`);
     say("");
     continue;
   }
-  const n = r.negation;
-  say(
-    `**${r.lang.label}:** ${n.bearingPassages.toLocaleString()} passages contain a negation marker (${n.markers.join(", ")}); ` +
-      `${n.edges} edges came from those passages, of which ${n.readNegative} read polarity "-".`,
+  const markers = r.lang.negationMarkers;
+  // A triple's own subject/verb/object text doesn't carry the negation
+  // marker itself (that's outside the matched span) — the marker's presence
+  // is checked in the SENTENCE the triple's subject/object came from, so
+  // the raw text is re-scanned around each triple's approximate position.
+  // Cheap and honest: chunk the document once (already have `chunks` from
+  // the armed-sample pass) and ask which chunks contain a marker; count
+  // triples whose subject OR object substring is found inside one of those
+  // chunks' own text (an approximation — sessionRelations doesn't carry a
+  // byte offset per triple — disclosed as exactly that).
+  const negChunks = r.armedSample.chunks.filter((c) => markers.some((m) => c.text.includes(m)));
+  const negText = negChunks.map((c) => c.text).join("\n");
+  const bearingTriples = r.full.relations.filter(
+    (t) => negText.includes(t.subject) || negText.includes(t.object),
   );
-  if (n.examples.length) {
-    say("Examples:");
-    for (const e of n.examples)
-      say(`- "${e.subject}" —${e.verb}${e.polarity === "-" ? " (negated)" : " (affirmative)"}→ "${e.object}" [${e.ref}]`);
+  const readNeg = bearingTriples.filter((t) => t.polarity === "-");
+  say(
+    `**${r.lang.label}:** ${negChunks.length.toLocaleString()} passages contain a negation marker (${markers.join(", ")}); ` +
+      `${bearingTriples.length} triples' subject/object text also appears in one of those passages (an ` +
+      `approximation — sessionRelations carries no per-triple offset — never a precise count), of which ` +
+      `${readNeg.length} read polarity "-".`,
+  );
+  if (bearingTriples.length) {
+    say("Five examples, verbatim:");
+    for (const t of bearingTriples.slice(0, 5))
+      say(`- "${t.subject}" —${t.verb}${t.polarity === "-" ? " (negated)" : " (affirmative)"}→ "${t.object}"`);
   }
   say(
-    n.readNegative === 0 && n.edges > 0
-      ? "→ **Zero edges read \"-\" despite real negation markers in the stating passages** — the reach gap this pass predicted, confirmed on real material."
-      : n.edges === 0
-        ? "→ No edges at all came from negation-bearing passages to test — inconclusive on this measure."
-        : `→ ${n.readNegative}/${n.edges} DID read "-" — worth reading by hand (the JSON record carries the examples) rather than assumed to be genuine negation-detection working, since the mechanism has no non-English trigger and coincidence is the likelier explanation.`,
+    readNeg.length === 0 && bearingTriples.length > 0
+      ? "→ **Zero triples anywhere near a negation marker read polarity \"-\"** — the reach gap this pass predicted, confirmed on real material."
+      : bearingTriples.length === 0
+        ? "→ No triples to test on this measure — inconclusive."
+        : `→ ${readNeg.length}/${bearingTriples.length} DID read "-" — worth reading by hand (the JSON record carries the examples) rather than assumed to be genuine negation-detection working, since the mechanism has no non-English trigger and coincidence (or a triple merely sitting near, not stating, the negation) is the likelier explanation.`,
+  );
+  say("");
+
+  // Did the negation marker itself get admitted as a "verb"?
+  const admitted = markers.filter((m) => r.full.verbSet.has(m.trim()));
+  say(
+    admitted.length
+      ? `Also: ${admitted.join(", ")} was admitted as a "verb" in the measured vocabulary — the English-only ` +
+          "NEGATION_WORDS exclusion never fires on it; the Zipf-derived functionWordSet evidently did not catch it either."
+      : `Also: no bare negation marker (${markers.map((m) => m.trim()).join(", ")}) appears as a triple's verb — ` +
+          "the language-agnostic functionWordSet appears to have caught it on pure recurrence, a save it was not designed for but may be working anyway.",
   );
   say("");
 }
-
-// Negation-particle-as-verb check, wherever a marker list is declared: did
-// the bare marker itself get admitted into the measured vocabulary as if it
-// were a verb? The English-only NEGATION_WORDS exclusion inside
-// discoverRelationVocab never fires on a non-English form; only the
-// Zipf-derived functionWordSet (language-agnostic BY CONSTRUCTION) could
-// still catch it on pure frequency — checked, not assumed either way.
-say("## Did a negation marker itself get admitted into the measured verb vocabulary?");
-say("");
-for (const r of results) {
-  if (!r.lang.negationMarkers?.length) continue;
-  const verbs = new Set(r.unarmed.edges.map((e) => e.verb));
-  const admitted = r.lang.negationMarkers.filter((m) => verbs.has(m.trim()));
-  say(
-    admitted.length
-      ? `**${r.lang.label}: YES** — ${admitted.join(", ")} admitted as a "verb" in the measured vocabulary. ` +
-          "The English-only NEGATION_WORDS exclusion never fires on it; the Zipf-derived functionWordSet " +
-          "evidently did not catch it either."
-      : `**${r.lang.label}: no** — no bare negation marker (${r.lang.negationMarkers.map((m) => m.trim()).join(", ")}) ` +
-          "appears as an edge's verb. The language-agnostic Zipf-derived functionWordSet appears to have caught " +
-          "it on pure recurrence, a save it was not designed for but may be working anyway.",
-  );
-}
-say("");
 
 mkdirSync(join(HERE, "results"), { recursive: true });
 writeFileSync(join(HERE, "results", "asserted-crosslingual.md"), lines.join("\n") + "\n");
@@ -267,14 +335,12 @@ writeFileSync(
       sampleMax: SAMPLE_MAX,
       languages: results.map((r) => ({
         label: r.lang.label,
-        chars: r.text.length,
-        chunks: r.chunks.length,
-        vocabVerbs: r.unarmed.vocabulary.verbs,
-        vocabGap: r.unarmed.vocabulary.gap ?? null,
-        edgeCount: r.unarmed.edges.length,
-        armedSampleSize: r.sampled.length,
-        armedEdgeCount: r.armed.edges.length,
-        negation: r.negation,
+        chars: r.full.text.length,
+        rawTriples: r.full.relations.length,
+        distinctVerbs: r.full.verbSet.size,
+        distinctEdges: r.full.edgeMap.size,
+        armedSampleSize: r.armedSample.sampled.length,
+        armedEdgeCount: r.armedSample.armed.edges.length,
       })),
     },
     null,
