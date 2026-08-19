@@ -49,7 +49,7 @@ export const CAPACITIES = Object.freeze([
     op: "SIG+INS",
     module: "cast.js",
     fn: "makeReferentIndex",
-    what: "referent identity over a passage set — names resolve to who, not to byte strings (P11). The one capacity actually executed from the terminal (capacity-runner.js) — the other nine are reference-only.",
+    what: "referent identity over a passage set — names resolve to who, not to byte strings (P11). One of two capacities that actually execute from the terminal (capacity-runner.js) — `relations` is the other; the remaining eight are reference-only.",
   }),
   Object.freeze({
     id: "relations",
@@ -57,7 +57,7 @@ export const CAPACITIES = Object.freeze([
     op: "CON",
     module: "hypergraph.js",
     fn: "makeRelationReader",
-    what: "the material's own subject-verb-object edges, read against a vocabulary measured from the text",
+    what: "the material's own subject-verb-object edges, read against a vocabulary measured from the text. Executes from the terminal as of 2026-08-19 (capacity-runner.js) — `query subject:X verb:Y` (leave exactly one of subject/object open) answers directly from the graph, referent-aware, not a surface-string guess.",
   }),
   Object.freeze({
     id: "graph",
