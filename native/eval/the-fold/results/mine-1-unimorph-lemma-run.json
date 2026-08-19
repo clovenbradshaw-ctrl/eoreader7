@@ -1,0 +1,1358 @@
+{
+ "totals": {
+  "essays": 105,
+  "facts": 1575,
+  "no_vocabulary_essays": 0,
+  "bound": 557,
+  "contradicted": 0,
+  "unbound": 549,
+  "beyond-reach": 236,
+  "unheard": 44,
+  "no_claims_extracted": 189
+ },
+ "examined": 1386,
+ "perEssay": [
+  {
+   "idx": 0,
+   "topic": "The Life Cycle of a Butterfly",
+   "facts": 15,
+   "vocabularyVerbs": 39,
+   "edges": 49,
+   "verdicts": {
+    "no_claims_extracted": 2,
+    "bound": 6,
+    "unbound": 3,
+    "beyond-reach": 4
+   }
+  },
+  {
+   "idx": 1,
+   "topic": "Urban Legends and Their Origins",
+   "facts": 15,
+   "vocabularyVerbs": 35,
+   "edges": 44,
+   "verdicts": {
+    "unbound": 5,
+    "bound": 6,
+    "beyond-reach": 3,
+    "no_claims_extracted": 1
+   }
+  },
+  {
+   "idx": 2,
+   "topic": "Ethical Dilemmas in AI Development",
+   "facts": 15,
+   "vocabularyVerbs": 28,
+   "edges": 27,
+   "verdicts": {
+    "unheard": 1,
+    "beyond-reach": 2,
+    "bound": 3,
+    "no_claims_extracted": 5,
+    "unbound": 4
+   }
+  },
+  {
+   "idx": 3,
+   "topic": "Why Dinosaurs Fascinate Us",
+   "facts": 15,
+   "vocabularyVerbs": 27,
+   "edges": 31,
+   "verdicts": {
+    "unbound": 3,
+    "bound": 5,
+    "unheard": 1,
+    "no_claims_extracted": 4,
+    "beyond-reach": 2
+   }
+  },
+  {
+   "idx": 4,
+   "topic": "The Evolution of Video Games",
+   "facts": 15,
+   "vocabularyVerbs": 30,
+   "edges": 42,
+   "verdicts": {
+    "unbound": 9,
+    "no_claims_extracted": 2,
+    "unheard": 1,
+    "beyond-reach": 1,
+    "bound": 2
+   }
+  },
+  {
+   "idx": 5,
+   "topic": "The Role of Bees in Agriculture",
+   "facts": 15,
+   "vocabularyVerbs": 26,
+   "edges": 29,
+   "verdicts": {
+    "no_claims_extracted": 4,
+    "beyond-reach": 3,
+    "unbound": 3,
+    "bound": 5
+   }
+  },
+  {
+   "idx": 6,
+   "topic": "How Music Influences Mood",
+   "facts": 15,
+   "vocabularyVerbs": 38,
+   "edges": 33,
+   "verdicts": {
+    "no_claims_extracted": 3,
+    "unbound": 10,
+    "bound": 2
+   }
+  },
+  {
+   "idx": 7,
+   "topic": "Space Exploration: Past, Present, and Future",
+   "facts": 15,
+   "vocabularyVerbs": 40,
+   "edges": 40,
+   "verdicts": {
+    "beyond-reach": 2,
+    "bound": 5,
+    "unbound": 5,
+    "unheard": 3
+   }
+  },
+  {
+   "idx": 8,
+   "topic": "Psychological Effects of Colors",
+   "facts": 15,
+   "vocabularyVerbs": 36,
+   "edges": 37,
+   "verdicts": {
+    "unbound": 9,
+    "no_claims_extracted": 2,
+    "bound": 4
+   }
+  },
+  {
+   "idx": 9,
+   "topic": "The Mystery of Black Holes",
+   "facts": 15,
+   "vocabularyVerbs": 43,
+   "edges": 43,
+   "verdicts": {
+    "bound": 6,
+    "unbound": 5,
+    "beyond-reach": 4
+   }
+  },
+  {
+   "idx": 10,
+   "topic": "How the Brain Processes Language",
+   "facts": 15,
+   "vocabularyVerbs": 39,
+   "edges": 41,
+   "verdicts": {
+    "bound": 4,
+    "unbound": 9,
+    "beyond-reach": 1,
+    "no_claims_extracted": 1
+   }
+  },
+  {
+   "idx": 11,
+   "topic": "A History of Magic Tricks",
+   "facts": 15,
+   "vocabularyVerbs": 33,
+   "edges": 33,
+   "verdicts": {
+    "unbound": 9,
+    "bound": 5,
+    "beyond-reach": 1
+   }
+  },
+  {
+   "idx": 12,
+   "topic": "The Physics of Roller Coasters",
+   "facts": 15,
+   "vocabularyVerbs": 38,
+   "edges": 38,
+   "verdicts": {
+    "unbound": 3,
+    "bound": 10,
+    "no_claims_extracted": 2
+   }
+  },
+  {
+   "idx": 13,
+   "topic": "The Art of Tattooing",
+   "facts": 15,
+   "vocabularyVerbs": 31,
+   "edges": 30,
+   "verdicts": {
+    "beyond-reach": 3,
+    "unbound": 5,
+    "bound": 3,
+    "no_claims_extracted": 4
+   }
+  },
+  {
+   "idx": 14,
+   "topic": "Ancient Egyptian Burial Practices",
+   "facts": 15,
+   "vocabularyVerbs": 37,
+   "edges": 26,
+   "verdicts": {
+    "bound": 6,
+    "unbound": 7,
+    "unheard": 1,
+    "beyond-reach": 1
+   }
+  },
+  {
+   "idx": 15,
+   "topic": "The Chemistry of Cooking",
+   "facts": 15,
+   "vocabularyVerbs": 34,
+   "edges": 43,
+   "verdicts": {
+    "no_claims_extracted": 3,
+    "bound": 7,
+    "unbound": 5
+   }
+  },
+  {
+   "idx": 16,
+   "topic": "Unusual Animal Adaptations",
+   "facts": 15,
+   "vocabularyVerbs": 35,
+   "edges": 43,
+   "verdicts": {
+    "no_claims_extracted": 3,
+    "unbound": 9,
+    "beyond-reach": 1,
+    "bound": 2
+   }
+  },
+  {
+   "idx": 17,
+   "topic": "The Science Behind Sleep",
+   "facts": 15,
+   "vocabularyVerbs": 35,
+   "edges": 39,
+   "verdicts": {
+    "no_claims_extracted": 2,
+    "unbound": 3,
+    "bound": 5,
+    "beyond-reach": 5
+   }
+  },
+  {
+   "idx": 18,
+   "topic": "The History of Board Games",
+   "facts": 15,
+   "vocabularyVerbs": 35,
+   "edges": 41,
+   "verdicts": {
+    "unbound": 5,
+    "bound": 7,
+    "unheard": 1,
+    "beyond-reach": 2
+   }
+  },
+  {
+   "idx": 19,
+   "topic": "Virtual Reality in Education",
+   "facts": 15,
+   "vocabularyVerbs": 36,
+   "edges": 39,
+   "verdicts": {
+    "bound": 5,
+    "no_claims_extracted": 1,
+    "unheard": 1,
+    "unbound": 6,
+    "beyond-reach": 2
+   }
+  },
+  {
+   "idx": 20,
+   "topic": "How Plants Communicate",
+   "facts": 15,
+   "vocabularyVerbs": 40,
+   "edges": 46,
+   "verdicts": {
+    "unbound": 5,
+    "bound": 9,
+    "beyond-reach": 1
+   }
+  },
+  {
+   "idx": 21,
+   "topic": "The Rise of Cryptocurrencies",
+   "facts": 15,
+   "vocabularyVerbs": 25,
+   "edges": 34,
+   "verdicts": {
+    "bound": 3,
+    "beyond-reach": 5,
+    "unbound": 4,
+    "no_claims_extracted": 3
+   }
+  },
+  {
+   "idx": 22,
+   "topic": "A Day in the Life of an Astronaut",
+   "facts": 15,
+   "vocabularyVerbs": 32,
+   "edges": 38,
+   "verdicts": {
+    "beyond-reach": 2,
+    "no_claims_extracted": 2,
+    "bound": 8,
+    "unbound": 3
+   }
+  },
+  {
+   "idx": 23,
+   "topic": "The Impact of Social Media on Communication",
+   "facts": 15,
+   "vocabularyVerbs": 33,
+   "edges": 34,
+   "verdicts": {
+    "no_claims_extracted": 5,
+    "unbound": 8,
+    "unheard": 1,
+    "beyond-reach": 1
+   }
+  },
+  {
+   "idx": 24,
+   "topic": "Ethical Implications of Genetic Engineering",
+   "facts": 15,
+   "vocabularyVerbs": 25,
+   "edges": 25,
+   "verdicts": {
+    "bound": 12,
+    "unbound": 2,
+    "beyond-reach": 1
+   }
+  },
+  {
+   "idx": 25,
+   "topic": "How to Build a Rocket",
+   "facts": 15,
+   "vocabularyVerbs": 47,
+   "edges": 43,
+   "verdicts": {
+    "unbound": 8,
+    "bound": 5,
+    "beyond-reach": 2
+   }
+  },
+  {
+   "idx": 26,
+   "topic": "Famous Hoaxes in History",
+   "facts": 15,
+   "vocabularyVerbs": 42,
+   "edges": 39,
+   "verdicts": {
+    "bound": 9,
+    "beyond-reach": 2,
+    "unbound": 3,
+    "unheard": 1
+   }
+  },
+  {
+   "idx": 27,
+   "topic": "The History of the English Language",
+   "facts": 15,
+   "vocabularyVerbs": 40,
+   "edges": 34,
+   "verdicts": {
+    "bound": 8,
+    "unheard": 2,
+    "unbound": 4,
+    "beyond-reach": 1
+   }
+  },
+  {
+   "idx": 28,
+   "topic": "The Discovery of Penicillin",
+   "facts": 15,
+   "vocabularyVerbs": 38,
+   "edges": 30,
+   "verdicts": {
+    "unbound": 8,
+    "bound": 5,
+    "unheard": 1,
+    "beyond-reach": 1
+   }
+  },
+  {
+   "idx": 29,
+   "topic": "The Art of Bonsai Tree Cultivation",
+   "facts": 15,
+   "vocabularyVerbs": 30,
+   "edges": 30,
+   "verdicts": {
+    "no_claims_extracted": 4,
+    "unbound": 6,
+    "beyond-reach": 3,
+    "bound": 2
+   }
+  },
+  {
+   "idx": 30,
+   "topic": "A Brief History of Time Zones",
+   "facts": 15,
+   "vocabularyVerbs": 37,
+   "edges": 40,
+   "verdicts": {
+    "unbound": 8,
+    "bound": 4,
+    "beyond-reach": 2,
+    "unheard": 1
+   }
+  },
+  {
+   "idx": 31,
+   "topic": "The Role of Coffee in Society",
+   "facts": 15,
+   "vocabularyVerbs": 30,
+   "edges": 47,
+   "verdicts": {
+    "no_claims_extracted": 7,
+    "beyond-reach": 2,
+    "unbound": 5,
+    "unheard": 1
+   }
+  },
+  {
+   "idx": 32,
+   "topic": "The Legend of Atlantis",
+   "facts": 15,
+   "vocabularyVerbs": 34,
+   "edges": 31,
+   "verdicts": {
+    "bound": 11,
+    "unbound": 2,
+    "unheard": 1,
+    "beyond-reach": 1
+   }
+  },
+  {
+   "idx": 33,
+   "topic": "The Development of Writing Systems",
+   "facts": 15,
+   "vocabularyVerbs": 42,
+   "edges": 44,
+   "verdicts": {
+    "beyond-reach": 3,
+    "bound": 7,
+    "unheard": 2,
+    "unbound": 2,
+    "no_claims_extracted": 1
+   }
+  },
+  {
+   "idx": 34,
+   "topic": "The Mathematics of Origami",
+   "facts": 15,
+   "vocabularyVerbs": 40,
+   "edges": 31,
+   "verdicts": {
+    "bound": 4,
+    "unbound": 8,
+    "beyond-reach": 1,
+    "no_claims_extracted": 2
+   }
+  },
+  {
+   "idx": 35,
+   "topic": "Why Laughter is Contagious",
+   "facts": 15,
+   "vocabularyVerbs": 33,
+   "edges": 37,
+   "verdicts": {
+    "no_claims_extracted": 4,
+    "unbound": 6,
+    "bound": 3,
+    "beyond-reach": 2
+   }
+  },
+  {
+   "idx": 36,
+   "topic": "The Cultural Significance of Tattoos",
+   "facts": 15,
+   "vocabularyVerbs": 35,
+   "edges": 40,
+   "verdicts": {
+    "unbound": 9,
+    "bound": 4,
+    "beyond-reach": 2
+   }
+  },
+  {
+   "idx": 37,
+   "topic": "The Future of Renewable Energy",
+   "facts": 15,
+   "vocabularyVerbs": 44,
+   "edges": 38,
+   "verdicts": {
+    "bound": 7,
+    "unbound": 6,
+    "beyond-reach": 2
+   }
+  },
+  {
+   "idx": 38,
+   "topic": "The History of Pirates",
+   "facts": 15,
+   "vocabularyVerbs": 47,
+   "edges": 44,
+   "verdicts": {
+    "unbound": 4,
+    "beyond-reach": 2,
+    "unheard": 2,
+    "bound": 6,
+    "no_claims_extracted": 1
+   }
+  },
+  {
+   "idx": 39,
+   "topic": "The Science of Baking Bread",
+   "facts": 15,
+   "vocabularyVerbs": 39,
+   "edges": 40,
+   "verdicts": {
+    "no_claims_extracted": 2,
+    "bound": 6,
+    "beyond-reach": 5,
+    "unbound": 2
+   }
+  },
+  {
+   "idx": 40,
+   "topic": "The Role of Dreams in Psychology",
+   "facts": 15,
+   "vocabularyVerbs": 31,
+   "edges": 29,
+   "verdicts": {
+    "no_claims_extracted": 4,
+    "bound": 2,
+    "unbound": 5,
+    "unheard": 1,
+    "beyond-reach": 3
+   }
+  },
+  {
+   "idx": 41,
+   "topic": "How to Survive a Zombie Apocalypse",
+   "facts": 15,
+   "vocabularyVerbs": 41,
+   "edges": 37,
+   "verdicts": {
+    "no_claims_extracted": 4,
+    "unbound": 4,
+    "bound": 2,
+    "beyond-reach": 5
+   }
+  },
+  {
+   "idx": 42,
+   "topic": "Famous Conspiracy Theories",
+   "facts": 15,
+   "vocabularyVerbs": 46,
+   "edges": 46,
+   "verdicts": {
+    "no_claims_extracted": 1,
+    "bound": 7,
+    "unbound": 4,
+    "beyond-reach": 3
+   }
+  },
+  {
+   "idx": 43,
+   "topic": "How Electricity Revolutionized the World",
+   "facts": 15,
+   "vocabularyVerbs": 23,
+   "edges": 36,
+   "verdicts": {
+    "no_claims_extracted": 3,
+    "bound": 6,
+    "unbound": 4,
+    "beyond-reach": 2
+   }
+  },
+  {
+   "idx": 44,
+   "topic": "A History of Fashion Trends",
+   "facts": 15,
+   "vocabularyVerbs": 39,
+   "edges": 44,
+   "verdicts": {
+    "unbound": 6,
+    "bound": 6,
+    "beyond-reach": 3
+   }
+  },
+  {
+   "idx": 45,
+   "topic": "The Significance of the Rosetta Stone",
+   "facts": 15,
+   "vocabularyVerbs": 45,
+   "edges": 25,
+   "verdicts": {
+    "bound": 8,
+    "unbound": 2,
+    "unheard": 4,
+    "beyond-reach": 1
+   }
+  },
+  {
+   "idx": 46,
+   "topic": "The Role of Birds in Ecosystems",
+   "facts": 15,
+   "vocabularyVerbs": 20,
+   "edges": 28,
+   "verdicts": {
+    "bound": 6,
+    "no_claims_extracted": 4,
+    "unbound": 5
+   }
+  },
+  {
+   "idx": 47,
+   "topic": "How Spiders Build Webs",
+   "facts": 15,
+   "vocabularyVerbs": 34,
+   "edges": 34,
+   "verdicts": {
+    "unbound": 10,
+    "bound": 2,
+    "no_claims_extracted": 1,
+    "beyond-reach": 2
+   }
+  },
+  {
+   "idx": 48,
+   "topic": "The Art of Storytelling",
+   "facts": 15,
+   "vocabularyVerbs": 41,
+   "edges": 36,
+   "verdicts": {
+    "beyond-reach": 4,
+    "unbound": 6,
+    "no_claims_extracted": 3,
+    "bound": 2
+   }
+  },
+  {
+   "idx": 49,
+   "topic": "The Future of Autonomous Vehicles",
+   "facts": 15,
+   "vocabularyVerbs": 45,
+   "edges": 44,
+   "verdicts": {
+    "no_claims_extracted": 4,
+    "bound": 7,
+    "unbound": 4
+   }
+  },
+  {
+   "idx": 50,
+   "topic": "The Importance of Coral Reefs",
+   "facts": 15,
+   "vocabularyVerbs": 34,
+   "edges": 28,
+   "verdicts": {
+    "bound": 10,
+    "beyond-reach": 1,
+    "unbound": 4
+   }
+  },
+  {
+   "idx": 51,
+   "topic": "How People Use Body Language",
+   "facts": 15,
+   "vocabularyVerbs": 37,
+   "edges": 42,
+   "verdicts": {
+    "bound": 3,
+    "unbound": 7,
+    "beyond-reach": 4,
+    "no_claims_extracted": 1
+   }
+  },
+  {
+   "idx": 52,
+   "topic": "The Role of Sports in Culture",
+   "facts": 15,
+   "vocabularyVerbs": 37,
+   "edges": 32,
+   "verdicts": {
+    "no_claims_extracted": 2,
+    "bound": 5,
+    "beyond-reach": 2,
+    "unbound": 6
+   }
+  },
+  {
+   "idx": 53,
+   "topic": "The Science Behind Tornadoes",
+   "facts": 15,
+   "vocabularyVerbs": 32,
+   "edges": 31,
+   "verdicts": {
+    "unbound": 5,
+    "bound": 3,
+    "no_claims_extracted": 5,
+    "beyond-reach": 2
+   }
+  },
+  {
+   "idx": 54,
+   "topic": "The History of the Olympic Games",
+   "facts": 15,
+   "vocabularyVerbs": 35,
+   "edges": 30,
+   "verdicts": {
+    "bound": 13,
+    "unbound": 2
+   }
+  },
+  {
+   "idx": 55,
+   "topic": "The Evolution of the Bicycle",
+   "facts": 15,
+   "vocabularyVerbs": 54,
+   "edges": 50,
+   "verdicts": {
+    "bound": 8,
+    "unbound": 3,
+    "beyond-reach": 4
+   }
+  },
+  {
+   "idx": 56,
+   "topic": "Why People Believe in Ghosts",
+   "facts": 15,
+   "vocabularyVerbs": 32,
+   "edges": 33,
+   "verdicts": {
+    "bound": 8,
+    "no_claims_extracted": 2,
+    "beyond-reach": 3,
+    "unbound": 2
+   }
+  },
+  {
+   "idx": 57,
+   "topic": "The Development of Modern Medicine",
+   "facts": 15,
+   "vocabularyVerbs": 40,
+   "edges": 47,
+   "verdicts": {
+    "bound": 9,
+    "unbound": 4,
+    "no_claims_extracted": 1,
+    "beyond-reach": 1
+   }
+  },
+  {
+   "idx": 58,
+   "topic": "How Satellites Work",
+   "facts": 15,
+   "vocabularyVerbs": 44,
+   "edges": 51,
+   "verdicts": {
+    "unbound": 5,
+    "bound": 6,
+    "beyond-reach": 3,
+    "no_claims_extracted": 1
+   }
+  },
+  {
+   "idx": 59,
+   "topic": "The Art of Film Editing",
+   "facts": 15,
+   "vocabularyVerbs": 36,
+   "edges": 40,
+   "verdicts": {
+    "bound": 7,
+    "no_claims_extracted": 1,
+    "beyond-reach": 5,
+    "unbound": 2
+   }
+  },
+  {
+   "idx": 60,
+   "topic": "How Languages Die",
+   "facts": 15,
+   "vocabularyVerbs": 24,
+   "edges": 37,
+   "verdicts": {
+    "beyond-reach": 6,
+    "bound": 4,
+    "unbound": 2,
+    "no_claims_extracted": 3
+   }
+  },
+  {
+   "idx": 61,
+   "topic": "The Impact of Music Streaming Services",
+   "facts": 15,
+   "vocabularyVerbs": 40,
+   "edges": 36,
+   "verdicts": {
+    "bound": 5,
+    "unbound": 8,
+    "beyond-reach": 2
+   }
+  },
+  {
+   "idx": 62,
+   "topic": "The History of Famous Inventions",
+   "facts": 15,
+   "vocabularyVerbs": 43,
+   "edges": 37,
+   "verdicts": {
+    "bound": 11,
+    "unbound": 4
+   }
+  },
+  {
+   "idx": 63,
+   "topic": "The History of Protests and Revolutions",
+   "facts": 15,
+   "vocabularyVerbs": 40,
+   "edges": 41,
+   "verdicts": {
+    "unbound": 9,
+    "no_claims_extracted": 3,
+    "unheard": 2,
+    "beyond-reach": 1
+   }
+  },
+  {
+   "idx": 64,
+   "topic": "How Sharks Detect Prey",
+   "facts": 15,
+   "vocabularyVerbs": 36,
+   "edges": 23,
+   "verdicts": {
+    "no_claims_extracted": 1,
+    "unbound": 8,
+    "bound": 6
+   }
+  },
+  {
+   "idx": 65,
+   "topic": "The Role of Libraries in Society",
+   "facts": 15,
+   "vocabularyVerbs": 41,
+   "edges": 33,
+   "verdicts": {
+    "no_claims_extracted": 2,
+    "unbound": 6,
+    "bound": 5,
+    "beyond-reach": 2
+   }
+  },
+  {
+   "idx": 66,
+   "topic": "The Origins of Famous Fairytales",
+   "facts": 15,
+   "vocabularyVerbs": 47,
+   "edges": 42,
+   "verdicts": {
+    "no_claims_extracted": 3,
+    "unbound": 3,
+    "unheard": 4,
+    "bound": 5
+   }
+  },
+  {
+   "idx": 67,
+   "topic": "How Time Travel Works in Fiction",
+   "facts": 15,
+   "vocabularyVerbs": 29,
+   "edges": 31,
+   "verdicts": {
+    "unbound": 6,
+    "bound": 6,
+    "beyond-reach": 3
+   }
+  },
+  {
+   "idx": 68,
+   "topic": "The Science of Smell",
+   "facts": 15,
+   "vocabularyVerbs": 36,
+   "edges": 38,
+   "verdicts": {
+    "bound": 6,
+    "no_claims_extracted": 6,
+    "beyond-reach": 1,
+    "unbound": 2
+   }
+  },
+  {
+   "idx": 69,
+   "topic": "The History of Typography",
+   "facts": 15,
+   "vocabularyVerbs": 32,
+   "edges": 32,
+   "verdicts": {
+    "beyond-reach": 3,
+    "bound": 5,
+    "unbound": 5,
+    "unheard": 1,
+    "no_claims_extracted": 1
+   }
+  },
+  {
+   "idx": 70,
+   "topic": "How Climate Change Affects Animals",
+   "facts": 15,
+   "vocabularyVerbs": 33,
+   "edges": 40,
+   "verdicts": {
+    "unbound": 3,
+    "beyond-reach": 4,
+    "no_claims_extracted": 2,
+    "bound": 6
+   }
+  },
+  {
+   "idx": 71,
+   "topic": "The Art of Calligraphy",
+   "facts": 15,
+   "vocabularyVerbs": 42,
+   "edges": 42,
+   "verdicts": {
+    "no_claims_extracted": 2,
+    "bound": 8,
+    "unbound": 5
+   }
+  },
+  {
+   "idx": 72,
+   "topic": "The Mystery of the Bermuda Triangle",
+   "facts": 15,
+   "vocabularyVerbs": 29,
+   "edges": 28,
+   "verdicts": {
+    "unbound": 9,
+    "beyond-reach": 1,
+    "no_claims_extracted": 2,
+    "unheard": 2,
+    "bound": 1
+   }
+  },
+  {
+   "idx": 73,
+   "topic": "Why People Collect Things",
+   "facts": 15,
+   "vocabularyVerbs": 40,
+   "edges": 44,
+   "verdicts": {
+    "beyond-reach": 6,
+    "unbound": 2,
+    "bound": 7
+   }
+  },
+  {
+   "idx": 74,
+   "topic": "The Evolution of the Modern Home",
+   "facts": 15,
+   "vocabularyVerbs": 50,
+   "edges": 44,
+   "verdicts": {
+    "bound": 6,
+    "beyond-reach": 5,
+    "unbound": 3,
+    "unheard": 1
+   }
+  },
+  {
+   "idx": 75,
+   "topic": "How Clouds Form",
+   "facts": 15,
+   "vocabularyVerbs": 30,
+   "edges": 35,
+   "verdicts": {
+    "no_claims_extracted": 2,
+    "unbound": 2,
+    "bound": 9,
+    "beyond-reach": 2
+   }
+  },
+  {
+   "idx": 76,
+   "topic": "Famous Artists and Their Masterpieces",
+   "facts": 15,
+   "vocabularyVerbs": 43,
+   "edges": 44,
+   "verdicts": {
+    "unbound": 9,
+    "bound": 3,
+    "unheard": 3
+   }
+  },
+  {
+   "idx": 77,
+   "topic": "The Importance of Fire in Human History",
+   "facts": 15,
+   "vocabularyVerbs": 23,
+   "edges": 34,
+   "verdicts": {
+    "unbound": 6,
+    "beyond-reach": 8,
+    "no_claims_extracted": 1
+   }
+  },
+  {
+   "idx": 78,
+   "topic": "The Role of Comedy in Society",
+   "facts": 15,
+   "vocabularyVerbs": 33,
+   "edges": 32,
+   "verdicts": {
+    "no_claims_extracted": 2,
+    "unbound": 5,
+    "bound": 4,
+    "beyond-reach": 4
+   }
+  },
+  {
+   "idx": 79,
+   "topic": "How Ants Build Colonies",
+   "facts": 15,
+   "vocabularyVerbs": 35,
+   "edges": 40,
+   "verdicts": {
+    "no_claims_extracted": 1,
+    "bound": 9,
+    "unbound": 3,
+    "beyond-reach": 2
+   }
+  },
+  {
+   "idx": 80,
+   "topic": "The Influence of Architecture on Society",
+   "facts": 15,
+   "vocabularyVerbs": 31,
+   "edges": 33,
+   "verdicts": {
+    "unbound": 9,
+    "bound": 5,
+    "beyond-reach": 1
+   }
+  },
+  {
+   "idx": 81,
+   "topic": "The Science of Deja Vu",
+   "facts": 15,
+   "vocabularyVerbs": 23,
+   "edges": 28,
+   "verdicts": {
+    "unbound": 3,
+    "no_claims_extracted": 1,
+    "bound": 6,
+    "beyond-reach": 5
+   }
+  },
+  {
+   "idx": 82,
+   "topic": "How the Human Body Fights Infections",
+   "facts": 15,
+   "vocabularyVerbs": 46,
+   "edges": 37,
+   "verdicts": {
+    "bound": 7,
+    "no_claims_extracted": 2,
+    "beyond-reach": 3,
+    "unbound": 3
+   }
+  },
+  {
+   "idx": 83,
+   "topic": "The Psychology of Consumer Behavior",
+   "facts": 15,
+   "vocabularyVerbs": 35,
+   "edges": 29,
+   "verdicts": {
+    "beyond-reach": 2,
+    "unbound": 7,
+    "bound": 3,
+    "no_claims_extracted": 3
+   }
+  },
+  {
+   "idx": 84,
+   "topic": "The History of Human Space Travel",
+   "facts": 15,
+   "vocabularyVerbs": 30,
+   "edges": 35,
+   "verdicts": {
+    "beyond-reach": 2,
+    "bound": 5,
+    "unbound": 5,
+    "unheard": 3
+   }
+  },
+  {
+   "idx": 85,
+   "topic": "The Impact of Artificial Intelligence on Employment",
+   "facts": 15,
+   "vocabularyVerbs": 43,
+   "edges": 46,
+   "verdicts": {
+    "unheard": 1,
+    "beyond-reach": 2,
+    "unbound": 7,
+    "bound": 5
+   }
+  },
+  {
+   "idx": 86,
+   "topic": "The Environmental Impact of Fast Fashion",
+   "facts": 15,
+   "vocabularyVerbs": 26,
+   "edges": 33,
+   "verdicts": {
+    "bound": 11,
+    "unbound": 2,
+    "beyond-reach": 2
+   }
+  },
+  {
+   "idx": 87,
+   "topic": "The Art of Forensic Science",
+   "facts": 15,
+   "vocabularyVerbs": 24,
+   "edges": 25,
+   "verdicts": {
+    "bound": 8,
+    "unbound": 5,
+    "beyond-reach": 1,
+    "no_claims_extracted": 1
+   }
+  },
+  {
+   "idx": 88,
+   "topic": "The Evolution of Political Systems",
+   "facts": 15,
+   "vocabularyVerbs": 33,
+   "edges": 31,
+   "verdicts": {
+    "bound": 5,
+    "beyond-reach": 4,
+    "unbound": 5,
+    "no_claims_extracted": 1
+   }
+  },
+  {
+   "idx": 89,
+   "topic": "The Science Behind Memory Formation",
+   "facts": 15,
+   "vocabularyVerbs": 37,
+   "edges": 36,
+   "verdicts": {
+    "beyond-reach": 2,
+    "unbound": 6,
+    "no_claims_extracted": 4,
+    "bound": 3
+   }
+  },
+  {
+   "idx": 90,
+   "topic": "The Psychology of Colors in Branding",
+   "facts": 15,
+   "vocabularyVerbs": 33,
+   "edges": 30,
+   "verdicts": {
+    "bound": 5,
+    "unbound": 9,
+    "no_claims_extracted": 1
+   }
+  },
+  {
+   "idx": 91,
+   "topic": "The Development of Renewable Energy Sources",
+   "facts": 15,
+   "vocabularyVerbs": 55,
+   "edges": 64,
+   "verdicts": {
+    "bound": 7,
+    "unbound": 3,
+    "beyond-reach": 4,
+    "no_claims_extracted": 1
+   }
+  },
+  {
+   "idx": 92,
+   "topic": "The Future of Space Tourism",
+   "facts": 15,
+   "vocabularyVerbs": 28,
+   "edges": 27,
+   "verdicts": {
+    "no_claims_extracted": 1,
+    "unbound": 5,
+    "bound": 8,
+    "beyond-reach": 1
+   }
+  },
+  {
+   "idx": 93,
+   "topic": "The Science of Happiness",
+   "facts": 15,
+   "vocabularyVerbs": 38,
+   "edges": 35,
+   "verdicts": {
+    "no_claims_extracted": 5,
+    "bound": 3,
+    "beyond-reach": 3,
+    "unbound": 4
+   }
+  },
+  {
+   "idx": 94,
+   "topic": "The Role of Education in Shaping Culture",
+   "facts": 15,
+   "vocabularyVerbs": 23,
+   "edges": 25,
+   "verdicts": {
+    "unbound": 6,
+    "no_claims_extracted": 4,
+    "bound": 4,
+    "beyond-reach": 1
+   }
+  },
+  {
+   "idx": 95,
+   "topic": "The Ethics of Human Cloning",
+   "facts": 15,
+   "vocabularyVerbs": 29,
+   "edges": 41,
+   "verdicts": {
+    "bound": 4,
+    "unbound": 6,
+    "no_claims_extracted": 5
+   }
+  },
+  {
+   "idx": 96,
+   "topic": "The Rise of Esports and Competitive Gaming",
+   "facts": 15,
+   "vocabularyVerbs": 31,
+   "edges": 29,
+   "verdicts": {
+    "no_claims_extracted": 1,
+    "unbound": 7,
+    "bound": 5,
+    "beyond-reach": 1,
+    "unheard": 1
+   }
+  },
+  {
+   "idx": 97,
+   "topic": "The Development of Transportation Systems",
+   "facts": 15,
+   "vocabularyVerbs": 35,
+   "edges": 35,
+   "verdicts": {
+    "unbound": 8,
+    "no_claims_extracted": 1,
+    "beyond-reach": 5,
+    "bound": 1
+   }
+  },
+  {
+   "idx": 98,
+   "topic": "The Impact of Climate Change on Global Agriculture",
+   "facts": 15,
+   "vocabularyVerbs": 35,
+   "edges": 36,
+   "verdicts": {
+    "bound": 3,
+    "beyond-reach": 4,
+    "unbound": 7,
+    "no_claims_extracted": 1
+   }
+  },
+  {
+   "idx": 99,
+   "topic": "The History of Military Technology",
+   "facts": 15,
+   "vocabularyVerbs": 32,
+   "edges": 36,
+   "verdicts": {
+    "unbound": 5,
+    "bound": 5,
+    "beyond-reach": 3,
+    "no_claims_extracted": 2
+   }
+  },
+  {
+   "idx": 100,
+   "topic": "The Effect of Music on Cognitive Development",
+   "facts": 15,
+   "vocabularyVerbs": 31,
+   "edges": 31,
+   "verdicts": {
+    "no_claims_extracted": 5,
+    "unbound": 8,
+    "beyond-reach": 1,
+    "bound": 1
+   }
+  },
+  {
+   "idx": 101,
+   "topic": "The Role of Technology in Crime Prevention",
+   "facts": 15,
+   "vocabularyVerbs": 27,
+   "edges": 34,
+   "verdicts": {
+    "unbound": 5,
+    "no_claims_extracted": 3,
+    "beyond-reach": 6,
+    "bound": 1
+   }
+  },
+  {
+   "idx": 102,
+   "topic": "The Importance of Volunteerism in Society",
+   "facts": 15,
+   "vocabularyVerbs": 33,
+   "edges": 36,
+   "verdicts": {
+    "unbound": 6,
+    "bound": 5,
+    "no_claims_extracted": 2,
+    "beyond-reach": 2
+   }
+  },
+  {
+   "idx": 103,
+   "topic": "The Influence of Pop Culture on Global Trends",
+   "facts": 15,
+   "vocabularyVerbs": 36,
+   "edges": 38,
+   "verdicts": {
+    "unbound": 8,
+    "bound": 5,
+    "beyond-reach": 2
+   }
+  },
+  {
+   "idx": 104,
+   "topic": "The Role of Water in the Development of Civilization",
+   "facts": 15,
+   "vocabularyVerbs": 19,
+   "edges": 31,
+   "verdicts": {
+    "no_claims_extracted": 7,
+    "bound": 5,
+    "beyond-reach": 3
+   }
+  }
+ ]
+}
