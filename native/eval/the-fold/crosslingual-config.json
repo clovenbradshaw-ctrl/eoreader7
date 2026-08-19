@@ -1,0 +1,20 @@
+{
+  "languages": [
+    {
+      "label": "pg2600.txt — War and Peace, English (Maude translation)",
+      "path": "eval/corpus/pg2600-en.txt",
+      "negationMarkers": [" not ", " never ", " didn't ", " don't ", " doesn't ", " won't ", " cannot ", " wouldn't ", " couldn't ", " shouldn't "]
+    },
+    {
+      "label": "Война и мир — War and Peace, Russian original (Tolstoy)",
+      "path": "eval/corpus/vojna-i-mir-ru.txt",
+      "negationMarkers": ["не ", "нет "]
+    },
+    {
+      "label": "こころ (Kokoro) — Natsume Sōseki, Japanese, 1914 [documented fallback: no clean fetchable public-domain Japanese War and Peace exists — the one legitimate translation is un-OCR'd scanned page images at Japan's National Diet Library]",
+      "path": "eval/corpus/kokoro-ja.txt",
+      "negationMarkers": null,
+      "skipReason": "Japanese negation is a bound verb suffix (~ない / ~ません), not a free-standing word — no marker list applies to this language's own grammar, so the free-standing-word probe is honestly skipped rather than run against the wrong shape."
+    }
+  ]
+}
