@@ -1,0 +1,575 @@
+{
+  "model": "gemma2:2b",
+  "object": "tasklist",
+  "rows": [
+    {
+      "turnIndex": 1,
+      "ask": "add a delete button next to each task",
+      "predictedKind": "feature",
+      "routedAs": "resolved",
+      "landedAsRezero": null,
+      "landed": false,
+      "gap": "regressed",
+      "structuralClean": null,
+      "structuralFindings": [],
+      "behavioralOwnCheck": {
+        "turnIndex": 1,
+        "ok": null,
+        "why": "no landing this turn — code unchanged or absent"
+      },
+      "regressionsIntroducedThisTurn": [],
+      "conformFindings": [],
+      "codeLenBefore": 1177,
+      "codeLenAfter": 1177,
+      "groundAfter": 1,
+      "tokens": 27
+    },
+    {
+      "turnIndex": 2,
+      "ask": "add a filter so I can show only high priority tasks",
+      "predictedKind": "feature",
+      "routedAs": "resolved",
+      "landedAsRezero": null,
+      "landed": false,
+      "gap": "churn",
+      "structuralClean": null,
+      "structuralFindings": [],
+      "behavioralOwnCheck": {
+        "turnIndex": 2,
+        "ok": null,
+        "why": "no landing this turn — code unchanged or absent"
+      },
+      "regressionsIntroducedThisTurn": [],
+      "conformFindings": [],
+      "codeLenBefore": 1177,
+      "codeLenAfter": 1177,
+      "groundAfter": 1,
+      "tokens": 20
+    },
+    {
+      "turnIndex": 3,
+      "ask": "I don't like the colors, make it nicer",
+      "predictedKind": "judgment",
+      "routedAs": "anaphora",
+      "landedAsRezero": null,
+      "landed": false,
+      "gap": "regressed",
+      "structuralClean": null,
+      "structuralFindings": [],
+      "behavioralOwnCheck": null,
+      "regressionsIntroducedThisTurn": [],
+      "conformFindings": [],
+      "codeLenBefore": 1177,
+      "codeLenAfter": 1177,
+      "groundAfter": 1,
+      "tokens": 23
+    },
+    {
+      "turnIndex": 4,
+      "ask": "make it better",
+      "predictedKind": "vague",
+      "routedAs": "anaphora",
+      "landedAsRezero": null,
+      "landed": false,
+      "gap": "regressed",
+      "structuralClean": null,
+      "structuralFindings": [],
+      "behavioralOwnCheck": null,
+      "regressionsIntroducedThisTurn": [],
+      "conformFindings": [],
+      "codeLenBefore": 1177,
+      "codeLenAfter": 1177,
+      "groundAfter": 1,
+      "tokens": 32
+    },
+    {
+      "turnIndex": 5,
+      "ask": "show a count of how many tasks are done vs not done",
+      "predictedKind": "feature",
+      "routedAs": null,
+      "landedAsRezero": false,
+      "landed": true,
+      "gap": null,
+      "structuralClean": true,
+      "structuralFindings": [],
+      "behavioralOwnCheck": {
+        "turnIndex": 5,
+        "ok": true,
+        "why": "body mentions \"done\": true"
+      },
+      "regressionsIntroducedThisTurn": [
+        {
+          "turnIndex": 0,
+          "ok": false,
+          "why": "tasks after add = 0"
+        },
+        {
+          "turnIndex": 1,
+          "ok": false,
+          "why": "no delete control found in a rendered task row"
+        }
+      ],
+      "conformFindings": [],
+      "codeLenBefore": 1177,
+      "codeLenAfter": 1274,
+      "groundAfter": 1,
+      "tokens": 58,
+      "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Priority Tasks</title></head>\n<body>\n  <input id=\"what\" placeholder=\"new task\">\n  <select id=\"priority\"><option value=\"low\">low</option><option value=\"high\">high</option></select>\n  <button id=\"add\">add</button>\n  <ul id=\"list\"></ul>\n  <div id=\"count\">0 tasks</div>\n  <script>\n    let tasks = [];\n    function render() {\n      const list = document.getElementById('list');\n      list.innerHTML = '';\n      tasks.forEach(function(t, i) {\n        const li = document.createElement('li');\n        li.textContent = (t.done ? '[x] ' : '[ ] ') + t.text + ' (' + t.priority + ')';\n        li.className = t.priority;\n        li.addEventListener('click', function() { t.done = !t.done; render(); });\n        list.appendChild(li);\n      });\n      document.getElementById('count').textContent = tasks.filter(t => t.done).length + ' done ' + (tasks.length - tasks.filter(t => t.done).length) + ' not done' + ' tasks';\n    }\n    document.getElementById('add').addEventListener('click', function() {\n      const text = document.getElementById('what').value;\n      const priority = document.getElementById('priority').value;\n      if (text) tasks.push({ text: text, priority: priority, done: false });\n      render();\n    });\n  </script>\n</body>\n</html>"
+    },
+    {
+      "turnIndex": 6,
+      "ask": "clicking a task to mark it done isn't working right, fix it",
+      "predictedKind": "judgment",
+      "routedAs": "resolved",
+      "landedAsRezero": false,
+      "landed": true,
+      "gap": null,
+      "structuralClean": true,
+      "structuralFindings": [],
+      "behavioralOwnCheck": {
+        "turnIndex": 6,
+        "ok": false,
+        "why": "no task row rendered"
+      },
+      "regressionsIntroducedThisTurn": [
+        {
+          "turnIndex": 0,
+          "ok": false,
+          "why": "tasks after add = 0"
+        },
+        {
+          "turnIndex": 1,
+          "ok": false,
+          "why": "no delete control found in a rendered task row"
+        }
+      ],
+      "conformFindings": [],
+      "codeLenBefore": 1274,
+      "codeLenAfter": 1358,
+      "groundAfter": 1,
+      "tokens": 43,
+      "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Priority Tasks</title></head>\n<body>\n  <  <input id=\"what\" placeholder=\"new task\"  onclick=\"this.classList.toggle('completed')\">  id=\"what\" placeholder=\"new task\">\n  <select id=\"priority\"><option value=\"low\">low</option><option value=\"high\">high</option></select>\n  <button id=\"add\">add</button>\n  <ul id=\"list\"></ul>\n  <div id=\"count\">0 tasks</div>\n  <script>\n    let tasks = [];\n    function render() {\n      const list = document.getElementById('list');\n      list.innerHTML = '';\n      tasks.forEach(function(t, i) {\n        const li = document.createElement('li');\n        li.textContent = (t.done ? '[x] ' : '[ ] ') + t.text + ' (' + t.priority + ')';\n        li.className = t.priority;\n        li.addEventListener('click', function() { t.done = !t.done; render(); });\n        list.appendChild(li);\n      });\n      document.getElementById('count').textContent = tasks.filter(t => t.done).length + ' done ' + (tasks.length - tasks.filter(t => t.done).length) + ' not done' + ' tasks';\n    }\n    document.getElementById('add').addEventListener('click', function() {\n      const text = document.getElementById('what').value;\n      const priority = document.getElementById('priority').value;\n      if (text) tasks.push({ text: text, priority: priority, done: false });\n      render();\n    });\n  </script>\n</body>\n</html>"
+    },
+    {
+      "turnIndex": 7,
+      "ask": "make the add button bigger",
+      "predictedKind": "anaphora",
+      "routedAs": "resolved",
+      "landedAsRezero": true,
+      "landed": true,
+      "gap": null,
+      "structuralClean": true,
+      "structuralFindings": [],
+      "behavioralOwnCheck": null,
+      "regressionsIntroducedThisTurn": [
+        {
+          "turnIndex": 0,
+          "ok": false,
+          "why": "tasks after add = 0"
+        },
+        {
+          "turnIndex": 1,
+          "ok": false,
+          "why": "no delete control found in a rendered task row"
+        },
+        {
+          "turnIndex": 6,
+          "ok": false,
+          "why": "no task row rendered"
+        }
+      ],
+      "conformFindings": [],
+      "codeLenBefore": 1358,
+      "codeLenAfter": 1358,
+      "groundAfter": 1,
+      "tokens": 20,
+      "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Priority Tasks</title></head>\n<body>\n  <  <input id=\"what\" placeholder=\"new task\"  onclick=\"this.classList.toggle('completed')\">  id=\"what\" placeholder=\"new task\">\n  <select id=\"priority\"><option value=\"low\">low</option><option value=\"high\">high</option></select>\n  <button id=\"add\">add</button>\n  <ul id=\"list\"></ul>\n  <div id=\"count\">0 tasks</div>\n  <script>\n    let tasks = [];\n    function render() {\n      const list = document.getElementById('list');\n      list.innerHTML = '';\n      tasks.forEach(function(t, i) {\n        const li = document.createElement('li');\n        li.textContent = (t.done ? '[x] ' : '[ ] ') + t.text + ' (' + t.priority + ')';\n        li.className = t.priority;\n        li.addEventListener('click', function() { t.done = !t.done; render(); });\n        list.appendChild(li);\n      });\n      document.getElementById('count').textContent = tasks.filter(t => t.done).length + ' done ' + (tasks.length - tasks.filter(t => t.done).length) + ' not done' + ' tasks';\n    }\n    document.getElementById('add').addEventListener('click', function() {\n      const text = document.getElementById('what').value;\n      const priority = document.getElementById('priority').value;\n      if (text) tasks.push({ text: text, priority: priority, done: false });\n      render();\n    });\n  </script>\n</body>\n</html>"
+    },
+    {
+      "turnIndex": 8,
+      "ask": "put the delete button back the way it was before",
+      "predictedKind": "undo",
+      "routedAs": "resolved",
+      "landedAsRezero": null,
+      "landed": false,
+      "gap": "regressed",
+      "structuralClean": null,
+      "structuralFindings": [],
+      "behavioralOwnCheck": null,
+      "regressionsIntroducedThisTurn": [],
+      "conformFindings": [],
+      "codeLenBefore": 1358,
+      "codeLenAfter": 1358,
+      "groundAfter": 1,
+      "tokens": 15
+    },
+    {
+      "turnIndex": 9,
+      "ask": "add a button that clears all completed tasks at once",
+      "predictedKind": "feature",
+      "routedAs": "resolved",
+      "landedAsRezero": null,
+      "landed": false,
+      "gap": "unlocated",
+      "structuralClean": null,
+      "structuralFindings": [],
+      "behavioralOwnCheck": {
+        "turnIndex": 9,
+        "ok": null,
+        "why": "no landing this turn — code unchanged or absent"
+      },
+      "regressionsIntroducedThisTurn": [],
+      "conformFindings": [],
+      "codeLenBefore": 1358,
+      "codeLenAfter": 1358,
+      "groundAfter": 1,
+      "tokens": 49
+    },
+    {
+      "turnIndex": 10,
+      "ask": "it's broken",
+      "predictedKind": "judgment",
+      "routedAs": "anaphora",
+      "landedAsRezero": true,
+      "landed": true,
+      "gap": null,
+      "structuralClean": true,
+      "structuralFindings": [],
+      "behavioralOwnCheck": null,
+      "regressionsIntroducedThisTurn": [
+        {
+          "turnIndex": 0,
+          "ok": false,
+          "why": "script threw: document.getElementById(...).EventListener is not a function"
+        },
+        {
+          "turnIndex": 1,
+          "ok": false,
+          "why": "script threw: document.getElementById(...).EventListener is not a function"
+        },
+        {
+          "turnIndex": 2,
+          "ok": false,
+          "why": "script threw: document.getElementById(...).EventListener is not a function"
+        },
+        {
+          "turnIndex": 5,
+          "ok": false,
+          "why": "script threw: document.getElementById(...).EventListener is not a function"
+        },
+        {
+          "turnIndex": 6,
+          "ok": false,
+          "why": "script threw: document.getElementById(...).EventListener is not a function"
+        },
+        {
+          "turnIndex": 9,
+          "ok": false,
+          "why": "script threw: document.getElementById(...).EventListener is not a function"
+        }
+      ],
+      "conformFindings": [],
+      "codeLenBefore": 1358,
+      "codeLenAfter": 1343,
+      "groundAfter": 2,
+      "tokens": 16,
+      "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Priority Tasks</title></head>\n<body>\n  <  <input id=\"what\" placeholder=\"new task\"  onclick=\"this.classList.toggle('completed')\">  id=\"what\" placeholder=\"new task\">\n  <select id=\"priority\"><option value=\"low\">low</option><option value=\"high\">high</option></select>\n  <button id=\"\"></button>\n  <ul id=\"list\"></ul>\n  <div id=\"count\">0 tasks</div>\n  <script>\n    let tasks = [];\n    function render() {\n      const list = document.getElementById('list');\n      list.innerHTML = '';\n      tasks.forEach(function(t, i) {\n        const li = document.createElement('li');\n        li.textContent = (t.done ? '[x] ' : '[ ] ') + t.text + ' (' + t.priority + ')';\n        li.className = t.priority;\n        li.EventListener('click', function() { t.done = !t.done; render(); });\n        list.appendChild(li);\n      });\n      document.getElementById('count').textContent = tasks.filter(t => t.done).length + ' done ' + (tasks.length - tasks.filter(t => t.done).length) + ' not done' + ' tasks';\n    }\n    document.getElementById('').EventListener('click', function() {\n      const text = document.getElementById('what').value;\n      const priority = document.getElementById('priority').value;\n      if (text) tasks.push({ text: text, priority: priority, done: false });\n      render();\n    });\n  </script>\n</body>\n</html>"
+    },
+    {
+      "turnIndex": 11,
+      "ask": "adding a task should still clear the input field afterward — check that still works",
+      "predictedKind": "structural",
+      "routedAs": "resolved",
+      "landedAsRezero": null,
+      "landed": false,
+      "gap": "unlocated",
+      "structuralClean": null,
+      "structuralFindings": [],
+      "behavioralOwnCheck": {
+        "turnIndex": 11,
+        "ok": null,
+        "why": "no landing this turn — code unchanged or absent"
+      },
+      "regressionsIntroducedThisTurn": [],
+      "conformFindings": [],
+      "codeLenBefore": 1343,
+      "codeLenAfter": 1343,
+      "groundAfter": 2,
+      "tokens": 76
+    },
+    {
+      "turnIndex": 12,
+      "ask": "sort high priority tasks to the top of the list",
+      "predictedKind": "feature",
+      "routedAs": "resolved",
+      "landedAsRezero": true,
+      "landed": true,
+      "gap": null,
+      "structuralClean": true,
+      "structuralFindings": [],
+      "behavioralOwnCheck": null,
+      "regressionsIntroducedThisTurn": [
+        {
+          "turnIndex": 0,
+          "ok": false,
+          "why": "script threw: document.getElementById(...).EventListener is not a function"
+        },
+        {
+          "turnIndex": 1,
+          "ok": false,
+          "why": "script threw: document.getElementById(...).EventListener is not a function"
+        },
+        {
+          "turnIndex": 2,
+          "ok": false,
+          "why": "script threw: document.getElementById(...).EventListener is not a function"
+        },
+        {
+          "turnIndex": 5,
+          "ok": false,
+          "why": "script threw: document.getElementById(...).EventListener is not a function"
+        },
+        {
+          "turnIndex": 6,
+          "ok": false,
+          "why": "script threw: document.getElementById(...).EventListener is not a function"
+        },
+        {
+          "turnIndex": 9,
+          "ok": false,
+          "why": "script threw: document.getElementById(...).EventListener is not a function"
+        },
+        {
+          "turnIndex": 11,
+          "ok": false,
+          "why": "script threw: document.getElementById(...).EventListener is not a function"
+        }
+      ],
+      "conformFindings": [],
+      "codeLenBefore": 1343,
+      "codeLenAfter": 1343,
+      "groundAfter": 2,
+      "tokens": 20,
+      "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Priority Tasks</title></head>\n<body>\n  <  <input id=\"what\" placeholder=\"new task\"  onclick=\"this.classList.toggle('completed')\">  id=\"what\" placeholder=\"new task\">\n  <select id=\"priority\"><option value=\"low\">low</option><option value=\"high\">high</option></select>\n  <button id=\"\"></button>\n  <ul id=\"list\"></ul>\n  <div id=\"count\">0 tasks</div>\n  <script>\n    let tasks = [];\n    function render() {\n      const list = document.getElementById('list');\n      list.innerHTML = '';\n      tasks.forEach(function(t, i) {\n        const li = document.createElement('li');\n        li.textContent = (t.done ? '[x] ' : '[ ] ') + t.text + ' (' + t.priority + ')';\n        li.className = t.priority;\n        li.EventListener('click', function() { t.done = !t.done; render(); });\n        list.appendChild(li);\n      });\n      document.getElementById('count').textContent = tasks.filter(t => t.done).length + ' done ' + (tasks.length - tasks.filter(t => t.done).length) + ' not done' + ' tasks';\n    }\n    document.getElementById('').EventListener('click', function() {\n      const text = document.getElementById('what').value;\n      const priority = document.getElementById('priority').value;\n      if (text) tasks.push({ text: text, priority: priority, done: false });\n      render();\n    });\n  </script>\n</body>\n</html>"
+    },
+    {
+      "turnIndex": 13,
+      "ask": "fix it",
+      "predictedKind": "vague",
+      "routedAs": "anaphora",
+      "landedAsRezero": true,
+      "landed": true,
+      "gap": null,
+      "structuralClean": true,
+      "structuralFindings": [],
+      "behavioralOwnCheck": null,
+      "regressionsIntroducedThisTurn": [
+        {
+          "turnIndex": 0,
+          "ok": false,
+          "why": "script threw: document.getElementById(...).EventListener is not a function"
+        },
+        {
+          "turnIndex": 1,
+          "ok": false,
+          "why": "script threw: document.getElementById(...).EventListener is not a function"
+        },
+        {
+          "turnIndex": 2,
+          "ok": false,
+          "why": "script threw: document.getElementById(...).EventListener is not a function"
+        },
+        {
+          "turnIndex": 5,
+          "ok": false,
+          "why": "script threw: document.getElementById(...).EventListener is not a function"
+        },
+        {
+          "turnIndex": 6,
+          "ok": false,
+          "why": "script threw: document.getElementById(...).EventListener is not a function"
+        },
+        {
+          "turnIndex": 9,
+          "ok": false,
+          "why": "script threw: document.getElementById(...).EventListener is not a function"
+        },
+        {
+          "turnIndex": 11,
+          "ok": false,
+          "why": "script threw: document.getElementById(...).EventListener is not a function"
+        }
+      ],
+      "conformFindings": [],
+      "codeLenBefore": 1343,
+      "codeLenAfter": 1253,
+      "groundAfter": 3,
+      "tokens": 42,
+      "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Priority Tasks</title></head>\n<body>\n  <id=\"what\" placeholder=\"new task\">\n  <select id=\"priority\"><option value=\"low\">low</option><option value=\"high\">high</option></select>\n  <button id=\"\"></button>\n  <ul id=\"list\"></ul>\n  <div id=\"count\">0 tasks</div>\n  <script>\n    let tasks = [];\n    function render() {\n      const list = document.getElementById('list');\n      list.innerHTML = '';\n      tasks.forEach(function(t, i) {\n        const li = document.createElement('li');\n        li.textContent = (t.done ? '[x] ' : '[ ] ') + t.text + ' (' + t.priority + ')';\n        li.className = t.priority;\n        li.EventListener('click', function() { t.done = !t.done; render(); });\n        list.appendChild(li);\n      });\n      document.getElementById('count').textContent = tasks.filter(t => t.done).length + ' done ' + (tasks.length - tasks.filter(t => t.done).length) + ' not done' + ' tasks';\n    }\n    document.getElementById('').EventListener('click', function() {\n      const text = document.getElementById('what').value;\n      const priority = document.getElementById('priority').value;\n      if (text) tasks.push({ text: text, priority: priority, done: false });\n      render();\n    });\n  </script>\n</body>\n</html>"
+    },
+    {
+      "turnIndex": 14,
+      "ask": "add a button to mark all tasks done at once",
+      "predictedKind": "feature",
+      "routedAs": null,
+      "landedAsRezero": false,
+      "landed": true,
+      "gap": null,
+      "structuralClean": true,
+      "structuralFindings": [],
+      "behavioralOwnCheck": {
+        "turnIndex": 14,
+        "ok": false,
+        "why": "script threw: document.getElementById(...).EventListener is not a function"
+      },
+      "regressionsIntroducedThisTurn": [
+        {
+          "turnIndex": 0,
+          "ok": false,
+          "why": "script threw: document.getElementById(...).EventListener is not a function"
+        },
+        {
+          "turnIndex": 1,
+          "ok": false,
+          "why": "script threw: document.getElementById(...).EventListener is not a function"
+        },
+        {
+          "turnIndex": 2,
+          "ok": false,
+          "why": "script threw: document.getElementById(...).EventListener is not a function"
+        },
+        {
+          "turnIndex": 5,
+          "ok": false,
+          "why": "script threw: document.getElementById(...).EventListener is not a function"
+        },
+        {
+          "turnIndex": 6,
+          "ok": false,
+          "why": "script threw: document.getElementById(...).EventListener is not a function"
+        },
+        {
+          "turnIndex": 9,
+          "ok": false,
+          "why": "script threw: document.getElementById(...).EventListener is not a function"
+        },
+        {
+          "turnIndex": 11,
+          "ok": false,
+          "why": "script threw: document.getElementById(...).EventListener is not a function"
+        }
+      ],
+      "conformFindings": [],
+      "codeLenBefore": 1253,
+      "codeLenAfter": 1269,
+      "groundAfter": 3,
+      "tokens": 26,
+      "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Priority Tasks</title></head>\n<body>\n  <id=\"what\" placeholder=\"new task\">\n  <select id=\"priority\"><option value=\"low\">low</option><option value=\"high\">high</option></select>\n  <button id='all-tasks-done'\"\"></button>\n  <ul id=\"list\"></ul>\n  <div id=\"count\">0 tasks</div>\n  <script>\n    let tasks = [];\n    function render() {\n      const list = document.getElementById('list');\n      list.innerHTML = '';\n      tasks.forEach(function(t, i) {\n        const li = document.createElement('li');\n        li.textContent = (t.done ? '[x] ' : '[ ] ') + t.text + ' (' + t.priority + ')';\n        li.className = t.priority;\n        li.EventListener('click', function() { t.done = !t.done; render(); });\n        list.appendChild(li);\n      });\n      document.getElementById('count').textContent = tasks.filter(t => t.done).length + ' done ' + (tasks.length - tasks.filter(t => t.done).length) + ' not done' + ' tasks';\n    }\n    document.getElementById('').EventListener('click', function() {\n      const text = document.getElementById('what').value;\n      const priority = document.getElementById('priority').value;\n      if (text) tasks.push({ text: text, priority: priority, done: false });\n      render();\n    });\n  </script>\n</body>\n</html>"
+    },
+    {
+      "turnIndex": 15,
+      "ask": "I don't like how the count looks, it should say 'Done:' not just the number",
+      "predictedKind": "judgment",
+      "routedAs": "judgment",
+      "landedAsRezero": null,
+      "landed": false,
+      "gap": "unlocated",
+      "structuralClean": null,
+      "structuralFindings": [],
+      "behavioralOwnCheck": {
+        "turnIndex": 15,
+        "ok": null,
+        "why": "no landing this turn — code unchanged or absent"
+      },
+      "regressionsIntroducedThisTurn": [],
+      "conformFindings": [],
+      "codeLenBefore": 1269,
+      "codeLenAfter": 1269,
+      "groundAfter": 3,
+      "tokens": 64
+    },
+    {
+      "turnIndex": 16,
+      "ask": "add a way to edit an existing task's text",
+      "predictedKind": "feature",
+      "routedAs": "resolved",
+      "landedAsRezero": false,
+      "landed": true,
+      "gap": null,
+      "structuralClean": true,
+      "structuralFindings": [],
+      "behavioralOwnCheck": null,
+      "regressionsIntroducedThisTurn": [
+        {
+          "turnIndex": 0,
+          "ok": false,
+          "why": "script threw: document.getElementById(...).EventListener is not a function"
+        },
+        {
+          "turnIndex": 1,
+          "ok": false,
+          "why": "script threw: document.getElementById(...).EventListener is not a function"
+        },
+        {
+          "turnIndex": 2,
+          "ok": false,
+          "why": "script threw: document.getElementById(...).EventListener is not a function"
+        },
+        {
+          "turnIndex": 5,
+          "ok": false,
+          "why": "script threw: document.getElementById(...).EventListener is not a function"
+        },
+        {
+          "turnIndex": 6,
+          "ok": false,
+          "why": "script threw: document.getElementById(...).EventListener is not a function"
+        },
+        {
+          "turnIndex": 9,
+          "ok": false,
+          "why": "script threw: document.getElementById(...).EventListener is not a function"
+        },
+        {
+          "turnIndex": 11,
+          "ok": false,
+          "why": "script threw: document.getElementById(...).EventListener is not a function"
+        },
+        {
+          "turnIndex": 14,
+          "ok": false,
+          "why": "script threw: document.getElementById(...).EventListener is not a function"
+        },
+        {
+          "turnIndex": 15,
+          "ok": false,
+          "why": "script threw: document.getElementById(...).EventListener is not a function"
+        }
+      ],
+      "conformFindings": [],
+      "codeLenBefore": 1269,
+      "codeLenAfter": 1286,
+      "groundAfter": 3,
+      "tokens": 24,
+      "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Priority Tasks</title></head>\n<body>\n  <id=\"what\" placeholder='Edit task text'=\"new task\">\n  <select id=\"priority\"><option value=\"low\">low</option><option value=\"high\">high</option></select>\n  <button id='all-tasks-done'\"\"></button>\n  <ul id=\"list\"></ul>\n  <div id=\"count\">0 tasks</div>\n  <script>\n    let tasks = [];\n    function render() {\n      const list = document.getElementById('list');\n      list.innerHTML = '';\n      tasks.forEach(function(t, i) {\n        const li = document.createElement('li');\n        li.textContent = (t.done ? '[x] ' : '[ ] ') + t.text + ' (' + t.priority + ')';\n        li.className = t.priority;\n        li.EventListener('click', function() { t.done = !t.done; render(); });\n        list.appendChild(li);\n      });\n      document.getElementById('count').textContent = tasks.filter(t => t.done).length + ' done ' + (tasks.length - tasks.filter(t => t.done).length) + ' not done' + ' tasks';\n    }\n    document.getElementById('').EventListener('click', function() {\n      const text = document.getElementById('what').value;\n      const priority = document.getElementById('priority').value;\n      if (text) tasks.push({ text: text, priority: priority, done: false });\n      render();\n    });\n  </script>\n</body>\n</html>"
+    },
+    {
+      "turnIndex": 17,
+      "ask": "undo the last change",
+      "predictedKind": "undo",
+      "routedAs": null,
+      "landedAsRezero": null,
+      "landed": false,
+      "gap": "regressed",
+      "structuralClean": null,
+      "structuralFindings": [],
+      "behavioralOwnCheck": null,
+      "regressionsIntroducedThisTurn": [],
+      "conformFindings": [],
+      "codeLenBefore": 1286,
+      "codeLenAfter": 1286,
+      "groundAfter": 3,
+      "tokens": 19
+    }
+  ]
+}

@@ -1,0 +1,654 @@
+{
+  "model": "qwen2.5-coder:7b",
+  "object": "tasklist",
+  "rows": [
+    {
+      "turnIndex": 1,
+      "ask": "add a delete button next to each task",
+      "predictedKind": "feature",
+      "routedAs": "resolved",
+      "landedAsRezero": false,
+      "landed": true,
+      "gap": null,
+      "structuralClean": true,
+      "structuralFindings": [],
+      "behavioralOwnCheck": {
+        "turnIndex": 1,
+        "ok": false,
+        "why": "no delete control found in a rendered task row"
+      },
+      "regressionsIntroducedThisTurn": [
+        {
+          "turnIndex": 0,
+          "ok": false,
+          "why": "tasks after add = 0"
+        }
+      ],
+      "conformFindings": [],
+      "codeLenBefore": 1177,
+      "codeLenAfter": 1227,
+      "groundAfter": 1,
+      "tokens": 46,
+      "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Priority Tasks</title></head>\n<body>\n  <input id=\"what\" placeholder=\"new task\"><button onclick=\"deleteTask(this)\">Delete</button>\n  <select id=\"priority\"><option value=\"low\">low</option><option value=\"high\">high</option></select>\n  <button id=\"add\">add</button>\n  <ul id=\"list\"></ul>\n  <div id=\"count\">0 tasks</div>\n  <script>\n    let tasks = [];\n    function render() {\n      const list = document.getElementById('list');\n      list.innerHTML = '';\n      tasks.forEach(function(t, i) {\n        const li = document.createElement('li');\n        li.textContent = (t.done ? '[x] ' : '[ ] ') + t.text + ' (' + t.priority + ')';\n        li.className = t.priority;\n        li.addEventListener('click', function() { t.done = !t.done; render(); });\n        list.appendChild(li);\n      });\n      document.getElementById('count').textContent = tasks.length + ' tasks';\n    }\n    document.getElementById('add').addEventListener('click', function() {\n      const text = document.getElementById('what').value;\n      const priority = document.getElementById('priority').value;\n      if (text) tasks.push({ text: text, priority: priority, done: false });\n      render();\n    });\n  </script>\n</body>\n</html>"
+    },
+    {
+      "turnIndex": 2,
+      "ask": "add a filter so I can show only high priority tasks",
+      "predictedKind": "feature",
+      "routedAs": "resolved",
+      "landedAsRezero": false,
+      "landed": true,
+      "gap": null,
+      "structuralClean": true,
+      "structuralFindings": [],
+      "behavioralOwnCheck": {
+        "turnIndex": 2,
+        "ok": true,
+        "why": "looked for filter/high control in markup"
+      },
+      "regressionsIntroducedThisTurn": [
+        {
+          "turnIndex": 0,
+          "ok": false,
+          "why": "tasks after add = 0"
+        },
+        {
+          "turnIndex": 1,
+          "ok": false,
+          "why": "no delete control found in a rendered task row"
+        }
+      ],
+      "conformFindings": [],
+      "codeLenBefore": 1227,
+      "codeLenAfter": 1236,
+      "groundAfter": 1,
+      "tokens": 30,
+      "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Priority Tasks</title></head>\n<body>\n  <input id=\"what\" placeholder=\"new task\"><button onclick=\"deleteTask(this)\">Delete</button>\n  <select id=\"priority\"><option value=\"low\">low</option><option value=\"high\" selected>high</option></select>\n  <button id=\"add\">add</button>\n  <ul id=\"list\"></ul>\n  <div id=\"count\">0 tasks</div>\n  <script>\n    let tasks = [];\n    function render() {\n      const list = document.getElementById('list');\n      list.innerHTML = '';\n      tasks.forEach(function(t, i) {\n        const li = document.createElement('li');\n        li.textContent = (t.done ? '[x] ' : '[ ] ') + t.text + ' (' + t.priority + ')';\n        li.className = t.priority;\n        li.addEventListener('click', function() { t.done = !t.done; render(); });\n        list.appendChild(li);\n      });\n      document.getElementById('count').textContent = tasks.length + ' tasks';\n    }\n    document.getElementById('add').addEventListener('click', function() {\n      const text = document.getElementById('what').value;\n      const priority = document.getElementById('priority').value;\n      if (text) tasks.push({ text: text, priority: priority, done: false });\n      render();\n    });\n  </script>\n</body>\n</html>"
+    },
+    {
+      "turnIndex": 3,
+      "ask": "I don't like the colors, make it nicer",
+      "predictedKind": "judgment",
+      "routedAs": "anaphora",
+      "landedAsRezero": true,
+      "landed": true,
+      "gap": null,
+      "structuralClean": true,
+      "structuralFindings": [],
+      "behavioralOwnCheck": null,
+      "regressionsIntroducedThisTurn": [
+        {
+          "turnIndex": 0,
+          "ok": false,
+          "why": "tasks after add = 0"
+        },
+        {
+          "turnIndex": 1,
+          "ok": false,
+          "why": "no delete control found in a rendered task row"
+        }
+      ],
+      "conformFindings": [],
+      "codeLenBefore": 1236,
+      "codeLenAfter": 1282,
+      "groundAfter": 2,
+      "tokens": 37,
+      "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Priority Tasks</title></head>\n<body>\n  <input id=\"what\" placeholder=\"new task\"><button onclick=\"deleteTask(this)\">Delete</button>\n  <select id=\"priority\"><option value=\"low\">low</option><option value=\"high\" selected>high</option></select>\n  <button id=\"add\">add</button>\n  <ul id=\"list\"></ul>\n  <div id=\"count\">0 tasks</div>\n  <script>\n    let tasks = [];\n    function render() {\n      const list = document.getElementById('list');\n      list.innerHTML = '';\n      tasks.forEach(function(t, i) {\n        const li = document.createElement('li');\n        li.textContent = (t.done ? '[x] ' : '[ ] ') + t.text + ' (' + t.priority + ')';\n        li.style.backgroundColor = t.priority === 'high' ? 'red' : 'lightgreen';\n        li.addEventListener('click', function() { t.done = !t.done; render(); });\n        list.appendChild(li);\n      });\n      document.getElementById('count').textContent = tasks.length + ' tasks';\n    }\n    document.getElementById('add').addEventListener('click', function() {\n      const text = document.getElementById('what').value;\n      const priority = document.getElementById('priority').value;\n      if (text) tasks.push({ text: text, priority: priority, done: false });\n      render();\n    });\n  </script>\n</body>\n</html>"
+    },
+    {
+      "turnIndex": 4,
+      "ask": "make it better",
+      "predictedKind": "vague",
+      "routedAs": "anaphora",
+      "landedAsRezero": null,
+      "landed": false,
+      "gap": "regressed",
+      "structuralClean": null,
+      "structuralFindings": [],
+      "behavioralOwnCheck": null,
+      "regressionsIntroducedThisTurn": [],
+      "conformFindings": [],
+      "codeLenBefore": 1282,
+      "codeLenAfter": 1282,
+      "groundAfter": 2,
+      "tokens": 66
+    },
+    {
+      "turnIndex": 5,
+      "ask": "show a count of how many tasks are done vs not done",
+      "predictedKind": "feature",
+      "routedAs": null,
+      "landedAsRezero": false,
+      "landed": true,
+      "gap": null,
+      "structuralClean": true,
+      "structuralFindings": [],
+      "behavioralOwnCheck": {
+        "turnIndex": 5,
+        "ok": true,
+        "why": "body mentions \"done\": true"
+      },
+      "regressionsIntroducedThisTurn": [
+        {
+          "turnIndex": 0,
+          "ok": false,
+          "why": "tasks after add = 0"
+        },
+        {
+          "turnIndex": 1,
+          "ok": false,
+          "why": "no delete control found in a rendered task row"
+        }
+      ],
+      "conformFindings": [],
+      "codeLenBefore": 1282,
+      "codeLenAfter": 1366,
+      "groundAfter": 2,
+      "tokens": 65,
+      "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Priority Tasks</title></head>\n<body>\n  <input id=\"what\" placeholder=\"new task\"><button onclick=\"deleteTask(this)\">Delete</button>\n  <select id=\"priority\"><option value=\"low\">low</option><option value=\"high\" selected>high</option></select>\n  <button id=\"add\">add</button>\n  <ul id=\"list\"></ul>\n  <div id=\"count\">0 tasks</div>\n  <script>\n    let tasks = [];\n    function render() {\n      const list = document.getElementById('list');\n      list.innerHTML = '';\n      tasks.forEach(function(t, i) {\n        const li = document.createElement('li');\n        li.textContent = (t.done ? '[x] ' : '[ ] ') + t.text + ' (' + t.priority + ')';\n        li.style.backgroundColor = t.priority === 'high' ? 'red' : 'lightgreen';\n        li.addEventListener('click', function() { t.done = !t.done; render(); });\n        list.appendChild(li);\n      });\n      document.getElementById('count').textContent = tasks.filter(t => !t.done).length + ' tasks done / ' + tasks.filter(t => t.done).length + ' tasks not done';\n    }\n    document.getElementById('add').addEventListener('click', function() {\n      const text = document.getElementById('what').value;\n      const priority = document.getElementById('priority').value;\n      if (text) tasks.push({ text: text, priority: priority, done: false });\n      render();\n    });\n  </script>\n</body>\n</html>"
+    },
+    {
+      "turnIndex": 6,
+      "ask": "clicking a task to mark it done isn't working right, fix it",
+      "predictedKind": "judgment",
+      "routedAs": "resolved",
+      "landedAsRezero": false,
+      "landed": true,
+      "gap": null,
+      "structuralClean": true,
+      "structuralFindings": [],
+      "behavioralOwnCheck": {
+        "turnIndex": 6,
+        "ok": false,
+        "why": "no task row rendered"
+      },
+      "regressionsIntroducedThisTurn": [
+        {
+          "turnIndex": 0,
+          "ok": false,
+          "why": "tasks after add = 0"
+        },
+        {
+          "turnIndex": 1,
+          "ok": false,
+          "why": "no delete control found in a rendered task row"
+        }
+      ],
+      "conformFindings": [],
+      "codeLenBefore": 1366,
+      "codeLenAfter": 1366,
+      "groundAfter": 2,
+      "tokens": 38,
+      "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Priority Tasks</title></head>\n<body>\n  <input id=\"what\" placeholder=\"new task\"><button onclick=\"markTaskDone(this)\">Done</button>\n  <select id=\"priority\"><option value=\"low\">low</option><option value=\"high\" selected>high</option></select>\n  <button id=\"add\">add</button>\n  <ul id=\"list\"></ul>\n  <div id=\"count\">0 tasks</div>\n  <script>\n    let tasks = [];\n    function render() {\n      const list = document.getElementById('list');\n      list.innerHTML = '';\n      tasks.forEach(function(t, i) {\n        const li = document.createElement('li');\n        li.textContent = (t.done ? '[x] ' : '[ ] ') + t.text + ' (' + t.priority + ')';\n        li.style.backgroundColor = t.priority === 'high' ? 'red' : 'lightgreen';\n        li.addEventListener('click', function() { t.done = !t.done; render(); });\n        list.appendChild(li);\n      });\n      document.getElementById('count').textContent = tasks.filter(t => !t.done).length + ' tasks done / ' + tasks.filter(t => t.done).length + ' tasks not done';\n    }\n    document.getElementById('add').addEventListener('click', function() {\n      const text = document.getElementById('what').value;\n      const priority = document.getElementById('priority').value;\n      if (text) tasks.push({ text: text, priority: priority, done: false });\n      render();\n    });\n  </script>\n</body>\n</html>"
+    },
+    {
+      "turnIndex": 7,
+      "ask": "make the add button bigger",
+      "predictedKind": "anaphora",
+      "routedAs": "resolved",
+      "landedAsRezero": true,
+      "landed": true,
+      "gap": null,
+      "structuralClean": true,
+      "structuralFindings": [],
+      "behavioralOwnCheck": null,
+      "regressionsIntroducedThisTurn": [
+        {
+          "turnIndex": 0,
+          "ok": false,
+          "why": "tasks after add = 0"
+        },
+        {
+          "turnIndex": 1,
+          "ok": false,
+          "why": "no delete control found in a rendered task row"
+        },
+        {
+          "turnIndex": 6,
+          "ok": false,
+          "why": "no task row rendered"
+        }
+      ],
+      "conformFindings": [],
+      "codeLenBefore": 1366,
+      "codeLenAfter": 1392,
+      "groundAfter": 3,
+      "tokens": 41,
+      "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Priority Tasks</title></head>\n<body>\n  <input id=\"what\" placeholder=\"new task\"><button onclick=\"markTaskDone(this)\">Done</button>\n  <select id=\"priority\"><option value=\"low\">low</option><option value=\"high\" selected>high</option></select>\n  <<button id=\"add\" style=\"font-size: 20px;\">add</button>\n  <ul id=\"list\"></ul>\n  <div id=\"count\">0 tasks</div>\n  <script>\n    let tasks = [];\n    function render() {\n      const list = document.getElementById('list');\n      list.innerHTML = '';\n      tasks.forEach(function(t, i) {\n        const li = document.createElement('li');\n        li.textContent = (t.done ? '[x] ' : '[ ] ') + t.text + ' (' + t.priority + ')';\n        li.style.backgroundColor = t.priority === 'high' ? 'red' : 'lightgreen';\n        li.addEventListener('click', function() { t.done = !t.done; render(); });\n        list.appendChild(li);\n      });\n      document.getElementById('count').textContent = tasks.filter(t => !t.done).length + ' tasks done / ' + tasks.filter(t => t.done).length + ' tasks not done';\n    }\n    document.getElementById('add').addEventListener('click', function() {\n      const text = document.getElementById('what').value;\n      const priority = document.getElementById('priority').value;\n      if (text) tasks.push({ text: text, priority: priority, done: false });\n      render();\n    });\n  </script>\n</body>\n</html>"
+    },
+    {
+      "turnIndex": 8,
+      "ask": "put the delete button back the way it was before",
+      "predictedKind": "undo",
+      "routedAs": "resolved",
+      "landedAsRezero": null,
+      "landed": false,
+      "gap": "regressed",
+      "structuralClean": null,
+      "structuralFindings": [],
+      "behavioralOwnCheck": null,
+      "regressionsIntroducedThisTurn": [],
+      "conformFindings": [],
+      "codeLenBefore": 1392,
+      "codeLenAfter": 1392,
+      "groundAfter": 3,
+      "tokens": 48
+    },
+    {
+      "turnIndex": 9,
+      "ask": "add a button that clears all completed tasks at once",
+      "predictedKind": "feature",
+      "routedAs": "resolved",
+      "landedAsRezero": false,
+      "landed": true,
+      "gap": null,
+      "structuralClean": true,
+      "structuralFindings": [],
+      "behavioralOwnCheck": {
+        "turnIndex": 9,
+        "ok": false,
+        "why": "tasks 0 -> 0"
+      },
+      "regressionsIntroducedThisTurn": [
+        {
+          "turnIndex": 0,
+          "ok": false,
+          "why": "tasks after add = 0"
+        },
+        {
+          "turnIndex": 1,
+          "ok": false,
+          "why": "no delete control found in a rendered task row"
+        },
+        {
+          "turnIndex": 6,
+          "ok": false,
+          "why": "no task row rendered"
+        }
+      ],
+      "conformFindings": [],
+      "codeLenBefore": 1392,
+      "codeLenAfter": 1453,
+      "groundAfter": 3,
+      "tokens": 37,
+      "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Priority Tasks</title></head>\n<body>\n  <input id=\"what\" placeholder=\"new task\"><button onclick=\"markTaskDone(this)\">Done</button>\n  <select id=\"priority\"><option value=\"low\">low</option><option value=\"high\" selected>high</option></select>\n  <<button id=\"add\" style=\"font-size: 20px;\">add</button>\n  <ul id=\"list\"></ul>\n  <div id=\"count\">0 tasks</div>\n  <button id=\"clear\" style=\"font-size: 20px;\">clear completed</button>\n\n    let tasks = [];\n    function render() {\n      const list = document.getElementById('list');\n      list.innerHTML = '';\n      tasks.forEach(function(t, i) {\n        const li = document.createElement('li');\n        li.textContent = (t.done ? '[x] ' : '[ ] ') + t.text + ' (' + t.priority + ')';\n        li.style.backgroundColor = t.priority === 'high' ? 'red' : 'lightgreen';\n        li.addEventListener('click', function() { t.done = !t.done; render(); });\n        list.appendChild(li);\n      });\n      document.getElementById('count').textContent = tasks.filter(t => !t.done).length + ' tasks done / ' + tasks.filter(t => t.done).length + ' tasks not done';\n    }\n    document.getElementById('add').addEventListener('click', function() {\n      const text = document.getElementById('what').value;\n      const priority = document.getElementById('priority').value;\n      if (text) tasks.push({ text: text, priority: priority, done: false });\n      render();\n    });\n  </script>\n</body>\n</html>"
+    },
+    {
+      "turnIndex": 10,
+      "ask": "it's broken",
+      "predictedKind": "judgment",
+      "routedAs": "anaphora",
+      "landedAsRezero": true,
+      "landed": true,
+      "gap": null,
+      "structuralClean": true,
+      "structuralFindings": [],
+      "behavioralOwnCheck": null,
+      "regressionsIntroducedThisTurn": [
+        {
+          "turnIndex": 0,
+          "ok": false,
+          "why": "tasks after add = 0"
+        },
+        {
+          "turnIndex": 1,
+          "ok": false,
+          "why": "no delete control found in a rendered task row"
+        },
+        {
+          "turnIndex": 6,
+          "ok": false,
+          "why": "no task row rendered"
+        },
+        {
+          "turnIndex": 9,
+          "ok": false,
+          "why": "tasks 0 -> 0"
+        }
+      ],
+      "conformFindings": [],
+      "codeLenBefore": 1453,
+      "codeLenAfter": 1452,
+      "groundAfter": 4,
+      "tokens": 51,
+      "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Priority Tasks</title></head>\n<body>\n  <input id=\"what\" placeholder=\"new task\"><button onclick=\"markTaskDone(this)\">Done</button>\n  <select id=\"priority\"><option value=\"low\">low</option><option value=\"high\" selected>high</option></select>\n  <button id=\"add\" style=\"font-size: 20px;\">add</button>\n  <ul id=\"list\"></ul>\n  <div id=\"count\">0 tasks</div>\n  <button id=\"clear\" style=\"font-size: 20px;\">clear completed</button>\n\n    let tasks = [];\n    function render() {\n      const list = document.getElementById('list');\n      list.innerHTML = '';\n      tasks.forEach(function(t, i) {\n        const li = document.createElement('li');\n        li.textContent = (t.done ? '[x] ' : '[ ] ') + t.text + ' (' + t.priority + ')';\n        li.style.backgroundColor = t.priority === 'high' ? 'red' : 'lightgreen';\n        li.addEventListener('click', function() { t.done = !t.done; render(); });\n        list.appendChild(li);\n      });\n      document.getElementById('count').textContent = tasks.filter(t => !t.done).length + ' tasks done / ' + tasks.filter(t => t.done).length + ' tasks not done';\n    }\n    document.getElementById('add').addEventListener('click', function() {\n      const text = document.getElementById('what').value;\n      const priority = document.getElementById('priority').value;\n      if (text) tasks.push({ text: text, priority: priority, done: false });\n      render();\n    });\n  </script>\n</body>\n</html>"
+    },
+    {
+      "turnIndex": 11,
+      "ask": "adding a task should still clear the input field afterward — check that still works",
+      "predictedKind": "structural",
+      "routedAs": "resolved",
+      "landedAsRezero": false,
+      "landed": true,
+      "gap": null,
+      "structuralClean": true,
+      "structuralFindings": [],
+      "behavioralOwnCheck": {
+        "turnIndex": 11,
+        "ok": false,
+        "why": "input value after add = \"check me\""
+      },
+      "regressionsIntroducedThisTurn": [
+        {
+          "turnIndex": 0,
+          "ok": false,
+          "why": "tasks after add = 0"
+        },
+        {
+          "turnIndex": 1,
+          "ok": false,
+          "why": "no delete control found in a rendered task row"
+        },
+        {
+          "turnIndex": 6,
+          "ok": false,
+          "why": "no task row rendered"
+        },
+        {
+          "turnIndex": 9,
+          "ok": false,
+          "why": "tasks 0 -> 0"
+        }
+      ],
+      "conformFindings": [],
+      "codeLenBefore": 1452,
+      "codeLenAfter": 1496,
+      "groundAfter": 4,
+      "tokens": 45,
+      "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Priority Tasks</title></head>\n<body>\n  <input id=\"what\" placeholder=\"new task\"><button onclick=\"markTaskDone(this); document.getElementById('what').value = ''\">Done</button>\n  <select id=\"priority\"><option value=\"low\">low</option><option value=\"high\" selected>high</option></select>\n  <button id=\"add\" style=\"font-size: 20px;\">add</button>\n  <ul id=\"list\"></ul>\n  <div id=\"count\">0 tasks</div>\n  <button id=\"clear\" style=\"font-size: 20px;\">clear completed</button>\n\n    let tasks = [];\n    function render() {\n      const list = document.getElementById('list');\n      list.innerHTML = '';\n      tasks.forEach(function(t, i) {\n        const li = document.createElement('li');\n        li.textContent = (t.done ? '[x] ' : '[ ] ') + t.text + ' (' + t.priority + ')';\n        li.style.backgroundColor = t.priority === 'high' ? 'red' : 'lightgreen';\n        li.addEventListener('click', function() { t.done = !t.done; render(); });\n        list.appendChild(li);\n      });\n      document.getElementById('count').textContent = tasks.filter(t => !t.done).length + ' tasks done / ' + tasks.filter(t => t.done).length + ' tasks not done';\n    }\n    document.getElementById('add').addEventListener('click', function() {\n      const text = document.getElementById('what').value;\n      const priority = document.getElementById('priority').value;\n      if (text) tasks.push({ text: text, priority: priority, done: false });\n      render();\n    });\n  </script>\n</body>\n</html>"
+    },
+    {
+      "turnIndex": 12,
+      "ask": "sort high priority tasks to the top of the list",
+      "predictedKind": "feature",
+      "routedAs": "resolved",
+      "landedAsRezero": true,
+      "landed": true,
+      "gap": null,
+      "structuralClean": true,
+      "structuralFindings": [],
+      "behavioralOwnCheck": null,
+      "regressionsIntroducedThisTurn": [
+        {
+          "turnIndex": 0,
+          "ok": false,
+          "why": "tasks after add = 0"
+        },
+        {
+          "turnIndex": 1,
+          "ok": false,
+          "why": "no delete control found in a rendered task row"
+        },
+        {
+          "turnIndex": 6,
+          "ok": false,
+          "why": "no task row rendered"
+        },
+        {
+          "turnIndex": 9,
+          "ok": false,
+          "why": "tasks 0 -> 0"
+        },
+        {
+          "turnIndex": 11,
+          "ok": false,
+          "why": "input value after add = \"check me\""
+        }
+      ],
+      "conformFindings": [],
+      "codeLenBefore": 1496,
+      "codeLenAfter": 1551,
+      "groundAfter": 5,
+      "tokens": 44,
+      "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Priority Tasks</title></head>\n<body>\n  <input id=\"what\" placeholder=\"new task\"><button onclick=\"markTaskDone(this); document.getElementById('what').value = ''\">Done</button>\n  <select id=\"priority\"><option value=\"low\">low</option><option value=\"high\" selected>high</option></select>\n  <button id=\"add\" style=\"font-size: 20px;\">add</button>\n  <ul id=\"list\"></ul>\n  <div id=\"count\">0 tasks</div>\n  <button id=\"clear\" style=\"font-size: 20px;\">clear completed</button>\n\n    let tasks = [];\n    function render() {\n      const list = document.getElementById('list');\n      list.innerHTML = '';\n      tasks.sort(function(a, b) { return b.priority === 'high' - a.priority === 'high'; });\n        const li = document.createElement('li');\n        li.textContent = (t.done ? '[x] ' : '[ ] ') + t.text + ' (' + t.priority + ')';\n        li.style.backgroundColor = t.priority === 'high' ? 'red' : 'lightgreen';\n        li.addEventListener('click', function() { t.done = !t.done; render(); });\n        list.appendChild(li);\n      });\n      document.getElementById('count').textContent = tasks.filter(t => !t.done).length + ' tasks done / ' + tasks.filter(t => t.done).length + ' tasks not done';\n    }\n    document.getElementById('add').addEventListener('click', function() {\n      const text = document.getElementById('what').value;\n      const priority = document.getElementById('priority').value;\n      if (text) tasks.push({ text: text, priority: priority, done: false });\n      render();\n    });\n  </script>\n</body>\n</html>"
+    },
+    {
+      "turnIndex": 13,
+      "ask": "fix it",
+      "predictedKind": "vague",
+      "routedAs": "anaphora",
+      "landedAsRezero": true,
+      "landed": true,
+      "gap": null,
+      "structuralClean": true,
+      "structuralFindings": [],
+      "behavioralOwnCheck": null,
+      "regressionsIntroducedThisTurn": [
+        {
+          "turnIndex": 0,
+          "ok": false,
+          "why": "tasks after add = 0"
+        },
+        {
+          "turnIndex": 1,
+          "ok": false,
+          "why": "no delete control found in a rendered task row"
+        },
+        {
+          "turnIndex": 6,
+          "ok": false,
+          "why": "no task row rendered"
+        },
+        {
+          "turnIndex": 9,
+          "ok": false,
+          "why": "tasks 0 -> 0"
+        },
+        {
+          "turnIndex": 11,
+          "ok": false,
+          "why": "input value after add = \"check me\""
+        }
+      ],
+      "conformFindings": [],
+      "codeLenBefore": 1551,
+      "codeLenAfter": 1554,
+      "groundAfter": 6,
+      "tokens": 75,
+      "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Priority Tasks</title></head>\n<body>\n  <input id=\"what\" placeholder=\"new task\"><button onclick=\"markTaskDone(this); document.getElementById('what').value = ''\">Done</button>\n  <select id=\"priority\"><option value=\"low\">low</option><option value=\"high\" selected>high</option></select>\n  <button id=\"add\" style=\"font-size: 20px;\">add</button>\n  <ul id=\"list\"></ul>\n  <div id=\"count\">0 tasks</div>\n  <button id=\"clear\" style=\"font-size: 20px;\">clear completed</button>\n\n    let tasks = [];\n    function render() {\n      const list = document.getElementById('list');\n      list.innerHTML = '';\n      tasks.sort((a, b) => (a.priority === 'high' ? 1 : 0) - (b.priority === 'high' ? 1 : 0));\n        const li = document.createElement('li');\n        li.textContent = (t.done ? '[x] ' : '[ ] ') + t.text + ' (' + t.priority + ')';\n        li.style.backgroundColor = t.priority === 'high' ? 'red' : 'lightgreen';\n        li.addEventListener('click', function() { t.done = !t.done; render(); });\n        list.appendChild(li);\n      });\n      document.getElementById('count').textContent = tasks.filter(t => !t.done).length + ' tasks done / ' + tasks.filter(t => t.done).length + ' tasks not done';\n    }\n    document.getElementById('add').addEventListener('click', function() {\n      const text = document.getElementById('what').value;\n      const priority = document.getElementById('priority').value;\n      if (text) tasks.push({ text: text, priority: priority, done: false });\n      render();\n    });\n  </script>\n</body>\n</html>"
+    },
+    {
+      "turnIndex": 14,
+      "ask": "add a button to mark all tasks done at once",
+      "predictedKind": "feature",
+      "routedAs": "resolved",
+      "landedAsRezero": false,
+      "landed": true,
+      "gap": null,
+      "structuralClean": true,
+      "structuralFindings": [],
+      "behavioralOwnCheck": {
+        "turnIndex": 14,
+        "ok": false,
+        "why": "no mark-all-done button found"
+      },
+      "regressionsIntroducedThisTurn": [
+        {
+          "turnIndex": 0,
+          "ok": false,
+          "why": "tasks after add = 0"
+        },
+        {
+          "turnIndex": 1,
+          "ok": false,
+          "why": "no delete control found in a rendered task row"
+        },
+        {
+          "turnIndex": 6,
+          "ok": false,
+          "why": "no task row rendered"
+        },
+        {
+          "turnIndex": 9,
+          "ok": false,
+          "why": "tasks 0 -> 0"
+        },
+        {
+          "turnIndex": 11,
+          "ok": false,
+          "why": "input value after add = \"check me\""
+        }
+      ],
+      "conformFindings": [],
+      "codeLenBefore": 1554,
+      "codeLenAfter": 1603,
+      "groundAfter": 6,
+      "tokens": 51,
+      "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Priority Tasks</title></head>\n<body>\n  <input id=\"what\" placeholder=\"new task\"><button onclick=\"markTaskDone(this); document.getElementById('what').value = ''\">Done</button>\n  <select id=\"priority\"><option value=\"low\">low</option><option value=\"high\" selected>high</option></select>\n  <button id=\"add\" style=\"font-size: 20px;\">add</button>\n  <ul id=\"list\"></ul>\n  <div id=\"count\">0 tasks</div>\n  <button id=\"clear\" style=\"font-size: 20px;\">clear completed</button>\n\n    let tasks = [];\n    function render() {\n      const list = document.getElementById('list');\n      list.innerHTML = '';\n      tasks.sort((a, b) => (a.priority === 'high' ? 1 : 0) - (b.priority === 'high' ? 1 : 0));\n        const li = document.createElement('li');\n        li.textContent = (t.done ? '[x] ' : '[ ] ') + t.text + ' (' + t.priority + ')';\n        li.style.backgroundColor = t.priority === 'high' ? 'red' : 'lightgreen';\n        li.addEventListener('click', function() { t.done = !t.done; render(); });\n        list.appendChild(li);\n      });\n      document.getElementById('count').textContent = tasks.filter(t => !t.done).length + ' tasks done / ' + tasks.filter(t => t.done).length + ' tasks not done';\n    }\n    document.getElementById('add').addEventListener('click', function() { tasks.forEach(t => t.done = true); render(); });\n      const text = document.getElementById('what').value;\n      const priority = document.getElementById('priority').value;\n      if (text) tasks.push({ text: text, priority: priority, done: false });\n      render();\n    });\n  </script>\n</body>\n</html>"
+    },
+    {
+      "turnIndex": 15,
+      "ask": "I don't like how the count looks, it should say 'Done:' not just the number",
+      "predictedKind": "judgment",
+      "routedAs": "judgment",
+      "landedAsRezero": true,
+      "landed": true,
+      "gap": null,
+      "structuralClean": true,
+      "structuralFindings": [],
+      "behavioralOwnCheck": {
+        "turnIndex": 15,
+        "ok": true,
+        "why": "count reads \"0 tasks\""
+      },
+      "regressionsIntroducedThisTurn": [
+        {
+          "turnIndex": 0,
+          "ok": false,
+          "why": "tasks after add = 0"
+        },
+        {
+          "turnIndex": 1,
+          "ok": false,
+          "why": "no delete control found in a rendered task row"
+        },
+        {
+          "turnIndex": 6,
+          "ok": false,
+          "why": "no task row rendered"
+        },
+        {
+          "turnIndex": 9,
+          "ok": false,
+          "why": "tasks 0 -> 0"
+        },
+        {
+          "turnIndex": 11,
+          "ok": false,
+          "why": "input value after add = \"check me\""
+        },
+        {
+          "turnIndex": 14,
+          "ok": false,
+          "why": "no mark-all-done button found"
+        }
+      ],
+      "conformFindings": [],
+      "codeLenBefore": 1603,
+      "codeLenAfter": 1603,
+      "groundAfter": 7,
+      "tokens": 92,
+      "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Priority Tasks</title></head>\n<body>\n  <input id=\"what\" placeholder=\"new task\"><button onclick=\"markTaskDone(this); document.getElementById('what').value = ''\">Done</button>\n  <select id=\"priority\"><option value=\"low\">low</option><option value=\"high\" selected>high</option></select>\n  <button id=\"add\" style=\"font-size: 20px;\">add</button>\n  <ul id=\"list\"></ul>\n  <div id=\"count\">0 tasks</div>\n  <button id=\"clear\" style=\"font-size: 20px;\">clear completed</button>\n\n    let tasks = [];\n    function render() {\n      const list = document.getElementById('list');\n      list.innerHTML = '';\n      tasks.sort((a, b) => (a.priority === 'high' ? 1 : 0) - (b.priority === 'high' ? 1 : 0));\n        const li = document.createElement('li');\n        li.textContent = (t.done ? '[x] ' : '[ ] ') + t.text + ' (' + t.priority + ')';\n        li.style.backgroundColor = t.priority === 'high' ? 'red' : 'lightgreen';\n        li.addEventListener('click', function() { t.done = !t.done; render(); });\n        list.appendChild(li);\n      });\n      document.getElementById('count').textContent = 'Done: ' + tasks.filter(t => t.done).length + ' / ' + tasks.filter(t => !t.done).length + ' tasks not done';\n    }\n    document.getElementById('add').addEventListener('click', function() { tasks.forEach(t => t.done = true); render(); });\n      const text = document.getElementById('what').value;\n      const priority = document.getElementById('priority').value;\n      if (text) tasks.push({ text: text, priority: priority, done: false });\n      render();\n    });\n  </script>\n</body>\n</html>"
+    },
+    {
+      "turnIndex": 16,
+      "ask": "add a way to edit an existing task's text",
+      "predictedKind": "feature",
+      "routedAs": "resolved",
+      "landedAsRezero": false,
+      "landed": true,
+      "gap": null,
+      "structuralClean": true,
+      "structuralFindings": [],
+      "behavioralOwnCheck": null,
+      "regressionsIntroducedThisTurn": [
+        {
+          "turnIndex": 0,
+          "ok": false,
+          "why": "tasks after add = 0"
+        },
+        {
+          "turnIndex": 1,
+          "ok": false,
+          "why": "no delete control found in a rendered task row"
+        },
+        {
+          "turnIndex": 6,
+          "ok": false,
+          "why": "no task row rendered"
+        },
+        {
+          "turnIndex": 9,
+          "ok": false,
+          "why": "tasks 0 -> 0"
+        },
+        {
+          "turnIndex": 11,
+          "ok": false,
+          "why": "input value after add = \"check me\""
+        },
+        {
+          "turnIndex": 14,
+          "ok": false,
+          "why": "no mark-all-done button found"
+        }
+      ],
+      "conformFindings": [],
+      "codeLenBefore": 1603,
+      "codeLenAfter": 1599,
+      "groundAfter": 7,
+      "tokens": 45,
+      "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Priority Tasks</title></head>\n<body>\n  <input id=\"what\" placeholder=\"new task\"><button onclick=\"editTask(this); document.getElementById('what').value = ''\">Done</button>\n  <select id=\"priority\"><option value=\"low\">low</option><option value=\"high\" selected>high</option></select>\n  <button id=\"add\" style=\"font-size: 20px;\">add</button>\n  <ul id=\"list\"></ul>\n  <div id=\"count\">0 tasks</div>\n  <button id=\"clear\" style=\"font-size: 20px;\">clear completed</button>\n\n    let tasks = [];\n    function render() {\n      const list = document.getElementById('list');\n      list.innerHTML = '';\n      tasks.sort((a, b) => (a.priority === 'high' ? 1 : 0) - (b.priority === 'high' ? 1 : 0));\n        const li = document.createElement('li');\n        li.textContent = (t.done ? '[x] ' : '[ ] ') + t.text + ' (' + t.priority + ')';\n        li.style.backgroundColor = t.priority === 'high' ? 'red' : 'lightgreen';\n        li.addEventListener('click', function() { t.done = !t.done; render(); });\n        list.appendChild(li);\n      });\n      document.getElementById('count').textContent = 'Done: ' + tasks.filter(t => t.done).length + ' / ' + tasks.filter(t => !t.done).length + ' tasks not done';\n    }\n    document.getElementById('add').addEventListener('click', function() { tasks.forEach(t => t.done = true); render(); });\n      const text = document.getElementById('what').value;\n      const priority = document.getElementById('priority').value;\n      if (text) tasks.push({ text: text, priority: priority, done: false });\n      render();\n    });\n  </script>\n</body>\n</html>"
+    },
+    {
+      "turnIndex": 17,
+      "ask": "undo the last change",
+      "predictedKind": "undo",
+      "routedAs": null,
+      "landedAsRezero": false,
+      "landed": true,
+      "gap": null,
+      "structuralClean": true,
+      "structuralFindings": [],
+      "behavioralOwnCheck": null,
+      "regressionsIntroducedThisTurn": [
+        {
+          "turnIndex": 0,
+          "ok": false,
+          "why": "tasks after add = 0"
+        },
+        {
+          "turnIndex": 1,
+          "ok": false,
+          "why": "no delete control found in a rendered task row"
+        },
+        {
+          "turnIndex": 6,
+          "ok": false,
+          "why": "no task row rendered"
+        },
+        {
+          "turnIndex": 9,
+          "ok": false,
+          "why": "tasks 0 -> 0"
+        },
+        {
+          "turnIndex": 11,
+          "ok": false,
+          "why": "input value after add = \"check me\""
+        },
+        {
+          "turnIndex": 14,
+          "ok": false,
+          "why": "no mark-all-done button found"
+        }
+      ],
+      "conformFindings": [],
+      "codeLenBefore": 1599,
+      "codeLenAfter": 1481,
+      "groundAfter": 7,
+      "tokens": 38,
+      "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Priority Tasks</title></head>\n<body>\n  <input id=\"what\" placeholder=\"new task\"><button onclick=\"editTask(this); document.getElementById('what').value = ''\">Done</button>\n  <select id=\"priority\"><option value=\"low\">low</option><option value=\"high\" selected>high</option></select>\n  <button id=\"add\" style=\"font-size: 20px;\">add</button>\n  <ul id=\"list\"></ul>\n  <div id=\"count\">0 tasks</div>\n  <button id=\"clear\" style=\"font-size: 20px;\">clear completed</button>\n\n    let tasks = [];\n    function render() {\n      const list = document.getElementById('list');\n      list.innerHTML = '';\n      tasks.sort((a, b) => (a.priority === 'high' ? 1 : 0) - (b.priority === 'high' ? 1 : 0));\n        const li = document.createElement('li');\n        li.textContent = (t.done ? '[x] ' : '[ ] ') + t.text + ' (' + t.priority + ')';\n        li.style.backgroundColor = t.priority === 'high' ? 'red' : 'lightgreen';\n        li.addEventListener('click', function() { t.done = !t.done; render(); });\n        list.appendChild(li);\n      });\n      document.getElementById('count').textContent = 'Done: ' + tasks.filter(t => t.done).length + ' / ' + tasks.filter(t => !t.done).length + ' tasks not done';\n    }\n    \n      const text = document.getElementById('what').value;\n      const priority = document.getElementById('priority').value;\n      if (text) tasks.push({ text: text, priority: priority, done: false });\n      render();\n    });\n  </script>\n</body>\n</html>"
+    }
+  ]
+}
