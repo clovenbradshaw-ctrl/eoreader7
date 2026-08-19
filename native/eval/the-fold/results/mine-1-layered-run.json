@@ -1,0 +1,2145 @@
+{
+ "totals": {
+  "essays": 105,
+  "facts": 1575,
+  "no_vocabulary_essays": 0,
+  "bound": 490,
+  "contradicted": 0,
+  "unbound": 492,
+  "beyond-reach": 216,
+  "unheard": 53,
+  "no_claims_extracted": 324
+ },
+ "examined": 1251,
+ "perEssay": [
+  {
+   "idx": 0,
+   "topic": "The Life Cycle of a Butterfly",
+   "facts": 15,
+   "vocabularyVerbs": 25,
+   "vetoed": [
+    "have",
+    "while",
+    "others",
+    "mimic",
+    "leaves",
+    "camouflage",
+    "as",
+    "it",
+    "reaches",
+    "point",
+    "stops",
+    "eating",
+    "and",
+    "begins",
+    "prepare",
+    "stage",
+    "its",
+    "cycle",
+    "third",
+    "adult",
+    "butterflies",
+    "short",
+    "ranging",
+    "days",
+    "on",
+    "in",
+    "butterfly",
+    "journey",
+    "stages",
+    "appreciating",
+    "gain",
+    "processes",
+    "make",
+    "up",
+    "world"
+   ],
+   "verdicts": {
+    "no_claims_extracted": 4,
+    "bound": 5,
+    "unbound": 3,
+    "beyond-reach": 3
+   }
+  },
+  {
+   "idx": 1,
+   "topic": "Urban Legends and Their Origins",
+   "facts": 15,
+   "vocabularyVerbs": 31,
+   "vetoed": [
+    "allure",
+    "unknown",
+    "and",
+    "thrill",
+    "good",
+    "scare",
+    "have",
+    "enduring"
+   ],
+   "verdicts": {
+    "unbound": 5,
+    "no_claims_extracted": 4,
+    "bound": 4,
+    "beyond-reach": 2
+   }
+  },
+  {
+   "idx": 2,
+   "topic": "Ethical Dilemmas in AI Development",
+   "facts": 15,
+   "vocabularyVerbs": 24,
+   "vetoed": [
+    "in",
+    "lack",
+    "can",
+    "lead",
+    "distrust",
+    "and",
+    "hinder",
+    "impact",
+    "on"
+   ],
+   "verdicts": {
+    "unheard": 2,
+    "bound": 2,
+    "no_claims_extracted": 8,
+    "beyond-reach": 2,
+    "unbound": 1
+   }
+  },
+  {
+   "idx": 3,
+   "topic": "Why Dinosaurs Fascinate Us",
+   "facts": 15,
+   "vocabularyVerbs": 26,
+   "vetoed": [
+    "surrounding",
+    "adds",
+    "allure"
+   ],
+   "verdicts": {
+    "unbound": 3,
+    "bound": 5,
+    "unheard": 1,
+    "no_claims_extracted": 4,
+    "beyond-reach": 2
+   }
+  },
+  {
+   "idx": 4,
+   "topic": "The Evolution of Video Games",
+   "facts": 15,
+   "vocabularyVerbs": 30,
+   "vetoed": [],
+   "verdicts": {
+    "unbound": 9,
+    "no_claims_extracted": 2,
+    "unheard": 1,
+    "beyond-reach": 1,
+    "bound": 2
+   }
+  },
+  {
+   "idx": 5,
+   "topic": "The Role of Bees in Agriculture",
+   "facts": 15,
+   "vocabularyVerbs": 22,
+   "vetoed": [
+    "decline",
+    "in",
+    "and",
+    "play",
+    "as",
+    "crop"
+   ],
+   "verdicts": {
+    "no_claims_extracted": 7,
+    "unbound": 4,
+    "beyond-reach": 2,
+    "bound": 2
+   }
+  },
+  {
+   "idx": 6,
+   "topic": "How Music Influences Mood",
+   "facts": 15,
+   "vocabularyVerbs": 34,
+   "vetoed": [
+    "in",
+    "music",
+    "tool",
+    "can",
+    "impact",
+    "and"
+   ],
+   "verdicts": {
+    "no_claims_extracted": 5,
+    "unbound": 7,
+    "bound": 3
+   }
+  },
+  {
+   "idx": 7,
+   "topic": "Space Exploration: Past, Present, and Future",
+   "facts": 15,
+   "vocabularyVerbs": 37,
+   "vetoed": [
+    "space",
+    "gaining",
+    "traction",
+    "companies",
+    "like",
+    "blue",
+    "and",
+    "offering"
+   ],
+   "verdicts": {
+    "beyond-reach": 4,
+    "bound": 5,
+    "unbound": 4,
+    "unheard": 2
+   }
+  },
+  {
+   "idx": 8,
+   "topic": "Psychological Effects of Colors",
+   "facts": 15,
+   "vocabularyVerbs": 36,
+   "vetoed": [],
+   "verdicts": {
+    "unbound": 9,
+    "no_claims_extracted": 2,
+    "bound": 4
+   }
+  },
+  {
+   "idx": 9,
+   "topic": "The Mystery of Black Holes",
+   "facts": 15,
+   "vocabularyVerbs": 39,
+   "vetoed": [
+    "in",
+    "black",
+    "holes",
+    "one",
+    "and"
+   ],
+   "verdicts": {
+    "unbound": 7,
+    "no_claims_extracted": 6,
+    "beyond-reach": 1,
+    "bound": 1
+   }
+  },
+  {
+   "idx": 10,
+   "topic": "How the Brain Processes Language",
+   "facts": 15,
+   "vocabularyVerbs": 33,
+   "vetoed": [
+    "perceiving",
+    "speech",
+    "sentences",
+    "brain",
+    "make",
+    "sense",
+    "language"
+   ],
+   "verdicts": {
+    "bound": 3,
+    "unbound": 10,
+    "beyond-reach": 1,
+    "no_claims_extracted": 1
+   }
+  },
+  {
+   "idx": 11,
+   "topic": "A History of Magic Tricks",
+   "facts": 15,
+   "vocabularyVerbs": 33,
+   "vetoed": [],
+   "verdicts": {
+    "unbound": 8,
+    "bound": 2,
+    "beyond-reach": 2,
+    "unheard": 3
+   }
+  },
+  {
+   "idx": 12,
+   "topic": "The Physics of Roller Coasters",
+   "facts": 15,
+   "vocabularyVerbs": 34,
+   "vetoed": [
+    "roller",
+    "on",
+    "sum",
+    "motion",
+    "and",
+    "position",
+    "in",
+    "physics"
+   ],
+   "verdicts": {
+    "bound": 8,
+    "unbound": 2,
+    "no_claims_extracted": 4,
+    "beyond-reach": 1
+   }
+  },
+  {
+   "idx": 13,
+   "topic": "The Art of Tattooing",
+   "facts": 15,
+   "vocabularyVerbs": 28,
+   "vetoed": [
+    "tattoos",
+    "and",
+    "display",
+    "ink",
+    "on"
+   ],
+   "verdicts": {
+    "beyond-reach": 3,
+    "no_claims_extracted": 5,
+    "unbound": 5,
+    "bound": 2
+   }
+  },
+  {
+   "idx": 14,
+   "topic": "Ancient Egyptian Burial Practices",
+   "facts": 15,
+   "vocabularyVerbs": 37,
+   "vetoed": [],
+   "verdicts": {
+    "bound": 6,
+    "unbound": 7,
+    "unheard": 1,
+    "beyond-reach": 1
+   }
+  },
+  {
+   "idx": 15,
+   "topic": "The Chemistry of Cooking",
+   "facts": 15,
+   "vocabularyVerbs": 24,
+   "vetoed": [
+    "and",
+    "can",
+    "results",
+    "in",
+    "dishes",
+    "cooking",
+    "as",
+    "pickling",
+    "process",
+    "but",
+    "flavor",
+    "value",
+    "aspect",
+    "control",
+    "experience"
+   ],
+   "verdicts": {
+    "no_claims_extracted": 10,
+    "unbound": 4,
+    "bound": 1
+   }
+  },
+  {
+   "idx": 16,
+   "topic": "Unusual Animal Adaptations",
+   "facts": 15,
+   "vocabularyVerbs": 28,
+   "vetoed": [
+    "one",
+    "striking",
+    "examples",
+    "type",
+    "salamander",
+    "showcases",
+    "yet",
+    "its",
+    "middle",
+    "finger",
+    "as",
+    "continue",
+    "world",
+    "let",
+    "marvel",
+    "at",
+    "and",
+    "make",
+    "place"
+   ],
+   "verdicts": {
+    "no_claims_extracted": 5,
+    "unbound": 9,
+    "bound": 1
+   }
+  },
+  {
+   "idx": 17,
+   "topic": "The Science Behind Sleep",
+   "facts": 15,
+   "vocabularyVerbs": 32,
+   "vetoed": [
+    "sleep",
+    "and",
+    "making",
+    "better",
+    "can",
+    "well"
+   ],
+   "verdicts": {
+    "no_claims_extracted": 2,
+    "unbound": 3,
+    "bound": 5,
+    "beyond-reach": 5
+   }
+  },
+  {
+   "idx": 18,
+   "topic": "The History of Board Games",
+   "facts": 15,
+   "vocabularyVerbs": 35,
+   "vetoed": [],
+   "verdicts": {
+    "unbound": 5,
+    "bound": 7,
+    "unheard": 1,
+    "beyond-reach": 2
+   }
+  },
+  {
+   "idx": 19,
+   "topic": "Virtual Reality in Education",
+   "facts": 15,
+   "vocabularyVerbs": 36,
+   "vetoed": [],
+   "verdicts": {
+    "bound": 5,
+    "no_claims_extracted": 1,
+    "unheard": 1,
+    "unbound": 6,
+    "beyond-reach": 2
+   }
+  },
+  {
+   "idx": 20,
+   "topic": "How Plants Communicate",
+   "facts": 15,
+   "vocabularyVerbs": 34,
+   "vetoed": [
+    "plants",
+    "and",
+    "highlighting",
+    "in",
+    "balance",
+    "sheds",
+    "light",
+    "on",
+    "plant",
+    "but",
+    "offers",
+    "can",
+    "better",
+    "support",
+    "changing",
+    "world"
+   ],
+   "verdicts": {
+    "unbound": 4,
+    "unheard": 1,
+    "bound": 6,
+    "beyond-reach": 1,
+    "no_claims_extracted": 3
+   }
+  },
+  {
+   "idx": 21,
+   "topic": "The Rise of Cryptocurrencies",
+   "facts": 15,
+   "vocabularyVerbs": 25,
+   "vetoed": [],
+   "verdicts": {
+    "bound": 3,
+    "beyond-reach": 6,
+    "unbound": 3,
+    "no_claims_extracted": 3
+   }
+  },
+  {
+   "idx": 22,
+   "topic": "A Day in the Life of an Astronaut",
+   "facts": 15,
+   "vocabularyVerbs": 23,
+   "vetoed": [
+    "tasks",
+    "may",
+    "but",
+    "and",
+    "well",
+    "crew",
+    "functioning",
+    "space",
+    "station",
+    "in",
+    "day",
+    "ballet"
+   ],
+   "verdicts": {
+    "no_claims_extracted": 4,
+    "unbound": 6,
+    "bound": 5
+   }
+  },
+  {
+   "idx": 23,
+   "topic": "The Impact of Social Media on Communication",
+   "facts": 15,
+   "vocabularyVerbs": 33,
+   "vetoed": [],
+   "verdicts": {
+    "no_claims_extracted": 5,
+    "unbound": 7,
+    "unheard": 1,
+    "beyond-reach": 2
+   }
+  },
+  {
+   "idx": 24,
+   "topic": "Ethical Implications of Genetic Engineering",
+   "facts": 15,
+   "vocabularyVerbs": 21,
+   "vetoed": [
+    "and",
+    "must",
+    "research",
+    "safety",
+    "well"
+   ],
+   "verdicts": {
+    "bound": 12,
+    "unbound": 2,
+    "beyond-reach": 1
+   }
+  },
+  {
+   "idx": 25,
+   "topic": "How to Build a Rocket",
+   "facts": 15,
+   "vocabularyVerbs": 47,
+   "vetoed": [],
+   "verdicts": {
+    "unbound": 8,
+    "bound": 5,
+    "beyond-reach": 2
+   }
+  },
+  {
+   "idx": 26,
+   "topic": "Famous Hoaxes in History",
+   "facts": 15,
+   "vocabularyVerbs": 42,
+   "vetoed": [],
+   "verdicts": {
+    "bound": 9,
+    "beyond-reach": 2,
+    "unbound": 3,
+    "unheard": 1
+   }
+  },
+  {
+   "idx": 27,
+   "topic": "The History of the English Language",
+   "facts": 15,
+   "vocabularyVerbs": 40,
+   "vetoed": [],
+   "verdicts": {
+    "unbound": 5,
+    "unheard": 2,
+    "bound": 7,
+    "beyond-reach": 1
+   }
+  },
+  {
+   "idx": 28,
+   "topic": "The Discovery of Penicillin",
+   "facts": 15,
+   "vocabularyVerbs": 38,
+   "vetoed": [],
+   "verdicts": {
+    "unbound": 8,
+    "bound": 5,
+    "unheard": 1,
+    "beyond-reach": 1
+   }
+  },
+  {
+   "idx": 29,
+   "topic": "The Art of Bonsai Tree Cultivation",
+   "facts": 15,
+   "vocabularyVerbs": 24,
+   "vetoed": [
+    "practice",
+    "caring",
+    "bonsai",
+    "trees",
+    "can",
+    "and",
+    "experience",
+    "providing",
+    "sense",
+    "calm",
+    "nature"
+   ],
+   "verdicts": {
+    "no_claims_extracted": 5,
+    "unbound": 5,
+    "beyond-reach": 3,
+    "bound": 2
+   }
+  },
+  {
+   "idx": 30,
+   "topic": "A Brief History of Time Zones",
+   "facts": 15,
+   "vocabularyVerbs": 33,
+   "vetoed": [
+    "conference",
+    "world",
+    "time",
+    "zones",
+    "spanning"
+   ],
+   "verdicts": {
+    "unbound": 4,
+    "no_claims_extracted": 3,
+    "bound": 2,
+    "beyond-reach": 3,
+    "unheard": 3
+   }
+  },
+  {
+   "idx": 31,
+   "topic": "The Role of Coffee in Society",
+   "facts": 15,
+   "vocabularyVerbs": 28,
+   "vetoed": [
+    "in",
+    "its",
+    "coffee"
+   ],
+   "verdicts": {
+    "no_claims_extracted": 7,
+    "beyond-reach": 2,
+    "unbound": 4,
+    "unheard": 2
+   }
+  },
+  {
+   "idx": 32,
+   "topic": "The Legend of Atlantis",
+   "facts": 15,
+   "vocabularyVerbs": 34,
+   "vetoed": [],
+   "verdicts": {
+    "bound": 11,
+    "unbound": 2,
+    "unheard": 1,
+    "beyond-reach": 1
+   }
+  },
+  {
+   "idx": 33,
+   "topic": "The Development of Writing Systems",
+   "facts": 15,
+   "vocabularyVerbs": 42,
+   "vetoed": [],
+   "verdicts": {
+    "beyond-reach": 3,
+    "bound": 7,
+    "unheard": 1,
+    "unbound": 3,
+    "no_claims_extracted": 1
+   }
+  },
+  {
+   "idx": 34,
+   "topic": "The Mathematics of Origami",
+   "facts": 15,
+   "vocabularyVerbs": 33,
+   "vetoed": [
+    "science",
+    "field",
+    "made",
+    "and",
+    "form",
+    "but",
+    "way",
+    "in",
+    "engineering",
+    "serves",
+    "as",
+    "beauty",
+    "power",
+    "shaping",
+    "world"
+   ],
+   "verdicts": {
+    "bound": 4,
+    "unbound": 7,
+    "beyond-reach": 2,
+    "no_claims_extracted": 2
+   }
+  },
+  {
+   "idx": 35,
+   "topic": "Why Laughter is Contagious",
+   "facts": 15,
+   "vocabularyVerbs": 33,
+   "vetoed": [],
+   "verdicts": {
+    "no_claims_extracted": 4,
+    "unbound": 5,
+    "bound": 3,
+    "beyond-reach": 3
+   }
+  },
+  {
+   "idx": 36,
+   "topic": "The Cultural Significance of Tattoos",
+   "facts": 15,
+   "vocabularyVerbs": 31,
+   "vetoed": [
+    "tattoos",
+    "forge",
+    "and",
+    "sense",
+    "in",
+    "culture",
+    "as",
+    "symbols",
+    "courage",
+    "strength"
+   ],
+   "verdicts": {
+    "unbound": 7,
+    "bound": 3,
+    "no_claims_extracted": 3,
+    "beyond-reach": 2
+   }
+  },
+  {
+   "idx": 37,
+   "topic": "The Future of Renewable Energy",
+   "facts": 15,
+   "vocabularyVerbs": 33,
+   "vetoed": [
+    "in",
+    "policy",
+    "support",
+    "and",
+    "sources",
+    "play",
+    "meeting",
+    "growing",
+    "while",
+    "carbon",
+    "impact",
+    "promising",
+    "offering",
+    "path",
+    "more",
+    "world",
+    "come"
+   ],
+   "verdicts": {
+    "no_claims_extracted": 4,
+    "unbound": 4,
+    "bound": 7
+   }
+  },
+  {
+   "idx": 38,
+   "topic": "The History of Pirates",
+   "facts": 15,
+   "vocabularyVerbs": 38,
+   "vetoed": [
+    "lure",
+    "gold",
+    "silver",
+    "and",
+    "other",
+    "pirate",
+    "leading",
+    "crews",
+    "in",
+    "places",
+    "like",
+    "code",
+    "conduct",
+    "known",
+    "as",
+    "spoils",
+    "disputes",
+    "crew",
+    "members",
+    "decline",
+    "down",
+    "on"
+   ],
+   "verdicts": {
+    "unbound": 4,
+    "beyond-reach": 2,
+    "unheard": 2,
+    "bound": 6,
+    "no_claims_extracted": 1
+   }
+  },
+  {
+   "idx": 39,
+   "topic": "The Science of Baking Bread",
+   "facts": 15,
+   "vocabularyVerbs": 34,
+   "vetoed": [
+    "kneading",
+    "bread",
+    "rises",
+    "and",
+    "good",
+    "crumb",
+    "structure",
+    "in",
+    "crisp",
+    "crust"
+   ],
+   "verdicts": {
+    "no_claims_extracted": 5,
+    "beyond-reach": 4,
+    "bound": 3,
+    "unbound": 3
+   }
+  },
+  {
+   "idx": 40,
+   "topic": "The Role of Dreams in Psychology",
+   "facts": 15,
+   "vocabularyVerbs": 31,
+   "vetoed": [],
+   "verdicts": {
+    "no_claims_extracted": 4,
+    "bound": 2,
+    "unbound": 5,
+    "unheard": 1,
+    "beyond-reach": 3
+   }
+  },
+  {
+   "idx": 41,
+   "topic": "How to Survive a Zombie Apocalypse",
+   "facts": 15,
+   "vocabularyVerbs": 35,
+   "vetoed": [
+    "it",
+    "comes",
+    "dealing",
+    "knowledge",
+    "power",
+    "learn",
+    "and",
+    "better",
+    "in",
+    "safety",
+    "increase",
+    "key"
+   ],
+   "verdicts": {
+    "no_claims_extracted": 5,
+    "unbound": 5,
+    "beyond-reach": 3,
+    "bound": 2
+   }
+  },
+  {
+   "idx": 42,
+   "topic": "Famous Conspiracy Theories",
+   "facts": 15,
+   "vocabularyVerbs": 46,
+   "vetoed": [],
+   "verdicts": {
+    "no_claims_extracted": 1,
+    "bound": 6,
+    "unbound": 5,
+    "beyond-reach": 3
+   }
+  },
+  {
+   "idx": 43,
+   "topic": "How Electricity Revolutionized the World",
+   "facts": 15,
+   "vocabularyVerbs": 20,
+   "vetoed": [
+    "trade",
+    "and",
+    "people",
+    "markets",
+    "world"
+   ],
+   "verdicts": {
+    "no_claims_extracted": 8,
+    "unbound": 4,
+    "bound": 3
+   }
+  },
+  {
+   "idx": 44,
+   "topic": "A History of Fashion Trends",
+   "facts": 15,
+   "vocabularyVerbs": 31,
+   "vetoed": [
+    "roaring",
+    "shift",
+    "more",
+    "and",
+    "clothing",
+    "embracing",
+    "loose",
+    "fitting",
+    "silhouettes",
+    "spirit",
+    "culture",
+    "influencing",
+    "fashion",
+    "trends",
+    "like",
+    "skirts",
+    "bell"
+   ],
+   "verdicts": {
+    "bound": 7,
+    "unbound": 5,
+    "beyond-reach": 3
+   }
+  },
+  {
+   "idx": 45,
+   "topic": "The Significance of the Rosetta Stone",
+   "facts": 15,
+   "vocabularyVerbs": 45,
+   "vetoed": [],
+   "verdicts": {
+    "bound": 8,
+    "unbound": 2,
+    "unheard": 4,
+    "beyond-reach": 1
+   }
+  },
+  {
+   "idx": 46,
+   "topic": "The Role of Birds in Ecosystems",
+   "facts": 15,
+   "vocabularyVerbs": 18,
+   "vetoed": [
+    "in",
+    "bird",
+    "can",
+    "signal",
+    "as",
+    "climate",
+    "change"
+   ],
+   "verdicts": {
+    "bound": 6,
+    "no_claims_extracted": 4,
+    "unbound": 5
+   }
+  },
+  {
+   "idx": 47,
+   "topic": "How Spiders Build Webs",
+   "facts": 15,
+   "vocabularyVerbs": 21,
+   "vetoed": [
+    "spider",
+    "will",
+    "construct",
+    "lines",
+    "web",
+    "serve",
+    "as",
+    "structure",
+    "in",
+    "place",
+    "begin",
+    "lay",
+    "down",
+    "spiral",
+    "prey",
+    "feel",
+    "trap",
+    "line",
+    "it",
+    "presence",
+    "move",
+    "and",
+    "bite",
+    "wrapping",
+    "silk"
+   ],
+   "verdicts": {
+    "unbound": 6,
+    "no_claims_extracted": 8,
+    "bound": 1
+   }
+  },
+  {
+   "idx": 48,
+   "topic": "The Art of Storytelling",
+   "facts": 15,
+   "vocabularyVerbs": 41,
+   "vetoed": [],
+   "verdicts": {
+    "beyond-reach": 4,
+    "unbound": 6,
+    "no_claims_extracted": 3,
+    "bound": 2
+   }
+  },
+  {
+   "idx": 49,
+   "topic": "The Future of Autonomous Vehicles",
+   "facts": 15,
+   "vocabularyVerbs": 40,
+   "vetoed": [
+    "continued",
+    "in",
+    "research",
+    "and",
+    "focus",
+    "on",
+    "safety",
+    "play"
+   ],
+   "verdicts": {
+    "no_claims_extracted": 4,
+    "bound": 6,
+    "unbound": 5
+   }
+  },
+  {
+   "idx": 50,
+   "topic": "The Importance of Coral Reefs",
+   "facts": 15,
+   "vocabularyVerbs": 26,
+   "vetoed": [
+    "reefs",
+    "help",
+    "raise",
+    "and",
+    "need",
+    "in",
+    "play",
+    "providing",
+    "human",
+    "well"
+   ],
+   "verdicts": {
+    "no_claims_extracted": 9,
+    "beyond-reach": 1,
+    "bound": 5
+   }
+  },
+  {
+   "idx": 51,
+   "topic": "How People Use Body Language",
+   "facts": 15,
+   "vocabularyVerbs": 30,
+   "vetoed": [
+    "in",
+    "body",
+    "language",
+    "and",
+    "form",
+    "people",
+    "use",
+    "ways"
+   ],
+   "verdicts": {
+    "no_claims_extracted": 5,
+    "unbound": 5,
+    "beyond-reach": 3,
+    "bound": 2
+   }
+  },
+  {
+   "idx": 52,
+   "topic": "The Role of Sports in Culture",
+   "facts": 15,
+   "vocabularyVerbs": 37,
+   "vetoed": [],
+   "verdicts": {
+    "no_claims_extracted": 2,
+    "bound": 4,
+    "beyond-reach": 3,
+    "unbound": 6
+   }
+  },
+  {
+   "idx": 53,
+   "topic": "The Science Behind Tornadoes",
+   "facts": 15,
+   "vocabularyVerbs": 27,
+   "vetoed": [
+    "forecasting",
+    "remains",
+    "complex",
+    "and",
+    "challenging",
+    "task",
+    "nature",
+    "storms",
+    "radar",
+    "in",
+    "issuing",
+    "power",
+    "underscores",
+    "face",
+    "processes",
+    "can",
+    "better",
+    "prepare",
+    "respond",
+    "events"
+   ],
+   "verdicts": {
+    "unbound": 5,
+    "bound": 4,
+    "no_claims_extracted": 5,
+    "beyond-reach": 1
+   }
+  },
+  {
+   "idx": 54,
+   "topic": "The History of the Olympic Games",
+   "facts": 15,
+   "vocabularyVerbs": 35,
+   "vetoed": [],
+   "verdicts": {
+    "bound": 10,
+    "unbound": 5
+   }
+  },
+  {
+   "idx": 55,
+   "topic": "The Evolution of the Bicycle",
+   "facts": 15,
+   "vocabularyVerbs": 46,
+   "vetoed": [
+    "bicycle",
+    "continued",
+    "in",
+    "design",
+    "and",
+    "carbon",
+    "making",
+    "racing",
+    "high",
+    "cycling"
+   ],
+   "verdicts": {
+    "bound": 9,
+    "unbound": 2,
+    "beyond-reach": 4
+   }
+  },
+  {
+   "idx": 56,
+   "topic": "Why People Believe in Ghosts",
+   "facts": 15,
+   "vocabularyVerbs": 29,
+   "vetoed": [
+    "can",
+    "influence",
+    "as",
+    "evidence",
+    "presence",
+    "reinforcing",
+    "in"
+   ],
+   "verdicts": {
+    "bound": 8,
+    "no_claims_extracted": 2,
+    "beyond-reach": 3,
+    "unbound": 2
+   }
+  },
+  {
+   "idx": 57,
+   "topic": "The Development of Modern Medicine",
+   "facts": 15,
+   "vocabularyVerbs": 40,
+   "vetoed": [],
+   "verdicts": {
+    "bound": 6,
+    "unbound": 4,
+    "beyond-reach": 4,
+    "no_claims_extracted": 1
+   }
+  },
+  {
+   "idx": 58,
+   "topic": "How Satellites Work",
+   "facts": 15,
+   "vocabularyVerbs": 34,
+   "vetoed": [
+    "laser",
+    "increase",
+    "rates",
+    "satellites",
+    "and",
+    "ground",
+    "more",
+    "harnessing",
+    "principles",
+    "physics",
+    "cutting",
+    "edge",
+    "have",
+    "predict",
+    "weather",
+    "monitor",
+    "explore",
+    "space",
+    "as",
+    "look",
+    "satellite",
+    "drive",
+    "solve",
+    "challenges",
+    "people"
+   ],
+   "verdicts": {
+    "unbound": 5,
+    "bound": 5,
+    "no_claims_extracted": 2,
+    "beyond-reach": 3
+   }
+  },
+  {
+   "idx": 59,
+   "topic": "The Art of Film Editing",
+   "facts": 15,
+   "vocabularyVerbs": 27,
+   "vetoed": [
+    "include",
+    "jump",
+    "cross",
+    "cutting",
+    "and",
+    "parallel",
+    "editing",
+    "can",
+    "build",
+    "tension",
+    "complex",
+    "juxtaposition",
+    "film",
+    "process",
+    "skill",
+    "principles"
+   ],
+   "verdicts": {
+    "beyond-reach": 2,
+    "no_claims_extracted": 7,
+    "unbound": 3,
+    "bound": 3
+   }
+  },
+  {
+   "idx": 60,
+   "topic": "How Languages Die",
+   "facts": 15,
+   "vocabularyVerbs": 21,
+   "vetoed": [
+    "efforts",
+    "preserve",
+    "and",
+    "aim",
+    "reclaim",
+    "pass",
+    "it",
+    "on"
+   ],
+   "verdicts": {
+    "beyond-reach": 6,
+    "bound": 5,
+    "no_claims_extracted": 3,
+    "unbound": 1
+   }
+  },
+  {
+   "idx": 61,
+   "topic": "The Impact of Music Streaming Services",
+   "facts": 15,
+   "vocabularyVerbs": 35,
+   "vetoed": [
+    "as",
+    "streaming",
+    "form",
+    "music",
+    "have",
+    "model",
+    "impact",
+    "on"
+   ],
+   "verdicts": {
+    "bound": 6,
+    "unheard": 1,
+    "beyond-reach": 2,
+    "unbound": 4,
+    "no_claims_extracted": 2
+   }
+  },
+  {
+   "idx": 62,
+   "topic": "The History of Famous Inventions",
+   "facts": 15,
+   "vocabularyVerbs": 43,
+   "vetoed": [],
+   "verdicts": {
+    "bound": 11,
+    "unbound": 4
+   }
+  },
+  {
+   "idx": 63,
+   "topic": "The History of Protests and Revolutions",
+   "facts": 15,
+   "vocabularyVerbs": 34,
+   "vetoed": [
+    "and",
+    "have",
+    "met",
+    "violence",
+    "seeking",
+    "grip",
+    "on",
+    "power",
+    "while",
+    "progress",
+    "long",
+    "serves",
+    "as",
+    "enduring",
+    "human",
+    "spirit",
+    "overcome",
+    "better",
+    "world"
+   ],
+   "verdicts": {
+    "unbound": 8,
+    "no_claims_extracted": 3,
+    "unheard": 3,
+    "beyond-reach": 1
+   }
+  },
+  {
+   "idx": 64,
+   "topic": "How Sharks Detect Prey",
+   "facts": 15,
+   "vocabularyVerbs": 34,
+   "vetoed": [
+    "sharks",
+    "able",
+    "and",
+    "place",
+    "as",
+    "top",
+    "in",
+    "chain"
+   ],
+   "verdicts": {
+    "no_claims_extracted": 1,
+    "unbound": 6,
+    "bound": 8
+   }
+  },
+  {
+   "idx": 65,
+   "topic": "The Role of Libraries in Society",
+   "facts": 15,
+   "vocabularyVerbs": 39,
+   "vetoed": [
+    "serve",
+    "as",
+    "preserve",
+    "and"
+   ],
+   "verdicts": {
+    "no_claims_extracted": 5,
+    "unbound": 5,
+    "bound": 3,
+    "beyond-reach": 2
+   }
+  },
+  {
+   "idx": 66,
+   "topic": "The Origins of Famous Fairytales",
+   "facts": 15,
+   "vocabularyVerbs": 47,
+   "vetoed": [],
+   "verdicts": {
+    "no_claims_extracted": 3,
+    "unbound": 3,
+    "unheard": 4,
+    "bound": 5
+   }
+  },
+  {
+   "idx": 67,
+   "topic": "How Time Travel Works in Fiction",
+   "facts": 15,
+   "vocabularyVerbs": 24,
+   "vetoed": [
+    "time",
+    "travel",
+    "in",
+    "raises",
+    "questions",
+    "and",
+    "as",
+    "advance",
+    "it",
+    "will",
+    "see",
+    "sparks",
+    "new",
+    "nature"
+   ],
+   "verdicts": {
+    "unbound": 4,
+    "bound": 7,
+    "no_claims_extracted": 2,
+    "beyond-reach": 2
+   }
+  },
+  {
+   "idx": 68,
+   "topic": "The Science of Smell",
+   "facts": 15,
+   "vocabularyVerbs": 36,
+   "vetoed": [],
+   "verdicts": {
+    "bound": 6,
+    "no_claims_extracted": 6,
+    "beyond-reach": 1,
+    "unbound": 2
+   }
+  },
+  {
+   "idx": 69,
+   "topic": "The History of Typography",
+   "facts": 15,
+   "vocabularyVerbs": 32,
+   "vetoed": [],
+   "verdicts": {
+    "beyond-reach": 3,
+    "bound": 4,
+    "unbound": 5,
+    "unheard": 2,
+    "no_claims_extracted": 1
+   }
+  },
+  {
+   "idx": 70,
+   "topic": "How Climate Change Affects Animals",
+   "facts": 15,
+   "vocabularyVerbs": 33,
+   "vetoed": [],
+   "verdicts": {
+    "bound": 7,
+    "beyond-reach": 4,
+    "no_claims_extracted": 2,
+    "unbound": 2
+   }
+  },
+  {
+   "idx": 71,
+   "topic": "The Art of Calligraphy",
+   "facts": 15,
+   "vocabularyVerbs": 41,
+   "vetoed": [
+    "its",
+    "and",
+    "in",
+    "world",
+    "appeal"
+   ],
+   "verdicts": {
+    "no_claims_extracted": 2,
+    "bound": 7,
+    "unbound": 5,
+    "beyond-reach": 1
+   }
+  },
+  {
+   "idx": 72,
+   "topic": "The Mystery of the Bermuda Triangle",
+   "facts": 15,
+   "vocabularyVerbs": 29,
+   "vetoed": [],
+   "verdicts": {
+    "unbound": 10,
+    "beyond-reach": 1,
+    "no_claims_extracted": 2,
+    "unheard": 2
+   }
+  },
+  {
+   "idx": 73,
+   "topic": "Why People Collect Things",
+   "facts": 15,
+   "vocabularyVerbs": 34,
+   "vetoed": [
+    "act",
+    "things",
+    "can",
+    "underlying",
+    "and",
+    "it",
+    "self",
+    "serves",
+    "as"
+   ],
+   "verdicts": {
+    "unbound": 3,
+    "beyond-reach": 4,
+    "no_claims_extracted": 2,
+    "bound": 6
+   }
+  },
+  {
+   "idx": 74,
+   "topic": "The Evolution of the Modern Home",
+   "facts": 15,
+   "vocabularyVerbs": 45,
+   "vetoed": [
+    "set",
+    "mass",
+    "housing",
+    "its",
+    "cookie",
+    "design",
+    "and",
+    "prices"
+   ],
+   "verdicts": {
+    "bound": 6,
+    "beyond-reach": 4,
+    "unbound": 4,
+    "unheard": 1
+   }
+  },
+  {
+   "idx": 75,
+   "topic": "How Clouds Form",
+   "facts": 15,
+   "vocabularyVerbs": 16,
+   "vetoed": [
+    "clouds",
+    "form",
+    "warm",
+    "air",
+    "rises",
+    "and",
+    "water",
+    "vapor",
+    "in",
+    "fair",
+    "weather",
+    "but",
+    "can",
+    "more",
+    "known",
+    "as",
+    "heavy",
+    "rain",
+    "play",
+    "cloud",
+    "influencing",
+    "sky"
+   ],
+   "verdicts": {
+    "no_claims_extracted": 10,
+    "bound": 5
+   }
+  },
+  {
+   "idx": 76,
+   "topic": "Famous Artists and Their Masterpieces",
+   "facts": 15,
+   "vocabularyVerbs": 43,
+   "vetoed": [
+    "in",
+    "and",
+    "embodying",
+    "man"
+   ],
+   "verdicts": {
+    "unbound": 9,
+    "bound": 3,
+    "unheard": 3
+   }
+  },
+  {
+   "idx": 77,
+   "topic": "The Importance of Fire in Human History",
+   "facts": 15,
+   "vocabularyVerbs": 23,
+   "vetoed": [],
+   "verdicts": {
+    "unbound": 6,
+    "beyond-reach": 8,
+    "no_claims_extracted": 1
+   }
+  },
+  {
+   "idx": 78,
+   "topic": "The Role of Comedy in Society",
+   "facts": 15,
+   "vocabularyVerbs": 30,
+   "vetoed": [
+    "as",
+    "remains",
+    "offering",
+    "and",
+    "on",
+    "world"
+   ],
+   "verdicts": {
+    "no_claims_extracted": 4,
+    "unbound": 6,
+    "bound": 4,
+    "beyond-reach": 1
+   }
+  },
+  {
+   "idx": 79,
+   "topic": "How Ants Build Colonies",
+   "facts": 15,
+   "vocabularyVerbs": 31,
+   "vetoed": [
+    "in",
+    "and",
+    "ants",
+    "engineering",
+    "constructing"
+   ],
+   "verdicts": {
+    "no_claims_extracted": 7,
+    "bound": 5,
+    "unbound": 2,
+    "beyond-reach": 1
+   }
+  },
+  {
+   "idx": 80,
+   "topic": "The Influence of Architecture on Society",
+   "facts": 15,
+   "vocabularyVerbs": 28,
+   "vetoed": [
+    "can",
+    "have",
+    "impact",
+    "on",
+    "and"
+   ],
+   "verdicts": {
+    "unbound": 2,
+    "bound": 6,
+    "no_claims_extracted": 3,
+    "beyond-reach": 4
+   }
+  },
+  {
+   "idx": 81,
+   "topic": "The Science of Deja Vu",
+   "facts": 15,
+   "vocabularyVerbs": 23,
+   "vetoed": [],
+   "verdicts": {
+    "unbound": 3,
+    "no_claims_extracted": 1,
+    "bound": 5,
+    "beyond-reach": 6
+   }
+  },
+  {
+   "idx": 82,
+   "topic": "How the Human Body Fights Infections",
+   "facts": 15,
+   "vocabularyVerbs": 32,
+   "vetoed": [
+    "type",
+    "white",
+    "blood",
+    "cell",
+    "play",
+    "in",
+    "immune",
+    "on",
+    "other",
+    "hand",
+    "mounting",
+    "more",
+    "and",
+    "cells",
+    "fight",
+    "can",
+    "kill",
+    "coordinate",
+    "mount",
+    "full"
+   ],
+   "verdicts": {
+    "bound": 5,
+    "no_claims_extracted": 6,
+    "beyond-reach": 1,
+    "unbound": 3
+   }
+  },
+  {
+   "idx": 83,
+   "topic": "The Psychology of Consumer Behavior",
+   "facts": 15,
+   "vocabularyVerbs": 35,
+   "vetoed": [],
+   "verdicts": {
+    "beyond-reach": 2,
+    "unbound": 7,
+    "bound": 3,
+    "no_claims_extracted": 3
+   }
+  },
+  {
+   "idx": 84,
+   "topic": "The History of Human Space Travel",
+   "facts": 15,
+   "vocabularyVerbs": 30,
+   "vetoed": [],
+   "verdicts": {
+    "beyond-reach": 2,
+    "bound": 5,
+    "unbound": 5,
+    "unheard": 3
+   }
+  },
+  {
+   "idx": 85,
+   "topic": "The Impact of Artificial Intelligence on Employment",
+   "facts": 15,
+   "vocabularyVerbs": 43,
+   "vetoed": [],
+   "verdicts": {
+    "unheard": 1,
+    "beyond-reach": 2,
+    "unbound": 7,
+    "bound": 5
+   }
+  },
+  {
+   "idx": 86,
+   "topic": "The Environmental Impact of Fast Fashion",
+   "facts": 15,
+   "vocabularyVerbs": 21,
+   "vetoed": [
+    "brands",
+    "can",
+    "circular",
+    "principles",
+    "reuse",
+    "and",
+    "recycling",
+    "clothing",
+    "on",
+    "resources"
+   ],
+   "verdicts": {
+    "bound": 12,
+    "unbound": 1,
+    "beyond-reach": 2
+   }
+  },
+  {
+   "idx": 87,
+   "topic": "The Art of Forensic Science",
+   "facts": 15,
+   "vocabularyVerbs": 24,
+   "vetoed": [],
+   "verdicts": {
+    "bound": 8,
+    "unbound": 5,
+    "beyond-reach": 1,
+    "no_claims_extracted": 1
+   }
+  },
+  {
+   "idx": 88,
+   "topic": "The Evolution of Political Systems",
+   "facts": 15,
+   "vocabularyVerbs": 28,
+   "vetoed": [
+    "as",
+    "world",
+    "it",
+    "rule",
+    "law",
+    "and",
+    "human",
+    "just"
+   ],
+   "verdicts": {
+    "bound": 5,
+    "beyond-reach": 5,
+    "unbound": 4,
+    "no_claims_extracted": 1
+   }
+  },
+  {
+   "idx": 89,
+   "topic": "The Science Behind Memory Formation",
+   "facts": 15,
+   "vocabularyVerbs": 37,
+   "vetoed": [],
+   "verdicts": {
+    "beyond-reach": 3,
+    "unbound": 5,
+    "no_claims_extracted": 4,
+    "bound": 3
+   }
+  },
+  {
+   "idx": 90,
+   "topic": "The Psychology of Colors in Branding",
+   "facts": 15,
+   "vocabularyVerbs": 33,
+   "vetoed": [],
+   "verdicts": {
+    "bound": 5,
+    "unbound": 8,
+    "no_claims_extracted": 1,
+    "beyond-reach": 1
+   }
+  },
+  {
+   "idx": 91,
+   "topic": "The Development of Renewable Energy Sources",
+   "facts": 15,
+   "vocabularyVerbs": 34,
+   "vetoed": [
+    "power",
+    "plants",
+    "burn",
+    "produce",
+    "heat",
+    "and",
+    "providing",
+    "coal",
+    "one",
+    "main",
+    "challenges",
+    "wind",
+    "can",
+    "pose",
+    "grid",
+    "as",
+    "land",
+    "use",
+    "water",
+    "need",
+    "in",
+    "projects",
+    "policy",
+    "support",
+    "harness",
+    "full",
+    "sources",
+    "address",
+    "climate",
+    "change",
+    "build",
+    "more"
+   ],
+   "verdicts": {
+    "unbound": 4,
+    "no_claims_extracted": 6,
+    "bound": 4,
+    "beyond-reach": 1
+   }
+  },
+  {
+   "idx": 92,
+   "topic": "The Future of Space Tourism",
+   "facts": 15,
+   "vocabularyVerbs": 28,
+   "vetoed": [],
+   "verdicts": {
+    "no_claims_extracted": 1,
+    "unbound": 5,
+    "beyond-reach": 2,
+    "bound": 7
+   }
+  },
+  {
+   "idx": 93,
+   "topic": "The Science of Happiness",
+   "facts": 15,
+   "vocabularyVerbs": 24,
+   "vetoed": [
+    "in",
+    "challenges",
+    "and",
+    "experience",
+    "sense",
+    "can",
+    "well",
+    "pursuing",
+    "passion",
+    "project",
+    "mastering",
+    "new",
+    "skill",
+    "flow",
+    "joy",
+    "meaning",
+    "lives",
+    "path",
+    "one",
+    "person",
+    "may",
+    "have",
+    "effect",
+    "on"
+   ],
+   "verdicts": {
+    "no_claims_extracted": 11,
+    "bound": 3,
+    "unbound": 1
+   }
+  },
+  {
+   "idx": 94,
+   "topic": "The Role of Education in Shaping Culture",
+   "facts": 15,
+   "vocabularyVerbs": 23,
+   "vetoed": [],
+   "verdicts": {
+    "unbound": 6,
+    "no_claims_extracted": 4,
+    "bound": 4,
+    "beyond-reach": 1
+   }
+  },
+  {
+   "idx": 95,
+   "topic": "The Ethics of Human Cloning",
+   "facts": 15,
+   "vocabularyVerbs": 29,
+   "vetoed": [],
+   "verdicts": {
+    "bound": 4,
+    "unbound": 6,
+    "no_claims_extracted": 5
+   }
+  },
+  {
+   "idx": 96,
+   "topic": "The Rise of Esports and Competitive Gaming",
+   "facts": 15,
+   "vocabularyVerbs": 27,
+   "vetoed": [
+    "as",
+    "continue",
+    "and",
+    "can",
+    "even",
+    "teams",
+    "companies",
+    "in",
+    "exciting",
+    "space"
+   ],
+   "verdicts": {
+    "no_claims_extracted": 1,
+    "unbound": 7,
+    "bound": 5,
+    "beyond-reach": 1,
+    "unheard": 1
+   }
+  },
+  {
+   "idx": 97,
+   "topic": "The Development of Transportation Systems",
+   "facts": 15,
+   "vocabularyVerbs": 30,
+   "vetoed": [
+    "prospect",
+    "space",
+    "and",
+    "travel",
+    "raises",
+    "exciting",
+    "human",
+    "earth",
+    "in",
+    "driving",
+    "force",
+    "progress",
+    "move",
+    "people"
+   ],
+   "verdicts": {
+    "no_claims_extracted": 3,
+    "unbound": 5,
+    "beyond-reach": 4,
+    "bound": 3
+   }
+  },
+  {
+   "idx": 98,
+   "topic": "The Impact of Climate Change on Global Agriculture",
+   "facts": 15,
+   "vocabularyVerbs": 30,
+   "vetoed": [
+    "in",
+    "challenges",
+    "climate",
+    "change",
+    "presents",
+    "and",
+    "investing",
+    "research",
+    "can",
+    "address"
+   ],
+   "verdicts": {
+    "no_claims_extracted": 4,
+    "unbound": 2,
+    "beyond-reach": 4,
+    "bound": 5
+   }
+  },
+  {
+   "idx": 99,
+   "topic": "The History of Military Technology",
+   "facts": 15,
+   "vocabularyVerbs": 30,
+   "vetoed": [
+    "as",
+    "invest",
+    "in",
+    "research",
+    "and",
+    "gain",
+    "edge",
+    "over",
+    "race",
+    "drive",
+    "change",
+    "field"
+   ],
+   "verdicts": {
+    "unbound": 4,
+    "bound": 5,
+    "beyond-reach": 4,
+    "no_claims_extracted": 2
+   }
+  },
+  {
+   "idx": 100,
+   "topic": "The Effect of Music on Cognitive Development",
+   "facts": 15,
+   "vocabularyVerbs": 26,
+   "vetoed": [
+    "in",
+    "music",
+    "profound",
+    "impact",
+    "on",
+    "influencing",
+    "language",
+    "and"
+   ],
+   "verdicts": {
+    "no_claims_extracted": 7,
+    "unbound": 6,
+    "bound": 2
+   }
+  },
+  {
+   "idx": 101,
+   "topic": "The Role of Technology in Crime Prevention",
+   "facts": 15,
+   "vocabularyVerbs": 27,
+   "vetoed": [],
+   "verdicts": {
+    "beyond-reach": 7,
+    "no_claims_extracted": 3,
+    "bound": 1,
+    "unbound": 4
+   }
+  },
+  {
+   "idx": 102,
+   "topic": "The Importance of Volunteerism in Society",
+   "facts": 15,
+   "vocabularyVerbs": 33,
+   "vetoed": [],
+   "verdicts": {
+    "beyond-reach": 3,
+    "bound": 5,
+    "no_claims_extracted": 2,
+    "unbound": 5
+   }
+  },
+  {
+   "idx": 103,
+   "topic": "The Influence of Pop Culture on Global Trends",
+   "facts": 15,
+   "vocabularyVerbs": 36,
+   "vetoed": [],
+   "verdicts": {
+    "unbound": 8,
+    "bound": 5,
+    "beyond-reach": 2
+   }
+  },
+  {
+   "idx": 104,
+   "topic": "The Role of Water in the Development of Civilization",
+   "facts": 15,
+   "vocabularyVerbs": 16,
+   "vetoed": [
+    "water",
+    "play",
+    "in",
+    "power",
+    "providing",
+    "clean",
+    "and",
+    "resource",
+    "can",
+    "come"
+   ],
+   "verdicts": {
+    "no_claims_extracted": 9,
+    "bound": 5,
+    "beyond-reach": 1
+   }
+  }
+ ]
+}
