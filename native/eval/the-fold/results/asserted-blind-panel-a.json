@@ -1,0 +1,29 @@
+{
+  "annotator": "A",
+  "verdicts": {
+    "e9": "YES",
+    "e7": "YES",
+    "e23": "NO",
+    "e18": "YES",
+    "e16": "YES",
+    "e8": "YES",
+    "e12": "YES",
+    "e10": "NO",
+    "e3": "NO",
+    "e22": "YES",
+    "e6": "YES",
+    "e19": "YES",
+    "e20": "NO",
+    "e1": "YES",
+    "e11": "YES",
+    "e14": "YES",
+    "e21": "NO",
+    "e4": "YES",
+    "e17": "YES",
+    "e13": "NO",
+    "e5": "YES",
+    "e0": "YES",
+    "e15": "YES",
+    "e2": "NO"
+  }
+}

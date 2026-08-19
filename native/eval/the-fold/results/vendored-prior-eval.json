@@ -1,0 +1,92 @@
+{
+  "draws": 200,
+  "seed": 0,
+  "sampleEvery": 5,
+  "sampleSize": 11,
+  "before": {
+    "verbs": 176,
+    "edges": 415,
+    "negated": 0,
+    "ezAsVerb": true
+  },
+  "after": {
+    "verbs": 175,
+    "edges": 411,
+    "negated": 9,
+    "ezAsVerb": false
+  },
+  "examples": [
+    {
+      "subject": "Urbiako",
+      "verb": "zelaietan",
+      "object": "ezta zu bezelako lilirik sortu",
+      "refs": [
+        "garoa-eu.txt#75587-76188"
+      ]
+    },
+    {
+      "subject": "oñez",
+      "verb": "edo",
+      "object": "zalpurdietan",
+      "refs": [
+        "garoa-eu.txt#168259-178890"
+      ]
+    },
+    {
+      "subject": "ez",
+      "verb": "gerriko",
+      "object": "miñik",
+      "refs": [
+        "garoa-eu.txt#168259-178890"
+      ]
+    },
+    {
+      "subject": "saltzen ditu",
+      "verb": "bere",
+      "object": "paperak",
+      "refs": [
+        "garoa-eu.txt#168259-178890"
+      ]
+    },
+    {
+      "subject": "al da",
+      "verb": "ba",
+      "object": "zuen etxea",
+      "refs": [
+        "garoa-eu.txt#204300-219543"
+      ]
+    },
+    {
+      "subject": "Zabaletako",
+      "verb": "zuaitz",
+      "object": "zarraren kimu berri maitea",
+      "refs": [
+        "garoa-eu.txt#262824-275439"
+      ]
+    },
+    {
+      "subject": "gutxiago beartsua",
+      "verb": "izan",
+      "object": "bada",
+      "refs": [
+        "garoa-eu.txt#262824-275439"
+      ]
+    },
+    {
+      "subject": "zoriobekoak",
+      "verb": "izango",
+      "object": "zeratenik",
+      "refs": [
+        "garoa-eu.txt#262824-275439"
+      ]
+    },
+    {
+      "subject": "ez alnazute",
+      "verb": "ba",
+      "object": "eramango",
+      "refs": [
+        "garoa-eu.txt#289708-290776"
+      ]
+    }
+  ]
+}

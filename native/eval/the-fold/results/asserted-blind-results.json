@@ -1,0 +1,367 @@
+{
+  "kappa": 0.7892682926829264,
+  "meanPairwiseAgreement": 0.9166666666666665,
+  "items": [
+    {
+      "id": "e9",
+      "majority": "YES",
+      "panelA": "YES",
+      "panelB": "YES",
+      "panelC": "YES",
+      "standing": "corroborated",
+      "statements": 2,
+      "orderArmFired": 24,
+      "orderArmDraws": 200,
+      "refs": [
+        "wp-wiki#p30"
+      ]
+    },
+    {
+      "id": "e7",
+      "majority": "YES",
+      "panelA": "YES",
+      "panelB": "YES",
+      "panelC": "YES",
+      "standing": "corroborated",
+      "statements": 2,
+      "orderArmFired": 56,
+      "orderArmDraws": 200,
+      "refs": [
+        "wp-wiki#p133",
+        "wp-wiki#p140"
+      ]
+    },
+    {
+      "id": "e23",
+      "majority": "NO",
+      "panelA": "NO",
+      "panelB": "NO",
+      "panelC": "NO",
+      "standing": "single-witness",
+      "statements": 1,
+      "orderArmFired": 5,
+      "orderArmDraws": 200,
+      "refs": [
+        "wp-wiki#p39"
+      ]
+    },
+    {
+      "id": "e18",
+      "majority": "YES",
+      "panelA": "YES",
+      "panelB": "YES",
+      "panelC": "YES",
+      "standing": "single-witness",
+      "statements": 1,
+      "orderArmFired": 11,
+      "orderArmDraws": 200,
+      "refs": [
+        "wp-wiki#p21"
+      ]
+    },
+    {
+      "id": "e16",
+      "majority": "YES",
+      "panelA": "YES",
+      "panelB": "YES",
+      "panelC": "YES",
+      "standing": "single-witness",
+      "statements": 1,
+      "orderArmFired": 29,
+      "orderArmDraws": 200,
+      "refs": [
+        "wp-wiki#p31"
+      ]
+    },
+    {
+      "id": "e8",
+      "majority": "YES",
+      "panelA": "YES",
+      "panelB": "YES",
+      "panelC": "YES",
+      "standing": "corroborated",
+      "statements": 2,
+      "orderArmFired": 11,
+      "orderArmDraws": 200,
+      "refs": [
+        "wp-wiki#p2",
+        "wp-wiki#p9"
+      ]
+    },
+    {
+      "id": "e12",
+      "majority": "YES",
+      "panelA": "YES",
+      "panelB": "UNCLEAR",
+      "panelC": "YES",
+      "standing": "single-witness",
+      "statements": 1,
+      "orderArmFired": 11,
+      "orderArmDraws": 200,
+      "refs": [
+        "wp-wiki#p43"
+      ]
+    },
+    {
+      "id": "e10",
+      "majority": "NO",
+      "panelA": "NO",
+      "panelB": "NO",
+      "panelC": "NO",
+      "standing": "corroborated",
+      "statements": 2,
+      "orderArmFired": 18,
+      "orderArmDraws": 200,
+      "refs": [
+        "wp-wiki#p69",
+        "wp-wiki#p137"
+      ]
+    },
+    {
+      "id": "e3",
+      "majority": "NO",
+      "panelA": "NO",
+      "panelB": "NO",
+      "panelC": "NO",
+      "standing": "corroborated",
+      "statements": 2,
+      "orderArmFired": 1,
+      "orderArmDraws": 200,
+      "refs": [
+        "wp-wiki#p1",
+        "wp-wiki#p6"
+      ]
+    },
+    {
+      "id": "e22",
+      "majority": "YES",
+      "panelA": "YES",
+      "panelB": "YES",
+      "panelC": "YES",
+      "standing": "single-witness",
+      "statements": 1,
+      "orderArmFired": 20,
+      "orderArmDraws": 200,
+      "refs": [
+        "wp-wiki#p34"
+      ]
+    },
+    {
+      "id": "e6",
+      "majority": "YES",
+      "panelA": "YES",
+      "panelB": "YES",
+      "panelC": "YES",
+      "standing": "corroborated",
+      "statements": 17,
+      "orderArmFired": 111,
+      "orderArmDraws": 200,
+      "refs": [
+        "wp-wiki#p99",
+        "wp-wiki#p100",
+        "wp-wiki#p112",
+        "wp-wiki#p132",
+        "wp-wiki#p134",
+        "wp-wiki#p135",
+        "wp-wiki#p138",
+        "wp-wiki#p139",
+        "wp-wiki#p141",
+        "wp-wiki#p142",
+        "wp-wiki#p143",
+        "wp-wiki#p144",
+        "wp-wiki#p145",
+        "wp-wiki#p146",
+        "wp-wiki#p147",
+        "wp-wiki#p148",
+        "wp-wiki#p149"
+      ]
+    },
+    {
+      "id": "e19",
+      "majority": "YES",
+      "panelA": "YES",
+      "panelB": "YES",
+      "panelC": "YES",
+      "standing": "single-witness",
+      "statements": 1,
+      "orderArmFired": 23,
+      "orderArmDraws": 200,
+      "refs": [
+        "wp-wiki#p79"
+      ]
+    },
+    {
+      "id": "e20",
+      "majority": "NO",
+      "panelA": "NO",
+      "panelB": "YES",
+      "panelC": "NO",
+      "standing": "single-witness",
+      "statements": 1,
+      "orderArmFired": 0,
+      "orderArmDraws": 200,
+      "refs": [
+        "wp-wiki#p64"
+      ]
+    },
+    {
+      "id": "e1",
+      "majority": "YES",
+      "panelA": "YES",
+      "panelB": "YES",
+      "panelC": "YES",
+      "standing": "corroborated",
+      "statements": 2,
+      "orderArmFired": 8,
+      "orderArmDraws": 200,
+      "refs": [
+        "wp-wiki#p77",
+        "wp-wiki#p82"
+      ]
+    },
+    {
+      "id": "e11",
+      "majority": "YES",
+      "panelA": "YES",
+      "panelB": "YES",
+      "panelC": "YES",
+      "standing": "corroborated",
+      "statements": 2,
+      "orderArmFired": 21,
+      "orderArmDraws": 200,
+      "refs": [
+        "wp-wiki#p0",
+        "wp-wiki#p1"
+      ]
+    },
+    {
+      "id": "e14",
+      "majority": "YES",
+      "panelA": "YES",
+      "panelB": "YES",
+      "panelC": "YES",
+      "standing": "single-witness",
+      "statements": 1,
+      "orderArmFired": 5,
+      "orderArmDraws": 200,
+      "refs": [
+        "wp-wiki#p52"
+      ]
+    },
+    {
+      "id": "e21",
+      "majority": "NO",
+      "panelA": "NO",
+      "panelB": "NO",
+      "panelC": "NO",
+      "standing": "single-witness",
+      "statements": 1,
+      "orderArmFired": 7,
+      "orderArmDraws": 200,
+      "refs": [
+        "wp-wiki#p26"
+      ]
+    },
+    {
+      "id": "e4",
+      "majority": "YES",
+      "panelA": "YES",
+      "panelB": "YES",
+      "panelC": "YES",
+      "standing": "corroborated",
+      "statements": 2,
+      "orderArmFired": 35,
+      "orderArmDraws": 200,
+      "refs": [
+        "wp-wiki#p9",
+        "wp-wiki#p55"
+      ]
+    },
+    {
+      "id": "e17",
+      "majority": "YES",
+      "panelA": "YES",
+      "panelB": "YES",
+      "panelC": "YES",
+      "standing": "single-witness",
+      "statements": 1,
+      "orderArmFired": 0,
+      "orderArmDraws": 200,
+      "refs": [
+        "wp-wiki#p68"
+      ]
+    },
+    {
+      "id": "e13",
+      "majority": "YES",
+      "panelA": "NO",
+      "panelB": "YES",
+      "panelC": "YES",
+      "standing": "single-witness",
+      "statements": 1,
+      "orderArmFired": 1,
+      "orderArmDraws": 200,
+      "refs": [
+        "wp-wiki#p54"
+      ]
+    },
+    {
+      "id": "e5",
+      "majority": "YES",
+      "panelA": "YES",
+      "panelB": "YES",
+      "panelC": "YES",
+      "standing": "corroborated",
+      "statements": 3,
+      "orderArmFired": 40,
+      "orderArmDraws": 200,
+      "refs": [
+        "wp-wiki#p17",
+        "wp-wiki#p25"
+      ]
+    },
+    {
+      "id": "e0",
+      "majority": "YES",
+      "panelA": "YES",
+      "panelB": "YES",
+      "panelC": "YES",
+      "standing": "corroborated",
+      "statements": 2,
+      "orderArmFired": 53,
+      "orderArmDraws": 200,
+      "refs": [
+        "wp-wiki#p38",
+        "wp-wiki#p49"
+      ]
+    },
+    {
+      "id": "e15",
+      "majority": "YES",
+      "panelA": "YES",
+      "panelB": "YES",
+      "panelC": "YES",
+      "standing": "single-witness",
+      "statements": 1,
+      "orderArmFired": 4,
+      "orderArmDraws": 200,
+      "refs": [
+        "wp-wiki#p1"
+      ]
+    },
+    {
+      "id": "e2",
+      "majority": "NO",
+      "panelA": "NO",
+      "panelB": "NO",
+      "panelC": "NO",
+      "standing": "corroborated",
+      "statements": 2,
+      "orderArmFired": 20,
+      "orderArmDraws": 200,
+      "refs": [
+        "wp-wiki#p54"
+      ]
+    }
+  ]
+}
