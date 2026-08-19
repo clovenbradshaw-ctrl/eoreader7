@@ -8,7 +8,8 @@
     {
       "label": "Война и мир — War and Peace, Russian original (Tolstoy)",
       "path": "eval/corpus/vojna-i-mir-ru.txt",
-      "negationMarkers": ["не ", "нет "]
+      "negationMarkers": ["не ", "нет "],
+      "scriptTest": "[\\u0400-\\u04FF]"
     },
     {
       "label": "こころ (Kokoro) — Natsume Sōseki, Japanese, 1914 [documented fallback: no clean fetchable public-domain Japanese War and Peace exists — the one legitimate translation is un-OCR'd scanned page images at Japan's National Diet Library]",

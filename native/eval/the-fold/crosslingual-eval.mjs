@@ -109,6 +109,21 @@ const SEED = 0;
 const SAMPLE_EVERY = 20;
 const SAMPLE_MAX = 200;
 
+// Restricts a language's own examples/counts to its own native script, so a
+// source that code-switches (War and Peace's own French aristocratic
+// dialogue, real Tolstoy, not corruption) doesn't let a handful of
+// Latin-script triples from the opening pages stand in for "what this
+// language's extraction looks like" — found necessary by checking, not
+// assumed: an early draft's negation examples were dominated by French
+// dialogue purely because the novel's OPENING scene is heavily French, and
+// reported that as if it characterized the whole run. `scriptTest` is a
+// regex string, applied to `subject+verb+object` joined; a triple counts as
+// "native" only if it matches AND carries no Latin letter (so a name spelled
+// in Latin transliteration inside otherwise-Cyrillic prose is excluded, not
+// wrongly counted as native).
+const nativeScript = (t, scriptRe) =>
+  scriptRe ? scriptRe.test(t.subject + t.verb + t.object) && !/[a-zA-Z]/.test(t.subject + t.verb + t.object) : true;
+
 const [, , configPath] = process.argv;
 if (!configPath) {
   console.error("usage: node eval/crosslingual-eval.mjs <config.json>");
@@ -198,8 +213,32 @@ async function fullWorkPass(lang, host) {
       `${edgeMap.size.toLocaleString()} distinct (subject, verb, polarity, object) edges` +
       (gaps.length ? ` · gaps: ${gaps.length}` : ""),
   );
+  if (gaps.length) for (const g of gaps) say(`  - gap: ${g.reason ?? JSON.stringify(g)} — ${g.detail ?? ""}`);
 
-  return { text, relations, edgeMap, verbSet, admitted };
+  // Script-mix disclosure: this novel's own aristocratic dialogue
+  // code-switches into French, real Tolstoy, not corruption — reported so a
+  // reader knows how much of "this language's own edges" is actually the
+  // declared native script versus embedded Latin-script text, rather than
+  // silently blending the two into one count.
+  if (lang.scriptTest) {
+    const scriptRe = new RegExp(lang.scriptTest, "u");
+    let native = 0, latin = 0, mixed = 0;
+    for (const t of relations) {
+      const hasScript = scriptRe.test(t.subject + t.verb + t.object);
+      const hasLatin = /[a-zA-Z]/.test(t.subject + t.verb + t.object);
+      if (hasScript && !hasLatin) native++;
+      else if (!hasScript && hasLatin) latin++;
+      else mixed++;
+    }
+    say(
+      `- script mix of the ${relations.length.toLocaleString()} raw triples: ${native.toLocaleString()} native-script only ` +
+        `(${((100 * native) / relations.length).toFixed(1)}%), ${latin.toLocaleString()} Latin-script only ` +
+        `(${((100 * latin) / relations.length).toFixed(1)}%, embedded-language dialogue — real Tolstoy, not corruption), ` +
+        `${mixed.toLocaleString()} mixed/neither (${((100 * mixed) / relations.length).toFixed(1)}%)`,
+    );
+  }
+
+  return { text, relations, edgeMap, verbSet, admitted, scriptRe: lang.scriptTest ? new RegExp(lang.scriptTest, "u") : null };
 }
 
 async function armedSamplePass(lang, o) {
@@ -287,15 +326,26 @@ for (const r of results) {
   // byte offset per triple — disclosed as exactly that).
   const negChunks = r.armedSample.chunks.filter((c) => markers.some((m) => c.text.includes(m)));
   const negText = negChunks.map((c) => c.text).join("\n");
-  const bearingTriples = r.full.relations.filter(
-    (t) => negText.includes(t.subject) || negText.includes(t.object),
-  );
+  // Restricted to the language's OWN declared script (when it has one) —
+  // otherwise a code-switched passage's embedded Latin-script dialogue
+  // (real Tolstoy, not corruption) can dominate the shown evidence purely
+  // by where in the book it happens to sit, which an earlier draft of this
+  // eval did (its five examples were almost all French, from the novel's
+  // French-heavy opening scene) and is corrected here.
+  const candidateTriples = r.full.relations.filter((t) => negText.includes(t.subject) || negText.includes(t.object));
+  const bearingTriples = r.full.scriptRe
+    ? candidateTriples.filter((t) => nativeScript(t, r.full.scriptRe))
+    : candidateTriples;
   const readNeg = bearingTriples.filter((t) => t.polarity === "-");
   say(
     `**${r.lang.label}:** ${negChunks.length.toLocaleString()} passages contain a negation marker (${markers.join(", ")}); ` +
-      `${bearingTriples.length} triples' subject/object text also appears in one of those passages (an ` +
-      `approximation — sessionRelations carries no per-triple offset — never a precise count), of which ` +
-      `${readNeg.length} read polarity "-".`,
+      `${bearingTriples.length.toLocaleString()} ${r.full.scriptRe ? "native-script " : ""}triples' subject/object ` +
+      `text also appears in one of those passages (an approximation — sessionRelations carries no per-triple offset ` +
+      `— never a precise count), of which ${readNeg.length} read polarity "-".` +
+      (r.full.scriptRe && candidateTriples.length !== bearingTriples.length
+        ? ` (${(candidateTriples.length - bearingTriples.length).toLocaleString()} more candidates excluded as ` +
+          "non-native-script — embedded dialogue, not this language's own prose.)"
+        : ""),
   );
   if (bearingTriples.length) {
     say("Five examples, verbatim:");
