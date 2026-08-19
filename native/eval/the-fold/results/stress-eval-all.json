@@ -1,0 +1,2480 @@
+{
+  "gemma2:2b": {
+    "spreadsheet": [
+      {
+        "turnIndex": 1,
+        "ask": "add a button that clears all the cells to 0",
+        "predictedKind": "feature",
+        "routedAs": "resolved",
+        "landedAsRezero": null,
+        "landed": false,
+        "gap": "unlocated",
+        "structuralClean": null,
+        "structuralFindings": [],
+        "behavioralOwnCheck": {
+          "turnIndex": 1,
+          "ok": null,
+          "why": "no landing this turn — code unchanged or absent"
+        },
+        "regressionsIntroducedThisTurn": [],
+        "conformFindings": [],
+        "codeLenBefore": 814,
+        "codeLenAfter": 814,
+        "groundAfter": 1,
+        "tokens": 29
+      },
+      {
+        "turnIndex": 2,
+        "ask": "add a third row of two more cells, prefilled with 5 and 6",
+        "predictedKind": "feature",
+        "routedAs": null,
+        "landedAsRezero": false,
+        "landed": true,
+        "gap": null,
+        "structuralClean": true,
+        "structuralFindings": [],
+        "behavioralOwnCheck": {
+          "turnIndex": 2,
+          "ok": false,
+          "why": "2 rows"
+        },
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 0,
+            "ok": false,
+            "why": "sum after typing 10 into (0,0) = \"23\""
+          },
+          {
+            "turnIndex": 1,
+            "ok": false,
+            "why": "no clear button found"
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 814,
+        "codeLenAfter": 814,
+        "groundAfter": 1,
+        "tokens": 118,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Mini Spreadsheet</title></head>\n<body>\n  <table id=\"grid\">\n    <tr><td><input class=\"cell\" data-r=\"0\" data-c=\"0\" value=\"5\"></td><td><input class=\"cell\" data-r=\"0\" data-c=\"1\" value=\"6\"></td></tr>\n    <tr><td><input class=\"cell\" data-r=\"1\" data-c=\"0\" value=\"3\"></td><td><input class=\"cell\" data-r=\"1\" data-c=\"1\" value=\"4\"></td></tr>\n  </table>\n  <div>Sum: <span id=\"sum\">0</span></div>\n  <script>\n    function recompute() {\n      let total = 0;\n      document.querySelectorAll('.cell').forEach(function(c) {\n        total += Number(c.value) || 0;\n      });\n      document.getElementById('sum').textContent = total;\n    }\n    document.querySelectorAll('.cell').forEach(function(c) {\n      c.addEventListener('input', recompute);\n    });\n    recompute();\n  </script>\n</body>\n</html>"
+      },
+      {
+        "turnIndex": 3,
+        "ask": "I don't like the colors, make it nicer",
+        "predictedKind": "judgment",
+        "routedAs": "anaphora",
+        "landedAsRezero": true,
+        "landed": true,
+        "gap": null,
+        "structuralClean": true,
+        "structuralFindings": [],
+        "behavioralOwnCheck": null,
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 0,
+            "ok": false,
+            "why": "sum after typing 10 into (0,0) = \"23\""
+          },
+          {
+            "turnIndex": 1,
+            "ok": false,
+            "why": "no clear button found"
+          },
+          {
+            "turnIndex": 2,
+            "ok": false,
+            "why": "2 rows"
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 814,
+        "codeLenAfter": 910,
+        "groundAfter": 2,
+        "tokens": 162,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Mini Spreadsheet</title></head>\n<body>\n  <table id=\"grid\">\n    <tr><td><input class=\"cell\" data-r=\"0\" data-c=\"0\" value=\"5\" style=\"background-color: #f2f2f2; color: #333;\"></td><td><input class=\"cell\" data-r=\"0\" data-c=\"1\" value=\"6\" style=\"background-color: #f2f2f2; color: #333;\"></td></tr>\n    <tr><td><input class=\"cell\" data-r=\"1\" data-c=\"0\" value=\"3\"></td><td><input class=\"cell\" data-r=\"1\" data-c=\"1\" value=\"4\"></td></tr>\n  </table>\n  <div>Sum: <span id=\"sum\">0</span></div>\n  <script>\n    function recompute() {\n      let total = 0;\n      document.querySelectorAll('.cell').forEach(function(c) {\n        total += Number(c.value) || 0;\n      });\n      document.getElementById('sum').textContent = total;\n    }\n    document.querySelectorAll('.cell').forEach(function(c) {\n      c.addEventListener('input', recompute);\n    });\n    recompute();\n  </script>\n</body>\n</html>"
+      },
+      {
+        "turnIndex": 4,
+        "ask": "make it better",
+        "predictedKind": "vague",
+        "routedAs": "anaphora",
+        "landedAsRezero": null,
+        "landed": false,
+        "gap": "regressed",
+        "structuralClean": null,
+        "structuralFindings": [],
+        "behavioralOwnCheck": null,
+        "regressionsIntroducedThisTurn": [],
+        "conformFindings": [],
+        "codeLenBefore": 910,
+        "codeLenAfter": 910,
+        "groundAfter": 2,
+        "tokens": 20
+      },
+      {
+        "turnIndex": 5,
+        "ask": "show the average of the cells too, next to the sum",
+        "predictedKind": "feature",
+        "routedAs": "resolved",
+        "landedAsRezero": null,
+        "landed": false,
+        "gap": "unlocated",
+        "structuralClean": null,
+        "structuralFindings": [],
+        "behavioralOwnCheck": {
+          "turnIndex": 5,
+          "ok": null,
+          "why": "no landing this turn — code unchanged or absent"
+        },
+        "regressionsIntroducedThisTurn": [],
+        "conformFindings": [],
+        "codeLenBefore": 910,
+        "codeLenAfter": 910,
+        "groundAfter": 2,
+        "tokens": 85
+      },
+      {
+        "turnIndex": 6,
+        "ask": "the sum isn't updating right when I type in a cell, fix it",
+        "predictedKind": "judgment",
+        "routedAs": "resolved",
+        "landedAsRezero": null,
+        "landed": false,
+        "gap": "unlocated",
+        "structuralClean": null,
+        "structuralFindings": [],
+        "behavioralOwnCheck": {
+          "turnIndex": 6,
+          "ok": null,
+          "why": "no landing this turn — code unchanged or absent"
+        },
+        "regressionsIntroducedThisTurn": [],
+        "conformFindings": [],
+        "codeLenBefore": 910,
+        "codeLenAfter": 910,
+        "groundAfter": 2,
+        "tokens": 46
+      },
+      {
+        "turnIndex": 7,
+        "ask": "make the buttons bigger",
+        "predictedKind": "anaphora",
+        "routedAs": null,
+        "landedAsRezero": null,
+        "landed": false,
+        "gap": "churn",
+        "structuralClean": null,
+        "structuralFindings": [],
+        "behavioralOwnCheck": null,
+        "regressionsIntroducedThisTurn": [],
+        "conformFindings": [],
+        "codeLenBefore": 910,
+        "codeLenAfter": 910,
+        "groundAfter": 2,
+        "tokens": 20
+      },
+      {
+        "turnIndex": 8,
+        "ask": "put the clear button back the way it was before",
+        "predictedKind": "undo",
+        "routedAs": "anaphora",
+        "landedAsRezero": null,
+        "landed": false,
+        "gap": "regressed",
+        "structuralClean": null,
+        "structuralFindings": [],
+        "behavioralOwnCheck": null,
+        "regressionsIntroducedThisTurn": [],
+        "conformFindings": [],
+        "codeLenBefore": 910,
+        "codeLenAfter": 910,
+        "groundAfter": 2,
+        "tokens": 34
+      },
+      {
+        "turnIndex": 9,
+        "ask": "add a button that fills every cell with 1",
+        "predictedKind": "feature",
+        "routedAs": "resolved",
+        "landedAsRezero": false,
+        "landed": true,
+        "gap": null,
+        "structuralClean": true,
+        "structuralFindings": [],
+        "behavioralOwnCheck": {
+          "turnIndex": 9,
+          "ok": false,
+          "why": "no fill button found"
+        },
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 0,
+            "ok": false,
+            "why": "sum after typing 10 into (0,0) = \"18\""
+          },
+          {
+            "turnIndex": 1,
+            "ok": false,
+            "why": "no clear button found"
+          },
+          {
+            "turnIndex": 2,
+            "ok": false,
+            "why": "2 rows"
+          },
+          {
+            "turnIndex": 5,
+            "ok": false,
+            "why": "body mentions \"average\": false"
+          },
+          {
+            "turnIndex": 6,
+            "ok": false,
+            "why": "sum reads \"108\""
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 910,
+        "codeLenAfter": 910,
+        "groundAfter": 2,
+        "tokens": 207,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Mini Spreadsheet</title></head>\n<body>\n  <table id=\"grid\">\n    <tr><td><input class=\"cell\" data-r=\"0\" data-c=\"0\" value=\"1\" style=\"background-color: #f2f2f2; color: #333;\"></td><td><input class=\"cell\" data-r=\"0\" data-c=\"1\" value=\"1\" style=\"background-color: #f2f2f2; color: #333;\"></td></tr>\n    <tr><td><input class=\"cell\" data-r=\"1\" data-c=\"0\" value=\"3\"></td><td><input class=\"cell\" data-r=\"1\" data-c=\"1\" value=\"4\"></td></tr>\n  </table>\n  <div>Sum: <span id=\"sum\">0</span></div>\n  <script>\n    function recompute() {\n      let total = 0;\n      document.querySelectorAll('.cell').forEach(function(c) {\n        total += Number(c.value) || 0;\n      });\n      document.getElementById('sum').textContent = total;\n    }\n    document.querySelectorAll('.cell').forEach(function(c) {\n      c.addEventListener('input', recompute);\n    });\n    recompute();\n  </script>\n</body>\n</html>"
+      },
+      {
+        "turnIndex": 10,
+        "ask": "it's broken",
+        "predictedKind": "judgment",
+        "routedAs": "anaphora",
+        "landedAsRezero": true,
+        "landed": true,
+        "gap": null,
+        "structuralClean": true,
+        "structuralFindings": [],
+        "behavioralOwnCheck": null,
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 0,
+            "ok": false,
+            "why": "sum after typing 10 into (0,0) = \"0\""
+          },
+          {
+            "turnIndex": 1,
+            "ok": false,
+            "why": "no clear button found"
+          },
+          {
+            "turnIndex": 2,
+            "ok": false,
+            "why": "2 rows"
+          },
+          {
+            "turnIndex": 5,
+            "ok": false,
+            "why": "body mentions \"average\": false"
+          },
+          {
+            "turnIndex": 6,
+            "ok": false,
+            "why": "sum reads \"0\""
+          },
+          {
+            "turnIndex": 9,
+            "ok": false,
+            "why": "no fill button found"
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 910,
+        "codeLenAfter": 900,
+        "groundAfter": 3,
+        "tokens": 20,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Mini Spreadsheet</title></head>\n<body>\n  <table id=\"grid\">\n    <tr><td><input class=\"cell\" data-r=\"0\" data-c=\"0\" value=\"1\" style=\"background-color: #f2f2f2; color: #333;\"></td><td><input class=\"cell\" data-r=\"0\" data-c=\"1\" value=\"1\" style=\"background-color: #f2f2f2; color: #333;\"></td></tr>\n    <tr><td><input class=\"cell\" data-r=\"1\" data-c=\"0\" value=\"3\"></td><td><input class=\"cell\" data-r=\"1\" data-c=\"1\" value=\"4\"></td></tr>\n  </table>\n  <div>Sum: <span id=\"sum\">0</span></div>\n\n    function recompute() {\n      let total = 0;\n      document.querySelectorAll('.cell').forEach(function(c) {\n        total += Number(c.value) || 0;\n      });\n      document.getElementById('sum').textContent = total;\n    }\n    document.querySelectorAll('.cell').forEach(function(c) {\n      c.addEventListener('input', recompute);\n    });\n    recompute();\n  </script>\n</body>\n</html>"
+      },
+      {
+        "turnIndex": 11,
+        "ask": "the sum should still update live as I type, without clicking anything — check that still works",
+        "predictedKind": "structural",
+        "routedAs": "resolved",
+        "landedAsRezero": true,
+        "landed": true,
+        "gap": null,
+        "structuralClean": true,
+        "structuralFindings": [],
+        "behavioralOwnCheck": {
+          "turnIndex": 11,
+          "ok": false,
+          "why": "sum reads \"0\""
+        },
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 0,
+            "ok": false,
+            "why": "sum after typing 10 into (0,0) = \"0\""
+          },
+          {
+            "turnIndex": 1,
+            "ok": false,
+            "why": "no clear button found"
+          },
+          {
+            "turnIndex": 2,
+            "ok": false,
+            "why": "2 rows"
+          },
+          {
+            "turnIndex": 5,
+            "ok": false,
+            "why": "body mentions \"average\": false"
+          },
+          {
+            "turnIndex": 6,
+            "ok": false,
+            "why": "sum reads \"0\""
+          },
+          {
+            "turnIndex": 9,
+            "ok": false,
+            "why": "no fill button found"
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 900,
+        "codeLenAfter": 877,
+        "groundAfter": 4,
+        "tokens": 44,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Mini Spreadsheet</title></head>\n<body>\n  <table id=\"grid\">\n    <tr><td><input class=\"cell\" data-r=\"0\" data-c=\"0\" value=\"1\" style=\"background-color: #f2f2f2; color: #333;\"></td><td><input class=\"cell\" data-r=\"0\" data-c=\"1\" value=\"1\" style=\"background-color: #f2f2f2; color: #333;\"></td></tr>\n    <tr><td><input class=\"cell\" data-r=\"1\" data-c=\"0\" value=\"3\"></td><td><input class=\"cell\" data-r=\"1\" data-c=\"1\" value=\"4\"></td></tr>\n  </table>\n  <div>Sum: <span id=\"sum\">0</span></div>\n\n    function recompute() {\n      let total = 0;\n        total += Number(c.value) || 0;,\n        total += Number(c.value) || 0;\n      });\n      document.getElementById('sum').textContent = total;\n    }\n    document.querySelectorAll('.cell').forEach(function(c) {\n      c.addEventListener('input', recompute);\n    });\n    recompute();\n  </script>\n</body>\n</html>"
+      },
+      {
+        "turnIndex": 12,
+        "ask": "highlight the cell with the highest value in yellow",
+        "predictedKind": "feature",
+        "routedAs": "resolved",
+        "landedAsRezero": true,
+        "landed": true,
+        "gap": null,
+        "structuralClean": true,
+        "structuralFindings": [],
+        "behavioralOwnCheck": null,
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 0,
+            "ok": false,
+            "why": "sum after typing 10 into (0,0) = \"0\""
+          },
+          {
+            "turnIndex": 1,
+            "ok": false,
+            "why": "no clear button found"
+          },
+          {
+            "turnIndex": 2,
+            "ok": false,
+            "why": "2 rows"
+          },
+          {
+            "turnIndex": 5,
+            "ok": false,
+            "why": "body mentions \"average\": false"
+          },
+          {
+            "turnIndex": 6,
+            "ok": false,
+            "why": "sum reads \"0\""
+          },
+          {
+            "turnIndex": 9,
+            "ok": false,
+            "why": "no fill button found"
+          },
+          {
+            "turnIndex": 11,
+            "ok": false,
+            "why": "sum reads \"0\""
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 877,
+        "codeLenAfter": 877,
+        "groundAfter": 4,
+        "tokens": 208,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Mini Spreadsheet</title></head>\n<body>\n  <table id=\"grid\">\n    <tr><td><input class=\"cell\" data-r=\"0\" data-c=\"0\" value=\"1\" style=\"background-color: #f2f2f2; color: #333;\"></td><td><input class=\"cell\" data-r=\"0\" data-c=\"1\" value=\"1\" style=\"background-color: #f2f2f2; color: #333;\"></td></tr>\n    <tr><td><input class=\"cell\" data-r=\"1\" data-c=\"0\" value=\"3\"></td><td><input class=\"cell\" data-r=\"1\" data-c=\"1\" value=\"4\"></td></tr>\n  </table>\n  <div>Sum: <span id=\"sum\">0</span></div>\n\n    function recompute() {\n      let total = 0;\n        total += Number(c.value) || 0;,\n        total += Number(c.value) || 0;\n      });\n      document.getElementById('sum').textContent = total;\n    }\n    document.querySelectorAll('.cell').forEach(function(c) {\n      c.addEventListener('input', recompute);\n    });\n    recompute();\n  </script>\n</body>\n</html>"
+      },
+      {
+        "turnIndex": 13,
+        "ask": "fix it",
+        "predictedKind": "vague",
+        "routedAs": "anaphora",
+        "landedAsRezero": null,
+        "landed": false,
+        "gap": "unlocated",
+        "structuralClean": null,
+        "structuralFindings": [],
+        "behavioralOwnCheck": null,
+        "regressionsIntroducedThisTurn": [],
+        "conformFindings": [],
+        "codeLenBefore": 877,
+        "codeLenAfter": 877,
+        "groundAfter": 4,
+        "tokens": 47
+      },
+      {
+        "turnIndex": 14,
+        "ask": "add a reset button that sets every cell back to 0",
+        "predictedKind": "feature",
+        "routedAs": "resolved",
+        "landedAsRezero": null,
+        "landed": false,
+        "gap": "unlocated",
+        "structuralClean": null,
+        "structuralFindings": [],
+        "behavioralOwnCheck": {
+          "turnIndex": 14,
+          "ok": null,
+          "why": "no landing this turn — code unchanged or absent"
+        },
+        "regressionsIntroducedThisTurn": [],
+        "conformFindings": [],
+        "codeLenBefore": 877,
+        "codeLenAfter": 877,
+        "groundAfter": 4,
+        "tokens": 35
+      },
+      {
+        "turnIndex": 15,
+        "ask": "I don't like how the average looks, it should say 'Avg:' not 'Average:'",
+        "predictedKind": "judgment",
+        "routedAs": "anaphora",
+        "landedAsRezero": null,
+        "landed": false,
+        "gap": "unlocated",
+        "structuralClean": null,
+        "structuralFindings": [],
+        "behavioralOwnCheck": {
+          "turnIndex": 15,
+          "ok": null,
+          "why": "no landing this turn — code unchanged or absent"
+        },
+        "regressionsIntroducedThisTurn": [],
+        "conformFindings": [],
+        "codeLenBefore": 877,
+        "codeLenAfter": 877,
+        "groundAfter": 4,
+        "tokens": 18
+      },
+      {
+        "turnIndex": 16,
+        "ask": "add a max and a min value display too",
+        "predictedKind": "feature",
+        "routedAs": null,
+        "landedAsRezero": false,
+        "landed": true,
+        "gap": null,
+        "structuralClean": true,
+        "structuralFindings": [],
+        "behavioralOwnCheck": {
+          "turnIndex": 16,
+          "ok": true,
+          "why": "body mentions max/min: true/true"
+        },
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 0,
+            "ok": false,
+            "why": "sum after typing 10 into (0,0) = \"0\""
+          },
+          {
+            "turnIndex": 1,
+            "ok": false,
+            "why": "no clear button found"
+          },
+          {
+            "turnIndex": 2,
+            "ok": false,
+            "why": "2 rows"
+          },
+          {
+            "turnIndex": 5,
+            "ok": false,
+            "why": "body mentions \"average\": false"
+          },
+          {
+            "turnIndex": 6,
+            "ok": false,
+            "why": "sum reads \"0\""
+          },
+          {
+            "turnIndex": 9,
+            "ok": false,
+            "why": "no fill button found"
+          },
+          {
+            "turnIndex": 11,
+            "ok": false,
+            "why": "sum reads \"0\""
+          },
+          {
+            "turnIndex": 14,
+            "ok": false,
+            "why": "no reset button found"
+          },
+          {
+            "turnIndex": 15,
+            "ok": false,
+            "why": "body has \"Avg:\": false"
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 877,
+        "codeLenAfter": 991,
+        "groundAfter": 4,
+        "tokens": 63,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Mini Spreadsheet</title></head>\n<body>\n  <table id=\"grid\">\n    <tr><td><input class=\"cell\" data-r=\"0\" data-c=\"0\" value=\"1\" style=\"background-color: #f2f2f2; color: #333;\"></td><td><input class=\"cell\" data-r=\"0\" data-c=\"1\" value=\"1\" style=\"background-color: #f2f2f2; color: #333;\"></td></tr>\n    <tr><td><input class=\"cell\" data-r=\"1\" data-c=\"0\" value=\"3\"></td><td><input class=\"cell\" data-r=\"1\" data-c=\"1\" value=\"4\"></td></tr>\n  </table>\n  <div>Sum: <span id=\"sum\">0</span></div>\n\n    function recompute() {\n      let total = 0;\n        total += Number(c.value) || 0; min = Math.min(total, min); max = Math.max(total, max); ,\n        total += Number(c.value) || 0; min = Math.min(total, min); max = Math.max(total, max); \n      });\n      document.getElementById('sum').textContent = total;\n    }\n    document.querySelectorAll('.cell').forEach(function(c) {\n      c.addEventListener('input', recompute);\n    });\n    recompute();\n  </script>\n</body>\n</html>"
+      },
+      {
+        "turnIndex": 17,
+        "ask": "undo the last change",
+        "predictedKind": "undo",
+        "routedAs": null,
+        "landedAsRezero": false,
+        "landed": true,
+        "gap": null,
+        "structuralClean": true,
+        "structuralFindings": [],
+        "behavioralOwnCheck": null,
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 0,
+            "ok": false,
+            "why": "sum after typing 10 into (0,0) = \"0\""
+          },
+          {
+            "turnIndex": 1,
+            "ok": false,
+            "why": "no clear button found"
+          },
+          {
+            "turnIndex": 2,
+            "ok": false,
+            "why": "2 rows"
+          },
+          {
+            "turnIndex": 5,
+            "ok": false,
+            "why": "body mentions \"average\": false"
+          },
+          {
+            "turnIndex": 6,
+            "ok": false,
+            "why": "sum reads \"0\""
+          },
+          {
+            "turnIndex": 9,
+            "ok": false,
+            "why": "no fill button found"
+          },
+          {
+            "turnIndex": 11,
+            "ok": false,
+            "why": "sum reads \"0\""
+          },
+          {
+            "turnIndex": 14,
+            "ok": false,
+            "why": "no reset button found"
+          },
+          {
+            "turnIndex": 15,
+            "ok": false,
+            "why": "body has \"Avg:\": false"
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 991,
+        "codeLenAfter": 978,
+        "groundAfter": 4,
+        "tokens": 18,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Mini Spreadsheet</title></head>\n<body>\n  <table id=\"grid\">\n    <tr><td><input class=\"cell\" data-r=\"0\" data-c=\"0\" value=\"1\" style=\"background-color: #f2f2f2; color: #333;\"></td><td><input class=\"cell\" data-r=\"0\" data-c=\"1\" value=\"1\" style=\"background-color: #f2f2f2; color: #333;\"></td></tr>\n    <tr><td><input class=\"cell\" data-r=\"1\" data-c=\"0\" value=\"3\"></td><td><input class=\"cell\" data-r=\"1\" data-c=\"1\" value=\"4\"></td></tr>\n  </table>\n  <div>Sum: <span id=\"sum\">0</span></div>\n\n    function \n      let total = 0;\n        total += Number(c.value) || 0; min = Math.min(total, min); max = Math.max(total, max); ,\n        total += Number(c.value) || 0; min = Math.min(total, min); max = Math.max(total, max); \n      });\n      document.getElementById('sum').textContent = total;\n    }\n    document.querySelectorAll('.cell').forEach(function(c) {\n      c.addEventListener('input', recompute);\n    });\n    recompute();\n  </script>\n</body>\n</html>"
+      }
+    ],
+    "tasklist": [
+      {
+        "turnIndex": 1,
+        "ask": "add a delete button next to each task",
+        "predictedKind": "feature",
+        "routedAs": "resolved",
+        "landedAsRezero": null,
+        "landed": false,
+        "gap": "regressed",
+        "structuralClean": null,
+        "structuralFindings": [],
+        "behavioralOwnCheck": {
+          "turnIndex": 1,
+          "ok": null,
+          "why": "no landing this turn — code unchanged or absent"
+        },
+        "regressionsIntroducedThisTurn": [],
+        "conformFindings": [],
+        "codeLenBefore": 1177,
+        "codeLenAfter": 1177,
+        "groundAfter": 1,
+        "tokens": 27
+      },
+      {
+        "turnIndex": 2,
+        "ask": "add a filter so I can show only high priority tasks",
+        "predictedKind": "feature",
+        "routedAs": "resolved",
+        "landedAsRezero": null,
+        "landed": false,
+        "gap": "churn",
+        "structuralClean": null,
+        "structuralFindings": [],
+        "behavioralOwnCheck": {
+          "turnIndex": 2,
+          "ok": null,
+          "why": "no landing this turn — code unchanged or absent"
+        },
+        "regressionsIntroducedThisTurn": [],
+        "conformFindings": [],
+        "codeLenBefore": 1177,
+        "codeLenAfter": 1177,
+        "groundAfter": 1,
+        "tokens": 20
+      },
+      {
+        "turnIndex": 3,
+        "ask": "I don't like the colors, make it nicer",
+        "predictedKind": "judgment",
+        "routedAs": "anaphora",
+        "landedAsRezero": null,
+        "landed": false,
+        "gap": "regressed",
+        "structuralClean": null,
+        "structuralFindings": [],
+        "behavioralOwnCheck": null,
+        "regressionsIntroducedThisTurn": [],
+        "conformFindings": [],
+        "codeLenBefore": 1177,
+        "codeLenAfter": 1177,
+        "groundAfter": 1,
+        "tokens": 23
+      },
+      {
+        "turnIndex": 4,
+        "ask": "make it better",
+        "predictedKind": "vague",
+        "routedAs": "anaphora",
+        "landedAsRezero": null,
+        "landed": false,
+        "gap": "regressed",
+        "structuralClean": null,
+        "structuralFindings": [],
+        "behavioralOwnCheck": null,
+        "regressionsIntroducedThisTurn": [],
+        "conformFindings": [],
+        "codeLenBefore": 1177,
+        "codeLenAfter": 1177,
+        "groundAfter": 1,
+        "tokens": 32
+      },
+      {
+        "turnIndex": 5,
+        "ask": "show a count of how many tasks are done vs not done",
+        "predictedKind": "feature",
+        "routedAs": null,
+        "landedAsRezero": false,
+        "landed": true,
+        "gap": null,
+        "structuralClean": true,
+        "structuralFindings": [],
+        "behavioralOwnCheck": {
+          "turnIndex": 5,
+          "ok": true,
+          "why": "body mentions \"done\": true"
+        },
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 0,
+            "ok": false,
+            "why": "tasks after add = 0"
+          },
+          {
+            "turnIndex": 1,
+            "ok": false,
+            "why": "no delete control found in a rendered task row"
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 1177,
+        "codeLenAfter": 1274,
+        "groundAfter": 1,
+        "tokens": 58,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Priority Tasks</title></head>\n<body>\n  <input id=\"what\" placeholder=\"new task\">\n  <select id=\"priority\"><option value=\"low\">low</option><option value=\"high\">high</option></select>\n  <button id=\"add\">add</button>\n  <ul id=\"list\"></ul>\n  <div id=\"count\">0 tasks</div>\n  <script>\n    let tasks = [];\n    function render() {\n      const list = document.getElementById('list');\n      list.innerHTML = '';\n      tasks.forEach(function(t, i) {\n        const li = document.createElement('li');\n        li.textContent = (t.done ? '[x] ' : '[ ] ') + t.text + ' (' + t.priority + ')';\n        li.className = t.priority;\n        li.addEventListener('click', function() { t.done = !t.done; render(); });\n        list.appendChild(li);\n      });\n      document.getElementById('count').textContent = tasks.filter(t => t.done).length + ' done ' + (tasks.length - tasks.filter(t => t.done).length) + ' not done' + ' tasks';\n    }\n    document.getElementById('add').addEventListener('click', function() {\n      const text = document.getElementById('what').value;\n      const priority = document.getElementById('priority').value;\n      if (text) tasks.push({ text: text, priority: priority, done: false });\n      render();\n    });\n  </script>\n</body>\n</html>"
+      },
+      {
+        "turnIndex": 6,
+        "ask": "clicking a task to mark it done isn't working right, fix it",
+        "predictedKind": "judgment",
+        "routedAs": "resolved",
+        "landedAsRezero": false,
+        "landed": true,
+        "gap": null,
+        "structuralClean": true,
+        "structuralFindings": [],
+        "behavioralOwnCheck": {
+          "turnIndex": 6,
+          "ok": false,
+          "why": "no task row rendered"
+        },
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 0,
+            "ok": false,
+            "why": "tasks after add = 0"
+          },
+          {
+            "turnIndex": 1,
+            "ok": false,
+            "why": "no delete control found in a rendered task row"
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 1274,
+        "codeLenAfter": 1358,
+        "groundAfter": 1,
+        "tokens": 43,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Priority Tasks</title></head>\n<body>\n  <  <input id=\"what\" placeholder=\"new task\"  onclick=\"this.classList.toggle('completed')\">  id=\"what\" placeholder=\"new task\">\n  <select id=\"priority\"><option value=\"low\">low</option><option value=\"high\">high</option></select>\n  <button id=\"add\">add</button>\n  <ul id=\"list\"></ul>\n  <div id=\"count\">0 tasks</div>\n  <script>\n    let tasks = [];\n    function render() {\n      const list = document.getElementById('list');\n      list.innerHTML = '';\n      tasks.forEach(function(t, i) {\n        const li = document.createElement('li');\n        li.textContent = (t.done ? '[x] ' : '[ ] ') + t.text + ' (' + t.priority + ')';\n        li.className = t.priority;\n        li.addEventListener('click', function() { t.done = !t.done; render(); });\n        list.appendChild(li);\n      });\n      document.getElementById('count').textContent = tasks.filter(t => t.done).length + ' done ' + (tasks.length - tasks.filter(t => t.done).length) + ' not done' + ' tasks';\n    }\n    document.getElementById('add').addEventListener('click', function() {\n      const text = document.getElementById('what').value;\n      const priority = document.getElementById('priority').value;\n      if (text) tasks.push({ text: text, priority: priority, done: false });\n      render();\n    });\n  </script>\n</body>\n</html>"
+      },
+      {
+        "turnIndex": 7,
+        "ask": "make the add button bigger",
+        "predictedKind": "anaphora",
+        "routedAs": "resolved",
+        "landedAsRezero": true,
+        "landed": true,
+        "gap": null,
+        "structuralClean": true,
+        "structuralFindings": [],
+        "behavioralOwnCheck": null,
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 0,
+            "ok": false,
+            "why": "tasks after add = 0"
+          },
+          {
+            "turnIndex": 1,
+            "ok": false,
+            "why": "no delete control found in a rendered task row"
+          },
+          {
+            "turnIndex": 6,
+            "ok": false,
+            "why": "no task row rendered"
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 1358,
+        "codeLenAfter": 1358,
+        "groundAfter": 1,
+        "tokens": 20,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Priority Tasks</title></head>\n<body>\n  <  <input id=\"what\" placeholder=\"new task\"  onclick=\"this.classList.toggle('completed')\">  id=\"what\" placeholder=\"new task\">\n  <select id=\"priority\"><option value=\"low\">low</option><option value=\"high\">high</option></select>\n  <button id=\"add\">add</button>\n  <ul id=\"list\"></ul>\n  <div id=\"count\">0 tasks</div>\n  <script>\n    let tasks = [];\n    function render() {\n      const list = document.getElementById('list');\n      list.innerHTML = '';\n      tasks.forEach(function(t, i) {\n        const li = document.createElement('li');\n        li.textContent = (t.done ? '[x] ' : '[ ] ') + t.text + ' (' + t.priority + ')';\n        li.className = t.priority;\n        li.addEventListener('click', function() { t.done = !t.done; render(); });\n        list.appendChild(li);\n      });\n      document.getElementById('count').textContent = tasks.filter(t => t.done).length + ' done ' + (tasks.length - tasks.filter(t => t.done).length) + ' not done' + ' tasks';\n    }\n    document.getElementById('add').addEventListener('click', function() {\n      const text = document.getElementById('what').value;\n      const priority = document.getElementById('priority').value;\n      if (text) tasks.push({ text: text, priority: priority, done: false });\n      render();\n    });\n  </script>\n</body>\n</html>"
+      },
+      {
+        "turnIndex": 8,
+        "ask": "put the delete button back the way it was before",
+        "predictedKind": "undo",
+        "routedAs": "resolved",
+        "landedAsRezero": null,
+        "landed": false,
+        "gap": "regressed",
+        "structuralClean": null,
+        "structuralFindings": [],
+        "behavioralOwnCheck": null,
+        "regressionsIntroducedThisTurn": [],
+        "conformFindings": [],
+        "codeLenBefore": 1358,
+        "codeLenAfter": 1358,
+        "groundAfter": 1,
+        "tokens": 15
+      },
+      {
+        "turnIndex": 9,
+        "ask": "add a button that clears all completed tasks at once",
+        "predictedKind": "feature",
+        "routedAs": "resolved",
+        "landedAsRezero": null,
+        "landed": false,
+        "gap": "unlocated",
+        "structuralClean": null,
+        "structuralFindings": [],
+        "behavioralOwnCheck": {
+          "turnIndex": 9,
+          "ok": null,
+          "why": "no landing this turn — code unchanged or absent"
+        },
+        "regressionsIntroducedThisTurn": [],
+        "conformFindings": [],
+        "codeLenBefore": 1358,
+        "codeLenAfter": 1358,
+        "groundAfter": 1,
+        "tokens": 49
+      },
+      {
+        "turnIndex": 10,
+        "ask": "it's broken",
+        "predictedKind": "judgment",
+        "routedAs": "anaphora",
+        "landedAsRezero": true,
+        "landed": true,
+        "gap": null,
+        "structuralClean": true,
+        "structuralFindings": [],
+        "behavioralOwnCheck": null,
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 0,
+            "ok": false,
+            "why": "script threw: document.getElementById(...).EventListener is not a function"
+          },
+          {
+            "turnIndex": 1,
+            "ok": false,
+            "why": "script threw: document.getElementById(...).EventListener is not a function"
+          },
+          {
+            "turnIndex": 2,
+            "ok": false,
+            "why": "script threw: document.getElementById(...).EventListener is not a function"
+          },
+          {
+            "turnIndex": 5,
+            "ok": false,
+            "why": "script threw: document.getElementById(...).EventListener is not a function"
+          },
+          {
+            "turnIndex": 6,
+            "ok": false,
+            "why": "script threw: document.getElementById(...).EventListener is not a function"
+          },
+          {
+            "turnIndex": 9,
+            "ok": false,
+            "why": "script threw: document.getElementById(...).EventListener is not a function"
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 1358,
+        "codeLenAfter": 1343,
+        "groundAfter": 2,
+        "tokens": 16,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Priority Tasks</title></head>\n<body>\n  <  <input id=\"what\" placeholder=\"new task\"  onclick=\"this.classList.toggle('completed')\">  id=\"what\" placeholder=\"new task\">\n  <select id=\"priority\"><option value=\"low\">low</option><option value=\"high\">high</option></select>\n  <button id=\"\"></button>\n  <ul id=\"list\"></ul>\n  <div id=\"count\">0 tasks</div>\n  <script>\n    let tasks = [];\n    function render() {\n      const list = document.getElementById('list');\n      list.innerHTML = '';\n      tasks.forEach(function(t, i) {\n        const li = document.createElement('li');\n        li.textContent = (t.done ? '[x] ' : '[ ] ') + t.text + ' (' + t.priority + ')';\n        li.className = t.priority;\n        li.EventListener('click', function() { t.done = !t.done; render(); });\n        list.appendChild(li);\n      });\n      document.getElementById('count').textContent = tasks.filter(t => t.done).length + ' done ' + (tasks.length - tasks.filter(t => t.done).length) + ' not done' + ' tasks';\n    }\n    document.getElementById('').EventListener('click', function() {\n      const text = document.getElementById('what').value;\n      const priority = document.getElementById('priority').value;\n      if (text) tasks.push({ text: text, priority: priority, done: false });\n      render();\n    });\n  </script>\n</body>\n</html>"
+      },
+      {
+        "turnIndex": 11,
+        "ask": "adding a task should still clear the input field afterward — check that still works",
+        "predictedKind": "structural",
+        "routedAs": "resolved",
+        "landedAsRezero": null,
+        "landed": false,
+        "gap": "unlocated",
+        "structuralClean": null,
+        "structuralFindings": [],
+        "behavioralOwnCheck": {
+          "turnIndex": 11,
+          "ok": null,
+          "why": "no landing this turn — code unchanged or absent"
+        },
+        "regressionsIntroducedThisTurn": [],
+        "conformFindings": [],
+        "codeLenBefore": 1343,
+        "codeLenAfter": 1343,
+        "groundAfter": 2,
+        "tokens": 76
+      },
+      {
+        "turnIndex": 12,
+        "ask": "sort high priority tasks to the top of the list",
+        "predictedKind": "feature",
+        "routedAs": "resolved",
+        "landedAsRezero": true,
+        "landed": true,
+        "gap": null,
+        "structuralClean": true,
+        "structuralFindings": [],
+        "behavioralOwnCheck": null,
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 0,
+            "ok": false,
+            "why": "script threw: document.getElementById(...).EventListener is not a function"
+          },
+          {
+            "turnIndex": 1,
+            "ok": false,
+            "why": "script threw: document.getElementById(...).EventListener is not a function"
+          },
+          {
+            "turnIndex": 2,
+            "ok": false,
+            "why": "script threw: document.getElementById(...).EventListener is not a function"
+          },
+          {
+            "turnIndex": 5,
+            "ok": false,
+            "why": "script threw: document.getElementById(...).EventListener is not a function"
+          },
+          {
+            "turnIndex": 6,
+            "ok": false,
+            "why": "script threw: document.getElementById(...).EventListener is not a function"
+          },
+          {
+            "turnIndex": 9,
+            "ok": false,
+            "why": "script threw: document.getElementById(...).EventListener is not a function"
+          },
+          {
+            "turnIndex": 11,
+            "ok": false,
+            "why": "script threw: document.getElementById(...).EventListener is not a function"
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 1343,
+        "codeLenAfter": 1343,
+        "groundAfter": 2,
+        "tokens": 20,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Priority Tasks</title></head>\n<body>\n  <  <input id=\"what\" placeholder=\"new task\"  onclick=\"this.classList.toggle('completed')\">  id=\"what\" placeholder=\"new task\">\n  <select id=\"priority\"><option value=\"low\">low</option><option value=\"high\">high</option></select>\n  <button id=\"\"></button>\n  <ul id=\"list\"></ul>\n  <div id=\"count\">0 tasks</div>\n  <script>\n    let tasks = [];\n    function render() {\n      const list = document.getElementById('list');\n      list.innerHTML = '';\n      tasks.forEach(function(t, i) {\n        const li = document.createElement('li');\n        li.textContent = (t.done ? '[x] ' : '[ ] ') + t.text + ' (' + t.priority + ')';\n        li.className = t.priority;\n        li.EventListener('click', function() { t.done = !t.done; render(); });\n        list.appendChild(li);\n      });\n      document.getElementById('count').textContent = tasks.filter(t => t.done).length + ' done ' + (tasks.length - tasks.filter(t => t.done).length) + ' not done' + ' tasks';\n    }\n    document.getElementById('').EventListener('click', function() {\n      const text = document.getElementById('what').value;\n      const priority = document.getElementById('priority').value;\n      if (text) tasks.push({ text: text, priority: priority, done: false });\n      render();\n    });\n  </script>\n</body>\n</html>"
+      },
+      {
+        "turnIndex": 13,
+        "ask": "fix it",
+        "predictedKind": "vague",
+        "routedAs": "anaphora",
+        "landedAsRezero": true,
+        "landed": true,
+        "gap": null,
+        "structuralClean": true,
+        "structuralFindings": [],
+        "behavioralOwnCheck": null,
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 0,
+            "ok": false,
+            "why": "script threw: document.getElementById(...).EventListener is not a function"
+          },
+          {
+            "turnIndex": 1,
+            "ok": false,
+            "why": "script threw: document.getElementById(...).EventListener is not a function"
+          },
+          {
+            "turnIndex": 2,
+            "ok": false,
+            "why": "script threw: document.getElementById(...).EventListener is not a function"
+          },
+          {
+            "turnIndex": 5,
+            "ok": false,
+            "why": "script threw: document.getElementById(...).EventListener is not a function"
+          },
+          {
+            "turnIndex": 6,
+            "ok": false,
+            "why": "script threw: document.getElementById(...).EventListener is not a function"
+          },
+          {
+            "turnIndex": 9,
+            "ok": false,
+            "why": "script threw: document.getElementById(...).EventListener is not a function"
+          },
+          {
+            "turnIndex": 11,
+            "ok": false,
+            "why": "script threw: document.getElementById(...).EventListener is not a function"
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 1343,
+        "codeLenAfter": 1253,
+        "groundAfter": 3,
+        "tokens": 42,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Priority Tasks</title></head>\n<body>\n  <id=\"what\" placeholder=\"new task\">\n  <select id=\"priority\"><option value=\"low\">low</option><option value=\"high\">high</option></select>\n  <button id=\"\"></button>\n  <ul id=\"list\"></ul>\n  <div id=\"count\">0 tasks</div>\n  <script>\n    let tasks = [];\n    function render() {\n      const list = document.getElementById('list');\n      list.innerHTML = '';\n      tasks.forEach(function(t, i) {\n        const li = document.createElement('li');\n        li.textContent = (t.done ? '[x] ' : '[ ] ') + t.text + ' (' + t.priority + ')';\n        li.className = t.priority;\n        li.EventListener('click', function() { t.done = !t.done; render(); });\n        list.appendChild(li);\n      });\n      document.getElementById('count').textContent = tasks.filter(t => t.done).length + ' done ' + (tasks.length - tasks.filter(t => t.done).length) + ' not done' + ' tasks';\n    }\n    document.getElementById('').EventListener('click', function() {\n      const text = document.getElementById('what').value;\n      const priority = document.getElementById('priority').value;\n      if (text) tasks.push({ text: text, priority: priority, done: false });\n      render();\n    });\n  </script>\n</body>\n</html>"
+      },
+      {
+        "turnIndex": 14,
+        "ask": "add a button to mark all tasks done at once",
+        "predictedKind": "feature",
+        "routedAs": null,
+        "landedAsRezero": false,
+        "landed": true,
+        "gap": null,
+        "structuralClean": true,
+        "structuralFindings": [],
+        "behavioralOwnCheck": {
+          "turnIndex": 14,
+          "ok": false,
+          "why": "script threw: document.getElementById(...).EventListener is not a function"
+        },
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 0,
+            "ok": false,
+            "why": "script threw: document.getElementById(...).EventListener is not a function"
+          },
+          {
+            "turnIndex": 1,
+            "ok": false,
+            "why": "script threw: document.getElementById(...).EventListener is not a function"
+          },
+          {
+            "turnIndex": 2,
+            "ok": false,
+            "why": "script threw: document.getElementById(...).EventListener is not a function"
+          },
+          {
+            "turnIndex": 5,
+            "ok": false,
+            "why": "script threw: document.getElementById(...).EventListener is not a function"
+          },
+          {
+            "turnIndex": 6,
+            "ok": false,
+            "why": "script threw: document.getElementById(...).EventListener is not a function"
+          },
+          {
+            "turnIndex": 9,
+            "ok": false,
+            "why": "script threw: document.getElementById(...).EventListener is not a function"
+          },
+          {
+            "turnIndex": 11,
+            "ok": false,
+            "why": "script threw: document.getElementById(...).EventListener is not a function"
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 1253,
+        "codeLenAfter": 1269,
+        "groundAfter": 3,
+        "tokens": 26,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Priority Tasks</title></head>\n<body>\n  <id=\"what\" placeholder=\"new task\">\n  <select id=\"priority\"><option value=\"low\">low</option><option value=\"high\">high</option></select>\n  <button id='all-tasks-done'\"\"></button>\n  <ul id=\"list\"></ul>\n  <div id=\"count\">0 tasks</div>\n  <script>\n    let tasks = [];\n    function render() {\n      const list = document.getElementById('list');\n      list.innerHTML = '';\n      tasks.forEach(function(t, i) {\n        const li = document.createElement('li');\n        li.textContent = (t.done ? '[x] ' : '[ ] ') + t.text + ' (' + t.priority + ')';\n        li.className = t.priority;\n        li.EventListener('click', function() { t.done = !t.done; render(); });\n        list.appendChild(li);\n      });\n      document.getElementById('count').textContent = tasks.filter(t => t.done).length + ' done ' + (tasks.length - tasks.filter(t => t.done).length) + ' not done' + ' tasks';\n    }\n    document.getElementById('').EventListener('click', function() {\n      const text = document.getElementById('what').value;\n      const priority = document.getElementById('priority').value;\n      if (text) tasks.push({ text: text, priority: priority, done: false });\n      render();\n    });\n  </script>\n</body>\n</html>"
+      },
+      {
+        "turnIndex": 15,
+        "ask": "I don't like how the count looks, it should say 'Done:' not just the number",
+        "predictedKind": "judgment",
+        "routedAs": "judgment",
+        "landedAsRezero": null,
+        "landed": false,
+        "gap": "unlocated",
+        "structuralClean": null,
+        "structuralFindings": [],
+        "behavioralOwnCheck": {
+          "turnIndex": 15,
+          "ok": null,
+          "why": "no landing this turn — code unchanged or absent"
+        },
+        "regressionsIntroducedThisTurn": [],
+        "conformFindings": [],
+        "codeLenBefore": 1269,
+        "codeLenAfter": 1269,
+        "groundAfter": 3,
+        "tokens": 64
+      },
+      {
+        "turnIndex": 16,
+        "ask": "add a way to edit an existing task's text",
+        "predictedKind": "feature",
+        "routedAs": "resolved",
+        "landedAsRezero": false,
+        "landed": true,
+        "gap": null,
+        "structuralClean": true,
+        "structuralFindings": [],
+        "behavioralOwnCheck": null,
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 0,
+            "ok": false,
+            "why": "script threw: document.getElementById(...).EventListener is not a function"
+          },
+          {
+            "turnIndex": 1,
+            "ok": false,
+            "why": "script threw: document.getElementById(...).EventListener is not a function"
+          },
+          {
+            "turnIndex": 2,
+            "ok": false,
+            "why": "script threw: document.getElementById(...).EventListener is not a function"
+          },
+          {
+            "turnIndex": 5,
+            "ok": false,
+            "why": "script threw: document.getElementById(...).EventListener is not a function"
+          },
+          {
+            "turnIndex": 6,
+            "ok": false,
+            "why": "script threw: document.getElementById(...).EventListener is not a function"
+          },
+          {
+            "turnIndex": 9,
+            "ok": false,
+            "why": "script threw: document.getElementById(...).EventListener is not a function"
+          },
+          {
+            "turnIndex": 11,
+            "ok": false,
+            "why": "script threw: document.getElementById(...).EventListener is not a function"
+          },
+          {
+            "turnIndex": 14,
+            "ok": false,
+            "why": "script threw: document.getElementById(...).EventListener is not a function"
+          },
+          {
+            "turnIndex": 15,
+            "ok": false,
+            "why": "script threw: document.getElementById(...).EventListener is not a function"
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 1269,
+        "codeLenAfter": 1286,
+        "groundAfter": 3,
+        "tokens": 24,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Priority Tasks</title></head>\n<body>\n  <id=\"what\" placeholder='Edit task text'=\"new task\">\n  <select id=\"priority\"><option value=\"low\">low</option><option value=\"high\">high</option></select>\n  <button id='all-tasks-done'\"\"></button>\n  <ul id=\"list\"></ul>\n  <div id=\"count\">0 tasks</div>\n  <script>\n    let tasks = [];\n    function render() {\n      const list = document.getElementById('list');\n      list.innerHTML = '';\n      tasks.forEach(function(t, i) {\n        const li = document.createElement('li');\n        li.textContent = (t.done ? '[x] ' : '[ ] ') + t.text + ' (' + t.priority + ')';\n        li.className = t.priority;\n        li.EventListener('click', function() { t.done = !t.done; render(); });\n        list.appendChild(li);\n      });\n      document.getElementById('count').textContent = tasks.filter(t => t.done).length + ' done ' + (tasks.length - tasks.filter(t => t.done).length) + ' not done' + ' tasks';\n    }\n    document.getElementById('').EventListener('click', function() {\n      const text = document.getElementById('what').value;\n      const priority = document.getElementById('priority').value;\n      if (text) tasks.push({ text: text, priority: priority, done: false });\n      render();\n    });\n  </script>\n</body>\n</html>"
+      },
+      {
+        "turnIndex": 17,
+        "ask": "undo the last change",
+        "predictedKind": "undo",
+        "routedAs": null,
+        "landedAsRezero": null,
+        "landed": false,
+        "gap": "regressed",
+        "structuralClean": null,
+        "structuralFindings": [],
+        "behavioralOwnCheck": null,
+        "regressionsIntroducedThisTurn": [],
+        "conformFindings": [],
+        "codeLenBefore": 1286,
+        "codeLenAfter": 1286,
+        "groundAfter": 3,
+        "tokens": 19
+      }
+    ]
+  },
+  "qwen2.5-coder:7b": {
+    "spreadsheet": [
+      {
+        "turnIndex": 1,
+        "ask": "add a button that clears all the cells to 0",
+        "predictedKind": "feature",
+        "routedAs": "resolved",
+        "landedAsRezero": null,
+        "landed": false,
+        "gap": "regressed",
+        "structuralClean": null,
+        "structuralFindings": [],
+        "behavioralOwnCheck": {
+          "turnIndex": 1,
+          "ok": null,
+          "why": "no landing this turn — code unchanged or absent"
+        },
+        "regressionsIntroducedThisTurn": [],
+        "conformFindings": [],
+        "codeLenBefore": 814,
+        "codeLenAfter": 814,
+        "groundAfter": 1,
+        "tokens": 66
+      },
+      {
+        "turnIndex": 2,
+        "ask": "add a third row of two more cells, prefilled with 5 and 6",
+        "predictedKind": "feature",
+        "routedAs": null,
+        "landedAsRezero": false,
+        "landed": true,
+        "gap": null,
+        "structuralClean": true,
+        "structuralFindings": [],
+        "behavioralOwnCheck": {
+          "turnIndex": 2,
+          "ok": false,
+          "why": "2 rows"
+        },
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 0,
+            "ok": false,
+            "why": "sum after typing 10 into (0,0) = \"23\""
+          },
+          {
+            "turnIndex": 1,
+            "ok": false,
+            "why": "no clear button found"
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 814,
+        "codeLenAfter": 814,
+        "groundAfter": 1,
+        "tokens": 113,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Mini Spreadsheet</title></head>\n<body>\n  <table id=\"grid\">\n    <tr><td><input class=\"cell\" data-r=\"0\" data-c=\"0\" value=\"1\"></td><td><input class=\"cell\" data-r=\"0\" data-c=\"1\" value=\"2\"></td></tr>\n    <tr><td><input class=\"cell\" data-r=\"2\" data-c=\"0\" value=\"5\"></td><td><input class=\"cell\" data-r=\"2\" data-c=\"1\" value=\"6\"></td></tr>\n  </table>\n  <div>Sum: <span id=\"sum\">0</span></div>\n  <script>\n    function recompute() {\n      let total = 0;\n      document.querySelectorAll('.cell').forEach(function(c) {\n        total += Number(c.value) || 0;\n      });\n      document.getElementById('sum').textContent = total;\n    }\n    document.querySelectorAll('.cell').forEach(function(c) {\n      c.addEventListener('input', recompute);\n    });\n    recompute();\n  </script>\n</body>\n</html>"
+      },
+      {
+        "turnIndex": 3,
+        "ask": "I don't like the colors, make it nicer",
+        "predictedKind": "judgment",
+        "routedAs": "anaphora",
+        "landedAsRezero": true,
+        "landed": true,
+        "gap": null,
+        "structuralClean": true,
+        "structuralFindings": [],
+        "behavioralOwnCheck": null,
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 0,
+            "ok": false,
+            "why": "sum after typing 10 into (0,0) = \"23\""
+          },
+          {
+            "turnIndex": 1,
+            "ok": false,
+            "why": "no clear button found"
+          },
+          {
+            "turnIndex": 2,
+            "ok": false,
+            "why": "2 rows"
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 814,
+        "codeLenAfter": 966,
+        "groundAfter": 2,
+        "tokens": 42,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Mini Spreadsheet</title></head>\n<body>\n  <table { border-collapse: collapse; } td { border: 1px solid #ddd; padding: 8px; } id=\"grid\">\n    <tr><td><input class=\"cell\" data-r=\"0\" data-c=\"0\" value=\"1\"></td><td><input class=\"cell\" data-r=\"0\" data-c=\"1\" value=\"2\"></td></tr>\n    <tr><td><input class=\"cell\" data-r=\"2\" data-c=\"0\" value=\"5\"></td><td><input class=\"cell\" data-r=\"2\" data-c=\"1\" value=\"6\"></td></tr>\n  </table { border-collapse: collapse; } td { border: 1px solid #ddd; padding: 8px; }>\n  <div>Sum: <span id=\"sum\">0</span></div>\n  <script>\n    function recompute() {\n      let total = 0;\n      document.querySelectorAll('.cell').forEach(function(c) {\n        total += Number(c.value) || 0;\n      });\n      document.getElementById('sum').textContent = total;\n    }\n    document.querySelectorAll('.cell').forEach(function(c) {\n      c.addEventListener('input', recompute);\n    });\n    recompute();\n  </script>\n</body>\n</html>"
+      },
+      {
+        "turnIndex": 4,
+        "ask": "make it better",
+        "predictedKind": "vague",
+        "routedAs": "anaphora",
+        "landedAsRezero": true,
+        "landed": true,
+        "gap": null,
+        "structuralClean": true,
+        "structuralFindings": [],
+        "behavioralOwnCheck": null,
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 0,
+            "ok": false,
+            "why": "sum after typing 10 into (0,0) = \"23\""
+          },
+          {
+            "turnIndex": 1,
+            "ok": false,
+            "why": "no clear button found"
+          },
+          {
+            "turnIndex": 2,
+            "ok": false,
+            "why": "2 rows"
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 966,
+        "codeLenAfter": 956,
+        "groundAfter": 3,
+        "tokens": 36,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Mini Spreadsheet</title></head>\n<body>\n  <table { border-collapse: collapse; } td { border: 1px solid #ddd; padding: 8px; } id=\"grid\">\n    <tr><td><input class=\"cell\" data-r=\"0\" data-c=\"0\" value=\"1\"></td><td><input class=\"cell\" data-r=\"0\" data-c=\"1\" value=\"2\"></td></tr>\n    <tr><td><input class=\"cell\" data-r=\"2\" data-c=\"0\" value=\"5\"></td><td><input class=\"cell\" data-r=\"2\" data-c=\"1\" value=\"6\"></td></tr>\n  </table { border-collapse: collapse; } td { border: 1px solid #ddd; padding: 8px; }>\n  <div>Sum: <span id=\"sum\">0</span></div>\n  <script>\n    function recompute() {\n      let total = 0;\n      document.querySelectorAll('.cell').forEach((c) => {\n        total += Number(c.value) || 0;\n      });\n      document.getElementById('sum').textContent = total;\n    }\n    document.querySelectorAll('.cell').forEach((c) => {\n      c.addEventListener('input', recompute);\n    });\n    recompute();\n  </script>\n</body>\n</html>"
+      },
+      {
+        "turnIndex": 5,
+        "ask": "show the average of the cells too, next to the sum",
+        "predictedKind": "feature",
+        "routedAs": "resolved",
+        "landedAsRezero": true,
+        "landed": true,
+        "gap": null,
+        "structuralClean": true,
+        "structuralFindings": [],
+        "behavioralOwnCheck": {
+          "turnIndex": 5,
+          "ok": true,
+          "why": "body mentions \"average\": true"
+        },
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 0,
+            "ok": false,
+            "why": "sum after typing 10 into (0,0) = \"0 | Average: 3.50 | Average: 5.75\""
+          },
+          {
+            "turnIndex": 1,
+            "ok": false,
+            "why": "no clear button found"
+          },
+          {
+            "turnIndex": 2,
+            "ok": false,
+            "why": "2 rows"
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 956,
+        "codeLenAfter": 1038,
+        "groundAfter": 4,
+        "tokens": 53,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Mini Spreadsheet</title></head>\n<body>\n  <table { border-collapse: collapse; } td { border: 1px solid #ddd; padding: 8px; } id=\"grid\">\n    <tr><td><input class=\"cell\" data-r=\"0\" data-c=\"0\" value=\"1\"></td><td><input class=\"cell\" data-r=\"0\" data-c=\"1\" value=\"2\"></td></tr>\n    <tr><td><input class=\"cell\" data-r=\"2\" data-c=\"0\" value=\"5\"></td><td><input class=\"cell\" data-r=\"2\" data-c=\"1\" value=\"6\"></td></tr>\n  </table { border-collapse: collapse; } td { border: 1px solid #ddd; padding: 8px; }>\n  <div>Sum: <span id=\"sum\">0</span></div>\n  <script>\n    function recompute() {\n      let total = 0;\n      document.querySelectorAll('.cell').forEach((c) => {\n        total += Number(c.value) || 0;\n      });\n      ; document.getElementById('sum').textContent += ' | Average: ' + (total / document.querySelectorAll('.cell').length || 0).toFixed(2);\n    }\n    document.querySelectorAll('.cell').forEach((c) => {\n      c.addEventListener('input', recompute);\n    });\n    recompute();\n  </script>\n</body>\n</html>"
+      },
+      {
+        "turnIndex": 6,
+        "ask": "the sum isn't updating right when I type in a cell, fix it",
+        "predictedKind": "judgment",
+        "routedAs": "resolved",
+        "landedAsRezero": false,
+        "landed": true,
+        "gap": null,
+        "structuralClean": true,
+        "structuralFindings": [],
+        "behavioralOwnCheck": {
+          "turnIndex": 6,
+          "ok": false,
+          "why": "sum reads \" | Average: 28.25\""
+        },
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 0,
+            "ok": false,
+            "why": "sum after typing 10 into (0,0) = \" | Average: 5.75\""
+          },
+          {
+            "turnIndex": 1,
+            "ok": false,
+            "why": "no clear button found"
+          },
+          {
+            "turnIndex": 2,
+            "ok": false,
+            "why": "2 rows"
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 1038,
+        "codeLenAfter": 1038,
+        "groundAfter": 4,
+        "tokens": 17,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Mini Spreadsheet</title></head>\n<body>\n  <table { border-collapse: collapse; } td { border: 1px solid #ddd; padding: 8px; } id=\"grid\">\n    <tr><td><input class=\"cell\" data-r=\"0\" data-c=\"0\" value=\"1\"></td><td><input class=\"cell\" data-r=\"0\" data-c=\"1\" value=\"2\"></td></tr>\n    <tr><td><input class=\"cell\" data-r=\"2\" data-c=\"0\" value=\"5\"></td><td><input class=\"cell\" data-r=\"2\" data-c=\"1\" value=\"6\"></td></tr>\n  </table { border-collapse: collapse; } td { border: 1px solid #ddd; padding: 8px; }>\n  <div>Sum: <span id=\"sum\">0</span></div>\n  <script>\n    function recompute() {\n      let total = 0;\n      document.querySelectorAll('.cell').forEach((c) => {\n        total += Number(c.value) || 0;\n      });\n      ; document.getElementById('sum').textContent =  ' | Average: ' + (total / document.querySelectorAll('.cell').length || 0).toFixed(2);\n    }\n    document.querySelectorAll('.cell').forEach((c) => {\n      c.addEventListener('input', recompute);\n    });\n    recompute();\n  </script>\n</body>\n</html>"
+      },
+      {
+        "turnIndex": 7,
+        "ask": "make the buttons bigger",
+        "predictedKind": "anaphora",
+        "routedAs": null,
+        "landedAsRezero": false,
+        "landed": true,
+        "gap": null,
+        "structuralClean": true,
+        "structuralFindings": [],
+        "behavioralOwnCheck": null,
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 0,
+            "ok": false,
+            "why": "sum after typing 10 into (0,0) = \" | Average: 5.75\""
+          },
+          {
+            "turnIndex": 1,
+            "ok": false,
+            "why": "no clear button found"
+          },
+          {
+            "turnIndex": 2,
+            "ok": false,
+            "why": "2 rows"
+          },
+          {
+            "turnIndex": 6,
+            "ok": false,
+            "why": "sum reads \" | Average: 28.25\""
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 1038,
+        "codeLenAfter": 1072,
+        "groundAfter": 4,
+        "tokens": 59,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Mini Spreadsheet</title></head>\n<body>\n  <table { border-collapse: collapse; } td { border: 1px solid #ddd; padding: 8px; font-size: 18px; } id=\"grid\">\n    <tr><td><input class=\"cell\" data-r=\"0\" data-c=\"0\" value=\"1\"></td><td><input class=\"cell\" data-r=\"0\" data-c=\"1\" value=\"2\"></td></tr>\n    <tr><td><input class=\"cell\" data-r=\"2\" data-c=\"0\" value=\"5\"></td><td><input class=\"cell\" data-r=\"2\" data-c=\"1\" value=\"6\"></td></tr>\n  </table { border-collapse: collapse; } td { border: 1px solid #ddd; padding: 8px; font-size: 18px; }>\n  <div>Sum: <span id=\"sum\">0</span></div>\n  <script>\n    function recompute() {\n      let total = 0;\n      document.querySelectorAll('.cell').forEach((c) => {\n        total += Number(c.value) || 0;\n      });\n      ; document.getElementById('sum').textContent =  ' | Average: ' + (total / document.querySelectorAll('.cell').length || 0).toFixed(2);\n    }\n    document.querySelectorAll('.cell').forEach((c) => {\n      c.addEventListener('input', recompute);\n    });\n    recompute();\n  </script>\n</body>\n</html>"
+      },
+      {
+        "turnIndex": 8,
+        "ask": "put the clear button back the way it was before",
+        "predictedKind": "undo",
+        "routedAs": "anaphora",
+        "landedAsRezero": true,
+        "landed": true,
+        "gap": null,
+        "structuralClean": true,
+        "structuralFindings": [],
+        "behavioralOwnCheck": null,
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 0,
+            "ok": false,
+            "why": "sum after typing 10 into (0,0) = \" | Average: 5.75\""
+          },
+          {
+            "turnIndex": 1,
+            "ok": false,
+            "why": "no clear button found"
+          },
+          {
+            "turnIndex": 2,
+            "ok": false,
+            "why": "2 rows"
+          },
+          {
+            "turnIndex": 6,
+            "ok": false,
+            "why": "sum reads \" | Average: 28.25\""
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 1072,
+        "codeLenAfter": 1072,
+        "groundAfter": 4,
+        "tokens": 21,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Mini Spreadsheet</title></head>\n<body>\n  <table { border-collapse: collapse; } td { border: 1px solid #ddd; padding: 8px; font-size: 18px; } id=\"grid\">\n    <tr><td><input class=\"cell\" data-r=\"0\" data-c=\"0\" value=\"1\"></td><td><input class=\"cell\" data-r=\"0\" data-c=\"1\" value=\"2\"></td></tr>\n    <tr><td><input class=\"cell\" data-r=\"2\" data-c=\"0\" value=\"5\"></td><td><input class=\"cell\" data-r=\"2\" data-c=\"1\" value=\"6\"></td></tr>\n  </table { border-collapse: collapse; } td { border: 1px solid #ddd; padding: 8px; font-size: 18px; }>\n  <div>Sum: <span id=\"sum\">0</span></div>\n  <script>\n    function recompute() {\n      let total = 0;\n      document.querySelectorAll('.cell').forEach((c) => {\n        total += Number(c.value) || 0;\n      });\n      ; document.getElementById('sum').textContent =  ' | Average: ' + (total / document.querySelectorAll('.cell').length || 0).toFixed(2);\n    }\n    document.querySelectorAll('.cell').forEach((c) => {\n      c.addEventListener('input', recompute);\n    });\n    recompute();\n  </script>\n</body>\n</html>"
+      },
+      {
+        "turnIndex": 9,
+        "ask": "add a button that fills every cell with 1",
+        "predictedKind": "feature",
+        "routedAs": "resolved",
+        "landedAsRezero": null,
+        "landed": false,
+        "gap": "no-ops",
+        "structuralClean": null,
+        "structuralFindings": [],
+        "behavioralOwnCheck": {
+          "turnIndex": 9,
+          "ok": null,
+          "why": "no landing this turn — code unchanged or absent"
+        },
+        "regressionsIntroducedThisTurn": [],
+        "conformFindings": [],
+        "codeLenBefore": 1072,
+        "codeLenAfter": 1072,
+        "groundAfter": 4,
+        "tokens": 27
+      },
+      {
+        "turnIndex": 10,
+        "ask": "it's broken",
+        "predictedKind": "judgment",
+        "routedAs": "anaphora",
+        "landedAsRezero": true,
+        "landed": true,
+        "gap": null,
+        "structuralClean": true,
+        "structuralFindings": [],
+        "behavioralOwnCheck": null,
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 0,
+            "ok": false,
+            "why": "sum after typing 10 into (0,0) = \" | Average: 5.75\""
+          },
+          {
+            "turnIndex": 1,
+            "ok": false,
+            "why": "no clear button found"
+          },
+          {
+            "turnIndex": 2,
+            "ok": false,
+            "why": "2 rows"
+          },
+          {
+            "turnIndex": 6,
+            "ok": false,
+            "why": "sum reads \" | Average: 28.25\""
+          },
+          {
+            "turnIndex": 9,
+            "ok": false,
+            "why": "no fill button found"
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 1072,
+        "codeLenAfter": 1014,
+        "groundAfter": 5,
+        "tokens": 66,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Mini Spreadsheet</title></head>\n<body>\n  <table style=\"border-collapse: collapse;\" id=\"grid\">\n    <tr><td><input class=\"cell\" data-r=\"0\" data-c=\"0\" value=\"1\"></td><td><input class=\"cell\" data-r=\"0\" data-c=\"1\" value=\"2\"></td></tr>\n    <tr><td><input class=\"cell\" data-r=\"2\" data-c=\"0\" value=\"5\"></td><td><input class=\"cell\" data-r=\"2\" data-c=\"1\" value=\"6\"></td></tr>\n  </table { border-collapse: collapse; } td { border: 1px solid #ddd; padding: 8px; font-size: 18px; }>\n  <div>Sum: <span id=\"sum\">0</span></div>\n  <script>\n    function recompute() {\n      let total = 0;\n      document.querySelectorAll('.cell').forEach((c) => {\n        total += Number(c.value) || 0;\n      });\n      ; document.getElementById('sum').textContent =  ' | Average: ' + (total / document.querySelectorAll('.cell').length || 0).toFixed(2);\n    }\n    document.querySelectorAll('.cell').forEach((c) => {\n      c.addEventListener('input', recompute);\n    });\n    recompute();\n  </script>\n</body>\n</html>"
+      },
+      {
+        "turnIndex": 11,
+        "ask": "the sum should still update live as I type, without clicking anything — check that still works",
+        "predictedKind": "structural",
+        "routedAs": "resolved",
+        "landedAsRezero": null,
+        "landed": false,
+        "gap": "regressed",
+        "structuralClean": null,
+        "structuralFindings": [],
+        "behavioralOwnCheck": {
+          "turnIndex": 11,
+          "ok": null,
+          "why": "no landing this turn — code unchanged or absent"
+        },
+        "regressionsIntroducedThisTurn": [],
+        "conformFindings": [],
+        "codeLenBefore": 1014,
+        "codeLenAfter": 1014,
+        "groundAfter": 5,
+        "tokens": 57
+      },
+      {
+        "turnIndex": 12,
+        "ask": "highlight the cell with the highest value in yellow",
+        "predictedKind": "feature",
+        "routedAs": "resolved",
+        "landedAsRezero": null,
+        "landed": false,
+        "gap": "regressed",
+        "structuralClean": null,
+        "structuralFindings": [],
+        "behavioralOwnCheck": null,
+        "regressionsIntroducedThisTurn": [],
+        "conformFindings": [],
+        "codeLenBefore": 1014,
+        "codeLenAfter": 1014,
+        "groundAfter": 5,
+        "tokens": 97
+      },
+      {
+        "turnIndex": 13,
+        "ask": "fix it",
+        "predictedKind": "vague",
+        "routedAs": "anaphora",
+        "landedAsRezero": true,
+        "landed": true,
+        "gap": null,
+        "structuralClean": true,
+        "structuralFindings": [],
+        "behavioralOwnCheck": null,
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 0,
+            "ok": false,
+            "why": "sum after typing 10 into (0,0) = \"Sum: 23 | Average: 5.75\""
+          },
+          {
+            "turnIndex": 1,
+            "ok": false,
+            "why": "no clear button found"
+          },
+          {
+            "turnIndex": 2,
+            "ok": false,
+            "why": "2 rows"
+          },
+          {
+            "turnIndex": 6,
+            "ok": false,
+            "why": "sum reads \"Sum: 113 | Average: 28.25\""
+          },
+          {
+            "turnIndex": 9,
+            "ok": false,
+            "why": "no fill button found"
+          },
+          {
+            "turnIndex": 11,
+            "ok": false,
+            "why": "check threw: Cannot set properties of null (setting 'value')"
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 1014,
+        "codeLenAfter": 1031,
+        "groundAfter": 6,
+        "tokens": 83,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Mini Spreadsheet</title></head>\n<body>\n  <table style=\"border-collapse: collapse;\" id=\"grid\">\n    <tr><td><input class=\"cell\" data-r=\"0\" data-c=\"0\" value=\"1\"></td><td><input class=\"cell\" data-r=\"0\" data-c=\"1\" value=\"2\"></td></tr>\n    <tr><td><input class=\"cell\" data-r=\"2\" data-c=\"0\" value=\"5\"></td><td><input class=\"cell\" data-r=\"2\" data-c=\"1\" value=\"6\"></td></tr>\n  </table { border-collapse: collapse; } td { border: 1px solid #ddd; padding: 8px; font-size: 18px; }>\n  <div>Sum: <span id=\"sum\">0</span></div>\n  <script>\n    function recompute() {\n      let total = 0;\n      document.querySelectorAll('.cell').forEach((c) => {\n        total += Number(c.value) || 0;\n      });\n      ; document.getElementById('sum').textContent = 'Sum: ' + total + ' | Average: ' + (total / document.querySelectorAll('.cell').length || 0).toFixed(2);\n    }\n    document.querySelectorAll('.cell').forEach((c) => {\n      c.addEventListener('input', recompute);\n    });\n    recompute();\n  </script>\n</body>\n</html>"
+      },
+      {
+        "turnIndex": 14,
+        "ask": "add a reset button that sets every cell back to 0",
+        "predictedKind": "feature",
+        "routedAs": "resolved",
+        "landedAsRezero": null,
+        "landed": false,
+        "gap": "regressed",
+        "structuralClean": null,
+        "structuralFindings": [],
+        "behavioralOwnCheck": {
+          "turnIndex": 14,
+          "ok": null,
+          "why": "no landing this turn — code unchanged or absent"
+        },
+        "regressionsIntroducedThisTurn": [],
+        "conformFindings": [],
+        "codeLenBefore": 1031,
+        "codeLenAfter": 1031,
+        "groundAfter": 6,
+        "tokens": 79
+      },
+      {
+        "turnIndex": 15,
+        "ask": "I don't like how the average looks, it should say 'Avg:' not 'Average:'",
+        "predictedKind": "judgment",
+        "routedAs": "judgment",
+        "landedAsRezero": true,
+        "landed": true,
+        "gap": null,
+        "structuralClean": true,
+        "structuralFindings": [],
+        "behavioralOwnCheck": {
+          "turnIndex": 15,
+          "ok": true,
+          "why": "body has \"Avg:\": true"
+        },
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 0,
+            "ok": false,
+            "why": "sum after typing 10 into (0,0) = \"Sum: 23 | Avg: 5.75\""
+          },
+          {
+            "turnIndex": 1,
+            "ok": false,
+            "why": "no clear button found"
+          },
+          {
+            "turnIndex": 2,
+            "ok": false,
+            "why": "2 rows"
+          },
+          {
+            "turnIndex": 5,
+            "ok": false,
+            "why": "body mentions \"average\": false"
+          },
+          {
+            "turnIndex": 6,
+            "ok": false,
+            "why": "sum reads \"Sum: 113 | Avg: 28.25\""
+          },
+          {
+            "turnIndex": 9,
+            "ok": false,
+            "why": "no fill button found"
+          },
+          {
+            "turnIndex": 11,
+            "ok": false,
+            "why": "check threw: Cannot set properties of null (setting 'value')"
+          },
+          {
+            "turnIndex": 14,
+            "ok": false,
+            "why": "no reset button found"
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 1031,
+        "codeLenAfter": 1027,
+        "groundAfter": 7,
+        "tokens": 15,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Mini Spreadsheet</title></head>\n<body>\n  <table style=\"border-collapse: collapse;\" id=\"grid\">\n    <tr><td><input class=\"cell\" data-r=\"0\" data-c=\"0\" value=\"1\"></td><td><input class=\"cell\" data-r=\"0\" data-c=\"1\" value=\"2\"></td></tr>\n    <tr><td><input class=\"cell\" data-r=\"2\" data-c=\"0\" value=\"5\"></td><td><input class=\"cell\" data-r=\"2\" data-c=\"1\" value=\"6\"></td></tr>\n  </table { border-collapse: collapse; } td { border: 1px solid #ddd; padding: 8px; font-size: 18px; }>\n  <div>Sum: <span id=\"sum\">0</span></div>\n  <script>\n    function recompute() {\n      let total = 0;\n      document.querySelectorAll('.cell').forEach((c) => {\n        total += Number(c.value) || 0;\n      });\n      ; document.getElementById('sum').textContent = 'Sum: ' + total + ' | Avg: ' + (total / document.querySelectorAll('.cell').length || 0).toFixed(2);\n    }\n    document.querySelectorAll('.cell').forEach((c) => {\n      c.addEventListener('input', recompute);\n    });\n    recompute();\n  </script>\n</body>\n</html>"
+      },
+      {
+        "turnIndex": 16,
+        "ask": "add a max and a min value display too",
+        "predictedKind": "feature",
+        "routedAs": null,
+        "landedAsRezero": false,
+        "landed": true,
+        "gap": null,
+        "structuralClean": true,
+        "structuralFindings": [],
+        "behavioralOwnCheck": {
+          "turnIndex": 16,
+          "ok": true,
+          "why": "body mentions max/min: true/true"
+        },
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 0,
+            "ok": false,
+            "why": "sum after typing 10 into (0,0) = \"Sum: 23 | Avg: 5.75\""
+          },
+          {
+            "turnIndex": 1,
+            "ok": false,
+            "why": "no clear button found"
+          },
+          {
+            "turnIndex": 2,
+            "ok": false,
+            "why": "2 rows"
+          },
+          {
+            "turnIndex": 5,
+            "ok": false,
+            "why": "body mentions \"average\": false"
+          },
+          {
+            "turnIndex": 6,
+            "ok": false,
+            "why": "sum reads \"Sum: 113 | Avg: 28.25\""
+          },
+          {
+            "turnIndex": 9,
+            "ok": false,
+            "why": "no fill button found"
+          },
+          {
+            "turnIndex": 11,
+            "ok": false,
+            "why": "check threw: Cannot set properties of null (setting 'value')"
+          },
+          {
+            "turnIndex": 14,
+            "ok": false,
+            "why": "no reset button found"
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 1027,
+        "codeLenAfter": 1311,
+        "groundAfter": 7,
+        "tokens": 110,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Mini Spreadsheet</title></head>\n<body>\n  <table style=\"border-collapse: collapse;\" id=\"grid\">\n    <tr><td><input class=\"cell\" data-r=\"0\" data-c=\"0\" value=\"1\"></td><td><input class=\"cell\" data-r=\"0\" data-c=\"1\" value=\"2\"></td></tr>\n    <tr><td><input class=\"cell\" data-r=\"2\" data-c=\"0\" value=\"5\"></td><td><input class=\"cell\" data-r=\"2\" data-c=\"1\" value=\"6\"></td></tr>\n  </table { border-collapse: collapse; } td { border: 1px solid #ddd; padding: 8px; font-size: 18px; }>\n  <div>Sum: <span id=\"sum\">0</span></div>\n  <script>\n    function recompute() {\n      let total = 0;\n      document.querySelectorAll('.cell').forEach((c) => {\n        total += Number(c.value) || 0;\nlet maxValue = Math.max(...document.querySelectorAll('.cell').map(c => Number(c.value) || 0));\nlet minValue = Math.min(...document.querySelectorAll('.cell').map(c => Number(c.value) || 0));\ndocument.getElementById('sum').innerText = `Sum: ${total}\nMax: ${maxValue}\nMin: ${minValue}`;\n      });\n      ; document.getElementById('sum').textContent = 'Sum: ' + total + ' | Avg: ' + (total / document.querySelectorAll('.cell').length || 0).toFixed(2);\n    }\n    document.querySelectorAll('.cell').forEach((c) => {\n      c.addEventListener('input', recompute);\n    });\n    recompute();\n  </script>\n</body>\n</html>"
+      },
+      {
+        "turnIndex": 17,
+        "ask": "undo the last change",
+        "predictedKind": "undo",
+        "routedAs": null,
+        "landedAsRezero": false,
+        "landed": true,
+        "gap": null,
+        "structuralClean": true,
+        "structuralFindings": [],
+        "behavioralOwnCheck": null,
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 0,
+            "ok": false,
+            "why": "sum after typing 10 into (0,0) = \"0\""
+          },
+          {
+            "turnIndex": 1,
+            "ok": false,
+            "why": "no clear button found"
+          },
+          {
+            "turnIndex": 2,
+            "ok": false,
+            "why": "2 rows"
+          },
+          {
+            "turnIndex": 5,
+            "ok": false,
+            "why": "body mentions \"average\": false"
+          },
+          {
+            "turnIndex": 6,
+            "ok": false,
+            "why": "sum reads \"0\""
+          },
+          {
+            "turnIndex": 9,
+            "ok": false,
+            "why": "no fill button found"
+          },
+          {
+            "turnIndex": 11,
+            "ok": false,
+            "why": "check threw: Cannot set properties of null (setting 'value')"
+          },
+          {
+            "turnIndex": 14,
+            "ok": false,
+            "why": "no reset button found"
+          },
+          {
+            "turnIndex": 15,
+            "ok": false,
+            "why": "body has \"Avg:\": false"
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 1311,
+        "codeLenAfter": 1167,
+        "groundAfter": 7,
+        "tokens": 51,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Mini Spreadsheet</title></head>\n<body>\n  <table style=\"border-collapse: collapse;\" id=\"grid\">\n    <tr><td><input class=\"cell\" data-r=\"0\" data-c=\"0\" value=\"1\"></td><td><input class=\"cell\" data-r=\"0\" data-c=\"1\" value=\"2\"></td></tr>\n    <tr><td><input class=\"cell\" data-r=\"2\" data-c=\"0\" value=\"5\"></td><td><input class=\"cell\" data-r=\"2\" data-c=\"1\" value=\"6\"></td></tr>\n  </table { border-collapse: collapse; } td { border: 1px solid #ddd; padding: 8px; font-size: 18px; }>\n  <div>Sum: <span id=\"sum\">0</span></div>\n  <script>\n    function recompute() {\n      let total = 0;\n      document.querySelectorAll('.cell').forEach((c) => {\n        total += Number(c.value) || 0;\nlet maxValue = Math.max(...document.querySelectorAll('.cell').map(c => Number(c.value) || 0));\nlet minValue = Math.min(...document.querySelectorAll('.cell').map(c => Number(c.value) || 0));\ndocument.getElementById('sum').innerText = `Sum: ${total}\nMax: ${maxValue}\nMin: ${minValue}`;\n      });\n      ; \n    }\n    document.querySelectorAll('.cell').forEach((c) => {\n      c.addEventListener('input', recompute);\n    });\n    recompute();\n  </script>\n</body>\n</html>"
+      }
+    ],
+    "tasklist": [
+      {
+        "turnIndex": 1,
+        "ask": "add a delete button next to each task",
+        "predictedKind": "feature",
+        "routedAs": "resolved",
+        "landedAsRezero": false,
+        "landed": true,
+        "gap": null,
+        "structuralClean": true,
+        "structuralFindings": [],
+        "behavioralOwnCheck": {
+          "turnIndex": 1,
+          "ok": false,
+          "why": "no delete control found in a rendered task row"
+        },
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 0,
+            "ok": false,
+            "why": "tasks after add = 0"
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 1177,
+        "codeLenAfter": 1227,
+        "groundAfter": 1,
+        "tokens": 46,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Priority Tasks</title></head>\n<body>\n  <input id=\"what\" placeholder=\"new task\"><button onclick=\"deleteTask(this)\">Delete</button>\n  <select id=\"priority\"><option value=\"low\">low</option><option value=\"high\">high</option></select>\n  <button id=\"add\">add</button>\n  <ul id=\"list\"></ul>\n  <div id=\"count\">0 tasks</div>\n  <script>\n    let tasks = [];\n    function render() {\n      const list = document.getElementById('list');\n      list.innerHTML = '';\n      tasks.forEach(function(t, i) {\n        const li = document.createElement('li');\n        li.textContent = (t.done ? '[x] ' : '[ ] ') + t.text + ' (' + t.priority + ')';\n        li.className = t.priority;\n        li.addEventListener('click', function() { t.done = !t.done; render(); });\n        list.appendChild(li);\n      });\n      document.getElementById('count').textContent = tasks.length + ' tasks';\n    }\n    document.getElementById('add').addEventListener('click', function() {\n      const text = document.getElementById('what').value;\n      const priority = document.getElementById('priority').value;\n      if (text) tasks.push({ text: text, priority: priority, done: false });\n      render();\n    });\n  </script>\n</body>\n</html>"
+      },
+      {
+        "turnIndex": 2,
+        "ask": "add a filter so I can show only high priority tasks",
+        "predictedKind": "feature",
+        "routedAs": "resolved",
+        "landedAsRezero": false,
+        "landed": true,
+        "gap": null,
+        "structuralClean": true,
+        "structuralFindings": [],
+        "behavioralOwnCheck": {
+          "turnIndex": 2,
+          "ok": true,
+          "why": "looked for filter/high control in markup"
+        },
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 0,
+            "ok": false,
+            "why": "tasks after add = 0"
+          },
+          {
+            "turnIndex": 1,
+            "ok": false,
+            "why": "no delete control found in a rendered task row"
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 1227,
+        "codeLenAfter": 1236,
+        "groundAfter": 1,
+        "tokens": 30,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Priority Tasks</title></head>\n<body>\n  <input id=\"what\" placeholder=\"new task\"><button onclick=\"deleteTask(this)\">Delete</button>\n  <select id=\"priority\"><option value=\"low\">low</option><option value=\"high\" selected>high</option></select>\n  <button id=\"add\">add</button>\n  <ul id=\"list\"></ul>\n  <div id=\"count\">0 tasks</div>\n  <script>\n    let tasks = [];\n    function render() {\n      const list = document.getElementById('list');\n      list.innerHTML = '';\n      tasks.forEach(function(t, i) {\n        const li = document.createElement('li');\n        li.textContent = (t.done ? '[x] ' : '[ ] ') + t.text + ' (' + t.priority + ')';\n        li.className = t.priority;\n        li.addEventListener('click', function() { t.done = !t.done; render(); });\n        list.appendChild(li);\n      });\n      document.getElementById('count').textContent = tasks.length + ' tasks';\n    }\n    document.getElementById('add').addEventListener('click', function() {\n      const text = document.getElementById('what').value;\n      const priority = document.getElementById('priority').value;\n      if (text) tasks.push({ text: text, priority: priority, done: false });\n      render();\n    });\n  </script>\n</body>\n</html>"
+      },
+      {
+        "turnIndex": 3,
+        "ask": "I don't like the colors, make it nicer",
+        "predictedKind": "judgment",
+        "routedAs": "anaphora",
+        "landedAsRezero": true,
+        "landed": true,
+        "gap": null,
+        "structuralClean": true,
+        "structuralFindings": [],
+        "behavioralOwnCheck": null,
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 0,
+            "ok": false,
+            "why": "tasks after add = 0"
+          },
+          {
+            "turnIndex": 1,
+            "ok": false,
+            "why": "no delete control found in a rendered task row"
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 1236,
+        "codeLenAfter": 1282,
+        "groundAfter": 2,
+        "tokens": 37,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Priority Tasks</title></head>\n<body>\n  <input id=\"what\" placeholder=\"new task\"><button onclick=\"deleteTask(this)\">Delete</button>\n  <select id=\"priority\"><option value=\"low\">low</option><option value=\"high\" selected>high</option></select>\n  <button id=\"add\">add</button>\n  <ul id=\"list\"></ul>\n  <div id=\"count\">0 tasks</div>\n  <script>\n    let tasks = [];\n    function render() {\n      const list = document.getElementById('list');\n      list.innerHTML = '';\n      tasks.forEach(function(t, i) {\n        const li = document.createElement('li');\n        li.textContent = (t.done ? '[x] ' : '[ ] ') + t.text + ' (' + t.priority + ')';\n        li.style.backgroundColor = t.priority === 'high' ? 'red' : 'lightgreen';\n        li.addEventListener('click', function() { t.done = !t.done; render(); });\n        list.appendChild(li);\n      });\n      document.getElementById('count').textContent = tasks.length + ' tasks';\n    }\n    document.getElementById('add').addEventListener('click', function() {\n      const text = document.getElementById('what').value;\n      const priority = document.getElementById('priority').value;\n      if (text) tasks.push({ text: text, priority: priority, done: false });\n      render();\n    });\n  </script>\n</body>\n</html>"
+      },
+      {
+        "turnIndex": 4,
+        "ask": "make it better",
+        "predictedKind": "vague",
+        "routedAs": "anaphora",
+        "landedAsRezero": null,
+        "landed": false,
+        "gap": "regressed",
+        "structuralClean": null,
+        "structuralFindings": [],
+        "behavioralOwnCheck": null,
+        "regressionsIntroducedThisTurn": [],
+        "conformFindings": [],
+        "codeLenBefore": 1282,
+        "codeLenAfter": 1282,
+        "groundAfter": 2,
+        "tokens": 66
+      },
+      {
+        "turnIndex": 5,
+        "ask": "show a count of how many tasks are done vs not done",
+        "predictedKind": "feature",
+        "routedAs": null,
+        "landedAsRezero": false,
+        "landed": true,
+        "gap": null,
+        "structuralClean": true,
+        "structuralFindings": [],
+        "behavioralOwnCheck": {
+          "turnIndex": 5,
+          "ok": true,
+          "why": "body mentions \"done\": true"
+        },
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 0,
+            "ok": false,
+            "why": "tasks after add = 0"
+          },
+          {
+            "turnIndex": 1,
+            "ok": false,
+            "why": "no delete control found in a rendered task row"
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 1282,
+        "codeLenAfter": 1366,
+        "groundAfter": 2,
+        "tokens": 65,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Priority Tasks</title></head>\n<body>\n  <input id=\"what\" placeholder=\"new task\"><button onclick=\"deleteTask(this)\">Delete</button>\n  <select id=\"priority\"><option value=\"low\">low</option><option value=\"high\" selected>high</option></select>\n  <button id=\"add\">add</button>\n  <ul id=\"list\"></ul>\n  <div id=\"count\">0 tasks</div>\n  <script>\n    let tasks = [];\n    function render() {\n      const list = document.getElementById('list');\n      list.innerHTML = '';\n      tasks.forEach(function(t, i) {\n        const li = document.createElement('li');\n        li.textContent = (t.done ? '[x] ' : '[ ] ') + t.text + ' (' + t.priority + ')';\n        li.style.backgroundColor = t.priority === 'high' ? 'red' : 'lightgreen';\n        li.addEventListener('click', function() { t.done = !t.done; render(); });\n        list.appendChild(li);\n      });\n      document.getElementById('count').textContent = tasks.filter(t => !t.done).length + ' tasks done / ' + tasks.filter(t => t.done).length + ' tasks not done';\n    }\n    document.getElementById('add').addEventListener('click', function() {\n      const text = document.getElementById('what').value;\n      const priority = document.getElementById('priority').value;\n      if (text) tasks.push({ text: text, priority: priority, done: false });\n      render();\n    });\n  </script>\n</body>\n</html>"
+      },
+      {
+        "turnIndex": 6,
+        "ask": "clicking a task to mark it done isn't working right, fix it",
+        "predictedKind": "judgment",
+        "routedAs": "resolved",
+        "landedAsRezero": false,
+        "landed": true,
+        "gap": null,
+        "structuralClean": true,
+        "structuralFindings": [],
+        "behavioralOwnCheck": {
+          "turnIndex": 6,
+          "ok": false,
+          "why": "no task row rendered"
+        },
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 0,
+            "ok": false,
+            "why": "tasks after add = 0"
+          },
+          {
+            "turnIndex": 1,
+            "ok": false,
+            "why": "no delete control found in a rendered task row"
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 1366,
+        "codeLenAfter": 1366,
+        "groundAfter": 2,
+        "tokens": 38,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Priority Tasks</title></head>\n<body>\n  <input id=\"what\" placeholder=\"new task\"><button onclick=\"markTaskDone(this)\">Done</button>\n  <select id=\"priority\"><option value=\"low\">low</option><option value=\"high\" selected>high</option></select>\n  <button id=\"add\">add</button>\n  <ul id=\"list\"></ul>\n  <div id=\"count\">0 tasks</div>\n  <script>\n    let tasks = [];\n    function render() {\n      const list = document.getElementById('list');\n      list.innerHTML = '';\n      tasks.forEach(function(t, i) {\n        const li = document.createElement('li');\n        li.textContent = (t.done ? '[x] ' : '[ ] ') + t.text + ' (' + t.priority + ')';\n        li.style.backgroundColor = t.priority === 'high' ? 'red' : 'lightgreen';\n        li.addEventListener('click', function() { t.done = !t.done; render(); });\n        list.appendChild(li);\n      });\n      document.getElementById('count').textContent = tasks.filter(t => !t.done).length + ' tasks done / ' + tasks.filter(t => t.done).length + ' tasks not done';\n    }\n    document.getElementById('add').addEventListener('click', function() {\n      const text = document.getElementById('what').value;\n      const priority = document.getElementById('priority').value;\n      if (text) tasks.push({ text: text, priority: priority, done: false });\n      render();\n    });\n  </script>\n</body>\n</html>"
+      },
+      {
+        "turnIndex": 7,
+        "ask": "make the add button bigger",
+        "predictedKind": "anaphora",
+        "routedAs": "resolved",
+        "landedAsRezero": true,
+        "landed": true,
+        "gap": null,
+        "structuralClean": true,
+        "structuralFindings": [],
+        "behavioralOwnCheck": null,
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 0,
+            "ok": false,
+            "why": "tasks after add = 0"
+          },
+          {
+            "turnIndex": 1,
+            "ok": false,
+            "why": "no delete control found in a rendered task row"
+          },
+          {
+            "turnIndex": 6,
+            "ok": false,
+            "why": "no task row rendered"
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 1366,
+        "codeLenAfter": 1392,
+        "groundAfter": 3,
+        "tokens": 41,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Priority Tasks</title></head>\n<body>\n  <input id=\"what\" placeholder=\"new task\"><button onclick=\"markTaskDone(this)\">Done</button>\n  <select id=\"priority\"><option value=\"low\">low</option><option value=\"high\" selected>high</option></select>\n  <<button id=\"add\" style=\"font-size: 20px;\">add</button>\n  <ul id=\"list\"></ul>\n  <div id=\"count\">0 tasks</div>\n  <script>\n    let tasks = [];\n    function render() {\n      const list = document.getElementById('list');\n      list.innerHTML = '';\n      tasks.forEach(function(t, i) {\n        const li = document.createElement('li');\n        li.textContent = (t.done ? '[x] ' : '[ ] ') + t.text + ' (' + t.priority + ')';\n        li.style.backgroundColor = t.priority === 'high' ? 'red' : 'lightgreen';\n        li.addEventListener('click', function() { t.done = !t.done; render(); });\n        list.appendChild(li);\n      });\n      document.getElementById('count').textContent = tasks.filter(t => !t.done).length + ' tasks done / ' + tasks.filter(t => t.done).length + ' tasks not done';\n    }\n    document.getElementById('add').addEventListener('click', function() {\n      const text = document.getElementById('what').value;\n      const priority = document.getElementById('priority').value;\n      if (text) tasks.push({ text: text, priority: priority, done: false });\n      render();\n    });\n  </script>\n</body>\n</html>"
+      },
+      {
+        "turnIndex": 8,
+        "ask": "put the delete button back the way it was before",
+        "predictedKind": "undo",
+        "routedAs": "resolved",
+        "landedAsRezero": null,
+        "landed": false,
+        "gap": "regressed",
+        "structuralClean": null,
+        "structuralFindings": [],
+        "behavioralOwnCheck": null,
+        "regressionsIntroducedThisTurn": [],
+        "conformFindings": [],
+        "codeLenBefore": 1392,
+        "codeLenAfter": 1392,
+        "groundAfter": 3,
+        "tokens": 48
+      },
+      {
+        "turnIndex": 9,
+        "ask": "add a button that clears all completed tasks at once",
+        "predictedKind": "feature",
+        "routedAs": "resolved",
+        "landedAsRezero": false,
+        "landed": true,
+        "gap": null,
+        "structuralClean": true,
+        "structuralFindings": [],
+        "behavioralOwnCheck": {
+          "turnIndex": 9,
+          "ok": false,
+          "why": "tasks 0 -> 0"
+        },
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 0,
+            "ok": false,
+            "why": "tasks after add = 0"
+          },
+          {
+            "turnIndex": 1,
+            "ok": false,
+            "why": "no delete control found in a rendered task row"
+          },
+          {
+            "turnIndex": 6,
+            "ok": false,
+            "why": "no task row rendered"
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 1392,
+        "codeLenAfter": 1453,
+        "groundAfter": 3,
+        "tokens": 37,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Priority Tasks</title></head>\n<body>\n  <input id=\"what\" placeholder=\"new task\"><button onclick=\"markTaskDone(this)\">Done</button>\n  <select id=\"priority\"><option value=\"low\">low</option><option value=\"high\" selected>high</option></select>\n  <<button id=\"add\" style=\"font-size: 20px;\">add</button>\n  <ul id=\"list\"></ul>\n  <div id=\"count\">0 tasks</div>\n  <button id=\"clear\" style=\"font-size: 20px;\">clear completed</button>\n\n    let tasks = [];\n    function render() {\n      const list = document.getElementById('list');\n      list.innerHTML = '';\n      tasks.forEach(function(t, i) {\n        const li = document.createElement('li');\n        li.textContent = (t.done ? '[x] ' : '[ ] ') + t.text + ' (' + t.priority + ')';\n        li.style.backgroundColor = t.priority === 'high' ? 'red' : 'lightgreen';\n        li.addEventListener('click', function() { t.done = !t.done; render(); });\n        list.appendChild(li);\n      });\n      document.getElementById('count').textContent = tasks.filter(t => !t.done).length + ' tasks done / ' + tasks.filter(t => t.done).length + ' tasks not done';\n    }\n    document.getElementById('add').addEventListener('click', function() {\n      const text = document.getElementById('what').value;\n      const priority = document.getElementById('priority').value;\n      if (text) tasks.push({ text: text, priority: priority, done: false });\n      render();\n    });\n  </script>\n</body>\n</html>"
+      },
+      {
+        "turnIndex": 10,
+        "ask": "it's broken",
+        "predictedKind": "judgment",
+        "routedAs": "anaphora",
+        "landedAsRezero": true,
+        "landed": true,
+        "gap": null,
+        "structuralClean": true,
+        "structuralFindings": [],
+        "behavioralOwnCheck": null,
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 0,
+            "ok": false,
+            "why": "tasks after add = 0"
+          },
+          {
+            "turnIndex": 1,
+            "ok": false,
+            "why": "no delete control found in a rendered task row"
+          },
+          {
+            "turnIndex": 6,
+            "ok": false,
+            "why": "no task row rendered"
+          },
+          {
+            "turnIndex": 9,
+            "ok": false,
+            "why": "tasks 0 -> 0"
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 1453,
+        "codeLenAfter": 1452,
+        "groundAfter": 4,
+        "tokens": 51,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Priority Tasks</title></head>\n<body>\n  <input id=\"what\" placeholder=\"new task\"><button onclick=\"markTaskDone(this)\">Done</button>\n  <select id=\"priority\"><option value=\"low\">low</option><option value=\"high\" selected>high</option></select>\n  <button id=\"add\" style=\"font-size: 20px;\">add</button>\n  <ul id=\"list\"></ul>\n  <div id=\"count\">0 tasks</div>\n  <button id=\"clear\" style=\"font-size: 20px;\">clear completed</button>\n\n    let tasks = [];\n    function render() {\n      const list = document.getElementById('list');\n      list.innerHTML = '';\n      tasks.forEach(function(t, i) {\n        const li = document.createElement('li');\n        li.textContent = (t.done ? '[x] ' : '[ ] ') + t.text + ' (' + t.priority + ')';\n        li.style.backgroundColor = t.priority === 'high' ? 'red' : 'lightgreen';\n        li.addEventListener('click', function() { t.done = !t.done; render(); });\n        list.appendChild(li);\n      });\n      document.getElementById('count').textContent = tasks.filter(t => !t.done).length + ' tasks done / ' + tasks.filter(t => t.done).length + ' tasks not done';\n    }\n    document.getElementById('add').addEventListener('click', function() {\n      const text = document.getElementById('what').value;\n      const priority = document.getElementById('priority').value;\n      if (text) tasks.push({ text: text, priority: priority, done: false });\n      render();\n    });\n  </script>\n</body>\n</html>"
+      },
+      {
+        "turnIndex": 11,
+        "ask": "adding a task should still clear the input field afterward — check that still works",
+        "predictedKind": "structural",
+        "routedAs": "resolved",
+        "landedAsRezero": false,
+        "landed": true,
+        "gap": null,
+        "structuralClean": true,
+        "structuralFindings": [],
+        "behavioralOwnCheck": {
+          "turnIndex": 11,
+          "ok": false,
+          "why": "input value after add = \"check me\""
+        },
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 0,
+            "ok": false,
+            "why": "tasks after add = 0"
+          },
+          {
+            "turnIndex": 1,
+            "ok": false,
+            "why": "no delete control found in a rendered task row"
+          },
+          {
+            "turnIndex": 6,
+            "ok": false,
+            "why": "no task row rendered"
+          },
+          {
+            "turnIndex": 9,
+            "ok": false,
+            "why": "tasks 0 -> 0"
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 1452,
+        "codeLenAfter": 1496,
+        "groundAfter": 4,
+        "tokens": 45,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Priority Tasks</title></head>\n<body>\n  <input id=\"what\" placeholder=\"new task\"><button onclick=\"markTaskDone(this); document.getElementById('what').value = ''\">Done</button>\n  <select id=\"priority\"><option value=\"low\">low</option><option value=\"high\" selected>high</option></select>\n  <button id=\"add\" style=\"font-size: 20px;\">add</button>\n  <ul id=\"list\"></ul>\n  <div id=\"count\">0 tasks</div>\n  <button id=\"clear\" style=\"font-size: 20px;\">clear completed</button>\n\n    let tasks = [];\n    function render() {\n      const list = document.getElementById('list');\n      list.innerHTML = '';\n      tasks.forEach(function(t, i) {\n        const li = document.createElement('li');\n        li.textContent = (t.done ? '[x] ' : '[ ] ') + t.text + ' (' + t.priority + ')';\n        li.style.backgroundColor = t.priority === 'high' ? 'red' : 'lightgreen';\n        li.addEventListener('click', function() { t.done = !t.done; render(); });\n        list.appendChild(li);\n      });\n      document.getElementById('count').textContent = tasks.filter(t => !t.done).length + ' tasks done / ' + tasks.filter(t => t.done).length + ' tasks not done';\n    }\n    document.getElementById('add').addEventListener('click', function() {\n      const text = document.getElementById('what').value;\n      const priority = document.getElementById('priority').value;\n      if (text) tasks.push({ text: text, priority: priority, done: false });\n      render();\n    });\n  </script>\n</body>\n</html>"
+      },
+      {
+        "turnIndex": 12,
+        "ask": "sort high priority tasks to the top of the list",
+        "predictedKind": "feature",
+        "routedAs": "resolved",
+        "landedAsRezero": true,
+        "landed": true,
+        "gap": null,
+        "structuralClean": true,
+        "structuralFindings": [],
+        "behavioralOwnCheck": null,
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 0,
+            "ok": false,
+            "why": "tasks after add = 0"
+          },
+          {
+            "turnIndex": 1,
+            "ok": false,
+            "why": "no delete control found in a rendered task row"
+          },
+          {
+            "turnIndex": 6,
+            "ok": false,
+            "why": "no task row rendered"
+          },
+          {
+            "turnIndex": 9,
+            "ok": false,
+            "why": "tasks 0 -> 0"
+          },
+          {
+            "turnIndex": 11,
+            "ok": false,
+            "why": "input value after add = \"check me\""
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 1496,
+        "codeLenAfter": 1551,
+        "groundAfter": 5,
+        "tokens": 44,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Priority Tasks</title></head>\n<body>\n  <input id=\"what\" placeholder=\"new task\"><button onclick=\"markTaskDone(this); document.getElementById('what').value = ''\">Done</button>\n  <select id=\"priority\"><option value=\"low\">low</option><option value=\"high\" selected>high</option></select>\n  <button id=\"add\" style=\"font-size: 20px;\">add</button>\n  <ul id=\"list\"></ul>\n  <div id=\"count\">0 tasks</div>\n  <button id=\"clear\" style=\"font-size: 20px;\">clear completed</button>\n\n    let tasks = [];\n    function render() {\n      const list = document.getElementById('list');\n      list.innerHTML = '';\n      tasks.sort(function(a, b) { return b.priority === 'high' - a.priority === 'high'; });\n        const li = document.createElement('li');\n        li.textContent = (t.done ? '[x] ' : '[ ] ') + t.text + ' (' + t.priority + ')';\n        li.style.backgroundColor = t.priority === 'high' ? 'red' : 'lightgreen';\n        li.addEventListener('click', function() { t.done = !t.done; render(); });\n        list.appendChild(li);\n      });\n      document.getElementById('count').textContent = tasks.filter(t => !t.done).length + ' tasks done / ' + tasks.filter(t => t.done).length + ' tasks not done';\n    }\n    document.getElementById('add').addEventListener('click', function() {\n      const text = document.getElementById('what').value;\n      const priority = document.getElementById('priority').value;\n      if (text) tasks.push({ text: text, priority: priority, done: false });\n      render();\n    });\n  </script>\n</body>\n</html>"
+      },
+      {
+        "turnIndex": 13,
+        "ask": "fix it",
+        "predictedKind": "vague",
+        "routedAs": "anaphora",
+        "landedAsRezero": true,
+        "landed": true,
+        "gap": null,
+        "structuralClean": true,
+        "structuralFindings": [],
+        "behavioralOwnCheck": null,
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 0,
+            "ok": false,
+            "why": "tasks after add = 0"
+          },
+          {
+            "turnIndex": 1,
+            "ok": false,
+            "why": "no delete control found in a rendered task row"
+          },
+          {
+            "turnIndex": 6,
+            "ok": false,
+            "why": "no task row rendered"
+          },
+          {
+            "turnIndex": 9,
+            "ok": false,
+            "why": "tasks 0 -> 0"
+          },
+          {
+            "turnIndex": 11,
+            "ok": false,
+            "why": "input value after add = \"check me\""
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 1551,
+        "codeLenAfter": 1554,
+        "groundAfter": 6,
+        "tokens": 75,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Priority Tasks</title></head>\n<body>\n  <input id=\"what\" placeholder=\"new task\"><button onclick=\"markTaskDone(this); document.getElementById('what').value = ''\">Done</button>\n  <select id=\"priority\"><option value=\"low\">low</option><option value=\"high\" selected>high</option></select>\n  <button id=\"add\" style=\"font-size: 20px;\">add</button>\n  <ul id=\"list\"></ul>\n  <div id=\"count\">0 tasks</div>\n  <button id=\"clear\" style=\"font-size: 20px;\">clear completed</button>\n\n    let tasks = [];\n    function render() {\n      const list = document.getElementById('list');\n      list.innerHTML = '';\n      tasks.sort((a, b) => (a.priority === 'high' ? 1 : 0) - (b.priority === 'high' ? 1 : 0));\n        const li = document.createElement('li');\n        li.textContent = (t.done ? '[x] ' : '[ ] ') + t.text + ' (' + t.priority + ')';\n        li.style.backgroundColor = t.priority === 'high' ? 'red' : 'lightgreen';\n        li.addEventListener('click', function() { t.done = !t.done; render(); });\n        list.appendChild(li);\n      });\n      document.getElementById('count').textContent = tasks.filter(t => !t.done).length + ' tasks done / ' + tasks.filter(t => t.done).length + ' tasks not done';\n    }\n    document.getElementById('add').addEventListener('click', function() {\n      const text = document.getElementById('what').value;\n      const priority = document.getElementById('priority').value;\n      if (text) tasks.push({ text: text, priority: priority, done: false });\n      render();\n    });\n  </script>\n</body>\n</html>"
+      },
+      {
+        "turnIndex": 14,
+        "ask": "add a button to mark all tasks done at once",
+        "predictedKind": "feature",
+        "routedAs": "resolved",
+        "landedAsRezero": false,
+        "landed": true,
+        "gap": null,
+        "structuralClean": true,
+        "structuralFindings": [],
+        "behavioralOwnCheck": {
+          "turnIndex": 14,
+          "ok": false,
+          "why": "no mark-all-done button found"
+        },
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 0,
+            "ok": false,
+            "why": "tasks after add = 0"
+          },
+          {
+            "turnIndex": 1,
+            "ok": false,
+            "why": "no delete control found in a rendered task row"
+          },
+          {
+            "turnIndex": 6,
+            "ok": false,
+            "why": "no task row rendered"
+          },
+          {
+            "turnIndex": 9,
+            "ok": false,
+            "why": "tasks 0 -> 0"
+          },
+          {
+            "turnIndex": 11,
+            "ok": false,
+            "why": "input value after add = \"check me\""
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 1554,
+        "codeLenAfter": 1603,
+        "groundAfter": 6,
+        "tokens": 51,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Priority Tasks</title></head>\n<body>\n  <input id=\"what\" placeholder=\"new task\"><button onclick=\"markTaskDone(this); document.getElementById('what').value = ''\">Done</button>\n  <select id=\"priority\"><option value=\"low\">low</option><option value=\"high\" selected>high</option></select>\n  <button id=\"add\" style=\"font-size: 20px;\">add</button>\n  <ul id=\"list\"></ul>\n  <div id=\"count\">0 tasks</div>\n  <button id=\"clear\" style=\"font-size: 20px;\">clear completed</button>\n\n    let tasks = [];\n    function render() {\n      const list = document.getElementById('list');\n      list.innerHTML = '';\n      tasks.sort((a, b) => (a.priority === 'high' ? 1 : 0) - (b.priority === 'high' ? 1 : 0));\n        const li = document.createElement('li');\n        li.textContent = (t.done ? '[x] ' : '[ ] ') + t.text + ' (' + t.priority + ')';\n        li.style.backgroundColor = t.priority === 'high' ? 'red' : 'lightgreen';\n        li.addEventListener('click', function() { t.done = !t.done; render(); });\n        list.appendChild(li);\n      });\n      document.getElementById('count').textContent = tasks.filter(t => !t.done).length + ' tasks done / ' + tasks.filter(t => t.done).length + ' tasks not done';\n    }\n    document.getElementById('add').addEventListener('click', function() { tasks.forEach(t => t.done = true); render(); });\n      const text = document.getElementById('what').value;\n      const priority = document.getElementById('priority').value;\n      if (text) tasks.push({ text: text, priority: priority, done: false });\n      render();\n    });\n  </script>\n</body>\n</html>"
+      },
+      {
+        "turnIndex": 15,
+        "ask": "I don't like how the count looks, it should say 'Done:' not just the number",
+        "predictedKind": "judgment",
+        "routedAs": "judgment",
+        "landedAsRezero": true,
+        "landed": true,
+        "gap": null,
+        "structuralClean": true,
+        "structuralFindings": [],
+        "behavioralOwnCheck": {
+          "turnIndex": 15,
+          "ok": true,
+          "why": "count reads \"0 tasks\""
+        },
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 0,
+            "ok": false,
+            "why": "tasks after add = 0"
+          },
+          {
+            "turnIndex": 1,
+            "ok": false,
+            "why": "no delete control found in a rendered task row"
+          },
+          {
+            "turnIndex": 6,
+            "ok": false,
+            "why": "no task row rendered"
+          },
+          {
+            "turnIndex": 9,
+            "ok": false,
+            "why": "tasks 0 -> 0"
+          },
+          {
+            "turnIndex": 11,
+            "ok": false,
+            "why": "input value after add = \"check me\""
+          },
+          {
+            "turnIndex": 14,
+            "ok": false,
+            "why": "no mark-all-done button found"
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 1603,
+        "codeLenAfter": 1603,
+        "groundAfter": 7,
+        "tokens": 92,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Priority Tasks</title></head>\n<body>\n  <input id=\"what\" placeholder=\"new task\"><button onclick=\"markTaskDone(this); document.getElementById('what').value = ''\">Done</button>\n  <select id=\"priority\"><option value=\"low\">low</option><option value=\"high\" selected>high</option></select>\n  <button id=\"add\" style=\"font-size: 20px;\">add</button>\n  <ul id=\"list\"></ul>\n  <div id=\"count\">0 tasks</div>\n  <button id=\"clear\" style=\"font-size: 20px;\">clear completed</button>\n\n    let tasks = [];\n    function render() {\n      const list = document.getElementById('list');\n      list.innerHTML = '';\n      tasks.sort((a, b) => (a.priority === 'high' ? 1 : 0) - (b.priority === 'high' ? 1 : 0));\n        const li = document.createElement('li');\n        li.textContent = (t.done ? '[x] ' : '[ ] ') + t.text + ' (' + t.priority + ')';\n        li.style.backgroundColor = t.priority === 'high' ? 'red' : 'lightgreen';\n        li.addEventListener('click', function() { t.done = !t.done; render(); });\n        list.appendChild(li);\n      });\n      document.getElementById('count').textContent = 'Done: ' + tasks.filter(t => t.done).length + ' / ' + tasks.filter(t => !t.done).length + ' tasks not done';\n    }\n    document.getElementById('add').addEventListener('click', function() { tasks.forEach(t => t.done = true); render(); });\n      const text = document.getElementById('what').value;\n      const priority = document.getElementById('priority').value;\n      if (text) tasks.push({ text: text, priority: priority, done: false });\n      render();\n    });\n  </script>\n</body>\n</html>"
+      },
+      {
+        "turnIndex": 16,
+        "ask": "add a way to edit an existing task's text",
+        "predictedKind": "feature",
+        "routedAs": "resolved",
+        "landedAsRezero": false,
+        "landed": true,
+        "gap": null,
+        "structuralClean": true,
+        "structuralFindings": [],
+        "behavioralOwnCheck": null,
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 0,
+            "ok": false,
+            "why": "tasks after add = 0"
+          },
+          {
+            "turnIndex": 1,
+            "ok": false,
+            "why": "no delete control found in a rendered task row"
+          },
+          {
+            "turnIndex": 6,
+            "ok": false,
+            "why": "no task row rendered"
+          },
+          {
+            "turnIndex": 9,
+            "ok": false,
+            "why": "tasks 0 -> 0"
+          },
+          {
+            "turnIndex": 11,
+            "ok": false,
+            "why": "input value after add = \"check me\""
+          },
+          {
+            "turnIndex": 14,
+            "ok": false,
+            "why": "no mark-all-done button found"
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 1603,
+        "codeLenAfter": 1599,
+        "groundAfter": 7,
+        "tokens": 45,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Priority Tasks</title></head>\n<body>\n  <input id=\"what\" placeholder=\"new task\"><button onclick=\"editTask(this); document.getElementById('what').value = ''\">Done</button>\n  <select id=\"priority\"><option value=\"low\">low</option><option value=\"high\" selected>high</option></select>\n  <button id=\"add\" style=\"font-size: 20px;\">add</button>\n  <ul id=\"list\"></ul>\n  <div id=\"count\">0 tasks</div>\n  <button id=\"clear\" style=\"font-size: 20px;\">clear completed</button>\n\n    let tasks = [];\n    function render() {\n      const list = document.getElementById('list');\n      list.innerHTML = '';\n      tasks.sort((a, b) => (a.priority === 'high' ? 1 : 0) - (b.priority === 'high' ? 1 : 0));\n        const li = document.createElement('li');\n        li.textContent = (t.done ? '[x] ' : '[ ] ') + t.text + ' (' + t.priority + ')';\n        li.style.backgroundColor = t.priority === 'high' ? 'red' : 'lightgreen';\n        li.addEventListener('click', function() { t.done = !t.done; render(); });\n        list.appendChild(li);\n      });\n      document.getElementById('count').textContent = 'Done: ' + tasks.filter(t => t.done).length + ' / ' + tasks.filter(t => !t.done).length + ' tasks not done';\n    }\n    document.getElementById('add').addEventListener('click', function() { tasks.forEach(t => t.done = true); render(); });\n      const text = document.getElementById('what').value;\n      const priority = document.getElementById('priority').value;\n      if (text) tasks.push({ text: text, priority: priority, done: false });\n      render();\n    });\n  </script>\n</body>\n</html>"
+      },
+      {
+        "turnIndex": 17,
+        "ask": "undo the last change",
+        "predictedKind": "undo",
+        "routedAs": null,
+        "landedAsRezero": false,
+        "landed": true,
+        "gap": null,
+        "structuralClean": true,
+        "structuralFindings": [],
+        "behavioralOwnCheck": null,
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 0,
+            "ok": false,
+            "why": "tasks after add = 0"
+          },
+          {
+            "turnIndex": 1,
+            "ok": false,
+            "why": "no delete control found in a rendered task row"
+          },
+          {
+            "turnIndex": 6,
+            "ok": false,
+            "why": "no task row rendered"
+          },
+          {
+            "turnIndex": 9,
+            "ok": false,
+            "why": "tasks 0 -> 0"
+          },
+          {
+            "turnIndex": 11,
+            "ok": false,
+            "why": "input value after add = \"check me\""
+          },
+          {
+            "turnIndex": 14,
+            "ok": false,
+            "why": "no mark-all-done button found"
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 1599,
+        "codeLenAfter": 1481,
+        "groundAfter": 7,
+        "tokens": 38,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Priority Tasks</title></head>\n<body>\n  <input id=\"what\" placeholder=\"new task\"><button onclick=\"editTask(this); document.getElementById('what').value = ''\">Done</button>\n  <select id=\"priority\"><option value=\"low\">low</option><option value=\"high\" selected>high</option></select>\n  <button id=\"add\" style=\"font-size: 20px;\">add</button>\n  <ul id=\"list\"></ul>\n  <div id=\"count\">0 tasks</div>\n  <button id=\"clear\" style=\"font-size: 20px;\">clear completed</button>\n\n    let tasks = [];\n    function render() {\n      const list = document.getElementById('list');\n      list.innerHTML = '';\n      tasks.sort((a, b) => (a.priority === 'high' ? 1 : 0) - (b.priority === 'high' ? 1 : 0));\n        const li = document.createElement('li');\n        li.textContent = (t.done ? '[x] ' : '[ ] ') + t.text + ' (' + t.priority + ')';\n        li.style.backgroundColor = t.priority === 'high' ? 'red' : 'lightgreen';\n        li.addEventListener('click', function() { t.done = !t.done; render(); });\n        list.appendChild(li);\n      });\n      document.getElementById('count').textContent = 'Done: ' + tasks.filter(t => t.done).length + ' / ' + tasks.filter(t => !t.done).length + ' tasks not done';\n    }\n    \n      const text = document.getElementById('what').value;\n      const priority = document.getElementById('priority').value;\n      if (text) tasks.push({ text: text, priority: priority, done: false });\n      render();\n    });\n  </script>\n</body>\n</html>"
+      }
+    ]
+  }
+}
