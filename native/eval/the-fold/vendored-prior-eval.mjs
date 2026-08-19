@@ -111,7 +111,15 @@ function coraalProse() {
   const table = delimitedTable(raw);
   const contentIdx = table.head.indexOf("content");
   const texts = table.rows.map((r) => r[contentIdx]).filter(Boolean);
-  const joined = texts.join(" ");
+  // Joined with paragraph breaks, not a bare space: chunkSource reads
+  // structure from blank lines, and a single space between 4,450 rows
+  // collapsed the whole 1MB+ blob into ONE chunk (found live — the
+  // assertion tier's 200-draw order arm then re-ran extraction on that
+  // single megabyte-scale "passage" 200 times, ballooning to 99 CPU-
+  // minutes and 2.7GB before being killed). Each CORAAL row becomes its
+  // own paragraph-sized passage, matching how the other two cases'
+  // material (Wikipedia articles, a print novel) is naturally structured.
+  const joined = texts.join("\n\n");
   writeFileSync(cached, joined);
   return joined;
 }
