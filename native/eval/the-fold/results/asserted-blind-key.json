@@ -1,0 +1,365 @@
+{
+  "items": [
+    {
+      "id": "e0",
+      "standing": "corroborated",
+      "statements": 2,
+      "orderArm": {
+        "draws": 200,
+        "fired": 53,
+        "seed": 0
+      },
+      "refs": [
+        "wp-wiki#p38",
+        "wp-wiki#p49"
+      ],
+      "verbSupport": 13
+    },
+    {
+      "id": "e1",
+      "standing": "corroborated",
+      "statements": 2,
+      "orderArm": {
+        "draws": 200,
+        "fired": 8,
+        "seed": 0
+      },
+      "refs": [
+        "wp-wiki#p77",
+        "wp-wiki#p82"
+      ],
+      "verbSupport": 4
+    },
+    {
+      "id": "e2",
+      "standing": "corroborated",
+      "statements": 2,
+      "orderArm": {
+        "draws": 200,
+        "fired": 20,
+        "seed": 0
+      },
+      "refs": [
+        "wp-wiki#p54"
+      ],
+      "verbSupport": 1
+    },
+    {
+      "id": "e3",
+      "standing": "corroborated",
+      "statements": 2,
+      "orderArm": {
+        "draws": 200,
+        "fired": 1,
+        "seed": 0
+      },
+      "refs": [
+        "wp-wiki#p1",
+        "wp-wiki#p6"
+      ],
+      "verbSupport": 1
+    },
+    {
+      "id": "e4",
+      "standing": "corroborated",
+      "statements": 2,
+      "orderArm": {
+        "draws": 200,
+        "fired": 35,
+        "seed": 0
+      },
+      "refs": [
+        "wp-wiki#p9",
+        "wp-wiki#p55"
+      ],
+      "verbSupport": 13
+    },
+    {
+      "id": "e5",
+      "standing": "corroborated",
+      "statements": 3,
+      "orderArm": {
+        "draws": 200,
+        "fired": 40,
+        "seed": 0
+      },
+      "refs": [
+        "wp-wiki#p17",
+        "wp-wiki#p25"
+      ],
+      "verbSupport": 13
+    },
+    {
+      "id": "e6",
+      "standing": "corroborated",
+      "statements": 17,
+      "orderArm": {
+        "draws": 200,
+        "fired": 111,
+        "seed": 0
+      },
+      "refs": [
+        "wp-wiki#p99",
+        "wp-wiki#p100",
+        "wp-wiki#p112",
+        "wp-wiki#p132",
+        "wp-wiki#p134",
+        "wp-wiki#p135",
+        "wp-wiki#p138",
+        "wp-wiki#p139",
+        "wp-wiki#p141",
+        "wp-wiki#p142",
+        "wp-wiki#p143",
+        "wp-wiki#p144",
+        "wp-wiki#p145",
+        "wp-wiki#p146",
+        "wp-wiki#p147",
+        "wp-wiki#p148",
+        "wp-wiki#p149"
+      ],
+      "verbSupport": 4
+    },
+    {
+      "id": "e7",
+      "standing": "corroborated",
+      "statements": 2,
+      "orderArm": {
+        "draws": 200,
+        "fired": 56,
+        "seed": 0
+      },
+      "refs": [
+        "wp-wiki#p133",
+        "wp-wiki#p140"
+      ],
+      "verbSupport": 4
+    },
+    {
+      "id": "e8",
+      "standing": "corroborated",
+      "statements": 2,
+      "orderArm": {
+        "draws": 200,
+        "fired": 11,
+        "seed": 0
+      },
+      "refs": [
+        "wp-wiki#p2",
+        "wp-wiki#p9"
+      ],
+      "verbSupport": 1
+    },
+    {
+      "id": "e9",
+      "standing": "corroborated",
+      "statements": 2,
+      "orderArm": {
+        "draws": 200,
+        "fired": 24,
+        "seed": 0
+      },
+      "refs": [
+        "wp-wiki#p30"
+      ],
+      "verbSupport": 1
+    },
+    {
+      "id": "e10",
+      "standing": "corroborated",
+      "statements": 2,
+      "orderArm": {
+        "draws": 200,
+        "fired": 18,
+        "seed": 0
+      },
+      "refs": [
+        "wp-wiki#p69",
+        "wp-wiki#p137"
+      ],
+      "verbSupport": 1
+    },
+    {
+      "id": "e11",
+      "standing": "corroborated",
+      "statements": 2,
+      "orderArm": {
+        "draws": 200,
+        "fired": 21,
+        "seed": 0
+      },
+      "refs": [
+        "wp-wiki#p0",
+        "wp-wiki#p1"
+      ],
+      "verbSupport": 7
+    },
+    {
+      "id": "e12",
+      "standing": "single-witness",
+      "statements": 1,
+      "orderArm": {
+        "draws": 200,
+        "fired": 11,
+        "seed": 0
+      },
+      "refs": [
+        "wp-wiki#p43"
+      ],
+      "verbSupport": 13
+    },
+    {
+      "id": "e13",
+      "standing": "single-witness",
+      "statements": 1,
+      "orderArm": {
+        "draws": 200,
+        "fired": 1,
+        "seed": 0
+      },
+      "refs": [
+        "wp-wiki#p54"
+      ],
+      "verbSupport": 1
+    },
+    {
+      "id": "e14",
+      "standing": "single-witness",
+      "statements": 1,
+      "orderArm": {
+        "draws": 200,
+        "fired": 5,
+        "seed": 0
+      },
+      "refs": [
+        "wp-wiki#p52"
+      ],
+      "verbSupport": 3
+    },
+    {
+      "id": "e15",
+      "standing": "single-witness",
+      "statements": 1,
+      "orderArm": {
+        "draws": 200,
+        "fired": 4,
+        "seed": 0
+      },
+      "refs": [
+        "wp-wiki#p1"
+      ],
+      "verbSupport": 1
+    },
+    {
+      "id": "e16",
+      "standing": "single-witness",
+      "statements": 1,
+      "orderArm": {
+        "draws": 200,
+        "fired": 29,
+        "seed": 0
+      },
+      "refs": [
+        "wp-wiki#p31"
+      ],
+      "verbSupport": 1
+    },
+    {
+      "id": "e17",
+      "standing": "single-witness",
+      "statements": 1,
+      "orderArm": {
+        "draws": 200,
+        "fired": 0,
+        "seed": 0
+      },
+      "refs": [
+        "wp-wiki#p68"
+      ],
+      "verbSupport": 13
+    },
+    {
+      "id": "e18",
+      "standing": "single-witness",
+      "statements": 1,
+      "orderArm": {
+        "draws": 200,
+        "fired": 11,
+        "seed": 0
+      },
+      "refs": [
+        "wp-wiki#p21"
+      ],
+      "verbSupport": 3
+    },
+    {
+      "id": "e19",
+      "standing": "single-witness",
+      "statements": 1,
+      "orderArm": {
+        "draws": 200,
+        "fired": 23,
+        "seed": 0
+      },
+      "refs": [
+        "wp-wiki#p79"
+      ],
+      "verbSupport": 7
+    },
+    {
+      "id": "e20",
+      "standing": "single-witness",
+      "statements": 1,
+      "orderArm": {
+        "draws": 200,
+        "fired": 0,
+        "seed": 0
+      },
+      "refs": [
+        "wp-wiki#p64"
+      ],
+      "verbSupport": 1
+    },
+    {
+      "id": "e21",
+      "standing": "single-witness",
+      "statements": 1,
+      "orderArm": {
+        "draws": 200,
+        "fired": 7,
+        "seed": 0
+      },
+      "refs": [
+        "wp-wiki#p26"
+      ],
+      "verbSupport": 2
+    },
+    {
+      "id": "e22",
+      "standing": "single-witness",
+      "statements": 1,
+      "orderArm": {
+        "draws": 200,
+        "fired": 20,
+        "seed": 0
+      },
+      "refs": [
+        "wp-wiki#p34"
+      ],
+      "verbSupport": 4
+    },
+    {
+      "id": "e23",
+      "standing": "single-witness",
+      "statements": 1,
+      "orderArm": {
+        "draws": 200,
+        "fired": 5,
+        "seed": 0
+      },
+      "refs": [
+        "wp-wiki#p39"
+      ],
+      "verbSupport": 1
+    }
+  ]
+}

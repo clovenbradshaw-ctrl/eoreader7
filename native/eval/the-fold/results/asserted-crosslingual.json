@@ -1,0 +1,35 @@
+{
+  "draws": 200,
+  "seed": 0,
+  "sampleEvery": 20,
+  "sampleMax": 200,
+  "languages": [
+    {
+      "label": "pg2600.txt — War and Peace, English (Maude translation)",
+      "chars": 3273921,
+      "rawTriples": 76017,
+      "distinctVerbs": 1664,
+      "distinctEdges": 76017,
+      "armedSampleSize": 200,
+      "armedEdgeCount": 736
+    },
+    {
+      "label": "Война и мир — War and Peace, Russian original (Tolstoy)",
+      "chars": 2992157,
+      "rawTriples": 10710,
+      "distinctVerbs": 129,
+      "distinctEdges": 10710,
+      "armedSampleSize": 200,
+      "armedEdgeCount": 236
+    },
+    {
+      "label": "こころ (Kokoro) — Natsume Sōseki, Japanese, 1914 [documented fallback: no clean fetchable public-domain Japanese War and Peace exists — the one legitimate translation is un-OCR'd scanned page images at Japan's National Diet Library]",
+      "chars": 163968,
+      "rawTriples": 0,
+      "distinctVerbs": 0,
+      "distinctEdges": 0,
+      "armedSampleSize": 53,
+      "armedEdgeCount": 0
+    }
+  ]
+}
