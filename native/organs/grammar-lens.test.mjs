@@ -116,6 +116,37 @@ test("an unfound word (out of the prior's vocabulary) is a disclosed gap, never 
   assert.equal(lens(edges[0]).found, false);
 });
 
+// ── the giver, forwarded (Per-Source Testimony spec, BUILD-3) ───────────────
+// wordclass.js already exports POS_PRIOR_META/THRAX_META, named, for this
+// exact purpose — checked and found silently dropped between there and a
+// reader of this file's own classification. Fixed by accepting both as two
+// more optional injected organs.
+
+test("givers is null when posPriorMeta/thraxMeta are never injected — a disclosed absence, byte-identical to before this fix", async () => {
+  const { classifyWord, dominantClass } = await organs();
+  const lens = makeGrammarLens({ classifyWord, dominantClass, posPrior: POS_PRIOR });
+  const classification = lens({ subject: "Pierre", verb: "spoke", object: "softly" }, { minShare: MIN_SHARE });
+  assert.equal(classification.givers, null);
+});
+
+test("givers forwards wordclass.js's own named POS_PRIOR_META and THRAX_META when injected — the giver a reader of edge.connectorClass can now actually see", async () => {
+  const { classifyWord, dominantClass } = await organs();
+  const { POS_PRIOR_META, THRAX_META } = await import("../eoreader6.1/packages/engine/perceiver/text/wordclass.js");
+  const lens = makeGrammarLens({ classifyWord, dominantClass, posPrior: POS_PRIOR, posPriorMeta: POS_PRIOR_META, thraxMeta: THRAX_META });
+  const classification = lens({ subject: "Pierre", verb: "spoke", object: "softly" }, { minShare: MIN_SHARE });
+  assert.equal(classification.givers.measured, POS_PRIOR_META);
+  assert.equal(classification.givers.declared, THRAX_META);
+  assert.match(classification.givers.measured.giver, /Universal Dependencies UD_English-EWT/);
+  assert.match(classification.givers.declared.giver, /Dionysius Thrax/);
+  // Disclosed even for a word the prior never settles — the giver describes
+  // the EVIDENCE POOL this lens reasons from, not a per-word verdict, so an
+  // unsettled classification still names where its (in)ability to settle
+  // comes from.
+  const unfound = lens({ subject: "x", verb: "zzznotaword", object: "y" }, { minShare: MIN_SHARE });
+  assert.equal(unfound.found, false);
+  assert.equal(unfound.givers.measured, POS_PRIOR_META);
+});
+
 // ── end to end against the REAL extraction pipeline, not just hand-built edges ──
 test("end to end: a real edge extracted by the real engine from real material reads as a genuine verb", async () => {
   const PASSAGES = [

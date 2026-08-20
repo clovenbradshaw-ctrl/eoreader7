@@ -34,6 +34,23 @@
 // own job, unchanged. A connector whose class reads "preposition" is not a
 // wrong extraction; it is an honest disclosure that Thrax's category and
 // the slot extractRelations found do not agree for this edge.
+//
+// AMENDED (Per-Source Testimony spec, BUILD-3) — TWO changes, both
+// additive. (1) `makeGrammarLens`/hypergraph.js's `makeRelationReader` now
+// compose so an edge carries its OWN `connectorClass` from the moment it is
+// extracted, not just when capacity-runner.js's `checkConnectorClass` calls
+// this file post-hoc (that call site still works — see capacity-runner.js's
+// own header for why both paths are kept). (2) The giver was checked and
+// found silently dropped: `POSPrior@1`'s own file already names its giver
+// (a `provenance` block: source, url, license), and `wordclass.js` already
+// exports `POS_PRIOR_META`/`THRAX_META` naming BOTH givers this file's
+// classification rests on — but `classifyConnector`'s own returned object
+// never carried either forward. Fixed by accepting both as two more
+// optional injected organs and forwarding them as `givers` on every
+// classification (see `makeGrammarLens`'s own JSDoc below) — a reader of
+// `edge.connectorClass.givers` can now see exactly which treebank and which
+// translation scheme this reading rests on, instead of having to already
+// know.
 
 /**
  * @param {object} organs
@@ -45,6 +62,29 @@
  *   present on disk; omitted, every classification comes back `found:
  *   false` rather than throwing, the same optional-organ degrade
  *   verbForms/createLemmatizer already hold in hypergraph.js.
+ * @param {object} [organs.posPriorMeta] wordclass.js's own exported
+ *   `POS_PRIOR_META` — the MEASURED giver (Universal Dependencies
+ *   UD_English-EWT, CC BY-SA 4.0, scripts/build-pos-prior.mjs). FIXED,
+ *   found live: `POSPrior@1`'s own file (scripts/corpus/pos-prior-eng.json)
+ *   already names this giver in its own `provenance` block, and
+ *   `wordclass.js` already exports it as a named constant for exactly this
+ *   purpose (`POS_PRIOR_META`) — but nothing between there and a reader of
+ *   `classifyConnector`'s output ever forwarded it. This file's own
+ *   classification silently dropped the giver on the way through, the
+ *   identical class of gap `priors.js`'s closed classes and
+ *   `morphology.js`'s `loadMorphology` (which THROWS without one:
+ *   "a prior must name its giver") both exist to prevent — the discipline
+ *   was upheld at the DATA layer and silently lost one hop later, at the
+ *   READING layer. Injected, never assumed; omitted, `givers` is `null` on
+ *   every classification, byte-identical to before this fix.
+ * @param {object} [organs.thraxMeta] wordclass.js's own exported
+ *   `THRAX_META` — the DECLARED giver (Dionysius Thrax, Tekhnē
+ *   grammatikē, Alexandria, ~100 BCE — interjection: Donatus/Priscian,
+ *   Latin, later). The SECOND, independent giver wordclass.js's own header
+ *   names ("TWO PRIORS, TWO GIVERS, NEVER MERGED INTO ONE CLAIM"): which UD
+ *   tag a form is MEASURED as, and which ancient category a UD tag is
+ *   DECLARED to translate to, are two different claims with two different
+ *   givers, and both are forwarded, never merged into one.
  */
 /**
  * FIXED (found live, measured, not by inspection alone): this function used
@@ -67,7 +107,12 @@
  * margin should hand off to `resolveSpanRole`'s per-occurrence reading, not
  * be forced to a threshold), not copy 0.9 as if it were blessed.
  */
-export function makeGrammarLens({ classifyWord, dominantClass, posPrior = null }) {
+export function makeGrammarLens({ classifyWord, dominantClass, posPrior = null, posPriorMeta = null, thraxMeta = null }) {
+  // Computed once per lens, not per call: neither meta object depends on
+  // the word being classified, only on which priors this lens was built
+  // from — a caller injecting them once still gets them disclosed on every
+  // classification this lens ever produces.
+  const givers = posPriorMeta || thraxMeta ? { measured: posPriorMeta ?? null, declared: thraxMeta ?? null } : null;
   return function classifyConnector(edge, { minShare } = {}) {
     const c = classifyWord(edge?.verb ?? "", { posPrior });
     // An out-of-vocabulary word has no candidates for dominantClass to rank
@@ -82,6 +127,12 @@ export function makeGrammarLens({ classifyWord, dominantClass, posPrior = null }
       candidates: c.candidates,
       thraxClass: dominant?.thraxClass ?? null,
       settled: dominant != null,
+      // The giver, forwarded — never dropped between the DATA layer
+      // (wordclass.js's own named POS_PRIOR_META/THRAX_META constants) and
+      // a reader of THIS classification. `null` when the caller never
+      // injected either meta organ — a disclosed absence, never a guessed
+      // attribution.
+      givers,
     };
   };
 }
