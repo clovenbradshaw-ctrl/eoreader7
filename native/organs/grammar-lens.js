@@ -46,10 +46,36 @@
  *   false` rather than throwing, the same optional-organ degrade
  *   verbForms/createLemmatizer already hold in hypergraph.js.
  */
+/**
+ * FIXED (found live, measured, not by inspection alone): this function used
+ * to read `{ minShare = 0.9 }` — a silent default contradicting this file's
+ * OWN header two paragraphs up ("minShare is declared by the caller, the
+ * same standing wordclass.js's own dominantClass already holds") and
+ * `dominantClass` itself, which THROWS rather than default
+ * ("minShare is declared — how dominant a candidate must be is never a
+ * default"). The contradiction was not academic: run for real against this
+ * session's own golden-test edges, 0.9 let BOTH of that run's real garbled
+ * connectors through unflagged — "vice" (candidates noun 62.5% / propn 25%
+ * / adverb 12.5%, VERB 0%) and "as" (preposition 42% / conjunction 37% /
+ * adverb 20%, verb 0.1%) — because no single non-verb class reached a 90%
+ * supermajority, even though verb's own share was essentially zero in both.
+ * A caller now MUST declare `minShare` explicitly (mirroring
+ * `dominantClass`'s own error, not inventing a second one) — this makes the
+ * choice visible at every call site instead of hidden behind an unexamined
+ * number, and callers uncertain what to pass should read `dominantClass`'s
+ * own docstring on what minShare actually trades off (a thin type-level
+ * margin should hand off to `resolveSpanRole`'s per-occurrence reading, not
+ * be forced to a threshold), not copy 0.9 as if it were blessed.
+ */
 export function makeGrammarLens({ classifyWord, dominantClass, posPrior = null }) {
-  return function classifyConnector(edge, { minShare = 0.9 } = {}) {
+  return function classifyConnector(edge, { minShare } = {}) {
     const c = classifyWord(edge?.verb ?? "", { posPrior });
-    const dominant = dominantClass(c, { minShare });
+    // An out-of-vocabulary word has no candidates for dominantClass to rank
+    // in the first place — calling it anyway would force EVERY caller to
+    // supply a minShare just to ask "was this word found at all," a
+    // question dominantClass was never meant to answer and does not need
+    // minShare to answer. Short-circuit here, not inside dominantClass.
+    const dominant = c.found ? dominantClass(c, { minShare }) : null;
     return {
       surface: edge?.verb ?? null,
       found: c.found,
@@ -67,16 +93,35 @@ export function makeGrammarLens({ classifyWord, dominantClass, posPrior = null }
  * verdict against the edge itself (relationFindings/relationsClean are
  * untouched by this file entirely).
  *
+ * `minShare` is REQUIRED, not defaulted — see `makeGrammarLens`'s own
+ * comment for why a silent 0.9 here was a real, measured bug, not a
+ * stylistic choice. Passing a HIGH minShare (this repo's own dominantClass
+ * discipline: "close case? hand off to resolveSpanRole, don't threshold
+ * harder") only catches a connector where some OTHER single class swept a
+ * supermajority — it structurally CANNOT catch a connector whose non-verb
+ * evidence is real but split across several classes (verb share ~0%, no
+ * single rival above the bar either) — exactly the two real cases named
+ * above. A caller wanting to catch THAT shape too should not raise
+ * minShare; it should check the classification's own verb-share directly
+ * (`c.candidates.find(x => x.thraxClass === "verb")?.share ?? 0`) against
+ * a separately-declared, separately-justified floor — a different
+ * statistic than "is some class dominant," not a stricter version of it.
+ * Not built here: doing so well needs the verb-share floor itself derived
+ * from real sample-size-aware evidence (most of these words have single-
+ * digit UD occurrence counts) rather than another flat percentage, which
+ * would just relocate this same problem one level down. Named as real,
+ * disclosed, unattempted next work.
+ *
  * @param {Array<object>} edges hypergraph.js edges (report.edges).
  * @param {ReturnType<typeof makeGrammarLens>} classifyConnector
- * @param {{minShare?: number}} [options]
+ * @param {{minShare: number}} options
  * @returns {Array<{edge: object, classification: object}>} edges whose
  *   connector's dominant Thrax class is anything OTHER than "verb" —
  *   `settled: false` connectors (out of vocabulary, or genuinely
  *   ambiguous at this minShare) are excluded, since an unsettled reading
  *   is a disclosed gap, not a mismatch finding.
  */
-export function mismatchedConnectors(edges, classifyConnector, { minShare = 0.9 } = {}) {
+export function mismatchedConnectors(edges, classifyConnector, { minShare } = {}) {
   const out = [];
   for (const edge of edges ?? []) {
     const classification = classifyConnector(edge, { minShare });

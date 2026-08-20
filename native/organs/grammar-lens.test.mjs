@@ -58,6 +58,23 @@ const organs = async () => {
 // golden's score, applied to this file's own fixture).
 const MIN_SHARE = 0.5;
 
+test("minShare is declared by the caller, never a silent default — the fixed bug, pinned as a regression", async () => {
+  // Found live: classifyConnector used to read `{ minShare = 0.9 }`,
+  // contradicting this file's own header AND dominantClass's own thrown
+  // error ("minShare is declared — how dominant a candidate must be is
+  // never a default"). Proven live too: 0.9 let BOTH of a real golden
+  // test's own garbled connectors through unflagged ("vice": noun 62.5% /
+  // propn 25% / adverb 12.5%, verb 0%; "as": preposition 42% /
+  // conjunction 37% / adverb 20%, verb 0.1% — neither non-verb class hit
+  // a 90% supermajority even though verb's own share was ~0 in both).
+  const { classifyWord, dominantClass } = await organs();
+  const lens = makeGrammarLens({ classifyWord, dominantClass, posPrior: POS_PRIOR });
+  // "married" is FOUND in POS_PRIOR (used two tests below) — this must
+  // throw for the same reason dominantClass itself throws, not silently
+  // settle on an unexamined number.
+  assert.throws(() => lens({ subject: "they", verb: "married", object: "young" }), /minShare is declared/);
+});
+
 test("the crosslingual eval's own disclosed junk triples: none of 'this', 'still', 'book' read as a verb under the Thrax lens", async () => {
   const { classifyWord, dominantClass } = await organs();
   const lens = makeGrammarLens({ classifyWord, dominantClass, posPrior: POS_PRIOR });
