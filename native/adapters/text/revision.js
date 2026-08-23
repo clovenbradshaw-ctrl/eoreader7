@@ -15,6 +15,7 @@ import { textIdentityEvidence } from "./identity-evidence.js";
 
 const existingIds = (fold) => new Set((fold?.graphEntries ?? []).map((entry) => entry?.id).filter(Boolean));
 const slug = (value) => String(value ?? "").toLowerCase().replace(/[^\p{L}\p{N}]+/gu, "_").replace(/^_+|_+$/g, "");
+const OCCURRENCE_BINDING_SCHEMAS = new Set(["EOPronounBinding@1", "EODefiniteBinding@1"]);
 
 function identityObligationFor(hypothesis, fold = {}, graph = null) {
   const relationContexts = (hypothesis?.relationContexts ?? []).filter((context) => context?.edge);
@@ -84,13 +85,14 @@ export async function reviseTextFold({ observations = [], fold = {}, graph = nul
     identitySupports.push(...identity.supports);
     identityAttacks.push(...identity.attacks);
 
-    // Pronoun resolution is an interpretation conditioned by the prior Fold,
-    // not part of the raw relation witness. Perception may nominate it, but it
-    // enters Fold explicitly as a provisional CON object so later reasoning can
-    // revise the binding without rewriting the witnessed edge.
+    // Occurrence resolution is interpretation conditioned by the prior Fold,
+    // not part of the raw relation witness. Pronoun and definite-anaphora
+    // mechanisms may nominate a binding, but each enters Fold explicitly as a
+    // provisional CON object so later reasoning can revise it without rewriting
+    // the witnessed relation edge.
     for (const distinction of observation?.distinctions ?? []) {
-      const binding = distinction?.kind === "pronoun_binding" ? distinction.binding : null;
-      if (binding?.schema !== "EOPronounBinding@1" || !binding.id || known.has(binding.id)) continue;
+      const binding = distinction?.kind === "occurrence_binding" || distinction?.kind === "pronoun_binding" ? distinction.binding : null;
+      if (!OCCURRENCE_BINDING_SCHEMAS.has(binding?.schema) || !binding.id || known.has(binding.id)) continue;
       known.add(binding.id);
       operations.push(eoOperation({
         op: "CON",
@@ -98,7 +100,7 @@ export async function reviseTextFold({ observations = [], fold = {}, graph = nul
         witness: witnessRef,
         inputs: [binding.occurrence, binding.referent].filter(Boolean),
         outputs: [binding.id],
-        consequence: { kind: "pronoun_binding_projected", occurrence: binding.occurrence, referent: binding.referent },
+        consequence: { kind: "occurrence_binding_projected", binding: binding.id, occurrence: binding.occurrence, referent: binding.referent },
         payload: { action: "provisional", value: binding },
       }));
     }
