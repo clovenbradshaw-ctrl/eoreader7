@@ -5,7 +5,7 @@ import { witness as defaultWitness } from "./witness.js";
 import { relevantNeighborhood, interrogateCube, deriveEOTransformations } from "./interrogation.js";
 import { deriveSurprise, deriveTension, deriveRelease } from "./dynamics.js";
 import { buildHypergraph, indexHypergraphEntries } from "./hypergraph.js";
-import { createTerrainIndex, indexTerrainEntries, snapshotTerrainState } from "./terrain-state.js";
+import { createTerrainIndex, indexTerrainEntries, snapshotTerrainState, snapshotTerrainReferents } from "./terrain-state.js";
 import { createEmergentTerrainIndex, indexEmergentTerrainEntries, snapshotEmergentTerrainState, mergeTerrainStates } from "./emergent-terrain.js";
 import { createStanceIndex, indexStanceEntries, snapshotStanceState } from "./stance-state.js";
 import { normalizeHyperlexicon, admitHyperlexiconCandidates } from "./hyperlexicon.js";
@@ -110,11 +110,12 @@ export function createRecursiveReader({ seed = {}, priors = [], perceivers = [],
     const currentEncounter = input?.schema === "Encounter@1" ? input : encounter(input);
     const beforeFold = fold;
     const terrainStateBefore = snapshotTerrainState(terrainIndex);
+    const referentEntitiesBefore = snapshotTerrainReferents(terrainIndex);
     const emergentTerrainStateBefore = snapshotEmergentTerrainState(emergentTerrainIndex);
     const stanceStateBefore = snapshotStanceState(stanceIndex);
     const liveTasksBefore = projectTasks(tasks);
     const orientationTasks = scheduleTasks(liveTasksBefore, beforeFold, { limit: taskOrientationBudget });
-    const orientation = deriveOrientation(beforeFold, { tasks: orientationTasks, terrainState: terrainStateBefore, emergentTerrainState: emergentTerrainStateBefore, stanceState: stanceStateBefore });
+    const orientation = deriveOrientation(beforeFold, { tasks: orientationTasks, terrainState: terrainStateBefore, emergentTerrainState: emergentTerrainStateBefore, stanceState: stanceStateBefore, referentEntities: referentEntitiesBefore });
     const candidates = await (adapters.perceive ?? defaultPerceive)(currentEncounter, orientation, { perceivers, priors: [...(orientation.receivedPriors ?? []), ...priors], hyperlexicon: hl });
     const challenge = adapters.challenge ? await adapters.challenge({ encounter: currentEncounter, orientation, candidates, hyperlexicon: hl }) : await challengeCandidates(currentEncounter, orientation, candidates, { challengers });
     const challengedCandidates = challenge?.candidates ?? candidates;
@@ -176,7 +177,7 @@ export function createRecursiveReader({ seed = {}, priors = [], perceivers = [],
     refreshComposition();
     const terrainState = snapshotTerrainState(terrainIndex);
     const emergentTerrainState = snapshotEmergentTerrainState(emergentTerrainIndex);
-    return Object.freeze({ turns, fold, hyperlexicon: hl, terrainState, emergentTerrainState, effectiveTerrainState: mergeTerrainStates(terrainState, emergentTerrainState), stanceState: snapshotStanceState(stanceIndex), compositionDiagnostics: cachedCompositionDiagnostics, tasks: Object.freeze(projectTasks(tasks)), taskLog: tasks, log: [...log] });
+    return Object.freeze({ turns, fold, hyperlexicon: hl, terrainState, referentEntities: snapshotTerrainReferents(terrainIndex), emergentTerrainState, effectiveTerrainState: mergeTerrainStates(terrainState, emergentTerrainState), stanceState: snapshotStanceState(stanceIndex), compositionDiagnostics: cachedCompositionDiagnostics, tasks: Object.freeze(projectTasks(tasks)), taskLog: tasks, log: [...log] });
   }
   return Object.freeze({
     step,
@@ -184,6 +185,7 @@ export function createRecursiveReader({ seed = {}, priors = [], perceivers = [],
     getFold: () => fold,
     getHyperlexicon: () => hl,
     getTerrainState: () => snapshotTerrainState(terrainIndex),
+    getTerrainReferents: () => snapshotTerrainReferents(terrainIndex),
     getEmergentTerrainState: () => snapshotEmergentTerrainState(emergentTerrainIndex),
     getEffectiveTerrainState: () => mergeTerrainStates(snapshotTerrainState(terrainIndex), snapshotEmergentTerrainState(emergentTerrainIndex)),
     getStanceState: () => snapshotStanceState(stanceIndex),
