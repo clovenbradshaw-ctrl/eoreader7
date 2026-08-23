@@ -130,10 +130,37 @@ export function evaluateRelationCompositions(entries = [], hyperlexicon = null) 
 }
 
 /**
- * Only repeated, candidate-standing withheld compositions are consequential
- * enough by default to deserve active reading. One-off unknowns remain explicit
- * unknowns without creating an attention burden.
+ * Only repeated, candidate-standing relation PAIRS are consequential enough by
+ * default to deserve active reading. All witnessed chain instances remain as
+ * grounds, but one affordance pair creates at most one clarification burden.
+ * One-off unknowns remain explicit unknowns without creating attention work.
  */
 export function consequentialWithheldCompositions(result = {}) {
-  return freeze((result.withheld ?? []).filter((item) => item?.standing === "candidate" && (item?.edgeRefs?.length ?? 0) >= 2));
+  const groups = new Map();
+  for (const item of result.withheld ?? []) {
+    if (item?.standing !== "candidate" || (item?.edgeRefs?.length ?? 0) < 2) continue;
+    const key = `${stable(item.leftPredicate)}\u0000${stable(item.rightPredicate)}`;
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(item);
+  }
+  return freeze([...groups.values()].map((items) => {
+    const first = items[0];
+    const edgeRefs = [...new Set(items.flatMap((item) => item.edgeRefs ?? []))];
+    const witnessRefs = [...new Set(items.flatMap((item) => item.witnessRefs ?? []))];
+    const referentRefs = [...new Set(items.flatMap((item) => [item.from, item.bridge, item.to]).filter(Boolean))];
+    return freeze({
+      schema: "EOWithheldComposition@1",
+      id: `withheld-composition:${slug(first.leftPredicate)}__${slug(first.rightPredicate)}:candidate`,
+      leftPredicate: first.leftPredicate,
+      rightPredicate: first.rightPredicate,
+      standing: "candidate",
+      edgeRefs: freeze(edgeRefs),
+      witnessRefs: freeze(witnessRefs),
+      referentRefs: freeze(referentRefs),
+      instances: freeze(items.map((item) => item.id)),
+      examples: freeze(items.map((item) => freeze({ from: item.from, bridge: item.bridge, to: item.to, edgeRefs: item.edgeRefs }))),
+      reason: first.reason,
+      affordance: first.affordance,
+    });
+  }));
 }
