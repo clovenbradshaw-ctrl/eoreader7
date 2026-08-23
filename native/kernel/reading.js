@@ -7,6 +7,7 @@ import { deriveSurprise, deriveTension, deriveRelease } from "./dynamics.js";
 import { buildHypergraph, indexHypergraphEntries } from "./hypergraph.js";
 import { normalizeHyperlexicon, admitHyperlexiconCandidates } from "./hyperlexicon.js";
 import { acquireCompositionCandidates, evaluateRelationCompositions, consequentialWithheldCompositions } from "./relation-composition.js";
+import { differenceMakesDifference } from "./materiality.js";
 import { obligation, openObligation } from "./obligations.js";
 import { createReadingTaskState, proposeObligationTasks, wakeTasks, appendTaskResult, executeClarificationTask, scheduleTasks } from "./reading-tasks.js";
 import { projectTasks } from "./task-log.js";
@@ -37,9 +38,11 @@ const deltaGraph = (delta, fold) => (delta?.operations ?? []).flatMap((op) => {
   return out;
 });
 
-function compositionOperations(composition, fold = {}) {
+function compositionOperations(composition, fold = {}, graph = null) {
   const known = new Set((fold?.graphEntries ?? []).map((entry) => entry?.id).filter(Boolean));
+  for (const item of fold?.obligations ?? []) if (item?.id) known.add(item.id);
   const operations = [];
+
   for (const licensed of composition?.licensed ?? []) {
     if (known.has(licensed.id)) continue;
     known.add(licensed.id);
@@ -53,7 +56,10 @@ function compositionOperations(composition, fold = {}) {
       payload: { action: "graph-object", value: licensed },
     }));
   }
+
   for (const withheld of consequentialWithheldCompositions(composition)) {
+    // Repeated adjacency can nominate an HL candidate and we preserve the
+    // withheld composition object. That is memory, not automatically a task.
     if (!known.has(withheld.id)) {
       known.add(withheld.id);
       operations.push(eoOperation({
@@ -66,21 +72,32 @@ function compositionOperations(composition, fold = {}) {
         payload: { action: "graph-object", value: withheld },
       }));
     }
+
     const obligationId = `obligation:composition:${withheld.id}`;
     if (known.has(obligationId)) continue;
+    const distinction = {
+      composition: withheld.id,
+      referentRefs: [...(withheld.referentRefs ?? [])],
+      instances: [...(withheld.instances ?? [])],
+      leftPredicate: withheld.leftPredicate,
+      rightPredicate: withheld.rightPredicate,
+    };
+    const consequences = [{
+      kind: "bridge_interpretation",
+      composition: withheld.id,
+      edges: [...(withheld.edgeRefs ?? [])],
+      referents: [...(withheld.referentRefs ?? [])],
+    }];
+    const materiality = differenceMakesDifference({ distinction, consequences, fold, graph });
+    if (!materiality.makesDifference) continue;
+
     known.add(obligationId);
     const unresolved = obligation({
       id: obligationId,
-      distinction: {
-        composition: withheld.id,
-        referentRefs: [...(withheld.referentRefs ?? [])],
-        instances: [...(withheld.instances ?? [])],
-        leftPredicate: withheld.leftPredicate,
-        rightPredicate: withheld.rightPredicate,
-      },
+      distinction: { ...distinction, materiality },
       grounds: [withheld.id, ...(withheld.edgeRefs ?? [])],
       alternatives: [...(withheld.edgeRefs ?? [])],
-      consequences: [{ kind: "composition_permission", composition: withheld.id }],
+      consequences,
       openedAt: (fold?.sequence ?? 0) + 1,
       persistence: 0,
     });
@@ -140,7 +157,7 @@ export function createRecursiveReader({ seed = {}, priors = [], perceivers = [],
     const baseDelta = proposedDelta?.schema === "DeltaFold@1" ? proposedDelta : deltaFold([]);
     const canonicalDelta = deltaFold([
       ...(baseDelta.operations ?? []),
-      ...compositionOperations(composition, beforeFold),
+      ...compositionOperations(composition, beforeFold, graphIndex),
     ], { id: baseDelta.id ?? `delta:${currentEncounter.sequencePosition ?? log.length}` });
 
     log.push(currentEncounter, ...observations, ...taskEvidence, canonicalDelta);
