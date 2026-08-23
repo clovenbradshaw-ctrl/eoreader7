@@ -8,8 +8,8 @@ const positionOf = (edge) => Number.isFinite(edge?.scope?.sequencePosition) ? ed
 const participant = (edge, role) => (edge?.participants ?? []).find((p) => p?.role === role && p?.standing === "referent") ?? null;
 const subjectOf = (edge) => participant(edge, "subject")?.ref ?? null;
 const objectOf = (edge) => participant(edge, "object")?.ref ?? null;
-
-const witnessedEdges = (entries = []) => entries.filter((entry) => entry?.schema === "EOHyperedge@1" && entry?.witness && subjectOf(entry) && objectOf(entry));
+const witnessedEdge = (entry) => entry?.schema === "EOHyperedge@1" && entry?.witness && subjectOf(entry) && objectOf(entry);
+const pair = (left, right) => `${stable(left)}\u0000${stable(right)}`;
 
 function chainOf(leftEdge, rightEdge) {
   const bridge = objectOf(leftEdge);
@@ -23,64 +23,102 @@ function chainOf(leftEdge, rightEdge) {
 }
 
 /**
- * Find witnessed shared-referent relation chains in causal order. This only
- * exposes possible composition sites; it does not grant permission to compose.
+ * Incremental ledger for witnessed relation-composition sites.
+ *
+ * The prior implementation rebuilt all chains from every graph entry on every
+ * encounter. This ledger indexes incoming/outgoing referent positions once and
+ * only tests a new edge against the edges that can actually join it. Historical
+ * witnesses remain append-only; this is only a faster projection of them.
  */
-export function relationCompositionChains(entries = []) {
-  const edges = witnessedEdges(entries);
+export function createRelationCompositionLedger(entries = []) {
+  const byEdge = new Map();
+  const incoming = new Map();
   const outgoing = new Map();
-  for (const edge of edges) {
+  const chainsById = new Map();
+  const pairSupport = new Map();
+
+  const bucket = (map, key) => {
+    if (!map.has(key)) map.set(key, new Set());
+    return map.get(key);
+  };
+  const addChain = (leftEdge, rightEdge) => {
+    if (!leftEdge || !rightEdge || leftEdge.id === rightEdge.id) return;
+    const chain = chainOf(leftEdge, rightEdge);
+    if (!chain) return;
+    const id = `${leftEdge.id}\u0000${rightEdge.id}`;
+    if (chainsById.has(id)) return;
+    chainsById.set(id, chain);
+    const key = pair(leftEdge.relation, rightEdge.relation);
+    if (!pairSupport.has(key)) pairSupport.set(key, { left: leftEdge.relation, right: rightEdge.relation, chainIds: new Set() });
+    pairSupport.get(key).chainIds.add(id);
+  };
+  const ingestOne = (edge) => {
+    if (!witnessedEdge(edge) || !edge.id || byEdge.has(edge.id)) return false;
     const subject = subjectOf(edge);
-    if (!outgoing.has(subject)) outgoing.set(subject, []);
-    outgoing.get(subject).push(edge);
-  }
-  const chains = [];
-  const seen = new Set();
-  for (const leftEdge of edges) {
-    for (const rightEdge of outgoing.get(objectOf(leftEdge)) ?? []) {
-      if (leftEdge.id === rightEdge.id) continue;
-      const chain = chainOf(leftEdge, rightEdge);
-      if (!chain) continue;
-      const key = `${leftEdge.id}\u0000${rightEdge.id}`;
-      if (seen.has(key)) continue;
-      seen.add(key);
-      chains.push(chain);
-    }
-  }
-  return freeze(chains);
+    const object = objectOf(edge);
+
+    // Existing edges ending at this new subject can be the left side.
+    for (const leftId of incoming.get(subject) ?? []) addChain(byEdge.get(leftId), edge);
+    // Existing edges starting at this new object can be the right side.
+    for (const rightId of outgoing.get(object) ?? []) addChain(edge, byEdge.get(rightId));
+
+    byEdge.set(edge.id, edge);
+    bucket(outgoing, subject).add(edge.id);
+    bucket(incoming, object).add(edge.id);
+    return true;
+  };
+  const ingest = (next = []) => {
+    let added = 0;
+    for (const entry of next) if (ingestOne(entry)) added += 1;
+    return added;
+  };
+  ingest(entries);
+
+  return {
+    ingest,
+    chains: () => freeze([...chainsById.values()]),
+    candidates: ({ minWitnesses = 2 } = {}) => freeze([...pairSupport.values()]
+      .filter((item) => item.chainIds.size >= minWitnesses)
+      .map((item) => freeze({
+        left: item.left,
+        right: item.right,
+        standing: "candidate",
+        witnesses: freeze([...item.chainIds].map((id) => {
+          const chain = chainsById.get(id);
+          return freeze([chain.leftEdge.id, chain.rightEdge.id]);
+        })),
+        provenance: freeze({ giver: null, basis: "repeated witnessed shared-referent relation adjacency" }),
+        meta: freeze({ observed: true, support: item.chainIds.size }),
+      }))),
+    evaluate: (hyperlexicon = null) => evaluateChains([...chainsById.values()], hyperlexicon),
+    diagnostics: () => {
+      const pairs = [...pairSupport.values()].map((item) => freeze({ left: item.left, right: item.right, support: item.chainIds.size }))
+        .sort((a, b) => b.support - a.support || String(a.left).localeCompare(String(b.left)) || String(a.right).localeCompare(String(b.right)));
+      return freeze({
+        witnessedEdges: byEdge.size,
+        chainSites: chainsById.size,
+        pairTypes: pairs.length,
+        repeatedPairTypes: pairs.filter((item) => item.support >= 2).length,
+        topPairs: freeze(pairs.slice(0, 20)),
+      });
+    },
+  };
+}
+
+/** Find witnessed shared-referent relation chains in causal order. */
+export function relationCompositionChains(entries = []) {
+  return createRelationCompositionLedger(entries).chains();
 }
 
 /** Repeated adjacency nominates an HL candidate. It never licenses inference. */
 export function acquireCompositionCandidates(entries = [], { minWitnesses = 2 } = {}) {
-  const counts = new Map();
-  for (const chain of relationCompositionChains(entries)) {
-    const left = chain.leftEdge.relation;
-    const right = chain.rightEdge.relation;
-    const key = `${stable(left)}\u0000${stable(right)}`;
-    if (!counts.has(key)) counts.set(key, { left, right, witnesses: [] });
-    counts.get(key).witnesses.push(freeze([chain.leftEdge.id, chain.rightEdge.id]));
-  }
-  return freeze([...counts.values()]
-    .filter((item) => item.witnesses.length >= minWitnesses)
-    .map((item) => freeze({
-      left: item.left,
-      right: item.right,
-      standing: "candidate",
-      witnesses: freeze(item.witnesses),
-      provenance: freeze({ giver: null, basis: "repeated witnessed shared-referent relation adjacency" }),
-      meta: freeze({ observed: true, support: item.witnesses.length }),
-    })));
+  return createRelationCompositionLedger(entries).candidates({ minWitnesses });
 }
 
-/**
- * Evaluate composition sites against HL. Non-GIVEN pairs remain explicitly
- * withheld. GIVEN pairs license a structural bridge projection, not a claim
- * that the two predicates are synonyms or globally transitive.
- */
-export function evaluateRelationCompositions(entries = [], hyperlexicon = null) {
+function evaluateChains(chains = [], hyperlexicon = null) {
   const withheld = [];
   const licensed = [];
-  for (const chain of relationCompositionChains(entries)) {
+  for (const chain of chains) {
     const affordance = compositionAffordance(hyperlexicon, chain.leftEdge.relation, chain.rightEdge.relation);
     const base = {
       from: chain.from,
@@ -99,12 +137,7 @@ export function evaluateRelationCompositions(entries = [], hyperlexicon = null) 
         id: `withheld-composition:${idCore}`,
         ...base,
         reason: "shared-referent adjacency does not license composition without a GIVEN Hyperlexicon affordance",
-        affordance: freeze({
-          standing: affordance.standing,
-          giver: affordance.giver,
-          witnesses: affordance.witnesses,
-          provenance: affordance.provenance,
-        }),
+        affordance: freeze({ standing: affordance.standing, giver: affordance.giver, witnesses: affordance.witnesses, provenance: affordance.provenance }),
       }));
       continue;
     }
@@ -114,32 +147,26 @@ export function evaluateRelationCompositions(entries = [], hyperlexicon = null) 
       ...base,
       standing: "licensed",
       relation: "occupies_bridge_between",
-      provenance: freeze({
-        giver: affordance.giver,
-        basis: "witnessed shared-referent adjacency plus GIVEN Hyperlexicon composition affordance",
-      }),
-      affordance: freeze({
-        standing: affordance.standing,
-        giver: affordance.giver,
-        witnesses: affordance.witnesses,
-        provenance: affordance.provenance,
-      }),
+      provenance: freeze({ giver: affordance.giver, basis: "witnessed shared-referent adjacency plus GIVEN Hyperlexicon composition affordance" }),
+      affordance: freeze({ standing: affordance.standing, giver: affordance.giver, witnesses: affordance.witnesses, provenance: affordance.provenance }),
     }));
   }
   return freeze({ withheld: freeze(withheld), licensed: freeze(licensed) });
 }
 
+export function evaluateRelationCompositions(entries = [], hyperlexicon = null) {
+  return evaluateChains(relationCompositionChains(entries), hyperlexicon);
+}
+
 /**
- * Only repeated, candidate-standing relation PAIRS are consequential enough by
- * default to deserve active reading. All witnessed chain instances remain as
- * grounds, but one affordance pair creates at most one clarification burden.
- * One-off unknowns remain explicit unknowns without creating attention work.
+ * Group candidate-standing withheld chains by relation pair. Candidate status
+ * is still only nomination; this helper does not itself decide materiality.
  */
 export function consequentialWithheldCompositions(result = {}) {
   const groups = new Map();
   for (const item of result.withheld ?? []) {
     if (item?.standing !== "candidate" || (item?.edgeRefs?.length ?? 0) < 2) continue;
-    const key = `${stable(item.leftPredicate)}\u0000${stable(item.rightPredicate)}`;
+    const key = pair(item.leftPredicate, item.rightPredicate);
     if (!groups.has(key)) groups.set(key, []);
     groups.get(key).push(item);
   }
