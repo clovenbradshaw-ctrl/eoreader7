@@ -37,7 +37,14 @@ function fixtureReader({ finalResolution = "distinct" } = {}) {
         if (seq === 0 && address.op === "DEF" && address.grain === "Figure") {
           const value = obligation({
             id: "obligation:identity:rowan-courier",
-            distinction: { referent: "ref:rowan", alternative: "ref:courier" },
+            distinction: {
+              referent: "ref:rowan",
+              alternative: "ref:courier",
+              materiality: {
+                makesDifference: true,
+                reasons: [{ kind: "fixture_identity_consequence", ref: "ref:event:0" }],
+              },
+            },
             grounds: ["ref:event:0"],
             alternatives: ["ref:rowan", "ref:courier"],
             consequences: [{ referent: "ref:rowan", relation: "identity" }],
@@ -88,7 +95,9 @@ test("tension persists until a witnessed transformation resolves the obligation,
   const result = await fixtureReader().read(events);
   assert.equal(result.turns[0].fold.obligations[0].status, "open");
   assert.equal(result.turns[0].tension.obligations.length, 1);
+  assert.ok(result.turns[0].tension.energy > 0);
   assert.equal(result.turns[1].tension.obligations.length, 1);
+  assert.ok(result.turns[1].tension.energy >= result.turns[0].tension.energy, "persistence should not reduce unresolved potential");
   assert.equal(result.turns[2].fold.obligations[0].status, "resolved");
   assert.equal(result.turns[2].tension.obligations.length, 0);
   assert.equal(result.turns[2].release.length, 1);
