@@ -240,7 +240,20 @@ export function createKindBasinAdmissionLedger({
         kindKey: record.kindKey,
         formedAt: record.formedAt,
         memberCount: record.memberRefs.length,
+        memberRefs: record.memberRefs,
         bindingEnergy: record.field?.bindingEnergy ?? null,
+      }))),
+      admitted: freeze([...admitted.values()].map((projection) => freeze({
+        kindKey: projection.kindKey,
+        memberCount: projection.memberRefs?.length ?? 0,
+        memberRefs: projection.memberRefs ?? freeze([]),
+        structuralSignatures: projection.structuralSignatures ?? freeze([]),
+        bindingEnergy: projection.field?.bindingEnergy ?? null,
+        consequence: projection.consequence ?? null,
+        formedAt: projection.validation?.formedAt ?? null,
+        admittedAt: projection.validation?.admittedAt ?? null,
+        effect: projection.validation?.effect ?? null,
+        pValue: projection.validation?.pValue ?? null,
       }))),
     });
   }
