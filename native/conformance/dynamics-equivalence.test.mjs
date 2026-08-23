@@ -24,7 +24,7 @@ test("tension preserves unresolved consequential structure while v7 derives its 
   const fold = native.receivedGround({ sequence: 7, obligations: [openA, openB, { id: "obl:closed", status: "resolved", distinction: { materiality } }] });
   const n = native.deriveTension(fold);
   assert.deepEqual(n.obligations.map((o) => o.id), ["obl:a", "obl:b"]);
-  assert.equal(n.schema, "TensionProfile@2");
+  assert.equal(n.schema, "TensionProfile@1");
   assert.equal(n.field.model, "coupled_unresolved_potential_field");
   assert.ok(n.energy > 0);
   assert.ok(n.couplingEnergy > 0);
@@ -32,9 +32,6 @@ test("tension preserves unresolved consequential structure while v7 derives its 
   assert.equal(n.interactionNetwork[0].shared, 1);
   assert.deepEqual(n.persistence.map((item) => item.value), [6, 4]);
 
-  // Preserve the semantic boundary inherited from 6.1: resolved structure is
-  // absent and persistence is a function of the recursive sequence. We no
-  // longer require byte-for-byte equality with 6.1's count/overlap profile.
   const legacyFold = native.receivedGround({ sequence: 7, obligations: [
     { ...openA, consequences: ["ref:z"] },
     { ...openB, consequences: ["ref:q"] },
