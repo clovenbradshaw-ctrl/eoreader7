@@ -78,42 +78,55 @@ test("every EO interrogation address receives stance-local context without promo
   }
 });
 
-test("terrain and stance are orthogonal: the same Network affords distinguish, relate, or generate without changing the object", () => {
+test("terrain and stance are orthogonal: prior stance conditions but never traps reasoning", () => {
   const cases = [
-    ["SEG", "Unraveling", "distinguish"],
-    ["CON", "Tracing", "relate"],
-    ["SYN", "Composing", "generate"],
+    ["SEG", "Unraveling"],
+    ["CON", "Tracing"],
+    ["SYN", "Composing"],
   ];
   const objects = [];
-  for (const [op, stance, move] of cases) {
+  for (const [op, priorStance] of cases) {
     const orientation = deriveOrientation(networkFold(op));
     assert.equal(orientation.terrainCounts.Network, 1);
-    assert.equal(orientation.stanceCounts[stance], 1);
+    assert.equal(orientation.stanceCounts[priorStance], 1);
     const proposals = reasoningAffordances(orientation);
-    assert.equal(proposals.length, 1);
-    assert.equal(proposals[0].address.terrain, "Network");
-    assert.equal(proposals[0].address.stance, stance);
-    assert.equal(proposals[0].move, move);
-    assert.equal(proposals[0].witnessed, false);
+    assert.equal(proposals.length, 3);
+    assert.deepEqual(proposals.map((proposal) => proposal.move).sort(), ["distinguish", "generate", "relate"]);
+    assert.deepEqual(proposals.map((proposal) => proposal.address.terrain), ["Network", "Network", "Network"]);
+    const continuous = proposals.filter((proposal) => proposal.stanceContinuity);
+    assert.equal(continuous.length, 1);
+    assert.equal(continuous[0].address.stance, priorStance);
+    for (const proposal of proposals) assert.equal(proposal.witnessed, false);
     objects.push(orientation.terrainState.Network[0]);
   }
   assert.deepEqual(objects[0], objects[1]);
   assert.deepEqual(objects[1], objects[2]);
 });
 
-test("novel generation is stance-conditioned and remains explicitly ungrounded", () => {
-  const unraveling = deriveOrientation(networkFold("SEG"));
-  const tracing = deriveOrientation(networkFold("CON"));
-  const composing = deriveOrientation(networkFold("SYN"));
-  assert.equal(novelGenerationAffordances(unraveling).length, 0);
-  assert.equal(novelGenerationAffordances(tracing).length, 0);
-  const proposals = novelGenerationAffordances(composing);
-  assert.equal(proposals.length, 1);
-  assert.equal(proposals[0].move, "generate");
-  assert.equal(proposals[0].standing, "proposal");
-  assert.equal(proposals[0].witnessed, false);
-  assert.equal(proposals[0].admissible, false);
-  assert.equal(proposals[0].admission, "requires_grounding");
+test("novel generation remains available across prior stances and explicitly ungrounded", () => {
+  const cases = [
+    ["SEG", false],
+    ["CON", false],
+    ["SYN", true],
+  ];
+  for (const [op, hasComposingContinuity] of cases) {
+    const proposals = novelGenerationAffordances(deriveOrientation(networkFold(op)));
+    assert.equal(proposals.length, 1);
+    assert.equal(proposals[0].move, "generate");
+    assert.equal(proposals[0].address.terrain, "Network");
+    assert.equal(proposals[0].address.stance, "Composing");
+    assert.equal(proposals[0].stanceContinuity, hasComposingContinuity);
+    assert.equal(proposals[0].standing, "proposal");
+    assert.equal(proposals[0].witnessed, false);
+    assert.equal(proposals[0].admissible, false);
+    assert.equal(proposals[0].admission, "requires_grounding");
+  }
+});
+
+test("reasoning budgets can explicitly disable proposal generation", () => {
+  const orientation = deriveOrientation(networkFold("SYN"));
+  assert.deepEqual(reasoningAffordances(orientation, { limit: 0 }), []);
+  assert.deepEqual(novelGenerationAffordances(orientation, { limit: 0 }), []);
 });
 
 test("recursive reader preserves stance state incrementally", () => {
