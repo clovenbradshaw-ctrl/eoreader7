@@ -123,7 +123,11 @@ for (const edge of edges) {
   }
 }
 
-const kinds = projectKinds(evidence);
+// This probe intentionally exercises the pre-basin single-selector control.
+// Ordinary EOReader7 reading leaves this admission path disabled. Keeping the
+// diagnostic lets us compare the historical statistic without mistaking it for
+// canonical Kind ontology.
+const kinds = projectKinds(evidence, { legacySelectorAdmission: true });
 const earned = kinds.filter((kind) => kind.standing === "earned_invariant");
 const refById = new Map(refs.map((ref) => [ref.id, ref]));
 const describe = (id) => ({ id, surfaces: refById.get(id)?.surfaces ?? [] });
@@ -139,7 +143,9 @@ const samples = earned.map((kind) => ({
 }));
 
 console.log(JSON.stringify({
-  schema: "EOFrankensteinKindProbe@1",
+  schema: "EOFrankensteinLegacySelectorDiagnostic@1",
+  canonicalKindMechanism: "interaction_affinity_basin_with_prospective_admission",
+  legacySelectorAdmission: true,
   encounters: encounters.length,
   graphRelations: edges.length,
   bindings: bindings.length,
@@ -148,6 +154,6 @@ console.log(JSON.stringify({
   entitiesAtDepth2: [...participationCount.values()].filter((count) => count >= 2).length,
   entitiesAtDepth4: [...participationCount.values()].filter((count) => count >= 4).length,
   entitiesAtDepth8: [...participationCount.values()].filter((count) => count >= 8).length,
-  earnedKinds: earned.length,
+  diagnosticKinds: earned.length,
   samples,
 }, null, 2));
