@@ -84,6 +84,25 @@ export async function reviseTextFold({ observations = [], fold = {}, graph = nul
     identitySupports.push(...identity.supports);
     identityAttacks.push(...identity.attacks);
 
+    // Pronoun resolution is an interpretation conditioned by the prior Fold,
+    // not part of the raw relation witness. Perception may nominate it, but it
+    // enters Fold explicitly as a provisional CON object so later reasoning can
+    // revise the binding without rewriting the witnessed edge.
+    for (const distinction of observation?.distinctions ?? []) {
+      const binding = distinction?.kind === "pronoun_binding" ? distinction.binding : null;
+      if (binding?.schema !== "EOPronounBinding@1" || !binding.id || known.has(binding.id)) continue;
+      known.add(binding.id);
+      operations.push(eoOperation({
+        op: "CON",
+        grain: "Figure",
+        witness: witnessRef,
+        inputs: [binding.occurrence, binding.referent].filter(Boolean),
+        outputs: [binding.id],
+        consequence: { kind: "pronoun_binding_projected", occurrence: binding.occurrence, referent: binding.referent },
+        payload: { action: "provisional", value: binding },
+      }));
+    }
+
     for (const occurrence of directDescriptorOccurrences(observation?.witness, { encounterRef })) admitOccurrence(occurrence, witnessRef);
 
     const discourse = appositionalDescriptorBindings(observation?.witness, { encounterRef, witness: witnessRef });
@@ -102,8 +121,6 @@ export async function reviseTextFold({ observations = [], fold = {}, graph = nul
       currentGraphEntries.push(edge);
       if (edge.id) currentEdgeIds.add(edge.id);
       for (const participant of edge.participants ?? []) {
-        // Relation extraction is another view of the same witnessed encounter,
-        // not a second encounter for identity recurrence.
         admitOccurrence(descriptorOccurrence(participant, { encounterRef, edge }), witnessRef);
       }
       if (!edge.id || known.has(edge.id)) continue;
@@ -139,10 +156,6 @@ export async function reviseTextFold({ observations = [], fold = {}, graph = nul
       }));
     }
 
-    // Re-test materiality only when the hypothesis causally changed now: a new
-    // occurrence joined it or a newly witnessed relation is attributed through
-    // it. This preserves recursive eligibility without periodically rescanning
-    // every dormant hypothesis in the book.
     const changedNow = isNew
       || (hypothesis.occurrenceRefs ?? []).some((id) => newOccurrenceIds.has(id))
       || (hypothesis.relationContexts ?? []).some((context) => currentEdgeIds.has(context?.edge));
