@@ -2,7 +2,7 @@ import fs from "fs";
 import { stripContainer } from "../adapters/text/spans.js";
 import { createCausalTextPerceiver, textEncounters } from "../adapters/text/recursive.js";
 import { reviseTextFold } from "../adapters/text/revision.js";
-import { createRecursiveReader } from "../../kernel.js";
+import { createRecursiveReader, deriveOrientation, reasoningAffordances, novelGenerationAffordances } from "../../kernel.js";
 
 const path = process.argv[2];
 if (!path) throw new TypeError("usage: node native/eval/frankenstein.mjs <pg84.txt>");
@@ -68,6 +68,18 @@ const hlCandidates = hlAffordances.filter((item) => item?.standing === "candidat
 const hlGiven = hlAffordances.filter((item) => item?.standing === "given");
 const compositionDiagnostics = reading.compositionDiagnostics ?? {};
 const liveTerrainCounts = Object.fromEntries(Object.entries(reading.terrainState ?? {}).map(([terrain, values]) => [terrain, values?.length ?? 0]));
+const liveStanceCounts = Object.fromEntries(Object.entries(reading.stanceState ?? {}).map(([stance, values]) => [stance, values?.length ?? 0]));
+const finalOrientation = deriveOrientation(reading.fold, { terrainState: reading.terrainState, stanceState: reading.stanceState });
+const reasoningMoves = reasoningAffordances(finalOrientation);
+const novelMoves = novelGenerationAffordances(finalOrientation);
+const reasoningByMove = {};
+const reasoningByTerrain = {};
+for (const move of reasoningMoves) {
+  reasoningByMove[move.move] = (reasoningByMove[move.move] ?? 0) + 1;
+  reasoningByTerrain[move.address.terrain] = (reasoningByTerrain[move.address.terrain] ?? 0) + 1;
+}
+const novelByTerrain = {};
+for (const move of novelMoves) novelByTerrain[move.address.terrain] = (novelByTerrain[move.address.terrain] ?? 0) + 1;
 
 const requiredCharacters = ["Frankenstein", "Elizabeth", "Clerval", "Walton"];
 const targetDescriptors = ["the creature", "the monster", "the fiend", "the wretch", "my father", "the hut", "the chamber", "this place"];
@@ -114,7 +126,7 @@ const continuationDiagnostics = wretchMonsterClusters.map((ref) => {
 });
 
 const metrics = {
-  schema: "EOFrankensteinRecursiveReadingEval@8",
+  schema: "EOFrankensteinRecursiveReadingEval@9",
   sourceCharacters: source.length,
   bodyCharacters: stripped.text.length,
   encounters: encounters.length,
@@ -137,6 +149,20 @@ const metrics = {
   transformations: reading.fold.transformationObjects?.length ?? 0,
   surpriseTurns: surpriseTurns.length,
   terrainState: liveTerrainCounts,
+  stanceState: liveStanceCounts,
+  reasoning: {
+    affordances: reasoningMoves.length,
+    byMove: reasoningByMove,
+    byTerrain: reasoningByTerrain,
+    withStanceContinuity: reasoningMoves.filter((move) => move.stanceContinuity).length,
+    addresses: reasoningMoves.map((move) => ({ move: move.move, terrain: move.address.terrain, stance: move.address.stance, continuity: move.stanceContinuity })),
+  },
+  novelGeneration: {
+    affordances: novelMoves.length,
+    byTerrain: novelByTerrain,
+    withStanceContinuity: novelMoves.filter((move) => move.stanceContinuity).length,
+    addresses: novelMoves.map((move) => ({ terrain: move.address.terrain, stance: move.address.stance, continuity: move.stanceContinuity, admission: move.admission })),
+  },
   relationPrior: {
     schema: relationPosPrior.schema,
     language: relationPosPrior.language,
