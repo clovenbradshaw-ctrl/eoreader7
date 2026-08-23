@@ -150,6 +150,25 @@ export function createRelationCompositionLedger(entries = []) {
   };
   ingest(entries);
 
+  const chainExample = (id) => {
+    const chain = chainsById.get(id);
+    if (!chain) return null;
+    return freeze({
+      from: chain.from,
+      bridge: chain.bridge,
+      to: chain.to,
+      leftEdge: chain.leftEdge.id,
+      rightEdge: chain.rightEdge.id,
+      leftWitness: chain.leftEdge.witness ?? null,
+      rightWitness: chain.rightEdge.witness ?? null,
+      leftSequence: positionOf(chain.leftEdge),
+      rightSequence: positionOf(chain.rightEdge),
+      leftParticipants: freeze((chain.leftEdge.participants ?? []).map((p) => freeze({ role: p.role, ref: p.ref, surface: p.surface ?? null, standing: p.standing ?? null }))),
+      rightParticipants: freeze((chain.rightEdge.participants ?? []).map((p) => freeze({ role: p.role, ref: p.ref, surface: p.surface ?? null, standing: p.standing ?? null }))),
+      attention: freeze({ left: chain.leftEdge.meta?.attention ?? null, right: chain.rightEdge.meta?.attention ?? null }),
+    });
+  };
+
   return {
     ingest,
     chains: () => freeze([...chainsById.values()]),
@@ -168,8 +187,12 @@ export function createRelationCompositionLedger(entries = []) {
       }))),
     evaluate: (hyperlexicon = null) => evaluateChains([...chainsById.values()], hyperlexicon),
     diagnostics: () => {
-      const pairs = [...pairSupport.values()].map((item) => freeze({ left: item.left, right: item.right, support: item.chainIds.size }))
-        .sort((a, b) => b.support - a.support || String(a.left).localeCompare(String(b.left)) || String(a.right).localeCompare(String(b.right)));
+      const pairs = [...pairSupport.values()].map((item) => freeze({
+        left: item.left,
+        right: item.right,
+        support: item.chainIds.size,
+        examples: freeze([...item.chainIds].slice(0, 5).map(chainExample).filter(Boolean)),
+      })).sort((a, b) => b.support - a.support || String(a.left).localeCompare(String(b.left)) || String(a.right).localeCompare(String(b.right)));
       const fullyReferentResolvedEdges = [...activeEdges.values()].filter((item) => item.subject.standing === "referent" && item.object.standing === "referent").length;
       const bridgeEligibleEdges = [...activeEdges.values()].filter((item) => item.subject.standing === "referent" || item.object.standing === "referent").length;
       const compositionEligibleEdges = [...activeEdges.values()].filter((item) => predicateEligible(item.edge)).length;
