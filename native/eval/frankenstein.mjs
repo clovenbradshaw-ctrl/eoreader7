@@ -11,7 +11,11 @@ const stripped = stripContainer(source);
 if (!stripped.looks_like_material) throw new Error("Frankenstein input does not look like readable material");
 
 const encounters = textEncounters(stripped.text, { source: "gutenberg:84", offset: stripped.offset });
-const perceiver = createCausalTextPerceiver({ minRelationSurfaces: 2, refreshEvery: 25 });
+const perceiver = createCausalTextPerceiver({
+  minRelationSurfaces: 2,
+  refreshEvery: 25,
+  pronounResolution: { minActivation: 0.05, minMargin: 0.2 },
+});
 const reader = createRecursiveReader({
   perceivers: [perceiver],
   adapters: {
@@ -19,13 +23,8 @@ const reader = createRecursiveReader({
     retrieve: (_fold, evidence) => Object.freeze({
       schema: "EORelevantFold@1",
       witnessed: Object.freeze([...evidence]),
-      provisional: Object.freeze([]),
-      expectations: Object.freeze([]),
-      obligations: Object.freeze([]),
-      exclusions: Object.freeze([]),
-      unresolvedAlternatives: Object.freeze([]),
-      activeFrames: Object.freeze([]),
-      receivedPriors: Object.freeze([]),
+      provisional: Object.freeze([]), expectations: Object.freeze([]), obligations: Object.freeze([]), exclusions: Object.freeze([]),
+      unresolvedAlternatives: Object.freeze([]), activeFrames: Object.freeze([]), receivedPriors: Object.freeze([]),
     }),
   },
 });
@@ -36,6 +35,7 @@ const referents = entries.filter((entry) => entry?.schema === "EOReferent@1");
 const discourseReferents = referents.filter((entry) => entry?.provenance?.giver === "text/discourse-referents::projectDiscourseReferents");
 const namedReferents = referents.filter((entry) => !entry?.provenance?.giver?.startsWith("text/discourse-referents"));
 const edges = entries.filter((entry) => entry?.schema === "EOHyperedge@1");
+const pronounBindings = entries.filter((entry) => entry?.schema === "EOPronounBinding@1");
 const descriptorOccurrences = entries.filter((entry) => entry?.schema === "EOReferentOccurrence@1");
 const taskConditionedOccurrences = entries.filter((entry) => entry?.schema === "EOTaskTargetOccurrence@1");
 const identityHypotheses = entries.filter((entry) => entry?.schema === "EOIdentityHypothesis@1");
@@ -74,16 +74,10 @@ const wretchMonsterClusters = discourseReferents.filter((ref) => {
 });
 const creaturePulledIntoWretchMonster = wretchMonsterClusters.some((ref) => (ref.surfaces ?? []).map((x) => String(x).toLowerCase()).includes("the creature"));
 const wrapperPollution = [...referentSurfaces].filter((surface) => /project gutenberg|gutenberg ebook|www\.gutenberg/.test(surface));
-
-const topDiscourseReferents = discourseReferents.slice(0, 30).map((ref) => ({
-  id: ref.id,
-  surfaces: ref.surfaces,
-  occurrenceCount: ref.occurrenceRefs?.length ?? 0,
-  supportCount: ref.supportRefs?.length ?? 0,
-}));
+const topDiscourseReferents = discourseReferents.slice(0, 30).map((ref) => ({ id: ref.id, surfaces: ref.surfaces, occurrenceCount: ref.occurrenceRefs?.length ?? 0, supportCount: ref.supportRefs?.length ?? 0 }));
 
 const metrics = {
-  schema: "EOFrankensteinRecursiveReadingEval@3",
+  schema: "EOFrankensteinRecursiveReadingEval@4",
   sourceCharacters: source.length,
   bodyCharacters: stripped.text.length,
   encounters: encounters.length,
@@ -91,6 +85,7 @@ const metrics = {
   referents: referents.length,
   namedReferents: namedReferents.length,
   discourseReferents: discourseReferents.length,
+  pronounBindings: pronounBindings.length,
   descriptorOccurrences: descriptorOccurrences.length,
   descriptorHypotheses: identityHypotheses.length,
   discourseLinks: discourseLinks.length,
@@ -117,7 +112,10 @@ const metrics = {
     given: hlGiven.length,
     withheldCompositions: withheldCompositions.length,
     licensedCompositions: licensedCompositions.length,
+    relationEdges: compositionDiagnostics.relationEdges ?? 0,
+    referentBindings: compositionDiagnostics.referentBindings ?? 0,
     witnessedEdges: compositionDiagnostics.witnessedEdges ?? 0,
+    unresolvedEdges: compositionDiagnostics.unresolvedEdges ?? 0,
     chainSites: compositionDiagnostics.chainSites ?? 0,
     pairTypes: compositionDiagnostics.pairTypes ?? 0,
     repeatedPairTypes: compositionDiagnostics.repeatedPairTypes ?? 0,
@@ -149,3 +147,4 @@ if (wretchMonsterClusters.length < 1) throw new Error("explicit wretch/monster a
 if (creaturePulledIntoWretchMonster) throw new Error("surface-global collapse pulled a distinct creature occurrence into the wretch/monster cluster");
 if (reading.log.length < encounters.length * 2) throw new Error("append-only reading log is unexpectedly sparse");
 if (materialObligations.some((item) => item?.distinction?.materiality?.makesDifference !== true)) throw new Error("active material obligation lacks an explicit difference-that-makes-a-difference basis");
+if (compositionDiagnostics.relationEdges !== edges.length) throw new Error("composition ledger did not retain all raw witnessed relations");
