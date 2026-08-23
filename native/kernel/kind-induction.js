@@ -72,16 +72,7 @@ function ingestFeature(index, entry) {
   const entity = ensureEntity(index, entry.entityRef);
   let record = entity.get(signature);
   if (!record) {
-    record = {
-      signature,
-      featureKey: entry.featureKey,
-      featureValue: entry.featureValue,
-      firstAt: at,
-      lastAt: at,
-      evidenceIds: new Set(),
-      witnessRefs: new Set(),
-      modalities: new Set(),
-    };
+    record = { signature, featureKey: entry.featureKey, featureValue: entry.featureValue, firstAt: at, lastAt: at, evidenceIds: new Set(), witnessRefs: new Set(), modalities: new Set() };
     entity.set(signature, record);
   }
   record.firstAt = Math.min(record.firstAt, at);
@@ -89,7 +80,6 @@ function ingestFeature(index, entry) {
   record.evidenceIds.add(entry.id);
   for (const ref of witnessRefsOf(entry)) record.witnessRefs.add(ref);
   if (entry?.provenance?.modality) record.modalities.add(entry.provenance.modality);
-
   if (!index.entitiesByFeature.has(signature)) index.entitiesByFeature.set(signature, new Map());
   index.entitiesByFeature.get(signature).set(entry.entityRef, record);
   const latest = index.latestAtByEntity.get(entry.entityRef);
@@ -108,40 +98,11 @@ function ingestExplicit(index, entry) {
   return true;
 }
 
-export function kindEvidence({
-  id,
-  entityRef,
-  evidenceType = "structural_feature",
-  featureKey = null,
-  featureValue = undefined,
-  kindKey = null,
-  kindSurface = null,
-  sequencePosition = null,
-  witness = null,
-  witnessRefs = [],
-  anchor = null,
-  provenance = {},
-} = {}) {
+export function kindEvidence({ id, entityRef, evidenceType = "structural_feature", featureKey = null, featureValue = undefined, kindKey = null, kindSurface = null, sequencePosition = null, witness = null, witnessRefs = [], anchor = null, provenance = {} } = {}) {
   if (!id || !entityRef) throw new TypeError("kindEvidence requires id and entityRef");
   if (evidenceType === "explicit_classification" && !kindKey) throw new TypeError("explicit classification requires kindKey");
   if (evidenceType === "structural_feature" && !featureKey) throw new TypeError("structural feature evidence requires featureKey");
-  return freeze({
-    schema: "EOKindEvidence@1",
-    id,
-    entityRef,
-    evidenceType,
-    featureKey,
-    featureValue,
-    kindKey,
-    kindSurface,
-    sequencePosition,
-    standing: "witnessed_evidence",
-    witnessed: true,
-    witness,
-    witnessRefs: freeze([...new Set(witnessRefsOf({ witness, witnessRefs }))]),
-    anchor: anchor ? freeze({ ...anchor }) : null,
-    provenance: freeze({ ...provenance }),
-  });
+  return freeze({ schema: "EOKindEvidence@1", id, entityRef, evidenceType, featureKey, featureValue, kindKey, kindSurface, sequencePosition, standing: "witnessed_evidence", witnessed: true, witness, witnessRefs: freeze([...new Set(witnessRefsOf({ witness, witnessRefs }))]), anchor: anchor ? freeze({ ...anchor }) : null, provenance: freeze({ ...provenance }) });
 }
 
 function graphDescriptorEvidence(descriptor) {
@@ -167,23 +128,11 @@ export function createKindInductionIndex(entries = [], options = {}) {
       populationMinAffinity: options.populationMinAffinity ?? 0.12,
       populationNeighborCount: options.populationNeighborCount,
     }),
-    evidenceById: new Map(),
-    explicitByKind: new Map(),
-    entityFeatures: new Map(),
-    entitiesByFeature: new Map(),
-    latestAtByEntity: new Map(),
-    receivedProjectionByKind: new Map(),
-    receivedDirtyKinds: new Set(),
-    earnedProjections: freeze([]),
-    populationKindCandidates: freeze([]),
+    evidenceById: new Map(), explicitByKind: new Map(), entityFeatures: new Map(), entitiesByFeature: new Map(), latestAtByEntity: new Map(),
+    receivedProjectionByKind: new Map(), receivedDirtyKinds: new Set(), earnedProjections: freeze([]), populationKindCandidates: freeze([]),
     populationKindDiagnostics: freeze({ entities: 0, parameters: 0, basins: 0, clusters: 0, validated: 0 }),
-    basinFormations: new Map(),
-    basinEarnedByKey: new Map(),
-    earnedDiagnostics: freeze({ selectorNominations: 0, basinNominations: 0, basinFormations: 0, basinEarnedKinds: 0, earnedKinds: 0, withheldNoHoldout: 0, withheldNoConsequence: 0, basinWithheldNoFuture: 0, basinWithheldNoConsequence: 0 }),
-    graphStructure: createKindGraphStructureLedger({ depthThresholds: options.depthThresholds }),
-    structuralDirty: false,
-    snapshot: null,
-    diagnostics: null,
+    earnedDiagnostics: freeze({ selectorNominations: 0, earnedKinds: 0, withheldNoHoldout: 0, withheldNoConsequence: 0 }),
+    graphStructure: createKindGraphStructureLedger({ depthThresholds: options.depthThresholds }), structuralDirty: false, snapshot: null, diagnostics: null,
   };
   indexKindEntries(index, entries);
   return index;
@@ -191,11 +140,7 @@ export function createKindInductionIndex(entries = [], options = {}) {
 
 function ingestKindEvidence(index, entry) {
   if (entry?.schema !== "EOKindEvidence@1" || !entry.id || index.evidenceById.has(entry.id)) return false;
-  const accepted = entry.evidenceType === "explicit_classification"
-    ? ingestExplicit(index, entry)
-    : entry.evidenceType === "structural_feature"
-      ? ingestFeature(index, entry)
-      : false;
+  const accepted = entry.evidenceType === "explicit_classification" ? ingestExplicit(index, entry) : entry.evidenceType === "structural_feature" ? ingestFeature(index, entry) : false;
   if (!accepted) return false;
   index.evidenceById.set(entry.id, entry);
   return true;
@@ -225,20 +170,7 @@ function receivedKindProjection(index, kindKey) {
   const evidenceRefs = evidence.map((entry) => entry.id).sort();
   const witnessRefs = [...new Set(evidence.flatMap(witnessRefsOf))].sort();
   const modalities = [...new Set(evidence.map((entry) => entry?.provenance?.modality).filter(Boolean))].sort();
-  return freeze({
-    schema: "EOKindProjection@1",
-    id: `terrain:kind:received:${stableHash(`${kindKey}|${evidenceRefs.join("|")}`)}`,
-    terrain: "Kind",
-    kindKey,
-    kindSurface: evidence.find((entry) => entry.kindSurface)?.kindSurface ?? null,
-    standing: "received_explicit_classification",
-    witnessed: false,
-    memberRefs: freeze(memberRefs),
-    evidenceRefs: freeze(evidenceRefs),
-    witnessRefs: freeze(witnessRefs),
-    modalities: freeze(modalities),
-    basis: "explicit_classification_evidence",
-  });
+  return freeze({ schema: "EOKindProjection@1", id: `terrain:kind:received:${stableHash(`${kindKey}|${evidenceRefs.join("|")}`)}`, terrain: "Kind", kindKey, kindSurface: evidence.find((entry) => entry.kindSurface)?.kindSurface ?? null, standing: "received_explicit_classification", witnessed: false, memberRefs: freeze(memberRefs), evidenceRefs: freeze(evidenceRefs), witnessRefs: freeze(witnessRefs), modalities: freeze(modalities), basis: "explicit_classification_evidence" });
 }
 
 function refreshReceivedKinds(index) {
@@ -251,54 +183,38 @@ function refreshReceivedKinds(index) {
   index.receivedDirtyKinds.clear();
 }
 
-function consequenceRecord(index, entityRef, signature) {
-  return index.entityFeatures.get(entityRef)?.get(signature) ?? null;
-}
-
-function futureObserved(index, entityRef, after) {
-  return (index.latestAtByEntity.get(entityRef) ?? -Infinity) > after;
-}
+function consequenceRecord(index, entityRef, signature) { return index.entityFeatures.get(entityRef)?.get(signature) ?? null; }
+function futureObserved(index, entityRef, after) { return (index.latestAtByEntity.get(entityRef) ?? -Infinity) > after; }
 
 function earnedKindProjection(index, selectorSignature, selectorMembers, population, diagnostics) {
   const { minMembers, minFitMembers, minConsequenceSupport, minEffect, alpha } = index.options;
   if (selectorMembers.size < minMembers || selectorMembers.size <= minFitMembers) return null;
-  const ordered = [...selectorMembers.entries()]
-    .sort((a, b) => a[1].firstAt - b[1].firstAt || a[0].localeCompare(b[0]));
+  const ordered = [...selectorMembers.entries()].sort((a, b) => a[1].firstAt - b[1].firstAt || a[0].localeCompare(b[0]));
   const formedAt = ordered[minFitMembers - 1][1].firstAt;
   const fitMemberRefs = ordered.slice(0, minFitMembers).map(([entityRef]) => entityRef);
-  const holdoutMemberRefs = ordered.slice(minFitMembers)
-    .filter(([, record]) => record.firstAt > formedAt)
-    .map(([entityRef]) => entityRef);
-  if (!holdoutMemberRefs.length) {
-    diagnostics.withheldNoHoldout += 1;
-    return null;
-  }
+  const holdoutMemberRefs = ordered.slice(minFitMembers).filter(([, record]) => record.firstAt > formedAt).map(([entityRef]) => entityRef);
+  if (!holdoutMemberRefs.length) { diagnostics.withheldNoHoldout += 1; return null; }
 
   const memberRefs = new Set(ordered.map(([entityRef]) => entityRef));
   const candidateConsequences = new Set();
   for (const entityRef of memberRefs) {
     const selector = selectorMembers.get(entityRef);
     for (const [signature, record] of index.entityFeatures.get(entityRef) ?? []) {
-      if (signature === selectorSignature) continue;
-      if (record.firstAt > Math.max(formedAt, selector.firstAt)) candidateConsequences.add(signature);
+      if (signature !== selectorSignature && record.firstAt > Math.max(formedAt, selector.firstAt)) candidateConsequences.add(signature);
     }
   }
 
   let best = null;
   for (const consequenceSignature of candidateConsequences) {
     const evaluableMembers = [...memberRefs].filter((entityRef) => futureObserved(index, entityRef, Math.max(formedAt, selectorMembers.get(entityRef).firstAt)));
-    const nonMemberRefs = [...population].filter((entityRef) => !memberRefs.has(entityRef));
-    const evaluableNonMembers = nonMemberRefs.filter((entityRef) => futureObserved(index, entityRef, formedAt));
+    const evaluableNonMembers = [...population].filter((entityRef) => !memberRefs.has(entityRef) && futureObserved(index, entityRef, formedAt));
     if (evaluableMembers.length < minMembers || evaluableNonMembers.length < 1) continue;
-
     const supportingMembers = evaluableMembers.filter((entityRef) => {
-      const selector = selectorMembers.get(entityRef);
       const consequence = consequenceRecord(index, entityRef, consequenceSignature);
-      return consequence && consequence.firstAt > Math.max(formedAt, selector.firstAt);
+      return consequence && consequence.firstAt > Math.max(formedAt, selectorMembers.get(entityRef).firstAt);
     });
     const holdoutSupport = holdoutMemberRefs.filter((entityRef) => supportingMembers.includes(entityRef));
     if (supportingMembers.length < minConsequenceSupport || holdoutSupport.length < 1) continue;
-
     const supportingNonMembers = evaluableNonMembers.filter((entityRef) => {
       const consequence = consequenceRecord(index, entityRef, consequenceSignature);
       return consequence && consequence.firstAt > formedAt;
@@ -307,35 +223,13 @@ function earnedKindProjection(index, selectorSignature, selectorMembers, populat
     const nonMemberRate = supportingNonMembers.length / evaluableNonMembers.length;
     const effect = memberRate - nonMemberRate;
     if (effect < minEffect) continue;
-
-    const N = evaluableMembers.length + evaluableNonMembers.length;
-    const K = supportingMembers.length + supportingNonMembers.length;
-    const n = evaluableMembers.length;
-    const k = supportingMembers.length;
-    const pValue = hypergeometricUpperTail(N, K, n, k);
+    const pValue = hypergeometricUpperTail(evaluableMembers.length + evaluableNonMembers.length, supportingMembers.length + supportingNonMembers.length, evaluableMembers.length, supportingMembers.length);
     if (pValue > alpha) continue;
-
     const consequenceExample = consequenceRecord(index, supportingMembers[0], consequenceSignature);
-    const result = {
-      consequenceSignature,
-      consequence: freeze({ key: consequenceExample.featureKey, value: consequenceExample.featureValue, signature: consequenceSignature }),
-      evaluableMembers,
-      evaluableNonMembers,
-      supportingMembers,
-      supportingNonMembers,
-      holdoutSupport,
-      memberRate,
-      nonMemberRate,
-      effect,
-      pValue,
-    };
+    const result = { consequenceSignature, consequence: freeze({ key: consequenceExample.featureKey, value: consequenceExample.featureValue, signature: consequenceSignature }), evaluableMembers, evaluableNonMembers, supportingMembers, supportingNonMembers, holdoutSupport, memberRate, nonMemberRate, effect, pValue };
     if (!best || result.pValue < best.pValue || (result.pValue === best.pValue && result.effect > best.effect)) best = result;
   }
-
-  if (!best) {
-    diagnostics.withheldNoConsequence += 1;
-    return null;
-  }
+  if (!best) { diagnostics.withheldNoConsequence += 1; return null; }
 
   const selectorExample = ordered[0][1];
   const selectorEvidenceRefs = [...memberRefs].flatMap((entityRef) => [...(selectorMembers.get(entityRef)?.evidenceIds ?? [])]);
@@ -345,180 +239,12 @@ function earnedKindProjection(index, selectorSignature, selectorMembers, populat
   const modalities = [...new Set(evidenceRefs.map((id) => index.evidenceById.get(id)?.provenance?.modality).filter(Boolean))].sort();
   const selector = freeze({ key: selectorExample.featureKey, value: selectorExample.featureValue, signature: selectorSignature });
   const kindKey = `kind:induced:${stableHash(selectorSignature)}`;
-
   return freeze({
-    schema: "EOKindProjection@1",
-    id: `terrain:kind:earned:${stableHash(`${selectorSignature}|${best.consequenceSignature}|${formedAt}`)}`,
-    terrain: "Kind",
-    kindKey,
-    standing: "earned_invariant",
-    witnessed: false,
-    selector,
-    memberRefs: freeze([...memberRefs].sort()),
-    fitMemberRefs: freeze([...fitMemberRefs].sort()),
-    holdoutMemberRefs: freeze([...holdoutMemberRefs].sort()),
-    consequence: best.consequence,
-    evidenceRefs: freeze(evidenceRefs),
-    witnessRefs: freeze(witnessRefs),
-    modalities: freeze(modalities),
-    materiality: freeze({
-      makesDifference: true,
-      reasons: freeze([freeze({ kind: "held_out_consequence_differential", consequence: best.consequenceSignature, effect: best.effect, pValue: best.pValue })]),
-    }),
-    validation: freeze({
-      method: "temporal_holdout_hypergeometric",
-      formedAt,
-      fitMemberRefs: freeze([...fitMemberRefs].sort()),
-      holdoutMemberRefs: freeze([...holdoutMemberRefs].sort()),
-      holdoutSupportRefs: freeze([...best.holdoutSupport].sort()),
-      evaluableMemberCount: best.evaluableMembers.length,
-      evaluableNonMemberCount: best.evaluableNonMembers.length,
-      supportingMemberCount: best.supportingMembers.length,
-      supportingNonMemberCount: best.supportingNonMembers.length,
-      memberRate: best.memberRate,
-      nonMemberRate: best.nonMemberRate,
-      effect: best.effect,
-      pValue: best.pValue,
-      alpha,
-    }),
+    schema: "EOKindProjection@1", id: `terrain:kind:earned:${stableHash(`${selectorSignature}|${best.consequenceSignature}|${formedAt}`)}`, terrain: "Kind", kindKey, standing: "earned_invariant", witnessed: false, selector,
+    memberRefs: freeze([...memberRefs].sort()), fitMemberRefs: freeze([...fitMemberRefs].sort()), holdoutMemberRefs: freeze([...holdoutMemberRefs].sort()), consequence: best.consequence, evidenceRefs: freeze(evidenceRefs), witnessRefs: freeze(witnessRefs), modalities: freeze(modalities),
+    materiality: freeze({ makesDifference: true, reasons: freeze([freeze({ kind: "held_out_consequence_differential", consequence: best.consequenceSignature, effect: best.effect, pValue: best.pValue })]) }),
+    validation: freeze({ method: "temporal_holdout_hypergeometric", formedAt, fitMemberRefs: freeze([...fitMemberRefs].sort()), holdoutMemberRefs: freeze([...holdoutMemberRefs].sort()), holdoutSupportRefs: freeze([...best.holdoutSupport].sort()), evaluableMemberCount: best.evaluableMembers.length, evaluableNonMemberCount: best.evaluableNonMembers.length, supportingMemberCount: best.supportingMembers.length, supportingNonMemberCount: best.supportingNonMembers.length, memberRate: best.memberRate, nonMemberRate: best.nonMemberRate, effect: best.effect, pValue: best.pValue, alpha }),
     basis: "shared_entity_structure_with_held_out_consequence",
-  });
-}
-
-function currentFormationAt(index, candidate) {
-  let at = -Infinity;
-  for (const memberRef of candidate.memberRefs ?? []) {
-    const latest = index.latestAtByEntity.get(memberRef);
-    if (Number.isFinite(latest)) at = Math.max(at, latest);
-  }
-  return Number.isFinite(at) ? at : null;
-}
-
-function rememberStableBasins(index) {
-  for (const candidate of index.populationKindCandidates ?? []) {
-    if (candidate?.mechanism !== "interaction_affinity_basin" || candidate?.field?.stable !== true) continue;
-    if (candidate.memberCount < index.options.minMembers || index.basinFormations.has(candidate.kindKey)) continue;
-    const formedAt = currentFormationAt(index, candidate);
-    if (formedAt === null) continue;
-    index.basinFormations.set(candidate.kindKey, freeze({
-      schema: "EOKindBasinFormation@1",
-      id: `kind-basin-formation:${stableHash(`${candidate.kindKey}|${formedAt}`)}`,
-      kindKey: candidate.kindKey,
-      formedAt,
-      memberRefs: freeze([...(candidate.memberRefs ?? [])].sort()),
-      structuralSignatures: freeze([...(candidate.structuralSignatures ?? [])].sort()),
-      evidenceRefs: freeze([...(candidate.evidenceRefs ?? [])]),
-      witnessRefs: freeze([...(candidate.witnessRefs ?? [])]),
-      field: candidate.field,
-      standing: "stable_basin_hypothesis",
-      witnessed: false,
-      admissible: false,
-    }));
-  }
-}
-
-function basinKindProjection(index, formation, population, diagnostics) {
-  const { minMembers, minConsequenceSupport, minEffect, alpha } = index.options;
-  const memberRefs = new Set(formation.memberRefs ?? []);
-  const evaluableMembers = [...memberRefs].filter((entityRef) => futureObserved(index, entityRef, formation.formedAt));
-  const evaluableNonMembers = [...population].filter((entityRef) => !memberRefs.has(entityRef) && futureObserved(index, entityRef, formation.formedAt));
-  if (evaluableMembers.length < minMembers || evaluableNonMembers.length < 1) {
-    diagnostics.basinWithheldNoFuture += 1;
-    return null;
-  }
-
-  const formationSignatures = new Set(formation.structuralSignatures ?? []);
-  const candidateConsequences = new Set();
-  for (const entityRef of evaluableMembers) {
-    for (const [signature, record] of index.entityFeatures.get(entityRef) ?? []) {
-      if (formationSignatures.has(signature)) continue;
-      if (record.firstAt > formation.formedAt) candidateConsequences.add(signature);
-    }
-  }
-
-  let best = null;
-  for (const consequenceSignature of candidateConsequences) {
-    const supportingMembers = evaluableMembers.filter((entityRef) => {
-      const record = consequenceRecord(index, entityRef, consequenceSignature);
-      return record && record.firstAt > formation.formedAt;
-    });
-    if (supportingMembers.length < minConsequenceSupport) continue;
-    const supportingNonMembers = evaluableNonMembers.filter((entityRef) => {
-      const record = consequenceRecord(index, entityRef, consequenceSignature);
-      return record && record.firstAt > formation.formedAt;
-    });
-    const memberRate = supportingMembers.length / evaluableMembers.length;
-    const nonMemberRate = supportingNonMembers.length / evaluableNonMembers.length;
-    const effect = memberRate - nonMemberRate;
-    if (effect < minEffect) continue;
-    const N = evaluableMembers.length + evaluableNonMembers.length;
-    const K = supportingMembers.length + supportingNonMembers.length;
-    const n = evaluableMembers.length;
-    const k = supportingMembers.length;
-    const pValue = hypergeometricUpperTail(N, K, n, k);
-    if (pValue > alpha) continue;
-    const consequenceExample = consequenceRecord(index, supportingMembers[0], consequenceSignature);
-    const result = {
-      consequenceSignature,
-      consequence: freeze({ key: consequenceExample.featureKey, value: consequenceExample.featureValue, signature: consequenceSignature }),
-      supportingMembers,
-      supportingNonMembers,
-      memberRate,
-      nonMemberRate,
-      effect,
-      pValue,
-    };
-    if (!best || result.pValue < best.pValue || (result.pValue === best.pValue && result.effect > best.effect)) best = result;
-  }
-
-  if (!best) {
-    diagnostics.basinWithheldNoConsequence += 1;
-    return null;
-  }
-
-  const consequenceEvidenceRefs = best.supportingMembers.flatMap((entityRef) => [...(consequenceRecord(index, entityRef, best.consequenceSignature)?.evidenceIds ?? [])]);
-  const evidenceRefs = [...new Set([...(formation.evidenceRefs ?? []), ...consequenceEvidenceRefs])].sort();
-  const witnessRefs = [...new Set([...(formation.witnessRefs ?? []), ...evidenceRefs.flatMap((id) => witnessRefsOf(index.evidenceById.get(id)))])].sort();
-  const modalities = [...new Set(evidenceRefs.map((id) => index.evidenceById.get(id)?.provenance?.modality).filter(Boolean))].sort();
-  return freeze({
-    schema: "EOKindProjection@1",
-    id: `terrain:kind:basin-earned:${stableHash(`${formation.kindKey}|${best.consequenceSignature}|${formation.formedAt}`)}`,
-    terrain: "Kind",
-    kindKey: formation.kindKey,
-    standing: "earned_invariant",
-    witnessed: false,
-    mechanism: "interaction_affinity_basin",
-    memberRefs: freeze([...memberRefs].sort()),
-    structuralSignatures: freeze([...(formation.structuralSignatures ?? [])]),
-    consequence: best.consequence,
-    evidenceRefs: freeze(evidenceRefs),
-    witnessRefs: freeze(witnessRefs),
-    modalities: freeze(modalities),
-    field: formation.field,
-    materiality: freeze({
-      makesDifference: true,
-      reasons: freeze([freeze({
-        kind: "basin_counterfactual_consequence_gain",
-        counterfactual: "without_kind_basin_membership",
-        consequence: best.consequenceSignature,
-        effect: best.effect,
-        pValue: best.pValue,
-      })]),
-    }),
-    validation: freeze({
-      method: "frozen_basin_future_ablation_hypergeometric",
-      formedAt: formation.formedAt,
-      evaluableMemberCount: evaluableMembers.length,
-      evaluableNonMemberCount: evaluableNonMembers.length,
-      supportingMemberCount: best.supportingMembers.length,
-      supportingNonMemberCount: best.supportingNonMembers.length,
-      memberRate: best.memberRate,
-      nonMemberRate: best.nonMemberRate,
-      effect: best.effect,
-      pValue: best.pValue,
-      alpha,
-    }),
-    basis: "stable_relational_basin_with_future_consequence",
   });
 }
 
@@ -537,54 +263,23 @@ function refreshPopulationKindCandidates(index) {
   });
   index.populationKindCandidates = result.candidates;
   index.populationKindDiagnostics = result.diagnostics;
-  rememberStableBasins(index);
 }
 
 function refreshEarnedKinds(index) {
   if (!index.structuralDirty) return;
   refreshPopulationKindCandidates(index);
   const earned = [];
-  const diagnostics = {
-    selectorNominations: 0,
-    basinNominations: index.populationKindCandidates.length,
-    basinFormations: index.basinFormations.size,
-    basinEarnedKinds: index.basinEarnedByKey.size,
-    earnedKinds: 0,
-    withheldNoHoldout: 0,
-    withheldNoConsequence: 0,
-    basinWithheldNoFuture: 0,
-    basinWithheldNoConsequence: 0,
-  };
+  const diagnostics = { selectorNominations: 0, earnedKinds: 0, withheldNoHoldout: 0, withheldNoConsequence: 0 };
   const population = new Set(index.entityFeatures.keys());
-
-  // Compatibility path: a single recurrent structural distinction may still
-  // earn a Kind when it predicts a genuinely held-out consequence. This is a
-  // special case of the more general field/basin mechanism below.
   for (const [selectorSignature, members] of index.entitiesByFeature) {
     if (members.size < index.options.minMembers) continue;
     diagnostics.selectorNominations += 1;
     const projection = earnedKindProjection(index, selectorSignature, members, population, diagnostics);
     if (projection) earned.push(projection);
   }
-
-  // Physics/chemistry path: a basin is frozen when its mutual affinity first
-  // becomes statistically stable. Only observations strictly after formation
-  // may establish that treating the basin as a Kind changes lawful futures.
-  for (const formation of index.basinFormations.values()) {
-    let projection = index.basinEarnedByKey.get(formation.kindKey) ?? null;
-    if (!projection) {
-      projection = basinKindProjection(index, formation, population, diagnostics);
-      if (projection) index.basinEarnedByKey.set(formation.kindKey, projection);
-    }
-    if (projection) earned.push(projection);
-  }
-
-  const unique = new Map();
-  for (const projection of earned) if (!unique.has(projection.id)) unique.set(projection.id, projection);
-  const ordered = [...unique.values()].sort((a, b) => a.kindKey.localeCompare(b.kindKey) || a.id.localeCompare(b.id));
-  diagnostics.basinEarnedKinds = index.basinEarnedByKey.size;
-  diagnostics.earnedKinds = ordered.length;
-  index.earnedProjections = freeze(ordered);
+  earned.sort((a, b) => a.kindKey.localeCompare(b.kindKey));
+  diagnostics.earnedKinds = earned.length;
+  index.earnedProjections = freeze(earned);
   index.earnedDiagnostics = freeze({ ...diagnostics });
   index.structuralDirty = false;
 }
@@ -593,26 +288,16 @@ function computeSnapshot(index) {
   refreshReceivedKinds(index);
   refreshEarnedKinds(index);
   const received = [...index.receivedProjectionByKind.values()].sort((a, b) => a.kindKey.localeCompare(b.kindKey));
-  const diagnostics = {
+  index.diagnostics = freeze({
     explicitKinds: received.length,
     ...index.earnedDiagnostics,
     graphStructure: index.graphStructure.diagnostics(),
     populationKinds: index.populationKindDiagnostics,
     populationKindCandidates: freeze(index.populationKindCandidates.slice(0, 12).map((candidate) => freeze({
-      id: candidate.id,
-      kindKey: candidate.kindKey,
-      standing: candidate.standing,
-      mechanism: candidate.mechanism,
-      memberCount: candidate.memberCount,
-      memberRefs: candidate.memberRefs,
-      cohesion: candidate.cohesion,
-      bindingEnergy: candidate.field?.bindingEnergy ?? null,
-      cohesionPassed: candidate.cohesionNull?.passed ?? false,
-      fallbackNomination: candidate.fallbackNomination === true,
-      distinguishingParameters: candidate.distinguishingParameters,
+      id: candidate.id, kindKey: candidate.kindKey, standing: candidate.standing, mechanism: candidate.mechanism, memberCount: candidate.memberCount, memberRefs: candidate.memberRefs, cohesion: candidate.cohesion,
+      bindingEnergy: candidate.field?.bindingEnergy ?? null, cohesionPassed: candidate.cohesionNull?.passed ?? false, fallbackNomination: candidate.fallbackNomination === true, distinguishingParameters: candidate.distinguishingParameters,
     }))),
-  };
-  index.diagnostics = freeze({ ...diagnostics });
+  });
   index.snapshot = freeze([...received, ...index.earnedProjections]);
   return index.snapshot;
 }
@@ -622,11 +307,7 @@ export function snapshotKindState(index, { ids = null } = {}) {
   const snapshot = index.snapshot ?? computeSnapshot(index);
   if (!ids) return snapshot;
   const allowed = ids instanceof Set ? ids : new Set(ids);
-  return freeze(snapshot.filter((projection) =>
-    allowed.has(projection.id)
-    || allowed.has(projection.kindKey)
-    || (projection.memberRefs ?? []).some((id) => allowed.has(id))
-    || (projection.evidenceRefs ?? []).some((id) => allowed.has(id))));
+  return freeze(snapshot.filter((projection) => allowed.has(projection.id) || allowed.has(projection.kindKey) || (projection.memberRefs ?? []).some((id) => allowed.has(id)) || (projection.evidenceRefs ?? []).some((id) => allowed.has(id))));
 }
 
 export function kindDiagnostics(index) {
@@ -641,6 +322,4 @@ export function kindCandidates(index) {
   return index.populationKindCandidates;
 }
 
-export function projectKinds(entries = [], options = {}) {
-  return snapshotKindState(createKindInductionIndex(entries, options));
-}
+export function projectKinds(entries = [], options = {}) { return snapshotKindState(createKindInductionIndex(entries, options)); }
