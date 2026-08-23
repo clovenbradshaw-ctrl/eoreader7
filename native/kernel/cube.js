@@ -47,32 +47,16 @@ export const STANCE_BY_MODE = Object.freeze({
 const gap = (type, detail = {}) => Object.freeze({ gap: type, ...detail });
 
 export const cellOf = (op, grain) => {
-  if (!OP_MODE[op]) {
-    return gap("unknown_spec", {
-      reason: `no such operator: ${op}`,
-      known: Object.keys(OP_MODE),
-    });
-  }
-  if (!GRAINS.includes(grain)) {
-    return gap("unknown_spec", {
-      reason: `no such grain: ${grain}`,
-      known: GRAINS,
-    });
-  }
+  if (!OP_MODE[op]) return gap("unknown_spec", { reason: `no such operator: ${op}`, known: Object.keys(OP_MODE) });
+  if (!GRAINS.includes(grain)) return gap("unknown_spec", { reason: `no such grain: ${grain}`, known: GRAINS });
   const mode = OP_MODE[op];
   const domain = OP_DOMAIN[op];
-  return Object.freeze({
-    op,
-    grain,
-    mode,
-    domain,
-    terrain: TERRAIN_BY_DOMAIN[domain][grain],
-    stance: STANCE_BY_MODE[mode][grain],
-  });
+  return Object.freeze({ op, grain, mode, domain, terrain: TERRAIN_BY_DOMAIN[domain][grain], stance: STANCE_BY_MODE[mode][grain] });
 };
 
-export const cubeAddresses = () => Object.freeze(
-  Object.freeze(Object.keys(OP_MODE)).flatMap((op) =>
-    GRAINS.map((grain) => cellOf(op, grain)),
-  ),
+// Algebra enumeration groups by operator. This is useful for validating the
+// closed operator×grain algebra, but recursive interrogation uses a different,
+// semantically meaningful traversal order exposed as cubeAddresses().
+export const algebraAddresses = () => Object.freeze(
+  Object.keys(OP_MODE).flatMap((op) => GRAINS.map((grain) => cellOf(op, grain))),
 );
