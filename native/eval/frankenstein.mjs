@@ -38,6 +38,8 @@ const discourseReferents = referents.filter((entry) => entry?.provenance?.giver 
 const namedReferents = referents.filter((entry) => !entry?.provenance?.giver?.startsWith("text/discourse-referents"));
 const edges = entries.filter((entry) => entry?.schema === "EOHyperedge@1");
 const pronounBindings = entries.filter((entry) => entry?.schema === "EOPronounBinding@1");
+const definiteBindings = entries.filter((entry) => entry?.schema === "EODefiniteBinding@1");
+const occurrenceBindings = [...pronounBindings, ...definiteBindings];
 const descriptorOccurrences = entries.filter((entry) => entry?.schema === "EOReferentOccurrence@1");
 const taskConditionedOccurrences = entries.filter((entry) => entry?.schema === "EOTaskTargetOccurrence@1");
 const identityHypotheses = entries.filter((entry) => entry?.schema === "EOIdentityHypothesis@1");
@@ -80,7 +82,7 @@ const wrapperPollution = [...referentSurfaces].filter((surface) => /project gute
 const topDiscourseReferents = discourseReferents.slice(0, 30).map((ref) => ({ id: ref.id, surfaces: ref.surfaces, occurrenceCount: ref.occurrenceRefs?.length ?? 0, supportCount: ref.supportRefs?.length ?? 0 }));
 
 const metrics = {
-  schema: "EOFrankensteinRecursiveReadingEval@6",
+  schema: "EOFrankensteinRecursiveReadingEval@7",
   sourceCharacters: source.length,
   bodyCharacters: stripped.text.length,
   encounters: encounters.length,
@@ -88,7 +90,9 @@ const metrics = {
   referents: referents.length,
   namedReferents: namedReferents.length,
   discourseReferents: discourseReferents.length,
+  occurrenceBindings: occurrenceBindings.length,
   pronounBindings: pronounBindings.length,
+  definiteBindings: definiteBindings.length,
   descriptorOccurrences: descriptorOccurrences.length,
   descriptorHypotheses: identityHypotheses.length,
   discourseLinks: discourseLinks.length,
