@@ -1,32 +1,37 @@
 import { eoOperation, deltaFold } from "../../kernel/fold.js";
+import { deriveIdentityRevision } from "../../kernel/identity.js";
 import {
   descriptorOccurrence,
   directDescriptorOccurrences,
   descriptorHypotheses,
   referentFromDescriptorHypothesis,
 } from "./individuation.js";
+import { textIdentityEvidence } from "./identity-evidence.js";
 
 const existingIds = (fold) => new Set((fold?.graphEntries ?? []).map((entry) => entry?.id).filter(Boolean));
 
 /**
  * Convert witnessed text structure into warranted EO change.
  *
- * Names already admitted by the text organ become witnessed referents.
- * Descriptor occurrences remain occurrences; recurrence opens a defeasible
- * identity hypothesis. Only recurrent definite/possessive hypotheses project a
- * provisional current referent. Indefinite recurrence never implies sameness.
- * Every historical occurrence/hypothesis remains in the Fold so later witness
- * can SEG or DEF the projection without rewriting what was previously read.
+ * Names and recurrent descriptions build the referential frontier. Separately,
+ * witnessed grammatical identity evidence may support or attack live identity
+ * alternatives. Identity revision runs after the current encounter's raw graph
+ * material is assembled, so affected relations can be recanonicalized in the
+ * same DeltaFold without altering their historical witnesses.
  */
 export async function reviseTextFold({ observations = [], fold = {} } = {}) {
   const known = existingIds(fold);
   const operations = [];
   const newDescriptorOccurrences = [];
+  const currentGraphEntries = [];
+  const identitySupports = [];
+  const identityAttacks = [];
 
   const admitOccurrence = (occurrence, witnessRef) => {
     if (!occurrence || known.has(occurrence.id)) return;
     known.add(occurrence.id);
     newDescriptorOccurrences.push(occurrence);
+    currentGraphEntries.push(occurrence);
     operations.push(eoOperation({
       op: "INS",
       grain: "Ground",
@@ -43,11 +48,19 @@ export async function reviseTextFold({ observations = [], fold = {} } = {}) {
       ? `${observation.provenance.source}:${observation.anchor?.start ?? observation.id ?? "?"}`
       : observation?.id ?? "unknown";
 
+    const identity = textIdentityEvidence(observation?.witness, {
+      alternatives: fold?.unresolvedAlternatives ?? [],
+      witness: witnessRef,
+    });
+    identitySupports.push(...identity.supports);
+    identityAttacks.push(...identity.attacks);
+
     for (const occurrence of directDescriptorOccurrences(observation?.witness, { encounterRef })) {
       admitOccurrence(occurrence, witnessRef);
     }
 
     for (const entry of observation?.graphEntries ?? []) {
+      currentGraphEntries.push(entry);
       if (entry?.schema !== "EOReferent@1" || !entry.id || known.has(entry.id)) continue;
       known.add(entry.id);
       operations.push(eoOperation({
@@ -62,6 +75,7 @@ export async function reviseTextFold({ observations = [], fold = {} } = {}) {
 
     for (const edge of observation?.hyperedges ?? []) {
       if (edge?.schema !== "EOHyperedge@1") continue;
+      currentGraphEntries.push(edge);
       for (const participant of edge.participants ?? []) {
         admitOccurrence(descriptorOccurrence(participant, {
           encounterRef: edge.meta?.encounterRef ?? encounterRef,
@@ -103,6 +117,7 @@ export async function reviseTextFold({ observations = [], fold = {} } = {}) {
     const referent = referentFromDescriptorHypothesis(hypothesis);
     if (!referent || known.has(referent.id)) continue;
     known.add(referent.id);
+    currentGraphEntries.push(referent);
     operations.push(eoOperation({
       op: "INS",
       grain: "Figure",
@@ -116,6 +131,16 @@ export async function reviseTextFold({ observations = [], fold = {} } = {}) {
       payload: { action: "graph-object", value: referent },
     }));
   }
+
+  const identityDelta = deriveIdentityRevision({
+    fold: {
+      ...fold,
+      graphEntries: [...(fold?.graphEntries ?? []), ...currentGraphEntries],
+    },
+    supports: identitySupports,
+    attacks: identityAttacks,
+  });
+  operations.push(...identityDelta.operations);
 
   return deltaFold(operations);
 }
