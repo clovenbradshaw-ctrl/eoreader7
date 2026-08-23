@@ -2,6 +2,7 @@ import { MODES, DOMAINS, GRAINS, cellOf } from "./cube.js";
 import { deltaFold, eoOperation } from "./fold.js";
 import { buildHypergraph, relevantHypergraphNeighborhood } from "./hypergraph.js";
 import { projectTerrainState, terrainCounts, TERRAINS } from "./terrain-state.js";
+import { projectEmergentTerrains, mergeTerrainStates } from "./emergent-terrain.js";
 import { projectStanceState, stanceCounts, STANCES } from "./stance-state.js";
 
 const OP_BY_ADDRESS = Object.freeze({
@@ -29,12 +30,13 @@ export function relevantNeighborhood(fold, observations, { select, maxHops = 3, 
   const ids = new Set(graphNeighborhood.ids);
   const pick = (key) => (fold?.[key] ?? []).filter((entry) => entry?.id && ids.has(entry.id));
 
-  let terrainState;
+  let directTerrainState;
   if (suppliedTerrainState) {
     const filtered = {};
     for (const terrain of TERRAINS) filtered[terrain] = Object.freeze([...(suppliedTerrainState[terrain] ?? [])].filter((entry) => ids.has(entry.id)));
-    terrainState = Object.freeze(filtered);
-  } else terrainState = projectTerrainState(fold, { ids });
+    directTerrainState = Object.freeze(filtered);
+  } else directTerrainState = projectTerrainState(fold, { ids });
+  const terrainState = mergeTerrainStates(directTerrainState, projectEmergentTerrains(fold, { ids }));
   const terrainCount = terrainCounts(terrainState);
 
   let stanceState;
