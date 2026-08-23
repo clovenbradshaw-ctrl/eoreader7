@@ -2,52 +2,91 @@ import fs from "fs";
 import { stripContainer } from "../adapters/text/spans.js";
 import { createCausalTextPerceiver, textEncounters } from "../adapters/text/recursive.js";
 import { reviseTextFold } from "../adapters/text/revision.js";
-import { readDescriptorActivation } from "../adapters/text/descriptor-activation.js";
 import { createRecursiveReader } from "../../kernel.js";
 
 const path = process.argv[2];
 if (!path) throw new TypeError("usage: node native/eval/frankenstein.mjs <pg84.txt>");
+
 const source = fs.readFileSync(path, "utf8");
 const stripped = stripContainer(source);
 if (!stripped.looks_like_material) throw new Error("Frankenstein input does not look like readable material");
 
 const encounters = textEncounters(stripped.text, { source: "gutenberg:84", offset: stripped.offset });
 const perceiver = createCausalTextPerceiver({ minRelationSurfaces: 2, refreshEvery: 25 });
-const reader = createRecursiveReader({ perceivers: [perceiver], adapters: {
-  revise: reviseTextFold,
-  retrieve: (_fold, evidence) => Object.freeze({ schema: "EORelevantFold@1", witnessed: Object.freeze([...evidence]), provisional: Object.freeze([]), expectations: Object.freeze([]), obligations: Object.freeze([]), exclusions: Object.freeze([]), unresolvedAlternatives: Object.freeze([]), activeFrames: Object.freeze([]), receivedPriors: Object.freeze([]) }),
-} });
-const reading = await reader.read(encounters);
-const activationFrontier = readDescriptorActivation(encounters);
+const reader = createRecursiveReader({
+  perceivers: [perceiver],
+  adapters: {
+    revise: reviseTextFold,
+    retrieve: (_fold, evidence) => Object.freeze({
+      schema: "EORelevantFold@1",
+      witnessed: Object.freeze([...evidence]),
+      provisional: Object.freeze([]),
+      expectations: Object.freeze([]),
+      obligations: Object.freeze([]),
+      exclusions: Object.freeze([]),
+      unresolvedAlternatives: Object.freeze([]),
+      activeFrames: Object.freeze([]),
+      receivedPriors: Object.freeze([]),
+    }),
+  },
+});
 
+const reading = await reader.read(encounters);
 const entries = reading.fold.graphEntries ?? [];
-const referents = entries.filter((x) => x?.schema === "EOReferent@1");
-const namedReferents = referents.filter((x) => x?.standing !== "provisional");
-const descriptorReferents = referents.filter((x) => x?.standing === "provisional" && x?.identityHypothesis);
-const edges = entries.filter((x) => x?.schema === "EOHyperedge@1");
-const descriptorOccurrences = entries.filter((x) => x?.schema === "EOReferentOccurrence@1");
-const identityHypotheses = entries.filter((x) => x?.schema === "EOIdentityHypothesis@1");
+const referents = entries.filter((entry) => entry?.schema === "EOReferent@1");
+const namedReferents = referents.filter((entry) => entry?.standing !== "provisional");
+const descriptorReferents = referents.filter((entry) => entry?.standing === "provisional" && entry?.identityHypothesis);
+const edges = entries.filter((entry) => entry?.schema === "EOHyperedge@1");
+const descriptorOccurrences = entries.filter((entry) => entry?.schema === "EOReferentOccurrence@1");
+const identityHypotheses = entries.filter((entry) => entry?.schema === "EOIdentityHypothesis@1");
 const surfaces = new Set(referents.flatMap((ref) => ref.surfaces ?? []).map((x) => String(x).toLowerCase()));
 const hasSurface = (needle) => [...surfaces].some((surface) => surface === needle.toLowerCase() || surface.includes(needle.toLowerCase()));
 const surpriseTurns = reading.turns.filter((turn) => (turn.surprise?.operations?.length ?? 0) > 0);
 
-const creatureSurfaces = new Set(["the creature", "the monster", "the fiend", "the wretch"]);
-const targetActivationAlternatives = activationFrontier.alternatives
-  .filter((x) => creatureSurfaces.has(x.leftSurface) && creatureSurfaces.has(x.rightSurface))
-  .map((x) => ({ left: x.leftSurface, right: x.rightSurface, forwardVotes: x.forwardVotes, reverseVotes: x.reverseVotes, evidence: x.evidence }));
-const topActivationAlternatives = activationFrontier.alternatives.slice(0, 40).map((x) => ({ left: x.leftSurface, right: x.rightSurface, forwardVotes: x.forwardVotes, reverseVotes: x.reverseVotes }));
-const targetDirectionalVotes = activationFrontier.directionalVotes
-  .filter((x) => creatureSurfaces.has(x.from) && creatureSurfaces.has(x.to))
-  .map((x) => ({ from: x.from, to: x.to, count: x.count }));
+const unresolvedCounts = new Map();
+let unresolvedOccurrences = 0;
+for (const edge of edges) {
+  for (const participant of edge.participants ?? []) {
+    if (participant?.standing !== "unresolved_surface") continue;
+    unresolvedOccurrences += 1;
+    const key = String(participant.surface ?? participant.surfaceKey ?? "").trim().toLowerCase();
+    if (!key) continue;
+    unresolvedCounts.set(key, (unresolvedCounts.get(key) ?? 0) + 1);
+  }
+}
+const topUnresolvedSurfaces = [...unresolvedCounts.entries()]
+  .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+  .slice(0, 20)
+  .map(([surface, count]) => ({ surface, count }));
+
+const topIdentityHypotheses = identityHypotheses
+  .slice()
+  .sort((a, b) => (b.occurrenceRefs?.length ?? 0) - (a.occurrenceRefs?.length ?? 0))
+  .slice(0, 20)
+  .map((hypothesis) => ({
+    surface: hypothesis.surface,
+    determinations: hypothesis.determinations,
+    occurrences: hypothesis.occurrenceRefs?.length ?? 0,
+    encounters: hypothesis.encounterRefs?.length ?? 0,
+    relations: [...new Set((hypothesis.relationContexts ?? []).map((x) => x.relation).filter(Boolean))],
+    roles: [...new Set((hypothesis.relationContexts ?? []).map((x) => x.role).filter(Boolean))],
+  }));
 
 const requiredCharacters = ["Frankenstein", "Elizabeth", "Clerval", "Walton"];
-const targetDescriptors = ["the creature", "the monster", "the fiend", "the wretch", "my father", "the hut", "the chamber", "this place"];
+const targetDescriptors = [
+  "the creature", "the monster", "the fiend", "the wretch",
+  "my father", "the hut", "the chamber", "this place",
+];
 const missingCharacters = requiredCharacters.filter((name) => !hasSurface(name));
 const descriptorTargets = targetDescriptors.map((surface) => ({ surface, present: hasSurface(surface) }));
 const wrapperPollution = [...surfaces].filter((surface) => /project gutenberg|gutenberg ebook|www\.gutenberg/.test(surface));
 
 const metrics = {
-  schema: "EOFrankensteinNativeEval@5",
+  schema: "EOFrankensteinNativeEval@3",
+  sourceCharacters: source.length,
+  bodyCharacters: stripped.text.length,
+  sourceOffset: stripped.offset,
+  frontMatter: stripped.front,
   encounters: encounters.length,
   observations: reading.fold.witnessed?.length ?? 0,
   referents: referents.length,
@@ -56,12 +95,11 @@ const metrics = {
   descriptorTargets,
   descriptorOccurrences: descriptorOccurrences.length,
   identityHypotheses: identityHypotheses.length,
-  descriptorReactivations: activationFrontier.events.length,
-  activationAlternatives: activationFrontier.alternatives.length,
-  targetDirectionalVotes,
-  targetActivationAlternatives,
-  topActivationAlternatives,
+  topIdentityHypotheses,
   relations: edges.length,
+  unresolvedRelationParticipants: unresolvedOccurrences,
+  uniqueUnresolvedSurfaces: unresolvedCounts.size,
+  topUnresolvedSurfaces,
   transformations: reading.fold.transformationObjects?.length ?? 0,
   surpriseTurns: surpriseTurns.length,
   majorCharactersPresent: requiredCharacters.filter((name) => hasSurface(name)),
@@ -70,6 +108,7 @@ const metrics = {
   finalSequence: reading.fold.sequence,
   appendLogEntries: reading.log.length,
 };
+
 console.log(JSON.stringify(metrics, null, 2));
 
 if (encounters.length < 1000) throw new Error(`too few encounters for Frankenstein: ${encounters.length}`);
