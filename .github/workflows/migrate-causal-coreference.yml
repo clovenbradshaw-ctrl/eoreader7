@@ -1,0 +1,41 @@
+name: Migrate causal coreference
+
+on:
+  push:
+    branches: [codex/native-causal-coreference]
+
+permissions:
+  contents: write
+
+jobs:
+  migrate:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: codex/native-causal-coreference
+          submodules: recursive
+          fetch-depth: 0
+      - name: Copy earned causal memory and pronoun resolver
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p native/memory native/adapters/text
+          cp legacy-eoreader6.1/packages/engine/emergence/activation.js native/memory/activation.js
+          cp legacy-eoreader6.1/packages/engine/perceiver/text/pronouns.js native/adapters/text/pronouns.js
+          sed -i 's#"../../emergence/activation.js"#"../../memory/activation.js"#' native/adapters/text/pronouns.js
+          if grep -R -nE 'legacy-eoreader6\.1|packages/engine' native/memory/activation.js native/adapters/text/pronouns.js; then
+            echo 'native causal coreference leaked a legacy path' >&2
+            exit 1
+          fi
+      - name: Commit migrated mechanisms
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add native/memory/activation.js native/adapters/text/pronouns.js
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m 'Migrate causal activation and pronoun coreference native'
+          git push origin HEAD:codex/native-causal-coreference
