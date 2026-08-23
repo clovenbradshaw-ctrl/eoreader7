@@ -35,8 +35,8 @@ export function deriveSurprise(delta) {
  * grounds/alternatives couple obligations so mutually constraining questions
  * contribute more than the same number of independent questions.
  *
- * The legacy interactionNetwork/persistence/consequences fields remain as
- * compatibility surfaces, but are projections of the common field math.
+ * TensionProfile@1 is retained as the compatibility envelope. The field/energy
+ * members are additive v7 semantics rather than a wire-format fork.
  */
 export function deriveTension(fold) {
   const obligations = (fold?.obligations ?? []).filter((o) => OPEN.has(o.status) && material(o));
@@ -52,7 +52,7 @@ export function deriveTension(fold) {
   const potentialById = new Map(field.potentials.map((item) => [item.obligation, item]));
 
   return Object.freeze({
-    schema: "TensionProfile@2",
+    schema: "TensionProfile@1",
     obligations: Object.freeze([...obligations]),
     field,
     energy: field.totalEnergy,
