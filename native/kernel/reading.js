@@ -5,6 +5,7 @@ import { witness as defaultWitness } from "./witness.js";
 import { relevantNeighborhood, interrogateCube, deriveEOTransformations } from "./interrogation.js";
 import { deriveSurprise, deriveTension, deriveRelease } from "./dynamics.js";
 import { buildHypergraph, indexHypergraphEntries } from "./hypergraph.js";
+import { createTerrainIndex, indexTerrainEntries, snapshotTerrainState } from "./terrain-state.js";
 import { normalizeHyperlexicon, admitHyperlexiconCandidates } from "./hyperlexicon.js";
 import { createRelationCompositionLedger, consequentialWithheldCompositions } from "./relation-composition.js";
 import { differenceMakesDifference } from "./materiality.js";
@@ -45,54 +46,24 @@ function compositionOperations(composition, fold = {}, graph = null) {
   for (const licensed of composition?.licensed ?? []) {
     if (known.has(licensed.id)) continue;
     known.add(licensed.id);
-    operations.push(eoOperation({
-      op: "EVA",
-      grain: "Pattern",
-      witness: licensed.witnessRefs,
-      inputs: licensed.edgeRefs,
-      outputs: [licensed.id],
-      consequence: { kind: "bridge_interpretation", composition: licensed.id },
-      payload: { action: "graph-object", value: licensed },
-    }));
+    operations.push(eoOperation({ op: "EVA", grain: "Pattern", witness: licensed.witnessRefs, inputs: licensed.edgeRefs, outputs: [licensed.id], consequence: { kind: "bridge_interpretation", composition: licensed.id }, payload: { action: "graph-object", value: licensed } }));
   }
 
   for (const withheld of consequentialWithheldCompositions(composition)) {
     if (!known.has(withheld.id)) {
       known.add(withheld.id);
-      operations.push(eoOperation({
-        op: "DEF",
-        grain: "Pattern",
-        witness: withheld.witnessRefs,
-        inputs: withheld.edgeRefs,
-        outputs: [withheld.id],
-        consequence: { kind: "composition_withheld", composition: withheld.id },
-        payload: { action: "graph-object", value: withheld },
-      }));
+      operations.push(eoOperation({ op: "DEF", grain: "Pattern", witness: withheld.witnessRefs, inputs: withheld.edgeRefs, outputs: [withheld.id], consequence: { kind: "composition_withheld", composition: withheld.id }, payload: { action: "graph-object", value: withheld } }));
     }
 
     const obligationId = `obligation:composition:${withheld.id}`;
     if (known.has(obligationId)) continue;
-    const distinction = {
-      composition: withheld.id,
-      referentRefs: [...(withheld.referentRefs ?? [])],
-      instances: [...(withheld.instances ?? [])],
-      leftPredicate: withheld.leftPredicate,
-      rightPredicate: withheld.rightPredicate,
-    };
+    const distinction = { composition: withheld.id, referentRefs: [...(withheld.referentRefs ?? [])], instances: [...(withheld.instances ?? [])], leftPredicate: withheld.leftPredicate, rightPredicate: withheld.rightPredicate };
     const consequences = [{ kind: "bridge_interpretation", composition: withheld.id }];
     const materiality = differenceMakesDifference({ distinction, consequences, fold, graph });
     if (!materiality.makesDifference) continue;
 
     known.add(obligationId);
-    const unresolved = obligation({
-      id: obligationId,
-      distinction: { ...distinction, materiality },
-      grounds: [withheld.id, ...(withheld.edgeRefs ?? [])],
-      alternatives: [...(withheld.edgeRefs ?? [])],
-      consequences,
-      openedAt: (fold?.sequence ?? 0) + 1,
-      persistence: 0,
-    });
+    const unresolved = obligation({ id: obligationId, distinction: { ...distinction, materiality }, grounds: [withheld.id, ...(withheld.edgeRefs ?? [])], alternatives: [...(withheld.edgeRefs ?? [])], consequences, openedAt: (fold?.sequence ?? 0) + 1, persistence: 0 });
     operations.push(openObligation(unresolved, { witness: withheld.witnessRefs, grain: "Pattern", op: "DEF" }));
   }
   return operations;
@@ -109,6 +80,7 @@ export function createRecursiveReader({ seed = {}, priors = [], perceivers = [],
   const log = [];
   const graphSeed = [...(fold.graphEntries ?? []), ...(fold.expectations ?? []), ...(fold.obligations ?? []), ...(fold.activeFrames ?? []), ...(fold.unresolvedAlternatives ?? []), ...(fold.transformationObjects ?? [])];
   const graphIndex = buildHypergraph(graphSeed);
+  const terrainIndex = createTerrainIndex(graphSeed);
   const compositionLedger = createRelationCompositionLedger(graphSeed);
   let compositionDirty = true;
   let cachedCandidates = Object.freeze([]);
@@ -127,9 +99,10 @@ export function createRecursiveReader({ seed = {}, priors = [], perceivers = [],
   async function step(input) {
     const currentEncounter = input?.schema === "Encounter@1" ? input : encounter(input);
     const beforeFold = fold;
+    const terrainStateBefore = snapshotTerrainState(terrainIndex);
     const liveTasksBefore = projectTasks(tasks);
     const orientationTasks = scheduleTasks(liveTasksBefore, beforeFold, { limit: taskOrientationBudget });
-    const orientation = deriveOrientation(beforeFold, { tasks: orientationTasks });
+    const orientation = deriveOrientation(beforeFold, { tasks: orientationTasks, terrainState: terrainStateBefore });
     const candidates = await (adapters.perceive ?? defaultPerceive)(currentEncounter, orientation, { perceivers, priors: [...(orientation.receivedPriors ?? []), ...priors], hyperlexicon: hl });
     const challenge = adapters.challenge ? await adapters.challenge({ encounter: currentEncounter, orientation, candidates, hyperlexicon: hl }) : await challengeCandidates(currentEncounter, orientation, candidates, { challengers });
     const challengedCandidates = challenge?.candidates ?? candidates;
@@ -137,6 +110,7 @@ export function createRecursiveReader({ seed = {}, priors = [], perceivers = [],
 
     const observedGraph = observations.flatMap(observationGraph);
     indexHypergraphEntries(graphIndex, observedGraph);
+    indexTerrainEntries(terrainIndex, observedGraph);
     if (compositionLedger.ingest(observedGraph) > 0) compositionDirty = true;
     refreshComposition();
     const hlCandidates = cachedCandidates;
@@ -155,16 +129,14 @@ export function createRecursiveReader({ seed = {}, priors = [], perceivers = [],
     }
 
     indexHypergraphEntries(graphIndex, taskEvidence);
-    const neighborhood = (adapters.retrieve ?? relevantNeighborhood)(beforeFold, [...observations, ...taskEvidence], { select: adapters.selectNeighborhood, graph: graphIndex });
+    indexTerrainEntries(terrainIndex, taskEvidence);
+    const neighborhood = (adapters.retrieve ?? relevantNeighborhood)(beforeFold, [...observations, ...taskEvidence], { select: adapters.selectNeighborhood, graph: graphIndex, terrainState: terrainStateBefore });
     const interrogation = await (adapters.interrogate ?? interrogateCube)([...observations, ...taskEvidence], neighborhood, { ask: adapters.ask, hyperlexicon: hl, composition });
     const proposedDelta = adapters.revise
       ? await adapters.revise({ observations, taskEvidence, neighborhood, interrogation, fold: beforeFold, tasks: projectTasks(tasks), graph: graphIndex, hyperlexicon: hl, composition })
       : deriveEOTransformations(interrogation, { id: `delta:${currentEncounter.sequencePosition ?? log.length}` });
     const baseDelta = proposedDelta?.schema === "DeltaFold@1" ? proposedDelta : deltaFold([]);
-    const canonicalDelta = deltaFold([
-      ...(baseDelta.operations ?? []),
-      ...compositionOperations(composition, beforeFold, graphIndex),
-    ], { id: baseDelta.id ?? `delta:${currentEncounter.sequencePosition ?? log.length}` });
+    const canonicalDelta = deltaFold([...(baseDelta.operations ?? []), ...compositionOperations(composition, beforeFold, graphIndex)], { id: baseDelta.id ?? `delta:${currentEncounter.sequencePosition ?? log.length}` });
 
     log.push(currentEncounter, ...observations, ...taskEvidence, canonicalDelta);
     let nextFold = beforeFold;
@@ -173,6 +145,7 @@ export function createRecursiveReader({ seed = {}, priors = [], perceivers = [],
     fold = nextFold;
     const deltaEntries = deltaGraph(canonicalDelta, fold);
     indexHypergraphEntries(graphIndex, deltaEntries);
+    indexTerrainEntries(terrainIndex, deltaEntries);
     if (compositionLedger.ingest(deltaEntries) > 0) compositionDirty = true;
     const taskUpdate = proposeObligationTasks(tasks, fold); tasks = taskUpdate.log;
 
@@ -183,7 +156,7 @@ export function createRecursiveReader({ seed = {}, priors = [], perceivers = [],
     const turns = [];
     for (const item of encounters) turns.push(await step(item));
     refreshComposition();
-    return Object.freeze({ turns, fold, hyperlexicon: hl, compositionDiagnostics: cachedCompositionDiagnostics, tasks: Object.freeze(projectTasks(tasks)), taskLog: tasks, log: [...log] });
+    return Object.freeze({ turns, fold, hyperlexicon: hl, terrainState: snapshotTerrainState(terrainIndex), compositionDiagnostics: cachedCompositionDiagnostics, tasks: Object.freeze(projectTasks(tasks)), taskLog: tasks, log: [...log] });
   }
-  return Object.freeze({ step, read, getFold: () => fold, getHyperlexicon: () => hl, getCompositionDiagnostics: () => { refreshComposition(); return cachedCompositionDiagnostics; }, getTasks: () => Object.freeze(projectTasks(tasks)), getTaskLog: () => tasks, getLog: () => [...log] });
+  return Object.freeze({ step, read, getFold: () => fold, getHyperlexicon: () => hl, getTerrainState: () => snapshotTerrainState(terrainIndex), getCompositionDiagnostics: () => { refreshComposition(); return cachedCompositionDiagnostics; }, getTasks: () => Object.freeze(projectTasks(tasks)), getTaskLog: () => tasks, getLog: () => [...log] });
 }
