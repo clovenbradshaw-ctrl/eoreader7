@@ -1,0 +1,47 @@
+name: Bootstrap EOReader 7 from frozen 6.1 cut
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/bootstrap-from-6.1.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  bootstrap:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out EOReader 7
+        uses: actions/checkout@v4
+        with:
+          path: target
+          fetch-depth: 0
+
+      - name: Check out frozen EOReader 6.1 cut
+        uses: actions/checkout@v4
+        with:
+          repository: clovenbradshaw-ctrl/eoreader6.1
+          ref: eoreader7-cut
+          path: source
+          fetch-depth: 1
+
+      - name: Replace target tree with frozen cut
+        shell: bash
+        run: |
+          set -euo pipefail
+          find target -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
+          cp -a source/. target/
+          rm -rf target/.git
+
+      - name: Commit exact cut into EOReader 7
+        working-directory: target
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'Bootstrap EOReader 7 from frozen 6.1 cut e20e441'
+          git push origin HEAD:main
