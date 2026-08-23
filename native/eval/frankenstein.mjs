@@ -44,7 +44,11 @@ const descriptorOccurrences = entries.filter((entry) => entry?.schema === "EORef
 const taskConditionedOccurrences = entries.filter((entry) => entry?.schema === "EOTaskTargetOccurrence@1");
 const identityHypotheses = entries.filter((entry) => entry?.schema === "EOIdentityHypothesis@1");
 const discourseLinks = entries.filter((entry) => entry?.schema === "EODiscourseIdentityLink@1");
-const kindAssertions = entries.filter((entry) => entry?.schema === "EOKindAssertion@1");
+const kindEvidence = entries.filter((entry) => entry?.schema === "EOKindEvidence@1");
+const explicitKindEvidence = kindEvidence.filter((entry) => entry?.evidenceType === "explicit_classification");
+const structuralKindEvidence = kindEvidence.filter((entry) => entry?.evidenceType === "structural_feature");
+const receivedKinds = (reading.kindState ?? []).filter((entry) => entry?.standing === "received_explicit_classification");
+const earnedKinds = (reading.kindState ?? []).filter((entry) => entry?.standing === "earned_invariant");
 const existentialGrounds = entries.filter((entry) => entry?.schema === "EOExistentialGround@1");
 const withheldCompositions = entries.filter((entry) => entry?.schema === "EOWithheldComposition@1");
 const licensedCompositions = entries.filter((entry) => entry?.schema === "EOLicensedComposition@1");
@@ -77,6 +81,7 @@ const liveStanceCounts = countsOf(reading.stanceState);
 const finalOrientation = deriveOrientation(reading.fold, {
   terrainState: reading.terrainState,
   emergentTerrainState: reading.emergentTerrainState,
+  kindState: reading.kindState,
   stanceState: reading.stanceState,
 });
 const reasoningMoves = reasoningAffordances(finalOrientation);
@@ -101,6 +106,17 @@ const wretchMonsterClusters = discourseReferents.filter((ref) => {
 const creaturePulledIntoWretchMonster = wretchMonsterClusters.some((ref) => (ref.surfaces ?? []).map((x) => String(x).toLowerCase()).includes("the creature"));
 const wrapperPollution = [...referentSurfaces].filter((surface) => /project gutenberg|gutenberg ebook|www\.gutenberg/.test(surface));
 const topDiscourseReferents = discourseReferents.slice(0, 30).map((ref) => ({ id: ref.id, surfaces: ref.surfaces, occurrenceCount: ref.occurrenceRefs?.length ?? 0, supportCount: ref.supportRefs?.length ?? 0 }));
+const kindSamples = (reading.kindState ?? []).slice(0, 30).map((kind) => ({
+  id: kind.id,
+  standing: kind.standing,
+  kindKey: kind.kindKey,
+  kindSurface: kind.kindSurface ?? null,
+  basis: kind.basis,
+  memberCount: kind.memberRefs?.length ?? 0,
+  selector: kind.selector ?? null,
+  consequence: kind.consequence ?? null,
+  modalities: kind.modalities ?? [],
+}));
 
 const occurrenceById = new Map(descriptorOccurrences.map((entry) => [entry.id, entry]));
 const continuationDiagnostics = wretchMonsterClusters.map((ref) => {
@@ -135,7 +151,7 @@ const continuationDiagnostics = wretchMonsterClusters.map((ref) => {
 });
 
 const metrics = {
-  schema: "EOFrankensteinRecursiveReadingEval@10",
+  schema: "EOFrankensteinRecursiveReadingEval@11",
   sourceCharacters: source.length,
   bodyCharacters: stripped.text.length,
   encounters: encounters.length,
@@ -149,7 +165,13 @@ const metrics = {
   descriptorOccurrences: descriptorOccurrences.length,
   descriptorHypotheses: identityHypotheses.length,
   discourseLinks: discourseLinks.length,
-  kindAssertions: kindAssertions.length,
+  kindEvidence: kindEvidence.length,
+  explicitKindEvidence: explicitKindEvidence.length,
+  structuralKindEvidence: structuralKindEvidence.length,
+  receivedKinds: receivedKinds.length,
+  earnedKinds: earnedKinds.length,
+  kindDiagnostics: reading.kindDiagnostics ?? {},
+  kindSamples,
   existentialGrounds: existentialGrounds.length,
   descriptorTargets,
   wretchMonsterClusters: wretchMonsterClusters.length,
@@ -239,7 +261,9 @@ if (reading.log.length < encounters.length * 2) throw new Error("append-only rea
 if (materialObligations.some((item) => item?.distinction?.materiality?.makesDifference !== true)) throw new Error("active material obligation lacks an explicit difference-that-makes-a-difference basis");
 if (compositionDiagnostics.relationEdges !== edges.length) throw new Error("composition ledger did not retain all raw witnessed relations");
 if (withheldCompositions.length !== compositionObligations.length) throw new Error("dormant composition candidates leaked into Fold");
-for (const terrain of ["Entity", "Field", "Link", "Network", "Atmosphere", "Lens", "Paradigm"]) {
+if (explicitKindEvidence.length < 1) throw new Error("Frankenstein exposed no explicit Kind evidence");
+if ((reading.kindState?.length ?? 0) < 1) throw new Error("Frankenstein exposed no present-tense Kind projection");
+for (const terrain of ["Void", "Entity", "Kind", "Field", "Link", "Network", "Atmosphere", "Lens", "Paradigm"]) {
   if ((effectiveTerrainCounts[terrain] ?? 0) < 1) throw new Error(`effective ${terrain} terrain disappeared from the real reading path`);
   if ((reasoningByTerrain[terrain] ?? 0) !== 3) throw new Error(`${terrain} does not expose all three reasoning modes`);
   if ((novelByTerrain[terrain] ?? 0) !== 1) throw new Error(`${terrain} does not expose its grounded-required generation affordance`);
