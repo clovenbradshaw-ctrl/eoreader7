@@ -7,6 +7,7 @@ export { hyperedge, graphObject, indexHypergraphEntries, buildHypergraph, graphE
 export { identityAlternative, canonicalizeHyperedge, deriveIdentityRevision } from "./identity.js";
 export { HL, HL_SCHEMA, pairKey, createHyperlexicon, normalizeHyperlexicon, compositionAffordance, admitHyperlexiconCandidates, giveHyperlexiconAffordance } from "./hyperlexicon.js";
 export { relationCompositionChains, acquireCompositionCandidates, evaluateRelationCompositions, consequentialWithheldCompositions } from "./relation-composition.js";
+export { differenceMakesDifference } from "./materiality.js";
 export { addressOf, cubeAddresses, relevantNeighborhood, interrogateCube, deriveEOTransformations } from "./interrogation.js";
 export { deriveSurprise, deriveTension, deriveRelease } from "./dynamics.js";
 export { EXPECTATION_STATES, expectation, expectationTransition } from "./expectations.js";
