@@ -47,11 +47,12 @@ function structuralFeature({ id, entityRef, featureKey, featureValue, edge, basi
 /**
  * Present-tense structural projection over immutable witnessed hyperedges.
  *
- * Raw edges remain untouched. Occurrence bindings only change which Entity the
- * current projection attributes an already-witnessed participation to. The
- * ledger is deliberately semantic-label free: it exposes role, recurrence
- * depth, role breadth, and relation-diversity depth. Kind induction still has
- * to prove that any of those distinctions changes held-out consequences.
+ * Ordinary edge arrival is incremental. A newly learned occurrence binding is
+ * rarer and can change the present interpretation of earlier raw witness, so
+ * only binding changes trigger a full reprojection. Raw edges themselves are
+ * never rewritten. The projection remains semantic-label free: role,
+ * recurrence depth, role breadth, and relation-diversity depth are merely
+ * candidate structure for the downstream held-out difference-making gate.
  */
 export function createKindGraphStructureLedger({ depthThresholds = DEFAULT_DEPTH_THRESHOLDS } = {}) {
   const thresholds = [...new Set(depthThresholds)]
@@ -61,126 +62,150 @@ export function createKindGraphStructureLedger({ depthThresholds = DEFAULT_DEPTH
 
   const rawEdges = new Map();
   const bindings = new Map();
-  let dirty = true;
-  let cached = freeze([]);
+  let features = [];
+  let pending = [];
+  let relationCount = new Map();
+  let predicates = new Map();
+  let roles = new Map();
+  let roleBreadthEmitted = new Set();
+  let rebuilds = 0;
 
-  const rememberEdge = (edge) => {
-    if (edge?.schema !== "EOHyperedge@1" || !edge.id || positionOf(edge) === null || rawEdges.has(edge.id)) return false;
-    rawEdges.set(edge.id, edge);
-    dirty = true;
-    return true;
+  const emit = (descriptor) => {
+    features.push(descriptor);
+    pending.push(descriptor);
   };
 
-  const rememberBinding = (binding) => {
-    if (!OCCURRENCE_BINDING_SCHEMAS.has(binding?.schema) || !binding?.occurrence || !binding?.referent) return false;
-    const prior = bindings.get(binding.occurrence);
-    if (prior?.id === binding.id && prior?.referent === binding.referent) return false;
-    bindings.set(binding.occurrence, binding);
-    dirty = true;
-    return true;
+  const projectEdge = (edge) => {
+    for (let ordinal = 0; ordinal < (edge.participants ?? []).length; ordinal += 1) {
+      const participant = edge.participants[ordinal];
+      const endpoint = endpointOf(participant, bindings);
+      if (!endpoint?.entityRef) continue;
+      const entityRef = endpoint.entityRef;
+      const role = participant.role ?? "participant";
+      const bindingRef = endpoint.bindingRef;
+
+      emit(structuralFeature({
+        id: `kind-evidence:graph-role:${edge.id}:${ordinal}`,
+        entityRef,
+        featureKey: "relation_role",
+        featureValue: role,
+        edge,
+        basis: endpoint.basis === "explicit_occurrence_binding"
+          ? "bound_hyperedge_role"
+          : "witnessed_hyperedge_role",
+        bindingRef,
+      }));
+
+      const count = (relationCount.get(entityRef) ?? 0) + 1;
+      relationCount.set(entityRef, count);
+      if (thresholds.includes(count)) {
+        emit(structuralFeature({
+          id: `kind-evidence:graph-participation-depth:${entityRef}:${count}`,
+          entityRef,
+          featureKey: "relation_participation_depth",
+          featureValue: `${count}+`,
+          edge,
+          basis: "witnessed_relation_recurrence_threshold",
+          bindingRef,
+        }));
+      }
+
+      if (!predicates.has(entityRef)) predicates.set(entityRef, new Set());
+      const predicateSet = predicates.get(entityRef);
+      const beforePredicates = predicateSet.size;
+      predicateSet.add(edge.relation);
+      if (predicateSet.size > beforePredicates && thresholds.includes(predicateSet.size)) {
+        emit(structuralFeature({
+          id: `kind-evidence:graph-diversity-depth:${entityRef}:${predicateSet.size}`,
+          entityRef,
+          featureKey: "relation_diversity_depth",
+          featureValue: `${predicateSet.size}+`,
+          edge,
+          basis: "witnessed_relation_diversity_threshold",
+          bindingRef,
+        }));
+      }
+
+      if (!roles.has(entityRef)) roles.set(entityRef, new Set());
+      const roleSet = roles.get(entityRef);
+      roleSet.add(role);
+      if (!roleBreadthEmitted.has(entityRef) && roleSet.has("subject") && roleSet.has("object")) {
+        roleBreadthEmitted.add(entityRef);
+        emit(structuralFeature({
+          id: `kind-evidence:graph-role-breadth:${entityRef}:subject-object`,
+          entityRef,
+          featureKey: "relation_role_breadth",
+          featureValue: "subject_object",
+          edge,
+          basis: "witnessed_role_breadth",
+          bindingRef,
+        }));
+      }
+    }
+  };
+
+  const rebuild = () => {
+    features = [];
+    pending = [];
+    relationCount = new Map();
+    predicates = new Map();
+    roles = new Map();
+    roleBreadthEmitted = new Set();
+    const sorted = [...rawEdges.values()].sort((a, b) => positionOf(a) - positionOf(b) || a.id.localeCompare(b.id));
+    for (const edge of sorted) projectEdge(edge);
+    rebuilds += 1;
   };
 
   const ingest = (entries = []) => {
     let changed = 0;
+    let bindingChanged = false;
+    const newEdges = [];
+
+    // Bindings are installed before projecting any edges from the same batch.
+    // This avoids a transient unresolved projection when an observation carries
+    // both the edge and its causal binding.
     for (const entry of entries ?? []) {
-      if (rememberEdge(entry)) changed += 1;
-      if (rememberBinding(entry)) changed += 1;
+      if (!OCCURRENCE_BINDING_SCHEMAS.has(entry?.schema) || !entry?.occurrence || !entry?.referent) continue;
+      const prior = bindings.get(entry.occurrence);
+      if (prior?.id === entry.id && prior?.referent === entry.referent) continue;
+      bindings.set(entry.occurrence, entry);
+      bindingChanged = true;
+      changed += 1;
+    }
+
+    for (const entry of entries ?? []) {
+      if (entry?.schema !== "EOHyperedge@1" || !entry.id || positionOf(entry) === null || rawEdges.has(entry.id)) continue;
+      rawEdges.set(entry.id, entry);
+      newEdges.push(entry);
+      changed += 1;
+    }
+
+    if (bindingChanged) {
+      rebuild();
+    } else if (newEdges.length) {
+      newEdges.sort((a, b) => positionOf(a) - positionOf(b) || a.id.localeCompare(b.id));
+      for (const edge of newEdges) projectEdge(edge);
     }
     return changed;
   };
 
-  const snapshot = () => {
-    if (!dirty) return cached;
-    const features = [];
-    const relationCount = new Map();
-    const predicates = new Map();
-    const roles = new Map();
-    const roleBreadthEmitted = new Set();
-    const sorted = [...rawEdges.values()].sort((a, b) => positionOf(a) - positionOf(b) || a.id.localeCompare(b.id));
-
-    for (const edge of sorted) {
-      for (let ordinal = 0; ordinal < (edge.participants ?? []).length; ordinal += 1) {
-        const participant = edge.participants[ordinal];
-        const endpoint = endpointOf(participant, bindings);
-        if (!endpoint?.entityRef) continue;
-        const entityRef = endpoint.entityRef;
-        const role = participant.role ?? "participant";
-        const bindingRef = endpoint.bindingRef;
-
-        features.push(structuralFeature({
-          id: `kind-evidence:graph-role:${edge.id}:${ordinal}`,
-          entityRef,
-          featureKey: "relation_role",
-          featureValue: role,
-          edge,
-          basis: endpoint.basis === "explicit_occurrence_binding"
-            ? "bound_hyperedge_role"
-            : "witnessed_hyperedge_role",
-          bindingRef,
-        }));
-
-        const count = (relationCount.get(entityRef) ?? 0) + 1;
-        relationCount.set(entityRef, count);
-        if (thresholds.includes(count)) {
-          features.push(structuralFeature({
-            id: `kind-evidence:graph-participation-depth:${entityRef}:${count}`,
-            entityRef,
-            featureKey: "relation_participation_depth",
-            featureValue: `${count}+`,
-            edge,
-            basis: "witnessed_relation_recurrence_threshold",
-            bindingRef,
-          }));
-        }
-
-        if (!predicates.has(entityRef)) predicates.set(entityRef, new Set());
-        const predicateSet = predicates.get(entityRef);
-        const beforePredicates = predicateSet.size;
-        predicateSet.add(edge.relation);
-        if (predicateSet.size > beforePredicates && thresholds.includes(predicateSet.size)) {
-          features.push(structuralFeature({
-            id: `kind-evidence:graph-diversity-depth:${entityRef}:${predicateSet.size}`,
-            entityRef,
-            featureKey: "relation_diversity_depth",
-            featureValue: `${predicateSet.size}+`,
-            edge,
-            basis: "witnessed_relation_diversity_threshold",
-            bindingRef,
-          }));
-        }
-
-        if (!roles.has(entityRef)) roles.set(entityRef, new Set());
-        const roleSet = roles.get(entityRef);
-        roleSet.add(role);
-        if (!roleBreadthEmitted.has(entityRef) && roleSet.has("subject") && roleSet.has("object")) {
-          roleBreadthEmitted.add(entityRef);
-          features.push(structuralFeature({
-            id: `kind-evidence:graph-role-breadth:${entityRef}:subject-object`,
-            entityRef,
-            featureKey: "relation_role_breadth",
-            featureValue: "subject_object",
-            edge,
-            basis: "witnessed_role_breadth",
-            bindingRef,
-          }));
-        }
-      }
-    }
-
-    cached = freeze(features);
-    dirty = false;
-    return cached;
+  const drain = () => {
+    if (!pending.length) return freeze([]);
+    const out = freeze([...pending]);
+    pending = [];
+    return out;
   };
 
-  ingest([]);
   return freeze({
     schema: "EOKindGraphStructureLedger@1",
     ingest,
-    snapshot,
+    drain,
+    snapshot: () => freeze([...features]),
     diagnostics: () => freeze({
       rawEdges: rawEdges.size,
       occurrenceBindings: bindings.size,
-      projectedFeatures: snapshot().length,
+      projectedFeatures: features.length,
+      rebuilds,
       depthThresholds: freeze([...thresholds]),
     }),
   });
