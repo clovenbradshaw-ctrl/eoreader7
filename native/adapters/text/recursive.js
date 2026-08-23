@@ -184,6 +184,23 @@ function admittedRelationVerbs(store, minSurfaces) {
   return verbs;
 }
 
+function compositionStandingFor(verb, posPrior) {
+  if (!posPrior?.forms) return Object.freeze({ standing: "not_supplied", eligible: true, giver: null });
+  const counts = posPrior.forms[diaNorm(verb)];
+  if (!counts) return Object.freeze({ standing: "prior_gap", eligible: true, giver: posPrior.provenance?.source ?? null });
+  const total = Object.values(counts).reduce((sum, count) => sum + count, 0);
+  const verbShare = total ? (counts.VERB ?? 0) / total : 0;
+  const auxShare = total ? (counts.AUX ?? 0) / total : 0;
+  return Object.freeze({
+    standing: verbShare > 0.5 ? "lexical_verb" : auxShare > 0.5 ? "auxiliary" : "nonverb_dominant",
+    eligible: verbShare > 0.5,
+    verbShare,
+    auxShare,
+    counts: Object.freeze({ ...counts }),
+    giver: posPrior.provenance?.source ?? null,
+  });
+}
+
 export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEvery = 25, posPrior = null, pronounResolution = null } = {}) {
   if (!Number.isInteger(refreshEvery) || refreshEvery < 1) throw new TypeError("refreshEvery must be a positive integer");
   if (posPrior && (posPrior.schema !== "POSPrior@1" || !posPrior.provenance?.source)) throw new TypeError("posPrior must be a giver-named POSPrior@1");
@@ -244,7 +261,12 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
           witness: `text:${sequencePosition}:${rel.offset}`,
           scope: { sequencePosition, offset: rel.offset },
           eo: { op: "CON", grain: "Figure" },
-          meta: { polarity: rel.polarity, source: encounter.source, encounterRef },
+          meta: {
+            polarity: rel.polarity,
+            source: encounter.source,
+            encounterRef,
+            compositionStanding: compositionStandingFor(rel.verb, posPrior),
+          },
         });
       });
 
