@@ -90,23 +90,20 @@ function structuralEntities(entityFeatures) {
 }
 
 /**
- * EOReader5's successful entity-Kind machinery began one level before Kind:
- * discover which structural parameters recur across a population. In v7 a
- * parameter is the presence of a witnessed structural feature signature, not
- * a semantic class name supplied by the kernel.
+ * A parameter is only a possible interaction channel. It is not a Kind and it
+ * carries no semantic label. Its role is analogous to a measurable degree of
+ * freedom in a physical system: useful for describing how an Entity responds
+ * to the surrounding relational field.
  */
 export function induceEntityParameters(entityFeatures, {
   minEntityCount,
   minPrevalence,
-  permutations,
-  quantile = 0.95,
   population = "entities:anonymous",
 } = {}) {
   const entities = structuralEntities(entityFeatures);
   const n = entities.length;
   const resolvedMinEntityCount = minEntityCount ?? Math.max(3, Math.ceil(Math.sqrt(Math.max(1, n))));
   const resolvedMinPrevalence = minPrevalence ?? 1 / Math.max(2, Math.sqrt(Math.max(1, n)));
-  const resolvedPermutations = permutations ?? Math.max(40, Math.round(n * 5));
   if (n < resolvedMinEntityCount) return freeze([]);
 
   const bySignature = new Map();
@@ -117,32 +114,12 @@ export function induceEntityParameters(entityFeatures, {
     }
   }
 
-  const entityIds = entities.map((entity) => entity.id);
   const out = [];
   for (const [signature, entry] of bySignature) {
     const memberCount = entry.members.size;
     const prevalence = memberCount / n;
     if (memberCount < 2 || prevalence < resolvedMinPrevalence) continue;
-
-    const rng = createSeededRng({ population, signature, purpose: "parameter-prevalence-null" });
-    const nullSamples = [];
-    for (let i = 0; i < resolvedPermutations; i += 1) {
-      const selected = shuffled(entityIds, rng).slice(0, memberCount);
-      nullSamples.push(selected.filter((id) => entry.members.has(id)).length);
-    }
-    const nullResult = empiricalNull({
-      observed: memberCount,
-      samples: nullSamples,
-      quantile,
-      protocol: {
-        name: "label-shuffle-structural-prevalence",
-        iterations: resolvedPermutations,
-        statistic: "entity-count-with-feature",
-        scope: `${population} feature:${signature}`,
-      },
-    });
-    if (!nullResult.passed) continue;
-
+    const informationWeight = 1 + Math.log((n + 1) / (memberCount + 1));
     out.push(freeze({
       schema: "EOParameterHypothesis@1",
       id: `parameter:${stableHash(`${population}|${signature}`)}`,
@@ -153,24 +130,15 @@ export function induceEntityParameters(entityFeatures, {
       prevalence,
       memberCount,
       populationCount: n,
-      nullComparison: nullResult,
+      informationWeight,
       standing: "structural_parameter_hypothesis",
       witnessed: false,
       admissible: false,
-      basis: "recurrent_structural_feature",
+      basis: "recurrent_interaction_channel",
     }));
   }
-  out.sort((a, b) => b.prevalence - a.prevalence || a.signature.localeCompare(b.signature));
+  out.sort((a, b) => b.informationWeight - a.informationWeight || b.prevalence - a.prevalence || a.signature.localeCompare(b.signature));
   return freeze(out);
-}
-
-function profileFor(entity, parameterIndex) {
-  const vector = new Uint8Array(parameterIndex.size);
-  for (const attr of entity.attributes) {
-    const idx = parameterIndex.get(attr.signature);
-    if (idx !== undefined) vector[idx] = 1;
-  }
-  return vector;
 }
 
 export function profileJaccard(a, b) {
@@ -184,77 +152,153 @@ export function profileJaccard(a, b) {
   return union === 0 ? 0 : intersection / union;
 }
 
-function pairKey(a, b) {
-  return a < b ? `${a}-${b}` : `${b}-${a}`;
+function featureStatistics(entities) {
+  const support = new Map();
+  for (const entity of entities) {
+    for (const attr of entity.attributes) support.set(attr.signature, (support.get(attr.signature) ?? 0) + 1);
+  }
+  const n = entities.length;
+  return new Map([...support].map(([signature, count]) => [signature, freeze({
+    support: count,
+    prevalence: n ? count / n : 0,
+    weight: 1 + Math.log((n + 1) / (count + 1)),
+  })]));
 }
 
-function pairwiseSimilarities(profiles, entityIds) {
-  const matrix = new Map();
+function fieldProfile(entity, stats) {
+  const values = new Map();
+  let selfEnergy = 0;
+  for (const attr of entity.attributes) {
+    const weight = stats.get(attr.signature)?.weight ?? 1;
+    const activity = 1 + Math.log(Math.max(1, attr.count));
+    values.set(attr.signature, activity);
+    selfEnergy += weight * activity * activity;
+  }
+  return freeze({ values, selfEnergy });
+}
+
+/**
+ * Structural affinity is a potential, not a type score. Two Entities attract
+ * when independently witnessed interaction channels make them respond to the
+ * surrounding world in the same way. Common channels contribute less energy;
+ * repeated channels contribute more. The normalization prevents high-activity
+ * Entities from attracting everything merely because they are massive.
+ */
+function structuralAffinity(profileA, profileB, stats) {
+  if (!(profileA?.selfEnergy > 0) || !(profileB?.selfEnergy > 0)) return 0;
+  const [small, large] = profileA.values.size <= profileB.values.size
+    ? [profileA.values, profileB.values]
+    : [profileB.values, profileA.values];
+  let sharedEnergy = 0;
+  for (const [signature, activityA] of small) {
+    const activityB = large.get(signature);
+    if (activityB === undefined) continue;
+    sharedEnergy += (stats.get(signature)?.weight ?? 1) * activityA * activityB;
+  }
+  return sharedEnergy / Math.sqrt(profileA.selfEnergy * profileB.selfEnergy);
+}
+
+function pairKey(a, b) {
+  return a < b ? `${a}|${b}` : `${b}|${a}`;
+}
+
+function affinityField(entities, { bondQuantile = 0.75, minAffinity = 0.12, bondThreshold = null } = {}) {
+  const stats = featureStatistics(entities);
+  const profiles = new Map(entities.map((entity) => [entity.id, fieldProfile(entity, stats)]));
+  const pairAffinity = new Map();
+  const positive = [];
+  for (let i = 0; i < entities.length; i += 1) {
+    for (let j = i + 1; j < entities.length; j += 1) {
+      const affinity = structuralAffinity(profiles.get(entities[i].id), profiles.get(entities[j].id), stats);
+      pairAffinity.set(pairKey(entities[i].id, entities[j].id), affinity);
+      if (affinity > 0) positive.push(affinity);
+    }
+  }
+  const emergentThreshold = bondThreshold ?? Math.max(minAffinity, quantileAt(positive, bondQuantile));
+  return freeze({ stats, profiles, pairAffinity, bondThreshold: emergentThreshold, bondQuantile, minAffinity });
+}
+
+function affinityBetween(field, a, b) {
+  if (a === b) return 1;
+  return field.pairAffinity.get(pairKey(a, b)) ?? 0;
+}
+
+function mutualBonds(entityIds, field, neighborCount) {
+  const nearest = new Map();
+  for (const id of entityIds) {
+    const neighbors = entityIds
+      .filter((other) => other !== id)
+      .map((other) => ({ id: other, affinity: affinityBetween(field, id, other) }))
+      .filter((entry) => entry.affinity >= field.bondThreshold)
+      .sort((a, b) => b.affinity - a.affinity || a.id.localeCompare(b.id))
+      .slice(0, neighborCount);
+    nearest.set(id, new Set(neighbors.map((entry) => entry.id)));
+  }
+  const bonds = [];
   for (let i = 0; i < entityIds.length; i += 1) {
     for (let j = i + 1; j < entityIds.length; j += 1) {
-      matrix.set(`${i}-${j}`, profileJaccard(profiles.get(entityIds[i]), profiles.get(entityIds[j])));
+      const a = entityIds[i];
+      const b = entityIds[j];
+      if (!nearest.get(a)?.has(b) || !nearest.get(b)?.has(a)) continue;
+      bonds.push(freeze({ a, b, affinity: affinityBetween(field, a, b) }));
     }
   }
-  return matrix;
+  return freeze(bonds);
 }
 
-function deriveCohesionThreshold(matrix) {
-  const values = [...matrix.values()];
-  if (!values.length) return 0.25;
-  return values.reduce((sum, value) => sum + value, 0) / values.length;
-}
-
-function clusterCohesion(cluster, matrix) {
-  let sum = 0;
-  let count = 0;
-  for (let i = 0; i < cluster.length; i += 1) {
-    for (let j = i + 1; j < cluster.length; j += 1) {
-      sum += matrix.get(pairKey(cluster[i], cluster[j])) ?? 0;
-      count += 1;
-    }
+function connectedBasins(entityIds, bonds, minKindSize) {
+  const adjacency = new Map(entityIds.map((id) => [id, new Set()]));
+  for (const bond of bonds) {
+    adjacency.get(bond.a)?.add(bond.b);
+    adjacency.get(bond.b)?.add(bond.a);
   }
-  return count ? sum / count : 0;
-}
-
-function greedyClusters(entities, entityIds, profiles, matrix, threshold, minKindSize) {
-  const activation = new Map(entities.map((entity) => [
-    entity.id,
-    entity.attributes.reduce((sum, attr) => sum + (attr.count ?? 1), 0),
-  ]));
-  const sortedIds = [...entityIds].sort((a, b) =>
-    (activation.get(b) ?? 0) - (activation.get(a) ?? 0) || a.localeCompare(b));
-  const sortedIndices = sortedIds.map((id) => entityIds.indexOf(id));
-  const assigned = new Set();
-  const clusters = [];
-
-  for (const seed of sortedIndices) {
-    if (assigned.has(seed)) continue;
-    const cluster = [seed];
-    assigned.add(seed);
-    let changed = true;
-    while (changed) {
-      changed = false;
-      let bestIdx = -1;
-      let bestSimilarity = -1;
-      for (let i = 0; i < entityIds.length; i += 1) {
-        if (assigned.has(i)) continue;
-        let sum = 0;
-        for (const member of cluster) sum += matrix.get(pairKey(member, i)) ?? 0;
-        const mean = cluster.length ? sum / cluster.length : 0;
-        if (mean > bestSimilarity) {
-          bestSimilarity = mean;
-          bestIdx = i;
-        }
-      }
-      if (bestIdx >= 0 && bestSimilarity >= threshold) {
-        cluster.push(bestIdx);
-        assigned.add(bestIdx);
-        changed = true;
+  const seen = new Set();
+  const basins = [];
+  for (const id of entityIds) {
+    if (seen.has(id) || !(adjacency.get(id)?.size > 0)) continue;
+    const stack = [id];
+    const members = [];
+    seen.add(id);
+    while (stack.length) {
+      const current = stack.pop();
+      members.push(current);
+      for (const next of adjacency.get(current) ?? []) {
+        if (seen.has(next)) continue;
+        seen.add(next);
+        stack.push(next);
       }
     }
-    if (cluster.length >= minKindSize) clusters.push(cluster);
+    if (members.length >= minKindSize) basins.push(members.sort());
   }
-  return clusters;
+  return basins;
+}
+
+function mean(values) {
+  return values.length ? values.reduce((sum, value) => sum + value, 0) / values.length : 0;
+}
+
+function basinEnergy(memberIds, entityIds, field) {
+  const members = new Set(memberIds);
+  const internal = [];
+  const boundary = [];
+  for (let i = 0; i < memberIds.length; i += 1) {
+    for (let j = i + 1; j < memberIds.length; j += 1) internal.push(affinityBetween(field, memberIds[i], memberIds[j]));
+  }
+  for (const member of memberIds) {
+    for (const other of entityIds) {
+      if (members.has(other)) continue;
+      boundary.push(affinityBetween(field, member, other));
+    }
+  }
+  const internalAffinity = mean(internal);
+  const boundaryAffinity = mean(boundary);
+  return freeze({
+    internalAffinity,
+    boundaryAffinity,
+    bindingEnergy: internalAffinity - boundaryAffinity,
+    internalPairs: internal.length,
+    boundaryPairs: boundary.length,
+  });
 }
 
 function standardParameters(memberIds, entitiesById, parameters, minPrevalence) {
@@ -266,7 +310,7 @@ function standardParameters(memberIds, entitiesById, parameters, minPrevalence) 
       if (entity?.attributes.some((attr) => attr.signature === parameter.signature)) count += 1;
     }
     const prevalence = memberIds.length ? count / memberIds.length : 0;
-    if (prevalence < minPrevalence) continue;
+    if (prevalence < Math.max(0.5, minPrevalence)) continue;
     const distinctiveness = parameter.prevalence > 0 ? prevalence / parameter.prevalence : 0;
     out.push(freeze({
       parameterRef: parameter.id,
@@ -276,104 +320,129 @@ function standardParameters(memberIds, entitiesById, parameters, minPrevalence) 
       prevalence,
       populationPrevalence: parameter.prevalence,
       distinctiveness,
+      fieldWeight: parameter.informationWeight ?? 1,
     }));
   }
-  out.sort((a, b) => b.distinctiveness - a.distinctiveness || b.prevalence - a.prevalence || a.signature.localeCompare(b.signature));
+  out.sort((a, b) => b.distinctiveness - a.distinctiveness || b.fieldWeight - a.fieldWeight || b.prevalence - a.prevalence || a.signature.localeCompare(b.signature));
   return freeze(out);
 }
 
 /**
- * Restore EOReader5's population-level Kind induction as a v7 hypothesis
- * generator. These candidates are deliberately not terrain facts: they name no
- * semantic class, are unwitnessed, and remain inadmissible until a downstream
- * consequence/DMD gate earns them.
+ * Candidate Kinds are now discovered as stable basins in an interaction field.
+ * This is closer to chemistry than taxonomy: shared properties do not define a
+ * Kind; they contribute potential. A population becomes interesting only when
+ * mutual structural affinity binds it more strongly to itself than to the
+ * surrounding population and that binding survives a random-subset null.
+ *
+ * These basins remain hypotheses. A downstream temporal/counterfactual gate
+ * must still show that basin membership changes later lawful expectations
+ * before Kind terrain can be admitted.
  */
 export function induceEntityKindCandidates(entityFeatures, {
   minEntityCount,
   minPrevalence,
-  cohesionThreshold,
+  cohesionThreshold = null,
   minKindSize,
   permutations,
   quantile = 0.95,
+  bondQuantile = 0.75,
+  minAffinity = 0.12,
+  neighborCount = null,
   population = "entities:anonymous",
 } = {}) {
   const entities = structuralEntities(entityFeatures);
   const n = entities.length;
   const resolvedMinEntityCount = minEntityCount ?? Math.max(3, Math.ceil(Math.sqrt(Math.max(1, n))));
   const resolvedMinPrevalence = minPrevalence ?? 1 / Math.max(2, Math.sqrt(Math.max(1, n)));
-  const resolvedMinKindSize = minKindSize ?? Math.max(2, Math.floor(Math.sqrt(Math.max(1, n)) / 3));
-  const resolvedPermutations = permutations ?? Math.max(40, Math.round(n * 5));
-  if (n < resolvedMinEntityCount) return freeze({ candidates: freeze([]), parameters: freeze([]), diagnostics: freeze({ entities: n, parameters: 0, clusters: 0, validated: 0 }) });
+  const resolvedMinKindSize = minKindSize ?? Math.max(2, Math.floor(Math.sqrt(Math.max(1, n)) / 2));
+  const resolvedPermutations = permutations ?? Math.min(128, Math.max(40, Math.round(n * 4)));
+  if (n < resolvedMinEntityCount) return freeze({ candidates: freeze([]), parameters: freeze([]), diagnostics: freeze({ entities: n, parameters: 0, basins: 0, clusters: 0, validated: 0 }) });
 
   const parameters = induceEntityParameters(entityFeatures, {
     minEntityCount: resolvedMinEntityCount,
     minPrevalence: resolvedMinPrevalence,
-    permutations: resolvedPermutations,
-    quantile,
     population,
   });
-  if (!parameters.length) return freeze({ candidates: freeze([]), parameters, diagnostics: freeze({ entities: n, parameters: 0, clusters: 0, validated: 0 }) });
+  if (!parameters.length) return freeze({ candidates: freeze([]), parameters, diagnostics: freeze({ entities: n, parameters: 0, basins: 0, clusters: 0, validated: 0 }) });
 
-  const parameterIndex = new Map(parameters.map((parameter, index) => [parameter.signature, index]));
-  const profiles = new Map(entities.map((entity) => [entity.id, profileFor(entity, parameterIndex)]));
+  const field = affinityField(entities, {
+    bondQuantile,
+    minAffinity,
+    bondThreshold: cohesionThreshold,
+  });
   const entityIds = entities.map((entity) => entity.id);
-  const matrix = pairwiseSimilarities(profiles, entityIds);
-  const threshold = cohesionThreshold ?? deriveCohesionThreshold(matrix);
-  const clusters = greedyClusters(entities, entityIds, profiles, matrix, threshold, resolvedMinKindSize);
+  const resolvedNeighborCount = neighborCount ?? Math.max(2, Math.ceil(Math.sqrt(n)));
+  const bonds = mutualBonds(entityIds, field, resolvedNeighborCount);
+  const basins = connectedBasins(entityIds, bonds, resolvedMinKindSize);
   const entitiesById = new Map(entities.map((entity) => [entity.id, entity]));
   const records = [];
 
-  for (const cluster of clusters) {
-    const memberIds = cluster.map((idx) => entityIds[idx]).sort();
-    const observed = clusterCohesion(cluster, matrix);
-    const rng = createSeededRng({ population, memberIds, purpose: "kind-cohesion-null" });
+  for (const memberIds of basins) {
+    const energy = basinEnergy(memberIds, entityIds, field);
+    if (!(energy.bindingEnergy > 0)) continue;
+    const rng = createSeededRng({ population, memberIds, purpose: "interaction-basin-binding-null" });
     const nullSamples = [];
     for (let i = 0; i < resolvedPermutations; i += 1) {
       const sampleIds = shuffled(entityIds, rng).slice(0, memberIds.length);
-      const sampleIndices = sampleIds.map((id) => entityIds.indexOf(id));
-      nullSamples.push(clusterCohesion(sampleIndices, matrix));
+      nullSamples.push(basinEnergy(sampleIds, entityIds, field).bindingEnergy);
     }
-    const cohesionNull = empiricalNull({
-      observed,
+    const bindingNull = empiricalNull({
+      observed: energy.bindingEnergy,
       samples: nullSamples,
       quantile,
       protocol: {
-        name: "random-partition-cohesion",
+        name: "random-subset-binding-energy",
         iterations: resolvedPermutations,
-        statistic: "mean-pairwise-jaccard",
+        statistic: "internal-affinity-minus-boundary-affinity",
         scope: `${population} members:${memberIds.length}`,
       },
     });
     const standards = standardParameters(memberIds, entitiesById, parameters, resolvedMinPrevalence);
+    const coreSignatures = standards.slice(0, 6).map((item) => item.signature).sort();
+    const kindKey = `kind:basin:${stableHash(`${population}|${coreSignatures.join("|") || memberIds.join("|")}`)}`;
     const evidenceRefs = [...new Set(memberIds.flatMap((id) =>
       [...(entityFeatures.get(id)?.values() ?? [])].flatMap((record) => [...(record.evidenceIds ?? [])])))].sort();
     const witnessRefs = [...new Set(memberIds.flatMap((id) =>
       [...(entityFeatures.get(id)?.values() ?? [])].flatMap((record) => [...(record.witnessRefs ?? [])])))].sort();
-    const kindKey = `kind:population:${stableHash(`${population}|${memberIds.join("|")}|${standards.slice(0, 6).map((item) => item.signature).join("|")}`)}`;
+    const basinBonds = bonds.filter((bond) => memberIds.includes(bond.a) && memberIds.includes(bond.b));
+
     records.push(freeze({
       schema: "EOKindCandidate@1",
-      id: `kind-candidate:${stableHash(`${kindKey}|${observed}`)}`,
+      id: `kind-candidate:${stableHash(`${kindKey}|${memberIds.join("|")}`)}`,
       kindKey,
       standing: "structural_kind_hypothesis",
+      mechanism: "interaction_affinity_basin",
       witnessed: false,
       admissible: false,
-      memberRefs: freeze(memberIds),
+      memberRefs: freeze([...memberIds]),
       memberCount: memberIds.length,
       standardParameters: standards,
       distinguishingParameters: freeze(standards.slice(0, 6)),
-      cohesion: observed,
-      cohesionThreshold: threshold,
-      cohesionNull,
+      structuralSignatures: freeze(coreSignatures),
+      cohesion: energy.internalAffinity,
+      cohesionThreshold: field.bondThreshold,
+      cohesionNull: bindingNull,
+      field: freeze({
+        model: "weighted_relational_affinity",
+        bondThreshold: field.bondThreshold,
+        bondQuantile: field.bondQuantile,
+        neighborCount: resolvedNeighborCount,
+        internalAffinity: energy.internalAffinity,
+        boundaryAffinity: energy.boundaryAffinity,
+        bindingEnergy: energy.bindingEnergy,
+        stable: bindingNull.passed,
+        bonds: freeze(basinBonds),
+      }),
       evidenceRefs: freeze(evidenceRefs),
       witnessRefs: freeze(witnessRefs),
-      basis: "entity_parameter_profile_cohesion",
-      provenance: freeze({ giver: "kernel/entity-kind-induction", predecessor: "eoreader5/entity-kinds" }),
+      basis: "stable_relational_affinity_basin",
+      provenance: freeze({ giver: "kernel/entity-kind-induction", predecessor: "eoreader5/entity-kinds", model: "field_basin" }),
     }));
   }
 
-  const validated = records.filter((candidate) => candidate.cohesionNull.passed)
-    .sort((a, b) => b.cohesion - a.cohesion || b.memberCount - a.memberCount);
-  const fallback = [...records].sort((a, b) => b.cohesion - a.cohesion || b.memberCount - a.memberCount)[0] ?? null;
+  const validated = records.filter((candidate) => candidate.field?.stable === true)
+    .sort((a, b) => b.field.bindingEnergy - a.field.bindingEnergy || b.memberCount - a.memberCount);
+  const fallback = [...records].sort((a, b) => b.field.bindingEnergy - a.field.bindingEnergy || b.memberCount - a.memberCount)[0] ?? null;
   const candidates = validated.length
     ? validated
     : fallback
@@ -386,11 +455,14 @@ export function induceEntityKindCandidates(entityFeatures, {
     diagnostics: freeze({
       entities: n,
       parameters: parameters.length,
+      basins: records.length,
       clusters: records.length,
       validated: validated.length,
-      cohesionThreshold: threshold,
+      bondThreshold: field.bondThreshold,
+      neighborCount: resolvedNeighborCount,
       minKindSize: resolvedMinKindSize,
       fallbackUsed: validated.length === 0 && Boolean(fallback),
+      model: "weighted_relational_affinity",
     }),
   });
 }
