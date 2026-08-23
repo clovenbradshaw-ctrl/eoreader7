@@ -1,4 +1,5 @@
 import { createKindGraphStructureLedger } from "./kind-graph-structure.js";
+import { induceEntityKindCandidates } from "./entity-kind-induction.js";
 
 const freeze = (value) => Object.freeze(value);
 
@@ -107,14 +108,6 @@ function ingestExplicit(index, entry) {
   return true;
 }
 
-/**
- * Modality-blind evidence record. Sense organs may name a witnessed structural
- * feature without saying whether it is a selector, an outcome, or a Kind.
- * The kernel decides those roles from recurrence, temporal order, and a
- * consequence differential. Explicit source classifications use kindKey and
- * evidenceType="explicit_classification"; they are received evidence, not
- * induced invariants.
- */
 export function kindEvidence({
   id,
   entityRef,
@@ -152,10 +145,7 @@ export function kindEvidence({
 }
 
 function graphDescriptorEvidence(descriptor) {
-  return kindEvidence({
-    ...descriptor,
-    evidenceType: "structural_feature",
-  });
+  return kindEvidence({ ...descriptor, evidenceType: "structural_feature" });
 }
 
 export function createKindInductionIndex(entries = [], options = {}) {
@@ -167,6 +157,12 @@ export function createKindInductionIndex(entries = [], options = {}) {
       minConsequenceSupport: options.minConsequenceSupport ?? 2,
       minEffect: options.minEffect ?? 0.5,
       alpha: options.alpha ?? 0.05,
+      populationMinEntityCount: options.populationMinEntityCount,
+      populationMinPrevalence: options.populationMinPrevalence,
+      populationCohesionThreshold: options.populationCohesionThreshold,
+      populationMinKindSize: options.populationMinKindSize,
+      populationPermutations: options.populationPermutations,
+      populationQuantile: options.populationQuantile ?? 0.95,
     }),
     evidenceById: new Map(),
     explicitByKind: new Map(),
@@ -176,6 +172,8 @@ export function createKindInductionIndex(entries = [], options = {}) {
     receivedProjectionByKind: new Map(),
     receivedDirtyKinds: new Set(),
     earnedProjections: freeze([]),
+    populationKindCandidates: freeze([]),
+    populationKindDiagnostics: freeze({ entities: 0, parameters: 0, clusters: 0, validated: 0 }),
     earnedDiagnostics: freeze({ selectorNominations: 0, earnedKinds: 0, withheldNoHoldout: 0, withheldNoConsequence: 0 }),
     graphStructure: createKindGraphStructureLedger({ depthThresholds: options.depthThresholds }),
     structuralDirty: false,
@@ -387,8 +385,23 @@ function earnedKindProjection(index, selectorSignature, selectorMembers, populat
   });
 }
 
+function refreshPopulationKindCandidates(index) {
+  const result = induceEntityKindCandidates(index.entityFeatures, {
+    minEntityCount: index.options.populationMinEntityCount,
+    minPrevalence: index.options.populationMinPrevalence,
+    cohesionThreshold: index.options.populationCohesionThreshold,
+    minKindSize: index.options.populationMinKindSize,
+    permutations: index.options.populationPermutations,
+    quantile: index.options.populationQuantile,
+    population: "current-fold-entities",
+  });
+  index.populationKindCandidates = result.candidates;
+  index.populationKindDiagnostics = result.diagnostics;
+}
+
 function refreshEarnedKinds(index) {
   if (!index.structuralDirty) return;
+  refreshPopulationKindCandidates(index);
   const earned = [];
   const diagnostics = {
     selectorNominations: 0,
@@ -418,6 +431,18 @@ function computeSnapshot(index) {
     explicitKinds: received.length,
     ...index.earnedDiagnostics,
     graphStructure: index.graphStructure.diagnostics(),
+    populationKinds: index.populationKindDiagnostics,
+    populationKindCandidates: freeze(index.populationKindCandidates.slice(0, 12).map((candidate) => freeze({
+      id: candidate.id,
+      kindKey: candidate.kindKey,
+      standing: candidate.standing,
+      memberCount: candidate.memberCount,
+      memberRefs: candidate.memberRefs,
+      cohesion: candidate.cohesion,
+      cohesionPassed: candidate.cohesionNull?.passed ?? false,
+      fallbackNomination: candidate.fallbackNomination === true,
+      distinguishingParameters: candidate.distinguishingParameters,
+    }))),
   };
   index.diagnostics = freeze({ ...diagnostics });
   index.snapshot = freeze([...received, ...index.earnedProjections]);
@@ -440,6 +465,12 @@ export function kindDiagnostics(index) {
   if (index?.schema !== "EOKindInductionIndex@1") throw new TypeError("kindDiagnostics requires EOKindInductionIndex@1");
   if (!index.diagnostics) computeSnapshot(index);
   return index.diagnostics;
+}
+
+export function kindCandidates(index) {
+  if (index?.schema !== "EOKindInductionIndex@1") throw new TypeError("kindCandidates requires EOKindInductionIndex@1");
+  if (index.structuralDirty || !index.diagnostics) computeSnapshot(index);
+  return index.populationKindCandidates;
 }
 
 export function projectKinds(entries = [], options = {}) {
