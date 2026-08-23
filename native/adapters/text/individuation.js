@@ -6,76 +6,118 @@ import {
 } from "./priors.js";
 
 const WORD = /[\p{L}\p{N}]+(?:['’][\p{L}\p{N}]+)*/gu;
-const norm = (x) => String(x ?? "").toLowerCase().match(WORD)?.join?.(" ") ?? String(x ?? "").toLowerCase().trim();
+const norm = (x) => (String(x ?? "").toLowerCase().match(WORD) ?? []).join(" ");
 const words = (x) => String(x ?? "").toLowerCase().match(WORD) ?? [];
 const slug = (x) => norm(x).replace(/[^\p{L}\p{N}]+/gu, "_").replace(/^_+|_+$/g, "");
 
-const OTHER_PRONOUNS = new Set([
-  "i", "me", "my", "mine", "myself", "we", "us", "our", "ours", "ourselves",
-  "you", "your", "yours", "yourself", "yourselves", "they", "them", "their", "theirs", "themselves",
+// Closed English pronominal/determiner classes belong in the text adapter,
+// never in the modality-neutral kernel. Possessives are kept separate from
+// personal pronouns because "my father" is referential while bare "my" is not.
+const PERSONAL_PRONOUNS = new Set([
+  "i", "me", "mine", "myself", "we", "us", "ours", "ourselves",
+  "you", "yours", "yourself", "yourselves", "they", "them", "theirs", "themselves",
   "who", "whom", "whose", "which", "what",
 ]);
+const POSSESSIVE_DETERMINERS = new Set(["my", "your", "his", "her", "our", "their"]);
+const CLAUSE_LEADERS = new Set(["when", "where", "if", "while", "because", "although", "though", "since", "before", "after", "until"]);
 
-const isPronoun = (surface) => {
+const pronounToken = (w) => PERSONAL_PRONOUNS.has(w) || ANAPHORIC_PRONOUNS.has(w) || Object.hasOwn(THIRD_PERSON_SINGULAR, w);
+const containsPronoun = (ws) => ws.some(pronounToken);
+const determinationOf = (first) => DEFINITE_DETERMINERS.has(first)
+  ? "definite"
+  : INDEFINITE_DETERMINERS.has(first)
+    ? "indefinite"
+    : POSSESSIVE_DETERMINERS.has(first)
+      ? "possessive"
+      : "bare";
+
+const occurrence = ({ id, surface, determination, encounterRef, role = null, edge = null, relation = null, giver, basis }) => {
   const ws = words(surface);
-  if (ws.length !== 1) return false;
-  const w = ws[0];
-  return OTHER_PRONOUNS.has(w) || ANAPHORIC_PRONOUNS.has(w) || Object.hasOwn(THIRD_PERSON_SINGULAR, w);
+  if (!ws.length) return null;
+  return Object.freeze({
+    schema: "EOReferentOccurrence@1",
+    id,
+    surface,
+    canonicalSurface: ws.join(" "),
+    head: ws[ws.length - 1],
+    determination,
+    role,
+    encounterRef,
+    edge,
+    relation,
+    standing: "unresolved_identity",
+    provenance: Object.freeze({ giver, basis }),
+  });
 };
 
 /**
  * Classify an unresolved relation participant without deciding its identity.
  *
- * Determiners are received language priors. A definite description says the
- * discourse expects an identifiable referent; an indefinite description says
- * it introduces a candidate. Neither is itself evidence that two occurrences
- * are the same being.
+ * Relation extraction can expose clause fragments as participants. Therefore
+ * this channel now accepts only determiner/possessive-marked descriptions.
+ * Bare spans require an independent role/POS witness and stay unresolved here.
  */
 export function descriptorOccurrence(participant, { encounterRef = null, edge = null } = {}) {
   if (participant?.standing !== "unresolved_surface") return null;
   const surface = String(participant.surface ?? "").trim();
   const ws = words(surface);
-  if (!surface || ws.length === 0 || isPronoun(surface)) return null;
+  if (!surface || ws.length < 2 || containsPronoun(ws) || CLAUSE_LEADERS.has(ws[0])) return null;
 
-  const first = ws[0];
-  const determination = DEFINITE_DETERMINERS.has(first)
-    ? "definite"
-    : INDEFINITE_DETERMINERS.has(first)
-      ? "indefinite"
-      : "bare";
+  const determination = determinationOf(ws[0]);
+  if (determination === "bare") return null;
+  if (ws.length === 1) return null;
 
-  // Bare single tokens are too ambiguous here (noun/verb/adjective/function
-  // word). They remain witnessed unresolved participants until another text
-  // organ supplies a role prior. Multiword spans and determiner-marked spans
-  // carry enough grammatical shape to enter the identity frontier.
-  if (determination === "bare" && ws.length < 2) return null;
-
-  const canonicalSurface = ws.join(" ");
-  return Object.freeze({
-    schema: "EOReferentOccurrence@1",
-    id: `ref-occ:${encounterRef ?? "unknown"}:${participant.occurrence ?? slug(canonicalSurface)}`,
+  return occurrence({
+    id: `ref-occ:${encounterRef ?? "unknown"}:${participant.occurrence ?? slug(surface)}`,
     surface,
-    canonicalSurface,
-    head: ws[ws.length - 1],
     determination,
     role: participant.role ?? null,
     encounterRef,
     edge: edge?.id ?? null,
     relation: edge?.relation ?? null,
-    standing: "unresolved_identity",
-    provenance: Object.freeze({
-      giver: "text/individuation::descriptorOccurrence",
-      basis: "unresolved relation participant with referential grammatical shape",
-    }),
+    giver: "text/individuation::descriptorOccurrence",
+    basis: "determiner-marked unresolved relation participant",
   });
 }
 
 /**
- * Project recurring descriptor occurrences into identity hypotheses.
+ * Direct descriptor perception from witnessed encounter text.
  *
- * Recurrence earns a hypothesis, never sameness. The hypothesis keeps every
- * occurrence and every relation context so challenge can later SYN, SEG or DEF
- * it before an EOReferent is admitted.
+ * This is intentionally narrower than noun-phrase parsing: a received closed
+ * determiner class plus ONE following lexical token. It catches stable forms
+ * such as "the creature", "the fiend", "my father", "this place" without
+ * pretending we possess a general parser. Longer descriptions remain available
+ * to other organs; this channel never invents a head by guessing part of speech.
+ */
+export function directDescriptorOccurrences(text, { encounterRef = "unknown" } = {}) {
+  const source = String(text ?? "");
+  const out = [];
+  const determinerAlternation = [...DEFINITE_DETERMINERS, ...INDEFINITE_DETERMINERS, ...POSSESSIVE_DETERMINERS]
+    .sort((a, b) => b.length - a.length)
+    .join("|");
+  const re = new RegExp(`\\b(${determinerAlternation})\\s+([\\p{L}\\p{N}]+(?:['’][\\p{L}\\p{N}]+)*)`, "giu");
+  let m;
+  let ordinal = 0;
+  while ((m = re.exec(source))) {
+    const surface = `${m[1]} ${m[2]}`;
+    const ws = words(surface);
+    if (containsPronoun([ws[1]])) continue;
+    out.push(occurrence({
+      id: `ref-occ:${encounterRef}:direct:${ordinal}:${m.index}`,
+      surface,
+      determination: determinationOf(ws[0]),
+      encounterRef,
+      giver: "text/individuation::directDescriptorOccurrences",
+      basis: "closed-class determiner plus witnessed lexical form",
+    }));
+    ordinal += 1;
+  }
+  return Object.freeze(out.filter(Boolean));
+}
+
+/**
+ * Project recurring descriptor occurrences into identity hypotheses.
+ * Recurrence earns a hypothesis, never sameness.
  */
 export function descriptorHypotheses(graphEntries = []) {
   const occurrences = graphEntries.filter((x) => x?.schema === "EOReferentOccurrence@1");
@@ -88,7 +130,7 @@ export function descriptorHypotheses(graphEntries = []) {
 
   const hypotheses = [];
   for (const [surface, group] of bySurface) {
-    if (group.length < 2) continue; // recurrence, not a one-off noun phrase
+    if (group.length < 2) continue;
     const encounterRefs = [...new Set(group.map((x) => x.encounterRef).filter(Boolean))];
     if (encounterRefs.length < 2) continue;
     hypotheses.push(Object.freeze({
