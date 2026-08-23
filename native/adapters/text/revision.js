@@ -1,5 +1,6 @@
 import { eoOperation, deltaFold } from "../../kernel/fold.js";
 import { deriveIdentityRevision } from "../../kernel/identity.js";
+import { obligation, openObligation } from "../../kernel/obligations.js";
 import {
   descriptorOccurrence,
   directDescriptorOccurrences,
@@ -12,6 +13,30 @@ import {
 import { textIdentityEvidence } from "./identity-evidence.js";
 
 const existingIds = (fold) => new Set((fold?.graphEntries ?? []).map((entry) => entry?.id).filter(Boolean));
+const slug = (value) => String(value ?? "").toLowerCase().replace(/[^\p{L}\p{N}]+/gu, "_").replace(/^_+|_+$/g, "");
+
+function identityObligationFor(hypothesis, fold = {}) {
+  const relationContexts = (hypothesis?.relationContexts ?? []).filter((context) => context?.edge);
+  const edgeRefs = [...new Set(relationContexts.map((context) => context.edge))];
+  // Recurrence alone remains only a hypothesis. Active reading is earned when
+  // the identity question bears on at least two witnessed relation positions.
+  if (edgeRefs.length < 2) return null;
+  const surfaceKey = `surface:${slug(hypothesis.surface)}`;
+  return obligation({
+    id: `obligation:identity:${hypothesis.id}`,
+    distinction: {
+      hypothesis: hypothesis.id,
+      surfaceKey,
+      occurrences: [...(hypothesis.occurrenceRefs ?? [])],
+      addressedRelationPositions: relationContexts.map((context) => ({ edge: context.edge, relation: context.relation, role: context.role })),
+    },
+    grounds: [...new Set([hypothesis.id, ...(hypothesis.occurrenceRefs ?? []), ...edgeRefs])],
+    alternatives: [...(hypothesis.occurrenceRefs ?? [])],
+    consequences: edgeRefs.map((edge) => ({ kind: "relation_attribution", edge })),
+    openedAt: (fold?.sequence ?? 0) + 1,
+    persistence: 0,
+  });
+}
 
 /**
  * Convert witnessed text structure into warranted EO change.
@@ -19,8 +44,8 @@ const existingIds = (fold) => new Set((fold?.graphEntries ?? []).map((entry) => 
  * Repeated descriptor strings no longer become referents merely by recurrence.
  * Recurrence earns an identity hypothesis. Actual descriptor-derived referents
  * require contextual occurrence-level support (currently explicit apposition).
- * This prevents every use of "the creature" or "the fiend" from collapsing
- * globally while preserving each witnessed occurrence and hypothesis.
+ * Consequential relation-bearing ambiguity becomes an obligation, allowing the
+ * recursive reader to seek evidence without treating recurrence as identity.
  */
 export async function reviseTextFold({ observations = [], fold = {} } = {}) {
   const known = existingIds(fold);
@@ -138,6 +163,16 @@ export async function reviseTextFold({ observations = [], fold = {} } = {}) {
       consequence: { kind: "identity_hypothesis_opened", hypothesis: hypothesis.id },
       payload: { action: "provisional", value: hypothesis },
     }));
+
+    const unresolved = identityObligationFor(hypothesis, fold);
+    if (unresolved && !known.has(unresolved.id)) {
+      known.add(unresolved.id);
+      operations.push(openObligation(unresolved, {
+        witness: hypothesis.occurrenceRefs,
+        grain: "Figure",
+        op: "DEF",
+      }));
+    }
   }
 
   const discourseSource = [
