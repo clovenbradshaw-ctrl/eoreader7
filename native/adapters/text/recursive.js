@@ -39,7 +39,6 @@ function surfaceMatch(text, surface) {
 }
 
 function containsSurface(text, surface) { return surfaceMatch(text, surface) !== null; }
-
 function currentReferents(text, refs = []) { return refs.filter((ref) => ref.surfaces.some((surface) => containsSurface(text, surface))); }
 
 function referentsInSpan(span, map) {
@@ -171,18 +170,21 @@ function orientedReferentSurfaces(text, orientation = {}) {
 }
 
 function foldConditionedRelationVerbs(text, orientation, functionWords, relationPosPrior) {
-  // Fold-conditioned attention may lower the recurrence requirement for WHAT
-  // TO INSPECT, never for WHAT TO BELIEVE. A prior referent that literally
-  // occurs in the current encounter gives the text organ a location to inspect;
-  // a giver-named POS prior must still say the following token is a lexical
-  // verb. The current material then witnesses the relation itself. The actual
-  // orthographic form passed to relation discovery comes from the encounter,
-  // not from the Fold's canonical spelling.
   if (!relationPosPrior?.forms) return new Set();
   const surfaces = orientedReferentSurfaces(text, orientation);
   if (!surfaces.length) return new Set();
   const local = discoverRelationVocab(text, { surfaces, functionWords, minSurfaces: 1, posPrior: relationPosPrior });
   return new Set([...local.verbs].filter((verb) => compositionStandingFor(verb, relationPosPrior).standing === "lexical_verb"));
+}
+
+function witnessedSubjectSurface(text, relation) {
+  const start = Number.isFinite(relation?.subjectOffset) ? relation.subjectOffset : relation?.offset;
+  if (!Number.isFinite(start) || !relation?.verb) return relation?.subject ?? "";
+  const tail = String(text ?? "").slice(start);
+  const verbMatch = new RegExp(`\\b${escapeRe(relation.verb)}\\b`, "iu").exec(tail);
+  if (!verbMatch) return relation.subject ?? "";
+  const raw = tail.slice(0, verbMatch.index).trim();
+  return raw || relation.subject || "";
 }
 
 export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEvery = 25, posPrior = null, relationPosPrior = posPrior, pronounResolution = null } = {}) {
@@ -228,13 +230,21 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
       const relations = extractRelations(encounter.material, { verbs, functionWords: cache.closed });
       const relationBindings = [];
       const edges = relations.map((rel, index) => {
-        const subject = resolveParticipant(rel.subject, cache.refs, sequencePosition, index, "subject", { offset: rel.subjectOffset, pronounBindings: pronouns.bindings, orientation });
+        // extractRelations may normalize a two-token subject by removing a
+        // learned function word (e.g. "the monster" -> "monster"). That is a
+        // useful relation-slot normalization but it must not erase the actual
+        // determiner evidence before co-reference sees it. Reconstruct the raw
+        // witnessed subject directly from the encounter and the extractor's
+        // stable offsets; raw witness conditions identity, normalized slots do
+        // not overwrite it.
+        const subjectSurface = witnessedSubjectSurface(encounter.material, rel);
+        const subject = resolveParticipant(subjectSurface, cache.refs, sequencePosition, index, "subject", { offset: rel.subjectOffset, pronounBindings: pronouns.bindings, orientation });
         const object = resolveParticipant(rel.object, cache.refs, sequencePosition, index, "object", { offset: rel.objectOffset, pronounBindings: pronouns.bindings, orientation });
         for (const binding of [subject.binding, object.binding]) if (binding && !relationBindings.some((item) => item.id === binding.id)) relationBindings.push(binding);
         return hyperedge({
           id: `edge:text:${sequencePosition}:${index}`, relation: rel.verb, participants: [subject.participant, object.participant], witness: `text:${sequencePosition}:${rel.offset}`,
           scope: { sequencePosition, offset: rel.offset }, eo: { op: "CON", grain: "Figure" },
-          meta: { polarity: rel.polarity, source: encounter.source, encounterRef, compositionStanding: compositionStandingFor(rel.verb, relationPosPrior), attention: attendedVerbs.has(rel.verb) ? "fold_conditioned_referent" : null },
+          meta: { polarity: rel.polarity, source: encounter.source, encounterRef, normalizedSubject: rel.subject, compositionStanding: compositionStandingFor(rel.verb, relationPosPrior), attention: attendedVerbs.has(rel.verb) ? "fold_conditioned_referent" : null },
         });
       });
 
