@@ -29,7 +29,12 @@ export function identityAlternative({ left, right, standing = "live_hypothesis",
   });
 }
 
-const participantValue = (participant) => norm(participant?.ref ?? participant?.value ?? participant?.surface);
+const participantValue = (participant) => {
+  // An unresolved participant's `ref` is only an occurrence identifier. Its
+  // witnessed surface is the form identity evidence can actually concern.
+  if (participant?.standing === "unresolved_surface" && participant?.surface) return norm(participant.surface);
+  return norm(participant?.ref ?? participant?.value ?? participant?.surface);
+};
 
 export function canonicalizeHyperedge(edge, alternatives = []) {
   if (edge?.schema !== "EOHyperedge@1") throw new TypeError("canonicalizeHyperedge requires EOHyperedge@1");
@@ -41,11 +46,7 @@ export function canonicalizeHyperedge(edge, alternatives = []) {
       if (identity.left === value) values.add(identity.right);
       if (identity.right === value) values.add(identity.left);
     }
-    return Object.freeze({
-      role: participant.role ?? null,
-      value,
-      alternatives: Object.freeze([...values].sort()),
-    });
+    return Object.freeze({ role: participant.role ?? null, value, alternatives: Object.freeze([...values].sort()) });
   });
   return Object.freeze({
     schema: "EOCanonicalHyperedge@1",
@@ -78,13 +79,7 @@ function recanonicalizationOperations(fold, alternatives, touchedIdentity, witne
       witness,
       inputs: [edge.id, touchedIdentity.id],
       outputs: [next.id],
-      consequence: {
-        kind: "relation_recanonicalized",
-        sourceEdge: edge.id,
-        identity: touchedIdentity.id,
-        from: before?.participants ?? null,
-        to: next.participants,
-      },
+      consequence: { kind: "relation_recanonicalized", sourceEdge: edge.id, identity: touchedIdentity.id, from: before?.participants ?? null, to: next.participants },
       payload: { action: "graph-object", value: next },
     }));
   }
@@ -93,7 +88,6 @@ function recanonicalizationOperations(fold, alternatives, touchedIdentity, witne
 
 /**
  * Turn modality-supplied identity evidence into a witnessed Fold delta.
- *
  * Support never proves sameness: it opens/strengthens a live alternative via
  * CON. Attack is constitutive contradiction: SEG separates the forms and DEF
  * records refusal of the prior identity reading. Canonical relation projections
@@ -109,21 +103,10 @@ export function deriveIdentityRevision({ fold = {}, supports = [], attacks = [],
     const prior = working.get(identityId(left, right)) ?? findAlternative(fold, left, right);
     if (prior?.standing === "distinct" || prior?.standing === "refused") continue;
     const ref = evidence?.witness ?? witness;
-    const next = identityAlternative({
-      left,
-      right,
-      standing: "live_hypothesis",
-      supportRefs: [...(prior?.supportRefs ?? []), ref],
-      attackRefs: prior?.attackRefs ?? [],
-      giver: evidence?.giver ?? giver,
-    });
+    const next = identityAlternative({ left, right, standing: "live_hypothesis", supportRefs: [...(prior?.supportRefs ?? []), ref], attackRefs: prior?.attackRefs ?? [], giver: evidence?.giver ?? giver });
     working.set(next.id, next);
     operations.push(eoOperation({
-      op: "CON",
-      grain: "Figure",
-      witness: ref,
-      inputs: [next.left, next.right],
-      outputs: [next.id],
+      op: "CON", grain: "Figure", witness: ref, inputs: [next.left, next.right], outputs: [next.id],
       consequence: { kind: prior ? "identity_hypothesis_supported" : "identity_hypothesis_opened", identity: next.id },
       payload: { action: "alternative", value: next },
     }));
@@ -136,41 +119,17 @@ export function deriveIdentityRevision({ fold = {}, supports = [], attacks = [],
     const prior = working.get(identityId(left, right)) ?? findAlternative(fold, left, right);
     if (!prior || prior.standing === "distinct" || prior.standing === "refused") continue;
     const ref = evidence?.witness ?? witness;
-    const next = identityAlternative({
-      left: prior.left,
-      right: prior.right,
-      standing: "distinct",
-      supportRefs: prior.supportRefs ?? [],
-      attackRefs: [...(prior.attackRefs ?? []), ref],
-      giver: evidence?.giver ?? giver ?? prior.giver,
-    });
+    const next = identityAlternative({ left: prior.left, right: prior.right, standing: "distinct", supportRefs: prior.supportRefs ?? [], attackRefs: [...(prior.attackRefs ?? []), ref], giver: evidence?.giver ?? giver ?? prior.giver });
     working.set(next.id, next);
     operations.push(eoOperation({
-      op: "SEG",
-      grain: "Figure",
-      witness: ref,
-      inputs: [prior.id],
-      outputs: [next.id],
+      op: "SEG", grain: "Figure", witness: ref, inputs: [prior.id], outputs: [next.id],
       consequence: { kind: "identity_split", identity: next.id, reason: evidence?.reason ?? "incompatible multiplicity" },
       payload: { action: "alternative", value: next },
     }));
     operations.push(eoOperation({
-      op: "DEF",
-      grain: "Figure",
-      witness: ref,
-      inputs: [prior.id],
-      outputs: [`exclusion:${prior.id}`],
+      op: "DEF", grain: "Figure", witness: ref, inputs: [prior.id], outputs: [`exclusion:${prior.id}`],
       consequence: { kind: "identity_reading_refused", identity: prior.id },
-      payload: {
-        action: "exclusion",
-        value: Object.freeze({
-          schema: "EOExclusion@1",
-          id: `exclusion:${prior.id}`,
-          kind: "identity_refused",
-          target: prior.id,
-          witness: ref,
-        }),
-      },
+      payload: { action: "exclusion", value: Object.freeze({ schema: "EOExclusion@1", id: `exclusion:${prior.id}`, kind: "identity_refused", target: prior.id, witness: ref }) },
     }));
     operations.push(...recanonicalizationOperations(fold, [...working.values()], next, ref));
   }
