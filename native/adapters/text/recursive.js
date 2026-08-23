@@ -2,6 +2,7 @@ import { tokenize, buildFrequencyTable, functionWordSet } from "./material.js";
 import { splitSentences } from "./spans.js";
 import { extractSurfaces, discoverReferents, diaNorm } from "./surfaces.js";
 import { discoverRelationVocab, extractRelations } from "./relations.js";
+import { createCausalPronounResolver } from "./pronoun-stream.js";
 import { hyperedge } from "../../kernel/hypergraph.js";
 
 const slug = (value) => diaNorm(value).replace(/[^\p{L}\p{N}]+/gu, "_").replace(/^_+|_+$/g, "");
@@ -51,24 +52,49 @@ function referentsInSpan(span, map) {
   return matches;
 }
 
-function resolveParticipant(surface, map, sequencePosition, relationIndex, role) {
+function bindingInSpan(offset, surface, bindings = []) {
+  if (!Number.isFinite(offset)) return null;
+  const end = offset + String(surface ?? "").length;
+  const hits = bindings.filter((binding) => Number.isFinite(binding?.index) && binding.index >= offset && binding.index < end);
+  const refs = [...new Set(hits.map((binding) => binding.referentId).filter(Boolean))];
+  if (refs.length !== 1) return null;
+  return hits.find((binding) => binding.referentId === refs[0]) ?? null;
+}
+
+function resolveParticipant(surface, map, sequencePosition, relationIndex, role, { offset = null, pronounBindings = [] } = {}) {
   const exact = map.get(diaNorm(surface));
-  if (exact) return { ref: exact, role, standing: "referent", surface, resolution: "exact_surface" };
+  if (exact) return { participant: { ref: exact, role, standing: "referent", surface, resolution: "exact_surface" }, binding: null };
   const candidates = referentsInSpan(surface, map);
   if (candidates.size === 1) {
     const [[ref, matchedSurfaces]] = candidates;
-    return { ref, role, standing: "referent", surface, resolution: "unique_surface_in_span", matchedSurfaces };
+    return { participant: { ref, role, standing: "referent", surface, resolution: "unique_surface_in_span", matchedSurfaces }, binding: null };
   }
+
   const lexical = slug(surface) || "unknown";
   const occurrence = `occ:${sequencePosition}:${relationIndex}:${role}`;
-  return {
-    ref: occurrence,
+  const causalBinding = bindingInSpan(offset, surface, pronounBindings);
+  const binding = causalBinding ? Object.freeze({
+    schema: "EOPronounBinding@1",
+    id: `pronoun-binding:${occurrence}`,
     occurrence,
-    surfaceKey: `surface:${lexical}`,
-    role,
-    standing: "unresolved_surface",
-    surface,
-    candidateReferents: [...candidates.keys()],
+    referent: causalBinding.referentId,
+    pronoun: causalBinding.pronoun,
+    standing: "provisional",
+    activation: causalBinding.activation,
+    margin: causalBinding.margin,
+    provenance: causalBinding.provenance,
+  }) : null;
+  return {
+    participant: {
+      ref: occurrence,
+      occurrence,
+      surfaceKey: `surface:${lexical}`,
+      role,
+      standing: "unresolved_surface",
+      surface,
+      candidateReferents: [...new Set([...candidates.keys(), ...(binding ? [binding.referent] : [])])],
+    },
+    binding,
   };
 }
 
@@ -117,11 +143,6 @@ function taskTargetSurfaceKeys(orientation = {}) {
   return out;
 }
 
-/**
- * A Fold task may make a previously unremarkable surface worth checking for.
- * This emits only occurrence evidence. It does NOT promote the surface to a
- * referent or assert that two occurrences corefer.
- */
 function taskTargetOccurrences(text, sequencePosition, encounterRef, orientation, alreadySeen = new Set()) {
   const out = [];
   let ordinal = 0;
@@ -163,9 +184,10 @@ function admittedRelationVerbs(store, minSurfaces) {
   return verbs;
 }
 
-export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEvery = 25, posPrior = null } = {}) {
+export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEvery = 25, posPrior = null, pronounResolution = null } = {}) {
   if (!Number.isInteger(refreshEvery) || refreshEvery < 1) throw new TypeError("refreshEvery must be a positive integer");
   if (posPrior && (posPrior.schema !== "POSPrior@1" || !posPrior.provenance?.source)) throw new TypeError("posPrior must be a giver-named POSPrior@1");
+  const pronounResolver = pronounResolution ? createCausalPronounResolver(pronounResolution) : null;
   const priorSentences = [];
   let priorText = "";
   let relationRefreshFrom = 0;
@@ -173,12 +195,6 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
   let cache = { closed: new Set(), refs: new Map(), referents: [], gaps: [], verbs: new Set() };
 
   const refresh = () => {
-    // Surface/kind discovery still evaluates the accumulated causal past, but
-    // relation-vocabulary learning scans only the NEW batch. The old path ran
-    // a growing surface regex over the entire growing book every refresh — a
-    // quadratic/cubic multiplier on long works. Distinct supporting surfaces
-    // are accumulated explicitly, so relation admission keeps its original
-    // recurrence meaning without rereading old material.
     const priorWords = tokenize(priorText);
     const table = buildFrequencyTable(priorWords);
     const closed = earnedClosedClass(table);
@@ -213,19 +229,24 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
       const encounterRef = `encounter:${sequencePosition}`;
       if (priorSentences.length === 0 || priorSentences.length % refreshEvery === 0) refresh();
 
+      const currentSentence = { text: encounter.material, offset: encounter.anchor?.start ?? 0, order: priorSentences.length };
+      const pronouns = pronounResolver ? pronounResolver.step(currentSentence, cache.refs) : { bindings: [], gaps: [] };
       const relations = extractRelations(encounter.material, { verbs: cache.verbs, functionWords: cache.closed });
-      const edges = relations.map((rel, index) => hyperedge({
-        id: `edge:text:${sequencePosition}:${index}`,
-        relation: rel.verb,
-        participants: [
-          resolveParticipant(rel.subject, cache.refs, sequencePosition, index, "subject"),
-          resolveParticipant(rel.object, cache.refs, sequencePosition, index, "object"),
-        ],
-        witness: `text:${sequencePosition}:${rel.offset}`,
-        scope: { sequencePosition, offset: rel.offset },
-        eo: { op: "CON", grain: "Figure" },
-        meta: { polarity: rel.polarity, source: encounter.source, encounterRef },
-      }));
+      const relationBindings = [];
+      const edges = relations.map((rel, index) => {
+        const subject = resolveParticipant(rel.subject, cache.refs, sequencePosition, index, "subject", { offset: rel.subjectOffset, pronounBindings: pronouns.bindings });
+        const object = resolveParticipant(rel.object, cache.refs, sequencePosition, index, "object", { offset: rel.objectOffset, pronounBindings: pronouns.bindings });
+        for (const binding of [subject.binding, object.binding]) if (binding && !relationBindings.some((item) => item.id === binding.id)) relationBindings.push(binding);
+        return hyperedge({
+          id: `edge:text:${sequencePosition}:${index}`,
+          relation: rel.verb,
+          participants: [subject.participant, object.participant],
+          witness: `text:${sequencePosition}:${rel.offset}`,
+          scope: { sequencePosition, offset: rel.offset },
+          eo: { op: "CON", grain: "Figure" },
+          meta: { polarity: rel.polarity, source: encounter.source, encounterRef },
+        });
+      });
 
       const seenReferents = currentReferents(encounter.material, cache.referents);
       const mentions = seenReferents.map((ref) => Object.freeze({
@@ -246,11 +267,10 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
         .filter((gap) => activeIds.has(gap.referent))
         .map((gap) => ({ schema: "EOReferentGap@1", id: `gap:referent:${slug(gap.referent)}`, ...gap }));
 
-      const currentSentence = { text: encounter.material, offset: encounter.anchor?.start ?? 0, order: priorSentences.length };
       priorSentences.push(currentSentence);
       priorText += `${priorText ? "\n" : ""}${encounter.material}`;
 
-      if (edges.length === 0 && seenReferents.length === 0 && lexicalOccurrences.length === 0 && targetedOccurrences.length === 0) return [];
+      if (edges.length === 0 && seenReferents.length === 0 && lexicalOccurrences.length === 0 && targetedOccurrences.length === 0 && relationBindings.length === 0) return [];
       return [{
         candidate: {
           distinctions: [
@@ -258,6 +278,7 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
             ...edges.map((edge) => ({ relation: edge.relation, participants: edge.participants })),
             ...lexicalOccurrences.map((occ) => ({ occurrence: occ.id, surfaceKey: occ.surfaceKey, upos: occ.upos })),
             ...targetedOccurrences.map((occ) => ({ occurrence: occ.id, surfaceKey: occ.surfaceKey, taskNominated: true })),
+            ...relationBindings.map((binding) => ({ kind: "pronoun_binding", binding })),
           ],
           hyperedges: edges,
           graphEntries: [...seenReferents, ...mentions, ...lexicalOccurrences, ...targetedOccurrences, ...gaps],
