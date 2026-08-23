@@ -4,6 +4,7 @@
 import { projectTerrainState, terrainCounts } from "./terrain-state.js";
 import { projectEmergentTerrains, mergeTerrainStates } from "./emergent-terrain.js";
 import { projectKinds } from "./kind-induction.js";
+import { projectLensGeometry } from "./lens-math.js";
 import { projectStanceState, stanceCounts } from "./stance-state.js";
 
 export function deriveOrientation(fold = {}, { tasks = [], terrainState = null, emergentTerrainState = null, kindState = null, stanceState = null, referentEntities = null } = {}) {
@@ -18,6 +19,7 @@ export function deriveOrientation(fold = {}, { tasks = [], terrainState = null, 
   const kinds = kindState ?? projectKinds(fold?.graphEntries ?? []);
   const terrains = mergeTerrainStates(terrainState ?? projectTerrainState(fold), emergent, { Kind: kinds });
   const terrainCount = terrainCounts(terrains);
+  const lensGeometry = projectLensGeometry(terrains.Lens ?? []);
   const stances = stanceState ?? projectStanceState(fold);
   const stanceCount = stanceCounts(stances);
   const hasTerrainState = Object.values(terrainCount).some((count) => count > 0);
@@ -45,6 +47,7 @@ export function deriveOrientation(fold = {}, { tasks = [], terrainState = null, 
     relevantPatterns: Object.freeze([...(fold.relevantPatterns ?? [])]),
     activeFrames: Object.freeze([...(fold.activeFrames ?? [])]),
     receivedPriors: Object.freeze([...(fold.receivedPriors ?? [])]),
+    lensGeometry,
     consequenceBearingQuestions: Object.freeze([
       ...openObligations.map((o) => ({ obligationId: o.id, distinction: o.distinction, consequences: o.consequences ?? [] })),
       ...activeTasks.map((task) => ({ taskId: task.task_id, distinction: task.description, consequences: task.consequences ?? [] })),
