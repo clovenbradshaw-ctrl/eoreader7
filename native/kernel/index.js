@@ -3,6 +3,7 @@ export { TERRAINS, terrainOf, createTerrainIndex, indexTerrainEntries, snapshotT
 export { createEmergentTerrainIndex, indexEmergentTerrainEntries, snapshotEmergentTerrainState, projectEmergentTerrains, mergeTerrainStates } from "./emergent-terrain.js";
 export { kindEvidence, createKindInductionIndex, indexKindEntries, snapshotKindState, kindDiagnostics, kindCandidates, projectKinds } from "./kind-induction.js";
 export { induceEntityParameters, induceEntityKindCandidates, profileJaccard } from "./entity-kind-induction.js";
+export { createKindBasinAdmissionLedger } from "./kind-basin-admission.js";
 export { kindFeatureSignature, kindPrior, deriveKindPriors, rankKindPriorHypotheses, snapshotEntityKindPriorHypotheses, conditionKindProjections } from "./kind-priors.js";
 export { STANCES, stanceOf, createStanceIndex, indexStanceEntries, snapshotStanceState, projectStanceState, stanceCounts } from "./stance-state.js";
 export { receivedGround, eoOperation, deltaFold, applyObservation, applyDelta, reconstruct } from "./fold.js";
