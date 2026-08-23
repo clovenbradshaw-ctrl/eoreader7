@@ -41,24 +41,30 @@ function materialObligation(id, ground) {
   });
 }
 
-test("explicit copular classification witnesses Kind evidence but lexical co-occurrence does not", () => {
+test("explicit classifications and indefinite nominals witness Kind evidence; bare recurrence does not", () => {
   const yes = explicitKindAssertions("Victor was a student.", { sequencePosition: 7, referents: [victor], posPrior: POS });
-  assert.equal(yes.length, 1);
-  assert.equal(yes[0].schema, "EOKindEvidence@1");
-  assert.equal(yes[0].evidenceType, "explicit_classification");
-  assert.equal(yes[0].terrain, undefined);
-  assert.equal(yes[0].eo, undefined);
-  assert.equal(yes[0].entityRef, victor.id);
-  assert.equal(yes[0].kindSurface, "student");
-  assert.equal(yes[0].provenance.giver, "lang/en");
-  assert.equal(yes[0].provenance.posPrior, "fixture/ud-pos");
+  assert.equal(yes.length, 2, "copular membership and the indefinite nominal are two witnessed grounds");
+  assert.ok(yes.every((entry) => entry.schema === "EOKindEvidence@1"));
+  assert.ok(yes.every((entry) => entry.evidenceType === "explicit_classification"));
+  assert.ok(yes.every((entry) => entry.terrain === undefined && entry.eo === undefined));
+  const victorMembership = yes.find((entry) => entry.entityRef === victor.id);
+  const possibleInstance = yes.find((entry) => entry.provenance?.basis === "indefinite_nominal_instantiation");
+  assert.ok(victorMembership);
+  assert.ok(possibleInstance?.entityRef.startsWith("possible-instance:text:"));
+  assert.equal(victorMembership.kindSurface, "student");
+  assert.equal(victorMembership.provenance.giver, "lang/en");
+  assert.equal(victorMembership.provenance.posPrior, "fixture/ud-pos");
 
   const projection = snapshotKindState(createKindInductionIndex(yes));
   assert.equal(projection.length, 1);
   assert.equal(projection[0].terrain, "Kind");
   assert.equal(projection[0].standing, "received_explicit_classification");
+  assert.equal(projection[0].kindSurface, "student");
 
-  assert.equal(explicitKindAssertions("Victor met a student.", { sequencePosition: 8, referents: [victor], posPrior: POS }).length, 0);
+  const encountered = explicitKindAssertions("Victor met a student.", { sequencePosition: 8, referents: [victor], posPrior: POS });
+  assert.equal(encountered.length, 1, "indefinite nominal names the repeatable form without classifying Victor");
+  assert.notEqual(encountered[0].entityRef, victor.id);
+  assert.equal(encountered[0].provenance.basis, "indefinite_nominal_instantiation");
   assert.equal(explicitKindAssertions("Victor, Victor, student, student.", { sequencePosition: 9, referents: [victor], posPrior: POS }).length, 0);
 });
 
