@@ -37,13 +37,31 @@ const discourseReferents = referents.filter((entry) => entry?.provenance?.giver 
 const namedReferents = referents.filter((entry) => !entry?.provenance?.giver?.startsWith("text/discourse-referents"));
 const edges = entries.filter((entry) => entry?.schema === "EOHyperedge@1");
 const descriptorOccurrences = entries.filter((entry) => entry?.schema === "EOReferentOccurrence@1");
+const taskConditionedOccurrences = entries.filter((entry) => entry?.schema === "EOTaskTargetOccurrence@1");
 const identityHypotheses = entries.filter((entry) => entry?.schema === "EOIdentityHypothesis@1");
 const discourseLinks = entries.filter((entry) => entry?.schema === "EODiscourseIdentityLink@1");
+const withheldCompositions = entries.filter((entry) => entry?.schema === "EOWithheldComposition@1");
+const licensedCompositions = entries.filter((entry) => entry?.schema === "EOLicensedComposition@1");
+const identityObligations = (reading.fold.obligations ?? []).filter((entry) => entry?.id?.startsWith("obligation:identity:"));
+const compositionObligations = (reading.fold.obligations ?? []).filter((entry) => entry?.id?.startsWith("obligation:composition:"));
+const materialObligations = (reading.fold.obligations ?? []).filter((entry) => entry?.distinction?.materiality?.makesDifference === true);
 const referentSurfaces = new Set(referents.flatMap((ref) => ref.surfaces ?? []).map((x) => String(x).toLowerCase()));
 const hypothesisSurfaces = new Set(identityHypotheses.map((x) => String(x.surface ?? "").toLowerCase()));
 const hasNamedSurface = (needle) => [...referentSurfaces].some((surface) => surface === needle.toLowerCase() || surface.includes(needle.toLowerCase()));
 const hasHypothesis = (needle) => hypothesisSurfaces.has(needle.toLowerCase());
 const surpriseTurns = reading.turns.filter((turn) => (turn.surprise?.operations?.length ?? 0) > 0);
+
+const proposedTasks = reading.turns.flatMap((turn) => turn.proposedTasks ?? []);
+const awakenedTasks = reading.turns.flatMap((turn) => turn.awakenedTasks ?? []);
+const scheduledTasks = reading.turns.flatMap((turn) => turn.scheduledTasks ?? []);
+const taskEvidence = reading.turns.flatMap((turn) => turn.taskEvidence ?? []);
+const taskEvidenceRefs = [...new Set(taskEvidence.flatMap((entry) => entry.evidence ?? []))];
+const retrievalDepths = taskEvidence.map((entry) => entry.depth).filter(Number.isFinite);
+const strategyCounts = {};
+for (const entry of taskEvidence) strategyCounts[entry.strategy ?? "clarify"] = (strategyCounts[entry.strategy ?? "clarify"] ?? 0) + 1;
+const hlAffordances = Object.values(reading.hyperlexicon?.composition ?? {});
+const hlCandidates = hlAffordances.filter((item) => item?.standing === "candidate");
+const hlGiven = hlAffordances.filter((item) => item?.standing === "given");
 
 const requiredCharacters = ["Frankenstein", "Elizabeth", "Clerval", "Walton"];
 const targetDescriptors = ["the creature", "the monster", "the fiend", "the wretch", "my father", "the hut", "the chamber", "this place"];
@@ -64,7 +82,7 @@ const topDiscourseReferents = discourseReferents.slice(0, 30).map((ref) => ({
 }));
 
 const metrics = {
-  schema: "EOFrankensteinDiscourseReferentEval@1",
+  schema: "EOFrankensteinRecursiveReadingEval@2",
   sourceCharacters: source.length,
   bodyCharacters: stripped.text.length,
   encounters: encounters.length,
@@ -82,6 +100,30 @@ const metrics = {
   relations: edges.length,
   transformations: reading.fold.transformationObjects?.length ?? 0,
   surpriseTurns: surpriseTurns.length,
+  readingWork: {
+    proposedTasks: proposedTasks.length,
+    awakenedTasks: awakenedTasks.length,
+    scheduledTasks: scheduledTasks.length,
+    taskEvidence: taskEvidence.length,
+    distinctTaskEvidenceRefs: taskEvidenceRefs.length,
+    taskConditionedDescriptorOccurrences: taskConditionedOccurrences.length,
+    maxRetrievalDepth: retrievalDepths.length ? Math.max(...retrievalDepths) : 0,
+    averageRetrievalDepth: retrievalDepths.length ? retrievalDepths.reduce((a, b) => a + b, 0) / retrievalDepths.length : 0,
+    strategyCounts,
+  },
+  hyperlexicon: {
+    candidates: hlCandidates.length,
+    given: hlGiven.length,
+    withheldCompositions: withheldCompositions.length,
+    licensedCompositions: licensedCompositions.length,
+  },
+  materiality: {
+    materialObligations: materialObligations.length,
+    identityObligations: identityObligations.length,
+    compositionObligations: compositionObligations.length,
+    dormantIdentityHypotheses: Math.max(0, identityHypotheses.length - identityObligations.length),
+    dormantCompositionCandidates: Math.max(0, hlCandidates.length - compositionObligations.length),
+  },
   missingCharacters,
   wrapperPollution,
   finalSequence: reading.fold.sequence,
@@ -100,3 +142,4 @@ if (targetDescriptors.some((surface) => !hasHypothesis(surface))) throw new Erro
 if (wretchMonsterClusters.length < 1) throw new Error("explicit wretch/monster apposition did not form a discourse referent");
 if (creaturePulledIntoWretchMonster) throw new Error("surface-global collapse pulled a distinct creature occurrence into the wretch/monster cluster");
 if (reading.log.length < encounters.length * 2) throw new Error("append-only reading log is unexpectedly sparse");
+if (materialObligations.some((item) => item?.distinction?.materiality?.makesDifference !== true)) throw new Error("active material obligation lacks an explicit difference-that-makes-a-difference basis");
