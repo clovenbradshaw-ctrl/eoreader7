@@ -44,6 +44,8 @@ const descriptorOccurrences = entries.filter((entry) => entry?.schema === "EORef
 const taskConditionedOccurrences = entries.filter((entry) => entry?.schema === "EOTaskTargetOccurrence@1");
 const identityHypotheses = entries.filter((entry) => entry?.schema === "EOIdentityHypothesis@1");
 const discourseLinks = entries.filter((entry) => entry?.schema === "EODiscourseIdentityLink@1");
+const kindAssertions = entries.filter((entry) => entry?.schema === "EOKindAssertion@1");
+const existentialGrounds = entries.filter((entry) => entry?.schema === "EOExistentialGround@1");
 const withheldCompositions = entries.filter((entry) => entry?.schema === "EOWithheldComposition@1");
 const licensedCompositions = entries.filter((entry) => entry?.schema === "EOLicensedComposition@1");
 const identityObligations = (reading.fold.obligations ?? []).filter((entry) => entry?.id?.startsWith("obligation:identity:"));
@@ -67,9 +69,16 @@ const hlAffordances = Object.values(reading.hyperlexicon?.composition ?? {});
 const hlCandidates = hlAffordances.filter((item) => item?.standing === "candidate");
 const hlGiven = hlAffordances.filter((item) => item?.standing === "given");
 const compositionDiagnostics = reading.compositionDiagnostics ?? {};
-const liveTerrainCounts = Object.fromEntries(Object.entries(reading.terrainState ?? {}).map(([terrain, values]) => [terrain, values?.length ?? 0]));
-const liveStanceCounts = Object.fromEntries(Object.entries(reading.stanceState ?? {}).map(([stance, values]) => [stance, values?.length ?? 0]));
-const finalOrientation = deriveOrientation(reading.fold, { terrainState: reading.terrainState, stanceState: reading.stanceState });
+const countsOf = (state = {}) => Object.fromEntries(Object.entries(state).map(([key, values]) => [key, values?.length ?? 0]));
+const directTerrainCounts = countsOf(reading.terrainState);
+const emergentTerrainCounts = countsOf(reading.emergentTerrainState);
+const effectiveTerrainCounts = countsOf(reading.effectiveTerrainState);
+const liveStanceCounts = countsOf(reading.stanceState);
+const finalOrientation = deriveOrientation(reading.fold, {
+  terrainState: reading.terrainState,
+  emergentTerrainState: reading.emergentTerrainState,
+  stanceState: reading.stanceState,
+});
 const reasoningMoves = reasoningAffordances(finalOrientation);
 const novelMoves = novelGenerationAffordances(finalOrientation);
 const reasoningByMove = {};
@@ -126,7 +135,7 @@ const continuationDiagnostics = wretchMonsterClusters.map((ref) => {
 });
 
 const metrics = {
-  schema: "EOFrankensteinRecursiveReadingEval@9",
+  schema: "EOFrankensteinRecursiveReadingEval@10",
   sourceCharacters: source.length,
   bodyCharacters: stripped.text.length,
   encounters: encounters.length,
@@ -140,6 +149,8 @@ const metrics = {
   descriptorOccurrences: descriptorOccurrences.length,
   descriptorHypotheses: identityHypotheses.length,
   discourseLinks: discourseLinks.length,
+  kindAssertions: kindAssertions.length,
+  existentialGrounds: existentialGrounds.length,
   descriptorTargets,
   wretchMonsterClusters: wretchMonsterClusters.length,
   creaturePulledIntoWretchMonster,
@@ -148,7 +159,9 @@ const metrics = {
   relations: edges.length,
   transformations: reading.fold.transformationObjects?.length ?? 0,
   surpriseTurns: surpriseTurns.length,
-  terrainState: liveTerrainCounts,
+  directTerrainState: directTerrainCounts,
+  emergentTerrainState: emergentTerrainCounts,
+  terrainState: effectiveTerrainCounts,
   stanceState: liveStanceCounts,
   reasoning: {
     affordances: reasoningMoves.length,
@@ -226,3 +239,9 @@ if (reading.log.length < encounters.length * 2) throw new Error("append-only rea
 if (materialObligations.some((item) => item?.distinction?.materiality?.makesDifference !== true)) throw new Error("active material obligation lacks an explicit difference-that-makes-a-difference basis");
 if (compositionDiagnostics.relationEdges !== edges.length) throw new Error("composition ledger did not retain all raw witnessed relations");
 if (withheldCompositions.length !== compositionObligations.length) throw new Error("dormant composition candidates leaked into Fold");
+for (const terrain of ["Entity", "Field", "Link", "Network", "Atmosphere", "Lens", "Paradigm"]) {
+  if ((effectiveTerrainCounts[terrain] ?? 0) < 1) throw new Error(`effective ${terrain} terrain disappeared from the real reading path`);
+  if ((reasoningByTerrain[terrain] ?? 0) !== 3) throw new Error(`${terrain} does not expose all three reasoning modes`);
+  if ((novelByTerrain[terrain] ?? 0) !== 1) throw new Error(`${terrain} does not expose its grounded-required generation affordance`);
+}
+if (novelMoves.some((move) => move.witnessed !== false || move.admissible !== false || move.admission !== "requires_grounding")) throw new Error("novel generation proposal bypassed grounding/admission boundary");
