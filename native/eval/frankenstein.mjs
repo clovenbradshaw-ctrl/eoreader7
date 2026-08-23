@@ -9,11 +9,13 @@ if (!path) throw new TypeError("usage: node native/eval/frankenstein.mjs <pg84.t
 const source = fs.readFileSync(path, "utf8");
 const stripped = stripContainer(source);
 if (!stripped.looks_like_material) throw new Error("Frankenstein input does not look like readable material");
+const posPrior = JSON.parse(fs.readFileSync(new URL("../../bin/priors/pos/en-ud-ewt.json", import.meta.url), "utf8"));
 
 const encounters = textEncounters(stripped.text, { source: "gutenberg:84", offset: stripped.offset });
 const perceiver = createCausalTextPerceiver({
   minRelationSurfaces: 2,
   refreshEvery: 25,
+  posPrior,
   pronounResolution: { minActivation: 0.05, minMargin: 0.2 },
 });
 const reader = createRecursiveReader({
@@ -78,7 +80,7 @@ const wrapperPollution = [...referentSurfaces].filter((surface) => /project gute
 const topDiscourseReferents = discourseReferents.slice(0, 30).map((ref) => ({ id: ref.id, surfaces: ref.surfaces, occurrenceCount: ref.occurrenceRefs?.length ?? 0, supportCount: ref.supportRefs?.length ?? 0 }));
 
 const metrics = {
-  schema: "EOFrankensteinRecursiveReadingEval@5",
+  schema: "EOFrankensteinRecursiveReadingEval@6",
   sourceCharacters: source.length,
   bodyCharacters: stripped.text.length,
   encounters: encounters.length,
@@ -98,6 +100,13 @@ const metrics = {
   transformations: reading.fold.transformationObjects?.length ?? 0,
   surpriseTurns: surpriseTurns.length,
   terrainState: liveTerrainCounts,
+  relationPrior: {
+    schema: posPrior.schema,
+    language: posPrior.language,
+    source: posPrior.provenance?.source ?? null,
+    tokensRead: posPrior.provenance?.tokens_read ?? null,
+    formsKept: posPrior.provenance?.forms_kept ?? null,
+  },
   readingWork: {
     proposedTasks: proposedTasks.length,
     awakenedTasks: awakenedTasks.length,
@@ -112,12 +121,13 @@ const metrics = {
   hyperlexicon: {
     candidates: hlCandidates.length,
     given: hlGiven.length,
-    withheldCompositions: withheldCompositions.length,
+    withheldCompositionsInFold: withheldCompositions.length,
     licensedCompositions: licensedCompositions.length,
     relationEdges: compositionDiagnostics.relationEdges ?? 0,
     referentBindings: compositionDiagnostics.referentBindings ?? 0,
     indexedEdges: compositionDiagnostics.indexedEdges ?? 0,
     bridgeEligibleEdges: compositionDiagnostics.bridgeEligibleEdges ?? 0,
+    compositionEligibleEdges: compositionDiagnostics.compositionEligibleEdges ?? 0,
     fullyReferentResolvedEdges: compositionDiagnostics.fullyReferentResolvedEdges ?? 0,
     unresolvedEdges: compositionDiagnostics.unresolvedEdges ?? 0,
     chainSites: compositionDiagnostics.chainSites ?? 0,
@@ -152,3 +162,4 @@ if (creaturePulledIntoWretchMonster) throw new Error("surface-global collapse pu
 if (reading.log.length < encounters.length * 2) throw new Error("append-only reading log is unexpectedly sparse");
 if (materialObligations.some((item) => item?.distinction?.materiality?.makesDifference !== true)) throw new Error("active material obligation lacks an explicit difference-that-makes-a-difference basis");
 if (compositionDiagnostics.relationEdges !== edges.length) throw new Error("composition ledger did not retain all raw witnessed relations");
+if (withheldCompositions.length !== compositionObligations.length) throw new Error("dormant composition candidates leaked into Fold");
