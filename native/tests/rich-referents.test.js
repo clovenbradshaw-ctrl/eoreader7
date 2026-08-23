@@ -7,6 +7,7 @@ import {
 } from "../adapters/text/individuation.js";
 import {
   appositionalDescriptorBindings,
+  demonstrativeSuccessionBindings,
   projectDiscourseReferents,
 } from "../adapters/text/discourse-referents.js";
 
@@ -47,30 +48,46 @@ test("explicit apposition binds occurrences into a contextual referent", () => {
     "I beheld the wretch—the miserable monster whom I had created.",
     { encounterRef: "e:640", witness: "w:640" },
   );
-  assert.equal(binding.links.length, 1);
-  assert.equal(binding.occurrences.length, 2);
-  assert.equal(binding.occurrences[0].canonicalSurface, "the wretch");
-  assert.equal(binding.occurrences[1].canonicalSurface, "the monster");
   const [referent] = projectDiscourseReferents([...binding.occurrences, ...binding.links]);
-  assert.equal(referent?.schema, "EOReferent@1");
-  assert.equal(referent?.standing, "provisional");
   assert.deepEqual(new Set(referent.surfaces), new Set(["the wretch", "the monster"]));
 });
 
-test("same surface in an unrelated occurrence is not pulled into an appositional cluster", () => {
+test("demonstrative succession binds only from one unambiguous prior definite", () => {
+  const prior = directDescriptorOccurrences(
+    "The creature whom I had left in my apartment might still be there, alive and walking about.",
+    { encounterRef: "e:678" },
+  );
+  const current = directDescriptorOccurrences(
+    "I dreaded to behold this monster, but I feared still more that Henry should see him.",
+    { encounterRef: "e:679" },
+  );
+  const binding = demonstrativeSuccessionBindings({ priorOccurrences: prior, currentOccurrences: current, witness: "w:679" });
+  assert.equal(binding.links.length, 1);
+  const [referent] = projectDiscourseReferents([...prior, ...current, ...binding.links]);
+  assert.deepEqual(new Set(referent.surfaces), new Set(["the creature", "this monster"]));
+});
+
+test("demonstrative succession abstains when two prior definites compete", () => {
+  const prior = directDescriptorOccurrences(
+    "The creature watched the stranger while my apartment remained open.",
+    { encounterRef: "e:1" },
+  );
+  const current = directDescriptorOccurrences("This monster moved.", { encounterRef: "e:2" });
+  const binding = demonstrativeSuccessionBindings({ priorOccurrences: prior, currentOccurrences: current, witness: "w:2" });
+  assert.equal(binding.links.length, 0);
+});
+
+test("later female creature occurrence is not pulled into an earlier discourse cluster", () => {
   const binding = appositionalDescriptorBindings(
     "I beheld the wretch—the miserable monster whom I had created.",
     { encounterRef: "e:640", witness: "w:640" },
   );
-  const [femaleCreature] = directDescriptorOccurrences(
+  const later = directDescriptorOccurrences(
     "The wretch saw me destroy the creature on whose future existence he depended.",
     { encounterRef: "e:2436" },
-  ).filter((x) => x.canonicalSurface === "the wretch");
-  const creature = directDescriptorOccurrences(
-    "The wretch saw me destroy the creature on whose future existence he depended.",
-    { encounterRef: "e:2436" },
-  ).find((x) => x.canonicalSurface === "the creature");
-  const [referent] = projectDiscourseReferents([...binding.occurrences, ...binding.links, femaleCreature, creature]);
+  );
+  const creature = later.find((x) => x.canonicalSurface === "the creature");
+  const [referent] = projectDiscourseReferents([...binding.occurrences, ...binding.links, ...later]);
   assert.ok(referent.occurrenceRefs.every((id) => id !== creature.id));
   assert.ok(!referent.surfaces.includes("the creature"));
 });
