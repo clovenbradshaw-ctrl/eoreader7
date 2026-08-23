@@ -6,6 +6,7 @@ import { relevantNeighborhood, interrogateCube, deriveEOTransformations } from "
 import { deriveSurprise, deriveTension, deriveRelease } from "./dynamics.js";
 import { buildHypergraph, indexHypergraphEntries } from "./hypergraph.js";
 import { createTerrainIndex, indexTerrainEntries, snapshotTerrainState } from "./terrain-state.js";
+import { createStanceIndex, indexStanceEntries, snapshotStanceState } from "./stance-state.js";
 import { normalizeHyperlexicon, admitHyperlexiconCandidates } from "./hyperlexicon.js";
 import { createRelationCompositionLedger, consequentialWithheldCompositions } from "./relation-composition.js";
 import { differenceMakesDifference } from "./materiality.js";
@@ -87,6 +88,7 @@ export function createRecursiveReader({ seed = {}, priors = [], perceivers = [],
   const graphSeed = [...(fold.graphEntries ?? []), ...(fold.expectations ?? []), ...(fold.obligations ?? []), ...(fold.activeFrames ?? []), ...(fold.unresolvedAlternatives ?? []), ...(fold.transformationObjects ?? [])];
   const graphIndex = buildHypergraph(graphSeed);
   const terrainIndex = createTerrainIndex(graphSeed);
+  const stanceIndex = createStanceIndex(graphSeed);
   const compositionLedger = createRelationCompositionLedger(graphSeed);
   let compositionDirty = true;
   let cachedCandidates = Object.freeze([]);
@@ -106,9 +108,10 @@ export function createRecursiveReader({ seed = {}, priors = [], perceivers = [],
     const currentEncounter = input?.schema === "Encounter@1" ? input : encounter(input);
     const beforeFold = fold;
     const terrainStateBefore = snapshotTerrainState(terrainIndex);
+    const stanceStateBefore = snapshotStanceState(stanceIndex);
     const liveTasksBefore = projectTasks(tasks);
     const orientationTasks = scheduleTasks(liveTasksBefore, beforeFold, { limit: taskOrientationBudget });
-    const orientation = deriveOrientation(beforeFold, { tasks: orientationTasks, terrainState: terrainStateBefore });
+    const orientation = deriveOrientation(beforeFold, { tasks: orientationTasks, terrainState: terrainStateBefore, stanceState: stanceStateBefore });
     const candidates = await (adapters.perceive ?? defaultPerceive)(currentEncounter, orientation, { perceivers, priors: [...(orientation.receivedPriors ?? []), ...priors], hyperlexicon: hl });
     const challenge = adapters.challenge ? await adapters.challenge({ encounter: currentEncounter, orientation, candidates, hyperlexicon: hl }) : await challengeCandidates(currentEncounter, orientation, candidates, { challengers });
     const challengedCandidates = challenge?.candidates ?? candidates;
@@ -117,6 +120,7 @@ export function createRecursiveReader({ seed = {}, priors = [], perceivers = [],
     const observedGraph = observations.flatMap(observationGraph);
     indexHypergraphEntries(graphIndex, observedGraph);
     indexTerrainEntries(terrainIndex, observedGraph);
+    indexStanceEntries(stanceIndex, observedGraph);
     if (compositionLedger.ingest(observedGraph) > 0) compositionDirty = true;
     refreshComposition();
     const hlCandidates = cachedCandidates;
@@ -136,7 +140,8 @@ export function createRecursiveReader({ seed = {}, priors = [], perceivers = [],
 
     indexHypergraphEntries(graphIndex, taskEvidence);
     indexTerrainEntries(terrainIndex, taskEvidence);
-    const neighborhood = (adapters.retrieve ?? relevantNeighborhood)(beforeFold, [...observations, ...taskEvidence], { select: adapters.selectNeighborhood, graph: graphIndex, terrainState: terrainStateBefore });
+    indexStanceEntries(stanceIndex, taskEvidence);
+    const neighborhood = (adapters.retrieve ?? relevantNeighborhood)(beforeFold, [...observations, ...taskEvidence], { select: adapters.selectNeighborhood, graph: graphIndex, terrainState: terrainStateBefore, stanceState: stanceStateBefore });
     const interrogation = await (adapters.interrogate ?? interrogateCube)([...observations, ...taskEvidence], neighborhood, { ask: adapters.ask, hyperlexicon: hl, composition });
     const proposedDelta = adapters.revise
       ? await adapters.revise({ observations, taskEvidence, neighborhood, interrogation, fold: beforeFold, tasks: projectTasks(tasks), graph: graphIndex, hyperlexicon: hl, composition })
@@ -152,6 +157,7 @@ export function createRecursiveReader({ seed = {}, priors = [], perceivers = [],
     const deltaEntries = deltaGraph(canonicalDelta, fold);
     indexHypergraphEntries(graphIndex, deltaEntries);
     indexTerrainEntries(terrainIndex, deltaEntries);
+    indexStanceEntries(stanceIndex, deltaEntries);
     if (compositionLedger.ingest(deltaEntries) > 0) compositionDirty = true;
     const taskUpdate = proposeObligationTasks(tasks, fold); tasks = taskUpdate.log;
 
@@ -162,7 +168,7 @@ export function createRecursiveReader({ seed = {}, priors = [], perceivers = [],
     const turns = [];
     for (const item of encounters) turns.push(await step(item));
     refreshComposition();
-    return Object.freeze({ turns, fold, hyperlexicon: hl, terrainState: snapshotTerrainState(terrainIndex), compositionDiagnostics: cachedCompositionDiagnostics, tasks: Object.freeze(projectTasks(tasks)), taskLog: tasks, log: [...log] });
+    return Object.freeze({ turns, fold, hyperlexicon: hl, terrainState: snapshotTerrainState(terrainIndex), stanceState: snapshotStanceState(stanceIndex), compositionDiagnostics: cachedCompositionDiagnostics, tasks: Object.freeze(projectTasks(tasks)), taskLog: tasks, log: [...log] });
   }
-  return Object.freeze({ step, read, getFold: () => fold, getHyperlexicon: () => hl, getTerrainState: () => snapshotTerrainState(terrainIndex), getCompositionDiagnostics: () => { refreshComposition(); return cachedCompositionDiagnostics; }, getTasks: () => Object.freeze(projectTasks(tasks)), getTaskLog: () => tasks, getLog: () => [...log] });
+  return Object.freeze({ step, read, getFold: () => fold, getHyperlexicon: () => hl, getTerrainState: () => snapshotTerrainState(terrainIndex), getStanceState: () => snapshotStanceState(stanceIndex), getCompositionDiagnostics: () => { refreshComposition(); return cachedCompositionDiagnostics; }, getTasks: () => Object.freeze(projectTasks(tasks)), getTaskLog: () => tasks, getLog: () => [...log] });
 }
