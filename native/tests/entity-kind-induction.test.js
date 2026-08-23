@@ -40,37 +40,43 @@ function populationFixture() {
   return entries;
 }
 
-test("EOReader5-style population induction discovers coherent latent entity kinds without semantic labels", () => {
+test("population induction discovers unlabeled interaction basins rather than semantic classes", () => {
   const index = createKindInductionIndex(populationFixture(), {
     populationMinPrevalence: 0.15,
-    populationCohesionThreshold: 0.2,
     populationMinKindSize: 2,
     populationPermutations: 100,
     populationQuantile: 0.8,
+    populationBondQuantile: 0.6,
   });
   const diagnostics = kindDiagnostics(index);
   const candidates = kindCandidates(index);
   assert.ok(diagnostics.populationKinds.parameters >= 4);
-  assert.ok(diagnostics.populationKinds.clusters >= 2);
-  assert.ok(candidates.length >= 2);
+  assert.ok(diagnostics.populationKinds.basins >= 1);
+  assert.ok(candidates.length >= 1);
   for (const candidate of candidates) {
     assert.equal(candidate.schema, "EOKindCandidate@1");
     assert.equal(candidate.standing, "structural_kind_hypothesis");
+    assert.equal(candidate.mechanism, "interaction_affinity_basin");
     assert.equal(candidate.witnessed, false);
     assert.equal(candidate.admissible, false);
     assert.equal(candidate.kindSurface, undefined);
     assert.ok(candidate.memberCount >= 2);
+    assert.ok(candidate.field.bindingEnergy > 0);
     assert.ok(candidate.distinguishingParameters.length > 0);
   }
 });
 
-test("population Kind hypotheses do not enter Kind terrain before consequence admission", () => {
+test("population basin hypotheses do not enter Kind terrain when consequence admission is disabled", () => {
   const index = createKindInductionIndex(populationFixture(), {
     populationMinPrevalence: 0.15,
-    populationCohesionThreshold: 0.2,
     populationMinKindSize: 2,
     populationPermutations: 100,
     populationQuantile: 0.8,
+    populationBondQuantile: 0.6,
+    // An effect is a probability difference and can never exceed 1. This
+    // explicitly disables every consequence gate while leaving basin discovery
+    // untouched, so this test isolates nomination from admission.
+    minEffect: 2,
   });
   const candidates = kindCandidates(index);
   assert.ok(candidates.length > 0);
