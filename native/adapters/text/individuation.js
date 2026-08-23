@@ -52,10 +52,8 @@ const occurrence = ({ id, surface, determination, encounterRef, role = null, edg
 
 /**
  * Classify an unresolved relation participant without deciding its identity.
- *
  * Relation extraction can expose clause fragments as participants. Therefore
- * this channel now accepts only determiner/possessive-marked descriptions.
- * Bare spans require an independent role/POS witness and stay unresolved here.
+ * this channel accepts only determiner/possessive-marked descriptions.
  */
 export function descriptorOccurrence(participant, { encounterRef = null, edge = null } = {}) {
   if (participant?.standing !== "unresolved_surface") return null;
@@ -65,7 +63,6 @@ export function descriptorOccurrence(participant, { encounterRef = null, edge = 
 
   const determination = determinationOf(ws[0]);
   if (determination === "bare") return null;
-  if (ws.length === 1) return null;
 
   return occurrence({
     id: `ref-occ:${encounterRef ?? "unknown"}:${participant.occurrence ?? slug(surface)}`,
@@ -82,12 +79,8 @@ export function descriptorOccurrence(participant, { encounterRef = null, edge = 
 
 /**
  * Direct descriptor perception from witnessed encounter text.
- *
- * This is intentionally narrower than noun-phrase parsing: a received closed
- * determiner class plus ONE following lexical token. It catches stable forms
- * such as "the creature", "the fiend", "my father", "this place" without
- * pretending we possess a general parser. Longer descriptions remain available
- * to other organs; this channel never invents a head by guessing part of speech.
+ * A received closed determiner class plus one following lexical token is an
+ * intentionally narrow text-organ observation, not a general noun parser.
  */
 export function directDescriptorOccurrences(text, { encounterRef = "unknown" } = {}) {
   const source = String(text ?? "");
@@ -116,8 +109,7 @@ export function directDescriptorOccurrences(text, { encounterRef = "unknown" } =
 }
 
 /**
- * Project recurring descriptor occurrences into identity hypotheses.
- * Recurrence earns a hypothesis, never sameness.
+ * Recurrence earns an identity hypothesis, never timeless sameness.
  */
 export function descriptorHypotheses(graphEntries = []) {
   const occurrences = graphEntries.filter((x) => x?.schema === "EOReferentOccurrence@1");
@@ -133,19 +125,53 @@ export function descriptorHypotheses(graphEntries = []) {
     if (group.length < 2) continue;
     const encounterRefs = [...new Set(group.map((x) => x.encounterRef).filter(Boolean))];
     if (encounterRefs.length < 2) continue;
+    const determinations = [...new Set(group.map((x) => x.determination).filter(Boolean))];
     hypotheses.push(Object.freeze({
       schema: "EOIdentityHypothesis@1",
       id: `identity:descriptor:${slug(surface)}`,
       surface,
+      determinations: Object.freeze(determinations),
       occurrenceRefs: Object.freeze(group.map((x) => x.id)),
       encounterRefs: Object.freeze(encounterRefs),
       relationContexts: Object.freeze(group.map((x) => ({ edge: x.edge, relation: x.relation, role: x.role }))),
       standing: "live_hypothesis",
       provenance: Object.freeze({
         giver: "text/individuation::descriptorHypotheses",
-        basis: "same descriptor recurred across distinct encounters; identity not yet proven",
+        basis: "same descriptor recurred across distinct encounters; identity remains defeasible",
       }),
     }));
   }
   return Object.freeze(hypotheses);
+}
+
+/**
+ * Project the Fold's present best referential commitment from an identity
+ * hypothesis. This is deliberately REVERSIBLE.
+ *
+ * Repeated indefinite descriptions ("a servant", "a boat") do not imply one
+ * being and are never canonicalised by recurrence alone. Repeated definite or
+ * possessive descriptions carry a weak received language prior that the
+ * discourse treats their target as identifiable. We may therefore expose a
+ * provisional current referent while retaining every occurrence and the live
+ * identity hypothesis that justified it. Later witness can SEG or DEF this
+ * projection without changing the historical observations.
+ */
+export function referentFromDescriptorHypothesis(hypothesis) {
+  if (hypothesis?.schema !== "EOIdentityHypothesis@1") return null;
+  const determinations = new Set(hypothesis.determinations ?? []);
+  if (!determinations.has("definite") && !determinations.has("possessive")) return null;
+  return Object.freeze({
+    schema: "EOReferent@1",
+    id: `ref:descriptor:${slug(hypothesis.surface)}`,
+    display: hypothesis.surface,
+    surfaces: Object.freeze([hypothesis.surface]),
+    occurrenceRefs: Object.freeze([...(hypothesis.occurrenceRefs ?? [])]),
+    identityHypothesis: hypothesis.id,
+    standing: "provisional",
+    revisable: true,
+    provenance: Object.freeze({
+      giver: "text/individuation::referentFromDescriptorHypothesis",
+      basis: "recurrent definite/possessive discourse reference; defeasible until challenged",
+    }),
+  });
 }
