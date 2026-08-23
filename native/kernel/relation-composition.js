@@ -7,6 +7,7 @@ const positionOf = (edge) => Number.isFinite(edge?.scope?.sequencePosition) ? ed
 const pair = (left, right) => `${stable(left)}\u0000${stable(right)}`;
 const rawParticipant = (edge, role) => (edge?.participants ?? []).find((p) => p?.role === role) ?? null;
 const occurrenceOf = (participant) => participant?.occurrence ?? (participant?.standing === "unresolved_surface" ? participant?.ref : null);
+const predicateEligible = (edge) => edge?.meta?.compositionStanding?.eligible !== false;
 
 function endpointOf(participant, bindings) {
   if (!participant) return null;
@@ -28,9 +29,8 @@ function projectedEdge(edge, bindings) {
 
 function chainOf(left, right) {
   if (!left || !right || left.edge.id === right.edge.id) return null;
+  if (!predicateEligible(left.edge) || !predicateEligible(right.edge)) return null;
   if (left.object.id !== right.subject.id) return null;
-  // Composition requires an earned shared REFERENT. The outer figures may
-  // remain occurrence-level; inventing identities for them is unnecessary.
   if (left.object.standing !== "referent" || right.subject.standing !== "referent") return null;
   if (left.subject.id === left.object.id || left.object.id === right.object.id || left.subject.id === right.object.id) return null;
   const lp = positionOf(left.edge), rp = positionOf(right.edge);
@@ -52,6 +52,8 @@ function chainOf(left, right) {
  * the current Fold explicitly binds them. A chain is admitted only when the
  * shared bridge is an earned referent; outer endpoints need not be falsely
  * canonicalized merely to ask whether the two witnessed relations compose.
+ * A medium may also attach a giver-grounded composition standing to a witnessed
+ * predicate. This standing only gates HL nomination; it never deletes the edge.
  */
 export function createRelationCompositionLedger(entries = []) {
   const rawEdges = new Map();
@@ -169,11 +171,13 @@ export function createRelationCompositionLedger(entries = []) {
         .sort((a, b) => b.support - a.support || String(a.left).localeCompare(String(b.left)) || String(a.right).localeCompare(String(b.right)));
       const fullyReferentResolvedEdges = [...activeEdges.values()].filter((item) => item.subject.standing === "referent" && item.object.standing === "referent").length;
       const bridgeEligibleEdges = [...activeEdges.values()].filter((item) => item.subject.standing === "referent" || item.object.standing === "referent").length;
+      const compositionEligibleEdges = [...activeEdges.values()].filter((item) => predicateEligible(item.edge)).length;
       return freeze({
         relationEdges: rawEdges.size,
         referentBindings: bindings.size,
         indexedEdges: activeEdges.size,
         bridgeEligibleEdges,
+        compositionEligibleEdges,
         fullyReferentResolvedEdges,
         unresolvedEdges: Math.max(0, rawEdges.size - fullyReferentResolvedEdges),
         chainSites: chainsById.size,
