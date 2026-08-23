@@ -1,5 +1,5 @@
 export { MODES, DOMAINS, GRAINS, TERRAIN_BY_DOMAIN, STANCE_BY_MODE, cellOf, algebraAddresses } from "./cube.js";
-export { TERRAINS, terrainOf, projectTerrainState, terrainCounts } from "./terrain-state.js";
+export { TERRAINS, terrainOf, createTerrainIndex, indexTerrainEntries, snapshotTerrainState, projectTerrainState, terrainCounts } from "./terrain-state.js";
 export { receivedGround, eoOperation, deltaFold, applyObservation, applyDelta, reconstruct } from "./fold.js";
 export { deriveOrientation } from "./orientation.js";
 export { perceive } from "./perception.js";
