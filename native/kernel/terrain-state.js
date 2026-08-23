@@ -3,9 +3,8 @@ import { TERRAIN_BY_DOMAIN, cellOf } from "./cube.js";
 const freeze = (value) => Object.freeze(value);
 export const TERRAINS = Object.freeze(Object.values(TERRAIN_BY_DOMAIN).flatMap((row) => Object.values(row)));
 const TERRAIN_SET = new Set(TERRAINS);
-
-const empty = () => Object.fromEntries(TERRAINS.map((terrain) => [terrain, []]));
-const live = (entry) => entry && !["resolved", "closed", "superseded", "retracted"].includes(entry.status) && !["fulfilled", "violated", "superseded"].includes(entry.state);
+const CLOSED = new Set(["resolved", "closed", "superseded", "retracted", "fulfilled", "violated"]);
+const live = (entry) => entry && !CLOSED.has(entry.status) && !CLOSED.has(entry.state);
 
 export function terrainOf(entry) {
   if (!entry || typeof entry !== "object") return null;
@@ -18,57 +17,105 @@ export function terrainOf(entry) {
   return null;
 }
 
-/**
- * Project the present Fold through the terrain face without creating a second
- * store. Terrain membership comes from the EO cell carried by an object or by
- * the operation that currently projects that object. Witness history remains
- * untouched; later REC/SEG/DEF operations may therefore change present terrain
- * projection without rewriting the historical object.
- */
-export function projectTerrainState(fold = {}, { ids = null } = {}) {
-  const allowed = ids ? new Set(ids) : null;
-  const buckets = empty();
-  const byId = new Map((fold?.graphEntries ?? []).filter((entry) => entry?.id).map((entry) => [entry.id, entry]));
-  const producerTerrain = new Map();
+const emptyMaps = () => Object.fromEntries(TERRAINS.map((terrain) => [terrain, new Map()]));
 
-  for (const operation of fold?.transformationObjects ?? []) {
-    if (!live(operation)) continue;
+/**
+ * Incremental present-tense terrain index. Reading updates this only with the
+ * new observation/Delta entries from a turn; it never rescans the accumulated
+ * Fold merely to orient toward the next encounter.
+ */
+export function createTerrainIndex(entries = []) {
+  const index = {
+    schema: "EOTerrainIndex@1",
+    byTerrain: emptyMaps(),
+    terrainById: new Map(),
+    producerTerrain: new Map(),
+    snapshot: null,
+    dirty: true,
+  };
+  indexTerrainEntries(index, entries);
+  return index;
+}
+
+const remove = (index, id) => {
+  const prior = index.terrainById.get(id);
+  if (!prior) return;
+  index.byTerrain[prior]?.delete(id);
+  index.terrainById.delete(id);
+  index.dirty = true;
+};
+
+const upsert = (index, entry, terrain) => {
+  if (!entry?.id || !terrain || !TERRAIN_SET.has(terrain)) return false;
+  const prior = index.terrainById.get(entry.id);
+  if (prior && prior !== terrain) index.byTerrain[prior]?.delete(entry.id);
+  if (!live(entry)) {
+    remove(index, entry.id);
+    return false;
+  }
+  index.byTerrain[terrain].set(entry.id, entry);
+  index.terrainById.set(entry.id, terrain);
+  index.dirty = true;
+  return true;
+};
+
+export function indexTerrainEntries(index, entries = []) {
+  if (!index?.byTerrain || !index?.terrainById || !index?.producerTerrain) throw new TypeError("indexTerrainEntries requires EOTerrainIndex@1");
+  const batch = [...entries].filter(Boolean);
+  const objectIds = new Set(batch.filter((entry) => entry?.schema !== "EOOperation@1" && entry?.id).map((entry) => entry.id));
+
+  // Producer cells are learned before products are indexed, so a payload value
+  // need not carry a redundant terrain label.
+  for (const operation of batch) {
+    if (operation?.schema !== "EOOperation@1") continue;
     const terrain = terrainOf(operation);
     if (!terrain) continue;
-    for (const id of operation.outputs ?? []) if (typeof id === "string") producerTerrain.set(id, terrain);
+    for (const id of operation.outputs ?? []) if (typeof id === "string") index.producerTerrain.set(id, terrain);
   }
 
-  const seen = new Set();
-  const admit = (entry, terrain) => {
-    if (!entry?.id || !terrain || !TERRAIN_SET.has(terrain) || !live(entry)) return;
-    if (allowed && !allowed.has(entry.id)) return;
-    const key = `${terrain}\u0000${entry.id}`;
-    if (seen.has(key)) return;
-    seen.add(key);
-    buckets[terrain].push(entry);
-  };
-
-  // Operations are stored in graphEntries for replay/indexing, but they are
-  // not a second terrain occupant when their output object is present. Project
-  // the product; use the operation itself only as the fallback below when the
-  // transformation has no projectable output.
-  for (const entry of byId.values()) {
-    if (entry?.schema === "EOOperation@1") continue;
-    admit(entry, terrainOf(entry) ?? producerTerrain.get(entry.id));
+  for (const entry of batch) {
+    if (entry?.schema === "EOOperation@1" || !entry?.id) continue;
+    upsert(index, entry, terrainOf(entry) ?? index.producerTerrain.get(entry.id));
   }
 
-  for (const operation of fold?.transformationObjects ?? []) {
+  // Operations are fallback terrain facts only when no concrete output object
+  // is available now or already projected. They therefore never double-count
+  // the product they generated.
+  for (const operation of batch) {
+    if (operation?.schema !== "EOOperation@1" || !operation?.id) continue;
     const terrain = terrainOf(operation);
-    if (!terrain || !live(operation)) continue;
-    const hasProjectedOutput = (operation.outputs ?? []).some((id) => {
-      const entry = byId.get(id);
-      return entry && entry.schema !== "EOOperation@1" && (!allowed || allowed.has(id));
-    });
-    if (!hasProjectedOutput) admit(operation, terrain);
+    if (!terrain) continue;
+    const hasProduct = (operation.outputs ?? []).some((id) => objectIds.has(id) || index.terrainById.has(id));
+    if (hasProduct) remove(index, operation.id);
+    else upsert(index, operation, terrain);
   }
+  return index;
+}
 
+export function snapshotTerrainState(index) {
+  if (!index?.byTerrain) throw new TypeError("snapshotTerrainState requires EOTerrainIndex@1");
+  if (!index.dirty && index.snapshot) return index.snapshot;
   const result = {};
-  for (const terrain of TERRAINS) result[terrain] = freeze(buckets[terrain]);
+  for (const terrain of TERRAINS) result[terrain] = freeze([...index.byTerrain[terrain].values()].filter(live));
+  index.snapshot = freeze(result);
+  index.dirty = false;
+  return index.snapshot;
+}
+
+/**
+ * Standalone projection for callers that only have a Fold snapshot. Recursive
+ * reading itself uses the incremental index above.
+ */
+export function projectTerrainState(fold = {}, { ids = null } = {}) {
+  const entries = [
+    ...(fold?.transformationObjects ?? []),
+    ...(fold?.graphEntries ?? []),
+  ];
+  const state = snapshotTerrainState(createTerrainIndex(entries));
+  if (!ids) return state;
+  const allowed = new Set(ids);
+  const result = {};
+  for (const terrain of TERRAINS) result[terrain] = freeze((state[terrain] ?? []).filter((entry) => allowed.has(entry.id)));
   return freeze(result);
 }
 
