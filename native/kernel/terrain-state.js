@@ -30,6 +30,9 @@ export function createTerrainIndex(entries = []) {
     byTerrain: emptyMaps(),
     terrainById: new Map(),
     producerTerrain: new Map(),
+    referentsById: new Map(),
+    referentSnapshot: null,
+    referentsDirty: true,
     snapshot: null,
     dirty: true,
   };
@@ -39,10 +42,15 @@ export function createTerrainIndex(entries = []) {
 
 const remove = (index, id) => {
   const prior = index.terrainById.get(id);
-  if (!prior) return;
-  index.byTerrain[prior]?.delete(id);
-  index.terrainById.delete(id);
-  index.dirty = true;
+  if (prior) {
+    index.byTerrain[prior]?.delete(id);
+    index.terrainById.delete(id);
+    index.dirty = true;
+  }
+  if (index.referentsById.delete(id)) {
+    index.referentsDirty = true;
+    index.referentSnapshot = null;
+  }
 };
 
 const upsert = (index, entry, terrain) => {
@@ -55,12 +63,20 @@ const upsert = (index, entry, terrain) => {
   }
   index.byTerrain[terrain].set(entry.id, entry);
   index.terrainById.set(entry.id, terrain);
+  if (entry.schema === "EOReferent@1") {
+    index.referentsById.set(entry.id, entry);
+    index.referentsDirty = true;
+    index.referentSnapshot = null;
+  } else if (index.referentsById.delete(entry.id)) {
+    index.referentsDirty = true;
+    index.referentSnapshot = null;
+  }
   index.dirty = true;
   return true;
 };
 
 export function indexTerrainEntries(index, entries = []) {
-  if (!index?.byTerrain || !index?.terrainById || !index?.producerTerrain) throw new TypeError("indexTerrainEntries requires EOTerrainIndex@1");
+  if (!index?.byTerrain || !index?.terrainById || !index?.producerTerrain || !index?.referentsById) throw new TypeError("indexTerrainEntries requires EOTerrainIndex@1");
   const batch = [...entries].filter(Boolean);
   const objectIds = new Set(batch.filter((entry) => entry?.schema !== "EOOperation@1" && entry?.id).map((entry) => entry.id));
 
@@ -100,6 +116,20 @@ export function snapshotTerrainState(index) {
   index.snapshot = freeze(result);
   index.dirty = false;
   return index.snapshot;
+}
+
+/**
+ * Actual EO referents are a small semantic subset of Entity. Keep them indexed
+ * separately so Fold-conditioned text perception does not have to scan every
+ * historical descriptor occurrence merely to find the current beings it can
+ * already address.
+ */
+export function snapshotTerrainReferents(index) {
+  if (!index?.referentsById) throw new TypeError("snapshotTerrainReferents requires EOTerrainIndex@1");
+  if (!index.referentsDirty && index.referentSnapshot) return index.referentSnapshot;
+  index.referentSnapshot = freeze([...index.referentsById.values()].filter(live));
+  index.referentsDirty = false;
+  return index.referentSnapshot;
 }
 
 /**
