@@ -55,6 +55,7 @@ test("one-off unknown composition is withheld but does not create active reading
   assert.equal(second.composition.withheld[0].standing, "unknown");
   assert.equal(second.fold.obligations.filter((o) => o.id.startsWith("obligation:composition:")).length, 0);
   assert.equal(second.proposedTasks.filter((id) => id.includes("composition")).length, 0);
+  assert.equal(second.fold.graphEntries.some((entry) => entry?.schema === "EOWithheldComposition@1"), false);
   assert.equal(first.hyperlexicon.schema, "EOHyperlexicon@1");
 });
 
@@ -66,9 +67,11 @@ test("repeated witnessed adjacency nominates an HL candidate but remains dormant
   assert.equal(turns[3].hyperlexicon.composition["p\u0000q"].standing, "candidate");
   assert.equal(turns[3].composition.licensed.length, 0);
   assert.ok(turns[3].composition.withheld.some((item) => item.standing === "candidate"));
+  assert.equal(turns[3].fold.graphEntries.some((entry) => entry?.schema === "EOWithheldComposition@1"), false);
   assert.equal(turns[3].fold.obligations.some((o) => o.id.startsWith("obligation:composition:")), false);
   assert.equal(turns[3].proposedTasks.some((id) => id.includes("obligation:composition:")), false);
   assert.equal(turns[4].orientation.activeTasks.some((task) => task.strategy === "composition_clarification"), false);
+  assert.equal(turns[4].fold.graphEntries.some((entry) => entry?.schema === "EOWithheldComposition@1"), false);
 });
 
 test("withheld composition becomes active only when a live Fold object depends on resolving it", async () => {
@@ -90,6 +93,7 @@ test("withheld composition becomes active only when a live Fold object depends o
   assert.ok(opened);
   assert.equal(opened.distinction.materiality.makesDifference, true);
   assert.ok(opened.distinction.materiality.reasons.some((reason) => reason.ref === bridgeExpectation.id));
+  assert.ok(turns[3].fold.graphEntries.some((entry) => entry?.schema === "EOWithheldComposition@1"));
   assert.ok(turns[3].proposedTasks.some((id) => id.includes("obligation:composition:")));
   assert.ok(turns[4].orientation.activeTasks.some((task) => task.strategy === "composition_clarification"));
   assert.ok(turns[4].scheduledTasks.some((task) => task.strategy === "composition_clarification"));
