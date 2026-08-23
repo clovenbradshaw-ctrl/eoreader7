@@ -46,6 +46,14 @@ const QUESTIONS = Object.freeze({
 export const createReadingTaskState = (log = null) => log ?? createTaskLog();
 export function obligationMakesDifference(obligation = {}) {
   if (!obligation?.id || CLOSED.has(obligation.status)) return false;
+  const materiality = obligation?.distinction?.materiality;
+  // Once a producer has evaluated Fold materiality, task scheduling must honor
+  // that judgment. A dormant distinction cannot re-enter attention merely
+  // because its consequence object contains a reference-shaped string.
+  if (materiality?.makesDifference === false) return false;
+  if (materiality?.makesDifference === true) return true;
+  // Legacy obligations without explicit materiality retain their prior gate.
+  // New readers should prefer obligations that carry the evaluated projection.
   return refsOf(obligation.consequences).size > 0 || (obligation.consequences ?? []).some(materiallyTargeted);
 }
 export function taskForObligation(obligation, { sequence = 0 } = {}) {
