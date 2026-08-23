@@ -9,13 +9,13 @@ if (!path) throw new TypeError("usage: node native/eval/frankenstein.mjs <pg84.t
 const source = fs.readFileSync(path, "utf8");
 const stripped = stripContainer(source);
 if (!stripped.looks_like_material) throw new Error("Frankenstein input does not look like readable material");
-const posPrior = JSON.parse(fs.readFileSync(new URL("../../bin/priors/pos/en-ud-ewt.json", import.meta.url), "utf8"));
+const relationPosPrior = JSON.parse(fs.readFileSync(new URL("../../bin/priors/pos/en-ud-ewt.json", import.meta.url), "utf8"));
 
 const encounters = textEncounters(stripped.text, { source: "gutenberg:84", offset: stripped.offset });
 const perceiver = createCausalTextPerceiver({
   minRelationSurfaces: 2,
   refreshEvery: 25,
-  posPrior,
+  relationPosPrior,
   pronounResolution: { minActivation: 0.05, minMargin: 0.2 },
 });
 const reader = createRecursiveReader({
@@ -101,11 +101,11 @@ const metrics = {
   surpriseTurns: surpriseTurns.length,
   terrainState: liveTerrainCounts,
   relationPrior: {
-    schema: posPrior.schema,
-    language: posPrior.language,
-    source: posPrior.provenance?.source ?? null,
-    tokensRead: posPrior.provenance?.tokens_read ?? null,
-    formsKept: posPrior.provenance?.forms_kept ?? null,
+    schema: relationPosPrior.schema,
+    language: relationPosPrior.language,
+    source: relationPosPrior.provenance?.source ?? null,
+    tokensRead: relationPosPrior.provenance?.tokens_read ?? null,
+    formsKept: relationPosPrior.provenance?.forms_kept ?? null,
   },
   readingWork: {
     proposedTasks: proposedTasks.length,
