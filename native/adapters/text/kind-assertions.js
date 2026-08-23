@@ -1,4 +1,5 @@
 import { diaNorm } from "./surfaces.js";
+import { kindEvidence } from "../../kernel/kind-induction.js";
 
 const freeze = (value) => Object.freeze(value);
 const WORD_RE = /[\p{L}\p{N}]+(?:['’][\p{L}\p{N}]+)*/gu;
@@ -37,12 +38,13 @@ function referentCandidates(referents = []) {
 }
 
 /**
- * Return only explicit type assertions witnessed in this encounter.
+ * Return only explicit source classifications witnessed in this encounter.
  *
- * This is deliberately narrow. It will miss many valid classifications, but
- * it will not promote lexical recurrence, adjective similarity, or a model's
- * guess into Kind. Cross-language support should add a giver-named grammar
- * prior rather than widening this English rule by assumption.
+ * Crucially, these are EOKindEvidence records, not Kind terrain facts. Text is
+ * one sense organ among many; its grammar may witness that a source classifies
+ * an Entity, but only the modality-blind Kind kernel projects Kind into the
+ * current Fold. Cross-language support should add a giver-named grammar prior
+ * rather than widening this English rule by assumption.
  */
 export function explicitKindAssertions(text, {
   sequencePosition = 0,
@@ -74,8 +76,6 @@ export function explicitKindAssertions(text, {
         const determiner = diaNorm(words[1][0]);
         if (!copulas.has(copula) || !determiners.has(determiner)) continue;
 
-        // The predicate noun may be preceded by one or two modifiers. POS is
-        // received evidence about grammatical standing, not semantic type.
         let predicate = null;
         for (const token of words.slice(2, 5)) {
           const standing = nounStanding(token[0], posPrior);
@@ -86,25 +86,24 @@ export function explicitKindAssertions(text, {
         if (!predicate) continue;
         const kindSurface = predicate.surface;
         const kindKey = `kind-surface:${slug(kindSurface) || "unknown"}`;
-        const id = `kind-assertion:${sequencePosition}:${ordinal}`;
+        const id = `kind-evidence:explicit:${sequencePosition}:${ordinal}`;
         ordinal += 1;
-        out.push(freeze({
-          schema: "EOKindAssertion@1",
+        out.push(kindEvidence({
           id,
-          terrain: "Kind",
-          eo: freeze({ op: "SIG", grain: "Pattern" }),
-          subject: ref.id,
-          kindSurface,
+          entityRef: ref.id,
+          evidenceType: "explicit_classification",
           kindKey,
-          standing: "witnessed_explicit_classification",
+          kindSurface,
+          sequencePosition,
           witness: `text:${sequencePosition}:${subjectStart}`,
-          anchor: freeze({ start: subjectStart, end: predicate.offset + kindSurface.length }),
-          provenance: freeze({
+          anchor: { start: subjectStart, end: predicate.offset + kindSurface.length },
+          provenance: {
+            modality: "text",
             giver: grammarPrior.giver,
             grammarPrior: grammarPrior.schema,
             posPrior: predicate.standing.giver,
             basis: "explicit_copular_predicate_nominal",
-          }),
+          },
         }));
       }
     }
