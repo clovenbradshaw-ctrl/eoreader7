@@ -63,6 +63,7 @@ const hlAffordances = Object.values(reading.hyperlexicon?.composition ?? {});
 const hlCandidates = hlAffordances.filter((item) => item?.standing === "candidate");
 const hlGiven = hlAffordances.filter((item) => item?.standing === "given");
 const compositionDiagnostics = reading.compositionDiagnostics ?? {};
+const liveTerrainCounts = Object.fromEntries(Object.entries(reading.terrainState ?? {}).map(([terrain, values]) => [terrain, values?.length ?? 0]));
 
 const requiredCharacters = ["Frankenstein", "Elizabeth", "Clerval", "Walton"];
 const targetDescriptors = ["the creature", "the monster", "the fiend", "the wretch", "my father", "the hut", "the chamber", "this place"];
@@ -77,7 +78,7 @@ const wrapperPollution = [...referentSurfaces].filter((surface) => /project gute
 const topDiscourseReferents = discourseReferents.slice(0, 30).map((ref) => ({ id: ref.id, surfaces: ref.surfaces, occurrenceCount: ref.occurrenceRefs?.length ?? 0, supportCount: ref.supportRefs?.length ?? 0 }));
 
 const metrics = {
-  schema: "EOFrankensteinRecursiveReadingEval@4",
+  schema: "EOFrankensteinRecursiveReadingEval@5",
   sourceCharacters: source.length,
   bodyCharacters: stripped.text.length,
   encounters: encounters.length,
@@ -96,6 +97,7 @@ const metrics = {
   relations: edges.length,
   transformations: reading.fold.transformationObjects?.length ?? 0,
   surpriseTurns: surpriseTurns.length,
+  terrainState: liveTerrainCounts,
   readingWork: {
     proposedTasks: proposedTasks.length,
     awakenedTasks: awakenedTasks.length,
@@ -114,7 +116,9 @@ const metrics = {
     licensedCompositions: licensedCompositions.length,
     relationEdges: compositionDiagnostics.relationEdges ?? 0,
     referentBindings: compositionDiagnostics.referentBindings ?? 0,
-    witnessedEdges: compositionDiagnostics.witnessedEdges ?? 0,
+    indexedEdges: compositionDiagnostics.indexedEdges ?? 0,
+    bridgeEligibleEdges: compositionDiagnostics.bridgeEligibleEdges ?? 0,
+    fullyReferentResolvedEdges: compositionDiagnostics.fullyReferentResolvedEdges ?? 0,
     unresolvedEdges: compositionDiagnostics.unresolvedEdges ?? 0,
     chainSites: compositionDiagnostics.chainSites ?? 0,
     pairTypes: compositionDiagnostics.pairTypes ?? 0,
