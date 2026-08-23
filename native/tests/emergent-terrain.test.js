@@ -78,9 +78,9 @@ test("co-present witnessed links project Field and earned referent topology proj
 
   assert.equal(orientation.terrainCounts.Field, 1);
   assert.equal(orientation.terrainCounts.Network, 1);
-  assert.deepEqual(orientation.terrainState.Field[0].edgeRefs.sort(), ["edge:a", "edge:b"]);
+  assert.deepEqual([...orientation.terrainState.Field[0].edgeRefs].sort(), ["edge:a", "edge:b"]);
   assert.equal(orientation.terrainState.Network[0].bridgeRef, victor.id);
-  assert.deepEqual(orientation.terrainState.Network[0].edgeRefs.sort(), ["edge:a", "edge:b"]);
+  assert.deepEqual([...orientation.terrainState.Network[0].edgeRefs].sort(), ["edge:a", "edge:b"]);
   assert.equal(orientation.terrainState.Field[0].witnessed, false);
   assert.equal(orientation.terrainState.Network[0].witnessed, false);
 
@@ -100,7 +100,7 @@ test("material unresolved interpretation projects Atmosphere; repeated independe
   const orientation = deriveOrientation(fold);
   assert.equal(orientation.terrainCounts.Atmosphere, 1);
   assert.equal(orientation.terrainCounts.Paradigm, 1);
-  assert.deepEqual(orientation.terrainState.Atmosphere[0].obligationRefs.sort(), obligations.map((item) => item.id).sort());
+  assert.deepEqual([...orientation.terrainState.Atmosphere[0].obligationRefs].sort(), obligations.map((item) => item.id).sort());
   assert.equal(orientation.terrainState.Paradigm[0].pattern, "identity");
   assert.equal(orientation.terrainState.Paradigm[0].groundRefs.length, 2);
 });
