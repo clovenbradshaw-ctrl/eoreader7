@@ -10,6 +10,7 @@ import {
   applyObservation,
   deriveOrientation,
   reasoningAffordances,
+  hyperedge,
 } from "../kernel/index.js";
 
 function feature(id, entityRef, key, value, at, modality = "sensor") {
@@ -136,4 +137,26 @@ test("incremental indexing can earn a Kind only after the consequential future a
   assert.equal(snapshotKindState(index).filter((item) => item.standing === "earned_invariant").length, 0);
   indexKindEntries(index, futures);
   assert.ok(snapshotKindState(index).some((item) => item.standing === "earned_invariant"));
+});
+
+test("witnessed hyperedge roles become modality-blind Kind structure without new semantic witness", () => {
+  const edge = hyperedge({
+    id: "edge:fixture:1",
+    relation: "crossed",
+    participants: [
+      { ref: "entity:a", role: "subject", standing: "referent" },
+      { ref: "entity:b", role: "object", standing: "referent" },
+    ],
+    witness: "fixture:edge:1",
+    scope: { sequencePosition: 1 },
+    meta: { modality: "video" },
+  });
+  const index = createKindInductionIndex([edge]);
+  const subject = index.entityFeatures.get("entity:a")?.get('relation_role="subject"');
+  const object = index.entityFeatures.get("entity:b")?.get('relation_role="object"');
+  assert.ok(subject);
+  assert.ok(object);
+  assert.equal(index.evidenceById.get("kind-evidence:graph-role:edge:fixture:1:0")?.witness, "fixture:edge:1");
+  assert.equal(index.evidenceById.get("kind-evidence:graph-role:edge:fixture:1:0")?.provenance?.basis, "witnessed_hyperedge_role");
+  assert.equal(snapshotKindState(index).filter((item) => item.standing === "earned_invariant").length, 0, "one edge cannot mint a Kind");
 });
