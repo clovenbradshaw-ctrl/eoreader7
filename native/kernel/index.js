@@ -5,7 +5,7 @@ export {
   TERRAIN_BY_DOMAIN,
   STANCE_BY_MODE,
   cellOf,
-  cubeAddresses,
+  algebraAddresses,
 } from "./cube.js";
 
 export {
@@ -20,3 +20,22 @@ export {
 export { deriveOrientation } from "./orientation.js";
 export { perceive } from "./perception.js";
 export { witness } from "./witness.js";
+
+export {
+  hyperedge,
+  graphObject,
+  indexHypergraphEntries,
+  buildHypergraph,
+  graphEntriesForIds,
+  graphEdgesForRelation,
+  graphEdgesAtSequence,
+  relevantHypergraphNeighborhood,
+} from "./hypergraph.js";
+
+export {
+  addressOf,
+  cubeAddresses,
+  relevantNeighborhood,
+  interrogateCube,
+  deriveEOTransformations,
+} from "./interrogation.js";

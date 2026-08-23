@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 import * as nativeFold from "../kernel/fold.js";
-import { cellOf as nativeCellOf, cubeAddresses } from "../kernel/cube.js";
+import { cellOf as nativeCellOf, algebraAddresses } from "../kernel/cube.js";
 import * as legacyFold from "../../legacy-eoreader6.1/packages/engine/fold/index.js";
 import { cellOf as legacyCellOf } from "../../legacy-eoreader6.1/packages/engine/operators.js";
 
@@ -10,7 +10,7 @@ const OPERATORS = ["NUL", "SIG", "INS", "SEG", "CON", "SYN", "DEF", "EVA", "REC"
 const GRAINS = ["Ground", "Figure", "Pattern"];
 
 test("native cube algebra matches the frozen 6.1 algebra at all 27 addresses", () => {
-  assert.equal(cubeAddresses().length, 27);
+  assert.equal(algebraAddresses().length, 27);
   for (const op of OPERATORS) {
     for (const grain of GRAINS) {
       assert.deepEqual(nativeCellOf(op, grain), legacyCellOf(op, grain));
