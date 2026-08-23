@@ -18,3 +18,5 @@ export {
 } from "./fold.js";
 
 export { deriveOrientation } from "./orientation.js";
+export { perceive } from "./perception.js";
+export { witness } from "./witness.js";
