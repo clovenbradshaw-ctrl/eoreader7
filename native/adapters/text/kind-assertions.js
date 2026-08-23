@@ -20,12 +20,47 @@ export const ENGLISH_COPULAR_KIND_PRIOR = freeze({
   indefiniteDeterminers: freeze(["a", "an"]),
 });
 
-function nounStanding(form, posPrior) {
+function posStanding(form, posPrior) {
   const counts = posPrior?.forms?.[diaNorm(form)];
   if (!counts) return null;
   const total = Object.values(counts).reduce((sum, count) => sum + count, 0);
-  const nounShare = total ? (counts.NOUN ?? 0) / total : 0;
-  return nounShare > 0.5 ? freeze({ nounShare, counts: freeze({ ...counts }), giver: posPrior.provenance?.source ?? null }) : null;
+  if (!total) return null;
+  return freeze({
+    counts: freeze({ ...counts }),
+    total,
+    nounShare: (counts.NOUN ?? 0) / total,
+    adjectiveShare: (counts.ADJ ?? 0) / total,
+    adverbShare: (counts.ADV ?? 0) / total,
+    giver: posPrior.provenance?.source ?? null,
+  });
+}
+
+function nounStanding(form, posPrior) {
+  const standing = posStanding(form, posPrior);
+  return standing?.nounShare > 0.5 ? standing : null;
+}
+
+function modifierStanding(form, posPrior) {
+  const standing = posStanding(form, posPrior);
+  if (!standing) return null;
+  return standing.adjectiveShare > 0.5 || standing.adverbShare > 0.5 ? standing : null;
+}
+
+/**
+ * Find the head noun of a compact indefinite nominal. We may cross only
+ * giver-supported adjective/adverb modifiers. Verbs, adpositions,
+ * conjunctions, unknown tokens, etc. close the phrase. This prevents a loose
+ * "a/an ... any noun in the next four words" window from manufacturing
+ * received classifications across grammatical boundaries.
+ */
+function indefiniteHead(tokens, posPrior, { maxTokens = 4 } = {}) {
+  for (const token of tokens.slice(0, maxTokens)) {
+    const noun = nounStanding(token[0], posPrior);
+    if (noun) return { surface: token[0], offset: token.index, standing: noun };
+    if (modifierStanding(token[0], posPrior)) continue;
+    break;
+  }
+  return null;
 }
 
 function referentCandidates(referents = []) {
@@ -65,13 +100,7 @@ export function explicitIndefiniteKindReferences(text, {
   for (let i = 0; i < words.length; i += 1) {
     const determiner = diaNorm(words[i][0]);
     if (!determiners.has(determiner)) continue;
-    let predicate = null;
-    for (const token of words.slice(i + 1, i + 5)) {
-      const standing = nounStanding(token[0], posPrior);
-      if (!standing) continue;
-      predicate = { surface: token[0], offset: token.index, standing };
-      break;
-    }
+    const predicate = indefiniteHead(words.slice(i + 1), posPrior);
     if (!predicate) continue;
     const kindSurface = predicate.surface;
     const kindKey = `kind-surface:${slug(kindSurface) || "unknown"}`;
@@ -131,20 +160,15 @@ export function explicitKindAssertions(text, {
         const subjectStart = match.index + match[1].length;
         const afterStart = subjectStart + match[2].length;
         const tail = String(text ?? "").slice(afterStart);
-        const words = [...tail.matchAll(WORD_RE)].slice(0, 6);
+        const words = [...tail.matchAll(WORD_RE)].slice(0, 7);
         if (words.length < 3) continue;
         const copula = diaNorm(words[0][0]);
         const determiner = diaNorm(words[1][0]);
         if (!copulas.has(copula) || !determiners.has(determiner)) continue;
 
-        let predicate = null;
-        for (const token of words.slice(2, 5)) {
-          const standing = nounStanding(token[0], posPrior);
-          if (!standing) continue;
-          predicate = { surface: token[0], offset: afterStart + token.index, standing };
-          break;
-        }
+        const predicate = indefiniteHead(words.slice(2), posPrior);
         if (!predicate) continue;
+        const predicateOffset = afterStart + predicate.offset;
         const kindSurface = predicate.surface;
         const kindKey = `kind-surface:${slug(kindSurface) || "unknown"}`;
         const id = `kind-evidence:explicit:${sequencePosition}:${ordinal}`;
@@ -157,7 +181,7 @@ export function explicitKindAssertions(text, {
           kindSurface,
           sequencePosition,
           witness: `text:${sequencePosition}:${subjectStart}`,
-          anchor: { start: subjectStart, end: predicate.offset + kindSurface.length },
+          anchor: { start: subjectStart, end: predicateOffset + kindSurface.length },
           provenance: {
             modality: "text",
             giver: grammarPrior.giver,
