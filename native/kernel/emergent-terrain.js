@@ -2,6 +2,7 @@ import { TERRAINS } from "./terrain-state.js";
 
 const freeze = (value) => Object.freeze(value);
 const OPEN = new Set([undefined, null, "open", "strengthened", "weakened"]);
+const OCCURRENCE_BINDINGS = new Set(["EOPronounBinding@1", "EODefiniteBinding@1"]);
 
 const stableHash = (value) => {
   let h = 2166136261;
@@ -12,7 +13,6 @@ const stableHash = (value) => {
   return (h >>> 0).toString(36);
 };
 
-const localRefs = (refs = [], ids = null) => ids ? refs.filter((id) => ids.has(id)) : refs;
 const unique = (values = []) => [...new Set(values.filter(Boolean))];
 
 function relationFields(fold = {}, ids = null) {
@@ -47,15 +47,24 @@ function relationFields(fold = {}, ids = null) {
 }
 
 function relationNetworks(fold = {}, ids = null) {
+  const bindingByOccurrence = new Map();
+  for (const entry of fold.graphEntries ?? []) {
+    if (!OCCURRENCE_BINDINGS.has(entry?.schema) || !entry?.occurrence || !entry?.referent) continue;
+    bindingByOccurrence.set(entry.occurrence, entry.referent);
+  }
+
   const byReferent = new Map();
   for (const edge of fold.graphEntries ?? []) {
     if (edge?.schema !== "EOHyperedge@1" || !edge.id) continue;
     for (const participant of edge.participants ?? []) {
-      // Identity is the bridge. Lexical recurrence or unresolved surfaces never
-      // create topology across encounters.
-      if (participant?.standing !== "referent" || !participant.ref) continue;
-      if (!byReferent.has(participant.ref)) byReferent.set(participant.ref, new Map());
-      byReferent.get(participant.ref).set(edge.id, edge);
+      // Present topology may use an earned interpretation of an occurrence,
+      // but raw witness is never rewritten. Lexical recurrence or an unresolved
+      // surface without an explicit binding still cannot create a bridge.
+      const occurrence = participant?.occurrence ?? participant?.ref;
+      const referent = participant?.standing === "referent" ? participant.ref : bindingByOccurrence.get(occurrence);
+      if (!referent) continue;
+      if (!byReferent.has(referent)) byReferent.set(referent, new Map());
+      byReferent.get(referent).set(edge.id, edge);
     }
   }
   const out = [];
