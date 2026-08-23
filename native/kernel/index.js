@@ -1,43 +1,13 @@
-export {
-  MODES,
-  DOMAINS,
-  GRAINS,
-  TERRAIN_BY_DOMAIN,
-  STANCE_BY_MODE,
-  cellOf,
-  algebraAddresses,
-} from "./cube.js";
-
-export {
-  receivedGround,
-  eoOperation,
-  deltaFold,
-  applyObservation,
-  applyDelta,
-  reconstruct,
-} from "./fold.js";
-
+export { MODES, DOMAINS, GRAINS, TERRAIN_BY_DOMAIN, STANCE_BY_MODE, cellOf, algebraAddresses } from "./cube.js";
+export { receivedGround, eoOperation, deltaFold, applyObservation, applyDelta, reconstruct } from "./fold.js";
 export { deriveOrientation } from "./orientation.js";
 export { perceive } from "./perception.js";
 export { witness } from "./witness.js";
-
-export {
-  hyperedge,
-  graphObject,
-  indexHypergraphEntries,
-  buildHypergraph,
-  graphEntriesForIds,
-  graphEdgesForRelation,
-  graphEdgesAtSequence,
-  relevantHypergraphNeighborhood,
-} from "./hypergraph.js";
-
-export {
-  addressOf,
-  cubeAddresses,
-  relevantNeighborhood,
-  interrogateCube,
-  deriveEOTransformations,
-} from "./interrogation.js";
-
+export { hyperedge, graphObject, indexHypergraphEntries, buildHypergraph, graphEntriesForIds, graphEdgesForRelation, graphEdgesAtSequence, relevantHypergraphNeighborhood } from "./hypergraph.js";
+export { addressOf, cubeAddresses, relevantNeighborhood, interrogateCube, deriveEOTransformations } from "./interrogation.js";
 export { deriveSurprise, deriveTension, deriveRelease } from "./dynamics.js";
+export { EXPECTATION_STATES, expectation, expectationTransition } from "./expectations.js";
+export { obligation, openObligation, resolveObligation, carryObligations } from "./obligations.js";
+export { ENTRY_KINDS, OPERATOR_BASIS, OPERATOR_ORDER, createTaskLog, append as appendTaskLog, projectTasks } from "./task-log.js";
+export { createReadingTaskState, obligationMakesDifference, taskForObligation, taskPriority, scheduleTasks, reconcileObligationTasks, proposeObligationTasks, wakeTasks, executeClarificationTask, appendTaskResult } from "./reading-tasks.js";
+export { encounter, challengeCandidates, createRecursiveReader } from "./reading.js";
