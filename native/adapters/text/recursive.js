@@ -152,6 +152,34 @@ function compositionStandingFor(verb, relationPosPrior) {
   return Object.freeze({ standing: verbShare > 0.5 ? "lexical_verb" : auxShare > 0.5 ? "auxiliary" : "nonverb_dominant", eligible: verbShare > 0.5, verbShare, auxShare, counts: Object.freeze({ ...counts }), giver: relationPosPrior.provenance?.source ?? null });
 }
 
+function orientedReferentSurfaces(text, orientation = {}) {
+  const refs = [
+    ...(orientation?.terrainState?.Entity ?? []),
+    ...(orientation?.activeReferents ?? []),
+  ];
+  const surfaces = new Set();
+  for (const ref of refs) {
+    if (ref?.schema !== "EOReferent@1") continue;
+    for (const surface of ref.surfaces ?? []) if (containsSurface(text, surface)) surfaces.add(surface);
+  }
+  return [...surfaces];
+}
+
+function foldConditionedRelationVerbs(text, orientation, functionWords, relationPosPrior) {
+  // Fold-conditioned attention may lower the recurrence requirement for WHAT
+  // TO INSPECT, never for WHAT TO BELIEVE. A prior referent that literally
+  // occurs in the current encounter gives the text organ a location to inspect;
+  // a giver-named POS prior must still say the following token is a lexical
+  // verb. The current material then witnesses the relation itself. Without a
+  // POS prior this path stays closed rather than turning attention into a verb
+  // dictionary.
+  if (!relationPosPrior?.forms) return new Set();
+  const surfaces = orientedReferentSurfaces(text, orientation);
+  if (!surfaces.length) return new Set();
+  const local = discoverRelationVocab(text, { surfaces, functionWords, minSurfaces: 1, posPrior: relationPosPrior });
+  return new Set([...local.verbs].filter((verb) => compositionStandingFor(verb, relationPosPrior).standing === "lexical_verb"));
+}
+
 export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEvery = 25, posPrior = null, relationPosPrior = posPrior, pronounResolution = null } = {}) {
   if (!Number.isInteger(refreshEvery) || refreshEvery < 1) throw new TypeError("refreshEvery must be a positive integer");
   for (const [name, prior] of [["posPrior", posPrior], ["relationPosPrior", relationPosPrior]]) {
@@ -190,7 +218,9 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
 
       const currentSentence = { text: encounter.material, offset: encounter.anchor?.start ?? 0, order: priorSentences.length };
       const pronouns = pronounResolver ? pronounResolver.step(currentSentence, cache.refs) : { bindings: [], gaps: [] };
-      const relations = extractRelations(encounter.material, { verbs: cache.verbs, functionWords: cache.closed });
+      const attendedVerbs = foldConditionedRelationVerbs(encounter.material, orientation, cache.closed, relationPosPrior);
+      const verbs = new Set([...cache.verbs, ...attendedVerbs]);
+      const relations = extractRelations(encounter.material, { verbs, functionWords: cache.closed });
       const relationBindings = [];
       const edges = relations.map((rel, index) => {
         const subject = resolveParticipant(rel.subject, cache.refs, sequencePosition, index, "subject", { offset: rel.subjectOffset, pronounBindings: pronouns.bindings, orientation });
@@ -199,7 +229,7 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
         return hyperedge({
           id: `edge:text:${sequencePosition}:${index}`, relation: rel.verb, participants: [subject.participant, object.participant], witness: `text:${sequencePosition}:${rel.offset}`,
           scope: { sequencePosition, offset: rel.offset }, eo: { op: "CON", grain: "Figure" },
-          meta: { polarity: rel.polarity, source: encounter.source, encounterRef, compositionStanding: compositionStandingFor(rel.verb, relationPosPrior) },
+          meta: { polarity: rel.polarity, source: encounter.source, encounterRef, compositionStanding: compositionStandingFor(rel.verb, relationPosPrior), attention: attendedVerbs.has(rel.verb) ? "fold_conditioned_referent" : null },
         });
       });
 
@@ -229,7 +259,7 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
         },
         anchor: encounter.anchor,
         evidence: encounter.material,
-        nominationCause: targetedOccurrences.length ? ["bottom_up_difference", "active_task"] : "bottom_up_difference",
+        nominationCause: targetedOccurrences.length ? ["bottom_up_difference", "active_task"] : attendedVerbs.size ? ["bottom_up_difference", "fold_conditioned_attention"] : "bottom_up_difference",
       }];
     },
   });
