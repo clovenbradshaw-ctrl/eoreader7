@@ -59,3 +59,5 @@ jobs:
           git add -A
           git commit -m 'Bootstrap EOReader 7 from frozen 6.1 cut e20e441'
           git push origin "HEAD:${TARGET_BRANCH}"
+
+# bootstrap trigger: 2026-08-23
