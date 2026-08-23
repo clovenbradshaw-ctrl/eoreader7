@@ -62,6 +62,7 @@ for (const entry of taskEvidence) strategyCounts[entry.strategy ?? "clarify"] = 
 const hlAffordances = Object.values(reading.hyperlexicon?.composition ?? {});
 const hlCandidates = hlAffordances.filter((item) => item?.standing === "candidate");
 const hlGiven = hlAffordances.filter((item) => item?.standing === "given");
+const compositionDiagnostics = reading.compositionDiagnostics ?? {};
 
 const requiredCharacters = ["Frankenstein", "Elizabeth", "Clerval", "Walton"];
 const targetDescriptors = ["the creature", "the monster", "the fiend", "the wretch", "my father", "the hut", "the chamber", "this place"];
@@ -82,7 +83,7 @@ const topDiscourseReferents = discourseReferents.slice(0, 30).map((ref) => ({
 }));
 
 const metrics = {
-  schema: "EOFrankensteinRecursiveReadingEval@2",
+  schema: "EOFrankensteinRecursiveReadingEval@3",
   sourceCharacters: source.length,
   bodyCharacters: stripped.text.length,
   encounters: encounters.length,
@@ -116,6 +117,11 @@ const metrics = {
     given: hlGiven.length,
     withheldCompositions: withheldCompositions.length,
     licensedCompositions: licensedCompositions.length,
+    witnessedEdges: compositionDiagnostics.witnessedEdges ?? 0,
+    chainSites: compositionDiagnostics.chainSites ?? 0,
+    pairTypes: compositionDiagnostics.pairTypes ?? 0,
+    repeatedPairTypes: compositionDiagnostics.repeatedPairTypes ?? 0,
+    topRelationPairs: compositionDiagnostics.topPairs ?? [],
   },
   materiality: {
     materialObligations: materialObligations.length,
