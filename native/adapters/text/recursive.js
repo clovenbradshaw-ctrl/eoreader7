@@ -31,12 +31,14 @@ function referentObjects(events = []) {
   return [...byId.values()].map((value) => Object.freeze({ ...value, surfaces: Object.freeze(value.surfaces), provenance: Object.freeze(value.provenance) }));
 }
 
-function containsSurface(text, surface) {
-  const hay = diaNorm(text);
-  const needle = diaNorm(surface);
-  if (!needle) return false;
-  return new RegExp(`(^|[^\\p{L}\\p{N}])${escapeRe(needle)}([^\\p{L}\\p{N}]|$)`, "u").test(hay);
+function surfaceMatch(text, surface) {
+  const needle = String(surface ?? "").trim();
+  if (!needle) return null;
+  const re = new RegExp(`(^|[^\\p{L}\\p{N}])(${escapeRe(needle)})(?=[^\\p{L}\\p{N}]|$)`, "iu");
+  return String(text ?? "").match(re)?.[2] ?? null;
 }
+
+function containsSurface(text, surface) { return surfaceMatch(text, surface) !== null; }
 
 function currentReferents(text, refs = []) { return refs.filter((ref) => ref.surfaces.some((surface) => containsSurface(text, surface))); }
 
@@ -160,7 +162,10 @@ function orientedReferentSurfaces(text, orientation = {}) {
   const surfaces = new Set();
   for (const ref of refs) {
     if (ref?.schema !== "EOReferent@1") continue;
-    for (const surface of ref.surfaces ?? []) if (containsSurface(text, surface)) surfaces.add(surface);
+    for (const surface of ref.surfaces ?? []) {
+      const witnessedForm = surfaceMatch(text, surface);
+      if (witnessedForm) surfaces.add(witnessedForm);
+    }
   }
   return [...surfaces];
 }
@@ -170,9 +175,9 @@ function foldConditionedRelationVerbs(text, orientation, functionWords, relation
   // TO INSPECT, never for WHAT TO BELIEVE. A prior referent that literally
   // occurs in the current encounter gives the text organ a location to inspect;
   // a giver-named POS prior must still say the following token is a lexical
-  // verb. The current material then witnesses the relation itself. Without a
-  // POS prior this path stays closed rather than turning attention into a verb
-  // dictionary.
+  // verb. The current material then witnesses the relation itself. The actual
+  // orthographic form passed to relation discovery comes from the encounter,
+  // not from the Fold's canonical spelling.
   if (!relationPosPrior?.forms) return new Set();
   const surfaces = orientedReferentSurfaces(text, orientation);
   if (!surfaces.length) return new Set();
