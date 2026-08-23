@@ -9,7 +9,7 @@ const escapeRe = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 /**
  * Received English grammar fact, not a mined semantic list. The prior says
  * only which forms of BE can head an explicit copular classification and
- * which determiners introduce the predicate nominal. It does not say what
+ * which determiners introduce an indefinite nominal. It does not say what
  * any noun means or which entity belongs to which kind.
  */
 export const ENGLISH_COPULAR_KIND_PRIOR = freeze({
@@ -37,6 +37,68 @@ function referentCandidates(referents = []) {
   return [...byId.values()];
 }
 
+function validatePriors(posPrior, grammarPrior) {
+  if (grammarPrior?.schema !== "EOGrammarPrior@1" || !grammarPrior?.giver) throw new TypeError("grammarPrior must be a giver-named EOGrammarPrior@1");
+  if (posPrior && (posPrior.schema !== "POSPrior@1" || !posPrior.provenance?.source)) throw new TypeError("posPrior must be a giver-named POSPrior@1");
+}
+
+/**
+ * Witness an indefinite nominal as an explicit reference to a repeatable form.
+ *
+ * "a man", "an animal", "a strange creature" can name a Kind even when the
+ * discourse has not earned a stable particular referent for the instance. The
+ * source-local possible-instance id records only the grammatical instantiation
+ * carried by the phrase; it is not promoted to Entity terrain. The Kind kernel
+ * receives the classification evidence and projects Kind present-tense.
+ */
+export function explicitIndefiniteKindReferences(text, {
+  sequencePosition = 0,
+  posPrior = null,
+  grammarPrior = ENGLISH_COPULAR_KIND_PRIOR,
+} = {}) {
+  validatePriors(posPrior, grammarPrior);
+  if (!posPrior?.forms) return [];
+  const determiners = new Set(grammarPrior.indefiniteDeterminers ?? []);
+  const words = [...String(text ?? "").matchAll(WORD_RE)];
+  const out = [];
+  let ordinal = 0;
+  for (let i = 0; i < words.length; i += 1) {
+    const determiner = diaNorm(words[i][0]);
+    if (!determiners.has(determiner)) continue;
+    let predicate = null;
+    for (const token of words.slice(i + 1, i + 5)) {
+      const standing = nounStanding(token[0], posPrior);
+      if (!standing) continue;
+      predicate = { surface: token[0], offset: token.index, standing };
+      break;
+    }
+    if (!predicate) continue;
+    const kindSurface = predicate.surface;
+    const kindKey = `kind-surface:${slug(kindSurface) || "unknown"}`;
+    const phraseStart = words[i].index;
+    out.push(kindEvidence({
+      id: `kind-evidence:indefinite:${sequencePosition}:${ordinal}`,
+      entityRef: `possible-instance:text:${sequencePosition}:${ordinal}`,
+      evidenceType: "explicit_classification",
+      kindKey,
+      kindSurface,
+      sequencePosition,
+      witness: `text:${sequencePosition}:${phraseStart}`,
+      anchor: { start: phraseStart, end: predicate.offset + kindSurface.length },
+      provenance: {
+        modality: "text",
+        giver: grammarPrior.giver,
+        grammarPrior: grammarPrior.schema,
+        posPrior: predicate.standing.giver,
+        basis: "indefinite_nominal_instantiation",
+        instanceStanding: "source_local_possible_instance",
+      },
+    }));
+    ordinal += 1;
+  }
+  return freeze(out);
+}
+
 /**
  * Return only explicit source classifications witnessed in this encounter.
  *
@@ -52,8 +114,7 @@ export function explicitKindAssertions(text, {
   posPrior = null,
   grammarPrior = ENGLISH_COPULAR_KIND_PRIOR,
 } = {}) {
-  if (grammarPrior?.schema !== "EOGrammarPrior@1" || !grammarPrior?.giver) throw new TypeError("grammarPrior must be a giver-named EOGrammarPrior@1");
-  if (posPrior && (posPrior.schema !== "POSPrior@1" || !posPrior.provenance?.source)) throw new TypeError("posPrior must be a giver-named POSPrior@1");
+  validatePriors(posPrior, grammarPrior);
   if (!posPrior?.forms) return [];
   const copulas = new Set(grammarPrior.copulas ?? []);
   const determiners = new Set(grammarPrior.indefiniteDeterminers ?? []);
