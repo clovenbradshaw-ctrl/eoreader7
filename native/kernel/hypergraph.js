@@ -1,5 +1,5 @@
 const freeze = (value) => Object.freeze(value);
-const REF_RE = /^(ref|ref-occ|obs|edge|expectation|obligation|identity|discourse-link|withheld-composition|composition|frame|pattern|motif|delta|op|occ|surface|mention|encounter|lex|task-target|task-evidence|gap):/;
+const REF_RE = /^(ref|ref-occ|obs|edge|expectation|obligation|identity|discourse-link|pronoun-binding|withheld-composition|composition|frame|pattern|motif|delta|op|occ|surface|mention|encounter|lex|task-target|task-evidence|gap):/;
 const addRef = (set, value) => { if (typeof value === "string" && REF_RE.test(value)) set.add(value); };
 const addRefs = (set, values) => { for (const value of values ?? []) addRef(set, value); };
 
@@ -20,6 +20,7 @@ function referencesOf(entry) {
         addRef(refs, d?.referentId);
         addRef(refs, d?.occurrence);
         addRef(refs, d?.surfaceKey);
+        if (d?.kind === "pronoun_binding") addRef(refs, d?.binding?.id);
       }
       addRef(refs, entry.encounterRef);
       break;
@@ -46,6 +47,10 @@ function referencesOf(entry) {
     case "EOReferentOccurrence@1":
       addRef(refs, entry.edge);
       addRef(refs, entry.encounterRef);
+      break;
+    case "EOPronounBinding@1":
+      addRef(refs, entry.occurrence);
+      addRef(refs, entry.referent);
       break;
     case "EOIdentityHypothesis@1":
       addRefs(refs, entry.occurrenceRefs);
@@ -136,6 +141,10 @@ function indexKeys(entry) {
   if (entry?.schema === "EOMention@1" && entry.referent) incident.add(entry.referent);
   if ((entry?.schema === "EOLexicalOccurrence@1" || entry?.schema === "EOTaskTargetOccurrence@1") && entry.surfaceKey) incident.add(entry.surfaceKey);
   if (entry?.schema === "EOReferentOccurrence@1" && entry.edge) incident.add(entry.edge);
+  if (entry?.schema === "EOPronounBinding@1") {
+    if (entry.occurrence) incident.add(entry.occurrence);
+    if (entry.referent) incident.add(entry.referent);
+  }
   const dependent = new Set([...referencesOf(entry)].filter((ref) => ref !== entry?.id));
   return { incident, dependent, relation: entry?.schema === "EOHyperedge@1" ? entry.relation ?? null : null,
     sequence: entry?.schema === "EOHyperedge@1" && Number.isFinite(entry?.scope?.sequencePosition) ? entry.scope.sequencePosition : null };
@@ -188,6 +197,7 @@ export function relevantHypergraphNeighborhood(graph, seeds = [], { maxHops = 3,
       for (const d of seed?.distinctions ?? []) {
         if (d?.ref) seedIds.add(d.ref);
         if (d?.referentId) seedIds.add(d.referentId);
+        if (d?.kind === "pronoun_binding" && d?.binding?.id) seedIds.add(d.binding.id);
       }
     }
   }
