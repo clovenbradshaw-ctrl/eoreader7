@@ -5,7 +5,7 @@ export {
   TERRAIN_BY_DOMAIN,
   STANCE_BY_MODE,
   cellOf,
-  cubeAddresses,
+  algebraAddresses,
 } from "./cube.js";
 
 export {
@@ -34,6 +34,7 @@ export {
 
 export {
   addressOf,
+  cubeAddresses,
   relevantNeighborhood,
   interrogateCube,
   deriveEOTransformations,
