@@ -16,3 +16,5 @@ export {
   applyDelta,
   reconstruct,
 } from "./fold.js";
+
+export { deriveOrientation } from "./orientation.js";
