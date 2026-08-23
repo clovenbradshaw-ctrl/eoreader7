@@ -8,6 +8,10 @@ const MODE_MOVE = Object.freeze({
 });
 
 const refs = (entries = []) => freeze([...new Set(entries.map((entry) => entry?.id).filter(Boolean))]);
+const validLimit = (limit) => {
+  if (!Number.isInteger(limit) || limit < 0) throw new TypeError("limit must be a non-negative integer");
+  return limit;
+};
 
 /**
  * Derive possible reasoning moves from the present Fold orientation.
@@ -22,7 +26,8 @@ const refs = (entries = []) => freeze([...new Set(entries.map((entry) => entry?.
  * must have live context for a concrete cube-address move to be proposed.
  */
 export function reasoningAffordances(orientation = {}, { limit = 81 } = {}) {
-  if (!Number.isInteger(limit) || limit < 0) throw new TypeError("limit must be a non-negative integer");
+  validLimit(limit);
+  if (limit === 0) return freeze([]);
   const out = [];
   for (const address of cubeAddresses()) {
     const terrainContext = orientation?.terrainState?.[address.terrain] ?? [];
@@ -49,6 +54,8 @@ export function reasoningAffordances(orientation = {}, { limit = 81 } = {}) {
  * a licensed transformation supplies grounds for admission.
  */
 export function novelGenerationAffordances(orientation = {}, { limit = 27 } = {}) {
+  validLimit(limit);
+  if (limit === 0) return freeze([]);
   return freeze(reasoningAffordances(orientation, { limit: Math.max(limit * 3, limit) })
     .filter((proposal) => proposal.move === "generate")
     .slice(0, limit)
