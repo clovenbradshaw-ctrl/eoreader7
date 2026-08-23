@@ -156,10 +156,9 @@ function compositionStandingFor(verb, relationPosPrior) {
 }
 
 function orientedReferentSurfaces(text, orientation = {}) {
-  const refs = [
-    ...(orientation?.terrainState?.Entity ?? []),
-    ...(orientation?.activeReferents ?? []),
-  ];
+  const refs = orientation?.activeReferents?.length
+    ? orientation.activeReferents
+    : (orientation?.terrainState?.Entity ?? []);
   const surfaces = new Set();
   for (const ref of refs) {
     if (ref?.schema !== "EOReferent@1") continue;
@@ -251,9 +250,12 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
       });
 
       const seenReferents = currentReferents(encounter.material, cache.referents);
+      const orientedReferents = orientation?.activeReferents?.length
+        ? orientation.activeReferents
+        : (orientation?.terrainState?.Entity ?? []);
       const kindAssertions = explicitKindAssertions(encounter.material, {
         sequencePosition,
-        referents: [...cache.referents, ...(orientation?.terrainState?.Entity ?? [])],
+        referents: [...cache.referents, ...orientedReferents],
         posPrior: relationPosPrior,
       });
       const existentialGrounds = explicitExistentialGrounds(encounter.material, { sequencePosition, encounterRef, posPrior: relationPosPrior });
