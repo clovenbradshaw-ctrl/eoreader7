@@ -4,8 +4,11 @@ import {
   descriptorOccurrence,
   directDescriptorOccurrences,
   descriptorHypotheses,
-  referentFromDescriptorHypothesis,
 } from "./individuation.js";
+import {
+  appositionalDescriptorBindings,
+  projectDiscourseReferents,
+} from "./discourse-referents.js";
 import { textIdentityEvidence } from "./identity-evidence.js";
 
 const existingIds = (fold) => new Set((fold?.graphEntries ?? []).map((entry) => entry?.id).filter(Boolean));
@@ -13,11 +16,11 @@ const existingIds = (fold) => new Set((fold?.graphEntries ?? []).map((entry) => 
 /**
  * Convert witnessed text structure into warranted EO change.
  *
- * Names and recurrent descriptions build the referential frontier. Separately,
- * witnessed grammatical identity evidence may support or attack live identity
- * alternatives. Identity revision runs after the current encounter's raw graph
- * material is assembled, so affected relations can be recanonicalized in the
- * same DeltaFold without altering their historical witnesses.
+ * Repeated descriptor strings no longer become referents merely by recurrence.
+ * Recurrence earns an identity hypothesis. Actual descriptor-derived referents
+ * require contextual occurrence-level support (currently explicit apposition).
+ * This prevents every use of "the creature" or "the fiend" from collapsing
+ * globally while preserving each witnessed occurrence and hypothesis.
  */
 export async function reviseTextFold({ observations = [], fold = {} } = {}) {
   const known = existingIds(fold);
@@ -27,19 +30,29 @@ export async function reviseTextFold({ observations = [], fold = {} } = {}) {
   const identitySupports = [];
   const identityAttacks = [];
 
-  const admitOccurrence = (occurrence, witnessRef) => {
-    if (!occurrence || known.has(occurrence.id)) return;
-    known.add(occurrence.id);
-    newDescriptorOccurrences.push(occurrence);
-    currentGraphEntries.push(occurrence);
+  const admitGraphObject = (value, { op = "INS", grain = "Ground", witness = null, consequence = null } = {}) => {
+    if (!value?.id || known.has(value.id)) return false;
+    known.add(value.id);
+    currentGraphEntries.push(value);
     operations.push(eoOperation({
+      op,
+      grain,
+      witness,
+      outputs: [value.id],
+      consequence,
+      payload: { action: "graph-object", value },
+    }));
+    return true;
+  };
+
+  const admitOccurrence = (occurrence, witnessRef) => {
+    if (!occurrence || !admitGraphObject(occurrence, {
       op: "INS",
       grain: "Ground",
       witness: witnessRef,
-      outputs: [occurrence.id],
       consequence: { kind: "referent_occurrence_witnessed", occurrence: occurrence.id },
-      payload: { action: "graph-object", value: occurrence },
-    }));
+    })) return;
+    newDescriptorOccurrences.push(occurrence);
   };
 
   for (const observation of observations) {
@@ -57,6 +70,20 @@ export async function reviseTextFold({ observations = [], fold = {} } = {}) {
 
     for (const occurrence of directDescriptorOccurrences(observation?.witness, { encounterRef })) {
       admitOccurrence(occurrence, witnessRef);
+    }
+
+    const discourse = appositionalDescriptorBindings(observation?.witness, {
+      encounterRef,
+      witness: witnessRef,
+    });
+    for (const occurrence of discourse.occurrences) admitOccurrence(occurrence, witnessRef);
+    for (const link of discourse.links) {
+      admitGraphObject(link, {
+        op: "CON",
+        grain: "Figure",
+        witness: witnessRef,
+        consequence: { kind: "discourse_identity_supported", link: link.id },
+      });
     }
 
     for (const entry of observation?.graphEntries ?? []) {
@@ -101,35 +128,33 @@ export async function reviseTextFold({ observations = [], fold = {} } = {}) {
     ...newDescriptorOccurrences,
   ];
   for (const hypothesis of descriptorHypotheses(identitySource)) {
-    const hypothesisAlreadyKnown = known.has(hypothesis.id);
-    if (!hypothesisAlreadyKnown) {
-      known.add(hypothesis.id);
-      operations.push(eoOperation({
-        op: "CON",
-        grain: "Figure",
-        inputs: [...hypothesis.occurrenceRefs],
-        outputs: [hypothesis.id],
-        consequence: { kind: "identity_hypothesis_opened", hypothesis: hypothesis.id },
-        payload: { action: "provisional", value: hypothesis },
-      }));
-    }
-
-    const referent = referentFromDescriptorHypothesis(hypothesis);
-    if (!referent || known.has(referent.id)) continue;
-    known.add(referent.id);
-    currentGraphEntries.push(referent);
+    if (known.has(hypothesis.id)) continue;
+    known.add(hypothesis.id);
     operations.push(eoOperation({
+      op: "CON",
+      grain: "Figure",
+      inputs: [...hypothesis.occurrenceRefs],
+      outputs: [hypothesis.id],
+      consequence: { kind: "identity_hypothesis_opened", hypothesis: hypothesis.id },
+      payload: { action: "provisional", value: hypothesis },
+    }));
+  }
+
+  const discourseSource = [
+    ...(fold?.graphEntries ?? []),
+    ...currentGraphEntries,
+  ];
+  for (const referent of projectDiscourseReferents(discourseSource)) {
+    if (known.has(referent.id)) continue;
+    admitGraphObject(referent, {
       op: "INS",
       grain: "Figure",
-      inputs: [hypothesis.id],
-      outputs: [referent.id],
       consequence: {
-        kind: "provisional_referent_admitted",
+        kind: "contextual_referent_admitted",
         ref: referent.id,
         defeasibleBy: ["SEG", "DEF", "REC"],
       },
-      payload: { action: "graph-object", value: referent },
-    }));
+    });
   }
 
   const identityDelta = deriveIdentityRevision({
