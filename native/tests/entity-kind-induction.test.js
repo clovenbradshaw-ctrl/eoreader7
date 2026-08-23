@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { kindEvidence, createKindInductionIndex, kindDiagnostics, kindCandidates } from "../kernel/index.js";
+import { kindEvidence, createKindInductionIndex, kindDiagnostics, kindCandidates, snapshotKindState } from "../kernel/index.js";
 
 function feature(id, entityRef, featureKey, featureValue, at) {
   return kindEvidence({
@@ -74,7 +74,7 @@ test("population Kind hypotheses do not enter Kind terrain before consequence ad
   });
   const candidates = kindCandidates(index);
   assert.ok(candidates.length > 0);
-  // The candidates exist as structural hypotheses, but the canonical Kind
-  // projection remains governed by the separate consequence/DMD gate.
-  assert.equal(index.snapshot ?? null, null);
+  const projected = snapshotKindState(index);
+  assert.equal(projected.filter((kind) => kind.standing === "earned_invariant").length, 0);
+  assert.ok(candidates.every((candidate) => candidate.standing === "structural_kind_hypothesis"));
 });
