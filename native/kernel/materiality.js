@@ -35,26 +35,44 @@ const MATERIAL_KINDS = new Set([
   "bridge_interpretation",
 ]);
 
+function foldLookup(fold = {}) {
+  let index = null;
+  return (ref) => {
+    if (!index) {
+      index = new Map();
+      for (const entry of [
+        ...(fold?.expectations ?? []),
+        ...(fold?.obligations ?? []),
+        ...(fold?.unresolvedAlternatives ?? []),
+        ...(fold?.activeFrames ?? []),
+        ...(fold?.graphEntries ?? []),
+      ]) {
+        if (entry?.id && live(entry)) index.set(entry.id, entry);
+      }
+    }
+    return index.get(ref) ?? null;
+  };
+}
+
 /**
  * EO's active-reading bound: a distinction deserves effort only when resolving
  * it can change a consequence-bearing projection of the present Fold.
  *
- * This is intentionally stricter than salience, recurrence, uncertainty, or HL
- * candidate standing. Those may nominate a distinction; they do not establish
- * that the distinction makes a difference.
+ * The hypergraph index is authoritative when supplied. This matters both
+ * semantically and computationally: DMD is a question about live dependency,
+ * so it should follow indexed dependency edges rather than repeatedly scan the
+ * whole Fold. Standalone callers without a graph retain a lazy Fold fallback.
+ *
+ * Salience, recurrence, uncertainty, and HL candidate standing may nominate a
+ * distinction; none of them establish that the distinction makes a difference.
  */
 export function differenceMakesDifference({ distinction = null, consequences = [], fold = {}, graph = null } = {}) {
   const targetRefs = refsOf(distinction);
   const consequenceRefs = refsOf(consequences);
   const reasons = [];
-
-  const allFoldEntries = [
-    ...(fold?.expectations ?? []),
-    ...(fold?.obligations ?? []),
-    ...(fold?.unresolvedAlternatives ?? []),
-    ...(fold?.activeFrames ?? []),
-    ...(fold?.graphEntries ?? []),
-  ].filter(live);
+  const fallbackLookup = graph?.byId ? null : foldLookup(fold);
+  const lookup = (ref) => graph?.byId ? graph.byId.get(ref) ?? null : fallbackLookup(ref);
+  const hasLive = (ref) => live(lookup(ref));
 
   for (const ref of targetRefs) {
     const dependents = graph?.dependent?.get(ref) ?? [];
@@ -66,17 +84,14 @@ export function differenceMakesDifference({ distinction = null, consequences = [
   }
 
   for (const ref of consequenceRefs) {
-    const entry = graph?.byId?.get(ref) ?? allFoldEntries.find((item) => item?.id === ref);
+    const entry = lookup(ref);
     if (live(entry)) reasons.push(freeze({ kind: "explicit_live_consequence", ref, schema: entry?.schema ?? null }));
   }
 
   for (const consequence of consequences ?? []) {
-    if (!consequence || typeof consequence !== "object") continue;
-    if (!MATERIAL_KINDS.has(consequence.kind)) continue;
-    // A material kind still needs a concrete live target. Bare labels do not
-    // bootstrap their own importance.
+    if (!consequence || typeof consequence !== "object" || !MATERIAL_KINDS.has(consequence.kind)) continue;
     const refs = [...refsOf(consequence)];
-    if (refs.some((ref) => graph?.byId?.has(ref) || allFoldEntries.some((entry) => entry?.id === ref))) {
+    if (refs.some(hasLive)) {
       reasons.push(freeze({ kind: "material_consequence_kind", consequence: consequence.kind, refs: freeze(refs) }));
     }
   }
