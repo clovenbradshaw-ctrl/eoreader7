@@ -1,4 +1,7 @@
+import { interpretiveAtmosphereField } from "./terrain-math.js";
+
 const OPEN = new Set([undefined, null, "open", "strengthened", "weakened"]);
+const material = (obligation) => obligation?.distinction?.materiality?.makesDifference === true;
 
 export function deriveSurprise(delta) {
   const operations = (delta?.operations ?? []).filter((operation) => operation.operator !== "NUL");
@@ -23,28 +26,44 @@ export function deriveSurprise(delta) {
   });
 }
 
+/**
+ * Tension is the energetic profile of the same unresolved consequential field
+ * that projects Atmosphere. It is not a second ontology built from counts.
+ *
+ * Only DMD-material obligations participate. Persistence increases local
+ * potential; consequence reach and live alternatives increase the load; shared
+ * grounds/alternatives couple obligations so mutually constraining questions
+ * contribute more than the same number of independent questions.
+ *
+ * The legacy interactionNetwork/persistence/consequences fields remain as
+ * compatibility surfaces, but are projections of the common field math.
+ */
 export function deriveTension(fold) {
-  const obligations = (fold?.obligations ?? []).filter((o) => OPEN.has(o.status));
-  const interactionNetwork = [];
-  for (let i = 0; i < obligations.length; i += 1) {
-    for (let j = i + 1; j < obligations.length; j += 1) {
-      const a = obligations[i];
-      const b = obligations[j];
-      const ar = new Set([...(a.grounds ?? []), ...(a.alternatives ?? [])].map(String));
-      const shared = [...(b.grounds ?? []), ...(b.alternatives ?? [])].map(String).filter((x) => ar.has(x));
-      if (shared.length) interactionNetwork.push({ from: a.id, to: b.id, shared });
-    }
-  }
+  const obligations = (fold?.obligations ?? []).filter((o) => OPEN.has(o.status) && material(o));
   const sequence = fold?.sequence ?? 0;
+  const field = interpretiveAtmosphereField(obligations, { sequence });
+  const interactionNetwork = field.couplings.map((coupling) => Object.freeze({
+    from: coupling.from,
+    to: coupling.to,
+    shared: coupling.shared,
+    coupling: coupling.coupling,
+    energy: coupling.energy,
+  }));
+  const potentialById = new Map(field.potentials.map((item) => [item.obligation, item]));
+
   return Object.freeze({
-    schema: "TensionProfile@1",
-    obligations,
-    interactionNetwork,
-    persistence: obligations.map((o) => ({
+    schema: "TensionProfile@2",
+    obligations: Object.freeze([...obligations]),
+    field,
+    energy: field.totalEnergy,
+    localPotential: field.localPotential,
+    couplingEnergy: field.couplingEnergy,
+    interactionNetwork: Object.freeze(interactionNetwork),
+    persistence: Object.freeze(obligations.map((o) => ({
       id: o.id,
-      value: o.openedAt == null ? (o.persistence ?? 0) : Math.max(o.persistence ?? 0, sequence - o.openedAt + 1),
-    })),
-    consequences: obligations.map((o) => ({ id: o.id, value: o.consequences ?? [] })),
+      value: potentialById.get(o.id)?.persistence ?? 0,
+    }))),
+    consequences: Object.freeze(obligations.map((o) => ({ id: o.id, value: o.consequences ?? [] }))),
   });
 }
 
