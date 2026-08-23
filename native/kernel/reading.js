@@ -7,6 +7,7 @@ import { deriveSurprise, deriveTension, deriveRelease } from "./dynamics.js";
 import { buildHypergraph, indexHypergraphEntries } from "./hypergraph.js";
 import { createTerrainIndex, indexTerrainEntries, snapshotTerrainState, snapshotTerrainReferents } from "./terrain-state.js";
 import { createEmergentTerrainIndex, indexEmergentTerrainEntries, snapshotEmergentTerrainState, mergeTerrainStates } from "./emergent-terrain.js";
+import { createKindInductionIndex, indexKindEntries, snapshotKindState, kindDiagnostics } from "./kind-induction.js";
 import { createStanceIndex, indexStanceEntries, snapshotStanceState } from "./stance-state.js";
 import { normalizeHyperlexicon, admitHyperlexiconCandidates } from "./hyperlexicon.js";
 import { createRelationCompositionLedger, consequentialWithheldCompositions } from "./relation-composition.js";
@@ -57,11 +58,6 @@ function compositionOperations(composition, fold = {}, graph = null) {
     const distinction = { composition: withheld.id, referentRefs: [...(withheld.referentRefs ?? [])], instances: [...(withheld.instances ?? [])], leftPredicate: withheld.leftPredicate, rightPredicate: withheld.rightPredicate };
     const consequences = [{ kind: "bridge_interpretation", composition: withheld.id }];
 
-    // Candidate recurrence is remembered by the Hyperlexicon ledger, but it is
-    // not itself a Fold transformation. Test downstream consequence FIRST.
-    // Otherwise writing the withheld candidate into the Fold would let the
-    // candidate become its own live consequence on the next turn and bootstrap
-    // active work from recurrence alone.
     const materiality = differenceMakesDifference({ distinction, consequences, fold, graph });
     if (!materiality.makesDifference) continue;
 
@@ -77,7 +73,7 @@ function compositionOperations(composition, fold = {}, graph = null) {
   return operations;
 }
 
-export function createRecursiveReader({ seed = {}, priors = [], perceivers = [], challengers = [], adapters = {}, hyperlexicon = null, taskLog = null, taskOrientationBudget = 24, taskExecutionBudget = 4 } = {}) {
+export function createRecursiveReader({ seed = {}, priors = [], perceivers = [], challengers = [], adapters = {}, hyperlexicon = null, kindInduction = {}, taskLog = null, taskOrientationBudget = 24, taskExecutionBudget = 4 } = {}) {
   if (!Number.isInteger(taskOrientationBudget) || taskOrientationBudget < 0) throw new TypeError("taskOrientationBudget must be a non-negative integer");
   if (!Number.isInteger(taskExecutionBudget) || taskExecutionBudget < 0) throw new TypeError("taskExecutionBudget must be a non-negative integer");
   const { hyperlexicon: seedHyperlexicon = null, ...foldSeed } = seed ?? {};
@@ -90,6 +86,7 @@ export function createRecursiveReader({ seed = {}, priors = [], perceivers = [],
   const graphIndex = buildHypergraph(graphSeed);
   const terrainIndex = createTerrainIndex(graphSeed);
   const emergentTerrainIndex = createEmergentTerrainIndex(graphSeed);
+  const kindIndex = createKindInductionIndex(graphSeed, kindInduction);
   const stanceIndex = createStanceIndex(graphSeed);
   const compositionLedger = createRelationCompositionLedger(graphSeed);
   let compositionDirty = true;
@@ -112,10 +109,11 @@ export function createRecursiveReader({ seed = {}, priors = [], perceivers = [],
     const terrainStateBefore = snapshotTerrainState(terrainIndex);
     const referentEntitiesBefore = snapshotTerrainReferents(terrainIndex);
     const emergentTerrainStateBefore = snapshotEmergentTerrainState(emergentTerrainIndex);
+    const kindStateBefore = snapshotKindState(kindIndex);
     const stanceStateBefore = snapshotStanceState(stanceIndex);
     const liveTasksBefore = projectTasks(tasks);
     const orientationTasks = scheduleTasks(liveTasksBefore, beforeFold, { limit: taskOrientationBudget });
-    const orientation = deriveOrientation(beforeFold, { tasks: orientationTasks, terrainState: terrainStateBefore, emergentTerrainState: emergentTerrainStateBefore, stanceState: stanceStateBefore, referentEntities: referentEntitiesBefore });
+    const orientation = deriveOrientation(beforeFold, { tasks: orientationTasks, terrainState: terrainStateBefore, emergentTerrainState: emergentTerrainStateBefore, kindState: kindStateBefore, stanceState: stanceStateBefore, referentEntities: referentEntitiesBefore });
     const candidates = await (adapters.perceive ?? defaultPerceive)(currentEncounter, orientation, { perceivers, priors: [...(orientation.receivedPriors ?? []), ...priors], hyperlexicon: hl });
     const challenge = adapters.challenge ? await adapters.challenge({ encounter: currentEncounter, orientation, candidates, hyperlexicon: hl }) : await challengeCandidates(currentEncounter, orientation, candidates, { challengers });
     const challengedCandidates = challenge?.candidates ?? candidates;
@@ -125,6 +123,7 @@ export function createRecursiveReader({ seed = {}, priors = [], perceivers = [],
     indexHypergraphEntries(graphIndex, observedGraph);
     indexTerrainEntries(terrainIndex, observedGraph);
     indexEmergentTerrainEntries(emergentTerrainIndex, observedGraph);
+    indexKindEntries(kindIndex, observedGraph);
     indexStanceEntries(stanceIndex, observedGraph);
     if (compositionLedger.ingest(observedGraph) > 0) compositionDirty = true;
     refreshComposition();
@@ -146,6 +145,7 @@ export function createRecursiveReader({ seed = {}, priors = [], perceivers = [],
     indexHypergraphEntries(graphIndex, taskEvidence);
     indexTerrainEntries(terrainIndex, taskEvidence);
     indexEmergentTerrainEntries(emergentTerrainIndex, taskEvidence);
+    indexKindEntries(kindIndex, taskEvidence);
     indexStanceEntries(stanceIndex, taskEvidence);
     const neighborhood = (adapters.retrieve ?? relevantNeighborhood)(beforeFold, [...observations, ...taskEvidence], { select: adapters.selectNeighborhood, graph: graphIndex, terrainState: terrainStateBefore, emergentTerrainIndex, stanceState: stanceStateBefore });
     const interrogation = await (adapters.interrogate ?? interrogateCube)([...observations, ...taskEvidence], neighborhood, { ask: adapters.ask, hyperlexicon: hl, composition });
@@ -164,11 +164,12 @@ export function createRecursiveReader({ seed = {}, priors = [], perceivers = [],
     indexHypergraphEntries(graphIndex, deltaEntries);
     indexTerrainEntries(terrainIndex, deltaEntries);
     indexEmergentTerrainEntries(emergentTerrainIndex, deltaEntries);
+    indexKindEntries(kindIndex, deltaEntries);
     indexStanceEntries(stanceIndex, deltaEntries);
     if (compositionLedger.ingest(deltaEntries) > 0) compositionDirty = true;
     const taskUpdate = proposeObligationTasks(tasks, fold); tasks = taskUpdate.log;
 
-    return Object.freeze({ encounter: currentEncounter, orientation, candidates, challenge, observations, hyperlexicon: hl, hyperlexiconCandidates: hlCandidates, composition, compositionDiagnostics, awakenedTasks, scheduledTasks, taskEvidence, proposedTasks: taskUpdate.proposed, tasks: Object.freeze(projectTasks(tasks)), relevantFold: neighborhood, interrogation, deltaFold: canonicalDelta, fold, surprise: deriveSurprise(canonicalDelta), tension: deriveTension(fold), release: deriveRelease(canonicalDelta, beforeFold, fold) });
+    return Object.freeze({ encounter: currentEncounter, orientation, candidates, challenge, observations, hyperlexicon: hl, hyperlexiconCandidates: hlCandidates, composition, compositionDiagnostics, kindState: snapshotKindState(kindIndex), kindDiagnostics: kindDiagnostics(kindIndex), awakenedTasks, scheduledTasks, taskEvidence, proposedTasks: taskUpdate.proposed, tasks: Object.freeze(projectTasks(tasks)), relevantFold: neighborhood, interrogation, deltaFold: canonicalDelta, fold, surprise: deriveSurprise(canonicalDelta), tension: deriveTension(fold), release: deriveRelease(canonicalDelta, beforeFold, fold) });
   }
 
   async function read(encounters = []) {
@@ -177,7 +178,8 @@ export function createRecursiveReader({ seed = {}, priors = [], perceivers = [],
     refreshComposition();
     const terrainState = snapshotTerrainState(terrainIndex);
     const emergentTerrainState = snapshotEmergentTerrainState(emergentTerrainIndex);
-    return Object.freeze({ turns, fold, hyperlexicon: hl, terrainState, referentEntities: snapshotTerrainReferents(terrainIndex), emergentTerrainState, effectiveTerrainState: mergeTerrainStates(terrainState, emergentTerrainState), stanceState: snapshotStanceState(stanceIndex), compositionDiagnostics: cachedCompositionDiagnostics, tasks: Object.freeze(projectTasks(tasks)), taskLog: tasks, log: [...log] });
+    const kindState = snapshotKindState(kindIndex);
+    return Object.freeze({ turns, fold, hyperlexicon: hl, terrainState, referentEntities: snapshotTerrainReferents(terrainIndex), emergentTerrainState, kindState, kindDiagnostics: kindDiagnostics(kindIndex), effectiveTerrainState: mergeTerrainStates(terrainState, emergentTerrainState, { Kind: kindState }), stanceState: snapshotStanceState(stanceIndex), compositionDiagnostics: cachedCompositionDiagnostics, tasks: Object.freeze(projectTasks(tasks)), taskLog: tasks, log: [...log] });
   }
   return Object.freeze({
     step,
@@ -187,7 +189,9 @@ export function createRecursiveReader({ seed = {}, priors = [], perceivers = [],
     getTerrainState: () => snapshotTerrainState(terrainIndex),
     getTerrainReferents: () => snapshotTerrainReferents(terrainIndex),
     getEmergentTerrainState: () => snapshotEmergentTerrainState(emergentTerrainIndex),
-    getEffectiveTerrainState: () => mergeTerrainStates(snapshotTerrainState(terrainIndex), snapshotEmergentTerrainState(emergentTerrainIndex)),
+    getKindState: () => snapshotKindState(kindIndex),
+    getKindDiagnostics: () => kindDiagnostics(kindIndex),
+    getEffectiveTerrainState: () => mergeTerrainStates(snapshotTerrainState(terrainIndex), snapshotEmergentTerrainState(emergentTerrainIndex), { Kind: snapshotKindState(kindIndex) }),
     getStanceState: () => snapshotStanceState(stanceIndex),
     getCompositionDiagnostics: () => { refreshComposition(); return cachedCompositionDiagnostics; },
     getTasks: () => Object.freeze(projectTasks(tasks)),
