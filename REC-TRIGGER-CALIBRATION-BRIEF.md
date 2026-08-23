@@ -1,0 +1,1 @@
+legacy-eoreader6.1/REC-TRIGGER-CALIBRATION-BRIEF.md
