@@ -35,23 +35,6 @@ function corpusEntries() {
   ];
 }
 
-function sourceEntries() {
-  return [
-    feature("s:a:selector", "s:a", "anaphoric_class", "gendered_singular", 1),
-    feature("s:b:selector", "s:b", "anaphoric_class", "gendered_singular", 2),
-    feature("s:c:selector", "s:c", "anaphoric_class", "gendered_singular", 3),
-    feature("s:x:selector", "s:x", "adjacent_closed_class_left", "in", 1),
-    feature("s:y:selector", "s:y", "adjacent_closed_class_left", "in", 1),
-    feature("s:z:selector", "s:z", "adjacent_closed_class_left", "in", 1),
-    feature("s:a:outcome", "s:a", "relation_role", "subject", 4),
-    feature("s:b:outcome", "s:b", "relation_role", "subject", 5),
-    feature("s:c:outcome", "s:c", "relation_role", "subject", 6),
-    feature("s:x:later", "s:x", "later_observation", true, 4),
-    feature("s:y:later", "s:y", "later_observation", true, 5),
-    feature("s:z:later", "s:z", "later_observation", true, 6),
-  ];
-}
-
 test("corpus evidence can derive defeasible person/place Kind priors", () => {
   const priors = deriveKindPriors(corpusEntries(), {
     giver: "live_priors:test-corpus",
@@ -66,11 +49,11 @@ test("corpus evidence can derive defeasible person/place Kind priors", () => {
   assert.ok(place);
   assert.equal(person.label, "person");
   assert.equal(place.label, "place");
-  assert.ok(person.features.some((feature) => feature.signature.includes("anaphoric_class")));
-  assert.ok(place.features.some((feature) => feature.signature.includes("adjacent_closed_class_left")));
+  assert.ok(person.features.some((item) => item.signature.includes("anaphoric_class")));
+  assert.ok(place.features.some((item) => item.signature.includes("adjacent_closed_class_left")));
 });
 
-test("a live prior can name an earned Kind but cannot create one", () => {
+test("a live prior can name an already-earned basin Kind but cannot create one", () => {
   const priors = deriveKindPriors(corpusEntries(), {
     giver: "live_priors:test-corpus",
     corpus: "fixture",
@@ -87,12 +70,26 @@ test("a live prior can name an earned Kind but cannot create one", () => {
   assert.equal(noKind.length, 0);
   assert.equal(conditionKindProjections(noKind, priors).length, 0);
 
-  const earned = snapshotKindState(createKindInductionIndex(sourceEntries()));
-  const personLike = earned.find((projection) => projection.standing === "earned_invariant" && projection.selector?.value === "gendered_singular");
-  assert.ok(personLike);
-  const [conditioned] = conditionKindProjections([personLike], priors);
+  // This projection stands in for the output of the prospective basin-admission
+  // ledger. The prior sees only structural signatures after ontological
+  // admission; it is not allowed to participate in minting the Kind.
+  const basinEarned = Object.freeze({
+    schema: "EOKindProjection@1",
+    id: "terrain:kind:earned:basin-person-like",
+    terrain: "Kind",
+    kindKey: "kind:basin:person-like",
+    standing: "earned_invariant",
+    witnessed: false,
+    mechanism: "interaction_affinity_basin",
+    memberRefs: Object.freeze(["s:a", "s:b", "s:c"]),
+    structuralSignatures: Object.freeze(['anaphoric_class="gendered_singular"', 'relation_role="subject"']),
+    materiality: Object.freeze({ makesDifference: true, reasons: Object.freeze([{ kind: "basin_changes_future_expectation" }]) }),
+    validation: Object.freeze({ method: "prospective_basin_ablation", effect: 1, pValue: 0.01 }),
+  });
+  const [conditioned] = conditionKindProjections([basinEarned], priors);
   assert.equal(conditioned.priorLabel, "person");
   assert.equal(conditioned.priorStanding, "defeasible_prior_hypothesis");
   assert.equal(conditioned.standing, "earned_invariant");
+  assert.equal(conditioned.mechanism, "interaction_affinity_basin");
   assert.equal(conditioned.materiality.makesDifference, true);
 });
