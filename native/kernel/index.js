@@ -39,3 +39,5 @@ export {
   interrogateCube,
   deriveEOTransformations,
 } from "./interrogation.js";
+
+export { deriveSurprise, deriveTension, deriveRelease } from "./dynamics.js";
