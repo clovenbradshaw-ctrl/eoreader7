@@ -118,6 +118,9 @@ export function createKindInductionIndex(entries = [], options = {}) {
       minConsequenceSupport: options.minConsequenceSupport ?? 2,
       minEffect: options.minEffect ?? 0.5,
       alpha: options.alpha ?? 0.05,
+      // The old single-feature selector -> held-out consequence path is retained
+      // only for explicit diagnostic/back-compat use. It is not ontology in v7.
+      legacySelectorAdmission: options.legacySelectorAdmission === true,
       populationMinEntityCount: options.populationMinEntityCount,
       populationMinPrevalence: options.populationMinPrevalence,
       populationCohesionThreshold: options.populationCohesionThreshold,
@@ -131,7 +134,7 @@ export function createKindInductionIndex(entries = [], options = {}) {
     evidenceById: new Map(), explicitByKind: new Map(), entityFeatures: new Map(), entitiesByFeature: new Map(), latestAtByEntity: new Map(),
     receivedProjectionByKind: new Map(), receivedDirtyKinds: new Set(), earnedProjections: freeze([]), populationKindCandidates: freeze([]),
     populationKindDiagnostics: freeze({ entities: 0, parameters: 0, basins: 0, clusters: 0, validated: 0 }),
-    earnedDiagnostics: freeze({ selectorNominations: 0, earnedKinds: 0, withheldNoHoldout: 0, withheldNoConsequence: 0 }),
+    earnedDiagnostics: freeze({ selectorNominations: 0, selectorAdmission: "disabled", earnedKinds: 0, withheldNoHoldout: 0, withheldNoConsequence: 0 }),
     graphStructure: createKindGraphStructureLedger({ depthThresholds: options.depthThresholds }), structuralDirty: false, snapshot: null, diagnostics: null,
   };
   indexKindEntries(index, entries);
@@ -244,7 +247,7 @@ function earnedKindProjection(index, selectorSignature, selectorMembers, populat
     memberRefs: freeze([...memberRefs].sort()), fitMemberRefs: freeze([...fitMemberRefs].sort()), holdoutMemberRefs: freeze([...holdoutMemberRefs].sort()), consequence: best.consequence, evidenceRefs: freeze(evidenceRefs), witnessRefs: freeze(witnessRefs), modalities: freeze(modalities),
     materiality: freeze({ makesDifference: true, reasons: freeze([freeze({ kind: "held_out_consequence_differential", consequence: best.consequenceSignature, effect: best.effect, pValue: best.pValue })]) }),
     validation: freeze({ method: "temporal_holdout_hypergeometric", formedAt, fitMemberRefs: freeze([...fitMemberRefs].sort()), holdoutMemberRefs: freeze([...holdoutMemberRefs].sort()), holdoutSupportRefs: freeze([...best.holdoutSupport].sort()), evaluableMemberCount: best.evaluableMembers.length, evaluableNonMemberCount: best.evaluableNonMembers.length, supportingMemberCount: best.supportingMembers.length, supportingNonMemberCount: best.supportingNonMembers.length, memberRate: best.memberRate, nonMemberRate: best.nonMemberRate, effect: best.effect, pValue: best.pValue, alpha }),
-    basis: "shared_entity_structure_with_held_out_consequence",
+    basis: "legacy_single_selector_with_held_out_consequence",
   });
 }
 
@@ -269,11 +272,18 @@ function refreshEarnedKinds(index) {
   if (!index.structuralDirty) return;
   refreshPopulationKindCandidates(index);
   const earned = [];
-  const diagnostics = { selectorNominations: 0, earnedKinds: 0, withheldNoHoldout: 0, withheldNoConsequence: 0 };
+  const diagnostics = {
+    selectorNominations: 0,
+    selectorAdmission: index.options.legacySelectorAdmission ? "legacy_opt_in" : "disabled_by_default",
+    earnedKinds: 0,
+    withheldNoHoldout: 0,
+    withheldNoConsequence: 0,
+  };
   const population = new Set(index.entityFeatures.keys());
   for (const [selectorSignature, members] of index.entitiesByFeature) {
     if (members.size < index.options.minMembers) continue;
     diagnostics.selectorNominations += 1;
+    if (!index.options.legacySelectorAdmission) continue;
     const projection = earnedKindProjection(index, selectorSignature, members, population, diagnostics);
     if (projection) earned.push(projection);
   }
