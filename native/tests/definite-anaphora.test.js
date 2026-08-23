@@ -58,10 +58,23 @@ test("only an explicitly supported discourse referent can license definite conti
   assert.equal(binding.provenance.receivedFrom, "lang/en");
 });
 
+test("a wider argument may inherit one supported definite descriptor inside it", () => {
+  const earned = discourseRef("ref:monster", ["the wretch", "the monster"]);
+  const binding = bindDefiniteAnaphora({ surface: "the monster whom I pursued", occurrence: "occ:wide", orientation: orientation(earned) });
+  assert.ok(binding);
+  assert.equal(binding.referent, earned.id);
+  assert.deepEqual(binding.matchedSurfaces, ["the monster"]);
+  assert.equal(binding.argumentSurface, "the monster whom i pursued");
+});
+
 test("ambiguous supported antecedents are refused rather than guessed", () => {
   const first = discourseRef("ref:monster:one", ["the monster"]);
   const second = discourseRef("ref:monster:two", ["the monster"]);
   assert.equal(bindDefiniteAnaphora({ surface: "the monster", occurrence: "occ:3", orientation: orientation(first, second) }), null);
+
+  const wretch = discourseRef("ref:wretch", ["the wretch"]);
+  const monster = discourseRef("ref:monster", ["the monster"]);
+  assert.equal(bindDefiniteAnaphora({ surface: "the wretch beside the monster", occurrence: "occ:mixed", orientation: orientation(wretch, monster) }), null);
 });
 
 test("indefinite or non-the forms cannot inherit a discourse antecedent", () => {
@@ -81,7 +94,7 @@ test("earned definite continuation can resolve a relation-composition bridge wit
   const right = hyperedge({
     id: "edge:right:definite",
     relation: "q",
-    participants: [unresolved("occ:monster:subject", "subject", "the monster"), referent("ref:c", "object")],
+    participants: [unresolved("occ:monster:subject", "subject", "the monster") , referent("ref:c", "object")],
     witness: "obs:right",
     scope: { sequencePosition: 2 },
   });
