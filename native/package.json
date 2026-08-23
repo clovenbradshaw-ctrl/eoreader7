@@ -4,6 +4,6 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node --test \"conformance/*.test.mjs\""
+    "test": "node --test \"conformance/*.test.mjs\" \"tests/*.test.js\""
   }
 }
