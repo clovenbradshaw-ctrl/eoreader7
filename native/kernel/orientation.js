@@ -2,14 +2,18 @@
 // Orientation is transient and defeasible: it conditions attention but is not witness.
 
 import { projectTerrainState, terrainCounts } from "./terrain-state.js";
+import { projectStanceState, stanceCounts } from "./stance-state.js";
 
-export function deriveOrientation(fold = {}, { tasks = [], terrainState = null } = {}) {
+export function deriveOrientation(fold = {}, { tasks = [], terrainState = null, stanceState = null } = {}) {
   const openExpectations = (fold.expectations ?? []).filter((e) => ["open", "strengthened", "weakened"].includes(e.state ?? "open"));
   const openObligations = (fold.obligations ?? []).filter((o) => !["resolved", "closed", "superseded"].includes(o.status));
   const activeTasks = (tasks ?? []).filter((task) => !["resolved", "closed", "superseded", "retracted"].includes(task.status));
   const terrains = terrainState ?? projectTerrainState(fold);
-  const counts = terrainCounts(terrains);
-  const hasTerrainState = Object.values(counts).some((count) => count > 0);
+  const terrainCount = terrainCounts(terrains);
+  const stances = stanceState ?? projectStanceState(fold);
+  const stanceCount = stanceCounts(stances);
+  const hasTerrainState = Object.values(terrainCount).some((count) => count > 0);
+  const hasStanceState = Object.values(stanceCount).some((count) => count > 0);
   const projection = {
     schema: "EOOrientation@1",
     activeReferents: Object.freeze([...(fold.activeReferents ?? [])]),
@@ -30,7 +34,11 @@ export function deriveOrientation(fold = {}, { tasks = [], terrainState = null }
   };
   if (hasTerrainState) {
     projection.terrainState = terrains;
-    projection.terrainCounts = counts;
+    projection.terrainCounts = terrainCount;
+  }
+  if (hasStanceState) {
+    projection.stanceState = stances;
+    projection.stanceCounts = stanceCount;
   }
   return Object.freeze(projection);
 }
