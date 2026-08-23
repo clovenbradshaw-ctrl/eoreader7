@@ -200,7 +200,10 @@ export function createKindGraphStructureLedger({ depthThresholds = DEFAULT_DEPTH
     schema: "EOKindGraphStructureLedger@1",
     ingest,
     drain,
-    snapshot: () => freeze([...features]),
+    // The induction index consumes only projection deltas. Keeping this alias
+    // avoids an O(n^2) full scan while preserving its existing internal call.
+    snapshot: drain,
+    allFeatures: () => freeze([...features]),
     diagnostics: () => freeze({
       rawEdges: rawEdges.size,
       occurrenceBindings: bindings.size,
