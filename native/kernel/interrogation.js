@@ -2,6 +2,7 @@ import { MODES, DOMAINS, GRAINS, cellOf } from "./cube.js";
 import { deltaFold, eoOperation } from "./fold.js";
 import { buildHypergraph, relevantHypergraphNeighborhood } from "./hypergraph.js";
 import { projectTerrainState, terrainCounts, TERRAINS } from "./terrain-state.js";
+import { projectStanceState, stanceCounts, STANCES } from "./stance-state.js";
 
 const OP_BY_ADDRESS = Object.freeze({
   Differentiate: Object.freeze({ Existence: "NUL", Structure: "SEG", Interpretation: "DEF" }),
@@ -19,7 +20,7 @@ export function cubeAddresses() {
   return MODES.flatMap((mode) => DOMAINS.flatMap((domain) => GRAINS.map((grain) => addressOf(mode, domain, grain))));
 }
 
-export function relevantNeighborhood(fold, observations, { select, maxHops = 3, graph = null, terrainState: suppliedTerrainState = null } = {}) {
+export function relevantNeighborhood(fold, observations, { select, maxHops = 3, graph = null, terrainState: suppliedTerrainState = null, stanceState: suppliedStanceState = null } = {}) {
   if (select) return select(fold, observations);
   const workingGraph = graph ?? buildHypergraph([
     ...(fold?.graphEntries ?? []), ...(fold?.expectations ?? []), ...(fold?.obligations ?? []), ...(fold?.activeFrames ?? []), ...(fold?.unresolvedAlternatives ?? []), ...(fold?.transformationObjects ?? []),
@@ -27,18 +28,29 @@ export function relevantNeighborhood(fold, observations, { select, maxHops = 3, 
   const graphNeighborhood = relevantHypergraphNeighborhood(workingGraph, observations, { maxHops });
   const ids = new Set(graphNeighborhood.ids);
   const pick = (key) => (fold?.[key] ?? []).filter((entry) => entry?.id && ids.has(entry.id));
+
   let terrainState;
   if (suppliedTerrainState) {
     const filtered = {};
     for (const terrain of TERRAINS) filtered[terrain] = Object.freeze([...(suppliedTerrainState[terrain] ?? [])].filter((entry) => ids.has(entry.id)));
     terrainState = Object.freeze(filtered);
   } else terrainState = projectTerrainState(fold, { ids });
-  const counts = terrainCounts(terrainState);
+  const terrainCount = terrainCounts(terrainState);
+
+  let stanceState;
+  if (suppliedStanceState) {
+    const filtered = {};
+    for (const stance of STANCES) filtered[stance] = Object.freeze([...(suppliedStanceState[stance] ?? [])].filter((entry) => ids.has(entry.id)));
+    stanceState = Object.freeze(filtered);
+  } else stanceState = projectStanceState(fold, { ids });
+  const stanceCount = stanceCounts(stanceState);
+
   const result = {
     graph: graphNeighborhood,
     witnessed: pick("witnessed"), provisional: pick("provisional"), expectations: pick("expectations"), obligations: pick("obligations"), exclusions: pick("exclusions"), unresolvedAlternatives: pick("unresolvedAlternatives"), activeFrames: pick("activeFrames"), receivedPriors: pick("receivedPriors"),
   };
-  if (Object.values(counts).some((count) => count > 0)) { result.terrainState = terrainState; result.terrainCounts = counts; }
+  if (Object.values(terrainCount).some((count) => count > 0)) { result.terrainState = terrainState; result.terrainCounts = terrainCount; }
+  if (Object.values(stanceCount).some((count) => count > 0)) { result.stanceState = stanceState; result.stanceCounts = stanceCount; }
   return result;
 }
 
@@ -46,7 +58,10 @@ export async function interrogateCube(observations, neighborhood, { ask } = {}) 
   const results = [];
   for (const address of cubeAddresses()) {
     const terrainContext = neighborhood?.terrainState?.[address.terrain] ?? [];
-    const answer = ask ? await ask({ address, terrainContext, observations, neighborhood }) : null;
+    const stanceContext = neighborhood?.stanceState?.[address.stance] ?? [];
+    const answer = ask ? await ask({ address, terrainContext, stanceContext, observations, neighborhood }) : null;
+    // Context conditions the question but is not itself copied into the public
+    // interrogation result. Only returned effects/evidence can become revision.
     results.push({ schema: "EOInterrogation@1", address, changed: Boolean(answer?.changed), effects: answer?.effects ?? [], evidence: answer?.evidence ?? null });
   }
   return results;
