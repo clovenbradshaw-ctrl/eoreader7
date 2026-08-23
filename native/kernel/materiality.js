@@ -1,14 +1,16 @@
 const freeze = (value) => Object.freeze(value);
 const CLOSED = new Set(["resolved", "closed", "superseded", "retracted"]);
 
-const refsOf = (value, out = new Set()) => {
+const REF_RE = /^(ref|ref-occ|surface|occ|lex|mention|encounter|obs|edge|expectation|obligation|identity|discourse-link|withheld-composition|composition|frame|pattern|motif|delta|op|gap|task-target|task-evidence):/;
+const EXPLICIT_REF_KEYS = new Set(["ref", "edge", "expectation", "obligation", "frame", "pattern", "referent", "composition", "target"]);
+const refsOf = (value, out = new Set(), key = null) => {
   if (value == null) return out;
   if (typeof value === "string") {
-    if (/^(ref|ref-occ|surface|occ|lex|mention|encounter|obs|edge|expectation|obligation|identity|discourse-link|withheld-composition|composition|frame|pattern|motif|delta|op|gap|task-target|task-evidence|terrain-fixture):/.test(value)) out.add(value);
+    if (REF_RE.test(value) || EXPLICIT_REF_KEYS.has(key)) out.add(value);
     return out;
   }
-  if (Array.isArray(value)) { for (const item of value) refsOf(item, out); return out; }
-  if (typeof value === "object") for (const item of Object.values(value)) refsOf(item, out);
+  if (Array.isArray(value)) { for (const item of value) refsOf(item, out, key); return out; }
+  if (typeof value === "object") for (const [childKey, item] of Object.entries(value)) refsOf(item, out, childKey);
   return out;
 };
 
@@ -59,18 +61,15 @@ function foldLookup(fold = {}) {
  * EO's active-reading bound: a distinction deserves effort only when resolving
  * it can change a consequence-bearing projection of the present Fold.
  *
- * The hypergraph index is authoritative when supplied. This matters both
- * semantically and computationally: DMD is a question about live dependency,
- * so it should follow indexed dependency edges rather than repeatedly scan the
- * whole Fold. Standalone callers without a graph retain a lazy Fold fallback.
+ * The hypergraph index is authoritative when supplied. Explicit semantic ref
+ * fields may point to any stable object id; they are not required to use one of
+ * the kernel's conventional id prefixes. This keeps materiality omnimodal and
+ * terrain-neutral while still refusing arbitrary prose strings as references.
  *
  * Terrain projection is a consequence like identity, relation attribution, or
  * expectation: a shift in Void/Entity/Kind/Field/Link/Network/Atmosphere/Lens/
  * Paradigm can activate work only when it points at a concrete live Fold object.
  * Naming a terrain alone never bootstraps importance.
- *
- * Salience, recurrence, uncertainty, and HL candidate standing may nominate a
- * distinction; none of them establish that the distinction makes a difference.
  */
 export function differenceMakesDifference({ distinction = null, consequences = [], fold = {}, graph = null } = {}) {
   const targetRefs = refsOf(distinction);
@@ -97,9 +96,7 @@ export function differenceMakesDifference({ distinction = null, consequences = [
   for (const consequence of consequences ?? []) {
     if (!consequence || typeof consequence !== "object" || !MATERIAL_KINDS.has(consequence.kind)) continue;
     const refs = [...refsOf(consequence)];
-    if (refs.some(hasLive)) {
-      reasons.push(freeze({ kind: "material_consequence_kind", consequence: consequence.kind, refs: freeze(refs) }));
-    }
+    if (refs.some(hasLive)) reasons.push(freeze({ kind: "material_consequence_kind", consequence: consequence.kind, refs: freeze(refs) }));
   }
 
   const unique = [];
