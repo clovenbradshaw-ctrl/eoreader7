@@ -16,19 +16,32 @@ const POS = Object.freeze({
   provenance: Object.freeze({ source: "fixture/ud-pos" }),
 });
 
-test("explicit negative existence earns a bounded Void, not a NUL operation or stance", () => {
-  const grounds = explicitExistentialGrounds("There was no answer.", { sequencePosition: 4, posPrior: POS });
+test("explicit negative existence earns a carrier-relative bounded Void, not a NUL operation or stance", () => {
+  const grounds = explicitExistentialGrounds("There was no answer.", { sequencePosition: 4, encounterRef: "encounter:room:4", posPrior: POS });
   assert.equal(grounds.length, 1);
   const ground = grounds[0];
   assert.equal(ground.schema, "EOExistentialGround@1");
   assert.equal(ground.terrain, "Void");
   assert.equal(ground.absenceSurface, "answer");
+  assert.equal(ground.carrierRef, "encounter:room:4");
+  assert.equal(ground.complement.model, "bounded_relative_complement");
+  assert.equal(ground.complement.carrierRef, "encounter:room:4");
+  assert.equal(ground.complement.excludedSurface, "answer");
+  assert.equal(ground.complement.absoluteVoid, false);
   assert.equal(ground.witnessed, true);
   assert.equal(ground.provenance.giver, "lang/en");
   assert.equal(ground.provenance.posPrior, "fixture/ud-pos");
   assert.equal("eo" in ground, false);
   assert.equal("stance" in ground, false);
   assert.equal("operator" in ground, false);
+});
+
+test("the same absence surface in different carriers is not the same Void", () => {
+  const [room] = explicitExistentialGrounds("There was no answer.", { sequencePosition: 4, encounterRef: "encounter:room", posPrior: POS });
+  const [phone] = explicitExistentialGrounds("There was no answer.", { sequencePosition: 5, encounterRef: "encounter:phone", posPrior: POS });
+  assert.equal(room.absenceSurface, phone.absenceSurface);
+  assert.notEqual(room.carrierRef, phone.carrierRef);
+  assert.notDeepEqual(room.complement, phone.complement);
 });
 
 test("ordinary negation or positive existence does not become Void", () => {
@@ -52,6 +65,7 @@ test("recursive reading exposes Void to all three reasoning modes without invent
   }]);
 
   assert.equal(reading.effectiveTerrainState.Void.length, 1);
+  assert.equal(reading.effectiveTerrainState.Void[0].complement.absoluteVoid, false);
   assert.equal(Object.values(reading.stanceState).flat().length, 0);
   const orientation = deriveOrientation(reading.fold, {
     terrainState: reading.terrainState,
