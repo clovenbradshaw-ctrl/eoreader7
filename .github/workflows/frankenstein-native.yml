@@ -1,0 +1,31 @@
+name: Native Frankenstein gate
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  frankenstein:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Fetch Project Gutenberg Frankenstein #84
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --location --retry 3 \
+            https://www.gutenberg.org/cache/epub/84/pg84.txt \
+            --output /tmp/frankenstein.txt
+          test -s /tmp/frankenstein.txt
+      - name: Read Frankenstein through native EOReader 7
+        run: node native/eval/frankenstein.mjs /tmp/frankenstein.txt
