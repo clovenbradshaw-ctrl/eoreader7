@@ -2,6 +2,7 @@ export { MODES, DOMAINS, GRAINS, TERRAIN_BY_DOMAIN, STANCE_BY_MODE, cellOf, alge
 export { TERRAINS, terrainOf, createTerrainIndex, indexTerrainEntries, snapshotTerrainState, snapshotTerrainReferents, projectTerrainState, terrainCounts } from "./terrain-state.js";
 export { createEmergentTerrainIndex, indexEmergentTerrainEntries, snapshotEmergentTerrainState, projectEmergentTerrains, mergeTerrainStates } from "./emergent-terrain.js";
 export { kindEvidence, createKindInductionIndex, indexKindEntries, snapshotKindState, kindDiagnostics, projectKinds } from "./kind-induction.js";
+export { kindFeatureSignature, kindPrior, deriveKindPriors, rankKindPriorHypotheses, conditionKindProjections } from "./kind-priors.js";
 export { STANCES, stanceOf, createStanceIndex, indexStanceEntries, snapshotStanceState, projectStanceState, stanceCounts } from "./stance-state.js";
 export { receivedGround, eoOperation, deltaFold, applyObservation, applyDelta, reconstruct } from "./fold.js";
 export { deriveOrientation } from "./orientation.js";
