@@ -108,7 +108,7 @@ export function createKindGraphStructureLedger({ depthThresholds = DEFAULT_DEPTH
         const bindingRef = endpoint.bindingRef;
 
         features.push(structuralFeature({
-          id: `kind-evidence:graph-role:${edge.id}:${ordinal}:${entityRef}`,
+          id: `kind-evidence:graph-role:${edge.id}:${ordinal}`,
           entityRef,
           featureKey: "relation_role",
           featureValue: role,
