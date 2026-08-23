@@ -3,6 +3,8 @@ name: Migrate native text organ
 on:
   push:
     branches: [codex/native-text-frankenstein]
+  pull_request:
+    branches: [main]
 
 permissions:
   contents: write
@@ -14,6 +16,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: ${{ github.head_ref || github.ref_name }}
           submodules: recursive
           fetch-depth: 0
       - name: Copy tested text dependency closure native
