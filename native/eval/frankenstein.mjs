@@ -39,6 +39,22 @@ const surfaces = new Set(referents.flatMap((ref) => ref.surfaces ?? []).map((x) 
 const hasSurface = (needle) => [...surfaces].some((surface) => surface.includes(needle.toLowerCase()));
 const surpriseTurns = reading.turns.filter((turn) => (turn.surprise?.operations?.length ?? 0) > 0);
 
+const unresolvedCounts = new Map();
+let unresolvedOccurrences = 0;
+for (const edge of edges) {
+  for (const participant of edge.participants ?? []) {
+    if (participant?.standing !== "unresolved_surface") continue;
+    unresolvedOccurrences += 1;
+    const key = String(participant.surface ?? participant.surfaceKey ?? "unknown").trim().toLowerCase();
+    if (!key) continue;
+    unresolvedCounts.set(key, (unresolvedCounts.get(key) ?? 0) + 1);
+  }
+}
+const topUnresolvedSurfaces = [...unresolvedCounts.entries()]
+  .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+  .slice(0, 40)
+  .map(([surface, count]) => ({ surface, count }));
+
 const requiredCharacters = ["Frankenstein", "Elizabeth", "Clerval", "Walton"];
 const missingCharacters = requiredCharacters.filter((name) => !hasSurface(name));
 const wrapperPollution = [...surfaces].filter((surface) => /project gutenberg|gutenberg ebook|www\.gutenberg/.test(surface));
@@ -53,6 +69,9 @@ const metrics = {
   observations: reading.fold.witnessed?.length ?? 0,
   referents: referents.length,
   relations: edges.length,
+  unresolvedRelationParticipants: unresolvedOccurrences,
+  uniqueUnresolvedSurfaces: unresolvedCounts.size,
+  topUnresolvedSurfaces,
   transformations: reading.fold.transformationObjects?.length ?? 0,
   surpriseTurns: surpriseTurns.length,
   majorCharactersPresent: requiredCharacters.filter((name) => hasSurface(name)),
