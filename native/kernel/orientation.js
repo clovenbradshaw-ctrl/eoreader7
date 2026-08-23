@@ -23,10 +23,19 @@ export function deriveOrientation(fold = {}, { tasks = [], terrainState = null, 
   const hasTerrainState = Object.values(terrainCount).some((count) => count > 0);
   const hasStanceState = Object.values(stanceCount).some((count) => count > 0);
   const foldReferents = referentEntities ?? fold.activeReferents ?? [];
+  // Preserve the frozen 6.1 orientation contract for callers that seed
+  // activeKinds directly, while adding newly projected Kind structure. These
+  // legacy entries remain orientation context only; they do not become Kind
+  // terrain unless separately earned by the terrain/kind projection paths.
+  const activeKindsById = new Map();
+  for (const item of [...(fold.activeKinds ?? []), ...kinds]) {
+    const key = item?.id ?? item?.kindKey;
+    if (key && !activeKindsById.has(key)) activeKindsById.set(key, item);
+  }
   const projection = {
     schema: "EOOrientation@1",
     activeReferents: Object.freeze([...foldReferents]),
-    activeKinds: Object.freeze([...kinds]),
+    activeKinds: Object.freeze([...activeKindsById.values()]),
     activeLinks: Object.freeze([...(fold.activeLinks ?? [])]),
     openAlternatives: Object.freeze([...(fold.unresolvedAlternatives ?? [])]),
     unresolvedObligations: Object.freeze(openObligations),
