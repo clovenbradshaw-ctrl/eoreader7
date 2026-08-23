@@ -1,4 +1,10 @@
 import { TERRAINS } from "./terrain-state.js";
+import {
+  structuralFieldGeometry,
+  relationNetworkComponents,
+  interpretiveAtmosphereField,
+  interpretiveParadigmModels,
+} from "./terrain-math.js";
 
 const freeze = (value) => Object.freeze(value);
 const OPEN = new Set([undefined, null, "open", "strengthened", "weakened"]);
@@ -22,8 +28,9 @@ function fieldProjection(scope, edges = []) {
   if (!scope || edges.length < 2) return null;
   const edgeRefs = edges.map((edge) => edge.id).filter(Boolean).sort();
   if (edgeRefs.length < 2) return null;
+  const geometry = structuralFieldGeometry(edges);
   return freeze({
-    schema: "EOStructuralFieldProjection@1",
+    schema: "EOStructuralFieldProjection@2",
     id: `terrain:field:${stableHash(`${scope}|${edgeRefs.join("|")}`)}`,
     terrain: "Field",
     standing: "projection",
@@ -31,78 +38,57 @@ function fieldProjection(scope, edges = []) {
     scope,
     edgeRefs: freeze(edgeRefs),
     relationTypes: freeze(unique(edges.map((edge) => edge.relation)).sort()),
-    basis: "co_present_witnessed_links",
+    geometry,
+    basis: "local_incidence_field_over_witnessed_links",
   });
 }
 
-function networkProjection(referent, edges = []) {
-  if (!referent || edges.length < 2) return null;
-  const edgeRefs = edges.map((edge) => edge.id).filter(Boolean).sort();
-  if (edgeRefs.length < 2) return null;
-  return freeze({
-    schema: "EORelationNetworkProjection@1",
-    id: `terrain:network:${stableHash(`${referent}|${edgeRefs.join("|")}`)}`,
+function networkProjections(edgesById, referentsByEdge) {
+  const components = relationNetworkComponents([...edgesById.values()], referentsByEdge);
+  return components.map((component) => freeze({
+    schema: "EORelationNetworkProjection@2",
+    id: `terrain:network:${stableHash(`${component.edgeRefs.join("|")}|${component.referentRefs.join("|")}`)}`,
     terrain: "Network",
     standing: "projection",
     witnessed: false,
-    bridgeRef: referent,
-    edgeRefs: freeze(edgeRefs),
-    relationTypes: freeze(unique(edges.map((edge) => edge.relation)).sort()),
-    basis: "earned_referent_connects_witnessed_links",
-  });
+    edgeRefs: component.edgeRefs,
+    referentRefs: component.referentRefs,
+    topology: component,
+    basis: "connected_bipartite_hypergraph_component",
+  }));
 }
 
-function atmosphereProjection(obligations = []) {
+function atmosphereProjection(obligations = [], sequence = null) {
   if (!obligations.length) return null;
   const obligationRefs = obligations.map((item) => item.id).sort();
   const consequenceKinds = unique(obligations.flatMap((item) => item.consequences ?? []).map((item) => item?.kind)).sort();
+  const field = interpretiveAtmosphereField(obligations, { sequence });
   return freeze({
-    schema: "EOInterpretiveAtmosphereProjection@1",
+    schema: "EOInterpretiveAtmosphereProjection@2",
     id: `terrain:atmosphere:${stableHash(obligationRefs.join("|"))}`,
     terrain: "Atmosphere",
     standing: "projection",
     witnessed: false,
     obligationRefs: freeze(obligationRefs),
     consequenceKinds: freeze(consequenceKinds),
-    basis: "present_ground_of_unresolved_consequential_interpretation",
+    field,
+    basis: "coupled_unresolved_interpretive_potential",
   });
 }
 
-function paradigmKey(obligation) {
-  if (String(obligation?.id ?? "").startsWith("obligation:identity:")) return "identity";
-  if (String(obligation?.id ?? "").startsWith("obligation:composition:")) return "composition";
-  const kinds = unique((obligation?.consequences ?? []).map((item) => item?.kind)).sort();
-  return kinds.length ? kinds.join("+") : null;
-}
-
 function paradigmProjections(obligations = []) {
-  const groups = new Map();
-  for (const obligation of obligations) {
-    const key = paradigmKey(obligation);
-    if (!key) continue;
-    if (!groups.has(key)) groups.set(key, []);
-    groups.get(key).push(obligation);
-  }
-  const out = [];
-  for (const [pattern, members] of groups) {
-    // Pattern grain requires independently grounded instances. Repetition of
-    // one obligation or one ground cannot bootstrap a Paradigm.
-    const independentGrounds = new Set(members.flatMap((item) => item.grounds ?? []));
-    if (members.length < 2 || independentGrounds.size < 2) continue;
-    const obligationRefs = members.map((item) => item.id).sort();
-    out.push(freeze({
-      schema: "EOInterpretiveParadigmProjection@1",
-      id: `terrain:paradigm:${stableHash(`${pattern}|${obligationRefs.join("|")}`)}`,
-      terrain: "Paradigm",
-      standing: "projection",
-      witnessed: false,
-      pattern,
-      obligationRefs: freeze(obligationRefs),
-      groundRefs: freeze([...independentGrounds].sort()),
-      basis: "repeated_independently_grounded_material_interpretation",
-    }));
-  }
-  return out;
+  return interpretiveParadigmModels(obligations).map((model) => freeze({
+    schema: "EOInterpretiveParadigmProjection@2",
+    id: `terrain:paradigm:${stableHash(`${model.signature}|${model.memberRefs.join("|")}`)}`,
+    terrain: "Paradigm",
+    standing: "projection",
+    witnessed: false,
+    pattern: model.signature,
+    obligationRefs: model.memberRefs,
+    groundRefs: model.groundRefs,
+    model,
+    basis: "minimum_description_length_over_independent_interpretations",
+  }));
 }
 
 function earnedRefsForEdge(edge, bindingByOccurrence) {
@@ -129,32 +115,18 @@ function refreshField(index, scope) {
   index.dirty = true;
 }
 
-function refreshNetwork(index, referent) {
-  if (!referent) return;
-  const edgeIds = index.edgeIdsByReferent.get(referent) ?? new Set();
-  const edges = [...edgeIds].map((id) => index.edgesById.get(id)).filter(Boolean);
-  const projection = networkProjection(referent, edges);
-  if (projection) index.projections.Network.set(referent, projection);
-  else index.projections.Network.delete(referent);
+function refreshNetworks(index) {
+  index.projections.Network.clear();
+  for (const projection of networkProjections(index.edgesById, index.referentsByEdge)) index.projections.Network.set(projection.id, projection);
   index.dirty = true;
 }
 
 function refreshEdgeReferents(index, edgeId) {
   const edge = index.edgesById.get(edgeId);
   if (!edge) return;
-  const prior = index.referentsByEdge.get(edgeId) ?? new Set();
   const next = earnedRefsForEdge(edge, index.bindingByOccurrence);
-  const affected = new Set([...prior, ...next]);
-  for (const ref of prior) {
-    if (next.has(ref)) continue;
-    index.edgeIdsByReferent.get(ref)?.delete(edgeId);
-  }
-  for (const ref of next) {
-    if (!index.edgeIdsByReferent.has(ref)) index.edgeIdsByReferent.set(ref, new Set());
-    index.edgeIdsByReferent.get(ref).add(edgeId);
-  }
   index.referentsByEdge.set(edgeId, next);
-  for (const ref of affected) refreshNetwork(index, ref);
+  refreshNetworks(index);
 }
 
 function ingestEdge(index, edge) {
@@ -185,7 +157,11 @@ function ingestBinding(index, binding) {
   if (current === binding.referent && currentId === binding.id) return false;
   index.bindingByOccurrence.set(binding.occurrence, binding.referent);
   index.bindingIdByOccurrence.set(binding.occurrence, binding.id);
-  for (const edgeId of index.edgeIdsByOccurrence.get(binding.occurrence) ?? []) refreshEdgeReferents(index, edgeId);
+  for (const edgeId of index.edgeIdsByOccurrence.get(binding.occurrence) ?? []) {
+    const edge = index.edgesById.get(edgeId);
+    if (edge) index.referentsByEdge.set(edgeId, earnedRefsForEdge(edge, index.bindingByOccurrence));
+  }
+  refreshNetworks(index);
   index.dirty = true;
   return true;
 }
@@ -197,7 +173,11 @@ function removeBinding(index, id) {
   if (index.bindingIdByOccurrence.get(binding.occurrence) !== id) return true;
   index.bindingIdByOccurrence.delete(binding.occurrence);
   index.bindingByOccurrence.delete(binding.occurrence);
-  for (const edgeId of index.edgeIdsByOccurrence.get(binding.occurrence) ?? []) refreshEdgeReferents(index, edgeId);
+  for (const edgeId of index.edgeIdsByOccurrence.get(binding.occurrence) ?? []) {
+    const edge = index.edgesById.get(edgeId);
+    if (edge) index.referentsByEdge.set(edgeId, earnedRefsForEdge(edge, index.bindingByOccurrence));
+  }
+  refreshNetworks(index);
   index.dirty = true;
   return true;
 }
@@ -205,10 +185,10 @@ function removeBinding(index, id) {
 function refreshInterpretive(index) {
   const obligations = [...index.obligationsById.values()].filter(material);
   index.projections.Atmosphere.clear();
-  const atmosphere = atmosphereProjection(obligations);
+  const atmosphere = atmosphereProjection(obligations, index.sequence);
   if (atmosphere) index.projections.Atmosphere.set("current", atmosphere);
   index.projections.Paradigm.clear();
-  for (const paradigm of paradigmProjections(obligations)) index.projections.Paradigm.set(paradigm.pattern, paradigm);
+  for (const paradigm of paradigmProjections(obligations)) index.projections.Paradigm.set(paradigm.id, paradigm);
   index.dirty = true;
 }
 
@@ -219,16 +199,16 @@ function refreshInterpretive(index) {
  */
 export function createEmergentTerrainIndex(entries = []) {
   const index = {
-    schema: "EOEmergentTerrainIndex@1",
+    schema: "EOEmergentTerrainIndex@2",
     edgesById: new Map(),
     edgeIdsByScope: new Map(),
     edgeIdsByOccurrence: new Map(),
     bindingsById: new Map(),
     bindingByOccurrence: new Map(),
     bindingIdByOccurrence: new Map(),
-    edgeIdsByReferent: new Map(),
     referentsByEdge: new Map(),
     obligationsById: new Map(),
+    sequence: 0,
     projections: {
       Field: new Map(),
       Network: new Map(),
@@ -243,10 +223,16 @@ export function createEmergentTerrainIndex(entries = []) {
 }
 
 export function indexEmergentTerrainEntries(index, entries = []) {
-  if (index?.schema !== "EOEmergentTerrainIndex@1") throw new TypeError("indexEmergentTerrainEntries requires EOEmergentTerrainIndex@1");
+  if (!index?.schema?.startsWith("EOEmergentTerrainIndex@")) throw new TypeError("indexEmergentTerrainEntries requires EOEmergentTerrainIndex");
   let interpretiveDirty = false;
   for (const entry of entries ?? []) {
     if (!entry) continue;
+    const sequence = Number.isFinite(entry?.scope?.sequencePosition)
+      ? entry.scope.sequencePosition
+      : Number.isFinite(entry?.sequencePosition)
+        ? entry.sequencePosition
+        : null;
+    if (sequence !== null) index.sequence = Math.max(index.sequence, sequence);
     if (entry.schema === "EOHyperedge@1") {
       ingestEdge(index, entry);
       continue;
@@ -276,7 +262,7 @@ function materialObligationsForIds(index, ids) {
 }
 
 export function snapshotEmergentTerrainState(index, { ids = null } = {}) {
-  if (index?.schema !== "EOEmergentTerrainIndex@1") throw new TypeError("snapshotEmergentTerrainState requires EOEmergentTerrainIndex@1");
+  if (!index?.schema?.startsWith("EOEmergentTerrainIndex@")) throw new TypeError("snapshotEmergentTerrainState requires EOEmergentTerrainIndex");
   if (!ids) {
     if (!index.dirty && index.snapshot) return index.snapshot;
     const state = emptyTerrainState();
@@ -292,15 +278,12 @@ export function snapshotEmergentTerrainState(index, { ids = null } = {}) {
   const allowed = ids instanceof Set ? ids : new Set(ids);
   const state = emptyTerrainState();
   const scopes = new Set();
-  const referents = new Set();
   for (const id of allowed) {
     const edge = index.edgesById.get(id);
     if (edge) {
       const scope = scopeOf(edge);
       if (scope) scopes.add(scope);
-      for (const ref of index.referentsByEdge.get(id) ?? []) referents.add(ref);
     }
-    if (index.edgeIdsByReferent.has(id)) referents.add(id);
   }
 
   const fields = [];
@@ -311,17 +294,21 @@ export function snapshotEmergentTerrainState(index, { ids = null } = {}) {
   }
   state.Field = freeze(fields);
 
-  const networks = [];
-  for (const referent of referents) {
-    const allIds = [...(index.edgeIdsByReferent.get(referent) ?? [])];
-    const visibleIds = allowed.has(referent) ? allIds : allIds.filter((id) => allowed.has(id));
-    const projection = networkProjection(referent, visibleIds.map((id) => index.edgesById.get(id)).filter(Boolean));
-    if (projection) networks.push(projection);
-  }
-  state.Network = freeze(networks);
+  const visibleEdges = [...index.edgesById.values()].filter((edge) => allowed.has(edge.id) || [...(index.referentsByEdge.get(edge.id) ?? [])].some((ref) => allowed.has(ref)));
+  state.Network = freeze(relationNetworkComponents(visibleEdges, index.referentsByEdge).map((component) => freeze({
+    schema: "EORelationNetworkProjection@2",
+    id: `terrain:network:${stableHash(`${component.edgeRefs.join("|")}|${component.referentRefs.join("|")}`)}`,
+    terrain: "Network",
+    standing: "projection",
+    witnessed: false,
+    edgeRefs: component.edgeRefs,
+    referentRefs: component.referentRefs,
+    topology: component,
+    basis: "connected_bipartite_hypergraph_component",
+  })));
 
   const obligations = materialObligationsForIds(index, allowed);
-  const atmosphere = atmosphereProjection(obligations);
+  const atmosphere = atmosphereProjection(obligations, index.sequence);
   state.Atmosphere = atmosphere ? freeze([atmosphere]) : freeze([]);
   state.Paradigm = freeze(paradigmProjections(obligations));
   return freeze(state);
@@ -329,7 +316,7 @@ export function snapshotEmergentTerrainState(index, { ids = null } = {}) {
 
 /**
  * Standalone projection for callers that only have a Fold snapshot. Recursive
- * reading uses EOEmergentTerrainIndex@1 and never rescans the accumulated Fold
+ * reading uses EOEmergentTerrainIndex and never rescans the accumulated Fold
  * merely to orient toward the next encounter.
  */
 export function projectEmergentTerrains(fold = {}, { ids = null } = {}) {
@@ -348,9 +335,6 @@ export function mergeTerrainStates(...states) {
       result[terrain] = freeze([]);
       continue;
     }
-    // The common case is orthogonal direct/emergent terrain buckets. Reuse the
-    // already-frozen array instead of copying thousands of direct entries on
-    // every orientation turn.
     if (populated.length === 1) {
       result[terrain] = populated[0];
       continue;
