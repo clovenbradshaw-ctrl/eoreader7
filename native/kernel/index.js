@@ -20,3 +20,21 @@ export {
 export { deriveOrientation } from "./orientation.js";
 export { perceive } from "./perception.js";
 export { witness } from "./witness.js";
+
+export {
+  hyperedge,
+  graphObject,
+  indexHypergraphEntries,
+  buildHypergraph,
+  graphEntriesForIds,
+  graphEdgesForRelation,
+  graphEdgesAtSequence,
+  relevantHypergraphNeighborhood,
+} from "./hypergraph.js";
+
+export {
+  addressOf,
+  relevantNeighborhood,
+  interrogateCube,
+  deriveEOTransformations,
+} from "./interrogation.js";
