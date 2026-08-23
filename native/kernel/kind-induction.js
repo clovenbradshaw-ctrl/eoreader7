@@ -149,6 +149,42 @@ export function kindEvidence({
   });
 }
 
+/**
+ * Hyperedges already witness a modality-independent structural fact: an
+ * Entity occupies a role in a relation. Kind induction should not require
+ * every sense organ to redundantly translate that graph fact into a bespoke
+ * feature record. We therefore derive the generic relation_role feature from
+ * the witnessed edge itself. This adds no semantic label and no new witness;
+ * it is an index projection over existing witness.
+ */
+function structuralEvidenceFromGraphEntry(entry) {
+  if (entry?.schema !== "EOHyperedge@1" || !entry.id) return [];
+  const at = sequenceOf(entry);
+  if (at === null) return [];
+  const out = [];
+  for (let i = 0; i < (entry.participants ?? []).length; i += 1) {
+    const participant = entry.participants[i];
+    if (participant?.standing !== "referent" || !participant.ref) continue;
+    out.push(kindEvidence({
+      id: `kind-evidence:graph-role:${entry.id}:${i}`,
+      entityRef: participant.ref,
+      featureKey: "relation_role",
+      featureValue: participant.role ?? "participant",
+      sequencePosition: at,
+      witness: entry.witness ?? null,
+      witnessRefs: entry.witnessRefs ?? [],
+      provenance: {
+        modality: entry?.meta?.modality ?? null,
+        giver: "kernel/kind-induction",
+        basis: "witnessed_hyperedge_role",
+        sourceSchema: entry.schema,
+        sourceRef: entry.id,
+      },
+    }));
+  }
+  return out;
+}
+
 export function createKindInductionIndex(entries = [], options = {}) {
   const index = {
     schema: "EOKindInductionIndex@1",
@@ -176,19 +212,26 @@ export function createKindInductionIndex(entries = [], options = {}) {
   return index;
 }
 
+function ingestKindEvidence(index, entry) {
+  if (entry?.schema !== "EOKindEvidence@1" || !entry.id || index.evidenceById.has(entry.id)) return false;
+  const accepted = entry.evidenceType === "explicit_classification"
+    ? ingestExplicit(index, entry)
+    : entry.evidenceType === "structural_feature"
+      ? ingestFeature(index, entry)
+      : false;
+  if (!accepted) return false;
+  index.evidenceById.set(entry.id, entry);
+  return true;
+}
+
 export function indexKindEntries(index, entries = []) {
   if (index?.schema !== "EOKindInductionIndex@1") throw new TypeError("indexKindEntries requires EOKindInductionIndex@1");
   let changed = 0;
   for (const entry of entries ?? []) {
-    if (entry?.schema !== "EOKindEvidence@1" || !entry.id || index.evidenceById.has(entry.id)) continue;
-    const accepted = entry.evidenceType === "explicit_classification"
-      ? ingestExplicit(index, entry)
-      : entry.evidenceType === "structural_feature"
-        ? ingestFeature(index, entry)
-        : false;
-    if (!accepted) continue;
-    index.evidenceById.set(entry.id, entry);
-    changed += 1;
+    if (ingestKindEvidence(index, entry)) changed += 1;
+    for (const derived of structuralEvidenceFromGraphEntry(entry)) {
+      if (ingestKindEvidence(index, derived)) changed += 1;
+    }
   }
   return changed;
 }
