@@ -1,19 +1,22 @@
 import { eoOperation, deltaFold } from "../../kernel/fold.js";
-import { descriptorOccurrence, directDescriptorOccurrences, descriptorHypotheses } from "./individuation.js";
+import {
+  descriptorOccurrence,
+  directDescriptorOccurrences,
+  descriptorHypotheses,
+  referentFromDescriptorHypothesis,
+} from "./individuation.js";
 
 const existingIds = (fold) => new Set((fold?.graphEntries ?? []).map((entry) => entry?.id).filter(Boolean));
 
 /**
  * Convert witnessed text structure into warranted EO change.
  *
- * The perceiver may nominate many things. Witness admits evidence. This adapter
- * is deliberately narrower still: newly witnessed referents change Existence
- * (INS · Entity); relation occurrences change Structure (CON · Link).
- *
- * Unresolved participants and directly witnessed determiner descriptions enter
- * an explicit identity frontier as occurrences, never as underlying beings.
- * Recurrence across encounters earns EOIdentityHypothesis only; challenge must
- * still warrant any later SYN/SEG/DEF or referent admission.
+ * Names already admitted by the text organ become witnessed referents.
+ * Descriptor occurrences remain occurrences; recurrence opens a defeasible
+ * identity hypothesis. Only recurrent definite/possessive hypotheses project a
+ * provisional current referent. Indefinite recurrence never implies sameness.
+ * Every historical occurrence/hypothesis remains in the Fold so later witness
+ * can SEG or DEF the projection without rewriting what was previously read.
  */
 export async function reviseTextFold({ observations = [], fold = {} } = {}) {
   const known = existingIds(fold);
@@ -59,14 +62,12 @@ export async function reviseTextFold({ observations = [], fold = {} } = {}) {
 
     for (const edge of observation?.hyperedges ?? []) {
       if (edge?.schema !== "EOHyperedge@1") continue;
-
       for (const participant of edge.participants ?? []) {
         admitOccurrence(descriptorOccurrence(participant, {
           encounterRef: edge.meta?.encounterRef ?? encounterRef,
           edge,
         }), witnessRef);
       }
-
       if (!edge.id || known.has(edge.id)) continue;
       known.add(edge.id);
       operations.push(eoOperation({
@@ -86,15 +87,33 @@ export async function reviseTextFold({ observations = [], fold = {} } = {}) {
     ...newDescriptorOccurrences,
   ];
   for (const hypothesis of descriptorHypotheses(identitySource)) {
-    if (known.has(hypothesis.id)) continue;
-    known.add(hypothesis.id);
+    const hypothesisAlreadyKnown = known.has(hypothesis.id);
+    if (!hypothesisAlreadyKnown) {
+      known.add(hypothesis.id);
+      operations.push(eoOperation({
+        op: "CON",
+        grain: "Figure",
+        inputs: [...hypothesis.occurrenceRefs],
+        outputs: [hypothesis.id],
+        consequence: { kind: "identity_hypothesis_opened", hypothesis: hypothesis.id },
+        payload: { action: "provisional", value: hypothesis },
+      }));
+    }
+
+    const referent = referentFromDescriptorHypothesis(hypothesis);
+    if (!referent || known.has(referent.id)) continue;
+    known.add(referent.id);
     operations.push(eoOperation({
-      op: "CON",
+      op: "INS",
       grain: "Figure",
-      inputs: [...hypothesis.occurrenceRefs],
-      outputs: [hypothesis.id],
-      consequence: { kind: "identity_hypothesis_opened", hypothesis: hypothesis.id },
-      payload: { action: "provisional", value: hypothesis },
+      inputs: [hypothesis.id],
+      outputs: [referent.id],
+      consequence: {
+        kind: "provisional_referent_admitted",
+        ref: referent.id,
+        defeasibleBy: ["SEG", "DEF", "REC"],
+      },
+      payload: { action: "graph-object", value: referent },
     }));
   }
 
