@@ -123,6 +123,53 @@ function evaluateCandidate(index, record, options) {
   return best;
 }
 
+function retentionFraction(baselineMembers = [], currentMembers = []) {
+  if (!baselineMembers.length) return 0;
+  const current = new Set(currentMembers);
+  let retained = 0;
+  for (const member of baselineMembers) if (current.has(member)) retained += 1;
+  return retained / baselineMembers.length;
+}
+
+function trackedRecord(candidate, sequence, options, { sightings = 1 } = {}) {
+  return freeze({
+    kindKey: candidate.kindKey,
+    candidateRef: candidate.id,
+    formedAt: sequence,
+    lastSeenAt: sequence,
+    stableSightings: sightings,
+    memberRefs: freeze([...(candidate.memberRefs ?? [])].sort()),
+    latestMemberRefs: freeze([...(candidate.memberRefs ?? [])].sort()),
+    structuralSignatures: new Set(candidate.structuralSignatures ?? []),
+    evidenceRefs: freeze([...(candidate.evidenceRefs ?? [])]),
+    field: candidate.field,
+    latestField: candidate.field,
+    minimumRetention: 1,
+    options,
+  });
+}
+
+function updateTrackedRecord(record, candidate, sequence, options) {
+  const currentMembers = [...(candidate.memberRefs ?? [])].sort();
+  const retention = retentionFraction(record.memberRefs, currentMembers);
+  if (retention < options.minMembershipRetention) {
+    // The old basin dissolved. This is a new formation even if the structural
+    // signature hashes to the same Kind key. Reset the causal horizon so no
+    // consequence observed after the old basin can leak into the new one.
+    return trackedRecord(candidate, sequence, options);
+  }
+  const newSighting = sequence > record.lastSeenAt ? 1 : 0;
+  return freeze({
+    ...record,
+    candidateRef: candidate.id,
+    lastSeenAt: Math.max(record.lastSeenAt, sequence),
+    stableSightings: record.stableSightings + newSighting,
+    latestMemberRefs: freeze(currentMembers),
+    latestField: candidate.field,
+    minimumRetention: Math.min(record.minimumRetention, retention),
+  });
+}
+
 function admittedProjection(index, record, result, admittedAt) {
   const structuralSignatures = [...record.structuralSignatures].sort();
   const consequence = consequenceDescriptor(index, result.supportingMembers[0], result.signature);
@@ -150,16 +197,21 @@ function admittedProjection(index, record, result, admittedAt) {
     materiality: freeze({
       makesDifference: true,
       reasons: freeze([freeze({
-        kind: "basin_changes_future_expectation",
+        kind: "metastable_basin_changes_future_expectation",
         consequence: result.signature,
         effect: result.effect,
         pValue: result.pValue,
       })]),
     }),
     validation: freeze({
-      method: "prospective_basin_ablation",
+      method: "prospective_metastable_basin_ablation",
       formedAt: record.formedAt,
+      lastSeenAt: record.lastSeenAt,
       admittedAt,
+      stableSightings: record.stableSightings,
+      requiredStableSightings: record.options.minStableSightings,
+      minimumMembershipRetention: record.minimumRetention,
+      requiredMembershipRetention: record.options.minMembershipRetention,
       memberCount: record.memberRefs.length,
       evaluableMemberCount: result.evaluableMembers.length,
       evaluableNonMemberCount: result.evaluableNonmembers.length,
@@ -170,27 +222,33 @@ function admittedProjection(index, record, result, admittedAt) {
       effect: result.effect,
       pValue: result.pValue,
       alpha: record.options.alpha,
-      counterfactual: "future consequence prediction with basin membership versus population baseline",
+      counterfactual: "future consequence prediction with metastable basin membership versus population baseline",
     }),
-    basis: "stable_relational_affinity_basin_with_prospective_consequence",
+    basis: "metastable_relational_affinity_basin_with_prospective_consequence",
   });
 }
 
 /**
- * A basin is not a Kind when it merely exists geometrically. This ledger makes
- * the distinction prospective: it remembers the first stable basin seen by the
- * recursive reader, then waits for new source experience. Only if later lawful
- * consequences differ for basin members versus the surrounding population is
- * the basin admitted. That is the EO phase transition: affinity nominates;
- * future consequence earns ontological standing.
+ * A basin is not a Kind when it merely exists geometrically. It must survive
+ * perturbation through at least two recursive observations while retaining its
+ * original core, then make a prospective difference to later consequences.
+ *
+ * This gives Kind real hysteresis: affinity nominates a phase; persistence
+ * establishes metastability; future consequence earns ontological standing.
+ * If the core dissolves, the formation horizon resets rather than allowing old
+ * evidence to justify a newly formed population.
  */
 export function createKindBasinAdmissionLedger({
   minMembers = 3,
   minConsequenceSupport = 2,
   minEffect = 0.5,
   alpha = 0.05,
+  minStableSightings = 2,
+  minMembershipRetention = 0.75,
 } = {}) {
-  const options = freeze({ minMembers, minConsequenceSupport, minEffect, alpha });
+  if (!Number.isInteger(minStableSightings) || minStableSightings < 1) throw new TypeError("minStableSightings must be a positive integer");
+  if (!(minMembershipRetention > 0 && minMembershipRetention <= 1)) throw new TypeError("minMembershipRetention must be in (0,1]");
+  const options = freeze({ minMembers, minConsequenceSupport, minEffect, alpha, minStableSightings, minMembershipRetention });
   const tracked = new Map();
   const admitted = new Map();
 
@@ -198,24 +256,23 @@ export function createKindBasinAdmissionLedger({
     const sequence = Number.isFinite(at)
       ? at
       : Math.max(0, ...[...(index?.latestAtByEntity?.values() ?? [])].filter(Number.isFinite));
+    const seenThisTurn = new Set();
+
     for (const candidate of candidates ?? []) {
       if (candidate?.schema !== "EOKindCandidate@1" || !candidate.kindKey) continue;
       if (candidate.fallbackNomination === true || candidate.field?.stable !== true) continue;
-      if (tracked.has(candidate.kindKey) || admitted.has(candidate.kindKey)) continue;
-      tracked.set(candidate.kindKey, freeze({
-        kindKey: candidate.kindKey,
-        candidateRef: candidate.id,
-        formedAt: sequence,
-        memberRefs: freeze([...(candidate.memberRefs ?? [])].sort()),
-        structuralSignatures: new Set(candidate.structuralSignatures ?? []),
-        evidenceRefs: freeze([...(candidate.evidenceRefs ?? [])]),
-        field: candidate.field,
-        options,
-      }));
+      if (admitted.has(candidate.kindKey)) continue;
+      seenThisTurn.add(candidate.kindKey);
+      const prior = tracked.get(candidate.kindKey);
+      tracked.set(candidate.kindKey, prior
+        ? updateTrackedRecord(prior, candidate, sequence, options)
+        : trackedRecord(candidate, sequence, options));
     }
 
     const newlyAdmitted = [];
     for (const [kindKey, record] of tracked) {
+      if (!seenThisTurn.has(kindKey)) continue;
+      if (record.stableSightings < options.minStableSightings) continue;
       if (sequence <= record.formedAt) continue;
       const result = evaluateCandidate(index, record, options);
       if (!result) continue;
@@ -234,14 +291,22 @@ export function createKindBasinAdmissionLedger({
   function diagnostics() {
     return freeze({
       mechanism: "interaction_affinity_basin",
+      stabilityModel: "metastable_hysteresis",
+      minStableSightings: options.minStableSightings,
+      minMembershipRetention: options.minMembershipRetention,
       trackedBasins: tracked.size,
       admittedBasins: admitted.size,
       tracked: freeze([...tracked.values()].map((record) => freeze({
         kindKey: record.kindKey,
         formedAt: record.formedAt,
+        lastSeenAt: record.lastSeenAt,
+        stableSightings: record.stableSightings,
         memberCount: record.memberRefs.length,
         memberRefs: record.memberRefs,
+        latestMemberRefs: record.latestMemberRefs,
+        minimumRetention: record.minimumRetention,
         bindingEnergy: record.field?.bindingEnergy ?? null,
+        latestBindingEnergy: record.latestField?.bindingEnergy ?? null,
       }))),
       admitted: freeze([...admitted.values()].map((projection) => freeze({
         kindKey: projection.kindKey,
@@ -252,6 +317,8 @@ export function createKindBasinAdmissionLedger({
         consequence: projection.consequence ?? null,
         formedAt: projection.validation?.formedAt ?? null,
         admittedAt: projection.validation?.admittedAt ?? null,
+        stableSightings: projection.validation?.stableSightings ?? null,
+        minimumMembershipRetention: projection.validation?.minimumMembershipRetention ?? null,
         effect: projection.validation?.effect ?? null,
         pValue: projection.validation?.pValue ?? null,
       }))),
