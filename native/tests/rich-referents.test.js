@@ -1,6 +1,11 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { descriptorOccurrence, directDescriptorOccurrences, descriptorHypotheses } from "../adapters/text/individuation.js";
+import {
+  descriptorOccurrence,
+  directDescriptorOccurrences,
+  descriptorHypotheses,
+  referentFromDescriptorHypothesis,
+} from "../adapters/text/individuation.js";
 
 test("pronouns never become referent occurrences", () => {
   for (const surface of ["I", "it", "he", "she", "they", "you", "who"]) {
@@ -32,14 +37,23 @@ test("one-off descriptors remain occurrences, not identity hypotheses", () => {
   assert.deepEqual(descriptorHypotheses([occ]), []);
 });
 
-test("recurrence opens an identity hypothesis without proving sameness", () => {
+test("recurrent definite description projects a revisable current referent", () => {
   const [a] = directDescriptorOccurrences("The creature entered.", { encounterRef: "e:1" });
   const [b] = directDescriptorOccurrences("The creature vanished.", { encounterRef: "e:2" });
   const [hypothesis] = descriptorHypotheses([a, b]);
   assert.equal(hypothesis?.schema, "EOIdentityHypothesis@1");
   assert.equal(hypothesis?.standing, "live_hypothesis");
-  assert.equal(hypothesis?.surface, "the creature");
-  assert.equal(hypothesis?.occurrenceRefs.length, 2);
-  assert.equal(hypothesis?.encounterRefs.length, 2);
-  assert.notEqual(hypothesis?.schema, "EOReferent@1");
+  const referent = referentFromDescriptorHypothesis(hypothesis);
+  assert.equal(referent?.schema, "EOReferent@1");
+  assert.equal(referent?.standing, "provisional");
+  assert.equal(referent?.revisable, true);
+  assert.equal(referent?.identityHypothesis, hypothesis.id);
+});
+
+test("recurrent indefinite description does not collapse into one referent", () => {
+  const [a] = directDescriptorOccurrences("A servant entered.", { encounterRef: "e:1" });
+  const [b] = directDescriptorOccurrences("A servant vanished.", { encounterRef: "e:2" });
+  const [hypothesis] = descriptorHypotheses([a, b]);
+  assert.equal(hypothesis?.schema, "EOIdentityHypothesis@1");
+  assert.equal(referentFromDescriptorHypothesis(hypothesis), null);
 });
