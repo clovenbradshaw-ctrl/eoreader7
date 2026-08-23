@@ -8,6 +8,8 @@ import {
   createEmergentTerrainIndex,
   indexEmergentTerrainEntries,
   snapshotEmergentTerrainState,
+  createKindInductionIndex,
+  snapshotKindState,
 } from "../kernel/index.js";
 import { hyperedge } from "../kernel/hypergraph.js";
 import { explicitKindAssertions } from "../adapters/text/kind-assertions.js";
@@ -39,21 +41,28 @@ function materialObligation(id, ground) {
   });
 }
 
-test("explicit copular classification earns Kind but lexical co-occurrence does not", () => {
+test("explicit copular classification witnesses Kind evidence but lexical co-occurrence does not", () => {
   const yes = explicitKindAssertions("Victor was a student.", { sequencePosition: 7, referents: [victor], posPrior: POS });
   assert.equal(yes.length, 1);
-  assert.equal(yes[0].terrain, "Kind");
-  assert.deepEqual(yes[0].eo, { op: "SIG", grain: "Pattern" });
-  assert.equal(yes[0].subject, victor.id);
+  assert.equal(yes[0].schema, "EOKindEvidence@1");
+  assert.equal(yes[0].evidenceType, "explicit_classification");
+  assert.equal(yes[0].terrain, undefined);
+  assert.equal(yes[0].eo, undefined);
+  assert.equal(yes[0].entityRef, victor.id);
   assert.equal(yes[0].kindSurface, "student");
   assert.equal(yes[0].provenance.giver, "lang/en");
   assert.equal(yes[0].provenance.posPrior, "fixture/ud-pos");
+
+  const projection = snapshotKindState(createKindInductionIndex(yes));
+  assert.equal(projection.length, 1);
+  assert.equal(projection[0].terrain, "Kind");
+  assert.equal(projection[0].standing, "received_explicit_classification");
 
   assert.equal(explicitKindAssertions("Victor met a student.", { sequencePosition: 8, referents: [victor], posPrior: POS }).length, 0);
   assert.equal(explicitKindAssertions("Victor, Victor, student, student.", { sequencePosition: 9, referents: [victor], posPrior: POS }).length, 0);
 });
 
-test("recursive text perception carries earned Kind into witnessed graph entries", async () => {
+test("recursive text perception carries explicit classification as evidence, not terrain fact", async () => {
   const perceiver = createCausalTextPerceiver({ relationPosPrior: POS });
   const text = "Victor was a student.";
   const candidates = await perceiver.perceive({ modality: "text", material: text, sequencePosition: 0, anchor: { start: 0, end: text.length }, source: "fixture" }, {
@@ -61,9 +70,9 @@ test("recursive text perception carries earned Kind into witnessed graph entries
     activeReferents: [], activeTasks: [], receivedPriors: [],
   });
   assert.equal(candidates.length, 1);
-  const kind = candidates[0].candidate.graphEntries.find((entry) => entry.schema === "EOKindAssertion@1");
-  assert.ok(kind);
-  assert.equal(kind.terrain, "Kind");
+  const evidence = candidates[0].candidate.graphEntries.find((entry) => entry.schema === "EOKindEvidence@1" && entry.evidenceType === "explicit_classification");
+  assert.ok(evidence);
+  assert.equal(evidence.terrain, undefined);
 });
 
 test("co-present witnessed links project Field and earned referent topology projects Network", () => {
@@ -87,8 +96,6 @@ test("co-present witnessed links project Field and earned referent topology proj
   assert.equal(orientation.terrainState.Field[0].witnessed, false);
   assert.equal(orientation.terrainState.Network[0].witnessed, false);
 
-  // Projection of a terrain does not smuggle in a stance. All three moves stay
-  // open and none claims continuity merely because a Field/Network emerged.
   const networkMoves = reasoningAffordances(orientation).filter((move) => move.address.terrain === "Network");
   assert.equal(networkMoves.length, 3);
   assert.ok(networkMoves.every((move) => move.stanceContinuity === false));
