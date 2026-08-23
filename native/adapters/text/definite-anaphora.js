@@ -16,6 +16,12 @@ const articleDefinite = (surface) => {
   return normalized === "the" || normalized.startsWith("the ") ? normalized : null;
 };
 
+const containsPhrase = (span, phrase) => {
+  const haystack = ` ${diaNorm(span)} `;
+  const needle = ` ${diaNorm(phrase)} `;
+  return needle.trim().length > 0 && haystack.includes(needle);
+};
+
 /**
  * Index only already-earned discourse antecedents.
  *
@@ -50,33 +56,51 @@ export function definiteAntecedentIndex(orientation = {}) {
  * Project an occurrence -> referent binding from English definite anaphora.
  *
  * Preconditions are intentionally narrow:
- * - current form is an exact `the ...` descriptor;
- * - the prior Fold contains exactly one explicitly supported discourse
- *   referent with that canonical descriptor;
+ * - the current argument contains a `the ...` descriptor that is already an
+ *   explicitly supported surface of a prior discourse referent;
+ * - every supported definite descriptor found inside the argument points to
+ *   the same single referent;
  * - the current occurrence remains occurrence-level in raw witness.
+ *
+ * This lets a wider witnessed relation argument such as "the monster whom I
+ * pursued" inherit the already-earned antecedent "the monster" without
+ * pretending the whole argument is an identity form. Two competing supported
+ * antecedents in one span are ambiguous and refused.
  *
  * The binding is provisional and defeasible. It is interpretation conditioned
  * by the prior Fold plus a received grammatical convention, never new witness.
  */
 export function bindDefiniteAnaphora({ surface, occurrence, orientation = {} } = {}) {
   if (!occurrence) return null;
-  const canonicalSurface = articleDefinite(surface);
-  if (!canonicalSurface) return null;
-  const candidates = definiteAntecedentIndex(orientation).get(canonicalSurface) ?? [];
-  if (candidates.length !== 1) return null;
-  const antecedent = candidates[0];
+  const normalized = diaNorm(surface);
+  if (!normalized || !/(^|\s)the\s/.test(` ${normalized}`)) return null;
+
+  const matches = [];
+  for (const [candidateSurface, refs] of definiteAntecedentIndex(orientation)) {
+    if (!containsPhrase(normalized, candidateSurface)) continue;
+    for (const ref of refs) matches.push({ surface: candidateSurface, ref });
+  }
+  if (!matches.length) return null;
+  const referentIds = [...new Set(matches.map((match) => match.ref.id))];
+  if (referentIds.length !== 1) return null;
+  const antecedent = matches.find((match) => match.ref.id === referentIds[0])?.ref;
+  if (!antecedent) return null;
+  const matchedSurfaces = [...new Set(matches.filter((match) => match.ref.id === antecedent.id).map((match) => match.surface))];
+
   return freeze({
     schema: "EODefiniteBinding@1",
     id: `definite-binding:${occurrence}`,
     occurrence,
     referent: antecedent.id,
-    surface: canonicalSurface,
+    surface: matchedSurfaces[0],
+    matchedSurfaces: freeze(matchedSurfaces),
+    argumentSurface: normalized,
     standing: "provisional",
     supportRefs: freeze([...(antecedent.supportRefs ?? [])]),
     provenance: freeze({
       giver: "lang/en:definite-anaphora@1",
       receivedFrom: DEFINITE_DETERMINERS_META.giver,
-      basis: "exact English definite descriptor has one explicitly supported discourse antecedent in the prior Fold",
+      basis: "English definite argument contains only descriptors belonging to one explicitly supported discourse antecedent in the prior Fold",
     }),
   });
 }
