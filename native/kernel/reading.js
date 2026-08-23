@@ -1,10 +1,13 @@
-import { receivedGround, applyObservation, applyDelta, deltaFold } from "./fold.js";
+import { receivedGround, applyObservation, applyDelta, deltaFold, eoOperation } from "./fold.js";
 import { deriveOrientation } from "./orientation.js";
 import { perceive as defaultPerceive } from "./perception.js";
 import { witness as defaultWitness } from "./witness.js";
 import { relevantNeighborhood, interrogateCube, deriveEOTransformations } from "./interrogation.js";
 import { deriveSurprise, deriveTension, deriveRelease } from "./dynamics.js";
 import { buildHypergraph, indexHypergraphEntries } from "./hypergraph.js";
+import { normalizeHyperlexicon, admitHyperlexiconCandidates } from "./hyperlexicon.js";
+import { acquireCompositionCandidates, evaluateRelationCompositions, consequentialWithheldCompositions } from "./relation-composition.js";
+import { obligation, openObligation } from "./obligations.js";
 import { createReadingTaskState, proposeObligationTasks, wakeTasks, appendTaskResult, executeClarificationTask, scheduleTasks } from "./reading-tasks.js";
 import { projectTasks } from "./task-log.js";
 
@@ -34,10 +37,69 @@ const deltaGraph = (delta, fold) => (delta?.operations ?? []).flatMap((op) => {
   return out;
 });
 
-export function createRecursiveReader({ seed = {}, priors = [], perceivers = [], challengers = [], adapters = {}, taskLog = null, taskOrientationBudget = 24, taskExecutionBudget = 4 } = {}) {
+function compositionOperations(composition, fold = {}) {
+  const known = new Set((fold?.graphEntries ?? []).map((entry) => entry?.id).filter(Boolean));
+  const operations = [];
+  for (const licensed of composition?.licensed ?? []) {
+    if (known.has(licensed.id)) continue;
+    known.add(licensed.id);
+    operations.push(eoOperation({
+      op: "EVA",
+      grain: "Pattern",
+      witness: licensed.witnessRefs,
+      inputs: licensed.edgeRefs,
+      outputs: [licensed.id],
+      consequence: { kind: "bridge_interpretation", composition: licensed.id },
+      payload: { action: "graph-object", value: licensed },
+    }));
+  }
+  for (const withheld of consequentialWithheldCompositions(composition)) {
+    if (!known.has(withheld.id)) {
+      known.add(withheld.id);
+      operations.push(eoOperation({
+        op: "DEF",
+        grain: "Pattern",
+        witness: withheld.witnessRefs,
+        inputs: withheld.edgeRefs,
+        outputs: [withheld.id],
+        consequence: { kind: "composition_withheld", composition: withheld.id },
+        payload: { action: "graph-object", value: withheld },
+      }));
+    }
+    const obligationId = `obligation:composition:${withheld.id}`;
+    if (known.has(obligationId)) continue;
+    known.add(obligationId);
+    const unresolved = obligation({
+      id: obligationId,
+      distinction: {
+        composition: withheld.id,
+        from: withheld.from,
+        bridge: withheld.bridge,
+        to: withheld.to,
+        leftPredicate: withheld.leftPredicate,
+        rightPredicate: withheld.rightPredicate,
+      },
+      grounds: [withheld.id, ...(withheld.edgeRefs ?? [])],
+      alternatives: [...(withheld.edgeRefs ?? [])],
+      consequences: [{ kind: "composition_permission", composition: withheld.id }],
+      openedAt: (fold?.sequence ?? 0) + 1,
+      persistence: 0,
+    });
+    operations.push(openObligation(unresolved, {
+      witness: withheld.witnessRefs,
+      grain: "Pattern",
+      op: "DEF",
+    }));
+  }
+  return operations;
+}
+
+export function createRecursiveReader({ seed = {}, priors = [], perceivers = [], challengers = [], adapters = {}, hyperlexicon = null, taskLog = null, taskOrientationBudget = 24, taskExecutionBudget = 4 } = {}) {
   if (!Number.isInteger(taskOrientationBudget) || taskOrientationBudget < 0) throw new TypeError("taskOrientationBudget must be a non-negative integer");
   if (!Number.isInteger(taskExecutionBudget) || taskExecutionBudget < 0) throw new TypeError("taskExecutionBudget must be a non-negative integer");
-  let fold = receivedGround(seed);
+  const { hyperlexicon: seedHyperlexicon = null, ...foldSeed } = seed ?? {};
+  let fold = receivedGround(foldSeed);
+  let hl = normalizeHyperlexicon(hyperlexicon ?? seedHyperlexicon);
   let tasks = createReadingTaskState(taskLog);
   tasks = proposeObligationTasks(tasks, fold).log;
   const log = [];
@@ -49,18 +111,22 @@ export function createRecursiveReader({ seed = {}, priors = [], perceivers = [],
     const liveTasksBefore = projectTasks(tasks);
     const orientationTasks = scheduleTasks(liveTasksBefore, beforeFold, { limit: taskOrientationBudget });
     const orientation = deriveOrientation(beforeFold, { tasks: orientationTasks });
-    const candidates = await (adapters.perceive ?? defaultPerceive)(currentEncounter, orientation, { perceivers, priors: [...(orientation.receivedPriors ?? []), ...priors] });
-    const challenge = adapters.challenge ? await adapters.challenge({ encounter: currentEncounter, orientation, candidates }) : await challengeCandidates(currentEncounter, orientation, candidates, { challengers });
+    const candidates = await (adapters.perceive ?? defaultPerceive)(currentEncounter, orientation, { perceivers, priors: [...(orientation.receivedPriors ?? []), ...priors], hyperlexicon: hl });
+    const challenge = adapters.challenge ? await adapters.challenge({ encounter: currentEncounter, orientation, candidates, hyperlexicon: hl }) : await challengeCandidates(currentEncounter, orientation, candidates, { challengers });
     const challengedCandidates = challenge?.candidates ?? candidates;
     const observations = await (adapters.witness ?? defaultWitness)(currentEncounter, challengedCandidates, { admit: adapters.admit });
 
     indexHypergraphEntries(graphIndex, observations.flatMap(observationGraph));
+    const hlCandidates = acquireCompositionCandidates(graphIndex.entries);
+    hl = admitHyperlexiconCandidates(hl, hlCandidates);
+    const composition = evaluateRelationCompositions(graphIndex.entries, hl);
+
     const awakenedTasks = wakeTasks(orientationTasks, observations);
     const scheduledTasks = scheduleTasks(awakenedTasks, beforeFold, { limit: taskExecutionBudget });
     const taskEvidence = [];
     const executeTask = adapters.executeTask ?? executeClarificationTask;
     for (const task of scheduledTasks) {
-      const result = await executeTask({ task, encounter: currentEncounter, observations, fold: beforeFold, orientation, graph: graphIndex });
+      const result = await executeTask({ task, encounter: currentEncounter, observations, fold: beforeFold, orientation, graph: graphIndex, hyperlexicon: hl, composition });
       if (!result) continue;
       tasks = appendTaskResult(tasks, task, result);
       taskEvidence.push(Object.freeze({ schema: "TaskEvidence@1", id: `task-evidence:${task.task_id}:${currentEncounter.sequencePosition ?? log.length}`, taskId: task.task_id, obligationId: task.obligation_id ?? null, strategy: result.strategy ?? task.strategy ?? "clarify", questions: Object.freeze([...(result.questions ?? task.questions ?? [])]), disposition: result.disposition ?? "unresolved", evidence: Object.freeze([...(result.evidence ?? [])]), candidates: Object.freeze([...(result.candidates ?? [])]), depth: result.depth ?? null, detail: result.detail ?? null }));
@@ -68,11 +134,17 @@ export function createRecursiveReader({ seed = {}, priors = [], perceivers = [],
 
     indexHypergraphEntries(graphIndex, taskEvidence);
     const neighborhood = (adapters.retrieve ?? relevantNeighborhood)(beforeFold, [...observations, ...taskEvidence], { select: adapters.selectNeighborhood, graph: graphIndex });
-    const interrogation = await (adapters.interrogate ?? interrogateCube)([...observations, ...taskEvidence], neighborhood, { ask: adapters.ask });
-    const proposedDelta = adapters.revise ? await adapters.revise({ observations, taskEvidence, neighborhood, interrogation, fold: beforeFold, tasks: projectTasks(tasks), graph: graphIndex }) : deriveEOTransformations(interrogation, { id: `delta:${currentEncounter.sequencePosition ?? log.length}` });
-    const canonicalDelta = proposedDelta?.schema === "DeltaFold@1" ? proposedDelta : deltaFold([]);
+    const interrogation = await (adapters.interrogate ?? interrogateCube)([...observations, ...taskEvidence], neighborhood, { ask: adapters.ask, hyperlexicon: hl, composition });
+    const proposedDelta = adapters.revise
+      ? await adapters.revise({ observations, taskEvidence, neighborhood, interrogation, fold: beforeFold, tasks: projectTasks(tasks), graph: graphIndex, hyperlexicon: hl, composition })
+      : deriveEOTransformations(interrogation, { id: `delta:${currentEncounter.sequencePosition ?? log.length}` });
+    const baseDelta = proposedDelta?.schema === "DeltaFold@1" ? proposedDelta : deltaFold([]);
+    const canonicalDelta = deltaFold([
+      ...(baseDelta.operations ?? []),
+      ...compositionOperations(composition, beforeFold),
+    ], { id: baseDelta.id ?? `delta:${currentEncounter.sequencePosition ?? log.length}` });
 
-    log.push(currentEncounter, ...observations, ...taskEvidence, canonicalDelta);
+    log.push(currentEncounter, ...observations, ...taskEvidence, ...composition.withheld, ...composition.licensed, canonicalDelta);
     let nextFold = beforeFold;
     for (const observation of observations) nextFold = applyObservation(nextFold, observation);
     nextFold = applyDelta(nextFold, canonicalDelta);
@@ -80,9 +152,9 @@ export function createRecursiveReader({ seed = {}, priors = [], perceivers = [],
     indexHypergraphEntries(graphIndex, deltaGraph(canonicalDelta, fold));
     const taskUpdate = proposeObligationTasks(tasks, fold); tasks = taskUpdate.log;
 
-    return Object.freeze({ encounter: currentEncounter, orientation, candidates, challenge, observations, awakenedTasks, scheduledTasks, taskEvidence, proposedTasks: taskUpdate.proposed, tasks: Object.freeze(projectTasks(tasks)), relevantFold: neighborhood, interrogation, deltaFold: canonicalDelta, fold, surprise: deriveSurprise(canonicalDelta), tension: deriveTension(fold), release: deriveRelease(canonicalDelta, beforeFold, fold) });
+    return Object.freeze({ encounter: currentEncounter, orientation, candidates, challenge, observations, hyperlexicon: hl, hyperlexiconCandidates: hlCandidates, composition, awakenedTasks, scheduledTasks, taskEvidence, proposedTasks: taskUpdate.proposed, tasks: Object.freeze(projectTasks(tasks)), relevantFold: neighborhood, interrogation, deltaFold: canonicalDelta, fold, surprise: deriveSurprise(canonicalDelta), tension: deriveTension(fold), release: deriveRelease(canonicalDelta, beforeFold, fold) });
   }
 
-  async function read(encounters = []) { const turns = []; for (const item of encounters) turns.push(await step(item)); return Object.freeze({ turns, fold, tasks: Object.freeze(projectTasks(tasks)), taskLog: tasks, log: [...log] }); }
-  return Object.freeze({ step, read, getFold: () => fold, getTasks: () => Object.freeze(projectTasks(tasks)), getTaskLog: () => tasks, getLog: () => [...log] });
+  async function read(encounters = []) { const turns = []; for (const item of encounters) turns.push(await step(item)); return Object.freeze({ turns, fold, hyperlexicon: hl, tasks: Object.freeze(projectTasks(tasks)), taskLog: tasks, log: [...log] }); }
+  return Object.freeze({ step, read, getFold: () => fold, getHyperlexicon: () => hl, getTasks: () => Object.freeze(projectTasks(tasks)), getTaskLog: () => tasks, getLog: () => [...log] });
 }
