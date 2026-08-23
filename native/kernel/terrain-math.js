@@ -256,20 +256,24 @@ function materialityReasonKinds(obligation) {
 /**
  * Functional signature of an interpretation. It deliberately ignores JS field
  * names such as `target`, `relation`, or `composition`: serialization shape is
- * not ontology. The signature asks what causal work the Lens does—what kinds
- * of consequence it bears, what materiality relation warrants it, and the
- * coarse geometry of its grounds/alternatives.
+ * not ontology. The code length charges only informative invariants. Default
+ * carrier geometry (one ground, zero alternatives, one consequence) is free;
+ * only departures from that baseline add description length.
  */
 export function interpretiveSignature(obligation) {
   const consequence = unique(consequenceKinds(obligation)).sort();
   const materialityKinds = materialityReasonKinds(obligation);
-  const tokens = unique([
+  const groundCount = (obligation?.grounds ?? []).length;
+  const alternativeCount = (obligation?.alternatives ?? []).length;
+  const consequenceCount = (obligation?.consequences ?? []).length;
+  const informativeTokens = [
     ...consequence.map((kind) => `consequence:${kind}`),
     ...materialityKinds.map((kind) => `materiality:${kind}`),
-    `grounds:${countBucket((obligation?.grounds ?? []).length)}`,
-    `alternatives:${countBucket((obligation?.alternatives ?? []).length)}`,
-    `consequences:${countBucket((obligation?.consequences ?? []).length)}`,
-  ]).sort();
+  ];
+  if (groundCount !== 1) informativeTokens.push(`grounds:${countBucket(groundCount)}`);
+  if (alternativeCount !== 0) informativeTokens.push(`alternatives:${countBucket(alternativeCount)}`);
+  if (consequenceCount !== 1) informativeTokens.push(`consequences:${countBucket(consequenceCount)}`);
+  const tokens = unique(informativeTokens).sort();
   return freeze({ key: tokens.join("|"), tokens: freeze(tokens), complexity: tokens.length });
 }
 
