@@ -1,4 +1,5 @@
 export { MODES, DOMAINS, GRAINS, TERRAIN_BY_DOMAIN, STANCE_BY_MODE, cellOf, algebraAddresses } from "./cube.js";
+export { TERRAINS, terrainOf, projectTerrainState, terrainCounts } from "./terrain-state.js";
 export { receivedGround, eoOperation, deltaFold, applyObservation, applyDelta, reconstruct } from "./fold.js";
 export { deriveOrientation } from "./orientation.js";
 export { perceive } from "./perception.js";
@@ -6,7 +7,7 @@ export { witness } from "./witness.js";
 export { hyperedge, graphObject, indexHypergraphEntries, buildHypergraph, graphEntriesForIds, graphEdgesForRelation, graphEdgesAtSequence, relevantHypergraphNeighborhood } from "./hypergraph.js";
 export { identityAlternative, canonicalizeHyperedge, deriveIdentityRevision } from "./identity.js";
 export { HL, HL_SCHEMA, pairKey, createHyperlexicon, normalizeHyperlexicon, compositionAffordance, admitHyperlexiconCandidates, giveHyperlexiconAffordance } from "./hyperlexicon.js";
-export { createRelationCompositionLedger, relationCompositionChains, acquireCompositionCandidates, evaluateRelationCompositions, consequentialWithheldCompositions } from "./relation-composition.js";
+export { relationCompositionChains, createRelationCompositionLedger, acquireCompositionCandidates, evaluateRelationCompositions, consequentialWithheldCompositions } from "./relation-composition.js";
 export { differenceMakesDifference } from "./materiality.js";
 export { addressOf, cubeAddresses, relevantNeighborhood, interrogateCube, deriveEOTransformations } from "./interrogation.js";
 export { deriveSurprise, deriveTension, deriveRelease } from "./dynamics.js";
