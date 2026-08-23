@@ -6,7 +6,7 @@ import { relevantNeighborhood, interrogateCube, deriveEOTransformations } from "
 import { deriveSurprise, deriveTension, deriveRelease } from "./dynamics.js";
 import { buildHypergraph, indexHypergraphEntries } from "./hypergraph.js";
 import { normalizeHyperlexicon, admitHyperlexiconCandidates } from "./hyperlexicon.js";
-import { acquireCompositionCandidates, evaluateRelationCompositions, consequentialWithheldCompositions } from "./relation-composition.js";
+import { createRelationCompositionLedger, consequentialWithheldCompositions } from "./relation-composition.js";
 import { differenceMakesDifference } from "./materiality.js";
 import { obligation, openObligation } from "./obligations.js";
 import { createReadingTaskState, proposeObligationTasks, wakeTasks, appendTaskResult, executeClarificationTask, scheduleTasks } from "./reading-tasks.js";
@@ -80,10 +80,8 @@ function compositionOperations(composition, fold = {}, graph = null) {
       leftPredicate: withheld.leftPredicate,
       rightPredicate: withheld.rightPredicate,
     };
-    // The witnessed source edges are grounds for the possible composition, not
-    // consequences of composing. Counting them here would let recurrence prove
-    // its own importance. Materiality must come from a downstream Fold object
-    // that depends on the unresolved bridge.
+    // Source edges nominate a possible bridge; they cannot prove their own
+    // consequence. Active work requires a downstream Fold dependency.
     const consequences = [{ kind: "bridge_interpretation", composition: withheld.id }];
     const materiality = differenceMakesDifference({ distinction, consequences, fold, graph });
     if (!materiality.makesDifference) continue;
@@ -116,7 +114,9 @@ export function createRecursiveReader({ seed = {}, priors = [], perceivers = [],
   let tasks = createReadingTaskState(taskLog);
   tasks = proposeObligationTasks(tasks, fold).log;
   const log = [];
-  const graphIndex = buildHypergraph([...(fold.graphEntries ?? []), ...(fold.expectations ?? []), ...(fold.obligations ?? []), ...(fold.activeFrames ?? []), ...(fold.unresolvedAlternatives ?? []), ...(fold.transformationObjects ?? [])]);
+  const graphSeed = [...(fold.graphEntries ?? []), ...(fold.expectations ?? []), ...(fold.obligations ?? []), ...(fold.activeFrames ?? []), ...(fold.unresolvedAlternatives ?? []), ...(fold.transformationObjects ?? [])];
+  const graphIndex = buildHypergraph(graphSeed);
+  const compositionLedger = createRelationCompositionLedger(graphSeed);
 
   async function step(input) {
     const currentEncounter = input?.schema === "Encounter@1" ? input : encounter(input);
@@ -129,10 +129,13 @@ export function createRecursiveReader({ seed = {}, priors = [], perceivers = [],
     const challengedCandidates = challenge?.candidates ?? candidates;
     const observations = await (adapters.witness ?? defaultWitness)(currentEncounter, challengedCandidates, { admit: adapters.admit });
 
-    indexHypergraphEntries(graphIndex, observations.flatMap(observationGraph));
-    const hlCandidates = acquireCompositionCandidates(graphIndex.entries);
+    const observedGraph = observations.flatMap(observationGraph);
+    indexHypergraphEntries(graphIndex, observedGraph);
+    compositionLedger.ingest(observedGraph);
+    const hlCandidates = compositionLedger.candidates();
     hl = admitHyperlexiconCandidates(hl, hlCandidates);
-    const composition = evaluateRelationCompositions(graphIndex.entries, hl);
+    const composition = compositionLedger.evaluate(hl);
+    const compositionDiagnostics = compositionLedger.diagnostics();
 
     const awakenedTasks = wakeTasks(orientationTasks, observations);
     const scheduledTasks = scheduleTasks(awakenedTasks, beforeFold, { limit: taskExecutionBudget });
@@ -165,9 +168,13 @@ export function createRecursiveReader({ seed = {}, priors = [], perceivers = [],
     indexHypergraphEntries(graphIndex, deltaGraph(canonicalDelta, fold));
     const taskUpdate = proposeObligationTasks(tasks, fold); tasks = taskUpdate.log;
 
-    return Object.freeze({ encounter: currentEncounter, orientation, candidates, challenge, observations, hyperlexicon: hl, hyperlexiconCandidates: hlCandidates, composition, awakenedTasks, scheduledTasks, taskEvidence, proposedTasks: taskUpdate.proposed, tasks: Object.freeze(projectTasks(tasks)), relevantFold: neighborhood, interrogation, deltaFold: canonicalDelta, fold, surprise: deriveSurprise(canonicalDelta), tension: deriveTension(fold), release: deriveRelease(canonicalDelta, beforeFold, fold) });
+    return Object.freeze({ encounter: currentEncounter, orientation, candidates, challenge, observations, hyperlexicon: hl, hyperlexiconCandidates: hlCandidates, composition, compositionDiagnostics, awakenedTasks, scheduledTasks, taskEvidence, proposedTasks: taskUpdate.proposed, tasks: Object.freeze(projectTasks(tasks)), relevantFold: neighborhood, interrogation, deltaFold: canonicalDelta, fold, surprise: deriveSurprise(canonicalDelta), tension: deriveTension(fold), release: deriveRelease(canonicalDelta, beforeFold, fold) });
   }
 
-  async function read(encounters = []) { const turns = []; for (const item of encounters) turns.push(await step(item)); return Object.freeze({ turns, fold, hyperlexicon: hl, tasks: Object.freeze(projectTasks(tasks)), taskLog: tasks, log: [...log] }); }
-  return Object.freeze({ step, read, getFold: () => fold, getHyperlexicon: () => hl, getTasks: () => Object.freeze(projectTasks(tasks)), getTaskLog: () => tasks, getLog: () => [...log] });
+  async function read(encounters = []) {
+    const turns = [];
+    for (const item of encounters) turns.push(await step(item));
+    return Object.freeze({ turns, fold, hyperlexicon: hl, compositionDiagnostics: compositionLedger.diagnostics(), tasks: Object.freeze(projectTasks(tasks)), taskLog: tasks, log: [...log] });
+  }
+  return Object.freeze({ step, read, getFold: () => fold, getHyperlexicon: () => hl, getCompositionDiagnostics: () => compositionLedger.diagnostics(), getTasks: () => Object.freeze(projectTasks(tasks)), getTaskLog: () => tasks, getLog: () => [...log] });
 }
