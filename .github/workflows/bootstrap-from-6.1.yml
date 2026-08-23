@@ -1,10 +1,13 @@
 name: Bootstrap EOReader 7 from frozen 6.1 cut
 
 on:
+  workflow_dispatch:
   push:
     branches: [main]
     paths:
       - '.github/workflows/bootstrap-from-6.1.yml'
+  pull_request:
+    branches: [main]
 
 permissions:
   contents: write
@@ -13,9 +16,20 @@ jobs:
   bootstrap:
     runs-on: ubuntu-latest
     steps:
-      - name: Check out EOReader 7
+      - name: Resolve target branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -n "${GITHUB_HEAD_REF:-}" ]; then
+            echo "TARGET_BRANCH=${GITHUB_HEAD_REF}" >> "$GITHUB_ENV"
+          else
+            echo "TARGET_BRANCH=main" >> "$GITHUB_ENV"
+          fi
+
+      - name: Check out EOReader 7 target branch
         uses: actions/checkout@v4
         with:
+          ref: ${{ github.head_ref || github.ref_name }}
           path: target
           fetch-depth: 0
 
@@ -44,4 +58,4 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add -A
           git commit -m 'Bootstrap EOReader 7 from frozen 6.1 cut e20e441'
-          git push origin HEAD:main
+          git push origin "HEAD:${TARGET_BRANCH}"
