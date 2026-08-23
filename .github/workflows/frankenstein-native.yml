@@ -29,3 +29,5 @@ jobs:
           test -s /tmp/frankenstein.txt
       - name: Read Frankenstein through native EOReader 7
         run: node native/eval/frankenstein.mjs /tmp/frankenstein.txt
+      - name: Probe structural Kind induction
+        run: node native/eval/frankenstein-kind-probe.mjs /tmp/frankenstein.txt
