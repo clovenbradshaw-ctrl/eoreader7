@@ -33,10 +33,9 @@ export function relevantNeighborhood(fold, observations, { select, maxHops = 3, 
   const ids = new Set(graphNeighborhood.ids);
   const pick = (key) => (fold?.[key] ?? []).filter((entry) => entry?.id && ids.has(entry.id));
   const terrainState = projectTerrainState(fold, { ids });
-  return {
+  const counts = terrainCounts(terrainState);
+  const result = {
     graph: graphNeighborhood,
-    terrainState,
-    terrainCounts: terrainCounts(terrainState),
     witnessed: pick("witnessed"),
     provisional: pick("provisional"),
     expectations: pick("expectations"),
@@ -46,6 +45,11 @@ export function relevantNeighborhood(fold, observations, { select, maxHops = 3, 
     activeFrames: pick("activeFrames"),
     receivedPriors: pick("receivedPriors"),
   };
+  if (Object.values(counts).some((count) => count > 0)) {
+    result.terrainState = terrainState;
+    result.terrainCounts = counts;
+  }
+  return result;
 }
 
 export async function interrogateCube(observations, neighborhood, { ask } = {}) {
@@ -53,10 +57,12 @@ export async function interrogateCube(observations, neighborhood, { ask } = {}) 
   for (const address of cubeAddresses()) {
     const terrainContext = neighborhood?.terrainState?.[address.terrain] ?? [];
     const answer = ask ? await ask({ address, terrainContext, observations, neighborhood }) : null;
+    // terrainContext conditions interrogation but is not duplicated into the
+    // public interrogation record. This preserves the canonical 6.1 result
+    // shape and, more importantly, avoids turning context into evidence.
     results.push({
       schema: "EOInterrogation@1",
       address,
-      terrainContext: Object.freeze([...terrainContext]),
       changed: Boolean(answer?.changed),
       effects: answer?.effects ?? [],
       evidence: answer?.evidence ?? null,
