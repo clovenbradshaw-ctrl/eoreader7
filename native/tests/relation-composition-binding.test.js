@@ -29,7 +29,8 @@ test("raw unresolved relations become composition-eligible only through explicit
   });
   const ledger = createRelationCompositionLedger([left, right]);
   assert.equal(ledger.diagnostics().relationEdges, 2);
-  assert.equal(ledger.diagnostics().witnessedEdges, 0);
+  assert.equal(ledger.diagnostics().indexedEdges, 2);
+  assert.equal(ledger.diagnostics().fullyReferentResolvedEdges, 0);
   assert.equal(ledger.diagnostics().chainSites, 0);
 
   ledger.ingest([{
@@ -42,7 +43,7 @@ test("raw unresolved relations become composition-eligible only through explicit
   }]);
 
   const diagnostics = ledger.diagnostics();
-  assert.equal(diagnostics.witnessedEdges, 2);
+  assert.equal(diagnostics.fullyReferentResolvedEdges, 2);
   assert.equal(diagnostics.chainSites, 1);
   const [chain] = ledger.chains();
   assert.equal(chain.from, "ref:a");
