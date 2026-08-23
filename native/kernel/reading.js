@@ -58,8 +58,6 @@ function compositionOperations(composition, fold = {}, graph = null) {
   }
 
   for (const withheld of consequentialWithheldCompositions(composition)) {
-    // Repeated adjacency can nominate an HL candidate and we preserve the
-    // withheld composition object. That is memory, not automatically a task.
     if (!known.has(withheld.id)) {
       known.add(withheld.id);
       operations.push(eoOperation({
@@ -82,12 +80,11 @@ function compositionOperations(composition, fold = {}, graph = null) {
       leftPredicate: withheld.leftPredicate,
       rightPredicate: withheld.rightPredicate,
     };
-    const consequences = [{
-      kind: "bridge_interpretation",
-      composition: withheld.id,
-      edges: [...(withheld.edgeRefs ?? [])],
-      referents: [...(withheld.referentRefs ?? [])],
-    }];
+    // The witnessed source edges are grounds for the possible composition, not
+    // consequences of composing. Counting them here would let recurrence prove
+    // its own importance. Materiality must come from a downstream Fold object
+    // that depends on the unresolved bridge.
+    const consequences = [{ kind: "bridge_interpretation", composition: withheld.id }];
     const materiality = differenceMakesDifference({ distinction, consequences, fold, graph });
     if (!materiality.makesDifference) continue;
 
