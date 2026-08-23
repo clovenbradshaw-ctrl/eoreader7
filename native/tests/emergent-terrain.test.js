@@ -5,6 +5,9 @@ import {
   applyObservation,
   deriveOrientation,
   reasoningAffordances,
+  createEmergentTerrainIndex,
+  indexEmergentTerrainEntries,
+  snapshotEmergentTerrainState,
 } from "../kernel/index.js";
 import { hyperedge } from "../kernel/hypergraph.js";
 import { explicitKindAssertions } from "../adapters/text/kind-assertions.js";
@@ -89,6 +92,27 @@ test("co-present witnessed links project Field and earned referent topology proj
   const networkMoves = reasoningAffordances(orientation).filter((move) => move.address.terrain === "Network");
   assert.equal(networkMoves.length, 3);
   assert.ok(networkMoves.every((move) => move.stanceContinuity === false));
+});
+
+test("incremental Network projection honors a later binding without rewriting raw witness", () => {
+  const edgeA = hyperedge({
+    id: "edge:bound:a", relation: "saw", witness: "fixture:bound:a", scope: { sequencePosition: 2 }, eo: { op: "CON", grain: "Figure" },
+    participants: [{ ref: victor.id, standing: "referent", role: "subject" }, { ref: "occ:other", standing: "unresolved_surface", role: "object" }],
+  });
+  const edgeB = hyperedge({
+    id: "edge:bound:b", relation: "entered", witness: "fixture:bound:b", scope: { sequencePosition: 3 }, eo: { op: "CON", grain: "Figure" },
+    participants: [{ ref: "occ:he", occurrence: "occ:he", standing: "unresolved_surface", role: "subject", surface: "he" }, { ref: "occ:room", standing: "unresolved_surface", role: "object" }],
+  });
+  const index = createEmergentTerrainIndex([edgeA, edgeB]);
+  assert.equal(snapshotEmergentTerrainState(index).Network.length, 0);
+  const binding = Object.freeze({ schema: "EOPronounBinding@1", id: "binding:he-victor", occurrence: "occ:he", referent: victor.id, standing: "provisional" });
+  indexEmergentTerrainEntries(index, [binding]);
+  const state = snapshotEmergentTerrainState(index);
+  assert.equal(state.Network.length, 1);
+  assert.equal(state.Network[0].bridgeRef, victor.id);
+  assert.deepEqual([...state.Network[0].edgeRefs].sort(), [edgeA.id, edgeB.id].sort());
+  assert.equal(edgeB.participants[0].standing, "unresolved_surface");
+  assert.equal(edgeB.participants[0].ref, "occ:he");
 });
 
 test("material unresolved interpretation projects Atmosphere; repeated independent material lenses project Paradigm", () => {
