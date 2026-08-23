@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {
   createRecursiveReader,
+  expectation,
   hyperedge,
   receivedGround,
   applyObservation,
@@ -57,7 +58,7 @@ test("one-off unknown composition is withheld but does not create active reading
   assert.equal(first.hyperlexicon.schema, "EOHyperlexicon@1");
 });
 
-test("repeated witnessed relation adjacency becomes candidate, opens bounded clarification, and remains abstaining", async () => {
+test("repeated witnessed adjacency nominates an HL candidate but remains dormant when it changes no live Fold projection", async () => {
   const reader = createRecursiveReader({ perceivers: [compositionPerceiver()] });
   const turns = [];
   for (let i = 0; i < 5; i += 1) turns.push(await reader.step(encounter(i)));
@@ -65,9 +66,31 @@ test("repeated witnessed relation adjacency becomes candidate, opens bounded cla
   assert.equal(turns[3].hyperlexicon.composition["p\u0000q"].standing, "candidate");
   assert.equal(turns[3].composition.licensed.length, 0);
   assert.ok(turns[3].composition.withheld.some((item) => item.standing === "candidate"));
-  assert.ok(turns[3].fold.obligations.some((o) => o.id.startsWith("obligation:composition:")));
-  assert.ok(turns[3].proposedTasks.some((id) => id.includes("obligation:composition:")));
+  assert.equal(turns[3].fold.obligations.some((o) => o.id.startsWith("obligation:composition:")), false);
+  assert.equal(turns[3].proposedTasks.some((id) => id.includes("obligation:composition:")), false);
+  assert.equal(turns[4].orientation.activeTasks.some((task) => task.strategy === "composition_clarification"), false);
+});
 
+test("withheld composition becomes active only when a live Fold object depends on resolving it", async () => {
+  const bridgeExpectation = expectation({
+    id: "expectation:bridge-dependent",
+    hypothesis: "A downstream interpretation depends on whether p may compose with q",
+    giver: "fixture",
+    grounds: ["withheld-composition:p__q:candidate"],
+    consequences: [],
+  });
+  const reader = createRecursiveReader({
+    seed: { expectations: [bridgeExpectation] },
+    perceivers: [compositionPerceiver()],
+  });
+  const turns = [];
+  for (let i = 0; i < 5; i += 1) turns.push(await reader.step(encounter(i)));
+
+  const opened = turns[3].fold.obligations.find((o) => o.id.startsWith("obligation:composition:"));
+  assert.ok(opened);
+  assert.equal(opened.distinction.materiality.makesDifference, true);
+  assert.ok(opened.distinction.materiality.reasons.some((reason) => reason.ref === bridgeExpectation.id));
+  assert.ok(turns[3].proposedTasks.some((id) => id.includes("obligation:composition:")));
   assert.ok(turns[4].orientation.activeTasks.some((task) => task.strategy === "composition_clarification"));
   assert.ok(turns[4].scheduledTasks.some((task) => task.strategy === "composition_clarification"));
   const evidence = turns[4].taskEvidence.find((item) => item.strategy === "composition_clarification");
@@ -82,7 +105,7 @@ const unresolvedEdge = (id, encounterRef, relation, occurrence, sequencePosition
   id,
   relation,
   participants: [
-    { ref: `ref:victor`, role: "subject", standing: "referent" },
+    { ref: "ref:victor", role: "subject", standing: "referent" },
     { ref: occurrence, occurrence, surfaceKey: "surface:the_creature", surface: "the creature", role: "object", standing: "unresolved_surface" },
   ],
   witness: `obs:${id}`,
@@ -100,10 +123,11 @@ const observation = (n, edgeValue) => Object.freeze({
   provenance: { source: "identity-fixture", modality: "text" },
 });
 
-test("relation-bearing descriptor recurrence becomes an identity obligation without becoming identity", async () => {
+test("descriptor recurrence stays a hypothesis until same-vs-distinct changes live relation attribution", async () => {
   let fold = receivedGround();
   const firstObs = observation(0, unresolvedEdge("edge:i1", "encounter:0", "watched", "occ:0", 0));
   const firstDelta = await reviseTextFold({ observations: [firstObs], fold });
+  assert.equal(firstDelta.operations.some((op) => op.payload?.action === "obligation" && op.payload?.value?.id?.startsWith("obligation:identity:")), false);
   fold = applyObservation(fold, firstObs);
   fold = applyDelta(fold, firstDelta);
 
@@ -112,7 +136,8 @@ test("relation-bearing descriptor recurrence becomes an identity obligation with
   const opened = secondDelta.operations.find((op) => op.payload?.action === "obligation" && op.payload?.value?.id?.startsWith("obligation:identity:"));
   assert.ok(opened);
   assert.equal(opened.payload.value.distinction.surfaceKey, "surface:the_creature");
-  assert.equal(opened.payload.value.consequences.length, 2);
+  assert.equal(opened.payload.value.distinction.materiality.makesDifference, true);
+  assert.ok(opened.payload.value.consequences.some((consequence) => consequence.edge === "edge:i1"));
 
   const identityHypothesis = secondDelta.operations.find((op) => op.consequence?.kind === "identity_hypothesis_opened");
   assert.ok(identityHypothesis);
