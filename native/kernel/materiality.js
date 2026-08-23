@@ -4,7 +4,7 @@ const CLOSED = new Set(["resolved", "closed", "superseded", "retracted"]);
 const refsOf = (value, out = new Set()) => {
   if (value == null) return out;
   if (typeof value === "string") {
-    if (/^(ref|ref-occ|surface|occ|lex|mention|encounter|obs|edge|expectation|obligation|identity|discourse-link|withheld-composition|composition|frame|pattern|motif|delta|op|gap|task-target|task-evidence):/.test(value)) out.add(value);
+    if (/^(ref|ref-occ|surface|occ|lex|mention|encounter|obs|edge|expectation|obligation|identity|discourse-link|withheld-composition|composition|frame|pattern|motif|delta|op|gap|task-target|task-evidence|terrain-fixture):/.test(value)) out.add(value);
     return out;
   }
   if (Array.isArray(value)) { for (const item of value) refsOf(item, out); return out; }
@@ -33,6 +33,7 @@ const MATERIAL_KINDS = new Set([
   "expectation",
   "contradiction",
   "bridge_interpretation",
+  "terrain_projection",
 ]);
 
 function foldLookup(fold = {}) {
@@ -62,6 +63,11 @@ function foldLookup(fold = {}) {
  * semantically and computationally: DMD is a question about live dependency,
  * so it should follow indexed dependency edges rather than repeatedly scan the
  * whole Fold. Standalone callers without a graph retain a lazy Fold fallback.
+ *
+ * Terrain projection is a consequence like identity, relation attribution, or
+ * expectation: a shift in Void/Entity/Kind/Field/Link/Network/Atmosphere/Lens/
+ * Paradigm can activate work only when it points at a concrete live Fold object.
+ * Naming a terrain alone never bootstraps importance.
  *
  * Salience, recurrence, uncertainty, and HL candidate standing may nominate a
  * distinction; none of them establish that the distinction makes a difference.
