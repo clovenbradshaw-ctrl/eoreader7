@@ -11,10 +11,6 @@ export function deriveOrientation(fold = {}, { tasks = [], terrainState = null, 
   const openExpectations = (fold.expectations ?? []).filter((e) => ["open", "strengthened", "weakened"].includes(e.state ?? "open"));
   const openObligations = (fold.obligations ?? []).filter((o) => !["resolved", "closed", "superseded"].includes(o.status));
   const activeTasks = (tasks ?? []).filter((task) => !["resolved", "closed", "superseded", "retracted"].includes(task.status));
-  // Terrain is a present-tense projection. Direct cube-addressed objects are
-  // merged with structures already implicit in earned Fold content. Recursive
-  // reading supplies incremental snapshots. Standalone callers can still
-  // derive them from a Fold snapshot here.
   const emergent = emergentTerrainState ?? projectEmergentTerrains(fold);
   const kinds = kindState ?? projectKinds(fold?.graphEntries ?? []);
   const terrains = mergeTerrainStates(terrainState ?? projectTerrainState(fold), emergent, { Kind: kinds });
@@ -25,10 +21,6 @@ export function deriveOrientation(fold = {}, { tasks = [], terrainState = null, 
   const hasTerrainState = Object.values(terrainCount).some((count) => count > 0);
   const hasStanceState = Object.values(stanceCount).some((count) => count > 0);
   const foldReferents = referentEntities ?? fold.activeReferents ?? [];
-  // Preserve the frozen 6.1 orientation contract for callers that seed
-  // activeKinds directly, while adding newly projected Kind structure. These
-  // legacy entries remain orientation context only; they do not become Kind
-  // terrain unless separately earned by the terrain/kind projection paths.
   const activeKindsById = new Map();
   for (const item of [...(fold.activeKinds ?? []), ...kinds]) {
     const key = item?.id ?? item?.kindKey;
@@ -47,12 +39,12 @@ export function deriveOrientation(fold = {}, { tasks = [], terrainState = null, 
     relevantPatterns: Object.freeze([...(fold.relevantPatterns ?? [])]),
     activeFrames: Object.freeze([...(fold.activeFrames ?? [])]),
     receivedPriors: Object.freeze([...(fold.receivedPriors ?? [])]),
-    lensGeometry,
     consequenceBearingQuestions: Object.freeze([
       ...openObligations.map((o) => ({ obligationId: o.id, distinction: o.distinction, consequences: o.consequences ?? [] })),
       ...activeTasks.map((task) => ({ taskId: task.task_id, distinction: task.description, consequences: task.consequences ?? [] })),
     ]),
   };
+  if (lensGeometry.length) projection.lensGeometry = lensGeometry;
   if (hasTerrainState) {
     projection.terrainState = terrains;
     projection.terrainCounts = terrainCount;
