@@ -2,7 +2,7 @@ import { MODES, DOMAINS, GRAINS, cellOf } from "./cube.js";
 import { deltaFold, eoOperation } from "./fold.js";
 import { buildHypergraph, relevantHypergraphNeighborhood } from "./hypergraph.js";
 import { projectTerrainState, terrainCounts, TERRAINS } from "./terrain-state.js";
-import { projectEmergentTerrains, mergeTerrainStates } from "./emergent-terrain.js";
+import { projectEmergentTerrains, snapshotEmergentTerrainState, mergeTerrainStates } from "./emergent-terrain.js";
 import { projectStanceState, stanceCounts, STANCES } from "./stance-state.js";
 
 const OP_BY_ADDRESS = Object.freeze({
@@ -21,7 +21,7 @@ export function cubeAddresses() {
   return MODES.flatMap((mode) => DOMAINS.flatMap((domain) => GRAINS.map((grain) => addressOf(mode, domain, grain))));
 }
 
-export function relevantNeighborhood(fold, observations, { select, maxHops = 3, graph = null, terrainState: suppliedTerrainState = null, stanceState: suppliedStanceState = null } = {}) {
+export function relevantNeighborhood(fold, observations, { select, maxHops = 3, graph = null, terrainState: suppliedTerrainState = null, emergentTerrainIndex = null, stanceState: suppliedStanceState = null } = {}) {
   if (select) return select(fold, observations);
   const workingGraph = graph ?? buildHypergraph([
     ...(fold?.graphEntries ?? []), ...(fold?.expectations ?? []), ...(fold?.obligations ?? []), ...(fold?.activeFrames ?? []), ...(fold?.unresolvedAlternatives ?? []), ...(fold?.transformationObjects ?? []),
@@ -36,7 +36,8 @@ export function relevantNeighborhood(fold, observations, { select, maxHops = 3, 
     for (const terrain of TERRAINS) filtered[terrain] = Object.freeze([...(suppliedTerrainState[terrain] ?? [])].filter((entry) => ids.has(entry.id)));
     directTerrainState = Object.freeze(filtered);
   } else directTerrainState = projectTerrainState(fold, { ids });
-  const terrainState = mergeTerrainStates(directTerrainState, projectEmergentTerrains(fold, { ids }));
+  const emergent = emergentTerrainIndex ? snapshotEmergentTerrainState(emergentTerrainIndex, { ids }) : projectEmergentTerrains(fold, { ids });
+  const terrainState = mergeTerrainStates(directTerrainState, emergent);
   const terrainCount = terrainCounts(terrainState);
 
   let stanceState;
