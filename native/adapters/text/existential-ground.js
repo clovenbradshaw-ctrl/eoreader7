@@ -28,8 +28,25 @@ function nounStanding(form, posPrior) {
   return nounShare > 0.5 ? freeze({ nounShare, giver: posPrior.provenance?.source ?? null }) : null;
 }
 
+function carrierRelativeComplement({ carrierRef, absenceSurface, anchor }) {
+  return freeze({
+    schema: "EOComplementGeometry@1",
+    model: "bounded_relative_complement",
+    carrierRef,
+    excludedSurface: absenceSurface,
+    boundary: freeze({ ...anchor }),
+    absoluteVoid: false,
+  });
+}
+
 /**
  * Witness explicitly bounded absence grounds such as “there was no answer”.
+ *
+ * Void is never an absolute empty universe. It is a complement relative to a
+ * carrier: inside this encounter/scope, the source asserts that a figure of the
+ * named form is absent. The carrier is therefore part of the mathematical
+ * identity of the Void. Two identical absence surfaces in different carriers
+ * are different grounds.
  *
  * The returned object is the local existential Ground, not the missing thing
  * and not a NUL transformation. It therefore carries terrain=Void directly
@@ -53,8 +70,6 @@ export function explicitExistentialGrounds(text, {
       if (head.some((word, j) => tokens[i + j]?.value !== word)) continue;
       const after = i + head.length;
       let absent = null;
-      // Permit a small modifier window, but require the absent figure's head to
-      // be independently NOUN-dominant under the named POS giver.
       for (const token of tokens.slice(after, after + 4)) {
         const standing = nounStanding(token.raw, posPrior);
         if (!standing) continue;
@@ -64,21 +79,24 @@ export function explicitExistentialGrounds(text, {
       if (!absent) continue;
       const start = tokens[i].index;
       const end = absent.index + absent.raw.length;
+      const anchor = freeze({ start, end });
       out.push(freeze({
-        schema: "EOExistentialGround@1",
+        schema: "EOExistentialGround@2",
         id: `existential-ground:${sequencePosition}:${ordinal}`,
         terrain: "Void",
         standing: "witnessed_explicit_absence_ground",
         witnessed: true,
         scopeRef: encounterRef,
+        carrierRef: encounterRef,
         absenceSurface: absent.raw,
-        anchor: freeze({ start, end }),
+        anchor,
+        complement: carrierRelativeComplement({ carrierRef: encounterRef, absenceSurface: absent.raw, anchor }),
         witness: `text:${sequencePosition}:${start}`,
         provenance: freeze({
           giver: grammarPrior.giver,
           grammarPrior: grammarPrior.schema,
           posPrior: absent.standing.giver,
-          basis: "explicit_negative_existential",
+          basis: "explicit_negative_existential_relative_to_carrier",
         }),
       }));
       ordinal += 1;
