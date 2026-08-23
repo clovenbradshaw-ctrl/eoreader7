@@ -48,17 +48,21 @@ export function projectTerrainState(fold = {}, { ids = null } = {}) {
     buckets[terrain].push(entry);
   };
 
-  for (const entry of byId.values()) admit(entry, terrainOf(entry) ?? producerTerrain.get(entry.id));
+  // Operations are stored in graphEntries for replay/indexing, but they are
+  // not a second terrain occupant when their output object is present. Project
+  // the product; use the operation itself only as the fallback below when the
+  // transformation has no projectable output.
+  for (const entry of byId.values()) {
+    if (entry?.schema === "EOOperation@1") continue;
+    admit(entry, terrainOf(entry) ?? producerTerrain.get(entry.id));
+  }
 
-  // A transformation is itself a live EO-addressed fact about how the Fold is
-  // being changed. Include it when no output object is available, so every cell
-  // remains inspectable even for operations such as a pure boundary/refusal.
   for (const operation of fold?.transformationObjects ?? []) {
     const terrain = terrainOf(operation);
     if (!terrain || !live(operation)) continue;
     const hasProjectedOutput = (operation.outputs ?? []).some((id) => {
       const entry = byId.get(id);
-      return entry && (!allowed || allowed.has(id));
+      return entry && entry.schema !== "EOOperation@1" && (!allowed || allowed.has(id));
     });
     if (!hasProjectedOutput) admit(operation, terrain);
   }
