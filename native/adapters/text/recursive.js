@@ -4,6 +4,7 @@ import { extractSurfaces, discoverReferents, diaNorm } from "./surfaces.js";
 import { discoverRelationVocab, extractRelations } from "./relations.js";
 import { createCausalPronounResolver } from "./pronoun-stream.js";
 import { bindDefiniteAnaphora } from "./definite-anaphora.js";
+import { explicitKindAssertions } from "./kind-assertions.js";
 import { hyperedge } from "../../kernel/hypergraph.js";
 
 const slug = (value) => diaNorm(value).replace(/[^\p{L}\p{N}]+/gu, "_").replace(/^_+|_+$/g, "");
@@ -249,6 +250,11 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
       });
 
       const seenReferents = currentReferents(encounter.material, cache.referents);
+      const kindAssertions = explicitKindAssertions(encounter.material, {
+        sequencePosition,
+        referents: [...cache.referents, ...(orientation?.terrainState?.Entity ?? [])],
+        posPrior: relationPosPrior,
+      });
       const mentions = seenReferents.map((ref) => Object.freeze({ schema: "EOMention@1", id: `mention:${sequencePosition}:${slug(ref.id)}`, referent: ref.id, encounterRef, anchor: encounter.anchor, witness: `text:${sequencePosition}`, source: encounter.source }));
       const lexicalOccurrences = lexicalNounOccurrences(encounter.material, sequencePosition, encounterRef, posPrior);
       const lexicalKeys = new Set(lexicalOccurrences.map((occ) => occ.surfaceKey));
@@ -259,7 +265,7 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
 
       priorSentences.push(currentSentence);
       priorText += `${priorText ? "\n" : ""}${encounter.material}`;
-      if (edges.length === 0 && seenReferents.length === 0 && lexicalOccurrences.length === 0 && targetedOccurrences.length === 0 && relationBindings.length === 0) return [];
+      if (edges.length === 0 && seenReferents.length === 0 && lexicalOccurrences.length === 0 && targetedOccurrences.length === 0 && relationBindings.length === 0 && kindAssertions.length === 0) return [];
       return [{
         candidate: {
           distinctions: [
@@ -268,9 +274,10 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
             ...lexicalOccurrences.map((occ) => ({ occurrence: occ.id, surfaceKey: occ.surfaceKey, upos: occ.upos })),
             ...targetedOccurrences.map((occ) => ({ occurrence: occ.id, surfaceKey: occ.surfaceKey, taskNominated: true })),
             ...relationBindings.map((binding) => ({ kind: "occurrence_binding", binding })),
+            ...kindAssertions.map((assertion) => ({ kind: "explicit_kind_assertion", assertion: assertion.id, subject: assertion.subject, kindKey: assertion.kindKey })),
           ],
           hyperedges: edges,
-          graphEntries: [...seenReferents, ...mentions, ...lexicalOccurrences, ...targetedOccurrences, ...gaps],
+          graphEntries: [...seenReferents, ...mentions, ...lexicalOccurrences, ...targetedOccurrences, ...gaps, ...kindAssertions],
         },
         anchor: encounter.anchor,
         evidence: encounter.material,
