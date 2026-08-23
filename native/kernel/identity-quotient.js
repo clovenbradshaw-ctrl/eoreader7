@@ -66,17 +66,6 @@ function liveDiscourseLink(entry) {
     && !["refused", "retracted", "superseded", "closed"].includes(entry.standing ?? entry.status);
 }
 
-/**
- * Existence/Figure identity is represented as a quotient over witnessed
- * occurrences under already-warranted identity links. Possible identity is not
- * an equivalence relation: unresolved EOIdentityAlternative objects therefore
- * never enter this quotient.
- *
- * The quotient is a present-tense projection only. It does not rewrite witness,
- * choose a canonical referent when multiple referent ids collide, or turn
- * transitive closure into new evidence. Transitivity is bookkeeping inside an
- * equivalence class whose generating links remain explicit in supportRefs.
- */
 export function createIdentityQuotientIndex(entries = []) {
   const index = {
     schema: "EOIdentityQuotientIndex@1",
@@ -95,13 +84,15 @@ export function createIdentityQuotientIndex(entries = []) {
 function ingestOne(index, entry) {
   if (!entry) return false;
   if (entry.schema === "EOReferentOccurrence@1" && entry.id) {
+    // An unresolved occurrence alone cannot change an identity class. Store it
+    // for a possible future warranted binding without invalidating the quotient.
     index.occurrences.set(entry.id, entry);
-    index.dirty = true;
     return true;
   }
   if (entry.schema === "EOReferent@1" && entry.id) {
+    const prior = index.referents.get(entry.id);
     index.referents.set(entry.id, entry);
-    index.dirty = true;
+    if (prior !== entry) index.dirty = true;
     return true;
   }
   if (liveBinding(entry)) {
@@ -146,13 +137,13 @@ function computeSnapshot(index) {
   for (const id of index.occurrences.keys()) uf.ensure(id);
   for (const id of index.referents.keys()) uf.ensure(id);
 
-  // An earned/projected referent explicitly carries the occurrence members that
-  // generated it. This is quotient membership, not a lexical alias rule.
   for (const referent of index.referents.values()) {
     for (const occurrence of referent.occurrenceRefs ?? []) {
       uf.join(referent.id, occurrence);
-      support(referent.id, ...(referent.supportRefs ?? []));
-      support(occurrence, ...(referent.supportRefs ?? []));
+      for (const ref of referent.supportRefs ?? []) {
+        support(referent.id, ref);
+        support(occurrence, ref);
+      }
     }
   }
 
@@ -186,9 +177,6 @@ function computeSnapshot(index) {
   for (const nodes of groups.values()) {
     const referentRefs = nodes.filter((id) => index.referents.has(id)).sort();
     const occurrenceRefs = nodes.filter((id) => index.occurrences.has(id) || id.startsWith("occ:") || id.startsWith("ref-occ:")).sort();
-    // Ignore empty bookkeeping and naked occurrence singletons. A standalone
-    // referent remains a valid singleton Entity class; an unresolved occurrence
-    // remains only an occurrence until something warrants identification.
     if (!referentRefs.length && occurrenceRefs.length < 2) continue;
     const supportRefs = new Set();
     for (const node of nodes) for (const ref of supportByNode.get(node) ?? []) supportRefs.add(ref);
