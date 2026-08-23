@@ -163,6 +163,9 @@ export function createKindInductionIndex(entries = [], options = {}) {
       populationMinKindSize: options.populationMinKindSize,
       populationPermutations: options.populationPermutations,
       populationQuantile: options.populationQuantile ?? 0.95,
+      populationBondQuantile: options.populationBondQuantile ?? 0.75,
+      populationMinAffinity: options.populationMinAffinity ?? 0.12,
+      populationNeighborCount: options.populationNeighborCount,
     }),
     evidenceById: new Map(),
     explicitByKind: new Map(),
@@ -173,8 +176,10 @@ export function createKindInductionIndex(entries = [], options = {}) {
     receivedDirtyKinds: new Set(),
     earnedProjections: freeze([]),
     populationKindCandidates: freeze([]),
-    populationKindDiagnostics: freeze({ entities: 0, parameters: 0, clusters: 0, validated: 0 }),
-    earnedDiagnostics: freeze({ selectorNominations: 0, earnedKinds: 0, withheldNoHoldout: 0, withheldNoConsequence: 0 }),
+    populationKindDiagnostics: freeze({ entities: 0, parameters: 0, basins: 0, clusters: 0, validated: 0 }),
+    basinFormations: new Map(),
+    basinEarnedByKey: new Map(),
+    earnedDiagnostics: freeze({ selectorNominations: 0, basinNominations: 0, basinFormations: 0, basinEarnedKinds: 0, earnedKinds: 0, withheldNoHoldout: 0, withheldNoConsequence: 0, basinWithheldNoFuture: 0, basinWithheldNoConsequence: 0 }),
     graphStructure: createKindGraphStructureLedger({ depthThresholds: options.depthThresholds }),
     structuralDirty: false,
     snapshot: null,
@@ -358,12 +363,7 @@ function earnedKindProjection(index, selectorSignature, selectorMembers, populat
     modalities: freeze(modalities),
     materiality: freeze({
       makesDifference: true,
-      reasons: freeze([freeze({
-        kind: "held_out_consequence_differential",
-        consequence: best.consequenceSignature,
-        effect: best.effect,
-        pValue: best.pValue,
-      })]),
+      reasons: freeze([freeze({ kind: "held_out_consequence_differential", consequence: best.consequenceSignature, effect: best.effect, pValue: best.pValue })]),
     }),
     validation: freeze({
       method: "temporal_holdout_hypergeometric",
@@ -385,6 +385,143 @@ function earnedKindProjection(index, selectorSignature, selectorMembers, populat
   });
 }
 
+function currentFormationAt(index, candidate) {
+  let at = -Infinity;
+  for (const memberRef of candidate.memberRefs ?? []) {
+    const latest = index.latestAtByEntity.get(memberRef);
+    if (Number.isFinite(latest)) at = Math.max(at, latest);
+  }
+  return Number.isFinite(at) ? at : null;
+}
+
+function rememberStableBasins(index) {
+  for (const candidate of index.populationKindCandidates ?? []) {
+    if (candidate?.mechanism !== "interaction_affinity_basin" || candidate?.field?.stable !== true) continue;
+    if (candidate.memberCount < index.options.minMembers || index.basinFormations.has(candidate.kindKey)) continue;
+    const formedAt = currentFormationAt(index, candidate);
+    if (formedAt === null) continue;
+    index.basinFormations.set(candidate.kindKey, freeze({
+      schema: "EOKindBasinFormation@1",
+      id: `kind-basin-formation:${stableHash(`${candidate.kindKey}|${formedAt}`)}`,
+      kindKey: candidate.kindKey,
+      formedAt,
+      memberRefs: freeze([...(candidate.memberRefs ?? [])].sort()),
+      structuralSignatures: freeze([...(candidate.structuralSignatures ?? [])].sort()),
+      evidenceRefs: freeze([...(candidate.evidenceRefs ?? [])]),
+      witnessRefs: freeze([...(candidate.witnessRefs ?? [])]),
+      field: candidate.field,
+      standing: "stable_basin_hypothesis",
+      witnessed: false,
+      admissible: false,
+    }));
+  }
+}
+
+function basinKindProjection(index, formation, population, diagnostics) {
+  const { minMembers, minConsequenceSupport, minEffect, alpha } = index.options;
+  const memberRefs = new Set(formation.memberRefs ?? []);
+  const evaluableMembers = [...memberRefs].filter((entityRef) => futureObserved(index, entityRef, formation.formedAt));
+  const evaluableNonMembers = [...population].filter((entityRef) => !memberRefs.has(entityRef) && futureObserved(index, entityRef, formation.formedAt));
+  if (evaluableMembers.length < minMembers || evaluableNonMembers.length < 1) {
+    diagnostics.basinWithheldNoFuture += 1;
+    return null;
+  }
+
+  const formationSignatures = new Set(formation.structuralSignatures ?? []);
+  const candidateConsequences = new Set();
+  for (const entityRef of evaluableMembers) {
+    for (const [signature, record] of index.entityFeatures.get(entityRef) ?? []) {
+      if (formationSignatures.has(signature)) continue;
+      if (record.firstAt > formation.formedAt) candidateConsequences.add(signature);
+    }
+  }
+
+  let best = null;
+  for (const consequenceSignature of candidateConsequences) {
+    const supportingMembers = evaluableMembers.filter((entityRef) => {
+      const record = consequenceRecord(index, entityRef, consequenceSignature);
+      return record && record.firstAt > formation.formedAt;
+    });
+    if (supportingMembers.length < minConsequenceSupport) continue;
+    const supportingNonMembers = evaluableNonMembers.filter((entityRef) => {
+      const record = consequenceRecord(index, entityRef, consequenceSignature);
+      return record && record.firstAt > formation.formedAt;
+    });
+    const memberRate = supportingMembers.length / evaluableMembers.length;
+    const nonMemberRate = supportingNonMembers.length / evaluableNonMembers.length;
+    const effect = memberRate - nonMemberRate;
+    if (effect < minEffect) continue;
+    const N = evaluableMembers.length + evaluableNonMembers.length;
+    const K = supportingMembers.length + supportingNonMembers.length;
+    const n = evaluableMembers.length;
+    const k = supportingMembers.length;
+    const pValue = hypergeometricUpperTail(N, K, n, k);
+    if (pValue > alpha) continue;
+    const consequenceExample = consequenceRecord(index, supportingMembers[0], consequenceSignature);
+    const result = {
+      consequenceSignature,
+      consequence: freeze({ key: consequenceExample.featureKey, value: consequenceExample.featureValue, signature: consequenceSignature }),
+      supportingMembers,
+      supportingNonMembers,
+      memberRate,
+      nonMemberRate,
+      effect,
+      pValue,
+    };
+    if (!best || result.pValue < best.pValue || (result.pValue === best.pValue && result.effect > best.effect)) best = result;
+  }
+
+  if (!best) {
+    diagnostics.basinWithheldNoConsequence += 1;
+    return null;
+  }
+
+  const consequenceEvidenceRefs = best.supportingMembers.flatMap((entityRef) => [...(consequenceRecord(index, entityRef, best.consequenceSignature)?.evidenceIds ?? [])]);
+  const evidenceRefs = [...new Set([...(formation.evidenceRefs ?? []), ...consequenceEvidenceRefs])].sort();
+  const witnessRefs = [...new Set([...(formation.witnessRefs ?? []), ...evidenceRefs.flatMap((id) => witnessRefsOf(index.evidenceById.get(id)))])].sort();
+  const modalities = [...new Set(evidenceRefs.map((id) => index.evidenceById.get(id)?.provenance?.modality).filter(Boolean))].sort();
+  return freeze({
+    schema: "EOKindProjection@1",
+    id: `terrain:kind:basin-earned:${stableHash(`${formation.kindKey}|${best.consequenceSignature}|${formation.formedAt}`)}`,
+    terrain: "Kind",
+    kindKey: formation.kindKey,
+    standing: "earned_invariant",
+    witnessed: false,
+    mechanism: "interaction_affinity_basin",
+    memberRefs: freeze([...memberRefs].sort()),
+    structuralSignatures: freeze([...(formation.structuralSignatures ?? [])]),
+    consequence: best.consequence,
+    evidenceRefs: freeze(evidenceRefs),
+    witnessRefs: freeze(witnessRefs),
+    modalities: freeze(modalities),
+    field: formation.field,
+    materiality: freeze({
+      makesDifference: true,
+      reasons: freeze([freeze({
+        kind: "basin_counterfactual_consequence_gain",
+        counterfactual: "without_kind_basin_membership",
+        consequence: best.consequenceSignature,
+        effect: best.effect,
+        pValue: best.pValue,
+      })]),
+    }),
+    validation: freeze({
+      method: "frozen_basin_future_ablation_hypergeometric",
+      formedAt: formation.formedAt,
+      evaluableMemberCount: evaluableMembers.length,
+      evaluableNonMemberCount: evaluableNonMembers.length,
+      supportingMemberCount: best.supportingMembers.length,
+      supportingNonMemberCount: best.supportingNonMembers.length,
+      memberRate: best.memberRate,
+      nonMemberRate: best.nonMemberRate,
+      effect: best.effect,
+      pValue: best.pValue,
+      alpha,
+    }),
+    basis: "stable_relational_basin_with_future_consequence",
+  });
+}
+
 function refreshPopulationKindCandidates(index) {
   const result = induceEntityKindCandidates(index.entityFeatures, {
     minEntityCount: index.options.populationMinEntityCount,
@@ -393,10 +530,14 @@ function refreshPopulationKindCandidates(index) {
     minKindSize: index.options.populationMinKindSize,
     permutations: index.options.populationPermutations,
     quantile: index.options.populationQuantile,
+    bondQuantile: index.options.populationBondQuantile,
+    minAffinity: index.options.populationMinAffinity,
+    neighborCount: index.options.populationNeighborCount,
     population: "current-fold-entities",
   });
   index.populationKindCandidates = result.candidates;
   index.populationKindDiagnostics = result.diagnostics;
+  rememberStableBasins(index);
 }
 
 function refreshEarnedKinds(index) {
@@ -405,20 +546,45 @@ function refreshEarnedKinds(index) {
   const earned = [];
   const diagnostics = {
     selectorNominations: 0,
+    basinNominations: index.populationKindCandidates.length,
+    basinFormations: index.basinFormations.size,
+    basinEarnedKinds: index.basinEarnedByKey.size,
     earnedKinds: 0,
     withheldNoHoldout: 0,
     withheldNoConsequence: 0,
+    basinWithheldNoFuture: 0,
+    basinWithheldNoConsequence: 0,
   };
   const population = new Set(index.entityFeatures.keys());
+
+  // Compatibility path: a single recurrent structural distinction may still
+  // earn a Kind when it predicts a genuinely held-out consequence. This is a
+  // special case of the more general field/basin mechanism below.
   for (const [selectorSignature, members] of index.entitiesByFeature) {
     if (members.size < index.options.minMembers) continue;
     diagnostics.selectorNominations += 1;
     const projection = earnedKindProjection(index, selectorSignature, members, population, diagnostics);
     if (projection) earned.push(projection);
   }
-  earned.sort((a, b) => a.kindKey.localeCompare(b.kindKey));
-  diagnostics.earnedKinds = earned.length;
-  index.earnedProjections = freeze(earned);
+
+  // Physics/chemistry path: a basin is frozen when its mutual affinity first
+  // becomes statistically stable. Only observations strictly after formation
+  // may establish that treating the basin as a Kind changes lawful futures.
+  for (const formation of index.basinFormations.values()) {
+    let projection = index.basinEarnedByKey.get(formation.kindKey) ?? null;
+    if (!projection) {
+      projection = basinKindProjection(index, formation, population, diagnostics);
+      if (projection) index.basinEarnedByKey.set(formation.kindKey, projection);
+    }
+    if (projection) earned.push(projection);
+  }
+
+  const unique = new Map();
+  for (const projection of earned) if (!unique.has(projection.id)) unique.set(projection.id, projection);
+  const ordered = [...unique.values()].sort((a, b) => a.kindKey.localeCompare(b.kindKey) || a.id.localeCompare(b.id));
+  diagnostics.basinEarnedKinds = index.basinEarnedByKey.size;
+  diagnostics.earnedKinds = ordered.length;
+  index.earnedProjections = freeze(ordered);
   index.earnedDiagnostics = freeze({ ...diagnostics });
   index.structuralDirty = false;
 }
@@ -436,9 +602,11 @@ function computeSnapshot(index) {
       id: candidate.id,
       kindKey: candidate.kindKey,
       standing: candidate.standing,
+      mechanism: candidate.mechanism,
       memberCount: candidate.memberCount,
       memberRefs: candidate.memberRefs,
       cohesion: candidate.cohesion,
+      bindingEnergy: candidate.field?.bindingEnergy ?? null,
       cohesionPassed: candidate.cohesionNull?.passed ?? false,
       fallbackNomination: candidate.fallbackNomination === true,
       distinguishingParameters: candidate.distinguishingParameters,
