@@ -5,16 +5,16 @@ import { projectTerrainState, terrainCounts } from "./terrain-state.js";
 import { projectEmergentTerrains, mergeTerrainStates } from "./emergent-terrain.js";
 import { projectStanceState, stanceCounts } from "./stance-state.js";
 
-export function deriveOrientation(fold = {}, { tasks = [], terrainState = null, stanceState = null } = {}) {
+export function deriveOrientation(fold = {}, { tasks = [], terrainState = null, emergentTerrainState = null, stanceState = null } = {}) {
   const openExpectations = (fold.expectations ?? []).filter((e) => ["open", "strengthened", "weakened"].includes(e.state ?? "open"));
   const openObligations = (fold.obligations ?? []).filter((o) => !["resolved", "closed", "superseded"].includes(o.status));
   const activeTasks = (tasks ?? []).filter((task) => !["resolved", "closed", "superseded", "retracted"].includes(task.status));
   // Terrain is a present-tense projection. Direct cube-addressed objects are
-  // merged with structures that are already implicit in earned Fold content:
-  // co-present links form Fields, earned referent bridges form Networks, and
-  // consequential interpretation can form Atmosphere/Paradigm. None of these
-  // derived views is new witness or a DeltaFold transformation.
-  const terrains = mergeTerrainStates(terrainState ?? projectTerrainState(fold), projectEmergentTerrains(fold));
+  // merged with structures already implicit in earned Fold content. Recursive
+  // reading supplies the incremental emergent snapshot; standalone callers can
+  // still derive it from a Fold snapshot here.
+  const emergent = emergentTerrainState ?? projectEmergentTerrains(fold);
+  const terrains = mergeTerrainStates(terrainState ?? projectTerrainState(fold), emergent);
   const terrainCount = terrainCounts(terrains);
   const stances = stanceState ?? projectStanceState(fold);
   const stanceCount = stanceCounts(stances);
