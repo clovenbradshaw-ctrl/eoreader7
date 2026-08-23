@@ -32,14 +32,6 @@ const signatureOf = (entry) => entry?.featureKey
   ? `${entry.featureKey}=${stableValue(entry.featureValue)}`
   : null;
 
-function featureDescriptor(entry) {
-  return freeze({
-    key: entry.featureKey,
-    value: entry.featureValue,
-    signature: signatureOf(entry),
-  });
-}
-
 function logChoose(n, k) {
   if (!Number.isInteger(n) || !Number.isInteger(k) || k < 0 || k > n) return -Infinity;
   const m = Math.min(k, n - k);
@@ -58,6 +50,11 @@ function hypergeometricUpperTail(N, K, n, k) {
   let p = 0;
   for (let x = k; x <= max; x += 1) p += hypergeometricProbability(N, K, n, x);
   return Math.min(1, p);
+}
+
+function invalidateSnapshot(index) {
+  index.snapshot = null;
+  index.diagnostics = null;
 }
 
 function ensureEntity(index, entityRef) {
@@ -94,6 +91,8 @@ function ingestFeature(index, entry) {
   index.entitiesByFeature.get(signature).set(entry.entityRef, record);
   const latest = index.latestAtByEntity.get(entry.entityRef);
   index.latestAtByEntity.set(entry.entityRef, latest === undefined ? at : Math.max(latest, at));
+  index.structuralDirty = true;
+  invalidateSnapshot(index);
   return true;
 }
 
@@ -101,6 +100,8 @@ function ingestExplicit(index, entry) {
   if (!entry?.entityRef || !entry?.kindKey) return false;
   if (!index.explicitByKind.has(entry.kindKey)) index.explicitByKind.set(entry.kindKey, new Map());
   index.explicitByKind.get(entry.kindKey).set(entry.id, entry);
+  index.receivedDirtyKinds.add(entry.kindKey);
+  invalidateSnapshot(index);
   return true;
 }
 
@@ -163,9 +164,13 @@ export function createKindInductionIndex(entries = [], options = {}) {
     entityFeatures: new Map(),
     entitiesByFeature: new Map(),
     latestAtByEntity: new Map(),
+    receivedProjectionByKind: new Map(),
+    receivedDirtyKinds: new Set(),
+    earnedProjections: freeze([]),
+    earnedDiagnostics: freeze({ selectorNominations: 0, earnedKinds: 0, withheldNoHoldout: 0, withheldNoConsequence: 0 }),
+    structuralDirty: false,
     snapshot: null,
     diagnostics: null,
-    dirty: true,
   };
   indexKindEntries(index, entries);
   return index;
@@ -185,39 +190,40 @@ export function indexKindEntries(index, entries = []) {
     index.evidenceById.set(entry.id, entry);
     changed += 1;
   }
-  if (changed > 0) {
-    index.dirty = true;
-    index.snapshot = null;
-    index.diagnostics = null;
-  }
   return changed;
 }
 
-function receivedKindProjections(index) {
-  const out = [];
-  for (const [kindKey, evidenceMap] of index.explicitByKind) {
-    const evidence = [...evidenceMap.values()];
-    if (!evidence.length) continue;
-    const memberRefs = [...new Set(evidence.map((entry) => entry.entityRef))].sort();
-    const evidenceRefs = evidence.map((entry) => entry.id).sort();
-    const witnessRefs = [...new Set(evidence.flatMap(witnessRefsOf))].sort();
-    const modalities = [...new Set(evidence.map((entry) => entry?.provenance?.modality).filter(Boolean))].sort();
-    out.push(freeze({
-      schema: "EOKindProjection@1",
-      id: `terrain:kind:received:${stableHash(`${kindKey}|${evidenceRefs.join("|")}`)}`,
-      terrain: "Kind",
-      kindKey,
-      kindSurface: evidence.find((entry) => entry.kindSurface)?.kindSurface ?? null,
-      standing: "received_explicit_classification",
-      witnessed: false,
-      memberRefs: freeze(memberRefs),
-      evidenceRefs: freeze(evidenceRefs),
-      witnessRefs: freeze(witnessRefs),
-      modalities: freeze(modalities),
-      basis: "explicit_classification_evidence",
-    }));
+function receivedKindProjection(index, kindKey) {
+  const evidence = [...(index.explicitByKind.get(kindKey)?.values() ?? [])];
+  if (!evidence.length) return null;
+  const memberRefs = [...new Set(evidence.map((entry) => entry.entityRef))].sort();
+  const evidenceRefs = evidence.map((entry) => entry.id).sort();
+  const witnessRefs = [...new Set(evidence.flatMap(witnessRefsOf))].sort();
+  const modalities = [...new Set(evidence.map((entry) => entry?.provenance?.modality).filter(Boolean))].sort();
+  return freeze({
+    schema: "EOKindProjection@1",
+    id: `terrain:kind:received:${stableHash(`${kindKey}|${evidenceRefs.join("|")}`)}`,
+    terrain: "Kind",
+    kindKey,
+    kindSurface: evidence.find((entry) => entry.kindSurface)?.kindSurface ?? null,
+    standing: "received_explicit_classification",
+    witnessed: false,
+    memberRefs: freeze(memberRefs),
+    evidenceRefs: freeze(evidenceRefs),
+    witnessRefs: freeze(witnessRefs),
+    modalities: freeze(modalities),
+    basis: "explicit_classification_evidence",
+  });
+}
+
+function refreshReceivedKinds(index) {
+  if (!index.receivedDirtyKinds.size) return;
+  for (const kindKey of index.receivedDirtyKinds) {
+    const projection = receivedKindProjection(index, kindKey);
+    if (projection) index.receivedProjectionByKind.set(kindKey, projection);
+    else index.receivedProjectionByKind.delete(kindKey);
   }
-  return out;
+  index.receivedDirtyKinds.clear();
 }
 
 function consequenceRecord(index, entityRef, signature) {
@@ -359,11 +365,10 @@ function earnedKindProjection(index, selectorSignature, selectorMembers, populat
   });
 }
 
-function computeSnapshot(index) {
-  const received = receivedKindProjections(index);
+function refreshEarnedKinds(index) {
+  if (!index.structuralDirty) return;
   const earned = [];
   const diagnostics = {
-    explicitKinds: received.length,
     selectorNominations: 0,
     earnedKinds: 0,
     withheldNoHoldout: 0,
@@ -378,15 +383,27 @@ function computeSnapshot(index) {
   }
   earned.sort((a, b) => a.kindKey.localeCompare(b.kindKey));
   diagnostics.earnedKinds = earned.length;
+  index.earnedProjections = freeze(earned);
+  index.earnedDiagnostics = freeze({ ...diagnostics });
+  index.structuralDirty = false;
+}
+
+function computeSnapshot(index) {
+  refreshReceivedKinds(index);
+  refreshEarnedKinds(index);
+  const received = [...index.receivedProjectionByKind.values()].sort((a, b) => a.kindKey.localeCompare(b.kindKey));
+  const diagnostics = {
+    explicitKinds: received.length,
+    ...index.earnedDiagnostics,
+  };
   index.diagnostics = freeze({ ...diagnostics });
-  index.snapshot = freeze([...received, ...earned]);
-  index.dirty = false;
+  index.snapshot = freeze([...received, ...index.earnedProjections]);
   return index.snapshot;
 }
 
 export function snapshotKindState(index, { ids = null } = {}) {
   if (index?.schema !== "EOKindInductionIndex@1") throw new TypeError("snapshotKindState requires EOKindInductionIndex@1");
-  const snapshot = (!index.dirty && index.snapshot) ? index.snapshot : computeSnapshot(index);
+  const snapshot = index.snapshot ?? computeSnapshot(index);
   if (!ids) return snapshot;
   const allowed = ids instanceof Set ? ids : new Set(ids);
   return freeze(snapshot.filter((projection) =>
@@ -398,7 +415,7 @@ export function snapshotKindState(index, { ids = null } = {}) {
 
 export function kindDiagnostics(index) {
   if (index?.schema !== "EOKindInductionIndex@1") throw new TypeError("kindDiagnostics requires EOKindInductionIndex@1");
-  if (index.dirty || !index.diagnostics) computeSnapshot(index);
+  if (!index.diagnostics) computeSnapshot(index);
   return index.diagnostics;
 }
 
