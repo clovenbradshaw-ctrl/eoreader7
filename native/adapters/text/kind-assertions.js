@@ -100,13 +100,13 @@ export function explicitIndefiniteKindReferences(text, {
 }
 
 /**
- * Return only explicit source classifications witnessed in this encounter.
+ * Return explicit source classifications witnessed in this encounter.
  *
  * Crucially, these are EOKindEvidence records, not Kind terrain facts. Text is
  * one sense organ among many; its grammar may witness that a source classifies
- * an Entity, but only the modality-blind Kind kernel projects Kind into the
- * current Fold. Cross-language support should add a giver-named grammar prior
- * rather than widening this English rule by assumption.
+ * an Entity or instantiates a possible member, but only the modality-blind Kind
+ * kernel projects Kind into the current Fold. Cross-language support should add
+ * a giver-named grammar prior rather than widening this English rule by assumption.
  */
 export function explicitKindAssertions(text, {
   sequencePosition = 0,
@@ -169,5 +169,7 @@ export function explicitKindAssertions(text, {
       }
     }
   }
-  return freeze(out);
+
+  const indefinite = explicitIndefiniteKindReferences(text, { sequencePosition, posPrior, grammarPrior });
+  return freeze([...out, ...indefinite]);
 }
