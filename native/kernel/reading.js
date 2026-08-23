@@ -50,17 +50,23 @@ function compositionOperations(composition, fold = {}, graph = null) {
   }
 
   for (const withheld of consequentialWithheldCompositions(composition)) {
-    if (!known.has(withheld.id)) {
-      known.add(withheld.id);
-      operations.push(eoOperation({ op: "DEF", grain: "Pattern", witness: withheld.witnessRefs, inputs: withheld.edgeRefs, outputs: [withheld.id], consequence: { kind: "composition_withheld", composition: withheld.id }, payload: { action: "graph-object", value: withheld } }));
-    }
-
     const obligationId = `obligation:composition:${withheld.id}`;
     if (known.has(obligationId)) continue;
     const distinction = { composition: withheld.id, referentRefs: [...(withheld.referentRefs ?? [])], instances: [...(withheld.instances ?? [])], leftPredicate: withheld.leftPredicate, rightPredicate: withheld.rightPredicate };
     const consequences = [{ kind: "bridge_interpretation", composition: withheld.id }];
+
+    // Candidate recurrence is remembered by the Hyperlexicon ledger, but it is
+    // not itself a Fold transformation. Test downstream consequence FIRST.
+    // Otherwise writing the withheld candidate into the Fold would let the
+    // candidate become its own live consequence on the next turn and bootstrap
+    // active work from recurrence alone.
     const materiality = differenceMakesDifference({ distinction, consequences, fold, graph });
     if (!materiality.makesDifference) continue;
+
+    if (!known.has(withheld.id)) {
+      known.add(withheld.id);
+      operations.push(eoOperation({ op: "DEF", grain: "Pattern", witness: withheld.witnessRefs, inputs: withheld.edgeRefs, outputs: [withheld.id], consequence: { kind: "composition_withheld", composition: withheld.id }, payload: { action: "graph-object", value: withheld } }));
+    }
 
     known.add(obligationId);
     const unresolved = obligation({ id: obligationId, distinction: { ...distinction, materiality }, grounds: [withheld.id, ...(withheld.edgeRefs ?? [])], alternatives: [...(withheld.edgeRefs ?? [])], consequences, openedAt: (fold?.sequence ?? 0) + 1, persistence: 0 });
