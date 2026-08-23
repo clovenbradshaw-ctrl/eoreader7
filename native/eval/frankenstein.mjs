@@ -34,11 +34,13 @@ const reader = createRecursiveReader({
 const reading = await reader.read(encounters);
 const entries = reading.fold.graphEntries ?? [];
 const referents = entries.filter((entry) => entry?.schema === "EOReferent@1");
+const namedReferents = referents.filter((entry) => entry?.standing !== "provisional");
+const descriptorReferents = referents.filter((entry) => entry?.standing === "provisional" && entry?.identityHypothesis);
 const edges = entries.filter((entry) => entry?.schema === "EOHyperedge@1");
 const descriptorOccurrences = entries.filter((entry) => entry?.schema === "EOReferentOccurrence@1");
 const identityHypotheses = entries.filter((entry) => entry?.schema === "EOIdentityHypothesis@1");
 const surfaces = new Set(referents.flatMap((ref) => ref.surfaces ?? []).map((x) => String(x).toLowerCase()));
-const hasSurface = (needle) => [...surfaces].some((surface) => surface.includes(needle.toLowerCase()));
+const hasSurface = (needle) => [...surfaces].some((surface) => surface === needle.toLowerCase() || surface.includes(needle.toLowerCase()));
 const surpriseTurns = reading.turns.filter((turn) => (turn.surprise?.operations?.length ?? 0) > 0);
 
 const unresolvedCounts = new Map();
@@ -54,15 +56,16 @@ for (const edge of edges) {
 }
 const topUnresolvedSurfaces = [...unresolvedCounts.entries()]
   .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
-  .slice(0, 30)
+  .slice(0, 20)
   .map(([surface, count]) => ({ surface, count }));
 
 const topIdentityHypotheses = identityHypotheses
   .slice()
   .sort((a, b) => (b.occurrenceRefs?.length ?? 0) - (a.occurrenceRefs?.length ?? 0))
-  .slice(0, 30)
+  .slice(0, 20)
   .map((hypothesis) => ({
     surface: hypothesis.surface,
+    determinations: hypothesis.determinations,
     occurrences: hypothesis.occurrenceRefs?.length ?? 0,
     encounters: hypothesis.encounterRefs?.length ?? 0,
     relations: [...new Set((hypothesis.relationContexts ?? []).map((x) => x.relation).filter(Boolean))],
@@ -70,11 +73,16 @@ const topIdentityHypotheses = identityHypotheses
   }));
 
 const requiredCharacters = ["Frankenstein", "Elizabeth", "Clerval", "Walton"];
+const targetDescriptors = [
+  "the creature", "the monster", "the fiend", "the wretch",
+  "my father", "the hut", "the chamber", "this place",
+];
 const missingCharacters = requiredCharacters.filter((name) => !hasSurface(name));
+const descriptorTargets = targetDescriptors.map((surface) => ({ surface, present: hasSurface(surface) }));
 const wrapperPollution = [...surfaces].filter((surface) => /project gutenberg|gutenberg ebook|www\.gutenberg/.test(surface));
 
 const metrics = {
-  schema: "EOFrankensteinNativeEval@2",
+  schema: "EOFrankensteinNativeEval@3",
   sourceCharacters: source.length,
   bodyCharacters: stripped.text.length,
   sourceOffset: stripped.offset,
@@ -82,6 +90,9 @@ const metrics = {
   encounters: encounters.length,
   observations: reading.fold.witnessed?.length ?? 0,
   referents: referents.length,
+  namedReferents: namedReferents.length,
+  provisionalDescriptorReferents: descriptorReferents.length,
+  descriptorTargets,
   descriptorOccurrences: descriptorOccurrences.length,
   identityHypotheses: identityHypotheses.length,
   topIdentityHypotheses,
