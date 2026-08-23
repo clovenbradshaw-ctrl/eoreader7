@@ -17,13 +17,15 @@ const validLimit = (limit) => {
  * Derive possible reasoning moves from the present Fold orientation.
  *
  * These are affordances, not facts. They never mutate Fold, never count as
- * witness, and never become evidence merely because terrain/stance context
- * made a question available. A downstream reasoner must still return explicit
- * evidence/effects through interrogation before revision can occur.
+ * witness, and never become evidence merely because context made a question
+ * available. A downstream reasoner must still return explicit evidence/effects
+ * through interrogation before revision can occur.
  *
- * Terrain (domain x grain) answers what sort of thing is in play. Stance
- * (mode x grain) answers what kind of operation is presently afforded. Both
- * must have live context for a concrete cube-address move to be proposed.
+ * Terrain (domain x grain) says what sort of thing is presently in play and is
+ * therefore the minimum context for a concrete address-level proposal. Stance
+ * (mode x grain) says how that address engages it. Prior same-stance material
+ * may condition/weight the move, but MUST NOT license or forbid it: recursive
+ * reading always remains free to Differentiate, Relate, or Generate anew.
  */
 export function reasoningAffordances(orientation = {}, { limit = 81 } = {}) {
   validLimit(limit);
@@ -31,8 +33,8 @@ export function reasoningAffordances(orientation = {}, { limit = 81 } = {}) {
   const out = [];
   for (const address of cubeAddresses()) {
     const terrainContext = orientation?.terrainState?.[address.terrain] ?? [];
+    if (!terrainContext.length) continue;
     const stanceContext = orientation?.stanceState?.[address.stance] ?? [];
-    if (!terrainContext.length || !stanceContext.length) continue;
     out.push(freeze({
       schema: "EOReasoningAffordance@1",
       id: `reasoning:${address.mode}:${address.domain}:${address.grain}`,
@@ -42,6 +44,7 @@ export function reasoningAffordances(orientation = {}, { limit = 81 } = {}) {
       address,
       terrainRefs: refs(terrainContext),
       stanceRefs: refs(stanceContext),
+      stanceContinuity: stanceContext.length > 0,
     }));
     if (out.length >= limit) break;
   }
@@ -50,13 +53,15 @@ export function reasoningAffordances(orientation = {}, { limit = 81 } = {}) {
 
 /**
  * Generation is a subset of reasoning affordances, not a privileged source of
- * truth. Novel proposals remain explicitly unwitnessed until an encounter or
- * a licensed transformation supplies grounds for admission.
+ * truth. A Generate address is available whenever its terrain is live; prior
+ * Generative stance supplies continuity but is never required. Novel proposals
+ * remain explicitly unwitnessed until a later encounter or licensed
+ * transformation supplies grounds for admission.
  */
 export function novelGenerationAffordances(orientation = {}, { limit = 27 } = {}) {
   validLimit(limit);
   if (limit === 0) return freeze([]);
-  return freeze(reasoningAffordances(orientation, { limit: Math.max(limit * 3, limit) })
+  return freeze(reasoningAffordances(orientation, { limit: 81 })
     .filter((proposal) => proposal.move === "generate")
     .slice(0, limit)
     .map((proposal) => freeze({
