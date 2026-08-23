@@ -64,8 +64,12 @@ export async function reviseTextFold({ observations = [], fold = {}, graph = nul
 
   const admitOccurrence = (occurrence, witnessRef) => {
     if (!occurrence || !admitGraphObject(occurrence, {
+      // A witnessed descriptor occurrence is an instantiated Figure: an
+      // occurrence in the encounter, not an existential Ground. INS/Figure
+      // therefore projects Entity + Making. Void must be earned by genuine
+      // absence/ground structure rather than parser side effects.
       op: "INS",
-      grain: "Ground",
+      grain: "Figure",
       witness: witnessRef,
       consequence: { kind: "referent_occurrence_witnessed", occurrence: occurrence.id },
     })) return;
