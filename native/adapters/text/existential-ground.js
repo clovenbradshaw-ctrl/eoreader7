@@ -81,7 +81,7 @@ export function explicitExistentialGrounds(text, {
       const end = absent.index + absent.raw.length;
       const anchor = freeze({ start, end });
       out.push(freeze({
-        schema: "EOExistentialGround@2",
+        schema: "EOExistentialGround@1",
         id: `existential-ground:${sequencePosition}:${ordinal}`,
         terrain: "Void",
         standing: "witnessed_explicit_absence_ground",
