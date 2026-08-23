@@ -4,34 +4,54 @@ const freeze = (value) => Object.freeze(value);
 const stable = (value) => typeof value === "string" ? value : JSON.stringify(value);
 const slug = (value) => String(value ?? "").toLowerCase().replace(/[^\p{L}\p{N}]+/gu, "_").replace(/^_+|_+$/g, "");
 const positionOf = (edge) => Number.isFinite(edge?.scope?.sequencePosition) ? edge.scope.sequencePosition : null;
-
-const participant = (edge, role) => (edge?.participants ?? []).find((p) => p?.role === role && p?.standing === "referent") ?? null;
-const subjectOf = (edge) => participant(edge, "subject")?.ref ?? null;
-const objectOf = (edge) => participant(edge, "object")?.ref ?? null;
-const witnessedEdge = (entry) => entry?.schema === "EOHyperedge@1" && entry?.witness && subjectOf(entry) && objectOf(entry);
 const pair = (left, right) => `${stable(left)}\u0000${stable(right)}`;
+const rawParticipant = (edge, role) => (edge?.participants ?? []).find((p) => p?.role === role) ?? null;
+const occurrenceOf = (participant) => participant?.occurrence ?? (participant?.standing === "unresolved_surface" ? participant?.ref : null);
 
-function chainOf(leftEdge, rightEdge) {
-  const bridge = objectOf(leftEdge);
-  if (!bridge || bridge !== subjectOf(rightEdge)) return null;
-  const from = subjectOf(leftEdge);
-  const to = objectOf(rightEdge);
-  if (!from || !to || from === bridge || bridge === to || from === to) return null;
-  const lp = positionOf(leftEdge), rp = positionOf(rightEdge);
+function endpointOf(participant, bindings) {
+  if (!participant) return null;
+  if (participant.standing === "referent" && participant.ref) return participant.ref;
+  const occurrence = occurrenceOf(participant);
+  return occurrence ? bindings.get(occurrence)?.referent ?? null : null;
+}
+
+function resolvedEdge(edge, bindings) {
+  if (edge?.schema !== "EOHyperedge@1" || !edge?.witness) return null;
+  const subject = endpointOf(rawParticipant(edge, "subject"), bindings);
+  const object = endpointOf(rawParticipant(edge, "object"), bindings);
+  if (!subject || !object) return null;
+  return freeze({ edge, subject, object });
+}
+
+function chainOf(left, right) {
+  if (!left || !right || left.edge.id === right.edge.id) return null;
+  if (left.object !== right.subject) return null;
+  if (left.subject === left.object || left.object === right.object || left.subject === right.object) return null;
+  const lp = positionOf(left.edge), rp = positionOf(right.edge);
   if (lp !== null && rp !== null && lp > rp) return null;
-  return freeze({ leftEdge, rightEdge, from, bridge, to });
+  return freeze({
+    leftEdge: left.edge,
+    rightEdge: right.edge,
+    from: left.subject,
+    bridge: left.object,
+    to: right.object,
+  });
 }
 
 /**
- * Incremental ledger for witnessed relation-composition sites.
+ * Incremental ledger for present relation-composition sites.
  *
- * The prior implementation rebuilt all chains from every graph entry on every
- * encounter. This ledger indexes incoming/outgoing referent positions once and
- * only tests a new edge against the edges that can actually join it. Historical
- * witnesses remain append-only; this is only a faster projection of them.
+ * Raw witnessed edges stay raw. A participant that was witnessed only as an
+ * occurrence becomes usable here only when the current Fold contains an
+ * explicit occurrence→referent binding (for example a causal pronoun binding).
+ * Thus interpretation can unlock or later revise composition without mutating
+ * historical relation witnesses.
  */
 export function createRelationCompositionLedger(entries = []) {
-  const byEdge = new Map();
+  const rawEdges = new Map();
+  const bindings = new Map();
+  const occurrenceEdges = new Map();
+  const activeEdges = new Map();
   const incoming = new Map();
   const outgoing = new Map();
   const chainsById = new Map();
@@ -41,36 +61,56 @@ export function createRelationCompositionLedger(entries = []) {
     if (!map.has(key)) map.set(key, new Set());
     return map.get(key);
   };
-  const addChain = (leftEdge, rightEdge) => {
-    if (!leftEdge || !rightEdge || leftEdge.id === rightEdge.id) return;
-    const chain = chainOf(leftEdge, rightEdge);
+
+  const addChain = (left, right) => {
+    const chain = chainOf(left, right);
     if (!chain) return;
-    const id = `${leftEdge.id}\u0000${rightEdge.id}`;
+    const id = `${chain.leftEdge.id}\u0000${chain.rightEdge.id}`;
     if (chainsById.has(id)) return;
     chainsById.set(id, chain);
-    const key = pair(leftEdge.relation, rightEdge.relation);
-    if (!pairSupport.has(key)) pairSupport.set(key, { left: leftEdge.relation, right: rightEdge.relation, chainIds: new Set() });
+    const key = pair(chain.leftEdge.relation, chain.rightEdge.relation);
+    if (!pairSupport.has(key)) pairSupport.set(key, { left: chain.leftEdge.relation, right: chain.rightEdge.relation, chainIds: new Set() });
     pairSupport.get(key).chainIds.add(id);
   };
-  const ingestOne = (edge) => {
-    if (!witnessedEdge(edge) || !edge.id || byEdge.has(edge.id)) return false;
-    const subject = subjectOf(edge);
-    const object = objectOf(edge);
 
-    // Existing edges ending at this new subject can be the left side.
-    for (const leftId of incoming.get(subject) ?? []) addChain(byEdge.get(leftId), edge);
-    // Existing edges starting at this new object can be the right side.
-    for (const rightId of outgoing.get(object) ?? []) addChain(edge, byEdge.get(rightId));
-
-    byEdge.set(edge.id, edge);
-    bucket(outgoing, subject).add(edge.id);
-    bucket(incoming, object).add(edge.id);
+  const activate = (edge) => {
+    if (!edge?.id || activeEdges.has(edge.id)) return false;
+    const resolved = resolvedEdge(edge, bindings);
+    if (!resolved) return false;
+    for (const leftId of incoming.get(resolved.subject) ?? []) addChain(activeEdges.get(leftId), resolved);
+    for (const rightId of outgoing.get(resolved.object) ?? []) addChain(resolved, activeEdges.get(rightId));
+    activeEdges.set(edge.id, resolved);
+    bucket(outgoing, resolved.subject).add(edge.id);
+    bucket(incoming, resolved.object).add(edge.id);
     return true;
   };
+
+  const rememberEdge = (edge) => {
+    if (edge?.schema !== "EOHyperedge@1" || !edge?.witness || !edge.id || rawEdges.has(edge.id)) return false;
+    rawEdges.set(edge.id, edge);
+    for (const participant of edge.participants ?? []) {
+      const occurrence = occurrenceOf(participant);
+      if (occurrence) bucket(occurrenceEdges, occurrence).add(edge.id);
+    }
+    activate(edge);
+    return true;
+  };
+
+  const rememberBinding = (binding) => {
+    if (binding?.schema !== "EOPronounBinding@1" || !binding?.occurrence || !binding?.referent) return false;
+    const prior = bindings.get(binding.occurrence);
+    if (prior?.id === binding.id && prior?.referent === binding.referent) return false;
+    bindings.set(binding.occurrence, binding);
+    for (const edgeId of occurrenceEdges.get(binding.occurrence) ?? []) activate(rawEdges.get(edgeId));
+    return true;
+  };
+
   const ingest = (next = []) => {
-    let added = 0;
-    for (const entry of next) if (ingestOne(entry)) added += 1;
-    return added;
+    let changed = 0;
+    // Remember edges first so a binding in the same Delta can wake them.
+    for (const entry of next) if (rememberEdge(entry)) changed += 1;
+    for (const entry of next) if (rememberBinding(entry)) changed += 1;
+    return changed;
   };
   ingest(entries);
 
@@ -87,7 +127,7 @@ export function createRelationCompositionLedger(entries = []) {
           const chain = chainsById.get(id);
           return freeze([chain.leftEdge.id, chain.rightEdge.id]);
         })),
-        provenance: freeze({ giver: null, basis: "repeated witnessed shared-referent relation adjacency" }),
+        provenance: freeze({ giver: null, basis: "repeated witnessed relation adjacency under current explicit referent bindings" }),
         meta: freeze({ observed: true, support: item.chainIds.size }),
       }))),
     evaluate: (hyperlexicon = null) => evaluateChains([...chainsById.values()], hyperlexicon),
@@ -95,7 +135,10 @@ export function createRelationCompositionLedger(entries = []) {
       const pairs = [...pairSupport.values()].map((item) => freeze({ left: item.left, right: item.right, support: item.chainIds.size }))
         .sort((a, b) => b.support - a.support || String(a.left).localeCompare(String(b.left)) || String(a.right).localeCompare(String(b.right)));
       return freeze({
-        witnessedEdges: byEdge.size,
+        relationEdges: rawEdges.size,
+        referentBindings: bindings.size,
+        witnessedEdges: activeEdges.size,
+        unresolvedEdges: Math.max(0, rawEdges.size - activeEdges.size),
         chainSites: chainsById.size,
         pairTypes: pairs.length,
         repeatedPairTypes: pairs.filter((item) => item.support >= 2).length,
@@ -105,7 +148,7 @@ export function createRelationCompositionLedger(entries = []) {
   };
 }
 
-/** Find witnessed shared-referent relation chains in causal order. */
+/** Find composition chains under explicit bindings present in `entries`. */
 export function relationCompositionChains(entries = []) {
   return createRelationCompositionLedger(entries).chains();
 }
@@ -136,7 +179,7 @@ function evaluateChains(chains = [], hyperlexicon = null) {
         schema: "EOWithheldComposition@1",
         id: `withheld-composition:${idCore}`,
         ...base,
-        reason: "shared-referent adjacency does not license composition without a GIVEN Hyperlexicon affordance",
+        reason: "relation adjacency does not license composition without a GIVEN Hyperlexicon affordance",
         affordance: freeze({ standing: affordance.standing, giver: affordance.giver, witnesses: affordance.witnesses, provenance: affordance.provenance }),
       }));
       continue;
@@ -147,7 +190,7 @@ function evaluateChains(chains = [], hyperlexicon = null) {
       ...base,
       standing: "licensed",
       relation: "occupies_bridge_between",
-      provenance: freeze({ giver: affordance.giver, basis: "witnessed shared-referent adjacency plus GIVEN Hyperlexicon composition affordance" }),
+      provenance: freeze({ giver: affordance.giver, basis: "witnessed relation adjacency plus GIVEN Hyperlexicon composition affordance" }),
       affordance: freeze({ standing: affordance.standing, giver: affordance.giver, witnesses: affordance.witnesses, provenance: affordance.provenance }),
     }));
   }
@@ -158,10 +201,6 @@ export function evaluateRelationCompositions(entries = [], hyperlexicon = null) 
   return evaluateChains(relationCompositionChains(entries), hyperlexicon);
 }
 
-/**
- * Group candidate-standing withheld chains by relation pair. Candidate status
- * is still only nomination; this helper does not itself decide materiality.
- */
 export function consequentialWithheldCompositions(result = {}) {
   const groups = new Map();
   for (const item of result.withheld ?? []) {
