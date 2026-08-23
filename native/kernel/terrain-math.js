@@ -36,12 +36,7 @@ function participantSite(participant) {
   return null;
 }
 
-/**
- * Structure/Ground is treated as a field over the local encounter carrier.
- * Links contribute incidences at occupied sites. Repeated incidence at a site
- * creates coupling potential; heterogeneous relation types contribute field
- * entropy. No semantic class or lexical similarity is involved.
- */
+/** Structure/Ground: incidence potential over a local carrier. */
 export function structuralFieldGeometry(edges = []) {
   const usable = edges.filter((edge) => edge?.schema === "EOHyperedge@1" && edge.id);
   const edgeCount = usable.length;
@@ -87,12 +82,7 @@ function edgeReferents(edge, referentsByEdge) {
   return [...(referentsByEdge?.get(edge.id) ?? [])].filter(Boolean).sort();
 }
 
-/**
- * Structure/Pattern is topology over the bipartite incidence graph of earned
- * referents and witnessed Links. A Network is a connected component, not one
- * projection per high-degree referent. The first Betti number (cycle rank)
- * distinguishes trees/stars from genuinely cyclic relational structure.
- */
+/** Structure/Pattern: connected topology of Links and earned referents. */
 export function relationNetworkComponents(edges = [], referentsByEdge = new Map()) {
   const edgeById = new Map(edges.filter((edge) => edge?.schema === "EOHyperedge@1" && edge.id).map((edge) => [edge.id, edge]));
   const refsByEdge = new Map();
@@ -165,8 +155,24 @@ export function relationNetworkComponents(edges = [], referentsByEdge = new Map(
   return freeze(components.sort((a, b) => b.edgeCount - a.edgeCount || b.cycleRank - a.cycleRank || a.edgeRefs[0].localeCompare(b.edgeRefs[0])));
 }
 
+function nestedReferenceValues(value, out = new Set()) {
+  if (value == null) return out;
+  if (typeof value === "string") {
+    if (/^(ref|ref-occ|occ|edge|expectation|obligation|identity|composition|frame|pattern|motif|task):/.test(value)) out.add(value);
+    return out;
+  }
+  if (Array.isArray(value)) {
+    for (const item of value) nestedReferenceValues(item, out);
+    return out;
+  }
+  if (typeof value === "object") for (const item of Object.values(value)) nestedReferenceValues(item, out);
+  return out;
+}
+
 function obligationRefs(obligation) {
-  return new Set([...(obligation?.grounds ?? []), ...(obligation?.alternatives ?? [])].filter(Boolean).map(String));
+  const refs = new Set([...(obligation?.grounds ?? []), ...(obligation?.alternatives ?? [])].filter(Boolean).map(String));
+  for (const ref of nestedReferenceValues(obligation?.consequences ?? [])) refs.add(ref);
+  return refs;
 }
 
 function consequenceKinds(obligation) {
@@ -179,13 +185,7 @@ function persistenceOf(obligation, sequence) {
   return Math.max(stored, sequence - obligation.openedAt + 1, 0);
 }
 
-/**
- * Interpretation/Ground is modeled as a potential field of unresolved material
- * constraints. Each obligation has local potential proportional to persistence
- * and consequence reach. Shared grounds/alternatives couple obligations, so a
- * mutually reinforcing unresolved region has more energy than an equal number
- * of independent questions. Entropy reports heterogeneity of consequence type.
- */
+/** Interpretation/Ground: coupled potential of unresolved material constraints. */
 export function interpretiveAtmosphereField(obligations = [], { sequence = null } = {}) {
   const usable = obligations.filter((item) => item?.id);
   const potentials = [];
@@ -204,13 +204,7 @@ export function interpretiveAtmosphereField(obligations = [], { sequence = null 
     refsById.set(obligation.id, refs);
     potentialById.set(obligation.id, localPotential);
     allKinds.push(...consequenceKinds(obligation));
-    potentials.push(freeze({
-      obligation: obligation.id,
-      persistence,
-      consequenceReach,
-      alternativeCount,
-      potential: localPotential,
-    }));
+    potentials.push(freeze({ obligation: obligation.id, persistence, consequenceReach, alternativeCount, potential: localPotential }));
   }
 
   const couplings = [];
@@ -246,38 +240,40 @@ export function interpretiveAtmosphereField(obligations = [], { sequence = null 
   });
 }
 
-function distinctionShapeTokens(distinction) {
-  if (!distinction || typeof distinction !== "object") return [];
-  const tokens = [];
-  for (const key of Object.keys(distinction).sort()) {
-    if (key === "materiality") continue;
-    tokens.push(`distinction:${key}`);
-  }
-  for (const reason of distinction?.materiality?.reasons ?? []) {
-    if (reason?.kind) tokens.push(`materiality:${reason.kind}`);
-  }
-  return tokens;
+function countBucket(value) {
+  const n = Math.max(0, Number(value) || 0);
+  if (n === 0) return "0";
+  if (n === 1) return "1";
+  if (n <= 3) return "2-3";
+  if (n <= 7) return "4-7";
+  return "8+";
 }
 
-export function interpretiveSignature(obligation) {
-  const tokens = unique([
-    ...consequenceKinds(obligation).map((kind) => `consequence:${kind}`),
-    ...distinctionShapeTokens(obligation?.distinction),
-  ]).sort();
-  return freeze({
-    key: tokens.join("|"),
-    tokens: freeze(tokens),
-    complexity: tokens.length,
-  });
+function materialityReasonKinds(obligation) {
+  return unique((obligation?.distinction?.materiality?.reasons ?? []).map((reason) => reason?.kind).filter(Boolean)).sort();
 }
 
 /**
- * Interpretation/Pattern uses a minimum-description-length test. A repeated
- * interpretive form becomes paradigm-like only when representing the common
- * model once plus pointers to independently grounded instances is cheaper than
- * representing every Lens independently. This replaces id-prefix/string
- * recurrence with structural explanatory compression.
+ * Functional signature of an interpretation. It deliberately ignores JS field
+ * names such as `target`, `relation`, or `composition`: serialization shape is
+ * not ontology. The signature asks what causal work the Lens does—what kinds
+ * of consequence it bears, what materiality relation warrants it, and the
+ * coarse geometry of its grounds/alternatives.
  */
+export function interpretiveSignature(obligation) {
+  const consequence = unique(consequenceKinds(obligation)).sort();
+  const materialityKinds = materialityReasonKinds(obligation);
+  const tokens = unique([
+    ...consequence.map((kind) => `consequence:${kind}`),
+    ...materialityKinds.map((kind) => `materiality:${kind}`),
+    `grounds:${countBucket((obligation?.grounds ?? []).length)}`,
+    `alternatives:${countBucket((obligation?.alternatives ?? []).length)}`,
+    `consequences:${countBucket((obligation?.consequences ?? []).length)}`,
+  ]).sort();
+  return freeze({ key: tokens.join("|"), tokens: freeze(tokens), complexity: tokens.length });
+}
+
+/** Interpretation/Pattern: explanatory compression over independent Lenses. */
 export function interpretiveParadigmModels(obligations = []) {
   const groups = new Map();
   for (const obligation of obligations) {
@@ -293,7 +289,8 @@ export function interpretiveParadigmModels(obligations = []) {
     const independentGrounds = new Set(members.flatMap((item) => item.grounds ?? []).filter(Boolean));
     if (members.length < 2 || independentGrounds.size < 2) continue;
     const separateCost = members.length * signature.complexity;
-    const modelCost = signature.complexity + members.length;
+    const pointerCost = members.length;
+    const modelCost = signature.complexity + pointerCost;
     const compressionGain = separateCost - modelCost;
     if (!(compressionGain > 0)) continue;
     out.push(freeze({
@@ -308,6 +305,7 @@ export function interpretiveParadigmModels(obligations = []) {
       modelCost,
       compressionGain,
       compressionRatio: modelCost / separateCost,
+      basis: "functional_interpretive_signature_not_serialization_shape",
     }));
   }
   return freeze(out.sort((a, b) => b.compressionGain - a.compressionGain || b.memberCount - a.memberCount || a.signature.localeCompare(b.signature)));
