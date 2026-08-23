@@ -11,6 +11,7 @@ export { HL, HL_SCHEMA, pairKey, createHyperlexicon, normalizeHyperlexicon, comp
 export { relationCompositionChains, createRelationCompositionLedger, acquireCompositionCandidates, evaluateRelationCompositions, consequentialWithheldCompositions } from "./relation-composition.js";
 export { differenceMakesDifference } from "./materiality.js";
 export { addressOf, cubeAddresses, relevantNeighborhood, interrogateCube, deriveEOTransformations } from "./interrogation.js";
+export { reasoningAffordances, novelGenerationAffordances } from "./reasoning.js";
 export { deriveSurprise, deriveTension, deriveRelease } from "./dynamics.js";
 export { EXPECTATION_STATES, expectation, expectationTransition } from "./expectations.js";
 export { obligation, openObligation, resolveObligation, carryObligations } from "./obligations.js";
