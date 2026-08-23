@@ -1,5 +1,6 @@
 import { eoOperation, deltaFold } from "../../kernel/fold.js";
 import { deriveIdentityRevision } from "../../kernel/identity.js";
+import { differenceMakesDifference } from "../../kernel/materiality.js";
 import { obligation, openObligation } from "../../kernel/obligations.js";
 import {
   descriptorOccurrence,
@@ -15,24 +16,32 @@ import { textIdentityEvidence } from "./identity-evidence.js";
 const existingIds = (fold) => new Set((fold?.graphEntries ?? []).map((entry) => entry?.id).filter(Boolean));
 const slug = (value) => String(value ?? "").toLowerCase().replace(/[^\p{L}\p{N}]+/gu, "_").replace(/^_+|_+$/g, "");
 
-function identityObligationFor(hypothesis, fold = {}) {
+function identityObligationFor(hypothesis, fold = {}, graph = null) {
   const relationContexts = (hypothesis?.relationContexts ?? []).filter((context) => context?.edge);
   const edgeRefs = [...new Set(relationContexts.map((context) => context.edge))];
-  // Recurrence alone remains only a hypothesis. Active reading is earned when
-  // the identity question bears on at least two witnessed relation positions.
-  if (edgeRefs.length < 2) return null;
+  if (!edgeRefs.length) return null;
+
   const surfaceKey = `surface:${slug(hypothesis.surface)}`;
+  const distinction = {
+    hypothesis: hypothesis.id,
+    surfaceKey,
+    occurrences: [...(hypothesis.occurrenceRefs ?? [])],
+    addressedRelationPositions: relationContexts.map((context) => ({ edge: context.edge, relation: context.relation, role: context.role })),
+  };
+  const consequences = edgeRefs.map((edge) => ({ kind: "relation_attribution", edge }));
+  const materiality = differenceMakesDifference({ distinction, consequences, fold, graph });
+
+  // Recurrence, uncertainty, and salience can nominate the question. They do
+  // not create active work. The identity question becomes an obligation only
+  // when same-vs-distinct changes a live consequence-bearing Fold projection.
+  if (!materiality.makesDifference) return null;
+
   return obligation({
     id: `obligation:identity:${hypothesis.id}`,
-    distinction: {
-      hypothesis: hypothesis.id,
-      surfaceKey,
-      occurrences: [...(hypothesis.occurrenceRefs ?? [])],
-      addressedRelationPositions: relationContexts.map((context) => ({ edge: context.edge, relation: context.relation, role: context.role })),
-    },
+    distinction: { ...distinction, materiality },
     grounds: [...new Set([hypothesis.id, ...(hypothesis.occurrenceRefs ?? []), ...edgeRefs])],
     alternatives: [...(hypothesis.occurrenceRefs ?? [])],
-    consequences: edgeRefs.map((edge) => ({ kind: "relation_attribution", edge })),
+    consequences,
     openedAt: (fold?.sequence ?? 0) + 1,
     persistence: 0,
   });
@@ -44,10 +53,10 @@ function identityObligationFor(hypothesis, fold = {}) {
  * Repeated descriptor strings no longer become referents merely by recurrence.
  * Recurrence earns an identity hypothesis. Actual descriptor-derived referents
  * require contextual occurrence-level support (currently explicit apposition).
- * Consequential relation-bearing ambiguity becomes an obligation, allowing the
- * recursive reader to seek evidence without treating recurrence as identity.
+ * Consequential ambiguity becomes active only when the unresolved distinction
+ * makes a difference to the present Fold.
  */
-export async function reviseTextFold({ observations = [], fold = {} } = {}) {
+export async function reviseTextFold({ observations = [], fold = {}, graph = null } = {}) {
   const known = existingIds(fold);
   const operations = [];
   const newDescriptorOccurrences = [];
@@ -129,8 +138,10 @@ export async function reviseTextFold({ observations = [], fold = {} } = {}) {
       if (edge?.schema !== "EOHyperedge@1") continue;
       currentGraphEntries.push(edge);
       for (const participant of edge.participants ?? []) {
+        // One encounter must have one occurrence context. Relation extraction
+        // is another view of the same witnessed encounter, not a second event.
         admitOccurrence(descriptorOccurrence(participant, {
-          encounterRef: edge.meta?.encounterRef ?? encounterRef,
+          encounterRef,
           edge,
         }), witnessRef);
       }
@@ -153,18 +164,21 @@ export async function reviseTextFold({ observations = [], fold = {} } = {}) {
     ...newDescriptorOccurrences,
   ];
   for (const hypothesis of descriptorHypotheses(identitySource)) {
-    if (known.has(hypothesis.id)) continue;
-    known.add(hypothesis.id);
-    operations.push(eoOperation({
-      op: "CON",
-      grain: "Figure",
-      inputs: [...hypothesis.occurrenceRefs],
-      outputs: [hypothesis.id],
-      consequence: { kind: "identity_hypothesis_opened", hypothesis: hypothesis.id },
-      payload: { action: "provisional", value: hypothesis },
-    }));
+    if (!known.has(hypothesis.id)) {
+      known.add(hypothesis.id);
+      operations.push(eoOperation({
+        op: "CON",
+        grain: "Figure",
+        inputs: [...hypothesis.occurrenceRefs],
+        outputs: [hypothesis.id],
+        consequence: { kind: "identity_hypothesis_opened", hypothesis: hypothesis.id },
+        payload: { action: "provisional", value: hypothesis },
+      }));
+    }
 
-    const unresolved = identityObligationFor(hypothesis, fold);
+    // A hypothesis can pre-exist while later encounters add the first material
+    // consequence. Re-evaluate obligation eligibility on every expanded view.
+    const unresolved = identityObligationFor(hypothesis, fold, graph);
     if (unresolved && !known.has(unresolved.id)) {
       known.add(unresolved.id);
       operations.push(openObligation(unresolved, {
