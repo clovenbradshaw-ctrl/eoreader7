@@ -1,15 +1,23 @@
 // Fold-conditioned orientation toward the next encounter.
 // Orientation is transient and defeasible: it conditions attention but is not witness.
 
+import { projectTerrainState, terrainCounts } from "./terrain-state.js";
+
 export function deriveOrientation(fold = {}, { tasks = [] } = {}) {
   const openExpectations = (fold.expectations ?? []).filter((e) => ["open", "strengthened", "weakened"].includes(e.state ?? "open"));
   const openObligations = (fold.obligations ?? []).filter((o) => !["resolved", "closed", "superseded"].includes(o.status));
   const activeTasks = (tasks ?? []).filter((task) => !["resolved", "closed", "superseded", "retracted"].includes(task.status));
+  const terrains = projectTerrainState(fold);
   return Object.freeze({
     schema: "EOOrientation@1",
+    // Compatibility views remain available, but terrainState is the universal
+    // EO projection. Perceivers may condition attention on any of the nine
+    // terrains without learning terrain-specific storage conventions.
     activeReferents: Object.freeze([...(fold.activeReferents ?? [])]),
     activeKinds: Object.freeze([...(fold.activeKinds ?? [])]),
     activeLinks: Object.freeze([...(fold.activeLinks ?? [])]),
+    terrainState: terrains,
+    terrainCounts: terrainCounts(terrains),
     openAlternatives: Object.freeze([...(fold.unresolvedAlternatives ?? [])]),
     unresolvedObligations: Object.freeze(openObligations),
     activeExpectations: Object.freeze(openExpectations),
