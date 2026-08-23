@@ -1,6 +1,7 @@
 import { MODES, DOMAINS, GRAINS, cellOf } from "./cube.js";
 import { deltaFold, eoOperation } from "./fold.js";
 import { buildHypergraph, relevantHypergraphNeighborhood } from "./hypergraph.js";
+import { projectTerrainState, terrainCounts } from "./terrain-state.js";
 
 const OP_BY_ADDRESS = Object.freeze({
   Differentiate: Object.freeze({ Existence: "NUL", Structure: "SEG", Interpretation: "DEF" }),
@@ -31,8 +32,11 @@ export function relevantNeighborhood(fold, observations, { select, maxHops = 3, 
   const graphNeighborhood = relevantHypergraphNeighborhood(workingGraph, observations, { maxHops });
   const ids = new Set(graphNeighborhood.ids);
   const pick = (key) => (fold?.[key] ?? []).filter((entry) => entry?.id && ids.has(entry.id));
+  const terrainState = projectTerrainState(fold, { ids });
   return {
     graph: graphNeighborhood,
+    terrainState,
+    terrainCounts: terrainCounts(terrainState),
     witnessed: pick("witnessed"),
     provisional: pick("provisional"),
     expectations: pick("expectations"),
@@ -47,10 +51,12 @@ export function relevantNeighborhood(fold, observations, { select, maxHops = 3, 
 export async function interrogateCube(observations, neighborhood, { ask } = {}) {
   const results = [];
   for (const address of cubeAddresses()) {
-    const answer = ask ? await ask({ address, observations, neighborhood }) : null;
+    const terrainContext = neighborhood?.terrainState?.[address.terrain] ?? [];
+    const answer = ask ? await ask({ address, terrainContext, observations, neighborhood }) : null;
     results.push({
       schema: "EOInterrogation@1",
       address,
+      terrainContext: Object.freeze([...terrainContext]),
       changed: Boolean(answer?.changed),
       effects: answer?.effects ?? [],
       evidence: answer?.evidence ?? null,
