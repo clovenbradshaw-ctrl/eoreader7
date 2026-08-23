@@ -81,8 +81,40 @@ const creaturePulledIntoWretchMonster = wretchMonsterClusters.some((ref) => (ref
 const wrapperPollution = [...referentSurfaces].filter((surface) => /project gutenberg|gutenberg ebook|www\.gutenberg/.test(surface));
 const topDiscourseReferents = discourseReferents.slice(0, 30).map((ref) => ({ id: ref.id, surfaces: ref.surfaces, occurrenceCount: ref.occurrenceRefs?.length ?? 0, supportCount: ref.supportRefs?.length ?? 0 }));
 
+const occurrenceById = new Map(descriptorOccurrences.map((entry) => [entry.id, entry]));
+const continuationDiagnostics = wretchMonsterClusters.map((ref) => {
+  const supportingOccurrences = (ref.occurrenceRefs ?? []).map((id) => occurrenceById.get(id)).filter(Boolean);
+  const supportOffsets = supportingOccurrences.map((occ) => Number(String(occ.encounterRef ?? "").match(/:(\d+)$/)?.[1])).filter(Number.isFinite);
+  const supportOffset = supportOffsets.length ? Math.min(...supportOffsets) : null;
+  const supportEncounter = supportOffset == null ? null : encounters.find((item) => item.anchor?.start <= supportOffset && item.anchor?.end >= supportOffset);
+  const supportSequence = supportEncounter?.sequencePosition ?? null;
+  const surfaces = (ref.surfaces ?? []).map((surface) => String(surface).toLowerCase());
+  const laterEncounters = supportSequence == null ? [] : encounters.filter((item) => item.sequencePosition > supportSequence && surfaces.some((surface) => String(item.material ?? "").toLowerCase().includes(surface)));
+  const relationHits = supportSequence == null ? [] : edges.flatMap((edge) => {
+    if ((edge.scope?.sequencePosition ?? -1) <= supportSequence) return [];
+    return (edge.participants ?? []).filter((participant) => surfaces.some((surface) => String(participant.surface ?? "").toLowerCase().includes(surface))).map((participant) => ({
+      edge: edge.id,
+      sequencePosition: edge.scope?.sequencePosition ?? null,
+      relation: edge.relation,
+      role: participant.role,
+      surface: participant.surface,
+      standing: participant.standing,
+    }));
+  });
+  return {
+    referent: ref.id,
+    surfaces,
+    supportOffset,
+    supportSequence,
+    laterEncounterHits: laterEncounters.length,
+    laterEncounterSamples: laterEncounters.slice(0, 8).map((item) => ({ sequencePosition: item.sequencePosition, material: item.material })),
+    laterRelationParticipantHits: relationHits.length,
+    laterRelationParticipantSamples: relationHits.slice(0, 12),
+  };
+});
+
 const metrics = {
-  schema: "EOFrankensteinRecursiveReadingEval@7",
+  schema: "EOFrankensteinRecursiveReadingEval@8",
   sourceCharacters: source.length,
   bodyCharacters: stripped.text.length,
   encounters: encounters.length,
@@ -100,6 +132,7 @@ const metrics = {
   wretchMonsterClusters: wretchMonsterClusters.length,
   creaturePulledIntoWretchMonster,
   topDiscourseReferents,
+  continuationDiagnostics,
   relations: edges.length,
   transformations: reading.fold.transformationObjects?.length ?? 0,
   surpriseTurns: surpriseTurns.length,
