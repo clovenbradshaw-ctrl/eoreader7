@@ -37,9 +37,7 @@ function containsSurface(text, surface) {
   return new RegExp(`(^|[^\\p{L}\\p{N}])${escapeRe(needle)}([^\\p{L}\\p{N}]|$)`, "u").test(hay);
 }
 
-function currentReferents(text, refs = []) {
-  return refs.filter((ref) => ref.surfaces.some((surface) => containsSurface(text, surface)));
-}
+function currentReferents(text, refs = []) { return refs.filter((ref) => ref.surfaces.some((surface) => containsSurface(text, surface))); }
 
 function referentsInSpan(span, map) {
   const matches = new Map();
@@ -69,31 +67,15 @@ function resolveParticipant(surface, map, sequencePosition, relationIndex, role,
     const [[ref, matchedSurfaces]] = candidates;
     return { participant: { ref, role, standing: "referent", surface, resolution: "unique_surface_in_span", matchedSurfaces }, binding: null };
   }
-
   const lexical = slug(surface) || "unknown";
   const occurrence = `occ:${sequencePosition}:${relationIndex}:${role}`;
   const causalBinding = bindingInSpan(offset, surface, pronounBindings);
   const binding = causalBinding ? Object.freeze({
-    schema: "EOPronounBinding@1",
-    id: `pronoun-binding:${occurrence}`,
-    occurrence,
-    referent: causalBinding.referentId,
-    pronoun: causalBinding.pronoun,
-    standing: "provisional",
-    activation: causalBinding.activation,
-    margin: causalBinding.margin,
-    provenance: causalBinding.provenance,
+    schema: "EOPronounBinding@1", id: `pronoun-binding:${occurrence}`, occurrence, referent: causalBinding.referentId,
+    pronoun: causalBinding.pronoun, standing: "provisional", activation: causalBinding.activation, margin: causalBinding.margin, provenance: causalBinding.provenance,
   }) : null;
   return {
-    participant: {
-      ref: occurrence,
-      occurrence,
-      surfaceKey: `surface:${lexical}`,
-      role,
-      standing: "unresolved_surface",
-      surface,
-      candidateReferents: [...new Set([...candidates.keys(), ...(binding ? [binding.referent] : [])])],
-    },
+    participant: { ref: occurrence, occurrence, surfaceKey: `surface:${lexical}`, role, standing: "unresolved_surface", surface, candidateReferents: [...new Set([...candidates.keys(), ...(binding ? [binding.referent] : [])])] },
     binding,
   };
 }
@@ -117,17 +99,7 @@ function lexicalNounOccurrences(text, sequencePosition, encounterRef, posPrior) 
     const nounShare = total ? (counts.NOUN ?? 0) / total : 0;
     if (nounShare <= 0.5) continue;
     const surfaceKey = `surface:${slug(raw) || "unknown"}`;
-    out.push(Object.freeze({
-      schema: "EOLexicalOccurrence@1",
-      id: `lex:${sequencePosition}:${ordinal}`,
-      surfaceKey,
-      surface: raw,
-      upos: "NOUN",
-      standing: "occurrence",
-      encounterRef,
-      offset: match.index,
-      witness: `text:${sequencePosition}:${match.index}`,
-    }));
+    out.push(Object.freeze({ schema: "EOLexicalOccurrence@1", id: `lex:${sequencePosition}:${ordinal}`, surfaceKey, surface: raw, upos: "NOUN", standing: "occurrence", encounterRef, offset: match.index, witness: `text:${sequencePosition}:${match.index}` }));
     ordinal += 1;
   }
   return out;
@@ -135,11 +107,7 @@ function lexicalNounOccurrences(text, sequencePosition, encounterRef, posPrior) 
 
 function taskTargetSurfaceKeys(orientation = {}) {
   const out = new Set();
-  for (const task of orientation.activeTasks ?? []) {
-    for (const target of task.targets ?? []) {
-      if (typeof target === "string" && target.startsWith("surface:")) out.add(target);
-    }
-  }
+  for (const task of orientation.activeTasks ?? []) for (const target of task.targets ?? []) if (typeof target === "string" && target.startsWith("surface:")) out.add(target);
   return out;
 }
 
@@ -150,16 +118,7 @@ function taskTargetOccurrences(text, sequencePosition, encounterRef, orientation
     if (alreadySeen.has(surfaceKey)) continue;
     const surface = surfaceKey.slice("surface:".length).replace(/_/g, " ");
     if (!surface || !containsSurface(text, surface)) continue;
-    out.push(Object.freeze({
-      schema: "EOTaskTargetOccurrence@1",
-      id: `task-target:${sequencePosition}:${ordinal}`,
-      surfaceKey,
-      surface,
-      standing: "task_nominated_occurrence",
-      encounterRef,
-      witness: `text:${sequencePosition}:task-target:${ordinal}`,
-      provenance: Object.freeze({ giver: "active-reading-task", basis: "targeted recurrence check" }),
-    }));
+    out.push(Object.freeze({ schema: "EOTaskTargetOccurrence@1", id: `task-target:${sequencePosition}:${ordinal}`, surfaceKey, surface, standing: "task_nominated_occurrence", encounterRef, witness: `text:${sequencePosition}:task-target:${ordinal}`, provenance: Object.freeze({ giver: "active-reading-task", basis: "targeted recurrence check" }) }));
     ordinal += 1;
   }
   return out;
@@ -178,32 +137,25 @@ function mergeRelationEvidence(store, candidates = []) {
 
 function admittedRelationVerbs(store, minSurfaces) {
   const verbs = new Set();
-  for (const [verb, record] of store) {
-    if (record.verbDominant !== false && record.surfaceForms.size >= minSurfaces) verbs.add(verb);
-  }
+  for (const [verb, record] of store) if (record.verbDominant !== false && record.surfaceForms.size >= minSurfaces) verbs.add(verb);
   return verbs;
 }
 
-function compositionStandingFor(verb, posPrior) {
-  if (!posPrior?.forms) return Object.freeze({ standing: "not_supplied", eligible: true, giver: null });
-  const counts = posPrior.forms[diaNorm(verb)];
-  if (!counts) return Object.freeze({ standing: "prior_gap", eligible: true, giver: posPrior.provenance?.source ?? null });
+function compositionStandingFor(verb, relationPosPrior) {
+  if (!relationPosPrior?.forms) return Object.freeze({ standing: "not_supplied", eligible: true, giver: null });
+  const counts = relationPosPrior.forms[diaNorm(verb)];
+  if (!counts) return Object.freeze({ standing: "prior_gap", eligible: true, giver: relationPosPrior.provenance?.source ?? null });
   const total = Object.values(counts).reduce((sum, count) => sum + count, 0);
   const verbShare = total ? (counts.VERB ?? 0) / total : 0;
   const auxShare = total ? (counts.AUX ?? 0) / total : 0;
-  return Object.freeze({
-    standing: verbShare > 0.5 ? "lexical_verb" : auxShare > 0.5 ? "auxiliary" : "nonverb_dominant",
-    eligible: verbShare > 0.5,
-    verbShare,
-    auxShare,
-    counts: Object.freeze({ ...counts }),
-    giver: posPrior.provenance?.source ?? null,
-  });
+  return Object.freeze({ standing: verbShare > 0.5 ? "lexical_verb" : auxShare > 0.5 ? "auxiliary" : "nonverb_dominant", eligible: verbShare > 0.5, verbShare, auxShare, counts: Object.freeze({ ...counts }), giver: relationPosPrior.provenance?.source ?? null });
 }
 
-export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEvery = 25, posPrior = null, pronounResolution = null } = {}) {
+export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEvery = 25, posPrior = null, relationPosPrior = posPrior, pronounResolution = null } = {}) {
   if (!Number.isInteger(refreshEvery) || refreshEvery < 1) throw new TypeError("refreshEvery must be a positive integer");
-  if (posPrior && (posPrior.schema !== "POSPrior@1" || !posPrior.provenance?.source)) throw new TypeError("posPrior must be a giver-named POSPrior@1");
+  for (const [name, prior] of [["posPrior", posPrior], ["relationPosPrior", relationPosPrior]]) {
+    if (prior && (prior.schema !== "POSPrior@1" || !prior.provenance?.source)) throw new TypeError(`${name} must be a giver-named POSPrior@1`);
+  }
   const pronounResolver = pronounResolution ? createCausalPronounResolver(pronounResolution) : null;
   const priorSentences = [];
   let priorText = "";
@@ -220,22 +172,11 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
     const batchSentences = priorSentences.slice(relationRefreshFrom);
     const batchText = batchSentences.map((sentence) => sentence.text).join("\n");
     if (batchText && surfaces.length) {
-      const relationResult = discoverRelationVocab(batchText, {
-        surfaces,
-        functionWords: closed,
-        minSurfaces: 1,
-        posPrior,
-      });
+      const relationResult = discoverRelationVocab(batchText, { surfaces, functionWords: closed, minSurfaces: 1, posPrior: relationPosPrior });
       mergeRelationEvidence(relationEvidence, relationResult.candidates);
     }
     relationRefreshFrom = priorSentences.length;
-    cache = {
-      closed,
-      refs: surfaceMap(discovered.events),
-      referents: referentObjects(discovered.events),
-      gaps: discovered.gaps,
-      verbs: admittedRelationVerbs(relationEvidence, minRelationSurfaces),
-    };
+    cache = { closed, refs: surfaceMap(discovered.events), referents: referentObjects(discovered.events), gaps: discovered.gaps, verbs: admittedRelationVerbs(relationEvidence, minRelationSurfaces) };
   };
 
   return Object.freeze({
@@ -255,43 +196,23 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
         const object = resolveParticipant(rel.object, cache.refs, sequencePosition, index, "object", { offset: rel.objectOffset, pronounBindings: pronouns.bindings });
         for (const binding of [subject.binding, object.binding]) if (binding && !relationBindings.some((item) => item.id === binding.id)) relationBindings.push(binding);
         return hyperedge({
-          id: `edge:text:${sequencePosition}:${index}`,
-          relation: rel.verb,
-          participants: [subject.participant, object.participant],
-          witness: `text:${sequencePosition}:${rel.offset}`,
-          scope: { sequencePosition, offset: rel.offset },
-          eo: { op: "CON", grain: "Figure" },
-          meta: {
-            polarity: rel.polarity,
-            source: encounter.source,
-            encounterRef,
-            compositionStanding: compositionStandingFor(rel.verb, posPrior),
-          },
+          id: `edge:text:${sequencePosition}:${index}`, relation: rel.verb, participants: [subject.participant, object.participant], witness: `text:${sequencePosition}:${rel.offset}`,
+          scope: { sequencePosition, offset: rel.offset }, eo: { op: "CON", grain: "Figure" },
+          meta: { polarity: rel.polarity, source: encounter.source, encounterRef, compositionStanding: compositionStandingFor(rel.verb, relationPosPrior) },
         });
       });
 
       const seenReferents = currentReferents(encounter.material, cache.referents);
-      const mentions = seenReferents.map((ref) => Object.freeze({
-        schema: "EOMention@1",
-        id: `mention:${sequencePosition}:${slug(ref.id)}`,
-        referent: ref.id,
-        encounterRef,
-        anchor: encounter.anchor,
-        witness: `text:${sequencePosition}`,
-        source: encounter.source,
-      }));
+      const mentions = seenReferents.map((ref) => Object.freeze({ schema: "EOMention@1", id: `mention:${sequencePosition}:${slug(ref.id)}`, referent: ref.id, encounterRef, anchor: encounter.anchor, witness: `text:${sequencePosition}`, source: encounter.source }));
       const lexicalOccurrences = lexicalNounOccurrences(encounter.material, sequencePosition, encounterRef, posPrior);
       const lexicalKeys = new Set(lexicalOccurrences.map((occ) => occ.surfaceKey));
       const targetedOccurrences = taskTargetOccurrences(encounter.material, sequencePosition, encounterRef, orientation, lexicalKeys);
       const activeIds = new Set(seenReferents.map((ref) => ref.id));
       for (const edge of edges) for (const participant of edge.participants ?? []) if (participant.standing === "referent") activeIds.add(participant.ref);
-      const gaps = cache.gaps
-        .filter((gap) => activeIds.has(gap.referent))
-        .map((gap) => ({ schema: "EOReferentGap@1", id: `gap:referent:${slug(gap.referent)}`, ...gap }));
+      const gaps = cache.gaps.filter((gap) => activeIds.has(gap.referent)).map((gap) => ({ schema: "EOReferentGap@1", id: `gap:referent:${slug(gap.referent)}`, ...gap }));
 
       priorSentences.push(currentSentence);
       priorText += `${priorText ? "\n" : ""}${encounter.material}`;
-
       if (edges.length === 0 && seenReferents.length === 0 && lexicalOccurrences.length === 0 && targetedOccurrences.length === 0 && relationBindings.length === 0) return [];
       return [{
         candidate: {
@@ -314,13 +235,5 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
 }
 
 export function textEncounters(text, { source = "text", offset = 0 } = {}) {
-  return splitSentences(text).map((sentence) => ({
-    schema: "Encounter@1",
-    source,
-    modality: "text",
-    anchor: { start: offset + sentence.offset, end: offset + sentence.offset + sentence.text.length },
-    extent: sentence.text.length,
-    material: sentence.text,
-    sequencePosition: sentence.order,
-  }));
+  return splitSentences(text).map((sentence) => ({ schema: "Encounter@1", source, modality: "text", anchor: { start: offset + sentence.offset, end: offset + sentence.offset + sentence.text.length }, extent: sentence.text.length, material: sentence.text, sequencePosition: sentence.order }));
 }
