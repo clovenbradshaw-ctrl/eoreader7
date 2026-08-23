@@ -7,6 +7,7 @@ import { bindDefiniteAnaphora } from "./definite-anaphora.js";
 import { explicitKindAssertions } from "./kind-assertions.js";
 import { explicitExistentialGrounds } from "./existential-ground.js";
 import { hyperedge } from "../../kernel/hypergraph.js";
+import { kindEvidence } from "../../kernel/kind-induction.js";
 
 const slug = (value) => diaNorm(value).replace(/[^\p{L}\p{N}]+/gu, "_").replace(/^_+|_+$/g, "");
 const escapeRe = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -188,6 +189,32 @@ function witnessedSubjectSurface(text, relation) {
   return raw || relation.subject || "";
 }
 
+function relationKindEvidence(edges, sequencePosition) {
+  const out = [];
+  let ordinal = 0;
+  for (const edge of edges) {
+    for (const participant of edge.participants ?? []) {
+      if (participant?.standing !== "referent" || !participant.ref) continue;
+      out.push(kindEvidence({
+        id: `kind-evidence:relation:${sequencePosition}:${ordinal}`,
+        entityRef: participant.ref,
+        featureKey: "relation_participation",
+        featureValue: `${participant.role ?? "participant"}:${edge.relation}`,
+        sequencePosition,
+        witness: edge.witness,
+        provenance: {
+          modality: "text",
+          giver: "text/recursive",
+          basis: "witnessed_relation_participation",
+          edgeRef: edge.id,
+        },
+      }));
+      ordinal += 1;
+    }
+  }
+  return out;
+}
+
 export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEvery = 25, posPrior = null, relationPosPrior = posPrior, pronounResolution = null } = {}) {
   if (!Number.isInteger(refreshEvery) || refreshEvery < 1) throw new TypeError("refreshEvery must be a positive integer");
   for (const [name, prior] of [["posPrior", posPrior], ["relationPosPrior", relationPosPrior]]) {
@@ -231,13 +258,6 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
       const relations = extractRelations(encounter.material, { verbs, functionWords: cache.closed });
       const relationBindings = [];
       const edges = relations.map((rel, index) => {
-        // extractRelations may normalize a two-token subject by removing a
-        // learned function word (e.g. "the monster" -> "monster"). That is a
-        // useful relation-slot normalization but it must not erase the actual
-        // determiner evidence before co-reference sees it. Reconstruct the raw
-        // witnessed subject directly from the encounter and the extractor's
-        // stable offsets; raw witness conditions identity, normalized slots do
-        // not overwrite it.
         const subjectSurface = witnessedSubjectSurface(encounter.material, rel);
         const subject = resolveParticipant(subjectSurface, cache.refs, sequencePosition, index, "subject", { offset: rel.subjectOffset, pronounBindings: pronouns.bindings, orientation });
         const object = resolveParticipant(rel.object, cache.refs, sequencePosition, index, "object", { offset: rel.objectOffset, pronounBindings: pronouns.bindings, orientation });
@@ -258,6 +278,7 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
         referents: [...cache.referents, ...orientedReferents],
         posPrior: relationPosPrior,
       });
+      const structuralKindEvidence = relationKindEvidence(edges, sequencePosition);
       const existentialGrounds = explicitExistentialGrounds(encounter.material, { sequencePosition, encounterRef, posPrior: relationPosPrior });
       const mentions = seenReferents.map((ref) => Object.freeze({ schema: "EOMention@1", id: `mention:${sequencePosition}:${slug(ref.id)}`, referent: ref.id, encounterRef, anchor: encounter.anchor, witness: `text:${sequencePosition}`, source: encounter.source }));
       const lexicalOccurrences = lexicalNounOccurrences(encounter.material, sequencePosition, encounterRef, posPrior);
@@ -269,7 +290,7 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
 
       priorSentences.push(currentSentence);
       priorText += `${priorText ? "\n" : ""}${encounter.material}`;
-      if (edges.length === 0 && seenReferents.length === 0 && lexicalOccurrences.length === 0 && targetedOccurrences.length === 0 && relationBindings.length === 0 && kindAssertions.length === 0 && existentialGrounds.length === 0) return [];
+      if (edges.length === 0 && seenReferents.length === 0 && lexicalOccurrences.length === 0 && targetedOccurrences.length === 0 && relationBindings.length === 0 && kindAssertions.length === 0 && structuralKindEvidence.length === 0 && existentialGrounds.length === 0) return [];
       return [{
         candidate: {
           distinctions: [
@@ -278,11 +299,12 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
             ...lexicalOccurrences.map((occ) => ({ occurrence: occ.id, surfaceKey: occ.surfaceKey, upos: occ.upos })),
             ...targetedOccurrences.map((occ) => ({ occurrence: occ.id, surfaceKey: occ.surfaceKey, taskNominated: true })),
             ...relationBindings.map((binding) => ({ kind: "occurrence_binding", binding })),
-            ...kindAssertions.map((assertion) => ({ kind: "explicit_kind_assertion", assertion: assertion.id, subject: assertion.subject, kindKey: assertion.kindKey })),
+            ...kindAssertions.map((evidence) => ({ kind: "explicit_kind_evidence", evidence: evidence.id, entityRef: evidence.entityRef, kindKey: evidence.kindKey })),
+            ...structuralKindEvidence.map((evidence) => ({ kind: "structural_kind_evidence", evidence: evidence.id, entityRef: evidence.entityRef, featureKey: evidence.featureKey, featureValue: evidence.featureValue })),
             ...existentialGrounds.map((ground) => ({ kind: "explicit_existential_ground", ground: ground.id, absenceSurface: ground.absenceSurface })),
           ],
           hyperedges: edges,
-          graphEntries: [...seenReferents, ...mentions, ...lexicalOccurrences, ...targetedOccurrences, ...gaps, ...kindAssertions, ...existentialGrounds],
+          graphEntries: [...seenReferents, ...mentions, ...lexicalOccurrences, ...targetedOccurrences, ...gaps, ...relationBindings, ...kindAssertions, ...structuralKindEvidence, ...existentialGrounds],
         },
         anchor: encounter.anchor,
         evidence: encounter.material,
