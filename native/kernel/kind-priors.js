@@ -147,33 +147,85 @@ function projectionSignatures(projection) {
   return signatures;
 }
 
-export function rankKindPriorHypotheses(projection, priors = [], { limit = 5, minScore = 0 } = {}) {
-  if (projection?.standing !== "earned_invariant") return freeze([]);
-  const signatures = projectionSignatures(projection);
-  if (!signatures.size) return freeze([]);
+function rankedHypothesesForSignatures(signatures, priors = [], { limit = 5, minScore = 0, minMatched = 1 } = {}) {
   const hypotheses = [];
   for (const prior of priors ?? []) {
     if (prior?.schema !== "EOKindPrior@1") continue;
     const matched = (prior.features ?? []).filter((feature) => signatures.has(feature.signature));
-    if (!matched.length) continue;
+    if (matched.length < minMatched) continue;
     const score = matched.reduce((sum, feature) => sum + (feature.logLift ?? 0), 0);
     if (score <= minScore) continue;
-    hypotheses.push(freeze({
-      schema: "EOKindPriorHypothesis@1",
-      priorRef: prior.id,
-      kindKey: prior.kindKey,
-      label: prior.label,
-      standing: "defeasible_prior_hypothesis",
-      admissible: false,
-      witnessed: false,
-      score,
-      matchedSignatures: freeze(matched.map((feature) => feature.signature).sort()),
-      giver: prior.provenance?.giver ?? null,
-      corpus: prior.provenance?.corpus ?? null,
-    }));
+    hypotheses.push({ prior, matched, score });
   }
-  hypotheses.sort((a, b) => b.score - a.score || a.kindKey.localeCompare(b.kindKey));
-  return freeze(hypotheses.slice(0, limit));
+  hypotheses.sort((a, b) => b.score - a.score || a.prior.kindKey.localeCompare(b.prior.kindKey));
+  return hypotheses.slice(0, limit);
+}
+
+export function rankKindPriorHypotheses(projection, priors = [], { limit = 5, minScore = 0, minMatched = 1 } = {}) {
+  if (projection?.standing !== "earned_invariant") return freeze([]);
+  const signatures = projectionSignatures(projection);
+  if (!signatures.size) return freeze([]);
+  return freeze(rankedHypothesesForSignatures(signatures, priors, { limit, minScore, minMatched }).map(({ prior, matched, score }) => freeze({
+    schema: "EOKindPriorHypothesis@1",
+    priorRef: prior.id,
+    kindKey: prior.kindKey,
+    label: prior.label,
+    standing: "defeasible_prior_hypothesis",
+    admissible: false,
+    witnessed: false,
+    score,
+    matchedSignatures: freeze(matched.map((feature) => feature.signature).sort()),
+    giver: prior.provenance?.giver ?? null,
+    corpus: prior.provenance?.corpus ?? null,
+  })));
+}
+
+/**
+ * Priors may orient attention before a Kind is earned. This is the extraction
+ * surface for "person-like", "place-like", etc. It never mutates Kind terrain:
+ * each hypothesis is unwitnessed and inadmissible until current-source
+ * evidence earns a Kind or explicitly witnesses a classification.
+ */
+export function snapshotEntityKindPriorHypotheses(kindIndex, priors = [], {
+  limitPerEntity = 3,
+  minScore = 0,
+  minMatched = 1,
+  minMargin = 0,
+} = {}) {
+  if (kindIndex?.schema !== "EOKindInductionIndex@1") throw new TypeError("snapshotEntityKindPriorHypotheses requires EOKindInductionIndex@1");
+  const usable = (priors ?? []).filter((prior) => prior?.schema === "EOKindPrior@1");
+  if (!usable.length) return freeze([]);
+  const out = [];
+  for (const [entityRef, profile] of kindIndex.entityFeatures ?? []) {
+    const signatures = new Set(profile.keys());
+    if (!signatures.size) continue;
+    const ranked = rankedHypothesesForSignatures(signatures, usable, { limit: limitPerEntity, minScore, minMatched });
+    if (!ranked.length) continue;
+    const margin = ranked.length > 1 ? ranked[0].score - ranked[1].score : ranked[0].score;
+    if (margin < minMargin) continue;
+    for (let rank = 0; rank < ranked.length; rank += 1) {
+      const { prior, matched, score } = ranked[rank];
+      out.push(freeze({
+        schema: "EOEntityKindHypothesis@1",
+        id: `entity-kind-prior:${entityRef}:${prior.kindKey}`,
+        entityRef,
+        priorRef: prior.id,
+        kindKey: prior.kindKey,
+        label: prior.label,
+        rank: rank + 1,
+        standing: "defeasible_prior_hypothesis",
+        admissible: false,
+        witnessed: false,
+        score,
+        margin: rank === 0 ? margin : null,
+        matchedSignatures: freeze(matched.map((feature) => feature.signature).sort()),
+        giver: prior.provenance?.giver ?? null,
+        corpus: prior.provenance?.corpus ?? null,
+      }));
+    }
+  }
+  out.sort((a, b) => a.entityRef.localeCompare(b.entityRef) || a.rank - b.rank || b.score - a.score);
+  return freeze(out);
 }
 
 export function conditionKindProjections(projections = [], priors = [], options = {}) {
