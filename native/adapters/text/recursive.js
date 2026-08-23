@@ -3,6 +3,7 @@ import { splitSentences } from "./spans.js";
 import { extractSurfaces, discoverReferents, diaNorm } from "./surfaces.js";
 import { discoverRelationVocab, extractRelations } from "./relations.js";
 import { createCausalPronounResolver } from "./pronoun-stream.js";
+import { bindDefiniteAnaphora } from "./definite-anaphora.js";
 import { hyperedge } from "../../kernel/hypergraph.js";
 
 const slug = (value) => diaNorm(value).replace(/[^\p{L}\p{N}]+/gu, "_").replace(/^_+|_+$/g, "");
@@ -59,7 +60,7 @@ function bindingInSpan(offset, surface, bindings = []) {
   return hits.find((binding) => binding.referentId === refs[0]) ?? null;
 }
 
-function resolveParticipant(surface, map, sequencePosition, relationIndex, role, { offset = null, pronounBindings = [] } = {}) {
+function resolveParticipant(surface, map, sequencePosition, relationIndex, role, { offset = null, pronounBindings = [], orientation = {} } = {}) {
   const exact = map.get(diaNorm(surface));
   if (exact) return { participant: { ref: exact, role, standing: "referent", surface, resolution: "exact_surface" }, binding: null };
   const candidates = referentsInSpan(surface, map);
@@ -73,7 +74,7 @@ function resolveParticipant(surface, map, sequencePosition, relationIndex, role,
   const binding = causalBinding ? Object.freeze({
     schema: "EOPronounBinding@1", id: `pronoun-binding:${occurrence}`, occurrence, referent: causalBinding.referentId,
     pronoun: causalBinding.pronoun, standing: "provisional", activation: causalBinding.activation, margin: causalBinding.margin, provenance: causalBinding.provenance,
-  }) : null;
+  }) : bindDefiniteAnaphora({ surface, occurrence, orientation });
   return {
     participant: { ref: occurrence, occurrence, surfaceKey: `surface:${lexical}`, role, standing: "unresolved_surface", surface, candidateReferents: [...new Set([...candidates.keys(), ...(binding ? [binding.referent] : [])])] },
     binding,
@@ -192,8 +193,8 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
       const relations = extractRelations(encounter.material, { verbs: cache.verbs, functionWords: cache.closed });
       const relationBindings = [];
       const edges = relations.map((rel, index) => {
-        const subject = resolveParticipant(rel.subject, cache.refs, sequencePosition, index, "subject", { offset: rel.subjectOffset, pronounBindings: pronouns.bindings });
-        const object = resolveParticipant(rel.object, cache.refs, sequencePosition, index, "object", { offset: rel.objectOffset, pronounBindings: pronouns.bindings });
+        const subject = resolveParticipant(rel.subject, cache.refs, sequencePosition, index, "subject", { offset: rel.subjectOffset, pronounBindings: pronouns.bindings, orientation });
+        const object = resolveParticipant(rel.object, cache.refs, sequencePosition, index, "object", { offset: rel.objectOffset, pronounBindings: pronouns.bindings, orientation });
         for (const binding of [subject.binding, object.binding]) if (binding && !relationBindings.some((item) => item.id === binding.id)) relationBindings.push(binding);
         return hyperedge({
           id: `edge:text:${sequencePosition}:${index}`, relation: rel.verb, participants: [subject.participant, object.participant], witness: `text:${sequencePosition}:${rel.offset}`,
@@ -221,7 +222,7 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
             ...edges.map((edge) => ({ relation: edge.relation, participants: edge.participants })),
             ...lexicalOccurrences.map((occ) => ({ occurrence: occ.id, surfaceKey: occ.surfaceKey, upos: occ.upos })),
             ...targetedOccurrences.map((occ) => ({ occurrence: occ.id, surfaceKey: occ.surfaceKey, taskNominated: true })),
-            ...relationBindings.map((binding) => ({ kind: "pronoun_binding", binding })),
+            ...relationBindings.map((binding) => ({ kind: "occurrence_binding", binding })),
           ],
           hyperedges: edges,
           graphEntries: [...seenReferents, ...mentions, ...lexicalOccurrences, ...targetedOccurrences, ...gaps],
