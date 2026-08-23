@@ -10,9 +10,6 @@ const norm = (x) => (String(x ?? "").toLowerCase().match(WORD) ?? []).join(" ");
 const words = (x) => String(x ?? "").toLowerCase().match(WORD) ?? [];
 const slug = (x) => norm(x).replace(/[^\p{L}\p{N}]+/gu, "_").replace(/^_+|_+$/g, "");
 
-// Closed English pronominal/determiner classes belong in the text adapter,
-// never in the modality-neutral kernel. Possessives are kept separate from
-// personal pronouns because "my father" is referential while bare "my" is not.
 const PERSONAL_PRONOUNS = new Set([
   "i", "me", "mine", "myself", "we", "us", "ours", "ourselves",
   "you", "yours", "yourself", "yourselves", "they", "them", "theirs", "themselves",
@@ -20,7 +17,6 @@ const PERSONAL_PRONOUNS = new Set([
 ]);
 const POSSESSIVE_DETERMINERS = new Set(["my", "your", "his", "her", "our", "their"]);
 const CLAUSE_LEADERS = new Set(["when", "where", "if", "while", "because", "although", "though", "since", "before", "after", "until"]);
-
 const pronounToken = (w) => PERSONAL_PRONOUNS.has(w) || ANAPHORIC_PRONOUNS.has(w) || Object.hasOwn(THIRD_PERSON_SINGULAR, w);
 const containsPronoun = (ws) => ws.some(pronounToken);
 const determinationOf = (first) => DEFINITE_DETERMINERS.has(first)
@@ -31,7 +27,7 @@ const determinationOf = (first) => DEFINITE_DETERMINERS.has(first)
       ? "possessive"
       : "bare";
 
-const occurrence = ({ id, surface, determination, encounterRef, role = null, edge = null, relation = null, giver, basis }) => {
+const occurrence = ({ id, surface, determination, encounterRef, role = null, edge = null, relation = null, contextTokens = [], giver, basis }) => {
   const ws = words(surface);
   if (!ws.length) return null;
   return Object.freeze({
@@ -45,25 +41,19 @@ const occurrence = ({ id, surface, determination, encounterRef, role = null, edg
     encounterRef,
     edge,
     relation,
+    contextTokens: Object.freeze([...new Set(contextTokens)]),
     standing: "unresolved_identity",
     provenance: Object.freeze({ giver, basis }),
   });
 };
 
-/**
- * Classify an unresolved relation participant without deciding its identity.
- * Relation extraction can expose clause fragments as participants. Therefore
- * this channel accepts only determiner/possessive-marked descriptions.
- */
 export function descriptorOccurrence(participant, { encounterRef = null, edge = null } = {}) {
   if (participant?.standing !== "unresolved_surface") return null;
   const surface = String(participant.surface ?? "").trim();
   const ws = words(surface);
   if (!surface || ws.length < 2 || containsPronoun(ws) || CLAUSE_LEADERS.has(ws[0])) return null;
-
   const determination = determinationOf(ws[0]);
   if (determination === "bare") return null;
-
   return occurrence({
     id: `ref-occ:${encounterRef ?? "unknown"}:${participant.occurrence ?? slug(surface)}`,
     surface,
@@ -77,11 +67,20 @@ export function descriptorOccurrence(participant, { encounterRef = null, edge = 
   });
 }
 
-/**
- * Direct descriptor perception from witnessed encounter text.
- * A received closed determiner class plus one following lexical token is an
- * intentionally narrow text-organ observation, not a general noun parser.
- */
+const contextualTokens = (source, descriptorWords) => {
+  const excluded = new Set([
+    ...descriptorWords,
+    ...DEFINITE_DETERMINERS,
+    ...INDEFINITE_DETERMINERS,
+    ...POSSESSIVE_DETERMINERS,
+  ]);
+  // No semantic vocabulary is supplied here. This is only a sparse lexical
+  // trace of the witnessed encounter. Short forms are withheld because this
+  // channel is for cross-surface consequence evidence, not language parsing.
+  return words(source).filter((w) => w.length >= 4 && !excluded.has(w) && !pronounToken(w));
+};
+
+/** Direct, narrow descriptor perception from witnessed encounter text. */
 export function directDescriptorOccurrences(text, { encounterRef = "unknown" } = {}) {
   const source = String(text ?? "");
   const out = [];
@@ -100,6 +99,7 @@ export function directDescriptorOccurrences(text, { encounterRef = "unknown" } =
       surface,
       determination: determinationOf(ws[0]),
       encounterRef,
+      contextTokens: contextualTokens(source, ws),
       giver: "text/individuation::directDescriptorOccurrences",
       basis: "closed-class determiner plus witnessed lexical form",
     }));
@@ -108,9 +108,7 @@ export function directDescriptorOccurrences(text, { encounterRef = "unknown" } =
   return Object.freeze(out.filter(Boolean));
 }
 
-/**
- * Recurrence earns an identity hypothesis, never timeless sameness.
- */
+/** Recurrence earns an identity hypothesis, never timeless sameness. */
 export function descriptorHypotheses(graphEntries = []) {
   const occurrences = graphEntries.filter((x) => x?.schema === "EOReferentOccurrence@1");
   const bySurface = new Map();
@@ -119,7 +117,6 @@ export function descriptorHypotheses(graphEntries = []) {
     if (!bySurface.has(key)) bySurface.set(key, []);
     bySurface.get(key).push(occ);
   }
-
   const hypotheses = [];
   for (const [surface, group] of bySurface) {
     if (group.length < 2) continue;
@@ -133,29 +130,15 @@ export function descriptorHypotheses(graphEntries = []) {
       determinations: Object.freeze(determinations),
       occurrenceRefs: Object.freeze(group.map((x) => x.id)),
       encounterRefs: Object.freeze(encounterRefs),
+      contextTokens: Object.freeze([...new Set(group.flatMap((x) => x.contextTokens ?? []))]),
       relationContexts: Object.freeze(group.map((x) => ({ edge: x.edge, relation: x.relation, role: x.role }))),
       standing: "live_hypothesis",
-      provenance: Object.freeze({
-        giver: "text/individuation::descriptorHypotheses",
-        basis: "same descriptor recurred across distinct encounters; identity remains defeasible",
-      }),
+      provenance: Object.freeze({ giver: "text/individuation::descriptorHypotheses", basis: "same descriptor recurred across distinct encounters; identity remains defeasible" }),
     }));
   }
   return Object.freeze(hypotheses);
 }
 
-/**
- * Project the Fold's present best referential commitment from an identity
- * hypothesis. This is deliberately REVERSIBLE.
- *
- * Repeated indefinite descriptions ("a servant", "a boat") do not imply one
- * being and are never canonicalised by recurrence alone. Repeated definite or
- * possessive descriptions carry a weak received language prior that the
- * discourse treats their target as identifiable. We may therefore expose a
- * provisional current referent while retaining every occurrence and the live
- * identity hypothesis that justified it. Later witness can SEG or DEF this
- * projection without changing the historical observations.
- */
 export function referentFromDescriptorHypothesis(hypothesis) {
   if (hypothesis?.schema !== "EOIdentityHypothesis@1") return null;
   const determinations = new Set(hypothesis.determinations ?? []);
@@ -169,9 +152,66 @@ export function referentFromDescriptorHypothesis(hypothesis) {
     identityHypothesis: hypothesis.id,
     standing: "provisional",
     revisable: true,
-    provenance: Object.freeze({
-      giver: "text/individuation::referentFromDescriptorHypothesis",
-      basis: "recurrent definite/possessive discourse reference; defeasible until challenged",
-    }),
+    provenance: Object.freeze({ giver: "text/individuation::referentFromDescriptorHypothesis", basis: "recurrent definite/possessive discourse reference; defeasible until challenged" }),
   });
+}
+
+const jaccard = (a, b) => {
+  const A = new Set(a ?? []), B = new Set(b ?? []);
+  if (!A.size || !B.size) return 0;
+  let intersection = 0;
+  for (const x of A) if (B.has(x)) intersection += 1;
+  return intersection / (A.size + B.size - intersection);
+};
+const quantile = (sorted, q) => {
+  if (!sorted.length) return 0;
+  const i = (sorted.length - 1) * q, lo = Math.floor(i), hi = Math.ceil(i);
+  return sorted[lo] + (sorted[hi] - sorted[lo]) * (i - lo);
+};
+
+/**
+ * Discover cross-surface identity ALTERNATIVES from context, not synonyms.
+ *
+ * Every definite/possessive descriptor pair is scored by overlap in the
+ * witnessed lexical contexts accumulated around its occurrences. The decision
+ * boundary is the material's own Tukey upper fence over positive pair scores,
+ * not a fixed similarity threshold. Clearing it opens an alternative only; it
+ * never SYNs referents. This is deliberately diagnostic until adversarial
+ * collision/recanonicalisation tests earn commitment.
+ */
+export function descriptorAliasAlternatives(hypotheses = []) {
+  const eligible = hypotheses.filter((h) => {
+    const d = new Set(h?.determinations ?? []);
+    return h?.schema === "EOIdentityHypothesis@1" && (d.has("definite") || d.has("possessive"));
+  });
+  const pairs = [];
+  for (let i = 0; i < eligible.length; i += 1) {
+    for (let j = i + 1; j < eligible.length; j += 1) {
+      const left = eligible[i], right = eligible[j];
+      const score = jaccard(left.contextTokens, right.contextTokens);
+      if (score <= 0) continue;
+      const shared = [...new Set(left.contextTokens)].filter((x) => new Set(right.contextTokens).has(x));
+      pairs.push({ left, right, score, shared });
+    }
+  }
+  const scores = pairs.map((p) => p.score).sort((a, b) => a - b);
+  const q1 = quantile(scores, 0.25), q3 = quantile(scores, 0.75);
+  const fence = q3 + (q3 - q1);
+  const alternatives = pairs
+    .filter((p) => p.score > fence)
+    .sort((a, b) => b.score - a.score)
+    .map((p, index) => Object.freeze({
+      schema: "EOIdentityAlternative@1",
+      id: `identity-alt:${slug(p.left.surface)}:${slug(p.right.surface)}:${index}`,
+      left: p.left.id,
+      right: p.right.id,
+      leftSurface: p.left.surface,
+      rightSurface: p.right.surface,
+      score: p.score,
+      nullFence: fence,
+      sharedContext: Object.freeze(p.shared),
+      standing: "unresolved",
+      provenance: Object.freeze({ giver: "text/individuation::descriptorAliasAlternatives", basis: "context overlap exceeds this material's own pairwise null fence; not yet SYN" }),
+    }));
+  return Object.freeze({ schema: "EODescriptorAliasFrontier@1", fence, pairCount: pairs.length, alternatives: Object.freeze(alternatives) });
 }
