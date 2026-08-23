@@ -8,6 +8,7 @@ const pair = (left, right) => `${stable(left)}\u0000${stable(right)}`;
 const rawParticipant = (edge, role) => (edge?.participants ?? []).find((p) => p?.role === role) ?? null;
 const occurrenceOf = (participant) => participant?.occurrence ?? (participant?.standing === "unresolved_surface" ? participant?.ref : null);
 const predicateEligible = (edge) => edge?.meta?.compositionStanding?.eligible !== false;
+const OCCURRENCE_BINDING_SCHEMAS = new Set(["EOPronounBinding@1", "EODefiniteBinding@1"]);
 
 function endpointOf(participant, bindings) {
   if (!participant) return null;
@@ -133,7 +134,7 @@ export function createRelationCompositionLedger(entries = []) {
   };
 
   const rememberBinding = (binding) => {
-    if (binding?.schema !== "EOPronounBinding@1" || !binding?.occurrence || !binding?.referent) return false;
+    if (!OCCURRENCE_BINDING_SCHEMAS.has(binding?.schema) || !binding?.occurrence || !binding?.referent) return false;
     const prior = bindings.get(binding.occurrence);
     if (prior?.id === binding.id && prior?.referent === binding.referent) return false;
     bindings.set(binding.occurrence, binding);
