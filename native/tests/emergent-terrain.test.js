@@ -37,7 +37,11 @@ function materialObligation(id, ground) {
     grounds: Object.freeze([ground]),
     alternatives: Object.freeze([]),
     consequences: Object.freeze([{ kind: "relation_attribution", edge: ground }]),
-    distinction: Object.freeze({ materiality: Object.freeze({ makesDifference: true }) }),
+    distinction: Object.freeze({
+      target: ground,
+      relation: "identity",
+      materiality: Object.freeze({ makesDifference: true, reasons: Object.freeze([{ kind: "live_dependent_projection" }]) }),
+    }),
   });
 }
 
@@ -81,7 +85,7 @@ test("recursive text perception carries explicit classification as evidence, not
   assert.equal(evidence.terrain, undefined);
 });
 
-test("co-present witnessed links project Field and earned referent topology projects Network", () => {
+test("co-present witnessed links project Field and connected referent topology projects Network", () => {
   const edgeA = hyperedge({
     id: "edge:a", relation: "saw", witness: "fixture:a", scope: { sequencePosition: 1 }, eo: { op: "CON", grain: "Figure" },
     participants: [{ ref: victor.id, standing: "referent", role: "subject" }, { ref: "occ:a", standing: "unresolved_surface", role: "object" }],
@@ -97,8 +101,10 @@ test("co-present witnessed links project Field and earned referent topology proj
   assert.equal(orientation.terrainCounts.Field, 1);
   assert.equal(orientation.terrainCounts.Network, 1);
   assert.deepEqual([...orientation.terrainState.Field[0].edgeRefs].sort(), ["edge:a", "edge:b"]);
-  assert.equal(orientation.terrainState.Network[0].bridgeRef, victor.id);
+  assert.deepEqual(orientation.terrainState.Network[0].referentRefs, [victor.id]);
   assert.deepEqual([...orientation.terrainState.Network[0].edgeRefs].sort(), ["edge:a", "edge:b"]);
+  assert.equal(orientation.terrainState.Network[0].topology.topology, "acyclic");
+  assert.equal(orientation.terrainState.Network[0].topology.cycleRank, 0);
   assert.equal(orientation.terrainState.Field[0].witnessed, false);
   assert.equal(orientation.terrainState.Network[0].witnessed, false);
 
@@ -107,7 +113,7 @@ test("co-present witnessed links project Field and earned referent topology proj
   assert.ok(networkMoves.every((move) => move.stanceContinuity === false));
 });
 
-test("incremental Network projection honors a later binding without rewriting raw witness", () => {
+test("incremental Network topology honors a later binding without rewriting raw witness", () => {
   const edgeA = hyperedge({
     id: "edge:bound:a", relation: "saw", witness: "fixture:bound:a", scope: { sequencePosition: 2 }, eo: { op: "CON", grain: "Figure" },
     participants: [{ ref: victor.id, standing: "referent", role: "subject" }, { ref: "occ:other", standing: "unresolved_surface", role: "object" }],
@@ -122,24 +128,36 @@ test("incremental Network projection honors a later binding without rewriting ra
   indexEmergentTerrainEntries(index, [binding]);
   const state = snapshotEmergentTerrainState(index);
   assert.equal(state.Network.length, 1);
-  assert.equal(state.Network[0].bridgeRef, victor.id);
+  assert.deepEqual(state.Network[0].referentRefs, [victor.id]);
   assert.deepEqual([...state.Network[0].edgeRefs].sort(), [edgeA.id, edgeB.id].sort());
   assert.equal(edgeB.participants[0].standing, "unresolved_surface");
   assert.equal(edgeB.participants[0].ref, "occ:he");
 });
 
-test("material unresolved interpretation projects Atmosphere; repeated independent material lenses project Paradigm", () => {
+test("material unresolved interpretation projects Atmosphere; only compressive independent lenses project Paradigm", () => {
   const obligations = [
     materialObligation("obligation:identity:a", "edge:a"),
     materialObligation("obligation:identity:b", "edge:b"),
+    materialObligation("obligation:identity:c", "edge:c"),
   ];
   const fold = receivedGround({ obligations });
   const orientation = deriveOrientation(fold);
   assert.equal(orientation.terrainCounts.Atmosphere, 1);
   assert.equal(orientation.terrainCounts.Paradigm, 1);
   assert.deepEqual([...orientation.terrainState.Atmosphere[0].obligationRefs].sort(), obligations.map((item) => item.id).sort());
-  assert.equal(orientation.terrainState.Paradigm[0].pattern, "identity");
-  assert.equal(orientation.terrainState.Paradigm[0].groundRefs.length, 2);
+  assert.ok(orientation.terrainState.Atmosphere[0].field.totalEnergy > 0);
+  assert.equal(orientation.terrainState.Paradigm[0].groundRefs.length, 3);
+  assert.ok(orientation.terrainState.Paradigm[0].model.compressionGain > 0);
+});
+
+test("two trivial repetitions do not yet earn Paradigm because they do not compress", () => {
+  const obligations = [
+    Object.freeze({ ...materialObligation("obligation:identity:a", "edge:a"), distinction: Object.freeze({ materiality: Object.freeze({ makesDifference: true }) }) }),
+    Object.freeze({ ...materialObligation("obligation:identity:b", "edge:b"), distinction: Object.freeze({ materiality: Object.freeze({ makesDifference: true }) }) }),
+  ];
+  const orientation = deriveOrientation(receivedGround({ obligations }));
+  assert.equal(orientation.terrainCounts.Atmosphere, 1);
+  assert.equal(orientation.terrainCounts?.Paradigm ?? 0, 0);
 });
 
 test("recurrence without material consequence cannot bootstrap Atmosphere or Paradigm", () => {
