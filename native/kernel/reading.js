@@ -73,9 +73,8 @@ function compositionOperations(composition, fold = {}) {
       id: obligationId,
       distinction: {
         composition: withheld.id,
-        from: withheld.from,
-        bridge: withheld.bridge,
-        to: withheld.to,
+        referentRefs: [...(withheld.referentRefs ?? [])],
+        instances: [...(withheld.instances ?? [])],
         leftPredicate: withheld.leftPredicate,
         rightPredicate: withheld.rightPredicate,
       },
@@ -144,7 +143,7 @@ export function createRecursiveReader({ seed = {}, priors = [], perceivers = [],
       ...compositionOperations(composition, beforeFold),
     ], { id: baseDelta.id ?? `delta:${currentEncounter.sequencePosition ?? log.length}` });
 
-    log.push(currentEncounter, ...observations, ...taskEvidence, ...composition.withheld, ...composition.licensed, canonicalDelta);
+    log.push(currentEncounter, ...observations, ...taskEvidence, canonicalDelta);
     let nextFold = beforeFold;
     for (const observation of observations) nextFold = applyObservation(nextFold, observation);
     nextFold = applyDelta(nextFold, canonicalDelta);
