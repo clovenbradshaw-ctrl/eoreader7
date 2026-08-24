@@ -2,10 +2,13 @@ export { MODES, DOMAINS, GRAINS, TERRAIN_BY_DOMAIN, STANCE_BY_MODE, cellOf, alge
 export { TERRAINS, terrainOf, createTerrainIndex, indexTerrainEntries, snapshotTerrainState, snapshotTerrainReferents, projectTerrainState, terrainCounts } from "./terrain-state.js";
 export { createEmergentTerrainIndex, indexEmergentTerrainEntries, snapshotEmergentTerrainState, projectEmergentTerrains, mergeTerrainStates } from "./emergent-terrain.js";
 export { shannonEntropy, structuralFieldGeometry, relationNetworkComponents, interpretiveAtmosphereField, interpretiveSignature, interpretiveParadigmModels } from "./terrain-math.js";
+export { interpretiveAtmosphereFactorField } from "./atmosphere-math.js";
 export { interpretiveLensGeometry, projectLensGeometry } from "./lens-math.js";
 export { createIdentityQuotientIndex, indexIdentityQuotientEntries, snapshotIdentityQuotient, projectIdentityQuotient } from "./identity-quotient.js";
 export { kindEvidence, createKindInductionIndex, indexKindEntries, snapshotKindState, kindDiagnostics, kindCandidates, projectKinds } from "./kind-induction.js";
 export { induceEntityParameters, induceEntityKindCandidates, profileJaccard } from "./entity-kind-induction.js";
+export { jensenShannonDivergence, totalVariationDistance, prospectiveBehavioralEquivalence } from "./kind-behavior.js";
+export { createKindBehaviorAdmissionLedger } from "./kind-behavior-admission.js";
 export { createKindBasinAdmissionLedger } from "./kind-basin-admission.js";
 export { kindFeatureSignature, kindPrior, deriveKindPriors, rankKindPriorHypotheses, snapshotEntityKindPriorHypotheses, conditionKindProjections } from "./kind-priors.js";
 export { STANCES, stanceOf, createStanceIndex, indexStanceEntries, snapshotStanceState, projectStanceState, stanceCounts } from "./stance-state.js";
