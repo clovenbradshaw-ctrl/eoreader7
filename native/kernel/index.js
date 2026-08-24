@@ -12,3 +12,6 @@ export { obligation, openObligation, resolveObligation, carryObligations } from 
 export { ENTRY_KINDS, OPERATOR_BASIS, OPERATOR_ORDER, createTaskLog, append as appendTaskLog, projectTasks } from "./task-log.js";
 export { createReadingTaskState, obligationMakesDifference, taskForObligation, taskPriority, scheduleTasks, reconcileObligationTasks, proposeObligationTasks, wakeTasks, executeClarificationTask, appendTaskResult } from "./reading-tasks.js";
 export { encounter, challengeCandidates, createRecursiveReader } from "./reading.js";
+export { deriveExperiencePrior, mergeExperiencePriors, experienceNetworkSignatureKey } from "./experience-priors.js";
+export { mergeReceivedPriors, createPriorConditionedReader } from "./experienced-reading.js";
+export { deriveRhythmPrior, mergeRhythmPriors, composeExperience, scoreRhythmExpectations, readingGaps, medianOf } from "./rhythm-priors.js";
