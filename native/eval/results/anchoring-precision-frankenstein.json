@@ -6,6 +6,7 @@
       "minActivation": 0.05,
       "minMargin": 0.2
     },
+    "canonicalizationFloor": 2,
     "posPrior": "bin/priors/pos/en-ud-ewt.json"
   },
   "creatureClass": {
@@ -260,6 +261,7 @@
         "left": "safie",
         "right": "the dæmon"
       }
-    ]
+    ],
+    "projectedFalseCanonicals": []
   }
 }

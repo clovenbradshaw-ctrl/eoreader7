@@ -215,3 +215,42 @@ not just the previous paragraph. Shuffled runs also show large reach
 values, as they must (under a permutation, "position read" is arbitrary),
 so reach is the descriptive sharpening of the claim; the COUNT (55 vs
 21/12) remains the ordered-vs-shuffled separator.
+
+---
+
+# Third amendment, same day — the corroboration floor, and the experiment's verdict
+
+`deriveIdentityRevision` gained a declared `canonicalizationFloor`
+(kernel/identity.js): an alternative projects into canonical edges only at
+`supportRefs >= floor`; the alternative itself stays live, attackable, and
+accumulating evidence — only projection is gated. Both evals declare
+floor 2 (binding.js's structural minimum, the same giver P29's
+WITNESS_FLOOR cites). Absent, behavior is byte-identical (pinned in
+identity-revision.test.js, 4/4).
+
+This was run as an experiment with both outcomes stated in advance:
+either the ordered-vs-shuffled REC signal survived on corroborated
+identity alone (stronger claim), or it collapsed (the signal was riding
+on single-witness bindings — reported honestly). **It resolved on the
+strong side of both questions:**
+
+| floor 2, full novel | ordered | shuffled #0 | shuffled #1 |
+|---|---|---|---|
+| past recanonicalized | 11 | 2 | 1 |
+| separation | — | **5.5×** | **11×** |
+| median reach (sentences) | 749 | (n=2) | (n=1) |
+
+- **The order signal sharpened, not died.** Raw separation was 2.6–4.6×;
+  corroborated separation is 5.5–11×. Earning two independent supports
+  for the SAME pairing is itself an order-dependent event — coherent
+  discourse revisits a descriptor-referent association; shuffled text
+  almost never does.
+- **Projected false belief: 0 of 94.** The coref negative control's six
+  surviving false alternatives remain on the fold as live single-witness
+  hypotheses (evidence is never discarded), and none of them now reaches
+  a canonical edge (`projectedFalseCanonicals: []` in the committed
+  precision JSON).
+
+Disclosed as before: two shuffle draws license direction, not effect
+size; the uncovered 1,758 bindings stay unmeasured; expectations and
+obligations remain zero — the prediction side is still the open half.

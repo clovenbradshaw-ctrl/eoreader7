@@ -17,6 +17,7 @@
       "minActivation": 0.05,
       "minMargin": 0.2
     },
+    "canonicalizationFloor": 2,
     "grain": "sentence — the tier ladder is disclosed future work, not implied"
   },
   "ordered": {
@@ -25,12 +26,12 @@
       "turns": 3392,
       "hypothesesFinal": 1639,
       "finalDistinct": 441,
-      "pastRemadeTotal": 55,
+      "pastRemadeTotal": 11,
       "pastRemadeReach": {
-        "n": 55,
+        "n": 11,
         "median": 749,
-        "max": 2046,
-        "min": 82
+        "max": 1653,
+        "min": 197
       },
       "firstCanonTotal": 53,
       "splitsTotal": 441,
@@ -70,7 +71,7 @@
       {
         "cursor": 848,
         "after": 2544,
-        "pastRemade": 55,
+        "pastRemade": 11,
         "firstCanonicalizations": 50,
         "identitySplits": 371,
         "hypothesesOpened": 1183,
@@ -81,7 +82,7 @@
       {
         "cursor": 1696,
         "after": 1696,
-        "pastRemade": 36,
+        "pastRemade": 11,
         "firstCanonicalizations": 39,
         "identitySplits": 245,
         "hypothesesOpened": 789,
@@ -92,7 +93,7 @@
       {
         "cursor": 2544,
         "after": 848,
-        "pastRemade": 29,
+        "pastRemade": 6,
         "firstCanonicalizations": 22,
         "identitySplits": 120,
         "hypothesesOpened": 376,
@@ -109,12 +110,12 @@
         "turns": 3392,
         "hypothesesFinal": 1438,
         "finalDistinct": 382,
-        "pastRemadeTotal": 21,
+        "pastRemadeTotal": 2,
         "pastRemadeReach": {
-          "n": 21,
-          "median": 1316,
+          "n": 2,
+          "median": 1557,
           "max": 2645,
-          "min": 281
+          "min": 469
         },
         "firstCanonTotal": 41,
         "splitsTotal": 382,
@@ -154,7 +155,7 @@
         {
           "cursor": 848,
           "after": 2544,
-          "pastRemade": 21,
+          "pastRemade": 1,
           "firstCanonicalizations": 40,
           "identitySplits": 315,
           "hypothesesOpened": 1247,
@@ -165,7 +166,7 @@
         {
           "cursor": 1696,
           "after": 1696,
-          "pastRemade": 19,
+          "pastRemade": 1,
           "firstCanonicalizations": 33,
           "identitySplits": 226,
           "hypothesesOpened": 813,
@@ -176,7 +177,7 @@
         {
           "cursor": 2544,
           "after": 848,
-          "pastRemade": 15,
+          "pastRemade": 1,
           "firstCanonicalizations": 24,
           "identitySplits": 126,
           "hypothesesOpened": 356,
@@ -192,12 +193,12 @@
         "turns": 3392,
         "hypothesesFinal": 1733,
         "finalDistinct": 502,
-        "pastRemadeTotal": 12,
+        "pastRemadeTotal": 1,
         "pastRemadeReach": {
-          "n": 12,
-          "median": 590,
-          "max": 1048,
-          "min": 5
+          "n": 1,
+          "median": 400,
+          "max": 400,
+          "min": 400
         },
         "firstCanonTotal": 32,
         "splitsTotal": 502,
@@ -237,7 +238,7 @@
         {
           "cursor": 848,
           "after": 2544,
-          "pastRemade": 12,
+          "pastRemade": 1,
           "firstCanonicalizations": 32,
           "identitySplits": 415,
           "hypothesesOpened": 1200,
@@ -248,7 +249,7 @@
         {
           "cursor": 1696,
           "after": 1696,
-          "pastRemade": 12,
+          "pastRemade": 1,
           "firstCanonicalizations": 30,
           "identitySplits": 268,
           "hypothesesOpened": 797,
@@ -259,7 +260,7 @@
         {
           "cursor": 2544,
           "after": 848,
-          "pastRemade": 11,
+          "pastRemade": 1,
           "firstCanonicalizations": 17,
           "identitySplits": 134,
           "hypothesesOpened": 404,
