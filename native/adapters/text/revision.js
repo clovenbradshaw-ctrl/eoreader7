@@ -184,12 +184,23 @@ export async function reviseTextFold({ observations = [], fold = {}, graph = nul
     });
   }
 
-  const identityDelta = deriveIdentityRevision({
-    fold: { ...fold, graphEntries: [...(fold?.graphEntries ?? []), ...currentGraphEntries] },
-    supports: identitySupports,
-    attacks: identityAttacks,
-  });
-  operations.push(...identityDelta.operations);
+  // deriveIdentityRevision produces no operations when it has neither
+  // support nor attack evidence for THIS turn (both loops it runs are then
+  // empty) -- but building its `fold` argument means copying every
+  // graphEntries seen so far, every turn, whether or not that work is ever
+  // used. Appositional identity evidence is a narrow, rare grammatical
+  // shape (identity-evidence.js's own supportEvidence/attackEvidence), so
+  // most turns have none; skip the copy and the call entirely when neither
+  // list has anything to revise, rather than pay an O(book-so-far) copy on
+  // every turn to compute an empty delta.
+  if (identitySupports.length || identityAttacks.length) {
+    const identityDelta = deriveIdentityRevision({
+      fold: { ...fold, graphEntries: [...(fold?.graphEntries ?? []), ...currentGraphEntries] },
+      supports: identitySupports,
+      attacks: identityAttacks,
+    });
+    operations.push(...identityDelta.operations);
+  }
 
   return deltaFold(operations);
 }
