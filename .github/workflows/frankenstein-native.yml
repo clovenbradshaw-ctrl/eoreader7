@@ -29,3 +29,5 @@ jobs:
           test -s /tmp/frankenstein.txt
       - name: Read Frankenstein through native EOReader 7
         run: node native/eval/frankenstein.mjs /tmp/frankenstein.txt
+      - name: Reason and generate over the full Frankenstein Fold
+        run: node native/eval/frankenstein-stance.mjs /tmp/frankenstein.txt
