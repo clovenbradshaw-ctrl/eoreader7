@@ -108,6 +108,107 @@
    }
   }
  },
+ "lever3_actClosure": {
+  "prior": {
+   "giver": "UniMorph English (github.com/unimorph/eng)",
+   "language": "eng",
+   "irregularForms": 5531
+  },
+  "measuredActs": 43,
+  "formsAfterClosure": 120,
+  "addedSample": [
+   {
+    "form": "do",
+    "sameActAs": "does"
+   },
+   {
+    "form": "become",
+    "sameActAs": "became"
+   },
+   {
+    "form": "seeming",
+    "sameActAs": "seemed"
+   },
+   {
+    "form": "had",
+    "sameActAs": "has"
+   },
+   {
+    "form": "dying",
+    "sameActAs": "died"
+   },
+   {
+    "form": "done",
+    "sameActAs": "does"
+   },
+   {
+    "form": "see",
+    "sameActAs": "saw"
+   },
+   {
+    "form": "appear",
+    "sameActAs": "appeared"
+   },
+   {
+    "form": "endeavour",
+    "sameActAs": "endeavoured"
+   },
+   {
+    "form": "desire",
+    "sameActAs": "desired"
+   },
+   {
+    "form": "reply",
+    "sameActAs": "replied"
+   },
+   {
+    "form": "becoming",
+    "sameActAs": "became"
+   },
+   {
+    "form": "call",
+    "sameActAs": "called"
+   },
+   {
+    "form": "having",
+    "sameActAs": "has"
+   },
+   {
+    "form": "going",
+    "sameActAs": "went"
+   },
+   {
+    "form": "come",
+    "sameActAs": "came"
+   },
+   {
+    "form": "look",
+    "sameActAs": "looked"
+   },
+   {
+    "form": "continue",
+    "sameActAs": "continued"
+   },
+   {
+    "form": "say",
+    "sameActAs": "said"
+   },
+   {
+    "form": "endeavours",
+    "sameActAs": "endeavoured"
+   }
+  ],
+  "extraction": {
+   "beforeClosure": {
+    "edges": 2621,
+    "pronounEnds": 176
+   },
+   "afterClosure": {
+    "edges": 3643,
+    "pronounEnds": 230
+   }
+  }
+ },
  "lever1_anchorSpans": {
   "boundPronounSpans": 328,
   "vocabulary": {

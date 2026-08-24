@@ -104,3 +104,33 @@ rule: before building any reading mechanism in this repo, check P0–P7 and
 A1–A25 for the prior attempt; cite the entry when building on or departing
 from it. New refuted attempts are appended there (or here, when v7-specific),
 never merely fixed in silence.
+
+## S9 — Low sets possible for high; high sets probability for low
+
+The two directions of inference are different in KIND, and every
+subassembly declares which direction each of its inputs works:
+
+**Upward is possibility.** What exists at a lower level — the material's
+own tokens, occurrences, arrivals — sets what MAY exist above it. Nothing
+above may manufacture possibility: a received prior, however good, admits
+no form the material does not attest (the constitution's "grammar priors
+refuse and never admit" is this law's special case); a plan's words grant
+no retrieval the question's words did not (the-fold's holonic deviation,
+disclosed there); a measured act licenses no inflection the book does not
+contain.
+
+**Downward is probability.** What is established at a higher level — a
+measured act, a bound identity, a witnessed structure — sets which of the
+possible below is EXPECTED, heard, or admitted. Nothing below may assign
+standing by itself: recurrence alone admitting descriptor beings was this
+violation, measured ("the murder" recurred like a being and was admitted
+like one; levers-RESULTS.md) — the low evidence was real, and the standing
+it claimed was the high's to grant.
+
+The session's own levers are the law's worked examples, one per direction:
+`anchorSpans` (a BOUND identity — high — licenses a token position — low —
+as an anchor; the bare string "he" licenses nothing), and `actClosure`
+(the material's tokens — low — are the possibility wall; the measured act
+— high — selects which possible forms are heard; the prior only decides
+sameness and admits nothing). A violation in either direction reads the
+same way at review: an input crossing levels without naming its direction.

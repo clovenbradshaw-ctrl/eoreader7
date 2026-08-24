@@ -31,6 +31,9 @@ import { castSurfaceMap, bindNarrationFrames } from "../adapters/text/perspectiv
 import { resolvePronounsByActivation, sameClause, findThirdPersonSingular } from "../adapters/text/pronouns.js";
 import { createActivation } from "../kernel/activation.js";
 import { tokenize, buildFrequencyTable, functionWordSet } from "../adapters/text/material.js";
+import { actClosure } from "../adapters/text/morphology.js";
+import { boundAnchorSpans, agencyEvidence } from "../adapters/text/vocabulary.js";
+import { createLemmatizer, loadMorphology } from "../../legacy-eoreader6.1/packages/engine/perceiver/text/morphology.js";
 import { createSession, admitChunked, sessionReferents } from "../../legacy-eoreader6.1/packages/host/corpus.js";
 
 const POS_PRIOR = JSON.parse(fs.readFileSync(new URL("../../legacy-eoreader6.1/bin/priors/pos/en-ud-ewt.json", import.meta.url), "utf8"));
@@ -72,33 +75,12 @@ async function main() {
   }
 
   // ── lever 2: descriptor beings ────────────────────────────────────────
-  // Being evidence = AGENCY: the descriptor standing in the SUBJECT slot of
-  // a verb the material itself measured (the same slot discoverRelationVocab
-  // anchors on — no new class, no new number). Clause-local pronoun
-  // co-occurrence was tried first and REFUTED by its own run on this book:
-  // "he paced the deck" handed the deck person evidence, because
-  // co-occurrence is not co-reference. Kept here as the recorded dead end.
+  // Being evidence = AGENCY (adapters/text/vocabulary.js — the S9
+  // high->low direction; the co-occurrence dead end is recorded in
+  // levers-RESULTS.md and in the subassembly's own tests).
   const surfacesOnlyVocab = discoverRelationVocab(stripped.text, { surfaces: [...surfaceToReferent.keys()], functionWords: null, minSurfaces: MIN_SURFACES, posPrior: POS_PRIOR }).verbs;
-  // An auxiliary is not an act: "the murder was" is existence-speak, not
-  // agency, and the vocab counts AUX as verb-dominant (right for hearing
-  // arrangements, wrong for witnessing agency). Refuse-only use of the
-  // treebank: an agency witness must be attested with VERB strictly ahead
-  // of AUX; a copula never testifies that its subject acts.
-  const agencyVerbs = new Set([...surfacesOnlyVocab].filter((v) => {
-    const f = POS_PRIOR.forms?.[v];
-    return f && (f.VERB ?? 0) > (f.AUX ?? 0);
-  }));
   const descriptorSet = new Set(occurrences.filter((o) => o.determination === "definite").map((o) => String(o.canonicalSurface ?? "").toLowerCase()).filter(Boolean));
-  const beingEvidence = new Map();
-  {
-    const lowerText = stripped.text.toLowerCase();
-    for (const d of descriptorSet) {
-      const re = new RegExp(`\\b${d.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\s+([\\p{L}'’]+)`, "giu");
-      let m, n = 0;
-      while ((m = re.exec(lowerText)) && n < 50) { if (agencyVerbs.has(m[1])) n += 1; }
-      if (n > 0) beingEvidence.set(d, n);
-    }
-  }
+  const beingEvidence = agencyEvidence(stripped.text, descriptorSet, surfacesOnlyVocab, { posForms: POS_PRIOR.forms });
   const admitted = descriptorBeings(occurrences, { minArrivals: MIN_ARRIVALS, anchoredSurfaces, beingEvidence });
   const widenedSurfaces = new Map(surfaceToReferent);
   for (const b of admitted.beings) widenedSurfaces.set(b.display, b.id);
@@ -116,26 +98,9 @@ async function main() {
   // ── lever 1: anchorSpans from bound pronouns ──────────────────────────
   const table = buildFrequencyTable(tokenize(stripped.text));
   const closed = (() => { const c = functionWordSet(table); return c.size * 2 < table.freq.size ? c : new Set(); })();
-  const boundSpans = [];
-  const seenAt = new Set();
-  for (const arm of [wide.thematic, wide.present]) {
-    for (const b of arm.boundSentences) {
-      // a bound SENTENCE names the pronoun token; anchor every occurrence of
-      // that token inside the sentence's own range (the organ bound the
-      // sentence on it, and offsets here are stripped-text indices)
-      const from = b.start - stripped.offset;
-      const to = b.end - stripped.offset;
-      const slice = stripped.text.slice(from, to);
-      const re = new RegExp(`\\b${b.pronoun}\\b`, "gi");
-      let m;
-      while ((m = re.exec(slice))) {
-        const at = from + m.index;
-        if (seenAt.has(at)) continue;
-        seenAt.add(at);
-        boundSpans.push({ index: at, length: b.pronoun.length, anchor: b.referentId });
-      }
-    }
-  }
+  const armBound = [...wide.thematic.boundSentences, ...wide.present.boundSentences]
+    .map((b) => ({ ...b, start: b.start - stripped.offset, end: b.end - stripped.offset }));
+  const boundSpans = boundAnchorSpans(armBound, stripped.text);
   const surfaces = [...widenedSurfaces.keys()];
   const shared = { surfaces, functionWords: closed, minSurfaces: MIN_SURFACES, posPrior: POS_PRIOR };
   const baseVocab = discoverRelationVocab(stripped.text, shared);
@@ -151,6 +116,15 @@ async function main() {
   const baseEdges = countEdges(baseVocab.verbs);
   const leverEdges = countEdges(leverVocab.verbs);
 
+  // ── lever 3: the act closure (morphology) ─────────────────────────────
+  // Every attested inflection of a measured act, decided by the engine's
+  // own lemmatizer over the vendored UniMorph prior (giver in the file).
+  const morphPrior = loadMorphology(new URL("../priors/morphology-eng.json", import.meta.url).pathname);
+  const lemmatizer = createLemmatizer(morphPrior.forms, { language: morphPrior.language });
+  const tokenTypes = [...new Set(tokenize(stripped.text))];
+  const closure = actClosure(leverVocab.verbs, tokenTypes, lemmatizer);
+  const closureEdges = countEdges(closure.forms);
+
   console.log(JSON.stringify({
     schema: "EOLeversRun@1",
     book: path.split("/").pop(),
@@ -165,6 +139,13 @@ async function main() {
         thematic: { narrow: narrow.thematic.boundSentences.length, widened: wide.thematic.boundSentences.length, toDescriptorBeings: toDescriptorBeings(wide.thematic) },
         activation: { narrow: narrow.present.boundSentences.length, widened: wide.present.boundSentences.length, toDescriptorBeings: toDescriptorBeings(wide.present) },
       },
+    },
+    lever3_actClosure: {
+      prior: { giver: morphPrior.giver, language: morphPrior.language, irregularForms: lemmatizer.size },
+      measuredActs: leverVocab.verbs.size,
+      formsAfterClosure: closure.forms.size,
+      addedSample: closure.added.slice(0, 20),
+      extraction: { beforeClosure: leverEdges, afterClosure: closureEdges },
     },
     lever1_anchorSpans: {
       boundPronounSpans: boundSpans.length,
