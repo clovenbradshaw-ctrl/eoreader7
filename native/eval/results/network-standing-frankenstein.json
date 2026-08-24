@@ -163,5 +163,111 @@
    "detail": "observed co-arrival does not clear its own displacement null at alpha 0.05 — company kept by chance is not a bond"
   }
  ],
+ "direction": {
+  "oriented": 34,
+  "undetermined": 43,
+  "topOriented": [
+   {
+    "a": "ref:auto:france",
+    "b": "ref:auto:paris",
+    "coArrivals": 6,
+    "reversalP": 0,
+    "reseedP": 0,
+    "direction": "b→a",
+    "polarity": "−",
+    "strength": 0.004446141540913752
+   },
+   {
+    "a": "ref:auto:mrs",
+    "b": "ref:auto:england",
+    "coArrivals": 4,
+    "reversalP": 0,
+    "reseedP": 0,
+    "direction": "a→b",
+    "polarity": "+",
+    "strength": 0.0036016963018935147
+   },
+   {
+    "a": "ref:auto:felix",
+    "b": "ref:auto:agatha",
+    "coArrivals": 59,
+    "reversalP": 0,
+    "reseedP": 0,
+    "direction": "b→a",
+    "polarity": "−",
+    "strength": 0.003128224816134476
+   },
+   {
+    "a": "ref:auto:safie",
+    "b": "ref:auto:de_lacey",
+    "coArrivals": 5,
+    "reversalP": 0,
+    "reseedP": 0.005025125628140704,
+    "direction": "b→a",
+    "polarity": "−",
+    "strength": 0.0027138273150928644
+   },
+   {
+    "a": "ref:auto:belrive",
+    "b": "ref:auto:jura",
+    "coArrivals": 1,
+    "reversalP": 0,
+    "reseedP": 0,
+    "direction": "a→b",
+    "polarity": "+",
+    "strength": 0.002350480428447401
+   },
+   {
+    "a": "ref:auto:felix",
+    "b": "ref:auto:arabian",
+    "coArrivals": 25,
+    "reversalP": 0,
+    "reseedP": 0,
+    "direction": "b→a",
+    "polarity": "−",
+    "strength": 0.002044685943614981
+   },
+   {
+    "a": "ref:auto:safie",
+    "b": "ref:auto:turk",
+    "coArrivals": 24,
+    "reversalP": 0,
+    "reseedP": 0,
+    "direction": "a→b",
+    "polarity": "+",
+    "strength": 0.0019898503987191016
+   },
+   {
+    "a": "ref:auto:chamounix",
+    "b": "ref:auto:switzerland",
+    "coArrivals": 2,
+    "reversalP": 0.005025125628140704,
+    "reseedP": 0.010050251256281407,
+    "direction": "b→a",
+    "polarity": "−",
+    "strength": 0.001982668314618026
+   },
+   {
+    "a": "ref:auto:arabian",
+    "b": "ref:auto:leghorn",
+    "coArrivals": 7,
+    "reversalP": 0,
+    "reseedP": 0.020100502512562814,
+    "direction": "a→b",
+    "polarity": "+",
+    "strength": 0.0017084314658792515
+   },
+   {
+    "a": "ref:auto:safie",
+    "b": "ref:auto:leghorn",
+    "coArrivals": 16,
+    "reversalP": 0,
+    "reseedP": 0,
+    "direction": "b→a",
+    "polarity": "−",
+    "strength": 0.0016715768296051016
+   }
+  ]
+ },
  "note": "presence lights every raw pair (terrain-activation); standing is only what clears its own null — the two counts differing IS the finding (P6)"
 }

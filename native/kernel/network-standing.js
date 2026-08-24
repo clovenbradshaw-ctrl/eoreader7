@@ -56,3 +56,38 @@ export function networkStanding(beings = [], { bindLinks, window, draws, seed, a
   edges.sort((x, y) => y.coArrivals - x.coArrivals);
   return { edges, refused, belowFloor, declared: { window, draws, seed, alpha }, pairsTested: pairs.length };
 }
+
+/**
+ * directedEdges — direction and polarity for pairs that ALREADY have
+ * standing, via the engine's own buildLink (reversal null for direction,
+ * reseed null as the witness gate's third test — injected whole, never
+ * reassembled from halves).
+ *
+ * S9 ordering, stated: the directed question is asked ONLY of pairs the
+ * displacement null admitted — standing (high) licenses which pairs get
+ * the more expensive directed test (low), and a pair the reversal null
+ * cannot orient stays typed `direction_undetermined`, never guessed from
+ * raw asymmetry. `totalUnits` is the reading's own length in its own
+ * fold unit — the caller's fact, declared.
+ */
+export function directedEdges(beings = [], edges = [], { buildLink, totalUnits, draws, seed } = {}) {
+  if (typeof buildLink !== "function")
+    throw new TypeError("directedEdges: buildLink is injected — the engine's own three-null gate, never a private reimplementation");
+  const byId = new Map(beings.map((b) => [b.id, b]));
+  const directed = [];
+  const undetermined = [];
+  edges.forEach((e, i) => {
+    const a = byId.get(e.a);
+    const b = byId.get(e.b);
+    if (!a || !b) return;
+    const link = buildLink({ a, b, overlap: e.coArrivals }, { totalUnits, draws, seed: seed + i * 13 });
+    const row = {
+      a: e.a, b: e.b, coArrivals: e.coArrivals,
+      reversalP: link.nulls.reversal.pValue,
+      reseedP: link.nulls.reseed.pValue,
+    };
+    if (link.direction) directed.push({ ...row, direction: link.direction, polarity: link.polarity, strength: link.strength });
+    else undetermined.push({ ...row, reason: "direction_undetermined", detail: "the reversal null cannot orient this pair — mutual company has no measured leader" });
+  });
+  return { directed, undetermined };
+}

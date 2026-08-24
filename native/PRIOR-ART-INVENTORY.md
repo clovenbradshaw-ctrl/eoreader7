@@ -37,9 +37,13 @@ LINK_SPEC cut (draws 199, alpha 0.05) cited from the certified consumer.
 Disclosed residue: Clerval–Henry ranks as a top "bond" because the native
 path has not merged the alias — self-company reads as a bond until
 coreference does (the-fold P40's referentFace lesson, surfacing here).
-Transfer-entropy direction/polarity (the organ's other half) remains
-unconsumed. Not yet wired into terrain projection — driver + kernel organ
-only.
+Transfer-entropy direction/polarity NOW CONSUMED too
+(directedEdges — buildLink injected whole, three-null gate): 34 of 77
+admitted Frankenstein edges orient (Agatha→Felix, De Lacey→Safie — the
+book's own scene-unfolding precedence, and the organ's header is honored
+in the reporting: directed PREDICTION, never causation), 43 typed
+`direction_undetermined` rather than guessed from raw asymmetry. Still
+not wired into terrain projection — driver + kernel organ only.
 
 **`perceiver/text/roles.js::resolveSpanRole`** — instance-level role
 resolution by the same one-hop recall pronouns trust. Recorded limitation:

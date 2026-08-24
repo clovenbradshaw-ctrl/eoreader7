@@ -25,8 +25,8 @@ import { createCausalTextPerceiver, textEncounters } from "../adapters/text/recu
 import { extractSurfaces, discoverReferents, diaNorm } from "../adapters/text/surfaces.js";
 import { splitSentences } from "../adapters/text/spans.js";
 import { dmdWindow } from "../kernel/activation.js";
-import { networkStanding } from "../kernel/network-standing.js";
-import { bindLinks } from "../../legacy-eoreader6.1/packages/engine/emergence/binding.js";
+import { networkStanding, directedEdges } from "../kernel/network-standing.js";
+import { bindLinks, buildLink } from "../../legacy-eoreader6.1/packages/engine/emergence/binding.js";
 
 const POS_PRIOR = JSON.parse(fs.readFileSync(new URL("../../legacy-eoreader6.1/bin/priors/pos/en-ud-ewt.json", import.meta.url), "utf8"));
 const WINDOW_CANDIDATES = [8, 16, 32, 64, 128, 256];
@@ -96,6 +96,10 @@ async function main() {
   // presence-side comparison: how many RAW pairs ever co-arrive at all
   const rawPairs = standing.pairsTested;
 
+  // The directed pass runs ONLY over admitted edges (S9: standing licenses
+  // the more expensive question). totalUnits = this reading's encounters.
+  const dir = directedEdges(beings, standing.edges, { buildLink, totalUnits: pos, ...{ draws: LINK.draws, seed: LINK.seed } });
+
   console.log(JSON.stringify({
     schema: "EONetworkStanding@1",
     book: path.split("/").pop(),
@@ -109,6 +113,11 @@ async function main() {
     refusedAsCoincident: standing.refused.length,
     topEdges: standing.edges.slice(0, 15),
     refusedSample: standing.refused.sort((a, b) => b.coArrivals - a.coArrivals).slice(0, 6),
+    direction: {
+      oriented: dir.directed.length,
+      undetermined: dir.undetermined.length,
+      topOriented: dir.directed.sort((a, b) => b.strength - a.strength).slice(0, 10),
+    },
     note: "presence lights every raw pair (terrain-activation); standing is only what clears its own null — the two counts differing IS the finding (P6)",
   }, null, 1));
 }

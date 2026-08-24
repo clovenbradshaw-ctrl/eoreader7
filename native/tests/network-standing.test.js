@@ -45,3 +45,32 @@ test("one arrival has no co-arrival to test — the floor is binding's own struc
   assert.equal(belowFloor.length, 2);
   assert.equal(belowFloor[0].reason, "below_arrival_floor");
 });
+
+// ── the directed pass ───────────────────────────────────────────────────
+import { directedEdges } from "../kernel/network-standing.js";
+import { buildLink } from "../../legacy-eoreader6.1/packages/engine/emergence/binding.js";
+
+test("direction comes from the reversal null, or stays typed undetermined — never guessed from raw asymmetry", () => {
+  // A leads, B follows one unit later, forty times over — a real
+  // directional structure the reversal null can orient.
+  const lead = Array.from({ length: 40 }, (_, i) => i * 7);
+  const follow = lead.map((x) => x + 1);
+  const beings = [
+    { id: "lead", arrivals: lead },
+    { id: "follow", arrivals: follow },
+    // a symmetric pair: interleaved with no leader
+    { id: "p", arrivals: Array.from({ length: 40 }, (_, i) => i * 7 + (i % 2)) },
+    { id: "q", arrivals: Array.from({ length: 40 }, (_, i) => i * 7 + ((i + 1) % 2)) },
+  ];
+  const edges = [
+    { a: "lead", b: "follow", coArrivals: 40 },
+    { a: "p", b: "q", coArrivals: 40 },
+  ];
+  const { directed, undetermined } = directedEdges(beings, edges, { buildLink, totalUnits: 300, draws: 199, seed: 20260812 });
+  const lf = directed.find((d) => d.a === "lead");
+  assert.ok(lf, "the leader/follower pair orients");
+  assert.equal(lf.direction, "a→b", "and in the right direction");
+  const pq = [...directed, ...undetermined].find((d) => d.a === "p");
+  assert.ok(pq, "the symmetric pair is reported either way, never dropped");
+  assert.throws(() => directedEdges(beings, edges, { totalUnits: 300, draws: 199, seed: 1 }), /injected/);
+});
