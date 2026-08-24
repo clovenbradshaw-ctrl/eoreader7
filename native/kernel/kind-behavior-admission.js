@@ -53,21 +53,35 @@ function witnessRefsFor(index, evidenceRefs) {
   return [...refs].sort();
 }
 
-function futureEvidenceRefs(index, validation) {
+function modalitiesFor(index, evidenceRefs) {
+  const modalities = new Set();
+  for (const id of evidenceRefs) {
+    const modality = index?.evidenceById?.get(id)?.provenance?.modality;
+    if (modality) modalities.add(modality);
+  }
+  return [...modalities].sort();
+}
+
+function futureEvidenceRefs(index, validation, formedAt) {
   const out = new Set();
   const refs = [...(validation?.memberRefs ?? []), ...(validation?.nonmemberRefs ?? [])];
   for (const entityRef of refs) {
     for (const [, record] of index?.entityFeatures?.get(entityRef) ?? []) {
-      if (record?.featureKey !== validation.responseChannel) continue;
+      if (record?.featureKey !== validation.responseChannel || !(record.firstAt > formedAt)) continue;
       for (const id of record.evidenceIds ?? []) out.add(id);
     }
   }
   return [...out].sort();
 }
 
+function decodeOutcome(value) {
+  try { return JSON.parse(value); } catch { return value; }
+}
+
 function admittedProjection(index, record, validation, admittedAt) {
-  const evidenceRefs = [...new Set([...record.evidenceRefs, ...futureEvidenceRefs(index, validation)])].sort();
+  const evidenceRefs = [...new Set([...record.evidenceRefs, ...futureEvidenceRefs(index, validation, record.formedAt)])].sort();
   const witnessRefs = witnessRefsFor(index, evidenceRefs);
+  const modalities = modalitiesFor(index, evidenceRefs);
   const dominant = validation.dominantOutcome;
   return freeze({
     schema: "EOKindProjection@1",
@@ -79,10 +93,12 @@ function admittedProjection(index, record, validation, admittedAt) {
     mechanism: "behavioral_equivalence_of_metastable_basin",
     memberRefs: freeze([...record.memberRefs].sort()),
     structuralSignatures: freeze([...record.structuralSignatures].sort()),
-    consequence: dominant ? freeze({ key: validation.responseChannel, value: dominant.outcome, effect: dominant.effect }) : null,
+    consequence: dominant ? freeze({ key: validation.responseChannel, value: decodeOutcome(dominant.outcome), effect: dominant.effect }) : null,
     evidenceRefs: freeze(evidenceRefs),
     witnessRefs: freeze(witnessRefs),
+    modalities: freeze(modalities),
     field: record.field,
+    behavior: validation,
     materiality: freeze({
       makesDifference: true,
       reasons: freeze([freeze({
@@ -103,6 +119,14 @@ function admittedProjection(index, record, validation, admittedAt) {
       requiredStableSightings: record.options.minStableSightings,
       minimumMembershipRetention: record.minimumRetention,
       requiredMembershipRetention: record.options.minMembershipRetention,
+      memberCount: record.memberRefs.length,
+      evaluableMemberCount: validation.memberRefs?.length ?? 0,
+      evaluableNonMemberCount: validation.nonmemberRefs?.length ?? 0,
+      supportingMemberCount: validation.supportingMemberRefs?.length ?? 0,
+      supportingNonMemberCount: validation.supportingNonmemberRefs?.length ?? 0,
+      memberRate: dominant?.memberRate ?? null,
+      nonMemberRate: dominant?.nonmemberRate ?? null,
+      effect: dominant?.effect ?? null,
       counterfactual: "future response law conditioned on metastable basin membership versus exchangeable population labels",
     }),
     basis: "metastable_candidate_basin_admitted_by_prospective_behavioral_equivalence",
@@ -168,6 +192,7 @@ export function createKindBehaviorAdmissionLedger({
   const snapshot = () => freeze([...admitted.values()].sort((a, b) => a.kindKey.localeCompare(b.kindKey)));
   const diagnostics = () => freeze({
     mechanism: "behavioral_equivalence_of_metastable_basin",
+    candidateMechanism: "interaction_affinity_basin",
     stabilityModel: "metastable_hysteresis",
     admissionModel: "prospective_approximate_bisimulation",
     minStableSightings: options.minStableSightings,
