@@ -141,6 +141,26 @@ const priorVisibleTurns = target.reading.turns.filter((turn) => (turn.orientatio
 const priorAsWitness = (target.reading.fold?.witnessed ?? []).some((item) => item?.id === experiencePrior.id);
 const priorAsGraphObject = entries.some((item) => item?.id === experiencePrior.id);
 
+const acceptance = {
+  sourceCount: experiencePrior.sourceCount,
+  sourceRefs: experiencePrior.sourceRefs,
+  targetExcluded: !experiencePrior.sourceRefs.includes("target:gutenberg:84"),
+  priorVocabulary: experiencePrior.relationVocabulary.length,
+  priorNetworkPatterns: experiencePrior.networkPatterns.length,
+  priorVisibleTurns,
+  targetEncounters: target.encounters.length,
+  priorAttendedRelations: edgeState.priorAttended.length,
+  distinctPriorAttendedRelations: edgeState.priorRelationCount,
+  targetNetworks: finalOrientation.terrainState?.Network?.length ?? 0,
+  stanceGeneration: stanceRun.generation.length,
+  priorSupportedNetworks: priorSupportedNetworks.length,
+  priorStrainingNetworks: priorStrainingNetworks.length,
+  priorAsWitness,
+  priorAsGraphObject,
+  generatedWitnessed: stanceRun.generation.filter((item) => item.witnessed === true).length,
+  generatedAdmissible: stanceRun.generation.filter((item) => item.admissible === true).length,
+};
+
 const report = {
   schema: "EOFrankensteinExperiencedReadingEval@1",
   history: historyReport,
@@ -192,13 +212,15 @@ const report = {
 console.log("EXPERIENCED_READING_REPORT_START");
 console.log(JSON.stringify(report, null, 2));
 console.log("EXPERIENCED_READING_REPORT_END");
+console.log("EXPERIENCED_READING_ACCEPTANCE", JSON.stringify(acceptance));
 
-if (experiencePrior.sourceCount !== 3) throw new Error(`expected three prior works, got ${experiencePrior.sourceCount}`);
-if (experiencePrior.sourceRefs.includes("target:gutenberg:84")) throw new Error("Frankenstein leaked into its own prior");
-if (experiencePrior.relationVocabulary.length === 0) throw new Error("prior reading history learned no cross-work relation vocabulary");
-if (priorVisibleTurns !== target.encounters.length) throw new Error(`experience prior was not present in every target orientation: ${priorVisibleTurns}/${target.encounters.length}`);
-if (edgeState.priorAttended.length === 0) throw new Error("experience prior never changed Frankenstein relation attention");
-if ((finalOrientation.terrainState?.Network?.length ?? 0) === 0) throw new Error("experienced Frankenstein read earned no Networks");
-if (stanceRun.generation.length === 0) throw new Error("experienced stance reasoner generated no hypotheses");
-if (priorAsWitness || priorAsGraphObject) throw new Error("experience prior crossed the witness/graph evidence boundary");
-if (stanceRun.generation.some((item) => item.witnessed !== false || item.admissible !== false)) throw new Error("prior-conditioned generation bypassed grounding");
+const fail = (message) => { throw new Error(`${message}; acceptance=${JSON.stringify(acceptance)}`); };
+if (experiencePrior.sourceCount !== 3) fail(`expected three prior works, got ${experiencePrior.sourceCount}`);
+if (experiencePrior.sourceRefs.includes("target:gutenberg:84")) fail("Frankenstein leaked into its own prior");
+if (experiencePrior.relationVocabulary.length === 0) fail("prior reading history learned no cross-work relation vocabulary");
+if (priorVisibleTurns !== target.encounters.length) fail(`experience prior was not present in every target orientation: ${priorVisibleTurns}/${target.encounters.length}`);
+if (edgeState.priorAttended.length === 0) fail("experience prior never changed Frankenstein relation attention");
+if ((finalOrientation.terrainState?.Network?.length ?? 0) === 0) fail("experienced Frankenstein read earned no Networks");
+if (stanceRun.generation.length === 0) fail("experienced stance reasoner generated no hypotheses");
+if (priorAsWitness || priorAsGraphObject) fail("experience prior crossed the witness/graph evidence boundary");
+if (stanceRun.generation.some((item) => item.witnessed !== false || item.admissible !== false)) fail("prior-conditioned generation bypassed grounding");
