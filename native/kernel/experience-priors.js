@@ -4,7 +4,7 @@ const TERRAINS = Object.freeze(["Void", "Entity", "Kind", "Field", "Link", "Netw
 const STANCES = Object.freeze(["Clearing", "Dissecting", "Unraveling", "Tending", "Binding", "Tracing", "Cultivating", "Making", "Composing"]);
 const OPERATORS = Object.freeze(["NUL", "SIG", "INS", "SEG", "CON", "SYN", "DEF", "EVA", "REC"]);
 
-const stable = (values = []) => freeze([...new Set(values.filter(Boolean))].sort());
+const stable = (values = []) => freeze([...new Set(Array.from(values ?? []).filter(Boolean))].sort());
 const rate = (n, d) => d > 0 ? n / d : 0;
 
 function sourceOf(item, index) {
