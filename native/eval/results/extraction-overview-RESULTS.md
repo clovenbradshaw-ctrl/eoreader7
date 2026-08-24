@@ -41,13 +41,26 @@ after-a-name slot, and verse breaks the SVO adjacency the extractor
 anchors on. A clean genre boundary: this vocabulary mechanism is built for
 narrative prose and says so honestly on drama rather than fabricating.
 
-## Open, and NOT asserted either way
+## CORRECTION — these numbers are not a reading
 
-These are ONE-SHOT whole-text vocabulary measurements. The live reading
-pipeline builds vocabulary INCREMENTALLY in 25-sentence batches
-(`refreshEvery`), merging candidate evidence across refreshes. Whether the
-incremental path reaches the same admitted set as the one-shot measurement
-is unverified. Given this session's record — two claims already retracted
-for being measured on the wrong material — it is stated as an open
-question rather than assumed. It is also the one remaining place a genuine
-regression could hide.
+Stated plainly, because the table above is framed as "what this reader
+extracts" and that framing is wrong: this driver calls
+`discoverRelationVocab` over the WHOLE text at once and then extracts every
+sentence with the resulting vocabulary. Sentence 12 is extracted using
+evidence from sentence 9,000. That is batch analysis with full lookahead,
+not reading, and READING-POLICY names the commitment it violates — P2 stage
+2, a conditional null "built only from material already read (`groundUpTo`
+never slices forward)", with P1 making causality the load-bearing rule of
+the document.
+
+Every figure above is therefore a LOOKAHEAD BOUND, not a reader's result,
+and must be quoted as such.
+
+`native/eval/causal-extraction.mjs` measures the causal arm — the real
+perceiver stepped in order, vocabulary refreshed only from material read so
+far, each sentence extracted with the vocabulary as it stood at that moment
+and never revisited. Results in `causal-extraction-RESULTS.md`. The short
+version, which is not what was assumed here: reading in order finds MORE
+verb types than lookahead (batch nomination is more permissive) and FEWER
+relations (early sentences read with a thin vocabulary are never
+reconsidered).
