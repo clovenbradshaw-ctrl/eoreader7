@@ -6,6 +6,7 @@ const OPERATORS = Object.freeze(["NUL", "SIG", "INS", "SEG", "CON", "SYN", "DEF"
 
 const stable = (values = []) => freeze([...new Set(Array.from(values ?? []).filter(Boolean))].sort());
 const rate = (n, d) => d > 0 ? n / d : 0;
+const memoryStanding = (workSupport) => workSupport >= 2 ? "recurrent_cross_work_memory" : "single_work_memory";
 
 function sourceOf(item, index) {
   return item?.source
@@ -50,16 +51,17 @@ function normalizeReadings(items = []) {
  * Learn a reader's portable experience prior from earlier, fully separate
  * readings. Nothing from the target source is accepted here.
  *
- * The prior stores recurrence across WORKS rather than recurrence inside one
- * work. This prevents a single idiosyncratic book from masquerading as a
- * reader-wide expectation. It is descriptive memory, never witness for the
- * next source.
+ * A single earlier work is enough to leave a memory. Cross-work recurrence
+ * strengthens that memory; it does not decide whether the memory exists.
+ * `min*WorkSupport` is therefore only an explicit export/pruning choice. The
+ * default is one work. Every retained item remains descriptive memory and is
+ * never witness for the next source.
  */
 export function deriveExperiencePrior(items = [], {
   id = "experience-prior",
   giver,
-  minRelationWorkSupport = 2,
-  minNetworkWorkSupport = 2,
+  minRelationWorkSupport = 1,
+  minNetworkWorkSupport = 1,
   maxRelationVocabulary = 512,
 } = {}) {
   if (!giver) throw new TypeError("deriveExperiencePrior requires a named giver");
@@ -80,7 +82,7 @@ export function deriveExperiencePrior(items = [], {
       if (edge?.schema !== "EOHyperedge@1" || !edge.relation) continue;
       // Only carry forward relation forms that the previous reading itself
       // regarded as lexically eligible. Auxiliaries/noise do not become
-      // cross-book familiarity merely because they appeared often.
+      // familiarity merely because they appeared often.
       if (edge.meta?.compositionStanding?.eligible === false) continue;
       countWorks(relationStats, edge.relation, source);
     }
@@ -121,6 +123,8 @@ export function deriveExperiencePrior(items = [], {
       occurrences: record.occurrences,
       workSupport: record.works.size,
       workRate: rate(record.works.size, workCount),
+      memoryStanding: memoryStanding(record.works.size),
+      recurrent: record.works.size >= 2,
       sourceRefs: stable(record.works),
     }))
     .filter((record) => record.workSupport >= minRelationWorkSupport)
@@ -134,6 +138,8 @@ export function deriveExperiencePrior(items = [], {
       occurrences: record.occurrences,
       workSupport: record.works.size,
       workRate: rate(record.works.size, workCount),
+      memoryStanding: memoryStanding(record.works.size),
+      recurrent: record.works.size >= 2,
       sourceRefs: stable(record.works),
     }))
     .filter((record) => record.workSupport >= minNetworkWorkSupport)
@@ -171,8 +177,8 @@ export function deriveExperiencePrior(items = [], {
       giver,
       basis: "completed_prior_readings",
       targetExcluded: true,
-      relationRule: `relation must recur in >=${minRelationWorkSupport} independent prior works`,
-      networkRule: `network signature must recur in >=${minNetworkWorkSupport} independent prior works`,
+      relationRule: `retain memory from >=${minRelationWorkSupport} prior work(s); workSupport/workRate encode recurrence strength`,
+      networkRule: `retain memory from >=${minNetworkWorkSupport} prior work(s); workSupport/workRate encode recurrence strength`,
     }),
   });
 }
@@ -183,17 +189,23 @@ export function experienceRelationVocabulary(priors = []) {
     if (prior?.schema !== "EOExperiencePrior@1") continue;
     for (const record of prior.relationVocabulary ?? []) {
       if (!record?.relation) continue;
-      if (!out.has(record.relation)) out.set(record.relation, { relation: record.relation, priorRefs: [], workSupport: 0, occurrences: 0 });
+      if (!out.has(record.relation)) out.set(record.relation, { relation: record.relation, priorRefs: [], workSupport: 0, workRate: 0, occurrences: 0 });
       const aggregate = out.get(record.relation);
       aggregate.priorRefs.push(prior.id);
       aggregate.workSupport = Math.max(aggregate.workSupport, record.workSupport ?? 0);
+      aggregate.workRate = Math.max(aggregate.workRate, record.workRate ?? 0);
       aggregate.occurrences += record.occurrences ?? 0;
     }
   }
-  return freeze([...out.values()].map((record) => freeze({ ...record, priorRefs: stable(record.priorRefs) })));
+  return freeze([...out.values()].map((record) => freeze({
+    ...record,
+    memoryStanding: memoryStanding(record.workSupport),
+    recurrent: record.workSupport >= 2,
+    priorRefs: stable(record.priorRefs),
+  })));
 }
 
-/** Compare a current earned Network against remembered cross-work forms. */
+/** Compare a current earned Network against remembered forms from earlier works. */
 export function evaluateNetworkAgainstExperience(network, priors = []) {
   const signature = networkSignature(network);
   const key = experienceNetworkSignatureKey(signature);
@@ -201,8 +213,15 @@ export function evaluateNetworkAgainstExperience(network, priors = []) {
   for (const prior of priors ?? []) {
     if (prior?.schema !== "EOExperiencePrior@1") continue;
     const pattern = (prior.networkPatterns ?? []).find((item) => item.key === key);
-    if (pattern) matches.push(freeze({ priorRef: prior.id, workSupport: pattern.workSupport, workRate: pattern.workRate, occurrences: pattern.occurrences }));
+    if (pattern) matches.push(freeze({
+      priorRef: prior.id,
+      workSupport: pattern.workSupport,
+      workRate: pattern.workRate,
+      occurrences: pattern.occurrences,
+      memoryStanding: pattern.memoryStanding ?? memoryStanding(pattern.workSupport ?? 1),
+    }));
   }
+  const recurrent = matches.some((match) => (match.workSupport ?? 0) >= 2);
   return freeze({
     schema: "EOExperiencePriorEvaluation@1",
     target: network?.id ?? null,
@@ -210,8 +229,11 @@ export function evaluateNetworkAgainstExperience(network, priors = []) {
     signature,
     key,
     expected: matches.length > 0,
+    recurrent,
     matches: freeze(matches),
-    standing: matches.length ? "prior_supported" : "prior_strained_by_novel_form",
+    standing: matches.length
+      ? recurrent ? "prior_supported_recurrent_form" : "prior_supported_single_exposure"
+      : "prior_strained_by_novel_form",
     witnessed: false,
   });
 }
