@@ -214,7 +214,20 @@ const SENTENCE_END = /[.!?;]/g;
  * preposition into a verb.
  * Omit the prior and the original material-only behaviour is unchanged.
  */
-export const discoverRelationVocab = (text, { surfaces, functionWords = null, minSurfaces, negationWords = NEGATION_WORDS, posPrior = null } = {}) => {
+/**
+ * `anchorSpans` (optional) — POSITIONAL anchors beyond the surface strings:
+ * [{index, length, anchor}] where `anchor` names WHO stands at that span (a
+ * bound referent's id). This is the Fold-conditioned door pronoun-subject
+ * clauses come through: a pronoun the binding organ resolved to an
+ * established being is a witnessed occurrence of that being, so the token
+ * after it sits in the same slot the token after a name does. The wall is
+ * positional on purpose — anchoring the STRING "he" would anchor every
+ * unbound "he" in the book, which is exactly the unlicensed shape the
+ * treebank-VERB nomination was refused for (S8: the prior attempt is
+ * cited, not repeated). Same gates, same distinct-anchor recurrence count,
+ * one shared tally.
+ */
+export const discoverRelationVocab = (text, { surfaces, functionWords = null, minSurfaces, negationWords = NEGATION_WORDS, posPrior = null, anchorSpans = null } = {}) => {
   if (!Number.isInteger(minSurfaces) || minSurfaces < 1)
     throw new TypeError("discoverRelationVocab: minSurfaces is declared — how much recurrence counts as a pattern is the caller's to say, never a default here");
 
@@ -223,31 +236,38 @@ export const discoverRelationVocab = (text, { surfaces, functionWords = null, mi
     .map((x) => (typeof x === "string" ? x : x?.surface))
     .filter((x) => typeof x === "string" && x.length > 0);
   const uniqueNames = [...new Set(names)].sort((a, b) => b.length - a.length);
-  if (!uniqueNames.length) return { verbs: new Set(), candidates: [] };
+  if (!uniqueNames.length && !(anchorSpans?.length)) return { verbs: new Set(), candidates: [] };
 
   // Longest-first alternation, same discipline as read-people.mjs's
   // surfaceToId: "Victor Frankenstein" must win over "Victor" at the same
   // start offset, or the shorter surface eats half the longer one's hits.
-  const SURFACE_RE = new RegExp(`\\b(?:${uniqueNames.map(escapeRe).join("|")})\\b`, "gu");
   const AFTER = /^\s*([\p{L}\p{N}'’]+)/u;
 
-  const surfacesByToken = new Map(); // lowercase token -> Set(surfaces it directly followed)
-  let m;
-  while ((m = SURFACE_RE.exec(s)) !== null) {
-    const end = m.index + m[0].length;
+  const surfacesByToken = new Map(); // lowercase token -> Set(anchors it directly followed: surface forms and bound-referent ids alike)
+  // ONE tally for both anchor kinds — the gates below run identically, so a
+  // candidate seen once after a name and once after a bound pronoun counts
+  // two distinct anchors, exactly as two names would.
+  const tallyAfter = (end, anchorId) => {
     const after = s.slice(end, end + 40).match(AFTER);
-    if (!after) continue;
-
+    if (!after) return;
     const cleaned = after[1].replace(TOKEN_STRIP, "");
-    if (!cleaned) continue;
-    if (/^\p{Lu}/u.test(cleaned)) continue;       // capitalised — shaped like a surface, not a verb
-    if (/^\p{Nd}+$/u.test(cleaned)) continue;     // a bare number, not a verb
+    if (!cleaned) return;
+    if (/^\p{Lu}/u.test(cleaned)) return;       // capitalised — shaped like a surface, not a verb
+    if (/^\p{Nd}+$/u.test(cleaned)) return;     // a bare number, not a verb
     const lower = cleaned.toLowerCase();
-    if (functionWords && functionWords.has(lower)) continue; // this text's own closed class
-    if (negationWords.has(lower)) continue; // a negation marker modifies a verb; it is not one
-
+    if (functionWords && functionWords.has(lower)) return; // this text's own closed class
+    if (negationWords.has(lower)) return; // a negation marker modifies a verb; it is not one
     if (!surfacesByToken.has(lower)) surfacesByToken.set(lower, new Set());
-    surfacesByToken.get(lower).add(diaNorm(m[0]));
+    surfacesByToken.get(lower).add(anchorId);
+  };
+  if (uniqueNames.length) {
+    const SURFACE_RE = new RegExp(`\\b(?:${uniqueNames.map(escapeRe).join("|")})\\b`, "gu");
+    let m;
+    while ((m = SURFACE_RE.exec(s)) !== null) tallyAfter(m.index + m[0].length, diaNorm(m[0]));
+  }
+  for (const span of anchorSpans ?? []) {
+    if (!Number.isFinite(span?.index) || !Number.isFinite(span?.length) || !span?.anchor) continue;
+    tallyAfter(span.index + span.length, String(span.anchor));
   }
 
   const verbs = new Set();

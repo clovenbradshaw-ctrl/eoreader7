@@ -138,7 +138,7 @@ const CLAUSE_OPENER_RE = /\b(?:that|which|who|whom|whose|because|although|though
 // subordinator or relative pronoun opening a new clause. Order-independent —
 // callers pass a naming index and a pronoun index in whichever order they
 // occur.
-const sameClause = (text, i, j) => {
+export const sameClause = (text, i, j) => {
   const [lo, hi] = i <= j ? [i, j] : [j, i];
   const between = text.slice(lo, hi);
   if (/[,;:"“”]/.test(between)) return false;
@@ -147,7 +147,7 @@ const sameClause = (text, i, j) => {
 
 const PRONOUN_RE = /\b(he|him|his|himself|she|her|hers|herself)\b/gi;
 
-const findThirdPersonSingular = (text) => {
+export const findThirdPersonSingular = (text) => {
   const hits = [];
   for (const m of text.matchAll(PRONOUN_RE)) {
     const token = m[0].toLowerCase();

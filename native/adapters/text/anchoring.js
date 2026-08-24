@@ -280,3 +280,89 @@ export function anchorAsDefiniteBinding(anchor) {
     }),
   });
 }
+
+/**
+ * descriptorBeings — admit a recurring, UNANCHORED definite descriptor as a
+ * being in its own right. This is the door for the cast's namefloor gap:
+ * Walton's master and lieutenant, Victor-as-"the stranger" before he is
+ * named — beings the capitalised-surface cast can never hold because the
+ * book never names them, so every pronoun near them binds the nearest wrong
+ * candidate instead (measured: nested-narration's two pronoun arms agree on
+ * only ~26% of Frankenstein sentences both bind, and the spot-checked
+ * disagreements cluster exactly here).
+ *
+ * THE GATE MIRRORS THE BORN GATE, cited not invented: entity.js's own
+ * admitFromArrivals requires floor(arrivals/2) >= 2 to run its witness
+ * split, so any candidate with fewer than 4 arrivals is refused by that
+ * gate regardless of any pre-filter — 4 is the lowest value at which the
+ * gate, not a filter in front of it, decides (CLAUDE.md, the minArrivals
+ * incident). `minArrivals` stays the caller's to declare; 4-with-citation
+ * is the value this repo's drivers use.
+ *
+ * ANCHORED DESCRIPTORS ARE EXCLUDED by construction: a descriptor the
+ * anchoring organ successfully bound is evidence about an EXISTING being
+ * ("the creature" -> the creature's referent), and admitting it as a second
+ * being would fork every identity it supports. The caller passes the set of
+ * canonical surfaces that ever anchored; only never-anchored recurrence
+ * admits. Arrivals are counted per DISTINCT sentence — twice in one
+ * sentence is one arrival (binding.js's own structural reading of
+ * co-arrival, applied to admission).
+ */
+export function descriptorBeings(occurrences = [], { minArrivals, anchoredSurfaces, beingEvidence = null } = {}) {
+  if (!Number.isInteger(minArrivals) || minArrivals < 1)
+    throw new TypeError("descriptorBeings: minArrivals is declared — how much recurrence admits a being is the caller's to say, with its justification");
+  const anchored = anchoredSurfaces instanceof Set ? anchoredSurfaces : new Set(anchoredSurfaces ?? []);
+
+  const bySurface = new Map(); // canonical surface -> { sentences:Set, first, exact }
+  const possessiveRefused = new Set();
+  for (const occ of occurrences) {
+    // DEFINITE ONLY, and the exclusion of possessives is a wall, not a
+    // filter choice: "my father" is speaker-relative — the same string
+    // names a different being in each teller's mouth (the coref prior's
+    // own first-person rule, one determiner over). Admitting one app-wide
+    // would multiply the 'I' mistake. Frame-scoped possessive beings are
+    // real future work, refused here by type so the refusal is countable.
+    if (occ?.determination === "possessive") { const c = norm(occ.canonicalSurface ?? occ.surface); if (c) possessiveRefused.add(c); continue; }
+    if (!occ || occ.determination !== "definite") continue;
+    const canon = norm(occ.canonicalSurface ?? occ.surface);
+    if (!canon) continue;
+    const at = occ.sentenceOrder ?? occ.encounterRef ?? null;
+    if (at == null) continue;
+    const row = bySurface.get(canon) ?? { sentences: new Set(), first: at, exact: occ.exactSurface ?? occ.surface ?? canon };
+    row.sentences.add(String(at));
+    bySurface.set(canon, row);
+  }
+
+  const beings = [];
+  const refused = [];
+  for (const canon of possessiveRefused) refused.push({ surface: canon, reason: "descriptor_speaker_relative", detail: "a possessive descriptor names a different being in each teller's mouth — the first-person rule, one determiner over" });
+  for (const [canon, row] of bySurface) {
+    if (anchored.has(canon)) { refused.push({ surface: canon, reason: "descriptor_anchored", detail: "this descriptor already binds an existing being — admitting it too would fork that identity" }); continue; }
+    if (row.sentences.size < minArrivals) { refused.push({ surface: canon, reason: "descriptor_below_arrivals", arrivals: row.sentences.size, detail: `${row.sentences.size} distinct-sentence arrivals, below the declared ${minArrivals}` }); continue; }
+    // BEING EVIDENCE, when the caller measured it: recurrence admits
+    // things, not beings — measured on Frankenstein, recurrence alone
+    // admitted "the murder", "the name", "the beauty" and pronoun binding
+    // then landed on them. Clause-local pronoun CO-OCCURRENCE was tried
+    // first and refuted by its own run ("he paced the deck" gave the deck
+    // evidence — co-occurrence is not co-reference). What the caller
+    // measures instead is the caller's to declare; this repo's drivers use
+    // AGENCY: the descriptor standing in the subject slot of a verb the
+    // material itself measured (discoverRelationVocab's own slot, no new
+    // class) — beings act.
+    if (beingEvidence) {
+      const ev = beingEvidence.get?.(canon) ?? 0;
+      if (ev < 1) { refused.push({ surface: canon, reason: "descriptor_no_being_evidence", arrivals: row.sentences.size, detail: "recurs, but never acts — no occurrence in the subject slot of a measured verb; a thing, not a being, on this material's own evidence" }); continue; }
+    }
+    beings.push(Object.freeze({
+      schema: "EODescriptorBeing@1",
+      id: `ref:desc:${slug(canon)}`,
+      display: row.exact,
+      canonicalSurface: canon,
+      arrivals: row.sentences.size,
+      firstAt: row.first,
+      provenance: Object.freeze({ giver: "text/anchoring::descriptorBeings", gate: "distinct-sentence arrivals >= declared minArrivals; never-anchored only" }),
+    }));
+  }
+  beings.sort((a, b) => b.arrivals - a.arrivals);
+  return { beings, refused };
+}
