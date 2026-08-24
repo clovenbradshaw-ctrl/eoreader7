@@ -39,10 +39,6 @@ jobs:
           test -s /tmp/hamlet.txt
           test -s /tmp/macbeth.txt
           test -s /tmp/pride.txt
-      - name: Read Frankenstein through native EOReader 7
-        run: node native/eval/frankenstein.mjs /tmp/frankenstein.txt
-      - name: Reason and generate over the full Frankenstein Fold
-        run: node native/eval/frankenstein-stance.mjs /tmp/frankenstein.txt
       - name: Read Frankenstein after accumulated literary experience
         shell: bash
         run: |
@@ -51,3 +47,7 @@ jobs:
           status=$?
           tail -n 100 /tmp/experienced-reading.log
           exit "$status"
+      - name: Read Frankenstein through native EOReader 7
+        run: node native/eval/frankenstein.mjs /tmp/frankenstein.txt
+      - name: Reason and generate over the full Frankenstein Fold
+        run: node native/eval/frankenstein-stance.mjs /tmp/frankenstein.txt
