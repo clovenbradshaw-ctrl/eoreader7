@@ -1,7 +1,7 @@
 export { MODES, DOMAINS, GRAINS, TERRAIN_BY_DOMAIN, STANCE_BY_MODE, cellOf, algebraAddresses } from "./cube.js";
 export { TERRAINS, terrainOf, createTerrainIndex, indexTerrainEntries, snapshotTerrainState, snapshotTerrainReferents, projectTerrainState, terrainCounts } from "./terrain-state.js";
 export { createEmergentTerrainIndex, indexEmergentTerrainEntries, snapshotEmergentTerrainState, projectEmergentTerrains, mergeTerrainStates } from "./emergent-terrain.js";
-export { shannonEntropy, structuralFieldGeometry, relationNetworkComponents, interpretiveAtmosphereField, interpretiveSignature, interpretiveParadigmModels } from "./terrain-math.js";
+export { shannonEntropy, structuralFieldGeometry, relationNetworkComponents, interpretiveSignature, interpretiveParadigmModels } from "./terrain-math.js";
 export { interpretiveAtmosphereFactorField } from "./atmosphere-math.js";
 export { interpretiveLensGeometry, projectLensGeometry } from "./lens-math.js";
 export { createIdentityQuotientIndex, indexIdentityQuotientEntries, snapshotIdentityQuotient, projectIdentityQuotient } from "./identity-quotient.js";
