@@ -1,13 +1,13 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { deriveExperiencePrior, createPriorConditionedReader, createRecursiveReader } from "../kernel/index.js";
+import { deriveExperiencePrior, createPriorConditionedReader, createRecursiveReader, reasoningAffordances } from "../kernel/index.js";
 import { createCausalTextPerceiver, textEncounters } from "../adapters/text/recursive.js";
 
 const priorReading = (source, relation, networkId) => ({
   source,
   fold: {
     graphEntries: [{ schema: "EOHyperedge@1", id: `edge:${source}`, relation, meta: { compositionStanding: { eligible: true } } }],
-    transformationObjects: [],
+    transformationObjects: [{ schema: "EOOperation@1", id: `op:${source}:trace`, operator: "CON", stance: "Tracing" }],
   },
   terrainState: {
     Network: [{ id: networkId, topology: { topology: "acyclic", cycleRank: 0, branchingReferents: 1, edgeCount: 2, referentCount: 1 } }],
@@ -65,4 +65,27 @@ test("an experienced reader notices a remembered relation earlier, but current t
   assert.ok(turn.observations[0].provenance.nominationCause.includes("experience_prior_attention"));
   assert.equal(experienced.getFold().witnessed.some((item) => item === prior || item?.id === prior.id), false);
   assert.equal(experienced.getFold().graphEntries.some((item) => item === prior || item?.id === prior.id), false);
+});
+
+test("earlier stance experience weights later cube reasoning but cannot remove alternative moves", () => {
+  const prior = deriveExperiencePrior([
+    priorReading("book:a", "admired", "network:a"),
+    priorReading("book:b", "admired", "network:b"),
+  ], { giver: "reader:test", minRelationWorkSupport: 2, minNetworkWorkSupport: 2 });
+  const moves = reasoningAffordances({
+    receivedPriors: [prior],
+    terrainState: { Network: [{ id: "network:new" }] },
+  });
+
+  assert.equal(moves.length, 3);
+  const tracing = moves.find((move) => move.address.stance === "Tracing");
+  const unraveling = moves.find((move) => move.address.stance === "Unraveling");
+  const composing = moves.find((move) => move.address.stance === "Composing");
+  assert.ok(tracing && unraveling && composing);
+  assert.equal(tracing.priorSupport.gatesMove, false);
+  assert.equal(tracing.priorSupport.score, 1);
+  assert.ok(tracing.priorSupport.score > unraveling.priorSupport.score);
+  assert.ok(tracing.priorSupport.score > composing.priorSupport.score);
+  assert.deepEqual(new Set(moves.map((move) => move.move)), new Set(["distinguish", "relate", "generate"]));
+  assert.ok(moves.every((move) => move.witnessed === false));
 });
