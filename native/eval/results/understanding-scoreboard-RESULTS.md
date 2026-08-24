@@ -309,3 +309,46 @@ identity re-makes what was already read.** The prediction-side metric
 that would separate is therefore not fulfilment count but fulfilment
 REACH — the same sharpening backwardScore already got — named as the
 next measurement, not attempted in this pass.
+
+---
+
+# Fifth amendment — prediction at a higher abstraction transfers across works (all three pre-registrations scored)
+
+`native/eval/narrative-rhythm-prior.mjs` ("we never read Frankenstein as
+our first book"): learn WHEN a being returns — pooled inter-mention gaps,
+median summary — on one work, carry it to another under
+experience-priors.js's own contract (nothing from the target enters the
+prior; memory is never witness). Complementary to PR #17's
+WHICH-structures sediment. Assembly named: perceiver-only mention stream.
+
+| prior | medianGap | on ordered B | shuffled #0 | shuffled #1 |
+|---|---|---|---|---|
+| novel (Pride & Prejudice) | 12 | **0.469** | 0.148 | 0.141 |
+| play (Hamlet) | 7 | 0.345 | 0.090 | 0.070 |
+| self (Frankenstein, comparison only) | 15 | 0.512 | 0.189 | 0.169 |
+
+**Registered prediction (1) — ordered beats shuffled under any prior: HIT,
+decisively (~3.3–4.9×), the strongest order separation of the session —
+and it is on the PREDICTION side, exactly where identity-level fulfilment
+(fourth amendment) failed to separate.** Prediction at the rhythm
+abstraction is order-sensitive where prediction at the token level was
+not: the level of abstraction is not a nicety, it is where the signal
+lives.
+
+**Registered prediction (2) — the novel prior transfers: HIT.** P&P's
+rhythm scores ordered Frankenstein at 92% of Frankenstein's own
+self-prior (0.469 vs 0.512; gaps 12 vs 15). Rhythm is a property of the
+kind "novel," not of one book.
+
+**Registered exploration (3) — the play marks the abstraction's
+boundary.** Hamlet's rhythm is measurably different (gap 7) and carries
+measurably worse (0.345 < 0.469). The quartiles localize the boundary:
+all three works share Q1 ≈ 4–5 — scene-level burstiness is universal —
+and diverge at Q2/Q3, so the kind-difference lives in the LONG returns,
+not the immediate ones.
+
+Named next, not attempted: wiring `EORhythmPrior@1` into kernel
+expectations on the fold (the fourth amendment's machinery is the seat —
+a prior-sourced expectation opens at each mention, EVA-transitions on the
+next); and composing with PR #17's `EOExperiencePrior@1` so one merged
+experience object carries both the WHICH and the WHEN memories.
