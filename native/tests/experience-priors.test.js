@@ -1,0 +1,68 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import { deriveExperiencePrior, createPriorConditionedReader, createRecursiveReader } from "../kernel/index.js";
+import { createCausalTextPerceiver, textEncounters } from "../adapters/text/recursive.js";
+
+const priorReading = (source, relation, networkId) => ({
+  source,
+  fold: {
+    graphEntries: [{ schema: "EOHyperedge@1", id: `edge:${source}`, relation, meta: { compositionStanding: { eligible: true } } }],
+    transformationObjects: [],
+  },
+  terrainState: {
+    Network: [{ id: networkId, topology: { topology: "acyclic", cycleRank: 0, branchingReferents: 1, edgeCount: 2, referentCount: 1 } }],
+  },
+});
+
+test("experience prior only carries structures that recur across independent earlier works", () => {
+  const prior = deriveExperiencePrior([
+    priorReading("book:a", "admired", "network:a"),
+    priorReading("book:b", "admired", "network:b"),
+    priorReading("book:c", "wandered", "network:c"),
+  ], { giver: "reader:test", minRelationWorkSupport: 2, minNetworkWorkSupport: 2 });
+
+  assert.equal(prior.schema, "EOExperiencePrior@1");
+  assert.equal(prior.sourceCount, 3);
+  assert.deepEqual(prior.sourceRefs, ["book:a", "book:b", "book:c"]);
+  assert.deepEqual(prior.relationVocabulary.map((item) => item.relation), ["admired"]);
+  assert.equal(prior.relationVocabulary[0].workSupport, 2);
+  assert.equal(prior.networkPatterns.length, 1);
+  assert.equal(prior.witnessed, false);
+  assert.equal(prior.admissible, false);
+});
+
+test("an experienced reader notices a remembered relation earlier, but current text remains the witness", async () => {
+  const prior = deriveExperiencePrior([
+    priorReading("book:a", "admired", "network:a"),
+    priorReading("book:b", "admired", "network:b"),
+  ], { giver: "reader:test", minRelationWorkSupport: 2, minNetworkWorkSupport: 2 });
+
+  const sentence = "He admired Elizabeth.";
+  const [encounter] = textEncounters(sentence, { source: "new-book" });
+
+  const cold = createRecursiveReader({
+    perceivers: [createCausalTextPerceiver({ minRelationSurfaces: 2, refreshEvery: 25 })],
+  });
+  const coldTurn = await cold.step(encounter);
+  assert.equal(coldTurn.observations.length, 0);
+  assert.equal(cold.getFold().graphEntries.filter((item) => item?.schema === "EOHyperedge@1").length, 0);
+
+  const experienced = createPriorConditionedReader({
+    priors: [prior],
+    perceivers: [createCausalTextPerceiver({ minRelationSurfaces: 2, refreshEvery: 25 })],
+  });
+  const turn = await experienced.step(encounter);
+  const edges = experienced.getFold().graphEntries.filter((item) => item?.schema === "EOHyperedge@1");
+
+  assert.equal(turn.orientation.receivedPriors.length, 1);
+  assert.equal(turn.orientation.receivedPriors[0].id, prior.id);
+  assert.equal(edges.length, 1);
+  assert.equal(edges[0].relation, "admired");
+  assert.equal(edges[0].meta.attention, "experience_prior");
+  assert.equal(edges[0].meta.experiencePrior.workSupport, 2);
+  assert.equal(turn.observations.length, 1);
+  assert.equal(turn.observations[0].witness, sentence);
+  assert.ok(turn.observations[0].provenance.nominationCause.includes("experience_prior_attention"));
+  assert.equal(experienced.getFold().witnessed.some((item) => item === prior || item?.id === prior.id), false);
+  assert.equal(experienced.getFold().graphEntries.some((item) => item === prior || item?.id === prior.id), false);
+});
