@@ -1,5 +1,4 @@
 import { interpretiveAtmosphereFactorField } from "./atmosphere-math.js";
-import { terrainNativeFoldRevisionDistance } from "./terrain-completion.js";
 
 const OPEN = new Set([undefined, null, "open", "strengthened", "weakened"]);
 const material = (obligation) => obligation?.distinction?.materiality?.makesDifference === true;
@@ -24,7 +23,6 @@ export function deriveSurprise(delta) {
     expectationEffects: operations.filter((o) => o.payload?.action === "expectation"),
     obligationEffects: operations.filter((o) => ["obligation", "resolve-obligation"].includes(o.payload?.action)),
     patternEffects: operations.filter((o) => o.payload?.value?.schema === "EOPatternCandidate@1"),
-    revisionDistance: terrainNativeFoldRevisionDistance(delta),
   });
 }
 

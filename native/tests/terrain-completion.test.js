@@ -4,7 +4,6 @@ import { projectIdentityGroupoid, identityProofPath, identityGeneratorImpact, id
 import { projectIdentityQuotient } from "../kernel/identity-quotient.js";
 import { lensChannel, composeLensChannels, lensBlackwellWitness, fieldCarrier, fieldSection, networkChainInvariants, prequentialParadigmAdmission, conditionalResponseLaw, terrainNativeFoldRevisionDistance } from "../kernel/terrain-completion.js";
 import { eoOperation, deltaFold } from "../kernel/fold.js";
-import { deriveSurprise } from "../kernel/dynamics.js";
 
 const occ = (id) => Object.freeze({ schema: "EOReferentOccurrence@1", id });
 const ref = (id, occurrenceRefs = []) => Object.freeze({ schema: "EOReferent@1", id, occurrenceRefs: Object.freeze(occurrenceRefs), supportRefs: Object.freeze([]) });
@@ -21,7 +20,6 @@ test("Entity retraction is path-dependent: redundant proof survives, bridge proo
   assert.ok(redundant.survivingEndpointProof);
   const bridge = identityGeneratorImpact(groupoid, "g:br");
   assert.equal(bridge.splitsComponent, true);
-
   const retraction = identityGeneratorRetraction({ generatorRef: "g:ab", witness: "w:attack" });
   const after = projectIdentityGroupoid([a,b,c,r,ab,ac,cb,br,retraction]);
   assert.equal(identityProofPath(after, a.id, b.id)?.steps.length, 2);
@@ -65,9 +63,9 @@ test("Kind response laws condition on context and intervention/action", () => {
   assert.equal(Object.keys(law.laws).length, 2);
 });
 
-test("Surprise carries terrain-native consequential Fold revision distance", () => {
+test("terrain-native revision distance distinguishes consequential Pattern reframing from simple insertion", () => {
   const small = deltaFold([eoOperation({ op:"INS", grain:"Figure" })]);
   const consequential = deltaFold([eoOperation({ op:"REC", grain:"Pattern", consequence:{kind:"reframe"} })]);
   assert.ok(terrainNativeFoldRevisionDistance(consequential).total > terrainNativeFoldRevisionDistance(small).total);
-  assert.equal(deriveSurprise(consequential).revisionDistance.schema, "EOFoldRevisionDistance@1");
+  assert.equal(terrainNativeFoldRevisionDistance(consequential).schema, "EOFoldRevisionDistance@1");
 });
