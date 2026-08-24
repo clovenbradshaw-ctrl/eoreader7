@@ -1,4 +1,5 @@
 import { eoOperation, deltaFold } from "./fold.js";
+import { expectation, expectationTransition, openExpectation } from "./expectations.js";
 
 const norm = (x) => String(x ?? "").toLocaleLowerCase().replace(/[^\p{L}\p{N}]+/gu, " ").trim();
 const stablePair = (a, b) => [norm(a), norm(b)].sort();
@@ -113,6 +114,39 @@ export function deriveIdentityRevision({ fold = {}, supports = [], attacks = [],
   const operations = [];
   const working = new Map((fold?.unresolvedAlternatives ?? []).filter((x) => x?.schema === "EOIdentityAlternative@1").map((x) => [x.id, x]));
 
+  // ── expectations, gated behind the declared floor ──────────────────────
+  // The floor is what makes "fulfilled" a mechanical fact rather than a
+  // judgment: an alternative opened below the floor IS the fold's own
+  // prediction that corroboration will arrive. Its outcome is witnessed by
+  // the same evidence stream — a support below the floor STRENGTHENS it, a
+  // support reaching the floor FULFILLS it, an attack VIOLATES it. No
+  // floor declared = no expectations = byte-identical to before (the same
+  // backward-compatibility posture the floor itself holds).
+  const expId = (altId) => `expectation:${altId}`;
+  const expWorking = new Map((fold?.expectations ?? []).filter((x) => x?.schema === "EOExpectation@1").map((x) => [x.id, x]));
+  const expectationsOn = Number.isFinite(canonicalizationFloor);
+  const expectFor = (alt, ref) => {
+    if (!expectationsOn || (alt.supportRefs ?? []).length >= canonicalizationFloor) return;
+    if (expWorking.has(expId(alt.id))) return;
+    const value = expectation({
+      id: expId(alt.id),
+      hypothesis: `corroboration expected: ${alt.left} <-> ${alt.right}`,
+      giver: alt.giver ?? null,
+      grounds: [alt.id],
+      openedAt: null,
+    });
+    expWorking.set(value.id, value);
+    operations.push(openExpectation(value, { witness: ref, consequence: { kind: "expectation_opened", expectation: value.id, identity: alt.id } }));
+  };
+  const transitionFor = (altId, state, ref, kind) => {
+    if (!expectationsOn) return;
+    const current = expWorking.get(expId(altId));
+    if (!current || !["open", "strengthened", "weakened"].includes(current.state)) return;
+    const next = { ...current, state };
+    expWorking.set(next.id, next);
+    operations.push(expectationTransition(current, state, { witness: ref, consequence: { kind, expectation: current.id, identity: altId } }));
+  };
+
   for (const evidence of supports ?? []) {
     const left = norm(evidence?.left), right = norm(evidence?.right);
     if (!left || !right || left === right) continue;
@@ -126,6 +160,13 @@ export function deriveIdentityRevision({ fold = {}, supports = [], attacks = [],
       consequence: { kind: prior ? "identity_hypothesis_supported" : "identity_hypothesis_opened", identity: next.id },
       payload: { action: "alternative", value: next },
     }));
+    if (!prior) {
+      expectFor(next, ref);
+    } else if ((next.supportRefs ?? []).length >= (canonicalizationFloor ?? Infinity)) {
+      transitionFor(next.id, "fulfilled", ref, "expectation_fulfilled");
+    } else {
+      transitionFor(next.id, "strengthened", ref, "expectation_strengthened");
+    }
     operations.push(...recanonicalizationOperations(fold, [...working.values()], next, ref, canonicalizationFloor));
   }
 
@@ -147,6 +188,7 @@ export function deriveIdentityRevision({ fold = {}, supports = [], attacks = [],
       consequence: { kind: "identity_reading_refused", identity: prior.id },
       payload: { action: "exclusion", value: Object.freeze({ schema: "EOExclusion@1", id: `exclusion:${prior.id}`, kind: "identity_refused", target: prior.id, witness: ref }) },
     }));
+    transitionFor(prior.id, "violated", ref, "expectation_violated");
     operations.push(...recanonicalizationOperations(fold, [...working.values()], next, ref, canonicalizationFloor));
   }
 

@@ -254,3 +254,29 @@ strong side of both questions:**
 Disclosed as before: two shuffle draws license direction, not effect
 size; the uncovered 1,758 bindings stay unmeasured; expectations and
 obligations remain zero — the prediction side is still the open half.
+
+---
+
+# Fourth amendment — the prediction side gets traffic (expectations from the identity lifecycle)
+
+`deriveIdentityRevision`, when a corroboration floor is declared, now also
+emits the kernel's own expectation vocabulary: a below-floor alternative
+opens an `EOExpectation@1` ("corroboration expected: X <-> Y" — the
+fold's own prediction that a second witness will arrive), a support below
+the floor STRENGTHENS it, a support reaching the floor FULFILLS it (EVA —
+expectationTransition's own typing), an attack VIOLATES it. The floor is
+what makes fulfilment a mechanical fact rather than a judgment; no floor
+declared = no expectations = byte-identical (pinned, 6/6 kernel tests).
+Obligations/tension stay deferred, with the reason named: ~1,600 open
+obligations would make deriveTension's pairwise interaction network
+quadratic per turn (~4B comparisons per full read) — a grouping design is
+needed first, not a cap.
+
+**Pre-registered before the full run** (the fast smoke run showed only
+traffic volume, no ordered/shuffled comparison): fulfilment should
+separate ordered from shuffled — reaching the floor requires the SAME
+pairing to earn two independent witnesses, which the floor-2 REC result
+already showed is order-sensitive (11 vs 2/1) — while violation should
+NOT separate, since attack volume (splits: 441 vs 382/502) never did.
+Whatever the full run returns is reported against this prediction,
+including a miss.

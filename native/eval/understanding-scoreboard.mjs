@@ -142,6 +142,8 @@ async function runReading(encounters, { cursors }) {
         const srcMatch = /^edge:text:(\d+):/.exec(op.consequence.sourceEdge ?? "");
         const srcPos = srcMatch ? Number(srcMatch[1]) + 1 : null; // sequencePosition is 0-based; pos is 1-based
         events.push({ pos, kind, remade: op.consequence.from != null, reach: srcPos != null ? pos - srcPos : null });
+      } else if (kind === "expectation_opened" || kind === "expectation_strengthened" || kind === "expectation_fulfilled" || kind === "expectation_violated") {
+        events.push({ pos, kind });
       } else if (
         kind === "identity_split" ||
         kind === "identity_hypothesis_opened" ||
@@ -191,7 +193,13 @@ function backwardScore(cursor, events, total) {
     else if (e.kind === "identity_hypothesis_supported") supported += 1;
     else if (e.kind === "discourse_identity_supported") discourseSupported += 1;
   }
-  return { cursor, after: total - cursor, pastRemade: remade, firstCanonicalizations: firstCanon, identitySplits: splits, hypothesesOpened: opened, alternativesOpened, hypothesesSupported: supported, discourseSupported };
+  let expFulfilled = 0, expViolated = 0;
+  for (const e of events) {
+    if (e.pos <= cursor) continue;
+    if (e.kind === "expectation_fulfilled") expFulfilled += 1;
+    else if (e.kind === "expectation_violated") expViolated += 1;
+  }
+  return { cursor, after: total - cursor, pastRemade: remade, firstCanonicalizations: firstCanon, identitySplits: splits, hypothesesOpened: opened, alternativesOpened, hypothesesSupported: supported, discourseSupported, expectationsFulfilledAfter: expFulfilled, expectationsViolatedAfter: expViolated };
 }
 
 // Distribution of how far back (in encounters) re-made RECs reached — the
@@ -228,6 +236,9 @@ function scoreRun(label, run, cursors) {
     // Measured, not asserted: the text adapter opens neither of the
     // kernel's own dynamics carriers — this is the starvation finding.
     expectationsFinal: (run.finalFold.expectations ?? []).length,
+    expectationsByState: (run.finalFold.expectations ?? []).reduce((acc, e) => { acc[e.state] = (acc[e.state] ?? 0) + 1; return acc; }, {}),
+    expectationsFulfilledTotal: run.events.filter((e) => e.kind === "expectation_fulfilled").length,
+    expectationsViolatedTotal: run.events.filter((e) => e.kind === "expectation_violated").length,
     obligationsFinal: (run.finalFold.obligations ?? []).length,
     provisionalFinal: (run.finalFold.provisional ?? []).length,
     unresolvedAlternativesFinal: (run.finalFold.unresolvedAlternatives ?? []).length,
