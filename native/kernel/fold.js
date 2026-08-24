@@ -58,32 +58,68 @@ export function deltaFold(operations = [], meta = {}) {
   });
 }
 
+// Every fold array here is copy-on-write: upsertById/upsertManyById are the
+// ONLY writers, always returning a brand-new array, never mutating `list` in
+// place. That makes it safe to cache each array's own id->position index as
+// a hidden, non-enumerable property on the array itself, carried forward
+// (and incrementally extended, never rebuilt) into whatever array replaces
+// it -- the same "index maintained across an append-only lineage" shape as
+// task-log.js's own projection cache, applied here to avoid rescanning the
+// whole, ever-growing fold on every single upsert to find out where (or
+// whether) an id already lives, when the common case is simply appending a
+// fresh one.
+function idIndexOf(list) {
+  let idx = list?._idIndex;
+  if (idx) return idx;
+  idx = new Map();
+  for (let i = 0; i < (list?.length ?? 0); i += 1) if (list[i]?.id != null) idx.set(list[i].id, i);
+  attachIdIndex(list, idx);
+  return idx;
+}
+
+function attachIdIndex(array, idx) {
+  if (!array) return array;
+  try { Object.defineProperty(array, "_idIndex", { value: idx, enumerable: false, configurable: true }); } catch { /* non-extensible array: caching skipped, correctness unaffected */ }
+  return array;
+}
+
+// `list` is discarded the moment its successor exists -- every writer in
+// this module reassigns rather than reuses a prior array (confirmed: no
+// caller anywhere upserts twice from the same base to produce two divergent
+// results). That makes it safe to EXTEND the prior index in place, carrying
+// the same Map forward rather than copying it on every single upsert, which
+// would otherwise re-introduce the exact O(list-so-far) cost per call this
+// cache exists to remove -- particularly for upsertById, which applyDelta
+// calls once per matching operation, sequentially, against the very same
+// growing array within one delta.
 function upsertById(list = [], value) {
+  const idx = idIndexOf(list);
   const next = [...list];
-  const i = value?.id == null ? -1 : next.findIndex((item) => item?.id === value.id);
-  if (i >= 0) next[i] = { ...next[i], ...clone(value) };
-  else next.push(clone(value));
-  return next;
+  const id = value?.id;
+  const i = id == null ? -1 : idx.get(id) ?? -1;
+  if (i >= 0) { next[i] = { ...next[i], ...clone(value) }; return attachIdIndex(next, idx); }
+  next.push(clone(value));
+  if (id != null) idx.set(id, next.length - 1);
+  return attachIdIndex(next, idx);
 }
 
 function upsertManyById(list = [], values = []) {
   if (!values.length) return list;
+  const idx = idIndexOf(list);
   const next = [...list];
-  const index = new Map();
-  for (let i = 0; i < next.length; i += 1) if (next[i]?.id != null) index.set(next[i].id, i);
   for (const raw of values) {
     if (!raw) continue;
     const value = clone(raw);
     const id = value?.id;
-    if (id != null && index.has(id)) {
-      const i = index.get(id);
+    if (id != null && idx.has(id)) {
+      const i = idx.get(id);
       next[i] = { ...next[i], ...value };
       continue;
     }
-    if (id != null) index.set(id, next.length);
+    if (id != null) idx.set(id, next.length);
     next.push(value);
   }
-  return next;
+  return attachIdIndex(next, idx);
 }
 
 function removeById(list = [], id) {

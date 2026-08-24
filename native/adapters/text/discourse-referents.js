@@ -151,3 +151,81 @@ export function projectDiscourseReferents(graphEntries = []) {
   }
   return Object.freeze(referents);
 }
+
+/**
+ * Incremental counterpart to projectDiscourseReferents: a persistent index a
+ * caller (revision.js's own text-revision index) maintains and updates one
+ * admission at a time, instead of re-deriving the whole union-find and every
+ * component's referent from a growing flat list on every turn. Each
+ * admission touches only the ~O(1) component(s) it actually affects; the
+ * caller then asks for a referent only for the roots that changed
+ * (index.touchedRoots), never re-deriving one for every earlier component
+ * that did not change this turn.
+ */
+export function createDiscourseIndex() {
+  return { parent: new Map(), components: new Map(), linksByRoot: new Map() };
+}
+
+function discourseFind(index, x) {
+  let p = index.parent.get(x);
+  if (p == null) return null;
+  while (p !== index.parent.get(p)) p = index.parent.get(p);
+  let y = x;
+  while (index.parent.get(y) !== p) {
+    const next = index.parent.get(y);
+    index.parent.set(y, p);
+    y = next;
+  }
+  return p;
+}
+
+export function admitDiscourseOccurrence(index, occurrence, touchedRoots) {
+  if (!occurrence?.id || index.parent.has(occurrence.id)) return;
+  index.parent.set(occurrence.id, occurrence.id);
+  index.components.set(occurrence.id, [occurrence]);
+  index.linksByRoot.set(occurrence.id, []);
+  touchedRoots?.add(occurrence.id);
+}
+
+export function admitDiscourseLink(index, link, touchedRoots) {
+  if (!link || link.standing === "refused") return;
+  const ra = discourseFind(index, link.leftOccurrence);
+  const rb = discourseFind(index, link.rightOccurrence);
+  if (ra == null || rb == null) return;
+  if (ra === rb) {
+    index.linksByRoot.get(ra).push(link);
+    touchedRoots?.add(ra);
+    return;
+  }
+  // Stable by lexical id, matching unionFind's own tie-break above -- this
+  // is component bookkeeping, not salience.
+  const [winner, loser] = ra < rb ? [ra, rb] : [rb, ra];
+  index.parent.set(loser, winner);
+  index.components.set(winner, [...index.components.get(winner), ...index.components.get(loser)]);
+  index.components.delete(loser);
+  index.linksByRoot.set(winner, [...index.linksByRoot.get(winner), ...index.linksByRoot.get(loser), link]);
+  index.linksByRoot.delete(loser);
+  touchedRoots?.add(winner);
+}
+
+export function discourseReferentForRoot(index, root) {
+  const group = index.components.get(root);
+  if (!group || group.length < 2) return null;
+  const links = index.linksByRoot.get(root) ?? [];
+  if (!links.length) return null;
+  const surfaces = [...new Set(group.map((x) => x.canonicalSurface).filter(Boolean))];
+  return Object.freeze({
+    schema: "EOReferent@1",
+    id: `ref:discourse:${slug(root)}`,
+    display: group[0].surface,
+    surfaces: Object.freeze(surfaces),
+    occurrenceRefs: Object.freeze(group.map((x) => x.id)),
+    supportRefs: Object.freeze([...new Set(links.map((l) => l.id))]),
+    standing: "provisional",
+    revisable: true,
+    provenance: Object.freeze({
+      giver: "text/discourse-referents::projectDiscourseReferents",
+      basis: "connected component of explicitly supported occurrence-level identity links",
+    }),
+  });
+}
