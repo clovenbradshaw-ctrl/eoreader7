@@ -6,6 +6,7 @@ import {
   createRecursiveReader,
   createPriorConditionedReader,
   deriveExperiencePrior,
+  mergeExperiencePriors,
   deriveOrientation,
   executeStanceReasoning,
 } from "../../kernel.js";
@@ -90,32 +91,43 @@ const historySpecs = [
   { path: pridePath, source: "prior:gutenberg:1342" },
 ];
 
+// Each prior work is sedimented into a compact EOExperiencePrior@1 the
+// moment its own reading finishes, then the reading itself is left to fall
+// out of scope. `history` accumulates bounded per-book priors, never the
+// growing set of raw Folds that produced them, so carrying N books of
+// experience costs O(vocabulary), not O(sum of every book read so far).
 const history = [];
 const historyReport = [];
+let accumulatedPrior = null;
 for (let i = 0; i < historySpecs.length; i += 1) {
   const spec = historySpecs[i];
-  const prior = history.length
-    ? deriveExperiencePrior(history, {
-        id: `experience-prior:before:${i + 1}`,
-        giver: "reader:sequential-literary-history",
-      })
-    : null;
-  const result = await readWork(spec.path, spec.source, prior ? [prior] : []);
+  const result = await readWork(spec.path, spec.source, accumulatedPrior ? [accumulatedPrior] : []);
   const edgeState = edgeSummary(result.reading);
-  history.push({ source: spec.source, reading: compactReading(result.reading) });
   historyReport.push({
     source: spec.source,
     encounters: result.encounters.length,
-    receivedPriorSources: prior?.sourceRefs ?? [],
-    priorVocabularySize: prior?.relationVocabulary?.length ?? 0,
-    priorNetworkPatterns: prior?.networkPatterns?.length ?? 0,
+    receivedPriorSources: accumulatedPrior?.sourceRefs ?? [],
+    priorVocabularySize: accumulatedPrior?.relationVocabulary?.length ?? 0,
+    priorNetworkPatterns: accumulatedPrior?.networkPatterns?.length ?? 0,
     relations: edgeState.edges.length,
     priorAttendedRelations: edgeState.priorAttended.length,
     networks: networkCount(result.reading),
   });
+
+  history.push(deriveExperiencePrior([{ source: spec.source, reading: compactReading(result.reading) }], {
+    id: `experience-prior:book:${spec.source}`,
+    giver: "reader:sequential-literary-history",
+  }));
+  accumulatedPrior = mergeExperiencePriors(history, {
+    id: `experience-prior:before:${i + 2}`,
+    giver: "reader:sequential-literary-history",
+  });
+  // `result` -- and the full reading/Fold/turn history it carries -- goes
+  // out of scope here. Only the compact sedimented priors in `history`
+  // survive into the next iteration; the raw reading is never retained.
 }
 
-const experiencePrior = deriveExperiencePrior(history, {
+const experiencePrior = mergeExperiencePriors(history, {
   id: "experience-prior:before-frankenstein",
   giver: "reader:sequential-literary-history",
 });
