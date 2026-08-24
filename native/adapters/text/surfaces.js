@@ -444,6 +444,23 @@ export const discoverReferents = (surfaces, { minSentences, minPartners, groups 
   const individuating = (surface) =>
     diaNorm(surface).split(/\s+/).filter((t) => t.length > 2 && !generic.has(t));
 
+  // The singleton-partner rescue's evidence: each token's partner set,
+  // counted over EVIDENCE-WORTHY surfaces only (the same sentences floor
+  // clustering itself applies — junk one-off surfaces like "Chapter
+  // Clerval" would otherwise hand a real name phantom partners).
+  const eligiblePartners = (() => {
+    const m = new Map();
+    for (const entry of surfaces) {
+      if (entry.sentences <= sentencesFloorOf(entry)) continue;
+      const toks = diaNorm(entry.surface).split(/\s+/).filter((t) => t.length > 2);
+      for (const t of toks) {
+        if (!m.has(t)) m.set(t, new Set());
+        for (const u of toks) if (u !== t) m.get(t).add(u);
+      }
+    }
+    return m;
+  })();
+
   const corefersIndividuated = (a, b) => {
     const ia = individuating(a);
     const ib = individuating(b);
@@ -453,6 +470,27 @@ export const discoverReferents = (surfaces, { minSentences, minPartners, groups 
     // That inverted fallback kept every Princess in one referent: both
     // "Princess Mary" and "Princess Hélène" strip to nothing, and the
     // fallback then merged them on the shared title alone.
+    //
+    // ONE exception, licensed by the material's own combinatorics (S9: low
+    // sets possible): a bare generic token whose corpus-wide partner set —
+    // above the same evidence floor — is EXACTLY ONE token can only name
+    // that partner's bearer. "Clerval" is generic (a family name), but this
+    // book gives it one partner ("Henry"), so bare "Clerval" has one
+    // possible referent; "Princess" has many partners and stays refused.
+    // Measured before this rescue: the book's dominant surface for Henry
+    // Clerval (44 mentions, bare "Clerval") stranded as its own referent,
+    // and the Network standing organ read the split alias as a top "bond"
+    // — self-company, not company.
+    const rescued = (bare, other) => {
+      const toks = diaNorm(bare).split(/\s+/).filter((t) => t.length > 2);
+      if (toks.length !== 1) return false;
+      const ps = eligiblePartners.get(toks[0]);
+      if (!ps || ps.size !== 1) return false;
+      const [only] = ps;
+      return diaNorm(other).split(/\s+/).includes(only);
+    };
+    if (!ia.length && ib.length && rescued(a, b)) return true;
+    if (!ib.length && ia.length && rescued(b, a)) return true;
     return diaNorm(a) === diaNorm(b);
   };
 

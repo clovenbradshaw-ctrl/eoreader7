@@ -11,11 +11,16 @@
   "alpha": 0.05,
   "seed": 20260812
  },
- "beings": 60,
+ "beings": 58,
+ "identityProjection": {
+  "incrementalIds": 60,
+  "finalBeings": 58,
+  "remapped": 2
+ },
  "belowArrivalFloor": 13,
- "rawCoArrivingPairs": 275,
- "edges": 83,
- "refusedAsCoincident": 192,
+ "rawCoArrivingPairs": 251,
+ "edges": 77,
+ "refusedAsCoincident": 174,
  "topEdges": [
   {
    "a": "ref:auto:felix",
@@ -31,6 +36,12 @@
   },
   {
    "a": "ref:auto:elizabeth",
+   "b": "ref:auto:clerval",
+   "coArrivals": 49,
+   "pValue": 0.04020100502512563
+  },
+  {
+   "a": "ref:auto:elizabeth",
    "b": "ref:auto:justine",
    "coArrivals": 48,
    "pValue": 0
@@ -42,15 +53,15 @@
    "pValue": 0
   },
   {
-   "a": "ref:auto:clerval",
-   "b": "ref:auto:henry",
-   "coArrivals": 36,
-   "pValue": 0
-  },
-  {
    "a": "ref:auto:elizabeth",
    "b": "ref:auto:victor",
    "coArrivals": 28,
+   "pValue": 0
+  },
+  {
+   "a": "ref:auto:geneva",
+   "b": "ref:auto:clerval",
+   "coArrivals": 26,
    "pValue": 0
   },
   {
@@ -90,12 +101,6 @@
    "pValue": 0.020100502512562814
   },
   {
-   "a": "ref:auto:geneva",
-   "b": "ref:auto:clerval",
-   "coArrivals": 17,
-   "pValue": 0.02512562814070352
-  },
-  {
    "a": "ref:auto:god",
    "b": "ref:auto:justine",
    "coArrivals": 16,
@@ -110,10 +115,10 @@
  ],
  "refusedSample": [
   {
-   "a": "ref:auto:elizabeth",
-   "b": "ref:auto:clerval",
-   "coArrivals": 36,
-   "pValue": 0.07537688442211055,
+   "a": "ref:auto:clerval",
+   "b": "ref:auto:frankenstein",
+   "coArrivals": 17,
+   "pValue": 0.05025125628140704,
    "reason": "coincident_under_null",
    "detail": "observed co-arrival does not clear its own displacement null at alpha 0.05 — company kept by chance is not a bond"
   },
@@ -126,6 +131,14 @@
    "detail": "observed co-arrival does not clear its own displacement null at alpha 0.05 — company kept by chance is not a bond"
   },
   {
+   "a": "ref:auto:clerval",
+   "b": "ref:auto:victor",
+   "coArrivals": 16,
+   "pValue": 0.1306532663316583,
+   "reason": "coincident_under_null",
+   "detail": "observed co-arrival does not clear its own displacement null at alpha 0.05 — company kept by chance is not a bond"
+  },
+  {
    "a": "ref:auto:elizabeth",
    "b": "ref:auto:william",
    "coArrivals": 15,
@@ -134,26 +147,18 @@
    "detail": "observed co-arrival does not clear its own displacement null at alpha 0.05 — company kept by chance is not a bond"
   },
   {
-   "a": "ref:auto:elizabeth",
-   "b": "ref:auto:henry",
-   "coArrivals": 13,
-   "pValue": 0.2613065326633166,
+   "a": "ref:auto:clerval",
+   "b": "ref:auto:william",
+   "coArrivals": 14,
+   "pValue": 0.1306532663316583,
    "reason": "coincident_under_null",
    "detail": "observed co-arrival does not clear its own displacement null at alpha 0.05 — company kept by chance is not a bond"
   },
   {
-   "a": "ref:auto:turk",
-   "b": "ref:auto:leghorn",
+   "a": "ref:auto:clerval",
+   "b": "ref:auto:justine",
    "coArrivals": 11,
-   "pValue": 0.9095477386934674,
-   "reason": "coincident_under_null",
-   "detail": "observed co-arrival does not clear its own displacement null at alpha 0.05 — company kept by chance is not a bond"
-  },
-  {
-   "a": "ref:auto:england",
-   "b": "ref:auto:elizabeth",
-   "coArrivals": 10,
-   "pValue": 0.2914572864321608,
+   "pValue": 0.8241206030150754,
    "reason": "coincident_under_null",
    "detail": "observed co-arrival does not clear its own displacement null at alpha 0.05 — company kept by chance is not a bond"
   }

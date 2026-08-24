@@ -22,6 +22,8 @@
 import fs from "node:fs";
 import { stripContainer } from "../adapters/text/spans.js";
 import { createCausalTextPerceiver, textEncounters } from "../adapters/text/recursive.js";
+import { extractSurfaces, discoverReferents, diaNorm } from "../adapters/text/surfaces.js";
+import { splitSentences } from "../adapters/text/spans.js";
 import { dmdWindow } from "../kernel/activation.js";
 import { networkStanding } from "../kernel/network-standing.js";
 import { bindLinks } from "../../legacy-eoreader6.1/packages/engine/emergence/binding.js";
@@ -64,7 +66,31 @@ async function main() {
   const measured = dmdWindow(mentionObs.slice(0, Math.floor(mentionObs.length / 4)), top1, { candidates: WINDOW_CANDIDATES });
   if (measured.window == null) throw new Error(`window measurement gapped: ${measured.gap} — declare one with its reason before running standing`);
 
-  const beings = [...arrivals.entries()].map(([id, a]) => ({ id, arrivals: a }));
+  // IDENTITY IS RETRIEVAL-TIME (P1: activation decays, identity does not).
+  // The causal perceiver assigns ids as clustered AT THAT MOMENT of the
+  // read — before "Henry Clerval" has ever been seen, bare "Henry" and
+  // bare "Clerval" are two ids, and arrivals recorded under the early ids
+  // stay split even after the reader's own clustering has merged them.
+  // Measured: the standing organ then ranked Clerval–Henry among the top
+  // "bonds" — self-company read as a bond. So arrivals are PROJECTED here
+  // through the reading's FINAL clustering (the same organs, full
+  // evidence): each incremental id names its founding surface, and the
+  // final clustering says which being that surface belongs to.
+  const finalRefs = discoverReferents(extractSurfaces(splitSentences(stripped.text), {}));
+  const finalIdOf = new Map();
+  for (const e of finalRefs.events) if (e.type === "DEF.admit") finalIdOf.set(diaNorm(e.surface).replace(/\s+/g, "_"), e.referent_id);
+  const merged = new Map();
+  let remapped = 0;
+  for (const [id, a] of arrivals) {
+    const founding = id.replace(/^ref:auto:/, "");
+    const finalId = finalIdOf.get(founding) ?? id;
+    if (finalId !== id) remapped += 1;
+    const xs = merged.get(finalId) ?? [];
+    xs.push(...a);
+    merged.set(finalId, xs);
+  }
+  for (const xs of merged.values()) xs.sort((x, y) => x - y);
+  const beings = [...merged.entries()].map(([id, a]) => ({ id, arrivals: [...new Set(a)] }));
   const standing = networkStanding(beings, { bindLinks, window: measured.window, ...LINK });
 
   // presence-side comparison: how many RAW pairs ever co-arrive at all
@@ -76,6 +102,7 @@ async function main() {
     assembly: "causal text perceiver (mention arrivals per encounter) -> kernel/network-standing with engine bindLinks injected",
     declared: { window: { value: measured.window, basis: "dmdWindow, top-1 derive on this book's own first-quarter mention stream" }, ...LINK },
     beings: beings.length,
+    identityProjection: { incrementalIds: arrivals.size, finalBeings: beings.length, remapped },
     belowArrivalFloor: standing.belowFloor.length,
     rawCoArrivingPairs: rawPairs,
     edges: standing.edges.length,
