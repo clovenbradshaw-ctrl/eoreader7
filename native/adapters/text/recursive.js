@@ -8,6 +8,7 @@ import { explicitKindAssertions } from "./kind-assertions.js";
 import { explicitExistentialGrounds } from "./existential-ground.js";
 import { hyperedge } from "../../kernel/hypergraph.js";
 import { kindEvidence } from "../../kernel/kind-induction.js";
+import { experienceRelationVocabulary } from "../../kernel/experience-priors.js";
 
 const slug = (value) => diaNorm(value).replace(/[^\p{L}\p{N}]+/gu, "_").replace(/^_+|_+$/g, "");
 const escapeRe = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -179,6 +180,20 @@ function foldConditionedRelationVerbs(text, orientation, functionWords, relation
   return new Set([...local.verbs].filter((verb) => compositionStandingFor(verb, relationPosPrior).standing === "lexical_verb"));
 }
 
+function experiencePriorRelationVerbs(text, orientation, relationPosPrior) {
+  const remembered = experienceRelationVocabulary(orientation?.receivedPriors ?? []);
+  if (!remembered.length) return new Map();
+  const source = String(text ?? "");
+  const out = new Map();
+  for (const record of remembered) {
+    const relation = String(record?.relation ?? "").trim();
+    if (!relation || compositionStandingFor(relation, relationPosPrior).eligible === false) continue;
+    const re = new RegExp(`(^|[^\\p{L}\\p{N}])${escapeRe(relation)}(?=[^\\p{L}\\p{N}]|$)`, "iu");
+    if (re.test(source)) out.set(relation, record);
+  }
+  return out;
+}
+
 function witnessedSubjectSurface(text, relation) {
   const start = Number.isFinite(relation?.subjectOffset) ? relation.subjectOffset : relation?.offset;
   if (!Number.isFinite(start) || !relation?.verb) return relation?.subject ?? "";
@@ -254,7 +269,9 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
       const currentSentence = { text: encounter.material, offset: encounter.anchor?.start ?? 0, order: priorSentences.length };
       const pronouns = pronounResolver ? pronounResolver.step(currentSentence, cache.refs) : { bindings: [], gaps: [] };
       const attendedVerbs = foldConditionedRelationVerbs(encounter.material, orientation, cache.closed, relationPosPrior);
-      const verbs = new Set([...cache.verbs, ...attendedVerbs]);
+      const priorRelations = experiencePriorRelationVerbs(encounter.material, orientation, relationPosPrior);
+      const priorAttendedVerbs = new Set(priorRelations.keys());
+      const verbs = new Set([...cache.verbs, ...attendedVerbs, ...priorAttendedVerbs]);
       const relations = extractRelations(encounter.material, { verbs, functionWords: cache.closed });
       const relationBindings = [];
       const edges = relations.map((rel, index) => {
@@ -262,10 +279,11 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
         const subject = resolveParticipant(subjectSurface, cache.refs, sequencePosition, index, "subject", { offset: rel.subjectOffset, pronounBindings: pronouns.bindings, orientation });
         const object = resolveParticipant(rel.object, cache.refs, sequencePosition, index, "object", { offset: rel.objectOffset, pronounBindings: pronouns.bindings, orientation });
         for (const binding of [subject.binding, object.binding]) if (binding && !relationBindings.some((item) => item.id === binding.id)) relationBindings.push(binding);
+        const attention = attendedVerbs.has(rel.verb) ? "fold_conditioned_referent" : priorAttendedVerbs.has(rel.verb) ? "experience_prior" : null;
         return hyperedge({
           id: `edge:text:${sequencePosition}:${index}`, relation: rel.verb, participants: [subject.participant, object.participant], witness: `text:${sequencePosition}:${rel.offset}`,
           scope: { sequencePosition, offset: rel.offset }, eo: { op: "CON", grain: "Figure" },
-          meta: { polarity: rel.polarity, source: encounter.source, encounterRef, normalizedSubject: rel.subject, compositionStanding: compositionStandingFor(rel.verb, relationPosPrior), attention: attendedVerbs.has(rel.verb) ? "fold_conditioned_referent" : null },
+          meta: { polarity: rel.polarity, source: encounter.source, encounterRef, normalizedSubject: rel.subject, compositionStanding: compositionStandingFor(rel.verb, relationPosPrior), attention, experiencePrior: attention === "experience_prior" ? priorRelations.get(rel.verb) : null },
         });
       });
 
@@ -291,6 +309,7 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
       priorSentences.push(currentSentence);
       priorText += `${priorText ? "\n" : ""}${encounter.material}`;
       if (edges.length === 0 && seenReferents.length === 0 && lexicalOccurrences.length === 0 && targetedOccurrences.length === 0 && relationBindings.length === 0 && kindAssertions.length === 0 && structuralKindEvidence.length === 0 && existentialGrounds.length === 0) return [];
+      const usedExperiencePrior = edges.some((edge) => edge.meta?.attention === "experience_prior");
       return [{
         candidate: {
           distinctions: [
@@ -307,8 +326,10 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
           graphEntries: [...seenReferents, ...mentions, ...lexicalOccurrences, ...targetedOccurrences, ...gaps, ...relationBindings, ...kindAssertions, ...structuralKindEvidence, ...existentialGrounds],
         },
         anchor: encounter.anchor,
+        // The prior only chose what to inspect. The actual sentence remains
+        // the evidence that the witness gate must verify and admit.
         evidence: encounter.material,
-        nominationCause: targetedOccurrences.length ? ["bottom_up_difference", "active_task"] : attendedVerbs.size ? ["bottom_up_difference", "fold_conditioned_attention"] : "bottom_up_difference",
+        nominationCause: targetedOccurrences.length ? ["bottom_up_difference", "active_task"] : usedExperiencePrior ? ["bottom_up_difference", "experience_prior_attention"] : attendedVerbs.size ? ["bottom_up_difference", "fold_conditioned_attention"] : "bottom_up_difference",
       }];
     },
   });
