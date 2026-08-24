@@ -2,7 +2,7 @@ import { tokenize, buildFrequencyTable, functionWordSet } from "./material.js";
 import { splitSentences } from "./spans.js";
 import { extractSurfaces, discoverReferents, diaNorm } from "./surfaces.js";
 import { discoverRelationVocab, extractRelations } from "./relations.js";
-import { directDescriptorOccurrences } from "./individuation.js";
+import { directDescriptorOccurrences, descriptorOccurrence } from "./individuation.js";
 import { createDescriptorAnchoring } from "./anchoring.js";
 import { hyperedge } from "../../kernel/hypergraph.js";
 
@@ -311,7 +311,18 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
         // furniture is by nature high-frequency and therefore present
         // (the same absent-is-a-gap-not-a-mismatch polarity
         // grammar-lens.js records for the identical prior).
-        const descriptorOccs = directDescriptorOccurrences(encounter.material, { encounterRef }).filter((occ) => {
+        // Edge participants first: an anchored descriptor is only worth
+        // something to composition if it resolves an endpoint an EDGE
+        // actually has. These carry their participant's own occurrence id
+        // so the binding lands in the id space the ledger reads.
+        const participantOccs = edges.flatMap((edge) => (edge.participants ?? [])
+          .filter((p) => p.standing === "unresolved_surface")
+          .map((p) => {
+            const occ = descriptorOccurrence(p, { encounterRef, edge });
+            return occ ? { ...occ, participantOccurrence: p.occurrence ?? p.ref } : null;
+          })
+          .filter(Boolean));
+        const descriptorOccs = [...participantOccs, ...directDescriptorOccurrences(encounter.material, { encounterRef })].filter((occ) => {
           const head = (occ.canonicalSurface ?? "").split(/\s+/).at(-1);
           if (!head || cache.closed.has(head)) return false;
           const counts = posPrior?.forms?.[diaNorm(head)];

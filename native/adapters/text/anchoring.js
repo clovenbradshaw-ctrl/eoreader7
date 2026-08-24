@@ -179,6 +179,13 @@ export function createDescriptorAnchoring({
           descriptor: occ.canonicalSurface,
           determination: occ.determination,
           occurrenceRef: occ.id ?? null,
+          // The occurrence id an EDGE PARTICIPANT actually carries, when
+          // this occurrence came from one. Edge participants live in their
+          // own id space (`occ:{seq}:{rel}:{role}`), separate from
+          // text-derived descriptor occurrences (`ref-occ:...`) — measured
+          // at zero overlap, which is why binding only the latter left the
+          // composition ledger with no bridges at all.
+          participantOccurrence: occ.participantOccurrence ?? null,
           referent: topRef,
           referentSurface: displayById.get(topRef) ?? topRef,
           activation: topScore,
@@ -256,11 +263,12 @@ export function identityEvidenceFromAnchors(anchors = [], fold = {}) {
  * 20 chain sites, 0 candidates).
  */
 export function anchorAsDefiniteBinding(anchor) {
-  if (anchor?.schema !== "EOAnchorEvidence@1" || !anchor.occurrenceRef || !anchor.referent) return null;
+  const occurrence = anchor?.participantOccurrence ?? anchor?.occurrenceRef;
+  if (anchor?.schema !== "EOAnchorEvidence@1" || !occurrence || !anchor.referent) return null;
   return Object.freeze({
     schema: "EODefiniteBinding@1",
     id: `definite-binding:${anchor.id}`,
-    occurrence: anchor.occurrenceRef,
+    occurrence,
     referent: anchor.referent,
     surface: anchor.descriptor,
     witness: anchor.witness,
