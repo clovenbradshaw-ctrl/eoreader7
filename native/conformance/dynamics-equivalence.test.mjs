@@ -20,17 +20,18 @@ test("surprise is derived from consequential DeltaFold rather than raw observati
   assert.deepEqual(n.downstreamConsequences, ["recanonicalized identity"]);
 });
 
-test("tension preserves unresolved consequential structure while v7 derives its magnitude from Atmosphere math", () => {
+test("tension preserves unresolved consequential structure without inventing energetic conflict", () => {
   const fold = native.receivedGround({ sequence: 7, obligations: [openA, openB, { id: "obl:closed", status: "resolved", distinction: { materiality } }] });
   const n = native.deriveTension(fold);
   assert.deepEqual(n.obligations.map((o) => o.id), ["obl:a", "obl:b"]);
   assert.equal(n.schema, "TensionProfile@1");
-  assert.equal(n.field.model, "coupled_unresolved_potential_field");
-  assert.ok(n.energy > 0);
-  assert.ok(n.couplingEnergy > 0);
-  assert.equal(n.interactionNetwork.length, 1);
-  assert.equal(n.interactionNetwork[0].shared, 1);
+  assert.equal(n.field.model, "interpretive_constraint_factor_graph");
+  assert.equal(n.field.factorCount, 2);
+  assert.equal(n.interactionNetwork.length, 1, "shared Fold variables establish coupling topology");
+  assert.equal(n.tensionAvailable, false, "coupling alone cannot establish contradiction energy");
+  assert.equal(n.energy, null);
   assert.deepEqual(n.persistence.map((item) => item.value), [6, 4]);
+  assert.equal(n.persistenceExposure, 10);
 
   const legacyFold = native.receivedGround({ sequence: 7, obligations: [
     { ...openA, consequences: ["ref:z"] },
@@ -47,6 +48,7 @@ test("non-material unresolved questions do not create tension", () => {
   const tension = native.deriveTension(fold);
   assert.equal(tension.obligations.length, 0);
   assert.equal(tension.energy, 0);
+  assert.equal(tension.tensionAvailable, true);
 });
 
 test("release requires a witnessed transformation that actually closes an obligation", () => {
