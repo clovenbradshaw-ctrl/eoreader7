@@ -4,6 +4,7 @@ export { createEmergentTerrainIndex, indexEmergentTerrainEntries, snapshotEmerge
 export { shannonEntropy, structuralFieldGeometry, relationNetworkComponents, interpretiveSignature, interpretiveParadigmModels } from "./terrain-math.js";
 export { interpretiveAtmosphereFactorField } from "./atmosphere-math.js";
 export { interpretiveLensGeometry, projectLensGeometry } from "./lens-math.js";
+export { createIdentityGroupoidIndex, indexIdentityGroupoidEntries, snapshotIdentityGroupoid, projectIdentityGroupoid, identityProofPath } from "./identity-groupoid.js";
 export { createIdentityQuotientIndex, indexIdentityQuotientEntries, snapshotIdentityQuotient, projectIdentityQuotient } from "./identity-quotient.js";
 export { kindEvidence, createKindInductionIndex, indexKindEntries, snapshotKindState, kindDiagnostics, kindCandidates, projectKinds } from "./kind-induction.js";
 export { induceEntityParameters, induceEntityKindCandidates, profileJaccard } from "./entity-kind-induction.js";
