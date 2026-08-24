@@ -8,7 +8,7 @@ import { buildHypergraph, indexHypergraphEntries } from "./hypergraph.js";
 import { createTerrainIndex, indexTerrainEntries, snapshotTerrainState, snapshotTerrainReferents } from "./terrain-state.js";
 import { createEmergentTerrainIndex, indexEmergentTerrainEntries, snapshotEmergentTerrainState, mergeTerrainStates } from "./emergent-terrain.js";
 import { createIdentityQuotientIndex, indexIdentityQuotientEntries, snapshotIdentityQuotient } from "./identity-quotient.js";
-import { createKindInductionIndex, indexKindEntries, snapshotKindState, kindDiagnostics, kindCandidates } from "./kind-induction.js";
+import { createKindInductionIndex, indexKindEntries, snapshotKindState, kindDiagnostics, kindCandidates, flushKindPopulation } from "./kind-induction.js";
 import { createKindBasinAdmissionLedger } from "./kind-basin-admission.js";
 import { conditionKindProjections, snapshotEntityKindPriorHypotheses } from "./kind-priors.js";
 import { createStanceIndex, indexStanceEntries, snapshotStanceState } from "./stance-state.js";
@@ -242,6 +242,7 @@ export function createRecursiveReader({ seed = {}, priors = [], perceivers = [],
     const turns = [];
     for (const item of encounters) turns.push(await step(item));
     refreshComposition();
+    flushKindPopulation(kindIndex);
     const terrainState = snapshotTerrainState(terrainIndex);
     const emergentTerrainState = snapshotEmergentTerrainState(emergentTerrainIndex);
     const identityQuotient = currentIdentityQuotient();

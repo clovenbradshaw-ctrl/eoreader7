@@ -130,10 +130,28 @@ export function createKindInductionIndex(entries = [], options = {}) {
       populationBondQuantile: options.populationBondQuantile ?? 0.75,
       populationMinAffinity: options.populationMinAffinity ?? 0.12,
       populationNeighborCount: options.populationNeighborCount,
+      // affinityField() is O(entities^2) (every pair's structural affinity,
+      // plus a permutation-null on top) and ingestFeature marks the index
+      // dirty on nearly every turn of a sequential read -- recomputing it
+      // from scratch every dirty turn is exactly the "re-ground instead of
+      // stream" cost READING-POLICY A11 warns about, and it only grows as
+      // more entities are discovered deeper into a book. Mirrors the same
+      // refreshEvery cadence already used by createCausalTextPerceiver
+      // (adapters/text/recursive.js) for an analogous "this is legitimately
+      // expensive, don't pay it every turn" tradeoff. A true incremental
+      // cache was considered and rejected: featureStatistics' per-signature
+      // weight (an IDF-like term baked into every pair's score) moves
+      // non-negligibly as rare, high-distinguishing signatures gain support
+      // early-to-mid read, so "only recompute pairs touching a changed
+      // entity" would ship silently stale affinities on untouched pairs --
+      // not the same append-only/local shape fold.js/task-log.js/
+      // discourse-referents.js's incremental caches rely on.
+      populationRefreshEvery: options.populationRefreshEvery ?? 25,
     }),
     evidenceById: new Map(), explicitByKind: new Map(), entityFeatures: new Map(), entitiesByFeature: new Map(), latestAtByEntity: new Map(),
     receivedProjectionByKind: new Map(), receivedDirtyKinds: new Set(), earnedProjections: freeze([]), populationKindCandidates: freeze([]),
     populationKindDiagnostics: freeze({ entities: 0, parameters: 0, basins: 0, clusters: 0, validated: 0 }),
+    populationTurnsSinceRefresh: undefined,
     earnedDiagnostics: freeze({ selectorNominations: 0, selectorAdmission: "disabled", earnedKinds: 0, withheldNoHoldout: 0, withheldNoConsequence: 0 }),
     graphStructure: createKindGraphStructureLedger({ depthThresholds: options.depthThresholds }), structuralDirty: false, snapshot: null, diagnostics: null,
   };
@@ -268,9 +286,28 @@ function refreshPopulationKindCandidates(index) {
   index.populationKindDiagnostics = result.diagnostics;
 }
 
+// Throttles refreshPopulationKindCandidates's O(entities^2) recompute to
+// once every populationRefreshEvery dirty turns, mirroring
+// createCausalTextPerceiver's own refreshEvery cadence (adapters/text/
+// recursive.js). Between refreshes, index.populationKindCandidates simply
+// stays whatever it was last computed as -- basins that would have formed
+// anyway still form, just discovered up to N turns later; force:true
+// (flushKindPopulation, called once at end of read()) guarantees the
+// terminal state is always fully current regardless of cadence.
+function maybeRefreshPopulationKindCandidates(index, { force = false } = {}) {
+  const cadence = index.options.populationRefreshEvery;
+  const sinceRefresh = index.populationTurnsSinceRefresh ?? Infinity;
+  if (!force && sinceRefresh + 1 < cadence) {
+    index.populationTurnsSinceRefresh = sinceRefresh + 1;
+    return;
+  }
+  refreshPopulationKindCandidates(index);
+  index.populationTurnsSinceRefresh = 0;
+}
+
 function refreshEarnedKinds(index) {
   if (!index.structuralDirty) return;
-  refreshPopulationKindCandidates(index);
+  maybeRefreshPopulationKindCandidates(index);
   const earned = [];
   const diagnostics = {
     selectorNominations: 0,
@@ -330,6 +367,18 @@ export function kindCandidates(index) {
   if (index?.schema !== "EOKindInductionIndex@1") throw new TypeError("kindCandidates requires EOKindInductionIndex@1");
   if (index.structuralDirty || !index.diagnostics) computeSnapshot(index);
   return index.populationKindCandidates;
+}
+
+// Forces a full, un-throttled population-candidate recompute and invalidates
+// the cached snapshot/diagnostics so the next read reflects it. Callers
+// (reading.js's read(), mirroring its own end-of-loop refreshComposition()
+// call) use this once at the end of a sequential read so the terminal state
+// is never stale by up to populationRefreshEvery turns, regardless of the
+// cadence applied mid-read.
+export function flushKindPopulation(index) {
+  if (index?.schema !== "EOKindInductionIndex@1") throw new TypeError("flushKindPopulation requires EOKindInductionIndex@1");
+  maybeRefreshPopulationKindCandidates(index, { force: true });
+  invalidateSnapshot(index);
 }
 
 export function projectKinds(entries = [], options = {}) { return snapshotKindState(createKindInductionIndex(entries, options)); }

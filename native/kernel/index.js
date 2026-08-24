@@ -7,7 +7,7 @@ export { interpretiveLensGeometry, projectLensGeometry } from "./lens-math.js";
 export { lensChannel, composeLensChannels, lensBlackwellWitness, fieldCarrier, fieldSection, networkChainInvariants, prequentialParadigmAdmission, conditionalResponseLaw, terrainNativeFoldRevisionDistance } from "./terrain-completion.js";
 export { createIdentityGroupoidIndex, indexIdentityGroupoidEntries, snapshotIdentityGroupoid, projectIdentityGroupoid, identityProofPath, identityGeneratorImpact, identityGeneratorRetraction } from "./identity-groupoid.js";
 export { createIdentityQuotientIndex, indexIdentityQuotientEntries, snapshotIdentityQuotient, projectIdentityQuotient } from "./identity-quotient.js";
-export { kindEvidence, createKindInductionIndex, indexKindEntries, snapshotKindState, kindDiagnostics, kindCandidates, projectKinds } from "./kind-induction.js";
+export { kindEvidence, createKindInductionIndex, indexKindEntries, snapshotKindState, kindDiagnostics, kindCandidates, flushKindPopulation, projectKinds } from "./kind-induction.js";
 export { induceEntityParameters, induceEntityKindCandidates, profileJaccard } from "./entity-kind-induction.js";
 export { jensenShannonDivergence, totalVariationDistance, prospectiveBehavioralEquivalence } from "./kind-behavior.js";
 export { createKindBehaviorAdmissionLedger } from "./kind-behavior-admission.js";
