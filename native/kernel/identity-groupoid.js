@@ -18,6 +18,13 @@ function liveDiscourseLink(entry) {
     && !CLOSED.has(entry.standing ?? entry.status);
 }
 
+function liveRetraction(entry) {
+  return entry?.schema === "EOIdentityGeneratorRetraction@1"
+    && entry?.id
+    && entry?.targetGenerator
+    && !CLOSED.has(entry.standing ?? entry.status);
+}
+
 function stableHash(value) {
   let h = 2166136261;
   for (const ch of String(value)) {
@@ -40,6 +47,21 @@ function generator(id, from, to, kind, supportRefs = []) {
   });
 }
 
+export function identityGeneratorRetraction({ generatorRef, witness = null, reason = "generator_defeated", giver = null, id = null } = {}) {
+  if (!generatorRef) throw new TypeError("identityGeneratorRetraction requires generatorRef");
+  const supportRefs = [...new Set([witness].filter(Boolean))].sort();
+  return freeze({
+    schema: "EOIdentityGeneratorRetraction@1",
+    id: id ?? `identity-retraction:${stableHash(`${generatorRef}|${witness ?? ""}|${reason}|${giver ?? ""}`)}`,
+    targetGenerator: generatorRef,
+    standing: "active",
+    reason,
+    giver,
+    witnessed: false,
+    supportRefs: freeze(supportRefs),
+  });
+}
+
 export function createIdentityGroupoidIndex(entries = []) {
   const index = {
     schema: "EOIdentityGroupoidIndex@1",
@@ -47,6 +69,7 @@ export function createIdentityGroupoidIndex(entries = []) {
     referents: new Map(),
     bindings: new Map(),
     discourseLinks: new Map(),
+    retractions: new Map(),
     removedIds: new Set(),
     dirty: true,
     snapshot: null,
@@ -79,6 +102,11 @@ function ingestOne(index, entry) {
     index.dirty = true;
     return true;
   }
+  if (liveRetraction(entry)) {
+    index.retractions.set(entry.id, entry);
+    index.dirty = true;
+    return true;
+  }
   if (entry.schema === "EOOperation@1" && entry?.payload?.action === "remove-provisional" && entry.payload.id) {
     index.removedIds.add(entry.payload.id);
     index.bindings.delete(entry.payload.id);
@@ -96,49 +124,23 @@ export function indexIdentityGroupoidEntries(index, entries = []) {
   return changed;
 }
 
-function computeSnapshot(index) {
-  const objects = new Set([...index.occurrences.keys(), ...index.referents.keys()]);
-  const generators = [];
-
-  for (const referent of index.referents.values()) {
-    for (const occurrence of referent.occurrenceRefs ?? []) {
-      objects.add(occurrence);
-      generators.push(generator(
-        `identity-generator:referent:${stableHash(`${referent.id}|${occurrence}`)}`,
-        occurrence,
-        referent.id,
-        "referent_support",
-        referent.supportRefs ?? [],
-      ));
-    }
-  }
-
-  for (const binding of index.bindings.values()) {
-    if (index.removedIds.has(binding.id)) continue;
-    objects.add(binding.occurrence);
-    objects.add(binding.referent);
-    generators.push(generator(binding.id, binding.occurrence, binding.referent, "occurrence_binding", binding.supportRefs ?? []));
-  }
-
-  for (const link of index.discourseLinks.values()) {
-    if (index.removedIds.has(link.id)) continue;
-    objects.add(link.leftOccurrence);
-    objects.add(link.rightOccurrence);
-    generators.push(generator(link.id, link.leftOccurrence, link.rightOccurrence, "discourse_identity", link.supportRefs ?? []));
-  }
-
-  generators.sort((a, b) => a.id.localeCompare(b.id));
+function adjacencyFor(generators = [], excluded = new Set()) {
   const adjacency = new Map();
-  const add = (from, to, generatorRef, inverse) => {
+  const add = (from, to, edge, inverse) => {
     if (!adjacency.has(from)) adjacency.set(from, []);
-    adjacency.get(from).push(freeze({ to, generatorRef, inverse }));
+    adjacency.get(from).push(freeze({ to, edge, generatorRef: edge.id, inverse }));
   };
   for (const edge of generators) {
-    add(edge.from, edge.to, edge.id, false);
-    add(edge.to, edge.from, edge.id, true);
+    if (excluded.has(edge.id)) continue;
+    add(edge.from, edge.to, edge, false);
+    add(edge.to, edge.from, edge, true);
   }
   for (const routes of adjacency.values()) routes.sort((a, b) => a.generatorRef.localeCompare(b.generatorRef) || Number(a.inverse) - Number(b.inverse) || a.to.localeCompare(b.to));
+  return adjacency;
+}
 
+function componentsFor(objects, generators, referents, excluded = new Set()) {
+  const adjacency = adjacencyFor(generators, excluded);
   const seen = new Set();
   const components = [];
   const componentByObject = {};
@@ -159,8 +161,8 @@ function computeSnapshot(index) {
         }
       }
     }
-    const referentRefs = members.filter((id) => index.referents.has(id)).sort();
-    const occurrenceRefs = members.filter((id) => !index.referents.has(id)).sort();
+    const referentRefs = members.filter((id) => referents.has(id)).sort();
+    const occurrenceRefs = members.filter((id) => !referents.has(id)).sort();
     if (!referentRefs.length && occurrenceRefs.length < 2) continue;
     const id = `identity-component:${stableHash([...members].sort().join("|"))}`;
     const component = freeze({
@@ -177,6 +179,45 @@ function computeSnapshot(index) {
     for (const object of members) componentByObject[object] = id;
   }
   components.sort((a, b) => b.objectRefs.length - a.objectRefs.length || a.id.localeCompare(b.id));
+  return { adjacency, components, componentByObject };
+}
+
+function computeSnapshot(index) {
+  const objects = new Set([...index.occurrences.keys(), ...index.referents.keys()]);
+  const retractions = [...index.retractions.values()].filter(liveRetraction).sort((a, b) => a.id.localeCompare(b.id));
+  const retractedGeneratorIds = new Set(retractions.map((entry) => entry.targetGenerator));
+  const generators = [];
+
+  for (const referent of index.referents.values()) {
+    for (const occurrence of referent.occurrenceRefs ?? []) {
+      objects.add(occurrence);
+      const edge = generator(
+        `identity-generator:referent:${stableHash(`${referent.id}|${occurrence}`)}`,
+        occurrence,
+        referent.id,
+        "referent_support",
+        referent.supportRefs ?? [],
+      );
+      if (!retractedGeneratorIds.has(edge.id)) generators.push(edge);
+    }
+  }
+
+  for (const binding of index.bindings.values()) {
+    if (index.removedIds.has(binding.id) || retractedGeneratorIds.has(binding.id)) continue;
+    objects.add(binding.occurrence);
+    objects.add(binding.referent);
+    generators.push(generator(binding.id, binding.occurrence, binding.referent, "occurrence_binding", binding.supportRefs ?? []));
+  }
+
+  for (const link of index.discourseLinks.values()) {
+    if (index.removedIds.has(link.id) || retractedGeneratorIds.has(link.id)) continue;
+    objects.add(link.leftOccurrence);
+    objects.add(link.rightOccurrence);
+    generators.push(generator(link.id, link.leftOccurrence, link.rightOccurrence, "discourse_identity", link.supportRefs ?? []));
+  }
+
+  generators.sort((a, b) => a.id.localeCompare(b.id));
+  const { components, componentByObject } = componentsFor(objects, generators, index.referents);
 
   index.snapshot = freeze({
     schema: "EOIdentityGroupoid@1",
@@ -185,11 +226,13 @@ function computeSnapshot(index) {
     witnessed: false,
     objects: freeze([...objects].sort()),
     generators: freeze(generators),
+    retractions: freeze(retractions),
     components: freeze(components),
     componentByObject: freeze(componentByObject),
     diagnostics: freeze({
       objectCount: objects.size,
       generatorCount: generators.length,
+      retractedGeneratorCount: retractedGeneratorIds.size,
       componentCount: components.length,
       collisionComponents: components.filter((component) => component.referentCollision).length,
     }),
@@ -208,24 +251,10 @@ export function projectIdentityGroupoid(entries = []) {
   return snapshotIdentityGroupoid(createIdentityGroupoidIndex(entries));
 }
 
-/**
- * Return one shortest currently warranted identity proof path. The path is a
- * present-tense derivation, never new witness. Each step preserves the exact
- * generator that licensed it and whether the inverse arrow was used.
- */
-export function identityProofPath(groupoid, from, to) {
+function proofPath(groupoid, from, to, excluded) {
   if (!groupoid || groupoid.schema !== "EOIdentityGroupoid@1" || !from || !to) return null;
   if (from === to) return freeze({ schema: "EOIdentityProofPath@1", from, to, steps: freeze([]), supportRefs: freeze([]), witnessed: false });
-  const generators = new Map((groupoid.generators ?? []).map((edge) => [edge.id, edge]));
-  const adjacency = new Map();
-  const add = (a, b, edge, inverse) => {
-    if (!adjacency.has(a)) adjacency.set(a, []);
-    adjacency.get(a).push({ to: b, edge, inverse });
-  };
-  for (const edge of generators.values()) {
-    add(edge.from, edge.to, edge, false);
-    add(edge.to, edge.from, edge, true);
-  }
+  const adjacency = adjacencyFor(groupoid.generators ?? [], excluded);
   const queue = [from];
   const prior = new Map([[from, null]]);
   while (queue.length) {
@@ -264,5 +293,68 @@ export function identityProofPath(groupoid, from, to) {
     supportRefs: freeze([...supportRefs].sort()),
     witnessed: false,
     basis: "composition_of_warranted_identity_generators",
+  });
+}
+
+/**
+ * Return one shortest currently warranted identity proof path. The path is a
+ * present-tense derivation, never new witness. Each step preserves the exact
+ * generator that licensed it and whether the inverse arrow was used.
+ */
+export function identityProofPath(groupoid, from, to, { excludeGeneratorRefs = [] } = {}) {
+  return proofPath(groupoid, from, to, new Set(excludeGeneratorRefs ?? []));
+}
+
+/**
+ * Ask whether one identity generator is actually load-bearing. Removing a
+ * generator does not imply an Entity split: another warranted path may preserve
+ * the same identity component. This reports the exact post-retraction partition
+ * and one surviving endpoint proof when one exists.
+ */
+export function identityGeneratorImpact(groupoid, generatorRef) {
+  if (!groupoid || groupoid.schema !== "EOIdentityGroupoid@1" || !generatorRef) return null;
+  const edge = (groupoid.generators ?? []).find((candidate) => candidate.id === generatorRef);
+  if (!edge) return null;
+  const componentId = groupoid.componentByObject?.[edge.from] ?? null;
+  const component = (groupoid.components ?? []).find((candidate) => candidate.id === componentId) ?? null;
+  const objectRefs = component?.objectRefs ?? freeze([edge.from, edge.to].sort());
+  const objectSet = new Set(objectRefs);
+  const excluded = new Set([generatorRef]);
+  const adjacency = adjacencyFor(groupoid.generators ?? [], excluded);
+  const seen = new Set();
+  const partitions = [];
+  for (const start of objectRefs) {
+    if (seen.has(start)) continue;
+    const queue = [start];
+    seen.add(start);
+    const members = [];
+    while (queue.length) {
+      const node = queue.shift();
+      members.push(node);
+      for (const route of adjacency.get(node) ?? []) {
+        if (!objectSet.has(route.to) || seen.has(route.to)) continue;
+        seen.add(route.to);
+        queue.push(route.to);
+      }
+    }
+    partitions.push(freeze(members.sort()));
+  }
+  partitions.sort((a, b) => b.length - a.length || a.join("|").localeCompare(b.join("|")));
+  const survivingEndpointProof = identityProofPath(groupoid, edge.from, edge.to, { excludeGeneratorRefs: [generatorRef] });
+  return freeze({
+    schema: "EOIdentityGeneratorImpact@1",
+    generatorRef,
+    from: edge.from,
+    to: edge.to,
+    kind: edge.kind,
+    componentRef: componentId,
+    affectedObjectRefs: freeze([...objectRefs]),
+    partitionObjectRefs: freeze(partitions),
+    splitsComponent: partitions.length > 1,
+    survivingEndpointProof,
+    pathRedundant: Boolean(survivingEndpointProof),
+    removedSupportRefs: edge.supportRefs,
+    witnessed: false,
+    basis: "counterfactual_generator_retraction",
   });
 }
