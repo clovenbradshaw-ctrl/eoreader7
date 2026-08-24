@@ -14,6 +14,40 @@ const validLimit = (limit) => {
   return limit;
 };
 
+function experienceSupport(address, priors = []) {
+  const contributions = [];
+  for (const prior of priors ?? []) {
+    if (prior?.schema !== "EOExperiencePrior@1") continue;
+    const terrain = (prior.terrainExpectations ?? []).find((item) => item.terrain === address.terrain);
+    const stance = (prior.stanceExpectations ?? []).find((item) => item.stance === address.stance);
+    const operator = (prior.operatorExpectations ?? []).find((item) => item.operator === address.op);
+    const rates = [terrain?.workRate, stance?.workRate, operator?.workRate].filter(Number.isFinite);
+    if (!rates.length) continue;
+    contributions.push(freeze({
+      priorRef: prior.id,
+      sourceCount: prior.sourceCount ?? 0,
+      terrainRate: terrain?.workRate ?? null,
+      stanceRate: stance?.workRate ?? null,
+      operatorRate: operator?.workRate ?? null,
+      // A weak orientation weight, not a probability and never a gate. The
+      // arithmetic mean is deliberately transparent: every face contributes
+      // equally where the prior actually has a measurement.
+      score: rates.reduce((sum, value) => sum + value, 0) / rates.length,
+    }));
+  }
+  if (!contributions.length) return null;
+  const weightedNumerator = contributions.reduce((sum, item) => sum + item.score * Math.max(1, item.sourceCount), 0);
+  const weightedDenominator = contributions.reduce((sum, item) => sum + Math.max(1, item.sourceCount), 0);
+  return freeze({
+    schema: "EOExperienceReasoningWeight@1",
+    score: weightedNumerator / weightedDenominator,
+    standing: "defeasible_orientation_weight",
+    witnessed: false,
+    gatesMove: false,
+    contributions: freeze(contributions),
+  });
+}
+
 /**
  * Derive possible reasoning moves from the present Fold orientation.
  *
@@ -42,6 +76,7 @@ export function reasoningAffordances(orientation = {}, { limit = 81 } = {}) {
     if (!terrainContext.length) continue;
     const stanceContext = orientation?.stanceState?.[address.stance] ?? [];
     const mathematicalContract = stanceMathematicalContract(address);
+    const priorSupport = experienceSupport(address, orientation?.receivedPriors ?? []);
     out.push(freeze({
       schema: "EOReasoningAffordance@1",
       id: `reasoning:${address.mode}:${address.domain}:${address.grain}`,
@@ -52,6 +87,7 @@ export function reasoningAffordances(orientation = {}, { limit = 81 } = {}) {
       terrainRefs: refs(terrainContext),
       stanceRefs: refs(stanceContext),
       stanceContinuity: stanceContext.length > 0,
+      priorSupport,
       mathematicalContract,
       mathematicalFamily: mathematicalContract?.family ?? null,
       proofObligations: mathematicalContract?.proofObligations ?? freeze([]),
