@@ -9,25 +9,28 @@ import {
 } from "./individuation.js";
 import {
   appositionalDescriptorBindings,
-  projectDiscourseReferents,
+  createDiscourseIndex,
+  admitDiscourseOccurrence,
+  admitDiscourseLink,
+  discourseReferentForRoot,
 } from "./discourse-referents.js";
 import { textIdentityEvidence } from "./identity-evidence.js";
 
 const slug = (value) => String(value ?? "").toLowerCase().replace(/[^\p{L}\p{N}]+/gu, "_").replace(/^_+|_+$/g, "");
 const OCCURRENCE_BINDING_SCHEMAS = new Set(["EOPronounBinding@1", "EODefiniteBinding@1"]);
 
-function recordOccurrence(index, entry) {
+function recordOccurrence(index, entry, touchedRoots) {
   const key = entry.canonicalSurface;
   if (!index.occurrencesBySurface.has(key)) index.occurrencesBySurface.set(key, []);
   index.occurrencesBySurface.get(key).push(entry);
-  index.allOccurrences.push(entry);
+  admitDiscourseOccurrence(index.discourseIndex, entry, touchedRoots);
 }
 
-function indexOneEntry(index, entry) {
+function indexOneEntry(index, entry, touchedRoots) {
   if (!entry?.id || index.knownIds.has(entry.id)) return;
   index.knownIds.add(entry.id);
-  if (entry.schema === "EOReferentOccurrence@1") recordOccurrence(index, entry);
-  else if (entry.schema === "EODiscourseIdentityLink@1") index.discourseLinks.push(entry);
+  if (entry.schema === "EOReferentOccurrence@1") recordOccurrence(index, entry, touchedRoots);
+  else if (entry.schema === "EODiscourseIdentityLink@1") admitDiscourseLink(index.discourseIndex, entry, touchedRoots);
 }
 
 /**
@@ -53,22 +56,20 @@ export function createTextRevisionIndex() {
     lastSeen: undefined,
     knownIds: new Set(),
     occurrencesBySurface: new Map(),
-    allOccurrences: [],
-    discourseLinks: [],
+    discourseIndex: createDiscourseIndex(),
   };
 }
 
-function syncIndex(index, entries) {
+function syncIndex(index, entries, touchedRoots) {
   const n = entries.length;
   const clean = index.scannedCount <= n && (index.scannedCount === 0 || entries[index.scannedCount - 1] === index.lastSeen);
   if (!clean) {
     index.scannedCount = 0;
     index.knownIds = new Set();
     index.occurrencesBySurface = new Map();
-    index.allOccurrences = [];
-    index.discourseLinks = [];
+    index.discourseIndex = createDiscourseIndex();
   }
-  for (let i = index.scannedCount; i < n; i += 1) indexOneEntry(index, entries[i]);
+  for (let i = index.scannedCount; i < n; i += 1) indexOneEntry(index, entries[i], touchedRoots);
   index.scannedCount = n;
   if (n > 0) index.lastSeen = entries[n - 1];
   return index;
@@ -110,7 +111,13 @@ function identityObligationFor(hypothesis, fold = {}, graph = null) {
  * `fold.graphEntries` on this one call.
  */
 export async function reviseTextFold({ observations = [], fold = {}, graph = null, index = null } = {}) {
-  const idx = syncIndex(index ?? createTextRevisionIndex(), fold?.graphEntries ?? []);
+  // Every discourse-referent component this call touches (a new occurrence
+  // joining one, a new link merging two, or a historical catch-up scan on a
+  // throwaway/first-use index) -- so the final pass below can recompute a
+  // referent only for the components that could possibly have changed,
+  // never by re-deriving every earlier component's referent from scratch.
+  const discourseTouchedRoots = new Set();
+  const idx = syncIndex(index ?? createTextRevisionIndex(), fold?.graphEntries ?? [], discourseTouchedRoots);
   const known = idx.knownIds;
   const operations = [];
   const newDescriptorOccurrences = [];
@@ -123,8 +130,8 @@ export async function reviseTextFold({ observations = [], fold = {}, graph = nul
   const admitGraphObject = (value, { op = "INS", grain = "Ground", witness = null, consequence = null } = {}) => {
     if (!value?.id || known.has(value.id)) return false;
     known.add(value.id);
-    if (value.schema === "EOReferentOccurrence@1") recordOccurrence(idx, value);
-    else if (value.schema === "EODiscourseIdentityLink@1") idx.discourseLinks.push(value);
+    if (value.schema === "EOReferentOccurrence@1") recordOccurrence(idx, value, discourseTouchedRoots);
+    else if (value.schema === "EODiscourseIdentityLink@1") admitDiscourseLink(idx.discourseIndex, value, discourseTouchedRoots);
     currentGraphEntries.push(value);
     operations.push(eoOperation({ op, grain, witness, outputs: [value.id], consequence, payload: { action: "graph-object", value } }));
     return true;
@@ -258,16 +265,15 @@ export async function reviseTextFold({ observations = [], fold = {}, graph = nul
     }
   }
 
-  // idx.allOccurrences/idx.discourseLinks already carry every occurrence and
-  // discourse link ever admitted (synced from fold.graphEntries at the top
-  // of this call, plus whatever admitGraphObject recorded THIS turn) --
-  // projectDiscourseReferents only ever looks at those two schemas, so this
-  // is the same input `discourseSource` used to provide, without copying
-  // every other kind of graph entry (operations, hypotheses, obligations,
-  // relations...) that a full `fold.graphEntries` scan would also carry.
-  const discourseSource = [...idx.allOccurrences, ...idx.discourseLinks];
-  for (const referent of projectDiscourseReferents(discourseSource)) {
-    if (known.has(referent.id)) continue;
+  // Recompute a referent only for the components discourseTouchedRoots
+  // marks as possibly changed this call -- idx.discourseIndex itself is the
+  // incrementally-maintained union-find (occurrences and links folded in as
+  // they were admitted, above and during the historical catch-up sync), so
+  // an untouched component's referent (already admitted or already refused)
+  // is never re-derived from scratch on a turn that did not touch it.
+  for (const root of discourseTouchedRoots) {
+    const referent = discourseReferentForRoot(idx.discourseIndex, root);
+    if (!referent || known.has(referent.id)) continue;
     admitGraphObject(referent, {
       op: "INS",
       grain: "Figure",

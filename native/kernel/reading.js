@@ -45,8 +45,17 @@ const deltaGraph = (delta, fold) => (delta?.operations ?? []).flatMap((op) => {
 });
 
 function compositionOperations(composition, fold = {}, graph = null) {
-  const known = new Set((fold?.graphEntries ?? []).map((entry) => entry?.id).filter(Boolean));
-  for (const item of fold?.obligations ?? []) if (item?.id) known.add(item.id);
+  // `graph` (the reader's incrementally-maintained hypergraph index) already
+  // carries every id ever added to fold.graphEntries -- obligations
+  // included, since applyPayload's "obligation" case returns the same
+  // object as a graph update too. Building a fresh Set by scanning the
+  // whole, ever-growing fold.graphEntries (plus fold.obligations again,
+  // redundantly) on every turn was exactly the cost graph already exists to
+  // avoid; a local Set only needs to hold what THIS call itself admits.
+  const priorKnown = graph?.byId ?? new Map((fold?.graphEntries ?? []).map((entry) => [entry?.id, entry]).filter(([id]) => id));
+  const localKnown = new Set();
+  for (const item of fold?.obligations ?? []) if (item?.id && !priorKnown.has(item.id)) localKnown.add(item.id);
+  const known = { has: (id) => priorKnown.has(id) || localKnown.has(id), add: (id) => localKnown.add(id) };
   const operations = [];
 
   for (const licensed of composition?.licensed ?? []) {
