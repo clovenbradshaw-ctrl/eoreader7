@@ -61,3 +61,54 @@ test("identity contradiction SEG/DEFs the prior reading and REC-canonicalizes af
   assert.equal(fold1.unresolvedAlternatives.find((x) => x.id === live.id).standing, "live_hypothesis");
   assert.deepEqual(fold1.graphEntries.find((x) => x.id === "canonical:edge:token").participants[0].alternatives, ["rowan", "the hooded courier"]);
 });
+
+test("canonicalizationFloor: single-witness support opens the alternative but does not project it; the second witness does", () => {
+  const raw = hyperedge({
+    id: "edge:floor",
+    relation: "carried",
+    participants: [
+      { role: "actor", standing: "unresolved_surface", ref: "occ:1", surface: "the hooded courier" },
+      { role: "object", standing: "unresolved_surface", ref: "occ:2", surface: "the blue token" },
+    ],
+    witness: "w:edge",
+  });
+  const fold0 = receivedGround({ graphEntries: [raw] });
+
+  // First support: below the declared floor of 2 — the alternative lands
+  // live on the fold, but NO canonical projection is written (single-
+  // witness testimony must not rewrite the canonical past).
+  const first = deriveIdentityRevision({
+    fold: fold0,
+    supports: [{ left: "the hooded courier", right: "Rowan", witness: "w:1" }],
+    canonicalizationFloor: 2,
+  });
+  const fold1 = applyDelta(fold0, first);
+  const live = fold1.unresolvedAlternatives.find((x) => x.schema === "EOIdentityAlternative@1");
+  assert.equal(live?.standing, "live_hypothesis", "the alternative itself is not gated — only projection is");
+  assert.equal(live?.supportRefs.length, 1);
+  const canonicalAfterOne = fold1.graphEntries.find((x) => x.id === "canonical:edge:floor");
+  assert.equal(
+    canonicalAfterOne?.participants?.[0]?.alternatives?.includes("rowan") ?? false,
+    false,
+    "below the floor, the canonical projection must not carry the identity",
+  );
+
+  // Second, independent support: the floor is met — the SAME evidence
+  // grammar now projects, and the canonical edge carries the identity.
+  const second = deriveIdentityRevision({
+    fold: fold1,
+    supports: [{ left: "the hooded courier", right: "Rowan", witness: "w:2" }],
+    canonicalizationFloor: 2,
+  });
+  const fold2 = applyDelta(fold1, second);
+  const canonicalAfterTwo = fold2.graphEntries.find((x) => x.id === "canonical:edge:floor");
+  assert.deepEqual(canonicalAfterTwo.participants[0].alternatives, ["rowan", "the hooded courier"]);
+});
+
+test("canonicalizationFloor is a declared positive integer or absent — never a fraction or a guess", () => {
+  assert.throws(() => deriveIdentityRevision({ canonicalizationFloor: 0 }), /positive integer/);
+  assert.throws(() => deriveIdentityRevision({ canonicalizationFloor: 1.5 }), /positive integer/);
+  // Absent: byte-identical to before the option existed (the two tests
+  // above this file already had pin that behavior).
+  assert.doesNotThrow(() => deriveIdentityRevision({}));
+});

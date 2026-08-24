@@ -66,11 +66,25 @@ const touches = (edge, identity) => (edge.participants ?? []).some((p) => {
   return value === identity.left || value === identity.right;
 });
 
-function recanonicalizationOperations(fold, alternatives, touchedIdentity, witness) {
+// An alternative participates in CANONICAL PROJECTION only at or above the
+// caller's declared corroboration floor (supportRefs count). The floor
+// gates projection alone — the alternative itself stays on the fold, live,
+// attackable, and accumulating evidence either way. Rationale, measured
+// (native/eval/results/understanding-scoreboard-RESULTS.md, second
+// amendment): every surviving FALSE identity belief on the Frankenstein
+// coref golden stood on exactly one support — single-witness testimony
+// rewriting the canonical past is the precise failure a corroboration
+// floor exists for. No floor supplied = every non-refused alternative
+// projects, byte-identical to before this option existed.
+const meetsFloor = (alternative, floor) =>
+  !Number.isFinite(floor) || (alternative.supportRefs ?? []).length >= floor;
+
+function recanonicalizationOperations(fold, alternatives, touchedIdentity, witness, floor) {
   const operations = [];
+  const projecting = alternatives.filter((x) => meetsFloor(x, floor));
   for (const edge of rawEdges(fold)) {
     if (!touches(edge, touchedIdentity)) continue;
-    const next = canonicalizeHyperedge(edge, alternatives);
+    const next = canonicalizeHyperedge(edge, projecting);
     const before = currentCanonical(fold, edge.id);
     if (before && stable(before) === stable(next)) continue;
     operations.push(eoOperation({
@@ -93,7 +107,9 @@ function recanonicalizationOperations(fold, alternatives, touchedIdentity, witne
  * records refusal of the prior identity reading. Canonical relation projections
  * are then REC-written; raw witnessed edges remain untouched.
  */
-export function deriveIdentityRevision({ fold = {}, supports = [], attacks = [], witness = null, giver = null } = {}) {
+export function deriveIdentityRevision({ fold = {}, supports = [], attacks = [], witness = null, giver = null, canonicalizationFloor = undefined } = {}) {
+  if (canonicalizationFloor !== undefined && (!Number.isInteger(canonicalizationFloor) || canonicalizationFloor < 1))
+    throw new TypeError("deriveIdentityRevision: canonicalizationFloor, when declared, is a positive integer — how much corroboration licenses canonical projection is never a fraction or a guess");
   const operations = [];
   const working = new Map((fold?.unresolvedAlternatives ?? []).filter((x) => x?.schema === "EOIdentityAlternative@1").map((x) => [x.id, x]));
 
@@ -110,7 +126,7 @@ export function deriveIdentityRevision({ fold = {}, supports = [], attacks = [],
       consequence: { kind: prior ? "identity_hypothesis_supported" : "identity_hypothesis_opened", identity: next.id },
       payload: { action: "alternative", value: next },
     }));
-    operations.push(...recanonicalizationOperations(fold, [...working.values()], next, ref));
+    operations.push(...recanonicalizationOperations(fold, [...working.values()], next, ref, canonicalizationFloor));
   }
 
   for (const evidence of attacks ?? []) {
@@ -131,7 +147,7 @@ export function deriveIdentityRevision({ fold = {}, supports = [], attacks = [],
       consequence: { kind: "identity_reading_refused", identity: prior.id },
       payload: { action: "exclusion", value: Object.freeze({ schema: "EOExclusion@1", id: `exclusion:${prior.id}`, kind: "identity_refused", target: prior.id, witness: ref }) },
     }));
-    operations.push(...recanonicalizationOperations(fold, [...working.values()], next, ref));
+    operations.push(...recanonicalizationOperations(fold, [...working.values()], next, ref, canonicalizationFloor));
   }
 
   return deltaFold(operations, { schemaVersion: "EOIdentityRevision@1" });

@@ -35,7 +35,15 @@ import { createCausalTextPerceiver, textEncounters } from "../adapters/text/recu
 import { reviseTextFold } from "../adapters/text/revision.js";
 import { createRecursiveReader } from "../../kernel.js";
 
-const ANCHORING = { minActivation: 0.05, minMargin: 0.2 }; // host/corpus.js's declared operating point
+const ANCHORING = { minActivation: 0.05, minMargin: 0.2 };
+
+// Corroboration floor for canonical projection: 2 — binding.js's own
+// structural minimum ("one arrival has no co-arrival to test"), the same
+// giver the-fold's P29 WITNESS_FLOOR already cites. Measured need: every
+// surviving false identity belief on the coref golden stood on exactly
+// one support. Declared here, threaded through reviseTextFold.
+const CANONICALIZATION_FLOOR = 2;
+
 const POS_PRIOR = JSON.parse(
   fs.readFileSync(new URL("../../legacy-eoreader6.1/bin/priors/pos/en-ud-ewt.json", import.meta.url), "utf8"),
 );
@@ -73,7 +81,7 @@ async function main() {
 
   const reader = createRecursiveReader({
     perceivers: [createCausalTextPerceiver({ minRelationSurfaces: 2, refreshEvery: 25, posPrior: POS_PRIOR, descriptorAnchoring: ANCHORING })],
-    adapters: { revise: reviseTextFold, retrieve: emptyRetrieve },
+    adapters: { revise: (args) => reviseTextFold({ ...args, canonicalizationFloor: CANONICALIZATION_FLOOR }), retrieve: emptyRetrieve },
   });
   for (const enc of encounters) await reader.step(enc);
   const fold = reader.getFold();
@@ -104,11 +112,20 @@ async function main() {
   const survivingFalse = creatureAlts.filter((a) => a.standing === "live_hypothesis");
   const selfCorrected = creatureAlts.filter((a) => a.standing === "distinct" || a.standing === "refused");
 
+  // With a canonicalization floor, a live-but-single-witness alternative
+  // is held OUT of the canonical projection — so the decisive belief
+  // question is no longer "does a false alternative survive" but "does
+  // any canonical edge actually CARRY a creature surface as an identity".
+  const projectedFalse = (fold.graphEntries ?? []).filter(
+    (x) => x?.schema === "EOCanonicalHyperedge@1" &&
+      (x.participants ?? []).some((pt) => (pt.alternatives ?? []).some((alt) => creatureSurfaces.has(alt) && alt !== pt.value)),
+  );
+
   const totalOccurrences = Object.values(occurrenceCounts).reduce((a, b) => a + b, 0);
   const out = {
     schema: "EOAnchoringPrecision@1",
     golden: "pg84-frankenstein.coref.json (creature entry, unscoped surfaces — a negative control: the creature is unnamed, so any binding is false)",
-    declared: { anchoring: ANCHORING, posPrior: "bin/priors/pos/en-ud-ewt.json" },
+    declared: { anchoring: ANCHORING, canonicalizationFloor: CANONICALIZATION_FLOOR, posPrior: "bin/priors/pos/en-ud-ewt.json" },
     creatureClass: {
       surfaces: [...creatureSurfaces],
       occurrencesInText: totalOccurrences,
@@ -128,6 +145,7 @@ async function main() {
       creatureAlternativesTotal: creatureAlts.length,
       survivingFalse: survivingFalse.map((a) => ({ left: a.left, right: a.right, support: (a.supportRefs ?? []).length })),
       selfCorrected: selfCorrected.map((a) => ({ left: a.left, right: a.right })),
+      projectedFalseCanonicals: projectedFalse.map((x) => ({ id: x.id, participants: x.participants })),
     },
   };
   console.log(JSON.stringify(out, null, 2));

@@ -85,6 +85,13 @@ const emptyRetrieve = (_fold, evidence) => Object.freeze({
 // giver named, never re-derived here (pronouns.test.js uses the same pair).
 const ANCHORING = { minActivation: 0.05, minMargin: 0.2 };
 
+// Corroboration floor for canonical projection: 2 — binding.js's own
+// structural minimum ("one arrival has no co-arrival to test"), the same
+// giver the-fold's P29 WITNESS_FLOOR already cites. Measured need: every
+// surviving false identity belief on the coref golden stood on exactly
+// one support. Declared here, threaded through reviseTextFold.
+const CANONICALIZATION_FLOOR = 2;
+
 // The received POS prior (UD_English-EWT, CC BY-SA 4.0 — provenance inside
 // the file) gates descriptor HEADS to noun-hood; without it "the most" /
 // "the first" bind as descriptors (measured — recursive.js's own comment).
@@ -95,7 +102,7 @@ const POS_PRIOR = JSON.parse(
 function makeReader() {
   return createRecursiveReader({
     perceivers: [createCausalTextPerceiver({ minRelationSurfaces: 2, refreshEvery: 25, posPrior: POS_PRIOR, descriptorAnchoring: ANCHORING })],
-    adapters: { revise: reviseTextFold, retrieve: emptyRetrieve },
+    adapters: { revise: (args) => reviseTextFold({ ...args, canonicalizationFloor: CANONICALIZATION_FLOOR }), retrieve: emptyRetrieve },
   });
 }
 
@@ -259,7 +266,7 @@ async function main() {
   const out = {
     schema: "EOUnderstandingScoreboard@1",
     material: { path, encounters: N, fast },
-    declared: { cursors, shuffleDraws: draws, seed: SEED, anchoring: ANCHORING, grain: "sentence — the tier ladder is disclosed future work, not implied" },
+    declared: { cursors, shuffleDraws: draws, seed: SEED, anchoring: ANCHORING, canonicalizationFloor: CANONICALIZATION_FLOOR, grain: "sentence — the tier ladder is disclosed future work, not implied" },
     ordered: orderedScore,
     nulls: nullScores,
   };

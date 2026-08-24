@@ -23,7 +23,7 @@ const existingIds = (fold) => new Set((fold?.graphEntries ?? []).map((entry) => 
  * This prevents every use of "the creature" or "the fiend" from collapsing
  * globally while preserving each witnessed occurrence and hypothesis.
  */
-export async function reviseTextFold({ observations = [], fold = {} } = {}) {
+export async function reviseTextFold({ observations = [], fold = {}, canonicalizationFloor = undefined } = {}) {
   const known = existingIds(fold);
   const operations = [];
   const newDescriptorOccurrences = [];
@@ -180,6 +180,7 @@ export async function reviseTextFold({ observations = [], fold = {} } = {}) {
     },
     supports: identitySupports,
     attacks: identityAttacks,
+    canonicalizationFloor,
   });
   operations.push(...identityDelta.operations);
 
