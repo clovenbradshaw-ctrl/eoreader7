@@ -1,0 +1,162 @@
+{
+ "schema": "EONetworkStanding@1",
+ "book": "pg84.txt",
+ "assembly": "causal text perceiver (mention arrivals per encounter) -> kernel/network-standing with engine bindLinks injected",
+ "declared": {
+  "window": {
+   "value": 8,
+   "basis": "dmdWindow, top-1 derive on this book's own first-quarter mention stream"
+  },
+  "draws": 199,
+  "alpha": 0.05,
+  "seed": 20260812
+ },
+ "beings": 60,
+ "belowArrivalFloor": 13,
+ "rawCoArrivingPairs": 275,
+ "edges": 83,
+ "refusedAsCoincident": 192,
+ "topEdges": [
+  {
+   "a": "ref:auto:felix",
+   "b": "ref:auto:safie",
+   "coArrivals": 62,
+   "pValue": 0
+  },
+  {
+   "a": "ref:auto:felix",
+   "b": "ref:auto:agatha",
+   "coArrivals": 59,
+   "pValue": 0
+  },
+  {
+   "a": "ref:auto:elizabeth",
+   "b": "ref:auto:justine",
+   "coArrivals": 48,
+   "pValue": 0
+  },
+  {
+   "a": "ref:auto:felix",
+   "b": "ref:auto:turk",
+   "coArrivals": 37,
+   "pValue": 0
+  },
+  {
+   "a": "ref:auto:clerval",
+   "b": "ref:auto:henry",
+   "coArrivals": 36,
+   "pValue": 0
+  },
+  {
+   "a": "ref:auto:elizabeth",
+   "b": "ref:auto:victor",
+   "coArrivals": 28,
+   "pValue": 0
+  },
+  {
+   "a": "ref:auto:elizabeth",
+   "b": "ref:auto:geneva",
+   "coArrivals": 25,
+   "pValue": 0.035175879396984924
+  },
+  {
+   "a": "ref:auto:felix",
+   "b": "ref:auto:arabian",
+   "coArrivals": 25,
+   "pValue": 0
+  },
+  {
+   "a": "ref:auto:justine",
+   "b": "ref:auto:william",
+   "coArrivals": 24,
+   "pValue": 0
+  },
+  {
+   "a": "ref:auto:safie",
+   "b": "ref:auto:turk",
+   "coArrivals": 24,
+   "pValue": 0
+  },
+  {
+   "a": "ref:auto:felix",
+   "b": "ref:auto:paris",
+   "coArrivals": 23,
+   "pValue": 0
+  },
+  {
+   "a": "ref:auto:mr",
+   "b": "ref:auto:mr_kirwin",
+   "coArrivals": 19,
+   "pValue": 0.020100502512562814
+  },
+  {
+   "a": "ref:auto:geneva",
+   "b": "ref:auto:clerval",
+   "coArrivals": 17,
+   "pValue": 0.02512562814070352
+  },
+  {
+   "a": "ref:auto:god",
+   "b": "ref:auto:justine",
+   "coArrivals": 16,
+   "pValue": 0
+  },
+  {
+   "a": "ref:auto:agatha",
+   "b": "ref:auto:safie",
+   "coArrivals": 16,
+   "pValue": 0
+  }
+ ],
+ "refusedSample": [
+  {
+   "a": "ref:auto:elizabeth",
+   "b": "ref:auto:clerval",
+   "coArrivals": 36,
+   "pValue": 0.07537688442211055,
+   "reason": "coincident_under_null",
+   "detail": "observed co-arrival does not clear its own displacement null at alpha 0.05 — company kept by chance is not a bond"
+  },
+  {
+   "a": "ref:auto:elizabeth",
+   "b": "ref:auto:god",
+   "coArrivals": 16,
+   "pValue": 0.05025125628140704,
+   "reason": "coincident_under_null",
+   "detail": "observed co-arrival does not clear its own displacement null at alpha 0.05 — company kept by chance is not a bond"
+  },
+  {
+   "a": "ref:auto:elizabeth",
+   "b": "ref:auto:william",
+   "coArrivals": 15,
+   "pValue": 0.135678391959799,
+   "reason": "coincident_under_null",
+   "detail": "observed co-arrival does not clear its own displacement null at alpha 0.05 — company kept by chance is not a bond"
+  },
+  {
+   "a": "ref:auto:elizabeth",
+   "b": "ref:auto:henry",
+   "coArrivals": 13,
+   "pValue": 0.2613065326633166,
+   "reason": "coincident_under_null",
+   "detail": "observed co-arrival does not clear its own displacement null at alpha 0.05 — company kept by chance is not a bond"
+  },
+  {
+   "a": "ref:auto:turk",
+   "b": "ref:auto:leghorn",
+   "coArrivals": 11,
+   "pValue": 0.9095477386934674,
+   "reason": "coincident_under_null",
+   "detail": "observed co-arrival does not clear its own displacement null at alpha 0.05 — company kept by chance is not a bond"
+  },
+  {
+   "a": "ref:auto:england",
+   "b": "ref:auto:elizabeth",
+   "coArrivals": 10,
+   "pValue": 0.2914572864321608,
+   "reason": "coincident_under_null",
+   "detail": "observed co-arrival does not clear its own displacement null at alpha 0.05 — company kept by chance is not a bond"
+  }
+ ],
+ "note": "presence lights every raw pair (terrain-activation); standing is only what clears its own null — the two counts differing IS the finding (P6)"
+}

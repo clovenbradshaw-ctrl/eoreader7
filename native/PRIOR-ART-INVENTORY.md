@@ -25,14 +25,21 @@ the pass starts at the organ, not at a blank buffer.
 
 ## Unconsumed, with seats named
 
-**`emergence/binding.js`** — per-pair permutation-null co-arrival
-significance, direction and polarity via transfer entropy. P6's own
-verdict: the SVO tier is "the thin layer"; THIS is "the substantive
-product." constitutional-read lists it in stagesNotRun. Seat: the Network
-terrain — terrain-activation currently lights raw co-arrival pairs;
-binding.js is what turns a lit pair into a significance-tested edge. The
-goldens/network incident (6.1 CLAUDE.md) records the cost of hand-rolling
-it instead.
+**`emergence/binding.js` — CONSUMED (kernel/network-standing.js).**
+P6's "substantive product," now run over the native reading's arrivals:
+275 raw co-arriving pairs -> 83 with standing on Frankenstein; refusals
+are the finding as much as the edges (Elizabeth–Clerval, co-arrivals 36,
+p=0.075 — frequent company is not a bond). Two walls added by
+measurement: the arrival floor (a single shared arrival produced a
+DEGENERATE null reading p=0 — standing granted where the test could not
+run; binding's own structural minimum of 2 closes it, cited), and the
+LINK_SPEC cut (draws 199, alpha 0.05) cited from the certified consumer.
+Disclosed residue: Clerval–Henry ranks as a top "bond" because the native
+path has not merged the alias — self-company reads as a bond until
+coreference does (the-fold P40's referentFace lesson, surfacing here).
+Transfer-entropy direction/polarity (the organ's other half) remains
+unconsumed. Not yet wired into terrain projection — driver + kernel organ
+only.
 
 **`perceiver/text/roles.js::resolveSpanRole`** — instance-level role
 resolution by the same one-hop recall pronouns trust. Recorded limitation:
