@@ -149,14 +149,15 @@ export function deriveExperiencePrior(items = [], {
     terrain,
     workSupport: terrainWorks.get(terrain).size,
     workRate: rate(terrainWorks.get(terrain).size, workCount),
+    sourceRefs: stable(terrainWorks.get(terrain)),
   }));
   const stanceExpectations = STANCES.map((stance) => {
     const record = stanceStats.get(stance);
-    return freeze({ stance, occurrences: record.occurrences, workSupport: record.works.size, workRate: rate(record.works.size, workCount) });
+    return freeze({ stance, occurrences: record.occurrences, workSupport: record.works.size, workRate: rate(record.works.size, workCount), sourceRefs: stable(record.works) });
   });
   const operatorExpectations = OPERATORS.map((operator) => {
     const record = operatorStats.get(operator);
-    return freeze({ operator, occurrences: record.occurrences, workSupport: record.works.size, workRate: rate(record.works.size, workCount) });
+    return freeze({ operator, occurrences: record.occurrences, workSupport: record.works.size, workRate: rate(record.works.size, workCount), sourceRefs: stable(record.works) });
   });
 
   return freeze({
@@ -179,6 +180,134 @@ export function deriveExperiencePrior(items = [], {
       targetExcluded: true,
       relationRule: `retain memory from >=${minRelationWorkSupport} prior work(s); workSupport/workRate encode recurrence strength`,
       networkRule: `retain memory from >=${minNetworkWorkSupport} prior work(s); workSupport/workRate encode recurrence strength`,
+    }),
+  });
+}
+
+/**
+ * Fold several already-derived experience priors into one combined prior,
+ * without ever revisiting the raw readings that produced them.
+ *
+ * A completed reading's full Fold (graph entries, terrain state, turn
+ * history) is retained only long enough for `deriveExperiencePrior` to
+ * sediment it into one compact `EOExperiencePrior@1`; after that the raw
+ * reading is eligible for garbage collection. Accumulating experience across
+ * many prior works then means merging those small, bounded priors -- never
+ * re-scanning the growing set of full readings that produced them. Each
+ * input's own `sourceRefs` (already the real book-source strings, not prior
+ * ids) is what makes the merge exact: union those sets per relation/network/
+ * terrain/stance/operator instead of re-deriving support from scratch, and
+ * cross-work recurrence survives the merge exactly as if every reading had
+ * been scanned together.
+ */
+export function mergeExperiencePriors(priors = [], {
+  id = "experience-prior",
+  giver,
+  minRelationWorkSupport = 1,
+  minNetworkWorkSupport = 1,
+  maxRelationVocabulary = 512,
+} = {}) {
+  if (!giver) throw new TypeError("mergeExperiencePriors requires a named giver");
+  if (!Number.isInteger(minRelationWorkSupport) || minRelationWorkSupport < 1) throw new TypeError("minRelationWorkSupport must be a positive integer");
+  if (!Number.isInteger(minNetworkWorkSupport) || minNetworkWorkSupport < 1) throw new TypeError("minNetworkWorkSupport must be a positive integer");
+
+  const inputs = (priors ?? []).filter((prior) => prior?.schema === "EOExperiencePrior@1");
+  if (!inputs.length) throw new TypeError("mergeExperiencePriors requires at least one experience prior");
+
+  const sourceRefs = stable(inputs.flatMap((prior) => prior.sourceRefs ?? []));
+  const workCount = sourceRefs.length;
+
+  const unionByKey = (getRecords) => {
+    const map = new Map();
+    for (const prior of inputs) {
+      for (const item of getRecords(prior)) {
+        const key = item.key;
+        if (!map.has(key)) map.set(key, { extra: item.extra, sources: new Set(), occurrences: 0 });
+        const record = map.get(key);
+        for (const source of item.sourceRefs ?? []) record.sources.add(source);
+        record.occurrences += item.occurrences ?? 0;
+      }
+    }
+    return map;
+  };
+
+  const relationMap = unionByKey((prior) => (prior.relationVocabulary ?? []).map((item) => ({ key: item.relation, sourceRefs: item.sourceRefs, occurrences: item.occurrences })));
+  const relationVocabulary = [...relationMap.entries()]
+    .map(([relation, record]) => freeze({
+      relation,
+      occurrences: record.occurrences,
+      workSupport: record.sources.size,
+      workRate: rate(record.sources.size, workCount),
+      memoryStanding: memoryStanding(record.sources.size),
+      recurrent: record.sources.size >= 2,
+      sourceRefs: stable(record.sources),
+    }))
+    .filter((record) => record.workSupport >= minRelationWorkSupport)
+    .sort((a, b) => b.workSupport - a.workSupport || b.occurrences - a.occurrences || a.relation.localeCompare(b.relation))
+    .slice(0, maxRelationVocabulary);
+
+  const networkMap = unionByKey((prior) => (prior.networkPatterns ?? []).map((item) => ({ key: item.key, extra: item.signature, sourceRefs: item.sourceRefs, occurrences: item.occurrences })));
+  const networkPatterns = [...networkMap.entries()]
+    .map(([key, record]) => freeze({
+      key,
+      signature: record.extra,
+      occurrences: record.occurrences,
+      workSupport: record.sources.size,
+      workRate: rate(record.sources.size, workCount),
+      memoryStanding: memoryStanding(record.sources.size),
+      recurrent: record.sources.size >= 2,
+      sourceRefs: stable(record.sources),
+    }))
+    .filter((record) => record.workSupport >= minNetworkWorkSupport)
+    .sort((a, b) => b.workSupport - a.workSupport || b.occurrences - a.occurrences || a.key.localeCompare(b.key));
+
+  // Terrain expectations carry no occurrence count in `deriveExperiencePrior`
+  // (terrain membership is a per-work yes/no, not a tally); stance and
+  // operator expectations do. The merge preserves each shape exactly so a
+  // merged prior is indistinguishable from one derived directly.
+  const mergeExpectations = (kind, names, keyField, { occurrences: withOccurrences } = {}) => names.map((name) => {
+    const sources = new Set();
+    let occurrences = 0;
+    for (const prior of inputs) {
+      const item = (prior[kind] ?? []).find((entry) => entry[keyField] === name);
+      if (!item) continue;
+      occurrences += item.occurrences ?? 0;
+      for (const source of item.sourceRefs ?? []) sources.add(source);
+    }
+    return freeze({
+      [keyField]: name,
+      ...(withOccurrences ? { occurrences } : {}),
+      workSupport: sources.size,
+      workRate: rate(sources.size, workCount),
+      sourceRefs: stable(sources),
+    });
+  });
+
+  const terrainExpectations = mergeExpectations("terrainExpectations", TERRAINS, "terrain");
+  const stanceExpectations = mergeExpectations("stanceExpectations", STANCES, "stance", { occurrences: true });
+  const operatorExpectations = mergeExpectations("operatorExpectations", OPERATORS, "operator", { occurrences: true });
+
+  return freeze({
+    schema: "EOExperiencePrior@1",
+    id,
+    giver,
+    standing: "defeasible_experience_prior",
+    witnessed: false,
+    admissible: false,
+    sourceCount: workCount,
+    sourceRefs,
+    relationVocabulary: freeze(relationVocabulary),
+    networkPatterns: freeze(networkPatterns),
+    terrainExpectations: freeze(terrainExpectations),
+    stanceExpectations: freeze(stanceExpectations),
+    operatorExpectations: freeze(operatorExpectations),
+    provenance: freeze({
+      giver,
+      basis: "merged_experience_priors",
+      targetExcluded: true,
+      relationRule: `retain memory from >=${minRelationWorkSupport} prior work(s); workSupport/workRate encode recurrence strength`,
+      networkRule: `retain memory from >=${minNetworkWorkSupport} prior work(s); workSupport/workRate encode recurrence strength`,
+      mergedFrom: stable(inputs.map((prior) => prior.id)),
     }),
   });
 }

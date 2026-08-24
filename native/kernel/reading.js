@@ -8,7 +8,7 @@ import { buildHypergraph, indexHypergraphEntries } from "./hypergraph.js";
 import { createTerrainIndex, indexTerrainEntries, snapshotTerrainState, snapshotTerrainReferents } from "./terrain-state.js";
 import { createEmergentTerrainIndex, indexEmergentTerrainEntries, snapshotEmergentTerrainState, mergeTerrainStates } from "./emergent-terrain.js";
 import { createIdentityQuotientIndex, indexIdentityQuotientEntries, snapshotIdentityQuotient } from "./identity-quotient.js";
-import { createKindInductionIndex, indexKindEntries, snapshotKindState, kindDiagnostics, kindCandidates } from "./kind-induction.js";
+import { createKindInductionIndex, indexKindEntries, snapshotKindState, kindDiagnostics, kindCandidates, flushKindPopulation } from "./kind-induction.js";
 import { createKindBasinAdmissionLedger } from "./kind-basin-admission.js";
 import { conditionKindProjections, snapshotEntityKindPriorHypotheses } from "./kind-priors.js";
 import { createStanceIndex, indexStanceEntries, snapshotStanceState } from "./stance-state.js";
@@ -45,8 +45,17 @@ const deltaGraph = (delta, fold) => (delta?.operations ?? []).flatMap((op) => {
 });
 
 function compositionOperations(composition, fold = {}, graph = null) {
-  const known = new Set((fold?.graphEntries ?? []).map((entry) => entry?.id).filter(Boolean));
-  for (const item of fold?.obligations ?? []) if (item?.id) known.add(item.id);
+  // `graph` (the reader's incrementally-maintained hypergraph index) already
+  // carries every id ever added to fold.graphEntries -- obligations
+  // included, since applyPayload's "obligation" case returns the same
+  // object as a graph update too. Building a fresh Set by scanning the
+  // whole, ever-growing fold.graphEntries (plus fold.obligations again,
+  // redundantly) on every turn was exactly the cost graph already exists to
+  // avoid; a local Set only needs to hold what THIS call itself admits.
+  const priorKnown = graph?.byId ?? new Map((fold?.graphEntries ?? []).map((entry) => [entry?.id, entry]).filter(([id]) => id));
+  const localKnown = new Set();
+  for (const item of fold?.obligations ?? []) if (item?.id && !priorKnown.has(item.id)) localKnown.add(item.id);
+  const known = { has: (id) => priorKnown.has(id) || localKnown.has(id), add: (id) => localKnown.add(id) };
   const operations = [];
 
   for (const licensed of composition?.licensed ?? []) {
@@ -193,7 +202,10 @@ export function createRecursiveReader({ seed = {}, priors = [], perceivers = [],
     const neighborhood = (adapters.retrieve ?? relevantNeighborhood)(beforeFold, [...observations, ...taskEvidence], { select: adapters.selectNeighborhood, graph: graphIndex, terrainState: terrainStateBefore, emergentTerrainIndex, stanceState: stanceStateBefore });
     const interrogation = await (adapters.interrogate ?? interrogateCube)([...observations, ...taskEvidence], neighborhood, { ask: adapters.ask, hyperlexicon: hl, composition });
     const proposedDelta = adapters.revise
-      ? await adapters.revise({ observations, taskEvidence, neighborhood, interrogation, fold: beforeFold, tasks: projectTasks(tasks), graph: graphIndex, hyperlexicon: hl, composition })
+      // `tasks` (the log) has not changed since liveTasksBefore was projected
+      // above -- re-projecting it here would replay the entire append-only
+      // task log a second time for an identical result.
+      ? await adapters.revise({ observations, taskEvidence, neighborhood, interrogation, fold: beforeFold, tasks: liveTasksBefore, graph: graphIndex, hyperlexicon: hl, composition })
       : deriveEOTransformations(interrogation, { id: `delta:${currentEncounter.sequencePosition ?? log.length}` });
     const baseDelta = proposedDelta?.schema === "DeltaFold@1" ? proposedDelta : deltaFold([]);
     const canonicalDelta = deltaFold([
@@ -220,13 +232,17 @@ export function createRecursiveReader({ seed = {}, priors = [], perceivers = [],
     const kindState = currentKindState();
     const entityKindHypotheses = currentEntityKindHypotheses();
 
-    return Object.freeze({ encounter: currentEncounter, orientation, candidates, challenge, observations, hyperlexicon: hl, hyperlexiconCandidates: hlCandidates, composition, compositionDiagnostics, identityQuotient, kindState, entityKindHypotheses, kindDiagnostics: currentKindDiagnostics(), basinAdmissions, awakenedTasks, scheduledTasks, taskEvidence, proposedTasks: taskUpdate.proposed, tasks: Object.freeze(projectTasks(tasks)), relevantFold: neighborhood, interrogation, deltaFold: canonicalDelta, fold, surprise: deriveSurprise(canonicalDelta), tension: deriveTension(fold), release: deriveRelease(canonicalDelta, beforeFold, fold) });
+    // taskUpdate.tasks (from proposeObligationTasks, above) is already
+    // Object.freeze(projectTasks(tasks)) over this exact, just-reassigned
+    // log -- reuse it rather than replaying the whole task log again.
+    return Object.freeze({ encounter: currentEncounter, orientation, candidates, challenge, observations, hyperlexicon: hl, hyperlexiconCandidates: hlCandidates, composition, compositionDiagnostics, identityQuotient, kindState, entityKindHypotheses, kindDiagnostics: currentKindDiagnostics(), basinAdmissions, awakenedTasks, scheduledTasks, taskEvidence, proposedTasks: taskUpdate.proposed, tasks: taskUpdate.tasks, relevantFold: neighborhood, interrogation, deltaFold: canonicalDelta, fold, surprise: deriveSurprise(canonicalDelta), tension: deriveTension(fold), release: deriveRelease(canonicalDelta, beforeFold, fold) });
   }
 
   async function read(encounters = []) {
     const turns = [];
     for (const item of encounters) turns.push(await step(item));
     refreshComposition();
+    flushKindPopulation(kindIndex);
     const terrainState = snapshotTerrainState(terrainIndex);
     const emergentTerrainState = snapshotEmergentTerrainState(emergentTerrainIndex);
     const identityQuotient = currentIdentityQuotient();

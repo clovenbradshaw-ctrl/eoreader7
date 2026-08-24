@@ -1,7 +1,7 @@
 import fs from "fs";
 import { stripContainer } from "../adapters/text/spans.js";
 import { createCausalTextPerceiver, textEncounters } from "../adapters/text/recursive.js";
-import { reviseTextFold } from "../adapters/text/revision.js";
+import { reviseTextFold, createTextRevisionIndex } from "../adapters/text/revision.js";
 import { createRecursiveReader, deriveOrientation, reasoningAffordances, novelGenerationAffordances } from "../../kernel.js";
 
 const path = process.argv[2];
@@ -18,10 +18,13 @@ const perceiver = createCausalTextPerceiver({
   relationPosPrior,
   pronounResolution: { minActivation: 0.05, minMargin: 0.2 },
 });
+const revisionIndex = createTextRevisionIndex();
 const reader = createRecursiveReader({
   perceivers: [perceiver],
   adapters: {
-    revise: reviseTextFold,
+    // One persistent index across this whole sequential, single-book read:
+    // each turn costs O(what changed this turn), not O(book read so far).
+    revise: (args) => reviseTextFold({ ...args, index: revisionIndex }),
     retrieve: (_fold, evidence) => Object.freeze({
       schema: "EORelevantFold@1",
       witnessed: Object.freeze([...evidence]),
@@ -57,8 +60,23 @@ const compositionObligations = (reading.fold.obligations ?? []).filter((entry) =
 const materialObligations = (reading.fold.obligations ?? []).filter((entry) => entry?.distinction?.materiality?.makesDifference === true);
 const referentSurfaces = new Set(referents.flatMap((ref) => ref.surfaces ?? []).map((x) => String(x).toLowerCase()));
 const hypothesisSurfaces = new Set(identityHypotheses.map((x) => String(x.surface ?? "").toLowerCase()));
+// Recurrence and Fold-admitted hypothesis are now deliberately different
+// questions: every witnessed occurrence is still admitted regardless of
+// consequence, but a HYPOTHESIS over a recurring descriptor only enters the
+// Fold once identityObligationFor finds it material (touches a live
+// witnessed relation) -- a descriptor that recurs only in narration, never
+// as a relation participant, correctly stays an unadmitted, recomputed-on-
+// recurrence candidate rather than standing Fold structure. Recurrence
+// itself is checked directly off the occurrences, which never stopped being
+// witnessed.
+const occurrenceCountBySurface = new Map();
+for (const occ of descriptorOccurrences) {
+  const key = String(occ.canonicalSurface ?? "").toLowerCase();
+  occurrenceCountBySurface.set(key, (occurrenceCountBySurface.get(key) ?? 0) + 1);
+}
 const hasNamedSurface = (needle) => [...referentSurfaces].some((surface) => surface === needle.toLowerCase() || surface.includes(needle.toLowerCase()));
 const hasHypothesis = (needle) => hypothesisSurfaces.has(needle.toLowerCase());
+const hasRecurrence = (needle) => (occurrenceCountBySurface.get(needle.toLowerCase()) ?? 0) >= 2;
 const surpriseTurns = reading.turns.filter((turn) => (turn.surprise?.operations?.length ?? 0) > 0);
 
 const proposedTasks = reading.turns.flatMap((turn) => turn.proposedTasks ?? []);
@@ -98,7 +116,7 @@ for (const move of novelMoves) novelByTerrain[move.address.terrain] = (novelByTe
 const requiredCharacters = ["Frankenstein", "Elizabeth", "Clerval", "Walton"];
 const targetDescriptors = ["the creature", "the monster", "the fiend", "the wretch", "my father", "the hut", "the chamber", "this place"];
 const missingCharacters = requiredCharacters.filter((name) => !hasNamedSurface(name));
-const descriptorTargets = targetDescriptors.map((surface) => ({ surface, hypothesisPresent: hasHypothesis(surface) }));
+const descriptorTargets = targetDescriptors.map((surface) => ({ surface, recurrent: hasRecurrence(surface), hypothesisPresent: hasHypothesis(surface) }));
 const wretchMonsterClusters = discourseReferents.filter((ref) => {
   const s = new Set((ref.surfaces ?? []).map((x) => String(x).toLowerCase()));
   return s.has("the wretch") && s.has("the monster");
@@ -254,7 +272,7 @@ if (edges.length < 10) throw new Error(`too few witnessed relations: ${edges.len
 if (surpriseTurns.length < 10) throw new Error(`too few structurally revising turns: ${surpriseTurns.length}`);
 if (missingCharacters.length) throw new Error(`major Frankenstein referents missing: ${missingCharacters.join(", ")}`);
 if (wrapperPollution.length) throw new Error(`container text polluted cast: ${wrapperPollution.join(", ")}`);
-if (targetDescriptors.some((surface) => !hasHypothesis(surface))) throw new Error("expected recurrent descriptor hypotheses are missing");
+if (targetDescriptors.some((surface) => !hasRecurrence(surface))) throw new Error("expected recurrent descriptors are missing");
 if (wretchMonsterClusters.length < 1) throw new Error("explicit wretch/monster apposition did not form a discourse referent");
 if (creaturePulledIntoWretchMonster) throw new Error("surface-global collapse pulled a distinct creature occurrence into the wretch/monster cluster");
 if (reading.log.length < encounters.length * 2) throw new Error("append-only reading log is unexpectedly sparse");
