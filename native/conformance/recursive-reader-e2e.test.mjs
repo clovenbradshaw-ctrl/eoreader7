@@ -91,15 +91,17 @@ test("constitutive challenge happens before witness and remains provenance, not 
   assert.notEqual(result.turns[1].observations[0].witness, "identity_collision");
 });
 
-test("tension persists until a witnessed transformation resolves the obligation, producing release", async () => {
+test("unresolved exposure persists until witnessed resolution without inventing conflict energy", async () => {
   const result = await fixtureReader().read(events);
   assert.equal(result.turns[0].fold.obligations[0].status, "open");
   assert.equal(result.turns[0].tension.obligations.length, 1);
-  assert.ok(result.turns[0].tension.energy > 0);
+  assert.equal(result.turns[0].tension.tensionAvailable, false, "the fixture supplies no explicit constraint cost semantics");
+  assert.equal(result.turns[0].tension.energy, null);
   assert.equal(result.turns[1].tension.obligations.length, 1);
-  assert.ok(result.turns[1].tension.energy >= result.turns[0].tension.energy, "persistence should not reduce unresolved potential");
+  assert.ok(result.turns[1].tension.persistenceExposure >= result.turns[0].tension.persistenceExposure, "persistence should accumulate unresolved exposure");
   assert.equal(result.turns[2].fold.obligations[0].status, "resolved");
   assert.equal(result.turns[2].tension.obligations.length, 0);
+  assert.equal(result.turns[2].tension.energy, 0);
   assert.equal(result.turns[2].release.length, 1);
   assert.ok(result.turns[2].release[0].witness.length > 0);
 });
