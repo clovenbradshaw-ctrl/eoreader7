@@ -44,4 +44,10 @@ jobs:
       - name: Reason and generate over the full Frankenstein Fold
         run: node native/eval/frankenstein-stance.mjs /tmp/frankenstein.txt
       - name: Read Frankenstein after accumulated literary experience
-        run: node native/eval/frankenstein-experienced.mjs /tmp/frankenstein.txt /tmp/hamlet.txt /tmp/macbeth.txt /tmp/pride.txt
+        shell: bash
+        run: |
+          set +e
+          node native/eval/frankenstein-experienced.mjs /tmp/frankenstein.txt /tmp/hamlet.txt /tmp/macbeth.txt /tmp/pride.txt > /tmp/experienced-reading.log 2>&1
+          status=$?
+          tail -n 100 /tmp/experienced-reading.log
+          exit "$status"
