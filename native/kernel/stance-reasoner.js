@@ -1,6 +1,7 @@
 import { deriveOrientation } from "./orientation.js";
 import { reasoningAffordances } from "./reasoning.js";
 import { stanceMathematicalAction } from "./stance-math.js";
+import { evaluateNetworkAgainstExperience } from "./experience-priors.js";
 
 const freeze = (value) => Object.freeze(value);
 const stable = (values = []) => freeze([...new Set(values.filter(Boolean))].sort());
@@ -17,8 +18,9 @@ const topologySignature = (network) => {
   });
 };
 
-function unravelNetwork(affordance, network) {
+function unravelNetwork(affordance, network, priors = []) {
   const signature = topologySignature(network);
+  const priorEvaluation = evaluateNetworkAgainstExperience(network, priors);
   const treeLike = signature.topology === "acyclic" && signature.cycleRank === 0;
   const action = stanceMathematicalAction({
     id: `stance-action:unravel:${network.id}`,
@@ -49,6 +51,7 @@ function unravelNetwork(affordance, network) {
     basisRefs: stable([network.id, ...(network.edgeRefs ?? []), ...(network.referentRefs ?? [])]),
     derivation: freeze({ rule: "beta1_cycle_rank_on_connected_incidence_component", premises: signature }),
     claim,
+    priorEvaluation,
     standing: action.complete ? "entailed_projection" : "incomplete_derivation",
     witnessed: false,
     admissibleAsWitness: false,
@@ -90,8 +93,9 @@ function traceNetworks(affordance, left, right) {
   });
 }
 
-function composeNetworkPattern(affordance, network) {
+function composeNetworkPattern(affordance, network, priors = []) {
   const signature = topologySignature(network);
+  const priorEvaluation = evaluateNetworkAgainstExperience(network, priors);
   const motif = signature.topology === "acyclic" && signature.cycleRank === 0
     ? "tree_like_incidence_motif"
     : signature.cycleRank > 0
@@ -118,7 +122,11 @@ function composeNetworkPattern(affordance, network) {
     proposal: freeze({
       kind: motif,
       signature,
-      prospectiveTest: "independent_future_instances_must_preserve_the_named_topological_invariants_before_pattern_admission",
+      familiarity: priorEvaluation.expected ? "remembered_form" : "prior_straining_form",
+      priorEvaluation,
+      prospectiveTest: priorEvaluation.expected
+        ? "current_instance_must_preserve_the_remembered_invariants_and_current_source_must_ground_any_semantic_extension"
+        : "independent_future_instances_must_preserve_the_named_topological_invariants_before_pattern_admission",
     }),
     standing: "proposal",
     witnessed: false,
@@ -139,6 +147,7 @@ function composeNetworkPattern(affordance, network) {
 export function executeStanceReasoning(orientation = {}, { terrain = "Network", includeGeneration = true } = {}) {
   const affordances = reasoningAffordances(orientation).filter((item) => item.address.terrain === terrain);
   const terrainObjects = orientation?.terrainState?.[terrain] ?? [];
+  const priors = orientation?.receivedPriors ?? [];
   const reasoning = [];
   const generation = [];
 
@@ -148,13 +157,13 @@ export function executeStanceReasoning(orientation = {}, { terrain = "Network", 
     const trace = byStance.get("Tracing");
     const compose = byStance.get("Composing");
 
-    if (unravel) for (const network of terrainObjects) reasoning.push(unravelNetwork(unravel, network));
+    if (unravel) for (const network of terrainObjects) reasoning.push(unravelNetwork(unravel, network, priors));
     if (trace) {
       for (let i = 0; i < terrainObjects.length; i += 1) {
         for (let j = i + 1; j < terrainObjects.length; j += 1) reasoning.push(traceNetworks(trace, terrainObjects[i], terrainObjects[j]));
       }
     }
-    if (includeGeneration && compose) for (const network of terrainObjects) generation.push(composeNetworkPattern(compose, network));
+    if (includeGeneration && compose) for (const network of terrainObjects) generation.push(composeNetworkPattern(compose, network, priors));
   }
 
   return freeze({
