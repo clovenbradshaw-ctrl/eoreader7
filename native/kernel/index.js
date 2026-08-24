@@ -13,6 +13,8 @@ export { jensenShannonDivergence, totalVariationDistance, prospectiveBehavioralE
 export { createKindBehaviorAdmissionLedger } from "./kind-behavior-admission.js";
 export { createKindBasinAdmissionLedger } from "./kind-basin-admission.js";
 export { kindFeatureSignature, kindPrior, deriveKindPriors, rankKindPriorHypotheses, snapshotEntityKindPriorHypotheses, conditionKindProjections } from "./kind-priors.js";
+export { deriveExperiencePrior, experienceRelationVocabulary, experienceNetworkSignatureKey, evaluateNetworkAgainstExperience } from "./experience-priors.js";
+export { createPriorConditionedReader, mergeReceivedPriors } from "./experienced-reading.js";
 export { STANCES, stanceOf, createStanceIndex, indexStanceEntries, snapshotStanceState, projectStanceState, stanceCounts } from "./stance-state.js";
 export { STANCE_MATHEMATICS, stanceFor, stanceMathematicalSemantics, stanceMathematicalContract, stanceMathematicalAction } from "./stance-math.js";
 export { executeStanceReasoning, reasonFromFold } from "./stance-reasoner.js";
