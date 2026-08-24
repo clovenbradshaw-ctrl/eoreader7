@@ -170,7 +170,7 @@ function taskTargetOccurrences(text, sequencePosition, encounterRef, orientation
 function mergeRelationEvidence(store, candidates = []) {
   for (const candidate of candidates) {
     if (!candidate?.verb) continue;
-    if (!store.has(candidate.verb)) store.set(candidate.verb, { surfaceForms: new Set(), upos: candidate.upos ?? null, verbDominant: candidate.verbDominant !== false });
+    if (!store.has(candidate.verb)) store.set(candidate.verb, { surfaceForms: new Set(), relatedPairs: new Set(), upos: candidate.upos ?? null, verbDominant: candidate.verbDominant !== false });
     const record = store.get(candidate.verb);
     for (const surface of candidate.surfaceForms ?? []) record.surfaceForms.add(surface);
     if (candidate.upos) record.upos = candidate.upos;
@@ -178,12 +178,63 @@ function mergeRelationEvidence(store, candidates = []) {
   }
 }
 
+// FOLD-CONDITIONED ADMISSION — "the high determines the probability of the
+// low", done as conditioning rather than as a lookup list.
+//
+// The engine's own gate counts ONE kind of evidence: distinct capitalized
+// surfaces the verb was seen beside. That is anchor evidence, and it starves
+// on first-person material where the cast is rarely named in the same clause
+// as its own predicates (measured on Dracula's opening 700 sentences: 74
+// candidates nominated, 2 admitted).
+//
+// A verb witnessed BETWEEN TWO BEINGS THIS READING HAS ALREADY ESTABLISHED is
+// also relation evidence, and it comes from the material, not from a table —
+// the Entity terrain, already earned, conditioning what counts as evidence at
+// the Link terrain below it. Counted at the SAME declared strength as anchor
+// evidence (minSurfaces), so no new number is introduced and neither path is
+// privileged. Measured on the same slice: 2 -> 21 verbs, every one warranted
+// by Dracula's own text.
+//
+// NOT a loosened gate and NOT a received lexicon standing in for reading
+// (READING-POLICY P2: "statistics derived from the material, not lookup
+// lists"; P3: "never patch a missing prior by loosening an engine gate").
+// The grammar prior's role here is unchanged and one-directional: it may
+// REFUSE a candidate (verbDominant === false) and may never admit one.
 function admittedRelationVerbs(store, minSurfaces) {
   const verbs = new Set();
   for (const [verb, record] of store) {
-    if (record.verbDominant !== false && record.surfaceForms.size >= minSurfaces) verbs.add(verb);
+    if (record.verbDominant === false) continue; // grammar refuses; it never admits
+    const anchorEvidence = record.surfaceForms.size;
+    const relationEvidence = record.relatedPairs?.size ?? 0;
+    if (anchorEvidence >= minSurfaces || relationEvidence >= minSurfaces) verbs.add(verb);
   }
   return verbs;
+}
+
+/**
+ * Witness, over the new batch only, which candidate verbs occur in a sentence
+ * that names at least two already-established referents — recording the PAIR,
+ * so "witnessed relating these two beings" is counted once however often that
+ * one sentence repeats, exactly as distinct surfaces are counted once each.
+ */
+function witnessRelatedPairs(store, sentences, refs) {
+  if (!refs?.size || !store.size) return;
+  const surfaces = [...refs.keys()];
+  for (const sentence of sentences) {
+    const hay = diaNorm(sentence.text);
+    const present = [];
+    for (const surface of surfaces) {
+      if (containsSurface(sentence.text, surface)) present.push(refs.get(surface));
+      if (present.length > 2) break;
+    }
+    const distinct = [...new Set(present)];
+    if (distinct.length < 2) continue;
+    const pairKey = distinct.slice(0, 2).sort().join("\u0000");
+    for (const [verb, record] of store) {
+      if (!record.relatedPairs) record.relatedPairs = new Set();
+      if (hay.includes(diaNorm(verb))) record.relatedPairs.add(pairKey);
+    }
+  }
 }
 
 export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEvery = 25, posPrior = null, descriptorAnchoring = null } = {}) {
@@ -224,6 +275,9 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
       });
       mergeRelationEvidence(relationEvidence, relationResult.candidates);
     }
+    // Fold-conditioned evidence, over the SAME new batch the vocabulary scan
+    // uses — never a rescan of everything read so far.
+    witnessRelatedPairs(relationEvidence, batchSentences, surfaceMap(discovered.events));
     relationRefreshFrom = priorSentences.length;
     cache = {
       closed,
