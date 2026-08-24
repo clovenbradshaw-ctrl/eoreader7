@@ -23,7 +23,7 @@ function fixtureIndex() {
     if (!entityFeatures.has(entityRef)) entityFeatures.set(entityRef, new Map());
     entityFeatures.get(entityRef).set(signature, featureRecord({ key, value, firstAt: at, id, witness }));
     latestAtByEntity.set(entityRef, Math.max(latestAtByEntity.get(entityRef) ?? -Infinity, at));
-    evidenceById.set(id, { id, witness, witnessRefs: [witness], provenance: { modality: "sensor" } });
+    evidenceById.set(id, { id, sequencePosition: at, witness, witnessRefs: [witness], provenance: { modality: "sensor" } });
   };
   return { entityFeatures, latestAtByEntity, evidenceById, add };
 }
@@ -62,15 +62,18 @@ function addConsequences(index, start = 5) {
   index.add("entity:a", 'outcome="boundary-crossing"', { key: "outcome", value: "boundary-crossing", at: start });
   index.add("entity:b", 'outcome="boundary-crossing"', { key: "outcome", value: "boundary-crossing", at: start + 1 });
   index.add("entity:c", 'outcome="boundary-crossing"', { key: "outcome", value: "boundary-crossing", at: start + 2 });
-  index.add("entity:d", 'later="present"', { key: "later", value: "present", at: start });
-  index.add("entity:e", 'later="present"', { key: "later", value: "present", at: start + 1 });
-  index.add("entity:f", 'later="present"', { key: "later", value: "present", at: start + 2 });
+  index.add("entity:d", 'outcome="contained"', { key: "outcome", value: "contained", at: start });
+  index.add("entity:e", 'outcome="contained"', { key: "outcome", value: "contained", at: start + 1 });
+  index.add("entity:f", 'outcome="contained"', { key: "outcome", value: "contained", at: start + 2 });
 }
 
-test("a Kind basin must persist before later experience can make it consequential", () => {
+test("a metastable basin becomes Kind only when later experience establishes a distinct future law", () => {
   const index = fixtureIndex();
   seedTrajectory(index);
-  const ledger = createKindBasinAdmissionLedger();
+  // Six entities provide only 20 unique 3/3 label partitions, so this compact
+  // deterministic unit fixture uses a permissive significance level. Production
+  // remains alpha=.05 and the full-book gate supplies a much larger population.
+  const ledger = createKindBasinAdmissionLedger({ alpha: 0.2, behaviorPermutations: 63 });
 
   assert.deepEqual(ledger.observe([basinCandidate()], index, 3), []);
   assert.equal(ledger.snapshot().length, 0, "one statistically stable snapshot cannot mint Kind");
@@ -84,15 +87,16 @@ test("a Kind basin must persist before later experience can make it consequentia
   assert.equal(admitted.length, 1);
   assert.equal(admitted[0].terrain, "Kind");
   assert.equal(admitted[0].standing, "earned_invariant");
-  assert.equal(admitted[0].mechanism, "interaction_affinity_basin");
+  assert.equal(admitted[0].mechanism, "behavioral_equivalence_of_metastable_basin");
   assert.equal(admitted[0].materiality.makesDifference, true);
-  assert.equal(admitted[0].validation.method, "prospective_metastable_basin_ablation");
+  assert.equal(admitted[0].validation.method, "prospective_approximate_bisimulation_after_metastability");
+  assert.equal(admitted[0].validation.responseChannel, "outcome");
   assert.ok(admitted[0].validation.stableSightings >= 2);
   assert.equal(admitted[0].validation.minimumMembershipRetention, 1);
-  assert.equal(admitted[0].validation.memberRate, 1);
-  assert.equal(admitted[0].validation.nonMemberRate, 0);
-  assert.ok(admitted[0].validation.pValue <= 0.05);
-  assert.equal(admitted[0].consequence.value, "boundary-crossing");
+  assert.equal(admitted[0].validation.totalVariation, 1);
+  assert.ok(admitted[0].validation.behavioralDivergence > 0);
+  assert.ok(admitted[0].validation.withinMemberDivergence <= 0.5);
+  assert.ok(admitted[0].validation.pValue <= 0.2);
 
   assert.deepEqual(ledger.observe([basinCandidate()], index, 8), [], "INS(Kind) is a one-time phase transition");
   assert.equal(ledger.snapshot().length, 1);
@@ -101,13 +105,12 @@ test("a Kind basin must persist before later experience can make it consequentia
 test("a dissolving basin resets its causal formation horizon instead of inheriting old evidence", () => {
   const index = fixtureIndex();
   seedTrajectory(index);
-  const ledger = createKindBasinAdmissionLedger({ minMembershipRetention: 0.75 });
+  const ledger = createKindBasinAdmissionLedger({ minMembershipRetention: 0.75, alpha: 0.2 });
   ledger.observe([basinCandidate()], index, 3);
   ledger.observe([basinCandidate()], index, 4);
   assert.equal(ledger.diagnostics().tracked[0].formedAt, 3);
   assert.equal(ledger.diagnostics().tracked[0].stableSightings, 2);
 
-  // Only two of the original three members survive: retention 2/3 < .75.
   const perturbed = basinCandidate(["entity:a", "entity:b", "entity:x"]);
   assert.deepEqual(ledger.observe([perturbed], index, 5), []);
   const reset = ledger.diagnostics().tracked[0];
@@ -115,19 +118,17 @@ test("a dissolving basin resets its causal formation horizon instead of inheriti
   assert.equal(reset.stableSightings, 1);
   assert.deepEqual(reset.memberRefs, ["entity:a", "entity:b", "entity:x"]);
 
-  // Consequences that follow the old basin but precede renewed metastability
-  // cannot immediately admit the reset basin.
   addConsequences(index, 6);
   assert.deepEqual(ledger.observe([perturbed], index, 8), []);
   assert.equal(ledger.snapshot().length, 0);
 });
 
-test("fallback or unstable basins remain hypotheses even when later features differ", () => {
+test("fallback or unstable basins remain hypotheses even when later behavior differs", () => {
   const index = fixtureIndex();
   seedTrajectory(index);
   addConsequences(index, 5);
 
-  const ledger = createKindBasinAdmissionLedger();
+  const ledger = createKindBasinAdmissionLedger({ alpha: 0.2 });
   const unstable = Object.freeze({ ...basinCandidate(), field: Object.freeze({ ...basinCandidate().field, stable: false }) });
   const fallback = Object.freeze({ ...basinCandidate(), fallbackNomination: true });
   assert.deepEqual(ledger.observe([unstable, fallback], index, 3), []);
