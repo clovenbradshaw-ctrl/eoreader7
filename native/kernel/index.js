@@ -15,3 +15,5 @@ export { encounter, challengeCandidates, createRecursiveReader } from "./reading
 export { deriveExperiencePrior, mergeExperiencePriors, experienceNetworkSignatureKey } from "./experience-priors.js";
 export { mergeReceivedPriors, createPriorConditionedReader } from "./experienced-reading.js";
 export { deriveRhythmPrior, mergeRhythmPriors, composeExperience, scoreRhythmExpectations, readingGaps, medianOf } from "./rhythm-priors.js";
+export { createHyperlexicon, normalizeHyperlexicon, compositionAffordance, admitHyperlexiconCandidates, giveHyperlexiconAffordance, pairKey, HL_SCHEMA, HL } from "./hyperlexicon.js";
+export { createRelationCompositionLedger, relationCompositionChains, acquireCompositionCandidates, evaluateRelationCompositions, consequentialWithheldCompositions } from "./relation-composition.js";
