@@ -35,7 +35,7 @@ test("shared Fold variables create coupling topology but do not fabricate energe
   ], { sequence: 5 });
   assert.equal(field.model, "interpretive_constraint_factor_graph");
   assert.equal(field.factorCount, 2);
-  assert.equal(field.variableCount, 2, "the shared ground plus nested consequence reference are explicit variable nodes");
+  assert.equal(field.variableCount, 1, "the repeated ground/consequence referent is one shared variable node");
   assert.ok(field.couplingCount > 0);
   assert.equal(field.tensionAvailable, false);
   assert.equal(field.tension, null);
