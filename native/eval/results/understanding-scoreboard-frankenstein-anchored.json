@@ -26,6 +26,12 @@
       "hypothesesFinal": 1639,
       "finalDistinct": 441,
       "pastRemadeTotal": 55,
+      "pastRemadeReach": {
+        "n": 55,
+        "median": 749,
+        "max": 2046,
+        "min": 82
+      },
       "firstCanonTotal": 53,
       "splitsTotal": 441,
       "hypothesesOpenedTotal": 1596,
@@ -104,6 +110,12 @@
         "hypothesesFinal": 1438,
         "finalDistinct": 382,
         "pastRemadeTotal": 21,
+        "pastRemadeReach": {
+          "n": 21,
+          "median": 1316,
+          "max": 2645,
+          "min": 281
+        },
         "firstCanonTotal": 41,
         "splitsTotal": 382,
         "hypothesesOpenedTotal": 1602,
@@ -181,6 +193,12 @@
         "hypothesesFinal": 1733,
         "finalDistinct": 502,
         "pastRemadeTotal": 12,
+        "pastRemadeReach": {
+          "n": 12,
+          "median": 590,
+          "max": 1048,
+          "min": 5
+        },
         "firstCanonTotal": 32,
         "splitsTotal": 502,
         "hypothesesOpenedTotal": 1590,

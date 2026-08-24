@@ -127,7 +127,14 @@ async function runReading(encounters, { cursors }) {
       const kind = op?.consequence?.kind;
       if (!kind) continue;
       if (kind === "relation_recanonicalized") {
-        events.push({ pos, kind, remade: op.consequence.from != null });
+        // The REC names the raw edge it re-projects (consequence.sourceEdge,
+        // shape edge:text:{sequencePosition}:{index}) — so a re-making's
+        // REACH (how far back the past it rewrote was read) is addressable,
+        // closing the v1 disclosure that re-makings were counted only by
+        // where they LANDED.
+        const srcMatch = /^edge:text:(\d+):/.exec(op.consequence.sourceEdge ?? "");
+        const srcPos = srcMatch ? Number(srcMatch[1]) + 1 : null; // sequencePosition is 0-based; pos is 1-based
+        events.push({ pos, kind, remade: op.consequence.from != null, reach: srcPos != null ? pos - srcPos : null });
       } else if (
         kind === "identity_split" ||
         kind === "identity_hypothesis_opened" ||
@@ -180,6 +187,21 @@ function backwardScore(cursor, events, total) {
   return { cursor, after: total - cursor, pastRemade: remade, firstCanonicalizations: firstCanon, identitySplits: splits, hypothesesOpened: opened, alternativesOpened, hypothesesSupported: supported, discourseSupported };
 }
 
+// Distribution of how far back (in encounters) re-made RECs reached — the
+// sharper claim behind pastRemade: not just "the past was rewritten" but
+// "how old was the past that later reading reached back to".
+function reachSummary(remadeEvents) {
+  const reaches = remadeEvents.map((e) => e.reach).filter((r) => Number.isFinite(r)).sort((a, b) => a - b);
+  if (!reaches.length) return { n: 0 };
+  const mid = Math.floor(reaches.length / 2);
+  return {
+    n: reaches.length,
+    median: reaches.length % 2 ? reaches[mid] : (reaches[mid - 1] + reaches[mid]) / 2,
+    max: reaches[reaches.length - 1],
+    min: reaches[0],
+  };
+}
+
 function scoreRun(label, run, cursors) {
   const finalSnap = identitySnapshot(run.finalFold);
   const forward = cursors.map((c) => forwardScore(c, run.snapshots.get(c), finalSnap));
@@ -189,6 +211,7 @@ function scoreRun(label, run, cursors) {
     hypothesesFinal: finalSnap.size,
     finalDistinct: [...finalSnap.values()].filter((x) => x.standing === "distinct" || x.standing === "refused").length,
     pastRemadeTotal: run.events.filter((e) => e.kind === "relation_recanonicalized" && e.remade).length,
+    pastRemadeReach: reachSummary(run.events.filter((e) => e.kind === "relation_recanonicalized" && e.remade)),
     firstCanonTotal: run.events.filter((e) => e.kind === "relation_recanonicalized" && !e.remade).length,
     splitsTotal: run.events.filter((e) => e.kind === "identity_split").length,
     hypothesesOpenedTotal: run.events.filter((e) => e.kind === "identity_hypothesis_opened" && e.action !== "alternative").length,

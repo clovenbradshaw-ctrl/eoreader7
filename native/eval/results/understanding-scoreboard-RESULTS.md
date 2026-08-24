@@ -155,3 +155,63 @@ floors, an honest partial result, not smoothed over.
 - **Expectations and obligations are still zero.** This pass fed the
   identity stream only; leverage moves (2) (expectations from relation
   structure) and (3) (the altitude gate) remain open.
+
+---
+
+# Second amendment, same day — precision measured against the coref golden, and REC reach
+
+## The negative control (`native/eval/anchoring-precision.mjs`)
+
+The committed golden (`pg84-frankenstein.coref.json`) makes one precision
+question decidable without any judgment call: its creature entry lists the
+descriptor surfaces that all predicate ONE being ("the creature", "the
+monster", "the wretch", "the fiend", "the dæmon", "the being", "the
+devil", "my creation"), and that being is UNNAMED — nested first-person
+narration means he never carries a proper-name surface, so he can never
+enter the cast anchoring binds against. **Every binding of a creature
+descriptor to a named referent is therefore false, by the golden's own
+annotation.**
+
+Measured on the full novel:
+
+| | count |
+|---|---|
+| creature-descriptor occurrences in the text | 94 |
+| falsely bound (evidence stream) | 15 (16.0%) |
+| correctly refused / unoffered | 79 (84.0%) |
+| **surviving false beliefs at the end of the read** | **6 (6.4%)** |
+| self-corrected to `distinct` by the mechanism's own attacks | 7 of 13 |
+
+Two findings worth keeping:
+
+1. **The failure mode is legible: thematic co-occurrence masquerading as
+   identity.** Every false binding lands on the creature's victims and
+   bystanders — Clerval, Elizabeth, Justine, Felix — at the scenes he
+   shares with them. Recall measures association; identity is not
+   association; the 16% is exactly that gap, now with a number on it.
+2. **The evidence stream is not the belief.** A descriptor bound to
+   different referents over time attacks its own earlier alternatives, so
+   the fold's FINAL belief (6 false) is ~2.5× cleaner than its raw
+   evidence (15 false). And every one of the 6 survivors stands on
+   `support = 1` — single-witness, in the-fold P29's own vocabulary.
+   The obvious next quarantine, named not built: alternatives below a
+   corroboration floor of 2 (binding.js's structural minimum, the same
+   giver P29 already cites) should not license recanonicalization of
+   edges — false belief would then be held OUT of the canonical
+   projection without touching the evidence record.
+
+Not measured, said plainly: the 1,758 bindings of descriptors the golden
+does not annotate ("my father", "the stranger", scene furniture) remain
+unmeasured — reported as uncovered volume, never as clean.
+
+## REC reach (the sharpened backwardScore)
+
+Each re-making REC names the raw edge it re-projects, and edge ids carry
+their read position — so the v1 disclosure ("re-makings counted by where
+they LAND") is closed: reach = landing position − source position.
+Ordered reading's 55 re-makings reach a **median of 749 sentences back
+(min 82, max 2,046)** — later reading genuinely rewrites the deep past,
+not just the previous paragraph. Shuffled runs also show large reach
+values, as they must (under a permutation, "position read" is arbitrary),
+so reach is the descriptive sharpening of the claim; the COUNT (55 vs
+21/12) remains the ordered-vs-shuffled separator.
