@@ -145,7 +145,11 @@ test("material unresolved interpretation projects Atmosphere; only compressive i
   assert.equal(orientation.terrainCounts.Atmosphere, 1);
   assert.equal(orientation.terrainCounts.Paradigm, 1);
   assert.deepEqual([...orientation.terrainState.Atmosphere[0].obligationRefs].sort(), obligations.map((item) => item.id).sort());
-  assert.ok(orientation.terrainState.Atmosphere[0].field.totalEnergy > 0);
+  const atmosphere = orientation.terrainState.Atmosphere[0].field;
+  assert.equal(atmosphere.model, "interpretive_constraint_factor_graph");
+  assert.equal(atmosphere.factorCount, 3);
+  assert.equal(atmosphere.tensionAvailable, false, "material unresolved structure is real even when conflict magnitude is not identifiable");
+  assert.equal(atmosphere.tension, null);
   assert.equal(orientation.terrainState.Paradigm[0].groundRefs.length, 3);
   assert.ok(orientation.terrainState.Paradigm[0].model.compressionGain > 0);
 });
