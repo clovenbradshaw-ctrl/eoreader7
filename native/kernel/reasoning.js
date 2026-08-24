@@ -1,4 +1,5 @@
 import { cubeAddresses } from "./interrogation.js";
+import { stanceMathematicalContract } from "./stance-math.js";
 
 const freeze = (value) => Object.freeze(value);
 const MODE_MOVE = Object.freeze({
@@ -26,6 +27,11 @@ const validLimit = (limit) => {
  * (mode x grain) says how that address engages it. Prior same-stance material
  * may condition/weight the move, but MUST NOT license or forbid it: recursive
  * reading always remains free to Differentiate, Relate, or Generate anew.
+ *
+ * Every affordance also carries the universal mathematical contract for its
+ * stance. This tells a terrain-specific reasoner what family of action is legal
+ * and which proof obligations must be discharged without pretending the action
+ * has already succeeded.
  */
 export function reasoningAffordances(orientation = {}, { limit = 81 } = {}) {
   validLimit(limit);
@@ -35,6 +41,7 @@ export function reasoningAffordances(orientation = {}, { limit = 81 } = {}) {
     const terrainContext = orientation?.terrainState?.[address.terrain] ?? [];
     if (!terrainContext.length) continue;
     const stanceContext = orientation?.stanceState?.[address.stance] ?? [];
+    const mathematicalContract = stanceMathematicalContract(address);
     out.push(freeze({
       schema: "EOReasoningAffordance@1",
       id: `reasoning:${address.mode}:${address.domain}:${address.grain}`,
@@ -45,6 +52,9 @@ export function reasoningAffordances(orientation = {}, { limit = 81 } = {}) {
       terrainRefs: refs(terrainContext),
       stanceRefs: refs(stanceContext),
       stanceContinuity: stanceContext.length > 0,
+      mathematicalContract,
+      mathematicalFamily: mathematicalContract?.family ?? null,
+      proofObligations: mathematicalContract?.proofObligations ?? freeze([]),
     }));
     if (out.length >= limit) break;
   }
