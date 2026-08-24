@@ -31,6 +31,7 @@
 import fs from "node:fs";
 import { stripContainer } from "../adapters/text/spans.js";
 import { createCausalTextPerceiver, textEncounters } from "../adapters/text/recursive.js";
+import { anchorAsDefiniteBinding } from "../adapters/text/anchoring.js";
 import { reviseTextFold } from "../adapters/text/revision.js";
 import { createRecursiveReader } from "../kernel/reading.js";
 import { createPriorConditionedReader } from "../kernel/experienced-reading.js";
@@ -110,7 +111,15 @@ async function main() {
   const target = await readWith(experienced, load(targetPath, targetSource, targetLimit));
 
   // ── the Hyperlexicon ────────────────────────────────────────────────
-  const entries = target.fold.graphEntries ?? [];
+  // Composition chains bridge on RESOLVED referents. This branch's anchoring
+  // emits EOAnchorEvidence@1; the ledger reads EODefiniteBinding@1. Project
+  // one into the other (anchoring.js::anchorAsDefiniteBinding — the two
+  // schemas are the same fact built from two directions) or the reader has
+  // no bridges at all and the Hyperlexicon comes back empty. Measured: the
+  // first run of this driver, 932 relation edges, 0 bindings, 0 candidates.
+  const rawEntries = target.fold.graphEntries ?? [];
+  const projectedBindings = rawEntries.map(anchorAsDefiniteBinding).filter(Boolean);
+  const entries = [...rawEntries, ...projectedBindings];
   const ledger = createRelationCompositionLedger(entries);
   const stats = ledger.diagnostics();
 
@@ -171,6 +180,7 @@ async function main() {
     },
     newBook: {
       source: targetSource,
+      projectedBindings: projectedBindings.length,
       encounters: targetLimit,
       relationEdges: stats.relationEdges,
       referentBindings: stats.referentBindings,

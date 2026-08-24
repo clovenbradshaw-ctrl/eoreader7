@@ -80,6 +80,27 @@ function earnedClosedClass(table) {
   return candidate.size * 2 < table.freq.size ? candidate : new Set();
 }
 
+// A relation form's composition standing, from the received POS prior.
+// Absent prior, or absent form: eligible (nothing has been shown against it).
+function relationStanding(verb, posPrior) {
+  const counts = posPrior?.forms?.[diaNorm(String(verb ?? ""))];
+  if (!counts) return Object.freeze({ eligible: true, basis: "no received evidence about this form; absence is not a refusal" });
+  const total = Object.values(counts).reduce((sum, n) => sum + n, 0);
+  if (!total) return Object.freeze({ eligible: true, basis: "no received evidence about this form; absence is not a refusal" });
+  let dominant = null, best = -1;
+  for (const [tag, n] of Object.entries(counts)) if (n > best) { best = n; dominant = tag; }
+  const eligible = dominant === "VERB";
+  return Object.freeze({
+    eligible,
+    dominantClass: dominant,
+    share: best / total,
+    basis: eligible
+      ? "treebank-dominant VERB — eligible as portable relation memory"
+      : `treebank-dominant ${dominant} — an auxiliary or non-verb form does not become familiarity by recurring`,
+    giver: "UD_English-EWT via bin/priors/pos/en-ud-ewt.json",
+  });
+}
+
 function lexicalNounOccurrences(text, sequencePosition, encounterRef, posPrior) {
   if (!posPrior?.forms) return [];
   const out = [];
@@ -232,7 +253,19 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
         witness: `text:${sequencePosition}:${rel.offset}`,
         scope: { sequencePosition, offset: rel.offset },
         eo: { op: "CON", grain: "Figure" },
-        meta: { polarity: rel.polarity, source: encounter.source, encounterRef },
+        // compositionStanding: whether this relation FORM is eligible to be
+        // carried as portable experience or composed with another relation.
+        // experience-priors.js reads exactly this field ("auxiliaries/noise
+        // do not become familiarity merely because they appeared often") but
+        // nothing on this side ever set it, so a reader's carried memory
+        // filled with `were`/`would`/`has`/`could` — measured, not
+        // hypothesized (the first experienced-new-book run's own carried
+        // memory was 4 auxiliaries and nothing else). Decided by the SAME
+        // received POS prior the descriptor-head gate already uses: a form
+        // the treebank says is dominantly AUX (or any non-VERB class) is
+        // ineligible; a form ABSENT from the prior stays eligible, the same
+        // absent-is-a-gap-not-a-mismatch polarity that gate already holds.
+        meta: { polarity: rel.polarity, source: encounter.source, encounterRef, compositionStanding: relationStanding(rel.verb, posPrior) },
       }));
 
       const seenReferents = currentReferents(encounter.material, cache.referents);

@@ -235,3 +235,40 @@ export function identityEvidenceFromAnchors(anchors = [], fold = {}) {
   }
   return { supports, attacks };
 }
+
+/**
+ * Project anchor evidence into the occurrence-binding shape the relation-
+ * composition ledger reads (`EODefiniteBinding@1` — relation-composition.js's
+ * own OCCURRENCE_BINDING_SCHEMAS).
+ *
+ * This is a projection, not a re-derivation: an anchor already IS a definite
+ * binding by construction — a definite/possessive descriptor occurrence
+ * resolved to one admitted referent, above declared floors, with its own
+ * witness. The two schemas exist because two sessions built the same fact
+ * from different directions (recall-based anchoring here; the discourse
+ * index there); naming that equivalence explicitly is cheaper and more
+ * honest than either side silently re-deriving the other's evidence.
+ *
+ * Composition chains bridge on RESOLVED referents, so without this bridge an
+ * anchoring reader's edges have no bridges at all and the Hyperlexicon comes
+ * back empty — measured, not hypothesized (native/eval/results/
+ * experienced-new-book.json's own first run: 932 relation edges, 0 bindings,
+ * 20 chain sites, 0 candidates).
+ */
+export function anchorAsDefiniteBinding(anchor) {
+  if (anchor?.schema !== "EOAnchorEvidence@1" || !anchor.occurrenceRef || !anchor.referent) return null;
+  return Object.freeze({
+    schema: "EODefiniteBinding@1",
+    id: `definite-binding:${anchor.id}`,
+    occurrence: anchor.occurrenceRef,
+    referent: anchor.referent,
+    surface: anchor.descriptor,
+    witness: anchor.witness,
+    provenance: Object.freeze({
+      giver: "text/anchoring::anchorAsDefiniteBinding",
+      basis: "projection of a witnessed EOAnchorEvidence@1 — an anchored descriptor occurrence IS a definite binding",
+      activation: anchor.activation,
+      margin: anchor.margin,
+    }),
+  });
+}
