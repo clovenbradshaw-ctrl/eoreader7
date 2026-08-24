@@ -36,7 +36,13 @@ function participantSite(participant) {
   return null;
 }
 
-/** Structure/Ground: incidence potential over a local carrier. */
+/**
+ * Structure/Ground diagnostic for the current discrete text carrier.
+ *
+ * This is not the universal definition of Field. It measures local incidence
+ * and coupling in the text adapter's discrete carrier. Richer adapters may
+ * provide genuine scalar/vector/tensor fields or sheaf sections instead.
+ */
 export function structuralFieldGeometry(edges = []) {
   const usable = edges.filter((edge) => edge?.schema === "EOHyperedge@1" && edge.id);
   const edgeCount = usable.length;
@@ -75,6 +81,7 @@ export function structuralFieldGeometry(edges = []) {
     couplingDensity: possiblePairs ? coupledPairs.size / possiblePairs : 0,
     relationEntropy: shannonEntropy(relationValues),
     normalizedRelationEntropy: normalizedEntropy(relationValues),
+    standing: "discrete_field_diagnostic",
   });
 }
 
@@ -82,7 +89,11 @@ function edgeReferents(edge, referentsByEdge) {
   return [...(referentsByEdge?.get(edge.id) ?? [])].filter(Boolean).sort();
 }
 
-/** Structure/Pattern: connected topology of Links and earned referents. */
+/**
+ * Structure/Pattern diagnostic: connected topology of witnessed Links and
+ * earned referents. Component structure and Betti-1 are invariants of the
+ * present incidence complex, not the complete definition of Network.
+ */
 export function relationNetworkComponents(edges = [], referentsByEdge = new Map()) {
   const edgeById = new Map(edges.filter((edge) => edge?.schema === "EOHyperedge@1" && edge.id).map((edge) => [edge.id, edge]));
   const refsByEdge = new Map();
@@ -149,95 +160,15 @@ export function relationNetworkComponents(edges = [], referentsByEdge = new Map(
       degreeByReferent: freeze(degreeByReferent),
       relationEntropy: shannonEntropy(relationValues),
       normalizedRelationEntropy: normalizedEntropy(relationValues),
+      standing: "incidence_topology_diagnostic",
     }));
   }
 
   return freeze(components.sort((a, b) => b.edgeCount - a.edgeCount || b.cycleRank - a.cycleRank || a.edgeRefs[0].localeCompare(b.edgeRefs[0])));
 }
 
-function nestedReferenceValues(value, out = new Set()) {
-  if (value == null) return out;
-  if (typeof value === "string") {
-    if (/^(ref|ref-occ|occ|edge|expectation|obligation|identity|composition|frame|pattern|motif|task):/.test(value)) out.add(value);
-    return out;
-  }
-  if (Array.isArray(value)) {
-    for (const item of value) nestedReferenceValues(item, out);
-    return out;
-  }
-  if (typeof value === "object") for (const item of Object.values(value)) nestedReferenceValues(item, out);
-  return out;
-}
-
-function obligationRefs(obligation) {
-  const refs = new Set([...(obligation?.grounds ?? []), ...(obligation?.alternatives ?? [])].filter(Boolean).map(String));
-  for (const ref of nestedReferenceValues(obligation?.consequences ?? [])) refs.add(ref);
-  return refs;
-}
-
 function consequenceKinds(obligation) {
   return (obligation?.consequences ?? []).map((item) => item?.kind).filter(Boolean);
-}
-
-function persistenceOf(obligation, sequence) {
-  const stored = Math.max(0, Number(obligation?.persistence ?? 0));
-  if (!Number.isFinite(sequence) || !Number.isFinite(obligation?.openedAt)) return stored;
-  return Math.max(stored, sequence - obligation.openedAt + 1, 0);
-}
-
-/** Interpretation/Ground: coupled potential of unresolved material constraints. */
-export function interpretiveAtmosphereField(obligations = [], { sequence = null } = {}) {
-  const usable = obligations.filter((item) => item?.id);
-  const potentials = [];
-  const potentialById = new Map();
-  const refsById = new Map();
-  const allKinds = [];
-
-  for (const obligation of usable) {
-    const persistence = persistenceOf(obligation, sequence);
-    const consequenceCount = Math.max(1, (obligation.consequences ?? []).length);
-    const alternativeCount = Math.max(1, (obligation.alternatives ?? []).length);
-    const materialityReach = Math.max(1, obligation?.distinction?.materiality?.reasons?.length ?? 0);
-    const consequenceReach = Math.max(consequenceCount, materialityReach);
-    const localPotential = (1 + persistence) * consequenceReach * (1 + log2(alternativeCount));
-    const refs = obligationRefs(obligation);
-    refsById.set(obligation.id, refs);
-    potentialById.set(obligation.id, localPotential);
-    allKinds.push(...consequenceKinds(obligation));
-    potentials.push(freeze({ obligation: obligation.id, persistence, consequenceReach, alternativeCount, potential: localPotential }));
-  }
-
-  const couplings = [];
-  let couplingEnergy = 0;
-  for (let i = 0; i < usable.length; i += 1) {
-    for (let j = i + 1; j < usable.length; j += 1) {
-      const a = usable[i].id;
-      const b = usable[j].id;
-      const ar = refsById.get(a) ?? new Set();
-      const br = refsById.get(b) ?? new Set();
-      if (!ar.size || !br.size) continue;
-      let shared = 0;
-      for (const ref of ar) if (br.has(ref)) shared += 1;
-      if (!shared) continue;
-      const coupling = shared / Math.sqrt(ar.size * br.size);
-      const energy = coupling * Math.sqrt((potentialById.get(a) ?? 0) * (potentialById.get(b) ?? 0));
-      couplingEnergy += energy;
-      couplings.push(freeze({ from: a, to: b, shared, coupling, energy }));
-    }
-  }
-
-  const localPotential = potentials.reduce((sum, item) => sum + item.potential, 0);
-  return freeze({
-    model: "coupled_unresolved_potential_field",
-    obligationCount: usable.length,
-    localPotential,
-    couplingEnergy,
-    totalEnergy: localPotential + couplingEnergy,
-    consequenceEntropy: shannonEntropy(allKinds),
-    normalizedConsequenceEntropy: normalizedEntropy(allKinds),
-    potentials: freeze(potentials),
-    couplings: freeze(couplings),
-  });
 }
 
 function countBucket(value) {
@@ -256,9 +187,8 @@ function materialityReasonKinds(obligation) {
 /**
  * Functional signature of an interpretation. It deliberately ignores JS field
  * names such as `target`, `relation`, or `composition`: serialization shape is
- * not ontology. The code length charges only informative invariants. Default
- * carrier geometry (one ground, zero alternatives, one consequence) is free;
- * only departures from that baseline add description length.
+ * not ontology. This remains a retrospective diagnostic used by the current
+ * MDL projection; prospective model comparison is the stronger Paradigm target.
  */
 export function interpretiveSignature(obligation) {
   const consequence = unique(consequenceKinds(obligation)).sort();
@@ -277,7 +207,10 @@ export function interpretiveSignature(obligation) {
   return freeze({ key: tokens.join("|"), tokens: freeze(tokens), complexity: tokens.length });
 }
 
-/** Interpretation/Pattern: explanatory compression over independent Lenses. */
+/**
+ * Interpretation/Pattern retrospective MDL diagnostic. This can nominate a
+ * candidate explanatory regime but is not yet a full prospective Paradigm gate.
+ */
 export function interpretiveParadigmModels(obligations = []) {
   const groups = new Map();
   for (const obligation of obligations) {
@@ -299,6 +232,7 @@ export function interpretiveParadigmModels(obligations = []) {
     if (!(compressionGain > 0)) continue;
     out.push(freeze({
       model: "minimum_description_length",
+      standing: "retrospective_paradigm_candidate",
       signature: signature.key,
       tokens: signature.tokens,
       memberRefs: freeze(members.map((item) => item.id).sort()),
