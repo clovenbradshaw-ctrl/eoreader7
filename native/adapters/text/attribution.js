@@ -107,6 +107,39 @@ export function quotationFrames(text, { offset = 0 } = {}) {
 }
 
 /**
+ * The individual quoted spans, at their own boundaries rather than their
+ * paragraph's.
+ *
+ * This exists because the first driver over `quotationFrames` attributed
+ * 2.8% of Frankenstein's dialogue and the mechanism was not at fault: it was
+ * handed paragraph edges, and `” said Clerval` sits INSIDE the paragraph,
+ * immediately after the closing mark. A speaker tag is adjacent to the
+ * QUOTE, not to the block that contains it (P5.5 — check the driver before
+ * the theory).
+ */
+export function quotedSpans(text, { offset = 0 } = {}) {
+  const spans = [];
+  let open = -1;
+  for (let i = 0; i < text.length; i += 1) {
+    const ch = text[i];
+    if (ch === OPEN) { open = i; continue; }
+    if (ch === CLOSE && open >= 0) {
+      spans.push(freeze({
+        byteStart: open + offset,
+        byteEnd: i + 1 + offset,
+        // The words that touch this quotation on either side — the only
+        // place a speaker tag can be.
+        before: text.slice(Math.max(0, open - 90), open),
+        after: text.slice(i + 1, i + 91),
+        text: text.slice(open, i + 1),
+      }));
+      open = -1;
+    }
+  }
+  return freeze({ schema: "EOQuotedSpans@1", spans: freeze(spans), unclosed: open >= 0 ? 1 : 0 });
+}
+
+/**
  * Attribute one quoted span to a speaker, from the words that touch it.
  *
  * `isVerb(word)` and `referentFor(surface)` are INJECTED — the POS prior and

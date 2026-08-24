@@ -3,7 +3,7 @@
 
 import test from "node:test";
 import assert from "node:assert/strict";
-import { quotationFrames, attributeQuotation, narrationFrames, holderAt } from "../adapters/text/attribution.js";
+import { quotationFrames, quotedSpans, attributeQuotation, narrationFrames, holderAt } from "../adapters/text/attribution.js";
 
 test("the continued-quotation convention is read off the bytes: a run of opened-but-unclosed paragraphs is one embedded telling", () => {
   const text = [
@@ -23,6 +23,17 @@ test("one paragraph of ordinary dialogue is not an embedded frame", () => {
   const q = quotationFrames("“Good evening,” said Clerval.\n\nThey walked on.");
   assert.equal(q.embeddedFrames.length, 0);
   assert.equal(q.counted.closed, 1);
+});
+
+test("a quotation is bounded by its own marks, not by its paragraph — the speaker tag sits inside the block", () => {
+  const text = "He turned. “Good evening,” said Clerval, and we walked on together toward the lake.";
+  const { spans } = quotedSpans(text);
+  assert.equal(spans.length, 1);
+  assert.equal(spans[0].text, "“Good evening,”");
+  assert.ok(spans[0].after.startsWith(" said Clerval"), "the tag is in `after` — taking the PARAGRAPH's end instead put it out of reach, which is what made the first live run attribute 2.8% (P5.5: the driver, not the theory)");
+  const isVerb = (w) => w.toLowerCase() === "said";
+  const referentFor = (s) => (s === "Clerval" ? "ref:auto:clerval" : null);
+  assert.equal(attributeQuotation(spans[0].before, spans[0].after, { isVerb, referentFor }).speaker, "ref:auto:clerval");
 });
 
 test("attribution needs a verb the prior admits AND a name the reading admitted — neither alone", () => {

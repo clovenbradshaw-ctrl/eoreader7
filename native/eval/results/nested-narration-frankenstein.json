@@ -115,6 +115,125 @@
   "creature": 777,
   "walton": 257
  },
+ "pronounBinding": {
+  "organ": "adapters/text/pronouns.js::resolvePronouns (built and tested here, previously with no caller in the reading path)",
+  "declared": {
+   "minActivation": 0.05,
+   "minMargin": 0.2
+  },
+  "scope": "per narration frame — a teller's 'he' is never resolved against a name that only occurs in another teller's stretch (P1, one level in)",
+  "castSurfaces": 112,
+  "reach": {
+   "pronounEnds": 133,
+   "inBoundRange": 20,
+   "tokenMatch": 9,
+   "reading": "pronounEnds: gendered-pronoun edge ends the extractor produced at all (of 3,180 edges — 4.2%). inBoundRange: those inside a sentence the organ bound, which it only does for sentences carrying NO name (its own declared scope). tokenMatch: the end IS the bound pronoun, so the claim keys to a being.",
+   "ceiling": "the claim tier is unmoved, and the bottleneck is UPSTREAM, not here: the relation extractor anchors on capitalised surfaces, so pronoun-subject clauses are mostly never extracted. Widening this organ would not help; widening extraction would. Named, not attempted."
+  },
+  "boundSentences": 632,
+  "perFrame": [
+   {
+    "narrator": "walton",
+    "sentences": 255,
+    "bound": 122,
+    "refused": 55
+   },
+   {
+    "narrator": "victor",
+    "sentences": 1119,
+    "bound": 263,
+    "refused": 267
+   },
+   {
+    "narrator": "creature",
+    "sentences": 75,
+    "bound": 9,
+    "refused": 7
+   },
+   {
+    "narrator": "creature",
+    "sentences": 657,
+    "bound": 63,
+    "refused": 181
+   },
+   {
+    "narrator": "victor",
+    "sentences": 999,
+    "bound": 96,
+    "refused": 255
+   },
+   {
+    "narrator": "walton",
+    "sentences": 290,
+    "bound": 67,
+    "refused": 74
+   },
+   {
+    "narrator": "creature",
+    "sentences": 101,
+    "bound": 12,
+    "refused": 18
+   }
+  ],
+  "byActivation": {
+   "mechanism": "decayed presence (kernel createActivation; window 8 measured by dmd on this book — see terrain-activation-live)",
+   "declared": {
+    "window": 8,
+    "minActivation": 0.2,
+    "minMargin": 0.2
+   },
+   "boundSentences": 894,
+   "perFrame": [
+    {
+     "narrator": "walton",
+     "sentences": 255,
+     "bound": 66,
+     "refused": 111
+    },
+    {
+     "narrator": "victor",
+     "sentences": 1119,
+     "bound": 396,
+     "refused": 134
+    },
+    {
+     "narrator": "creature",
+     "sentences": 75,
+     "bound": 2,
+     "refused": 14
+    },
+    {
+     "narrator": "creature",
+     "sentences": 657,
+     "bound": 115,
+     "refused": 129
+    },
+    {
+     "narrator": "victor",
+     "sentences": 999,
+     "bound": 183,
+     "refused": 168
+    },
+    {
+     "narrator": "walton",
+     "sentences": 290,
+     "bound": 113,
+     "refused": 28
+    },
+    {
+     "narrator": "creature",
+     "sentences": 101,
+     "bound": 19,
+     "refused": 11
+    }
+   ],
+   "agreementWithThematic": {
+    "bothBound": 415,
+    "agreeing": 107
+   },
+   "reading": "the two arms agree on only ~26% of the sentences both bind. Spot-checked: disagreements cluster in stretches whose TRUE antecedent (the master, the lieutenant — Walton-letter minor characters) is below the cast floor entirely, so both arms bind the nearest wrong candidate. That is a candidate-universe gap upstream of either mechanism; with no pronoun golden in either repo, declaring a winner between the arms is not licensed (CLAUDE.md: never tune toward the answer key you wish you had)."
+  }
+ },
  "unframedEncounters": 0,
  "readersModelOfVictor": {
   "attributed": 2874,

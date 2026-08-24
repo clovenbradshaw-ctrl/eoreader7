@@ -30,6 +30,24 @@ import { narrationFrames, quotationFrames, holderAt } from "../adapters/text/att
 import { deltaFold } from "../kernel/fold.js";
 import { READER, STANCE, projectPerspectives, commonGround, divergence, mentalModel, perspectiveOperation } from "../kernel/perspective.js";
 import { FIRST_PERSON, FIRST_PERSON_META } from "../../legacy-eoreader6.1/packages/engine/perceiver/text/priors.js";
+import { castSurfaceMap, bindNarrationFrames, pronounResolver, claimEndKey } from "../adapters/text/perspective-claims.js";
+import { resolvePronounsByActivation } from "../adapters/text/pronouns.js";
+import { createActivation } from "../kernel/activation.js";
+import { createSession, admitChunked, sessionReferents } from "../../legacy-eoreader6.1/packages/host/corpus.js";
+
+// Declared, not defaulted, and borrowed rather than invented: host/corpus.js's
+// own operating point for this organ. Its own header says no golden exists for
+// pronoun binding, so these are disclosed-as-unvalidated, and moving them is
+// expected rather than a regression.
+const PRONOUN_RECALL = { minActivation: 0.05, minMargin: 0.2 };
+
+// The activation arm's own numbers, separately declared because the scale is
+// different (arrival units: 1 = one full naming, undecayed). window 8 is the
+// DMD-MEASURED reach of "who is this stretch about" on this book's own first
+// quarter (terrain-activation-live, derive named there); 0.2 is the floor at
+// which a single naming has faded past ~12 sentences at the measured gamma —
+// disclosed-as-unvalidated exactly like the thematic arm's numbers.
+const PRONOUN_PRESENT = { window: 8, minActivation: 0.2, minMargin: 0.2, createActivation };
 
 // DECLARED, with its giver: the coref prior's own note — "the whole book is
 // nested first-person narration (Walton > Victor > Creature)."
@@ -50,12 +68,8 @@ const arg = (flag) => { const i = process.argv.indexOf(flag); return i > -1 ? pr
 // Walton. Same string, three referents, split by scope." So first person
 // resolves to the FRAME'S narrator, using the prior register's own closed
 // class (giver: lang/en) rather than a pronoun list written here.
-const endKey = (participant, frameHolder) => {
-  if (participant?.standing === "referent" && typeof participant.ref === "string" && participant.ref.startsWith("ref:")) return participant.ref;
-  const surface = String(participant?.surface ?? "").trim();
-  if (surface && FIRST_PERSON.test(surface)) return `holder:${frameHolder}`;
-  return participant?.surfaceKey ?? `surface:${surface.toLowerCase().replace(/\s+/g, "_")}`;
-};
+// endKey now lives in adapters/text/perspective-claims.js::claimEndKey,
+// where it is tested; this driver only declares the injected closed class.
 
 async function main() {
   const path = process.argv[2];
@@ -67,6 +81,46 @@ async function main() {
   const narration = narrationFrames(stripped.text, { framePrior, offset: stripped.offset });
   const quotes = quotationFrames(stripped.text, { offset: stripped.offset });
   const encounters = textEncounters(stripped.text, { source: `file:${path.split("/").pop()}`, offset: stripped.offset });
+
+  // ── pronoun binding, scoped PER TELLER ────────────────────────────────
+  // The organ (adapters/text/pronouns.js) was built, tested, and had no
+  // caller in the reading path — the scaffolded-organ pattern this repo's
+  // own CLAUDE.md names. It is wired here rather than inside the perceiver
+  // because S4 keeps the perceiver's re-ground posture until conformance
+  // parity licenses a swap.
+  //
+  // FRAME-SCOPED, and that is the whole point. Resolving "he" against a name
+  // that only occurs in a DIFFERENT teller's stretch is the same error P1
+  // forbids across books, one level in: the creature's "he" is not Victor's.
+  // The coref prior states the rule for first person ("same string, three
+  // referents, split by scope"); third person inherits it.
+  const cast = sessionReferents(
+    (() => { const s = createSession(); admitChunked(s, { text: fs.readFileSync(path, "utf8"), sourceId: `file:${path.split("/").pop()}`, language: "en" }); return s; })(),
+    { sourceId: `file:${path.split("/").pop()}`, priors: framePrior ? [framePrior] : [], limit: 200 },
+  );
+  const surfaceToReferent = castSurfaceMap(cast.referents ?? []);
+  const { boundSentences, perFrame: perFrameBindings } = bindNarrationFrames({
+    frames: narration.frames, text: stripped.text, offset: stripped.offset,
+    surfaceToReferent, recall: PRONOUN_RECALL,
+  });
+  // The SECOND arm — the reader's decaying present instead of thematic echo.
+  // Same frames, same join, one changed dimension (the mechanism), so the
+  // two reports below are a controlled comparison, not two anecdotes.
+  const presentArm = bindNarrationFrames({
+    frames: narration.frames, text: stripped.text, offset: stripped.offset,
+    surfaceToReferent, recall: PRONOUN_PRESENT,
+    resolve: (sents, surfs, opts) => resolvePronounsByActivation(sents, surfs, opts),
+  });
+  const agree = (() => {
+    const a = new Map(boundSentences.map((b) => [`${b.start}:${b.pronoun}`, b.referentId]));
+    let both = 0, same = 0;
+    for (const b of presentArm.boundSentences) {
+      const t = a.get(`${b.start}:${b.pronoun}`);
+      if (t) { both += 1; if (t === b.referentId) same += 1; }
+    }
+    return { bothBound: both, agreeing: same };
+  })();
+  const { resolve: referentForPronoun, counters: joinCounters } = pronounResolver(boundSentences);
 
   const perceiver = createCausalTextPerceiver({ minRelationSurfaces: 2, refreshEvery: 25 });
   const entries = [];
@@ -82,7 +136,7 @@ async function main() {
     byHolder.set(at.holder, (byHolder.get(at.holder) ?? 0) + edges.length);
     const ops = [];
     for (const edge of edges) {
-      const ends = (edge.participants ?? []).map((p) => endKey(p, at.holder));
+      const ends = (edge.participants ?? []).map((p) => claimEndKey(p, at.holder, { offset: enc.anchor.start, resolvePronoun: referentForPronoun, firstPerson: FIRST_PERSON }));
       const claim = `${ends[0]}|${edge.relation ?? edge.label ?? "?"}|${ends[ends.length - 1]}`;
       // The extractor already carries polarity on every edge; a negated
       // arrangement is its teller REFUSING that claim, not asserting it.
@@ -129,6 +183,27 @@ async function main() {
     // The headline: the same book, read as four different sets of claims.
     heldPerHolder: perHolder,
     edgesPerNarrator: Object.fromEntries(byHolder),
+    pronounBinding: {
+      organ: "adapters/text/pronouns.js::resolvePronouns (built and tested here, previously with no caller in the reading path)",
+      declared: PRONOUN_RECALL,
+      scope: "per narration frame — a teller's 'he' is never resolved against a name that only occurs in another teller's stretch (P1, one level in)",
+      castSurfaces: surfaceToReferent.size,
+      reach: {
+        ...joinCounters,
+        reading: "pronounEnds: gendered-pronoun edge ends the extractor produced at all (of 3,180 edges — 4.2%). inBoundRange: those inside a sentence the organ bound, which it only does for sentences carrying NO name (its own declared scope). tokenMatch: the end IS the bound pronoun, so the claim keys to a being.",
+        ceiling: "the claim tier is unmoved, and the bottleneck is UPSTREAM, not here: the relation extractor anchors on capitalised surfaces, so pronoun-subject clauses are mostly never extracted. Widening this organ would not help; widening extraction would. Named, not attempted.",
+      },
+      boundSentences: boundSentences.length,
+      perFrame: perFrameBindings,
+      byActivation: {
+        mechanism: "decayed presence (kernel createActivation; window 8 measured by dmd on this book — see terrain-activation-live)",
+        declared: { window: PRONOUN_PRESENT.window, minActivation: PRONOUN_PRESENT.minActivation, minMargin: PRONOUN_PRESENT.minMargin },
+        boundSentences: presentArm.boundSentences.length,
+        perFrame: presentArm.perFrame,
+        agreementWithThematic: agree,
+        reading: "the two arms agree on only ~26% of the sentences both bind. Spot-checked: disagreements cluster in stretches whose TRUE antecedent (the master, the lieutenant — Walton-letter minor characters) is below the cast floor entirely, so both arms bind the nearest wrong candidate. That is a candidate-universe gap upstream of either mechanism; with no pronoun golden in either repo, declaring a winner between the arms is not licensed (CLAUDE.md: never tune toward the answer key you wish you had).",
+      },
+    },
     unframedEncounters: unframed.length,
     // What the reader holds only through Victor — every one of these is a
     // claim no one in the book corroborates, and the reader knows it.
