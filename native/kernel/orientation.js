@@ -7,7 +7,7 @@ import { projectKinds } from "./kind-induction.js";
 import { projectLensGeometry } from "./lens-math.js";
 import { projectStanceState, stanceCounts } from "./stance-state.js";
 
-export function deriveOrientation(fold = {}, { tasks = [], terrainState = null, emergentTerrainState = null, kindState = null, stanceState = null, referentEntities = null } = {}) {
+export function deriveOrientation(fold = {}, { tasks = [], terrainState = null, emergentTerrainState = null, kindState = null, stanceState = null, referentEntities = null, receivedPriors = null } = {}) {
   const openExpectations = (fold.expectations ?? []).filter((e) => ["open", "strengthened", "weakened"].includes(e.state ?? "open"));
   const openObligations = (fold.obligations ?? []).filter((o) => !["resolved", "closed", "superseded"].includes(o.status));
   const activeTasks = (tasks ?? []).filter((task) => !["resolved", "closed", "superseded", "retracted"].includes(task.status));
@@ -38,7 +38,10 @@ export function deriveOrientation(fold = {}, { tasks = [], terrainState = null, 
     taskQuestions: Object.freeze(activeTasks.map((task) => ({ taskId: task.task_id, description: task.description, targets: task.targets ?? [], strategy: task.strategy ?? "clarify", wake: task.wake ?? null }))),
     relevantPatterns: Object.freeze([...(fold.relevantPatterns ?? [])]),
     activeFrames: Object.freeze([...(fold.activeFrames ?? [])]),
-    receivedPriors: Object.freeze([...(fold.receivedPriors ?? [])]),
+    // A caller may supply the reader's pre-existing experience here. This is
+    // orientation, not evidence: the value is deliberately exposed before the
+    // encounter but is never copied into witness by deriveOrientation itself.
+    receivedPriors: Object.freeze([...(receivedPriors ?? fold.receivedPriors ?? [])]),
     consequenceBearingQuestions: Object.freeze([
       ...openObligations.map((o) => ({ obligationId: o.id, distinction: o.distinction, consequences: o.consequences ?? [] })),
       ...activeTasks.map((task) => ({ taskId: task.task_id, distinction: task.description, consequences: task.consequences ?? [] })),
