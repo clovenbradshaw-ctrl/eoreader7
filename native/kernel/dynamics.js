@@ -1,4 +1,4 @@
-import { interpretiveAtmosphereField } from "./terrain-math.js";
+import { interpretiveAtmosphereFactorField } from "./atmosphere-math.js";
 
 const OPEN = new Set([undefined, null, "open", "strengthened", "weakened"]);
 const material = (obligation) => obligation?.distinction?.materiality?.makesDifference === true;
@@ -27,42 +27,28 @@ export function deriveSurprise(delta) {
 }
 
 /**
- * Tension is the energetic profile of the same unresolved consequential field
- * that projects Atmosphere. It is not a second ontology built from counts.
+ * Tension is not inferred from the mere existence or overlap of unresolved
+ * questions. The same references can support compatible constraints.
  *
- * Only DMD-material obligations participate. Persistence increases local
- * potential; consequence reach and live alternatives increase the load; shared
- * grounds/alternatives couple obligations so mutually constraining questions
- * contribute more than the same number of independent questions.
- *
- * TensionProfile@1 is retained as the compatibility envelope. The field/energy
- * members are additive v7 semantics rather than a wire-format fork.
+ * Atmosphere supplies a factor graph. Exact energetic tension/frustration is
+ * exposed only when explicit assignment costs make incompatibility decidable.
+ * Persistence remains a separate temporal exposure measure: it says how long
+ * unresolved material structure has remained live, not how contradictory it is.
  */
 export function deriveTension(fold) {
   const obligations = (fold?.obligations ?? []).filter((o) => OPEN.has(o.status) && material(o));
   const sequence = fold?.sequence ?? 0;
-  const field = interpretiveAtmosphereField(obligations, { sequence });
-  const interactionNetwork = field.couplings.map((coupling) => Object.freeze({
-    from: coupling.from,
-    to: coupling.to,
-    shared: coupling.shared,
-    coupling: coupling.coupling,
-    energy: coupling.energy,
-  }));
-  const potentialById = new Map(field.potentials.map((item) => [item.obligation, item]));
-
+  const field = interpretiveAtmosphereFactorField(obligations, { sequence });
   return Object.freeze({
     schema: "TensionProfile@1",
     obligations: Object.freeze([...obligations]),
     field,
-    energy: field.totalEnergy,
-    localPotential: field.localPotential,
-    couplingEnergy: field.couplingEnergy,
-    interactionNetwork: Object.freeze(interactionNetwork),
-    persistence: Object.freeze(obligations.map((o) => ({
-      id: o.id,
-      value: potentialById.get(o.id)?.persistence ?? 0,
-    }))),
+    energy: field.tension,
+    tensionAvailable: field.tensionAvailable,
+    frustration: field.frustration,
+    persistenceExposure: field.persistenceExposure,
+    interactionNetwork: Object.freeze(field.couplings.map((coupling) => Object.freeze({ ...coupling }))),
+    persistence: Object.freeze(field.factors.map((factor) => ({ id: factor.obligation, value: factor.persistence }))),
     consequences: Object.freeze(obligations.map((o) => ({ id: o.id, value: o.consequences ?? [] }))),
   });
 }
