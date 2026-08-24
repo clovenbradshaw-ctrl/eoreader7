@@ -43,14 +43,15 @@ test("tension preserves unresolved consequential structure without inventing ene
   assert.deepEqual(l.persistence, n.persistence);
 });
 
-test("non-material unresolved questions do not create an Atmosphere factor or fake zero-energy claim", () => {
+test("non-material unresolved questions create no live constraint problem and therefore exactly zero tension", () => {
   const fold = native.receivedGround({ sequence: 7, obligations: [{ ...openA, id: "obl:dormant", distinction: { materiality: { makesDifference: false } } }] });
   const tension = native.deriveTension(fold);
   assert.equal(tension.obligations.length, 0);
   assert.equal(tension.field.factorCount, 0);
   assert.equal(tension.persistenceExposure, 0);
-  assert.equal(tension.energy, null);
-  assert.equal(tension.tensionAvailable, false);
+  assert.equal(tension.energy, 0);
+  assert.equal(tension.tensionAvailable, true);
+  assert.equal(tension.frustration.reason, "no_live_material_constraints");
 });
 
 test("release requires a witnessed transformation that actually closes an obligation", () => {
