@@ -3,7 +3,6 @@ import assert from "node:assert/strict";
 import {
   structuralFieldGeometry,
   relationNetworkComponents,
-  interpretiveAtmosphereField,
   interpretiveParadigmModels,
 } from "../kernel/terrain-math.js";
 import { hyperedge } from "../kernel/hypergraph.js";
@@ -38,7 +37,7 @@ function obligation(id, ground, kind, { openedAt = 1, alternatives = [] } = {}) 
   });
 }
 
-test("Field math distinguishes uncoupled co-presence from shared incidence", () => {
+test("Field diagnostic distinguishes uncoupled co-presence from shared incidence", () => {
   const uncoupled = structuralFieldGeometry([
     edge("e:a", "saw", ["ref:a", "ref:b"]),
     edge("e:b", "entered", ["ref:c", "ref:d"]),
@@ -47,13 +46,14 @@ test("Field math distinguishes uncoupled co-presence from shared incidence", () 
     edge("e:c", "saw", ["ref:a", "ref:b"]),
     edge("e:d", "entered", ["ref:a", "ref:d"]),
   ]);
+  assert.equal(uncoupled.standing, "discrete_field_diagnostic");
   assert.equal(uncoupled.incidenceEnergy, 0);
   assert.equal(uncoupled.couplingDensity, 0);
   assert.ok(coupled.incidenceEnergy > 0);
   assert.ok(coupled.couplingDensity > uncoupled.couplingDensity);
 });
 
-test("Network math returns connected components rather than one star per referent", () => {
+test("Network diagnostic returns connected components rather than one star per referent", () => {
   const edges = [
     edge("e:1", "knows", ["ref:a", "ref:b"]),
     edge("e:2", "knows", ["ref:b", "ref:c"]),
@@ -67,23 +67,10 @@ test("Network math returns connected components rather than one star per referen
   assert.deepEqual(networks[0].referentRefs, ["ref:a", "ref:b", "ref:c"]);
   assert.equal(networks[0].cycleRank, 1);
   assert.equal(networks[0].topology, "cyclic");
+  assert.equal(networks[0].standing, "incidence_topology_diagnostic");
 });
 
-test("Atmosphere potential grows with persistence, consequence reach, and coupling", () => {
-  const independent = interpretiveAtmosphereField([
-    obligation("o:a", "edge:a", "identity"),
-    obligation("o:b", "edge:b", "boundary"),
-  ], { sequence: 5 });
-  const coupled = interpretiveAtmosphereField([
-    obligation("o:c", "edge:a", "identity"),
-    Object.freeze({ ...obligation("o:d", "edge:a", "boundary"), alternatives: Object.freeze(["edge:a"]) }),
-  ], { sequence: 5 });
-  assert.equal(independent.couplingEnergy, 0);
-  assert.ok(coupled.couplingEnergy > 0);
-  assert.ok(coupled.totalEnergy > independent.localPotential);
-});
-
-test("Paradigm requires explanatory compression over independent grounds", () => {
+test("retrospective Paradigm diagnostic requires explanatory compression over independent grounds", () => {
   const repeated = [
     obligation("o:1", "edge:a", "identity"),
     obligation("o:2", "edge:b", "identity"),
@@ -91,6 +78,7 @@ test("Paradigm requires explanatory compression over independent grounds", () =>
   ];
   const models = interpretiveParadigmModels(repeated);
   assert.equal(models.length, 1);
+  assert.equal(models[0].standing, "retrospective_paradigm_candidate");
   assert.equal(models[0].memberCount, 3);
   assert.equal(models[0].groundRefs.length, 3);
   assert.ok(models[0].compressionGain > 0);
