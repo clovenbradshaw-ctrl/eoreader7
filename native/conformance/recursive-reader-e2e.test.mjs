@@ -101,7 +101,8 @@ test("unresolved exposure persists until witnessed resolution without inventing 
   assert.ok(result.turns[1].tension.persistenceExposure >= result.turns[0].tension.persistenceExposure, "persistence should accumulate unresolved exposure");
   assert.equal(result.turns[2].fold.obligations[0].status, "resolved");
   assert.equal(result.turns[2].tension.obligations.length, 0);
-  assert.equal(result.turns[2].tension.energy, 0);
+  assert.equal(result.turns[2].tension.tensionAvailable, false);
+  assert.equal(result.turns[2].tension.energy, null);
   assert.equal(result.turns[2].release.length, 1);
   assert.ok(result.turns[2].release[0].witness.length > 0);
 });
