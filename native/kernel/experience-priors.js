@@ -85,7 +85,11 @@ export function deriveExperiencePrior(items = [], {
       countWorks(relationStats, edge.relation, source);
     }
 
-    const terrains = reading.terrainState ?? {};
+    // Network/Field/Atmosphere/Paradigm are often emergent projections rather
+    // than direct graph entries. Learn from the reader's effective present
+    // terrain, not merely the direct terrain index, or prior experience would
+    // systematically forget exactly the higher-order forms it had earned.
+    const terrains = reading.effectiveTerrainState ?? reading.terrainState ?? {};
     for (const terrain of TERRAINS) if ((terrains[terrain] ?? []).length > 0) terrainWorks.get(terrain).add(source);
     for (const network of terrains.Network ?? []) {
       const signature = networkSignature(network);
