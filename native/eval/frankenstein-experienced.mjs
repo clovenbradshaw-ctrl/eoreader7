@@ -57,6 +57,18 @@ async function readWork(path, source, priors = []) {
   return { source, encounters, reading };
 }
 
+function compactReading(reading) {
+  return freeze({
+    fold: reading.fold,
+    terrainState: reading.terrainState,
+    effectiveTerrainState: reading.effectiveTerrainState,
+    emergentTerrainState: reading.emergentTerrainState,
+    stanceState: reading.stanceState,
+    kindState: reading.kindState,
+    referentEntities: reading.referentEntities,
+  });
+}
+
 function edgeSummary(reading) {
   const edges = (reading.fold?.graphEntries ?? []).filter((entry) => entry?.schema === "EOHyperedge@1");
   const priorAttended = edges.filter((edge) => edge?.meta?.attention === "experience_prior");
@@ -86,13 +98,11 @@ for (let i = 0; i < historySpecs.length; i += 1) {
     ? deriveExperiencePrior(history, {
         id: `experience-prior:before:${i + 1}`,
         giver: "reader:sequential-literary-history",
-        minRelationWorkSupport: history.length === 1 ? 1 : 2,
-        minNetworkWorkSupport: history.length === 1 ? 1 : 2,
       })
     : null;
   const result = await readWork(spec.path, spec.source, prior ? [prior] : []);
   const edgeState = edgeSummary(result.reading);
-  history.push({ source: spec.source, reading: result.reading });
+  history.push({ source: spec.source, reading: compactReading(result.reading) });
   historyReport.push({
     source: spec.source,
     encounters: result.encounters.length,
@@ -108,8 +118,6 @@ for (let i = 0; i < historySpecs.length; i += 1) {
 const experiencePrior = deriveExperiencePrior(history, {
   id: "experience-prior:before-frankenstein",
   giver: "reader:sequential-literary-history",
-  minRelationWorkSupport: 2,
-  minNetworkWorkSupport: 2,
 });
 
 const target = await readWork(frankensteinPath, "target:gutenberg:84", [experiencePrior]);
@@ -120,6 +128,8 @@ const priorAttentionSamples = edgeState.priorAttended.slice(0, 20).map((edge) =>
   relation: edge.relation,
   participants: (edge.participants ?? []).map((p) => ({ role: p.role, surface: p.surface, standing: p.standing, ref: p.ref })),
   priorWorkSupport: edge.meta?.experiencePrior?.workSupport ?? null,
+  priorWorkRate: edge.meta?.experiencePrior?.workRate ?? null,
+  priorMemoryStanding: edge.meta?.experiencePrior?.memoryStanding ?? null,
   priorOccurrences: edge.meta?.experiencePrior?.occurrences ?? null,
 }));
 
@@ -146,7 +156,10 @@ const acceptance = {
   sourceRefs: experiencePrior.sourceRefs,
   targetExcluded: !experiencePrior.sourceRefs.includes("target:gutenberg:84"),
   priorVocabulary: experiencePrior.relationVocabulary.length,
+  recurrentPriorVocabulary: experiencePrior.relationVocabulary.filter((item) => item.recurrent).length,
+  singleExposurePriorVocabulary: experiencePrior.relationVocabulary.filter((item) => !item.recurrent).length,
   priorNetworkPatterns: experiencePrior.networkPatterns.length,
+  recurrentPriorNetworkPatterns: experiencePrior.networkPatterns.filter((item) => item.recurrent).length,
   priorVisibleTurns,
   targetEncounters: target.encounters.length,
   priorAttendedRelations: edgeState.priorAttended.length,
@@ -170,7 +183,10 @@ const report = {
     sourceRefs: experiencePrior.sourceRefs,
     targetExcluded: !experiencePrior.sourceRefs.includes("target:gutenberg:84"),
     relationVocabularySize: experiencePrior.relationVocabulary.length,
+    recurrentRelationVocabularySize: experiencePrior.relationVocabulary.filter((item) => item.recurrent).length,
+    singleExposureRelationVocabularySize: experiencePrior.relationVocabulary.filter((item) => !item.recurrent).length,
     networkPatternCount: experiencePrior.networkPatterns.length,
+    recurrentNetworkPatternCount: experiencePrior.networkPatterns.filter((item) => item.recurrent).length,
     topRelations: experiencePrior.relationVocabulary.slice(0, 30),
     networkPatterns: experiencePrior.networkPatterns.slice(0, 20),
   },
@@ -217,7 +233,7 @@ console.log("EXPERIENCED_READING_ACCEPTANCE", JSON.stringify(acceptance));
 const fail = (message) => { throw new Error(`${message}; acceptance=${JSON.stringify(acceptance)}`); };
 if (experiencePrior.sourceCount !== 3) fail(`expected three prior works, got ${experiencePrior.sourceCount}`);
 if (experiencePrior.sourceRefs.includes("target:gutenberg:84")) fail("Frankenstein leaked into its own prior");
-if (experiencePrior.relationVocabulary.length === 0) fail("prior reading history learned no cross-work relation vocabulary");
+if (experiencePrior.relationVocabulary.length === 0) fail("prior reading history learned no relation memory");
 if (priorVisibleTurns !== target.encounters.length) fail(`experience prior was not present in every target orientation: ${priorVisibleTurns}/${target.encounters.length}`);
 if (edgeState.priorAttended.length === 0) fail("experience prior never changed Frankenstein relation attention");
 if ((finalOrientation.terrainState?.Network?.length ?? 0) === 0) fail("experienced Frankenstein read earned no Networks");
