@@ -190,7 +190,9 @@ export function interpretiveAtmosphereFactorField(obligations = [], { sequence =
     }
   }
 
-  const frustration = frustrationOf(explicitFactors, { maxStates });
+  const frustration = usable.length === 0
+    ? freeze({ available: true, satisfiable: true, localMinimum: 0, globalMinimum: 0, frustration: 0, stateCount: 1, minimizingAssignments: freeze([freeze({})]), reason: "no_live_material_constraints" })
+    : frustrationOf(explicitFactors, { maxStates });
   return freeze({
     model: "interpretive_constraint_factor_graph",
     obligationCount: usable.length,
