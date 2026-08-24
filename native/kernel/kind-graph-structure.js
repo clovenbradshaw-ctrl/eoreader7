@@ -129,13 +129,20 @@ export function createKindGraphStructureLedger({ depthThresholds = DEFAULT_DEPTH
       if (!roles.has(entityRef)) roles.set(entityRef, new Set());
       const roleSet = roles.get(entityRef);
       roleSet.add(role);
-      if (!roleBreadthEmitted.has(entityRef) && roleSet.has("subject") && roleSet.has("object")) {
+      // Role BREADTH is "this being has been witnessed at more than one end
+      // of an arrangement" — a structural fact any medium can present. It was
+      // written as roleSet.has("subject") && roleSet.has("object"), which
+      // made a kernel-level structural feature depend on an English-SVO
+      // adapter's own vocabulary; material labelled any other way scored zero
+      // breadth however varied its arrangements. Counted by DISTINCTNESS now,
+      // never by the names the roles happen to carry.
+      if (!roleBreadthEmitted.has(entityRef) && roleSet.size >= 2) {
         roleBreadthEmitted.add(entityRef);
         emit(structuralFeature({
-          id: `kind-evidence:graph-role-breadth:${entityRef}:subject-object`,
+          id: `kind-evidence:graph-role-breadth:${entityRef}:distinct-ends`,
           entityRef,
           featureKey: "relation_role_breadth",
-          featureValue: "subject_object",
+          featureValue: `${roleSet.size}_distinct_roles`,
           edge,
           basis: "witnessed_role_breadth",
           bindingRef,

@@ -5,7 +5,26 @@ const stable = (value) => typeof value === "string" ? value : JSON.stringify(val
 const slug = (value) => String(value ?? "").toLowerCase().replace(/[^\p{L}\p{N}]+/gu, "_").replace(/^_+|_+$/g, "");
 const positionOf = (edge) => Number.isFinite(edge?.scope?.sequencePosition) ? edge.scope.sequencePosition : null;
 const pair = (left, right) => `${stable(left)}\u0000${stable(right)}`;
-const rawParticipant = (edge, role) => (edge?.participants ?? []).find((p) => p?.role === role) ?? null;
+// AN ARRANGEMENT HAS ENDS, NOT PARTS OF SPEECH.
+//
+// These were `find((p) => p.role === "subject")` and `=== "object"`: the
+// kernel reaching back for role names only an English-SVO text adapter ever
+// writes. That inverts V7-CUT's dependency law (spec <- kernel <- adapters):
+// composition chaining, a kernel concern, silently required material some
+// adapter had labelled with Greek grammar, and went dark on everything else
+// — not because the structure was absent but because nobody wrote
+// "subject" on it.
+//
+// The earned representation is the ARRANGEMENT: an ordered first end, a
+// label, an ordered second end. Ends are taken by ORDINAL POSITION, which is
+// what `hyperedge` actually guarantees (`participants` is an ordered array)
+// and what every medium can supply. `role` remains free caller-declared
+// annotation the kernel never interprets.
+const firstEnd = (edge) => (edge?.participants ?? [])[0] ?? null;
+const secondEnd = (edge) => {
+  const participants = edge?.participants ?? [];
+  return participants.length >= 2 ? participants[participants.length - 1] : null;
+};
 const occurrenceOf = (participant) => participant?.occurrence ?? (participant?.standing === "unresolved_surface" ? participant?.ref : null);
 const predicateEligible = (edge) => edge?.meta?.compositionStanding?.eligible !== false;
 const OCCURRENCE_BINDING_SCHEMAS = new Set(["EOPronounBinding@1", "EODefiniteBinding@1"]);
@@ -22,8 +41,8 @@ function endpointOf(participant, bindings) {
 
 function projectedEdge(edge, bindings) {
   if (edge?.schema !== "EOHyperedge@1" || !edge?.witness) return null;
-  const subject = endpointOf(rawParticipant(edge, "subject"), bindings);
-  const object = endpointOf(rawParticipant(edge, "object"), bindings);
+  const subject = endpointOf(firstEnd(edge), bindings);
+  const object = endpointOf(secondEnd(edge), bindings);
   if (!subject || !object) return null;
   return freeze({ edge, subject, object });
 }
