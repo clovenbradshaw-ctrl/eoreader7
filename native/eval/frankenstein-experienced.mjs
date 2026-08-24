@@ -1,7 +1,7 @@
 import fs from "fs";
 import { stripContainer } from "../adapters/text/spans.js";
 import { createCausalTextPerceiver, textEncounters } from "../adapters/text/recursive.js";
-import { reviseTextFold } from "../adapters/text/revision.js";
+import { reviseTextFold, createTextRevisionIndex } from "../adapters/text/revision.js";
 import {
   createRecursiveReader,
   createPriorConditionedReader,
@@ -33,11 +33,16 @@ function readerAssembly(priors = []) {
     relationPosPrior,
     pronounResolution: { minActivation: 0.05, minMargin: 0.2 },
   });
+  // Fresh per book: each call assembles a new, independent reader over a
+  // fresh Fold, so its own persistent index (one sequential read's worth of
+  // state) starts empty here too -- each book still costs O(itself), not
+  // O(itself squared), without pretending two different books share state.
+  const revisionIndex = createTextRevisionIndex();
   const options = {
     priors,
     perceivers: [perceiver],
     adapters: {
-      revise: reviseTextFold,
+      revise: (args) => reviseTextFold({ ...args, index: revisionIndex }),
       retrieve: (_fold, evidence) => freeze({
         schema: "EORelevantFold@1",
         witnessed: freeze([...evidence]),

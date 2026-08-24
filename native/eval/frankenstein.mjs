@@ -1,7 +1,7 @@
 import fs from "fs";
 import { stripContainer } from "../adapters/text/spans.js";
 import { createCausalTextPerceiver, textEncounters } from "../adapters/text/recursive.js";
-import { reviseTextFold } from "../adapters/text/revision.js";
+import { reviseTextFold, createTextRevisionIndex } from "../adapters/text/revision.js";
 import { createRecursiveReader, deriveOrientation, reasoningAffordances, novelGenerationAffordances } from "../../kernel.js";
 
 const path = process.argv[2];
@@ -18,10 +18,13 @@ const perceiver = createCausalTextPerceiver({
   relationPosPrior,
   pronounResolution: { minActivation: 0.05, minMargin: 0.2 },
 });
+const revisionIndex = createTextRevisionIndex();
 const reader = createRecursiveReader({
   perceivers: [perceiver],
   adapters: {
-    revise: reviseTextFold,
+    // One persistent index across this whole sequential, single-book read:
+    // each turn costs O(what changed this turn), not O(book read so far).
+    revise: (args) => reviseTextFold({ ...args, index: revisionIndex }),
     retrieve: (_fold, evidence) => Object.freeze({
       schema: "EORelevantFold@1",
       witnessed: Object.freeze([...evidence]),
