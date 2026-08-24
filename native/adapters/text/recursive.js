@@ -2,6 +2,8 @@ import { tokenize, buildFrequencyTable, functionWordSet } from "./material.js";
 import { splitSentences } from "./spans.js";
 import { extractSurfaces, discoverReferents, diaNorm } from "./surfaces.js";
 import { discoverRelationVocab, extractRelations } from "./relations.js";
+import { directDescriptorOccurrences } from "./individuation.js";
+import { createDescriptorAnchoring } from "./anchoring.js";
 import { hyperedge } from "../../kernel/hypergraph.js";
 
 const slug = (value) => diaNorm(value).replace(/[^\p{L}\p{N}]+/gu, "_").replace(/^_+|_+$/g, "");
@@ -163,9 +165,15 @@ function admittedRelationVerbs(store, minSurfaces) {
   return verbs;
 }
 
-export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEvery = 25, posPrior = null } = {}) {
+export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEvery = 25, posPrior = null, descriptorAnchoring = null } = {}) {
   if (!Number.isInteger(refreshEvery) || refreshEvery < 1) throw new TypeError("refreshEvery must be a positive integer");
   if (posPrior && (posPrior.schema !== "POSPrior@1" || !posPrior.provenance?.source)) throw new TypeError("posPrior must be a giver-named POSPrior@1");
+  // OPT-IN: descriptor anchoring (one-hop activation recall binding
+  // definite/possessive descriptors to the admitted cast — anchoring.js).
+  // Off by default so every existing caller is byte-identical; when
+  // supplied, its floors are DECLARED by the caller (anchoring.js throws
+  // otherwise — pronouns.js's own contract, applied unchanged).
+  const anchoring = descriptorAnchoring ? createDescriptorAnchoring(descriptorAnchoring) : null;
   const priorSentences = [];
   let priorText = "";
   let relationRefreshFrom = 0;
@@ -247,10 +255,45 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
         .map((gap) => ({ schema: "EOReferentGap@1", id: `gap:referent:${slug(gap.referent)}`, ...gap }));
 
       const currentSentence = { text: encounter.material, offset: encounter.anchor?.start ?? 0, order: priorSentences.length };
+
+      // Descriptor anchoring runs on EVERY sentence when enabled — the
+      // activation frames must accumulate causally whether or not this
+      // sentence carries a descriptor — and its evidence rides the
+      // candidate's graphEntries so it passes through witness like every
+      // other observation (nomination is not admission).
+      let anchorEvidence = [];
+      if (anchoring) {
+        // Only descriptors whose HEAD token survives two cuts are offered
+        // for anchoring. Measured on Frankenstein's opening letters:
+        // without them, "the most" / "that the" / "the first" —
+        // determiner-plus-function/adjective bigrams, not descriptions of
+        // any being — bound confidently to the only cast member in reach
+        // and flooded the alternatives with furniture. Cut 1: the
+        // perceiver's OWN frequency-derived closed class (cache.closed) —
+        // never a hand list. Cut 2: when a POSPrior@1 is supplied (the
+        // same received prior lexicalNounOccurrences already reads), a
+        // head the treebank POSITIVELY says is not a noun ("most": ADV/ADJ
+        // only; "first": ADJ-dominant) is refused; a head ABSENT from the
+        // prior is kept — an unknown word cannot be proven furniture, and
+        // furniture is by nature high-frequency and therefore present
+        // (the same absent-is-a-gap-not-a-mismatch polarity
+        // grammar-lens.js records for the identical prior).
+        const descriptorOccs = directDescriptorOccurrences(encounter.material, { encounterRef }).filter((occ) => {
+          const head = (occ.canonicalSurface ?? "").split(/\s+/).at(-1);
+          if (!head || cache.closed.has(head)) return false;
+          const counts = posPrior?.forms?.[diaNorm(head)];
+          if (!counts) return true;
+          const total = Object.values(counts).reduce((sum, count) => sum + count, 0);
+          const nounShare = total ? ((counts.NOUN ?? 0) + (counts.PROPN ?? 0)) / total : 0;
+          return nounShare > 0.5;
+        });
+        anchorEvidence = anchoring.observe(currentSentence, descriptorOccs, cache.referents).evidence;
+      }
+
       priorSentences.push(currentSentence);
       priorText += `${priorText ? "\n" : ""}${encounter.material}`;
 
-      if (edges.length === 0 && seenReferents.length === 0 && lexicalOccurrences.length === 0 && targetedOccurrences.length === 0) return [];
+      if (edges.length === 0 && seenReferents.length === 0 && lexicalOccurrences.length === 0 && targetedOccurrences.length === 0 && anchorEvidence.length === 0) return [];
       return [{
         candidate: {
           distinctions: [
@@ -260,7 +303,7 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
             ...targetedOccurrences.map((occ) => ({ occurrence: occ.id, surfaceKey: occ.surfaceKey, taskNominated: true })),
           ],
           hyperedges: edges,
-          graphEntries: [...seenReferents, ...mentions, ...lexicalOccurrences, ...targetedOccurrences, ...gaps],
+          graphEntries: [...seenReferents, ...mentions, ...lexicalOccurrences, ...targetedOccurrences, ...gaps, ...anchorEvidence],
         },
         anchor: encounter.anchor,
         evidence: encounter.material,

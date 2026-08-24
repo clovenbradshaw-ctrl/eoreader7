@@ -80,9 +80,21 @@ const emptyRetrieve = (_fold, evidence) => Object.freeze({
   receivedPriors: Object.freeze([]),
 });
 
+// Descriptor anchoring's floors: host/corpus.js's own declared,
+// disclosed-as-unvalidated operating point (0.05 / 0.2) — reused with its
+// giver named, never re-derived here (pronouns.test.js uses the same pair).
+const ANCHORING = { minActivation: 0.05, minMargin: 0.2 };
+
+// The received POS prior (UD_English-EWT, CC BY-SA 4.0 — provenance inside
+// the file) gates descriptor HEADS to noun-hood; without it "the most" /
+// "the first" bind as descriptors (measured — recursive.js's own comment).
+const POS_PRIOR = JSON.parse(
+  fs.readFileSync(new URL("../../legacy-eoreader6.1/bin/priors/pos/en-ud-ewt.json", import.meta.url), "utf8"),
+);
+
 function makeReader() {
   return createRecursiveReader({
-    perceivers: [createCausalTextPerceiver({ minRelationSurfaces: 2, refreshEvery: 25 })],
+    perceivers: [createCausalTextPerceiver({ minRelationSurfaces: 2, refreshEvery: 25, posPrior: POS_PRIOR, descriptorAnchoring: ANCHORING })],
     adapters: { revise: reviseTextFold, retrieve: emptyRetrieve },
   });
 }
@@ -122,7 +134,12 @@ async function runReading(encounters, { cursors }) {
         kind === "identity_hypothesis_supported" ||
         kind === "discourse_identity_supported"
       ) {
-        events.push({ pos, kind, identity: op.consequence.identity ?? op.consequence.hypothesis ?? op.consequence.link });
+        // `identity_hypothesis_opened` is emitted by TWO mechanisms that
+        // must not be conflated: revision.js's provisional descriptor
+        // hypotheses (payload action "provisional" — recurrence noticed)
+        // and identity.js's alternatives (payload action "alternative" —
+        // a live, attackable identity pairing). Tagged apart here.
+        events.push({ pos, kind, action: op.payload?.action ?? null, identity: op.consequence.identity ?? op.consequence.hypothesis ?? op.consequence.link });
       }
     }
     if (cursorSet.has(pos)) snapshots.set(pos, identitySnapshot(reader.getFold()));
@@ -151,16 +168,16 @@ function backwardScore(cursor, events, total) {
   // carry the source edge's position), so this v1 counts re-makings by the
   // position they LANDED at — every `remade: true` REC after the cursor is
   // later reading rewriting an existing canonical past. Disclosed grain.
-  let remade = 0, firstCanon = 0, splits = 0, opened = 0, supported = 0, discourseSupported = 0;
+  let remade = 0, firstCanon = 0, splits = 0, opened = 0, supported = 0, discourseSupported = 0, alternativesOpened = 0;
   for (const e of events) {
     if (e.pos <= cursor) continue;
     if (e.kind === "relation_recanonicalized") { if (e.remade) remade += 1; else firstCanon += 1; }
     else if (e.kind === "identity_split") splits += 1;
-    else if (e.kind === "identity_hypothesis_opened") opened += 1;
+    else if (e.kind === "identity_hypothesis_opened") { if (e.action === "alternative") alternativesOpened += 1; else opened += 1; }
     else if (e.kind === "identity_hypothesis_supported") supported += 1;
     else if (e.kind === "discourse_identity_supported") discourseSupported += 1;
   }
-  return { cursor, after: total - cursor, pastRemade: remade, firstCanonicalizations: firstCanon, identitySplits: splits, hypothesesOpened: opened, hypothesesSupported: supported, discourseSupported };
+  return { cursor, after: total - cursor, pastRemade: remade, firstCanonicalizations: firstCanon, identitySplits: splits, hypothesesOpened: opened, alternativesOpened, hypothesesSupported: supported, discourseSupported };
 }
 
 function scoreRun(label, run, cursors) {
@@ -174,7 +191,9 @@ function scoreRun(label, run, cursors) {
     pastRemadeTotal: run.events.filter((e) => e.kind === "relation_recanonicalized" && e.remade).length,
     firstCanonTotal: run.events.filter((e) => e.kind === "relation_recanonicalized" && !e.remade).length,
     splitsTotal: run.events.filter((e) => e.kind === "identity_split").length,
-    hypothesesOpenedTotal: run.events.filter((e) => e.kind === "identity_hypothesis_opened").length,
+    hypothesesOpenedTotal: run.events.filter((e) => e.kind === "identity_hypothesis_opened" && e.action !== "alternative").length,
+    alternativesOpenedTotal: run.events.filter((e) => e.kind === "identity_hypothesis_opened" && e.action === "alternative").length,
+    alternativesSupportedTotal: run.events.filter((e) => e.kind === "identity_hypothesis_supported").length,
     hypothesesResolvedTotal: run.events.filter((e) => e.kind === "discourse_identity_supported").length,
     // Measured, not asserted: the text adapter opens neither of the
     // kernel's own dynamics carriers — this is the starvation finding.
@@ -217,7 +236,7 @@ async function main() {
   const out = {
     schema: "EOUnderstandingScoreboard@1",
     material: { path, encounters: N, fast },
-    declared: { cursors, shuffleDraws: draws, seed: SEED, grain: "sentence — the tier ladder is disclosed future work, not implied" },
+    declared: { cursors, shuffleDraws: draws, seed: SEED, anchoring: ANCHORING, grain: "sentence — the tier ladder is disclosed future work, not implied" },
     ordered: orderedScore,
     nulls: nullScores,
   };

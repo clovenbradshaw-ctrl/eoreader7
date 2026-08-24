@@ -84,3 +84,74 @@ numbers are the honest zero against which that work can be scored.
 Reproduce: `node native/eval/understanding-scoreboard.mjs
 legacy-eoreader6.1/scripts/adversarial/fixtures/pg84-frankenstein.txt`
 (full output committed beside this file).
+
+---
+
+# Amendment, same day — descriptor anchoring lands, and the cycle runs
+
+Leverage move (1) was built: `native/adapters/text/anchoring.js`
+generalizes pronouns.js's one-hop activation recall from pronouns to
+definite/possessive descriptors, and its bindings feed
+`deriveIdentityRevision`'s EXISTING support/attack grammar (kernel
+untouched — one identity-revision door, not a second mechanism). Evidence
+is born at perception, witnessed as `EOAnchorEvidence@1` graph entries,
+and folded like everything else. Opt-in: every caller not passing
+`descriptorAnchoring` is byte-identical (all 12 pre-existing native suites
+pass unchanged).
+
+Three corrections were forced by driving it against the real book, each
+pinned as a regression in `native/tests/anchoring.test.js` (8 cases):
+
+1. **Determiner+function-word bigrams are not descriptors.** "the most" /
+   "that the" / "the first" bound confidently to the only cast member in
+   reach. Cut by the perceiver's own earned closed class PLUS the received
+   POS prior (`bin/priors/pos/en-ud-ewt.json`, UD_English-EWT, CC BY-SA
+   4.0) — a head the treebank positively says is not a noun is refused; an
+   absent head is kept (furniture is high-frequency and therefore present).
+2. **A margin against nothing is not a measurement.** With one admitted
+   referent, margin = 1.0 vacuously, and a one-character stretch bound
+   every descriptor — "the stranger" (Victor, not yet named) included — to
+   Margaret. binding.js's own structural rule applied: one candidate has
+   no competition to test (`descriptor_no_competition`, a typed gap).
+3. **Two mechanisms shared one consequence kind.** revision.js's
+   provisional descriptor hypotheses and identity.js's alternatives both
+   emit `identity_hypothesis_opened`; the scoreboard now separates them by
+   payload action.
+
+## The measurement, after (same declared numbers, plus the POS prior)
+
+| | ordered | shuffled #0 | shuffled #1 |
+|---|---|---|---|
+| alternatives opened | 1,639 | 1,438 | 1,733 |
+| attacked → distinct (splits) | 441 | 382 | 502 |
+| **past recanonicalized (REC, `from` ≠ null)** | **55** | **21** | **12** |
+| first canonicalizations | 53 | 41 | 32 |
+| expectations / obligations | 0 | 0 | 0 |
+
+**The release cycle now runs, and the one measure that means "the past
+was re-made under later evidence" separates ordered from shuffled in the
+right direction: 55 vs 21/12 — ordered reading rewrites its own
+already-canonicalized past 2.6–4.6× more than order-destroyed reading.**
+Two draws license "order matters," never an effect size — disclosed as
+before. Splits and support counts do NOT separate (the shuffled runs
+bracket the ordered value); the forward/prediction table has real traffic
+now (85–132 hypotheses attacked per cursor window) but `supportedLater`
+stays near zero everywhere — re-support of the same pair is rare at these
+floors, an honest partial result, not smoothed over.
+
+## Disclosed limits, sharpened
+
+- **Binding precision is unvalidated.** The alternatives include real
+  wins and real category errors ("margaret ↔ the day" — a person bound to
+  scene furniture that survives the noun gate). The attack machinery is
+  currently the only precision control. The committed coref fixture
+  (`pg84-frankenstein.coref.json`) is the natural golden for a real
+  precision pass — named as the next evaluation, not attempted here.
+- **Over-generation:** 1,639 alternatives from 3,392 sentences is a lot.
+  The floors (0.05/0.2) are host/corpus.js's disclosed-as-unvalidated
+  operating point, reused with the giver named — walking them against the
+  coref golden would be tuning against the answer; they move only with a
+  justification independent of this scoreboard.
+- **Expectations and obligations are still zero.** This pass fed the
+  identity stream only; leverage moves (2) (expectations from relation
+  structure) and (3) (the altitude gate) remain open.

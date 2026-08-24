@@ -10,6 +10,7 @@ import {
   projectDiscourseReferents,
 } from "./discourse-referents.js";
 import { textIdentityEvidence } from "./identity-evidence.js";
+import { identityEvidenceFromAnchors } from "./anchoring.js";
 
 const existingIds = (fold) => new Set((fold?.graphEntries ?? []).map((entry) => entry?.id).filter(Boolean));
 
@@ -155,6 +156,21 @@ export async function reviseTextFold({ observations = [], fold = {} } = {}) {
         defeasibleBy: ["SEG", "DEF", "REC"],
       },
     });
+  }
+
+  // Descriptor-anchoring evidence (anchoring.js, witnessed through the
+  // ordinary perception → witness path as EOAnchorEvidence@1 graph
+  // entries) joins the SAME support/attack grammar apposition already
+  // feeds — one identity-revision door, not a second mechanism. A
+  // confident binding supports descriptor ↔ referent; the same descriptor
+  // confidently bound elsewhere attacks the live alternative it
+  // contradicts (incompatible multiplicity, arrived at through recall
+  // instead of copresence).
+  const anchors = observations.flatMap((o) => (o?.graphEntries ?? []).filter((x) => x?.schema === "EOAnchorEvidence@1"));
+  if (anchors.length) {
+    const anchorEvidence = identityEvidenceFromAnchors(anchors, fold);
+    identitySupports.push(...anchorEvidence.supports);
+    identityAttacks.push(...anchorEvidence.attacks);
   }
 
   const identityDelta = deriveIdentityRevision({
