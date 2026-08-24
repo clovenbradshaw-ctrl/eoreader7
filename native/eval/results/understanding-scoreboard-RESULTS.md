@@ -280,3 +280,32 @@ already showed is order-sensitive (11 vs 2/1) — while violation should
 NOT separate, since attack volume (splits: 441 vs 382/502) never did.
 Whatever the full run returns is reported against this prediction,
 including a miss.
+
+## The verdict on the pre-registration: half hit, half missed — and the miss teaches more
+
+| full novel, floor 2 | ordered | shuffled #0 | shuffled #1 |
+|---|---|---|---|
+| expectations opened | 1,639 | 1,438 | 1,733 |
+| **fulfilled** | **59** | **68** | **59** |
+| violated | 411 | 349 | 471 |
+| past recanonicalized | 11 | 2 | 1 |
+
+**The fulfilment half of the prediction MISSED.** Fulfilment does not
+separate ordered from shuffled at all (59 vs 68/59) — raw corroboration
+counts are order-insensitive at book scale, contrary to the registered
+expectation. The violation half hit (no separation, 411 vs 349/471, as
+predicted from the splits result).
+
+What the miss localizes: the order signal does NOT live in "the same
+pairing earned two witnesses" (that co-occurrence happens under any
+permutation of a whole novel) — it lives in the CONJUNCTION pastRemade
+measures: corroborated identity that touches an edge the reading had
+already canonicalized. Shuffled reading fulfils as many predictions but
+they do not reach back into the relation graph the same way. So the
+sharpest current statement of what "understanding the sequence" means at
+this tier, earned by a wrong prediction rather than asserted: **not how
+many of the reader's predictions come true, but how much confirmed
+identity re-makes what was already read.** The prediction-side metric
+that would separate is therefore not fulfilment count but fulfilment
+REACH — the same sharpening backwardScore already got — named as the
+next measurement, not attempted in this pass.

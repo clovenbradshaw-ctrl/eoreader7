@@ -39,7 +39,15 @@
       "alternativesOpenedTotal": 1639,
       "alternativesSupportedTotal": 70,
       "hypothesesResolvedTotal": 1,
-      "expectationsFinal": 0,
+      "expectationsFinal": 1639,
+      "expectationsByState": {
+        "violated": 411,
+        "open": 1167,
+        "fulfilled": 59,
+        "strengthened": 2
+      },
+      "expectationsFulfilledTotal": 59,
+      "expectationsViolatedTotal": 411,
       "obligationsFinal": 0,
       "provisionalFinal": 1596,
       "unresolvedAlternativesFinal": 1639
@@ -77,7 +85,9 @@
         "hypothesesOpened": 1183,
         "alternativesOpened": 1020,
         "hypothesesSupported": 50,
-        "discourseSupported": 0
+        "discourseSupported": 0,
+        "expectationsFulfilledAfter": 40,
+        "expectationsViolatedAfter": 345
       },
       {
         "cursor": 1696,
@@ -88,7 +98,9 @@
         "hypothesesOpened": 789,
         "alternativesOpened": 609,
         "hypothesesSupported": 26,
-        "discourseSupported": 0
+        "discourseSupported": 0,
+        "expectationsFulfilledAfter": 19,
+        "expectationsViolatedAfter": 227
       },
       {
         "cursor": 2544,
@@ -99,7 +111,9 @@
         "hypothesesOpened": 376,
         "alternativesOpened": 286,
         "hypothesesSupported": 10,
-        "discourseSupported": 0
+        "discourseSupported": 0,
+        "expectationsFulfilledAfter": 8,
+        "expectationsViolatedAfter": 110
       }
     ]
   },
@@ -123,7 +137,14 @@
         "alternativesOpenedTotal": 1438,
         "alternativesSupportedTotal": 84,
         "hypothesesResolvedTotal": 1,
-        "expectationsFinal": 0,
+        "expectationsFinal": 1438,
+        "expectationsByState": {
+          "open": 1021,
+          "violated": 349,
+          "fulfilled": 68
+        },
+        "expectationsFulfilledTotal": 68,
+        "expectationsViolatedTotal": 349,
         "obligationsFinal": 0,
         "provisionalFinal": 1602,
         "unresolvedAlternativesFinal": 1438
@@ -161,7 +182,9 @@
           "hypothesesOpened": 1247,
           "alternativesOpened": 941,
           "hypothesesSupported": 47,
-          "discourseSupported": 1
+          "discourseSupported": 1,
+          "expectationsFulfilledAfter": 39,
+          "expectationsViolatedAfter": 291
         },
         {
           "cursor": 1696,
@@ -172,7 +195,9 @@
           "hypothesesOpened": 813,
           "alternativesOpened": 614,
           "hypothesesSupported": 30,
-          "discourseSupported": 1
+          "discourseSupported": 1,
+          "expectationsFulfilledAfter": 22,
+          "expectationsViolatedAfter": 209
         },
         {
           "cursor": 2544,
@@ -183,7 +208,9 @@
           "hypothesesOpened": 356,
           "alternativesOpened": 298,
           "hypothesesSupported": 16,
-          "discourseSupported": 0
+          "discourseSupported": 0,
+          "expectationsFulfilledAfter": 11,
+          "expectationsViolatedAfter": 117
         }
       ]
     },
@@ -206,7 +233,15 @@
         "alternativesOpenedTotal": 1733,
         "alternativesSupportedTotal": 69,
         "hypothesesResolvedTotal": 1,
-        "expectationsFinal": 0,
+        "expectationsFinal": 1733,
+        "expectationsByState": {
+          "violated": 471,
+          "open": 1201,
+          "fulfilled": 59,
+          "strengthened": 2
+        },
+        "expectationsFulfilledTotal": 59,
+        "expectationsViolatedTotal": 471,
         "obligationsFinal": 0,
         "provisionalFinal": 1590,
         "unresolvedAlternativesFinal": 1733
@@ -244,7 +279,9 @@
           "hypothesesOpened": 1200,
           "alternativesOpened": 1160,
           "hypothesesSupported": 52,
-          "discourseSupported": 0
+          "discourseSupported": 0,
+          "expectationsFulfilledAfter": 43,
+          "expectationsViolatedAfter": 389
         },
         {
           "cursor": 1696,
@@ -255,7 +292,9 @@
           "hypothesesOpened": 797,
           "alternativesOpened": 681,
           "hypothesesSupported": 27,
-          "discourseSupported": 0
+          "discourseSupported": 0,
+          "expectationsFulfilledAfter": 22,
+          "expectationsViolatedAfter": 252
         },
         {
           "cursor": 2544,
@@ -266,7 +305,9 @@
           "hypothesesOpened": 404,
           "alternativesOpened": 320,
           "hypothesesSupported": 15,
-          "discourseSupported": 0
+          "discourseSupported": 0,
+          "expectationsFulfilledAfter": 14,
+          "expectationsViolatedAfter": 127
         }
       ]
     }
