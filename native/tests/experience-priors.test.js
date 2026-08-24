@@ -14,19 +14,29 @@ const priorReading = (source, relation, networkId) => ({
   },
 });
 
-test("experience prior only carries structures that recur across independent earlier works", () => {
+test("one earlier work leaves a memory while cross-work recurrence strengthens it", () => {
   const prior = deriveExperiencePrior([
     priorReading("book:a", "admired", "network:a"),
     priorReading("book:b", "admired", "network:b"),
     priorReading("book:c", "wandered", "network:c"),
-  ], { giver: "reader:test", minRelationWorkSupport: 2, minNetworkWorkSupport: 2 });
+  ], { giver: "reader:test" });
 
   assert.equal(prior.schema, "EOExperiencePrior@1");
   assert.equal(prior.sourceCount, 3);
   assert.deepEqual(prior.sourceRefs, ["book:a", "book:b", "book:c"]);
-  assert.deepEqual(prior.relationVocabulary.map((item) => item.relation), ["admired"]);
-  assert.equal(prior.relationVocabulary[0].workSupport, 2);
+  const admired = prior.relationVocabulary.find((item) => item.relation === "admired");
+  const wandered = prior.relationVocabulary.find((item) => item.relation === "wandered");
+  assert.ok(admired);
+  assert.ok(wandered);
+  assert.equal(admired.workSupport, 2);
+  assert.equal(admired.memoryStanding, "recurrent_cross_work_memory");
+  assert.equal(admired.recurrent, true);
+  assert.equal(wandered.workSupport, 1);
+  assert.equal(wandered.memoryStanding, "single_work_memory");
+  assert.equal(wandered.recurrent, false);
+  assert.ok(admired.workRate > wandered.workRate);
   assert.equal(prior.networkPatterns.length, 1);
+  assert.equal(prior.networkPatterns[0].workSupport, 3);
   assert.equal(prior.witnessed, false);
   assert.equal(prior.admissible, false);
 });
@@ -35,7 +45,7 @@ test("an experienced reader notices a remembered relation earlier, but current t
   const prior = deriveExperiencePrior([
     priorReading("book:a", "admired", "network:a"),
     priorReading("book:b", "admired", "network:b"),
-  ], { giver: "reader:test", minRelationWorkSupport: 2, minNetworkWorkSupport: 2 });
+  ], { giver: "reader:test" });
 
   const sentence = "He admired Elizabeth.";
   const [encounter] = textEncounters(sentence, { source: "new-book" });
@@ -60,6 +70,7 @@ test("an experienced reader notices a remembered relation earlier, but current t
   assert.equal(edges[0].relation, "admired");
   assert.equal(edges[0].meta.attention, "experience_prior");
   assert.equal(edges[0].meta.experiencePrior.workSupport, 2);
+  assert.equal(edges[0].meta.experiencePrior.memoryStanding, "recurrent_cross_work_memory");
   assert.equal(turn.observations.length, 1);
   assert.equal(turn.observations[0].witness, sentence);
   assert.ok(turn.observations[0].provenance.nominationCause.includes("experience_prior_attention"));
@@ -67,11 +78,29 @@ test("an experienced reader notices a remembered relation earlier, but current t
   assert.equal(experienced.getFold().graphEntries.some((item) => item === prior || item?.id === prior.id), false);
 });
 
+test("a single prior exposure can orient attention without becoming evidence", async () => {
+  const prior = deriveExperiencePrior([
+    priorReading("book:a", "wandered", "network:a"),
+  ], { giver: "reader:test" });
+  const [encounter] = textEncounters("He wandered home.", { source: "new-book" });
+  const experienced = createPriorConditionedReader({
+    priors: [prior],
+    perceivers: [createCausalTextPerceiver({ minRelationSurfaces: 2, refreshEvery: 25 })],
+  });
+  const turn = await experienced.step(encounter);
+  const edge = experienced.getFold().graphEntries.find((item) => item?.schema === "EOHyperedge@1");
+  assert.ok(edge);
+  assert.equal(edge.meta.attention, "experience_prior");
+  assert.equal(edge.meta.experiencePrior.workSupport, 1);
+  assert.equal(edge.meta.experiencePrior.memoryStanding, "single_work_memory");
+  assert.equal(turn.observations[0].witness, "He wandered home.");
+});
+
 test("earlier stance experience weights later cube reasoning but cannot remove alternative moves", () => {
   const prior = deriveExperiencePrior([
     priorReading("book:a", "admired", "network:a"),
     priorReading("book:b", "admired", "network:b"),
-  ], { giver: "reader:test", minRelationWorkSupport: 2, minNetworkWorkSupport: 2 });
+  ], { giver: "reader:test" });
   const moves = reasoningAffordances({
     receivedPriors: [prior],
     terrainState: { Network: [{ id: "network:new" }] },
