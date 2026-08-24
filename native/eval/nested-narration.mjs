@@ -30,8 +30,7 @@ import { narrationFrames, quotationFrames, holderAt } from "../adapters/text/att
 import { deltaFold } from "../kernel/fold.js";
 import { READER, STANCE, projectPerspectives, commonGround, divergence, mentalModel, perspectiveOperation } from "../kernel/perspective.js";
 import { FIRST_PERSON, FIRST_PERSON_META } from "../../legacy-eoreader6.1/packages/engine/perceiver/text/priors.js";
-import { resolvePronouns } from "../adapters/text/pronouns.js";
-import { splitSentences } from "../adapters/text/spans.js";
+import { castSurfaceMap, bindNarrationFrames, pronounResolver, claimEndKey } from "../adapters/text/perspective-claims.js";
 import { createSession, admitChunked, sessionReferents } from "../../legacy-eoreader6.1/packages/host/corpus.js";
 
 // Declared, not defaulted, and borrowed rather than invented: host/corpus.js's
@@ -59,18 +58,8 @@ const arg = (flag) => { const i = process.argv.indexOf(flag); return i > -1 ? pr
 // Walton. Same string, three referents, split by scope." So first person
 // resolves to the FRAME'S narrator, using the prior register's own closed
 // class (giver: lang/en) rather than a pronoun list written here.
-const endKey = (participant, frameHolder, offset, resolvePronoun) => {
-  if (participant?.standing === "referent" && typeof participant.ref === "string" && participant.ref.startsWith("ref:")) return participant.ref;
-  const surface = String(participant?.surface ?? "").trim();
-  if (surface && FIRST_PERSON.test(surface)) return `holder:${frameHolder}`;
-  // A third-person pronoun the pronoun organ bound in THIS sentence names a
-  // real being, and a claim keyed on the bare string would scatter every
-  // teller's "he" into one meaningless pile. Frame-scoped by construction:
-  // the bindings were resolved inside one teller's stretch and never across.
-  const bound = resolvePronoun ? resolvePronoun(surface, offset) : null;
-  if (bound) return bound;
-  return participant?.surfaceKey ?? `surface:${surface.toLowerCase().replace(/\s+/g, "_")}`;
-};
+// endKey now lives in adapters/text/perspective-claims.js::claimEndKey,
+// where it is tested; this driver only declares the injected closed class.
 
 async function main() {
   const path = process.argv[2];
@@ -99,59 +88,12 @@ async function main() {
     (() => { const s = createSession(); admitChunked(s, { text: fs.readFileSync(path, "utf8"), sourceId: `file:${path.split("/").pop()}`, language: "en" }); return s; })(),
     { sourceId: `file:${path.split("/").pop()}`, priors: framePrior ? [framePrior] : [], limit: 200 },
   );
-  const surfaceToReferent = new Map();
-  for (const ref of cast.referents ?? []) {
-    for (const s of [ref.display, ...(ref.surfaces ?? []).map((x) => x.surface ?? x)]) {
-      if (typeof s === "string" && s.trim()) surfaceToReferent.set(s.trim(), ref.display ?? ref.id);
-    }
-  }
-  // A bound SENTENCE range, not a bare offset: resolvePronouns binds a
-  // sentence that carries a pronoun and no name, so the sentence is the
-  // honest granularity. The join is on the organ's OWN pronoun token — this
-  // file never re-derives a third-person closed class it would then own.
-  const boundSentences = [];
-  const perFrameBindings = [];
-  for (const frame of narration.frames) {
-    const local = stripped.text.slice(frame.byteStart - stripped.offset, frame.byteEnd - stripped.offset);
-    const sentences = splitSentences(local).map((s, i) => ({
-      // splitSentences returns {text, offset, order} — the range is the
-      // sentence's own offset plus its own length. (An earlier cut read
-      // .start/.end, which this shape does not carry: every range came out
-      // NaN and the join silently matched nothing while binding itself
-      // still ran. Instrumenting the join, not reasoning about it, is what
-      // found that — P5.5, the driver before the theory.)
-      text: s.text,
-      order: i,
-      start: s.offset + frame.byteStart,
-      end: s.offset + s.text.length + frame.byteStart,
-      offset: s.offset + frame.byteStart,
-    }));
-    const { bindings, gaps } = resolvePronouns(sentences, surfaceToReferent, PRONOUN_RECALL);
-    const byOrder = new Map(sentences.map((s) => [s.order, s]));
-    for (const b of bindings) {
-      const sent = byOrder.get(b.sentenceOrder);
-      if (sent) boundSentences.push({ start: sent.start, end: sent.end, referentId: b.referentId, pronoun: String(b.pronoun ?? "").toLowerCase() });
-    }
-    perFrameBindings.push({ narrator: frame.narrator, sentences: sentences.length, bound: bindings.length, refused: gaps.length });
-  }
-  boundSentences.sort((a, b) => a.start - b.start);
-  // Not scaffolding — this IS the finding. Each stage of the join is
-  // counted so the ceiling can be located rather than guessed at.
-  const probe = { pronounEnds: 0, inBoundRange: 0, tokenMatch: 0 };
-  const PRON_PROBE = /^(he|him|his|himself|she|her|hers|herself)$/i;
-  const referentForPronoun = (surface, offset) => {
-    const want = String(surface ?? "").trim().toLowerCase();
-    if (!want) return null;
-    if (PRON_PROBE.test(want)) probe.pronounEnds += 1;
-    for (const b of boundSentences) {
-      if (offset < b.start) break;
-      if (offset < b.end) {
-        if (PRON_PROBE.test(want)) probe.inBoundRange += 1;
-        if (b.pronoun === want) { probe.tokenMatch += 1; return b.referentId; }
-      }
-    }
-    return null;
-  };
+  const surfaceToReferent = castSurfaceMap(cast.referents ?? []);
+  const { boundSentences, perFrame: perFrameBindings } = bindNarrationFrames({
+    frames: narration.frames, text: stripped.text, offset: stripped.offset,
+    surfaceToReferent, recall: PRONOUN_RECALL,
+  });
+  const { resolve: referentForPronoun, counters: joinCounters } = pronounResolver(boundSentences);
 
   const perceiver = createCausalTextPerceiver({ minRelationSurfaces: 2, refreshEvery: 25 });
   const entries = [];
@@ -167,7 +109,7 @@ async function main() {
     byHolder.set(at.holder, (byHolder.get(at.holder) ?? 0) + edges.length);
     const ops = [];
     for (const edge of edges) {
-      const ends = (edge.participants ?? []).map((p) => endKey(p, at.holder, enc.anchor.start, referentForPronoun));
+      const ends = (edge.participants ?? []).map((p) => claimEndKey(p, at.holder, { offset: enc.anchor.start, resolvePronoun: referentForPronoun, firstPerson: FIRST_PERSON }));
       const claim = `${ends[0]}|${edge.relation ?? edge.label ?? "?"}|${ends[ends.length - 1]}`;
       // The extractor already carries polarity on every edge; a negated
       // arrangement is its teller REFUSING that claim, not asserting it.
@@ -220,7 +162,7 @@ async function main() {
       scope: "per narration frame — a teller's 'he' is never resolved against a name that only occurs in another teller's stretch (P1, one level in)",
       castSurfaces: surfaceToReferent.size,
       reach: {
-        ...probe,
+        ...joinCounters,
         reading: "pronounEnds: gendered-pronoun edge ends the extractor produced at all (of 3,180 edges — 4.2%). inBoundRange: those inside a sentence the organ bound, which it only does for sentences carrying NO name (its own declared scope). tokenMatch: the end IS the bound pronoun, so the claim keys to a being.",
         ceiling: "the claim tier is unmoved, and the bottleneck is UPSTREAM, not here: the relation extractor anchors on capitalised surfaces, so pronoun-subject clauses are mostly never extracted. Widening this organ would not help; widening extraction would. Named, not attempted.",
       },
