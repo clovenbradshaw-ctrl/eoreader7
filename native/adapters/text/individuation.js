@@ -109,34 +109,6 @@ export function directDescriptorOccurrences(text, { encounterRef = "unknown" } =
 }
 
 /**
- * Recurrence earns an identity hypothesis, never timeless sameness. Exposed
- * separately from `descriptorHypotheses` so a caller that already maintains
- * its own surface->occurrences grouping (an incremental index across many
- * turns, rather than re-deriving one from the whole graph every call) can
- * recompute a hypothesis for ONE surface without re-grouping every other one.
- */
-export function hypothesisFromOccurrences(surface, group = []) {
-  if (group.length < 2) return null;
-  const encounterRefs = [...new Set(group.map((x) => x.encounterRef).filter(Boolean))];
-  if (encounterRefs.length < 2) return null;
-  const determinations = [...new Set(group.map((x) => x.determination).filter(Boolean))];
-  return Object.freeze({
-    schema: "EOIdentityHypothesis@1",
-    id: `identity:descriptor:${slug(surface)}`,
-    surface,
-    determinations: Object.freeze(determinations),
-    occurrenceRefs: Object.freeze(group.map((x) => x.id)),
-    encounterRefs: Object.freeze(encounterRefs),
-    relationContexts: Object.freeze(group.map((x) => ({ edge: x.edge, relation: x.relation, role: x.role }))),
-    standing: "live_hypothesis",
-    provenance: Object.freeze({
-      giver: "text/individuation::descriptorHypotheses",
-      basis: "same descriptor recurred across distinct encounters; identity remains defeasible",
-    }),
-  });
-}
-
-/**
  * Recurrence earns an identity hypothesis, never timeless sameness.
  */
 export function descriptorHypotheses(graphEntries = []) {
@@ -150,8 +122,24 @@ export function descriptorHypotheses(graphEntries = []) {
 
   const hypotheses = [];
   for (const [surface, group] of bySurface) {
-    const hypothesis = hypothesisFromOccurrences(surface, group);
-    if (hypothesis) hypotheses.push(hypothesis);
+    if (group.length < 2) continue;
+    const encounterRefs = [...new Set(group.map((x) => x.encounterRef).filter(Boolean))];
+    if (encounterRefs.length < 2) continue;
+    const determinations = [...new Set(group.map((x) => x.determination).filter(Boolean))];
+    hypotheses.push(Object.freeze({
+      schema: "EOIdentityHypothesis@1",
+      id: `identity:descriptor:${slug(surface)}`,
+      surface,
+      determinations: Object.freeze(determinations),
+      occurrenceRefs: Object.freeze(group.map((x) => x.id)),
+      encounterRefs: Object.freeze(encounterRefs),
+      relationContexts: Object.freeze(group.map((x) => ({ edge: x.edge, relation: x.relation, role: x.role }))),
+      standing: "live_hypothesis",
+      provenance: Object.freeze({
+        giver: "text/individuation::descriptorHypotheses",
+        basis: "same descriptor recurred across distinct encounters; identity remains defeasible",
+      }),
+    }));
   }
   return Object.freeze(hypotheses);
 }
