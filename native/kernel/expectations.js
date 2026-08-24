@@ -13,3 +13,10 @@ export function expectationTransition(current, state, { witness, consequence = n
   const op = state === "reframed" || reframes ? "REC" : "EVA";
   return eoOperation({ op, grain, witness, inputs: [current.id], outputs: [current.id], consequence, payload: { action: "expectation", value: { ...current, state, ...(reframes ? { reframes } : {}) } } });
 }
+
+// Mirror of obligations.js's openObligation, for symmetry: opening an
+// expectation is INS (a new anticipated structure enters the fold);
+// transitions stay expectationTransition's own EVA/REC.
+export function openExpectation(value, { witness, grain = "Figure", op = "INS", consequence = null } = {}) {
+  return eoOperation({ op, grain, witness, inputs: [...(value.grounds ?? [])], outputs: [value.id], consequence, payload: { action: "expectation", value } });
+}

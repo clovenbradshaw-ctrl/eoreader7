@@ -1,4 +1,5 @@
 import { eoOperation, deltaFold } from "./fold.js";
+import { expectation, expectationTransition, openExpectation } from "./expectations.js";
 
 const norm = (x) => String(x ?? "").toLocaleLowerCase().replace(/[^\p{L}\p{N}]+/gu, " ").trim();
 const stablePair = (a, b) => [norm(a), norm(b)].sort();
@@ -66,11 +67,25 @@ const touches = (edge, identity) => (edge.participants ?? []).some((p) => {
   return value === identity.left || value === identity.right;
 });
 
-function recanonicalizationOperations(fold, alternatives, touchedIdentity, witness) {
+// An alternative participates in CANONICAL PROJECTION only at or above the
+// caller's declared corroboration floor (supportRefs count). The floor
+// gates projection alone — the alternative itself stays on the fold, live,
+// attackable, and accumulating evidence either way. Rationale, measured
+// (native/eval/results/understanding-scoreboard-RESULTS.md, second
+// amendment): every surviving FALSE identity belief on the Frankenstein
+// coref golden stood on exactly one support — single-witness testimony
+// rewriting the canonical past is the precise failure a corroboration
+// floor exists for. No floor supplied = every non-refused alternative
+// projects, byte-identical to before this option existed.
+const meetsFloor = (alternative, floor) =>
+  !Number.isFinite(floor) || (alternative.supportRefs ?? []).length >= floor;
+
+function recanonicalizationOperations(fold, alternatives, touchedIdentity, witness, floor) {
   const operations = [];
+  const projecting = alternatives.filter((x) => meetsFloor(x, floor));
   for (const edge of rawEdges(fold)) {
     if (!touches(edge, touchedIdentity)) continue;
-    const next = canonicalizeHyperedge(edge, alternatives);
+    const next = canonicalizeHyperedge(edge, projecting);
     const before = currentCanonical(fold, edge.id);
     if (before && stable(before) === stable(next)) continue;
     operations.push(eoOperation({
@@ -93,9 +108,44 @@ function recanonicalizationOperations(fold, alternatives, touchedIdentity, witne
  * records refusal of the prior identity reading. Canonical relation projections
  * are then REC-written; raw witnessed edges remain untouched.
  */
-export function deriveIdentityRevision({ fold = {}, supports = [], attacks = [], witness = null, giver = null } = {}) {
+export function deriveIdentityRevision({ fold = {}, supports = [], attacks = [], witness = null, giver = null, canonicalizationFloor = undefined } = {}) {
+  if (canonicalizationFloor !== undefined && (!Number.isInteger(canonicalizationFloor) || canonicalizationFloor < 1))
+    throw new TypeError("deriveIdentityRevision: canonicalizationFloor, when declared, is a positive integer — how much corroboration licenses canonical projection is never a fraction or a guess");
   const operations = [];
   const working = new Map((fold?.unresolvedAlternatives ?? []).filter((x) => x?.schema === "EOIdentityAlternative@1").map((x) => [x.id, x]));
+
+  // ── expectations, gated behind the declared floor ──────────────────────
+  // The floor is what makes "fulfilled" a mechanical fact rather than a
+  // judgment: an alternative opened below the floor IS the fold's own
+  // prediction that corroboration will arrive. Its outcome is witnessed by
+  // the same evidence stream — a support below the floor STRENGTHENS it, a
+  // support reaching the floor FULFILLS it, an attack VIOLATES it. No
+  // floor declared = no expectations = byte-identical to before (the same
+  // backward-compatibility posture the floor itself holds).
+  const expId = (altId) => `expectation:${altId}`;
+  const expWorking = new Map((fold?.expectations ?? []).filter((x) => x?.schema === "EOExpectation@1").map((x) => [x.id, x]));
+  const expectationsOn = Number.isFinite(canonicalizationFloor);
+  const expectFor = (alt, ref) => {
+    if (!expectationsOn || (alt.supportRefs ?? []).length >= canonicalizationFloor) return;
+    if (expWorking.has(expId(alt.id))) return;
+    const value = expectation({
+      id: expId(alt.id),
+      hypothesis: `corroboration expected: ${alt.left} <-> ${alt.right}`,
+      giver: alt.giver ?? null,
+      grounds: [alt.id],
+      openedAt: null,
+    });
+    expWorking.set(value.id, value);
+    operations.push(openExpectation(value, { witness: ref, consequence: { kind: "expectation_opened", expectation: value.id, identity: alt.id } }));
+  };
+  const transitionFor = (altId, state, ref, kind) => {
+    if (!expectationsOn) return;
+    const current = expWorking.get(expId(altId));
+    if (!current || !["open", "strengthened", "weakened"].includes(current.state)) return;
+    const next = { ...current, state };
+    expWorking.set(next.id, next);
+    operations.push(expectationTransition(current, state, { witness: ref, consequence: { kind, expectation: current.id, identity: altId } }));
+  };
 
   for (const evidence of supports ?? []) {
     const left = norm(evidence?.left), right = norm(evidence?.right);
@@ -110,7 +160,14 @@ export function deriveIdentityRevision({ fold = {}, supports = [], attacks = [],
       consequence: { kind: prior ? "identity_hypothesis_supported" : "identity_hypothesis_opened", identity: next.id },
       payload: { action: "alternative", value: next },
     }));
-    operations.push(...recanonicalizationOperations(fold, [...working.values()], next, ref));
+    if (!prior) {
+      expectFor(next, ref);
+    } else if ((next.supportRefs ?? []).length >= (canonicalizationFloor ?? Infinity)) {
+      transitionFor(next.id, "fulfilled", ref, "expectation_fulfilled");
+    } else {
+      transitionFor(next.id, "strengthened", ref, "expectation_strengthened");
+    }
+    operations.push(...recanonicalizationOperations(fold, [...working.values()], next, ref, canonicalizationFloor));
   }
 
   for (const evidence of attacks ?? []) {
@@ -131,7 +188,8 @@ export function deriveIdentityRevision({ fold = {}, supports = [], attacks = [],
       consequence: { kind: "identity_reading_refused", identity: prior.id },
       payload: { action: "exclusion", value: Object.freeze({ schema: "EOExclusion@1", id: `exclusion:${prior.id}`, kind: "identity_refused", target: prior.id, witness: ref }) },
     }));
-    operations.push(...recanonicalizationOperations(fold, [...working.values()], next, ref));
+    transitionFor(prior.id, "violated", ref, "expectation_violated");
+    operations.push(...recanonicalizationOperations(fold, [...working.values()], next, ref, canonicalizationFloor));
   }
 
   return deltaFold(operations, { schemaVersion: "EOIdentityRevision@1" });

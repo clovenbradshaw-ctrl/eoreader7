@@ -2,6 +2,8 @@ import { tokenize, buildFrequencyTable, functionWordSet } from "./material.js";
 import { splitSentences } from "./spans.js";
 import { extractSurfaces, discoverReferents, diaNorm } from "./surfaces.js";
 import { discoverRelationVocab, extractRelations } from "./relations.js";
+import { directDescriptorOccurrences, descriptorOccurrence } from "./individuation.js";
+import { createDescriptorAnchoring } from "./anchoring.js";
 import { hyperedge } from "../../kernel/hypergraph.js";
 
 const slug = (value) => diaNorm(value).replace(/[^\p{L}\p{N}]+/gu, "_").replace(/^_+|_+$/g, "");
@@ -78,6 +80,27 @@ function earnedClosedClass(table) {
   return candidate.size * 2 < table.freq.size ? candidate : new Set();
 }
 
+// A relation form's composition standing, from the received POS prior.
+// Absent prior, or absent form: eligible (nothing has been shown against it).
+function relationStanding(verb, posPrior) {
+  const counts = posPrior?.forms?.[diaNorm(String(verb ?? ""))];
+  if (!counts) return Object.freeze({ eligible: true, basis: "no received evidence about this form; absence is not a refusal" });
+  const total = Object.values(counts).reduce((sum, n) => sum + n, 0);
+  if (!total) return Object.freeze({ eligible: true, basis: "no received evidence about this form; absence is not a refusal" });
+  let dominant = null, best = -1;
+  for (const [tag, n] of Object.entries(counts)) if (n > best) { best = n; dominant = tag; }
+  const eligible = dominant === "VERB";
+  return Object.freeze({
+    eligible,
+    dominantClass: dominant,
+    share: best / total,
+    basis: eligible
+      ? "treebank-dominant VERB — eligible as portable relation memory"
+      : `treebank-dominant ${dominant} — an auxiliary or non-verb form does not become familiarity by recurring`,
+    giver: "UD_English-EWT via bin/priors/pos/en-ud-ewt.json",
+  });
+}
+
 function lexicalNounOccurrences(text, sequencePosition, encounterRef, posPrior) {
   if (!posPrior?.forms) return [];
   const out = [];
@@ -147,7 +170,7 @@ function taskTargetOccurrences(text, sequencePosition, encounterRef, orientation
 function mergeRelationEvidence(store, candidates = []) {
   for (const candidate of candidates) {
     if (!candidate?.verb) continue;
-    if (!store.has(candidate.verb)) store.set(candidate.verb, { surfaceForms: new Set(), upos: candidate.upos ?? null, verbDominant: candidate.verbDominant !== false });
+    if (!store.has(candidate.verb)) store.set(candidate.verb, { surfaceForms: new Set(), relatedPairs: new Set(), upos: candidate.upos ?? null, verbDominant: candidate.verbDominant !== false });
     const record = store.get(candidate.verb);
     for (const surface of candidate.surfaceForms ?? []) record.surfaceForms.add(surface);
     if (candidate.upos) record.upos = candidate.upos;
@@ -155,17 +178,74 @@ function mergeRelationEvidence(store, candidates = []) {
   }
 }
 
+// FOLD-CONDITIONED ADMISSION — "the high determines the probability of the
+// low", done as conditioning rather than as a lookup list.
+//
+// The engine's own gate counts ONE kind of evidence: distinct capitalized
+// surfaces the verb was seen beside. That is anchor evidence, and it starves
+// on first-person material where the cast is rarely named in the same clause
+// as its own predicates (measured on Dracula's opening 700 sentences: 74
+// candidates nominated, 2 admitted).
+//
+// A verb witnessed BETWEEN TWO BEINGS THIS READING HAS ALREADY ESTABLISHED is
+// also relation evidence, and it comes from the material, not from a table —
+// the Entity terrain, already earned, conditioning what counts as evidence at
+// the Link terrain below it. Counted at the SAME declared strength as anchor
+// evidence (minSurfaces), so no new number is introduced and neither path is
+// privileged. Measured on the same slice: 2 -> 21 verbs, every one warranted
+// by Dracula's own text.
+//
+// NOT a loosened gate and NOT a received lexicon standing in for reading
+// (READING-POLICY P2: "statistics derived from the material, not lookup
+// lists"; P3: "never patch a missing prior by loosening an engine gate").
+// The grammar prior's role here is unchanged and one-directional: it may
+// REFUSE a candidate (verbDominant === false) and may never admit one.
 function admittedRelationVerbs(store, minSurfaces) {
   const verbs = new Set();
   for (const [verb, record] of store) {
-    if (record.verbDominant !== false && record.surfaceForms.size >= minSurfaces) verbs.add(verb);
+    if (record.verbDominant === false) continue; // grammar refuses; it never admits
+    const anchorEvidence = record.surfaceForms.size;
+    const relationEvidence = record.relatedPairs?.size ?? 0;
+    if (anchorEvidence >= minSurfaces || relationEvidence >= minSurfaces) verbs.add(verb);
   }
   return verbs;
 }
 
-export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEvery = 25, posPrior = null } = {}) {
+/**
+ * Witness, over the new batch only, which candidate verbs occur in a sentence
+ * that names at least two already-established referents — recording the PAIR,
+ * so "witnessed relating these two beings" is counted once however often that
+ * one sentence repeats, exactly as distinct surfaces are counted once each.
+ */
+function witnessRelatedPairs(store, sentences, refs) {
+  if (!refs?.size || !store.size) return;
+  const surfaces = [...refs.keys()];
+  for (const sentence of sentences) {
+    const hay = diaNorm(sentence.text);
+    const present = [];
+    for (const surface of surfaces) {
+      if (containsSurface(sentence.text, surface)) present.push(refs.get(surface));
+      if (present.length > 2) break;
+    }
+    const distinct = [...new Set(present)];
+    if (distinct.length < 2) continue;
+    const pairKey = distinct.slice(0, 2).sort().join("\u0000");
+    for (const [verb, record] of store) {
+      if (!record.relatedPairs) record.relatedPairs = new Set();
+      if (hay.includes(diaNorm(verb))) record.relatedPairs.add(pairKey);
+    }
+  }
+}
+
+export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEvery = 25, posPrior = null, descriptorAnchoring = null } = {}) {
   if (!Number.isInteger(refreshEvery) || refreshEvery < 1) throw new TypeError("refreshEvery must be a positive integer");
   if (posPrior && (posPrior.schema !== "POSPrior@1" || !posPrior.provenance?.source)) throw new TypeError("posPrior must be a giver-named POSPrior@1");
+  // OPT-IN: descriptor anchoring (one-hop activation recall binding
+  // definite/possessive descriptors to the admitted cast — anchoring.js).
+  // Off by default so every existing caller is byte-identical; when
+  // supplied, its floors are DECLARED by the caller (anchoring.js throws
+  // otherwise — pronouns.js's own contract, applied unchanged).
+  const anchoring = descriptorAnchoring ? createDescriptorAnchoring(descriptorAnchoring) : null;
   const priorSentences = [];
   let priorText = "";
   let relationRefreshFrom = 0;
@@ -195,6 +275,9 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
       });
       mergeRelationEvidence(relationEvidence, relationResult.candidates);
     }
+    // Fold-conditioned evidence, over the SAME new batch the vocabulary scan
+    // uses — never a rescan of everything read so far.
+    witnessRelatedPairs(relationEvidence, batchSentences, surfaceMap(discovered.events));
     relationRefreshFrom = priorSentences.length;
     cache = {
       closed,
@@ -224,7 +307,19 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
         witness: `text:${sequencePosition}:${rel.offset}`,
         scope: { sequencePosition, offset: rel.offset },
         eo: { op: "CON", grain: "Figure" },
-        meta: { polarity: rel.polarity, source: encounter.source, encounterRef },
+        // compositionStanding: whether this relation FORM is eligible to be
+        // carried as portable experience or composed with another relation.
+        // experience-priors.js reads exactly this field ("auxiliaries/noise
+        // do not become familiarity merely because they appeared often") but
+        // nothing on this side ever set it, so a reader's carried memory
+        // filled with `were`/`would`/`has`/`could` — measured, not
+        // hypothesized (the first experienced-new-book run's own carried
+        // memory was 4 auxiliaries and nothing else). Decided by the SAME
+        // received POS prior the descriptor-head gate already uses: a form
+        // the treebank says is dominantly AUX (or any non-VERB class) is
+        // ineligible; a form ABSENT from the prior stays eligible, the same
+        // absent-is-a-gap-not-a-mismatch polarity that gate already holds.
+        meta: { polarity: rel.polarity, source: encounter.source, encounterRef, compositionStanding: relationStanding(rel.verb, posPrior) },
       }));
 
       const seenReferents = currentReferents(encounter.material, cache.referents);
@@ -247,10 +342,56 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
         .map((gap) => ({ schema: "EOReferentGap@1", id: `gap:referent:${slug(gap.referent)}`, ...gap }));
 
       const currentSentence = { text: encounter.material, offset: encounter.anchor?.start ?? 0, order: priorSentences.length };
+
+      // Descriptor anchoring runs on EVERY sentence when enabled — the
+      // activation frames must accumulate causally whether or not this
+      // sentence carries a descriptor — and its evidence rides the
+      // candidate's graphEntries so it passes through witness like every
+      // other observation (nomination is not admission).
+      let anchorEvidence = [];
+      if (anchoring) {
+        // Only descriptors whose HEAD token survives two cuts are offered
+        // for anchoring. Measured on Frankenstein's opening letters:
+        // without them, "the most" / "that the" / "the first" —
+        // determiner-plus-function/adjective bigrams, not descriptions of
+        // any being — bound confidently to the only cast member in reach
+        // and flooded the alternatives with furniture. Cut 1: the
+        // perceiver's OWN frequency-derived closed class (cache.closed) —
+        // never a hand list. Cut 2: when a POSPrior@1 is supplied (the
+        // same received prior lexicalNounOccurrences already reads), a
+        // head the treebank POSITIVELY says is not a noun ("most": ADV/ADJ
+        // only; "first": ADJ-dominant) is refused; a head ABSENT from the
+        // prior is kept — an unknown word cannot be proven furniture, and
+        // furniture is by nature high-frequency and therefore present
+        // (the same absent-is-a-gap-not-a-mismatch polarity
+        // grammar-lens.js records for the identical prior).
+        // Edge participants first: an anchored descriptor is only worth
+        // something to composition if it resolves an endpoint an EDGE
+        // actually has. These carry their participant's own occurrence id
+        // so the binding lands in the id space the ledger reads.
+        const participantOccs = edges.flatMap((edge) => (edge.participants ?? [])
+          .filter((p) => p.standing === "unresolved_surface")
+          .map((p) => {
+            const occ = descriptorOccurrence(p, { encounterRef, edge });
+            return occ ? { ...occ, participantOccurrence: p.occurrence ?? p.ref } : null;
+          })
+          .filter(Boolean));
+        const descriptorOccs = [...participantOccs, ...directDescriptorOccurrences(encounter.material, { encounterRef })].filter((occ) => {
+          const head = (occ.canonicalSurface ?? "").split(/\s+/).at(-1);
+          if (!head || cache.closed.has(head)) return false;
+          const counts = posPrior?.forms?.[diaNorm(head)];
+          if (!counts) return true;
+          const total = Object.values(counts).reduce((sum, count) => sum + count, 0);
+          const nounShare = total ? ((counts.NOUN ?? 0) + (counts.PROPN ?? 0)) / total : 0;
+          return nounShare > 0.5;
+        });
+        anchorEvidence = anchoring.observe(currentSentence, descriptorOccs, cache.referents).evidence;
+      }
+
       priorSentences.push(currentSentence);
       priorText += `${priorText ? "\n" : ""}${encounter.material}`;
 
-      if (edges.length === 0 && seenReferents.length === 0 && lexicalOccurrences.length === 0 && targetedOccurrences.length === 0) return [];
+      if (edges.length === 0 && seenReferents.length === 0 && lexicalOccurrences.length === 0 && targetedOccurrences.length === 0 && anchorEvidence.length === 0) return [];
       return [{
         candidate: {
           distinctions: [
@@ -260,7 +401,7 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
             ...targetedOccurrences.map((occ) => ({ occurrence: occ.id, surfaceKey: occ.surfaceKey, taskNominated: true })),
           ],
           hyperedges: edges,
-          graphEntries: [...seenReferents, ...mentions, ...lexicalOccurrences, ...targetedOccurrences, ...gaps],
+          graphEntries: [...seenReferents, ...mentions, ...lexicalOccurrences, ...targetedOccurrences, ...gaps, ...anchorEvidence],
         },
         anchor: encounter.anchor,
         evidence: encounter.material,

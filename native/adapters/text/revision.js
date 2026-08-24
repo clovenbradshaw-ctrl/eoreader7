@@ -10,6 +10,7 @@ import {
   projectDiscourseReferents,
 } from "./discourse-referents.js";
 import { textIdentityEvidence } from "./identity-evidence.js";
+import { identityEvidenceFromAnchors } from "./anchoring.js";
 
 const existingIds = (fold) => new Set((fold?.graphEntries ?? []).map((entry) => entry?.id).filter(Boolean));
 
@@ -22,7 +23,7 @@ const existingIds = (fold) => new Set((fold?.graphEntries ?? []).map((entry) => 
  * This prevents every use of "the creature" or "the fiend" from collapsing
  * globally while preserving each witnessed occurrence and hypothesis.
  */
-export async function reviseTextFold({ observations = [], fold = {} } = {}) {
+export async function reviseTextFold({ observations = [], fold = {}, canonicalizationFloor = undefined } = {}) {
   const known = existingIds(fold);
   const operations = [];
   const newDescriptorOccurrences = [];
@@ -157,6 +158,17 @@ export async function reviseTextFold({ observations = [], fold = {} } = {}) {
     });
   }
 
+  // Descriptor-anchoring evidence (anchoring.js), witnessed through the
+  // ordinary perception -> witness path as EOAnchorEvidence@1 entries, joins
+  // the SAME support/attack grammar apposition already feeds — one
+  // identity-revision door, not a second mechanism.
+  const anchors = observations.flatMap((o) => (o?.graphEntries ?? []).filter((x) => x?.schema === "EOAnchorEvidence@1"));
+  if (anchors.length) {
+    const anchorEvidence = identityEvidenceFromAnchors(anchors, fold);
+    identitySupports.push(...anchorEvidence.supports);
+    identityAttacks.push(...anchorEvidence.attacks);
+  }
+
   const identityDelta = deriveIdentityRevision({
     fold: {
       ...fold,
@@ -164,6 +176,7 @@ export async function reviseTextFold({ observations = [], fold = {} } = {}) {
     },
     supports: identitySupports,
     attacks: identityAttacks,
+    canonicalizationFloor,
   });
   operations.push(...identityDelta.operations);
 
