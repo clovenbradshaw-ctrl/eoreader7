@@ -95,21 +95,30 @@ export function createActivation({ window = undefined } = {}) {
   let total = 0;
   let now = 0;
 
-  /** Fold one observation (any iterable of keys) in at the current instant. */
+  /** Fold one observation (any iterable of keys) in at the current instant.
+   *
+   * THE CLOCK TICKS ONCE PER OBSERVATION — the observation IS the instant,
+   * and its size never multiplies decay. P5.4 names the failure class this
+   * guards ("per-sentence and per-frame folding differ by ~6x in decay
+   * pressure. A run that does not state its unit is not reproducible"), and
+   * it was REPRODUCED here before being fixed: dmdWindow measures depth in
+   * observations, the first cut advanced `now` by key-count, and a window
+   * measured as 8 propositions decayed as if it were ~1.5 — at the
+   * checkpoints the whole cast read as faded while genuinely present.
+   * One observe = one tick, the same unit dmdWindow's candidate depths
+   * count in. (material.js's causalSurprisalSeries keeps its own per-WORD
+   * clock deliberately — its unit is the word and it says so.) */
   const observe = (keys) => {
     const counts = new Map();
     let size = 0;
     for (const key of keys) { counts.set(key, (counts.get(key) ?? 0) + 1); size += 1; }
-    // Decay is applied ONCE per observation, not per key within it: every
-    // occurrence here arrives at the same instant, so repeats inside one
-    // observation neither decay against nor inflate one another.
     for (const [key, n] of counts) {
       const cell = cells.get(key);
       const decayed = cell ? cell.v * gamma ** (now - cell.t) : 0;
-      cells.set(key, { v: decayed + n, t: now + size });
+      cells.set(key, { v: decayed + n, t: now + 1 });
     }
-    total = total * gamma ** size + size;
-    now += size;
+    total = total * gamma + size;
+    now += 1;
     return size;
   };
 
