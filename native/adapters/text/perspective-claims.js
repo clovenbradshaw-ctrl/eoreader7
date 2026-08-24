@@ -57,8 +57,14 @@ export const castSurfaceMap = (referents = []) => {
  * book bytes (attribution.js's own contract). `recall` is the declared
  * {minActivation, minMargin} — the caller's to declare, never defaulted
  * here (resolvePronouns itself throws without them).
+ *
+ * `resolve` picks the MECHANISM — thematic echo (resolvePronouns, the
+ * default) or the reader's decaying present (resolvePronounsByActivation,
+ * partially applied with its own declared window/floor). Same frame
+ * scoping, same range join, either way: the mechanism is the one moving
+ * part, so two runs differ in exactly one dimension.
  */
-export const bindNarrationFrames = ({ frames = [], text, offset = 0, surfaceToReferent, recall }) => {
+export const bindNarrationFrames = ({ frames = [], text, offset = 0, surfaceToReferent, recall, resolve = resolvePronouns }) => {
   const boundSentences = [];
   const perFrame = [];
   for (const frame of frames) {
@@ -73,7 +79,7 @@ export const bindNarrationFrames = ({ frames = [], text, offset = 0, surfaceToRe
       end: s.offset + s.text.length + frame.byteStart,
       offset: s.offset + frame.byteStart,
     }));
-    const { bindings, gaps } = resolvePronouns(sentences, surfaceToReferent, recall);
+    const { bindings, gaps } = resolve(sentences, surfaceToReferent, recall);
     const byOrder = new Map(sentences.map((s) => [s.order, s]));
     for (const b of bindings) {
       const sent = byOrder.get(b.sentenceOrder);

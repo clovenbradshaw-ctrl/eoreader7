@@ -369,3 +369,114 @@ export const resolvePronouns = (
 
   return { bindings, gaps };
 };
+
+/**
+ * resolvePronounsByActivation — the SECOND mechanism, beside the thematic
+ * one above: bind a pronoun to the hottest gender-compatible being in the
+ * reader's own decaying present, the way incremental human reading is
+ * usually modelled (the most activated antecedent wins; too faint or too
+ * contested refuses). The kernel's createActivation IS the gradient — one
+ * tick per sentence, the declared fold unit — so this file adds no decay
+ * arithmetic of its own.
+ *
+ * EVERYTHING ELSE IS SHARED with resolvePronouns, deliberately: the same
+ * closed pronoun class, the same surface matcher, the same clause-local
+ * gender evidence, the same nameless-sentence scope, the same
+ * floor-then-margin refusal ladder with the same gap vocabulary. The two
+ * differ in ONE dimension — what "recall" means (thematic echo vs decayed
+ * recency) — so a comparison between them on real material measures that
+ * dimension and nothing else.
+ *
+ * `window` is the reach of the present (measured by dmdWindow or declared
+ * with its reason — S5); `minActivation` here is in ARRIVAL units (1 = one
+ * full naming, undecayed), a different scale from the thematic arm's recall
+ * score, which is why it is the caller's to declare separately.
+ */
+export const resolvePronounsByActivation = (
+  sentences,
+  referentSurfaces,
+  { window, minActivation, minMargin, nonPersonal, createActivation } = {},
+) => {
+  if (typeof createActivation !== "function")
+    throw new TypeError("resolvePronounsByActivation: createActivation is injected — the kernel's own gradient, never a private reimplementation (S6)");
+  if (!Number.isFinite(minActivation) || minActivation < 0)
+    throw new TypeError("resolvePronounsByActivation: minActivation is declared — how faint still binds is never a default");
+  if (!Number.isFinite(minMargin) || minMargin < 0 || minMargin > 1)
+    throw new TypeError("resolvePronounsByActivation: minMargin is declared — how far a candidate must lead is never a default");
+
+  const nonPersonalSet = nonPersonal instanceof Set ? nonPersonal : new Set(nonPersonal ?? []);
+  const surfaceToReferent = referentSurfaces instanceof Map ? referentSurfaces : new Map(Object.entries(referentSurfaces ?? {}));
+  const matcher = surfaceMatcher([...surfaceToReferent.keys()]);
+  const activation = createActivation({ window });
+
+  const genderEvidence = new Map();
+  const referentGender = (r) => {
+    const ev = genderEvidence.get(r);
+    if (!ev) return "unknown";
+    if (ev.m > 0 && ev.f === 0) return "m";
+    if (ev.f > 0 && ev.m === 0) return "f";
+    return "unknown";
+  };
+
+  const bindings = [];
+  const gaps = [];
+  const seen = new Set(); // every referent ever named — the candidate universe
+
+  for (const sentence of sentences ?? []) {
+    const namedMatches = namedMatchesIn(sentence.text, matcher, surfaceToReferent);
+    const named = new Set(namedMatches.map((n) => n.ref));
+    const pronounHits = findThirdPersonSingular(sentence.text);
+
+    if (named.size === 0 && pronounHits.length > 0) {
+      for (const hit of pronounHits) {
+        const offset = (sentence.offset ?? 0) + hit.index;
+        const candidates = [...seen]
+          .filter((r) => !nonPersonalSet.has(r))
+          .filter((r) => { const g = referentGender(r); return g === "unknown" || g === hit.gender; })
+          .map((r) => [r, activation.activationOf(r)])
+          .sort((a, b) => b[1] - a[1]);
+
+        if (candidates.length === 0) {
+          gaps.push({ reason: "pronoun_no_candidate", tier: "engine", sentenceOrder: sentence.order, offset, pronoun: hit.token, detail: "no gender-compatible referent has been named yet — nothing in the present to bind to" });
+          continue;
+        }
+        const [topRef, topScore] = candidates[0];
+        if (topScore < minActivation) {
+          gaps.push({ reason: "pronoun_below_floor", tier: "engine", sentenceOrder: sentence.order, offset, pronoun: hit.token, top: topRef, activation: topScore, detail: `hottest candidate's presence (${topScore.toFixed(3)}) does not clear minActivation (${minActivation}) — everyone has faded` });
+          continue;
+        }
+        const second = candidates[1]?.[1] ?? 0;
+        const margin = topScore > 0 ? (topScore - second) / topScore : 0;
+        if (margin < minMargin) {
+          gaps.push({ reason: "pronoun_no_margin", tier: "engine", sentenceOrder: sentence.order, offset, pronoun: hit.token, top: topRef, runnerUp: candidates[1]?.[0] ?? null, margin, detail: `two beings are comparably present (${(margin * 100).toFixed(1)}% apart) — a human reader would find this ambiguous too` });
+          continue;
+        }
+        bindings.push({
+          referentId: topRef, sentenceOrder: sentence.order, offset, pronoun: hit.token, gender: hit.gender,
+          activation: topScore, margin,
+          provenance: { mechanism: "decayed-presence (kernel createActivation)", window: activation.window ?? window ?? null },
+        });
+      }
+    }
+
+    // The same clause-local gender evidence the thematic arm collects —
+    // causal, informing only later sentences.
+    if (named.size === 1 && pronounHits.length > 0) {
+      const [only] = named;
+      const spansForOnly = namedMatches.filter((n) => n.ref === only).map((n) => n.index);
+      const ev = genderEvidence.get(only) ?? { m: 0, f: 0 };
+      for (const hit of pronounHits) {
+        if (spansForOnly.some((idx) => sameClause(sentence.text, idx, hit.index))) ev[hit.gender]++;
+      }
+      genderEvidence.set(only, ev);
+    }
+
+    // One observation per sentence — the observation IS the instant
+    // (activation.js's own clock law). A sentence naming nobody still
+    // ticks: silence about everyone is time passing for everyone.
+    for (const r of named) seen.add(r);
+    activation.observe([...named]);
+  }
+
+  return { bindings, gaps };
+};

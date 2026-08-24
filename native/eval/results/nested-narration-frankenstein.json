@@ -174,7 +174,65 @@
     "bound": 12,
     "refused": 18
    }
-  ]
+  ],
+  "byActivation": {
+   "mechanism": "decayed presence (kernel createActivation; window 8 measured by dmd on this book — see terrain-activation-live)",
+   "declared": {
+    "window": 8,
+    "minActivation": 0.2,
+    "minMargin": 0.2
+   },
+   "boundSentences": 894,
+   "perFrame": [
+    {
+     "narrator": "walton",
+     "sentences": 255,
+     "bound": 66,
+     "refused": 111
+    },
+    {
+     "narrator": "victor",
+     "sentences": 1119,
+     "bound": 396,
+     "refused": 134
+    },
+    {
+     "narrator": "creature",
+     "sentences": 75,
+     "bound": 2,
+     "refused": 14
+    },
+    {
+     "narrator": "creature",
+     "sentences": 657,
+     "bound": 115,
+     "refused": 129
+    },
+    {
+     "narrator": "victor",
+     "sentences": 999,
+     "bound": 183,
+     "refused": 168
+    },
+    {
+     "narrator": "walton",
+     "sentences": 290,
+     "bound": 113,
+     "refused": 28
+    },
+    {
+     "narrator": "creature",
+     "sentences": 101,
+     "bound": 19,
+     "refused": 11
+    }
+   ],
+   "agreementWithThematic": {
+    "bothBound": 415,
+    "agreeing": 107
+   },
+   "reading": "the two arms agree on only ~26% of the sentences both bind. Spot-checked: disagreements cluster in stretches whose TRUE antecedent (the master, the lieutenant — Walton-letter minor characters) is below the cast floor entirely, so both arms bind the nearest wrong candidate. That is a candidate-universe gap upstream of either mechanism; with no pronoun golden in either repo, declaring a winner between the arms is not licensed (CLAUDE.md: never tune toward the answer key you wish you had)."
+  }
  },
  "unframedEncounters": 0,
  "readersModelOfVictor": {

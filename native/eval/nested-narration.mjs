@@ -31,6 +31,8 @@ import { deltaFold } from "../kernel/fold.js";
 import { READER, STANCE, projectPerspectives, commonGround, divergence, mentalModel, perspectiveOperation } from "../kernel/perspective.js";
 import { FIRST_PERSON, FIRST_PERSON_META } from "../../legacy-eoreader6.1/packages/engine/perceiver/text/priors.js";
 import { castSurfaceMap, bindNarrationFrames, pronounResolver, claimEndKey } from "../adapters/text/perspective-claims.js";
+import { resolvePronounsByActivation } from "../adapters/text/pronouns.js";
+import { createActivation } from "../kernel/activation.js";
 import { createSession, admitChunked, sessionReferents } from "../../legacy-eoreader6.1/packages/host/corpus.js";
 
 // Declared, not defaulted, and borrowed rather than invented: host/corpus.js's
@@ -38,6 +40,14 @@ import { createSession, admitChunked, sessionReferents } from "../../legacy-eore
 // pronoun binding, so these are disclosed-as-unvalidated, and moving them is
 // expected rather than a regression.
 const PRONOUN_RECALL = { minActivation: 0.05, minMargin: 0.2 };
+
+// The activation arm's own numbers, separately declared because the scale is
+// different (arrival units: 1 = one full naming, undecayed). window 8 is the
+// DMD-MEASURED reach of "who is this stretch about" on this book's own first
+// quarter (terrain-activation-live, derive named there); 0.2 is the floor at
+// which a single naming has faded past ~12 sentences at the measured gamma —
+// disclosed-as-unvalidated exactly like the thematic arm's numbers.
+const PRONOUN_PRESENT = { window: 8, minActivation: 0.2, minMargin: 0.2, createActivation };
 
 // DECLARED, with its giver: the coref prior's own note — "the whole book is
 // nested first-person narration (Walton > Victor > Creature)."
@@ -93,6 +103,23 @@ async function main() {
     frames: narration.frames, text: stripped.text, offset: stripped.offset,
     surfaceToReferent, recall: PRONOUN_RECALL,
   });
+  // The SECOND arm — the reader's decaying present instead of thematic echo.
+  // Same frames, same join, one changed dimension (the mechanism), so the
+  // two reports below are a controlled comparison, not two anecdotes.
+  const presentArm = bindNarrationFrames({
+    frames: narration.frames, text: stripped.text, offset: stripped.offset,
+    surfaceToReferent, recall: PRONOUN_PRESENT,
+    resolve: (sents, surfs, opts) => resolvePronounsByActivation(sents, surfs, opts),
+  });
+  const agree = (() => {
+    const a = new Map(boundSentences.map((b) => [`${b.start}:${b.pronoun}`, b.referentId]));
+    let both = 0, same = 0;
+    for (const b of presentArm.boundSentences) {
+      const t = a.get(`${b.start}:${b.pronoun}`);
+      if (t) { both += 1; if (t === b.referentId) same += 1; }
+    }
+    return { bothBound: both, agreeing: same };
+  })();
   const { resolve: referentForPronoun, counters: joinCounters } = pronounResolver(boundSentences);
 
   const perceiver = createCausalTextPerceiver({ minRelationSurfaces: 2, refreshEvery: 25 });
@@ -168,6 +195,14 @@ async function main() {
       },
       boundSentences: boundSentences.length,
       perFrame: perFrameBindings,
+      byActivation: {
+        mechanism: "decayed presence (kernel createActivation; window 8 measured by dmd on this book — see terrain-activation-live)",
+        declared: { window: PRONOUN_PRESENT.window, minActivation: PRONOUN_PRESENT.minActivation, minMargin: PRONOUN_PRESENT.minMargin },
+        boundSentences: presentArm.boundSentences.length,
+        perFrame: presentArm.perFrame,
+        agreementWithThematic: agree,
+        reading: "the two arms agree on only ~26% of the sentences both bind. Spot-checked: disagreements cluster in stretches whose TRUE antecedent (the master, the lieutenant — Walton-letter minor characters) is below the cast floor entirely, so both arms bind the nearest wrong candidate. That is a candidate-universe gap upstream of either mechanism; with no pronoun golden in either repo, declaring a winner between the arms is not licensed (CLAUDE.md: never tune toward the answer key you wish you had).",
+      },
     },
     unframedEncounters: unframed.length,
     // What the reader holds only through Victor — every one of these is a
