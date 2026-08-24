@@ -349,6 +349,7 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
       // candidate's graphEntries so it passes through witness like every
       // other observation (nomination is not admission).
       let anchorEvidence = [];
+      let descriptorOccsEmitted = [];
       if (anchoring) {
         // Only descriptors whose HEAD token survives two cuts are offered
         // for anchoring. Measured on Frankenstein's opening letters:
@@ -386,12 +387,16 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
           return nounShare > 0.5;
         });
         anchorEvidence = anchoring.observe(currentSentence, descriptorOccs, cache.referents).evidence;
+        // The occurrences themselves are perceptions too — emitted so a
+        // downstream organ (descriptorBeings) can count recurrence of the
+        // ones anchoring could NOT bind, instead of re-deriving the stream.
+        descriptorOccsEmitted = descriptorOccs;
       }
 
       priorSentences.push(currentSentence);
       priorText += `${priorText ? "\n" : ""}${encounter.material}`;
 
-      if (edges.length === 0 && seenReferents.length === 0 && lexicalOccurrences.length === 0 && targetedOccurrences.length === 0 && anchorEvidence.length === 0) return [];
+      if (edges.length === 0 && seenReferents.length === 0 && lexicalOccurrences.length === 0 && targetedOccurrences.length === 0 && anchorEvidence.length === 0 && descriptorOccsEmitted.length === 0) return [];
       return [{
         candidate: {
           distinctions: [
@@ -401,7 +406,7 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
             ...targetedOccurrences.map((occ) => ({ occurrence: occ.id, surfaceKey: occ.surfaceKey, taskNominated: true })),
           ],
           hyperedges: edges,
-          graphEntries: [...seenReferents, ...mentions, ...lexicalOccurrences, ...targetedOccurrences, ...gaps, ...anchorEvidence],
+          graphEntries: [...seenReferents, ...mentions, ...lexicalOccurrences, ...targetedOccurrences, ...gaps, ...anchorEvidence, ...descriptorOccsEmitted],
         },
         anchor: encounter.anchor,
         evidence: encounter.material,
