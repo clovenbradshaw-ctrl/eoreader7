@@ -3,8 +3,9 @@ import assert from "node:assert/strict";
 import * as native from "../kernel/index.js";
 import * as legacy from "../../legacy-eoreader6.1/packages/engine/dynamics/index.js";
 
-const openA = { id: "obl:a", status: "open", openedAt: 2, grounds: ["ref:x"], alternatives: ["ref:y"], consequences: ["ref:z"] };
-const openB = { id: "obl:b", status: "strengthened", openedAt: 4, grounds: ["ref:y"], alternatives: [], consequences: ["ref:q"] };
+const materiality = Object.freeze({ makesDifference: true, reasons: Object.freeze([{ kind: "fixture_consequence" }]) });
+const openA = { id: "obl:a", status: "open", openedAt: 2, grounds: ["ref:x"], alternatives: ["ref:y"], consequences: [{ kind: "identity", ref: "ref:z" }], distinction: { materiality } };
+const openB = { id: "obl:b", status: "strengthened", openedAt: 4, grounds: ["ref:y"], alternatives: [], consequences: [{ kind: "boundary", ref: "ref:q" }], distinction: { materiality } };
 
 test("surprise is derived from consequential DeltaFold rather than raw observation novelty", () => {
   const delta = native.deltaFold([
@@ -19,14 +20,38 @@ test("surprise is derived from consequential DeltaFold rather than raw observati
   assert.deepEqual(n.downstreamConsequences, ["recanonicalized identity"]);
 });
 
-test("tension is unresolved consequential Fold structure with persistence", () => {
-  const fold = native.receivedGround({ sequence: 7, obligations: [openA, openB, { id: "obl:closed", status: "resolved" }] });
+test("tension preserves unresolved consequential structure without inventing energetic conflict", () => {
+  const fold = native.receivedGround({ sequence: 7, obligations: [openA, openB, { id: "obl:closed", status: "resolved", distinction: { materiality } }] });
   const n = native.deriveTension(fold);
-  const l = legacy.deriveTension(fold);
-  assert.deepEqual(n, l);
   assert.deepEqual(n.obligations.map((o) => o.id), ["obl:a", "obl:b"]);
-  assert.equal(n.interactionNetwork.length, 1);
-  assert.deepEqual(n.interactionNetwork[0].shared, ["ref:y"]);
+  assert.equal(n.schema, "TensionProfile@1");
+  assert.equal(n.field.model, "interpretive_constraint_factor_graph");
+  assert.equal(n.field.factorCount, 2);
+  assert.equal(n.interactionNetwork.length, 1, "shared Fold variables establish coupling topology");
+  assert.equal(n.tensionAvailable, false, "coupling alone cannot establish contradiction energy");
+  assert.equal(n.energy, null);
+  assert.deepEqual(n.persistence.map((item) => item.value), [6, 4]);
+  assert.equal(n.persistenceExposure, 10);
+
+  const legacyFold = native.receivedGround({ sequence: 7, obligations: [
+    { ...openA, consequences: ["ref:z"] },
+    { ...openB, consequences: ["ref:q"] },
+    { id: "obl:closed", status: "resolved" },
+  ] });
+  const l = legacy.deriveTension(legacyFold);
+  assert.deepEqual(l.obligations.map((o) => o.id), n.obligations.map((o) => o.id));
+  assert.deepEqual(l.persistence, n.persistence);
+});
+
+test("non-material unresolved questions create no live constraint problem and therefore exactly zero tension", () => {
+  const fold = native.receivedGround({ sequence: 7, obligations: [{ ...openA, id: "obl:dormant", distinction: { materiality: { makesDifference: false } } }] });
+  const tension = native.deriveTension(fold);
+  assert.equal(tension.obligations.length, 0);
+  assert.equal(tension.field.factorCount, 0);
+  assert.equal(tension.persistenceExposure, 0);
+  assert.equal(tension.energy, 0);
+  assert.equal(tension.tensionAvailable, true);
+  assert.equal(tension.frustration.reason, "no_live_material_constraints");
 });
 
 test("release requires a witnessed transformation that actually closes an obligation", () => {

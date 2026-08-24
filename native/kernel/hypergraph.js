@@ -1,7 +1,14 @@
 const freeze = (value) => Object.freeze(value);
-const REF_RE = /^(ref|obs|edge|expectation|obligation|frame|pattern|motif|delta|op|occ|surface|mention|encounter|lex):/;
+const REF_RE = /^(ref|ref-occ|obs|edge|expectation|obligation|identity|discourse-link|pronoun-binding|definite-binding|withheld-composition|composition|frame|pattern|motif|delta|op|occ|surface|mention|encounter|lex|task-target|task-evidence|gap):/;
 const addRef = (set, value) => { if (typeof value === "string" && REF_RE.test(value)) set.add(value); };
 const addRefs = (set, values) => { for (const value of values ?? []) addRef(set, value); };
+
+function addNestedRefs(refs, value) {
+  if (value == null) return;
+  if (typeof value === "string") { addRef(refs, value); return; }
+  if (Array.isArray(value)) { for (const item of value) addNestedRefs(refs, item); return; }
+  if (typeof value === "object") for (const item of Object.values(value)) addNestedRefs(refs, item);
+}
 
 function referencesOf(entry) {
   const refs = new Set();
@@ -13,6 +20,7 @@ function referencesOf(entry) {
         addRef(refs, d?.referentId);
         addRef(refs, d?.occurrence);
         addRef(refs, d?.surfaceKey);
+        if ((d?.kind === "pronoun_binding" || d?.kind === "occurrence_binding") && d?.binding?.id) addRef(refs, d.binding.id);
       }
       addRef(refs, entry.encounterRef);
       break;
@@ -31,9 +39,42 @@ function referencesOf(entry) {
       addRef(refs, entry.witness);
       break;
     case "EOLexicalOccurrence@1":
+    case "EOTaskTargetOccurrence@1":
       addRef(refs, entry.surfaceKey);
       addRef(refs, entry.encounterRef);
       addRef(refs, entry.witness);
+      break;
+    case "EOReferentOccurrence@1":
+      addRef(refs, entry.edge);
+      addRef(refs, entry.encounterRef);
+      break;
+    case "EOPronounBinding@1":
+    case "EODefiniteBinding@1":
+      addRef(refs, entry.occurrence);
+      addRef(refs, entry.referent);
+      addRefs(refs, entry.supportRefs);
+      break;
+    case "EOIdentityHypothesis@1":
+      addRefs(refs, entry.occurrenceRefs);
+      addRefs(refs, entry.encounterRefs);
+      addNestedRefs(refs, entry.relationContexts);
+      break;
+    case "EOIdentityAlternative@1":
+      addRefs(refs, entry.supportRefs);
+      addRefs(refs, entry.attackRefs);
+      break;
+    case "EODiscourseIdentityLink@1":
+      addRef(refs, entry.leftOccurrence);
+      addRef(refs, entry.rightOccurrence);
+      addRef(refs, entry.witness);
+      break;
+    case "EOWithheldComposition@1":
+    case "EOLicensedComposition@1":
+      addRef(refs, entry.from);
+      addRef(refs, entry.bridge);
+      addRef(refs, entry.to);
+      addRefs(refs, entry.edgeRefs);
+      addRefs(refs, entry.witnessRefs);
       break;
     case "EOExpectation@1":
       addRefs(refs, entry.grounds);
@@ -43,11 +84,9 @@ function referencesOf(entry) {
     case "EOObligation@1":
       addRefs(refs, entry.grounds);
       addRefs(refs, entry.alternatives);
-      addRefs(refs, entry.consequences);
+      addNestedRefs(refs, entry.consequences);
       addRefs(refs, entry.resolutionRefs);
-      if (typeof entry.distinction === "object") {
-        for (const value of Object.values(entry.distinction)) addRef(refs, value);
-      }
+      addNestedRefs(refs, entry.distinction);
       break;
     case "EOPatternCandidate@1":
     case "EOMotifCandidate@1":
@@ -102,7 +141,12 @@ function indexKeys(entry) {
     }
   }
   if (entry?.schema === "EOMention@1" && entry.referent) incident.add(entry.referent);
-  if (entry?.schema === "EOLexicalOccurrence@1" && entry.surfaceKey) incident.add(entry.surfaceKey);
+  if ((entry?.schema === "EOLexicalOccurrence@1" || entry?.schema === "EOTaskTargetOccurrence@1") && entry.surfaceKey) incident.add(entry.surfaceKey);
+  if (entry?.schema === "EOReferentOccurrence@1" && entry.edge) incident.add(entry.edge);
+  if (entry?.schema === "EOPronounBinding@1" || entry?.schema === "EODefiniteBinding@1") {
+    if (entry.occurrence) incident.add(entry.occurrence);
+    if (entry.referent) incident.add(entry.referent);
+  }
   const dependent = new Set([...referencesOf(entry)].filter((ref) => ref !== entry?.id));
   return { incident, dependent, relation: entry?.schema === "EOHyperedge@1" ? entry.relation ?? null : null,
     sequence: entry?.schema === "EOHyperedge@1" && Number.isFinite(entry?.scope?.sequencePosition) ? entry.scope.sequencePosition : null };
@@ -155,6 +199,7 @@ export function relevantHypergraphNeighborhood(graph, seeds = [], { maxHops = 3,
       for (const d of seed?.distinctions ?? []) {
         if (d?.ref) seedIds.add(d.ref);
         if (d?.referentId) seedIds.add(d.referentId);
+        if ((d?.kind === "pronoun_binding" || d?.kind === "occurrence_binding") && d?.binding?.id) seedIds.add(d.binding.id);
       }
     }
   }

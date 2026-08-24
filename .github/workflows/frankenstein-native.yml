@@ -11,7 +11,7 @@ permissions:
 jobs:
   frankenstein:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
         with:
@@ -19,13 +19,35 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Fetch Project Gutenberg Frankenstein #84
+      - name: Fetch target and prior reading history
         shell: bash
         run: |
           set -euo pipefail
           curl --fail --location --retry 3 \
             https://www.gutenberg.org/cache/epub/84/pg84.txt \
             --output /tmp/frankenstein.txt
+          curl --fail --location --retry 3 \
+            https://raw.githubusercontent.com/clovenbradshaw-ctrl/live_priors/main/15-western-canon/folger-shakespeare/Hamlet.txt \
+            --output /tmp/hamlet.txt
+          curl --fail --location --retry 3 \
+            https://raw.githubusercontent.com/clovenbradshaw-ctrl/live_priors/main/15-western-canon/folger-shakespeare/Macbeth.txt \
+            --output /tmp/macbeth.txt
+          curl --fail --location --retry 3 \
+            https://raw.githubusercontent.com/clovenbradshaw-ctrl/live_priors/main/01-literature-books/gutenberg/pg1342_Pride_and_Prejudice.txt \
+            --output /tmp/pride.txt
           test -s /tmp/frankenstein.txt
+          test -s /tmp/hamlet.txt
+          test -s /tmp/macbeth.txt
+          test -s /tmp/pride.txt
+      - name: Read Frankenstein after accumulated literary experience
+        shell: bash
+        run: |
+          set +e
+          node native/eval/frankenstein-experienced.mjs /tmp/frankenstein.txt /tmp/hamlet.txt /tmp/macbeth.txt /tmp/pride.txt > /tmp/experienced-reading.log 2>&1
+          status=$?
+          tail -n 100 /tmp/experienced-reading.log
+          exit "$status"
       - name: Read Frankenstein through native EOReader 7
         run: node native/eval/frankenstein.mjs /tmp/frankenstein.txt
+      - name: Reason and generate over the full Frankenstein Fold
+        run: node native/eval/frankenstein-stance.mjs /tmp/frankenstein.txt

@@ -1,4 +1,7 @@
+import { interpretiveAtmosphereFactorField } from "./atmosphere-math.js";
+
 const OPEN = new Set([undefined, null, "open", "strengthened", "weakened"]);
+const material = (obligation) => obligation?.distinction?.materiality?.makesDifference === true;
 
 export function deriveSurprise(delta) {
   const operations = (delta?.operations ?? []).filter((operation) => operation.operator !== "NUL");
@@ -24,28 +27,10 @@ export function deriveSurprise(delta) {
 }
 
 export function deriveTension(fold) {
-  const obligations = (fold?.obligations ?? []).filter((o) => OPEN.has(o.status));
-  const interactionNetwork = [];
-  for (let i = 0; i < obligations.length; i += 1) {
-    for (let j = i + 1; j < obligations.length; j += 1) {
-      const a = obligations[i];
-      const b = obligations[j];
-      const ar = new Set([...(a.grounds ?? []), ...(a.alternatives ?? [])].map(String));
-      const shared = [...(b.grounds ?? []), ...(b.alternatives ?? [])].map(String).filter((x) => ar.has(x));
-      if (shared.length) interactionNetwork.push({ from: a.id, to: b.id, shared });
-    }
-  }
+  const obligations = (fold?.obligations ?? []).filter((o) => OPEN.has(o.status) && material(o));
   const sequence = fold?.sequence ?? 0;
-  return Object.freeze({
-    schema: "TensionProfile@1",
-    obligations,
-    interactionNetwork,
-    persistence: obligations.map((o) => ({
-      id: o.id,
-      value: o.openedAt == null ? (o.persistence ?? 0) : Math.max(o.persistence ?? 0, sequence - o.openedAt + 1),
-    })),
-    consequences: obligations.map((o) => ({ id: o.id, value: o.consequences ?? [] })),
-  });
+  const field = interpretiveAtmosphereFactorField(obligations, { sequence });
+  return Object.freeze({ schema: "TensionProfile@1", obligations: Object.freeze([...obligations]), field, energy: field.tension, tensionAvailable: field.tensionAvailable, frustration: field.frustration, persistenceExposure: field.persistenceExposure, interactionNetwork: Object.freeze(field.couplings.map((coupling) => Object.freeze({ ...coupling }))), persistence: Object.freeze(field.factors.map((factor) => ({ id: factor.obligation, value: factor.persistence }))), consequences: Object.freeze(obligations.map((o) => ({ id: o.id, value: o.consequences ?? [] }))) });
 }
 
 export function deriveRelease(delta, beforeFold, afterFold) {
