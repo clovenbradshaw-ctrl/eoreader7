@@ -15,6 +15,7 @@ export { createKindBasinAdmissionLedger } from "./kind-basin-admission.js";
 export { kindFeatureSignature, kindPrior, deriveKindPriors, rankKindPriorHypotheses, snapshotEntityKindPriorHypotheses, conditionKindProjections } from "./kind-priors.js";
 export { STANCES, stanceOf, createStanceIndex, indexStanceEntries, snapshotStanceState, projectStanceState, stanceCounts } from "./stance-state.js";
 export { STANCE_MATHEMATICS, stanceFor, stanceMathematicalSemantics, stanceMathematicalContract, stanceMathematicalAction } from "./stance-math.js";
+export { executeStanceReasoning, reasonFromFold } from "./stance-reasoner.js";
 export { receivedGround, eoOperation, deltaFold, applyObservation, applyDelta, reconstruct } from "./fold.js";
 export { deriveOrientation } from "./orientation.js";
 export { perceive } from "./perception.js";
