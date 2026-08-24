@@ -193,7 +193,10 @@ export function createRecursiveReader({ seed = {}, priors = [], perceivers = [],
     const neighborhood = (adapters.retrieve ?? relevantNeighborhood)(beforeFold, [...observations, ...taskEvidence], { select: adapters.selectNeighborhood, graph: graphIndex, terrainState: terrainStateBefore, emergentTerrainIndex, stanceState: stanceStateBefore });
     const interrogation = await (adapters.interrogate ?? interrogateCube)([...observations, ...taskEvidence], neighborhood, { ask: adapters.ask, hyperlexicon: hl, composition });
     const proposedDelta = adapters.revise
-      ? await adapters.revise({ observations, taskEvidence, neighborhood, interrogation, fold: beforeFold, tasks: projectTasks(tasks), graph: graphIndex, hyperlexicon: hl, composition })
+      // `tasks` (the log) has not changed since liveTasksBefore was projected
+      // above -- re-projecting it here would replay the entire append-only
+      // task log a second time for an identical result.
+      ? await adapters.revise({ observations, taskEvidence, neighborhood, interrogation, fold: beforeFold, tasks: liveTasksBefore, graph: graphIndex, hyperlexicon: hl, composition })
       : deriveEOTransformations(interrogation, { id: `delta:${currentEncounter.sequencePosition ?? log.length}` });
     const baseDelta = proposedDelta?.schema === "DeltaFold@1" ? proposedDelta : deltaFold([]);
     const canonicalDelta = deltaFold([
@@ -220,7 +223,10 @@ export function createRecursiveReader({ seed = {}, priors = [], perceivers = [],
     const kindState = currentKindState();
     const entityKindHypotheses = currentEntityKindHypotheses();
 
-    return Object.freeze({ encounter: currentEncounter, orientation, candidates, challenge, observations, hyperlexicon: hl, hyperlexiconCandidates: hlCandidates, composition, compositionDiagnostics, identityQuotient, kindState, entityKindHypotheses, kindDiagnostics: currentKindDiagnostics(), basinAdmissions, awakenedTasks, scheduledTasks, taskEvidence, proposedTasks: taskUpdate.proposed, tasks: Object.freeze(projectTasks(tasks)), relevantFold: neighborhood, interrogation, deltaFold: canonicalDelta, fold, surprise: deriveSurprise(canonicalDelta), tension: deriveTension(fold), release: deriveRelease(canonicalDelta, beforeFold, fold) });
+    // taskUpdate.tasks (from proposeObligationTasks, above) is already
+    // Object.freeze(projectTasks(tasks)) over this exact, just-reassigned
+    // log -- reuse it rather than replaying the whole task log again.
+    return Object.freeze({ encounter: currentEncounter, orientation, candidates, challenge, observations, hyperlexicon: hl, hyperlexiconCandidates: hlCandidates, composition, compositionDiagnostics, identityQuotient, kindState, entityKindHypotheses, kindDiagnostics: currentKindDiagnostics(), basinAdmissions, awakenedTasks, scheduledTasks, taskEvidence, proposedTasks: taskUpdate.proposed, tasks: taskUpdate.tasks, relevantFold: neighborhood, interrogation, deltaFold: canonicalDelta, fold, surprise: deriveSurprise(canonicalDelta), tension: deriveTension(fold), release: deriveRelease(canonicalDelta, beforeFold, fold) });
   }
 
   async function read(encounters = []) {
