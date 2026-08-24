@@ -2,9 +2,9 @@ import { TERRAINS } from "./terrain-state.js";
 import {
   structuralFieldGeometry,
   relationNetworkComponents,
-  interpretiveAtmosphereField,
   interpretiveParadigmModels,
 } from "./terrain-math.js";
+import { interpretiveAtmosphereFactorField } from "./atmosphere-math.js";
 
 const freeze = (value) => Object.freeze(value);
 const OPEN = new Set([undefined, null, "open", "strengthened", "weakened"]);
@@ -62,7 +62,7 @@ function atmosphereProjection(obligations = [], sequence = null) {
   if (!obligations.length) return null;
   const obligationRefs = obligations.map((item) => item.id).sort();
   const consequenceKinds = unique(obligations.flatMap((item) => item.consequences ?? []).map((item) => item?.kind)).sort();
-  const field = interpretiveAtmosphereField(obligations, { sequence });
+  const field = interpretiveAtmosphereFactorField(obligations, { sequence });
   return freeze({
     schema: "EOInterpretiveAtmosphereProjection@2",
     id: `terrain:atmosphere:${stableHash(obligationRefs.join("|"))}`,
@@ -72,7 +72,7 @@ function atmosphereProjection(obligations = [], sequence = null) {
     obligationRefs: freeze(obligationRefs),
     consequenceKinds: freeze(consequenceKinds),
     field,
-    basis: "coupled_unresolved_interpretive_potential",
+    basis: "interpretive_constraint_factor_graph",
   });
 }
 
