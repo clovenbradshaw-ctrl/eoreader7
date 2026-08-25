@@ -344,3 +344,22 @@ win as a law against measuring. Named, untested, next: memory/
 activation.js's df tables and Hebbian edges never forget (edgeSlots is
 competition-capping, not decay) — the fan-effect prediction on long
 material is the standing open claim this entry leaves on the board.
+
+## S15 — amended by falsification (same day): the received exponent is a text-scale prior, not a constant of the mechanism
+
+Put where it could lose (`eval/results/forgetting-falsification-RESULTS.md`,
+predictions frozen first): at ENTITY level on a real book the law
+strengthened — anticipating which cast referent returns next improves 57%
+relative over frequency (z = 5.32, order-borne) — and on real audio
+(chroma states at ~46ms frames) the FIXED d = 0.5 form broke exactly as
+the frozen risk clause said it might: persistence dominates, recency
+crushes the received power-law (z = −51.98), while the material-measured
+need-odds estimator ADAPTED to the medium's own arrival statistics and
+landed within noise of the persistence oracle at 2.8× the received prior.
+**Rule, sharpened.** The omnimodal mechanism is need-odds matching, not
+any exponent: the received d = 0.5 is a text-scale prior (Anderson &
+Schooler's environments were day-scale text needs), consulted first and
+superseded by the material's own measured arrival odds — which text was
+too thin per-step to earn and audio earned decisively. Both directions of
+S14's ladder are now measured, and phrasing the law as "power law" where
+a medium's own odds say otherwise is the newly measured way to lose.
