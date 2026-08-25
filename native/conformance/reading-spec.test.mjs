@@ -94,7 +94,7 @@ test("S2/S3: the retraction records stand — prefix and lookahead rules are wri
 // ── S8: the spec itself is present and appended-to, never emptied ───────
 test("S8: READING-SPEC.md exists and carries every section the suite enforces", () => {
   const spec = read("../READING-SPEC.md");
-  for (const section of ["S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8", "S9", "S10", "S11", "S12", "S13", "S14", "S15", "S16"]) {
+  for (const section of ["S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8", "S9", "S10", "S11", "S12", "S13", "S14", "S15", "S16", "S17"]) {
     assert.match(spec, new RegExp(`## ${section} `), `${section} is present`);
   }
 });

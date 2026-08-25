@@ -318,3 +318,29 @@ are worked off per `eval/results/meta-parameters-INVENTORY.md` — which also
 names the dials that must NOT be learned: structural floors (Born gate,
 binding's arrivals ≥ 2) are theorems about the mechanism, not models of the
 material, and un-typing them would be un-earning them.
+
+## S17 — Forgetting is a recall mechanism when its shape matches the need-odds; the shape is a prior, then a measurement
+
+The research and the run: `eval/results/forgetting-for-recall-RESEARCH.md`
+(five pillars, five fields — Anderson & Schooler's rational analysis;
+Bjork's two strengths; Richards & Frankland's transience-prevents-
+overfitting; the contextual-interference effect in motor learning, which
+is what makes the mechanism omnimodal and kernel-resident per S16; Gers'
+forget gate on continual prediction). Measured here, prediction frozen
+before the run: on 3,102 prequential next-arrival steps, power-law
+activation (ACT-R base-level, received d = 0.5, giver named) beats
+undecayed accumulation (0.0582 vs 0.0549, paired z = 3.26) where
+exponential decay had lost to it (0.0382) — and the power-law edge is
+ORDER-BORNE: under sentence shuffling it vanishes and reverses
+(z = −1.55). **Rule.** The retrieval layer's forgetting curve is
+power-law (frequency-preserving), never exponential and never absent; the
+binding layer's is the writer's measured window (S15); and the two are
+never conflated (S15's rule, now with the retrieval half measured too).
+The fully-empirical need-odds estimator (the material's own cells, no
+functional form) was directionally right and NOT significant (z = 0.72):
+per S16's ladder the received prior stands until the material's own
+measurement holds more evidence — recorded so nobody reads the prior's
+win as a law against measuring. Named, untested, next: memory/
+activation.js's df tables and Hebbian edges never forget (edgeSlots is
+competition-capping, not decay) — the fan-effect prediction on long
+material is the standing open claim this entry leaves on the board.
