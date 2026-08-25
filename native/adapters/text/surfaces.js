@@ -173,13 +173,24 @@ export const normaliseSurface = (surface) =>
  *   an axis label or a maths variable — measured on a quantum-computing paper,
  *   M, L, S, J, C and W took six of the top ten places.
  */
-export const extractSurfaces = (sentences, { functionWords = null, abbreviations = null, minGlyphs = 2 } = {}) => {
-  const capCounts = new Map();   // surface -> times seen capitalised, NOT sentence-initial
-  const lowerCounts = new Map(); // lowercased form -> times seen lowercase anywhere
-  const sentenceIndex = new Map(); // surface -> Set(sentence order)
+/**
+ * The two phases of surface extraction, split so a CAUSAL reader can fold
+ * each sentence in ONCE (S4: slowness is an incremental-algorithm defect,
+ * never a license to coarsen — and never a license to re-read: the
+ * per-sentence evidence below depends on nothing but the sentence, while
+ * functionWords/abbreviations bite only in the projection over the
+ * aggregate). extractSurfaces stays byte-identical: accumulate fresh, then
+ * project — proven by diffing a full Frankenstein read's output before and
+ * after this split.
+ */
+export const createSurfaceEvidence = () => ({
+  capCounts: new Map(),   // surface -> times seen capitalised, NOT sentence-initial
+  lowerCounts: new Map(), // lowercased form -> times seen lowercase anywhere
+  sentenceIndex: new Map(), // surface -> Set(sentence order)
+});
 
-  const abbrev = abbreviations ? new Set(abbreviations) : null;
-
+export const accumulateSurfaceEvidence = (sentences, evidence) => {
+  const { capCounts, lowerCounts, sentenceIndex } = evidence;
   for (const sent of sentences) {
     const toks = sent.text.split(/\s+/).map((t) => t.replace(/^[^\p{L}]+|[^\p{L}'’]+$/gu, "")).filter(Boolean);
     // A unit set entirely in capitals is a heading or a running head, and every
@@ -220,7 +231,12 @@ export const extractSurfaces = (sentences, { functionWords = null, abbreviations
       i = j;
     }
   }
+  return evidence;
+};
 
+export const surfacesFromEvidence = (evidence, { functionWords = null, abbreviations = null, minGlyphs = 2 } = {}) => {
+  const { capCounts, lowerCounts, sentenceIndex } = evidence;
+  const abbrev = abbreviations ? new Set(abbreviations) : null;
   // The physics filter (eoreader5, measured): a NAME essentially never appears
   // lowercased, while a sentence/dialogue opener ("Well", "Why") constantly
   // does. A pronoun that is capitalised by orthographic convention rather
@@ -258,6 +274,9 @@ export const extractSurfaces = (sentences, { functionWords = null, abbreviations
   }
   return surfaces.sort((a, b) => b.mentions - a.mentions);
 };
+
+export const extractSurfaces = (sentences, opts = {}) =>
+  surfacesFromEvidence(accumulateSurfaceEvidence(sentences, createSurfaceEvidence()), opts);
 
 /**
  * Cluster candidate surfaces into referents by NAME-variant coreference only.

@@ -3,16 +3,24 @@ import { deriveIdentityRevision } from "../../kernel/identity.js";
 import {
   descriptorOccurrence,
   directDescriptorOccurrences,
-  descriptorHypotheses,
+  descriptorHypotheses, descriptorHypothesesWith,
 } from "./individuation.js";
 import {
   appositionalDescriptorBindings,
   projectDiscourseReferents,
 } from "./discourse-referents.js";
 import { textIdentityEvidence } from "./identity-evidence.js";
+import { idSetOf, entriesBySchema } from "../../kernel/fold.js";
 import { identityEvidenceFromAnchors } from "./anchoring.js";
 
-const existingIds = (fold) => new Set((fold?.graphEntries ?? []).map((entry) => entry?.id).filter(Boolean));
+// The fold's id set is a chain view (kernel) — O(delta) per encounter.
+// The view's Set is SHARED state, so local admissions overlay it rather
+// than mutating it.
+const existingIds = (fold) => {
+  const base = idSetOf(fold?.graphEntries ?? []);
+  const added = new Set();
+  return { has: (id) => base.has(id) || added.has(id), add: (id) => added.add(id) };
+};
 
 /**
  * Convert witnessed text structure into warranted EO change.
@@ -124,11 +132,7 @@ export async function reviseTextFold({ observations = [], fold = {}, canonicaliz
     }
   }
 
-  const identitySource = [
-    ...(fold?.graphEntries ?? []).filter((x) => x?.schema === "EOReferentOccurrence@1"),
-    ...newDescriptorOccurrences,
-  ];
-  for (const hypothesis of descriptorHypotheses(identitySource)) {
+  for (const hypothesis of descriptorHypothesesWith(fold?.graphEntries ?? [], newDescriptorOccurrences)) {
     if (known.has(hypothesis.id)) continue;
     known.add(hypothesis.id);
     operations.push(eoOperation({

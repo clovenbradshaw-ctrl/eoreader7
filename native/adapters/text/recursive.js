@@ -1,6 +1,6 @@
 import { tokenize, buildFrequencyTable, functionWordSet } from "./material.js";
 import { splitSentences } from "./spans.js";
-import { extractSurfaces, discoverReferents, diaNorm } from "./surfaces.js";
+import { createSurfaceEvidence, accumulateSurfaceEvidence, surfacesFromEvidence, discoverReferents, diaNorm } from "./surfaces.js";
 import { discoverRelationVocab, extractRelations } from "./relations.js";
 import { directDescriptorOccurrences, descriptorOccurrence } from "./individuation.js";
 import { createDescriptorAnchoring } from "./anchoring.js";
@@ -251,18 +251,30 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
   let relationRefreshFrom = 0;
   const relationEvidence = new Map();
   let cache = { closed: new Set(), refs: new Map(), referents: [], gaps: [], verbs: new Set() };
+  // THE FOLD IS THE ACTIVATION — nothing is re-read. Each sentence's
+  // surface evidence and word counts are folded in ONCE (arithmetic tier:
+  // monotone accumulation, S10); refresh() only PROJECTS from the
+  // accumulated evidence. The old shape re-tokenized and re-scanned the
+  // whole prefix every 25 encounters — O(n²), measured: 75s on
+  // Frankenstein, ~80min on Les Misérables, which is re-reading wearing a
+  // refresh's name (S4). The split is exact: the per-sentence evidence
+  // depends on nothing but the sentence; functionWords bite only in the
+  // projection — proven by a byte-identical full-Frankenstein diff before
+  // this landed.
+  const surfaceEvidence = createSurfaceEvidence();
+  const runningFreq = new Map();
+  let runningTotal = 0;
+  let foldedTo = 0;
 
   const refresh = () => {
-    // Surface/kind discovery still evaluates the accumulated causal past, but
-    // relation-vocabulary learning scans only the NEW batch. The old path ran
-    // a growing surface regex over the entire growing book every refresh — a
-    // quadratic/cubic multiplier on long works. Distinct supporting surfaces
-    // are accumulated explicitly, so relation admission keeps its original
-    // recurrence meaning without rereading old material.
-    const priorWords = tokenize(priorText);
-    const table = buildFrequencyTable(priorWords);
+    for (const sent of priorSentences.slice(foldedTo)) {
+      accumulateSurfaceEvidence([sent], surfaceEvidence);
+      for (const w of tokenize(sent.text)) { runningFreq.set(w, (runningFreq.get(w) || 0) + 1); runningTotal += 1; }
+    }
+    foldedTo = priorSentences.length;
+    const table = { freq: runningFreq, total: runningTotal };
     const closed = earnedClosedClass(table);
-    const surfaces = extractSurfaces(priorSentences, { functionWords: closed });
+    const surfaces = surfacesFromEvidence(surfaceEvidence, { functionWords: closed });
     const discovered = discoverReferents(surfaces);
     const batchSentences = priorSentences.slice(relationRefreshFrom);
     const batchText = batchSentences.map((sentence) => sentence.text).join("\n");

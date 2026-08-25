@@ -107,17 +107,75 @@ const unionFind = (ids) => {
  * Current discourse-referent projection from immutable occurrence/link history.
  * Only linked occurrence components of size >=2 become referents. Same surface
  * recurrence alone is deliberately insufficient.
+ *
+ * INCREMENTAL over the fold's delta chain (kernel chainView): occurrences
+ * and links are add-only (a link is born "supported" and never re-emitted;
+ * the "refused" filter is defensive), so the union-find and per-component
+ * link counts persist across encounters and each delta folds in O(delta).
+ * Any UPDATE touching these schemas demands the from-scratch path —
+ * exactness first. A link arriving before its occurrences waits in
+ * `pending` and is retried as they land, so arrival order inside or across
+ * deltas cannot diverge from the whole-history reading. Output order is
+ * the original's own (components in first-occurrence order), and a full
+ * Frankenstein read diffed byte-identical against the pre-incremental
+ * projection before this landed.
  */
-export function projectDiscourseReferents(graphEntries = []) {
-  const occurrences = graphEntries.filter((x) => x?.schema === "EOReferentOccurrence@1");
-  const byId = new Map(occurrences.map((x) => [x.id, x]));
-  const links = graphEntries.filter((x) => x?.schema === "EODiscourseIdentityLink@1" && x.standing !== "refused");
-  const uf = unionFind([...byId.keys()]);
-  for (const link of links) uf.join(link.leftOccurrence, link.rightOccurrence);
+import { chainView } from "../../kernel/fold.js";
 
+const discourseState = chainView(
+  (graphEntries) => {
+    const st = emptyDiscourseState();
+    foldDiscourse(st, graphEntries);
+    return st;
+  },
+  (st, d) => {
+    if (d.updated.some((x) => x?.schema === "EOReferentOccurrence@1" || x?.schema === "EODiscourseIdentityLink@1")) return null;
+    foldDiscourse(st, d.appended);
+    return st;
+  },
+);
+
+const emptyDiscourseState = () => ({ occurrences: [], parent: new Map(), linkIds: new Map(), pending: [], seq: 0 });
+
+const stFind = (parent, x) => {
+  let p = parent.get(x);
+  if (p == null) return null;
+  while (p !== parent.get(p)) p = parent.get(p);
+  let y = x;
+  while (parent.get(y) !== p) { const next = parent.get(y); parent.set(y, p); y = next; }
+  return p;
+};
+
+function foldDiscourse(st, entries) {
+  const tryLink = (link) => {
+    const ra = stFind(st.parent, link.leftOccurrence);
+    const rb = stFind(st.parent, link.rightOccurrence);
+    if (ra == null || rb == null) return false;
+    const stamped = { seq: st.seq++, id: link.id };
+    if (ra === rb) { st.linkIds.get(ra).push(stamped); return true; }
+    const [keep, drop] = ra < rb ? [ra, rb] : [rb, ra]; // stable by lexical id — the original's own tiebreak
+    st.parent.set(drop, keep);
+    const merged = [...(st.linkIds.get(keep) ?? []), ...(st.linkIds.get(drop) ?? []), stamped];
+    st.linkIds.set(keep, merged);
+    st.linkIds.delete(drop);
+    return true;
+  };
+  for (const x of entries ?? []) {
+    if (x?.schema === "EOReferentOccurrence@1") {
+      st.occurrences.push(x);
+      if (!st.parent.has(x.id)) { st.parent.set(x.id, x.id); st.linkIds.set(x.id, st.linkIds.get(x.id) ?? []); }
+      if (st.pending.length) st.pending = st.pending.filter((l) => !tryLink(l));
+    } else if (x?.schema === "EODiscourseIdentityLink@1" && x.standing !== "refused") {
+      if (!tryLink(x)) st.pending.push(x);
+    }
+  }
+}
+
+export function projectDiscourseReferents(graphEntries = []) {
+  const st = discourseState(graphEntries);
   const components = new Map();
-  for (const occ of occurrences) {
-    const root = uf.find(occ.id);
+  for (const occ of st.occurrences) {
+    const root = stFind(st.parent, occ.id);
     if (!root) continue;
     if (!components.has(root)) components.set(root, []);
     components.get(root).push(occ);
@@ -126,13 +184,11 @@ export function projectDiscourseReferents(graphEntries = []) {
   const referents = [];
   for (const [root, group] of components) {
     if (group.length < 2) continue;
-    const linkedIds = new Set();
-    for (const link of links) {
-      if (group.some((x) => x.id === link.leftOccurrence) && group.some((x) => x.id === link.rightOccurrence)) {
-        linkedIds.add(link.id);
-      }
-    }
-    if (!linkedIds.size) continue;
+    const stampedLinks = st.linkIds.get(root) ?? [];
+    if (!stampedLinks.length) continue;
+    // Global arrival order, dedup by id — the original's own [...linkedIds]
+    // Set semantics over the links array.
+    const linkedIds = [...new Map([...stampedLinks].sort((a, b) => a.seq - b.seq).map((l) => [l.id, l])).keys()];
     const surfaces = [...new Set(group.map((x) => x.canonicalSurface).filter(Boolean))];
     referents.push(Object.freeze({
       schema: "EOReferent@1",

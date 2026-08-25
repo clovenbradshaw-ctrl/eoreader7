@@ -66,11 +66,96 @@ function upsertById(list = [], value) {
   return next;
 }
 
+// ── the delta chain ─────────────────────────────────────────────────────
+// Every array upsertManyById produces records its parent and exactly what
+// changed, so a downstream VIEW can fold only the delta instead of
+// re-walking the whole fold every encounter (the profile that earned
+// this: existingIds + the per-encounter schema filters + a rebuilt
+// union-find were ~45% of a full read, and the shape is O(n²) — the
+// re-reading S4 forbids, at the fold tier. The fold IS the activation;
+// nothing is re-read.). Exactness is the contract: a view either folds
+// the delta into stolen parent state (linear chains — the reader's own
+// shape), or recomputes from scratch; both produce identical results, and
+// any UPDATE touching a view's schemas forces the recompute path.
+const DELTA = new WeakMap(); // childArray -> { prev, appended, updated }
+
+/**
+ * chainView(compute, foldStep) — a memoized view over the delta chain.
+ * `compute(list)` builds state from scratch; `foldStep(state, delta)`
+ * advances stolen parent state by one delta and returns it, or null to
+ * demand a recompute (e.g. an update it cannot fold exactly).
+ */
+export function chainView(compute, foldStep) {
+  const memo = new WeakMap();
+  return (list) => {
+    if (!Array.isArray(list)) return compute(list ?? []);
+    const hit = memo.get(list);
+    if (hit) return hit;
+    // Walk BACK to the nearest memoized ancestor — several upserts can land
+    // between two views of the fold, and a one-step look orphans every
+    // intermediate array (measured: the compute path stayed hot and the
+    // whole point was lost). Then fold the collected deltas forward, oldest
+    // first. A removal anywhere on the path, or a foldStep refusal, drops
+    // to the from-scratch path — exactness first.
+    const path = [];
+    let node = list;
+    let state = null;
+    while (true) {
+      const d = DELTA.get(node);
+      if (!d || d.removed?.length) break;
+      const prevState = memo.get(d.prev);
+      path.push(d);
+      if (prevState !== undefined) { state = prevState; memo.delete(d.prev); break; }
+      node = d.prev;
+    }
+    if (state != null) {
+      for (let i = path.length - 1; i >= 0; i -= 1) {
+        state = foldStep(state, path[i]);
+        if (state == null) break;
+      }
+    }
+    if (state == null) state = compute(list);
+    memo.set(list, state);
+    return state;
+  };
+}
+
+/** The fold's own id set, as a chain view — O(delta) per encounter. */
+export const idSetOf = chainView(
+  (list) => { const ids = new Set(); for (const e of list) if (e?.id != null) ids.add(e.id); return ids; },
+  (ids, d) => { for (const e of d.appended) if (e?.id != null) ids.add(e.id); return ids; },
+);
+
+/** Entries of one schema, as a chain view — appended in place; any UPDATE
+ * touching the schema demands the recompute path (exactness first). */
+const bySchemaViews = new Map();
+export function entriesBySchema(list, schema) {
+  if (!bySchemaViews.has(schema)) {
+    bySchemaViews.set(schema, chainView(
+      (xs) => xs.filter((e) => e?.schema === schema),
+      (arr, d) => {
+        if (d.updated.some((e) => e?.schema === schema)) return null;
+        for (const e of d.appended) if (e?.schema === schema) arr.push(e);
+        return arr;
+      },
+    ));
+  }
+  return bySchemaViews.get(schema)(list);
+}
+
+const POSITIONS = new WeakMap(); // array -> Map(id -> position); positions never shift (append/replace-in-place only)
+
 function upsertManyById(list = [], values = []) {
   if (!values.length) return list;
   const next = [...list];
-  const index = new Map();
-  for (let i = 0; i < next.length; i += 1) if (next[i]?.id != null) index.set(next[i].id, i);
+  let index = POSITIONS.get(list);
+  if (index) POSITIONS.delete(list); // linear chain: steal, extend, hand to the child
+  else {
+    index = new Map();
+    for (let i = 0; i < next.length; i += 1) if (next[i]?.id != null) index.set(next[i].id, i);
+  }
+  const appended = [];
+  const updated = [];
   for (const raw of values) {
     if (!raw) continue;
     const value = clone(raw);
@@ -78,11 +163,15 @@ function upsertManyById(list = [], values = []) {
     if (id != null && index.has(id)) {
       const i = index.get(id);
       next[i] = { ...next[i], ...value };
+      updated.push(next[i]);
       continue;
     }
     if (id != null) index.set(id, next.length);
     next.push(value);
+    appended.push(value);
   }
+  DELTA.set(next, { prev: list, appended, updated });
+  POSITIONS.set(next, index);
   return next;
 }
 
