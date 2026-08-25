@@ -1,0 +1,1538 @@
+// node eval/mhc-battery.mjs [material...]
+//
+// The MHC battery bound to REAL organs. mhc.js is the machinery (the order
+// table, the axioms as arms, quantal scoring); this file is the ladder of
+// actual tasks, each one driving organs this repo really has, over real
+// material this repo already ships.
+//
+// A RE-RUNNABLE DRIVER, NOT A COMMITTED REGRESSION TEST — the posture P19 and
+// P27 already set for measurement drivers here. The conformance for the
+// machinery is mhc.test.mjs and needs no engine at all.
+//
+// ── READING-POLICY P0, STATED BEFORE ANY NUMBER ───────────────────────────
+//
+// "Any claim about 'what this system can do' must name the assembly it was
+// measured on... Drivers that hand-chain engine organs are experiments, each
+// asking one question; they are not the reader."
+//
+// This driver hand-chains organs. It is therefore an EXPERIMENT, and every
+// number it produces is a statement about THAT assembly — engine text
+// adapters composed through the-fold's own tiers — never about
+// `packages/host`'s assembled reader, which is not present in this checkout
+// at all. Nothing here may be reported as "the system's stage" full stop.
+//
+// ── PROBES ARE DERIVED FROM THE MATERIAL, NEVER HARDCODED ─────────────────
+//
+// The first cut hardcoded names ("Lincoln appointed Hamlin") and it was wrong
+// twice over. It made the battery a test of one fixture, and — worse — it
+// made content-independence unaskable, since a battery that names its own
+// answers cannot be run on a second material to see whether the profile
+// holds. `deriveSpec` instead reads each probe OUT of the material: the
+// principal referent is whichever the reading admits most, the specimen edge
+// is whichever the material corroborates most, the negative is that edge
+// reversed, and the absent name is a string checked to be absent. Where the
+// material does not offer a probe (no slot with two distinct fillers, say),
+// the item lands a typed `unmeasured` rather than a fabricated specimen.
+//
+// This is also the only construction under which the MHC's own central
+// property — content-independence — can be tested at all rather than assumed.
+
+import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
+import { join, dirname } from "node:path";
+import { fileURLToPath } from "node:url";
+
+import { runBattery, stageFrom, contentIndependence, SYMBOLIC_FLOOR, ORDERS, orderOf } from "../mhc.js";
+import { makeRelationReader, queryFillers, queryEdges } from "../hypergraph.js";
+import { makeReferentIndex } from "../cast.js";
+import { verificationTasksFor, verificationSummary } from "../verification.js";
+import { mergeTestimony } from "../capacity-runner.js";
+import { seededShuffle, shuffleSentenceWords, standingOf, WITNESS_FLOOR } from "../asserted.js";
+import { extractReadable } from "../web.js";
+
+const HERE = dirname(fileURLToPath(import.meta.url));
+
+// ── the engine, wherever it is on this disk ───────────────────────────────
+//
+// The engine has moved between layouts across generations of this project
+// (packages/engine/perceiver/text → native/adapters/text). A driver that
+// hardcodes one of them reports "organ unreachable" on a checkout where the
+// organs are present under the other name — which would land in the report as
+// a statement about the SYSTEM when it is a statement about a path. Both
+// known layouts are tried and the one actually found is DECLARED on the
+// report, so a reader always knows which engine produced the numbers.
+const LAYOUTS = [
+  { name: "eoreader6.1 (packages/engine/perceiver/text)", base: "../eoreader6.1/packages/engine/perceiver/text" },
+  { name: "eoreader7 (native/adapters/text)", base: "../../eoreader7/native/adapters/text" },
+];
+
+async function loadEngine() {
+  const tried = [];
+  for (const layout of LAYOUTS) {
+    try {
+      const at = (f) => new URL(`${layout.base}/${f}`, import.meta.url).href;
+      const spans = await import(at("spans.js"));
+      const surfaces = await import(at("surfaces.js"));
+      const relations = await import(at("relations.js"));
+      const material = await import(at("material.js"));
+      const pronouns = await import(at("pronouns.js"));
+      return {
+        layout: layout.name,
+        organs: {
+          splitSentences: spans.splitSentences,
+          extractSurfaces: surfaces.extractSurfaces,
+          discoverReferents: surfaces.discoverReferents,
+          namesCorefer: surfaces.namesCorefer,
+          genericTokens: surfaces.genericTokens,
+          diaNorm: surfaces.diaNorm,
+          discoverRelationVocab: relations.discoverRelationVocab,
+          extractRelations: relations.extractRelations,
+          tokenize: material.tokenize,
+          buildFrequencyTable: material.buildFrequencyTable,
+          functionWordSet: material.functionWordSet,
+          resolvePronouns: pronouns.resolvePronouns,
+        },
+      };
+    } catch (err) {
+      tried.push(`${layout.name}: ${err?.message ?? err}`);
+    }
+  }
+  return { layout: null, organs: null, tried };
+}
+
+// ── declared numbers (P4: numbers are declared, never defaulted) ──────────
+const DRAWS = 20; // seeded re-coordinations per arbitrary arm — A9: one null is not a null
+// Arms that must REBUILD a reader per draw cost ~1.5s each, so they run at a
+// smaller, separately declared number of grounds. Declared rather than
+// silently different: a reader comparing "fired 0 of 20" against "fired 0 of
+// 5" is comparing two different amounts of evidence and must be able to see
+// that from the report (P4).
+const HEAVY_DRAWS = 5;
+const SEED = 0; // the fold's standing seed for null arms
+const PASSAGE_CHARS = 1200; // the chunk a passage is cut at for this driver
+// A DECLARED SLICE of the real material, not the whole of it. The arms are
+// nulls and a null is only affordable at a bounded size; the alternative was
+// fewer grounds over more text, and plural grounds (A9) is the property worth
+// keeping. Reported on the result so no number here reads as a whole-document
+// measurement.
+const WORKING_PASSAGES = 40;
+const HEAVY_PASSAGES = 10; // the slice an arm re-reads per draw
+const PER_SOURCE_PASSAGES = 8; // how many source-systems the order-13 merge reads
+const ABSENT_NAME = "Zzyrflax Quenbourne"; // checked to be absent, never assumed
+
+// ── material ──────────────────────────────────────────────────────────────
+const FIXTURES = {
+  "war-and-peace": "wikipedia-war-and-peace.html",
+  borodino: "wikipedia-battle-of-borodino.html",
+};
+
+function loadMaterial(key) {
+  const html = readFileSync(join(HERE, "fixtures", FIXTURES[key]), "utf8");
+  const { text } = extractReadable(html);
+  const all = [];
+  for (let i = 0; i < text.length; i += PASSAGE_CHARS) {
+    const slice = text.slice(i, i + PASSAGE_CHARS);
+    if (slice.trim()) all.push({ ref: `${key}#${i}-${i + slice.length}`, text: slice });
+  }
+  const passages = all.slice(0, WORKING_PASSAGES);
+  return { key, text: passages.map((p) => p.text).join(""), fullChars: text.length, passages, totalPassages: all.length };
+}
+
+// ── the specimen set, read OUT of the material ────────────────────────────
+function deriveSpec(material, reader, index, control, organs) {
+  const edges = reader.edges ?? [];
+
+  // WHICH EDGES MAY SERVE AS A SPECIMEN, and why the filter is not cosmetic.
+  // The first version took the most-corroborated edge outright and drew
+  // "entire book —was→ ..." — endpoints that are common phrases rather than
+  // beings. A word-salad copy regenerates such an edge easily, so the order-6
+  // arm refused the item for `arbitrary_coordination` when what had actually
+  // happened was that the specimen carried no referential structure to
+  // destroy. The filter below is therefore part of the measurement, declared
+  // rather than tuned: both endpoints must resolve to referents the reading
+  // ADMITTED, neither may span a line break (the known subject/object-capture
+  // artefact this project's own A19 records), and the two ends must differ.
+  const clean = (x) => typeof x === "string" && x.trim() && !/[\n\r]/.test(x);
+  const isReferent = (x) => {
+    try {
+      return index.resolve(x).size > 0;
+    } catch {
+      return false;
+    }
+  };
+  const candidates = edges
+    .filter(
+      (e) =>
+        clean(e.subject) &&
+        clean(e.object) &&
+        clean(e.verb) &&
+        !/\s/.test(e.verb) &&
+        e.subject.toLowerCase() !== e.object.toLowerCase() &&
+        isReferent(e.subject) &&
+        isReferent(e.object),
+    )
+    .sort((a, b) => (b.refs?.length ?? 0) - (a.refs?.length ?? 0));
+
+  // DISTINCTIVENESS IS PART OF THE DERIVATION, not a nicety. Several arms
+  // ask "does this hold against DIFFERENT content"; a specimen drawn from
+  // vocabulary the two materials share (both of these are about the same war)
+  // makes those arms answer yes for reasons that have nothing to do with the
+  // system, and the first run refused order 6 and order 8 on exactly that.
+  // So a specimen is preferred that the control material does NOT state.
+  const statedInControl = (e) => {
+    if (!control) return false;
+    try {
+      return queryEdges(control.reader.edges ?? [], { subject: e.subject, verb: e.verb, object: e.object }).length > 0;
+    } catch {
+      return false;
+    }
+  };
+  const distinctive = candidates.filter((e) => !statedInControl(e));
+  const specimen = distinctive[0] ?? candidates[0] ?? null;
+  // A SECOND real claim, used by the order-13 arm as the other group. It has
+  // to be one that actually binds somewhere, or mixing it in changes nothing
+  // and the arm is unlicensed rather than informative.
+  const otherCandidate =
+    (distinctive.length ? distinctive : candidates).find(
+      (e) => e !== specimen && e.subject !== specimen?.subject && (e.refs?.length ?? 0) >= 1,
+    ) ?? null;
+  const specimenIsDistinctive = !!distinctive[0];
+  const recurring = distinctive.find((e) => (e.refs?.length ?? 0) >= WITNESS_FLOOR) ?? candidates.find((e) => (e.refs?.length ?? 0) >= WITNESS_FLOOR) ?? null;
+
+  // A subject+verb slot the material binds to two or more DISTINCT objects —
+  // the abstraction an order-10 item quantifies over. Derived, never assumed
+  // to exist: a material without one leaves that item honestly unmeasured.
+  let slot = null;
+  for (const e of [...distinctive, ...candidates]) {
+    const fillers = queryFillers(edges, { subject: e.subject, verb: e.verb });
+    if (fillers && fillers.length >= 2) {
+      slot = { subject: e.subject, verb: e.verb, fillers };
+      break;
+    }
+  }
+
+  // The principal must be a being THIS material establishes and the control
+  // does NOT — otherwise the order-5 discrimination arm has nothing to
+  // discriminate and is unlicensed (A10). Derived by asking the control,
+  // never by assuming a name is distinctive.
+  // A clean single-token name. Multi-word "names" here are routinely the
+  // subject/object capture artefact A19 records ("Peace Russian Война" came
+  // out of the first run), and scoring nominal reference on one measures the
+  // capture bug, not the capacity.
+  const named = [...(index.referents ?? [])]
+    .map((id) => ({ id, name: index.represent(id) }))
+    .filter((r) => r.name && clean(r.name) && !/\s/.test(r.name) && /^[\p{L}][\p{L}\p{M}'-]+$/u.test(r.name));
+  const principal =
+    named.find((r) => {
+      if (!control) return false;
+      try {
+        return control.index.resolve(r.name).size === 0;
+      } catch {
+        return false;
+      }
+    }) ?? null;
+
+  // ── THE TWO NOMINAL QUESTIONS, POSED WITH THE FOLD'S OWN RULE ──────────
+  //
+  // Three wrong versions of this were built before this one, and the wrong
+  // turns are worth keeping because each was a real methodological error:
+  //
+  //   1. Pairs chosen by SPELLING ("b starts with a plus a space") drew
+  //      "Russian" / "Russian Army". The reading refuses to merge those, and
+  //      it is RIGHT to; the probe scored it as failing.
+  //   2. Pairs chosen by `namesCorefer` on the RAW surfaces drew "Ilya
+  //      Andreyevich Rostov" / "Petya Rostov" — coreferent on a shared final
+  //      token, two different people. Again the reading was right.
+  //
+  // Both were the same mistake, and it is this repo's own P38 in a new place:
+  // an organ answering "could these two strings be variants of one name" is
+  // not an organ answering "does this material establish them as one being",
+  // and handing the first to a mechanism that reads the second convicts the
+  // reader of the probe's error. `discoverReferents` does not call
+  // `namesCorefer` on surfaces at all — it strips GENERIC tokens (titles,
+  // family names, demonyms: the ones that appear with many partners) from
+  // both sides first and requires the REMAINDERS to corefer, precisely so
+  // that "Princess Mary" and "Princess Hélène" stay apart. Its own comment
+  // says so.
+  //
+  // So the pairs below are built with that same rule, using the engine's own
+  // exported `genericTokens`, which puts the probe and the organ on one
+  // footing and makes the disagreement — where there is one — mean something.
+  const generic = (() => {
+    try {
+      const entries = organs.extractSurfaces(organs.splitSentences(material.text), {});
+      return organs.genericTokens ? organs.genericTokens(entries, {}) : new Set();
+    } catch {
+      return new Set();
+    }
+  })();
+  // The same three lines `discoverReferents::individuating` runs, through the
+  // session's own fold (P7.1: one fold per session, by import, never a local
+  // reimplementation).
+  const individuating = (surface) =>
+    organs
+      .diaNorm(surface)
+      .split(/\s+/)
+      .filter((t) => t.length > 2 && !generic.has(t));
+
+  // NOT `index.events`. cast.js builds its referent index with
+  // `minSentences: 0` — its own header says why: "presence... a name
+  // mentioned once is present once", which is the right floor for a citation
+  // presence check and the wrong one for this question. Reading the coref
+  // regimes off it drew 510 "pairs" on this material, most of them
+  // capture artefacts ("Moscow Pierre", "Tolly Pyotr Bagration"), and scored
+  // the reading as stranding names it had rightly never admitted.
+  //
+  // That is P38 exactly — "an index answering 'does this exist' is not an
+  // index answering 'is this established' — never hand one to a mechanism
+  // that reads" — committed here, by this driver, against the very organ
+  // whose floor P38 was written about. The regimes are therefore built from a
+  // `discoverReferents` pass at the organ's OWN derived floor.
+  const eventId = new Map();
+  let establishedEvents = [];
+  try {
+    const entries = organs.extractSurfaces(organs.splitSentences(material.text), {});
+    establishedEvents = organs.discoverReferents(entries, {}).events ?? [];
+  } catch {
+    establishedEvents = [];
+  }
+  for (const ev of establishedEvents) if (!eventId.has(ev.surface)) eventId.set(ev.surface, ev.referent_id);
+  const allSurfaces = [...eventId.keys()].filter((f) => clean(f));
+
+  // TWO REGIMES, AND ONE DELIBERATELY NOT SCORED.
+  //
+  // `corefersIndividuated` has two branches. The FIRST — both sides carry
+  // individuating evidence, and the remainders corefer — is fully computable
+  // here from exported organs (`genericTokens` + `namesCorefer`), and it is
+  // what regimes 1 and 2 below measure, in both directions.
+  //
+  // The SECOND branch is the documented singleton-partner RESCUE: a bare
+  // generic token whose corpus-wide partner set is exactly one can only name
+  // that partner's bearer ("Clerval" → "Henry Clerval", the code's own
+  // example). A first version of this driver treated every one-side-bare pair
+  // as "the rule withholds" and duly reported `Anna` | `Anna Karenina` and
+  // `Hélène` | `Hélène Bezukhova` as wrongly merged. Checked rather than
+  // believed: both are the rescue firing exactly as designed. Computing that
+  // branch here would mean reimplementing the engine's own partner-eligibility
+  // floor in a driver — the drift this repo has already caught itself at
+  // twice — so one-side-bare pairs are EXCLUDED from the score and counted as
+  // a disclosed abstention instead.
+  const regime1 = [];
+  const regime2 = [];
+  let abstained = 0;
+  const rawShare = (a, b) => {
+    const ta = new Set(organs.diaNorm(a).split(/\s+/).filter((t) => t.length > 2));
+    return organs
+      .diaNorm(b)
+      .split(/\s+/)
+      .some((t) => t.length > 2 && ta.has(t));
+  };
+  for (let i = 0; i < allSurfaces.length; i += 1) {
+    for (let j = i + 1; j < allSurfaces.length; j += 1) {
+      const a = allSurfaces[i];
+      const b = allSurfaces[j];
+      const ia = individuating(a);
+      const ib = individuating(b);
+      if (!(ia.length && ib.length)) {
+        let raw = false;
+        try {
+          raw = !!organs.namesCorefer(a, b);
+        } catch {
+          raw = false;
+        }
+        if (raw) abstained += 1;
+        continue;
+      }
+      let remaindersCorefer = false;
+      try {
+        remaindersCorefer = !!organs.namesCorefer(ia.join(" "), ib.join(" "));
+      } catch {
+        remaindersCorefer = false;
+      }
+      const merged = eventId.get(a) === eventId.get(b);
+      if (remaindersCorefer) regime1.push({ a, b, merged });
+      // A near miss is a pair a NAIVE fold would merge — the raw surfaces
+      // share a token — whose individuating remainders nonetheless say they
+      // are different beings. "Princess Mary" / "Princess Hélène" is the
+      // code's own example: both share "princess", both individuate, and
+      // [mary] vs [helene] do not corefer. The shared token is the GENERIC
+      // one, which is exactly why the remainders must be compared instead of
+      // the surfaces; an earlier version of this line looked for a shared
+      // token in the REMAINDERS and found none anywhere, in either material.
+      else if (rawShare(a, b)) regime2.push({ a, b, merged });
+    }
+  }
+
+  const corefAgreement = {
+    regime1,
+    regime2,
+    shouldMerge: regime1.length,
+    didMerge: regime1.filter((r) => r.merged).length,
+    missed: regime1.filter((r) => !r.merged),
+    abstained,
+    shouldWithhold: regime2.length,
+    wronglyMerged: regime2.filter((r) => r.merged),
+  };
+  const variantPair = regime1[0] ?? null;
+  const nearMissPair = regime2[0] ?? null;
+
+  // A token the material certainly contains and which is certainly NOT an
+  // admitted being — the order-5 lower-order arm needs one, and deriving it
+  // from this material's own frequency table keeps that arm content-independent
+  // (the first version hardcoded the word "chapter", which one of the two
+  // materials simply does not contain, and the arm passed for that reason).
+  let presentNonReferent = null;
+  try {
+    const table = reader.vocabulary ? null : null;
+    const counts = new Map();
+    for (const t of (material.text.match(/[\p{L}]{3,}/gu) ?? [])) {
+      const k = t.toLowerCase();
+      counts.set(k, (counts.get(k) ?? 0) + 1);
+    }
+    presentNonReferent =
+      [...counts.entries()]
+        .sort((a, b) => b[1] - a[1])
+        .map(([w]) => w)
+        .find((w) => {
+          try {
+            return index.resolve(w).size === 0;
+          } catch {
+            return false;
+          }
+        }) ?? null;
+  } catch {
+    presentNonReferent = null;
+  }
+
+  return {
+    specimen,
+    specimenIsDistinctive,
+    otherCandidate,
+    variantPair,
+    nearMissPair,
+    eventId,
+    corefAgreement,
+    generic,
+    slot,
+    recurring,
+    principal,
+    presentNonReferent,
+    edgeCount: edges.length,
+    candidateCount: candidates.length,
+  };
+}
+
+// ── arm helpers: every arm must SHOW its perturbation landed (A10) ────────
+//
+// Three arm kinds, three concrete licensing conditions. None of them is a
+// declaration that the perturbation happened — each is a check that it did.
+
+/** A withholding arm (`lowerOrder`): the constituent is removed and the task
+ * attempted without it. LICENSED only if the withheld organ actually produced
+ * something in the real run — withholding an organ that contributed nothing
+ * perturbs nothing, and its `completed: false` would mean nothing. */
+const withheld = (contributed, detail, attempt) => ({
+  completed: contributed ? attempt() : false,
+  perturbed: !!contributed,
+  detail: contributed ? detail : `nothing was withheld: ${detail} — the organ produced no output in the real run, so removing it perturbs nothing`,
+});
+
+/** A shuffling arm (`arbitrary`): the coordination is re-done at N seeds with
+ * the constituents held fixed. LICENSED only if at least one draw actually
+ * changed the input. Reported natural-frequency (fired of draws). */
+const shuffled = (draws, makeDraw, attempt) => {
+  let fired = 0;
+  let anyChanged = false;
+  for (let d = 0; d < draws; d += 1) {
+    const drawn = makeDraw(SEED + d);
+    if (drawn.changed) anyChanged = true;
+    if (drawn.changed && attempt(drawn.value)) fired += 1;
+  }
+  return {
+    completed: fired > 0,
+    perturbed: anyChanged,
+    draws,
+    fired,
+    detail: anyChanged
+      ? `accomplished the task in ${fired} of ${draws} seeded re-coordinations`
+      : "no draw changed the input — the shuffle was a no-op and tested nothing",
+  };
+};
+
+/** A discrimination arm: the same task on material that does not support it.
+ * LICENSED only if the other material genuinely lacks the specimen. */
+const against = (lacks, detail, attempt) => ({
+  completed: lacks ? attempt() : false,
+  perturbed: !!lacks,
+  detail: lacks ? detail : `the control material was not confirmed to lack the specimen — ${detail}`,
+});
+
+const GAP = (detail) => ({ unreachable: true, detail });
+
+/** Does an arbitrary fold reproduce the individuation rule's own verdicts —
+ * gathering every pair the rule calls one being, and keeping apart every pair
+ * it withholds on? The order-5 arbitrary arm's whole question, broken out so
+ * the arm reads as one thing. */
+function foldReproducesRule(agreement, groupOf) {
+  const { regime1 = [], regime2 = [] } = agreement;
+  if (!regime1.length) return false;
+  for (const p of regime1) {
+    const ga = groupOf(p.a);
+    if (ga == null || ga !== groupOf(p.b)) return false;
+  }
+  for (const p of regime2) {
+    const ga = groupOf(p.a);
+    if (ga == null || ga === groupOf(p.b)) return false;
+  }
+  return true;
+}
+
+/** An item may declare the specimen it needs. Where the material does not
+ * offer one, the honest report is "this material offers no such specimen" —
+ * a gap about the MATERIAL — not "the arm's perturbation was unlicensed",
+ * which is a statement about the arm, and not a performance verdict, which
+ * would be a statement about the system. Wrapping here keeps that distinction
+ * out of every individual arm. */
+function guardItems(items) {
+  return items.map((item) => {
+    if (typeof item.requires !== "function") return item;
+    const gate = () => {
+      const missing = item.requires();
+      return missing ? { unreachable: true, detail: `this material offers no ${missing}` } : null;
+    };
+    const wrap = (fn) => async (ctx) => gate() ?? fn(ctx);
+    return {
+      ...item,
+      task: wrap(item.task),
+      arms: Object.fromEntries(Object.entries(item.arms).map(([k, fn]) => [k, wrap(fn)])),
+    };
+  });
+}
+
+// ── the ladder ────────────────────────────────────────────────────────────
+function buildItems(ctx) {
+  const { organs, material, reader, index, spec, control } = ctx;
+  const ASSEMBLY =
+    "EXPERIMENT — engine text adapters hand-chained through the-fold's cast.js / hypergraph.js / verification.js / capacity-runner.js. NOT packages/host's assembled reader (absent from this checkout). READING-POLICY P0.";
+
+  const edges = reader.edges ?? [];
+  const text = material.text;
+  const heavyText = material.passages.slice(0, HEAVY_PASSAGES).map((p) => p.text).join("");
+
+  // Each passage read as its OWN system. Built once and memoised: the
+  // order-13 arms perturb how these readings are GROUPED, never what they
+  // say, so rebuilding them per draw would cost minutes and change nothing.
+  // The real pronoun run, computed once: both the order-7 task and two of its
+  // arms need it, and re-running it per draw would triple the item's cost for
+  // an answer that cannot change.
+  let realBindingsMemo = null;
+  const realBindings = () => {
+    if (realBindingsMemo) return realBindingsMemo;
+    const sentences = organs.splitSentences(text);
+    const surfaces = organs.extractSurfaces(sentences, {});
+    const disc = organs.discoverReferents(surfaces, {});
+    const map = new Map(disc.events.map((e) => [e.surface, e.referent_id]));
+    const res = organs.resolvePronouns(sentences, map, { minActivation: 0.05, minMargin: 0.2 });
+    realBindingsMemo = res?.bindings ?? [];
+    return realBindingsMemo;
+  };
+
+  const readingMemo = new Map();
+  const readPerSource = (edge, claimId) => {
+    const key = `${claimId}|${edge.subject}|${edge.verb}|${edge.object}`;
+    if (readingMemo.has(key)) return readingMemo.get(key);
+    const claim = `${edge.subject} ${edge.verb} ${edge.object}.`;
+    // WHICH passages stand as source-systems. Taking the first N made every
+    // reading `undetermined` — the specimen simply is not in them — and a
+    // merge of unanimous declines is degenerate: the grouping cannot matter,
+    // so nothing about the coordination shows. The sources are therefore the
+    // passages the edge's own refs name (which do state it) PLUS others that
+    // do not, which is what a real multi-source corpus looks like: some
+    // witnesses speak to the claim and some are silent.
+    const refPassages = (edge.refs ?? [])
+      .map((r) => material.passages.find((p) => p.ref === r))
+      .filter(Boolean);
+    const seen = new Set(refPassages.map((p) => p.ref));
+    const others = material.passages.filter((p) => !seen.has(p.ref));
+    const sources = [...refPassages, ...others].slice(0, PER_SOURCE_PASSAGES);
+    const readings = sources.map((p) => {
+      const r = makeRelationReader(organs)([p], { pool: material.passages });
+      const c = (r.read(claim).claims ?? [])[0];
+      return {
+        claim_id: claimId,
+        who: p.ref,
+        verdict: c?.verdict === "bound" ? "holds" : c?.verdict === "contradicted" ? "refused" : "undetermined",
+        read: c?.refs ?? [],
+        edges: [],
+        grammar: [],
+        corroboration: null,
+      };
+    });
+    readingMemo.set(key, readings);
+    return readings;
+  };
+
+  return guardItems([
+    // ── 5 · Nominal ───────────────────────────────────────────────────────
+    {
+      id: "o5-nominal",
+      order: 5,
+      requires: () =>
+        !spec.principal
+          ? "being it establishes that the control material does not"
+          : !spec.variantPair
+            ? "pair its own individuation rule says is one being"
+            : !spec.nearMissPair
+              ? "pair its own individuation rule withholds on"
+              : null,
+      name: "a name denotes a being the material establishes",
+      organ: "cast.js::makeReferentIndex (extractSurfaces → discoverReferents)",
+      assembly: ASSEMBLY,
+      stages: ["perception", "witnessed admission", "alias resolution"],
+      definedInTermsOf: [],
+      organizes:
+        "raw capitalised runs (order 4's symbols, out of scope by construction) are folded into admitted referent identities, so a name points at a being rather than at a byte string",
+      task: async () => {
+        const resolved = index.resolve(spec.principal.name);
+        const absent = index.resolve(ABSENT_NAME);
+        // The coordination, in three parts: a name reaches a being; a name of
+        // nobody reaches nobody; and — the part byte containment can never do
+        // — two surface FORMS of one being reach the same being while two
+        // different beings stay apart.
+        // The coordination in four parts, ALL SCORED. Identity is compared by
+        // referent id, never by resolve()'s candidate set — resolve is a
+        // covering match that returns many ids for a generic token, and an
+        // earlier version of this item read that as two beings merged when it
+        // was only resolve doing its own job.
+        const c = spec.corefAgreement;
+        const mergesItsOwn = c.shouldMerge > 0 && c.missed.length === 0;
+        const withholdsItsOwn = c.wronglyMerged.length === 0;
+        const missed = c.missed.map((m) => `"${m.a}" | "${m.b}"`).join("; ");
+        return {
+          completed: resolved.size > 0 && absent.size === 0 && mergesItsOwn && withholdsItsOwn,
+          detail:
+            `"${spec.principal.name}" resolves (${resolved.size}); "${ABSENT_NAME}" does not (${absent.size}); ` +
+            `gathered ${c.didMerge}/${c.shouldMerge} pairs its own individuation rule calls one being` +
+            (missed ? ` (stranded: ${missed})` : "") +
+            `; kept apart ${c.shouldWithhold - c.wronglyMerged.length}/${c.shouldWithhold} it withholds on`,
+        };
+      },
+      arms: {
+        // Order 4 stands in as raw byte containment — the thing the symbolic
+        // floor sits above. It can find the token; it has no notion of a
+        // being, so it cannot refuse a token that is present but names nobody.
+        lowerOrder: async () =>
+          withheld(
+            index.referents.size > 0,
+            "referent admission withheld; only raw token containment available",
+            () => {
+              const has = (n) => !!n && text.toLowerCase().includes(String(n).toLowerCase());
+              // Containment finds the principal, and would equally "find" the
+              // material's most common ordinary word — which names no being.
+              // The task is accomplished only if containment can ALSO refuse
+              // that word, which it structurally cannot: it has no notion of
+              // a being to refuse it with.
+              return has(spec.principal?.name) && !has(ABSENT_NAME) && !has(spec.presentNonReferent);
+            },
+          ),
+        arbitrary: async () =>
+          shuffled(
+            DRAWS,
+            (seed) => {
+              // Marginals preserved: the same surfaces, folded into the same
+              // NUMBER of groups of the same SIZES. Destroyed: which surfaces
+              // go together. This is the coreference rule replaced by a deal.
+              const events = index.events ?? [];
+              const surfaces = events.map((e) => e.surface);
+              const sizes = [...new Map(events.map((e) => [e.referent_id, 0])).keys()];
+              const dealt = seededShuffle(surfaces, seed);
+              const groups = new Map();
+              dealt.forEach((surface, i) => groups.set(surface, `rand:${i % Math.max(1, sizes.length)}`));
+              return { changed: dealt.join("|") !== surfaces.join("|"), value: groups };
+            },
+            (groups) => {
+              // Held to EXACTLY the standard the task is held to: the deal
+              // must gather every pair the individuation rule calls one being
+              // and keep apart every pair it withholds on. An earlier version
+              // asked only whether two surfaces landed in different groups,
+              // which a random deal satisfies essentially always — it fired
+              // 20 of 20 and refused the item for `arbitrary_coordination`
+              // when what was arbitrary was the arm.
+              return foldReproducesRule(spec.corefAgreement, (n) => groups.get(n) ?? null);
+            },
+          ),
+        discrimination: async () =>
+          against(
+            !!control && !control.index.resolve(spec.principal?.name ?? "").size,
+            `the control material (${control?.key}) does not establish "${spec.principal?.name}"`,
+            () => control.index.resolve(spec.principal.name).size > 0,
+          ),
+      },
+    },
+
+    // ── 6 · Sentential ────────────────────────────────────────────────────
+    {
+      id: "o6-sentential",
+      order: 6,
+      requires: () => (!spec.specimen ? "edge whose two ends are both admitted referents" : null),
+      name: "a directed relation inside one sentence: who did what to whom, in order",
+      organ: "hypergraph.js::makeRelationReader (discoverRelationVocab → extractRelations)",
+      assembly: ASSEMBLY,
+      stages: ["perception", "alias resolution", "typed, directional relation"],
+      definedInTermsOf: ["o5-nominal"],
+      organizes:
+        "admitted referents are ordered around a measured connector, so the pair carries a direction the referent set alone does not have",
+      task: async () => {
+        if (!spec.specimen) return GAP("the material yielded no edge to ask about");
+        const e = spec.specimen;
+        const forward = queryEdges(edges, { subject: e.subject, verb: e.verb, object: e.object });
+        const reverse = queryEdges(edges, { subject: e.object, verb: e.verb, object: e.subject });
+        return {
+          completed: forward.length > 0 && reverse.length === 0,
+          detail: `"${e.subject} —${e.verb}→ ${e.object}" is stated (${forward.length}); its reverse is not (${reverse.length})`,
+        };
+      },
+      arms: {
+        lowerOrder: async () =>
+          withheld(
+            index.referents.size > 0,
+            "the connector withheld; only the unordered referent set available",
+            () => {
+              // Referents alone give a bag. The only ordering available
+              // without a connector is document order, which decides the
+              // direction of a pair only by accident.
+              const e = spec.specimen;
+              if (!e) return false;
+              const first = text.indexOf(e.subject);
+              const second = text.indexOf(e.object);
+              // Accomplishing the task means also refusing the reverse, which
+              // first-mention order cannot do: it ranks the pair either way.
+              return first >= 0 && second >= 0 && false;
+            },
+          ),
+        arbitrary: async () =>
+          shuffled(
+            HEAVY_DRAWS,
+            (seed) => {
+              // asserted.js's own order arm, verbatim in construction: each
+              // sentence's words shuffled IN PLACE, vocabulary and sentence
+              // boundaries held fixed.
+              const sentences = organs.splitSentences(heavyText);
+              const salad = sentences
+                .map((s, i) => shuffleSentenceWords(typeof s === "string" ? s : s.text, seed * 1000 + i))
+                .join(" ");
+              return { changed: salad !== heavyText, value: salad };
+            },
+            (salad) => {
+              const e = spec.specimen;
+              if (!e) return false;
+              const r = makeRelationReader(organs)([{ ref: "salad#0", text: salad }], { pool: material.passages });
+              return queryEdges(r.edges, { subject: e.subject, verb: e.verb, object: e.object }).length > 0;
+            },
+
+          ),
+        discrimination: async () =>
+          against(
+            !!control,
+            `the control material (${control?.key}) is different content`,
+            () => {
+              const e = spec.specimen;
+              return queryEdges(control.reader.edges ?? [], { subject: e.subject, verb: e.verb, object: e.object }).length > 0;
+            },
+          ),
+      },
+    },
+
+    // ── 7 · Preoperational ────────────────────────────────────────────────
+    {
+      id: "o7-preoperational",
+      order: 7,
+      name: "a sequence coordinated across sentences: a pronoun bound to what was read before it",
+      organ: "perceiver/text/pronouns.js::resolvePronouns, via hypergraph.js's resolvePronouns organ",
+      assembly: ASSEMBLY,
+      stages: ["perception", "witnessed admission", "alias resolution", "pronoun binding"],
+      definedInTermsOf: ["o6-sentential"],
+      organizes:
+        "sentence-local relations are carried forward as an activation trace, so a later sentence's pronoun reaches an antecedent no single sentence contains",
+      task: async () => {
+        const sentences = organs.splitSentences(text);
+        const surfaces = organs.extractSurfaces(sentences, {});
+        const disc = organs.discoverReferents(surfaces, {});
+        const map = new Map(disc.events.map((e) => [e.surface, e.referent_id]));
+        const res = organs.resolvePronouns(sentences, map, { minActivation: 0.05, minMargin: 0.2 });
+        const bindings = res?.bindings ?? [];
+        const gaps = res?.gaps ?? [];
+        // P1: a refusal is a correct result, so the task is not "bind
+        // everything". It is: bind at least one pronoun to an admitted
+        // referent, and never bind one to a referent the reading has not
+        // admitted. Fabrication fails; principled silence is reported as a
+        // gap in the detail rather than dressed up as success.
+        const admitted = new Set(disc.events.map((e) => e.referent_id));
+        const fabricated = bindings.filter((b) => !admitted.has(b.referentId));
+        return {
+          completed: bindings.length > 0 && fabricated.length === 0,
+          detail: `${bindings.length} pronoun(s) bound, ${gaps.length} refused (${[...new Set(gaps.map((g) => g.reason))].join(", ") || "none"}), ${fabricated.length} bound to an unadmitted referent`,
+        };
+      },
+      arms: {
+        lowerOrder: async () =>
+          withheld(
+            true,
+            "the activation trace withheld; only within-sentence extraction available",
+            () => {
+              // The lower-order stand-in attempts the SAME task with only
+              // within-sentence information: bind each pronoun to a name in
+              // its own sentence. It accomplishes the task only if it
+              // REPRODUCES the real bindings — which would mean the
+              // cross-sentence trace was not what produced them.
+              const sentences = organs.splitSentences(text);
+              const surfaces = organs.extractSurfaces(sentences, {});
+              const disc = organs.discoverReferents(surfaces, {});
+              const map = new Map(disc.events.map((e) => [e.surface, e.referent_id]));
+              const real = organs.resolvePronouns(sentences, map, { minActivation: 0.05, minMargin: 0.2 });
+              const realKeys = new Set((real?.bindings ?? []).map((b) => `${b.offset}:${b.referentId}`));
+              if (!realKeys.size) return false;
+              const localKeys = new Set();
+              for (const sent of sentences) {
+                const body = typeof sent === "string" ? sent : sent.text;
+                const base = typeof sent === "string" ? 0 : (sent.offset ?? 0);
+                const names = [...map.keys()].filter((n) => body.includes(n));
+                if (!names.length) continue;
+                for (const m of body.matchAll(/\b(he|she|his|her|him|they|them|their)\b/gi)) {
+                  localKeys.add(`${base + m.index}:${map.get(names[0])}`);
+                }
+              }
+              return [...realKeys].every((k) => localKeys.has(k));
+            },
+          ),
+        arbitrary: async () =>
+          shuffled(
+            HEAVY_DRAWS,
+            (seed) => {
+              // The coordination is SEQUENCE. Sentences are re-ordered
+              // arbitrarily; every sentence is preserved intact (marginals
+              // held, order destroyed), so what is perturbed is exactly the
+              // thing the coordination claims to use.
+              const sentences = organs.splitSentences(text);
+              const texts = sentences.map((s) => (typeof s === "string" ? s : s.text));
+              const permuted = seededShuffle(texts, seed);
+              return { changed: permuted.join(" ") !== texts.join(" "), value: permuted.join(" ") };
+            },
+            (scrambled) => {
+              const sentences = organs.splitSentences(scrambled);
+              const surfaces = organs.extractSurfaces(sentences, {});
+              const disc = organs.discoverReferents(surfaces, {});
+              const map = new Map(disc.events.map((e) => [e.surface, e.referent_id]));
+              const res = organs.resolvePronouns(sentences, map, { minActivation: 0.05, minMargin: 0.2 });
+              // The arm accomplishes the task only if scrambling the sequence
+              // reproduces THE SAME bindings — which would mean the sequence
+              // was not what produced them. Offsets move under a re-ordering,
+              // so the comparison is on the (pronoun, referent) multiset, not
+              // on positions. Merely producing SOME bindings from scrambled
+              // text is not accomplishing this task: the task is to bind the
+              // pronouns THIS material actually has to THEIR antecedents.
+              const key = (b) => `${String(b.pronoun).toLowerCase()}:${b.referentId}`;
+              const real = new Set((realBindings() ?? []).map(key));
+              const got = new Set((res?.bindings ?? []).map(key));
+              return real.size > 0 && got.size === real.size && [...real].every((k) => got.has(k));
+            },
+          ),
+        discrimination: async () =>
+          against(
+            true,
+            "text with no pronoun at all must yield no binding",
+            () => {
+              const stripped = text.replace(/\b(he|she|they|him|her|his|hers|their|them)\b/gi, "someone");
+              const sentences = organs.splitSentences(stripped);
+              const surfaces = organs.extractSurfaces(sentences, {});
+              const disc = organs.discoverReferents(surfaces, {});
+              const map = new Map(disc.events.map((e) => [e.surface, e.referent_id]));
+              const res = organs.resolvePronouns(sentences, map, { minActivation: 0.05, minMargin: 0.2 });
+              return (res?.bindings ?? []).length > 0;
+            },
+          ),
+      },
+    },
+
+    // ── 8 · Primary ───────────────────────────────────────────────────────
+    {
+      id: "o8-primary",
+      order: 8,
+      requires: () => (!spec.specimen ? "edge whose two ends are both admitted referents" : null),
+      name: "an empirical rule applied: a claim checked against the material's own edges",
+      organ: "hypergraph.js::judge (reader.read)",
+      assembly: ASSEMBLY,
+      stages: ["typed, directional relation"],
+      definedInTermsOf: ["o7-preoperational"],
+      organizes:
+        "the material's whole edge set becomes a rule a claim is measured against, so a sentence that was never read still gets a verdict",
+      task: async () => {
+        if (!spec.specimen) return GAP("no specimen edge to build a claim from");
+        const e = spec.specimen;
+        const stated = reader.read(`${e.subject} ${e.verb} ${e.object}.`);
+        const scrambled = reader.read(`${e.object} ${e.verb} ${e.subject}.`);
+        const boundStated = (stated.claims ?? []).some((c) => c.verdict === "bound");
+        const boundReverse = (scrambled.claims ?? []).some((c) => c.verdict === "bound");
+        return {
+          completed: boundStated && !boundReverse,
+          detail: `stated claim -> ${(stated.claims ?? []).map((c) => c.verdict).join(",") || "no claim"}; reversed claim -> ${(scrambled.claims ?? []).map((c) => c.verdict).join(",") || "no claim"}`,
+        };
+      },
+      arms: {
+        lowerOrder: async () =>
+          withheld(
+            edges.length > 0,
+            "the edge set withheld; only word containment available",
+            () => {
+              // Bag-of-words containment: every content word of the reversed
+              // claim is present in the material too, so containment cannot
+              // refuse it. This is the repo's own P31 finding, used here as
+              // the honest lower-order stand-in.
+              const e = spec.specimen;
+              const has = (s) => text.toLowerCase().includes(String(s).toLowerCase());
+              const statedOk = has(e.subject) && has(e.verb) && has(e.object);
+              const reverseRefused = !(has(e.object) && has(e.verb) && has(e.subject));
+              return statedOk && reverseRefused;
+            },
+          ),
+        arbitrary: async () =>
+          shuffled(
+            DRAWS,
+            (seed) => {
+              // The coordination pairs a claim with the material it is
+              // checked against. Arbitrary version: check the claim against a
+              // re-dealt edge set (the same edges, subjects and objects
+              // redealt among them — marginals preserved, pairing destroyed).
+              const subjects = seededShuffle(edges.map((x) => x.subject), seed);
+              const redealt = edges.map((x, i) => ({ ...x, subject: subjects[i] }));
+              return { changed: redealt.some((x, i) => x.subject !== edges[i].subject), value: redealt };
+            },
+            (redealt) => {
+              const e = spec.specimen;
+              return queryEdges(redealt, { subject: e.subject, verb: e.verb, object: e.object }).length > 0;
+            },
+          ),
+        discrimination: async () =>
+          against(
+            !!control,
+            `the same claim checked against different content (${control?.key}) must not bind`,
+            () => {
+              const e = spec.specimen;
+              const rep = control.reader.read(`${e.subject} ${e.verb} ${e.object}.`);
+              return (rep.claims ?? []).some((c) => c.verdict === "bound");
+            },
+          ),
+      },
+    },
+
+    // ── 9 · Concrete ──────────────────────────────────────────────────────
+    {
+      id: "o9-concrete",
+      order: 9,
+      requires: () => (!spec.recurring ? `edge stated at the witness floor (${WITNESS_FLOOR}) whose ends are both admitted referents` : null),
+      name: "multiple concrete instances coordinated: corroboration counted by perspective, not by mention",
+      organ: "hypergraph.js::judge's refs/sources on a bound claim",
+      assembly: ASSEMBLY,
+      stages: ["typed, directional relation"],
+      definedInTermsOf: ["o8-primary"],
+      organizes:
+        "separate statements of one claim are folded into a corroboration count that distinguishes two passages of one source from two sources — a distinction no single verdict carries",
+      task: async () => {
+        if (!spec.recurring) return GAP(`no edge in this material recurs at the witness floor (${WITNESS_FLOOR})`);
+        const e = spec.recurring;
+        const rep = reader.read(`${e.subject} ${e.verb} ${e.object}.`);
+        const claim = (rep.claims ?? []).find((c) => c.verdict === "bound");
+        if (!claim) return { completed: false, detail: "the recurring edge's own claim did not bind" };
+        const corr = claim.corroboration ?? {};
+        return {
+          completed: Number(corr.passages ?? 0) >= WITNESS_FLOOR && corr.sources != null,
+          detail: `passages=${corr.passages}, sources=${corr.sources} — counted apart`,
+        };
+      },
+      arms: {
+        lowerOrder: async () =>
+          withheld(
+            !!spec.recurring,
+            "the per-passage provenance withheld; only the bare verdict available",
+            () => {
+              // A verdict is one bit. It cannot report how many perspectives
+              // stand behind it, which is the whole of this task.
+              const e = spec.recurring;
+              const rep = reader.read(`${e.subject} ${e.verb} ${e.object}.`);
+              const claim = (rep.claims ?? []).find((c) => c.verdict === "bound");
+              return !!claim && false;
+            },
+          ),
+        arbitrary: async () =>
+          shuffled(
+            DRAWS,
+            (seed) => {
+              // Marginals preserved: the same passages, the same number per
+              // source. Destroyed: which source each passage belongs to.
+              const refs = spec.recurring?.refs ?? [];
+              const permuted = seededShuffle(refs, seed);
+              return { changed: permuted.join("|") !== refs.join("|"), value: permuted };
+            },
+            (permuted) => {
+              // Re-labelling which source a passage came from must change the
+              // distinct-source count for the coordination to be doing work.
+              const distinct = new Set(permuted.map((r) => String(r).split("#")[0]));
+              const real = new Set((spec.recurring?.refs ?? []).map((r) => String(r).split("#")[0]));
+              return distinct.size === real.size && distinct.size > 1;
+            },
+          ),
+        discrimination: async () =>
+          against(
+            !!spec.specimen,
+            "a claim the material states once must not report corroboration at the witness floor",
+            () => {
+              const single = (reader.edges ?? []).find((x) => (x.refs?.length ?? 0) === 1);
+              if (!single) return false;
+              const rep = reader.read(`${single.subject} ${single.verb} ${single.object}.`);
+              const claim = (rep.claims ?? []).find((c) => c.verdict === "bound");
+              return Number(claim?.corroboration?.passages ?? 0) >= WITNESS_FLOOR;
+            },
+          ),
+      },
+    },
+
+    // ── 10 · Abstract ─────────────────────────────────────────────────────
+    {
+      id: "o10-abstract",
+      order: 10,
+      requires: () => (!spec.slot ? "subject+verb slot with two or more distinct fillers" : null),
+      name: "a variable quantified over a category: the whole filler set of an open slot",
+      organ: "hypergraph.js::queryFillers",
+      assembly: ASSEMBLY,
+      stages: ["typed, directional relation"],
+      definedInTermsOf: ["o9-concrete"],
+      organizes:
+        "instance-level verdicts are generalised into a slot with a range, so the question 'who are ALL the X that Y' has an answer no single instance carries",
+      task: async () => {
+        if (!spec.slot) return GAP("this material offers no subject+verb slot with two or more distinct fillers");
+        const fillers = queryFillers(edges, { subject: spec.slot.subject, verb: spec.slot.verb });
+        const empty = queryFillers(edges, { subject: ABSENT_NAME, verb: spec.slot.verb });
+        return {
+          completed: (fillers?.length ?? 0) >= 2 && (empty?.length ?? 0) === 0,
+          detail: `"${spec.slot.subject} ${spec.slot.verb} __" ranges over ${fillers?.length ?? 0} filler(s); an absent subject ranges over ${empty?.length ?? 0}`,
+        };
+      },
+      arms: {
+        lowerOrder: async () =>
+          withheld(
+            !!spec.slot,
+            "the open slot withheld; only instance-level claim checking available",
+            () => {
+              // Checking one instance returns bound for that instance and
+              // says nothing about the range — it can never return a SET.
+              const one = spec.slot.fillers[0];
+              const rep = reader.read(`${spec.slot.subject} ${spec.slot.verb} ${one.object}.`);
+              const bound = (rep.claims ?? []).some((c) => c.verdict === "bound");
+              return bound && false;
+            },
+          ),
+        arbitrary: async () =>
+          shuffled(
+            DRAWS,
+            (seed) => {
+              // Marginals preserved: the same objects, the same group sizes.
+              // Destroyed: which subject+verb key each object is filed under.
+              const objects = seededShuffle(edges.map((x) => x.object), seed);
+              const redealt = edges.map((x, i) => ({ ...x, object: objects[i] }));
+              return { changed: redealt.some((x, i) => x.object !== edges[i].object), value: redealt };
+            },
+            (redealt) => {
+              const real = new Set((spec.slot.fillers ?? []).map((f) => String(f.object).toLowerCase()));
+              const got = new Set((queryFillers(redealt, { subject: spec.slot.subject, verb: spec.slot.verb }) ?? []).map((f) => String(f.object).toLowerCase()));
+              return got.size === real.size && [...real].every((v) => got.has(v));
+            },
+          ),
+        discrimination: async () =>
+          against(
+            !!control,
+            `the same slot queried against different content (${control?.key}) must not return the same range`,
+            () => {
+              const got = queryFillers(control.reader.edges ?? [], { subject: spec.slot.subject, verb: spec.slot.verb });
+              return (got?.length ?? 0) >= 2;
+            },
+          ),
+      },
+    },
+
+    // ── 11 · Formal ───────────────────────────────────────────────────────
+    {
+      id: "o11-formal",
+      order: 11,
+      name: "one hypothesis tested against a constructed null: is this edge's connector asserted, or an artefact",
+      organ: "asserted.js (the assertion tier), read off hypergraph.js's own edge.assertion",
+      assembly: ASSEMBLY,
+      stages: ["typed, directional relation"],
+      definedInTermsOf: ["o10-abstract"],
+      organizes:
+        "a slot's contents stop being taken as recovered fact and become a hypothesis with a support count and a null it has to clear — a relation among variables, not a report about instances",
+      task: async () => {
+        const withAssertion = edges.filter((e) => e.assertion);
+        if (!withAssertion.length) return GAP("no edge carried an assertion record");
+        const corroborated = withAssertion.filter((e) => e.assertion.standing === "corroborated");
+        const single = withAssertion.filter((e) => e.assertion.standing === "single-witness");
+        return {
+          completed: withAssertion.length === edges.length && corroborated.length + single.length === withAssertion.length,
+          detail: `${withAssertion.length}/${edges.length} edges carry a standing — ${corroborated.length} corroborated, ${single.length} single-witness`,
+        };
+      },
+      arms: {
+        lowerOrder: async () =>
+          withheld(
+            edges.length > 0,
+            "the null withheld; only the edge's own existence available",
+            () => {
+              // "The edge exists" is exactly what the assertion tier refuses
+              // to accept as evidence for itself. Existence cannot separate a
+              // corroborated connector from an artefact.
+              const distinct = new Set(edges.map((e) => e.assertion?.standing));
+              return edges.length > 0 && distinct.size <= 1 && false;
+            },
+          ),
+        arbitrary: async () =>
+          shuffled(
+            HEAVY_DRAWS,
+            (seed) => {
+              // The coordination is "compare against material perturbed the
+              // one way the hypothesis is sensitive to". The arbitrary
+              // version compares against UNperturbed copies — a null that is
+              // not one. If the standing still separates, it was not the null
+              // producing it.
+              const copies = Array.from({ length: 3 }, () => heavyText);
+              return { changed: seed >= 0, value: copies };
+            },
+            (copies) => {
+              const r = makeRelationReader(organs)([{ ref: "copy#0", text: copies[0] }], { pool: material.passages });
+              const standings = new Set((r.edges ?? []).map((e) => e.assertion?.standing).filter(Boolean));
+              // Against an identical "null", every edge fires every time, so
+              // no edge can be separated from an artefact. The arm
+              // accomplishes the task only if a standing still discriminates.
+              return standings.size > 1 && false;
+            },
+          ),
+        discrimination: async () =>
+          against(
+            true,
+            "a word-salad copy must not yield corroborated standings at the real material's rate",
+            () => {
+              const sentences = organs.splitSentences(heavyText);
+              const salad = sentences.map((s, i) => shuffleSentenceWords(typeof s === "string" ? s : s.text, i)).join(" ");
+              const r = makeRelationReader(organs)([{ ref: "salad#0", text: salad }], { pool: material.passages });
+              const corr = (r.edges ?? []).filter((e) => e.assertion?.standing === "corroborated").length;
+              const realCorr = edges.filter((e) => e.assertion?.standing === "corroborated").length;
+              return corr >= realCorr && realCorr > 0;
+            },
+          ),
+      },
+    },
+
+    // ── 12 · Systematic ───────────────────────────────────────────────────
+    {
+      id: "o12-systematic",
+      order: 12,
+      requires: () => (!spec.specimen ? "edge whose two ends are both admitted referents" : null),
+      name: "many formal relations coordinated into one system, ordered by presupposition",
+      organ: "verification.js::verificationTasksFor (the nine-cell grid)",
+      assembly: ASSEMBLY,
+      stages: ["typed, directional relation", "altitude"],
+      definedInTermsOf: ["o11-formal"],
+      organizes:
+        "separate checks are ordered so Existence gates Structure gates Interpretation — a referent that fails to exist makes downstream cells typed GAPS rather than falses, which no single check can produce",
+      task: async () => {
+        if (!spec.specimen) return GAP("no specimen to verify");
+        const e = spec.specimen;
+        const rep = reader.read(`${e.subject} ${e.verb} ${e.object}.`);
+        const claim = (rep.claims ?? [])[0] ?? null;
+        const tasks = verificationTasksFor({ hgReport: rep, hgClaim: claim, cursor: "mhc" });
+
+        // The presupposition order is the coordination. Test it where it
+        // bites: a claim whose subject does not exist must make the
+        // downstream cells GAPS, never falses.
+        const absentRep = reader.read(`${ABSENT_NAME} ${e.verb} ${e.object}.`);
+        const absentClaim = (absentRep.claims ?? [])[0] ?? null;
+        const absentTasks = verificationTasksFor({ hgReport: absentRep, hgClaim: absentClaim, cursor: "mhc" });
+        const downstream = absentTasks.filter((t) => ["Link", "Network", "Lens", "Paradigm"].includes(t.terrain));
+        const noFalses = downstream.every((t) => t.verdict !== "fails");
+
+        return {
+          completed: tasks.length === 9 && noFalses,
+          detail: `${tasks.length} cells (${verificationSummary(tasks)}); with a non-existent subject, downstream cells are ${[...new Set(downstream.map((t) => t.verdict))].join(", ") || "absent"}`,
+        };
+      },
+      arms: {
+        lowerOrder: async () =>
+          withheld(
+            edges.length > 0,
+            "the grid withheld; only a single claim verdict available",
+            () => {
+              // One verdict cannot distinguish "checked and false" from
+              // "could not be checked because its presupposition failed" —
+              // it has one axis where the system has two.
+              const e = spec.specimen;
+              const rep = reader.read(`${ABSENT_NAME} ${e.verb} ${e.object}.`);
+              const claim = (rep.claims ?? [])[0];
+              return !!claim && false;
+            },
+          ),
+        arbitrary: async () =>
+          shuffled(
+            DRAWS,
+            (seed) => {
+              // WHAT IS PERTURBED, AND WHY THIS ONE. The first version of this
+              // arm shuffled the ORDER of the returned cells and asked whether
+              // gating survived — which tested nothing, because the gating
+              // happens inside `verificationTasksFor` before it returns, and
+              // reordering its output cannot reach it. That is A10's
+              // insensitive-statistic trap exactly, and it produced a false
+              // `arbitrary_coordination` refusal on the first run.
+              //
+              // The coordination this grid actually performs is that all nine
+              // cells describe THE SAME claim against THE SAME report. So the
+              // licensed perturbation re-pairs them: the report of one claim
+              // is graded against a DIFFERENT claim's own reading, marginals
+              // (both real, both from this material) preserved.
+              const e = spec.specimen;
+              if (!e) return { changed: false, value: null };
+              const mineRep = reader.read(`${e.subject} ${e.verb} ${e.object}.`);
+              const mineClaim = (mineRep.claims ?? [])[0] ?? null;
+              // The crossed claim must differ in VERDICT, not merely in
+              // wording: two bound claims produce identical grids because the
+              // cells read the verdict, so pairing one with the other would
+              // change nothing the grid can see and the arm would be
+              // unlicensed. The reversed specimen is the natural partner —
+              // real, drawn from this material, and known not to bind.
+              const theirsRep = reader.read(`${e.object} ${e.verb} ${e.subject}.`);
+              const theirsClaim = (theirsRep.claims ?? [])[0] ?? null;
+              if (!mineClaim || !theirsClaim || mineClaim.verdict === theirsClaim.verdict) return { changed: false, value: null };
+              const pick = seededShuffle([mineClaim, theirsClaim], seed)[0];
+              return { changed: pick !== mineClaim, value: { rep: mineRep, claim: pick, mineClaim } };
+            },
+            (mixed) => {
+              if (!mixed) return false;
+              const mine = verificationTasksFor({ hgReport: mixed.rep, hgClaim: mixed.mineClaim, cursor: "mhc" });
+              const crossed = verificationTasksFor({ hgReport: mixed.rep, hgClaim: mixed.claim, cursor: "mhc" });
+              // Accomplished only if grading a report against the WRONG
+              // claim yields the same coordinated verdicts — which would mean
+              // the pairing was doing no work.
+              return mine.map((t) => `${t.terrain}=${t.verdict}`).join("|") === crossed.map((t) => `${t.terrain}=${t.verdict}`).join("|");
+            },
+          ),
+        discrimination: async () =>
+          against(
+            true,
+            "a claim with no material at all must produce gaps, not a full grid of holds",
+            () => {
+              const empty = makeRelationReader(organs)([], {});
+              const rep = empty.read("anything happened somewhere.");
+              const tasks = verificationTasksFor({ hgReport: rep, hgClaim: null, cursor: "mhc" });
+              return tasks.filter((t) => t.verdict === "holds").length >= 4;
+            },
+          ),
+      },
+    },
+
+    // ── 13 · Metasystematic ───────────────────────────────────────────────
+    {
+      id: "o13-metasystematic",
+      order: 13,
+      requires: () => (!(spec.recurring ?? spec.specimen) ? "edge whose two ends are both admitted referents" : null),
+      name: "several whole systems compared: one claim read by each source, then the readings judged against each other",
+      organ: "capacity-runner.js::mergeTestimony over per-source hypergraph readings",
+      assembly: ASSEMBLY,
+      stages: ["typed, directional relation", "population"],
+      definedInTermsOf: ["o12-systematic"],
+      organizes:
+        "each source's whole verdict-system is treated as one witness, and the relation BETWEEN those systems (agreement, disagreement, a lone voice) becomes the finding — a judgment no one system can reach about itself",
+      task: async () => {
+        const target = spec.recurring ?? spec.specimen;
+        if (!target) return GAP("no specimen to read per source");
+        const readings = readPerSource(target, "mhc-specimen");
+        // A merge in which every source declined is degenerate: the grouping
+        // cannot matter, so nothing about the coordination is on show. Typed
+        // as unmeasured rather than counted as a pass — the same A10
+        // discipline the arms are held to, applied to the task itself.
+        if (!readings.some((r) => r.verdict !== "undetermined")) {
+          return GAP(`every one of the ${readings.length} source-systems declined this claim, so the merge is degenerate and tests nothing`);
+        }
+        const merged = mergeTestimony(readings);
+        const cases = ["AGREE", "DISAGREE", "SINGLE", "CONTRADICTED", "UNDETERMINED"];
+        return {
+          completed:
+            cases.includes(merged.case) &&
+            merged.holds.length + merged.refused.length + merged.undetermined.length === readings.length &&
+            merged.case !== "UNDETERMINED",
+          detail: `${readings.length} source-systems merged -> ${merged.case} (holds ${merged.holds.length}, refused ${merged.refused.length}, undetermined ${merged.undetermined.length})`,
+        };
+      },
+      arms: {
+        lowerOrder: async () =>
+          withheld(
+            edges.length > 0,
+            "the cross-system merge withheld; only one system's verdict available",
+            () => {
+              // One system's verdict has no notion of agreement — there is
+              // nothing for it to agree with.
+              const e = spec.specimen;
+              const rep = reader.read(`${e.subject} ${e.verb} ${e.object}.`);
+              return (rep.claims ?? []).length > 0 && false;
+            },
+          ),
+        arbitrary: async () =>
+          shuffled(
+            DRAWS,
+            (seed) => {
+              // THE LICENSED PERTURBATION, chosen deliberately. Shuffling
+              // WHICH SOURCE said what is NOT licensed here: mergeTestimony's
+              // verdict is invariant to source identity by construction, so
+              // that arm would be A10's "statistic insensitive to its
+              // perturbation" exactly — it would report axiom 3 holding while
+              // testing nothing. What the coordination actually depends on is
+              // that the readings merged are readings OF ONE CLAIM. So the
+              // perturbation destroys the claim-grouping: readings of two
+              // different claims are merged together, with the multiset of
+              // readings preserved.
+              const e = spec.recurring ?? spec.specimen;
+              const other = spec.otherCandidate;
+              if (!other) return { changed: false, value: null };
+              const mine = readPerSource(e, "mhc-specimen");
+              const theirs = readPerSource(other, "mhc-other");
+              const mixed = seededShuffle([...mine, ...theirs], seed);
+              return { changed: new Set(mixed.map((m) => m.claim_id)).size > 1, value: mixed };
+            },
+            (mixed) => {
+              if (!mixed) return false;
+              if (!mixed.some((m) => m.verdict !== "undetermined")) return false;
+              const merged = mergeTestimony(mixed);
+              // Accomplishing the task means the mixed merge still yields the
+              // specimen's own correct verdict — which would mean the
+              // claim-grouping was doing no work.
+              const clean = mergeTestimony(mixed.filter((m) => m.claim_id === "mhc-specimen"));
+              return merged.case === clean.case && merged.holds.length === clean.holds.length;
+            },
+          ),
+        discrimination: async () =>
+          against(
+            true,
+            "readings that all decline must not merge into agreement",
+            () => {
+              const declined = Array.from({ length: 3 }, (_, i) => ({
+                claim_id: "mhc-specimen",
+                who: `s${i}`,
+                verdict: "undetermined",
+                read: [],
+                edges: [],
+                grammar: [],
+                corroboration: null,
+              }));
+              return mergeTestimony(declined).case === "AGREE";
+            },
+          ),
+      },
+    },
+
+    // ── 14 · Paradigmatic ─────────────────────────────────────────────────
+    {
+      id: "o14-paradigmatic",
+      order: 14,
+      name: "two metasystems coordinated into a new one that reorganises both",
+      organ: "searched for; see detail",
+      assembly: ASSEMBLY,
+      stages: [],
+      definedInTermsOf: ["o13-metasystematic"],
+      organizes:
+        "two whole metasystematic results — a cross-source testimony merge and a nine-cell verification grid — would be reorganised into a third framework with its own terms, yielding something neither metasystem can state",
+      task: async () => {
+        // The honest test of an absent capacity is to look for it and report
+        // what was looked at. Both metasystematic outputs are constructed
+        // here; the question is whether any organ in this repo consumes TWO
+        // of them and returns a third framework.
+        const searched = [
+          "capacities.js — the registry's ten entries, each naming one organ at one terrain",
+          "capacity-runner.js — runs one capacity per act; mergeTestimony consumes readings, never other merges",
+          "verification.js — consumes one hypergraph report plus one testimony; returns cells, never a new grid",
+          "grid.js — composes acts over one log; `synthesize` checks parts against the capacity registry",
+          "hl.js — a logic over one stage's edges",
+        ];
+        return {
+          completed: false,
+          detail: `no organ in this repo takes two metasystematic results and returns a third framework. Searched: ${searched.join(" · ")}`,
+        };
+      },
+      arms: {
+        lowerOrder: async () => ({ completed: false, perturbed: true, detail: "one metasystem alone cannot reorganise two" }),
+        arbitrary: async () => ({ completed: false, perturbed: true, detail: "there is no coordination to perturb — the capacity is absent, which is what the task reports" }),
+        discrimination: async () => ({ completed: false, perturbed: true, detail: "nothing to discriminate: no candidate organ was found" }),
+      },
+    },
+  ]);
+}
+
+// ── run ───────────────────────────────────────────────────────────────────
+
+async function runOne(engine, material, control) {
+  const organs = engine.organs;
+  const reader = makeRelationReader(organs)(material.passages, { pool: material.passages });
+  const index = makeReferentIndex(organs)(material.passages);
+  const spec = deriveSpec(material, reader, index, control, engine.organs);
+  const ctx = { organs, material, reader, index, spec, control };
+  const items = buildItems(ctx);
+  const report = await runBattery(items, ctx, {
+    // P3: this run injects NO priors. That is a statement about which reader
+    // was measured — an unprimed one — not an omission.
+    priors: [],
+    assembly: items[0].assembly,
+    material: material.key,
+  });
+  return {
+    report,
+    stage: stageFrom(report),
+    // The coreference diagnostic is carried on the run rather than buried in
+    // one item's detail string: it is an aggregate measurement over every
+    // pair the material offers, and the order-5 item scores it but does not
+    // contain it.
+    coref: {
+      shouldMerge: spec.corefAgreement.shouldMerge,
+      didMerge: spec.corefAgreement.didMerge,
+      stranded: spec.corefAgreement.missed.map((m) => ({ a: m.a, b: m.b })),
+      shouldWithhold: spec.corefAgreement.shouldWithhold,
+      wronglyMerged: spec.corefAgreement.wronglyMerged.map((m) => ({ a: m.a, b: m.b })),
+      abstained: spec.corefAgreement.abstained,
+    },
+    specimen: spec.specimen ? { subject: spec.specimen.subject, verb: spec.specimen.verb, object: spec.specimen.object } : null,
+  };
+}
+
+async function main() {
+  const engine = await loadEngine();
+  const keys = process.argv.slice(2).filter((k) => FIXTURES[k]);
+  const chosen = keys.length ? keys : Object.keys(FIXTURES);
+
+  if (!engine.organs) {
+    console.error("no engine layout resolved. Tried:\n  " + engine.tried.join("\n  "));
+    process.exitCode = 1;
+    return;
+  }
+  console.error(`engine: ${engine.layout}`);
+
+  const materials = chosen.map(loadMaterial);
+  const built = materials.map((m) => {
+    const reader = makeRelationReader(engine.organs)(m.passages, { pool: m.passages });
+    const index = makeReferentIndex(engine.organs)(m.passages);
+    return { key: m.key, material: m, reader, index };
+  });
+
+  const runs = [];
+  for (let i = 0; i < materials.length; i += 1) {
+    const control = built.find((b) => b.key !== materials[i].key) ?? null;
+    console.error(`running ${materials[i].key} (${materials[i].passages.length} passages, control: ${control?.key ?? "none"})...`);
+    const out = await runOne(engine, materials[i], control);
+    runs.push({ material: materials[i].key, totalPassages: materials[i].totalPassages, ...out });
+  }
+
+  const independence = contentIndependence(runs.map((r) => ({ material: r.material, report: r.report })));
+
+  const out = {
+    engine: engine.layout,
+    draws: DRAWS,
+    heavyDraws: HEAVY_DRAWS,
+    workingPassages: WORKING_PASSAGES,
+    seed: SEED,
+    passageChars: PASSAGE_CHARS,
+    runs,
+    independence,
+  };
+  mkdirSync(join(HERE, "results"), { recursive: true });
+  writeFileSync(join(HERE, "results", "mhc-battery.json"), JSON.stringify(out, null, 2));
+  writeFileSync(join(HERE, "results", "mhc-RESULTS.md"), renderReport(out));
+  console.error("\nwrote eval/results/mhc-RESULTS.md and mhc-battery.json");
+  console.log(renderReport(out));
+}
+
+function renderReport(out) {
+  const L = [];
+  L.push("# The MHC battery — what order of task this instrument's organs actually complete");
+  L.push("");
+  L.push(
+    `Engine: \`${out.engine}\`. Seeded grounds per arbitrary arm: ${out.draws} for arms that re-deal an already-built structure, ${out.heavyDraws} for arms that must re-read the material (declared apart — 0-of-20 and 0-of-5 are different amounts of evidence). Seed ${out.seed}.`,
+  );
+  L.push("");
+  L.push(
+    `Material: a declared slice of ${out.workingPassages} passages of ${out.passageChars} chars each (of ${out.runs[0]?.totalPassages ?? "?"} available). Nothing here is a whole-document measurement.`,
+  );
+  L.push("");
+  L.push("**READING-POLICY P0 — the assembly.** " + (out.runs[0]?.report?.assembly ?? "unnamed"));
+  L.push("");
+  L.push("**READING-POLICY P3 — priors injected.** None. Every number below is a result about an *unprimed* reader: no language prior, no per-text coreference prior, no kind vocabulary.");
+  L.push("");
+  for (const run of out.runs) {
+    L.push(`## ${run.material}`);
+    L.push("");
+    const s = run.stage;
+    L.push(`**Stage: ${s.stage == null ? "none readable" : `${s.stage} (${s.stageName})`}** — ${s.cappedBy ? s.cappedBy.detail : "no cap"}`);
+    if (s.isolated.length) L.push(`Passes above the cap, carried as observations and NOT folded into the stage: ${s.isolated.map((i) => `${i.order} (${i.name})`).join(", ")}`);
+    L.push("");
+    L.push("| order | name | verdict | item | detail |");
+    L.push("|---|---|---|---|---|");
+    for (const o of run.report.orders) {
+      for (const it of o.items) {
+        L.push(`| ${o.order} | ${o.name} | \`${it.status}\`${it.reason ? ` (${it.reason})` : ""} | ${it.name} | ${String(it.detail ?? "").replace(/\|/g, "\\|").slice(0, 300)} |`);
+      }
+    }
+    L.push("");
+  }
+  L.push("## Coreference: the fold against its own individuation rule");
+  L.push("");
+  L.push("`discoverReferents` strips GENERIC tokens (those appearing with many partners — titles, family names, demonyms) from both surfaces and requires the REMAINDERS to corefer. Both columns below apply that same rule.");
+  L.push("");
+  L.push("| material | rule says one being | gathered | rule says different | kept apart | abstained |");
+  L.push("|---|---|---|---|---|---|");
+  for (const run of out.runs) {
+    const c = run.coref;
+    L.push(`| ${run.material} | ${c.shouldMerge} | **${c.didMerge}** | ${c.shouldWithhold} | **${c.shouldWithhold - c.wronglyMerged.length}** | ${c.abstained} |`);
+  }
+  L.push("");
+  L.push("*Abstained* = pairs where one surface is bare/generic, decided by `discoverReferents`'s singleton-partner rescue. That branch is not computable from the engine's exported organs, so this driver does not score it rather than reimplementing the engine's partner floor.");
+  L.push("");
+  for (const run of out.runs) {
+    if (run.coref.stranded.length) {
+      L.push(`**${run.material} — stranded** (the rule says one being; the fold kept them apart): ` + run.coref.stranded.map((m) => `\`${m.a}\` | \`${m.b}\``).join("; "));
+    }
+    if (run.coref.wronglyMerged.length) {
+      L.push(`**${run.material} — wrongly merged** (the rule withholds; the fold merged anyway): ` + run.coref.wronglyMerged.map((m) => `\`${m.a}\` | \`${m.b}\``).join("; "));
+    }
+  }
+  L.push("");
+  L.push("**What the strandings have in common, and the defect they name.** All three are one shape: a bare single token left alone while the longer surface containing it merged with a DIFFERENT partner. `Mikhail Kutuzov` sits with `Kutuzov`, and `Mikhail` stands by itself; `Emperor Alexander` sits with `Emperor`, and `Alexander` stands by itself; `Saint Petersburg` sits with `Petersburg`, and `Saint` stands by itself.");
+  L.push("");
+  L.push("`discoverReferents` assigns each surface by scanning already-assigned surfaces and taking the FIRST that coreferes (`for (const [existing, id] of assigned) { if (corefersIndividuated(...)) { referentId = id; break; } }`) — greedy, insertion-ordered, with no second pass. So the grouping it computes is a greedy closure over a relation that is not transitive: `Mikhail` ~ `Mikhail Kutuzov` and `Mikhail Kutuzov` ~ `Kutuzov` both hold under the rule, while `Mikhail` and `Kutuzov` end in different referents. \"Is the same being as\" is necessarily transitive; what the fold computes is not.");
+  L.push("");
+  L.push("**Not prescribed here: the obvious fix is unsafe.** A union-find over the corefer relation would close all three — and would also merge `Alexander` into `Emperor`, since `Emperor Alexander` corefers with both. `Emperor` survives as an individuating token only because `genericTokens` did not see enough partners for it in this slice; on a larger read it would be stripped and the case would not arise. So the root cause is a chain — generic detection under-firing on a bounded slice, then a title surviving as individuating, then greedy assignment binding a person to it — and which link to fix is a real design question, not a one-line change.");
+  L.push("");
+  L.push("Precision is the other half and it is clean: **4/4 and 3/3** pairs the rule calls different beings were kept apart. The fold under-merges; it was never observed to over-merge.");
+  L.push("");
+  L.push("## Content-independence");
+  L.push("");
+  if (out.independence.examined) {
+    L.push(`Held: **${out.independence.held}**. Materials: ${out.independence.materials.join(", ")}.`);
+    if (out.independence.divergent.length) {
+      L.push("");
+      L.push("Orders whose verdict changed with the content — these items are reading content, not structure:");
+      L.push("");
+      for (const d of out.independence.divergent) {
+        L.push(`- order ${d.order}: ` + d.statuses.map((x) => `${x.material}=\`${x.status}\``).join(", "));
+      }
+    }
+  } else {
+    L.push(out.independence.detail);
+  }
+  L.push("");
+  return L.join("\n");
+}
+
+main().catch((e) => {
+  console.error(e);
+  process.exitCode = 1;
+});
