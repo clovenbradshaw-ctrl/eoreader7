@@ -86,7 +86,12 @@ export function directedEdges(beings = [], edges = [], { buildLink, totalUnits, 
       reversalP: link.nulls.reversal.pValue,
       reseedP: link.nulls.reseed.pValue,
     };
-    if (link.direction) directed.push({ ...row, direction: link.direction, polarity: link.polarity, strength: link.strength });
+    if (link.direction) directed.push({
+      ...row, direction: link.direction, polarity: link.polarity, strength: link.strength,
+      // S10: TE from sparse arrivals is sound as a RANK, not a magnitude —
+      // pairs with different arrival counts are not comparable in bits.
+      strengthMeans: "rank among this run's oriented pairs, never a comparable magnitude in bits (S10)",
+    });
     else undetermined.push({ ...row, reason: "direction_undetermined", detail: "the reversal null cannot orient this pair — mutual company has no measured leader" });
   });
   return { directed, undetermined };
