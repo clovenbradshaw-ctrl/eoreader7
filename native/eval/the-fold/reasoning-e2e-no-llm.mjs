@@ -2,17 +2,27 @@
 // including a genuinely NOVEL answer never stated as one sentence, using
 // only the mechanical organs already in this repo: hypergraph.js's real
 // extraction/judgment (makeRelationReader), its direct graph query door
-// (queryEdges/queryFillers), and verification.js's nine-cell taxonomy —
-// zero model calls anywhere in this file.
+// (queryEdges/queryFillers), verification.js's nine-cell taxonomy, and —
+// added in the second pass — capacity-runner.js's real evaluate door, the
+// top of this repo's own mechanical checking ladder (squarePolarity +
+// checkObjectSpecificity). Zero model calls anywhere in this file.
 //
 // Not a committed regression test (no golden score to chase) — a driver,
 // matching the posture eval/mine-1-*.mjs and eval/witness-batch-eval.mjs
 // already hold in this repo: re-runnable, and its output is the evidence.
+// What it MEASURES that turned out to be worth pinning has been lifted
+// into hypergraph.test.mjs and verification.test.mjs as real regressions.
 //
 // Run: node eval/reasoning-e2e-no-llm.mjs
 
-import { makeRelationReader, queryEdges, queryFillers } from "../hypergraph.js";
+import * as operators from "../../eoreader6.1/packages/engine/operators.js";
+import * as taskLog from "../../eoreader6.1/packages/engine/holon/task-log.js";
+import { makeRelationReader, queryFillers } from "../hypergraph.js";
 import { verificationTasksFor, verificationSummary } from "../verification.js";
+import { makeReferentIndex } from "../cast.js";
+import { makeCapacityRunner, landAct } from "../capacity-runner.js";
+import { makeGrid } from "../grid.js";
+import { findCapacity, unresolvedCapacity } from "../capacities.js";
 
 async function organs() {
   const { splitSentences } = await import("../../eoreader6.1/packages/engine/perceiver/text/spans.js");
@@ -24,6 +34,18 @@ async function organs() {
   );
   const { tokenize } = await import("../../eoreader6.1/packages/engine/perceiver/text/material.js");
   return { splitSentences, extractSurfaces, discoverReferents, namesCorefer, diaNorm, discoverRelationVocab, extractRelations, tokenize };
+}
+
+// A RECEIVED closed class, with its own giver named in the engine's own
+// prior register (perceiver/text/priors.js, giver "lang/en") — never a word
+// list typed here. Kept separate from the bundle above so Tier 6 can run
+// the SAME material through a reader with and without it and show what it
+// changes, rather than asserting it.
+async function determiners() {
+  const { DEFINITE_DETERMINERS, INDEFINITE_DETERMINERS } = await import(
+    "../../eoreader6.1/packages/engine/perceiver/text/priors.js"
+  );
+  return new Set([...DEFINITE_DETERMINERS, ...INDEFINITE_DETERMINERS]);
 }
 
 // Real, self-contained prose — enough recurrence for the cast/vocabulary
@@ -57,9 +79,18 @@ function line(s) {
   console.log(s);
 }
 
+function tripleOf(c) {
+  return c ? `${c.subject} —${c.verb}${c.polarity === "-" ? "[negated]" : ""}→ ${c.object}` : "(no claim extracted)";
+}
+
 async function main() {
-  const relationsFor = makeRelationReader(await organs());
-  const report = relationsFor(PASSAGES, { pool: PASSAGES.map((p) => p.text) });
+  const base = await organs();
+  const relationsFor = makeRelationReader(base);
+  // `pool` is the corpus the passages were retrieved from. Three passages
+  // is UNDER cite.js's own declared CORPUS_MINIMUM (10), so the
+  // corpus-scale function-word filter does not run at all here — that
+  // floor is declared, not a bug, and Tier 6 measures what it costs.
+  const report = relationsFor(PASSAGES, { pool: PASSAGES });
 
   line(`material examined: ${report.examined}`);
   line(`edges the material itself binds: ${report.edges.length}`);
@@ -82,7 +113,11 @@ async function main() {
     const { claims: verdicts } = report.read(c);
     const v = verdicts[0];
     judged.push(v);
-    line(`  "${c}" -> ${v?.verdict ?? "no claim extracted"}${v?.nearest?.[0] ? ` (nearest: ${v.nearest[0].subject} —${v.nearest[0].verb}→ ${v.nearest[0].object})` : ""}`);
+    line(
+      `  "${c}" -> ${v?.verdict ?? "no claim extracted"}` +
+        `${v?.endpoints ? ` (subject: ${v.endpoints.subject}, object: ${v.endpoints.object})` : ""}` +
+        `${v?.nearest?.[0] ? ` (nearest: ${v.nearest[0].subject} —${v.nearest[0].verb}→ ${v.nearest[0].object})` : ""}`,
+    );
   }
   line("");
 
@@ -132,11 +167,12 @@ async function main() {
   line("");
 
   // ── Tier 4: the verification taxonomy — how far the nine-cell grid
-  // actually goes on a bound claim vs. a claim whose referent fails. ────
+  // actually goes on a bound claim vs. a claim whose object this material
+  // has never heard of. ────────────────────────────────────────────────
   line("== Tier 4: verification.js's nine-cell taxonomy, real cursor ==");
   const cases = [
     { label: "Lincoln appointed Seward (bound)", hgClaim: judged[0] },
-    { label: "Lincoln appointed Napoleon (no referent)", hgClaim: judged[3] },
+    { label: "Lincoln appointed Napoleon (object nowhere in this material)", hgClaim: judged[3] },
   ];
   for (const { label, hgClaim } of cases) {
     const tasks = verificationTasksFor({ hgReport: report, hgClaim, cursor: "eval-reasoning-e2e" });
@@ -144,6 +180,84 @@ async function main() {
     line(`  ${label}:`);
     for (const t of tasks) line(`    ${t.terrain}: ${t.verdict}${t.reason ? ` — ${t.reason}` : ""}`);
     line(`    summary: ${JSON.stringify(summary)}`);
+  }
+  line("");
+
+  // ── Tier 5: negation, MEASURED rather than assumed. The first pass of
+  // this driver concluded that negation-as-contradiction "lives only in
+  // capacity-runner.js, not in bare read()". That conclusion was drawn
+  // from one specimen, and it is wrong: judge() returns `contradicted`
+  // perfectly well through bare read() — the specimen just happened to
+  // use the ONE English negation shape the extractor cannot see. The
+  // engine's own negation gate is `negationBeforeVerbFor` (relations.js):
+  // the negation word must sit BEFORE the verb it negates. ─────────────
+  line("== Tier 5: negation — where judge() catches it and where it cannot ==");
+  for (const c of [
+    "Seward never negotiated the Alaska purchase", // pre-verbal, closed class
+    "Seward hardly negotiated the Alaska purchase", // pre-verbal, same class, different word
+    "Seward did not negotiate the Alaska purchase", // periphrastic: "did" takes the verb slot
+    "Seward didn't negotiate the Alaska purchase", // contracted: nothing extracts at all
+    "Seward negotiated not the Alaska purchase", // post-verbal: outside the gate entirely
+  ]) {
+    const v = report.read(c).claims[0];
+    line(`  "${c}"\n     read as: ${tripleOf(v)} -> ${v?.verdict ?? "no claim extracted"}`);
+  }
+  line("");
+
+  // ── Tier 6: what the corpus floor costs on the OBJECT side. cite.js's
+  // commonTerms declares its own floor (CORPUS_MINIMUM chunks) below
+  // which the function-word filter does not run — a declared limit whose
+  // disclosed residue is "auxiliary noise in the vocabulary", i.e. it can
+  // only widen what the reader HEARS. Below, measured on this same
+  // material, it does something that disclosure does not cover. ────────
+  line("== Tier 6: a shared definite article is not evidence (received closed class, giver named) ==");
+  {
+    const withOrgan = makeRelationReader({ ...base, determiners: await determiners() })(PASSAGES, { pool: PASSAGES });
+    for (const c of ["Seward negotiated the Suez canal", "Seward negotiated Suez canal", "Seward negotiated the Alaska purchase"]) {
+      const off = report.read(c).claims[0];
+      const on = withOrgan.read(c).claims[0];
+      line(`  "${c}"\n     no determiner organ -> ${off?.verdict ?? "none"}   |   received class injected -> ${on?.verdict ?? "none"}`);
+    }
+    line(`  (the article alone was the whole binding: the same claim without "the" was already unbound)`);
+  }
+  line("");
+
+  // ── Tier 7: the full mechanical ladder — capacity-runner.js's evaluate
+  // door. Same organs, still zero model calls, but now judge()'s raw
+  // verdict is SQUARED against its own negation and checked for object
+  // specificity before anything is allowed to land as a verdict. ───────
+  line("== Tier 7: the whole checking ladder (evaluate + squarePolarity + checkObjectSpecificity) ==");
+  {
+    const referentIndexFor = makeReferentIndex(base);
+    const runCapacity = makeCapacityRunner({ referentIndexFor, relationsFor });
+    const grid = makeGrid({ operators, taskLog });
+    grid.withCapacities({ findCapacity, unresolvedCapacity });
+    const sources = { "cabinet.txt": PASSAGES.map((p) => p.text).join(" ") };
+    let log = grid.createLog();
+    for (const claim of [
+      "Seward negotiated the Alaska purchase", // true, stated
+      "Seward never negotiated the Alaska purchase", // false, negation of a stated edge
+      "Seward negotiated the Suez canal", // Tier 6's fabricated object, one rung up
+    ]) {
+      const landed = landAct(grid, log, `evaluate "${claim}" at Link from differentiate ground cabinet.txt broken:rotation`, {
+        sources,
+        runCapacity,
+      });
+      if (!landed.ok) {
+        line(`  "${claim}" -> REFUSED AT THE GRAMMAR: ${landed.refusal.type} — ${landed.refusal.detail}`);
+        continue;
+      }
+      log = landed.log;
+      const eva = grid.foldGrid(log).acts.filter((a) => a.operator === "EVA").pop();
+      const raw = eva?.result?.rawVerdict ?? "(none)";
+      const objectCheck = eva?.result?.objectCheck;
+      line(
+        `  "${claim}"\n` +
+          `     raw judge(): ${raw} | squared: ${eva?.result?.squaring?.trusted ?? "n/a"}` +
+          `${objectCheck ? ` | object specific: ${objectCheck.trusted}` : ""}\n` +
+          `     landed verdict: ${eva?.verdict ?? "undetermined — withheld, never guessed"}`,
+      );
+    }
   }
 
   return { report, judged };
