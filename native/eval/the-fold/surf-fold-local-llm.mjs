@@ -54,14 +54,48 @@ async function askModel(prompt) {
   return { text: j.message?.content ?? "", evalTokens: j.eval_count ?? null };
 }
 
-function buildPrompt(segment, question, priorTurns) {
+// Derived from the material itself — never a hand-typed list of function
+// names, matching this repo's own standing rule (giver named, nothing
+// hand-picked). Every real top-level export nul/index.js declares.
+function identifiersOf(sourceText) {
+  const ids = new Set();
+  const re = /\bexport\s+(?:const|function)\s+(\w+)/g;
+  let m;
+  while ((m = re.exec(sourceText))) ids.add(m[1]);
+  return ids;
+}
+
+// Which of the material's own real identifiers does this question name —
+// exact word-boundary match against the derived set, never a guess.
+function identifiersIn(question, knownIdentifiers) {
+  const words = new Set(question.match(/\b\w+\b/g) ?? []);
+  return [...knownIdentifiers].filter((id) => words.has(id));
+}
+
+// Does the segment ACTUALLY define this identifier — the referent-identity
+// check grounding.js's own word-level containment cannot do, because a
+// function's NAME recurring in nearby comments is real vocabulary, not
+// evidence its BODY is the thing shown. Mirrors P7.2's "a check on a name
+// asks about the referent, not the string," aimed at code instead of prose.
+function definesIdentifier(segmentText, name) {
+  return new RegExp(`\\bexport\\s+(?:const|function)\\s+${name}\\b`).test(segmentText);
+}
+
+function buildPrompt(segment, question, priorTurns, voidIdentifiers) {
   const history = priorTurns.length
     ? `Earlier in this conversation:\n${priorTurns.map((t) => `Q: ${t.question}\nA: ${t.answer}`).join("\n\n")}\n\n`
+    : "";
+  // P32's own pattern (SEARCHED_VOID_PREFIX): a disclosed FACT the model
+  // receives, never a behavioral instruction stacked on top of it — no
+  // "you must say you don't know," just what is and isn't true of what
+  // follows.
+  const voidNote = voidIdentifiers.length
+    ? `Note: the real definition of ${voidIdentifiers.map((n) => `\`${n}\``).join(", ")} is not visible in the code shown below.\n\n`
     : "";
   return (
     `You are reviewing real source code. Answer only from the code shown below — ` +
     `if it does not answer the question, say so rather than guessing.\n\n` +
-    `${history}` +
+    `${history}${voidNote}` +
     `CODE (${segment.source}, bytes ${segment.byte_start}-${segment.byte_end}, ` +
     `addressed by: ${segment.addressed_by}${segment.heading ? ` — "${segment.heading}"` : ""}):\n` +
     `\`\`\`js\n${segment.text}\n\`\`\`\n\n` +
@@ -86,6 +120,9 @@ async function main() {
 
   const session = createSession();
   admitChunked(session, { text, sourceId: "nul/index.js" });
+
+  const knownIdentifiers = identifiersOf(text);
+  console.log(`derived ${knownIdentifiers.size} real identifiers from the material itself: ${[...knownIdentifiers].join(", ")}\n`);
 
   const tiers = createTierStack(["discourse", "atmosphere", "lens"], {
     window: TIER_WINDOW,
@@ -122,8 +159,21 @@ async function main() {
         `${segment.content_match?.ambiguous ? " · ambiguous tie" : ""}`,
     );
 
+    // ── IDENTIFIER CHECK: does the shown segment actually DEFINE the
+    // function(s) this question names — mechanical, zero model calls, run
+    // BEFORE the model sees anything (P23's "checked before generation, not
+    // only after" discipline, aimed at code identity instead of a fetched
+    // page). ──
+    const asked = identifiersIn(question, knownIdentifiers);
+    const voidIdentifiers = asked.filter((name) => !definesIdentifier(segment.text, name));
+    if (voidIdentifiers.length) {
+      console.log(`  identifier-check: asked about [${asked.join(", ")}] — NOT defined in shown segment: ${voidIdentifiers.join(", ")} (disclosed to model)`);
+    } else if (asked.length) {
+      console.log(`  identifier-check: asked about [${asked.join(", ")}] — all defined in shown segment`);
+    }
+
     // ── the model's turn, over ONLY what surf mechanically addressed ──
-    const prompt = buildPrompt(segment, question, priorTurns);
+    const prompt = buildPrompt(segment, question, priorTurns, voidIdentifiers);
     const { text: answer, evalTokens } = await askModel(prompt);
     console.log(`  model (${evalTokens ?? "?"} tokens): ${answer.replace(/\s+/g, " ").trim().slice(0, 400)}`);
 
@@ -171,6 +221,7 @@ async function main() {
       fold,
       groundingFindings: grounding.findings.length,
       atomsChecked: grounding.atomsChecked,
+      voidIdentifiers,
     });
   }
 
