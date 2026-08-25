@@ -275,3 +275,26 @@ until that pass, this entry is the recorded reason it is wrong, and no new
 native code hard-codes an operator sequence — an ordering claim cites either
 the axes derivation or this entry's fossil finding, never the bare constant
 as authority.
+
+## S15 — The material states its own decay; read it before declaring one
+
+A writer chooses every returning mention's FORM from a model of what the
+reader still holds (Accessibility Theory; Givón's referential distance), so
+the mapping gap-since-last-mention → form-of-return is the writer's own
+intended memory curve, measurable per material with no typed dials (dyadic
+bins; majority = where a plurality flips). Measured on Frankenstein
+(`eval/results/writer-decay-RESULTS.md`): pronoun returns majority only at
+gap 1, extinct past 128 — the activation layer; bare-name returns at
+83–100% share after gaps of 1,000–4,000 sentences — the identity layer;
+definite descriptors PEAK in the middle distance (.627 at 64–127) — the
+writer's own re-grounding device. P1's "activation decays, identity does
+not" is thereby a measured fact about how writers write, not only this
+engine's design. **Rule.** A reader's window and decay for a material are
+read from the material (writer-decay for the binding clock;
+fold-prediction's continuum for the retrieval clock) before any number is
+declared; a declared window where a measured one is available says why. And
+the two clocks are never conflated: the binding/present clock is short and
+the retrieval/identity clock is undecayed, and handing one layer the
+other's clock is the measured way to lose (fold-prediction's own negative).
+(Earned: this session declared PRONOUN_PRESENT.window = 8 in three drivers
+while the material's own measured answer was ~1–2.)
