@@ -108,13 +108,23 @@ adjacent idiom (`isGap(figure)` passthrough one line up — pattern was the
 sole asymmetry). Nits, none disqualifying: the nested `if/else` where house
 style would write a flat one-liner; a redundant `else` after `return`.
 
-**Landed in the real engine.** The model's exact verified bytes are now in
-`eoreader7/legacy-eoreader6.1/nul/index.js`, pinned by a new conformance
-case in `confabulation.test.js` (built from a *real* `pattern()` gap — the
-incomparable-specs `unknown_spec` the file's own neighboring test already
-produces — asserting `Object.is` identity through witness, and that a
-merely-missing pattern still gets `made_no_difference`). Full suite run in
-that tree after landing: see the commit.
+**Landed in the real engine — locally; the push needs one scope grant.**
+The model's exact verified bytes are committed in the
+`eoreader7/legacy-eoreader6.1` submodule checkout (`c164686`), pinned by a
+new conformance case in `confabulation.test.js` (built from a *real*
+`pattern()` gap — the incomparable-specs `unknown_spec` the file's own
+neighboring test already produces — asserting `Object.is` identity through
+witness, and that a merely-missing pattern still gets
+`made_no_difference`). Full suite in that tree after landing: 1188 tests /
+1175 pass / the same 10 pre-existing environment failures / zero
+regressions. The push was refused 403 by the git proxy —
+`clovenbradshaw-ctrl/eoreader6.1` is not in this session's authorized
+repository set — so the commit ships here as
+`eval/results/eoreader6.1-witness-gap-passthrough.patch` (git
+format-patch, `git am`-able as-is, authorship and evidence in its own
+message). eoreader7's submodule pointer was deliberately NOT bumped: a
+parent commit pointing at an unpushed submodule commit would break every
+other checkout.
 
 **`ground` patch: passes correctness and safety, FAILS
 genuine-improvement — for a reason upstream of the model.** The judge
