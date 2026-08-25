@@ -51,8 +51,8 @@
               "alias resolution"
             ],
             "name": "a name denotes a being the material establishes",
-            "status": "failed",
-            "detail": "\"Tolstoy\" resolves (6); \"Zzyrflax Quenbourne\" does not (0); gathered 23/24 pairs its own individuation rule calls one being (stranded: \"Saint\" | \"Saint Petersburg\"); kept apart 4/4 it withholds on",
+            "status": "passed",
+            "detail": "\"Rostovs\" resolves (1); \"Zzyrflax Quenbourne\" does not (0); gathered 24/24 pairs its own individuation rule calls one being; kept apart 4/4 it withholds on",
             "arms": {
               "lowerOrder": {
                 "completed": false,
@@ -72,7 +72,7 @@
               },
               "discrimination": {
                 "completed": false,
-                "detail": "the control material (borodino) does not establish \"Tolstoy\"",
+                "detail": "the control material (borodino) does not establish \"Rostovs\"",
                 "unreachable": false,
                 "perturbed": true,
                 "draws": 1,
@@ -270,7 +270,7 @@
             ],
             "name": "one hypothesis tested against a constructed null: is this edge's connector asserted, or an artefact",
             "status": "passed",
-            "detail": "512/512 edges carry a standing — 8 corroborated, 504 single-witness",
+            "detail": "491/491 edges carry a standing — 8 corroborated, 483 single-witness",
             "arms": {
               "lowerOrder": {
                 "completed": false,
@@ -381,7 +381,7 @@
           {
             "order": 5,
             "name": "Nominal",
-            "status": "failed",
+            "status": "passed",
             "items": [
               {
                 "id": "o5-nominal",
@@ -394,8 +394,8 @@
                   "alias resolution"
                 ],
                 "name": "a name denotes a being the material establishes",
-                "status": "failed",
-                "detail": "\"Tolstoy\" resolves (6); \"Zzyrflax Quenbourne\" does not (0); gathered 23/24 pairs its own individuation rule calls one being (stranded: \"Saint\" | \"Saint Petersburg\"); kept apart 4/4 it withholds on",
+                "status": "passed",
+                "detail": "\"Rostovs\" resolves (1); \"Zzyrflax Quenbourne\" does not (0); gathered 24/24 pairs its own individuation rule calls one being; kept apart 4/4 it withholds on",
                 "arms": {
                   "lowerOrder": {
                     "completed": false,
@@ -415,7 +415,7 @@
                   },
                   "discrimination": {
                     "completed": false,
-                    "detail": "the control material (borodino) does not establish \"Tolstoy\"",
+                    "detail": "the control material (borodino) does not establish \"Rostovs\"",
                     "unreachable": false,
                     "perturbed": true,
                     "draws": 1,
@@ -424,7 +424,7 @@
                 }
               }
             ],
-            "failedCount": 1,
+            "failedCount": 0,
             "refusedCount": 0,
             "unmeasuredCount": 0
           },
@@ -673,7 +673,7 @@
                 ],
                 "name": "one hypothesis tested against a constructed null: is this edge's connector asserted, or an artefact",
                 "status": "passed",
-                "detail": "512/512 edges carry a standing — 8 corroborated, 504 single-witness",
+                "detail": "491/491 edges carry a standing — 8 corroborated, 483 single-witness",
                 "arms": {
                   "lowerOrder": {
                     "completed": false,
@@ -807,31 +807,15 @@
         ]
       },
       "stage": {
-        "stage": null,
-        "stageName": null,
+        "stage": 9,
+        "stageName": "Concrete",
         "cappedBy": {
-          "order": 5,
-          "status": "failed",
-          "detail": "order 5 (Nominal) was measured and the system did not complete it — a real ceiling"
+          "order": 10,
+          "status": "unmeasured",
+          "detail": "order 10 (Abstract) is UNMEASURED (organ_unreachable) — no stage may be read across it"
         },
-        "ceilingIsReal": true,
+        "ceilingIsReal": false,
         "isolated": [
-          {
-            "order": 6,
-            "name": "Sentential"
-          },
-          {
-            "order": 7,
-            "name": "Preoperational"
-          },
-          {
-            "order": 8,
-            "name": "Primary"
-          },
-          {
-            "order": 9,
-            "name": "Concrete"
-          },
           {
             "order": 11,
             "name": "Formal"
@@ -848,13 +832,8 @@
       },
       "coref": {
         "shouldMerge": 24,
-        "didMerge": 23,
-        "stranded": [
-          {
-            "a": "Saint",
-            "b": "Saint Petersburg"
-          }
-        ],
+        "didMerge": 24,
+        "stranded": [],
         "shouldWithhold": 4,
         "wronglyMerged": [],
         "abstained": 27
@@ -910,8 +889,8 @@
               "alias resolution"
             ],
             "name": "a name denotes a being the material establishes",
-            "status": "failed",
-            "detail": "\"General\" resolves (16); \"Zzyrflax Quenbourne\" does not (0); gathered 10/12 pairs its own individuation rule calls one being (stranded: \"Alexander\" | \"Emperor Alexander\"; \"Mikhail\" | \"Mikhail Kutuzov\"); kept apart 3/3 it withholds on",
+            "status": "passed",
+            "detail": "\"Kolocha\" resolves (1); \"Zzyrflax Quenbourne\" does not (0); gathered 12/12 pairs its own individuation rule calls one being; kept apart 3/3 it withholds on",
             "arms": {
               "lowerOrder": {
                 "completed": false,
@@ -931,7 +910,7 @@
               },
               "discrimination": {
                 "completed": false,
-                "detail": "the control material (war-and-peace) does not establish \"General\"",
+                "detail": "the control material (war-and-peace) does not establish \"Kolocha\"",
                 "unreachable": false,
                 "perturbed": true,
                 "draws": 1,
@@ -1144,7 +1123,7 @@
             ],
             "name": "one hypothesis tested against a constructed null: is this edge's connector asserted, or an artefact",
             "status": "passed",
-            "detail": "641/641 edges carry a standing — 11 corroborated, 630 single-witness",
+            "detail": "597/597 edges carry a standing — 10 corroborated, 587 single-witness",
             "arms": {
               "lowerOrder": {
                 "completed": false,
@@ -1255,7 +1234,7 @@
           {
             "order": 5,
             "name": "Nominal",
-            "status": "failed",
+            "status": "passed",
             "items": [
               {
                 "id": "o5-nominal",
@@ -1268,8 +1247,8 @@
                   "alias resolution"
                 ],
                 "name": "a name denotes a being the material establishes",
-                "status": "failed",
-                "detail": "\"General\" resolves (16); \"Zzyrflax Quenbourne\" does not (0); gathered 10/12 pairs its own individuation rule calls one being (stranded: \"Alexander\" | \"Emperor Alexander\"; \"Mikhail\" | \"Mikhail Kutuzov\"); kept apart 3/3 it withholds on",
+                "status": "passed",
+                "detail": "\"Kolocha\" resolves (1); \"Zzyrflax Quenbourne\" does not (0); gathered 12/12 pairs its own individuation rule calls one being; kept apart 3/3 it withholds on",
                 "arms": {
                   "lowerOrder": {
                     "completed": false,
@@ -1289,7 +1268,7 @@
                   },
                   "discrimination": {
                     "completed": false,
-                    "detail": "the control material (war-and-peace) does not establish \"General\"",
+                    "detail": "the control material (war-and-peace) does not establish \"Kolocha\"",
                     "unreachable": false,
                     "perturbed": true,
                     "draws": 1,
@@ -1298,7 +1277,7 @@
                 }
               }
             ],
-            "failedCount": 1,
+            "failedCount": 0,
             "refusedCount": 0,
             "unmeasuredCount": 0
           },
@@ -1562,7 +1541,7 @@
                 ],
                 "name": "one hypothesis tested against a constructed null: is this edge's connector asserted, or an artefact",
                 "status": "passed",
-                "detail": "641/641 edges carry a standing — 11 corroborated, 630 single-witness",
+                "detail": "597/597 edges carry a standing — 10 corroborated, 587 single-witness",
                 "arms": {
                   "lowerOrder": {
                     "completed": false,
@@ -1696,19 +1675,15 @@
         ]
       },
       "stage": {
-        "stage": null,
-        "stageName": null,
+        "stage": 6,
+        "stageName": "Sentential",
         "cappedBy": {
-          "order": 5,
+          "order": 7,
           "status": "failed",
-          "detail": "order 5 (Nominal) was measured and the system did not complete it — a real ceiling"
+          "detail": "order 7 (Preoperational) was measured and the system did not complete it — a real ceiling"
         },
         "ceilingIsReal": true,
         "isolated": [
-          {
-            "order": 6,
-            "name": "Sentential"
-          },
           {
             "order": 8,
             "name": "Primary"
@@ -1737,17 +1712,8 @@
       },
       "coref": {
         "shouldMerge": 12,
-        "didMerge": 10,
-        "stranded": [
-          {
-            "a": "Alexander",
-            "b": "Emperor Alexander"
-          },
-          {
-            "a": "Mikhail",
-            "b": "Mikhail Kutuzov"
-          }
-        ],
+        "didMerge": 12,
+        "stranded": [],
         "shouldWithhold": 3,
         "wronglyMerged": [],
         "abstained": 14
@@ -1804,7 +1770,7 @@
     "agreed": [
       {
         "order": 5,
-        "status": "failed"
+        "status": "passed"
       },
       {
         "order": 6,
