@@ -116,7 +116,13 @@ const PASSAGE_CHARS = 1200; // the chunk a passage is cut at for this driver
 // measurement.
 const WORKING_PASSAGES = 40;
 const HEAVY_PASSAGES = 10; // the slice an arm re-reads per draw
-const PER_SOURCE_PASSAGES = 8; // how many source-systems the order-13 merge reads
+// How many source-systems the order-13 merge reads, and how many candidate
+// claims are scanned against them to find one the sample corroborates and one
+// it does not. Both declared: the sample is a fixed prefix of the material, so
+// which claims come back corroborated is a fact about THIS sample, and a
+// reader comparing runs needs to see the sample size that produced it.
+const PER_SOURCE_PASSAGES = 10;
+const CLAIM_SCAN = 14;
 const ABSENT_NAME = "Zzyrflax Quenbourne"; // checked to be absent, never assumed
 
 // ── material ──────────────────────────────────────────────────────────────
@@ -403,9 +409,67 @@ function deriveSpec(material, reader, index, control, organs) {
     presentNonReferent = null;
   }
 
+  // ── the order-13 sample, measured rather than assumed ──────────────────
+  //
+  // Each passage of a fixed prefix is read as its OWN system. Two claims are
+  // then selected BY MEASUREMENT against that fixed sample: one it
+  // corroborates (two or more systems bind it) and one it does not (exactly
+  // one binds). An earlier version instead prepended the specimen's own ref
+  // passages to the sample, which guaranteed the holds it then reported —
+  // and left which claim came back corroborated to luck, which is how the
+  // arm below came to fire on one material and not the other.
+  //
+  // The readers are built ONCE and reused across every candidate: `read()` is
+  // cheap, building a reader is not, and rebuilding per claim cost minutes for
+  // an answer that cannot change.
+  const sourcePassages = (material.passages ?? []).slice(0, PER_SOURCE_PASSAGES);
+  let sourceReaders = [];
+  try {
+    sourceReaders = sourcePassages.map((p) => ({ ref: p.ref, reader: makeRelationReader(organs)([p], { pool: material.passages }) }));
+  } catch {
+    sourceReaders = [];
+  }
+  const readAcross = (edge) => {
+    const claim = `${edge.subject} ${edge.verb} ${edge.object}.`;
+    return sourceReaders.map((s) => {
+      let v = null;
+      try {
+        v = (s.reader.read(claim).claims ?? [])[0]?.verdict ?? null;
+      } catch {
+        v = null;
+      }
+      return {
+        claim_id: `mhc:${edge.subject}|${edge.verb}|${edge.object}`,
+        who: s.ref,
+        verdict: v === "bound" ? "holds" : v === "contradicted" ? "refused" : "undetermined",
+        read: [],
+        edges: [],
+        grammar: [],
+        corroboration: null,
+      };
+    });
+  };
+  const holdsIn = (readings) => readings.filter((r) => r.verdict === "holds").length;
+
+  let corroboratedClaim = null;
+  let singleClaim = null;
+  if (sourceReaders.length) {
+    for (const e of candidates.slice(0, CLAIM_SCAN)) {
+      if (corroboratedClaim && singleClaim) break;
+      const readings = readAcross(e);
+      const h = holdsIn(readings);
+      if (h >= 2 && !corroboratedClaim) corroboratedClaim = { edge: e, readings, holds: h };
+      else if (h === 1 && !singleClaim) singleClaim = { edge: e, readings, holds: h };
+    }
+  }
+
   return {
     specimen,
     specimenIsDistinctive,
+    sourceReaders,
+    readAcross,
+    corroboratedClaim,
+    singleClaim,
     otherCandidate,
     variantPair,
     nearMissPair,
@@ -1238,98 +1302,128 @@ function buildItems(ctx) {
     {
       id: "o13-metasystematic",
       order: 13,
-      requires: () => (!(spec.recurring ?? spec.specimen) ? "edge whose two ends are both admitted referents" : null),
-      name: "several whole systems compared: one claim read by each source, then the readings judged against each other",
+      name: "several whole systems compared: a standing no single system carries",
       organ: "capacity-runner.js::mergeTestimony over per-source hypergraph readings",
       assembly: ASSEMBLY,
       stages: ["typed, directional relation", "population"],
       definedInTermsOf: ["o12-systematic"],
+      requires: () =>
+        !spec.sourceReaders?.length
+          ? "passages that can each be read as their own system"
+          : !spec.corroboratedClaim
+            ? "claim two or more of its source-systems independently bind"
+            : !spec.singleClaim
+              ? "claim exactly one of its source-systems binds"
+              : null,
       organizes:
-        "each source's whole verdict-system is treated as one witness, and the relation BETWEEN those systems (agreement, disagreement, a lone voice) becomes the finding — a judgment no one system can reach about itself",
+        "each source's whole verdict-system is treated as one witness, and the STANDING of a claim across those witnesses — corroborated, or a lone voice — becomes the finding: a property of the set that no member of it carries",
       task: async () => {
-        const target = spec.recurring ?? spec.specimen;
-        if (!target) return GAP("no specimen to read per source");
-        const readings = readPerSource(target, "mhc-specimen");
-        // A merge in which every source declined is degenerate: the grouping
-        // cannot matter, so nothing about the coordination is on show. Typed
-        // as unmeasured rather than counted as a pass — the same A10
-        // discipline the arms are held to, applied to the task itself.
-        if (!readings.some((r) => r.verdict !== "undetermined")) {
-          return GAP(`every one of the ${readings.length} source-systems declined this claim, so the merge is degenerate and tests nothing`);
-        }
-        const merged = mergeTestimony(readings);
-        const cases = ["AGREE", "DISAGREE", "SINGLE", "CONTRADICTED", "UNDETERMINED"];
+        const corr = mergeTestimony(spec.corroboratedClaim.readings);
+        const lone = mergeTestimony(spec.singleClaim.readings);
+
+        // THE METASYSTEMATIC CONTENT, and why this is not order 12 repeated.
+        // At the level of any ONE system, the two claims are indistinguishable:
+        // each has a source that says exactly `holds`, the same word, carrying
+        // no standing of its own. Only the comparison ACROSS systems separates
+        // them — one corroborated, one a lone voice. That is the finding that
+        // is not recoverable from any member of the set.
+        const oneHolder = (readings) => readings.find((r) => r.verdict === "holds") ?? null;
+        const a = oneHolder(spec.corroboratedClaim.readings);
+        const b = oneHolder(spec.singleClaim.readings);
+        const indistinguishableBelow = !!a && !!b && a.verdict === b.verdict;
+        const noMemberCarriesStanding = [...spec.corroboratedClaim.readings, ...spec.singleClaim.readings].every(
+          (r) => r.standing === undefined,
+        );
+
         return {
           completed:
-            cases.includes(merged.case) &&
-            merged.holds.length + merged.refused.length + merged.undetermined.length === readings.length &&
-            merged.case !== "UNDETERMINED",
-          detail: `${readings.length} source-systems merged -> ${merged.case} (holds ${merged.holds.length}, refused ${merged.refused.length}, undetermined ${merged.undetermined.length})`,
+            corr.case === "AGREE" &&
+            corr.standing === "corroborated" &&
+            lone.case === "SINGLE" &&
+            lone.standing === "single" &&
+            indistinguishableBelow &&
+            noMemberCarriesStanding,
+          detail:
+            `${spec.sourceReaders.length} source-systems. ` +
+            `"${spec.corroboratedClaim.edge.subject} ${spec.corroboratedClaim.edge.verb} ${spec.corroboratedClaim.edge.object}" bound by ${spec.corroboratedClaim.holds} -> ${corr.case}/${corr.standing}; ` +
+            `"${spec.singleClaim.edge.subject} ${spec.singleClaim.edge.verb} ${spec.singleClaim.edge.object}" bound by ${spec.singleClaim.holds} -> ${lone.case}/${lone.standing}. ` +
+            `Below the merge both read identically (a system saying "${a?.verdict}"), and no reading carries a standing of its own.`,
         };
       },
       arms: {
-        lowerOrder: async () =>
-          withheld(
-            edges.length > 0,
-            "the cross-system merge withheld; only one system's verdict available",
-            () => {
-              // One system's verdict has no notion of agreement — there is
-              // nothing for it to agree with.
-              const e = spec.specimen;
-              const rep = reader.read(`${e.subject} ${e.verb} ${e.object}.`);
-              return (rep.claims ?? []).length > 0 && false;
-            },
-          ),
+        // One system's verdict cannot produce the finding, and here that is
+        // shown rather than asserted: the single binding source says `holds`
+        // for BOTH claims, so nothing at that level separates corroborated
+        // from lone. Licensed only if the two merges genuinely differ — if
+        // they did not, there would be nothing for a lower order to fail at.
+        lowerOrder: async () => {
+          const corr = mergeTestimony(spec.corroboratedClaim.readings);
+          const lone = mergeTestimony(spec.singleClaim.readings);
+          const differ = corr.standing !== lone.standing;
+          const a = spec.corroboratedClaim.readings.find((r) => r.verdict === "holds");
+          const b = spec.singleClaim.readings.find((r) => r.verdict === "holds");
+          return {
+            completed: differ && !!a && !!b && a.verdict !== b.verdict,
+            perturbed: differ,
+            detail: differ
+              ? `one system says "${a?.verdict}" for both claims; the merges say ${corr.standing} and ${lone.standing}`
+              : "the two claims' merges do not differ, so there is no cross-system finding for a single system to fail to reach",
+          };
+        },
         arbitrary: async () =>
           shuffled(
             DRAWS,
             (seed) => {
-              // THE LICENSED PERTURBATION, chosen deliberately. Shuffling
-              // WHICH SOURCE said what is NOT licensed here: mergeTestimony's
-              // verdict is invariant to source identity by construction, so
-              // that arm would be A10's "statistic insensitive to its
-              // perturbation" exactly — it would report axiom 3 holding while
-              // testing nothing. What the coordination actually depends on is
-              // that the readings merged are readings OF ONE CLAIM. So the
-              // perturbation destroys the claim-grouping: readings of two
-              // different claims are merged together, with the multiset of
-              // readings preserved.
-              const e = spec.recurring ?? spec.specimen;
-              const other = spec.otherCandidate;
-              if (!other) return { changed: false, value: null };
-              const mine = readPerSource(e, "mhc-specimen");
-              const theirs = readPerSource(other, "mhc-other");
-              const mixed = seededShuffle([...mine, ...theirs], seed);
-              return { changed: new Set(mixed.map((m) => m.claim_id)).size > 1, value: mixed };
+              // WHAT IS PERTURBED, AND THE LICENSING THAT WAS MISSING BEFORE.
+              // The coordination is that the readings merged are readings OF
+              // ONE CLAIM. Shuffling WHICH SOURCE said what is NOT licensed —
+              // `mergeTestimony`'s verdict is invariant to source identity by
+              // construction, A10's insensitive statistic exactly. So the
+              // perturbation destroys the claim-GROUPING instead, mixing the
+              // two claims' readings.
+              //
+              // The earlier version stopped there and was still unlicensed: it
+              // mixed in whichever second claim came to hand, and on one
+              // material that claim contributed ONLY `undetermined` readings —
+              // which `mergeTestimony` genuinely does not read, so the mix
+              // could not change the merge, and the arm reported the
+              // coordination arbitrary while testing nothing. It fired 20 of
+              // 20 there and 0 of 20 on the other material, on that difference
+              // alone. Now the mixed-in readings are the CORROBORATED claim's,
+              // selected because they carry holds, and the licence is checked
+              // directly: the hold/refused counts the merge actually reads
+              // must differ between the clean and mixed sets.
+              const clean = spec.singleClaim.readings;
+              const mixed = seededShuffle([...clean, ...spec.corroboratedClaim.readings], seed);
+              const counts = (rs) => `${rs.filter((r) => r.verdict === "holds").length}/${rs.filter((r) => r.verdict === "refused").length}`;
+              return { changed: counts(mixed) !== counts(clean), value: mixed };
             },
             (mixed) => {
-              if (!mixed) return false;
-              if (!mixed.some((m) => m.verdict !== "undetermined")) return false;
-              const merged = mergeTestimony(mixed);
-              // Accomplishing the task means the mixed merge still yields the
-              // specimen's own correct verdict — which would mean the
-              // claim-grouping was doing no work.
-              const clean = mergeTestimony(mixed.filter((m) => m.claim_id === "mhc-specimen"));
-              return merged.case === clean.case && merged.holds.length === clean.holds.length;
+              const clean = mergeTestimony(spec.singleClaim.readings);
+              const got = mergeTestimony(mixed);
+              // Accomplished only if merging readings of two DIFFERENT claims
+              // still reproduces this claim's own standing — which would mean
+              // the claim-grouping was doing no work.
+              return got.case === clean.case && got.standing === clean.standing;
             },
           ),
-        discrimination: async () =>
-          against(
-            true,
-            "readings that all decline must not merge into agreement",
-            () => {
-              const declined = Array.from({ length: 3 }, (_, i) => ({
-                claim_id: "mhc-specimen",
-                who: `s${i}`,
-                verdict: "undetermined",
-                read: [],
-                edges: [],
-                grammar: [],
-                corroboration: null,
-              }));
-              return mergeTestimony(declined).case === "AGREE";
-            },
-          ),
+        discrimination: async () => {
+          // Real readings, not hand-built: the corroborated claim REVERSED is
+          // a claim this material does not state, read by the same systems.
+          // It must not come back corroborated.
+          const e = spec.corroboratedClaim.edge;
+          const readings = spec.readAcross({ subject: e.object, verb: e.verb, object: e.subject });
+          const holds = readings.filter((r) => r.verdict === "holds").length;
+          const merged = mergeTestimony(readings);
+          return {
+            completed: merged.standing === "corroborated",
+            // Licensed only if the reversed claim really is a different
+            // question to these systems — if it drew the same holds, nothing
+            // was controlled for.
+            perturbed: holds < spec.corroboratedClaim.holds,
+            detail: `reversed claim bound by ${holds} of ${readings.length} systems -> ${merged.case}/${merged.standing}`,
+          };
+        },
       },
     },
 
@@ -1515,18 +1609,35 @@ function renderReport(out) {
   L.push("");
   L.push("## Content-independence");
   L.push("");
-  if (out.independence.examined) {
-    L.push(`Held: **${out.independence.held}**. Materials: ${out.independence.materials.join(", ")}.`);
-    if (out.independence.divergent.length) {
-      L.push("");
-      L.push("Orders whose verdict changed with the content — these items are reading content, not structure:");
-      L.push("");
-      for (const d of out.independence.divergent) {
-        L.push(`- order ${d.order}: ` + d.statuses.map((x) => `${x.material}=\`${x.status}\``).join(", "));
-      }
-    }
-  } else {
+  if (!out.independence.examined) {
     L.push(out.independence.detail);
+  } else {
+    const ci = out.independence;
+    L.push(
+      "The MHC's claim is about the SCALE: a task's ORDER does not depend on what it is about. It is NOT a claim that a performer succeeds equally across domains — separating task from performance is precisely what makes a per-domain difference ordinary rather than a defect. The three outcomes are kept apart.",
+    );
+    L.push("");
+    L.push(`**Scale held: ${ci.held}** — ${ci.violations.length} order(s) changed their order-hood with the content. Materials: ${ci.materials.join(", ")}.`);
+    L.push("");
+    if (ci.violations.length) {
+      L.push("**Violations** — valid on one material, MIS-DECLARED on another. This is the real thing the scale forbids:");
+      L.push("");
+      for (const d of ci.violations) L.push(`- order ${d.order}: ` + d.cells.map((x) => `${x.material}=\`${x.status}\` (${x.validity})`).join(", "));
+      L.push("");
+    }
+    if (ci.performance.length) {
+      L.push("**Performance varied** — a well-formed task at that order in both materials; the system completed it in one and not the other. Ordinary, and what a stage measurement is for:");
+      L.push("");
+      for (const d of ci.performance) L.push(`- order ${d.order}: ` + d.cells.map((x) => `${x.material}=\`${x.status}\``).join(", "));
+      L.push("");
+    }
+    if (ci.noProbe.length) {
+      L.push("**No probe** — the material offers no specimen for that item. A fact about the material, not about the item or the system:");
+      L.push("");
+      for (const d of ci.noProbe) L.push(`- order ${d.order}: ` + d.cells.map((x) => `${x.material}=\`${x.status}\``).join(", "));
+      L.push("");
+    }
+    L.push(`Agreed outright on ${ci.agreed.length} order(s): ` + ci.agreed.map((a) => `${a.order} (\`${a.status}\`)`).join(", ") + ".");
   }
   L.push("");
   return L.join("\n");

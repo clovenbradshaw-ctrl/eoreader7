@@ -346,37 +346,29 @@
               "typed, directional relation",
               "population"
             ],
-            "name": "several whole systems compared: one claim read by each source, then the readings judged against each other",
-            "status": "refused",
-            "reason": "arbitrary_coordination",
-            "failedArms": [
-              {
-                "arm": "arbitrary",
-                "reason": "arbitrary_coordination",
-                "axiom": 3
-              }
-            ],
-            "detail": "axiom 3: the same constituents re-coordinated arbitrarily still accomplished the task, so the organization is arbitrary. Commons is explicit that arbitrary chaining of lower-order actions does not constitute a higher order. The system is UNMEASURED here, not failing.",
+            "name": "several whole systems compared: a standing no single system carries",
+            "status": "passed",
+            "detail": "10 source-systems. \"French invasion of Russia\" bound by 3 -> AGREE/corroborated; \"Russian author Leo\" bound by 1 -> SINGLE/single. Below the merge both read identically (a system saying \"holds\"), and no reading carries a standing of its own.",
             "arms": {
               "lowerOrder": {
                 "completed": false,
-                "detail": "the cross-system merge withheld; only one system's verdict available",
+                "detail": "one system says \"holds\" for both claims; the merges say corroborated and single",
                 "unreachable": false,
                 "perturbed": true,
                 "draws": 1,
                 "fired": 0
               },
               "arbitrary": {
-                "completed": true,
-                "detail": "accomplished the task in 20 of 20 seeded re-coordinations",
+                "completed": false,
+                "detail": "accomplished the task in 0 of 20 seeded re-coordinations",
                 "unreachable": false,
                 "perturbed": true,
                 "draws": 20,
-                "fired": 20
+                "fired": 0
               },
               "discrimination": {
                 "completed": false,
-                "detail": "readings that all decline must not merge into agreement",
+                "detail": "reversed claim bound by 0 of 10 systems -> UNDETERMINED/null",
                 "unreachable": false,
                 "perturbed": true,
                 "draws": 1,
@@ -433,6 +425,7 @@
               }
             ],
             "failedCount": 1,
+            "refusedCount": 0,
             "unmeasuredCount": 0
           },
           {
@@ -482,6 +475,7 @@
               }
             ],
             "failedCount": 0,
+            "refusedCount": 0,
             "unmeasuredCount": 0
           },
           {
@@ -532,6 +526,7 @@
               }
             ],
             "failedCount": 0,
+            "refusedCount": 0,
             "unmeasuredCount": 0
           },
           {
@@ -579,6 +574,7 @@
               }
             ],
             "failedCount": 0,
+            "refusedCount": 0,
             "unmeasuredCount": 0
           },
           {
@@ -626,6 +622,7 @@
               }
             ],
             "failedCount": 0,
+            "refusedCount": 0,
             "unmeasuredCount": 0
           },
           {
@@ -658,6 +655,7 @@
               }
             ],
             "failedCount": 0,
+            "refusedCount": 0,
             "unmeasuredCount": 1
           },
           {
@@ -705,6 +703,7 @@
               }
             ],
             "failedCount": 0,
+            "refusedCount": 0,
             "unmeasuredCount": 0
           },
           {
@@ -753,12 +752,13 @@
               }
             ],
             "failedCount": 0,
+            "refusedCount": 0,
             "unmeasuredCount": 0
           },
           {
             "order": 13,
             "name": "Metasystematic",
-            "status": "unmeasured",
+            "status": "passed",
             "items": [
               {
                 "id": "o13-metasystematic",
@@ -769,37 +769,29 @@
                   "typed, directional relation",
                   "population"
                 ],
-                "name": "several whole systems compared: one claim read by each source, then the readings judged against each other",
-                "status": "refused",
-                "reason": "arbitrary_coordination",
-                "failedArms": [
-                  {
-                    "arm": "arbitrary",
-                    "reason": "arbitrary_coordination",
-                    "axiom": 3
-                  }
-                ],
-                "detail": "axiom 3: the same constituents re-coordinated arbitrarily still accomplished the task, so the organization is arbitrary. Commons is explicit that arbitrary chaining of lower-order actions does not constitute a higher order. The system is UNMEASURED here, not failing.",
+                "name": "several whole systems compared: a standing no single system carries",
+                "status": "passed",
+                "detail": "10 source-systems. \"French invasion of Russia\" bound by 3 -> AGREE/corroborated; \"Russian author Leo\" bound by 1 -> SINGLE/single. Below the merge both read identically (a system saying \"holds\"), and no reading carries a standing of its own.",
                 "arms": {
                   "lowerOrder": {
                     "completed": false,
-                    "detail": "the cross-system merge withheld; only one system's verdict available",
+                    "detail": "one system says \"holds\" for both claims; the merges say corroborated and single",
                     "unreachable": false,
                     "perturbed": true,
                     "draws": 1,
                     "fired": 0
                   },
                   "arbitrary": {
-                    "completed": true,
-                    "detail": "accomplished the task in 20 of 20 seeded re-coordinations",
+                    "completed": false,
+                    "detail": "accomplished the task in 0 of 20 seeded re-coordinations",
                     "unreachable": false,
                     "perturbed": true,
                     "draws": 20,
-                    "fired": 20
+                    "fired": 0
                   },
                   "discrimination": {
                     "completed": false,
-                    "detail": "readings that all decline must not merge into agreement",
+                    "detail": "reversed claim bound by 0 of 10 systems -> UNDETERMINED/null",
                     "unreachable": false,
                     "perturbed": true,
                     "draws": 1,
@@ -809,7 +801,8 @@
               }
             ],
             "failedCount": 0,
-            "unmeasuredCount": 1
+            "refusedCount": 0,
+            "unmeasuredCount": 0
           }
         ]
       },
@@ -846,6 +839,10 @@
           {
             "order": 12,
             "name": "Systematic"
+          },
+          {
+            "order": 13,
+            "name": "Metasystematic"
           }
         ]
       },
@@ -1223,13 +1220,13 @@
               "typed, directional relation",
               "population"
             ],
-            "name": "several whole systems compared: one claim read by each source, then the readings judged against each other",
+            "name": "several whole systems compared: a standing no single system carries",
             "status": "passed",
-            "detail": "8 source-systems merged -> SINGLE (holds 1, refused 0, undetermined 7)",
+            "detail": "10 source-systems. \"French invasion of Russia\" bound by 2 -> AGREE/corroborated; \"29 August after Smolensk\" bound by 1 -> SINGLE/single. Below the merge both read identically (a system saying \"holds\"), and no reading carries a standing of its own.",
             "arms": {
               "lowerOrder": {
                 "completed": false,
-                "detail": "the cross-system merge withheld; only one system's verdict available",
+                "detail": "one system says \"holds\" for both claims; the merges say corroborated and single",
                 "unreachable": false,
                 "perturbed": true,
                 "draws": 1,
@@ -1245,7 +1242,7 @@
               },
               "discrimination": {
                 "completed": false,
-                "detail": "readings that all decline must not merge into agreement",
+                "detail": "reversed claim bound by 0 of 10 systems -> UNDETERMINED/null",
                 "unreachable": false,
                 "perturbed": true,
                 "draws": 1,
@@ -1302,6 +1299,7 @@
               }
             ],
             "failedCount": 1,
+            "refusedCount": 0,
             "unmeasuredCount": 0
           },
           {
@@ -1351,6 +1349,7 @@
               }
             ],
             "failedCount": 0,
+            "refusedCount": 0,
             "unmeasuredCount": 0
           },
           {
@@ -1401,6 +1400,7 @@
               }
             ],
             "failedCount": 1,
+            "refusedCount": 0,
             "unmeasuredCount": 0
           },
           {
@@ -1448,6 +1448,7 @@
               }
             ],
             "failedCount": 0,
+            "refusedCount": 0,
             "unmeasuredCount": 0
           },
           {
@@ -1495,6 +1496,7 @@
               }
             ],
             "failedCount": 0,
+            "refusedCount": 0,
             "unmeasuredCount": 0
           },
           {
@@ -1542,6 +1544,7 @@
               }
             ],
             "failedCount": 0,
+            "refusedCount": 0,
             "unmeasuredCount": 0
           },
           {
@@ -1589,6 +1592,7 @@
               }
             ],
             "failedCount": 0,
+            "refusedCount": 0,
             "unmeasuredCount": 0
           },
           {
@@ -1637,6 +1641,7 @@
               }
             ],
             "failedCount": 0,
+            "refusedCount": 0,
             "unmeasuredCount": 0
           },
           {
@@ -1653,13 +1658,13 @@
                   "typed, directional relation",
                   "population"
                 ],
-                "name": "several whole systems compared: one claim read by each source, then the readings judged against each other",
+                "name": "several whole systems compared: a standing no single system carries",
                 "status": "passed",
-                "detail": "8 source-systems merged -> SINGLE (holds 1, refused 0, undetermined 7)",
+                "detail": "10 source-systems. \"French invasion of Russia\" bound by 2 -> AGREE/corroborated; \"29 August after Smolensk\" bound by 1 -> SINGLE/single. Below the merge both read identically (a system saying \"holds\"), and no reading carries a standing of its own.",
                 "arms": {
                   "lowerOrder": {
                     "completed": false,
-                    "detail": "the cross-system merge withheld; only one system's verdict available",
+                    "detail": "one system says \"holds\" for both claims; the merges say corroborated and single",
                     "unreachable": false,
                     "perturbed": true,
                     "draws": 1,
@@ -1675,7 +1680,7 @@
                   },
                   "discrimination": {
                     "completed": false,
-                    "detail": "readings that all decline must not merge into agreement",
+                    "detail": "reversed claim bound by 0 of 10 systems -> UNDETERMINED/null",
                     "unreachable": false,
                     "perturbed": true,
                     "draws": 1,
@@ -1685,6 +1690,7 @@
               }
             ],
             "failedCount": 0,
+            "refusedCount": 0,
             "unmeasuredCount": 0
           }
         ]
@@ -1759,7 +1765,42 @@
       "war-and-peace",
       "borodino"
     ],
-    "held": false,
+    "held": true,
+    "violations": [],
+    "performance": [
+      {
+        "order": 7,
+        "cells": [
+          {
+            "material": "war-and-peace",
+            "status": "passed",
+            "validity": "valid"
+          },
+          {
+            "material": "borodino",
+            "status": "failed",
+            "validity": "valid"
+          }
+        ]
+      }
+    ],
+    "noProbe": [
+      {
+        "order": 10,
+        "cells": [
+          {
+            "material": "war-and-peace",
+            "status": "unmeasured",
+            "validity": "no-probe"
+          },
+          {
+            "material": "borodino",
+            "status": "passed",
+            "validity": "valid"
+          }
+        ]
+      }
+    ],
     "agreed": [
       {
         "order": 5,
@@ -1784,47 +1825,10 @@
       {
         "order": 12,
         "status": "passed"
-      }
-    ],
-    "divergent": [
-      {
-        "order": 7,
-        "statuses": [
-          {
-            "material": "war-and-peace",
-            "status": "passed"
-          },
-          {
-            "material": "borodino",
-            "status": "failed"
-          }
-        ]
-      },
-      {
-        "order": 10,
-        "statuses": [
-          {
-            "material": "war-and-peace",
-            "status": "unmeasured"
-          },
-          {
-            "material": "borodino",
-            "status": "passed"
-          }
-        ]
       },
       {
         "order": 13,
-        "statuses": [
-          {
-            "material": "war-and-peace",
-            "status": "unmeasured"
-          },
-          {
-            "material": "borodino",
-            "status": "passed"
-          }
-        ]
+        "status": "passed"
       }
     ]
   }

@@ -11,7 +11,7 @@ Material: a declared slice of 40 passages of 1200 chars each (of 61 available). 
 ## war-and-peace
 
 **Stage: none readable** — order 5 (Nominal) was measured and the system did not complete it — a real ceiling
-Passes above the cap, carried as observations and NOT folded into the stage: 6 (Sentential), 7 (Preoperational), 8 (Primary), 9 (Concrete), 11 (Formal), 12 (Systematic)
+Passes above the cap, carried as observations and NOT folded into the stage: 6 (Sentential), 7 (Preoperational), 8 (Primary), 9 (Concrete), 11 (Formal), 12 (Systematic), 13 (Metasystematic)
 
 | order | name | verdict | item | detail |
 |---|---|---|---|---|
@@ -23,7 +23,7 @@ Passes above the cap, carried as observations and NOT folded into the stage: 6 (
 | 10 | Abstract | `unmeasured` (organ_unreachable) | a variable quantified over a category: the whole filler set of an open slot | lowerOrder arm could not run: this material offers no subject+verb slot with two or more distinct fillers |
 | 11 | Formal | `passed` | one hypothesis tested against a constructed null: is this edge's connector asserted, or an artefact | 512/512 edges carry a standing — 8 corroborated, 504 single-witness |
 | 12 | Systematic | `passed` | many formal relations coordinated into one system, ordered by presupposition | 9 cells (4 of 9 cells hold, 0 fail, 0 told both ways, 0 gap, 5 not yet built); with a non-existent subject, downstream cells are not_yet_executable |
-| 13 | Metasystematic | `refused` (arbitrary_coordination) | several whole systems compared: one claim read by each source, then the readings judged against each other | axiom 3: the same constituents re-coordinated arbitrarily still accomplished the task, so the organization is arbitrary. Commons is explicit that arbitrary chaining of lower-order actions does not constitute a higher order. The system is UNMEASURED here, not failing. |
+| 13 | Metasystematic | `passed` | several whole systems compared: a standing no single system carries | 10 source-systems. "French invasion of Russia" bound by 3 -> AGREE/corroborated; "Russian author Leo" bound by 1 -> SINGLE/single. Below the merge both read identically (a system saying "holds"), and no reading carries a standing of its own. |
 
 ## borodino
 
@@ -40,7 +40,7 @@ Passes above the cap, carried as observations and NOT folded into the stage: 6 (
 | 10 | Abstract | `passed` | a variable quantified over a category: the whole filler set of an open slot | "Kutuzov ordered __" ranges over 2 filler(s); an absent subject ranges over 0 |
 | 11 | Formal | `passed` | one hypothesis tested against a constructed null: is this edge's connector asserted, or an artefact | 641/641 edges carry a standing — 11 corroborated, 630 single-witness |
 | 12 | Systematic | `passed` | many formal relations coordinated into one system, ordered by presupposition | 9 cells (4 of 9 cells hold, 0 fail, 0 told both ways, 0 gap, 5 not yet built); with a non-existent subject, downstream cells are not_yet_executable |
-| 13 | Metasystematic | `passed` | several whole systems compared: one claim read by each source, then the readings judged against each other | 8 source-systems merged -> SINGLE (holds 1, refused 0, undetermined 7) |
+| 13 | Metasystematic | `passed` | several whole systems compared: a standing no single system carries | 10 source-systems. "French invasion of Russia" bound by 2 -> AGREE/corroborated; "29 August after Smolensk" bound by 1 -> SINGLE/single. Below the merge both read identically (a system saying "holds"), and no reading carries a standing of its own. |
 
 ## Coreference: the fold against its own individuation rule
 
@@ -66,10 +66,16 @@ Precision is the other half and it is clean: **4/4 and 3/3** pairs the rule call
 
 ## Content-independence
 
-Held: **false**. Materials: war-and-peace, borodino.
+The MHC's claim is about the SCALE: a task's ORDER does not depend on what it is about. It is NOT a claim that a performer succeeds equally across domains — separating task from performance is precisely what makes a per-domain difference ordinary rather than a defect. The three outcomes are kept apart.
 
-Orders whose verdict changed with the content — these items are reading content, not structure:
+**Scale held: true** — 0 order(s) changed their order-hood with the content. Materials: war-and-peace, borodino.
+
+**Performance varied** — a well-formed task at that order in both materials; the system completed it in one and not the other. Ordinary, and what a stage measurement is for:
 
 - order 7: war-and-peace=`passed`, borodino=`failed`
+
+**No probe** — the material offers no specimen for that item. A fact about the material, not about the item or the system:
+
 - order 10: war-and-peace=`unmeasured`, borodino=`passed`
-- order 13: war-and-peace=`unmeasured`, borodino=`passed`
+
+Agreed outright on 7 order(s): 5 (`failed`), 6 (`passed`), 8 (`passed`), 9 (`passed`), 11 (`passed`), 12 (`passed`), 13 (`passed`).
