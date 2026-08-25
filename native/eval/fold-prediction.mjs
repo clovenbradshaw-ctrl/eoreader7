@@ -89,8 +89,40 @@ const precisionAtK = (ranked, truth) => {
   return hit / k;
 };
 
+const dyadicFloor = (n) => 1 << Math.floor(Math.log2(Math.max(1, n)));
+
 function runArm(observations, window, label) {
   const fold = createActivation({ window });
+  // ── the two forgetting-shaped candidates the research note predicts on ──
+  // ACT-R base-level activation: power-law forgetting, recency-weighted but
+  // frequency-preserving. d = 0.5 is the RECEIVED standard (giver: Anderson,
+  // ACT-R) — a prior in S14's sense, not a tuned value.
+  const occurrencesOf = new Map();               // motif -> [step indices]
+  const actrScore = (m, now) => {
+    let b = 0;
+    for (const t of occurrencesOf.get(m) ?? []) b += 1 / Math.sqrt(now - t + 1);
+    return b;
+  };
+  // Measured need-odds: the material's own P(arrives next | dyadic recency
+  // bin, dyadic frequency bin), tallied CAUSALLY from the prefix — Anderson
+  // & Schooler's environmental analysis run on the material by the reader as
+  // it reads. No functional form; backoff ladder cell -> recency margin ->
+  // frequency, each level disclosed by construction in the code below.
+  const cellTallies = new Map();                 // "r|f" -> {trials, arrivals}
+  const recencyTallies = new Map();              // r -> {trials, arrivals}
+  const cellOf = (m, now) => {
+    const r = dyadicFloor(now - (lastAt.get(m) ?? now) + 1);
+    const f = dyadicFloor(count.get(m) ?? 1);
+    return { key: r + "|" + f, r };
+  };
+  const needOdds = (m, now) => {
+    const { key, r } = cellOf(m, now);
+    const cell = cellTallies.get(key);
+    if (cell && cell.trials > 0) return cell.arrivals / cell.trials;
+    const marg = recencyTallies.get(r);
+    if (marg && marg.trials > 0) return marg.arrivals / marg.trials;
+    return (count.get(m) ?? 0) / Math.max(1, now);
+  };
   // The explicitly undecayed control the API itself offers (window: null).
   // The fold interpolates between recency (small window) and accumulation
   // (undecayed), so running both ends says WHERE on that continuum this
@@ -98,13 +130,18 @@ function runArm(observations, window, label) {
   const undecayed = createActivation({ window: null });
   const count = new Map();          // motif -> occurrences so far
   const lastAt = new Map();         // motif -> last sentence index
-  const scores = { "baseline:base-rate": [], "baseline:recency": [], "candidate:fold": [], "control:fold-undecayed": [] };
+  const scores = { "baseline:base-rate": [], "baseline:recency": [], "candidate:fold": [], "control:fold-undecayed": [], "candidate:actr-prior": [], "candidate:need-odds-measured": [] };
   let chance = [];
   let steps = 0;
 
   for (let t = 0; t < observations.length - 1; t += 1) {
     const here = observations[t];
-    for (const m of here) { count.set(m, (count.get(m) ?? 0) + 1); lastAt.set(m, t); }
+    for (const m of here) {
+      count.set(m, (count.get(m) ?? 0) + 1);
+      if (!occurrencesOf.has(m)) occurrencesOf.set(m, []);
+      occurrencesOf.get(m).push(t);
+      lastAt.set(m, t);
+    }
     fold.observe(here);
     undecayed.observe(here);
 
@@ -120,21 +157,57 @@ function runArm(observations, window, label) {
     const p2 = precisionAtK(rank((m) => lastAt.get(m) ?? -Infinity), truth);
     const p3 = precisionAtK(rank((m) => fold.activationOf(m)), truth);
     const p4 = precisionAtK(rank((m) => undecayed.activationOf(m)), truth);
+    const p5 = precisionAtK(rank((m) => actrScore(m, t)), truth);
+    const p6 = precisionAtK(rank((m) => needOdds(m, t)), truth);
     if (p1 == null) continue;
     scores["baseline:base-rate"].push(p1);
     scores["baseline:recency"].push(p2);
     scores["candidate:fold"].push(p3);
     scores["control:fold-undecayed"].push(p4);
+    scores["candidate:actr-prior"].push(p5);
+    scores["candidate:need-odds-measured"].push(p6);
+    // tallies update AFTER scoring — the step's own outcome never informs
+    // its own prediction (prequential; S3)
+    for (const m of live) {
+      const { key, r } = cellOf(m, t);
+      const hit = truth.has(m) ? 1 : 0;
+      const c = cellTallies.get(key) ?? { trials: 0, arrivals: 0 };
+      c.trials += 1; c.arrivals += hit; cellTallies.set(key, c);
+      const g = recencyTallies.get(r) ?? { trials: 0, arrivals: 0 };
+      g.trials += 1; g.arrivals += hit; recencyTallies.set(r, g);
+    }
     chance.push(Math.min(truth.size, live.length) / live.length);
     steps += 1;
   }
 
   const mean = (xs) => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : null);
+  // paired comparison of the headline claim, per step, so a small mean edge
+  // cannot ride on noise unexamined: sign counts and a normal approximation
+  // to the paired mean (the per-step scores are paired by construction —
+  // same step, same live set, same truth)
+  const paired = (a, b) => {
+    const d = scores[a].map((x, i) => x - scores[b][i]);
+    const m = mean(d);
+    const sd = Math.sqrt(mean(d.map((x) => (x - m) ** 2)) * (d.length / Math.max(1, d.length - 1)));
+    return {
+      of: `${a} minus ${b}`,
+      meanDelta: Number(m.toFixed(5)),
+      stepsBetter: d.filter((x) => x > 0).length,
+      stepsWorse: d.filter((x) => x < 0).length,
+      stepsTied: d.filter((x) => x === 0).length,
+      z: sd > 0 ? Number(((m / (sd / Math.sqrt(d.length)))).toFixed(2)) : null,
+    };
+  };
   return {
     arm: label,
     steps,
     chance: mean(chance),
     meanPrecisionAtK: Object.fromEntries(Object.entries(scores).map(([k, v]) => [k, mean(v)])),
+    pairedHeadline: [
+      paired("candidate:actr-prior", "baseline:base-rate"),
+      paired("candidate:need-odds-measured", "baseline:base-rate"),
+      paired("candidate:actr-prior", "candidate:fold"),
+    ],
   };
 }
 
