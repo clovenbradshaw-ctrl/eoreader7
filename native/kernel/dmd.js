@@ -113,14 +113,31 @@ export const symmetricEigen = (S, { sweeps = 100, tol = 1e-14 } = {}) => {
  * because the state dimension here is small by construction: salience selects
  * the observables, so this never sees a full vocabulary.
  */
-export const economySVD = (X, { rank = Infinity, relTol = 1e-10 } = {}) => {
+export const economySVD = (X, { rank = Infinity, relTol = null } = {}) => {
+  // Eigendecompose whichever Gram is SMALLER — X Xᵀ (m×m) or Xᵀ X (n×n).
+  // Both have the same nonzero spectrum, so this is an identity, not an
+  // approximation, and the rank can never exceed min(m,n) anyway. Derived
+  // from the matrix's own shape; nothing is chosen.
+  if (cols(X) < rows(X)) {
+    const { U: Vn, s, V: Un } = economySVD(transpose(X), { rank, relTol });
+    return { U: Un, s, V: Vn, rank: s.length };
+  }
   const G = matmul(X, transpose(X));               // m x m
   const { values, vectors } = symmetricEigen(G);
   const smax = Math.sqrt(Math.max(values[0] ?? 0, 0));
+  // NUMERICAL RANK, derived rather than typed: the standard criterion is
+  // tol = max(m,n) * eps * sigma_max — the floor below which a singular
+  // value is indistinguishable from floating-point noise at THIS matrix's
+  // size and scale. A hand-typed relTol would be a modelling choice wearing
+  // a precision floor's clothes (READING-SPEC S10's lesson, one register
+  // over); passing relTol explicitly overrides, and is then a declaration.
+  const eps = Number.EPSILON;
+  const derivedRelTol = Math.max(rows(X), cols(X)) * eps;
+  const tol = relTol ?? derivedRelTol;
   const keep = [];
   for (let i = 0; i < values.length && keep.length < rank; i += 1) {
     const s = Math.sqrt(Math.max(values[i], 0));
-    if (smax > 0 && s / smax < relTol) break;
+    if (smax > 0 && s / smax < tol) break;
     if (s <= EPS) break;
     keep.push({ s, i });
   }
@@ -244,18 +261,21 @@ export const eigenvalues = (Ain, { iterations = 500, tol = 1e-12 } = {}) => {
  * @param {number[][]} X  states 0..n-2 as columns (observables x snapshots)
  * @param {number[][]} Xp states 1..n-1 as columns, same shape
  * @param {object} options
- * @param {number} options.rank truncation; DECLARED by the caller, never
- *   defaulted — how many modes a reading is allowed to resolve is a property
- *   of the reading, the same standing every floor in this repo already holds.
+ * @param {number|"numerical"} options.rank truncation. An integer is a
+ *   declaration of model order. "numerical" derives it from the spectrum
+ *   itself — keep every direction the data excited above floating-point
+ *   noise — which is the only honest answer when no golden says how many
+ *   modes a reading has. Never silently defaulted either way.
  * @param {number} [options.dt] sample spacing, for continuous-time rates
  * @returns {{eigenvalues: Array<{re,im,magnitude,frequency,growth}>, rank: number, operator: number[][]}}
  */
-export const dmd = (X, Xp, { rank, dt = 1, relTol = 1e-10 } = {}) => {
-  if (!Number.isInteger(rank) || rank < 1)
-    throw new TypeError("dmd: rank is declared — how many modes a reading may resolve is never a default");
+export const dmd = (X, Xp, { rank, dt = 1, relTol = null } = {}) => {
+  const numerical = rank === "numerical";
+  if (!numerical && (!Number.isInteger(rank) || rank < 1))
+    throw new TypeError('dmd: rank is declared — an integer model order, or "numerical" to derive it from the spectrum; never a silent default');
   if (rows(X) !== rows(Xp) || cols(X) !== cols(Xp))
     throw new TypeError("dmd: X and X' must have the same shape");
-  const { U, s, V, rank: r } = economySVD(X, { rank, relTol });
+  const { U, s, V, rank: r } = economySVD(X, { rank: numerical ? Infinity : rank, relTol });
   if (r === 0) return Object.freeze({ eigenvalues: [], rank: 0, operator: [] });
 
   // Atilde = U^T X' V S^-1
