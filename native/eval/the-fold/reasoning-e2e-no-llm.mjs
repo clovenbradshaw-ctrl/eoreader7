@@ -36,16 +36,20 @@ async function organs() {
   return { splitSentences, extractSurfaces, discoverReferents, namesCorefer, diaNorm, discoverRelationVocab, extractRelations, tokenize };
 }
 
-// A RECEIVED closed class, with its own giver named in the engine's own
-// prior register (perceiver/text/priors.js, giver "lang/en") — never a word
-// list typed here. Kept separate from the bundle above so Tier 6 can run
-// the SAME material through a reader with and without it and show what it
-// changes, rather than asserting it.
-async function determiners() {
-  const { DEFINITE_DETERMINERS, INDEFINITE_DETERMINERS } = await import(
+// Two RECEIVED closed classes, each with its giver named in the engine's
+// own prior register (perceiver/text/priors.js, giver "lang/en") — never a
+// word list typed here. Kept separate from the organ bundle above so Tiers
+// 5 and 6 can run the SAME material through readers with and without them
+// and show what each one changes, rather than asserting it. app.js injects
+// both for real (see its own call site's comment).
+async function receivedClasses() {
+  const { DEFINITE_DETERMINERS, INDEFINITE_DETERMINERS, NEGATION_WORDS } = await import(
     "../../eoreader6.1/packages/engine/perceiver/text/priors.js"
   );
-  return new Set([...DEFINITE_DETERMINERS, ...INDEFINITE_DETERMINERS]);
+  return {
+    determiners: new Set([...DEFINITE_DETERMINERS, ...INDEFINITE_DETERMINERS]),
+    negationWords: NEGATION_WORDS,
+  };
 }
 
 // Real, self-contained prose — enough recurrence for the cast/vocabulary
@@ -85,7 +89,14 @@ function tripleOf(c) {
 
 async function main() {
   const base = await organs();
-  const relationsFor = makeRelationReader(base);
+  const classes = await receivedClasses();
+  // The SHIPPING configuration: app.js injects both received classes at its
+  // own makeRelationReader call site, so this driver reads the way the live
+  // app reads. `bare` is the same organs WITHOUT them, kept so Tiers 5 and 6
+  // can show each defect and its close side by side on identical material.
+  const relationsFor = makeRelationReader({ ...base, ...classes });
+  const bareFor = makeRelationReader(base);
+  const bare = bareFor(PASSAGES, { pool: PASSAGES });
   // `pool` is the corpus the passages were retrieved from. Three passages
   // is UNDER cite.js's own declared CORPUS_MINIMUM (10), so the
   // corpus-scale function-word filter does not run at all here — that
@@ -191,17 +202,31 @@ async function main() {
   // use the ONE English negation shape the extractor cannot see. The
   // engine's own negation gate is `negationBeforeVerbFor` (relations.js):
   // the negation word must sit BEFORE the verb it negates. ─────────────
-  line("== Tier 5: negation — where judge() catches it and where it cannot ==");
+  //
+  // What the extractor cannot read, it must not be allowed to judge. When
+  // the negation lands inside the OBJECT span instead, polarity stays "+"
+  // on a claim that means the opposite — and the last row below is the
+  // sharpest case in this whole driver: NOT a missed contradiction but an
+  // INVERTED one, bound and cited to the very passage that refutes it.
+  line("== Tier 5: negation — read correctly, or withheld; never judged unread ==");
   for (const c of [
     "Seward never negotiated the Alaska purchase", // pre-verbal, closed class
     "Seward hardly negotiated the Alaska purchase", // pre-verbal, same class, different word
     "Seward did not negotiate the Alaska purchase", // periphrastic: "did" takes the verb slot
     "Seward didn't negotiate the Alaska purchase", // contracted: nothing extracts at all
     "Seward negotiated not the Alaska purchase", // post-verbal: outside the gate entirely
+    "Lincoln did dismiss Seward", // the material says he did NOT — inverted, and cited
   ]) {
-    const v = report.read(c).claims[0];
-    line(`  "${c}"\n     read as: ${tripleOf(v)} -> ${v?.verdict ?? "no claim extracted"}`);
+    const off = bare.read(c).claims[0];
+    const on = report.read(c).claims[0];
+    const cite = off?.refs?.length ? ` [${off.refs.join("; ")}]` : "";
+    line(
+      `  "${c}"\n` +
+        `     read as: ${tripleOf(off)}\n` +
+        `     no negation class -> ${off?.verdict ?? "no claim extracted"}${cite}   |   received class injected -> ${on?.verdict ?? "no claim extracted"}`,
+    );
   }
+  line(`  (the engine's own gate is relations.js::negationBeforeVerbFor — the negation word must precede the verb)`);
   line("");
 
   // ── Tier 6: what the corpus floor costs on the OBJECT side. cite.js's
@@ -212,10 +237,9 @@ async function main() {
   // material, it does something that disclosure does not cover. ────────
   line("== Tier 6: a shared definite article is not evidence (received closed class, giver named) ==");
   {
-    const withOrgan = makeRelationReader({ ...base, determiners: await determiners() })(PASSAGES, { pool: PASSAGES });
     for (const c of ["Seward negotiated the Suez canal", "Seward negotiated Suez canal", "Seward negotiated the Alaska purchase"]) {
-      const off = report.read(c).claims[0];
-      const on = withOrgan.read(c).claims[0];
+      const off = bare.read(c).claims[0];
+      const on = report.read(c).claims[0];
       line(`  "${c}"\n     no determiner organ -> ${off?.verdict ?? "none"}   |   received class injected -> ${on?.verdict ?? "none"}`);
     }
     line(`  (the article alone was the whole binding: the same claim without "the" was already unbound)`);
@@ -226,10 +250,17 @@ async function main() {
   // door. Same organs, still zero model calls, but now judge()'s raw
   // verdict is SQUARED against its own negation and checked for object
   // specificity before anything is allowed to land as a verdict. ───────
-  line("== Tier 7: the whole checking ladder (evaluate + squarePolarity + checkObjectSpecificity) ==");
+  //
+  // Run against the BARE reader on purpose — the two received classes are
+  // now injected in the shipping app, so this tier answers the separate
+  // question of what the ladder catches on its own, without them. Both
+  // defenses are real and independent: Tier 6's fabricated object never
+  // gets produced once the determiner class is in, and it is still caught
+  // one rung up when it is not.
+  line("== Tier 7: the whole checking ladder, WITHOUT the received classes (evaluate + squarePolarity + checkObjectSpecificity) ==");
   {
     const referentIndexFor = makeReferentIndex(base);
-    const runCapacity = makeCapacityRunner({ referentIndexFor, relationsFor });
+    const runCapacity = makeCapacityRunner({ referentIndexFor, relationsFor: bareFor });
     const grid = makeGrid({ operators, taskLog });
     grid.withCapacities({ findCapacity, unresolvedCapacity });
     const sources = { "cabinet.txt": PASSAGES.map((p) => p.text).join(" ") };

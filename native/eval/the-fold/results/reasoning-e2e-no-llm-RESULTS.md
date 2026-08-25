@@ -128,12 +128,13 @@ its disclosed residue is *"auxiliary noise in the vocabulary,"* i.e.
 something that can only WIDEN what the reader hears. On the object side it
 does something that disclosure never covered: it fabricates a binding.
 
-**Fixed opt-in.** `makeRelationReader` accepts an optional
-`organs.determiners` — a RECEIVED closed class with its own named giver
-(the engine's `perceiver/text/priors.js`: `DEFINITE_DETERMINERS` +
+**Fixed.** `makeRelationReader` accepts an optional `organs.determiners` —
+a RECEIVED closed class with its own named giver (the engine's
+`perceiver/text/priors.js`: `DEFINITE_DETERMINERS` +
 `INDEFINITE_DETERMINERS`, giver `lang/en`), never a word list typed in
-this repo. Omitted, every existing caller is byte-identical. Injected, the
-fabricated bind closes and the real one survives:
+this repo. Omitted, every existing caller is byte-identical. **`app.js`
+injects it** at its own `makeRelationReader` call site, so this is live in
+the running app rather than an organ nothing enables:
 
 ```
 "Seward negotiated the Suez canal"       no organ -> bound   | injected -> unbound
@@ -163,12 +164,58 @@ must sit **before** the verb it negates. `"not"` and `"didn't"` are both
 in the engine's own `NEGATION_WORDS`; the shape is what fails, not the
 vocabulary. Periphrastic `"did not <verb>"` puts the auxiliary in the
 connector slot and swallows the real predicate into the object, so the
-claim that gets checked is not the claim that was written. The last row is
-the one worth naming as a hazard rather than a miss: a post-verbal
-negation stays polarity-positive and lands `bound` — a negated claim
-reported as supported. (It is an archaic construction, and it is not
-closed by the determiner organ either — `"alaska"`/`"purchase"` still
-match on their own.)
+claim that gets checked is not the claim that was written.
+
+### 3b. The same shape, one step worse: an *inverted* verdict wearing a real address
+
+The second pass named the post-verbal `bound` as a hazard and left it.
+Chasing it turned up the real defect, which is worse and which the first
+four rows above hide. The material's own third passage reads *"Lincoln did
+**not** dismiss Seward"* — and the extractor mis-parses **the material**
+identically, producing the edge `Lincoln —did[+]→ not dismiss Seward`.
+Both sides then carry an unread polarity, so they match:
+
+```
+"Lincoln did dismiss Seward"  ->  bound  [cabinet.txt#520-620]
+```
+
+Not a missed contradiction — an **inverted** one, cited to the very
+passage that refutes it.
+
+**Fixed, symmetrically, and by withholding rather than flipping.**
+`makeRelationReader` gained an optional `organs.negationWords` (again a
+received closed class with its own giver — `NEGATION_WORDS`, `lang/en`).
+When the **first token** of either the claim's object span *or* the
+backing edge's object span is a negation word, that comparison's polarity
+was never measured, and `judge()` returns `beyond-reach` with a typed
+reason instead of a verdict. It does not flip the polarity: this tier does
+not know what the reading should have been, only that nothing measured it.
+
+The edge side uses `every`, not `some` — a cleanly-stated edge sitting
+beside an unmeasurable one still binds on its own merits (pinned as its
+own test). The first-token gate keeps it narrow: that is exactly the
+position the mis-parse puts the word in, and a negation deeper inside an
+object (`"the treaty but not the purchase"`) is a different, real, still
+unaddressed construction.
+
+Measured on the same material, both classes now injected:
+
+| claim | before | after |
+|---|---|---|
+| `Seward never negotiated…` | contradicted | contradicted |
+| `Seward hardly negotiated…` | contradicted | contradicted |
+| `Seward negotiated the Alaska purchase` | bound | bound |
+| `Seward did not negotiate…` | unbound | **beyond-reach** |
+| `Seward negotiated not the…` | **bound** | **beyond-reach** |
+| `Lincoln did dismiss Seward` | **bound** (cited!) | **beyond-reach** |
+
+Every correct verdict survives; only the unread ones are withheld. And
+because `relationFindings` already keeps `beyond-reach` off the record's
+unsupported list, over-firing costs coverage but can never convict an
+answer — which is what makes the conservative direction safe.
+
+`"Seward didn't negotiate…"` still extracts nothing at all, so there is no
+claim object to type. That one stays disclosed and unfixed.
 
 ### 4. The whole ladder, run end to end
 
@@ -218,12 +265,27 @@ check stops it being believed.
   at all. That is precisely what `grammar-lens.js`'s
   `mismatchedConnectors` exists to disclose; this driver does not yet run
   it, which is the obvious next tier.
-- **Post-verbal negation is unhandled and lands `bound`** (§3, last row) —
-  named, not fixed.
-- **The determiner organ is opt-in and nothing in the live app injects
-  it.** Whether `app.js` should is the same open question CLAUDE.md
-  already records for `verbForms` and `createLemmatizer`, and it is not
-  resolved here.
+- **`"didn't"` extracts no claim at all**, so there is nothing to type as a
+  limit — it is silence, not a wrong answer, and it is not fixed.
+- **A negation deeper inside an object span** (`"the treaty but not the
+  purchase"`) is outside the first-token gate and still unaddressed.
+- **The withholding costs coverage.** Every claim whose negation the
+  extractor mis-slots now reads `beyond-reach` instead of a verdict —
+  including `"Lincoln did not dismiss Seward"`, which is *true* and used to
+  read `bound`. That `bound` was accidental (nothing measured its polarity;
+  the opposite claim bound just as readily), so withholding is the honest
+  reading, but it is a real loss of verified claims, not a free fix.
+- **Both received classes are now injected in `app.js`** — which means
+  this pass changed live behaviour, not just an opt-in path. Both changes
+  are one-directional (a binding can become `unbound`/`beyond-reach`,
+  never the reverse), and `beyond-reach` never joins the unsupported list,
+  so neither can newly convict an answer. Still: the open question
+  CLAUDE.md records for `verbForms` and `createLemmatizer` — whether the
+  live app should load a received prior by default — is answered *yes*
+  here for these two, on the grounds that each closes a measured FALSE
+  BINDING rather than merely widening what the reader hears. That
+  distinction is the whole argument, and it does not generalise to the
+  other two organs on its own.
 
 ## Bottom line
 
@@ -236,21 +298,30 @@ graph, compose a genuinely novel two-hop answer from two independently
 stated facts, and — at the top of the ladder — withhold a verdict on a
 claim that bound for the wrong reason instead of asserting it.
 
+And one more, from the negation pass: it can **decline to judge a claim
+whose polarity nothing ever read**, rather than binding it to the passage
+that says the opposite.
+
 What it cannot do is read English shapes the clause extractor was never
-built for, and the honest form of that limit is the table in §3 rather
-than the sentence the first pass wrote.
+built for. The honest form of that limit is the table in §3 rather than
+the sentence the first pass wrote — and §3b is the reason it matters: an
+unread shape is not a gap in coverage, it is an opening for a confident
+wrong answer, until something refuses to judge what nothing measured.
 
 ## Test coverage added by the second pass
 
-`hypergraph.test.mjs` +7 (endpoint disclosure on a bound claim, on a
-token-only object, the description CONTROL, a form-resolved subject; the
-determiner defect pinned as it actually behaves, the received class
-closing it, and an opt-in byte-identity check).
+`hypergraph.test.mjs` +13: the endpoint-disclosure four (bound claim,
+token-only object, the description CONTROL, a form-resolved subject); the
+determiner three (the defect pinned as it actually behaves, the received
+class closing it, an opt-in byte-identity check); and the negation six
+(the inverted-and-cited `bound` pinned as the defect, the class closing
+it, the claim side, a CONTROL proving a correctly-read negation still
+contradicts, `every`-not-`some` on a clean edge beside an unmeasurable
+one, and a second opt-in byte-identity check).
 `verification.test.mjs` +4 (Entity never asserts an unresolved object,
 keeps its plain sentence when both really resolved, discloses a
 form-resolved subject, and says so when a claim carries no disclosure at
-all). All pass; the pre-existing failures in this environment are
-unchanged — see the environment note below.
+all).
 
 ## Environment note, disclosed rather than glossed over
 
@@ -262,20 +333,19 @@ mount name — see the script's own header). It was reconstructed the way
 was never run here, so vendored-package tests cannot pass either.
 
 Measured against that, via `git stash` on exactly this pass's source
-files, over every test file that imports `hypergraph.js` or
-`verification.js` (`adversarial-dialogue`, `capacity-runner`, `crown`,
-`experiencer`, `grammar-lens`, `hl`, `hl-acquire`, `holon`, `hypergraph`,
-`verification`):
+files. The endpoint/determiner half was measured over every test file
+importing `hypergraph.js` or `verification.js` (238/224/14 before,
+249/235/14 after). The negation half, which also touches `app.js`, was
+measured over the **whole suite**:
 
 | | tests | pass | fail |
 |---|---|---|---|
-| before this pass | 238 | 224 | 14 |
-| after | 249 | 235 | 14 |
+| before the negation pass | 993 | 972 | 21 |
+| after | 999 | 978 | 21 |
 
-The same 14, named rather than counted: 8 in `crown.test.mjs`, 2 whole
-files (`hl.test.mjs`, `hl-acquire.test.mjs` — the engine cut pinned at
-this mount predates `interpretation/hl.js`), and 4 in
-`hypergraph.test.mjs` (two POS-prior/treebank-dependent connector cases,
-two referent-bar/pronoun cases). Every one of them fails identically with
-this pass's changes stashed. `verification.test.mjs` is fully green before
-and after. +11 tests, all passing, zero regressions.
+The 21 are pre-existing and identical with the changes stashed: 8 in
+`crown.test.mjs`, 2 whole files (`hl.test.mjs`, `hl-acquire.test.mjs` —
+the engine cut pinned at this mount predates `interpretation/hl.js`), 4
+in `hypergraph.test.mjs` (POS-prior/treebank and referent-bar cases), and
+the rest in files needing vendored packages `npm install` never fetched
+here. `verification.test.mjs` is fully green throughout. Zero regressions.
