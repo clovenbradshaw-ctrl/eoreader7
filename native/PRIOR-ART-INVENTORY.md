@@ -67,6 +67,32 @@ whose window never contracts under startle reads less like a human than
 one whose does. dmdWindow measures the calm reach; surprise is what
 licenses departing from it.
 
+**`nul/index.js`'s testimony chain (ground/difference/pattern/witness)** —
+unconsumed: native's own `kernel/witness.js` is a DIFFERENT organ (the
+admission gate — candidate nomination is not admission), and no native
+module carries the gap-typed testimony ladder. Seat: whichever pass gives
+native a verdict/testimony tier. **The port must arrive pre-fixed:**
+2026-08-25, legacy witness was measured relabeling every upstream gap from
+`pattern()` (unknown_spec, incommensurate_extent, unreceived_origin — none
+carry a boolean `moved`) as `made_no_difference`, destroying the refusal's
+type and detail — a methodological refusal wearing a substantive verdict's
+label. witness already passed its OTHER upstream gaps through verbatim
+(`admissible` via `return bad`; `isGap(figure)` one line up); pattern was
+the sole asymmetry. The invariant, stated generally so the port carries it:
+an upstream typed refusal passes through a downstream guard as itself,
+never relabeled — every input a guard rejects must be separated into "a
+gap arriving" (pass it through) and "the thing genuinely absent or
+malformed" (this guard's own verdict). Fixed in the legacy snapshot
+(submodule commit `c164686`, pinned in `conformance/confabulation.test.js`
+with a real pattern() gap and an `Object.is` identity assertion; suite
+1188/1175, zero regressions) — drafted by a 1.5B local model through
+the-fold's referent-scout/byte-delta pipeline and adversarially verified
+(650-combination differential), full account in the-fold's
+`eval/results/referent-patch-RESULTS.md`. The eoreader6.1 remote is
+outside this session's push scope, so the commit also ships as a
+`git am`-able patch: the-fold
+`eval/results/eoreader6.1-witness-gap-passthrough.patch`.
+
 **`perceiver/text/narrator.js` / `presence.js`** — unread here beyond
 their names; named so the next pass greps before building anything
 narrator- or presence-shaped.
