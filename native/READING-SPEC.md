@@ -345,9 +345,8 @@ activation.js's df tables and Hebbian edges never forget (edgeSlots is
 competition-capping, not decay) — the fan-effect prediction on long
 material is the standing open claim this entry leaves on the board.
 
-## S15 — amended by falsification (same day): the received exponent is a text-scale prior, not a constant of the mechanism
-
-Put where it could lose (`eval/results/forgetting-falsification-RESULTS.md`,
+**Amended by falsification, same day: the received exponent is a
+text-scale prior, not a constant of the mechanism.** Put where it could lose (`eval/results/forgetting-falsification-RESULTS.md`,
 predictions frozen first): at ENTITY level on a real book the law
 strengthened — anticipating which cast referent returns next improves 57%
 relative over frequency (z = 5.32, order-borne) — and on real audio
