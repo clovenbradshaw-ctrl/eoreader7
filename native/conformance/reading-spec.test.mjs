@@ -94,7 +94,53 @@ test("S2/S3: the retraction records stand — prefix and lookahead rules are wri
 // ── S8: the spec itself is present and appended-to, never emptied ───────
 test("S8: READING-SPEC.md exists and carries every section the suite enforces", () => {
   const spec = read("../READING-SPEC.md");
-  for (const section of ["S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8", "S9", "S10"]) {
+  for (const section of ["S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8", "S9", "S10", "S11", "S12", "S13", "S14"]) {
     assert.match(spec, new RegExp(`## ${section} `), `${section} is present`);
   }
+});
+
+// ── S11/S12: the occurrence-level collapse organ and its received prior ──
+test("S12: the construction prior names its giver, its licence, and what the ladder does short of the floor", () => {
+  const prior = JSON.parse(read("../priors/construction-eng.json"));
+  assert.match(prior.provenance.giver, /Universal Dependencies/);
+  assert.equal(prior.provenance.license, "CC BY-SA 4.0");
+  assert.match(prior.declared.backoff, /typed gap/, "the ladder ends in a gap, never a guess");
+  assert.match(prior.declared.scope, /ambiguous forms only/);
+});
+
+test("S12: collapseForm holds LIVE as a standing — the superposition failing to collapse is a result", () => {
+  const src = read("../adapters/text/construction.js");
+  assert.match(src, /"live"/, "live is a named standing");
+  assert.match(src, /"gap"/, "gap is a named standing");
+  assert.match(src, /minShare/, "the floor is the caller's declaration");
+});
+
+// ── S13: DMD is pure, causal-by-caller, and the name collision is disclosed ──
+test("S13: kernel/dmd.js imports nothing — a trajectory of numbers in, modes out", () => {
+  const src = read("../kernel/dmd.js");
+  assert.ok(!/^\s*import\s/m.test(src), "no imports: no engine, no fs, no notion of text");
+  assert.match(src, /Hemati/, "the streaming (causal) formulation is cited where the batch core is defined");
+  assert.match(src, /read the future/, "the lookahead hazard is stated at the definition, not left to the caller to guess");
+});
+
+test("S13: the dmdWindow / dmd.js name collision is disclosed where a reader would hit it", () => {
+  const spec = read("../READING-SPEC.md");
+  assert.match(spec, /dmdWindow/, "S13 names both bearers of the initials");
+  assert.match(spec, /Dynamic Mode Decomposition/);
+});
+
+// ── S14: the operator order derives from the engine's own axes ──────────
+test("S14: domain-major, mode-minor over the engine's own DOMAINS x MODES yields the canonical helix", async () => {
+  const m = await import("../../legacy-eoreader6.1/packages/engine/operators.js");
+  const derived = [...m.OPERATOR_ORDER].sort((a, b) => {
+    const A = m.operatorOf(a), B = m.operatorOf(b);
+    return (m.DOMAINS.indexOf(A.domain) - m.DOMAINS.indexOf(B.domain))
+        || (m.MODES.indexOf(A.mode) - m.MODES.indexOf(B.mode));
+  });
+  assert.deepEqual(derived, ["NUL", "SIG", "INS", "SEG", "CON", "SYN", "DEF", "EVA", "REC"],
+    "the helix falls out of the engine's own exported axes — S12's derivation, pinned against drift");
+  // and the constant's divergence is real, not remembered: the engine itself
+  // rejects the sequence grid.js's wish->testimony fold performs
+  assert.throws(() => m.validateChain(["DEF", "EVA"]), /EVA before DEF/,
+    "the fossil is live in validateChain; S12 records why it is wrong and gates the change on conformance");
 });

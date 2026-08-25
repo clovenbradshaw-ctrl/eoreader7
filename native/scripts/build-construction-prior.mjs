@@ -125,6 +125,7 @@ writeFileSync(OUT, JSON.stringify({
     source: "https://raw.githubusercontent.com/UniversalDependencies/UD_English-EWT/master/en_ewt-ud-train.conllu",
     builder: "eoreader7 native/scripts/build-construction-prior.mjs",
     basis: "a form's UPOS distribution CONDITIONED on the dominant class of the following token — the observable trace of the construction, since HEAD/DEPREL are a parse and unavailable when reading raw prose",
+    dropped: "the source carries LEMMA, XPOS, FEATS, HEAD, DEPREL, DEPS, MISC per token; this output keeps none of them — in particular HEAD/DEPREL (the parse) and FEATS (e.g. VerbForm=Part) are cut here, and any downstream absence of them is this cut, not the treebank's ignorance (READING-SPEC S10)",
   },
   declared: {
     MIN_OBSERVATIONS,

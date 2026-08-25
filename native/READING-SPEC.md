@@ -173,3 +173,105 @@ Corollaries: aggregate multiplicative quantities geometrically or by
 order statistics, never by arithmetic mean of ratios (the rhythm prior's
 median and the surprise meter's max comply); a floor declared on a
 decayed quantity is a cross-class number and says so.
+
+## S11 — A type-level tally never answers an occurrence-level question
+
+The being-evidence gate (anchoring.js, driven by levers.mjs) decided whether
+a descriptor ACTS by asking whether the following word is a verb, answered
+from POSPrior@1's type-level counts (`VERB > AUX`). Measured at its own 33
+reading positions on Frankenstein: precision 1 in 5 — `had` (AUX 154 / VERB
+335) passes the wall and licenses "the murder had been committed", a passive
+whose surface subject is the patient. Two distinct error modes, neither a
+threshold: linear adjacency across a PP boundary ("the appearance of the
+city had…" scores `the city`), and passive voice (grammatical subject is not
+agent). **Rule.** Evidence for a per-occurrence question is carried per
+occurrence, and the interface must be able to hold it: `beingEvidence:
+Map<surface, count>` flattens any per-occurrence resolver before it can
+land, so the type signature was the bug. The engine's own roles.js states
+the principle ("a surface span is never the thing with a role — the
+OCCURRENCE is"); this entry records the price of ignoring it. (Earned:
+`native/eval/results/being-superposition-RESULTS.md`,
+`being-construction-frankenstein.json`.)
+
+## S12 — A received prior declares what it dropped, because that is where its consumers' collapses come from
+
+`build-pos-prior.mjs` is faithful to its own discipline ("ambiguity is
+preserved, never resolved") and still seeded S11's defect: CoNLL-U carries
+HEAD/DEPREL — the construction each `had` sat in — and the prior keeps
+`form → {UPOS: count}` alone. The superposition survived; the VARIABLE THAT
+WOULD COLLAPSE IT did not, so the first consumer collapsed it globally with
+one `>`. Dropping those columns is a boundary drawn (a SEG, in the algebra's
+terms) and it was never declared, so downstream the absence read as "the
+treebank doesn't know" rather than "the builder cut it." **Rule.** A prior's
+build step states what the source carried that the output does not, in the
+output's own provenance. And the repair is a conditioning level, not a
+smarter threshold: `ConstructionPrior@1`
+(`native/scripts/build-construction-prior.mjs`, UD EWT, CC BY-SA 4.0)
+conditions an ambiguous form's distribution on the dominant class of the
+following token — observable at read time, where HEAD/DEPREL (a parse) are
+not. `adapters/text/construction.js::collapseForm` resolves ONE occurrence
+against it, with a declared ladder (construction → form → typed gap) and a
+third standing beside collapsed and gap: **live** — the cell exists and does
+not clear the caller's floor, so the superposition did not collapse, named
+as a result. Measured: `had|been → AUX 0.967`, `had|the → VERB` (same form,
+two occurrences, two classes), 7 of 12 tag-wall admissions overturned, 0
+false rescues — and the two PP cases were predicted NOT to be fixed before
+the run, because their defect is S11's boundary error, which a class
+collapse cannot see. (Enforced: `native/tests/construction.test.js`, 9
+cases against the real priors.)
+
+## S13 — Phase comes from the trajectory; counts cannot carry it, and batch decomposition is lookahead
+
+Investigated: the quantum formalisms for holding a span's readings in
+superposition until context collapses them. The honest boundary, recorded
+so it is not re-crossed in either direction: (a) Born/Lüders over a density
+matrix built from corpus counts reduces EXACTLY to Bayes' rule — counts give
+|amplitude|² and the interference term cannot be estimated from frequencies,
+so that dressing adds notation, not physics. (b) What IS computable from
+exactly our data: contextuality — sheaf-theoretically, the obstruction to
+gluing per-context readings into one global assignment (contextual fraction
+by linear programming; for language, which signals, Contextuality-by-Default)
+— named as real unbuilt work. (c) What supplies the missing quantity
+mechanically: **Dynamic Mode Decomposition** (`native/kernel/dmd.js`, pure,
+8 analytic conformance cases). Its eigenvalues are complex — magnitude is
+growth/decay, argument is FREQUENCY — estimated from how the reading
+evolves, approximating Koopman eigenvalues; a damped rotation ρ=0.95 θ=0.4
+is recovered to 1e-6 as a genuine conjugate pair, and two modes mixed
+through a dense observation are separated by eigenvalue, not by threshold.
+Two standing constraints: batch DMD over a whole reading is S3's lookahead
+verbatim — a causal consumer feeds prefixes or streams (Hemati, Williams &
+Rowley 2014, incremental, equivalent to batch); and decomposition is not
+spreading — memory/activation.js's one-hop rule rejects the similarity
+FLOOD, an objection that does not transfer to decomposing an already-read
+trajectory, which is why the cap is respected rather than lifted.
+**Disclosed name collision:** `kernel/activation.js::dmdWindow` is
+Bateson's difference-that-makes-a-difference window; `kernel/dmd.js` is
+Dynamic Mode Decomposition. Unrelated meanings, same initials, both keep
+their literature's own name; confusing them would misread S5's window
+measurement as a modal decomposition or vice versa.
+
+## S14 — The operator order is derivable from the engine's own axes, and the constant disagrees with them
+
+Measured, in this repo, against the real engine: sorting the nine operators
+domain-major, mode-minor by the engine's OWN exported `DOMAINS`
+(Existence, Structure, Interpretation) × `MODES` (Differentiate, Relate,
+Generate) yields NUL SIG INS · SEG CON SYN · DEF EVA REC — the canonical
+helix, where every adjacency is a presupposition (nothing is signed that was
+not encountered; nothing bonded across a boundary not drawn; nothing
+evaluated against definitions that do not exist). The engine's
+`OPERATOR_ORDER` constant (NUL SEG SIG CON EVA DEF INS SYN REC) is the one
+constant that disagrees with the engine's own axes, and both places it
+diverges are the same failure — an undeclared act: `validateChain` REJECTS
+DEF → EVA, the exact sequence grid.js's own wish→testimony fold performs
+(latent only because that fold matches by object, not by supersedes-thread);
+and kinds.js:469 hard-codes EVA before DEF on the SAME target, where the EVA
+tests against `existence`/`constraint` gates computed earlier and never
+logged as the DEFs they are. Declare the missing SEG (S12) and the missing
+DEF and the canonical order is restored — the constant is a fossil of
+undeclared acts, not a dependency fact. **Rule.** `native/kernel/task-log.js`
+carries its own copy of the constant; changing it is a behavioral change
+gated on conformance (V7-CUT's compatibility law), so the constant STANDS
+until that pass, this entry is the recorded reason it is wrong, and no new
+native code hard-codes an operator sequence — an ordering claim cites either
+the axes derivation or this entry's fossil finding, never the bare constant
+as authority.
