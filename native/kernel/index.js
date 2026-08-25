@@ -20,3 +20,6 @@ export { createRelationCompositionLedger, relationCompositionChains, acquireComp
 export { TERRAINS, terrainOf, createTerrainIndex, indexTerrainEntries, snapshotTerrainState, snapshotTerrainReferents, projectTerrainState, terrainCounts } from "./terrain-state.js";
 export { createEmergentTerrainIndex, indexEmergentTerrainEntries, snapshotEmergentTerrainState, projectEmergentTerrains, mergeTerrainStates } from "./emergent-terrain.js";
 export { projectLexicon, lexiconTrajectory } from "./lexicon.js";
+export { createTerrainActivation, dmdWindow } from "./terrain-activation.js";
+export { networkStanding, directedEdges } from "./network-standing.js";
+export { projectHypergraph, hyperlexiconAt } from "./hypergraph-projection.js";

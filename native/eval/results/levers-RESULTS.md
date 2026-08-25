@@ -51,6 +51,24 @@ Binding effect at the honest configuration: thematic 632 → 628, activation
 894 → 895; 19–34 bindings land on descriptor beings. Small, and reported
 as small.
 
+## Lever 3 — the act closure (morphology): WORKS, and stacks
+
+Every attested inflection of a measured act joins the hearing vocabulary —
+the engine's own lemmatizer (eoreader5's lessons in its header) over the
+vendored UniMorph prior (giver in the file), presence walled by the
+material's own tokens. 43 measured acts → 120 attested forms.
+
+| | baseline | +anchorSpans | +actClosure |
+|---|---|---|---|
+| edges | 1,945 | 2,621 | **3,643** (+87%) |
+| pronoun edge ends | 118 | 176 | **230** (+95%) |
+
+Added forms are clean inflection families (do/does/done, become/became/
+becoming, see/saw, appear/appeared, reply/replied, call/called...). The
+known ambiguity rides disclosed: "seen" joins via "saw" because UniMorph
+preserves see-the-act / saw-the-tool, and sameAct never picks a lemma —
+the engine module's own decision #1.
+
 ## What was learned about "the stranger"
 
 The motivating case (Victor-as-"the stranger" in Walton's letters) is

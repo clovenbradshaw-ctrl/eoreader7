@@ -108,18 +108,69 @@ export function directDescriptorOccurrences(text, { encounterRef = "unknown" } =
   return Object.freeze(out.filter(Boolean));
 }
 
+import { chainView } from "../../kernel/fold.js";
+
+// Incremental over the fold's delta chain: occurrences are add-only, so the
+// per-surface groups persist and each delta folds in O(delta); an UPDATE
+// touching the schema demands the from-scratch path (exactness first).
+// Insertion order of the Map — first occurrence of each surface — is the
+// original's own output order; a full Frankenstein read diffed
+// byte-identical before this landed.
+const surfaceGroups = chainView(
+  (graphEntries) => {
+    const bySurface = new Map();
+    for (const x of graphEntries) {
+      if (x?.schema !== "EOReferentOccurrence@1") continue;
+      const key = x.canonicalSurface;
+      if (!bySurface.has(key)) bySurface.set(key, []);
+      bySurface.get(key).push(x);
+    }
+    return bySurface;
+  },
+  (bySurface, d) => {
+    if (d.updated.some((x) => x?.schema === "EOReferentOccurrence@1")) return null;
+    for (const x of d.appended) {
+      if (x?.schema !== "EOReferentOccurrence@1") continue;
+      const key = x.canonicalSurface;
+      if (!bySurface.has(key)) bySurface.set(key, []);
+      bySurface.get(key).push(x);
+    }
+    return bySurface;
+  },
+);
+
 /**
  * Recurrence earns an identity hypothesis, never timeless sameness.
  */
 export function descriptorHypotheses(graphEntries = []) {
-  const occurrences = graphEntries.filter((x) => x?.schema === "EOReferentOccurrence@1");
-  const bySurface = new Map();
-  for (const occ of occurrences) {
-    const key = occ.canonicalSurface;
-    if (!bySurface.has(key)) bySurface.set(key, []);
-    bySurface.get(key).push(occ);
-  }
+  return hypothesesFrom(surfaceGroups(graphEntries));
+}
 
+
+/**
+ * The same hypotheses over the FOLD's occurrences plus a handful of
+ * not-yet-folded ones — the per-encounter shape reviseTextFold needs. The
+ * fold side rides the chain view (O(delta)); the extras overlay affected
+ * groups copy-on-read, so the shared cached groups are never mutated with
+ * entries the fold does not yet hold. Output order is the original
+ * combined-array semantics: fold-known surfaces in first-occurrence order,
+ * new-only surfaces appended in arrival order — proven byte-identical on a
+ * full Frankenstein read.
+ */
+export function descriptorHypothesesWith(foldEntries = [], extraOccurrences = []) {
+  const cached = surfaceGroups(foldEntries);
+  if (!extraOccurrences.length) return hypothesesFrom(cached);
+  const overlay = new Map(cached);
+  for (const x of extraOccurrences) {
+    if (x?.schema !== "EOReferentOccurrence@1") continue;
+    const key = x.canonicalSurface;
+    const base = overlay.get(key);
+    overlay.set(key, base ? (overlay.get(key) === cached.get(key) ? [...base, x] : (base.push(x), base)) : [x]);
+  }
+  return hypothesesFrom(overlay);
+}
+
+function hypothesesFrom(bySurface) {
   const hypotheses = [];
   for (const [surface, group] of bySurface) {
     if (group.length < 2) continue;
@@ -143,6 +194,7 @@ export function descriptorHypotheses(graphEntries = []) {
   }
   return Object.freeze(hypotheses);
 }
+
 
 /**
  * Project the Fold's present best referential commitment from an identity

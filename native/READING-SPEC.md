@@ -104,3 +104,72 @@ rule: before building any reading mechanism in this repo, check P0–P7 and
 A1–A25 for the prior attempt; cite the entry when building on or departing
 from it. New refuted attempts are appended there (or here, when v7-specific),
 never merely fixed in silence.
+
+## S9 — Low sets possible for high; high sets probability for low
+
+The two directions of inference are different in KIND, and every
+subassembly declares which direction each of its inputs works:
+
+**Upward is possibility.** What exists at a lower level — the material's
+own tokens, occurrences, arrivals — sets what MAY exist above it. Nothing
+above may manufacture possibility: a received prior, however good, admits
+no form the material does not attest (the constitution's "grammar priors
+refuse and never admit" is this law's special case); a plan's words grant
+no retrieval the question's words did not (the-fold's holonic deviation,
+disclosed there); a measured act licenses no inflection the book does not
+contain.
+
+**Downward is probability.** What is established at a higher level — a
+measured act, a bound identity, a witnessed structure — sets which of the
+possible below is EXPECTED, heard, or admitted. Nothing below may assign
+standing by itself: recurrence alone admitting descriptor beings was this
+violation, measured ("the murder" recurred like a being and was admitted
+like one; levers-RESULTS.md) — the low evidence was real, and the standing
+it claimed was the high's to grant.
+
+The session's own levers are the law's worked examples, one per direction:
+`anchorSpans` (a BOUND identity — high — licenses a token position — low —
+as an anchor; the bare string "he" licenses nothing), and `actClosure`
+(the material's tokens — low — are the possibility wall; the measured act
+— high — selects which possible forms are heard; the prior only decides
+sameness and admits nothing). A violation in either direction reads the
+same way at review: an input crossing levels without naming its direction.
+
+## S10 — Three classes of math, one per tier; use the weakest that answers, name every crossing
+
+Arithmetic (monotone counting) is the LOG tier: identity and witness.
+A count never retreats — an arrival witnessed stays witnessed, the
+append-only log only grows, recurrence floors are order comparisons.
+Persistence is monotone arithmetic by construction; S9's upward clause is
+an arithmetic statement (possibility accumulates by counting, never by
+anything fancier).
+
+Geometric (ratios, exponential decay) is the PRESENCE tier: activation
+`v·γ^(now−t)`, `gammaFor(w) = 1−1/w`, margins `(top−second)/top`. The
+reach of the present is ratio-scale.
+
+Transcendental (log, entropy, KL) is the INFORMATION tier: transfer
+entropy, surprisal, aperture width — multiplicative evidence made
+additive, importing full probability semantics, the strongest assumptions
+on the ladder.
+
+The Network ladder climbs the classes in order, and that is the law's
+shape everywhere: count (arithmetic) sets what is POSSIBLE; a null's
+frequency ratio (geometric class) grants STANDING; transfer entropy
+(transcendental) grants DIRECTION. Each rung of meaning requires at least
+the next class of math, with its assumptions earned — never dressed on.
+
+**Rule.** Use the weakest class that answers; name the class at every
+crossing. The three failure modes, two already measured in this repo:
+(1) an arithmetic quantity in a geometric slot — the fold-unit clock bug,
+where observation SIZE advanced the decay exponent and a window measured
+as 8 decayed as ~1.5 (kernel/activation.js's own docstring carries it);
+(2) a count dressed as standing — recurrence-alone being admission
+(levers-RESULTS.md); (3) a transcendental magnitude reported where its
+probability semantics are not earned — TE strengths from sparse arrivals
+are sound as RANKS, not comparable as magnitudes across pairs with
+different arrival counts, and any report of them says which it means.
+Corollaries: aggregate multiplicative quantities geometrically or by
+order statistics, never by arithmetic mean of ratios (the rhythm prior's
+median and the surprise meter's max comply); a floor declared on a
+decayed quantity is a cross-class number and says so.
