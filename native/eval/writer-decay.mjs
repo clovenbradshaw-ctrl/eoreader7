@@ -38,7 +38,8 @@ import { createCausalTextPerceiver, textEncounters } from "../adapters/text/recu
 import { narrationFrames } from "../adapters/text/attribution.js";
 import { castSurfaceMap, bindNarrationFrames } from "../adapters/text/perspective-claims.js";
 import { resolvePronounsByActivation } from "../adapters/text/pronouns.js";
-import { createActivation, gammaFor } from "../kernel/activation.js";
+import { createActivation } from "../kernel/activation.js";
+import { writerDecay } from "../adapters/text/accessibility.js";
 import { createSession, admitChunked, sessionReferents } from "../../legacy-eoreader6.1/packages/host/corpus.js";
 
 const POS_PRIOR = JSON.parse(fs.readFileSync(new URL("../../legacy-eoreader6.1/bin/priors/pos/en-ud-ewt.json", import.meta.url), "utf8"));
@@ -108,41 +109,19 @@ async function main() {
     mentions.push({ ref: b.referentId, order: orderAt(b.start - stripped.offset), form: "pronoun" });
   }
 
-  // the curve: for each RETURN, gap since the same referent's previous mention
-  const byRef = new Map();
-  for (const m of mentions) { if (!byRef.has(m.ref)) byRef.set(m.ref, []); byRef.get(m.ref).push(m); }
-  const binOf = (gap) => 1 << Math.floor(Math.log2(Math.max(1, gap)));   // dyadic, structural
-  const bins = new Map();  // binFloor -> {pronoun, name, descriptor}
-  let returns = 0;
-  for (const list of byRef.values()) {
-    list.sort((a, b) => a.order - b.order);
-    for (let i = 1; i < list.length; i += 1) {
-      const gap = list[i].order - list[i - 1].order;
-      if (gap < 1) continue;                                  // same sentence: not a return
-      const b = binOf(gap);
-      if (!bins.has(b)) bins.set(b, { pronoun: 0, name: 0, descriptor: 0 });
-      bins.get(b)[list[i].form] += 1;
-      returns += 1;
-    }
-  }
-
-  const rows = [...bins.entries()].sort((a, b) => a[0] - b[0]).map(([floor, c]) => {
-    const total = c.pronoun + c.name + c.descriptor;
-    return {
-      gapBin: floor === 1 ? "1" : `${floor}-${floor * 2 - 1}`,
-      returns: total,
-      pronounShare: Number((c.pronoun / total).toFixed(3)),
-      nameShare: Number((c.name / total).toFixed(3)),
-      descriptorShare: Number((c.descriptor / total).toFixed(3)),
-    };
-  });
-
-  // the writer's window: widest dyadic bin where pronoun is the majority form
-  let window = null;
-  for (const [floor, c] of [...bins.entries()].sort((a, b) => a[0] - b[0])) {
-    const total = c.pronoun + c.name + c.descriptor;
-    if (total && c.pronoun / total > 0.5) window = floor * 2 - 1;        // the bin's ceiling
-  }
+  // the measurement is the kernel's + the NL adapter's, not this driver's:
+  // kernel/return-curve.js (omnimodal — forms discovered, dyadic bins,
+  // majority = plurality flip) read through adapters/text/accessibility.js
+  // (Ariel's forms; activation window; identity share). This driver only
+  // assembles the mention streams from the organs that own them.
+  const out = writerDecay(mentions);
+  const rows = out.curve.bins.map((b) => ({
+    gapBin: b.floor === 1 ? "1" : `${b.floor}-${b.ceiling}`,
+    returns: b.total,
+    pronounShare: Number((b.shares.pronoun ?? 0).toFixed(3)),
+    nameShare: Number((b.shares.name ?? 0).toFixed(3)),
+    descriptorShare: Number((b.shares.descriptor ?? 0).toFixed(3)),
+  }));
 
   console.log(JSON.stringify({
     schema: "EOWriterDecayRun@1",
@@ -150,14 +129,17 @@ async function main() {
     givers: {
       theory: "Accessibility Theory (Ariel); referential distance (Givon 1983): referring-expression form encodes the writer's model of the reader's activation",
       forms: { pronoun: "bindNarrationFrames activation arm — organ-derived, NOT gold, disclosed", descriptor: "anchoring organ EOAnchorEvidence", name: "constitutional cast surfaces (host, coref-primed)" },
+      measurement: "kernel/return-curve.js (omnimodal) via adapters/text/accessibility.js (the NL organ)",
     },
     declared: { bins: "dyadic — structural doubling, never chosen", window: "widest bin where pronoun is the MAJORITY return form — majority is where a plurality flips, not a tuned constant", PRONOUN_PRESENT, PRONOUN_RECALL },
     cast: cast.referents?.length ?? 0,
     mentions: mentions.length,
-    returns,
+    returns: out.curve.returns,
     curve: rows,
-    writerWindow: window,
-    gamma: window != null && window > 1 ? Number(gammaFor(window).toFixed(4)) : null,
+    writerWindow: out.activationWindow,
+    gamma: out.gamma == null ? null : Number(out.gamma.toFixed(4)),
+    identityShareAtExtreme: out.identityShareAtExtreme,
+    basis: out.basis,
     prediction: "recorded before the run: pronoun returns collapse within a few sentences (activation layer); name returns survive gaps of hundreds WITHOUT re-gloss (identity layer)",
   }, null, 1));
 }

@@ -298,3 +298,23 @@ the retrieval/identity clock is undecayed, and handing one layer the
 other's clock is the measured way to lose (fold-prediction's own negative).
 (Earned: this session declared PRONOUN_PRESENT.window = 8 in three drivers
 while the material's own measured answer was ~1–2.)
+
+## S16 — The kernel is omnimodal; the medium's grammar lives in an adapter; every dial is a prior awaiting the material's own measurement
+
+S15's decay finding, generalized to an architecture rule with a checklist.
+The return-curve measurement was rebuilt to it as the exemplar:
+`kernel/return-curve.js` knows events, positions, and discovered form
+labels — a leitmotif's fragment-vs-full-restatement and a pronoun-vs-name
+return are the same curve to it (pinned by a music case in
+`return-curve.test.js`, no kernel change); `adapters/text/accessibility.js`
+is the NL organ that names prose's forms and reads the curve as a memory
+design; and `writerDecay({ prior })` starts from a genre-level prior
+(giver named) and supersedes it with the material's own curve once the
+material holds more returns — the supersession REPORTED in `basis`, never
+silent. **Rule.** A new reading capability lands split this way from the
+start (S6 already forbids the kernel speaking a medium's grammar; this adds
+the prior→material ladder as the dial discipline), and existing typed dials
+are worked off per `eval/results/meta-parameters-INVENTORY.md` — which also
+names the dials that must NOT be learned: structural floors (Born gate,
+binding's arrivals ≥ 2) are theorems about the mechanism, not models of the
+material, and un-typing them would be un-earning them.
