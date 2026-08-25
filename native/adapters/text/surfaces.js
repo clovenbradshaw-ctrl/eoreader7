@@ -513,24 +513,148 @@ export const discoverReferents = (surfaces, { minSentences, minPartners, groups 
     return diaNorm(a) === diaNorm(b);
   };
 
-  for (const entry of surfaces) {
+  // ── assignment: against the group's own strongest evidence, with merges
+  // witnessed downward and ambiguity stranded ─────────────────────────────
+  //
+  // The first shape of this loop matched an arriving surface against EVERY
+  // already-assigned surface and took the first hit. Two measured failures,
+  // both order-dependence (found by the-fold's MHC battery driving this
+  // organ over real Wikipedia material, then reproduced here at fixture
+  // scale — rich-referents.test.js pins both):
+  //
+  //   · STRANDING. "Mikhail Kutuzov" corefers with BOTH bare "Kutuzov" and
+  //     bare "Mikhail"; first-match-break joined whichever the scan reached
+  //     first and left the other stranded in its own referent. A greedy
+  //     first-match closure over the pairwise rule is not transitive, and
+  //     "is the same being as" necessarily is.
+  //   · ACCRETION. With bare "Mikhail" assigned FIRST and two real bearers
+  //     in the material ("Mikhail Kutuzov", "Mikhail Barclay") each compound
+  //     matched the bare fragment and both landed in ONE referent — two
+  //     generals merged through a shared first name sitting at (not above)
+  //     the generic fence.
+  //
+  // Both die to the same two rules, and the direction of containment is the
+  // whole difference between them (S9 — high sets probability for low: a
+  // group's ESTABLISHED evidence decides what may join it, never its
+  // weakest member):
+  //
+  //   1. Membership is decided against the group's MAXIMAL member — the
+  //      surface carrying the most individuating tokens — never against any
+  //      member. A fragment cannot pull in a third party the group's own
+  //      evidence refuses ("Mikhail Barclay" vs a group whose maximal is
+  //      "Mikhail Kutuzov" is refused, whatever bare members the group holds).
+  //   2. A surface matching MULTIPLE groups merges them only when it
+  //      WITNESSES the merge — its own individuating tokens CONTAIN each
+  //      group's maximal evidence ("Mikhail Kutuzov" ⊇ {mikhail}, ⊇
+  //      {kutuzov}: one person, stated by the material in one breath). A
+  //      surface on the SUBSET side of multiple groups (bare "Mikhail"
+  //      against established "Mikhail Kutuzov" and "Mikhail Barclay") is an
+  //      ambiguous fragment claiming membership in both, and strands as its
+  //      own referent — disclosed on its event, never guessed.
+  //
+  // The generic fence remains the outer guard (three-plus bearers make the
+  // shared token generic and it stops individuating at all); these rules
+  // close the two-bearer band the fence's own strict-exceeds convention
+  // deliberately leaves open.
+  const clusters = new Map(); // canonical id -> { maximal, maximalTokens, born }
+  const aliases = new Map(); // folded id -> surviving id
+  const resolveId = (id) => {
+    let c = id;
+    while (aliases.has(c)) c = aliases.get(c);
+    return c;
+  };
+  const merges = [];
+  const ambiguities = [];
+
+  // EVIDENCE BEFORE FRAGMENTS. The callers' mention-descending order is
+  // systematically backwards for assignment: a bare form's counts include
+  // every occurrence of the compounds containing it, so fragments outrank
+  // their own evidence and found groups first — which is what made both
+  // measured failures order-dependent, and what made the two-bearer
+  // ambiguity undetectable (the fragment was always already a group by the
+  // time its bearers arrived). Assignment therefore walks a COPY sorted
+  // most-individuated first (ties by recurrence, then mentions, then
+  // spelling for determinism): established, individuated surfaces define
+  // the field, and fragments then face it — S9's downward direction applied
+  // to the loop's own order. `surfaces` itself is left untouched for the
+  // floor/fence derivations and for callers.
+  const assignmentOrder = [...surfaces].sort((a, b) => {
+    const ia = individuating(a.surface).length;
+    const ib = individuating(b.surface).length;
+    if (ib !== ia) return ib - ia;
+    if (b.sentences !== a.sentences) return b.sentences - a.sentences;
+    if ((b.mentions ?? 0) !== (a.mentions ?? 0)) return (b.mentions ?? 0) - (a.mentions ?? 0);
+    return a.surface < b.surface ? -1 : a.surface > b.surface ? 1 : 0;
+  });
+
+  for (const entry of assignmentOrder) {
     const { surface, sentences } = entry;
     if (sentences <= sentencesFloorOf(entry)) continue;
 
-    let referentId = null;
-    for (const [existing, id] of assigned) {
-      if (corefersIndividuated(surface, existing)) { referentId = id; break; }
+    const arriving = individuating(surface);
+    const matched = [];
+    for (const [id, g] of clusters) {
+      if (corefersIndividuated(surface, g.maximal)) matched.push([id, g]);
     }
-    if (!referentId) referentId = `ref:auto:${diaNorm(surface).replace(/\s+/g, "_")}`;
+
+    let referentId = null;
+    let basis = "name-variant coreference";
+    if (matched.length === 1) {
+      referentId = matched[0][0];
+    } else if (matched.length > 1) {
+      const witnessed =
+        arriving.length > 0 &&
+        matched.every(([, g]) => g.maximalTokens.length > 0 && g.maximalTokens.every((t) => arriving.includes(t)));
+      if (witnessed) {
+        matched.sort((a, b) => a[1].born - b[1].born);
+        referentId = matched[0][0];
+        const folded = [];
+        for (const [otherId] of matched.slice(1)) {
+          aliases.set(otherId, referentId);
+          clusters.delete(otherId);
+          folded.push(otherId);
+        }
+        merges.push({ kept: referentId, folded, witness: surface });
+        basis = "name-variant coreference (this surface's own tokens contain every merged referent's evidence — a witnessed merge)";
+      } else {
+        // An ambiguous fragment is NOT a third being, and admitting it as
+        // one asserts something false at a layer that cannot check it. The
+        // type-level fact is "this FORM belongs to more than one established
+        // referent"; WHICH referent any given mention names is an
+        // occurrence-level question, answered by discourse salience — the
+        // same one-hop activation recall resolvePronouns already performs,
+        // exactly the anaphor a bare mid-document name is (S11: a type-level
+        // tally never answers an occurrence-level question; S15: writers use
+        // bare-name returns as middle-distance accessibility devices). So
+        // the form lands as a typed GAP carrying its candidates, admission
+        // withheld, and the occurrence layer closes it.
+        ambiguities.push({ surface, candidates: matched.map(([id]) => id) });
+        continue;
+      }
+    }
+    if (!referentId) {
+      referentId = `ref:auto:${diaNorm(surface).replace(/\s+/g, "_")}`;
+      clusters.set(referentId, { maximal: surface, maximalTokens: arriving, born: clusters.size + aliases.size });
+    } else {
+      const g = clusters.get(referentId);
+      if (arriving.length > g.maximalTokens.length) {
+        g.maximal = surface;
+        g.maximalTokens = arriving;
+      }
+    }
 
     events.push({
       type: "DEF.admit",
       referent_id: referentId,
       surface,
-      provenance: { giver: "surfaces/discoverReferents", tier: "engine", basis: "name-variant coreference" },
+      provenance: { giver: "surfaces/discoverReferents", tier: "engine", basis },
     });
     assigned.set(surface, referentId);
   }
+
+  // A merge folds ids that earlier events already carry — canonicalize so
+  // every event names the surviving referent, never a folded alias.
+  for (const e of events) e.referent_id = resolveId(e.referent_id);
 
   const referentIds = new Set(events.map((e) => e.referent_id));
   const gaps = [...referentIds].map((id) => ({
@@ -544,5 +668,20 @@ export const discoverReferents = (surfaces, { minSentences, minPartners, groups 
       "failing twice). Supply a per-text prior to close this gap.",
   }));
 
-  return { events, gaps };
+  for (const a of ambiguities) {
+    gaps.push({
+      reason: "ambiguous_surface",
+      surface: a.surface,
+      candidates: a.candidates.map(resolveId),
+      tier: "model",
+      needsWitness: true,
+      detail:
+        "this form corefers with more than one established referent, so the type level withholds " +
+        "admission; each of its mentions is an occurrence-level question — resolve by activation " +
+        "recall against the candidates (the perceiver's pronouns/roles machinery), or close with " +
+        "a per-text prior.",
+    });
+  }
+
+  return { events, gaps, merges };
 };

@@ -362,3 +362,74 @@ superseded by the material's own measured arrival odds — which text was
 too thin per-step to earn and audio earned decisively. Both directions of
 S14's ladder are now measured, and phrasing the law as "power law" where
 a medium's own odds say otherwise is the newly measured way to lose.
+
+## S17 — The type level names forms; being-identity is decided by evidence order, witnessed downward, and ambiguity is the occurrence layer's question
+
+Found by the-fold's MHC battery (its POLICIES.md P44) driving
+`discoverReferents` over two real Wikipedia materials, then reproduced at
+fixture scale (`tests/rich-referents.test.js`, cases 8-10). The old
+assignment loop matched an arriving surface against EVERY already-assigned
+surface and took the first hit — two measured failures, both
+order-dependence:
+
+- **Stranding.** "Mikhail Kutuzov" corefers with both bare "Kutuzov" and
+  bare "Mikhail"; first-match-break joined whichever the scan reached first
+  and left the other in its own referent. A greedy first-match closure over
+  the pairwise rule is not transitive; "is the same being as" necessarily
+  is. Measured live: 1 of 24 and 2 of 12 rule-endorsed pairs stranded, all
+  one shape.
+- **Accretion.** With the bare form assigned first and two real bearers in
+  the material, each compound matched the fragment and both landed in one
+  referent — two generals merged through a shared first name sitting at
+  (not above) the generic fence's strict-exceeds convention.
+
+Three mechanics replaced the scan, and the direction of each is S9's:
+
+1. **Evidence before fragments.** A bare form's counts include every
+   occurrence of the compounds containing it, so mention-descending order
+   systematically seats fragments first. Assignment now walks a copy sorted
+   most-individuated first — established evidence defines the field,
+   fragments face it.
+2. **Membership is decided against the group's maximal member**, never its
+   weakest: a fragment cannot pull in a third party the group's own
+   evidence refuses.
+3. **Merges are witnessed downward.** A surface merges multiple groups only
+   when its own individuating tokens CONTAIN each group's maximal evidence
+   ("Mikhail Kutuzov" ⊇ {mikhail}, ⊇ {kutuzov}: the material said it in one
+   breath). A surface on the subset side of multiple groups is an ambiguous
+   fragment and admits NOTHING.
+
+**The layering law, which is the entry's real content** (caught by the
+user, mid-fix, in one sentence: coreference is a solved problem — was this
+pass doing it with referents or not?): `discoverReferents` is the TYPE
+level. It may say "this form is a spelling-variant of that name" and "this
+form belongs to more than one established referent" — and no more. WHICH
+being a given mention names is an occurrence-level question, answered by
+discourse salience — the same one-hop activation recall `resolvePronouns`
+already performs, the anaphor a bare mid-document name is (S15 measured
+writers using exactly that device). The first fix attempt admitted an
+ambiguous form as its own referent — a third being that does not exist,
+asserted at a layer that cannot check it, S11's type-signature bug in a
+new coat. What ships instead: the ambiguous form lands as a typed
+`ambiguous_surface` gap carrying its candidate referent ids, admission
+withheld, closure named as the occurrence layer's (or a per-text prior's).
+No occurrence-level machinery was rebuilt in the type pass.
+
+**Residual, disclosed:** a GENERIC bare form with two bearers ("Vane" with
+Mary and Helena) still founds its own referent — the singleton-partner
+rescue refuses silently rather than reporting multi-candidacy, so that
+shape never reaches the ambiguity branch. Unifying the two ambiguity
+shapes into one gap is named work, not done here; the pinned Princess wall
+(bearers never merge) holds either way.
+
+**Evidence.** `rich-referents.test.js` 10/10 (7 prior + 3 new, one
+amended: the two-bearer wall now pins bearer separation and deliberately
+not the fragment's landing — the pairwise relation there admits no
+violation-free partition, and revising a minimal-violation reading on
+later evidence is revision.js's work). Full native suite 140/150 passing
+before and after — the identical 10 pre-existing environment failures,
+zero regressions. End to end, the-fold's MHC battery: coreference recall
+23/24 → 24/24 (War and Peace) and 10/12 → 12/12 (Borodino) against the
+rule's own verdicts, precision 4/4 and 3/3 unchanged, order 5 (Nominal)
+passing on both materials — and a stage readable for the first time
+(9 and 6, each named with its cap).

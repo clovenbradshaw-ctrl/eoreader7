@@ -130,3 +130,101 @@ test("singleton-partner rescue: a bare family name with ONE evidence-worthy bear
   assert.notEqual(vane, mary, "two possible bearers — the rescue must not fire");
   assert.notEqual(vane, helena, "two possible bearers — the rescue must not fire");
 });
+
+// ── the witnessed merge: transitivity through a compound surface ────────
+//
+// Found by the-fold's MHC battery (order 5, Nominal — POLICIES.md P44
+// there): on both Wikipedia fixtures the fold gathered 23/24 and 10/12 of
+// the pairs its own individuation rule calls one being, and every miss was
+// one shape — a bare token stranded while the compound containing it merged
+// with the OTHER bare token first. `Mikhail Kutuzov` corefers with BOTH
+// `Mikhail` and `Kutuzov`; the assignment loop took the first match and
+// broke, so which single-token form stranded was decided by scan order.
+// "Is the same being as" is transitive; a greedy first-match closure over
+// the pairwise rule is not. The compound surface is a WITNESS that the two
+// groups co-name one being, and the fix merges exactly on that witness —
+// never on chained pairwise similarity alone.
+test("a compound surface coreferent with two prior referents witnesses them as one being", () => {
+  const lines = [
+    "That morning General Kutuzov rode past the mill and said nothing of it.",
+    "By noon staff found Kutuzov at the weir gate reading the dispatches twice.",
+    "Later still Kutuzov signed the order and sent the rider south at dusk.",
+    "At the council Kutuzov spoke last and briefly, as was his habit.",
+    "The elder Mikhail kept his own counsel through the first reading.",
+    "Old friends called Mikhail stubborn long before the war made it useful.",
+    "They said Mikhail would not move the army for any letter from court.",
+    "The full name Mikhail Kutuzov appeared once on the order of the day.",
+    "Clerks wrote Mikhail Kutuzov again beneath the seal before it was sent.",
+    "Down the road Kate watched. Near the mill Kate waited. All month Kate counted the days.",
+  ];
+  const d = dr2(xs2(corpus(lines), {}), { minPartners: 2, minSentences: 1 });
+  const bare1 = refIdOf(d.events, "Mikhail");
+  const bare2 = refIdOf(d.events, "Kutuzov");
+  const full = refIdOf(d.events, "Mikhail Kutuzov");
+  assert.ok(bare1 && bare2 && full, "all three surfaces must actually be admitted — a vacuous fixture pins nothing");
+  assert.equal(bare1, full, "the compound gathers its first-name form");
+  assert.equal(bare2, full, "the compound gathers its surname form — the stranding this test exists for");
+});
+
+test("the witnessed merge never crosses the ambiguity wall: two bearers of one first name stay apart", () => {
+  // The Princess/Vane wall, first-name-shaped, and the case that makes blind
+  // union-find (and the OLD match-any-member scan) wrong: before the
+  // witnessed-merge fix, this exact fixture put BOTH compounds in ONE
+  // referent — two generals merged through a bare first name sitting at
+  // (not above) the generic fence, whenever the bare form was assigned
+  // first. The wall this test pins is bearer separation. Where the bare
+  // fragment lands is order-dependent by construction — the pairwise
+  // relation here (M~MK, M~MB, MK≁MB) admits NO violation-free partition,
+  // and {M,MK},{MB} is a minimal-violation reading; revising it when the
+  // second bearer arrives is revision.js's work, not this loop's — so this
+  // test deliberately does not pin the fragment.
+  const lines = [
+    "At dawn Mikhail Kutuzov read the first dispatch beside the map table.",
+    "By evening Mikhail Kutuzov had signed nothing and said less than that.",
+    "Meanwhile Mikhail Barclay argued for the withdrawal along the north road.",
+    "In the council Mikhail Barclay stood alone against the older marshals.",
+    "Some said Mikhail favoured caution above any glory the court could offer.",
+    "Others said Mikhail had already chosen and would not be moved from it.",
+    "Down the road Kate watched. Near the mill Kate waited. All month Kate counted the days.",
+  ];
+  const d = dr2(xs2(corpus(lines), {}), { minPartners: 2, minSentences: 1 });
+  const kutuzov = refIdOf(d.events, "Mikhail Kutuzov");
+  const barclay = refIdOf(d.events, "Mikhail Barclay");
+  assert.ok(kutuzov && barclay, "both bearers must actually be admitted");
+  assert.notEqual(kutuzov, barclay, "two bearers never merge through their shared first name");
+});
+
+test("a bare fragment matching two established bearers is a typed gap with candidates, never a third being", () => {
+  // The subset direction of the witness rule, landed at the right LAYER.
+  // Bare "Mikhail" corefers with the maximal evidence of BOTH established
+  // bearers and contains neither — the type level can say exactly that and
+  // no more. Admitting it as its own referent would assert a third being
+  // that does not exist; joining either group would guess. So admission is
+  // WITHHELD and the form lands as an `ambiguous_surface` gap naming its
+  // candidates — each of its MENTIONS is an occurrence-level question for
+  // the activation machinery (the same recall resolvePronouns performs),
+  // never this loop's to answer. (Before the fix, first-match-break
+  // silently handed the whole form to whichever group the scan reached
+  // first.)
+  const lines = [
+    "At dawn Mikhail Kutuzov read the first dispatch beside the map table.",
+    "By evening Mikhail Kutuzov had signed nothing and said less than that.",
+    "At last Mikhail Kutuzov chose the older road and the longer delay.",
+    "Meanwhile Mikhail Barclay argued for the withdrawal along the north road.",
+    "In the council Mikhail Barclay stood alone against the older marshals.",
+    "By autumn Mikhail Barclay had ceded the command without one word more.",
+    "Some said Mikhail favoured caution above any glory the court could offer.",
+    "Others said Mikhail had already chosen and would not be moved from it.",
+    "Down the road Kate watched. Near the mill Kate waited. All month Kate counted the days.",
+  ];
+  const d = dr2(xs2(corpus(lines), {}), { minPartners: 2, minSentences: 1 });
+  const kutuzov = refIdOf(d.events, "Mikhail Kutuzov");
+  const barclay = refIdOf(d.events, "Mikhail Barclay");
+  assert.ok(kutuzov && barclay, "both bearers must actually be admitted");
+  assert.notEqual(kutuzov, barclay);
+  assert.equal(refIdOf(d.events, "Mikhail"), undefined, "an ambiguous form is never admitted as a being");
+  const gap = d.gaps.find((g) => g.reason === "ambiguous_surface" && g.surface === "Mikhail");
+  assert.ok(gap, "the withholding is a typed gap, not silence");
+  assert.deepEqual([...gap.candidates].sort(), [barclay, kutuzov].sort(), "the gap carries exactly the two candidate referents");
+  assert.match(gap.detail, /occurrence-level/);
+});
