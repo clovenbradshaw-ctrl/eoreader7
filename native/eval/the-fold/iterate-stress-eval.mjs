@@ -15,8 +15,8 @@
 // Writes eval/results/stress-eval-<model>-<object>.json as it goes (so a
 // long run's partial results survive a crash) and prints a summary table.
 
-import * as taskLog from "../../eoreader6.1/packages/engine/holon/task-log.js";
-import * as enginePriors from "../../eoreader6.1/packages/engine/perceiver/text/priors.js";
+import * as taskLog from "../../eoreader7/legacy-eoreader6.1/packages/engine/holon/task-log.js";
+import * as enginePriors from "../../eoreader7/legacy-eoreader6.1/packages/engine/perceiver/text/priors.js";
 import { makeBuildLog } from "../build-log.js";
 import { scoutSpan, makeWidgetRouter, capture } from "../widget.js";
 import { witnessCode, witnessRegressed } from "../witness.js";

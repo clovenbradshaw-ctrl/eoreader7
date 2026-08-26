@@ -40,12 +40,12 @@
 // named, unbuilt integration work, the identical posture P36's own header
 // already takes for the ordinary chat pipeline.
 
-import * as operators from "../../eoreader6.1/packages/engine/operators.js";
-import * as taskLog from "../../eoreader6.1/packages/engine/holon/task-log.js";
-import * as enginePriors from "../../eoreader6.1/packages/engine/perceiver/text/priors.js";
-import { splitSentences as engineSentences } from "../../eoreader6.1/packages/engine/perceiver/text/spans.js";
-import { extractSurfaces, discoverReferents, namesCorefer, diaNorm } from "../../eoreader6.1/packages/engine/perceiver/text/surfaces.js";
-import { discoverRelationVocab, extractRelations } from "../../eoreader6.1/packages/engine/perceiver/text/relations.js";
+import * as operators from "../../eoreader7/legacy-eoreader6.1/packages/engine/operators.js";
+import * as taskLog from "../../eoreader7/legacy-eoreader6.1/packages/engine/holon/task-log.js";
+import * as enginePriors from "../../eoreader7/legacy-eoreader6.1/packages/engine/perceiver/text/priors.js";
+import { splitSentences as engineSentences } from "../../eoreader7/legacy-eoreader6.1/packages/engine/perceiver/text/spans.js";
+import { extractSurfaces, discoverReferents, namesCorefer, diaNorm } from "../../eoreader7/legacy-eoreader6.1/packages/engine/perceiver/text/surfaces.js";
+import { discoverRelationVocab, extractRelations } from "../../eoreader7/legacy-eoreader6.1/packages/engine/perceiver/text/relations.js";
 import { tokenize } from "../source.js";
 import { makeRelationReader } from "../hypergraph.js";
 import { chunkSource } from "../source.js";

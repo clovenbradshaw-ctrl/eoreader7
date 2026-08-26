@@ -120,16 +120,16 @@ import { stripNarrationSentences, stripScaffoldNarration, classifySentences } fr
 import { chunkSource, tokenize } from "../source.js";
 import { mechanicalFoldLine } from "../fold.js";
 
-import * as engineOperators from "../../eoreader6.1/packages/engine/operators.js";
-import * as engineTaskLog from "../../eoreader6.1/packages/engine/holon/task-log.js";
-import { splitSentences as engineSentences } from "../../eoreader6.1/packages/engine/perceiver/text/spans.js";
+import * as engineOperators from "../../eoreader7/legacy-eoreader6.1/packages/engine/operators.js";
+import * as engineTaskLog from "../../eoreader7/legacy-eoreader6.1/packages/engine/holon/task-log.js";
+import { splitSentences as engineSentences } from "../../eoreader7/legacy-eoreader6.1/packages/engine/perceiver/text/spans.js";
 import {
   extractSurfaces,
   discoverReferents,
   namesCorefer,
   diaNorm,
-} from "../../eoreader6.1/packages/engine/perceiver/text/surfaces.js";
-import { discoverRelationVocab, extractRelations } from "../../eoreader6.1/packages/engine/perceiver/text/relations.js";
+} from "../../eoreader7/legacy-eoreader6.1/packages/engine/perceiver/text/surfaces.js";
+import { discoverRelationVocab, extractRelations } from "../../eoreader7/legacy-eoreader6.1/packages/engine/perceiver/text/relations.js";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const OLLAMA = process.env.FOLD_OLLAMA_URL ?? "http://localhost:11434";

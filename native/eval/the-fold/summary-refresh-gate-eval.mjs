@@ -28,7 +28,7 @@ import {
   updateSummaryWithFold,
 } from "../fold.js";
 import { exchangeHeldGround, makeApertureMeter, meterSnapshot } from "../aperture.js";
-import { createTierStack, foldThrough } from "../../eoreader6.1/packages/engine/emergence/tiers.js";
+import { createTierStack, foldThrough } from "../../eoreader7/legacy-eoreader6.1/packages/engine/emergence/tiers.js";
 
 const OLLAMA = "http://localhost:11434";
 const CONVO_MODEL = process.argv[2] ?? "qwen2.5:14b-instruct-q4_K_M";

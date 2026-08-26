@@ -12,14 +12,14 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import * as enginePriors from "../../eoreader6.1/packages/engine/perceiver/text/priors.js";
+import * as enginePriors from "../../eoreader7/legacy-eoreader6.1/packages/engine/perceiver/text/priors.js";
 import { scoutSpan } from "../widget.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const INFLECTIONAL_SUFFIXES = enginePriors.INFLECTIONAL_SUFFIXES;
 
-const NUL_PATH = path.resolve(__dirname, "../../eoreader6.1/nul/index.js");
+const NUL_PATH = path.resolve(__dirname, "../../eoreader7/legacy-eoreader6.1/nul/index.js");
 console.log("Reading:", NUL_PATH);
 const code = fs.readFileSync(NUL_PATH, "utf8");
 console.log(`File length: ${code.length} chars, ${code.split("\n").length} lines`);

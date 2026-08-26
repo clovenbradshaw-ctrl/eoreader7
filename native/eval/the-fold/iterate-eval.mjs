@@ -22,8 +22,8 @@
 // walks), one repair turn (the smallest loop that can show convergence —
 // not a budget tuned to any outcome).
 
-import * as taskLog from "../../eoreader6.1/packages/engine/holon/task-log.js";
-import * as enginePriors from "../../eoreader6.1/packages/engine/perceiver/text/priors.js";
+import * as taskLog from "../../eoreader7/legacy-eoreader6.1/packages/engine/holon/task-log.js";
+import * as enginePriors from "../../eoreader7/legacy-eoreader6.1/packages/engine/perceiver/text/priors.js";
 import { makeBuildLog } from "../build-log.js";
 import { scoutSpan } from "../widget.js";
 import { witnessCode } from "../witness.js";

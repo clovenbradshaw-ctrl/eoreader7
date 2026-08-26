@@ -56,15 +56,15 @@ import { classifyCrossGraphEdges, activeWindow, makeReferentIndex, edgesMatch } 
 // Same organs, same relative path, dialogue.mjs's own precedent (the
 // cast.js injection pattern: engine functions arrive as arguments so this
 // module stays loadable from node without a browser DOM).
-import { splitSentences as engineSentences } from "../../eoreader6.1/packages/engine/perceiver/text/spans.js";
+import { splitSentences as engineSentences } from "../../eoreader7/legacy-eoreader6.1/packages/engine/perceiver/text/spans.js";
 import {
   extractSurfaces,
   discoverReferents,
   namesCorefer,
   diaNorm,
-} from "../../eoreader6.1/packages/engine/perceiver/text/surfaces.js";
-import { discoverRelationVocab, extractRelations } from "../../eoreader6.1/packages/engine/perceiver/text/relations.js";
-import { tokenize as engineTokenize } from "../../eoreader6.1/packages/engine/perceiver/text/material.js";
+} from "../../eoreader7/legacy-eoreader6.1/packages/engine/perceiver/text/surfaces.js";
+import { discoverRelationVocab, extractRelations } from "../../eoreader7/legacy-eoreader6.1/packages/engine/perceiver/text/relations.js";
+import { tokenize as engineTokenize } from "../../eoreader7/legacy-eoreader6.1/packages/engine/perceiver/text/material.js";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const OLLAMA = "http://localhost:11434";

@@ -22,9 +22,9 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
-import { createSession, admitChunked } from "../../eoreader6.1/packages/host/corpus.js";
-import { executePrompt } from "../../eoreader6.1/packages/host/surfer.js";
-import { createTierStack, foldThrough } from "../../eoreader6.1/packages/engine/emergence/tiers.js";
+import { createSession, admitChunked } from "../../eoreader7/legacy-eoreader6.1/packages/host/corpus.js";
+import { executePrompt } from "../../eoreader7/legacy-eoreader6.1/packages/host/surfer.js";
+import { createTierStack, foldThrough } from "../../eoreader7/legacy-eoreader6.1/packages/engine/emergence/tiers.js";
 import { tokenize } from "../source.js";
 import { checkGrounding } from "../grounding.js";
 

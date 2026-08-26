@@ -101,8 +101,8 @@ import { chunkSource } from "../source.js";
 import { makeRelationReader } from "../hypergraph.js";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
-const ENGINE = join(HERE, "..", "..", "eoreader6.1", "packages", "engine");
-const HOST = join(HERE, "..", "..", "eoreader6.1", "packages", "host", "index.js");
+const ENGINE = join(HERE, "..", "..", "eoreader7", "legacy-eoreader6.1", "packages", "engine");
+const HOST = join(HERE, "..", "..", "eoreader7", "legacy-eoreader6.1", "packages", "host", "index.js");
 
 const DRAWS = 200;
 const SEED = 0;

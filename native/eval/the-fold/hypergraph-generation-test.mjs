@@ -25,12 +25,12 @@ import { checkGrounding, unsupportedClaims } from "../grounding.js";
 import { attribute, attributedRefs } from "../cite.js";
 import { CONSTITUTION_PROMPT } from "../constitution.js";
 
-import { lineIndex, outlineOfIndex } from "../../eoreader6.1/packages/engine/perceiver/text/segments.js";
-import { splitSentences as engineSentences } from "../../eoreader6.1/packages/engine/perceiver/text/spans.js";
+import { lineIndex, outlineOfIndex } from "../../eoreader7/legacy-eoreader6.1/packages/engine/perceiver/text/segments.js";
+import { splitSentences as engineSentences } from "../../eoreader7/legacy-eoreader6.1/packages/engine/perceiver/text/spans.js";
 import {
   extractSurfaces, discoverReferents, namesCorefer, diaNorm,
-} from "../../eoreader6.1/packages/engine/perceiver/text/surfaces.js";
-import { discoverRelationVocab, extractRelations } from "../../eoreader6.1/packages/engine/perceiver/text/relations.js";
+} from "../../eoreader7/legacy-eoreader6.1/packages/engine/perceiver/text/surfaces.js";
+import { discoverRelationVocab, extractRelations } from "../../eoreader7/legacy-eoreader6.1/packages/engine/perceiver/text/relations.js";
 import { tokenize } from "../source.js";
 
 const HERE = dirname(fileURLToPath(import.meta.url));

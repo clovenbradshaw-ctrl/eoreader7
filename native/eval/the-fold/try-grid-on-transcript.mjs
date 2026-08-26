@@ -22,12 +22,12 @@ import { makeRelationReader } from "../hypergraph.js";
 import { makeReferentIndex, activeWindow } from "../dialogue-graph.js";
 import { makeGrid } from "../grid.js";
 
-import { splitSentences as engineSentences } from "../../eoreader6.1/packages/engine/perceiver/text/spans.js";
-import { extractSurfaces, discoverReferents, namesCorefer, diaNorm } from "../../eoreader6.1/packages/engine/perceiver/text/surfaces.js";
-import { discoverRelationVocab, extractRelations } from "../../eoreader6.1/packages/engine/perceiver/text/relations.js";
-import { tokenize as engineTokenize } from "../../eoreader6.1/packages/engine/perceiver/text/material.js";
-import * as operators from "../../eoreader6.1/packages/engine/operators.js";
-import * as taskLog from "../../eoreader6.1/packages/engine/holon/task-log.js";
+import { splitSentences as engineSentences } from "../../eoreader7/legacy-eoreader6.1/packages/engine/perceiver/text/spans.js";
+import { extractSurfaces, discoverReferents, namesCorefer, diaNorm } from "../../eoreader7/legacy-eoreader6.1/packages/engine/perceiver/text/surfaces.js";
+import { discoverRelationVocab, extractRelations } from "../../eoreader7/legacy-eoreader6.1/packages/engine/perceiver/text/relations.js";
+import { tokenize as engineTokenize } from "../../eoreader7/legacy-eoreader6.1/packages/engine/perceiver/text/material.js";
+import * as operators from "../../eoreader7/legacy-eoreader6.1/packages/engine/operators.js";
+import * as taskLog from "../../eoreader7/legacy-eoreader6.1/packages/engine/holon/task-log.js";
 
 const organs = { splitSentences: engineSentences, extractSurfaces, discoverReferents, namesCorefer, diaNorm, discoverRelationVocab, extractRelations, tokenize: engineTokenize };
 const readerFor = makeRelationReader(organs);

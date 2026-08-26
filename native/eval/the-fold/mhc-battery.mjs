@@ -61,7 +61,7 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 // known layouts are tried and the one actually found is DECLARED on the
 // report, so a reader always knows which engine produced the numbers.
 const LAYOUTS = [
-  { name: "eoreader6.1 (packages/engine/perceiver/text)", base: "../eoreader6.1/packages/engine/perceiver/text" },
+  { name: "eoreader6.1 (packages/engine/perceiver/text)", base: "../eoreader7/legacy-eoreader6.1/packages/engine/perceiver/text" },
   { name: "eoreader7 (native/adapters/text)", base: "../../eoreader7/native/adapters/text" },
 ];
 
