@@ -36,15 +36,15 @@ const POS_PRIOR = {
 };
 
 const organs = async () => {
-  const { splitSentences } = await import("../eoreader6.1/packages/engine/perceiver/text/spans.js");
+  const { splitSentences } = await import("../eoreader7/legacy-eoreader6.1/packages/engine/perceiver/text/spans.js");
   const { extractSurfaces, discoverReferents, namesCorefer, diaNorm } = await import(
-    "../eoreader6.1/packages/engine/perceiver/text/surfaces.js"
+    "../eoreader7/legacy-eoreader6.1/packages/engine/perceiver/text/surfaces.js"
   );
   const { discoverRelationVocab, extractRelations } = await import(
-    "../eoreader6.1/packages/engine/perceiver/text/relations.js"
+    "../eoreader7/legacy-eoreader6.1/packages/engine/perceiver/text/relations.js"
   );
-  const { tokenize } = await import("../eoreader6.1/packages/engine/perceiver/text/material.js");
-  const { classifyWord, dominantClass } = await import("../eoreader6.1/packages/engine/perceiver/text/wordclass.js");
+  const { tokenize } = await import("../eoreader7/legacy-eoreader6.1/packages/engine/perceiver/text/material.js");
+  const { classifyWord, dominantClass } = await import("../eoreader7/legacy-eoreader6.1/packages/engine/perceiver/text/wordclass.js");
   return {
     splitSentences, extractSurfaces, discoverReferents, namesCorefer, diaNorm,
     discoverRelationVocab, extractRelations, tokenize, classifyWord, dominantClass,
@@ -131,7 +131,7 @@ test("givers is null when posPriorMeta/thraxMeta are never injected — a disclo
 
 test("givers forwards wordclass.js's own named POS_PRIOR_META and THRAX_META when injected — the giver a reader of edge.connectorClass can now actually see", async () => {
   const { classifyWord, dominantClass } = await organs();
-  const { POS_PRIOR_META, THRAX_META } = await import("../eoreader6.1/packages/engine/perceiver/text/wordclass.js");
+  const { POS_PRIOR_META, THRAX_META } = await import("../eoreader7/legacy-eoreader6.1/packages/engine/perceiver/text/wordclass.js");
   const lens = makeGrammarLens({ classifyWord, dominantClass, posPrior: POS_PRIOR, posPriorMeta: POS_PRIOR_META, thraxMeta: THRAX_META });
   const classification = lens({ subject: "Pierre", verb: "spoke", object: "softly" }, { minShare: MIN_SHARE });
   assert.equal(classification.givers.measured, POS_PRIOR_META);
