@@ -23,11 +23,16 @@
 // not a budget tuned to any outcome).
 
 import * as taskLog from "../../eoreader6.1/packages/engine/holon/task-log.js";
+import * as enginePriors from "../../eoreader6.1/packages/engine/perceiver/text/priors.js";
 import { makeBuildLog } from "../build-log.js";
 import { scoutSpan } from "../widget.js";
 import { witnessCode } from "../witness.js";
 
 const buildLog = makeBuildLog(taskLog);
+// scoutSpan's suffixes arg is mandatory (widget.js:606-610) — the received
+// morphology class, giver lang/en, the same organ eval/iterate-stress-eval.mjs
+// already imports this way. This call site had gone stale.
+const INFLECTIONAL_SUFFIXES = enginePriors.INFLECTIONAL_SUFFIXES;
 
 const COUNTER = `<!DOCTYPE html>
 <html>
@@ -91,7 +96,7 @@ async function askModel(model, prompt) {
 function opsPrompt(entry, instruction) {
   const cur = buildLog.foldBuild(entry.log);
   const lang = cur.seg?.lang ?? "";
-  const scout = typeof cur.code === "string" ? scoutSpan(instruction, cur.code) : null;
+  const scout = typeof cur.code === "string" ? scoutSpan(instruction, cur.code, INFLECTIONAL_SUFFIXES) : null;
   const arena = scout ? cur.code.slice(scout.span[0], scout.span[1]) : cur.code ?? "";
   const refusals = entry.log.entries.filter((e) => e.operator === "DEF").slice(-2);
   const lastWitness = entry.log.entries.filter((e) => e.operator === "EVA").at(-1);

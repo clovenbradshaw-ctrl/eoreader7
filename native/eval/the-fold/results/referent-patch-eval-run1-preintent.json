@@ -1,0 +1,119 @@
+[
+  {
+    "name": "ground: seed is never validated, unlike draws/window",
+    "instruction": "ground validates that draws and window are integers >= 2 with a typed gap, but it never validates seed at all even though seed is used arithmetically (seed + d) in the sampling loop right below. Add a check that seed is an integer, returning a typed gap (using the same gap(...) helper already used for draws and window) if it is not.",
+    "referent": "ground",
+    "snipAddress": {
+      "source": "nul/index.js",
+      "byte_start": 32049,
+      "byte_end": 33946,
+      "refId": "e44e5dbf"
+    },
+    "scoutSpanContrast": {
+      "term": "returning",
+      "span": [
+        13896,
+        13966
+      ]
+    },
+    "attemptsUsed": 1,
+    "evidence": [],
+    "outcome": {
+      "landedVerified": true,
+      "attempt": 1,
+      "before": "export const ground = ({ material, draws, window, perturbation = \"shuffle\", statistic = \"burstiness\", seed = 0, via }) => {\n  if (!Array.isArray(material) || material.length === 0) return gap(\"empty_material\", {});\n  if (!Number.isInteger(draws) || draws < 2)\n    return gap(\"undeclared\", { what: \"draws\", why: \"the resolution of testimony is 1/draws and is never a default\" });\n  if (!Number.isInteger(window) || window < 2)\n    return gap(\"undeclared\", { what: \"window\", why: \"the reach of the present is never derived from material length\" });\n  const perturb = PERTURBATIONS[perturbation];\n  const stat = resolveStatistic(statistic);\n  if (!perturb) return gap(\"unknown_spec\", { perturbation });\n  if (!stat) return gap(\"unknown_spec\", { statistic });\n\n  const samples = [];\n  for (let d = 0; d < draws; d++) samples.push(stat(perturb(material, seed + d), { window }));\n  if (samples.some((v) => !Number.isFinite(v)))\n    return gap(\"unknown_spec\", { reason: \"the statistic could not be formed at this window\", statistic, window });\n  const sorted = [...samples].sort((a, b) => a - b);\n  if (sorted[0] === sorted[sorted.length - 1])\n    return gap(\"degenerate_ground\", { reason: \"zero width: this null would clear anything\", statistic, perturbation });\n\n  return Object.freeze({\n    spec: Object.freeze({ perturbation, statistic, seed, draws, window, ...(via ? { via } : {}) }),\n    from: fingerprint(material),\n    // How much material this nothing was built by perturbing. Recorded because\n    // SEED.md #5 turns out to bite harder than it reads: `window` is declared\n    // so the statistic means one thing throughout, but the EXTENT still grows,\n    // and a max-over-windows statistic grows with it. Two grounds over\n    // different extents are not comparable unless the null grows the same way.\n    extent: material.length,\n    samples: Object.freeze(sorted),\n    kept: false,\n  });\n};",
+      "after": "export const ground = ({ material, draws, window, perturbation = \"shuffle\", statistic = \"burstiness\", seed = 0, via }) => {\n  if (!Array.isArray(material) || material.length === 0) return gap(\"empty_material\", {});\n  if (!Number.isInteger(draws) || draws < 2)\n    return gap(\"undeclared\", { what: \"draws\", why: \"the resolution of testimony is 1/draws and is never a default\" });\n  if (!Number.isInteger(window) || window < 2)\n    return gap(\"undeclared\", { what: \"window\", why: \"the reach of the present is never derived from material length\" });\n  if (!Number.isInteger(seed) || seed !== Math.floor(seed))\n    return gap(\"undeclared\", { what: \"seed\", why: \"seed must be an integer\" });\n  const perturb = PERTURBATIONS[perturbation];\n  const stat = resolveStatistic(statistic);\n  if (!perturb) return gap(\"unknown_spec\", { perturbation });\n  if (!stat) return gap(\"unknown_spec\", { statistic });\n\n  const samples = [];\n  for (let d = 0; d < draws; d++) samples.push(stat(perturb(material, seed + d), { window }));\n  if (samples.some((v) => !Number.isFinite(v)))\n    return gap(\"unknown_spec\", { reason: \"the statistic could not be formed at this window\", statistic, window });\n  const sorted = [...samples].sort((a, b) => a - b);\n  if (sorted[0] === sorted[sorted.length - 1])\n    return gap(\"degenerate_ground\", { reason: \"zero width: this null would clear anything\", statistic, perturbation });\n\n  return Object.freeze({\n    spec: Object.freeze({ perturbation, statistic, seed, draws, window, ...(via ? { via } : {}) }),\n    from: fingerprint(material),\n    // How much material this nothing was built by perturbing. Recorded because\n    // SEED.md #5 turns out to bite harder than it reads: `window` is declared\n    // so the statistic means one thing throughout, but the EXTENT still grows,\n    // and a max-over-windows statistic grows with it. Two grounds over\n    // different extents are not comparable unless the null grows the same way.\n    extent: material.length,\n    samples: Object.freeze(sorted),\n    kept: false,\n  });\n};",
+      "delta": {
+        "find": "\" });\n  const pe",
+        "add": "\" });\n  if (!Number.isInteger(seed) || seed !== Math.floor(seed))\n    return gap(\"undeclared\", { what: \"seed\", why: \"seed must be an integer\" });\n  const pe",
+        "core": {
+          "find": "",
+          "add": "if (!Number.isInteger(seed) || seed !== Math.floor(seed))\n    return gap(\"undeclared\", { what: \"seed\", why: \"seed must be an integer\" });\n  "
+        }
+      },
+      "suiteTotals": "# tests 1187 · # pass 1174 · # fail 10"
+    }
+  },
+  {
+    "name": "difference: censoredAt is computed even when unused",
+    "instruction": "In difference, censoredAt is computed unconditionally at the top (const censoredAt = 1 / s.length) even though it is only ever used inside the two exceeds_witness gap branches below it. Move the censoredAt computation so it is only computed inside those two branches that actually use it, instead of on every call.",
+    "referent": "difference",
+    "snipAddress": {
+      "source": "nul/index.js",
+      "byte_start": 43433,
+      "byte_end": 44338,
+      "refId": "333b1727"
+    },
+    "scoutSpanContrast": {
+      "term": "those",
+      "span": [
+        52933,
+        53005
+      ]
+    },
+    "attemptsUsed": 1,
+    "evidence": [],
+    "outcome": {
+      "landedVerified": true,
+      "attempt": 1,
+      "before": "export const difference = (observed, g) => {\n  const bad = admissible(g);\n  if (bad) return bad;\n  if (g.kept) return gap(\"kept_ground\", { reason: \"cannot perceive through a ground held for testimony\" });\n  if (g.anchor) return gap(\"anchor_ground\", { reason: \"held to be tended, not to perceive through\" });\n  if (!Number.isFinite(observed)) return gap(\"empty_material\", { observed });\n\n  const s = g.samples;\n  const [lo, hi] = [s[0], s[s.length - 1]];\n  const censoredAt = 1 / s.length;\n  if (observed > hi) return gap(\"exceeds_witness\", { observed, support: [lo, hi], direction: \"above\", censoredAt, reZero: true });\n  if (observed < lo) return gap(\"exceeds_witness\", { observed, support: [lo, hi], direction: \"below\", censoredAt });\n  return Object.freeze({\n    observed,\n    support: Object.freeze([lo, hi]),\n    rank: s.filter((v) => v >= observed).length / s.length,\n    volume: volume(g),\n  });\n};",
+      "after": "export const difference = (observed, g) => {\n  const bad = admissible(g);\n  if (bad) return bad;\n  if (g.kept) return gap(\"kept_ground\", { reason: \"cannot perceive through a ground held for testimony\" });\n  if (g.anchor) return gap(\"anchor_ground\", { reason: \"held to be tended, not to perceive through\" });\n  if (!Number.isFinite(observed)) return gap(\"empty_material\", { observed });\n\n  const s = g.samples;\n  const [lo, hi] = [s[0], s[s.length - 1]];\n  const censoredAt = 1 / s.length; // Move censoredAt computation here\n\n  if (observed > hi) return gap(\"exceeds_witness\", { observed, support: [lo, hi], direction: \"above\", censoredAt, reZero: true });\n  if (observed < lo) return gap(\"exceeds_witness\", { observed, support: [lo, hi], direction: \"below\", censoredAt });\n  return Object.freeze({\n    observed,\n    support: Object.freeze([lo, hi]),\n    rank: s.filter((v) => v >= observed).length / s.length,\n    volume: volume(g),\n  });\n};",
+      "delta": {
+        "find": ".length;\n  if (o",
+        "add": ".length; // Move censoredAt computation here\n\n  if (o",
+        "core": {
+          "find": "",
+          "add": " // Move censoredAt computation here\n"
+        }
+      },
+      "suiteTotals": "# tests 1187 · # pass 1174 · # fail 10"
+    }
+  },
+  {
+    "name": "witness: an upstream gap from pattern is relabeled as made_no_difference",
+    "instruction": "In witness, the check `if (!p || typeof p.moved !== \"boolean\") return gap(\"made_no_difference\", { reason: \"pattern not established\" });` also fires when p is itself a gap object returned by pattern() for a real reason (like incommensurate_extent or unreceived_origin), silently relabeling that real failure as made_no_difference and losing its actual detail. Add a check so that if p is already a gap (isGap(p) is true), witness returns p directly instead of relabeling it.",
+    "referent": "witness",
+    "snipAddress": {
+      "source": "nul/index.js",
+      "byte_start": 65992,
+      "byte_end": 66631,
+      "refId": "fd857338"
+    },
+    "scoutSpanContrast": {
+      "term": "relabel",
+      "span": [
+        28307,
+        28386
+      ]
+    },
+    "attemptsUsed": 1,
+    "evidence": [],
+    "outcome": {
+      "landedVerified": true,
+      "attempt": 1,
+      "before": "export const witness = ({ ground: g, figure, pattern: p }) => {\n  const bad = admissible(g);\n  if (bad) return bad;\n  if (!g.kept) return gap(\"no_ground\", { reason: \"testimony from a ground that was never kept\" });\n  if (isGap(figure)) return figure;\n  if (!figure || !Number.isFinite(figure.observed)) return gap(\"no_ground\", { reason: \"no figure\" });\n  if (!p || typeof p.moved !== \"boolean\") return gap(\"made_no_difference\", { reason: \"pattern not established\" });\n  if (!p.moved) return gap(\"made_no_difference\", { displacement: p.displacement, reseedNull: p.reseedNull });\n  return Object.freeze({ ground: g, figure, pattern: p });\n};",
+      "after": "export const witness = ({ ground: g, figure, pattern: p }) => {\n  const bad = admissible(g);\n  if (bad) return bad;\n  if (!g.kept) return gap(\"no_ground\", { reason: \"testimony from a ground that was never kept\" });\n  if (isGap(figure)) return figure;\n  if (!figure || !Number.isFinite(figure.observed)) return gap(\"no_ground\", { reason: \"no figure\" });\n  if (!p || typeof p.moved !== \"boolean\") return gap(\"made_no_difference\", { reason: \"pattern not established\" });\n  if (!p.moved) return gap(\"made_no_difference\", { displacement: p.displacement, reseedNull: p.reseedNull });\n  if (isGap(p)) return p; // Check if p is already a gap\n  return Object.freeze({ ground: g, figure, pattern: p });\n};",
+      "delta": {
+        "find": "l });\n  return O",
+        "add": "l });\n  if (isGap(p)) return p; // Check if p is already a gap\n  return O",
+        "core": {
+          "find": "",
+          "add": "if (isGap(p)) return p; // Check if p is already a gap\n  "
+        }
+      },
+      "suiteTotals": "# tests 1187 · # pass 1174 · # fail 10"
+    }
+  },
+  {
+    "name": "negative control: underspecified",
+    "instruction": "make it better",
+    "refused": "no_referent_named",
+    "modelCalls": 0
+  },
+  {
+    "name": "negative control: absent referent",
+    "instruction": "fix the frobnicate function",
+    "refused": "no_referent_named",
+    "modelCalls": 0
+  }
+]
