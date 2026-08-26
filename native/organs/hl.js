@@ -2,7 +2,7 @@
 //
 // MOVED 2026-08-20: the logic itself (Stage, declarations, R1-R6, the
 // verdict lattice, attach/sensitivity) now lives in
-// eoreader6.1/packages/engine/interpretation/hl.js — it is Interpretation-
+// eoreader7/native/interpretation/hl.js — it is Interpretation-
 // domain engine infrastructure, not a the-fold concern, on the same
 // evidence Article I.2 asks for any promotion (does it work identically
 // regardless of content — proven with a non-linguistic omnimodal fixture
@@ -37,9 +37,9 @@ export {
   atomic,
   read,
   attach,
-} from "../eoreader6.1/packages/engine/interpretation/hl.js";
+} from "../eoreader7/native/interpretation/hl.js";
 
-import { createStage, addAnchor, addEdge } from "../eoreader6.1/packages/engine/interpretation/hl.js";
+import { createStage, addAnchor, addEdge } from "../eoreader7/native/interpretation/hl.js";
 
 // ── the adapter: hypergraph.js's public edges → a stage ────────────────
 //
