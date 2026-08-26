@@ -52,8 +52,8 @@ import {
   promote as promoteDeclaration,
   concede as concedeDeclaration,
   foldDeclarations,
-} from "../eoreader6.1/packages/engine/interpretation/declarations.js";
-import { createStage, addAnchor, addEdge, declareFunctional } from "../eoreader6.1/packages/engine/interpretation/hl.js";
+} from "../eoreader7/native/interpretation/declarations.js";
+import { createStage, addAnchor, addEdge, declareFunctional } from "../eoreader7/native/interpretation/hl.js";
 
 export const EVIDENCE_FLOOR = 2; // binding.js's own structural minimum, reused, not re-derived
 

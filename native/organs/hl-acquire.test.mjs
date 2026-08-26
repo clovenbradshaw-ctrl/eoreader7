@@ -16,8 +16,8 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { scanFunctionalCandidates, acquireCandidates, recheckCandidates, promoteAndDeclare, EVIDENCE_FLOOR } from "./hl-acquire.js";
-import { createDeclarationLog, foldDeclarations } from "../eoreader6.1/packages/engine/interpretation/declarations.js";
-import { createStage, addAnchor, addEdge, read, BOUND, CONTRADICTED, UNBOUND } from "../eoreader6.1/packages/engine/interpretation/hl.js";
+import { createDeclarationLog, foldDeclarations } from "../eoreader7/native/interpretation/declarations.js";
+import { createStage, addAnchor, addEdge, read, BOUND, CONTRADICTED, UNBOUND } from "../eoreader7/native/interpretation/hl.js";
 
 const edge = (subject, verb, object, ref) => ({ subject, verb, object, polarity: "+", refs: [ref] });
 
@@ -167,22 +167,22 @@ test("R2 actually fires on the real hl.js stage after promotion — the full loo
 
 // ── end to end: real organs, prose invented for this file ──────────────
 test("end to end, adversarial: real reader + real grammar lens over INVENTED prose no model has seen", async () => {
-  const { splitSentences } = await import("../eoreader6.1/packages/engine/perceiver/text/spans.js");
+  const { splitSentences } = await import("../eoreader7/legacy-eoreader6.1/packages/engine/perceiver/text/spans.js");
   const { extractSurfaces, discoverReferents, namesCorefer, diaNorm } = await import(
-    "../eoreader6.1/packages/engine/perceiver/text/surfaces.js"
+    "../eoreader7/legacy-eoreader6.1/packages/engine/perceiver/text/surfaces.js"
   );
   const { discoverRelationVocab, extractRelations } = await import(
-    "../eoreader6.1/packages/engine/perceiver/text/relations.js"
+    "../eoreader7/legacy-eoreader6.1/packages/engine/perceiver/text/relations.js"
   );
   const { tokenize, buildFrequencyTable, functionWordSet } = await import(
-    "../eoreader6.1/packages/engine/perceiver/text/material.js"
+    "../eoreader7/legacy-eoreader6.1/packages/engine/perceiver/text/material.js"
   );
-  const { classifyWord, dominantClass } = await import("../eoreader6.1/packages/engine/perceiver/text/wordclass.js");
+  const { classifyWord, dominantClass } = await import("../eoreader7/legacy-eoreader6.1/packages/engine/perceiver/text/wordclass.js");
   const { makeGrammarLens } = await import("./grammar-lens.js");
   const { makeRelationReader } = await import("./hypergraph.js");
   const { readFileSync } = await import("node:fs");
 
-  const posPrior = JSON.parse(readFileSync("../eoreader6.1/scripts/corpus/pos-prior-eng.json", "utf8"));
+  const posPrior = JSON.parse(readFileSync("../eoreader7/legacy-eoreader6.1/scripts/corpus/pos-prior-eng.json", "utf8"));
   const lens = makeGrammarLens({ classifyWord, dominantClass, posPrior });
 
   const organs = {
