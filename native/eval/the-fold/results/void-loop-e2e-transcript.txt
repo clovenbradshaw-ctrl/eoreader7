@@ -1,4 +1,4 @@
-void-loop e2e · model at http://localhost:11434: UNREACHABLE — the encounter rung will be a typed skip, never a stand-in
+void-loop e2e · reader: local-cpu (onnx-community/Qwen2.5-0.5B-Instruct)
 
 ──────────────────────────────────────────────────────────────────────────
 who was Lincoln's vice president?
@@ -6,20 +6,26 @@ who was Lincoln's vice president?
   void declared: vice president of Abraham Lincoln · extent 1861-1865
   opening act: void "vice president of Abraham Lincoln" at Void from differentiate ground "Abraham Lincoln" broken:rotation
 
-  EXTRACTION — 6 candidate(s) offered: Republican National Convention, Hannibal Hamlin, When Douglas, Northern Democrats, Vice President John, Hampton Roads
-    ? Republican National Convention — «Republican National Convention» states the relation but no span — nothing settles where it sits
-    ✓ Hannibal Hamlin [1861-1865] — Hannibal Hamlin was an American politician and diplomat who was the 15th vice president of the United States, 
-    ✗ When Douglas — no page for «When Douglas»
-    ? Northern Democrats — «Northern Democrats» states the relation but no span — nothing settles where it sits
-    ✗ Vice President John — no page for «Vice President John»
-    ✗ Hampton Roads — «Hampton Roads»'s own page never states «vice president»
-  fold: covered · "vice president of Abraham Lincoln" spans 1861-1865 (years) and every part of it is covered by a named filler
+  EXTRACTION — 8 candidate(s) offered: Republican National Convention, Hannibal Hamlin, When Douglas, Northern Democrats, Vice President John, The Republican Party, Andrew Johnson, War Democrat
+    ? Republican National Convention — unbound · not one named individual — the slot admits an individual, not a category — nothing on the stage bind
+    ✓ Hannibal Hamlin [1861-1865] — bound — the stage binds «Hannibal Hamlin» to «Abraham Lincoln» under «vicePresidentOf»
+    ? When Douglas — unbound · no page — nothing on the stage binds or refutes «When Douglas» to «Abraham Lincoln»
+    ✓ Northern Democrats — bound — the stage binds «Northern Democrats» to «Abraham Lincoln» under «vicePresidentOf»
+    ? Vice President John — unbound · no page — nothing on the stage binds or refutes «Vice President John» to «Abraham Lincoln»
+    ? The Republican Party — unbound · not one named individual — the slot admits an individual, not a category — nothing on the stage bind
+    ✓ Andrew Johnson — bound · span 1865-1869 dropped — not stated with the relation — the stage binds «Andrew Johnson» to «Abraham L
+    ? War Democrat — unbound · the model claimed the relation; the source never states it — nothing on the stage binds or refutes «
+  fold: unplaced · "vice president of Abraham Lincoln" spans 1861-1865 (years) and every part of it is covered by a named filler
 
-  ANSWER: vice president of Abraham Lincoln: Hannibal Hamlin (1861-1865). "vice president of Abraham Lincoln" spans 1861-1865 (years) and every part of it is covered by a named filler — this set is complete; do not add to it.
-  closing from «extraction» (the posture that proposed): refused — stance_did_not_change
-  committed from «closure» by coverage: Hannibal Hamlin (single filler, nothing composed)
+  ⟳ FINDING RESHAPES THE VOID — covered_but_unplaced (revise cell: extent)
+    the extent reads covered, and «Northern Democrats», «Andrew Johnson» cleared admission with no extent the material states — a space is not complete while it holds a filler it cannot place, so either the grain of 1861-1865 is too coarse to sit it anywhere or it does not belong
+  fold after reshape: unplaced · "vice president of Abraham Lincoln" spans 1861-1865 (years) and every part of it is covered by a named filler
 
-  the record: 13 entries · NUL DEF EVA · 0 re-zero(s) · 0 reshape(s)
+  ANSWER: vice president of Abraham Lincoln: Hannibal Hamlin (1861-1865); Northern Democrats; Andrew Johnson. "vice president of Abraham Lincoln" spans 1861-1865 (years) and every part of it is covered by a named filler — this set is complete; do not add to it.
+  closing from «extraction» (the posture that proposed): refused — unplaced_filler
+  NOT COMMITTED — unplaced_filler: closeLoop: «Northern Democrats», «Andrew Johnson» cleared admission and the material never placed them — the extent reads covered only by not counting them, which is not the same as being covered
+
+  the record: 17 entries · NUL DEF EVA · 0 re-zero(s) · 0 reshape(s)
 
 ──────────────────────────────────────────────────────────────────────────
 who were Franklin D. Roosevelt's vice presidents?
@@ -27,15 +33,15 @@ who were Franklin D. Roosevelt's vice presidents?
   void declared: vice president of Franklin D. Roosevelt · extent 1933-1937
   opening act: void "vice president of Franklin D. Roosevelt" at Void from differentiate ground "Franklin D. Roosevelt" broken:rotation
 
-  EXTRACTION — 8 candidate(s) offered: Vice President Wallace, With Wilson, Republican Party, New York City, Deposit Company, Vice President John Garner, Economic Warfare, Jesse H. Party
+  EXTRACTION — 8 candidate(s) offered: Vice President Wallace, With Wilson, Herbert Hoover, Republican Party, Democratic National Convention, Calvin Coolidge, New York City, Deposit Company
     ✗ Vice President Wallace [1941-1945] — its extent 1941-1945 lies wholly outside 1933-1937
-    ✗ With Wilson — no page for «With Wilson»
-    ✗ Republican Party — «Republican Party»'s own page never states «vice president»
-    ✗ New York City — «New York City»'s own page never states «vice president»
-    ✗ Deposit Company — no page for «Deposit Company»
-    ✗ Vice President John Garner — no page for «Vice President John Garner»
-    ✗ Economic Warfare — «Economic Warfare»'s own page never states «vice president»
-    ✗ Jesse H. Party — no page for «Jesse H. Party»
+    ? With Wilson — unbound · no page — nothing on the stage binds or refutes «With Wilson» to «Franklin D. Roosevelt»
+    ? Herbert Hoover — unbound · the model claimed the relation; the source never states it — nothing on the stage binds or refutes «
+    ? Republican Party — unbound · not one named individual — the slot admits an individual, not a category — nothing on the stage bind
+    ? Democratic National Convention — unbound · not one named individual — the slot admits an individual, not a category — nothing on the stage bind
+    ✗ Calvin Coolidge — contradicted · span 1923-1929 dropped — not stated with the relation — «vicePresidentOf» is declared functiona
+    ? New York City — unbound · the model claimed the relation; the source never states it — nothing on the stage binds or refutes «
+    ? Deposit Company — unbound · no page — nothing on the stage binds or refutes «Deposit Company» to «Franklin D. Roosevelt»
   fold: posture_spent · "vice president of Franklin D. Roosevelt" spans 1933-1937 (years), and 1933-1937 is filled by nothing named so far — something holds that extent, and this reading has not found it
 
   ⟳ FINDING RESHAPES THE VOID — extent_excludes (revise cell: extent)
@@ -43,37 +49,44 @@ who were Franklin D. Roosevelt's vice presidents?
     → REC act-25 supersedes the opening act · extent 1933-1945 · re-opened: Vice President Wallace
   fold after reshape: outstanding · "vice president of Franklin D. Roosevelt" spans 1933-1945 (years), and 1933-1945 is filled by nothing named so far — something holds that extent, and this reading has not found it
 
-  RE-ADMIT against the new ground — Vice President Wallace
-    ✓ Vice President Wallace [1941-1945] — Henry Agard Wallace was the 33rd vice president of the United States, serving from 1941 to 1945, under Preside
+  RE-ADMIT against the new ground — Vice President Wallace, With Wilson, Herbert Hoover, Republican Party, Democratic National Convention, New York City, Deposit Company
+    ✓ Vice President Wallace [1941-1945] — bound — the stage binds «Vice President Wallace» to «Franklin D. Roosevelt» under «vicePresidentOf»
+    ? With Wilson — unbound · no page — nothing on the stage binds or refutes «With Wilson» to «Franklin D. Roosevelt»
+    ? Herbert Hoover — unbound · the model claimed the relation; the source never states it — nothing on the stage binds or refutes «
+    ? Republican Party — unbound · not one named individual — the slot admits an individual, not a category — nothing on the stage bind
+    ? Democratic National Convention — unbound · not one named individual — the slot admits an individual, not a category — nothing on the stage bind
+    ? New York City — unbound · the model claimed the relation; the source never states it — nothing on the stage binds or refutes «
+    ? Deposit Company — unbound · no page — nothing on the stage binds or refutes «Deposit Company» to «Franklin D. Roosevelt»
   fold: posture_spent · "vice president of Franklin D. Roosevelt" spans 1933-1945 (years), and 1933-1941 is filled by nothing named so far — something holds that extent, and this reading has not found it
-  → re-zero (REC act-28): extraction → cultivation
+  → re-zero (REC act-40): extraction → cultivation
 
-  CULTIVATION — 5 candidate(s) offered: Herbert Hoover, After Governor James, James Farley, Western Europe, The White House
-    ✗ Herbert Hoover — «Herbert Hoover»'s own page never states «vice president»
-    ✗ After Governor James — no page for «After Governor James»
-    ✗ James Farley — «James Farley»'s own page never states «vice president»
-    ✗ Western Europe — «Western Europe»'s own page never states «vice president»
-    ✗ The White House — «The White House»'s own page never states «vice president»
+  CULTIVATION — 5 candidate(s) offered: New York State Senate, President Woodrow Wilson, James M. Cox, After Governor James, Republican Warren
+    ? New York State Senate — unbound · not one named individual — the slot admits an individual, not a category — nothing on the stage bind
+    ? President Woodrow Wilson — unbound · the model claimed the relation; the source never states it — nothing on the stage binds or refutes «
+    ✗ James M. Cox — contradicted — «vicePresidentOf» is declared functional and the stage already binds «James M. Cox» to «Warren 
+    ? After Governor James — unbound · no page — nothing on the stage binds or refutes «After Governor James» to «Franklin D. Roosevelt»
+    ? Republican Warren — unbound · no page — nothing on the stage binds or refutes «Republican Warren» to «Franklin D. Roosevelt»
   fold: posture_spent · "vice president of Franklin D. Roosevelt" spans 1933-1945 (years), and 1933-1941 is filled by nothing named so far — something holds that extent, and this reading has not found it
-  → re-zero (REC act-44): cultivation → encounter
+  → re-zero (REC act-56): cultivation → encounter
 
-  ENCOUNTER — SKIPPED: no model reachable at http://localhost:11434
+  ENCOUNTER — 0 candidate(s) offered: none
+  → re-zero (REC act-57): encounter → ladder spent
 
   ANSWER: vice president of Franklin D. Roosevelt: Vice President Wallace (1941-1945). "vice president of Franklin D. Roosevelt" spans 1933-1945 (years), and 1933-1941 is filled by nothing named so far — something holds that extent, and this reading has not found it. Do not fill this gap from memory — say it is open.
   closing from «extraction» (the posture that proposed): refused — void_open
   NOT COMMITTED — void_open: closeLoop: vice president of Franklin D. Roosevelt: Vice President Wallace (1941-1945). "vice president of Franklin D. Roosevelt" spans 1933-1945 (years), and 1933-1941 is filled by nothing named so f
 
-  the record: 32 entries · NUL DEF EVA REC · 3 re-zero(s) · 1 reshape(s)
+  the record: 38 entries · NUL DEF EVA REC · 3 re-zero(s) · 1 reshape(s)
 
 ──────────────────────────────────────────────────────────────────────────
 summary
 ──────────────────────────────────────────────────────────────────────────
   who was Lincoln's vice president?
-    rungs: extraction→1
+    rungs: extraction→3
     reshapes: none
-    committed by coverage: Hannibal Hamlin
+    not committed: unplaced_filler
   who were Franklin D. Roosevelt's vice presidents?
-    rungs: extraction→0 cultivation→1 encounter(skipped)
+    rungs: extraction→0 cultivation→1 encounter→0
     reshapes: extent_excludes→1933-1945
     not committed: void_open
 

@@ -37,12 +37,50 @@ import * as taskLog from "../../eoreader7/native/kernel/task-log.js";
 import { makeGrid } from "../grid.js";
 import { declareVoid, yearSpansIn } from "../void-shape.js";
 import { openLoop, proposeFrom, admit, foldLoop, descend, closeLoop, reshapeTriggers, reshape, currentRung } from "../void-loop.js";
+import { stageFromReadings, admissionOf } from "../void-hl.js";
 
 import { mkdirSync, readFileSync, writeFileSync, existsSync } from "node:fs";
 import { join } from "node:path";
 
 const OLLAMA = "http://localhost:11434";
-const MODEL = process.argv[2] ?? "gemma2:2b";
+const LOCAL_MODEL = process.argv[2] ?? "onnx-community/Qwen2.5-0.5B-Instruct";
+let MODEL = LOCAL_MODEL;
+
+// ── the model: local, on CPU ────────────────────────────────────────────────
+//
+// `@huggingface/transformers` runs ONNX weights in this process — no
+// server, no GPU, no egress past the one-time weight fetch. Measured here:
+// ~27s to load Qwen2.5-0.5B-Instruct at q4, ~6s per read on CPU. An Ollama
+// server is used instead if one is already up, since a machine that has
+// one has a better model on it.
+let _gen = null;
+async function openModel() {
+  try {
+    const r = await fetch(`${OLLAMA}/api/tags`, { signal: AbortSignal.timeout(2000) });
+    if (r.ok) { MODEL = process.argv[2] ?? "gemma2:2b"; return { kind: "ollama", name: MODEL }; }
+  } catch { /* no server, use the in-process one */ }
+  try {
+    process.env.HF_HOME ??= "/tmp/hfcache";
+    const { pipeline } = await import("@huggingface/transformers");
+    _gen = await pipeline("text-generation", LOCAL_MODEL, { dtype: "q4", device: "cpu" });
+    return { kind: "local-cpu", name: LOCAL_MODEL };
+  } catch (e) { return { kind: "none", detail: String(e?.message ?? e).slice(0, 120) }; }
+}
+
+async function askModel(prompt) {
+  if (_gen) {
+    const out = await _gen([{ role: "user", content: prompt }], { max_new_tokens: 96, do_sample: false });
+    return out[0].generated_text.at(-1)?.content ?? "";
+  }
+  const res = await fetch(`${OLLAMA}/api/chat`, {
+    method: "POST", headers: { "content-type": "application/json" },
+    body: JSON.stringify({ model: MODEL, stream: false, format: "json",
+      options: { temperature: 0, num_predict: 96 }, messages: [{ role: "user", content: prompt }] }),
+    signal: AbortSignal.timeout(120_000),
+  });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return (await res.json()).message?.content ?? "";
+}
 const CACHE = "/tmp/void-loop-e2e-cache";
 const UA = "the-fold-void-loop-eval/1.0 (https://github.com/clovenbradshaw-ctrl/the-fold)";
 
@@ -64,10 +102,23 @@ const SPECIMENS = [
       admits: "person",
       extent: { from: 1861, to: 1865 },
       dimension: "years",
-      relation: "vice president",
+      // CON declares the relation PROPERLY: an id HL reasons over, the
+      // surfaces only a rule-based reader ever needs, and the fact that it
+      // is functional — with a giver, because HL refuses a declaration
+      // without one and that refusal is the feature.
+      //
+      // `vicePresidentOf` is functional in the VP -> president direction
+      // (a vice president serves under one president) and NOT in the other
+      // (Lincoln had two). The direction that is functional is the one
+      // that excludes a real vice president of somebody else.
+      relation: {
+        id: "vicePresidentOf",
+        surfaces: ["vice president", "running mate"],
+        functional: { giver: "the office's own structure: a vice president serves under exactly one president at a time" },
+      },
       composition: "successive terms partition the extent",
       cardinality: "unknown",
-      admission: "the candidate's own page states the relation, and its term span lies within the extent",
+      admission: "the candidate's own source states the relation, bound to this anchor, and its span lies within the extent",
       reopensOn: "an uncovered stretch of the extent",
     },
   },
@@ -82,10 +133,14 @@ const SPECIMENS = [
       // contradict twice over, reshaping the space each time.
       extent: { from: 1933, to: 1937 },
       dimension: "years",
-      relation: "vice president",
+      relation: {
+        id: "vicePresidentOf",
+        surfaces: ["vice president", "running mate"],
+        functional: { giver: "the office's own structure: a vice president serves under exactly one president at a time" },
+      },
       composition: "successive terms partition the extent",
       cardinality: "unknown",
-      admission: "the candidate's own page states the relation, and its term span lies within the extent",
+      admission: "the candidate's own source states the relation, bound to this anchor, and its span lies within the extent",
       reopensOn: "an uncovered stretch of the extent",
     },
   },
@@ -117,7 +172,7 @@ const pageSummary = (title) => cached(`summary-${title}`, async () => {
   const res = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title.replace(/\s+/g, "_"))}`, { headers: { "user-agent": UA } });
   if (!res.ok) return { error: `HTTP ${res.status}`, extract: "" };
   const j = await res.json();
-  return { title: j.title ?? title, extract: j.extract ?? "", type: j.type ?? null };
+  return { title: j.title ?? title, extract: j.extract ?? "", description: j.description ?? "", type: j.type ?? null };
 });
 
 // ── the crude generator (see the header: its junk is the point) ──────────────
@@ -127,13 +182,19 @@ const pageSummary = (title) => cached(`summary-${title}`, async () => {
 // hand-typed stop list — the admission tier is what is being tested.
 const NAME_RE = /\b([A-Z][a-z]{2,}(?:\s+[A-Z]\.)?(?:\s+[A-Z][a-z]{2,})+)\b/g;
 
+const esc = (x) => String(x).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+/** CON's cell, as the set of surfaces that state it. String or list. */
+const surfacesOf = (relation) =>
+  Array.isArray(relation) ? relation : relation?.surfaces ?? [relation];
+const relationRe = (relation) => new RegExp(surfacesOf(relation).map(esc).join("|"), "i");
+
 const sentencesAbout = (text, relation) =>
-  String(text).split(/(?<=[.!?])\s+/).filter((s) => new RegExp(relation, "i").test(s));
+  String(text).split(/(?<=[.!?])\s+/).filter((s) => relationRe(relation).test(s));
 
 /** Every sentence within `radius` of one that states the relation. */
 function windowAround(text, relation, radius) {
   const S = String(text).split(/(?<=[.!?])\s+/);
-  const re = new RegExp(relation, "i");
+  const re = relationRe(relation);
   const keep = new Set();
   S.forEach((s, i) => {
     if (!re.test(s)) return;
@@ -152,71 +213,172 @@ function namesIn(text, { exclude = [] } = {}) {
   return [...out.entries()].sort((a, b) => b[1] - a[1]).map(([name, count]) => ({ name, count }));
 }
 
-// ── the admission test, executed for real ────────────────────────────────────
+// ── TWO READERS, ONE INTERFACE — and neither returns a verdict ──────────────
 //
-// This IS the declared admission of every specimen above: read the
-// candidate's OWN page, require it to state the relation, and take its
-// span from its own words. Nothing here consults the question, the
-// anchor page, or a model — a filler is admitted by what its own source
-// says about it, which is the only thing that makes junk refusable.
+// A reader turns a source into a READING: did this source state the
+// relation, whom did it bind the candidate to, over what span, and where
+// did that come from. HL judges; a reader never does.
+//
+// The MODEL reader is the real one. Reading is the half that cannot be
+// enumerated, and this driver grew four rules proving it in one afternoon
+// — a relation stated as "running mate", a span belonging to a different
+// office two clauses over, a kind that is a faction, and a sentence
+// boundary falling inside "Franklin D.". Each was right for the case that
+// prompted it. The model call is one grammar-held question per candidate
+// and its answer is data, checked downstream like anything else.
 
-async function realAdmission(candidate, { declaration }) {
-  const relation = declaration.cells.find((c) => c.op === "CON").declared;
-  const s = await pageSummary(candidate.value);
-  const text = s.extract ?? "";
-  if (!text) return { verdict: "refused", because: `no page for «${candidate.value}»`, refs: [] };
-  if (!new RegExp(relation, "i").test(text)) {
-    return { verdict: "refused", because: `«${candidate.value}»'s own page never states «${relation}»`, refs: [s.title] };
+// The prompt is not a first draft. Measured on the four real specimens,
+// one change at a time, each fixing an error class the previous shape
+// produced (full table in the results doc):
+//
+//   schema with <angle-bracket> placeholders -> echoed the placeholder and
+//     answered `false` on a text that plainly stated the relation. 0/4.
+//   worked examples with concrete values     -> 2/4.
+//   + "under must be a DIFFERENT person" and a both-offices example
+//     -> 3/4 anchors, including the one R2 needs.
+//   + INS asked as INDIVIDUATION rather than kind -> 4/4. "Is a War
+//     Democrat a person?" is honestly YES — a faction is made of people —
+//     and the slot does not admit a KIND of person, it admits ONE NAMED
+//     INDIVIDUAL. The engine's own individuation vocabulary, asked as a
+//     question.
+const READER_PROMPT = (name, relation, text) =>
+`You are reading one text and answering about one candidate.
+"under" must be a DIFFERENT person from the one asked about — nobody serves under themselves.
+Someone can hold two offices at different times; answer only about the ${surfacesOf(relation)[0]}.
+
+Example.
+TEXT: Aaron Burr was an American politician who served as the third vice president under President Thomas Jefferson from 1801 to 1805.
+QUESTION: Is Aaron Burr one specific named individual, rather than a group, party, faction, category or event? Did the text say Aaron Burr was a vice president, and under which president?
+ANSWER: {"is_one_named_individual": true, "role": true, "under": "Thomas Jefferson", "from": 1801, "to": 1805}
+
+Example.
+TEXT: The Whig Party was an American political party active in the 1830s and 1840s.
+QUESTION: Is The Whig Party one specific named individual, rather than a group, party, faction, category or event? Did the text say The Whig Party was a vice president, and under which president?
+ANSWER: {"is_one_named_individual": false, "role": false, "under": null, "from": null, "to": null}
+
+Example.
+TEXT: Millard Fillmore was the 13th president of the United States, serving from 1850 to 1853. He was the 12th vice president, serving under Zachary Taylor from 1849 until Taylor's death.
+QUESTION: Is Millard Fillmore one specific named individual, rather than a group, party, faction, category or event? Did the text say Millard Fillmore was a vice president, and under which president?
+ANSWER: {"is_one_named_individual": true, "role": true, "under": "Zachary Taylor", "from": 1849, "to": 1850}
+
+Now answer the same way. Reply with the JSON object only.
+TEXT: ${text}
+QUESTION: Is ${name} one specific named individual, rather than a group, party, faction, category or event? Did the text say ${name} was a ${surfacesOf(relation)[0]}, and under which president?
+ANSWER:`;
+
+async function modelReading(candidate, { relation, page }) {
+  const raw = await askModel(READER_PROMPT(candidate.value, relation, String(page).slice(0, 900)));
+  const m = String(raw).match(/\{[\s\S]*?\}/);
+  if (!m) return { error: `no JSON in ${String(raw).slice(0, 60)}` };
+  let j; try { j = JSON.parse(m[0]); } catch (e) { return { error: String(e?.message ?? e) }; }
+
+  // INS, as a declared cell rather than a guess about kinds.
+  if (j.is_one_named_individual !== true) {
+    return { candidate: candidate.value, statesRelation: false, anchor: null, span: null,
+             source: `model:${MODEL}`, note: "not one named individual — the slot admits an individual, not a category" };
   }
-  // The relation is stated. Its span is whatever that page states.
-  const spans = yearSpansIn(text);
-  if (!spans.length) return { verdict: null, because: `«${candidate.value}» states the relation but no span — nothing settles where it sits`, refs: [s.title] };
-  return { verdict: "holds", because: text.split(/(?<=[.!?])\s+/)[0].slice(0, 180), refs: [s.title], span: spans[0] };
+  // P31'S COMPANY LAW, USED AS A CHECK ON THE MODEL RATHER THAN AS THE
+  // READER. The model's span is accepted only where the source states it
+  // in the same breath as the relation. Measured, and it is the whole
+  // reason the good result is reachable: Andrew Johnson's page carries
+  // "1865 to 1869" — his PRESIDENCY — and his vice-presidency sentence
+  // carries no span at all, so the claimed span is DROPPED and he lands
+  // admitted-but-unplaced, which is exactly what the material supports.
+  // `Number(null)` is 0 and `Number.isFinite(0)` is true, so a null year
+  // became year zero — measured live as `span 0-0` and `span 1860-0`, a
+  // span that would have been filled into the space and corrupted the
+  // coverage arithmetic outright. It survived only because the company
+  // check below happened to drop it.
+  const num = (v) => (v == null || v === "" ? NaN : Number(v));
+  const claimed = Number.isFinite(num(j.from)) && Number.isFinite(num(j.to))
+    ? { from: num(j.from), to: num(j.to) } : null;
+
+  const stating = sentencesAbout(page, relation).join(" ");
+  const company = yearSpansIn(stating).map((x) => `${x.from}-${x.to}`);
+  const corroborated = claimed && company.includes(`${claimed.from}-${claimed.to}`);
+
+  // THE RELATION IS CHECKED THE SAME WAY THE SPAN IS. Measured: the model
+  // said Herbert Hoover was Roosevelt's vice president against a page that
+  // never states the relation at all. A model's claim is never ground —
+  // the source has to carry it. `surfaces` earns its place here, as the
+  // check on a model rather than as a reader.
+  const sourceStatesIt = stating.length > 0;
+
+  return {
+    candidate: candidate.value,
+    statesRelation: j.role === true && sourceStatesIt,
+    anchor: typeof j.under === "string" && j.under.trim() ? j.under.trim() : null,
+    span: corroborated ? claimed : null,
+    source: `model:${MODEL}`,
+    note: j.role === true && !sourceStatesIt
+      ? "the model claimed the relation; the source never states it"
+      : claimed && !corroborated ? `span ${claimed.from}-${claimed.to} dropped — not stated with the relation` : null,
+  };
 }
 
-// The span an admitted candidate turns out to have is read off the page,
-// not guessed at proposal time — so proposals carry no span and `admit`
-// learns it. void-loop.js takes the span from the CANDIDATE, so the
-// driver folds the page's answer back onto it before admitting.
-async function withSpans(candidates, declaration, reads) {
-  const out = [];
-  for (const c of candidates) {
-    const read = await realAdmission(c, { declaration });
-    reads.set(c.value, read);
-    out.push({ ...c, span: read.span ?? null });
+// THE FALLBACK, and the last enumerated rule this driver will ever add.
+// It exists so the harness runs with no model, and every place it is wrong
+// is the argument for the reader above. Its one binding rule: a name run
+// after "under" / "during" / "of", because those are the words this
+// relation binds through. It scans the JOINED relation text rather than
+// split sentences, which is what survives "Franklin D." — an abbreviation
+// gate by another name, and exactly the kind of thing nobody can finish
+// writing.
+const BINDS_TO = /\b(?:under|during|of)\s+(?:President\s+)?([A-Z][A-Za-z.]*(?:\s+[A-Z][A-Za-z.]*)*)/;
+
+function structuralReading(candidate, { relation, page }) {
+  const re = relationRe(relation);
+  const stating = String(page).split(/(?<=[.!?])\s+/).filter((x) => re.test(x)).join(" ");
+  if (!stating) {
+    return { candidate: candidate.value, statesRelation: false, anchor: null, span: null, source: "structural-reader" };
   }
-  return out;
+  const bound = BINDS_TO.exec(stating);
+  return {
+    candidate: candidate.value,
+    statesRelation: true,
+    anchor: bound ? bound[1].trim() : null,
+    span: yearSpansIn(stating)[0] ?? null,
+    source: "structural-reader",
+  };
 }
 
 // ── the model, at the encounter rung only ────────────────────────────────────
 
-async function modelReachable() {
-  try {
-    const r = await fetch(`${OLLAMA}/api/tags`, { signal: AbortSignal.timeout(2500) });
-    return r.ok;
-  } catch { return false; }
-}
-
 async function modelCandidates(question, already) {
   const prompt =
     `${question}\nName only people not already listed. Already listed: ${already.join(", ") || "none"}.\n` +
-    `Answer as JSON only: {"names": ["Full Name", ...]}. If you know of none, answer {"names": []}.`;
+    `Reply with the JSON object only, like {"names": ["Full Name"]}. If you know of none: {"names": []}.`;
   try {
-    const res = await fetch(`${OLLAMA}/api/chat`, {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({
-        model: MODEL, stream: false, format: "json",
-        options: { temperature: 0, num_predict: 200 },
-        messages: [{ role: "user", content: prompt }],
-      }),
-      signal: AbortSignal.timeout(90_000),
-    });
-    if (!res.ok) return { error: `HTTP ${res.status}` };
-    const body = await res.json();
-    const parsed = JSON.parse(body.message?.content ?? "{}");
+    const raw = await askModel(prompt);
+    const m = String(raw).match(/\{[\s\S]*?\}/);
+    const parsed = m ? JSON.parse(m[0]) : {};
     return { names: (parsed.names ?? []).filter((n) => typeof n === "string" && n.trim()).slice(0, 6) };
   } catch (e) { return { error: String(e?.message ?? e) }; }
+}
+
+/** One reading per candidate, from whichever reader is available. A reader
+ * never returns a verdict — HL does. */
+async function readCandidates(candidates, { relation, withModel, readings }) {
+  const out = [];
+  for (const c of candidates) {
+    const s = await pageSummary(c.value);
+    const page = `${s.description ?? ""}. ${s.extract ?? ""}`.trim();
+    let reading;
+    if (!s.extract) {
+      reading = { candidate: c.value, statesRelation: false, anchor: null, span: null, source: "no-page", note: "no page" };
+    } else if (withModel) {
+      const m = await modelReading(c, { relation, page });
+      reading = m.error
+        ? { ...structuralReading(c, { relation, page }), note: `model failed (${m.error}) — structural reader` }
+        : m;
+    } else {
+      reading = structuralReading(c, { relation, page });
+    }
+    reading.refs = [s.title ?? c.value];
+    readings.set(c.value, reading);
+    out.push({ ...c, span: reading.span ?? null });
+  }
+  return out;
 }
 
 // ── the run ──────────────────────────────────────────────────────────────────
@@ -239,6 +401,7 @@ async function runSpecimen(spec, { withModel }) {
 
   const page = await pageText(spec.page);
   const relation = spec.fields.relation;
+  const relSurfaces = surfacesOf(relation);
   const anchorWords = spec.fields.anchor.split(/\s+/);
   const record = { question: spec.question, rungs: [], reshapes: [], closed: null, acts: 0 };
 
@@ -262,15 +425,36 @@ async function runSpecimen(spec, { withModel }) {
       .slice(0, 12).map((n) => ({ value: n.name, witness: `en.wikipedia.org/${slug(spec.page)}` })),
     // A filler nothing named — supplied, not read.
     encounter: async (seen) => {
-      if (!withModel) return { skipped: "no model reachable at " + OLLAMA };
+      if (!withModel) return { skipped: "no model reachable" };
       const r = await modelCandidates(spec.question, seen);
       if (r.error) return { skipped: `model error: ${r.error}` };
       return r.names.map((n) => ({ value: n, witness: "self:model" }));
     },
   };
 
-  const reads = new Map();
-  const admission = (c) => reads.get(c.value) ?? { verdict: null, because: "not read" };
+  const readings = new Map();
+  const declarations = relation.functional
+    ? [{ kind: "functional", rel: relation.id, giver: relation.functional.giver }] : [];
+
+  // ADMISSION IS HL'S, NOT A RULE'S. The stage is rebuilt from every
+  // reading gathered so far and asked once per candidate; a reader's
+  // output is evidence, never a verdict.
+  const admission = (c) => {
+    const built = stageFromReadings({
+      anchor: spec.fields.anchor, relation: relation.id,
+      readings: [...readings.values()], declarations,
+    });
+    if (!built.ok) return { verdict: null, because: `stage refused: ${built.refusal.detail}` };
+    const a = admissionOf(built.stage, {
+      relation: relation.id, candidate: c.value, anchor: spec.fields.anchor, display: built.display,
+    });
+    const note = readings.get(c.value)?.note;
+    return {
+      verdict: a.verdict,
+      because: `${a.hl}${note ? ` · ${note}` : ""} — ${a.because}`,
+      refs: readings.get(c.value)?.refs ?? [],
+    };
+  };
 
   for (let guard = 0; guard < 10; guard += 1) {
     // A reshape re-opens candidates the CONCEDED extent had refused, and
@@ -289,7 +473,7 @@ async function runSpecimen(spec, { withModel }) {
       }
       const f = foldLoop(loop);
       say(`  fold: ${f.standing} · ${f.coverage.reason}`);
-      if (f.standing === "covered") break;
+      if (f.standing === "covered" || f.standing === "unplaced") break;
       if (f.standing === "posture_spent") {
         const d = descend(loop, { grid, log, trigger: `${currentRung(loop)?.stance} left ${f.coverage.voids.map((v) => `${v.from}-${v.to}`).join(", ")} uncovered` });
         if (!d.ok) { say(`  cannot descend: ${d.refusal.type}`); break; }
@@ -324,7 +508,7 @@ async function runSpecimen(spec, { withModel }) {
       continue;
     }
 
-    const readied = await withSpans(offered, loop.declaration, reads);
+    const readied = await readCandidates(offered, { relation, withModel, readings });
     const p = proposeFrom(loop, { grid, log, stance: rung.stance, candidates: readied });
     if (!p.ok) { say(`  proposal refused: ${p.refusal.type} — ${p.refusal.detail}`); break; }
     ({ log, loop } = p);
@@ -356,7 +540,10 @@ async function runSpecimen(spec, { withModel }) {
       for (const t of triggers) {
         say(`\n  ⟳ FINDING RESHAPES THE VOID — ${t.type} (revise cell: ${t.field})`);
         say(`    ${t.detail}`);
-        if (t.field !== "extent") continue;
+        // `covered_but_unplaced` names the cell and deliberately carries no
+        // suggestion — there is nothing to reshape TO, only something to
+        // report. A finding is not always a revision.
+        if (t.field !== "extent" || !t.suggested) continue;
         const revised = declareVoid({ ...spec.fields, extent: t.suggested }, { cellOf: operators.cellOf });
         const r = reshape(loop, { grid, log, trigger: t.detail, revised });
         if (!r.ok) { say(`    reshape refused: ${r.refusal.type}`); continue; }
@@ -369,7 +556,7 @@ async function runSpecimen(spec, { withModel }) {
       say(`  fold after reshape: ${fold.standing} · ${fold.coverage.reason}`);
     }
 
-    if (fold.standing === "covered") break;
+    if (fold.standing === "covered" || fold.standing === "unplaced") break;
     if (fold.standing === "posture_spent") {
       const d = descend(loop, { grid, log, trigger: `${rung.stance} left ${fold.coverage.voids.map((v) => `${v.from}-${v.to}`).join(", ")} uncovered` });
       if (!d.ok) { say(`  cannot descend: ${d.refusal.type}`); break; }
@@ -402,8 +589,9 @@ async function runSpecimen(spec, { withModel }) {
   return record;
 }
 
-const withModel = await modelReachable();
-say(`void-loop e2e · model at ${OLLAMA}: ${withModel ? `REACHABLE (${MODEL})` : "UNREACHABLE — the encounter rung will be a typed skip, never a stand-in"}`);
+const backend = await openModel();
+const withModel = backend.kind !== "none";
+say(`void-loop e2e · reader: ${withModel ? `${backend.kind} (${backend.name})` : `NONE (${backend.detail}) — structural fallback only, and every place it is wrong is the argument for the model`}`);
 const results = [];
 for (const spec of SPECIMENS) results.push(await runSpecimen(spec, { withModel }));
 
@@ -414,5 +602,5 @@ for (const r of results) {
   say(`    reshapes: ${r.reshapes.length ? r.reshapes.map((x) => `${x.type}→${x.to.from}-${x.to.to}`).join(", ") : "none"}`);
   say(`    ${r.closed?.by ? `committed by ${r.closed.by}: ${r.closed.fillers.join(" + ")}` : `not committed: ${r.closed?.refused}`}`);
 }
-writeFileSync(join(CACHE, "..", "void-loop-e2e-results.json"), JSON.stringify({ model: withModel ? MODEL : null, results }, null, 2));
+writeFileSync(join(CACHE, "..", "void-loop-e2e-results.json"), JSON.stringify({ reader: backend, results }, null, 2));
 say(`\nresults → /tmp/void-loop-e2e-results.json`);
