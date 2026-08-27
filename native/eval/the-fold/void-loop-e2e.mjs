@@ -36,7 +36,7 @@ import * as operators from "../../eoreader7/native/kernel/cube.js";
 import * as taskLog from "../../eoreader7/native/kernel/task-log.js";
 import { makeGrid } from "../grid.js";
 import { declareVoid, yearSpansIn } from "../void-shape.js";
-import { openLoop, proposeFrom, admit, foldLoop, descend, closeLoop, reshapeTriggers, reshape, currentRung } from "../void-loop.js";
+import { openLoop, proposeFrom, admit, foldLoop, descend, closeLoop, reshapeTriggers, reshape, currentRung, whatWouldSettle, placeFiller } from "../void-loop.js";
 import { stageFromReadings, admissionOf } from "../void-hl.js";
 
 import { mkdirSync, readFileSync, writeFileSync, existsSync } from "node:fs";
@@ -381,6 +381,77 @@ async function readCandidates(candidates, { relation, withModel, readings }) {
   return out;
 }
 
+// ── CURIOSITY: go and answer the question the loop just asked ──────────────
+//
+// The summary is where a first look ends, not where the material does.
+// Measured: Andrew Johnson's Wikipedia SUMMARY carries no vice-presidential
+// span and his FULL page does. So a `place_filler` question is answered by
+// looking harder at the source that already said yes, before looking
+// anywhere else.
+//
+// THE CHECK IS THE SAME LAW ONE STEP WIDER: a model's value must appear in
+// THE BYTES IT WAS SHOWN. The window here is the relation's own sentences
+// plus their immediate neighbours — wider than P31's single sentence,
+// because the fact genuinely straddles a sentence boundary here ("Now Vice
+// President-elect, Johnson..." then "...what happened on March 4, 1865"),
+// and reading across that boundary is the thing a model can do and a rule
+// cannot. The window is declared, and the check is against exactly it.
+const YEAR = /\b(1[5-9]\d{2}|20\d{2})\b/g;
+
+async function deeperRead(name, { relation, anchor }) {
+  const page = await pageText(name);
+  if (!page.text) return { gap: "no full page" };
+  const win = windowAround(page.text, relation, 1);
+  if (!win) return { gap: "the full page never states the relation either" };
+  const shown = win.slice(0, 1400);
+  const raw = await askModel(
+    `Read ONLY the text below.\n\nQUESTION: In what year did ${name} BEGIN holding the office of ` +
+    `${surfacesOf(relation)[0]} under ${anchor}, and in what year did they stop?\n` +
+    `Answer with the JSON object only, using years that appear in the text: ` +
+    `{"from": <year or null>, "to": <year or null>}\n\n---\n${shown}`);
+  const m = String(raw).match(/\{[\s\S]*?\}/);
+  if (!m) return { gap: "no JSON from the reader" };
+  let j; try { j = JSON.parse(m[0]); } catch { return { gap: "unparseable reader answer" }; }
+  const num = (v) => (v == null || v === "" ? NaN : Number(v));
+  const from = num(j.from), to = num(j.to);
+  if (!Number.isFinite(from)) return { gap: "the reader found no start year" };
+  const present = new Set(shown.match(YEAR) ?? []);
+  // A point in time is a real answer at a year grain: the material says he
+  // was sworn in that year, and says nothing about a range.
+  const end = Number.isFinite(to) ? to : from;
+  if (!present.has(String(from)) || !present.has(String(end))) {
+    return { gap: `the reader gave ${from}-${end}, which is not in the text it was shown` };
+  }
+  if (end < from) return { gap: `the reader gave ${from}-${end}, which runs backwards` };
+  return { span: { from, to: end }, source: `deeper:${page.title}` };
+}
+
+/** Ask what would settle this loop, then go and try to settle it. */
+async function beCurious(loop, { grid, log, relation, anchor, withModel, record }) {
+  const asks = whatWouldSettle(loop).filter((q) => q.type === "place_filler");
+  if (!asks.length || !withModel) return { loop, log };
+  let current = log;
+  for (const q of asks) {
+    say(`\n  ? CURIOUS — ${q.ask}`);
+    say(`    ${q.wouldSettle}`);
+    const found = await deeperRead(q.about, { relation, anchor });
+    if (found.gap) { say(`    still open: ${found.gap}`); record.curiosity.push({ ask: q.ask, gap: found.gap }); continue; }
+    const placed = placeFiller(loop, { filler: q.about, span: found.span, source: found.source });
+    if (!placed.ok) { say(`    refused: ${placed.refusal.type} — ${placed.refusal.detail.slice(0, 120)}`); record.curiosity.push({ ask: q.ask, refused: placed.refusal.type }); continue; }
+    loop = placed.loop;
+    say(`    → PLACED ${q.about} at ${found.span.from}-${found.span.to}, from ${found.source}`);
+    record.curiosity.push({ ask: q.ask, placed: found.span });
+    // A placement is a real change of belief, so it lands on the record as
+    // a RESULT on the act that admitted it — never a silent state change.
+    const cand = loop.candidates.find((c) => c.value === q.about);
+    if (cand?.evaluateId) {
+      const att = grid.attachResult(current, cand.evaluateId, { placed: found.span, source: found.source });
+      if (att.ok) current = att.log;
+    }
+  }
+  return { loop, log: current };
+}
+
 // ── the run ──────────────────────────────────────────────────────────────────
 
 const say = (...a) => console.log(...a);
@@ -403,7 +474,7 @@ async function runSpecimen(spec, { withModel }) {
   const relation = spec.fields.relation;
   const relSurfaces = surfacesOf(relation);
   const anchorWords = spec.fields.anchor.split(/\s+/);
-  const record = { question: spec.question, rungs: [], reshapes: [], closed: null, acts: 0 };
+  const record = { question: spec.question, rungs: [], reshapes: [], curiosity: [], closed: null, acts: 0 };
 
   const GENERATORS = {
     // What the material itself states, where it states the relation.
@@ -471,8 +542,10 @@ async function runSpecimen(spec, { withModel }) {
         const mark = c.standing === "testimony" ? "✓" : c.standing === "refused" ? "✗" : "?";
         say(`    ${mark} ${c.value}${c.span ? ` [${c.span.from}-${c.span.to}]` : ""} — ${String(c.because ?? "").slice(0, 110)}`);
       }
-      const f = foldLoop(loop);
+      let f = foldLoop(loop);
       say(`  fold: ${f.standing} · ${f.coverage.reason}`);
+      ({ loop, log } = await beCurious(loop, { grid, log, relation, anchor: spec.fields.anchor, withModel, record }));
+      f = foldLoop(loop);
       if (f.standing === "covered" || f.standing === "unplaced") break;
       if (f.standing === "posture_spent") {
         const d = descend(loop, { grid, log, trigger: `${currentRung(loop)?.stance} left ${f.coverage.voids.map((v) => `${v.from}-${v.to}`).join(", ")} uncovered` });
@@ -526,6 +599,10 @@ async function runSpecimen(spec, { withModel }) {
 
     let fold = foldLoop(loop);
     say(`  fold: ${fold.standing} · ${fold.coverage.reason}`);
+
+    // A filler admitted and unplaceable is a QUESTION. Ask it.
+    ({ loop, log } = await beCurious(loop, { grid, log, relation, anchor: spec.fields.anchor, withModel, record }));
+    fold = foldLoop(loop);
     record.rungs.push({
       stance: rung.stance,
       offered: offered.length,

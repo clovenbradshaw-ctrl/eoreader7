@@ -17,6 +17,14 @@ who was Lincoln's vice president?
     ? War Democrat — unbound · the model claimed the relation; the source never states it — nothing on the stage binds or refutes «
   fold: unplaced · "vice president of Abraham Lincoln" spans 1861-1865 (years) and every part of it is covered by a named filler
 
+  ? CURIOUS — when did «Northern Democrats» hold «vicePresidentOf» under «Abraham Lincoln»?
+    «Northern Democrats» cleared admission and nothing places it — the extent reads covered only by not counting it
+    still open: no full page
+
+  ? CURIOUS — when did «Andrew Johnson» hold «vicePresidentOf» under «Abraham Lincoln»?
+    «Andrew Johnson» cleared admission and nothing places it — the extent reads covered only by not counting it
+    refused: span_outside_extent — placeFiller: 1808-1860 lies wholly outside 1861-1865 — if the extent is wrong, concede it with `reshape` rather than wid
+
   ⟳ FINDING RESHAPES THE VOID — covered_but_unplaced (revise cell: extent)
     the extent reads covered, and «Northern Democrats», «Andrew Johnson» cleared admission with no extent the material states — a space is not complete while it holds a filler it cannot place, so either the grain of 1861-1865 is too coarse to sit it anywhere or it does not belong
   fold after reshape: unplaced · "vice president of Abraham Lincoln" spans 1861-1865 (years) and every part of it is covered by a named filler

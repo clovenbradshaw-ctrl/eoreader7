@@ -144,6 +144,56 @@ cannot see and cannot connect to "John Nance Garner". That is the
 coreference gap `cast.js`'s referent index (P38) exists for, and the
 generator deliberately does not use it.
 
+## Curiosity: the loop asks, and the wall holds when the answer is wrong
+
+The loop was honest and **incurious**. It admitted Andrew Johnson, could
+not place him, reported `unplaced` and stopped — filing the gap instead of
+pursuing it. But the gap it filed is specific: not "something is missing"
+but "I hold a filler and the source I read never says when." A gap that
+specific is a question.
+
+`whatWouldSettle` turns loop state into questions, ordered by what settles
+fastest — placing a filler already in hand comes before searching for a new
+one, because it is one targeted read against a source already identified
+and it can close a space outright. Live:
+
+```
+? CURIOUS — when did «Andrew Johnson» hold «vicePresidentOf» under «Abraham Lincoln»?
+  cleared admission and nothing places it — the extent reads covered only by not counting it
+```
+
+**The answer is there.** Johnson's Wikipedia *summary* carries no
+vice-presidential span; his *full page* does — "…what happened on March 4,
+1865", and better, "sworn in alongside Hamlin (**his predecessor as vice
+president**)", which states the succession that partitions the extent
+outright. The loop stopped at the summary because the summary is all it
+thought to ask for.
+
+**The 0.5B reader did not find it, and the wall held.** Given a
+1,400-character window of the full page it answered `1808-1860` — his birth
+year and an unrelated one, both genuinely present in the bytes it was
+shown, so the "a model's value must appear in what it was shown" check
+passed. `placeFiller` refused it anyway:
+
+```
+refused: span_outside_extent — 1808-1860 lies wholly outside 1861-1865 — if
+the extent is wrong, concede it with `reshape` rather than widening it
+```
+
+That refusal is the property worth having. A wrong read did not corrupt the
+space, did not silently widen the extent, and did not produce a confident
+answer: the loop still reports Johnson unplaced and still refuses to
+commit. **Widening an extent is a deliberate act with its own record entry
+(REC), never a side effect of answering a question.**
+
+The remaining defect is window SELECTION, and it is named rather than
+fixed: the window is the relation's own sentences in *document order*, and
+on a 90,000-character biography the first 1,400 characters of that window
+are about the subject's early life and other people's vice presidencies,
+not his own term. Ranking the window by sentences naming both the candidate
+and the anchor — rather than taking the first 1,400 characters — is the
+obvious next move and was not measured here.
+
 ## Two bugs the run found
 
 **`Number(null)` is `0`, and `Number.isFinite(0)` is `true`** — so a null
@@ -151,6 +201,13 @@ year became year zero. Measured live as `span 0-0` and `span 1860-0`: a
 span that would have been filled into the space and corrupted the coverage
 arithmetic outright. It survived only because the company check happened
 to drop it.
+
+**Placing appended instead of rebuilding.** `fill` is append-only by design
+— "a filler is never overwritten by a later one that happens to share its
+name", because two witnesses covering different extents is the Lincoln case
+itself — so placing a filler on top of its own spanless entry left BOTH,
+and `voidsOf` would have reported it unplaced forever. Caught by writing
+the test, pinned so it cannot come back.
 
 **Evaluated-and-inconclusive is not unevaluated.** Both landed on `wish`,
 so a candidate HL had already read and returned `unbound` for was
