@@ -241,7 +241,28 @@ export const discoverRelationVocab = (text, { surfaces, functionWords = null, mi
   // Longest-first alternation, same discipline as read-people.mjs's
   // surfaceToId: "Victor Frankenstein" must win over "Victor" at the same
   // start offset, or the shorter surface eats half the longer one's hits.
-  const AFTER = /^\s*([\p{L}\p{N}'’]+)/u;
+  // A BRACKETED ASIDE IS CROSSED, not read as the end of the clause.
+  //
+  // This allowed only whitespace between a surface and its candidate verb,
+  // so any aside opening with a bracket hid the verb entirely. Measured on
+  // the sentence that states the fact plainly:
+  //
+  //   "Hannibal Hamlin (August 27, 1809 - July 4, 1891) was the 15th vice
+  //    president of the United States"
+  //
+  // The token after "Hamlin" is "(August", not "was", so no verb was ever
+  // nominated for him and no edge named him as a subject.
+  //
+  // Category, never an enumeration: \p{Ps} is every opening punctuation
+  // mark in every script and \p{Pe} every closing one, so （ ） 「 」 【 】
+  // ［ ］ are covered without listing them. Zero-or-more, so the ordinary
+  // no-aside case is byte-identical to before.
+  //
+  // Skipping is the meaning, not a workaround: a parenthetical here carries
+  // facts ABOUT the surface just named — dates, aliases — not a new subject
+  // taking its own verb. The being and its aside are one mention, so the
+  // token after the MENTION is the token after the being.
+  const AFTER = /^\s*(?:[\p{Ps}][^\p{Pe}]*[\p{Pe}]\s*)*([\p{L}\p{N}'’]+)/u;
 
   const surfacesByToken = new Map(); // lowercase token -> Set(anchors it directly followed: surface forms and bound-referent ids alike)
   // ONE tally for both anchor kinds — the gates below run identically, so a
@@ -358,7 +379,11 @@ export const extractRelations = (text, { verbs, limit = Infinity, functionWords 
   // reproducing a real corrupted admit in the checked-in civic-prose golden
   // data before this fix. Two regexes agreeing to parse the same text is a
   // liability by construction; one is now the only source of truth.
-  const MATCHER = new RegExp(`(?<=^|[^\\p{L}])(${W}(?:\\s+${W})?)\\s+(${VERB_ALT})\\s+${OBJECT_GROUP}`, "giu");
+  // Second site of the same wall: an aside can stand between the subject
+  // and its verb, so a bare `\s+` between them could never pair "Hamlin"
+  // with "was" no matter what the vocabulary discovered.
+  const ASIDE = `[\\p{Ps}][^\\p{Pe}]*[\\p{Pe}]`;
+  const MATCHER = new RegExp(`(?<=^|[^\\p{L}])(${W}(?:\\s+${W})?)\\s+(?:${ASIDE}\\s+)*(${VERB_ALT})\\s+${OBJECT_GROUP}`, "giu");
 
   // The exact terminator set the OLD (pre-function-word-bound) object
   // capture used to reach: `.`, `,`, `;`, or end of string. Used below only
