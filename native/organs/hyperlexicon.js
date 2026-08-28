@@ -82,7 +82,7 @@ export const REFUSALS = Object.freeze({
 export const VERB_CLASS = "verb";
 
 export function makeHyperlexicon(taskLog) {
-  const { createTaskLog, append, projectTasks, ENTRY_KINDS, OPERATOR_BASIS, GRAIN_RANK } = taskLog;
+  const { createTaskLog, append, projectTasks, ENTRY_KINDS, OPERATOR_BASIS, GRAIN_RANK, cellOf = null } = taskLog;
 
   // Read from task-log's own rank table rather than restated as a literal —
   // build-log.js and store.js both already take the name this way.
@@ -90,6 +90,22 @@ export function makeHyperlexicon(taskLog) {
 
   /** A fresh, empty hyperlexicon. */
   const createHyperlexicon = () => createTaskLog();
+
+  /**
+   * The admitting act's cell, read off (operator, grain) — never chosen.
+   *
+   * Absent `cellOf` this returns nothing at all, so an entry is byte-identical
+   * to what it was before this existed: a reader that declares no cube is not
+   * silently given one (P7's "priors are injected and stated; their absence is
+   * stated too"). A `cellOf` that gaps is likewise carried as a gap, never
+   * smoothed into a plausible cell.
+   */
+  const cellFields = (op) => {
+    if (!cellOf) return {};
+    const c = cellOf(op, FIGURE);
+    if (!c || c.gap) return { cell_gap: c?.gap ?? "no_cell", cell_reason: c?.reason ?? null };
+    return { cell: `${c.op}\u00b7${c.grain}`, stance: c.stance, terrain: c.terrain, mode: c.mode, domain: c.domain };
+  };
 
   /**
    * hear(log, assertion) — one sighting of one assertion, admitted.
@@ -122,6 +138,20 @@ export function makeHyperlexicon(taskLog) {
       operator: prior ? "SYN" : "INS",
       operator_basis: OPERATOR_BASIS.PRODUCED,
       grain: FIGURE,
+      // THE CELL WAS ALREADY HERE, UNREAD. `operator` and `grain` are written
+      // two lines up, and the cube derives mode/domain/terrain/stance from
+      // exactly that pair — the space is 27 (operator x grain), not a free
+      // stance axis. So this reads the cell off rather than choosing one, via
+      // the engine's own `cellOf`, injected (the cast.js pattern) and never
+      // restated as a local table.
+      //
+      // WHAT THIS IS, AND THE PLANE IT SITS ON. A note's stance is not a claim
+      // about the world — it is the posture THIS READER admitted under, and it
+      // is defeasible. So it rides beside `witnesses`/`spans` and never joins
+      // them: those are world-facing and corroborable, this is reader-facing
+      // and can only be defeated by incoherence or by being spent. Nothing
+      // downstream may score a stance against an oracle.
+      ...cellFields(prior ? "SYN" : "INS"),
       description: prior ? `heard again: ${subject} ${verb} ${object}` : `${subject} ${verb} ${object}`,
       subject,
       verb,
@@ -196,6 +226,46 @@ export function makeHyperlexicon(taskLog) {
   }
 
   /**
+   * readingFromHyperlexicon(log, {source}) — the reader's own postures, in the
+   * shape `experience-priors.js` already sediments.
+   *
+   * WHY THIS IS AN ADAPTER AND NOT A KERNEL CHANGE. `deriveExperiencePrior`
+   * counts `{operator, stance}` off a completed reading's own
+   * `transformationObjects`; it is domain-agnostic and has no business
+   * learning what a hyperlexicon note is. So the projection lives here, with
+   * the consumer, and the kernel organ is used unmodified.
+   *
+   * WHAT SEDIMENTS, AND WHAT MAY NOT. Only the ACT — its operator and the
+   * stance derived from it. No subject, verb, object, witness or span crosses
+   * into this: those are world-facing and corroborable, and a prior that
+   * learned them would be learning the world from its own habits. What
+   * accumulates here is strictly "postures this reader has held, and across
+   * how many works" — the reader becoming legible to itself.
+   *
+   * An entry with no cell contributes NOTHING rather than a default. A log
+   * built without `cellOf` therefore sediments nothing at all, and
+   * `postures: 0` is the honest report of a reader that never declared a cube.
+   */
+  function readingFromHyperlexicon(log, { source } = {}) {
+    if (!source) throw new TypeError("readingFromHyperlexicon: a source is named — an unattributed reading cannot support cross-work memory");
+    const transformationObjects = [];
+    for (const e of log?.entries ?? []) {
+      if (!e?.stance || !e?.operator) continue;   // no cell declared: nothing to learn
+      transformationObjects.push({ operator: e.operator, stance: e.stance, terrain: e.terrain ?? null });
+    }
+    return {
+      source,
+      reading: {
+        // graphEntries stays EMPTY on purpose: relation vocabulary is the
+        // world-facing plane and does not belong in a posture prior.
+        fold: { graphEntries: [], transformationObjects },
+        terrainState: {},
+      },
+      postures: transformationObjects.length,
+    };
+  }
+
+  /**
    * foldHyperlexicon(log) — the reading, projected. Every live assertion with
    * its witnesses and its bytes, most-witnessed first, so a caller that must
    * cut for room cuts the least corroborated rather than the most recent.
@@ -214,5 +284,5 @@ export function makeHyperlexicon(taskLog) {
       .sort((a, b) => b.witnesses.length - a.witnesses.length || a.id.localeCompare(b.id));
   }
 
-  return { createHyperlexicon, hear, admit, foldHyperlexicon, assertionId, REFUSALS };
+  return { createHyperlexicon, hear, admit, foldHyperlexicon, readingFromHyperlexicon, assertionId, REFUSALS };
 }
