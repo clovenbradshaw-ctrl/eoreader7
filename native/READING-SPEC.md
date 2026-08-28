@@ -10,6 +10,8 @@ re-learning them. Enforced where mechanical by
 
 ## S1 — The constitutional reader is runnable, and it is the baseline
 
+> **giver:** earned-here — 639419d
+
 The reader P0 names — the HOST assembly (`packages/host/corpus.js`:
 `createSession` / `admitChunked` / `sessionReferents` = discoveredCast:
 surfaces → witnessed referents → pronoun binding → relation vocabulary, with
@@ -27,6 +29,8 @@ repo's native path was reported as the reader while missing P2 stages 4–8.)
 
 ## S2 — A prefix is a different material, not a smaller one
 
+> **giver:** earned-here — 639419d
+
 `discoverRelationVocab` recurrence is a whole-book statistic and COLLAPSES
 under truncation (Dracula whole: 135 recurring; at 7%: 3). No mechanism may be
 justified by a sliced measurement; a truncated run says `truncated: true` at
@@ -34,6 +38,8 @@ the point of the claim. (P5.5 — the driver, not the theory. Earned: three
 claims retracted in `native/eval/results/vocabulary-scale-FINDING.md`.)
 
 ## S3 — Lookahead is not reading
+
+> **giver:** earned-here — 639419d
 
 A driver that derives state over the whole text and then scores every unit
 with it has read sentence 12 using evidence from sentence 9,000. Such numbers
@@ -43,6 +49,8 @@ causal finds MORE link forms and FEWER arrangements). (P2 stage 2: "built
 only from material already read — `groundUpTo` never slices forward.")
 
 ## S4 — Accumulation is the direction; re-grounding is the documented posture; parity gates the swap
+
+> **giver:** earned-here — 639419d
 
 Recall is retrieval over what the Fold holds, and the honest grain is one
 proposition — slowness there is an incremental-algorithm defect, never a
@@ -62,6 +70,8 @@ perceiver's re-ground stays.
 
 ## S5 — Activation decays; the rate is measured, not set; length is not reach
 
+> **giver:** earned-here — 639419d
+
 Decay belongs to the kernel — losing activation is a property of anything
 read in time (language, music, video), not an NL heuristic. Gamma is derived
 from a window (`gammaFor(w) = 1 − 1/w`, tiers.js's own derivation) and the
@@ -78,6 +88,8 @@ silent default meaning.
 
 ## S6 — The kernel never speaks a medium's grammar
 
+> **giver:** earned-here — 639419d
+
 An arrangement has ends, not parts of speech. The kernel takes participants
 by ordinal position; `role` is caller-declared annotation the kernel never
 interprets. Any kernel read of role names like "subject"/"object" is the
@@ -92,10 +104,14 @@ loosening an engine gate").
 
 ## S7 — Priors are injected and stated; their absence is stated too
 
+> **giver:** earned-here — 639419d
+
 Every reported run names which priors were injected. A run without the coref
 prior is a result about an unprimed reader and says so. (P3, verbatim policy.)
 
 ## S8 — Read the attempt log before attempting
+
+> **giver:** earned-here — 639419d
 
 READING-POLICY's append-only attempt log exists so dead ends are not
 re-entered. This session re-entered several (window-derivation shape ≈ A4's
@@ -106,6 +122,15 @@ from it. New refuted attempts are appended there (or here, when v7-specific),
 never merely fixed in silence.
 
 ## S9 — Low sets possible for high; high sets probability for low
+
+> **giver:** Arthur Koestler, *The Ghost in the Machine* (1967) — the holon and
+> hierarchic order's "fixed rules and flexible strategies". The two directions
+> below are the Janus-faced holon's two faces: the rootward face, self-assertive
+> under its own fixed canon, is what a level makes POSSIBLE; the leafward face,
+> integrative and steered from above, is what is made PROBABLE. The law's wording
+> and its two worked levers were earned here (`levers-RESULTS.md`, 7f40a42); the
+> formulation it converges on is Koestler's and is his to be credited with.
+> See `PRIOR-ART-INVENTORY.md`.
 
 The two directions of inference are different in KIND, and every
 subassembly declares which direction each of its inputs works:
@@ -136,6 +161,8 @@ sameness and admits nothing). A violation in either direction reads the
 same way at review: an input crossing levels without naming its direction.
 
 ## S10 — Three classes of math, one per tier; use the weakest that answers, name every crossing
+
+> **giver:** earned-here — 47394b1
 
 Arithmetic (monotone counting) is the LOG tier: identity and witness.
 A count never retreats — an arrival witnessed stays witnessed, the
@@ -176,6 +203,8 @@ decayed quantity is a cross-class number and says so.
 
 ## S11 — A type-level tally never answers an occurrence-level question
 
+> **giver:** earned-here — daccec2
+
 The being-evidence gate (anchoring.js, driven by levers.mjs) decided whether
 a descriptor ACTS by asking whether the following word is a verb, answered
 from POSPrior@1's type-level counts (`VERB > AUX`). Measured at its own 33
@@ -194,6 +223,8 @@ OCCURRENCE is"); this entry records the price of ignoring it. (Earned:
 `being-construction-frankenstein.json`.)
 
 ## S12 — A received prior declares what it dropped, because that is where its consumers' collapses come from
+
+> **giver:** earned-here — daccec2
 
 `build-pos-prior.mjs` is faithful to its own discipline ("ambiguity is
 preserved, never resolved") and still seeded S11's defect: CoNLL-U carries
@@ -221,6 +252,8 @@ collapse cannot see. (Enforced: `native/tests/construction.test.js`, 9
 cases against the real priors.)
 
 ## S13 — Phase comes from the trajectory; counts cannot carry it, and batch decomposition is lookahead
+
+> **giver:** earned-here — daccec2
 
 Investigated: the quantum formalisms for holding a span's readings in
 superposition until context collapses them. The honest boundary, recorded
@@ -252,6 +285,8 @@ measurement as a modal decomposition or vice versa.
 
 ## S14 — The operator order is derivable from the engine's own axes, and the constant disagrees with them
 
+> **giver:** earned-here — daccec2
+
 Measured, in this repo, against the real engine: sorting the nine operators
 domain-major, mode-minor by the engine's OWN exported `DOMAINS`
 (Existence, Structure, Interpretation) × `MODES` (Differentiate, Relate,
@@ -278,6 +313,8 @@ as authority.
 
 ## S15 — The material states its own decay; read it before declaring one
 
+> **giver:** earned-here — daccec2
+
 A writer chooses every returning mention's FORM from a model of what the
 reader still holds (Accessibility Theory; Givón's referential distance), so
 the mapping gap-since-last-mention → form-of-return is the writer's own
@@ -301,6 +338,8 @@ while the material's own measured answer was ~1–2.)
 
 ## S16 — The kernel is omnimodal; the medium's grammar lives in an adapter; every dial is a prior awaiting the material's own measurement
 
+> **giver:** earned-here — daccec2
+
 S15's decay finding, generalized to an architecture rule with a checklist.
 The return-curve measurement was rebuilt to it as the exemplar:
 `kernel/return-curve.js` knows events, positions, and discovered form
@@ -320,6 +359,8 @@ binding's arrivals ≥ 2) are theorems about the mechanism, not models of the
 material, and un-typing them would be un-earning them.
 
 ## S17 — Forgetting is a recall mechanism when its shape matches the need-odds; the shape is a prior, then a measurement
+
+> **giver:** earned-here — daccec2
 
 The research and the run: `eval/results/forgetting-for-recall-RESEARCH.md`
 (five pillars, five fields — Anderson & Schooler's rational analysis;
@@ -364,6 +405,8 @@ S14's ladder are now measured, and phrasing the law as "power law" where
 a medium's own odds say otherwise is the newly measured way to lose.
 
 ## S17 — The type level names forms; being-identity is decided by evidence order, witnessed downward, and ambiguity is the occurrence layer's question
+
+> **giver:** earned-here — 7db127c
 
 Found by the-fold's MHC battery (its POLICIES.md P44) driving
 `discoverReferents` over two real Wikipedia materials, then reproduced at
@@ -436,6 +479,8 @@ passing on both materials — and a stage readable for the first time
 
 ## S18 — A bridge carries the identity the relation's semantics needs; chemistry is licensed per relation, refuted from the material
 
+> **giver:** earned-here — e1c3a71
+
 `kernel/reaction.js` (2026-08-28) makes licensed composition ITERATE: a
 GIVEN hyperlexicon affordance may declare what a reaction YIELDS
 (`meta.yields`), so a licensed product is a real derived hyperedge that
@@ -473,6 +518,8 @@ distinct predecessors; six single-tenure offices stayed licensed and the
 nine facts derived — Grant-after-Lincoln among them — are sound.)
 
 ## S19 — Refutation is a veto, never a licence; and a refutation check is licensed by a declared claim, never by a relation's shape
+
+> **giver:** earned-here — 0a01f07
 
 `kernel/refutation.js` (2026-08-28) is the organ S18 called for, built after
 the-fold's `eval/falsification-probe.mjs` measured what such a scan can and
@@ -517,3 +564,32 @@ the past; a concession that cannot name what it re-zeroes is a version bump
 wearing an operator's name. `admit(entries)` grows the substrate, which is
 what makes a standing refutation search meaningful — a licence unrefuted at
 four facts is refuted at five, and that is pruning, not learning.
+
+## S20 — Uniqueness and cycles are claims about ONE STANDING; with intervals they become claims at a time
+
+> **giver:** earned-here — 7d41140
+
+`kernel/refutation.js` gained `intervalOf` (2026-08-28). Both refutation shapes
+were claims about a referent's whole life: standing twice at one end refuted
+uniqueness, and returning to a node refuted acyclicity. Neither is true of a
+position HELD MORE THAN ONCE — the same seat, vacated and re-taken, is lawful
+succession, and refusing on it destroyed real facts (the-fold priced the
+office-scoped version at 15 true per 2 false prevented).
+
+**Rule.** Where the material supplies intervals, a repeat standing refutes only
+where two standings OVERLAP, and a cycle refutes only where it CLOSES WITHIN
+ONE STANDING of each node. Half-open `[start, end)`, so a handover at the same
+instant is disjoint. A missing bound reads as unbounded: disjointness must be
+SHOWN, never assumed, because it is what excuses a violation. Excused cases are
+listed on the result, never silently dropped. Omitting `intervalOf` leaves both
+shapes exactly as they were.
+
+**Measured, and only half of what was predicted.** Applied to the-fold's
+succession material this recovered precisely the 15 true facts the office gate
+destroyed — and readmitted the 2 false ones, landing byte-identical to no gate
+at all. The reason is worth carrying: **intervals fix the GATE's over-refusal;
+they do nothing about the COMPOSITION's conflation at a bridge.** A chain
+hopping through a multi-tenure referent at referent grain has already lost which
+standing it passed through, and no gate downstream can recover it. Uniqueness-
+at-a-time is necessary and not sufficient; S18's bridge identity is the other
+half, and neither alone holds both recall and precision.

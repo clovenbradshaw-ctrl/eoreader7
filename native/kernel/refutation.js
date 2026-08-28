@@ -111,7 +111,24 @@ function findCycles(adjacency, limit) {
  * `checked: false`, never a pass (P41: the absence of a refusal is not a
  * check).
  */
-export function refuteRelation(edges = [], relation, { expectUnique = false, cycleLimit = 3 } = {}) {
+/**
+ * INTERVAL-OVERLAP — uniqueness-of-a-position becomes uniqueness-of-a-position-
+ * AT-A-TIME when the material supplies intervals.
+ *
+ * Half-open [start, end): a handover at the same instant (one ends exactly as
+ * the next begins) is DISJOINT, which is what lawful succession looks like.
+ * A missing bound reads as unbounded, so an unknown interval overlaps
+ * everything — the conservative direction, since disjointness is what would
+ * excuse a violation and it must be shown, never assumed.
+ */
+const overlaps = (a, b) => {
+  if (!a || !b) return true;                       // unknown: cannot show disjoint
+  const s1 = a.start ?? -Infinity, e1 = a.end ?? Infinity;
+  const s2 = b.start ?? -Infinity, e2 = b.end ?? Infinity;
+  return s1 < e2 && s2 < e1;
+};
+
+export function refuteRelation(edges = [], relation, { expectUnique = false, cycleLimit = 3, intervalOf = null } = {}) {
   if (!relation) throw new TypeError("refuteRelation: the relation to examine is declared, never inferred from the edge set");
   const matching = (edges ?? []).filter((e) => e?.relation === relation);
   const resolved = matching.map(endsOf).filter(Boolean);
@@ -119,32 +136,89 @@ export function refuteRelation(edges = [], relation, { expectUnique = false, cyc
 
   const forward = new Map();
   const backward = new Map();
+  const forwardEdges = new Map();
+  const backwardEdges = new Map();
   const adjacency = new Map();
   for (const { from, to, edge } of resolved) {
     if (!forward.has(from)) forward.set(from, new Map());
     forward.get(from).set(to, edge.id ?? null);
     if (!backward.has(to)) backward.set(to, new Map());
     backward.get(to).set(from, edge.id ?? null);
+    if (!forwardEdges.has(from)) forwardEdges.set(from, []);
+    forwardEdges.get(from).push(edge);
+    if (!backwardEdges.has(to)) backwardEdges.set(to, []);
+    backwardEdges.get(to).push(edge);
     if (!adjacency.has(from)) adjacency.set(from, []);
     adjacency.get(from).push(to);
   }
 
   const violations = [];
+  const excused = [];
+  // When intervals are supplied, standing twice at one end is only a
+  // counterexample if two of those standings OVERLAP IN TIME. Two disjoint
+  // standings are the same position held twice, which is lawful succession and
+  // was never evidence against the relation — the office gate that refused on
+  // reuse alone was destroying true facts to prevent that confusion.
+  const overlapping = (referentEdges) => {
+    if (!intervalOf) return true;                  // no intervals declared: unchanged behaviour
+    const iv = referentEdges.map((e) => { try { return intervalOf(e) ?? null; } catch { return null; } });
+    for (let i = 0; i < iv.length; i += 1) for (let j = i + 1; j < iv.length; j += 1) if (overlaps(iv[i], iv[j])) return true;
+    return false;
+  };
   if (expectUnique) {
     for (const [referent, partners] of forward) {
-      if (partners.size >= 2) violations.push(freeze({ referent, side: "functional", detail: "stands at the first end of this relation more than once, with distinct partners", partners: freeze([...partners.keys()]), edgeRefs: freeze([...partners.values()].filter(Boolean)) }));
+      if (partners.size < 2) continue;
+      const row = { referent, side: "functional", detail: "stands at the first end of this relation more than once, with distinct partners", partners: freeze([...partners.keys()]), edgeRefs: freeze([...partners.values()].filter(Boolean)) };
+      if (overlapping(forwardEdges.get(referent) ?? [])) violations.push(freeze(row));
+      else excused.push(freeze({ ...row, excusedBy: "interval-disjoint", why: "stands here more than once, but never at overlapping times — the same position held twice is succession, not a uniqueness violation" }));
     }
     for (const [referent, partners] of backward) {
-      if (partners.size >= 2) violations.push(freeze({ referent, side: "inverse-functional", detail: "stands at the second end of this relation more than once, with distinct partners", partners: freeze([...partners.keys()]), edgeRefs: freeze([...partners.values()].filter(Boolean)) }));
+      if (partners.size < 2) continue;
+      const row = { referent, side: "inverse-functional", detail: "stands at the second end of this relation more than once, with distinct partners", partners: freeze([...partners.keys()]), edgeRefs: freeze([...partners.values()].filter(Boolean)) };
+      if (overlapping(backwardEdges.get(referent) ?? [])) violations.push(freeze(row));
+      else excused.push(freeze({ ...row, excusedBy: "interval-disjoint", why: "stands here more than once, but never at overlapping times — the same position held twice is succession, not a uniqueness violation" }));
     }
   }
 
-  const cycles = findCycles(adjacency, cycleLimit);
+  let cycles = findCycles(adjacency, cycleLimit);
+  // A cycle is a counterexample only if it CLOSES WITHIN ONE STANDING of each
+  // node. A -> B -> A where A's two standings are disjoint in time is not a
+  // loop, it is a sequence: A held it, B held it, A held it again. Measured on
+  // real material (the-fold, 2026-08-28): admitting intervals excused every
+  // uniqueness violation on the refused office and recovered nothing, because
+  // this second shape independently refused the same office. Same law, other
+  // half — uniqueness-at-a-time needs cycles-at-a-time beside it.
+  const excusedCycles = [];
+  if (intervalOf && cycles.length) {
+    const edgesBetween = new Map();
+    for (const { from, to, edge } of resolved) {
+      const k = `${from}\u0000${to}`;
+      if (!edgesBetween.has(k)) edgesBetween.set(k, []);
+      edgesBetween.get(k).push(edge);
+    }
+    const ivOf = (e) => { try { return intervalOf(e) ?? null; } catch { return null; } };
+    const closesWithinOneStanding = (path) => {
+      // walk the cycle; at each interior node the edge arriving and the edge
+      // leaving must be able to share one standing (overlap) for the loop to be real
+      for (let i = 1; i < path.length; i += 1) {
+        const node = path[i];
+        const incoming = edgesBetween.get(`${path[i - 1]}\u0000${node}`) ?? [];
+        const outgoing = edgesBetween.get(`${node}\u0000${path[(i + 1) % path.length]}`) ?? [];
+        if (!incoming.length || !outgoing.length) continue;      // cannot show disjoint
+        const any = incoming.some((a) => outgoing.some((b) => overlaps(ivOf(a), ivOf(b))));
+        if (!any) return false;                                   // this hop needs two standings
+      }
+      return true;
+    };
+    const kept = [];
+    for (const path of cycles) (closesWithinOneStanding(path) ? kept : excusedCycles).push(path);
+    cycles = kept;
+  }
 
   // A scan that COULD NOT have refuted must not read as one that did not.
   const power = resolved.length < 2 ? "insufficient" : "sufficient";
   const reasons = [];
-  if (violations.length) reasons.push("uniqueness");
+  if (violations.length) reasons.push(intervalOf ? "interval-overlap" : "uniqueness");
   if (cycles.length) reasons.push("cycle");
 
   return freeze({
@@ -161,9 +235,13 @@ export function refuteRelation(edges = [], relation, { expectUnique = false, cyc
       checked: expectUnique,
       violated: violations.length > 0,
       violations: freeze(violations),
+      intervalsDeclared: Boolean(intervalOf),
+      excused: freeze(excused),
+      ...(intervalOf ? { shape: "interval-overlap — a repeat standing refutes only where two standings overlap in time; disjoint repeats are excused and listed" } : {}),
       ...(expectUnique ? {} : { why: "not checked: this relation was not declared 1:1, and uniqueness refutes nothing about a many-to-many one" }),
     }),
-    cycles: freeze({ present: cycles.length > 0, examples: freeze(cycles) }),
+    cycles: freeze({ present: cycles.length > 0, examples: freeze(cycles),
+      ...(intervalOf ? { excused: freeze(excusedCycles), why: "a cycle is excused where it cannot close within one standing of each node — the return is to a later standing, which is sequence, not a loop" } : {}) }),
     refuted: reasons.length > 0,
     reasons: freeze(reasons),
     // Stated on every result so no caller can quietly upgrade silence.
@@ -196,7 +274,7 @@ export function auditChemistry(edges = [], hyperlexicon = null, { cycleLimit = 3
   const composition = hyperlexicon?.composition ?? {};
   const cache = new Map();
   const scanOf = (relation, expectUnique) => {
-    const key = `${relation} ${expectUnique ? "1" : "0"}`;
+    const key = `${relation}\u0000${expectUnique ? "1" : "0"}`;
     if (!cache.has(key)) cache.set(key, refuteRelation(edges, relation, { expectUnique, cycleLimit }));
     return cache.get(key);
   };
@@ -228,6 +306,42 @@ export function auditChemistry(edges = [], hyperlexicon = null, { cycleLimit = 3
  * derived from an audit rather than hand-assembled by a caller. Returned as
  * plain pair objects so `reaction.js` owns its own key shape.
  */
+/**
+ * The giver licenses; this organ only removes.
+ *
+ * THE SHAPE THIS EXISTS TO ENFORCE. `refuted: false` is not a licence — the
+ * twin corpora (a succession chain and a dominance chain, structurally
+ * identical and opposite in truth) both clear every scan this organ can run,
+ * so a caller that admits on absence-of-refutation has admitted the false twin
+ * too. Two call sites had that shape, both spelling it `licensed:
+ * !scan.refuted`, which reads as though the scan granted something.
+ *
+ * So the licensing decision must be made BEFORE this is called and passed in:
+ * `licensedByGiver` is what a NAMED GIVER has taken responsibility for. This
+ * returns those minus what the material positively refutes. There is no path
+ * from "not refuted" to "returned": an item absent from `licensedByGiver` is
+ * never returned however clean its scan, which is the property the
+ * grep-level guard and `refutation-wall.test.js` both check.
+ *
+ * @param {Iterable} licensedByGiver keys a named giver has licensed
+ * @param {Map|object} scans key -> a refuteRelation result
+ * @returns {{survivors: string[], vetoed: Array, disclosure: string}}
+ */
+export function afterVeto(licensedByGiver = [], scans = new Map()) {
+  const read = (key) => (scans instanceof Map ? scans.get(key) : scans?.[key]) ?? null;
+  const survivors = [], vetoed = [];
+  for (const key of licensedByGiver) {
+    const scan = read(key);
+    if (scan?.refuted) vetoed.push(freeze({ key, reasons: freeze([...(scan.reasons ?? [])]) }));
+    else survivors.push(key);
+  }
+  return freeze({
+    survivors: freeze(survivors),
+    vetoed: freeze(vetoed),
+    disclosure: "survivors are what a NAMED GIVER licensed and this material did not refute — unrefuted is not earned, and nothing outside licensedByGiver can appear here",
+  });
+}
+
 export function vetoedPairs(audit = []) {
   return freeze((audit ?? []).filter((row) => row.refuted).map((row) => freeze({ left: row.left, right: row.right, reasons: row.refutedBy.flatMap((s) => s.reasons) })));
 }

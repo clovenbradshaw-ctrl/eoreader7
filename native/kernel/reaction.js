@@ -9,6 +9,30 @@
 // circuit. Nothing below invents a statistic, a threshold, or a licence —
 // every law is an existing organ's, cited at its point of use.
 //
+// WHAT THIS CIRCUIT IS, MEASURED (2026-08-28, the-fold `eval/derivation-
+// precision.mjs`, four arms against an oracle independent by construction —
+// the derivation reads succession qualifiers, the oracle reads term dates):
+//
+//   THIS IS A FILTER, NOT A GENERATOR.
+//
+// An unlicensed 20-line transitive join over the same raw edges reaches every
+// product this circuit reaches, and 14 more (`chemistryFoundThatNaiveMissed:
+// 0`). So the circuit's value is NOT that its products are otherwise
+// unreachable — it is that every product carries provenance to raw witnesses
+// and a refusal surface, and that reaching is licensed by a named giver. The
+// veto that surface supports is the half that measurably pays: precision 0.842
+// (naive join, zero apparatus) -> 1.000 (this circuit under its gate), every
+// false product eliminated including a self-loop.
+//
+// Say it this way and not the other way. "Mechanical reasoning" here means a
+// licensed, provenance-carrying walk of a closure a dumber mechanism could
+// also walk — not a source of inference nothing else could perform. Claiming
+// the second would be a false provenance claim about the apparatus itself,
+// which is the exact defect this whole system exists to prevent. A standing
+// regression holds this honest: the licensed fact set must remain a SUBSET of
+// the naive join's, and the day it does not, that test fails and this
+// paragraph is what must be rewritten.
+//
 // PHYSICS — presence, one hop, decay. kernel/activation.js is P1's first
 // clause ("activation decays") with the window MEASURED or declared, never
 // defaulted; terrain-activation.js makes it operational across the nine-cell

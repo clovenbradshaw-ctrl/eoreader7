@@ -313,3 +313,56 @@ test("PRUNING, end to end: a licence sound at four facts is refuted at five, and
   const after = substrate.settle({ cue: null, floor: null, maxSteps: 8, veto: vetoedPairs(audit) });
   assert.ok(after.vetoed.some((v) => v.left === "replaces"), "the refuted licence is now vetoed at the door");
 });
+
+// ── INTERVAL-OVERLAP (2026-08-28) ─────────────────────────────────────────
+// Uniqueness-of-a-position becomes uniqueness-of-a-position-AT-A-TIME. The
+// office gate refused on position REUSE, which destroyed true facts: the-fold
+// priced it at 15 true per 2 false. A repeat standing refutes only where two
+// standings overlap in time.
+const ivEdge = (n, from, rel, to, start, end) => hyperedge({
+  id: `iv${n}`, relation: rel,
+  participants: [{ ref: from, standing: "referent" }, { ref: to, standing: "referent" }],
+  witness: `text:${n}`, scope: { start, end },
+});
+const intervalOf = (e) => (e?.scope ? { start: e.scope.start, end: e.scope.end } : null);
+
+test("a repeat standing at DISJOINT times is excused, not refuted", () => {
+  // x holds the seat 1850-1855 and again 1860-1865: lawful succession
+  const edges = [ivEdge(1, "x", "holds", "a", 1850, 1855), ivEdge(2, "x", "holds", "b", 1860, 1865)];
+  const bare = refuteRelation(edges, "holds", { expectUnique: true });
+  assert.equal(bare.refuted, true, "without intervals this is the old over-refusal — kept as the control");
+  const withIv = refuteRelation(edges, "holds", { expectUnique: true, intervalOf });
+  assert.equal(withIv.refuted, false);
+  assert.equal(withIv.uniqueness.excused.length, 1);
+  assert.equal(withIv.uniqueness.excused[0].excusedBy, "interval-disjoint");
+});
+
+test("a repeat standing at OVERLAPPING times is still refuted, and named interval-overlap", () => {
+  const edges = [ivEdge(1, "x", "holds", "a", 1850, 1860), ivEdge(2, "x", "holds", "b", 1855, 1865)];
+  const r = refuteRelation(edges, "holds", { expectUnique: true, intervalOf });
+  assert.equal(r.refuted, true);
+  assert.ok(r.reasons.includes("interval-overlap"));
+});
+
+test("a handover at the same instant is disjoint, not an overlap", () => {
+  // half-open [start, end): one ends exactly as the next begins
+  const edges = [ivEdge(1, "x", "holds", "a", 1850, 1860), ivEdge(2, "x", "holds", "b", 1860, 1870)];
+  assert.equal(refuteRelation(edges, "holds", { expectUnique: true, intervalOf }).refuted, false);
+});
+
+test("an unknown interval cannot show disjointness, so the violation stands", () => {
+  const edges = [ivEdge(1, "x", "holds", "a", 1850, 1855), hyperedge({
+    id: "iv9", relation: "holds",
+    participants: [{ ref: "x", standing: "referent" }, { ref: "c", standing: "referent" }], witness: "text:9",
+  })];
+  const r = refuteRelation(edges, "holds", { expectUnique: true, intervalOf });
+  assert.equal(r.refuted, true, "disjointness must be SHOWN; absence of an interval is not evidence of one");
+});
+
+test("declaring intervals never changes a relation with no repeat standing", () => {
+  const clean = [ivEdge(1, "b", "holds", "a", 1850, 1855), ivEdge(2, "c", "holds", "b", 1855, 1860)];
+  const a = refuteRelation(clean, "holds", { expectUnique: true });
+  const b = refuteRelation(clean, "holds", { expectUnique: true, intervalOf });
+  assert.equal(a.refuted, b.refuted);
+  assert.equal(b.uniqueness.excused.length, 0);
+});
