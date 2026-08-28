@@ -471,3 +471,49 @@ proven; what is refuted gets NO chemistry, with the counterexample named.
 (Earned: the tenure gate refused the Senate office on Hamlin's own three
 distinct predecessors; six single-tenure offices stayed licensed and the
 nine facts derived — Grant-after-Lincoln among them — are sound.)
+
+## S19 — Refutation is a veto, never a licence; and a refutation check is licensed by a declared claim, never by a relation's shape
+
+`kernel/refutation.js` (2026-08-28) is the organ S18 called for, built after
+the-fold's `eval/falsification-probe.mjs` measured what such a scan can and
+cannot do. Both halves of this rule were earned by running it.
+
+**A veto, not a licence.** Six corpora with ground truth declared in advance
+returned one decisive pair: a five-fact succession chain and a five-fact
+dominance chain, structurally identical by construction (1:1, acyclic, every
+referent distinct, both nominated at identical support, both clearing
+uniqueness) and opposite in truth — succession composes soundly, "defeated"
+does not. The scan cannot tell them apart. Refuting a transitive-composition
+claim needs a POSITIVE counterexample, and positive-only material supplies
+one only as a **cycle** or a **uniqueness violation**; where neither is
+present, open-world absence refutes nothing. So `refuted: false` is never a
+licence, every result carries that disclosure, and a scan below two resolved
+edges reports `power: "insufficient"` rather than "unrefuted" (P41: the
+absence of a refusal is not a check).
+
+**And a check is licensed by a declared claim.** The first cut ran the
+uniqueness check on every relation an affordance named, and reported the
+derived transitive closure REFUTED — because Colfax is after both Hamlin and
+Breckinridge. That is the closure being correct: many-to-many is what
+transitivity means. Uniqueness refutes an ADJACENCY claim (one immediate
+predecessor) and refutes nothing about a transitive product. A check applied
+where its precondition does not hold produces a refutation that means
+nothing — A10's trap, one layer in from where S18 records it.
+
+**Rule.** `expectUnique` is declared by the caller and defaults to OFF; a
+closure affordance names the side its giver claims is 1:1 (`meta.adjacency`)
+and the audit reads that rather than inferring it. A relation whose
+cardinality nobody declared gets the cycle check alone — always licensed,
+since nothing may be strictly after itself at any cardinality. A uniqueness
+check that did not run reports `checked: false`, never a pass.
+
+**Consequence for reaction.js.** `settle({ veto })` takes
+`vetoedPairs(audit)` whole and refuses those pairs at the door, tallying
+them SEPARATELY from `withheld` — "nobody vouched" and "somebody vouched and
+the material refuted them" are different facts, and a concession needs to
+tell them apart. `derivedUnder({giver})` surfaces what a now-refuted licence
+already produced, because a veto stops future derivation and cannot un-derive
+the past; a concession that cannot name what it re-zeroes is a version bump
+wearing an operator's name. `admit(entries)` grows the substrate, which is
+what makes a standing refutation search meaningful — a licence unrefuted at
+four facts is refuted at five, and that is pruning, not learning.

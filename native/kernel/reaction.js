@@ -121,9 +121,16 @@ export function affordancesFromDeclarations(fold = {}) {
 export function closureAffordances({ base, yields, giver } = {}) {
   if (!base || !yields || !giver) throw new TypeError("closureAffordances: base, yields and giver are all declared — a closure is a giver's claim about a relation, never a default");
   const basis = `transitive closure: ${yields} is declared the closure of ${base}`;
+  // `adjacency` names the side the giver is claiming is 1:1 — closing an
+  // adjacency relation is what this table IS ("replaces" has exactly one
+  // immediate predecessor). refutation.js reads it to decide where a
+  // uniqueness check is licensed, because uniqueness refutes an adjacency
+  // claim and refutes NOTHING about the transitive product, where many-to-
+  // many is what transitivity means (measured: the derived closure read as
+  // "refuted" until this was declared).
   return freeze([
     [base, base], [base, yields], [yields, base], [yields, yields],
-  ].map(([left, right]) => freeze({ left, right, giver, witnesses: [], meta: freeze({ yields, basis }) })));
+  ].map(([left, right]) => freeze({ left, right, giver, witnesses: [], meta: freeze({ yields, basis, adjacency: base }) })));
 }
 
 /**
@@ -182,22 +189,27 @@ export function createReactionSubstrate({ entries = [], hyperlexicon = null, win
   // them privately); a derived duplicate of such an edge is counted as
   // derived-with-paths rather than refused — disclosed, not silent.
   const rawStated = new Set();
-  for (const entry of entries) {
-    if (entry?.schema !== "EOHyperedge@1" || !entry.relation) continue;
+  const rawEdgeList = [];
+  const rememberRaw = (entry) => {
+    if (entry?.schema !== "EOHyperedge@1" || !entry.relation) return;
+    rawEdgeList.push(entry);
     const parts = entry.participants ?? [];
     const from = parts[0];
     const to = parts.length >= 2 ? parts[parts.length - 1] : null;
     if (from?.standing === "referent" && from.ref && to?.standing === "referent" && to.ref) {
       rawStated.add(factKey(entry.relation, from.ref, to.ref));
     }
-  }
+  };
+  for (const entry of entries) rememberRaw(entry);
 
   const derivedByKey = new Map();   // factKey -> derived hyperedge
   const pathsByKey = new Map();     // factKey -> number of derivation paths
   const depthByEdge = new Map();    // edge id -> derivation depth (raw = 0)
   const consulted = new Set();      // chain ids whose affordance was read
   const withheldByPair = new Map(); // pairLabel -> { left, right, standing, chains }
+  const vetoedByPair = new Map();   // pairLabel -> { left, right, reasons, chains }
   const terminalById = new Map();   // chain id -> terminal bridge fact
+  const vetoed = new Map();         // pairLabel -> reasons, set per settle
   let derivedCount = 0;
 
   const depthOf = (edgeId) => depthByEdge.get(edgeId) ?? 0;
@@ -235,6 +247,19 @@ export function createReactionSubstrate({ entries = [], hyperlexicon = null, win
       if (consulted.has(id) || !inContact(chain)) continue;
       consulted.add(id);
       reacted += 1;
+
+      // THE VETO IS CHECKED BEFORE THE LICENCE, and the two are kept apart
+      // on the report. `withheld` means no giver ever licensed this pair;
+      // `vetoed` means one did AND THE MATERIAL REFUTED IT (refutation.js).
+      // Collapsing them would lose exactly the distinction a concession
+      // needs: nobody vouched, versus somebody vouched and was wrong.
+      const vetoKey = pairLabel(chain.leftEdge.relation, chain.rightEdge.relation);
+      if (vetoed.has(vetoKey)) {
+        const tally = vetoedByPair.get(vetoKey) ?? { left: chain.leftEdge.relation, right: chain.rightEdge.relation, reasons: vetoed.get(vetoKey), chains: 0 };
+        tally.chains += 1;
+        vetoedByPair.set(vetoKey, tally);
+        continue;
+      }
 
       const affordance = compositionAffordance(chemistry, chain.leftEdge.relation, chain.rightEdge.relation);
       if (affordance.standing !== "given") {
@@ -304,9 +329,14 @@ export function createReactionSubstrate({ entries = [], hyperlexicon = null, win
    * full-closure control arm; a real cue with a real floor is the reader's
    * present doing the gating.
    */
-  const settle = ({ cue: cueRefs = undefined, floor = undefined, maxSteps = undefined } = {}) => {
+  const settle = ({ cue: cueRefs = undefined, floor = undefined, maxSteps = undefined, veto = null } = {}) => {
     if (cueRefs === undefined) throw new TypeError("settle: cue is declared — pass referent ids/entries, or null for the disclosed ungated control");
     if (!Number.isInteger(maxSteps) || maxSteps < 1) throw new TypeError("settle: maxSteps is a declared positive integer — how long a settling may run is the caller's to say");
+    // `veto` is refutation.js's `vetoedPairs(audit)` output, passed whole —
+    // this module reads a list of refuted pairs and never re-derives the
+    // judgement, so the scan stays the one place refutation is decided.
+    vetoed.clear();
+    for (const pair of veto ?? []) vetoed.set(pairLabel(pair.left, pair.right), freeze([...(pair.reasons ?? [])]));
     if (cueRefs !== null) cue(cueRefs);
 
     const trace = [];
@@ -323,6 +353,7 @@ export function createReactionSubstrate({ entries = [], hyperlexicon = null, win
       derived: derivedFacts(),
       terminal: freeze([...terminalById.values()]),
       withheld: freeze([...withheldByPair.values()].map((w) => freeze({ ...w }))),
+      vetoed: freeze([...vetoedByPair.values()].map((v) => freeze({ ...v }))),
     });
   };
 
@@ -338,11 +369,45 @@ export function createReactionSubstrate({ entries = [], hyperlexicon = null, win
     edge,
   })));
 
+  /**
+   * derivedUnder({ left, right, giver }) — the facts a given affordance
+   * actually produced, matched on whichever fields the caller supplies.
+   *
+   * THIS IS WHAT MAKES A CONCESSION REACH ITS PRODUCTS. The veto stops
+   * FUTURE derivation; it cannot un-derive what a now-refuted affordance
+   * already yielded, and silently leaving those live would be the exact
+   * shape this repo's own concession rule forbids (a re-zero that does not
+   * reach what it re-zeroes is a version bump wearing an operator's name).
+   * A caller that concedes a declaration asks this for the products and
+   * withdraws them on the same act.
+   */
+  const derivedUnder = ({ left = null, right = null, giver = null } = {}) => freeze(
+    derivedFacts().filter((fact) => {
+      const a = fact.edge.meta.affordance ?? {};
+      if (left != null && a.left !== left) return false;
+      if (right != null && a.right !== right) return false;
+      if (giver != null && a.giver !== giver) return false;
+      return true;
+    }),
+  );
+
+  /** Grow the substrate with material that arrived later — the corpus
+   * getting bigger is what makes a standing refutation search meaningful
+   * (a candidate unrefuted at three facts is not unrefuted at forty). New
+   * chain sites form here; existing ones are not re-consulted. */
+  const admit = (arriving = []) => {
+    for (const entry of arriving) rememberRaw(entry);
+    return ledger.ingest(arriving);
+  };
+
   return freeze({
     cue,
     step,
     settle,
+    admit,
     derived: derivedFacts,
+    derivedUnder,
+    edges: () => freeze([...rawEdgeList, ...derivedFacts().map((f) => f.edge)]),
     present: (floor) => present.present(floor),
     diagnostics: () => ledger.diagnostics(),
     window: present.window,
