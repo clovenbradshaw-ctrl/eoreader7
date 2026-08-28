@@ -3,7 +3,8 @@ import assert from "node:assert/strict";
 import { hyperedge } from "../kernel/hypergraph.js";
 import { createHyperlexicon, giveHyperlexiconAffordance, admitHyperlexiconCandidates } from "../kernel/hyperlexicon.js";
 import { refuteRelation, auditChemistry, vetoedPairs } from "../kernel/refutation.js";
-import { createReactionSubstrate, closureAffordances } from "../kernel/reaction.js";
+import { createReactionSubstrate, closureAffordances, affordancesFromDeclarations } from "../kernel/reaction.js";
+import { createDeclarationLog, proposeCandidate, promote, concede, foldDeclarations } from "../interpretation/declarations.js";
 
 // The fixtures are the ones the-fold's falsification probe earned this
 // organ with (eval/results/falsification-RESULTS.md) — carried into the
@@ -192,6 +193,96 @@ test("no veto supplied → byte-identical to before: the veto is opt-in, never a
 });
 
 // ── continuous concession: the corpus grows and takes a licence back ──────
+
+test("chemistry comes from the REGISTER: a composes declaration projects the closure only once GIVEN, and a conceded one licenses nothing", () => {
+  let log = createDeclarationLog();
+  const c = proposeCandidate(log, { kind: "composes", rel: "replaces", yields: "after", acquisition: { searched: 4 }, source: "test" });
+  log = c.log;
+
+  // Candidate tier: no chemistry at all — the grain law, unchanged.
+  assert.equal(affordancesFromDeclarations(foldDeclarations(log)).length, 0);
+
+  const promoted = promote(log, c.id, { giver: "test:succession-semantics" });
+  log = promoted.log;
+  const rows = affordancesFromDeclarations(foldDeclarations(log));
+  assert.equal(rows.length, 4, "a closure projects its own four-row table");
+  assert.ok(rows.every((r) => r.meta.yields === "after" && r.giver === "test:succession-semantics"));
+  assert.ok(rows.every((r) => r.meta.adjacency === "replaces"), "the 1:1 side is named, so the audit never has to guess it");
+
+  // ...and a real settle runs off the register alone.
+  const chemistry = givenAll(rows);
+  const settled = createReactionSubstrate({ entries: SUCCESSION, hyperlexicon: chemistry, window: null })
+    .settle({ cue: null, floor: null, maxSteps: 8 });
+  assert.ok(settled.derived.length >= 3);
+
+  // REC: conceded, the declaration is gone from `given` and projects nothing.
+  const conceded = concede(log, c.id, { trigger: "a later stage found a cycle" });
+  assert.equal(conceded.ok, true);
+  assert.equal(affordancesFromDeclarations(foldDeclarations(conceded.log)).length, 0);
+  assert.equal(foldDeclarations(conceded.log).conceded.length, 1, "the past is kept, not deleted");
+});
+
+test("a composes declaration with no product name is refused — an unnamed closure is the vacuous claim the probe refuted", () => {
+  const log = createDeclarationLog();
+  assert.throws(() => proposeCandidate(log, { kind: "composes", rel: "replaces", acquisition: {}, source: "t" }), /requires `yields`/);
+});
+
+test("WITHDRAWAL CASCADES: a conceded licence takes back what rested on it, transitively, and never deletes the history", () => {
+  const chemistry = givenAll(CLOSURE);
+  const substrate = createReactionSubstrate({ entries: SUCCESSION, hyperlexicon: chemistry, window: null });
+  const settled = substrate.settle({ cue: null, floor: null, maxSteps: 8 });
+
+  // A depth-2 fact exists: it was derived FROM another derived fact.
+  const deep = settled.derived.find((d) => d.depth >= 2);
+  assert.ok(deep, "the closure produced at least one fact resting on another");
+
+  // Withdraw ONE ROW of the closure — the seed set is narrower than the
+  // dependency closure, which is exactly when cascade has to do real work:
+  // the depth-1 facts come from (replaces, replaces), and the depth-2 ones
+  // were derived FROM those through a different row. Taking back only the
+  // seeds would leave conclusions standing on conceded ground.
+  const direct = substrate.derivedUnder({ left: "replaces", right: "replaces" });
+  const taken = substrate.withdraw({ left: "replaces", right: "replaces" }, { trigger: "a cycle refuted the closure at a later stage" });
+  assert.ok(taken.length > direct.length, `cascade reached past the ${direct.length} directly-matched facts to ${taken.length}`);
+  assert.ok(taken.some((t) => t.cascadeDepth > 0), "and at least one went by cascade, not directly");
+  assert.ok(taken.some((t) => t.edgeId === deep.edge.id), "the depth-2 fact went with the ground it rested on");
+
+  // Live belief is empty; the history is whole; each withdrawal names its reason.
+  assert.equal(substrate.derived().length, 0, "every fact traced back to the withdrawn row");
+  assert.equal(substrate.history().length, settled.derived.length, "withdrawal marks, it never deletes");
+  assert.ok(substrate.withdrawn().every((w) => w.trigger.includes("cycle refuted")));
+
+  // A re-audit must not read a retracted conclusion back in as evidence.
+  assert.ok(substrate.edges().every((e) => !e.meta?.derived));
+
+  // And a withdrawn edge may never serve as a premise again.
+  const after = substrate.settle({ cue: null, floor: null, maxSteps: 8 });
+  assert.equal(substrate.derived().length, 0, "nothing re-derives off withdrawn ground");
+  assert.equal(after.quiescent, true);
+});
+
+test("a withdrawal with no recorded reason is refused — the same rule concede() holds, applied to products", () => {
+  const substrate = createReactionSubstrate({ entries: SUCCESSION, hyperlexicon: givenAll(CLOSURE), window: null });
+  substrate.settle({ cue: null, floor: null, maxSteps: 8 });
+  assert.throws(() => substrate.withdraw({ giver: "test:succession" }, {}), /trigger is declared/);
+  assert.throws(() => substrate.withdraw({ giver: "test:succession" }, { trigger: "  " }), /trigger is declared/);
+});
+
+test("withdrawal is scoped: another giver's facts are untouched", () => {
+  const chemistry = givenAll([
+    ...CLOSURE,
+    ...closureAffordances({ base: "seat", yields: "held-after", giver: "other:giver" }),
+  ]);
+  const entries = [...SUCCESSION, edge(11, "a", "seat", "b"), edge(12, "b", "seat", "c")];
+  const substrate = createReactionSubstrate({ entries, hyperlexicon: chemistry, window: null });
+  substrate.settle({ cue: null, floor: null, maxSteps: 8 });
+  const before = substrate.derived().filter((d) => d.giver === "other:giver").length;
+  assert.ok(before > 0);
+
+  substrate.withdraw({ giver: "test:succession" }, { trigger: "refuted" });
+  assert.equal(substrate.derived().filter((d) => d.giver === "other:giver").length, before, "an unrelated licence keeps its products");
+  assert.equal(substrate.derived().filter((d) => d.giver === "test:succession").length, 0);
+});
 
 test("PRUNING, end to end: a licence sound at four facts is refuted at five, and the concession reaches its own products", () => {
   const chemistry = givenAll(CLOSURE);

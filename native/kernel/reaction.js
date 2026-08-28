@@ -91,15 +91,25 @@ const pairLabel = (left, right) => `${left}\u0000${right}`;
  * licence, not a composition licence; that seam stays hl.js's own).
  */
 export function affordancesFromDeclarations(fold = {}) {
-  return freeze((fold.given ?? [])
-    .filter((d) => d.declKind === "transitive" && d.rel && d.giver)
-    .map((d) => freeze({
-      left: d.rel,
-      right: d.rel,
-      giver: d.giver,
-      witnesses: [],
-      meta: freeze({ yields: d.rel, basis: "given transitive declaration — r composed with r yields r (hl.js R6, declarations.js given tier)" }),
-    })));
+  return freeze((fold.given ?? []).flatMap((d) => {
+    if (!d.rel || !d.giver) return [];
+    if (d.declKind === "transitive") {
+      return [freeze({
+        left: d.rel,
+        right: d.rel,
+        giver: d.giver,
+        witnesses: [],
+        meta: freeze({ yields: d.rel, basis: "given transitive declaration — r composed with r yields r (hl.js R6, declarations.js given tier)" }),
+      })];
+    }
+    // A GIVEN `composes` declaration IS a closure claim, so it projects
+    // through the same four-row table a caller would otherwise assemble by
+    // hand — which is the point of routing chemistry through the register:
+    // an affordance that came from a declaration can be CONCEDED, and one
+    // built in a caller's local variable cannot.
+    if (d.declKind === "composes" && d.yields) return [...closureAffordances({ base: d.rel, yields: d.yields, giver: d.giver })];
+    return [];
+  }));
 }
 
 /**
@@ -190,8 +200,15 @@ export function createReactionSubstrate({ entries = [], hyperlexicon = null, win
   // derived-with-paths rather than refused — disclosed, not silent.
   const rawStated = new Set();
   const rawEdgeList = [];
+  const rawSeen = new Set();
   const rememberRaw = (entry) => {
     if (entry?.schema !== "EOHyperedge@1" || !entry.relation) return;
+    // Deduped by id: a caller that re-offers the whole known set on every
+    // arrival (the natural shape when edges are projected from a growing
+    // fold) must not accumulate duplicates here. The ledger already ignores
+    // a re-offered edge; this keeps `edges()` agreeing with it.
+    if (entry.id && rawSeen.has(entry.id)) return;
+    if (entry.id) rawSeen.add(entry.id);
     rawEdgeList.push(entry);
     const parts = entry.participants ?? [];
     const from = parts[0];
@@ -210,6 +227,7 @@ export function createReactionSubstrate({ entries = [], hyperlexicon = null, win
   const vetoedByPair = new Map();   // pairLabel -> { left, right, reasons, chains }
   const terminalById = new Map();   // chain id -> terminal bridge fact
   const vetoed = new Map();         // pairLabel -> reasons, set per settle
+  const withdrawn = new Map();      // derived edge id -> { trigger, cascadedFrom, depth }
   let derivedCount = 0;
 
   const depthOf = (edgeId) => depthByEdge.get(edgeId) ?? 0;
@@ -244,6 +262,12 @@ export function createReactionSubstrate({ entries = [], hyperlexicon = null, win
 
     for (const chain of ledger.chains()) {
       const id = chainId(chain);
+      // A chain resting on a WITHDRAWN edge may not fire. The composition
+      // ledger keeps the edge (it exposes no removal), so this is where a
+      // retracted fact stops being usable as a premise — without it, a
+      // withdrawal would take back a conclusion while leaving the material
+      // able to re-derive it a step later.
+      if (withdrawn.has(chain.leftEdge.id) || withdrawn.has(chain.rightEdge.id)) continue;
       if (consulted.has(id) || !inContact(chain)) continue;
       consulted.add(id);
       reacted += 1;
@@ -357,9 +381,9 @@ export function createReactionSubstrate({ entries = [], hyperlexicon = null, win
     });
   };
 
-  /** Every derived fact so far, with its path count — the provenance
-   * closure is walkable from each edge's own meta.parents. */
-  const derivedFacts = () => freeze([...derivedByKey.entries()].map(([key, edge]) => freeze({
+  /** Everything ever derived, withdrawn or not — the history. `derived()`
+   * is the live projection over it; withdrawal never deletes. */
+  const allDerived = () => freeze([...derivedByKey.entries()].map(([key, edge]) => freeze({
     relation: edge.relation,
     from: edge.participants[0].ref,
     to: edge.participants[edge.participants.length - 1].ref,
@@ -368,6 +392,57 @@ export function createReactionSubstrate({ entries = [], hyperlexicon = null, win
     giver: edge.meta.affordance.giver,
     edge,
   })));
+
+  /** The live belief: everything derived that has not been withdrawn. */
+  const derivedFacts = () => freeze(allDerived().filter((f) => !withdrawn.has(f.edge.id)));
+
+  /**
+   * withdraw({ left, right, giver }, { trigger }) — take back what a
+   * now-refuted licence produced, AND everything that rested on it.
+   *
+   * THE CASCADE IS THE POINT. A derived fact can be a parent of another
+   * derived fact, so withdrawing only the directly-produced ones would
+   * leave conclusions standing on ground that has just been conceded —
+   * which is the same defect, one hop out, that `derivedUnder` exists to
+   * close at the first hop. Every fact whose provenance passes through a
+   * withdrawn edge goes with it, transitively, and each records the edge
+   * it cascaded from so the withdrawal is auditable rather than a bulk
+   * delete.
+   *
+   * Nothing is deleted: `withdrawn` is a marking, the history stays whole
+   * (`allDerived`), and `trigger` is required — a withdrawal with no
+   * recorded reason is a deletion wearing a concession's name
+   * (declarations.js::concede's own rule, same words, applied to products
+   * instead of declarations).
+   */
+  const withdraw = ({ left = null, right = null, giver = null } = {}, { trigger } = {}) => {
+    if (typeof trigger !== "string" || !trigger.trim()) throw new TypeError("withdraw: a trigger is declared — a withdrawal with no recorded reason is a deletion wearing a concession's name");
+    const taken = [];
+    let frontier = derivedUnder({ left, right, giver }).map((f) => ({ id: f.edge.id, from: null, depth: 0 }));
+    while (frontier.length) {
+      const next = [];
+      for (const { id, from, depth } of frontier) {
+        if (withdrawn.has(id)) continue;
+        const fact = allDerived().find((f) => f.edge.id === id);
+        if (!fact) continue;
+        withdrawn.set(id, freeze({ trigger, cascadedFrom: from, depth }));
+        taken.push(freeze({ relation: fact.relation, from: fact.from, to: fact.to, edgeId: id, cascadedFrom: from, cascadeDepth: depth }));
+        for (const child of allDerived()) {
+          if (withdrawn.has(child.edge.id)) continue;
+          if ((child.edge.meta.parents ?? []).includes(id)) next.push({ id: child.edge.id, from: id, depth: depth + 1 });
+        }
+      }
+      frontier = next;
+    }
+    return freeze(taken);
+  };
+
+  /** What has been taken back, and why — the disclosure side of withdrawal:
+   * a fact that quietly vanished would be indistinguishable from one never
+   * derived. */
+  const withdrawnFacts = () => freeze(allDerived()
+    .filter((f) => withdrawn.has(f.edge.id))
+    .map((f) => freeze({ relation: f.relation, from: f.from, to: f.to, edgeId: f.edge.id, ...withdrawn.get(f.edge.id) })));
 
   /**
    * derivedUnder({ left, right, giver }) — the facts a given affordance
@@ -407,6 +482,11 @@ export function createReactionSubstrate({ entries = [], hyperlexicon = null, win
     admit,
     derived: derivedFacts,
     derivedUnder,
+    withdraw,
+    withdrawn: withdrawnFacts,
+    history: allDerived,
+    // Raw material plus LIVE derived facts: a re-audit must not read a
+    // retracted conclusion back in as evidence.
     edges: () => freeze([...rawEdgeList, ...derivedFacts().map((f) => f.edge)]),
     present: (floor) => present.present(floor),
     diagnostics: () => ledger.diagnostics(),
