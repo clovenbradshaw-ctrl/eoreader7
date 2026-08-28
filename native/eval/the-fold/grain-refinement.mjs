@@ -100,6 +100,9 @@ function refineGrain(edges) {
       relation: c.relation,
       refutedAtEntityGrain: c.refuted,
       refutedAtOccurrenceGrain: f?.refuted ?? null,
+      // veto-report: these read the scan to LABEL a relation's standing for the
+      // report. Nothing is admitted here — deriveAt() runs over every relation
+      // regardless, and this field is descriptive output.
       verdict: !c.refuted ? "clean at entity grain"
         : f && !f.refuted ? "GRAIN DEFECT — the violation dissolves when ends are occurrences"
         : "real — the violation survives refinement",

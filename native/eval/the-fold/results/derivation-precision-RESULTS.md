@@ -121,3 +121,66 @@ both.
 measured against material of 3 pages and 25 facts. Reading 23 pages raises
 entity-grain derivation to 101 facts with 31 verified true — so the recall
 ceiling was set by how little had been read, not only by the gate.
+
+---
+
+## Amended — Arm F, the interval gate: half the prediction confirmed, half refuted
+
+Built to the spec's Increment D, with its prediction and null **declared before
+the run** and recorded in `derivation-precision.json` (`intervalGate`):
+
+> **prediction** — F recovers the true facts the office gate destroyed *without*
+> readmitting the 2 false ones: precision stays 1.000 and recall rises.
+> **null** — term intervals carry no information the office gate lacked, under
+> which F equals A.
+
+| arm | derived | true | false | precision |
+|---|---|---|---|---|
+| A shipped (office gate) | 9 | 5 | 0 | 1.000 |
+| B gate removed | 26 | 20 | 2 | 0.909 |
+| **F interval gate** | **26** | **20** | **2** | **0.909** |
+
+**Confirmed exactly:** `trueRecoveredOverA: 15` — F recovers precisely the 15
+true facts the office gate destroyed, the number this document priced earlier.
+Intervals really do carry what the office gate lacked; the null is rejected.
+
+**Refuted exactly:** precision does not hold. F is byte-identical to B — *the
+interval gate at person grain is equivalent to having no gate at all.*
+
+### Why, diagnosed rather than guessed
+
+Two runs, one intermediate:
+
+1. With INTERVAL-OVERLAP on uniqueness only, the refused office reported
+   `uniquenessViolations: 0, excused: 4` — every violation correctly excused —
+   and stayed refused on `reasons: ["cycle"]`. The cycle
+   `Hamlin → Q474290 → Hamlin` is the same person-grain artifact: he held the
+   seat, another held it, he held it again.
+2. Making the cycle check interval-aware too (a cycle is a counterexample only
+   where it *closes within one standing* of each node) cleared the office
+   entirely — and that is what recovered the 15 and readmitted the 2.
+
+So the increment's own goal needed both halves of the same law
+(uniqueness-at-a-time **and** cycles-at-a-time), and even then:
+
+**The spec conflated two defects.** Intervals fix the **gate's** over-refusal —
+they stop it refusing an office merely because someone held it twice. They do
+nothing about the **composition's** conflation at the bridge, which is what
+actually produces the 2 false facts: a chain hopping through a multi-tenure
+person at *person* grain. No gate can see that, because by then the bridge has
+already lost which tenure it was.
+
+### What this leaves
+
+Neither half alone works, and now both are measured:
+
+| approach | recall | precision |
+|---|---|---|
+| interval gate (F) | recovers all 15 | **loses** — 0.909 |
+| occurrence-grain bridges (E, and `grain-refinement.mjs`) | recovers little | **holds** — 1.000 |
+
+The fix is both together: intervals so the gate stops over-refusing, and
+occurrence-identified bridges so composition cannot conflate. `grain-refinement.mjs`
+already reaches 1.000 at occurrence grain on 23 pages of material; joining it to
+the interval gate is the named, unbuilt next step — **not attempted here, and
+not claimed.**
