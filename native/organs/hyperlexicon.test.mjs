@@ -83,7 +83,7 @@ test("the door turns away the connectors that are settled non-verbs, and only th
   assert.equal(heard.length, 7);
 });
 
-test("an out-of-vocabulary connector is ADMITTED, never refused — P55's asymmetry", () => {
+test("an out-of-vocabulary connector is ADMITTED, never refused — P56's asymmetry", () => {
   // "reigned", "ascended" and "era's" are all absent from the treebank. Two
   // are real verbs and one is a possessive; the lens cannot tell, and so it
   // must not decide. A gap in the prior is not a fact about the word.

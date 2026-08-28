@@ -44,7 +44,7 @@
 // WHAT THIS MODULE IS NOT. It is not an extractor — `hypergraph.js` reads the
 // bytes and this file never touches text. It is not a classifier — the
 // grammar lens it consults is INJECTED, carries its own giver, and is used
-// ASYMMETRICALLY (P55: a part of speech is a candidate set, not a
+// ASYMMETRICALLY (P56: a part of speech is a candidate set, not a
 // per-occurrence verdict, so an out-of-vocabulary word is never refused and a
 // settled non-verb is). And it decides nothing about truth: an admitted
 // assertion is a thing the material was heard to say, with its witnesses and
@@ -175,7 +175,7 @@ export function makeHyperlexicon(taskLog) {
       }
       if (classifyConnector) {
         const c = classifyConnector({ verb }, { minShare });
-        // ASYMMETRIC, and this is P55's rule, not a convenience. `settled`
+        // ASYMMETRIC, and this is P56's rule, not a convenience. `settled`
         // and not a verb is a real finding about a closed question. `found:
         // false` is an out-of-vocabulary word — a gap in the prior, never a
         // fact about the connector — and admits.
