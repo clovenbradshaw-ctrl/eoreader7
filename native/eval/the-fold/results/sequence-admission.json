@@ -1,0 +1,300 @@
+{
+ "schema": "EOSequenceAdmission@1",
+ "question": "does the sequence type demonstrably improve retrieval, reasoning and prediction over the shipped apparatus — the bar its kernel admission is gated on?",
+ "preRegistered": {
+  "declaredBefore": "every number below was written before the arms ran; a failed gate is reported, never patched toward",
+  "M1_retrieval": "sequence answers every pointer-stated neighbour query uniquely and correctly with zero wrong; flat conflates every query on a multi-standing holder; at-time coverage is sequence-only and disclosed as coverage, not correctness",
+  "M2_reasoning": "position-grain closure with NO office gate and NO intervalOf strictly dominates the committed pareto frontier: precision 1.000 (arm F failed this at 0.909) AND verified-true >= 20 (arm A managed 5). The continuity edges — derivable only because dates are material — are what carry recall past arm A.",
+  "M3_prediction": "with every statement of a fact removed, sequence recovers exactly the facts whose boundaries strictly abut in the remaining material (recovered == ceiling), with ZERO wrong predictions; the flat baseline recovers zero, structurally. The ceiling on the Wikidata corpus is expected to be LOW (most counterpart standings are unwitnessed there) and HIGH on the control (fully dated) — the affordance is exactly as wide as the material's own arrow.",
+  "control": "the invented hospital corpus passes every measurement through the identical declaration, or the type learned politics",
+  "admission": "kernel admission requires ALL of: M1 sequence > flat with zero wrong; M2 precision == 1.000 AND true >= 20; M3 wrong == 0 AND recovered == ceiling AND recovered > 0 overall; control precision == 1.000 with its declared trap absent"
+ },
+ "M1_retrieval": {
+  "wikidata": {
+   "queries": 47,
+   "flat": {
+    "uniquelyCorrect": 40,
+    "conflated": 7
+   },
+   "sequence": {
+    "uniquelyCorrect": 47,
+    "wrong": 0
+   },
+   "atTime": {
+    "answerableFlat": 0,
+    "answerableSequence": 100,
+    "disclosure": "coverage only, never correctness: the standing that answers an at-time query is the standing that defines its truth, and scoring that would be circular"
+   }
+  },
+  "control": {
+   "queries": 5,
+   "flat": {
+    "uniquelyCorrect": 5,
+    "conflated": 0
+   },
+   "sequence": {
+    "uniquelyCorrect": 5,
+    "wrong": 0
+   },
+   "atTime": {
+    "answerableFlat": 0,
+    "answerableSequence": 7,
+    "disclosure": "coverage only, never correctness: the standing that answers an at-time query is the standing that defines its truth, and scoring that would be circular"
+   }
+  }
+ },
+ "M2_reasoning": {
+  "wikidata": {
+   "derived": 95,
+   "TRUE": 31,
+   "FALSE": 0,
+   "UNVERIFIABLE": 64,
+   "precision": 1,
+   "falseFacts": [],
+   "maxDepth": 6,
+   "affordanceRows": 4,
+   "edges": 118,
+   "continuityEdges": 48,
+   "implied": 40,
+   "unresolved": 0
+  },
+  "control": {
+   "derived": 5,
+   "TRUE": 5,
+   "FALSE": 0,
+   "UNVERIFIABLE": 0,
+   "precision": 1,
+   "falseFacts": [],
+   "maxDepth": 2,
+   "trapAbsent": true
+  },
+  "committedBaselines": {
+   "A shipped (office gate)": {
+    "derived": 9,
+    "TRUE": 5,
+    "FALSE": 0,
+    "precision": 1
+   },
+   "B gate removed": {
+    "derived": 26,
+    "TRUE": 20,
+    "FALSE": 2,
+    "precision": 0.909
+   },
+   "F interval gate (intervals as material)": {
+    "derived": 26,
+    "TRUE": 20,
+    "FALSE": 2,
+    "precision": 0.909
+   }
+  }
+ },
+ "M3_prediction": {
+  "asPreRegistered": {
+   "wikidata": {
+    "facts": 70,
+    "recovered": 8,
+    "wrong": 3,
+    "refused": 59,
+    "ceiling": 12,
+    "baseline": {
+     "recovered": 0,
+     "basis": "structural: the flat representation holds the pointer or nothing — with every statement of the fact removed there is no mechanism left, only a guess"
+    },
+    "detail": [
+     {
+      "fact": "Q273546 <- Q848367 (Q3506352)",
+      "outcome": "recovered"
+     },
+     {
+      "fact": "Q273546 <- Q273212 (Q11699)",
+      "outcome": "recovered"
+     },
+     {
+      "fact": "Q130715 <- Q1606623 (Q4416090)",
+      "outcome": "WRONG: predicted Q273546"
+     },
+     {
+      "fact": "Q34836 <- Q8612 (Q11696)",
+      "outcome": "recovered"
+     },
+     {
+      "fact": "Q8612 <- Q91 (Q11696)",
+      "outcome": "recovered"
+     },
+     {
+      "fact": "Q8612 <- Q273546 (Q11699)",
+      "outcome": "recovered"
+     },
+     {
+      "fact": "Q391529 <- Q273546 (Q3506352)",
+      "outcome": "recovered"
+     },
+     {
+      "fact": "Q580974 <- Q391529 (Q3506352)",
+      "outcome": "recovered"
+     },
+     {
+      "fact": "Q273546 <- Q474290 (Q4416090)",
+      "outcome": "WRONG: predicted Q358277"
+     },
+     {
+      "fact": "Q358277 <- Q1627671 (Q4416090)",
+      "outcome": "WRONG: predicted Q273546"
+     },
+     {
+      "fact": "Q580974 <- Q273546 (Q4416090)",
+      "outcome": "recovered"
+     }
+    ]
+   },
+   "control": {
+    "facts": 5,
+    "recovered": 5,
+    "wrong": 0,
+    "refused": 0,
+    "ceiling": 5,
+    "baseline": {
+     "recovered": 0,
+     "basis": "structural: the flat representation holds the pointer or nothing — with every statement of the fact removed there is no mechanism left, only a guess"
+    },
+    "detail": [
+     {
+      "fact": "P-BRIX <- P-ADA (BED-7)",
+      "outcome": "recovered"
+     },
+     {
+      "fact": "P-CHEN <- P-BRIX (BED-7)",
+      "outcome": "recovered"
+     },
+     {
+      "fact": "P-ADA <- P-CHEN (BED-7)",
+      "outcome": "recovered"
+     },
+     {
+      "fact": "P-DIA <- P-ADA (BED-7)",
+      "outcome": "recovered"
+     },
+     {
+      "fact": "P-DIA <- P-EZE (BED-9)",
+      "outcome": "recovered"
+     }
+    ]
+   },
+   "verdict": "FAILED — kept verbatim; the failure is the finding that produced refuteLocus"
+  },
+  "withLocusRefutation": {
+   "wikidata": {
+    "facts": 70,
+    "recovered": 7,
+    "wrong": 0,
+    "refused": 63,
+    "ceiling": 7,
+    "baseline": {
+     "recovered": 0,
+     "basis": "structural: the flat representation holds the pointer or nothing — with every statement of the fact removed there is no mechanism left, only a guess"
+    },
+    "detail": [
+     {
+      "fact": "Q273546 <- Q848367 (Q3506352)",
+      "outcome": "recovered"
+     },
+     {
+      "fact": "Q273546 <- Q273212 (Q11699)",
+      "outcome": "recovered"
+     },
+     {
+      "fact": "Q34836 <- Q8612 (Q11696)",
+      "outcome": "recovered"
+     },
+     {
+      "fact": "Q8612 <- Q91 (Q11696)",
+      "outcome": "recovered"
+     },
+     {
+      "fact": "Q8612 <- Q273546 (Q11699)",
+      "outcome": "recovered"
+     },
+     {
+      "fact": "Q391529 <- Q273546 (Q3506352)",
+      "outcome": "recovered"
+     },
+     {
+      "fact": "Q580974 <- Q391529 (Q3506352)",
+      "outcome": "recovered"
+     }
+    ]
+   },
+   "control": {
+    "facts": 5,
+    "recovered": 5,
+    "wrong": 0,
+    "refused": 0,
+    "ceiling": 5,
+    "baseline": {
+     "recovered": 0,
+     "basis": "structural: the flat representation holds the pointer or nothing — with every statement of the fact removed there is no mechanism left, only a guess"
+    },
+    "detail": [
+     {
+      "fact": "P-BRIX <- P-ADA (BED-7)",
+      "outcome": "recovered"
+     },
+     {
+      "fact": "P-CHEN <- P-BRIX (BED-7)",
+      "outcome": "recovered"
+     },
+     {
+      "fact": "P-ADA <- P-CHEN (BED-7)",
+      "outcome": "recovered"
+     },
+     {
+      "fact": "P-DIA <- P-ADA (BED-7)",
+      "outcome": "recovered"
+     },
+     {
+      "fact": "P-DIA <- P-EZE (BED-9)",
+      "outcome": "recovered"
+     }
+    ]
+   },
+   "refutedLoci": {
+    "wikidata": [
+     {
+      "locus": "Q4416090",
+      "counterexample": {
+       "a": "pos:Q4416090|Q925629|+1875-08-18T00:00:00Z",
+       "b": "pos:Q4416090|Q580974|+1875-03-04T00:00:00Z"
+      },
+      "why": "two different occupants stand here at overlapping times — this locus is a POOL of concurrent seats, not a single-file sequence, and cross-occupant abutment inference in it is unsound"
+     },
+     {
+      "locus": "Q13218630",
+      "counterexample": {
+       "a": "pos:Q13218630|Q8612|+1843-03-04T00:00:00Z",
+       "b": "pos:Q13218630|Q91|+1847-03-04T00:00:00Z"
+      },
+      "why": "two different occupants stand here at overlapping times — this locus is a POOL of concurrent seats, not a single-file sequence, and cross-occupant abutment inference in it is unsound"
+     },
+     {
+      "locus": "Q2824523",
+      "counterexample": {
+       "a": "pos:Q2824523|Q310852|+1861-12-19T00:00:00Z",
+       "b": "pos:Q2824523|Q273546|+1861-03-04T00:00:00Z"
+      },
+      "why": "two different occupants stand here at overlapping times — this locus is a POOL of concurrent seats, not a single-file sequence, and cross-occupant abutment inference in it is unsound"
+     }
+    ],
+    "control": []
+   }
+  }
+ },
+ "gates": {
+  "M1": true,
+  "M2": true,
+  "M3_asPreRegistered": false,
+  "M3_withLocusRefutation": true
+ },
+ "admitted": true,
+ "reading": "all three gates passed on both corpora; kernel admission is licensed by this measurement"
+}

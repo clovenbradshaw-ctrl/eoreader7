@@ -18,6 +18,7 @@
    "TRUE": 5,
    "FALSE": 0,
    "UNVERIFIABLE": 4,
+   "maxDepth": 2,
    "factKeys": [
     "Q11696|Q34836|Q91",
     "Q11699|Q310852|Q273212",
@@ -38,6 +39,7 @@
    "TRUE": 20,
    "FALSE": 2,
    "UNVERIFIABLE": 4,
+   "maxDepth": 2,
    "factKeys": [
     "Q11696|Q34836|Q91",
     "Q11699|Q310852|Q273212",
@@ -78,6 +80,7 @@
    "TRUE": 16,
    "FALSE": 3,
    "UNVERIFIABLE": 4,
+   "maxDepth": 0,
    "factKeys": [
     "Q11696|Q34836|Q91",
     "Q11699|Q310852|Q273212",
@@ -116,6 +119,7 @@
    "TRUE": 6,
    "FALSE": 0,
    "UNVERIFIABLE": 4,
+   "maxDepth": 0,
    "factKeys": [
     "Q11696|Q34836|Q91",
     "Q11699|Q310852|Q273212",
@@ -137,6 +141,7 @@
    "TRUE": 5,
    "FALSE": 0,
    "UNVERIFIABLE": 4,
+   "maxDepth": 0,
    "factKeys": [
     "Q11696|Q34836|Q91",
     "Q11699|Q310852|Q273546",
@@ -157,6 +162,7 @@
    "TRUE": 5,
    "FALSE": 0,
    "UNVERIFIABLE": 4,
+   "maxDepth": 0,
    "factKeys": [
     "Q11696|Q34836|Q91",
     "Q11699|Q310852|Q273546",
@@ -177,6 +183,7 @@
    "TRUE": 20,
    "FALSE": 2,
    "UNVERIFIABLE": 4,
+   "maxDepth": 2,
    "factKeys": [
     "Q11696|Q34836|Q91",
     "Q11699|Q310852|Q273212",

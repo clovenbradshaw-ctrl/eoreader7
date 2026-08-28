@@ -117,7 +117,7 @@ function chemistry(officeList) {
     .reduce((acc, row) => giveHyperlexiconAffordance(acc, row), createHyperlexicon());
   const sub = createReactionSubstrate({ entries: edges, hyperlexicon: hl, window: null });
   sub.settle({ cue: null, floor: null, maxSteps: 12 });
-  return sub.derived().map((d) => { const [from, to] = endsOf(d.edge); return { office: d.edge.relation.split(":")[1], from, to }; });
+  return sub.derived().map((d) => { const [from, to] = endsOf(d.edge); return { office: d.edge.relation.split(":")[1], from, to, depth: d.depth ?? null }; });
 }
 
 // naive closure, recording every bridge it passed through
@@ -242,6 +242,10 @@ function score(name, facts) {
   for (const r of rows) c[r.verdict] += 1;
   const decided = c.TRUE + c.FALSE;
   return { arm: name, derived: rows.length, ...c,
+    // The closure's REACH. A locus constraint without matching propagation caps
+    // composition at one hop, which drops the count without emptying it — and a
+    // subset assertion cannot see that (measured: 9 -> 1 passes every case).
+    maxDepth: rows.reduce((m, r) => Math.max(m, r.depth ?? 0), 0),
     factKeys: rows.map((r) => `${r.office}|${r.from}|${r.to}`).sort(),
     precisionOnDecided: decided ? Number((c.TRUE / decided).toFixed(3)) : null,
     falseFacts: rows.filter((r) => r.verdict === "FALSE").map((r) => `${labelOf(r.from)} after ${labelOf(r.to)} (office ${r.office})`),
