@@ -1,0 +1,73 @@
+{
+ "schema": "EODerivationPrecision@1",
+ "question": "does the licensing apparatus actually help — are the derived facts true, and does the gate prevent anything a naive join would get wrong?",
+ "oracle": {
+  "giver": "wikidata.org Special:EntityData, retrieved 2026-08-28 — P39 position-held statements with P580 start time / P582 end time",
+  "independence": "P580/P582 ONLY. The derivation under test reads P1365 (replaces) / P1366 (replaced by). Different properties, so this oracle cannot agree with the derivation by construction."
+ },
+ "material": {
+  "facts": 25,
+  "offices": 7,
+  "licensed": 6,
+  "refused": 1
+ },
+ "arms": [
+  {
+   "arm": "A shipped (office gate)",
+   "derived": 9,
+   "TRUE": 5,
+   "FALSE": 0,
+   "UNVERIFIABLE": 4,
+   "precisionOnDecided": 1,
+   "falseFacts": []
+  },
+  {
+   "arm": "B gate removed",
+   "derived": 26,
+   "TRUE": 20,
+   "FALSE": 2,
+   "UNVERIFIABLE": 4,
+   "precisionOnDecided": 0.909,
+   "falseFacts": [
+    "Amos Nourse after Lot M. Morrill (office Q4416090)",
+    "David T. Patterson after Parson Brownlow (office Q4416090)"
+   ]
+  },
+  {
+   "arm": "C naive join, zero apparatus",
+   "derived": 23,
+   "TRUE": 16,
+   "FALSE": 3,
+   "UNVERIFIABLE": 4,
+   "precisionOnDecided": 0.842,
+   "falseFacts": [
+    "Amos Nourse after Amos Nourse (office Q4416090)",
+    "Amos Nourse after Lot M. Morrill (office Q4416090)",
+    "David T. Patterson after Parson Brownlow (office Q4416090)"
+   ]
+  },
+  {
+   "arm": "D per-bridge gate",
+   "derived": 10,
+   "TRUE": 6,
+   "FALSE": 0,
+   "UNVERIFIABLE": 4,
+   "precisionOnDecided": 1,
+   "falseFacts": []
+  }
+ ],
+ "gateCost": {
+  "suppressedByOfficeGate": 17,
+  "ofWhichTrue": 15,
+  "ofWhichFalse": 2,
+  "allInOneOffice": [
+   "Q4416090"
+  ],
+  "reading": "the refusal is office-scoped, so one multi-tenure holder forfeits every composition in that office — including true ones about single-term holders"
+ },
+ "derivationPower": {
+  "chemistryFoundThatNaiveMissed": 0,
+  "naiveFoundThatChemistryWithheld": 14,
+  "reading": "the apparatus is a FILTER, not a generator: it derives nothing a 20-line transitive join does not already find"
+ }
+}
