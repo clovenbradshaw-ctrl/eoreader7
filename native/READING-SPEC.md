@@ -584,6 +584,11 @@ SHOWN, never assumed, because it is what excuses a violation. Excused cases are
 listed on the result, never silently dropped. Omitting `intervalOf` leaves both
 shapes exactly as they were.
 
+**Corrected by S21, same day:** intervals are one WITNESS of the material's
+own order, never its source — a linked list has the full arrow and no
+interval anywhere. This section's shapes are the special case of S21's law
+where the witness happens to be an interval; the law does not depend on it.
+
 **Measured, and only half of what was predicted.** Applied to the-fold's
 succession material this recovered precisely the 15 true facts the office gate
 destroyed — and readmitted the 2 false ones, landing byte-identical to no gate
@@ -593,3 +598,64 @@ hopping through a multi-tenure referent at referent grain has already lost which
 standing it passed through, and no gate downstream can recover it. Uniqueness-
 at-a-time is necessary and not sufficient; S18's bridge identity is the other
 half, and neither alone holds both recall and precision.
+
+## S21 — The material has its own arrow, and it is not the reader's
+
+> **giver:** earned-here — b15c5db
+
+Every clock this system carried was the READER's: activation decay and
+base-level retrieval (P42's two, both metric), reading order (`chainOf`'s
+own refusal to compose backwards through the encounter), production order
+(`OPERATOR_ORDER`). The material's own irreversibility had no seat at all —
+and four patches rebuilt fragments of it locally: a locus smuggled into a
+relation name, an interval side-channel, position identity reconstructed
+after an adapter destroyed it, and interval-aware cycles when the first
+patch proved half.
+
+**The law.** Where a relation carries the world's own irreversibility, that
+arrow is **structural, not metric** — an asymmetry in what may compose with
+what, never a timestamp on a node. A linked list holds the whole arrow with
+no durations anywhere, which is why this is not P42's third clock.
+**Positions are temporal; occupants are not**: a thing may hold one
+sequence many times, and collapsing its standings onto it deletes the arrow
+and manufactures cycles out of returns. Order keys, where the material
+supplies them, are OPAQUE and ordered — compared, never parsed; witnesses
+of the arrow, never the arrow itself (S20 is this law's interval-witness
+special case, and says so).
+
+**The organ.** `kernel/sequence.js`: a sequence is DECLARED
+(`declareSequence` — locus, occupant, position, neighbour pointers,
+optional order keys, a giver), read into position-grain edges whose
+IDENTITY carries the locus (`readSequence`) — so cross-locus composition is
+impossible by construction and the kernel's chaining needed no change,
+which retired a planned modification to `chainOf` that a blast-radius
+audit had priced as the riskiest step. The declared algebra is refutable
+and REFUTED FROM THE MATERIAL where violated: `refuteLocus` finds
+concurrent standings of different occupants — a POOL of seats filed under
+one name — and prediction refuses there (`locus_refuted`).
+
+**Admitted by measurement, not by argument** (the-fold
+`eval/sequence-admission.mjs`, predictions declared before the run):
+retrieval 47/47 unique-correct where the flat representation conflated 7,
+zero wrong; reasoning 95 derived / 31 oracle-true / 0 false at precision
+1.000 and depth 6 with NO office gate and NO interval option — strictly
+dominating the shipped pareto frontier (5 true @ 1.000; 20 true @ 0.909);
+prediction 7 leave-one-out recoveries at zero wrong against a structural-
+zero baseline. **The pre-registered prediction arm FAILED FIRST** — three
+wrong guesses, every one in a pooled locus ("United States senator": one
+name, a hundred concurrent seats, boundaries synchronized by the calendar)
+— and is kept verbatim in the results: the failure exposed that the
+declared algebra was refutable and nothing checked, and `refuteLocus` is
+the wall that failure earned. One correct-by-luck recovery was returned
+with it.
+
+**Disclosed residues.** Same-occupant continuity could in principle bridge
+two parallel seats of a pooled locus when one occupant switches seats with
+abutting dates — unobserved in the measured material, named rather than
+waited for. An occupant with no records receives ONE implied standing so
+chains through it survive; if it truly held the sequence twice, its
+neighbours are conflated exactly as person grain conflated everything —
+carried on the result as `impliedRisk`, never silent. And in the amended
+prediction arm, `recovered == ceiling` is close to definitional (both
+compute unique unrefuted abutment); the arm's empirical content is zero
+wrong predictions and recovery a structural-zero baseline cannot reach.
