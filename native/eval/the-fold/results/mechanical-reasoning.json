@@ -317,12 +317,22 @@
     "office": "Q11699",
     "label": "Vice President of the United States",
     "licensed": true,
-    "refutations": []
+    "power": "sufficient",
+    "examined": 3,
+    "reasons": [],
+    "refutations": [],
+    "disclosure": "no counterexample was found in THIS material; open-world absence is not refutation and this is not a licence"
    },
    {
     "office": "Q4416090",
     "label": "Q4416090 (label unresolved — no fixture on disk)",
     "licensed": false,
+    "power": "sufficient",
+    "examined": 10,
+    "reasons": [
+     "uniqueness",
+     "cycle"
+    ],
     "refutations": [
      {
       "person": "Hannibal Hamlin",
@@ -357,38 +367,75 @@
        "Q5240252 (label unresolved — no fixture on disk)",
        "Q925629 (label unresolved — no fixture on disk)"
       ]
+     },
+     {
+      "evidence": "cycle",
+      "chain": [
+       "Hannibal Hamlin",
+       "Q474290 (label unresolved — no fixture on disk)",
+       "Hannibal Hamlin"
+      ]
+     },
+     {
+      "evidence": "cycle",
+      "chain": [
+       "Hannibal Hamlin",
+       "Q580974 (label unresolved — no fixture on disk)",
+       "Hannibal Hamlin"
+      ]
      }
-    ]
+    ],
+    "disclosure": "a positive counterexample was found in this material"
    },
    {
     "office": "Q13218630",
     "label": "Q13218630 (label unresolved — no fixture on disk)",
     "licensed": true,
-    "refutations": []
+    "power": "sufficient",
+    "examined": 4,
+    "reasons": [],
+    "refutations": [],
+    "disclosure": "no counterexample was found in THIS material; open-world absence is not refutation and this is not a licence"
    },
    {
     "office": "Q5589724",
     "label": "Q5589724 (label unresolved — no fixture on disk)",
     "licensed": true,
-    "refutations": []
+    "power": "sufficient",
+    "examined": 2,
+    "reasons": [],
+    "refutations": [],
+    "disclosure": "no counterexample was found in THIS material; open-world absence is not refutation and this is not a licence"
    },
    {
     "office": "Q1837668",
     "label": "Q1837668 (label unresolved — no fixture on disk)",
     "licensed": true,
-    "refutations": []
+    "power": "sufficient",
+    "examined": 2,
+    "reasons": [],
+    "refutations": [],
+    "disclosure": "no counterexample was found in THIS material; open-world absence is not refutation and this is not a licence"
    },
    {
     "office": "Q3506352",
     "label": "Q3506352 (label unresolved — no fixture on disk)",
     "licensed": true,
-    "refutations": []
+    "power": "sufficient",
+    "examined": 2,
+    "reasons": [],
+    "refutations": [],
+    "disclosure": "no counterexample was found in THIS material; open-world absence is not refutation and this is not a licence"
    },
    {
     "office": "Q11696",
     "label": "Q11696 (label unresolved — no fixture on disk)",
     "licensed": true,
-    "refutations": []
+    "power": "sufficient",
+    "examined": 2,
+    "reasons": [],
+    "refutations": [],
+    "disclosure": "no counterexample was found in THIS material; open-world absence is not refutation and this is not a licence"
    }
   ],
   "licensedOffices": 6,
@@ -761,7 +808,24 @@
     "chains": 1
    }
   ],
+  "vetoed": [],
   "terminal": 0
+ },
+ "audit": {
+  "organ": "eoreader7 native/kernel/refutation.js — the veto organ; refuted:false is never a licence",
+  "preSettle": {
+   "rows": 24,
+   "refuted": 0,
+   "partialPower": 18
+  },
+  "postSettle": {
+   "rows": 24,
+   "refuted": 0,
+   "detail": []
+  },
+  "agreesWithGate": true,
+  "selfConsistent": true,
+  "reading": "the closure's own products contradict none of it — no derived cycle, no uniqueness violation introduced by derivation"
  },
  "physics": {
   "steps": [

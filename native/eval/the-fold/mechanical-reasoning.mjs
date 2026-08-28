@@ -74,6 +74,7 @@ import { GRAINS } from "../../eoreader7/native/kernel/cube.js";
 import { createHyperlexicon, giveHyperlexiconAffordance } from "../../eoreader7/native/kernel/hyperlexicon.js";
 import { acquireCompositionCandidates } from "../../eoreader7/native/kernel/relation-composition.js";
 import { createReactionSubstrate, closureAffordances, nominateFromExperience } from "../../eoreader7/native/kernel/reaction.js";
+import { refuteRelation, auditChemistry, vetoedPairs } from "../../eoreader7/native/kernel/refutation.js";
 
 import { parseEntity } from "../wikidata.js";
 import { makeHyperlexicon } from "../hyperlexicon.js";
@@ -141,30 +142,44 @@ const corroborated = folded.filter((a) => a.witnesses.length >= 2);
 const { edges, skipped } = assertionEdges(folded, { hyperedge, source: "wikidata-fixtures" });
 const offices = [...new Set(folded.map((a) => a.verb))].map((v) => v.split(":")[1]);
 
-// ── the tenure gate: refuse chemistry where the person-bridge is unsound ──
-// `replaces:<office>` must be functional AND inverse-functional over
-// persons in this material: a person who begins the office twice (two
-// distinct predecessors) or leaves it twice (two distinct successors) is
-// evidence of multiple tenures, and the person-level bridge conflates them.
-function tenureRefutations(officeRel) {
-  const began = new Map(); // person -> Set(predecessors)
-  const left = new Map();  // person -> Set(successors)
-  for (const a of folded.filter((x) => x.verb === officeRel)) {
-    const s = a.subject.toLowerCase();
-    const o = a.object.toLowerCase();
-    if (!began.has(s)) began.set(s, new Set());
-    began.get(s).add(o);
-    if (!left.has(o)) left.set(o, new Set());
-    left.get(o).add(s);
-  }
-  const refutations = [];
-  for (const [person, partners] of began) if (partners.size >= 2) refutations.push({ person: labelOf(person), evidence: "began the office twice", partners: [...partners].map(labelOf) });
-  for (const [person, partners] of left) if (partners.size >= 2) refutations.push({ person: labelOf(person), evidence: "left the office twice", partners: [...partners].map(labelOf) });
-  return refutations;
-}
+// ── the tenure gate, now the KERNEL's organ rather than this driver's ─────
+// This check was hand-written here, inline, when the live run surfaced the
+// multi-tenure bug. It is now `kernel/refutation.js::refuteRelation` — the
+// same two shapes (uniqueness violation, cycle) generalized out of this
+// driver so one implementation answers "what does the material positively
+// say against composing this relation" everywhere. The falsification probe
+// (eval/results/falsification-RESULTS.md) is why it is a VETO organ and not
+// a licensing one: structurally identical chains with opposite ground truth
+// are indistinguishable to it, so `refuted: false` is never a licence and
+// the organ says so on every result it returns.
+//
+// Faithfulness is checked, not assumed: the verdicts below must reproduce
+// the hand-written check's own answer (6 offices licensed, the Senate seat
+// refused on Hamlin's three distinct predecessors), and `power` discloses
+// any office too thin for the scan to have refuted anything at all.
 const officeGate = offices.map((office) => {
-  const refutations = tenureRefutations(`replaces:${office}`);
-  return { office, label: labelOf(office.toLowerCase()), licensed: refutations.length === 0, refutations };
+  // `expectUnique` is DECLARED, not assumed: immediate succession in one
+  // office is 1:1 (that claim is what the tenure bug violated). The organ
+  // refuses to guess — see refutation.js on why an undeclared relation gets
+  // the cycle check alone.
+  const scan = refuteRelation(edges, `replaces:${office}`, { expectUnique: true });
+  return {
+    office,
+    label: labelOf(office.toLowerCase()),
+    licensed: !scan.refuted,
+    power: scan.power,
+    examined: scan.examined,
+    reasons: scan.reasons,
+    refutations: [
+      ...scan.uniqueness.violations.map((v) => ({
+        person: labelOf(v.referent),
+        evidence: v.side === "functional" ? "began the office twice" : "left the office twice",
+        partners: v.partners.map(labelOf),
+      })),
+      ...scan.cycles.examples.map((c) => ({ evidence: "cycle", chain: c.map(labelOf) })),
+    ],
+    disclosure: scan.disclosure,
+  };
 });
 const licensedOffices = officeGate.filter((g) => g.licensed).map((g) => g.office);
 
@@ -179,7 +194,21 @@ const affordanceRows = licensedOffices.flatMap((office) =>
 for (const row of affordanceRows) chemistry = giveHyperlexiconAffordance(chemistry, row);
 
 const substrate = createReactionSubstrate({ entries: edges, hyperlexicon: chemistry, window: null });
-const settled = substrate.settle({ cue: null, floor: null, maxSteps: 12 });
+
+// Two walls, not one, and they answer different questions. The office gate
+// above decides WHICH chemistry is given at all. The audit re-asks, of the
+// chemistry that was given, whether the material refutes it — and it must
+// agree with the gate here (both read the same organ over the same edges),
+// so disagreement would be a real finding rather than a formality.
+const preAudit = auditChemistry(edges, chemistry);
+const settled = substrate.settle({ cue: null, floor: null, maxSteps: 12, veto: vetoedPairs(preAudit) });
+
+// The audit run AGAIN over raw PLUS derived edges. This is the one check
+// the gate structurally cannot make: a closure that contradicts itself only
+// does so once its own products exist (a derived "after" cycle refutes the
+// closure that produced it). Nothing licenses this beyond the same scan.
+const postAudit = auditChemistry(substrate.edges(), chemistry);
+const selfRefuted = postAudit.filter((row) => row.refuted);
 
 const edgeById = new Map(edges.map((e) => [e.id, e]));
 for (const d of settled.derived) edgeById.set(d.edge.id, d.edge);
@@ -248,7 +277,18 @@ const out = {
     steps: settled.steps,
     derived: settled.derived.map((d) => ({ relation: d.relation, from: d.from, to: d.to, depth: d.depth, paths: d.paths, sentence: sentence(d) })),
     withheld: settled.withheld,
+    vetoed: settled.vetoed,
     terminal: settled.terminal.length,
+  },
+  audit: {
+    organ: "eoreader7 native/kernel/refutation.js — the veto organ; refuted:false is never a licence",
+    preSettle: { rows: preAudit.length, refuted: preAudit.filter((r) => r.refuted).length, partialPower: preAudit.filter((r) => r.power !== "sufficient").length },
+    postSettle: { rows: postAudit.length, refuted: selfRefuted.length, detail: selfRefuted.map((r) => ({ left: r.left, right: r.right, reasons: r.refutedBy.flatMap((s) => s.reasons) })) },
+    agreesWithGate: preAudit.filter((r) => r.refuted).length === 0,
+    selfConsistent: selfRefuted.length === 0,
+    reading: selfRefuted.length === 0
+      ? "the closure's own products contradict none of it — no derived cycle, no uniqueness violation introduced by derivation"
+      : "the closure contradicts itself once its products exist — the licence is refuted BY WHAT IT PRODUCED and must be conceded",
   },
   physics: { steps: physics.steps, derived: physics.derived.length, quiescent: physics.quiescent },
   priors: priorsArm,
