@@ -1,0 +1,175 @@
+{
+ "schema": "EOPruningTimeline@1",
+ "question": "how long does a licence survive as the corpus grows — and does the instrument take it back when the material refutes it?",
+ "declared": {
+  "giver": "eval/pruning-timeline.mjs — per-office succession closure, declared as this driver's own risk",
+  "offices": 7,
+  "facts": 26
+ },
+ "refutationHorizon": [
+  {
+   "office": "Q4416090",
+   "label": "Q4416090",
+   "survivedFacts": 10,
+   "refutedAtFact": 11,
+   "reasons": [
+    "uniqueness",
+    "cycle"
+   ],
+   "counterexample": "Hannibal Hamlin began the office more than once (Q1636152, Q474290)",
+   "withdrewProducts": 1,
+   "cascaded": 0
+  }
+ ],
+ "survivedTheWholeStream": [
+  {
+   "office": "Q13218630",
+   "label": "Q13218630",
+   "disclosure": "unrefuted by THIS material — not a licence earned, and not a claim of soundness"
+  },
+  {
+   "office": "Q11699",
+   "label": "Vice President of the United States",
+   "disclosure": "unrefuted by THIS material — not a licence earned, and not a claim of soundness"
+  },
+  {
+   "office": "Q3506352",
+   "label": "Q3506352",
+   "disclosure": "unrefuted by THIS material — not a licence earned, and not a claim of soundness"
+  },
+  {
+   "office": "Q1837668",
+   "label": "Q1837668",
+   "disclosure": "unrefuted by THIS material — not a licence earned, and not a claim of soundness"
+  },
+  {
+   "office": "Q11696",
+   "label": "Q11696",
+   "disclosure": "unrefuted by THIS material — not a licence earned, and not a claim of soundness"
+  },
+  {
+   "office": "Q5589724",
+   "label": "Q5589724",
+   "disclosure": "unrefuted by THIS material — not a licence earned, and not a claim of soundness"
+  }
+ ],
+ "concessions": [
+  {
+   "office": "Q4416090",
+   "trigger": "refuted at fact 11: Hannibal Hamlin began the office more than once (Q1636152, Q474290)",
+   "conceded": true,
+   "withdrew": 1
+  }
+ ],
+ "register": {
+  "given": 6,
+  "conceded": 1,
+  "concededDetail": [
+   {
+    "rel": "replaces:Q4416090",
+    "reason": "refuted at fact 11: Hannibal Hamlin began the office more than once (Q1636152, Q474290)"
+   }
+  ],
+  "note": "the conceded declarations are kept on the append-only log, never deleted — the past stays queryable"
+ },
+ "finalBelief": {
+  "derived": 25,
+  "history": 26,
+  "withdrawnAcrossRun": 1,
+  "withdrawnDetail": [
+   {
+    "fact": "Q474290 —after:Q4416090→ Q1636152",
+    "cascadeDepth": 0,
+    "trigger": "refuted at fact 11: Hannibal Hamlin began the office more than once (Q1636152, Q474290)"
+   }
+  ],
+  "note": "history is everything ever derived; withdrawal marks, never deletes"
+ },
+ "timeline": [
+  {
+   "fact": 14,
+   "notes": 14,
+   "edges": 14,
+   "derived": 16,
+   "livesRefuted": 1
+  },
+  {
+   "fact": 15,
+   "notes": 15,
+   "edges": 15,
+   "derived": 16,
+   "livesRefuted": 1
+  },
+  {
+   "fact": 16,
+   "notes": 16,
+   "edges": 16,
+   "derived": 17,
+   "livesRefuted": 1
+  },
+  {
+   "fact": 17,
+   "notes": 17,
+   "edges": 17,
+   "derived": 17,
+   "livesRefuted": 1
+  },
+  {
+   "fact": 18,
+   "notes": 18,
+   "edges": 18,
+   "derived": 18,
+   "livesRefuted": 1
+  },
+  {
+   "fact": 20,
+   "notes": 19,
+   "edges": 19,
+   "derived": 20,
+   "livesRefuted": 1
+  },
+  {
+   "fact": 21,
+   "notes": 20,
+   "edges": 20,
+   "derived": 20,
+   "livesRefuted": 1
+  },
+  {
+   "fact": 22,
+   "notes": 21,
+   "edges": 21,
+   "derived": 21,
+   "livesRefuted": 1
+  },
+  {
+   "fact": 23,
+   "notes": 22,
+   "edges": 22,
+   "derived": 21,
+   "livesRefuted": 1
+  },
+  {
+   "fact": 24,
+   "notes": 23,
+   "edges": 23,
+   "derived": 22,
+   "livesRefuted": 1
+  },
+  {
+   "fact": 25,
+   "notes": 24,
+   "edges": 24,
+   "derived": 23,
+   "livesRefuted": 1
+  },
+  {
+   "fact": 26,
+   "notes": 25,
+   "edges": 25,
+   "derived": 25,
+   "livesRefuted": 1
+  }
+ ],
+ "reading": "1 of 7 licences died inside this corpus; the earliest at fact 11. An 'unrefuted' licence is worth exactly as much as the material that has failed to refute it."
+}
