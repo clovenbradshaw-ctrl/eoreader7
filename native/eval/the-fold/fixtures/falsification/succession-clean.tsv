@@ -1,0 +1,5 @@
+hamlin	replaces:vp	breckinridge
+johnson	replaces:vp	hamlin
+colfax	replaces:vp	johnson
+wilson	replaces:vp	colfax
+wheeler	replaces:vp	wilson

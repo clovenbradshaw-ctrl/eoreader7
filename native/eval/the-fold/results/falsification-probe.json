@@ -1,0 +1,313 @@
+{
+ "schema": "EOFalsificationProbe@1",
+ "question": "can a structural refutation scan, over the material alone, refuse a composition that should not happen?",
+ "corpora": 6,
+ "correct": 5,
+ "wronglyCleared": [
+  "defeated-acyclic.tsv"
+ ],
+ "wronglyRefused": [],
+ "twinTest": {
+  "structurallyIdentical": true,
+  "succession": {
+   "nominated": true,
+   "scanRefuses": false,
+   "composesSoundly": true
+  },
+  "defeated": {
+   "nominated": true,
+   "scanRefuses": false,
+   "composesSoundly": false
+  },
+  "discriminates": false,
+  "reading": "THE SCAN CANNOT TELL THEM APART — structure alone does not license composition; open-world absence is not refutation"
+ },
+ "rightReasonTrap": {
+  "corpus": "parent-nontransitive.tsv",
+  "refused": true,
+  "refusedBy": [
+   {
+    "relation": "parent_of",
+    "uniqueness": "violated",
+    "cycle": "absent"
+   }
+  ],
+  "reading": "refused on UNIQUENESS, never on transitivity — a right answer from an irrelevant test (A10). Do not read this refusal as the scan understanding composition."
+ },
+ "rows": [
+  {
+   "corpus": "succession-clean.tsv",
+   "declared": {
+    "composesSoundly": true,
+    "expectRefusal": false,
+    "why": "an office held in immediate succession: if C replaced B and B replaced A, C genuinely holds it after A. The closure is real but is a DIFFERENT relation ('after'), not 'replaces' itself."
+   },
+   "facts": 5,
+   "notes": 5,
+   "edges": 5,
+   "skipped": 0,
+   "nominated": true,
+   "nominatedPairs": [
+    "replaces:vp ∘ replaces:vp (support 4)"
+   ],
+   "perRelation": [
+    {
+     "relation": "replaces:vp",
+     "uniqueness": {
+      "clears": true,
+      "violations": []
+     },
+     "cycles": {
+      "present": false,
+      "examples": []
+     },
+     "nominated": [
+      {
+       "support": 4
+      }
+     ]
+    }
+   ],
+   "scanRefuses": false,
+   "outcome": "correctly cleared",
+   "refusedBy": null
+  },
+  {
+   "corpus": "defeated-acyclic.tsv",
+   "declared": {
+    "composesSoundly": false,
+    "expectRefusal": true,
+    "why": "non-transitivity of dominance: A beating B and B beating C says nothing whatever about A against C. There is no sound closure to derive, under any name."
+   },
+   "facts": 5,
+   "notes": 5,
+   "edges": 5,
+   "skipped": 0,
+   "nominated": true,
+   "nominatedPairs": [
+    "defeated ∘ defeated (support 4)"
+   ],
+   "perRelation": [
+    {
+     "relation": "defeated",
+     "uniqueness": {
+      "clears": true,
+      "violations": []
+     },
+     "cycles": {
+      "present": false,
+      "examples": []
+     },
+     "nominated": [
+      {
+       "support": 4
+      }
+     ]
+    }
+   ],
+   "scanRefuses": false,
+   "outcome": "WRONGLY CLEARED (an unsound composition licensed)",
+   "refusedBy": null
+  },
+  {
+   "corpus": "defeated-cyclic.tsv",
+   "declared": {
+    "composesSoundly": false,
+    "expectRefusal": true,
+    "why": "same relation, and the corpus itself contains a cycle — a POSITIVE counterexample to transitivity, the one case refutation is genuinely available from positive-only material."
+   },
+   "facts": 3,
+   "notes": 3,
+   "edges": 3,
+   "skipped": 0,
+   "nominated": true,
+   "nominatedPairs": [
+    "defeated ∘ defeated (support 3)"
+   ],
+   "perRelation": [
+    {
+     "relation": "defeated",
+     "uniqueness": {
+      "clears": true,
+      "violations": []
+     },
+     "cycles": {
+      "present": true,
+      "examples": [
+       [
+        "alvarez",
+        "brennan",
+        "castellan",
+        "alvarez",
+        "alvarez"
+       ]
+      ]
+     },
+     "nominated": [
+      {
+       "support": 3
+      }
+     ]
+    }
+   ],
+   "scanRefuses": true,
+   "outcome": "correctly refused",
+   "refusedBy": [
+    {
+     "relation": "defeated",
+     "uniqueness": "clears",
+     "cycle": "present"
+    }
+   ]
+  },
+  {
+   "corpus": "tenure-violation.tsv",
+   "declared": {
+    "composesSoundly": false,
+    "expectRefusal": true,
+    "why": "one person enters the same office twice, so a person-level bridge conflates two distinct tenures — the real bug the live succession run surfaced."
+   },
+   "facts": 4,
+   "notes": 4,
+   "edges": 4,
+   "skipped": 0,
+   "nominated": true,
+   "nominatedPairs": [
+    "replaces:senate ∘ replaces:senate (support 2)"
+   ],
+   "perRelation": [
+    {
+     "relation": "replaces:senate",
+     "uniqueness": {
+      "clears": false,
+      "violations": [
+       {
+        "referent": "hamlin",
+        "side": "functional",
+        "partners": [
+         "fessenden",
+         "morrill"
+        ]
+       }
+      ]
+     },
+     "cycles": {
+      "present": false,
+      "examples": []
+     },
+     "nominated": [
+      {
+       "support": 2
+      }
+     ]
+    }
+   ],
+   "scanRefuses": true,
+   "outcome": "correctly refused",
+   "refusedBy": [
+    {
+     "relation": "replaces:senate",
+     "uniqueness": "violated",
+     "cycle": "absent"
+    }
+   ]
+  },
+  {
+   "corpus": "parent-nontransitive.tsv",
+   "declared": {
+    "composesSoundly": false,
+    "expectRefusal": true,
+    "why": "parent-of is not transitive (the composition is grandparent-of, never parent-of) — but it ALSO fails uniqueness, so a uniqueness check refuses it without ever testing transitivity: the right answer from an irrelevant test."
+   },
+   "facts": 5,
+   "notes": 5,
+   "edges": 5,
+   "skipped": 0,
+   "nominated": true,
+   "nominatedPairs": [
+    "parent_of ∘ parent_of (support 3)"
+   ],
+   "perRelation": [
+    {
+     "relation": "parent_of",
+     "uniqueness": {
+      "clears": false,
+      "violations": [
+       {
+        "referent": "brennan",
+        "side": "functional",
+        "partners": [
+         "casey",
+         "drew"
+        ]
+       },
+       {
+        "referent": "brennan",
+        "side": "inverse-functional",
+        "partners": [
+         "mother_ash",
+         "father_ash"
+        ]
+       }
+      ]
+     },
+     "cycles": {
+      "present": false,
+      "examples": []
+     },
+     "nominated": [
+      {
+       "support": 3
+      }
+     ]
+    }
+   ],
+   "scanRefuses": true,
+   "outcome": "correctly refused",
+   "refusedBy": [
+    {
+     "relation": "parent_of",
+     "uniqueness": "violated",
+     "cycle": "absent"
+    }
+   ]
+  },
+  {
+   "corpus": "lineage-chain.tsv",
+   "declared": {
+    "composesSoundly": true,
+    "expectRefusal": false,
+    "why": "a strict 1:1 lineage composes soundly, but to 'descendant of', never to 'son of'. Structure cannot say WHICH relation is yielded; that is a naming act."
+   },
+   "facts": 4,
+   "notes": 4,
+   "edges": 4,
+   "skipped": 0,
+   "nominated": true,
+   "nominatedPairs": [
+    "son_of ∘ son_of (support 3)"
+   ],
+   "perRelation": [
+    {
+     "relation": "son_of",
+     "uniqueness": {
+      "clears": true,
+      "violations": []
+     },
+     "cycles": {
+      "present": false,
+      "examples": []
+     },
+     "nominated": [
+      {
+       "support": 3
+      }
+     ]
+    }
+   ],
+   "scanRefuses": false,
+   "outcome": "correctly cleared",
+   "refusedBy": null
+  }
+ ]
+}

@@ -1,0 +1,5 @@
+mother_ash	parent_of	brennan
+father_ash	parent_of	brennan
+brennan	parent_of	casey
+brennan	parent_of	drew
+casey	parent_of	elliot
