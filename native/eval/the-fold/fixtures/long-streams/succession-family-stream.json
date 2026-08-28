@@ -1,0 +1,168 @@
+{
+  "name": "succession-family-stream",
+  "purpose": "Stress-tests whether succession.js/void-brief.js, hand-built and tuned against exactly one specimen (Abraham Lincoln's two vice presidents, Hamlin then Johnson), actually generalizes: to a harder three-holder VP chain (FDR's Garner/Wallace/Truman), to a structurally identical succession-box family outside the president/vice-president vocabulary (Chief Justice of the United States), to typo'd names and ambiguous pronoun follow-ups, to honest refusal against people who were never in the office asked about, and to a long-running conversation summary that must retain all of the above.",
+  "turns": [
+    {
+      "n": 1,
+      "user": "Who was Abraham Lincoln's vice president?",
+      "tests": "Baseline sanity check on the one specimen this module was actually built and tested against, before any generalization pressure is applied.",
+      "expects": "Names both Hannibal Hamlin (VP during Lincoln's first term) and Andrew Johnson (VP during Lincoln's second term) — a correct answer should not report only one, since Lincoln genuinely had two VPs across his two terms."
+    },
+    {
+      "n": 2,
+      "user": "wait, is there just one right answer to that, or does it depend which point in his presidency you mean?",
+      "tests": "Probes the cardinality/enumeration handling directly (the void-brief.js REC mechanism for a question the person did not phrase as plural but whose true answer is plural) — does the system flag the multiplicity explicitly rather than silently defaulting to one name.",
+      "expects": "Should state plainly that it depends on the period: Hannibal Hamlin during the first term (1861-1865), Andrew Johnson during the second (1865) — not a single unqualified name."
+    },
+    {
+      "n": 3,
+      "user": "ok, when exactly did Hamlin serve then — like start and end dates, not just years",
+      "tests": "Full-date span extraction from the 'In office' field for one specific holder within a multi-holder family (succession.js's own header notes real Wikipedia boxes carry full month/day/year dates, not bare years).",
+      "expects": "March 4, 1861 to March 4, 1865 — Hamlin's term as VP during Lincoln's first term."
+    },
+    {
+      "n": 4,
+      "user": "and who succeeded him?",
+      "tests": "Pronoun coreference ('him' = Hamlin, established two turns back) plus succeededBy field reading.",
+      "expects": "Andrew Johnson, who became VP on March 4, 1865."
+    },
+    {
+      "n": 5,
+      "user": "how long was Johnson VP before Lincoln got shot?",
+      "tests": "Date arithmetic the succession box never states directly — the box gives dates, not a computed duration, so this checks the answer actually computes rather than just echoing a field.",
+      "expects": "About six weeks (roughly 42 days) — Johnson became VP March 4, 1865; Lincoln was shot April 14, 1865 and died April 15, 1865."
+    },
+    {
+      "n": 6,
+      "user": "why'd Lincoln swap Hamlin out for Johnson for the second term anyway? was Hamlin fired or something?",
+      "tests": "Explains something the succession box itself never states — requires real biographical/political context beyond the structured Preceded-by/Succeeded-by fields, and must not accept the 'fired' framing as fact.",
+      "expects": "A correct answer describes the 1864 National Union ticket: Lincoln's party sought to broaden its appeal for reunification by adding Andrew Johnson, a pro-Union War Democrat from Tennessee, in place of Hamlin, a Maine Republican — a ticket-balancing decision, not a firing. Should not assert a single tidy motive with false certainty."
+    },
+    {
+      "n": 7,
+      "user": "that whole VP swap thing reminds me actually - didn't FDR go through a few different vice presidents too? he was in office forever",
+      "tests": "Natural conversational drift (not a topic-change command) into a second, structurally harder succession family: three holders under one president instead of two, the harder generalization case named in this repo's own risk disclosure.",
+      "expects": "Yes — FDR had three vice presidents across his four terms: John Nance Garner, Henry Wallace, and Harry Truman."
+    },
+    {
+      "n": 8,
+      "user": "who was the first one?",
+      "tests": "Elliptical follow-up referencing 'FDR's vice presidents' established in the prior turn — requires holding the newly introduced family's own context, not Lincoln's.",
+      "expects": "John Nance Garner, VP from 1933 to 1941 (FDR's first two terms)."
+    },
+    {
+      "n": 9,
+      "user": "and who came after Garner?",
+      "tests": "Chain-following (precededBy/succeededBy resolution) within the FDR family, first hop from holder 1 to holder 2.",
+      "expects": "Henry Wallace, VP from 1941 to 1945."
+    },
+    {
+      "n": 10,
+      "user": "when did Wallace actually take office - I want the specific date, not just the year",
+      "tests": "Full-date span extraction (not bare years) applied to a holder in the NEW family, checking the date-format handling isn't specific to the Lincoln specimen it was originally found and fixed against.",
+      "expects": "January 20, 1941, when he was inaugurated alongside FDR's third term."
+    },
+    {
+      "n": 11,
+      "user": "wait so Garner and Wallace were both VP under FDR the whole time right? not under two different presidents?",
+      "tests": "Checks the office+president pairing specifically (the exact office|president grouping key succession.js/chains.js use) rather than treating 'vice president' as one undifferentiated global list across all US history.",
+      "expects": "Confirms both Garner and Wallace (and later Truman) served as Vice President specifically under Franklin D. Roosevelt, not under different presidents."
+    },
+    {
+      "n": 12,
+      "user": "what about Henry Wallice - when did he leave office again?",
+      "tests": "Typo'd name ('Wallice' for 'Wallace') on a person already established in this conversation — correct behavior is to recognize the intended referent and answer, or ask a brief clarifying question, never to confidently invent facts about a nonexistent 'Wallice'.",
+      "expects": "Should be read as Henry Wallace (already discussed) and answer January 20, 1945, when Truman succeeded him — or, if genuinely uncertain about the typo, ask a short clarifying question rather than fabricate a different person."
+    },
+    {
+      "n": 13,
+      "user": "then Truman took over as VP toward the end there right? when exactly did that happen?",
+      "tests": "Chain-following to the THIRD holder in the family — the second hop, checking the chain doesn't silently break down after the first link the way a specimen tuned on a two-holder chain (Lincoln) might.",
+      "expects": "Harry Truman became VP on January 20, 1945."
+    },
+    {
+      "n": 14,
+      "user": "why'd they drop Wallace for Truman in '44? I thought he was pretty popular with people",
+      "tests": "A second 'explain beyond the box' case, in the harder three-holder family — checks whether the explanatory capability generalizes past the one story it may have been built and phrased against (Lincoln/Johnson).",
+      "expects": "A correct answer describes the contested 1944 Democratic National Convention: party leaders viewed Wallace as too left-leaning/politically risky, and given FDR's declining health made his running mate a likely future president, Truman was chosen as a broadly acceptable compromise. Should not reduce this to one simple, overconfident cause."
+    },
+    {
+      "n": 15,
+      "user": "so Truman was only VP for like three months before FDR died?",
+      "tests": "Date arithmetic on the shortest-tenure holder in either chain (about 82 days) — a different span than Johnson's ~42 days, checking the arithmetic is genuinely computed per-holder rather than a memorized answer pattern from the Lincoln turn.",
+      "expects": "Roughly true — about 82 days (a little under 3 months): Truman was sworn in January 20, 1945; FDR died April 12, 1945."
+    },
+    {
+      "n": 16,
+      "user": "did Truman ever get his own VP after he became president, or did that just stay empty?",
+      "tests": "Requires knowing the historical VP-vacancy convention (pre-25th Amendment, an ascending VP left the office vacant) rather than assuming a name must always exist to fill the slot — a fact the succession box format itself never explains.",
+      "expects": "The vice presidency stayed vacant from April 1945 until Truman's own inauguration in January 1949, when Alben Barkley became VP. Must not invent a name for the interim period."
+    },
+    {
+      "n": 17,
+      "user": "how many vice presidents has the US had total, do you know?",
+      "tests": "An aggregate/headcount question outside the succession box's pairwise Preceded-by/Succeeded-by shape — tests honest scope-awareness (naming a real, current count) rather than either refusing everything or inventing a confident wrong number.",
+      "expects": "As of the current administration, roughly 50 vice presidents total (JD Vance, sworn in January 2025, is the 50th). A correct answer should be in this ballpark and reflect the actual current officeholder rather than a stale or invented figure; honest uncertainty about the exact count is acceptable, a confidently wrong number is not."
+    },
+    {
+      "n": 18,
+      "user": "ok totally different question, same kind of thing though - who was Chief Justice right before John Roberts?",
+      "tests": "Tests whether office-detection generalizes past 'president'/'vice president' vocabulary specifically. 'Chief Justice of the United States' is a real Wikipedia succession-box title ending in the exact phrase 'of the United States' that succession.js's title-line pattern is not hardcoded past — but the module's prose-anchoring step for bootstrapping a chain IS separately keyed to the literal words 'vice president', so this is a genuine, non-obvious generalization boundary to probe live.",
+      "expects": "William Rehnquist, Chief Justice from 1986 until his death in September 2005, immediately preceded John Roberts."
+    },
+    {
+      "n": 19,
+      "user": "and who was Chief Justice before Rehnquist?",
+      "tests": "Chain-following one hop further back in the new office family — checks depth of generalization, not just a single successful lookup.",
+      "expects": "Warren E. Burger, Chief Justice from 1969 to 1986."
+    },
+    {
+      "n": 20,
+      "user": "how many Chief Justices have there been total, and is Roberts the current one?",
+      "tests": "An aggregate/completeness question outside the pairwise succession-box shape, in the new office family — tests honest handling of a question the box mechanism wasn't built to answer directly, versus overclaiming false precision.",
+      "expects": "John Roberts is the 17th and current Chief Justice of the United States (in office since 2005). A correct answer states 17 total or honestly qualifies uncertainty rather than inventing a number."
+    },
+    {
+      "n": 21,
+      "user": "was Sandra Day O'Connor ever Chief Justice?",
+      "tests": "Honest refusal against a plausible-sounding but wrong premise — O'Connor was a long-serving Associate Justice, never Chief Justice — checking the system distinguishes the two seats rather than pattern-matching on 'a well-known Supreme Court justice from that era'.",
+      "expects": "No. Sandra Day O'Connor was an Associate Justice of the Supreme Court (1981-2006), the first woman on the Court, but never Chief Justice."
+    },
+    {
+      "n": 22,
+      "user": "ok what about Robert Jackson - was he ever Chief Justice?",
+      "tests": "A second, independent honest-refusal case with a different real Supreme Court name who was never Chief Justice — confirms the previous refusal wasn't a lucky one-off.",
+      "expects": "No. Robert H. Jackson served as an Associate Justice (1941-1954) and was never elevated to Chief Justice."
+    },
+    {
+      "n": 23,
+      "user": "and the one after that?",
+      "tests": "Genuinely ambiguous, underspecified pronoun-reference follow-up with no clear antecedent — the last topic (Robert Jackson) was a person who was NEVER in the office chain at all, so 'the one after that' has no obvious referent in either the Chief Justice chain or the VP chains discussed earlier. Correct behavior is to ask what is meant rather than confidently guessing.",
+      "expects": "An honest clarifying question (e.g. asking which chain or which person 'that' refers to) rather than a confident guess; if it does guess, it must state the assumption explicitly rather than presenting a guess as settled fact."
+    },
+    {
+      "n": 24,
+      "user": "wasn't Alexander Hamilton one of Lincoln's vice presidents at some point?",
+      "tests": "Asks about someone who was NEVER in the office at all, and not merely under the wrong president — a categorical impossibility (Hamilton died decades before Lincoln's presidency) — tests honest, firm refusal rather than a confident wrong guess pattern-matched off the word 'vice president'.",
+      "expects": "No. Alexander Hamilton died in 1804, roughly 57 years before Lincoln took office in 1861; he was never Lincoln's VP or anyone's VP (he was the first Secretary of the Treasury). The false premise should be corrected plainly."
+    },
+    {
+      "n": 25,
+      "user": "wait, im getting confused - between hamlin, johnson, garner, wallace and truman, which ones actually became president themselves, not just VP?",
+      "tests": "A cross-family synthesis question drawing on facts from BOTH the Lincoln and FDR chains established many turns earlier — tests whether those earlier facts are still retained and can be recombined into a new derived question, not merely re-asked verbatim.",
+      "expects": "Andrew Johnson became president (upon Lincoln's assassination in 1865) and Harry Truman became president (upon FDR's death in 1945). Hamlin, Garner, and Wallace never became president."
+    },
+    {
+      "n": 26,
+      "user": "one more before we wrap up, going back to the chief justice thing - did any chief justice ever get impeached?",
+      "tests": "A further precision/honest-boundary case in the Chief-Justice family: no Chief Justice has ever been impeached, but Associate Justice Samuel Chase was impeached (and acquitted) in 1804 - a system that conflates 'a justice was impeached' with 'a Chief Justice was impeached', or confuses Chase's actual seat, would fail this.",
+      "expects": "No sitting Chief Justice of the United States has ever been impeached. Associate Justice Samuel Chase was impeached by the House in 1804 but acquitted by the Senate in 1805 and remained on the Court. A correct answer must not claim a Chief Justice was impeached, and if it mentions Chase, must correctly identify him as an Associate Justice."
+    },
+    {
+      "n": 27,
+      "user": "can you sum up everything we've covered in this chat so far?",
+      "tests": "Tests whether the running conversation-fold/summary correctly retained and can restate every succession fact established across 26 intervening turns spanning three distinct office families, without inventing anything new or silently dropping one of the families.",
+      "expects": "An accurate recap covering: Lincoln's two VPs (Hamlin 1861-1865, then Johnson 1865, who became president); FDR's three VPs (Garner 1933-1941, Wallace 1941-1945, then Truman 1945, who became president); the Chief Justice chain (Burger, then Rehnquist, then Roberts, the current 17th); and the corrected false premises (Hamilton was never a VP at all; O'Connor and Jackson were Associate Justices, never Chief Justice; no Chief Justice has been impeached, though Associate Justice Chase was). Should not fabricate facts not actually discussed in this conversation."
+    }
+  ]
+}

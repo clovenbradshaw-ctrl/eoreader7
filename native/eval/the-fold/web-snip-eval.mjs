@@ -248,6 +248,8 @@ async function runSlot({ label, question, slotObject, searchQuery, anchorPhrase,
   const shape = declaredSlotShape(question, {
     definiteDeterminers: enginePriors.DEFINITE_DETERMINERS,
     inflectionalSuffixes: enginePriors.INFLECTIONAL_SUFFIXES,
+    interrogativePronouns: enginePriors.INTERROGATIVE_PRONOUNS,
+    mannerReasonPronouns: enginePriors.MANNER_REASON_PRONOUNS,
   });
   console.log(`DEF landed (${defTaskId}): "${slotObject}" — declared shape: ${shape.declared} (marker: ${shape.marker ?? "none"}, head: ${shape.headPhrase ?? "none"})`);
   const shapeAttach = grid.attachResult(log, defTaskId, { declaredShape: shape.declared, marker: shape.marker, headPhrase: shape.headPhrase });
