@@ -1,0 +1,5357 @@
+{
+ "schema": "EOCompiledPriors@1",
+ "giver": "the-fold:predigest-priors",
+ "sourceCount": 111,
+ "corpus": [
+  {
+   "source": "eoreaderhandbook:000-index.md",
+   "path": "../eoreaderhandbook/000-index.md",
+   "encounters": 48,
+   "of": 48,
+   "capped": false
+  },
+  {
+   "source": "eoreaderhandbook:001-what-this-book-is-and-isnt.md",
+   "path": "../eoreaderhandbook/001-what-this-book-is-and-isnt.md",
+   "encounters": 53,
+   "of": 53,
+   "capped": false
+  },
+  {
+   "source": "eoreaderhandbook:002-grammar-and-meaning-primer.md",
+   "path": "../eoreaderhandbook/002-grammar-and-meaning-primer.md",
+   "encounters": 51,
+   "of": 51,
+   "capped": false
+  },
+  {
+   "source": "eoreaderhandbook:003-ontology-and-epistemology-primer.md",
+   "path": "../eoreaderhandbook/003-ontology-and-epistemology-primer.md",
+   "encounters": 82,
+   "of": 82,
+   "capped": false
+  },
+  {
+   "source": "eoreaderhandbook:004-what-a-language-model-is.md",
+   "path": "../eoreaderhandbook/004-what-a-language-model-is.md",
+   "encounters": 58,
+   "of": 58,
+   "capped": false
+  },
+  {
+   "source": "eoreaderhandbook:101-noticing.md",
+   "path": "../eoreaderhandbook/101-noticing.md",
+   "encounters": 52,
+   "of": 52,
+   "capped": false
+  },
+  {
+   "source": "eoreaderhandbook:102-the-difference-that-makes-a-difference.md",
+   "path": "../eoreaderhandbook/102-the-difference-that-makes-a-difference.md",
+   "encounters": 62,
+   "of": 62,
+   "capped": false
+  },
+  {
+   "source": "eoreaderhandbook:103-witness.md",
+   "path": "../eoreaderhandbook/103-witness.md",
+   "encounters": 51,
+   "of": 51,
+   "capped": false
+  },
+  {
+   "source": "eoreaderhandbook:104-the-two-deaths.md",
+   "path": "../eoreaderhandbook/104-the-two-deaths.md",
+   "encounters": 45,
+   "of": 45,
+   "capped": false
+  },
+  {
+   "source": "eoreaderhandbook:105-three-numbers-and-a-vital-sign.md",
+   "path": "../eoreaderhandbook/105-three-numbers-and-a-vital-sign.md",
+   "encounters": 68,
+   "of": 68,
+   "capped": false
+  },
+  {
+   "source": "eoreaderhandbook:201-nine-verbs.md",
+   "path": "../eoreaderhandbook/201-nine-verbs.md",
+   "encounters": 63,
+   "of": 63,
+   "capped": false
+  },
+  {
+   "source": "eoreaderhandbook:202-the-order-things-happen-in.md",
+   "path": "../eoreaderhandbook/202-the-order-things-happen-in.md",
+   "encounters": 57,
+   "of": 57,
+   "capped": false
+  },
+  {
+   "source": "eoreaderhandbook:203-nine-kinds-of-where.md",
+   "path": "../eoreaderhandbook/203-nine-kinds-of-where.md",
+   "encounters": 76,
+   "of": 76,
+   "capped": false
+  },
+  {
+   "source": "eoreaderhandbook:204-nine-kinds-of-how.md",
+   "path": "../eoreaderhandbook/204-nine-kinds-of-how.md",
+   "encounters": 54,
+   "of": 54,
+   "capped": false
+  },
+  {
+   "source": "eoreaderhandbook:205-why-all-three-have-to-agree.md",
+   "path": "../eoreaderhandbook/205-why-all-three-have-to-agree.md",
+   "encounters": 62,
+   "of": 62,
+   "capped": false
+  },
+  {
+   "source": "eoreaderhandbook:206-checked-against-language-itself.md",
+   "path": "../eoreaderhandbook/206-checked-against-language-itself.md",
+   "encounters": 54,
+   "of": 54,
+   "capped": false
+  },
+  {
+   "source": "eoreaderhandbook:207-tried-against-a-rival.md",
+   "path": "../eoreaderhandbook/207-tried-against-a-rival.md",
+   "encounters": 53,
+   "of": 53,
+   "capped": false
+  },
+  {
+   "source": "eoreaderhandbook:301-a-reading-from-the-inside.md",
+   "path": "../eoreaderhandbook/301-a-reading-from-the-inside.md",
+   "encounters": 46,
+   "of": 46,
+   "capped": false
+  },
+  {
+   "source": "eoreaderhandbook:302-gifts-not-guesses.md",
+   "path": "../eoreaderhandbook/302-gifts-not-guesses.md",
+   "encounters": 64,
+   "of": 64,
+   "capped": false
+  },
+  {
+   "source": "eoreaderhandbook:303-a-guided-tour-of-the-organs.md",
+   "path": "../eoreaderhandbook/303-a-guided-tour-of-the-organs.md",
+   "encounters": 61,
+   "of": 61,
+   "capped": false
+  },
+  {
+   "source": "eoreaderhandbook:304-turns-and-memory.md",
+   "path": "../eoreaderhandbook/304-turns-and-memory.md",
+   "encounters": 48,
+   "of": 48,
+   "capped": false
+  },
+  {
+   "source": "eoreaderhandbook:305-refusal-as-an-answer.md",
+   "path": "../eoreaderhandbook/305-refusal-as-an-answer.md",
+   "encounters": 69,
+   "of": 69,
+   "capped": false
+  },
+  {
+   "source": "eoreaderhandbook:306-how-the-engine-is-allowed-to-grow.md",
+   "path": "../eoreaderhandbook/306-how-the-engine-is-allowed-to-grow.md",
+   "encounters": 69,
+   "of": 69,
+   "capped": false
+  },
+  {
+   "source": "eoreaderhandbook:401-four-boxes.md",
+   "path": "../eoreaderhandbook/401-four-boxes.md",
+   "encounters": 44,
+   "of": 44,
+   "capped": false
+  },
+  {
+   "source": "eoreaderhandbook:402-the-tests-in-plain-language.md",
+   "path": "../eoreaderhandbook/402-the-tests-in-plain-language.md",
+   "encounters": 69,
+   "of": 69,
+   "capped": false
+  },
+  {
+   "source": "eoreaderhandbook:403-a-constitution-that-edits-itself.md",
+   "path": "../eoreaderhandbook/403-a-constitution-that-edits-itself.md",
+   "encounters": 60,
+   "of": 60,
+   "capped": false
+  },
+  {
+   "source": "eoreaderhandbook:404-one-amendment-start-to-finish.md",
+   "path": "../eoreaderhandbook/404-one-amendment-start-to-finish.md",
+   "encounters": 60,
+   "of": 60,
+   "capped": false
+  },
+  {
+   "source": "eoreaderhandbook:501-a-thin-front-door.md",
+   "path": "../eoreaderhandbook/501-a-thin-front-door.md",
+   "encounters": 44,
+   "of": 44,
+   "capped": false
+  },
+  {
+   "source": "eoreaderhandbook:502-instructions-all-the-way-down.md",
+   "path": "../eoreaderhandbook/502-instructions-all-the-way-down.md",
+   "encounters": 59,
+   "of": 59,
+   "capped": false
+  },
+  {
+   "source": "eoreaderhandbook:503-four-promises-to-the-reader.md",
+   "path": "../eoreaderhandbook/503-four-promises-to-the-reader.md",
+   "encounters": 54,
+   "of": 54,
+   "capped": false
+  },
+  {
+   "source": "eoreaderhandbook:504-a-citation-you-can-actually-check.md",
+   "path": "../eoreaderhandbook/504-a-citation-you-can-actually-check.md",
+   "encounters": 48,
+   "of": 48,
+   "capped": false
+  },
+  {
+   "source": "eoreaderhandbook:505-writing-something-long-without-losing-the-thread.md",
+   "path": "../eoreaderhandbook/505-writing-something-long-without-losing-the-thread.md",
+   "encounters": 46,
+   "of": 46,
+   "capped": false
+  },
+  {
+   "source": "eoreaderhandbook:506-senses-memory-and-borrowed-models.md",
+   "path": "../eoreaderhandbook/506-senses-memory-and-borrowed-models.md",
+   "encounters": 62,
+   "of": 62,
+   "capped": false
+  },
+  {
+   "source": "eoreaderhandbook:601-a-short-history-of-machines-that-were-said-to-read.md",
+   "path": "../eoreaderhandbook/601-a-short-history-of-machines-that-were-said-to-read.md",
+   "encounters": 55,
+   "of": 55,
+   "capped": false
+  },
+  {
+   "source": "eoreaderhandbook:602-the-fifty-year-old-objection.md",
+   "path": "../eoreaderhandbook/602-the-fifty-year-old-objection.md",
+   "encounters": 63,
+   "of": 63,
+   "capped": false
+  },
+  {
+   "source": "eoreaderhandbook:603-whats-actually-new-here.md",
+   "path": "../eoreaderhandbook/603-whats-actually-new-here.md",
+   "encounters": 65,
+   "of": 65,
+   "capped": false
+  },
+  {
+   "source": "eoreaderhandbook:604-the-honest-gap-list.md",
+   "path": "../eoreaderhandbook/604-the-honest-gap-list.md",
+   "encounters": 52,
+   "of": 52,
+   "capped": false
+  },
+  {
+   "source": "eoreaderhandbook:605-ancestors-named-in-the-code.md",
+   "path": "../eoreaderhandbook/605-ancestors-named-in-the-code.md",
+   "encounters": 66,
+   "of": 66,
+   "capped": false
+  },
+  {
+   "source": "eoreaderhandbook:701-a-construction-language.md",
+   "path": "../eoreaderhandbook/701-a-construction-language.md",
+   "encounters": 56,
+   "of": 56,
+   "capped": false
+  },
+  {
+   "source": "eoreaderhandbook:702-the-watchmakers-discipline.md",
+   "path": "../eoreaderhandbook/702-the-watchmakers-discipline.md",
+   "encounters": 54,
+   "of": 54,
+   "capped": false
+  },
+  {
+   "source": "eoreaderhandbook:703-a-worked-build-start-to-finish.md",
+   "path": "../eoreaderhandbook/703-a-worked-build-start-to-finish.md",
+   "encounters": 38,
+   "of": 38,
+   "capped": false
+  },
+  {
+   "source": "eoreaderhandbook:801-telling-a-rhyme-from-a-borrowing.md",
+   "path": "../eoreaderhandbook/801-telling-a-rhyme-from-a-borrowing.md",
+   "encounters": 91,
+   "of": 91,
+   "capped": false
+  },
+  {
+   "source": "eoreaderhandbook:HANDBOOK-SPEC.md",
+   "path": "../eoreaderhandbook/HANDBOOK-SPEC.md",
+   "encounters": 227,
+   "of": 227,
+   "capped": false
+  },
+  {
+   "source": "eoreaderhandbook:eo-reader-6-eo-chat-handbook.md",
+   "path": "../eoreaderhandbook/eo-reader-6-eo-chat-handbook.md",
+   "encounters": 400,
+   "of": 2360,
+   "capped": true
+  },
+  {
+   "source": "eo-wiki:ancient-astronomy-eo-saving-the-appearances.md",
+   "path": "../eo-wiki/articles/wiki/ancient-astronomy-eo-saving-the-appearances.md",
+   "encounters": 214,
+   "of": 214,
+   "capped": false
+  },
+  {
+   "source": "eo-wiki:bivalent-compression-and-dimensional-poverty.md",
+   "path": "../eo-wiki/articles/wiki/bivalent-compression-and-dimensional-poverty.md",
+   "encounters": 222,
+   "of": 222,
+   "capped": false
+  },
+  {
+   "source": "eo-wiki:canonical-example-the-act-face-the-operators.md",
+   "path": "../eo-wiki/articles/wiki/canonical-example-the-act-face-the-operators.md",
+   "encounters": 400,
+   "of": 526,
+   "capped": true
+  },
+  {
+   "source": "eo-wiki:canonical-examples-the-resolution-face.md",
+   "path": "../eo-wiki/articles/wiki/canonical-examples-the-resolution-face.md",
+   "encounters": 53,
+   "of": 53,
+   "capped": false
+  },
+  {
+   "source": "eo-wiki:canonical-examples-the-site-face.md",
+   "path": "../eo-wiki/articles/wiki/canonical-examples-the-site-face.md",
+   "encounters": 400,
+   "of": 509,
+   "capped": true
+  },
+  {
+   "source": "eo-wiki:coding-python-and-eo.md",
+   "path": "../eo-wiki/articles/wiki/coding-python-and-eo.md",
+   "encounters": 209,
+   "of": 209,
+   "capped": false
+  },
+  {
+   "source": "eo-wiki:decal-notation.md",
+   "path": "../eo-wiki/articles/wiki/decal-notation.md",
+   "encounters": 253,
+   "of": 253,
+   "capped": false
+  },
+  {
+   "source": "eo-wiki:decomposability.md",
+   "path": "../eo-wiki/articles/wiki/decomposability.md",
+   "encounters": 216,
+   "of": 216,
+   "capped": false
+  },
+  {
+   "source": "eo-wiki:deep-reading.md",
+   "path": "../eo-wiki/articles/wiki/deep-reading.md",
+   "encounters": 42,
+   "of": 42,
+   "capped": false
+  },
+  {
+   "source": "eo-wiki:degrees-of-freedom.md",
+   "path": "../eo-wiki/articles/wiki/degrees-of-freedom.md",
+   "encounters": 116,
+   "of": 116,
+   "capped": false
+  },
+  {
+   "source": "eo-wiki:emanon.md",
+   "path": "../eo-wiki/articles/wiki/emanon.md",
+   "encounters": 224,
+   "of": 224,
+   "capped": false
+  },
+  {
+   "source": "eo-wiki:emergent-ontology-eo.md",
+   "path": "../eo-wiki/articles/wiki/emergent-ontology-eo.md",
+   "encounters": 170,
+   "of": 170,
+   "capped": false
+  },
+  {
+   "source": "eo-wiki:emergent-organizing.md",
+   "path": "../eo-wiki/articles/wiki/emergent-organizing.md",
+   "encounters": 158,
+   "of": 158,
+   "capped": false
+  },
+  {
+   "source": "eo-wiki:eo-event-streaming.md",
+   "path": "../eo-wiki/articles/wiki/eo-event-streaming.md",
+   "encounters": 400,
+   "of": 496,
+   "capped": true
+  },
+  {
+   "source": "eo-wiki:eo-in-15-min.md",
+   "path": "../eo-wiki/articles/wiki/eo-in-15-min.md",
+   "encounters": 218,
+   "of": 218,
+   "capped": false
+  },
+  {
+   "source": "eo-wiki:eo-in-60-min.md",
+   "path": "../eo-wiki/articles/wiki/eo-in-60-min.md",
+   "encounters": 400,
+   "of": 717,
+   "capped": true
+  },
+  {
+   "source": "eo-wiki:eo-notation.md",
+   "path": "../eo-wiki/articles/wiki/eo-notation.md",
+   "encounters": 400,
+   "of": 418,
+   "capped": true
+  },
+  {
+   "source": "eo-wiki:eo-on-platonic-forms.md",
+   "path": "../eo-wiki/articles/wiki/eo-on-platonic-forms.md",
+   "encounters": 400,
+   "of": 645,
+   "capped": true
+  },
+  {
+   "source": "eo-wiki:eo-s-empirical-lexical-analysis-report.md",
+   "path": "../eo-wiki/articles/wiki/eo-s-empirical-lexical-analysis-report.md",
+   "encounters": 400,
+   "of": 666,
+   "capped": true
+  },
+  {
+   "source": "eo-wiki:eot.md",
+   "path": "../eo-wiki/articles/wiki/eot.md",
+   "encounters": 31,
+   "of": 31,
+   "capped": false
+  },
+  {
+   "source": "eo-wiki:going-and-looking.md",
+   "path": "../eo-wiki/articles/wiki/going-and-looking.md",
+   "encounters": 33,
+   "of": 33,
+   "capped": false
+  },
+  {
+   "source": "eo-wiki:ground-figure-pattern.md",
+   "path": "../eo-wiki/articles/wiki/ground-figure-pattern.md",
+   "encounters": 158,
+   "of": 158,
+   "capped": false
+  },
+  {
+   "source": "eo-wiki:holons.md",
+   "path": "../eo-wiki/articles/wiki/holons.md",
+   "encounters": 222,
+   "of": 222,
+   "capped": false
+  },
+  {
+   "source": "eo-wiki:identity-as-a-change-log.md",
+   "path": "../eo-wiki/articles/wiki/identity-as-a-change-log.md",
+   "encounters": 228,
+   "of": 228,
+   "capped": false
+  },
+  {
+   "source": "eo-wiki:influences-and-lineage.md",
+   "path": "../eo-wiki/articles/wiki/influences-and-lineage.md",
+   "encounters": 322,
+   "of": 322,
+   "capped": false
+  },
+  {
+   "source": "eo-wiki:ins.md",
+   "path": "../eo-wiki/articles/wiki/ins.md",
+   "encounters": 157,
+   "of": 157,
+   "capped": false
+  },
+  {
+   "source": "eo-wiki:language-is-a-projection.md",
+   "path": "../eo-wiki/articles/wiki/language-is-a-projection.md",
+   "encounters": 159,
+   "of": 159,
+   "capped": false
+  },
+  {
+   "source": "eo-wiki:lexical-analysis.md",
+   "path": "../eo-wiki/articles/wiki/lexical-analysis.md",
+   "encounters": 110,
+   "of": 110,
+   "capped": false
+  },
+  {
+   "source": "eo-wiki:mhc-and-eo.md",
+   "path": "../eo-wiki/articles/wiki/mhc-and-eo.md",
+   "encounters": 129,
+   "of": 129,
+   "capped": false
+  },
+  {
+   "source": "eo-wiki:most-ontologies-its-all-entities-eo-entities-are-only-one-type.md",
+   "path": "../eo-wiki/articles/wiki/most-ontologies-its-all-entities-eo-entities-are-only-one-type.md",
+   "encounters": 202,
+   "of": 202,
+   "capped": false
+  },
+  {
+   "source": "eo-wiki:mvp-minimum-viable-prompt.md",
+   "path": "../eo-wiki/articles/wiki/mvp-minimum-viable-prompt.md",
+   "encounters": 400,
+   "of": 519,
+   "capped": true
+  },
+  {
+   "source": "eo-wiki:nine-instructions.md",
+   "path": "../eo-wiki/articles/wiki/nine-instructions.md",
+   "encounters": 166,
+   "of": 166,
+   "capped": false
+  },
+  {
+   "source": "eo-wiki:notes-on-nul-refinement.md",
+   "path": "../eo-wiki/articles/wiki/notes-on-nul-refinement.md",
+   "encounters": 248,
+   "of": 248,
+   "capped": false
+  },
+  {
+   "source": "eo-wiki:nul.md",
+   "path": "../eo-wiki/articles/wiki/nul.md",
+   "encounters": 400,
+   "of": 536,
+   "capped": true
+  },
+  {
+   "source": "eo-wiki:operator-naming-in-emergent-ontology.md",
+   "path": "../eo-wiki/articles/wiki/operator-naming-in-emergent-ontology.md",
+   "encounters": 284,
+   "of": 284,
+   "capped": false
+  },
+  {
+   "source": "eo-wiki:protogon.md",
+   "path": "../eo-wiki/articles/wiki/protogon.md",
+   "encounters": 183,
+   "of": 183,
+   "capped": false
+  },
+  {
+   "source": "eo-wiki:quantum-weirdness-in-eo-contained-but-not-tamed.md",
+   "path": "../eo-wiki/articles/wiki/quantum-weirdness-in-eo-contained-but-not-tamed.md",
+   "encounters": 278,
+   "of": 278,
+   "capped": false
+  },
+  {
+   "source": "eo-wiki:rec.md",
+   "path": "../eo-wiki/articles/wiki/rec.md",
+   "encounters": 400,
+   "of": 455,
+   "capped": true
+  },
+  {
+   "source": "eo-wiki:scope.md",
+   "path": "../eo-wiki/articles/wiki/scope.md",
+   "encounters": 281,
+   "of": 281,
+   "capped": false
+  },
+  {
+   "source": "eo-wiki:sig.md",
+   "path": "../eo-wiki/articles/wiki/sig.md",
+   "encounters": 400,
+   "of": 558,
+   "capped": true
+  },
+  {
+   "source": "eo-wiki:signal-from-noise.md",
+   "path": "../eo-wiki/articles/wiki/signal-from-noise.md",
+   "encounters": 59,
+   "of": 59,
+   "capped": false
+  },
+  {
+   "source": "eo-wiki:spencer-brown-s-laws-of-form-and-eo.md",
+   "path": "../eo-wiki/articles/wiki/spencer-brown-s-laws-of-form-and-eo.md",
+   "encounters": 207,
+   "of": 207,
+   "capped": false
+  },
+  {
+   "source": "eo-wiki:test-page.md",
+   "path": "/home/user/eo-wiki/articles/wiki/test-page.md",
+   "skipped": "does not look like readable material"
+  },
+  {
+   "source": "eo-wiki:the-27-phase-posts.md",
+   "path": "../eo-wiki/articles/wiki/the-27-phase-posts.md",
+   "encounters": 69,
+   "of": 69,
+   "capped": false
+  },
+  {
+   "source": "eo-wiki:the-axis-triad-and-its-coordinates.md",
+   "path": "../eo-wiki/articles/wiki/the-axis-triad-and-its-coordinates.md",
+   "encounters": 239,
+   "of": 239,
+   "capped": false
+  },
+  {
+   "source": "eo-wiki:the-def-eva-rec-loop.md",
+   "path": "../eo-wiki/articles/wiki/the-def-eva-rec-loop.md",
+   "encounters": 234,
+   "of": 234,
+   "capped": false
+  },
+  {
+   "source": "eo-wiki:the-dependency-ordering.md",
+   "path": "../eo-wiki/articles/wiki/the-dependency-ordering.md",
+   "encounters": 187,
+   "of": 187,
+   "capped": false
+  },
+  {
+   "source": "eo-wiki:the-eo-phase-space-cube.md",
+   "path": "../eo-wiki/articles/wiki/the-eo-phase-space-cube.md",
+   "encounters": 315,
+   "of": 315,
+   "capped": false
+  },
+  {
+   "source": "eo-wiki:the-eo-reader.md",
+   "path": "../eo-wiki/articles/wiki/the-eo-reader.md",
+   "encounters": 59,
+   "of": 59,
+   "capped": false
+  },
+  {
+   "source": "eo-wiki:the-eo-spiral.md",
+   "path": "../eo-wiki/articles/wiki/the-eo-spiral.md",
+   "encounters": 400,
+   "of": 486,
+   "capped": true
+  },
+  {
+   "source": "eo-wiki:the-evidence.md",
+   "path": "../eo-wiki/articles/wiki/the-evidence.md",
+   "encounters": 64,
+   "of": 64,
+   "capped": false
+  },
+  {
+   "source": "eo-wiki:the-experience-engine.md",
+   "path": "../eo-wiki/articles/wiki/the-experience-engine.md",
+   "encounters": 315,
+   "of": 315,
+   "capped": false
+  },
+  {
+   "source": "eo-wiki:the-integral-lineage.md",
+   "path": "../eo-wiki/articles/wiki/the-integral-lineage.md",
+   "encounters": 400,
+   "of": 491,
+   "capped": true
+  },
+  {
+   "source": "eo-wiki:the-integral-model.md",
+   "path": "../eo-wiki/articles/wiki/the-integral-model.md",
+   "encounters": 172,
+   "of": 172,
+   "capped": false
+  },
+  {
+   "source": "eo-wiki:the-khora-the-substate-and-the-10000-things.md",
+   "path": "../eo-wiki/articles/wiki/the-khora-the-substate-and-the-10000-things.md",
+   "encounters": 289,
+   "of": 289,
+   "capped": false
+  },
+  {
+   "source": "eo-wiki:the-measurement-paraxoc.md",
+   "path": "../eo-wiki/articles/wiki/the-measurement-paraxoc.md",
+   "encounters": 178,
+   "of": 178,
+   "capped": false
+  },
+  {
+   "source": "eo-wiki:the-model-is-the-leaf.md",
+   "path": "../eo-wiki/articles/wiki/the-model-is-the-leaf.md",
+   "encounters": 34,
+   "of": 34,
+   "capped": false
+  },
+  {
+   "source": "eo-wiki:the-nine-operators.md",
+   "path": "../eo-wiki/articles/wiki/the-nine-operators.md",
+   "encounters": 299,
+   "of": 299,
+   "capped": false
+  },
+  {
+   "source": "eo-wiki:the-observer-problem.md",
+   "path": "../eo-wiki/articles/wiki/the-observer-problem.md",
+   "encounters": 83,
+   "of": 83,
+   "capped": false
+  },
+  {
+   "source": "eo-wiki:the-pythagorean-theorem-plato-s-meno-x-and-eo.md",
+   "path": "../eo-wiki/articles/wiki/the-pythagorean-theorem-plato-s-meno-x-and-eo.md",
+   "encounters": 246,
+   "of": 246,
+   "capped": false
+  },
+  {
+   "source": "eo-wiki:the-three-arrows.md",
+   "path": "../eo-wiki/articles/wiki/the-three-arrows.md",
+   "encounters": 152,
+   "of": 152,
+   "capped": false
+  },
+  {
+   "source": "eo-wiki:the-three-dimensions-of-eo.md",
+   "path": "../eo-wiki/articles/wiki/the-three-dimensions-of-eo.md",
+   "encounters": 124,
+   "of": 124,
+   "capped": false
+  },
+  {
+   "source": "eo-wiki:the-three-faces-of-emergent-ontology.md",
+   "path": "../eo-wiki/articles/wiki/the-three-faces-of-emergent-ontology.md",
+   "encounters": 294,
+   "of": 294,
+   "capped": false
+  },
+  {
+   "source": "eo-wiki:the-triadic-minimum.md",
+   "path": "../eo-wiki/articles/wiki/the-triadic-minimum.md",
+   "encounters": 400,
+   "of": 444,
+   "capped": true
+  },
+  {
+   "source": "eo-wiki:the-triads.md",
+   "path": "../eo-wiki/articles/wiki/the-triads.md",
+   "encounters": 128,
+   "of": 128,
+   "capped": false
+  },
+  {
+   "source": "eo-wiki:the-two-doors.md",
+   "path": "../eo-wiki/articles/wiki/the-two-doors.md",
+   "encounters": 34,
+   "of": 34,
+   "capped": false
+  },
+  {
+   "source": "eo-wiki:time-as-emergent-dimension.md",
+   "path": "../eo-wiki/articles/wiki/time-as-emergent-dimension.md",
+   "encounters": 284,
+   "of": 284,
+   "capped": false
+  },
+  {
+   "source": "eo-wiki:why-crud-is-shit.md",
+   "path": "../eo-wiki/articles/wiki/why-crud-is-shit.md",
+   "encounters": 254,
+   "of": 254,
+   "capped": false
+  }
+ ],
+ "received": [
+  {
+   "schema": "ConstructionPrior@1",
+   "giver": "Universal Dependencies — UD_English-EWT (train split), human-annotated gold treebank",
+   "path": "../eoreader7/native/priors/construction-eng.json",
+   "note": "UPOS distributions, UD_English-EWT"
+  },
+  {
+   "schema": "MorphologyPrior@1",
+   "giver": "UniMorph English (github.com/unimorph/eng)",
+   "path": "../eoreader7/native/priors/morphology-eng.json",
+   "note": "UniMorph irregular tail"
+  },
+  {
+   "schema": "MorphologyPrior@1",
+   "giver": "UniMorph English (github.com/unimorph/eng)",
+   "path": "eval/fixtures/unimorph-morphology-prior.json",
+   "note": "UniMorph morphology prior, the-fold fixture"
+  },
+  {
+   "gap": "not-present",
+   "detail": "POSPrior@1 (bin/priors/pos/en-ud-ewt.json) lives in the legacy-eoreader6.1 submodule, uninitialized in this checkout — the reader below runs without it, disclosed"
+  }
+ ],
+ "composed": {
+  "schema": "EOReaderExperience@1",
+  "id": "reader-experience:compiled",
+  "giver": "the-fold:predigest-priors",
+  "standing": "defeasible_experience_prior",
+  "witnessed": false,
+  "admissible": false,
+  "sourceCount": 111,
+  "sourceRefs": [
+   "eo-wiki:ancient-astronomy-eo-saving-the-appearances.md",
+   "eo-wiki:bivalent-compression-and-dimensional-poverty.md",
+   "eo-wiki:canonical-example-the-act-face-the-operators.md",
+   "eo-wiki:canonical-examples-the-resolution-face.md",
+   "eo-wiki:canonical-examples-the-site-face.md",
+   "eo-wiki:coding-python-and-eo.md",
+   "eo-wiki:decal-notation.md",
+   "eo-wiki:decomposability.md",
+   "eo-wiki:deep-reading.md",
+   "eo-wiki:degrees-of-freedom.md",
+   "eo-wiki:emanon.md",
+   "eo-wiki:emergent-ontology-eo.md",
+   "eo-wiki:emergent-organizing.md",
+   "eo-wiki:eo-event-streaming.md",
+   "eo-wiki:eo-in-15-min.md",
+   "eo-wiki:eo-in-60-min.md",
+   "eo-wiki:eo-notation.md",
+   "eo-wiki:eo-on-platonic-forms.md",
+   "eo-wiki:eo-s-empirical-lexical-analysis-report.md",
+   "eo-wiki:eot.md",
+   "eo-wiki:going-and-looking.md",
+   "eo-wiki:ground-figure-pattern.md",
+   "eo-wiki:holons.md",
+   "eo-wiki:identity-as-a-change-log.md",
+   "eo-wiki:influences-and-lineage.md",
+   "eo-wiki:ins.md",
+   "eo-wiki:language-is-a-projection.md",
+   "eo-wiki:lexical-analysis.md",
+   "eo-wiki:mhc-and-eo.md",
+   "eo-wiki:most-ontologies-its-all-entities-eo-entities-are-only-one-type.md",
+   "eo-wiki:mvp-minimum-viable-prompt.md",
+   "eo-wiki:nine-instructions.md",
+   "eo-wiki:notes-on-nul-refinement.md",
+   "eo-wiki:nul.md",
+   "eo-wiki:operator-naming-in-emergent-ontology.md",
+   "eo-wiki:protogon.md",
+   "eo-wiki:quantum-weirdness-in-eo-contained-but-not-tamed.md",
+   "eo-wiki:rec.md",
+   "eo-wiki:scope.md",
+   "eo-wiki:sig.md",
+   "eo-wiki:signal-from-noise.md",
+   "eo-wiki:spencer-brown-s-laws-of-form-and-eo.md",
+   "eo-wiki:the-27-phase-posts.md",
+   "eo-wiki:the-axis-triad-and-its-coordinates.md",
+   "eo-wiki:the-def-eva-rec-loop.md",
+   "eo-wiki:the-dependency-ordering.md",
+   "eo-wiki:the-eo-phase-space-cube.md",
+   "eo-wiki:the-eo-reader.md",
+   "eo-wiki:the-eo-spiral.md",
+   "eo-wiki:the-evidence.md",
+   "eo-wiki:the-experience-engine.md",
+   "eo-wiki:the-integral-lineage.md",
+   "eo-wiki:the-integral-model.md",
+   "eo-wiki:the-khora-the-substate-and-the-10000-things.md",
+   "eo-wiki:the-measurement-paraxoc.md",
+   "eo-wiki:the-model-is-the-leaf.md",
+   "eo-wiki:the-nine-operators.md",
+   "eo-wiki:the-observer-problem.md",
+   "eo-wiki:the-pythagorean-theorem-plato-s-meno-x-and-eo.md",
+   "eo-wiki:the-three-arrows.md",
+   "eo-wiki:the-three-dimensions-of-eo.md",
+   "eo-wiki:the-three-faces-of-emergent-ontology.md",
+   "eo-wiki:the-triadic-minimum.md",
+   "eo-wiki:the-triads.md",
+   "eo-wiki:the-two-doors.md",
+   "eo-wiki:time-as-emergent-dimension.md",
+   "eo-wiki:why-crud-is-shit.md",
+   "eoreaderhandbook:000-index.md",
+   "eoreaderhandbook:001-what-this-book-is-and-isnt.md",
+   "eoreaderhandbook:002-grammar-and-meaning-primer.md",
+   "eoreaderhandbook:003-ontology-and-epistemology-primer.md",
+   "eoreaderhandbook:004-what-a-language-model-is.md",
+   "eoreaderhandbook:101-noticing.md",
+   "eoreaderhandbook:102-the-difference-that-makes-a-difference.md",
+   "eoreaderhandbook:103-witness.md",
+   "eoreaderhandbook:104-the-two-deaths.md",
+   "eoreaderhandbook:105-three-numbers-and-a-vital-sign.md",
+   "eoreaderhandbook:201-nine-verbs.md",
+   "eoreaderhandbook:202-the-order-things-happen-in.md",
+   "eoreaderhandbook:203-nine-kinds-of-where.md",
+   "eoreaderhandbook:204-nine-kinds-of-how.md",
+   "eoreaderhandbook:205-why-all-three-have-to-agree.md",
+   "eoreaderhandbook:206-checked-against-language-itself.md",
+   "eoreaderhandbook:207-tried-against-a-rival.md",
+   "eoreaderhandbook:301-a-reading-from-the-inside.md",
+   "eoreaderhandbook:302-gifts-not-guesses.md",
+   "eoreaderhandbook:303-a-guided-tour-of-the-organs.md",
+   "eoreaderhandbook:304-turns-and-memory.md",
+   "eoreaderhandbook:305-refusal-as-an-answer.md",
+   "eoreaderhandbook:306-how-the-engine-is-allowed-to-grow.md",
+   "eoreaderhandbook:401-four-boxes.md",
+   "eoreaderhandbook:402-the-tests-in-plain-language.md",
+   "eoreaderhandbook:403-a-constitution-that-edits-itself.md",
+   "eoreaderhandbook:404-one-amendment-start-to-finish.md",
+   "eoreaderhandbook:501-a-thin-front-door.md",
+   "eoreaderhandbook:502-instructions-all-the-way-down.md",
+   "eoreaderhandbook:503-four-promises-to-the-reader.md",
+   "eoreaderhandbook:504-a-citation-you-can-actually-check.md",
+   "eoreaderhandbook:505-writing-something-long-without-losing-the-thread.md",
+   "eoreaderhandbook:506-senses-memory-and-borrowed-models.md",
+   "eoreaderhandbook:601-a-short-history-of-machines-that-were-said-to-read.md",
+   "eoreaderhandbook:602-the-fifty-year-old-objection.md",
+   "eoreaderhandbook:603-whats-actually-new-here.md",
+   "eoreaderhandbook:604-the-honest-gap-list.md",
+   "eoreaderhandbook:605-ancestors-named-in-the-code.md",
+   "eoreaderhandbook:701-a-construction-language.md",
+   "eoreaderhandbook:702-the-watchmakers-discipline.md",
+   "eoreaderhandbook:703-a-worked-build-start-to-finish.md",
+   "eoreaderhandbook:801-telling-a-rhyme-from-a-borrowing.md",
+   "eoreaderhandbook:HANDBOOK-SPEC.md",
+   "eoreaderhandbook:eo-reader-6-eo-chat-handbook.md"
+  ],
+  "experience": {
+   "schema": "EOExperiencePrior@1",
+   "id": "experience:compiled",
+   "giver": "the-fold:predigest-priors",
+   "standing": "defeasible_experience_prior",
+   "witnessed": false,
+   "admissible": false,
+   "sourceCount": 111,
+   "sourceRefs": [
+    "eo-wiki:ancient-astronomy-eo-saving-the-appearances.md",
+    "eo-wiki:bivalent-compression-and-dimensional-poverty.md",
+    "eo-wiki:canonical-example-the-act-face-the-operators.md",
+    "eo-wiki:canonical-examples-the-resolution-face.md",
+    "eo-wiki:canonical-examples-the-site-face.md",
+    "eo-wiki:coding-python-and-eo.md",
+    "eo-wiki:decal-notation.md",
+    "eo-wiki:decomposability.md",
+    "eo-wiki:deep-reading.md",
+    "eo-wiki:degrees-of-freedom.md",
+    "eo-wiki:emanon.md",
+    "eo-wiki:emergent-ontology-eo.md",
+    "eo-wiki:emergent-organizing.md",
+    "eo-wiki:eo-event-streaming.md",
+    "eo-wiki:eo-in-15-min.md",
+    "eo-wiki:eo-in-60-min.md",
+    "eo-wiki:eo-notation.md",
+    "eo-wiki:eo-on-platonic-forms.md",
+    "eo-wiki:eo-s-empirical-lexical-analysis-report.md",
+    "eo-wiki:eot.md",
+    "eo-wiki:going-and-looking.md",
+    "eo-wiki:ground-figure-pattern.md",
+    "eo-wiki:holons.md",
+    "eo-wiki:identity-as-a-change-log.md",
+    "eo-wiki:influences-and-lineage.md",
+    "eo-wiki:ins.md",
+    "eo-wiki:language-is-a-projection.md",
+    "eo-wiki:lexical-analysis.md",
+    "eo-wiki:mhc-and-eo.md",
+    "eo-wiki:most-ontologies-its-all-entities-eo-entities-are-only-one-type.md",
+    "eo-wiki:mvp-minimum-viable-prompt.md",
+    "eo-wiki:nine-instructions.md",
+    "eo-wiki:notes-on-nul-refinement.md",
+    "eo-wiki:nul.md",
+    "eo-wiki:operator-naming-in-emergent-ontology.md",
+    "eo-wiki:protogon.md",
+    "eo-wiki:quantum-weirdness-in-eo-contained-but-not-tamed.md",
+    "eo-wiki:rec.md",
+    "eo-wiki:scope.md",
+    "eo-wiki:sig.md",
+    "eo-wiki:signal-from-noise.md",
+    "eo-wiki:spencer-brown-s-laws-of-form-and-eo.md",
+    "eo-wiki:the-27-phase-posts.md",
+    "eo-wiki:the-axis-triad-and-its-coordinates.md",
+    "eo-wiki:the-def-eva-rec-loop.md",
+    "eo-wiki:the-dependency-ordering.md",
+    "eo-wiki:the-eo-phase-space-cube.md",
+    "eo-wiki:the-eo-reader.md",
+    "eo-wiki:the-eo-spiral.md",
+    "eo-wiki:the-evidence.md",
+    "eo-wiki:the-experience-engine.md",
+    "eo-wiki:the-integral-lineage.md",
+    "eo-wiki:the-integral-model.md",
+    "eo-wiki:the-khora-the-substate-and-the-10000-things.md",
+    "eo-wiki:the-measurement-paraxoc.md",
+    "eo-wiki:the-model-is-the-leaf.md",
+    "eo-wiki:the-nine-operators.md",
+    "eo-wiki:the-observer-problem.md",
+    "eo-wiki:the-pythagorean-theorem-plato-s-meno-x-and-eo.md",
+    "eo-wiki:the-three-arrows.md",
+    "eo-wiki:the-three-dimensions-of-eo.md",
+    "eo-wiki:the-three-faces-of-emergent-ontology.md",
+    "eo-wiki:the-triadic-minimum.md",
+    "eo-wiki:the-triads.md",
+    "eo-wiki:the-two-doors.md",
+    "eo-wiki:time-as-emergent-dimension.md",
+    "eo-wiki:why-crud-is-shit.md",
+    "eoreaderhandbook:000-index.md",
+    "eoreaderhandbook:001-what-this-book-is-and-isnt.md",
+    "eoreaderhandbook:002-grammar-and-meaning-primer.md",
+    "eoreaderhandbook:003-ontology-and-epistemology-primer.md",
+    "eoreaderhandbook:004-what-a-language-model-is.md",
+    "eoreaderhandbook:101-noticing.md",
+    "eoreaderhandbook:102-the-difference-that-makes-a-difference.md",
+    "eoreaderhandbook:103-witness.md",
+    "eoreaderhandbook:104-the-two-deaths.md",
+    "eoreaderhandbook:105-three-numbers-and-a-vital-sign.md",
+    "eoreaderhandbook:201-nine-verbs.md",
+    "eoreaderhandbook:202-the-order-things-happen-in.md",
+    "eoreaderhandbook:203-nine-kinds-of-where.md",
+    "eoreaderhandbook:204-nine-kinds-of-how.md",
+    "eoreaderhandbook:205-why-all-three-have-to-agree.md",
+    "eoreaderhandbook:206-checked-against-language-itself.md",
+    "eoreaderhandbook:207-tried-against-a-rival.md",
+    "eoreaderhandbook:301-a-reading-from-the-inside.md",
+    "eoreaderhandbook:302-gifts-not-guesses.md",
+    "eoreaderhandbook:303-a-guided-tour-of-the-organs.md",
+    "eoreaderhandbook:304-turns-and-memory.md",
+    "eoreaderhandbook:305-refusal-as-an-answer.md",
+    "eoreaderhandbook:306-how-the-engine-is-allowed-to-grow.md",
+    "eoreaderhandbook:401-four-boxes.md",
+    "eoreaderhandbook:402-the-tests-in-plain-language.md",
+    "eoreaderhandbook:403-a-constitution-that-edits-itself.md",
+    "eoreaderhandbook:404-one-amendment-start-to-finish.md",
+    "eoreaderhandbook:501-a-thin-front-door.md",
+    "eoreaderhandbook:502-instructions-all-the-way-down.md",
+    "eoreaderhandbook:503-four-promises-to-the-reader.md",
+    "eoreaderhandbook:504-a-citation-you-can-actually-check.md",
+    "eoreaderhandbook:505-writing-something-long-without-losing-the-thread.md",
+    "eoreaderhandbook:506-senses-memory-and-borrowed-models.md",
+    "eoreaderhandbook:601-a-short-history-of-machines-that-were-said-to-read.md",
+    "eoreaderhandbook:602-the-fifty-year-old-objection.md",
+    "eoreaderhandbook:603-whats-actually-new-here.md",
+    "eoreaderhandbook:604-the-honest-gap-list.md",
+    "eoreaderhandbook:605-ancestors-named-in-the-code.md",
+    "eoreaderhandbook:701-a-construction-language.md",
+    "eoreaderhandbook:702-the-watchmakers-discipline.md",
+    "eoreaderhandbook:703-a-worked-build-start-to-finish.md",
+    "eoreaderhandbook:801-telling-a-rhyme-from-a-borrowing.md",
+    "eoreaderhandbook:HANDBOOK-SPEC.md",
+    "eoreaderhandbook:eo-reader-6-eo-chat-handbook.md"
+   ],
+   "relationVocabulary": [
+    {
+     "relation": "on",
+     "occurrences": 69,
+     "workSupport": 14,
+     "workRate": 0.12612612612612611,
+     "memoryStanding": "recurrent_cross_work_memory",
+     "recurrent": true,
+     "sourceRefs": [
+      "eo-wiki:bivalent-compression-and-dimensional-poverty.md",
+      "eo-wiki:canonical-examples-the-site-face.md",
+      "eo-wiki:coding-python-and-eo.md",
+      "eo-wiki:eo-event-streaming.md",
+      "eo-wiki:eo-on-platonic-forms.md",
+      "eo-wiki:quantum-weirdness-in-eo-contained-but-not-tamed.md",
+      "eo-wiki:the-eo-phase-space-cube.md",
+      "eo-wiki:the-experience-engine.md",
+      "eo-wiki:the-khora-the-substate-and-the-10000-things.md",
+      "eo-wiki:the-measurement-paraxoc.md",
+      "eo-wiki:the-nine-operators.md",
+      "eo-wiki:the-pythagorean-theorem-plato-s-meno-x-and-eo.md",
+      "eo-wiki:why-crud-is-shit.md",
+      "eoreaderhandbook:eo-reader-6-eo-chat-handbook.md"
+     ]
+    },
+    {
+     "relation": "at",
+     "occurrences": 74,
+     "workSupport": 13,
+     "workRate": 0.11711711711711711,
+     "memoryStanding": "recurrent_cross_work_memory",
+     "recurrent": true,
+     "sourceRefs": [
+      "eo-wiki:bivalent-compression-and-dimensional-poverty.md",
+      "eo-wiki:coding-python-and-eo.md",
+      "eo-wiki:influences-and-lineage.md",
+      "eo-wiki:nul.md",
+      "eo-wiki:quantum-weirdness-in-eo-contained-but-not-tamed.md",
+      "eo-wiki:scope.md",
+      "eo-wiki:spencer-brown-s-laws-of-form-and-eo.md",
+      "eo-wiki:the-def-eva-rec-loop.md",
+      "eo-wiki:the-dependency-ordering.md",
+      "eo-wiki:the-experience-engine.md",
+      "eo-wiki:the-pythagorean-theorem-plato-s-meno-x-and-eo.md",
+      "eo-wiki:the-triadic-minimum.md",
+      "eoreaderhandbook:601-a-short-history-of-machines-that-were-said-to-read.md"
+     ]
+    },
+    {
+     "relation": "has",
+     "occurrences": 25,
+     "workSupport": 8,
+     "workRate": 0.07207207207207207,
+     "memoryStanding": "recurrent_cross_work_memory",
+     "recurrent": true,
+     "sourceRefs": [
+      "eo-wiki:canonical-example-the-act-face-the-operators.md",
+      "eo-wiki:canonical-examples-the-site-face.md",
+      "eo-wiki:eo-in-60-min.md",
+      "eo-wiki:eo-on-platonic-forms.md",
+      "eo-wiki:the-eo-spiral.md",
+      "eo-wiki:the-integral-lineage.md",
+      "eo-wiki:the-triadic-minimum.md",
+      "eo-wiki:why-crud-is-shit.md"
+     ]
+    },
+    {
+     "relation": "for",
+     "occurrences": 69,
+     "workSupport": 7,
+     "workRate": 0.06306306306306306,
+     "memoryStanding": "recurrent_cross_work_memory",
+     "recurrent": true,
+     "sourceRefs": [
+      "eo-wiki:bivalent-compression-and-dimensional-poverty.md",
+      "eo-wiki:canonical-examples-the-site-face.md",
+      "eo-wiki:emergent-ontology-eo.md",
+      "eo-wiki:eo-event-streaming.md",
+      "eo-wiki:notes-on-nul-refinement.md",
+      "eo-wiki:the-triadic-minimum.md",
+      "eoreaderhandbook:HANDBOOK-SPEC.md"
+     ]
+    },
+    {
+     "relation": "as",
+     "occurrences": 44,
+     "workSupport": 6,
+     "workRate": 0.05405405405405406,
+     "memoryStanding": "recurrent_cross_work_memory",
+     "recurrent": true,
+     "sourceRefs": [
+      "eo-wiki:canonical-examples-the-site-face.md",
+      "eo-wiki:decomposability.md",
+      "eo-wiki:eo-event-streaming.md",
+      "eo-wiki:the-experience-engine.md",
+      "eo-wiki:the-integral-lineage.md",
+      "eoreaderhandbook:605-ancestors-named-in-the-code.md"
+     ]
+    },
+    {
+     "relation": "or",
+     "occurrences": 16,
+     "workSupport": 6,
+     "workRate": 0.05405405405405406,
+     "memoryStanding": "recurrent_cross_work_memory",
+     "recurrent": true,
+     "sourceRefs": [
+      "eo-wiki:bivalent-compression-and-dimensional-poverty.md",
+      "eo-wiki:canonical-examples-the-site-face.md",
+      "eo-wiki:eo-event-streaming.md",
+      "eo-wiki:most-ontologies-its-all-entities-eo-entities-are-only-one-type.md",
+      "eoreaderhandbook:HANDBOOK-SPEC.md",
+      "eoreaderhandbook:eo-reader-6-eo-chat-handbook.md"
+     ]
+    },
+    {
+     "relation": "are",
+     "occurrences": 15,
+     "workSupport": 5,
+     "workRate": 0.04504504504504504,
+     "memoryStanding": "recurrent_cross_work_memory",
+     "recurrent": true,
+     "sourceRefs": [
+      "eo-wiki:eo-event-streaming.md",
+      "eo-wiki:eo-on-platonic-forms.md",
+      "eo-wiki:spencer-brown-s-laws-of-form-and-eo.md",
+      "eo-wiki:the-khora-the-substate-and-the-10000-things.md",
+      "eo-wiki:the-pythagorean-theorem-plato-s-meno-x-and-eo.md"
+     ]
+    },
+    {
+     "relation": "operator",
+     "occurrences": 15,
+     "workSupport": 5,
+     "workRate": 0.04504504504504504,
+     "memoryStanding": "recurrent_cross_work_memory",
+     "recurrent": true,
+     "sourceRefs": [
+      "eo-wiki:eo-event-streaming.md",
+      "eo-wiki:holons.md",
+      "eo-wiki:influences-and-lineage.md",
+      "eo-wiki:quantum-weirdness-in-eo-contained-but-not-tamed.md",
+      "eo-wiki:why-crud-is-shit.md"
+     ]
+    },
+    {
+     "relation": "does",
+     "occurrences": 9,
+     "workSupport": 5,
+     "workRate": 0.04504504504504504,
+     "memoryStanding": "recurrent_cross_work_memory",
+     "recurrent": true,
+     "sourceRefs": [
+      "eo-wiki:influences-and-lineage.md",
+      "eo-wiki:mvp-minimum-viable-prompt.md",
+      "eo-wiki:quantum-weirdness-in-eo-contained-but-not-tamed.md",
+      "eo-wiki:the-nine-operators.md",
+      "eo-wiki:why-crud-is-shit.md"
+     ]
+    },
+    {
+     "relation": "from",
+     "occurrences": 20,
+     "workSupport": 3,
+     "workRate": 0.02702702702702703,
+     "memoryStanding": "recurrent_cross_work_memory",
+     "recurrent": true,
+     "sourceRefs": [
+      "eo-wiki:eo-event-streaming.md",
+      "eo-wiki:eo-on-platonic-forms.md",
+      "eo-wiki:influences-and-lineage.md"
+     ]
+    },
+    {
+     "relation": "position",
+     "occurrences": 14,
+     "workSupport": 3,
+     "workRate": 0.02702702702702703,
+     "memoryStanding": "recurrent_cross_work_memory",
+     "recurrent": true,
+     "sourceRefs": [
+      "eo-wiki:canonical-example-the-act-face-the-operators.md",
+      "eo-wiki:eo-on-platonic-forms.md",
+      "eo-wiki:the-triadic-minimum.md"
+     ]
+    },
+    {
+     "relation": "without",
+     "occurrences": 12,
+     "workSupport": 3,
+     "workRate": 0.02702702702702703,
+     "memoryStanding": "recurrent_cross_work_memory",
+     "recurrent": true,
+     "sourceRefs": [
+      "eo-wiki:sig.md",
+      "eo-wiki:the-khora-the-substate-and-the-10000-things.md",
+      "eo-wiki:the-measurement-paraxoc.md"
+     ]
+    },
+    {
+     "relation": "axis",
+     "occurrences": 11,
+     "workSupport": 3,
+     "workRate": 0.02702702702702703,
+     "memoryStanding": "recurrent_cross_work_memory",
+     "recurrent": true,
+     "sourceRefs": [
+      "eo-wiki:eo-in-60-min.md",
+      "eo-wiki:the-eo-phase-space-cube.md",
+      "eo-wiki:the-triadic-minimum.md"
+     ]
+    },
+    {
+     "relation": "can",
+     "occurrences": 11,
+     "workSupport": 3,
+     "workRate": 0.02702702702702703,
+     "memoryStanding": "recurrent_cross_work_memory",
+     "recurrent": true,
+     "sourceRefs": [
+      "eo-wiki:bivalent-compression-and-dimensional-poverty.md",
+      "eo-wiki:eo-in-60-min.md",
+      "eo-wiki:the-integral-lineage.md"
+     ]
+    },
+    {
+     "relation": "in",
+     "occurrences": 39,
+     "workSupport": 2,
+     "workRate": 0.018018018018018018,
+     "memoryStanding": "recurrent_cross_work_memory",
+     "recurrent": true,
+     "sourceRefs": [
+      "eo-wiki:eo-event-streaming.md",
+      "eo-wiki:why-crud-is-shit.md"
+     ]
+    },
+    {
+     "relation": "was",
+     "occurrences": 35,
+     "workSupport": 2,
+     "workRate": 0.018018018018018018,
+     "memoryStanding": "recurrent_cross_work_memory",
+     "recurrent": true,
+     "sourceRefs": [
+      "eo-wiki:canonical-example-the-act-face-the-operators.md",
+      "eoreaderhandbook:eo-reader-6-eo-chat-handbook.md"
+     ]
+    },
+    {
+     "relation": "to",
+     "occurrences": 33,
+     "workSupport": 2,
+     "workRate": 0.018018018018018018,
+     "memoryStanding": "recurrent_cross_work_memory",
+     "recurrent": true,
+     "sourceRefs": [
+      "eo-wiki:bivalent-compression-and-dimensional-poverty.md",
+      "eo-wiki:canonical-examples-the-site-face.md"
+     ]
+    },
+    {
+     "relation": "will",
+     "occurrences": 24,
+     "workSupport": 2,
+     "workRate": 0.018018018018018018,
+     "memoryStanding": "recurrent_cross_work_memory",
+     "recurrent": true,
+     "sourceRefs": [
+      "eo-wiki:canonical-example-the-act-face-the-operators.md",
+      "eo-wiki:canonical-examples-the-site-face.md"
+     ]
+    },
+    {
+     "relation": "it",
+     "occurrences": 13,
+     "workSupport": 2,
+     "workRate": 0.018018018018018018,
+     "memoryStanding": "recurrent_cross_work_memory",
+     "recurrent": true,
+     "sourceRefs": [
+      "eo-wiki:canonical-examples-the-site-face.md",
+      "eo-wiki:eo-event-streaming.md"
+     ]
+    },
+    {
+     "relation": "have",
+     "occurrences": 10,
+     "workSupport": 2,
+     "workRate": 0.018018018018018018,
+     "memoryStanding": "recurrent_cross_work_memory",
+     "recurrent": true,
+     "sourceRefs": [
+      "eo-wiki:canonical-examples-the-site-face.md",
+      "eo-wiki:eo-in-60-min.md"
+     ]
+    },
+    {
+     "relation": "face",
+     "occurrences": 9,
+     "workSupport": 2,
+     "workRate": 0.018018018018018018,
+     "memoryStanding": "recurrent_cross_work_memory",
+     "recurrent": true,
+     "sourceRefs": [
+      "eo-wiki:operator-naming-in-emergent-ontology.md",
+      "eo-wiki:time-as-emergent-dimension.md"
+     ]
+    },
+    {
+     "relation": "with",
+     "occurrences": 9,
+     "workSupport": 2,
+     "workRate": 0.018018018018018018,
+     "memoryStanding": "recurrent_cross_work_memory",
+     "recurrent": true,
+     "sourceRefs": [
+      "eo-wiki:the-integral-model.md",
+      "eo-wiki:the-triadic-minimum.md"
+     ]
+    },
+    {
+     "relation": "an",
+     "occurrences": 8,
+     "workSupport": 2,
+     "workRate": 0.018018018018018018,
+     "memoryStanding": "recurrent_cross_work_memory",
+     "recurrent": true,
+     "sourceRefs": [
+      "eo-wiki:eo-on-platonic-forms.md",
+      "eo-wiki:the-experience-engine.md"
+     ]
+    },
+    {
+     "relation": "i",
+     "occurrences": 8,
+     "workSupport": 2,
+     "workRate": 0.018018018018018018,
+     "memoryStanding": "recurrent_cross_work_memory",
+     "recurrent": true,
+     "sourceRefs": [
+      "eo-wiki:canonical-example-the-act-face-the-operators.md",
+      "eo-wiki:canonical-examples-the-site-face.md"
+     ]
+    },
+    {
+     "relation": "et",
+     "occurrences": 7,
+     "workSupport": 2,
+     "workRate": 0.018018018018018018,
+     "memoryStanding": "recurrent_cross_work_memory",
+     "recurrent": true,
+     "sourceRefs": [
+      "eoreaderhandbook:506-senses-memory-and-borrowed-models.md",
+      "eoreaderhandbook:801-telling-a-rhyme-from-a-borrowing.md"
+     ]
+    },
+    {
+     "relation": "operators",
+     "occurrences": 4,
+     "workSupport": 2,
+     "workRate": 0.018018018018018018,
+     "memoryStanding": "recurrent_cross_work_memory",
+     "recurrent": true,
+     "sourceRefs": [
+      "eo-wiki:eo-event-streaming.md",
+      "eo-wiki:the-eo-phase-space-cube.md"
+     ]
+    },
+    {
+     "relation": "triad",
+     "occurrences": 4,
+     "workSupport": 2,
+     "workRate": 0.018018018018018018,
+     "memoryStanding": "recurrent_cross_work_memory",
+     "recurrent": true,
+     "sourceRefs": [
+      "eo-wiki:eo-in-60-min.md",
+      "eo-wiki:the-def-eva-rec-loop.md"
+     ]
+    },
+    {
+     "relation": "before",
+     "occurrences": 2,
+     "workSupport": 2,
+     "workRate": 0.018018018018018018,
+     "memoryStanding": "recurrent_cross_work_memory",
+     "recurrent": true,
+     "sourceRefs": [
+      "eo-wiki:nul.md",
+      "eoreaderhandbook:HANDBOOK-SPEC.md"
+     ]
+    },
+    {
+     "relation": "is",
+     "occurrences": 95,
+     "workSupport": 1,
+     "workRate": 0.009009009009009009,
+     "memoryStanding": "single_work_memory",
+     "recurrent": false,
+     "sourceRefs": [
+      "eo-wiki:the-integral-lineage.md"
+     ]
+    },
+    {
+     "relation": "structural",
+     "occurrences": 22,
+     "workSupport": 1,
+     "workRate": 0.009009009009009009,
+     "memoryStanding": "single_work_memory",
+     "recurrent": false,
+     "sourceRefs": [
+      "eo-wiki:influences-and-lineage.md"
+     ]
+    },
+    {
+     "relation": "into",
+     "occurrences": 16,
+     "workSupport": 1,
+     "workRate": 0.009009009009009009,
+     "memoryStanding": "single_work_memory",
+     "recurrent": false,
+     "sourceRefs": [
+      "eo-wiki:influences-and-lineage.md"
+     ]
+    },
+    {
+     "relation": "that",
+     "occurrences": 12,
+     "workSupport": 1,
+     "workRate": 0.009009009009009009,
+     "memoryStanding": "single_work_memory",
+     "recurrent": false,
+     "sourceRefs": [
+      "eo-wiki:eo-on-platonic-forms.md"
+     ]
+    },
+    {
+     "relation": "through",
+     "occurrences": 12,
+     "workSupport": 1,
+     "workRate": 0.009009009009009009,
+     "memoryStanding": "single_work_memory",
+     "recurrent": false,
+     "sourceRefs": [
+      "eo-wiki:the-experience-engine.md"
+     ]
+    },
+    {
+     "relation": "between",
+     "occurrences": 10,
+     "workSupport": 1,
+     "workRate": 0.009009009009009009,
+     "memoryStanding": "single_work_memory",
+     "recurrent": false,
+     "sourceRefs": [
+      "eo-wiki:the-eo-phase-space-cube.md"
+     ]
+    },
+    {
+     "relation": "by",
+     "occurrences": 8,
+     "workSupport": 1,
+     "workRate": 0.009009009009009009,
+     "memoryStanding": "single_work_memory",
+     "recurrent": false,
+     "sourceRefs": [
+      "eo-wiki:the-pythagorean-theorem-plato-s-meno-x-and-eo.md"
+     ]
+    },
+    {
+     "relation": "had",
+     "occurrences": 6,
+     "workSupport": 1,
+     "workRate": 0.009009009009009009,
+     "memoryStanding": "single_work_memory",
+     "recurrent": false,
+     "sourceRefs": [
+      "eo-wiki:canonical-example-the-act-face-the-operators.md"
+     ]
+    },
+    {
+     "relation": "later",
+     "occurrences": 6,
+     "workSupport": 1,
+     "workRate": 0.009009009009009009,
+     "memoryStanding": "single_work_memory",
+     "recurrent": false,
+     "sourceRefs": [
+      "eo-wiki:the-integral-lineage.md"
+     ]
+    },
+    {
+     "relation": "state",
+     "occurrences": 6,
+     "workSupport": 1,
+     "workRate": 0.009009009009009009,
+     "memoryStanding": "single_work_memory",
+     "recurrent": false,
+     "sourceRefs": [
+      "eo-wiki:quantum-weirdness-in-eo-contained-but-not-tamed.md"
+     ]
+    },
+    {
+     "relation": "where",
+     "occurrences": 6,
+     "workSupport": 1,
+     "workRate": 0.009009009009009009,
+     "memoryStanding": "single_work_memory",
+     "recurrent": false,
+     "sourceRefs": [
+      "eoreaderhandbook:HANDBOOK-SPEC.md"
+     ]
+    },
+    {
+     "relation": "en",
+     "occurrences": 5,
+     "workSupport": 1,
+     "workRate": 0.009009009009009009,
+     "memoryStanding": "single_work_memory",
+     "recurrent": false,
+     "sourceRefs": [
+      "eo-wiki:canonical-examples-the-site-face.md"
+     ]
+    },
+    {
+     "relation": "name",
+     "occurrences": 5,
+     "workSupport": 1,
+     "workRate": 0.009009009009009009,
+     "memoryStanding": "single_work_memory",
+     "recurrent": false,
+     "sourceRefs": [
+      "eo-wiki:operator-naming-in-emergent-ontology.md"
+     ]
+    },
+    {
+     "relation": "proposes",
+     "occurrences": 5,
+     "workSupport": 1,
+     "workRate": 0.009009009009009009,
+     "memoryStanding": "single_work_memory",
+     "recurrent": false,
+     "sourceRefs": [
+      "eo-wiki:the-integral-lineage.md"
+     ]
+    },
+    {
+     "relation": "de",
+     "occurrences": 4,
+     "workSupport": 1,
+     "workRate": 0.009009009009009009,
+     "memoryStanding": "single_work_memory",
+     "recurrent": false,
+     "sourceRefs": [
+      "eo-wiki:canonical-example-the-act-face-the-operators.md"
+     ]
+    },
+    {
+     "relation": "example",
+     "occurrences": 4,
+     "workSupport": 1,
+     "workRate": 0.009009009009009009,
+     "memoryStanding": "single_work_memory",
+     "recurrent": false,
+     "sourceRefs": [
+      "eoreaderhandbook:HANDBOOK-SPEC.md"
+     ]
+    },
+    {
+     "relation": "model",
+     "occurrences": 4,
+     "workSupport": 1,
+     "workRate": 0.009009009009009009,
+     "memoryStanding": "single_work_memory",
+     "recurrent": false,
+     "sourceRefs": [
+      "eo-wiki:the-integral-lineage.md"
+     ]
+    },
+    {
+     "relation": "absence",
+     "occurrences": 3,
+     "workSupport": 1,
+     "workRate": 0.009009009009009009,
+     "memoryStanding": "single_work_memory",
+     "recurrent": false,
+     "sourceRefs": [
+      "eo-wiki:eo-event-streaming.md"
+     ]
+    },
+    {
+     "relation": "architecture",
+     "occurrences": 3,
+     "workSupport": 1,
+     "workRate": 0.009009009009009009,
+     "memoryStanding": "single_work_memory",
+     "recurrent": false,
+     "sourceRefs": [
+      "eo-wiki:most-ontologies-its-all-entities-eo-entities-are-only-one-type.md"
+     ]
+    },
+    {
+     "relation": "coordinates",
+     "occurrences": 3,
+     "workSupport": 1,
+     "workRate": 0.009009009009009009,
+     "memoryStanding": "single_work_memory",
+     "recurrent": false,
+     "sourceRefs": [
+      "eo-wiki:time-as-emergent-dimension.md"
+     ]
+    },
+    {
+     "relation": "itself",
+     "occurrences": 3,
+     "workSupport": 1,
+     "workRate": 0.009009009009009009,
+     "memoryStanding": "single_work_memory",
+     "recurrent": false,
+     "sourceRefs": [
+      "eo-wiki:eo-on-platonic-forms.md"
+     ]
+    },
+    {
+     "relation": "produces",
+     "occurrences": 3,
+     "workSupport": 1,
+     "workRate": 0.009009009009009009,
+     "memoryStanding": "single_work_memory",
+     "recurrent": false,
+     "sourceRefs": [
+      "eo-wiki:spencer-brown-s-laws-of-form-and-eo.md"
+     ]
+    },
+    {
+     "relation": "systems",
+     "occurrences": 3,
+     "workSupport": 1,
+     "workRate": 0.009009009009009009,
+     "memoryStanding": "single_work_memory",
+     "recurrent": false,
+     "sourceRefs": [
+      "eo-wiki:eo-event-streaming.md"
+     ]
+    },
+    {
+     "relation": "via",
+     "occurrences": 3,
+     "workSupport": 1,
+     "workRate": 0.009009009009009009,
+     "memoryStanding": "single_work_memory",
+     "recurrent": false,
+     "sourceRefs": [
+      "eo-wiki:quantum-weirdness-in-eo-contained-but-not-tamed.md"
+     ]
+    },
+    {
+     "relation": "becomes",
+     "occurrences": 2,
+     "workSupport": 1,
+     "workRate": 0.009009009009009009,
+     "memoryStanding": "single_work_memory",
+     "recurrent": false,
+     "sourceRefs": [
+      "eo-wiki:eo-in-60-min.md"
+     ]
+    },
+    {
+     "relation": "boundary",
+     "occurrences": 2,
+     "workSupport": 1,
+     "workRate": 0.009009009009009009,
+     "memoryStanding": "single_work_memory",
+     "recurrent": false,
+     "sourceRefs": [
+      "eo-wiki:eo-event-streaming.md"
+     ]
+    },
+    {
+     "relation": "der",
+     "occurrences": 2,
+     "workSupport": 1,
+     "workRate": 0.009009009009009009,
+     "memoryStanding": "single_work_memory",
+     "recurrent": false,
+     "sourceRefs": [
+      "eo-wiki:canonical-example-the-act-face-the-operators.md"
+     ]
+    },
+    {
+     "relation": "describes",
+     "occurrences": 2,
+     "workSupport": 1,
+     "workRate": 0.009009009009009009,
+     "memoryStanding": "single_work_memory",
+     "recurrent": false,
+     "sourceRefs": [
+      "eo-wiki:the-integral-lineage.md"
+     ]
+    },
+    {
+     "relation": "do",
+     "occurrences": 2,
+     "workSupport": 1,
+     "workRate": 0.009009009009009009,
+     "memoryStanding": "single_work_memory",
+     "recurrent": false,
+     "sourceRefs": [
+      "eo-wiki:eo-on-platonic-forms.md"
+     ]
+    },
+    {
+     "relation": "entry",
+     "occurrences": 2,
+     "workSupport": 1,
+     "workRate": 0.009009009009009009,
+     "memoryStanding": "single_work_memory",
+     "recurrent": false,
+     "sourceRefs": [
+      "eo-wiki:the-experience-engine.md"
+     ]
+    },
+    {
+     "relation": "function",
+     "occurrences": 2,
+     "workSupport": 1,
+     "workRate": 0.009009009009009009,
+     "memoryStanding": "single_work_memory",
+     "recurrent": false,
+     "sourceRefs": [
+      "eo-wiki:notes-on-nul-refinement.md"
+     ]
+    },
+    {
+     "relation": "he",
+     "occurrences": 2,
+     "workSupport": 1,
+     "workRate": 0.009009009009009009,
+     "memoryStanding": "single_work_memory",
+     "recurrent": false,
+     "sourceRefs": [
+      "eo-wiki:canonical-example-the-act-face-the-operators.md"
+     ]
+    },
+    {
+     "relation": "most",
+     "occurrences": 2,
+     "workSupport": 1,
+     "workRate": 0.009009009009009009,
+     "memoryStanding": "single_work_memory",
+     "recurrent": false,
+     "sourceRefs": [
+      "eo-wiki:canonical-example-the-act-face-the-operators.md"
+     ]
+    },
+    {
+     "relation": "row",
+     "occurrences": 2,
+     "workSupport": 1,
+     "workRate": 0.009009009009009009,
+     "memoryStanding": "single_work_memory",
+     "recurrent": false,
+     "sourceRefs": [
+      "eo-wiki:eo-on-platonic-forms.md"
+     ]
+    },
+    {
+     "relation": "said",
+     "occurrences": 2,
+     "workSupport": 1,
+     "workRate": 0.009009009009009009,
+     "memoryStanding": "single_work_memory",
+     "recurrent": false,
+     "sourceRefs": [
+      "eo-wiki:canonical-example-the-act-face-the-operators.md"
+     ]
+    },
+    {
+     "relation": "threshold",
+     "occurrences": 2,
+     "workSupport": 1,
+     "workRate": 0.009009009009009009,
+     "memoryStanding": "single_work_memory",
+     "recurrent": false,
+     "sourceRefs": [
+      "eo-wiki:eo-on-platonic-forms.md"
+     ]
+    },
+    {
+     "relation": "traversal",
+     "occurrences": 2,
+     "workSupport": 1,
+     "workRate": 0.009009009009009009,
+     "memoryStanding": "single_work_memory",
+     "recurrent": false,
+     "sourceRefs": [
+      "eo-wiki:eo-on-platonic-forms.md"
+     ]
+    },
+    {
+     "relation": "absent",
+     "occurrences": 1,
+     "workSupport": 1,
+     "workRate": 0.009009009009009009,
+     "memoryStanding": "single_work_memory",
+     "recurrent": false,
+     "sourceRefs": [
+      "eo-wiki:eo-in-60-min.md"
+     ]
+    },
+    {
+     "relation": "art",
+     "occurrences": 1,
+     "workSupport": 1,
+     "workRate": 0.009009009009009009,
+     "memoryStanding": "single_work_memory",
+     "recurrent": false,
+     "sourceRefs": [
+      "eoreaderhandbook:601-a-short-history-of-machines-that-were-said-to-read.md"
+     ]
+    },
+    {
+     "relation": "because",
+     "occurrences": 1,
+     "workSupport": 1,
+     "workRate": 0.009009009009009009,
+     "memoryStanding": "single_work_memory",
+     "recurrent": false,
+     "sourceRefs": [
+      "eo-wiki:emergent-ontology-eo.md"
+     ]
+    },
+    {
+     "relation": "but",
+     "occurrences": 1,
+     "workSupport": 1,
+     "workRate": 0.009009009009009009,
+     "memoryStanding": "single_work_memory",
+     "recurrent": false,
+     "sourceRefs": [
+      "eo-wiki:operator-naming-in-emergent-ontology.md"
+     ]
+    },
+    {
+     "relation": "claims",
+     "occurrences": 1,
+     "workSupport": 1,
+     "workRate": 0.009009009009009009,
+     "memoryStanding": "single_work_memory",
+     "recurrent": false,
+     "sourceRefs": [
+      "eo-wiki:the-integral-lineage.md"
+     ]
+    },
+    {
+     "relation": "connection",
+     "occurrences": 1,
+     "workSupport": 1,
+     "workRate": 0.009009009009009009,
+     "memoryStanding": "single_work_memory",
+     "recurrent": false,
+     "sourceRefs": [
+      "eoreaderhandbook:eo-reader-6-eo-chat-handbook.md"
+     ]
+    },
+    {
+     "relation": "coordinate",
+     "occurrences": 1,
+     "workSupport": 1,
+     "workRate": 0.009009009009009009,
+     "memoryStanding": "single_work_memory",
+     "recurrent": false,
+     "sourceRefs": [
+      "eo-wiki:operator-naming-in-emergent-ontology.md"
+     ]
+    },
+    {
+     "relation": "directly",
+     "occurrences": 1,
+     "workSupport": 1,
+     "workRate": 0.009009009009009009,
+     "memoryStanding": "single_work_memory",
+     "recurrent": false,
+     "sourceRefs": [
+      "eo-wiki:eo-on-platonic-forms.md"
+     ]
+    },
+    {
+     "relation": "el",
+     "occurrences": 1,
+     "workSupport": 1,
+     "workRate": 0.009009009009009009,
+     "memoryStanding": "single_work_memory",
+     "recurrent": false,
+     "sourceRefs": [
+      "eo-wiki:canonical-examples-the-site-face.md"
+     ]
+    },
+    {
+     "relation": "exists",
+     "occurrences": 1,
+     "workSupport": 1,
+     "workRate": 0.009009009009009009,
+     "memoryStanding": "single_work_memory",
+     "recurrent": false,
+     "sourceRefs": [
+      "eo-wiki:the-axis-triad-and-its-coordinates.md"
+     ]
+    },
+    {
+     "relation": "identifies",
+     "occurrences": 1,
+     "workSupport": 1,
+     "workRate": 0.009009009009009009,
+     "memoryStanding": "single_work_memory",
+     "recurrent": false,
+     "sourceRefs": [
+      "eo-wiki:quantum-weirdness-in-eo-contained-but-not-tamed.md"
+     ]
+    },
+    {
+     "relation": "insists",
+     "occurrences": 1,
+     "workSupport": 1,
+     "workRate": 0.009009009009009009,
+     "memoryStanding": "single_work_memory",
+     "recurrent": false,
+     "sourceRefs": [
+      "eo-wiki:the-integral-lineage.md"
+     ]
+    },
+    {
+     "relation": "je",
+     "occurrences": 1,
+     "workSupport": 1,
+     "workRate": 0.009009009009009009,
+     "memoryStanding": "single_work_memory",
+     "recurrent": false,
+     "sourceRefs": [
+      "eo-wiki:canonical-example-the-act-face-the-operators.md"
+     ]
+    },
+    {
+     "relation": "line",
+     "occurrences": 1,
+     "workSupport": 1,
+     "workRate": 0.009009009009009009,
+     "memoryStanding": "single_work_memory",
+     "recurrent": false,
+     "sourceRefs": [
+      "eo-wiki:bivalent-compression-and-dimensional-poverty.md"
+     ]
+    },
+    {
+     "relation": "looks",
+     "occurrences": 1,
+     "workSupport": 1,
+     "workRate": 0.009009009009009009,
+     "memoryStanding": "single_work_memory",
+     "recurrent": false,
+     "sourceRefs": [
+      "eo-wiki:the-integral-lineage.md"
+     ]
+    },
+    {
+     "relation": "made",
+     "occurrences": 1,
+     "workSupport": 1,
+     "workRate": 0.009009009009009009,
+     "memoryStanding": "single_work_memory",
+     "recurrent": false,
+     "sourceRefs": [
+      "eo-wiki:nine-instructions.md"
+     ]
+    },
+    {
+     "relation": "means",
+     "occurrences": 1,
+     "workSupport": 1,
+     "workRate": 0.009009009009009009,
+     "memoryStanding": "single_work_memory",
+     "recurrent": false,
+     "sourceRefs": [
+      "eo-wiki:eo-event-streaming.md"
+     ]
+    },
+    {
+     "relation": "no",
+     "occurrences": 1,
+     "workSupport": 1,
+     "workRate": 0.009009009009009009,
+     "memoryStanding": "single_work_memory",
+     "recurrent": false,
+     "sourceRefs": [
+      "eo-wiki:notes-on-nul-refinement.md"
+     ]
+    },
+    {
+     "relation": "perspective",
+     "occurrences": 1,
+     "workSupport": 1,
+     "workRate": 0.009009009009009009,
+     "memoryStanding": "single_work_memory",
+     "recurrent": false,
+     "sourceRefs": [
+      "eo-wiki:the-integral-lineage.md"
+     ]
+    },
+    {
+     "relation": "product",
+     "occurrences": 1,
+     "workSupport": 1,
+     "workRate": 0.009009009009009009,
+     "memoryStanding": "single_work_memory",
+     "recurrent": false,
+     "sourceRefs": [
+      "eo-wiki:the-nine-operators.md"
+     ]
+    },
+    {
+     "relation": "question",
+     "occurrences": 1,
+     "workSupport": 1,
+     "workRate": 0.009009009009009009,
+     "memoryStanding": "single_work_memory",
+     "recurrent": false,
+     "sourceRefs": [
+      "eo-wiki:eo-on-platonic-forms.md"
+     ]
+    },
+    {
+     "relation": "razgovara",
+     "occurrences": 1,
+     "workSupport": 1,
+     "workRate": 0.009009009009009009,
+     "memoryStanding": "single_work_memory",
+     "recurrent": false,
+     "sourceRefs": [
+      "eo-wiki:canonical-example-the-act-face-the-operators.md"
+     ]
+    },
+    {
+     "relation": "references",
+     "occurrences": 1,
+     "workSupport": 1,
+     "workRate": 0.009009009009009009,
+     "memoryStanding": "single_work_memory",
+     "recurrent": false,
+     "sourceRefs": [
+      "eo-wiki:eo-event-streaming.md"
+     ]
+    },
+    {
+     "relation": "requires",
+     "occurrences": 1,
+     "workSupport": 1,
+     "workRate": 0.009009009009009009,
+     "memoryStanding": "single_work_memory",
+     "recurrent": false,
+     "sourceRefs": [
+      "eo-wiki:eo-on-platonic-forms.md"
+     ]
+    },
+    {
+     "relation": "speak",
+     "occurrences": 1,
+     "workSupport": 1,
+     "workRate": 0.009009009009009009,
+     "memoryStanding": "single_work_memory",
+     "recurrent": false,
+     "sourceRefs": [
+      "eo-wiki:canonical-example-the-act-face-the-operators.md"
+     ]
+    },
+    {
+     "relation": "states",
+     "occurrences": 1,
+     "workSupport": 1,
+     "workRate": 0.009009009009009009,
+     "memoryStanding": "single_work_memory",
+     "recurrent": false,
+     "sourceRefs": [
+      "eo-wiki:quantum-weirdness-in-eo-contained-but-not-tamed.md"
+     ]
+    },
+    {
+     "relation": "tradition",
+     "occurrences": 1,
+     "workSupport": 1,
+     "workRate": 0.009009009009009009,
+     "memoryStanding": "single_work_memory",
+     "recurrent": false,
+     "sourceRefs": [
+      "eo-wiki:the-integral-lineage.md"
+     ]
+    },
+    {
+     "relation": "traverses",
+     "occurrences": 1,
+     "workSupport": 1,
+     "workRate": 0.009009009009009009,
+     "memoryStanding": "single_work_memory",
+     "recurrent": false,
+     "sourceRefs": [
+      "eo-wiki:eo-on-platonic-forms.md"
+     ]
+    },
+    {
+     "relation": "triadic",
+     "occurrences": 1,
+     "workSupport": 1,
+     "workRate": 0.009009009009009009,
+     "memoryStanding": "single_work_memory",
+     "recurrent": false,
+     "sourceRefs": [
+      "eo-wiki:ground-figure-pattern.md"
+     ]
+    },
+    {
+     "relation": "witness",
+     "occurrences": 1,
+     "workSupport": 1,
+     "workRate": 0.009009009009009009,
+     "memoryStanding": "single_work_memory",
+     "recurrent": false,
+     "sourceRefs": [
+      "eoreaderhandbook:801-telling-a-rhyme-from-a-borrowing.md"
+     ]
+    },
+    {
+     "relation": "z",
+     "occurrences": 1,
+     "workSupport": 1,
+     "workRate": 0.009009009009009009,
+     "memoryStanding": "single_work_memory",
+     "recurrent": false,
+     "sourceRefs": [
+      "eo-wiki:canonical-example-the-act-face-the-operators.md"
+     ]
+    }
+   ],
+   "networkPatterns": [],
+   "terrainExpectations": [
+    {
+     "terrain": "Void",
+     "workSupport": 0,
+     "workRate": 0,
+     "sourceRefs": []
+    },
+    {
+     "terrain": "Entity",
+     "workSupport": 0,
+     "workRate": 0,
+     "sourceRefs": []
+    },
+    {
+     "terrain": "Kind",
+     "workSupport": 0,
+     "workRate": 0,
+     "sourceRefs": []
+    },
+    {
+     "terrain": "Field",
+     "workSupport": 0,
+     "workRate": 0,
+     "sourceRefs": []
+    },
+    {
+     "terrain": "Link",
+     "workSupport": 0,
+     "workRate": 0,
+     "sourceRefs": []
+    },
+    {
+     "terrain": "Network",
+     "workSupport": 0,
+     "workRate": 0,
+     "sourceRefs": []
+    },
+    {
+     "terrain": "Atmosphere",
+     "workSupport": 0,
+     "workRate": 0,
+     "sourceRefs": []
+    },
+    {
+     "terrain": "Lens",
+     "workSupport": 0,
+     "workRate": 0,
+     "sourceRefs": []
+    },
+    {
+     "terrain": "Paradigm",
+     "workSupport": 0,
+     "workRate": 0,
+     "sourceRefs": []
+    }
+   ],
+   "stanceExpectations": [
+    {
+     "stance": "Clearing",
+     "occurrences": 0,
+     "workSupport": 0,
+     "workRate": 0,
+     "sourceRefs": []
+    },
+    {
+     "stance": "Dissecting",
+     "occurrences": 866,
+     "workSupport": 50,
+     "workRate": 0.45045045045045046,
+     "sourceRefs": [
+      "eo-wiki:ancient-astronomy-eo-saving-the-appearances.md",
+      "eo-wiki:bivalent-compression-and-dimensional-poverty.md",
+      "eo-wiki:canonical-example-the-act-face-the-operators.md",
+      "eo-wiki:canonical-examples-the-site-face.md",
+      "eo-wiki:decomposability.md",
+      "eo-wiki:emergent-organizing.md",
+      "eo-wiki:eo-event-streaming.md",
+      "eo-wiki:eo-in-60-min.md",
+      "eo-wiki:eo-notation.md",
+      "eo-wiki:eo-on-platonic-forms.md",
+      "eo-wiki:holons.md",
+      "eo-wiki:identity-as-a-change-log.md",
+      "eo-wiki:influences-and-lineage.md",
+      "eo-wiki:language-is-a-projection.md",
+      "eo-wiki:mhc-and-eo.md",
+      "eo-wiki:most-ontologies-its-all-entities-eo-entities-are-only-one-type.md",
+      "eo-wiki:mvp-minimum-viable-prompt.md",
+      "eo-wiki:nine-instructions.md",
+      "eo-wiki:notes-on-nul-refinement.md",
+      "eo-wiki:nul.md",
+      "eo-wiki:operator-naming-in-emergent-ontology.md",
+      "eo-wiki:protogon.md",
+      "eo-wiki:quantum-weirdness-in-eo-contained-but-not-tamed.md",
+      "eo-wiki:rec.md",
+      "eo-wiki:scope.md",
+      "eo-wiki:sig.md",
+      "eo-wiki:spencer-brown-s-laws-of-form-and-eo.md",
+      "eo-wiki:the-axis-triad-and-its-coordinates.md",
+      "eo-wiki:the-def-eva-rec-loop.md",
+      "eo-wiki:the-dependency-ordering.md",
+      "eo-wiki:the-eo-phase-space-cube.md",
+      "eo-wiki:the-eo-spiral.md",
+      "eo-wiki:the-experience-engine.md",
+      "eo-wiki:the-integral-lineage.md",
+      "eo-wiki:the-integral-model.md",
+      "eo-wiki:the-khora-the-substate-and-the-10000-things.md",
+      "eo-wiki:the-measurement-paraxoc.md",
+      "eo-wiki:the-nine-operators.md",
+      "eo-wiki:the-pythagorean-theorem-plato-s-meno-x-and-eo.md",
+      "eo-wiki:the-three-dimensions-of-eo.md",
+      "eo-wiki:the-three-faces-of-emergent-ontology.md",
+      "eo-wiki:the-triadic-minimum.md",
+      "eo-wiki:the-triads.md",
+      "eo-wiki:time-as-emergent-dimension.md",
+      "eo-wiki:why-crud-is-shit.md",
+      "eoreaderhandbook:003-ontology-and-epistemology-primer.md",
+      "eoreaderhandbook:602-the-fifty-year-old-objection.md",
+      "eoreaderhandbook:801-telling-a-rhyme-from-a-borrowing.md",
+      "eoreaderhandbook:HANDBOOK-SPEC.md",
+      "eoreaderhandbook:eo-reader-6-eo-chat-handbook.md"
+     ]
+    },
+    {
+     "stance": "Unraveling",
+     "occurrences": 0,
+     "workSupport": 0,
+     "workRate": 0,
+     "sourceRefs": []
+    },
+    {
+     "stance": "Tending",
+     "occurrences": 0,
+     "workSupport": 0,
+     "workRate": 0,
+     "sourceRefs": []
+    },
+    {
+     "stance": "Binding",
+     "occurrences": 25590,
+     "workSupport": 111,
+     "workRate": 1,
+     "sourceRefs": [
+      "eo-wiki:ancient-astronomy-eo-saving-the-appearances.md",
+      "eo-wiki:bivalent-compression-and-dimensional-poverty.md",
+      "eo-wiki:canonical-example-the-act-face-the-operators.md",
+      "eo-wiki:canonical-examples-the-resolution-face.md",
+      "eo-wiki:canonical-examples-the-site-face.md",
+      "eo-wiki:coding-python-and-eo.md",
+      "eo-wiki:decal-notation.md",
+      "eo-wiki:decomposability.md",
+      "eo-wiki:deep-reading.md",
+      "eo-wiki:degrees-of-freedom.md",
+      "eo-wiki:emanon.md",
+      "eo-wiki:emergent-ontology-eo.md",
+      "eo-wiki:emergent-organizing.md",
+      "eo-wiki:eo-event-streaming.md",
+      "eo-wiki:eo-in-15-min.md",
+      "eo-wiki:eo-in-60-min.md",
+      "eo-wiki:eo-notation.md",
+      "eo-wiki:eo-on-platonic-forms.md",
+      "eo-wiki:eo-s-empirical-lexical-analysis-report.md",
+      "eo-wiki:eot.md",
+      "eo-wiki:going-and-looking.md",
+      "eo-wiki:ground-figure-pattern.md",
+      "eo-wiki:holons.md",
+      "eo-wiki:identity-as-a-change-log.md",
+      "eo-wiki:influences-and-lineage.md",
+      "eo-wiki:ins.md",
+      "eo-wiki:language-is-a-projection.md",
+      "eo-wiki:lexical-analysis.md",
+      "eo-wiki:mhc-and-eo.md",
+      "eo-wiki:most-ontologies-its-all-entities-eo-entities-are-only-one-type.md",
+      "eo-wiki:mvp-minimum-viable-prompt.md",
+      "eo-wiki:nine-instructions.md",
+      "eo-wiki:notes-on-nul-refinement.md",
+      "eo-wiki:nul.md",
+      "eo-wiki:operator-naming-in-emergent-ontology.md",
+      "eo-wiki:protogon.md",
+      "eo-wiki:quantum-weirdness-in-eo-contained-but-not-tamed.md",
+      "eo-wiki:rec.md",
+      "eo-wiki:scope.md",
+      "eo-wiki:sig.md",
+      "eo-wiki:signal-from-noise.md",
+      "eo-wiki:spencer-brown-s-laws-of-form-and-eo.md",
+      "eo-wiki:the-27-phase-posts.md",
+      "eo-wiki:the-axis-triad-and-its-coordinates.md",
+      "eo-wiki:the-def-eva-rec-loop.md",
+      "eo-wiki:the-dependency-ordering.md",
+      "eo-wiki:the-eo-phase-space-cube.md",
+      "eo-wiki:the-eo-reader.md",
+      "eo-wiki:the-eo-spiral.md",
+      "eo-wiki:the-evidence.md",
+      "eo-wiki:the-experience-engine.md",
+      "eo-wiki:the-integral-lineage.md",
+      "eo-wiki:the-integral-model.md",
+      "eo-wiki:the-khora-the-substate-and-the-10000-things.md",
+      "eo-wiki:the-measurement-paraxoc.md",
+      "eo-wiki:the-model-is-the-leaf.md",
+      "eo-wiki:the-nine-operators.md",
+      "eo-wiki:the-observer-problem.md",
+      "eo-wiki:the-pythagorean-theorem-plato-s-meno-x-and-eo.md",
+      "eo-wiki:the-three-arrows.md",
+      "eo-wiki:the-three-dimensions-of-eo.md",
+      "eo-wiki:the-three-faces-of-emergent-ontology.md",
+      "eo-wiki:the-triadic-minimum.md",
+      "eo-wiki:the-triads.md",
+      "eo-wiki:the-two-doors.md",
+      "eo-wiki:time-as-emergent-dimension.md",
+      "eo-wiki:why-crud-is-shit.md",
+      "eoreaderhandbook:000-index.md",
+      "eoreaderhandbook:001-what-this-book-is-and-isnt.md",
+      "eoreaderhandbook:002-grammar-and-meaning-primer.md",
+      "eoreaderhandbook:003-ontology-and-epistemology-primer.md",
+      "eoreaderhandbook:004-what-a-language-model-is.md",
+      "eoreaderhandbook:101-noticing.md",
+      "eoreaderhandbook:102-the-difference-that-makes-a-difference.md",
+      "eoreaderhandbook:103-witness.md",
+      "eoreaderhandbook:104-the-two-deaths.md",
+      "eoreaderhandbook:105-three-numbers-and-a-vital-sign.md",
+      "eoreaderhandbook:201-nine-verbs.md",
+      "eoreaderhandbook:202-the-order-things-happen-in.md",
+      "eoreaderhandbook:203-nine-kinds-of-where.md",
+      "eoreaderhandbook:204-nine-kinds-of-how.md",
+      "eoreaderhandbook:205-why-all-three-have-to-agree.md",
+      "eoreaderhandbook:206-checked-against-language-itself.md",
+      "eoreaderhandbook:207-tried-against-a-rival.md",
+      "eoreaderhandbook:301-a-reading-from-the-inside.md",
+      "eoreaderhandbook:302-gifts-not-guesses.md",
+      "eoreaderhandbook:303-a-guided-tour-of-the-organs.md",
+      "eoreaderhandbook:304-turns-and-memory.md",
+      "eoreaderhandbook:305-refusal-as-an-answer.md",
+      "eoreaderhandbook:306-how-the-engine-is-allowed-to-grow.md",
+      "eoreaderhandbook:401-four-boxes.md",
+      "eoreaderhandbook:402-the-tests-in-plain-language.md",
+      "eoreaderhandbook:403-a-constitution-that-edits-itself.md",
+      "eoreaderhandbook:404-one-amendment-start-to-finish.md",
+      "eoreaderhandbook:501-a-thin-front-door.md",
+      "eoreaderhandbook:502-instructions-all-the-way-down.md",
+      "eoreaderhandbook:503-four-promises-to-the-reader.md",
+      "eoreaderhandbook:504-a-citation-you-can-actually-check.md",
+      "eoreaderhandbook:505-writing-something-long-without-losing-the-thread.md",
+      "eoreaderhandbook:506-senses-memory-and-borrowed-models.md",
+      "eoreaderhandbook:601-a-short-history-of-machines-that-were-said-to-read.md",
+      "eoreaderhandbook:602-the-fifty-year-old-objection.md",
+      "eoreaderhandbook:603-whats-actually-new-here.md",
+      "eoreaderhandbook:604-the-honest-gap-list.md",
+      "eoreaderhandbook:605-ancestors-named-in-the-code.md",
+      "eoreaderhandbook:701-a-construction-language.md",
+      "eoreaderhandbook:702-the-watchmakers-discipline.md",
+      "eoreaderhandbook:703-a-worked-build-start-to-finish.md",
+      "eoreaderhandbook:801-telling-a-rhyme-from-a-borrowing.md",
+      "eoreaderhandbook:HANDBOOK-SPEC.md",
+      "eoreaderhandbook:eo-reader-6-eo-chat-handbook.md"
+     ]
+    },
+    {
+     "stance": "Tracing",
+     "occurrences": 0,
+     "workSupport": 0,
+     "workRate": 0,
+     "sourceRefs": []
+    },
+    {
+     "stance": "Cultivating",
+     "occurrences": 31803,
+     "workSupport": 111,
+     "workRate": 1,
+     "sourceRefs": [
+      "eo-wiki:ancient-astronomy-eo-saving-the-appearances.md",
+      "eo-wiki:bivalent-compression-and-dimensional-poverty.md",
+      "eo-wiki:canonical-example-the-act-face-the-operators.md",
+      "eo-wiki:canonical-examples-the-resolution-face.md",
+      "eo-wiki:canonical-examples-the-site-face.md",
+      "eo-wiki:coding-python-and-eo.md",
+      "eo-wiki:decal-notation.md",
+      "eo-wiki:decomposability.md",
+      "eo-wiki:deep-reading.md",
+      "eo-wiki:degrees-of-freedom.md",
+      "eo-wiki:emanon.md",
+      "eo-wiki:emergent-ontology-eo.md",
+      "eo-wiki:emergent-organizing.md",
+      "eo-wiki:eo-event-streaming.md",
+      "eo-wiki:eo-in-15-min.md",
+      "eo-wiki:eo-in-60-min.md",
+      "eo-wiki:eo-notation.md",
+      "eo-wiki:eo-on-platonic-forms.md",
+      "eo-wiki:eo-s-empirical-lexical-analysis-report.md",
+      "eo-wiki:eot.md",
+      "eo-wiki:going-and-looking.md",
+      "eo-wiki:ground-figure-pattern.md",
+      "eo-wiki:holons.md",
+      "eo-wiki:identity-as-a-change-log.md",
+      "eo-wiki:influences-and-lineage.md",
+      "eo-wiki:ins.md",
+      "eo-wiki:language-is-a-projection.md",
+      "eo-wiki:lexical-analysis.md",
+      "eo-wiki:mhc-and-eo.md",
+      "eo-wiki:most-ontologies-its-all-entities-eo-entities-are-only-one-type.md",
+      "eo-wiki:mvp-minimum-viable-prompt.md",
+      "eo-wiki:nine-instructions.md",
+      "eo-wiki:notes-on-nul-refinement.md",
+      "eo-wiki:nul.md",
+      "eo-wiki:operator-naming-in-emergent-ontology.md",
+      "eo-wiki:protogon.md",
+      "eo-wiki:quantum-weirdness-in-eo-contained-but-not-tamed.md",
+      "eo-wiki:rec.md",
+      "eo-wiki:scope.md",
+      "eo-wiki:sig.md",
+      "eo-wiki:signal-from-noise.md",
+      "eo-wiki:spencer-brown-s-laws-of-form-and-eo.md",
+      "eo-wiki:the-27-phase-posts.md",
+      "eo-wiki:the-axis-triad-and-its-coordinates.md",
+      "eo-wiki:the-def-eva-rec-loop.md",
+      "eo-wiki:the-dependency-ordering.md",
+      "eo-wiki:the-eo-phase-space-cube.md",
+      "eo-wiki:the-eo-reader.md",
+      "eo-wiki:the-eo-spiral.md",
+      "eo-wiki:the-evidence.md",
+      "eo-wiki:the-experience-engine.md",
+      "eo-wiki:the-integral-lineage.md",
+      "eo-wiki:the-integral-model.md",
+      "eo-wiki:the-khora-the-substate-and-the-10000-things.md",
+      "eo-wiki:the-measurement-paraxoc.md",
+      "eo-wiki:the-model-is-the-leaf.md",
+      "eo-wiki:the-nine-operators.md",
+      "eo-wiki:the-observer-problem.md",
+      "eo-wiki:the-pythagorean-theorem-plato-s-meno-x-and-eo.md",
+      "eo-wiki:the-three-arrows.md",
+      "eo-wiki:the-three-dimensions-of-eo.md",
+      "eo-wiki:the-three-faces-of-emergent-ontology.md",
+      "eo-wiki:the-triadic-minimum.md",
+      "eo-wiki:the-triads.md",
+      "eo-wiki:the-two-doors.md",
+      "eo-wiki:time-as-emergent-dimension.md",
+      "eo-wiki:why-crud-is-shit.md",
+      "eoreaderhandbook:000-index.md",
+      "eoreaderhandbook:001-what-this-book-is-and-isnt.md",
+      "eoreaderhandbook:002-grammar-and-meaning-primer.md",
+      "eoreaderhandbook:003-ontology-and-epistemology-primer.md",
+      "eoreaderhandbook:004-what-a-language-model-is.md",
+      "eoreaderhandbook:101-noticing.md",
+      "eoreaderhandbook:102-the-difference-that-makes-a-difference.md",
+      "eoreaderhandbook:103-witness.md",
+      "eoreaderhandbook:104-the-two-deaths.md",
+      "eoreaderhandbook:105-three-numbers-and-a-vital-sign.md",
+      "eoreaderhandbook:201-nine-verbs.md",
+      "eoreaderhandbook:202-the-order-things-happen-in.md",
+      "eoreaderhandbook:203-nine-kinds-of-where.md",
+      "eoreaderhandbook:204-nine-kinds-of-how.md",
+      "eoreaderhandbook:205-why-all-three-have-to-agree.md",
+      "eoreaderhandbook:206-checked-against-language-itself.md",
+      "eoreaderhandbook:207-tried-against-a-rival.md",
+      "eoreaderhandbook:301-a-reading-from-the-inside.md",
+      "eoreaderhandbook:302-gifts-not-guesses.md",
+      "eoreaderhandbook:303-a-guided-tour-of-the-organs.md",
+      "eoreaderhandbook:304-turns-and-memory.md",
+      "eoreaderhandbook:305-refusal-as-an-answer.md",
+      "eoreaderhandbook:306-how-the-engine-is-allowed-to-grow.md",
+      "eoreaderhandbook:401-four-boxes.md",
+      "eoreaderhandbook:402-the-tests-in-plain-language.md",
+      "eoreaderhandbook:403-a-constitution-that-edits-itself.md",
+      "eoreaderhandbook:404-one-amendment-start-to-finish.md",
+      "eoreaderhandbook:501-a-thin-front-door.md",
+      "eoreaderhandbook:502-instructions-all-the-way-down.md",
+      "eoreaderhandbook:503-four-promises-to-the-reader.md",
+      "eoreaderhandbook:504-a-citation-you-can-actually-check.md",
+      "eoreaderhandbook:505-writing-something-long-without-losing-the-thread.md",
+      "eoreaderhandbook:506-senses-memory-and-borrowed-models.md",
+      "eoreaderhandbook:601-a-short-history-of-machines-that-were-said-to-read.md",
+      "eoreaderhandbook:602-the-fifty-year-old-objection.md",
+      "eoreaderhandbook:603-whats-actually-new-here.md",
+      "eoreaderhandbook:604-the-honest-gap-list.md",
+      "eoreaderhandbook:605-ancestors-named-in-the-code.md",
+      "eoreaderhandbook:701-a-construction-language.md",
+      "eoreaderhandbook:702-the-watchmakers-discipline.md",
+      "eoreaderhandbook:703-a-worked-build-start-to-finish.md",
+      "eoreaderhandbook:801-telling-a-rhyme-from-a-borrowing.md",
+      "eoreaderhandbook:HANDBOOK-SPEC.md",
+      "eoreaderhandbook:eo-reader-6-eo-chat-handbook.md"
+     ]
+    },
+    {
+     "stance": "Making",
+     "occurrences": 4227,
+     "workSupport": 103,
+     "workRate": 0.9279279279279279,
+     "sourceRefs": [
+      "eo-wiki:ancient-astronomy-eo-saving-the-appearances.md",
+      "eo-wiki:bivalent-compression-and-dimensional-poverty.md",
+      "eo-wiki:canonical-example-the-act-face-the-operators.md",
+      "eo-wiki:canonical-examples-the-resolution-face.md",
+      "eo-wiki:canonical-examples-the-site-face.md",
+      "eo-wiki:coding-python-and-eo.md",
+      "eo-wiki:decal-notation.md",
+      "eo-wiki:decomposability.md",
+      "eo-wiki:degrees-of-freedom.md",
+      "eo-wiki:emanon.md",
+      "eo-wiki:emergent-ontology-eo.md",
+      "eo-wiki:emergent-organizing.md",
+      "eo-wiki:eo-event-streaming.md",
+      "eo-wiki:eo-in-15-min.md",
+      "eo-wiki:eo-in-60-min.md",
+      "eo-wiki:eo-notation.md",
+      "eo-wiki:eo-on-platonic-forms.md",
+      "eo-wiki:eo-s-empirical-lexical-analysis-report.md",
+      "eo-wiki:eot.md",
+      "eo-wiki:going-and-looking.md",
+      "eo-wiki:ground-figure-pattern.md",
+      "eo-wiki:holons.md",
+      "eo-wiki:identity-as-a-change-log.md",
+      "eo-wiki:influences-and-lineage.md",
+      "eo-wiki:ins.md",
+      "eo-wiki:language-is-a-projection.md",
+      "eo-wiki:lexical-analysis.md",
+      "eo-wiki:mhc-and-eo.md",
+      "eo-wiki:most-ontologies-its-all-entities-eo-entities-are-only-one-type.md",
+      "eo-wiki:mvp-minimum-viable-prompt.md",
+      "eo-wiki:nine-instructions.md",
+      "eo-wiki:notes-on-nul-refinement.md",
+      "eo-wiki:nul.md",
+      "eo-wiki:operator-naming-in-emergent-ontology.md",
+      "eo-wiki:protogon.md",
+      "eo-wiki:quantum-weirdness-in-eo-contained-but-not-tamed.md",
+      "eo-wiki:rec.md",
+      "eo-wiki:scope.md",
+      "eo-wiki:sig.md",
+      "eo-wiki:spencer-brown-s-laws-of-form-and-eo.md",
+      "eo-wiki:the-axis-triad-and-its-coordinates.md",
+      "eo-wiki:the-def-eva-rec-loop.md",
+      "eo-wiki:the-dependency-ordering.md",
+      "eo-wiki:the-eo-phase-space-cube.md",
+      "eo-wiki:the-eo-reader.md",
+      "eo-wiki:the-eo-spiral.md",
+      "eo-wiki:the-experience-engine.md",
+      "eo-wiki:the-integral-lineage.md",
+      "eo-wiki:the-integral-model.md",
+      "eo-wiki:the-khora-the-substate-and-the-10000-things.md",
+      "eo-wiki:the-measurement-paraxoc.md",
+      "eo-wiki:the-model-is-the-leaf.md",
+      "eo-wiki:the-nine-operators.md",
+      "eo-wiki:the-observer-problem.md",
+      "eo-wiki:the-pythagorean-theorem-plato-s-meno-x-and-eo.md",
+      "eo-wiki:the-three-arrows.md",
+      "eo-wiki:the-three-dimensions-of-eo.md",
+      "eo-wiki:the-three-faces-of-emergent-ontology.md",
+      "eo-wiki:the-triadic-minimum.md",
+      "eo-wiki:the-triads.md",
+      "eo-wiki:the-two-doors.md",
+      "eo-wiki:time-as-emergent-dimension.md",
+      "eo-wiki:why-crud-is-shit.md",
+      "eoreaderhandbook:000-index.md",
+      "eoreaderhandbook:003-ontology-and-epistemology-primer.md",
+      "eoreaderhandbook:004-what-a-language-model-is.md",
+      "eoreaderhandbook:102-the-difference-that-makes-a-difference.md",
+      "eoreaderhandbook:103-witness.md",
+      "eoreaderhandbook:104-the-two-deaths.md",
+      "eoreaderhandbook:105-three-numbers-and-a-vital-sign.md",
+      "eoreaderhandbook:201-nine-verbs.md",
+      "eoreaderhandbook:202-the-order-things-happen-in.md",
+      "eoreaderhandbook:203-nine-kinds-of-where.md",
+      "eoreaderhandbook:204-nine-kinds-of-how.md",
+      "eoreaderhandbook:205-why-all-three-have-to-agree.md",
+      "eoreaderhandbook:206-checked-against-language-itself.md",
+      "eoreaderhandbook:207-tried-against-a-rival.md",
+      "eoreaderhandbook:301-a-reading-from-the-inside.md",
+      "eoreaderhandbook:302-gifts-not-guesses.md",
+      "eoreaderhandbook:304-turns-and-memory.md",
+      "eoreaderhandbook:305-refusal-as-an-answer.md",
+      "eoreaderhandbook:306-how-the-engine-is-allowed-to-grow.md",
+      "eoreaderhandbook:401-four-boxes.md",
+      "eoreaderhandbook:402-the-tests-in-plain-language.md",
+      "eoreaderhandbook:403-a-constitution-that-edits-itself.md",
+      "eoreaderhandbook:404-one-amendment-start-to-finish.md",
+      "eoreaderhandbook:501-a-thin-front-door.md",
+      "eoreaderhandbook:502-instructions-all-the-way-down.md",
+      "eoreaderhandbook:503-four-promises-to-the-reader.md",
+      "eoreaderhandbook:504-a-citation-you-can-actually-check.md",
+      "eoreaderhandbook:505-writing-something-long-without-losing-the-thread.md",
+      "eoreaderhandbook:506-senses-memory-and-borrowed-models.md",
+      "eoreaderhandbook:601-a-short-history-of-machines-that-were-said-to-read.md",
+      "eoreaderhandbook:602-the-fifty-year-old-objection.md",
+      "eoreaderhandbook:603-whats-actually-new-here.md",
+      "eoreaderhandbook:604-the-honest-gap-list.md",
+      "eoreaderhandbook:605-ancestors-named-in-the-code.md",
+      "eoreaderhandbook:701-a-construction-language.md",
+      "eoreaderhandbook:702-the-watchmakers-discipline.md",
+      "eoreaderhandbook:703-a-worked-build-start-to-finish.md",
+      "eoreaderhandbook:801-telling-a-rhyme-from-a-borrowing.md",
+      "eoreaderhandbook:HANDBOOK-SPEC.md",
+      "eoreaderhandbook:eo-reader-6-eo-chat-handbook.md"
+     ]
+    },
+    {
+     "stance": "Composing",
+     "occurrences": 0,
+     "workSupport": 0,
+     "workRate": 0,
+     "sourceRefs": []
+    }
+   ],
+   "operatorExpectations": [
+    {
+     "operator": "NUL",
+     "occurrences": 0,
+     "workSupport": 0,
+     "workRate": 0,
+     "sourceRefs": []
+    },
+    {
+     "operator": "SIG",
+     "occurrences": 0,
+     "workSupport": 0,
+     "workRate": 0,
+     "sourceRefs": []
+    },
+    {
+     "operator": "INS",
+     "occurrences": 35963,
+     "workSupport": 111,
+     "workRate": 1,
+     "sourceRefs": [
+      "eo-wiki:ancient-astronomy-eo-saving-the-appearances.md",
+      "eo-wiki:bivalent-compression-and-dimensional-poverty.md",
+      "eo-wiki:canonical-example-the-act-face-the-operators.md",
+      "eo-wiki:canonical-examples-the-resolution-face.md",
+      "eo-wiki:canonical-examples-the-site-face.md",
+      "eo-wiki:coding-python-and-eo.md",
+      "eo-wiki:decal-notation.md",
+      "eo-wiki:decomposability.md",
+      "eo-wiki:deep-reading.md",
+      "eo-wiki:degrees-of-freedom.md",
+      "eo-wiki:emanon.md",
+      "eo-wiki:emergent-ontology-eo.md",
+      "eo-wiki:emergent-organizing.md",
+      "eo-wiki:eo-event-streaming.md",
+      "eo-wiki:eo-in-15-min.md",
+      "eo-wiki:eo-in-60-min.md",
+      "eo-wiki:eo-notation.md",
+      "eo-wiki:eo-on-platonic-forms.md",
+      "eo-wiki:eo-s-empirical-lexical-analysis-report.md",
+      "eo-wiki:eot.md",
+      "eo-wiki:going-and-looking.md",
+      "eo-wiki:ground-figure-pattern.md",
+      "eo-wiki:holons.md",
+      "eo-wiki:identity-as-a-change-log.md",
+      "eo-wiki:influences-and-lineage.md",
+      "eo-wiki:ins.md",
+      "eo-wiki:language-is-a-projection.md",
+      "eo-wiki:lexical-analysis.md",
+      "eo-wiki:mhc-and-eo.md",
+      "eo-wiki:most-ontologies-its-all-entities-eo-entities-are-only-one-type.md",
+      "eo-wiki:mvp-minimum-viable-prompt.md",
+      "eo-wiki:nine-instructions.md",
+      "eo-wiki:notes-on-nul-refinement.md",
+      "eo-wiki:nul.md",
+      "eo-wiki:operator-naming-in-emergent-ontology.md",
+      "eo-wiki:protogon.md",
+      "eo-wiki:quantum-weirdness-in-eo-contained-but-not-tamed.md",
+      "eo-wiki:rec.md",
+      "eo-wiki:scope.md",
+      "eo-wiki:sig.md",
+      "eo-wiki:signal-from-noise.md",
+      "eo-wiki:spencer-brown-s-laws-of-form-and-eo.md",
+      "eo-wiki:the-27-phase-posts.md",
+      "eo-wiki:the-axis-triad-and-its-coordinates.md",
+      "eo-wiki:the-def-eva-rec-loop.md",
+      "eo-wiki:the-dependency-ordering.md",
+      "eo-wiki:the-eo-phase-space-cube.md",
+      "eo-wiki:the-eo-reader.md",
+      "eo-wiki:the-eo-spiral.md",
+      "eo-wiki:the-evidence.md",
+      "eo-wiki:the-experience-engine.md",
+      "eo-wiki:the-integral-lineage.md",
+      "eo-wiki:the-integral-model.md",
+      "eo-wiki:the-khora-the-substate-and-the-10000-things.md",
+      "eo-wiki:the-measurement-paraxoc.md",
+      "eo-wiki:the-model-is-the-leaf.md",
+      "eo-wiki:the-nine-operators.md",
+      "eo-wiki:the-observer-problem.md",
+      "eo-wiki:the-pythagorean-theorem-plato-s-meno-x-and-eo.md",
+      "eo-wiki:the-three-arrows.md",
+      "eo-wiki:the-three-dimensions-of-eo.md",
+      "eo-wiki:the-three-faces-of-emergent-ontology.md",
+      "eo-wiki:the-triadic-minimum.md",
+      "eo-wiki:the-triads.md",
+      "eo-wiki:the-two-doors.md",
+      "eo-wiki:time-as-emergent-dimension.md",
+      "eo-wiki:why-crud-is-shit.md",
+      "eoreaderhandbook:000-index.md",
+      "eoreaderhandbook:001-what-this-book-is-and-isnt.md",
+      "eoreaderhandbook:002-grammar-and-meaning-primer.md",
+      "eoreaderhandbook:003-ontology-and-epistemology-primer.md",
+      "eoreaderhandbook:004-what-a-language-model-is.md",
+      "eoreaderhandbook:101-noticing.md",
+      "eoreaderhandbook:102-the-difference-that-makes-a-difference.md",
+      "eoreaderhandbook:103-witness.md",
+      "eoreaderhandbook:104-the-two-deaths.md",
+      "eoreaderhandbook:105-three-numbers-and-a-vital-sign.md",
+      "eoreaderhandbook:201-nine-verbs.md",
+      "eoreaderhandbook:202-the-order-things-happen-in.md",
+      "eoreaderhandbook:203-nine-kinds-of-where.md",
+      "eoreaderhandbook:204-nine-kinds-of-how.md",
+      "eoreaderhandbook:205-why-all-three-have-to-agree.md",
+      "eoreaderhandbook:206-checked-against-language-itself.md",
+      "eoreaderhandbook:207-tried-against-a-rival.md",
+      "eoreaderhandbook:301-a-reading-from-the-inside.md",
+      "eoreaderhandbook:302-gifts-not-guesses.md",
+      "eoreaderhandbook:303-a-guided-tour-of-the-organs.md",
+      "eoreaderhandbook:304-turns-and-memory.md",
+      "eoreaderhandbook:305-refusal-as-an-answer.md",
+      "eoreaderhandbook:306-how-the-engine-is-allowed-to-grow.md",
+      "eoreaderhandbook:401-four-boxes.md",
+      "eoreaderhandbook:402-the-tests-in-plain-language.md",
+      "eoreaderhandbook:403-a-constitution-that-edits-itself.md",
+      "eoreaderhandbook:404-one-amendment-start-to-finish.md",
+      "eoreaderhandbook:501-a-thin-front-door.md",
+      "eoreaderhandbook:502-instructions-all-the-way-down.md",
+      "eoreaderhandbook:503-four-promises-to-the-reader.md",
+      "eoreaderhandbook:504-a-citation-you-can-actually-check.md",
+      "eoreaderhandbook:505-writing-something-long-without-losing-the-thread.md",
+      "eoreaderhandbook:506-senses-memory-and-borrowed-models.md",
+      "eoreaderhandbook:601-a-short-history-of-machines-that-were-said-to-read.md",
+      "eoreaderhandbook:602-the-fifty-year-old-objection.md",
+      "eoreaderhandbook:603-whats-actually-new-here.md",
+      "eoreaderhandbook:604-the-honest-gap-list.md",
+      "eoreaderhandbook:605-ancestors-named-in-the-code.md",
+      "eoreaderhandbook:701-a-construction-language.md",
+      "eoreaderhandbook:702-the-watchmakers-discipline.md",
+      "eoreaderhandbook:703-a-worked-build-start-to-finish.md",
+      "eoreaderhandbook:801-telling-a-rhyme-from-a-borrowing.md",
+      "eoreaderhandbook:HANDBOOK-SPEC.md",
+      "eoreaderhandbook:eo-reader-6-eo-chat-handbook.md"
+     ]
+    },
+    {
+     "operator": "SEG",
+     "occurrences": 433,
+     "workSupport": 50,
+     "workRate": 0.45045045045045046,
+     "sourceRefs": [
+      "eo-wiki:ancient-astronomy-eo-saving-the-appearances.md",
+      "eo-wiki:bivalent-compression-and-dimensional-poverty.md",
+      "eo-wiki:canonical-example-the-act-face-the-operators.md",
+      "eo-wiki:canonical-examples-the-site-face.md",
+      "eo-wiki:decomposability.md",
+      "eo-wiki:emergent-organizing.md",
+      "eo-wiki:eo-event-streaming.md",
+      "eo-wiki:eo-in-60-min.md",
+      "eo-wiki:eo-notation.md",
+      "eo-wiki:eo-on-platonic-forms.md",
+      "eo-wiki:holons.md",
+      "eo-wiki:identity-as-a-change-log.md",
+      "eo-wiki:influences-and-lineage.md",
+      "eo-wiki:language-is-a-projection.md",
+      "eo-wiki:mhc-and-eo.md",
+      "eo-wiki:most-ontologies-its-all-entities-eo-entities-are-only-one-type.md",
+      "eo-wiki:mvp-minimum-viable-prompt.md",
+      "eo-wiki:nine-instructions.md",
+      "eo-wiki:notes-on-nul-refinement.md",
+      "eo-wiki:nul.md",
+      "eo-wiki:operator-naming-in-emergent-ontology.md",
+      "eo-wiki:protogon.md",
+      "eo-wiki:quantum-weirdness-in-eo-contained-but-not-tamed.md",
+      "eo-wiki:rec.md",
+      "eo-wiki:scope.md",
+      "eo-wiki:sig.md",
+      "eo-wiki:spencer-brown-s-laws-of-form-and-eo.md",
+      "eo-wiki:the-axis-triad-and-its-coordinates.md",
+      "eo-wiki:the-def-eva-rec-loop.md",
+      "eo-wiki:the-dependency-ordering.md",
+      "eo-wiki:the-eo-phase-space-cube.md",
+      "eo-wiki:the-eo-spiral.md",
+      "eo-wiki:the-experience-engine.md",
+      "eo-wiki:the-integral-lineage.md",
+      "eo-wiki:the-integral-model.md",
+      "eo-wiki:the-khora-the-substate-and-the-10000-things.md",
+      "eo-wiki:the-measurement-paraxoc.md",
+      "eo-wiki:the-nine-operators.md",
+      "eo-wiki:the-pythagorean-theorem-plato-s-meno-x-and-eo.md",
+      "eo-wiki:the-three-dimensions-of-eo.md",
+      "eo-wiki:the-three-faces-of-emergent-ontology.md",
+      "eo-wiki:the-triadic-minimum.md",
+      "eo-wiki:the-triads.md",
+      "eo-wiki:time-as-emergent-dimension.md",
+      "eo-wiki:why-crud-is-shit.md",
+      "eoreaderhandbook:003-ontology-and-epistemology-primer.md",
+      "eoreaderhandbook:602-the-fifty-year-old-objection.md",
+      "eoreaderhandbook:801-telling-a-rhyme-from-a-borrowing.md",
+      "eoreaderhandbook:HANDBOOK-SPEC.md",
+      "eoreaderhandbook:eo-reader-6-eo-chat-handbook.md"
+     ]
+    },
+    {
+     "operator": "CON",
+     "occurrences": 24916,
+     "workSupport": 111,
+     "workRate": 1,
+     "sourceRefs": [
+      "eo-wiki:ancient-astronomy-eo-saving-the-appearances.md",
+      "eo-wiki:bivalent-compression-and-dimensional-poverty.md",
+      "eo-wiki:canonical-example-the-act-face-the-operators.md",
+      "eo-wiki:canonical-examples-the-resolution-face.md",
+      "eo-wiki:canonical-examples-the-site-face.md",
+      "eo-wiki:coding-python-and-eo.md",
+      "eo-wiki:decal-notation.md",
+      "eo-wiki:decomposability.md",
+      "eo-wiki:deep-reading.md",
+      "eo-wiki:degrees-of-freedom.md",
+      "eo-wiki:emanon.md",
+      "eo-wiki:emergent-ontology-eo.md",
+      "eo-wiki:emergent-organizing.md",
+      "eo-wiki:eo-event-streaming.md",
+      "eo-wiki:eo-in-15-min.md",
+      "eo-wiki:eo-in-60-min.md",
+      "eo-wiki:eo-notation.md",
+      "eo-wiki:eo-on-platonic-forms.md",
+      "eo-wiki:eo-s-empirical-lexical-analysis-report.md",
+      "eo-wiki:eot.md",
+      "eo-wiki:going-and-looking.md",
+      "eo-wiki:ground-figure-pattern.md",
+      "eo-wiki:holons.md",
+      "eo-wiki:identity-as-a-change-log.md",
+      "eo-wiki:influences-and-lineage.md",
+      "eo-wiki:ins.md",
+      "eo-wiki:language-is-a-projection.md",
+      "eo-wiki:lexical-analysis.md",
+      "eo-wiki:mhc-and-eo.md",
+      "eo-wiki:most-ontologies-its-all-entities-eo-entities-are-only-one-type.md",
+      "eo-wiki:mvp-minimum-viable-prompt.md",
+      "eo-wiki:nine-instructions.md",
+      "eo-wiki:notes-on-nul-refinement.md",
+      "eo-wiki:nul.md",
+      "eo-wiki:operator-naming-in-emergent-ontology.md",
+      "eo-wiki:protogon.md",
+      "eo-wiki:quantum-weirdness-in-eo-contained-but-not-tamed.md",
+      "eo-wiki:rec.md",
+      "eo-wiki:scope.md",
+      "eo-wiki:sig.md",
+      "eo-wiki:signal-from-noise.md",
+      "eo-wiki:spencer-brown-s-laws-of-form-and-eo.md",
+      "eo-wiki:the-27-phase-posts.md",
+      "eo-wiki:the-axis-triad-and-its-coordinates.md",
+      "eo-wiki:the-def-eva-rec-loop.md",
+      "eo-wiki:the-dependency-ordering.md",
+      "eo-wiki:the-eo-phase-space-cube.md",
+      "eo-wiki:the-eo-reader.md",
+      "eo-wiki:the-eo-spiral.md",
+      "eo-wiki:the-evidence.md",
+      "eo-wiki:the-experience-engine.md",
+      "eo-wiki:the-integral-lineage.md",
+      "eo-wiki:the-integral-model.md",
+      "eo-wiki:the-khora-the-substate-and-the-10000-things.md",
+      "eo-wiki:the-measurement-paraxoc.md",
+      "eo-wiki:the-model-is-the-leaf.md",
+      "eo-wiki:the-nine-operators.md",
+      "eo-wiki:the-observer-problem.md",
+      "eo-wiki:the-pythagorean-theorem-plato-s-meno-x-and-eo.md",
+      "eo-wiki:the-three-arrows.md",
+      "eo-wiki:the-three-dimensions-of-eo.md",
+      "eo-wiki:the-three-faces-of-emergent-ontology.md",
+      "eo-wiki:the-triadic-minimum.md",
+      "eo-wiki:the-triads.md",
+      "eo-wiki:the-two-doors.md",
+      "eo-wiki:time-as-emergent-dimension.md",
+      "eo-wiki:why-crud-is-shit.md",
+      "eoreaderhandbook:000-index.md",
+      "eoreaderhandbook:001-what-this-book-is-and-isnt.md",
+      "eoreaderhandbook:002-grammar-and-meaning-primer.md",
+      "eoreaderhandbook:003-ontology-and-epistemology-primer.md",
+      "eoreaderhandbook:004-what-a-language-model-is.md",
+      "eoreaderhandbook:101-noticing.md",
+      "eoreaderhandbook:102-the-difference-that-makes-a-difference.md",
+      "eoreaderhandbook:103-witness.md",
+      "eoreaderhandbook:104-the-two-deaths.md",
+      "eoreaderhandbook:105-three-numbers-and-a-vital-sign.md",
+      "eoreaderhandbook:201-nine-verbs.md",
+      "eoreaderhandbook:202-the-order-things-happen-in.md",
+      "eoreaderhandbook:203-nine-kinds-of-where.md",
+      "eoreaderhandbook:204-nine-kinds-of-how.md",
+      "eoreaderhandbook:205-why-all-three-have-to-agree.md",
+      "eoreaderhandbook:206-checked-against-language-itself.md",
+      "eoreaderhandbook:207-tried-against-a-rival.md",
+      "eoreaderhandbook:301-a-reading-from-the-inside.md",
+      "eoreaderhandbook:302-gifts-not-guesses.md",
+      "eoreaderhandbook:303-a-guided-tour-of-the-organs.md",
+      "eoreaderhandbook:304-turns-and-memory.md",
+      "eoreaderhandbook:305-refusal-as-an-answer.md",
+      "eoreaderhandbook:306-how-the-engine-is-allowed-to-grow.md",
+      "eoreaderhandbook:401-four-boxes.md",
+      "eoreaderhandbook:402-the-tests-in-plain-language.md",
+      "eoreaderhandbook:403-a-constitution-that-edits-itself.md",
+      "eoreaderhandbook:404-one-amendment-start-to-finish.md",
+      "eoreaderhandbook:501-a-thin-front-door.md",
+      "eoreaderhandbook:502-instructions-all-the-way-down.md",
+      "eoreaderhandbook:503-four-promises-to-the-reader.md",
+      "eoreaderhandbook:504-a-citation-you-can-actually-check.md",
+      "eoreaderhandbook:505-writing-something-long-without-losing-the-thread.md",
+      "eoreaderhandbook:506-senses-memory-and-borrowed-models.md",
+      "eoreaderhandbook:601-a-short-history-of-machines-that-were-said-to-read.md",
+      "eoreaderhandbook:602-the-fifty-year-old-objection.md",
+      "eoreaderhandbook:603-whats-actually-new-here.md",
+      "eoreaderhandbook:604-the-honest-gap-list.md",
+      "eoreaderhandbook:605-ancestors-named-in-the-code.md",
+      "eoreaderhandbook:701-a-construction-language.md",
+      "eoreaderhandbook:702-the-watchmakers-discipline.md",
+      "eoreaderhandbook:703-a-worked-build-start-to-finish.md",
+      "eoreaderhandbook:801-telling-a-rhyme-from-a-borrowing.md",
+      "eoreaderhandbook:HANDBOOK-SPEC.md",
+      "eoreaderhandbook:eo-reader-6-eo-chat-handbook.md"
+     ]
+    },
+    {
+     "operator": "SYN",
+     "occurrences": 0,
+     "workSupport": 0,
+     "workRate": 0,
+     "sourceRefs": []
+    },
+    {
+     "operator": "DEF",
+     "occurrences": 433,
+     "workSupport": 50,
+     "workRate": 0.45045045045045046,
+     "sourceRefs": [
+      "eo-wiki:ancient-astronomy-eo-saving-the-appearances.md",
+      "eo-wiki:bivalent-compression-and-dimensional-poverty.md",
+      "eo-wiki:canonical-example-the-act-face-the-operators.md",
+      "eo-wiki:canonical-examples-the-site-face.md",
+      "eo-wiki:decomposability.md",
+      "eo-wiki:emergent-organizing.md",
+      "eo-wiki:eo-event-streaming.md",
+      "eo-wiki:eo-in-60-min.md",
+      "eo-wiki:eo-notation.md",
+      "eo-wiki:eo-on-platonic-forms.md",
+      "eo-wiki:holons.md",
+      "eo-wiki:identity-as-a-change-log.md",
+      "eo-wiki:influences-and-lineage.md",
+      "eo-wiki:language-is-a-projection.md",
+      "eo-wiki:mhc-and-eo.md",
+      "eo-wiki:most-ontologies-its-all-entities-eo-entities-are-only-one-type.md",
+      "eo-wiki:mvp-minimum-viable-prompt.md",
+      "eo-wiki:nine-instructions.md",
+      "eo-wiki:notes-on-nul-refinement.md",
+      "eo-wiki:nul.md",
+      "eo-wiki:operator-naming-in-emergent-ontology.md",
+      "eo-wiki:protogon.md",
+      "eo-wiki:quantum-weirdness-in-eo-contained-but-not-tamed.md",
+      "eo-wiki:rec.md",
+      "eo-wiki:scope.md",
+      "eo-wiki:sig.md",
+      "eo-wiki:spencer-brown-s-laws-of-form-and-eo.md",
+      "eo-wiki:the-axis-triad-and-its-coordinates.md",
+      "eo-wiki:the-def-eva-rec-loop.md",
+      "eo-wiki:the-dependency-ordering.md",
+      "eo-wiki:the-eo-phase-space-cube.md",
+      "eo-wiki:the-eo-spiral.md",
+      "eo-wiki:the-experience-engine.md",
+      "eo-wiki:the-integral-lineage.md",
+      "eo-wiki:the-integral-model.md",
+      "eo-wiki:the-khora-the-substate-and-the-10000-things.md",
+      "eo-wiki:the-measurement-paraxoc.md",
+      "eo-wiki:the-nine-operators.md",
+      "eo-wiki:the-pythagorean-theorem-plato-s-meno-x-and-eo.md",
+      "eo-wiki:the-three-dimensions-of-eo.md",
+      "eo-wiki:the-three-faces-of-emergent-ontology.md",
+      "eo-wiki:the-triadic-minimum.md",
+      "eo-wiki:the-triads.md",
+      "eo-wiki:time-as-emergent-dimension.md",
+      "eo-wiki:why-crud-is-shit.md",
+      "eoreaderhandbook:003-ontology-and-epistemology-primer.md",
+      "eoreaderhandbook:602-the-fifty-year-old-objection.md",
+      "eoreaderhandbook:801-telling-a-rhyme-from-a-borrowing.md",
+      "eoreaderhandbook:HANDBOOK-SPEC.md",
+      "eoreaderhandbook:eo-reader-6-eo-chat-handbook.md"
+     ]
+    },
+    {
+     "operator": "EVA",
+     "occurrences": 674,
+     "workSupport": 55,
+     "workRate": 0.4954954954954955,
+     "sourceRefs": [
+      "eo-wiki:ancient-astronomy-eo-saving-the-appearances.md",
+      "eo-wiki:bivalent-compression-and-dimensional-poverty.md",
+      "eo-wiki:canonical-example-the-act-face-the-operators.md",
+      "eo-wiki:canonical-examples-the-site-face.md",
+      "eo-wiki:coding-python-and-eo.md",
+      "eo-wiki:decal-notation.md",
+      "eo-wiki:decomposability.md",
+      "eo-wiki:emergent-ontology-eo.md",
+      "eo-wiki:emergent-organizing.md",
+      "eo-wiki:eo-event-streaming.md",
+      "eo-wiki:eo-in-15-min.md",
+      "eo-wiki:eo-in-60-min.md",
+      "eo-wiki:eo-notation.md",
+      "eo-wiki:eo-on-platonic-forms.md",
+      "eo-wiki:ground-figure-pattern.md",
+      "eo-wiki:holons.md",
+      "eo-wiki:identity-as-a-change-log.md",
+      "eo-wiki:influences-and-lineage.md",
+      "eo-wiki:language-is-a-projection.md",
+      "eo-wiki:mhc-and-eo.md",
+      "eo-wiki:most-ontologies-its-all-entities-eo-entities-are-only-one-type.md",
+      "eo-wiki:mvp-minimum-viable-prompt.md",
+      "eo-wiki:nine-instructions.md",
+      "eo-wiki:notes-on-nul-refinement.md",
+      "eo-wiki:nul.md",
+      "eo-wiki:operator-naming-in-emergent-ontology.md",
+      "eo-wiki:protogon.md",
+      "eo-wiki:quantum-weirdness-in-eo-contained-but-not-tamed.md",
+      "eo-wiki:rec.md",
+      "eo-wiki:scope.md",
+      "eo-wiki:sig.md",
+      "eo-wiki:spencer-brown-s-laws-of-form-and-eo.md",
+      "eo-wiki:the-axis-triad-and-its-coordinates.md",
+      "eo-wiki:the-def-eva-rec-loop.md",
+      "eo-wiki:the-dependency-ordering.md",
+      "eo-wiki:the-eo-phase-space-cube.md",
+      "eo-wiki:the-eo-spiral.md",
+      "eo-wiki:the-experience-engine.md",
+      "eo-wiki:the-integral-lineage.md",
+      "eo-wiki:the-integral-model.md",
+      "eo-wiki:the-khora-the-substate-and-the-10000-things.md",
+      "eo-wiki:the-measurement-paraxoc.md",
+      "eo-wiki:the-nine-operators.md",
+      "eo-wiki:the-pythagorean-theorem-plato-s-meno-x-and-eo.md",
+      "eo-wiki:the-three-dimensions-of-eo.md",
+      "eo-wiki:the-three-faces-of-emergent-ontology.md",
+      "eo-wiki:the-triadic-minimum.md",
+      "eo-wiki:the-triads.md",
+      "eo-wiki:time-as-emergent-dimension.md",
+      "eo-wiki:why-crud-is-shit.md",
+      "eoreaderhandbook:003-ontology-and-epistemology-primer.md",
+      "eoreaderhandbook:602-the-fifty-year-old-objection.md",
+      "eoreaderhandbook:801-telling-a-rhyme-from-a-borrowing.md",
+      "eoreaderhandbook:HANDBOOK-SPEC.md",
+      "eoreaderhandbook:eo-reader-6-eo-chat-handbook.md"
+     ]
+    },
+    {
+     "operator": "REC",
+     "occurrences": 67,
+     "workSupport": 19,
+     "workRate": 0.17117117117117117,
+     "sourceRefs": [
+      "eo-wiki:bivalent-compression-and-dimensional-poverty.md",
+      "eo-wiki:canonical-example-the-act-face-the-operators.md",
+      "eo-wiki:canonical-examples-the-site-face.md",
+      "eo-wiki:decomposability.md",
+      "eo-wiki:eo-event-streaming.md",
+      "eo-wiki:eo-on-platonic-forms.md",
+      "eo-wiki:influences-and-lineage.md",
+      "eo-wiki:mvp-minimum-viable-prompt.md",
+      "eo-wiki:notes-on-nul-refinement.md",
+      "eo-wiki:nul.md",
+      "eo-wiki:the-def-eva-rec-loop.md",
+      "eo-wiki:the-eo-phase-space-cube.md",
+      "eo-wiki:the-experience-engine.md",
+      "eo-wiki:the-integral-lineage.md",
+      "eo-wiki:the-nine-operators.md",
+      "eo-wiki:the-pythagorean-theorem-plato-s-meno-x-and-eo.md",
+      "eo-wiki:the-triadic-minimum.md",
+      "eoreaderhandbook:HANDBOOK-SPEC.md",
+      "eoreaderhandbook:eo-reader-6-eo-chat-handbook.md"
+     ]
+    }
+   ],
+   "provenance": {
+    "giver": "the-fold:predigest-priors",
+    "basis": "merged_experience_priors",
+    "targetExcluded": true,
+    "relationRule": "retain memory from >=1 prior work(s); workSupport/workRate encode recurrence strength",
+    "networkRule": "retain memory from >=1 prior work(s); workSupport/workRate encode recurrence strength",
+    "mergedFrom": [
+     "experience:eo-wiki:ancient-astronomy-eo-saving-the-appearances.md",
+     "experience:eo-wiki:bivalent-compression-and-dimensional-poverty.md",
+     "experience:eo-wiki:canonical-example-the-act-face-the-operators.md",
+     "experience:eo-wiki:canonical-examples-the-resolution-face.md",
+     "experience:eo-wiki:canonical-examples-the-site-face.md",
+     "experience:eo-wiki:coding-python-and-eo.md",
+     "experience:eo-wiki:decal-notation.md",
+     "experience:eo-wiki:decomposability.md",
+     "experience:eo-wiki:deep-reading.md",
+     "experience:eo-wiki:degrees-of-freedom.md",
+     "experience:eo-wiki:emanon.md",
+     "experience:eo-wiki:emergent-ontology-eo.md",
+     "experience:eo-wiki:emergent-organizing.md",
+     "experience:eo-wiki:eo-event-streaming.md",
+     "experience:eo-wiki:eo-in-15-min.md",
+     "experience:eo-wiki:eo-in-60-min.md",
+     "experience:eo-wiki:eo-notation.md",
+     "experience:eo-wiki:eo-on-platonic-forms.md",
+     "experience:eo-wiki:eo-s-empirical-lexical-analysis-report.md",
+     "experience:eo-wiki:eot.md",
+     "experience:eo-wiki:going-and-looking.md",
+     "experience:eo-wiki:ground-figure-pattern.md",
+     "experience:eo-wiki:holons.md",
+     "experience:eo-wiki:identity-as-a-change-log.md",
+     "experience:eo-wiki:influences-and-lineage.md",
+     "experience:eo-wiki:ins.md",
+     "experience:eo-wiki:language-is-a-projection.md",
+     "experience:eo-wiki:lexical-analysis.md",
+     "experience:eo-wiki:mhc-and-eo.md",
+     "experience:eo-wiki:most-ontologies-its-all-entities-eo-entities-are-only-one-type.md",
+     "experience:eo-wiki:mvp-minimum-viable-prompt.md",
+     "experience:eo-wiki:nine-instructions.md",
+     "experience:eo-wiki:notes-on-nul-refinement.md",
+     "experience:eo-wiki:nul.md",
+     "experience:eo-wiki:operator-naming-in-emergent-ontology.md",
+     "experience:eo-wiki:protogon.md",
+     "experience:eo-wiki:quantum-weirdness-in-eo-contained-but-not-tamed.md",
+     "experience:eo-wiki:rec.md",
+     "experience:eo-wiki:scope.md",
+     "experience:eo-wiki:sig.md",
+     "experience:eo-wiki:signal-from-noise.md",
+     "experience:eo-wiki:spencer-brown-s-laws-of-form-and-eo.md",
+     "experience:eo-wiki:the-27-phase-posts.md",
+     "experience:eo-wiki:the-axis-triad-and-its-coordinates.md",
+     "experience:eo-wiki:the-def-eva-rec-loop.md",
+     "experience:eo-wiki:the-dependency-ordering.md",
+     "experience:eo-wiki:the-eo-phase-space-cube.md",
+     "experience:eo-wiki:the-eo-reader.md",
+     "experience:eo-wiki:the-eo-spiral.md",
+     "experience:eo-wiki:the-evidence.md",
+     "experience:eo-wiki:the-experience-engine.md",
+     "experience:eo-wiki:the-integral-lineage.md",
+     "experience:eo-wiki:the-integral-model.md",
+     "experience:eo-wiki:the-khora-the-substate-and-the-10000-things.md",
+     "experience:eo-wiki:the-measurement-paraxoc.md",
+     "experience:eo-wiki:the-model-is-the-leaf.md",
+     "experience:eo-wiki:the-nine-operators.md",
+     "experience:eo-wiki:the-observer-problem.md",
+     "experience:eo-wiki:the-pythagorean-theorem-plato-s-meno-x-and-eo.md",
+     "experience:eo-wiki:the-three-arrows.md",
+     "experience:eo-wiki:the-three-dimensions-of-eo.md",
+     "experience:eo-wiki:the-three-faces-of-emergent-ontology.md",
+     "experience:eo-wiki:the-triadic-minimum.md",
+     "experience:eo-wiki:the-triads.md",
+     "experience:eo-wiki:the-two-doors.md",
+     "experience:eo-wiki:time-as-emergent-dimension.md",
+     "experience:eo-wiki:why-crud-is-shit.md",
+     "experience:eoreaderhandbook:000-index.md",
+     "experience:eoreaderhandbook:001-what-this-book-is-and-isnt.md",
+     "experience:eoreaderhandbook:002-grammar-and-meaning-primer.md",
+     "experience:eoreaderhandbook:003-ontology-and-epistemology-primer.md",
+     "experience:eoreaderhandbook:004-what-a-language-model-is.md",
+     "experience:eoreaderhandbook:101-noticing.md",
+     "experience:eoreaderhandbook:102-the-difference-that-makes-a-difference.md",
+     "experience:eoreaderhandbook:103-witness.md",
+     "experience:eoreaderhandbook:104-the-two-deaths.md",
+     "experience:eoreaderhandbook:105-three-numbers-and-a-vital-sign.md",
+     "experience:eoreaderhandbook:201-nine-verbs.md",
+     "experience:eoreaderhandbook:202-the-order-things-happen-in.md",
+     "experience:eoreaderhandbook:203-nine-kinds-of-where.md",
+     "experience:eoreaderhandbook:204-nine-kinds-of-how.md",
+     "experience:eoreaderhandbook:205-why-all-three-have-to-agree.md",
+     "experience:eoreaderhandbook:206-checked-against-language-itself.md",
+     "experience:eoreaderhandbook:207-tried-against-a-rival.md",
+     "experience:eoreaderhandbook:301-a-reading-from-the-inside.md",
+     "experience:eoreaderhandbook:302-gifts-not-guesses.md",
+     "experience:eoreaderhandbook:303-a-guided-tour-of-the-organs.md",
+     "experience:eoreaderhandbook:304-turns-and-memory.md",
+     "experience:eoreaderhandbook:305-refusal-as-an-answer.md",
+     "experience:eoreaderhandbook:306-how-the-engine-is-allowed-to-grow.md",
+     "experience:eoreaderhandbook:401-four-boxes.md",
+     "experience:eoreaderhandbook:402-the-tests-in-plain-language.md",
+     "experience:eoreaderhandbook:403-a-constitution-that-edits-itself.md",
+     "experience:eoreaderhandbook:404-one-amendment-start-to-finish.md",
+     "experience:eoreaderhandbook:501-a-thin-front-door.md",
+     "experience:eoreaderhandbook:502-instructions-all-the-way-down.md",
+     "experience:eoreaderhandbook:503-four-promises-to-the-reader.md",
+     "experience:eoreaderhandbook:504-a-citation-you-can-actually-check.md",
+     "experience:eoreaderhandbook:505-writing-something-long-without-losing-the-thread.md",
+     "experience:eoreaderhandbook:506-senses-memory-and-borrowed-models.md",
+     "experience:eoreaderhandbook:601-a-short-history-of-machines-that-were-said-to-read.md",
+     "experience:eoreaderhandbook:602-the-fifty-year-old-objection.md",
+     "experience:eoreaderhandbook:603-whats-actually-new-here.md",
+     "experience:eoreaderhandbook:604-the-honest-gap-list.md",
+     "experience:eoreaderhandbook:605-ancestors-named-in-the-code.md",
+     "experience:eoreaderhandbook:701-a-construction-language.md",
+     "experience:eoreaderhandbook:702-the-watchmakers-discipline.md",
+     "experience:eoreaderhandbook:703-a-worked-build-start-to-finish.md",
+     "experience:eoreaderhandbook:801-telling-a-rhyme-from-a-borrowing.md",
+     "experience:eoreaderhandbook:HANDBOOK-SPEC.md",
+     "experience:eoreaderhandbook:eo-reader-6-eo-chat-handbook.md"
+    ]
+   }
+  },
+  "rhythm": {
+   "schema": "EORhythmPrior@1",
+   "id": "rhythm:compiled",
+   "giver": "the-fold:predigest-priors",
+   "standing": "defeasible_experience_prior",
+   "witnessed": false,
+   "admissible": false,
+   "sourceCount": 111,
+   "sourceRefs": [
+    "eo-wiki:ancient-astronomy-eo-saving-the-appearances.md",
+    "eo-wiki:bivalent-compression-and-dimensional-poverty.md",
+    "eo-wiki:canonical-example-the-act-face-the-operators.md",
+    "eo-wiki:canonical-examples-the-resolution-face.md",
+    "eo-wiki:canonical-examples-the-site-face.md",
+    "eo-wiki:coding-python-and-eo.md",
+    "eo-wiki:decal-notation.md",
+    "eo-wiki:decomposability.md",
+    "eo-wiki:deep-reading.md",
+    "eo-wiki:degrees-of-freedom.md",
+    "eo-wiki:emanon.md",
+    "eo-wiki:emergent-ontology-eo.md",
+    "eo-wiki:emergent-organizing.md",
+    "eo-wiki:eo-event-streaming.md",
+    "eo-wiki:eo-in-15-min.md",
+    "eo-wiki:eo-in-60-min.md",
+    "eo-wiki:eo-notation.md",
+    "eo-wiki:eo-on-platonic-forms.md",
+    "eo-wiki:eo-s-empirical-lexical-analysis-report.md",
+    "eo-wiki:eot.md",
+    "eo-wiki:going-and-looking.md",
+    "eo-wiki:ground-figure-pattern.md",
+    "eo-wiki:holons.md",
+    "eo-wiki:identity-as-a-change-log.md",
+    "eo-wiki:influences-and-lineage.md",
+    "eo-wiki:ins.md",
+    "eo-wiki:language-is-a-projection.md",
+    "eo-wiki:lexical-analysis.md",
+    "eo-wiki:mhc-and-eo.md",
+    "eo-wiki:most-ontologies-its-all-entities-eo-entities-are-only-one-type.md",
+    "eo-wiki:mvp-minimum-viable-prompt.md",
+    "eo-wiki:nine-instructions.md",
+    "eo-wiki:notes-on-nul-refinement.md",
+    "eo-wiki:nul.md",
+    "eo-wiki:operator-naming-in-emergent-ontology.md",
+    "eo-wiki:protogon.md",
+    "eo-wiki:quantum-weirdness-in-eo-contained-but-not-tamed.md",
+    "eo-wiki:rec.md",
+    "eo-wiki:scope.md",
+    "eo-wiki:sig.md",
+    "eo-wiki:signal-from-noise.md",
+    "eo-wiki:spencer-brown-s-laws-of-form-and-eo.md",
+    "eo-wiki:the-27-phase-posts.md",
+    "eo-wiki:the-axis-triad-and-its-coordinates.md",
+    "eo-wiki:the-def-eva-rec-loop.md",
+    "eo-wiki:the-dependency-ordering.md",
+    "eo-wiki:the-eo-phase-space-cube.md",
+    "eo-wiki:the-eo-reader.md",
+    "eo-wiki:the-eo-spiral.md",
+    "eo-wiki:the-evidence.md",
+    "eo-wiki:the-experience-engine.md",
+    "eo-wiki:the-integral-lineage.md",
+    "eo-wiki:the-integral-model.md",
+    "eo-wiki:the-khora-the-substate-and-the-10000-things.md",
+    "eo-wiki:the-measurement-paraxoc.md",
+    "eo-wiki:the-model-is-the-leaf.md",
+    "eo-wiki:the-nine-operators.md",
+    "eo-wiki:the-observer-problem.md",
+    "eo-wiki:the-pythagorean-theorem-plato-s-meno-x-and-eo.md",
+    "eo-wiki:the-three-arrows.md",
+    "eo-wiki:the-three-dimensions-of-eo.md",
+    "eo-wiki:the-three-faces-of-emergent-ontology.md",
+    "eo-wiki:the-triadic-minimum.md",
+    "eo-wiki:the-triads.md",
+    "eo-wiki:the-two-doors.md",
+    "eo-wiki:time-as-emergent-dimension.md",
+    "eo-wiki:why-crud-is-shit.md",
+    "eoreaderhandbook:000-index.md",
+    "eoreaderhandbook:001-what-this-book-is-and-isnt.md",
+    "eoreaderhandbook:002-grammar-and-meaning-primer.md",
+    "eoreaderhandbook:003-ontology-and-epistemology-primer.md",
+    "eoreaderhandbook:004-what-a-language-model-is.md",
+    "eoreaderhandbook:101-noticing.md",
+    "eoreaderhandbook:102-the-difference-that-makes-a-difference.md",
+    "eoreaderhandbook:103-witness.md",
+    "eoreaderhandbook:104-the-two-deaths.md",
+    "eoreaderhandbook:105-three-numbers-and-a-vital-sign.md",
+    "eoreaderhandbook:201-nine-verbs.md",
+    "eoreaderhandbook:202-the-order-things-happen-in.md",
+    "eoreaderhandbook:203-nine-kinds-of-where.md",
+    "eoreaderhandbook:204-nine-kinds-of-how.md",
+    "eoreaderhandbook:205-why-all-three-have-to-agree.md",
+    "eoreaderhandbook:206-checked-against-language-itself.md",
+    "eoreaderhandbook:207-tried-against-a-rival.md",
+    "eoreaderhandbook:301-a-reading-from-the-inside.md",
+    "eoreaderhandbook:302-gifts-not-guesses.md",
+    "eoreaderhandbook:303-a-guided-tour-of-the-organs.md",
+    "eoreaderhandbook:304-turns-and-memory.md",
+    "eoreaderhandbook:305-refusal-as-an-answer.md",
+    "eoreaderhandbook:306-how-the-engine-is-allowed-to-grow.md",
+    "eoreaderhandbook:401-four-boxes.md",
+    "eoreaderhandbook:402-the-tests-in-plain-language.md",
+    "eoreaderhandbook:403-a-constitution-that-edits-itself.md",
+    "eoreaderhandbook:404-one-amendment-start-to-finish.md",
+    "eoreaderhandbook:501-a-thin-front-door.md",
+    "eoreaderhandbook:502-instructions-all-the-way-down.md",
+    "eoreaderhandbook:503-four-promises-to-the-reader.md",
+    "eoreaderhandbook:504-a-citation-you-can-actually-check.md",
+    "eoreaderhandbook:505-writing-something-long-without-losing-the-thread.md",
+    "eoreaderhandbook:506-senses-memory-and-borrowed-models.md",
+    "eoreaderhandbook:601-a-short-history-of-machines-that-were-said-to-read.md",
+    "eoreaderhandbook:602-the-fifty-year-old-objection.md",
+    "eoreaderhandbook:603-whats-actually-new-here.md",
+    "eoreaderhandbook:604-the-honest-gap-list.md",
+    "eoreaderhandbook:605-ancestors-named-in-the-code.md",
+    "eoreaderhandbook:701-a-construction-language.md",
+    "eoreaderhandbook:702-the-watchmakers-discipline.md",
+    "eoreaderhandbook:703-a-worked-build-start-to-finish.md",
+    "eoreaderhandbook:801-telling-a-rhyme-from-a-borrowing.md",
+    "eoreaderhandbook:HANDBOOK-SPEC.md",
+    "eoreaderhandbook:eo-reader-6-eo-chat-handbook.md"
+   ],
+   "medianGap": 6,
+   "gapCount": 2007,
+   "workSupport": 111,
+   "memoryStanding": "recurrent_cross_work_memory",
+   "gapHistogram": [
+    {
+     "gap": 1,
+     "count": 366,
+     "workSupport": 60,
+     "sourceRefs": [
+      "eo-wiki:ancient-astronomy-eo-saving-the-appearances.md",
+      "eo-wiki:bivalent-compression-and-dimensional-poverty.md",
+      "eo-wiki:canonical-example-the-act-face-the-operators.md",
+      "eo-wiki:canonical-examples-the-site-face.md",
+      "eo-wiki:coding-python-and-eo.md",
+      "eo-wiki:decal-notation.md",
+      "eo-wiki:decomposability.md",
+      "eo-wiki:emanon.md",
+      "eo-wiki:eo-event-streaming.md",
+      "eo-wiki:eo-in-60-min.md",
+      "eo-wiki:eo-notation.md",
+      "eo-wiki:eo-on-platonic-forms.md",
+      "eo-wiki:eo-s-empirical-lexical-analysis-report.md",
+      "eo-wiki:ground-figure-pattern.md",
+      "eo-wiki:holons.md",
+      "eo-wiki:identity-as-a-change-log.md",
+      "eo-wiki:influences-and-lineage.md",
+      "eo-wiki:ins.md",
+      "eo-wiki:mvp-minimum-viable-prompt.md",
+      "eo-wiki:nine-instructions.md",
+      "eo-wiki:notes-on-nul-refinement.md",
+      "eo-wiki:nul.md",
+      "eo-wiki:operator-naming-in-emergent-ontology.md",
+      "eo-wiki:protogon.md",
+      "eo-wiki:quantum-weirdness-in-eo-contained-but-not-tamed.md",
+      "eo-wiki:rec.md",
+      "eo-wiki:scope.md",
+      "eo-wiki:sig.md",
+      "eo-wiki:spencer-brown-s-laws-of-form-and-eo.md",
+      "eo-wiki:the-axis-triad-and-its-coordinates.md",
+      "eo-wiki:the-def-eva-rec-loop.md",
+      "eo-wiki:the-eo-phase-space-cube.md",
+      "eo-wiki:the-eo-spiral.md",
+      "eo-wiki:the-experience-engine.md",
+      "eo-wiki:the-integral-lineage.md",
+      "eo-wiki:the-integral-model.md",
+      "eo-wiki:the-khora-the-substate-and-the-10000-things.md",
+      "eo-wiki:the-measurement-paraxoc.md",
+      "eo-wiki:the-model-is-the-leaf.md",
+      "eo-wiki:the-nine-operators.md",
+      "eo-wiki:the-pythagorean-theorem-plato-s-meno-x-and-eo.md",
+      "eo-wiki:the-three-dimensions-of-eo.md",
+      "eo-wiki:the-three-faces-of-emergent-ontology.md",
+      "eo-wiki:the-triadic-minimum.md",
+      "eo-wiki:the-triads.md",
+      "eo-wiki:time-as-emergent-dimension.md",
+      "eo-wiki:why-crud-is-shit.md",
+      "eoreaderhandbook:003-ontology-and-epistemology-primer.md",
+      "eoreaderhandbook:004-what-a-language-model-is.md",
+      "eoreaderhandbook:102-the-difference-that-makes-a-difference.md",
+      "eoreaderhandbook:201-nine-verbs.md",
+      "eoreaderhandbook:202-the-order-things-happen-in.md",
+      "eoreaderhandbook:402-the-tests-in-plain-language.md",
+      "eoreaderhandbook:403-a-constitution-that-edits-itself.md",
+      "eoreaderhandbook:502-instructions-all-the-way-down.md",
+      "eoreaderhandbook:506-senses-memory-and-borrowed-models.md",
+      "eoreaderhandbook:602-the-fifty-year-old-objection.md",
+      "eoreaderhandbook:701-a-construction-language.md",
+      "eoreaderhandbook:HANDBOOK-SPEC.md",
+      "eoreaderhandbook:eo-reader-6-eo-chat-handbook.md"
+     ]
+    },
+    {
+     "gap": 2,
+     "count": 234,
+     "workSupport": 55,
+     "sourceRefs": [
+      "eo-wiki:ancient-astronomy-eo-saving-the-appearances.md",
+      "eo-wiki:bivalent-compression-and-dimensional-poverty.md",
+      "eo-wiki:canonical-example-the-act-face-the-operators.md",
+      "eo-wiki:coding-python-and-eo.md",
+      "eo-wiki:emergent-organizing.md",
+      "eo-wiki:eo-event-streaming.md",
+      "eo-wiki:eo-in-60-min.md",
+      "eo-wiki:eo-notation.md",
+      "eo-wiki:eo-on-platonic-forms.md",
+      "eo-wiki:eo-s-empirical-lexical-analysis-report.md",
+      "eo-wiki:going-and-looking.md",
+      "eo-wiki:ground-figure-pattern.md",
+      "eo-wiki:holons.md",
+      "eo-wiki:identity-as-a-change-log.md",
+      "eo-wiki:influences-and-lineage.md",
+      "eo-wiki:ins.md",
+      "eo-wiki:language-is-a-projection.md",
+      "eo-wiki:lexical-analysis.md",
+      "eo-wiki:most-ontologies-its-all-entities-eo-entities-are-only-one-type.md",
+      "eo-wiki:mvp-minimum-viable-prompt.md",
+      "eo-wiki:nine-instructions.md",
+      "eo-wiki:notes-on-nul-refinement.md",
+      "eo-wiki:nul.md",
+      "eo-wiki:operator-naming-in-emergent-ontology.md",
+      "eo-wiki:quantum-weirdness-in-eo-contained-but-not-tamed.md",
+      "eo-wiki:rec.md",
+      "eo-wiki:scope.md",
+      "eo-wiki:sig.md",
+      "eo-wiki:spencer-brown-s-laws-of-form-and-eo.md",
+      "eo-wiki:the-axis-triad-and-its-coordinates.md",
+      "eo-wiki:the-def-eva-rec-loop.md",
+      "eo-wiki:the-dependency-ordering.md",
+      "eo-wiki:the-eo-phase-space-cube.md",
+      "eo-wiki:the-eo-spiral.md",
+      "eo-wiki:the-experience-engine.md",
+      "eo-wiki:the-integral-lineage.md",
+      "eo-wiki:the-khora-the-substate-and-the-10000-things.md",
+      "eo-wiki:the-nine-operators.md",
+      "eo-wiki:the-pythagorean-theorem-plato-s-meno-x-and-eo.md",
+      "eo-wiki:the-three-dimensions-of-eo.md",
+      "eo-wiki:the-triadic-minimum.md",
+      "eo-wiki:the-triads.md",
+      "eo-wiki:time-as-emergent-dimension.md",
+      "eo-wiki:why-crud-is-shit.md",
+      "eoreaderhandbook:102-the-difference-that-makes-a-difference.md",
+      "eoreaderhandbook:201-nine-verbs.md",
+      "eoreaderhandbook:202-the-order-things-happen-in.md",
+      "eoreaderhandbook:204-nine-kinds-of-how.md",
+      "eoreaderhandbook:402-the-tests-in-plain-language.md",
+      "eoreaderhandbook:501-a-thin-front-door.md",
+      "eoreaderhandbook:506-senses-memory-and-borrowed-models.md",
+      "eoreaderhandbook:604-the-honest-gap-list.md",
+      "eoreaderhandbook:701-a-construction-language.md",
+      "eoreaderhandbook:HANDBOOK-SPEC.md",
+      "eoreaderhandbook:eo-reader-6-eo-chat-handbook.md"
+     ]
+    },
+    {
+     "gap": 3,
+     "count": 160,
+     "workSupport": 48,
+     "sourceRefs": [
+      "eo-wiki:ancient-astronomy-eo-saving-the-appearances.md",
+      "eo-wiki:bivalent-compression-and-dimensional-poverty.md",
+      "eo-wiki:decal-notation.md",
+      "eo-wiki:emergent-ontology-eo.md",
+      "eo-wiki:eo-event-streaming.md",
+      "eo-wiki:eo-in-60-min.md",
+      "eo-wiki:eo-notation.md",
+      "eo-wiki:eo-on-platonic-forms.md",
+      "eo-wiki:ground-figure-pattern.md",
+      "eo-wiki:influences-and-lineage.md",
+      "eo-wiki:lexical-analysis.md",
+      "eo-wiki:mhc-and-eo.md",
+      "eo-wiki:most-ontologies-its-all-entities-eo-entities-are-only-one-type.md",
+      "eo-wiki:mvp-minimum-viable-prompt.md",
+      "eo-wiki:nine-instructions.md",
+      "eo-wiki:notes-on-nul-refinement.md",
+      "eo-wiki:nul.md",
+      "eo-wiki:operator-naming-in-emergent-ontology.md",
+      "eo-wiki:quantum-weirdness-in-eo-contained-but-not-tamed.md",
+      "eo-wiki:rec.md",
+      "eo-wiki:sig.md",
+      "eo-wiki:spencer-brown-s-laws-of-form-and-eo.md",
+      "eo-wiki:the-axis-triad-and-its-coordinates.md",
+      "eo-wiki:the-def-eva-rec-loop.md",
+      "eo-wiki:the-dependency-ordering.md",
+      "eo-wiki:the-eo-phase-space-cube.md",
+      "eo-wiki:the-eo-spiral.md",
+      "eo-wiki:the-experience-engine.md",
+      "eo-wiki:the-integral-lineage.md",
+      "eo-wiki:the-measurement-paraxoc.md",
+      "eo-wiki:the-model-is-the-leaf.md",
+      "eo-wiki:the-nine-operators.md",
+      "eo-wiki:the-pythagorean-theorem-plato-s-meno-x-and-eo.md",
+      "eo-wiki:the-three-arrows.md",
+      "eo-wiki:the-three-dimensions-of-eo.md",
+      "eo-wiki:the-three-faces-of-emergent-ontology.md",
+      "eo-wiki:the-triadic-minimum.md",
+      "eo-wiki:the-triads.md",
+      "eo-wiki:time-as-emergent-dimension.md",
+      "eo-wiki:why-crud-is-shit.md",
+      "eoreaderhandbook:003-ontology-and-epistemology-primer.md",
+      "eoreaderhandbook:102-the-difference-that-makes-a-difference.md",
+      "eoreaderhandbook:202-the-order-things-happen-in.md",
+      "eoreaderhandbook:501-a-thin-front-door.md",
+      "eoreaderhandbook:502-instructions-all-the-way-down.md",
+      "eoreaderhandbook:506-senses-memory-and-borrowed-models.md",
+      "eoreaderhandbook:602-the-fifty-year-old-objection.md",
+      "eoreaderhandbook:eo-reader-6-eo-chat-handbook.md"
+     ]
+    },
+    {
+     "gap": 4,
+     "count": 122,
+     "workSupport": 45,
+     "sourceRefs": [
+      "eo-wiki:bivalent-compression-and-dimensional-poverty.md",
+      "eo-wiki:coding-python-and-eo.md",
+      "eo-wiki:decomposability.md",
+      "eo-wiki:emergent-ontology-eo.md",
+      "eo-wiki:eo-event-streaming.md",
+      "eo-wiki:eo-in-60-min.md",
+      "eo-wiki:eo-on-platonic-forms.md",
+      "eo-wiki:going-and-looking.md",
+      "eo-wiki:identity-as-a-change-log.md",
+      "eo-wiki:influences-and-lineage.md",
+      "eo-wiki:language-is-a-projection.md",
+      "eo-wiki:mhc-and-eo.md",
+      "eo-wiki:most-ontologies-its-all-entities-eo-entities-are-only-one-type.md",
+      "eo-wiki:mvp-minimum-viable-prompt.md",
+      "eo-wiki:nul.md",
+      "eo-wiki:operator-naming-in-emergent-ontology.md",
+      "eo-wiki:quantum-weirdness-in-eo-contained-but-not-tamed.md",
+      "eo-wiki:rec.md",
+      "eo-wiki:scope.md",
+      "eo-wiki:sig.md",
+      "eo-wiki:spencer-brown-s-laws-of-form-and-eo.md",
+      "eo-wiki:the-axis-triad-and-its-coordinates.md",
+      "eo-wiki:the-dependency-ordering.md",
+      "eo-wiki:the-eo-phase-space-cube.md",
+      "eo-wiki:the-eo-spiral.md",
+      "eo-wiki:the-experience-engine.md",
+      "eo-wiki:the-integral-lineage.md",
+      "eo-wiki:the-khora-the-substate-and-the-10000-things.md",
+      "eo-wiki:the-nine-operators.md",
+      "eo-wiki:the-pythagorean-theorem-plato-s-meno-x-and-eo.md",
+      "eo-wiki:the-three-dimensions-of-eo.md",
+      "eo-wiki:the-three-faces-of-emergent-ontology.md",
+      "eo-wiki:the-triadic-minimum.md",
+      "eo-wiki:the-triads.md",
+      "eo-wiki:time-as-emergent-dimension.md",
+      "eo-wiki:why-crud-is-shit.md",
+      "eoreaderhandbook:003-ontology-and-epistemology-primer.md",
+      "eoreaderhandbook:202-the-order-things-happen-in.md",
+      "eoreaderhandbook:402-the-tests-in-plain-language.md",
+      "eoreaderhandbook:403-a-constitution-that-edits-itself.md",
+      "eoreaderhandbook:602-the-fifty-year-old-objection.md",
+      "eoreaderhandbook:701-a-construction-language.md",
+      "eoreaderhandbook:702-the-watchmakers-discipline.md",
+      "eoreaderhandbook:HANDBOOK-SPEC.md",
+      "eoreaderhandbook:eo-reader-6-eo-chat-handbook.md"
+     ]
+    },
+    {
+     "gap": 5,
+     "count": 113,
+     "workSupport": 43,
+     "sourceRefs": [
+      "eo-wiki:ancient-astronomy-eo-saving-the-appearances.md",
+      "eo-wiki:bivalent-compression-and-dimensional-poverty.md",
+      "eo-wiki:coding-python-and-eo.md",
+      "eo-wiki:decal-notation.md",
+      "eo-wiki:decomposability.md",
+      "eo-wiki:emergent-ontology-eo.md",
+      "eo-wiki:eo-event-streaming.md",
+      "eo-wiki:eo-in-60-min.md",
+      "eo-wiki:eo-notation.md",
+      "eo-wiki:eo-on-platonic-forms.md",
+      "eo-wiki:eo-s-empirical-lexical-analysis-report.md",
+      "eo-wiki:ground-figure-pattern.md",
+      "eo-wiki:holons.md",
+      "eo-wiki:identity-as-a-change-log.md",
+      "eo-wiki:ins.md",
+      "eo-wiki:most-ontologies-its-all-entities-eo-entities-are-only-one-type.md",
+      "eo-wiki:mvp-minimum-viable-prompt.md",
+      "eo-wiki:notes-on-nul-refinement.md",
+      "eo-wiki:nul.md",
+      "eo-wiki:quantum-weirdness-in-eo-contained-but-not-tamed.md",
+      "eo-wiki:rec.md",
+      "eo-wiki:sig.md",
+      "eo-wiki:the-axis-triad-and-its-coordinates.md",
+      "eo-wiki:the-dependency-ordering.md",
+      "eo-wiki:the-eo-spiral.md",
+      "eo-wiki:the-experience-engine.md",
+      "eo-wiki:the-integral-lineage.md",
+      "eo-wiki:the-khora-the-substate-and-the-10000-things.md",
+      "eo-wiki:the-measurement-paraxoc.md",
+      "eo-wiki:the-nine-operators.md",
+      "eo-wiki:the-pythagorean-theorem-plato-s-meno-x-and-eo.md",
+      "eo-wiki:the-three-dimensions-of-eo.md",
+      "eo-wiki:the-three-faces-of-emergent-ontology.md",
+      "eo-wiki:the-triadic-minimum.md",
+      "eo-wiki:the-triads.md",
+      "eo-wiki:time-as-emergent-dimension.md",
+      "eo-wiki:why-crud-is-shit.md",
+      "eoreaderhandbook:102-the-difference-that-makes-a-difference.md",
+      "eoreaderhandbook:403-a-constitution-that-edits-itself.md",
+      "eoreaderhandbook:501-a-thin-front-door.md",
+      "eoreaderhandbook:602-the-fifty-year-old-objection.md",
+      "eoreaderhandbook:HANDBOOK-SPEC.md",
+      "eoreaderhandbook:eo-reader-6-eo-chat-handbook.md"
+     ]
+    },
+    {
+     "gap": 6,
+     "count": 93,
+     "workSupport": 42,
+     "sourceRefs": [
+      "eo-wiki:canonical-examples-the-site-face.md",
+      "eo-wiki:coding-python-and-eo.md",
+      "eo-wiki:decal-notation.md",
+      "eo-wiki:decomposability.md",
+      "eo-wiki:eo-event-streaming.md",
+      "eo-wiki:eo-in-60-min.md",
+      "eo-wiki:eo-on-platonic-forms.md",
+      "eo-wiki:eo-s-empirical-lexical-analysis-report.md",
+      "eo-wiki:ground-figure-pattern.md",
+      "eo-wiki:ins.md",
+      "eo-wiki:lexical-analysis.md",
+      "eo-wiki:most-ontologies-its-all-entities-eo-entities-are-only-one-type.md",
+      "eo-wiki:mvp-minimum-viable-prompt.md",
+      "eo-wiki:notes-on-nul-refinement.md",
+      "eo-wiki:nul.md",
+      "eo-wiki:operator-naming-in-emergent-ontology.md",
+      "eo-wiki:quantum-weirdness-in-eo-contained-but-not-tamed.md",
+      "eo-wiki:rec.md",
+      "eo-wiki:scope.md",
+      "eo-wiki:sig.md",
+      "eo-wiki:spencer-brown-s-laws-of-form-and-eo.md",
+      "eo-wiki:the-axis-triad-and-its-coordinates.md",
+      "eo-wiki:the-eo-phase-space-cube.md",
+      "eo-wiki:the-eo-spiral.md",
+      "eo-wiki:the-integral-lineage.md",
+      "eo-wiki:the-integral-model.md",
+      "eo-wiki:the-nine-operators.md",
+      "eo-wiki:the-observer-problem.md",
+      "eo-wiki:the-pythagorean-theorem-plato-s-meno-x-and-eo.md",
+      "eo-wiki:the-three-dimensions-of-eo.md",
+      "eo-wiki:the-three-faces-of-emergent-ontology.md",
+      "eo-wiki:the-triadic-minimum.md",
+      "eo-wiki:the-triads.md",
+      "eo-wiki:time-as-emergent-dimension.md",
+      "eo-wiki:why-crud-is-shit.md",
+      "eoreaderhandbook:102-the-difference-that-makes-a-difference.md",
+      "eoreaderhandbook:305-refusal-as-an-answer.md",
+      "eoreaderhandbook:401-four-boxes.md",
+      "eoreaderhandbook:403-a-constitution-that-edits-itself.md",
+      "eoreaderhandbook:506-senses-memory-and-borrowed-models.md",
+      "eoreaderhandbook:HANDBOOK-SPEC.md",
+      "eoreaderhandbook:eo-reader-6-eo-chat-handbook.md"
+     ]
+    },
+    {
+     "gap": 7,
+     "count": 76,
+     "workSupport": 34,
+     "sourceRefs": [
+      "eo-wiki:canonical-examples-the-site-face.md",
+      "eo-wiki:decomposability.md",
+      "eo-wiki:eo-event-streaming.md",
+      "eo-wiki:eo-in-60-min.md",
+      "eo-wiki:eo-notation.md",
+      "eo-wiki:eo-on-platonic-forms.md",
+      "eo-wiki:ground-figure-pattern.md",
+      "eo-wiki:identity-as-a-change-log.md",
+      "eo-wiki:most-ontologies-its-all-entities-eo-entities-are-only-one-type.md",
+      "eo-wiki:mvp-minimum-viable-prompt.md",
+      "eo-wiki:notes-on-nul-refinement.md",
+      "eo-wiki:nul.md",
+      "eo-wiki:operator-naming-in-emergent-ontology.md",
+      "eo-wiki:quantum-weirdness-in-eo-contained-but-not-tamed.md",
+      "eo-wiki:rec.md",
+      "eo-wiki:sig.md",
+      "eo-wiki:spencer-brown-s-laws-of-form-and-eo.md",
+      "eo-wiki:the-def-eva-rec-loop.md",
+      "eo-wiki:the-eo-spiral.md",
+      "eo-wiki:the-integral-lineage.md",
+      "eo-wiki:the-khora-the-substate-and-the-10000-things.md",
+      "eo-wiki:the-nine-operators.md",
+      "eo-wiki:the-pythagorean-theorem-plato-s-meno-x-and-eo.md",
+      "eo-wiki:the-three-arrows.md",
+      "eo-wiki:the-three-faces-of-emergent-ontology.md",
+      "eo-wiki:the-triadic-minimum.md",
+      "eo-wiki:the-triads.md",
+      "eo-wiki:why-crud-is-shit.md",
+      "eoreaderhandbook:003-ontology-and-epistemology-primer.md",
+      "eoreaderhandbook:207-tried-against-a-rival.md",
+      "eoreaderhandbook:403-a-constitution-that-edits-itself.md",
+      "eoreaderhandbook:801-telling-a-rhyme-from-a-borrowing.md",
+      "eoreaderhandbook:HANDBOOK-SPEC.md",
+      "eoreaderhandbook:eo-reader-6-eo-chat-handbook.md"
+     ]
+    },
+    {
+     "gap": 8,
+     "count": 35,
+     "workSupport": 20,
+     "sourceRefs": [
+      "eo-wiki:canonical-example-the-act-face-the-operators.md",
+      "eo-wiki:eo-event-streaming.md",
+      "eo-wiki:eo-in-60-min.md",
+      "eo-wiki:eo-on-platonic-forms.md",
+      "eo-wiki:eo-s-empirical-lexical-analysis-report.md",
+      "eo-wiki:ground-figure-pattern.md",
+      "eo-wiki:most-ontologies-its-all-entities-eo-entities-are-only-one-type.md",
+      "eo-wiki:nul.md",
+      "eo-wiki:operator-naming-in-emergent-ontology.md",
+      "eo-wiki:quantum-weirdness-in-eo-contained-but-not-tamed.md",
+      "eo-wiki:sig.md",
+      "eo-wiki:spencer-brown-s-laws-of-form-and-eo.md",
+      "eo-wiki:the-eo-spiral.md",
+      "eo-wiki:the-integral-lineage.md",
+      "eo-wiki:the-khora-the-substate-and-the-10000-things.md",
+      "eo-wiki:the-nine-operators.md",
+      "eo-wiki:the-pythagorean-theorem-plato-s-meno-x-and-eo.md",
+      "eo-wiki:the-triadic-minimum.md",
+      "eoreaderhandbook:HANDBOOK-SPEC.md",
+      "eoreaderhandbook:eo-reader-6-eo-chat-handbook.md"
+     ]
+    },
+    {
+     "gap": 9,
+     "count": 56,
+     "workSupport": 31,
+     "sourceRefs": [
+      "eo-wiki:coding-python-and-eo.md",
+      "eo-wiki:decomposability.md",
+      "eo-wiki:eo-event-streaming.md",
+      "eo-wiki:eo-in-60-min.md",
+      "eo-wiki:eo-on-platonic-forms.md",
+      "eo-wiki:identity-as-a-change-log.md",
+      "eo-wiki:nul.md",
+      "eo-wiki:operator-naming-in-emergent-ontology.md",
+      "eo-wiki:quantum-weirdness-in-eo-contained-but-not-tamed.md",
+      "eo-wiki:sig.md",
+      "eo-wiki:spencer-brown-s-laws-of-form-and-eo.md",
+      "eo-wiki:the-axis-triad-and-its-coordinates.md",
+      "eo-wiki:the-dependency-ordering.md",
+      "eo-wiki:the-eo-spiral.md",
+      "eo-wiki:the-experience-engine.md",
+      "eo-wiki:the-integral-lineage.md",
+      "eo-wiki:the-integral-model.md",
+      "eo-wiki:the-khora-the-substate-and-the-10000-things.md",
+      "eo-wiki:the-nine-operators.md",
+      "eo-wiki:the-pythagorean-theorem-plato-s-meno-x-and-eo.md",
+      "eo-wiki:the-three-arrows.md",
+      "eo-wiki:the-triadic-minimum.md",
+      "eo-wiki:the-triads.md",
+      "eo-wiki:time-as-emergent-dimension.md",
+      "eo-wiki:why-crud-is-shit.md",
+      "eoreaderhandbook:003-ontology-and-epistemology-primer.md",
+      "eoreaderhandbook:401-four-boxes.md",
+      "eoreaderhandbook:701-a-construction-language.md",
+      "eoreaderhandbook:702-the-watchmakers-discipline.md",
+      "eoreaderhandbook:HANDBOOK-SPEC.md",
+      "eoreaderhandbook:eo-reader-6-eo-chat-handbook.md"
+     ]
+    },
+    {
+     "gap": 10,
+     "count": 45,
+     "workSupport": 25,
+     "sourceRefs": [
+      "eo-wiki:bivalent-compression-and-dimensional-poverty.md",
+      "eo-wiki:eo-event-streaming.md",
+      "eo-wiki:eo-in-60-min.md",
+      "eo-wiki:eo-on-platonic-forms.md",
+      "eo-wiki:identity-as-a-change-log.md",
+      "eo-wiki:mhc-and-eo.md",
+      "eo-wiki:mvp-minimum-viable-prompt.md",
+      "eo-wiki:operator-naming-in-emergent-ontology.md",
+      "eo-wiki:quantum-weirdness-in-eo-contained-but-not-tamed.md",
+      "eo-wiki:rec.md",
+      "eo-wiki:sig.md",
+      "eo-wiki:the-axis-triad-and-its-coordinates.md",
+      "eo-wiki:the-eo-phase-space-cube.md",
+      "eo-wiki:the-eo-spiral.md",
+      "eo-wiki:the-experience-engine.md",
+      "eo-wiki:the-integral-lineage.md",
+      "eo-wiki:the-nine-operators.md",
+      "eo-wiki:the-pythagorean-theorem-plato-s-meno-x-and-eo.md",
+      "eo-wiki:the-three-dimensions-of-eo.md",
+      "eo-wiki:the-three-faces-of-emergent-ontology.md",
+      "eo-wiki:the-triadic-minimum.md",
+      "eo-wiki:the-triads.md",
+      "eo-wiki:time-as-emergent-dimension.md",
+      "eo-wiki:why-crud-is-shit.md",
+      "eoreaderhandbook:HANDBOOK-SPEC.md"
+     ]
+    },
+    {
+     "gap": 11,
+     "count": 33,
+     "workSupport": 19,
+     "sourceRefs": [
+      "eo-wiki:bivalent-compression-and-dimensional-poverty.md",
+      "eo-wiki:coding-python-and-eo.md",
+      "eo-wiki:decomposability.md",
+      "eo-wiki:eo-event-streaming.md",
+      "eo-wiki:eo-on-platonic-forms.md",
+      "eo-wiki:eo-s-empirical-lexical-analysis-report.md",
+      "eo-wiki:most-ontologies-its-all-entities-eo-entities-are-only-one-type.md",
+      "eo-wiki:spencer-brown-s-laws-of-form-and-eo.md",
+      "eo-wiki:the-axis-triad-and-its-coordinates.md",
+      "eo-wiki:the-integral-lineage.md",
+      "eo-wiki:the-khora-the-substate-and-the-10000-things.md",
+      "eo-wiki:the-nine-operators.md",
+      "eo-wiki:the-three-dimensions-of-eo.md",
+      "eo-wiki:the-three-faces-of-emergent-ontology.md",
+      "eo-wiki:the-triadic-minimum.md",
+      "eo-wiki:time-as-emergent-dimension.md",
+      "eo-wiki:why-crud-is-shit.md",
+      "eoreaderhandbook:104-the-two-deaths.md",
+      "eoreaderhandbook:HANDBOOK-SPEC.md"
+     ]
+    },
+    {
+     "gap": 12,
+     "count": 44,
+     "workSupport": 28,
+     "sourceRefs": [
+      "eo-wiki:bivalent-compression-and-dimensional-poverty.md",
+      "eo-wiki:coding-python-and-eo.md",
+      "eo-wiki:eo-event-streaming.md",
+      "eo-wiki:eo-in-60-min.md",
+      "eo-wiki:eo-s-empirical-lexical-analysis-report.md",
+      "eo-wiki:ground-figure-pattern.md",
+      "eo-wiki:identity-as-a-change-log.md",
+      "eo-wiki:language-is-a-projection.md",
+      "eo-wiki:mvp-minimum-viable-prompt.md",
+      "eo-wiki:nul.md",
+      "eo-wiki:operator-naming-in-emergent-ontology.md",
+      "eo-wiki:quantum-weirdness-in-eo-contained-but-not-tamed.md",
+      "eo-wiki:sig.md",
+      "eo-wiki:the-axis-triad-and-its-coordinates.md",
+      "eo-wiki:the-def-eva-rec-loop.md",
+      "eo-wiki:the-dependency-ordering.md",
+      "eo-wiki:the-eo-phase-space-cube.md",
+      "eo-wiki:the-eo-spiral.md",
+      "eo-wiki:the-integral-lineage.md",
+      "eo-wiki:the-integral-model.md",
+      "eo-wiki:the-khora-the-substate-and-the-10000-things.md",
+      "eo-wiki:the-nine-operators.md",
+      "eo-wiki:the-three-arrows.md",
+      "eo-wiki:the-three-dimensions-of-eo.md",
+      "eo-wiki:the-triadic-minimum.md",
+      "eo-wiki:why-crud-is-shit.md",
+      "eoreaderhandbook:301-a-reading-from-the-inside.md",
+      "eoreaderhandbook:602-the-fifty-year-old-objection.md"
+     ]
+    },
+    {
+     "gap": 13,
+     "count": 31,
+     "workSupport": 19,
+     "sourceRefs": [
+      "eo-wiki:bivalent-compression-and-dimensional-poverty.md",
+      "eo-wiki:coding-python-and-eo.md",
+      "eo-wiki:eo-event-streaming.md",
+      "eo-wiki:eo-in-60-min.md",
+      "eo-wiki:eo-notation.md",
+      "eo-wiki:eo-on-platonic-forms.md",
+      "eo-wiki:mhc-and-eo.md",
+      "eo-wiki:mvp-minimum-viable-prompt.md",
+      "eo-wiki:nul.md",
+      "eo-wiki:operator-naming-in-emergent-ontology.md",
+      "eo-wiki:quantum-weirdness-in-eo-contained-but-not-tamed.md",
+      "eo-wiki:sig.md",
+      "eo-wiki:spencer-brown-s-laws-of-form-and-eo.md",
+      "eo-wiki:the-axis-triad-and-its-coordinates.md",
+      "eo-wiki:the-integral-lineage.md",
+      "eo-wiki:the-pythagorean-theorem-plato-s-meno-x-and-eo.md",
+      "eo-wiki:the-three-faces-of-emergent-ontology.md",
+      "eo-wiki:the-triads.md",
+      "eoreaderhandbook:102-the-difference-that-makes-a-difference.md"
+     ]
+    },
+    {
+     "gap": 14,
+     "count": 20,
+     "workSupport": 16,
+     "sourceRefs": [
+      "eo-wiki:bivalent-compression-and-dimensional-poverty.md",
+      "eo-wiki:coding-python-and-eo.md",
+      "eo-wiki:most-ontologies-its-all-entities-eo-entities-are-only-one-type.md",
+      "eo-wiki:nul.md",
+      "eo-wiki:operator-naming-in-emergent-ontology.md",
+      "eo-wiki:rec.md",
+      "eo-wiki:sig.md",
+      "eo-wiki:spencer-brown-s-laws-of-form-and-eo.md",
+      "eo-wiki:the-axis-triad-and-its-coordinates.md",
+      "eo-wiki:the-dependency-ordering.md",
+      "eo-wiki:the-integral-model.md",
+      "eo-wiki:the-khora-the-substate-and-the-10000-things.md",
+      "eo-wiki:the-nine-operators.md",
+      "eo-wiki:the-three-faces-of-emergent-ontology.md",
+      "eo-wiki:why-crud-is-shit.md",
+      "eoreaderhandbook:eo-reader-6-eo-chat-handbook.md"
+     ]
+    },
+    {
+     "gap": 15,
+     "count": 26,
+     "workSupport": 20,
+     "sourceRefs": [
+      "eo-wiki:bivalent-compression-and-dimensional-poverty.md",
+      "eo-wiki:coding-python-and-eo.md",
+      "eo-wiki:eo-event-streaming.md",
+      "eo-wiki:eo-in-60-min.md",
+      "eo-wiki:eo-on-platonic-forms.md",
+      "eo-wiki:eo-s-empirical-lexical-analysis-report.md",
+      "eo-wiki:identity-as-a-change-log.md",
+      "eo-wiki:ins.md",
+      "eo-wiki:mvp-minimum-viable-prompt.md",
+      "eo-wiki:nine-instructions.md",
+      "eo-wiki:rec.md",
+      "eo-wiki:the-dependency-ordering.md",
+      "eo-wiki:the-eo-phase-space-cube.md",
+      "eo-wiki:the-eo-spiral.md",
+      "eo-wiki:the-khora-the-substate-and-the-10000-things.md",
+      "eo-wiki:the-measurement-paraxoc.md",
+      "eo-wiki:the-observer-problem.md",
+      "eo-wiki:the-triadic-minimum.md",
+      "eo-wiki:time-as-emergent-dimension.md",
+      "eo-wiki:why-crud-is-shit.md"
+     ]
+    },
+    {
+     "gap": 16,
+     "count": 21,
+     "workSupport": 14,
+     "sourceRefs": [
+      "eo-wiki:decal-notation.md",
+      "eo-wiki:eo-in-60-min.md",
+      "eo-wiki:operator-naming-in-emergent-ontology.md",
+      "eo-wiki:quantum-weirdness-in-eo-contained-but-not-tamed.md",
+      "eo-wiki:spencer-brown-s-laws-of-form-and-eo.md",
+      "eo-wiki:the-dependency-ordering.md",
+      "eo-wiki:the-eo-phase-space-cube.md",
+      "eo-wiki:the-integral-lineage.md",
+      "eo-wiki:the-nine-operators.md",
+      "eo-wiki:the-three-faces-of-emergent-ontology.md",
+      "eo-wiki:time-as-emergent-dimension.md",
+      "eo-wiki:why-crud-is-shit.md",
+      "eoreaderhandbook:401-four-boxes.md",
+      "eoreaderhandbook:801-telling-a-rhyme-from-a-borrowing.md"
+     ]
+    },
+    {
+     "gap": 17,
+     "count": 20,
+     "workSupport": 13,
+     "sourceRefs": [
+      "eo-wiki:bivalent-compression-and-dimensional-poverty.md",
+      "eo-wiki:eo-event-streaming.md",
+      "eo-wiki:eo-on-platonic-forms.md",
+      "eo-wiki:mvp-minimum-viable-prompt.md",
+      "eo-wiki:operator-naming-in-emergent-ontology.md",
+      "eo-wiki:rec.md",
+      "eo-wiki:scope.md",
+      "eo-wiki:sig.md",
+      "eo-wiki:the-eo-phase-space-cube.md",
+      "eo-wiki:the-experience-engine.md",
+      "eo-wiki:the-integral-lineage.md",
+      "eo-wiki:the-nine-operators.md",
+      "eo-wiki:the-three-dimensions-of-eo.md"
+     ]
+    },
+    {
+     "gap": 18,
+     "count": 19,
+     "workSupport": 14,
+     "sourceRefs": [
+      "eo-wiki:bivalent-compression-and-dimensional-poverty.md",
+      "eo-wiki:canonical-examples-the-site-face.md",
+      "eo-wiki:coding-python-and-eo.md",
+      "eo-wiki:eo-in-60-min.md",
+      "eo-wiki:eo-on-platonic-forms.md",
+      "eo-wiki:identity-as-a-change-log.md",
+      "eo-wiki:notes-on-nul-refinement.md",
+      "eo-wiki:operator-naming-in-emergent-ontology.md",
+      "eo-wiki:the-eo-phase-space-cube.md",
+      "eo-wiki:the-integral-lineage.md",
+      "eo-wiki:the-measurement-paraxoc.md",
+      "eo-wiki:the-nine-operators.md",
+      "eo-wiki:the-pythagorean-theorem-plato-s-meno-x-and-eo.md",
+      "eo-wiki:time-as-emergent-dimension.md"
+     ]
+    },
+    {
+     "gap": 19,
+     "count": 20,
+     "workSupport": 15,
+     "sourceRefs": [
+      "eo-wiki:eo-event-streaming.md",
+      "eo-wiki:eo-on-platonic-forms.md",
+      "eo-wiki:nul.md",
+      "eo-wiki:rec.md",
+      "eo-wiki:sig.md",
+      "eo-wiki:spencer-brown-s-laws-of-form-and-eo.md",
+      "eo-wiki:the-axis-triad-and-its-coordinates.md",
+      "eo-wiki:the-eo-phase-space-cube.md",
+      "eo-wiki:the-eo-spiral.md",
+      "eo-wiki:the-nine-operators.md",
+      "eo-wiki:the-pythagorean-theorem-plato-s-meno-x-and-eo.md",
+      "eo-wiki:the-three-dimensions-of-eo.md",
+      "eo-wiki:the-triadic-minimum.md",
+      "eoreaderhandbook:HANDBOOK-SPEC.md",
+      "eoreaderhandbook:eo-reader-6-eo-chat-handbook.md"
+     ]
+    },
+    {
+     "gap": 20,
+     "count": 16,
+     "workSupport": 13,
+     "sourceRefs": [
+      "eo-wiki:eo-in-60-min.md",
+      "eo-wiki:eo-on-platonic-forms.md",
+      "eo-wiki:ground-figure-pattern.md",
+      "eo-wiki:notes-on-nul-refinement.md",
+      "eo-wiki:nul.md",
+      "eo-wiki:operator-naming-in-emergent-ontology.md",
+      "eo-wiki:quantum-weirdness-in-eo-contained-but-not-tamed.md",
+      "eo-wiki:the-axis-triad-and-its-coordinates.md",
+      "eo-wiki:the-eo-phase-space-cube.md",
+      "eo-wiki:the-nine-operators.md",
+      "eo-wiki:the-three-dimensions-of-eo.md",
+      "eo-wiki:time-as-emergent-dimension.md",
+      "eoreaderhandbook:HANDBOOK-SPEC.md"
+     ]
+    },
+    {
+     "gap": 21,
+     "count": 9,
+     "workSupport": 8,
+     "sourceRefs": [
+      "eo-wiki:bivalent-compression-and-dimensional-poverty.md",
+      "eo-wiki:eo-event-streaming.md",
+      "eo-wiki:operator-naming-in-emergent-ontology.md",
+      "eo-wiki:the-axis-triad-and-its-coordinates.md",
+      "eo-wiki:the-eo-phase-space-cube.md",
+      "eo-wiki:the-integral-lineage.md",
+      "eo-wiki:the-nine-operators.md",
+      "eo-wiki:the-three-faces-of-emergent-ontology.md"
+     ]
+    },
+    {
+     "gap": 22,
+     "count": 11,
+     "workSupport": 10,
+     "sourceRefs": [
+      "eo-wiki:emergent-ontology-eo.md",
+      "eo-wiki:mvp-minimum-viable-prompt.md",
+      "eo-wiki:the-eo-phase-space-cube.md",
+      "eo-wiki:the-eo-spiral.md",
+      "eo-wiki:the-integral-lineage.md",
+      "eo-wiki:the-pythagorean-theorem-plato-s-meno-x-and-eo.md",
+      "eo-wiki:the-triadic-minimum.md",
+      "eoreaderhandbook:504-a-citation-you-can-actually-check.md",
+      "eoreaderhandbook:HANDBOOK-SPEC.md",
+      "eoreaderhandbook:eo-reader-6-eo-chat-handbook.md"
+     ]
+    },
+    {
+     "gap": 23,
+     "count": 14,
+     "workSupport": 11,
+     "sourceRefs": [
+      "eo-wiki:bivalent-compression-and-dimensional-poverty.md",
+      "eo-wiki:eo-in-15-min.md",
+      "eo-wiki:eo-on-platonic-forms.md",
+      "eo-wiki:influences-and-lineage.md",
+      "eo-wiki:notes-on-nul-refinement.md",
+      "eo-wiki:sig.md",
+      "eo-wiki:the-axis-triad-and-its-coordinates.md",
+      "eo-wiki:the-eo-spiral.md",
+      "eo-wiki:the-three-dimensions-of-eo.md",
+      "eo-wiki:the-triadic-minimum.md",
+      "eoreaderhandbook:eo-reader-6-eo-chat-handbook.md"
+     ]
+    },
+    {
+     "gap": 24,
+     "count": 17,
+     "workSupport": 13,
+     "sourceRefs": [
+      "eo-wiki:eo-event-streaming.md",
+      "eo-wiki:eo-in-60-min.md",
+      "eo-wiki:eo-on-platonic-forms.md",
+      "eo-wiki:influences-and-lineage.md",
+      "eo-wiki:notes-on-nul-refinement.md",
+      "eo-wiki:operator-naming-in-emergent-ontology.md",
+      "eo-wiki:sig.md",
+      "eo-wiki:spencer-brown-s-laws-of-form-and-eo.md",
+      "eo-wiki:the-dependency-ordering.md",
+      "eo-wiki:the-eo-phase-space-cube.md",
+      "eo-wiki:the-integral-lineage.md",
+      "eo-wiki:the-three-faces-of-emergent-ontology.md",
+      "eo-wiki:the-triadic-minimum.md"
+     ]
+    },
+    {
+     "gap": 25,
+     "count": 17,
+     "workSupport": 14,
+     "sourceRefs": [
+      "eo-wiki:ancient-astronomy-eo-saving-the-appearances.md",
+      "eo-wiki:coding-python-and-eo.md",
+      "eo-wiki:eo-in-60-min.md",
+      "eo-wiki:eo-notation.md",
+      "eo-wiki:eo-s-empirical-lexical-analysis-report.md",
+      "eo-wiki:quantum-weirdness-in-eo-contained-but-not-tamed.md",
+      "eo-wiki:rec.md",
+      "eo-wiki:sig.md",
+      "eo-wiki:the-eo-phase-space-cube.md",
+      "eo-wiki:the-integral-lineage.md",
+      "eo-wiki:the-khora-the-substate-and-the-10000-things.md",
+      "eo-wiki:the-measurement-paraxoc.md",
+      "eo-wiki:the-pythagorean-theorem-plato-s-meno-x-and-eo.md",
+      "eoreaderhandbook:801-telling-a-rhyme-from-a-borrowing.md"
+     ]
+    },
+    {
+     "gap": 26,
+     "count": 17,
+     "workSupport": 12,
+     "sourceRefs": [
+      "eo-wiki:coding-python-and-eo.md",
+      "eo-wiki:decal-notation.md",
+      "eo-wiki:eo-event-streaming.md",
+      "eo-wiki:eo-on-platonic-forms.md",
+      "eo-wiki:ground-figure-pattern.md",
+      "eo-wiki:most-ontologies-its-all-entities-eo-entities-are-only-one-type.md",
+      "eo-wiki:operator-naming-in-emergent-ontology.md",
+      "eo-wiki:rec.md",
+      "eo-wiki:sig.md",
+      "eo-wiki:the-eo-spiral.md",
+      "eo-wiki:the-integral-lineage.md",
+      "eoreaderhandbook:HANDBOOK-SPEC.md"
+     ]
+    },
+    {
+     "gap": 27,
+     "count": 8,
+     "workSupport": 7,
+     "sourceRefs": [
+      "eo-wiki:bivalent-compression-and-dimensional-poverty.md",
+      "eo-wiki:eo-in-60-min.md",
+      "eo-wiki:eo-on-platonic-forms.md",
+      "eo-wiki:quantum-weirdness-in-eo-contained-but-not-tamed.md",
+      "eo-wiki:the-eo-phase-space-cube.md",
+      "eo-wiki:the-experience-engine.md",
+      "eo-wiki:the-integral-lineage.md"
+     ]
+    },
+    {
+     "gap": 28,
+     "count": 10,
+     "workSupport": 7,
+     "sourceRefs": [
+      "eo-wiki:bivalent-compression-and-dimensional-poverty.md",
+      "eo-wiki:coding-python-and-eo.md",
+      "eo-wiki:eo-on-platonic-forms.md",
+      "eo-wiki:operator-naming-in-emergent-ontology.md",
+      "eo-wiki:spencer-brown-s-laws-of-form-and-eo.md",
+      "eo-wiki:the-integral-lineage.md",
+      "eoreaderhandbook:eo-reader-6-eo-chat-handbook.md"
+     ]
+    },
+    {
+     "gap": 29,
+     "count": 8,
+     "workSupport": 5,
+     "sourceRefs": [
+      "eo-wiki:the-eo-phase-space-cube.md",
+      "eo-wiki:the-experience-engine.md",
+      "eo-wiki:the-khora-the-substate-and-the-10000-things.md",
+      "eo-wiki:time-as-emergent-dimension.md",
+      "eo-wiki:why-crud-is-shit.md"
+     ]
+    },
+    {
+     "gap": 30,
+     "count": 9,
+     "workSupport": 8,
+     "sourceRefs": [
+      "eo-wiki:bivalent-compression-and-dimensional-poverty.md",
+      "eo-wiki:eo-in-60-min.md",
+      "eo-wiki:eo-on-platonic-forms.md",
+      "eo-wiki:eo-s-empirical-lexical-analysis-report.md",
+      "eo-wiki:quantum-weirdness-in-eo-contained-but-not-tamed.md",
+      "eo-wiki:the-eo-phase-space-cube.md",
+      "eo-wiki:the-eo-spiral.md",
+      "eo-wiki:the-integral-lineage.md"
+     ]
+    },
+    {
+     "gap": 31,
+     "count": 15,
+     "workSupport": 13,
+     "sourceRefs": [
+      "eo-wiki:bivalent-compression-and-dimensional-poverty.md",
+      "eo-wiki:decomposability.md",
+      "eo-wiki:eo-event-streaming.md",
+      "eo-wiki:eo-in-15-min.md",
+      "eo-wiki:eo-s-empirical-lexical-analysis-report.md",
+      "eo-wiki:identity-as-a-change-log.md",
+      "eo-wiki:nul.md",
+      "eo-wiki:quantum-weirdness-in-eo-contained-but-not-tamed.md",
+      "eo-wiki:rec.md",
+      "eo-wiki:the-eo-phase-space-cube.md",
+      "eo-wiki:the-experience-engine.md",
+      "eo-wiki:the-three-dimensions-of-eo.md",
+      "eo-wiki:the-three-faces-of-emergent-ontology.md"
+     ]
+    },
+    {
+     "gap": 32,
+     "count": 12,
+     "workSupport": 10,
+     "sourceRefs": [
+      "eo-wiki:bivalent-compression-and-dimensional-poverty.md",
+      "eo-wiki:eo-event-streaming.md",
+      "eo-wiki:eo-on-platonic-forms.md",
+      "eo-wiki:most-ontologies-its-all-entities-eo-entities-are-only-one-type.md",
+      "eo-wiki:notes-on-nul-refinement.md",
+      "eo-wiki:operator-naming-in-emergent-ontology.md",
+      "eo-wiki:scope.md",
+      "eo-wiki:the-experience-engine.md",
+      "eo-wiki:the-khora-the-substate-and-the-10000-things.md",
+      "eo-wiki:the-triadic-minimum.md"
+     ]
+    },
+    {
+     "gap": 33,
+     "count": 9,
+     "workSupport": 9,
+     "sourceRefs": [
+      "eo-wiki:ancient-astronomy-eo-saving-the-appearances.md",
+      "eo-wiki:canonical-example-the-act-face-the-operators.md",
+      "eo-wiki:eo-s-empirical-lexical-analysis-report.md",
+      "eo-wiki:scope.md",
+      "eo-wiki:spencer-brown-s-laws-of-form-and-eo.md",
+      "eo-wiki:the-axis-triad-and-its-coordinates.md",
+      "eo-wiki:the-eo-phase-space-cube.md",
+      "eo-wiki:the-eo-spiral.md",
+      "eo-wiki:time-as-emergent-dimension.md"
+     ]
+    },
+    {
+     "gap": 34,
+     "count": 10,
+     "workSupport": 8,
+     "sourceRefs": [
+      "eo-wiki:coding-python-and-eo.md",
+      "eo-wiki:eo-on-platonic-forms.md",
+      "eo-wiki:rec.md",
+      "eo-wiki:scope.md",
+      "eo-wiki:the-experience-engine.md",
+      "eo-wiki:the-nine-operators.md",
+      "eo-wiki:the-three-faces-of-emergent-ontology.md",
+      "eo-wiki:time-as-emergent-dimension.md"
+     ]
+    },
+    {
+     "gap": 35,
+     "count": 6,
+     "workSupport": 6,
+     "sourceRefs": [
+      "eo-wiki:eo-event-streaming.md",
+      "eo-wiki:eo-in-60-min.md",
+      "eo-wiki:eo-on-platonic-forms.md",
+      "eo-wiki:mvp-minimum-viable-prompt.md",
+      "eo-wiki:the-integral-lineage.md",
+      "eoreaderhandbook:HANDBOOK-SPEC.md"
+     ]
+    },
+    {
+     "gap": 36,
+     "count": 10,
+     "workSupport": 8,
+     "sourceRefs": [
+      "eo-wiki:eo-event-streaming.md",
+      "eo-wiki:eo-on-platonic-forms.md",
+      "eo-wiki:operator-naming-in-emergent-ontology.md",
+      "eo-wiki:spencer-brown-s-laws-of-form-and-eo.md",
+      "eo-wiki:the-eo-phase-space-cube.md",
+      "eo-wiki:the-integral-lineage.md",
+      "eo-wiki:the-pythagorean-theorem-plato-s-meno-x-and-eo.md",
+      "eo-wiki:the-triadic-minimum.md"
+     ]
+    },
+    {
+     "gap": 37,
+     "count": 10,
+     "workSupport": 10,
+     "sourceRefs": [
+      "eo-wiki:eo-on-platonic-forms.md",
+      "eo-wiki:identity-as-a-change-log.md",
+      "eo-wiki:mvp-minimum-viable-prompt.md",
+      "eo-wiki:operator-naming-in-emergent-ontology.md",
+      "eo-wiki:the-eo-spiral.md",
+      "eo-wiki:the-integral-lineage.md",
+      "eo-wiki:the-integral-model.md",
+      "eo-wiki:the-pythagorean-theorem-plato-s-meno-x-and-eo.md",
+      "eo-wiki:the-three-dimensions-of-eo.md",
+      "eoreaderhandbook:305-refusal-as-an-answer.md"
+     ]
+    },
+    {
+     "gap": 38,
+     "count": 8,
+     "workSupport": 7,
+     "sourceRefs": [
+      "eo-wiki:notes-on-nul-refinement.md",
+      "eo-wiki:the-experience-engine.md",
+      "eo-wiki:the-integral-model.md",
+      "eo-wiki:the-pythagorean-theorem-plato-s-meno-x-and-eo.md",
+      "eo-wiki:the-three-faces-of-emergent-ontology.md",
+      "eo-wiki:the-triadic-minimum.md",
+      "eo-wiki:time-as-emergent-dimension.md"
+     ]
+    },
+    {
+     "gap": 39,
+     "count": 6,
+     "workSupport": 6,
+     "sourceRefs": [
+      "eo-wiki:coding-python-and-eo.md",
+      "eo-wiki:eo-s-empirical-lexical-analysis-report.md",
+      "eo-wiki:mvp-minimum-viable-prompt.md",
+      "eo-wiki:rec.md",
+      "eo-wiki:spencer-brown-s-laws-of-form-and-eo.md",
+      "eo-wiki:the-khora-the-substate-and-the-10000-things.md"
+     ]
+    },
+    {
+     "gap": 40,
+     "count": 9,
+     "workSupport": 8,
+     "sourceRefs": [
+      "eo-wiki:canonical-examples-the-site-face.md",
+      "eo-wiki:eo-in-60-min.md",
+      "eo-wiki:language-is-a-projection.md",
+      "eo-wiki:operator-naming-in-emergent-ontology.md",
+      "eo-wiki:the-eo-phase-space-cube.md",
+      "eo-wiki:the-experience-engine.md",
+      "eo-wiki:why-crud-is-shit.md",
+      "eoreaderhandbook:eo-reader-6-eo-chat-handbook.md"
+     ]
+    },
+    {
+     "gap": 41,
+     "count": 9,
+     "workSupport": 6,
+     "sourceRefs": [
+      "eo-wiki:eo-event-streaming.md",
+      "eo-wiki:eo-on-platonic-forms.md",
+      "eo-wiki:ground-figure-pattern.md",
+      "eo-wiki:operator-naming-in-emergent-ontology.md",
+      "eo-wiki:sig.md",
+      "eo-wiki:the-eo-phase-space-cube.md"
+     ]
+    },
+    {
+     "gap": 42,
+     "count": 8,
+     "workSupport": 8,
+     "sourceRefs": [
+      "eo-wiki:canonical-example-the-act-face-the-operators.md",
+      "eo-wiki:eo-event-streaming.md",
+      "eo-wiki:influences-and-lineage.md",
+      "eo-wiki:operator-naming-in-emergent-ontology.md",
+      "eo-wiki:rec.md",
+      "eo-wiki:sig.md",
+      "eo-wiki:the-eo-phase-space-cube.md",
+      "eo-wiki:the-three-dimensions-of-eo.md"
+     ]
+    },
+    {
+     "gap": 43,
+     "count": 6,
+     "workSupport": 6,
+     "sourceRefs": [
+      "eo-wiki:eo-on-platonic-forms.md",
+      "eo-wiki:influences-and-lineage.md",
+      "eo-wiki:mvp-minimum-viable-prompt.md",
+      "eo-wiki:operator-naming-in-emergent-ontology.md",
+      "eo-wiki:the-experience-engine.md",
+      "eo-wiki:the-integral-lineage.md"
+     ]
+    },
+    {
+     "gap": 44,
+     "count": 4,
+     "workSupport": 4,
+     "sourceRefs": [
+      "eo-wiki:eo-notation.md",
+      "eo-wiki:sig.md",
+      "eo-wiki:time-as-emergent-dimension.md",
+      "eoreaderhandbook:HANDBOOK-SPEC.md"
+     ]
+    },
+    {
+     "gap": 45,
+     "count": 6,
+     "workSupport": 4,
+     "sourceRefs": [
+      "eo-wiki:eo-event-streaming.md",
+      "eo-wiki:eo-on-platonic-forms.md",
+      "eo-wiki:operator-naming-in-emergent-ontology.md",
+      "eo-wiki:the-eo-phase-space-cube.md"
+     ]
+    },
+    {
+     "gap": 46,
+     "count": 3,
+     "workSupport": 3,
+     "sourceRefs": [
+      "eo-wiki:eo-event-streaming.md",
+      "eo-wiki:language-is-a-projection.md",
+      "eo-wiki:rec.md"
+     ]
+    },
+    {
+     "gap": 47,
+     "count": 5,
+     "workSupport": 5,
+     "sourceRefs": [
+      "eo-wiki:eo-event-streaming.md",
+      "eo-wiki:eo-notation.md",
+      "eo-wiki:rec.md",
+      "eo-wiki:the-khora-the-substate-and-the-10000-things.md",
+      "eoreaderhandbook:eo-reader-6-eo-chat-handbook.md"
+     ]
+    },
+    {
+     "gap": 48,
+     "count": 4,
+     "workSupport": 4,
+     "sourceRefs": [
+      "eo-wiki:eo-notation.md",
+      "eo-wiki:mvp-minimum-viable-prompt.md",
+      "eo-wiki:the-pythagorean-theorem-plato-s-meno-x-and-eo.md",
+      "eo-wiki:the-triadic-minimum.md"
+     ]
+    },
+    {
+     "gap": 49,
+     "count": 3,
+     "workSupport": 3,
+     "sourceRefs": [
+      "eo-wiki:coding-python-and-eo.md",
+      "eo-wiki:eo-in-60-min.md",
+      "eo-wiki:influences-and-lineage.md"
+     ]
+    },
+    {
+     "gap": 50,
+     "count": 6,
+     "workSupport": 6,
+     "sourceRefs": [
+      "eo-wiki:eo-event-streaming.md",
+      "eo-wiki:eo-on-platonic-forms.md",
+      "eo-wiki:notes-on-nul-refinement.md",
+      "eo-wiki:the-khora-the-substate-and-the-10000-things.md",
+      "eo-wiki:why-crud-is-shit.md",
+      "eoreaderhandbook:HANDBOOK-SPEC.md"
+     ]
+    },
+    {
+     "gap": 51,
+     "count": 6,
+     "workSupport": 6,
+     "sourceRefs": [
+      "eo-wiki:eo-in-60-min.md",
+      "eo-wiki:most-ontologies-its-all-entities-eo-entities-are-only-one-type.md",
+      "eo-wiki:operator-naming-in-emergent-ontology.md",
+      "eo-wiki:rec.md",
+      "eo-wiki:the-eo-phase-space-cube.md",
+      "eo-wiki:why-crud-is-shit.md"
+     ]
+    },
+    {
+     "gap": 52,
+     "count": 5,
+     "workSupport": 4,
+     "sourceRefs": [
+      "eo-wiki:the-dependency-ordering.md",
+      "eo-wiki:the-experience-engine.md",
+      "eo-wiki:the-pythagorean-theorem-plato-s-meno-x-and-eo.md",
+      "eo-wiki:why-crud-is-shit.md"
+     ]
+    },
+    {
+     "gap": 53,
+     "count": 5,
+     "workSupport": 4,
+     "sourceRefs": [
+      "eo-wiki:canonical-example-the-act-face-the-operators.md",
+      "eo-wiki:rec.md",
+      "eo-wiki:sig.md",
+      "eo-wiki:the-integral-lineage.md"
+     ]
+    },
+    {
+     "gap": 54,
+     "count": 5,
+     "workSupport": 3,
+     "sourceRefs": [
+      "eo-wiki:eo-on-platonic-forms.md",
+      "eo-wiki:identity-as-a-change-log.md",
+      "eoreaderhandbook:eo-reader-6-eo-chat-handbook.md"
+     ]
+    },
+    {
+     "gap": 55,
+     "count": 3,
+     "workSupport": 3,
+     "sourceRefs": [
+      "eo-wiki:eo-in-60-min.md",
+      "eo-wiki:influences-and-lineage.md",
+      "eo-wiki:the-experience-engine.md"
+     ]
+    },
+    {
+     "gap": 56,
+     "count": 4,
+     "workSupport": 4,
+     "sourceRefs": [
+      "eo-wiki:canonical-example-the-act-face-the-operators.md",
+      "eo-wiki:eo-event-streaming.md",
+      "eo-wiki:the-eo-phase-space-cube.md",
+      "eo-wiki:the-khora-the-substate-and-the-10000-things.md"
+     ]
+    },
+    {
+     "gap": 57,
+     "count": 1,
+     "workSupport": 1,
+     "sourceRefs": [
+      "eo-wiki:why-crud-is-shit.md"
+     ]
+    },
+    {
+     "gap": 58,
+     "count": 3,
+     "workSupport": 3,
+     "sourceRefs": [
+      "eo-wiki:nul.md",
+      "eo-wiki:operator-naming-in-emergent-ontology.md",
+      "eoreaderhandbook:eo-reader-6-eo-chat-handbook.md"
+     ]
+    },
+    {
+     "gap": 59,
+     "count": 4,
+     "workSupport": 4,
+     "sourceRefs": [
+      "eo-wiki:influences-and-lineage.md",
+      "eo-wiki:operator-naming-in-emergent-ontology.md",
+      "eo-wiki:the-axis-triad-and-its-coordinates.md",
+      "eo-wiki:the-experience-engine.md"
+     ]
+    },
+    {
+     "gap": 60,
+     "count": 2,
+     "workSupport": 2,
+     "sourceRefs": [
+      "eo-wiki:the-integral-lineage.md",
+      "eo-wiki:the-pythagorean-theorem-plato-s-meno-x-and-eo.md"
+     ]
+    },
+    {
+     "gap": 61,
+     "count": 4,
+     "workSupport": 4,
+     "sourceRefs": [
+      "eo-wiki:operator-naming-in-emergent-ontology.md",
+      "eo-wiki:the-experience-engine.md",
+      "eoreaderhandbook:HANDBOOK-SPEC.md",
+      "eoreaderhandbook:eo-reader-6-eo-chat-handbook.md"
+     ]
+    },
+    {
+     "gap": 62,
+     "count": 2,
+     "workSupport": 2,
+     "sourceRefs": [
+      "eo-wiki:sig.md",
+      "eo-wiki:the-integral-model.md"
+     ]
+    },
+    {
+     "gap": 63,
+     "count": 3,
+     "workSupport": 2,
+     "sourceRefs": [
+      "eo-wiki:eo-on-platonic-forms.md",
+      "eo-wiki:operator-naming-in-emergent-ontology.md"
+     ]
+    },
+    {
+     "gap": 64,
+     "count": 3,
+     "workSupport": 3,
+     "sourceRefs": [
+      "eo-wiki:notes-on-nul-refinement.md",
+      "eo-wiki:the-nine-operators.md",
+      "eo-wiki:the-pythagorean-theorem-plato-s-meno-x-and-eo.md"
+     ]
+    },
+    {
+     "gap": 65,
+     "count": 4,
+     "workSupport": 3,
+     "sourceRefs": [
+      "eo-wiki:eo-event-streaming.md",
+      "eo-wiki:eo-on-platonic-forms.md",
+      "eo-wiki:the-khora-the-substate-and-the-10000-things.md"
+     ]
+    },
+    {
+     "gap": 66,
+     "count": 2,
+     "workSupport": 2,
+     "sourceRefs": [
+      "eo-wiki:scope.md",
+      "eo-wiki:the-pythagorean-theorem-plato-s-meno-x-and-eo.md"
+     ]
+    },
+    {
+     "gap": 67,
+     "count": 4,
+     "workSupport": 4,
+     "sourceRefs": [
+      "eo-wiki:eo-on-platonic-forms.md",
+      "eo-wiki:notes-on-nul-refinement.md",
+      "eo-wiki:the-eo-phase-space-cube.md",
+      "eo-wiki:the-triadic-minimum.md"
+     ]
+    },
+    {
+     "gap": 68,
+     "count": 8,
+     "workSupport": 6,
+     "sourceRefs": [
+      "eo-wiki:bivalent-compression-and-dimensional-poverty.md",
+      "eo-wiki:eo-in-60-min.md",
+      "eo-wiki:operator-naming-in-emergent-ontology.md",
+      "eo-wiki:quantum-weirdness-in-eo-contained-but-not-tamed.md",
+      "eo-wiki:the-eo-phase-space-cube.md",
+      "eo-wiki:why-crud-is-shit.md"
+     ]
+    },
+    {
+     "gap": 69,
+     "count": 4,
+     "workSupport": 4,
+     "sourceRefs": [
+      "eo-wiki:eo-event-streaming.md",
+      "eo-wiki:mhc-and-eo.md",
+      "eo-wiki:mvp-minimum-viable-prompt.md",
+      "eo-wiki:notes-on-nul-refinement.md"
+     ]
+    },
+    {
+     "gap": 70,
+     "count": 3,
+     "workSupport": 2,
+     "sourceRefs": [
+      "eo-wiki:eo-event-streaming.md",
+      "eo-wiki:the-nine-operators.md"
+     ]
+    },
+    {
+     "gap": 71,
+     "count": 1,
+     "workSupport": 1,
+     "sourceRefs": [
+      "eo-wiki:why-crud-is-shit.md"
+     ]
+    },
+    {
+     "gap": 72,
+     "count": 5,
+     "workSupport": 5,
+     "sourceRefs": [
+      "eo-wiki:mvp-minimum-viable-prompt.md",
+      "eo-wiki:sig.md",
+      "eo-wiki:spencer-brown-s-laws-of-form-and-eo.md",
+      "eo-wiki:the-experience-engine.md",
+      "eo-wiki:why-crud-is-shit.md"
+     ]
+    },
+    {
+     "gap": 74,
+     "count": 2,
+     "workSupport": 1,
+     "sourceRefs": [
+      "eo-wiki:eo-on-platonic-forms.md"
+     ]
+    },
+    {
+     "gap": 75,
+     "count": 3,
+     "workSupport": 3,
+     "sourceRefs": [
+      "eo-wiki:eo-event-streaming.md",
+      "eo-wiki:most-ontologies-its-all-entities-eo-entities-are-only-one-type.md",
+      "eo-wiki:the-eo-spiral.md"
+     ]
+    },
+    {
+     "gap": 77,
+     "count": 3,
+     "workSupport": 3,
+     "sourceRefs": [
+      "eo-wiki:mhc-and-eo.md",
+      "eo-wiki:nul.md",
+      "eo-wiki:sig.md"
+     ]
+    },
+    {
+     "gap": 78,
+     "count": 2,
+     "workSupport": 2,
+     "sourceRefs": [
+      "eo-wiki:eo-event-streaming.md",
+      "eo-wiki:the-integral-lineage.md"
+     ]
+    },
+    {
+     "gap": 79,
+     "count": 6,
+     "workSupport": 4,
+     "sourceRefs": [
+      "eo-wiki:eo-event-streaming.md",
+      "eo-wiki:influences-and-lineage.md",
+      "eo-wiki:the-integral-lineage.md",
+      "eo-wiki:why-crud-is-shit.md"
+     ]
+    },
+    {
+     "gap": 80,
+     "count": 3,
+     "workSupport": 3,
+     "sourceRefs": [
+      "eo-wiki:bivalent-compression-and-dimensional-poverty.md",
+      "eo-wiki:the-eo-phase-space-cube.md",
+      "eo-wiki:the-three-arrows.md"
+     ]
+    },
+    {
+     "gap": 82,
+     "count": 6,
+     "workSupport": 5,
+     "sourceRefs": [
+      "eo-wiki:bivalent-compression-and-dimensional-poverty.md",
+      "eo-wiki:eo-on-platonic-forms.md",
+      "eo-wiki:identity-as-a-change-log.md",
+      "eo-wiki:influences-and-lineage.md",
+      "eo-wiki:mvp-minimum-viable-prompt.md"
+     ]
+    },
+    {
+     "gap": 83,
+     "count": 2,
+     "workSupport": 2,
+     "sourceRefs": [
+      "eo-wiki:eo-on-platonic-forms.md",
+      "eo-wiki:the-pythagorean-theorem-plato-s-meno-x-and-eo.md"
+     ]
+    },
+    {
+     "gap": 84,
+     "count": 2,
+     "workSupport": 2,
+     "sourceRefs": [
+      "eo-wiki:rec.md",
+      "eo-wiki:the-nine-operators.md"
+     ]
+    },
+    {
+     "gap": 85,
+     "count": 1,
+     "workSupport": 1,
+     "sourceRefs": [
+      "eo-wiki:decomposability.md"
+     ]
+    },
+    {
+     "gap": 86,
+     "count": 3,
+     "workSupport": 3,
+     "sourceRefs": [
+      "eo-wiki:emergent-organizing.md",
+      "eo-wiki:eo-event-streaming.md",
+      "eo-wiki:nul.md"
+     ]
+    },
+    {
+     "gap": 88,
+     "count": 2,
+     "workSupport": 2,
+     "sourceRefs": [
+      "eo-wiki:eo-on-platonic-forms.md",
+      "eo-wiki:the-experience-engine.md"
+     ]
+    },
+    {
+     "gap": 89,
+     "count": 2,
+     "workSupport": 2,
+     "sourceRefs": [
+      "eo-wiki:eo-on-platonic-forms.md",
+      "eo-wiki:operator-naming-in-emergent-ontology.md"
+     ]
+    },
+    {
+     "gap": 90,
+     "count": 2,
+     "workSupport": 2,
+     "sourceRefs": [
+      "eo-wiki:eo-in-60-min.md",
+      "eo-wiki:eo-on-platonic-forms.md"
+     ]
+    },
+    {
+     "gap": 92,
+     "count": 2,
+     "workSupport": 2,
+     "sourceRefs": [
+      "eo-wiki:eo-notation.md",
+      "eo-wiki:operator-naming-in-emergent-ontology.md"
+     ]
+    },
+    {
+     "gap": 94,
+     "count": 1,
+     "workSupport": 1,
+     "sourceRefs": [
+      "eo-wiki:eo-on-platonic-forms.md"
+     ]
+    },
+    {
+     "gap": 95,
+     "count": 3,
+     "workSupport": 3,
+     "sourceRefs": [
+      "eo-wiki:operator-naming-in-emergent-ontology.md",
+      "eo-wiki:the-nine-operators.md",
+      "eo-wiki:why-crud-is-shit.md"
+     ]
+    },
+    {
+     "gap": 96,
+     "count": 1,
+     "workSupport": 1,
+     "sourceRefs": [
+      "eo-wiki:the-triadic-minimum.md"
+     ]
+    },
+    {
+     "gap": 97,
+     "count": 1,
+     "workSupport": 1,
+     "sourceRefs": [
+      "eo-wiki:the-khora-the-substate-and-the-10000-things.md"
+     ]
+    },
+    {
+     "gap": 99,
+     "count": 3,
+     "workSupport": 2,
+     "sourceRefs": [
+      "eo-wiki:quantum-weirdness-in-eo-contained-but-not-tamed.md",
+      "eo-wiki:the-eo-spiral.md"
+     ]
+    },
+    {
+     "gap": 100,
+     "count": 2,
+     "workSupport": 2,
+     "sourceRefs": [
+      "eo-wiki:the-experience-engine.md",
+      "eo-wiki:the-pythagorean-theorem-plato-s-meno-x-and-eo.md"
+     ]
+    },
+    {
+     "gap": 101,
+     "count": 1,
+     "workSupport": 1,
+     "sourceRefs": [
+      "eo-wiki:eo-event-streaming.md"
+     ]
+    },
+    {
+     "gap": 103,
+     "count": 1,
+     "workSupport": 1,
+     "sourceRefs": [
+      "eo-wiki:the-integral-lineage.md"
+     ]
+    },
+    {
+     "gap": 104,
+     "count": 1,
+     "workSupport": 1,
+     "sourceRefs": [
+      "eo-wiki:mvp-minimum-viable-prompt.md"
+     ]
+    },
+    {
+     "gap": 106,
+     "count": 1,
+     "workSupport": 1,
+     "sourceRefs": [
+      "eo-wiki:the-def-eva-rec-loop.md"
+     ]
+    },
+    {
+     "gap": 109,
+     "count": 1,
+     "workSupport": 1,
+     "sourceRefs": [
+      "eo-wiki:eo-notation.md"
+     ]
+    },
+    {
+     "gap": 110,
+     "count": 1,
+     "workSupport": 1,
+     "sourceRefs": [
+      "eo-wiki:eo-in-60-min.md"
+     ]
+    },
+    {
+     "gap": 112,
+     "count": 4,
+     "workSupport": 4,
+     "sourceRefs": [
+      "eo-wiki:eo-on-platonic-forms.md",
+      "eo-wiki:the-nine-operators.md",
+      "eo-wiki:why-crud-is-shit.md",
+      "eoreaderhandbook:eo-reader-6-eo-chat-handbook.md"
+     ]
+    },
+    {
+     "gap": 113,
+     "count": 4,
+     "workSupport": 4,
+     "sourceRefs": [
+      "eo-wiki:eo-on-platonic-forms.md",
+      "eo-wiki:influences-and-lineage.md",
+      "eo-wiki:nul.md",
+      "eo-wiki:the-triadic-minimum.md"
+     ]
+    },
+    {
+     "gap": 114,
+     "count": 1,
+     "workSupport": 1,
+     "sourceRefs": [
+      "eo-wiki:the-triadic-minimum.md"
+     ]
+    },
+    {
+     "gap": 115,
+     "count": 2,
+     "workSupport": 2,
+     "sourceRefs": [
+      "eo-wiki:decal-notation.md",
+      "eo-wiki:the-three-faces-of-emergent-ontology.md"
+     ]
+    },
+    {
+     "gap": 118,
+     "count": 1,
+     "workSupport": 1,
+     "sourceRefs": [
+      "eo-wiki:eo-s-empirical-lexical-analysis-report.md"
+     ]
+    },
+    {
+     "gap": 120,
+     "count": 1,
+     "workSupport": 1,
+     "sourceRefs": [
+      "eo-wiki:quantum-weirdness-in-eo-contained-but-not-tamed.md"
+     ]
+    },
+    {
+     "gap": 121,
+     "count": 1,
+     "workSupport": 1,
+     "sourceRefs": [
+      "eo-wiki:most-ontologies-its-all-entities-eo-entities-are-only-one-type.md"
+     ]
+    },
+    {
+     "gap": 122,
+     "count": 1,
+     "workSupport": 1,
+     "sourceRefs": [
+      "eo-wiki:the-triadic-minimum.md"
+     ]
+    },
+    {
+     "gap": 124,
+     "count": 1,
+     "workSupport": 1,
+     "sourceRefs": [
+      "eo-wiki:nul.md"
+     ]
+    },
+    {
+     "gap": 125,
+     "count": 1,
+     "workSupport": 1,
+     "sourceRefs": [
+      "eo-wiki:rec.md"
+     ]
+    },
+    {
+     "gap": 126,
+     "count": 1,
+     "workSupport": 1,
+     "sourceRefs": [
+      "eo-wiki:why-crud-is-shit.md"
+     ]
+    },
+    {
+     "gap": 129,
+     "count": 1,
+     "workSupport": 1,
+     "sourceRefs": [
+      "eo-wiki:rec.md"
+     ]
+    },
+    {
+     "gap": 130,
+     "count": 1,
+     "workSupport": 1,
+     "sourceRefs": [
+      "eo-wiki:rec.md"
+     ]
+    },
+    {
+     "gap": 136,
+     "count": 1,
+     "workSupport": 1,
+     "sourceRefs": [
+      "eo-wiki:eo-on-platonic-forms.md"
+     ]
+    },
+    {
+     "gap": 138,
+     "count": 1,
+     "workSupport": 1,
+     "sourceRefs": [
+      "eo-wiki:eo-on-platonic-forms.md"
+     ]
+    },
+    {
+     "gap": 141,
+     "count": 1,
+     "workSupport": 1,
+     "sourceRefs": [
+      "eo-wiki:the-khora-the-substate-and-the-10000-things.md"
+     ]
+    },
+    {
+     "gap": 142,
+     "count": 1,
+     "workSupport": 1,
+     "sourceRefs": [
+      "eo-wiki:mvp-minimum-viable-prompt.md"
+     ]
+    },
+    {
+     "gap": 143,
+     "count": 1,
+     "workSupport": 1,
+     "sourceRefs": [
+      "eo-wiki:eo-on-platonic-forms.md"
+     ]
+    },
+    {
+     "gap": 144,
+     "count": 2,
+     "workSupport": 2,
+     "sourceRefs": [
+      "eo-wiki:canonical-example-the-act-face-the-operators.md",
+      "eo-wiki:influences-and-lineage.md"
+     ]
+    },
+    {
+     "gap": 145,
+     "count": 4,
+     "workSupport": 3,
+     "sourceRefs": [
+      "eo-wiki:rec.md",
+      "eo-wiki:the-three-faces-of-emergent-ontology.md",
+      "eo-wiki:the-triadic-minimum.md"
+     ]
+    },
+    {
+     "gap": 148,
+     "count": 1,
+     "workSupport": 1,
+     "sourceRefs": [
+      "eo-wiki:the-nine-operators.md"
+     ]
+    },
+    {
+     "gap": 149,
+     "count": 1,
+     "workSupport": 1,
+     "sourceRefs": [
+      "eo-wiki:quantum-weirdness-in-eo-contained-but-not-tamed.md"
+     ]
+    },
+    {
+     "gap": 151,
+     "count": 1,
+     "workSupport": 1,
+     "sourceRefs": [
+      "eo-wiki:rec.md"
+     ]
+    },
+    {
+     "gap": 156,
+     "count": 1,
+     "workSupport": 1,
+     "sourceRefs": [
+      "eo-wiki:eo-on-platonic-forms.md"
+     ]
+    },
+    {
+     "gap": 159,
+     "count": 1,
+     "workSupport": 1,
+     "sourceRefs": [
+      "eo-wiki:eo-on-platonic-forms.md"
+     ]
+    },
+    {
+     "gap": 162,
+     "count": 2,
+     "workSupport": 2,
+     "sourceRefs": [
+      "eo-wiki:canonical-examples-the-site-face.md",
+      "eo-wiki:eo-in-60-min.md"
+     ]
+    },
+    {
+     "gap": 165,
+     "count": 1,
+     "workSupport": 1,
+     "sourceRefs": [
+      "eo-wiki:rec.md"
+     ]
+    },
+    {
+     "gap": 168,
+     "count": 1,
+     "workSupport": 1,
+     "sourceRefs": [
+      "eo-wiki:the-khora-the-substate-and-the-10000-things.md"
+     ]
+    },
+    {
+     "gap": 172,
+     "count": 1,
+     "workSupport": 1,
+     "sourceRefs": [
+      "eo-wiki:eo-on-platonic-forms.md"
+     ]
+    },
+    {
+     "gap": 173,
+     "count": 2,
+     "workSupport": 2,
+     "sourceRefs": [
+      "eo-wiki:eo-in-60-min.md",
+      "eo-wiki:sig.md"
+     ]
+    },
+    {
+     "gap": 178,
+     "count": 1,
+     "workSupport": 1,
+     "sourceRefs": [
+      "eo-wiki:eo-on-platonic-forms.md"
+     ]
+    },
+    {
+     "gap": 189,
+     "count": 1,
+     "workSupport": 1,
+     "sourceRefs": [
+      "eo-wiki:eo-on-platonic-forms.md"
+     ]
+    },
+    {
+     "gap": 191,
+     "count": 1,
+     "workSupport": 1,
+     "sourceRefs": [
+      "eo-wiki:the-khora-the-substate-and-the-10000-things.md"
+     ]
+    },
+    {
+     "gap": 208,
+     "count": 1,
+     "workSupport": 1,
+     "sourceRefs": [
+      "eo-wiki:eo-on-platonic-forms.md"
+     ]
+    },
+    {
+     "gap": 217,
+     "count": 1,
+     "workSupport": 1,
+     "sourceRefs": [
+      "eo-wiki:eo-on-platonic-forms.md"
+     ]
+    },
+    {
+     "gap": 225,
+     "count": 1,
+     "workSupport": 1,
+     "sourceRefs": [
+      "eo-wiki:nul.md"
+     ]
+    }
+   ],
+   "provenance": {
+    "giver": "the-fold:predigest-priors",
+    "basis": "merged_rhythm_priors",
+    "targetExcluded": true,
+    "rule": "union of per-bucket sourceRefs; exact against deriving from every raw reading at once"
+   }
+  },
+  "carries": [
+   "which",
+   "when"
+  ],
+  "provenance": {
+   "giver": "the-fold:predigest-priors",
+   "basis": "composed_experience_halves",
+   "targetExcluded": true,
+   "rule": "structural memory (experience-priors.js) and temporal memory (this module) composed without either being rewritten"
+  }
+ },
+ "provenance": {
+  "giver": "the-fold:predigest-priors",
+  "basis": "prior corpus read to completion and sedimented per work; halves merged by the engine's own union-of-sourceRefs discipline (exact against deriving from every raw reading at once); raw readings dropped",
+  "targetExcluded": true
+ }
+}
