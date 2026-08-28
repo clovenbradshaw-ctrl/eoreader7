@@ -58,9 +58,19 @@ export function createDeclarationLog() {
  * `acquisition`, not `evidence` — task-log.js's own `evidence` field is
  * reserved vocabulary (accumulates FROM other entries; forced to an
  * array by `append`), and this is a caller-supplied payload, not that. */
-export function proposeCandidate(log, { kind, rel, acquisition, source }) {
-  if (kind !== "functional" && kind !== "transitive")
-    throw new Error(`declarations: unknown kind "${kind}" — only functional/transitive are acquirable candidates`);
+export function proposeCandidate(log, { kind, rel, yields = null, acquisition, source }) {
+  if (kind !== "functional" && kind !== "transitive" && kind !== "composes")
+    throw new Error(`declarations: unknown kind "${kind}" — only functional/transitive/composes are acquirable candidates`);
+  // A COMPOSES declaration is a claim about ONE relation plus a name for
+  // its product ("`yields` is the closure of `rel`"), which is exactly
+  // closureAffordances' own shape — so the register holds the claim and
+  // reaction.js projects it into the four affordance rows, rather than the
+  // chemistry living in a caller's local variable where nothing could ever
+  // concede it. Without a product name there is no declaration: an unnamed
+  // closure is the vacuous "these compose into something" the falsification
+  // probe already refuted as content-free.
+  if (kind === "composes" && !yields)
+    throw new Error(`declarations: proposeCandidate(composes, ${rel}) requires \`yields\` — the relation the closure produces, which is the naming act the claim consists of`);
   if (!source) throw new Error(`declarations: proposeCandidate(${kind}, ${rel}) requires a source — where the search ran`);
   const id = nextEventId(log);
   return {
@@ -74,6 +84,7 @@ export function proposeCandidate(log, { kind, rel, acquisition, source }) {
       grain: "Pattern",
       declKind: kind,
       rel,
+      ...(yields ? { yields } : {}),
       status: "candidate",
       acquisition,
       source,
@@ -145,7 +156,7 @@ export function foldDeclarations(log) {
   for (const e of log.entries) {
     if (e.kind === ENTRY_KINDS.PROPOSE && e.declKind) {
       const key = `${e.declKind}:${e.rel}`;
-      byRel.set(key, { declKind: e.declKind, rel: e.rel, status: "candidate", acquisition: e.acquisition, source: e.source, taskId: e.task_id, giver: null, conceded: false });
+      byRel.set(key, { declKind: e.declKind, rel: e.rel, yields: e.yields ?? null, status: "candidate", acquisition: e.acquisition, source: e.source, taskId: e.task_id, giver: null, conceded: false });
     } else if (e.kind === ENTRY_KINDS.EVIDENCE && e.status === "given") {
       for (const v of byRel.values()) if (v.taskId === e.task_id) { v.status = "given"; v.giver = e.giver; }
     } else if (e.kind === ENTRY_KINDS.EVIDENCE && e.concedes) {

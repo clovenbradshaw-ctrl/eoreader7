@@ -22,6 +22,8 @@ the pass starts at the organ, not at a blank buffer.
 | `perceiver/text/pronouns.js` (as adapter) | challenge-23 apparatus regression | per-teller binding + activation arm |
 | `perceiver/text/morphology.js` | eoreader5 lessons in its header; the-fold MINE-1 lemma pass (zero contradictions) | `adapters/text/morphology.js::actClosure` — vocabulary 43 acts → 120 attested forms, edges +39% on top of anchorSpans |
 | `bin/priors/pos/en-ud-ewt.json` | build-pos-prior incident (CLAUDE.md) | anchoring head gate; agency-witness AUX refusal |
+| `kernel/relation-composition.js` + `kernel/hyperlexicon.js` + `kernel/terrain-activation.js` (composed, 2026-08-28) | S18; the-fold P60 + `eval/results/mechanical-reasoning-RESULTS.md` (9 never-stated facts, tenure gate) | `kernel/reaction.js` — iterated giver-licensed composition gated on presence; products re-enter and chain, one bridge-hop per step, provenance to raw witnesses |
+| `kernel/experience-priors.js` + `kernel/rhythm-priors.js` (persisted, 2026-08-28) | the-fold P60 + `eval/results/predigest-priors-RESULTS.md` (111 works, 34.1s, standing 174KB artifact) | the-fold `predigest.js` — compile-once EOCompiledPriors@1; `reaction.js::nominateFromExperience` is the cross-work gate extracted from `eval/experienced-new-book.mjs` into one tested implementation |
 
 ## Unconsumed, with seats named
 

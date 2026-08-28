@@ -433,3 +433,87 @@ zero regressions. End to end, the-fold's MHC battery: coreference recall
 rule's own verdicts, precision 4/4 and 3/3 unchanged, order 5 (Nominal)
 passing on both materials — and a stage readable for the first time
 (9 and 6, each named with its cap).
+
+## S18 — A bridge carries the identity the relation's semantics needs; chemistry is licensed per relation, refuted from the material
+
+`kernel/reaction.js` (2026-08-28) makes licensed composition ITERATE: a
+GIVEN hyperlexicon affordance may declare what a reaction YIELDS
+(`meta.yields`), so a licensed product is a real derived hyperedge that
+re-enters the composition ledger and chains again — one bridge-hop per
+step, gated on contact with the present (terrain-activation), to
+quiescence or a declared cap, every product's provenance walking to raw
+witnessed edges. Multi-hop reach is therefore never spreading activation
+(memory/activation.js's own measured refusal of the similarity flood
+stands): the front moves because a product lights its own ends, and each
+hop is its own act.
+
+**Earned by a real derivation of a falsehood's shape, caught before it
+shipped as one.** The first live run of the consuming driver (the-fold
+`eval/mechanical-reasoning.mjs`, real Wikidata succession fixtures) derived
+BOTH DIRECTIONS of one pair for the U.S. Senate seat — Hamlin held that
+office for multiple terms, and a person-level bridge conflates two
+different tenures: (A replaces B)'s B is one term, (B replaces C)'s B may
+be another, and nothing orders A's accession against C's departure across
+them. The identity the bridge needed was the TENURE; the material's
+qualifiers name only the PERSON.
+
+**Rule.** A composition affordance is a claim about a RELATION's semantics,
+and the bridge's identity is part of those semantics. Before giving
+chemistry over a relation, check — by refutation search over the material —
+that the bridge identity actually carried satisfies the shape the
+composition assumes (for succession closure: `replaces:<scope>` functional
+AND inverse-functional over the bridged identity; and the scope itself
+belongs IN the relation string, because cross-scope chains through a shared
+entity are unsound and a relation that carries its scope never bonds across
+it). What survives the search is licensed as the giver's declared risk —
+unrefuted-at-this-stage, per the grain theorem (declarations.js), never
+proven; what is refuted gets NO chemistry, with the counterexample named.
+(Earned: the tenure gate refused the Senate office on Hamlin's own three
+distinct predecessors; six single-tenure offices stayed licensed and the
+nine facts derived — Grant-after-Lincoln among them — are sound.)
+
+## S19 — Refutation is a veto, never a licence; and a refutation check is licensed by a declared claim, never by a relation's shape
+
+`kernel/refutation.js` (2026-08-28) is the organ S18 called for, built after
+the-fold's `eval/falsification-probe.mjs` measured what such a scan can and
+cannot do. Both halves of this rule were earned by running it.
+
+**A veto, not a licence.** Six corpora with ground truth declared in advance
+returned one decisive pair: a five-fact succession chain and a five-fact
+dominance chain, structurally identical by construction (1:1, acyclic, every
+referent distinct, both nominated at identical support, both clearing
+uniqueness) and opposite in truth — succession composes soundly, "defeated"
+does not. The scan cannot tell them apart. Refuting a transitive-composition
+claim needs a POSITIVE counterexample, and positive-only material supplies
+one only as a **cycle** or a **uniqueness violation**; where neither is
+present, open-world absence refutes nothing. So `refuted: false` is never a
+licence, every result carries that disclosure, and a scan below two resolved
+edges reports `power: "insufficient"` rather than "unrefuted" (P41: the
+absence of a refusal is not a check).
+
+**And a check is licensed by a declared claim.** The first cut ran the
+uniqueness check on every relation an affordance named, and reported the
+derived transitive closure REFUTED — because Colfax is after both Hamlin and
+Breckinridge. That is the closure being correct: many-to-many is what
+transitivity means. Uniqueness refutes an ADJACENCY claim (one immediate
+predecessor) and refutes nothing about a transitive product. A check applied
+where its precondition does not hold produces a refutation that means
+nothing — A10's trap, one layer in from where S18 records it.
+
+**Rule.** `expectUnique` is declared by the caller and defaults to OFF; a
+closure affordance names the side its giver claims is 1:1 (`meta.adjacency`)
+and the audit reads that rather than inferring it. A relation whose
+cardinality nobody declared gets the cycle check alone — always licensed,
+since nothing may be strictly after itself at any cardinality. A uniqueness
+check that did not run reports `checked: false`, never a pass.
+
+**Consequence for reaction.js.** `settle({ veto })` takes
+`vetoedPairs(audit)` whole and refuses those pairs at the door, tallying
+them SEPARATELY from `withheld` — "nobody vouched" and "somebody vouched and
+the material refuted them" are different facts, and a concession needs to
+tell them apart. `derivedUnder({giver})` surfaces what a now-refuted licence
+already produced, because a veto stops future derivation and cannot un-derive
+the past; a concession that cannot name what it re-zeroes is a version bump
+wearing an operator's name. `admit(entries)` grows the substrate, which is
+what makes a standing refutation search meaningful — a licence unrefuted at
+four facts is refuted at five, and that is pruning, not learning.
