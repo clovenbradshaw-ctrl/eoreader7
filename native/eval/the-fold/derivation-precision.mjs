@@ -24,6 +24,15 @@
 //   B  no gate    — every office licensed (the veto removed)
 //   C  naive      — plain transitive closure over raw edges: no hyperlexicon,
 //                   no licensing, no presence gate, no veto, no provenance
+//   E  tenure     — TERM DATES ADMITTED AS MATERIAL. Each P39 statement is its
+//                   own tenure, named `<person>#<office>#<start>`, so a bridge
+//                   carries the identity the relation's semantics needs. No
+//                   office gate at all: soundness comes from the material being
+//                   finer, not from a veto. Dates are used ONLY to NAME a
+//                   tenure, never to order one — arm E' re-runs with the
+//                   statement index as the name instead, and an identical
+//                   result proves the dates contributed a label and nothing
+//                   the oracle could have leaked.
 //   D  per-bridge — P60's disclosed "finer per-bridge gate" future work:
 //                   refuse a composition whose BRIDGE is multi-tenure in that
 //                   office, rather than refusing the whole office. Multi-tenure
@@ -38,7 +47,7 @@ import { createTaskLog, append, projectTasks, ENTRY_KINDS, OPERATOR_BASIS } from
 import { GRAINS } from "../../eoreader7/native/kernel/cube.js";
 import { createHyperlexicon, giveHyperlexiconAffordance } from "../../eoreader7/native/kernel/hyperlexicon.js";
 import { createReactionSubstrate, closureAffordances } from "../../eoreader7/native/kernel/reaction.js";
-import { refuteRelation } from "../../eoreader7/native/kernel/refutation.js";
+import { refuteRelation, afterVeto } from "../../eoreader7/native/kernel/refutation.js";
 
 import { parseEntity } from "../wikidata.js";
 import { makeHyperlexicon } from "../hyperlexicon.js";
@@ -67,13 +76,25 @@ function addressOf(file, qid) {
   return { ref: `wikidata/${file}`, start, end: start + needle.length, text: needle };
 }
 
+// ── arm F: term intervals admitted as material (Increment D) ──────────────
+// The office gate refused on office REUSE, which cost 15 true facts per 2 false
+// prevented. A repeat standing is only a counterexample where two standings
+// OVERLAP IN TIME; the derivation never received the times, so it could not
+// tell a conflation from lawful succession. Each P39 statement carries its own
+// start/end, so the interval rides the fact it states.
+const stampOf = (t) => (typeof t === "string" && t.length > 10)
+  ? Number(t.slice(1, 5)) * 10000 + Number(t.slice(6, 8)) * 100 + Number(t.slice(9, 11)) : null;
+const intervalByFact = new Map();
+const factKey = (rel, a, b) => `${rel}|${String(a).toLowerCase()}|${String(b).toLowerCase()}`;
+
 const offered = [];
 entities.forEach((e, i) => {
   const file = files[i];
   for (const p of e.positions ?? []) {
     const rel = `replaces:${p.position}`;
-    if (p.replaces) { const s = addressOf(file, p.replaces); offered.push({ witness: file, a: { subject: e.qid, verb: rel, object: p.replaces, spans: s ? [s] : [] } }); }
-    if (p.replacedBy) { const s = addressOf(file, e.qid); offered.push({ witness: file, a: { subject: p.replacedBy, verb: rel, object: e.qid, spans: s ? [s] : [] } }); }
+    const iv = { start: stampOf(p.start?.time), end: stampOf(p.end?.time) };
+    if (p.replaces) { const s = addressOf(file, p.replaces); offered.push({ witness: file, a: { subject: e.qid, verb: rel, object: p.replaces, spans: s ? [s] : [] } }); intervalByFact.set(factKey(rel, e.qid, p.replaces), iv); }
+    if (p.replacedBy) { const s = addressOf(file, e.qid); offered.push({ witness: file, a: { subject: p.replacedBy, verb: rel, object: e.qid, spans: s ? [s] : [] } }); intervalByFact.set(factKey(rel, p.replacedBy, e.qid), iv); }
   }
 });
 
@@ -118,8 +139,74 @@ function naiveClosure() {
   return [...out.values()];
 }
 
+// ── arm E: term dates admitted as material ────────────────────────────────
+// The defect P60 hit is that ONE P39 statement is one tenure, carrying its own
+// start/end AND its own replaces/replacedBy — and the person-level projection
+// threw the tenure away. Hamlin holds the refused office across 13 separate
+// tenures; flattening them makes "Hamlin replaces Q474290" and "Q474290
+// replaces Hamlin" both true of the same node, which is the cycle the veto
+// found. Naming each tenure dissolves it.
+function tenureMaterial(nameOf) {
+  const out = [];
+  entities.forEach((e, i) => {
+    const file = files[i];
+    (e.positions ?? []).forEach((p, idx) => {
+      const rel = `replaces:${p.position}`;
+      const tenure = `${e.qid}#${p.position}#${nameOf(p, idx)}`;
+      if (p.replaces) { const s = addressOf(file, p.replaces); out.push({ witness: file, a: { subject: tenure, verb: rel, object: p.replaces, spans: s ? [s] : [] } }); }
+      if (p.replacedBy) { const s = addressOf(file, e.qid); out.push({ witness: file, a: { subject: p.replacedBy, verb: rel, object: tenure, spans: s ? [s] : [] } }); }
+    });
+  });
+  return out;
+}
+const personOf = (ref) => String(ref).split("#")[0].toUpperCase();
+function tenureArm(nameOf) {
+  let l = foldHl.createHyperlexicon();
+  const off = tenureMaterial(nameOf);
+  for (const file of files) l = foldHl.admit(l, off.filter((o) => o.witness === file).map((o) => o.a), { witness: `wikidata/${file}` }).log;
+  const fold = foldHl.foldHyperlexicon(l);
+  const { edges: tEdges } = assertionEdges(fold, { hyperedge, source: "wikidata-tenures" });
+  const tOffices = [...new Set(fold.map((a) => a.verb))].map((v) => v.split(":")[1]);
+  const hl = tOffices
+    .flatMap((o) => closureAffordances({ base: `replaces:${o}`, yields: `after:${o}`, giver: GIVER }))
+    .reduce((acc, row) => giveHyperlexiconAffordance(acc, row), createHyperlexicon());
+  const sub = createReactionSubstrate({ entries: tEdges, hyperlexicon: hl, window: null });
+  sub.settle({ cue: null, floor: null, maxSteps: 12 });
+  const seen = new Set();
+  const facts = [];
+  for (const d of sub.derived()) {
+    const [a, b] = endsOf(d.edge);
+    const from = personOf(a), to = personOf(b);
+    const office = d.edge.relation.split(":")[1];
+    const k = `${office}|${from}|${to}`;
+    if (seen.has(k)) continue;           // many tenure pairs project to one person pair
+    seen.add(k);
+    facts.push({ office, from, to, selfPerson: from === to });
+  }
+  return facts;
+}
+const armE = tenureArm((p, idx) => p.start?.time ?? `stmt${idx}`);
+const armEidx = tenureArm((p, idx) => `stmt${idx}`);
+
 const gate = offices.map((o) => ({ office: o, scan: refuteRelation(edges, `replaces:${o}`, { expectUnique: true }) }));
-const licensed = gate.filter((g) => !g.scan.refuted).map((g) => g.office);
+// The DRIVER licenses every office, as its own declared risk — the grain
+// theorem says a corpus can never earn a composition claim, so absence of
+// refutation grants nothing. The scan only REMOVES. Written through
+// `afterVeto` so the shape is explicit: nothing outside licensedByGiver can
+// come back, however clean its scan.
+const licensedByGiver = offices;
+const scans = Object.fromEntries(gate.map((g) => [g.office, g.scan]));
+const licensed = afterVeto(licensedByGiver, scans).survivors;
+
+// the interval organ, reading the edge's own ends
+const intervalOf = (edge) => {
+  const a = String(edge.participants[0]?.ref ?? "");
+  const b = String(edge.participants[edge.participants.length - 1]?.ref ?? "");
+  return intervalByFact.get(factKey(edge.relation, a, b)) ?? null;
+};
+const gateF = offices.map((o) => ({ office: o, scan: refuteRelation(edges, `replaces:${o}`, { expectUnique: true, intervalOf }) }));
+const licensedF = afterVeto(offices, Object.fromEntries(gateF.map((g) => [g.office, g.scan]))).survivors;
+const armF = chemistry(licensedF);
 
 const armA = chemistry(licensed);
 const armB = chemistry(offices);
@@ -155,6 +242,7 @@ function score(name, facts) {
   for (const r of rows) c[r.verdict] += 1;
   const decided = c.TRUE + c.FALSE;
   return { arm: name, derived: rows.length, ...c,
+    factKeys: rows.map((r) => `${r.office}|${r.from}|${r.to}`).sort(),
     precisionOnDecided: decided ? Number((c.TRUE / decided).toFixed(3)) : null,
     falseFacts: rows.filter((r) => r.verdict === "FALSE").map((r) => `${labelOf(r.from)} after ${labelOf(r.to)} (office ${r.office})`),
     rows };
@@ -164,6 +252,11 @@ const A = score("A shipped (office gate)", armA);
 const B = score("B gate removed", armB);
 const C = score("C naive join, zero apparatus", armC);
 const D = score("D per-bridge gate", armD);
+const F = score("F interval gate (intervals as material)", armF);
+// self-person facts ("X held it after himself", true but degenerate) are counted
+// apart so they cannot inflate the headline.
+const E = score("E tenure-scoped material", armE.filter((f) => !f.selfPerson));
+const Eidx = score("E' tenure by statement index (no dates)", armEidx.filter((f) => !f.selfPerson));
 
 const key = (r) => `${r.office}|${r.from}|${r.to}`;
 const setA = new Set(armA.map(key)), setC = new Set(armC.map(key));
@@ -174,7 +267,24 @@ const out = {
   question: "does the licensing apparatus actually help — are the derived facts true, and does the gate prevent anything a naive join would get wrong?",
   oracle: { giver: oracle.giver, independence: oracle.independence },
   material: { facts: raw.length, offices: offices.length, licensed: licensed.length, refused: offices.length - licensed.length },
-  arms: [A, B, C, D].map(({ rows, ...rest }) => rest),
+  arms: [A, B, C, D, E, Eidx, F].map(({ rows, ...rest }) => rest),
+  intervalGate: {
+    // Declared BEFORE the run, per the spec that commissioned this arm.
+    preRegisteredPrediction: "F recovers true facts the office gate destroyed WITHOUT readmitting the 2 false ones: precision stays 1.000 and recall rises above A",
+    declaredNull: "term intervals carry no information the office gate lacked — under which F equals A (9 derived, nothing recovered)",
+    officesLicensed: licensedF.length,
+    officesLicensedByOfficeGate: licensed.length,
+    excusedRepeatStandings: gateF.reduce((n, g) => n + (g.scan.uniqueness.excused?.length ?? 0), 0),
+    recoveredOverA: F.rows.filter((r) => !setA.has(key(r))).length,
+    trueRecoveredOverA: F.rows.filter((r) => !setA.has(key(r)) && r.verdict === "TRUE").length,
+    falseIntroducedOverA: F.rows.filter((r) => r.verdict === "FALSE").length,
+  },
+  tenureArm: {
+    selfPersonFactsExcluded: armE.filter((f) => f.selfPerson).length,
+    datesOnlyNameTenures: JSON.stringify(E.rows.map((r) => `${r.office}|${r.from}|${r.to}`).sort())
+      === JSON.stringify(Eidx.rows.map((r) => `${r.office}|${r.from}|${r.to}`).sort()),
+    reading: "datesOnlyNameTenures true means naming a tenure by its start date and by its statement index give the identical fact set — the dates contributed an identifier, never an ordering, so the P580/P582 oracle stays independent of the derivation",
+  },
   gateCost: {
     suppressedByOfficeGate: suppressed.length,
     ofWhichTrue: suppressed.filter((r) => r.verdict === "TRUE").length,

@@ -1,0 +1,100 @@
+{
+ "schema": "EOGrainRefinement@1",
+ "claim": "a uniqueness violation is evidence the endpoint grain is too coarse, not only grounds to refuse the relation",
+ "coreIsDomainFree": "the core (edgeAt / scanAt / deriveAt / refineGrain) names no entity type, no relation, and no domain; both adapters run it unmodified",
+ "results": [
+  {
+   "adapter": "wikidata succession (real, political)",
+   "relations": 17,
+   "edges": 92,
+   "grainSignal": [
+    {
+     "relation": "replaces:Q4416090",
+     "refutedAtEntityGrain": true,
+     "refutedAtOccurrenceGrain": true,
+     "verdict": "real — the violation survives refinement",
+     "reasons": [
+      "uniqueness",
+      "cycle"
+     ]
+    },
+    {
+     "relation": "replaces:Q14213",
+     "refutedAtEntityGrain": true,
+     "refutedAtOccurrenceGrain": true,
+     "verdict": "real — the violation survives refinement",
+     "reasons": [
+      "cycle"
+     ]
+    },
+    {
+     "relation": "replaces:Q2419102",
+     "refutedAtEntityGrain": true,
+     "refutedAtOccurrenceGrain": true,
+     "verdict": "real — the violation survives refinement",
+     "reasons": [
+      "cycle"
+     ]
+    }
+   ],
+   "byGrain": {
+    "entity": {
+     "derived": 101,
+     "TRUE": 31,
+     "FALSE": 2,
+     "UNVERIFIABLE": 68,
+     "precision": 0.939,
+     "falseFacts": [
+      "Q5240252 after Q181727 (replaces:Q4416090)",
+      "Q474290 after Q580974 (replaces:Q4416090)"
+     ]
+    },
+    "occurrence": {
+     "derived": 49,
+     "TRUE": 12,
+     "FALSE": 0,
+     "UNVERIFIABLE": 37,
+     "precision": 1,
+     "falseFacts": []
+    }
+   }
+  },
+  {
+   "adapter": "hospital-bed occupancy (invented, non-political)",
+   "relations": 2,
+   "edges": 10,
+   "grainSignal": [
+    {
+     "relation": "replaces:BED-7",
+     "refutedAtEntityGrain": true,
+     "refutedAtOccurrenceGrain": false,
+     "verdict": "GRAIN DEFECT — the violation dissolves when ends are occurrences",
+     "reasons": [
+      "uniqueness",
+      "cycle"
+     ]
+    }
+   ],
+   "byGrain": {
+    "entity": {
+     "derived": 9,
+     "TRUE": 8,
+     "FALSE": 1,
+     "UNVERIFIABLE": 0,
+     "precision": 0.889,
+     "falseFacts": [
+      "P-BRIX after P-CHEN (replaces:BED-7)"
+     ]
+    },
+    "occurrence": {
+     "derived": 5,
+     "TRUE": 5,
+     "FALSE": 0,
+     "UNVERIFIABLE": 0,
+     "precision": 1,
+     "falseFacts": []
+    }
+   }
+  }
+ ]
+}

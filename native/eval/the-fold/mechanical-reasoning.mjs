@@ -74,7 +74,7 @@ import { GRAINS } from "../../eoreader7/native/kernel/cube.js";
 import { createHyperlexicon, giveHyperlexiconAffordance } from "../../eoreader7/native/kernel/hyperlexicon.js";
 import { acquireCompositionCandidates } from "../../eoreader7/native/kernel/relation-composition.js";
 import { createReactionSubstrate, closureAffordances, nominateFromExperience } from "../../eoreader7/native/kernel/reaction.js";
-import { refuteRelation, auditChemistry, vetoedPairs } from "../../eoreader7/native/kernel/refutation.js";
+import { refuteRelation, auditChemistry, vetoedPairs, afterVeto } from "../../eoreader7/native/kernel/refutation.js";
 
 import { parseEntity } from "../wikidata.js";
 import { makeHyperlexicon } from "../hyperlexicon.js";
@@ -166,7 +166,11 @@ const officeGate = offices.map((office) => {
   return {
     office,
     label: labelOf(office.toLowerCase()),
-    licensed: !scan.refuted,
+    // NOT "the scan licensed it": this driver licenses every office as its own
+    // declared risk, and the scan only removes. `licensedOffices` below is
+    // computed through afterVeto so nothing unlicensed can survive; this field
+    // reports that office's own outcome under it.
+    licensed: afterVeto([office], { [office]: scan }).survivors.length === 1,
     power: scan.power,
     examined: scan.examined,
     reasons: scan.reasons,
@@ -181,7 +185,10 @@ const officeGate = offices.map((office) => {
     disclosure: scan.disclosure,
   };
 });
-const licensedOffices = officeGate.filter((g) => g.licensed).map((g) => g.office);
+const licensedOffices = afterVeto(
+  offices,                                            // what the giver licensed
+  Object.fromEntries(officeGate.map((g) => [g.office, { refuted: !g.licensed, reasons: g.reasons }])),
+).survivors;
 
 // ── arm 1: control — no given chemistry, nothing derives ──────────────────
 const control = createReactionSubstrate({ entries: edges, hyperlexicon: createHyperlexicon(), window: null })
