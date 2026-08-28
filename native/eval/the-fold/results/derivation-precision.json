@@ -54,8 +54,31 @@
    "UNVERIFIABLE": 4,
    "precisionOnDecided": 1,
    "falseFacts": []
+  },
+  {
+   "arm": "E tenure-scoped material",
+   "derived": 9,
+   "TRUE": 5,
+   "FALSE": 0,
+   "UNVERIFIABLE": 4,
+   "precisionOnDecided": 1,
+   "falseFacts": []
+  },
+  {
+   "arm": "E' tenure by statement index (no dates)",
+   "derived": 9,
+   "TRUE": 5,
+   "FALSE": 0,
+   "UNVERIFIABLE": 4,
+   "precisionOnDecided": 1,
+   "falseFacts": []
   }
  ],
+ "tenureArm": {
+  "selfPersonFactsExcluded": 1,
+  "datesOnlyNameTenures": true,
+  "reading": "datesOnlyNameTenures true means naming a tenure by its start date and by its statement index give the identical fact set — the dates contributed an identifier, never an ordering, so the P580/P582 oracle stays independent of the derivation"
+ },
  "gateCost": {
   "suppressedByOfficeGate": 17,
   "ofWhichTrue": 15,

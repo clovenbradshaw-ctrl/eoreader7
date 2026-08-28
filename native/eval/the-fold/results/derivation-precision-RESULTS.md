@@ -86,3 +86,38 @@ honest next step is ingesting P580/P582 as edges, not another veto.
   fixture, not rates.
 - The oracle is Wikidata scoring Wikidata, on different properties. It is
   independent of the derivation, not of the source.
+
+---
+
+## Amended same day — two more arms, and this document's conclusion corrected
+
+The driver gained arms **E** (tenure-scoped material, `<person>#<office>#<start>`)
+and **E'** (identical, tenures named by statement index instead of start date).
+
+| arm | derived | true | false | precision |
+|---|---|---|---|---|
+| E tenure-scoped material | 9 | 5 | **0** | **1.000** |
+| E' tenure by statement index (no dates) | 9 | 5 | **0** | **1.000** |
+
+Two things follow, and the second corrects this document.
+
+**Soundness without a veto.** Arm E reaches 1.000 with **no office gate at
+all** — the refusal becomes unnecessary once the material individuates finely
+enough. That is the right shape.
+
+**But "admit term dates" was the wrong name for it.** E and E' produce an
+identical fact set (`datesOnlyNameTenures: true`), so the start dates
+contributed an *identifier* and nothing else. What does the work is **occurrence
+identity**. Worse, `person#office#start` is politics-shaped — it hardcodes
+"someone holds an office for a term."
+
+Both points are pursued in `grain-refinement-RESULTS.md`, which states the rule
+without a domain in it (a uniqueness violation is evidence the endpoint grain is
+too coarse) and demonstrates a 68-line domain-free core running unmodified over
+this material and an invented non-political corpus, reaching 1.000 precision on
+both.
+
+**One number here is also superseded.** The "15 true facts destroyed" figure was
+measured against material of 3 pages and 25 facts. Reading 23 pages raises
+entity-grain derivation to 101 facts with 31 verified true — so the recall
+ceiling was set by how little had been read, not only by the gate.
