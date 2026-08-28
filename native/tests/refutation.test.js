@@ -366,3 +366,57 @@ test("declaring intervals never changes a relation with no repeat standing", () 
   assert.equal(a.refuted, b.refuted);
   assert.equal(b.uniqueness.excused.length, 0);
 });
+
+// ── cycle excusal under intervals (2026-08-28) ───────────────────────────
+// closesWithinOneStanding / excusedCycles had ZERO assertions — every interval
+// case above uses 2-edge acyclic material, so the branch never executed under
+// test. Found by a blast-radius audit, not by reading. These are the cases.
+
+test("a return across disjoint standings is an excused cycle, not a refutation", () => {
+  // x held it, y held it, x held it again: x->y at 1850-1855, y->x at 1860-1865.
+  // Person-grain sees a loop; the standings never overlap, so it is a SEQUENCE.
+  const edges = [ivEdge(1, "x", "r", "y", 1850, 1855), ivEdge(2, "y", "r", "x", 1860, 1865)];
+  const bare = refuteRelation(edges, "r", { expectUnique: true });
+  assert.equal(bare.refuted, true, "without intervals the return reads as a cycle — kept as the control");
+  const withIv = refuteRelation(edges, "r", { expectUnique: true, intervalOf });
+  assert.equal(withIv.refuted, false);
+  assert.equal(withIv.cycles.present, false);
+  assert.equal(withIv.cycles.excused.length, 1, "the excused cycle is LISTED, never silently dropped");
+});
+
+test("a cycle whose hops overlap in time still refutes", () => {
+  const edges = [ivEdge(1, "x", "r", "y", 1850, 1860), ivEdge(2, "y", "r", "x", 1855, 1865)];
+  const r = refuteRelation(edges, "r", { expectUnique: true, intervalOf });
+  assert.equal(r.refuted, true);
+  assert.ok(r.reasons.includes("cycle"));
+});
+
+test("a cycle with an unknown interval stands — disjointness must be shown", () => {
+  const edges = [ivEdge(1, "x", "r", "y", 1850, 1855), hyperedge({
+    id: "cyc9", relation: "r",
+    participants: [{ ref: "y", standing: "referent" }, { ref: "x", standing: "referent" }], witness: "text:9",
+  })];
+  const r = refuteRelation(edges, "r", { expectUnique: true, intervalOf });
+  assert.equal(r.refuted, true, "an unknown hop cannot excuse the loop");
+});
+
+// ── reason labels are honest about what was measured (P41) ───────────────
+test("a violation standing on a MEASURED overlap is named interval-overlap", () => {
+  const edges = [ivEdge(1, "x", "holds", "a", 1850, 1860), ivEdge(2, "x", "holds", "b", 1855, 1865)];
+  const r = refuteRelation(edges, "holds", { expectUnique: true, intervalOf });
+  assert.deepEqual([...r.reasons], ["interval-overlap"]);
+  assert.equal(r.uniqueness.violations[0].overlapBasis, "measured-overlap");
+});
+
+test("a violation standing only because disjointness was UNSHOWABLE keeps the base name", () => {
+  // one standing has no interval: nothing overlapped, nothing was excused —
+  // calling that "interval-overlap" would report a measurement nobody took.
+  const edges = [ivEdge(1, "x", "holds", "a", 1850, 1855), hyperedge({
+    id: "u9", relation: "holds",
+    participants: [{ ref: "x", standing: "referent" }, { ref: "c", standing: "referent" }], witness: "text:9",
+  })];
+  const r = refuteRelation(edges, "holds", { expectUnique: true, intervalOf });
+  assert.equal(r.refuted, true);
+  assert.deepEqual([...r.reasons], ["uniqueness"]);
+  assert.equal(r.uniqueness.violations[0].overlapBasis, "disjointness-unshowable");
+});

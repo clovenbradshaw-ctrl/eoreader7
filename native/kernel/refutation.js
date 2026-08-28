@@ -159,23 +159,37 @@ export function refuteRelation(edges = [], relation, { expectUnique = false, cyc
   // standings are the same position held twice, which is lawful succession and
   // was never evidence against the relation — the office gate that refused on
   // reuse alone was destroying true facts to prevent that confusion.
-  const overlapping = (referentEdges) => {
-    if (!intervalOf) return true;                  // no intervals declared: unchanged behaviour
+  // Three outcomes, not two — and the difference is P41's. A violation may
+  // stand on a MEASURED overlap (two known intervals overlap), or stand
+  // because disjointness COULD NOT BE SHOWN (an interval unknown), or be
+  // excused (every pair known-disjoint). The first is an interval-overlap
+  // finding; the second is the base uniqueness claim with its excuse
+  // unavailable — labeling it "interval-overlap" would report a measurement
+  // that never happened.
+  const overlapEvidence = (referentEdges) => {
+    if (!intervalOf) return { stands: true, basis: "no-intervals" };
     const iv = referentEdges.map((e) => { try { return intervalOf(e) ?? null; } catch { return null; } });
-    for (let i = 0; i < iv.length; i += 1) for (let j = i + 1; j < iv.length; j += 1) if (overlaps(iv[i], iv[j])) return true;
-    return false;
+    let unshowable = false;
+    for (let i = 0; i < iv.length; i += 1) for (let j = i + 1; j < iv.length; j += 1) {
+      if (!iv[i] || !iv[j]) { unshowable = true; continue; }
+      if (overlaps(iv[i], iv[j])) return { stands: true, basis: "measured-overlap" };
+    }
+    if (unshowable) return { stands: true, basis: "disjointness-unshowable" };
+    return { stands: false, basis: "known-disjoint" };
   };
   if (expectUnique) {
     for (const [referent, partners] of forward) {
       if (partners.size < 2) continue;
       const row = { referent, side: "functional", detail: "stands at the first end of this relation more than once, with distinct partners", partners: freeze([...partners.keys()]), edgeRefs: freeze([...partners.values()].filter(Boolean)) };
-      if (overlapping(forwardEdges.get(referent) ?? [])) violations.push(freeze(row));
+      const ev = overlapEvidence(forwardEdges.get(referent) ?? []);
+      if (ev.stands) violations.push(freeze({ ...row, ...(intervalOf ? { overlapBasis: ev.basis } : {}) }));
       else excused.push(freeze({ ...row, excusedBy: "interval-disjoint", why: "stands here more than once, but never at overlapping times — the same position held twice is succession, not a uniqueness violation" }));
     }
     for (const [referent, partners] of backward) {
       if (partners.size < 2) continue;
       const row = { referent, side: "inverse-functional", detail: "stands at the second end of this relation more than once, with distinct partners", partners: freeze([...partners.keys()]), edgeRefs: freeze([...partners.values()].filter(Boolean)) };
-      if (overlapping(backwardEdges.get(referent) ?? [])) violations.push(freeze(row));
+      const ev = overlapEvidence(backwardEdges.get(referent) ?? []);
+      if (ev.stands) violations.push(freeze({ ...row, ...(intervalOf ? { overlapBasis: ev.basis } : {}) }));
       else excused.push(freeze({ ...row, excusedBy: "interval-disjoint", why: "stands here more than once, but never at overlapping times — the same position held twice is succession, not a uniqueness violation" }));
     }
   }
@@ -218,7 +232,12 @@ export function refuteRelation(edges = [], relation, { expectUnique = false, cyc
   // A scan that COULD NOT have refuted must not read as one that did not.
   const power = resolved.length < 2 ? "insufficient" : "sufficient";
   const reasons = [];
-  if (violations.length) reasons.push(intervalOf ? "interval-overlap" : "uniqueness");
+  if (violations.length) {
+    const measured = violations.some((v) => v.overlapBasis === "measured-overlap");
+    // "interval-overlap" names a MEASURED finding; a violation standing only
+    // because disjointness could not be shown keeps the base claim's name.
+    reasons.push(intervalOf && measured ? "interval-overlap" : "uniqueness");
+  }
   if (cycles.length) reasons.push("cycle");
 
   return freeze({
