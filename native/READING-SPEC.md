@@ -433,3 +433,41 @@ zero regressions. End to end, the-fold's MHC battery: coreference recall
 rule's own verdicts, precision 4/4 and 3/3 unchanged, order 5 (Nominal)
 passing on both materials — and a stage readable for the first time
 (9 and 6, each named with its cap).
+
+## S18 — A bridge carries the identity the relation's semantics needs; chemistry is licensed per relation, refuted from the material
+
+`kernel/reaction.js` (2026-08-28) makes licensed composition ITERATE: a
+GIVEN hyperlexicon affordance may declare what a reaction YIELDS
+(`meta.yields`), so a licensed product is a real derived hyperedge that
+re-enters the composition ledger and chains again — one bridge-hop per
+step, gated on contact with the present (terrain-activation), to
+quiescence or a declared cap, every product's provenance walking to raw
+witnessed edges. Multi-hop reach is therefore never spreading activation
+(memory/activation.js's own measured refusal of the similarity flood
+stands): the front moves because a product lights its own ends, and each
+hop is its own act.
+
+**Earned by a real derivation of a falsehood's shape, caught before it
+shipped as one.** The first live run of the consuming driver (the-fold
+`eval/mechanical-reasoning.mjs`, real Wikidata succession fixtures) derived
+BOTH DIRECTIONS of one pair for the U.S. Senate seat — Hamlin held that
+office for multiple terms, and a person-level bridge conflates two
+different tenures: (A replaces B)'s B is one term, (B replaces C)'s B may
+be another, and nothing orders A's accession against C's departure across
+them. The identity the bridge needed was the TENURE; the material's
+qualifiers name only the PERSON.
+
+**Rule.** A composition affordance is a claim about a RELATION's semantics,
+and the bridge's identity is part of those semantics. Before giving
+chemistry over a relation, check — by refutation search over the material —
+that the bridge identity actually carried satisfies the shape the
+composition assumes (for succession closure: `replaces:<scope>` functional
+AND inverse-functional over the bridged identity; and the scope itself
+belongs IN the relation string, because cross-scope chains through a shared
+entity are unsound and a relation that carries its scope never bonds across
+it). What survives the search is licensed as the giver's declared risk —
+unrefuted-at-this-stage, per the grain theorem (declarations.js), never
+proven; what is refuted gets NO chemistry, with the counterexample named.
+(Earned: the tenure gate refused the Senate office on Hamlin's own three
+distinct predecessors; six single-tenure offices stayed licensed and the
+nine facts derived — Grant-after-Lincoln among them — are sound.)

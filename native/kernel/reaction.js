@@ -1,0 +1,350 @@
+// native/kernel/reaction.js — mechanical reasoning as the physics and
+// chemistry of the cube: a cue settles against a prior-conditioned substrate.
+//
+// THE ASK THIS ANSWERS, near-verbatim: leverage all the priors as well as
+// possible, and run a true "neural net"-style thing so the instrument can
+// MECHANICALLY reason using the physics and chemistry of the cube. Both
+// halves of that sentence name organs this kernel already has; what was
+// missing was the circuit between them, and this module is only that
+// circuit. Nothing below invents a statistic, a threshold, or a licence —
+// every law is an existing organ's, cited at its point of use.
+//
+// PHYSICS — presence, one hop, decay. kernel/activation.js is P1's first
+// clause ("activation decays") with the window MEASURED or declared, never
+// defaulted; terrain-activation.js makes it operational across the nine-cell
+// grid ("presence spreads exactly as far as the proposition itself reaches,
+// one hop, no more"; folding one proposition in costs O(what it touches)).
+// This module adds no second activation mechanism: the substrate's present
+// IS a createTerrainActivation instance, and the one rule added here is that
+// A REACTION REQUIRES CONTACT WITH THE PRESENT — a chain may react only when
+// at least one of its three atoms (from, bridge, to) is lit above the
+// caller's declared floor. An uncued substrate derives nothing: no presence,
+// no reasoning. (`cue: null` is the explicit, disclosed control arm — the
+// gate off, full-extent closure — exactly as `window: null` is activation's
+// own disclosed undecayed control.)
+//
+// Note what this is NOT: memory/activation.js records, with measurements,
+// that multi-hop spreading activation is the "similarity flood" its one
+// recurrent hop deliberately departs from. This module does not reintroduce
+// it. Multi-hop REACH here comes only through licensed composition — each
+// hop is its own act, on its own step, with its own provenance — and the
+// front propagates because a product LIGHTS ITS OWN ENDS (terrain-
+// activation's existing Link rule), never because activation diffuses.
+//
+// CHEMISTRY — bonding at bridges, licensed by givers, with declared yields.
+// relation-composition.js already holds the bonds: chains form only at a
+// shared REFERENT bridge, and candidates are nominated only at >= 2
+// independent witnesses (bipartite matching — its own wall). hyperlexicon.js
+// already holds the licence: "experience may nominate candidates; only a
+// GIVEN affordance with a named giver licenses composition." This module
+// adds one declared field to what a giver may say — `meta.yields`, the
+// relation a licensed reaction PRODUCES — carried through the hyperlexicon's
+// existing meta channel, no schema change anywhere. With yields, a product
+// is a real derived hyperedge that re-enters the ledger and can chain again
+// (r(a,b) ∘ r(b,c) => r(a,c) for a transitive r is exactly hl.js's R6, made
+// operational); without yields, a licensed product is TERMINAL — the
+// bridge fact evaluateRelationCompositions already emits, one hop, no more.
+//
+// THE GRAIN LAW, inherited whole (interpretation/declarations.js, hl.js
+// probe D): an affordance is Pattern-grain, refutable from a corpus but
+// never earned from one. So nothing in a settle ever ADDS chemistry — a
+// candidate nomination, however well witnessed, licenses no reaction here,
+// and `affordancesFromDeclarations` reads only the GIVEN tier of the
+// declarations register (foldDeclarations already excludes the conceded).
+//
+// WHAT A DERIVED EDGE IS, honestly: a never-stated fact computed from
+// stated ones under a giver's declared chemistry. Its witness names its own
+// derivation (`derived:<left>+<right>`), never a byte span it does not
+// have; its meta carries both parents, the bridge it bonded at, the
+// affordance's giver, and its depth — so the full provenance closure is
+// walkable to raw witnessed edges. A derivation that would restate a RAW
+// witnessed fact is refused as churn (`alreadyWitnessed` — the raw witness
+// stands; re-deriving it would dress a stated fact as an inference). A
+// second derivation path to an already-derived fact is counted (`paths`),
+// never duplicated.
+//
+// TERMINATION is structural, and capped anyway: derived facts are deduped
+// by (relation, from, to) over a finite referent set, each chain site is
+// consulted at most once, and `maxSteps` is declared by the caller.
+
+import { createRelationCompositionLedger } from "./relation-composition.js";
+import { compositionAffordance, normalizeHyperlexicon } from "./hyperlexicon.js";
+import { createTerrainActivation } from "./terrain-activation.js";
+import { hyperedge } from "./hypergraph.js";
+import { experienceRelationVocabulary } from "./experience-priors.js";
+
+const freeze = (value) => Object.freeze(value);
+const slug = (value) => String(value ?? "").toLowerCase().replace(/[^\p{L}\p{N}]+/gu, "_").replace(/^_+|_+$/g, "");
+const factKey = (relation, from, to) => `${relation}\u0000${from}\u0000${to}`;
+const chainId = (chain) => `${chain.leftEdge.id}\u0000${chain.rightEdge.id}`;
+const pairLabel = (left, right) => `${left}\u0000${right}`;
+
+/**
+ * affordancesFromDeclarations(fold) — chemistry from the declarations
+ * register, GIVEN tier only.
+ *
+ * `fold` is `interpretation/declarations.js::foldDeclarations(log)`'s own
+ * result. Each GIVEN `transitive(r)` becomes the one affordance its
+ * mathematics states: (r, r) yields r, licensed by the declaration's own
+ * giver. Candidates yield NOTHING — the grain law above — and functional
+ * declarations yield nothing either (functional(r) is R2's exclusion
+ * licence, not a composition licence; that seam stays hl.js's own).
+ */
+export function affordancesFromDeclarations(fold = {}) {
+  return freeze((fold.given ?? [])
+    .filter((d) => d.declKind === "transitive" && d.rel && d.giver)
+    .map((d) => freeze({
+      left: d.rel,
+      right: d.rel,
+      giver: d.giver,
+      witnesses: [],
+      meta: freeze({ yields: d.rel, basis: "given transitive declaration — r composed with r yields r (hl.js R6, declarations.js given tier)" }),
+    })));
+}
+
+/**
+ * closureAffordances({ base, yields, giver }) — the four-row reaction table
+ * that closes a NON-transitive adjacency relation into its transitive
+ * product, under one giver.
+ *
+ * `replaces` (immediate succession) is the worked case: replaces(c,b) ∘
+ * replaces(b,a) does NOT yield replaces(c,a) — c did not replace a — it
+ * yields a DIFFERENT relation ("after"/"succeeded-transitively", the
+ * giver's to name). Once that product exists it must keep composing with
+ * both the base and itself, or the closure stalls at depth two; hence
+ * exactly four rows, all yielding the same product:
+ *   (base, base), (base, yields), (yields, base), (yields, yields).
+ * All four carry the same giver, because they are one declaration —
+ * "`yields` is the transitive closure of `base`" — stated as the affordance
+ * rows the ledger can actually consult.
+ */
+export function closureAffordances({ base, yields, giver } = {}) {
+  if (!base || !yields || !giver) throw new TypeError("closureAffordances: base, yields and giver are all declared — a closure is a giver's claim about a relation, never a default");
+  const basis = `transitive closure: ${yields} is declared the closure of ${base}`;
+  return freeze([
+    [base, base], [base, yields], [yields, base], [yields, yields],
+  ].map(([left, right]) => freeze({ left, right, giver, witnesses: [], meta: freeze({ yields, basis }) })));
+}
+
+/**
+ * nominateFromExperience(priors, candidates, { requireBoth }) — cross-work
+ * memory gates observed nominations.
+ *
+ * Extracted from eval/experienced-new-book.mjs (which built it inline) so
+ * there is ONE implementation: a candidate passes when at least one side —
+ * both, under `requireBoth` — is a RECURRENT cross-work memory
+ * (experience-priors.js's own `recurrent` standing, >= 2 works; never a
+ * floor invented here). What passes is annotated, never re-scored: the
+ * nomination is still a candidate, and nomination is not reasoning
+ * permission — the hyperlexicon's own wall, restated at the door.
+ */
+export function nominateFromExperience(priors = [], candidates = [], { requireBoth = false } = {}) {
+  const vocabulary = experienceRelationVocabulary(priors);
+  const remembered = new Map(vocabulary.filter((r) => r.recurrent).map((r) => [r.relation, r]));
+  return freeze((candidates ?? []).flatMap((candidate) => {
+    const left = remembered.get(candidate.left) ?? null;
+    const right = remembered.get(candidate.right) ?? null;
+    const passes = requireBoth ? (left && right) : (left || right);
+    if (!passes) return [];
+    return [freeze({
+      ...candidate,
+      meta: freeze({
+        ...(candidate.meta ?? {}),
+        rememberedLeft: Boolean(left),
+        rememberedRight: Boolean(right),
+        workSupport: Math.max(left?.workSupport ?? 0, right?.workSupport ?? 0),
+        priorRefs: freeze([...new Set([...(left?.priorRefs ?? []), ...(right?.priorRefs ?? [])])]),
+      }),
+    })];
+  }));
+}
+
+/**
+ * createReactionSubstrate({ entries, hyperlexicon, window }) — the standing,
+ * prior-conditioned structure a cue settles against.
+ *
+ *   entries      graph entries in the ledger's own shape: EOHyperedge@1
+ *                edges (+ occurrence bindings, if the caller has them).
+ *   hyperlexicon the chemistry — an EOHyperlexicon@1 whose GIVEN
+ *                affordances may carry `meta.yields`.
+ *   window       the physics — activation's own declared/measured window,
+ *                or null for the disclosed undecayed control
+ *                (createActivation's wall, inherited, not restated).
+ */
+export function createReactionSubstrate({ entries = [], hyperlexicon = null, window = undefined } = {}) {
+  const ledger = createRelationCompositionLedger(entries);
+  const chemistry = normalizeHyperlexicon(hyperlexicon);
+  const present = createTerrainActivation({ window });
+
+  // Raw stated facts, by (relation, from, to) over referent-standing ends —
+  // the dedupe floor a derivation may never restate. Ends resolved only
+  // through an occurrence binding are not in this set (the ledger resolves
+  // them privately); a derived duplicate of such an edge is counted as
+  // derived-with-paths rather than refused — disclosed, not silent.
+  const rawStated = new Set();
+  for (const entry of entries) {
+    if (entry?.schema !== "EOHyperedge@1" || !entry.relation) continue;
+    const parts = entry.participants ?? [];
+    const from = parts[0];
+    const to = parts.length >= 2 ? parts[parts.length - 1] : null;
+    if (from?.standing === "referent" && from.ref && to?.standing === "referent" && to.ref) {
+      rawStated.add(factKey(entry.relation, from.ref, to.ref));
+    }
+  }
+
+  const derivedByKey = new Map();   // factKey -> derived hyperedge
+  const pathsByKey = new Map();     // factKey -> number of derivation paths
+  const depthByEdge = new Map();    // edge id -> derivation depth (raw = 0)
+  const consulted = new Set();      // chain ids whose affordance was read
+  const withheldByPair = new Map(); // pairLabel -> { left, right, standing, chains }
+  const terminalById = new Map();   // chain id -> terminal bridge fact
+  let derivedCount = 0;
+
+  const depthOf = (edgeId) => depthByEdge.get(edgeId) ?? 0;
+
+  /** Light what a cue touches. Bare strings are referent ids (Entity);
+   * entry-shaped objects light whatever terrain their schema names —
+   * terrain-activation's own mapping, not a second one. */
+  const cue = (refs = []) => {
+    const shaped = (refs ?? []).map((r) => typeof r === "string" ? { schema: "EOReferent@1", id: r } : r);
+    return present.light(shaped);
+  };
+
+  /**
+   * One reaction pass. Chains in contact with the present (any atom lit at
+   * >= floor; every chain when `floor` is null — the control arm) have
+   * their affordance consulted ONCE:
+   *   given + yields  -> a derived edge, ingested (new chain sites form)
+   *                      and lit (the front moves one bridge-hop)
+   *   given, no yields-> a terminal bridge fact (one hop, no more)
+   *   not given       -> withheld, tallied by pair with its standing
+   */
+  const step = ({ floor = undefined } = {}) => {
+    if (floor !== null && !Number.isFinite(floor)) throw new TypeError("reaction step: floor is declared — how faint still counts as present is the caller's to say (null = no presence gate, the disclosed control)");
+    const lit = floor === null ? null : new Set(present.present(floor).Entity.map((e) => e.id));
+    const inContact = (chain) => lit === null || lit.has(chain.from) || lit.has(chain.bridge) || lit.has(chain.to);
+
+    const derived = [];
+    const newTerminal = [];
+    let reacted = 0;
+    let alreadyWitnessed = 0;
+    let additionalPaths = 0;
+
+    for (const chain of ledger.chains()) {
+      const id = chainId(chain);
+      if (consulted.has(id) || !inContact(chain)) continue;
+      consulted.add(id);
+      reacted += 1;
+
+      const affordance = compositionAffordance(chemistry, chain.leftEdge.relation, chain.rightEdge.relation);
+      if (affordance.standing !== "given") {
+        const key = pairLabel(chain.leftEdge.relation, chain.rightEdge.relation);
+        const tally = withheldByPair.get(key) ?? { left: chain.leftEdge.relation, right: chain.rightEdge.relation, standing: affordance.standing, chains: 0 };
+        tally.chains += 1;
+        tally.standing = affordance.standing;
+        withheldByPair.set(key, tally);
+        continue;
+      }
+
+      const yields = affordance.meta?.yields ?? null;
+      if (!yields) {
+        terminalById.set(id, freeze({
+          from: chain.from, bridge: chain.bridge, to: chain.to,
+          left: chain.leftEdge.relation, right: chain.rightEdge.relation,
+          giver: affordance.giver,
+          edgeRefs: freeze([chain.leftEdge.id, chain.rightEdge.id]),
+        }));
+        newTerminal.push(terminalById.get(id));
+        continue;
+      }
+
+      const key = factKey(yields, chain.from, chain.to);
+      if (rawStated.has(key)) { alreadyWitnessed += 1; continue; }
+      if (derivedByKey.has(key)) {
+        pathsByKey.set(key, (pathsByKey.get(key) ?? 1) + 1);
+        additionalPaths += 1;
+        continue;
+      }
+
+      const depth = 1 + Math.max(depthOf(chain.leftEdge.id), depthOf(chain.rightEdge.id));
+      const edge = hyperedge({
+        id: `derived:${derivedCount++}:${slug(yields)}:${slug(chain.from)}:${slug(chain.to)}`,
+        relation: yields,
+        participants: [
+          { ref: chain.from, standing: "referent", role: null },
+          { ref: chain.to, standing: "referent", role: null },
+        ],
+        witness: `derived:${chain.leftEdge.id}+${chain.rightEdge.id}`,
+        meta: {
+          derived: true,
+          depth,
+          parents: [chain.leftEdge.id, chain.rightEdge.id],
+          bridge: chain.bridge,
+          affordance: { left: chain.leftEdge.relation, right: chain.rightEdge.relation, giver: affordance.giver },
+        },
+      });
+      derivedByKey.set(key, edge);
+      pathsByKey.set(key, 1);
+      depthByEdge.set(edge.id, depth);
+      derived.push(edge);
+    }
+
+    if (derived.length) {
+      ledger.ingest(derived);   // products re-enter: new chain sites form
+      present.light(derived);   // ...and light their own ends — the front moves
+    }
+
+    return freeze({ reacted, derived: freeze(derived), terminal: freeze(newTerminal), alreadyWitnessed, additionalPaths });
+  };
+
+  /**
+   * settle({ cue, floor, maxSteps }) — iterate reaction passes until
+   * quiescence (a pass that derives nothing and lands no new terminal
+   * fact) or the declared step cap. `cue: null` with `floor: null` is the
+   * full-closure control arm; a real cue with a real floor is the reader's
+   * present doing the gating.
+   */
+  const settle = ({ cue: cueRefs = undefined, floor = undefined, maxSteps = undefined } = {}) => {
+    if (cueRefs === undefined) throw new TypeError("settle: cue is declared — pass referent ids/entries, or null for the disclosed ungated control");
+    if (!Number.isInteger(maxSteps) || maxSteps < 1) throw new TypeError("settle: maxSteps is a declared positive integer — how long a settling may run is the caller's to say");
+    if (cueRefs !== null) cue(cueRefs);
+
+    const trace = [];
+    let quiescent = false;
+    for (let i = 0; i < maxSteps; i += 1) {
+      const pass = step({ floor: cueRefs === null ? null : floor });
+      trace.push(freeze({ step: i + 1, reacted: pass.reacted, derived: pass.derived.length, terminal: pass.terminal.length, alreadyWitnessed: pass.alreadyWitnessed, additionalPaths: pass.additionalPaths }));
+      if (pass.derived.length === 0 && pass.terminal.length === 0) { quiescent = true; break; }
+    }
+
+    return freeze({
+      quiescent,
+      steps: freeze(trace),
+      derived: derivedFacts(),
+      terminal: freeze([...terminalById.values()]),
+      withheld: freeze([...withheldByPair.values()].map((w) => freeze({ ...w }))),
+    });
+  };
+
+  /** Every derived fact so far, with its path count — the provenance
+   * closure is walkable from each edge's own meta.parents. */
+  const derivedFacts = () => freeze([...derivedByKey.entries()].map(([key, edge]) => freeze({
+    relation: edge.relation,
+    from: edge.participants[0].ref,
+    to: edge.participants[edge.participants.length - 1].ref,
+    depth: edge.meta.depth,
+    paths: pathsByKey.get(key) ?? 1,
+    giver: edge.meta.affordance.giver,
+    edge,
+  })));
+
+  return freeze({
+    cue,
+    step,
+    settle,
+    derived: derivedFacts,
+    present: (floor) => present.present(floor),
+    diagnostics: () => ledger.diagnostics(),
+    window: present.window,
+  });
+}

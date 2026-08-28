@@ -23,3 +23,4 @@ export { projectLexicon, lexiconTrajectory } from "./lexicon.js";
 export { createTerrainActivation, dmdWindow } from "./terrain-activation.js";
 export { networkStanding, directedEdges } from "./network-standing.js";
 export { projectHypergraph, hyperlexiconAt } from "./hypergraph-projection.js";
+export { affordancesFromDeclarations, closureAffordances, nominateFromExperience, createReactionSubstrate } from "./reaction.js";
