@@ -48,3 +48,16 @@ test("the naive control is genuinely unapparatused — it derives strictly more 
   assert.ok(arm("C naive").derived > arm("A shipped").derived,
     "the naive control no longer out-derives the gated arm; the comparison has gone vacuous");
 });
+
+test("the closure reaches past one hop — a partial collapse is loud, not silent", () => {
+  // MEASURED HOLE (2026-08-28): with arm A planted down to a single fact, all
+  // three tests above still passed — the subset property is one-sided (the
+  // empty set is a subset of everything) and the null-check only catches a
+  // TOTAL collapse. A locus constraint without matching role propagation caps
+  // composition at ONE HOP, which is exactly a partial collapse: the count
+  // drops, nothing empties, and the apparatus goes quiet. Depth is the signal
+  // that cannot be faked by a one-hop closure.
+  const a = arm("A shipped");
+  assert.ok(a.derived >= 9, `arm A derived ${a.derived}; the committed baseline is 9 — a lower count is a partial collapse`);
+  assert.ok(a.maxDepth >= 2, `arm A maxDepth ${a.maxDepth}; the committed closure reaches depth 2 — a cap at 1 means products lost what chaining needs`);
+});
