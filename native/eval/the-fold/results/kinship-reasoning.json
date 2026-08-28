@@ -1,0 +1,291 @@
+{
+ "schema": "EOKinshipReasoning@1",
+ "declared": {
+  "chemGiver": "en.wikipedia.org/wiki/Kinship — ordinary English kinship terminology: a person's parent's sibling is their aunt or uncle; declared as two affordance rows by eval/kinship-reasoning.mjs (this driver names its own risk, no giver in the received register vouches for it)",
+  "maxSteps": 8,
+  "cue": null,
+  "floor": null
+ },
+ "material": {
+  "entities": [
+   {
+    "qid": "Q9439",
+    "label": "Victoria"
+   },
+   {
+    "qid": "Q116728",
+    "label": "Victoria, Princess Royal"
+   },
+   {
+    "qid": "Q2677",
+    "label": "Wilhelm II"
+   },
+   {
+    "qid": "Q20875",
+    "label": "Edward VII"
+   }
+  ],
+  "victoriaChildren": 9,
+  "unaddressedChildren": [],
+  "offered": 11
+ },
+ "admission": {
+  "turnedAway": [],
+  "notes": 11,
+  "projected": {
+   "edges": 11,
+   "skipped": []
+  }
+ },
+ "control": {
+  "derived": 0,
+  "withheld": 2,
+  "quiescent": true
+ },
+ "chemistry": {
+  "rows": 2,
+  "quiescent": true,
+  "steps": [
+   {
+    "step": 1,
+    "reacted": 9,
+    "derived": 8,
+    "terminal": 0,
+    "alreadyWitnessed": 0,
+    "additionalPaths": 0
+   },
+   {
+    "step": 2,
+    "reacted": 16,
+    "derived": 8,
+    "terminal": 0,
+    "alreadyWitnessed": 0,
+    "additionalPaths": 0
+   },
+   {
+    "step": 3,
+    "reacted": 0,
+    "derived": 0,
+    "terminal": 0,
+    "alreadyWitnessed": 0,
+    "additionalPaths": 0
+   }
+  ],
+  "derivedSiblingOf": [
+   {
+    "from": "Victoria, Princess Royal",
+    "to": "q155566 (fetched separately, label not held here)",
+    "depth": 1,
+    "witnesses": [
+     "wikidata/Q116728.json#17641-17653",
+     "wikidata/Q9439.json#38817-38831"
+    ]
+   },
+   {
+    "from": "Victoria, Princess Royal",
+    "to": "q158140 (fetched separately, label not held here)",
+    "depth": 1,
+    "witnesses": [
+     "wikidata/Q116728.json#17641-17653",
+     "wikidata/Q9439.json#44668-44682"
+    ]
+   },
+   {
+    "from": "Victoria, Princess Royal",
+    "to": "q158143 (fetched separately, label not held here)",
+    "depth": 1,
+    "witnesses": [
+     "wikidata/Q116728.json#17641-17653",
+     "wikidata/Q9439.json#39679-39693"
+    ]
+   },
+   {
+    "from": "Victoria, Princess Royal",
+    "to": "q160539 (fetched separately, label not held here)",
+    "depth": 1,
+    "witnesses": [
+     "wikidata/Q116728.json#17641-17653",
+     "wikidata/Q9439.json#40541-40555"
+    ]
+   },
+   {
+    "from": "Victoria, Princess Royal",
+    "to": "q160541 (fetched separately, label not held here)",
+    "depth": 1,
+    "witnesses": [
+     "wikidata/Q116728.json#17641-17653",
+     "wikidata/Q9439.json#43627-43641"
+    ]
+   },
+   {
+    "from": "Victoria, Princess Royal",
+    "to": "q160558 (fetched separately, label not held here)",
+    "depth": 1,
+    "witnesses": [
+     "wikidata/Q116728.json#17641-17653",
+     "wikidata/Q9439.json#42765-42779"
+    ]
+   },
+   {
+    "from": "Victoria, Princess Royal",
+    "to": "q161167 (fetched separately, label not held here)",
+    "depth": 1,
+    "witnesses": [
+     "wikidata/Q116728.json#17641-17653",
+     "wikidata/Q9439.json#41582-41596"
+    ]
+   },
+   {
+    "from": "Victoria, Princess Royal",
+    "to": "Edward VII",
+    "depth": 1,
+    "witnesses": [
+     "wikidata/Q116728.json#17641-17653",
+     "wikidata/Q9439.json#37956-37969"
+    ]
+   }
+  ],
+  "derivedAuntUncle": [
+   {
+    "nephewNiece": "Wilhelm II",
+    "auntUncle": "q155566 (fetched separately, label not held here)",
+    "depth": 2,
+    "witnesses": [
+     "wikidata/Q2677.json#21551-21565",
+     "wikidata/Q116728.json#17641-17653",
+     "wikidata/Q9439.json#38817-38831"
+    ]
+   },
+   {
+    "nephewNiece": "Wilhelm II",
+    "auntUncle": "q158140 (fetched separately, label not held here)",
+    "depth": 2,
+    "witnesses": [
+     "wikidata/Q2677.json#21551-21565",
+     "wikidata/Q116728.json#17641-17653",
+     "wikidata/Q9439.json#44668-44682"
+    ]
+   },
+   {
+    "nephewNiece": "Wilhelm II",
+    "auntUncle": "q158143 (fetched separately, label not held here)",
+    "depth": 2,
+    "witnesses": [
+     "wikidata/Q2677.json#21551-21565",
+     "wikidata/Q116728.json#17641-17653",
+     "wikidata/Q9439.json#39679-39693"
+    ]
+   },
+   {
+    "nephewNiece": "Wilhelm II",
+    "auntUncle": "q160539 (fetched separately, label not held here)",
+    "depth": 2,
+    "witnesses": [
+     "wikidata/Q2677.json#21551-21565",
+     "wikidata/Q116728.json#17641-17653",
+     "wikidata/Q9439.json#40541-40555"
+    ]
+   },
+   {
+    "nephewNiece": "Wilhelm II",
+    "auntUncle": "q160541 (fetched separately, label not held here)",
+    "depth": 2,
+    "witnesses": [
+     "wikidata/Q2677.json#21551-21565",
+     "wikidata/Q116728.json#17641-17653",
+     "wikidata/Q9439.json#43627-43641"
+    ]
+   },
+   {
+    "nephewNiece": "Wilhelm II",
+    "auntUncle": "q160558 (fetched separately, label not held here)",
+    "depth": 2,
+    "witnesses": [
+     "wikidata/Q2677.json#21551-21565",
+     "wikidata/Q116728.json#17641-17653",
+     "wikidata/Q9439.json#42765-42779"
+    ]
+   },
+   {
+    "nephewNiece": "Wilhelm II",
+    "auntUncle": "q161167 (fetched separately, label not held here)",
+    "depth": 2,
+    "witnesses": [
+     "wikidata/Q2677.json#21551-21565",
+     "wikidata/Q116728.json#17641-17653",
+     "wikidata/Q9439.json#41582-41596"
+    ]
+   },
+   {
+    "nephewNiece": "Wilhelm II",
+    "auntUncle": "Edward VII",
+    "depth": 2,
+    "witnesses": [
+     "wikidata/Q2677.json#21551-21565",
+     "wikidata/Q116728.json#17641-17653",
+     "wikidata/Q9439.json#37956-37969"
+    ]
+   }
+  ],
+  "withheld": [
+   {
+    "left": "childOf",
+    "right": "childOf",
+    "standing": "unknown",
+    "chains": 1
+   },
+   {
+    "left": "hasChild",
+    "right": "siblingOf",
+    "standing": "unknown",
+    "chains": 8
+   }
+  ]
+ },
+ "oracle": {
+  "note": "Wikidata's own P3373 (sibling), fetched separately, NEVER fed into the reasoning substrate — a check on the derivation, not an input to it",
+  "vickyP3373Labels": [
+   "q155566 (fetched separately, label not held here)",
+   "q158140 (fetched separately, label not held here)",
+   "q160539 (fetched separately, label not held here)",
+   "q161167 (fetched separately, label not held here)",
+   "q158143 (fetched separately, label not held here)",
+   "q160541 (fetched separately, label not held here)",
+   "q160558 (fetched separately, label not held here)",
+   "Edward VII"
+  ],
+  "agree": [
+   "q155566 (fetched separately, label not held here)",
+   "q158140 (fetched separately, label not held here)",
+   "q158143 (fetched separately, label not held here)",
+   "q160539 (fetched separately, label not held here)",
+   "q160541 (fetched separately, label not held here)",
+   "q160558 (fetched separately, label not held here)",
+   "q161167 (fetched separately, label not held here)",
+   "Edward VII"
+  ],
+  "missedByDerivation": [],
+  "derivedButNotInP3373": [],
+  "precisionRecallNote": "exact agreement: every derived sibling matches Wikidata's own directly-stated P3373, and nothing stated there was missed"
+ },
+ "neverStatedCheck": {
+  "wordsAuntOrUncleAppearInRawBytes": false,
+  "reading": "confirmed: neither 'aunt' nor 'uncle' appears anywhere in the four raw fetched Wikidata entity dumps — the derived fact is genuinely never stated in the material"
+ },
+ "audit": {
+  "preSettleRefuted": 0,
+  "postSettleRefuted": 0,
+  "selfConsistent": true
+ },
+ "specimen": "Wilhelm II's aunt/uncle is Edward VII — derived (depth 2), stated by no single fetched page, provenance: wikidata/Q2677.json#21551-21565 + wikidata/Q116728.json#17641-17653 + wikidata/Q9439.json#37956-37969",
+ "modelComparison": {
+  "model": {
+   "kind": "local-cpu",
+   "name": "onnx-community/Qwen2.5-0.5B-Instruct"
+  },
+  "prompt": "Here are three facts:\n1. Victoria, Princess Royal's mother was Victoria.\n2. Wilhelm II's mother was Victoria, Princess Royal.\n3. Victoria's children included Edward VII.\n\nQuestion: was Edward VII an uncle of Wilhelm II? Answer yes or no, then explain your reasoning in one sentence.",
+  "answer": "Yes. Edward VII was the third child of Queen Victoria and Prince Albert, making him a direct descendant of the same family as his parents. Therefore, he is considered to be a cousin of both Victoria and her husband, King George V.",
+  "saidYes": true,
+  "correct": true
+ }
+}
