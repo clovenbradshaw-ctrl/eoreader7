@@ -234,6 +234,107 @@ export const normaliseNewlines = (text) => {
 
 import { SENTENCE_TERMINATORS, CLOSING_QUOTES } from "./priors.js";
 
+/**
+ * detectFrontMatterRun(text, {maxScanChars, tocLineMax, tocRunMin,
+ * proseParaMin}) — a long run of short, unterminated paragraphs (a table
+ * of contents' own shape: "CHAPTER ONE", "BOOK FIRST—A JUST MAN", one
+ * heading per line, no sentence terminator) immediately before a
+ * genuinely long prose paragraph, found only within the document's OWN
+ * front matter, never deep inside it.
+ *
+ * Built from a real, measured failure (S27; live_priors' own corpus
+ * sweep, an adversarial audit of its flagged reading anomalies): a
+ * Gutenberg-mirrored edition of Les Misérables carries no PG
+ * START/END markers at all, so `stripContainer` strips nothing and its
+ * own table of contents is never touched — it runs to roughly char
+ * 21,600 before real narrative prose begins ("In 1815, M.
+ * Charles-François-Bienvenu Myriel was Bishop of D——"),
+ * nearly three times past an 8,000-character flat excerpt window. Zero
+ * relation edges were extracted from a book that has hundreds.
+ *
+ * TWO SAFETY PROPERTIES, both found ADVERSARIALLY — two independent
+ * skeptics verifying the first cut of this function, not its own author
+ * — and both load-bearing, so both are enforced here rather than left
+ * to a caller to remember:
+ *
+ *   - The terminator check strips CLOSING_QUOTES first. A naive
+ *     `/[.!?]$/` test misreads quote-terminated dialogue
+ *     ("Nor running a chance of arrest?") as TOC-shaped, because the
+ *     closing quote character sits after the real terminator. This reuses
+ *     this file's own received `SENTENCE_TERMINATORS`/`CLOSING_QUOTES`
+ *     closed classes — the SAME ones `splitSentencesInRange` already
+ *     walks past a terminator, a few lines below — rather than
+ *     inventing a second, Unicode-punctuation-category regex here.
+ *   - `maxScanChars` BOUNDS the search. Without a bound, this same shape
+ *     (a run of short, unterminated lines) matches a back-of-book
+ *     alphabetical INDEX just as well as a front-of-book table of
+ *     contents — found live, firing at 94% depth into an unrelated
+ *     book (a misindexed "Leviathan" file's own back-matter index).
+ *     Detection never runs past `maxScanChars`, so this function can only
+ *     ever relocate an excerpt FORWARD within the document's own front
+ *     matter — never into its middle, and never into its back matter.
+ *
+ * Thresholds (70-char lines, 8 consecutive, a 300-char prose paragraph to
+ * land on) were chosen by reading real specimens, not against any single
+ * golden score — disclosed rather than claimed as null-derived, and
+ * checked against nine independent control books (Moby Dick, Pride and
+ * Prejudice, Shakespeare's Complete Works, Tom Sawyer, Dorian Gray, Leaves
+ * of Grass, Sherlock Holmes, Alice, Don Quixote) before shipping: 7/9
+ * correctly never fire, and Moby Dick's real 28KB Etymology/Extracts
+ * front section — genuine prose, real terminators — is correctly
+ * left alone, confirming this targets TOC *shape*, not "any front
+ * matter."
+ *
+ * Returns `{detected, skipTo, runLength}` — `skipTo` is a character
+ * offset into the SAME string handed in (never re-based, never folded for
+ * newlines first: a caller composing this with `normaliseNewlines` calls
+ * this FIRST, on the raw body, exactly the way `stripContainer` already
+ * composes before newline normalisation elsewhere in this file).
+ */
+export const detectFrontMatterRun = (text, { maxScanChars = 32000, tocLineMax = 70, tocRunMin = 8, proseParaMin = 300 } = {}) => {
+  const s = String(text ?? "");
+  const scan = s.slice(0, maxScanChars);
+  const BREAK = /(?:\r?\n)\s*(?:\r?\n)+/g;
+  const paragraphs = [];
+  let paraStart = 0;
+  let pm;
+  while ((pm = BREAK.exec(scan))) {
+    paragraphs.push({ start: paraStart, end: pm.index });
+    paraStart = pm.index + pm[0].length;
+  }
+  paragraphs.push({ start: paraStart, end: scan.length });
+
+  const stripTrailingClosingQuotes = (t) => {
+    let end = t.length;
+    while (end > 0 && CLOSING_QUOTES.has(t[end - 1])) end -= 1;
+    return t.slice(0, end);
+  };
+  const isTerminated = (t) => {
+    const stripped = stripTrailingClosingQuotes(t.trimEnd());
+    return stripped.length > 0 && SENTENCE_TERMINATORS.has(stripped[stripped.length - 1]);
+  };
+  const isTocShaped = (paraText) => {
+    const t = paraText.trim();
+    if (!t || t.length >= tocLineMax) return false;
+    return !isTerminated(t);
+  };
+
+  let run = 0;
+  for (const para of paragraphs) {
+    const paraText = scan.slice(para.start, para.end);
+    if (isTocShaped(paraText)) {
+      run += 1;
+      continue;
+    }
+    const len = para.end - para.start;
+    if (run >= tocRunMin && len >= proseParaMin) {
+      return { detected: true, skipTo: para.start, runLength: run };
+    }
+    run = 0;
+  }
+  return { detected: false, skipTo: 0, runLength: 0 };
+};
+
 const PARAGRAPH_BREAK = /\n\s*\n+/g;
 
 // The guard this file used to rely on — "a terminator not followed by

@@ -998,3 +998,64 @@ motivating shape at the same scale as the real file — 42 header lines
 before the target — and the composed-with-`splitSentences` case carrying
 the corrected invariant above). Full suite 269/269 -> 277/277, confirmed
 via `git stash`, zero regressions.
+## S27 — A flat excerpt window can land entirely inside a table of contents
+
+Found by an adversarial audit of live_priors' full corpus reading sweep
+(the-fold/live_priors, task #9: an investigator, then two independent
+skeptics, over a real flagged anomaly — not a hypothetical). A
+Gutenberg-mirrored edition of Les Misérables carries no PG START/END
+markers at all, so nothing strips its own front matter, and its table of
+contents runs to roughly char 21,600 — real narrative prose does not
+begin until well past an 8,000-character flat excerpt window. Zero
+relation edges were extracted from a book that has hundreds.
+
+**`detectFrontMatterRun(text, {maxScanChars, tocLineMax, tocRunMin,
+proseParaMin})` returns `{detected, skipTo, runLength}`.** Paragraphs
+(the same blank-line boundary `splitSentences` already treats as harder
+than any terminator) are classified TOC-shaped when short and
+unterminated; a run of at least `tocRunMin` (8) landing on a genuinely
+long (`proseParaMin`, 300 chars) paragraph declares front matter and
+names where it ends. Verified against the real specimen: `skipTo` lands
+on Victor Hugo's own Preface — genuine authored prose, not the heading
+list it follows — and an excerpt built from that point extracts 73 real
+relation edges where the flat prefix extracted zero.
+
+**Two safety properties, both found ADVERSARIALLY — by two independent
+skeptics verifying the first cut, not by this function's own author —
+and both load-bearing.** (1) The terminator check strips
+`CLOSING_QUOTES` (this file's own received closed class, `priors.js`)
+before testing `SENTENCE_TERMINATORS` — a naive `/[.!?]$/` test misreads
+quote-terminated dialogue ("Nor running a chance of arrest?") as
+TOC-shaped, because the terminator sits before the closing quote. (2)
+`maxScanChars` bounds the search to the document's own front matter —
+without it, the identical short-unterminated-line shape matches a
+back-of-book alphabetical INDEX just as well as a front-of-book table of
+contents, found live firing at 94% depth into an unrelated,
+independently-mislabeled file.
+
+**Thresholds are disclosed as read-from-specimens, not
+null-derived.** Checked against nine independent control books (Moby
+Dick, Pride and Prejudice, Shakespeare's Complete Works, Tom Sawyer,
+Dorian Gray, Leaves of Grass, Sherlock Holmes, Alice, Don Quixote) before
+shipping: 7/9 correctly never fire, and Moby Dick's real ~28KB
+Etymology/Extracts front section — genuine quoted prose, real
+terminators — is correctly left alone, confirming this targets TOC
+*shape*, not "any front matter." A real specimen sweep across every
+other book in the same corpus directory (`tests/spans-frontmatter.test.js`'s
+own "REAL SPECIMEN SWEEP" case) fires on no file outside the one known
+TOC-bearing specimen, and prints any future disagreement by name rather
+than passing blind.
+
+**Not attempted here: a genuinely blind held-out book never watched
+while the thresholds were chosen** — every control book named above was
+read by name while validating this function, so none of them is truly
+blind in the strict sense the original audit's own synthesis asked for.
+Disclosed rather than silently claimed otherwise.
+
+**Files.** `adapters/text/spans.js` (`detectFrontMatterRun`, new export;
+`splitSentences`/`normaliseNewlines`/`stripContainer` untouched — this
+composes with them, never replaces them). `tests/spans-frontmatter.test.js`
+(11 cases: 6 synthetic — including both adversarially-found counter-
+examples pinned as their own regressions — plus 5 against real corpus
+files, skipped rather than failed if the sibling `live_priors` checkout
+is absent). Full suite 307/307 -> 318/318, zero regressions.
