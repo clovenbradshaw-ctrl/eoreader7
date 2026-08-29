@@ -933,3 +933,137 @@ measurement pass needing real materials with predictions frozen first;
 CastLedger round-trip byte-identity — is already pinned). Per-assembly
 dynamics (step 7) and the remaining ledgers (step 8) follow in the
 declared order.
+
+## S26 — Normalisation must carry its own offset, and the case that finally proved it
+
+> **Numbered S26 at merge:** first written as S25; a concurrent PR landed
+> its own S25 (the assembly-boundary entry above) on main first. The
+> number moved, nothing about the law did — the same renumber-on-merge
+> convention this file's own S25 entry just recorded, one collision over.
+
+> **giver:** earned-here — the-fold POLICIES.md LP3, 2026-08-29
+
+`stripContainer` already held the law this closes one step over: "everything
+downstream anchors spans against this offset and a strip that forgot to
+move it would silently shift every citation." `splitSentences` folds
+`\r\n`/`\r` to `\n` before it computes a single offset, and until now that
+fold was a bare `.replace()` — a transform with no recorded offset, in a
+file whose other transform (`stripContainer`) exists specifically to prove
+that class of transform must carry one.
+
+**Measured, not argued.** A real Project Gutenberg file with 3,654 CRLF
+pairs produced a span whose address, taken at face value, missed its own
+source file by 969 bytes. The span resolved only against a private,
+un-addressable copy of the text a consumer had kept alongside it — which is
+exactly the failure this file's own header names for `stripContainer`:
+"correct in every test that only re-reads through this process and is
+wrong the moment anyone opens the file."
+
+**`normaliseNewlines(text)` returns `{text, toRaw}`.** `\r\n` -> `\n`
+removes one character per pair; bare `\r` -> `\n` is same-length. So the
+map back to raw offsets is a monotonic step function, one step per
+collapsed CRLF, recorded as checkpoints at each divergence rather than
+walked character by character per query. Verified against the actual
+specimen: a span at normalised offset 196 now resolves to raw offset 1165
+— the true position, confirmed against the real file's own bytes, not a
+constructed example.
+
+**`splitSentences` is unchanged.** It still normalises inline and returns
+exactly what it always returned — pinned as its own regression
+(`splitSentences(raw) === splitSentences(normaliseNewlines(raw).text)`,
+byte-for-byte). A caller that wants raw-file addresses normalises first,
+passes the normalised text through unchanged (a no-op, since there is
+nothing left to collapse), and applies `.toRaw` to any offset before
+writing it down. A caller that never calls the new function keeps every
+byte of today's behaviour.
+
+**The self-verification invariant this licenses is not bare string
+equality, and saying so once here avoids re-deriving it wrong.** A span
+that straddles an embedded CRLF legitimately still carries `\r\n` in the
+raw file where the read text carries plain `\n` — that character is real,
+present in the actual bytes, and `toRaw` names its position correctly. The
+check that proves an address is right is `normaliseNewlines(raw.slice(a,
+b)).text === text_that_was_read` — reapplying the SAME normalisation to
+the raw slice — not naive equality against untouched bytes. One of this
+file's own regression tests asserted the wrong invariant first and failed
+on exactly this case (a two-line header block splitSentences reads as one
+sentence with an embedded `\n`); the fix was the assertion, not the code,
+and both versions are worth knowing since a future caller will make the
+same mistake this file's own first draft made.
+
+**Files.** `adapters/text/spans.js` (`normaliseNewlines`, new export;
+`splitSentences` untouched). `tests/spans-normalise.test.js` (8 cases: the
+CRLF/bare-CR/mixed round-trip properties, a synthetic reproduction of the
+motivating shape at the same scale as the real file — 42 header lines
+before the target — and the composed-with-`splitSentences` case carrying
+the corrected invariant above). Full suite 269/269 -> 277/277, confirmed
+via `git stash`, zero regressions.
+## S27 — A flat excerpt window can land entirely inside a table of contents
+
+Found by an adversarial audit of live_priors' full corpus reading sweep
+(the-fold/live_priors, task #9: an investigator, then two independent
+skeptics, over a real flagged anomaly — not a hypothetical). A
+Gutenberg-mirrored edition of Les Misérables carries no PG START/END
+markers at all, so nothing strips its own front matter, and its table of
+contents runs to roughly char 21,600 — real narrative prose does not
+begin until well past an 8,000-character flat excerpt window. Zero
+relation edges were extracted from a book that has hundreds.
+
+**`detectFrontMatterRun(text, {maxScanChars, tocLineMax, tocRunMin,
+proseParaMin})` returns `{detected, skipTo, runLength}`.** Paragraphs
+(the same blank-line boundary `splitSentences` already treats as harder
+than any terminator) are classified TOC-shaped when short and
+unterminated; a run of at least `tocRunMin` (8) landing on a genuinely
+long (`proseParaMin`, 300 chars) paragraph declares front matter and
+names where it ends. Verified against the real specimen: `skipTo` lands
+on Victor Hugo's own Preface — genuine authored prose, not the heading
+list it follows — and an excerpt built from that point extracts 73 real
+relation edges where the flat prefix extracted zero.
+
+**Two safety properties, both found ADVERSARIALLY — by two independent
+skeptics verifying the first cut, not by this function's own author —
+and both load-bearing.** (1) The terminator check strips
+`CLOSING_QUOTES` (this file's own received closed class, `priors.js`)
+before testing `SENTENCE_TERMINATORS` — a naive `/[.!?]$/` test misreads
+quote-terminated dialogue ("Nor running a chance of arrest?") as
+TOC-shaped, because the terminator sits before the closing quote. (2)
+`maxScanChars` bounds the search to the document's own front matter —
+without it, the identical short-unterminated-line shape matches a
+back-of-book alphabetical INDEX just as well as a front-of-book table of
+contents, found live firing at 94% depth into an unrelated,
+independently-mislabeled file.
+
+**Thresholds are disclosed as read-from-specimens, not
+null-derived.** Checked against nine independent control books (Moby
+Dick, Pride and Prejudice, Shakespeare's Complete Works, Tom Sawyer,
+Dorian Gray, Leaves of Grass, Sherlock Holmes, Alice, Don Quixote) before
+shipping: 7/9 correctly never fire, and Moby Dick's real ~28KB
+Etymology/Extracts front section — genuine quoted prose, real
+terminators — is correctly left alone, confirming this targets TOC
+*shape*, not "any front matter." A real specimen sweep across every
+other book in the same corpus directory (`tests/spans-frontmatter.test.js`'s
+own "REAL SPECIMEN SWEEP" case) fires on no file outside the one known
+TOC-bearing specimen, and prints any future disagreement by name rather
+than passing blind.
+
+**Not attempted here: a genuinely blind held-out book never watched
+while the thresholds were chosen** — every control book named above was
+read by name while validating this function, so none of them is truly
+blind in the strict sense the original audit's own synthesis asked for.
+Disclosed rather than silently claimed otherwise.
+
+**Files.** `adapters/text/spans.js` (`detectFrontMatterRun`, new export;
+`splitSentences`/`normaliseNewlines`/`stripContainer` untouched — this
+composes with them, never replaces them). `tests/spans-frontmatter.test.js`
+(11 cases: 6 synthetic — including both adversarially-found counter-
+examples pinned as their own regressions — plus 5 against real corpus
+files, skipped rather than failed if the sibling `live_priors` checkout
+is absent). Full suite 307/307 -> 318/318, zero regressions.
+
+**Amended same day — found by the real corpus sweep itself, not by a control this pass thought to write.** Wiring `detectFrontMatterRun` into live_priors' full 2,207-source sweep (the actual point of building it) surfaced a SECOND false-positive class the nine-book control set above never exercised, because none of those nine books were markdown-formatted: a real Dutch legal code (`Wetboek van Koophandel`) opens with a YAML frontmatter block, then markdown ATX headings (`##### Artikel 2`) each immediately followed by the single word `Vervallen` ("Repealed") for a dozen consecutive articles — a genuine, legitimate, terse document structure, not an undifferentiated list of chapter titles. It cleared the TOC-run floor and skipped 4,594 real characters, turning a previously-clean 39-edge reading into a 0-edge one — confirmed as a real regression, not a hypothetical, by diffing against the sidecar this exact file produced one commit before this function existed.
+
+**The fix, and why it is general rather than a patch for one file.** A markdown ATX heading (`^#{1,6}\s`) is now excluded from ever counting as TOC-shaped. This is principled, not narrow: a heading is evidence of DELIBERATE document structure — the opposite of an undifferentiated run of plain lines, which is what a Gutenberg-style table of contents actually is. Les Misérables' own TOC uses plain `CHAPTER I—TITLE` lines with no `#` anywhere, so the exclusion changes nothing about the specimen this function was built for (re-verified: `skipTo` unchanged at 20,877). Re-checked against the full `06-government-legal` category (1,221 files, the corpus's own largest and most markdown-heavy directory, each compared against its own pre-existing sidecar) after the fix: **zero regressions, 2 further improvements, 1,219 unchanged.**
+
+**The lesson, stated so the next control set does not repeat it:** a control set of nine novels proved this function safe on PROSE's own front-matter shapes; it said nothing about STRUCTURED document conventions (markdown headings, YAML frontmatter, numbered-clause legal text) that share the same short-unterminated-line surface by pure coincidence. The real corpus sweep is what actually exercises a format's diversity — a curated control set, however careful, only tests what its author thought to include.
+
+Two new regression cases in `tests/spans-frontmatter.test.js`: the synthetic Dutch-legal-code shape (a run of ATX headings each followed by a genuine one-word "Vervallen" body), and the real specimen file itself, read directly. Full suite 318/318 -> 320/320, zero regressions.

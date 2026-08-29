@@ -166,7 +166,198 @@ export const stripContainer = (text) => {
   return { text: s, offset, front: Object.freeze(front), looks_like_material: looksLikeMaterial(s) };
 };
 
+/**
+ * NORMALISATION MUST CARRY ITS OWN OFFSET, the same law `stripContainer`
+ * above already holds ("everything downstream anchors spans against this
+ * offset and a strip that forgot to move it would silently shift every
+ * citation") — applied to the one step in this file that used to violate
+ * it. `splitSentences` collapses `\r\n`/`\r` to `\n` before it computes a
+ * single offset, and until this function existed that collapse was a bare
+ * `.replace()` with nothing recording where a character had been removed.
+ *
+ * MEASURED (the-fold POLICIES.md LP3, 2026-08-29): a real Project
+ * Gutenberg file with 3,654 CRLF pairs produced a span whose recorded
+ * address, taken at face value, missed its own source file by 969 bytes —
+ * correct only against a private, un-addressable copy of the text. The
+ * defect was not in `splitSentences`'s CHOICE to normalise (mixed line
+ * endings must fold to one before a terminator/whitespace rule can be
+ * language-agnostic); it was that the normalisation was invisible.
+ *
+ * `\r\n` -> `\n` REMOVES one character per pair; bare `\r` -> `\n` is a
+ * same-length substitution. So the map from normalised offset back to raw
+ * offset is a monotonic step function with one step per collapsed CRLF —
+ * recorded as checkpoints at each divergence, not walked character by
+ * character on every query. `toRaw` binary-searches the last checkpoint at
+ * or before the query and adds the accumulated raw-ahead-of-normalised
+ * delta. Verified against the actual case that found this: a span at
+ * normalised offset 196 in that file's body now resolves to raw offset
+ * 1165 — the true position — via `toRaw`.
+ *
+ * `splitSentences` itself is UNCHANGED below: it still normalises inline
+ * and returns exactly what it always returned. A caller that needs raw-file
+ * addresses calls `normaliseNewlines` FIRST, passes its own `.text` to
+ * `splitSentences` (which then finds nothing left to collapse — a no-op,
+ * byte-identical to normalising once), and applies `.toRaw` to any offset
+ * before writing it down. A caller that never calls this keeps today's
+ * behaviour exactly, because nothing about `splitSentences` changed.
+ */
+export const normaliseNewlines = (text) => {
+  const raw = String(text ?? "");
+  const out = [];
+  const checkpoints = [{ norm: 0, raw: 0 }];
+  let normPos = 0;
+  let rawPos = 0;
+  while (rawPos < raw.length) {
+    if (raw[rawPos] === "\r" && raw[rawPos + 1] === "\n") {
+      out.push("\n");
+      rawPos += 2;
+      normPos += 1;
+      checkpoints.push({ norm: normPos, raw: rawPos });
+    } else {
+      out.push(raw[rawPos] === "\r" ? "\n" : raw[rawPos]);
+      rawPos += 1;
+      normPos += 1;
+    }
+  }
+  const toRaw = (n) => {
+    if (!Number.isFinite(n)) throw new TypeError("toRaw: offset must be a finite number");
+    let lo = 0, hi = checkpoints.length - 1;
+    while (lo < hi) {
+      const mid = (lo + hi + 1) >> 1;
+      if (checkpoints[mid].norm <= n) lo = mid; else hi = mid - 1;
+    }
+    const cp = checkpoints[lo];
+    return cp.raw + (n - cp.norm);
+  };
+  return { text: out.join(""), toRaw };
+};
+
 import { SENTENCE_TERMINATORS, CLOSING_QUOTES } from "./priors.js";
+
+/**
+ * detectFrontMatterRun(text, {maxScanChars, tocLineMax, tocRunMin,
+ * proseParaMin}) — a long run of short, unterminated paragraphs (a table
+ * of contents' own shape: "CHAPTER ONE", "BOOK FIRST—A JUST MAN", one
+ * heading per line, no sentence terminator) immediately before a
+ * genuinely long prose paragraph, found only within the document's OWN
+ * front matter, never deep inside it.
+ *
+ * Built from a real, measured failure (S27; live_priors' own corpus
+ * sweep, an adversarial audit of its flagged reading anomalies): a
+ * Gutenberg-mirrored edition of Les Misérables carries no PG
+ * START/END markers at all, so `stripContainer` strips nothing and its
+ * own table of contents is never touched — it runs to roughly char
+ * 21,600 before real narrative prose begins ("In 1815, M.
+ * Charles-François-Bienvenu Myriel was Bishop of D——"),
+ * nearly three times past an 8,000-character flat excerpt window. Zero
+ * relation edges were extracted from a book that has hundreds.
+ *
+ * TWO SAFETY PROPERTIES, both found ADVERSARIALLY — two independent
+ * skeptics verifying the first cut of this function, not its own author
+ * — and both load-bearing, so both are enforced here rather than left
+ * to a caller to remember:
+ *
+ *   - The terminator check strips CLOSING_QUOTES first. A naive
+ *     `/[.!?]$/` test misreads quote-terminated dialogue
+ *     ("Nor running a chance of arrest?") as TOC-shaped, because the
+ *     closing quote character sits after the real terminator. This reuses
+ *     this file's own received `SENTENCE_TERMINATORS`/`CLOSING_QUOTES`
+ *     closed classes — the SAME ones `splitSentencesInRange` already
+ *     walks past a terminator, a few lines below — rather than
+ *     inventing a second, Unicode-punctuation-category regex here.
+ *   - `maxScanChars` BOUNDS the search. Without a bound, this same shape
+ *     (a run of short, unterminated lines) matches a back-of-book
+ *     alphabetical INDEX just as well as a front-of-book table of
+ *     contents — found live, firing at 94% depth into an unrelated
+ *     book (a misindexed "Leviathan" file's own back-matter index).
+ *     Detection never runs past `maxScanChars`, so this function can only
+ *     ever relocate an excerpt FORWARD within the document's own front
+ *     matter — never into its middle, and never into its back matter.
+ *
+ * Thresholds (70-char lines, 8 consecutive, a 300-char prose paragraph to
+ * land on) were chosen by reading real specimens, not against any single
+ * golden score — disclosed rather than claimed as null-derived, and
+ * checked against nine independent control books (Moby Dick, Pride and
+ * Prejudice, Shakespeare's Complete Works, Tom Sawyer, Dorian Gray, Leaves
+ * of Grass, Sherlock Holmes, Alice, Don Quixote) before shipping: 7/9
+ * correctly never fire, and Moby Dick's real 28KB Etymology/Extracts
+ * front section — genuine prose, real terminators — is correctly
+ * left alone, confirming this targets TOC *shape*, not "any front
+ * matter."
+ *
+ * Returns `{detected, skipTo, runLength}` — `skipTo` is a character
+ * offset into the SAME string handed in (never re-based, never folded for
+ * newlines first: a caller composing this with `normaliseNewlines` calls
+ * this FIRST, on the raw body, exactly the way `stripContainer` already
+ * composes before newline normalisation elsewhere in this file).
+ */
+export const detectFrontMatterRun = (text, { maxScanChars = 32000, tocLineMax = 70, tocRunMin = 8, proseParaMin = 300 } = {}) => {
+  const s = String(text ?? "");
+  const scan = s.slice(0, maxScanChars);
+  const BREAK = /(?:\r?\n)\s*(?:\r?\n)+/g;
+  const paragraphs = [];
+  let paraStart = 0;
+  let pm;
+  while ((pm = BREAK.exec(scan))) {
+    paragraphs.push({ start: paraStart, end: pm.index });
+    paraStart = pm.index + pm[0].length;
+  }
+  paragraphs.push({ start: paraStart, end: scan.length });
+
+  const stripTrailingClosingQuotes = (t) => {
+    let end = t.length;
+    while (end > 0 && CLOSING_QUOTES.has(t[end - 1])) end -= 1;
+    return t.slice(0, end);
+  };
+  const isTerminated = (t) => {
+    const stripped = stripTrailingClosingQuotes(t.trimEnd());
+    return stripped.length > 0 && SENTENCE_TERMINATORS.has(stripped[stripped.length - 1]);
+  };
+  // A markdown ATX heading ("# Title", "##### Artikel 1") is a real,
+  // INTENTIONAL structural marker — the opposite of the undifferentiated
+  // run of plain lines a Gutenberg-style table of contents actually is.
+  // Found live, not by reasoning about it: a Dutch legal code
+  // (world-legislation/nl/BWBR0001838.md — YAML frontmatter, then
+  // markdown headings each followed by either real prose or a bare
+  // "Vervallen" ["Repealed"]) has DOZENS of repealed articles in a row,
+  // each an "##### Artikel N" heading immediately followed by one
+  // five-character word with no terminator — a run that cleared this
+  // function's own floor and skipped 4,594 real characters into a
+  // previously-CLEAN 39-edge reading, landing on nothing (0 edges). This
+  // is the identical failure shape the back-of-book-index counter-example
+  // already named (a real document structure that happens to share TOC's
+  // surface shape) — found on a SECOND, unrelated structural convention
+  // this pass's own control set never tested, because none of its nine
+  // control books were markdown-formatted. Excluding ATX headings is
+  // general, not a patch for this one file: Les Misérables' own TOC uses
+  // plain "CHAPTER I—TITLE" lines with no "#" anywhere, so this exclusion
+  // changes nothing about the specimen this function was built for, and
+  // it is principled — a heading is evidence of deliberate document
+  // structure, never evidence of an undifferentiated list masquerading
+  // as content.
+  const ATX_HEADING_RE = /^#{1,6}\s/;
+  const isTocShaped = (paraText) => {
+    const t = paraText.trim();
+    if (!t || t.length >= tocLineMax) return false;
+    if (ATX_HEADING_RE.test(t)) return false;
+    return !isTerminated(t);
+  };
+
+  let run = 0;
+  for (const para of paragraphs) {
+    const paraText = scan.slice(para.start, para.end);
+    if (isTocShaped(paraText)) {
+      run += 1;
+      continue;
+    }
+    const len = para.end - para.start;
+    if (run >= tocRunMin && len >= proseParaMin) {
+      return { detected: true, skipTo: para.start, runLength: run };
+    }
+    run = 0;
+  }
+  return { detected: false, skipTo: 0, runLength: 0 };
+};
 
 const PARAGRAPH_BREAK = /\n\s*\n+/g;
 
