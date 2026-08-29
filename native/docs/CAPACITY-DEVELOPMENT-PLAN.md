@@ -172,3 +172,45 @@ somewhere — not that any is performed correctly (coherence <
 correspondence; the oracle rule stands), and not that each organ reaches
 every ORDER of task (the MHC axis is separate, and pairing it per cell
 is the map's own named future work).
+
+---
+
+## Status after the build pass (2026-08-29, P65) — appended, the text above kept as record
+
+**Built and registered this pass** (each with conformance tests whose
+walls are shown to fire; POLICIES.md P65 is the full account):
+
+- **NUL·Figure — BUILT**: `clearance.js` (+9 tests against the real
+  native adapters). One premise above needed correcting by measurement:
+  the "coincidental sentence-initial capitalization" specimen is refused
+  by the NATIVE adapter at the presence rung itself
+  (`accumulateSurfaceEvidence` skips position-capitalised tokens), so the
+  organ's real content is the establishment ladder over presence — P38's
+  distinction mechanized — not a position scan of its own.
+- **SIG·Ground — REGISTERED** as `settle`
+  (`void-loop.js::whatWouldSettle`, already tested under P53); the
+  `searchedVoid` sibling stays named, unregistered (one row per cell
+  earns the cell; a second organ adds nothing the map reads).
+- **SIG·Pattern + NUL·Pattern — BUILT/REGISTERED, and the gate above was
+  WRONG**: this plan gated the pair on "the legacy-engine path question,"
+  but eoreader7's native kernel already carried full ports
+  (`kind-induction.js::projectKinds`; `entity-kind-induction.js` with a
+  built-in seeded random-subset null per basin). The gate had dissolved
+  before this plan was written — found by reading the modules, kept here
+  as the correction rather than silently rewritten above. NUL·Pattern's
+  organ is NEW this pass: `testKindMembers` (eoreader7), the declared-
+  membership challenge against the inducer's own null, 7 conformance
+  tests through the real index path.
+- **SEG·Pattern — BUILT**: `unravel.js` (+10 tests), the frontier cell —
+  parameter-free separation at the network's own bridges, typed `no_seam`
+  for 2-edge-connected graphs, the parallel-edge Tarjan trap planted and
+  proven. The atmosphere-boundary alignment specimen named above remains
+  the named, unmeasured next run.
+
+**Map after the pass, measured live** (`eval/capability-coverage.mjs`):
+**24/27, 0 illegal, six FULL stances** (Dissecting, Unraveling, Tracing
+joined Binding, Making, Composing), Figure and Pattern grains complete at
+9/9. **The whole remaining gap is Ground-grain, one cell per mode** —
+CON·Ground, DEF·Ground, INS·Ground, exactly Tier 2's gated three. The
+gates stand as written above: two on the fold-architecture session's
+boundary, one on a workable specimen.

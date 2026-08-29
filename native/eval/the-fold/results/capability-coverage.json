@@ -11,13 +11,13 @@
  ],
  "registry": {
   "source": "capacities.js",
-  "entries": 20,
+  "entries": 25,
   "selfDescribed": "a DATA TABLE, NOT A RUNTIME — 'starts, deliberately does not finish, the library seed' (its own header)"
  },
  "counts": {
   "cells": 27,
-  "covered": 19,
-  "empty": 8,
+  "covered": 24,
+  "empty": 3,
   "illegal": 0
  },
  "byStance": [
@@ -58,7 +58,7 @@
   },
   {
    "stance": "Dissecting",
-   "filled": 2,
+   "filled": 3,
    "of": 3,
    "cells": [
     {
@@ -67,7 +67,9 @@
      "mode": "Differentiate",
      "grain": "Figure",
      "terrain": "Entity",
-     "organs": []
+     "organs": [
+      "clear"
+     ]
     },
     {
      "cell": "SEG·Figure",
@@ -93,7 +95,7 @@
   },
   {
    "stance": "Unraveling",
-   "filled": 1,
+   "filled": 3,
    "of": 3,
    "cells": [
     {
@@ -102,7 +104,9 @@
      "mode": "Differentiate",
      "grain": "Pattern",
      "terrain": "Kind",
-     "organs": []
+     "organs": [
+      "kindnull"
+     ]
     },
     {
      "cell": "SEG·Pattern",
@@ -110,7 +114,9 @@
      "mode": "Differentiate",
      "grain": "Pattern",
      "terrain": "Network",
-     "organs": []
+     "organs": [
+      "unravel"
+     ]
     },
     {
      "cell": "DEF·Pattern",
@@ -126,7 +132,7 @@
   },
   {
    "stance": "Tending",
-   "filled": 1,
+   "filled": 2,
    "of": 3,
    "cells": [
     {
@@ -135,7 +141,9 @@
      "mode": "Relate",
      "grain": "Ground",
      "terrain": "Void",
-     "organs": []
+     "organs": [
+      "settle"
+     ]
     },
     {
      "cell": "CON·Ground",
@@ -197,7 +205,7 @@
   },
   {
    "stance": "Tracing",
-   "filled": 2,
+   "filled": 3,
    "of": 3,
    "cells": [
     {
@@ -206,7 +214,9 @@
      "mode": "Relate",
      "grain": "Pattern",
      "terrain": "Kind",
-     "organs": []
+     "organs": [
+      "kinds"
+     ]
     },
     {
      "cell": "CON·Pattern",
@@ -344,17 +354,17 @@
  "byTerrain": [
   {
    "terrain": "Void",
-   "filled": 1,
-   "of": 3
-  },
-  {
-   "terrain": "Entity",
    "filled": 2,
    "of": 3
   },
   {
+   "terrain": "Entity",
+   "filled": 3,
+   "of": 3
+  },
+  {
    "terrain": "Kind",
-   "filled": 1,
+   "filled": 3,
    "of": 3
   },
   {
@@ -369,7 +379,7 @@
   },
   {
    "terrain": "Network",
-   "filled": 2,
+   "filled": 3,
    "of": 3
   },
   {
@@ -391,17 +401,17 @@
  "byOperator": [
   {
    "operator": "NUL",
-   "filled": 1,
+   "filled": 3,
    "of": 3
   },
   {
    "operator": "SEG",
-   "filled": 2,
+   "filled": 3,
    "of": 3
   },
   {
    "operator": "SIG",
-   "filled": 1,
+   "filled": 3,
    "of": 3
   },
   {
@@ -438,29 +448,29 @@
  "byGrain": [
   {
    "grain": "Ground",
-   "filled": 5,
+   "filled": 6,
    "of": 9
   },
   {
    "grain": "Figure",
-   "filled": 8,
+   "filled": 9,
    "of": 9
   },
   {
    "grain": "Pattern",
-   "filled": 6,
+   "filled": 9,
    "of": 9
   }
  ],
  "byMode": [
   {
    "mode": "Differentiate",
-   "filled": 5,
+   "filled": 8,
    "of": 9
   },
   {
    "mode": "Relate",
-   "filled": 6,
+   "filled": 8,
    "of": 9
   },
   {
@@ -470,93 +480,6 @@
   }
  ],
  "leads": [
-  {
-   "cell": "NUL·Figure",
-   "stance": "Dissecting",
-   "terrain": "Entity",
-   "grain": "Figure",
-   "sameActOtherGrain": [
-    "NUL·Ground"
-   ],
-   "sameGrainOtherAct": [
-    "SEG·Figure",
-    "SIG·Figure",
-    "CON·Figure",
-    "EVA·Figure",
-    "DEF·Figure",
-    "INS·Figure",
-    "SYN·Figure",
-    "REC·Figure"
-   ]
-  },
-  {
-   "cell": "NUL·Pattern",
-   "stance": "Unraveling",
-   "terrain": "Kind",
-   "grain": "Pattern",
-   "sameActOtherGrain": [
-    "NUL·Ground"
-   ],
-   "sameGrainOtherAct": [
-    "CON·Pattern",
-    "EVA·Pattern",
-    "DEF·Pattern",
-    "INS·Pattern",
-    "SYN·Pattern",
-    "REC·Pattern"
-   ]
-  },
-  {
-   "cell": "SEG·Pattern",
-   "stance": "Unraveling",
-   "terrain": "Network",
-   "grain": "Pattern",
-   "sameActOtherGrain": [
-    "SEG·Ground",
-    "SEG·Figure"
-   ],
-   "sameGrainOtherAct": [
-    "CON·Pattern",
-    "EVA·Pattern",
-    "DEF·Pattern",
-    "INS·Pattern",
-    "SYN·Pattern",
-    "REC·Pattern"
-   ]
-  },
-  {
-   "cell": "SIG·Ground",
-   "stance": "Tending",
-   "terrain": "Void",
-   "grain": "Ground",
-   "sameActOtherGrain": [
-    "SIG·Figure"
-   ],
-   "sameGrainOtherAct": [
-    "NUL·Ground",
-    "SEG·Ground",
-    "EVA·Ground",
-    "SYN·Ground",
-    "REC·Ground"
-   ]
-  },
-  {
-   "cell": "SIG·Pattern",
-   "stance": "Tracing",
-   "terrain": "Kind",
-   "grain": "Pattern",
-   "sameActOtherGrain": [
-    "SIG·Figure"
-   ],
-   "sameGrainOtherAct": [
-    "CON·Pattern",
-    "EVA·Pattern",
-    "DEF·Pattern",
-    "INS·Pattern",
-    "SYN·Pattern",
-    "REC·Pattern"
-   ]
-  },
   {
    "cell": "CON·Ground",
    "stance": "Tending",
@@ -569,6 +492,7 @@
    "sameGrainOtherAct": [
     "NUL·Ground",
     "SEG·Ground",
+    "SIG·Ground",
     "EVA·Ground",
     "SYN·Ground",
     "REC·Ground"
@@ -586,6 +510,7 @@
    "sameGrainOtherAct": [
     "NUL·Ground",
     "SEG·Ground",
+    "SIG·Ground",
     "EVA·Ground",
     "SYN·Ground",
     "REC·Ground"
@@ -603,6 +528,7 @@
    "sameGrainOtherAct": [
     "NUL·Ground",
     "SEG·Ground",
+    "SIG·Ground",
     "EVA·Ground",
     "SYN·Ground",
     "REC·Ground"
@@ -704,7 +630,7 @@
  },
  "afterDebtProjection": {
   "note": "coverage AS IT WOULD READ once the unregistered organs are registered at their own documented cells — a projection, nothing is registered by this driver",
-  "covered": 19,
+  "covered": 24,
   "of": 27,
   "byStance": [
    {
@@ -714,17 +640,17 @@
    },
    {
     "stance": "Dissecting",
-    "filled": 2,
+    "filled": 3,
     "of": 3
    },
    {
     "stance": "Unraveling",
-    "filled": 1,
+    "filled": 3,
     "of": 3
    },
    {
     "stance": "Tending",
-    "filled": 1,
+    "filled": 2,
     "of": 3
    },
    {
@@ -734,7 +660,7 @@
    },
    {
     "stance": "Tracing",
-    "filled": 2,
+    "filled": 3,
     "of": 3
    },
    {
@@ -754,11 +680,6 @@
    }
   ],
   "stillEmpty": [
-   "NUL·Figure",
-   "NUL·Pattern",
-   "SEG·Pattern",
-   "SIG·Ground",
-   "SIG·Pattern",
    "CON·Ground",
    "DEF·Ground",
    "INS·Ground"
