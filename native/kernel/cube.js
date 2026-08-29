@@ -54,6 +54,14 @@ export const cellOf = (op, grain) => {
   return Object.freeze({ op, grain, mode, domain, terrain: TERRAIN_BY_DOMAIN[domain][grain], stance: STANCE_BY_MODE[mode][grain] });
 };
 
+// Is this operator code one the CURRENT epoch admits? The historical engine
+// carried this beside an OPERATOR_EPOCH string and an ALT/SUP-era registry;
+// here it is simply the question `cellOf` already answers internally, exposed
+// so a caller can ask it WITHOUT provoking a typed gap it would then have to
+// unwrap. The nine are the nine — README's own "ALT and SUP are not canonical
+// operators" is this function's whole content.
+export const isCurrentOperator = (op) => Object.prototype.hasOwnProperty.call(OP_MODE, op);
+
 // Algebra enumeration groups by operator. This is useful for validating the
 // closed operator×grain algebra, but recursive interrogation uses a different,
 // semantically meaningful traversal order exposed as cubeAddresses().

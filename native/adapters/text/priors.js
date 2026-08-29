@@ -86,6 +86,49 @@ export const DEFINITE_DETERMINERS_META = Object.freeze({ giver: "lang/en", scope
  * (determiner, a noun follows) reads the surrounding tokens, not this set
  * alone.
  */
+/**
+ * Interrogative pro-forms, each mapped to the KIND OF THING it asks for.
+ *
+ * A closed grammatical class in the same standing as ANAPHORIC_PRONOUNS
+ * below: English has these and no others, and the gloss on each is the
+ * lexicographic fact any dictionary states for the word ("who" asks after a
+ * person) — NOT an ontology this engine invented and not a type system. The
+ * value is the head noun a reader would supply if asked to finish "this
+ * question is asking for a ___", nothing more.
+ *
+ * A Map rather than a Set because the gloss IS the received content: a
+ * caller that only needs membership can still ask `.has`, but a caller that
+ * drops the gloss and keeps the keys has thrown away the half of this prior
+ * that was worth receiving.
+ *
+ * "how" and "why" are deliberately NOT here — they ask after a manner or a
+ * reason, which is an explanation and not a filler, so they carry no head
+ * noun to gloss. They are their own class, MANNER_REASON_PRONOUNS below,
+ * because the distinction is what lets a caller refuse a slot outright
+ * rather than opening one it can never fill.
+ */
+export const INTERROGATIVE_PRONOUNS = Object.freeze(new Map([
+  ["who", "person"],
+  ["whom", "person"],
+  ["whose", "person"],
+  ["what", "thing"],
+  ["which", "thing"],
+  ["where", "place"],
+  ["when", "time"],
+]));
+export const INTERROGATIVE_PRONOUNS_META = Object.freeze({ giver: "lang/en", scope: null });
+
+/**
+ * The two interrogatives that ask after a manner or a reason rather than
+ * after a filler. Split from INTERROGATIVE_PRONOUNS above on the grammar's
+ * own line, not on a caller's convenience: "who was X" names a slot some
+ * entity occupies, "why was X" names no slot at all, and a reader that
+ * cannot tell those apart will open an answer slot for a question that has
+ * none and then report it unfilled forever.
+ */
+export const MANNER_REASON_PRONOUNS = Object.freeze(new Set(["how", "why"]));
+export const MANNER_REASON_PRONOUNS_META = Object.freeze({ giver: "lang/en", scope: null });
+
 export const ANAPHORIC_PRONOUNS = Object.freeze(new Set([
   "it", "it's", "this", "this's", "that", "that's", "these", "those",
 ]));
