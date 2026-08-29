@@ -41,6 +41,8 @@ import {
   sessionReferents,
   sessionRelations,
 } from "../../legacy-eoreader6.1/packages/host/corpus.js";
+import { stampResult } from "../kernel/assembly.js";
+import { nativeRegistry } from "../assemblies.js";
 
 const arg = (flag) => {
   const i = process.argv.indexOf(flag);
@@ -85,10 +87,12 @@ async function main() {
   const cast = sessionReferents(session, { sourceId, priors: corefPrior ? [corefPrior] : [], limit: 200 });
   const relations = sessionRelations(session, { sourceId });
 
-  const report = {
+  // P0 — the assembly, named; A2.1 — the stamp resolves on the register
+  // (native/assemblies.js), so the id+version is quotable and the prose
+  // organ chain stays readable beside it.
+  const report = stampResult(nativeRegistry(), {
     schema: "EOConstitutionalRead@1",
-    // P0 — the assembly, named.
-    assembly: "legacy-eoreader6.1 packages/host — createSession / admitChunked / sessionReferents (discoveredCast: surfaces -> witnessed referents -> pronoun binding -> relation vocabulary) / sessionRelations",
+    assemblyOrgans: "legacy-eoreader6.1 packages/host — createSession / admitChunked / sessionReferents (discoveredCast: surfaces -> witnessed referents -> pronoun binding -> relation vocabulary) / sessionRelations",
     source: sourceId,
     // P3 — which priors were injected. An empty coref slot means an unprimed reader, said as such.
     priorsInjected,
@@ -124,7 +128,7 @@ async function main() {
         .slice(0, 12),
     },
     relations: { triples: (relations?.relations ?? relations ?? []).length ?? null },
-  };
+  }, "assembly:constitutional-host");
   console.log(JSON.stringify(report, null, 1));
 }
 

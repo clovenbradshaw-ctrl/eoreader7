@@ -44,6 +44,8 @@ import { stripContainer } from "../adapters/text/spans.js";
 import { createCausalTextPerceiver, textEncounters } from "../adapters/text/recursive.js";
 import { reviseTextFold } from "../adapters/text/revision.js";
 import { createRecursiveReader } from "../../kernel.js";
+import { stampResult } from "../kernel/assembly.js";
+import { nativeRegistry } from "../assemblies.js";
 
 const SEED = 0;
 
@@ -274,13 +276,16 @@ async function main() {
     nullScores.push(scoreRun(`shuffled#${d}`, run, cursors));
   }
 
-  const out = {
+  // A2.1 — this driver hand-wires the entity+link prefix; the stamp names
+  // the top of that prefix, resolved on the register (A4.2: a prefix is a
+  // complete system, named by its top).
+  const out = stampResult(nativeRegistry(), {
     schema: "EOUnderstandingScoreboard@1",
     material: { path, encounters: N, fast },
     declared: { cursors, shuffleDraws: draws, seed: SEED, anchoring: ANCHORING, canonicalizationFloor: CANONICALIZATION_FLOOR, grain: "sentence — the tier ladder is disclosed future work, not implied" },
     ordered: orderedScore,
     nulls: nullScores,
-  };
+  }, "assembly:link");
   console.log(JSON.stringify(out, null, 2));
 }
 
