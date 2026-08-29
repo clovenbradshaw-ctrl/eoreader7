@@ -39,9 +39,11 @@
 //                       list page. That is how an empty cell earns the strong
 //                       reading.
 //   REGISTRY DEBT     — the organ exists and nothing declared its cell. SEG and
-//                       REC both read as zero here and both have real, running,
-//                       tested organs (see UNREGISTERED below). Reading those
-//                       zeros as incapacity would be false.
+//                       REC both READ AS ZERO when this driver was first
+//                       written, with real, running, tested organs unregistered
+//                       (see UNREGISTERED below — the debt, paid under P64, and
+//                       the live output now shows them covered). Reading such
+//                       zeros as incapacity would have been false.
 //
 // So: AN EMPTY CELL IS A LEAD, NEVER A VERDICT. It reports "no organ is
 // registered here" (withhold); it may report "this instrument cannot do this"
