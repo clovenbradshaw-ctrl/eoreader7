@@ -82,6 +82,7 @@
 // exactly what makes this list safe.
 
 import { tokens, codeOf, recall, encodeFrame } from "../../memory/activation.js";
+import { adjudicate, nullAdjudicate, CONTEST_VERDICTS } from "../../kernel/contest.js";
 import { THIRD_PERSON_SINGULAR } from "./priors.js";
 
 // The cell this organ occupies on the operator grid (engine/operators.js):
@@ -209,12 +210,59 @@ export const resolvePronouns = (
     // own policy." Treated as a hard filter alongside gender, not a
     // tiebreak — the same discipline gender already gets.
     nonPersonal,
+    // The bar a frame CARRYING CO-PRESENT NAMES must clear. Declared, never
+    // defaulted, and its ABSENCE is itself a declared regime, the same way
+    // activation.js's `window: null` is the explicit undecayed reader:
+    //
+    //   absent  -> REFUSED regime. A frame carrying any named surface is
+    //              skipped without adjudication. This is the behaviour this
+    //              organ shipped with, kept as a named control arm rather
+    //              than deleted, because it is the only arm whose numbers
+    //              every prior measurement in this repo was taken under.
+    //   number  -> ADJUDICATED regime. Co-presence stops vetoing and starts
+    //              raising the bar; kernel/contest.js::adjudicate decides.
+    //
+    // Which regime ran is reported back on every call (`regime` in the
+    // return), so a caller can never read a binding count without also
+    // being told which denominator produced it — the reporting failure the
+    // Borodino measurement exposed.
+    contestedMargin,
+    // The criterion fix. When declared — `{ draws, seed, alpha }`, each on
+    // the same never-defaulted terms as every other Born gate here — the
+    // constant-margin check is REPLACED by kernel/contest.js::nullAdjudicate:
+    // the lead is tested against this material's own permutation null
+    // instead of against minMargin. Measured reason (2026-08-29): a
+    // constant bar rewards a sparse field — scrambled text binds at 76-106%
+    // of the real rate across four materials — so a rising binding count
+    // under the constant was never evidence of reading. Absent, the shipped
+    // constant-margin behaviour runs byte-identically.
+    nullTest,
   } = {},
 ) => {
   if (!Number.isFinite(minActivation) || minActivation < 0)
     throw new TypeError("resolvePronouns: minActivation is declared — how much recall counts as a real echo is never a default");
   if (!Number.isFinite(minMargin) || minMargin < 0 || minMargin > 1)
     throw new TypeError("resolvePronouns: minMargin is declared — how far a candidate must lead the runner-up is never a default");
+
+  if (nullTest !== undefined && nullTest !== null) {
+    if (!Number.isInteger(nullTest.draws) || nullTest.draws < 1 || !Number.isFinite(nullTest.seed) || !Number.isFinite(nullTest.alpha) || nullTest.alpha <= 0 || nullTest.alpha >= 1)
+      throw new TypeError("resolvePronouns: nullTest, when declared, carries draws (integer >= 1), seed and alpha in (0,1) — Born-gate dials are never defaulted");
+  }
+
+  const adjudicated = contestedMargin !== undefined && contestedMargin !== null;
+  if (adjudicated && (!Number.isFinite(contestedMargin) || contestedMargin < minMargin || contestedMargin > 1))
+    throw new TypeError("resolvePronouns: contestedMargin, when declared, is a fraction in [minMargin, 1] — a frame carrying competitors is never the easier case");
+
+  // The kernel's verdict vocabulary is medium-general; this organ's gap
+  // names are its own and predate it. One map, so the kernel never has to
+  // know what a pronoun is and this file never has to restate a verdict.
+  const GAP_REASON = {
+    [CONTEST_VERDICTS.NO_CANDIDATE]: "pronoun_no_candidate",
+    [CONTEST_VERDICTS.BELOW_FLOOR]: "pronoun_below_floor",
+    [CONTEST_VERDICTS.NO_MARGIN]: "pronoun_no_margin",
+    [CONTEST_VERDICTS.CONTESTED_NO_MARGIN]: "pronoun_contested_no_margin",
+    [CONTEST_VERDICTS.NULL_NOT_CLEARED]: "pronoun_null_not_cleared",
+  };
 
   const nonPersonalSet = nonPersonal instanceof Set ? nonPersonal : new Set(nonPersonal ?? []);
   const surfaceToReferent = referentSurfaces instanceof Map ? referentSurfaces : new Map(Object.entries(referentSurfaces ?? {}));
@@ -226,6 +274,8 @@ export const resolvePronouns = (
 
   const bindings = [];
   const gaps = [];
+  let framesWithPronouns = 0;
+  let framesCoPresent = 0;
 
   const referentGender = (r) => {
     const ev = genderEvidence.get(r);
@@ -243,11 +293,19 @@ export const resolvePronouns = (
     const named = new Set(namedMatches.map((n) => n.ref));
     const pronounHits = findThirdPersonSingular(sentence.text);
 
-    // Resolve only the case the original complaint names: a sentence carried
-    // by a pronoun with NO name anywhere in it. A pronoun sharing its
-    // sentence with a named surface is left to whatever the name already
-    // establishes — this file does not adjudicate between co-mentioned names.
-    if (named.size === 0 && pronounHits.length > 0) {
+    // REFUSED regime (contestedMargin absent): resolve only the case the
+    // original complaint names — a frame carried by a pronoun with NO name
+    // anywhere in it. ADJUDICATED regime (contestedMargin declared): every
+    // frame carrying a pronoun is read, and co-presence raises the bar
+    // instead of closing the door. The `refused_co_present` gap below is
+    // what makes the refused regime's own denominator visible.
+    // A frame the refused regime never adjudicated does NOT produce a gap.
+    // A gap is a refusal the organ REACHED — "I read this and could not
+    // decide." Filing one for a frame that was never read would conflate
+    // the two, and this whole fix exists because a count that hides its
+    // denominator misleads. The denominator lives in `regime` below, where
+    // it is a count of frames and cannot be mistaken for a verdict.
+    if ((adjudicated || named.size === 0) && pronounHits.length > 0) {
       const activation = recall(cue, state, { completion, topEdges, selfOrder: sentence.order });
       // BEST single hop, not a sum across every hop — the same discipline
       // activation.js's own `recall`/rerank pairing already keeps
@@ -275,70 +333,79 @@ export const resolvePronouns = (
 
       for (const hit of pronounHits) {
         const offset = (sentence.offset ?? 0) + hit.index;
-        const candidates = [...referentScore.entries()]
-          .filter(([r]) => !nonPersonalSet.has(r))
-          .filter(([r]) => {
-            const g = referentGender(r);
-            return g === "unknown" || g === hit.gender;
-          })
-          .sort((a, b) => b[1] - a[1]);
 
-        if (candidates.length === 0) {
+        // The two hard filters this file already owned — individuation type
+        // and gender — are handed to the kernel AS A FILTER, unchanged in
+        // standing. The kernel never tiebreaks with them; it only declines
+        // to charge the reading for a competitor they already excluded.
+        const admissible = (r) => {
+          if (nonPersonalSet.has(r)) return false;
+          const g = referentGender(r);
+          return g === "unknown" || g === hit.gender;
+        };
+
+        const verdict = nullTest
+          ? nullAdjudicate({
+              activation,
+              frameMembers: namedByFrame,
+              coPresent: adjudicated ? named : [],
+              minActivation,
+              draws: nullTest.draws,
+              seed: (nullTest.seed ^ (sentence.order * 2654435761)) >>> 0, // per-frame stream off one declared seed
+              alpha: nullTest.alpha,
+              admissible,
+            })
+          : adjudicate({
+              scores: referentScore,
+              // Co-presence is the frame's own membership, supplied by this
+              // adapter because only the adapter knows what "named in this
+              // frame" means for text. In the REFUSED regime nothing is
+              // co-present by construction (named.size === 0 above), so the
+              // contested bar is never reached and the pre-fix numbers stand.
+              coPresent: adjudicated ? named : [],
+              minActivation,
+              minMargin,
+              contestedMargin: adjudicated ? contestedMargin : minMargin,
+              admissible,
+            });
+
+        if (verdict.verdict !== CONTEST_VERDICTS.BOUND) {
           gaps.push({
-            reason: "pronoun_no_candidate",
+            reason: GAP_REASON[verdict.verdict],
             tier: "engine",
             sentenceOrder: sentence.order,
             offset,
             pronoun: hit.token,
-            detail: "no gender-compatible referent has been named and activated yet — nothing here to bind to",
-          });
-          continue;
-        }
-
-        const [topRef, topScore] = candidates[0];
-        if (topScore < minActivation) {
-          gaps.push({
-            reason: "pronoun_below_floor",
-            tier: "engine",
-            sentenceOrder: sentence.order,
-            offset,
-            pronoun: hit.token,
-            top: topRef,
-            activation: topScore,
-            detail: `top candidate's recall (${topScore.toFixed(3)}) does not clear minActivation (${minActivation})`,
-          });
-          continue;
-        }
-
-        const second = candidates[1]?.[1] ?? 0;
-        const margin = topScore > 0 ? (topScore - second) / topScore : 0;
-        if (margin < minMargin) {
-          gaps.push({
-            reason: "pronoun_no_margin",
-            tier: "engine",
-            sentenceOrder: sentence.order,
-            offset,
-            pronoun: hit.token,
-            top: topRef,
-            runnerUp: candidates[1]?.[0] ?? null,
-            margin,
-            detail: `top candidate leads the runner-up by only ${(margin * 100).toFixed(1)}%, short of minMargin (${(minMargin * 100).toFixed(1)}%)`,
+            top: verdict.id,
+            runnerUp: verdict.runnerUp,
+            activation: verdict.score,
+            margin: verdict.margin,
+            p: verdict.p ?? null,
+            coPresent: verdict.contested,
+            barApplied: verdict.barApplied,
+            detail: verdict.detail,
           });
           continue;
         }
 
         bindings.push({
-          referentId: topRef,
+          referentId: verdict.id,
           sentenceOrder: sentence.order,
           offset,
           pronoun: hit.token,
           gender: hit.gender,
-          activation: topScore,
-          margin,
+          activation: verdict.score,
+          margin: verdict.margin,
+          p: verdict.p ?? null,
+          coPresent: verdict.contested,
+          barApplied: verdict.barApplied,
           provenance: {
             giver: "perceiver/text/pronouns::resolvePronouns",
             tier: "engine",
-            basis: "one-hop activation recall over the already-admitted cast",
+            basis:
+              verdict.contested.length > 0
+                ? "one-hop activation recall over the already-admitted cast, adjudicated against co-present names at the contested bar (kernel/contest.js)"
+                : "one-hop activation recall over the already-admitted cast",
           },
         });
       }
@@ -363,11 +430,35 @@ export const resolvePronouns = (
       genderEvidence.set(only, ev);
     }
 
+    if (pronounHits.length > 0) {
+      framesWithPronouns += 1;
+      if (named.size > 0) framesCoPresent += 1;
+    }
+
     namedByFrame.set(sentence.order, named);
     encodeFrame(state, sentence.order, ws, trace, { edgeSlots });
   }
 
-  return { bindings, gaps };
+  // A binding count without its denominator is unreadable — the whole
+  // reason this fix exists. Every caller gets told how many frames could
+  // have been read, how many carried competitors, and which regime ran.
+  return {
+    bindings,
+    gaps,
+    regime: {
+      name: adjudicated ? "adjudicated" : "refused",
+      criterion: nullTest ? { kind: "permutation-null", draws: nullTest.draws, alpha: nullTest.alpha, seed: nullTest.seed } : { kind: "constant-margin", minMargin },
+      contestedMargin: adjudicated ? contestedMargin : null,
+      minActivation,
+      minMargin,
+      framesWithPronouns,
+      framesCoPresent,
+      framesAdjudicated: adjudicated ? framesWithPronouns : framesWithPronouns - framesCoPresent,
+      basis: adjudicated
+        ? "co-presence raises the bar (kernel/contest.js::adjudicate); every pronoun-bearing frame was read"
+        : "co-presence vetoes; frames carrying a named surface were skipped without adjudication",
+    },
+  };
 };
 
 /**
