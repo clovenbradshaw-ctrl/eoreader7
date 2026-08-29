@@ -739,3 +739,36 @@ challenging it.
 Full evidence, and the landing-time finding that a null drawn once is a null
 drawn zero times, are in the-fold's POLICIES.md P66 and
 `the-fold/eval/results/{contested-copresence,null-criterion}-RESULTS.md`.
+
+## S23 — A grain's depth, named as a fact this module already holds
+
+> **giver:** earned-here
+
+`kernel/task-log.js` already imports `GRAINS` from `cube.js` to validate
+`append`'s own `entry.grain` field. A real external consumer needed the
+same fact in a different shape: not "is this string a grain" but "how deep
+is it" — specifically, which grain name is rank 1 (Figure), so a caller can
+name it without hardcoding the string.
+
+**The law, restated at this scale.** A fact a module already holds is read
+off, never re-derived by a second module maintaining its own copy that can
+drift from the first. `GRAIN_RANK` is exactly `Object.fromEntries(GRAINS
+.map((g, i) => [g, i]))` — the ordinal position each grain already has in
+the one list this file answers to, turned into a lookup table. Nothing
+about grain depth was invented to make this addition; it was already
+implicit in `GRAINS`'s own order and is now explicit.
+
+Advisory only, matching every other read-only export in this file:
+`append`/`projectTasks` consult nothing here. Pinned in
+`tests/task-log.test.js` (`GRAIN_RANK` is exactly `GRAINS` in order; rank 1
+is Figure; the export is frozen) — a small, isolated addition, checked
+against `conformance/native-boundary.test.mjs`'s own wall (a raw substring
+scan of every `kernel/*.js` file, not just its imports) before landing,
+which is why this entry names no external project by name: that wall is
+what makes "no legacy should be used, all eoreader7 only" a checked fact
+about this directory rather than a convention someone could quietly drift
+from, and a comment explaining provenance is exactly the kind of thing it
+is built to catch.
+
+Full suite: 263/263 after landing, 260/260 before — the three new cases
+pinning `GRAIN_RANK`, zero regressions.
