@@ -116,12 +116,17 @@ function assertGeometry() {
   return checks.map(([name]) => name);
 }
 
-// Organs this driver has CONFIRMED exist in the tree while the registry reports
-// their operator as having zero coverage. Each is a real exported function or a
-// real emitted entry, located by grep and read — not inferred from a filename.
-// This list is evidence for the registry-debt reading, and it is deliberately
-// hand-maintained: an automatic scan would have to guess which functions ARE
-// organs, which is exactly the judgment a registry exists to record.
+// Organs this driver CONFIRMED exist in the tree while the registry reported
+// their operator as having zero coverage — the debt as FOUND on 2026-08-29,
+// kept as the historical record. THE DEBT WAS PAID THE SAME DAY (P64): these
+// organs (plus network.js/hl-acquire.js/mergeTestimony/compilePriors/
+// atmosphereBoundaries, found in the same pass) are now registered in
+// capacities.js, so the live coverage below should show them covered and the
+// `paid` field on each row says whether the registry now carries its cell.
+// Each was a real exported function or a real emitted entry, located by grep
+// and read — not inferred from a filename. The list stays hand-maintained: an
+// automatic scan would have to guess which functions ARE organs, which is
+// exactly the judgment a registry exists to record.
 // Each row's GRAIN comes from the organ's OWN documented typing — build-log's
 // header states its EO cells outright, declarations.js writes `grain:
 // "Pattern"` on its own entries, identity.js:182 writes `grain: "Figure"`,
@@ -140,7 +145,13 @@ const UNREGISTERED = Object.freeze([
   { op: "SEG", grain: "Figure", where: "eoreader7/native/kernel/identity.js:182", basis: "emits { op: 'SEG', grain: 'Figure' } verbatim" },
 ]);
 
-// The one cell whose emptiness has EARNED the strong reading, and how.
+// The one cell whose emptiness EARNED the strong reading, and how — kept as
+// the exemplar of HOW an incapacity conviction is earned, even though the
+// cell itself has since been CLOSED: the reading was earned before
+// network.js existed; P58's same pass then built network.js to occupy the
+// cell (tested), and the P64 connection pass registered it. So CON·Pattern
+// today reads covered, and this record is the historical proof that the
+// strong reading is earnable, not a current claim of emptiness.
 const CONFIRMED_INCAPACITY = Object.freeze([
   {
     cell: "CON·Pattern",
@@ -148,7 +159,8 @@ const CONFIRMED_INCAPACITY = Object.freeze([
     prediction: "a Figure-grain reader on Pattern-grain material (a list, whose meaning is carried by the RECURRENCE of an arrangement rather than by any connector) returns ZERO edges, not few",
     stated: "before moves.js was written — see its own header",
     confirmed: "a real fetched 'List of prime ministers of Queen Victoria' page, saved with line structure intact, yielded zero edges; the model was handed raw lines and read the first name out of a list of ten",
-    reading: "a vocabulary gap degrades; a grain mismatch floors — and nine measured vocabulary configurations (eval/results/mine-1-FINAL-COMPARISON.md) had already failed to move the ceiling this explains",
+    sinceClosed: "network.js (P58, tested) was built to occupy the cell and is registered as of P64 — the conviction was correct WHEN MEASURED and the organ that answers it now exists",
+    reading: "a vocabulary gap degrades; a grain mismatch floors — the same KIND of ceiling no vocabulary work touches that MINE-1's nine configurations measured on different material (analogy, not identity: those configurations never ran against the list page)",
   },
 ]);
 
@@ -182,6 +194,14 @@ const zeroOperators = byOperator.filter((g) => g.filled === 0).map((g) => g.key)
 const unregisteredOps = new Set(UNREGISTERED.map((u) => u.op));
 const registryDebt = zeroOperators.filter((op) => unregisteredOps.has(op));
 const trulyUnreached = zeroOperators.filter((op) => !unregisteredOps.has(op));
+
+// Per-row: is this historically-found debt now covered in the live registry?
+const liveCells = new Set(cov.covered.map((m) => m.cell));
+const debtLedger = UNREGISTERED.map((u) => ({
+  ...u,
+  cell: u.grain ? `${u.op}·${u.grain}` : null,
+  paid: u.grain ? liveCells.has(`${u.op}·${u.grain}`) : null,
+}));
 
 // The AFTER-DEBT projection: coverage as it would read once the unregistered
 // organs above are registered at their own documented cells. Computed, never
@@ -223,14 +243,14 @@ const out = {
     ...moves.neighbours(m.cell, cov.covered),
   })),
   interpretation: {
-    rule: "AN EMPTY CELL IS A LEAD, NEVER A VERDICT — it reports that no organ is REGISTERED there (withhold); it may report incapacity (convict) only where a falsifiable prediction derived from the emptiness was stated and confirmed",
+    rule: "AN EMPTY CELL IS A LEAD, NEVER A VERDICT — three kinds of hole share the count: REGISTRY DEBT (an organ exists, nothing declared its cell), REAL INCAPACITY (convictable only via a stated-then-confirmed falsifiable prediction), and PROBE/HARNESS ERROR reported as incapacity (P44's four wrong probe versions; a hardcoded path reporting 'organ unreachable' as a statement about the system when it is a statement about a path). The map may withhold, or convict on a confirmed prediction; it may never manufacture the second out of the first or the third.",
     confirmedIncapacity: CONFIRMED_INCAPACITY,
     registryDebt: {
       operatorsReadingZeroThatHaveRealOrgans: registryDebt,
-      organs: UNREGISTERED,
+      ledger: debtLedger,
       reading: registryDebt.length
-        ? `${registryDebt.join(" and ")} read as zero coverage and are NOT incapacities: ${UNREGISTERED.length} real organs exist unregistered. The registry is the gap, not the instrument.`
-        : "no registry debt detected among zero-coverage operators",
+        ? `${registryDebt.join(" and ")} read as zero coverage and are NOT incapacities: real organs exist unregistered. The registry is the gap, not the instrument.`
+        : "no zero-coverage operator currently has known unregistered organs — the historical debt (see ledger `paid` flags) has been paid into the registry (P64)",
     },
     trulyUnreachedOperators: trulyUnreached,
   },
