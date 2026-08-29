@@ -1,4 +1,5 @@
 import { eoOperation, deltaFold } from "../../kernel/fold.js";
+import { stampDelta } from "../../kernel/assembly.js";
 import { deriveIdentityRevision } from "../../kernel/identity.js";
 import {
   descriptorOccurrence,
@@ -31,7 +32,7 @@ const existingIds = (fold) => {
  * This prevents every use of "the creature" or "the fiend" from collapsing
  * globally while preserving each witnessed occurrence and hypothesis.
  */
-export async function reviseTextFold({ observations = [], fold = {}, canonicalizationFloor = undefined } = {}) {
+export async function reviseTextFold({ observations = [], fold = {}, canonicalizationFloor = undefined, assembly = null } = {}) {
   const known = existingIds(fold);
   const operations = [];
   const newDescriptorOccurrences = [];
@@ -184,5 +185,10 @@ export async function reviseTextFold({ observations = [], fold = {}, canonicaliz
   });
   operations.push(...identityDelta.operations);
 
-  return deltaFold(operations);
+  // A5.1 (assemblies spec) — stamped WHERE THE DELTA IS BUILT: when the
+  // caller names the producing assembly, every operation of this delta
+  // carries provenance.assembly. Opt-in, byte-identical when absent — the
+  // descriptorAnchoring precedent, applied to provenance.
+  const delta = deltaFold(operations);
+  return assembly ? stampDelta(delta, assembly) : delta;
 }

@@ -26,6 +26,8 @@ import { tokenize, buildFrequencyTable, functionWordSet } from "../adapters/text
 import { extractSurfaces } from "../adapters/text/surfaces.js";
 import { discoverRelationVocab, extractRelations } from "../adapters/text/relations.js";
 import { createCausalTextPerceiver, textEncounters } from "../adapters/text/recursive.js";
+import { stampResult } from "../kernel/assembly.js";
+import { nativeRegistry } from "../assemblies.js";
 
 const MIN_SURFACES = 2;
 const REFRESH_EVERY = 25;
@@ -76,11 +78,13 @@ async function main() {
       verbsOnlyLookaheadFinds: onlyAhead.slice(0, 15),
     });
   }
-  console.log(JSON.stringify({
+  // A2.1 — the measured unit is the link assembly (relation extraction);
+  // the stamp resolves on the register rather than being asserted here.
+  console.log(JSON.stringify(stampResult(nativeRegistry(), {
     schema: "EOCausalExtraction@1",
     declared: { minSurfaces: MIN_SURFACES, refreshEvery: REFRESH_EVERY, posPrior: "bin/priors/pos/en-ud-ewt.json — refuses only" },
     note: "lookahead is NOT reading: it extracts every sentence with vocabulary derived from the whole book, including material after that sentence. causal steps the real perceiver in order; a sentence is extracted with the vocabulary as it stood at that moment and is never revisited.",
     books,
-  }, null, 1));
+  }, "assembly:link"), null, 1));
 }
 main().catch((e) => { console.error(e); process.exit(1); });

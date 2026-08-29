@@ -44,6 +44,8 @@ import { stripContainer } from "../adapters/text/spans.js";
 import { createCausalTextPerceiver, textEncounters } from "../adapters/text/recursive.js";
 import { reviseTextFold } from "../adapters/text/revision.js";
 import { createRecursiveReader } from "../../kernel.js";
+import { stampResult, absentAssemblies, resolveAssembly } from "../kernel/assembly.js";
+import { nativeRegistry } from "../assemblies.js";
 
 const SEED = 0;
 
@@ -274,13 +276,51 @@ async function main() {
     nullScores.push(scoreRun(`shuffled#${d}`, run, cursors));
   }
 
-  const out = {
+  // A2.1 — this driver hand-wires the entity+link prefix; the stamp names
+  // the top of that prefix, resolved on the register (A4.2: a prefix is a
+  // complete system, named by its top).
+  const registry = nativeRegistry();
+  const present = ["assembly:entity", "assembly:link"];
+  // §6's reporting half (spec step 4): which dynamics feeds have a producer
+  // among the PRESENT assemblies is read off their own declarations — a
+  // feed nobody present produces is a TYPED absence, never a zero (§0.2's
+  // failure becomes unrepresentable here).
+  const fedBy = new Map();
+  for (const id of present) for (const feed of resolveAssembly(registry, id).dynamics) {
+    if (!fedBy.has(feed)) fedBy.set(feed, []);
+    fedBy.get(feed).push(id);
+  }
+  const out = stampResult(registry, {
     schema: "EOUnderstandingScoreboard@1",
     material: { path, encounters: N, fast },
     declared: { cursors, shuffleDraws: draws, seed: SEED, anchoring: ANCHORING, canonicalizationFloor: CANONICALIZATION_FLOOR, grain: "sentence — the tier ladder is disclosed future work, not implied" },
+    // A4.2 — absence of an upper assembly is typed on the result, never
+    // rendered as a zero in that assembly's metrics.
+    assembliesPresent: present,
+    assemblyAbsent: absentAssemblies(registry, present),
+    dynamics: {
+      // the identity assembly's own local cycle (alternatives → attacks →
+      // REC), reported as dynamics.identity — not as "the reader's"
+      // dynamics (§6; per-assembly dynamics proper is spec step 7).
+      identity: {
+        alternativesOpened: orderedScore.totals.alternativesOpenedTotal,
+        alternativesSupported: orderedScore.totals.alternativesSupportedTotal,
+        attackedToDistinct: orderedScore.totals.finalDistinct,
+        identitySplits: orderedScore.totals.splitsTotal,
+        pastRemade: orderedScore.totals.pastRemadeTotal,
+        firstCanonicalizations: orderedScore.totals.firstCanonTotal,
+        fedBy: fedBy.get("surprise") ?? [],
+      },
+      absent: ["surprise", "tension", "release"]
+        .filter((feed) => !fedBy.has(feed))
+        .map((feed) => ({
+          feed,
+          reason: "no present assembly declares this feed — the producing assembly is absent, not silent; its metrics are not zeros (A4.2)",
+        })),
+    },
     ordered: orderedScore,
     nulls: nullScores,
-  };
+  }, "assembly:link");
   console.log(JSON.stringify(out, null, 2));
 }
 
