@@ -278,6 +278,121 @@ export const surfacesFromEvidence = (evidence, { functionWords = null, abbreviat
 export const extractSurfaces = (sentences, opts = {}) =>
   surfacesFromEvidence(accumulateSurfaceEvidence(sentences, createSurfaceEvidence()), opts);
 
+// ---------------------------------------------------------------------------
+// WHETHER THIS MECHANISM CAN FIRE ON THIS MATERIAL AT ALL.
+//
+// Every filter above reads ONE glyph-level property: capitalisation.
+// CAP_TOKEN/LOWER_TOKEN, the sentence-initial exclusion, the all-caps
+// typography rules, and capitalisationIsSignificant's binomial are all
+// questions about case. On a script that HAS no case, none of them can
+// fire — not "fires weakly", not "degrades": the mechanism is structurally
+// inert, and every count it returns is about whatever cased debris (a Latin
+// citation, an English caption) happens to sit in the file, never about the
+// material's own language.
+//
+// Measured, on real material, before this existed: a Hebrew Wikipedia
+// article yielded 6 candidate surfaces across 79 sentences and a Korean one
+// 15 across 129 — and the surfaces were "Internet Encyclopedia", "The School
+// of Athens", and a first-letter-eaten "enny Teichmann" (from "Jenny"). Each
+// read as a small, plausible, wholly false result. Nothing said the organ had
+// not read the language.
+//
+// THIS DOES NOT MAKE THOSE SCRIPTS READABLE, and deliberately so. This
+// file's own header records that a blanket algorithmic generalisation across
+// scripts was tried and REVERTED, because II.13 holds a silent claim of
+// cross-script generality to be a more severe failure than a disclosed narrow
+// scope. Inventing a caseless substitute for capitalisation here — recurrence,
+// n-gram salience, position — would be that same reverted move under a new
+// name, and it would need a giver and an invariance fixture per script to be
+// admissible at all. So this reports the boundary instead of crossing it,
+// which is what the tier discipline above already requires of every other
+// undecidable question in this file: A MISSING PRIOR PRODUCES A GAP, NEVER A
+// GUESSED NUMBER.
+//
+// The giver for the distinction itself is the Unicode Character Database's
+// own General_Category: `\p{Cased_Letter}` is exactly the set of letters that
+// HAVE case (Lu/Ll/Lt), and `\p{L}` minus that is exactly the caseless
+// letters (Lo) — Hebrew, Arabic, Hangul, CJK, Devanagari, Thai. Verified
+// directly against real strings in all of those scripts plus Greek, Cyrillic,
+// Georgian and Armenian (which ARE bicameral, and are correctly not gapped).
+// Not a list of scripts maintained here; a property looked up per character.
+const CASED_LETTER = /\p{Cased_Letter}/u;
+const ANY_LETTER = /\p{L}/u;
+
+/**
+ * How much of this material's own writing the capitalisation mechanism can
+ * see, and — when the answer is "little or none" — the typed gap saying so.
+ *
+ * Returns `{ casedLetters, caselessLetters, casedShare, gap }`. `gap` is null
+ * when the material is bicameral enough for the mechanism to be about it, and
+ * otherwise a typed gap carrying the measured share, so a caller can never
+ * read a surface count without also being told what fraction of the script it
+ * was computed over.
+ *
+ * The two boundaries are structural, not dials:
+ *   - `casedLetters === 0` with letters present: the mechanism cannot fire at
+ *     all. Zero is not a threshold.
+ *   - caseless letters in the MAJORITY: most of this material is invisible to
+ *     the mechanism. Majority is where a plurality flips — the same non-tuned
+ *     standing this project's writer-decay window already declares for itself
+ *     — not a chosen constant.
+ */
+export const scriptCoverage = (sentences) => {
+  let casedLetters = 0;
+  let caselessLetters = 0;
+  for (const sent of sentences) {
+    for (const ch of String(sent?.text ?? "")) {
+      if (!ANY_LETTER.test(ch)) continue;
+      if (CASED_LETTER.test(ch)) casedLetters += 1;
+      else caselessLetters += 1;
+    }
+  }
+  const letters = casedLetters + caselessLetters;
+  const casedShare = letters === 0 ? 0 : casedLetters / letters;
+  const base = { casedLetters, caselessLetters, casedShare };
+
+  if (letters === 0) return { ...base, gap: null };
+
+  if (casedLetters === 0) {
+    return {
+      ...base,
+      gap: {
+        reason: "script_without_case",
+        tier: "model",
+        needsWitness: true,
+        casedShare,
+        detail:
+          "every candidate-surface filter in this organ reads capitalisation, and this material's " +
+          "letters are entirely caseless (Unicode General_Category: no Cased_Letter present), so the " +
+          "mechanism cannot fire on it at all. Any surface count reported alongside this gap is about " +
+          "cased debris in the file, never about this material's own language. Reading names in this " +
+          "script needs a per-script prior with its own giver and an invariance fixture — an " +
+          "algorithmic substitute for capitalisation was tried and reverted here (II.13).",
+      },
+    };
+  }
+
+  if (casedLetters < caselessLetters) {
+    return {
+      ...base,
+      gap: {
+        reason: "script_mostly_without_case",
+        tier: "model",
+        needsWitness: true,
+        casedShare,
+        detail:
+          `only ${(casedShare * 100).toFixed(1)}% of this material's letters carry case, so the ` +
+          "capitalisation mechanism is reading a minority of the script and the majority is invisible " +
+          "to it. Surfaces found here are drawn from that cased minority — typically citations, " +
+          "captions or loanwords in another script — and are not evidence about the material's own " +
+          "language. Same remedy and same refusal as script_without_case.",
+      },
+    };
+  }
+
+  return { ...base, gap: null };
+};
+
 /**
  * Cluster candidate surfaces into referents by NAME-variant coreference only.
  * Emits DEF.admit events for referents/index.js::projectReferents — the
