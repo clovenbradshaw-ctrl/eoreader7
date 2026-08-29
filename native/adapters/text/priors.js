@@ -135,6 +135,49 @@ export const ANAPHORIC_PRONOUNS = Object.freeze(new Set([
 export const ANAPHORIC_PRONOUNS_META = Object.freeze({ giver: "lang/en", scope: null });
 
 /**
+ * Possessive determiners — a closed grammatical class, distinct from
+ * DEFINITE_DETERMINERS above (a possessive presupposes a possessor, a
+ * definite article presupposes only identifiability) and distinct from
+ * ANAPHORIC_PRONOUNS (a possessive determiner always precedes a noun; an
+ * anaphoric pronoun optionally stands alone). Both facts a consumer reads
+ * from context, never from this set alone.
+ */
+export const POSSESSIVE_DETERMINERS = Object.freeze(new Set([
+  "my", "your", "his", "her", "its", "our", "their",
+]));
+export const POSSESSIVE_DETERMINERS_META = Object.freeze({ giver: "lang/en", scope: null });
+
+/**
+ * Coordinating conjunctions that join two noun phrases into one (as
+ * opposed to joining two independent clauses, which every member of this
+ * set can also do — a consumer distinguishing the two reads what stands on
+ * each side, not this set alone). Scoped to "and"/"or" deliberately: they
+ * are the unambiguous NP-coordinators; "but"/"nor"/"yet"/"so" more often
+ * join clauses than phrases in ordinary prose and are left OUT rather than
+ * risked — a narrower true set, not a wider guessed one.
+ */
+export const NP_COORDINATORS = Object.freeze(new Set(["and", "or"]));
+export const NP_COORDINATORS_META = Object.freeze({ giver: "lang/en", scope: null });
+
+/**
+ * Auxiliary and modal verb forms — a closed grammatical class (English's
+ * finite auxiliary inventory: the copula's own forms, have/do as tense-
+ * and-polarity auxiliaries, and the nine modals). Distinguishes an
+ * AUXILIARY position from a CONTENT-VERB position without knowing what any
+ * particular content verb means — the same slot-vs-class distinction
+ * wordclass.js's own header already draws (SLOT is not CLASS): a consumer
+ * scanning past this class to find the real predicate is reading structure,
+ * never meaning.
+ */
+export const AUXILIARY_VERBS = Object.freeze(new Set([
+  "am", "is", "are", "was", "were", "be", "been", "being",
+  "have", "has", "had",
+  "do", "does", "did",
+  "will", "shall", "should", "would", "could", "can", "may", "might", "must",
+]));
+export const AUXILIARY_VERBS_META = Object.freeze({ giver: "lang/en", scope: null });
+
+/**
  * Inflectional suffixes — the closed set of English inflection endings. A
  * received grammatical class, not vocabulary: these are the morphemes by
  * which one FORM of a word varies from another while pointing at the same
