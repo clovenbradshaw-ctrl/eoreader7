@@ -121,3 +121,12 @@ test("A2.1: the three drivers §0.3 names construct their stamp from the registe
     assert.match(src, /assembly:/, `${driver} names a registered assembly id`);
   }
 });
+
+test("A4.2 (step 4's reporting half): the scoreboard types absence and reports identity dynamics per assembly, never zeros for the absent", () => {
+  const src = fs.readFileSync(path.resolve(here, "../eval/understanding-scoreboard.mjs"), "utf8");
+  assert.match(src, /assemblyAbsent/, "absent upper assemblies are typed on the result");
+  assert.match(src, /absentAssemblies\(/, "absence is computed from the register, never hand-listed");
+  assert.match(src, /dynamics:\s*\{/, "dynamics is reported per assembly");
+  assert.match(src, /identity:\s*\{/, "the identity cycle is dynamics.identity, not 'the reader's' dynamics (§6)");
+  assert.match(src, /feed[\s\S]{0,300}absent, not silent/, "a feed with no present producer carries a reason, not a zero");
+});
