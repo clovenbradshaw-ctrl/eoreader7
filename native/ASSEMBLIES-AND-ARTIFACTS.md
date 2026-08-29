@@ -384,7 +384,7 @@ that would break those citations" (the-fold POLICIES.md, the prior-art lint
 amendment: both S17s are cited externally, with BOTH meanings). So neither
 entry moves; the second S17 gains a correction note naming the collision
 and giving each entry a citable alias (S17-recall / S17-type), and new
-entries continue from S24 — the ambiguity is resolved without breaking a
+entries continue in sequence past S23 — the ambiguity is resolved without breaking a
 single existing citation, which is the outcome the spec's own "cheap now,
 expensive after more entries cite them" clause was after.
 

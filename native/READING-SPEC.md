@@ -417,7 +417,7 @@ a medium's own odds say otherwise is the newly measured way to lose.
 > cites this one) and renumbering would break them. Cite unambiguously as
 > **S17-recall** (the first — forgetting as a recall mechanism, giver
 > daccec2) and **S17-type** (this one — the type level names forms, giver
-> 7db127c). New entries continue from S24, so the collision never
+> 7db127c). New entries continue in sequence past S23 (S24, S25, ...), so the collision never
 > compounds. ASSEMBLIES-AND-ARTIFACTS.md §10 asked for a renumbering;
 > resolved this way instead, and the deviation is disclosed there.
 
@@ -786,7 +786,90 @@ is built to catch.
 Full suite: 263/263 after landing, 260/260 before — the three new cases
 pinning `GRAIN_RANK`, zero regressions.
 
-## S24 — An assembly is a persistence boundary; its products are sealed projections of the log
+## S24 — A mechanism that cannot fire on this material says so; it does not return a number
+
+> **giver:** earned-here (the case distinction itself: Unicode Character
+> Database, General_Category / `Cased_Letter`)
+
+Every candidate-surface filter in `adapters/text/surfaces.js` reads one
+glyph-level property: capitalisation. `CAP_TOKEN`/`LOWER_TOKEN`, the
+sentence-initial exclusion, the all-caps typography rules, and
+`capitalisationIsSignificant`'s binomial are all questions about case. On a
+script that HAS no case, none of them can fire. That is not degradation and
+not weak performance — the mechanism is structurally inert, and every count
+it returns is about whatever cased debris (a Latin citation, an English
+caption) happens to sit in the file.
+
+**Measured, on real material, before this existed.** A Hebrew Wikipedia
+article yielded 6 candidate surfaces across 79 sentences; a Korean one 15
+across 129. The Hebrew surfaces were `School`, `Athens`, `Raffaello`,
+`Internet` — an English image caption, never the article. Each read as a
+small, plausible, wholly false result, and nothing in the return said the
+organ had not read the language.
+
+**The law.** Where an organ's mechanism cannot apply to the material at all,
+it reports that boundary as a typed gap carrying the measurement that
+establishes it. This is not a new rule — it is `surfaces.js`'s own tier
+discipline, which already states that a missing prior produces a gap and
+never a guessed number, applied to the one case where the missing prior is
+the writing system itself rather than a coreference judgement.
+
+`scriptCoverage(sentences)` holds it, returning `casedLetters`,
+`caselessLetters`, `casedShare`, and a `gap` that is null when the mechanism
+is genuinely about this material. Two boundaries, both structural rather than
+dials: `casedLetters === 0` with letters present is `script_without_case` —
+the mechanism cannot fire at all, and zero is not a threshold; caseless
+letters in the MAJORITY is `script_mostly_without_case` — most of the
+material is invisible to the mechanism, and majority is where a plurality
+flips, the same non-tuned standing this project already declares elsewhere.
+The share rides on the gap either way, so a caller cannot read a surface
+count without also being told what fraction of the script it was computed
+over.
+
+**The distinction is looked up, not listed.** Unicode's own
+`General_Category` already separates letters that have case
+(`\p{Cased_Letter}` — Lu/Ll/Lt) from those that do not (Lo). Verified
+directly against real strings: Latin, Greek, Cyrillic, Georgian and Armenian
+are bicameral and are correctly never gapped; Hebrew, Arabic, Hangul, CJK,
+Devanagari and Thai are caseless and are. No list of scripts is maintained
+here.
+
+**WHAT THIS REFUSES TO DO, and why the refusal is the point.**
+`surfaces.js`'s own header records that a blanket algorithmic generalisation
+across scripts was tried and REVERTED, on the ground that a silent claim of
+cross-script generality is a more severe failure than a disclosed narrow
+scope, and that extending coverage requires a giver and an invariance fixture
+per script rather than an algorithmic generalisation. Inventing a caseless
+substitute for capitalisation here — recurrence, n-gram salience, position —
+would be that same reverted move under a new name. So this organ reports the
+boundary instead of crossing it. The scripts it gaps are not thereby
+readable, and the gap says exactly that.
+
+**A separate failure this does NOT address, named so the two are not
+conflated.** Greek is bicameral, is correctly not gapped, and its surface
+layer reads genuinely well — 169 candidate surfaces and real Greek proper
+nouns (Παπανούτσος, Μιλήσιος, Νόηση) on the article this was built against.
+Greek nonetheless yields almost no relation edges, because `relations.js`
+matches an English SVO clause shape and `discoverRelationVocab` anchors on
+capitalised surfaces. That is the relation layer, not the surface layer, and
+it is not about script at all. Closing it needs a real per-language grammar
+prior with its own giver; nothing here attempts it.
+
+**Enforced.** `tests/script-coverage.test.js`, 6 cases: five bicameral
+scripts never gapped (the overreach guard), six caseless scripts gapped as
+`script_without_case`, cased debris in caseless material gapped as
+`script_mostly_without_case` carrying its share, the gap firing exactly where
+`extractSurfaces` goes blind and not where it does not, letterless material
+not gapped, and the reader leaving its input untouched. Both walls were
+mutation-tested — disabling the majority rule fails 2, gapping bicameral
+material fails 3. Suite 263/263 → 269/269, zero regressions.
+
+## S25 — An assembly is a persistence boundary; its products are sealed projections of the log
+
+> **Numbered S25 at merge:** first written as S24; a concurrent PR landed
+> its own S24 (the cannot-fire rule above) on main first. The number moved,
+> nothing about the law did — the same renumber-on-merge convention
+> the-fold's POLICIES.md already records for its P37/P42.
 
 > **giver:** Herbert Simon, "The Architecture of Complexity" (1962) — Hora
 > and Tempus; near-decomposability as a claim about interaction rates. The

@@ -1,5 +1,5 @@
 // native/kernel/artifact.js — Artifact@1: a sealed projection of the log
-// (ASSEMBLIES-AND-ARTIFACTS.md §3, A1/A3; READING-SPEC S24).
+// (ASSEMBLIES-AND-ARTIFACTS.md §3, A1/A3; READING-SPEC S25).
 //
 // An artifact is what an assembly SETS DOWN — Hora's bench (Simon 1962),
 // never a database: always re-derivable from the log, never authoritative

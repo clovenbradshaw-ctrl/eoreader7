@@ -1,6 +1,6 @@
 // native/kernel/assembly.js — Assembly@1: the named thing measurements attach
 // to, and the register that holds it (ASSEMBLIES-AND-ARTIFACTS.md §2, A2;
-// READING-SPEC S24).
+// READING-SPEC S25).
 //
 // GIVERS, named up front. The subassembly criterion is Herbert Simon's ("The
 // Architecture of Complexity", 1962 — Hora and Tempus; near-decomposability

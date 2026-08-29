@@ -94,13 +94,13 @@ test("S2/S3: the retraction records stand — prefix and lookahead rules are wri
 // ── S8: the spec itself is present and appended-to, never emptied ───────
 test("S8: READING-SPEC.md exists and carries every section the suite enforces", () => {
   const spec = read("../READING-SPEC.md");
-  for (const section of ["S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8", "S9", "S10", "S11", "S12", "S13", "S14", "S15", "S16", "S17", "S18", "S19", "S20", "S21", "S22", "S23", "S24"]) {
+  for (const section of ["S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8", "S9", "S10", "S11", "S12", "S13", "S14", "S15", "S16", "S17", "S18", "S19", "S20", "S21", "S22", "S23", "S24", "S25"]) {
     assert.match(spec, new RegExp(`## ${section} `), `${section} is present`);
   }
   // The S17 collision is resolved by correction note, not renumbering
   // (external citations exist in both meanings — the-fold POLICIES.md's
   // standing "not renumbered" decision): both entries stand, the note names
-  // the citable aliases, and new entries continue from S24.
+  // the citable aliases, and new entries continue in sequence past S23.
   assert.equal(spec.match(/^## S17 /gm)?.length, 2, "both S17 entries stand");
   assert.match(spec, /S17-recall/, "the first S17's citable alias is declared");
   assert.match(spec, /S17-type/, "the second S17's citable alias is declared");

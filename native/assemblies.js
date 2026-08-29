@@ -1,5 +1,5 @@
 // native/assemblies.js — the starting assembly registry
-// (ASSEMBLIES-AND-ARTIFACTS.md §2's table, made a value; READING-SPEC S24).
+// (ASSEMBLIES-AND-ARTIFACTS.md §2's table, made a value; READING-SPEC S25).
 //
 // This file is the concrete half of kernel/assembly.js: which organs make up
 // which assembly, at the adapter/host layer where assemblies live (A2.4 —
