@@ -101,9 +101,18 @@ test("an unattributed reading is refused — cross-work memory needs a source", 
 });
 
 test("postures sediment across works through the real experience-priors organ", () => {
+  // Each pair carries its OWN witness (`w-${i}`) rather than reusing one
+  // witness across every call in the same work: a re-sighting witnessed by
+  // the exact same source, offering the exact same span, teaches this log
+  // nothing (hear()'s own no-op rule, LP2) and correctly appends no entry —
+  // this test's "five acts" claim is about five genuinely DISTINCT
+  // observations, so each one is given a distinct witness, as a real
+  // second reader (or a later re-fetch) would actually have.
   const build = (pairs, w) => {
     let log = hlCube.createHyperlexicon();
-    for (const [a, b] of pairs) log = hlCube.admit(log, [{ subject: a, verb: "replaces", object: b, spans: sp(w) }], { witness: w }).log;
+    pairs.forEach(([a, b], i) => {
+      log = hlCube.admit(log, [{ subject: a, verb: "replaces", object: b, spans: sp(`${w}-${i}`) }], { witness: `${w}-${i}` }).log;
+    });
     return hlCube.readingFromHyperlexicon(log, { source: w });
   };
   const prior = experiencePriors.deriveExperiencePrior(
