@@ -94,6 +94,19 @@ const TOKEN_STRIP = /^[^\p{L}\p{N}'’]+|[^\p{L}\p{N}'’]+$/gu;
 
 const escapeRe = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
+// A captured span's internal whitespace collapsed to a single ordinary
+// space — shared between extractRelations's own subject/object capture
+// and expandSubjectNP's widened slice, both of which can carry a raw
+// character straight through from the source bytes (a hard-wrapped
+// Gutenberg line break, a stray tab) where the same bytes' own citation
+// span (built from splitSentences' sentence text) already reads as
+// ordinary prose. Measured at corpus scale (live_priors' own DR45-AT-
+// SCALE-RESULTS.md): a 1.56% baseline rate of literal newlines surviving
+// into a captured subject/object, more than TRIPLED (5.01%) by DR4's own
+// wider walk simply covering more ground where a hard wrap could occur.
+// The bytes matched are UNCHANGED; only how the captured text reads is.
+const collapseWs = (t) => String(t ?? "").replace(/\s+/g, " ");
+
 // A received closed class (Amendment V: a small set of function words is a
 // named prior, not content mined from the material — the same tier as
 // narrator.js's FIRST_PERSON or surfaces.js's Roman-numeral grammar). Held
@@ -490,7 +503,7 @@ export function expandSubjectNP(s, anchorStart, anchorEnd, leftBound, closed = {
     i -= 1; // an ordinary content word — include, keep scanning
   }
   if (i === anchorTokIdx) return null; // nothing wider found
-  return { subject: s.slice(toks[i].start, anchorEnd), start: toks[i].start };
+  return { subject: collapseWs(s.slice(toks[i].start, anchorEnd)), start: toks[i].start };
 }
 
 export const extractRelations = (text, { verbs, limit = Infinity, functionWords = null, negationWords = NEGATION_WORDS, phrasalPredicates = false, auxiliaryVerbs = AUXILIARY_VERBS, nounPhraseSubjects = false, definiteDeterminers = DEFINITE_DETERMINERS, indefiniteDeterminers = INDEFINITE_DETERMINERS, possessiveDeterminers = POSSESSIVE_DETERMINERS, npCoordinators = NP_COORDINATORS } = {}) => {
@@ -645,7 +658,10 @@ export const extractRelations = (text, { verbs, limit = Infinity, functionWords 
     // a possessive, would silently merge into one graph node. "the King" ->
     // "King" stays fine ("the" carries no identity of its own to lose);
     // only a pronoun that itself carries person/gender is refused.
-    let subject = m[1].trim();
+    // collapseWs (module-level, above) — a hard-wrapped line break
+    // surviving verbatim into the captured text, found live at corpus
+    // scale.
+    let subject = collapseWs(m[1].trim());
     // The subject's own start offset in `s` — group 1 begins exactly where
     // the whole match does (the lookbehind ahead of it is zero-width) —
     // moves when stripping below removes a leading function word, so DR4's
@@ -669,7 +685,7 @@ export const extractRelations = (text, { verbs, limit = Infinity, functionWords 
     const auxText = phrasalPredicates ? (m[2] ?? "").trim() : "";
     const anchorVerb = m[VERB_IDX].trim().toLowerCase();
     const verb = auxText ? `${auxText.toLowerCase()} ${anchorVerb}` : anchorVerb;
-    const object = m[OBJECT_IDX].trim().replace(/[.,;]$/, "");
+    const object = collapseWs(m[OBJECT_IDX].trim()).replace(/[.,;]$/, "");
     if (!subject || !object) { previousMatchEnd = clauseEndAfter(m.index + m[0].length); continue; }
 
     const key = `${subject}|${verb}|${object}`.toLowerCase();
@@ -702,7 +718,14 @@ export const extractRelations = (text, { verbs, limit = Infinity, functionWords 
       let finalSubject = subject;
       let finalSubjectStart = subjectStart;
       if (nounPhraseSubjects) {
-        const expanded = expandSubjectNP(s, subjectStart, subjectStart + subject.length, windowStart, { definiteDeterminers, indefiniteDeterminers, possessiveDeterminers, npCoordinators, auxiliaryVerbs });
+        // `subjEnd` (computed above, from the RAW m[1] before collapseWs)
+        // — never `subjectStart + subject.length`. `subject` is the
+        // COLLAPSED (possibly shorter) display text; anchorEnd is a byte
+        // offset into `s`'s own raw bytes, and using the collapsed
+        // string's length here would undershoot whenever collapsing
+        // actually removed characters (a hard-wrap newline run longer
+        // than one char), truncating the widened span by that amount.
+        const expanded = expandSubjectNP(s, subjectStart, subjEnd, windowStart, { definiteDeterminers, indefiniteDeterminers, possessiveDeterminers, npCoordinators, auxiliaryVerbs });
         if (expanded) { finalSubject = expanded.subject; finalSubjectStart = expanded.start; }
       }
       rels.push({

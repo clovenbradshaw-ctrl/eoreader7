@@ -206,6 +206,37 @@ test("DR4+DR5 together: the UDHR's own flagship sentence resolves correctly end 
   assert.match(rels[0].object, /^to promote/);
 });
 
+// ── collapseWs: a hard-wrapped line break surviving verbatim into a captured
+// span, found live at corpus scale (live_priors' own DR45-AT-SCALE-RESULTS.md
+// — a 1.56% baseline rate of raw newlines in captured subject/object text,
+// more than TRIPLED to 5.01% by DR4's own wider walk covering more ground
+// where a hard wrap could occur). The bytes matched are unchanged; only how
+// the captured text reads is — the same sentence's own citation span (built
+// from splitSentences) already read as clean prose with an ordinary space,
+// while the subject/object capture leaked the raw `\n` straight through. ──
+
+test("collapseWs: a hard Gutenberg line break inside the base (non-DR4) subject capture reads as an ordinary space, never a raw newline", () => {
+  const text = "During his official career\nFlorence was free from external threats.";
+  const rels = extractRelations(text, { verbs: new Set(["was"]) });
+  assert.equal(rels.length, 1);
+  assert.equal(rels[0].subject, "career Florence");
+  assert.ok(!rels[0].subject.includes("\n"), "subject must never carry a raw newline");
+});
+
+test("collapseWs: DR4's wider expandSubjectNP walk collapses a MULTI-CHARACTER internal whitespace run (a hard-wrap plus leading indentation) to a single space — a real length mismatch between the raw and collapsed text, the exact case that would expose an anchorEnd computed from the collapsed string's own (shorter) length instead of the raw match", () => {
+  const text = "During his official career\n   Florence was free from external threats.";
+  const rels = extractRelations(text, { verbs: new Set(["was"]), nounPhraseSubjects: true });
+  assert.equal(rels.length, 1);
+  assert.equal(rels[0].subject, "his official career Florence", "the 4-char whitespace run collapses to one space");
+  assert.ok(!rels[0].subject.includes("\n"), "widened subject must never carry a raw newline");
+  // The raw text's "his" starts where "During " ends (index 8) — if anchorEnd
+  // were derived from subject.length (the COLLAPSED, shorter string) rather
+  // than the raw match's own end (subjEnd), the widened span would undershoot
+  // by exactly the 3 characters collapsing removed, and this slice would read
+  // "s of" or similar garbage instead of "his".
+  assert.equal(text.slice(rels[0].subjectOffset, rels[0].subjectOffset + 3), "his");
+});
+
 // ── ReDoS safety — this file's own two-incident history demands this, not optional ──
 
 test("ReDoS: dense aux/negation vocabulary with no matching verb resolves in single-digit milliseconds, both flag states", () => {

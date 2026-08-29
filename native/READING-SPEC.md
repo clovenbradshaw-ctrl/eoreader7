@@ -1213,3 +1213,106 @@ zero rewritten). the-fold 1470/1470-1418-47-5 accounting (1470 total,
 1418 passing, 47 pre-existing failures, 5 skipped — the identical 47
 this repo already carried before the deletion, confirmed by name, zero
 new regressions from removing four files nothing else referenced).
+
+## S30 — A wider capture must collapse whitespace before it reports, and its own anchor arithmetic must not be fooled by having done so
+
+> **giver:** earned-here, found while measuring DR4/DR5 at full corpus
+> scale (`live_priors/goldens/reading/DR45-AT-SCALE-RESULTS.md`)
+
+S28 named the boundary DR4's widening walk must never cross (an
+auxiliary verb). This closes a second, independent defect in the same
+mechanism — not a boundary the walk crosses, but a REPRESENTATION defect
+in what it reports once it stops: a captured span's internal whitespace
+was carried through VERBATIM from the raw source bytes, including a
+literal `\n` from a hard-wrapped Gutenberg line, while the identical
+bytes' own citation span (built from `splitSentences`) already reads as
+ordinary prose with a single space. Found on a real specimen from the
+at-scale sweep (`01-literature-books/gitenberg/pg1232_The-Prince.txt`):
+`subject: "career\nFlorence"` on an edge whose own span text read "During
+his official career Florence was free…" with no newline anywhere in it.
+
+**Measured at corpus scale before being fixed, not assumed from one
+specimen.** `containsNewline` (a structural signature `live_priors`'
+mining pass already tracks across every admitted edge) sat at a 1.56%
+baseline rate with DR4/DR5 off; turning DR4 on more than TRIPLED it, to
+5.01% — the wider backward walk simply covers more ground where a hard
+wrap can occur, so the pre-existing defect (present, at low rate, in the
+narrow 1-2 token baseline capture too) became DR4's own dominant
+measured cost, named in `DR45-AT-SCALE-RESULTS.md` as "the single
+highest-leverage next move."
+
+**The fix: collapse, don't refuse.** Unlike S28's auxiliary boundary
+(where crossing it means the walk fabricated the wrong span and must
+refuse outright), a hard-wrap newline inside an otherwise-correct span is
+a representation problem, not a correctness problem — the bytes matched
+are exactly right; only how the captured text is RETURNED needs
+fixing. `collapseWs` (module-level, `native/adapters/text/relations.js`)
+collapses any run of whitespace (`\s+`, including `\n`, a stray tab, or
+multiple hard-wrap-plus-indentation characters together) to a single
+ordinary space, applied at the three places a captured span's final text
+is produced: the base subject capture, the object capture, and
+`expandSubjectNP`'s own widened-span return.
+
+**The bug this fix's own construction nearly reintroduced, caught before
+it shipped.** `expandSubjectNP`'s widened span's start OFFSET
+(`anchorEnd`, fed into the caller's own `subjectOffset`) was originally
+computed as `subjectStart + subject.length` — but once `subject` became
+the COLLAPSED (potentially shorter) display string, using its length to
+derive a byte offset into the RAW source string undershoots whenever
+collapsing actually removed characters (any whitespace run longer than
+one character — a hard wrap plus leading indentation, for instance).
+Caught by reasoning through the byte-offset semantics before running
+anything, the same discipline S28's own auxiliary-crossing bug was
+caught by running: the fix reuses `subjEnd` (already in scope, computed
+from the RAW, uncollapsed match length, originally built for the
+polarity-window's own backward bound) rather than re-deriving a length
+from the collapsed string. Pinned as its own regression case — a
+whitespace run of MORE than one character, so a naive `subject.length`
+would visibly undershoot the true anchor rather than accidentally
+landing right by coincidence (a bare single `\n`→`" "` swap is
+length-neutral and would not have caught this).
+
+**Why the FUNCTION belongs in the general engine — and why the CLAIM
+underneath it does not get to be universal.** `collapseWs` itself names
+no format, no site, no language: `\s+` is Unicode's own general
+whitespace class, and the mechanical operation (collapse a run of
+whitespace to one space) is pure string arithmetic — no belief in it, no
+corpus-specific vocabulary, the same status as `.trim()`. But the CLAIM
+that licenses applying it here — *a captured span's internal whitespace
+never carries content, only incidental line-wrap formatting* — is an
+empirical regularity about PROSE, not a logical necessity, and this
+project's own corpus already names the registers where it can fail:
+`live_priors/goldens/reading/MINED-PATTERNS.md` flags verse/dialogue
+material (0.069 density, "a genuinely different sentence shape... no
+rule proposed here") and source code as places where a line break can be
+load-bearing rather than incidental — a poem's own enjambment, or a
+language where whitespace is syntax. Whether "this line break is
+incidental" holds for a given document is a REGISTER classification,
+exactly the kind of thing that gets more confident the more instances of
+a register are read — which is why `MINED-PATTERNS.md` already treats
+register statistics as prior-shaped (received, corpus-measured,
+revisable) rather than hardcoded, and names wiring them into extraction
+behavior as a real, undecided design question rather than something a
+bug fix gets to settle by assumption.
+
+**Disclosed, not checked here:** this fix was validated against the
+prose registers it was measured on (Gutenberg literature, encyclopedic
+material) and was NOT run against `09-source-code` or `15-western-canon`
+specifically to confirm it does no harm there. If a future reading finds
+a register where internal whitespace inside a captured span IS the
+content (a verse line, an indentation-sensitive code block), the right
+fix is not reverting `collapseWs` globally — it is scoping WHEN it
+applies behind a register-level prior, the same undecided question
+`MINED-PATTERNS.md` already named and left open, not re-derived fresh
+here.
+
+**Files.** `native/adapters/text/relations.js` (`collapseWs`, module-level;
+applied at subject capture, object capture, and `expandSubjectNP`'s
+return; the `anchorEnd`/`subjEnd` correction at the `expandSubjectNP` call
+site). `native/tests/relations.test.js` (2 new cases: the base-capture
+collapse, and DR4's widened-span collapse using a MULTI-character
+whitespace run specifically so the anchor-offset regression could not
+pass by coincidence — 359 cases total, up from 357).
+
+Suites: eoreader7 native 359/359 (357 + 2, zero regressions — confirmed
+by running the full pre-existing suite unchanged before and after).
