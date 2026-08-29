@@ -123,6 +123,155 @@ export const CAPACITIES = Object.freeze([
     fn: "witnessCode",
     what: "does one landing actually compile — the structural half of the parliament build-log.js gates every patch through",
   }),
+
+  // ── the connection pass (2026-08-29, P64) ─────────────────────────────
+  //
+  // eval/capability-coverage.mjs measured this registry at 9/27 cells and
+  // found the gap was largely REGISTRY DEBT, not incapacity: real, tested,
+  // running organs whose cells were documented in their own code or headers
+  // and never registered. The rows below pay that debt. Discipline per row:
+  // the module and fn are verified exports; the cell is DOCUMENTED where a
+  // source states it (cited in `what`) and REASONED like this table's own
+  // original rows where not (the hand-check the header above describes),
+  // mechanically domain-legal either way (operatorOf(op).domain →
+  // TERRAIN_BY_DOMAIN[domain][grain] — the same arithmetic that caught
+  // `skill` and `build` mistyped when this table was first written).
+
+  Object.freeze({
+    id: "network",
+    terrain: "Network",
+    op: "CON",
+    module: "network.js",
+    fn: "makeNetworkBinder",
+    what: "a recurring arrangement found and bound — the CON·Pattern cell P58 built this organ to occupy after its emptiness was CONFIRMED (the zero-edges list page, predicted before moves.js was written); registering it closes the loop that finding opened",
+  }),
+  Object.freeze({
+    id: "patch",
+    terrain: "Link",
+    op: "SEG",
+    module: "build-log.js",
+    fn: "applyOps",
+    what: "the delta carriage's cut primitive — {op:'SEG', find} snips one span out of one artifact (its own header's 'SEG · snip' row); the same cell identity.js:182 (eoreader7) emits verbatim on a real revision",
+  }),
+  Object.freeze({
+    id: "extent",
+    terrain: "Field",
+    op: "SEG",
+    module: "void-shape.js",
+    fn: "spaceFrom",
+    what: "the extent a question's space must cover, and its units, made operative — the module's own ['SEG','Ground','extent',...] row; the wall placeFiller refuses out-of-extent spans against (P53)",
+  }),
+  Object.freeze({
+    id: "rezero",
+    terrain: "Lens",
+    op: "REC",
+    module: "build-log.js",
+    fn: "makeBuildLog",
+    what: "rezeroBuild — a judged projection's ground conceded, the next born (its own header: EVIDENCE · REC · Figure · produced); grid.js::concedeEvaluation is the same act for checked claims (P36 mirrors it exactly)",
+  }),
+  Object.freeze({
+    id: "reshape",
+    terrain: "Paradigm",
+    op: "REC",
+    module: "void-loop.js",
+    fn: "reshape",
+    what: "a finding contradicting the declared space re-zeros the space itself — P53's own read-off cell (REC = Generate·Pattern at Paradigm); the kernel's declarations.js::concede and reaction.js::withdraw are its engine-side siblings (both grain: Pattern in their own code)",
+  }),
+  Object.freeze({
+    id: "hear",
+    terrain: "Link",
+    op: "SYN",
+    module: "hyperlexicon.js",
+    fn: "makeHyperlexicon",
+    what: "a re-sighting folds into the same note with witnesses and spans unioned — hear()'s own code types it SUPERSEDE · SYN · Figure (P57); store.js::updateRow carries the identical typing for the database fold",
+  }),
+  Object.freeze({
+    id: "declare",
+    terrain: "Paradigm",
+    op: "DEF",
+    module: "hl-acquire.js",
+    fn: "acquireCandidates",
+    what: "candidate functional/transitive declarations acquired from real material, REFUTED/CANDIDATE tiers, never GIVEN — the entries it feeds carry operator DEF, grain Pattern in declarations.js's own code (P37)",
+  }),
+  Object.freeze({
+    id: "standing",
+    terrain: "Paradigm",
+    op: "EVA",
+    module: "capacity-runner.js",
+    fn: "mergeTestimony",
+    what: "a claim's standing across witnesses — corroborated, single, disagree — a property of the SET no member carries (P39); the organ P44's order-13 metasystematic item runs, which is what evaluating at Paradigm is",
+  }),
+  Object.freeze({
+    id: "compile",
+    terrain: "Field",
+    op: "SYN",
+    module: "predigest.js",
+    fn: "compilePriors",
+    what: "sedimented readings merged into one carried experiential ground (P60) — composing the standing field later reading stands on; typing reasoned per this table's own hand-check discipline, not quoted from a source",
+  }),
+  // ── the development pass (2026-08-29, second pass — P65) ─────────────
+  //
+  // CAPACITY-DEVELOPMENT-PLAN.md's Tier 1 plus the one no-candidate
+  // frontier cell, built and registered together. One premise of that plan
+  // was WRONG and is corrected in the plan itself: the kinds pair was
+  // "gated on the legacy-engine path" — but eoreader7's native kernel
+  // already carries full ports (kind-induction.js / entity-kind-induction.js,
+  // the latter with a built-in random-subset null arm), so the gate had
+  // already dissolved when the plan was written. Two of these five rows
+  // name eoreader7 NATIVE modules — the first registry rows to do so; the
+  // `module` column stays what it has always been, a resolvable pointer
+  // (data), and running them from the terminal still returns
+  // `not_yet_executable` from capacity-runner.js until wired.
+
+  Object.freeze({
+    id: "clear",
+    terrain: "Entity",
+    op: "NUL",
+    module: "clearance.js",
+    fn: "makeClearance",
+    what: "does this figure clear its ground — P22's own named next integration, built: presence re-gated by establishment (P38's distinction, mechanized), the material's own derived recurrence floor, ambiguity withheld with candidates, and a pronoun rung that runs only under declared numbers (typed skip otherwise — P41). Cell stamped in the organ's own CELL export (NUL·Figure).",
+  }),
+  Object.freeze({
+    id: "unravel",
+    terrain: "Network",
+    op: "SEG",
+    module: "unravel.js",
+    fn: "unravel",
+    what: "cutting a pattern apart at its own seams — parameter-free separation at the network's bridges, parts each still readable, cut edges addressed by the caller's own indices; a 2-edge-connected network is a typed no_seam refusal, never a cut bought with an invented threshold. The plan's one no-candidate frontier cell, built. Cell stamped in the organ's own CELL export (SEG·Pattern).",
+  }),
+  Object.freeze({
+    id: "settle",
+    terrain: "Void",
+    op: "SIG",
+    module: "void-loop.js",
+    fn: "whatWouldSettle",
+    what: "naming what is absent as the questions that would settle it (P53's second amendment: a gap the loop can name is a question it can ask), ordered by what settles fastest; holon.js::searchedVoid signs the same kind of absence for a search that ran and found nothing (P32). Typing reasoned per this table's own hand-check discipline: Relate·Existence at Ground grain — SIG·Void.",
+  }),
+  Object.freeze({
+    id: "kinds",
+    terrain: "Kind",
+    op: "SIG",
+    module: "eoreader7/native/kernel/kind-induction.js",
+    fn: "projectKinds",
+    what: "recurring kind candidates signed PROVISIONALLY from a population's own interaction field, each basin carrying its own random-subset binding-energy null — the native port of the kinds discipline Explore's view already holds (null arm, refused-as-underpowered). Typing reasoned: signing a recurring kind is Relate·Existence at Pattern grain — SIG·Kind.",
+  }),
+  Object.freeze({
+    id: "kindnull",
+    terrain: "Kind",
+    op: "NUL",
+    module: "eoreader7/native/kernel/entity-kind-induction.js",
+    fn: "testKindMembers",
+    what: "a DECLARED kind membership challenged against the same random-subset binding-energy null the inducer runs on its own basins — structural refusals (unknown_members / under_powered / no_boundary), never tuned floors. Cell documented in the function's own docstring (NUL·Pattern — Differentiate·Existence at Pattern grain).",
+  }),
+
+  Object.freeze({
+    id: "regime",
+    terrain: "Atmosphere",
+    op: "REC",
+    module: "source.js",
+    fn: "atmosphereBoundaries",
+    what: "the ambient reading regime's tolerance-triggered re-zero — operators.js's own REC line ('rezero — a new ambient ground begins'), the one place REC fires as a literal numeric event (loops/atmosphere.js, consumed here); the terrain is the organ's own name",
+  }),
 ]);
 
 const byId = new Map(CAPACITIES.map((c) => [c.id, c]));
