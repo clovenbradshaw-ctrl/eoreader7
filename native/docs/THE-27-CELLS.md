@@ -7,12 +7,16 @@ P64 for the connection pass, P65 for the development pass);
 `CAPABILITY-POLICIES.md` carries the map's laws; the eval results docs win
 on numbers. This is a standing document — amendments append.
 
-**The table here is generated, not hand-tallied.** Every cell row below
-was produced by walking the REAL cube (`eoreader7/native/kernel/cube.js::
-algebraAddresses`) against the REAL registry (`capacities.js`) — the same
-walk `eval/capability-coverage.mjs` runs. To regenerate and check this
-document against the live code, run that driver; if they disagree, the
-driver is right and this document has gone stale.
+**The cell/organ ASSIGNMENTS here are generated, not hand-tallied.**
+Every address, face and organ attribution below was produced by walking
+the REAL cube (`eoreader7/native/kernel/cube.js::algebraAddresses`)
+against the REAL registry (`capacities.js`) — the same walk
+`eval/capability-coverage.mjs` runs. The PROSE around each assignment
+(definitions, the "Used" examples, the judgments) is this document's own
+and goes stale on its own schedule. To regenerate and check the
+assignments, run that driver (it imports the eoreader7 sibling checkout,
+so both repos must sit side by side); if it and this document disagree,
+the driver is right.
 
 ---
 
@@ -119,13 +123,20 @@ search that ran and found nothing is SIGNED as a void the model receives,
 never mistaken for a search that was never attempted (P32). *Used:*
 Johnson admitted-but-unplaced produced the specific question that would
 place him; when a 0.5B reader answered it wrongly, the extent wall
-refused the answer rather than corrupting the space.
+refused the answer rather than corrupting the space. A second act lives at
+this cell OUTSIDE the-fold's registry: eoreader7's
+`adapters/text/surfaces.js` stamps its own `CELL = { op: "SIG", grain:
+"Ground" }` — presence extraction as signing what exists in the ground —
+which is why `eval/complicated-reading.mjs` labels its stage 1
+"SIG·Ground (presence)": a documented typing in the adapter's own code,
+not a registry row here.
 
 **SIG·Figure — Entity · Binding** — `cast`
 (`cast.js::makeReferentIndex`; **executes**). Referent identity: names
 resolve to WHO, not to byte strings (P11) — one implementation of "the
-same name," which the resolver, the claim checkers and the witness tier
-all project from. `distinguish` lands as the SIG half of a SIG+INS pair
+same name," which the resolver and the relation tier (`hypergraph.js`
+takes the injected index) project from — the witness tier deliberately
+does NOT: it stays byte- and string-anchored by its own design (P32). `distinguish` lands as the SIG half of a SIG+INS pair
 ("to sign a figure and individuate it are one motion at the surface, two
 operators in the algebra"). *Used:* `act distinguish who-is-here at
 Entity from encounter ground excerpt.txt broken:rotation` runs the real
@@ -183,8 +194,12 @@ cell's ("the extent to be covered, and its units"), not the loop's.
 `{op: "SEG", find}` snips one span out of one artifact (P16). The act is
 derived OFF THE BYTES (`deriveOp`/`readOps`) — never off a model's label,
 because measured live, both small models say "INS" while supplying a
-replacement. *Used:* every `/fold` revision and routed complaint lands
-through this cell's ops; strict-first application with `every` as the
+replacement. *Used:* the delta carriage's DELETION-typed ops land here — `{op:
+"SEG", find}` with an empty `add`; `deriveOp` types a replacement SYN
+and an insertion INS (other cells' acts), and a revision whose ops fail
+to apply descends to the full-code SUPERSEDE fallback, touching no ops
+at all ("ops that apply → patch entry; ops that don't → the old
+full-code ask"). Application is strict-first, `every` only as the
 disclosed rescue of an ambiguous match.
 
 **SEG·Pattern — Network · Unraveling** — `unravel`
@@ -198,8 +213,9 @@ into a war-narrative core and its one-edge asides — `british —army→
 india` named as exactly the aside it is.
 
 **CON·Ground — Field · Tending — EMPTY.** Maintaining the connective
-ground. The candidate is the running summary's own machinery (`fold.js`
-S1, `refreshSummary`/`advanceSummaryFold`) — but the aperture gate that
+ground. The candidate is the running summary's own machinery (fold.js's S1
+store; `app.js::refreshSummary` and `fold.js::advanceSummaryFold`) — but
+the aperture gate that
 JUDGES whether ground is carried is already registered (EVA·Ground), and
 splitting maintain-the-ground from judge-the-ground needs a cleaner
 boundary than a nomination can draw from outside those modules; both
@@ -250,9 +266,13 @@ grammar lens is wired asymmetrically.
 document-order neighbours and referent siblings — "relations only make
 sense linked." *Used:* every hop out of a statement gets one shape
 (`↑ before` / `↓ after` / `⇢ shared cast`), the Explore pivot's own
-machinery; the composition side of the same cell is where the reaction
-circuit's derived products chain (P60/P63 — the two-hop aunt/uncle
-derivation whose every hop carries provenance to real byte addresses).
+machinery. The kernel's reaction circuit (P60/P63 — the two-hop
+aunt/uncle derivation, every hop carrying provenance to real byte
+addresses) composes at the same stance, Composing at Network — but that
+reading is THIS DOCUMENT'S OWN NOMINATION, not a documented typing (the
+circuit's own `withdraw` is typed REC·Pattern in the P64 ledger, and
+nothing in reaction.js stamps a cell); the registered organ carries the
+cell alone.
 
 ### Interpretation — DEF · EVA · REC (what the reader holds)
 
@@ -270,8 +290,10 @@ also the only cell whose absence has never produced a live incident.
 corpus, provenance-carrying, zero egress. In the void loop this is THE
 cut: DEF is the only Dissecting cell in the loop's declaration, and
 cardinality is the single cut — exactly the cell whose absence produced
-the two-filler-slot-read-as-one specimen (P53). *Used:* the loop's
-candidates are cut out here before anything binds.
+the two-filler-slot-read-as-one specimen (P53). *Used:* the CELL is where the loop's cut lands — through `grid.js`'s
+DEF acts, not through `checkPrior` (two acts, one cell), and the loop is
+not yet wired into a live turn (P53's own disclosure); `checkPrior`'s
+live use is the claim-checking tier over live_priors.
 
 **DEF·Pattern — Paradigm · Unraveling** — `declare`
 (`hl-acquire.js::acquireCandidates`). Candidate functional/transitive
@@ -305,7 +327,8 @@ witness aims the next ask.
 
 **EVA·Pattern — Paradigm · Tracing** — `standing`
 (`capacity-runner.js::mergeTestimony`). A claim's standing ACROSS
-witnesses — AGREE / SINGLE / DISAGREE / CONTRADICTED — a property of the
+witnesses — AGREE / SINGLE / DISAGREE / CONTRADICTED / UNDETERMINED — a
+property of the
 SET that no member carries (P39). A self-witness (`self:model`) never
 co-signs corroboration alone; a self-witness opposed by a real refusal is
 still a real disagreement, on the record. *Used:* the crown render
@@ -315,16 +338,19 @@ Paradigm grain is exactly what metasystematic coordination is.
 
 **REC·Ground — Atmosphere · Cultivating** — `regime`
 (`source.js::atmosphereBoundaries`). The ambient reading regime's
-tolerance-triggered re-zero — the ONE place in the engine where "REC
-fires" is a literal numeric event ("rezero — a new ambient ground
-begins"). *Used:* atmosphere reads run at hop = window (the calibrated
+tolerance-triggered re-zero. The literal numeric firing site is the
+ENGINE's `loops/atmosphere.js` ("rezero — a new ambient ground begins");
+`atmosphereBoundaries` is the-fold's consumer, turning those firings
+into chunk boundaries through the injected `readAtmosphere` — the
+registry row's own parenthetical, restored here. *Used:* atmosphere reads run at hop = window (the calibrated
 stride); the recourse-locality measurement (2026-08-21) is this cell's
 own disclosed finding — regions grow to cover nearly a whole read before
 conceding, recompute grows near-linearly, kept as a named open question
 rather than papered over.
 
 **REC·Figure — Lens · Making** — `rezero`
-(`build-log.js`'s `rezeroBuild`). A judged projection's ground conceded
+(`build-log.js::makeBuildLog` — its returned `rezeroBuild` is the
+re-zero act, matching the registry's own fn column). A judged projection's ground conceded
 and the next ground born: a complaint at a widget IS a re-zero
 (EVIDENCE · REC · Figure carrying the operator's words verbatim, then a
 fresh ground with no `supersedes` — a re-zero concedes a ground, it does
@@ -354,8 +380,10 @@ wrong answer.
 command and chat's `/act` door speak one grammar (`<verb> [<object>] at
 <terrain> from <stance> …`, grid.js), and every landed act is typed by
 operator and grain on an append-only log. `distinguish` is the worked
-pair: one motion at the surface, two cells in the algebra (SIG·Figure
-then INS·Figure, `checkCubeProgression` silent across the pair). Two
+pair: one motion at the surface, two cells in the algebra — SIG then INS
+at the DECLARED terrain's grain (at Entity that is SIG·Figure/INS·Figure;
+P22's own worked example at Network lands SIG·Pattern/INS·Pattern),
+`checkCubeProgression` silent across the pair at any grain. Two
 stance faces coexist and must not be merged: the DERIVED stance is a
 property of a cell (computed, cannot be wrong); the DECLARED stance
 (`from <stance>`) is the actor's posture, refusable three ways.
@@ -375,7 +403,7 @@ verdict (P64's law).** `moves.js` enumerates the 27 and computes
 coverage against the registry; `eval/capability-coverage.mjs` reads all
 three faces and grades every empty cell's neighbours as leads. Three
 kinds of hole share any zero: REGISTRY DEBT (the organ exists,
-unregistered — over half the map, once), REAL INCAPACITY (convictable
+unregistered — 10 of the 18 then-empty cells, P64), REAL INCAPACITY (convictable
 only by a stated-then-confirmed falsifiable prediction — CON·Pattern is
 the sole exemplar, and its organ now exists), and PROBE ERROR reported
 as incapacity (P44's four wrong probes). The companion diagnostic: *a
@@ -402,7 +430,9 @@ OTHER axis entirely — the MHC battery (P44) scores how high an ORDER of
 task the organs reach (stage 9 on War and Peace, stage 6 on Borodino,
 with a real order-7 pronoun ceiling), and pairing depth per cell is the
 map's own named future work. And most registry rows are typed pointers:
-two cells execute live from the terminal (`cast`, `relations`);
+two CAPACITIES execute live from the terminal (`cast` and `relations` —
+`cast` spans SIG·Figure and INS·Figure, so three cells carry an
+executing organ);
 everything else runs in its own module and tests, and asking the runner
 returns `not_yet_executable` — a real refusal naming what is missing,
 never a silent no-op.
@@ -421,5 +451,11 @@ kinds:
 | CON·Ground | Tending | maintaining the connective field | maintain-vs-judge needs the owning session's own boundary (the judge, EVA·Ground, is already registered) |
 | DEF·Ground | Clearing | defining the interpretive ambient | no workable specimen yet — the one absence that has never produced a live incident |
 
-Per C4, all three are LEADS: no falsifiable emptiness-prediction has been
-stated for any of them, so none may be read as incapacity.
+Per C4, all three are LEADS: no falsifiable emptiness-prediction has
+been stated for any of them, so none may be read as incapacity. And by
+the lead-grading's own rule (`moves.js::neighbours` — an empty cell whose
+SAME OPERATOR is occupied at a neighbouring grain is the strongest kind
+of lead), all three are the strongest kind: the coverage driver measures
+every one of the three operators occupied at BOTH other grains
+(CON → CON·Figure and CON·Pattern; DEF → DEF·Figure and DEF·Pattern;
+INS → INS·Figure and INS·Pattern).
