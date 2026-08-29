@@ -1161,3 +1161,55 @@ zero regressions via `git stash` with the untracked new test file moved
 aside for the true baseline comparison. the-fold 1485/1433/47,
 byte-identical to its own `git stash` baseline (the change is additive
 and organ-injected; nothing in the-fold calls relations.js directly).
+
+## S29 — Code lives with the engine; received content lives with the corpus
+
+> **giver:** earned-here, user direction (2026-08-29)
+
+`phasepost.js` (the 27-phasepost overlay — DR1, `live_priors/goldens/
+reading/DERIVED-RULES.md`) and its conformance test moved here from
+the-fold, alongside a split of what it depends on: the module itself
+(`native/adapters/text/phasepost.js`) is pure, organ-injected reading
+logic with no the-fold-specific content — the same standing `relations.js`/
+`surfaces.js` already hold in this directory — while the RECEIVED lexicon
+it reads (`ActPrior@1`, a VerbNet-derived data table, 704KB/48,862 lines)
+moved to `live_priors`' `derived-priors/act-priors/`, since a received
+lexicon is content, not code.
+
+Found by inspection, not assumed: the-fold's `eval/fixtures/` had
+accumulated 11MB across several such received-lexicon fixtures (UniMorph
+tables, this one) with no the-fold-specific meaning in any of them — a
+repo meant to stay a thin, replaceable consumer of this engine's reading
+power had instead become the thing holding the received linguistic data
+that power depends on. The fix is the general rule stated in this
+section's own title: engine CODE belongs where the engine lives; RECEIVED
+CONTENT belongs with the corpus that reads it, regardless of which repo
+happened to build the fixture first.
+
+**Scoped, not exhaustive.** Only `act-prior-en.json` and its builder moved
+this pass — `unimorph-morphology-prior.json` (which `phasepost.test.mjs`
+also reads, for its lemmatizer) stayed in the-fold, because it has other
+live the-fold consumers (`hypergraph.test.mjs` among them) this pass was
+not asked to touch; the relocated test reaches across to it by relative
+path, the same cross-repo pattern this whole project already uses
+everywhere a test needs a sibling repo's fixture. Whether the REST of
+the-fold's `eval/fixtures/` (several megabytes of UniMorph tables, mostly
+consumed by that repo's own MINE-1 benchmark eval drivers) should follow
+is real, named, unstarted future work — a separate, larger decision than
+this pass' own scope.
+
+**Files.** `native/adapters/text/phasepost.js` (moved, header updated to
+name the split); `native/tests/phasepost.test.mjs` (moved, cross-repo
+paths updated: cube.js/priors.js/morphology.js are now siblings within
+this repo; the ActPrior@1 fixture reads from live_priors; the morphology
+prior still reads from the-fold). the-fold: `phasepost.js`,
+`phasepost.test.mjs`, `eval/build-act-prior.mjs`,
+`eval/fixtures/act-prior-en.json` deleted. live_priors:
+`derived-priors/act-priors/act-prior-en.json` + `README.md` (new),
+`scripts/build-act-prior.mjs` (moved, output path and header updated).
+
+Suites: eoreader7 357/357 (341 + 16, the same 16 cases moved verbatim,
+zero rewritten). the-fold 1470/1470-1418-47-5 accounting (1470 total,
+1418 passing, 47 pre-existing failures, 5 skipped — the identical 47
+this repo already carried before the deletion, confirmed by name, zero
+new regressions from removing four files nothing else referenced).
