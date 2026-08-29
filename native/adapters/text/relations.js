@@ -76,7 +76,11 @@
 // no triple is emitted without a literal verb match in the clause.
 
 import { diaNorm } from "./surfaces.js";
-import { NEGATION_WORDS, THIRD_PERSON_SINGULAR } from "./priors.js";
+import {
+  NEGATION_WORDS, THIRD_PERSON_SINGULAR,
+  AUXILIARY_VERBS, DEFINITE_DETERMINERS, INDEFINITE_DETERMINERS,
+  POSSESSIVE_DETERMINERS, NP_COORDINATORS,
+} from "./priors.js";
 
 // The cell this organ occupies on the operator grid (engine/operators.js):
 // CON · Link · Binding — subject · verb · object triples; the graph's
@@ -227,7 +231,7 @@ const SENTENCE_END = /[.!?;]/g;
  * cited, not repeated). Same gates, same distinct-anchor recurrence count,
  * one shared tally.
  */
-export const discoverRelationVocab = (text, { surfaces, functionWords = null, minSurfaces, negationWords = NEGATION_WORDS, posPrior = null, anchorSpans = null } = {}) => {
+export const discoverRelationVocab = (text, { surfaces, functionWords = null, minSurfaces, negationWords = NEGATION_WORDS, posPrior = null, anchorSpans = null, phrasalPredicates = false, auxiliaryVerbs = AUXILIARY_VERBS } = {}) => {
   if (!Number.isInteger(minSurfaces) || minSurfaces < 1)
     throw new TypeError("discoverRelationVocab: minSurfaces is declared — how much recurrence counts as a pattern is the caller's to say, never a default here");
 
@@ -268,18 +272,66 @@ export const discoverRelationVocab = (text, { surfaces, functionWords = null, mi
   // ONE tally for both anchor kinds — the gates below run identically, so a
   // candidate seen once after a name and once after a bound pronoun counts
   // two distinct anchors, exactly as two names would.
-  const tallyAfter = (end, anchorId) => {
-    const after = s.slice(end, end + 40).match(AFTER);
-    if (!after) return;
-    const cleaned = after[1].replace(TOKEN_STRIP, "");
-    if (!cleaned) return;
-    if (/^\p{Lu}/u.test(cleaned)) return;       // capitalised — shaped like a surface, not a verb
-    if (/^\p{Nd}+$/u.test(cleaned)) return;     // a bare number, not a verb
-    const lower = cleaned.toLowerCase();
-    if (functionWords && functionWords.has(lower)) return; // this text's own closed class
-    if (negationWords.has(lower)) return; // a negation marker modifies a verb; it is not one
-    if (!surfacesByToken.has(lower)) surfacesByToken.set(lower, new Set());
-    surfacesByToken.get(lower).add(anchorId);
+  //
+  // `phrasalPredicates` (DR5, live_priors/goldens/reading/DERIVED-RULES.md):
+  // OFF by default — byte-identical to before. ON, a leading run of
+  // AUXILIARY_VERBS/negation tokens is SKIPPED (bounded to
+  // MAX_AUX_HOPS) before nominating a candidate, so "Member States have
+  // pledged..." nominates "pledged" — the real content verb — rather than
+  // "have", which this file's own tallyAfter always found before (measured
+  // live: "have" alone as the anchor swallows the entire real predicate,
+  // "pledged themselves to achieve...", into the OBJECT capture instead).
+  // This function ONLY changes which token gets NOMINATED; extractRelations's
+  // own `phrasalPredicates` (the same name, the same flag a caller passes to
+  // both) is what lets MATCHER actually bridge the skipped aux chain in the
+  // real text — the two are a declared pair, not independent knobs, because
+  // nominating "pledged" without also letting MATCHER reach past "have
+  // pledged" would make matches that used to succeed (wrongly) simply
+  // vanish instead.
+  const MAX_AUX_HOPS = 4;
+  const tallyAfter = (afterEnd, anchorId) => {
+    let cursor = afterEnd;
+    for (let hop = 0; hop <= MAX_AUX_HOPS; hop += 1) {
+      const after = s.slice(cursor, cursor + 40).match(AFTER);
+      if (!after) return;
+      const cleaned = after[1].replace(TOKEN_STRIP, "");
+      if (!cleaned) return;
+      if (/^\p{Lu}/u.test(cleaned)) return;       // capitalised — shaped like a surface, not a verb
+      if (/^\p{Nd}+$/u.test(cleaned)) return;     // a bare number, not a verb
+      const lower = cleaned.toLowerCase();
+      cursor += after[0].length;
+      if (phrasalPredicates && (auxiliaryVerbs.has(lower) || negationWords.has(lower))) {
+        // An auxiliary/modal may itself be the clause's OWN main verb — a
+        // bare copula ("There WAS nothing") or possessive ("the book HAD
+        // pictures") — rather than a true auxiliary with a participle
+        // following ("was reading"). The identical ambiguity phasepost.js's
+        // own header already names for have/has/had, found HERE by measuring
+        // this exact mechanism against real prose (live_priors/goldens/
+        // reading): unconditionally skipping every aux occurrence, with no
+        // fallback, silently dropped "was"/"had" from the vocabulary
+        // whenever nothing verb-like happened to follow, losing real edges
+        // the pre-DR5 pipeline used to find. Both readings now get
+        // independent evidence: the aux word ITSELF is tallied too (never a
+        // negation word — a modifier, never a verb, even bare), and the
+        // scan still continues past it looking for a real content verb.
+        // MATCHER's own AUX_GROUP_RE always prefers the LONGER aux+verb
+        // combination when a real vocab verb follows it (greedy bounded
+        // repetition), so admitting the bare aux as an ADDITIONAL candidate
+        // never reintroduces the swallow bug DR5 was built to close — it
+        // only restores the bare-copula reading for clauses where nothing
+        // better follows.
+        if (auxiliaryVerbs.has(lower)) {
+          if (!surfacesByToken.has(lower)) surfacesByToken.set(lower, new Set());
+          surfacesByToken.get(lower).add(anchorId);
+        }
+        continue;
+      }
+      if (functionWords && functionWords.has(lower)) return; // this text's own closed class
+      if (negationWords.has(lower)) return; // a negation marker modifies a verb; it is not one
+      if (!surfacesByToken.has(lower)) surfacesByToken.set(lower, new Set());
+      surfacesByToken.get(lower).add(anchorId);
+      return;
+    }
   };
   if (uniqueNames.length) {
     const SURFACE_RE = new RegExp(`\\b(?:${uniqueNames.map(escapeRe).join("|")})\\b`, "gu");
@@ -343,7 +395,105 @@ export const discoverRelationVocab = (text, { surfaces, functionWords = null, mi
  * falls back to the original clause-final shape, same discipline as every
  * other optional filter in this file.
  */
-export const extractRelations = (text, { verbs, limit = Infinity, functionWords = null, negationWords = NEGATION_WORDS } = {}) => {
+const WORD_TOKEN = /[\p{L}\p{N}_'’-]+/gu;
+
+/**
+ * expandSubjectNP(s, anchorStart, anchorEnd, leftBound, closed) — DR4
+ * (live_priors/goldens/reading/DERIVED-RULES.md): MATCHER's own subject
+ * capture is at most 2 tokens immediately before the verb; a real NP is
+ * often much wider ("the peoples of the United Nations", "disregard and
+ * contempt for human rights"). This walks BACKWARD from the anchor's own
+ * start, token by token, never crossing `leftBound` (the same clause-
+ * boundary reach `extractRelations`'s own polarity window already computes
+ * — real signal already in hand, not a guessed reach):
+ *
+ *   - a definite/indefinite/possessive determiner INCLUDES itself, then
+ *     STOPS — the NP's own left edge (RULE.md Part I, DR4's own rule).
+ *   - an NP coordinator ("and"/"or") INCLUDES itself and CONTINUES, so a
+ *     coordinated sibling NP further back ("Tom, and his brother arrived")
+ *     joins too — but only if something stands before it to coordinate
+ *     WITH; a coordinator with nothing behind it is left unconsumed.
+ *   - clause-internal punctuation (a comma, semicolon, colon) between two
+ *     tokens STOPS the walk without crossing it — the same wall
+ *     `leftBound` already enforces at the sentence/clause level, applied
+ *     one register finer.
+ *   - an ordinary content word (article-less nouns, adjectives, a
+ *     genitive) INCLUDES itself and CONTINUES.
+ *
+ * Reaching `leftBound` with no determiner ever found returns the WIDEST
+ * span found rather than refusing — a bare-plural or mass-noun subject
+ * ("human rights are...") is ordinary, legal English with no determiner
+ * at all, and DR4 names this as a case to ADMIT, never to guess past.
+ *
+ * Returns `null` when nothing wider than the anchor was found (byte-
+ * identical subject either way — the caller keeps its own anchor text).
+ */
+export function expandSubjectNP(s, anchorStart, anchorEnd, leftBound, closed = {}) {
+  const {
+    definiteDeterminers = DEFINITE_DETERMINERS,
+    indefiniteDeterminers = INDEFINITE_DETERMINERS,
+    possessiveDeterminers = POSSESSIVE_DETERMINERS,
+    npCoordinators = NP_COORDINATORS,
+    auxiliaryVerbs = AUXILIARY_VERBS,
+  } = closed;
+  const toks = [];
+  WORD_TOKEN.lastIndex = Math.max(0, leftBound);
+  let tm;
+  while ((tm = WORD_TOKEN.exec(s)) !== null) {
+    if (tm.index >= anchorEnd) break;
+    toks.push({ text: tm[0], start: tm.index, end: tm.index + tm[0].length });
+  }
+  let i = toks.findIndex((t) => t.start === anchorStart);
+  if (i <= 0) return null; // anchor not found, or already at the leftmost token — nothing to expand
+  const anchorTokIdx = i;
+  while (i > 0) {
+    const prev = toks[i - 1];
+    const between = s.slice(prev.end, toks[i].start);
+    if (/[,;:]/.test(between)) break; // a clause-internal boundary — stop, never cross it
+    const lower = prev.text.toLowerCase();
+    // An auxiliary verb can never sit inside a subject NP — reaching one
+    // before ever finding a determiner (or `leftBound`) means the walk has
+    // crossed OUT of the noun phrase and INTO predicate territory, which
+    // only happens when the raw anchor this walk started from was itself
+    // mis-positioned (a fronted adverbial between an auxiliary and its main
+    // verb — "the peoples ... have IN THE CHARTER reaffirmed" — leaves the
+    // MATCHER's own bare anchor sitting on "the Charter", nowhere near the
+    // real subject, and widening blindly from there walked the whole
+    // preceding clause including "have" itself before this check existed).
+    // REFUSE outright (null, not a partial span) rather than return
+    // whatever was accumulated so far: a wrong wider subject is worse than
+    // a coarse one, the same standing rule this file's own span-pairing
+    // logic already states elsewhere. Checked before the determiner/
+    // coordinator branches only for readability — an auxiliary is never a
+    // member of either closed class, so the order does not change behavior.
+    if (auxiliaryVerbs.has(lower)) return null;
+    if (definiteDeterminers.has(lower) || indefiniteDeterminers.has(lower) || possessiveDeterminers.has(lower)) {
+      i -= 1; // include the determiner — normally the NP's own left edge...
+      // ...UNLESS what precedes it is "of" — "the peoples OF THE United
+      // Nations" — a genitive/PP-linking preposition means the just-found
+      // determiner belongs to an EMBEDDED noun phrase modifying an outer
+      // head noun, which has its OWN determiner further back still. Bounded
+      // by the same `i > 0`/`leftBound` walls as the rest of this loop —
+      // this can only continue as many times as real tokens remain, never
+      // an unbounded search — so "the King of England" and "the leader of
+      // the party of the coalition" both resolve to their true outer NP
+      // rather than stopping at the innermost embedded one.
+      if (i > 0 && toks[i - 1].text.toLowerCase() === "of" && !/[,;:]/.test(s.slice(toks[i - 1].end, toks[i].start))) {
+        i -= 1; continue;
+      }
+      break;
+    }
+    if (npCoordinators.has(lower)) {
+      if (i - 1 === 0) break; // a dangling coordinator with nothing behind it to join — do not consume it
+      i -= 1; continue; // include the coordinator, keep looking for the sibling NP's own edge
+    }
+    i -= 1; // an ordinary content word — include, keep scanning
+  }
+  if (i === anchorTokIdx) return null; // nothing wider found
+  return { subject: s.slice(toks[i].start, anchorEnd), start: toks[i].start };
+}
+
+export const extractRelations = (text, { verbs, limit = Infinity, functionWords = null, negationWords = NEGATION_WORDS, phrasalPredicates = false, auxiliaryVerbs = AUXILIARY_VERBS, nounPhraseSubjects = false, definiteDeterminers = DEFINITE_DETERMINERS, indefiniteDeterminers = INDEFINITE_DETERMINERS, possessiveDeterminers = POSSESSIVE_DETERMINERS, npCoordinators = NP_COORDINATORS } = {}) => {
   const negationBeforeVerb = negationBeforeVerbFor(negationWords);
   const vocab = verbs instanceof Set ? verbs : new Set(verbs ?? []);
   if (vocab.size === 0) return [];
@@ -383,7 +533,43 @@ export const extractRelations = (text, { verbs, limit = Infinity, functionWords 
   // and its verb, so a bare `\s+` between them could never pair "Hamlin"
   // with "was" no matter what the vocabulary discovered.
   const ASIDE = `[\\p{Ps}][^\\p{Pe}]*[\\p{Pe}]`;
-  const MATCHER = new RegExp(`(?<=^|[^\\p{L}])(${W}(?:\\s+${W})?)\\s+(?:${ASIDE}\\s+)*(${VERB_ALT})\\s+${OBJECT_GROUP}`, "giu");
+  // `phrasalPredicates` (DR5): OFF by default — MATCHER is byte-identical
+  // to before (AUX_GROUP_RE is the empty string, so the concatenation below
+  // reduces exactly to the original pattern). ON, a BOUNDED (0-4 hops, the
+  // same MAX_AUX_HOPS discoverRelationVocab's own paired fix uses) run of
+  // auxiliary/negation tokens is allowed between the subject and the
+  // recognised verb — bounded, never `*`, so this adds no new backtracking
+  // hazard to a file whose own header already records two prior ReDoS
+  // incidents. Captured as its own group so the full predicate ("have
+  // pledged", "does not measure") rides in `verb`, never split with its
+  // real head trapped inside the object.
+  const AUX_HOP_LIMIT = 4;
+  const AUX_GROUP_RE = phrasalPredicates
+    ? `((?:\\b(?:${[...new Set([...auxiliaryVerbs, ...negationWords])].map(escapeRe).join("|")})\\b\\s+){0,${AUX_HOP_LIMIT}})`
+    : "";
+  const VERB_IDX = phrasalPredicates ? 3 : 2;
+  const OBJECT_IDX = phrasalPredicates ? 4 : 3;
+  // The subject's own optional second token is ordinarily greedy (prefers
+  // to take it when the rest of the pattern can still succeed either way)
+  // — harmless before this pass, because an auxiliary/negation word there
+  // never let the REST of the original pattern succeed anyway (VERB_ALT
+  // had to sit immediately after, and an aux word is never itself the
+  // recognised verb). `phrasalPredicates` changes that: AUX_GROUP_RE can
+  // now independently absorb the very same word, so BOTH readings of "He
+  // does not measure" (subject "He does" + aux "not" + verb "measure", or
+  // subject "He" + aux "does not" + verb "measure") lead to a successful
+  // overall match, and greedy always wins the first — wrongly, since an
+  // auxiliary/negation word is a received CLOSED class that is never
+  // itself the second token of an ordinary two-word subject ("Prince
+  // Andrew", never "Prince does"). The negative lookahead makes that
+  // structural fact explicit rather than leaving it to accidental
+  // backtracking order; SUBJECT_SECOND_GUARD is the empty string (no
+  // lookahead at all) when `phrasalPredicates` is off, so the ORIGINAL
+  // pattern text is unchanged byte-for-byte in the default case.
+  const SUBJECT_SECOND_GUARD = phrasalPredicates
+    ? `(?!\\s+(?:${[...new Set([...auxiliaryVerbs, ...negationWords])].map(escapeRe).join("|")})\\b)`
+    : "";
+  const MATCHER = new RegExp(`(?<=^|[^\\p{L}])(${W}(?:${SUBJECT_SECOND_GUARD}\\s+${W})?)\\s+(?:${ASIDE}\\s+)*${AUX_GROUP_RE}(${VERB_ALT})\\s+${OBJECT_GROUP}`, "giu");
 
   // The exact terminator set the OLD (pre-function-word-bound) object
   // capture used to reach: `.`, `,`, `;`, or end of string. Used below only
@@ -460,6 +646,12 @@ export const extractRelations = (text, { verbs, limit = Infinity, functionWords 
     // "King" stays fine ("the" carries no identity of its own to lose);
     // only a pronoun that itself carries person/gender is refused.
     let subject = m[1].trim();
+    // The subject's own start offset in `s` — group 1 begins exactly where
+    // the whole match does (the lookbehind ahead of it is zero-width) —
+    // moves when stripping below removes a leading function word, so DR4's
+    // NP-expansion (further down) walks backward from where the SURVIVING
+    // subject text actually begins, never from the raw (pre-strip) start.
+    let subjectStart = m.index;
     if (functionWords && functionWords.size) {
       const subjTokens = subject.split(/\s+/);
       if (
@@ -467,10 +659,17 @@ export const extractRelations = (text, { verbs, limit = Infinity, functionWords 
         functionWords.has(subjTokens[0].toLowerCase()) &&
         !negationWords.has(subjTokens[1].toLowerCase()) &&
         !(subjTokens[0].toLowerCase() in THIRD_PERSON_SINGULAR)
-      ) subject = subjTokens[1];
+      ) { subjectStart = m.index + m[1].lastIndexOf(subjTokens[1]); subject = subjTokens[1]; }
     }
-    const verb = m[2].trim().toLowerCase();
-    const object = m[3].trim().replace(/[.,;]$/, "");
+    // DR5: the aux/negation chain MATCHER absorbed (empty string when
+    // `phrasalPredicates` is off, or none was present) rides ahead of the
+    // recognised anchor verb — the full predicate is what `verb` carries,
+    // exactly as a phrasal-predicate-aware downstream reader (phasepost.js's
+    // own headVerb) expects, never just the anchor token alone.
+    const auxText = phrasalPredicates ? (m[2] ?? "").trim() : "";
+    const anchorVerb = m[VERB_IDX].trim().toLowerCase();
+    const verb = auxText ? `${auxText.toLowerCase()} ${anchorVerb}` : anchorVerb;
+    const object = m[OBJECT_IDX].trim().replace(/[.,;]$/, "");
     if (!subject || !object) { previousMatchEnd = clauseEndAfter(m.index + m[0].length); continue; }
 
     const key = `${subject}|${verb}|${object}`.toLowerCase();
@@ -493,14 +692,34 @@ export const extractRelations = (text, { verbs, limit = Infinity, functionWords 
       }
       const windowStart = Math.max(previousMatchEnd, lastSentenceEnd + 1, 0);
       const before = s.slice(windowStart, subjEnd + 1).replace(NOISE_RUN, " ");
+      // DR4 (live_priors/goldens/reading/DERIVED-RULES.md): OFF by default
+      // — byte-identical subject/offset to before. ON, the survived subject
+      // (post function-word-stripping, so `subjectStart` already reflects
+      // whatever the caller will actually keep) is left-expanded to its own
+      // NP boundary, never crossing `windowStart` — the identical clause
+      // reach the polarity window above already computes, reused rather
+      // than re-derived.
+      let finalSubject = subject;
+      let finalSubjectStart = subjectStart;
+      if (nounPhraseSubjects) {
+        const expanded = expandSubjectNP(s, subjectStart, subjectStart + subject.length, windowStart, { definiteDeterminers, indefiniteDeterminers, possessiveDeterminers, npCoordinators, auxiliaryVerbs });
+        if (expanded) { finalSubject = expanded.subject; finalSubjectStart = expanded.start; }
+      }
       rels.push({
-        subject,
+        subject: finalSubject,
         verb,
         object,
-        polarity: negationBeforeVerb.test(before) ? "-" : "+",
+        // Additive to the existing `before`-window check, never a
+        // replacement for it: DR5's own aux-chain capture is the first time
+        // a negation sitting BETWEEN subject and verb ("does NOT measure")
+        // is captured text at all rather than silently swallowed into the
+        // object, so it could never be seen by any polarity check before —
+        // widening the SIGNAL a check can see is not the same risk as
+        // widening what the check itself accepts.
+        polarity: (negationBeforeVerb.test(before) || (phrasalPredicates && negationBeforeVerb.test(auxText))) ? "-" : "+",
         offset: m.index,
-        subjectOffset: m.index,
-        objectOffset: m.index + m[0].lastIndexOf(m[3]),
+        subjectOffset: finalSubjectStart,
+        objectOffset: m.index + m[0].lastIndexOf(m[OBJECT_IDX]),
       });
       if (rels.length >= limit) { previousMatchEnd = clauseEndAfter(m.index + m[0].length); break; }
     }

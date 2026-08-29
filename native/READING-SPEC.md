@@ -1067,3 +1067,97 @@ is absent). Full suite 307/307 -> 318/318, zero regressions.
 **The lesson, stated so the next control set does not repeat it:** a control set of nine novels proved this function safe on PROSE's own front-matter shapes; it said nothing about STRUCTURED document conventions (markdown headings, YAML frontmatter, numbered-clause legal text) that share the same short-unterminated-line surface by pure coincidence. The real corpus sweep is what actually exercises a format's diversity — a curated control set, however careful, only tests what its author thought to include.
 
 Two new regression cases in `tests/spans-frontmatter.test.js`: the synthetic Dutch-legal-code shape (a run of ATX headings each followed by a genuine one-word "Vervallen" body), and the real specimen file itself, read directly. Full suite 318/318 -> 320/320, zero regressions.
+
+## S28 — A wider capture is only as safe as the boundary it refuses to cross
+
+> **giver:** earned-here, live_priors/goldens/reading/DERIVED-RULES.md
+
+Found building DR4 (whole-NP subjects) and DR5 (phrasal predicates) —
+`native/adapters/text/relations.js::expandSubjectNP`/`discoverRelationVocab`
+— against the-fold/live_priors' own hand-perfected goldens (UDHR, Alice,
+Kant, a ripgrep changelog). Both DR4 and DR5 widen what a bare 1-2 token
+anchor is allowed to capture; both, on the first cut, widened past a
+boundary that must never be crossed, and both were caught only by running
+the fix against real prose, not by reasoning about the mechanism in the
+abstract.
+
+**DR4's own boundary: a subject NP can never contain an auxiliary verb.**
+`expandSubjectNP`'s backward walk had no notion of this. Against the
+UDHR's own preamble — a fronted adverbial between an auxiliary and its
+main verb ("the peoples of the United Nations **have** in the Charter
+reaffirmed…") — the base MATCHER's own bare anchor lands on "the Charter"
+(a pre-existing limitation, independent of DR4: the true subject is
+nowhere near it), and widening blindly from there walked the ENTIRE
+preceding clause — "have", "in", "Nations", "United", "of", "peoples",
+"the" — as ordinary NP-internal words, fabricating the whole clause as
+one subject. **The fix is a refusal, not a smarter guess**: the walk now
+returns `null` (keeping the original, narrower anchor) the instant it
+crosses an auxiliary verb before ever finding a determiner or its
+`leftBound` — the same standing rule this file's own span-pairing already
+states elsewhere, restated one register finer: a wrong wider span is
+worse than a coarse one.
+
+**DR5's own boundary: an auxiliary is only auxiliary when a real verb
+follows it — never assumed unconditionally.** `tallyAfter`'s first cut
+unconditionally skipped every aux/modal occurrence, with no fallback,
+looking for a "real" verb past it. But "was"/"is"/"had"/"have" are
+frequently the clause's OWN main verb — a bare copula ("There **was**
+nothing so very remarkable in that") or possessive ("the book **had**
+pictures") — the identical ambiguity this repo's `phasepost.js` already
+names for have/has/had ("an auxiliary only when a verb follows"), now
+shown to bite the extraction mechanism itself, not just a downstream
+mapping layer. Measured live on Alice's Adventures in Wonderland: the
+unconditional skip dropped "was" from the vocabulary on every sentence
+where nothing verb-like followed it, collapsing a 4-edge reading to 1.
+**The fix tallies BOTH readings as independent evidence** — the aux word
+itself, and whatever follows it — rather than choosing one; MATCHER's own
+greedy `AUX_GROUP_RE` still prefers the longer aux+verb combination
+whenever a real vocab verb genuinely follows, so this does not reopen the
+swallow bug DR5 exists to close.
+
+**The general lesson, so a third widening pass does not re-learn it a
+third time:** a mechanism that widens a narrow, already-working capture
+must name the CLASS of boundary a wider capture can never cross (here:
+an auxiliary verb, for both DR4 and DR5, independently) — checking "does
+this look plausible" against one specimen is not the same as checking
+"what is the one thing this widening must never do," and only the second
+question caught either bug. Both were found by running the fix against
+real prose (the-fold/live_priors' own goldens), not by unit tests against
+hand-picked sentences — the goldens exist for exactly this: to catch a
+widening mechanism generalizing in a direction its own designer did not
+anticipate.
+
+**Measured, honestly, not just fixed.** With both boundaries closed,
+DR4/DR5 turned on against the same 4 goldens is a WASH in aggregate (15
+matched / 34 missed, identical to DR4/DR5 off) — not the clean win either
+rule was built hoping for — but the underlying content moved in both
+directions: two genuine recoveries (a determiner correctly kept; a bare
+copula edge recovered that the baseline missed entirely), one
+scoring-artifact reassignment (not a real capability loss), and two small
+real costs (`wrong-relation`/`garbled-object` each +1) from capturing a
+wider span that occasionally captures the wrong thing. Full account,
+every number, in `live_priors/goldens/reading/DR4-DR5-RESULTS.md`. Both
+booleans (`phrasalPredicates`, `nounPhraseSubjects`) stay opt-in and
+default false everywhere — the corpus-wide sweep (`eot-digest.mjs`'s own
+`main`) omits both, so all 2,208 already-digested sidecars are untouched;
+`diff-golden.mjs` opts in explicitly, since re-measuring against the
+goldens is exactly its job.
+
+**Files.** `native/adapters/text/relations.js`
+(`expandSubjectNP`'s new auxiliary-stop refusal; `tallyAfter`'s dual-tally
+for aux occurrences). `native/tests/relations.test.js` (2 new regression
+pairs — the auxiliary-crossing refusal, direct and end-to-end; the bare-
+copula nomination, and extraction isolated from nomination's own noise —
+21 cases total in this file, up from 17). `the-fold/hypergraph.js`
+(`makeRelationReader` gained the same two booleans, threaded into its
+primary edge-extraction pass and its order-arm null test only —
+`read(answer)`'s own checking-tier calls are untouched, a disclosed scope
+boundary, not an oversight). `live_priors/scripts/eot-digest.mjs`
+(`loadOrgans({phrasalPredicates, nounPhraseSubjects})`, both default
+false) + `live_priors/goldens/reading/diff-golden.mjs` (opts in).
+
+Suites: eoreader7 native 341/341 (320 pre-existing + 21 new), confirmed
+zero regressions via `git stash` with the untracked new test file moved
+aside for the true baseline comparison. the-fold 1485/1433/47,
+byte-identical to its own `git stash` baseline (the change is additive
+and organ-injected; nothing in the-fold calls relations.js directly).
