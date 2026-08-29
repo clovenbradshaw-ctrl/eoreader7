@@ -209,6 +209,61 @@ export const CAPACITIES = Object.freeze([
     fn: "compilePriors",
     what: "sedimented readings merged into one carried experiential ground (P60) — composing the standing field later reading stands on; typing reasoned per this table's own hand-check discipline, not quoted from a source",
   }),
+  // ── the development pass (2026-08-29, second pass — P65) ─────────────
+  //
+  // CAPACITY-DEVELOPMENT-PLAN.md's Tier 1 plus the one no-candidate
+  // frontier cell, built and registered together. One premise of that plan
+  // was WRONG and is corrected in the plan itself: the kinds pair was
+  // "gated on the legacy-engine path" — but eoreader7's native kernel
+  // already carries full ports (kind-induction.js / entity-kind-induction.js,
+  // the latter with a built-in random-subset null arm), so the gate had
+  // already dissolved when the plan was written. Two of these five rows
+  // name eoreader7 NATIVE modules — the first registry rows to do so; the
+  // `module` column stays what it has always been, a resolvable pointer
+  // (data), and running them from the terminal still returns
+  // `not_yet_executable` from capacity-runner.js until wired.
+
+  Object.freeze({
+    id: "clear",
+    terrain: "Entity",
+    op: "NUL",
+    module: "clearance.js",
+    fn: "makeClearance",
+    what: "does this figure clear its ground — P22's own named next integration, built: presence re-gated by establishment (P38's distinction, mechanized), the material's own derived recurrence floor, ambiguity withheld with candidates, and a pronoun rung that runs only under declared numbers (typed skip otherwise — P41). Cell stamped in the organ's own CELL export (NUL·Figure).",
+  }),
+  Object.freeze({
+    id: "unravel",
+    terrain: "Network",
+    op: "SEG",
+    module: "unravel.js",
+    fn: "unravel",
+    what: "cutting a pattern apart at its own seams — parameter-free separation at the network's bridges, parts each still readable, cut edges addressed by the caller's own indices; a 2-edge-connected network is a typed no_seam refusal, never a cut bought with an invented threshold. The plan's one no-candidate frontier cell, built. Cell stamped in the organ's own CELL export (SEG·Pattern).",
+  }),
+  Object.freeze({
+    id: "settle",
+    terrain: "Void",
+    op: "SIG",
+    module: "void-loop.js",
+    fn: "whatWouldSettle",
+    what: "naming what is absent as the questions that would settle it (P53's second amendment: a gap the loop can name is a question it can ask), ordered by what settles fastest; holon.js::searchedVoid signs the same kind of absence for a search that ran and found nothing (P32). Typing reasoned per this table's own hand-check discipline: Relate·Existence at Ground grain — SIG·Void.",
+  }),
+  Object.freeze({
+    id: "kinds",
+    terrain: "Kind",
+    op: "SIG",
+    module: "eoreader7/native/kernel/kind-induction.js",
+    fn: "projectKinds",
+    what: "recurring kind candidates signed PROVISIONALLY from a population's own interaction field, each basin carrying its own random-subset binding-energy null — the native port of the kinds discipline Explore's view already holds (null arm, refused-as-underpowered). Typing reasoned: signing a recurring kind is Relate·Existence at Pattern grain — SIG·Kind.",
+  }),
+  Object.freeze({
+    id: "kindnull",
+    terrain: "Kind",
+    op: "NUL",
+    module: "eoreader7/native/kernel/entity-kind-induction.js",
+    fn: "testKindMembers",
+    what: "a DECLARED kind membership challenged against the same random-subset binding-energy null the inducer runs on its own basins — structural refusals (unknown_members / under_powered / no_boundary), never tuned floors. Cell documented in the function's own docstring (NUL·Pattern — Differentiate·Existence at Pattern grain).",
+  }),
+
   Object.freeze({
     id: "regime",
     terrain: "Atmosphere",
