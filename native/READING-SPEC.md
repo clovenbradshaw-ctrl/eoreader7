@@ -408,6 +408,19 @@ a medium's own odds say otherwise is the newly measured way to lose.
 
 > **giver:** earned-here — 7db127c
 
+> **Numbering correction (2026-08-29).** This is the second of two entries
+> published as S17 — a live collision first reported by
+> `eval/prior-art-cited.mjs` and recorded in the-fold's POLICIES.md, whose
+> standing decision holds: **not renumbered**, because external citations
+> exist to "S17" in BOTH meanings (the-fold's `retrieval.js` and
+> measured-memory work cite the first entry; its MHC/coreference lineage
+> cites this one) and renumbering would break them. Cite unambiguously as
+> **S17-recall** (the first — forgetting as a recall mechanism, giver
+> daccec2) and **S17-type** (this one — the type level names forms, giver
+> 7db127c). New entries continue in sequence past S23 (S24, S25, ...), so the collision never
+> compounds. ASSEMBLIES-AND-ARTIFACTS.md §10 asked for a renumbering;
+> resolved this way instead, and the deviation is disclosed there.
+
 Found by the-fold's MHC battery (its POLICIES.md P44) driving
 `discoverReferents` over two real Wikipedia materials, then reproduced at
 fixture scale (`tests/rich-referents.test.js`, cases 8-10). The old
@@ -851,7 +864,82 @@ not gapped, and the reader leaving its input untouched. Both walls were
 mutation-tested — disabling the majority rule fails 2, gapping bicameral
 material fails 3. Suite 263/263 → 269/269, zero regressions.
 
-## S25 — Normalisation must carry its own offset, and the case that finally proved it
+## S25 — An assembly is a persistence boundary; its products are sealed projections of the log
+
+> **Numbered S25 at merge:** first written as S24; a concurrent PR landed
+> its own S24 (the cannot-fire rule above) on main first. The number moved,
+> nothing about the law did — the same renumber-on-merge convention
+> the-fold's POLICIES.md already records for its P37/P42.
+
+> **giver:** Herbert Simon, "The Architecture of Complexity" (1962) — Hora
+> and Tempus; near-decomposability as a claim about interaction rates. The
+> register and concession disciplines are task-log.js's and
+> declarations.js's own, promoted to a bigger object; the composition law is
+> S9 at assembly scale. The full spec — measured problem statement, laws
+> A1–A5, migration order, pre-registered predictions — is
+> `native/ASSEMBLIES-AND-ARTIFACTS.md`; this entry is the binding summary.
+
+**A1 — an assembly boundary is a persistence boundary.** S10's three
+classes of math partition all state by timescale, and the partition IS the
+assembly map: the arithmetic tier (counts, logs, identity) is sealable and
+portable; the geometric tier (activation, presence, margins) is the glue of
+one live read and is NEVER serialized — the reach of the present cannot be
+checkpointed, because by resume-time it isn't the present; the
+transcendental tier (nulls, TE, standing) travels only as a verdict record
+and is re-granted against new material's own null (network-standing.js's
+rule, promoted).
+
+**A2 — the assembly is a registered, contracted object**
+(`kernel/assembly.js` mechanics, `native/assemblies.js` content). Its
+contract (ops/terrains/stances) is DERIVED from its declared emission cells
+via cellOf, never hand-typed; every regime dial carries { value, giver,
+basis } (S16); the register is append-only and versions only move forward.
+Every measurement names its assembly: a result stamps a registered
+id+version or it is quotable as nothing — existing results predating the
+register are reconstructed and recorded
+(`eval/results/assembly-reconstruction.json`), never retro-stamped.
+
+**A3 — an artifact is a sealed projection of the log**
+(`kernel/artifact.js`): Hora's bench, never a database. Sealing is a
+checkpoint — refused unless the producing assembly's own conformance
+passed on that material; `dropped` (S12) and `regime` (S7) are mandatory;
+the seal carries no clock, so regeneration is byte-checkable; a consumer
+finding a producer mismatch regenerates, never adapts.
+EOExperiencePrior@1/EORhythmPrior@1 are grandfathered (the body IS the
+prior, unchanged); CastLedger@1 is the entity assembly's product
+(`kernel/cast-ledger.js`).
+
+**A4 — an artifact from any other read enters a new read as a prior: it
+nominates and never admits** (`adapters/text/cast-prior.js` for the cast —
+only surfaces the new material itself attests are ever offered, with the
+encounter's own bytes as evidence; perceive → witness decides, exactly as
+for every candidate). Any prefix of the lattice is a complete system:
+absence of an upper assembly is TYPED (`assemblyAbsent`), never a zero in
+its metrics. The glue between live assemblies in one read is the decaying
+tier and only there.
+
+**A5 — containment is what makes partial safe.** Operations carry optional
+`provenance.assembly`, stamped where deltas are built; a refuted assembly
+concedes WHOLESALE — one REC enumerating exactly its standing contribution
+set, named trigger, evidence never deleted; downstream consumers of a
+conceded artifact are notified (`derivedUnderConceded`), never rewritten.
+
+**Enforced:** `conformance/assembly-registry.test.mjs`,
+`artifact-tier.test.mjs`, `artifact-prior-boundary.test.mjs`,
+`concession-cascade.test.mjs` — spec tests 1/2/3/5, all mechanical.
+**Named, not run:** the per-boundary severance test (spec step 6) is a
+measurement pass needing real materials with predictions frozen first;
+§9's P-a/P-b/P-c stand recorded and unrun (P-b's fixture-scale half — the
+CastLedger round-trip byte-identity — is already pinned). Per-assembly
+dynamics (step 7) and the remaining ledgers (step 8) follow in the
+declared order.
+
+## S26 — Normalisation must carry its own offset, and the case that finally proved it
+
+> **Numbered S26 at merge:** first written as S25; a concurrent PR landed
+> its own S25 (the assembly-boundary entry above) on main first. The
+> number moved, nothing about the law did — the same renumber-on-merge
+> convention this file's own S25 entry just recorded, one collision over.
 
 > **giver:** earned-here — the-fold POLICIES.md LP3, 2026-08-29
 

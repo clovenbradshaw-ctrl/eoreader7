@@ -31,7 +31,10 @@ function referentObjects(events = []) {
   return [...byId.values()].map((value) => Object.freeze({ ...value, surfaces: Object.freeze(value.surfaces), provenance: Object.freeze(value.provenance) }));
 }
 
-function containsSurface(text, surface) {
+// Exported for cast-prior.js — one implementation of "does this material
+// attest this surface", not a second copy that can drift from the
+// perceiver's own reading of the same question.
+export function containsSurface(text, surface) {
   const hay = diaNorm(text);
   const needle = diaNorm(surface);
   if (!needle) return false;

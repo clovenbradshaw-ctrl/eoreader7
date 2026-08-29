@@ -25,3 +25,6 @@ export { networkStanding, directedEdges } from "./network-standing.js";
 export { projectHypergraph, hyperlexiconAt } from "./hypergraph-projection.js";
 export { affordancesFromDeclarations, closureAffordances, nominateFromExperience, createReactionSubstrate } from "./reaction.js";
 export { refuteRelation, auditChemistry, vetoedPairs } from "./refutation.js";
+export { assembly, createAssemblyRegistry, registerAssembly, resolveAssembly, registeredAssemblies, stampResult, absentAssemblies, contractViolations, stampDelta, contributionsOf, concedeAssembly, concededAssemblies, derivedUnderConceded } from "./assembly.js";
+export { sealArtifact, artifactTierViolations, producerMismatch, sameBody, materialHash, sealExperiencePrior, sealRhythmPrior, FORBIDDEN_BODY_KEYS } from "./artifact.js";
+export { deriveCastLedger, castLedgerConformance, sealCastLedger } from "./cast-ledger.js";

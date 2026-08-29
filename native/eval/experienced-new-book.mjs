@@ -39,8 +39,15 @@ import { deriveExperiencePrior, mergeExperiencePriors } from "../kernel/experien
 import { deriveRhythmPrior, mergeRhythmPriors, composeExperience, scoreRhythmExpectations } from "../kernel/rhythm-priors.js";
 import { createHyperlexicon, giveHyperlexiconAffordance, admitHyperlexiconCandidates, compositionAffordance } from "../kernel/hyperlexicon.js";
 import { createRelationCompositionLedger, evaluateRelationCompositions, consequentialWithheldCompositions, acquireCompositionCandidates } from "../kernel/relation-composition.js";
+import { sealExperiencePrior, sealRhythmPrior, materialHash } from "../kernel/artifact.js";
+import { ATMOSPHERE } from "../assemblies.js";
 
 const GIVER = "reader:experienced-new-book";
+// A3.3 — the priors this driver carries cross a read boundary, so they
+// leave each prior work SEALED: producer stamped, dropped declared,
+// conformance checked. The sealed body is the prior object itself,
+// unchanged (pinned byte-identical in conformance/artifact-tier.test.mjs).
+const PRODUCER = { assembly: ATMOSPHERE.id, version: ATMOSPHERE.version };
 const CANONICALIZATION_FLOOR = 2; // binding.js's structural minimum, as elsewhere in this suite
 const ANCHORING = { minActivation: 0.05, minMargin: 0.2 };
 const POS_PRIOR = JSON.parse(fs.readFileSync(new URL("../../legacy-eoreader6.1/bin/priors/pos/en-ud-ewt.json", import.meta.url), "utf8"));
@@ -81,25 +88,44 @@ async function main() {
   const priorLimit = arg("--prior", 1200);
   const targetLimit = arg("--target", 2000);
 
-  // ── prior works: read, sediment, DROP the raw reading ────────────────
+  // ── prior works: read, sediment SEALED, DROP the raw reading ─────────
+  // Sediment is a set-down (A3.1): each prior leaves its reading as a
+  // sealed Artifact@1 — material content-addressed, dropped declared,
+  // producer stamped, the atmosphere assembly's own conformance checked —
+  // and only sealed bodies accumulate. The body is the derived prior
+  // itself, unchanged (A3.3), so the boundary costs nothing.
   const sedimented = [];
   for (const path of priorPaths) {
     const source = `file:${path.split("/").pop()}`;
     console.error(`reading prior work ${source} (${priorLimit} encounters)...`);
     const reader = createRecursiveReader({ perceivers: perceivers(), adapters });
-    const reading = await readWith(reader, load(path, source, priorLimit));
+    const encounters = load(path, source, priorLimit);
+    const reading = await readWith(reader, encounters);
     const item = { source, reading };
+    const material = {
+      source,
+      hash: await materialHash(encounters.map((e) => e.material).join("\n")),
+      extent: encounters.length,
+      unit: "encounters (declared prefix budget)",
+    };
+    const sealedAtSequence = reading.fold.sequence ?? 0;
     sedimented.push({
       source,
-      which: deriveExperiencePrior([item], { giver: GIVER, id: `experience:${source}` }),
-      when: deriveRhythmPrior([item], { giver: GIVER, id: `rhythm:${source}` }),
+      which: sealExperiencePrior(
+        deriveExperiencePrior([item], { giver: GIVER, id: `experience:${source}` }),
+        { producer: PRODUCER, material, regime: ATMOSPHERE.regimes, sealedAtSequence },
+      ),
+      when: sealRhythmPrior(
+        deriveRhythmPrior([item], { giver: GIVER, id: `rhythm:${source}` }),
+        { producer: PRODUCER, material, regime: { minWorkSupport: ATMOSPHERE.regimes.minWorkSupport }, sealedAtSequence },
+      ),
     });
-    // the raw reading falls out of scope here — only bounded memory accumulates
+    // the raw reading falls out of scope here — only sealed memory accumulates
   }
 
   const carried = composeExperience({
-    experience: mergeExperiencePriors(sedimented.map((s) => s.which), { giver: GIVER, id: "experience:carried" }),
-    rhythm: mergeRhythmPriors(sedimented.map((s) => s.when), { giver: GIVER, id: "rhythm:carried" }),
+    experience: mergeExperiencePriors(sedimented.map((s) => s.which.body), { giver: GIVER, id: "experience:carried" }),
+    rhythm: mergeRhythmPriors(sedimented.map((s) => s.when.body), { giver: GIVER, id: "rhythm:carried" }),
     giver: GIVER,
     id: "reader-experience:carried",
   });
@@ -160,9 +186,10 @@ async function main() {
     declared: { priorLimit, targetLimit, canonicalizationFloor: CANONICALIZATION_FLOOR, anchoring: ANCHORING, giver: GIVER },
     priorWorks: sedimented.map((s) => ({
       source: s.source,
-      relationForms: s.which.relationVocabulary.length,
-      medianGap: s.when.medianGap,
-      gapCount: s.when.gapCount,
+      relationForms: s.which.body.relationVocabulary.length,
+      medianGap: s.when.body.medianGap,
+      gapCount: s.when.body.gapCount,
+      sealed: { kinds: [s.which.kind, s.when.kind], producer: s.which.producer, materialHash: s.which.material.hash, sealedAtSequence: s.which.sealedAtSequence },
     })),
     carriedExperience: {
       schema: carried.schema,
