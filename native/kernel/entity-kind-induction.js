@@ -466,3 +466,106 @@ export function induceEntityKindCandidates(entityFeatures, {
     }),
   });
 }
+
+/**
+ * NUL·Pattern — Differentiate · Existence at Pattern grain: challenge a
+ * DECLARED kind membership against the SAME random-subset binding-energy
+ * null `induceEntityKindCandidates` runs on its own discovered basins.
+ *
+ * The inducer answers "what kinds does this population's interaction field
+ * suggest" (SIG·Pattern — signing a recurring kind, provisionally). This
+ * function answers the opposite-facing question: a CALLER already holds a
+ * membership hypothesis — these particular entities form a kind — and asks
+ * whether that declared set binds to itself more strongly than to the
+ * surrounding population, beyond what random subsets of the same size
+ * produce in the same field. Differentiating a declared Kind against its
+ * own null is the Unraveling half of the pair; nothing here discovers
+ * anything.
+ *
+ * Two decisions, disclosed:
+ *  - `cleared` mirrors the inducer's own gate exactly (`bindingEnergy > 0`
+ *    AND the null passes). The null is still run and reported when binding
+ *    is non-positive — the caller asked a question and the measurement is
+ *    the answer — but a non-positive binding can never clear, matching the
+ *    inducer's `if (!(energy.bindingEnergy > 0)) continue`.
+ *  - The refusals are STRUCTURAL, never tuned floors: fewer than 2
+ *    measurable members means no internal pair exists; members covering the
+ *    whole population means no boundary pair exists. In both cases the
+ *    statistic is insensitive to its own perturbation — running it would
+ *    produce an unfalsifiable number, so it is refused instead (the
+ *    licensing discipline nul's A10 states: check the pair is licensed
+ *    before spending a null).
+ */
+export function testKindMembers(entityFeatures, memberIds, {
+  permutations,
+  quantile = 0.95,
+  bondQuantile = 0.75,
+  minAffinity = 0.12,
+  cohesionThreshold = null,
+  population = "entities:anonymous",
+} = {}) {
+  const entities = structuralEntities(entityFeatures);
+  const measurable = new Set(entities.map((entity) => entity.id));
+  const requested = [...new Set([...(memberIds ?? [])].map(String))];
+  const unknown = requested.filter((id) => !measurable.has(id)).sort();
+  if (unknown.length) {
+    return freeze({
+      refused: freeze({
+        type: "unknown_members",
+        unknown: freeze(unknown),
+        detail: "these ids have no measurable structural profile in this population (absent from the feature index, or featureless) — a membership test over them would be measuring nothing",
+      }),
+    });
+  }
+  if (requested.length < 2) {
+    return freeze({
+      refused: freeze({
+        type: "under_powered",
+        memberCount: requested.length,
+        floor: 2,
+        detail: "fewer than 2 members has no internal pair — internal affinity does not exist, so the binding statistic is structurally undefined, not merely weak",
+      }),
+    });
+  }
+  if (requested.length >= entities.length) {
+    return freeze({
+      refused: freeze({
+        type: "no_boundary",
+        memberCount: requested.length,
+        populationCount: entities.length,
+        detail: "the declared members cover the whole measurable population — no boundary pair exists and every random subset of this size is the set itself, so the null cannot perturb anything",
+      }),
+    });
+  }
+  const field = affinityField(entities, { bondQuantile, minAffinity, bondThreshold: cohesionThreshold });
+  const entityIds = entities.map((entity) => entity.id);
+  const members = [...requested].sort();
+  const energy = basinEnergy(members, entityIds, field);
+  const resolvedPermutations = permutations ?? Math.min(128, Math.max(40, Math.round(entities.length * 4)));
+  const rng = createSeededRng({ population, memberIds: members, purpose: "declared-membership-binding-null" });
+  const nullSamples = [];
+  for (let i = 0; i < resolvedPermutations; i += 1) {
+    const sampleIds = shuffled(entityIds, rng).slice(0, members.length);
+    nullSamples.push(basinEnergy(sampleIds, entityIds, field).bindingEnergy);
+  }
+  const bindingNull = empiricalNull({
+    observed: energy.bindingEnergy,
+    samples: nullSamples,
+    quantile,
+    protocol: {
+      name: "random-subset-binding-energy",
+      iterations: resolvedPermutations,
+      statistic: "internal-affinity-minus-boundary-affinity",
+      scope: `${population} declared-members:${members.length}`,
+    },
+  });
+  return freeze({
+    schema: "EOKindMembershipTest@1",
+    memberRefs: freeze(members),
+    memberCount: members.length,
+    populationCount: entities.length,
+    energy,
+    bindingNull,
+    cleared: energy.bindingEnergy > 0 && bindingNull.passed,
+  });
+}
