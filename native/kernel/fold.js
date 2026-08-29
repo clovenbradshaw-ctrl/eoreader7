@@ -27,7 +27,7 @@ export function receivedGround(seed = {}) {
   };
 }
 
-export function eoOperation({ id = null, op, grain, witness = null, consequence = null, inputs = [], outputs = [], payload = null }) {
+export function eoOperation({ id = null, op, grain, witness = null, consequence = null, inputs = [], outputs = [], payload = null, provenance = null }) {
   const cell = cellOf(op, grain);
   if (cell.gap) throw new TypeError(cell.reason);
   if (op === "NUL" && payload?.action) {
@@ -47,6 +47,11 @@ export function eoOperation({ id = null, op, grain, witness = null, consequence 
     inputs: Object.freeze([...inputs]),
     outputs: Object.freeze([...outputs]),
     payload,
+    // A5.1 (assemblies spec): every fold contribution carries its producer.
+    // Optional and absent-when-unsupplied, so every existing operation —
+    // and every byte-compared delta — is unchanged; stampDelta
+    // (kernel/assembly.js) is the one place a producing assembly lands it.
+    ...(provenance ? { provenance: Object.freeze({ ...provenance }) } : {}),
   });
 }
 
