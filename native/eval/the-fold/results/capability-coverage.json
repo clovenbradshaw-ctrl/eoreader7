@@ -1,0 +1,688 @@
+{
+ "schema": "EOCapabilityCoverage@1",
+ "geometryAsserted": [
+  "27 cells",
+  "operator = (mode,domain), 9 distinct",
+  "stance = (mode,grain): 9 groups of 3",
+  "terrain = (domain,grain): 9 groups of 3",
+  "operator: 9 groups of 3",
+  "each stance spans 3 distinct domains",
+  "each terrain spans 3 distinct modes"
+ ],
+ "registry": {
+  "source": "capacities.js",
+  "entries": 25,
+  "selfDescribed": "a DATA TABLE, NOT A RUNTIME — 'starts, deliberately does not finish, the library seed' (its own header)"
+ },
+ "counts": {
+  "cells": 27,
+  "covered": 24,
+  "empty": 3,
+  "illegal": 0
+ },
+ "byStance": [
+  {
+   "stance": "Clearing",
+   "filled": 2,
+   "of": 3,
+   "cells": [
+    {
+     "cell": "NUL·Ground",
+     "domain": "Existence",
+     "mode": "Differentiate",
+     "grain": "Ground",
+     "terrain": "Void",
+     "organs": [
+      "measure"
+     ]
+    },
+    {
+     "cell": "SEG·Ground",
+     "domain": "Structure",
+     "mode": "Differentiate",
+     "grain": "Ground",
+     "terrain": "Field",
+     "organs": [
+      "extent"
+     ]
+    },
+    {
+     "cell": "DEF·Ground",
+     "domain": "Interpretation",
+     "mode": "Differentiate",
+     "grain": "Ground",
+     "terrain": "Atmosphere",
+     "organs": []
+    }
+   ]
+  },
+  {
+   "stance": "Dissecting",
+   "filled": 3,
+   "of": 3,
+   "cells": [
+    {
+     "cell": "NUL·Figure",
+     "domain": "Existence",
+     "mode": "Differentiate",
+     "grain": "Figure",
+     "terrain": "Entity",
+     "organs": [
+      "clear"
+     ]
+    },
+    {
+     "cell": "SEG·Figure",
+     "domain": "Structure",
+     "mode": "Differentiate",
+     "grain": "Figure",
+     "terrain": "Link",
+     "organs": [
+      "patch"
+     ]
+    },
+    {
+     "cell": "DEF·Figure",
+     "domain": "Interpretation",
+     "mode": "Differentiate",
+     "grain": "Figure",
+     "terrain": "Lens",
+     "organs": [
+      "priors"
+     ]
+    }
+   ]
+  },
+  {
+   "stance": "Unraveling",
+   "filled": 3,
+   "of": 3,
+   "cells": [
+    {
+     "cell": "NUL·Pattern",
+     "domain": "Existence",
+     "mode": "Differentiate",
+     "grain": "Pattern",
+     "terrain": "Kind",
+     "organs": [
+      "kindnull"
+     ]
+    },
+    {
+     "cell": "SEG·Pattern",
+     "domain": "Structure",
+     "mode": "Differentiate",
+     "grain": "Pattern",
+     "terrain": "Network",
+     "organs": [
+      "unravel"
+     ]
+    },
+    {
+     "cell": "DEF·Pattern",
+     "domain": "Interpretation",
+     "mode": "Differentiate",
+     "grain": "Pattern",
+     "terrain": "Paradigm",
+     "organs": [
+      "declare"
+     ]
+    }
+   ]
+  },
+  {
+   "stance": "Tending",
+   "filled": 2,
+   "of": 3,
+   "cells": [
+    {
+     "cell": "SIG·Ground",
+     "domain": "Existence",
+     "mode": "Relate",
+     "grain": "Ground",
+     "terrain": "Void",
+     "organs": [
+      "settle"
+     ]
+    },
+    {
+     "cell": "CON·Ground",
+     "domain": "Structure",
+     "mode": "Relate",
+     "grain": "Ground",
+     "terrain": "Field",
+     "organs": []
+    },
+    {
+     "cell": "EVA·Ground",
+     "domain": "Interpretation",
+     "mode": "Relate",
+     "grain": "Ground",
+     "terrain": "Atmosphere",
+     "organs": [
+      "atmosphere"
+     ]
+    }
+   ]
+  },
+  {
+   "stance": "Binding",
+   "filled": 3,
+   "of": 3,
+   "cells": [
+    {
+     "cell": "SIG·Figure",
+     "domain": "Existence",
+     "mode": "Relate",
+     "grain": "Figure",
+     "terrain": "Entity",
+     "organs": [
+      "cast"
+     ]
+    },
+    {
+     "cell": "CON·Figure",
+     "domain": "Structure",
+     "mode": "Relate",
+     "grain": "Figure",
+     "terrain": "Link",
+     "organs": [
+      "relations"
+     ]
+    },
+    {
+     "cell": "EVA·Figure",
+     "domain": "Interpretation",
+     "mode": "Relate",
+     "grain": "Figure",
+     "terrain": "Lens",
+     "organs": [
+      "web",
+      "witness"
+     ]
+    }
+   ]
+  },
+  {
+   "stance": "Tracing",
+   "filled": 3,
+   "of": 3,
+   "cells": [
+    {
+     "cell": "SIG·Pattern",
+     "domain": "Existence",
+     "mode": "Relate",
+     "grain": "Pattern",
+     "terrain": "Kind",
+     "organs": [
+      "kinds"
+     ]
+    },
+    {
+     "cell": "CON·Pattern",
+     "domain": "Structure",
+     "mode": "Relate",
+     "grain": "Pattern",
+     "terrain": "Network",
+     "organs": [
+      "network"
+     ]
+    },
+    {
+     "cell": "EVA·Pattern",
+     "domain": "Interpretation",
+     "mode": "Relate",
+     "grain": "Pattern",
+     "terrain": "Paradigm",
+     "organs": [
+      "standing"
+     ]
+    }
+   ]
+  },
+  {
+   "stance": "Cultivating",
+   "filled": 2,
+   "of": 3,
+   "cells": [
+    {
+     "cell": "INS·Ground",
+     "domain": "Existence",
+     "mode": "Generate",
+     "grain": "Ground",
+     "terrain": "Void",
+     "organs": []
+    },
+    {
+     "cell": "SYN·Ground",
+     "domain": "Structure",
+     "mode": "Generate",
+     "grain": "Ground",
+     "terrain": "Field",
+     "organs": [
+      "compile"
+     ]
+    },
+    {
+     "cell": "REC·Ground",
+     "domain": "Interpretation",
+     "mode": "Generate",
+     "grain": "Ground",
+     "terrain": "Atmosphere",
+     "organs": [
+      "regime"
+     ]
+    }
+   ]
+  },
+  {
+   "stance": "Making",
+   "filled": 3,
+   "of": 3,
+   "cells": [
+    {
+     "cell": "INS·Figure",
+     "domain": "Existence",
+     "mode": "Generate",
+     "grain": "Figure",
+     "terrain": "Entity",
+     "organs": [
+      "cast",
+      "build"
+     ]
+    },
+    {
+     "cell": "SYN·Figure",
+     "domain": "Structure",
+     "mode": "Generate",
+     "grain": "Figure",
+     "terrain": "Link",
+     "organs": [
+      "hear"
+     ]
+    },
+    {
+     "cell": "REC·Figure",
+     "domain": "Interpretation",
+     "mode": "Generate",
+     "grain": "Figure",
+     "terrain": "Lens",
+     "organs": [
+      "rezero"
+     ]
+    }
+   ]
+  },
+  {
+   "stance": "Composing",
+   "filled": 3,
+   "of": 3,
+   "cells": [
+    {
+     "cell": "INS·Pattern",
+     "domain": "Existence",
+     "mode": "Generate",
+     "grain": "Pattern",
+     "terrain": "Kind",
+     "organs": [
+      "skill"
+     ]
+    },
+    {
+     "cell": "SYN·Pattern",
+     "domain": "Structure",
+     "mode": "Generate",
+     "grain": "Pattern",
+     "terrain": "Network",
+     "organs": [
+      "graph"
+     ]
+    },
+    {
+     "cell": "REC·Pattern",
+     "domain": "Interpretation",
+     "mode": "Generate",
+     "grain": "Pattern",
+     "terrain": "Paradigm",
+     "organs": [
+      "reshape"
+     ]
+    }
+   ]
+  }
+ ],
+ "byTerrain": [
+  {
+   "terrain": "Void",
+   "filled": 2,
+   "of": 3
+  },
+  {
+   "terrain": "Entity",
+   "filled": 3,
+   "of": 3
+  },
+  {
+   "terrain": "Kind",
+   "filled": 3,
+   "of": 3
+  },
+  {
+   "terrain": "Field",
+   "filled": 2,
+   "of": 3
+  },
+  {
+   "terrain": "Link",
+   "filled": 3,
+   "of": 3
+  },
+  {
+   "terrain": "Network",
+   "filled": 3,
+   "of": 3
+  },
+  {
+   "terrain": "Atmosphere",
+   "filled": 2,
+   "of": 3
+  },
+  {
+   "terrain": "Lens",
+   "filled": 3,
+   "of": 3
+  },
+  {
+   "terrain": "Paradigm",
+   "filled": 3,
+   "of": 3
+  }
+ ],
+ "byOperator": [
+  {
+   "operator": "NUL",
+   "filled": 3,
+   "of": 3
+  },
+  {
+   "operator": "SEG",
+   "filled": 3,
+   "of": 3
+  },
+  {
+   "operator": "SIG",
+   "filled": 3,
+   "of": 3
+  },
+  {
+   "operator": "CON",
+   "filled": 2,
+   "of": 3
+  },
+  {
+   "operator": "EVA",
+   "filled": 3,
+   "of": 3
+  },
+  {
+   "operator": "DEF",
+   "filled": 2,
+   "of": 3
+  },
+  {
+   "operator": "INS",
+   "filled": 2,
+   "of": 3
+  },
+  {
+   "operator": "SYN",
+   "filled": 3,
+   "of": 3
+  },
+  {
+   "operator": "REC",
+   "filled": 3,
+   "of": 3
+  }
+ ],
+ "byGrain": [
+  {
+   "grain": "Ground",
+   "filled": 6,
+   "of": 9
+  },
+  {
+   "grain": "Figure",
+   "filled": 9,
+   "of": 9
+  },
+  {
+   "grain": "Pattern",
+   "filled": 9,
+   "of": 9
+  }
+ ],
+ "byMode": [
+  {
+   "mode": "Differentiate",
+   "filled": 8,
+   "of": 9
+  },
+  {
+   "mode": "Relate",
+   "filled": 8,
+   "of": 9
+  },
+  {
+   "mode": "Generate",
+   "filled": 8,
+   "of": 9
+  }
+ ],
+ "leads": [
+  {
+   "cell": "CON·Ground",
+   "stance": "Tending",
+   "terrain": "Field",
+   "grain": "Ground",
+   "sameActOtherGrain": [
+    "CON·Figure",
+    "CON·Pattern"
+   ],
+   "sameGrainOtherAct": [
+    "NUL·Ground",
+    "SEG·Ground",
+    "SIG·Ground",
+    "EVA·Ground",
+    "SYN·Ground",
+    "REC·Ground"
+   ]
+  },
+  {
+   "cell": "DEF·Ground",
+   "stance": "Clearing",
+   "terrain": "Atmosphere",
+   "grain": "Ground",
+   "sameActOtherGrain": [
+    "DEF·Figure",
+    "DEF·Pattern"
+   ],
+   "sameGrainOtherAct": [
+    "NUL·Ground",
+    "SEG·Ground",
+    "SIG·Ground",
+    "EVA·Ground",
+    "SYN·Ground",
+    "REC·Ground"
+   ]
+  },
+  {
+   "cell": "INS·Ground",
+   "stance": "Cultivating",
+   "terrain": "Void",
+   "grain": "Ground",
+   "sameActOtherGrain": [
+    "INS·Figure",
+    "INS·Pattern"
+   ],
+   "sameGrainOtherAct": [
+    "NUL·Ground",
+    "SEG·Ground",
+    "SIG·Ground",
+    "EVA·Ground",
+    "SYN·Ground",
+    "REC·Ground"
+   ]
+  }
+ ],
+ "interpretation": {
+  "rule": "AN EMPTY CELL IS A LEAD, NEVER A VERDICT — three kinds of hole share the count: REGISTRY DEBT (an organ exists, nothing declared its cell), REAL INCAPACITY (convictable only via a stated-then-confirmed falsifiable prediction), and PROBE/HARNESS ERROR reported as incapacity (P44's four wrong probe versions; a hardcoded path reporting 'organ unreachable' as a statement about the system when it is a statement about a path). The map may withhold, or convict on a confirmed prediction; it may never manufacture the second out of the first or the third.",
+  "confirmedIncapacity": [
+   {
+    "cell": "CON·Pattern",
+    "terrain": "Network",
+    "prediction": "a Figure-grain reader on Pattern-grain material (a list, whose meaning is carried by the RECURRENCE of an arrangement rather than by any connector) returns ZERO edges, not few",
+    "stated": "before moves.js was written — see its own header",
+    "confirmed": "a real fetched 'List of prime ministers of Queen Victoria' page, saved with line structure intact, yielded zero edges; the model was handed raw lines and read the first name out of a list of ten",
+    "sinceClosed": "network.js (P58, tested) was built to occupy the cell and is registered as of P64 — the conviction was correct WHEN MEASURED and the organ that answers it now exists",
+    "reading": "a vocabulary gap degrades; a grain mismatch floors — the same KIND of ceiling no vocabulary work touches that MINE-1's nine configurations measured on different material (analogy, not identity: those configurations never ran against the list page)"
+   }
+  ],
+  "registryDebt": {
+   "operatorsReadingZeroThatHaveRealOrgans": [],
+   "ledger": [
+    {
+     "op": "REC",
+     "grain": "Pattern",
+     "where": "eoreader7/native/kernel/reaction.js::withdraw",
+     "basis": "takes back what a refuted Pattern-grain licence produced; the licence it re-zeros is grain: Pattern (declarations.js's own entries)",
+     "cell": "REC·Pattern",
+     "paid": true
+    },
+    {
+     "op": "REC",
+     "grain": "Pattern",
+     "where": "eoreader7/native/interpretation/declarations.js::concede",
+     "basis": "the entry it appends carries grain: \"Pattern\" in its own code",
+     "cell": "REC·Pattern",
+     "paid": true
+    },
+    {
+     "op": "REC",
+     "grain": "Figure",
+     "where": "the-fold/build-log.js::rezeroBuild",
+     "basis": "its own header: 'EVIDENCE · REC · Figure · produced'",
+     "cell": "REC·Figure",
+     "paid": true
+    },
+    {
+     "op": "REC",
+     "grain": "Figure",
+     "where": "the-fold/grid.js::concedeEvaluation",
+     "basis": "mirrors rezeroBuild exactly (P36's own wording), EVIDENCE·REC·Figure",
+     "cell": "REC·Figure",
+     "paid": true
+    },
+    {
+     "op": "REC",
+     "grain": "Pattern",
+     "where": "the-fold/void-loop.js::reshape",
+     "basis": "P53: REC is Generate·Pattern at Paradigm — the loop's own read-off cell",
+     "cell": "REC·Pattern",
+     "paid": true
+    },
+    {
+     "op": "SEG",
+     "grain": "Figure",
+     "where": "the-fold/build-log.js PATCH_OPS",
+     "basis": "the deletion primitive cuts one find-span out of one artifact — a Figure-grain cut; build-log's own SEG · snip row",
+     "cell": "SEG·Figure",
+     "paid": true
+    },
+    {
+     "op": "SEG",
+     "grain": null,
+     "where": "the-fold/grid.js `separate` verb",
+     "basis": "grid.js:409 refuses it at Ground grain; Figure or Pattern per the act's own declared terrain — a per-act cell, so no single grain is claimed here and this row is excluded from the projection",
+     "cell": null,
+     "paid": null
+    },
+    {
+     "op": "SEG",
+     "grain": "Ground",
+     "where": "the-fold/void-shape.js SEG·Ground",
+     "basis": "declared in the module itself: [\"SEG\", \"Ground\", \"extent\", ...]",
+     "cell": "SEG·Ground",
+     "paid": true
+    },
+    {
+     "op": "SEG",
+     "grain": "Figure",
+     "where": "eoreader7/native/kernel/identity.js:182",
+     "basis": "emits { op: 'SEG', grain: 'Figure' } verbatim",
+     "cell": "SEG·Figure",
+     "paid": true
+    }
+   ],
+   "reading": "no zero-coverage operator currently has known unregistered organs — the historical debt (see ledger `paid` flags) has been paid into the registry (P64)"
+  },
+  "trulyUnreachedOperators": []
+ },
+ "afterDebtProjection": {
+  "note": "coverage AS IT WOULD READ once the unregistered organs are registered at their own documented cells — a projection, nothing is registered by this driver",
+  "covered": 24,
+  "of": 27,
+  "byStance": [
+   {
+    "stance": "Clearing",
+    "filled": 2,
+    "of": 3
+   },
+   {
+    "stance": "Dissecting",
+    "filled": 3,
+    "of": 3
+   },
+   {
+    "stance": "Unraveling",
+    "filled": 3,
+    "of": 3
+   },
+   {
+    "stance": "Tending",
+    "filled": 2,
+    "of": 3
+   },
+   {
+    "stance": "Binding",
+    "filled": 3,
+    "of": 3
+   },
+   {
+    "stance": "Tracing",
+    "filled": 3,
+    "of": 3
+   },
+   {
+    "stance": "Cultivating",
+    "filled": 2,
+    "of": 3
+   },
+   {
+    "stance": "Making",
+    "filled": 3,
+    "of": 3
+   },
+   {
+    "stance": "Composing",
+    "filled": 3,
+    "of": 3
+   }
+  ],
+  "stillEmpty": [
+   "CON·Ground",
+   "DEF·Ground",
+   "INS·Ground"
+  ]
+ }
+}
