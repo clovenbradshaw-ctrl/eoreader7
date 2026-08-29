@@ -166,6 +166,72 @@ export const stripContainer = (text) => {
   return { text: s, offset, front: Object.freeze(front), looks_like_material: looksLikeMaterial(s) };
 };
 
+/**
+ * NORMALISATION MUST CARRY ITS OWN OFFSET, the same law `stripContainer`
+ * above already holds ("everything downstream anchors spans against this
+ * offset and a strip that forgot to move it would silently shift every
+ * citation") — applied to the one step in this file that used to violate
+ * it. `splitSentences` collapses `\r\n`/`\r` to `\n` before it computes a
+ * single offset, and until this function existed that collapse was a bare
+ * `.replace()` with nothing recording where a character had been removed.
+ *
+ * MEASURED (the-fold POLICIES.md LP3, 2026-08-29): a real Project
+ * Gutenberg file with 3,654 CRLF pairs produced a span whose recorded
+ * address, taken at face value, missed its own source file by 969 bytes —
+ * correct only against a private, un-addressable copy of the text. The
+ * defect was not in `splitSentences`'s CHOICE to normalise (mixed line
+ * endings must fold to one before a terminator/whitespace rule can be
+ * language-agnostic); it was that the normalisation was invisible.
+ *
+ * `\r\n` -> `\n` REMOVES one character per pair; bare `\r` -> `\n` is a
+ * same-length substitution. So the map from normalised offset back to raw
+ * offset is a monotonic step function with one step per collapsed CRLF —
+ * recorded as checkpoints at each divergence, not walked character by
+ * character on every query. `toRaw` binary-searches the last checkpoint at
+ * or before the query and adds the accumulated raw-ahead-of-normalised
+ * delta. Verified against the actual case that found this: a span at
+ * normalised offset 196 in that file's body now resolves to raw offset
+ * 1165 — the true position — via `toRaw`.
+ *
+ * `splitSentences` itself is UNCHANGED below: it still normalises inline
+ * and returns exactly what it always returned. A caller that needs raw-file
+ * addresses calls `normaliseNewlines` FIRST, passes its own `.text` to
+ * `splitSentences` (which then finds nothing left to collapse — a no-op,
+ * byte-identical to normalising once), and applies `.toRaw` to any offset
+ * before writing it down. A caller that never calls this keeps today's
+ * behaviour exactly, because nothing about `splitSentences` changed.
+ */
+export const normaliseNewlines = (text) => {
+  const raw = String(text ?? "");
+  const out = [];
+  const checkpoints = [{ norm: 0, raw: 0 }];
+  let normPos = 0;
+  let rawPos = 0;
+  while (rawPos < raw.length) {
+    if (raw[rawPos] === "\r" && raw[rawPos + 1] === "\n") {
+      out.push("\n");
+      rawPos += 2;
+      normPos += 1;
+      checkpoints.push({ norm: normPos, raw: rawPos });
+    } else {
+      out.push(raw[rawPos] === "\r" ? "\n" : raw[rawPos]);
+      rawPos += 1;
+      normPos += 1;
+    }
+  }
+  const toRaw = (n) => {
+    if (!Number.isFinite(n)) throw new TypeError("toRaw: offset must be a finite number");
+    let lo = 0, hi = checkpoints.length - 1;
+    while (lo < hi) {
+      const mid = (lo + hi + 1) >> 1;
+      if (checkpoints[mid].norm <= n) lo = mid; else hi = mid - 1;
+    }
+    const cp = checkpoints[lo];
+    return cp.raw + (n - cp.norm);
+  };
+  return { text: out.join(""), toRaw };
+};
+
 import { SENTENCE_TERMINATORS, CLOSING_QUOTES } from "./priors.js";
 
 const PARAGRAPH_BREAK = /\n\s*\n+/g;

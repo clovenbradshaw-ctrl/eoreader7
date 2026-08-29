@@ -850,3 +850,63 @@ scripts never gapped (the overreach guard), six caseless scripts gapped as
 not gapped, and the reader leaving its input untouched. Both walls were
 mutation-tested — disabling the majority rule fails 2, gapping bicameral
 material fails 3. Suite 263/263 → 269/269, zero regressions.
+
+## S25 — Normalisation must carry its own offset, and the case that finally proved it
+
+> **giver:** earned-here — the-fold POLICIES.md LP3, 2026-08-29
+
+`stripContainer` already held the law this closes one step over: "everything
+downstream anchors spans against this offset and a strip that forgot to
+move it would silently shift every citation." `splitSentences` folds
+`\r\n`/`\r` to `\n` before it computes a single offset, and until now that
+fold was a bare `.replace()` — a transform with no recorded offset, in a
+file whose other transform (`stripContainer`) exists specifically to prove
+that class of transform must carry one.
+
+**Measured, not argued.** A real Project Gutenberg file with 3,654 CRLF
+pairs produced a span whose address, taken at face value, missed its own
+source file by 969 bytes. The span resolved only against a private,
+un-addressable copy of the text a consumer had kept alongside it — which is
+exactly the failure this file's own header names for `stripContainer`:
+"correct in every test that only re-reads through this process and is
+wrong the moment anyone opens the file."
+
+**`normaliseNewlines(text)` returns `{text, toRaw}`.** `\r\n` -> `\n`
+removes one character per pair; bare `\r` -> `\n` is same-length. So the
+map back to raw offsets is a monotonic step function, one step per
+collapsed CRLF, recorded as checkpoints at each divergence rather than
+walked character by character per query. Verified against the actual
+specimen: a span at normalised offset 196 now resolves to raw offset 1165
+— the true position, confirmed against the real file's own bytes, not a
+constructed example.
+
+**`splitSentences` is unchanged.** It still normalises inline and returns
+exactly what it always returned — pinned as its own regression
+(`splitSentences(raw) === splitSentences(normaliseNewlines(raw).text)`,
+byte-for-byte). A caller that wants raw-file addresses normalises first,
+passes the normalised text through unchanged (a no-op, since there is
+nothing left to collapse), and applies `.toRaw` to any offset before
+writing it down. A caller that never calls the new function keeps every
+byte of today's behaviour.
+
+**The self-verification invariant this licenses is not bare string
+equality, and saying so once here avoids re-deriving it wrong.** A span
+that straddles an embedded CRLF legitimately still carries `\r\n` in the
+raw file where the read text carries plain `\n` — that character is real,
+present in the actual bytes, and `toRaw` names its position correctly. The
+check that proves an address is right is `normaliseNewlines(raw.slice(a,
+b)).text === text_that_was_read` — reapplying the SAME normalisation to
+the raw slice — not naive equality against untouched bytes. One of this
+file's own regression tests asserted the wrong invariant first and failed
+on exactly this case (a two-line header block splitSentences reads as one
+sentence with an embedded `\n`); the fix was the assertion, not the code,
+and both versions are worth knowing since a future caller will make the
+same mistake this file's own first draft made.
+
+**Files.** `adapters/text/spans.js` (`normaliseNewlines`, new export;
+`splitSentences` untouched). `tests/spans-normalise.test.js` (8 cases: the
+CRLF/bare-CR/mixed round-trip properties, a synthetic reproduction of the
+motivating shape at the same scale as the real file — 42 header lines
+before the target — and the composed-with-`splitSentences` case carrying
+the corrected invariant above). Full suite 269/269 -> 277/277, confirmed
+via `git stash`, zero regressions.
