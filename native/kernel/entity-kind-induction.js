@@ -488,6 +488,10 @@ export function induceEntityKindCandidates(entityFeatures, {
  *    is non-positive — the caller asked a question and the measurement is
  *    the answer — but a non-positive binding can never clear, matching the
  *    inducer's `if (!(energy.bindingEnergy > 0)) continue`.
+ *  - The two doors share the null's PROTOCOL, not its draws: the RNG
+ *    purpose string differs from the inducer's on purpose, so the
+ *    identical member set draws different subsets through each door —
+ *    shared draws would make any cross-organ agreement check circular.
  *  - The refusals are STRUCTURAL, never tuned floors: fewer than 2
  *    measurable members means no internal pair exists; members covering the
  *    whole population means no boundary pair exists. In both cases the

@@ -101,6 +101,33 @@ test("members covering the whole population are refused no_boundary — the null
   assert.equal(result.refused.populationCount, 12);
 });
 
+test("a NEGATIVE-binding declaration is MEASURED, never refused — and can never clear", () => {
+  // Adversarial review's real finding: the docstring's disclosed decision
+  // (non-positive binding still runs and reports the null) had no
+  // regression pin — an inducer-literal gate (`if (!(bindingEnergy > 0))
+  // return refused`) survived every prior test, because the scattered
+  // fixture's binding was accidentally POSITIVE (+0.034; it failed only
+  // via the null). This pair genuinely repels.
+  const index = plantedIndex();
+  const r = testKindMembers(index.entityFeatures, ["e1", "b8"], OPTS);
+  assert.equal(r.refused, undefined, "a measurable declaration is measured — refusal is reserved for unmeasurable ones");
+  assert.ok(r.energy.bindingEnergy < 0, "the declared pair genuinely repels");
+  assert.equal(typeof r.bindingNull.pValue, "number", "the null still ran and reported");
+  assert.equal(r.cleared, false);
+  // Disclosed, not silently unpinned: `cleared`'s other conjunct
+  // (bindingEnergy > 0) is belt-and-braces mirroring the inducer's own
+  // gate — the null's construction makes passed=true with non-positive
+  // binding structurally near-unreachable (random subsets centre at or
+  // above zero), so no honest fixture pins that half in isolation.
+});
+
+test("a declaration is a SET: duplicates fold before the power check", () => {
+  const index = plantedIndex();
+  const r = testKindMembers(index.entityFeatures, ["e1", "e1"], OPTS);
+  assert.equal(r.refused.type, "under_powered");
+  assert.equal(r.refused.memberCount, 1, "the deduped count is what is reported");
+});
+
 test("the declared test AGREES with the inducer's own discovery on the same field", () => {
   // Cross-organ agreement: induceEntityKindCandidates finds the planted
   // basin on its own; handing that discovered membership back to
