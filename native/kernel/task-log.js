@@ -4,6 +4,17 @@ export const ENTRY_KINDS = Object.freeze({ PROPOSE: "propose", SUPERSEDE: "super
 export const OPERATOR_BASIS = Object.freeze({ PRODUCED: "produced", DERIVED: "derived", DECLARED: "declared", CONTESTED: "contested", ABSENT: "absent" });
 export const OPERATOR_ORDER = Object.freeze(["NUL", "SEG", "SIG", "CON", "EVA", "DEF", "INS", "SYN", "REC"]);
 
+// A grain's depth as an ordinal, off this module's own imported GRAINS —
+// added for a real external consumer (the-fold's hyperlexicon.js, which
+// reads `Object.keys(taskLog.GRAIN_RANK).find((g) => taskLog.GRAIN_RANK[g]
+// === 1)` to name the Figure grain without hardcoding it, the same way this
+// file's own `append` already treats GRAINS as the one true ordering rather
+// than restating it). Nothing invented: GRAINS was already imported here
+// for `append`'s own validation two lines below, so this is a fact this
+// module already holds, read off rather than restated. Advisory only —
+// nothing in `append`/`projectTasks` consults it.
+export const GRAIN_RANK = Object.freeze(Object.fromEntries(GRAINS.map((g, i) => [g, i])));
+
 export function createTaskLog({ admits = OPERATOR_ORDER } = {}) {
   if (!Array.isArray(admits) || !admits.length) throw new TypeError("createTaskLog: admits must be a non-empty array of operator codes");
   return Object.freeze({ entries: Object.freeze([]), nextSeq: 0, admits: Object.freeze([...admits]) });
