@@ -39,6 +39,41 @@ test("does not fire on ordinary prose with no TOC at all", () => {
   assert.equal(r.skipTo, 0);
 });
 
+test("REAL-CORPUS-SWEEP counter-example: a markdown-structured legal code with many short 'repealed' article stubs must NOT be misread as a table of contents", () => {
+  // Found by running the FULL live_priors corpus sweep with this function
+  // wired in, not by reasoning about it: a real Dutch legal code
+  // (Wetboek van Koophandel) opens with a YAML frontmatter block, then
+  // markdown ATX headings ("##### Artikel 2") each immediately followed
+  // by the single word "Vervallen" ("Repealed") for a dozen consecutive
+  // articles — a real, legitimate, dense-but-genuine document structure,
+  // not an undifferentiated list of chapter titles. Before the ATX-heading
+  // exclusion below, this cleared the TOC-run floor and skipped 4,594
+  // real characters, turning a previously-clean 39-edge reading into a
+  // 0-edge one. This is the SAME failure shape the back-of-book-index
+  // counter-example above already names (a real document structure
+  // sharing TOC's surface shape), on a second, unrelated convention this
+  // function's original nine-book control set never tested (none of them
+  // were markdown-formatted).
+  const nl = [
+    "##### Artikel 2", "Vervallen", "##### Artikel 3", "Vervallen",
+    "##### Artikel 4", "Vervallen", "##### Artikel 5", "Vervallen",
+    "##### Artikel 6", "Vervallen", "##### Artikel 7", "Vervallen",
+    "##### Artikel 8", "Vervallen", "##### Artikel 9", "Vervallen",
+    "##### Artikel 10", "Vervallen", "##### Artikel 11", "Vervallen",
+  ].join("\n\n");
+  const prose = "##### Artikel 15\n\nDe in dezen titel genoemde vennootschappen worden geregeerd door de overeenkomsten van partijen, door dit Wetboek en door het Burgerlijk Regt, wat een uitgebreide en gedetailleerde wettelijke regeling van deze materie inhoudt.";
+  const text = nl + "\n\n" + prose;
+  const r = detectFrontMatterRun(text);
+  assert.equal(r.detected, false, "a run of markdown headings and their own short-but-real content ('Vervallen') must never be misread as a table of contents");
+});
+
+test("REAL SPECIMEN — the exact Dutch legal code this counter-example is drawn from does not misfire, end to end", () => {
+  const raw = readIfPresent(path.join(HERE, "..", "..", "..", "live_priors", "06-government-legal", "world-legislation", "nl"), "BWBR0001838.md");
+  if (raw == null) return;
+  const r = detectFrontMatterRun(raw);
+  assert.equal(r.detected, false, "the real specimen that motivated the ATX-heading exclusion must not fire");
+});
+
 test("skeptic 1's counter-example: quote-terminated dialogue must NOT be misread as TOC-shaped", () => {
   // The bug: a naive /[.!?]$/ test fails on a line ending in a closing
   // curly quote, because the terminator sits BEFORE the quote character.

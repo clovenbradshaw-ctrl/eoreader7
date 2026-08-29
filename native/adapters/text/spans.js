@@ -313,9 +313,33 @@ export const detectFrontMatterRun = (text, { maxScanChars = 32000, tocLineMax = 
     const stripped = stripTrailingClosingQuotes(t.trimEnd());
     return stripped.length > 0 && SENTENCE_TERMINATORS.has(stripped[stripped.length - 1]);
   };
+  // A markdown ATX heading ("# Title", "##### Artikel 1") is a real,
+  // INTENTIONAL structural marker — the opposite of the undifferentiated
+  // run of plain lines a Gutenberg-style table of contents actually is.
+  // Found live, not by reasoning about it: a Dutch legal code
+  // (world-legislation/nl/BWBR0001838.md — YAML frontmatter, then
+  // markdown headings each followed by either real prose or a bare
+  // "Vervallen" ["Repealed"]) has DOZENS of repealed articles in a row,
+  // each an "##### Artikel N" heading immediately followed by one
+  // five-character word with no terminator — a run that cleared this
+  // function's own floor and skipped 4,594 real characters into a
+  // previously-CLEAN 39-edge reading, landing on nothing (0 edges). This
+  // is the identical failure shape the back-of-book-index counter-example
+  // already named (a real document structure that happens to share TOC's
+  // surface shape) — found on a SECOND, unrelated structural convention
+  // this pass's own control set never tested, because none of its nine
+  // control books were markdown-formatted. Excluding ATX headings is
+  // general, not a patch for this one file: Les Misérables' own TOC uses
+  // plain "CHAPTER I—TITLE" lines with no "#" anywhere, so this exclusion
+  // changes nothing about the specimen this function was built for, and
+  // it is principled — a heading is evidence of deliberate document
+  // structure, never evidence of an undifferentiated list masquerading
+  // as content.
+  const ATX_HEADING_RE = /^#{1,6}\s/;
   const isTocShaped = (paraText) => {
     const t = paraText.trim();
     if (!t || t.length >= tocLineMax) return false;
+    if (ATX_HEADING_RE.test(t)) return false;
     return !isTerminated(t);
   };
 
