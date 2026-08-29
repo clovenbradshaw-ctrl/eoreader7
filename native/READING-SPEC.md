@@ -659,3 +659,83 @@ carried on the result as `impliedRisk`, never silent. And in the amended
 prediction arm, `recovered == ceiling` is close to definitional (both
 compute unique unrefuted abutment); the arm's empirical content is zero
 wrong predictions and recovery a structural-zero baseline cannot reach.
+
+## S22 — Co-presence is evidence, never an answer; and a gap is a refusal the organ REACHED
+
+> **giver:** earned-here
+
+`adapters/text/pronouns.js` refused, categorically, every frame carrying a
+named surface (`if (named.size === 0 && ...)`). That veto is text-shaped
+twice over: it names "a named surface," and it treats co-presence as
+DISQUALIFYING rather than as a difference to be weighed. On encyclopedic
+prose most frames carry a name, so the organ reported `bindings: 0,
+gaps: 6` — a handful of gaps standing in for a hundred chances, with the
+denominator stated nowhere.
+
+**The law.** Where a frame's own membership bears on resolving a deixis it
+carries, that membership is a STANDING and never a gate: a contested frame
+must clear a stricter declared bar, because the frame supplies a pull the
+recall cannot see. **Co-presence raises the BAR; it never raises a SCORE.**
+A co-present candidate the reading has not activated enters at its own zero
+and loses, exactly as it would had the frame not carried it. That asymmetry
+is the whole design — the other direction is nearest-name binding, which
+`pronouns.js`'s own header refuses by name and which the kernel must not
+smuggle back in.
+
+`kernel/contest.js` holds it. The question — *which of the beings present
+did this unlabelled thing point at* — is not a text question, so the organ
+is kernel-level and medium-general: a shot with two faces and one
+unlabelled gaze, a bar with two instruments and one unattributed motif, a
+turn with two labelled speakers and one bare "same as before" are each a
+scored-candidate set plus a co-present set, and each calls it unchanged.
+Generality is asserted MECHANICALLY, not claimed: `tests/contest.test.js`
+reads the module's own executable body and fails if *sentence*, *pronoun*,
+*surface*, *token*, *word* or *text* appears in it. The adapter contributes
+scores and frame membership; the kernel contributes the verdict. The
+adapter's two hard filters (gender, individuation type) are passed in AS
+FILTERS, never tiebreaks, and a competitor a filter already excluded does
+not raise the bar — charging a reading for an ambiguity it does not face is
+not rigour.
+
+**A GAP IS A REFUSAL THE ORGAN REACHED.** One development failure settled
+this and is worth keeping: filing a gap for frames the refused regime never
+adjudicated broke `gaps.length === 0`, and the assertion was right. "I read
+this and could not decide" and "I never read this" are different facts and
+must never share a bucket. The denominator moved onto a `regime` block that
+every return now carries — which criterion ran, how many frames carried the
+deixis, how many carried competitors, how many were actually adjudicated —
+where it is a count of frames and cannot be mistaken for a verdict.
+
+**A CONSTANT BAR MEASURES SEPARATION, NOT EVIDENCE.** Measured: scrambling a
+material, which destroys the coherence one-hop recall is supposed to read,
+RAISES the mean margin (0.028 → 0.053; 0.047 → 0.073), because incoherent
+reading scatters activation and leaves a sparse field in which one candidate
+stands alone. So `nullAdjudicate` tests the lead against the material's own
+permutation null instead — draws, seed and alpha declared, the Born-gate
+discipline this kernel already holds elsewhere. The null redistributes WHICH
+members were present at the activated frames, sampling member-sets from the
+pool the reading itself produced, empties included, so the material's own
+presence density is preserved. The real margin beats it only when one member
+owns several of the hottest recalled frames — which is what reading IS, and
+what scrambled material cannot fake. Degenerate cases come out honest with
+no special-casing: a one-member world ties every draw (p = 1, refused —
+identity made no difference, so nothing was read).
+
+**Both regimes are DECLARED and default-off, and the shipped organ is
+unchanged.** Absent `contestedMargin` and `nullTest`, behaviour is
+byte-identical and `tests/pronouns.test.js` passes 9/9 unchanged, so every
+prior measurement taken through this organ keeps its denominator. The
+constant-margin regime is kept as the named, refuted control arm rather
+than deleted. The null regime is not adopted either: it removes the
+anti-lift pathology and makes encyclopedic zeros honest, but novel lift did
+not rise and its survivors are rare-referent self-echo, which clears a
+permutation null without being comprehension. **The bottleneck is the
+SIGNAL, not the criterion** — one-hop lexical recall at sentence grain
+carries too little identity information for any verdict rule over it to
+become reading. This is the third independent measurement to land on that
+line, and it confirms `surfaces.js`'s MODEL-tier fence rather than
+challenging it.
+
+Full evidence, and the landing-time finding that a null drawn once is a null
+drawn zero times, are in the-fold's POLICIES.md P66 and
+`the-fold/eval/results/{contested-copresence,null-criterion}-RESULTS.md`.

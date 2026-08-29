@@ -1,0 +1,99 @@
+{
+ "schema": "EOWriterDecayRun@1",
+ "book": "borodino.txt",
+ "givers": {
+  "theory": "Accessibility Theory (Ariel); referential distance (Givon 1983): referring-expression form encodes the writer's model of the reader's activation",
+  "forms": {
+   "pronoun": "bindNarrationFrames activation arm — organ-derived, NOT gold, disclosed",
+   "descriptor": "anchoring organ EOAnchorEvidence",
+   "name": "constitutional cast surfaces (host, coref-primed)"
+  },
+  "measurement": "kernel/return-curve.js (omnimodal) via adapters/text/accessibility.js (the NL organ)"
+ },
+ "declared": {
+  "bins": "dyadic — structural doubling, never chosen",
+  "window": "widest bin where pronoun is the MAJORITY return form — majority is where a plurality flips, not a tuned constant",
+  "PRONOUN_PRESENT": {
+   "window": 8,
+   "minActivation": 0.2,
+   "minMargin": 0.2
+  },
+  "PRONOUN_RECALL": {
+   "minActivation": 0.05,
+   "minMargin": 0.2
+  }
+ },
+ "cast": 69,
+ "mentions": 521,
+ "returns": 429,
+ "curve": [
+  {
+   "gapBin": "1",
+   "returns": 79,
+   "pronounShare": 0,
+   "nameShare": 0.987,
+   "descriptorShare": 0.013
+  },
+  {
+   "gapBin": "2-3",
+   "returns": 72,
+   "pronounShare": 0,
+   "nameShare": 1,
+   "descriptorShare": 0
+  },
+  {
+   "gapBin": "4-7",
+   "returns": 65,
+   "pronounShare": 0,
+   "nameShare": 0.954,
+   "descriptorShare": 0.046
+  },
+  {
+   "gapBin": "8-15",
+   "returns": 65,
+   "pronounShare": 0,
+   "nameShare": 0.954,
+   "descriptorShare": 0.046
+  },
+  {
+   "gapBin": "16-31",
+   "returns": 51,
+   "pronounShare": 0,
+   "nameShare": 0.98,
+   "descriptorShare": 0.02
+  },
+  {
+   "gapBin": "32-63",
+   "returns": 46,
+   "pronounShare": 0,
+   "nameShare": 0.978,
+   "descriptorShare": 0.022
+  },
+  {
+   "gapBin": "64-127",
+   "returns": 33,
+   "pronounShare": 0,
+   "nameShare": 1,
+   "descriptorShare": 0
+  },
+  {
+   "gapBin": "128-255",
+   "returns": 16,
+   "pronounShare": 0,
+   "nameShare": 0.938,
+   "descriptorShare": 0.063
+  },
+  {
+   "gapBin": "256-511",
+   "returns": 2,
+   "pronounShare": 0,
+   "nameShare": 1,
+   "descriptorShare": 0
+  }
+ ],
+ "writerWindow": null,
+ "gamma": null,
+ "identityShareAtExtreme": 1,
+ "basis": "material (no prior supplied)",
+ "prediction": "recorded before the run: pronoun returns collapse within a few sentences (activation layer); name returns survive gaps of hundreds WITHOUT re-gloss (identity layer)"
+}
