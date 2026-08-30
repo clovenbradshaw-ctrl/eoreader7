@@ -1591,3 +1591,100 @@ cell-typing check against the real `cube.js::cellOf` and close with an
 OMNIMODAL case immediately followed by an ADAPTER-SHAPED case over the
 identical unmodified code. Full suite: 365/365 before this pass, 401/401
 after, zero regressions.
+
+## S34 — `\b` is ASCII-`\w`-only in JS; a surface written in any non-Latin script could never be located by name
+
+> **giver:** earned-here, found running real fetched Война и мир prose
+> against the omnilingual-reading question (2026-08-30)
+
+**Generality:** universal (evidence: the identical, unmodified fix closes
+the defect on three independent, unrelated scripts — Cyrillic, Greek,
+Hebrew — via one shared Unicode word-character class this file already
+had; the mechanism is `\b`'s own JS-level ASCII-only definition, not
+anything about Slavic morphology or this specimen's own code-switching,
+both hypothesized first and refuted by direct test before this fix was
+written)
+
+**The measured defect.** Running the-fold's own omnilingual-reading
+question against a real, freshly-fetched, correctly-identified Russian
+source (`live_priors/11-multi-language/war-and-peace/ru/`, Wikisource's
+Война и мир, rendered and byte-verified — not the corpus's own
+already-flagged mislabeled `gutenberg-non-en/` directory) through
+`eot-sidecar.mjs` produced 8 admitted edges from an 8000-character excerpt
+of the novel's famous opening scene. Every one of the 8 was in FRENCH —
+the scene's own embedded aristocratic dialogue, real Tolstoy, not
+corruption — and NONE were in the surrounding Cyrillic narration, despite
+`scriptCoverage` correctly reporting the excerpt fully cased
+(`casedShare: 1`) and `extractSurfaces` correctly finding 10 real Cyrillic
+surfaces (including the full name "Анна Павловна Шерер") when tested
+directly on isolated Russian prose.
+
+**Two hypotheses tested and refuted before the real cause was found (P5.5's
+own discipline: check the driver before the theory).** (1) Russian's
+grammatical case declension fragments a name across sightings (Анна
+Павловна / Анне Павловне / Анны Павловны, three strings for one referent)
+— refuted directly: holding a Cyrillic surface EXACTLY fixed across five
+repeated sentences (no declension in play at all) still nominated zero
+candidate verbs. (2) French dialogue statistically crowds out sparse
+Cyrillic recurrence in a short excerpt — refuted the same way: the
+zero-candidate result reproduces on PURE Russian text with no French
+anywhere in it.
+
+**The real cause.** `discoverRelationVocab`'s `SURFACE_RE` relocates each
+candidate surface in the text with `\b(?:NAME)\b`. JavaScript regex has no
+Unicode-aware word-boundary mode — `\b` is defined purely against
+`\w = [A-Za-z0-9_]`, even under the `/u` flag — so the position immediately
+before and after a Cyrillic (or Greek, Hebrew, Armenian, ...) letter is
+ALREADY `\W` by `\b`'s own reckoning: there is no word-to-nonword
+transition for it to detect, so `\b` never fires there and the surface can
+never be located, regardless of how often it recurs. Confirmed directly:
+`/\bАнна\b/u.test("Анна Павловна")` → `false`; the identical construction
+with the `\b`s removed → `true`; the same failure independently reproduces
+for Greek (Ελένη) and Hebrew (דוד) — genuinely unrelated scripts and
+language families, the cross-domain leg P71/S31 demands. A name is only
+ever safe by ACCIDENT of its first and last character being ASCII —
+"Hélène" (a mid-word diacritic) still matches, because `\b` only ever
+inspects the two boundary characters, never the content between them.
+
+Three sibling call sites in the same file share the identical shape and
+the identical defect, none reached by the measured War-and-Peace specimen
+but each independently confirmed broken by direct construction:
+`negationBeforeVerbFor` (the negation-detection regex this file's own
+header already documents being built for injected non-English priors —
+"e.g. Basque's ez, `bin/priors/lang/eu.json`" — an intended use case this
+bug would have silently defeated for any script beyond Latin);
+`OBJECT_GROUP`'s function-word boundary; and `AUX_GROUP_RE`/
+`SUBJECT_SECOND_GUARD`'s aux/negation boundaries (both gated behind
+`phrasalPredicates`, default-off, but real and exercised by live_priors'
+own DR5 work).
+
+**The fix.** One shared helper, `bWord(pattern) = (?<!${WCHAR})(?:${pattern})(?!${WCHAR})`,
+where `WCHAR` is this file's own already-established word-character class
+(`W`'s content without its `+` quantifier — `\p{L}\p{N}_'’`, the same set
+every surface and verb candidate here is already built from) —
+mathematically identical to `\b` for the ASCII-bounded case every existing
+test already exercises (a run of `W` characters bounded by non-`W`
+characters), now correct for the rest of the alphabet too. All four sites
+converted; zero remaining `\b` occurrences in the file.
+
+**Measured after the fix, on the identical specimens.** The pure-Cyrillic
+synthetic control (an exactly-recurring name, no declension) now nominates
+real verbs and extracts real triples — "Анна Павловна —кашляла→ несколько
+дней", "—улыбнулась→ князю Василию", "Князь Василий —поцеловал→ руку Анны
+Павловны" — the SAME three-edge count and parallel structure the matched
+English control finds on the identical sentence shapes. Greek and Hebrew
+synthetic controls independently confirm the same repair. A real Cyrillic
+negation word, injected the way the file's own header already names as
+the intended pattern, is now correctly located and correctly reads
+polarity "-". English extraction is unchanged byte-for-byte (pinned as a
+regression).
+
+**Files.** `adapters/text/relations.js` (the `bWord`/`WCHAR` helper; four
+call sites converted). `tests/relations.test.js` (5 new cases: the
+measured Cyrillic defect and its fix; the declension-vs-boundary
+discriminating control; cross-script Greek/Hebrew generality; the
+documented non-English-negation-injection use case; an explicit ASCII
+byte-identical pin). Full suite: 371/361/10 before this entry, 376/366/10
+after — the same 10 pre-existing failures this environment already
+carries (the uninitialised `legacy-eoreader6.1` submodule), zero
+regressions.
