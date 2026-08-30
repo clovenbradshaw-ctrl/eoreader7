@@ -1469,3 +1469,107 @@ claim (S22) and the now-declared, still-English-only scope (this entry)
 answer two different questions; closing this one does not make pronoun
 resolution work in another language, it makes the fact that it does not
 a declared gap instead of an accident.
+
+## S33 — Grammatical role by morphology, not position: a case-marking relation extractor, measured against real held-out Latin
+
+> **giver:** earned-here, user direction (2026-08-30)
+
+**Generality:** specimen-scoped (disclosed; not claimed further) — measured
+on one language (Latin), one treebank, one register. The mechanism's SHAPE
+(a declared per-language case prior, ambiguity preserved, a received
+closed class for verb morphology, weak-signal withdrawal on collision) is
+a candidate pattern for other case-marking languages, not a demonstrated
+one — a second language's own measured prior would be required before
+calling it universal.
+
+`adapters/text/relations.js`'s own header states its slot-finding is
+POSITIONAL: "the token immediately FOLLOWING a candidate referent
+surface... the slot SVO order puts a verb in." That is a fact about
+analytic, fixed-word-order languages (English, French, Chinese), not
+about clauses in general. The-fold's POLICIES.md P72 already closed the
+schema half of this — the arrangement is two ordered ends and a label,
+never `subject`/`verb`/`object`, which are a declared SAE-grammar
+overlay. This entry closes the other half: a genuinely SECOND extraction
+STRATEGY for a language where position carries no signal at all, proving
+the neutral shape is required, not merely tidy — building a case-marking
+strategy that still recovered "subject" and "object" by a different
+signal would have been the same borrowed category surviving through a
+new mechanism.
+
+**Why Latin, first — not because it is easy.** S31's own gate: a fix
+scoped to a convenient case proves nothing. Latin has free constituent
+order and a real, receivable case-ending system, so the claim is
+measurable rather than argued. A real, held-out TEST specimen the organ
+matches exactly against gold: *"possedit cetera pontus"* — literally
+"possessed the-rest the-sea," verb-object-subject order — reports
+`end1=pontus` (nominative), `label=possedit`, `end2=cetera` (accusative)
+with zero use of position. A positional reader has no rule that gets VOS
+order right by construction.
+
+**The prior is measured, the verb morphology is received — a genuine,
+measured reason for treating them differently.** `native/priors/
+case-marking-lat.json` (`LatinCasePrior@1`, `native/scripts/
+build-latin-case-prior.mjs`) mines word-ending -> Case|Number
+distributions from UD_Latin-Perseus (1,334 training sentences, CC
+BY-NC-SA 2.5 — non-commercial, stated plainly), ambiguity preserved
+(`-am` is 100% Acc|Sing; `-is` spans five distinct readings). Verb
+personal-ending morphology was tried the SAME mined way FIRST and
+rejected on measured coverage: only 75 of 224 distinct 3-character
+endings observed in training cleared a volume-5 floor, because personal
+endings fragment by conjugation-stem vowel (`-ent`/`-unt`/`-ant` are all
+"3rd plural," landing in separate buckets) — a modest corpus sample does
+not contain enough of each to earn frequency-based trust. Replaced with
+a received closed class (Allen & Greenough's *New Latin Grammar*): the
+structural-floor-vs-model-of-the-material distinction this document
+already draws (S16's own ladder), now with a case on each side of it in
+the same organ.
+
+**Three more real bugs, found by measuring against gold, not by
+reasoning about it.** A punctuation-stripping regex that required a
+WHOLE token to be punctuation never trimmed "manent." to "manent",
+hiding most verb tokens from every suffix check. Bare single-character
+personal endings (`-o`/`-m`/`-t`/`-or`) collide constantly with common
+noun-case endings (`-o` is also 2nd-declension ablative singular; `-or`
+is also the common 3rd-declension nominative agent-noun suffix —
+`praedator`, `victor`), forcing a spurious second "verb candidate" on
+163 of 222 real single-verb sentences; fixed by withdrawing a `weak`
+personal-ending match when the same word also carries a confident
+nominal reading, the more specific signal winning rather than either
+being dropped outright. A preposition ("Super," over/above) read its own
+`-er` ending as a plausible nominative and was reported as a sentence's
+subject; closed with a small received Latin preposition list, the same
+closed-class-exclusion discipline `priors.js`'s English function-word
+sets already hold.
+
+**Measured, not forced higher.** Full pipeline against 380 held-out test
+sentences (never used to build the prior), single-finite-verb clauses
+only: `end1` vs gold `nsubj` — precision 0.258, recall 0.077; `end2` vs
+gold `obj` — precision 0.325, recall 0.118. Isolating case-classification
+alone (given the correct token, no verb-finding or competition) shows
+why the two are not symmetric: 82% of gold subjects get a confident case
+reading but only 36% of those are correctly nominative — nominative is
+genuinely the least systematically marked Latin case (3rd-declension
+nominatives are often irregular, stem-final-consonant-driven, not
+suffix-patterned) — where 88% of gold objects get a confident reading
+and 86% of those are correct, because `-um`/`-am`/`-em` are comparatively
+unambiguous. Disclosed as exactly that asymmetry, not smoothed toward a
+single headline number.
+
+**Disclosed, not attempted.** Multi-clause sentences (559 of 939 test
+sentences skipped, named rather than silently scored) — clause
+segmentation this organ does not build. Bare-stem imperatives (Latin's
+2nd-singular imperative often carries no personal ending at all —
+`mitte`, `carpe` — indistinguishable from a noun stem by ending alone).
+Noun-phrase-internal agreement — an attributive adjective or participle
+sharing its head noun's case (`deiectum leo`, "a fallen lion": both
+nominative, one phrase) reads as a second same-case candidate and
+correctly gaps as ambiguous rather than guessing which token is the
+actual clausal argument — a real ceiling on recall, not a bug.
+`esse`'s present-indicative forms only.
+
+Full evidence, every number, every specimen: `native/eval/results/
+latin-case-marking-RESULTS.md`; reproduce with `node native/eval/
+latin-case-marking-eval.mjs`. `native/tests/relations-case-marked.test.js`
+(10 cases) pins the VOS specimen, the shape (`end1`/`label`/`end2`,
+never `subject`/`verb`/`object`), every disclosed gap type, and the
+weak-ending/preposition fixes as regressions.
