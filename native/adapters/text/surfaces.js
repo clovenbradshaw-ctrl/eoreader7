@@ -340,9 +340,27 @@ export const extractSurfaces = (sentences, opts = {}) =>
 // own General_Category: `\p{Cased_Letter}` is exactly the set of letters that
 // HAVE case (Lu/Ll/Lt), and `\p{L}` minus that is exactly the caseless
 // letters (Lo) — Hebrew, Arabic, Hangul, CJK, Devanagari, Thai. Verified
-// directly against real strings in all of those scripts plus Greek, Cyrillic,
-// Georgian and Armenian (which ARE bicameral, and are correctly not gapped).
-// Not a list of scripts maintained here; a property looked up per character.
+// directly against real strings in Greek, Cyrillic and Armenian (which ARE
+// bicameral IN PRACTICE, and are correctly not gapped). Not a list of
+// scripts maintained here; a property looked up per character.
+//
+// Georgian was ALSO claimed correctly-not-gapped here, on the same test, and
+// that claim was wrong — found running this instrument on all 516 real UDHR
+// translations (live_priors POLICIES.md LP8), not by re-reading this file.
+// `\p{Cased_Letter}` answers "does this LETTER belong to a case category" —
+// Mkhedruli, modern Georgian's everyday alphabet, is General_Category Ll, so
+// it passes. It does not answer the question this mechanism actually needs
+// answered: does the MATERIAL ever use the OTHER member of that category —
+// Mtavruli, Georgian's uppercase — to mark anything. Ordinary published
+// Georgian does not; Mtavruli is a monumental/decorative variant, not a
+// working capitalisation convention, and a real 10,174-letter UDHR
+// translation contained exactly zero of it (its only Lu characters were 30
+// stray Latin letters from the file's own English header). `scriptCoverage`
+// read that as casedShare 1.0 and gap: null; extractSurfaces, run on the
+// same real material, found zero real Georgian surfaces — every one of the
+// 18 "candidates" it did find was that same Latin debris. This is caught
+// below by a third, distinct boundary; the two boundaries above are
+// unchanged and still correct for what they test.
 const CASED_LETTER = /\p{Cased_Letter}/u;
 const ANY_LETTER = /\p{L}/u;
 
@@ -356,15 +374,37 @@ const ANY_LETTER = /\p{L}/u;
  * read a surface count without also being told what fraction of the script it
  * was computed over.
  *
- * The two boundaries are structural, not dials:
+ * Three boundaries, all structural, none a dial:
  *   - `casedLetters === 0` with letters present: the mechanism cannot fire at
  *     all. Zero is not a threshold.
  *   - caseless letters in the MAJORITY: most of this material is invisible to
  *     the mechanism. Majority is where a plurality flips — the same non-tuned
  *     standing this project's writer-decay window already declares for itself
  *     — not a chosen constant.
+ *   - the material's letters are all cased AND pass both checks above, yet no
+ *     CAPITALISATION ever appears where this mechanism can read it as
+ *     evidence (Georgian's Mkhedruli, found live — see the header above).
+ *     `CAP_TOKEN` deliberately excludes sentence-initial position (position
+ *     is not namehood); a material where the case member THIS mechanism
+ *     watches for never once occurs elsewhere is exactly as blind as one
+ *     with no case category at all, whatever Unicode's own General_Category
+ *     says about its letters. Tested not by a percentage but by the same
+ *     recurrence the extraction mechanism itself already computes: does ANY
+ *     candidate surface — `accumulateSurfaceEvidence`'s own `sentenceIndex`,
+ *     reused rather than re-derived — appear in more than zero sentences.
+ *     Zero is not a threshold here either.
+ *
+ * @param {object} [options.evidence] a `createSurfaceEvidence()` accumulator
+ *   already folded over `sentences` via `accumulateSurfaceEvidence` — reused
+ *   so a caller who is about to call `extractSurfaces` on the same sentences
+ *   anyway (eot-sidecar.mjs's `attemptWindow` does exactly this) folds the
+ *   material once, not twice. Omit it and this computes its own — the third
+ *   boundary needs the SAME walk `extractSurfaces` performs to ask its
+ *   question, and a second implementation of that walk here would be
+ *   exactly the drift class this codebase's own postmortems (P22, P24, P25
+ *   in the-fold's CLAUDE.md) already name.
  */
-export const scriptCoverage = (sentences) => {
+export const scriptCoverage = (sentences, { evidence } = {}) => {
   let casedLetters = 0;
   let caselessLetters = 0;
   for (const sent of sentences) {
@@ -413,6 +453,37 @@ export const scriptCoverage = (sentences) => {
           "to it. Surfaces found here are drawn from that cased minority — typically citations, " +
           "captions or loanwords in another script — and are not evidence about the material's own " +
           "language. Same remedy and same refusal as script_without_case.",
+      },
+    };
+  }
+
+  const ev = evidence ?? accumulateSurfaceEvidence(sentences, createSurfaceEvidence());
+  let sentencesWithNonInitialCap = 0;
+  {
+    const seen = new Set();
+    for (const idxSet of ev.sentenceIndex.values()) {
+      for (const i of idxSet) seen.add(i);
+    }
+    sentencesWithNonInitialCap = seen.size;
+  }
+  if (sentencesWithNonInitialCap === 0) {
+    return {
+      ...base,
+      gap: {
+        reason: "script_case_unused",
+        tier: "model",
+        needsWitness: true,
+        casedShare,
+        detail:
+          "this material's letters are cased (Unicode General_Category: Cased_Letter present, no " +
+          "caseless majority), yet no candidate surface — a capitalised token outside sentence-initial " +
+          "position — was found in ANY sentence. CAP_TOKEN excludes sentence-initial capitals as " +
+          "evidence by design (position is not namehood), so a script whose case member this mechanism " +
+          "watches for never occurs anywhere else is exactly as invisible to it as a caseless script, " +
+          "regardless of what Unicode's own category says about its letters. Any surface reported " +
+          "alongside this gap is cased debris (typically a container's own front matter, in another " +
+          "language), never evidence about this material's own writing. Same remedy as the other two " +
+          "gaps: a per-script prior with its own giver and an invariance fixture.",
       },
     };
   }

@@ -1779,3 +1779,94 @@ entry's two new cases — 381/370/11 — failure names diffed via
 `legacy-eoreader6.1` submodule and its dependents), one more than S34's
 own 10 because later work between S34 and this entry added a test file
 this environment cannot load either.
+
+## S36 — `Cased_Letter` answers "does this letter belong to a case category," not "does this material ever use its other member" — Georgian passed the wrong test
+
+> **giver:** earned-here, found running the-fold's reading pipeline
+> against all 516 real UN UDHR translations (2026-08-30)
+
+**Generality:** universal (evidence: the identical, parameter-free fix —
+"zero distinct sentences carry a capitalised token outside sentence-
+initial position" — closes the defect on three specimens that share
+nothing but the shape: Georgian's Mkhedruli, General_Category Ll,
+Unicode-cased but never capitalised in real use; the Cherokee syllabary's
+traditional block, General_Category Lu, the mirror-image failure; and an
+ordinary Latin-alphabet sentence in a lowercase-only romanisation
+convention, no exotic script involved at all. Three unrelated scripts,
+one unrelated Latin control, one mechanism, no per-script list anywhere)
+
+**The measured defect.** `scriptCoverage` (S24) already asks "can the
+capitalisation mechanism see this material's script at all" via
+`\p{Cased_Letter}` (Lu/Ll/Lt) share, and this file's own header already
+claimed Georgian "ARE bicameral, and are correctly not gapped" — verified,
+at the time, against an artificial `.toUpperCase()` transformation, not
+against real running text. Running this instrument on all 516 real UDHR
+translations found the claim false: a real 10,174-letter Georgian
+translation reported `casedShare: 1.0`, `gap: null` — yet `extractSurfaces`
+run on that same real material found exactly ZERO real Georgian surfaces.
+Every one of the 18 "candidates" it did report came from the file's own
+English-language front matter ("Human Rights", "UN General Assembly",
+"Paris"), never from the document's 106 sentences of real Georgian prose —
+the identical "cased debris" shape this file's header already names as the
+hazard for a genuinely caseless script, occurring silently on a script the
+gate said was fine.
+
+**The real cause.** `\p{Cased_Letter}` is satisfied by EITHER member of a
+case pair — Mkhedruli, modern Georgian's everyday alphabet, is
+General_Category Ll (lowercase) on its own, with no Lu companion in
+ordinary use (Mtavruli, Georgian's Unicode uppercase block, is a
+monumental/decorative variant, not a working capitalisation convention).
+So `casedLetters` reads 100% of the material's letters and both existing
+gaps correctly stay silent — but `CAP_TOKEN`, the mechanism `scriptCoverage`
+exists to protect, requires a capital OUTSIDE sentence-initial position to
+count as evidence at all (position is not namehood, the same rule every
+sentence-initial exclusion in this file already applies), and a material
+that is 100% one case member can never supply one. Confirmed as the same
+class, not a Georgian-specific accident, on two more constructions sharing
+nothing else: a Cherokee sentence pair using the syllabary's traditional
+block (every character defaults Lu — the identical failure from the
+opposite direction, additionally caught in part by the pre-existing
+all-caps-run exclusion, itself a coincidence rather than a fix for this);
+and a plain Latin-alphabet sentence pair written entirely lowercase, no
+non-Latin script anywhere, which fails identically — proving the defect
+was never about any one alphabet.
+
+**The fix.** A third, structural boundary, matching the file's own
+existing two ("zero is not a threshold"): `scriptCoverage` now checks
+whether any candidate surface — reusing `accumulateSurfaceEvidence`'s own
+`sentenceIndex`, never a second walk — was found in more than zero
+sentences; if the union across every candidate is empty, `gap.reason:
+"script_case_unused"`. No percentage, no derived quantile, no hand-picked
+minimum: the count is either zero or it is not. `scriptCoverage(sentences,
+{ evidence })` takes an optional pre-computed evidence accumulator so a
+caller already about to call `extractSurfaces` on the same sentences (both
+live_priors call sites do) folds the material once, not twice — omitted,
+it computes its own, byte-identical to the old bare-`sentences` call for
+every existing caller.
+
+**A deliberately un-forced residual, disclosed rather than fixed.** A
+second real UDHR specimen, a Cherokee transcription using the MODERN
+lowercase-companion block for most characters ("cased" in the corpus's own
+label), carries a small number of genuine traditional-block characters
+concentrated in exactly ONE title-like fragment recurring across two
+sentences — real evidence, at this organ's own "zero is not a threshold"
+bar, so it does not gap. Its downstream relation-extraction outcome is
+still empty (the concentrated evidence never forms a usable triple), so
+the practical outcome matches the genuinely-blind cases even though the
+gate does not name it — stated honestly here rather than forcing a second
+threshold to also catch it, which this file's own standing rule (never
+tune a parameter by checking what it does to one more specimen) forbids
+without a corpus-scale measurement this pass did not run.
+
+**Files.** `adapters/text/surfaces.js` (`scriptCoverage`'s third gap
+branch and its optional `evidence` parameter; the header's Georgian claim
+corrected in place, pointing here). `tests/script-coverage.test.js`
+(Georgian moved out of the "must not be gapped" list into a new positive
+case alongside the Cherokee and lowercase-Latin constructions; a boundary
+pin — exactly one non-initial capital does NOT gap; an evidence-reuse
+equivalence case). Full suite: 379/368/11 before, 381/370/11 after,
+failure names diffed via `git stash`: byte-identical, zero regressions.
+The corpus-side record — the UN UDHR front-matter stripping this same
+investigation also closed, the full 516-language census, and the
+S34-generality re-verification against real (not only synthetic) material
+— is live_priors' own POLICIES.md LP8.
