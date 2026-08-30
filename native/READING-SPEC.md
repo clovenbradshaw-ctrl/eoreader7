@@ -1324,7 +1324,7 @@ by running the full pre-existing suite unchanged before and after).
 **Generality:** not-applicable — this entry is the discipline itself, not a
 claim about a reading mechanism's reach.
 
-the-fold's POLICIES.md P70 is the paired law; this entry states the same
+the-fold's POLICIES.md P71 is the paired law; this entry states the same
 discipline in this repo's own register, because the failure it names has
 already happened on both sides of the fold/native split, not because the
 text needs duplicating.
@@ -1392,7 +1392,7 @@ other.
 `**Generality:** universal (evidence: ...)` /
 `specimen-scoped (disclosed; not claimed further)` /
 `not-applicable (names why)` — the identical three-way vocabulary the-fold's
-P70 uses, deliberately shared rather than independently invented, because a
+P71 uses, deliberately shared rather than independently invented, because a
 fix crossing the fold/native boundary must not need translating between two
 disclosure languages depending which repo's law document is open.
 

@@ -153,7 +153,7 @@ test("S14: domain-major, mode-minor over the engine's own DOMAINS x MODES yields
 });
 
 // ── S31: every law entry from here on discloses its own generality ──────
-// Paired with the-fold's POLICIES.md P70 and its generality-gate.test.mjs:
+// Paired with the-fold's POLICIES.md P71 and its generality-gate.test.mjs:
 // the same three-way vocabulary, checked here for READING-SPEC.md's own
 // `## S<N>` headers. This checks DISCLOSURE only, never TRUTH — see S31's
 // own text for why a mechanical test cannot go further than that. The
@@ -191,7 +191,7 @@ test("S31+: every reading-spec entry from here on discloses whether its finding 
     assert.match(
       e.text,
       GENERALITY_TAG,
-      `S${e.n} must declare Generality: universal | specimen-scoped | not-applicable (S31, paired with the-fold's P70)`,
+      `S${e.n} must declare Generality: universal | specimen-scoped | not-applicable (S31, paired with the-fold's P71)`,
     );
   }
 });
