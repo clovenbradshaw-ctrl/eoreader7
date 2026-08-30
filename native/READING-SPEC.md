@@ -1406,3 +1406,66 @@ was made, never that it is true — this repo's own S1 rule, "any claim about
 what 'the reader' does is measured against this assembly or names precisely
 which stages it lacks," applied to the gate that now watches every other
 rule.
+
+## S32 — A closed class's language is a declared fact, never an implicit one; an unsupported language is a typed gap, not an accidental non-match
+
+> **giver:** earned-here, user direction (2026-08-30)
+
+**Generality:** specimen-scoped (disclosed; not claimed further) — the
+gate shape (declare the language; refuse with a typed reason short of a
+registered prior) is the same pattern every declared dial in this codebase
+already holds, but this pass adds no second language's pronoun table and
+does not run S31's cross-corpus/false-positive demonstration. Whether any
+real Latin-script material was ever actually at risk of a coincidental
+match under the old, undeclared behavior stays unmeasured; this closes the
+exposure by declaration, not by that measurement.
+
+Asked whether the recent pronoun/anaphora work (S16, S22) actually
+conforms to "build it as an omnimodal function": the MEDIUM axis does —
+`kernel/contest.js` is genuinely medium-general, mechanically enforced (S22)
+— but `adapters/text/pronouns.js` carried a second, unaddressed axis. Its
+English pronoun regex (`PRONOUN_RE`) and gender table
+(`THIRD_PERSON_SINGULAR`, already correctly `giver: lang/en` in priors.js)
+ran against whatever text arrived, with no `language` parameter anywhere on
+`resolvePronouns`, `resolvePronounsByActivation`, or
+`findThirdPersonSingular`. Non-Latin material happened to degrade safely —
+the-fold's own MHC omnilingual test found Russian correctly gets zero
+pronoun attempts (POLICIES.md P70) — but that safety was an ACCIDENT of
+script mismatch, never a declared decision: nothing checked what language
+the material was, and nothing would have stopped the same regex running,
+and possibly matching, against a Latin-script language this codebase holds
+no gender-pronoun prior for at all.
+
+**The fix.** A small per-language registry, `PRONOUN_PRIORS` (one entry
+today, `en`, restating `THIRD_PERSON_SINGULAR_META`'s own giver rather than
+declaring a second one), replaces the bare constant. All three functions
+take a `language` parameter, defaulting to `"en"` — the same shape
+the-fold's CLAUDE.md records for its own `createLemmatizer({ language })`
+fix (also defaulting to English only when unspecified, also matching every
+existing caller unchanged): a declared language with no registered prior
+returns immediately, never a silent English guess. Unsupported languages
+return ONE typed gap (`no_pronoun_prior_for_language`) for the whole call,
+not one per sentence — S22's own denominator law, applied here: "never
+attempted" and "attempted and found nothing" must not share a bucket, so
+`regime.name` (`"unsupported_language"`, `resolvePronouns` only —
+`resolvePronounsByActivation` carries no `regime` block to extend, so its
+gap alone carries the same fact) cannot be misread as the other.
+
+**Unchanged, verified.** No existing caller (the-fold's `app.js`,
+`hypergraph.js`, `clearance.js`, `seg.js`) passes `language`, so every one
+gets the default and is byte-identical: the pre-existing 9/9
+`pronouns.test.js` cases pass unchanged, and a new case asserts
+`resolvePronouns` with `language` omitted deep-equals the same call with
+`language: "en"` declared. Four new cases cover the gate itself. Full
+native suite: 255 tests, 251 passing both before and after this change
+(the same 4 pre-existing failures — `construction.test.js`,
+`hypergraph.test.js`, `morphology-vocab.test.js`,
+`network-standing.test.js` — confirmed identical via `git stash`), zero
+regressions.
+
+**What this does not do.** No second language's pronoun table is added —
+there is nothing yet to register beyond `en`. The omnimodal-by-medium
+claim (S22) and the now-declared, still-English-only scope (this entry)
+answer two different questions; closing this one does not make pronoun
+resolution work in another language, it makes the fact that it does not
+a declared gap instead of an accident.
