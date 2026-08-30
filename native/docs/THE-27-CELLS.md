@@ -426,10 +426,11 @@ gaps is performable SOMEWHERE — never that any is performed correctly.
 Coherence is strictly weaker than correspondence: cells, stances and
 affordances are constrained only by coherence, productivity, and a named
 giver's declared risk, and only an ORACLE checks facts. Depth is the
-OTHER axis entirely — the MHC battery (P44) scores how high an ORDER of
-task the organs reach (stage 9 on War and Peace, stage 6 on Borodino,
-with a real order-7 pronoun ceiling), and pairing depth per cell is the
-map's own named future work. And most registry rows are typed pointers:
+OTHER axis entirely — the MHC battery (P44, since amended by P70) scores
+how high an ORDER of task the organs reach (stage 13 on War and Peace, no
+cap; stage 6 on Borodino, with a real order-7 pronoun ceiling — orders
+8–13 still pass above it, carried as observations), and pairing depth per
+cell is the map's own named future work. And most registry rows are typed pointers:
 two CAPACITIES execute live from the terminal (`cast` and `relations` —
 `cast` spans SIG·Figure and INS·Figure, so three cells carry an
 executing organ);
