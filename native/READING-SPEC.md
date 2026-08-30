@@ -1406,3 +1406,75 @@ was made, never that it is true — this repo's own S1 rule, "any claim about
 what 'the reader' does is measured against this assembly or names precisely
 which stages it lacks," applied to the gate that now watches every other
 rule.
+
+## S32 — Two anaphora-family capacities, kept out of the kernel's own language: NUL+CON for a declared-absent slot, SYN+CON for a GIVEN-affordance reference
+
+> **giver:** earned-here, user direction (2026-08-30: "be mindful of how to
+> make it universal as opposed to NL focused and leveraging the cube as
+> much as possible")
+
+**Generality:** specimen-scoped (disclosed; not claimed further — see below
+for exactly what is and is not covered)
+
+A theory document mapping the linguistic anaphora family onto the nine
+operators (external, not this repo's own — evaluated against this repo's
+measured operator semantics rather than assumed) named several capacities
+this reader does not yet have: a clause missing an expected argument
+(ellipsis) currently just fails to extract, silently, confirmed by reading
+`adapters/text/relations.js` — no gap-typing exists there; and a definite
+reference to something never individuated but implied by what has been
+(bridging — "I bought a car. The engine…") has nowhere to resolve at all.
+Both are real gaps. Neither needed a new statistic or a new licensing rule
+— both compose entirely out of organs this repo already has, proven
+general on their own terms before this pass ever touched them.
+
+**`kernel/completion.js`.** A caller-declared schema's closed role set
+(`expectedRoles`, never inferred) plus what one act actually filled
+(`filled`) types every unfilled-but-expected role as `EOSlotAbsence@1` —
+NUL·Figure, cube-derived (`cellOf("NUL","Figure")`), never hand-typed.
+Resolving the absence is CON·Figure — the *same* cell ordinary reference
+resolution already occupies (`memory/activation.js`'s own declared cell)
+— and is a thin wrapper around `kernel/contest.js`'s real `adjudicate`,
+already proven omnimodal by its own test suite. `completion.js` introduces
+zero new thresholds: `minActivation`/`minMargin`/`contestedMargin` are
+`adjudicate`'s own pre-existing, caller-declared parameters, passed
+through unchanged.
+
+**`kernel/affordance-reference.js`.** `kernel/hyperlexicon.js` is not a
+part-whole table read narrowly — it is a general relation-composition
+ledger, licensed only by a named giver (`giveHyperlexiconAffordance`),
+refusing mere observed adjacency (`admitHyperlexiconCandidates` stays at
+`standing: "candidate"` forever). "Car affords engine" is one more entry
+in that same ledger; nothing new was built to ask it that question.
+Minting the implied referent is SYN·Figure (an emergent particular, not
+directly stated); binding the bare reference to it is the same CON·Figure
+cell again. Ambiguity (two GIVEN affordances into the same key) is refused
+as a typed gap, never resolved to whichever was found first — the
+`.find()`-first-match failure shape both this repo's and the-fold's own
+postmortems already name, checked here before it could recur.
+
+**Why specimen-scoped, stated plainly rather than rounded up.** Both
+organs pass the strongest form of P71's first leg: the identical,
+unmodified kernel functions were run over two genuinely disjoint domains
+each — a musical elided-cadence schema (roman-numeral chord symbols) and
+an English VP-ellipsis schema for `completion.js`; an opaque
+`COMPONENT:*`-keyed circuit ontology and an English part-whole prior for
+`affordance-reference.js` — with zero branching on which. That is a real,
+structural fact about the mechanism: neither file imports or references
+anything English-shaped, checked by grep as well as by the tests passing.
+But P71's second leg (a real falsification case: material the discovery
+never saw, where the organ's absence visibly fails and its presence
+visibly succeeds) was not run, and neither organ is wired to any adapter
+or real consumer yet — `PRIOR-ART-INVENTORY.md`'s own honest category,
+"built, tested, unconsumed." Whether typing an absence as NUL actually
+improves a real reading over the silent-absence status quo, on real
+material, is a claim this pass does not make.
+
+**Files.** `kernel/completion.js`, `kernel/affordance-reference.js` (new,
+pure, organs injected — `adjudicate` and `hyperlexicon` respectively, the
+cast.js/return-curve.js pattern). `tests/completion.test.js` (10 cases),
+`tests/affordance-reference.test.js` (9 cases) — both include a cell-typing
+check against the real `cube.js::cellOf` (never hand-restated) and both
+close with an OMNIMODAL case immediately followed by an ADAPTER-SHAPED
+case exercising the identical unmodified code. Full suite: 346/346 before
+this pass, 365/365 after, zero regressions.
