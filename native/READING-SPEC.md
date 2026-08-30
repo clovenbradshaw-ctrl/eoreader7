@@ -1478,3 +1478,116 @@ check against the real `cube.js::cellOf` (never hand-restated) and both
 close with an OMNIMODAL case immediately followed by an ADAPTER-SHAPED
 case exercising the identical unmodified code. Full suite: 346/346 before
 this pass, 365/365 after, zero regressions.
+
+## S33 — Four more anaphora-family capacities: one shared adjudicator, four different candidate collectors, cells at three different grains
+
+> **giver:** earned-here, user direction (2026-08-30: "build those other
+> capacities")
+
+**Generality:** specimen-scoped (disclosed; not claimed further — same two
+legs of P71's bar unmet as S32, see below)
+
+S32 closed ellipsis and bridging. The same theory document named four more
+gaps: cataphora, quantifier-bound (donkey) anaphora, modal subordination,
+and tense-as-anaphora. All four compose out of organs this repo already
+has — three of them reuse `contest.js`'s real `adjudicate` a SECOND, THIRD,
+and FOURTH time (S32 was the first), which is the throughline worth
+stating plainly: one shared adjudication primitive, four capacities that
+each contribute only WHICH candidates are in play and at WHICH grain,
+never a competing scoring rule.
+
+**`kernel/pending-sig.js` — bounded cataphora.** Every organ in this repo is
+deliberately causal (READING-SPEC S3/S11: lookahead is not reading), so a
+forward-pointing SIG cannot be a general search — it is an explicit,
+BOUNDED wait: `openSig({id, at, expiresAt, matches})` stays open only until
+a caller-declared `expiresAt` on the caller's own clock, `checkArrival`
+resolves it the moment a caller-declared `matches` predicate is satisfied
+or types an honest `expired` gap if the bound passes first. No adjudicator
+composed here at all — there is exactly one thing being waited for, never
+several competing candidates, so contest.js's margin machinery has nothing
+to adjudicate. SIG·Figure opens it, CON·Figure closes it — the same
+resolution cell every other capacity in this family lands on.
+
+**`kernel/scoped-kind.js` — quantifier-bound (donkey) anaphora, via the
+cube's own Pattern grain.** "Every farmer who owns a donkey beats it" has
+no single donkey for "it" to name — each farmer's own. Ordinary CON always
+lands at Figure grain (one particular); the cube already has the cell for
+"a pattern, not an instance" (Existence·Pattern, Kind), so this file mints
+the bound variable there instead of inventing a fourth existence category:
+`mintScopedKind({id, at, scope, key})` is SYN·Pattern (Composing), `scope`
+a caller-declared opaque id naming the quantifier's own extent (never
+inferred), and `resolveInScope` is CON·Pattern — the SAME terrain the mint
+landed on, restricted by construction to candidates sharing the reference's
+own scope, adjudicated via `contest.js::adjudicate` exactly like S32's two
+capacities.
+
+**`kernel/holder-scope.js` — modal subordination, generalizing a pattern
+this repo already had, just not at the kernel level.**
+`adapters/text/perspective-claims.js`'s own header already states the
+mechanism in prose, for one medium's one boundary: "bindNarrationFrames
+runs the organ inside one teller's stretch at a time... P1's
+never-carry-a-window rule, one level in." Modal subordination ("A wolf
+might come in. It would eat you first.") is the identical question at a
+different boundary — a hypothesis's own establishments, not a narrator's.
+`kernel/perspective.js`'s `holder` is already open, caller-declared, and
+medium-blind by its own header, so a hypothesis is just one more holder,
+the same way a narrator already is. `accessibleHolders` walks a
+caller-declared accessibility graph (never inferred — no nesting, no
+modality, no narrative structure computed here); `admissibleUnder`
+produces exactly the predicate shape `adjudicate`'s own `admissible`
+parameter already expects; `resolveUnderHolder` composes it with a
+caller's own filter (gender, etc.) by ANDing rather than overriding, so
+which filter did the refusing stays visible. `perspective.js::READER` is
+re-exported rather than restated, the same discipline `cube.js::cellOf`
+already gets everywhere else in this family.
+
+**`kernel/temporal-reference.js` — tense-as-anaphora (Partee), and the one
+real bug this pass's own tests caught.** A time is individuated exactly
+like any other particular (INS·Figure — Entity means "any individuated
+particular," not "person or object"); the narrative's own current
+reference ground — what a bare past tense currently points to — is
+Interpretation·Ground: Atmosphere, "present interpretive ground" in this
+kernel's own `terrain-activation.js` header, not a stretch but a direct
+reuse of a cell already named for exactly this. Advancing it is REC·Ground,
+mirroring `perspective.js`'s own REC discipline field for field (`supersedes`
+names what was re-zeroed, kept, never erased). Resolution is deterministic
+with exactly one live candidate (not a default — the only possible answer)
+and routed to the real `adjudicate` with more than one, which itself
+refuses to run without the caller's declared bars — so genuine ambiguity
+can never silently fall back to "most recent."
+
+**The bug, found by running it, not by re-reading it (P5.5 again).** The
+first cut of `candidateGrounds` filtered only by `at <= sigAt` — so once a
+ground was superseded ANYWHERE in the list, it read as excluded even at a
+`sigAt` BEFORE the superseding ground had itself happened, and separately,
+an ordinary two-step linear narrative (g1 then g2 superseding it) still
+surfaced BOTH as live candidates at any point after g2, wrongly demanding
+adjudication for a case with no real ambiguity at all — the OMNIMODAL and
+ADAPTER-SHAPED tests both caught this on first run, not a re-read. Fixed by
+excluding a ground only once its OWN superseding ground has itself happened
+by `sigAt` — a supersession that hasn't occurred yet at this point in the
+narrative does not retroactively un-happen the ground it will later retire.
+Two genuinely independent threads (neither's `from` pointing at the other —
+a real flashback, not a retired link) correctly stay separate candidates
+throughout, confirmed by a dedicated case pinned as a regression.
+
+**Why specimen-scoped, the same two unmet legs S32 named.** All four pass
+the cross-domain leg the same way S32's two did: the identical, unmodified
+kernel functions run correctly over a genuinely non-linguistic domain
+(a protocol ACK trace; per-batch manufacturing anomalies; a conditional
+plan-branch; sensor calibration events) and an English one, zero branching
+on which. None introduce a new threshold (all four compose entirely with
+`adjudicate`'s own pre-existing, caller-declared parameters, or need none
+at all). But no falsification/necessity case was run on any of the four,
+and none is wired to a real adapter or consumer — `PRIOR-ART-INVENTORY.md`'s
+own honest category again.
+
+**Files.** `kernel/pending-sig.js`, `kernel/scoped-kind.js`,
+`kernel/holder-scope.js`, `kernel/temporal-reference.js` (new, pure, organs
+injected). `tests/pending-sig.test.js` (9 cases), `tests/scoped-kind.test.js`
+(8 cases), `tests/holder-scope.test.js` (10 cases),
+`tests/temporal-reference.test.js` (9 cases) — all four include a
+cell-typing check against the real `cube.js::cellOf` and close with an
+OMNIMODAL case immediately followed by an ADAPTER-SHAPED case over the
+identical unmodified code. Full suite: 365/365 before this pass, 401/401
+after, zero regressions.
