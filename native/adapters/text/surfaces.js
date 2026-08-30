@@ -192,7 +192,34 @@ export const createSurfaceEvidence = () => ({
 export const accumulateSurfaceEvidence = (sentences, evidence) => {
   const { capCounts, lowerCounts, sentenceIndex } = evidence;
   for (const sent of sentences) {
-    const toks = sent.text.split(/\s+/).map((t) => t.replace(/^[^\p{L}]+|[^\p{L}'’]+$/gu, "")).filter(Boolean);
+    // Split first, strip second, but keep what stripping discarded: whether
+    // punctuation sat directly against a token's own edge, no whitespace
+    // between. split(/\s+/) already separates "Пьера," from "Анна" into two
+    // array elements, but stripping the comma off "Пьера," leaves nothing
+    // downstream to tell a bare comma-then-capital apart from an ordinary
+    // multi-word name's own internal space — so the run-walker below used to
+    // glue them into one candidate. Found on real fetched Война и мир prose
+    // ("Пьера, Анна Павловна" — an abbé-and-Pierre aside, then a NEW
+    // subject — became the 3-token run "Пьера Анна Павловна"), then
+    // confirmed general, not script-specific, by reproducing the identical
+    // shape in English ("Pierre, Anna Pavlovna" -> "Pierre Anna Pavlovna").
+    const rawToks = sent.text.split(/\s+/);
+    const toks = [];
+    const leadingJunk = [];
+    const trailingJunk = [];
+    for (const raw of rawToks) {
+      const stripped = raw.replace(/^[^\p{L}]+|[^\p{L}'’]+$/gu, "");
+      if (!stripped) continue;
+      toks.push(stripped);
+      leadingJunk.push(/^[^\p{L}]/u.test(raw));
+      trailingJunk.push(/[^\p{L}'’]$/u.test(raw));
+    }
+    // A hard boundary sits between toks[k] and toks[k+1] when punctuation was
+    // glued directly to either side (a comma, colon, dash, or closing quote
+    // trailing toks[k]; an opening quote or dash leading toks[k+1]) — plain
+    // whitespace, with nothing else, is the only separator a multi-word NAME
+    // run may cross.
+    const hardBreakAfter = toks.map((_, k) => trailingJunk[k] || (leadingJunk[k + 1] ?? false));
     // A unit set entirely in capitals is a heading or a running head, and every
     // token in it is capitalised by typography. Reading capitalisation as
     // evidence here is the sentence-initial mistake at unit scale — on Process
@@ -211,7 +238,7 @@ export const accumulateSurfaceEvidence = (sentences, evidence) => {
     while (i < toks.length) {
       if (!CAP_TOKEN.test(toks[i])) { i++; continue; }
       let j = i;
-      while (j < toks.length && CAP_TOKEN.test(toks[j])) j++;
+      while (j < toks.length && CAP_TOKEN.test(toks[j]) && (j === i || !hardBreakAfter[j - 1])) j++;
       const run = toks.slice(i, j);
       // An all-caps run inside an otherwise mixed-case unit is the same
       // typography as an all-caps unit — a part title quoted mid-paragraph.

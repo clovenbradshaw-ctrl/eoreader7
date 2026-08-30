@@ -1688,3 +1688,94 @@ byte-identical pin). Full suite: 371/361/10 before this entry, 376/366/10
 after — the same 10 pre-existing failures this environment already
 carries (the uninitialised `legacy-eoreader6.1` submodule), zero
 regressions.
+
+## S35 — a comma glued to a name's own trailing edge was read as a run continuation, gluing two subjects into one surface
+
+> **giver:** earned-here, found aligning the-fold's own three-language War
+> and Peace excerpts to the same narrative span and diffing their EOT
+> readings (2026-08-30)
+
+**Generality:** universal (evidence: the identical, unmodified fix closes
+the defect on the real Cyrillic specimen it was found on AND on a
+constructed English specimen sharing nothing but the punctuation shape —
+unrelated script, same mechanism; and the fix is the SAME category of
+punctuation-adjacency rule this file has now independently earned three
+times over — the pipe fix (S18/P38, `extractSurfaces` run-breaking
+punctuation) and the bracket fix (P50, `\p{Ps}`/`\p{Pe}` as a Unicode
+category rather than an enumeration) both closed a hard-break gap by
+naming the GLYPH CLASS that breaks a run rather than the specimen that
+exposed it; this is the third glyph, not a new mechanism)
+
+**The measured defect.** Aligning the three War and Peace excerpts
+(English/Russian/French, Part One Chapters I–III, matched by narrative
+content rather than chapter number — see the alignment note below) and
+reading each through `extractSurfaces` surfaced a single spurious
+3-token surface in the Russian excerpt: "Пьера Анна Павловна" — Prince
+Vasíli's aside about Pierre ("...Пьера..."), a comma, then the scene's
+central subject newly introduced ("Анна Павловна"). The comma sits
+directly against "Пьера"'s own trailing edge with no space before the
+next capitalised token, and the run-walker in
+`accumulateSurfaceEvidence` crossed straight over it, reading three
+tokens separated only by `split(/\s+/)`'s own whitespace boundaries as
+one continuous capitalised run. Reproduced identically on constructed
+English prose sharing only the punctuation shape ("Pierre, Anna
+Pavlovna" → the same spurious glued "Pierre Anna Pavlovna") before the
+fix was written, confirming the defect was general rather than a
+Cyrillic-specific parsing accident.
+
+**The real cause.** `accumulateSurfaceEvidence` split each sentence on
+`/\s+/` and then stripped leading/trailing punctuation from each token
+independently, discarding — with nothing downstream to recover it —
+whether that punctuation had sat flush against the token's own edge (no
+intervening space) or separated by whitespace from a genuine token
+boundary. A multi-word name's own internal space and a comma-then-name
+clause boundary look identical once the punctuation is stripped and the
+information about its adjacency is gone.
+
+**The fix.** The token walk now keeps, per token, whether punctuation was
+glued to its LEADING or TRAILING edge (`leadingJunk`/`trailingJunk`,
+tested against the raw pre-strip token) and derives a `hardBreakAfter`
+boundary between two adjacent tokens whenever punctuation trailed the
+first or led the second — plain whitespace with nothing else is the only
+separator a name run may still cross. The capitalised-run walker consults
+this boundary before extending a run past `toks[j-1]`, exactly the way
+the pipe fix (S18) and bracket fix (P50) each added their own boundary
+rule to the same class of run-detection logic elsewhere in this repo's
+lineage. A regression control (plain whitespace between two capitalised
+tokens, no punctuation anywhere) confirms the fix is a hard-break ADDITION
+and not a general tightening — ordinary multi-word names still extract
+and merge as one candidate, unchanged.
+
+**Measured after the fix.** Re-run on the real Russian specimen: the
+spurious "Пьера Анна Павловна" surface no longer extracts; "Анна
+Павловна" and "Пьера" (separately) still do. The constructed English
+control: "Pierre Anna" and "Pierre Anna Pavlovna" no longer extract;
+"Pierre" and "Anna Pavlovna" still do, and remain two distinct,
+never-merged referents through `discoverReferents`.
+
+**Disclosed, not fixed by this pass:** this closes ONE identified cause
+of referent fragmentation surfaced by the aligned three-language
+comparison. A second, independent cause — `genericTokens`'s
+IQR-derived partner fence being sensitive to how many distinct
+multi-word surfaces a given excerpt happens to contain, which can make
+the identical name-and-title pair generic in a shorter excerpt and not
+in a longer one of the same material — was found while re-testing after
+this fix and is recorded, deliberately unfixed, in the-fold's own
+`POLICIES.md` (the aligned-reading finding) rather than patched here:
+tuning `deriveMinPartners`'s formula against this one specimen would be
+exactly the "never tune a parameter by checking what it does to a
+golden's own score" mistake this repo's own standing rule already
+forbids.
+
+**Files.** `adapters/text/surfaces.js` (`accumulateSurfaceEvidence`'s
+`leadingJunk`/`trailingJunk`/`hardBreakAfter` tracking; its own header
+comment carries the same account). `tests/rich-referents.test.js` (2 new
+cases: the comma-glued specimen, both at the surface level and through
+`discoverReferents`; the plain-whitespace regression control). Full
+suite: 379 tests / 368 passing / 11 failing before and after this
+entry's two new cases — 381/370/11 — failure names diffed via
+`git stash` rather than counted: byte-identical, zero regressions. The
+11 are this environment's own pre-existing set (the uninitialised
+`legacy-eoreader6.1` submodule and its dependents), one more than S34's
+own 10 because later work between S34 and this entry added a test file
+this environment cannot load either.
