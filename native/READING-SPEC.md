@@ -1316,3 +1316,93 @@ pass by coincidence — 359 cases total, up from 357).
 
 Suites: eoreader7 native 359/359 (357 + 2, zero regressions — confirmed
 by running the full pre-existing suite unchanged before and after).
+
+## S31 — A capability claim and a specimen-shaped fix read identically until a third corpus is asked
+
+> **giver:** earned-here, user direction (2026-08-29)
+
+**Generality:** not-applicable — this entry is the discipline itself, not a
+claim about a reading mechanism's reach.
+
+the-fold's POLICIES.md P71 is the paired law; this entry states the same
+discipline in this repo's own register, because the failure it names has
+already happened on both sides of the fold/native split, not because the
+text needs duplicating.
+
+This repo's own history already contains every piece of the gate, each
+earned once, in isolation, by a different pass, then left to be re-earned
+the next time a different organ needed the same question asked of it. S16's
+prior→material ladder tells a structural floor from an empirical dial but
+says nothing about VERIFYING that a new dial belongs on one side rather
+than the other. S24 reverted "a blanket algorithmic generalisation across
+scripts... on the ground that a silent claim of cross-script generality is
+a more severe failure than a disclosed narrow scope" — this gate's second
+leg, stated for one organ. S28's "what is the one thing this widening must
+never do" is this gate's third leg, stated for capture width alone. S30's
+own `collapseWs` finding is a fourth, independent instance of the same
+question, arriving in this document one entry ahead of this one: a fix
+scoped to the prose registers it was actually measured on, with the
+register-dependence of the underlying claim named rather than assumed away
+("whether 'this line break is incidental' holds for a given document is a
+REGISTER classification... a real, undecided design question rather than
+something a bug fix gets to settle by assumption"). None of these four was
+ever made a standing, checked requirement on every future entry — each was
+earned, then left to be re-earned.
+
+**The gate.** A finding earns `universal` here only once: (1) the
+mechanism, unmodified, has been re-run over a second corpus sharing its
+structural shape and nothing else — the-fold's `eval/grain-refinement.mjs`
+is the reference, one 68-line, zero-domain-word core reaching 1.000
+precision on both real Wikidata succession and an invented, unrelated
+hospital-bed corpus; (2) every threshold or list it introduces names an
+external giver or is a structural floor derived from the mechanism's own
+shape, per `eval/results/meta-parameters-INVENTORY.md`'s own rule — "a
+structural floor is a theorem about the mechanism, not a model of the
+material, and turning it into a learned dial would be un-earning it" — read
+in the other direction: a MODEL of the material dressed as a theorem about
+the mechanism is the same error, inverted; (3) a case built from material
+the discovery never saw shows the fix's absence actually failing and its
+presence actually succeeding — the-fold's `eval/falsification-probe.mjs` is
+the reference, six corpora with ground truth declared before the run,
+because a five-fact succession chain and a five-fact dominance chain are
+structurally identical by construction and opposite in truth.
+
+**The direction this repo must not get wrong while building the gate that
+watches for it.** A mechanism performing differently across two materials
+has not necessarily failed to generalize. S24's own caseless-script gap is
+not a lower score — it is the mechanism correctly reporting that it cannot
+fire on this material at all, a disclosed boundary rather than a violation.
+S30's own `collapseWs` fix draws the same line without naming it as such:
+the FUNCTION is universal string arithmetic (leg 2's structural floor,
+`\s+`, no giver needed beyond Unicode's own whitespace class), while the
+CLAIM that licenses using it here — line breaks inside a captured span are
+never content — is explicitly disclosed as register-dependent and untested
+outside the registers it was measured on, which is `specimen-scoped`
+stated honestly rather than `universal` claimed by accident. The-fold's own
+MHC content-independence check made the opposite mistake once, reading an
+ordinary performance difference as a scale violation before correcting
+itself to keep "violation," "performance difference," and "no probe"
+apart. Every dial in `meta-parameters-INVENTORY.md` stays honest only if a
+future library's material disagreeing with one is read as "this dial needs
+a genre prior for this genre," not as "the mechanism was never general" —
+this gate exists to keep those two readings from being swapped for each
+other.
+
+**The tag.** Every `## S<N>` entry from S31 onward carries
+`**Generality:** universal (evidence: ...)` /
+`specimen-scoped (disclosed; not claimed further)` /
+`not-applicable (names why)` — the identical three-way vocabulary the-fold's
+P71 uses, deliberately shared rather than independently invented, because a
+fix crossing the fold/native boundary must not need translating between two
+disclosure languages depending which repo's law document is open.
+
+**Enforced.** `native/conformance/reading-spec.test.mjs` gained the S26–S30
+entries its own S8 test had silently fallen behind on — found while
+extending it: the section list stopped at S25 while the spec had already
+reached S30, five real sections the suite was not actually checking
+existed — and a new case scanning every `## S<N>` header at N ≥ 31 for the
+tag. Like the-fold's own enforcement, this checks that the classification
+was made, never that it is true — this repo's own S1 rule, "any claim about
+what 'the reader' does is measured against this assembly or names precisely
+which stages it lacks," applied to the gate that now watches every other
+rule.
