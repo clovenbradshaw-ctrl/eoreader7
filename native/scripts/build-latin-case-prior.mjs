@@ -25,7 +25,11 @@
 import { readFileSync, writeFileSync } from "node:fs";
 
 const IN = process.argv[2] ?? "native/eval/fixtures/ud-latin-perseus/la_perseus-ud-train.conllu";
-const OUT = process.argv[3] ?? "native/priors/case-marking-lat.json";
+// Moved to live_priors 2026-08-30 (act-priors' own precedent: "a received
+// lexicon is content, not app logic, so it lives with the corpus") — the
+// default OUT now names the canonical home directly rather than a local
+// copy this repo would otherwise have to remember to re-sync by hand.
+const OUT = process.argv[3] ?? "../live_priors/derived-priors/case-priors/case-marking-lat.json";
 
 const NOMINAL_UPOS = new Set(["NOUN", "PROPN", "ADJ", "PRON", "NUM"]);
 const CASE_ENDING_LEN = 2;

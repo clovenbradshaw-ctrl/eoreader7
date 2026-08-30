@@ -3,7 +3,8 @@
 `relations-case-marked.js`'s full pipeline (raw sentence in, `{end1, label,
 end2}` out) run against 380 held-out UD_Latin-Perseus TEST sentences
 (`native/eval/fixtures/ud-latin-perseus/la_perseus-ud-test.conllu`, never used
-to build `native/priors/case-marking-lat.json`), restricted to single-finite-
+to build `live_priors/derived-priors/case-priors/case-marking-lat.json`
+— moved there 2026-08-30, act-priors' own precedent), restricted to single-finite-
 verb clauses (559 of 939 test sentences skipped — multi-clause sentences need
 clause segmentation this organ does not attempt, named rather than silently
 included and scored wrong). Reproduce with:

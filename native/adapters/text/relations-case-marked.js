@@ -27,8 +27,10 @@
 // at all) and a real, receivable case-ending system, so the mechanism can
 // be built and measured rather than argued.
 //
-// THE PRIOR IS MEASURED, NOT TYPED IN. `native/priors/case-marking-lat.json`
-// (`LatinCasePrior@1`) is built from UD_Latin-Perseus (Perseus Digital
+// THE PRIOR IS MEASURED, NOT TYPED IN. `live_priors/derived-priors/
+// case-priors/case-marking-lat.json` (`LatinCasePrior@1` — moved there
+// 2026-08-30, a received lexicon is content, not app logic, act-priors'
+// own precedent) is built from UD_Latin-Perseus (Perseus Digital
 // Library texts — Cicero, Ovid, the same classical register already in
 // live_priors — CC BY-NC-SA 2.5, giver named, non-commercial noted
 // plainly rather than glossed over) by `scripts/build-latin-case-prior.mjs`:
@@ -118,10 +120,20 @@ const HERE = path.dirname(fileURLToPath(import.meta.url));
 // Loaded once, lazily -- callers that never touch Latin material pay
 // nothing. Injectable via `casePrior` for tests and for a future second
 // case-marking language sharing this organ's mechanism with its own prior.
+//
+// THE FILE LIVES IN live_priors, NOT HERE (moved 2026-08-30, act-priors'
+// own precedent: "a received lexicon is content, not app logic, so it
+// lives with the corpus" — live_priors/derived-priors/case-priors/README.md
+// carries the full provenance). This module still owns the CODE that
+// reads it, the same repo split phasepost.js already holds for
+// ActPrior@1: engine organs live here, the data they receive lives with
+// the corpus that received it.
 let _defaultPrior = null;
 export function defaultLatinCasePrior() {
   if (!_defaultPrior) {
-    _defaultPrior = JSON.parse(readFileSync(path.join(HERE, "..", "..", "priors", "case-marking-lat.json"), "utf8"));
+    _defaultPrior = JSON.parse(
+      readFileSync(path.join(HERE, "..", "..", "..", "..", "live_priors", "derived-priors", "case-priors", "case-marking-lat.json"), "utf8"),
+    );
   }
   return _defaultPrior;
 }

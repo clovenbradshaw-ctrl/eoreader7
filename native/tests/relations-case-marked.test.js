@@ -1,6 +1,8 @@
 // native/tests/relations-case-marked.test.js — the case-marking organ,
-// against real prior data (native/priors/case-marking-lat.json, built
-// from real UD_Latin-Perseus sentences). The full measured validation
+// against real prior data (live_priors/derived-priors/case-priors/
+// case-marking-lat.json, built from real UD_Latin-Perseus sentences —
+// moved there 2026-08-30, act-priors' own precedent). The full measured
+// validation
 // against held-out gold sentences lives in
 // native/eval/latin-case-marking-eval.mjs + its RESULTS.md — this file
 // is fast conformance: the mechanism's own declared behaviors, each

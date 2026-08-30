@@ -1573,3 +1573,26 @@ latin-case-marking-eval.mjs`. `native/tests/relations-case-marked.test.js`
 (10 cases) pins the VOS specimen, the shape (`end1`/`label`/`end2`,
 never `subject`/`verb`/`object`), every disclosed gap type, and the
 weak-ending/preposition fixes as regressions.
+
+**Amended 2026-08-30 — the prior moved to live_priors.** `LatinCasePrior@1`
+is a received measurement of an external resource (UD_Latin-Perseus),
+independent of any specific text — the same standing `act-priors/
+act-prior-en.json` (VerbNet) already holds, and that precedent's own
+stated rule applies unchanged: *"a received lexicon is content, not app
+logic, so it lives with the corpus."* The file now lives at
+`live_priors/derived-priors/case-priors/case-marking-lat.json` (full
+provenance restated there); `defaultLatinCasePrior()` loads it via the
+same cross-repo relative path `native/tests/phasepost.test.mjs` already
+established for `act-priors`. The raw treebank (train/test CoNLL-U,
+license, README) stays vendored here as an eval fixture — it is test
+material this pass reads FROM, not itself a corpus document this repo
+holds — and `build-latin-case-prior.mjs`'s own default output path was
+updated to write directly to the new canonical home. Verified
+byte-identical: all 10 `relations-case-marked.test.js` cases and the
+eval driver's own precision/recall numbers (0.26/0.08 end1, 0.33/0.12
+end2 against gold) reproduce unchanged from the new location; full
+native suite unaffected (320/331 passing, the same 11 pre-existing
+failures by name, before and after).
+
+**Generality:** not-applicable (a provenance/placement decision, not a
+reading-behavior claim).
