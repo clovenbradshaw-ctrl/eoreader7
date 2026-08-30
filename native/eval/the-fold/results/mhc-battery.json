@@ -2,7 +2,7 @@
   "engine": "eoreader7 (native/adapters/text)",
   "draws": 20,
   "heavyDraws": 5,
-  "workingPassages": 40,
+  "workingPassages": 70,
   "seed": 0,
   "passageChars": 1200,
   "runs": [
@@ -52,7 +52,7 @@
             ],
             "name": "a name denotes a being the material establishes",
             "status": "passed",
-            "detail": "\"Rostovs\" resolves (1); \"Zzyrflax Quenbourne\" does not (0); gathered 24/24 pairs its own individuation rule calls one being; kept apart 4/4 it withholds on",
+            "detail": "\"Rostovs\" resolves (1); \"Zzyrflax Quenbourne\" does not (0); gathered 34/34 pairs its own individuation rule calls one being; kept apart 5/5 it withholds on",
             "arms": {
               "lowerOrder": {
                 "completed": false,
@@ -133,7 +133,7 @@
             ],
             "name": "a sequence coordinated across sentences: a pronoun bound to what was read before it",
             "status": "passed",
-            "detail": "9 pronoun(s) bound, 38 refused (pronoun_no_candidate, pronoun_no_margin), 0 bound to an unadmitted referent",
+            "detail": "9 pronoun(s) bound, 39 refused (pronoun_no_candidate, pronoun_no_margin), 0 bound to an unadmitted referent",
             "arms": {
               "lowerOrder": {
                 "completed": false,
@@ -183,10 +183,10 @@
               },
               "arbitrary": {
                 "completed": false,
-                "detail": "accomplished the task in 0 of 20 seeded re-coordinations",
+                "detail": "exact P(a uniform redeal reproduces this triple) = 0.0058 over n=692 edges, K=4 sharing the subject, m=1 sharing the verb+object — below alpha 0.05, so the true match is not explained by chance alone",
                 "unreachable": false,
                 "perturbed": true,
-                "draws": 20,
+                "draws": 1,
                 "fired": 0
               },
               "discrimination": {
@@ -221,10 +221,10 @@
               },
               "arbitrary": {
                 "completed": false,
-                "detail": "accomplished the task in 0 of 20 seeded re-coordinations",
+                "detail": "exact P(an arbitrary redeal hands this specimen a count clearing the witness floor) = 0.0145 (10 of 692 edges in this reading already clear it) — below alpha 0.05, so clearing it is not explained by chance alone",
                 "unreachable": false,
                 "perturbed": true,
-                "draws": 20,
+                "draws": 1,
                 "fired": 0
               },
               "discrimination": {
@@ -246,14 +246,29 @@
               "typed, directional relation"
             ],
             "name": "a variable quantified over a category: the whole filler set of an open slot",
-            "status": "unmeasured",
-            "reason": "organ_unreachable",
-            "detail": "lowerOrder arm could not run: this material offers no subject+verb slot with two or more distinct fillers",
+            "status": "passed",
+            "detail": "\"Peace at __\" ranges over 2 filler(s); an absent subject ranges over 0",
             "arms": {
               "lowerOrder": {
                 "completed": false,
-                "detail": "this material offers no subject+verb slot with two or more distinct fillers",
-                "unreachable": true,
+                "detail": "the open slot withheld; only instance-level claim checking available",
+                "unreachable": false,
+                "perturbed": true,
+                "draws": 1,
+                "fired": 0
+              },
+              "arbitrary": {
+                "completed": false,
+                "detail": "accomplished the task in 0 of 20 seeded re-coordinations",
+                "unreachable": false,
+                "perturbed": true,
+                "draws": 20,
+                "fired": 0
+              },
+              "discrimination": {
+                "completed": false,
+                "detail": "the same slot queried against different content (borodino) must not return the same range",
+                "unreachable": false,
                 "perturbed": true,
                 "draws": 1,
                 "fired": 0
@@ -270,7 +285,7 @@
             ],
             "name": "one hypothesis tested against a constructed null: is this edge's connector asserted, or an artefact",
             "status": "passed",
-            "detail": "491/491 edges carry a standing — 8 corroborated, 483 single-witness",
+            "detail": "692/692 edges carry a standing — 14 corroborated, 678 single-witness",
             "arms": {
               "lowerOrder": {
                 "completed": false,
@@ -282,10 +297,10 @@
               },
               "arbitrary": {
                 "completed": false,
-                "detail": "accomplished the task in 0 of 5 seeded re-coordinations",
+                "detail": "exact P(an arbitrary same-size redeal of the \"corroborated\" label lands entirely on genuine floor-clearers) = 1.72e-29 (14 of 692 edges genuinely clear the floor; 14 carry the label) — below alpha 0.05, so the real derivation is not explained by chance",
                 "unreachable": false,
                 "perturbed": true,
-                "draws": 5,
+                "draws": 1,
                 "fired": 0
               },
               "discrimination": {
@@ -395,7 +410,7 @@
                 ],
                 "name": "a name denotes a being the material establishes",
                 "status": "passed",
-                "detail": "\"Rostovs\" resolves (1); \"Zzyrflax Quenbourne\" does not (0); gathered 24/24 pairs its own individuation rule calls one being; kept apart 4/4 it withholds on",
+                "detail": "\"Rostovs\" resolves (1); \"Zzyrflax Quenbourne\" does not (0); gathered 34/34 pairs its own individuation rule calls one being; kept apart 5/5 it withholds on",
                 "arms": {
                   "lowerOrder": {
                     "completed": false,
@@ -496,7 +511,7 @@
                 ],
                 "name": "a sequence coordinated across sentences: a pronoun bound to what was read before it",
                 "status": "passed",
-                "detail": "9 pronoun(s) bound, 38 refused (pronoun_no_candidate, pronoun_no_margin), 0 bound to an unadmitted referent",
+                "detail": "9 pronoun(s) bound, 39 refused (pronoun_no_candidate, pronoun_no_margin), 0 bound to an unadmitted referent",
                 "arms": {
                   "lowerOrder": {
                     "completed": false,
@@ -556,10 +571,10 @@
                   },
                   "arbitrary": {
                     "completed": false,
-                    "detail": "accomplished the task in 0 of 20 seeded re-coordinations",
+                    "detail": "exact P(a uniform redeal reproduces this triple) = 0.0058 over n=692 edges, K=4 sharing the subject, m=1 sharing the verb+object — below alpha 0.05, so the true match is not explained by chance alone",
                     "unreachable": false,
                     "perturbed": true,
-                    "draws": 20,
+                    "draws": 1,
                     "fired": 0
                   },
                   "discrimination": {
@@ -604,10 +619,10 @@
                   },
                   "arbitrary": {
                     "completed": false,
-                    "detail": "accomplished the task in 0 of 20 seeded re-coordinations",
+                    "detail": "exact P(an arbitrary redeal hands this specimen a count clearing the witness floor) = 0.0145 (10 of 692 edges in this reading already clear it) — below alpha 0.05, so clearing it is not explained by chance alone",
                     "unreachable": false,
                     "perturbed": true,
-                    "draws": 20,
+                    "draws": 1,
                     "fired": 0
                   },
                   "discrimination": {
@@ -628,7 +643,7 @@
           {
             "order": 10,
             "name": "Abstract",
-            "status": "unmeasured",
+            "status": "passed",
             "items": [
               {
                 "id": "o10-abstract",
@@ -639,14 +654,29 @@
                   "typed, directional relation"
                 ],
                 "name": "a variable quantified over a category: the whole filler set of an open slot",
-                "status": "unmeasured",
-                "reason": "organ_unreachable",
-                "detail": "lowerOrder arm could not run: this material offers no subject+verb slot with two or more distinct fillers",
+                "status": "passed",
+                "detail": "\"Peace at __\" ranges over 2 filler(s); an absent subject ranges over 0",
                 "arms": {
                   "lowerOrder": {
                     "completed": false,
-                    "detail": "this material offers no subject+verb slot with two or more distinct fillers",
-                    "unreachable": true,
+                    "detail": "the open slot withheld; only instance-level claim checking available",
+                    "unreachable": false,
+                    "perturbed": true,
+                    "draws": 1,
+                    "fired": 0
+                  },
+                  "arbitrary": {
+                    "completed": false,
+                    "detail": "accomplished the task in 0 of 20 seeded re-coordinations",
+                    "unreachable": false,
+                    "perturbed": true,
+                    "draws": 20,
+                    "fired": 0
+                  },
+                  "discrimination": {
+                    "completed": false,
+                    "detail": "the same slot queried against different content (borodino) must not return the same range",
+                    "unreachable": false,
                     "perturbed": true,
                     "draws": 1,
                     "fired": 0
@@ -656,7 +686,7 @@
             ],
             "failedCount": 0,
             "refusedCount": 0,
-            "unmeasuredCount": 1
+            "unmeasuredCount": 0
           },
           {
             "order": 11,
@@ -673,7 +703,7 @@
                 ],
                 "name": "one hypothesis tested against a constructed null: is this edge's connector asserted, or an artefact",
                 "status": "passed",
-                "detail": "491/491 edges carry a standing — 8 corroborated, 483 single-witness",
+                "detail": "692/692 edges carry a standing — 14 corroborated, 678 single-witness",
                 "arms": {
                   "lowerOrder": {
                     "completed": false,
@@ -685,10 +715,10 @@
                   },
                   "arbitrary": {
                     "completed": false,
-                    "detail": "accomplished the task in 0 of 5 seeded re-coordinations",
+                    "detail": "exact P(an arbitrary same-size redeal of the \"corroborated\" label lands entirely on genuine floor-clearers) = 1.72e-29 (14 of 692 edges genuinely clear the floor; 14 carry the label) — below alpha 0.05, so the real derivation is not explained by chance",
                     "unreachable": false,
                     "perturbed": true,
-                    "draws": 5,
+                    "draws": 1,
                     "fired": 0
                   },
                   "discrimination": {
@@ -807,36 +837,23 @@
         ]
       },
       "stage": {
-        "stage": 9,
-        "stageName": "Concrete",
+        "stage": 13,
+        "stageName": "Metasystematic",
         "cappedBy": {
-          "order": 10,
-          "status": "unmeasured",
-          "detail": "order 10 (Abstract) is UNMEASURED (organ_unreachable) — no stage may be read across it"
+          "order": 14,
+          "status": "no_item_declared",
+          "detail": "the battery declares no item at order 14"
         },
         "ceilingIsReal": false,
-        "isolated": [
-          {
-            "order": 11,
-            "name": "Formal"
-          },
-          {
-            "order": 12,
-            "name": "Systematic"
-          },
-          {
-            "order": 13,
-            "name": "Metasystematic"
-          }
-        ]
+        "isolated": []
       },
       "coref": {
-        "shouldMerge": 24,
-        "didMerge": 24,
+        "shouldMerge": 34,
+        "didMerge": 34,
         "stranded": [],
-        "shouldWithhold": 4,
+        "shouldWithhold": 5,
         "wronglyMerged": [],
-        "abstained": 27
+        "abstained": 44
       },
       "specimen": {
         "subject": "Nikolai",
@@ -890,7 +907,7 @@
             ],
             "name": "a name denotes a being the material establishes",
             "status": "passed",
-            "detail": "\"Kolocha\" resolves (1); \"Zzyrflax Quenbourne\" does not (0); gathered 12/12 pairs its own individuation rule calls one being; kept apart 3/3 it withholds on",
+            "detail": "\"Kolocha\" resolves (1); \"Zzyrflax Quenbourne\" does not (0); gathered 22/22 pairs its own individuation rule calls one being; kept apart 9/9 it withholds on",
             "arms": {
               "lowerOrder": {
                 "completed": false,
@@ -930,7 +947,7 @@
             ],
             "name": "a directed relation inside one sentence: who did what to whom, in order",
             "status": "passed",
-            "detail": "\"Kutuzov —ordered→ Yermolov\" is stated (1); its reverse is not (0)",
+            "detail": "\"Borodino —panorama→ by Franz Roubaud\" is stated (1); its reverse is not (0)",
             "arms": {
               "lowerOrder": {
                 "completed": false,
@@ -971,7 +988,7 @@
             ],
             "name": "a sequence coordinated across sentences: a pronoun bound to what was read before it",
             "status": "failed",
-            "detail": "0 pronoun(s) bound, 6 refused (pronoun_no_margin), 0 bound to an unadmitted referent",
+            "detail": "0 pronoun(s) bound, 5 refused (pronoun_no_margin), 0 bound to an unadmitted referent",
             "arms": {
               "lowerOrder": {
                 "completed": false,
@@ -1021,10 +1038,10 @@
               },
               "arbitrary": {
                 "completed": false,
-                "detail": "accomplished the task in 0 of 20 seeded re-coordinations",
+                "detail": "exact P(a uniform redeal reproduces this triple) = 0.0176 over n=854 edges, K=15 sharing the subject, m=1 sharing the verb+object — below alpha 0.05, so the true match is not explained by chance alone",
                 "unreachable": false,
                 "perturbed": true,
-                "draws": 20,
+                "draws": 1,
                 "fired": 0
               },
               "discrimination": {
@@ -1059,10 +1076,10 @@
               },
               "arbitrary": {
                 "completed": false,
-                "detail": "accomplished the task in 0 of 20 seeded re-coordinations",
+                "detail": "exact P(an arbitrary redeal hands this specimen a count clearing the witness floor) = 0.0187 (16 of 854 edges in this reading already clear it) — below alpha 0.05, so clearing it is not explained by chance alone",
                 "unreachable": false,
                 "perturbed": true,
-                "draws": 20,
+                "draws": 1,
                 "fired": 0
               },
               "discrimination": {
@@ -1123,7 +1140,7 @@
             ],
             "name": "one hypothesis tested against a constructed null: is this edge's connector asserted, or an artefact",
             "status": "passed",
-            "detail": "597/597 edges carry a standing — 10 corroborated, 587 single-witness",
+            "detail": "854/854 edges carry a standing — 18 corroborated, 836 single-witness",
             "arms": {
               "lowerOrder": {
                 "completed": false,
@@ -1135,10 +1152,10 @@
               },
               "arbitrary": {
                 "completed": false,
-                "detail": "accomplished the task in 0 of 5 seeded re-coordinations",
+                "detail": "exact P(an arbitrary same-size redeal of the \"corroborated\" label lands entirely on genuine floor-clearers) = 1.31e-37 (18 of 854 edges genuinely clear the floor; 18 carry the label) — below alpha 0.05, so the real derivation is not explained by chance",
                 "unreachable": false,
                 "perturbed": true,
-                "draws": 5,
+                "draws": 1,
                 "fired": 0
               },
               "discrimination": {
@@ -1201,7 +1218,7 @@
             ],
             "name": "several whole systems compared: a standing no single system carries",
             "status": "passed",
-            "detail": "10 source-systems. \"French invasion of Russia\" bound by 2 -> AGREE/corroborated; \"29 August after Smolensk\" bound by 1 -> SINGLE/single. Below the merge both read identically (a system saying \"holds\"), and no reading carries a standing of its own.",
+            "detail": "10 source-systems. \"French invasion of Russia\" bound by 2 -> AGREE/corroborated; \"Grande Armée fought against\" bound by 1 -> SINGLE/single. Below the merge both read identically (a system saying \"holds\"), and no reading carries a standing of its own.",
             "arms": {
               "lowerOrder": {
                 "completed": false,
@@ -1248,7 +1265,7 @@
                 ],
                 "name": "a name denotes a being the material establishes",
                 "status": "passed",
-                "detail": "\"Kolocha\" resolves (1); \"Zzyrflax Quenbourne\" does not (0); gathered 12/12 pairs its own individuation rule calls one being; kept apart 3/3 it withholds on",
+                "detail": "\"Kolocha\" resolves (1); \"Zzyrflax Quenbourne\" does not (0); gathered 22/22 pairs its own individuation rule calls one being; kept apart 9/9 it withholds on",
                 "arms": {
                   "lowerOrder": {
                     "completed": false,
@@ -1298,7 +1315,7 @@
                 ],
                 "name": "a directed relation inside one sentence: who did what to whom, in order",
                 "status": "passed",
-                "detail": "\"Kutuzov —ordered→ Yermolov\" is stated (1); its reverse is not (0)",
+                "detail": "\"Borodino —panorama→ by Franz Roubaud\" is stated (1); its reverse is not (0)",
                 "arms": {
                   "lowerOrder": {
                     "completed": false,
@@ -1349,7 +1366,7 @@
                 ],
                 "name": "a sequence coordinated across sentences: a pronoun bound to what was read before it",
                 "status": "failed",
-                "detail": "0 pronoun(s) bound, 6 refused (pronoun_no_margin), 0 bound to an unadmitted referent",
+                "detail": "0 pronoun(s) bound, 5 refused (pronoun_no_margin), 0 bound to an unadmitted referent",
                 "arms": {
                   "lowerOrder": {
                     "completed": false,
@@ -1409,10 +1426,10 @@
                   },
                   "arbitrary": {
                     "completed": false,
-                    "detail": "accomplished the task in 0 of 20 seeded re-coordinations",
+                    "detail": "exact P(a uniform redeal reproduces this triple) = 0.0176 over n=854 edges, K=15 sharing the subject, m=1 sharing the verb+object — below alpha 0.05, so the true match is not explained by chance alone",
                     "unreachable": false,
                     "perturbed": true,
-                    "draws": 20,
+                    "draws": 1,
                     "fired": 0
                   },
                   "discrimination": {
@@ -1457,10 +1474,10 @@
                   },
                   "arbitrary": {
                     "completed": false,
-                    "detail": "accomplished the task in 0 of 20 seeded re-coordinations",
+                    "detail": "exact P(an arbitrary redeal hands this specimen a count clearing the witness floor) = 0.0187 (16 of 854 edges in this reading already clear it) — below alpha 0.05, so clearing it is not explained by chance alone",
                     "unreachable": false,
                     "perturbed": true,
-                    "draws": 20,
+                    "draws": 1,
                     "fired": 0
                   },
                   "discrimination": {
@@ -1541,7 +1558,7 @@
                 ],
                 "name": "one hypothesis tested against a constructed null: is this edge's connector asserted, or an artefact",
                 "status": "passed",
-                "detail": "597/597 edges carry a standing — 10 corroborated, 587 single-witness",
+                "detail": "854/854 edges carry a standing — 18 corroborated, 836 single-witness",
                 "arms": {
                   "lowerOrder": {
                     "completed": false,
@@ -1553,10 +1570,10 @@
                   },
                   "arbitrary": {
                     "completed": false,
-                    "detail": "accomplished the task in 0 of 5 seeded re-coordinations",
+                    "detail": "exact P(an arbitrary same-size redeal of the \"corroborated\" label lands entirely on genuine floor-clearers) = 1.31e-37 (18 of 854 edges genuinely clear the floor; 18 carry the label) — below alpha 0.05, so the real derivation is not explained by chance",
                     "unreachable": false,
                     "perturbed": true,
-                    "draws": 5,
+                    "draws": 1,
                     "fired": 0
                   },
                   "discrimination": {
@@ -1639,7 +1656,7 @@
                 ],
                 "name": "several whole systems compared: a standing no single system carries",
                 "status": "passed",
-                "detail": "10 source-systems. \"French invasion of Russia\" bound by 2 -> AGREE/corroborated; \"29 August after Smolensk\" bound by 1 -> SINGLE/single. Below the merge both read identically (a system saying \"holds\"), and no reading carries a standing of its own.",
+                "detail": "10 source-systems. \"French invasion of Russia\" bound by 2 -> AGREE/corroborated; \"Grande Armée fought against\" bound by 1 -> SINGLE/single. Below the merge both read identically (a system saying \"holds\"), and no reading carries a standing of its own.",
                 "arms": {
                   "lowerOrder": {
                     "completed": false,
@@ -1711,17 +1728,793 @@
         ]
       },
       "coref": {
-        "shouldMerge": 12,
-        "didMerge": 12,
+        "shouldMerge": 22,
+        "didMerge": 22,
         "stranded": [],
-        "shouldWithhold": 3,
+        "shouldWithhold": 9,
         "wronglyMerged": [],
-        "abstained": 14
+        "abstained": 56
       },
       "specimen": {
-        "subject": "Kutuzov",
-        "verb": "ordered",
-        "object": "Yermolov"
+        "subject": "Borodino",
+        "verb": "panorama",
+        "object": "by Franz Roubaud"
+      }
+    },
+    {
+      "material": "borodino-ru",
+      "totalPassages": 77,
+      "report": {
+        "giver": {
+          "name": "Model of Hierarchical Complexity",
+          "authors": "Michael Lamport Commons, Francis Asbury Richards (and others)",
+          "primary": "Commons, M. L., & Richards, F. A. (1984). Beyond formal operations, Vol. 1.",
+          "axioms": "Commons, M. L. (2008). Introduction to the model of hierarchical complexity and its relationship to postformal action. World Futures, 64(5-7), 305-320.",
+          "heldHere": "eo-wiki/articles/wiki/mhc-and-eo.md — this repo's own record of the convergence, and the source of the order table reproduced below"
+        },
+        "floor": {
+          "order": 5,
+          "gap": "out_of_scope_by_construction",
+          "detail": "Orders 0-4 are sensorimotor: they name operating on ambient conditions rather than on named things. This instrument receives symbols and has no sensor, so it does not perform these tasks and is not measured against them. The eo-wiki's phasepost reading places the sensorimotor-to-symbolic transition at orders ~4-5; this battery starts above it, by construction rather than by omission."
+        },
+        "assembly": "EXPERIMENT — engine text adapters hand-chained through the-fold's cast.js / hypergraph.js / verification.js / capacity-runner.js. NOT packages/host's assembled reader (absent from this checkout). READING-POLICY P0.",
+        "priors": {
+          "declared": true,
+          "injected": []
+        },
+        "material": "borodino-ru",
+        "axiom1": {
+          "held": true,
+          "findings": []
+        },
+        "malformed": [
+          {
+            "gap": "malformed_item",
+            "id": "o14-paradigmatic",
+            "detail": "an item must name the reading stages it uses (READING-POLICY P2)"
+          }
+        ],
+        "items": [
+          {
+            "id": "o5-nominal",
+            "order": 5,
+            "organ": "cast.js::makeReferentIndex (extractSurfaces → discoverReferents)",
+            "assembly": "EXPERIMENT — engine text adapters hand-chained through the-fold's cast.js / hypergraph.js / verification.js / capacity-runner.js. NOT packages/host's assembled reader (absent from this checkout). READING-POLICY P0.",
+            "stages": [
+              "perception",
+              "witnessed admission",
+              "alias resolution"
+            ],
+            "name": "a name denotes a being the material establishes",
+            "status": "failed",
+            "detail": "\"Бородинском\" resolves (1); \"Zzyrflax Quenbourne\" does not (0); gathered 17/19 pairs its own individuation rule calls one being (stranded: \"Италии Евгений Богарне\" | \"Италии Евгений\"; \"Огюст Коленкур\" | \"Огюст\"); kept apart 4/5 it withholds on",
+            "arms": {
+              "lowerOrder": {
+                "completed": false,
+                "detail": "referent admission withheld; only raw token containment available",
+                "unreachable": false,
+                "perturbed": true,
+                "draws": 1,
+                "fired": 0
+              },
+              "arbitrary": {
+                "completed": false,
+                "detail": "accomplished the task in 0 of 20 seeded re-coordinations",
+                "unreachable": false,
+                "perturbed": true,
+                "draws": 20,
+                "fired": 0
+              },
+              "discrimination": {
+                "completed": false,
+                "detail": "the control material (war-and-peace) does not establish \"Бородинском\"",
+                "unreachable": false,
+                "perturbed": true,
+                "draws": 1,
+                "fired": 0
+              }
+            }
+          },
+          {
+            "id": "o6-sentential",
+            "order": 6,
+            "organ": "hypergraph.js::makeRelationReader (discoverRelationVocab → extractRelations)",
+            "assembly": "EXPERIMENT — engine text adapters hand-chained through the-fold's cast.js / hypergraph.js / verification.js / capacity-runner.js. NOT packages/host's assembled reader (absent from this checkout). READING-POLICY P0.",
+            "stages": [
+              "perception",
+              "alias resolution",
+              "typed, directional relation"
+            ],
+            "name": "a directed relation inside one sentence: who did what to whom, in order",
+            "status": "passed",
+            "detail": "\"The Battle —of→ Borodino\" is stated (1); its reverse is not (0)",
+            "arms": {
+              "lowerOrder": {
+                "completed": false,
+                "detail": "the connector withheld; only the unordered referent set available",
+                "unreachable": false,
+                "perturbed": true,
+                "draws": 1,
+                "fired": 0
+              },
+              "arbitrary": {
+                "completed": false,
+                "detail": "accomplished the task in 0 of 5 seeded re-coordinations",
+                "unreachable": false,
+                "perturbed": true,
+                "draws": 5,
+                "fired": 0
+              },
+              "discrimination": {
+                "completed": false,
+                "detail": "the control material (war-and-peace) is different content",
+                "unreachable": false,
+                "perturbed": true,
+                "draws": 1,
+                "fired": 0
+              }
+            }
+          },
+          {
+            "id": "o7-preoperational",
+            "order": 7,
+            "organ": "perceiver/text/pronouns.js::resolvePronouns, via hypergraph.js's resolvePronouns organ",
+            "assembly": "EXPERIMENT — engine text adapters hand-chained through the-fold's cast.js / hypergraph.js / verification.js / capacity-runner.js. NOT packages/host's assembled reader (absent from this checkout). READING-POLICY P0.",
+            "stages": [
+              "perception",
+              "witnessed admission",
+              "alias resolution",
+              "pronoun binding"
+            ],
+            "name": "a sequence coordinated across sentences: a pronoun bound to what was read before it",
+            "status": "failed",
+            "detail": "0 pronoun(s) bound, 0 refused (none), 0 bound to an unadmitted referent",
+            "arms": {
+              "lowerOrder": {
+                "completed": false,
+                "detail": "the activation trace withheld; only within-sentence extraction available",
+                "unreachable": false,
+                "perturbed": true,
+                "draws": 1,
+                "fired": 0
+              },
+              "arbitrary": {
+                "completed": false,
+                "detail": "accomplished the task in 0 of 5 seeded re-coordinations",
+                "unreachable": false,
+                "perturbed": true,
+                "draws": 5,
+                "fired": 0
+              },
+              "discrimination": {
+                "completed": false,
+                "detail": "text with no pronoun at all must yield no binding",
+                "unreachable": false,
+                "perturbed": true,
+                "draws": 1,
+                "fired": 0
+              }
+            }
+          },
+          {
+            "id": "o8-primary",
+            "order": 8,
+            "organ": "hypergraph.js::judge (reader.read)",
+            "assembly": "EXPERIMENT — engine text adapters hand-chained through the-fold's cast.js / hypergraph.js / verification.js / capacity-runner.js. NOT packages/host's assembled reader (absent from this checkout). READING-POLICY P0.",
+            "stages": [
+              "typed, directional relation"
+            ],
+            "name": "an empirical rule applied: a claim checked against the material's own edges",
+            "status": "unmeasured",
+            "reason": "unlicensed_perturbation",
+            "detail": "the arbitrary arm's perturbation did not reach what the task reads (every edge shares the specimen's own subject — a redeal is a no-op and tested nothing), so it tested nothing. READING-POLICY A10: a statistic insensitive to its perturbation fails invisibly and globally. UNMEASURED, not passed.",
+            "arms": {
+              "lowerOrder": {
+                "completed": false,
+                "detail": "the edge set withheld; only word containment available",
+                "unreachable": false,
+                "perturbed": true,
+                "draws": 1,
+                "fired": 0
+              },
+              "arbitrary": {
+                "completed": false,
+                "detail": "every edge shares the specimen's own subject — a redeal is a no-op and tested nothing",
+                "unreachable": false,
+                "perturbed": false,
+                "draws": 1,
+                "fired": 0
+              }
+            }
+          },
+          {
+            "id": "o9-concrete",
+            "order": 9,
+            "organ": "hypergraph.js::judge's refs/sources on a bound claim",
+            "assembly": "EXPERIMENT — engine text adapters hand-chained through the-fold's cast.js / hypergraph.js / verification.js / capacity-runner.js. NOT packages/host's assembled reader (absent from this checkout). READING-POLICY P0.",
+            "stages": [
+              "typed, directional relation"
+            ],
+            "name": "multiple concrete instances coordinated: corroboration counted by perspective, not by mention",
+            "status": "unmeasured",
+            "reason": "unlicensed_perturbation",
+            "detail": "the arbitrary arm's perturbation did not reach what the task reads (every edge in this reading carries the same ref-count — a redeal is a no-op and tested nothing), so it tested nothing. READING-POLICY A10: a statistic insensitive to its perturbation fails invisibly and globally. UNMEASURED, not passed.",
+            "arms": {
+              "lowerOrder": {
+                "completed": false,
+                "detail": "the per-passage provenance withheld; only the bare verdict available",
+                "unreachable": false,
+                "perturbed": true,
+                "draws": 1,
+                "fired": 0
+              },
+              "arbitrary": {
+                "completed": false,
+                "detail": "every edge in this reading carries the same ref-count — a redeal is a no-op and tested nothing",
+                "unreachable": false,
+                "perturbed": false,
+                "draws": 1,
+                "fired": 0
+              }
+            }
+          },
+          {
+            "id": "o10-abstract",
+            "order": 10,
+            "organ": "hypergraph.js::queryFillers",
+            "assembly": "EXPERIMENT — engine text adapters hand-chained through the-fold's cast.js / hypergraph.js / verification.js / capacity-runner.js. NOT packages/host's assembled reader (absent from this checkout). READING-POLICY P0.",
+            "stages": [
+              "typed, directional relation"
+            ],
+            "name": "a variable quantified over a category: the whole filler set of an open slot",
+            "status": "unmeasured",
+            "reason": "organ_unreachable",
+            "detail": "lowerOrder arm could not run: this material offers no subject+verb slot with two or more distinct fillers",
+            "arms": {
+              "lowerOrder": {
+                "completed": false,
+                "detail": "this material offers no subject+verb slot with two or more distinct fillers",
+                "unreachable": true,
+                "perturbed": true,
+                "draws": 1,
+                "fired": 0
+              }
+            }
+          },
+          {
+            "id": "o11-formal",
+            "order": 11,
+            "organ": "asserted.js (the assertion tier), read off hypergraph.js's own edge.assertion",
+            "assembly": "EXPERIMENT — engine text adapters hand-chained through the-fold's cast.js / hypergraph.js / verification.js / capacity-runner.js. NOT packages/host's assembled reader (absent from this checkout). READING-POLICY P0.",
+            "stages": [
+              "typed, directional relation"
+            ],
+            "name": "one hypothesis tested against a constructed null: is this edge's connector asserted, or an artefact",
+            "status": "unmeasured",
+            "reason": "unlicensed_perturbation",
+            "detail": "the arbitrary arm's perturbation did not reach what the task reads (no corroborated edges, or every edge is — a redeal of which edges carry the label has nothing to vary), so it tested nothing. READING-POLICY A10: a statistic insensitive to its perturbation fails invisibly and globally. UNMEASURED, not passed.",
+            "arms": {
+              "lowerOrder": {
+                "completed": false,
+                "detail": "the null withheld; only the edge's own existence available",
+                "unreachable": false,
+                "perturbed": true,
+                "draws": 1,
+                "fired": 0
+              },
+              "arbitrary": {
+                "completed": false,
+                "detail": "no corroborated edges, or every edge is — a redeal of which edges carry the label has nothing to vary",
+                "unreachable": false,
+                "perturbed": false,
+                "draws": 1,
+                "fired": 0
+              }
+            }
+          },
+          {
+            "id": "o12-systematic",
+            "order": 12,
+            "organ": "verification.js::verificationTasksFor (the nine-cell grid)",
+            "assembly": "EXPERIMENT — engine text adapters hand-chained through the-fold's cast.js / hypergraph.js / verification.js / capacity-runner.js. NOT packages/host's assembled reader (absent from this checkout). READING-POLICY P0.",
+            "stages": [
+              "typed, directional relation",
+              "altitude"
+            ],
+            "name": "many formal relations coordinated into one system, ordered by presupposition",
+            "status": "passed",
+            "detail": "9 cells (4 of 9 cells hold, 0 fail, 0 told both ways, 0 gap, 5 not yet built); with a non-existent subject, downstream cells are not_yet_executable",
+            "arms": {
+              "lowerOrder": {
+                "completed": false,
+                "detail": "the grid withheld; only a single claim verdict available",
+                "unreachable": false,
+                "perturbed": true,
+                "draws": 1,
+                "fired": 0
+              },
+              "arbitrary": {
+                "completed": false,
+                "detail": "accomplished the task in 0 of 20 seeded re-coordinations",
+                "unreachable": false,
+                "perturbed": true,
+                "draws": 20,
+                "fired": 0
+              },
+              "discrimination": {
+                "completed": false,
+                "detail": "a claim with no material at all must produce gaps, not a full grid of holds",
+                "unreachable": false,
+                "perturbed": true,
+                "draws": 1,
+                "fired": 0
+              }
+            }
+          },
+          {
+            "id": "o13-metasystematic",
+            "order": 13,
+            "organ": "capacity-runner.js::mergeTestimony over per-source hypergraph readings",
+            "assembly": "EXPERIMENT — engine text adapters hand-chained through the-fold's cast.js / hypergraph.js / verification.js / capacity-runner.js. NOT packages/host's assembled reader (absent from this checkout). READING-POLICY P0.",
+            "stages": [
+              "typed, directional relation",
+              "population"
+            ],
+            "name": "several whole systems compared: a standing no single system carries",
+            "status": "unmeasured",
+            "reason": "organ_unreachable",
+            "detail": "lowerOrder arm could not run: this material offers no claim two or more of its source-systems independently bind",
+            "arms": {
+              "lowerOrder": {
+                "completed": false,
+                "detail": "this material offers no claim two or more of its source-systems independently bind",
+                "unreachable": true,
+                "perturbed": true,
+                "draws": 1,
+                "fired": 0
+              }
+            }
+          }
+        ],
+        "orders": [
+          {
+            "order": 5,
+            "name": "Nominal",
+            "status": "failed",
+            "items": [
+              {
+                "id": "o5-nominal",
+                "order": 5,
+                "organ": "cast.js::makeReferentIndex (extractSurfaces → discoverReferents)",
+                "assembly": "EXPERIMENT — engine text adapters hand-chained through the-fold's cast.js / hypergraph.js / verification.js / capacity-runner.js. NOT packages/host's assembled reader (absent from this checkout). READING-POLICY P0.",
+                "stages": [
+                  "perception",
+                  "witnessed admission",
+                  "alias resolution"
+                ],
+                "name": "a name denotes a being the material establishes",
+                "status": "failed",
+                "detail": "\"Бородинском\" resolves (1); \"Zzyrflax Quenbourne\" does not (0); gathered 17/19 pairs its own individuation rule calls one being (stranded: \"Италии Евгений Богарне\" | \"Италии Евгений\"; \"Огюст Коленкур\" | \"Огюст\"); kept apart 4/5 it withholds on",
+                "arms": {
+                  "lowerOrder": {
+                    "completed": false,
+                    "detail": "referent admission withheld; only raw token containment available",
+                    "unreachable": false,
+                    "perturbed": true,
+                    "draws": 1,
+                    "fired": 0
+                  },
+                  "arbitrary": {
+                    "completed": false,
+                    "detail": "accomplished the task in 0 of 20 seeded re-coordinations",
+                    "unreachable": false,
+                    "perturbed": true,
+                    "draws": 20,
+                    "fired": 0
+                  },
+                  "discrimination": {
+                    "completed": false,
+                    "detail": "the control material (war-and-peace) does not establish \"Бородинском\"",
+                    "unreachable": false,
+                    "perturbed": true,
+                    "draws": 1,
+                    "fired": 0
+                  }
+                }
+              }
+            ],
+            "failedCount": 1,
+            "refusedCount": 0,
+            "unmeasuredCount": 0
+          },
+          {
+            "order": 6,
+            "name": "Sentential",
+            "status": "passed",
+            "items": [
+              {
+                "id": "o6-sentential",
+                "order": 6,
+                "organ": "hypergraph.js::makeRelationReader (discoverRelationVocab → extractRelations)",
+                "assembly": "EXPERIMENT — engine text adapters hand-chained through the-fold's cast.js / hypergraph.js / verification.js / capacity-runner.js. NOT packages/host's assembled reader (absent from this checkout). READING-POLICY P0.",
+                "stages": [
+                  "perception",
+                  "alias resolution",
+                  "typed, directional relation"
+                ],
+                "name": "a directed relation inside one sentence: who did what to whom, in order",
+                "status": "passed",
+                "detail": "\"The Battle —of→ Borodino\" is stated (1); its reverse is not (0)",
+                "arms": {
+                  "lowerOrder": {
+                    "completed": false,
+                    "detail": "the connector withheld; only the unordered referent set available",
+                    "unreachable": false,
+                    "perturbed": true,
+                    "draws": 1,
+                    "fired": 0
+                  },
+                  "arbitrary": {
+                    "completed": false,
+                    "detail": "accomplished the task in 0 of 5 seeded re-coordinations",
+                    "unreachable": false,
+                    "perturbed": true,
+                    "draws": 5,
+                    "fired": 0
+                  },
+                  "discrimination": {
+                    "completed": false,
+                    "detail": "the control material (war-and-peace) is different content",
+                    "unreachable": false,
+                    "perturbed": true,
+                    "draws": 1,
+                    "fired": 0
+                  }
+                }
+              }
+            ],
+            "failedCount": 0,
+            "refusedCount": 0,
+            "unmeasuredCount": 0
+          },
+          {
+            "order": 7,
+            "name": "Preoperational",
+            "status": "failed",
+            "items": [
+              {
+                "id": "o7-preoperational",
+                "order": 7,
+                "organ": "perceiver/text/pronouns.js::resolvePronouns, via hypergraph.js's resolvePronouns organ",
+                "assembly": "EXPERIMENT — engine text adapters hand-chained through the-fold's cast.js / hypergraph.js / verification.js / capacity-runner.js. NOT packages/host's assembled reader (absent from this checkout). READING-POLICY P0.",
+                "stages": [
+                  "perception",
+                  "witnessed admission",
+                  "alias resolution",
+                  "pronoun binding"
+                ],
+                "name": "a sequence coordinated across sentences: a pronoun bound to what was read before it",
+                "status": "failed",
+                "detail": "0 pronoun(s) bound, 0 refused (none), 0 bound to an unadmitted referent",
+                "arms": {
+                  "lowerOrder": {
+                    "completed": false,
+                    "detail": "the activation trace withheld; only within-sentence extraction available",
+                    "unreachable": false,
+                    "perturbed": true,
+                    "draws": 1,
+                    "fired": 0
+                  },
+                  "arbitrary": {
+                    "completed": false,
+                    "detail": "accomplished the task in 0 of 5 seeded re-coordinations",
+                    "unreachable": false,
+                    "perturbed": true,
+                    "draws": 5,
+                    "fired": 0
+                  },
+                  "discrimination": {
+                    "completed": false,
+                    "detail": "text with no pronoun at all must yield no binding",
+                    "unreachable": false,
+                    "perturbed": true,
+                    "draws": 1,
+                    "fired": 0
+                  }
+                }
+              }
+            ],
+            "failedCount": 1,
+            "refusedCount": 0,
+            "unmeasuredCount": 0
+          },
+          {
+            "order": 8,
+            "name": "Primary",
+            "status": "unmeasured",
+            "items": [
+              {
+                "id": "o8-primary",
+                "order": 8,
+                "organ": "hypergraph.js::judge (reader.read)",
+                "assembly": "EXPERIMENT — engine text adapters hand-chained through the-fold's cast.js / hypergraph.js / verification.js / capacity-runner.js. NOT packages/host's assembled reader (absent from this checkout). READING-POLICY P0.",
+                "stages": [
+                  "typed, directional relation"
+                ],
+                "name": "an empirical rule applied: a claim checked against the material's own edges",
+                "status": "unmeasured",
+                "reason": "unlicensed_perturbation",
+                "detail": "the arbitrary arm's perturbation did not reach what the task reads (every edge shares the specimen's own subject — a redeal is a no-op and tested nothing), so it tested nothing. READING-POLICY A10: a statistic insensitive to its perturbation fails invisibly and globally. UNMEASURED, not passed.",
+                "arms": {
+                  "lowerOrder": {
+                    "completed": false,
+                    "detail": "the edge set withheld; only word containment available",
+                    "unreachable": false,
+                    "perturbed": true,
+                    "draws": 1,
+                    "fired": 0
+                  },
+                  "arbitrary": {
+                    "completed": false,
+                    "detail": "every edge shares the specimen's own subject — a redeal is a no-op and tested nothing",
+                    "unreachable": false,
+                    "perturbed": false,
+                    "draws": 1,
+                    "fired": 0
+                  }
+                }
+              }
+            ],
+            "failedCount": 0,
+            "refusedCount": 0,
+            "unmeasuredCount": 1
+          },
+          {
+            "order": 9,
+            "name": "Concrete",
+            "status": "unmeasured",
+            "items": [
+              {
+                "id": "o9-concrete",
+                "order": 9,
+                "organ": "hypergraph.js::judge's refs/sources on a bound claim",
+                "assembly": "EXPERIMENT — engine text adapters hand-chained through the-fold's cast.js / hypergraph.js / verification.js / capacity-runner.js. NOT packages/host's assembled reader (absent from this checkout). READING-POLICY P0.",
+                "stages": [
+                  "typed, directional relation"
+                ],
+                "name": "multiple concrete instances coordinated: corroboration counted by perspective, not by mention",
+                "status": "unmeasured",
+                "reason": "unlicensed_perturbation",
+                "detail": "the arbitrary arm's perturbation did not reach what the task reads (every edge in this reading carries the same ref-count — a redeal is a no-op and tested nothing), so it tested nothing. READING-POLICY A10: a statistic insensitive to its perturbation fails invisibly and globally. UNMEASURED, not passed.",
+                "arms": {
+                  "lowerOrder": {
+                    "completed": false,
+                    "detail": "the per-passage provenance withheld; only the bare verdict available",
+                    "unreachable": false,
+                    "perturbed": true,
+                    "draws": 1,
+                    "fired": 0
+                  },
+                  "arbitrary": {
+                    "completed": false,
+                    "detail": "every edge in this reading carries the same ref-count — a redeal is a no-op and tested nothing",
+                    "unreachable": false,
+                    "perturbed": false,
+                    "draws": 1,
+                    "fired": 0
+                  }
+                }
+              }
+            ],
+            "failedCount": 0,
+            "refusedCount": 0,
+            "unmeasuredCount": 1
+          },
+          {
+            "order": 10,
+            "name": "Abstract",
+            "status": "unmeasured",
+            "items": [
+              {
+                "id": "o10-abstract",
+                "order": 10,
+                "organ": "hypergraph.js::queryFillers",
+                "assembly": "EXPERIMENT — engine text adapters hand-chained through the-fold's cast.js / hypergraph.js / verification.js / capacity-runner.js. NOT packages/host's assembled reader (absent from this checkout). READING-POLICY P0.",
+                "stages": [
+                  "typed, directional relation"
+                ],
+                "name": "a variable quantified over a category: the whole filler set of an open slot",
+                "status": "unmeasured",
+                "reason": "organ_unreachable",
+                "detail": "lowerOrder arm could not run: this material offers no subject+verb slot with two or more distinct fillers",
+                "arms": {
+                  "lowerOrder": {
+                    "completed": false,
+                    "detail": "this material offers no subject+verb slot with two or more distinct fillers",
+                    "unreachable": true,
+                    "perturbed": true,
+                    "draws": 1,
+                    "fired": 0
+                  }
+                }
+              }
+            ],
+            "failedCount": 0,
+            "refusedCount": 0,
+            "unmeasuredCount": 1
+          },
+          {
+            "order": 11,
+            "name": "Formal",
+            "status": "unmeasured",
+            "items": [
+              {
+                "id": "o11-formal",
+                "order": 11,
+                "organ": "asserted.js (the assertion tier), read off hypergraph.js's own edge.assertion",
+                "assembly": "EXPERIMENT — engine text adapters hand-chained through the-fold's cast.js / hypergraph.js / verification.js / capacity-runner.js. NOT packages/host's assembled reader (absent from this checkout). READING-POLICY P0.",
+                "stages": [
+                  "typed, directional relation"
+                ],
+                "name": "one hypothesis tested against a constructed null: is this edge's connector asserted, or an artefact",
+                "status": "unmeasured",
+                "reason": "unlicensed_perturbation",
+                "detail": "the arbitrary arm's perturbation did not reach what the task reads (no corroborated edges, or every edge is — a redeal of which edges carry the label has nothing to vary), so it tested nothing. READING-POLICY A10: a statistic insensitive to its perturbation fails invisibly and globally. UNMEASURED, not passed.",
+                "arms": {
+                  "lowerOrder": {
+                    "completed": false,
+                    "detail": "the null withheld; only the edge's own existence available",
+                    "unreachable": false,
+                    "perturbed": true,
+                    "draws": 1,
+                    "fired": 0
+                  },
+                  "arbitrary": {
+                    "completed": false,
+                    "detail": "no corroborated edges, or every edge is — a redeal of which edges carry the label has nothing to vary",
+                    "unreachable": false,
+                    "perturbed": false,
+                    "draws": 1,
+                    "fired": 0
+                  }
+                }
+              }
+            ],
+            "failedCount": 0,
+            "refusedCount": 0,
+            "unmeasuredCount": 1
+          },
+          {
+            "order": 12,
+            "name": "Systematic",
+            "status": "passed",
+            "items": [
+              {
+                "id": "o12-systematic",
+                "order": 12,
+                "organ": "verification.js::verificationTasksFor (the nine-cell grid)",
+                "assembly": "EXPERIMENT — engine text adapters hand-chained through the-fold's cast.js / hypergraph.js / verification.js / capacity-runner.js. NOT packages/host's assembled reader (absent from this checkout). READING-POLICY P0.",
+                "stages": [
+                  "typed, directional relation",
+                  "altitude"
+                ],
+                "name": "many formal relations coordinated into one system, ordered by presupposition",
+                "status": "passed",
+                "detail": "9 cells (4 of 9 cells hold, 0 fail, 0 told both ways, 0 gap, 5 not yet built); with a non-existent subject, downstream cells are not_yet_executable",
+                "arms": {
+                  "lowerOrder": {
+                    "completed": false,
+                    "detail": "the grid withheld; only a single claim verdict available",
+                    "unreachable": false,
+                    "perturbed": true,
+                    "draws": 1,
+                    "fired": 0
+                  },
+                  "arbitrary": {
+                    "completed": false,
+                    "detail": "accomplished the task in 0 of 20 seeded re-coordinations",
+                    "unreachable": false,
+                    "perturbed": true,
+                    "draws": 20,
+                    "fired": 0
+                  },
+                  "discrimination": {
+                    "completed": false,
+                    "detail": "a claim with no material at all must produce gaps, not a full grid of holds",
+                    "unreachable": false,
+                    "perturbed": true,
+                    "draws": 1,
+                    "fired": 0
+                  }
+                }
+              }
+            ],
+            "failedCount": 0,
+            "refusedCount": 0,
+            "unmeasuredCount": 0
+          },
+          {
+            "order": 13,
+            "name": "Metasystematic",
+            "status": "unmeasured",
+            "items": [
+              {
+                "id": "o13-metasystematic",
+                "order": 13,
+                "organ": "capacity-runner.js::mergeTestimony over per-source hypergraph readings",
+                "assembly": "EXPERIMENT — engine text adapters hand-chained through the-fold's cast.js / hypergraph.js / verification.js / capacity-runner.js. NOT packages/host's assembled reader (absent from this checkout). READING-POLICY P0.",
+                "stages": [
+                  "typed, directional relation",
+                  "population"
+                ],
+                "name": "several whole systems compared: a standing no single system carries",
+                "status": "unmeasured",
+                "reason": "organ_unreachable",
+                "detail": "lowerOrder arm could not run: this material offers no claim two or more of its source-systems independently bind",
+                "arms": {
+                  "lowerOrder": {
+                    "completed": false,
+                    "detail": "this material offers no claim two or more of its source-systems independently bind",
+                    "unreachable": true,
+                    "perturbed": true,
+                    "draws": 1,
+                    "fired": 0
+                  }
+                }
+              }
+            ],
+            "failedCount": 0,
+            "refusedCount": 0,
+            "unmeasuredCount": 1
+          }
+        ]
+      },
+      "stage": {
+        "stage": null,
+        "stageName": null,
+        "cappedBy": {
+          "order": 5,
+          "status": "failed",
+          "detail": "order 5 (Nominal) was measured and the system did not complete it — a real ceiling"
+        },
+        "ceilingIsReal": true,
+        "isolated": [
+          {
+            "order": 6,
+            "name": "Sentential"
+          },
+          {
+            "order": 12,
+            "name": "Systematic"
+          }
+        ]
+      },
+      "coref": {
+        "shouldMerge": 19,
+        "didMerge": 17,
+        "stranded": [
+          {
+            "a": "Италии Евгений Богарне",
+            "b": "Италии Евгений"
+          },
+          {
+            "a": "Огюст Коленкур",
+            "b": "Огюст"
+          }
+        ],
+        "shouldWithhold": 5,
+        "wronglyMerged": [
+          {
+            "a": "Италии Евгений Богарне",
+            "b": "Италии Евгения"
+          }
+        ],
+        "abstained": 7
+      },
+      "specimen": {
+        "subject": "The Battle",
+        "verb": "of",
+        "object": "Borodino"
       }
     }
   ],
@@ -1729,11 +2522,32 @@
     "examined": true,
     "materials": [
       "war-and-peace",
-      "borodino"
+      "borodino",
+      "borodino-ru"
     ],
     "held": true,
     "violations": [],
     "performance": [
+      {
+        "order": 5,
+        "cells": [
+          {
+            "material": "war-and-peace",
+            "status": "passed",
+            "validity": "valid"
+          },
+          {
+            "material": "borodino",
+            "status": "passed",
+            "validity": "valid"
+          },
+          {
+            "material": "borodino-ru",
+            "status": "failed",
+            "validity": "valid"
+          }
+        ]
+      },
       {
         "order": 7,
         "cells": [
@@ -1746,54 +2560,124 @@
             "material": "borodino",
             "status": "failed",
             "validity": "valid"
+          },
+          {
+            "material": "borodino-ru",
+            "status": "failed",
+            "validity": "valid"
           }
         ]
       }
     ],
     "noProbe": [
       {
-        "order": 10,
+        "order": 8,
         "cells": [
           {
             "material": "war-and-peace",
-            "status": "unmeasured",
-            "validity": "no-probe"
+            "status": "passed",
+            "validity": "valid"
           },
           {
             "material": "borodino",
             "status": "passed",
             "validity": "valid"
+          },
+          {
+            "material": "borodino-ru",
+            "status": "unmeasured",
+            "validity": "no-probe"
+          }
+        ]
+      },
+      {
+        "order": 9,
+        "cells": [
+          {
+            "material": "war-and-peace",
+            "status": "passed",
+            "validity": "valid"
+          },
+          {
+            "material": "borodino",
+            "status": "passed",
+            "validity": "valid"
+          },
+          {
+            "material": "borodino-ru",
+            "status": "unmeasured",
+            "validity": "no-probe"
+          }
+        ]
+      },
+      {
+        "order": 10,
+        "cells": [
+          {
+            "material": "war-and-peace",
+            "status": "passed",
+            "validity": "valid"
+          },
+          {
+            "material": "borodino",
+            "status": "passed",
+            "validity": "valid"
+          },
+          {
+            "material": "borodino-ru",
+            "status": "unmeasured",
+            "validity": "no-probe"
+          }
+        ]
+      },
+      {
+        "order": 11,
+        "cells": [
+          {
+            "material": "war-and-peace",
+            "status": "passed",
+            "validity": "valid"
+          },
+          {
+            "material": "borodino",
+            "status": "passed",
+            "validity": "valid"
+          },
+          {
+            "material": "borodino-ru",
+            "status": "unmeasured",
+            "validity": "no-probe"
+          }
+        ]
+      },
+      {
+        "order": 13,
+        "cells": [
+          {
+            "material": "war-and-peace",
+            "status": "passed",
+            "validity": "valid"
+          },
+          {
+            "material": "borodino",
+            "status": "passed",
+            "validity": "valid"
+          },
+          {
+            "material": "borodino-ru",
+            "status": "unmeasured",
+            "validity": "no-probe"
           }
         ]
       }
     ],
     "agreed": [
       {
-        "order": 5,
-        "status": "passed"
-      },
-      {
         "order": 6,
         "status": "passed"
       },
       {
-        "order": 8,
-        "status": "passed"
-      },
-      {
-        "order": 9,
-        "status": "passed"
-      },
-      {
-        "order": 11,
-        "status": "passed"
-      },
-      {
         "order": 12,
-        "status": "passed"
-      },
-      {
-        "order": 13,
         "status": "passed"
       }
     ]
