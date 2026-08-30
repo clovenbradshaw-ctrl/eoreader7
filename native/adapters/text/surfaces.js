@@ -41,12 +41,25 @@ export const diaNorm = (t) => String(t ?? "").toLowerCase().trim().replace(DIA_R
 // statistics. Declared, checked by conformance.
 export const CELL = Object.freeze({ op: "SIG", grain: "Ground" });
 
-const tokensOf = (id) => diaNorm(id).split(/\s+/).filter((t) => t.length > 2);
+const rawTokensOf = (id) => diaNorm(id).split(/\s+/).filter((t) => t.length > 2);
+
+// A morphological fold applied to each token before identity comparison:
+// token -> (optionally folded) token. Absent, it is the identity — the fold
+// never fires and behavior is byte-identical to today's token-identity
+// coreference (English, whose proper nouns do not inflect for case, never
+// sees a fold). A RECEIVED fold (a giver-named register, e.g. a treebank-
+// derived ProperNounPrior) may map an inflected case-form to its lemma, so
+// "Кутузову"/"Кутузовым" fold onto the same stem "Кутузов" and one being
+// stops stranding across its case forms (the-fold
+// eval/results/anaphora-ru-RESULTS.md). The fold is INJECTED by the caller,
+// mirroring how morphology.js's lemmatizer arrives for actClosure — the
+// adapter itself imports nothing (text-boundary conformance wall).
+const tokensOf = (id, fold) => rawTokensOf(id).map(fold ?? ((t) => t));
 
 /** Two NAMES corefer: containment, or a shared final token (surname). */
-export const namesCorefer = (a, b) => {
-  const ta = tokensOf(a);
-  const tb = tokensOf(b);
+export const namesCorefer = (a, b, fold) => {
+  const ta = tokensOf(a, fold);
+  const tb = tokensOf(b, fold);
   if (!ta.length || !tb.length) return false;
   const setA = new Set(ta);
   const setB = new Set(tb);
@@ -545,7 +558,7 @@ const deriveMinSentences = (surfaces) => {
  *   floor, exactly as `minSentences` already promises for the
  *   single-document case.
  */
-export const discoverReferents = (surfaces, { minSentences, minPartners, groups } = {}) => {
+export const discoverReferents = (surfaces, { minSentences, minPartners, groups, foldToken } = {}) => {
   const events = [];
   const assigned = new Map(); // surface -> referent_id
   const generic = groups
@@ -598,7 +611,7 @@ export const discoverReferents = (surfaces, { minSentences, minPartners, groups 
   const corefersIndividuated = (a, b) => {
     const ia = individuating(a);
     const ib = individuating(b);
-    if (ia.length && ib.length) return namesCorefer(ia.join(" "), ib.join(" "));
+    if (ia.length && ib.length) return namesCorefer(ia.join(" "), ib.join(" "), foldToken);
     // No individuating evidence on one side means no evidence FOR merging —
     // not licence to fall back on the generic tokens just judged unreliable.
     // That inverted fallback kept every Princess in one referent: both

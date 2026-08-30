@@ -83,6 +83,7 @@
 
 import { tokens, codeOf, recall, encodeFrame } from "../../memory/activation.js";
 import { adjudicate, nullAdjudicate, CONTEST_VERDICTS } from "../../kernel/contest.js";
+import { createActivation } from "../../kernel/activation.js";
 import { THIRD_PERSON_SINGULAR } from "./priors.js";
 
 // The cell this organ occupies on the operator grid (engine/operators.js):
@@ -146,15 +147,121 @@ export const sameClause = (text, i, j) => {
   return !CLAUSE_OPENER_RE.test(between);
 };
 
-const PRONOUN_RE = /\b(he|him|his|himself|she|her|hers|herself)\b/gi;
+// MIN_OBSERVATIONS: the noise floor below which a single treebank
+// attestation does not earn a pronoun form a hard gender gate. Mirrors
+// binding.js's structural minimum (one observation is not a distribution,
+// 2 is the same floor emergence/binding.js already uses for co-arrival),
+// reused rather than re-derived, and never tuned against a golden's score.
+const MIN_OBSERVATIONS = 2;
 
-export const findThirdPersonSingular = (text) => {
+// How many genders a form must land on (excluding the treebank's "_" for
+// languages that simply do not mark a given form's gender) to be called
+// CLEAN — i.e. certain enough to veto a referent on gender. Structural,
+// not tuned: a form is clean only when its own treebank gave it exactly ONE
+// attested gender AND exactly one number (Singular) AND that gender is
+// attested at least MIN_OBSERVATIONS times. Everything else — a genuinely
+// Masc/Neut-split form (Russian него/ему), an all-"_" plural (они/их,
+// English they/them), a below-floor noise form (a typo the treebank tagged
+// PRON at count 1) — is SOFT: it may prefer a gender-compatible referent by
+// margin but may not veto a strongly-activated one on its own unsureness.
+// The honesty of the gate scales with the certainty of the pronoun's own
+// classification; a pronoun whose gender the treebank itself is unsure of
+// does not get to refuse a referent on the strength of that unsureness.
+export const normalizePronounClass = (pronounClass) => {
+  const out = new Map(); // token -> { gender: "m"|"f"|"n"|"x"|"unknown", clean: boolean }
+
+  // Default: THIS file's own received English closed class (priors.js,
+  // giver lang/en) — every member clean, exactly the standing behaviour.
+  if (pronounClass === undefined || pronounClass === null) {
+    for (const [token, gender] of Object.entries(THIRD_PERSON_SINGULAR)) {
+      out.set(token, { gender, clean: true });
+    }
+    return out;
+  }
+
+  // Plain object { token: gender } — a caller-provided "all-clean" class,
+  // the same shape THIRD_PERSON_SINGULAR has; every member hard-gated.
+  if (typeof pronounClass === "object" && pronounClass.forms === undefined) {
+    for (const [token, gender] of Object.entries(pronounClass)) {
+      out.set(token, { gender, clean: true });
+    }
+    return out;
+  }
+
+  // A derived register — the shape build-pronoun-prior.mjs writes
+  // (PronounPrior@1): { forms: { token: { gender:{}, number:{} } },
+  //   provenance }. Clean is COMPUTED from the treebank's own attestation,
+  // as described above; never tuned.
+  const TREE = { Masc: "m", Fem: "f", Neut: "n" };
+  for (const [token, stats] of Object.entries(pronounClass.forms)) {
+    const g = stats.gender ?? {};
+    const num = stats.number ?? {};
+    const attested = Object.entries(g).filter(([k]) => k !== "_");
+    const genders = attested.map(([k]) => TREE[k]).filter(Boolean);
+    const onlyMasc = attested.length === 1 && attested[0][0] === "Masc";
+    const onlyFem = attested.length === 1 && attested[0][0] === "Fem";
+    const onlyNeut = attested.length === 1 && attested[0][0] === "Neut";
+    const singularOnly = Object.keys(num).length === 1 && num.Sing !== undefined;
+    const aboveFloor = (attested[0]?.[1] ?? 0) >= MIN_OBSERVATIONS;
+
+    const clean =
+      singularOnly &&
+      aboveFloor &&
+      (onlyMasc || onlyFem || onlyNeut);
+
+    let gender;
+    if (onlyMasc) gender = "m";
+    else if (onlyFem) gender = "f";
+    else if (onlyNeut) gender = "n";
+    else if (genders.length === 1) gender = genders[0]; // single attested non-"_", not masc/fem/neut-clean (e.g. below floor) — still its only attested label
+    else if (genders.length > 1) gender = "unknown"; // genuinely split: _either_ gender, may not demand one
+    else {
+      // no non-"_" gender at all — plural/undefined forms (they, они) that
+      // carry no gender, OR a form only ever attested "_".
+      const allPlural = Object.keys(num).length === 1 && num.Plur !== undefined;
+      gender = allPlural ? "x" : "unknown";
+    }
+
+    out.set(token, { gender, clean });
+  }
+  return out;
+};
+
+// A count of a derived register's gender disagreement is only legible with
+// its denominator — same standing as resolvePronouns's frame totals.
+export const registerSummary = (normalized) => {
+  let clean = 0; let soft = 0;
+  for (const { clean: c } of normalized.values()) c ? clean++ : soft++;
+  return { clean, soft };
+};
+
+const findInClass = (text, pronounClass) => {
+  const tokens = [...pronounClass.keys()];
+  if (!tokens.length) return [];
+  const sorted = [...tokens].sort((a, b) => b.length - a.length);
+  // Boundary that treats every letter (including non-ASCII scripts like the
+  // Cyrillic of a Russian pronoun register) as a word character. js's `\b`
+  // recognises
+  // only [A-Za-z0-9_], so against Cyrillic text `\bон\b` never matches — the
+  // register would load fine yet bind nothing. A Unicode-aware lookaround
+  // boundary (\p{L}\p{N} either side) is byte-identical to `\b` for the
+  // ASCII English closed class this file has always shipped with.
+  const re = new RegExp(`(?<![\\p{L}\\p{N}_])(?:${sorted.map(escapeRe).join("|")})(?![\\p{L}\\p{N}_])`, "giu");
   const hits = [];
-  for (const m of text.matchAll(PRONOUN_RE)) {
+  re.lastIndex = 0;
+  let m;
+  while ((m = re.exec(text))) {
     const token = m[0].toLowerCase();
-    hits.push({ token, gender: THIRD_PERSON_SINGULAR[token], index: m.index });
+    const rec = pronounClass.get(token);
+    if (!rec) continue;
+    hits.push({ token, gender: rec.gender, clean: rec.clean, index: m.index });
   }
   return hits;
+};
+
+export const findThirdPersonSingular = (text, pronounClass) => {
+  const cls = pronounClass instanceof Map ? pronounClass : normalizePronounClass(pronounClass);
+  return findInClass(text, cls);
 };
 
 // Activation.js's own declared operating point (IDF_FLOOR, MIN_LEN inside
@@ -237,6 +344,43 @@ export const resolvePronouns = (
     // under the constant was never evidence of reading. Absent, the shipped
     // constant-margin behaviour runs byte-identically.
     nullTest,
+    // The co-present arbiter (choice b — activation arbitrates co-present):
+    // in the adjudicated regime, when the thematic one-hop recall comes back
+    // with NO candidate for a frame that still carries a pronoun the reader
+    // reached, fall back to the reader's own decaying PRESENCE to pick among
+    // the co-present named set. The thematic scorer is silent on generic
+    // prose (its floor needs repeated distinctive vocabulary); presence is
+    // not — the most recently present compatible being is the honest answer
+    // to "whom did the reader just have in hand?" when thematic recall has
+    // nothing to say. Declared, never defaulted, on the same Born terms as
+    // every other gate here: a window, a floor in ARRIVAL units (one full
+    // naming, undecayed), and a margin over the next-hottest co-present
+    // being. Absent, the adjudicated regime's bare `pronoun_no_candidate`
+    // behaviour runs unchanged.
+    // Presence gates for the co-present arbiter, DECLARED never defaulted —
+    // the same standing minActivation/minMargin already hold in this organ,
+    // and this file's own header says it outright: "how much activation
+    // makes a binding is a property of the reading, not a constant this
+    // file gets to assume." window in sentences-as-observed (the kernel's
+    // createActivation unit), activationFloor in ARRIVAL units (1 = one full
+    // naming, undecayed), activationMargin over the next-hottest co-present
+    // being.
+    window,
+    activationFloor,
+    activationMargin,
+    createActivation: createActivationFn = undefined,
+    // The third-person pronoun class to read against. Absent-caller defaults
+    // to THIS file's own received English closed class (priors.js,
+    // THIRD_PERSON_SINGULAR, giver lang/en) — every member clean and
+    // hard-gated, exactly the standing behaviour. A caller reading a
+    // different language's material injects that language's OWN register
+    // (a PronounPrior@1 shipped with the corpus in live_priors, built by
+    // live_priors/scripts/build-pronoun-prior.mjs) — never a second hardcoded
+    // English list standing in for a language it was never measured against (the
+    // same seam relations.js's negationWords already opens). Each member's
+    // `clean` flag (clean -> gender vetoes, soft -> gender prefers) is
+    // computed from the treebank's own attestation, not hand-declared.
+    pronounClass = undefined,
   } = {},
 ) => {
   if (!Number.isFinite(minActivation) || minActivation < 0)
@@ -267,6 +411,26 @@ export const resolvePronouns = (
   const nonPersonalSet = nonPersonal instanceof Set ? nonPersonal : new Set(nonPersonal ?? []);
   const surfaceToReferent = referentSurfaces instanceof Map ? referentSurfaces : new Map(Object.entries(referentSurfaces ?? {}));
   const matcher = surfaceMatcher([...surfaceToReferent.keys()]);
+  const cls = pronounClass instanceof Map ? pronounClass : normalizePronounClass(pronounClass);
+
+  // The co-present arbiter's presence tracker. Declared all-or-nothing: if
+  // the caller gives a window it must give the floor and margin too, and
+  // vice-versa — a partial declaration would make half the gate a
+  // back-door default, which this file's header forbids outright.
+  const arbitrationRequested = window !== undefined && window !== null;
+  if (arbitrationRequested || activationFloor !== undefined || activationMargin !== undefined) {
+    if (!arbitrationRequested)
+      throw new TypeError("resolvePronouns: window, activationFloor and activationMargin are declared together — the co-present arbiter is never half-declared");
+    if (createActivationFn !== undefined && typeof createActivationFn !== "function")
+      throw new TypeError("resolvePronouns: createActivation, when given, is the kernel's own — a function, never a private reimplementation");
+    if (!Number.isFinite(activationFloor) || activationFloor < 0)
+      throw new TypeError("resolvePronouns: activationFloor is declared — how faint a past presence still binds never defaults");
+    if (!Number.isFinite(activationMargin) || activationMargin < 0 || activationMargin > 1)
+      throw new TypeError("resolvePronouns: activationMargin is declared — how far a past presence must lead the runner-up never defaults");
+  }
+  const presence = arbitrationRequested
+    ? (createActivationFn ?? createActivation)({ window })
+    : null;
 
   const state = { df: new Map(), gramDf: new Map(), posting: new Map(), edges: new Map(), read: 0 };
   const namedByFrame = new Map(); // sentence order -> Set(referentId) named in it
@@ -291,7 +455,7 @@ export const resolvePronouns = (
 
     const namedMatches = namedMatchesIn(sentence.text, matcher, surfaceToReferent);
     const named = new Set(namedMatches.map((n) => n.ref));
-    const pronounHits = findThirdPersonSingular(sentence.text);
+    const pronounHits = findThirdPersonSingular(sentence.text, cls);
 
     // REFUSED regime (contestedMargin absent): resolve only the case the
     // original complaint names — a frame carried by a pronoun with NO name
@@ -335,13 +499,25 @@ export const resolvePronouns = (
         const offset = (sentence.offset ?? 0) + hit.index;
 
         // The two hard filters this file already owned — individuation type
-        // and gender — are handed to the kernel AS A FILTER, unchanged in
-        // standing. The kernel never tiebreaks with them; it only declines
-        // to charge the reading for a competitor they already excluded.
+        // and gender — are handed to the kernel AS A FILTER. The NEW
+        // distinction (2026-08-29, the recover-from-misgendering contract):
+        // gender is hard ONLY when the pronoun's own classification is
+        // certain. A CLEAN pronoun (single well-attested gender, singular —
+        // English he/she) vetoes a referent of a different gender exactly as
+        // before. A SOFT pronoun (its register carries genuine ambiguity —
+        // Russian него is Masc AND Neut; или они/их carry no gender at all —
+        // or it sits below the treebank noise floor) may PREFER a compatible
+        // referent by margin but may not veto a strongly-evidenced one on
+        // its own unsureness. The honesty of the gate scales with the
+        // certainty of the pronoun's classification; a pronoun whose gender
+        // the treebank itself is unsure of does not get to refuse a
+        // referent on the strength of that unsureness. recorded on the hit
+        // by normalizePronounClass, never hand-declared per occurrence.
         const admissible = (r) => {
           if (nonPersonalSet.has(r)) return false;
           const g = referentGender(r);
-          return g === "unknown" || g === hit.gender;
+          if (hit.clean) return g === "unknown" || g === hit.gender;
+          return true; // soft pronoun: veto nothing; the kernel's margin picks
         };
 
         const verdict = nullTest
@@ -369,47 +545,121 @@ export const resolvePronouns = (
               admissible,
             });
 
-        if (verdict.verdict !== CONTEST_VERDICTS.BOUND) {
+        // ── the co-present arbiter (choice b: activation arbitrates
+        // co-present). The thematic one-hop scorer is silent on generic
+        // prose — it needs repeated distinctive vocabulary to cross its
+        // floor, and a quiet history sentence like "His heart was heavy that
+        // year, yet he masked the weight of it" recalls nothing. In a frame
+        // the reader REACHED (adjudicated regime), with a pronoun and
+        // co-present names, that silence would otherwise file a bare
+        // `pronoun_no_candidate` — honest but useless, when the most
+        // recently present compatible co-present being is the answer the
+        // reader actually has in hand. When the presence tracker is engaged,
+        // treat a thematic NO_CANDIDATE as the reader turning to the present:
+        // pick the hottest ADMISSIBLE co-present referent, gate it by
+        // activationFloor and activationMargin, bind if it clears — exactly
+        // the floor-then-margin ladder the activation arm itself runs. Only
+        // the ADJUDICATED regime sees this fallback: the refused regime is
+        // by construction frames with no name at all, where there is no
+        // co-present set to arbitrate over.
+        let verdictOut = verdict;
+        if (
+          adjudicated &&
+          verdict.verdict === CONTEST_VERDICTS.NO_CANDIDATE &&
+          presence
+        ) {
+          const coPresentCandidates = [...named]
+            .map((r) => [r, presence.activationOf(r)])
+            .filter(([r]) => admissible(r))
+            .sort((a, b) => b[1] - a[1]);
+          if (coPresentCandidates.length > 0) {
+            const [topId, topScore] = coPresentCandidates[0];
+            const second = coPresentCandidates[1]?.[1] ?? 0;
+            const margin = topScore > 0 ? (topScore - second) / topScore : 0;
+            if (topScore < activationFloor) {
+              verdictOut = {
+                verdict: CONTEST_VERDICTS.BELOW_FLOOR,
+                id: topId,
+                score: topScore,
+                margin: null,
+                runnerUp: coPresentCandidates[1]?.[0] ?? null,
+                contested: [...named],
+                barApplied: activationFloor,
+                detail: `thematic recall silent; hottest co-present being's presence (${topScore.toFixed(3)}) does not clear activationFloor (${activationFloor})`,
+              };
+            } else if (margin < activationMargin) {
+              verdictOut = {
+                verdict: CONTEST_VERDICTS.CONTESTED_NO_MARGIN,
+                id: topId,
+                score: topScore,
+                margin,
+                runnerUp: coPresentCandidates[1]?.[0] ?? null,
+                contested: [...named],
+                barApplied: activationMargin,
+                detail: `thematic recall silent; the two most present co-present beings are too close (${(margin * 100).toFixed(1)}% apart), short of activationMargin (${(activationMargin * 100).toFixed(1)}%)`,
+              };
+            } else {
+              verdictOut = {
+                verdict: CONTEST_VERDICTS.BOUND,
+                id: topId,
+                score: topScore,
+                margin,
+                runnerUp: coPresentCandidates[1]?.[0] ?? null,
+                contested: [...named],
+                barApplied: activationMargin,
+                detail: `bound to the most present compatible co-present being by presence (${(margin * 100).toFixed(1)}%), thematic recall having nothing to say`,
+              };
+            }
+          }
+        }
+
+        if (verdictOut.verdict !== CONTEST_VERDICTS.BOUND) {
           gaps.push({
-            reason: GAP_REASON[verdict.verdict],
+            reason: GAP_REASON[verdictOut.verdict],
             tier: "engine",
             sentenceOrder: sentence.order,
             offset,
             pronoun: hit.token,
-            top: verdict.id,
-            runnerUp: verdict.runnerUp,
-            activation: verdict.score,
-            margin: verdict.margin,
-            p: verdict.p ?? null,
-            coPresent: verdict.contested,
-            barApplied: verdict.barApplied,
-            detail: verdict.detail,
+            top: verdictOut.id,
+            runnerUp: verdictOut.runnerUp,
+            activation: verdictOut.score,
+            margin: verdictOut.margin,
+            p: verdictOut.p ?? null,
+            coPresent: verdictOut.contested,
+            barApplied: verdictOut.barApplied,
+            detail: verdictOut.detail,
           });
           continue;
         }
 
         bindings.push({
-          referentId: verdict.id,
+          referentId: verdictOut.id,
           sentenceOrder: sentence.order,
           offset,
           pronoun: hit.token,
           gender: hit.gender,
-          activation: verdict.score,
-          margin: verdict.margin,
-          p: verdict.p ?? null,
-          coPresent: verdict.contested,
-          barApplied: verdict.barApplied,
+          activation: verdictOut.score,
+          margin: verdictOut.margin,
+          p: verdictOut.p ?? null,
+          coPresent: verdictOut.contested,
+          barApplied: verdictOut.barApplied,
           provenance: {
             giver: "perceiver/text/pronouns::resolvePronouns",
             tier: "engine",
-            basis:
-              verdict.contested.length > 0
-                ? "one-hop activation recall over the already-admitted cast, adjudicated against co-present names at the contested bar (kernel/contest.js)"
-                : "one-hop activation recall over the already-admitted cast",
+            basis: verdictOut.contested.length > 0
+              ? "one-hop activation recall over the already-admitted cast, adjudicated against co-present names at the contested bar (kernel/contest.js)"
+              : "one-hop activation recall over the already-admitted cast",
           },
         });
       }
     }
+
+    // Feed the presence tracker the frame's names AFTER adjudicating it
+    // (causal: a sentence's own naming informs later sentences' present,
+    // never its own — the same ordering the activation arm already keeps).
+    // Silence is still a tick, exactly as the activation arm models it: a
+    // sentence naming nobody is time passing for everyone.
+    if (presence) presence.observe([...named]);
 
     // Gender evidence: only when exactly one referent is named alongside a
     // pronoun in the SAME sentence, AND that pronoun sits in the same
@@ -486,7 +736,7 @@ export const resolvePronouns = (
 export const resolvePronounsByActivation = (
   sentences,
   referentSurfaces,
-  { window, minActivation, minMargin, nonPersonal, createActivation } = {},
+  { window, minActivation, minMargin, nonPersonal, createActivation, pronounClass = undefined } = {},
 ) => {
   if (typeof createActivation !== "function")
     throw new TypeError("resolvePronounsByActivation: createActivation is injected — the kernel's own gradient, never a private reimplementation (S6)");
@@ -498,6 +748,7 @@ export const resolvePronounsByActivation = (
   const nonPersonalSet = nonPersonal instanceof Set ? nonPersonal : new Set(nonPersonal ?? []);
   const surfaceToReferent = referentSurfaces instanceof Map ? referentSurfaces : new Map(Object.entries(referentSurfaces ?? {}));
   const matcher = surfaceMatcher([...surfaceToReferent.keys()]);
+  const cls = pronounClass instanceof Map ? pronounClass : normalizePronounClass(pronounClass);
   const activation = createActivation({ window });
 
   const genderEvidence = new Map();
@@ -516,14 +767,14 @@ export const resolvePronounsByActivation = (
   for (const sentence of sentences ?? []) {
     const namedMatches = namedMatchesIn(sentence.text, matcher, surfaceToReferent);
     const named = new Set(namedMatches.map((n) => n.ref));
-    const pronounHits = findThirdPersonSingular(sentence.text);
+    const pronounHits = findThirdPersonSingular(sentence.text, cls);
 
     if (named.size === 0 && pronounHits.length > 0) {
       for (const hit of pronounHits) {
         const offset = (sentence.offset ?? 0) + hit.index;
         const candidates = [...seen]
           .filter((r) => !nonPersonalSet.has(r))
-          .filter((r) => { const g = referentGender(r); return g === "unknown" || g === hit.gender; })
+          .filter((r) => { if (!hit.clean) return true; const g = referentGender(r); return g === "unknown" || g === hit.gender; })
           .map((r) => [r, activation.activationOf(r)])
           .sort((a, b) => b[1] - a[1]);
 
