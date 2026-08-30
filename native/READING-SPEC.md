@@ -1870,3 +1870,78 @@ The corpus-side record — the UN UDHR front-matter stripping this same
 investigation also closed, the full 516-language census, and the
 S34-generality re-verification against real (not only synthetic) material
 — is live_priors' own POLICIES.md LP8.
+
+## S37 — `capitalisationIsSignificant`'s normal approximation was a biased test, not merely an imprecise one — replaced with the exact binomial tail
+
+> **giver:** earned-here — an exact one-sided binomial tail replaces a
+> z-score approximation; found auditing `capitalisationIsSignificant` while
+> diagnosing a Czech UDHR specimen flagged during the-fold's 516-language
+> content comparison (2026-08-30)
+
+**Generality:** universal (evidence: `capitalisationIsSignificant(cap,
+lower)` is a pure function of two integers with no script, language, or
+corpus dependence anywhere in its own body — every caller across every
+material this organ ever reads passes through the identical arithmetic.
+The demonstration is not one more specimen but an EXHAUSTIVE enumeration
+of the function's own practically-relevant domain: every `(cap, lower)`
+pair with `cap, lower >= 1` and `n = cap + lower <= 60`, 1,711 pairs in
+total. A check that covers the whole input space is a stronger generality
+claim than a second corpus could ever be — there is no third material to
+run this against because the function reads no material at all)
+
+**The measured defect.** The old test approximated a one-sided binomial
+proportion test with a normal z-bound (`CAP_SIG_Z = 1.645`, the standard
+one-sided-95% critical value): `pHat = cap / n > 0.5 + 1.645 *
+sqrt(0.25 / n)`. Normal approximations to the binomial are known to be
+unreliable at small n and near the tails — textbook material, not a
+discovery — but this organ's own callers (`surfacesFromEvidence`, gating
+whether a single word's capitalised/lowercase split counts as namehood
+evidence) run almost exclusively at SMALL n: a rare surname seen a dozen
+times in one document is a typical call, not an edge case. The triggering
+specimen (Czech, "Spojených," cap=4/lower=1) did NOT itself flip — exact
+p = 0.1875, refused under both the old approximation and the new exact
+test — so the investigation widened from one specimen to the function's
+whole practical domain rather than stopping at "this case looks fine."
+
+**The real cause, found by exhaustive enumeration.** Of the 1,711 pairs
+with `n <= 60`, **24 disagree between the two tests, and all 24 disagree
+in the same direction**: the old approximation calls the split
+"significant" (admits the word as name-evidence) where the exact tail
+says the true one-sided p-value exceeds the declared `CAP_SIG_ALPHA =
+0.05` (refuses it). Zero pairs disagree in the opposite direction. This
+is a systematic bias, not scattered imprecision: the normal approximation
+was structurally too permissive at the small-n range this organ actually
+operates in, admitting words as name-evidence on weaker splits than the
+declared 0.05 target actually licenses. Two representative flips: `cap=6,
+lower=1` (n=7, exact p = 8/128 = 0.0625 — real evidence, one short of the
+declared bar) and `cap=7, lower=2` (n=9, exact p ≈ 0.0898). A positive
+control at the same scale, `cap=9, lower=1` (n=10, exact p = 11/1024 ≈
+0.0107), clears the bar under both tests — the fix narrows a false
+positive at low n, it does not raise the bar on genuinely strong evidence.
+
+**The fix.** `capitalisationIsSignificant` now computes the exact
+one-sided binomial tail `P(X >= cap | n, p=0.5)` directly, in log-space,
+and compares it to the SAME `CAP_SIG_ALPHA = 0.05` the old z=1.645 bound
+was already targeting (one-sided 95% is what `z=1.645` approximates —
+this fix keeps the standing target and corrects only how it is computed,
+never redefines what "significant" means). Log-space is load-bearing, not
+stylistic: a naive real-space sum of `C(n,j) * 0.5^n` terms underflows
+before the combinatorial terms can matter, because `0.5^n` alone hits the
+smallest positive IEEE double subnormal at `n=1074` (`5e-324`) and is
+exactly `0` at `n=1075` — a naive implementation would silently return
+`0` (never significant) for any word seen more than ~1,075 times, wrong
+in the unmeasured direction, and this organ has no declared ceiling on
+how often a word may recur in a large document. The log-space recurrence
+(`logTerm += log(n-j+1) - log(j)`, log-sum-exp over the kept tail terms)
+has no such ceiling.
+
+**Files.** `adapters/text/surfaces.js` (`CAP_SIG_ALPHA` replaces
+`CAP_SIG_Z`; `logBinomialTailAtHalf` + the rewritten
+`capitalisationIsSignificant`, both documented in place with the flip
+count and the underflow reasoning above). `tests/rich-referents.test.js`
+(two new cases: a 6-of-7 flip specimen the old approximation wrongly
+admitted and the exact test correctly refuses; a 9-of-10 positive control
+both tests agree on). Full suite: 381/370/11 before (the code fix alone,
+confirmed byte-identical to S36's own committed baseline — no other
+caller's outcome moved), 383/372/11 after (the two new cases above pass;
+same 11 pre-existing failures by name), zero regressions.

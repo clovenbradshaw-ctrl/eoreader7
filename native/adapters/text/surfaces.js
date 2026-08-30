@@ -65,24 +65,66 @@ const LOWER_TOKEN = /^[\p{Ll}][\p{L}'’]*$/u;
 // this codebase's other Born-gate quantiles (e.g. nul-adjacent 0.95
 // thresholds elsewhere): a stated resolution for a statistical test, not a
 // hand-picked bridge between unrelated scales (SEED.md's actual complaint).
-const CAP_SIG_Z = 1.645;
+const CAP_SIG_ALPHA = 0.05;
+
+/**
+ * The exact one-sided binomial tail, P(X >= k | n, p=0.5), computed in LOG
+ * SPACE via the term-to-term recurrence log(p_j) = log(p_{j-1}) +
+ * log(n-j+1) - log(j) (p_0 = 0.5^n), then log-sum-exp over j=k..n.
+ *
+ * Found live, not assumed: a normal approximation was the ORIGINAL
+ * implementation here, and it is a poor fit exactly where this organ's own
+ * docstring says the null matters most — a candidate "seen only a handful
+ * of times." Measured on real material (live_priors' own UDHR corpus,
+ * POLICIES.md LP8's amendment): Czech's own "Spojených" (United) — 4
+ * capitalised, 1 lowercase, in the whole document — is refused by BOTH the
+ * old approximation and this exact test (the true one-sided p-value at
+ * n=5 is 0.1875, genuinely above 0.05; 4-of-5 is real-looking evidence
+ * that is simply not enough of it), which is the honest reason to replace
+ * the approximation with the exact answer rather than adjust a threshold
+ * to admit that one specimen — an approximation and its exact target can
+ * diverge in EITHER direction at low n, and only computing the real answer
+ * tells you which. A direct real-space sum instead of this log-space one
+ * would either overflow a factorial or underflow `0.5^n` to exactly zero
+ * well before n reaches "seen thousands" (0.5^1075 is already smaller than
+ * the smallest representable double) — log-space has no such ceiling, so
+ * this is the exact answer at every scale this organ is ever handed, not
+ * a hybrid with its own new threshold to justify.
+ */
+const logBinomialTailAtHalf = (k, n) => {
+  if (k <= 0) return 0; // P(X >= 0) = 1, log(1) = 0
+  if (k > n) return -Infinity; // impossible under n trials
+  const logHalf = Math.log(0.5);
+  let logTerm = n * logHalf; // log P(X = 0)
+  let logMax = -Infinity;
+  const kept = [];
+  for (let j = 1; j <= n; j += 1) {
+    logTerm = logTerm + Math.log(n - j + 1) - Math.log(j);
+    if (j >= k) {
+      kept.push(logTerm);
+      if (logTerm > logMax) logMax = logTerm;
+    }
+  }
+  let sumExp = 0;
+  for (const lt of kept) sumExp += Math.exp(lt - logMax);
+  return logMax + Math.log(sumExp);
+};
 
 /**
  * Is this candidate's non-initial capitalisation rate significant against
  * the null that capitalisation is a fair coin flip (p=0.5) unrelated to
- * namehood — normal approximation to the binomial, evaluated at THIS
- * candidate's own (cap, lower) counts. Replaces a single fixed ratio band
- * shared by every word (formerly [0.8, 2.0], applied uniformly regardless
- * of how much evidence a given candidate actually carried) with a bound
- * that widens for a word seen only a handful of times and tightens for one
- * seen thousands: two occurrences split evenly can never clear it (not
- * enough evidence either way), where the same split at high volume would.
+ * namehood — the EXACT one-sided binomial tail at THIS candidate's own
+ * (cap, lower) counts, never an approximation to it. Replaces a single
+ * fixed ratio band shared by every word (formerly [0.8, 2.0], applied
+ * uniformly regardless of how much evidence a given candidate actually
+ * carried) with a bound that widens for a word seen only a handful of
+ * times and tightens for one seen thousands: two occurrences split evenly
+ * can never clear it (not enough evidence either way), where the same
+ * split at high volume would.
  */
 const capitalisationIsSignificant = (cap, lower) => {
   const n = cap + lower;
-  const pHat = cap / n;
-  const bound = 0.5 + CAP_SIG_Z * Math.sqrt(0.25 / n);
-  return pHat > bound;
+  return Math.exp(logBinomialTailAtHalf(cap, n)) < CAP_SIG_ALPHA;
 };
 
 // ---------------------------------------------------------------------------

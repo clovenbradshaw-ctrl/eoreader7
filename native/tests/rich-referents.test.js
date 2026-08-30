@@ -281,3 +281,47 @@ test("plain whitespace between two capitalised tokens is NOT a hard break: an or
   const d = dr2(found, { minPartners: 2, minSentences: 1 });
   assert.ok(refIdOf(d.events, "Natasha Rostova"), "and must still be admitted as a referent");
 });
+
+test("capitalisationIsSignificant uses an exact binomial tail, not a normal approximation: 6-of-7 capitalised is NOT enough evidence at this sample size", () => {
+  // The normal approximation (the old CAP_SIG_Z = 1.645 z-bound) called
+  // cap=6/lower=1 (n=7) "significant" — pHat 0.857 clears its approximate
+  // 0.811 bound. The exact one-sided binomial tail, P(X>=6 | n=7, p=0.5) =
+  // 8/128 = 0.0625, sits ABOVE the declared CAP_SIG_ALPHA = 0.05: six-of-
+  // seven is real evidence but not enough of it yet, and the old
+  // approximation was admitting it anyway — the false-positive class this
+  // fix closes.
+  const lines = [
+    "Beside the fire sat Amber quietly.",
+    "By morning Amber had already left the camp.",
+    "Everyone agreed Amber was the bravest of them all.",
+    "Nobody had seen Amber since the storm passed.",
+    "The captain praised Amber for her courage.",
+    "Later that day Amber returned with fresh water.",
+    "The old necklace was made of amber beads.",
+  ];
+  const found = xs2(corpus(lines), {});
+  const names = new Set(found.map((s) => s.surface));
+  assert.ok(!names.has("Amber"), "6 capitalised against 1 lowercase (n=7) is exactly the normal approximation's false positive — the exact test correctly withholds it");
+});
+
+test("capitalisationIsSignificant's exact tail still admits genuinely strong evidence: 9-of-10 capitalised clears both the old approximation and the exact test", () => {
+  // A positive control alongside the case above: P(X>=9 | n=10, p=0.5) =
+  // 11/1024 ≈ 0.0107, comfortably under CAP_SIG_ALPHA — the fix narrows a
+  // false positive at low n, it does not make the test harder to pass on
+  // real evidence.
+  const lines = [
+    "Beside the wall stood Halvorsen watching the harbor.",
+    "By dusk Halvorsen had crossed the bridge.",
+    "Everyone respected Halvorsen for his patience.",
+    "Nobody questioned Halvorsen about the plan.",
+    "The captain thanked Halvorsen for the warning.",
+    "Later that week Halvorsen returned to the fort.",
+    "Soon afterward Halvorsen sent another message.",
+    "Even now Halvorsen remembers that winter.",
+    "Finally the council summoned Halvorsen to explain.",
+    "The soldiers used the term halvorsen for the manoeuvre.",
+  ];
+  const found = xs2(corpus(lines), {});
+  const names = new Set(found.map((s) => s.surface));
+  assert.ok(names.has("Halvorsen"), "9 capitalised against 1 lowercase (n=10) is strong evidence and must still be admitted");
+});
