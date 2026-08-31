@@ -43,15 +43,29 @@ export const CELL = Object.freeze({ op: "SIG", grain: "Ground" });
 
 const tokensOf = (id) => diaNorm(id).split(/\s+/).filter((t) => t.length > 2);
 
-/** Two NAMES corefer: containment, or a shared final token (surname). */
-export const namesCorefer = (a, b) => {
+// Exact match, or — when a declension folder is injected
+// (adapters/text/declension.js::createDeclensionFolder, over a received,
+// giver-named prior) — related by a licensed case transform in either
+// direction. Deliberately pairwise, never a per-token canonical lemma: see
+// declension.js's own header for why. `sameStem` omitted degrades every
+// comparison below to plain `===`, byte-identical to before this existed.
+const tokenEq = (x, y, sameStem) => x === y || (!!sameStem && (sameStem(x, y) || sameStem(y, x)));
+const tokenSetContains = (from, into, sameStem) => from.every((t) => into.some((u) => tokenEq(t, u, sameStem)));
+
+/**
+ * Two NAMES corefer: containment, or a shared final token (surname). A
+ * highly-inflected language (Russian: "Кутузов"/"Кутузова"; the same shape
+ * this file's own header already names for English's diaNorm) fragments a
+ * bare surname's own case forms into distinct tokens with no fold — pass
+ * `sameStem` (declension.js) to widen "shared" to "shared, or related by a
+ * productive case ending" without touching any other caller.
+ */
+export const namesCorefer = (a, b, { sameStem = null } = {}) => {
   const ta = tokensOf(a);
   const tb = tokensOf(b);
   if (!ta.length || !tb.length) return false;
-  const setA = new Set(ta);
-  const setB = new Set(tb);
-  const subset = ta.every((t) => setB.has(t)) || tb.every((t) => setA.has(t));
-  return subset || ta[ta.length - 1] === tb[tb.length - 1];
+  const subset = tokenSetContains(ta, tb, sameStem) || tokenSetContains(tb, ta, sameStem);
+  return subset || tokenEq(ta[ta.length - 1], tb[tb.length - 1], sameStem);
 };
 
 // A capitalised RUN: consecutive capitalised tokens, which is what a
@@ -685,7 +699,7 @@ const deriveMinSentences = (surfaces) => {
  *   floor, exactly as `minSentences` already promises for the
  *   single-document case.
  */
-export const discoverReferents = (surfaces, { minSentences, minPartners, groups } = {}) => {
+export const discoverReferents = (surfaces, { minSentences, minPartners, groups, sameStem = null } = {}) => {
   const events = [];
   const assigned = new Map(); // surface -> referent_id
   const generic = groups
@@ -738,7 +752,7 @@ export const discoverReferents = (surfaces, { minSentences, minPartners, groups 
   const corefersIndividuated = (a, b) => {
     const ia = individuating(a);
     const ib = individuating(b);
-    if (ia.length && ib.length) return namesCorefer(ia.join(" "), ib.join(" "));
+    if (ia.length && ib.length) return namesCorefer(ia.join(" "), ib.join(" "), { sameStem });
     // No individuating evidence on one side means no evidence FOR merging —
     // not licence to fall back on the generic tokens just judged unreliable.
     // That inverted fallback kept every Princess in one referent: both

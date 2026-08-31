@@ -1945,3 +1945,129 @@ both tests agree on). Full suite: 381/370/11 before (the code fix alone,
 confirmed byte-identical to S36's own committed baseline — no other
 caller's outcome moved), 383/372/11 after (the two new cases above pass;
 same 11 pre-existing failures by name), zero regressions.
+
+## S38 — a highly-inflected language fragments its own names' case forms into strangers; two received priors close it (declension folding) and its neighbouring gap (a POS-vocabulary gate that never loaded, for any language)
+
+> **giver:** `native/priors/declension-rus.json` — UniMorph (github.com/
+> unimorph/rus, CC BY-SA 3.0); `native/priors/pos-{eng,rus,fin}.json` —
+> Universal Dependencies (UD_English-EWT, UD_Russian-GSD, UD_Finnish-TDT,
+> all CC BY-SA 4.0), found running the-fold's reading pipeline against all
+> 516 real UN UDHR translations, then a real fetched Russian War and
+> Peace (2026-08-30/31)
+
+**Generality:** universal for the mechanism, specimen-scoped for the
+Russian/Finnish/English data shipped this pass (evidence: neither
+`native/adapters/text/declension.js` nor `native/scripts/build-pos-
+prior.mjs` contains one line of Russian-, Finnish-, or English-specific
+code — both take a received, language-declared prior as data and a bare
+CoNLL-U/UniMorph file as input respectively; `build-pos-prior.mjs`'s own
+header states this and `tests/pos-prior.test.js` proves it by running the
+IDENTICAL unmodified `classifyWord` against three independently-built
+priors, English/Russian/Finnish, with no per-language branch anywhere in
+the consumer. What is specimen-scoped is the DATA: only Russian has a
+declension prior today, and only English/Russian/Finnish have POS priors
+— extending either to a fourth language is "fetch one more treebank," not
+new code, and that is exactly the claim this generality tag makes and no
+more).
+
+**The two defects, found together, closed separately.** Blind-spot
+comparison across all 516 UDHR translations (this file's own S34/S36/S37
+lineage) surfaced two more: (1) `namesCorefer`'s containment/shared-final-
+token check compares Cyrillic tokens as exact strings, so a bare Russian
+surname's own CASE FORMS — "Кутузов" (nominative), "Кутузова" (genitive/
+accusative), "Кутузову" (dative) — read as three unrelated strangers,
+never one referent; the identical shape recurs for every name (Anna
+Pavlovna's own "Анна"/"Анне"/"Анны"/"Анну" fragment the same way) and for
+Finnish's own richer case system. (2) The comment already sitting in
+live_priors' own `eot-digest.mjs::loadOrgans` — describing a measured,
+working POS-vocabulary gate that drops garbage connectors from real
+Gutenberg excerpts (Shakespeare 90→22 edges, the Iliad 65→25, Alice
+97→34) — was true of a PAST build, but the code path it describes
+imports `legacy-eoreader6.1/packages/engine/perceiver/text/wordclass.js`
+and reads `legacy-eoreader6.1/scripts/corpus/pos-eng.json`, and that
+submodule is confirmed empty in this checkout (`ls -la` on it: only `.`
+and `..`) — so the gate has been silently loading for NEITHER English nor
+any of the other 515 languages, and every relation-vocabulary count this
+whole session measured was unfiltered raw edges, never the gated ones the
+comment describes.
+
+**Why a rule table, not a form->lemma dictionary, for declension.**
+Checked directly before designing anything: "кутузов" appears NOWHERE in
+UniMorph's 473,482-row Russian paradigm table. A historical or fictional
+PERSON's surname is exactly the class of word a general-lexicon resource
+will never carry, so what has to generalise is the TRANSFORM (mined from
+the 178,843 real noun rows UniMorph does carry — e.g. genitive singular
+hard-stem masculine: strip a trailing "а", the single most common
+transform in the whole table at 7,541 real instances), never the word.
+
+**Why the check stays pairwise, never a per-word canonical lemma.** The
+mined rules are directional but ambiguous taken alone: "ов" is the
+dominant Russian genitive-PLURAL ending ("столов" -> "стол"), and Kutuzov
+is exactly the common Russian surname class that happens to already END
+in "-ов" as part of its own stem. Applying that rule to a bare word in
+isolation would corrupt an already-nominative name ("Кутузов" ->
+"Кутуз", a word nobody wrote). `declension.js::createDeclensionFolder`
+answers a narrower, safer question instead — does inflected surface A
+reach EXACTLY the other OBSERVED surface B under some rule — so a false
+merge needs two unrelated real names in the same document to coincide on
+one exact transformed string, never a single word's own identity being
+silently rewritten. `namesCorefer(a, b, { sameStem })` widens the
+existing containment/shared-final-token checks with this predicate,
+tried in both directions; omitted, behaviour is byte-identical to before
+this file existed (checked: `namesCorefer("Кутузов", "Кутузова")` is
+`false` with no organ injected, exactly as it always was).
+
+**The floor is declared and swept, not fitted to the reporting
+specimen.** `MIN_COUNT = 100` (a rule must recur at least this often in
+the mined data to ship) was checked at 10/25/50/100/200 against real
+Russian War and Peace prose BEFORE being chosen: every floor in that
+range produced ZERO false merges among the real named characters present
+(Anna, Pierre, Kutuzov, Vasily, Andrei, Boris, Bolkonsky, Bonaparte,
+Napoleon, Mortemar, and more — 38 correct merges at the shipped floor, 43
+at the loosest floor tested, still zero wrong ones), with only recall
+varying; 100 sits inside that flat region rather than at either edge. A
+second, structurally different corpus (the Russian UDHR, legal/
+declarative prose rather than narrative) produced zero fires either way —
+disclosed honestly as a weak cross-domain check (the document is short
+and front-matter-contaminated at the raw-file level this validation read
+it at, so few genuinely inflected pairs existed to test against) rather
+than claimed as a second positive result.
+
+**The POS-prior fix is a path fix, not a new mechanism.**
+`native/adapters/text/wordclass.js` already exists, is self-contained (no
+legacy import — confirmed by grep, and by this file's own P69 ratchet
+history), and exports exactly the four symbols `makeGrammarLens` needs
+(`classifyWord`, `dominantClass`, `POS_PRIOR_META`, `THRAX_META`).
+`native/scripts/build-pos-prior.mjs` is new: the SAME CoNLL-U pass-0
+parsing `build-construction-prior.mjs` already proved (tab-split, skip
+`#` comments, skip multi-word ranges), stopped one pass earlier — the
+unconditional form-level tally IS `POSPrior@1`'s own shape, no
+conditioning layer needed for this gate. Reused verbatim across all
+three languages: `eng` (UD_English-EWT, 204,578 tokens, 16,654 forms),
+`rus` (UD_Russian-GSD, 74,900 tokens, 24,524 forms), `fin`
+(UD_Finnish-TDT, 162,815 tokens, 46,293 forms) — real, checked counts,
+not estimates: English "the" reads 9,064:8:2:1 DET:PRON:ADP:PART,
+Russian "и" reads 1,724:84:1 CCONJ:PART:PROPN, Finnish "ja" reads
+4,710:8 CCONJ:ADV and "on" reads 3,071:97:1:9 AUX:VERB:ADV:PROPN — every
+one the grammatically correct dominant class. live_priors' own
+`loadOrgans` still points at the dead legacy paths; retargeting it to
+these native files and priors is live_priors' own change (its own
+POLICIES.md carries the wiring and the corpus-scale remeasurement).
+
+**Files.** `scripts/build-declension-prior.mjs` (new) + `native/priors/
+declension-rus.json` (new, built artifact, committed — 89 rules, 3.9KB).
+`adapters/text/declension.js` (new, pure, zero imports —
+`createDeclensionFolder`). `adapters/text/surfaces.js` (`namesCorefer`
+gained an optional `{ sameStem }`; `discoverReferents` threads it through
+unchanged elsewhere). `scripts/build-pos-prior.mjs` (new) + `native/
+priors/pos-{eng,rus,fin}.json` (new, built artifacts, committed —
+384KB/733KB/1.1MB). `tests/declension.test.js` (new, 9 cases, against the
+REAL committed prior — the flagship Kutuzov case, a feminine -а noun
+class Anna exercises differently, an unrelated-names control, the
+residual-stem floor, the no-prior gap, and one full `discoverReferents`
+end-to-end case showing three real Cyrillic case forms of one name merge
+into one referent only when the organ is injected, and do not without
+it). `tests/pos-prior.test.js` (new, 7 cases, against all three REAL
+committed priors). Full suite: 383/372/11 before this entry's own changes
+(S37's own committed baseline), 399/388/11 after (16 new cases, all
+passing; same 11 pre-existing failures by name), zero regressions.
