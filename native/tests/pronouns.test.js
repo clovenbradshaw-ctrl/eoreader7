@@ -152,3 +152,49 @@ test("activation arm: gender stays a hard filter — a hot but wrong-gendered be
   const she = bindings.find((x) => x.pronoun === "she");
   assert.equal(she?.referentId, "ref:elena", "Marcus is hotter but 'she' cannot bind him — gender evidence is a wall, not a weight");
 });
+
+// ── language is declared, defaults to "en", and an unsupported language is
+// a typed gap rather than a silent English-pattern attempt ────────────────
+import { findThirdPersonSingular } from "../adapters/text/pronouns.js";
+
+test("findThirdPersonSingular: defaults to en, and an unregistered language returns no hits — declared, not accidental", () => {
+  const text = "She told him it was his decision, not hers.";
+  const asDefault = findThirdPersonSingular(text);
+  const asEn = findThirdPersonSingular(text, "en");
+  assert.deepEqual(asDefault, asEn, "the default and the explicit 'en' call must agree byte-for-byte");
+  assert.equal(asDefault.length, 4);
+  assert.deepEqual(findThirdPersonSingular(text, "ru"), [], "no pronoun prior is registered for 'ru' — nothing is attempted");
+});
+
+test("resolvePronouns: an unsupported language is a typed gap, never a silent English attempt", () => {
+  // The same corpus that binds cleanly under English (the file's own first
+  // test above) must not silently bind — or silently refuse one sentence at
+  // a time — once the caller declares a language this file has no prior
+  // for. It must refuse ONCE, for the whole call, and say why.
+  const { bindings, gaps, regime } = resolvePronouns(mk(buildTwoCharacterCorpus()), SURFACES, { ...OPTS, language: "ru" });
+  assert.equal(bindings.length, 0);
+  assert.equal(gaps.length, 1);
+  assert.equal(gaps[0].reason, "no_pronoun_prior_for_language");
+  assert.equal(gaps[0].language, "ru");
+  assert.equal(regime.name, "unsupported_language");
+  assert.equal(regime.framesWithPronouns, 0, "an unattempted material reports zero frames, never a count that looks like it tried");
+});
+
+test("resolvePronouns: language defaults to en — omitting it is byte-identical to declaring it", () => {
+  const a = resolvePronouns(mk(buildTwoCharacterCorpus()), SURFACES, OPTS);
+  const b = resolvePronouns(mk(buildTwoCharacterCorpus()), SURFACES, { ...OPTS, language: "en" });
+  assert.deepEqual(a, b);
+});
+
+test("resolvePronounsByActivation: an unsupported language is a typed gap, never a silent English attempt", () => {
+  const lines = [];
+  let f = 0;
+  const pushFiller = (k) => { for (let i = 0; i < k; i++) lines.push(filler(f++)); };
+  pushFiller(2);
+  lines.push("Elena knelt in the garden and pressed her palms into the garden soil.");
+  const { bindings, gaps } = resolvePronounsByActivation(mk(lines), new Map([["Elena", "ref:elena"]]), { ...ACT_OPTS, language: "ru" });
+  assert.equal(bindings.length, 0);
+  assert.equal(gaps.length, 1);
+  assert.equal(gaps[0].reason, "no_pronoun_prior_for_language");
+  assert.equal(gaps[0].language, "ru");
+});

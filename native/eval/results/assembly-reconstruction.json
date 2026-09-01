@@ -21,6 +21,7 @@
     "forgetting-for-recall-RESEARCH.md": { "assembly": null, "gap": "not_a_result", "reconstructed": true, "basis": "a research survey, not a measurement — no assembly to name" },
     "hypergraph-cursor-frankenstein.json": { "assembly": "assembly:link", "version": 1, "reconstructed": true, "basis": "eval/hypergraph-cursor.mjs — hypergraph projection over the reading's edges" },
     "interlocutor-frankenstein.json": { "assembly": "assembly:lens", "version": 1, "reconstructed": true, "basis": "eval/interlocutor.mjs — kernel/perspective.js, the lens organ" },
+    "latin-case-marking-RESULTS.md": { "assembly": "assembly:link", "version": 1, "reconstructed": true, "basis": "eval/latin-case-marking-eval.mjs — case-marking relation extraction (S33), the same relation-extraction family causal-extraction.mjs/extraction-overview.mjs already stamp assembly:link; the sibling .json from the same run self-stamps at run time (A2.1 forward) — this .md summary cannot, so it is declared here instead" },
     "levers-RESULTS.md": { "assembly": "assembly:entity", "version": 1, "reconstructed": true, "basis": "eval/levers.mjs — anchorSpans/actClosure, S9's two worked levers on the entity path" },
     "levers-frankenstein.json": { "assembly": "assembly:entity", "version": 1, "reconstructed": true, "basis": "same run, the numbers" },
     "meta-parameters-INVENTORY.md": { "assembly": null, "gap": "not_a_result", "reconstructed": true, "basis": "a dial inventory (S16's work-off list), not a measurement" },
