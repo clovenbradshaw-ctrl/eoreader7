@@ -95,6 +95,32 @@ const TOKEN_STRIP = /^[^\p{L}\p{N}'’]+|[^\p{L}\p{N}'’]+$/gu;
 
 const escapeRe = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
+// \b, generalized past ASCII. JS's \b is defined against \w = [A-Za-z0-9_]
+// only — no Unicode mode exists for it, even under the /u flag — so
+// \bАнна\b never matches: the position before "А" and after "а" are BOTH
+// already \W by \b's own ASCII-only reckoning (no word-to-nonword
+// transition for it to detect), and the same is true for Greek, Hebrew,
+// Armenian, Arabic, or any other non-Latin script. MEASURED on real fetched
+// Война и мир prose (live_priors/11-multi-language/war-and-peace/): every
+// edge discoverRelationVocab found in the excerpt was from the novel's own
+// embedded French dialogue, none from its Cyrillic narration, even where a
+// name recurs in the identical unchanged form — confirmed the cause was
+// this regex, not case declension or code-switch dominance, by running the
+// SAME construction directly against a name that starts and ends in
+// Cyrillic (matches: 0) versus one that starts and ends in ASCII despite a
+// mid-word diacritic, e.g. "Hélène" (matches: fine — \b only inspects the
+// boundary characters, so a name is safe here iff its FIRST and LAST
+// character happen to be ASCII). `bWord` reuses this file's own established
+// word-character class (`W`, above — \p{L}\p{N}_'’, the same class every
+// surface/verb candidate here is already built from) via lookaround instead
+// of \w, so a bounded alternation is safe on any script. Byte-identical to
+// \b for the ASCII-only alternatives every existing caller and test already
+// exercises: \b requires the matched text's own edges to sit against a
+// \w-to-\W transition, which for a run of W characters is exactly
+// "not preceded/followed by another W character" — what this computes.
+const WCHAR = "[\\p{L}\\p{N}_'’]";
+const bWord = (pattern) => `(?<!${WCHAR})(?:${pattern})(?!${WCHAR})`;
+
 // A captured span's internal whitespace collapsed to a single ordinary
 // space — shared between extractRelations's own subject/object capture
 // and expandSubjectNP's widened slice, both of which can carry a raw
@@ -156,7 +182,7 @@ const collapseWs = (t) => String(t ?? "").replace(/\s+/g, " ");
 const negationBeforeVerbFor = (words) => {
   const alt = [...words].map(escapeRe).join("|");
   const extra = words === NEGATION_WORDS ? "|no longer" : "";
-  return new RegExp(`\\b(?:${alt}${extra})\\b`, "iu");
+  return new RegExp(bWord(`${alt}${extra}`), "iu");
 };
 
 // The exact complement of W: any run of characters that is not part of a
@@ -348,7 +374,7 @@ export const discoverRelationVocab = (text, { surfaces, functionWords = null, mi
     }
   };
   if (uniqueNames.length) {
-    const SURFACE_RE = new RegExp(`\\b(?:${uniqueNames.map(escapeRe).join("|")})\\b`, "gu");
+    const SURFACE_RE = new RegExp(bWord(uniqueNames.map(escapeRe).join("|")), "gu");
     let m;
     while ((m = SURFACE_RE.exec(s)) !== null) tallyAfter(m.index + m[0].length, diaNorm(m[0]));
   }
@@ -562,7 +588,7 @@ export const extractRelations = (text, { verbs, limit = Infinity, functionWords 
   // no matching verb at all, forcing a full scan): both resolve in single-
   // digit milliseconds.
   const OBJECT_GROUP = functionWords && functionWords.size
-    ? `(${W}(?:\\s+(?!(?:${[...functionWords].map(escapeRe).join("|")})\\b)${W})*)`
+    ? `(${W}(?:\\s+(?!${bWord([...functionWords].map(escapeRe).join("|"))})${W})*)`
     : `(.+?)(?:\\.|,|;|$)`;
   // Subject and verb and object are ALL read straight from MATCHER's own
   // m[1]/m[2]/m[3] — a chorus review (CHORUS-LOG.md, Diaconis) found this
@@ -593,7 +619,7 @@ export const extractRelations = (text, { verbs, limit = Infinity, functionWords 
   // real head trapped inside the object.
   const AUX_HOP_LIMIT = 4;
   const AUX_GROUP_RE = phrasalPredicates
-    ? `((?:\\b(?:${[...new Set([...auxiliaryVerbs, ...negationWords])].map(escapeRe).join("|")})\\b\\s+){0,${AUX_HOP_LIMIT}})`
+    ? `((?:${bWord([...new Set([...auxiliaryVerbs, ...negationWords])].map(escapeRe).join("|"))}\\s+){0,${AUX_HOP_LIMIT}})`
     : "";
   const VERB_IDX = phrasalPredicates ? 3 : 2;
   const OBJECT_IDX = phrasalPredicates ? 4 : 3;
@@ -615,7 +641,7 @@ export const extractRelations = (text, { verbs, limit = Infinity, functionWords 
   // lookahead at all) when `phrasalPredicates` is off, so the ORIGINAL
   // pattern text is unchanged byte-for-byte in the default case.
   const SUBJECT_SECOND_GUARD = phrasalPredicates
-    ? `(?!\\s+(?:${[...new Set([...auxiliaryVerbs, ...negationWords])].map(escapeRe).join("|")})\\b)`
+    ? `(?!\\s+${bWord([...new Set([...auxiliaryVerbs, ...negationWords])].map(escapeRe).join("|"))})`
     : "";
   const MATCHER = new RegExp(`(?<=^|[^\\p{L}])(${W}(?:${SUBJECT_SECOND_GUARD}\\s+${W})?)\\s+(?:${ASIDE}\\s+)*${AUX_GROUP_RE}(${VERB_ALT})\\s+${OBJECT_GROUP}`, "giu");
 

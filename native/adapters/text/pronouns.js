@@ -84,7 +84,7 @@
 import { tokens, codeOf, recall, encodeFrame } from "../../memory/activation.js";
 import { adjudicate, nullAdjudicate, CONTEST_VERDICTS } from "../../kernel/contest.js";
 import { createActivation } from "../../kernel/activation.js";
-import { THIRD_PERSON_SINGULAR, CLAUSE_OPENERS } from "./priors.js";
+import { THIRD_PERSON_SINGULAR, THIRD_PERSON_SINGULAR_META, CLAUSE_OPENERS } from "./priors.js";
 
 // The cell this organ occupies on the operator grid (engine/operators.js):
 // CON · Link · Binding — a pronoun bound to a referent by one-hop recall,
@@ -264,8 +264,56 @@ const findInClass = (text, pronounClass) => {
   return hits;
 };
 
-export const findThirdPersonSingular = (text, pronounClass) => {
-  const cls = pronounClass instanceof Map ? pronounClass : normalizePronounClass(pronounClass);
+// A per-language registry, so a second closed class is a new entry, not a
+// redesign. Each entry restates its own `giver` from priors.js's own META
+// export rather than declaring a second one here — one place names the
+// source (Amendment IV). Today this holds exactly one language, which is a
+// fact about what this codebase has RECEIVED so far, never an assumption
+// that a third-person-singular pronoun only exists in English: a caller
+// that declares a material's language gets an honest gap for any language
+// with no registered prior, on the same terms S6/S16 already hold for a
+// medium with no adapter — never a silent attempt with the wrong grammar.
+const PRONOUN_PRIORS = Object.freeze({
+  en: Object.freeze({
+    re: /\b(he|him|his|himself|she|her|hers|herself)\b/gi,
+    table: THIRD_PERSON_SINGULAR,
+    giver: THIRD_PERSON_SINGULAR_META.giver,
+  }),
+});
+
+/** The declared pronoun prior for a language, or null — never a guess. */
+const pronounPriorFor = (language) => PRONOUN_PRIORS[String(language ?? "en").toLowerCase()] ?? null;
+
+/**
+ * Third-person-singular pronoun mentions in `text`, under EITHER class
+ * source — the merge of two streams that landed the same week and answer
+ * different questions about the same closed class:
+ *
+ *   - a LANGUAGE string (S39's stream): which language's pronoun system
+ *     applies. The registry is the RECEIVED prior — hand-declared table,
+ *     giver named — and an unregistered language returns no hits, the
+ *     declared-not-accidental outcome S39's own tests pin.
+ *   - a MEASURED class (the treebank stream): where the gender table comes
+ *     from. A PronounPrior@1 register (or a pre-normalized Map) carries its
+ *     own attestation counts, and MIN_OBSERVATIONS decides which forms earn
+ *     a hard gender gate.
+ *
+ * Precedence is S17's own rule, stated once here and reused at every entry
+ * point: the received registry stands until a measured class is supplied;
+ * a caller-declared class outranks it. One FINDER serves both — findInClass
+ * builds its Unicode-aware boundary from the class's own tokens, which is
+ * byte-equivalent to the old \b regex for English and is what lets a
+ * Cyrillic register actually match (js's \b knows only ASCII). Registry
+ * hits therefore carry `clean: true` exactly as the hand-declared class
+ * always implied; measured hits carry whatever their attestation earned.
+ */
+export const findThirdPersonSingular = (text, classOrLanguage = "en") => {
+  if (typeof classOrLanguage === "string") {
+    const prior = pronounPriorFor(classOrLanguage);
+    if (!prior) return [];
+    return findInClass(text, normalizePronounClass(prior.table));
+  }
+  const cls = classOrLanguage instanceof Map ? classOrLanguage : normalizePronounClass(classOrLanguage);
   return findInClass(text, cls);
 };
 
@@ -298,6 +346,12 @@ const DEFAULT_EDGE_SLOTS = 24;
  * @param {number} options.minMargin declared lead the top candidate must hold
  *   over the runner-up, as a fraction of the top score. Never defaulted, for
  *   the same reason.
+ * @param {string} [options.language="en"] the material's declared language.
+ *   Defaults to "en", matching every existing caller — behaviour is
+ *   byte-identical when omitted. A language with no registered pronoun
+ *   prior (`PRONOUN_PRIORS` above) returns immediately with zero bindings
+ *   and one typed gap, rather than running English patterns against text
+ *   they were never declared to describe.
  * @returns {{bindings: Array<object>, gaps: Array<object>}} every resolved
  *   pronoun mention, and every one that was not — a gap is a result.
  */
@@ -307,6 +361,7 @@ export const resolvePronouns = (
   {
     minActivation,
     minMargin,
+    language = "en",
     idfFloor,
     minLen,
     completion = DEFAULT_COMPLETION,
@@ -402,6 +457,44 @@ export const resolvePronouns = (
   if (adjudicated && (!Number.isFinite(contestedMargin) || contestedMargin < minMargin || contestedMargin > 1))
     throw new TypeError("resolvePronouns: contestedMargin, when declared, is a fraction in [minMargin, 1] — a frame carrying competitors is never the easier case");
 
+  // A language with no registered pronoun prior is a fact about what this
+  // codebase has received, never a reason to run English patterns against
+  // it and call whatever fails to match "no pronouns here." One typed gap,
+  // reported once for the whole call — not one per sentence, which would
+  // bury a single true fact (this language is unsupported) inside a pile of
+  // repeated ones. The same denominator discipline S22 built for co-presence
+  // applies here: "never attempted" and "attempted and found nothing" must
+  // never share a bucket, so `regime.name` names this case distinctly from
+  // both the refused and adjudicated regimes below.
+  // S17 precedence, the merge's one rule: the received registry stands until
+  // a MEASURED class is supplied; a caller-declared pronounClass outranks it,
+  // so the unsupported-language gap fires only when there is truly nothing —
+  // no registry entry AND no measured class — never as a veto over evidence
+  // the caller brought.
+  if (pronounClass === undefined && !pronounPriorFor(language)) {
+    return {
+      bindings: [],
+      gaps: [{
+        reason: "no_pronoun_prior_for_language",
+        tier: "engine",
+        language,
+        detail: `no pronoun prior is declared for language "${language}" — nothing was attempted, which is not the same fact as nothing being found`,
+      }],
+      regime: {
+        name: "unsupported_language",
+        language,
+        criterion: null,
+        contestedMargin: null,
+        minActivation,
+        minMargin,
+        framesWithPronouns: 0,
+        framesCoPresent: 0,
+        framesAdjudicated: 0,
+        basis: `no pronoun prior is declared for language "${language}" — the material was never scanned for third-person-singular pronouns`,
+      },
+    };
+  }
+
   // The kernel's verdict vocabulary is medium-general; this organ's gap
   // names are its own and predate it. One map, so the kernel never has to
   // know what a pronoun is and this file never has to restate a verdict.
@@ -416,7 +509,9 @@ export const resolvePronouns = (
   const nonPersonalSet = nonPersonal instanceof Set ? nonPersonal : new Set(nonPersonal ?? []);
   const surfaceToReferent = referentSurfaces instanceof Map ? referentSurfaces : new Map(Object.entries(referentSurfaces ?? {}));
   const matcher = surfaceMatcher([...surfaceToReferent.keys()]);
-  const cls = pronounClass instanceof Map ? pronounClass : normalizePronounClass(pronounClass);
+  const cls = pronounClass !== undefined
+    ? (pronounClass instanceof Map ? pronounClass : normalizePronounClass(pronounClass))
+    : normalizePronounClass(pronounPriorFor(language).table);
 
   // The co-present arbiter's presence tracker. Declared all-or-nothing: if
   // the caller gives a window it must give the floor and margin too, and
@@ -460,7 +555,7 @@ export const resolvePronouns = (
 
     const namedMatches = namedMatchesIn(sentence.text, matcher, surfaceToReferent);
     const named = new Set(namedMatches.map((n) => n.ref));
-    const pronounHits = findThirdPersonSingular(sentence.text, cls);
+    const pronounHits = findInClass(sentence.text, cls);
 
     // REFUSED regime (contestedMargin absent): resolve only the case the
     // original complaint names — a frame carried by a pronoun with NO name
@@ -737,11 +832,16 @@ export const resolvePronouns = (
  * with its reason — S5); `minActivation` here is in ARRIVAL units (1 = one
  * full naming, undecayed), a different scale from the thematic arm's recall
  * score, which is why it is the caller's to declare separately.
+ *
+ * `language` (default "en") is the material's declared language, on the
+ * same terms `resolvePronouns` above holds it: a language with no
+ * registered pronoun prior returns immediately with a typed gap, never a
+ * silent English-pattern attempt.
  */
 export const resolvePronounsByActivation = (
   sentences,
   referentSurfaces,
-  { window, minActivation, minMargin, nonPersonal, createActivation, pronounClass = undefined } = {},
+  { window, minActivation, minMargin, language = "en", nonPersonal, createActivation, pronounClass = undefined } = {},
 ) => {
   if (typeof createActivation !== "function")
     throw new TypeError("resolvePronounsByActivation: createActivation is injected — the kernel's own gradient, never a private reimplementation (S6)");
@@ -750,10 +850,31 @@ export const resolvePronounsByActivation = (
   if (!Number.isFinite(minMargin) || minMargin < 0 || minMargin > 1)
     throw new TypeError("resolvePronounsByActivation: minMargin is declared — how far a candidate must lead is never a default");
 
+  // See resolvePronouns's own comment on this exact check: one typed gap
+  // for the whole call, never a silent per-sentence non-match.
+  // S17 precedence, the merge's one rule: the received registry stands until
+  // a MEASURED class is supplied; a caller-declared pronounClass outranks it,
+  // so the unsupported-language gap fires only when there is truly nothing —
+  // no registry entry AND no measured class — never as a veto over evidence
+  // the caller brought.
+  if (pronounClass === undefined && !pronounPriorFor(language)) {
+    return {
+      bindings: [],
+      gaps: [{
+        reason: "no_pronoun_prior_for_language",
+        tier: "engine",
+        language,
+        detail: `no pronoun prior is declared for language "${language}" — nothing was attempted, which is not the same fact as nothing being found`,
+      }],
+    };
+  }
+
   const nonPersonalSet = nonPersonal instanceof Set ? nonPersonal : new Set(nonPersonal ?? []);
   const surfaceToReferent = referentSurfaces instanceof Map ? referentSurfaces : new Map(Object.entries(referentSurfaces ?? {}));
   const matcher = surfaceMatcher([...surfaceToReferent.keys()]);
-  const cls = pronounClass instanceof Map ? pronounClass : normalizePronounClass(pronounClass);
+  const cls = pronounClass !== undefined
+    ? (pronounClass instanceof Map ? pronounClass : normalizePronounClass(pronounClass))
+    : normalizePronounClass(pronounPriorFor(language).table);
   const activation = createActivation({ window });
 
   const genderEvidence = new Map();
@@ -772,7 +893,7 @@ export const resolvePronounsByActivation = (
   for (const sentence of sentences ?? []) {
     const namedMatches = namedMatchesIn(sentence.text, matcher, surfaceToReferent);
     const named = new Set(namedMatches.map((n) => n.ref));
-    const pronounHits = findThirdPersonSingular(sentence.text, cls);
+    const pronounHits = findInClass(sentence.text, cls);
 
     if (named.size === 0 && pronounHits.length > 0) {
       for (const hit of pronounHits) {

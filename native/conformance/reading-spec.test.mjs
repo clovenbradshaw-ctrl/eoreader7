@@ -94,7 +94,7 @@ test("S2/S3: the retraction records stand — prefix and lookahead rules are wri
 // ── S8: the spec itself is present and appended-to, never emptied ───────
 test("S8: READING-SPEC.md exists and carries every section the suite enforces", () => {
   const spec = read("../READING-SPEC.md");
-  for (const section of ["S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8", "S9", "S10", "S11", "S12", "S13", "S14", "S15", "S16", "S17", "S18", "S19", "S20", "S21", "S22", "S23", "S24", "S25"]) {
+  for (const section of ["S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8", "S9", "S10", "S11", "S12", "S13", "S14", "S15", "S16", "S17", "S18", "S19", "S20", "S21", "S22", "S23", "S24", "S25", "S26", "S27", "S28", "S29", "S30", "S31", "S32", "S33"]) {
     assert.match(spec, new RegExp(`## ${section} `), `${section} is present`);
   }
   // The S17 collision is resolved by correction note, not renumbering
@@ -150,4 +150,55 @@ test("S14: domain-major, mode-minor over the engine's own DOMAINS x MODES yields
   // rejects the sequence grid.js's wish->testimony fold performs
   assert.throws(() => m.validateChain(["DEF", "EVA"]), /EVA before DEF/,
     "the fossil is live in validateChain; S12 records why it is wrong and gates the change on conformance");
+});
+
+// ── S31: every law entry from here on discloses its own generality ──────
+// Paired with the-fold's POLICIES.md P71 and its generality-gate.test.mjs:
+// the same three-way vocabulary, checked here for READING-SPEC.md's own
+// `## S<N>` headers. This checks DISCLOSURE only, never TRUTH — see S31's
+// own text for why a mechanical test cannot go further than that. The
+// threshold is 31, not 30: S30 (collapseWs) landed on main a moment before
+// this entry did and predates the gate, so it correctly carries no tag.
+function lawSections(markdown) {
+  const lines = markdown.split("\n");
+  const heads = [];
+  lines.forEach((line, i) => {
+    const m = line.match(/^## S(\d+)\b/);
+    if (m) heads.push({ n: Number(m[1]), line: i });
+  });
+  return heads.map((h, idx) => ({
+    n: h.n,
+    text: lines
+      .slice(h.line, idx + 1 < heads.length ? heads[idx + 1].line : lines.length)
+      .join("\n"),
+  }));
+}
+
+const GENERALITY_TAG = /\*\*Generality:\*\*\s*(universal|specimen-scoped|not-applicable)\b/;
+
+test("S31: this entry exists and declares its own generality", () => {
+  const spec = read("../READING-SPEC.md");
+  const s31 = lawSections(spec).find((e) => e.n === 31);
+  assert.ok(s31, "S31 must exist in READING-SPEC.md");
+  assert.match(s31.text, GENERALITY_TAG, "S31 must tag its own claim");
+});
+
+test("S31+: every reading-spec entry from here on discloses whether its finding generalizes beyond the specimen that found it", () => {
+  const spec = read("../READING-SPEC.md");
+  const entries = lawSections(spec).filter((e) => e.n >= 31);
+  assert.ok(entries.length > 0, "at least S31 itself must be scanned");
+  for (const e of entries) {
+    assert.match(
+      e.text,
+      GENERALITY_TAG,
+      `S${e.n} must declare Generality: universal | specimen-scoped | not-applicable (S31, paired with the-fold's P71)`,
+    );
+  }
+});
+
+test("S30 predates the gate and is correctly NOT required to carry the tag", () => {
+  const spec = read("../READING-SPEC.md");
+  const s30 = lawSections(spec).find((e) => e.n === 30);
+  assert.ok(s30, "sanity: S30 exists");
+  assert.doesNotMatch(s30.text, GENERALITY_TAG, "S30 predates S31's gate — no tag is required or assumed");
 });

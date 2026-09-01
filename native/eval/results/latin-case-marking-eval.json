@@ -1,0 +1,149 @@
+{
+  "schema": "EOLatinCaseMarkingEval@1",
+  "testSentencesTotal": 939,
+  "singleFiniteClauseSentences": 380,
+  "skippedMultiClause": 559,
+  "end1VsGoldNsubj": {
+    "tp": 17,
+    "fp": 49,
+    "fn": 205,
+    "precision": 0.25757575757575757,
+    "recall": 0.07657657657657657
+  },
+  "end2VsGoldObj": {
+    "tp": 25,
+    "fp": 52,
+    "fn": 187,
+    "precision": 0.3246753246753247,
+    "recall": 0.1179245283018868
+  },
+  "gapCounts": {
+    "ambiguous_verb": 75,
+    "no_nominative_found": 150,
+    "object_slot_is_oblique_not_accusative": 32,
+    "no_verb_found": 60,
+    "ambiguous_accusative": 116,
+    "intransitive_or_no_object_found": 20,
+    "ambiguous_nominative": 29
+  },
+  "rightExamples": [
+    {
+      "text": "Finem dedit ore loquendi.",
+      "end2": "Finem",
+      "goldObj": "Finem"
+    },
+    {
+      "text": "mitte hanc de pectore curam;",
+      "end2": "curam",
+      "goldObj": "curam"
+    },
+    {
+      "text": "Fit gemitus.",
+      "end1": "gemitus",
+      "goldSubj": "gemitus"
+    },
+    {
+      "text": "Talibus inde modis ora indignantia solvit:",
+      "end1": "Talibus",
+      "end2": "ora",
+      "goldObj": "ora"
+    },
+    {
+      "text": "Maxima pars unda rapitur;",
+      "end1": "pars",
+      "end2": "unda",
+      "goldSubj": "pars",
+      "goldObj": "unda"
+    },
+    {
+      "text": "possedit cetera pontus.",
+      "end1": "pontus",
+      "end2": "cetera",
+      "goldSubj": "pontus",
+      "goldObj": "cetera"
+    }
+  ],
+  "wrongExamples": [
+    {
+      "text": "Te quoque magna manent regnis penetralia nostris:",
+      "gap": {
+        "reason": "ambiguous_verb",
+        "candidates": [
+          "manent",
+          "nostris"
+        ]
+      },
+      "goldSubj": "penetralia",
+      "goldObj": "Te"
+    },
+    {
+      "text": "Sed terrae graviora manent.",
+      "end2": "graviora",
+      "gap": [
+        "no_nominative_found"
+      ],
+      "goldSubj": "graviora"
+    },
+    {
+      "text": "Non Simois tibi, nec Xanthus, nec Dorica castra defuerint;",
+      "end1": "Xanthus",
+      "end2": "castra",
+      "gap": null,
+      "goldSubj": "Simois"
+    },
+    {
+      "text": "nec Teucris addita Iuno usquam aberit;",
+      "gap": {
+        "reason": "ambiguous_verb",
+        "candidates": [
+          "Teucris",
+          "aberit"
+        ]
+      },
+      "goldSubj": "Iuno"
+    },
+    {
+      "text": "Unum oro.",
+      "gap": {
+        "reason": "no_verb_found"
+      },
+      "goldObj": "Unum"
+    },
+    {
+      "text": "noctes atque dies patet atri ianua Ditis;",
+      "gap": {
+        "reason": "ambiguous_verb",
+        "candidates": [
+          "patet",
+          "Ditis"
+        ]
+      },
+      "goldSubj": "ianua"
+    },
+    {
+      "text": "Latet arbore opaca aureus et foliis et lento vimine ramus, Iunoni infernae dictus sacer;",
+      "gap": {
+        "reason": "ambiguous_verb",
+        "candidates": [
+          "Latet",
+          "arbore",
+          "ramus"
+        ]
+      },
+      "goldSubj": "ramus",
+      "goldObj": "arbore"
+    },
+    {
+      "text": "Hoc sibi pulchra suum ferri Proserpina munus instituit.",
+      "end1": "munus",
+      "gap": [
+        "ambiguous_accusative"
+      ],
+      "goldSubj": "Hoc"
+    }
+  ],
+  "assembly": {
+    "id": "assembly:link",
+    "version": 1
+  }
+}

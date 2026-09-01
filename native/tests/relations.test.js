@@ -263,6 +263,81 @@ test("ReDoS: a long aux/negation run between subject and a real match at the far
   assert.ok(elapsed < 500, `took ${elapsed}ms`);
 });
 
+// ── \b generalized past ASCII — found running real fetched Война и мир prose ──
+//
+// discoverRelationVocab's SURFACE_RE (and negationBeforeVerbFor's, and
+// OBJECT_GROUP's / AUX_GROUP_RE's / SUBJECT_SECOND_GUARD's function-word
+// boundaries) used `\b`, and JS's `\b` is ASCII-\w-only with no Unicode mode
+// — a surface written entirely in a non-Latin script can never be located,
+// regardless of recurrence, so zero candidates were ever nominated for it.
+// Confirmed live (live_priors/11-multi-language/war-and-peace/ru/), then
+// isolated here: NOT case declension (a flat, undeclined, exactly-repeated
+// Cyrillic surface fails identically), NOT one script's own quirk (Greek,
+// Hebrew, Armenian all reproduce it independently), and NOT anything about
+// recurrence itself (the same construction on the same text minus \b works).
+
+test("Cyrillic: a recurring, grammatically-inflected Russian name nominates real verbs — the exact measured defect", () => {
+  const text = "Анна Павловна кашляла несколько дней. Анна Павловна улыбнулась князю Василию. Князь Василий поцеловал руку Анны Павловны.";
+  const { verbs, candidates } = discoverRelationVocab(text, { surfaces: ["Анна Павловна", "Князь Василий"], minSurfaces: 1 });
+  assert.ok(verbs.has("кашляла"), `expected "кашляла" among nominated verbs, got: ${candidates.map((c) => c.verb).join(", ")}`);
+  assert.ok(verbs.has("улыбнулась"));
+  assert.ok(verbs.has("поцеловал"));
+  const rels = extractRelations(text, { verbs });
+  assert.equal(rels.length, 3);
+  assert.equal(rels[0].subject, "Анна Павловна");
+  assert.equal(rels[0].verb, "кашляла");
+});
+
+test("Cyrillic: recurrence alone (no case declension in play) used to fail identically — confirms the cause was \\b, not morphology", () => {
+  // Every mention is the exact same undeclined string, on purpose — if the
+  // defect were about Russian's grammatical case system fragmenting surface
+  // identity, holding the surface FIXED would route around it. It does not
+  // change the outcome, because the surface can never be located at all.
+  const text = "Анна Павловна говорила. Анна Павловна кашляла. Анна Павловна улыбнулась.";
+  const { verbs } = discoverRelationVocab(text, { surfaces: ["Анна Павловна"], minSurfaces: 1 });
+  assert.ok(verbs.size >= 2, `expected real candidates from an exactly-recurring Cyrillic surface, got ${verbs.size}`);
+});
+
+test("cross-script generality: Greek and Hebrew — unrelated scripts, unrelated language families, same mechanism", () => {
+  const greek = "Ελένη μίλησε. Ελένη γέλασε. Ελένη έφυγε.";
+  const { verbs: gv } = discoverRelationVocab(greek, { surfaces: ["Ελένη"], minSurfaces: 1 });
+  assert.ok(gv.size >= 2, `Greek: expected candidates, got ${gv.size}`);
+
+  const hebrew = "דוד דיבר. דוד צחק. דוד הלך.";
+  const { verbs: hv } = discoverRelationVocab(hebrew, { surfaces: ["דוד"], minSurfaces: 1 });
+  assert.ok(hv.size >= 2, `Hebrew: expected candidates, got ${hv.size}`);
+});
+
+test("negationBeforeVerbFor: a non-Latin-script injected negation prior is now findable too (this file's own documented use case — a vendored lang/xx.json need not be ASCII, e.g. a real Russian NegationPrior@1 fronting «не»)", () => {
+  const text = "Анна Павловна не любила Наполеона.";
+  const cyrillicNegation = new Set(["не"]);
+  // Mirrors the file's own established "DR5 on" pattern above: phrasalPredicates
+  // lets discovery skip past the negation word to the real content verb, and
+  // negationWords must be injected at BOTH calls, exactly as a real caller
+  // threads one language's own vendored prior through the whole ladder. The
+  // clause is transitive (an object follows) — extractRelations' own SVO
+  // shape has no path for an intransitive clause, in any language, and that
+  // is unrelated to what this test is isolating.
+  const { verbs } = discoverRelationVocab(text, { surfaces: ["Анна Павловна"], minSurfaces: 1, phrasalPredicates: true, negationWords: cyrillicNegation });
+  assert.ok(verbs.has("любила"), `expected "любила" nominated past the Cyrillic negation word, got: ${[...verbs].join(", ")}`);
+  const rels = extractRelations(text, { verbs, phrasalPredicates: true, negationWords: cyrillicNegation });
+  assert.equal(rels.length, 1);
+  assert.equal(rels[0].verb, "не любила");
+  assert.equal(rels[0].object, "Наполеона");
+  assert.equal(rels[0].polarity, "-", "the injected Cyrillic negation word must be found before the verb, not silently missed by an ASCII-only \\b");
+});
+
+test("byte-identical for ASCII: the fix changes nothing about existing English extraction", () => {
+  const text = "Prince Vasili spoke languidly. Anna Pavlovna smiled warmly.";
+  const { verbs } = discoverRelationVocab(text, { surfaces: ["Prince Vasili", "Anna Pavlovna"], minSurfaces: 1 });
+  assert.deepEqual([...verbs].sort(), ["smiled", "spoke"]);
+  const rels = extractRelations(text, { verbs });
+  assert.deepEqual(rels.map((r) => [r.subject, r.verb, r.object]), [
+    ["Prince Vasili", "spoke", "languidly"],
+    ["Anna Pavlovna", "smiled", "warmly"],
+  ]);
+});
+
 // ── the clause wall: PROPOSITION grain, not sentence grain (2026-09-01) ──
 // `windowStart` walls subject expansion at the previous match or the
 // SENTENCE start — typography. An assertion ends at its clause, so a walk
