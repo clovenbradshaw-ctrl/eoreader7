@@ -198,9 +198,18 @@ export function makeHyperlexicon(taskLog) {
    * itself for the first time, or a span this task has never carried before,
    * still lands exactly as before.
    */
-  function hear(log, { subject, verb, object, spans = [], witness = null, because = null }) {
+  function hear(log, { subject, verb, object, spans = [], witness = null, because = null, subjectFace = null, objectFace = null }) {
+    // THE STATION-3->4 WIRE, door side (2026-09-01). `subjectFace`/
+    // `objectFace` are the EARNED canonical faces hypergraph.js's own
+    // endpoint() resolved for this edge's ends (exactly-one-real-referent,
+    // else null — never a guess), forwarded by admit(). They key identity
+    // ahead of the raw strings, so "Count Dracula" and "the Count" become
+    // ONE note the moment the cast has earned that fold — while an injected
+    // noteIdentity organ, when present, still outranks both (it is the
+    // caller's declared identity, and a declared organ beats a per-edge
+    // hint). Display keeps the first reading's own bytes, as ever.
     const canon = noteIdentity ? noteIdentity(subject, verb, object) : null;
-    const id = assertionId(canon?.subject || subject, canon?.verb || verb, canon?.object || object);
+    const id = assertionId(canon?.subject || subjectFace || subject, canon?.verb || verb, canon?.object || objectFace || object);
     const prior = projectTasks(log).find((t) => t.task_id === id) ?? null;
     // Witnesses and spans UNION, never replace: a merge that overwrote them
     // would make the second sighting erase the first one's evidence, which
@@ -305,7 +314,7 @@ export function makeHyperlexicon(taskLog) {
           continue;
         }
       }
-      next = hear(next, { subject, verb, object, spans, witness });
+      next = hear(next, { subject, verb, object, spans, witness, subjectFace: e.end1Face ?? null, objectFace: e.end2Face ?? null });
       heard.push({ id: assertionId(subject, verb, object), subject, verb, object });
     }
     return { log: next, heard, turnedAway };
