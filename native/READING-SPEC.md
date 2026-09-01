@@ -1316,3 +1316,48 @@ pass by coincidence — 359 cases total, up from 357).
 
 Suites: eoreader7 native 359/359 (357 + 2, zero regressions — confirmed
 by running the full pre-existing suite unchanged before and after).
+
+## S41 — The basin null is degenerate when the basin approaches the population
+
+**Generality:** universal.
+
+**Governing law:** eo-constitution **II.23** (the resolution test, 19th
+amendment, sealed) and **II.10** (commensurability). This entry records what
+the kernel does about them.
+
+`entity-kind-induction.js::induceEntityKindCandidates` validates a basin with
+`random-subset-binding-energy`: random subsets **of the same size, drawn from
+the same population**. Run over 174 recurring surfaces of a real book by
+the-fold, it returned **one** basin of **149** and marked it validated.
+
+That verdict is vacuous by construction. A random 149-subset of 174 is nearly
+the observed set, so the statistic cannot vary with the perturbation. It is
+also II.10's own *selection is an axis* violated at the source: a basin is a
+connected component, i.e. **chosen for cohesion**, and a set chosen for being
+extreme is not placed against subsets drawn at random.
+
+The harm is not a false kind. **It concealed a real one** — with a licensed
+null the same material carries structure at observed binding energy 0.2657
+against a 200-draw redeal maximum of 0.2009, censored above.
+
+**Two mechanism notes, measured, so the next pass does not re-derive them.**
+
+- `connectedBasins` over a mutual-kNN graph at the derived default
+  `neighborCount = ceil(sqrt(n))` percolates: at n=174 the graph is one
+  component. Lowering k fragments it, and choosing k so that a known specimen
+  separates is specimen-fitting (S31 / the-fold P71) — the null was fixed
+  instead, and the structure then cleared without touching a parameter.
+- A redeal null **inverts pairwise similarity**. Redealing which entity each
+  mention belongs to gives every entity the corpus-average profile, so redealt
+  entities are MORE alike than real specialised ones (median 0.400, max 0.950
+  over 23,780 pairs). Any agglomeration gated on "observed similarity beats
+  the null" stalls at all-singletons. Binding energy — intra minus inter — has
+  the direction right because it measures differentiation, not likeness.
+
+**Unchanged here.** No kernel module was edited. The organ's null is correct
+for the regime it was built for (a small basin against a large population)
+and degenerate outside it; the consuming repo now carries its own
+membership-grade test (`the-fold/kind-standing.js`) rather than asking this
+one to answer a question it was not built for. Narrowing the organ's own
+declared regime, or refusing a basin whose size approaches its population, is
+real unstarted work named here rather than done silently.
