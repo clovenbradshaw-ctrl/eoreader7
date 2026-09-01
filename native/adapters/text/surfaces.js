@@ -90,7 +90,7 @@ const CAP_SIG_ALPHA = 0.05;
  * implementation here, and it is a poor fit exactly where this organ's own
  * docstring says the null matters most — a candidate "seen only a handful
  * of times." Measured on real material (live_priors' own UDHR corpus,
- * POLICIES.md LP8's amendment): Czech's own "Spojených" (United) — 4
+ * POLICIES.md LP13's amendment (was LP8; renumbered on that repo's merge)): Czech's own "Spojených" (United) — 4
  * capitalised, 1 lowercase, in the whole document — is refused by BOTH the
  * old approximation and this exact test (the true one-sided p-value at
  * n=5 is 0.1875, genuinely above 0.05; 4-of-5 is real-looking evidence
@@ -402,7 +402,7 @@ export const extractSurfaces = (sentences, opts = {}) =>
 //
 // Georgian was ALSO claimed correctly-not-gapped here, on the same test, and
 // that claim was wrong — found running this instrument on all 516 real UDHR
-// translations (live_priors POLICIES.md LP8), not by re-reading this file.
+// translations (live_priors POLICIES.md LP13 (was LP8)), not by re-reading this file.
 // `\p{Cased_Letter}` answers "does this LETTER belong to a case category" —
 // Mkhedruli, modern Georgian's everyday alphabet, is General_Category Ll, so
 // it passes. It does not answer the question this mechanism actually needs
