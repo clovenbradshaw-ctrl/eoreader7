@@ -81,13 +81,16 @@ Existence).
 
 ## III. Grain is the order of difference: constant, value, rate
 
-Ground / Figure / Pattern overlay all three mathematics as the constant,
-the value, and the rate — straight from `nul`'s own header (Bateson):
+Ground / Figure / Pattern overlay all three mathematics as the reference,
+the FIRST DIFFERENCE, and the difference-that-moves-the-reference —
+straight from `nul`'s own header (Bateson):
 *figure — difference from its own ground; pattern — the difference that
 figure made to the NEXT ground.* Pattern's definition is literally a
-difference equation. So the 27 cells read as **which mathematics × which
-order of difference**, and a cell like EVA·Figure ("compare this value's
-accumulation to its bound") is almost self-computing.
+difference equation. (An earlier draft said "constant, value, rate" —
+loose: a figure is never a raw value, it is a difference FROM its ground.)
+So the 27 cells read as **which mathematics × which order of difference**,
+and a cell like EVA·Figure ("compare this difference's accumulation to
+its bound") is almost self-computing.
 
 ## IV. The terrain face: the same maths as OBJECTS
 
@@ -110,28 +113,43 @@ discontinuity between solution families** — Kuhn as a jump condition,
 and the atmosphere organ's regime tracker (drift, tolerance, re-zero
 firings) has been doing calculus on that column all along.
 
-## V. The mode echo: the triad appears twice, at ninety degrees
+## V. The mode echo: a SECOND triad, at ninety degrees
 
-Project the domains out (the stance face's axes are mode × grain) and the
-SAME triad reappears as the modes — because **every mathematics contains
-this exact trio as its own internal operations**:
+*(Corrected on adversarial re-check, same day: an earlier draft said "the
+same triad appears twice." Sloppy — what appears on the mode axis is a
+DIFFERENT triad, of operation-types, which every mathematics contains as
+its own internal trio. The self-similarity is a proposed correspondence
+between the two triads, not an identity.)*
+
+Project the domains out (the stance face's axes are mode × grain) and a
+second triad appears as the modes — verified against `cube.js`'s own
+OP_MODE table (Differentiate = {NUL, SEG, DEF}; Relate = {SIG, CON, EVA};
+Generate = {INS, SYN, REC}):
 
 - arithmetic: subtract / equate / add
 - geometry: cut / connect / construct
 - calculus: **differentiate / equate / integrate** — the mode is
   literally named after the calculus pair
 
-So the triad occurs twice in the cube: once as SUBJECT (which
-mathematics — the domains) and once as METHOD (the −/=/+ every
-mathematics carries — the modes). **That is why there are exactly nine
-operators and the grid closes: 9 = 3 maths × their 3 shared operations.**
+So two triads cross in the cube: SUBJECT (which mathematics — the
+domains) and METHOD (the −/=/+ every mathematics carries — the modes).
+**That is why there are exactly nine operators and the grid closes:
+9 = 3 subjects × 3 shared operation-types.** Whether the two triads
+correspond canonically (arithmetic↔which mode?) is genuinely open — the
+diagonal under one natural pairing, NUL / CON / REC (each mathematics at
+an arguably-characteristic operation: zero, incidence, re-integration),
+is an observation, not a theorem.
 NUL is arithmetic's differentiate (distinguishing something from nothing
 — the primordial subtraction); SIG its relate; INS its generate. SEG /
 CON / SYN are geometry's. DEF / EVA / REC are calculus's.
 
 ## VI. The three faces: rows, columns, and DEPTH
 
-The cube's axes are domain, mode, grain; each face flattens one out:
+Terminology, tightened on re-check: these are the three AXIS-ALIGNED
+PROJECTIONS, not rotations — each "face" collapses one axis, and each of
+its nine cells is the image of a three-element FIBER along the collapsed
+axis. The cube's axes are domain, mode, grain; each face flattens one
+out:
 
 - **act face** (domain × mode): the math triad is the ROWS; grain is the
   hidden depth (the same act at constant, value, rate).
@@ -154,12 +172,15 @@ The repo already carried both consequences without these words:
    stance-labels on medium-blind acts because a stance name only carries
    full meaning when the domain is fixed — that caution IS the depth
    phenomenon: naming a three-deep stack and pretending it is flat.
-2. **The coverage consequence.** P64's capability map calls a stance
-   "FULL" when all its cells are occupied — read geometrically, **a full
-   stance is a proven isomorphism**: the posture demonstrated as
-   counting, as connecting, and as accumulating. Binding went full
-   first: equating-a-value was the first posture this project proved in
-   all three mathematics.
+2. **The coverage consequence** *(corrected on re-check)*. P64's
+   capability map calls a stance "FULL" when all its cells are occupied —
+   read geometrically, **a full stance is a proven INSTANTIATION in all
+   three mathematics**, not a proven isomorphism: coverage shows an organ
+   exists per story of the stack, never that the three organs share
+   structure. The isomorphism is the HYPOTHESIS a full stance makes
+   testable, and §VIII.1 is its test. Binding went full first:
+   equating-a-value was the first posture instantiated as counting, as
+   connecting, and as accumulating.
 
 **Depth is the analogy axis.** Moving along the hidden domain axis at a
 fixed stance — carrying one posture from one mathematics into another —
@@ -175,45 +196,68 @@ face is only special FOR THE MATH TRIAD, because there the three
 mathematics stop being places you work and become one thing seen three
 ways.
 
-## VII. The crossing rules, and their two older names
+## VII. The crossing rules — corrected, after walking into the helix trap
 
-The dependency between the mathematics is strict and one-directional,
-per claim:
+*(This section was WRONG in its first draft, and the mistake is kept
+named because it is the exact trap the engine's own header warns about.
+The draft claimed "arithmetic before geometry before calculus" as the
+engine's production order. That domain-blocked sequence — NUL SIG INS /
+SEG CON SYN / DEF EVA REC — is the superseded HELIX order, the invented
+ordering `task-log.js`'s header records as a mistake that was replaced.
+An adversarial re-check against the tables caught the draft re-deriving
+the superseded thing while citing "the engine's own order.")*
 
-> You may not count before Existence individuates the unit; you may not
-> draw an edge before arithmetic gives you two countable ends; you may
-> not integrate before geometry gives the events addresses and
-> arithmetic makes them idempotent. **Arithmetic before geometry before
-> calculus, per claim, forever.**
+The ENFORCED order (`task-log.js::OPERATOR_ORDER`, the one
+`checkCubeProgression` actually holds threads to) is:
 
-This is the engine's own production order (INS before SYN — "you cannot
-corroborate what was never individuated"), and it is Commons's
-no-skipping axiom in a third vocabulary. The week's repeated measured
-lesson — "the lever is one floor down" — is this rule enforcing itself:
-the ledger's 0.5% corroboration was calculus attempted over units
-arithmetic never earned; the choke-point ordering (ends → identity →
-corroboration) is the crossing rule read off real numbers.
+    NUL  SEG  SIG  CON  EVA  DEF  INS  SYN  REC
+     E    S    E    S    I    I    E    S    I
 
-**The MHC connection, one sentence:** an order climbs by coordinating
-lower-order actions *non-arbitrarily*, and the three mathematics are what
-"non-arbitrarily" is made of at each grain — the algebra of the act says
-whether a coordination is *licensed*, the statistics of the ground say
-whether it is *real*, the dynamics of the pattern say whether it *changed
-anything*; a coordination that passes all three is a floor, and one that
-passes fewer is a chain — which is what every refuted lever this week
-turned out to be.
+It **interleaves the three mathematics** — and the interleaving is
+CORROBORATED by the tower's own measured floors: SEG before SIG is *cut
+before mark*, geometry's first act before arithmetic's naming, and the
+floors agree exactly (floor 2, extents, precedes floor 3, the cast). A
+domain-major reading would have predicted the floors backwards. EVA and
+DEF sitting BEFORE INS in the enforced order is further evidence that no
+staged pipeline of the three mathematics is being run.
+
+What survives, and is the true crossing rule, is a PER-CLAIM partial
+order — dependencies among acts about the SAME content, never global
+phases:
+
+> For one claim's own lineage: its unit must be individuated before it
+> can be counted; its two ends must be countable before an edge can
+> relate them; its events must be addressed and idempotent before they
+> can be integrated. INS before SYN — "you cannot corroborate what was
+> never individuated" — holds in the enforced order and in every
+> measurement this week.
+
+The floors' measured choke ordering (ends → identity → corroboration) is
+a statement about one proposition's lineage, not about phases of
+mathematics — and the ledger's 0.5% corroboration rate was this
+per-claim rule enforcing itself: integration attempted over units that
+were never earned *for those claims*.
+
+**The MHC connection, one sentence** (unchanged by the correction): an
+order climbs by coordinating lower-order actions *non-arbitrarily*, and
+the three mathematics are what "non-arbitrarily" is made of per claim —
+the algebra says a coordination is *licensed*, the statistics say it is
+*real*, the dynamics say it *changed something*; passing all three makes
+a floor, passing fewer makes a chain.
 
 ## VIII. What this reading predicts (so it can be broken)
 
 Kept falsifiable, per II.23's own discipline — a reading that cannot fail
 is decoration:
 
-1. **A full stance transfers.** If a stance is a proven isomorphism, an
-   organ occupying it in one domain should port to another domain with
-   only its adapter changing. (Precedent: `contest.js` proved exactly
-   this for co-presence — kernel medium-blind, exercised on a film shot
-   and a bar of music.) A full stance whose organs do NOT transfer
-   breaks this document.
+1. **A full stance transfers.** If the isomorphism hypothesis is right,
+   an organ occupying a stance in one MATHEMATICS should port to another
+   with only its adapter changing. *(Corrected on re-check: the first
+   draft cited `contest.js` as precedent — but contest transfers across
+   MEDIA, and medium is not one of the cube's three axes at all. No
+   domain-transfer has yet been demonstrated; this prediction is
+   currently untested, which is its value.)* A full stance whose organs
+   do NOT transfer across domains breaks this document.
 2. **Empty stances predict missing analogies.** A stance empty in one
    domain but occupied in the others marks a buildable organ whose
    design can be READ OFF its siblings across the depth axis — the
@@ -238,3 +282,14 @@ the classical triad itself is ordinary mathematical culture (Peano for
 the arithmetic reading of NUL/SIG/INS; Frege for number-as-Kind; Kuhn
 for paradigm-as-family). Nothing here changes any table; if the tables
 move, this document follows or falls.
+
+**Hardening note (same day).** An adversarial re-check against
+`cube.js`/`task-log.js` verified the domain, mode, terrain and stance
+tables match §I/§IV/§V exactly — and caught three overclaims, corrected
+in place with the mistakes named: the crossing rule had re-derived the
+superseded HELIX order (§VII); "proven isomorphism" was instantiation
+(§VI.2); and the cited transfer precedent was on the wrong axis
+(§VIII.1). The SEG-before-SIG finding — the enforced order and the
+measured floors agreeing on *cut before mark*, against the draft's own
+tidy phases — is the re-check's genuine contribution, not just a
+correction.
