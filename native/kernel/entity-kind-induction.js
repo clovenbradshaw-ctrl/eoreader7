@@ -1,50 +1,12 @@
+// stableHash/seedFrom/createSeededRng/shuffled used to be defined here,
+// independently of contest.js's own private `lcg` — one need (a seeded
+// null-distribution draw) met twice in two files that never searched for
+// each other. Both now live in kernel/rng.js; see that file's header for
+// why the two different generators are kept apart rather than merged into
+// one algorithm.
+import { stableHash, createSeededRng, shuffled } from "./rng.js";
+
 const freeze = (value) => Object.freeze(value);
-
-const stableHash = (value) => {
-  let h = 2166136261;
-  for (const ch of String(value)) {
-    h ^= ch.codePointAt(0);
-    h = Math.imul(h, 16777619);
-  }
-  return (h >>> 0).toString(36);
-};
-
-const stableValue = (value) => {
-  if (value === undefined) return "true";
-  if (value === null || typeof value !== "object") return JSON.stringify(value);
-  if (Array.isArray(value)) return `[${value.map(stableValue).join(",")}]`;
-  return `{${Object.keys(value).sort().map((key) => `${JSON.stringify(key)}:${stableValue(value[key])}`).join(",")}}`;
-};
-
-function seedFrom(value) {
-  const text = stableValue(value);
-  let h = 2166136261;
-  for (const ch of text) {
-    h ^= ch.codePointAt(0);
-    h = Math.imul(h, 16777619);
-  }
-  return (h >>> 0) || 1;
-}
-
-function createSeededRng(seedValue) {
-  let state = seedFrom(seedValue);
-  return () => {
-    state ^= state << 13;
-    state ^= state >>> 17;
-    state ^= state << 5;
-    state >>>= 0;
-    return state / 0x100000000;
-  };
-}
-
-function shuffled(values, rng) {
-  const out = [...values];
-  for (let i = out.length - 1; i > 0; i -= 1) {
-    const j = Math.floor(rng() * (i + 1));
-    [out[i], out[j]] = [out[j], out[i]];
-  }
-  return out;
-}
 
 function quantileAt(values, q) {
   if (!values.length) return 0;

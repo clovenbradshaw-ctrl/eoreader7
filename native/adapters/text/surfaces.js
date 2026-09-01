@@ -43,15 +43,29 @@ export const CELL = Object.freeze({ op: "SIG", grain: "Ground" });
 
 const tokensOf = (id) => diaNorm(id).split(/\s+/).filter((t) => t.length > 2);
 
-/** Two NAMES corefer: containment, or a shared final token (surname). */
-export const namesCorefer = (a, b) => {
+// Exact match, or — when a declension folder is injected
+// (adapters/text/declension.js::createDeclensionFolder, over a received,
+// giver-named prior) — related by a licensed case transform in either
+// direction. Deliberately pairwise, never a per-token canonical lemma: see
+// declension.js's own header for why. `sameStem` omitted degrades every
+// comparison below to plain `===`, byte-identical to before this existed.
+const tokenEq = (x, y, sameStem) => x === y || (!!sameStem && (sameStem(x, y) || sameStem(y, x)));
+const tokenSetContains = (from, into, sameStem) => from.every((t) => into.some((u) => tokenEq(t, u, sameStem)));
+
+/**
+ * Two NAMES corefer: containment, or a shared final token (surname). A
+ * highly-inflected language (Russian: "Кутузов"/"Кутузова"; the same shape
+ * this file's own header already names for English's diaNorm) fragments a
+ * bare surname's own case forms into distinct tokens with no fold — pass
+ * `sameStem` (declension.js) to widen "shared" to "shared, or related by a
+ * productive case ending" without touching any other caller.
+ */
+export const namesCorefer = (a, b, { sameStem = null } = {}) => {
   const ta = tokensOf(a);
   const tb = tokensOf(b);
   if (!ta.length || !tb.length) return false;
-  const setA = new Set(ta);
-  const setB = new Set(tb);
-  const subset = ta.every((t) => setB.has(t)) || tb.every((t) => setA.has(t));
-  return subset || ta[ta.length - 1] === tb[tb.length - 1];
+  const subset = tokenSetContains(ta, tb, sameStem) || tokenSetContains(tb, ta, sameStem);
+  return subset || tokenEq(ta[ta.length - 1], tb[tb.length - 1], sameStem);
 };
 
 // A capitalised RUN: consecutive capitalised tokens, which is what a
@@ -65,24 +79,66 @@ const LOWER_TOKEN = /^[\p{Ll}][\p{L}'’]*$/u;
 // this codebase's other Born-gate quantiles (e.g. nul-adjacent 0.95
 // thresholds elsewhere): a stated resolution for a statistical test, not a
 // hand-picked bridge between unrelated scales (SEED.md's actual complaint).
-const CAP_SIG_Z = 1.645;
+const CAP_SIG_ALPHA = 0.05;
+
+/**
+ * The exact one-sided binomial tail, P(X >= k | n, p=0.5), computed in LOG
+ * SPACE via the term-to-term recurrence log(p_j) = log(p_{j-1}) +
+ * log(n-j+1) - log(j) (p_0 = 0.5^n), then log-sum-exp over j=k..n.
+ *
+ * Found live, not assumed: a normal approximation was the ORIGINAL
+ * implementation here, and it is a poor fit exactly where this organ's own
+ * docstring says the null matters most — a candidate "seen only a handful
+ * of times." Measured on real material (live_priors' own UDHR corpus,
+ * POLICIES.md LP8's amendment): Czech's own "Spojených" (United) — 4
+ * capitalised, 1 lowercase, in the whole document — is refused by BOTH the
+ * old approximation and this exact test (the true one-sided p-value at
+ * n=5 is 0.1875, genuinely above 0.05; 4-of-5 is real-looking evidence
+ * that is simply not enough of it), which is the honest reason to replace
+ * the approximation with the exact answer rather than adjust a threshold
+ * to admit that one specimen — an approximation and its exact target can
+ * diverge in EITHER direction at low n, and only computing the real answer
+ * tells you which. A direct real-space sum instead of this log-space one
+ * would either overflow a factorial or underflow `0.5^n` to exactly zero
+ * well before n reaches "seen thousands" (0.5^1075 is already smaller than
+ * the smallest representable double) — log-space has no such ceiling, so
+ * this is the exact answer at every scale this organ is ever handed, not
+ * a hybrid with its own new threshold to justify.
+ */
+const logBinomialTailAtHalf = (k, n) => {
+  if (k <= 0) return 0; // P(X >= 0) = 1, log(1) = 0
+  if (k > n) return -Infinity; // impossible under n trials
+  const logHalf = Math.log(0.5);
+  let logTerm = n * logHalf; // log P(X = 0)
+  let logMax = -Infinity;
+  const kept = [];
+  for (let j = 1; j <= n; j += 1) {
+    logTerm = logTerm + Math.log(n - j + 1) - Math.log(j);
+    if (j >= k) {
+      kept.push(logTerm);
+      if (logTerm > logMax) logMax = logTerm;
+    }
+  }
+  let sumExp = 0;
+  for (const lt of kept) sumExp += Math.exp(lt - logMax);
+  return logMax + Math.log(sumExp);
+};
 
 /**
  * Is this candidate's non-initial capitalisation rate significant against
  * the null that capitalisation is a fair coin flip (p=0.5) unrelated to
- * namehood — normal approximation to the binomial, evaluated at THIS
- * candidate's own (cap, lower) counts. Replaces a single fixed ratio band
- * shared by every word (formerly [0.8, 2.0], applied uniformly regardless
- * of how much evidence a given candidate actually carried) with a bound
- * that widens for a word seen only a handful of times and tightens for one
- * seen thousands: two occurrences split evenly can never clear it (not
- * enough evidence either way), where the same split at high volume would.
+ * namehood — the EXACT one-sided binomial tail at THIS candidate's own
+ * (cap, lower) counts, never an approximation to it. Replaces a single
+ * fixed ratio band shared by every word (formerly [0.8, 2.0], applied
+ * uniformly regardless of how much evidence a given candidate actually
+ * carried) with a bound that widens for a word seen only a handful of
+ * times and tightens for one seen thousands: two occurrences split evenly
+ * can never clear it (not enough evidence either way), where the same
+ * split at high volume would.
  */
 const capitalisationIsSignificant = (cap, lower) => {
   const n = cap + lower;
-  const pHat = cap / n;
-  const bound = 0.5 + CAP_SIG_Z * Math.sqrt(0.25 / n);
-  return pHat > bound;
+  return Math.exp(logBinomialTailAtHalf(cap, n)) < CAP_SIG_ALPHA;
 };
 
 // ---------------------------------------------------------------------------
@@ -192,7 +248,34 @@ export const createSurfaceEvidence = () => ({
 export const accumulateSurfaceEvidence = (sentences, evidence) => {
   const { capCounts, lowerCounts, sentenceIndex } = evidence;
   for (const sent of sentences) {
-    const toks = sent.text.split(/\s+/).map((t) => t.replace(/^[^\p{L}]+|[^\p{L}'’]+$/gu, "")).filter(Boolean);
+    // Split first, strip second, but keep what stripping discarded: whether
+    // punctuation sat directly against a token's own edge, no whitespace
+    // between. split(/\s+/) already separates "Пьера," from "Анна" into two
+    // array elements, but stripping the comma off "Пьера," leaves nothing
+    // downstream to tell a bare comma-then-capital apart from an ordinary
+    // multi-word name's own internal space — so the run-walker below used to
+    // glue them into one candidate. Found on real fetched Война и мир prose
+    // ("Пьера, Анна Павловна" — an abbé-and-Pierre aside, then a NEW
+    // subject — became the 3-token run "Пьера Анна Павловна"), then
+    // confirmed general, not script-specific, by reproducing the identical
+    // shape in English ("Pierre, Anna Pavlovna" -> "Pierre Anna Pavlovna").
+    const rawToks = sent.text.split(/\s+/);
+    const toks = [];
+    const leadingJunk = [];
+    const trailingJunk = [];
+    for (const raw of rawToks) {
+      const stripped = raw.replace(/^[^\p{L}]+|[^\p{L}'’]+$/gu, "");
+      if (!stripped) continue;
+      toks.push(stripped);
+      leadingJunk.push(/^[^\p{L}]/u.test(raw));
+      trailingJunk.push(/[^\p{L}'’]$/u.test(raw));
+    }
+    // A hard boundary sits between toks[k] and toks[k+1] when punctuation was
+    // glued directly to either side (a comma, colon, dash, or closing quote
+    // trailing toks[k]; an opening quote or dash leading toks[k+1]) — plain
+    // whitespace, with nothing else, is the only separator a multi-word NAME
+    // run may cross.
+    const hardBreakAfter = toks.map((_, k) => trailingJunk[k] || (leadingJunk[k + 1] ?? false));
     // A unit set entirely in capitals is a heading or a running head, and every
     // token in it is capitalised by typography. Reading capitalisation as
     // evidence here is the sentence-initial mistake at unit scale — on Process
@@ -211,7 +294,7 @@ export const accumulateSurfaceEvidence = (sentences, evidence) => {
     while (i < toks.length) {
       if (!CAP_TOKEN.test(toks[i])) { i++; continue; }
       let j = i;
-      while (j < toks.length && CAP_TOKEN.test(toks[j])) j++;
+      while (j < toks.length && CAP_TOKEN.test(toks[j]) && (j === i || !hardBreakAfter[j - 1])) j++;
       const run = toks.slice(i, j);
       // An all-caps run inside an otherwise mixed-case unit is the same
       // typography as an all-caps unit — a part title quoted mid-paragraph.
@@ -313,9 +396,27 @@ export const extractSurfaces = (sentences, opts = {}) =>
 // own General_Category: `\p{Cased_Letter}` is exactly the set of letters that
 // HAVE case (Lu/Ll/Lt), and `\p{L}` minus that is exactly the caseless
 // letters (Lo) — Hebrew, Arabic, Hangul, CJK, Devanagari, Thai. Verified
-// directly against real strings in all of those scripts plus Greek, Cyrillic,
-// Georgian and Armenian (which ARE bicameral, and are correctly not gapped).
-// Not a list of scripts maintained here; a property looked up per character.
+// directly against real strings in Greek, Cyrillic and Armenian (which ARE
+// bicameral IN PRACTICE, and are correctly not gapped). Not a list of
+// scripts maintained here; a property looked up per character.
+//
+// Georgian was ALSO claimed correctly-not-gapped here, on the same test, and
+// that claim was wrong — found running this instrument on all 516 real UDHR
+// translations (live_priors POLICIES.md LP8), not by re-reading this file.
+// `\p{Cased_Letter}` answers "does this LETTER belong to a case category" —
+// Mkhedruli, modern Georgian's everyday alphabet, is General_Category Ll, so
+// it passes. It does not answer the question this mechanism actually needs
+// answered: does the MATERIAL ever use the OTHER member of that category —
+// Mtavruli, Georgian's uppercase — to mark anything. Ordinary published
+// Georgian does not; Mtavruli is a monumental/decorative variant, not a
+// working capitalisation convention, and a real 10,174-letter UDHR
+// translation contained exactly zero of it (its only Lu characters were 30
+// stray Latin letters from the file's own English header). `scriptCoverage`
+// read that as casedShare 1.0 and gap: null; extractSurfaces, run on the
+// same real material, found zero real Georgian surfaces — every one of the
+// 18 "candidates" it did find was that same Latin debris. This is caught
+// below by a third, distinct boundary; the two boundaries above are
+// unchanged and still correct for what they test.
 const CASED_LETTER = /\p{Cased_Letter}/u;
 const ANY_LETTER = /\p{L}/u;
 
@@ -329,15 +430,37 @@ const ANY_LETTER = /\p{L}/u;
  * read a surface count without also being told what fraction of the script it
  * was computed over.
  *
- * The two boundaries are structural, not dials:
+ * Three boundaries, all structural, none a dial:
  *   - `casedLetters === 0` with letters present: the mechanism cannot fire at
  *     all. Zero is not a threshold.
  *   - caseless letters in the MAJORITY: most of this material is invisible to
  *     the mechanism. Majority is where a plurality flips — the same non-tuned
  *     standing this project's writer-decay window already declares for itself
  *     — not a chosen constant.
+ *   - the material's letters are all cased AND pass both checks above, yet no
+ *     CAPITALISATION ever appears where this mechanism can read it as
+ *     evidence (Georgian's Mkhedruli, found live — see the header above).
+ *     `CAP_TOKEN` deliberately excludes sentence-initial position (position
+ *     is not namehood); a material where the case member THIS mechanism
+ *     watches for never once occurs elsewhere is exactly as blind as one
+ *     with no case category at all, whatever Unicode's own General_Category
+ *     says about its letters. Tested not by a percentage but by the same
+ *     recurrence the extraction mechanism itself already computes: does ANY
+ *     candidate surface — `accumulateSurfaceEvidence`'s own `sentenceIndex`,
+ *     reused rather than re-derived — appear in more than zero sentences.
+ *     Zero is not a threshold here either.
+ *
+ * @param {object} [options.evidence] a `createSurfaceEvidence()` accumulator
+ *   already folded over `sentences` via `accumulateSurfaceEvidence` — reused
+ *   so a caller who is about to call `extractSurfaces` on the same sentences
+ *   anyway (eot-sidecar.mjs's `attemptWindow` does exactly this) folds the
+ *   material once, not twice. Omit it and this computes its own — the third
+ *   boundary needs the SAME walk `extractSurfaces` performs to ask its
+ *   question, and a second implementation of that walk here would be
+ *   exactly the drift class this codebase's own postmortems (P22, P24, P25
+ *   in the-fold's CLAUDE.md) already name.
  */
-export const scriptCoverage = (sentences) => {
+export const scriptCoverage = (sentences, { evidence } = {}) => {
   let casedLetters = 0;
   let caselessLetters = 0;
   for (const sent of sentences) {
@@ -386,6 +509,37 @@ export const scriptCoverage = (sentences) => {
           "to it. Surfaces found here are drawn from that cased minority — typically citations, " +
           "captions or loanwords in another script — and are not evidence about the material's own " +
           "language. Same remedy and same refusal as script_without_case.",
+      },
+    };
+  }
+
+  const ev = evidence ?? accumulateSurfaceEvidence(sentences, createSurfaceEvidence());
+  let sentencesWithNonInitialCap = 0;
+  {
+    const seen = new Set();
+    for (const idxSet of ev.sentenceIndex.values()) {
+      for (const i of idxSet) seen.add(i);
+    }
+    sentencesWithNonInitialCap = seen.size;
+  }
+  if (sentencesWithNonInitialCap === 0) {
+    return {
+      ...base,
+      gap: {
+        reason: "script_case_unused",
+        tier: "model",
+        needsWitness: true,
+        casedShare,
+        detail:
+          "this material's letters are cased (Unicode General_Category: Cased_Letter present, no " +
+          "caseless majority), yet no candidate surface — a capitalised token outside sentence-initial " +
+          "position — was found in ANY sentence. CAP_TOKEN excludes sentence-initial capitals as " +
+          "evidence by design (position is not namehood), so a script whose case member this mechanism " +
+          "watches for never occurs anywhere else is exactly as invisible to it as a caseless script, " +
+          "regardless of what Unicode's own category says about its letters. Any surface reported " +
+          "alongside this gap is cased debris (typically a container's own front matter, in another " +
+          "language), never evidence about this material's own writing. Same remedy as the other two " +
+          "gaps: a per-script prior with its own giver and an invariance fixture.",
       },
     };
   }
@@ -545,7 +699,7 @@ const deriveMinSentences = (surfaces) => {
  *   floor, exactly as `minSentences` already promises for the
  *   single-document case.
  */
-export const discoverReferents = (surfaces, { minSentences, minPartners, groups } = {}) => {
+export const discoverReferents = (surfaces, { minSentences, minPartners, groups, sameStem = null } = {}) => {
   const events = [];
   const assigned = new Map(); // surface -> referent_id
   const generic = groups
@@ -598,7 +752,7 @@ export const discoverReferents = (surfaces, { minSentences, minPartners, groups 
   const corefersIndividuated = (a, b) => {
     const ia = individuating(a);
     const ib = individuating(b);
-    if (ia.length && ib.length) return namesCorefer(ia.join(" "), ib.join(" "));
+    if (ia.length && ib.length) return namesCorefer(ia.join(" "), ib.join(" "), { sameStem });
     // No individuating evidence on one side means no evidence FOR merging —
     // not licence to fall back on the generic tokens just judged unreliable.
     // That inverted fallback kept every Princess in one referent: both

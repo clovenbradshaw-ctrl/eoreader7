@@ -43,6 +43,12 @@
 // as real, and how far a winner must lead, are properties of the reading,
 // never constants this file assumes for every medium.
 
+// `lcg` used to be defined here, independently of entity-kind-induction.js's
+// own private seeded generator — one need (a seeded null-distribution draw)
+// met twice in two files that never searched for each other. Now shared;
+// see kernel/rng.js's header for why the two generators stay separate.
+import { lcg } from "./rng.js";
+
 /** Verdict kinds. A gap is a result; each one names why. */
 export const CONTEST_VERDICTS = Object.freeze({
   BOUND: "bound",
@@ -205,12 +211,6 @@ export function adjudicate({
 //
 // draws / seed / alpha are declared, never defaulted — the same standing
 // every other Born gate in this codebase holds.
-
-/** Deterministic LCG; the seed is declared so a run can be reproduced. */
-function lcg(seed) {
-  let s = seed >>> 0;
-  return () => ((s = (s * 1664525 + 1013904223) >>> 0) / 4294967296);
-}
 
 const bestSingleHop = (activation, memberAt) => {
   const score = new Map();
