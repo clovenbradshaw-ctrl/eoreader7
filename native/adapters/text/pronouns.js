@@ -84,7 +84,7 @@
 import { tokens, codeOf, recall, encodeFrame } from "../../memory/activation.js";
 import { adjudicate, nullAdjudicate, CONTEST_VERDICTS } from "../../kernel/contest.js";
 import { createActivation } from "../../kernel/activation.js";
-import { THIRD_PERSON_SINGULAR } from "./priors.js";
+import { THIRD_PERSON_SINGULAR, CLAUSE_OPENERS } from "./priors.js";
 
 // The cell this organ occupies on the operator grid (engine/operators.js):
 // CON · Link · Binding — a pronoun bound to a referent by one-hop recall,
@@ -133,7 +133,12 @@ const namedMatchesIn = (text, matcher, surfaceToReferent) => {
 // to-infinitive clause exactly the way "declined ... that she be made
 // available" would open a finite one with "that". Same phenomenon
 // (subordinate-clause introduction), different, still-closed realization.
-const CLAUSE_OPENER_RE = /\b(?:that|which|who|whom|whose|because|although|though|while|when|whether|unless|since|before|after|until|if|to)\b/i;
+// ONE class, not two copies: the list itself now lives in the prior
+// register (priors.js CLAUSE_OPENERS, giver lang/en) so every reader of
+// English clause structure sees the same closed set. The regex is built
+// FROM it rather than restated beside it — a second literal is exactly the
+// drift this repo's own postmortems keep catching.
+const CLAUSE_OPENER_RE = new RegExp(`\\b(?:${[...CLAUSE_OPENERS].join("|")})\\b`, "i");
 
 // True only when the stretch of TEXT strictly between two positions carries
 // no clause boundary: no comma/semicolon/colon/quotation mark, and no

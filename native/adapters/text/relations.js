@@ -77,6 +77,7 @@
 
 import { diaNorm } from "./surfaces.js";
 import {
+  CLAUSE_OPENERS,
   NEGATION_WORDS, THIRD_PERSON_SINGULAR,
   AUXILIARY_VERBS, DEFINITE_DETERMINERS, INDEFINITE_DETERMINERS,
   POSSESSIVE_DETERMINERS, NP_COORDINATORS,
@@ -448,6 +449,7 @@ export function expandSubjectNP(s, anchorStart, anchorEnd, leftBound, closed = {
     possessiveDeterminers = POSSESSIVE_DETERMINERS,
     npCoordinators = NP_COORDINATORS,
     auxiliaryVerbs = AUXILIARY_VERBS,
+    clauseOpeners = CLAUSE_OPENERS,
   } = closed;
   const toks = [];
   WORD_TOKEN.lastIndex = Math.max(0, leftBound);
@@ -494,6 +496,18 @@ export function expandSubjectNP(s, anchorStart, anchorEnd, leftBound, closed = {
     // coordinator branches only for readability — an auxiliary is never a
     // member of either closed class, so the order does not change behavior.
     if (auxiliaryVerbs.has(lower)) return null;
+    // A CLAUSE OPENER IS A LEFT WALL — the proposition boundary, not the
+    // sentence boundary (priors.js CLAUSE_OPENERS, giver lang/en, the same
+    // closed class pronouns.js's own sameClause consults). `windowStart`
+    // walls this walk at the previous match or the SENTENCE start, which is
+    // typography: an assertion ends at its clause, and walking past one
+    // captures a span straddling two propositions. Measured on real prose
+    // before this existed: "if so my", "for I", "day belief" — fragments
+    // whose left half belongs to a different assertion than their right.
+    // STOP, keeping what was accumulated (unlike the auxiliary wall above,
+    // which REFUSES): everything right of a clause opener is a real, whole
+    // subject of the clause it opens — only the crossing is illegal.
+    if (clauseOpeners.has(lower)) break;
     if (definiteDeterminers.has(lower) || indefiniteDeterminers.has(lower) || possessiveDeterminers.has(lower)) {
       i -= 1; // include the determiner — normally the NP's own left edge...
       // ...UNLESS what precedes it is "of" — "the peoples OF THE United
@@ -516,6 +530,13 @@ export function expandSubjectNP(s, anchorStart, anchorEnd, leftBound, closed = {
     }
     i -= 1; // an ordinary content word — include, keep scanning
   }
+  // A COORDINATOR IS ONLY EARNED BY THE SIBLING IT JOINS. The loop above
+  // consumes one hoping to find an NP behind it ("Anna and Vasili"); when
+  // the walk then hits a wall with nothing NP-ish found, the coordinator is
+  // left leading the span and the subject reads "and he" / "or it" — 24% of
+  // this extractor's junk subjects on real prose, all of this one shape.
+  // Drop any leading coordinator the walk did not actually pay for.
+  while (i < anchorTokIdx && npCoordinators.has(toks[i].text.toLowerCase())) i += 1;
   if (i === anchorTokIdx) return null; // nothing wider found
   return { subject: collapseWs(s.slice(toks[i].start, anchorEnd)), start: toks[i].start };
 }

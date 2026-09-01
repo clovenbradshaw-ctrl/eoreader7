@@ -255,4 +255,32 @@ export const HONORIFIC_TITLES_META = Object.freeze({ giver: "lang/en", scope: nu
 export const STRUCTURAL_LABELS = Object.freeze(new Set(["chapter", "part", "book", "volume"]));
 export const STRUCTURAL_LABELS_META = Object.freeze({ giver: "lang/en", scope: null });
 
+/**
+ * Subordinators and relative pronouns — the closed class that OPENS a
+ * subordinate clause. Promoted here 2026-09-01 from a private regex inside
+ * pronouns.js, where it had done real work for one consumer while every
+ * other reader of English clause structure had no access to it: the same
+ * compiled-but-unshared shape III.5 legislates against, one register in.
+ *
+ * WHY IT MATTERS BEYOND COREFERENCE. A clause is the natural boundary of
+ * an ASSERTION — a proposition, the unit a reader actually admits — while
+ * a sentence is only typography, the way a bar is typography for music. An
+ * extractor whose left wall is the sentence walks across clause
+ * boundaries and captures fragments spanning two propositions ("if so my",
+ * "for I", "day belief"); the wall it wants is this class.
+ *
+ * "to" belongs: it is the non-finite counterpart of the finite
+ * complementizers ("declined to make her available" opens a clause exactly
+ * as "declined that she be made available" would). Same phenomenon,
+ * different still-closed realization — pronouns.js's own note, kept with
+ * the class it describes.
+ */
+export const CLAUSE_OPENERS = Object.freeze(new Set([
+  "that", "which", "who", "whom", "whose",
+  "because", "although", "though", "while", "when", "whether",
+  "unless", "since", "before", "after", "until", "if", "to",
+]));
+export const CLAUSE_OPENERS_META = Object.freeze({ giver: "lang/en", scope: null });
+
+
 
