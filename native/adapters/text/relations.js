@@ -462,7 +462,21 @@ export function expandSubjectNP(s, anchorStart, anchorEnd, leftBound, closed = {
   while (i > 0) {
     const prev = toks[i - 1];
     const between = s.slice(prev.end, toks[i].start);
-    if (/[,;:]/.test(between)) break; // a clause-internal boundary — stop, never cross it
+    // THE CATEGORY, NOT THE CHARACTERS (P50, third sighting of this exact
+    // bug class). This stop used to enumerate /[,;:]/ — so the walk crossed
+    // em-dashes and opening quotes and captured dialogue framing into the
+    // subject: measured live on Dracula with nounPhraseSubjects first
+    // enabled, subjects arrived as «-- “Count Dracula». Between two word
+    // tokens, ANY non-space character is a boundary EXCEPT the period,
+    // which is the one mark with a dual role (abbreviation: "Mr. Hawkins"
+    // must stay one NP) — the same single exception surfaces.js's
+    // run-breaking already earned the hard way.
+    if (/[^\s.]/u.test(between)) break;
+    // WORD_TOKEN admits '’- INSIDE words, so a run of pure marks ("--",
+    // "’") qualifies as a "token" while containing no letter or digit.
+    // That is punctuation wearing the token class's clothes — a boundary,
+    // never a word to include.
+    if (!/[\p{L}\p{N}]/u.test(prev.text)) break;
     const lower = prev.text.toLowerCase();
     // An auxiliary verb can never sit inside a subject NP — reaching one
     // before ever finding a determiner (or `leftBound`) means the walk has
