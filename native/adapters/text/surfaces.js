@@ -31,6 +31,9 @@
 // physics filter, and whole-word counting all come from eoreader5's
 // presence.js / entity-fold.js.
 
+import { deriveAbbreviations } from "./spans.js";
+import { NEVER_A_NAME, HONORIFIC_TITLES } from "./priors.js";
+
 const DIA_RE = /[áàâäéèêëíìîïóòôöúùûü]/g;
 const DIA_TO = { á:"a",à:"a",â:"a",ä:"a",é:"e",è:"e",ê:"e",ë:"e",í:"i",ì:"i",î:"i",ï:"i",ó:"o",ò:"o",ô:"o",ö:"o",ú:"u",ù:"u",û:"u",ü:"u" };
 
@@ -202,10 +205,59 @@ export const createSurfaceEvidence = () => ({
   sentenceIndex: new Map(), // surface -> Set(sentence order)
 });
 
-export const accumulateSurfaceEvidence = (sentences, evidence) => {
+export const accumulateSurfaceEvidence = (sentences, evidence, { abbreviations = null } = {}) => {
   const { capCounts, lowerCounts, sentenceIndex } = evidence;
+  // ABBREVIATIONS DO NOT BREAK A RUN — a period is the one punctuation mark
+  // with a genuine dual role (sentence end OR abbreviation marker), unlike
+  // comma/semicolon/colon/dash, which are unambiguous separators in every
+  // script that has them. Found live (the-fold, reading Dracula, same day
+  // as the run-breaking fix above): "Mr. Renfield" was being severed into
+  // "Mr" and "Renfield" by the very fix meant to close "Lord Godalming;
+  // Professor Van Helsing" — treating an abbreviation's own period exactly
+  // like a real separator. `spans.js::deriveAbbreviations` already solves
+  // this question for `splitSentences` (is this period a sentence end or a
+  // title); reused here rather than re-derived a second way — the same
+  // per-language, per-material fact answered once.
+  const abbrev = abbreviations
+    ? new Set(abbreviations)
+    : deriveAbbreviations(sentences.map((s) => s.text).join(" "));
   for (const sent of sentences) {
-    const toks = sent.text.split(/\s+/).map((t) => t.replace(/^[^\p{L}]+|[^\p{L}'’]+$/gu, "")).filter(Boolean);
+    // TOKENS AND WHETHER PUNCTUATION SEPARATED THEM FROM WHAT FOLLOWS.
+    // Found live (the-fold, reading Dracula in full, 2026-09-01):
+    // "Lord Godalming; Professor Van Helsing; Mr. Quincey Morris, of
+    // Texas; Mr. Jonathan Harker" — a semicolon-separated list of FOUR
+    // DIFFERENT PEOPLE — glued into one continuous capitalised run,
+    // because whitespace-splitting discards the semicolons and commas
+    // between them before the run-walk below ever sees they were there.
+    // The SAME defect, smaller: "I read to Mina, Van Helsing's message"
+    // fusing two different people's names across a comma.
+    //
+    // THE FIX IS THE CATEGORY, NOT THE CHARACTERS (P50, the-fold's own
+    // rule, applied here a third time this repo's history: a bracketed
+    // aside, a run-break mark, and now this — "name the category, not
+    // the characters"). `\p{P}` is Unicode's own punctuation class —
+    // every comma, semicolon, colon, dash and quote in every script that
+    // has one, not an enumerated list of ASCII marks this file would
+    // then have to maintain per language. The one exception is the
+    // apostrophe the existing strip regex below already carves out
+    // (`'`/`’`, part of a name's own spelling — "O'Brien", "Helsing's")
+    // — everything else Unicode calls punctuation breaks a run.
+    const rawToks = sent.text.split(/\s+/);
+    const toks = [];
+    const breaksAfter = [];
+    for (const raw of rawToks) {
+      const withoutLeading = raw.replace(/^[^\p{L}]+/gu, "");
+      const cleaned = withoutLeading.replace(/[^\p{L}'’]+$/gu, "");
+      if (!cleaned) continue;
+      toks.push(cleaned);
+      const trailing = withoutLeading.slice(cleaned.length);
+      // A break is real UNLESS the only thing stripped was a single
+      // trailing period AND this exact token is a known abbreviation —
+      // "Mr." never breaks; "Mr," or "Mr;" still would (a comma or
+      // semicolon after a title is never part of the abbreviation itself).
+      const isAbbreviatedTitle = trailing === "." && (abbrev.has(cleaned) || HONORIFIC_TITLES.has(cleaned.toLowerCase()));
+      breaksAfter.push(trailing.length > 0 && !isAbbreviatedTitle);
+    }
     // A unit set entirely in capitals is a heading or a running head, and every
     // token in it is capitalised by typography. Reading capitalisation as
     // evidence here is the sentence-initial mistake at unit scale — on Process
@@ -222,9 +274,23 @@ export const accumulateSurfaceEvidence = (sentences, evidence) => {
     // by position and carries no evidence of namehood on its own
     let i = 1;
     while (i < toks.length) {
+      // NEVER_A_NAME (priors.js, lang/en, received): "I"/"I've"/"I'll"/
+      // "I'd"/"I'm" carry no naming evidence in English regardless of
+      // capitalisation — found live reading Dracula end to end, where the
+      // first-person pronoun was individuating itself as its own cast
+      // entry ("I've", 8 mentions) purely because CAP_TOKEN matches a bare
+      // capital I. This prior already existed, unconsumed here — the same
+      // compiled-but-unwired shape this project's own history keeps
+      // finding. A run may still start on the NEXT token, so this skips
+      // rather than breaks: "I saw Renfield" must still individuate
+      // Renfield.
+      if (NEVER_A_NAME.has(toks[i].toLowerCase())) { i++; continue; }
       if (!CAP_TOKEN.test(toks[i])) { i++; continue; }
-      let j = i;
-      while (j < toks.length && CAP_TOKEN.test(toks[j])) j++;
+      // A run always includes its own starting token; it extends past
+      // token k only when BOTH the next token is capitalised AND nothing
+      // punctuated separated k from k+1 in the material's own bytes.
+      let j = i + 1;
+      while (j < toks.length && CAP_TOKEN.test(toks[j]) && !NEVER_A_NAME.has(toks[j].toLowerCase()) && !breaksAfter[j - 1]) j++;
       const run = toks.slice(i, j);
       // An all-caps run inside an otherwise mixed-case unit is the same
       // typography as an all-caps unit — a part title quoted mid-paragraph.
@@ -289,7 +355,7 @@ export const surfacesFromEvidence = (evidence, { functionWords = null, abbreviat
 };
 
 export const extractSurfaces = (sentences, opts = {}) =>
-  surfacesFromEvidence(accumulateSurfaceEvidence(sentences, createSurfaceEvidence()), opts);
+  surfacesFromEvidence(accumulateSurfaceEvidence(sentences, createSurfaceEvidence(), { abbreviations: opts.abbreviations }), opts);
 
 // ---------------------------------------------------------------------------
 // WHETHER THIS MECHANISM CAN FIRE ON THIS MATERIAL AT ALL.
