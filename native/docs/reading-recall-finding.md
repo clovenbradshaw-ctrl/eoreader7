@@ -127,3 +127,45 @@ the ordering predicts, because the paraphrase wall stands between. The wire
 went dark twice in its first hour (fragment-referent ambiguity in `faceOf`;
 `edgeFace`'s projection stripping the fields) and both darknesses were
 caught only by re-running the measurement — III.5, three times in one day.
+
+---
+
+# Addendum 3: the settling walk live — the mouth fills, and the first vote through it is the questionable one (2026-09-01)
+
+The flat budget was replaced by an SPRT-shaped settling walk (corroboration
+commit "The budget becomes a settling rule"): feasibility gates, VALUE
+ranks (contested > thin > settled, value = expected movement of standing),
+a contradiction reopens a settled note (Lamport for free), and the
+dark-room hazard — the first cut ranked by overlap descending, spending
+its calls on the notes MOST likely to agree — is closed by a
+mutation-checked control.
+
+Run live against the real Borodino pair, real gemma2:2b, 16 asks / 99s:
+
+- **The ledger's ≥2-DISTINCT-SOURCES mouth is non-empty for the first
+  time** — one note, two real sources, after a week in which every
+  mechanical identity measured zero.
+- 14 of 16 asks refused (the witness's designed conservatism), 1
+  contradiction reported typed, standings honest: 1 settled, 1 contested,
+  375 thin.
+
+**And the one vote through the mouth is the QUESTIONABLE one.** The
+attested decider is the same Tolstoy-biography sentence the capstone
+already flagged: byte-verbatim in the slice — so it passed the strongest
+containment wall — while not actually STATING that the Grande Armée fought
+the Imperial Russian Army. The wall checks BYTES, not entailment, and a
+verbatim-but-irrelevant `because` walks through it. This is now a concrete
+live specimen of the decider gap, not a hypothetical: the next mechanical
+check it licenses is cheap and typed — require the decider to share the
+CLAIM's own names/features before a vote lands, which is P31's company law
+aimed at the decider instead of the number. Until that lands, a consumer
+weighing a `testimony:` vote must weigh it against the witness's measured
+record INCLUDING this specimen — one of the two live corroborations to
+date rests on a decider that does not state the claim.
+
+The clean corroboration from the capstone ("Napoleon fought against
+General Mikhail Kutuzov") did NOT recur in this run's 16-ask window — the
+walk's candidate ordering differs from the capstone probe's, and the
+budget bound before reaching it. maxAsks was the binding constraint (375
+thin notes remained), which is the expected shape when everything starts
+at one source.
