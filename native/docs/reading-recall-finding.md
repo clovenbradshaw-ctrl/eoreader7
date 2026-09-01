@@ -50,3 +50,51 @@ clean prequential held-out validation (Dracula never pooled: 0.1924 vs
 citation policy independent of the scorer and a control drawn from
 material the cue never saw. Fourth time in one day the resolution test
 (eo-constitution II.23) caught the person writing the check.
+
+---
+
+# Addendum: the cross-document measurement, and the third revision of the bottleneck story (2026-09-01)
+
+The reframe in §2 predicted proposition restatement lives cross-document.
+Measured on the committed Borodino pair — two real Wikipedia pages about
+one battle (80K + 72K chars, 377 + 350 gate-lit edges, 992 union
+referents), through the door, three arms:
+
+| arm | notes | cross-doc corroborated |
+|---|---|---|
+| exact triple | 727 | **0** |
+| referent-canonicalized ends (containment) | 725 | 1 |
+| deranged-alias control | 725 | **1 — the SAME note** |
+
+The one join is `"he" —was→ "hit by massed Russian cannon fire"` — both
+pages describe Bagration's wounding in near-verbatim words, and a bare
+pronoun end passes through ANY alias map untouched, which is why the
+control equals B. Attributable lift from referent identity: **zero.**
+
+## What this settles
+
+Two pages about the SAME EVENT, guaranteed shared subject matter, and
+mechanical triple identity finds nothing — because even encyclopedic
+prose restates a proposition in different words ("Kutuzov commanded the
+Russian army" / "the Russian army under Kutuzov..."). This is not a new
+wall; it is the SAME wall measured twice before under other names:
+MINE-1's `unbound` plateau ("closing it needs a different verdict
+criterion entirely — semantic entailment, not structural matching") and
+P74's synonymy verdict (withdraw≠retreat is not morphology).
+
+**The bottleneck story, third revision.** (1) Garbage admission — fixed
+(the dark gate, the NP walker, the category stops). (2) Identity — now
+REFUTED as the lever: filled with the earned organ and measured flat,
+within-book and cross-document alike. (3) The real remainder is
+PARAPHRASE, and it is the semantic tier's problem. The licensed tool for
+it already exists: the witness tier (P32) — a small model asked "does
+this page state this note?", the verdict derived mechanically from a
+sibling-swapped pair, the decider shown in source bytes. Cross-document
+corroboration is that machinery pointed at the door's ≥2-witness gate
+instead of at claim verification. Nothing else measured today can feed
+that gate; nothing mechanical this project has built or refuted can.
+
+The ladder in CLAUDE.md's "bottlenecks" section is amended accordingly:
+its steps 2-4 (noteIdentity ends, sameLemma labels, kind gate) remain
+correct for what they each do — but none of them, alone or together,
+moves corroboration, and that is now a measured fact, not a prediction.
