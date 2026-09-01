@@ -1787,7 +1787,7 @@
             ],
             "name": "a name denotes a being the material establishes",
             "status": "failed",
-            "detail": "\"Бородинском\" resolves (1); \"Zzyrflax Quenbourne\" does not (0); gathered 17/19 pairs its own individuation rule calls one being (stranded: \"Италии Евгений Богарне\" | \"Италии Евгений\"; \"Огюст Коленкур\" | \"Огюст\"); kept apart 4/5 it withholds on",
+            "detail": "\"Бородинском\" resolves (1); \"Zzyrflax Quenbourne\" does not (0); gathered 22/23 pairs its own individuation rule calls one being (stranded: \"Огюст Коленкур\" | \"Огюст\"); kept apart 2/5 it withholds on",
             "arms": {
               "lowerOrder": {
                 "completed": false,
@@ -1867,8 +1867,8 @@
               "pronoun binding"
             ],
             "name": "a sequence coordinated across sentences: a pronoun bound to what was read before it",
-            "status": "failed",
-            "detail": "0 pronoun(s) bound, 0 refused (none), 0 bound to an unadmitted referent",
+            "status": "passed",
+            "detail": "11 pronoun(s) bound, 19 refused (pronoun_no_candidate, pronoun_no_margin), 0 bound to an unadmitted referent",
             "arms": {
               "lowerOrder": {
                 "completed": false,
@@ -2094,7 +2094,7 @@
                 ],
                 "name": "a name denotes a being the material establishes",
                 "status": "failed",
-                "detail": "\"Бородинском\" resolves (1); \"Zzyrflax Quenbourne\" does not (0); gathered 17/19 pairs its own individuation rule calls one being (stranded: \"Италии Евгений Богарне\" | \"Италии Евгений\"; \"Огюст Коленкур\" | \"Огюст\"); kept apart 4/5 it withholds on",
+                "detail": "\"Бородинском\" resolves (1); \"Zzyrflax Quenbourne\" does not (0); gathered 22/23 pairs its own individuation rule calls one being (stranded: \"Огюст Коленкур\" | \"Огюст\"); kept apart 2/5 it withholds on",
                 "arms": {
                   "lowerOrder": {
                     "completed": false,
@@ -2180,7 +2180,7 @@
           {
             "order": 7,
             "name": "Preoperational",
-            "status": "failed",
+            "status": "passed",
             "items": [
               {
                 "id": "o7-preoperational",
@@ -2194,8 +2194,8 @@
                   "pronoun binding"
                 ],
                 "name": "a sequence coordinated across sentences: a pronoun bound to what was read before it",
-                "status": "failed",
-                "detail": "0 pronoun(s) bound, 0 refused (none), 0 bound to an unadmitted referent",
+                "status": "passed",
+                "detail": "11 pronoun(s) bound, 19 refused (pronoun_no_candidate, pronoun_no_margin), 0 bound to an unadmitted referent",
                 "arms": {
                   "lowerOrder": {
                     "completed": false,
@@ -2224,7 +2224,7 @@
                 }
               }
             ],
-            "failedCount": 1,
+            "failedCount": 0,
             "refusedCount": 0,
             "unmeasuredCount": 0
           },
@@ -2484,19 +2484,248 @@
             "name": "Sentential"
           },
           {
+            "order": 7,
+            "name": "Preoperational"
+          },
+          {
             "order": 12,
             "name": "Systematic"
           }
         ]
       },
-      "coref": {
-        "shouldMerge": 19,
-        "didMerge": 17,
-        "stranded": [
-          {
-            "a": "Италии Евгений Богарне",
-            "b": "Италии Евгений"
+      "fold": {
+        "language": "ru",
+        "propernounProvenance": {
+          "source": "Universal Dependencies UD_Russian-GSD",
+          "license": "CC BY-SA 4.0",
+          "built_by": "scripts/build-propernoun-prior.mjs",
+          "input": "/var/folders/ck/tztwm60n4s9dxwrjfwlsmz3m0000gn/T/opencode/ud/ru_gsd.conllu",
+          "tokens_read": 74900,
+          "PROPN_tokens": 4995,
+          "distinct_forms": 3916,
+          "note": "LEMMA-derived proper-noun form folding (UPOS=PROPN); multi-lemma (homographic) forms preserved unresolved; adjectives (ADJ) never enter by construction; no treebank sentence text embedded"
+        },
+        "pronounClass": {
+          "schema": "PronounPrior@1",
+          "language": "ru",
+          "provenance": {
+            "source": "Universal Dependencies UD_Russian-GSD",
+            "license": "CC BY-SA 4.0",
+            "built_by": "scripts/build-pronoun-prior.mjs",
+            "input": "/var/folders/ck/tztwm60n4s9dxwrjfwlsmz3m0000gn/T/opencode/ud/ru_gsd.conllu",
+            "tokens_read": 74900,
+            "lines_skipped": 0,
+            "PRON_tokens": 1486,
+            "PronType_Prs_marked": 0,
+            "third_person_pronoun_tokens": 632,
+            "distinct_forms": 22,
+            "note": "FEATS-derived third-person pronoun forms (UPOS=PRON AND Person=3); PronType=Prs tallied as a signal, not required; gender/number ambiguity preserved, no treebank sentence text embedded"
           },
+          "forms": {
+            "он": {
+              "gender": {
+                "Masc": 202
+              },
+              "number": {
+                "Sing": 202
+              }
+            },
+            "ним": {
+              "gender": {
+                "_": 6,
+                "Masc": 16
+              },
+              "number": {
+                "Plur": 6,
+                "Sing": 16
+              }
+            },
+            "ему": {
+              "gender": {
+                "Masc": 30
+              },
+              "number": {
+                "Sing": 30
+              }
+            },
+            "они": {
+              "gender": {
+                "_": 58
+              },
+              "number": {
+                "Plur": 58
+              }
+            },
+            "него": {
+              "gender": {
+                "Masc": 21,
+                "Neut": 2
+              },
+              "number": {
+                "Sing": 23
+              }
+            },
+            "нему": {
+              "gender": {
+                "Masc": 4,
+                "Neut": 1
+              },
+              "number": {
+                "Sing": 5
+              }
+            },
+            "их": {
+              "gender": {
+                "_": 24
+              },
+              "number": {
+                "Plur": 24
+              }
+            },
+            "его": {
+              "gender": {
+                "Masc": 49,
+                "Neut": 4
+              },
+              "number": {
+                "Sing": 53
+              }
+            },
+            "её": {
+              "gender": {
+                "Fem": 22
+              },
+              "number": {
+                "Sing": 22
+              }
+            },
+            "нём": {
+              "gender": {
+                "Masc": 12
+              },
+              "number": {
+                "Sing": 12
+              }
+            },
+            "них": {
+              "gender": {
+                "_": 23
+              },
+              "number": {
+                "Plur": 23
+              }
+            },
+            "им": {
+              "gender": {
+                "_": 19,
+                "Masc": 14,
+                "Neut": 1
+              },
+              "number": {
+                "Plur": 19,
+                "Sing": 15
+              }
+            },
+            "она": {
+              "gender": {
+                "Fem": 55
+              },
+              "number": {
+                "Sing": 55
+              }
+            },
+            "ней": {
+              "gender": {
+                "Fem": 19
+              },
+              "number": {
+                "Sing": 19
+              }
+            },
+            "неё": {
+              "gender": {
+                "Fem": 12
+              },
+              "number": {
+                "Sing": 12
+              }
+            },
+            "ними": {
+              "gender": {
+                "_": 9
+              },
+              "number": {
+                "Plur": 9
+              }
+            },
+            "нем": {
+              "gender": {
+                "Masc": 3
+              },
+              "number": {
+                "Sing": 3
+              }
+            },
+            "ей": {
+              "gender": {
+                "Fem": 9
+              },
+              "number": {
+                "Sing": 9
+              }
+            },
+            "нее": {
+              "gender": {
+                "Fem": 4
+              },
+              "number": {
+                "Sing": 4
+              }
+            },
+            "оно": {
+              "gender": {
+                "Neut": 10
+              },
+              "number": {
+                "Sing": 10
+              }
+            },
+            "ими": {
+              "gender": {
+                "_": 2
+              },
+              "number": {
+                "Plur": 2
+              }
+            },
+            "ее": {
+              "gender": {
+                "Fem": 1
+              },
+              "number": {
+                "Sing": 1
+              }
+            }
+          }
+        },
+        "pronounProvenance": {
+          "source": "Universal Dependencies UD_Russian-GSD",
+          "license": "CC BY-SA 4.0",
+          "built_by": "scripts/build-pronoun-prior.mjs",
+          "input": "/var/folders/ck/tztwm60n4s9dxwrjfwlsmz3m0000gn/T/opencode/ud/ru_gsd.conllu",
+          "tokens_read": 74900,
+          "lines_skipped": 0,
+          "PRON_tokens": 1486,
+          "PronType_Prs_marked": 0,
+          "third_person_pronoun_tokens": 632,
+          "distinct_forms": 22,
+          "note": "FEATS-derived third-person pronoun forms (UPOS=PRON AND Person=3); PronType=Prs tallied as a signal, not required; gender/number ambiguity preserved, no treebank sentence text embedded"
+        }
+      },
+      "coref": {
+        "shouldMerge": 23,
+        "didMerge": 22,
+        "stranded": [
           {
             "a": "Огюст Коленкур",
             "b": "Огюст"
@@ -2505,8 +2734,16 @@
         "shouldWithhold": 5,
         "wronglyMerged": [
           {
+            "a": "Италии Евгения Богарне",
+            "b": "Италии Евгений"
+          },
+          {
             "a": "Италии Евгений Богарне",
             "b": "Италии Евгения"
+          },
+          {
+            "a": "Италии Евгения",
+            "b": "Италии Евгений"
           }
         ],
         "abstained": 7
@@ -2563,7 +2800,7 @@
           },
           {
             "material": "borodino-ru",
-            "status": "failed",
+            "status": "passed",
             "validity": "valid"
           }
         ]

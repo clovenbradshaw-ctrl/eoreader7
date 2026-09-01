@@ -6,7 +6,7 @@ Material: a declared slice of 70 passages of 1200 chars each (of 61 available). 
 
 **READING-POLICY P0 — the assembly.** EXPERIMENT — engine text adapters hand-chained through the-fold's cast.js / hypergraph.js / verification.js / capacity-runner.js. NOT packages/host's assembled reader (absent from this checkout). READING-POLICY P0.
 
-**READING-POLICY P3 — priors injected.** None. Every number below is a result about an *unprimed* reader: no language prior, no per-text coreference prior, no kind vocabulary.
+**READING-POLICY P3 — priors injected.** None into the reader. Every number below is a result about an *unprimed* reader: no language prior, no per-text coreference prior, no kind vocabulary. The Russian material additionally threads a language-tagged proper-noun fold into `discoverReferents` at the coreference seam — that is an organ argument, not a reader prior, and is disclosed per-run below.
 
 ## war-and-peace
 
@@ -44,13 +44,16 @@ Passes above the cap, carried as observations and NOT folded into the stage: 8 (
 ## borodino-ru
 
 **Stage: none readable** — order 5 (Nominal) was measured and the system did not complete it — a real ceiling
-Passes above the cap, carried as observations and NOT folded into the stage: 6 (Sentential), 12 (Systematic)
+**Coreference fold:** a proper-noun fold (language `ru`) injected into `discoverReferents` at the coreference seam, built from a received ProperNounPrior (Universal Dependencies UD_Russian-GSD (`CC BY-SA 4.0`)). Single-lemma case-forms fold onto their lemma; ambiguous/multi-lemma forms and adjectives strand. Coverage is bounded by the register: in-register case-forms (москва/москву/москве, наполеон/наполеона) now fold, while in-register multi-word over-merge (Евгений/Евгения inside longer surfaces) remains a disclosed precision cost, and register-absent surnames are untouched. This fold is partial by disclosure, not by silence.
+**Pronoun register:** `resolvePronouns` now reads this material's own third-person register (language `ru`, Universal Dependencies UD_Russian-GSD (`CC BY-SA 4.0`)) at every `pronounClass` seam. A pronoun the register covers can be FOUND and gated by its own gender (clean vs. soft, `MIN_OBSERVATIONS` floor); a pronoun whose antecedent is a register-absent being still strands as a typed gap. This is what lets order 7 actually attempt Russian `он`/его forms instead of reporting zero pronouns found — a partial binding, disclosed rather than presumed complete.
+
+Passes above the cap, carried as observations and NOT folded into the stage: 6 (Sentential), 7 (Preoperational), 12 (Systematic)
 
 | order | name | verdict | item | detail |
 |---|---|---|---|---|
-| 5 | Nominal | `failed` | a name denotes a being the material establishes | "Бородинском" resolves (1); "Zzyrflax Quenbourne" does not (0); gathered 17/19 pairs its own individuation rule calls one being (stranded: "Италии Евгений Богарне" \| "Италии Евгений"; "Огюст Коленкур" \| "Огюст"); kept apart 4/5 it withholds on |
+| 5 | Nominal | `failed` | a name denotes a being the material establishes | "Бородинском" resolves (1); "Zzyrflax Quenbourne" does not (0); gathered 22/23 pairs its own individuation rule calls one being (stranded: "Огюст Коленкур" \| "Огюст"); kept apart 2/5 it withholds on |
 | 6 | Sentential | `passed` | a directed relation inside one sentence: who did what to whom, in order | "The Battle —of→ Borodino" is stated (1); its reverse is not (0) |
-| 7 | Preoperational | `failed` | a sequence coordinated across sentences: a pronoun bound to what was read before it | 0 pronoun(s) bound, 0 refused (none), 0 bound to an unadmitted referent |
+| 7 | Preoperational | `passed` | a sequence coordinated across sentences: a pronoun bound to what was read before it | 11 pronoun(s) bound, 19 refused (pronoun_no_candidate, pronoun_no_margin), 0 bound to an unadmitted referent |
 | 8 | Primary | `unmeasured` (unlicensed_perturbation) | an empirical rule applied: a claim checked against the material's own edges | the arbitrary arm's perturbation did not reach what the task reads (every edge shares the specimen's own subject — a redeal is a no-op and tested nothing), so it tested nothing. READING-POLICY A10: a statistic insensitive to its perturbation fails invisibly and globally. UNMEASURED, not passed. |
 | 9 | Concrete | `unmeasured` (unlicensed_perturbation) | multiple concrete instances coordinated: corroboration counted by perspective, not by mention | the arbitrary arm's perturbation did not reach what the task reads (every edge in this reading carries the same ref-count — a redeal is a no-op and tested nothing), so it tested nothing. READING-POLICY A10: a statistic insensitive to its perturbation fails invisibly and globally. UNMEASURED, not pas |
 | 10 | Abstract | `unmeasured` (organ_unreachable) | a variable quantified over a category: the whole filler set of an open slot | lowerOrder arm could not run: this material offers no subject+verb slot with two or more distinct fillers |
@@ -66,12 +69,12 @@ Passes above the cap, carried as observations and NOT folded into the stage: 6 (
 |---|---|---|---|---|---|
 | war-and-peace | 34 | **34** | 5 | **5** | 44 |
 | borodino | 22 | **22** | 9 | **9** | 56 |
-| borodino-ru | 19 | **17** | 5 | **4** | 7 |
+| borodino-ru | 23 | **22** | 5 | **2** | 7 |
 
 *Abstained* = pairs where one surface is bare/generic, decided by `discoverReferents`'s singleton-partner rescue. That branch is not computable from the engine's exported organs, so this driver does not score it rather than reimplementing the engine's partner floor.
 
-**borodino-ru — stranded** (the rule says one being; the fold kept them apart): `Италии Евгений Богарне` | `Италии Евгений`; `Огюст Коленкур` | `Огюст`
-**borodino-ru — wrongly merged** (the rule withholds; the fold merged anyway): `Италии Евгений Богарне` | `Италии Евгения`
+**borodino-ru — stranded** (the rule says one being; the fold kept them apart): `Огюст Коленкур` | `Огюст`
+**borodino-ru — wrongly merged** (the rule withholds; the fold merged anyway): `Италии Евгения Богарне` | `Италии Евгений`; `Италии Евгений Богарне` | `Италии Евгения`; `Италии Евгения` | `Италии Евгений`
 
 **What the strandings have in common, and the defect they name.** All three are one shape: a bare single token left alone while the longer surface containing it merged with a DIFFERENT partner. `Mikhail Kutuzov` sits with `Kutuzov`, and `Mikhail` stands by itself; `Emperor Alexander` sits with `Emperor`, and `Alexander` stands by itself; `Saint Petersburg` sits with `Petersburg`, and `Saint` stands by itself.
 
@@ -90,7 +93,7 @@ The MHC's claim is about the SCALE: a task's ORDER does not depend on what it is
 **Performance varied** — a well-formed task at that order in both materials; the system completed it in one and not the other. Ordinary, and what a stage measurement is for:
 
 - order 5: war-and-peace=`passed`, borodino=`passed`, borodino-ru=`failed`
-- order 7: war-and-peace=`passed`, borodino=`failed`, borodino-ru=`failed`
+- order 7: war-and-peace=`passed`, borodino=`failed`, borodino-ru=`passed`
 
 **No probe** — the material offers no specimen for that item. A fact about the material, not about the item or the system:
 

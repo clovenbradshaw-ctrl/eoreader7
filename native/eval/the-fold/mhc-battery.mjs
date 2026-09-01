@@ -99,6 +99,59 @@ async function loadEngine() {
   return { layout: null, organs: null, tried };
 }
 
+// ── the Russian material's cell of the coreference seam (anaphora-ru, 2026-08-29) ──
+//
+// `discoverReferents`/`namesCorefer` (native surfaces.js) accept an injected token
+// fold that maps an inflected proper-noun form onto its lemma, so one being does
+// not strand across its case-forms in an inflecting script; `resolvePronouns`
+// (native pronouns.js) accepts an injected `pronounClass` so it can FIND a
+// non-English language's third-person pronouns and gate them by their own
+// gender. Both are BUILT FROM received, giver-named registers (derived from
+// UD_Russian-GSD, language `ru`), never hand-typed rules:
+//   - propernoun-fold.js::makeProperNounFold  ← live_priors/derived-priors/propernoun-priors/propernoun-ru.json
+//   - normalizePronounClass (in pronouns.js)  ← live_priors/derived-priors/pronoun-priors/pronoun-ru.json
+//
+// They are applied HERE ONLY to the Russian material (`borodino-ru`): the
+// registers are Russian-tagged, and this driver otherwise deliberately injects
+// no English closed-class priors (P70's omnilingual probe). English materials
+// pass `foldToken = undefined` and `pronounClass = undefined` and are
+// byte-identical to the pre-seam driver. A missing native repo or register
+// degrades to no seam, honestly, rather than reporting a seam that was never
+// built. The registers' own `language`/`provenance` ride on the returned object
+// so the report can attribute them.
+async function buildRussianSeam(material) {
+  if (material?.key !== "borodino-ru") return undefined;
+  const out = {};
+  let module;
+  try {
+    module = await import("../../eoreader7/native/adapters/text/propernoun-fold.js");
+  } catch {
+    return undefined;
+  }
+  try {
+    const prior = JSON.parse(
+      readFileSync(join(HERE, "..", "..", "live_priors", "derived-priors", "propernoun-priors", "propernoun-ru.json"), "utf8"),
+    );
+    out.fold = module.makeProperNounFold(prior);
+    out.language = prior?.language;
+    out.propernounProvenance = prior?.provenance;
+  } catch {
+    /* propernoun register absent: carry only the pronoun half if it loads */
+  }
+  try {
+    const prior = JSON.parse(
+      readFileSync(join(HERE, "..", "..", "live_priors", "derived-priors", "pronoun-priors", "pronoun-ru.json"), "utf8"),
+    );
+    out.pronounClass = prior;
+    out.language = out.language ?? prior?.language;
+    out.pronounProvenance = prior?.provenance;
+  } catch {
+    /* pronoun register absent: carry only the fold half if it loads */
+  }
+  if (out.fold === undefined && out.pronounClass === undefined) return undefined;
+  return out;
+}
+
 // ── declared numbers (P4: numbers are declared, never defaulted) ──────────
 const DRAWS = 20; // seeded re-coordinations per arbitrary arm — A9: one null is not a null
 // Arms that must REBUILD a reader per draw cost ~1.5s each, so they run at a
@@ -170,7 +223,7 @@ function loadMaterial(key) {
 }
 
 // ── the specimen set, read OUT of the material ────────────────────────────
-function deriveSpec(material, reader, index, control, organs) {
+function deriveSpec(material, reader, index, control, organs, foldToken) {
   const edges = reader.edges ?? [];
 
   // WHICH EDGES MAY SERVE AS A SPECIMEN, and why the filter is not cosmetic.
@@ -323,7 +376,7 @@ function deriveSpec(material, reader, index, control, organs) {
   let establishedEvents = [];
   try {
     const entries = organs.extractSurfaces(organs.splitSentences(material.text), {});
-    establishedEvents = organs.discoverReferents(entries, {}).events ?? [];
+    establishedEvents = organs.discoverReferents(entries, { foldToken }).events ?? [];
   } catch {
     establishedEvents = [];
   }
@@ -726,6 +779,13 @@ function buildItems(ctx) {
   const edges = reader.edges ?? [];
   const text = material.text;
   const heavyText = material.passages.slice(0, HEAVY_PASSAGES).map((p) => p.text).join("");
+  // The Russian material's cell of the coreference seam: single-lemma
+  // proper-noun case-forms fold onto their lemma so one being does not strand
+  // across inflections, and `resolvePronouns` reads the material's OWN
+  // third-person pronoun register so a Russian `он` can be found and gated by
+  // its own gender (both undefined for every other material → byte-identical).
+  const foldToken = ctx.foldToken;
+  const pronounClass = ctx.pronounClass;
 
   // Each passage read as its OWN system. Built once and memoised: the
   // order-13 arms perturb how these readings are GROUPED, never what they
@@ -738,9 +798,9 @@ function buildItems(ctx) {
     if (realBindingsMemo) return realBindingsMemo;
     const sentences = organs.splitSentences(text);
     const surfaces = organs.extractSurfaces(sentences, {});
-    const disc = organs.discoverReferents(surfaces, {});
+    const disc = organs.discoverReferents(surfaces, { foldToken });
     const map = new Map(disc.events.map((e) => [e.surface, e.referent_id]));
-    const res = organs.resolvePronouns(sentences, map, { minActivation: 0.05, minMargin: 0.2 });
+    const res = organs.resolvePronouns(sentences, map, { minActivation: 0.05, minMargin: 0.2, pronounClass });
     realBindingsMemo = res?.bindings ?? [];
     return realBindingsMemo;
   };
@@ -965,9 +1025,9 @@ function buildItems(ctx) {
       task: async () => {
         const sentences = organs.splitSentences(text);
         const surfaces = organs.extractSurfaces(sentences, {});
-        const disc = organs.discoverReferents(surfaces, {});
+        const disc = organs.discoverReferents(surfaces, { foldToken });
         const map = new Map(disc.events.map((e) => [e.surface, e.referent_id]));
-        const res = organs.resolvePronouns(sentences, map, { minActivation: 0.05, minMargin: 0.2 });
+        const res = organs.resolvePronouns(sentences, map, { minActivation: 0.05, minMargin: 0.2, pronounClass });
         const bindings = res?.bindings ?? [];
         const gaps = res?.gaps ?? [];
         // P1: a refusal is a correct result, so the task is not "bind
@@ -995,7 +1055,7 @@ function buildItems(ctx) {
               // cross-sentence trace was not what produced them.
               const sentences = organs.splitSentences(text);
               const surfaces = organs.extractSurfaces(sentences, {});
-              const disc = organs.discoverReferents(surfaces, {});
+              const disc = organs.discoverReferents(surfaces, { foldToken });
               const map = new Map(disc.events.map((e) => [e.surface, e.referent_id]));
               const real = organs.resolvePronouns(sentences, map, { minActivation: 0.05, minMargin: 0.2 });
               const realKeys = new Set((real?.bindings ?? []).map((b) => `${b.offset}:${b.referentId}`));
@@ -1029,9 +1089,9 @@ function buildItems(ctx) {
             (scrambled) => {
               const sentences = organs.splitSentences(scrambled);
               const surfaces = organs.extractSurfaces(sentences, {});
-              const disc = organs.discoverReferents(surfaces, {});
+              const disc = organs.discoverReferents(surfaces, { foldToken });
               const map = new Map(disc.events.map((e) => [e.surface, e.referent_id]));
-              const res = organs.resolvePronouns(sentences, map, { minActivation: 0.05, minMargin: 0.2 });
+              const res = organs.resolvePronouns(sentences, map, { minActivation: 0.05, minMargin: 0.2, pronounClass });
               // The arm accomplishes the task only if scrambling the sequence
               // reproduces THE SAME bindings — which would mean the sequence
               // was not what produced them. Offsets move under a re-ordering,
@@ -1050,12 +1110,25 @@ function buildItems(ctx) {
             true,
             "text with no pronoun at all must yield no binding",
             () => {
-              const stripped = text.replace(/\b(he|she|they|him|her|his|hers|their|them)\b/gi, "someone");
+              // The stripped control must remove the pronouns the reader
+              // ACTUALLY binds — the register's own forms when one is in
+              // scope, the English closed set otherwise. A hardcoded English
+              // list named nothing on a Russian register (P70's third
+              // amendment: `resolvePronouns` now reads a language's own
+              // register), so on borodino-ru stripping `he|she|they…` left
+              // every `он`/его/их standing and the "no pronoun" control
+              // still bound — a false `indiscriminate`. The boundary is the
+              // same Unicode-aware one pronouns.js uses, so a Cyrillic
+              // register strips and an ASCII one is byte-identical.
+              const esc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+              const set = pronounClass?.forms ? Object.keys(pronounClass.forms) : ["he", "she", "they", "him", "her", "his", "hers", "their", "them"];
+              const re = new RegExp(`(?<![\\p{L}\\p{N}_])(?:${set.sort((a, b) => b.length - a.length).map(esc).join("|")})(?![\\p{L}\\p{N}_])`, "giu");
+              const stripped = text.replace(re, "someone");
               const sentences = organs.splitSentences(stripped);
               const surfaces = organs.extractSurfaces(sentences, {});
-              const disc = organs.discoverReferents(surfaces, {});
+              const disc = organs.discoverReferents(surfaces, { foldToken });
               const map = new Map(disc.events.map((e) => [e.surface, e.referent_id]));
-              const res = organs.resolvePronouns(sentences, map, { minActivation: 0.05, minMargin: 0.2 });
+              const res = organs.resolvePronouns(sentences, map, { minActivation: 0.05, minMargin: 0.2, pronounClass });
               return (res?.bindings ?? []).length > 0;
             },
           ),
@@ -1662,12 +1735,18 @@ async function runOne(engine, material, control) {
   const organs = engine.organs;
   const reader = makeRelationReader(organs)(material.passages, { pool: material.passages });
   const index = makeReferentIndex(organs)(material.passages);
-  const spec = deriveSpec(material, reader, index, control, engine.organs);
-  const ctx = { organs, material, reader, index, spec, control };
+  const fold = await buildRussianSeam(material);
+  const spec = deriveSpec(material, reader, index, control, engine.organs, fold?.fold);
+  const ctx = { organs, material, reader, index, spec, control, foldToken: fold?.fold, pronounClass: fold?.pronounClass, foldMeta: fold };
   const items = buildItems(ctx);
   const report = await runBattery(items, ctx, {
-    // P3: this run injects NO priors. That is a statement about which reader
-    // was measured — an unprimed one — not an omission.
+    // P3: this run injects NO priors into the READER. That is a statement
+    // about which reader was measured — an unprimed one — not an omission.
+    // (The Russian material additionally threads a language-tagged
+    // propernoun FOLD into `discoverReferents` at the coreference seam —
+    // that is an argument to an organ call, not a reader prior, and its
+    // presence is disclosed in the report via `foldMeta`, never implied
+    // default here.)
     priors: [],
     assembly: items[0].assembly,
     material: material.key,
@@ -1675,6 +1754,7 @@ async function runOne(engine, material, control) {
   return {
     report,
     stage: stageFrom(report),
+    fold: fold,
     // The coreference diagnostic is carried on the run rather than buried in
     // one item's detail string: it is an aggregate measurement over every
     // pair the material offers, and the order-5 item scores it but does not
@@ -1751,13 +1831,33 @@ function renderReport(out) {
   L.push("");
   L.push("**READING-POLICY P0 — the assembly.** " + (out.runs[0]?.report?.assembly ?? "unnamed"));
   L.push("");
-  L.push("**READING-POLICY P3 — priors injected.** None. Every number below is a result about an *unprimed* reader: no language prior, no per-text coreference prior, no kind vocabulary.");
+  const foldMention = out.runs.some((r) => r.fold)
+    ? " The Russian material additionally threads a language-tagged proper-noun fold into `discoverReferents` at the coreference seam — that is an organ argument, not a reader prior, and is disclosed per-run below."
+    : "";
+  L.push(
+    "**READING-POLICY P3 — priors injected.** None into the reader. Every number below is a result about an *unprimed* reader: no language prior, no per-text coreference prior, no kind vocabulary." +
+      foldMention,
+  );
   L.push("");
   for (const run of out.runs) {
     L.push(`## ${run.material}`);
     L.push("");
     const s = run.stage;
     L.push(`**Stage: ${s.stage == null ? "none readable" : `${s.stage} (${s.stageName})`}** — ${s.cappedBy ? s.cappedBy.detail : "no cap"}`);
+    if (run.fold) {
+      const f = run.fold;
+      const pn = f.propernounProvenance?.source ? `${f.propernounProvenance.source} (\`${f.propernounProvenance.license ?? "?"}\`)` : "giver-named by the derived register";
+      L.push(
+        `**Coreference fold:** a proper-noun fold (language \`${f.language ?? "?"}\`) injected into \`discoverReferents\` at the coreference seam, built from a received ProperNounPrior (${pn}). Single-lemma case-forms fold onto their lemma; ambiguous/multi-lemma forms and adjectives strand. Coverage is bounded by the register: in-register case-forms (москва/москву/москве, наполеон/наполеона) now fold, while in-register multi-word over-merge (Евгений/Евгения inside longer surfaces) remains a disclosed precision cost, and register-absent surnames are untouched. This fold is partial by disclosure, not by silence.`,
+      );
+      if (f.pronounClass) {
+        const pr = f.pronounProvenance?.source ? `${f.pronounProvenance.source} (\`${f.pronounProvenance.license ?? "?"}\`)` : "giver-named by the derived register";
+        L.push(
+          `**Pronoun register:** \`resolvePronouns\` now reads this material's own third-person register (language \`${f.language ?? "?"}\`, ${pr}) at every \`pronounClass\` seam. A pronoun the register covers can be FOUND and gated by its own gender (clean vs. soft, \`MIN_OBSERVATIONS\` floor); a pronoun whose antecedent is a register-absent being still strands as a typed gap. This is what lets order 7 actually attempt Russian \`он\`/его forms instead of reporting zero pronouns found — a partial binding, disclosed rather than presumed complete.`,
+        );
+      }
+      L.push("");
+    }
     if (s.isolated.length) L.push(`Passes above the cap, carried as observations and NOT folded into the stage: ${s.isolated.map((i) => `${i.order} (${i.name})`).join(", ")}`);
     L.push("");
     L.push("| order | name | verdict | item | detail |");
