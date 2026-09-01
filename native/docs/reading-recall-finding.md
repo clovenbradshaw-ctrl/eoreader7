@@ -98,3 +98,32 @@ The ladder in CLAUDE.md's "bottlenecks" section is amended accordingly:
 its steps 2-4 (noteIdentity ends, sameLemma labels, kind gate) remain
 correct for what they each do — but none of them, alone or together,
 moves corroboration, and that is now a measured fact, not a prediction.
+
+---
+
+# Addendum 2: the witness capstone, and the wire (2026-09-01, same day)
+
+**The witness tier run cross-document for real** (gemma2:2b, temperature 0,
+sibling-swap armed, verdict derived from the pair): 12 retrieval-proposed
+notes from the battle page judged against the novel page. **2 corroborated
+("states") against a mechanical baseline of 0; the fabricated-note control
+held 0/4** ("Kutuzov commanded the French army", "Bagration wrote War and
+Peace" — all refused). 10 refusals is the tier's designed conservatism
+(P32's own batch record: low recall, zero wrong corrections). One honest
+asterisk: of the two corroborations, "Napoleon fought against General
+Mikhail Kutuzov" carries a clean decider ("Napoleon and Prince Mikhail
+Kutuzov"); the Grande-Armée note's decider is a Tolstoy-biography sentence
+that does not obviously state the claim — counted here as questionable,
+never as clean. So the paraphrase wall has exactly one licensed door, and
+it works at the witness tier's own measured rates.
+
+**The Station-3→4 wire landed** ("What Is Being Born" §VI): every public
+edge now carries `end1Face`/`end2Face` — the earned referent face when the
+end resolved to exactly one being, fragments nested by address containment,
+ambiguity a disclosed absence. Measured live: 18.6% of Dracula's subjects
+carry a face (against 7.5% exact-surface before), the door keys identity
+on faces ahead of raw strings, and corroboration did NOT move — exactly as
+the ordering predicts, because the paraphrase wall stands between. The wire
+went dark twice in its first hour (fragment-referent ambiguity in `faceOf`;
+`edgeFace`'s projection stripping the fields) and both darknesses were
+caught only by re-running the measurement — III.5, three times in one day.
