@@ -125,7 +125,25 @@ export const REFUSALS = Object.freeze({
 export const VERB_CLASS = "verb";
 
 export function makeHyperlexicon(taskLog) {
-  const { createTaskLog, append, projectTasks, ENTRY_KINDS, OPERATOR_BASIS, GRAIN_RANK, cellOf = null } = taskLog;
+  // `noteIdentity` is THE IDENTITY SEAM (P73): which two sightings are ONE
+  // note is an injectable question, never a string accident. Measured need
+  // (eval/hyperlexicon-door-probe.mjs, real Wikipedia fixtures): with
+  // identity = the exact triple, 0 of 29 notes ever reached two witnesses
+  // — the same fact restated in different words ("The Russian army
+  // withdraws" / "Imperial Russian forces retreated") can never fold, so
+  // the >=2-witness ledger block is structurally unreachable on prose.
+  // The organ, when injected, canonicalises (subject, verb, object) for
+  // the ID ALONE — the note's DISPLAY keeps the FIRST reading's own words
+  // (bytes read, never a normalised paraphrase), and witnesses/spans union
+  // exactly as before. Absent (every existing caller), identity is
+  // byte-identical to the exact-triple behaviour. A gapping organ (falsy
+  // return, or an empty field) falls back to the surface form for that
+  // field — an identity gap must never block admission (the withhold-vs-
+  // convict rule, applied to identity). The production organ — referent
+  // faces for ends, sameAct lemma equivalence for the connector, both
+  // already proven in the MINE-1 work — is the named next wiring, not
+  // built here; this seam is what it plugs into.
+  const { createTaskLog, append, projectTasks, ENTRY_KINDS, OPERATOR_BASIS, GRAIN_RANK, cellOf = null, noteIdentity = null } = taskLog;
 
   // Read from task-log's own rank table rather than restated as a literal —
   // build-log.js and store.js both already take the name this way.
@@ -181,7 +199,8 @@ export function makeHyperlexicon(taskLog) {
    * still lands exactly as before.
    */
   function hear(log, { subject, verb, object, spans = [], witness = null, because = null }) {
-    const id = assertionId(subject, verb, object);
+    const canon = noteIdentity ? noteIdentity(subject, verb, object) : null;
+    const id = assertionId(canon?.subject || subject, canon?.verb || verb, canon?.object || object);
     const prior = projectTasks(log).find((t) => t.task_id === id) ?? null;
     // Witnesses and spans UNION, never replace: a merge that overwrote them
     // would make the second sighting erase the first one's evidence, which
@@ -214,9 +233,15 @@ export function makeHyperlexicon(taskLog) {
       // downstream may score a stance against an oracle.
       ...cellFields(prior ? "SYN" : "INS"),
       description: prior ? `heard again: ${subject} ${verb} ${object}` : `${subject} ${verb} ${object}`,
-      subject,
-      verb,
-      object,
+      // The FIRST reading's face wins the display: under an injected
+      // identity a later restatement may word the same note differently,
+      // and superseding the display with each paraphrase would make the
+      // note's words drift while its evidence accumulates. Default path
+      // (no organ): `prior` only exists when the exact triple matched, so
+      // these are the same strings — byte-identical behaviour.
+      subject: prior?.subject ?? subject,
+      verb: prior?.verb ?? verb,
+      object: prior?.object ?? object,
       witnesses,
       spans: merged,
       ...(because != null ? { because } : {}),
