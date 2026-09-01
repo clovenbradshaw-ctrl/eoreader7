@@ -337,3 +337,48 @@ test("byte-identical for ASCII: the fix changes nothing about existing English e
     ["Anna Pavlovna", "smiled", "warmly"],
   ]);
 });
+
+// ── the clause wall: PROPOSITION grain, not sentence grain (2026-09-01) ──
+// `windowStart` walls subject expansion at the previous match or the
+// SENTENCE start — typography. An assertion ends at its clause, so a walk
+// that crosses a clause opener captures a span straddling two propositions.
+// priors.js CLAUSE_OPENERS (giver lang/en) is the wall, and it is the SAME
+// closed class pronouns.js's own sameClause consults — promoted out of that
+// file's private regex so there is one list, not two.
+
+test("expandSubjectNP stops at a clause opener — a subject never straddles two propositions", () => {
+  // "...interesting. if so my stay may be very interesting" — walking left
+  // from "stay" past "if" captured "if so my" on real prose.
+  const text = "It was late, and if so my stay may be long.";
+  const anchorStart = text.indexOf("stay");
+  const result = expandSubjectNP(text, anchorStart, anchorStart + "stay".length, 0, {});
+  assert.ok(result, "expected an expansion");
+  assert.equal(/\b(if|and)\b/i.test(result.subject), false, `subject crossed a clause opener: "${result.subject}"`);
+  assert.match(result.subject, /my stay/, `expected the clause's own subject, got "${result.subject}"`);
+});
+
+test("the clause wall STOPS, it never refuses — everything right of the opener is a real subject", () => {
+  const text = "He waited because the old countess arrived.";
+  const anchorStart = text.indexOf("countess");
+  const result = expandSubjectNP(text, anchorStart, anchorStart + "countess".length, 0, {});
+  assert.ok(result, "a clause opener must not null the whole expansion");
+  assert.equal(result.subject, "the old countess");
+});
+
+test("a dangling coordinator is dropped — a coordinator is only earned by the sibling it joins", () => {
+  // The loop consumes "and" hoping for an NP behind it; when the walk hits a
+  // wall with nothing found, the span used to read "and he" — 24% of this
+  // extractor's junk subjects on real prose were this one shape.
+  const text = "The door opened and he entered.";
+  const anchorStart = text.indexOf("he");
+  const result = expandSubjectNP(text, anchorStart, anchorStart + "he".length, 0, {});
+  if (result) assert.equal(/^(and|or|but|nor)\b/i.test(result.subject), false, `dangling coordinator kept: "${result.subject}"`);
+});
+
+test("CONTROL, built to fail: a coordinator the walk DID pay for is kept — a real joined NP survives", () => {
+  const text = "Anna and Vasili discussed the war.";
+  const anchorStart = text.indexOf("Vasili");
+  const result = expandSubjectNP(text, anchorStart, anchorStart + "Vasili".length, 0, {});
+  assert.ok(result, "expected the sibling NP to be joined");
+  assert.equal(result.subject, "Anna and Vasili", "a genuine coordinated subject must NOT be trimmed by the dangling-coordinator rule");
+});

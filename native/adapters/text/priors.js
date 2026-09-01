@@ -203,3 +203,84 @@ export const SENTENCE_TERMINATORS_META = Object.freeze({ giver: "script/latn", s
 /** Closing quote marks. */
 export const CLOSING_QUOTES = Object.freeze(new Set(['"', "'", "”", "’"]));
 export const CLOSING_QUOTES_META = Object.freeze({ giver: "script/latn", scope: null });
+
+/**
+ * English honorific titles — a genuine closed class of address, not
+ * derived statistically. Found necessary reading Dracula end to end:
+ * spans.js's own `deriveAbbreviations` only admits a token that is
+ * followed by "." on EVERY occurrence in the material, so a title this
+ * particular text sometimes spells without a period (a real, ordinary
+ * source-specific choice) is silently excluded, and the run-detection
+ * walker in surfaces.js then reads the bare title as its own
+ * one-token capitalised run — "Dr", "Mr", "Mrs" surfacing as huge,
+ * spurious standalone cast entries. A closed class is the fix precisely
+ * because titles are a CLOSED SET in English regardless of a given
+ * source's punctuation habits, unlike the open, statistically-derived
+ * abbreviation set spans.js exists for.
+ *
+ * Also the fix for a second, sharper bug: title-fold.js's own qualifier
+ * test originally accepted ANY word recurring in lowercase elsewhere in
+ * the material as a legitimate title — which is necessary but not
+ * sufficient, and merged "Castle Dracula" into "Count Dracula" because
+ * "castle" genuinely does recur in lowercase (as an ordinary common
+ * noun naming the building, not as anyone's title). Membership in this
+ * closed class is the sufficient condition a mined statistic cannot be.
+ */
+export const HONORIFIC_TITLES = Object.freeze(new Set([
+  "mr", "mrs", "miss", "ms", "mx",
+  "dr", "prof", "professor", "rev", "reverend", "fr",
+  "sir", "madam", "madame", "mademoiselle", "monsieur",
+  "herr", "frau", "fraulein", "signor", "signora", "signorina",
+  "lord", "lady", "dame",
+  "count", "countess", "duke", "duchess", "baron", "baroness",
+  "viscount", "viscountess", "earl", "marquis", "marquess", "voivode",
+  "king", "queen", "prince", "princess",
+  "captain", "capt", "colonel", "col", "major", "general", "gen",
+  "admiral", "lieutenant", "lt", "sergeant", "sgt",
+]));
+export const HONORIFIC_TITLES_META = Object.freeze({ giver: "lang/en", scope: null });
+
+/**
+ * Document-structure labels — CHAPTER, PART, BOOK, VOLUME — never a name
+ * candidate regardless of adjacent capitalisation. Found live reading
+ * Dracula: a chapter heading sitting beside a diary date line ("11
+ * August. CHAPTER XI.") is not a PURE all-caps unit (the existing
+ * all-caps-unit skip only fires when EVERY token qualifies), so
+ * "CHAPTER" survived into mixed candidates like "August CHAPTER",
+ * "Harker Journal CHAPTER". A structural label is typographic
+ * furniture, the same class stripContainer/blankFurniture already
+ * exist to remove at document/table scale — this is the same principle
+ * at single-token scale.
+ */
+export const STRUCTURAL_LABELS = Object.freeze(new Set(["chapter", "part", "book", "volume"]));
+export const STRUCTURAL_LABELS_META = Object.freeze({ giver: "lang/en", scope: null });
+
+/**
+ * Subordinators and relative pronouns — the closed class that OPENS a
+ * subordinate clause. Promoted here 2026-09-01 from a private regex inside
+ * pronouns.js, where it had done real work for one consumer while every
+ * other reader of English clause structure had no access to it: the same
+ * compiled-but-unshared shape III.5 legislates against, one register in.
+ *
+ * WHY IT MATTERS BEYOND COREFERENCE. A clause is the natural boundary of
+ * an ASSERTION — a proposition, the unit a reader actually admits — while
+ * a sentence is only typography, the way a bar is typography for music. An
+ * extractor whose left wall is the sentence walks across clause
+ * boundaries and captures fragments spanning two propositions ("if so my",
+ * "for I", "day belief"); the wall it wants is this class.
+ *
+ * "to" belongs: it is the non-finite counterpart of the finite
+ * complementizers ("declined to make her available" opens a clause exactly
+ * as "declined that she be made available" would). Same phenomenon,
+ * different still-closed realization — pronouns.js's own note, kept with
+ * the class it describes.
+ */
+export const CLAUSE_OPENERS = Object.freeze(new Set([
+  "that", "which", "who", "whom", "whose",
+  "because", "although", "though", "while", "when", "whether",
+  "unless", "since", "before", "after", "until", "if", "to",
+]));
+export const CLAUSE_OPENERS_META = Object.freeze({ giver: "lang/en", scope: null });
+
+
+

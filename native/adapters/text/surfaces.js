@@ -31,6 +31,9 @@
 // physics filter, and whole-word counting all come from eoreader5's
 // presence.js / entity-fold.js.
 
+import { deriveAbbreviations } from "./spans.js";
+import { NEVER_A_NAME, HONORIFIC_TITLES } from "./priors.js";
+
 const DIA_RE = /[áàâäéèêëíìîïóòôöúùûü]/g;
 const DIA_TO = { á:"a",à:"a",â:"a",ä:"a",é:"e",è:"e",ê:"e",ë:"e",í:"i",ì:"i",î:"i",ï:"i",ó:"o",ò:"o",ô:"o",ö:"o",ú:"u",ù:"u",û:"u",ü:"u" };
 
@@ -41,7 +44,20 @@ export const diaNorm = (t) => String(t ?? "").toLowerCase().trim().replace(DIA_R
 // statistics. Declared, checked by conformance.
 export const CELL = Object.freeze({ op: "SIG", grain: "Ground" });
 
-const tokensOf = (id) => diaNorm(id).split(/\s+/).filter((t) => t.length > 2);
+const rawTokensOf = (id) => diaNorm(id).split(/\s+/).filter((t) => t.length > 2);
+
+// A morphological fold applied to each token before identity comparison:
+// token -> (optionally folded) token. Absent, it is the identity — the fold
+// never fires and behavior is byte-identical to today's token-identity
+// coreference (English, whose proper nouns do not inflect for case, never
+// sees a fold). A RECEIVED fold (a giver-named register, e.g. a treebank-
+// derived ProperNounPrior) may map an inflected case-form to its lemma, so
+// "Кутузову"/"Кутузовым" fold onto the same stem "Кутузов" and one being
+// stops stranding across its case forms (the-fold
+// eval/results/anaphora-ru-RESULTS.md). The fold is INJECTED by the caller,
+// mirroring how morphology.js's lemmatizer arrives for actClosure — the
+// adapter itself imports nothing (text-boundary conformance wall).
+const tokensOf = (id, fold) => rawTokensOf(id).map(fold ?? ((t) => t));
 
 // Exact match, or — when a declension folder is injected
 // (adapters/text/declension.js::createDeclensionFolder, over a received,
@@ -53,16 +69,23 @@ const tokenEq = (x, y, sameStem) => x === y || (!!sameStem && (sameStem(x, y) ||
 const tokenSetContains = (from, into, sameStem) => from.every((t) => into.some((u) => tokenEq(t, u, sameStem)));
 
 /**
- * Two NAMES corefer: containment, or a shared final token (surname). A
- * highly-inflected language (Russian: "Кутузов"/"Кутузова"; the same shape
- * this file's own header already names for English's diaNorm) fragments a
- * bare surname's own case forms into distinct tokens with no fold — pass
- * `sameStem` (declension.js) to widen "shared" to "shared, or related by a
- * productive case ending" without touching any other caller.
+ * Two NAMES corefer: containment, or a shared final token (surname). Two
+ * independent wideners arrived the same week and COMPOSE rather than
+ * compete — they answer different halves of "the same token":
+ *
+ *   `fold`     — a per-token normalizer applied BEFORE comparison (a
+ *                giver-named morphological fold; identity when absent).
+ *   `sameStem` — a pairwise relation consulted AT comparison (declension:
+ *                "Кутузов"/"Кутузова" related by a licensed case
+ *                transform; null degrades tokenEq to ===).
+ *
+ * Third argument: an options object `{ sameStem, fold }`, or — for the
+ * callers that predate the merge — a bare function, read as `fold`.
  */
-export const namesCorefer = (a, b, { sameStem = null } = {}) => {
-  const ta = tokensOf(a);
-  const tb = tokensOf(b);
+export const namesCorefer = (a, b, opts) => {
+  const { sameStem = null, fold = null } = typeof opts === "function" ? { fold: opts } : (opts ?? {});
+  const ta = tokensOf(a, fold);
+  const tb = tokensOf(b, fold);
   if (!ta.length || !tb.length) return false;
   const subset = tokenSetContains(ta, tb, sameStem) || tokenSetContains(tb, ta, sameStem);
   return subset || tokenEq(ta[ta.length - 1], tb[tb.length - 1], sameStem);
@@ -245,37 +268,52 @@ export const createSurfaceEvidence = () => ({
   sentenceIndex: new Map(), // surface -> Set(sentence order)
 });
 
-export const accumulateSurfaceEvidence = (sentences, evidence) => {
+export const accumulateSurfaceEvidence = (sentences, evidence, { abbreviations = null } = {}) => {
   const { capCounts, lowerCounts, sentenceIndex } = evidence;
+  // ABBREVIATIONS DO NOT BREAK A RUN — a period is the one punctuation mark
+  // with a genuine dual role (sentence end OR abbreviation marker), unlike
+  // comma/semicolon/colon/dash, which are unambiguous separators in every
+  // script that has them. Found live (the-fold, reading Dracula, same day
+  // as the run-breaking fix above): "Mr. Renfield" was being severed into
+  // "Mr" and "Renfield" by the very fix meant to close "Lord Godalming;
+  // Professor Van Helsing" — treating an abbreviation's own period exactly
+  // like a real separator. `spans.js::deriveAbbreviations` already solves
+  // this question for `splitSentences` (is this period a sentence end or a
+  // title); reused here rather than re-derived a second way — the same
+  // per-language, per-material fact answered once.
+  const abbrev = abbreviations
+    ? new Set(abbreviations)
+    : deriveAbbreviations(sentences.map((s) => s.text).join(" "));
   for (const sent of sentences) {
-    // Split first, strip second, but keep what stripping discarded: whether
-    // punctuation sat directly against a token's own edge, no whitespace
-    // between. split(/\s+/) already separates "Пьера," from "Анна" into two
-    // array elements, but stripping the comma off "Пьера," leaves nothing
-    // downstream to tell a bare comma-then-capital apart from an ordinary
-    // multi-word name's own internal space — so the run-walker below used to
-    // glue them into one candidate. Found on real fetched Война и мир prose
-    // ("Пьера, Анна Павловна" — an abbé-and-Pierre aside, then a NEW
-    // subject — became the 3-token run "Пьера Анна Павловна"), then
-    // confirmed general, not script-specific, by reproducing the identical
-    // shape in English ("Pierre, Anna Pavlovna" -> "Pierre Anna Pavlovna").
+    // TOKENS, AND WHETHER PUNCTUATION SEPARATED THEM FROM THEIR NEIGHBOURS.
+    // The SAME defect was found independently on two books the same week —
+    // the-fold reading Dracula ("Lord Godalming; Professor Van Helsing;
+    // Mr. Quincey Morris" glued into one run by whitespace-splitting) and
+    // this repo reading Война и мир ("Пьера, Анна Павловна" becoming the
+    // 3-token run "Пьера Анна Павловна") — convergent evidence, and the
+    // merge keeps BOTH sides' halves because each caught what the other
+    // missed: the Dracula side's abbreviation exception (a trailing period
+    // on a known title is NOT a boundary — "Mr. Renfield" is one name; the
+    // period is the one mark with a dual role, and deriveAbbreviations +
+    // the received HONORIFIC_TITLES class already answer exactly this
+    // question for splitSentences), and the Война-и-мир side's LEADING
+    // junk (an opening quote or dash leads the NEXT token — a boundary the
+    // trailing-only check cannot see).
     const rawToks = sent.text.split(/\s+/);
     const toks = [];
+    const breaksAfter = [];
     const leadingJunk = [];
-    const trailingJunk = [];
     for (const raw of rawToks) {
-      const stripped = raw.replace(/^[^\p{L}]+|[^\p{L}'’]+$/gu, "");
-      if (!stripped) continue;
-      toks.push(stripped);
-      leadingJunk.push(/^[^\p{L}]/u.test(raw));
-      trailingJunk.push(/[^\p{L}'’]$/u.test(raw));
+      const withoutLeading = raw.replace(/^[^\p{L}]+/gu, "");
+      const cleaned = withoutLeading.replace(/[^\p{L}'’]+$/gu, "");
+      if (!cleaned) continue;
+      toks.push(cleaned);
+      leadingJunk.push(withoutLeading.length !== raw.length);
+      const trailing = withoutLeading.slice(cleaned.length);
+      const isAbbreviatedTitle = trailing === "." && (abbrev.has(cleaned) || HONORIFIC_TITLES.has(cleaned.toLowerCase()));
+      breaksAfter.push(trailing.length > 0 && !isAbbreviatedTitle);
     }
-    // A hard boundary sits between toks[k] and toks[k+1] when punctuation was
-    // glued directly to either side (a comma, colon, dash, or closing quote
-    // trailing toks[k]; an opening quote or dash leading toks[k+1]) — plain
-    // whitespace, with nothing else, is the only separator a multi-word NAME
-    // run may cross.
-    const hardBreakAfter = toks.map((_, k) => trailingJunk[k] || (leadingJunk[k + 1] ?? false));
+    const hardBreakAfter = toks.map((_, k) => breaksAfter[k] || (leadingJunk[k + 1] ?? false));
     // A unit set entirely in capitals is a heading or a running head, and every
     // token in it is capitalised by typography. Reading capitalisation as
     // evidence here is the sentence-initial mistake at unit scale — on Process
@@ -292,9 +330,25 @@ export const accumulateSurfaceEvidence = (sentences, evidence) => {
     // by position and carries no evidence of namehood on its own
     let i = 1;
     while (i < toks.length) {
+      // NEVER_A_NAME (priors.js, lang/en, received): "I"/"I've"/"I'll"/
+      // "I'd"/"I'm" carry no naming evidence in English regardless of
+      // capitalisation — found live reading Dracula end to end, where the
+      // first-person pronoun was individuating itself as its own cast
+      // entry ("I've", 8 mentions) purely because CAP_TOKEN matches a bare
+      // capital I. This prior already existed, unconsumed here — the same
+      // compiled-but-unwired shape this project's own history keeps
+      // finding. A run may still start on the NEXT token, so this skips
+      // rather than breaks: "I saw Renfield" must still individuate
+      // Renfield.
+      if (NEVER_A_NAME.has(toks[i].toLowerCase())) { i++; continue; }
       if (!CAP_TOKEN.test(toks[i])) { i++; continue; }
-      let j = i;
-      while (j < toks.length && CAP_TOKEN.test(toks[j]) && (j === i || !hardBreakAfter[j - 1])) j++;
+      // A run always includes its own starting token; it extends past
+      // token k only when the next token is capitalised, is not a received
+      // never-a-name form ("I've" individuating itself — Dracula, live),
+      // AND nothing punctuated separated k from k+1 in the material's own
+      // bytes (either side's junk — see the union above).
+      let j = i + 1;
+      while (j < toks.length && CAP_TOKEN.test(toks[j]) && !NEVER_A_NAME.has(toks[j].toLowerCase()) && !hardBreakAfter[j - 1]) j++;
       const run = toks.slice(i, j);
       // An all-caps run inside an otherwise mixed-case unit is the same
       // typography as an all-caps unit — a part title quoted mid-paragraph.
@@ -359,7 +413,7 @@ export const surfacesFromEvidence = (evidence, { functionWords = null, abbreviat
 };
 
 export const extractSurfaces = (sentences, opts = {}) =>
-  surfacesFromEvidence(accumulateSurfaceEvidence(sentences, createSurfaceEvidence()), opts);
+  surfacesFromEvidence(accumulateSurfaceEvidence(sentences, createSurfaceEvidence(), { abbreviations: opts.abbreviations }), opts);
 
 // ---------------------------------------------------------------------------
 // WHETHER THIS MECHANISM CAN FIRE ON THIS MATERIAL AT ALL.
@@ -699,7 +753,7 @@ const deriveMinSentences = (surfaces) => {
  *   floor, exactly as `minSentences` already promises for the
  *   single-document case.
  */
-export const discoverReferents = (surfaces, { minSentences, minPartners, groups, sameStem = null } = {}) => {
+export const discoverReferents = (surfaces, { minSentences, minPartners, groups, foldToken, sameStem = null } = {}) => {
   const events = [];
   const assigned = new Map(); // surface -> referent_id
   const generic = groups
@@ -752,7 +806,7 @@ export const discoverReferents = (surfaces, { minSentences, minPartners, groups,
   const corefersIndividuated = (a, b) => {
     const ia = individuating(a);
     const ib = individuating(b);
-    if (ia.length && ib.length) return namesCorefer(ia.join(" "), ib.join(" "), { sameStem });
+    if (ia.length && ib.length) return namesCorefer(ia.join(" "), ib.join(" "), { fold: foldToken, sameStem });
     // No individuating evidence on one side means no evidence FOR merging —
     // not licence to fall back on the generic tokens just judged unreliable.
     // That inverted fallback kept every Princess in one referent: both

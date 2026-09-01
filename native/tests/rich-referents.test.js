@@ -325,3 +325,79 @@ test("capitalisationIsSignificant's exact tail still admits genuinely strong evi
   const names = new Set(found.map((s) => s.surface));
   assert.ok(names.has("Halvorsen"), "9 capitalised against 1 lowercase (n=10) is strong evidence and must still be admitted");
 });
+
+// ── the morphological fold seam: one being stops stranding across its
+// case-forms in an inflecting script — the fix the anaphora investigation
+// located (the-fold eval/results/anaphora-ru-RESULTS.md). The seam is a
+// foldToken injected into namesCorefer/discoverReferents; absent, token
+// identity stands and behavior is byte-identical.
+import { makeProperNounFold } from "../adapters/text/propernoun-fold.js";
+import { namesCorefer as nc } from "../adapters/text/surfaces.js";
+import { readFileSync } from "node:fs";
+
+const ru = JSON.parse(readFileSync(new URL("../../../live_priors/derived-priors/propernoun-priors/propernoun-ru.json", import.meta.url), "utf8"));
+const ruFold = makeProperNounFold(ru);
+
+test("the fold seam merges one being's case-forms; the ADJ wall holds", () => {
+  // The exact mechanism measured on real material: token-identity refuses the
+  // pair ("Кутузов" vs "Кутузова" share no orthographic token). An injected
+  // fold that maps both onto the same stem makes the containment test pass.
+  // The fold supplied here is inline (a Map) — this test pins the MECHANISM,
+  // not any one register's coverage (the treebank's coverage is the next
+  // test's subject, honestly).
+  assert.equal(nc("Кутузов", "Кутузова"), false, "no fold: case forms strand (token identity)");
+  const inline = makeProperNounFold({ schema: "ProperNounPrior@1", forms: {
+    "кутузов": { lemmas: { "кутузов": 1 } },
+    "кутузова": { lemmas: { "кутузов": 1 } },
+    "кутузовым": { lemmas: { "кутузов": 1 } },
+  } });
+  assert.equal(nc("Кутузов", "Кутузова", inline), true, "same lemma folds together (masculine gen)");
+  assert.equal(nc("Кутузов", "Кутузовым", inline), true, "same lemma folds together (instrumental)");
+  assert.equal(nc("Бородино", "Бородинский", inline), false, "a derived adjective is not in the PROPN fold — the wall holds");
+});
+
+test("makeProperNounFold honors the single-lemma/multi-lemma and ADJ contracts on the real register", () => {
+  // Москва's case-forms all carry ONE lemma in the treebank -> folded. A
+  // form attested under MULTIPLE lemmas -> returned unchanged (strand, never
+  // guessed). A derived adjective and any unseen surname -> returned
+  // unchanged (absent from the PROPN register). The last two are the honest
+  // measure of REGISTER COVERAGE: the fold is only as wide as the prior —
+  // the fixture's own central surnames (Кутузов, Бородино, Багратион) are
+  // absent from UD_Russian-GSD and strand even folded, exactly as measured.
+  assert.equal(ruFold("Москве"), "москва");
+  assert.equal(ruFold("Москву"), "москва");
+  assert.equal(ruFold("Москвы"), "москва");
+  assert.equal(ruFold("Наполеона"), "наполеон");
+  assert.equal(ruFold("Кутузов"), "кутузов", "unseen surname stays unfolded (coverage gap, disclosed)");
+  assert.equal(ruFold("Бородинский"), "бородинский", "adjective stays unfolded (ADJ wall)");
+});
+
+test("the fold unifies a real register's case-forms into one referent end to end", () => {
+  // Москва/Mоскве/Mоскву are covered by live_priors' propernoun-ru.json (all
+  // map to lemma москва) — a genuine proof that the injected fold reaches
+  // discoverReferents
+  // and heals the stranding for the forms the register covers. The control
+  // run (no fold) strands the same two forms.
+  const lines = [
+    "Осенью подошли войска к Москве и встали лагерем за городом.",
+    "Все дороги к Москве были перекрыты и охранялись днём и ночью.",
+    "В Москве граф ждал известий и не находил себе места.",
+    "Только из Москвы приходили редкие письма о сражении.",
+    "И снова из Москвы не было никаких вестей до самой весны.",
+    "К утру Москву оставили последние жители и все службы.",
+    "Они так и не вернулись в Москву до самой весны.",
+  ];
+  const folded = dr2(xs2(corpus(lines), {}), { minPartners: 3, minSentences: 1, foldToken: ruFold });
+  const control = dr2(xs2(corpus(lines), {}), { minPartners: 3, minSentences: 1 });
+  const foldMoskve = refIdOf(folded.events, "Москве");
+  const foldMoskvu = refIdOf(folded.events, "Москву");
+  const foldMoskvy = refIdOf(folded.events, "Москвы");
+  const ctlMoskve = refIdOf(control.events, "Москве");
+  const ctlMoskvu = refIdOf(control.events, "Москву");
+  assert.ok(foldMoskve && foldMoskvu && foldMoskvy, "all three case-forms admitted in the folded run");
+  assert.equal(foldMoskve, foldMoskvu, "folded: genitive and dative are one place");
+  assert.equal(foldMoskve, foldMoskvy, "folded: the genitive spines with them");
+  if (ctlMoskve && ctlMoskvu) {
+    assert.notEqual(ctlMoskve, ctlMoskvu, "unfolded control: the same two forms strand");
+  }
+});
