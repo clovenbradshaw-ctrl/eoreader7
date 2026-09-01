@@ -167,3 +167,77 @@ test("CONTROL for medium-blindness: the default featurizer is a TEXT adapter and
   });
   assert.equal(withAdapter.length, 1, "with a script-appropriate adapter the SAME protocol proposes it");
 });
+
+// ── the settling walk (SPRT shape) and the dark-room guard ──────────────
+import { askValue } from "./corroboration.js";
+
+const seedTwo = () => {
+  // note K: already SETTLED (two distinct sources vouch mechanically);
+  // note N: thin (one source) — the only one worth an ask.
+  let log = door.createHyperlexicon();
+  let r = door.admit(log, [
+    { subject: "Kutuzov", verb: "commanded", object: "the Imperial Russian Army", spans: [{ ref: "page-a", at: "page-a#10-40", text: "..." }] },
+  ], { witness: "page-a" });
+  r = door.admit(r.log, [
+    { subject: "Kutuzov", verb: "commanded", object: "the Imperial Russian Army", spans: [{ ref: "page-c", at: "page-c#5-30", text: "..." }] },
+  ], { witness: "page-c" });
+  r = door.admit(r.log, [
+    { subject: "Bagration", verb: "held", object: "the southern flank", spans: [{ ref: "page-a", at: "page-a#80-110", text: "..." }] },
+  ], { witness: "page-a" });
+  return r.log;
+};
+
+test("THE DARK-ROOM CONTROL: a settled note gets ZERO asks even with budget left and the best overlap", async () => {
+  // The first cut of this module ranked by overlap descending — it would
+  // have spent this budget on the settled Kutuzov note (maximal overlap
+  // with the source) and never asked about Bagration. If this test ever
+  // fails by the settled note being asked about, the dark room is back.
+  const askedAbout = [];
+  const spy = async (sentence, slice) => { askedAbout.push(sentence); return saysNo(sentence, slice); };
+  const out = await corroborateLedger(seedTwo(), door, [SOURCE], { ask: spy, testimony, maxAsks: 10 });
+  assert.ok(askedAbout.every((s) => !/Kutuzov/.test(s)), `a settled note was asked about: ${askedAbout.join(" | ")}`);
+  assert.ok(askedAbout.some((s) => /Bagration/.test(s)), "the thin note is where the calls belong");
+  assert.ok(out.standings.settled.length >= 1, "and the settled note is reported settled, not silently skipped");
+});
+
+test("the walk stops ITSELF when everything reachable is settled or spent — before the budget does", async () => {
+  const out = await corroborateLedger(seedTwo(), door, [SOURCE], { ask: saysNo, testimony, maxAsks: 100 });
+  assert.ok(out.asks < 100, `the budget is a ceiling, not a target: ${out.asks} asks`);
+});
+
+test("askValue: contested outranks thin outranks settled/disconfirmed — the value IS expected movement", () => {
+  const floor = { settleFloor: 2 };
+  const thin = askValue({ id: "t", witnesses: ["page-a"] }, { contradictSources: new Map(), ...floor });
+  const settled = askValue({ id: "s", witnesses: ["page-a", "testimony:page-b"] }, { contradictSources: new Map(), ...floor });
+  const contested = askValue({ id: "c", witnesses: ["page-a", "testimony:page-b"] }, { contradictSources: new Map([["c", new Set(["page-d"])]]), ...floor });
+  const down = askValue({ id: "d", witnesses: [] }, { contradictSources: new Map([["d", new Set(["page-d", "page-e"])]]), ...floor });
+  assert.equal(settled.value, 0);
+  assert.equal(settled.reason, "settled");
+  assert.equal(down.value, 0);
+  assert.equal(down.reason, "disconfirmed");
+  assert.ok(contested.value > thin.value, "a live disagreement is the highest-information ask available");
+});
+
+test("LAMPORT FOR FREE: a contradiction drops the net, so a 'settled' note reopens and needs a third source", () => {
+  // Two sources vouch (net +2, settled). One contradiction arrives: net +1,
+  // contested — the walk asks again. That is 'the third source is
+  // qualitatively different' falling out of the arithmetic, not a special
+  // case.
+  const note = { id: "k", witnesses: ["page-a", "testimony:page-c"] };
+  const before = askValue(note, { contradictSources: new Map(), settleFloor: 2 });
+  assert.equal(before.value, 0, "settled before the contradiction");
+  const after = askValue(note, { contradictSources: new Map([["k", new Set(["page-e"])]]), settleFloor: 2 });
+  assert.equal(after.reason, "contested");
+  assert.ok(after.value > 0, "the contradiction bought more asks");
+});
+
+test("a spent pair is spent — a refusal never earns a re-ask of the same note against the same source", async () => {
+  let calls = 0;
+  const countingNo = async () => { calls += 1; return { answer: "no", because: null }; };
+  const out = await corroborateLedger(seed(), door, [SOURCE], { ask: countingNo, testimony, maxAsks: 50 });
+  // an ASK is one protocol run; an ARMED run spends TWO model calls (the
+  // claim, then its sibling) — the budget counts protocol runs, and this
+  // line pins the exchange rate so nobody reads maxAsks as a call cap
+  assert.ok(calls >= out.asks && calls <= 2 * out.asks, `calls ${calls} vs asks ${out.asks}`);
+  assert.ok(out.asks <= 2, `each (note, source) pair at most once: ${out.asks}`);
+});

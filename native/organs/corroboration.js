@@ -73,10 +73,48 @@
 //    reliability parameter is on the record — fabricated-note control 0/4
 //    false-states, recall low by design — and any consumer weighing a
 //    `testimony:` vote can weigh it against that measured record rather
-//    than against hope. Wald's sequential stopping (ask until the
-//    likelihood ratio settles, rather than a fixed budget) is the named
-//    better version of `maxAsks`, unbuilt — the hunt-meter (P72) already
-//    stops on measured settling elsewhere and is the natural donor.
+//    than against hope.
+//
+// ── CORROBORATION IS SURPRISE, AND THE BUDGET IS A SETTLING RULE ────────
+//
+// SPRT's accumulated log-likelihood ratio IS accumulated surprise, so the
+// stopping question "when do I stop asking" and the surprise question
+// "when do arrivals stop moving the ground" are one question — the
+// hunt-meter (P72) already answers it for fetching; this module answers it
+// for checking (P30's efficiency law: a call spent where nothing can move
+// is compute spent reducing zero uncertainty). Which surprise is settled
+// upstream: emergence/surprise.js keeps NOVELTY (the answer was rare)
+// apart from BAYESIAN surprise (the answer moved a standing), and a vote
+// counts here only for what it MOVES — a yes on a settled note moves
+// nothing and is therefore worth nothing, however fluent it is.
+//
+// THE DARK-ROOM HAZARD, closed structurally rather than by comment. The
+// first cut of this module ranked candidates by shared vocabulary
+// DESCENDING — it spent the scarce model calls on the notes MOST likely to
+// be confirmed, maximizing expected agreement and minimizing expected
+// information. Friston's dark room, built by accident, noticed only when
+// the surprise relationship was asked about out loud. The fix separates
+// what that ranking conflated: overlap is FEASIBILITY (no shared features
+// means no slice, so the witness cannot answer at all), and standing is
+// VALUE (a note at one source has everything to gain; a settled note has
+// nothing). Feasibility gates; value ranks; overlap only breaks ties.
+// metacognition.js's own guard is the same law one register over —
+// `observe` is a no-op on an all-zero delta, so silence cannot move a
+// standing there either.
+//
+// THE WALK, and what is honestly NOT calibrated. Each note runs a
+// unit-step walk: net = (distinct sources stating) − (distinct sources
+// contradicting, this run). Settled-corroborated at net >= settleFloor
+// with no live contradiction; disconfirmed at net <= −settleFloor
+// (reported, never landed — the same rule as `contradicts` itself). The
+// floor's giver is the ledger's own ≥2-witness mouth (the quantity being
+// fed), not a tuned number. This is SPRT's SHAPE — two boundaries, walk
+// until crossed — without SPRT's calibrated likelihood ratios, because the
+// witness's true p(yes|true)/p(yes|false) have not been measured and
+// inventing them would be worse than unit steps (II.10: an uncalibrated
+// ratio is a change of units that fails invisibly). Lamport falls out
+// instead of being bolted on: a contradiction drops net by one, so a
+// contested note NEEDS a third source to settle, automatically.
 //
 // PURE. The model call (`ask`) and the testimony organs arrive as
 // arguments — this module fetches nothing and can be tested offline with a
@@ -149,6 +187,24 @@ export function proposeCandidates(notes, source, {
 }
 
 /**
+ * The VALUE of asking about this note — expected movement of its standing,
+ * not its likelihood of being confirmed. 0 means an ask is a wasted call:
+ * settled (nothing left to move) or disconfirmed (moved as far down as the
+ * walk reads). A contested note outranks a merely thin one — its next vote
+ * decides a live disagreement, the highest-information ask available.
+ */
+export function askValue(note, { contradictSources, settleFloor } = {}) {
+  if (!Number.isFinite(settleFloor)) throw new TypeError("askValue: settleFloor is declared by the caller");
+  const stating = distinctSources(note.witnesses).size;
+  const contras = contradictSources?.get(note.id)?.size ?? 0;
+  const net = stating - contras;
+  if (net <= -settleFloor) return { value: 0, reason: "disconfirmed", net };
+  if (contras > 0) return { value: 2, reason: "contested", net };
+  if (net >= settleFloor) return { value: 0, reason: "settled", net };
+  return { value: 1, reason: "thin", net };
+}
+
+/**
  * One note, one source, the full protocol: slice -> ask -> sibling-swap ->
  * ask -> foldTestimony. Returns the derived verdict with the decider's own
  * address in the source, or the typed refusal — never a bare boolean.
@@ -190,29 +246,74 @@ export async function witnessNote(sentence, source, { ask, testimony } = {}) {
  * every "states" through the door's attest, report everything typed.
  * `door` is the makeHyperlexicon bundle; `log` is threaded, never mutated.
  */
-export async function corroborateLedger(log, door, sources, { ask, testimony, maxAsks, limitPerSource, featuresOfSource, featuresOfNote, render } = {}) {
+export async function corroborateLedger(log, door, sources, {
+  ask, testimony, maxAsks, limitPerSource, featuresOfSource, featuresOfNote, render,
+  // The walk's boundary. Giver: the ledger's own >=2-witness mouth — the
+  // quantity this module exists to feed — never a tuned number.
+  settleFloor = 2,
+} = {}) {
   if (!Number.isFinite(maxAsks)) throw new TypeError("corroborateLedger: maxAsks is declared by the caller (P9)");
   let next = log;
   let asks = 0;
   const attested = [];
   const contradicted = [];
   const refusals = { "no-slice": 0, "no-testimony": 0, insensitive: 0, uncontained: 0, unreadable: 0, unarmed: 0, other: 0 };
+  const contradictSources = new Map(); // note id -> Set of source refs, THIS RUN (contradicts is reported, never landed)
+  const askedPairs = new Set();        // `${noteId}\u0000${sourceRef}` — a spent call is spent, refusal included
+
+  // Feasibility is precomputed per source (overlap cannot change mid-run);
+  // VALUE is recomputed after every ask, because every ask can move it.
+  const feasible = new Map(); // source.ref -> Map(note id -> {sentence, shared})
   for (const source of sources) {
-    const notes = door.foldHyperlexicon(next)
-      // only notes this source has NOT already witnessed — a source never
-      // seconds its own sighting (corroborateAtoms' own rule: two chunks of
-      // one file are one perspective)
-      .filter((n) => !(n.witnesses ?? []).some((w) => w === source.ref || w === `testimony:${source.ref}`));
-    const candidates = proposeCandidates(notes, source.text, { limit: limitPerSource ?? notes.length, ...(featuresOfSource ? { featuresOfSource } : {}), ...(featuresOfNote ? { featuresOfNote } : {}), ...(render ? { render } : {}) });
-    for (const c of candidates) {
-      if (asks >= maxAsks) break;
-      asks += 1;
-      const w = await witnessNote(c.sentence, source, { ask, testimony });
-      if (w.refused) { refusals[w.refused in refusals ? w.refused : "other"] += 1; continue; }
-      if (w.verdict === "contradicts") { contradicted.push({ note: c.note, source: source.ref, because: w.because }); continue; }
-      const r = door.attest(next, c.note.id, { witness: `testimony:${source.ref}`, span: w.span, because: w.because });
-      if (!r.refused) { next = r.log; attested.push({ note: c.note, source: source.ref, because: w.because }); }
-    }
+    const notes = door.foldHyperlexicon(next);
+    const proposed = proposeCandidates(notes, source.text, { limit: limitPerSource ?? notes.length, ...(featuresOfSource ? { featuresOfSource } : {}), ...(featuresOfNote ? { featuresOfNote } : {}), ...(render ? { render } : {}) });
+    feasible.set(source.ref, new Map(proposed.map((c) => [c.note.id, c])));
   }
-  return { log: next, attested, contradicted, refusals, asks };
+  const sourceByRef = new Map(sources.map((s) => [s.ref, s]));
+
+  while (asks < maxAsks) {
+    const notes = door.foldHyperlexicon(next);
+    const byId = new Map(notes.map((n) => [n.id, n]));
+    // Every feasible, unspent, still-movable (note, source) pair, ranked by
+    // value first and overlap only as the tiebreak — the dark-room guard is
+    // this sort order plus the value-0 exclusion, not a comment.
+    let best = null;
+    for (const [ref, cands] of feasible) {
+      for (const [noteId, c] of cands) {
+        const note = byId.get(noteId);
+        if (!note) continue;
+        if (askedPairs.has(`${noteId}\u0000${ref}`)) continue;
+        // a source never seconds its own sighting (Ladha: one perspective)
+        if ((note.witnesses ?? []).some((w) => w === ref || w === `testimony:${ref}`)) continue;
+        const v = askValue(note, { contradictSources, settleFloor });
+        if (v.value === 0) continue;
+        if (!best || v.value > best.v.value || (v.value === best.v.value && c.shared > best.c.shared)) {
+          best = { note, c, v, ref };
+        }
+      }
+    }
+    if (!best) break; // everything reachable is settled, disconfirmed, or spent — the walk's own stop, not the budget's
+    asks += 1;
+    askedPairs.add(`${best.note.id}\u0000${best.ref}`);
+    const w = await witnessNote(best.c.sentence, sourceByRef.get(best.ref), { ask, testimony });
+    if (w.refused) { refusals[w.refused in refusals ? w.refused : "other"] += 1; continue; }
+    if (w.verdict === "contradicts") {
+      if (!contradictSources.has(best.note.id)) contradictSources.set(best.note.id, new Set());
+      contradictSources.get(best.note.id).add(best.ref);
+      contradicted.push({ note: best.note, source: best.ref, because: w.because });
+      continue;
+    }
+    const r = door.attest(next, best.note.id, { witness: `testimony:${best.ref}`, span: w.span, because: w.because });
+    if (!r.refused) { next = r.log; attested.push({ note: best.note, source: best.ref, because: w.because }); }
+  }
+
+  // The standings the walk ended on — reported typed, so a caller can route
+  // `disconfirmed` to the claims tier (which owns contradiction) and can
+  // see `contested` as "ran out before the third source", never as silence.
+  const standings = { settled: [], contested: [], disconfirmed: [], thin: [] };
+  for (const n of door.foldHyperlexicon(next)) {
+    const v = askValue(n, { contradictSources, settleFloor });
+    standings[v.reason === "settled" ? "settled" : v.reason === "disconfirmed" ? "disconfirmed" : v.reason === "contested" ? "contested" : "thin"].push(n.id);
+  }
+  return { log: next, attested, contradicted, refusals, asks, standings, settleFloor };
 }
