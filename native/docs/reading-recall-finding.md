@@ -169,3 +169,34 @@ walk's candidate ordering differs from the capstone probe's, and the
 budget bound before reaching it. maxAsks was the binding constraint (375
 thin notes remained), which is the expected shape when everything starts
 at one source.
+
+---
+
+# Addendum 4: the decider-company wall — the questionable vote is gone, the clean one stands (2026-09-01)
+
+Addendum 3's caveat is closed, and not by hand. The decider must now keep
+the CLAIM'S OWN COMPANY (P31 aimed at the decider), and the rule is
+PER-END, derived from the relation's structure rather than tuned to the
+specimen (P71): an assertion relates two ends, so a decider silent on
+either end cannot be stating the relation.
+
+The whole-claim floor was tried first and DEFEATED BY THE LIVE SPECIMEN
+ITSELF: the full Tolstoy decider contains "the Imperial Russian Army"
+VERBATIM — end2, three shared features — while never mentioning the
+Grande Armée or any fight. Topic adjacency beats any whole-claim count;
+the same failure class that killed company-based act identity. Per-end
+asks the structural question instead, and the refusal names WHICH end
+the decider is silent on.
+
+Live rerun (40 asks, 143s): `decider_unrelated: 2` — the Tolstoy vote
+refused with `missingEnd: end1`; and the ledger's ≥2-distinct-sources
+mouth now holds exactly ONE note, the clean one:
+
+  "Napoleon" —fought→ "against General Mikhail Kutuzov"
+  decider: "Napoleon and Prince Mikhail Kutuzov"   [both pages]
+
+Both ends present in the decider, a genuine cross-document paraphrase
+corroboration — the first fully-clean second vote the ledger has ever
+held. The pinned unit test carries the FULL live decider sentence, so
+the truncated-fixture mistake that let the first floor pass its own test
+cannot recur.
