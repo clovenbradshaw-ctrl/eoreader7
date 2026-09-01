@@ -9,22 +9,28 @@
 // bicameral non-Latin script must NOT be gapped.
 import test from "node:test";
 import assert from "node:assert/strict";
-import { scriptCoverage, extractSurfaces } from "../adapters/text/surfaces.js";
+import { scriptCoverage, extractSurfaces, accumulateSurfaceEvidence, createSurfaceEvidence } from "../adapters/text/surfaces.js";
 
 const sentencesOf = (...texts) => texts.map((text, order) => ({ text, order }));
 
-test("bicameral scripts are not gapped — Latin, Greek, Cyrillic, Georgian, Armenian", () => {
-  // The overreach guard. Greek, Cyrillic, Georgian and Armenian all HAVE case
-  // (Unicode Cased_Letter), so the mechanism is genuinely about them and a gap
-  // here would be a false refusal. Measured on the real Greek Wikipedia
-  // article this was built against, the surface layer reads Greek proper
-  // nouns correctly (Παπανούτσος, Μιλήσιος, Νόηση) — its separate failure is
-  // in relation extraction, which is not this organ's question.
+test("bicameral scripts are not gapped — Latin, Greek, Cyrillic, Armenian", () => {
+  // The overreach guard. Greek, Cyrillic and Armenian all HAVE case (Unicode
+  // Cased_Letter) AND actually use both members of it in ordinary running
+  // prose, so the mechanism is genuinely about them and a gap here would be
+  // a false refusal. Measured on the real Greek Wikipedia article this was
+  // built against, the surface layer reads Greek proper nouns correctly
+  // (Παπανούτσος, Μιλήσιος, Νόηση) — its separate failure is in relation
+  // extraction, which is not this organ's question.
+  //
+  // Georgian was ALSO on this list once, on the same "Cased_Letter is
+  // present" reasoning — and that was wrong. See the third gap test below:
+  // Georgian's Unicode-cased letters (Mkhedruli, General_Category Ll) are
+  // never actually joined by the OTHER member of that pair in real writing,
+  // so it belongs with the third boundary now, not this one.
   for (const [label, text] of [
     ["Latin", "Victor Frankenstein walked. The creature followed Victor Frankenstein home."],
     ["Greek", "Ο Παπανούτσος έγραψε πολλά. Ο Μιλήσιος δίδαξε στον Παπανούτσο."],
     ["Cyrillic", "Лев Толстой написал роман. Толстой жил в России много лет."],
-    ["Georgian", "შოთა რუსთაველი დაწერა ლექსი. რუსთაველი ცხოვრობდა საქართველოში."],
     ["Armenian", "Հովհաննես Թումանյան գրել է բանաստեղծություն։ Թումանյան ապրել է Հայաստանում։"],
   ]) {
     const cov = scriptCoverage(sentencesOf(text));
@@ -68,6 +74,68 @@ test("cased debris in a caseless material gaps as script_mostly_without_case, ca
   assert.ok(cov.casedShare < 0.5, `caseless is the majority, got ${cov.casedShare}`);
   assert.match(cov.gap.detail, /% of this material's letters carry case/);
   assert.equal(cov.gap.casedShare, cov.casedShare, "the gap carries the measured share");
+});
+
+test("a script whose case member never appears outside sentence-initial position gaps as script_case_unused — zero is not a threshold here either", () => {
+  // Found running this instrument on all 516 real UN UDHR translations
+  // (live_priors POLICIES.md LP8, eoreader7 READING-SPEC.md S36), not
+  // invented here: Georgian's everyday alphabet, Mkhedruli, is Unicode
+  // General_Category Ll (lowercase) — so `casedLetters` is 100% of its
+  // letters and the two gaps above correctly stay silent — but ordinary
+  // published Georgian never uses the OTHER member of that pair, Mtavruli,
+  // to mark anything; it is a monumental/decorative variant, not a working
+  // capitalisation convention. A real 10,174-letter UDHR translation
+  // contained not one Mtavruli letter outside its own file's English
+  // header. `CAP_TOKEN` needs a capital OUTSIDE sentence-initial position
+  // to have any evidence at all (position is not namehood — the same rule
+  // every sentence-initial exclusion in this file already applies), and
+  // Georgian never supplies one. The identical shape recurs on two
+  // completely unrelated scripts, confirming this is a structural
+  // question about CASE USAGE, never a fact about any one alphabet: a
+  // Cherokee transcription using the syllabary's OWN traditional block
+  // (every character General_Category Lu by default — the mirror image of
+  // Georgian, all-uppercase rather than all-lowercase) fails for the same
+  // reason from the other side; and an ordinary Latin-alphabet sentence
+  // written in a lowercase-only romanisation convention — no exotic script
+  // at all — fails identically, because the defect was never about the
+  // alphabet, only about whether THIS material ever contrasts the two.
+  for (const [label, text] of [
+    ["Georgian (Mkhedruli, real UDHR shape)", "შოთა რუსთაველი დაწერა ლექსი. რუსთაველი ცხოვრობდა საქართველოში."],
+    ["Cherokee (traditional syllabary, all-Lu by default)", "ᏓᏂᏔᏍᎦ ᎤᏪᏘᏒᎩ ᎦᏙᎯᎢ. ᏓᏂᏔᏍᎦ ᎤᏪᏥᎢ ᏂᎦᎥ."],
+    ["Latin, lowercase-only romanisation", "viktor valgamaa kirjutas raamatu. valgamaa elas eestis kaua."],
+  ]) {
+    const cov = scriptCoverage(sentencesOf(text));
+    assert.equal(cov.gap?.reason, "script_case_unused", label);
+    assert.ok(cov.casedLetters > 0, `${label}: this gap is about material that DOES have cased letters`);
+    assert.equal(cov.gap.tier, "model", label);
+    assert.equal(cov.gap.needsWitness, true, label);
+    assert.equal(cov.gap.casedShare, cov.casedShare, `${label}: the gap carries the measured share`);
+  }
+
+  // The boundary itself, pinned precisely: ONE non-initial capitalised
+  // token anywhere is enough to NOT gap — this organ reports absence, it
+  // does not enforce a minimum recurrence (that floor, if any, belongs to
+  // extractSurfaces/discoverReferents downstream, not to this gate).
+  const oneOccurrence = sentencesOf("the man walked home. later he met Someone by the gate.");
+  assert.equal(scriptCoverage(oneOccurrence).gap, null, "a single non-initial capital is already evidence, not nothing");
+});
+
+test("scriptCoverage accepts pre-computed evidence and produces the identical result either way", () => {
+  // eot-sidecar.mjs's own fold-once discipline: a caller about to run
+  // extractSurfaces on the same sentences anyway should not pay for the
+  // capitalised-run walk twice. Pinned here as an equivalence, not just
+  // documented, so the optimisation path can never silently diverge from
+  // the default one.
+  const georgian = sentencesOf("შოთა რუსთაველი დაწერა ლექსი.", "რუსთაველი ცხოვრობდა საქართველოში.");
+  const bare = scriptCoverage(georgian);
+  const ev = accumulateSurfaceEvidence(georgian, createSurfaceEvidence());
+  const withEvidence = scriptCoverage(georgian, { evidence: ev });
+  assert.deepEqual(withEvidence, bare);
+
+  const armenian = sentencesOf("Հովհաննես Թումանյան գրել է բանաստեղծություն։", "Թումանյան ապրել է Հայաստանում։");
+  const bareArm = scriptCoverage(armenian);
+  const evArm = accumulateSurfaceEvidence(armenian, createSurfaceEvidence());
+  assert.deepEqual(scriptCoverage(armenian, { evidence: evArm }), bareArm);
 });
 
 test("the gap fires exactly where the surface layer goes blind — and not where it does not", () => {

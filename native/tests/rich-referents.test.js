@@ -228,3 +228,100 @@ test("a bare fragment matching two established bearers is a typed gap with candi
   assert.deepEqual([...gap.candidates].sort(), [barclay, kutuzov].sort(), "the gap carries exactly the two candidate referents");
   assert.match(gap.detail, /occurrence-level/);
 });
+
+// ── the comma-gluing fix: punctuation glued to a token's own edge is a
+// hard break, never a name-run continuation ────────────────────────────
+//
+// Found reading a real fetched "Война и мир" passage: "Пьера, Анна
+// Павловна" (an abbé-and-Pierre aside, then a NEW subject introduced by a
+// comma) extracted as the single spurious 3-token surface "Пьера Анна
+// Павловна" — accumulateSurfaceEvidence's run-walker crossed split(/\s+/)'s
+// own token boundary without noticing the comma sat directly against
+// "Пьера"'s trailing edge, with no space to separate it from what followed.
+// Reproduced identically in English (this fixture) to confirm the defect
+// was general, not script-specific, before the fix landed — surfaces.js's
+// own accumulateSurfaceEvidence header carries the full account.
+test("a comma glued to a capitalised token's own edge is a hard break: two names either side of it never glue into one surface", () => {
+  const lines = [
+    "In the corner sat Pierre, Anna Pavlovna rose at once to greet him.",
+    "Pierre bowed low and Anna Pavlovna smiled behind her fan.",
+    "Across the room Pierre caught the eye of Anna Pavlovna once more.",
+  ];
+  const found = xs2(corpus(lines), {});
+  const names = new Set(found.map((s) => s.surface));
+  assert.ok(names.has("Anna Pavlovna"), "the real two-word name must still extract");
+  assert.ok(names.has("Pierre"), "the real one-word name must still extract");
+  assert.ok(!names.has("Pierre Anna"), "the comma must break the run — no glued 2-token surface");
+  assert.ok(!names.has("Pierre Anna Pavlovna"), "the comma must break the run — no glued 3-token surface");
+
+  // And at the referent level: two different people never merge into one
+  // being through a surface that should never have existed.
+  const d = dr2(found, { minPartners: 2, minSentences: 1 });
+  assert.equal(refIdOf(d.events, "Pierre Anna"), undefined, "the glued surface is never even offered to the referent loop");
+  const pierre = refIdOf(d.events, "Pierre");
+  const anna = refIdOf(d.events, "Anna Pavlovna");
+  assert.ok(pierre && anna, "both real people must actually be admitted");
+  assert.notEqual(pierre, anna, "two different people, correctly never merged");
+});
+
+test("plain whitespace between two capitalised tokens is NOT a hard break: an ordinary multi-word name still extracts and merges as one candidate", () => {
+  // The fix's necessary complement: hardBreakAfter must fire ONLY when
+  // punctuation sits glued directly against a token's own edge, never on
+  // the ordinary single space that separates every real multi-word name's
+  // own tokens — a regression control so the comma fix above cannot be
+  // (mis)generalised into breaking runs on whitespace alone.
+  const lines = [
+    "Beside the fire sat Natasha Rostova still in her travelling cloak.",
+    "Natasha Rostova had not spoken since the letter arrived that morning.",
+    "By nightfall Natasha Rostova agreed to everything her father asked.",
+  ];
+  const found = xs2(corpus(lines), {});
+  const names = new Set(found.map((s) => s.surface));
+  assert.ok(names.has("Natasha Rostova"), "an ordinary two-word name, whitespace-joined, must still extract whole");
+  const d = dr2(found, { minPartners: 2, minSentences: 1 });
+  assert.ok(refIdOf(d.events, "Natasha Rostova"), "and must still be admitted as a referent");
+});
+
+test("capitalisationIsSignificant uses an exact binomial tail, not a normal approximation: 6-of-7 capitalised is NOT enough evidence at this sample size", () => {
+  // The normal approximation (the old CAP_SIG_Z = 1.645 z-bound) called
+  // cap=6/lower=1 (n=7) "significant" — pHat 0.857 clears its approximate
+  // 0.811 bound. The exact one-sided binomial tail, P(X>=6 | n=7, p=0.5) =
+  // 8/128 = 0.0625, sits ABOVE the declared CAP_SIG_ALPHA = 0.05: six-of-
+  // seven is real evidence but not enough of it yet, and the old
+  // approximation was admitting it anyway — the false-positive class this
+  // fix closes.
+  const lines = [
+    "Beside the fire sat Amber quietly.",
+    "By morning Amber had already left the camp.",
+    "Everyone agreed Amber was the bravest of them all.",
+    "Nobody had seen Amber since the storm passed.",
+    "The captain praised Amber for her courage.",
+    "Later that day Amber returned with fresh water.",
+    "The old necklace was made of amber beads.",
+  ];
+  const found = xs2(corpus(lines), {});
+  const names = new Set(found.map((s) => s.surface));
+  assert.ok(!names.has("Amber"), "6 capitalised against 1 lowercase (n=7) is exactly the normal approximation's false positive — the exact test correctly withholds it");
+});
+
+test("capitalisationIsSignificant's exact tail still admits genuinely strong evidence: 9-of-10 capitalised clears both the old approximation and the exact test", () => {
+  // A positive control alongside the case above: P(X>=9 | n=10, p=0.5) =
+  // 11/1024 ≈ 0.0107, comfortably under CAP_SIG_ALPHA — the fix narrows a
+  // false positive at low n, it does not make the test harder to pass on
+  // real evidence.
+  const lines = [
+    "Beside the wall stood Halvorsen watching the harbor.",
+    "By dusk Halvorsen had crossed the bridge.",
+    "Everyone respected Halvorsen for his patience.",
+    "Nobody questioned Halvorsen about the plan.",
+    "The captain thanked Halvorsen for the warning.",
+    "Later that week Halvorsen returned to the fort.",
+    "Soon afterward Halvorsen sent another message.",
+    "Even now Halvorsen remembers that winter.",
+    "Finally the council summoned Halvorsen to explain.",
+    "The soldiers used the term halvorsen for the manoeuvre.",
+  ];
+  const found = xs2(corpus(lines), {});
+  const names = new Set(found.map((s) => s.surface));
+  assert.ok(names.has("Halvorsen"), "9 capitalised against 1 lowercase (n=10) is strong evidence and must still be admitted");
+});

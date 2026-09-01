@@ -1591,3 +1591,483 @@ cell-typing check against the real `cube.js::cellOf` and close with an
 OMNIMODAL case immediately followed by an ADAPTER-SHAPED case over the
 identical unmodified code. Full suite: 365/365 before this pass, 401/401
 after, zero regressions.
+
+## S34 — `\b` is ASCII-`\w`-only in JS; a surface written in any non-Latin script could never be located by name
+
+> **giver:** earned-here, found running real fetched Война и мир prose
+> against the omnilingual-reading question (2026-08-30)
+
+**Generality:** universal (evidence: the identical, unmodified fix closes
+the defect on three independent, unrelated scripts — Cyrillic, Greek,
+Hebrew — via one shared Unicode word-character class this file already
+had; the mechanism is `\b`'s own JS-level ASCII-only definition, not
+anything about Slavic morphology or this specimen's own code-switching,
+both hypothesized first and refuted by direct test before this fix was
+written)
+
+**The measured defect.** Running the-fold's own omnilingual-reading
+question against a real, freshly-fetched, correctly-identified Russian
+source (`live_priors/11-multi-language/war-and-peace/ru/`, Wikisource's
+Война и мир, rendered and byte-verified — not the corpus's own
+already-flagged mislabeled `gutenberg-non-en/` directory) through
+`eot-sidecar.mjs` produced 8 admitted edges from an 8000-character excerpt
+of the novel's famous opening scene. Every one of the 8 was in FRENCH —
+the scene's own embedded aristocratic dialogue, real Tolstoy, not
+corruption — and NONE were in the surrounding Cyrillic narration, despite
+`scriptCoverage` correctly reporting the excerpt fully cased
+(`casedShare: 1`) and `extractSurfaces` correctly finding 10 real Cyrillic
+surfaces (including the full name "Анна Павловна Шерер") when tested
+directly on isolated Russian prose.
+
+**Two hypotheses tested and refuted before the real cause was found (P5.5's
+own discipline: check the driver before the theory).** (1) Russian's
+grammatical case declension fragments a name across sightings (Анна
+Павловна / Анне Павловне / Анны Павловны, three strings for one referent)
+— refuted directly: holding a Cyrillic surface EXACTLY fixed across five
+repeated sentences (no declension in play at all) still nominated zero
+candidate verbs. (2) French dialogue statistically crowds out sparse
+Cyrillic recurrence in a short excerpt — refuted the same way: the
+zero-candidate result reproduces on PURE Russian text with no French
+anywhere in it.
+
+**The real cause.** `discoverRelationVocab`'s `SURFACE_RE` relocates each
+candidate surface in the text with `\b(?:NAME)\b`. JavaScript regex has no
+Unicode-aware word-boundary mode — `\b` is defined purely against
+`\w = [A-Za-z0-9_]`, even under the `/u` flag — so the position immediately
+before and after a Cyrillic (or Greek, Hebrew, Armenian, ...) letter is
+ALREADY `\W` by `\b`'s own reckoning: there is no word-to-nonword
+transition for it to detect, so `\b` never fires there and the surface can
+never be located, regardless of how often it recurs. Confirmed directly:
+`/\bАнна\b/u.test("Анна Павловна")` → `false`; the identical construction
+with the `\b`s removed → `true`; the same failure independently reproduces
+for Greek (Ελένη) and Hebrew (דוד) — genuinely unrelated scripts and
+language families, the cross-domain leg P71/S31 demands. A name is only
+ever safe by ACCIDENT of its first and last character being ASCII —
+"Hélène" (a mid-word diacritic) still matches, because `\b` only ever
+inspects the two boundary characters, never the content between them.
+
+Three sibling call sites in the same file share the identical shape and
+the identical defect, none reached by the measured War-and-Peace specimen
+but each independently confirmed broken by direct construction:
+`negationBeforeVerbFor` (the negation-detection regex this file's own
+header already documents being built for injected non-English priors —
+"e.g. Basque's ez, `bin/priors/lang/eu.json`" — an intended use case this
+bug would have silently defeated for any script beyond Latin);
+`OBJECT_GROUP`'s function-word boundary; and `AUX_GROUP_RE`/
+`SUBJECT_SECOND_GUARD`'s aux/negation boundaries (both gated behind
+`phrasalPredicates`, default-off, but real and exercised by live_priors'
+own DR5 work).
+
+**The fix.** One shared helper, `bWord(pattern) = (?<!${WCHAR})(?:${pattern})(?!${WCHAR})`,
+where `WCHAR` is this file's own already-established word-character class
+(`W`'s content without its `+` quantifier — `\p{L}\p{N}_'’`, the same set
+every surface and verb candidate here is already built from) —
+mathematically identical to `\b` for the ASCII-bounded case every existing
+test already exercises (a run of `W` characters bounded by non-`W`
+characters), now correct for the rest of the alphabet too. All four sites
+converted; zero remaining `\b` occurrences in the file.
+
+**Measured after the fix, on the identical specimens.** The pure-Cyrillic
+synthetic control (an exactly-recurring name, no declension) now nominates
+real verbs and extracts real triples — "Анна Павловна —кашляла→ несколько
+дней", "—улыбнулась→ князю Василию", "Князь Василий —поцеловал→ руку Анны
+Павловны" — the SAME three-edge count and parallel structure the matched
+English control finds on the identical sentence shapes. Greek and Hebrew
+synthetic controls independently confirm the same repair. A real Cyrillic
+negation word, injected the way the file's own header already names as
+the intended pattern, is now correctly located and correctly reads
+polarity "-". English extraction is unchanged byte-for-byte (pinned as a
+regression).
+
+**Files.** `adapters/text/relations.js` (the `bWord`/`WCHAR` helper; four
+call sites converted). `tests/relations.test.js` (5 new cases: the
+measured Cyrillic defect and its fix; the declension-vs-boundary
+discriminating control; cross-script Greek/Hebrew generality; the
+documented non-English-negation-injection use case; an explicit ASCII
+byte-identical pin). Full suite: 371/361/10 before this entry, 376/366/10
+after — the same 10 pre-existing failures this environment already
+carries (the uninitialised `legacy-eoreader6.1` submodule), zero
+regressions.
+
+## S35 — a comma glued to a name's own trailing edge was read as a run continuation, gluing two subjects into one surface
+
+> **giver:** earned-here, found aligning the-fold's own three-language War
+> and Peace excerpts to the same narrative span and diffing their EOT
+> readings (2026-08-30)
+
+**Generality:** universal (evidence: the identical, unmodified fix closes
+the defect on the real Cyrillic specimen it was found on AND on a
+constructed English specimen sharing nothing but the punctuation shape —
+unrelated script, same mechanism; and the fix is the SAME category of
+punctuation-adjacency rule this file has now independently earned three
+times over — the pipe fix (S18/P38, `extractSurfaces` run-breaking
+punctuation) and the bracket fix (P50, `\p{Ps}`/`\p{Pe}` as a Unicode
+category rather than an enumeration) both closed a hard-break gap by
+naming the GLYPH CLASS that breaks a run rather than the specimen that
+exposed it; this is the third glyph, not a new mechanism)
+
+**The measured defect.** Aligning the three War and Peace excerpts
+(English/Russian/French, Part One Chapters I–III, matched by narrative
+content rather than chapter number — see the alignment note below) and
+reading each through `extractSurfaces` surfaced a single spurious
+3-token surface in the Russian excerpt: "Пьера Анна Павловна" — Prince
+Vasíli's aside about Pierre ("...Пьера..."), a comma, then the scene's
+central subject newly introduced ("Анна Павловна"). The comma sits
+directly against "Пьера"'s own trailing edge with no space before the
+next capitalised token, and the run-walker in
+`accumulateSurfaceEvidence` crossed straight over it, reading three
+tokens separated only by `split(/\s+/)`'s own whitespace boundaries as
+one continuous capitalised run. Reproduced identically on constructed
+English prose sharing only the punctuation shape ("Pierre, Anna
+Pavlovna" → the same spurious glued "Pierre Anna Pavlovna") before the
+fix was written, confirming the defect was general rather than a
+Cyrillic-specific parsing accident.
+
+**The real cause.** `accumulateSurfaceEvidence` split each sentence on
+`/\s+/` and then stripped leading/trailing punctuation from each token
+independently, discarding — with nothing downstream to recover it —
+whether that punctuation had sat flush against the token's own edge (no
+intervening space) or separated by whitespace from a genuine token
+boundary. A multi-word name's own internal space and a comma-then-name
+clause boundary look identical once the punctuation is stripped and the
+information about its adjacency is gone.
+
+**The fix.** The token walk now keeps, per token, whether punctuation was
+glued to its LEADING or TRAILING edge (`leadingJunk`/`trailingJunk`,
+tested against the raw pre-strip token) and derives a `hardBreakAfter`
+boundary between two adjacent tokens whenever punctuation trailed the
+first or led the second — plain whitespace with nothing else is the only
+separator a name run may still cross. The capitalised-run walker consults
+this boundary before extending a run past `toks[j-1]`, exactly the way
+the pipe fix (S18) and bracket fix (P50) each added their own boundary
+rule to the same class of run-detection logic elsewhere in this repo's
+lineage. A regression control (plain whitespace between two capitalised
+tokens, no punctuation anywhere) confirms the fix is a hard-break ADDITION
+and not a general tightening — ordinary multi-word names still extract
+and merge as one candidate, unchanged.
+
+**Measured after the fix.** Re-run on the real Russian specimen: the
+spurious "Пьера Анна Павловна" surface no longer extracts; "Анна
+Павловна" and "Пьера" (separately) still do. The constructed English
+control: "Pierre Anna" and "Pierre Anna Pavlovna" no longer extract;
+"Pierre" and "Anna Pavlovna" still do, and remain two distinct,
+never-merged referents through `discoverReferents`.
+
+**Disclosed, not fixed by this pass:** this closes ONE identified cause
+of referent fragmentation surfaced by the aligned three-language
+comparison. A second, independent cause — `genericTokens`'s
+IQR-derived partner fence being sensitive to how many distinct
+multi-word surfaces a given excerpt happens to contain, which can make
+the identical name-and-title pair generic in a shorter excerpt and not
+in a longer one of the same material — was found while re-testing after
+this fix and is recorded, deliberately unfixed, in the-fold's own
+`POLICIES.md` (the aligned-reading finding) rather than patched here:
+tuning `deriveMinPartners`'s formula against this one specimen would be
+exactly the "never tune a parameter by checking what it does to a
+golden's own score" mistake this repo's own standing rule already
+forbids.
+
+**Files.** `adapters/text/surfaces.js` (`accumulateSurfaceEvidence`'s
+`leadingJunk`/`trailingJunk`/`hardBreakAfter` tracking; its own header
+comment carries the same account). `tests/rich-referents.test.js` (2 new
+cases: the comma-glued specimen, both at the surface level and through
+`discoverReferents`; the plain-whitespace regression control). Full
+suite: 379 tests / 368 passing / 11 failing before and after this
+entry's two new cases — 381/370/11 — failure names diffed via
+`git stash` rather than counted: byte-identical, zero regressions. The
+11 are this environment's own pre-existing set (the uninitialised
+`legacy-eoreader6.1` submodule and its dependents), one more than S34's
+own 10 because later work between S34 and this entry added a test file
+this environment cannot load either.
+
+## S36 — `Cased_Letter` answers "does this letter belong to a case category," not "does this material ever use its other member" — Georgian passed the wrong test
+
+> **giver:** earned-here, found running the-fold's reading pipeline
+> against all 516 real UN UDHR translations (2026-08-30)
+
+**Generality:** universal (evidence: the identical, parameter-free fix —
+"zero distinct sentences carry a capitalised token outside sentence-
+initial position" — closes the defect on three specimens that share
+nothing but the shape: Georgian's Mkhedruli, General_Category Ll,
+Unicode-cased but never capitalised in real use; the Cherokee syllabary's
+traditional block, General_Category Lu, the mirror-image failure; and an
+ordinary Latin-alphabet sentence in a lowercase-only romanisation
+convention, no exotic script involved at all. Three unrelated scripts,
+one unrelated Latin control, one mechanism, no per-script list anywhere)
+
+**The measured defect.** `scriptCoverage` (S24) already asks "can the
+capitalisation mechanism see this material's script at all" via
+`\p{Cased_Letter}` (Lu/Ll/Lt) share, and this file's own header already
+claimed Georgian "ARE bicameral, and are correctly not gapped" — verified,
+at the time, against an artificial `.toUpperCase()` transformation, not
+against real running text. Running this instrument on all 516 real UDHR
+translations found the claim false: a real 10,174-letter Georgian
+translation reported `casedShare: 1.0`, `gap: null` — yet `extractSurfaces`
+run on that same real material found exactly ZERO real Georgian surfaces.
+Every one of the 18 "candidates" it did report came from the file's own
+English-language front matter ("Human Rights", "UN General Assembly",
+"Paris"), never from the document's 106 sentences of real Georgian prose —
+the identical "cased debris" shape this file's header already names as the
+hazard for a genuinely caseless script, occurring silently on a script the
+gate said was fine.
+
+**The real cause.** `\p{Cased_Letter}` is satisfied by EITHER member of a
+case pair — Mkhedruli, modern Georgian's everyday alphabet, is
+General_Category Ll (lowercase) on its own, with no Lu companion in
+ordinary use (Mtavruli, Georgian's Unicode uppercase block, is a
+monumental/decorative variant, not a working capitalisation convention).
+So `casedLetters` reads 100% of the material's letters and both existing
+gaps correctly stay silent — but `CAP_TOKEN`, the mechanism `scriptCoverage`
+exists to protect, requires a capital OUTSIDE sentence-initial position to
+count as evidence at all (position is not namehood, the same rule every
+sentence-initial exclusion in this file already applies), and a material
+that is 100% one case member can never supply one. Confirmed as the same
+class, not a Georgian-specific accident, on two more constructions sharing
+nothing else: a Cherokee sentence pair using the syllabary's traditional
+block (every character defaults Lu — the identical failure from the
+opposite direction, additionally caught in part by the pre-existing
+all-caps-run exclusion, itself a coincidence rather than a fix for this);
+and a plain Latin-alphabet sentence pair written entirely lowercase, no
+non-Latin script anywhere, which fails identically — proving the defect
+was never about any one alphabet.
+
+**The fix.** A third, structural boundary, matching the file's own
+existing two ("zero is not a threshold"): `scriptCoverage` now checks
+whether any candidate surface — reusing `accumulateSurfaceEvidence`'s own
+`sentenceIndex`, never a second walk — was found in more than zero
+sentences; if the union across every candidate is empty, `gap.reason:
+"script_case_unused"`. No percentage, no derived quantile, no hand-picked
+minimum: the count is either zero or it is not. `scriptCoverage(sentences,
+{ evidence })` takes an optional pre-computed evidence accumulator so a
+caller already about to call `extractSurfaces` on the same sentences (both
+live_priors call sites do) folds the material once, not twice — omitted,
+it computes its own, byte-identical to the old bare-`sentences` call for
+every existing caller.
+
+**A deliberately un-forced residual, disclosed rather than fixed.** A
+second real UDHR specimen, a Cherokee transcription using the MODERN
+lowercase-companion block for most characters ("cased" in the corpus's own
+label), carries a small number of genuine traditional-block characters
+concentrated in exactly ONE title-like fragment recurring across two
+sentences — real evidence, at this organ's own "zero is not a threshold"
+bar, so it does not gap. Its downstream relation-extraction outcome is
+still empty (the concentrated evidence never forms a usable triple), so
+the practical outcome matches the genuinely-blind cases even though the
+gate does not name it — stated honestly here rather than forcing a second
+threshold to also catch it, which this file's own standing rule (never
+tune a parameter by checking what it does to one more specimen) forbids
+without a corpus-scale measurement this pass did not run.
+
+**Files.** `adapters/text/surfaces.js` (`scriptCoverage`'s third gap
+branch and its optional `evidence` parameter; the header's Georgian claim
+corrected in place, pointing here). `tests/script-coverage.test.js`
+(Georgian moved out of the "must not be gapped" list into a new positive
+case alongside the Cherokee and lowercase-Latin constructions; a boundary
+pin — exactly one non-initial capital does NOT gap; an evidence-reuse
+equivalence case). Full suite: 379/368/11 before, 381/370/11 after,
+failure names diffed via `git stash`: byte-identical, zero regressions.
+The corpus-side record — the UN UDHR front-matter stripping this same
+investigation also closed, the full 516-language census, and the
+S34-generality re-verification against real (not only synthetic) material
+— is live_priors' own POLICIES.md LP8.
+
+## S37 — `capitalisationIsSignificant`'s normal approximation was a biased test, not merely an imprecise one — replaced with the exact binomial tail
+
+> **giver:** earned-here — an exact one-sided binomial tail replaces a
+> z-score approximation; found auditing `capitalisationIsSignificant` while
+> diagnosing a Czech UDHR specimen flagged during the-fold's 516-language
+> content comparison (2026-08-30)
+
+**Generality:** universal (evidence: `capitalisationIsSignificant(cap,
+lower)` is a pure function of two integers with no script, language, or
+corpus dependence anywhere in its own body — every caller across every
+material this organ ever reads passes through the identical arithmetic.
+The demonstration is not one more specimen but an EXHAUSTIVE enumeration
+of the function's own practically-relevant domain: every `(cap, lower)`
+pair with `cap, lower >= 1` and `n = cap + lower <= 60`, 1,711 pairs in
+total. A check that covers the whole input space is a stronger generality
+claim than a second corpus could ever be — there is no third material to
+run this against because the function reads no material at all)
+
+**The measured defect.** The old test approximated a one-sided binomial
+proportion test with a normal z-bound (`CAP_SIG_Z = 1.645`, the standard
+one-sided-95% critical value): `pHat = cap / n > 0.5 + 1.645 *
+sqrt(0.25 / n)`. Normal approximations to the binomial are known to be
+unreliable at small n and near the tails — textbook material, not a
+discovery — but this organ's own callers (`surfacesFromEvidence`, gating
+whether a single word's capitalised/lowercase split counts as namehood
+evidence) run almost exclusively at SMALL n: a rare surname seen a dozen
+times in one document is a typical call, not an edge case. The triggering
+specimen (Czech, "Spojených," cap=4/lower=1) did NOT itself flip — exact
+p = 0.1875, refused under both the old approximation and the new exact
+test — so the investigation widened from one specimen to the function's
+whole practical domain rather than stopping at "this case looks fine."
+
+**The real cause, found by exhaustive enumeration.** Of the 1,711 pairs
+with `n <= 60`, **24 disagree between the two tests, and all 24 disagree
+in the same direction**: the old approximation calls the split
+"significant" (admits the word as name-evidence) where the exact tail
+says the true one-sided p-value exceeds the declared `CAP_SIG_ALPHA =
+0.05` (refuses it). Zero pairs disagree in the opposite direction. This
+is a systematic bias, not scattered imprecision: the normal approximation
+was structurally too permissive at the small-n range this organ actually
+operates in, admitting words as name-evidence on weaker splits than the
+declared 0.05 target actually licenses. Two representative flips: `cap=6,
+lower=1` (n=7, exact p = 8/128 = 0.0625 — real evidence, one short of the
+declared bar) and `cap=7, lower=2` (n=9, exact p ≈ 0.0898). A positive
+control at the same scale, `cap=9, lower=1` (n=10, exact p = 11/1024 ≈
+0.0107), clears the bar under both tests — the fix narrows a false
+positive at low n, it does not raise the bar on genuinely strong evidence.
+
+**The fix.** `capitalisationIsSignificant` now computes the exact
+one-sided binomial tail `P(X >= cap | n, p=0.5)` directly, in log-space,
+and compares it to the SAME `CAP_SIG_ALPHA = 0.05` the old z=1.645 bound
+was already targeting (one-sided 95% is what `z=1.645` approximates —
+this fix keeps the standing target and corrects only how it is computed,
+never redefines what "significant" means). Log-space is load-bearing, not
+stylistic: a naive real-space sum of `C(n,j) * 0.5^n` terms underflows
+before the combinatorial terms can matter, because `0.5^n` alone hits the
+smallest positive IEEE double subnormal at `n=1074` (`5e-324`) and is
+exactly `0` at `n=1075` — a naive implementation would silently return
+`0` (never significant) for any word seen more than ~1,075 times, wrong
+in the unmeasured direction, and this organ has no declared ceiling on
+how often a word may recur in a large document. The log-space recurrence
+(`logTerm += log(n-j+1) - log(j)`, log-sum-exp over the kept tail terms)
+has no such ceiling.
+
+**Files.** `adapters/text/surfaces.js` (`CAP_SIG_ALPHA` replaces
+`CAP_SIG_Z`; `logBinomialTailAtHalf` + the rewritten
+`capitalisationIsSignificant`, both documented in place with the flip
+count and the underflow reasoning above). `tests/rich-referents.test.js`
+(two new cases: a 6-of-7 flip specimen the old approximation wrongly
+admitted and the exact test correctly refuses; a 9-of-10 positive control
+both tests agree on). Full suite: 381/370/11 before (the code fix alone,
+confirmed byte-identical to S36's own committed baseline — no other
+caller's outcome moved), 383/372/11 after (the two new cases above pass;
+same 11 pre-existing failures by name), zero regressions.
+
+## S38 — a highly-inflected language fragments its own names' case forms into strangers; two received priors close it (declension folding) and its neighbouring gap (a POS-vocabulary gate that never loaded, for any language)
+
+> **giver:** `native/priors/declension-rus.json` — UniMorph (github.com/
+> unimorph/rus, CC BY-SA 3.0); `native/priors/pos-{eng,rus,fin}.json` —
+> Universal Dependencies (UD_English-EWT, UD_Russian-GSD, UD_Finnish-TDT,
+> all CC BY-SA 4.0), found running the-fold's reading pipeline against all
+> 516 real UN UDHR translations, then a real fetched Russian War and
+> Peace (2026-08-30/31)
+
+**Generality:** universal for the mechanism, specimen-scoped for the
+Russian/Finnish/English data shipped this pass (evidence: neither
+`native/adapters/text/declension.js` nor `native/scripts/build-pos-
+prior.mjs` contains one line of Russian-, Finnish-, or English-specific
+code — both take a received, language-declared prior as data and a bare
+CoNLL-U/UniMorph file as input respectively; `build-pos-prior.mjs`'s own
+header states this and `tests/pos-prior.test.js` proves it by running the
+IDENTICAL unmodified `classifyWord` against three independently-built
+priors, English/Russian/Finnish, with no per-language branch anywhere in
+the consumer. What is specimen-scoped is the DATA: only Russian has a
+declension prior today, and only English/Russian/Finnish have POS priors
+— extending either to a fourth language is "fetch one more treebank," not
+new code, and that is exactly the claim this generality tag makes and no
+more).
+
+**The two defects, found together, closed separately.** Blind-spot
+comparison across all 516 UDHR translations (this file's own S34/S36/S37
+lineage) surfaced two more: (1) `namesCorefer`'s containment/shared-final-
+token check compares Cyrillic tokens as exact strings, so a bare Russian
+surname's own CASE FORMS — "Кутузов" (nominative), "Кутузова" (genitive/
+accusative), "Кутузову" (dative) — read as three unrelated strangers,
+never one referent; the identical shape recurs for every name (Anna
+Pavlovna's own "Анна"/"Анне"/"Анны"/"Анну" fragment the same way) and for
+Finnish's own richer case system. (2) The comment already sitting in
+live_priors' own `eot-digest.mjs::loadOrgans` — describing a measured,
+working POS-vocabulary gate that drops garbage connectors from real
+Gutenberg excerpts (Shakespeare 90→22 edges, the Iliad 65→25, Alice
+97→34) — was true of a PAST build, but the code path it describes
+imports `legacy-eoreader6.1/packages/engine/perceiver/text/wordclass.js`
+and reads `legacy-eoreader6.1/scripts/corpus/pos-eng.json`, and that
+submodule is confirmed empty in this checkout (`ls -la` on it: only `.`
+and `..`) — so the gate has been silently loading for NEITHER English nor
+any of the other 515 languages, and every relation-vocabulary count this
+whole session measured was unfiltered raw edges, never the gated ones the
+comment describes.
+
+**Why a rule table, not a form->lemma dictionary, for declension.**
+Checked directly before designing anything: "кутузов" appears NOWHERE in
+UniMorph's 473,482-row Russian paradigm table. A historical or fictional
+PERSON's surname is exactly the class of word a general-lexicon resource
+will never carry, so what has to generalise is the TRANSFORM (mined from
+the 178,843 real noun rows UniMorph does carry — e.g. genitive singular
+hard-stem masculine: strip a trailing "а", the single most common
+transform in the whole table at 7,541 real instances), never the word.
+
+**Why the check stays pairwise, never a per-word canonical lemma.** The
+mined rules are directional but ambiguous taken alone: "ов" is the
+dominant Russian genitive-PLURAL ending ("столов" -> "стол"), and Kutuzov
+is exactly the common Russian surname class that happens to already END
+in "-ов" as part of its own stem. Applying that rule to a bare word in
+isolation would corrupt an already-nominative name ("Кутузов" ->
+"Кутуз", a word nobody wrote). `declension.js::createDeclensionFolder`
+answers a narrower, safer question instead — does inflected surface A
+reach EXACTLY the other OBSERVED surface B under some rule — so a false
+merge needs two unrelated real names in the same document to coincide on
+one exact transformed string, never a single word's own identity being
+silently rewritten. `namesCorefer(a, b, { sameStem })` widens the
+existing containment/shared-final-token checks with this predicate,
+tried in both directions; omitted, behaviour is byte-identical to before
+this file existed (checked: `namesCorefer("Кутузов", "Кутузова")` is
+`false` with no organ injected, exactly as it always was).
+
+**The floor is declared and swept, not fitted to the reporting
+specimen.** `MIN_COUNT = 100` (a rule must recur at least this often in
+the mined data to ship) was checked at 10/25/50/100/200 against real
+Russian War and Peace prose BEFORE being chosen: every floor in that
+range produced ZERO false merges among the real named characters present
+(Anna, Pierre, Kutuzov, Vasily, Andrei, Boris, Bolkonsky, Bonaparte,
+Napoleon, Mortemar, and more — 38 correct merges at the shipped floor, 43
+at the loosest floor tested, still zero wrong ones), with only recall
+varying; 100 sits inside that flat region rather than at either edge. A
+second, structurally different corpus (the Russian UDHR, legal/
+declarative prose rather than narrative) produced zero fires either way —
+disclosed honestly as a weak cross-domain check (the document is short
+and front-matter-contaminated at the raw-file level this validation read
+it at, so few genuinely inflected pairs existed to test against) rather
+than claimed as a second positive result.
+
+**The POS-prior fix is a path fix, not a new mechanism.**
+`native/adapters/text/wordclass.js` already exists, is self-contained (no
+legacy import — confirmed by grep, and by this file's own P69 ratchet
+history), and exports exactly the four symbols `makeGrammarLens` needs
+(`classifyWord`, `dominantClass`, `POS_PRIOR_META`, `THRAX_META`).
+`native/scripts/build-pos-prior.mjs` is new: the SAME CoNLL-U pass-0
+parsing `build-construction-prior.mjs` already proved (tab-split, skip
+`#` comments, skip multi-word ranges), stopped one pass earlier — the
+unconditional form-level tally IS `POSPrior@1`'s own shape, no
+conditioning layer needed for this gate. Reused verbatim across all
+three languages: `eng` (UD_English-EWT, 204,578 tokens, 16,654 forms),
+`rus` (UD_Russian-GSD, 74,900 tokens, 24,524 forms), `fin`
+(UD_Finnish-TDT, 162,815 tokens, 46,293 forms) — real, checked counts,
+not estimates: English "the" reads 9,064:8:2:1 DET:PRON:ADP:PART,
+Russian "и" reads 1,724:84:1 CCONJ:PART:PROPN, Finnish "ja" reads
+4,710:8 CCONJ:ADV and "on" reads 3,071:97:1:9 AUX:VERB:ADV:PROPN — every
+one the grammatically correct dominant class. live_priors' own
+`loadOrgans` still points at the dead legacy paths; retargeting it to
+these native files and priors is live_priors' own change (its own
+POLICIES.md carries the wiring and the corpus-scale remeasurement).
+
+**Files.** `scripts/build-declension-prior.mjs` (new) + `native/priors/
+declension-rus.json` (new, built artifact, committed — 89 rules, 3.9KB).
+`adapters/text/declension.js` (new, pure, zero imports —
+`createDeclensionFolder`). `adapters/text/surfaces.js` (`namesCorefer`
+gained an optional `{ sameStem }`; `discoverReferents` threads it through
+unchanged elsewhere). `scripts/build-pos-prior.mjs` (new) + `native/
+priors/pos-{eng,rus,fin}.json` (new, built artifacts, committed —
+384KB/733KB/1.1MB). `tests/declension.test.js` (new, 9 cases, against the
+REAL committed prior — the flagship Kutuzov case, a feminine -а noun
+class Anna exercises differently, an unrelated-names control, the
+residual-stem floor, the no-prior gap, and one full `discoverReferents`
+end-to-end case showing three real Cyrillic case forms of one name merge
+into one referent only when the organ is injected, and do not without
+it). `tests/pos-prior.test.js` (new, 7 cases, against all three REAL
+committed priors). Full suite: 383/372/11 before this entry's own changes
+(S37's own committed baseline), 399/388/11 after (16 new cases, all
+passing; same 11 pre-existing failures by name), zero regressions.
