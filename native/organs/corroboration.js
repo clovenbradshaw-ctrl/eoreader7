@@ -209,7 +209,7 @@ export function askValue(note, { contradictSources, settleFloor } = {}) {
  * ask -> foldTestimony. Returns the derived verdict with the decider's own
  * address in the source, or the typed refusal — never a bare boolean.
  */
-export async function witnessNote(sentence, source, { ask, testimony } = {}) {
+export async function witnessNote(sentence, source, { ask, testimony, ends = null } = {}) {
   const { witnessSlice, siblingSwap, foldTestimony } = testimony ?? {};
   if (typeof ask !== "function" || !witnessSlice || !siblingSwap || !foldTestimony)
     throw new TypeError("witnessNote: ask and the testimony organs are injected — required, never defaulted");
@@ -221,6 +221,42 @@ export async function witnessNote(sentence, source, { ask, testimony } = {}) {
   const arm = swapped ? await ask(swapped, slice) : null;
   const t = foldTestimony({ real, arm, armed: Boolean(swapped), slice, claim: sentence, swapped: swapped ?? "" });
   if (!t.verdict) return { refused: t.refused ?? "no-testimony" };
+  // THE DECIDER MUST KEEP THE CLAIM'S COMPANY (P31's company law, aimed at
+  // the decider instead of the number). foldTestimony's containment wall
+  // checks BYTES — a decider verbatim in the slice passes even when it does
+  // not state the claim, and the first note ever through the ledger's
+  // ≥2-source mouth rode exactly that gap: claim "The Grande Armée fought
+  // against the Imperial Russian Army", decider "Tolstoy used a great deal
+  // of his own experience in the Crimean War..." — verbatim in the slice,
+  // silent on the claim. Byte containment is not entailment; company is
+  // the cheap mechanical proxy this repo already licenses: the decider
+  // must share at least two of the claim's own content features, or the
+  // vote does not land. Refused typed, never a conviction — the same
+  // withhold-vs-convict rule as every refusal above.
+  if (t.verdict === "states") {
+    const cf = testimony.featuresOfClaim ?? ((x) => new Set(String(x ?? "").toLowerCase().match(/\p{L}{4,}/gu) ?? []));
+    const deciderFeats = cf(t.because);
+    if (ends) {
+      // PER-END COMPANY — derived from the relation's own structure, never
+      // tuned to a specimen (P71): an assertion relates two ends, so a
+      // decider silent on either end cannot be stating the relation. The
+      // live specimen that forced this: the whole-claim floor passed a
+      // decider containing "the Imperial Russian Army" VERBATIM (end2,
+      // three shared features) while never mentioning the Grande Armée
+      // (end1) or any fight — topic adjacency defeats any whole-claim
+      // count, the same failure class that killed company-based act
+      // identity. Per-end asks the structural question instead.
+      const e1 = [...cf(ends.end1)].some((w) => deciderFeats.has(w));
+      const e2 = [...cf(ends.end2)].some((w) => deciderFeats.has(w));
+      if (!e1 || !e2) return { refused: "decider_unrelated", because: t.because, missingEnd: !e1 ? "end1" : "end2" };
+    } else {
+      // no ends supplied (a direct caller with only a sentence): the weaker
+      // whole-claim floor, kept for what it can honestly do
+      const claimFeats = cf(sentence);
+      const shared = [...deciderFeats].filter((w) => claimFeats.has(w));
+      if (new Set(shared).size < 2) return { refused: "decider_unrelated", because: t.because };
+    }
+  }
   // AN UNCHALLENGED YES IS NOT A SECOND WITNESS. foldTestimony ships a
   // `states` verdict even when no sibling could be built — correct for its
   // own caller (an unarmed reading is still a reading, and the app marks it
@@ -257,7 +293,7 @@ export async function corroborateLedger(log, door, sources, {
   let asks = 0;
   const attested = [];
   const contradicted = [];
-  const refusals = { "no-slice": 0, "no-testimony": 0, insensitive: 0, uncontained: 0, unreadable: 0, unarmed: 0, other: 0 };
+  const refusals = { "no-slice": 0, "no-testimony": 0, insensitive: 0, uncontained: 0, unreadable: 0, unarmed: 0, decider_unrelated: 0, other: 0 };
   const contradictSources = new Map(); // note id -> Set of source refs, THIS RUN (contradicts is reported, never landed)
   const askedPairs = new Set();        // `${noteId}\u0000${sourceRef}` — a spent call is spent, refusal included
 
@@ -295,7 +331,10 @@ export async function corroborateLedger(log, door, sources, {
     if (!best) break; // everything reachable is settled, disconfirmed, or spent — the walk's own stop, not the budget's
     asks += 1;
     askedPairs.add(`${best.note.id}\u0000${best.ref}`);
-    const w = await witnessNote(best.c.sentence, sourceByRef.get(best.ref), { ask, testimony });
+    const w = await witnessNote(best.c.sentence, sourceByRef.get(best.ref), {
+      ask, testimony,
+      ends: { end1: best.note.end1 ?? best.note.subject, end2: best.note.end2 ?? best.note.object },
+    });
     if (w.refused) { refusals[w.refused in refusals ? w.refused : "other"] += 1; continue; }
     if (w.verdict === "contradicts") {
       if (!contradictSources.has(best.note.id)) contradictSources.set(best.note.id, new Set());

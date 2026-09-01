@@ -241,3 +241,44 @@ test("a spent pair is spent — a refusal never earns a re-ask of the same note 
   assert.ok(calls >= out.asks && calls <= 2 * out.asks, `calls ${calls} vs asks ${out.asks}`);
   assert.ok(out.asks <= 2, `each (note, source) pair at most once: ${out.asks}`);
 });
+
+// ── the decider-company wall (P31's company law aimed at the decider) ────
+test("THE LIVE SPECIMEN: a byte-verbatim decider that does not state the claim is REFUSED — the Tolstoy sentence never lands a vote again", async () => {
+  // The exact shape of the first note ever through the >=2-source mouth:
+  // the witness says yes and points at a sentence genuinely present in the
+  // slice — about something else entirely. Byte containment passed; company
+  // must not.
+  // The FULL live decider — including "the Imperial Russian Army" VERBATIM
+  // (end2, three shared features with the claim), which defeated the first
+  // whole-claim floor. Only the per-end rule catches it: end1 (the Grande
+  // Armée) appears nowhere in the decider.
+  const src = {
+    ref: "wp",
+    text: "The Grande Armée marched east. Tolstoy used a great deal of his own experience in the Crimean War to bring vivid detail and first-hand accounts of how the Imperial Russian Army was structured. The river waited.",
+  };
+  // yes ONLY to the real claim (with the off-topic decider); no to the
+  // swapped sibling — so the insensitivity wall passes and the COMPANY wall
+  // is the one doing the refusing.
+  const tolstoyDecider = async (sentence) =>
+    /fought against the Imperial/.test(sentence)
+      ? { answer: "yes", because: "Tolstoy used a great deal of his own experience in the Crimean War to bring vivid detail and first-hand accounts of how the Imperial Russian Army was structured." }
+      : { answer: "no", because: null };
+  const w = await witnessNote("The Grande Armée fought against the Imperial Russian Army", src,
+    { ask: tolstoyDecider, testimony, ends: { end1: "The Grande Armée", end2: "the Imperial Russian Army" } });
+  assert.equal(w.refused, "decider_unrelated", JSON.stringify(w));
+  assert.equal(w.missingEnd, "end1", "the decider mentions end2 verbatim — it is end1 it is silent on");
+});
+
+test("CONTROL: a decider that genuinely keeps the claim's company still lands", async () => {
+  const src = {
+    ref: "wp2",
+    text: "Napoleon and Prince Mikhail Kutuzov faced each other across the field. The morning was cold.",
+  };
+  const goodDecider = async (sentence) =>
+    /fought against General/.test(sentence)
+      ? { answer: "yes", because: "Napoleon and Prince Mikhail Kutuzov faced each other across the field." }
+      : { answer: "no", because: null };
+  const w = await witnessNote("Napoleon fought against General Mikhail Kutuzov", src,
+    { ask: goodDecider, testimony, ends: { end1: "Napoleon", end2: "General Mikhail Kutuzov" } });
+  assert.notEqual(w.refused, "decider_unrelated", JSON.stringify(w));
+});
