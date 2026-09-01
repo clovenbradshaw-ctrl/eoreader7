@@ -1869,7 +1869,7 @@ failure names diffed via `git stash`: byte-identical, zero regressions.
 The corpus-side record — the UN UDHR front-matter stripping this same
 investigation also closed, the full 516-language census, and the
 S34-generality re-verification against real (not only synthetic) material
-— is live_priors' own POLICIES.md LP8.
+— is live_priors' own POLICIES.md LP13 (renumbered from LP8 on that repo's own merge).
 
 ## S37 — `capitalisationIsSignificant`'s normal approximation was a biased test, not merely an imprecise one — replaced with the exact binomial tail
 
