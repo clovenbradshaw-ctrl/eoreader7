@@ -379,5 +379,46 @@ export function makeHyperlexicon(taskLog) {
       .sort((a, b) => b.witnesses.length - a.witnesses.length || a.id.localeCompare(b.id));
   }
 
-  return { createHyperlexicon, hear, admit, foldHyperlexicon, readingFromHyperlexicon, assertionId, recipeId, REFUSALS };
+  /**
+   * attest(log, noteId, { witness, span, because }) — a witness earned by
+   * TESTIMONY attaches to a note that already exists, by id, never by
+   * recomputing identity (grid.js::attachResult's own discipline: a result
+   * attaches to a task that already exists). This is the door the witness
+   * tier votes through — the paraphrase wall's one licensed crossing
+   * (measured: two real pages about one battle share ZERO mechanically-
+   * matchable restatements, while the witness confirms real ones at its
+   * own conservative rates with the fabricated-note control holding 0/4).
+   *
+   * The witness string arrives ALREADY NAMESPACED by the caller
+   * (`testimony:<source-ref>`) so a second vote earned by a model reading
+   * is never confusable with one earned by mechanical re-extraction — the
+   * same namespace discipline `form:`/`self:model` already hold. This
+   * function refuses a bare, un-namespaced witness rather than guessing
+   * which kind it is.
+   *
+   * Same union-never-replace rule as hear(); a re-attestation that adds
+   * nothing appends nothing.
+   */
+  function attest(log, noteId, { witness, span = null, because = null } = {}) {
+    if (!witness || !String(witness).includes(":"))
+      return { log, refused: { type: "untyped_witness", detail: "an attested witness names its kind (e.g. testimony:<source>) — a bare string could be mistaken for a mechanical re-sighting" } };
+    const prior = projectTasks(log).find((t) => t.task_id === noteId) ?? null;
+    if (!prior) return { log, refused: { type: "unknown_note", noteId, detail: "nothing stands to attest — testimony attaches to a note that already exists" } };
+    const witnesses = [...new Set([...(prior.witnesses ?? []), witness])];
+    const at = new Set((prior.spans ?? []).map((x) => x.at));
+    const spans = [...(prior.spans ?? [])];
+    if (span?.at && !at.has(span.at)) spans.push(span);
+    if (witnesses.length === (prior.witnesses ?? []).length && spans.length === (prior.spans ?? []).length)
+      return { log, refused: null, noop: true };
+    const next = append(log, {
+      kind: ENTRY_KINDS.SUPERSEDE, task_id: noteId, operator: "SYN", operator_basis: OPERATOR_BASIS.PRODUCED, grain: FIGURE,
+      description: `attested: ${noteId}`,
+      subject: prior.subject, verb: prior.verb, object: prior.object,
+      witnesses, spans, because: because ?? null,
+      ...cellFields("SYN"),
+    });
+    return { log: next, refused: null, noop: false };
+  }
+
+  return { createHyperlexicon, hear, attest, admit, foldHyperlexicon, readingFromHyperlexicon, assertionId, recipeId, REFUSALS };
 }
