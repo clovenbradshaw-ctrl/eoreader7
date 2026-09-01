@@ -196,54 +196,59 @@ face is only special FOR THE MATH TRIAD, because there the three
 mathematics stop being places you work and become one thing seen three
 ways.
 
-## VII. The crossing rules — corrected, after walking into the helix trap
+## VII. The crossing rule, per the canon — corrected twice, the second time against the source
 
-*(This section was WRONG in its first draft, and the mistake is kept
-named because it is the exact trap the engine's own header warns about.
-The draft claimed "arithmetic before geometry before calculus" as the
-engine's production order. That domain-blocked sequence — NUL SIG INS /
-SEG CON SYN / DEF EVA REC — is the superseded HELIX order, the invented
-ordering `task-log.js`'s header records as a mistake that was replaced.
-An adversarial re-check against the tables caught the draft re-deriving
-the superseded thing while citing "the engine's own order.")*
+*(This section has been wrong in BOTH directions, and both mistakes are
+kept named. The first draft stated the domain-major chain and called it
+"the engine's production order" without checking. A re-check against
+`task-log.js`'s OPERATOR_ORDER constant (NUL SEG SIG CON EVA DEF INS SYN
+REC) then "corrected" the draft by demoting the domain-major chain as a
+superseded "HELIX" ordering — an INVERSION. The canon, checked at its
+sources on user direction, says the opposite:)*
 
-The ENFORCED order (`task-log.js::OPERATOR_ORDER`, the one
-`checkCubeProgression` actually holds threads to) is:
+**The canonical order is NUL → SIG → INS → SEG → CON → SYN → DEF → EVA →
+REC.** Givers: `eoreader6/CUBE.md` line 39 (`operator = (mode, domain)
+NUL SIG INS / SEG CON SYN / DEF EVA REC`); the handbook's
+construction-language chapter, which states it as a **strict linear
+dependency chain** and reports that *"of nearly thirteen hundred possible
+orderings, only this one survives basic consistency checks"*; lineage
+eoreader4.1 `core/operators.js`, the stated canon.
 
-    NUL  SEG  SIG  CON  EVA  DEF  INS  SYN  REC
-     E    S    E    S    I    I    E    S    I
+And the canonical chain is **exactly math-major**: arithmetic's three
+operators, then geometry's three, then calculus's three. So the crossing
+rule this document proposed in its first draft is not merely compatible
+with the canon — it IS the canon's own chain, read through the
+three-mathematics lens:
 
-It **interleaves the three mathematics** — and the interleaving is
-CORROBORATED by the tower's own measured floors: SEG before SIG is *cut
-before mark*, geometry's first act before arithmetic's naming, and the
-floors agree exactly (floor 2, extents, precedes floor 3, the cast). A
-domain-major reading would have predicted the floors backwards. EVA and
-DEF sitting BEFORE INS in the enforced order is further evidence that no
-staged pipeline of the three mathematics is being run.
+> **Arithmetic before geometry before calculus:** zero, mark, unit (NUL
+> SIG INS) before cut, edge, whole (SEG CON SYN) before bound, judgment,
+> re-zero (DEF EVA REC). You cannot cut what has no units; you cannot
+> bound what has no shape. The two zeros still stand at the two ends —
+> the empty count opens the chain, the reset accumulation closes it.
 
-What survives, and is the true crossing rule, is a PER-CLAIM partial
-order — dependencies among acts about the SAME content, never global
-phases:
+Per-claim, this is the dependency lineage every measurement this week
+kept finding: a claim's unit before its edge before its integral, and
+the ledger's 0.5% corroboration rate was integration attempted over
+units never earned for those claims.
 
-> For one claim's own lineage: its unit must be individuated before it
-> can be counted; its two ends must be countable before an edge can
-> relate them; its events must be addressed and idempotent before they
-> can be integrated. INS before SYN — "you cannot corroborate what was
-> never individuated" — holds in the enforced order and in every
-> measurement this week.
+**One discrepancy, flagged rather than hidden:** `task-log.js` in
+eoreader7's kernel carries `OPERATOR_ORDER = NUL SEG SIG CON EVA DEF INS
+SYN REC` — a different sequence, which interleaves the domains. Under
+the canon it stands as a divergent engine constant pending
+reconciliation, not as an authority over the chain; the handbook itself
+distinguishes the construction chain from any engine's own grain-axis
+dependency ordering and warns against blurring them — the exact blur
+this section's second draft committed. The tower's floors (extents
+before cast, a fact about the READING PIPELINE's schedule) are likewise
+a different claim from the operators' dependency chain, and neither is
+evidence against the other.
 
-The floors' measured choke ordering (ends → identity → corroboration) is
-a statement about one proposition's lineage, not about phases of
-mathematics — and the ledger's 0.5% corroboration rate was this
-per-claim rule enforcing itself: integration attempted over units that
-were never earned *for those claims*.
-
-**The MHC connection, one sentence** (unchanged by the correction): an
-order climbs by coordinating lower-order actions *non-arbitrarily*, and
-the three mathematics are what "non-arbitrarily" is made of per claim —
-the algebra says a coordination is *licensed*, the statistics say it is
-*real*, the dynamics say it *changed something*; passing all three makes
-a floor, passing fewer makes a chain.
+**The MHC connection, one sentence** (stable through both corrections):
+an order climbs by coordinating lower-order actions *non-arbitrarily*,
+and the three mathematics are what "non-arbitrarily" is made of per
+claim — the algebra says a coordination is *licensed*, the statistics
+say it is *real*, the dynamics say it *changed something*; passing all
+three makes a floor, passing fewer makes a chain.
 
 ## VIII. What this reading predicts (so it can be broken)
 
@@ -283,13 +288,18 @@ the arithmetic reading of NUL/SIG/INS; Frege for number-as-Kind; Kuhn
 for paradigm-as-family). Nothing here changes any table; if the tables
 move, this document follows or falls.
 
-**Hardening note (same day).** An adversarial re-check against
-`cube.js`/`task-log.js` verified the domain, mode, terrain and stance
-tables match §I/§IV/§V exactly — and caught three overclaims, corrected
-in place with the mistakes named: the crossing rule had re-derived the
-superseded HELIX order (§VII); "proven isomorphism" was instantiation
-(§VI.2); and the cited transfer precedent was on the wrong axis
-(§VIII.1). The SEG-before-SIG finding — the enforced order and the
-measured floors agreeing on *cut before mark*, against the draft's own
-tidy phases — is the re-check's genuine contribution, not just a
-correction.
+**Hardening note (same day, twice).** A first adversarial re-check
+verified the domain, mode, terrain and stance tables against `cube.js`
+(§I/§IV/§V match exactly) and corrected three overclaims — but committed
+an inversion of its own in §VII, demoting the canonical operator chain
+on the authority of `task-log.js`'s divergent constant. A second check,
+on user direction, went to the canon's own sources (`CUBE.md` line 39;
+the handbook's nine-verbs and construction-language chapters; the
+eoreader4.1 lineage) and restored the canonical chain — which is
+math-major, and therefore CORROBORATES this document's central reading
+rather than undermining it. The surviving corrections from the first
+check stand: proven-instantiation not proven-isomorphism (§VI.2); the
+transfer precedent was on the wrong axis (§VIII.1); figure is a first
+difference (§III); the faces are projections with 3-fibers (§VI). The
+lesson the two passes teach together: check the CANON, not the nearest
+constant — a code table is a giver for code, never for canon.
