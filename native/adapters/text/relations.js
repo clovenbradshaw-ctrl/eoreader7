@@ -577,10 +577,70 @@ export function expandSubjectNP(s, anchorStart, anchorEnd, leftBound, closed = {
   return { subject: collapseWs(s.slice(toks[i].start, anchorEnd)), start: toks[i].start };
 }
 
-export const extractRelations = (text, { verbs, limit = Infinity, functionWords = null, negationWords = NEGATION_WORDS, phrasalPredicates = false, auxiliaryVerbs = AUXILIARY_VERBS, nounPhraseSubjects = false, definiteDeterminers = DEFINITE_DETERMINERS, indefiniteDeterminers = INDEFINITE_DETERMINERS, possessiveDeterminers = POSSESSIVE_DETERMINERS, npCoordinators = NP_COORDINATORS } = {}) => {
+/**
+ * objectBoundaryFrom(posPrior, { minShare }) — the RECEIVED object boundary:
+ * every form the POS prior attests as dominantly ADP (adposition) or SCONJ
+ * (subordinating conjunction) at the caller's declared share, plus the
+ * received clause coordinators and clause openers (priors.js, giver
+ * lang/en). Memoized per prior object — a 16k-form table is walked once.
+ *
+ * WHY THIS EXISTS (measured live, the-fold 2026-09-02). The object group
+ * stops at the caller's MEASURED function-word class — and that class is
+ * null below the corpus floor, which is exactly where a chat attachment
+ * lives. There the object runs to the clause terminator and takes every
+ * trailing adjunct with it: "Hannibal Hamlin in March 1865", "John
+ * Breckinridge as vice president in 1861". Those ends never bridge (floor
+ * 6 composed nothing until they were hand-conceded), never fold (a clean
+ * note and its debris twin read as two objects for one subject, and the
+ * uniqueness veto fires on the ledger's own noise), and reach the model as
+ * three notes for one fact. A received class needs no corpus to exist —
+ * the subject side's leadingStrip already made that argument for clause
+ * coordinators; this is the same argument on the object side, with the
+ * adposition class the UD treebank prior already closes (P56).
+ *
+ * Structural, not lexical: no word is named here. The cut lands on a CLASS
+ * a giver attested, at a share the caller declared, and it can only ever
+ * SHORTEN an object — it admits nothing new, so it is a closes-a-false-
+ * binding prior (the-fold P41/P43's own test), never a widening one.
+ */
+const BOUNDARY_CLASSES = Object.freeze(new Set(["ADP", "SCONJ"]));
+const boundaryMemo = new WeakMap();
+export const objectBoundaryFrom = (posPrior, { minShare } = {}) => {
+  if (!Number.isFinite(minShare)) throw new TypeError("objectBoundaryFrom: minShare is declared — how dominant an adposition reading must be is the caller's to say");
+  const forms = posPrior?.forms;
+  if (!forms || typeof forms !== "object") return new Set([...CLAUSE_COORDINATORS, ...CLAUSE_OPENERS]);
+  const memo = boundaryMemo.get(posPrior);
+  if (memo?.minShare === minShare) return memo.set;
+  const out = new Set([...CLAUSE_COORDINATORS, ...CLAUSE_OPENERS]);
+  for (const [form, counts] of Object.entries(forms)) {
+    let total = 0, top = null, topN = -1;
+    for (const [upos, n] of Object.entries(counts)) { total += n; if (n > topN) { topN = n; top = upos; } }
+    if (total > 0 && BOUNDARY_CLASSES.has(top) && topN / total >= minShare) out.add(form.toLowerCase());
+  }
+  boundaryMemo.set(posPrior, { minShare, set: out });
+  return out;
+};
+
+export const extractRelations = (text, { verbs, limit = Infinity, functionWords = null, negationWords = NEGATION_WORDS, phrasalPredicates = false, auxiliaryVerbs = AUXILIARY_VERBS, nounPhraseSubjects = false, definiteDeterminers = DEFINITE_DETERMINERS, indefiniteDeterminers = INDEFINITE_DETERMINERS, possessiveDeterminers = POSSESSIVE_DETERMINERS, npCoordinators = NP_COORDINATORS, objectBoundary = null } = {}) => {
   const negationBeforeVerb = negationBeforeVerbFor(negationWords);
   const vocab = verbs instanceof Set ? verbs : new Set(verbs ?? []);
   if (vocab.size === 0) return [];
+  // THE BOUNDARY IS A POST-TRIM, NEVER A CHANGE TO THE MATCH. The first cut
+  // widened the object group's stop class instead — and edge count on 400
+  // Dracula passages went 1644 → 2647, because a shorter match lets the scan
+  // resume INSIDE the truncated adjunct and find a second "edge" there
+  // ("whilst the courage of the day —is→ upon me"). A random stop set did the
+  // same (2276), so the extra edges were a property of shortening, not of
+  // where the cut landed. The match set, every offset and every clause
+  // reach are therefore left byte-identical to the baseline; only the
+  // captured object's TEXT is trimmed at the first boundary token after its
+  // mandatory first token. Shorten, never refuse — and never re-scan.
+  const trimObject = (o) => {
+    if (!objectBoundary?.size) return o;
+    const toks = o.split(/\s+/);
+    for (let i = 1; i < toks.length; i += 1) if (objectBoundary.has(toks[i].toLowerCase())) return toks.slice(0, i).join(" ");
+    return o;
+  };
 
   const VERB_ALT = [...vocab].map(escapeRe).join("|");
   // The object group always requires at least one token (mandatory first
@@ -769,7 +829,7 @@ export const extractRelations = (text, { verbs, limit = Infinity, functionWords 
     const auxText = phrasalPredicates ? (m[2] ?? "").trim() : "";
     const anchorVerb = m[VERB_IDX].trim().toLowerCase();
     const verb = auxText ? `${auxText.toLowerCase()} ${anchorVerb}` : anchorVerb;
-    const object = collapseWs(m[OBJECT_IDX].trim()).replace(/[.,;]$/, "");
+    const object = trimObject(collapseWs(m[OBJECT_IDX].trim()).replace(/[.,;]$/, ""));
     if (!subject || !object) { previousMatchEnd = clauseEndAfter(m.index + m[0].length); continue; }
 
     const key = `${subject}|${verb}|${object}`.toLowerCase();
