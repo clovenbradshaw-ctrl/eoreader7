@@ -147,7 +147,7 @@ const TEXT_CONTENT_WORD = /\p{L}{4,}/gu;
 // contract), with the drift risk carried by the test that pins the
 // Kutúzov case against the REAL novel bytes.
 const foldMarks = (t) => String(t ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-const textFeatures = (t) => new Set(foldMarks(String(t ?? "").toLowerCase()).match(TEXT_CONTENT_WORD) ?? []);
+export const textFeatures = (t) => new Set(foldMarks(String(t ?? "").toLowerCase()).match(TEXT_CONTENT_WORD) ?? []);
 
 /**
  * The activated candidate set for the SELECT protocol: real sentences from
@@ -734,6 +734,12 @@ export async function corroborateLedger(log, door, sources, {
   // The walk's boundary. Giver: the ledger's own >=2-witness mouth — the
   // quantity this module exists to feed — never a tuned number.
   settleFloor = 2,
+  // The co-presence prefilter's reach, in chars either side of an end-word.
+  // 400 is endsCopresentWindow's own default (a hand-picked P4 debt, named
+  // there); a caller widening it is judged on the MARGINAL pairs it admits
+  // (LP11), never on aggregate — eval/copresence-audit.mjs is the offline
+  // measure of how many pairs each width would add.
+  copresenceWindow = 400,
 } = {}) {
   if (!Number.isFinite(maxAsks)) throw new TypeError("corroborateLedger: maxAsks is declared by the caller (P9)");
   let next = log;
@@ -780,7 +786,8 @@ export async function corroborateLedger(log, door, sources, {
         // never pass — skip without an ask, once per pair.
         const pairKey = `${noteId}\u0000${ref}`;
         if (!copresence.has(pairKey)) {
-          const w = endsCopresentWindow(sourceByRef.get(ref).text, { end1: note.end1 ?? note.subject, end2: note.end2 ?? note.object });
+          const srcText = sourceByRef.get(ref).text;
+          const w = endsCopresentWindow(srcText, { end1: note.end1 ?? note.subject, end2: note.end2 ?? note.object }, { window: Number.isFinite(copresenceWindow) ? copresenceWindow : srcText.length });
           copresence.set(pairKey, w);
           if (!w) { skippedNoCopresence += 1; askedPairs.add(pairKey); }
         }
