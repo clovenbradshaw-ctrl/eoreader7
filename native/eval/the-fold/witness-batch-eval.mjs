@@ -71,7 +71,7 @@ import {
   readTestimony,
   siblingSwap,
   witnessSlice,
-} from "../testimony.js";
+} from "../../eoreader7/native/organs/index.js";
 
 const EXPLORE = "http://localhost:8812";
 const OLLAMA = "http://localhost:11434";

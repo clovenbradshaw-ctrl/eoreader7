@@ -20,9 +20,9 @@ import * as taskLog from "../../eoreader7/legacy-eoreader6.1/packages/engine/hol
 import { makeRelationReader, queryFillers } from "../hypergraph.js";
 import { verificationTasksFor, verificationSummary } from "../verification.js";
 import { makeReferentIndex } from "../cast.js";
-import { makeCapacityRunner, landAct } from "../capacity-runner.js";
+import { makeCapacityRunner, landAct } from "../../eoreader7/native/organs/index.js";
 import { makeGrid } from "../grid.js";
-import { findCapacity, unresolvedCapacity } from "../capacities.js";
+import { findCapacity, unresolvedCapacity } from "../../eoreader7/native/organs/index.js";
 
 async function organs() {
   const { splitSentences } = await import("../../eoreader7/legacy-eoreader6.1/packages/engine/perceiver/text/spans.js");

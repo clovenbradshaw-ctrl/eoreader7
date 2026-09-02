@@ -57,7 +57,7 @@ import { fileURLToPath } from "node:url";
 import { runBattery, stageFrom, contentIndependence, orderOf, SYMBOLIC_FLOOR } from "../mhc.js";
 import { interactionLadder, declareCounterpart } from "../mhc-interact.js";
 import { makeGrid } from "../grid.js";
-import { landAct } from "../capacity-runner.js";
+import { landAct } from "../../eoreader7/native/organs/index.js";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const DRAWS = 5;

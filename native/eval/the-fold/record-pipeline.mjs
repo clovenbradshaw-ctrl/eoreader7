@@ -18,8 +18,8 @@
 // territory where turbulence found the unlicensed share floor. The null
 // arm earns its keep here or nowhere.
 import fs from "node:fs";
-import { findSignal, phrase } from "../signal.js";
-import { discoverCompanyKinds } from "../kind-standing.js";
+import { findSignal, phrase } from "../../eoreader7/native/organs/index.js";
+import { discoverCompanyKinds } from "../../eoreader7/native/organs/index.js";
 
 const rows = fs.readFileSync(new URL("../record/explore-record.jsonl", import.meta.url), "utf8")
   .split("\n").filter(Boolean).map((l) => { try { return JSON.parse(l); } catch { return null; } }).filter(Boolean)

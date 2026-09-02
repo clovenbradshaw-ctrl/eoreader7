@@ -26,10 +26,10 @@
 // `kind:before=<x>` shape the kind organ discovers — and the generator
 // plants it explicitly so a discovery can be scored, not admired.
 import fs from "node:fs";
-import * as K from "../kind-standing.js";
+import * as K from "../../eoreader7/native/organs/index.js";
 import * as H from "../hyperlexicon.js";
 import * as TL from "../../eoreader7/native/kernel/task-log.js";
-import { distinctSources, distinctRecipes } from "../corroboration.js";
+import { distinctSources, distinctRecipes } from "../../eoreader7/native/organs/index.js";
 import { runMeasurement, parseMeasure } from "../measure.js";
 import * as nul from "../../eoreader7/nul/index.js";
 

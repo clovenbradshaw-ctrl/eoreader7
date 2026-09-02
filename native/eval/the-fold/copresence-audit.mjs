@@ -4,7 +4,7 @@
 // what a wider window would change — and whether BOTH ends occur ANYWHERE
 // in that source at all (the downstream decider wall needs both).
 import { buildLedger } from "./lib/borodino-ledger.mjs";
-import { endsCopresentWindow, textFeatures } from "../corroboration.js";
+import { endsCopresentWindow, textFeatures } from "../../eoreader7/native/organs/index.js";
 const { hl, log, sources, planted } = await buildLedger();
 const notes = hl.foldHyperlexicon(log).filter((n) => !planted.includes(`${n.subject}|${n.verb}|${n.object}`.toLowerCase()));
 const WINDOWS = [400, 800, 1600, 3200, Infinity];

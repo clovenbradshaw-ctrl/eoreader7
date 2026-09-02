@@ -24,8 +24,8 @@
 // An instrument's scope is a fact about the instrument — the turbulence
 // run's own lesson, here made a prediction stated BEFORE the run rather
 // than a finding explained after it.
-import { findSignal, phrase } from "../signal.js";
-import { discoverCompanyKinds } from "../kind-standing.js";
+import { findSignal, phrase } from "../../eoreader7/native/organs/index.js";
+import { discoverCompanyKinds } from "../../eoreader7/native/organs/index.js";
 
 const ALPHABET = ["ash", "bramble", "cinder", "dune", "marker", "target"];
 const W = 48, H = 48;

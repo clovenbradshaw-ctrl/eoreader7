@@ -114,7 +114,7 @@ import { runHolonicTask, needsDecomposition } from "../holon.js";
 import { makeCastResolver, makeReferentIndex } from "../cast.js";
 import { makeRelationReader } from "../hypergraph.js";
 import { makeGrid } from "../grid.js";
-import { makeCapacityRunner, landAct, perSourceReadings, mergeTestimony } from "../capacity-runner.js";
+import { makeCapacityRunner, landAct, perSourceReadings, mergeTestimony } from "../../eoreader7/native/organs/index.js";
 import { renderCrown } from "../crown.js";
 import { stripNarrationSentences, stripScaffoldNarration, classifySentences } from "../provenance.js";
 import { chunkSource, tokenize } from "../source.js";

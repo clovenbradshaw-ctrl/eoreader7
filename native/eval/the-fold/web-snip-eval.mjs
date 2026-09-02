@@ -50,7 +50,7 @@ import { tokenize } from "../source.js";
 import { makeRelationReader } from "../hypergraph.js";
 import { chunkSource } from "../source.js";
 import { makeGrid } from "../grid.js";
-import { CAPACITIES, findCapacity, unresolvedCapacity } from "../capacities.js";
+import { CAPACITIES, findCapacity, unresolvedCapacity } from "../../eoreader7/native/organs/index.js";
 import { declaredSlotShape } from "../web-claim.js";
 import { rankResults } from "../proof.js";
 

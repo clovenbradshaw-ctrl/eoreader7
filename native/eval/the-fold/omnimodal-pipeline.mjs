@@ -20,11 +20,11 @@
 // construction and the whole thing reproduces from the repos alone.
 import fs from "node:fs";
 import { execFileSync } from "node:child_process";
-import * as K from "../kind-standing.js";
+import * as K from "../../eoreader7/native/organs/index.js";
 import * as H from "../hyperlexicon.js";
 import * as TL from "../../eoreader7/native/kernel/task-log.js";
 import { wavSamples } from "../measure.js";
-import { distinctSources, distinctRecipes, independentReadings } from "../corroboration.js";
+import { distinctSources, distinctRecipes, independentReadings } from "../../eoreader7/native/organs/index.js";
 
 // THE INSTRUMENTS, named — every decode declares which decoder read it, so
 // a claim that depends on decoding is counted by (source, recipe) pairs and

@@ -45,7 +45,7 @@ import { runBattery, stageFrom, contentIndependence, SYMBOLIC_FLOOR, ORDERS, ord
 import { makeRelationReader, queryFillers, queryEdges } from "../hypergraph.js";
 import { makeReferentIndex } from "../cast.js";
 import { verificationTasksFor, verificationSummary } from "../verification.js";
-import { mergeTestimony } from "../capacity-runner.js";
+import { mergeTestimony } from "../../eoreader7/native/organs/index.js";
 import { seededShuffle, shuffleSentenceWords, WITNESS_FLOOR } from "../asserted.js";
 import { extractReadable } from "../web.js";
 

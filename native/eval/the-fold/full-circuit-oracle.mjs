@@ -39,7 +39,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { distinctSources, distinctRecipes } from "../corroboration.js";
+import { distinctSources, distinctRecipes } from "../../eoreader7/native/organs/index.js";
 import { acquireCandidates, promoteAndDeclare } from "../hl-acquire.js";
 import { stageFromEdges } from "../hl.js";
 import { hyperedge } from "../../eoreader7/native/kernel/hypergraph.js";

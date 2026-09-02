@@ -37,11 +37,11 @@
 // truth by construction: `a precedes c` is TRUE and never stated; `e
 // precedes a` is planted, uncorroborated, and would make the relation
 // cyclic if it ever reached composition.
-import { findSignal, phrase } from "../signal.js";
-import { discoverCompanyKinds } from "../kind-standing.js";
-import { arrangementsFrom, arrangementNotes } from "../event-arrangements.js";
+import { findSignal, phrase } from "../../eoreader7/native/organs/index.js";
+import { discoverCompanyKinds } from "../../eoreader7/native/organs/index.js";
+import { arrangementsFrom, arrangementNotes } from "../../eoreader7/native/organs/index.js";
 import { makeHyperlexicon } from "../hyperlexicon.js";
-import { distinctSources, distinctRecipes } from "../corroboration.js";
+import { distinctSources, distinctRecipes } from "../../eoreader7/native/organs/index.js";
 import { acquireCandidates, promoteAndDeclare } from "../hl-acquire.js";
 import { stageFromEdges } from "../hl.js";
 import * as TL from "../../eoreader7/native/kernel/task-log.js";

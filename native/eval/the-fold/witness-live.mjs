@@ -14,7 +14,7 @@ import {
   readTestimony,
   siblingSwap,
   witnessSlice,
-} from "../testimony.js";
+} from "../../eoreader7/native/organs/index.js";
 
 const MODEL = process.argv[2] ?? "gemma2:2b";
 const OLLAMA = "http://localhost:11434";

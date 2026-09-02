@@ -61,7 +61,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { makeMoves } from "../moves.js";
-import { CAPACITIES } from "../capacities.js";
+import { CAPACITIES } from "../../eoreader7/native/organs/index.js";
 import * as cube from "../../eoreader7/native/kernel/cube.js";
 import { OPERATOR_ORDER } from "../../eoreader7/native/kernel/task-log.js";
 
