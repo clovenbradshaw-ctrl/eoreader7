@@ -1,8 +1,8 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { proposeCandidates, witnessNote, corroborateLedger, distinctSources } from "./corroboration.js";
+import { proposeCandidates, witnessNote, corroborateLedger, distinctSources } from "../eoreader7/native/organs/index.js";
 import { makeHyperlexicon } from "./hyperlexicon.js";
-import { witnessSlice, siblingSwap, foldTestimony } from "./testimony.js";
+import { witnessSlice, siblingSwap, foldTestimony } from "../eoreader7/native/organs/index.js";
 
 // real native task-log bundle — the same one hyperlexicon-stance.test.mjs uses
 const tl = await import("../eoreader7/native/kernel/task-log.js");
@@ -169,7 +169,7 @@ test("CONTROL for medium-blindness: the default featurizer is a TEXT adapter and
 });
 
 // ── the settling walk (SPRT shape) and the dark-room guard ──────────────
-import { askValue } from "./corroboration.js";
+import { askValue } from "../eoreader7/native/organs/index.js";
 
 const seedTwo = () => {
   // note K: already SETTLED (two distinct sources vouch mechanically);
@@ -284,7 +284,7 @@ test("CONTROL: a decider that genuinely keeps the claim's company still lands", 
 });
 
 // ── the co-presence prefilter and slice centering (Pass 1) ──────────────
-import { endsCopresentWindow } from "./corroboration.js";
+import { endsCopresentWindow } from "../eoreader7/native/organs/index.js";
 
 test("endsCopresentWindow: finds the window where both ends' features co-occur, null when they never do", () => {
   const text = "A long preamble about weather. Marshal Kutuzov faced Napoleon at the river that morning. Unrelated epilogue.";
@@ -322,7 +322,7 @@ test("CONTROL: the prefilter must NOT shield a fabricated-but-copresent claim �
 });
 
 // ── the fifth turn's remaining phaseposts (REC·Figure, DEF·Pattern, CON·Pattern) ──
-import { thirdSourceCandidates, WITNESS_OPERATING_POINT } from "./corroboration.js";
+import { thirdSourceCandidates, WITNESS_OPERATING_POINT } from "../eoreader7/native/organs/index.js";
 import { readFileSync, existsSync } from "node:fs";
 
 test("thirdSourceCandidates: excludes sources already vouching, requires per-end feasibility, declared limit (P9)", () => {
@@ -372,7 +372,7 @@ test("CON·Pattern: a contradiction lands in the contests structure with BOTH si
 });
 
 // ── the SELECT path: activate, then point (never generate) ──────────────
-import { buildSelectMessages, foldSelect } from "./testimony.js";
+import { buildSelectMessages, foldSelect } from "../eoreader7/native/organs/index.js";
 const selectTestimony = { witnessSlice, siblingSwap, foldTestimony, buildSelectMessages, foldSelect };
 // a real, tiny sentence splitter for the tests (period/!/? boundaries),
 // carrying each sentence's own offset — the engine's own {text, offset}
@@ -454,7 +454,7 @@ test("no segmenter or no selectAsk: the generate path runs unchanged (opt-in, by
 });
 
 // ── statingCandidates (Pass 1/5, the select gatherer) ────────────────────
-import { statingCandidates, competingFiller } from "./corroboration.js";
+import { statingCandidates, competingFiller } from "../eoreader7/native/organs/index.js";
 // an offset-carrying splitter, the engine's own shape ({text, offset})
 const splitWithOffsets = (t) => {
   const out = []; let at = 0;
@@ -511,7 +511,7 @@ test("BECOMING heard-clean — INHABITED: the generic gate survives a case-strip
   // marks its members structurally (word-signed kinds are frames;
   // position-signed kinds are not), and the injection makes this gate
   // S2-heard end to end.
-  const { discoverCompanyKinds, frameWords } = await import("./kind-standing.js");
+  const { discoverCompanyKinds, frameWords } = await import("../eoreader7/native/organs/index.js");
   const heard =
     "the general said nothing that day. napoleon praised the plan loudly. " +
     "general kutuzov met napoleon at the ford. a general rode past the line. " +
@@ -540,7 +540,7 @@ test("without the injection, the default gate stays the declared S1 rule — no 
 });
 
 // ── instrument independence (2026-09-01, from the omnimodal run) ─────────
-import { independentReadings, distinctRecipes } from "./corroboration.js";
+import { independentReadings, distinctRecipes } from "../eoreader7/native/organs/index.js";
 
 test("THE SHARED-INSTRUMENT CASE, from the live music failure: two sources, one decoder = 2 sources but 1 instrument", () => {
   // the exact witness shape the omnimodal driver produced a false kind on
@@ -638,8 +638,8 @@ test("INSENSITIVITY IS THE SAME INDEX, not merely a second yes — the arm that 
 });
 
 // ── the calibrations as declared frames (frame.js's first consumer) ──────
-import { calibrationFrames } from "./corroboration.js";
-import { framed, comparable } from "./frame.js";
+import { calibrationFrames } from "../eoreader7/native/organs/index.js";
+import { framed, comparable } from "../eoreader7/native/organs/index.js";
 
 test("the two witness protocols are two DECLARED interpretive grounds — cross-protocol numbers refuse comparison, naming what differs", async () => {
   const frames = await calibrationFrames();
