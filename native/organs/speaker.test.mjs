@@ -2,7 +2,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { readHeading, speakerSections, speakerAt, DOCUMENT_KINDS } from "./speaker.js";
+import { readHeading, speakerSections, speakerAt, DOCUMENT_KINDS } from "../eoreader7/native/organs/index.js";
 
 const DRACULA = "../live_priors/01-literature-books/gutenberg/pg345_Dracula.txt";
 
@@ -53,7 +53,7 @@ test("THE REAL BOOK: sections carry the right speakers at the right offsets, and
 });
 
 test("the genre lexicon is received, small, and declared with its giver", async () => {
-  const { DOCUMENT_KINDS_META } = await import("./speaker.js");
+  const { DOCUMENT_KINDS_META } = await import("../eoreader7/native/organs/index.js");
   assert.ok(DOCUMENT_KINDS.length <= 10, "a closed class, not a sample of English");
   assert.match(DOCUMENT_KINDS_META.giver, /received closed class/);
 });
