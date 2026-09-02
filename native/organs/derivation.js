@@ -84,6 +84,7 @@ export const REFUSALS = Object.freeze({
   no_declarations: "chemistry comes from the declarations register, so a derivation names the register it reads",
   no_steps: "maxSteps is a declared positive integer — how long a settling may run is the caller's to say",
   no_trigger: "a withdrawal records its own reason as `trigger` — never a silent concession",
+  no_presence: "a cue lights the present, and the presence floor (how faint still counts) is declared beside it — cue: null is the disclosed ungated control",
 });
 
 const asSet = (xs) => new Set(xs ?? []);
@@ -281,6 +282,10 @@ export function makeDerivation({ hl, taskLog } = {}) {
   function derive(log, { declarations, floor, maxSteps, cue = null, presenceFloor = null, cycleLimit = 3 } = {}) {
     if (!declarations) throw new TypeError("derive: " + REFUSALS.no_declarations);
     if (!Number.isInteger(maxSteps) || maxSteps < 1) throw new TypeError("derive: " + REFUSALS.no_steps);
+    // A real cue needs its presence floor beside it. Without this check a
+    // cue with no floor fell through to `floor: null` — the ungated control
+    // arm — and reported itself as gated. Found by the test, not by review.
+    if (cue !== null && !Number.isFinite(presenceFloor)) throw new TypeError("derive: " + REFUSALS.no_presence);
     const notes = hl.foldHyperlexicon(log);
     const { premises, stopped } = premisesOf(notes, { floor });
     const { chemistry, given, candidates } = chemistryFor(declarations);
