@@ -349,6 +349,27 @@ export const WITNESS_OPERATING_POINT = Object.freeze({
     "gemma2:2b": Object.freeze({ pStatesGivenStated: 6 / 18, pStatesGivenFabricatedUpperBound: 3 / 36, armedFabricatedAsks: 36, falseStates: 0 }),
     "qwen2.5:14b-instruct-q4_K_M": Object.freeze({ pStatesGivenStated: 5 / 18, pStatesGivenFabricatedUpperBound: 3 / 12, armedFabricatedAsks: 12, falseStates: 0, note: "no better than gemma2:2b and ~3x slower — measured, not assumed" }),
   }),
+  // THE SELECT PROTOCOL, calibrated separately (2026-09-01) because it is a
+  // different ask: the model POINTS at a mechanically gathered candidate
+  // instead of writing a decider. Same live material (the real War and
+  // Peace), claims stated-by-construction vs fabricated pairs that
+  // genuinely co-occur — the hard case, where only the relation is invented.
+  // Three arm designs measured on the SAME batch, kept so none is retried:
+  //   unarmed                     3/6 true, 1/8 FABRICATED (a real false state)
+  //   armed, refuse any arm "yes" 0/6 true, 0/8  (a wall nothing could pass)
+  //   armed, refuse SAME INDEX    2/6 true, 0/8  <- shipped
+  // The shipped rule reads insensitivity as pointing at the SAME sentence
+  // for two different claims — an index that carries no information about
+  // what was asked. Recall matches the generate protocol's own 0.33 while
+  // the decider is verbatim by construction. Disclosed cost: one true
+  // claim ("Napoleon invaded Russia") is refused indiscriminate.
+  select: Object.freeze({
+    measured: "2026-09-01",
+    model: "gemma2:2b",
+    pStatesGivenStated: 2 / 6,
+    pStatesGivenFabricated: 0 / 8,
+    armRule: "refuse when the arm points at the same candidate index",
+  }),
 });
 
 /**
@@ -583,7 +604,17 @@ export async function witnessNote(sentence, source, { ask, selectAsk = null, tes
         const armClaim = sentence.replace(new RegExp(String(ends.end2).replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i"), armFiller);
         if (armClaim === sentence) return { refused: "unarmed-select", via: "select" };
         const armPick = foldSelect(await selectAsk(buildSelectMessages(armClaim, shownList)), shownList);
-        if (armPick.verdict === "states") return { refused: "indiscriminate", via: "select", arm: armClaim };
+        // INSENSITIVITY IS POINTING AT THE SAME PLACE, not merely saying yes
+        // twice. Measured live: the first cut refused any arm that answered
+        // "states" at all, and killed 3 of 3 true positives — because a
+        // competing filler drawn from the candidates genuinely occurs in
+        // them, so a sentence naming it exists and answering "yes" about it
+        // is not by itself an error. What decides nothing is a picker that
+        // returns the SAME sentence for two different claims: that index
+        // carries no information about what was asked. A picker that points
+        // elsewhere discriminated, and its pick on the real claim stands.
+        if (armPick.verdict === "states" && armPick.index === picked.index)
+          return { refused: "indiscriminate", via: "select", arm: armClaim, at: picked.index };
         // The pick's address is the one CARRIED FORWARD from its cut — no
         // search. The decider shown is the source's own bytes (`raw`, line
         // breaks and all); the span is the sentence's own offset. When the

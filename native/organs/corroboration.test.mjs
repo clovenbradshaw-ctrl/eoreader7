@@ -613,3 +613,26 @@ test("competingFiller excludes BOTH ends — swapping end2 for end1 would be a r
   assert.equal(competingFiller("General Mikhail Kutuzov", ["Napoleon faced General Mikhail Kutuzov."], { exclude: ["Napoleon"] }), null,
     "no competitor in the material -> null, never a guess");
 });
+
+test("INSENSITIVITY IS THE SAME INDEX, not merely a second yes — the arm that killed all recall", async () => {
+  // Measured live: refusing any arm that answers "states" killed 3 of 3 true
+  // positives, because a competing filler drawn FROM the candidates really
+  // does occur in them — a yes about it is not by itself an error. What
+  // decides nothing is a picker returning the same sentence whatever it is
+  // asked. Both halves pinned here so neither design is retried blind.
+  const src = { ref: "novel", text: "A preamble. Napoleon faced General Mikhail Kutuzov near Marshal Davout across the field. Marshal Davout rode with Napoleon at dawn. An epilogue." };
+  const discriminating = async (m) => (/Marshal Davout/.test(m.at(-1).content.split("\n")[0])
+    ? { stated: "yes", sentence: 2 }   // points ELSEWHERE for the arm
+    : { stated: "yes", sentence: 1 });
+  const w = await witnessNote("Napoleon fought against General Mikhail Kutuzov", src,
+    { ask: saysNo, selectAsk: discriminating, testimony: selectTestimony, splitSentences,
+      ends: { end1: "Napoleon", end2: "General Mikhail Kutuzov" } });
+  assert.equal(w.verdict, "states", "a picker that points elsewhere for the arm has discriminated");
+
+  const stuck = async () => ({ stated: "yes", sentence: 1 }); // same index whatever is asked
+  const w2 = await witnessNote("Napoleon fought against General Mikhail Kutuzov", src,
+    { ask: saysNo, selectAsk: stuck, testimony: selectTestimony, splitSentences,
+      ends: { end1: "Napoleon", end2: "General Mikhail Kutuzov" } });
+  assert.equal(w2.refused, "indiscriminate");
+  assert.equal(w2.at, 1, "and it names the index that carried no information");
+});
