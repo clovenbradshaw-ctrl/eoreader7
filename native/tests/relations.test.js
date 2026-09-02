@@ -382,3 +382,27 @@ test("CONTROL, built to fail: a coordinator the walk DID pay for is kept — a r
   assert.ok(result, "expected the sibling NP to be joined");
   assert.equal(result.subject, "Anna and Vasili", "a genuine coordinated subject must NOT be trimmed by the dangling-coordinator rule");
 });
+
+// ── the received-class subject strip (2026-09-02) ──────────────────────────
+// 55 of 83 subjects on a real two-page ledger were "and it" / "but he" /
+// "battle that" / "after Smolensk": the leading-word strip only fired on a
+// MEASURED function-word class, which small material cannot supply. The
+// received classes (priors.js: CLAUSE_COORDINATORS, CLAUSE_OPENERS,
+// determiners; giver lang/en) fire on their own now. The guards that were
+// already there stay: a lone pronoun subject is untouched, "does not" is
+// never stripped to "not", "his King" is never stripped to "King".
+test("a two-token subject led by a received clause coordinator or opener is stripped to its head, with no measured class supplied", () => {
+  const verbs = new Set(["was", "had", "considered", "razed"]);
+  const subj = (t) => extractRelations(t, { verbs })[0]?.subject;
+  assert.equal(subj("And it was the bloodiest day of the war."), "it");
+  assert.equal(subj("Nobody spoke, but he had spoken with survivors before."), "he");
+  assert.equal(subj("Smolensk fell; after Smolensk was razed the army withdrew."), "Smolensk");
+  assert.equal(subj("The battle that was part of the larger campaign ended at dusk."), "battle");
+});
+test("the strip's own guards are untouched: a lone pronoun, a negation, and a possessive pronoun stay as they were", () => {
+  const verbs = new Set(["told", "measure", "ruled"]);
+  const subj = (t) => extractRelations(t, { verbs })[0]?.subject;
+  assert.equal(subj("He told her everything."), "He");
+  assert.notEqual(subj("The gauge does not measure pressure."), "not");
+  assert.equal(subj("Then his King ruled the north."), "his King");
+});

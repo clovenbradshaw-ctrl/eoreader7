@@ -158,6 +158,15 @@ export const POSSESSIVE_DETERMINERS_META = Object.freeze({ giver: "lang/en", sco
  */
 export const NP_COORDINATORS = Object.freeze(new Set(["and", "or"]));
 export const NP_COORDINATORS_META = Object.freeze({ giver: "lang/en", scope: null });
+// Clause-level coordinators — the words that open a coordinated CLAUSE
+// ("but he had spoken…", "so it was…"), as opposed to the NP coordinators
+// above that join two noun phrases. Received, not measured: on the real
+// two-page Borodino ledger (2026-09-02) 55 of 83 extracted subjects were
+// debris of exactly this shape ("and it", "but he", "battle that"), because
+// the extractor's leading-word strip only fired on a caller-measured
+// function-word class that small material cannot supply.
+export const CLAUSE_COORDINATORS = Object.freeze(new Set(["and", "but", "or", "nor", "so", "yet", "for"]));
+export const CLAUSE_COORDINATORS_META = Object.freeze({ giver: "lang/en", scope: null });
 
 /**
  * Auxiliary and modal verb forms — a closed grammatical class (English's
