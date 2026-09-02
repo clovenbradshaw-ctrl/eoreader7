@@ -320,3 +320,53 @@ test("CONTROL: the prefilter must NOT shield a fabricated-but-copresent claim �
   assert.ok(calls >= 1, "a copresent candidate reached the witness");
   assert.ok(out.attested.length >= 1, "and the clean one still lands");
 });
+
+// ── the fifth turn's remaining phaseposts (REC·Figure, DEF·Pattern, CON·Pattern) ──
+import { thirdSourceCandidates, WITNESS_OPERATING_POINT } from "./corroboration.js";
+import { readFileSync, existsSync } from "node:fs";
+
+test("thirdSourceCandidates: excludes sources already vouching, requires per-end feasibility, declared limit (P9)", () => {
+  const note = { id: "k", subject: "Kutuzov", verb: "commanded", object: "the Russian army", witnesses: ["page-a", "testimony:page-b"] };
+  const sources = [
+    { ref: "page-a", text: "Kutuzov led the Russian army east." },            // already vouches (mechanical)
+    { ref: "page-b", text: "Kutuzov and the Russian army withdrew." },        // already vouches (testimony)
+    { ref: "page-c", text: "Kutuzov reviewed the Russian army at dawn." },    // NEW and feasible
+    { ref: "page-d", text: "A treatise on beekeeping in Provence." },         // hopeless
+  ];
+  assert.throws(() => thirdSourceCandidates(note, sources, {}), /declared by the caller/);
+  const got = thirdSourceCandidates(note, sources, { limit: 5 });
+  assert.deepEqual(got.map((g) => g.source.ref), ["page-c"], "only the new, feasible source is proposed");
+});
+
+test("THE KUTÚZOV CASE: the fold makes the real novel visible to an unaccented claim — against the real bytes", { skip: !existsSync("/Users/mlacy/Documents/3.0/eoreader7/legacy-eoreader6.1/scripts/corpus/pg2600-war-and-peace.txt") }, () => {
+  // The Maude translation writes Kutúzov 524 times. An unfolded feature
+  // set makes the novel invisible to a claim about "Kutuzov" — the exact
+  // Bezúkhov bug class, recurring at the fifth turn. This test reads the
+  // REAL novel bytes; if the fold ever regresses, the third-source seeker
+  // goes blind to accented sources and this fails.
+  const novel = readFileSync("/Users/mlacy/Documents/3.0/eoreader7/legacy-eoreader6.1/scripts/corpus/pg2600-war-and-peace.txt", "utf8");
+  const note = { id: "n", subject: "Napoleon", verb: "fought", object: "Kutuzov", witnesses: ["battle-of-borodino"] };
+  const got = thirdSourceCandidates(note, [{ ref: "pg2600", text: novel }], { limit: 3 });
+  assert.equal(got.length, 1, "the novel is a feasible third source despite writing Kutúzov");
+  assert.match(got[0].window.text, /Kut[uú]zov/u, "and the window really contains him");
+});
+
+test("DEF·Pattern: the operating point is declared with method and date, and rides every walk report", async () => {
+  assert.equal(WITNESS_OPERATING_POINT.models["gemma2:2b"].falseStates, 0);
+  assert.ok(WITNESS_OPERATING_POINT.method.length > 20, "the method is named, not implied");
+  const out = await corroborateLedger(seed(), door, [SOURCE], { ask: saysNo, testimony, maxAsks: 2 });
+  assert.equal(out.calibration, WITNESS_OPERATING_POINT, "every run carries its calibration basis");
+});
+
+test("CON·Pattern: a contradiction lands in the contests structure with BOTH sides named", async () => {
+  const contradicting = async (sentence) =>
+    /Kutuzov commanded/.test(sentence)
+      ? { answer: "no", because: null }
+      : { answer: "yes", because: "Marshal Kutuzov commanded the Imperial Russian Army through the retreat." };
+  const out = await corroborateLedger(seed(), door, [SOURCE], { ask: contradicting, testimony, maxAsks: 10 });
+  if (out.contradicted.length) {
+    assert.ok(out.contests.length >= 1);
+    const c = out.contests[0];
+    assert.ok(c.stating.length >= 1 && c.contradicting.length >= 1, "both sides of the contest are data");
+  }
+});

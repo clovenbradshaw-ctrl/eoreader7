@@ -137,7 +137,67 @@
 // protocol over a synthetic non-text medium to prove the protocol carries
 // rather than asserting that it does.
 const TEXT_CONTENT_WORD = /\p{L}{4,}/gu;
-const textFeatures = (t) => new Set(String(t ?? "").toLowerCase().match(TEXT_CONTENT_WORD) ?? []);
+// FOLDED, because every organ that compares text to text must share
+// retrieval's fold (CLAUDE.md's oldest cross-organ lesson — Bezúkhov/
+// Bezukhov). Found live building the third-source seeker: the Maude
+// translation writes Kutúzov 524 times, and an unfolded feature set makes
+// the novel invisible to a claim about Kutuzov. NFD strip of combining
+// marks — the same fold class source.js's foldDiacritics implements;
+// restated minimally here to keep this module zero-import (its stated
+// contract), with the drift risk carried by the test that pins the
+// Kutúzov case against the REAL novel bytes.
+const foldMarks = (t) => String(t ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+const textFeatures = (t) => new Set(foldMarks(String(t ?? "").toLowerCase()).match(TEXT_CONTENT_WORD) ?? []);
+
+/**
+ * REC·Figure at the fifth turn — ACT on a contradiction (or a thin
+ * standing) by finding WHERE a further independent vote could come from.
+ * Lamport made mechanical: at n=2 a disagreement is visible but not
+ * adjudicable, so a contested note's next move is always a THIRD source;
+ * a thin note's is a second. This is the DISCOVERY half only — pure
+ * ranking of not-yet-witnessing sources by the same per-end feasibility
+ * the walk already spends by (endsCopresentWindow); the re-ask half IS
+ * the walk, whose contested-first ranking already prioritizes what this
+ * function feeds it.
+ *
+ * Returns ranked `{source, window}` — never a verdict, never a vote.
+ */
+export function thirdSourceCandidates(note, sources, { featuresOf = textFeatures, limit } = {}) {
+  if (!Number.isFinite(limit)) throw new TypeError("thirdSourceCandidates: limit is declared by the caller (P9)");
+  const already = distinctSources(note.witnesses ?? []);
+  const out = [];
+  for (const source of sources ?? []) {
+    if (already.has(source.ref)) continue;
+    const w = endsCopresentWindow(source.text, { end1: note.end1 ?? note.subject, end2: note.end2 ?? note.object }, { featuresOf });
+    if (w) out.push({ source, window: w });
+  }
+  return out.sort((a, b) => b.window.score ?? 0 - (a.window.score ?? 0)).slice(0, limit);
+}
+
+/**
+ * DEF·Pattern at the fifth turn — the witness's MEASURED operating point,
+ * landed as a declaration with its method and date, so every consumer of
+ * a testimony vote can weigh it against numbers rather than hope
+ * (Bovens & Hartmann's reliability parameter, measured not assumed).
+ * Method: stated-by-construction trues (a page's own extracted claims
+ * asked against that page) vs end-swapped fakes, armed protocol,
+ * temperature 0, per model — plus every live fabricated batch pooled for
+ * the false-state bound (rule of three at zero observed).
+ *
+ * The walk deliberately KEEPS unit steps: with LR(states) >= ~4, two
+ * independent-source votes carry LR >= ~16, which is what settleFloor=2
+ * already demands — the calibration VALIDATES the shipped design rather
+ * than replacing it, and that outcome is recorded here instead of being
+ * dressed up as a new mechanism.
+ */
+export const WITNESS_OPERATING_POINT = Object.freeze({
+  measured: "2026-09-01",
+  method: "stated-by-construction trues vs end-swapped fakes, armed protocol, temp 0; false bound pooled over all live fabricated batches (rule of three at 0/36)",
+  models: Object.freeze({
+    "gemma2:2b": Object.freeze({ pStatesGivenStated: 6 / 18, pStatesGivenFabricatedUpperBound: 3 / 36, armedFabricatedAsks: 36, falseStates: 0 }),
+    "qwen2.5:14b-instruct-q4_K_M": Object.freeze({ pStatesGivenStated: 5 / 18, pStatesGivenFabricatedUpperBound: 3 / 12, armedFabricatedAsks: 12, falseStates: 0, note: "no better than gemma2:2b and ~3x slower — measured, not assumed" }),
+  }),
+});
 
 /**
  * The independence-aware count: DISTINCT SOURCES across both witness kinds.
@@ -225,7 +285,7 @@ export function askValue(note, { contradictSources, settleFloor } = {}) {
  */
 export function endsCopresentWindow(sourceText, ends, { featuresOf = textFeatures, window = 400 } = {}) {
   const text = String(sourceText ?? "");
-  const lower = text.toLowerCase();
+  const lower = foldMarks(text.toLowerCase());
   const f1 = [...featuresOf(ends?.end1)];
   const f2 = [...featuresOf(ends?.end2)];
   if (!f1.length || !f2.length) return null;
@@ -410,9 +470,15 @@ export async function corroborateLedger(log, door, sources, {
   // `disconfirmed` to the claims tier (which owns contradiction) and can
   // see `contested` as "ran out before the third source", never as silence.
   const standings = { settled: [], contested: [], disconfirmed: [], thin: [] };
+  // CON·Pattern at the fifth turn: the CONTEST STRUCTURE among notes —
+  // who states, who contradicts, per note — as data a caller (the claims
+  // tier, the third-source seeker) can act on, never a flat list of ids.
+  const contests = [];
   for (const n of door.foldHyperlexicon(next)) {
     const v = askValue(n, { contradictSources, settleFloor });
     standings[v.reason === "settled" ? "settled" : v.reason === "disconfirmed" ? "disconfirmed" : v.reason === "contested" ? "contested" : "thin"].push(n.id);
+    const contra = contradictSources.get(n.id);
+    if (contra?.size) contests.push({ noteId: n.id, stating: [...distinctSources(n.witnesses)], contradicting: [...contra] });
   }
-  return { log: next, attested, contradicted, refusals, asks, skippedNoCopresence, standings, settleFloor };
+  return { log: next, attested, contradicted, refusals, asks, skippedNoCopresence, standings, contests, calibration: WITNESS_OPERATING_POINT, settleFloor };
 }
