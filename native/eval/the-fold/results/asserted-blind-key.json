@@ -21,7 +21,7 @@
       "statements": 2,
       "orderArm": {
         "draws": 200,
-        "fired": 8,
+        "fired": 7,
         "seed": 0
       },
       "refs": [
@@ -125,7 +125,7 @@
       "statements": 2,
       "orderArm": {
         "draws": 200,
-        "fired": 56,
+        "fired": 46,
         "seed": 0
       },
       "refs": [
@@ -297,7 +297,7 @@
       "statements": 1,
       "orderArm": {
         "draws": 200,
-        "fired": 23,
+        "fired": 21,
         "seed": 0
       },
       "refs": [
