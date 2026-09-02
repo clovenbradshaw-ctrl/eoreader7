@@ -80,7 +80,7 @@ export const DERIVED_PREFIX = "derived:";
 export const isDerivedId = (id) => typeof id === "string" && id.startsWith(DERIVED_PREFIX);
 
 export const REFUSALS = Object.freeze({
-  no_floor: "the standing floor is declared — {sources, instruments}, each a positive integer (P4/P9)",
+  no_floor: "the standing floor is declared — {sources, instruments}: sources a positive integer, instruments a non-negative integer (0 = instrument independence not required, said so) (P4/P9)",
   no_declarations: "chemistry comes from the declarations register, so a derivation names the register it reads",
   no_steps: "maxSteps is a declared positive integer — how long a settling may run is the caller's to say",
   no_trigger: "a withdrawal records its own reason as `trigger` — never a silent concession",
@@ -95,7 +95,13 @@ const sameSet = (a, b) => a.size === b.size && [...a].every((x) => b.has(x));
  * silently dropped: a caller can see exactly what the floor excluded.
  */
 export function premisesOf(notes, { floor } = {}) {
-  if (!floor || !Number.isInteger(floor.sources) || floor.sources < 1 || !Number.isInteger(floor.instruments) || floor.instruments < 1)
+  // `instruments: 0` is a DECLARATION, not a default: the caller says
+  // instrument independence is not required. Measured live (2026-09-02):
+  // a witness admitted by a chat turn is a bare source ref with no
+  // `~recipe`, so distinctRecipes reads 0 for every live note and a floor
+  // of 1 instrument could never be met — the honest floor for such a
+  // ledger is declared 0, and the report still carries the count.
+  if (!floor || !Number.isInteger(floor.sources) || floor.sources < 1 || !Number.isInteger(floor.instruments) || floor.instruments < 0)
     throw new TypeError("premisesOf: " + REFUSALS.no_floor);
   const premises = [], stopped = [];
   for (const n of notes ?? []) {
@@ -115,18 +121,55 @@ export function chemistryFor(declarations) {
   return { chemistry: chem, given: fold.given, candidates: fold.candidates };
 }
 
-/** Premises as substrate edges, each carrying its note id and addresses. */
+/**
+ * The ends a note IS, as opposed to the words it was first heard in. The
+ * ledger keys identity on earned referent faces (hear() folds
+ * end1Face/end2Face — or an injected noteIdentity — into the id) while the
+ * display keeps the first reading's own bytes. Measured live (2026-09-02):
+ * "Andrew Johnson —replaced→ Hannibal Hamlin in March 1865" and "Hannibal
+ * Hamlin —replaced→ John Breckinridge…" never bridged when the substrate
+ * bonded on display strings, because the object's adjunct debris is not
+ * the next subject's face. Bonding on the id's ends is bonding on the
+ * identity the ledger already earned — P73's seam, consumed, not a second
+ * identity invented here. Where no face was earned the id holds the
+ * lowercased surface, so nothing is folded that the ledger did not fold.
+ */
+export function identityEnds(note) {
+  const id = String(note?.id ?? "");
+  const first = id.indexOf("|"), last = id.lastIndexOf("|");
+  if (first < 0 || last <= first) return { end1: String(note.subject ?? ""), end2: String(note.object ?? "") };
+  return { end1: id.slice(0, first), end2: id.slice(last + 1) };
+}
+
+/** Premises as substrate edges: bonded on identity ends, each carrying its
+ * note id, its display words, and its addresses. */
 export function substrateEdges(premises) {
-  return premises.map((n) => hyperedge({
-    id: `note:${n.id}`,
-    relation: n.verb,
-    participants: [
-      { ref: n.subject, standing: "referent", identity: "ledger", display: n.subject, role: null },
-      { ref: n.object, standing: "referent", identity: "ledger", display: n.object, role: null },
-    ],
-    witness: n.spans?.[0]?.at ?? `note:${n.id}`,
-    meta: { noteId: n.id, witnesses: [...(n.witnesses ?? [])], spans: (n.spans ?? []).map((s) => s.at) },
-  }));
+  return premises.map((n) => {
+    const { end1, end2 } = identityEnds(n);
+    return hyperedge({
+      id: `note:${n.id}`,
+      relation: n.verb,
+      participants: [
+        { ref: end1, standing: "referent", identity: "ledger", display: n.subject, role: null },
+        { ref: end2, standing: "referent", identity: "ledger", display: n.object, role: null },
+      ],
+      witness: n.spans?.[0]?.at ?? `note:${n.id}`,
+      meta: { noteId: n.id, witnesses: [...(n.witnesses ?? [])], spans: (n.spans ?? []).map((s) => s.at) },
+    });
+  });
+}
+
+/** identity end → the display words the premises used for it (first seen
+ * wins, the ledger's own rule), so a product is worded in the material's
+ * words rather than in lowercased ids. */
+export function displayMap(premises) {
+  const m = new Map();
+  for (const n of premises) {
+    const { end1, end2 } = identityEnds(n);
+    if (!m.has(end1)) m.set(end1, String(n.subject ?? end1));
+    if (!m.has(end2)) m.set(end2, String(n.object ?? end2));
+  }
+  return m;
 }
 
 /**
@@ -140,8 +183,9 @@ export function naiveJoin(premises, { base, yields } = {}) {
   const forward = new Map();
   for (const n of premises ?? []) {
     if (n.verb !== base) continue;
-    if (!forward.has(n.subject)) forward.set(n.subject, new Set());
-    forward.get(n.subject).add(n.object);
+    const { end1, end2 } = identityEnds(n);
+    if (!forward.has(end1)) forward.set(end1, new Set());
+    forward.get(end1).add(end2);
   }
   const out = new Set();
   for (const start of forward.keys()) {
@@ -260,24 +304,26 @@ export function makeDerivation({ hl, taskLog } = {}) {
       for (const p of e.meta.parents ?? []) walk(p, grounds, addresses, seen);
     };
 
+    const shown = displayMap(premises);
     let next = log;
     const derived = [];
     for (const f of settled.derived) {
       const id = derivedId(f.from, f.relation, f.to);
+      const subject = shown.get(f.from) ?? f.from, object = shown.get(f.to) ?? f.to;
       const premiseIds = (f.edge.meta.parents ?? []).map(ledgerIdOf).filter(Boolean);
       const grounds = new Set(), addresses = new Set();
       walk(f.edge.id, grounds, addresses);
       const prior = projectTasks(next).find((t) => t.task_id === id) ?? null;
       const unchanged = prior && sameSet(asSet(prior.premises), asSet(premiseIds)) && prior.paths === f.paths;
-      const row = { id, subject: f.from, verb: f.relation, object: f.to, depth: f.depth, paths: f.paths, premises: premiseIds, grounds: [...grounds], provenance: [...addresses], giver: f.giver, affordance: { left: f.edge.meta.affordance.left, right: f.edge.meta.affordance.right } };
+      const row = { id, subject, verb: f.relation, object, depth: f.depth, paths: f.paths, premises: premiseIds, grounds: [...grounds], provenance: [...addresses], giver: f.giver, affordance: { left: f.edge.meta.affordance.left, right: f.edge.meta.affordance.right } };
       if (unchanged) { derived.push({ ...row, landed: "unchanged" }); continue; }
       next = append(next, {
         kind: prior ? ENTRY_KINDS.SUPERSEDE : ENTRY_KINDS.PROPOSE,
         task_id: id,
         operator: "SYN", operator_basis: OPERATOR_BASIS.DERIVED, grain: PATTERN,
         ...cellFields("SYN", PATTERN),
-        description: `${prior ? "re-derived" : "derived"}: ${f.from} ${f.relation} ${f.to} (depth ${f.depth}, ${f.paths} path${f.paths === 1 ? "" : "s"})`,
-        subject: f.from, verb: f.relation, object: f.to,
+        description: `${prior ? "re-derived" : "derived"}: ${subject} ${f.relation} ${object} (depth ${f.depth}, ${f.paths} path${f.paths === 1 ? "" : "s"})`,
+        subject, verb: f.relation, object,
         witnesses: [], spans: [],   // THE WALL: stated nowhere, carried by its premises
         derived: true,
         premises: premiseIds, grounds: [...grounds], provenance: [...addresses],

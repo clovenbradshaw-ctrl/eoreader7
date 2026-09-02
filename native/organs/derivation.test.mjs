@@ -56,6 +56,36 @@ test("the floor is declared, never defaulted", () => {
   assert.throws(() => D.derive(relayLedger(), { declarations: licensed(), floor: FLOOR }), new RegExp(REFUSALS.no_steps.slice(0, 20)));
 });
 
+test("instruments:0 is a declaration — a recipe-less witness (a live chat admission) can stand at it, and only at it", () => {
+  let log = hl.createHyperlexicon();
+  log = hl.hear(log, { subject: "a", verb: "replaces", object: "b", witness: "pasted.txt#0-40", spans: [span("pasted.txt", 0)] });
+  log = hl.hear(log, { subject: "a", verb: "replaces", object: "b", witness: "other.txt#0-40", spans: [span("other.txt", 0)] });
+  const notes = hl.foldHyperlexicon(log);
+  const strict = premisesOf(notes, { floor: { sources: 2, instruments: 1 } });
+  assert.equal(strict.premises.length, 0);
+  assert.equal(strict.stopped[0].instruments, 0, "an undeclared instrument is honestly zero, never silently one");
+  const declared = premisesOf(notes, { floor: { sources: 2, instruments: 0 } });
+  assert.equal(declared.premises.length, 1);
+  assert.throws(() => premisesOf(notes, { floor: { sources: 0, instruments: 0 } }), /declared/, "sources still needs at least one");
+});
+
+test("the substrate bonds on IDENTITY ends (earned faces in the id), not on display debris — the live 2026-09-02 case", () => {
+  // the ledger's own Station-3→4 wire: an object heard with adjunct debris
+  // whose face was earned as the bare referent
+  let log = hl.createHyperlexicon();
+  for (const w of ["s1~r1", "s2~r2"]) {
+    log = hl.hear(log, { subject: "Andrew Johnson", verb: "replaced", object: "Hannibal Hamlin in March 1865", objectFace: "Hannibal Hamlin", witness: w, spans: [span(w.slice(0, 2), 1)] });
+    log = hl.hear(log, { subject: "Hannibal Hamlin", verb: "replaced", object: "John Breckinridge as vice president", objectFace: "John Breckinridge", witness: w, spans: [span(w.slice(0, 2), 2)] });
+  }
+  let decl = createDeclarationLog();
+  const p = proposeCandidate(decl, { kind: "composes", rel: "replaced", yields: "after", acquisition: {}, source: "test" });
+  decl = promote(p.log, p.id, { giver: GIVER }).log;
+  const r = D.derive(log, { declarations: decl, floor: FLOOR, maxSteps: 4 });
+  assert.equal(r.derived.length, 1, "the two notes bridge at the earned face 'hannibal hamlin'");
+  assert.equal(triple(r.derived[0]), "Andrew Johnson|after|John Breckinridge as vice president", "the product is worded in the material's own words, its identity in its id");
+  assert.equal(r.derived[0].id, "derived:andrew johnson|after|john breckinridge");
+});
+
 test("premises are F5 notes at the floor; a one-witness note is STOPPED, typed with its counts", () => {
   const notes = hl.foldHyperlexicon(relayLedger());
   const { premises, stopped } = premisesOf(notes, { floor: FLOOR });
