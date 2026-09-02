@@ -62,3 +62,16 @@ The Fold is the reference compatibility application: it currently consumes EORea
 ## Ratchet
 
 A compatibility subsystem may be retired only when its native replacement passes behavioral/conformance tests. `native/conformance/native-boundary.test.mjs` additionally forbids the native kernel from importing legacy implementation paths, and locks the current nine-operator semantics.
+
+## The boundary with the-fold (2026-09-02)
+
+eoreader7 owns kernel, adapters, organs, and evals; the-fold owns the
+surface. `native/organs/index.js` is the one seam the-fold imports through
+(explicit names, `REFUSALS` aliased per organ); `native/organs/` holds the
+organs with their the-fold history (git filter-repo); `native/eval/the-fold/`
+the drivers, fixtures and results; `native/docs/` the theory. Still in
+the-fold, deferred with the reason in the seam's header: `hypergraph.js`
+(its closure reaches the surface through grounding.js → source.js/web.js),
+`testimony.js`, `capacity-runner.js`. This repo's `CLAUDE.md` is a symlink
+into the frozen 6.1 submodule and is not where this repo's own rules go —
+this file is.

@@ -1,0 +1,188 @@
+[
+  {
+    "claim": "Napoleon crossed the Niemen in June 1812",
+    "tokens": [
+      "niemen",
+      "june"
+    ],
+    "urls": [
+      "https://www.britannica.com/event/French-invasion-of-Russia",
+      "https://www.worldhistory.org/Napoleon's_Invasion_of_Russia/",
+      "http://1812now.blogspot.com/2012/06/june-24-1812napoleon-crosses-niemen.html"
+    ],
+    "fold": {
+      "verdict": "web-corroborated",
+      "claim": "Napoleon crossed the Niemen in June 1812",
+      "query": "\"Napoleon crossed the Niemen in June 1812\" invasion campaign delayed finish winter point late",
+      "consulted": 2,
+      "read": [
+        {
+          "url": "https://www.worldhistory.org/Napoleon's_Invasion_of_Russia/",
+          "host": "worldhistory.org",
+          "textPath": null,
+          "stated": true
+        },
+        {
+          "url": "http://1812now.blogspot.com/2012/06/june-24-1812napoleon-crosses-niemen.html",
+          "host": "1812now.blogspot.com",
+          "textPath": null,
+          "stated": true
+        }
+      ],
+      "failed": 1,
+      "stating": [
+        {
+          "url": "https://www.worldhistory.org/Napoleon's_Invasion_of_Russia/",
+          "host": "worldhistory.org",
+          "title": "Napoleon's Invasion of Russia - World History Encyclopedia",
+          "textPath": null,
+          "context": {
+            "shared": 6,
+            "of": 9
+          }
+        },
+        {
+          "url": "http://1812now.blogspot.com/2012/06/june-24-1812napoleon-crosses-niemen.html",
+          "host": "1812now.blogspot.com",
+          "title": "1812now: June 24 1812:Napoleon Crosses the Niemen",
+          "textPath": null,
+          "context": {
+            "shared": 3,
+            "of": 9
+          }
+        }
+      ],
+      "independence": {
+        "hosts": 2,
+        "basis": "distinct hosts; syndication between hosts is not tested and two hosts may carry one upstream story"
+      },
+      "sentence": "the statement “Napoleon crossed the Niemen in June 1812” appears on 2 of the 2 page(s) read (2 different site(s)); 1 page(s) couldn't be fetched, counted separately"
+    }
+  },
+  {
+    "claim": "the Battle of Borodino was fought in September 1812",
+    "tokens": [
+      "borodino",
+      "september"
+    ],
+    "urls": [
+      "https://www.britannica.com/event/Battle-of-Borodino",
+      "https://www.historyofwar.org/articles/battles_borodino.html",
+      "https://www.worldhistory.org/article/2274/battle-of-borodino/"
+    ],
+    "fold": {
+      "verdict": "web-corroborated",
+      "claim": "the Battle of Borodino was fought in September 1812",
+      "query": "\"the Battle of Borodino was fought in September 1812\" Barclay Kutuzov refused give him",
+      "consulted": 2,
+      "read": [
+        {
+          "url": "https://www.historyofwar.org/articles/battles_borodino.html",
+          "host": "historyofwar.org",
+          "textPath": null,
+          "stated": true
+        },
+        {
+          "url": "https://www.worldhistory.org/article/2274/battle-of-borodino/",
+          "host": "worldhistory.org",
+          "textPath": null,
+          "stated": true
+        }
+      ],
+      "failed": 1,
+      "stating": [
+        {
+          "url": "https://www.historyofwar.org/articles/battles_borodino.html",
+          "host": "historyofwar.org",
+          "title": "Battle of Borodino, 7 September 1812",
+          "textPath": null,
+          "context": {
+            "shared": 7,
+            "of": 7
+          }
+        },
+        {
+          "url": "https://www.worldhistory.org/article/2274/battle-of-borodino/",
+          "host": "worldhistory.org",
+          "title": "Battle of Borodino - World History Encyclopedia",
+          "textPath": null,
+          "context": {
+            "shared": 7,
+            "of": 7
+          }
+        }
+      ],
+      "independence": {
+        "hosts": 2,
+        "basis": "distinct hosts; syndication between hosts is not tested and two hosts may carry one upstream story"
+      },
+      "sentence": "the statement “the Battle of Borodino was fought in September 1812” appears on 2 of the 2 page(s) read (2 different site(s)); 1 page(s) couldn't be fetched, counted separately"
+    }
+  },
+  {
+    "claim": "Kutuzov decided at a council at Fili to abandon Moscow without a fight",
+    "tokens": [
+      "kutuzov",
+      "fili"
+    ],
+    "urls": [
+      "https://en.wikipedia.org/wiki/Council_at_Fili",
+      "https://thehistoriansmagazine.com/blogs/early-modern/the-decision-to-cede-moscow-to-napoleon",
+      "https://www.prlib.ru/en/history/619536"
+    ],
+    "fold": {
+      "verdict": "web-corroborated",
+      "claim": "Kutuzov decided at a council at Fili to abandon Moscow without a fight",
+      "query": "\"Kutuzov decided at a council at Fili to abandon Moscow without a fight\" interests abandoned defending accepted Borodino Russian battle",
+      "consulted": 3,
+      "read": [
+        {
+          "url": "https://en.wikipedia.org/wiki/Council_at_Fili",
+          "host": "en.wikipedia.org",
+          "textPath": null,
+          "stated": true
+        },
+        {
+          "url": "https://thehistoriansmagazine.com/blogs/early-modern/the-decision-to-cede-moscow-to-napoleon",
+          "host": "thehistoriansmagazine.com",
+          "textPath": null,
+          "stated": true
+        },
+        {
+          "url": "https://www.prlib.ru/en/history/619536",
+          "host": "prlib.ru",
+          "textPath": null,
+          "stated": false
+        }
+      ],
+      "failed": 0,
+      "stating": [
+        {
+          "url": "https://en.wikipedia.org/wiki/Council_at_Fili",
+          "host": "en.wikipedia.org",
+          "title": "Council at Fili - Wikipedia",
+          "textPath": null,
+          "context": {
+            "shared": 7,
+            "of": 13
+          }
+        },
+        {
+          "url": "https://thehistoriansmagazine.com/blogs/early-modern/the-decision-to-cede-moscow-to-napoleon",
+          "host": "thehistoriansmagazine.com",
+          "title": "The Decision to Cede Moscow to Napoleon – The Historians Magazine",
+          "textPath": null,
+          "context": {
+            "shared": 9,
+            "of": 13
+          }
+        }
+      ],
+      "independence": {
+        "hosts": 2,
+        "basis": "distinct hosts; syndication between hosts is not tested and two hosts may carry one upstream story"
+      },
+      "sentence": "the statement “Kutuzov decided at a council at Fili to abandon Moscow without a fight” appears on 2 of the 3 page(s) read (2 different site(s))"
+    }
+  }
+]

@@ -1,0 +1,252 @@
+{
+  "args": {
+    "model": "gemma2:2b",
+    "limit": null,
+    "out": "eval/results/witness-batch-eval.json",
+    "selfTest": false
+  },
+  "results": [
+    {
+      "id": "1960-world-series",
+      "outcome": "refused:no-testimony",
+      "host": "en.wikipedia.org",
+      "swap": {
+        "from": "The New York Yankees",
+        "to": "Major League Baseball"
+      },
+      "ms": 12478
+    },
+    {
+      "id": "1969-world-series",
+      "outcome": "refused:no-testimony",
+      "host": "en.wikipedia.org",
+      "swap": {
+        "from": "The Baltimore Orioles",
+        "to": "Major League Baseball"
+      },
+      "ms": 8797
+    },
+    {
+      "id": "2004-world-series",
+      "outcome": "refused:no-testimony",
+      "host": "en.wikipedia.org",
+      "swap": {
+        "from": "The New York Yankees",
+        "to": "Detroit Tigers"
+      },
+      "ms": 9680
+    },
+    {
+      "id": "super-bowl-1",
+      "outcome": "refused:no-testimony",
+      "host": "en.wikipedia.org",
+      "swap": {
+        "from": "The Kansas City Chiefs",
+        "to": "Total Retrieved November"
+      },
+      "ms": 6310
+    },
+    {
+      "id": "super-bowl-3",
+      "outcome": "refused:no-testimony",
+      "host": "en.wikipedia.org",
+      "swap": {
+        "from": "The Baltimore Colts",
+        "to": "Super Bowl XLIV"
+      },
+      "ms": 13261
+    },
+    {
+      "id": "1980-us-election",
+      "outcome": "refused:no-testimony",
+      "host": "en.wikipedia.org",
+      "swap": {
+        "from": "United States",
+        "to": "Other\nUndecided\nMargin"
+      },
+      "ms": 6585
+    },
+    {
+      "id": "2000-us-election",
+      "outcome": "refused:no-testimony",
+      "host": "en.wikipedia.org",
+      "swap": {
+        "from": "United States",
+        "to": "New Hampshire"
+      },
+      "ms": 7487
+    },
+    {
+      "id": "2004-us-election",
+      "outcome": "refused:no-testimony",
+      "host": "en.wikipedia.org",
+      "swap": {
+        "from": "United States",
+        "to": "Congress United States Election"
+      },
+      "ms": 7226
+    },
+    {
+      "id": "2016-us-election",
+      "outcome": "refused:no-testimony",
+      "host": "en.wikipedia.org",
+      "swap": {
+        "from": "Hillary Clinton",
+        "to": "Gary Johnson"
+      },
+      "ms": 9601
+    },
+    {
+      "id": "1966-world-cup",
+      "outcome": "refused:no-testimony",
+      "host": "en.wikipedia.org",
+      "swap": {
+        "from": "FIFA World Cup",
+        "to": "German Olympic Sports Confederation"
+      },
+      "ms": 7444
+    },
+    {
+      "id": "1998-world-cup",
+      "outcome": "refused:no-testimony",
+      "host": "en.wikipedia.org",
+      "swap": null,
+      "ms": 3138
+    },
+    {
+      "id": "2014-world-cup",
+      "outcome": "refused:no-testimony",
+      "host": "en.wikipedia.org",
+      "swap": {
+        "from": "FIFA World Cup",
+        "to": "Summer Olympics"
+      },
+      "ms": 6070
+    },
+    {
+      "id": "1986-world-cup",
+      "outcome": "refused:no-testimony",
+      "host": "en.wikipedia.org",
+      "swap": {
+        "from": "FIFA World Cup",
+        "to": "World Cup-winning"
+      },
+      "ms": 7106
+    },
+    {
+      "id": "romeo-and-juliet",
+      "outcome": "refused:no-testimony",
+      "host": "en.wikipedia.org",
+      "swap": {
+        "from": "Christopher Marlowe",
+        "to": "Juliet's Nurse"
+      },
+      "ms": 6939
+    },
+    {
+      "id": "pride-and-prejudice",
+      "outcome": "refused:no-testimony",
+      "host": "en.wikipedia.org",
+      "swap": null,
+      "ms": 3883
+    },
+    {
+      "id": "penicillin",
+      "outcome": "correct",
+      "verdict": "contradicts",
+      "because": "[ 5 ] Penicillin was discovered in 1928 by the Scottish physician Alexander Fleming as a crude extract of P. rubens .",
+      "host": "en.wikipedia.org",
+      "armed": true,
+      "ms": 7961
+    },
+    {
+      "id": "mona-lisa",
+      "outcome": "refused:no-testimony",
+      "host": "en.wikipedia.org",
+      "swap": {
+        "from": "Mona Lisa",
+        "to": "Giorgio Vasari"
+      },
+      "ms": 7234
+    },
+    {
+      "id": "moon-landing",
+      "outcome": "refused:no-testimony",
+      "host": "en.wikipedia.org",
+      "swap": {
+        "from": "Buzz Aldrin",
+        "to": "The Soviet Union"
+      },
+      "ms": 12756
+    },
+    {
+      "id": "microsoft-founder",
+      "outcome": "correct",
+      "verdict": "contradicts",
+      "because": "Founded in 1975 by Bill Gates and Paul Allen to market BASIC interpreters for the Altair 8800 , Microsoft rose to dominate the PC operating system market with MS-DOS in the mid-1980s, followed by Windows.",
+      "host": "en.wikipedia.org",
+      "armed": true,
+      "ms": 5876
+    },
+    {
+      "id": "apple-founder",
+      "outcome": "refused:no-testimony",
+      "host": "en.wikipedia.org",
+      "swap": {
+        "from": "Bill Gates",
+        "to": "From Wikipedia"
+      },
+      "ms": 5212
+    },
+    {
+      "id": "nobel-peace-2009",
+      "outcome": "refused:no-testimony",
+      "host": "en.wikipedia.org",
+      "swap": {
+        "from": "Nobel Peace Prize",
+        "to": "The Norwegian Nobel Committee"
+      },
+      "ms": 8930
+    },
+    {
+      "id": "declaration-author",
+      "outcome": "refused:no-testimony",
+      "host": "en.wikipedia.org",
+      "swap": {
+        "from": "Benjamin Franklin",
+        "to": "Jean Leon Gerome Ferris"
+      },
+      "ms": 9079
+    },
+    {
+      "id": "first-president",
+      "outcome": "refused:no-testimony",
+      "host": "en.wikipedia.org",
+      "swap": {
+        "from": "United States",
+        "to": "Vice President John Adams\nPreceded"
+      },
+      "ms": 9997
+    },
+    {
+      "id": "beethoven-ninth",
+      "outcome": "refused:no-testimony",
+      "host": "en.wikipedia.org",
+      "swap": {
+        "from": "Wolfgang Amadeus Mozart",
+        "to": "From Wikipedia"
+      },
+      "ms": 7130
+    },
+    {
+      "id": "lincoln-vp",
+      "outcome": "refused:no-testimony",
+      "host": "en.wikipedia.org",
+      "swap": {
+        "from": "John C. Breckinridge",
+        "to": "Republican National Convention"
+      },
+      "ms": 9612
+    }
+  ]
+}

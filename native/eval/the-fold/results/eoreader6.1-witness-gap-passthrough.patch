@@ -1,0 +1,91 @@
+From c164686f18b9fbae898a469b4e511e8acd96c64c Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Tue, 25 Aug 2026 19:07:00 +0000
+Subject: [PATCH] =?UTF-8?q?witness=20passes=20an=20upstream=20gap=20from?=
+ =?UTF-8?q?=20pattern=20through=20=E2=80=94=20never=20relabeled=20made=5Fn?=
+ =?UTF-8?q?o=5Fdifference?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+pattern()'s typed refusals (unknown_spec, incommensurate_extent,
+unreceived_origin, ...) carry no boolean `moved`, so witness's guard
+swallowed them all as "pattern not established", destroying type and
+detail. made_no_difference is a substantive verdict ("perceived, and
+therefore not testimony"); a methodological refusal must never wear it.
+witness already passed its other upstream gaps through verbatim
+(admissible via `return bad`; isGap(figure) one line up) — pattern was
+the sole asymmetry.
+
+Drafted by a 1.5B local model (qwen2.5-coder-1.5b-instruct) through
+the-fold's referent-scout/byte-derived-delta pipeline on its second
+attempt, repaired by measured evidence alone; verified by four mechanical
+witness tiers (syntax, 19-probe differential no-throw, a declared intent
+probe, this suite baseline-compared) and three independent adversarial
+review lenses including a 650-combination differential against this
+module. Pinned in confabulation.test.js with a real pattern() gap.
+Suite: 1188/1175 pass, same 10 pre-existing environment failures, zero
+regressions.
+
+Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_014oWQJ8vU2ZJdiC5B24mpSK
+---
+ conformance/confabulation.test.js | 22 ++++++++++++++++++++++
+ nul/index.js                      |  8 +++++++-
+ 2 files changed, 29 insertions(+), 1 deletion(-)
+
+diff --git a/conformance/confabulation.test.js b/conformance/confabulation.test.js
+index 201daae..26f4099 100644
+--- a/conformance/confabulation.test.js
++++ b/conformance/confabulation.test.js
+@@ -67,6 +67,28 @@ test("a difference that made one is", () => {
+   assert.equal(record.pattern.moved, true);
+ });
+ 
++test("an upstream gap from pattern passes through witness with its own type — never relabeled made_no_difference", () => {
++  // The relabel was real: pattern()'s typed refusals (unknown_spec here — a
++  // real one, produced by the same incomparable-specs construction the test
++  // above already uses) carry no boolean `moved`, so witness's guard
++  // swallowed them as "pattern not established", destroying type and detail.
++  // made_no_difference means "perceived, and therefore not testimony" — a
++  // substantive verdict — while the swallowed gap is a methodological
++  // refusal; the two must never share a label. witness already passed its
++  // OTHER upstream gaps through verbatim (admissible via `return bad`,
++  // isGap(figure) one line up); pattern was the sole asymmetry.
++  const a = ground({ material: quiet, draws: D, window: W });
++  const b = ground({ material: [...quiet, 9, 9, 9, 9, 9], draws: D, window: W + 1 });
++  const upstream = pattern({ before: a, after: b, material: quiet, reseeds: 16 });
++  assert.equal(upstream.gap, "unknown_spec");
++  const out = witness({ ground: keep(g0()), figure: difference(observed, g0()), pattern: upstream });
++  assert.equal(out.gap, "unknown_spec", "the real upstream gap comes through as itself");
++  assert.ok(Object.is(out, upstream), "the very object, detail intact — never a relabel");
++  // And a merely-missing pattern still gets its own honest verdict.
++  const missing = witness({ ground: keep(g0()), figure: difference(observed, g0()) });
++  assert.equal(missing.gap, "made_no_difference");
++});
++
+ test("gaps are returned, never thrown — absence is the normal case", () => {
+   assert.doesNotThrow(() => ground({ material: [], draws: D, window: W }));
+   assert.doesNotThrow(() => ground({ material: quiet, draws: D, window: W, perturbation: "nope" }));
+diff --git a/nul/index.js b/nul/index.js
+index ea028ca..6bb9d24 100644
+--- a/nul/index.js
++++ b/nul/index.js
+@@ -1300,7 +1300,13 @@ export const witness = ({ ground: g, figure, pattern: p }) => {
+   if (!g.kept) return gap("no_ground", { reason: "testimony from a ground that was never kept" });
+   if (isGap(figure)) return figure;
+   if (!figure || !Number.isFinite(figure.observed)) return gap("no_ground", { reason: "no figure" });
+-  if (!p || typeof p.moved !== "boolean") return gap("made_no_difference", { reason: "pattern not established" });
++  if (!p || typeof p.moved !== "boolean") {
++    if (isGap(p)) {
++      return p;
++    } else {
++      return gap("made_no_difference", { reason: "pattern not established" });
++    }
++  }
+   if (!p.moved) return gap("made_no_difference", { displacement: p.displacement, reseedNull: p.reseedNull });
+   return Object.freeze({ ground: g, figure, pattern: p });
+ };
+-- 
+2.43.0
+

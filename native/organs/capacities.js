@@ -1,0 +1,325 @@
+// capacities.js — the seed of the capacity library named in
+// SEED-CREATION-LANGUAGE.md ("the prior set, taken seriously") and specced
+// in full in the Terminal Language document (§7): a small, typed, human-
+// legible registry of shapes the terminal already knows how to reach for,
+// so `synthesize`'s parts and `distinguish`'s targets can be checked against
+// something real instead of trusted on the model's word.
+//
+// THIS IS A DATA TABLE, NOT A RUNTIME. Per the SEED doc's own build order
+// ("The schema is a weekend. The library seed is a week"), this pass does the
+// weekend piece (grid.js) and starts — deliberately does not finish — the
+// library seed: every entry below NAMES an organ this repo already has
+// (module, exported function, the terrain/operator cell it occupies) so a
+// capacity reference can be resolved and typed. ONE entry (`cast`) is
+// actually executed from the terminal — capacity-runner.js, kept in its
+// own file so this one stays a plain table — spinning up the real
+// engine organ against real loaded material from an `act` line; the other
+// nine remain reference-only, and asking to run one returns a typed
+// `not_yet_executable` gap rather than a silent no-op or a fabricated
+// result. Wiring the rest is named future work in CLAUDE.md, not implied
+// here.
+//
+// Every entry has to name its giver — the module it actually lives in — so
+// a capacity reference resolves to a real place in this codebase, never a
+// promise. `terrain` and `op` are taken from this repo's own operators.js
+// cells (packages/engine/operators.js, ../eoreader6.1), the same source
+// grid.js reuses, so a capacity's typing can never drift from the algebra's.
+//
+// A domain is fixed by the OPERATOR LETTER alone (never by grain or by
+// choice — operators.js's OP_DOMAIN), so `terrain` here is not a free
+// label: it is `TERRAIN_BY_DOMAIN[domainOf(op)][grain]`, checked against
+// the real module by hand for every row below. Two entries were caught
+// wrong by that check while this table was being written and are worth
+// naming rather than quietly fixing: `skill` first read op:"SYN", which is
+// Structure-domain and can only ever land on Field/Link/Network — never
+// Kind, no matter what grain is chosen — CLAUDE.md's own looser prose
+// ("skills.js as Kind/Paradigm") is a description of where skills.js
+// SITS, not a licence to pick any operator that gets there; INS (Existence
+// domain) at Pattern grain is what actually lands on Kind, and it fits the
+// act better besides (instantiating a known procedure onto new material).
+// `build` first read terrain:"Field" with op:"INS" — also domain-illegal
+// (INS is Existence-domain, Field is Structure-domain) — and build-log.js's
+// own header already states the correct cell in so many words: "PROPOSE →
+// INS · Figure · produced — BIRTH", i.e. Entity, not Field.
+
+export const CAPACITIES = Object.freeze([
+  Object.freeze({
+    id: "cast",
+    terrain: "Entity",
+    op: "SIG+INS",
+    module: "cast.js",
+    fn: "makeReferentIndex",
+    what: "referent identity over a passage set — names resolve to who, not to byte strings (P11). One of two capacities that actually execute from the terminal (capacity-runner.js) — `relations` is the other; the remaining eight are reference-only.",
+  }),
+  Object.freeze({
+    id: "relations",
+    terrain: "Link",
+    op: "CON",
+    module: "hypergraph.js",
+    fn: "makeRelationReader",
+    what: "the material's own subject-verb-object edges, read against a vocabulary measured from the text. Executes from the terminal as of 2026-08-19 (capacity-runner.js) — `query subject:X verb:Y` (leave exactly one of subject/object open) answers directly from the graph, referent-aware, not a surface-string guess.",
+  }),
+  Object.freeze({
+    id: "graph",
+    terrain: "Network",
+    op: "SYN",
+    module: "relations-chain.js",
+    fn: "chainRelations",
+    what: "relations linked to document-order neighbours and referent-siblings — relations only make sense linked",
+  }),
+  Object.freeze({
+    id: "atmosphere",
+    terrain: "Atmosphere",
+    op: "EVA",
+    module: "aperture.js",
+    fn: "meterSnapshot",
+    what: "the reader's own accumulated ground — a second tier-stack meter, Ground+Figure for S1, run at hop = window",
+  }),
+  Object.freeze({
+    id: "measure",
+    terrain: "Void",
+    op: "NUL",
+    module: "measure.js",
+    fn: "runMeasurement",
+    what: "a declared statistic tested against a Born-constructed null — the measuring door's own licensing gate (P19); the engine behind a `ground … broken:<perturbation>` act",
+  }),
+  Object.freeze({
+    id: "field",
+    terrain: "Field",
+    op: "CON",
+    module: "fold.js",
+    fn: "advanceSummaryFold",
+    what: "maintaining the connective ground of a conversation — the running summary (System 1's field) carried forward turn by turn, projected under declared windows (projectFolds/projectRecords, RECORDS_IN_PROMPT, MAX_FOLDS_IN_PROMPT) rather than truncated in store (P45: the record is unbounded, only the projection is bounded). Typing: Relate·Structure at Ground grain — CON·Field, Tending. The plan's own gate ('a cleaner boundary than a nomination can draw between maintain-the-ground and judge-the-ground') is met by the two organs' own signatures: advanceSummaryFold MAINTAINS (append the fold line, count the turn, never decide); the aperture gate (EVA·Ground, `atmosphere`) DECIDES whether the ground moved. Registered 2026-09-02 on the user's direction not to block development on the fold-architecture boundary; app.js's refreshSummary is the caller that composes the two, and it stays in app.js.",
+  }),
+  Object.freeze({
+    id: "preflight",
+    terrain: "Void",
+    op: "INS",
+    module: "proof.js",
+    fn: "preflightQuery",
+    what: "generating ground where none exists — a materialless grounded turn gets ONE search declared BEFORE the model drafts (P23), so the checking ladder has real bytes to stand on instead of the draft's own words; shouldPreflight is the gate (checking mode on, standing web consent on, nothing attached), preflightQuery is the act's declaration (joined with discourse only on an anaphoric or content-free task, P23's 2026-08-19 amendment). Typing: Generate·Existence at Ground grain — INS·Void, Cultivating. The crossing itself (gatherPreflightMaterial, app.js) stays where P13's one sanctioned egress lives; what this row registers is the pure declaration of the act, which is what a capacity IS in this table. Registered 2026-09-02 on the same direction as `field`.",
+  }),
+  Object.freeze({
+    id: "frame",
+    terrain: "Atmosphere",
+    op: "DEF",
+    module: "frame.js",
+    fn: "declareFrame",
+    what: "the interpretive ground of a judgment, declared before the judgment runs — a declaration gate with typed refusals (undeclared_frame naming every missing piece), content-addressed frame ids stamped onto verdicts, and the cross_frame wall: verdicts from different declared grounds never compare silently (the live specimen: one suite reading 54/58 under one engine provider and 52/58 under the other, invisible until the frame was declared). Typing: Differentiate·Interpretation at Ground grain — DEF·Atmosphere, Clearing. BUILT FROM ITS DEPTH-SIBLINGS by pre-registered derivation (def-ground-derivation.md, committed before the module) — NUL·Ground's declared-numbers gate and SEG·Ground's extent-and-units, transposed to the calculus column; the sibling-derived design passed its own e2e (both real providers as two frames over one material) UNMODIFIED, which is §VIII.2's first earned point.",
+  }),
+  Object.freeze({
+    id: "priors",
+    terrain: "Lens",
+    op: "DEF",
+    module: "priors.js",
+    fn: "checkPrior",
+    what: "one claim checked against live_priors, provenance-carrying, zero-egress — DEF at Figure grain (a specific claim's status), the same cell emergence/shabda occupies for who-is-speaking",
+  }),
+  Object.freeze({
+    id: "web",
+    terrain: "Lens",
+    op: "EVA",
+    module: "web.js",
+    fn: "extractReadable",
+    what: "one sanctioned egress (P13): a claim's own words searched, a page read, judged by the same containment fold",
+  }),
+  Object.freeze({
+    id: "skill",
+    terrain: "Kind",
+    op: "INS",
+    module: "skills.js",
+    fn: "runSkilledTask",
+    what: "a procedure kept as code, instantiated onto new material — zero model calls when a skill claims the task, one grammar-held call to slot-fill",
+  }),
+  Object.freeze({
+    id: "build",
+    terrain: "Entity",
+    op: "INS",
+    module: "build-log.js",
+    fn: "makeBuildLog",
+    what: "an artifact's birth as an append-only log — PROPOSE/SUPERSEDE/RESULT, folded to a projection at any cursor",
+  }),
+  Object.freeze({
+    id: "witness",
+    terrain: "Lens",
+    op: "EVA",
+    module: "witness.js",
+    fn: "witnessCode",
+    what: "does one landing actually compile — the structural half of the parliament build-log.js gates every patch through",
+  }),
+
+  // ── the connection pass (2026-08-29, P64) ─────────────────────────────
+  //
+  // eval/capability-coverage.mjs measured this registry at 9/27 cells and
+  // found the gap was largely REGISTRY DEBT, not incapacity: real, tested,
+  // running organs whose cells were documented in their own code or headers
+  // and never registered. The rows below pay that debt. Discipline per row:
+  // the module and fn are verified exports; the cell is DOCUMENTED where a
+  // source states it (cited in `what`) and REASONED like this table's own
+  // original rows where not (the hand-check the header above describes),
+  // mechanically domain-legal either way (operatorOf(op).domain →
+  // TERRAIN_BY_DOMAIN[domain][grain] — the same arithmetic that caught
+  // `skill` and `build` mistyped when this table was first written).
+
+  Object.freeze({
+    id: "network",
+    terrain: "Network",
+    op: "CON",
+    module: "network.js",
+    fn: "makeNetworkBinder",
+    what: "a recurring arrangement found and bound — the CON·Pattern cell P58 built this organ to occupy after its emptiness was CONFIRMED (the zero-edges list page, predicted before moves.js was written); registering it closes the loop that finding opened",
+  }),
+  Object.freeze({
+    id: "patch",
+    terrain: "Link",
+    op: "SEG",
+    module: "build-log.js",
+    fn: "applyOps",
+    what: "the delta carriage's cut primitive — {op:'SEG', find} snips one span out of one artifact (its own header's 'SEG · snip' row); the same cell identity.js:182 (eoreader7) emits verbatim on a real revision",
+  }),
+  Object.freeze({
+    id: "extent",
+    terrain: "Field",
+    op: "SEG",
+    module: "void-shape.js",
+    fn: "spaceFrom",
+    what: "the extent a question's space must cover, and its units, made operative — the module's own ['SEG','Ground','extent',...] row; the wall placeFiller refuses out-of-extent spans against (P53)",
+  }),
+  Object.freeze({
+    id: "rezero",
+    terrain: "Lens",
+    op: "REC",
+    module: "build-log.js",
+    fn: "makeBuildLog",
+    what: "rezeroBuild — a judged projection's ground conceded, the next born (its own header: EVIDENCE · REC · Figure · produced); grid.js::concedeEvaluation is the same act for checked claims (P36 mirrors it exactly)",
+  }),
+  Object.freeze({
+    id: "reshape",
+    terrain: "Paradigm",
+    op: "REC",
+    module: "void-loop.js",
+    fn: "reshape",
+    what: "a finding contradicting the declared space re-zeros the space itself — P53's own read-off cell (REC = Generate·Pattern at Paradigm); the kernel's declarations.js::concede and reaction.js::withdraw are its engine-side siblings (both grain: Pattern in their own code)",
+  }),
+  Object.freeze({
+    id: "hear",
+    terrain: "Link",
+    op: "SYN",
+    module: "hyperlexicon.js",
+    fn: "makeHyperlexicon",
+    what: "a re-sighting folds into the same note with witnesses and spans unioned — hear()'s own code types it SUPERSEDE · SYN · Figure (P57); store.js::updateRow carries the identical typing for the database fold",
+  }),
+  Object.freeze({
+    id: "declare",
+    terrain: "Paradigm",
+    op: "DEF",
+    module: "hl-acquire.js",
+    fn: "acquireCandidates",
+    what: "candidate functional/transitive declarations acquired from real material, REFUTED/CANDIDATE tiers, never GIVEN — the entries it feeds carry operator DEF, grain Pattern in declarations.js's own code (P37)",
+  }),
+  Object.freeze({
+    id: "standing",
+    terrain: "Paradigm",
+    op: "EVA",
+    module: "capacity-runner.js",
+    fn: "mergeTestimony",
+    what: "a claim's standing across witnesses — corroborated, single, disagree — a property of the SET no member carries (P39); the organ P44's order-13 metasystematic item runs, which is what evaluating at Paradigm is",
+  }),
+  Object.freeze({
+    id: "compile",
+    terrain: "Field",
+    op: "SYN",
+    module: "predigest.js",
+    fn: "compilePriors",
+    what: "sedimented readings merged into one carried experiential ground (P60) — composing the standing field later reading stands on; typing reasoned per this table's own hand-check discipline, not quoted from a source",
+  }),
+  // ── the development pass (2026-08-29, second pass — P65) ─────────────
+  //
+  // CAPACITY-DEVELOPMENT-PLAN.md's Tier 1 plus the one no-candidate
+  // frontier cell, built and registered together. One premise of that plan
+  // was WRONG and is corrected in the plan itself: the kinds pair was
+  // "gated on the legacy-engine path" — but eoreader7's native kernel
+  // already carries full ports (kind-induction.js / entity-kind-induction.js,
+  // the latter with a built-in random-subset null arm), so the gate had
+  // already dissolved when the plan was written. Two of these five rows
+  // name eoreader7 NATIVE modules — the first registry rows to do so; the
+  // `module` column stays what it has always been, a resolvable pointer
+  // (data), and running them from the terminal still returns
+  // `not_yet_executable` from capacity-runner.js until wired.
+
+  Object.freeze({
+    id: "clear",
+    terrain: "Entity",
+    op: "NUL",
+    module: "clearance.js",
+    fn: "makeClearance",
+    what: "does this figure clear its ground — P22's own named next integration, built: presence re-gated by establishment (P38's distinction, mechanized), the material's own derived recurrence floor, ambiguity withheld with candidates, and a pronoun rung that runs only under declared numbers (typed skip otherwise — P41). Cell stamped in the organ's own CELL export (NUL·Figure).",
+  }),
+  Object.freeze({
+    id: "unravel",
+    terrain: "Network",
+    op: "SEG",
+    module: "unravel.js",
+    fn: "unravel",
+    what: "cutting a pattern apart at its own seams — parameter-free separation at the network's bridges, parts each still readable, cut edges addressed by the caller's own indices; a 2-edge-connected network is a typed no_seam refusal, never a cut bought with an invented threshold. The plan's one no-candidate frontier cell, built. Cell stamped in the organ's own CELL export (SEG·Pattern).",
+  }),
+  Object.freeze({
+    id: "settle",
+    terrain: "Void",
+    op: "SIG",
+    module: "void-loop.js",
+    fn: "whatWouldSettle",
+    what: "naming what is absent as the questions that would settle it (P53's second amendment: a gap the loop can name is a question it can ask), ordered by what settles fastest; holon.js::searchedVoid signs the same kind of absence for a search that ran and found nothing (P32). Typing reasoned per this table's own hand-check discipline: Relate·Existence at Ground grain — SIG·Void.",
+  }),
+  Object.freeze({
+    id: "kinds",
+    terrain: "Kind",
+    op: "SIG",
+    module: "eoreader7/native/kernel/kind-induction.js",
+    fn: "projectKinds",
+    what: "recurring kind candidates signed PROVISIONALLY from a population's own interaction field, each basin carrying its own random-subset binding-energy null — the native port of the kinds discipline Explore's view already holds (null arm, refused-as-underpowered). Typing reasoned: signing a recurring kind is Relate·Existence at Pattern grain — SIG·Kind.",
+  }),
+  Object.freeze({
+    id: "kindnull",
+    terrain: "Kind",
+    op: "NUL",
+    module: "eoreader7/native/kernel/entity-kind-induction.js",
+    fn: "testKindMembers",
+    what: "a DECLARED kind membership challenged against the same random-subset binding-energy null the inducer runs on its own basins — structural refusals (unknown_members / under_powered / no_boundary), never tuned floors. Cell documented in the function's own docstring (NUL·Pattern — Differentiate·Existence at Pattern grain).",
+  }),
+
+  Object.freeze({
+    id: "regime",
+    terrain: "Atmosphere",
+    op: "REC",
+    module: "source.js",
+    fn: "atmosphereBoundaries",
+    what: "the ambient reading regime's tolerance-triggered re-zero — operators.js's own REC line ('rezero — a new ambient ground begins'), the one place REC fires as a literal numeric event (loops/atmosphere.js, consumed here); the terrain is the organ's own name",
+  }),
+]);
+
+const byId = new Map(CAPACITIES.map((c) => [c.id, c]));
+
+/** Exact-id lookup — the whole resolution rule for this pass. Fuzzy/partial
+ * matching (a model's paraphrase of a capacity's name) is named future work
+ * in CLAUDE.md, not attempted here: a silent nearest-match is exactly the
+ * kind of guess this registry exists to refuse instead of make. */
+export function findCapacity(id) {
+  return byId.get(String(id ?? "").trim().toLowerCase()) ?? null;
+}
+
+/** The refusal shape SEED-CREATION-LANGUAGE.md itself specifies verbatim
+ * ("unresolved capacity: your event references `X`, which the library does
+ * not contain..."), typed rather than a bare string so a caller can render
+ * or test it without re-parsing prose. */
+export function unresolvedCapacity(name) {
+  return Object.freeze({
+    gap: "unresolved_capacity",
+    name,
+    detail: `unresolved capacity: this event references "${name}", which the library does not contain. Options: reference an established capacity (\`capacities\` lists them), propose one as a trial, or elaborate the shape you mean.`,
+  });
+}
+
+export function listCapacities() {
+  return CAPACITIES;
+}

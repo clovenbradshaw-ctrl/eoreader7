@@ -1,0 +1,866 @@
+{
+ "schema": "EOMechanicalReasoning@1",
+ "declared": {
+  "chemGiver": "wikidata:P1365/P1366 immediate-succession semantics; per-office transitive closure declared by eval/mechanical-reasoning.mjs (cross-office composition is unsound — see this driver's header)",
+  "physics": {
+   "window": 8,
+   "floor": 0.05,
+   "cue": [
+    "q273546 (Hannibal Hamlin)"
+   ]
+  },
+  "maxSteps": 12
+ },
+ "material": {
+  "fixtures": [
+   "Q11699.json",
+   "Q273546.json",
+   "Q8612.json"
+  ],
+  "entities": [
+   {
+    "qid": "Q11699",
+    "label": "Vice President of the United States",
+    "positions": 0
+   },
+   {
+    "qid": "Q273546",
+    "label": "Hannibal Hamlin",
+    "positions": 21
+   },
+   {
+    "qid": "Q8612",
+    "label": "Andrew Johnson",
+    "positions": 11
+   }
+  ],
+  "offered": 26,
+  "unaddressed": 0
+ },
+ "admission": {
+  "heard": 26,
+  "turnedAway": [],
+  "notes": 25,
+  "corroborated": [
+   {
+    "assertion": "Andrew Johnson —replaces:Q11699→ Hannibal Hamlin",
+    "witnesses": [
+     "wikidata/Q273546.json",
+     "wikidata/Q8612.json"
+    ],
+    "spans": [
+     "wikidata/Q273546.json#28963-28975",
+     "wikidata/Q8612.json#26322-26336"
+    ]
+   }
+  ],
+  "projected": {
+   "edges": 25,
+   "skipped": []
+  }
+ },
+ "control": {
+  "derived": 0,
+  "withheld": [
+   {
+    "left": "replaces:Q5589724",
+    "right": "replaces:Q11699",
+    "standing": "unknown",
+    "chains": 1
+   },
+   {
+    "left": "replaces:Q11699",
+    "right": "replaces:Q11699",
+    "standing": "unknown",
+    "chains": 2
+   },
+   {
+    "left": "replaces:Q4416090",
+    "right": "replaces:Q11699",
+    "standing": "unknown",
+    "chains": 5
+   },
+   {
+    "left": "replaces:Q13218630",
+    "right": "replaces:Q11699",
+    "standing": "unknown",
+    "chains": 2
+   },
+   {
+    "left": "replaces:Q11699",
+    "right": "replaces:Q13218630",
+    "standing": "unknown",
+    "chains": 2
+   },
+   {
+    "left": "replaces:Q4416090",
+    "right": "replaces:Q13218630",
+    "standing": "unknown",
+    "chains": 5
+   },
+   {
+    "left": "replaces:Q13218630",
+    "right": "replaces:Q13218630",
+    "standing": "unknown",
+    "chains": 2
+   },
+   {
+    "left": "replaces:Q11699",
+    "right": "replaces:Q1837668",
+    "standing": "unknown",
+    "chains": 1
+   },
+   {
+    "left": "replaces:Q4416090",
+    "right": "replaces:Q1837668",
+    "standing": "unknown",
+    "chains": 3
+   },
+   {
+    "left": "replaces:Q13218630",
+    "right": "replaces:Q1837668",
+    "standing": "unknown",
+    "chains": 1
+   },
+   {
+    "left": "replaces:Q11699",
+    "right": "replaces:Q3506352",
+    "standing": "unknown",
+    "chains": 1
+   },
+   {
+    "left": "replaces:Q4416090",
+    "right": "replaces:Q3506352",
+    "standing": "unknown",
+    "chains": 3
+   },
+   {
+    "left": "replaces:Q13218630",
+    "right": "replaces:Q3506352",
+    "standing": "unknown",
+    "chains": 1
+   },
+   {
+    "left": "replaces:Q11699",
+    "right": "replaces:Q4416090",
+    "standing": "unknown",
+    "chains": 5
+   },
+   {
+    "left": "replaces:Q4416090",
+    "right": "replaces:Q4416090",
+    "standing": "unknown",
+    "chains": 11
+   },
+   {
+    "left": "replaces:Q13218630",
+    "right": "replaces:Q4416090",
+    "standing": "unknown",
+    "chains": 5
+   },
+   {
+    "left": "replaces:Q11696",
+    "right": "replaces:Q11699",
+    "standing": "unknown",
+    "chains": 1
+   },
+   {
+    "left": "replaces:Q3506352",
+    "right": "replaces:Q11699",
+    "standing": "unknown",
+    "chains": 1
+   },
+   {
+    "left": "replaces:Q3506352",
+    "right": "replaces:Q13218630",
+    "standing": "unknown",
+    "chains": 1
+   },
+   {
+    "left": "replaces:Q3506352",
+    "right": "replaces:Q1837668",
+    "standing": "unknown",
+    "chains": 1
+   },
+   {
+    "left": "replaces:Q3506352",
+    "right": "replaces:Q3506352",
+    "standing": "unknown",
+    "chains": 1
+   },
+   {
+    "left": "replaces:Q3506352",
+    "right": "replaces:Q4416090",
+    "standing": "unknown",
+    "chains": 3
+   },
+   {
+    "left": "replaces:Q1837668",
+    "right": "replaces:Q11699",
+    "standing": "unknown",
+    "chains": 1
+   },
+   {
+    "left": "replaces:Q1837668",
+    "right": "replaces:Q13218630",
+    "standing": "unknown",
+    "chains": 1
+   },
+   {
+    "left": "replaces:Q1837668",
+    "right": "replaces:Q1837668",
+    "standing": "unknown",
+    "chains": 1
+   },
+   {
+    "left": "replaces:Q1837668",
+    "right": "replaces:Q3506352",
+    "standing": "unknown",
+    "chains": 1
+   },
+   {
+    "left": "replaces:Q1837668",
+    "right": "replaces:Q4416090",
+    "standing": "unknown",
+    "chains": 3
+   },
+   {
+    "left": "replaces:Q5589724",
+    "right": "replaces:Q11696",
+    "standing": "unknown",
+    "chains": 1
+   },
+   {
+    "left": "replaces:Q11699",
+    "right": "replaces:Q11696",
+    "standing": "unknown",
+    "chains": 1
+   },
+   {
+    "left": "replaces:Q11696",
+    "right": "replaces:Q11696",
+    "standing": "unknown",
+    "chains": 1
+   },
+   {
+    "left": "replaces:Q4416090",
+    "right": "replaces:Q11696",
+    "standing": "unknown",
+    "chains": 2
+   },
+   {
+    "left": "replaces:Q5589724",
+    "right": "replaces:Q13218630",
+    "standing": "unknown",
+    "chains": 1
+   },
+   {
+    "left": "replaces:Q11696",
+    "right": "replaces:Q13218630",
+    "standing": "unknown",
+    "chains": 1
+   },
+   {
+    "left": "replaces:Q11696",
+    "right": "replaces:Q4416090",
+    "standing": "unknown",
+    "chains": 2
+   },
+   {
+    "left": "replaces:Q5589724",
+    "right": "replaces:Q4416090",
+    "standing": "unknown",
+    "chains": 1
+   },
+   {
+    "left": "replaces:Q5589724",
+    "right": "replaces:Q5589724",
+    "standing": "unknown",
+    "chains": 1
+   },
+   {
+    "left": "replaces:Q11699",
+    "right": "replaces:Q5589724",
+    "standing": "unknown",
+    "chains": 1
+   },
+   {
+    "left": "replaces:Q11696",
+    "right": "replaces:Q5589724",
+    "standing": "unknown",
+    "chains": 1
+   },
+   {
+    "left": "replaces:Q4416090",
+    "right": "replaces:Q5589724",
+    "standing": "unknown",
+    "chains": 2
+   },
+   {
+    "left": "replaces:Q13218630",
+    "right": "replaces:Q11696",
+    "standing": "unknown",
+    "chains": 1
+   },
+   {
+    "left": "replaces:Q13218630",
+    "right": "replaces:Q5589724",
+    "standing": "unknown",
+    "chains": 1
+   }
+  ],
+  "quiescent": true
+ },
+ "chemistry": {
+  "officeGate": [
+   {
+    "office": "Q11699",
+    "label": "Vice President of the United States",
+    "licensed": true,
+    "power": "sufficient",
+    "examined": 3,
+    "reasons": [],
+    "refutations": [],
+    "disclosure": "no counterexample was found in THIS material; open-world absence is not refutation and this is not a licence"
+   },
+   {
+    "office": "Q4416090",
+    "label": "Q4416090 (label unresolved — no fixture on disk)",
+    "licensed": false,
+    "power": "sufficient",
+    "examined": 10,
+    "reasons": [
+     "uniqueness",
+     "cycle"
+    ],
+    "refutations": [
+     {
+      "person": "Hannibal Hamlin",
+      "evidence": "began the office twice",
+      "partners": [
+       "Q1636152 (label unresolved — no fixture on disk)",
+       "Q474290 (label unresolved — no fixture on disk)",
+       "Q580974 (label unresolved — no fixture on disk)"
+      ]
+     },
+     {
+      "person": "Andrew Johnson",
+      "evidence": "began the office twice",
+      "partners": [
+       "Q181727 (label unresolved — no fixture on disk)",
+       "Q358277 (label unresolved — no fixture on disk)"
+      ]
+     },
+     {
+      "person": "Hannibal Hamlin",
+      "evidence": "left the office twice",
+      "partners": [
+       "Q1373107 (label unresolved — no fixture on disk)",
+       "Q474290 (label unresolved — no fixture on disk)",
+       "Q580974 (label unresolved — no fixture on disk)"
+      ]
+     },
+     {
+      "person": "Andrew Johnson",
+      "evidence": "left the office twice",
+      "partners": [
+       "Q5240252 (label unresolved — no fixture on disk)",
+       "Q925629 (label unresolved — no fixture on disk)"
+      ]
+     },
+     {
+      "evidence": "cycle",
+      "chain": [
+       "Hannibal Hamlin",
+       "Q474290 (label unresolved — no fixture on disk)",
+       "Hannibal Hamlin"
+      ]
+     },
+     {
+      "evidence": "cycle",
+      "chain": [
+       "Hannibal Hamlin",
+       "Q580974 (label unresolved — no fixture on disk)",
+       "Hannibal Hamlin"
+      ]
+     }
+    ],
+    "disclosure": "a positive counterexample was found in this material"
+   },
+   {
+    "office": "Q13218630",
+    "label": "Q13218630 (label unresolved — no fixture on disk)",
+    "licensed": true,
+    "power": "sufficient",
+    "examined": 4,
+    "reasons": [],
+    "refutations": [],
+    "disclosure": "no counterexample was found in THIS material; open-world absence is not refutation and this is not a licence"
+   },
+   {
+    "office": "Q5589724",
+    "label": "Q5589724 (label unresolved — no fixture on disk)",
+    "licensed": true,
+    "power": "sufficient",
+    "examined": 2,
+    "reasons": [],
+    "refutations": [],
+    "disclosure": "no counterexample was found in THIS material; open-world absence is not refutation and this is not a licence"
+   },
+   {
+    "office": "Q1837668",
+    "label": "Q1837668 (label unresolved — no fixture on disk)",
+    "licensed": true,
+    "power": "sufficient",
+    "examined": 2,
+    "reasons": [],
+    "refutations": [],
+    "disclosure": "no counterexample was found in THIS material; open-world absence is not refutation and this is not a licence"
+   },
+   {
+    "office": "Q3506352",
+    "label": "Q3506352 (label unresolved — no fixture on disk)",
+    "licensed": true,
+    "power": "sufficient",
+    "examined": 2,
+    "reasons": [],
+    "refutations": [],
+    "disclosure": "no counterexample was found in THIS material; open-world absence is not refutation and this is not a licence"
+   },
+   {
+    "office": "Q11696",
+    "label": "Q11696 (label unresolved — no fixture on disk)",
+    "licensed": true,
+    "power": "sufficient",
+    "examined": 2,
+    "reasons": [],
+    "refutations": [],
+    "disclosure": "no counterexample was found in THIS material; open-world absence is not refutation and this is not a licence"
+   }
+  ],
+  "licensedOffices": 6,
+  "refusedOffices": 1,
+  "affordanceRows": 24,
+  "quiescent": true,
+  "steps": [
+   {
+    "step": 1,
+    "reacted": 82,
+    "derived": 8,
+    "terminal": 0,
+    "alreadyWitnessed": 0,
+    "additionalPaths": 0
+   },
+   {
+    "step": 2,
+    "reacted": 14,
+    "derived": 1,
+    "terminal": 0,
+    "alreadyWitnessed": 0,
+    "additionalPaths": 1
+   },
+   {
+    "step": 3,
+    "reacted": 0,
+    "derived": 0,
+    "terminal": 0,
+    "alreadyWitnessed": 0,
+    "additionalPaths": 0
+   }
+  ],
+  "derived": [
+   {
+    "relation": "after:Q11699",
+    "from": "q8612",
+    "to": "q273212",
+    "depth": 1,
+    "paths": 1,
+    "sentence": "Andrew Johnson held \"Vice President of the United States\" after Q273212 (label unresolved — no fixture on disk) — derived (depth 1, 1 path(s)), never stated by any fixture; witnesses: wikidata/Q273546.json#28963-28975, wikidata/Q273546.json#28731-28745"
+   },
+   {
+    "relation": "after:Q13218630",
+    "from": "q1681074",
+    "to": "q4723126",
+    "depth": 1,
+    "paths": 1,
+    "sentence": "Q1681074 (label unresolved — no fixture on disk) held \"Q13218630 (label unresolved — no fixture on disk)\" after Q4723126 (label unresolved — no fixture on disk) — derived (depth 1, 1 path(s)), never stated by any fixture; witnesses: wikidata/Q273546.json#27200-27215, wikidata/Q273546.json#26964-26979"
+   },
+   {
+    "relation": "after:Q11699",
+    "from": "q310852",
+    "to": "q273546",
+    "depth": 1,
+    "paths": 1,
+    "sentence": "Q310852 (label unresolved — no fixture on disk) held \"Vice President of the United States\" after Hannibal Hamlin — derived (depth 1, 1 path(s)), never stated by any fixture; witnesses: wikidata/Q8612.json#26556-26570, wikidata/Q273546.json#28963-28975"
+   },
+   {
+    "relation": "after:Q3506352",
+    "from": "q391529",
+    "to": "q848367",
+    "depth": 1,
+    "paths": 1,
+    "sentence": "Q391529 (label unresolved — no fixture on disk) held \"Q3506352 (label unresolved — no fixture on disk)\" after Q848367 (label unresolved — no fixture on disk) — derived (depth 1, 1 path(s)), never stated by any fixture; witnesses: wikidata/Q273546.json#30574-30588, wikidata/Q273546.json#30340-30354"
+   },
+   {
+    "relation": "after:Q1837668",
+    "from": "q703642",
+    "to": "q267988",
+    "depth": 1,
+    "paths": 1,
+    "sentence": "Q703642 (label unresolved — no fixture on disk) held \"Q1837668 (label unresolved — no fixture on disk)\" after Q267988 (label unresolved — no fixture on disk) — derived (depth 1, 1 path(s)), never stated by any fixture; witnesses: wikidata/Q273546.json#31758-31772, wikidata/Q273546.json#31524-31538"
+   },
+   {
+    "relation": "after:Q11696",
+    "from": "q34836",
+    "to": "q91",
+    "depth": 1,
+    "paths": 1,
+    "sentence": "Q34836 (label unresolved — no fixture on disk) held \"Q11696 (label unresolved — no fixture on disk)\" after Q91 (label unresolved — no fixture on disk) — derived (depth 1, 1 path(s)), never stated by any fixture; witnesses: wikidata/Q8612.json#22291-22304, wikidata/Q8612.json#22062-22072"
+   },
+   {
+    "relation": "after:Q5589724",
+    "from": "q181727",
+    "to": "q130715",
+    "depth": 1,
+    "paths": 1,
+    "sentence": "Q181727 (label unresolved — no fixture on disk) held \"Q5589724 (label unresolved — no fixture on disk)\" after Q130715 (label unresolved — no fixture on disk) — derived (depth 1, 1 path(s)), never stated by any fixture; witnesses: wikidata/Q8612.json#28167-28181, wikidata/Q8612.json#27933-27947"
+   },
+   {
+    "relation": "after:Q13218630",
+    "from": "q929115",
+    "to": "q1641461",
+    "depth": 1,
+    "paths": 1,
+    "sentence": "Q929115 (label unresolved — no fixture on disk) held \"Q13218630 (label unresolved — no fixture on disk)\" after Q1641461 (label unresolved — no fixture on disk) — derived (depth 1, 1 path(s)), never stated by any fixture; witnesses: wikidata/Q8612.json#24139-24153, wikidata/Q8612.json#23904-23919"
+   },
+   {
+    "relation": "after:Q11699",
+    "from": "q310852",
+    "to": "q273212",
+    "depth": 2,
+    "paths": 2,
+    "sentence": "Q310852 (label unresolved — no fixture on disk) held \"Vice President of the United States\" after Q273212 (label unresolved — no fixture on disk) — derived (depth 2, 2 path(s)), never stated by any fixture; witnesses: wikidata/Q8612.json#26556-26570, wikidata/Q273546.json#28963-28975, wikidata/Q273546.json#28731-28745"
+   }
+  ],
+  "withheld": [
+   {
+    "left": "replaces:Q5589724",
+    "right": "replaces:Q11699",
+    "standing": "unknown",
+    "chains": 1
+   },
+   {
+    "left": "replaces:Q4416090",
+    "right": "replaces:Q11699",
+    "standing": "unknown",
+    "chains": 5
+   },
+   {
+    "left": "replaces:Q13218630",
+    "right": "replaces:Q11699",
+    "standing": "unknown",
+    "chains": 2
+   },
+   {
+    "left": "replaces:Q11699",
+    "right": "replaces:Q13218630",
+    "standing": "unknown",
+    "chains": 2
+   },
+   {
+    "left": "replaces:Q4416090",
+    "right": "replaces:Q13218630",
+    "standing": "unknown",
+    "chains": 5
+   },
+   {
+    "left": "replaces:Q11699",
+    "right": "replaces:Q1837668",
+    "standing": "unknown",
+    "chains": 1
+   },
+   {
+    "left": "replaces:Q4416090",
+    "right": "replaces:Q1837668",
+    "standing": "unknown",
+    "chains": 3
+   },
+   {
+    "left": "replaces:Q13218630",
+    "right": "replaces:Q1837668",
+    "standing": "unknown",
+    "chains": 1
+   },
+   {
+    "left": "replaces:Q11699",
+    "right": "replaces:Q3506352",
+    "standing": "unknown",
+    "chains": 1
+   },
+   {
+    "left": "replaces:Q4416090",
+    "right": "replaces:Q3506352",
+    "standing": "unknown",
+    "chains": 3
+   },
+   {
+    "left": "replaces:Q13218630",
+    "right": "replaces:Q3506352",
+    "standing": "unknown",
+    "chains": 1
+   },
+   {
+    "left": "replaces:Q11699",
+    "right": "replaces:Q4416090",
+    "standing": "unknown",
+    "chains": 5
+   },
+   {
+    "left": "replaces:Q4416090",
+    "right": "replaces:Q4416090",
+    "standing": "unknown",
+    "chains": 11
+   },
+   {
+    "left": "replaces:Q13218630",
+    "right": "replaces:Q4416090",
+    "standing": "unknown",
+    "chains": 5
+   },
+   {
+    "left": "replaces:Q11696",
+    "right": "replaces:Q11699",
+    "standing": "unknown",
+    "chains": 1
+   },
+   {
+    "left": "replaces:Q3506352",
+    "right": "replaces:Q11699",
+    "standing": "unknown",
+    "chains": 1
+   },
+   {
+    "left": "replaces:Q3506352",
+    "right": "replaces:Q13218630",
+    "standing": "unknown",
+    "chains": 1
+   },
+   {
+    "left": "replaces:Q3506352",
+    "right": "replaces:Q1837668",
+    "standing": "unknown",
+    "chains": 1
+   },
+   {
+    "left": "replaces:Q3506352",
+    "right": "replaces:Q4416090",
+    "standing": "unknown",
+    "chains": 3
+   },
+   {
+    "left": "replaces:Q1837668",
+    "right": "replaces:Q11699",
+    "standing": "unknown",
+    "chains": 1
+   },
+   {
+    "left": "replaces:Q1837668",
+    "right": "replaces:Q13218630",
+    "standing": "unknown",
+    "chains": 1
+   },
+   {
+    "left": "replaces:Q1837668",
+    "right": "replaces:Q3506352",
+    "standing": "unknown",
+    "chains": 1
+   },
+   {
+    "left": "replaces:Q1837668",
+    "right": "replaces:Q4416090",
+    "standing": "unknown",
+    "chains": 3
+   },
+   {
+    "left": "replaces:Q5589724",
+    "right": "replaces:Q11696",
+    "standing": "unknown",
+    "chains": 1
+   },
+   {
+    "left": "replaces:Q11699",
+    "right": "replaces:Q11696",
+    "standing": "unknown",
+    "chains": 1
+   },
+   {
+    "left": "replaces:Q4416090",
+    "right": "replaces:Q11696",
+    "standing": "unknown",
+    "chains": 2
+   },
+   {
+    "left": "replaces:Q5589724",
+    "right": "replaces:Q13218630",
+    "standing": "unknown",
+    "chains": 1
+   },
+   {
+    "left": "replaces:Q11696",
+    "right": "replaces:Q13218630",
+    "standing": "unknown",
+    "chains": 1
+   },
+   {
+    "left": "replaces:Q11696",
+    "right": "replaces:Q4416090",
+    "standing": "unknown",
+    "chains": 2
+   },
+   {
+    "left": "replaces:Q5589724",
+    "right": "replaces:Q4416090",
+    "standing": "unknown",
+    "chains": 1
+   },
+   {
+    "left": "replaces:Q11699",
+    "right": "replaces:Q5589724",
+    "standing": "unknown",
+    "chains": 1
+   },
+   {
+    "left": "replaces:Q11696",
+    "right": "replaces:Q5589724",
+    "standing": "unknown",
+    "chains": 1
+   },
+   {
+    "left": "replaces:Q4416090",
+    "right": "replaces:Q5589724",
+    "standing": "unknown",
+    "chains": 2
+   },
+   {
+    "left": "replaces:Q13218630",
+    "right": "replaces:Q11696",
+    "standing": "unknown",
+    "chains": 1
+   },
+   {
+    "left": "replaces:Q13218630",
+    "right": "replaces:Q5589724",
+    "standing": "unknown",
+    "chains": 1
+   },
+   {
+    "left": "replaces:Q5589724",
+    "right": "after:Q11699",
+    "standing": "unknown",
+    "chains": 1
+   },
+   {
+    "left": "replaces:Q11696",
+    "right": "after:Q11699",
+    "standing": "unknown",
+    "chains": 1
+   },
+   {
+    "left": "replaces:Q4416090",
+    "right": "after:Q11699",
+    "standing": "unknown",
+    "chains": 2
+   },
+   {
+    "left": "replaces:Q13218630",
+    "right": "after:Q11699",
+    "standing": "unknown",
+    "chains": 1
+   },
+   {
+    "left": "after:Q11699",
+    "right": "replaces:Q13218630",
+    "standing": "unknown",
+    "chains": 1
+   },
+   {
+    "left": "after:Q11699",
+    "right": "replaces:Q1837668",
+    "standing": "unknown",
+    "chains": 1
+   },
+   {
+    "left": "after:Q11699",
+    "right": "replaces:Q3506352",
+    "standing": "unknown",
+    "chains": 1
+   },
+   {
+    "left": "after:Q11699",
+    "right": "replaces:Q4416090",
+    "standing": "unknown",
+    "chains": 3
+   },
+   {
+    "left": "replaces:Q4416090",
+    "right": "after:Q5589724",
+    "standing": "unknown",
+    "chains": 1
+   }
+  ],
+  "vetoed": [],
+  "terminal": 0
+ },
+ "audit": {
+  "organ": "eoreader7 native/kernel/refutation.js — the veto organ; refuted:false is never a licence",
+  "preSettle": {
+   "rows": 24,
+   "refuted": 0,
+   "partialPower": 18
+  },
+  "postSettle": {
+   "rows": 24,
+   "refuted": 0,
+   "detail": []
+  },
+  "agreesWithGate": true,
+  "selfConsistent": true,
+  "reading": "the closure's own products contradict none of it — no derived cycle, no uniqueness violation introduced by derivation"
+ },
+ "physics": {
+  "steps": [
+   {
+    "step": 1,
+    "reacted": 53,
+    "derived": 5,
+    "terminal": 0,
+    "alreadyWitnessed": 0,
+    "additionalPaths": 0
+   },
+   {
+    "step": 2,
+    "reacted": 42,
+    "derived": 4,
+    "terminal": 0,
+    "alreadyWitnessed": 0,
+    "additionalPaths": 1
+   },
+   {
+    "step": 3,
+    "reacted": 1,
+    "derived": 0,
+    "terminal": 0,
+    "alreadyWitnessed": 0,
+    "additionalPaths": 0
+   }
+  ],
+  "derived": 9,
+  "quiescent": true
+ },
+ "priors": {
+  "compiledWorks": 111,
+  "observedCandidates": 9,
+  "nominated": 0,
+  "reading": "the gate refused every nomination: the compiled canon corpus never met these relation forms — cross-work memory cannot vouch for chemistry it has not seen, which is the gate working, not failing"
+ }
+}

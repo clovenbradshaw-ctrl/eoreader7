@@ -1,0 +1,29 @@
+{
+ "schema": "EOOccupancySynthetic@1",
+ "giver": "eval/fixtures/occupancy-synthetic.json — invented by the author of eval/grain-refinement.mjs as a domain control. Nothing here is recallable from any corpus.",
+ "purpose": "A NON-POLITICAL corpus with the identical structure to the succession material: a scarce slot held by one occupant at a time, handed over, where one occupant returns to the SAME slot in a later, non-contiguous episode. If the mechanism needs no edit to read this, it was never politics-shaped.",
+ "domain": "hospital bed occupancy; a readmitted patient is the structural twin of a multi-term office holder",
+ "slots": { "BED-7": "ward B, bed 7", "BED-9": "ward C, bed 9" },
+ "occupants": {
+  "P-ADA":   "Ada",
+  "P-BRIX":  "Brix",
+  "P-CHEN":  "Chen",
+  "P-DIA":   "Dia",
+  "P-EZE":   "Eze"
+ },
+ "episodes": [
+  { "occupant": "P-ADA",  "slot": "BED-7", "start": "2031-01-04", "end": "2031-01-11", "replaces": null,     "replacedBy": "P-BRIX" },
+  { "occupant": "P-BRIX", "slot": "BED-7", "start": "2031-01-11", "end": "2031-01-19", "replaces": "P-ADA",  "replacedBy": "P-CHEN" },
+  { "occupant": "P-CHEN", "slot": "BED-7", "start": "2031-01-19", "end": "2031-02-02", "replaces": "P-BRIX", "replacedBy": "P-ADA" },
+
+  { "occupant": "P-ADA",  "slot": "BED-7", "start": "2031-02-02", "end": "2031-02-14", "replaces": "P-CHEN", "replacedBy": "P-DIA" },
+  { "occupant": "P-DIA",  "slot": "BED-7", "start": "2031-02-14", "end": "2031-02-20", "replaces": "P-ADA",  "replacedBy": null },
+
+  { "occupant": "P-EZE",  "slot": "BED-9", "start": "2031-01-06", "end": "2031-01-15", "replaces": null,     "replacedBy": "P-DIA" },
+  { "occupant": "P-DIA",  "slot": "BED-9", "start": "2031-01-15", "end": "2031-01-22", "replaces": "P-EZE",  "replacedBy": null }
+ ],
+ "groundTruth": {
+  "note": "true by construction from the episode ordering above; the scorer never reads replaces/replacedBy",
+  "trapAtPersonGrain": "Ada holds BED-7 in two non-contiguous episodes (Jan 4-11 and Feb 2-14). At occupant grain, 'Brix replaces Ada' and 'Ada replaces Chen' both hold, so a person-level composition yields 'Brix after Chen' — which is BACKWARDS: Brix left the bed on Jan 19 and Chen did not leave it until Feb 2."
+ }
+}

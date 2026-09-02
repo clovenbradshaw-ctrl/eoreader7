@@ -412,6 +412,69 @@ export const surfacesFromEvidence = (evidence, { functionWords = null, abbreviat
   return surfaces.sort((a, b) => b.mentions - a.mentions);
 };
 
+/**
+ * extractLeadingSurfaces — the MIRROR of `extractSurfaces`: the capitalised
+ * runs that OPEN a sentence, which every other reader here deliberately
+ * skips.
+ *
+ * WHY IT IS SEPARATE AND WHY IT RETURNS SO LITTLE. `extractSurfaces` starts
+ * its run scan at token 1 because a sentence-initial capital "is capitalised
+ * by position and carries no evidence of namehood on its own" (that scan's
+ * own comment, unchanged). That exclusion is correct and stays. But a name
+ * that ONLY ever appears sentence-initially is then invisible to the whole
+ * cast ladder, and a consumer may want to test such a candidate against
+ * evidence of a DIFFERENT kind — a real pronoun binding resolving to it —
+ * rather than against capitalisation again. This organ hands over exactly
+ * those candidates and asserts nothing about them: it is as evidence-free
+ * about namehood as "a capitalized word opened this sentence", and its
+ * whole contract is that the caller must confirm them by other means.
+ *
+ * Built 2026-09-01. `the-fold`'s hypergraph.js has described this organ in
+ * its own "referent bar" section, and `hypergraph.test.mjs` has imported it
+ * by name, since that mechanism was written — while it existed in NEITHER
+ * engine provider, so the mechanism could never run and its two tests could
+ * not pass. That went unnoticed for as long as the test file itself could
+ * not load. The mechanism's own consumer gate is unchanged and still off by
+ * default (app.js declines to inject it, with its reasons); this only makes
+ * the thing it names real.
+ *
+ * Tokenisation, punctuation breaks, all-caps units, NEVER_A_NAME and the
+ * run-extension rule are the SAME as the main scan's — this reuses that
+ * logic with the single difference the name states (start at token 0, and
+ * take only the opening run), rather than re-deriving a second, drifting
+ * copy of it.
+ */
+export const extractLeadingSurfaces = (sentences, { abbreviations } = {}) => {
+  const abbrev = abbreviations ?? new Set();
+  const out = new Map(); // surface -> count of sentences it opened
+  for (const sent of sentences ?? []) {
+    const rawToks = String(sent?.text ?? sent ?? "").split(/\s+/);
+    const toks = [];
+    const breaksAfter = [];
+    const leadingJunk = [];
+    for (const raw of rawToks) {
+      const withoutLeading = raw.replace(/^[^\p{L}]+/gu, "");
+      const cleaned = withoutLeading.replace(/[^\p{L}'’]+$/gu, "");
+      if (!cleaned) continue;
+      toks.push(cleaned);
+      leadingJunk.push(withoutLeading.length !== raw.length);
+      const trailing = withoutLeading.slice(cleaned.length);
+      const isAbbreviatedTitle = trailing === "." && (abbrev.has(cleaned) || HONORIFIC_TITLES.has(cleaned.toLowerCase()));
+      breaksAfter.push(trailing.length > 0 && !isAbbreviatedTitle);
+    }
+    if (!toks.length) continue;
+    const hardBreakAfter = toks.map((_, k) => breaksAfter[k] || (leadingJunk[k + 1] ?? false));
+    if (toks.length > 1 && toks.every(isAllCaps)) continue; // a heading, not a sentence
+    if (NEVER_A_NAME.has(toks[0].toLowerCase())) continue;
+    if (!CAP_TOKEN.test(toks[0])) continue;
+    let j = 1;
+    while (j < toks.length && CAP_TOKEN.test(toks[j]) && !NEVER_A_NAME.has(toks[j].toLowerCase()) && !hardBreakAfter[j - 1]) j++;
+    const surface = toks.slice(0, j).join(" ");
+    out.set(surface, (out.get(surface) ?? 0) + 1);
+  }
+  return [...out].map(([surface, sentences]) => ({ surface, sentences }));
+};
+
 export const extractSurfaces = (sentences, opts = {}) =>
   surfacesFromEvidence(accumulateSurfaceEvidence(sentences, createSurfaceEvidence(), { abbreviations: opts.abbreviations }), opts);
 

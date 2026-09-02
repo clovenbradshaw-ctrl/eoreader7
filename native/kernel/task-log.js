@@ -1,8 +1,12 @@
-import { GRAINS, cellOf, isCurrentOperator } from "./cube.js";
+import { GRAINS, OPERATOR_CHAIN, cellOf, isCurrentOperator } from "./cube.js";
 
 export const ENTRY_KINDS = Object.freeze({ PROPOSE: "propose", SUPERSEDE: "supersede", EVIDENCE: "evidence", RESULT: "result", RETRACT: "retract" });
 export const OPERATOR_BASIS = Object.freeze({ PRODUCED: "produced", DERIVED: "derived", DECLARED: "declared", CONTESTED: "contested", ABSENT: "absent" });
-export const OPERATOR_ORDER = Object.freeze(["NUL", "SEG", "SIG", "CON", "EVA", "DEF", "INS", "SYN", "REC"]);
+// DERIVED from cube.js's own domain/mode tables, never restated here — see
+// OPERATOR_CHAIN's header there for the audit that settled the divergence
+// this replaces (a hand-written order that had drifted from the very tables
+// it was restating, in a file whose own header said nothing is restated).
+export const OPERATOR_ORDER = OPERATOR_CHAIN;
 
 // The three Structure-domain operators, as an identity lookup rather than a
 // literal string a caller re-types. Ported 2026-08-29 alongside

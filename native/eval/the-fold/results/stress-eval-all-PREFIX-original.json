@@ -1,0 +1,2934 @@
+{
+  "gemma2:2b": {
+    "spreadsheet": [
+      {
+        "turnIndex": 1,
+        "ask": "add a button that clears all the cells to 0",
+        "predictedKind": "feature",
+        "routedAs": "resolved",
+        "landed": false,
+        "gap": "unlocated",
+        "structuralClean": null,
+        "structuralFindings": [],
+        "behavioralOwnCheck": {
+          "turnIndex": 1,
+          "ok": null,
+          "why": "no landing this turn — code unchanged or absent"
+        },
+        "regressionsIntroducedThisTurn": [],
+        "conformFindings": [],
+        "codeLenBefore": 814,
+        "codeLenAfter": 814,
+        "groundAfter": 1,
+        "tokens": 31
+      },
+      {
+        "turnIndex": 2,
+        "ask": "add a third row of two more cells, prefilled with 5 and 6",
+        "predictedKind": "feature",
+        "routedAs": "resolved",
+        "landed": true,
+        "gap": null,
+        "structuralClean": true,
+        "structuralFindings": [],
+        "behavioralOwnCheck": {
+          "turnIndex": 2,
+          "ok": false,
+          "why": "2 rows"
+        },
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 0,
+            "ok": false,
+            "why": "sum after typing 10 into (0,0) = \"23\""
+          },
+          {
+            "turnIndex": 1,
+            "ok": false,
+            "why": "no clear button found"
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 814,
+        "codeLenAfter": 814,
+        "groundAfter": 2,
+        "tokens": 118,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Mini Spreadsheet</title></head>\n<body>\n  <table id=\"grid\">\n    <tr><td><input class=\"cell\" data-r=\"0\" data-c=\"0\" value=\"5\"></td><td><input class=\"cell\" data-r=\"0\" data-c=\"1\" value=\"6\"></td></tr>\n    <tr><td><input class=\"cell\" data-r=\"1\" data-c=\"0\" value=\"3\"></td><td><input class=\"cell\" data-r=\"1\" data-c=\"1\" value=\"4\"></td></tr>\n  </table>\n  <div>Sum: <span id=\"sum\">0</span></div>\n  <script>\n    function recompute() {\n      let total = 0;\n      document.querySelectorAll('.cell').forEach(function(c) {\n        total += Number(c.value) || 0;\n      });\n      document.getElementById('sum').textContent = total;\n    }\n    document.querySelectorAll('.cell').forEach(function(c) {\n      c.addEventListener('input', recompute);\n    });\n    recompute();\n  </script>\n</body>\n</html>"
+      },
+      {
+        "turnIndex": 3,
+        "ask": "I don't like the colors, make it nicer",
+        "predictedKind": "judgment",
+        "routedAs": "anaphora",
+        "landed": true,
+        "gap": null,
+        "structuralClean": true,
+        "structuralFindings": [],
+        "behavioralOwnCheck": null,
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 0,
+            "ok": false,
+            "why": "sum after typing 10 into (0,0) = \"23\""
+          },
+          {
+            "turnIndex": 1,
+            "ok": false,
+            "why": "no clear button found"
+          },
+          {
+            "turnIndex": 2,
+            "ok": false,
+            "why": "2 rows"
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 814,
+        "codeLenAfter": 814,
+        "groundAfter": 2,
+        "tokens": 52,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Mini Spreadsheet</title></head>\n<body>\n  <table id=\"grid\">\n    <tr><td><input class=\"cell\" data-r=\"0\" data-c=\"0\" value=\"5\"></td><td><input class=\"cell\" data-r=\"0\" data-c=\"1\" value=\"6\"></td></tr>\n    <tr><td><input class=\"cell\" data-r=\"1\" data-c=\"0\" value=\"3\"></td><td><input class=\"cell\" data-r=\"1\" data-c=\"1\" value=\"4\"></td></tr>\n  </table>\n  <div>Sum: <span id=\"sum\">0</span></div>\n  <script>\n    function recompute() {\n      let total = 0;\n      document.querySelectorAll('.cell').forEach(function(c) {\n        total += Number(c.value) || 0;\n      });\n      document.getElementById('sum').textContent = total;\n    }\n    document.querySelectorAll('.cell').forEach(function(c) {\n      c.addEventListener('input', recompute);\n    });\n    recompute();\n  </script>\n</body>\n</html>"
+      },
+      {
+        "turnIndex": 4,
+        "ask": "make it better",
+        "predictedKind": "vague",
+        "routedAs": "anaphora",
+        "landed": true,
+        "gap": null,
+        "structuralClean": false,
+        "structuralFindings": [
+          {
+            "kind": "dangling-id",
+            "detail": "script addresses id \"sum\" but no element declares it",
+            "id": "sum"
+          }
+        ],
+        "behavioralOwnCheck": null,
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 0,
+            "ok": false,
+            "why": "script threw: Cannot set properties of null (setting 'textContent')"
+          },
+          {
+            "turnIndex": 1,
+            "ok": false,
+            "why": "script threw: Cannot set properties of null (setting 'textContent')"
+          },
+          {
+            "turnIndex": 2,
+            "ok": false,
+            "why": "script threw: Cannot set properties of null (setting 'textContent')"
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 814,
+        "codeLenAfter": 773,
+        "groundAfter": 3,
+        "tokens": 34,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Mini Spreadsheet</title></head>\n<body>\n  <table id=\"grid\">\n    <tr><td><input class=\"cell\" data-r=\"0\" data-c=\"0\" value=\"5\"></td><td><input class=\"cell\" data-r=\"0\" data-c=\"1\" value=\"6\"></td></tr>\n    <tr><td><input class=\"cell\" data-r=\"1\" data-c=\"0\" value=\"3\"></td><td><input class=\"cell\" data-r=\"1\" data-c=\"1\" value=\"4\"></td></tr>\n  </table>\n\n  <script>\n    function recompute() {\n      let total = 0;\n      document.querySelectorAll('.cell').forEach(function(c) {\n        total += Number(c.value) || 0;\n      });\n      document.getElementById('sum').textContent = total;\n    }\n    document.querySelectorAll('.cell').forEach(function(c) {\n      c.addEventListener('input', recompute);\n    });\n    recompute();\n  </script>\n</body>\n</html>"
+      },
+      {
+        "turnIndex": 5,
+        "ask": "show the average of the cells too, next to the sum",
+        "predictedKind": "feature",
+        "routedAs": "resolved",
+        "landed": true,
+        "gap": null,
+        "structuralClean": false,
+        "structuralFindings": [
+          {
+            "kind": "dangling-id",
+            "detail": "script addresses id \"sum\" but no element declares it",
+            "id": "sum"
+          },
+          {
+            "kind": "dangling-id",
+            "detail": "script addresses id \"average\" but no element declares it",
+            "id": "average"
+          }
+        ],
+        "behavioralOwnCheck": {
+          "turnIndex": 5,
+          "ok": false,
+          "why": "script threw: Cannot set properties of null (setting 'textContent')"
+        },
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 0,
+            "ok": false,
+            "why": "script threw: Cannot set properties of null (setting 'textContent')"
+          },
+          {
+            "turnIndex": 1,
+            "ok": false,
+            "why": "script threw: Cannot set properties of null (setting 'textContent')"
+          },
+          {
+            "turnIndex": 2,
+            "ok": false,
+            "why": "script threw: Cannot set properties of null (setting 'textContent')"
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 773,
+        "codeLenAfter": 832,
+        "groundAfter": 4,
+        "tokens": 49,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Mini Spreadsheet</title></head>\n<body>\n  <table id=\"grid\">\n    <tr><td><input class=\"cell\" data-r=\"0\" data-c=\"0\" value=\"5\"></td><td><input class=\"cell\" data-r=\"0\" data-c=\"1\" value=\"6\"></td></tr>\n    <tr><td><input class=\"cell\" data-r=\"1\" data-c=\"0\" value=\"3\"></td><td><input class=\"cell\" data-r=\"1\" data-c=\"1\" value=\"4\"></td></tr>\n  </table>\n\n  <script>\n    function recompute() {\n      let total = 0;\n      document.querySelectorAll('.cell').forEach(function(c) {\n        total += Number(c.value) || 0;\n      });\n      document.getElementById('sum').textContent = total;\n\tdocument.getElementById('average').textContent = average;\n    }\n    document.querySelectorAll('.cell').forEach(function(c) {\n      c.addEventListener('input', recompute);\n    });\n    recompute();\n  </script>\n</body>\n</html>"
+      },
+      {
+        "turnIndex": 6,
+        "ask": "the sum isn't updating right when I type in a cell, fix it",
+        "predictedKind": "judgment",
+        "routedAs": "resolved",
+        "landed": true,
+        "gap": null,
+        "structuralClean": false,
+        "structuralFindings": [
+          {
+            "kind": "dangling-id",
+            "detail": "script addresses id \"average\" but no element declares it",
+            "id": "average"
+          }
+        ],
+        "behavioralOwnCheck": {
+          "turnIndex": 6,
+          "ok": false,
+          "why": "script threw: average is not defined"
+        },
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 0,
+            "ok": false,
+            "why": "script threw: average is not defined"
+          },
+          {
+            "turnIndex": 1,
+            "ok": false,
+            "why": "script threw: average is not defined"
+          },
+          {
+            "turnIndex": 2,
+            "ok": false,
+            "why": "script threw: average is not defined"
+          },
+          {
+            "turnIndex": 5,
+            "ok": false,
+            "why": "script threw: average is not defined"
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 832,
+        "codeLenAfter": 781,
+        "groundAfter": 5,
+        "tokens": 26,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Mini Spreadsheet</title></head>\n<body>\n  <table id=\"grid\">\n    <tr><td><input class=\"cell\" data-r=\"0\" data-c=\"0\" value=\"5\"></td><td><input class=\"cell\" data-r=\"0\" data-c=\"1\" value=\"6\"></td></tr>\n    <tr><td><input class=\"cell\" data-r=\"1\" data-c=\"0\" value=\"3\"></td><td><input class=\"cell\" data-r=\"1\" data-c=\"1\" value=\"4\"></td></tr>\n  </table>\n\n  <script>\n    function recompute() {\n      let total = 0;\n      document.querySelectorAll('.cell').forEach(function(c) {\n        total += Number(c.value) || 0;\n      });\n      \n\tdocument.getElementById('average').textContent = average;\n    }\n    document.querySelectorAll('.cell').forEach(function(c) {\n      c.addEventListener('input', recompute);\n    });\n    recompute();\n  </script>\n</body>\n</html>"
+      },
+      {
+        "turnIndex": 7,
+        "ask": "make the buttons bigger",
+        "predictedKind": "anaphora",
+        "routedAs": null,
+        "landed": false,
+        "gap": "unlocated",
+        "structuralClean": null,
+        "structuralFindings": [],
+        "behavioralOwnCheck": null,
+        "regressionsIntroducedThisTurn": [],
+        "conformFindings": [],
+        "codeLenBefore": 781,
+        "codeLenAfter": 781,
+        "groundAfter": 5,
+        "tokens": 75
+      },
+      {
+        "turnIndex": 8,
+        "ask": "put the clear button back the way it was before",
+        "predictedKind": "undo",
+        "routedAs": "anaphora",
+        "landed": false,
+        "gap": "unlocated",
+        "structuralClean": null,
+        "structuralFindings": [],
+        "behavioralOwnCheck": null,
+        "regressionsIntroducedThisTurn": [],
+        "conformFindings": [],
+        "codeLenBefore": 781,
+        "codeLenAfter": 781,
+        "groundAfter": 5,
+        "tokens": 28
+      },
+      {
+        "turnIndex": 9,
+        "ask": "add a button that fills every cell with 1",
+        "predictedKind": "feature",
+        "routedAs": "resolved",
+        "landed": false,
+        "gap": "unlocated",
+        "structuralClean": null,
+        "structuralFindings": [],
+        "behavioralOwnCheck": {
+          "turnIndex": 9,
+          "ok": null,
+          "why": "no landing this turn — code unchanged or absent"
+        },
+        "regressionsIntroducedThisTurn": [],
+        "conformFindings": [],
+        "codeLenBefore": 781,
+        "codeLenAfter": 781,
+        "groundAfter": 5,
+        "tokens": 115
+      },
+      {
+        "turnIndex": 10,
+        "ask": "it's broken",
+        "predictedKind": "judgment",
+        "routedAs": "anaphora",
+        "landed": true,
+        "gap": null,
+        "structuralClean": true,
+        "structuralFindings": [],
+        "behavioralOwnCheck": null,
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 1,
+            "ok": false,
+            "why": "no clear button found"
+          },
+          {
+            "turnIndex": 2,
+            "ok": false,
+            "why": "2 rows"
+          },
+          {
+            "turnIndex": 9,
+            "ok": false,
+            "why": "no fill button found"
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 781,
+        "codeLenAfter": 771,
+        "groundAfter": 6,
+        "tokens": 21,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Mini Spreadsheet</title></head>\n<body>\n  <table id=\"grid\">\n    <tr><td><input class=\"cell\" data-r=\"0\" data-c=\"0\" value=\"5\"></td><td><input class=\"cell\" data-r=\"0\" data-c=\"1\" value=\"6\"></td></tr>\n    <tr><td><input class=\"cell\" data-r=\"1\" data-c=\"0\" value=\"3\"></td><td><input class=\"cell\" data-r=\"1\" data-c=\"1\" value=\"4\"></td></tr>\n  </table>\n\n\n    function recompute() {\n      let total = 0;\n      document.querySelectorAll('.cell').forEach(function(c) {\n        total += Number(c.value) || 0;\n      });\n      \n\tdocument.getElementById('average').textContent = average;\n    }\n    document.querySelectorAll('.cell').forEach(function(c) {\n      c.addEventListener('input', recompute);\n    });\n    recompute();\n  </script>\n</body>\n</html>"
+      },
+      {
+        "turnIndex": 11,
+        "ask": "the sum should still update live as I type, without clicking anything — check that still works",
+        "predictedKind": "structural",
+        "routedAs": "anaphora",
+        "landed": false,
+        "gap": "unlocated",
+        "structuralClean": null,
+        "structuralFindings": [],
+        "behavioralOwnCheck": {
+          "turnIndex": 11,
+          "ok": null,
+          "why": "no landing this turn — code unchanged or absent"
+        },
+        "regressionsIntroducedThisTurn": [],
+        "conformFindings": [],
+        "codeLenBefore": 771,
+        "codeLenAfter": 771,
+        "groundAfter": 6,
+        "tokens": 138
+      },
+      {
+        "turnIndex": 12,
+        "ask": "highlight the cell with the highest value in yellow",
+        "predictedKind": "feature",
+        "routedAs": "resolved",
+        "landed": true,
+        "gap": null,
+        "structuralClean": true,
+        "structuralFindings": [],
+        "behavioralOwnCheck": null,
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 1,
+            "ok": false,
+            "why": "no clear button found"
+          },
+          {
+            "turnIndex": 2,
+            "ok": false,
+            "why": "2 rows"
+          },
+          {
+            "turnIndex": 9,
+            "ok": false,
+            "why": "no fill button found"
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 771,
+        "codeLenAfter": 761,
+        "groundAfter": 7,
+        "tokens": 22,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Mini Spreadsheet</title></head>\n<body>\n  <table id=\"grid\">\n    <tr><td><input class=\"cell\" data-r=\"0\" data-c=\"0\"   \n=\"5\"></td><td><input class=\"cell\" data-r=\"0\" data-c=\"1\"   \n=\"6\"></td></tr>\n    <tr><td><input class=\"cell\" data-r=\"1\" data-c=\"0\"   \n=\"3\"></td><td><input class=\"cell\" data-r=\"1\" data-c=\"1\"   \n=\"4\"></td></tr>\n  </table>\n\n\n    function recompute() {\n      let total = 0;\n      document.querySelectorAll('.cell').forEach(function(c) {\n        total += Number(c.  \n) || 0;\n      });\n      \n\tdocument.getElementById('average').textContent = average;\n    }\n    document.querySelectorAll('.cell').forEach(function(c) {\n      c.addEventListener('input', recompute);\n    });\n    recompute();\n  </script>\n</body>\n</html>"
+      },
+      {
+        "turnIndex": 13,
+        "ask": "fix it",
+        "predictedKind": "vague",
+        "routedAs": "anaphora",
+        "landed": true,
+        "gap": null,
+        "structuralClean": true,
+        "structuralFindings": [],
+        "behavioralOwnCheck": null,
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 1,
+            "ok": false,
+            "why": "no clear button found"
+          },
+          {
+            "turnIndex": 2,
+            "ok": false,
+            "why": "2 rows"
+          },
+          {
+            "turnIndex": 9,
+            "ok": false,
+            "why": "no fill button found"
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 761,
+        "codeLenAfter": 757,
+        "groundAfter": 8,
+        "tokens": 20,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Mini Spreadsheet</title></head>\n<body>\n  <table id=\"grid\">\n    <tr><td><input class=\"cell\" data-r=\"0\" data-c=\"0\"   \n=\"5\"></td><td><input class=\"cell\" data-r=\"0\" data-c=\"1\"   \n=\"6\"></td></tr>\n    <tr><td><input class=\"cell\" data-r=\"1\" data-c=\"0\"   \n=\"3\"></td><td><input class=\"cell\" data-r=\"1\" data-c=\"1\"   \n=\"4\"></td></tr>\n  </table>\n\n\n    function recompute() {\n      let total = 0;\n      document.querySelectorAll('.cell').forEach(function(c) {\n        total += Number(\n) || 0;\n      });\n      \n\tdocument.getElementById('average').textContent = average;\n    }\n    document.querySelectorAll('.cell').forEach(function(c) {\n      c.addEventListener('input', recompute);\n    });\n    recompute();\n  </script>\n</body>\n</html>"
+      },
+      {
+        "turnIndex": 14,
+        "ask": "add a reset button that sets every cell back to 0",
+        "predictedKind": "feature",
+        "routedAs": "resolved",
+        "landed": false,
+        "gap": "unlocated",
+        "structuralClean": null,
+        "structuralFindings": [],
+        "behavioralOwnCheck": {
+          "turnIndex": 14,
+          "ok": null,
+          "why": "no landing this turn — code unchanged or absent"
+        },
+        "regressionsIntroducedThisTurn": [],
+        "conformFindings": [],
+        "codeLenBefore": 757,
+        "codeLenAfter": 757,
+        "groundAfter": 8,
+        "tokens": 66
+      },
+      {
+        "turnIndex": 15,
+        "ask": "I don't like how the average looks, it should say 'Avg:' not 'Average:'",
+        "predictedKind": "judgment",
+        "routedAs": "judgment",
+        "landed": false,
+        "gap": "unlocated",
+        "structuralClean": null,
+        "structuralFindings": [],
+        "behavioralOwnCheck": {
+          "turnIndex": 15,
+          "ok": null,
+          "why": "no landing this turn — code unchanged or absent"
+        },
+        "regressionsIntroducedThisTurn": [],
+        "conformFindings": [],
+        "codeLenBefore": 757,
+        "codeLenAfter": 757,
+        "groundAfter": 8,
+        "tokens": 18
+      },
+      {
+        "turnIndex": 16,
+        "ask": "add a max and a min value display too",
+        "predictedKind": "feature",
+        "routedAs": null,
+        "landed": false,
+        "gap": "unlocated",
+        "structuralClean": null,
+        "structuralFindings": [],
+        "behavioralOwnCheck": {
+          "turnIndex": 16,
+          "ok": null,
+          "why": "no landing this turn — code unchanged or absent"
+        },
+        "regressionsIntroducedThisTurn": [],
+        "conformFindings": [],
+        "codeLenBefore": 757,
+        "codeLenAfter": 757,
+        "groundAfter": 8,
+        "tokens": 33
+      },
+      {
+        "turnIndex": 17,
+        "ask": "undo the last change",
+        "predictedKind": "undo",
+        "routedAs": null,
+        "landed": true,
+        "gap": null,
+        "structuralClean": true,
+        "structuralFindings": [],
+        "behavioralOwnCheck": null,
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 1,
+            "ok": false,
+            "why": "no clear button found"
+          },
+          {
+            "turnIndex": 2,
+            "ok": false,
+            "why": "2 rows"
+          },
+          {
+            "turnIndex": 9,
+            "ok": false,
+            "why": "no fill button found"
+          },
+          {
+            "turnIndex": 14,
+            "ok": false,
+            "why": "no reset button found"
+          },
+          {
+            "turnIndex": 15,
+            "ok": false,
+            "why": "body has \"Avg:\": false"
+          },
+          {
+            "turnIndex": 16,
+            "ok": false,
+            "why": "body mentions max/min: false/false"
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 757,
+        "codeLenAfter": 743,
+        "groundAfter": 8,
+        "tokens": 22,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Mini Spreadsheet</title></head>\n<body>\n  <table id=\"grid\">\n    <tr><td><input class=\"cell\" data-r=\"0\" data-c=\"0\"   \n=\"5\"></td><td><input class=\"cell\" data-r=\"0\" data-c=\"1\"   \n=\"6\"></td></tr>\n    <tr><td><input class=\"cell\" data-r=\"1\" data-c=\"0\"   \n=\"3\"></td><td><input class=\"cell\" data-r=\"1\" data-c=\"1\"   \n=\"4\"></td></tr>\n  </table>\n\n\n    function recompute() {\n      \n      document.querySelectorAll('.cell').forEach(function(c) {\n        total += Number(\n) || 0;\n      });\n      \n\tdocument.getElementById('average').textContent = average;\n    }\n    document.querySelectorAll('.cell').forEach(function(c) {\n      c.addEventListener('input', recompute);\n    });\n    recompute();\n  </script>\n</body>\n</html>"
+      }
+    ],
+    "tasklist": [
+      {
+        "turnIndex": 1,
+        "ask": "add a delete button next to each task",
+        "predictedKind": "feature",
+        "routedAs": "resolved",
+        "landed": true,
+        "gap": null,
+        "structuralClean": false,
+        "structuralFindings": [
+          {
+            "kind": "dangling-id",
+            "detail": "script addresses id \"what\" but no element declares it",
+            "id": "what"
+          }
+        ],
+        "behavioralOwnCheck": {
+          "turnIndex": 1,
+          "ok": false,
+          "why": "check threw: Cannot set properties of null (setting 'value')"
+        },
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 0,
+            "ok": false,
+            "why": "check threw: Cannot set properties of null (setting 'value')"
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 1177,
+        "codeLenAfter": 1135,
+        "groundAfter": 2,
+        "tokens": 29,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Priority Tasks</title></head>\n<body>\n\n  <select id=\"priority\"><option value=\"low\">low</option><option value=\"high\">high</option></select>\n  <button id=\"add\">add</button>\n  <ul id=\"list\"></ul>\n  <div id=\"count\">0 tasks</div>\n  <script>\n    let tasks = [];\n    function render() {\n      const list = document.getElementById('list');\n      list.innerHTML = '';\n      tasks.forEach(function(t, i) {\n        const li = document.createElement('li');\n        li.textContent = (t.done ? '[x] ' : '[ ] ') + t.text + ' (' + t.priority + ')';\n        li.className = t.priority;\n        li.addEventListener('click', function() { t.done = !t.done; render(); });\n        list.appendChild(li);\n      });\n      document.getElementById('count').textContent = tasks.length + ' tasks';\n    }\n    document.getElementById('add').addEventListener('click', function() {\n      const text = document.getElementById('what').value;\n      const priority = document.getElementById('priority').value;\n      if (text) tasks.push({ text: text, priority: priority, done: false });\n      render();\n    });\n  </script>\n</body>\n</html>"
+      },
+      {
+        "turnIndex": 2,
+        "ask": "add a filter so I can show only high priority tasks",
+        "predictedKind": "feature",
+        "routedAs": "resolved",
+        "landed": true,
+        "gap": null,
+        "structuralClean": false,
+        "structuralFindings": [
+          {
+            "kind": "dangling-id",
+            "detail": "script addresses id \"what\" but no element declares it",
+            "id": "what"
+          }
+        ],
+        "behavioralOwnCheck": {
+          "turnIndex": 2,
+          "ok": true,
+          "why": "looked for filter/high control in markup"
+        },
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 0,
+            "ok": false,
+            "why": "check threw: Cannot set properties of null (setting 'value')"
+          },
+          {
+            "turnIndex": 1,
+            "ok": false,
+            "why": "check threw: Cannot set properties of null (setting 'value')"
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 1135,
+        "codeLenAfter": 1135,
+        "groundAfter": 2,
+        "tokens": 20,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Priority Tasks</title></head>\n<body>\n\n  <select id=\"priority\"><option value=\"low\">low</option><option value=\"high\">high</option></select>\n  <button id=\"add\">add</button>\n  <ul id=\"list\"></ul>\n  <div id=\"count\">0 tasks</div>\n  <script>\n    let tasks = [];\n    function render() {\n      const list = document.getElementById('list');\n      list.innerHTML = '';\n      tasks.forEach(function(t, i) {\n        const li = document.createElement('li');\n        li.textContent = (t.done ? '[x] ' : '[ ] ') + t.text + ' (' + t.priority + ')';\n        li.className = t.priority;\n        li.addEventListener('click', function() { t.done = !t.done; render(); });\n        list.appendChild(li);\n      });\n      document.getElementById('count').textContent = tasks.length + ' tasks';\n    }\n    document.getElementById('add').addEventListener('click', function() {\n      const text = document.getElementById('what').value;\n      const priority = document.getElementById('priority').value;\n      if (text) tasks.push({ text: text, priority: priority, done: false });\n      render();\n    });\n  </script>\n</body>\n</html>"
+      },
+      {
+        "turnIndex": 3,
+        "ask": "I don't like the colors, make it nicer",
+        "predictedKind": "judgment",
+        "routedAs": "anaphora",
+        "landed": true,
+        "gap": null,
+        "structuralClean": false,
+        "structuralFindings": [
+          {
+            "kind": "dangling-id",
+            "detail": "script addresses id \"what\" but no element declares it",
+            "id": "what"
+          }
+        ],
+        "behavioralOwnCheck": null,
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 0,
+            "ok": false,
+            "why": "script threw: document.getElementById(...).EventListener is not a function"
+          },
+          {
+            "turnIndex": 1,
+            "ok": false,
+            "why": "script threw: document.getElementById(...).EventListener is not a function"
+          },
+          {
+            "turnIndex": 2,
+            "ok": false,
+            "why": "script threw: document.getElementById(...).EventListener is not a function"
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 1135,
+        "codeLenAfter": 1120,
+        "groundAfter": 3,
+        "tokens": 18,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Priority Tasks</title></head>\n<body>\n\n  <select id=\"priority\"><option value=\"low\">low</option><option value=\"high\">high</option></select>\n  <button id=\"\"></button>\n  <ul id=\"list\"></ul>\n  <div id=\"count\">0 tasks</div>\n  <script>\n    let tasks = [];\n    function render() {\n      const list = document.getElementById('list');\n      list.innerHTML = '';\n      tasks.forEach(function(t, i) {\n        const li = document.createElement('li');\n        li.textContent = (t.done ? '[x] ' : '[ ] ') + t.text + ' (' + t.priority + ')';\n        li.className = t.priority;\n        li.EventListener('click', function() { t.done = !t.done; render(); });\n        list.appendChild(li);\n      });\n      document.getElementById('count').textContent = tasks.length + ' tasks';\n    }\n    document.getElementById('').EventListener('click', function() {\n      const text = document.getElementById('what').value;\n      const priority = document.getElementById('priority').value;\n      if (text) tasks.push({ text: text, priority: priority, done: false });\n      render();\n    });\n  </script>\n</body>\n</html>"
+      },
+      {
+        "turnIndex": 4,
+        "ask": "make it better",
+        "predictedKind": "vague",
+        "routedAs": "anaphora",
+        "landed": false,
+        "gap": "unlocated",
+        "structuralClean": null,
+        "structuralFindings": [],
+        "behavioralOwnCheck": null,
+        "regressionsIntroducedThisTurn": [],
+        "conformFindings": [],
+        "codeLenBefore": 1120,
+        "codeLenAfter": 1120,
+        "groundAfter": 3,
+        "tokens": 40
+      },
+      {
+        "turnIndex": 5,
+        "ask": "show a count of how many tasks are done vs not done",
+        "predictedKind": "feature",
+        "routedAs": "resolved",
+        "landed": false,
+        "gap": "unlocated",
+        "structuralClean": null,
+        "structuralFindings": [],
+        "behavioralOwnCheck": {
+          "turnIndex": 5,
+          "ok": null,
+          "why": "no landing this turn — code unchanged or absent"
+        },
+        "regressionsIntroducedThisTurn": [],
+        "conformFindings": [],
+        "codeLenBefore": 1120,
+        "codeLenAfter": 1120,
+        "groundAfter": 3,
+        "tokens": 24
+      },
+      {
+        "turnIndex": 6,
+        "ask": "clicking a task to mark it done isn't working right, fix it",
+        "predictedKind": "judgment",
+        "routedAs": "resolved",
+        "landed": true,
+        "gap": null,
+        "structuralClean": false,
+        "structuralFindings": [
+          {
+            "kind": "dangling-id",
+            "detail": "script addresses id \"what\" but no element declares it",
+            "id": "what"
+          }
+        ],
+        "behavioralOwnCheck": {
+          "turnIndex": 6,
+          "ok": false,
+          "why": "script threw: document.getElementById(...).EventListener is not a function"
+        },
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 0,
+            "ok": false,
+            "why": "script threw: document.getElementById(...).EventListener is not a function"
+          },
+          {
+            "turnIndex": 1,
+            "ok": false,
+            "why": "script threw: document.getElementById(...).EventListener is not a function"
+          },
+          {
+            "turnIndex": 2,
+            "ok": false,
+            "why": "script threw: document.getElementById(...).EventListener is not a function"
+          },
+          {
+            "turnIndex": 5,
+            "ok": false,
+            "why": "script threw: document.getElementById(...).EventListener is not a function"
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 1120,
+        "codeLenAfter": 1123,
+        "groundAfter": 4,
+        "tokens": 60,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Priority Tasks</title></head>\n<body>\n\n  <select id=\"priority\"><option value=\"low\">low</option><option value=\"high\">high</option></select>\n  <button id=\"\"></button>\n  <ul id=\"list\"></ul>\n  <div id=\"count\">0 tasks</div>\n  <script>\n    let tasks = [];\n    function render() {\n      const list = document.getElementById('list');\n      list.innerHTML = '';\n      tasks.forEach(function(t, i) {\n        const li = document.createElement('li');\n        li.textContent = (t.done ? '[x] ' : '[ ] ') + t.text + ' (' + t.priority + ')';\n        li.className = t.priority;\n        li.addEventListener('click', function() { t.done = !t.done; render(); });\n        list.appendChild(li);\n      });\n      document.getElementById('count').textContent = tasks.length + ' tasks';\n    }\n    document.getElementById('').EventListener('click', function() {\n      const text = document.getElementById('what').value;\n      const priority = document.getElementById('priority').value;\n      if (text) tasks.push({ text: text, priority: priority, done: false });\n      render();\n    });\n  </script>\n</body>\n</html>"
+      },
+      {
+        "turnIndex": 7,
+        "ask": "make the add button bigger",
+        "predictedKind": "anaphora",
+        "routedAs": "resolved",
+        "landed": true,
+        "gap": null,
+        "structuralClean": false,
+        "structuralFindings": [
+          {
+            "kind": "dangling-id",
+            "detail": "script addresses id \"what\" but no element declares it",
+            "id": "what"
+          }
+        ],
+        "behavioralOwnCheck": null,
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 0,
+            "ok": false,
+            "why": "script threw: document.getElementById(...).EventListener is not a function"
+          },
+          {
+            "turnIndex": 1,
+            "ok": false,
+            "why": "script threw: document.getElementById(...).EventListener is not a function"
+          },
+          {
+            "turnIndex": 2,
+            "ok": false,
+            "why": "script threw: document.getElementById(...).EventListener is not a function"
+          },
+          {
+            "turnIndex": 5,
+            "ok": false,
+            "why": "script threw: document.getElementById(...).EventListener is not a function"
+          },
+          {
+            "turnIndex": 6,
+            "ok": false,
+            "why": "script threw: document.getElementById(...).EventListener is not a function"
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 1123,
+        "codeLenAfter": 1123,
+        "groundAfter": 4,
+        "tokens": 20,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Priority Tasks</title></head>\n<body>\n\n  <select id=\"priority\"><option value=\"low\">low</option><option value=\"high\">high</option></select>\n  <button id=\"\"></button>\n  <ul id=\"list\"></ul>\n  <div id=\"count\">0 tasks</div>\n  <script>\n    let tasks = [];\n    function render() {\n      const list = document.getElementById('list');\n      list.innerHTML = '';\n      tasks.forEach(function(t, i) {\n        const li = document.createElement('li');\n        li.textContent = (t.done ? '[x] ' : '[ ] ') + t.text + ' (' + t.priority + ')';\n        li.className = t.priority;\n        li.addEventListener('click', function() { t.done = !t.done; render(); });\n        list.appendChild(li);\n      });\n      document.getElementById('count').textContent = tasks.length + ' tasks';\n    }\n    document.getElementById('').EventListener('click', function() {\n      const text = document.getElementById('what').value;\n      const priority = document.getElementById('priority').value;\n      if (text) tasks.push({ text: text, priority: priority, done: false });\n      render();\n    });\n  </script>\n</body>\n</html>"
+      },
+      {
+        "turnIndex": 8,
+        "ask": "put the delete button back the way it was before",
+        "predictedKind": "undo",
+        "routedAs": "resolved",
+        "landed": true,
+        "gap": null,
+        "structuralClean": false,
+        "structuralFindings": [
+          {
+            "kind": "dangling-id",
+            "detail": "script addresses id \"what\" but no element declares it",
+            "id": "what"
+          }
+        ],
+        "behavioralOwnCheck": null,
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 0,
+            "ok": false,
+            "why": "script threw: document.getElementById(...).EventListener is not a function"
+          },
+          {
+            "turnIndex": 1,
+            "ok": false,
+            "why": "script threw: document.getElementById(...).EventListener is not a function"
+          },
+          {
+            "turnIndex": 2,
+            "ok": false,
+            "why": "script threw: document.getElementById(...).EventListener is not a function"
+          },
+          {
+            "turnIndex": 5,
+            "ok": false,
+            "why": "script threw: document.getElementById(...).EventListener is not a function"
+          },
+          {
+            "turnIndex": 6,
+            "ok": false,
+            "why": "script threw: document.getElementById(...).EventListener is not a function"
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 1123,
+        "codeLenAfter": 1121,
+        "groundAfter": 5,
+        "tokens": 16,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Priority Tasks</title></head>\n<body>\n\n  <select id=\"priority\"><option value=\"low\">low</option><option value=\"high\">high</option></select>\n  <button =\"\"></button>\n  <ul id=\"list\"></ul>\n  <div id=\"count\">0 tasks</div>\n  <script>\n    let tasks = [];\n    function render() {\n      const list = document.getElementById('list');\n      list.innerHTML = '';\n      tasks.forEach(function(t, i) {\n        const li = document.createElement('li');\n        li.textContent = (t.done ? '[x] ' : '[ ] ') + t.text + ' (' + t.priority + ')';\n        li.className = t.priority;\n        li.addEventListener('click', function() { t.done = !t.done; render(); });\n        list.appendChild(li);\n      });\n      document.getElementById('count').textContent = tasks.length + ' tasks';\n    }\n    document.getElementById('').EventListener('click', function() {\n      const text = document.getElementById('what').value;\n      const priority = document.getElementById('priority').value;\n      if (text) tasks.push({ text: text, priority: priority, done: false });\n      render();\n    });\n  </script>\n</body>\n</html>"
+      },
+      {
+        "turnIndex": 9,
+        "ask": "add a button that clears all completed tasks at once",
+        "predictedKind": "feature",
+        "routedAs": "resolved",
+        "landed": false,
+        "gap": "unlocated",
+        "structuralClean": null,
+        "structuralFindings": [],
+        "behavioralOwnCheck": {
+          "turnIndex": 9,
+          "ok": null,
+          "why": "no landing this turn — code unchanged or absent"
+        },
+        "regressionsIntroducedThisTurn": [],
+        "conformFindings": [],
+        "codeLenBefore": 1121,
+        "codeLenAfter": 1121,
+        "groundAfter": 5,
+        "tokens": 16
+      },
+      {
+        "turnIndex": 10,
+        "ask": "it's broken",
+        "predictedKind": "judgment",
+        "routedAs": "anaphora",
+        "landed": true,
+        "gap": null,
+        "structuralClean": false,
+        "structuralFindings": [
+          {
+            "kind": "dangling-id",
+            "detail": "script addresses id \"what\" but no element declares it",
+            "id": "what"
+          }
+        ],
+        "behavioralOwnCheck": null,
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 0,
+            "ok": false,
+            "why": "script threw: document.getElementById(...).EventListener is not a function"
+          },
+          {
+            "turnIndex": 1,
+            "ok": false,
+            "why": "script threw: document.getElementById(...).EventListener is not a function"
+          },
+          {
+            "turnIndex": 2,
+            "ok": false,
+            "why": "script threw: document.getElementById(...).EventListener is not a function"
+          },
+          {
+            "turnIndex": 5,
+            "ok": false,
+            "why": "script threw: document.getElementById(...).EventListener is not a function"
+          },
+          {
+            "turnIndex": 6,
+            "ok": false,
+            "why": "script threw: document.getElementById(...).EventListener is not a function"
+          },
+          {
+            "turnIndex": 9,
+            "ok": false,
+            "why": "script threw: document.getElementById(...).EventListener is not a function"
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 1121,
+        "codeLenAfter": 1113,
+        "groundAfter": 6,
+        "tokens": 16,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Priority Tasks</title></head>\n<body>\n\n  <select id=\"priority\"><option value=\"low\">low</option><option value=\"high\">high</option></select>\n  <\"\"></button>\n  <ul id=\"list\"></ul>\n  <div id=\"count\">0 tasks</div>\n  <script>\n    let tasks = [];\n    function render() {\n      const list = document.getElementById('list');\n      list.innerHTML = '';\n      tasks.forEach(function(t, i) {\n        const li = document.createElement('li');\n        li.textContent = (t.done ? '[x] ' : '[ ] ') + t.text + ' (' + t.priority + ')';\n        li.className = t.priority;\n        li.addEventListener('click', function() { t.done = !t.done; render(); });\n        list.appendChild(li);\n      });\n      document.getElementById('count').textContent = tasks.length + ' tasks';\n    }\n    document.getElementById('').EventListener('click', function() {\n      const text = document.getElementById('what').value;\n      const priority = document.getElementById('priority').value;\n      if (text) tasks.push({ text: text, priority: priority, done: false });\n      render();\n    });\n  </script>\n</body>\n</html>"
+      },
+      {
+        "turnIndex": 11,
+        "ask": "adding a task should still clear the input field afterward — check that still works",
+        "predictedKind": "structural",
+        "routedAs": "resolved",
+        "landed": true,
+        "gap": null,
+        "structuralClean": false,
+        "structuralFindings": [
+          {
+            "kind": "dangling-id",
+            "detail": "script addresses id \"what\" but no element declares it",
+            "id": "what"
+          }
+        ],
+        "behavioralOwnCheck": {
+          "turnIndex": 11,
+          "ok": false,
+          "why": "script threw: document.getElementById(...).EventListener is not a function"
+        },
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 0,
+            "ok": false,
+            "why": "script threw: document.getElementById(...).EventListener is not a function"
+          },
+          {
+            "turnIndex": 1,
+            "ok": false,
+            "why": "script threw: document.getElementById(...).EventListener is not a function"
+          },
+          {
+            "turnIndex": 2,
+            "ok": false,
+            "why": "script threw: document.getElementById(...).EventListener is not a function"
+          },
+          {
+            "turnIndex": 5,
+            "ok": false,
+            "why": "script threw: document.getElementById(...).EventListener is not a function"
+          },
+          {
+            "turnIndex": 6,
+            "ok": false,
+            "why": "script threw: document.getElementById(...).EventListener is not a function"
+          },
+          {
+            "turnIndex": 9,
+            "ok": false,
+            "why": "script threw: document.getElementById(...).EventListener is not a function"
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 1113,
+        "codeLenAfter": 1053,
+        "groundAfter": 7,
+        "tokens": 33,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Priority Tasks</title></head>\n<body>\n\n  <select id=\"priority\"><option value=\"low\">low</option><option value=\"high\">high</option></select>\n  <\"\"></button>\n  <ul id=\"list\"></ul>\n  <div id=\"count\">0 tasks</div>\n  <script>\n    let tasks = [];\n    function render() {\n      const list = document.getElementById('list');\n      list.innerHTML = '';\n      tasks.forEach(function(t, i) {\n        const li = document.createElement('li');\n        li.textContent = (t.done ? '[x] ' : '[ ] ') + t.text + ' (' + t.priority + ')';\n        li.className = t.priority;\n        li.addEventListener('click', function() { t.done = !t.done; render(); });\n        list.appendChild(li);\n      });\n      document.getElementById('count').textContent = tasks.length + ' tasks';\n    }\n    document.getElementById('').EventListener('click', function() {\n      const text = document.getElementById('what').value;\n      const priority = document.getElementById('priority').value;\n      if (text) \n      render();\n    });\n  </script>\n</body>\n</html>"
+      },
+      {
+        "turnIndex": 12,
+        "ask": "sort high priority tasks to the top of the list",
+        "predictedKind": "feature",
+        "routedAs": "resolved",
+        "landed": true,
+        "gap": null,
+        "structuralClean": false,
+        "structuralFindings": [
+          {
+            "kind": "dangling-id",
+            "detail": "script addresses id \"what\" but no element declares it",
+            "id": "what"
+          }
+        ],
+        "behavioralOwnCheck": null,
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 0,
+            "ok": false,
+            "why": "script threw: document.getElementById(...).EventListener is not a function"
+          },
+          {
+            "turnIndex": 1,
+            "ok": false,
+            "why": "script threw: document.getElementById(...).EventListener is not a function"
+          },
+          {
+            "turnIndex": 2,
+            "ok": false,
+            "why": "script threw: document.getElementById(...).EventListener is not a function"
+          },
+          {
+            "turnIndex": 5,
+            "ok": false,
+            "why": "script threw: document.getElementById(...).EventListener is not a function"
+          },
+          {
+            "turnIndex": 6,
+            "ok": false,
+            "why": "script threw: document.getElementById(...).EventListener is not a function"
+          },
+          {
+            "turnIndex": 9,
+            "ok": false,
+            "why": "script threw: document.getElementById(...).EventListener is not a function"
+          },
+          {
+            "turnIndex": 11,
+            "ok": false,
+            "why": "script threw: document.getElementById(...).EventListener is not a function"
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 1053,
+        "codeLenAfter": 1041,
+        "groundAfter": 8,
+        "tokens": 18,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Priority Tasks</title></head>\n<body>\n\n  <select id=\"priority\"><option value=\"low\">low</option><option >high</option></select>\n  <\"\"></button>\n  <ul id=\"list\"></ul>\n  <div id=\"count\">0 tasks</div>\n  <script>\n    let tasks = [];\n    function render() {\n      const list = document.getElementById('list');\n      list.innerHTML = '';\n      tasks.forEach(function(t, i) {\n        const li = document.createElement('li');\n        li.textContent = (t.done ? '[x] ' : '[ ] ') + t.text + ' (' + t.priority + ')';\n        li.className = t.priority;\n        li.addEventListener('click', function() { t.done = !t.done; render(); });\n        list.appendChild(li);\n      });\n      document.getElementById('count').textContent = tasks.length + ' tasks';\n    }\n    document.getElementById('').EventListener('click', function() {\n      const text = document.getElementById('what').value;\n      const priority = document.getElementById('priority').value;\n      if (text) \n      render();\n    });\n  </script>\n</body>\n</html>"
+      },
+      {
+        "turnIndex": 13,
+        "ask": "fix it",
+        "predictedKind": "vague",
+        "routedAs": "anaphora",
+        "landed": false,
+        "gap": "unlocated",
+        "structuralClean": null,
+        "structuralFindings": [],
+        "behavioralOwnCheck": null,
+        "regressionsIntroducedThisTurn": [],
+        "conformFindings": [],
+        "codeLenBefore": 1041,
+        "codeLenAfter": 1041,
+        "groundAfter": 8,
+        "tokens": 20
+      },
+      {
+        "turnIndex": 14,
+        "ask": "add a button to mark all tasks done at once",
+        "predictedKind": "feature",
+        "routedAs": "resolved",
+        "landed": false,
+        "gap": "unlocated",
+        "structuralClean": null,
+        "structuralFindings": [],
+        "behavioralOwnCheck": {
+          "turnIndex": 14,
+          "ok": null,
+          "why": "no landing this turn — code unchanged or absent"
+        },
+        "regressionsIntroducedThisTurn": [],
+        "conformFindings": [],
+        "codeLenBefore": 1041,
+        "codeLenAfter": 1041,
+        "groundAfter": 8,
+        "tokens": 31
+      },
+      {
+        "turnIndex": 15,
+        "ask": "I don't like how the count looks, it should say 'Done:' not just the number",
+        "predictedKind": "judgment",
+        "routedAs": "judgment",
+        "landed": true,
+        "gap": null,
+        "structuralClean": false,
+        "structuralFindings": [
+          {
+            "kind": "dangling-id",
+            "detail": "script addresses id \"what\" but no element declares it",
+            "id": "what"
+          }
+        ],
+        "behavioralOwnCheck": {
+          "turnIndex": 15,
+          "ok": false,
+          "why": "script threw: document.getElementById(...).EventListener is not a function"
+        },
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 0,
+            "ok": false,
+            "why": "script threw: document.getElementById(...).EventListener is not a function"
+          },
+          {
+            "turnIndex": 1,
+            "ok": false,
+            "why": "script threw: document.getElementById(...).EventListener is not a function"
+          },
+          {
+            "turnIndex": 2,
+            "ok": false,
+            "why": "script threw: document.getElementById(...).EventListener is not a function"
+          },
+          {
+            "turnIndex": 5,
+            "ok": false,
+            "why": "script threw: document.getElementById(...).EventListener is not a function"
+          },
+          {
+            "turnIndex": 6,
+            "ok": false,
+            "why": "script threw: document.getElementById(...).EventListener is not a function"
+          },
+          {
+            "turnIndex": 9,
+            "ok": false,
+            "why": "script threw: document.getElementById(...).EventListener is not a function"
+          },
+          {
+            "turnIndex": 11,
+            "ok": false,
+            "why": "script threw: document.getElementById(...).EventListener is not a function"
+          },
+          {
+            "turnIndex": 14,
+            "ok": false,
+            "why": "script threw: document.getElementById(...).EventListener is not a function"
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 1041,
+        "codeLenAfter": 1052,
+        "groundAfter": 9,
+        "tokens": 53,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Priority Tasks</title></head>\n<body>\n\n  <select id=\"priority\"><option value=\"low\">low</option><option >high</option></select>\n  <\"\"></button>\n  <ul id=\"list\"></ul>\n  <div id=\"count\">0 tasks</div>\n  <script>\n    let tasks = [];\n    function render() {\n      const list = document.getElementById('list');\n      list.innerHTML = '';\n      tasks.forEach(function(t, i) {\n        const li = document.createElement('li');\n        li.textContent = (t.done ? '[x] ' : '[ ] ') + t.text + ' (' + t.priority + ')';\n        li.className = t.priority;\n        li.addEventListener('click', function() { t.done = !t.done; render(); });\n        list.appendChild(li);\n      });\n      document.getElementById('count').textContent = 'Done: ' + tasks.length + ' tasks';\n    }\n    document.getElementById('').EventListener('click', function() {\n      const text = document.getElementById('what').value;\n      const priority = document.getElementById('priority').value;\n      if (text) \n      render();\n    });\n  </script>\n</body>\n</html>"
+      },
+      {
+        "turnIndex": 16,
+        "ask": "add a way to edit an existing task's text",
+        "predictedKind": "feature",
+        "routedAs": "resolved",
+        "landed": true,
+        "gap": null,
+        "structuralClean": false,
+        "structuralFindings": [
+          {
+            "kind": "dangling-id",
+            "detail": "script addresses id \"what\" but no element declares it",
+            "id": "what"
+          }
+        ],
+        "behavioralOwnCheck": null,
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 0,
+            "ok": false,
+            "why": "script threw: document.getElementById(...).EventListener is not a function"
+          },
+          {
+            "turnIndex": 1,
+            "ok": false,
+            "why": "script threw: document.getElementById(...).EventListener is not a function"
+          },
+          {
+            "turnIndex": 2,
+            "ok": false,
+            "why": "script threw: document.getElementById(...).EventListener is not a function"
+          },
+          {
+            "turnIndex": 5,
+            "ok": false,
+            "why": "script threw: document.getElementById(...).EventListener is not a function"
+          },
+          {
+            "turnIndex": 6,
+            "ok": false,
+            "why": "script threw: document.getElementById(...).EventListener is not a function"
+          },
+          {
+            "turnIndex": 9,
+            "ok": false,
+            "why": "script threw: document.getElementById(...).EventListener is not a function"
+          },
+          {
+            "turnIndex": 11,
+            "ok": false,
+            "why": "script threw: document.getElementById(...).EventListener is not a function"
+          },
+          {
+            "turnIndex": 14,
+            "ok": false,
+            "why": "script threw: document.getElementById(...).EventListener is not a function"
+          },
+          {
+            "turnIndex": 15,
+            "ok": false,
+            "why": "script threw: document.getElementById(...).EventListener is not a function"
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 1052,
+        "codeLenAfter": 1054,
+        "groundAfter": 10,
+        "tokens": 81,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Priority Tasks</title></head>\n<body>\n\n  <select id=\"priority\"><option value=\"low\">low</option><option >high</option></select>\n  <\"\"></button>\n  <ul id=\"list\"></ul>\n  <div id=\"count\">0 tasks</div>\n  <script>\n    let tasks = [];\n    function render() {\n      const list = document.getElementById('list');\n      list.innerHTML = '';\n      tasks.forEach(function(t, i) {\n        const li = document.createElement('li');\n          li.textContent = (t.done ? '[x] ' : '[ ] ') + t.text + ' (' + t.priority + ')';\n        li.className = t.priority;\n        li.addEventListener('click', function() { t.done = !t.done; render(); });\n        list.appendChild(li);\n      });\n      document.getElementById('count').textContent = 'Done: ' + tasks.length + ' tasks';\n    }\n    document.getElementById('').EventListener('click', function() {\n      const text = document.getElementById('what').value;\n      const priority = document.getElementById('priority').value;\n      if (text) \n      render();\n    });\n  </script>\n</body>\n</html>"
+      },
+      {
+        "turnIndex": 17,
+        "ask": "undo the last change",
+        "predictedKind": "undo",
+        "routedAs": null,
+        "landed": true,
+        "gap": null,
+        "structuralClean": true,
+        "structuralFindings": [],
+        "behavioralOwnCheck": null,
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 0,
+            "ok": false,
+            "why": "check threw: Cannot set properties of null (setting 'value')"
+          },
+          {
+            "turnIndex": 1,
+            "ok": false,
+            "why": "check threw: Cannot set properties of null (setting 'value')"
+          },
+          {
+            "turnIndex": 6,
+            "ok": false,
+            "why": "check threw: Cannot set properties of null (setting 'value')"
+          },
+          {
+            "turnIndex": 9,
+            "ok": false,
+            "why": "check threw: Cannot set properties of null (setting 'value')"
+          },
+          {
+            "turnIndex": 11,
+            "ok": false,
+            "why": "check threw: Cannot set properties of null (setting 'value')"
+          },
+          {
+            "turnIndex": 14,
+            "ok": false,
+            "why": "check threw: Cannot set properties of null (setting 'value')"
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 1054,
+        "codeLenAfter": 1050,
+        "groundAfter": 10,
+        "tokens": 15,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Priority Tasks</title></head>\n<body>\n\n  <select id=\"priority\"><option value=\"low\">low</option><option >high</option></select>\n  <\"\"></button>\n  <ul id=\"list\"></ul>\n  <div id=\"count\">0 tasks</div>\n  <script>\n    let tasks = [];\n    function render() {\n      const list = document.getElementById('list');\n      list.innerHTML = '';\n      tasks.forEach(function(t, i) {\n        const li = document.createElement('li');\n          li.textContent = (t.done ? '[x] ' : '[ ] ') + t.text + ' (' + t.priority + ')';\n        li.className = t.priority;\n        li.addEventListener('click', function() { t.done = !t.done; render(); });\n        list.appendChild(li);\n      });\n      document.getElementById('count').textContent = 'Done: ' + tasks.length + ' tasks';\n    }\n    document.getElementById('').EventListener('click', function() {\n      const text = document.getElementById('what').value;\n      const priority = document.getElementById('priority').value;\n      if (text) \n      render();\n    });\nscript>\n</body>\n</html>"
+      }
+    ]
+  },
+  "qwen2.5-coder:7b": {
+    "spreadsheet": [
+      {
+        "turnIndex": 1,
+        "ask": "add a button that clears all the cells to 0",
+        "predictedKind": "feature",
+        "routedAs": "resolved",
+        "landed": true,
+        "gap": null,
+        "structuralClean": false,
+        "structuralFindings": [
+          {
+            "kind": "script-syntax",
+            "detail": "Unexpected token ')'"
+          }
+        ],
+        "behavioralOwnCheck": {
+          "turnIndex": 1,
+          "ok": false,
+          "why": "script threw: Unexpected token ')'"
+        },
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 0,
+            "ok": false,
+            "why": "script threw: Unexpected token ')'"
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 814,
+        "codeLenAfter": 852,
+        "groundAfter": 2,
+        "tokens": 40,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Mini Spreadsheet</title></head>\n<body>\n  <table id=\"grid\">\n    <tr><td><input class=\"cell\" data-r=\"0\" data-c=\"0\" value=\"1\"></td><td><input class=\"cell\" data-r=\"0\" data-c=\"1\" value=\"2\"></td></tr>\n    <tr><td><input class=\"cell\" data-r=\"1\" data-c=\"0\" value=\"3\"></td><td><input class=\"cell\" data-r=\"1\" data-c=\"1\" value=\"4\"></td></tr>\n  </table>\n  <div>Sum: <span id=\"sum\">0</span></div>\n  <script>\n    function recompute() {\n      let total = 0;\n      document.querySelectorAll('.cell').forEach(function(c) { c.value = '0'; });\n        total += Number(c.value) || 0;\n      });\n      document.getElementById('sum').textContent = total;\n    }\n    document.querySelectorAll('.cell').forEach(function(c) { c.value = '0'; });\n      c.addEventListener('input', recompute);\n    });\n    recompute();\n  </script>\n</body>\n</html>"
+      },
+      {
+        "turnIndex": 2,
+        "ask": "add a third row of two more cells, prefilled with 5 and 6",
+        "predictedKind": "feature",
+        "routedAs": "resolved",
+        "landed": true,
+        "gap": null,
+        "structuralClean": false,
+        "structuralFindings": [
+          {
+            "kind": "script-syntax",
+            "detail": "Unexpected token ')'"
+          }
+        ],
+        "behavioralOwnCheck": {
+          "turnIndex": 2,
+          "ok": false,
+          "why": "script threw: Unexpected token ')'"
+        },
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 0,
+            "ok": false,
+            "why": "script threw: Unexpected token ')'"
+          },
+          {
+            "turnIndex": 1,
+            "ok": false,
+            "why": "script threw: Unexpected token ')'"
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 852,
+        "codeLenAfter": 852,
+        "groundAfter": 3,
+        "tokens": 111,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Mini Spreadsheet</title></head>\n<body>\n  <table id=\"grid\">\n    <tr><td><input class=\"cell\" data-r=\"0\" data-c=\"0\" value=\"1\"></td><td><input class=\"cell\" data-r=\"0\" data-c=\"1\" value=\"2\"></td></tr>\n    <tr><td><input class=\"cell\" data-r=\"2\" data-c=\"0\" value=\"5\"></td><td><input class=\"cell\" data-r=\"2\" data-c=\"1\" value=\"6\"></td></tr>\n  </table>\n  <div>Sum: <span id=\"sum\">0</span></div>\n  <script>\n    function recompute() {\n      let total = 0;\n      document.querySelectorAll('.cell').forEach(function(c) { c.value = '0'; });\n        total += Number(c.value) || 0;\n      });\n      document.getElementById('sum').textContent = total;\n    }\n    document.querySelectorAll('.cell').forEach(function(c) { c.value = '0'; });\n      c.addEventListener('input', recompute);\n    });\n    recompute();\n  </script>\n</body>\n</html>"
+      },
+      {
+        "turnIndex": 3,
+        "ask": "I don't like the colors, make it nicer",
+        "predictedKind": "judgment",
+        "routedAs": "anaphora",
+        "landed": false,
+        "gap": "unlocated",
+        "structuralClean": null,
+        "structuralFindings": [],
+        "behavioralOwnCheck": null,
+        "regressionsIntroducedThisTurn": [],
+        "conformFindings": [],
+        "codeLenBefore": 852,
+        "codeLenAfter": 852,
+        "groundAfter": 3,
+        "tokens": 49
+      },
+      {
+        "turnIndex": 4,
+        "ask": "make it better",
+        "predictedKind": "vague",
+        "routedAs": "anaphora",
+        "landed": true,
+        "gap": null,
+        "structuralClean": false,
+        "structuralFindings": [
+          {
+            "kind": "script-syntax",
+            "detail": "Unexpected token ')'"
+          }
+        ],
+        "behavioralOwnCheck": null,
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 0,
+            "ok": false,
+            "why": "script threw: Unexpected token ')'"
+          },
+          {
+            "turnIndex": 1,
+            "ok": false,
+            "why": "script threw: Unexpected token ')'"
+          },
+          {
+            "turnIndex": 2,
+            "ok": false,
+            "why": "script threw: Unexpected token ')'"
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 852,
+        "codeLenAfter": 702,
+        "groundAfter": 4,
+        "tokens": 31,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Mini Spreadsheet</title></head>\n<body>\n  <table id=\"grid\">\n    <tr><td><input class=\"cell\" data-r=\"0\" data-c=\"0\" value=\"1\"></td><td><input class=\"cell\" data-r=\"0\" data-c=\"1\" value=\"2\"></td></tr>\n    <tr><td><input class=\"cell\" data-r=\"2\" data-c=\"0\" value=\"5\"></td><td><input class=\"cell\" data-r=\"2\" data-c=\"1\" value=\"6\"></td></tr>\n  </table>\n  <div>Sum: <span id=\"sum\">0</span></div>\n  <script>\n    function recompute() {\n      let total = 0;\n      \n        total += Number(c.value) || 0;\n      });\n      document.getElementById('sum').textContent = total;\n    }\n    \n      c.addEventListener('input', recompute);\n    });\n    recompute();\n  </script>\n</body>\n</html>"
+      },
+      {
+        "turnIndex": 5,
+        "ask": "show the average of the cells too, next to the sum",
+        "predictedKind": "feature",
+        "routedAs": "resolved",
+        "landed": true,
+        "gap": null,
+        "structuralClean": false,
+        "structuralFindings": [
+          {
+            "kind": "script-syntax",
+            "detail": "Unexpected token ')'"
+          }
+        ],
+        "behavioralOwnCheck": {
+          "turnIndex": 5,
+          "ok": false,
+          "why": "script threw: Unexpected token ')'"
+        },
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 0,
+            "ok": false,
+            "why": "script threw: Unexpected token ')'"
+          },
+          {
+            "turnIndex": 1,
+            "ok": false,
+            "why": "script threw: Unexpected token ')'"
+          },
+          {
+            "turnIndex": 2,
+            "ok": false,
+            "why": "script threw: Unexpected token ')'"
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 702,
+        "codeLenAfter": 784,
+        "groundAfter": 5,
+        "tokens": 56,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Mini Spreadsheet</title></head>\n<body>\n  <table id=\"grid\">\n    <tr><td><input class=\"cell\" data-r=\"0\" data-c=\"0\" value=\"1\"></td><td><input class=\"cell\" data-r=\"0\" data-c=\"1\" value=\"2\"></td></tr>\n    <tr><td><input class=\"cell\" data-r=\"2\" data-c=\"0\" value=\"5\"></td><td><input class=\"cell\" data-r=\"2\" data-c=\"1\" value=\"6\"></td></tr>\n  </table>\n  <div>Sum: <span id=\"sum\">0</span></div>\n  <script>\n    function recompute() {\n      let total = 0;\n      \n        total += Number(c.value) || 0;\n      });\n      ; let average = total / c.length; document.getElementById('sum').textContent = 'Sum: ' + total + ' | Average: ' + average.toFixed(2);\n    }\n    \n      c.addEventListener('input', recompute);\n    });\n    recompute();\n  </script>\n</body>\n</html>"
+      },
+      {
+        "turnIndex": 6,
+        "ask": "the sum isn't updating right when I type in a cell, fix it",
+        "predictedKind": "judgment",
+        "routedAs": "resolved",
+        "landed": true,
+        "gap": null,
+        "structuralClean": false,
+        "structuralFindings": [
+          {
+            "kind": "script-syntax",
+            "detail": "Unexpected token ')'"
+          }
+        ],
+        "behavioralOwnCheck": {
+          "turnIndex": 6,
+          "ok": false,
+          "why": "script threw: Unexpected token ')'"
+        },
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 0,
+            "ok": false,
+            "why": "script threw: Unexpected token ')'"
+          },
+          {
+            "turnIndex": 1,
+            "ok": false,
+            "why": "script threw: Unexpected token ')'"
+          },
+          {
+            "turnIndex": 2,
+            "ok": false,
+            "why": "script threw: Unexpected token ')'"
+          },
+          {
+            "turnIndex": 5,
+            "ok": false,
+            "why": "script threw: Unexpected token ')'"
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 784,
+        "codeLenAfter": 784,
+        "groundAfter": 5,
+        "tokens": 19,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Mini Spreadsheet</title></head>\n<body>\n  <table id=\"grid\">\n    <tr><td><input class=\"cell\" data-r=\"0\" data-c=\"0\" value=\"1\"></td><td><input class=\"cell\" data-r=\"0\" data-c=\"1\" value=\"2\"></td></tr>\n    <tr><td><input class=\"cell\" data-r=\"2\" data-c=\"0\" value=\"5\"></td><td><input class=\"cell\" data-r=\"2\" data-c=\"1\" value=\"6\"></td></tr>\n  </table>\n  <div>Sum: <span id=\"sum\">0</span></div>\n  <script>\n    function recompute() {\n      let total = 0;\n      \n        total += Number(c.value) || 0;\n      });\n      ; let average = total / c.length; document.getElementById('sum').textContent = 'Sum: ' + total + ' | Average: ' + average.toFixed(2);\n    }\n    \n      c.addEventListener('input', recompute);\n    });\n    recompute();\n  </script>\n</body>\n</html>"
+      },
+      {
+        "turnIndex": 7,
+        "ask": "make the buttons bigger",
+        "predictedKind": "anaphora",
+        "routedAs": null,
+        "landed": true,
+        "gap": null,
+        "structuralClean": false,
+        "structuralFindings": [
+          {
+            "kind": "script-syntax",
+            "detail": "Unexpected token ')'"
+          }
+        ],
+        "behavioralOwnCheck": null,
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 0,
+            "ok": false,
+            "why": "script threw: Unexpected token ')'"
+          },
+          {
+            "turnIndex": 1,
+            "ok": false,
+            "why": "script threw: Unexpected token ')'"
+          },
+          {
+            "turnIndex": 2,
+            "ok": false,
+            "why": "script threw: Unexpected token ')'"
+          },
+          {
+            "turnIndex": 5,
+            "ok": false,
+            "why": "script threw: Unexpected token ')'"
+          },
+          {
+            "turnIndex": 6,
+            "ok": false,
+            "why": "script threw: Unexpected token ')'"
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 784,
+        "codeLenAfter": 834,
+        "groundAfter": 5,
+        "tokens": 48,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Mini Spreadsheet</title></head>\n<body>\n  <table id=\"grid\">\n    <tr><td><input class=\"cell\" data-r=\"0\" data-c=\"0\" value=\"1\"></td><td><input class=\"cell\" data-r=\"0\" data-c=\"1\" value=\"2\"></td></tr>\n    <tr><td><input class=\"cell\" data-r=\"2\" data-c=\"0\" value=\"5\"></td><td><input class=\"cell\" data-r=\"2\" data-c=\"1\" value=\"6\"></td></tr>\n  </table>\n  <div>Sum: <span id=\"sum\">0</span></div>\n  <script>\n    function recompute() {\n      let total = 0;\n      \n        total += Number(c.value) || 0;\n      });\n      ; let average = total / c.length; document.getElementById('sum').textContent = 'Sum: ' + total + ' | Average: ' + average.toFixed(2);\n    }\n    \n      c.addEventListener('input', recompute); c.style.width = '100px'; c.style.height = '30px';\n    });\n    recompute();\n  </script>\n</body>\n</html>"
+      },
+      {
+        "turnIndex": 8,
+        "ask": "put the clear button back the way it was before",
+        "predictedKind": "undo",
+        "routedAs": "anaphora",
+        "landed": true,
+        "gap": null,
+        "structuralClean": false,
+        "structuralFindings": [
+          {
+            "kind": "script-syntax",
+            "detail": "Unexpected token ')'"
+          }
+        ],
+        "behavioralOwnCheck": null,
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 0,
+            "ok": false,
+            "why": "script threw: Unexpected token ')'"
+          },
+          {
+            "turnIndex": 1,
+            "ok": false,
+            "why": "script threw: Unexpected token ')'"
+          },
+          {
+            "turnIndex": 2,
+            "ok": false,
+            "why": "script threw: Unexpected token ')'"
+          },
+          {
+            "turnIndex": 5,
+            "ok": false,
+            "why": "script threw: Unexpected token ')'"
+          },
+          {
+            "turnIndex": 6,
+            "ok": false,
+            "why": "script threw: Unexpected token ')'"
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 834,
+        "codeLenAfter": 1008,
+        "groundAfter": 6,
+        "tokens": 58,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Mini Spreadsheet</title></head>\n<body>\n  <table id=\"grid\">\n    <tr><td><input class=\"cell\" data-r=\"0\" data-c=\"0\" value=\"1\"></td><td><input class=\"cell\" data-r=\"0\" data-c=\"1\" value=\"2\"></td></tr>\n    <tr><td><input class=\"cell\" data-r=\"2\" data-c=\"0\" value=\"5\"></td><td><input class=\"cell\" data-r=\"2\" data-c=\"1\" value=\"6\"></td></tr>\n  </table>\n  <div>Sum: <span id=\"sum\">0</span></div>\n  <script>\n    function recompute() {\n      let total = 0;\n      \n        total += Number(c.value) || 0;\n      });\n      ; let average = total / c.length; document.getElementById('sum').textContent = 'Sum: ' + total + ' | Average: ' + average.toFixed(2);\n    }\n    \n      c.addEventListener('input', recompute); c.style.width = '100px'; c.style.height = '30px';\n    });\n    <button onclick=\"document.getElementById('sum').textContent = 'Sum: 0'; document.getElementById('grid').querySelectorAll('.cell').forEach(c => c.value = ''); recompute();\">Clear</button>\n  </script>\n</body>\n</html>"
+      },
+      {
+        "turnIndex": 9,
+        "ask": "add a button that fills every cell with 1",
+        "predictedKind": "feature",
+        "routedAs": "resolved",
+        "landed": true,
+        "gap": null,
+        "structuralClean": false,
+        "structuralFindings": [
+          {
+            "kind": "script-syntax",
+            "detail": "Unexpected token ')'"
+          }
+        ],
+        "behavioralOwnCheck": {
+          "turnIndex": 9,
+          "ok": false,
+          "why": "script threw: Unexpected token ')'"
+        },
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 0,
+            "ok": false,
+            "why": "script threw: Unexpected token ')'"
+          },
+          {
+            "turnIndex": 1,
+            "ok": false,
+            "why": "script threw: Unexpected token ')'"
+          },
+          {
+            "turnIndex": 2,
+            "ok": false,
+            "why": "script threw: Unexpected token ')'"
+          },
+          {
+            "turnIndex": 5,
+            "ok": false,
+            "why": "script threw: Unexpected token ')'"
+          },
+          {
+            "turnIndex": 6,
+            "ok": false,
+            "why": "script threw: Unexpected token ')'"
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 1008,
+        "codeLenAfter": 1010,
+        "groundAfter": 7,
+        "tokens": 88,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Mini Spreadsheet</title></head>\n<body>\n  <table id=\"grid\">\n    <tr><td><input class=\"cell\" data-r=\"0\" data-c=\"0\" value=\"1\"></td><td><input class=\"cell\" data-r=\"0\" data-c=\"1\" value=\"2\"></td></tr>\n    <tr><td><input class=\"cell\" data-r=\"2\" data-c=\"0\" value=\"5\"></td><td><input class=\"cell\" data-r=\"2\" data-c=\"1\" value=\"6\"></td></tr>\n  </table>\n  <div>Sum: <span id=\"sum\">0</span></div>\n  <script>\n    function recompute() {\n      let total = 0;\n      \n        total += Number(c.value) || 0;\n      });\n      ; let average = total / c.length; document.getElementById('sum').textContent = 'Sum: ' + total + ' | Average: ' + average.toFixed(2);\n    }\n    \n      c.addEventListener('input', recompute); c.style.width = '100px'; c.style.height = '30px';\n    });\n    <button  onclick=\"document.getElementById('sum').textContent = 'Sum: 0'; document.getElementById('grid').querySelectorAll('.cell').forEach(c => c.value = '1'); recompute();\">Clear</button>\n  </script>\n</body>\n</html>"
+      },
+      {
+        "turnIndex": 10,
+        "ask": "it's broken",
+        "predictedKind": "judgment",
+        "routedAs": "anaphora",
+        "landed": true,
+        "gap": null,
+        "structuralClean": false,
+        "structuralFindings": [
+          {
+            "kind": "script-syntax",
+            "detail": "Unexpected token ')'"
+          }
+        ],
+        "behavioralOwnCheck": null,
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 0,
+            "ok": false,
+            "why": "script threw: Unexpected token ')'"
+          },
+          {
+            "turnIndex": 1,
+            "ok": false,
+            "why": "script threw: Unexpected token ')'"
+          },
+          {
+            "turnIndex": 2,
+            "ok": false,
+            "why": "script threw: Unexpected token ')'"
+          },
+          {
+            "turnIndex": 5,
+            "ok": false,
+            "why": "script threw: Unexpected token ')'"
+          },
+          {
+            "turnIndex": 6,
+            "ok": false,
+            "why": "script threw: Unexpected token ')'"
+          },
+          {
+            "turnIndex": 9,
+            "ok": false,
+            "why": "script threw: Unexpected token ')'"
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 1010,
+        "codeLenAfter": 1077,
+        "groundAfter": 8,
+        "tokens": 48,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Mini Spreadsheet</title></head>\n<body>\n  <table id=\"grid\">\n    <tr><td><input class=\"cell\" data-r=\"0\" data-c=\"0\" value=\"1\"></td><td><input class=\"cell\" data-r=\"0\" data-c=\"1\" value=\"2\"></td></tr>\n    <tr><td><input class=\"cell\" data-r=\"2\" data-c=\"0\" value=\"5\"></td><td><input class=\"cell\" data-r=\"2\" data-c=\"1\" value=\"6\"></td></tr>\n  </table>\n  <div>Sum: <span id=\"sum\">0</span></div>\n  <script>\n    function recompute() {\n      let total = 0;\n      \n        let c = document.getElementById('grid').querySelectorAll('.cell');\ntotal += Number(c.value) || 0;\n      });\n      ; let average = total / c.length; document.getElementById('sum').textContent = 'Sum: ' + total + ' | Average: ' + average.toFixed(2);\n    }\n    \n      c.addEventListener('input', recompute); c.style.width = '100px'; c.style.height = '30px';\n    });\n    <button  onclick=\"document.getElementById('sum').textContent = 'Sum: 0'; document.getElementById('grid').querySelectorAll('.cell').forEach(c => c.value = '1'); recompute();\">Clear</button>\n  </script>\n</body>\n</html>"
+      },
+      {
+        "turnIndex": 11,
+        "ask": "the sum should still update live as I type, without clicking anything — check that still works",
+        "predictedKind": "structural",
+        "routedAs": "resolved",
+        "landed": true,
+        "gap": null,
+        "structuralClean": false,
+        "structuralFindings": [
+          {
+            "kind": "script-syntax",
+            "detail": "Unexpected token ')'"
+          }
+        ],
+        "behavioralOwnCheck": {
+          "turnIndex": 11,
+          "ok": false,
+          "why": "script threw: Unexpected token ')'"
+        },
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 0,
+            "ok": false,
+            "why": "script threw: Unexpected token ')'"
+          },
+          {
+            "turnIndex": 1,
+            "ok": false,
+            "why": "script threw: Unexpected token ')'"
+          },
+          {
+            "turnIndex": 2,
+            "ok": false,
+            "why": "script threw: Unexpected token ')'"
+          },
+          {
+            "turnIndex": 5,
+            "ok": false,
+            "why": "script threw: Unexpected token ')'"
+          },
+          {
+            "turnIndex": 6,
+            "ok": false,
+            "why": "script threw: Unexpected token ')'"
+          },
+          {
+            "turnIndex": 9,
+            "ok": false,
+            "why": "script threw: Unexpected token ')'"
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 1077,
+        "codeLenAfter": 1038,
+        "groundAfter": 9,
+        "tokens": 22,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Mini Spreadsheet</title></head>\n<body>\n  <table id=\"grid\">\n    <tr><td><input class=\"cell\" data-r=\"0\" data-c=\"0\" value=\"1\"></td><td><input class=\"cell\" data-r=\"0\" data-c=\"1\" value=\"2\"></td></tr>\n    <tr><td><input class=\"cell\" data-r=\"2\" data-c=\"0\" value=\"5\"></td><td><input class=\"cell\" data-r=\"2\" data-c=\"1\" value=\"6\"></td></tr>\n  </table>\n  <div>Sum: <span id=\"sum\">0</span></div>\n  <script>\n    function recompute() {\n      let total = 0;\n      \n        let c = document.getElementById('grid').querySelectorAll('.cell');\ntotal += Number(c.value) || 0;\n      });\n      ; let average = total / c.length; document.getElementById('sum').textContent = 'Sum: ' + total + ' | Average: ' + average.toFixed(2);\n    }\n    \n       c.style.width = '100px'; c.style.height = '30px';\n    });\n    <button  onclick=\"document.getElementById('sum').textContent = 'Sum: 0'; document.getElementById('grid').querySelectorAll('.cell').forEach(c => c.value = '1'); recompute();\">Clear</button>\n  </script>\n</body>\n</html>"
+      },
+      {
+        "turnIndex": 12,
+        "ask": "highlight the cell with the highest value in yellow",
+        "predictedKind": "feature",
+        "routedAs": "resolved",
+        "landed": true,
+        "gap": null,
+        "structuralClean": false,
+        "structuralFindings": [
+          {
+            "kind": "script-syntax",
+            "detail": "Unexpected token ')'"
+          }
+        ],
+        "behavioralOwnCheck": null,
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 0,
+            "ok": false,
+            "why": "script threw: Unexpected token ')'"
+          },
+          {
+            "turnIndex": 1,
+            "ok": false,
+            "why": "script threw: Unexpected token ')'"
+          },
+          {
+            "turnIndex": 2,
+            "ok": false,
+            "why": "script threw: Unexpected token ')'"
+          },
+          {
+            "turnIndex": 5,
+            "ok": false,
+            "why": "script threw: Unexpected token ')'"
+          },
+          {
+            "turnIndex": 6,
+            "ok": false,
+            "why": "script threw: Unexpected token ')'"
+          },
+          {
+            "turnIndex": 9,
+            "ok": false,
+            "why": "script threw: Unexpected token ')'"
+          },
+          {
+            "turnIndex": 11,
+            "ok": false,
+            "why": "script threw: Unexpected token ')'"
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 1038,
+        "codeLenAfter": 1178,
+        "groundAfter": 10,
+        "tokens": 62,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Mini Spreadsheet</title></head>\n<body>\n  <table id=\"grid\">\n    <tr><td><input class=\"cell\" data-r=\"0\" data-c=\"0\" value=\"1\"></td><td><input class=\"cell\" data-r=\"0\" data-c=\"1\" value=\"2\"></td></tr>\n    <tr><td><input class=\"cell\" data-r=\"2\" data-c=\"0\" value=\"5\"></td><td><input class=\"cell\" data-r=\"2\" data-c=\"1\" value=\"6\"></td></tr>\n  </table>\n  <div>Sum: <span id=\"sum\">0</span></div>\n  <script>\n    function recompute() {\n      let total = 0;\n      \n        let c = document.getElementById('grid').querySelectorAll('.cell');\ntotal += Number(c.value) || 0; c.style.backgroundColor = c.value === Math.max(...document.querySelectorAll('.cell').map(cell => Number(cell.value))) ? 'yellow' : 'white';\n      });\n      ; let average = total / c.length; document.getElementById('sum').textContent = 'Sum: ' + total + ' | Average: ' + average.toFixed(2);\n    }\n    \n       c.style.width = '100px'; c.style.height = '30px';\n    });\n    <button  onclick=\"document.getElementById('sum').textContent = 'Sum: 0'; document.getElementById('grid').querySelectorAll('.cell').forEach(c => c.value = '1'); recompute();\">Clear</button>\n  </script>\n</body>\n</html>"
+      },
+      {
+        "turnIndex": 13,
+        "ask": "fix it",
+        "predictedKind": "vague",
+        "routedAs": "anaphora",
+        "landed": true,
+        "gap": null,
+        "structuralClean": false,
+        "structuralFindings": [
+          {
+            "kind": "script-syntax",
+            "detail": "Unexpected token ')'"
+          }
+        ],
+        "behavioralOwnCheck": null,
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 0,
+            "ok": false,
+            "why": "script threw: Unexpected token ')'"
+          },
+          {
+            "turnIndex": 1,
+            "ok": false,
+            "why": "script threw: Unexpected token ')'"
+          },
+          {
+            "turnIndex": 2,
+            "ok": false,
+            "why": "script threw: Unexpected token ')'"
+          },
+          {
+            "turnIndex": 5,
+            "ok": false,
+            "why": "script threw: Unexpected token ')'"
+          },
+          {
+            "turnIndex": 6,
+            "ok": false,
+            "why": "script threw: Unexpected token ')'"
+          },
+          {
+            "turnIndex": 9,
+            "ok": false,
+            "why": "script threw: Unexpected token ')'"
+          },
+          {
+            "turnIndex": 11,
+            "ok": false,
+            "why": "script threw: Unexpected token ')'"
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 1178,
+        "codeLenAfter": 1039,
+        "groundAfter": 11,
+        "tokens": 44,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Mini Spreadsheet</title></head>\n<body>\n  <table id=\"grid\">\n    <tr><td><input class=\"cell\" data-r=\"0\" data-c=\"0\" value=\"1\"></td><td><input class=\"cell\" data-r=\"0\" data-c=\"1\" value=\"2\"></td></tr>\n    <tr><td><input class=\"cell\" data-r=\"2\" data-c=\"0\" value=\"5\"></td><td><input class=\"cell\" data-r=\"2\" data-c=\"1\" value=\"6\"></td></tr>\n  </table>\n  <div>Sum: <span id=\"sum\">0</span></div>\n  <script>\n    function recompute() {\n      let total = 0;\n      \n        let c = document.getElementById('grid').querySelectorAll('.cell');\ntotal += Number(c.value) || 0; \n      });\n      ; let average = total / c.length; document.getElementById('sum').textContent = 'Sum: ' + total + ' | Average: ' + average.toFixed(2);\n    }\n    \n       c.style.width = '100px'; c.style.height = '30px';\n    });\n    <button  onclick=\"document.getElementById('sum').textContent = 'Sum: 0'; document.getElementById('grid').querySelectorAll('.cell').forEach(c => c.value = '1'); recompute();\">Clear</button>\n  </script>\n</body>\n</html>"
+      },
+      {
+        "turnIndex": 14,
+        "ask": "add a reset button that sets every cell back to 0",
+        "predictedKind": "feature",
+        "routedAs": "resolved",
+        "landed": true,
+        "gap": null,
+        "structuralClean": false,
+        "structuralFindings": [
+          {
+            "kind": "script-syntax",
+            "detail": "Unexpected token ')'"
+          }
+        ],
+        "behavioralOwnCheck": {
+          "turnIndex": 14,
+          "ok": false,
+          "why": "script threw: Unexpected token ')'"
+        },
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 0,
+            "ok": false,
+            "why": "script threw: Unexpected token ')'"
+          },
+          {
+            "turnIndex": 1,
+            "ok": false,
+            "why": "script threw: Unexpected token ')'"
+          },
+          {
+            "turnIndex": 2,
+            "ok": false,
+            "why": "script threw: Unexpected token ')'"
+          },
+          {
+            "turnIndex": 5,
+            "ok": false,
+            "why": "script threw: Unexpected token ')'"
+          },
+          {
+            "turnIndex": 6,
+            "ok": false,
+            "why": "script threw: Unexpected token ')'"
+          },
+          {
+            "turnIndex": 9,
+            "ok": false,
+            "why": "script threw: Unexpected token ')'"
+          },
+          {
+            "turnIndex": 11,
+            "ok": false,
+            "why": "script threw: Unexpected token ')'"
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 1039,
+        "codeLenAfter": 967,
+        "groundAfter": 12,
+        "tokens": 33,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Mini Spreadsheet</title></head>\n<body>\n  <table id=\"grid\">\n    <tr><td><input class=\"cell\" data-r=\"0\" data-c=\"0\" value=\"1\"></td><td><input class=\"cell\" data-r=\"0\" data-c=\"1\" value=\"2\"></td></tr>\n    <tr><td><input class=\"cell\" data-r=\"2\" data-c=\"0\" value=\"5\"></td><td><input class=\"cell\" data-r=\"2\" data-c=\"1\" value=\"6\"></td></tr>\n  </table>\n  <div>Sum: <span id=\"sum\">0</span></div>\n  <script>\n    function recompute() {\n      let total = 0;\n      \n        let c = document.getElementById('grid').querySelectorAll('.cell');\ntotal += Number(c.value) || 0; \n      });\n      ; let average = total / c.length; document.getElementById('sum').textContent = 'Sum: ' + total + ' | Average: ' + average.toFixed(2);\n    }\n    \n       c.style.width = '100px'; c.style.height = '30px';\n    });\n    <button  onclick=\"document.getElementById('sum').textContent = 'Sum: 0'; c.value = '0'; recompute();\">Clear</button>\n  </script>\n</body>\n</html>"
+      },
+      {
+        "turnIndex": 15,
+        "ask": "I don't like how the average looks, it should say 'Avg:' not 'Average:'",
+        "predictedKind": "judgment",
+        "routedAs": "judgment",
+        "landed": true,
+        "gap": null,
+        "structuralClean": false,
+        "structuralFindings": [
+          {
+            "kind": "script-syntax",
+            "detail": "Unexpected token ')'"
+          }
+        ],
+        "behavioralOwnCheck": {
+          "turnIndex": 15,
+          "ok": false,
+          "why": "script threw: Unexpected token ')'"
+        },
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 0,
+            "ok": false,
+            "why": "script threw: Unexpected token ')'"
+          },
+          {
+            "turnIndex": 1,
+            "ok": false,
+            "why": "script threw: Unexpected token ')'"
+          },
+          {
+            "turnIndex": 2,
+            "ok": false,
+            "why": "script threw: Unexpected token ')'"
+          },
+          {
+            "turnIndex": 5,
+            "ok": false,
+            "why": "script threw: Unexpected token ')'"
+          },
+          {
+            "turnIndex": 6,
+            "ok": false,
+            "why": "script threw: Unexpected token ')'"
+          },
+          {
+            "turnIndex": 9,
+            "ok": false,
+            "why": "script threw: Unexpected token ')'"
+          },
+          {
+            "turnIndex": 11,
+            "ok": false,
+            "why": "script threw: Unexpected token ')'"
+          },
+          {
+            "turnIndex": 14,
+            "ok": false,
+            "why": "script threw: Unexpected token ')'"
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 967,
+        "codeLenAfter": 963,
+        "groundAfter": 13,
+        "tokens": 17,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Mini Spreadsheet</title></head>\n<body>\n  <table id=\"grid\">\n    <tr><td><input class=\"cell\" data-r=\"0\" data-c=\"0\" value=\"1\"></td><td><input class=\"cell\" data-r=\"0\" data-c=\"1\" value=\"2\"></td></tr>\n    <tr><td><input class=\"cell\" data-r=\"2\" data-c=\"0\" value=\"5\"></td><td><input class=\"cell\" data-r=\"2\" data-c=\"1\" value=\"6\"></td></tr>\n  </table>\n  <div>Sum: <span id=\"sum\">0</span></div>\n  <script>\n    function recompute() {\n      let total = 0;\n      \n        let c = document.getElementById('grid').querySelectorAll('.cell');\ntotal += Number(c.value) || 0; \n      });\n      ; let average = total / c.length; document.getElementById('sum').textContent = 'Sum: ' + total + ' | Avg: ' + average.toFixed(2);\n    }\n    \n       c.style.width = '100px'; c.style.height = '30px';\n    });\n    <button  onclick=\"document.getElementById('sum').textContent = 'Sum: 0'; c.value = '0'; recompute();\">Clear</button>\n  </script>\n</body>\n</html>"
+      },
+      {
+        "turnIndex": 16,
+        "ask": "add a max and a min value display too",
+        "predictedKind": "feature",
+        "routedAs": "resolved",
+        "landed": true,
+        "gap": null,
+        "structuralClean": false,
+        "structuralFindings": [
+          {
+            "kind": "script-syntax",
+            "detail": "Unexpected token ')'"
+          }
+        ],
+        "behavioralOwnCheck": {
+          "turnIndex": 16,
+          "ok": false,
+          "why": "script threw: Unexpected token ')'"
+        },
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 0,
+            "ok": false,
+            "why": "script threw: Unexpected token ')'"
+          },
+          {
+            "turnIndex": 1,
+            "ok": false,
+            "why": "script threw: Unexpected token ')'"
+          },
+          {
+            "turnIndex": 2,
+            "ok": false,
+            "why": "script threw: Unexpected token ')'"
+          },
+          {
+            "turnIndex": 5,
+            "ok": false,
+            "why": "script threw: Unexpected token ')'"
+          },
+          {
+            "turnIndex": 6,
+            "ok": false,
+            "why": "script threw: Unexpected token ')'"
+          },
+          {
+            "turnIndex": 9,
+            "ok": false,
+            "why": "script threw: Unexpected token ')'"
+          },
+          {
+            "turnIndex": 11,
+            "ok": false,
+            "why": "script threw: Unexpected token ')'"
+          },
+          {
+            "turnIndex": 14,
+            "ok": false,
+            "why": "script threw: Unexpected token ')'"
+          },
+          {
+            "turnIndex": 15,
+            "ok": false,
+            "why": "script threw: Unexpected token ')'"
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 963,
+        "codeLenAfter": 1004,
+        "groundAfter": 14,
+        "tokens": 36,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Mini Spreadsheet</title></head>\n<body>\n  <table id=\"grid\">\n    <tr><td><input class=\"cell\" data-r=\"0\" data-c=\"0\" value=\"1\"></td><td><input class=\"cell\" data-r=\"0\" data-c=\"1\" value=\"2\"></td></tr>\n    <tr><td><input class=\"cell\" data-r=\"2\" data-c=\"0\" value=\"5\"></td><td><input class=\"cell\" data-r=\"2\" data-c=\"1\" value=\"6\"></td></tr>\n  </table>\n  <div>Sum: <span id=\"sum\">0</span></div>\n  <script>\n    function recompute() {\n      let total = 0; let min = Infinity; let max = -Infinity;\n      \n        let c = document.getElementById('grid').querySelectorAll('.cell');\ntotal += Number(c.value) || 0; \n      });\n      ; let average = total / c.length; document.getElementById('sum').textContent = 'Sum: ' + total + ' | Avg: ' + average.toFixed(2);\n    }\n    \n       c.style.width = '100px'; c.style.height = '30px';\n    });\n    <button  onclick=\"document.getElementById('sum').textContent = 'Sum: 0'; c.value = '0'; recompute();\">Clear</button>\n  </script>\n</body>\n</html>"
+      },
+      {
+        "turnIndex": 17,
+        "ask": "undo the last change",
+        "predictedKind": "undo",
+        "routedAs": null,
+        "landed": true,
+        "gap": null,
+        "structuralClean": false,
+        "structuralFindings": [
+          {
+            "kind": "script-syntax",
+            "detail": "Unexpected token ')'"
+          }
+        ],
+        "behavioralOwnCheck": null,
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 0,
+            "ok": false,
+            "why": "script threw: Unexpected token ')'"
+          },
+          {
+            "turnIndex": 1,
+            "ok": false,
+            "why": "script threw: Unexpected token ')'"
+          },
+          {
+            "turnIndex": 2,
+            "ok": false,
+            "why": "script threw: Unexpected token ')'"
+          },
+          {
+            "turnIndex": 5,
+            "ok": false,
+            "why": "script threw: Unexpected token ')'"
+          },
+          {
+            "turnIndex": 6,
+            "ok": false,
+            "why": "script threw: Unexpected token ')'"
+          },
+          {
+            "turnIndex": 9,
+            "ok": false,
+            "why": "script threw: Unexpected token ')'"
+          },
+          {
+            "turnIndex": 11,
+            "ok": false,
+            "why": "script threw: Unexpected token ')'"
+          },
+          {
+            "turnIndex": 14,
+            "ok": false,
+            "why": "script threw: Unexpected token ')'"
+          },
+          {
+            "turnIndex": 15,
+            "ok": false,
+            "why": "script threw: Unexpected token ')'"
+          },
+          {
+            "turnIndex": 16,
+            "ok": false,
+            "why": "script threw: Unexpected token ')'"
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 1004,
+        "codeLenAfter": 955,
+        "groundAfter": 14,
+        "tokens": 33,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Mini Spreadsheet</title></head>\n<body>\n  <table id=\"grid\">\n    <tr><td><input class=\"cell\" data-r=\"0\" data-c=\"0\" value=\"1\"></td><td><input class=\"cell\" data-r=\"0\" data-c=\"1\" value=\"2\"></td></tr>\n    <tr><td><input class=\"cell\" data-r=\"2\" data-c=\"0\" value=\"5\"></td><td><input class=\"cell\" data-r=\"2\" data-c=\"1\" value=\"6\"></td></tr>\n  </table>\n  <div>Sum: <span id=\"sum\">0</span></div>\n  <script>\n    function recompute() {\n      let total = 0; let min = Infinity; let max = -Infinity;\n      \n        let c = document.getElementById('grid').querySelectorAll('.cell');\ntotal += Number(c.value) || 0; \n      });\n      ; let average = total / c.length; document.getElementById('sum').textContent = 'Sum: ' + total + ' | Avg: ' + average.toFixed(2);\n    }\n    \n       \n    });\n    <button  onclick=\"document.getElementById('sum').textContent = 'Sum: 0'; c.value = '0'; recompute();\">Clear</button>\n  </script>\n</body>\n</html>"
+      }
+    ],
+    "tasklist": [
+      {
+        "turnIndex": 1,
+        "ask": "add a delete button next to each task",
+        "predictedKind": "feature",
+        "routedAs": "resolved",
+        "landed": true,
+        "gap": null,
+        "structuralClean": true,
+        "structuralFindings": [],
+        "behavioralOwnCheck": {
+          "turnIndex": 1,
+          "ok": false,
+          "why": "no delete control found in a rendered task row"
+        },
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 0,
+            "ok": false,
+            "why": "tasks after add = 0"
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 1177,
+        "codeLenAfter": 1223,
+        "groundAfter": 2,
+        "tokens": 45,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Priority Tasks</title></head>\n<body>\n  <input id=\"what\" placeholder=\"new task\"><button onclick=\"deleteTask()\">Delete</button>\n  <select id=\"priority\"><option value=\"low\">low</option><option value=\"high\">high</option></select>\n  <button id=\"add\">add</button>\n  <ul id=\"list\"></ul>\n  <div id=\"count\">0 tasks</div>\n  <script>\n    let tasks = [];\n    function render() {\n      const list = document.getElementById('list');\n      list.innerHTML = '';\n      tasks.forEach(function(t, i) {\n        const li = document.createElement('li');\n        li.textContent = (t.done ? '[x] ' : '[ ] ') + t.text + ' (' + t.priority + ')';\n        li.className = t.priority;\n        li.addEventListener('click', function() { t.done = !t.done; render(); });\n        list.appendChild(li);\n      });\n      document.getElementById('count').textContent = tasks.length + ' tasks';\n    }\n    document.getElementById('add').addEventListener('click', function() {\n      const text = document.getElementById('what').value;\n      const priority = document.getElementById('priority').value;\n      if (text) tasks.push({ text: text, priority: priority, done: false });\n      render();\n    });\n  </script>\n</body>\n</html>"
+      },
+      {
+        "turnIndex": 2,
+        "ask": "add a filter so I can show only high priority tasks",
+        "predictedKind": "feature",
+        "routedAs": "resolved",
+        "landed": true,
+        "gap": null,
+        "structuralClean": true,
+        "structuralFindings": [],
+        "behavioralOwnCheck": {
+          "turnIndex": 2,
+          "ok": true,
+          "why": "looked for filter/high control in markup"
+        },
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 0,
+            "ok": false,
+            "why": "tasks after add = 0"
+          },
+          {
+            "turnIndex": 1,
+            "ok": false,
+            "why": "no delete control found in a rendered task row"
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 1223,
+        "codeLenAfter": 1232,
+        "groundAfter": 3,
+        "tokens": 33,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Priority Tasks</title></head>\n<body>\n  <input id=\"what\" placeholder=\"new task\"><button onclick=\"deleteTask()\">Delete</button>\n  <select id=\"priority\"><option value=\"low\">low</option><option value=\"high\" selected>high</option></select>\n  <button id=\"add\">add</button>\n  <ul id=\"list\"></ul>\n  <div id=\"count\">0 tasks</div>\n  <script>\n    let tasks = [];\n    function render() {\n      const list = document.getElementById('list');\n      list.innerHTML = '';\n      tasks.forEach(function(t, i) {\n        const li = document.createElement('li');\n        li.textContent = (t.done ? '[x] ' : '[ ] ') + t.text + ' (' + t.priority + ')';\n        li.className = t.priority;\n        li.addEventListener('click', function() { t.done = !t.done; render(); });\n        list.appendChild(li);\n      });\n      document.getElementById('count').textContent = tasks.length + ' tasks';\n    }\n    document.getElementById('add').addEventListener('click', function() {\n      const text = document.getElementById('what').value;\n      const priority = document.getElementById('priority').value;\n      if (text) tasks.push({ text: text, priority: priority, done: false });\n      render();\n    });\n  </script>\n</body>\n</html>"
+      },
+      {
+        "turnIndex": 3,
+        "ask": "I don't like the colors, make it nicer",
+        "predictedKind": "judgment",
+        "routedAs": "anaphora",
+        "landed": true,
+        "gap": null,
+        "structuralClean": true,
+        "structuralFindings": [],
+        "behavioralOwnCheck": null,
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 0,
+            "ok": false,
+            "why": "tasks after add = 0"
+          },
+          {
+            "turnIndex": 1,
+            "ok": false,
+            "why": "no delete control found in a rendered task row"
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 1232,
+        "codeLenAfter": 1247,
+        "groundAfter": 4,
+        "tokens": 28,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Priority Tasks</title></head>\n<body>\n  <input id=\"what\" placeholder=\"new task\"><button onclick=\"deleteTask()\">Delete</button>\n  <select id=\"priority\"><option value=\"low\">low</option><option value=\"high\" selected>high</option></select>\n  <button id=\"add\">add</button>\n  <ul id=\"list\"></ul>\n  <div id=\"count\">0 tasks</div>\n  <script>\n    let tasks = [];\n    function render() {\n      const list = document.getElementById('list');\n      list.innerHTML = '';\n      tasks.forEach(function(t, i) {\n        const li = document.createElement('li');\n        li.textContent = (t.done ? '[x] ' : '[ ] ') + t.text + ' (' + t.priority + ')';\n        li.className = t.priority + ' task-item';\n        li.addEventListener('click', function() { t.done = !t.done; render(); });\n        list.appendChild(li);\n      });\n      document.getElementById('count').textContent = tasks.length + ' tasks';\n    }\n    document.getElementById('add').addEventListener('click', function() {\n      const text = document.getElementById('what').value;\n      const priority = document.getElementById('priority').value;\n      if (text) tasks.push({ text: text, priority: priority, done: false });\n      render();\n    });\n  </script>\n</body>\n</html>"
+      },
+      {
+        "turnIndex": 4,
+        "ask": "make it better",
+        "predictedKind": "vague",
+        "routedAs": "anaphora",
+        "landed": true,
+        "gap": null,
+        "structuralClean": false,
+        "structuralFindings": [
+          {
+            "kind": "script-syntax",
+            "detail": "Unexpected token 'const'"
+          }
+        ],
+        "behavioralOwnCheck": null,
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 0,
+            "ok": false,
+            "why": "script threw: Unexpected token 'const'"
+          },
+          {
+            "turnIndex": 1,
+            "ok": false,
+            "why": "script threw: Unexpected token 'const'"
+          },
+          {
+            "turnIndex": 2,
+            "ok": false,
+            "why": "script threw: Unexpected token 'const'"
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 1247,
+        "codeLenAfter": 1273,
+        "groundAfter": 5,
+        "tokens": 33,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Priority Tasks</title></head>\n<body>\n  <input id=\"what\" placeholder=\"new task\"><button onclick=\"deleteTask()\">Delete</button>\n  <select id=\"priority\"><option value=\"low\">low</option><option value=\"high\" selected>high</option></select>\n  <button id=\"add\">add</button>\n  <ul id=\"list\"></ul>\n  <div id=\"count\">0 tasks</div>\n  <script>\n    let tasks = [];\n    function render() {\n      const list = document.getElementById('list');\n      list.innerHTML = '';\n      tasks.forEach(function(t, i) {\n        const li = document.createElement('li');\n        li.textContent = (t.done ? '[x] ' : '[ ] ') + t.text + ' (' + t.priority + ')';\n        li.className = t.priority + ' task-item';\n        li.addEventListener('click', function() { t.done = !t.done; render(); });\n        list.appendChild(li);\n      });\n      document.getElementById('count').textContent = tasks.length + ' tasks';\n    }\n    document.getElementById('add').addEventListener('click', function() {\n      const text = const input = document.getElementById('what'); input.value = '';\n      const priority = document.getElementById('priority').value;\n      if (text) tasks.push({ text: text, priority: priority, done: false });\n      render();\n    });\n  </script>\n</body>\n</html>"
+      },
+      {
+        "turnIndex": 5,
+        "ask": "show a count of how many tasks are done vs not done",
+        "predictedKind": "feature",
+        "routedAs": "resolved",
+        "landed": true,
+        "gap": null,
+        "structuralClean": false,
+        "structuralFindings": [
+          {
+            "kind": "script-syntax",
+            "detail": "Unexpected token 'const'"
+          }
+        ],
+        "behavioralOwnCheck": {
+          "turnIndex": 5,
+          "ok": false,
+          "why": "script threw: Unexpected token 'const'"
+        },
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 0,
+            "ok": false,
+            "why": "script threw: Unexpected token 'const'"
+          },
+          {
+            "turnIndex": 1,
+            "ok": false,
+            "why": "script threw: Unexpected token 'const'"
+          },
+          {
+            "turnIndex": 2,
+            "ok": false,
+            "why": "script threw: Unexpected token 'const'"
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 1273,
+        "codeLenAfter": 1361,
+        "groundAfter": 6,
+        "tokens": 67,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Priority Tasks</title></head>\n<body>\n  <input id=\"what\" placeholder=\"new task\"><button onclick=\"deleteTask()\">Delete</button>\n  <select id=\"priority\"><option value=\"low\">low</option><option value=\"high\" selected>high</option></select>\n  <button id=\"add\">add</button>\n  <ul id=\"list\"></ul>\n  <div id=\"count\">0 tasks</div>\n  <script>\n    let tasks = [];\n    function render() {\n      const list = document.getElementById('list');\n      list.innerHTML = '';\n      tasks.forEach(function(t, i) {\n        const li = document.createElement('li');\n        li.textContent = (t.done ? '[x] ' : '[ ] ') + t.text + ' (' + t.priority + ')';\n        li.className = t.priority + ' task-item';\n        li.addEventListener('click', function() { t.done = !t.done; render(); });\n        list.appendChild(li);\n      });\n      document.getElementById('count').textContent = tasks.filter(t => t.done).length + ' done / ' + (tasks.length - tasks.filter(t => t.done).length) + ' not done';\n    }\n    document.getElementById('add').addEventListener('click', function() {\n      const text = const input = document.getElementById('what'); input.value = '';\n      const priority = document.getElementById('priority').value;\n      if (text) tasks.push({ text: text, priority: priority, done: false });\n      render();\n    });\n  </script>\n</body>\n</html>"
+      },
+      {
+        "turnIndex": 6,
+        "ask": "clicking a task to mark it done isn't working right, fix it",
+        "predictedKind": "judgment",
+        "routedAs": "resolved",
+        "landed": true,
+        "gap": null,
+        "structuralClean": false,
+        "structuralFindings": [
+          {
+            "kind": "script-syntax",
+            "detail": "Unexpected token 'const'"
+          }
+        ],
+        "behavioralOwnCheck": {
+          "turnIndex": 6,
+          "ok": false,
+          "why": "script threw: Unexpected token 'const'"
+        },
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 0,
+            "ok": false,
+            "why": "script threw: Unexpected token 'const'"
+          },
+          {
+            "turnIndex": 1,
+            "ok": false,
+            "why": "script threw: Unexpected token 'const'"
+          },
+          {
+            "turnIndex": 2,
+            "ok": false,
+            "why": "script threw: Unexpected token 'const'"
+          },
+          {
+            "turnIndex": 5,
+            "ok": false,
+            "why": "script threw: Unexpected token 'const'"
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 1361,
+        "codeLenAfter": 1386,
+        "groundAfter": 7,
+        "tokens": 54,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Priority Tasks</title></head>\n<body>\n  <input id=\"what\" placeholder=\"new task\"><button onclick=\"deleteTask()\">Delete</button>\n  <select id=\"priority\"><option value=\"low\">low</option><option value=\"high\" selected>high</option></select>\n  <button id=\"add\">add</button>\n  <ul id=\"list\"></ul>\n  <div id=\"count\">0 tasks</div>\n  <script>\n    let tasks = [];\n    function render() {\n      const list = document.getElementById('list');\n      list.innerHTML = '';\n      tasks.forEach(function(t, i) {\n        const li = document.createElement('li');\n        li.textContent = (t.done ? '[x] ' : '[ ] ') + t.text + ' (' + t.priority + ')';\n        li.className = t.priority + ' task-item';\n        li.addEventListener('click', function() { t.done = !t.done; render(); event.stopPropagation(); });\n        list.appendChild(li);\n      });\n      document.getElementById('count').textContent = tasks.filter(t => t.done).length + ' done / ' + (tasks.length - tasks.filter(t => t.done).length) + ' not done';\n    }\n    document.getElementById('add').addEventListener('click', function() {\n      const text = const input = document.getElementById('what'); input.value = '';\n      const priority = document.getElementById('priority').value;\n      if (text) tasks.push({ text: text, priority: priority, done: false });\n      render();\n    });\n  </script>\n</body>\n</html>"
+      },
+      {
+        "turnIndex": 7,
+        "ask": "make the add button bigger",
+        "predictedKind": "anaphora",
+        "routedAs": "resolved",
+        "landed": true,
+        "gap": null,
+        "structuralClean": false,
+        "structuralFindings": [
+          {
+            "kind": "script-syntax",
+            "detail": "Unexpected token 'const'"
+          }
+        ],
+        "behavioralOwnCheck": null,
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 0,
+            "ok": false,
+            "why": "script threw: Unexpected token 'const'"
+          },
+          {
+            "turnIndex": 1,
+            "ok": false,
+            "why": "script threw: Unexpected token 'const'"
+          },
+          {
+            "turnIndex": 2,
+            "ok": false,
+            "why": "script threw: Unexpected token 'const'"
+          },
+          {
+            "turnIndex": 5,
+            "ok": false,
+            "why": "script threw: Unexpected token 'const'"
+          },
+          {
+            "turnIndex": 6,
+            "ok": false,
+            "why": "script threw: Unexpected token 'const'"
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 1386,
+        "codeLenAfter": 1411,
+        "groundAfter": 8,
+        "tokens": 41,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Priority Tasks</title></head>\n<body>\n  <input id=\"what\" placeholder=\"new task\"><button onclick=\"deleteTask()\">Delete</button>\n  <select id=\"priority\"><option value=\"low\">low</option><option value=\"high\" selected>high</option></select>\n  <button id=\"add\" style=\"font-size: 20px;\">add</button>\n  <ul id=\"list\"></ul>\n  <div id=\"count\">0 tasks</div>\n  <script>\n    let tasks = [];\n    function render() {\n      const list = document.getElementById('list');\n      list.innerHTML = '';\n      tasks.forEach(function(t, i) {\n        const li = document.createElement('li');\n        li.textContent = (t.done ? '[x] ' : '[ ] ') + t.text + ' (' + t.priority + ')';\n        li.className = t.priority + ' task-item';\n        li.addEventListener('click', function() { t.done = !t.done; render(); event.stopPropagation(); });\n        list.appendChild(li);\n      });\n      document.getElementById('count').textContent = tasks.filter(t => t.done).length + ' done / ' + (tasks.length - tasks.filter(t => t.done).length) + ' not done';\n    }\n    document.getElementById('add').addEventListener('click', function() {\n      const text = const input = document.getElementById('what'); input.value = '';\n      const priority = document.getElementById('priority').value;\n      if (text) tasks.push({ text: text, priority: priority, done: false });\n      render();\n    });\n  </script>\n</body>\n</html>"
+      },
+      {
+        "turnIndex": 8,
+        "ask": "put the delete button back the way it was before",
+        "predictedKind": "undo",
+        "routedAs": "resolved",
+        "landed": true,
+        "gap": null,
+        "structuralClean": false,
+        "structuralFindings": [
+          {
+            "kind": "script-syntax",
+            "detail": "Unexpected token 'const'"
+          }
+        ],
+        "behavioralOwnCheck": null,
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 0,
+            "ok": false,
+            "why": "script threw: Unexpected token 'const'"
+          },
+          {
+            "turnIndex": 1,
+            "ok": false,
+            "why": "script threw: Unexpected token 'const'"
+          },
+          {
+            "turnIndex": 2,
+            "ok": false,
+            "why": "script threw: Unexpected token 'const'"
+          },
+          {
+            "turnIndex": 5,
+            "ok": false,
+            "why": "script threw: Unexpected token 'const'"
+          },
+          {
+            "turnIndex": 6,
+            "ok": false,
+            "why": "script threw: Unexpected token 'const'"
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 1411,
+        "codeLenAfter": 1399,
+        "groundAfter": 9,
+        "tokens": 14,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Priority Tasks</title></head>\n<body>\n  <input id=\"what\" placeholder=\"new task\"><button onclick=\"\">Delete</button>\n  <select id=\"priority\"><option value=\"low\">low</option><option value=\"high\" selected>high</option></select>\n  <button id=\"add\" style=\"font-size: 20px;\">add</button>\n  <ul id=\"list\"></ul>\n  <div id=\"count\">0 tasks</div>\n  <script>\n    let tasks = [];\n    function render() {\n      const list = document.getElementById('list');\n      list.innerHTML = '';\n      tasks.forEach(function(t, i) {\n        const li = document.createElement('li');\n        li.textContent = (t.done ? '[x] ' : '[ ] ') + t.text + ' (' + t.priority + ')';\n        li.className = t.priority + ' task-item';\n        li.addEventListener('click', function() { t.done = !t.done; render(); event.stopPropagation(); });\n        list.appendChild(li);\n      });\n      document.getElementById('count').textContent = tasks.filter(t => t.done).length + ' done / ' + (tasks.length - tasks.filter(t => t.done).length) + ' not done';\n    }\n    document.getElementById('add').addEventListener('click', function() {\n      const text = const input = document.getElementById('what'); input.value = '';\n      const priority = document.getElementById('priority').value;\n      if (text) tasks.push({ text: text, priority: priority, done: false });\n      render();\n    });\n  </script>\n</body>\n</html>"
+      },
+      {
+        "turnIndex": 9,
+        "ask": "add a button that clears all completed tasks at once",
+        "predictedKind": "feature",
+        "routedAs": "resolved",
+        "landed": true,
+        "gap": null,
+        "structuralClean": false,
+        "structuralFindings": [
+          {
+            "kind": "script-syntax",
+            "detail": "Unexpected token 'const'"
+          },
+          {
+            "kind": "dangling-id",
+            "detail": "script addresses id \"clear\" but no element declares it",
+            "id": "clear"
+          }
+        ],
+        "behavioralOwnCheck": {
+          "turnIndex": 9,
+          "ok": false,
+          "why": "script threw: Unexpected token 'const'"
+        },
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 0,
+            "ok": false,
+            "why": "script threw: Unexpected token 'const'"
+          },
+          {
+            "turnIndex": 1,
+            "ok": false,
+            "why": "script threw: Unexpected token 'const'"
+          },
+          {
+            "turnIndex": 2,
+            "ok": false,
+            "why": "script threw: Unexpected token 'const'"
+          },
+          {
+            "turnIndex": 5,
+            "ok": false,
+            "why": "script threw: Unexpected token 'const'"
+          },
+          {
+            "turnIndex": 6,
+            "ok": false,
+            "why": "script threw: Unexpected token 'const'"
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 1399,
+        "codeLenAfter": 1534,
+        "groundAfter": 10,
+        "tokens": 75,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Priority Tasks</title></head>\n<body>\n  <input id=\"what\" placeholder=\"new task\"><button onclick=\"\">Delete</button>\n  <select id=\"priority\"><option value=\"low\">low</option><option value=\"high\" selected>high</option></select>\n  <button id=\"add\" style=\"font-size: 20px;\">add</button>\n  <ul id=\"list\"></ul>\n  <div id=\"count\">0 tasks</div>\n  <script>\n    let tasks = [];\n    function render() {\n      const list = document.getElementById('list');\n      list.innerHTML = '';\n      tasks.forEach(function(t, i) {\n        const li = document.createElement('li');\n        li.textContent = (t.done ? '[x] ' : '[ ] ') + t.text + ' (' + t.priority + ')';\n        li.className = t.priority + ' task-item';\n        li.addEventListener('click', function() { t.done = !t.done; render(); event.stopPropagation(); });\n        list.appendChild(li);\n      });\n      document.getElementById('count').textContent = tasks.filter(t => t.done).length + ' done / ' + (tasks.length - tasks.filter(t => t.done).length) + ' not done';\n    }\n    document.getElementById('add').addEventListener('click', function() {\n  document.getElementById('clear').addEventListener('click', function() {\n    tasks = tasks.filter(t => !t.done);\n    render();\n  });\n\n      const text = const input = document.getElementById('what'); input.value = '';\n      const priority = document.getElementById('priority').value;\n      if (text) tasks.push({ text: text, priority: priority, done: false });\n      render();\n    });\n  </script>\n</body>\n</html>"
+      },
+      {
+        "turnIndex": 10,
+        "ask": "it's broken",
+        "predictedKind": "judgment",
+        "routedAs": "anaphora",
+        "landed": true,
+        "gap": null,
+        "structuralClean": false,
+        "structuralFindings": [
+          {
+            "kind": "script-syntax",
+            "detail": "Unexpected token 'const'"
+          },
+          {
+            "kind": "dangling-id",
+            "detail": "script addresses id \"clear\" but no element declares it",
+            "id": "clear"
+          }
+        ],
+        "behavioralOwnCheck": null,
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 0,
+            "ok": false,
+            "why": "script threw: Unexpected token 'const'"
+          },
+          {
+            "turnIndex": 1,
+            "ok": false,
+            "why": "script threw: Unexpected token 'const'"
+          },
+          {
+            "turnIndex": 2,
+            "ok": false,
+            "why": "script threw: Unexpected token 'const'"
+          },
+          {
+            "turnIndex": 5,
+            "ok": false,
+            "why": "script threw: Unexpected token 'const'"
+          },
+          {
+            "turnIndex": 6,
+            "ok": false,
+            "why": "script threw: Unexpected token 'const'"
+          },
+          {
+            "turnIndex": 9,
+            "ok": false,
+            "why": "script threw: Unexpected token 'const'"
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 1534,
+        "codeLenAfter": 1470,
+        "groundAfter": 11,
+        "tokens": 26,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Priority Tasks</title></head>\n<body>\n  <input id=\"what\" placeholder=\"new task\"><button onclick=\"\">Delete</button>\n  <select id=\"priority\"><option value=\"low\">low</option><option value=\"high\" selected>high</option></select>\n  <button id=\"add\" style=\"font-size: 20px;\">add</button>\n  <ul id=\"list\"></ul>\n  <div id=\"count\">0 tasks</div>\n  <script>\n    let tasks = [];\n    function render() {\n      const list = document.getElementById('list');\n      list.innerHTML = '';\n      tasks.forEach(function(t, i) {\n        const li = document.createElement('li');\n        li.textContent = (t.done ? '[x] ' : '[ ] ') + t.text + ' (' + t.priority + ')';\n        li.className = t.priority + ' task-item';\n        li.addEventListener('click', function() { t.done = !t.done; render(); event.stopPropagation(); });\n        list.appendChild(li);\n      });\n      document.getElementById('count').textContent = tasks.filter(t => t.done).length + ' done / ' + (tasks.length - tasks.filter(t => t.done).length) + ' not done';\n    }\n    document.getElementById('add').addEventListener('click', function() {\n  document.getElementById('clear').addEventListener('click', function() {\n    tasks = tasks.filter(t => !t.done);\n    render();\n  });\n\n      const text = \n      const priority = document.getElementById('priority').value;\n      if (text) tasks.push({ text: text, priority: priority, done: false });\n      render();\n    });\n  </script>\n</body>\n</html>"
+      },
+      {
+        "turnIndex": 11,
+        "ask": "adding a task should still clear the input field afterward — check that still works",
+        "predictedKind": "structural",
+        "routedAs": "resolved",
+        "landed": true,
+        "gap": null,
+        "structuralClean": false,
+        "structuralFindings": [
+          {
+            "kind": "script-syntax",
+            "detail": "Unexpected token 'const'"
+          },
+          {
+            "kind": "dangling-id",
+            "detail": "script addresses id \"inputField\" but no element declares it",
+            "id": "inputField"
+          }
+        ],
+        "behavioralOwnCheck": {
+          "turnIndex": 11,
+          "ok": false,
+          "why": "script threw: Unexpected token 'const'"
+        },
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 0,
+            "ok": false,
+            "why": "script threw: Unexpected token 'const'"
+          },
+          {
+            "turnIndex": 1,
+            "ok": false,
+            "why": "script threw: Unexpected token 'const'"
+          },
+          {
+            "turnIndex": 2,
+            "ok": false,
+            "why": "script threw: Unexpected token 'const'"
+          },
+          {
+            "turnIndex": 5,
+            "ok": false,
+            "why": "script threw: Unexpected token 'const'"
+          },
+          {
+            "turnIndex": 6,
+            "ok": false,
+            "why": "script threw: Unexpected token 'const'"
+          },
+          {
+            "turnIndex": 9,
+            "ok": false,
+            "why": "script threw: Unexpected token 'const'"
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 1470,
+        "codeLenAfter": 1448,
+        "groundAfter": 12,
+        "tokens": 36,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Priority Tasks</title></head>\n<body>\n  <input id=\"what\" placeholder=\"new task\"><button onclick=\"\">Delete</button>\n  <select id=\"priority\"><option value=\"low\">low</option><option value=\"high\" selected>high</option></select>\n  <button id=\"add\" style=\"font-size: 20px;\">add</button>\n  <ul id=\"list\"></ul>\n  <div id=\"count\">0 tasks</div>\n  <script>\n    let tasks = [];\n    function render() {\n      const list = document.getElementById('list');\n      list.innerHTML = '';\n      tasks.forEach(function(t, i) {\n        const li = document.createElement('li');\n        li.textContent = (t.done ? '[x] ' : '[ ] ') + t.text + ' (' + t.priority + ')';\n        li.className = t.priority + ' task-item';\n        li.addEventListener('click', function() { t.done = !t.done; render(); event.stopPropagation(); });\n        list.appendChild(li);\n      });\n      document.getElementById('count').textContent = tasks.filter(t => t.done).length + ' done / ' + (tasks.length - tasks.filter(t => t.done).length) + ' not done';\n    }\n    document.getElementById('add').addEventListener('click', function() {\n  document.getElementById('inputField').value = '';\n    tasks = tasks.filter(t => !t.done);\n    render();\n  });\n\n      const text = \n      const priority = document.getElementById('priority').value;\n      if (text) tasks.push({ text: text, priority: priority, done: false });\n      render();\n    });\n  </script>\n</body>\n</html>"
+      },
+      {
+        "turnIndex": 12,
+        "ask": "sort high priority tasks to the top of the list",
+        "predictedKind": "feature",
+        "routedAs": "resolved",
+        "landed": true,
+        "gap": null,
+        "structuralClean": false,
+        "structuralFindings": [
+          {
+            "kind": "script-syntax",
+            "detail": "Unexpected token 'const'"
+          },
+          {
+            "kind": "dangling-id",
+            "detail": "script addresses id \"inputField\" but no element declares it",
+            "id": "inputField"
+          }
+        ],
+        "behavioralOwnCheck": null,
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 0,
+            "ok": false,
+            "why": "script threw: Unexpected token 'const'"
+          },
+          {
+            "turnIndex": 1,
+            "ok": false,
+            "why": "script threw: Unexpected token 'const'"
+          },
+          {
+            "turnIndex": 2,
+            "ok": false,
+            "why": "script threw: Unexpected token 'const'"
+          },
+          {
+            "turnIndex": 5,
+            "ok": false,
+            "why": "script threw: Unexpected token 'const'"
+          },
+          {
+            "turnIndex": 6,
+            "ok": false,
+            "why": "script threw: Unexpected token 'const'"
+          },
+          {
+            "turnIndex": 9,
+            "ok": false,
+            "why": "script threw: Unexpected token 'const'"
+          },
+          {
+            "turnIndex": 11,
+            "ok": false,
+            "why": "script threw: Unexpected token 'const'"
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 1448,
+        "codeLenAfter": 1439,
+        "groundAfter": 13,
+        "tokens": 31,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Priority Tasks</title></head>\n<body>\n  <input id=\"what\" placeholder=\"new task\"><button onclick=\"\">Delete</button>\n  <select id=\"priority\"><option value=\"low\">low</option><option value=\"high\">high</option></select>\n  <button id=\"add\" style=\"font-size: 20px;\">add</button>\n  <ul id=\"list\"></ul>\n  <div id=\"count\">0 tasks</div>\n  <script>\n    let tasks = [];\n    function render() {\n      const list = document.getElementById('list');\n      list.innerHTML = '';\n      tasks.forEach(function(t, i) {\n        const li = document.createElement('li');\n        li.textContent = (t.done ? '[x] ' : '[ ] ') + t.text + ' (' + t.priority + ')';\n        li.className = t.priority + ' task-item';\n        li.addEventListener('click', function() { t.done = !t.done; render(); event.stopPropagation(); });\n        list.appendChild(li);\n      });\n      document.getElementById('count').textContent = tasks.filter(t => t.done).length + ' done / ' + (tasks.length - tasks.filter(t => t.done).length) + ' not done';\n    }\n    document.getElementById('add').addEventListener('click', function() {\n  document.getElementById('inputField').value = '';\n    tasks = tasks.filter(t => !t.done);\n    render();\n  });\n\n      const text = \n      const priority = document.getElementById('priority').value;\n      if (text) tasks.push({ text: text, priority: priority, done: false });\n      render();\n    });\n  </script>\n</body>\n</html>"
+      },
+      {
+        "turnIndex": 13,
+        "ask": "fix it",
+        "predictedKind": "vague",
+        "routedAs": "anaphora",
+        "landed": false,
+        "gap": "unlocated",
+        "structuralClean": null,
+        "structuralFindings": [],
+        "behavioralOwnCheck": null,
+        "regressionsIntroducedThisTurn": [],
+        "conformFindings": [],
+        "codeLenBefore": 1439,
+        "codeLenAfter": 1439,
+        "groundAfter": 13,
+        "tokens": 106
+      },
+      {
+        "turnIndex": 14,
+        "ask": "add a button to mark all tasks done at once",
+        "predictedKind": "feature",
+        "routedAs": "resolved",
+        "landed": true,
+        "gap": null,
+        "structuralClean": false,
+        "structuralFindings": [
+          {
+            "kind": "script-syntax",
+            "detail": "Unexpected token 'const'"
+          },
+          {
+            "kind": "dangling-id",
+            "detail": "script addresses id \"inputField\" but no element declares it",
+            "id": "inputField"
+          }
+        ],
+        "behavioralOwnCheck": {
+          "turnIndex": 14,
+          "ok": false,
+          "why": "script threw: Unexpected token 'const'"
+        },
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 0,
+            "ok": false,
+            "why": "script threw: Unexpected token 'const'"
+          },
+          {
+            "turnIndex": 1,
+            "ok": false,
+            "why": "script threw: Unexpected token 'const'"
+          },
+          {
+            "turnIndex": 2,
+            "ok": false,
+            "why": "script threw: Unexpected token 'const'"
+          },
+          {
+            "turnIndex": 5,
+            "ok": false,
+            "why": "script threw: Unexpected token 'const'"
+          },
+          {
+            "turnIndex": 6,
+            "ok": false,
+            "why": "script threw: Unexpected token 'const'"
+          },
+          {
+            "turnIndex": 9,
+            "ok": false,
+            "why": "script threw: Unexpected token 'const'"
+          },
+          {
+            "turnIndex": 11,
+            "ok": false,
+            "why": "script threw: Unexpected token 'const'"
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 1439,
+        "codeLenAfter": 1630,
+        "groundAfter": 14,
+        "tokens": 90,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Priority Tasks</title></head>\n<body>\n  <input id=\"what\" placeholder=\"new task\"><button onclick=\"\">Delete</button>\n  <select id=\"priority\"><option value=\"low\">low</option><option value=\"high\">high</option></select>\n  <button id=\"add\" style=\"font-size: 20px;\">add</button>\n  <ul id=\"list\"></ul>\n  <div id=\"count\">0 tasks</div>\n  <script>\n    let tasks = [];\n    function render() {\n      const list = document.getElementById('list');\n      list.innerHTML = '';\n      tasks.forEach(function(t, i) {\n        const li = document.createElement('li');\n        li.textContent = (t.done ? '[x] ' : '[ ] ') + t.text + ' (' + t.priority + ')';\n        li.className = t.priority + ' task-item';\n        li.addEventListener('click', function() { t.done = !t.done; render(); event.stopPropagation(); });\n        list.appendChild(li);\n      });\n      document.getElementById('count').textContent = tasks.filter(t => t.done).length + ' done / ' + (tasks.length - tasks.filter(t => t.done).length) + ' not done';\n    }\n    const markAllDoneButton = document.createElement('button');\nmarkAllDoneButton.textContent = 'Mark All Done';\nmarkAllDoneButton.addEventListener('click', function() {\ntasks.forEach(t => t.done = true);\nrender();\n});\ndocument.body.appendChild(markAllDoneButton);\n  document.getElementById('inputField').value = '';\n    tasks = tasks.filter(t => !t.done);\n    render();\n  });\n\n      const text = \n      const priority = document.getElementById('priority').value;\n      if (text) tasks.push({ text: text, priority: priority, done: false });\n      render();\n    });\n  </script>\n</body>\n</html>"
+      },
+      {
+        "turnIndex": 15,
+        "ask": "I don't like how the count looks, it should say 'Done:' not just the number",
+        "predictedKind": "judgment",
+        "routedAs": "judgment",
+        "landed": true,
+        "gap": null,
+        "structuralClean": false,
+        "structuralFindings": [
+          {
+            "kind": "script-syntax",
+            "detail": "Unexpected token 'const'"
+          },
+          {
+            "kind": "dangling-id",
+            "detail": "script addresses id \"inputField\" but no element declares it",
+            "id": "inputField"
+          }
+        ],
+        "behavioralOwnCheck": {
+          "turnIndex": 15,
+          "ok": false,
+          "why": "script threw: Unexpected token 'const'"
+        },
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 0,
+            "ok": false,
+            "why": "script threw: Unexpected token 'const'"
+          },
+          {
+            "turnIndex": 1,
+            "ok": false,
+            "why": "script threw: Unexpected token 'const'"
+          },
+          {
+            "turnIndex": 2,
+            "ok": false,
+            "why": "script threw: Unexpected token 'const'"
+          },
+          {
+            "turnIndex": 5,
+            "ok": false,
+            "why": "script threw: Unexpected token 'const'"
+          },
+          {
+            "turnIndex": 6,
+            "ok": false,
+            "why": "script threw: Unexpected token 'const'"
+          },
+          {
+            "turnIndex": 9,
+            "ok": false,
+            "why": "script threw: Unexpected token 'const'"
+          },
+          {
+            "turnIndex": 11,
+            "ok": false,
+            "why": "script threw: Unexpected token 'const'"
+          },
+          {
+            "turnIndex": 14,
+            "ok": false,
+            "why": "script threw: Unexpected token 'const'"
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 1630,
+        "codeLenAfter": 1636,
+        "groundAfter": 15,
+        "tokens": 95,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Priority Tasks</title></head>\n<body>\n  <input id=\"what\" placeholder=\"new task\"><button onclick=\"\">Delete</button>\n  <select id=\"priority\"><option value=\"low\">low</option><option value=\"high\">high</option></select>\n  <button id=\"add\" style=\"font-size: 20px;\">add</button>\n  <ul id=\"list\"></ul>\n  <div id=\"count\">0 tasks</div>\n  <script>\n    let tasks = [];\n    function render() {\n      const list = document.getElementById('list');\n      list.innerHTML = '';\n      tasks.forEach(function(t, i) {\n        const li = document.createElement('li');\n        li.textContent = (t.done ? '[x] ' : '[ ] ') + t.text + ' (' + t.priority + ')';\n        li.className = t.priority + ' task-item';\n        li.addEventListener('click', function() { t.done = !t.done; render(); event.stopPropagation(); });\n        list.appendChild(li);\n      });\n      document.getElementById('count').textContent = 'Done: ' + tasks.filter(t => t.done).length + ' / ' + (tasks.length - tasks.filter(t => t.done).length) + ' not done';\n    }\n    const markAllDoneButton = document.createElement('button');\nmarkAllDoneButton.textContent = 'Mark All Done';\nmarkAllDoneButton.addEventListener('click', function() {\ntasks.forEach(t => t.done = true);\nrender();\n});\ndocument.body.appendChild(markAllDoneButton);\n  document.getElementById('inputField').value = '';\n    tasks = tasks.filter(t => !t.done);\n    render();\n  });\n\n      const text = \n      const priority = document.getElementById('priority').value;\n      if (text) tasks.push({ text: text, priority: priority, done: false });\n      render();\n    });\n  </script>\n</body>\n</html>"
+      },
+      {
+        "turnIndex": 16,
+        "ask": "add a way to edit an existing task's text",
+        "predictedKind": "feature",
+        "routedAs": "resolved",
+        "landed": false,
+        "gap": "unlocated",
+        "structuralClean": null,
+        "structuralFindings": [],
+        "behavioralOwnCheck": null,
+        "regressionsIntroducedThisTurn": [],
+        "conformFindings": [],
+        "codeLenBefore": 1636,
+        "codeLenAfter": 1636,
+        "groundAfter": 15,
+        "tokens": 22
+      },
+      {
+        "turnIndex": 17,
+        "ask": "undo the last change",
+        "predictedKind": "undo",
+        "routedAs": null,
+        "landed": true,
+        "gap": null,
+        "structuralClean": false,
+        "structuralFindings": [
+          {
+            "kind": "script-syntax",
+            "detail": "Unexpected token 'const'"
+          }
+        ],
+        "behavioralOwnCheck": null,
+        "regressionsIntroducedThisTurn": [
+          {
+            "turnIndex": 0,
+            "ok": false,
+            "why": "script threw: Unexpected token 'const'"
+          },
+          {
+            "turnIndex": 1,
+            "ok": false,
+            "why": "script threw: Unexpected token 'const'"
+          },
+          {
+            "turnIndex": 2,
+            "ok": false,
+            "why": "script threw: Unexpected token 'const'"
+          },
+          {
+            "turnIndex": 5,
+            "ok": false,
+            "why": "script threw: Unexpected token 'const'"
+          },
+          {
+            "turnIndex": 6,
+            "ok": false,
+            "why": "script threw: Unexpected token 'const'"
+          },
+          {
+            "turnIndex": 9,
+            "ok": false,
+            "why": "script threw: Unexpected token 'const'"
+          },
+          {
+            "turnIndex": 11,
+            "ok": false,
+            "why": "script threw: Unexpected token 'const'"
+          },
+          {
+            "turnIndex": 14,
+            "ok": false,
+            "why": "script threw: Unexpected token 'const'"
+          },
+          {
+            "turnIndex": 15,
+            "ok": false,
+            "why": "script threw: Unexpected token 'const'"
+          }
+        ],
+        "conformFindings": [],
+        "codeLenBefore": 1636,
+        "codeLenAfter": 1587,
+        "groundAfter": 15,
+        "tokens": 23,
+        "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Priority Tasks</title></head>\n<body>\n  <input id=\"what\" placeholder=\"new task\"><button onclick=\"\">Delete</button>\n  <select id=\"priority\"><option value=\"low\">low</option><option value=\"high\">high</option></select>\n  <button id=\"add\" style=\"font-size: 20px;\">add</button>\n  <ul id=\"list\"></ul>\n  <div id=\"count\">0 tasks</div>\n  <script>\n    let tasks = [];\n    function render() {\n      const list = document.getElementById('list');\n      list.innerHTML = '';\n      tasks.forEach(function(t, i) {\n        const li = document.createElement('li');\n        li.textContent = (t.done ? '[x] ' : '[ ] ') + t.text + ' (' + t.priority + ')';\n        li.className = t.priority + ' task-item';\n        li.addEventListener('click', function() { t.done = !t.done; render(); event.stopPropagation(); });\n        list.appendChild(li);\n      });\n      document.getElementById('count').textContent = 'Done: ' + tasks.filter(t => t.done).length + ' / ' + (tasks.length - tasks.filter(t => t.done).length) + ' not done';\n    }\n    const markAllDoneButton = document.createElement('button');\nmarkAllDoneButton.textContent = 'Mark All Done';\nmarkAllDoneButton.addEventListener('click', function() {\ntasks.forEach(t => t.done = true);\nrender();\n});\ndocument.body.appendChild(markAllDoneButton);\n  \n    tasks = tasks.filter(t => !t.done);\n    render();\n  });\n\n      const text = \n      const priority = document.getElementById('priority').value;\n      if (text) tasks.push({ text: text, priority: priority, done: false });\n      render();\n    });\n  </script>\n</body>\n</html>"
+      }
+    ]
+  }
+}

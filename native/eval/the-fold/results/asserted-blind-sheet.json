@@ -1,0 +1,148 @@
+{
+  "items": [
+    {
+      "id": "e9",
+      "context": "Book Two begins with Nikolai Rostov returning on leave to Moscow accompanied by his friend Denisov, his officer from his Pavlograd Regiment . He spends an eventful winter at home. Natasha has blossomed into a beautiful young woman. Denisov falls in love with her and proposes marriage but is rejected. Nikolai meets Dolokhov, and they grow closer as friends. Dolokhov falls in love with Sonya, Nikolai's cousin, but as she is in love with Nikolai, she rejects Dolokhov's proposal. Nikolai meets Dolokhov sometime later. The resentful Dolokhov challenges Nikolai at cards, and Nikolai loses every hand until he sinks into a 43,000-ruble debt. Although his mother pleads with Nikolai to marry a wealthy heiress to rescue the family from its dire financial straits, he refuses. Instead, he promises to marry his childhood crush and orphaned cousin, the dowry-less Sonya.",
+      "statement": "Nikolai —meets→ Dolokhov",
+      "question": "Does the context passage state this subject-verb-object relation (with this polarity)? Answer YES, NO, or UNCLEAR."
+    },
+    {
+      "id": "e7",
+      "context": "- ↑ War and Peace. BBC Two (ended 1973) Archived 2009-08-13 at the Wayback Machine . TV.com. Retrieved on 2012-01-29.",
+      "statement": "Retrieved —on→ 2012",
+      "question": "Does the context passage state this subject-verb-object relation (with this polarity)? Answer YES, NO, or UNCLEAR."
+    },
+    {
+      "id": "e23",
+      "context": "The Battle of Borodino , fought on September 7, 1812, and involving more than a quarter of a million troops and seventy thousand casualties was a turning point in Napoleon's failed campaign to defeat Russia. It is vividly depicted through the plot and characters of War and Peace . Painting The Battle of Moscow by Louis-François Lejeune , 1822.",
+      "statement": "characters of —war→ and Peace",
+      "question": "Does the context passage state this subject-verb-object relation (with this polarity)? Answer YES, NO, or UNCLEAR."
+    },
+    {
+      "id": "e18",
+      "context": "- Count Ilya Andreyevich Rostov: The pater-familias of the Rostov family; hopeless with finances, generous to a fault. As a result, the Rostovs never have enough cash, despite having many estates.",
+      "statement": "Rostovs never —have (negated)→ enough cash",
+      "question": "Does the context passage state this subject-verb-object relation (with this polarity)? Answer YES, NO, or UNCLEAR."
+    },
+    {
+      "id": "e16",
+      "context": "Pierre Bezukhov, upon finally receiving his massive inheritance, is suddenly transformed from a bumbling young man into the most eligible bachelor in Russian society. Despite knowing that it is wrong, he is persuaded to marry Prince Kuragin's beautiful and immoral daughter Hélène (Elena Vasilyevna Kuragina). Hélène, who is rumored to be involved in an incestuous affair with her brother Anatole, tells Pierre that she will never have children with him. Hélène is also rumored to be having an affair with Dolokhov, who mocks Pierre in public. Pierre loses his temper and challenges Dolokhov to a duel. Unexpectedly (because Dolokhov is a seasoned dueller), Pierre wounds Dolokhov. Hélène denies her affair, but Pierre is convinced of her guilt and leaves her. In his moral and spiritual confusion, Pierre joins the Freemasons . Much of Book Two concerns his struggles with his passions and his spiritual conflicts. He abandons his former carefree behavior and enters upon a philosophical quest particular to Tolstoy: how should one live a moral life in an ethically imperfect world? The question continually baffles Pierre. He attempts to liberate his serfs , but ultimately achieves nothing of note.",
+      "statement": "Book Two —concerns→ his struggles with his passions",
+      "question": "Does the context passage state this subject-verb-object relation (with this polarity)? Answer YES, NO, or UNCLEAR."
+    },
+    {
+      "id": "e8",
+      "context": "The book chronicles the French invasion of Russia and its aftermath during the Napoleonic era . It uses five interlocking narratives following different Russian aristocratic families to illustrate Napoleon's impact on Tsarist society. Portions of an earlier version, titled The Year 1805 , [ 4 ] were serialized in The Russian Messenger from 1865 to 1867 before the novel was published in its entirety in 1869. [ 5 ]",
+      "statement": "French —invasion→ of Russia",
+      "question": "Does the context passage state this subject-verb-object relation (with this polarity)? Answer YES, NO, or UNCLEAR."
+    },
+    {
+      "id": "e12",
+      "context": "The Rostovs have waited until the last minute to abandon Moscow, even after it became clear that Kutuzov had retreated past Moscow. The Muscovites are being given contradictory instructions on how to either flee or fight. Count Fyodor Rostopchin , the commander in chief of Moscow, is publishing posters, rousing the citizens to put their faith in religious icons , while at the same time urging them to fight with pitchforks if necessary. Before fleeing himself, he gives orders to burn the city. However, Tolstoy states that the burning of an abandoned city mostly built of wood was inevitable, and while the French blame the Russians, these blame the French. The Rostovs have a difficult time deciding what to take with them, but in the end, Natasha convinces them to load their carts with the wounded and dying from the Battle of Borodino. Unknown to Natasha, Prince Andrei is among the wounded.",
+      "statement": "Prince Andrei —is→ among",
+      "question": "Does the context passage state this subject-verb-object relation (with this polarity)? Answer YES, NO, or UNCLEAR."
+    },
+    {
+      "id": "e10",
+      "context": "Isaac Babel said, after reading War and Peace , \"If the world could write by itself, it would write like Tolstoy.\" [ 37 ] Tolstoy \"gives us a unique combination of the 'naive objectivity' of the oral narrator with the interest in detail characteristic of realism. This is the reason for our trust in his presentation.\" [ 38 ]",
+      "statement": "after reading —war→ and Peace",
+      "question": "Does the context passage state this subject-verb-object relation (with this polarity)? Answer YES, NO, or UNCLEAR."
+    },
+    {
+      "id": "e3",
+      "context": "War and Peace ( Russian : Война и мир , romanized : Voyna i mir ; pre-reform Russian : Война и миръ ; IPA: [ vɐjˈna i ˈmʲir ] ) is an epic novel by the Russian author Leo Tolstoy . Set during the Napoleonic Wars , the work comprises both a fictional narrative and chapters in which Tolstoy discusses history and philosophy. An early version was published serially beginning in 1865, after which the entire book was rewritten and published in 1869. The novel has claims to be the greatest novel written. It is regarded, with Anna Karenina , as Tolstoy's finest literary achievement, and it remains an internationally praised classic of world literature . [ 1 ] [ 2 ] [ 3 ]",
+      "statement": "Voyna —i→ mir",
+      "question": "Does the context passage state this subject-verb-object relation (with this polarity)? Answer YES, NO, or UNCLEAR."
+    },
+    {
+      "id": "e22",
+      "context": "Scene in Red Square , Moscow, 1801. Oil on canvas by Fedor Yakovlevich Alekseev .",
+      "statement": "Oil —on→ canvas by Fedor Yakovlevich Alekseev",
+      "question": "Does the context passage state this subject-verb-object relation (with this polarity)? Answer YES, NO, or UNCLEAR."
+    },
+    {
+      "id": "e6",
+      "context": "- ↑ Hare, Richard (1956). \"Tolstoy's Motives for Writing \"War and Peace\" \" . The Russian Review . 15 (2): 110– 121. doi : 10.2307/126046 . ISSN 0036-0341 . JSTOR 126046 . Archived from the original on 2020-10-15 . Retrieved 2020-10-15 .",
+      "statement": "Archived —from→ the original on 2020",
+      "question": "Does the context passage state this subject-verb-object relation (with this polarity)? Answer YES, NO, or UNCLEAR."
+    },
+    {
+      "id": "e19",
+      "context": "- War and Peace (2007): produced by the Italian Lux Vide , a TV mini-series in Russian & English co-produced in Russia, France, Germany, Poland and Italy. Directed by Robert Dornhelm , with screenplay written by Lorenzo Favella, Enrico Medioli and Gavin Scott . It features an international cast with Alexander Beyer playing the lead role of Pierre supported by Malcolm McDowell , Clémence Poésy as Natasha Rostova, Alessio Boni , Pilar Abella, Valentina Cervi , J. Kimo Arbas, Ken Duken , Juozapas Bagdonas and Toni Bertorelli . [ 45 ]",
+      "statement": "screenplay written —by→ Lorenzo Favella",
+      "question": "Does the context passage state this subject-verb-object relation (with this polarity)? Answer YES, NO, or UNCLEAR."
+    },
+    {
+      "id": "e20",
+      "context": "Fyodor Dostoevsky (in a May 30, 1871, letter to Strakhov) described War and Peace as \"the last word of the landlord's literature and the brilliant one at that.\" In a draft version of The Raw Youth he described Tolstoy as \"a historiograph of the dvoryanstvo , or rather, its cultural elite.\" \"The objectivity and realism impart wonderful charm to all scenes, and alongside people of talent, honour and duty he exposes numerous scoundrels, worthless goons and fools,\" he added. [ 28 ] In 1876 Dostoevsky wrote: \"My strong conviction is that a writer of fiction has to have most profound knowledge—not only of the poetic side of his art, but also the reality he deals with, in its historical as well as contemporary context. Here [in Russia], as far as I see it, only one writer excels in this, Count Lev Tolstoy.\" [ 29 ]",
+      "statement": "a —writer→ of fiction has to have most profound knowledge",
+      "question": "Does the context passage state this subject-verb-object relation (with this polarity)? Answer YES, NO, or UNCLEAR."
+    },
+    {
+      "id": "e1",
+      "context": "- War and Peace (1972): The BBC (British Broadcasting Corporation) made a television serial based on the novel, broadcast in 1972–73. Anthony Hopkins played the lead role of Pierre. Other lead characters were played by Rupert Davies , Faith Brook , Morag Hood , Alan Dobie , Angela Down and Sylvester Morand . This version faithfully included many of Tolstoy's minor characters, including Platon Karataev ( Harry Locke ). [ 42 ] [ 43 ]",
+      "statement": "serial based —on→ the novel",
+      "question": "Does the context passage state this subject-verb-object relation (with this polarity)? Answer YES, NO, or UNCLEAR."
+    },
+    {
+      "id": "e11",
+      "context": "This article is about the novel by Leo Tolstoy. For other uses, see War and Peace (disambiguation) .",
+      "statement": "novel —by→ Leo Tolstoy",
+      "question": "Does the context passage state this subject-verb-object relation (with this polarity)? Answer YES, NO, or UNCLEAR."
+    },
+    {
+      "id": "e14",
+      "context": "Nikolai and Maria then move to her inherited estate of Bald Hills with his mother and Sonya, whom he supports for the rest of their lives. Nikolai and Maria have children together, and also raise Prince Andrei's orphaned son, Nikolai Andreyevich (Nikolenka) Bolkonsky.",
+      "statement": "Maria —have→ children together",
+      "question": "Does the context passage state this subject-verb-object relation (with this polarity)? Answer YES, NO, or UNCLEAR."
+    },
+    {
+      "id": "e21",
+      "context": "Also attending the soirée is Pierre's friend, Prince Andrei Nikolayevich Bolkonsky, husband of Lise, a charming society favourite. He is disillusioned with Petersburg society and with married life, feeling that his wife is empty and superficial. Pierre does not quite know what to do with this and is made uncomfortable witnessing the marital discord. Pierre was sent to Petersburg by his father to choose a career but is uncomfortable because he cannot find one and people frequently ask about it. Andrei tells Pierre he has decided to become aide-de-camp to Prince Mikhail Ilarionovich Kutuzov in the coming war (the Battle of Austerlitz) against Napoleon in order to escape a life he cannot stand.",
+      "statement": "and —with→ married life",
+      "question": "Does the context passage state this subject-verb-object relation (with this polarity)? Answer YES, NO, or UNCLEAR."
+    },
+    {
+      "id": "e4",
+      "context": "The plot of the novel is set 55 years before Tolstoy wrote it, but he had spoken with people who lived through the 1812 French invasion of Russia . He read all the standard histories available in Russian and French about the Napoleonic Wars as well as letters, journals, autobiographies, and biographies of Napoleon and other key players of that era. There are approximately 160 real persons named or referred to in War and Peace . [ 12 ]",
+      "statement": "novel —is→ set 55 years before Tolstoy wrote it",
+      "question": "Does the context passage state this subject-verb-object relation (with this polarity)? Answer YES, NO, or UNCLEAR."
+    },
+    {
+      "id": "e17",
+      "context": "Since then many world-famous authors have praised War and Peace as a masterpiece of world literature. Gustave Flaubert expressed his delight in a January 1880 letter to Turgenev, writing: \"This is the first class work! What an artist and what a psychologist! The first two volumes are exquisite. I used to utter shrieks of delight while reading. This is powerful, very powerful indeed.\" [ 33 ] Later John Galsworthy called War and Peace \"the best novel that had ever been written\". Romain Rolland , remembering his reading the novel as a student, wrote, \"This work, like life itself, has no beginning, no end. It is life itself in its eternal movement.\" [ 34 ] Thomas Mann thought War and Peace to be \"the greatest ever war novel in the history of literature.\" [ 35 ] When Virginia Woolf finished the book, she declared \"There remains the greatest of all novelists—for what else can we call the author of War and Peace ?\" [ 36 ] Ernest Hemingway confessed that it was from Tolstoy that he had been taking lessons on how to \"write about war in the most straightforward, honest, objective and stark way.\" \"I don't know anybody who could write about war better than Tolstoy did\", Hemingway asserted in his 1955 Men at War. The Best War Stories of All Time anthology. [ 21 ]",
+      "statement": "It —is→ life itself",
+      "question": "Does the context passage state this subject-verb-object relation (with this polarity)? Answer YES, NO, or UNCLEAR."
+    },
+    {
+      "id": "e13",
+      "context": "The second part of the epilogue contains Tolstoy's critique of all existing forms of mainstream history. The 19th-century Great Man Theory claims that historical events are the result of the actions of \"heroes\" and other great individuals; Tolstoy argues that this is impossible because of how rarely these actions result in great historical events. Rather, he argues, great historical events are the result of many smaller events driven by the thousands of individuals involved (a summation which he earlier, in Part III chapter 1, compared to calculus , and the sum of infinitesimals ). He then goes on to argue that these smaller events are the result of an inverse relationship between necessity and free will, necessity being based on reason and therefore explicable through historical analysis, and free will being based on consciousness and therefore inherently unpredictable. Tolstoy also ridicules newly emerging Darwinism as overly simplistic, comparing it to plasterers covering over the windows, icons , and scaffolding with plaster, impressed with the smooth result. He wrestles with the tension between our consciousness of freedom and the apparent need for necessity to develop laws of science and history, saying at times that the first is as real as the second, and yet that its reality would destroy the second. He concludes that just as astronomy had to adopt the Copernican hypothesis of the earth's movement, not because it fits our immediate perceptions, but to avoid absurdities, so, too, must historical science accept some conception of necessary laws of human action, even though we feel free in our ordinary lives. In an appendix, he tries to further resolve the tension with the suggestion that we are most free, or feel most free, in arbitrary acts affecting us alone, but less free in acts affecting other people, where moral or other principles force or forbid certain responses.",
+      "statement": "therefore explicable —through→ historical analysis",
+      "question": "Does the context passage state this subject-verb-object relation (with this polarity)? Answer YES, NO, or UNCLEAR."
+    },
+    {
+      "id": "e5",
+      "context": "- Count Pyotr Kirillovich (\"Pierre\") Bezukhov : The central character and often a voice for Tolstoy's own beliefs or struggles. Pierre is the socially awkward illegitimate son of Count Kirill Vladimirovich Bezukhov, who has fathered dozens of illegitimate sons. Educated abroad, Pierre returns to Russia as a misfit. His unexpected inheritance of a large fortune makes him socially desirable.",
+      "statement": "Pierre —is→ the socially awkward illegitimate son",
+      "question": "Does the context passage state this subject-verb-object relation (with this polarity)? Answer YES, NO, or UNCLEAR."
+    },
+    {
+      "id": "e0",
+      "context": "Pierre is initially horrified by Natasha's behavior but realizes he has fallen in love with her. As the Great Comet of 1811–12 streaks across the sky, life appears to begin anew for Pierre. Prince Andrei coldly accepts Natasha's breaking of the engagement. He tells Pierre that his pride will not allow him to renew his proposal.",
+      "statement": "Pierre —is→ initially horrified by Natasha's behavior but realizes he has fallen",
+      "question": "Does the context passage state this subject-verb-object relation (with this polarity)? Answer YES, NO, or UNCLEAR."
+    },
+    {
+      "id": "e15",
+      "context": "War and Peace ( Russian : Война и мир , romanized : Voyna i mir ; pre-reform Russian : Война и миръ ; IPA: [ vɐjˈna i ˈmʲir ] ) is an epic novel by the Russian author Leo Tolstoy . Set during the Napoleonic Wars , the work comprises both a fictional narrative and chapters in which Tolstoy discusses history and philosophy. An early version was published serially beginning in 1865, after which the entire book was rewritten and published in 1869. The novel has claims to be the greatest novel written. It is regarded, with Anna Karenina , as Tolstoy's finest literary achievement, and it remains an internationally praised classic of world literature . [ 1 ] [ 2 ] [ 3 ]",
+      "statement": "which Tolstoy —discusses→ history",
+      "question": "Does the context passage state this subject-verb-object relation (with this polarity)? Answer YES, NO, or UNCLEAR."
+    },
+    {
+      "id": "e2",
+      "context": "The second part of the epilogue contains Tolstoy's critique of all existing forms of mainstream history. The 19th-century Great Man Theory claims that historical events are the result of the actions of \"heroes\" and other great individuals; Tolstoy argues that this is impossible because of how rarely these actions result in great historical events. Rather, he argues, great historical events are the result of many smaller events driven by the thousands of individuals involved (a summation which he earlier, in Part III chapter 1, compared to calculus , and the sum of infinitesimals ). He then goes on to argue that these smaller events are the result of an inverse relationship between necessity and free will, necessity being based on reason and therefore explicable through historical analysis, and free will being based on consciousness and therefore inherently unpredictable. Tolstoy also ridicules newly emerging Darwinism as overly simplistic, comparing it to plasterers covering over the windows, icons , and scaffolding with plaster, impressed with the smooth result. He wrestles with the tension between our consciousness of freedom and the apparent need for necessity to develop laws of science and history, saying at times that the first is as real as the second, and yet that its reality would destroy the second. He concludes that just as astronomy had to adopt the Copernican hypothesis of the earth's movement, not because it fits our immediate perceptions, but to avoid absurdities, so, too, must historical science accept some conception of necessary laws of human action, even though we feel free in our ordinary lives. In an appendix, he tries to further resolve the tension with the suggestion that we are most free, or feel most free, in arbitrary acts affecting us alone, but less free in acts affecting other people, where moral or other principles force or forbid certain responses.",
+      "statement": "great —historical→ events",
+      "question": "Does the context passage state this subject-verb-object relation (with this polarity)? Answer YES, NO, or UNCLEAR."
+    }
+  ]
+}

@@ -1,0 +1,168 @@
+{
+  "name": "mechanical-doors-stream",
+  "purpose": "One realistic multi-turn sitting that exercises the composer's mechanical doors — arithmetic fast-path plus its one deliberately-refused ambiguous case, widget build-and-iterate (judgment complaint, anaphoric complaint, and a definite-phrase complaint that hits the disclosed known-limitation fall-through to a new build), the second-person self-plane door, and an honest anaphoric-trap failure — woven into ordinary conversation rather than run as isolated command tests.",
+  "turns": [
+    {
+      "n": 1,
+      "user": "hey — haven't opened this in a while, figured I'd actually sit down and use it properly tonight instead of just poking at it for two minutes and closing the tab.",
+      "tests": "ordinary opener, no mechanical door",
+      "expects": "plain conversational reply, no door fires"
+    },
+    {
+      "n": 2,
+      "user": "no real agenda tonight, just want to poke around a bit and also get a couple actual things done if this is still good for that.",
+      "tests": "ordinary continuation",
+      "expects": "plain conversational reply, no door fires"
+    },
+    {
+      "n": 3,
+      "user": "ok, easy one to start — is there an actual rule of thumb for how often you're supposed to go through and refill a first aid kit at home, or does it just depend?",
+      "tests": "ordinary general-knowledge question — not numeric, not a build request, not self-referential; should not false-trigger any door",
+      "expects": "normal grounded/conversational answer, no mechanical door fires"
+    },
+    {
+      "n": 4,
+      "user": "ok real question now — what's 17 times 24?",
+      "tests": "arithmetic fast path: clean two-number multiplication",
+      "expects": "computed mechanically (mathjs), never sent to the model — 17 * 24 = 408, captioned 'computed, not generated'"
+    },
+    {
+      "n": 5,
+      "user": "ha, that was basically instant. ok let me think of something with actual stakes.",
+      "tests": "ordinary reaction",
+      "expects": "plain conversational reply"
+    },
+    {
+      "n": 6,
+      "user": "I've been trying to get better about actually tracking what I spend instead of just guessing at the end of the month and being surprised.",
+      "tests": "ordinary conversational turn",
+      "expects": "plain conversational reply"
+    },
+    {
+      "n": 7,
+      "user": "quick number check while I'm thinking about money — what's 17 subtracted from 50?",
+      "tests": "arithmetic fast path: order-reversing phrasing ('N subtracted from M' means M − N), one of the three reversed forms that now compute mechanically",
+      "expects": "computed mechanically as 50 - 17 = 33, captioned 'computed, not generated' — not refused, since 'subtracted from' has exactly one standard reading"
+    },
+    {
+      "n": 8,
+      "user": "yeah that tracks with what I was afraid of. anyway.",
+      "tests": "ordinary reaction",
+      "expects": "plain conversational reply"
+    },
+    {
+      "n": 9,
+      "user": "I finally fixed that squeaky door hinge in the hallway. WD-40, obviously, but somehow it took me three months to actually do the five-minute thing.",
+      "tests": "ordinary conversational turn (contains number words inside prose, not a pure expression — should not false-trigger arithmetic)",
+      "expects": "plain conversational reply, arithmetic door does not fire"
+    },
+    {
+      "n": 10,
+      "user": "ok one more math one since I'm curious — what's 5 divided into 20?",
+      "tests": "deliberately ambiguous order-reversing phrasing — 'N divided into M' is the one reversed form the mechanical path still refuses, because real usage genuinely splits between the long-division idiom (M/N, i.e. 4) and a colloquial reading (N/M, i.e. 4 groups) with no structural signal to disambiguate",
+      "expects": "DISCLOSED LIMITATION, working as intended: must NOT be computed silently by the mechanical path either way. It should fall through to a normal grounded/conversational answer instead — this is the one deliberate gap, not a bug to expect fixed."
+    },
+    {
+      "n": 11,
+      "user": "huh, fair, I guess that one actually is genuinely ambiguous when I say it out loud.",
+      "tests": "ordinary reaction",
+      "expects": "plain conversational reply"
+    },
+    {
+      "n": 12,
+      "user": "I might finally get around to washing the car this weekend if it doesn't rain again. it's been sitting under the tree dropping stuff on it for weeks.",
+      "tests": "ordinary conversational turn",
+      "expects": "plain conversational reply"
+    },
+    {
+      "n": 13,
+      "user": "ok, switching gears completely — can you build me a tiny counter widget? just a number in the middle with a plus button and a minus button under it, nothing fancy.",
+      "tests": "widget/code build request — small, genuinely simple interactive build",
+      "expects": "produces a runnable code build (a new ground/thread in the Builds panel) — a small counter with increment and decrement, shown as a Folds build rather than plain chat text"
+    },
+    {
+      "n": 14,
+      "user": "while that's cooking — do you know an actual trick for keeping store-bought basil alive longer? mine always turns black in like four days.",
+      "tests": "ordinary conversational turn placed right after a build request — should not be swept into the widget/build router as if it were feedback on the build",
+      "expects": "plain conversational reply about basil; the material/build router does not hijack this as a widget complaint"
+    },
+    {
+      "n": 15,
+      "user": "yeah I know, I know, it's probably the fridge. I keep doing it anyway.",
+      "tests": "ordinary reaction",
+      "expects": "plain conversational reply"
+    },
+    {
+      "n": 16,
+      "user": "hold on, random — what did they say about that again?",
+      "tests": "anaphoric trap with no real antecedent — nothing anywhere earlier in this conversation introduces any group, team, or third party 'they' could point back to (every prior turn is either a solo mechanical-door probe or first-person singular small talk)",
+      "expects": "honest failure to resolve — should report it cannot find who or what 'they'/'that' refers to (no anchor), not hallucinate an answer or silently invent an antecedent"
+    },
+    {
+      "n": 17,
+      "user": "never mind, I think I'm mixing this up with a totally different conversation, ignore that.",
+      "tests": "ordinary recovery turn after the anaphoric trap",
+      "expects": "plain conversational reply, no error state carried forward"
+    },
+    {
+      "n": 18,
+      "user": "ok, back to the counter thing — I don't like the colors, can you change them up a bit?",
+      "tests": "widget iteration via judgment phrasing ('I don't like X'), no anaphora, no explicit build number, several turns removed from the original build request",
+      "expects": "routes as a re-zero/revision of the SAME existing counter build (REC + new ground), not a new separate build"
+    },
+    {
+      "n": 19,
+      "user": "also, unrelated, remind me later that I need to call the dentist — not now, just saying it out loud so I don't forget.",
+      "tests": "ordinary conversational turn interleaved between widget iterations",
+      "expects": "plain conversational reply; not treated as a widget action or a self-plane query"
+    },
+    {
+      "n": 20,
+      "user": "ok that looks better. can you make it bigger though, it's kind of tiny on my screen",
+      "tests": "widget iteration via anaphora ('make it bigger' — 'it' points back to the counter build)",
+      "expects": "routes as a revision of the SAME existing build (not a new one), resolved through the anaphoric-pronoun closed class rather than a definite-phrase match"
+    },
+    {
+      "n": 21,
+      "user": "yeah, that's way easier to actually see. this is kind of fun to mess with honestly.",
+      "tests": "ordinary reaction",
+      "expects": "plain conversational reply"
+    },
+    {
+      "n": 22,
+      "user": "actually, real question for a second — has anything I've said tonight surprised you at all?",
+      "tests": "self-plane door via a natural second-person phrasing ('surprised you'), not by typing /self",
+      "expects": "the second-person tell fires detectReflex, and the app answers from its own conversational ledger/measured-surprise state for this session, rather than giving a generic guess or treating it as an ordinary chat question"
+    },
+    {
+      "n": 23,
+      "user": "fair enough. ok, one more tweak and then I'll leave the poor widget alone.",
+      "tests": "ordinary reaction / transition",
+      "expects": "plain conversational reply"
+    },
+    {
+      "n": 24,
+      "user": "change the background to blue",
+      "tests": "widget iteration using a definite phrase ('the background') that names something the counter widget's actual code does NOT contain — the build is just a number plus two buttons, with no background element anywhere in it",
+      "expects": "DISCLOSED, EXPECTED LIMITATION, not a bug: the definite phrase fails to match anything in the build's own bytes, so this falls through to starting a NEW build rather than revising the existing counter. Current honest behavior is a fresh build, not a modified one."
+    },
+    {
+      "n": 25,
+      "user": "oh — that made a whole new one instead of just changing the old one. good to know.",
+      "tests": "ordinary reaction, user noticing the fall-through behavior for themselves",
+      "expects": "plain conversational reply; the visible outcome (a second, separate build now exists alongside the counter) matches the disclosed limitation from the prior turn"
+    },
+    {
+      "n": 26,
+      "user": "ok, I think that's a good stopping point for tonight.",
+      "tests": "ordinary conversational turn",
+      "expects": "plain conversational reply"
+    },
+    {
+      "n": 27,
+      "user": "thanks for humoring all of that, talk later.",
+      "tests": "ordinary closing / sign-off",
+      "expects": "plain conversational reply, natural sign-off, no door fires"
+    }
+  ]
+}

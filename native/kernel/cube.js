@@ -60,6 +60,31 @@ export const cellOf = (op, grain) => {
 // so a caller can ask it WITHOUT provoking a typed gap it would then have to
 // unwrap. The nine are the nine — README's own "ALT and SUP are not canonical
 // operators" is this function's whole content.
+/**
+ * THE OPERATOR CHAIN, DERIVED — never a literal (2026-09-01).
+ *
+ * The canonical sequence is domain-major x mode: for each domain in
+ * DOMAINS order, its Differentiate / Relate / Generate operators. That is
+ * CUBE.md line 39's own enumeration and the handbook's strict dependency
+ * chain ("of nearly thirteen hundred possible orderings, only this one
+ * survives basic consistency checks"), lineage eoreader4.1 core/operators.js.
+ *
+ * It is derived here rather than typed because it ALREADY LIVES in this
+ * file's own OP_MODE/OP_DOMAIN tables, and a restatement of a table that
+ * sits ten lines above it is exactly how the divergence this replaces
+ * happened: task-log.js carried a hand-written OPERATOR_ORDER whose header
+ * said "nothing is restated here", and it had drifted from the tables it
+ * was restating. Audited 2026-09-01 against every operator-typed entry on
+ * disk and against the full native suite: neither could tell the two
+ * orderings apart, so the divergence was protecting nothing measurable —
+ * the burden was on the divergence, and it was not met.
+ */
+export const OPERATOR_CHAIN = Object.freeze(
+  DOMAINS.flatMap((domain) =>
+    MODES.map((mode) => Object.keys(OP_MODE).find((op) => OP_DOMAIN[op] === domain && OP_MODE[op] === mode))
+  ).filter(Boolean)
+);
+
 export const isCurrentOperator = (op) => Object.prototype.hasOwnProperty.call(OP_MODE, op);
 
 // Algebra enumeration groups by operator. This is useful for validating the
