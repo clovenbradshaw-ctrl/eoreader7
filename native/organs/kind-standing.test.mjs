@@ -107,6 +107,28 @@ test("CONTROL: the kind recovers its own declared members — 9 of 10, and the t
   assert.equal(members.includes("Purfleet"), false, "the marginal member stays marginal — this test pins the disclosure, not a pass");
 });
 
+test("THE JUDGE SHUFFLED (II.23 on this test's own number): a RANDOM declared kind must not recover 9 of 10", { skip: !haveBook }, async () => {
+  // "9 of 10 recover" is only evidence if a random set of ten referents,
+  // declared as a kind, does NOT also recover ~9 of itself. This is the
+  // same question the oracle run put to P60's judge, asked of this
+  // module's own headline: what does a shuffle score? Six random kinds,
+  // seeded, drawn from the same population the real kind sits in.
+  const v = await realVectors();
+  const pool = [...v.keys()].filter((s) => !PLACES.includes(s));
+  let seed = 13; const rnd = () => ((seed = (seed * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff);
+  const recoveries = [];
+  for (let k = 0; k < 6; k++) {
+    const shuffled = [...pool]; for (let i = shuffled.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]; }
+    const kind = shuffled.slice(0, 10);
+    recoveries.push(kind.filter((m) => kindMembership(m, kind, v, { alpha: ALPHA }).verdict === "member").length);
+  }
+  recoveries.sort((a, b) => a - b);
+  const median = recoveries[3];
+  // the real kind recovers 9; a random kind recovering as well would mean
+  // the membership test rewards ANY declared set — the number would be void
+  assert.ok(median <= 6, `random kinds recover a median of ${median}/10 (draws ${JSON.stringify(recoveries)}) — must sit well below the real kind's 9`);
+});
+
 test("DISCLOSED LIMIT: a thin profile lands not_member for want of evidence — East/West Cliff is NOT closed", { skip: !haveBook }, async () => {
   const v = await realVectors();
   const cliff = kindMembership("East Cliff", PLACES, v, { alpha: ALPHA });
