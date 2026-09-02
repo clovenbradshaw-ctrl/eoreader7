@@ -42,8 +42,8 @@ export * as capacities from "./capacities.js";
 // source.js/web.js, and a moved organ may not import the surface).
 export { assertionId, recipeId, REFUSALS as HYPERLEXICON_REFUSALS, VERB_CLASS, makeHyperlexicon } from "../../../the-fold/hyperlexicon.js";
 export * as hyperlexicon from "../../../the-fold/hyperlexicon.js";
-export { makeGrammarLens, mismatchedConnectors } from "../../../the-fold/grammar-lens.js";
-export * as grammarLens from "../../../the-fold/grammar-lens.js";
+export { makeGrammarLens, mismatchedConnectors } from "./grammar-lens.js";
+export * as grammarLens from "./grammar-lens.js";
 export { stageFromEdges } from "../../../the-fold/hl.js";
 export * as hl from "../../../the-fold/hl.js";
 export { EVIDENCE_FLOOR, scanFunctionalCandidates, acquireCandidates, recheckCandidates, promoteAndDeclare } from "../../../the-fold/hl-acquire.js";
