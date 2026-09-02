@@ -58,7 +58,7 @@ import { extractReadable } from "../../../../the-fold/web.js";
 import { seededShuffle, seedFrom } from "../../../../the-fold/asserted.js";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
-const ENGINE = join(HERE, "..", "..", "eoreader7", "legacy-eoreader6.1", "packages", "engine");
+const ENGINE = join(HERE, "..", "..", "..", "legacy-eoreader6.1", "packages", "engine");
 
 const DRAWS = 200;
 const SEED = 0;
