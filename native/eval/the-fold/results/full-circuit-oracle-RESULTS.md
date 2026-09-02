@@ -85,3 +85,39 @@ not a change in the naive method. A larger succession corpus is the
 obvious next material, and the tenure-grain verdict should be carried
 back into `derivation-precision.mjs` so P60's arms are re-scored under
 a judge that passes resolution.
+
+---
+
+## The wide run — 158 entities (same day)
+
+*`eval/fetch-succession.mjs` crawled P1365/P1366 two hops out from the
+committed 23 seeds (158 entities, 201 succession edges) into NEW fixture
+files; the committed 23-entity set is untouched so P60 and the first run
+stay reproducible. `MATERIAL=… ORACLE=… node eval/full-circuit-oracle.mjs`.*
+
+| arm | edges | derived | TRUE | FALSE | UNVERIFIABLE | offices refuted |
+|---|---|---|---|---|---|---|
+| N naive (person grain, all edges) | 201 | 137 | 117 | 0 | 20 | 7 |
+| **C the circuit (tenure grain, corroborated)** | 156 | **224** | **223** | **0** | 1 | **0** |
+| R redealt, 50 seeds | 156 | — | — | pooled FALSE 0.463 | — | — |
+
+**Resolution, now unambiguous.** Under the tenure-grain null a derived
+fact is TRUE with p≈0.54 — chance, as a random pair of dated tenures
+should give — and the circuit's 223/223 has p≈0 under it; **0 of 50
+shuffles matched.** Discriminated, robustly, at the scale the 23-entity
+run could only suggest.
+
+**The grain result reverses P60's cost at scale.** P60 priced the
+office gate at "15 true facts lost per 2 false prevented" because a
+multi-tenure holder made the person-grain relation non-functional and the
+whole office was refused. At tenure grain nothing is refused (7 → 0
+offices), and the circuit derives **101 facts the naive arm cannot
+reach** — all TRUE — while giving up 21 naive-only facts, **19 of which
+the oracle cannot judge at all** (single-witness edges). Corroboration
+did not cost reach; it traded unverifiable reach for verifiable reach,
+and tenure grain then added reach on top.
+
+Sample of the 223: *Henry Wilson after Andrew Johnson* (vice presidency),
+*Hannibal Hamlin after John Fairfield* (Senate), *Theodore M. Pomeroy
+after Galusha A. Grow* (Speaker) — none stated by any record, each with
+byte-address provenance.

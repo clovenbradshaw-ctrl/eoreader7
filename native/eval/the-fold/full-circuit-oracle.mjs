@@ -49,8 +49,12 @@ import { auditChemistry, vetoedPairs } from "../../eoreader7/native/kernel/refut
 import { createDeclarationLog, foldDeclarations } from "../../eoreader7/native/interpretation/declarations.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
-const MATERIAL = path.join(HERE, "fixtures", "succession-tenures.json");
-const ORACLE = path.join(HERE, "fixtures", "succession-terms.json");
+// MATERIAL/ORACLE env overrides let the same circuit run over the WIDE
+// fixtures (eval/fetch-succession.mjs, a 2-hop crawl from the 23 seeds)
+// without touching the committed 23-entity set that P60 and the first
+// oracle run were measured on.
+const MATERIAL = process.env.MATERIAL ?? path.join(HERE, "fixtures", "succession-tenures.json");
+const ORACLE = process.env.ORACLE ?? path.join(HERE, "fixtures", "succession-terms.json");
 const say = (s) => console.log(s);
 
 // ── the material, addressed into its own bytes (ostension) ────────────────
@@ -203,6 +207,8 @@ async function runCircuit(recs, { grain, tag, declare = true }) {
     candidates: candidateOffices.length, refuted: refutedOffices.length, given: given.length,
     preRefuted: pre.filter((r) => r.refuted).length, postRefuted: post.filter((r) => r.refuted).length,
     derived: scored.length, ...c, precision: decided ? c.TRUE / decided : null,
+    keys: new Set(scored.map((s) => `${s.office}|${s.from}|${s.to}`)),
+    unverifiableKeys: new Set(scored.filter((s) => s.verdict === "UNVERIFIABLE").map((s) => `${s.office}|${s.from}|${s.to}`)),
     falseFacts: scored.filter((s) => s.verdict === "FALSE").map((s) => `${labelOf(s.from)} after ${labelOf(s.to)} (${labelOf(s.office)})`),
     trueSample: scored.filter((s) => s.verdict === "TRUE").slice(0, 4).map((s) => `${labelOf(s.from)} after ${labelOf(s.to)} (${labelOf(s.office)}, depth ${s.depth})`),
   };
@@ -269,5 +275,7 @@ say("\n── THE GATES ──");
 const chanceP = 1 - falseRate; // per-fact chance of TRUE under the null
 const pAllTrue = Math.pow(chanceP, C.derived);
 say(`II.23 resolution: under the redeal null a derived fact is TRUE with p≈${chanceP.toFixed(2)}; the circuit's ${C.TRUE}/${C.TRUE + C.FALSE} all-TRUE has p≈${pAllTrue.toFixed(3)} under that null, and ${perfectRuns}/${decidedR.length} redealt runs matched it — ${perfectRuns / Math.max(1, decidedR.length) <= 0.05 ? "DISCRIMINATED at alpha 0.05" : "NOT discriminated at alpha 0.05: the material is too small for the circuit's precision to beat the oracle's own chance rate"}`);
-say(`triangulation's value: the ${N.derived - C.derived} facts the naive arm derives that the circuit does not are exactly its ${N.UNVERIFIABLE} UNVERIFIABLE ones — single-witness edges reach facts the oracle cannot judge; corroboration kept the circuit inside what the oracle can see (${C.UNVERIFIABLE} unverifiable)`);
+const onlyNaive = [...N.keys].filter((k) => !C.keys.has(k)), onlyCircuit = [...C.keys].filter((k) => !N.keys.has(k));
+const onlyNaiveUnverifiable = onlyNaive.filter((k) => N.unverifiableKeys.has(k)).length;
+say(`triangulation's value: naive-only facts ${onlyNaive.length} (of which ${onlyNaiveUnverifiable} unverifiable — single-witness edges reach facts the oracle cannot judge); circuit-only facts ${onlyCircuit.length} (tenure grain composes where person grain refused: offices refuted ${N.refuted} -> ${C.refuted}); shared ${[...C.keys].filter((k) => N.keys.has(k)).length}`);
 say(`construction's reach: ${C.derived} never-stated facts from ${C.edges} corroborated edges, ${C.FALSE} false; naive ${N.derived} from ${N.edges}, ${N.FALSE} false`);
