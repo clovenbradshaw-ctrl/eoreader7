@@ -304,7 +304,8 @@ test("capitalisationIsSignificant uses an exact binomial tail, not a normal appr
   assert.ok(!names.has("Amber"), "6 capitalised against 1 lowercase (n=7) is exactly the normal approximation's false positive — the exact test correctly withholds it");
 });
 
-test("capitalisationIsSignificant's exact tail still admits genuinely strong evidence: 9-of-10 capitalised clears both the old approximation and the exact test", () => {
+test("capitalisationIsSignificant's exact tail still admits genuinely strong evidence: 9-of-10 capitalised clears both the old approximation and the exact test", (t) => {
+  if (!ru) return t.skip(RU_ABSENT);
   // A positive control alongside the case above: P(X>=9 | n=10, p=0.5) =
   // 11/1024 ≈ 0.0107, comfortably under CAP_SIG_ALPHA — the fix narrows a
   // false positive at low n, it does not make the test harder to pass on
@@ -333,10 +334,15 @@ test("capitalisationIsSignificant's exact tail still admits genuinely strong evi
 // identity stands and behavior is byte-identical.
 import { makeProperNounFold } from "../adapters/text/propernoun-fold.js";
 import { namesCorefer as nc } from "../adapters/text/surfaces.js";
-import { readFileSync } from "node:fs";
+import { readFileSync, existsSync } from "node:fs";
 
-const ru = JSON.parse(readFileSync(new URL("../../../live_priors/derived-priors/propernoun-priors/propernoun-ru.json", import.meta.url), "utf8"));
-const ruFold = makeProperNounFold(ru);
+// propernoun-ru.json lives in the live_priors sibling repo. Absent (CI's
+// runner), the tests that need it SKIP by name rather than failing the
+// whole file at load.
+const RU_PATH = new URL("../../../live_priors/derived-priors/propernoun-priors/propernoun-ru.json", import.meta.url);
+const ru = existsSync(RU_PATH) ? JSON.parse(readFileSync(RU_PATH, "utf8")) : null;
+const ruFold = ru ? makeProperNounFold(ru) : null;
+const RU_ABSENT = "live_priors sibling absent — propernoun-ru.json lives there";
 
 test("the fold seam merges one being's case-forms; the ADJ wall holds", () => {
   // The exact mechanism measured on real material: token-identity refuses the
@@ -356,7 +362,8 @@ test("the fold seam merges one being's case-forms; the ADJ wall holds", () => {
   assert.equal(nc("Бородино", "Бородинский", inline), false, "a derived adjective is not in the PROPN fold — the wall holds");
 });
 
-test("makeProperNounFold honors the single-lemma/multi-lemma and ADJ contracts on the real register", () => {
+test("makeProperNounFold honors the single-lemma/multi-lemma and ADJ contracts on the real register", (t) => {
+  if (!ru) return t.skip(RU_ABSENT);
   // Москва's case-forms all carry ONE lemma in the treebank -> folded. A
   // form attested under MULTIPLE lemmas -> returned unchanged (strand, never
   // guessed). A derived adjective and any unseen surname -> returned
@@ -372,7 +379,8 @@ test("makeProperNounFold honors the single-lemma/multi-lemma and ADJ contracts o
   assert.equal(ruFold("Бородинский"), "бородинский", "adjective stays unfolded (ADJ wall)");
 });
 
-test("the fold unifies a real register's case-forms into one referent end to end", () => {
+test("the fold unifies a real register's case-forms into one referent end to end", (t) => {
+  if (!ru) return t.skip(RU_ABSENT);
   // Москва/Mоскве/Mоскву are covered by live_priors' propernoun-ru.json (all
   // map to lemma москва) — a genuine proof that the injected fold reaches
   // discoverReferents
