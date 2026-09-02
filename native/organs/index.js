@@ -50,3 +50,5 @@ export { EVIDENCE_FLOOR, scanFunctionalCandidates, acquireCandidates, recheckCan
 export * as hlAcquire from "./hl-acquire.js";
 // hl.js also RE-EXPORTS the engine's own HL API (verdicts, stage builders) — names the seam generator's export scan missed, added when void-hl broke on BEYOND_REACH.
 export { BOUND, CONTRADICTED, CONTESTED, UNBOUND, BEYOND_REACH, UNREFUTED, UNDETERMINED, flip, createStage, addAnchor, addEdge, declareFunctional, declareTransitive, declareComplete, extendStage, atomic, read, attach } from "./hl.js";
+export { witnessSentences, endsFor, settledBy, rowFor, WITNESS_VERDICTS } from "./witness-sentences.js";
+export * as witnessSentencesOrgan from "./witness-sentences.js";
