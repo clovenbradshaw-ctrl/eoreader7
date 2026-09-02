@@ -98,6 +98,8 @@ stage for a different mechanism.
 
 ### CON·Ground — Tending at Field: maintaining the connective ground
 
+**REGISTERED 2026-09-02 (`field` → fold.js::advanceSummaryFold), on the user's direction not to block development on the fold-architecture boundary.** The boundary the sketch asked for turned out to be the two organs' own signatures: advanceSummaryFold MAINTAINS (append, count, never decide), the aperture gate DECIDES (EVA·Ground, `atmosphere`) — app.js's refreshSummary composes them and stays in app.js. **Original sketch:**
+
 **Sketch:** the running summary machinery (`fold.js`'s S1 +
 `refreshSummary`/`advanceSummaryFold`) MAINTAINS the conversational
 field — a Relate·Structure act at Ground grain. But the aperture gate
@@ -131,6 +133,8 @@ also the cell whose absence has never produced a live incident — worth
 noting, since every organ in this repo was built against one.
 
 ### INS·Ground — Cultivating at Void: generating ground where none exists
+
+**REGISTERED 2026-09-02 (`preflight` → proof.js::preflightQuery), same direction.** The pure declaration of the act (shouldPreflight gates, preflightQuery declares) is what a capacity is in the registry; the crossing stays in app.js where P13's one sanctioned egress lives. **The map is 27/27, nine FULL stances. Original sketch:**
 
 **Sketch:** P23's preflight (`gatherPreflightMaterial` — a materialless
 grounded turn gets one search BEFORE drafting, generating the ground the

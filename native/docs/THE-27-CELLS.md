@@ -153,7 +153,7 @@ surfaced basin[4] = bustrup, selk, stockfleth_company, vedelspang — the
 February retreat's micro-geography, discovered from structure with no
 word semantics anywhere.
 
-**INS·Ground — Void · Cultivating — EMPTY.** Generating ground where
+**INS·Ground — Void · Cultivating** — `preflight` (`proof.js::preflightQuery`; the crossing itself, `gatherPreflightMaterial`, stays in app.js). FILLED 2026-09-02 on the user's direction not to block on the fold-architecture boundary: a materialless grounded turn gets ONE search declared BEFORE the model drafts (P23), generating the ground the check needs. *Formerly:* Generating ground where
 none exists. The real candidate is P23's preflight
 (`gatherPreflightMaterial`: a materialless grounded turn gets ONE search
 before the model drafts — generating the ground the checks need), which
@@ -212,7 +212,7 @@ invented threshold, cut edges addressed by the caller's own indices.
 into a war-narrative core and its one-edge asides — `british —army→
 india` named as exactly the aside it is.
 
-**CON·Ground — Field · Tending — EMPTY.** Maintaining the connective
+**CON·Ground — Field · Tending** — `field` (`fold.js::advanceSummaryFold`, with `projectFolds`/`projectRecords` as its declared-window projections). FILLED 2026-09-02, same direction: the running summary's MAINTENANCE act — append the fold line, count the turn, never decide — with the deciding half already registered apart as `atmosphere` (EVA·Ground), which is the boundary the plan's own gate asked for. *Formerly:* Maintaining the connective
 ground. The candidate is the running summary's own machinery (fold.js's S1
 store; `app.js::refreshSummary` and `fold.js::advanceSummaryFold`) — but
 the aperture gate that
@@ -276,7 +276,7 @@ cell alone.
 
 ### Interpretation — DEF · EVA · REC (what the reader holds)
 
-**DEF·Ground — Atmosphere · Clearing — EMPTY.** Defining the
+**DEF·Ground — Atmosphere · Clearing** — `frame` (`frame.js::declareFrame`). FILLED 2026-09-02 from its depth-siblings under §VIII.2's pre-registered protocol. *Formerly:* Defining the
 interpretive ambient. Two candidates are named (the constitution's one
 folded paragraph, `constitution.js::CONSTITUTION_PROMPT`; the
 compiled-priors load) and neither typing is obvious enough to nominate

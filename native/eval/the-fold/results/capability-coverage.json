@@ -11,13 +11,13 @@
  ],
  "registry": {
   "source": "capacities.js",
-  "entries": 26,
+  "entries": 28,
   "selfDescribed": "a DATA TABLE, NOT A RUNTIME — 'starts, deliberately does not finish, the library seed' (its own header)"
  },
  "counts": {
   "cells": 27,
-  "covered": 25,
-  "empty": 2,
+  "covered": 27,
+  "empty": 0,
   "illegal": 0
  },
  "byStance": [
@@ -134,7 +134,7 @@
   },
   {
    "stance": "Tending",
-   "filled": 2,
+   "filled": 3,
    "of": 3,
    "cells": [
     {
@@ -153,7 +153,9 @@
      "mode": "Relate",
      "grain": "Ground",
      "terrain": "Field",
-     "organs": []
+     "organs": [
+      "field"
+     ]
     },
     {
      "cell": "EVA·Ground",
@@ -244,7 +246,7 @@
   },
   {
    "stance": "Cultivating",
-   "filled": 2,
+   "filled": 3,
    "of": 3,
    "cells": [
     {
@@ -253,7 +255,9 @@
      "mode": "Generate",
      "grain": "Ground",
      "terrain": "Void",
-     "organs": []
+     "organs": [
+      "preflight"
+     ]
     },
     {
      "cell": "SYN·Ground",
@@ -356,7 +360,7 @@
  "byTerrain": [
   {
    "terrain": "Void",
-   "filled": 2,
+   "filled": 3,
    "of": 3
   },
   {
@@ -371,7 +375,7 @@
   },
   {
    "terrain": "Field",
-   "filled": 2,
+   "filled": 3,
    "of": 3
   },
   {
@@ -413,7 +417,7 @@
   },
   {
    "operator": "INS",
-   "filled": 2,
+   "filled": 3,
    "of": 3
   },
   {
@@ -423,7 +427,7 @@
   },
   {
    "operator": "CON",
-   "filled": 2,
+   "filled": 3,
    "of": 3
   },
   {
@@ -450,7 +454,7 @@
  "byGrain": [
   {
    "grain": "Ground",
-   "filled": 7,
+   "filled": 9,
    "of": 9
   },
   {
@@ -472,55 +476,16 @@
   },
   {
    "mode": "Relate",
-   "filled": 8,
+   "filled": 9,
    "of": 9
   },
   {
    "mode": "Generate",
-   "filled": 8,
+   "filled": 9,
    "of": 9
   }
  ],
- "leads": [
-  {
-   "cell": "INS·Ground",
-   "stance": "Cultivating",
-   "terrain": "Void",
-   "grain": "Ground",
-   "sameActOtherGrain": [
-    "INS·Figure",
-    "INS·Pattern"
-   ],
-   "sameGrainOtherAct": [
-    "NUL·Ground",
-    "SIG·Ground",
-    "SEG·Ground",
-    "SYN·Ground",
-    "DEF·Ground",
-    "EVA·Ground",
-    "REC·Ground"
-   ]
-  },
-  {
-   "cell": "CON·Ground",
-   "stance": "Tending",
-   "terrain": "Field",
-   "grain": "Ground",
-   "sameActOtherGrain": [
-    "CON·Figure",
-    "CON·Pattern"
-   ],
-   "sameGrainOtherAct": [
-    "NUL·Ground",
-    "SIG·Ground",
-    "SEG·Ground",
-    "SYN·Ground",
-    "DEF·Ground",
-    "EVA·Ground",
-    "REC·Ground"
-   ]
-  }
- ],
+ "leads": [],
  "interpretation": {
   "rule": "AN EMPTY CELL IS A LEAD, NEVER A VERDICT — three kinds of hole share the count: REGISTRY DEBT (an organ exists, nothing declared its cell), REAL INCAPACITY (convictable only via a stated-then-confirmed falsifiable prediction), and PROBE/HARNESS ERROR reported as incapacity (P44's four wrong probe versions; a hardcoded path reporting 'organ unreachable' as a statement about the system when it is a statement about a path). The map may withhold, or convict on a confirmed prediction; it may never manufacture the second out of the first or the third.",
   "confirmedIncapacity": [
@@ -616,7 +581,7 @@
  },
  "afterDebtProjection": {
   "note": "coverage AS IT WOULD READ once the unregistered organs are registered at their own documented cells — a projection, nothing is registered by this driver",
-  "covered": 25,
+  "covered": 27,
   "of": 27,
   "byStance": [
    {
@@ -636,7 +601,7 @@
    },
    {
     "stance": "Tending",
-    "filled": 2,
+    "filled": 3,
     "of": 3
    },
    {
@@ -651,7 +616,7 @@
    },
    {
     "stance": "Cultivating",
-    "filled": 2,
+    "filled": 3,
     "of": 3
    },
    {
@@ -665,9 +630,6 @@
     "of": 3
    }
   ],
-  "stillEmpty": [
-   "INS·Ground",
-   "CON·Ground"
-  ]
+  "stillEmpty": []
  }
 }
