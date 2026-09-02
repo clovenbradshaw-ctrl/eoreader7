@@ -30,7 +30,7 @@
 // PURE; organs injected (contextVectors/foldPermitted from kind-standing,
 // splitSentences from the engine) — the cast.js posture.
 
-import { contextVectors, foldPermitted } from "./kind-standing.js";
+import { contextVectors, foldPermitted } from "../eoreader7/native/organs/index.js";
 
 export const REFUSALS = Object.freeze({
   undeclared: "the kind is DECLARED — members with a named giver, alpha valued (P4/P79); a gate that derives its own kind from nothing re-runs the refuted basin null",
