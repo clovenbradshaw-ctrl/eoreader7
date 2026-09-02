@@ -2,10 +2,10 @@
 // REAL hyperlexicon door and the real music/turbulence grammars.
 import test from "node:test";
 import assert from "node:assert/strict";
-import { arrangementsFrom, arrangementNotes } from "./event-arrangements.js";
+import { arrangementsFrom, arrangementNotes } from "../eoreader7/native/organs/index.js";
 import * as H from "./hyperlexicon.js";
 import * as TL from "../eoreader7/native/kernel/task-log.js";
-import { distinctSources, distinctRecipes } from "./corroboration.js";
+import { distinctSources, distinctRecipes } from "../eoreader7/native/organs/index.js";
 
 const MUSIC = [ // the omnimodal grammar's own phrase shape
   { text: "c4 a3 d5 e4 a3 f5 g4" },
