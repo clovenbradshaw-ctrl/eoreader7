@@ -151,183 +151,183 @@
     },
     "continuation": {
       "battle-of-borodino->war-and-peace|end1|1": {
-        "bits": null,
-        "median": null,
+        "bits": 8.692936283652305,
+        "median": 8.692936283652305,
         "beats": 0
       },
       "battle-of-borodino->war-and-peace|end1|2": {
-        "bits": null,
-        "median": null,
+        "bits": 8.692936283652305,
+        "median": 8.692936283652305,
         "beats": 0
       },
       "battle-of-borodino->war-and-peace|end1|3": {
-        "bits": null,
-        "median": null,
+        "bits": 8.692936283652305,
+        "median": 8.692936283652305,
         "beats": 0
       },
       "battle-of-borodino->war-and-peace|label|1": {
-        "bits": null,
-        "median": null,
-        "beats": 0
+        "bits": 6.417652402210131,
+        "median": 6.713662045057179,
+        "beats": 20
       },
       "battle-of-borodino->war-and-peace|label|2": {
-        "bits": null,
-        "median": null,
-        "beats": 0
+        "bits": 6.416451221168758,
+        "median": 6.734998367427035,
+        "beats": 20
       },
       "battle-of-borodino->war-and-peace|label|3": {
-        "bits": null,
-        "median": null,
-        "beats": 0
+        "bits": 6.434281050210258,
+        "median": 6.749884528214503,
+        "beats": 20
       },
       "battle-of-borodino->borodino-ru|end1|1": {
-        "bits": null,
-        "median": null,
+        "bits": 9.633316545135452,
+        "median": 9.633316545135452,
         "beats": 0
       },
       "battle-of-borodino->borodino-ru|end1|2": {
-        "bits": null,
-        "median": null,
+        "bits": 9.633316545135452,
+        "median": 9.633316545135452,
         "beats": 0
       },
       "battle-of-borodino->borodino-ru|end1|3": {
-        "bits": null,
-        "median": null,
+        "bits": 9.633316545135452,
+        "median": 9.633316545135452,
         "beats": 0
       },
       "battle-of-borodino->borodino-ru|label|1": {
-        "bits": null,
-        "median": null,
-        "beats": 0
+        "bits": 7.41792962676954,
+        "median": 7.649432599958722,
+        "beats": 20
       },
       "battle-of-borodino->borodino-ru|label|2": {
-        "bits": null,
-        "median": null,
-        "beats": 0
+        "bits": 7.427158470954834,
+        "median": 7.649432599958722,
+        "beats": 20
       },
       "battle-of-borodino->borodino-ru|label|3": {
-        "bits": null,
-        "median": null,
-        "beats": 0
+        "bits": 7.427158470954834,
+        "median": 7.649432599958722,
+        "beats": 20
       },
       "war-and-peace->battle-of-borodino|end1|1": {
-        "bits": null,
-        "median": null,
+        "bits": 8.681470473913881,
+        "median": 8.681470473913881,
         "beats": 0
       },
       "war-and-peace->battle-of-borodino|end1|2": {
-        "bits": null,
-        "median": null,
+        "bits": 8.681470473913881,
+        "median": 8.681470473913881,
         "beats": 0
       },
       "war-and-peace->battle-of-borodino|end1|3": {
-        "bits": null,
-        "median": null,
+        "bits": 8.681470473913881,
+        "median": 8.681470473913881,
         "beats": 0
       },
       "war-and-peace->battle-of-borodino|label|1": {
-        "bits": null,
-        "median": null,
-        "beats": 0
+        "bits": 6.51219584259314,
+        "median": 6.704509650834255,
+        "beats": 20
       },
       "war-and-peace->battle-of-borodino|label|2": {
-        "bits": null,
-        "median": null,
-        "beats": 0
+        "bits": 6.546936321661311,
+        "median": 6.798295367136184,
+        "beats": 20
       },
       "war-and-peace->battle-of-borodino|label|3": {
-        "bits": null,
-        "median": null,
-        "beats": 0
+        "bits": 6.5823014087193386,
+        "median": 6.798295367136184,
+        "beats": 20
       },
       "war-and-peace->borodino-ru|end1|1": {
-        "bits": null,
-        "median": null,
-        "beats": 0
+        "bits": 9.533762109320715,
+        "median": 9.546400966122299,
+        "beats": 20
       },
       "war-and-peace->borodino-ru|end1|2": {
-        "bits": null,
-        "median": null,
-        "beats": 0
+        "bits": 9.533762109320715,
+        "median": 9.546400966122299,
+        "beats": 20
       },
       "war-and-peace->borodino-ru|end1|3": {
-        "bits": null,
-        "median": null,
-        "beats": 0
+        "bits": 9.533762109320715,
+        "median": 9.546400966122299,
+        "beats": 20
       },
       "war-and-peace->borodino-ru|label|1": {
-        "bits": null,
-        "median": null,
-        "beats": 0
+        "bits": 7.627562914287218,
+        "median": 7.710790016136563,
+        "beats": 20
       },
       "war-and-peace->borodino-ru|label|2": {
-        "bits": null,
-        "median": null,
-        "beats": 0
+        "bits": 7.627562914287218,
+        "median": 7.710790016136563,
+        "beats": 20
       },
       "war-and-peace->borodino-ru|label|3": {
-        "bits": null,
-        "median": null,
-        "beats": 0
+        "bits": 7.627562914287218,
+        "median": 7.710790016136563,
+        "beats": 20
       },
       "borodino-ru->battle-of-borodino|end1|1": {
-        "bits": null,
-        "median": null,
+        "bits": 9.639247708536697,
+        "median": 9.639247708536697,
         "beats": 0
       },
       "borodino-ru->battle-of-borodino|end1|2": {
-        "bits": null,
-        "median": null,
+        "bits": 9.639247708536697,
+        "median": 9.639247708536697,
         "beats": 0
       },
       "borodino-ru->battle-of-borodino|end1|3": {
-        "bits": null,
-        "median": null,
+        "bits": 9.639247708536697,
+        "median": 9.639247708536697,
         "beats": 0
       },
       "borodino-ru->battle-of-borodino|label|1": {
-        "bits": null,
-        "median": null,
-        "beats": 0
+        "bits": 7.715579123220257,
+        "median": 7.730968939975223,
+        "beats": 17
       },
       "borodino-ru->battle-of-borodino|label|2": {
-        "bits": null,
-        "median": null,
-        "beats": 0
+        "bits": 7.7523324538883855,
+        "median": 7.746820518434986,
+        "beats": 5
       },
       "borodino-ru->battle-of-borodino|label|3": {
-        "bits": null,
-        "median": null,
-        "beats": 0
+        "bits": 7.7523324538883855,
+        "median": 7.746820518434986,
+        "beats": 5
       },
       "borodino-ru->war-and-peace|end1|1": {
-        "bits": null,
-        "median": null,
-        "beats": 0
+        "bits": 9.525183473750069,
+        "median": 9.54955929973288,
+        "beats": 20
       },
       "borodino-ru->war-and-peace|end1|2": {
-        "bits": null,
-        "median": null,
-        "beats": 0
+        "bits": 9.525183473750069,
+        "median": 9.54955929973288,
+        "beats": 20
       },
       "borodino-ru->war-and-peace|end1|3": {
-        "bits": null,
-        "median": null,
-        "beats": 0
+        "bits": 9.525183473750069,
+        "median": 9.54955929973288,
+        "beats": 20
       },
       "borodino-ru->war-and-peace|label|1": {
-        "bits": null,
-        "median": null,
+        "bits": 7.799168106667745,
+        "median": 7.797829276024911,
         "beats": 0
       },
       "borodino-ru->war-and-peace|label|2": {
-        "bits": null,
-        "median": null,
+        "bits": 7.799168106667745,
+        "median": 7.797829276024911,
         "beats": 0
       },
       "borodino-ru->war-and-peace|label|3": {
-        "bits": null,
-        "median": null,
+        "bits": 7.799168106667745,
+        "median": 7.797829276024911,
         "beats": 0
       }
     }

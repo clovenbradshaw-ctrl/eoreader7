@@ -2412,3 +2412,57 @@ attest/concede, injected identity, stream/figures/segment on a planted
 rhythm with a shuffle control, the medium pin);
 `organs/hyperlexicon*.test.mjs` 36/36 unchanged; the eleven moved files
 168/168.
+
+## S43 — The ledger's frame follows the reader and every witness names its recipe; a "diet boundary" by surprise is refuted as a door and kept as a diagnostic
+
+**Generality:** universal (frame redeclaration, the recipe on witnesses);
+specimen-scoped for the two measurements (three Wikipedia pages and one
+Gutenberg book; the continuation number is on three pages).
+
+**User direction (2026-09-02):** do the first two of "diet-boundary door,
+frame as instrument, one cross-source measurement" together, controls built
+to fail.
+
+**The frame follows the reader.** `kernel/notes.js::redeclareFrame` —
+SUPERSEDE on the frame task, the past kept, an identical redeclaration
+appending nothing, a frameless ledger given a frame late getting a birth
+frame rather than a revision; `frames()` lists every standing, `frameOf()`
+the one in force with its revision count. the-fold's `holon.js` redeclares
+on every grounded turn from the reader as it stands, so a prior that loaded
+after the ledger's birth is no longer frozen out — P80's disclosed edge,
+closed.
+
+**Every witness names its recipe.** the-fold mints a recipe id per distinct
+frame (`recipeId`, cached by frame) and `holon.js` lands every mechanical
+witness as `<ref>~<recipe>`. `corroboration.js::independentReadings` counts
+(source, recipe) pairs, so two pages read by one reader are two sources and
+ONE instrument — the shared-instrument failure the music work measured, now
+counted in the live app rather than only in drivers. One raw witness
+comparison that would have re-asked a source already carrying `~recipe`
+(`corroborateLedger`'s skip) now compares through `distinctSources`.
+
+**The diet door, built, measured, refuted.** `dietBoundaries` (a source's
+tail run above the null's cut against the shuffle's own tail runs) and
+`concedeDiet` were built first against planted structure, where they are
+exact, then measured on real material: the three Wikipedia wrappers and
+Gutenberg's licence tail form NO run (their ends recur), and the pages cut
+back to prose DO fire, on closing sections that are lists. The statistic
+measures a tail of ends that never recur — a list — not furniture. The
+shuffle controls are silent 8 of 8, so the statistic is sound and the claim
+was wrong. `concedeDiet` is unlicensed on real material and wired nowhere;
+the refutation sits in the kernel's own header (P60's REFUSED discipline:
+named so it is not rebuilt). The ranking that had suggested it ("the most
+surprising hearings are the furniture") was a floor artifact — `figures()`
+grew its alphabet as it read — corrected to one floor, pinned.
+
+**The first cross-source number.** A prior sedimented from one page's
+hearings predicts another page's better than its own shuffle ONLY on the
+label stream between the two English pages: 0.2–0.3 bits per hearing,
+20/20 shuffles beaten at orders 1, 2 and 3. Nothing transfers on the ends;
+English → Russian a small consistent gain through shared labels; Russian →
+English nothing. `eval/the-fold/results/diet-boundary-RESULTS.md`.
+
+**Enforced:** `tests/notes.test.js` 10 (redeclaration, the figures floor,
+the door against planted structure with shuffle and body-only controls);
+`organs/corroboration.test.mjs` unchanged; the-fold suite 940/67 with zero
+new failures by name; the real page loaded in headless Chromium clean.
