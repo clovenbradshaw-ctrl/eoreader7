@@ -1,7 +1,7 @@
 // obligation.test.mjs — the ledger's walls.
 import test from "node:test";
 import assert from "node:assert/strict";
-import { admitObligations, mark, standings, coverage, STANDINGS } from "./obligation.js";
+import { admitObligations, mark, standings, coverage, STANDINGS } from "../eoreader7/native/organs/index.js";
 
 const SPEC = `Build the widget as follows:
 1. The header must hold still at every width.
