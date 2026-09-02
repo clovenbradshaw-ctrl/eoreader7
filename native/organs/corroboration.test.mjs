@@ -482,16 +482,44 @@ test("the generic-title gate is SOURCE-MEASURED, no hand-list: a word that also 
 // becomes it, the todo flag comes off and the referent is inhabited.
 // Grep `BECOMING` across the repo's tests to read the whole aspiration map.
 
-test("BECOMING heard-clean: the generic gate must survive a case-stripped (heard-only) source", { todo: true }, () => {
+test("BECOMING heard-clean — INHABITED: the generic gate survives a case-stripped source via a DISCOVERED kind", async () => {
   // THE HEARD RULE (user, 2026-09-01, verbatim): "the system must be able
   // to work equally well if it only heard the novel and didn't read it."
-  // The shipped gate decides on capitalization — a SCRIPT-stratum signal a
-  // listener does not have. On the same source with case stripped (what the
-  // ear gets), the gate must still separate the title from the name — the
-  // hearable signal is determiner precedence ("the general said" vs never
-  // "the kutuzov"), a received closed class with a giver, unbuilt here.
-  const heard = "the general said nothing that day. napoleon praised the plan loudly. general kutuzov met napoleon at the ford. a general rode past the line. the general slept. napoleon wrote to kutuzov."
-  const got = statingCandidates(heard, { end1: "napoleon", end2: "general kutuzov" }, { splitSentences: splitWithOffsets, limit: 8 });
+  // Written as a {todo:true} referent the same day the S1 gate shipped;
+  // inhabited the same session, and not by the design the todo named
+  // (determiner precedence, a received closed class) but by a stronger one
+  // the user then asked for: a DISCOVERED company-kind — "that there are
+  // words that sometimes have 'a' in front of it shouldn't be a hard
+  // written rule, it should be a discovered kind, and that kind can be
+  // addressable." kind-standing.js discovers `kind:before=the` from the
+  // heard stream itself (taught nothing, II.23 shuffle control), frameWords
+  // marks its members structurally (word-signed kinds are frames;
+  // position-signed kinds are not), and the injection makes this gate
+  // S2-heard end to end.
+  const { discoverCompanyKinds, frameWords } = await import("./kind-standing.js");
+  const heard =
+    "the general said nothing that day. napoleon praised the plan loudly. " +
+    "general kutuzov met napoleon at the ford. a general rode past the line. " +
+    "the general slept. napoleon wrote to kutuzov. the colonel saluted him. " +
+    "a colonel arrived late. the colonel left early. kutuzov read the letter. " +
+    "napoleon studied the map. the emperor waited. the emperor frowned. an emperor decides alone.";
+  const sents = splitWithOffsets(heard);
+  const vocab = ["general", "colonel", "emperor", "kutuzov", "napoleon"];
+  const kinds = discoverCompanyKinds(sents, vocab, { minMentions: 3, minShare: 0.5, minMembers: 2 });
+  const frames = frameWords(kinds);
+  assert.ok(frames.has("general") && !frames.has("kutuzov"), "the kind was discovered, not written");
+  const got = statingCandidates(heard, { end1: "napoleon", end2: "general kutuzov" },
+    { splitSentences: splitWithOffsets, limit: 8, isGeneric: (w) => frames.has(w) });
   assert.ok(got.length >= 1, "heard-only input still yields candidates");
   assert.ok(got.every((c) => c.shown.includes("kutuzov")), "every candidate carries the real referent, not the title");
+});
+
+test("without the injection, the default gate stays the declared S1 rule — no caller moves", () => {
+  // the same heard-only fixture under the DEFAULT gate: case-stripped input
+  // defeats the capitalization measure, so candidates leak title-only
+  // sentences. This is the S1 stratum's disclosed limit, pinned so the
+  // difference between the two gates stays measurable.
+  const heard = "the general said nothing that day. general kutuzov met napoleon at the ford. kutuzov rode north again. the general slept beside napoleon."
+  const got = statingCandidates(heard, { end1: "napoleon", end2: "general kutuzov" }, { splitSentences: splitWithOffsets, limit: 8 });
+  assert.ok(got.some((c) => !c.shown.includes("kutuzov")), "the S1 default demonstrably leaks on heard-only input");
 });

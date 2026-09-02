@@ -159,7 +159,7 @@ const textFeatures = (t) => new Set(foldMarks(String(t ?? "").toLowerCase()).mat
  * The window stays the generate path's slice (one place to read); the set
  * is the select path's candidates (every place that could state it).
  */
-export function statingCandidates(sourceText, ends, { featuresOf = textFeatures, splitSentences, limit, minLen = 12, maxLen = 400 } = {}) {
+export function statingCandidates(sourceText, ends, { featuresOf = textFeatures, splitSentences, limit, minLen = 12, maxLen = 400, isGeneric: isGenericInjected = null } = {}) {
   if (typeof splitSentences !== "function") throw new TypeError("statingCandidates: splitSentences is injected (the engine's own segmenter) — required");
   if (!Number.isFinite(limit)) throw new TypeError("statingCandidates: limit is declared by the caller (P9)");
   const src = String(sourceText ?? "");
@@ -195,13 +195,19 @@ export function statingCandidates(sourceText, ends, { featuresOf = textFeatures,
   // so "lowercase" means genuinely lowercase — the first cut counted on an
   // already-lowercased copy and every Name read as 508 "lowercase" uses, a
   // measurement bug that emptied the set. Word-bounded, capped.
+  // The predicate is INJECTABLE (the cast.js pattern): a caller with a
+  // discovered company-kind organ (kind-standing.js::discoverCompanyKinds +
+  // frameWords — S2-heard, taught nothing, II.23-controlled) passes
+  // `isGeneric: (w) => frames.has(w)` and this gate becomes heard-clean —
+  // the BECOMING below is inhabited by exactly that injection. The default
+  // stays the S1 rule so no existing caller moves.
   const rawSrc = foldMarks(src);
   const countBounded = (w) => { let n = 0; const re = new RegExp(`(?<![\\p{L}])${w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?![\\p{L}])`, "gu"); while (re.exec(rawSrc)) { n++; if (n > 99999) break; } return n; };
-  const isGeneric = (w) => {
+  const isGeneric = isGenericInjected ?? ((w) => {
     const lc = countBounded(w.toLowerCase());                 // genuinely lowercase life
     const cap = countBounded(w[0].toUpperCase() + w.slice(1)); // Name life
     return lc >= Math.max(2, cap); // lives lowercase as often as (or more than) as a Name
-  };
+  });
   const distinctive = (feats) => {
     const kept = feats.filter((w) => !isGeneric(w));
     return kept.length ? kept : feats;
