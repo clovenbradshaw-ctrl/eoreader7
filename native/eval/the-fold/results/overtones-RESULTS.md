@@ -90,3 +90,44 @@ it should bite.
   consonance does, untaught.
 - As a prior on SUCCESSION it earns nothing (controlled); its claim on
   SIMULTANEITY is the next measurement.
+
+## 4. The simultaneity test — run, and it turned the question around
+
+**Driver:** `eval/the-fold/overtones-simultaneity.mjs` (`PROFILE=piano|guitar`,
+`TOLERANCE=`). Two notes sound together when their [tick, tick+dur)
+intervals overlap, weighted by the overlap; the statistic is the weighted
+mean overtone overlap of co-sounding pairs. **Null (II.23):** the same
+timing with pitches redealt within the piece — identical simultaneity
+structure, random pairings — 200 redeals, two-sided. **Metric control:**
+the overlap values dealt to the wrong pitch pairs must not beat their own
+null (they never did: 167–200 of 200 at or above, all eight arms).
+
+| profile · tolerance | Prelude (900 co-sounding pairs) | Aria (639 pairs) |
+|---|---|---|
+| piano · 3% | within the null (131/200 above) | **below the 5th** (194/200 above) |
+| piano · 6% | **below the 5th** (198/200) | **below the 5th** (200/200) |
+| guitar · 3% | within the null (114/200) | **below the 5th** (195/200) |
+| guitar · 6% | **below the 5th** (194/200) | **below the 5th** (200/200) |
+
+**The finding, two-sided and controlled: in six of eight arms — and in
+every arm on the Aria — the notes Bach sounds together share FEWER
+partials than random pairings of the same pitches would.** The physics
+metric is not absent from this music's simultaneity; it is *avoided*.
+What overtone overlap scores highest is coincidence of partials — the
+octave, the fifth, the sound of two notes fusing into one — and a
+polyphonic texture keeps its voices apart precisely by not doubling. The
+most-sounding pairs by ticks bear this out (`c4+e4`, `b3+g4`, `b3+d4`:
+thirds and sixths, which this metric scores near zero), while the
+redealt pairings produce more accidental octaves and fifths than the
+composer ever wrote.
+
+This is the opposite sign from the naive expectation ("consonant notes
+sound together"), and it is the more interesting reading: a listener's
+"consonance" is not partial-coincidence alone. Nothing here was taught;
+the sign was read off two real files against a null, with a control.
+
+**Caveats, stated:** the profile reaches k = 8 at 3–6% tolerance, so
+thirds register only faintly even under the richer guitar profile — the
+metric is fusion-shaped by construction, and the finding is about fusion,
+not about consonance in general. Two pieces, one composer: a claim about
+Bach's counterpoint, not about music.
