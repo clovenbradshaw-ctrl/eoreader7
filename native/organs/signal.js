@@ -30,6 +30,19 @@
 //     at "2 distinct sources". Every finding here reports sources AND
 //     instruments apart, and `corroborated` requires both >= 2.
 //
+//     SCOPE IS NOT RULE — the usage law, made visible by the spatial run
+//     (eval/spatial-pipeline.mjs). Instrument independence needs
+//     instruments that CAN SEE THE SAME THING. A row-major and a
+//     column-major reading of one lattice are not two checks on a
+//     west-to-east grammar: one of them is simply blind to it, and a
+//     mirrored reading finds the mirror instead. So a directional finding
+//     stays honestly "one instrument only" until a SAME-SCOPE,
+//     DIFFERENT-RULE instrument exists — measured: adding a west-to-east
+//     instrument that segments in 2-row bands (same scope, different
+//     phrase rule) corroborated the true grammar while the mirrored
+//     instrument correctly stayed at one. Turbulence's hole-vs-peak pair
+//     was same-scope by luck; choose the pair on purpose.
+//
 // PURE, ORGANS INJECTED (the cast.js posture). It reads no engine of its
 // own: `discoverCompanyKinds` arrives as an argument, so this module has no
 // opinion about what a "kind" is beyond the contract, and a caller may
