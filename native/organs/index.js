@@ -46,5 +46,5 @@ export { makeGrammarLens, mismatchedConnectors } from "./grammar-lens.js";
 export * as grammarLens from "./grammar-lens.js";
 export { stageFromEdges } from "./hl.js";
 export * as hl from "./hl.js";
-export { EVIDENCE_FLOOR, scanFunctionalCandidates, acquireCandidates, recheckCandidates, promoteAndDeclare } from "../../../the-fold/hl-acquire.js";
-export * as hlAcquire from "../../../the-fold/hl-acquire.js";
+export { EVIDENCE_FLOOR, scanFunctionalCandidates, acquireCandidates, recheckCandidates, promoteAndDeclare } from "./hl-acquire.js";
+export * as hlAcquire from "./hl-acquire.js";
