@@ -29,8 +29,8 @@ export { REFUSALS as FOLD_GATE_REFUSALS, reviewMerges } from "../../../the-fold/
 export * as foldGate from "../../../the-fold/fold-gate.js";
 export { DOCUMENT_KINDS, DOCUMENT_KINDS_META, readHeading, speakerAt, speakerSections } from "../../../the-fold/speaker.js";
 export * as speaker from "../../../the-fold/speaker.js";
-export { REFUSALS as OBLIGATION_REFUSALS, STANDINGS, admitObligations, coverage, mark, standings } from "../../../the-fold/obligation.js";
-export * as obligation from "../../../the-fold/obligation.js";
+export { REFUSALS as OBLIGATION_REFUSALS, STANDINGS, admitObligations, coverage, mark, standings } from "./obligation.js";
+export * as obligation from "./obligation.js";
 export { REFUSALS as EVENT_ARRANGEMENTS_REFUSALS, arrangementNotes, arrangementsFrom } from "../../../the-fold/event-arrangements.js";
 export * as eventArrangements from "../../../the-fold/event-arrangements.js";
 export { SELF_WITNESS, isSelfWitness, landAct, landSelfAssertion, makeCapacityRunner, mergeTestimony, negationCandidates, perSourceReadings, readsNothing, speakerWho } from "../../../the-fold/capacity-runner.js";
