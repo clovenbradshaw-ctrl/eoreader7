@@ -84,6 +84,22 @@ export const CAPACITIES = Object.freeze([
     what: "a declared statistic tested against a Born-constructed null — the measuring door's own licensing gate (P19); the engine behind a `ground … broken:<perturbation>` act",
   }),
   Object.freeze({
+    id: "field",
+    terrain: "Field",
+    op: "CON",
+    module: "fold.js",
+    fn: "advanceSummaryFold",
+    what: "maintaining the connective ground of a conversation — the running summary (System 1's field) carried forward turn by turn, projected under declared windows (projectFolds/projectRecords, RECORDS_IN_PROMPT, MAX_FOLDS_IN_PROMPT) rather than truncated in store (P45: the record is unbounded, only the projection is bounded). Typing: Relate·Structure at Ground grain — CON·Field, Tending. The plan's own gate ('a cleaner boundary than a nomination can draw between maintain-the-ground and judge-the-ground') is met by the two organs' own signatures: advanceSummaryFold MAINTAINS (append the fold line, count the turn, never decide); the aperture gate (EVA·Ground, `atmosphere`) DECIDES whether the ground moved. Registered 2026-09-02 on the user's direction not to block development on the fold-architecture boundary; app.js's refreshSummary is the caller that composes the two, and it stays in app.js.",
+  }),
+  Object.freeze({
+    id: "preflight",
+    terrain: "Void",
+    op: "INS",
+    module: "proof.js",
+    fn: "preflightQuery",
+    what: "generating ground where none exists — a materialless grounded turn gets ONE search declared BEFORE the model drafts (P23), so the checking ladder has real bytes to stand on instead of the draft's own words; shouldPreflight is the gate (checking mode on, standing web consent on, nothing attached), preflightQuery is the act's declaration (joined with discourse only on an anaphoric or content-free task, P23's 2026-08-19 amendment). Typing: Generate·Existence at Ground grain — INS·Void, Cultivating. The crossing itself (gatherPreflightMaterial, app.js) stays where P13's one sanctioned egress lives; what this row registers is the pure declaration of the act, which is what a capacity IS in this table. Registered 2026-09-02 on the same direction as `field`.",
+  }),
+  Object.freeze({
     id: "frame",
     terrain: "Atmosphere",
     op: "DEF",
