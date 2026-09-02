@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
-import { contextVectors, cosine, kindFit, kindMembership, foldPermitted } from "./kind-standing.js";
+import { contextVectors, cosine, kindFit, kindMembership, foldPermitted } from "../eoreader7/native/organs/index.js";
 
 const LP = "/Users/mlacy/Documents/3.0/live_priors";
 const BOOK = `${LP}/01-literature-books/gutenberg/pg345_Dracula.txt`;
@@ -137,7 +137,7 @@ test("DISCLOSED LIMIT: a thin profile lands not_member for want of evidence — 
 });
 
 // ── discovered company-kinds (2026-09-01) ────────────────────────────────
-import { discoverCompanyKinds, kindNotes, frameWords } from "./kind-standing.js";
+import { discoverCompanyKinds, kindNotes, frameWords } from "../eoreader7/native/organs/index.js";
 
 // A synthetic heard stream with DECLARED ground truth: roleA/roleB/roleC
 // always follow "zub" (an invented frame word — no English smuggled);
