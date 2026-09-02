@@ -426,3 +426,61 @@ test("an OOV connector admits only through a supplied verb-form lexicon; no lexi
   const standings = Object.fromEntries(gated.candidates.map((c) => [c.verb, c.posStanding]));
   assert.equal(standings.nobility, "gap_lexicon_refuses"); assert.equal(standings.diminishes, "gap_lexicon_admits");
 });
+
+
+// ── the received object boundary (objectBoundaryFrom) ─────────────────────
+// Measured live, the-fold 2026-09-02: below the corpus floor the measured
+// function-word class is null, so an object ran to the clause terminator —
+// "Hannibal Hamlin in March 1865" — and never bridged, never folded, and
+// reached the model as three notes for one fact.
+import { objectBoundaryFrom } from "../adapters/text/relations.js";
+const PRIOR = { schema: "POSPrior@1", forms: {
+  in: { ADP: 900, ADV: 40 }, as: { ADP: 500, SCONJ: 300, ADV: 20 }, of: { ADP: 1000 },
+  march: { PROPN: 50, NOUN: 10, VERB: 5 }, president: { NOUN: 200 }, vice: { NOUN: 40, ADJ: 10 },
+  duke: { NOUN: 30, PROPN: 20 }, wellington: { PROPN: 20 },
+} };
+const SUCCESSION = "Hannibal Hamlin replaced John Breckinridge as vice president in 1861. Andrew Johnson replaced Hannibal Hamlin in March 1865.";
+
+test("objectBoundary: byte-identical when omitted — the object still runs to the clause terminator below the corpus floor", () => {
+  const { verbs } = discoverRelationVocab(SUCCESSION, { surfaces: ["Hannibal Hamlin", "John Breckinridge", "Andrew Johnson"], minSurfaces: 1 });
+  const rels = extractRelations(SUCCESSION, { verbs });
+  assert.deepEqual(rels.map((r) => r.object), ["John Breckinridge as vice president in 1861", "Hannibal Hamlin in March 1865"]);
+});
+
+test("objectBoundary: the received adposition class cuts the trailing adjunct — the live specimen's ends come back clean", () => {
+  // the vocabulary is gated by the same prior the real reader passes — without
+  // it "as"/"in" enter as VERBS (the gate's job, not the boundary's; found by running)
+  const { verbs } = discoverRelationVocab(SUCCESSION, { surfaces: ["Hannibal Hamlin", "John Breckinridge", "Andrew Johnson"], minSurfaces: 1, posPrior: PRIOR });
+  const boundary = objectBoundaryFrom(PRIOR, { minShare: 0.5 });
+  assert.ok(boundary.has("in") && boundary.has("as") && boundary.has("of"));
+  assert.ok(!boundary.has("march") && !boundary.has("president"), "a noun is never a boundary");
+  const rels = extractRelations(SUCCESSION, { verbs, objectBoundary: boundary });
+  assert.deepEqual(rels.map((r) => r.object), ["John Breckinridge", "Hannibal Hamlin"]);
+  // offsets still address the source's own bytes
+  for (const r of rels) assert.equal(SUCCESSION.slice(r.objectOffset, r.objectOffset + r.object.length), r.object);
+});
+
+test("objectBoundary: a boundary word as the object's FIRST token is still captured (the pronoun/one-token rule holds)", () => {
+  const text = "Victor gave in quickly.";
+  const { verbs } = discoverRelationVocab(text, { surfaces: ["Victor"], minSurfaces: 1 });
+  const rels = extractRelations(text, { verbs, objectBoundary: objectBoundaryFrom(PRIOR, { minShare: 0.5 }) });
+  assert.ok(rels[0]?.object.startsWith("in"), "the mandatory first token is never refused for its class: " + rels[0]?.object);
+});
+
+test("objectBoundary: THE DISCLOSED COST — a multiword name carrying an adposition is cut at it", () => {
+  // "Duke of Wellington" → "Duke". Not hidden: this is the price of a
+  // class-level cut, and the earned-face wire (hypergraph.js endpoint) is
+  // where a known multiword surface takes precedence over it. Pinned so
+  // the cost is visible, and so a later fix that restores the name is
+  // measured against this line rather than assumed.
+  const text = "Napoleon fought the Duke of Wellington at Waterloo.";
+  const { verbs } = discoverRelationVocab(text, { surfaces: ["Napoleon", "Duke of Wellington"], minSurfaces: 1 });
+  const rels = extractRelations(text, { verbs, objectBoundary: objectBoundaryFrom(PRIOR, { minShare: 0.5 }) });
+  assert.equal(rels[0]?.object, "the Duke");
+});
+
+test("objectBoundaryFrom: minShare is declared, and a prior with no forms still yields the received clause classes", () => {
+  assert.throws(() => objectBoundaryFrom(PRIOR, {}), /declared/);
+  const bare = objectBoundaryFrom(null, { minShare: 0.5 });
+  assert.ok(bare.has("and") && bare.has("but"), "clause coordinators are received, not measured");
+});
