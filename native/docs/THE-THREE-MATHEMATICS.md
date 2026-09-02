@@ -263,6 +263,34 @@ is decoration:
    domain-transfer has yet been demonstrated; this prediction is
    currently untested, which is its value.)* A full stance whose organs
    do NOT transfer across domains breaks this document.
+
+   **RESULT (2026-09-02): held, at specimen scale, one stance.**
+   Binding's algebra was extracted as ONE core (`binding-core.js`: a
+   figure seeks its counterpart in a field; a declared criterion scores;
+   a unique clearing winner is demanded — ties refuse as ambiguous; an
+   optional FOIL probe refuses a criterion that also clears a designated
+   foil; outcomes carry evidence, failures are typed). The core contains
+   zero domain vocabulary, enforced by a source-scan in the test. Three
+   thin adapters then reproduced the three REAL organs' decisions on
+   real material (`binding-transfer.test.mjs`, 5/5): mention→referent
+   agreeing with the real `makeReferentIndex` (same referent bound);
+   claim→edge agreeing with the real relation reader (bound and
+   not-bound both); testimony→verdict reproducing the armed select
+   protocol (states / indiscriminate-as-foiled / no-testimony). Zero
+   core edits between domains — the one mid-build fix was adapter
+   content (the referent field holds ids, so the adapter reads faces
+   via the index's own `represent()`).
+
+   Two scoping honesty notes. This is AGREEMENT ON SPECIMENS, not
+   behavioral equivalence — the real organs carry far more (spans,
+   corroboration, regimes) than the core expresses; what transferred is
+   the DECISION SHAPE. And one refinement the trial itself surfaced:
+   the MARGIN is domain-owned — geometry declared margin −1 because an
+   exact tie of fully-clearing edges is CORROBORATION there, where
+   arithmetic's tie is genuine ambiguity. The prediction survives with
+   that sharpening: the core owns the algebra, the adapter owns the
+   criterion, the floor, the margin, and the foil — all DECLARED
+   parameters, never core edits.
 2. **Empty stances predict missing analogies.** A stance empty in one
    domain but occupied in the others marks a buildable organ whose
    design can be READ OFF its siblings across the depth axis — the
