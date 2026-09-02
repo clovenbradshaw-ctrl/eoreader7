@@ -369,3 +369,26 @@ authority ends and another's begins — a count never becomes a license,
 a license never becomes a count, a product never escapes its provenance
 — and no organ carries all three authorities at once. That is what "the
 hub stays empty" means operationally.
+
+
+---
+
+## Amendment (2026-09-02, later): correspondence measured once — and the oracle had to pass II.23 first
+
+`eval/full-circuit-oracle.mjs` runs the relay on REAL material (23
+Wikidata entities, 28 succession edges) judged by an independent oracle
+(term dates the derivation never reads). Triangulation is real there:
+each edge is witnessed by two records through two properties. The
+circuit derived 8 never-stated facts, 8 TRUE, 0 FALSE — *Grant after
+Lincoln*, *Colfax after Hamlin* — with provenance to byte addresses.
+
+The finding worth more than the number: **the oracle itself failed
+resolution on the first cut.** Its person-grain verdict was true for a
+random within-office pair ~0.82 of the time, so 8/8 discriminated
+nothing (4/49 shuffles matched it). Judged at TENURE grain — the grain
+the circuit actually composes at, P60's own lesson applied to the judge
+— 0/49 redealt circuits matched, and the result is licensed. The
+perturbation spoke's job here was to test the JUDGE, not the material;
+this project had never spent a null on an oracle before, and P60's own
+precision claims were made without one. Full account:
+`eval/results/full-circuit-oracle-RESULTS.md`.
