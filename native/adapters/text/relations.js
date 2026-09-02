@@ -272,7 +272,7 @@ const SENTENCE_END = /[.!?;]/g;
  * cited, not repeated). Same gates, same distinct-anchor recurrence count,
  * one shared tally.
  */
-export const discoverRelationVocab = (text, { surfaces, functionWords = null, minSurfaces, negationWords = NEGATION_WORDS, posPrior = null, anchorSpans = null, phrasalPredicates = false, auxiliaryVerbs = AUXILIARY_VERBS } = {}) => {
+export const discoverRelationVocab = (text, { surfaces, functionWords = null, minSurfaces, negationWords = NEGATION_WORDS, posPrior = null, verbForms = null, anchorSpans = null, phrasalPredicates = false, auxiliaryVerbs = AUXILIARY_VERBS } = {}) => {
   if (!Number.isInteger(minSurfaces) || minSurfaces < 1)
     throw new TypeError("discoverRelationVocab: minSurfaces is declared — how much recurrence counts as a pattern is the caller's to say, never a default here");
 
@@ -390,8 +390,17 @@ export const discoverRelationVocab = (text, { surfaces, functionWords = null, mi
     const attested = posPrior?.forms?.[token] ?? null;
     const attestedTotal = attested ? Object.values(attested).reduce((sum, count) => sum + count, 0) : 0;
     const verbShare = attestedTotal ? ((attested.VERB ?? 0) + (attested.AUX ?? 0)) / attestedTotal : 0;
-    const verbDominant = !posPrior || !attested || verbShare > 0.5;
-    const posStanding = !posPrior ? "not_supplied" : !attested ? "gap" : verbDominant ? "verb_dominant" : "nonverb_dominant";
+    // An OOV token (no POS attestation) used to admit on absence of
+    // evidence. Measured 2026-09-02 on a real two-page ledger: "redoubt",
+    // "nobility", "aristocratic" and Cyrillic "и" all shipped as VERBS
+    // because UD_English-EWT never saw them. When a verb-form lexicon is
+    // supplied (`verbForms`, a Set of known verb surface forms — UniMorph,
+    // giver named by the caller), an OOV token must be IN it to admit; the
+    // standing says which door it came through. Without a lexicon the old
+    // asymmetric posture stands, byte-identical.
+    const lexiconKnows = verbForms ? verbForms.has(token) : null;
+    const verbDominant = !posPrior ? true : !attested ? (lexiconKnows !== false) : verbShare > 0.5;
+    const posStanding = !posPrior ? "not_supplied" : !attested ? (lexiconKnows === null ? "gap" : lexiconKnows ? "gap_lexicon_admits" : "gap_lexicon_refuses") : verbDominant ? "verb_dominant" : "nonverb_dominant";
     candidates.push({ verb: token, surfaces: seenAfter.size, surfaceForms: Array.from(seenAfter), verbDominant, verbShare, posStanding, upos: attested });
     if (seenAfter.size >= minSurfaces && verbDominant) verbs.add(token);
   }
