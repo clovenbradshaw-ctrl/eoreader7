@@ -113,3 +113,86 @@ test("DISCLOSED LIMIT: a thin profile lands not_member for want of evidence — 
   assert.equal(cliff.verdict, "not_member");
   assert.ok(cliff.p > 0.5, `East Cliff sits mid-population (p=${cliff.p}) — too few mentions to read, which is a fact about the reader`);
 });
+
+// ── discovered company-kinds (2026-09-01) ────────────────────────────────
+import { discoverCompanyKinds, kindNotes, frameWords } from "./kind-standing.js";
+
+// A synthetic heard stream with DECLARED ground truth: roleA/roleB/roleC
+// always follow "zub" (an invented frame word — no English smuggled);
+// nameX/nameY/nameZ open their sentences and never follow zub.
+const framed = [];
+// 30 rounds -> 10 mentions per word: enough that a shuffled before-token
+// cannot reach the share floor by chance (the first cut used 4 mentions and
+// the control CAUGHT a chance kind at exactly 0.50 — the control working)
+for (let i = 0; i < 30; i++) {
+  framed.push({ text: `zub role${"abc"[i % 3]} spoke plainly today` });
+  framed.push({ text: `name${"xyz"[i % 3]} walked to the river bend` });
+}
+const VOCAB = ["rolea", "roleb", "rolec", "namex", "namey", "namez"];
+const FLOORS = { minMentions: 3, minShare: 0.5, minMembers: 2 };
+
+test("discoverCompanyKinds: the kind names itself by its own signature, floors declared, nothing taught", () => {
+  assert.throws(() => discoverCompanyKinds(framed, VOCAB, { minShare: 0.5, minMembers: 2 }), /must be declared/);
+  const kinds = discoverCompanyKinds(framed, VOCAB, FLOORS);
+  const zub = kinds.find((k) => k.name === "kind:before=zub");
+  const initial = kinds.find((k) => k.name === "kind:before=^");
+  assert.ok(zub, "the frame kind is discovered and named by its own signature");
+  assert.deepEqual([...zub.members].sort(), ["rolea", "roleb", "rolec"]);
+  assert.ok(initial, "the sentence-initial kind is discovered too");
+  assert.deepEqual([...initial.members].sort(), ["namex", "namey", "namez"]);
+});
+
+test("II.23 CONTROL, built to fail: shuffling words within sentences dissolves every kind at the same floors", () => {
+  // marginals preserved, company destroyed — a seeded LCG, no Math.random
+  let seed = 7;
+  const rnd = () => ((seed = (seed * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff);
+  const shuffled = framed.map((s) => {
+    const w = s.text.split(" ");
+    for (let i = w.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [w[i], w[j]] = [w[j], w[i]]; }
+    return { text: w.join(" ") };
+  });
+  const kinds = discoverCompanyKinds(shuffled, VOCAB, FLOORS);
+  // under shuffle no word keeps a dominant before-company at the declared
+  // share floor — if kinds survive this, the statistic is not reading
+  // company and the mechanism is unlicensed (II.23)
+  assert.equal(kinds.length, 0, `kinds must dissolve under shuffle, got: ${kinds.map((k) => k.name).join(", ")}`);
+});
+
+test("frameWords is structural, not an English list: word-signed kinds are frames, position-signed kinds are not", () => {
+  const kinds = discoverCompanyKinds(framed, VOCAB, FLOORS);
+  const frames = frameWords(kinds);
+  assert.deepEqual([...frames].sort(), ["rolea", "roleb", "rolec"], "only the zub-framed words");
+  assert.ok(!frames.has("namex"), "a sentence-initial (position-signed) kind never marks its members as frames");
+});
+
+test("kindNotes projects a discovered kind into hyperlexicon-hearable, ADDRESSABLE assertions", async () => {
+  const kinds = discoverCompanyKinds(framed, VOCAB, FLOORS);
+  assert.throws(() => kindNotes(kinds), /witness.*must be named/);
+  const notes = kindNotes(kinds, { witness: "synthetic-chronicle" });
+  const n = notes.find((x) => x.subject === "rolea");
+  assert.equal(n.verb, "keeps-company");
+  assert.equal(n.object, "kind:before=zub");
+  assert.match(n.because, /before=zub carries \d+% of its before-company/);
+  // the address: two organs asking about the same membership get one id
+  const { assertionId } = await import("./hyperlexicon.js");
+  assert.equal(assertionId(n.subject, n.verb, n.object), assertionId("Rolea", "keeps-company", "KIND:BEFORE=ZUB"));
+});
+
+test("a discovered kind lands in the REAL hyperlexicon: one addressable note, witnesses UNIONED across sources", async () => {
+  // the whole point of naming the kind: two independent sources that both
+  // discover it fold to ONE note with TWO witnesses — kind membership is
+  // itself a corroboratable note, riding the same door facts ride (P57).
+  const H = await import("./hyperlexicon.js");
+  const TL = await import("../eoreader7/native/kernel/task-log.js");
+  const hl = H.makeHyperlexicon(TL);
+  let log = hl.createHyperlexicon();
+  const mk = (share, w) => kindNotes(
+    [{ name: "kind:before=zub", signature: "before=zub", members: ["rolea"], share: new Map([["rolea", share]]) }],
+    { witness: w });
+  for (const n of mk(0.61, "chronicle-a(heard)")) log = hl.hear(log, n);
+  for (const n of mk(0.55, "chronicle-b(heard)")) log = hl.hear(log, n);
+  const folded = hl.foldHyperlexicon(log);
+  assert.equal(folded.length, 1, "two sightings, one note");
+  assert.equal(folded[0].id, "rolea|keeps-company|kind:before=zub", "the kind is addressable by its own name");
+  assert.deepEqual(folded[0].witnesses.sort(), ["chronicle-a(heard)", "chronicle-b(heard)"], "witnesses unioned, never replaced");
+});

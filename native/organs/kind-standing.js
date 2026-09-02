@@ -130,3 +130,111 @@ export function foldPermitted(a, b, members, vecs, { alpha }) {
   if (ma.verdict !== mb.verdict) return { permitted: false, reason: "different_kind", a: ma, b: mb };
   return { permitted: true, reason: "same_kind", a: ma, b: mb };
 }
+
+// ── discovered company-kinds: the kind names itself by its own signature ──
+//
+// User direction (2026-09-01, near-verbatim): "that there are words that
+// sometimes have 'a' in front of it shouldn't be a hard written rule, it
+// should be a discovered kind, and that kind can be addressable, and we can
+// have a name for it in the hyperlexicon." This is the same question the
+// module already answers for referents, one grain down: what kind of thing
+// is this WORD, from the company it keeps — taught nothing, named by the
+// material's own evidence.
+//
+// Measured on the real War and Peace HEARD stream (case- and diacritic-
+// folded — the ear has no case) before this was built: general/count/
+// emperor/colonel/captain all announce `before=the` as their dominant
+// company (17–46% of it); kutuzov/napoleon/pierre/rostov/denisov all
+// announce `before=^` with determiners absent; kutuzov~napoleon cosine
+// 0.949 vs general~kutuzov 0.214. The kinds are real and the signature IS
+// the name: `kind:before=the`, `kind:before=^`. One candidate signal was
+// measured and REFUSED the same hour: cross-kind precedence ("titles front
+// many different names") reads 0.6% at any practical sample of the name
+// kind, because a title fronts hundreds of names — do not retry it as a
+// gate.
+//
+// The structural distinction a consumer may lean on WITHOUT a word list: a
+// kind signed by a WORD (members share an actual preceding word) is a
+// frame-kind; a kind signed by POSITION alone (`^` — the absence of a
+// preceding word) is not. `^` is not a word of any language, so this is
+// structure, not English.
+
+/**
+ * discoverCompanyKinds(sentences, vocabulary, {minMentions, minShare,
+ * minMembers}) — group words by the dominant `before=` feature of their own
+ * company, at a declared share floor, keeping only kinds with a declared
+ * minimum of members. All three numbers are the caller's (P4). Returns
+ * [{name, signature, share: Map(word -> dominant share), members}], kinds
+ * named mechanically by their own signature. The II.23 control lives with
+ * the tests: shuffling words within sentences (marginals kept, company
+ * destroyed) must dissolve every kind at the same declared floors.
+ */
+export function discoverCompanyKinds(sentences, vocabulary, { minMentions, minShare, minMembers } = {}) {
+  for (const [k, v] of Object.entries({ minMentions, minShare, minMembers }))
+    if (!Number.isFinite(v)) throw new Error(`discoverCompanyKinds: ${k} must be declared`);
+  const vecs = contextVectors(sentences, vocabulary);
+  const bySignature = new Map();
+  for (const [word, v] of vecs) {
+    let total = 0, best = null, bestN = 0;
+    for (const [f, n] of v) {
+      if (!f.startsWith("before=")) continue;
+      total += n;
+      if (n > bestN) { bestN = n; best = f; }
+    }
+    if (!best || total < minMentions) continue;
+    const share = bestN / total;
+    if (share < minShare) continue;
+    if (!bySignature.has(best)) bySignature.set(best, []);
+    bySignature.get(best).push({ word, share });
+  }
+  const kinds = [];
+  for (const [signature, members] of bySignature) {
+    if (members.length < minMembers) continue;
+    kinds.push({
+      name: `kind:${signature}`,
+      signature,
+      members: members.map((m) => m.word),
+      share: new Map(members.map((m) => [m.word, m.share])),
+    });
+  }
+  return kinds;
+}
+
+/**
+ * kindNotes(kinds, {witness}) — project discovered kinds into the shape the
+ * hyperlexicon's `hear` admits, one assertion per membership: subject the
+ * word, verb "keeps-company", object the kind's own name, `because` the
+ * measured share. The kind becomes ADDRESSABLE — assertionId("general",
+ * "keeps-company", "kind:before=the") — so a future organ consults the note
+ * instead of re-deriving the measurement.
+ */
+export function kindNotes(kinds, { witness } = {}) {
+  if (!witness) throw new Error("kindNotes: witness (the source these kinds were discovered in) must be named");
+  const notes = [];
+  for (const kind of kinds)
+    for (const word of kind.members)
+      notes.push({
+        subject: word,
+        verb: "keeps-company",
+        object: kind.name,
+        witness,
+        because: `${kind.signature} carries ${(kind.share.get(word) * 100).toFixed(0)}% of its before-company in ${witness}`,
+      });
+  return notes;
+}
+
+/**
+ * frameWords(kinds) — the structural consumption, stated once: members of
+ * every kind whose signature is a WORD-frame (not `^`/`$`, which are
+ * positions, not words). A consumer treating these as non-referent-picking
+ * is consuming a discovered kind by its address, not re-writing a rule.
+ */
+export function frameWords(kinds) {
+  const out = new Set();
+  for (const kind of kinds) {
+    const tok = kind.signature.slice("before=".length);
+    if (tok === "^" || tok === "$") continue;
+    for (const w of kind.members) out.add(w);
+  }
+  return out;
+}
