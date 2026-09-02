@@ -447,8 +447,31 @@ export async function witnessNote(sentence, source, { ask, selectAsk = null, tes
     // Kutúzov reaches a Kutuzov claim.
     const cands = statingCandidates(source.text, ends, { splitSentences, limit: 8 });
     if (cands.length) {
-      const picked = foldSelect(await selectAsk(buildSelectMessages(sentence, cands.map((c) => c.shown))), cands.map((c) => c.shown));
+      const shownList = cands.map((c) => c.shown);
+      const picked = foldSelect(await selectAsk(buildSelectMessages(sentence, shownList)), cands.map((c) => c.shown));
       if (picked.verdict === "states") {
+        // THE ARM, grafted from the generate protocol (P32): a pointer that
+        // says yes is not yet a vote. Calibrated live before this existed:
+        // unarmed select read p(states|fabricated) = 1/8 — "Napoleon
+        // surrendered to Kutuzov at Moscow" drew a pick whose decider
+        // states no surrender, because pointing at a topically-adjacent
+        // sentence costs nothing. The same candidate list is asked about
+        // the sibling-swapped claim (a competing filler from the
+        // candidates' own names — the existing siblingSwap organ, the
+        // candidates themselves as its slice since they are real source
+        // sentences); a picker that also finds the swap "stated" is
+        // indiscriminate on this set, and its yes decides nothing. No
+        // available swap = unarmed, and an unarmed yes is refused, not
+        // trusted (the unarmed-yes rule, unchanged from generate).
+        // the swap's sibling pool is the SOURCE's own names (the generate
+        // posture), not the candidate list — the candidates are by
+        // construction the sentences matching the claim, so a competing
+        // filler is usually outside them (measured: an arm harvested from
+        // candidates alone found no sibling and refused everything unarmed)
+        const swap = siblingSwap(sentence, String(source.text ?? ""));
+        if (!swap?.swapped) return { refused: "unarmed-select", via: "select" };
+        const armPick = foldSelect(await selectAsk(buildSelectMessages(swap.swapped, shownList)), shownList);
+        if (armPick.verdict === "states") return { refused: "indiscriminate", via: "select", arm: swap.swapped };
         // The pick's address is the one CARRIED FORWARD from its cut — no
         // search. The decider shown is the source's own bytes (`raw`, line
         // breaks and all); the span is the sentence's own offset. When the

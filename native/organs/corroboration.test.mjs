@@ -396,9 +396,18 @@ test("foldSelect: a valid pick returns the candidate VERBATIM; an out-of-range o
 });
 
 test("SELECT PATH: the decider is a real source sentence BY CONSTRUCTION — the echo mode cannot occur", async () => {
-  const src = { ref: "novel", text: "A preamble. Napoleon faced General Mikhail Kutuzov across the field that day. An epilogue about the weather." };
-  // a scripted selector that points at the (only) both-ends sentence
-  const selectAsk = async () => ({ stated: "yes", sentence: 1 });
+  // Marshal Davout exists in the fixture so the ARM has a competing name to
+  // swap in — an armless fixture refuses as unarmed-select, by design
+  const src = { ref: "novel", text: "A preamble. Napoleon faced General Mikhail Kutuzov across the field that day. Marshal Davout and Napoleon watched the field together. An epilogue about the weather." };
+  // a scripted selector that points at the (only) both-ends sentence for
+  // the REAL claim and correctly refuses the sibling-swapped arm — the
+  // armed protocol asks twice, and only a discriminate pair is a vote
+  const selectAsk = async (messages) => {
+    const asked = messages.at(-1).content;
+    return asked.includes("fought against General Mikhail Kutuzov")
+      ? { stated: "yes", sentence: 1 }
+      : { stated: "no", sentence: 0 };
+  };
   const w = await witnessNote("Napoleon fought against General Mikhail Kutuzov", src,
     { ask: saysNo, selectAsk, testimony: selectTestimony, splitSentences,
       ends: { end1: "Napoleon", end2: "General Mikhail Kutuzov" } });
