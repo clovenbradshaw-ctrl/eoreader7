@@ -1,483 +1,127 @@
-// hyperlexicon.js — read content as an EOT event stream; the reading is
-// always a projection, never a cached truth.
+// organs/hyperlexicon.js — the TEXT face of the kernel's notes ledger.
 //
-// THE USER'S OWN INSTRUCTION, verbatim (2026-08-28): "all content should be
-// converted into EOT and folded for the hyperlexicon" — said while looking at
-// a live prompt dump in which it plainly was not. This module is that
-// conversion. It is `store.js` one register over: that module's load-bearing
-// line is "the reality of the database should be the EOT event stream, the
-// current state always projected," and the same sentence is true of what this
-// instrument has read. The log IS the reading; "what we currently believe the
-// material says" is one fold over it, recomputed, never written back as
-// though it were itself the source.
+// WHAT MOVED, AND WHERE (2026-09-02, user direction: "the hyperlexicon
+// should be part of eoreader7, medium agnostic … the fold should only be an
+// interaction surface"). The ledger itself — first sighting INS, re-sighting
+// SYN, witnesses and spans unioned, the door with typed refusals, attest,
+// concede, the fold, the frame, the stream — now lives in
+// `kernel/notes.js` with ends called end1/label/end2 and NO grammar in it.
+// This file is what a text reading needs on top: the subject/verb/object
+// vocabulary its callers already speak (the-fold's holon.js, corroboration,
+// derivation, nesting, kind-standing, predigest — the 221-site SVO wipe the
+// fold's P76 names is not done, so this face keeps those names live), and
+// the one gate that is a question about ENGLISH: is this connector a verb?
 //
-// WHAT WAS ACTUALLY HAPPENING, measured on a real turn before this existed.
-// Asked "who was Queen Victoria's prime minister?", the app fetched two real
-// pages, retrieved three passages, and handed the model:
+// THAT GATE IS ASYMMETRIC (P56): a part of speech is a candidate set, not a
+// per-occurrence verdict, so an out-of-vocabulary connector is never
+// refused and a settled non-verb is. It is INJECTED (`classifyConnector`),
+// carries its own giver, and reaches the kernel as an ordinary gate — the
+// kernel does not know the refusal is about grammar.
 //
-//   * eight "notes" — SVO edges re-extracted from those passages on the spot,
-//     discarded at the end of the turn, of which `complete list —is→ given
-//     above`, `the Victorian —era's→ hallmark industrialization`, `and —in→
-//     that time`, `Prime Minsters —of→ them all` and `new queen —in→
-//     government and politics` are not assertions about the world at all; and
-//   * nine raw source sentences.
+// THE API IS BYTE-COMPATIBLE for every existing caller: the same names, the
+// same shapes in and out (`hear` takes subject/verb/object, `foldHyperlexicon`
+// returns them), the same task-log injection (`makeHyperlexicon(taskLog)`).
+// What is NEW rides beside: `createHyperlexicon({ frame })` declares what
+// this reader stands on, `frameOf` reads it back, and `stream`/`figures`/
+// `segment` read the ledger as the event stream it is. Notes on the log
+// itself are stored under the NEUTRAL names (end1/label/end2); the SVO names
+// are this face's projection, computed at fold time, never written twice.
 //
-// Ten edges came out of that material and NOT ONE names a prime minister of
-// Queen Victoria. The sentence that answers the question — "The Ten Victorian
-// Prime Ministers Under Queen Victoria Robert Peel (1834-1835; 1841-1846)" —
-// yielded zero edges, and reached the model only as raw text. So the model
-// did the reading, and read the first name out of a list of ten: "Queen
-// Victoria's prime minister was Robert Peel."
-//
-// That is the failure this module is aimed at, and it has two halves, both
-// visible in that one turn: nothing accumulates (the same bytes are re-read
-// from scratch every turn, and a second page's agreement with the first is
-// never noticed), and nothing is admitted (junk enters the model's context
-// with exactly the standing a real assertion has).
-//
-// SO ADMISSION IS A DOOR, NOT A FUNNEL. `admit` returns what it took AND what
-// it turned away, each refusal typed and on the record — the same posture
-// `measure.js`'s own gate holds, and for the same reason its header gives:
-// the statistics were already there, what was missing was the gate. Here the
-// extraction was already there; what was missing was the door.
-//
-// WHAT THIS MODULE IS NOT. It is not an extractor — `hypergraph.js` reads the
-// bytes and this file never touches text. It is not a classifier — the
-// grammar lens it consults is INJECTED, carries its own giver, and is used
-// ASYMMETRICALLY (P56: a part of speech is a candidate set, not a
-// per-occurrence verdict, so an out-of-vocabulary word is never refused and a
-// settled non-verb is). And it decides nothing about truth: an admitted
-// assertion is a thing the material was heard to say, with its witnesses and
-// its bytes, which is exactly what a defeasible note is supposed to be.
+// The specimen this ledger was built against (a real turn: "who was Queen
+// Victoria's prime minister?" answered "Robert Peel" from a list of ten,
+// because nothing accumulated and nothing was admitted) is in the kernel's
+// lineage note and in hyperlexicon.test.mjs, unchanged.
+import { makeNotes, noteId, recipeId as kernelRecipeId, REFUSALS as NOTE_REFUSALS } from "../kernel/notes.js";
 
 /** The one identity for an assertion, so two sightings of it are one task. */
-export const assertionId = (subject, verb, object) =>
-  `${String(subject ?? "").trim().toLowerCase()}|${String(verb ?? "").trim().toLowerCase()}|${String(object ?? "").trim().toLowerCase()}`;
+export const assertionId = (subject, verb, object) => noteId(subject, verb, object);
+
+/** How this reader was configured — a content address over the caller's own descriptor (kernel/notes.js). */
+export const recipeId = kernelRecipeId;
 
 /**
- * The one identity for a RECIPE — how this reader was configured — so an
- * append-only reading can name WHO heard something, not only WHAT was heard.
- *
- * live_priors POLICIES.md LP5: "the witness names what was read, never who
- * read it... append-only without attribution is strictly worse than an
- * honest overwrite — it looks like an accumulating record while being an
- * unreadable one." A recipe's descriptor is exactly the `organs` block every
- * caller of this module already builds for a human to read (which
- * organs ran, which priors were injected, which were deliberately omitted);
- * this hashes a MACHINE-MEANINGFUL projection of it, never the prose.
- * Hashing the prose itself would make recipe identity drift every time a
- * comment is reworded — the same defect a content address exists to avoid.
- *
- * The caller decides what belongs in the descriptor (this function makes no
- * claim about which fields matter — that is a fact about the reading, not
- * about identity itself) and passes a plain object of primitives: strings,
- * booleans, numbers. Two callers with the SAME descriptor get the SAME id,
- * which is the whole point — it lets `admit`'s witness distinguish "two
- * different recipes both heard this" from "the same recipe ran twice."
- *
- * Web Crypto, matching builds.js::buildHash / skills.js::skillDigest's own
- * convention — SHA-256 over a canonicalised (key-sorted) JSON string, async
- * because the digest is Web Crypto (browser and Node alike, no new
- * dependency). Truncated to 16 hex characters, matching this project's own
- * short-digest-id convention (builds/skills use the full 64; a recipe id is
- * for humans to read in a witness string, so it stays short — a collision
- * at 16 hex chars over the handful of recipes any one project will ever
- * actually run is not a real risk, and the full digest is never needed back).
- */
-const canonRecipe = (value) => {
-  if (Array.isArray(value)) return `[${value.map(canonRecipe).join(",")}]`;
-  if (value && typeof value === "object") {
-    return `{${Object.keys(value).sort().map((k) => `${JSON.stringify(k)}:${canonRecipe(value[k])}`).join(",")}}`;
-  }
-  return JSON.stringify(value);
-};
-export async function recipeId(descriptor) {
-  const bytes = new TextEncoder().encode(canonRecipe(descriptor));
-  const buf = await globalThis.crypto.subtle.digest("SHA-256", bytes);
-  return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, "0")).join("").slice(0, 16);
-}
-
-/**
- * Why an offered assertion was turned away. A closed class: a refusal this
- * module cannot name is not a refusal it is allowed to make.
+ * Why an offered assertion was turned away. The kernel's two structural
+ * reasons plus this face's one grammatical reason — a closed class.
  */
 export const REFUSALS = Object.freeze({
   /** The connector settles, against a named prior, as something other than a verb. */
   NOT_A_VERB: "not_a_verb",
-  /** An end is missing, so there is no assertion to hold. */
-  INCOMPLETE: "incomplete",
-  /** No byte-addressed span backs it — P5.2 applied at the door. */
-  UNADDRESSED: "unaddressed",
+  INCOMPLETE: NOTE_REFUSALS.INCOMPLETE,
+  UNADDRESSED: NOTE_REFUSALS.UNADDRESSED,
 });
 
 /**
- * The Thrax class an assertion's connector has to settle as, in the lens's own
- * vocabulary (`wordclass.js::THRAX_MAP` maps UD's VERB and AUX onto it).
- *
- * A LITERAL THAT IS CHECKED, never one that is trusted: written `"Verb"` at
- * first, it matched nothing, so `went`, `developed` and `is` — three real
- * verbs — were all turned away at the door while the prepositions this gate
- * exists for got through on the same mistake. A capitalisation slip in a
- * comparison against another module's vocabulary fails SILENTLY and in the
- * safe-looking direction, so `hyperlexicon.test.mjs` asserts this string is
- * actually in that map rather than assuming it.
+ * The Thrax class an assertion's connector has to settle as, in the lens's
+ * own vocabulary. A LITERAL THAT IS CHECKED: hyperlexicon.test.mjs asserts
+ * this string is actually in `wordclass.js::THRAX_MAP` rather than trusting
+ * it — a capitalisation slip here fails silently in the safe-looking
+ * direction (it did once: "Verb" refused nothing and admitted every
+ * preposition).
  */
 export const VERB_CLASS = "verb";
 
+const toSVO = (n) => ({ ...n, subject: n.end1, verb: n.label, object: n.end2 });
+
 export function makeHyperlexicon(taskLog) {
-  // `noteIdentity` is THE IDENTITY SEAM (P73): which two sightings are ONE
-  // note is an injectable question, never a string accident. Measured need
-  // (eval/hyperlexicon-door-probe.mjs, real Wikipedia fixtures): with
-  // identity = the exact triple, 0 of 29 notes ever reached two witnesses
-  // — the same fact restated in different words ("The Russian army
-  // withdraws" / "Imperial Russian forces retreated") can never fold, so
-  // the >=2-witness ledger block is structurally unreachable on prose.
-  // The organ, when injected, canonicalises (subject, verb, object) for
-  // the ID ALONE — the note's DISPLAY keeps the FIRST reading's own words
-  // (bytes read, never a normalised paraphrase), and witnesses/spans union
-  // exactly as before. Absent (every existing caller), identity is
-  // byte-identical to the exact-triple behaviour. A gapping organ (falsy
-  // return, or an empty field) falls back to the surface form for that
-  // field — an identity gap must never block admission (the withhold-vs-
-  // convict rule, applied to identity). The production organ — referent
-  // faces for ends, sameAct lemma equivalence for the connector, both
-  // already proven in the MINE-1 work — is the named next wiring, not
-  // built here; this seam is what it plugs into.
-  const { createTaskLog, append, projectTasks, ENTRY_KINDS, OPERATOR_BASIS, GRAIN_RANK, cellOf = null, noteIdentity = null } = taskLog;
+  const { cellOf = null, noteIdentity = null, ...bundle } = taskLog;
+  // The identity organ speaks SVO to its callers (P73's seam); the kernel
+  // hears ends. Adapt at the face, once.
+  const identity = noteIdentity
+    ? (end1, label, end2) => { const c = noteIdentity(end1, label, end2); return c ? { end1: c.subject, label: c.verb, end2: c.object } : null; }
+    : null;
+  const notes = makeNotes({ taskLog: bundle, cellOf, identity });
 
-  // Read from task-log's own rank table rather than restated as a literal —
-  // build-log.js and store.js both already take the name this way.
-  const FIGURE = Object.keys(GRAIN_RANK).find((g) => GRAIN_RANK[g] === 1);
+  /** A fresh, empty hyperlexicon — with, when given, the frame its reader stands on. */
+  const createHyperlexicon = (opts) => notes.createNotes(opts);
 
-  /** A fresh, empty hyperlexicon. */
-  const createHyperlexicon = () => createTaskLog();
-
-  /**
-   * The admitting act's cell, read off (operator, grain) — never chosen.
-   *
-   * Absent `cellOf` this returns nothing at all, so an entry is byte-identical
-   * to what it was before this existed: a reader that declares no cube is not
-   * silently given one (P7's "priors are injected and stated; their absence is
-   * stated too"). A `cellOf` that gaps is likewise carried as a gap, never
-   * smoothed into a plausible cell.
-   */
-  const cellFields = (op) => {
-    if (!cellOf) return {};
-    const c = cellOf(op, FIGURE);
-    if (!c || c.gap) return { cell_gap: c?.gap ?? "no_cell", cell_reason: c?.reason ?? null };
-    return { cell: `${c.op}\u00b7${c.grain}`, stance: c.stance, terrain: c.terrain, mode: c.mode, domain: c.domain };
-  };
-
-  /**
-   * hear(log, assertion) — one sighting of one assertion, admitted.
-   *
-   * First sighting is INS · Figure · produced: a birth, task-log's own typing
-   * for one, and `store.js::insertRow`'s precedent for this repo's mapping.
-   * A later sighting of the SAME assertion is SUPERSEDE · SYN · Figure,
-   * carrying only what changed — which is the witness list and the spans.
-   * That is task-log's own field-merge (`{...prior, ...payload}` per
-   * task_id), so a second page agreeing with the first does not become a
-   * second note; it becomes the same note with two witnesses.
-   *
-   * THE CORROBORATION IS THE POINT, not a side effect. A fact already heard
-   * costs nothing to hear again, and the budget that frees is what should go
-   * to what is genuinely new — this repo's own P30, applied to reading.
-   *
-   * A RE-SIGHTING THAT TEACHES NOTHING APPENDS NOTHING. live_priors's own
-   * POLICIES.md LP2 states this as law, not as a suggestion: "growth is
-   * bounded by the source's extent × distinct recipes, and is self-limiting,
-   * because a recipe that hears nothing appends nothing." Found live, not
-   * hypothetically: the-fold's own eot-sidecar.mjs re-ran the identical
-   * recipe against an unchanged source and the log DOUBLED — every witness
-   * already on record, every span already merged, and a new SUPERSEDE entry
-   * landed anyway, because this function used to append unconditionally.
-   * The fix compares what the merge ACTUALLY moved, not whether `hear` was
-   * called: if the witness set and the span set come out exactly the length
-   * they already were, the material taught this log nothing and the log is
-   * returned UNCHANGED — no entry, no seq consumed. A witness that adds
-   * itself for the first time, or a span this task has never carried before,
-   * still lands exactly as before.
-   */
   function hear(log, { subject, verb, object, spans = [], witness = null, because = null, subjectFace = null, objectFace = null }) {
-    // THE STATION-3->4 WIRE, door side (2026-09-01). `subjectFace`/
-    // `objectFace` are the EARNED canonical faces hypergraph.js's own
-    // endpoint() resolved for this edge's ends (exactly-one-real-referent,
-    // else null — never a guess), forwarded by admit(). They key identity
-    // ahead of the raw strings, so "Count Dracula" and "the Count" become
-    // ONE note the moment the cast has earned that fold — while an injected
-    // noteIdentity organ, when present, still outranks both (it is the
-    // caller's declared identity, and a declared organ beats a per-edge
-    // hint). Display keeps the first reading's own bytes, as ever.
-    const canon = noteIdentity ? noteIdentity(subject, verb, object) : null;
-    const id = assertionId(canon?.subject || subjectFace || subject, canon?.verb || verb, canon?.object || objectFace || object);
-    const prior = projectTasks(log).find((t) => t.task_id === id) ?? null;
-    // Witnesses and spans UNION, never replace: a merge that overwrote them
-    // would make the second sighting erase the first one's evidence, which
-    // is the opposite of what hearing something twice means.
-    const witnesses = [...new Set([...(prior?.witnesses ?? []), ...(witness ? [witness] : [])])];
-    const at = new Set((prior?.spans ?? []).map((s) => s.at));
-    const merged = [...(prior?.spans ?? [])];
-    for (const s of spans) if (s?.at && !at.has(s.at)) { at.add(s.at); merged.push(s); }
-    if (prior && witnesses.length === prior.witnesses.length && merged.length === (prior.spans?.length ?? 0)) {
-      return log;
-    }
-    return append(log, {
-      kind: prior ? ENTRY_KINDS.SUPERSEDE : ENTRY_KINDS.PROPOSE,
-      task_id: id,
-      operator: prior ? "SYN" : "INS",
-      operator_basis: OPERATOR_BASIS.PRODUCED,
-      grain: FIGURE,
-      // THE CELL WAS ALREADY HERE, UNREAD. `operator` and `grain` are written
-      // two lines up, and the cube derives mode/domain/terrain/stance from
-      // exactly that pair — the space is 27 (operator x grain), not a free
-      // stance axis. So this reads the cell off rather than choosing one, via
-      // the engine's own `cellOf`, injected (the cast.js pattern) and never
-      // restated as a local table.
-      //
-      // WHAT THIS IS, AND THE PLANE IT SITS ON. A note's stance is not a claim
-      // about the world — it is the posture THIS READER admitted under, and it
-      // is defeasible. So it rides beside `witnesses`/`spans` and never joins
-      // them: those are world-facing and corroborable, this is reader-facing
-      // and can only be defeated by incoherence or by being spent. Nothing
-      // downstream may score a stance against an oracle.
-      ...cellFields(prior ? "SYN" : "INS"),
-      description: prior ? `heard again: ${subject} ${verb} ${object}` : `${subject} ${verb} ${object}`,
-      // The FIRST reading's face wins the display: under an injected
-      // identity a later restatement may word the same note differently,
-      // and superseding the display with each paraphrase would make the
-      // note's words drift while its evidence accumulates. Default path
-      // (no organ): `prior` only exists when the exact triple matched, so
-      // these are the same strings — byte-identical behaviour.
-      subject: prior?.subject ?? subject,
-      verb: prior?.verb ?? verb,
-      object: prior?.object ?? object,
-      witnesses,
-      spans: merged,
-      ...(because != null ? { because } : {}),
-    });
+    return notes.hear(log, { end1: subject, label: verb, end2: object, spans, witness, because, end1Face: subjectFace, end2Face: objectFace });
   }
 
   /**
    * admit(log, edges, {classifyConnector, minShare, witness}) — the door.
-   *
-   * Every edge is either heard or turned away with a named reason, and BOTH
-   * lists come back. A caller that only reads `heard` still cannot mistake a
-   * refusal for an absence, because `turnedAway` is not optional.
-   *
-   * `classifyConnector` is optional and its absence is a real, disclosed
-   * difference rather than a silent default: with no lens, the verb-hood
-   * check does not run and no edge is refused for it. That is the honest
-   * behaviour — a check that did not run must never report a pass (P41).
+   * The connector question becomes the kernel's injected gate; everything
+   * else (incomplete, unaddressed, the accumulated log returned first) is
+   * the kernel's own.
    */
   function admit(log, edges, { classifyConnector = null, minShare = 0.5, witness = null } = {}) {
-    // THE LOG IS THREADED, NOT MUTATED. `append` returns a NEW log — that
-    // immutability is what makes "what did this look like before" answerable
-    // — and the first version of this loop called `hear(log, …)` ten times
-    // against the SAME original log and threw away every result, so the
-    // caller's hyperlexicon stayed empty while `heard` reported ten
-    // successes. A write that reports success and lands nothing is the worst
-    // shape a door can have, so the accumulated log comes back as the first
-    // field of the result and there is no way to read the outcome without it.
-    let next = log;
-    const heard = [];
-    const turnedAway = [];
-    for (const e of edges ?? []) {
-      const subject = String(e?.subject ?? "").trim();
-      const verb = String(e?.verb ?? "").trim();
-      const object = String(e?.object ?? "").trim();
-      if (!subject || !verb || !object) {
-        turnedAway.push({ edge: e, reason: REFUSALS.INCOMPLETE, detail: "an assertion needs two ends and something between them" });
-        continue;
+    const originals = new Map();
+    const arrangements = (edges ?? []).map((e) => {
+      const a = {
+        end1: e?.subject, label: e?.verb, end2: e?.object,
+        // A text span's face is its bytes, whitespace-folded; a span with no
+        // bytes behind it is not an address for this face's purposes.
+        spans: (e?.spans ?? []).map((s) => ({ ...s, text: String(s?.text ?? "").replace(/\s+/g, " ").trim() })).filter((s) => s.text),
+        end1Face: e?.end1Face ?? null, end2Face: e?.end2Face ?? null,
+      };
+      originals.set(a, e);
+      return a;
+    });
+    const gate = classifyConnector
+      ? ({ label }) => {
+        const c = classifyConnector({ verb: label }, { minShare });
+        return c?.settled && c.thraxClass && c.thraxClass !== VERB_CLASS
+          ? { reason: REFUSALS.NOT_A_VERB, detail: `"${label}" settles as ${c.thraxClass}`, givers: c.givers ?? null }
+          : null;
       }
-      const spans = (e?.spans ?? [])
-        .map((s) => ({ at: `${s.ref}#${s.start}-${s.end}`, ref: s.ref, text: String(s.text ?? "").replace(/\s+/g, " ").trim() }))
-        .filter((s) => s.text);
-      if (!spans.length) {
-        // P5.2 at the door: an assertion with no bytes behind it cannot be
-        // defeated by its own source, which is the whole standing a note has.
-        turnedAway.push({ edge: e, reason: REFUSALS.UNADDRESSED, detail: "no byte-addressed span backs it" });
-        continue;
-      }
-      if (classifyConnector) {
-        const c = classifyConnector({ verb }, { minShare });
-        // ASYMMETRIC, and this is P56's rule, not a convenience. `settled`
-        // and not a verb is a real finding about a closed question. `found:
-        // false` is an out-of-vocabulary word — a gap in the prior, never a
-        // fact about the connector — and admits.
-        if (c?.settled && c.thraxClass && c.thraxClass !== VERB_CLASS) {
-          turnedAway.push({
-            edge: e,
-            reason: REFUSALS.NOT_A_VERB,
-            detail: `"${verb}" settles as ${c.thraxClass}`,
-            givers: c.givers ?? null,
-          });
-          continue;
-        }
-      }
-      next = hear(next, { subject, verb, object, spans, witness, subjectFace: e.end1Face ?? null, objectFace: e.end2Face ?? null });
-      heard.push({ id: assertionId(subject, verb, object), subject, verb, object });
-    }
-    return { log: next, heard, turnedAway };
-  }
-
-  /**
-   * readingFromHyperlexicon(log, {source}) — the reader's own postures, in the
-   * shape `experience-priors.js` already sediments.
-   *
-   * WHY THIS IS AN ADAPTER AND NOT A KERNEL CHANGE. `deriveExperiencePrior`
-   * counts `{operator, stance}` off a completed reading's own
-   * `transformationObjects`; it is domain-agnostic and has no business
-   * learning what a hyperlexicon note is. So the projection lives here, with
-   * the consumer, and the kernel organ is used unmodified.
-   *
-   * WHAT SEDIMENTS, AND WHAT MAY NOT. Only the ACT — its operator and the
-   * stance derived from it. No subject, verb, object, witness or span crosses
-   * into this: those are world-facing and corroborable, and a prior that
-   * learned them would be learning the world from its own habits. What
-   * accumulates here is strictly "postures this reader has held, and across
-   * how many works" — the reader becoming legible to itself.
-   *
-   * An entry with no cell contributes NOTHING rather than a default. A log
-   * built without `cellOf` therefore sediments nothing at all, and
-   * `postures: 0` is the honest report of a reader that never declared a cube.
-   */
-  function readingFromHyperlexicon(log, { source } = {}) {
-    if (!source) throw new TypeError("readingFromHyperlexicon: a source is named — an unattributed reading cannot support cross-work memory");
-    const transformationObjects = [];
-    for (const e of log?.entries ?? []) {
-      if (!e?.stance || !e?.operator) continue;   // no cell declared: nothing to learn
-      transformationObjects.push({ operator: e.operator, stance: e.stance, terrain: e.terrain ?? null });
-    }
+      : null;
+    const r = notes.admit(log, arrangements, { gate, witness });
     return {
-      source,
-      reading: {
-        // graphEntries stays EMPTY on purpose: relation vocabulary is the
-        // world-facing plane and does not belong in a posture prior.
-        fold: { graphEntries: [], transformationObjects },
-        terrainState: {},
-      },
-      postures: transformationObjects.length,
+      log: r.log,
+      heard: r.heard.map((h) => ({ id: h.id, subject: h.end1, verb: h.label, object: h.end2 })),
+      turnedAway: r.turnedAway.map((t) => ({ edge: originals.get(t.arrangement) ?? t.arrangement, reason: t.reason, detail: t.detail, ...(t.givers !== undefined ? { givers: t.givers } : {}) })),
     };
   }
 
-  /**
-   * foldHyperlexicon(log) — the reading, projected. Every live assertion with
-   * its witnesses and its bytes, most-witnessed first, so a caller that must
-   * cut for room cuts the least corroborated rather than the most recent.
-   */
-  function foldHyperlexicon(log) {
-    // TWO EXCLUSIONS, both floor-6 (derivation.js), both additive: a log
-    // that was never derived over and never conceded folds byte-identically.
-    //   * a DERIVED note (`derived: true`) is not a sighting — it has no
-    //     witnesses of its own and is a different floor's operand; it is
-    //     projected by derivation.js::foldDerived, never here, so every F5
-    //     consumer (the >=2 gate, the corroboration walk, the ledger block)
-    //     keeps reading only what the material was HEARD to say.
-    //   * a CONCEDED note (an EVIDENCE·REC entry naming it in `concedes`)
-    //     stays on the log — append-only — and leaves the projection.
-    const gone = concededIds(log);
-    return projectTasks(log)
-      .filter((t) => t.subject && t.verb && t.object && !t.derived && !gone.has(t.task_id))
-      .map((t) => ({
-        id: t.task_id,
-        subject: t.subject,
-        verb: t.verb,
-        object: t.object,
-        witnesses: t.witnesses ?? [],
-        spans: t.spans ?? [],
-      }))
-      .sort((a, b) => b.witnesses.length - a.witnesses.length || a.id.localeCompare(b.id));
-  }
+  /** The reading, projected — every live assertion, most-witnessed first, in this face's names beside the neutral ones. */
+  const foldHyperlexicon = (log) => notes.fold(log).map(toSVO);
 
-  /**
-   * attest(log, noteId, { witness, span, because }) — a witness earned by
-   * TESTIMONY attaches to a note that already exists, by id, never by
-   * recomputing identity (grid.js::attachResult's own discipline: a result
-   * attaches to a task that already exists). This is the door the witness
-   * tier votes through — the paraphrase wall's one licensed crossing
-   * (measured: two real pages about one battle share ZERO mechanically-
-   * matchable restatements, while the witness confirms real ones at its
-   * own conservative rates with the fabricated-note control holding 0/4).
-   *
-   * The witness string arrives ALREADY NAMESPACED by the caller
-   * (`testimony:<source-ref>`) so a second vote earned by a model reading
-   * is never confusable with one earned by mechanical re-extraction — the
-   * same namespace discipline `form:`/`self:model` already hold. This
-   * function refuses a bare, un-namespaced witness rather than guessing
-   * which kind it is.
-   *
-   * Same union-never-replace rule as hear(); a re-attestation that adds
-   * nothing appends nothing.
-   */
-  function attest(log, noteId, { witness, span = null, because = null } = {}) {
-    if (!witness || !String(witness).includes(":"))
-      return { log, refused: { type: "untyped_witness", detail: "an attested witness names its kind (e.g. testimony:<source>) — a bare string could be mistaken for a mechanical re-sighting" } };
-    const prior = projectTasks(log).find((t) => t.task_id === noteId) ?? null;
-    if (!prior) return { log, refused: { type: "unknown_note", noteId, detail: "nothing stands to attest — testimony attaches to a note that already exists" } };
-    const witnesses = [...new Set([...(prior.witnesses ?? []), witness])];
-    const at = new Set((prior.spans ?? []).map((x) => x.at));
-    const spans = [...(prior.spans ?? [])];
-    if (span?.at && !at.has(span.at)) spans.push(span);
-    if (witnesses.length === (prior.witnesses ?? []).length && spans.length === (prior.spans ?? []).length)
-      return { log, refused: null, noop: true };
-    const next = append(log, {
-      kind: ENTRY_KINDS.SUPERSEDE, task_id: noteId, operator: "SYN", operator_basis: OPERATOR_BASIS.PRODUCED, grain: FIGURE,
-      description: `attested: ${noteId}`,
-      subject: prior.subject, verb: prior.verb, object: prior.object,
-      witnesses, spans, because: because ?? null,
-      ...cellFields("SYN"),
-    });
-    return { log: next, refused: null, noop: false };
-  }
+  const concededNotes = (log) => notes.concededNotes(log).map(toSVO);
 
-  /** The ids every REC entry on this log has conceded. */
-  function concededIds(log) {
-    const out = new Set();
-    for (const e of log?.entries ?? []) if (e?.kind === ENTRY_KINDS.EVIDENCE && e.operator === "REC" && e.concedes) out.add(e.concedes);
-    return out;
-  }
-
-  /**
-   * concede(log, noteId, { trigger }) — REC on a note: the reader takes
-   * back something it heard. Mirrors grid.js::concedeEvaluation and
-   * declarations.js::concede exactly: EVIDENCE · REC, its own task_id, the
-   * conceded id in `concedes`, the reason VERBATIM in `trigger` — required,
-   * because a re-zero with no recorded reason is a deletion wearing a
-   * concession's name. Nothing is deleted: the note's entries stay, the
-   * fold stops projecting it, and `concededNotes` lists it with its trigger.
-   *
-   * A conceded note stays conceded. Hearing the same triple again lands on
-   * the same (conceded) task and does not resurrect it — a re-zero opens a
-   * new ground, it does not reopen the old one (build-log.js's own rezero
-   * rule). Disclosed here rather than left to be discovered.
-   *
-   * Grain is Figure: what is conceded is a note, a Figure-grain operand.
-   * Floor 6's cascade (derivation.js::withdrawDerived) concedes the
-   * PRODUCTS that rested on it at Pattern grain, on the same act.
-   */
-  function concede(log, noteId, { trigger } = {}) {
-    if (typeof trigger !== "string" || !trigger.trim())
-      return { log, refused: { type: "no_trigger", detail: "concede: a re-zero records its own reason as `trigger` — never a silent concession" } };
-    const prior = projectTasks(log).find((t) => t.task_id === noteId) ?? null;
-    if (!prior) return { log, refused: { type: "unknown_note", noteId, detail: "nothing stands to concede — a re-zero names a note that exists" } };
-    if (concededIds(log).has(noteId)) return { log, refused: null, noop: true };
-    const id = `rec:${log.nextSeq}`;
-    const next = append(log, {
-      kind: ENTRY_KINDS.EVIDENCE, task_id: id, operator: "REC", operator_basis: OPERATOR_BASIS.PRODUCED, grain: FIGURE,
-      ...cellFields("REC"),
-      description: `re-zero: ${trigger}`,
-      concedes: noteId, trigger,
-    });
-    return { log: next, refused: null, noop: false, id };
-  }
-
-  /** What this log has conceded, each with the reason it recorded. */
-  function concededNotes(log) {
-    const tasks = new Map(projectTasks(log).map((t) => [t.task_id, t]));
-    return (log?.entries ?? [])
-      .filter((e) => e?.kind === ENTRY_KINDS.EVIDENCE && e.operator === "REC" && e.concedes)
-      .map((e) => { const t = tasks.get(e.concedes); return { id: e.concedes, trigger: e.trigger, at: e.seq, subject: t?.subject ?? null, verb: t?.verb ?? null, object: t?.object ?? null }; });
-  }
-
-  return { createHyperlexicon, hear, attest, admit, concede, concededNotes, concededIds, foldHyperlexicon, readingFromHyperlexicon, assertionId, recipeId, REFUSALS };
+  return {
+    createHyperlexicon, hear, attest: notes.attest, admit, concede: notes.concede, concededNotes, concededIds: notes.concededIds,
+    foldHyperlexicon, readingFromHyperlexicon: notes.readingFromNotes,
+    frameOf: notes.frameOf, stream: notes.stream, figures: notes.figures, segment: notes.segment,
+    assertionId, recipeId, REFUSALS,
+  };
 }
