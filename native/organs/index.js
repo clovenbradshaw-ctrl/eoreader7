@@ -11,8 +11,8 @@
 // exported under the organ's prefix: FRAME_REFUSALS, SIGNAL_REFUSALS, …
 // Every organ is also available whole as a namespace (`frame.REFUSALS`).
 
-export { WITNESS_OPERATING_POINT, askValue, calibrationFrames, competingFiller, corroborateLedger, distinctRecipes, distinctSources, endsCopresentWindow, independentReadings, proposeCandidates, statingCandidates, textFeatures, thirdSourceCandidates, witnessNote } from "../../../the-fold/corroboration.js";
-export * as corroboration from "../../../the-fold/corroboration.js";
+export { WITNESS_OPERATING_POINT, askValue, calibrationFrames, competingFiller, corroborateLedger, distinctRecipes, distinctSources, endsCopresentWindow, independentReadings, proposeCandidates, statingCandidates, textFeatures, thirdSourceCandidates, witnessNote } from "./corroboration.js";
+export * as corroboration from "./corroboration.js";
 export { SELECT_SCHEMA, WITNESS_SCHEMA, WITNESS_SLICE_MAX, becauseContained, becauseVerbatim, buildSelectMessages, buildWitnessMessages, foldSelect, foldTestimony, locateDecider, readTestimony, siblingSwap, witnessSlice } from "../../../the-fold/testimony.js";
 export * as testimony from "../../../the-fold/testimony.js";
 export { contextVectors, cosine, discoverCompanyKinds, foldPermitted, frameWords, kindFit, kindMembership, kindNotes } from "./kind-standing.js";
