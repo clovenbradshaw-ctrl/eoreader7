@@ -293,14 +293,38 @@ facts are an alignment and an ABSENCE:
   told you as a separable faculty, whose failure — source amnesia — is
   precisely the nameless-authority corruption, and is how
   misinformation persists after its source is discredited.
-- **COMPOSITION** — hierarchical combination under grammar (Lashley's
-  serial order; Merge): licensed joining as a dedicated capacity.
+- **COMPOSITION** — CORRECTED (2026-09-02, user's push: "Plato would
+  say brains certainly can do this" — and he did say it, with a
+  demonstration). The Meno's slave boy is the founding document of
+  construction-as-knowing being NATIVE: an unschooled boy, given only
+  asks, produces the doubling-the-square construction — Plato's argument
+  that the license is already in the head. The modern record backs the
+  observation while re-attributing the giver: core geometry without
+  schooling (Dehaene's Mundurucú study), the poverty-of-the-stimulus
+  argument (children construct unboundedly from a finite license —
+  Merge, Lashley's serial order), mental rotation (Shepard & Metzler —
+  literal construction in the head, with build-time proportional to the
+  build), and hippocampal PREPLAY (Dragoi & Tonegawa — sequences never
+  experienced, constructed before experience and verified against it).
+  Where Plato overclaimed: he read the innate license as recollection of
+  the Forms; the modern reading keeps his structure and renames his
+  giver — the license is a RECEIVED PRIOR whose giver is phylogeny. In
+  this document's own vocabulary, anamnesis decomposes exactly:
+  TESTIMONY from a giver not in the room, plus CONSTRUCTION under that
+  received license. And the Meno scene itself is a two-spoke duet:
+  Socrates' elenchus is PERTURBATION (the refuting probe), the boy's
+  answer is construction — Plato staged the composition spoke being
+  midwifed by the perturbation spoke, which is also this repo's own
+  admission gate (a candidate composition is admitted only past the
+  refutation scan).
 - **APOPHASIS** — omission responses: the dopamine DIP at an omitted
   expected reward is a refusal that reached its object — the brain
   types the measured absence, in a signed signal, distinct from mere
   silence.
-- **ENUMERATION — the absence, and the sharpest fact here.** Brains are
-  natively BAD at this spoke: attention samples, it does not tile;
+- **ENUMERATION — the absence, and the sharpest fact here, made sharper
+  by the correction above.** Construction is native (Plato was right);
+  ENUMERATION is the spoke brains natively lack — the contrast is the
+  point. Brains are natively BAD at this spoke: attention samples, it does not tile;
   change blindness and inattentional blindness are the silent-cap
   corruption committed constantly and invisibly. Enumeration is the
   PROSTHETIC spoke — checklists, ledgers, writing — which is exactly why
