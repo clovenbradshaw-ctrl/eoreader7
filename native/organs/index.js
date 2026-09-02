@@ -15,8 +15,8 @@ export { WITNESS_OPERATING_POINT, askValue, calibrationFrames, competingFiller, 
 export * as corroboration from "../../../the-fold/corroboration.js";
 export { SELECT_SCHEMA, WITNESS_SCHEMA, WITNESS_SLICE_MAX, becauseContained, becauseVerbatim, buildSelectMessages, buildWitnessMessages, foldSelect, foldTestimony, locateDecider, readTestimony, siblingSwap, witnessSlice } from "../../../the-fold/testimony.js";
 export * as testimony from "../../../the-fold/testimony.js";
-export { contextVectors, cosine, discoverCompanyKinds, foldPermitted, frameWords, kindFit, kindMembership, kindNotes } from "../../../the-fold/kind-standing.js";
-export * as kindStanding from "../../../the-fold/kind-standing.js";
+export { contextVectors, cosine, discoverCompanyKinds, foldPermitted, frameWords, kindFit, kindMembership, kindNotes } from "./kind-standing.js";
+export * as kindStanding from "./kind-standing.js";
 export { REFUSALS as SIGNAL_REFUSALS, REQUIRED, findSignal, phrase, scramble } from "../../../the-fold/signal.js";
 export * as signal from "../../../the-fold/signal.js";
 export { CLAIM_PREFIX, REFUSALS as NESTING_REFUSALS, attributionsOf, claimRef, corroborationOf, depthOf, disagreement, innerId, isClaimRef, leakCheck } from "../../../the-fold/nesting.js";
