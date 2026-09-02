@@ -385,7 +385,7 @@ export const WITNESS_OPERATING_POINT = Object.freeze({
  * protocols must carry both frames or be refused by `comparable`.
  */
 export async function calibrationFrames() {
-  const { declareFrame } = await import("./frame.js");
+  const { declareFrame } = await import("../eoreader7/native/organs/index.js"); // frame.js lives in eoreader7 now (Phase 1); reached through the seam
   const op = WITNESS_OPERATING_POINT;
   const g = op.models["gemma2:2b"];
   const generate = await declareFrame({
