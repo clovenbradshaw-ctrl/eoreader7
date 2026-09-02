@@ -159,6 +159,45 @@ const textFeatures = (t) => new Set(foldMarks(String(t ?? "").toLowerCase()).mat
  * The window stays the generate path's slice (one place to read); the set
  * is the select path's candidates (every place that could state it).
  */
+/**
+ * A COMPETING FILLER for an end: a capitalized multi-word or single-word
+ * surface occurring in the candidates that is NOT the end itself and not a
+ * word of the end. This is the arm's ammunition — a name the picker could
+ * plausibly confuse the real end with, drawn from the very sentences it
+ * just read. Returns null when the candidates offer no competitor, which
+ * is an honest unarmed state, never a guess.
+ *
+ * Deliberately NOT cite.js's `namesIn`: that organ carries the L2
+ * sentence-initial veto (correct for deciding whether a capital is a name
+ * in prose), and here the question is only "what else could have filled
+ * this slot in these sentences" — a first-word name is a perfectly good
+ * competitor. Capitalization is used as a CANDIDATE signal and never as a
+ * verdict, which is L2's actual rule.
+ */
+export function competingFiller(end, candidates, { featuresOf = textFeatures, exclude = [] } = {}) {
+  // BOTH ends are excluded, not just the one being replaced: the other end
+  // is by construction the most frequent capitalized surface in candidates
+  // that all mention it, and swapping end2 for end1 builds a nonsense arm
+  // ("Napoleon fought against Napoleon") that any picker refuses — an arm
+  // that always refuses is not an arm, it is a rubber stamp. Found live.
+  const endWords = new Set([...featuresOf(end)]);
+  for (const x of exclude) for (const w of featuresOf(x)) endWords.add(w);
+  const seen = new Map();
+  for (const text of candidates ?? []) {
+    // capitalized runs, up to three words, inside the sentence
+    for (const m of String(text).matchAll(/\b\p{Lu}[\p{L}'\u2019-]+(?:\s+\p{Lu}[\p{L}'\u2019-]+){0,2}/gu)) {
+      const surface = m[0].trim();
+      const words = [...featuresOf(surface)];
+      if (!words.length) continue;
+      if (words.some((w) => endWords.has(w))) continue; // shares the end -> not competing
+      seen.set(surface, (seen.get(surface) ?? 0) + 1);
+    }
+  }
+  if (!seen.size) return null;
+  // the most frequent competitor: the one a picker is likeliest to confuse
+  return [...seen].sort((a, b) => b[1] - a[1] || b[0].length - a[0].length)[0][0];
+}
+
 export function statingCandidates(sourceText, ends, { featuresOf = textFeatures, splitSentences, limit, minLen = 12, maxLen = 400, isGeneric: isGenericInjected = null } = {}) {
   if (typeof splitSentences !== "function") throw new TypeError("statingCandidates: splitSentences is injected (the engine's own segmenter) — required");
   if (!Number.isFinite(limit)) throw new TypeError("statingCandidates: limit is declared by the caller (P9)");
@@ -317,12 +356,71 @@ export const WITNESS_OPERATING_POINT = Object.freeze({
  * A mechanical sighting on page A plus a testimony vote from page A is ONE
  * source; `witnesses.length >= 2` would read it as two. Consumers gating
  * on corroboration should gate on THIS.
+ *
+ * A witness may name its RECIPE (P68's identity) after a `~`:
+ * `<source>~<recipe>` — see `independentReadings` for why, and note that
+ * this function deliberately IGNORES the recipe: "how many sources" and
+ * "how many independent readings" are different questions, and collapsing
+ * them would make one of the two unanswerable.
  */
 export function distinctSources(witnesses) {
   const out = new Set();
   for (const w of witnesses ?? []) {
-    const s = String(w);
-    out.add(s.startsWith("testimony:") ? s.slice("testimony:".length) : s);
+    let s = String(w);
+    if (s.startsWith("testimony:")) s = s.slice("testimony:".length);
+    const cut = s.indexOf("~");
+    out.add(cut >= 0 ? s.slice(0, cut) : s);
+  }
+  return out;
+}
+
+/**
+ * THE SHARED-INSTRUMENT COUNT (2026-09-01). Measured live in
+ * `eval/omnimodal-pipeline.mjs`: two real performances of one piece,
+ * decoded by ONE pitch tracker, produced the SAME systematic artifact (a
+ * spurious drone before a theme note), so a kind membership the material
+ * never states corroborated at "2 distinct sources". MINE-1's own lesson
+ * ("a systematic mis-parse lands identically on both sides") in audio.
+ *
+ * Two sources read by one instrument are two SOURCES and ONE READING: they
+ * cannot disagree about anything the instrument gets wrong. So a claim
+ * whose truth depends on how the material was decoded — every claim
+ * produced BY a decoder, which is every claim in a non-text medium and
+ * every extracted arrangement in text — must be counted by the (source,
+ * recipe) pair, not by source alone.
+ *
+ * A witness with no `~recipe` is UNDECLARED, not independent: it counts as
+ * its own reading (nothing is silently merged), and `undeclared` reports
+ * how many such witnesses there were, so a consumer can tell "measured
+ * independent" from "not yet declared". P68's `recipeId` is the intended
+ * filler; any stable descriptor works.
+ */
+export function independentReadings(witnesses) {
+  const pairs = new Set();
+  let undeclared = 0;
+  for (const w of witnesses ?? []) {
+    let s = String(w);
+    if (s.startsWith("testimony:")) s = s.slice("testimony:".length);
+    const cut = s.indexOf("~");
+    if (cut < 0) { undeclared += 1; pairs.add(`${s}~<undeclared:${undeclared}>`); continue; }
+    pairs.add(s); // source~recipe, verbatim: one reading
+  }
+  return { readings: pairs, count: pairs.size, undeclared };
+}
+
+/**
+ * How many INSTRUMENTS read this note — the number the shared-instrument
+ * failure is invisible to. Two sources through one decoder read 1 here,
+ * which is the whole point: a consumer whose claim is instrument-sensitive
+ * gates on this, not on distinctSources.
+ */
+export function distinctRecipes(witnesses) {
+  const out = new Set();
+  for (const w of witnesses ?? []) {
+    let s = String(w);
+    if (s.startsWith("testimony:")) s = s.slice("testimony:".length);
+    const cut = s.indexOf("~");
+    if (cut >= 0) out.add(s.slice(cut + 1));
   }
   return out;
 }
@@ -468,10 +566,24 @@ export async function witnessNote(sentence, source, { ask, selectAsk = null, tes
         // construction the sentences matching the claim, so a competing
         // filler is usually outside them (measured: an arm harvested from
         // candidates alone found no sibling and refused everything unarmed)
-        const swap = siblingSwap(sentence, String(source.text ?? ""));
-        if (!swap?.swapped) return { refused: "unarmed-select", via: "select" };
-        const armPick = foldSelect(await selectAsk(buildSelectMessages(swap.swapped, shownList)), shownList);
-        if (armPick.verdict === "states") return { refused: "indiscriminate", via: "select", arm: swap.swapped };
+        // The arm swaps end2 for a COMPETING FILLER drawn from the
+        // candidates' own text — the names that actually co-occur with this
+        // claim's subject in the sentences the picker just read, which is
+        // exactly the population a picker confuses end2 with. Built here
+        // rather than through siblingSwap because that organ resolves the
+        // claim's own name through cite.js's namesIn, which carries the L2
+        // sentence-initial veto: a claim written subject-first ("Napoleon
+        // invaded Russia" — the ordinary shape) has its subject vetoed and
+        // no arm can be built at all. Measured: 3 of 6 true claims refused
+        // `unarmed-select` for that reason alone, a wall nothing could pass.
+        // Here end2 is GIVEN by the caller, so no name resolution is needed
+        // to know what to replace.
+        const armFiller = competingFiller(ends.end2, shownList, { exclude: [ends.end1] });
+        if (!armFiller) return { refused: "unarmed-select", via: "select" };
+        const armClaim = sentence.replace(new RegExp(String(ends.end2).replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i"), armFiller);
+        if (armClaim === sentence) return { refused: "unarmed-select", via: "select" };
+        const armPick = foldSelect(await selectAsk(buildSelectMessages(armClaim, shownList)), shownList);
+        if (armPick.verdict === "states") return { refused: "indiscriminate", via: "select", arm: armClaim };
         // The pick's address is the one CARRIED FORWARD from its cut — no
         // search. The decider shown is the source's own bytes (`raw`, line
         // breaks and all); the span is the sentence's own offset. When the

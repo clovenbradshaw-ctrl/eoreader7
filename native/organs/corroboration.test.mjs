@@ -396,15 +396,20 @@ test("foldSelect: a valid pick returns the candidate VERBATIM; an out-of-range o
 });
 
 test("SELECT PATH: the decider is a real source sentence BY CONSTRUCTION — the echo mode cannot occur", async () => {
-  // Marshal Davout exists in the fixture so the ARM has a competing name to
-  // swap in — an armless fixture refuses as unarmed-select, by design
-  const src = { ref: "novel", text: "A preamble. Napoleon faced General Mikhail Kutuzov across the field that day. Marshal Davout and Napoleon watched the field together. An epilogue about the weather." };
+  // Marshal Davout appears IN a candidate sentence so the ARM has a
+  // competing filler to swap in — the arm's ammunition comes from the
+  // candidates themselves (the population a picker could confuse the end
+  // with), so a fixture whose candidates hold only the two ends refuses
+  // `unarmed-select`, by design and pinned below.
+  const src = { ref: "novel", text: "A preamble. Napoleon faced General Mikhail Kutuzov near Marshal Davout across the field that day. An epilogue about the weather." };
   // a scripted selector that points at the (only) both-ends sentence for
   // the REAL claim and correctly refuses the sibling-swapped arm — the
   // armed protocol asks twice, and only a discriminate pair is a vote
   const selectAsk = async (messages) => {
     const asked = messages.at(-1).content;
-    return asked.includes("fought against General Mikhail Kutuzov")
+    // the real claim gets a pick; the ARM (end2 swapped for a competing
+    // filler drawn from the candidates) is correctly refused
+    return /fought against General Mikhail Kutuzov/.test(asked)
       ? { stated: "yes", sentence: 1 }
       : { stated: "no", sentence: 0 };
   };
@@ -414,6 +419,7 @@ test("SELECT PATH: the decider is a real source sentence BY CONSTRUCTION — the
   assert.equal(w.verdict, "states");
   assert.equal(w.via, "select");
   assert.match(w.because, /Napoleon faced General Mikhail Kutuzov/);
+  assert.equal(w.via, "select");
   assert.ok(src.text.includes(w.because), "the decider is literally in the source — containment by construction");
   assert.match(w.span.at, /^novel#\d+-\d+$/);
   const [a, b] = w.span.at.slice("novel#".length).split("-").map(Number);
@@ -448,7 +454,7 @@ test("no segmenter or no selectAsk: the generate path runs unchanged (opt-in, by
 });
 
 // ── statingCandidates (Pass 1/5, the select gatherer) ────────────────────
-import { statingCandidates } from "./corroboration.js";
+import { statingCandidates, competingFiller } from "./corroboration.js";
 // an offset-carrying splitter, the engine's own shape ({text, offset})
 const splitWithOffsets = (t) => {
   const out = []; let at = 0;
@@ -531,4 +537,79 @@ test("without the injection, the default gate stays the declared S1 rule — no 
   const heard = "the general said nothing that day. general kutuzov met napoleon at the ford. kutuzov rode north again. the general slept beside napoleon."
   const got = statingCandidates(heard, { end1: "napoleon", end2: "general kutuzov" }, { splitSentences: splitWithOffsets, limit: 8 });
   assert.ok(got.some((c) => !c.shown.includes("kutuzov")), "the S1 default demonstrably leaks on heard-only input");
+});
+
+// ── instrument independence (2026-09-01, from the omnimodal run) ─────────
+import { independentReadings, distinctRecipes } from "./corroboration.js";
+
+test("THE SHARED-INSTRUMENT CASE, from the live music failure: two sources, one decoder = 2 sources but 1 instrument", () => {
+  // the exact witness shape the omnimodal driver produced a false kind on
+  const shared = ["performance-a.wav~pitch-autocorr-v1", "performance-b.wav~pitch-autocorr-v1"];
+  assert.equal(distinctSources(shared).size, 2, "genuinely two sources — that part was never wrong");
+  assert.equal(distinctRecipes(shared).size, 1, "ONE instrument: they cannot disagree about what it gets wrong");
+  assert.equal(independentReadings(shared).count, 2, "two (source, recipe) readings — source variance is real");
+  // the gate a consumer of an instrument-sensitive claim actually needs
+  assert.ok(distinctRecipes(shared).size < 2, "an instrument-sensitive claim is NOT corroborated here");
+});
+
+test("two sources read by two different instruments ARE instrument-independent", () => {
+  const w = ["performance-a.wav~pitch-autocorr-v1", "performance-b.wav~pitch-yin-v2"];
+  assert.equal(distinctSources(w).size, 2);
+  assert.equal(distinctRecipes(w).size, 2, "a systematic artifact of one tracker cannot land in both");
+});
+
+test("one source read by two instruments is ONE source and two readings — the two questions stay apart", () => {
+  const w = ["novel.txt~parse-v1", "novel.txt~parse-v2"];
+  assert.equal(distinctSources(w).size, 1, "still one perspective on the world");
+  assert.equal(distinctRecipes(w).size, 2, "but two instruments agreeing rules out a decoder artifact");
+  assert.equal(independentReadings(w).count, 2);
+});
+
+test("an undeclared witness is UNDECLARED, never silently independent — and never silently merged", () => {
+  const w = ["page-a", "page-b", "page-c~recipe-x"];
+  const ind = independentReadings(w);
+  assert.equal(ind.undeclared, 2, "the count of witnesses that did not say how they read");
+  assert.equal(ind.count, 3, "nothing is merged away by the absence of a declaration");
+  assert.equal(distinctRecipes(w).size, 1, "only the declared recipe is a known instrument");
+  // backward compatibility: every pre-existing bare witness behaves as before
+  assert.equal(distinctSources(["battle-of-borodino", "testimony:war-and-peace"]).size, 2);
+});
+
+test("the ARM needs ammunition: candidates holding only the two ends refuse `unarmed-select`, never a free pass", async () => {
+  // a picker that is never challenged is a rubber stamp; when the material
+  // offers no competing filler, the honest state is unarmed — refused
+  const src = { ref: "novel", text: "A preamble. Napoleon faced General Mikhail Kutuzov across the field. An epilogue." };
+  const selectAsk = async () => ({ stated: "yes", sentence: 1 });
+  const w = await witnessNote("Napoleon fought against General Mikhail Kutuzov", src,
+    { ask: saysNo, selectAsk, testimony: selectTestimony, splitSentences,
+      ends: { end1: "Napoleon", end2: "General Mikhail Kutuzov" } });
+  assert.equal(w.refused, "unarmed-select");
+});
+
+test("INDISCRIMINATE: a picker that also points at the arm decides nothing — its yes is refused", async () => {
+  const src = { ref: "novel", text: "A preamble. Napoleon faced General Mikhail Kutuzov near Marshal Davout across the field. An epilogue." };
+  const selectAsk = async () => ({ stated: "yes", sentence: 1 }); // says yes to everything
+  const w = await witnessNote("Napoleon fought against General Mikhail Kutuzov", src,
+    { ask: saysNo, selectAsk, testimony: selectTestimony, splitSentences,
+      ends: { end1: "Napoleon", end2: "General Mikhail Kutuzov" } });
+  assert.equal(w.refused, "indiscriminate");
+  assert.match(w.arm, /Marshal Davout/, "the arm names the competing filler it swapped in");
+});
+
+test("competingFiller excludes BOTH ends — swapping end2 for end1 would be a rubber stamp, not an arm", () => {
+  const cands = ["Napoleon faced General Mikhail Kutuzov near Marshal Davout across the field."];
+  assert.equal(competingFiller("General Mikhail Kutuzov", cands, { exclude: ["Napoleon"] }), "Marshal Davout");
+  // the live bug needs the other end to WIN on frequency, which is the
+  // ordinary case in real candidates (every candidate mentions both ends):
+  // there, un-excluded, end1 is picked and the arm becomes "X fought
+  // against X" — a claim any picker refuses, i.e. a rubber stamp
+  const realistic = [
+    "Napoleon faced General Mikhail Kutuzov near Marshal Davout.",
+    "Napoleon pressed General Mikhail Kutuzov hard that winter.",
+    "Napoleon and General Mikhail Kutuzov never met again.",
+  ];
+  assert.equal(competingFiller("General Mikhail Kutuzov", realistic), "Napoleon", "un-excluded: the other end wins on frequency");
+  assert.equal(competingFiller("General Mikhail Kutuzov", realistic, { exclude: ["Napoleon"] }), "Marshal Davout", "excluded: a real competitor");
+  assert.equal(competingFiller("General Mikhail Kutuzov", ["Napoleon faced General Mikhail Kutuzov."], { exclude: ["Napoleon"] }), null,
+    "no competitor in the material -> null, never a guess");
 });
