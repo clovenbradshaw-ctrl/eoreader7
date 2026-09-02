@@ -213,3 +213,108 @@ hub's emptiness includes the emptiness of that answer.
    "measured" belongs to perturbation and prediction; "licensed" to
    composition; "witnessed" to triangulation and testimony. The words
    are load-bearing.
+
+---
+
+## Amendment (2026-09-02): the spokes against the three mathematics, and the brain register
+
+*Asked directly — "triangulation, perturbation: do these tie to our 3
+forms of math? if so, is there a third?" — the numerology refusal above
+converts into a test: does each spoke's own OPERATION use one domain's
+primitive? Standing: nomination, with each cell marked EXACT / GOOD /
+LOOSE so the mapping can lose points honestly.*
+
+### The finding: the nine fall three per mathematics, and mostly snapped
+
+**Arithmetic (Existence) knows by COUNTING.**
+| operator | spoke | fit |
+|---|---|---|
+| NUL (zero) | APOPHASIS — the valid knowledge of absence | **EXACT** — anupalabdhi is knowing the zero; a typed gap is a counted nothing |
+| SIG (mark) | TESTIMONY — the mark carries its maker | **EXACT** — a giver-named prior IS a signed mark; an unattributed claim is an unsigned one |
+| INS (successor) | TRIANGULATION — counting distinct witnesses | **EXACT** — `distinctSources.size >= 2` is literally successor arithmetic over independence-classes; Condorcet is vote-counting |
+
+**Geometry (Structure) knows by CONSTRUCTING.**
+| operator | spoke | fit |
+|---|---|---|
+| SEG (cut) | OSTENSION — an address is a cut into an extent | GOOD — spans, coordinate spaces, extent-and-units |
+| CON (incidence) | ENUMERATION — coverage is whether the incidences tile the declared extent | LOOSE — defensible, not forced by the operation itself |
+| SYN (construction) | COMPOSITION — to know by building under license | **EXACT** — Euclid's own epistemology: a theorem is known when constructed; vyāpti is the compass-and-straightedge license |
+
+**Calculus (Interpretation) knows by COMPARING-TO-GROUND.**
+| operator | spoke | fit |
+|---|---|---|
+| DEF (bound) | PREDICTION — declare the bound BEFORE the data arrive | GOOD — prequential = DEF first, the future does the EVA |
+| EVA (compare) | PERTURBATION — compare against a rebuilt ground | **EXACT** — the null verdict (rank, censoring) is compare-to-bound; the shuffle is the constructed zero-ground |
+| REC (re-zero) | PROPRIOCEPTION — re-grounding on one's own surprise | **EXACT by registry** — the aperture regime is literally registered at REC·Ground (`regime`, capacities.js) |
+
+So the user's instinct lands: **triangulation is arithmetic's way of
+knowing, perturbation is calculus's — and the third is CONSTRUCTION,
+geometry's: to know a thing by building it under a declared license and
+being able to point at where it stands.** Six of nine cells snap EXACT,
+one by the registry's own prior assignment; two are GOOD; one (CON /
+enumeration) is LOOSE and marked so. Yesterday's "nine is a count, not
+the cube's nine" stands corrected in the only acceptable way — by a
+cell-level test that could have failed and mostly didn't.
+
+**What this predicts (so it can break):** a spoke's organ should lean on
+its domain's primitives and not the others'. Spot-checked against code:
+triangulation's whole mechanism is Set-size arithmetic (no geometry, no
+accumulation); perturbation's is distributional comparison (no counting
+of witnesses anywhere in `nul`); composition's is licensed joining (no
+statistics anywhere in hl.js). Three organs, three disjoint primitive
+vocabularies — the falsifiable form held where it was checked.
+
+### The brain register — received analogies, givers named, not measurements
+
+Each spoke has a well-studied neural counterpart, and the two sharpest
+facts are an alignment and an ABSENCE:
+
+- **PREDICTION** — predictive processing itself (Rao & Ballard's
+  predictive coding; Friston; Schultz's dopamine reward-prediction
+  error, which is prequential scoring in a neuromodulator).
+- **PERTURBATION** — the reafference principle (von Holst &
+  Mittelstaedt): the brain predicts the sensory consequence of its OWN
+  action and subtracts it — a self-generated perturbation with a
+  subtracted null. Why you cannot tickle yourself is why the shuffle
+  control works.
+- **TRIANGULATION** — Bayesian cue combination (Ernst & Banks 2002):
+  independent channels weighted by reliability. The ventriloquism
+  effect is the echo-chamber corruption running on wetware — cue
+  capture when independence is assumed rather than counted.
+- **PROPRIOCEPTION** — interoception (Craig), and the locus coeruleus:
+  Yu & Dayan's unexpected-uncertainty norepinephrine burst triggering
+  network reset is the aperture's startle regime, almost mechanism for
+  mechanism — surprise consumed as posture, a re-zero, not a displayed
+  number.
+- **OSTENSION** — the hippocampal-entorhinal address system (O'Keefe,
+  the Mosers): place and grid cells, with path integration as
+  carried-from-the-cut addressing rather than search.
+- **TESTIMONY** — source monitoring (Marcia Johnson): remembering WHO
+  told you as a separable faculty, whose failure — source amnesia — is
+  precisely the nameless-authority corruption, and is how
+  misinformation persists after its source is discredited.
+- **COMPOSITION** — hierarchical combination under grammar (Lashley's
+  serial order; Merge): licensed joining as a dedicated capacity.
+- **APOPHASIS** — omission responses: the dopamine DIP at an omitted
+  expected reward is a refusal that reached its object — the brain
+  types the measured absence, in a signed signal, distinct from mere
+  silence.
+- **ENUMERATION — the absence, and the sharpest fact here.** Brains are
+  natively BAD at this spoke: attention samples, it does not tile;
+  change blindness and inattentional blindness are the silent-cap
+  corruption committed constantly and invisibly. Enumeration is the
+  PROSTHETIC spoke — checklists, ledgers, writing — which is exactly why
+  this instrument builds it as external apparatus (the obligation
+  ledger, the 27-cell map) rather than asking any model to hold it: the
+  one way of knowing evolution skimped on is the one the tooling must
+  supply.
+
+Two register-level notes, held at nomination strength. Walsh's ATOM (a
+common parietal magnitude system serving number, space, and time) reads
+as biological support for the depth-axis prediction (§VIII.1/§VIII.2):
+one shared circuit, three domain adapters — the brain may implement the
+three mathematics the way binding-core.js does. And the hub: the brain's
+own hard-won version of the empty center is Dennett's refusal of the
+Cartesian theater — no seat where it all comes together, no homunculus
+occupying the deciding place; coalition competition with a structurally
+vacant chair. The wheel turns there too because no spoke wins it.
