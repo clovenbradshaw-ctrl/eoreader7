@@ -246,3 +246,65 @@ Toward Pass 2 (calibration), one number this run already contributes:
 across all live fabricated batches to date, 0 false states in 12
 armed-protocol asks — an upper bound on p(states|false) that the SPRT
 ratios will inherit when the labeled-true batch is run.
+
+---
+
+# Addendum 6: level 5's fifth turn walked through the 27 phaseposts — three built, and an honest third-source result (2026-09-01)
+
+Level 5 (the corroborated note) IS one full turn of the canonical helix
+with propositions as operands, and walking it phasepost by phasepost
+named exactly which cells had organs and which were the starving gaps:
+
+| step (op·grain) | level-5 organ |
+|---|---|
+| NUL | the ledger's void — no note yet |
+| SIG·Figure | `hear` — first sighting marked |
+| INS·Figure | the claim id — note individuated as an object |
+| SEG·Figure | `proposeCandidates` — cutting the candidate set |
+| CON·Figure | the witness ask — this note related to that source |
+| SYN·Figure | `attest` — the multi-witness note composed |
+| DEF·Pattern | **`WITNESS_OPERATING_POINT`** — the declared bound (NEW) |
+| EVA·Figure | the settling walk's accumulation-vs-bound |
+| REC·Figure | **`thirdSourceCandidates`** — a contradiction/thinness ACTED on (NEW) |
+| CON·Pattern | **`contests`** in the report — the contest structure as data (NEW) |
+
+The three new ones close NEXT-PASSES Passes 2 (calibrate) and 3
+(third-source seeker), and DEF·Pattern's content is the calibration
+result itself:
+
+**Calibration (Pass 2), both models, measured not assumed:** gemma2:2b
+p(states|stated)=6/18=0.33, p(states|swap)=0/12; qwen2.5:14b 5/18=0.28,
+0/12 — **slower and no better, so the small model keeps the job.**
+Pooled false-state bound across all live fabricated batches: **0/36**.
+A single armed "states" carries LR ≥ ~4, so two independent-source
+votes carry ≥ ~16 — which is exactly what `settleFloor=2` already
+demanded. **The calibration VALIDATES the unit-step walk rather than
+replacing it**, and that is the honest Pass-2 outcome: no fancier rule
+earned its place, and the numbers now say so on the record
+(`WITNESS_OPERATING_POINT`, carried on every walk report).
+
+**Third-source seeker (Pass 3, REC·Figure), live against the REAL
+novel** — three genuinely different source KINDS on one fact (two
+encyclopedia articles + Tolstoy's own 3.3MB text): the seeker correctly
+proposed the novel as feasible (past the Kutúzov fold — the Maude
+translation writes it accented 524×, and an unfolded feature set would
+have made the novel invisible, the Bezúkhov bug class recurring at the
+fifth turn, now pinned against the real bytes). It found all 60
+Napoleon+Kutúzov co-occurrence windows and asked the six densest. The
+third vote did NOT land: gemma2:2b, on this material, echoed the CLAIM
+back as its own `because` rather than quoting the novel, and
+`foldTestimony` correctly refused it — a decider that merely repeats the
+claim is not evidence. This is the calibration's own 0.33 recall being
+honest, not a mechanism failure: the seeker did its job (right source,
+right windows), the wall did its job (no unquoted vote), and the small
+model's known low recall is the binding constraint. Recorded as measured
+rather than forced — the fact genuinely has a third source, and the
+instrument correctly declines to claim it on an unquotable yes.
+
+**The helix lesson, banked:** a starving floor is a turn of the helix
+missing an organ at one of its 27 phaseposts, and you find it by walking
+the canonical order and asking which cell is empty. Level 5's REC and
+CON·Pattern were the empties; now built. The remaining fifth-turn
+frontier is not a new mechanism but the witness's recall — which the
+calibration measured, the seeker is bottlenecked on, and which no wall
+should ever paper over.
