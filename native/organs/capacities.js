@@ -84,6 +84,14 @@ export const CAPACITIES = Object.freeze([
     what: "a declared statistic tested against a Born-constructed null — the measuring door's own licensing gate (P19); the engine behind a `ground … broken:<perturbation>` act",
   }),
   Object.freeze({
+    id: "frame",
+    terrain: "Atmosphere",
+    op: "DEF",
+    module: "frame.js",
+    fn: "declareFrame",
+    what: "the interpretive ground of a judgment, declared before the judgment runs — a declaration gate with typed refusals (undeclared_frame naming every missing piece), content-addressed frame ids stamped onto verdicts, and the cross_frame wall: verdicts from different declared grounds never compare silently (the live specimen: one suite reading 54/58 under one engine provider and 52/58 under the other, invisible until the frame was declared). Typing: Differentiate·Interpretation at Ground grain — DEF·Atmosphere, Clearing. BUILT FROM ITS DEPTH-SIBLINGS by pre-registered derivation (def-ground-derivation.md, committed before the module) — NUL·Ground's declared-numbers gate and SEG·Ground's extent-and-units, transposed to the calculus column; the sibling-derived design passed its own e2e (both real providers as two frames over one material) UNMODIFIED, which is §VIII.2's first earned point.",
+  }),
+  Object.freeze({
     id: "priors",
     terrain: "Lens",
     op: "DEF",
