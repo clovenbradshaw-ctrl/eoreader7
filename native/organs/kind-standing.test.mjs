@@ -218,3 +218,32 @@ test("a discovered kind lands in the REAL hyperlexicon: one addressable note, wi
   assert.equal(folded[0].id, "rolea|keeps-company|kind:before=zub", "the kind is addressable by its own name");
   assert.deepEqual(folded[0].witnesses.sort(), ["chronicle-a(heard)", "chronicle-b(heard)"], "witnesses unioned, never replaced");
 });
+
+test("P79's DECLARED place-kind is RECOVERED from nothing: discovered locative kinds on the real book contain most of it", { skip: !haveBook }, async () => {
+  // The kind foldPermitted was validated against was typed by hand
+  // (PLACES). Run discoverCompanyKinds over the book's own recurring
+  // surfaces, taught nothing, under the null arm: the kinds signed by
+  // locative frames (before=at, before=in) should contain the declared
+  // places — the hand list was a reading of structure the material
+  // carries on its own.
+  const { loadOrgans } = await import(`${LP}/scripts/eot-digest.mjs`);
+  const organs = await loadOrgans();
+  const { stripContainer, stripItalicsMarkup } = await import("./source.js");
+  const body = stripItalicsMarkup(stripContainer(fs.readFileSync(BOOK, "utf8")).text);
+  const sentences = organs.spans.splitSentences(body);
+  const surfaces = organs.surfaces.extractSurfaces(sentences, {}).filter((e) => e.mentions >= 5).map((e) => e.surface);
+  const kinds = discoverCompanyKinds(sentences, surfaces, { minMentions: 5, minShare: 0.2, minMembers: 2, nullArm: { draws: 60, seed: 0, alpha: 0.05 } });
+  const locative = kinds.filter((k) => ["before=at", "before=in", "before=to", "before=from"].includes(k.signature));
+  const found = new Set(locative.flatMap((k) => k.members));
+  const recovered = PLACES.filter((p) => found.has(p) || found.has(p + "a") || [...found].some((f) => f.startsWith(p)));
+  assert.ok(locative.length >= 2, `locative kinds discovered: ${kinds.map((k) => k.name).join(", ")}`);
+  assert.ok(recovered.length >= 6, `at least 6 of the 10 declared places recovered from nothing; got ${recovered.length}: ${recovered.join(", ")}`);
+  // and a person never lands in a locative kind
+  for (const person of ["Lucy", "Jonathan", "Arthur", "Renfield"]) assert.ok(!found.has(person), `${person} is not a place`);
+  // DISCLOSED LIMIT: the flagship surface's own company is split across
+  // prepositions (at/to/of Castle Dracula), so no single locative signature
+  // reaches 0.2 for it — fold-gate still needs the DECLARED kind for that
+  // pair. A locative super-kind (signatures that frame the same members)
+  // is the named next step, not built here.
+  assert.ok(!found.has("Castle Dracula"), "pinned as a limit: the flagship is not yet discoverable at one-signature grain");
+});
