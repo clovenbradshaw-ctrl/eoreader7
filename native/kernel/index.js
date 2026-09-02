@@ -23,6 +23,7 @@ export { projectLexicon, lexiconTrajectory } from "./lexicon.js";
 export { createTerrainActivation, dmdWindow } from "./terrain-activation.js";
 export { networkStanding, directedEdges } from "./network-standing.js";
 export { projectHypergraph, hyperlexiconAt } from "./hypergraph-projection.js";
+export { makeNotes, noteId, recipeId, REFUSALS as NOTE_REFUSALS, FRAME_TASK } from "./notes.js";
 export { affordancesFromDeclarations, closureAffordances, nominateFromExperience, createReactionSubstrate } from "./reaction.js";
 export { refuteRelation, auditChemistry, vetoedPairs } from "./refutation.js";
 export { assembly, createAssemblyRegistry, registerAssembly, resolveAssembly, registeredAssemblies, stampResult, absentAssemblies, contractViolations, stampDelta, contributionsOf, concedeAssembly, concededAssemblies, derivedUnderConceded } from "./assembly.js";

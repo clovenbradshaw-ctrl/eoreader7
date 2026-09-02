@@ -13,8 +13,8 @@
 
 export { WITNESS_OPERATING_POINT, askValue, calibrationFrames, competingFiller, corroborateLedger, distinctRecipes, distinctSources, endsCopresentWindow, independentReadings, proposeCandidates, statingCandidates, textFeatures, thirdSourceCandidates, witnessNote } from "./corroboration.js";
 export * as corroboration from "./corroboration.js";
-export { SELECT_SCHEMA, WITNESS_SCHEMA, WITNESS_SLICE_MAX, becauseContained, becauseVerbatim, buildSelectMessages, buildWitnessMessages, foldSelect, foldTestimony, locateDecider, readTestimony, siblingSwap, witnessSlice } from "../../../the-fold/testimony.js";
-export * as testimony from "../../../the-fold/testimony.js";
+export { SELECT_SCHEMA, WITNESS_SCHEMA, WITNESS_SLICE_MAX, becauseContained, becauseVerbatim, buildSelectMessages, buildWitnessMessages, foldSelect, foldTestimony, locateDecider, readTestimony, siblingSwap, witnessSlice } from "./testimony.js";
+export * as testimony from "./testimony.js";
 export { contextVectors, cosine, discoverCompanyKinds, foldPermitted, frameWords, kindFit, kindMembership, kindNotes } from "./kind-standing.js";
 export * as kindStanding from "./kind-standing.js";
 export { REFUSALS as SIGNAL_REFUSALS, REQUIRED, findSignal, phrase, scramble } from "./signal.js";
@@ -33,13 +33,16 @@ export { REFUSALS as OBLIGATION_REFUSALS, STANDINGS, admitObligations, coverage,
 export * as obligation from "./obligation.js";
 export { REFUSALS as EVENT_ARRANGEMENTS_REFUSALS, arrangementNotes, arrangementsFrom } from "./event-arrangements.js";
 export * as eventArrangements from "./event-arrangements.js";
-export { SELF_WITNESS, isSelfWitness, landAct, landSelfAssertion, makeCapacityRunner, mergeTestimony, negationCandidates, perSourceReadings, readsNothing, speakerWho } from "../../../the-fold/capacity-runner.js";
-export * as capacityRunner from "../../../the-fold/capacity-runner.js";
+export { SELF_WITNESS, isSelfWitness, landAct, landSelfAssertion, makeCapacityRunner, mergeTestimony, negationCandidates, perSourceReadings, readsNothing, speakerWho } from "./capacity-runner.js";
+export * as capacityRunner from "./capacity-runner.js";
 export { CAPACITIES, findCapacity, listCapacities, unresolvedCapacity } from "./capacities.js";
 export * as capacities from "./capacities.js";
-// Phase 3 organs — re-exported from the-fold until each moves (hypergraph is
-// deferred: its closure reaches the-fold's surface through grounding.js →
-// source.js/web.js, and a moved organ may not import the surface).
+// Phase 3 organs. hypergraph's whole closure (cast, grounding, cite, source,
+// asserted, web, measure, testimony, primary, capacity-runner, experiencer,
+// quotes) crossed on 2026-09-02 — the closure was moved TOGETHER, so no moved
+// organ imports the surface; the-fold keeps one-line shims at the old paths.
+// The assertion ledger itself is now kernel/notes.js (medium-blind); this
+// hyperlexicon.js is its text face.
 export { assertionId, recipeId, REFUSALS as HYPERLEXICON_REFUSALS, VERB_CLASS, makeHyperlexicon } from "./hyperlexicon.js";
 export * as hyperlexicon from "./hyperlexicon.js";
 export { makeGrammarLens, mismatchedConnectors } from "./grammar-lens.js";
@@ -55,3 +58,29 @@ export * as witnessSentencesOrgan from "./witness-sentences.js";
 // floor 6 — a corroborated note as a premise (derivation.js)
 export { DERIVED_PREFIX, REFUSALS as DERIVATION_REFUSALS, isDerivedId, premisesOf, chemistryFor, substrateEdges, naiveJoin, redeal, makeDerivation } from "./derivation.js";
 export * as derivation from "./derivation.js";
+
+// Phase 3 (2026-09-02) — the reading closure crosses: the-fold keeps only the surface.
+// Generated off each organ's own `export` statements; a name already exported by
+// another organ is aliased under this organ's prefix, never silently dropped.
+export { FORM_MIN_ARRIVALS, GRAMMAR_MIN_SHARE, MIN_SURFACES_PER_VERB, NEAREST_EDGES_MAX, arrangementOf, makeCaseMarkedRelationReader, makeRelationReader, queryEdges, queryFillers, relationFindings, relationsClean } from "./hypergraph.js";
+export * as hypergraphOrgan from "./hypergraph.js";
+export { makeCastHandles, makeCastResolver, makeReferentIndex } from "./cast.js";
+export * as castOrgan from "./cast.js";
+export { ABBREV, CLAIM_STOPWORDS, NUMBER_RE, abbreviationExpansion, blankStructure, buildLocalIndex, buildUnionIndex, checkGrounding, corroborateAtoms, extractAtoms, extractCheckableAtoms, hasNumber, hasWord, numberSet, splitSentences, tokenSupported, unsupportedClaims, wordSet } from "./grounding.js";
+export * as groundingOrgan from "./grounding.js";
+export { CORPUS_MINIMUM, MIN_RUN, NULL_SAMPLES, attribute, attributedRefs, commonTerms, coverage as CITE_coverage, namesIn, overlap, splitSentences as CITE_splitSentences, stripSelfCitations } from "./cite.js";
+export * as citeOrgan from "./cite.js";
+export { atmosphereBoundaries, blankLabelRows, buildSourceBlock, checkCitations, chunkSource, declaredIdentity, delimitedTable, foldDiacritics, foldTypography, identifyMaterial, openQuestions, readRange, retrieve, splitDelimited, stripContainer, stripItalicsMarkup, tokenize } from "./source.js";
+export * as sourceOrgan from "./source.js";
+export { WITNESS_FLOOR, assertionPhrase, orderArm, seedFrom, seededShuffle, shuffleSentenceWords, standingOf } from "./asserted.js";
+export * as assertedOrgan from "./asserted.js";
+export { ATTRS, WEB_ARCHIVE_TIMEOUT_MS, WEB_FETCH_MAX_BYTES, WEB_FETCH_TIMEOUT_MS, WEB_SEARCH_MAX_RESULTS, WEB_UA, archiveUrlFrom, decodeEntities, extForContentType, extractFeed, extractReadable, extractUrls, feedText, foldWebHistory, hostOf, looksLikeChallenge, normalizeUrl, pageFaceUrl, parseSearchResults, unwrapDdgHref } from "./web.js";
+export * as webOrgan from "./web.js";
+export { PAIRS_KEYS, SERIES_KEYS, admit, arrivalsFrom, licensedPairs, measureAcross, measurePairs, measureSeries, parseMeasure, phrase as MEASURE_phrase, probeMaterial, runMeasurement, seriesFrom, seriesFromMedia, sniffContainer, toTable, usage, wavSamples } from "./measure.js";
+export * as measureOrgan from "./measure.js";
+export { PRIMARY_CLASSES, PRIMARY_SNIPS_KEPT, PRIMARY_SOURCES_CONSULTED, classifyCitation, extractCitations, foldPrimary, isWikiFamilyHost, isWikipediaHost, rankPrimary, snipClaim, unwrapArchiveUrl } from "./primary.js";
+export * as primaryOrgan from "./primary.js";
+export { requireExperiencer, withExperiencer } from "./experiencer.js";
+export * as experiencerOrgan from "./experiencer.js";
+export { MIN_QUOTE_WORDS, applyQuotes, extractQuotedSpans, normalizedIndex, quoteFindings, quoteOpens, verifyQuotes } from "./quotes.js";
+export * as quotesOrgan from "./quotes.js";
