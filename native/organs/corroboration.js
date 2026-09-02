@@ -740,7 +740,7 @@ export async function corroborateLedger(log, door, sources, {
   let asks = 0;
   const attested = [];
   const contradicted = [];
-  const refusals = { "no-slice": 0, "no-testimony": 0, insensitive: 0, uncontained: 0, unreadable: 0, unarmed: 0, decider_unrelated: 0, other: 0 };
+  const refusals = { "no-slice": 0, "no-testimony": 0, insensitive: 0, uncontained: 0, unreadable: 0, unarmed: 0, decider_unrelated: 0, "unarmed-select": 0, indiscriminate: 0, other: 0 }; // the select path's own two typed refusals are tallied by name — measured landing in "other" on the first select-vs-generate run, a typed refusal counted as a wildcard
   // Structurally hopeless candidates, skipped WITHOUT an ask — a
   // proposal-time refusal, tallied apart from the witness's own refusals
   // because no model call was spent and no testimony was heard.
