@@ -24,7 +24,14 @@ import * as K from "../kind-standing.js";
 import * as H from "../hyperlexicon.js";
 import * as TL from "../../eoreader7/native/kernel/task-log.js";
 import { wavSamples } from "../measure.js";
-import { distinctSources } from "../corroboration.js";
+import { distinctSources, distinctRecipes, independentReadings } from "../corroboration.js";
+
+// THE INSTRUMENTS, named — every decode declares which decoder read it, so
+// a claim that depends on decoding is counted by (source, recipe) pairs and
+// a shared-instrument artifact can never reach two independent readings.
+const PITCH_RECIPE = "pitch-autocorr-v1@hop30ms-lag180to800hz";
+const SHOT_RECIPE = "shot-meanrgb-v1@nearest-of-6";
+const SPEC_RECIPE = "pitch-goertzel-v1@hop30ms-argmax-of-6";
 
 const OUT = "/tmp/omnimodal";
 fs.mkdirSync(OUT, { recursive: true });
@@ -100,8 +107,39 @@ function heardTokens(path) {
   return events.join(" ").split("|").map((p) => p.trim()).filter(Boolean).map((text) => ({ text }));
 }
 
+// A SECOND, GENUINELY DIFFERENT INSTRUMENT (frequency domain, not time
+// domain): Goertzel energy at each declared note, argmax per hop. It has
+// its own errors — but not autocorrelation's errors, which is the whole
+// requirement. Its existence is what lets an instrument-sensitive claim
+// be corroborated at all.
+function heardTokensSpectral(path) {
+  const wav = wavSamples(fs.readFileSync(path));
+  if (wav.refused) throw new Error(wav.refused.type);
+  const { samples, sampleRate } = wav;
+  const hop = Math.floor(sampleRate * 0.03);
+  const goertzel = (o, n, hz) => {
+    const k = (2 * Math.cos((2 * Math.PI * hz) / sampleRate));
+    let s0 = 0, s1 = 0, s2 = 0;
+    for (let i = 0; i < n; i++) { s0 = samples[o + i] + k * s1 - s2; s2 = s1; s1 = s0; }
+    return s1 * s1 + s2 * s2 - k * s1 * s2;
+  };
+  const out = [];
+  for (let o = 0; o + hop <= samples.length; o += hop) {
+    let energy = 0;
+    for (let i = 0; i < hop; i++) energy += Math.abs(samples[o + i]);
+    if (energy / hop < 0.01) { out.push("|"); continue; }
+    let best = null, bestE = -Infinity;
+    for (const [note, f] of Object.entries(NOTE_HZ)) { const e = goertzel(o, hop, f); if (e > bestE) { bestE = e; best = note; } }
+    out.push(best);
+  }
+  const events = out.filter((t, i) => t !== out[i - 1]);
+  return events.join(" ").split("|").map((p) => p.trim()).filter(Boolean).map((text) => ({ text }));
+}
+
 const perfA = heardTokens(`${OUT}/performance-a.wav`);
 const perfB = heardTokens(`${OUT}/performance-b.wav`);
+const perfAspec = heardTokensSpectral(`${OUT}/performance-a.wav`);
+const perfBspec = heardTokensSpectral(`${OUT}/performance-b.wav`);
 const VOCAB_M = Object.keys(NOTE_HZ);
 console.log("── MUSIC ──");
 console.log(`performance-a: ${perfA.length} phrases decoded from real WAV bytes; first: "${perfA[0]?.text}"`);
@@ -124,11 +162,19 @@ console.log(`  II.23 shuffle control: ${kindsShuf.length === 0 ? "kinds dissolve
 // F5: both performances land their discovered kinds in the ONE hyperlexicon
 const hl = H.makeHyperlexicon(TL);
 let log = hl.createHyperlexicon();
-for (const n of K.kindNotes(kindsA, { witness: "performance-a.wav(heard)" })) log = hl.hear(log, n);
-for (const n of K.kindNotes(kindsB, { witness: "performance-b.wav(heard)" })) log = hl.hear(log, n);
+for (const n of K.kindNotes(kindsA, { witness: "performance-a.wav", recipe: PITCH_RECIPE })) log = hl.hear(log, n);
+for (const n of K.kindNotes(kindsB, { witness: "performance-b.wav", recipe: PITCH_RECIPE })) log = hl.hear(log, n);
+// the SECOND instrument reads the same two performances
+const kindsAspec = K.discoverCompanyKinds(perfAspec, VOCAB_M, MFLOORS);
+const kindsBspec = K.discoverCompanyKinds(perfBspec, VOCAB_M, MFLOORS);
+console.log(`  second instrument (${SPEC_RECIPE.split("@")[0]}) discovers: ${kindsAspec.map((k) => k.name + ": " + k.members.join(",")).join(" | ") || "(nothing)"}`);
+for (const n of K.kindNotes(kindsAspec, { witness: "performance-a.wav", recipe: SPEC_RECIPE })) log = hl.hear(log, n);
+for (const n of K.kindNotes(kindsBspec, { witness: "performance-b.wav", recipe: SPEC_RECIPE })) log = hl.hear(log, n);
 const musicNotes = hl.foldHyperlexicon(log).filter((n) => n.witnesses.length >= 2);
 console.log(`  corroborated notes (>=2 witnesses):`);
-for (const n of musicNotes) console.log(`    ${n.id}  [${n.witnesses.length} witnesses, ${distinctSources(n.witnesses).size} distinct]`);
+for (const n of musicNotes)
+  console.log(`    ${n.id}\n      sources ${distinctSources(n.witnesses).size} · instruments ${distinctRecipes(n.witnesses).size} · readings ${independentReadings(n.witnesses).count}` +
+    (distinctRecipes(n.witnesses).size < 2 ? "  <- NOT instrument-corroborated (one decoder)" : ""));
 
 // ── VIDEO ────────────────────────────────────────────────────────────────
 // Grammar (declared): scene shots (red/green/blue) open their sequences; a
@@ -181,9 +227,11 @@ for (const k of kindsVA) console.log(`  discovered (cut A): ${k.name}: ${k.membe
 console.log(`  frame shots (word-signed kinds): ${[...K.frameWords(kindsVA)].join(", ") || "(none)"}`);
 const kindsVShuf = K.discoverCompanyKinds(shuffleWithin(cutA), VOCAB_V, FLOORS);
 console.log(`  II.23 shuffle control: ${kindsVShuf.length === 0 ? "kinds dissolve ✓" : "SURVIVED — UNLICENSED: " + kindsVShuf.map((k) => k.name).join(",")}`);
-for (const n of K.kindNotes(kindsVA, { witness: "cut-a.mp4(seen)" })) log = hl.hear(log, n);
-for (const n of K.kindNotes(kindsVB, { witness: "cut-b.mp4(seen)" })) log = hl.hear(log, n);
+for (const n of K.kindNotes(kindsVA, { witness: "cut-a.mp4", recipe: SHOT_RECIPE })) log = hl.hear(log, n);
+for (const n of K.kindNotes(kindsVB, { witness: "cut-b.mp4", recipe: SHOT_RECIPE })) log = hl.hear(log, n);
 const all = hl.foldHyperlexicon(log).filter((n) => n.witnesses.length >= 2);
 console.log(`  corroborated notes across the WHOLE ledger now:`);
-for (const n of all) console.log(`    ${n.id}  [${distinctSources(n.witnesses).size} distinct sources]`);
+for (const n of all)
+  console.log(`    ${n.id}  sources ${distinctSources(n.witnesses).size} · instruments ${distinctRecipes(n.witnesses).size}` +
+    (distinctRecipes(n.witnesses).size < 2 ? "  <- one decoder" : ""));
 console.log(`\nledger: one hyperlexicon holding text-session kinds' SHAPE plus music plus video — media never mixed, addresses shared.`);
