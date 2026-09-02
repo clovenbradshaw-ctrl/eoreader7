@@ -19,10 +19,24 @@ Which kind of thing a mechanism operates ON. The handle is **floor N**
 (F0–F5). This ladder already has its own documents and this one only
 points: WHAT-IS-BEING-BORN.md (the anatomy), THE-FIFTH-TURN.md (floor 5
 walked through all 27 phaseposts), NEXT-PASSES.md (the plan). Short form:
-F0 units → F1 referents → F2 arrangements → F3 claims → F5 corroborated
-notes (F4½ nesting is designed and deliberately unopened). A floor is a
-promotion of operand grade — floor 5's operands are notes, assertions
-that have become variables over their own restatements.
+F0 units → F1 referents → F2 arrangements → F3 claims → F4½ nesting →
+F5 corroborated notes → **F6 premises** (opened 2026-09-02,
+`organs/derivation.js`). A floor is a promotion of operand grade — floor
+5's operands are notes, assertions that have become variables over their
+own restatements; floor 6's operands are notes that SURVIVED
+corroboration, now standing as premises from which licensed composition
+(the reaction circuit, chemistry from the declarations register's GIVEN
+tier alone) derives facts the material never stated. A derived note lands
+on the same ledger as SYN·Pattern·derived with **no witnesses of its own**
+— premises and walked provenance carry it, so the ≥2-sources gate excludes
+it by construction, `foldHyperlexicon` never projects it (`foldDerived`
+does), and conceding a premise (`concede`, REC·Figure, new on the ledger)
+withdraws every product resting on it transitively (REC·Pattern each).
+This is nesting's wall one register up: premises' witnesses never
+corroborate the product and the product never corroborates a premise.
+Two controls ship with the organ (II.23): no giver → a measured zero, and
+`redeal` (objects permuted within a relation) → a different derived set,
+with the licensed set a subset of the unlicensed join throughout.
 
 ## Ladder 2 — STRATA: what channel of evidence
 

@@ -52,3 +52,6 @@ export * as hlAcquire from "./hl-acquire.js";
 export { BOUND, CONTRADICTED, CONTESTED, UNBOUND, BEYOND_REACH, UNREFUTED, UNDETERMINED, flip, createStage, addAnchor, addEdge, declareFunctional, declareTransitive, declareComplete, extendStage, atomic, read, attach } from "./hl.js";
 export { witnessSentences, endsFor, settledBy, rowFor, WITNESS_VERDICTS } from "./witness-sentences.js";
 export * as witnessSentencesOrgan from "./witness-sentences.js";
+// floor 6 — a corroborated note as a premise (derivation.js)
+export { DERIVED_PREFIX, REFUSALS as DERIVATION_REFUSALS, isDerivedId, premisesOf, chemistryFor, substrateEdges, naiveJoin, redeal, makeDerivation } from "./derivation.js";
+export * as derivation from "./derivation.js";

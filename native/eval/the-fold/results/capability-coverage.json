@@ -11,7 +11,7 @@
  ],
  "registry": {
   "source": "capacities.js",
-  "entries": 28,
+  "entries": 29,
   "selfDescribed": "a DATA TABLE, NOT A RUNTIME — 'starts, deliberately does not finish, the library seed' (its own header)"
  },
  "counts": {
@@ -341,7 +341,8 @@
      "grain": "Pattern",
      "terrain": "Network",
      "organs": [
-      "graph"
+      "graph",
+      "derive"
      ]
     },
     {
