@@ -3,7 +3,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync, existsSync } from "node:fs";
-import { reviewMerges } from "./fold-gate.js";
+import { reviewMerges } from "../eoreader7/native/organs/index.js";
 
 const N = "../eoreader7/native/adapters/text/";
 const splitSentences = (t) => String(t).split(/(?<=[.!?])\s+/).filter(Boolean).map((text) => ({ text }));
