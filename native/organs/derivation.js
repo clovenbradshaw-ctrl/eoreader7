@@ -164,11 +164,22 @@ export function substrateEdges(premises) {
  * wins, the ledger's own rule), so a product is worded in the material's
  * words rather than in lowercased ids. */
 export function displayMap(premises) {
+  // The display of an identity end is its FACE's own words where a premise
+  // states them exactly, else the shortest display seen — never the first
+  // seen, which live (2026-09-02) handed a product a debris reading
+  // ("Andrew Johnson in 1869 after …") when a clean one was on the ledger.
   const m = new Map();
+  const offer = (id, display) => {
+    const d = String(display ?? id);
+    const cur = m.get(id);
+    if (d.toLowerCase() === id) { m.set(id, d); return; }
+    if (cur && cur.toLowerCase() === id) return;
+    if (!cur || d.length < cur.length) m.set(id, d);
+  };
   for (const n of premises) {
     const { end1, end2 } = identityEnds(n);
-    if (!m.has(end1)) m.set(end1, String(n.subject ?? end1));
-    if (!m.has(end2)) m.set(end2, String(n.object ?? end2));
+    offer(end1, n.subject);
+    offer(end2, n.object);
   }
   return m;
 }
