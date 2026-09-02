@@ -205,16 +205,58 @@ export function askValue(note, { contradictSources, settleFloor } = {}) {
 }
 
 /**
+ * The best window of `sourceText` where features of BOTH ends co-occur —
+ * or null when no such window exists anywhere. Two jobs, one geometry
+ * (the same per-end covering condition as the decider wall, applied
+ * BEFORE the ask instead of after):
+ *
+ *  - PREFILTER: a candidate with no co-presence window is structurally
+ *    hopeless — the decider wall could never pass — and asking a model
+ *    about it is a wasted call. Measured on the live Borodino run before
+ *    this existed: 14 of the top 40 candidates (35% of the whole budget)
+ *    were hopeless by this test.
+ *  - SLICE CENTERING: for a plausible candidate, the co-presence window
+ *    is where a stating sentence would have to live, so the witness
+ *    should read THERE — not wherever generic anchor scoring wanders
+ *    (P32's own named gap: no prose-vs-table signal).
+ *
+ * Medium-blind like the rest of this module: `featuresOf` is injected,
+ * the default is the text adapter and says so.
+ */
+export function endsCopresentWindow(sourceText, ends, { featuresOf = textFeatures, window = 400 } = {}) {
+  const text = String(sourceText ?? "");
+  const lower = text.toLowerCase();
+  const f1 = [...featuresOf(ends?.end1)];
+  const f2 = [...featuresOf(ends?.end2)];
+  if (!f1.length || !f2.length) return null;
+  let best = null;
+  for (const w1 of f1) {
+    let i = -1;
+    while ((i = lower.indexOf(w1, i + 1)) >= 0) {
+      const lo = Math.max(0, i - window);
+      const hi = Math.min(text.length, i + window);
+      const win = lower.slice(lo, hi);
+      const hits2 = f2.filter((w2) => win.includes(w2)).length;
+      if (hits2 > 0) {
+        const score = hits2 + f1.filter((w) => win.includes(w)).length;
+        if (!best || score > best.score) best = { start: lo, end: hi, score };
+      }
+    }
+  }
+  return best ? { start: best.start, end: best.end, text: text.slice(best.start, best.end) } : null;
+}
+
+/**
  * One note, one source, the full protocol: slice -> ask -> sibling-swap ->
  * ask -> foldTestimony. Returns the derived verdict with the decider's own
  * address in the source, or the typed refusal — never a bare boolean.
  */
-export async function witnessNote(sentence, source, { ask, testimony, ends = null } = {}) {
+export async function witnessNote(sentence, source, { ask, testimony, ends = null, slice: sliceOverride = null } = {}) {
   const { witnessSlice, siblingSwap, foldTestimony } = testimony ?? {};
   if (typeof ask !== "function" || !witnessSlice || !siblingSwap || !foldTestimony)
     throw new TypeError("witnessNote: ask and the testimony organs are injected — required, never defaulted");
   const target = { kind: "name", text: sentence, sentence };
-  const slice = witnessSlice(target, source.text);
+  const slice = sliceOverride ?? witnessSlice(target, source.text);
   if (!slice) return { refused: "no-slice" };
   const real = await ask(sentence, slice);
   const swapped = real ? siblingSwap(sentence, slice, { hint: real.because ?? "" }) : null;
@@ -294,6 +336,11 @@ export async function corroborateLedger(log, door, sources, {
   const attested = [];
   const contradicted = [];
   const refusals = { "no-slice": 0, "no-testimony": 0, insensitive: 0, uncontained: 0, unreadable: 0, unarmed: 0, decider_unrelated: 0, other: 0 };
+  // Structurally hopeless candidates, skipped WITHOUT an ask — a
+  // proposal-time refusal, tallied apart from the witness's own refusals
+  // because no model call was spent and no testimony was heard.
+  let skippedNoCopresence = 0;
+  const copresence = new Map(); // `${noteId}\u0000${ref}` -> window|null, computed once
   const contradictSources = new Map(); // note id -> Set of source refs, THIS RUN (contradicts is reported, never landed)
   const askedPairs = new Set();        // `${noteId}\u0000${sourceRef}` — a spent call is spent, refusal included
 
@@ -323,6 +370,16 @@ export async function corroborateLedger(log, door, sources, {
         if ((note.witnesses ?? []).some((w) => w === ref || w === `testimony:${ref}`)) continue;
         const v = askValue(note, { contradictSources, settleFloor });
         if (v.value === 0) continue;
+        // PREFILTER (the same per-end geometry as the decider wall, applied
+        // before spending): no co-presence window means the wall could
+        // never pass — skip without an ask, once per pair.
+        const pairKey = `${noteId}\u0000${ref}`;
+        if (!copresence.has(pairKey)) {
+          const w = endsCopresentWindow(sourceByRef.get(ref).text, { end1: note.end1 ?? note.subject, end2: note.end2 ?? note.object });
+          copresence.set(pairKey, w);
+          if (!w) { skippedNoCopresence += 1; askedPairs.add(pairKey); }
+        }
+        if (!copresence.get(pairKey)) continue;
         if (!best || v.value > best.v.value || (v.value === best.v.value && c.shared > best.c.shared)) {
           best = { note, c, v, ref };
         }
@@ -331,9 +388,12 @@ export async function corroborateLedger(log, door, sources, {
     if (!best) break; // everything reachable is settled, disconfirmed, or spent — the walk's own stop, not the budget's
     asks += 1;
     askedPairs.add(`${best.note.id}\u0000${best.ref}`);
+    const win = copresence.get(`${best.note.id}\u0000${best.ref}`);
     const w = await witnessNote(best.c.sentence, sourceByRef.get(best.ref), {
       ask, testimony,
       ends: { end1: best.note.end1 ?? best.note.subject, end2: best.note.end2 ?? best.note.object },
+      // SLICE CENTERING: read where a stating sentence would have to live.
+      slice: win?.text ?? null,
     });
     if (w.refused) { refusals[w.refused in refusals ? w.refused : "other"] += 1; continue; }
     if (w.verdict === "contradicts") {
@@ -354,5 +414,5 @@ export async function corroborateLedger(log, door, sources, {
     const v = askValue(n, { contradictSources, settleFloor });
     standings[v.reason === "settled" ? "settled" : v.reason === "disconfirmed" ? "disconfirmed" : v.reason === "contested" ? "contested" : "thin"].push(n.id);
   }
-  return { log: next, attested, contradicted, refusals, asks, standings, settleFloor };
+  return { log: next, attested, contradicted, refusals, asks, skippedNoCopresence, standings, settleFloor };
 }

@@ -282,3 +282,41 @@ test("CONTROL: a decider that genuinely keeps the claim's company still lands", 
     { ask: goodDecider, testimony, ends: { end1: "Napoleon", end2: "General Mikhail Kutuzov" } });
   assert.notEqual(w.refused, "decider_unrelated", JSON.stringify(w));
 });
+
+// ── the co-presence prefilter and slice centering (Pass 1) ──────────────
+import { endsCopresentWindow } from "./corroboration.js";
+
+test("endsCopresentWindow: finds the window where both ends' features co-occur, null when they never do", () => {
+  const text = "A long preamble about weather. Marshal Kutuzov faced Napoleon at the river that morning. Unrelated epilogue.";
+  const w = endsCopresentWindow(text, { end1: "Napoleon", end2: "Kutuzov" });
+  assert.ok(w, "both ends co-occur — a window exists");
+  assert.match(w.text, /Kutuzov/);
+  assert.match(w.text, /Napoleon/);
+  assert.equal(endsCopresentWindow(text, { end1: "Napoleon", end2: "Bagration" }), null, "Bagration is nowhere — no window, ever");
+});
+
+test("a structurally hopeless candidate is SKIPPED WITHOUT AN ASK — no model call is spent where the wall could never pass", async () => {
+  // note ends that never co-occur in SOURCE: the walk must not ask.
+  let calls = 0;
+  const counting = async () => { calls += 1; return { answer: "no", because: null }; };
+  let log = door.createHyperlexicon();
+  const r = door.admit(log, [
+    { subject: "Bagration", verb: "commanded", object: "the Danube flotilla", spans: [{ ref: "page-a", at: "page-a#1-9", text: "..." }] },
+  ], { witness: "page-a" });
+  const out = await corroborateLedger(r.log, door, [SOURCE], { ask: counting, testimony, maxAsks: 10 });
+  assert.equal(calls, 0, "no ask spent");
+  assert.equal(out.asks, 0);
+  assert.equal(out.skippedNoCopresence, 1, "and the skip is tallied apart from witness refusals");
+});
+
+test("CONTROL: the prefilter must NOT shield a fabricated-but-copresent claim — the witness still judges it", async () => {
+  // 'Kutuzov commanded the Imperial Russian Army' has co-present ends in
+  // SOURCE, so the prefilter passes it through and the WITNESS is what
+  // refuses or confirms. If the prefilter ever blocks copresent
+  // candidates, recall was bought by hiding the judge.
+  let calls = 0;
+  const counting = async (s, sl) => { calls += 1; return saysYesWithDecider(s, sl); };
+  const out = await corroborateLedger(seed(), door, [SOURCE], { ask: counting, testimony, maxAsks: 10 });
+  assert.ok(calls >= 1, "a copresent candidate reached the witness");
+  assert.ok(out.attested.length >= 1, "and the clean one still lands");
+});
