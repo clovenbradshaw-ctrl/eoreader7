@@ -19,24 +19,47 @@ display and as the kind organ's vocabulary.
 
 The first 60% of each piece is heard; a prior is sedimented from it; the
 held-out 40% arrives one note at a time and the prior is charged its
-surprise BEFORE seeing each note.
+surprise BEFORE seeing each note. One declared floor (the piece's whole
+alphabet) applies to every scorer, single and mixture alike — the first run
+had two different floors and its columns were not comparable; corrected.
 
 | source | prelude (220 held out) | aria (168 held out) |
 |---|---|---|
-| own hearing, order 1 | **3.18** · top-1 28% | 6.80 · top-1 6.5% |
-| own hearing, order 3 (backoff to longest) | 3.42 · top-1 34% | **6.79** |
-| SHUFFLED hearing — the control built to fail | 5.05 · top-1 2% | 7.31 · top-1 0% |
-| own + the other piece's symbols (cross-work) | 4.89 | 6.95 |
+| own hearing, order 1 | **3.39** · top-1 28% | 7.09 · top-1 6.5% |
+| own hearing, order 3 (backoff to longest) | 3.68 · top-1 34% | 7.08 |
+| SHUFFLED hearing — the control built to fail | 5.44 · top-1 2% | 7.63 · top-1 0% |
+| own + the other piece's symbols (cross-work) | 3.74 | **6.98** |
 
-The hearing predicts the rest far better than its own shuffle — 1.6–1.9
-bits per note better, and on the prelude a third of the next notes are
-exactly the prior's most expected. The control fails as it must.
-Cross-work SYMBOLS hurt on both pieces: the other piece's notes are the
-wrong distribution for this piece.
+The hearing predicts the rest far better than its own shuffle — 2.0 bits
+per note better on the prelude, 0.55 on the aria — and on the prelude a
+third of the next notes are exactly the prior's most expected. The control
+fails as it must. Cross-work SYMBOLS hurt the prelude and slightly HELP
+the sparse aria (254 distinct events in 418 notes): the mixture below
+reads exactly that off each stream.
 
-Order 1 beat order 3 on the prelude: backing off to the longest context ever
-heard is overconfident on a piece whose figure recurs with variation. That
-is a fact the next section reads off the stream instead of guessing.
+Order 1 beat order 3 on the prelude: backing off to the longest context
+ever heard is overconfident on a piece whose figure recurs with variation.
+
+## 1b. Melody as intervals — the file's own arithmetic, key-independent
+
+Same experiment with each note's pitch replaced by its DIFFERENCE from the
+previous pitch (duration and gap unchanged). No theory: a subtraction on
+the file's own numbers. `ALPHABET=interval`.
+
+| source | prelude | aria |
+|---|---|---|
+| own hearing, order 3 | **3.55** (exact: 3.68) | 7.27 |
+| own hearing, order 1 | 3.90 (exact: 3.39) | 7.28 |
+| SHUFFLED hearing (control) | 4.76 | 7.57 |
+| own + the other piece's symbols | 3.71 | **7.24** |
+| hearing × record-log shapes | 3.56 | 7.27 |
+
+Intervals help the LONG context on the prelude (3.68 → 3.55) and hurt the
+short one (3.39 → 3.90): a recurring figure is an interval pattern, a
+recurring note is not. The mixture split its weight 0.60 / 0.40 between
+`hearing@3` and `hearing × record shapes` — the instrument's own
+operational log, as a prior over moves, tied the hearing on Bach at this
+alphabet. Kept as measured; not a claim beyond it.
 
 ## 2. Structural analogy — the shape of a stream's moves, from anything
 
@@ -47,24 +70,18 @@ words), from the instrument's own operational record (3,172 events), or
 from the other piece, bears on the hearing's own symbol prior as a product
 of experts.
 
-| shape prior on the hearing | prelude | aria |
+| shape prior on the hearing (exact alphabet) | prelude | aria |
 |---|---|---|
-| none (hearing alone, order 3) | 3.42 | 6.79 |
-| the hearing's own shapes | 3.50 | 6.85 |
-| shapes of the novel | 3.78 | 7.03 |
-| shapes of the record log | 3.48 | 6.85 |
-| shapes of the other piece | 3.68 | 6.89 |
-| shapes of a SHUFFLED novel (control) | 3.84 | 7.05 |
-| everything merged | 3.60 | 6.80 |
+| none (hearing alone, order 3) | 3.68 | 7.08 |
+| shapes of the novel | 3.92 | 7.11 |
+| shapes of the record log | 3.73 | 7.11 |
+| shapes of the other piece | 3.88 | 7.11 |
+| everything merged | 3.88 | 7.11 |
 
-**An honest negative at this grain:** no structural analog reduced the
-surprise on Bach; the closest (the record log's shapes) is a wash, and the
-shuffled novel is the worst — so the shape prior is measuring something
-(order matters to it), but what a novel's word-moves know about how a
-Bach line moves is, at a three-event window over exact
-pitch/duration/gap tokens, nothing useful. Whether a coarser token (pitch
-class only; duration only) or a longer window would let structure cross is
-the next measurement, not a claim.
+**An honest negative at the exact-token grain:** no structural analog
+reduced the surprise on Bach; on the interval alphabet the record log's
+shapes tie the hearing. Whether a coarser token or a longer window lets
+structure cross remains a measurement, not a claim.
 
 ## 3. What actually happens decides — the prequential mixture
 
@@ -74,25 +91,23 @@ piece's shapes; the shuffled control). Each real note charges each expert
 its surprise; weights are 2^(−cumulative bits), renormalised; the mixture
 predicts and generates. Nothing chosen by hand.
 
-- **Prelude:** mixture 3.41 bits/note; the weight went entirely to
-  `hearing@1` (its own surprise 3.39); the lead changed hands
+- **Prelude (exact):** mixture 3.41 — within log2(8)/220 of its best
+  expert (3.39, `hearing@1`, weight 1.000). The lead changed hands
   `hearing@1 → hearing@3 (note 4) → hearing@1 (note 78)` and stayed. The
-  shuffled control ended at weight 0.000 with surprise 5.44.
-- **Aria:** mixture 7.00; the weight went to the CROSS-WORK expert
-  (`+prelude symbols`, 6.98) — the one source the single-source table
-  above said hurt. Read the two together: the aria's alphabet is so sparse
-  (220 distinct events in 418 notes) that the prelude's counts on the few
-  shared tokens were, note by note, slightly less surprising than the
-  aria's own — a fact about THIS stream that no prior choice would have
-  found. The lead changed hands four times.
+  shuffled control ended at weight 0.000 (surprise 5.44).
+- **Aria (exact):** mixture 7.00; the weight went to the CROSS-WORK expert
+  (6.98) — on this sparse piece the prelude's counts on the shared tokens
+  were, note by note, less surprising than the aria's own. A different
+  answer per piece, read off the stream.
+- **Prelude (intervals):** the weight SPLIT, 0.60 `hearing@3` / 0.40
+  `hearing × record shapes`; the lead changed hands eight times.
 
 **A defect this measurement found and fixed:** the first mixture scored
 10.32 on the prelude — worse than every expert, which a mixture cannot be.
-A near-zero mixture mass (the leading expert had never seen the note; the
-others gave it a sliver) was charged at its true value, ~30 bits, while a
-single expert's exact zero was charged at the declared alphabet floor. One
-floor now applies to every scorer. The pinned bound holds: mixture ≤ best
-expert + log2(N)/n.
+A near-zero mixture mass was charged at its true value (~30 bits) while a
+single expert's exact zero was charged at the declared floor. One floor now
+applies to every scorer, and the pinned bound holds: mixture ≤ best expert
++ log2(N)/n (+ the floor's own declared slack).
 
 ## 4. The continuations, judged by the organs that read the original
 
