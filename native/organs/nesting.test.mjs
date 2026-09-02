@@ -5,8 +5,8 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import * as H from "./hyperlexicon.js";
 import * as TL from "../eoreader7/native/kernel/task-log.js";
-import { distinctSources, distinctRecipes } from "./corroboration.js";
-import { claimRef, isClaimRef, innerId, depthOf, attributionsOf, corroborationOf, leakCheck, disagreement } from "./nesting.js";
+import { distinctSources, distinctRecipes } from "../eoreader7/native/organs/index.js";
+import { claimRef, isClaimRef, innerId, depthOf, attributionsOf, corroborationOf, leakCheck, disagreement } from "../eoreader7/native/organs/index.js";
 
 const INNER = H.assertionId("napoleon", "fought", "kutuzov");
 const hl = H.makeHyperlexicon(TL);
