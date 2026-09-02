@@ -43,7 +43,7 @@ import { arrangementsFrom } from "../../organs/event-arrangements.js";
 import { discoverCompanyKinds } from "../../organs/kind-standing.js";
 
 const HERE = new URL(".", import.meta.url).pathname;
-const OUT = `${HERE}results/midi`;
+const OUT = `${HERE}results/midi${process.env.ALPHABET === "interval" ? "-interval" : ""}`;
 fs.mkdirSync(OUT, { recursive: true });
 const PIECES = ["wtk1-prelude1", "bwv-988-aria"];
 // declared, every one, before the run
@@ -52,17 +52,23 @@ const ORDER = Number(process.env.ORDER ?? 3);
 const CONTINUE = Number(process.env.CONTINUE ?? 64);
 const SEED = Number(process.env.SEED ?? 11);
 const KIND_FLOORS = { minMentions: 8, minShare: 0.5, minMembers: 1, clean: (t) => t, nullArm: { draws: 100, seed: 0, alpha: 0.05 } };
+// ALPHABET (declared): "exact" = pitch/dur/gap as the file states them;
+// "interval" = the DIFFERENCE from the previous pitch (the file's own
+// arithmetic, no theory — and key-independent, so one piece's experience
+// can bear on another's), with duration and gap as before. User direction,
+// 2026-09-02: "the ability to understand melody will unlock so much."
+const ALPHABET = process.env.ALPHABET ?? "exact";
 
 const say = (s) => console.log(s);
-say(`midi continuation — split ${SPLIT}, order ${ORDER}, continue ${CONTINUE} notes, seed ${SEED}, no theory\n`);
+say(`midi continuation — split ${SPLIT}, order ${ORDER}, continue ${CONTINUE} notes, seed ${SEED}, alphabet ${ALPHABET}, no theory\n`);
 
 function tokensOf(notes) {
-  // pitch / duration ticks / gap-to-next-onset ticks — the file's own numbers
-  return notes.map((n, i) => `${n.pitch}/${n.dur}/${i + 1 < notes.length ? notes[i + 1].tick - n.tick : 0}`);
+  // pitch (or interval from the previous pitch) / duration ticks / gap-to-next-onset ticks — the file's own numbers
+  return notes.map((n, i) => `${ALPHABET === "interval" ? (i ? n.pitch - notes[i - 1].pitch : 0) : n.pitch}/${n.dur}/${i + 1 < notes.length ? notes[i + 1].tick - n.tick : 0}`);
 }
-function notesFromTokens(tokens, startTick) {
-  let tick = startTick;
-  return tokens.map((t) => { const [pitch, dur, gap] = t.split("/").map(Number); const n = { tick, dur, pitch, velocity: 80 }; tick += gap; return n; });
+function notesFromTokens(tokens, startTick, startPitch = 60) {
+  let tick = startTick, last = startPitch;
+  return tokens.map((t) => { const [p, dur, gap] = t.split("/").map(Number); const pitch = ALPHABET === "interval" ? Math.max(0, Math.min(127, last + p)) : p; const n = { tick, dur, pitch, velocity: 80 }; tick += gap; last = pitch; return n; });
 }
 function phrasesOf(notes, ticksPerBeat) {
   // a phrase for the kind organ = the notes within one span of 4 beats of the
@@ -110,17 +116,18 @@ for (const name of PIECES) {
 
   say(`── ${name} ──`);
   say(`1. PREQUENTIAL on the ${P.held.length} held-out notes (bits per note, lower is better; top-1 = the prior's most-expected note was the actual one)`);
-  const rows = [["own hearing, order " + ORDER, scorePrequential(own, P.held)], ["own hearing, order 1", scorePrequential(alphabetOnly, P.held)], ["SHUFFLED hearing (control)", scorePrequential(ctrl, P.held)], [`own + ${other} (cross-work)`, scorePrequential(cross, P.held)]];
+  const A = { alphabetSize: new Set(P.tokens).size }; // ONE floor for every scorer in this piece, single and mixture alike
+  const rows = [["own hearing, order " + ORDER, scorePrequential(own, P.held, A)], ["own hearing, order 1", scorePrequential(alphabetOnly, P.held, A)], ["SHUFFLED hearing (control)", scorePrequential(ctrl, P.held, A)], [`own + ${other} (cross-work)`, scorePrequential(cross, P.held, A)]];
   for (const [label, s] of rows) say(`   ${label.padEnd(34)} ${s.bitsPerEvent.toFixed(2).padStart(6)} bits/note  top-1 ${(100 * s.top1).toFixed(1).padStart(5)}%  unseen ${s.unseen}  answered at grain ${JSON.stringify(s.grainsAnswered)}`);
   // STRUCTURAL ANALOGY: shape priors from other media bearing on the hearing's own symbol prior
   const shapeRows = [];
   const shapeSelf = shapeFrom(`${name}:heard`, P.heard);
-  shapeRows.push(["own hearing's shapes", scorePrequentialWithShape(own, shapeSelf, P.held)]);
-  for (const [k, ev] of Object.entries(analogs)) shapeRows.push([`shapes of ${k}`, scorePrequentialWithShape(own, shapeFrom(k, ev), P.held)]);
-  shapeRows.push([`shapes of ${other} (music)`, scorePrequentialWithShape(own, shapeFrom(other, pieces[other].tokens), P.held)]);
-  if (analogs.novel) shapeRows.push(["shapes of SHUFFLED novel (control)", scorePrequentialWithShape(own, shapeFrom("novel-shuffled", shuffled(analogs.novel, lcg(SEED + 3))), P.held)]);
+  shapeRows.push(["own hearing's shapes", scorePrequentialWithShape(own, shapeSelf, P.held, A)]);
+  for (const [k, ev] of Object.entries(analogs)) shapeRows.push([`shapes of ${k}`, scorePrequentialWithShape(own, shapeFrom(k, ev), P.held, A)]);
+  shapeRows.push([`shapes of ${other} (music)`, scorePrequentialWithShape(own, shapeFrom(other, pieces[other].tokens), P.held, A)]);
+  if (analogs.novel) shapeRows.push(["shapes of SHUFFLED novel (control)", scorePrequentialWithShape(own, shapeFrom("novel-shuffled", shuffled(analogs.novel, lcg(SEED + 3))), P.held, A)]);
   const everything = mergeShapePriors([shapeSelf, ...Object.entries(analogs).map(([k, ev]) => shapeFrom(k, ev)), shapeFrom(other, pieces[other].tokens)], { giver: "all analogs" });
-  shapeRows.push(["shapes of EVERYTHING merged", scorePrequentialWithShape(own, everything, P.held)]);
+  shapeRows.push(["shapes of EVERYTHING merged", scorePrequentialWithShape(own, everything, P.held, A)]);
   say(`   structural analogy — the same hearing, reweighted by how OTHER streams move:`);
   for (const [label, s] of shapeRows) say(`   ${label.padEnd(34)} ${s.bitsPerEvent.toFixed(2).padStart(6)} bits/note  top-1 ${(100 * s.top1).toFixed(1).padStart(5)}%`);
   // 4. WHAT ACTUALLY HAPPENS DECIDES — every source as an expert, weighted by
@@ -160,14 +167,14 @@ for (const name of PIECES) {
   const lastHeard = P.r.notes[P.cut - 1];
   const startTick = lastHeard.tick + (Number(P.heard[P.cut - 1].split("/")[2]) || lastHeard.dur);
   const heardNotes = P.r.notes.slice(0, P.cut).map((n) => ({ tick: n.tick, dur: n.dur, pitch: n.pitch, velocity: n.velocity }));
-  const genNotes = notesFromTokens(gen.generated.map((g) => g.event), startTick);
-  const ctrlNotes = notesFromTokens(genCtrl.generated.map((g) => g.event), startTick);
+  const genNotes = notesFromTokens(gen.generated.map((g) => g.event), startTick, lastHeard.pitch);
+  const ctrlNotes = notesFromTokens(genCtrl.generated.map((g) => g.event), startTick, lastHeard.pitch);
   fs.writeFileSync(`${OUT}/${name}-original.mid`, writeMidi(P.r.notes, { ticksPerBeat: P.r.ticksPerBeat, tempo: P.r.tempo }));
   fs.writeFileSync(`${OUT}/${name}-heard-then-continued.mid`, writeMidi([...heardNotes, ...genNotes], { ticksPerBeat: P.r.ticksPerBeat, tempo: P.r.tempo }));
   fs.writeFileSync(`${OUT}/${name}-heard-then-shuffled-control.mid`, writeMidi([...heardNotes, ...ctrlNotes], { ticksPerBeat: P.r.ticksPerBeat, tempo: P.r.tempo }));
-  const mixNotes = notesFromTokens(genMix.generated.map((g) => g.event), startTick);
+  const mixNotes = notesFromTokens(genMix.generated.map((g) => g.event), startTick, lastHeard.pitch);
   fs.writeFileSync(`${OUT}/${name}-heard-then-continued-by-mixture.mid`, writeMidi([...heardNotes, ...mixNotes], { ticksPerBeat: P.r.ticksPerBeat, tempo: P.r.tempo }));
-  const analogNotes = notesFromTokens(genAnalog.generated.map((g) => g.event), startTick);
+  const analogNotes = notesFromTokens(genAnalog.generated.map((g) => g.event), startTick, lastHeard.pitch);
   fs.writeFileSync(`${OUT}/${name}-heard-then-continued-with-analogy.mid`, writeMidi([...heardNotes, ...analogNotes], { ticksPerBeat: P.r.ticksPerBeat, tempo: P.r.tempo }));
   const analogShapes = genAnalog.generated.reduce((m, g) => (m[g.shape] = (m[g.shape] ?? 0) + 1, m), {});
   say(`   with structural analogy (all analogs merged): moves drawn ${JSON.stringify(analogShapes)} → results/midi/${name}-heard-then-continued-with-analogy.mid`);
