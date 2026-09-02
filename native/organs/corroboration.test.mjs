@@ -370,3 +370,128 @@ test("CON·Pattern: a contradiction lands in the contests structure with BOTH si
     assert.ok(c.stating.length >= 1 && c.contradicting.length >= 1, "both sides of the contest are data");
   }
 });
+
+// ── the SELECT path: activate, then point (never generate) ──────────────
+import { buildSelectMessages, foldSelect } from "./testimony.js";
+const selectTestimony = { witnessSlice, siblingSwap, foldTestimony, buildSelectMessages, foldSelect };
+// a real, tiny sentence splitter for the tests (period/!/? boundaries),
+// carrying each sentence's own offset — the engine's own {text, offset}
+// shape, so the candidate's address is carried forward from the cut (P5.2)
+const splitSentences = (t) => {
+  const out = []; let at = 0;
+  for (const part of String(t).split(/(?<=[.!?])\s+/).filter(Boolean)) {
+    const idx = t.indexOf(part, at);
+    out.push({ text: part, offset: idx });
+    at = idx + part.length;
+  }
+  return out;
+};
+
+test("foldSelect: a valid pick returns the candidate VERBATIM; an out-of-range or no-pick refuses", () => {
+  const cands = ["Napoleon faced Kutuzov at the river.", "The weather was cold."];
+  assert.deepEqual(foldSelect({ stated: "yes", sentence: 1 }, cands), { verdict: "states", because: "Napoleon faced Kutuzov at the river.", index: 1 });
+  assert.equal(foldSelect({ stated: "yes", sentence: 9 }, cands).refused, "no-valid-pick");
+  assert.equal(foldSelect({ stated: "no", sentence: 0 }, cands).refused, "no-testimony");
+  assert.equal(foldSelect("not json", cands).refused, "unreadable");
+});
+
+test("SELECT PATH: the decider is a real source sentence BY CONSTRUCTION — the echo mode cannot occur", async () => {
+  const src = { ref: "novel", text: "A preamble. Napoleon faced General Mikhail Kutuzov across the field that day. An epilogue about the weather." };
+  // a scripted selector that points at the (only) both-ends sentence
+  const selectAsk = async () => ({ stated: "yes", sentence: 1 });
+  const w = await witnessNote("Napoleon fought against General Mikhail Kutuzov", src,
+    { ask: saysNo, selectAsk, testimony: selectTestimony, splitSentences,
+      ends: { end1: "Napoleon", end2: "General Mikhail Kutuzov" } });
+  assert.equal(w.verdict, "states");
+  assert.equal(w.via, "select");
+  assert.match(w.because, /Napoleon faced General Mikhail Kutuzov/);
+  assert.ok(src.text.includes(w.because), "the decider is literally in the source — containment by construction");
+  assert.match(w.span.at, /^novel#\d+-\d+$/);
+  const [a, b] = w.span.at.slice("novel#".length).split("-").map(Number);
+  assert.equal(src.text.slice(a, b), w.because, "the carried address names exactly the decider's own bytes");
+});
+
+test("SELECT CONTROL, built to fail: a selector that picks a NON-EXISTENT index is refused, never fabricated", async () => {
+  const src = { ref: "novel", text: "Napoleon faced Kutuzov at the river." };
+  const selectAsk = async () => ({ stated: "yes", sentence: 7 }); // no such candidate
+  const w = await witnessNote("Napoleon fought against Kutuzov", src,
+    { ask: saysNo, selectAsk, testimony: selectTestimony, splitSentences,
+      ends: { end1: "Napoleon", end2: "Kutuzov" } });
+  assert.equal(w.refused, "no-valid-pick");
+  assert.equal(w.via, "select");
+});
+
+test("a select refusal does NOT silently retry the wanderable generate path on the same slice", async () => {
+  const src = { ref: "novel", text: "Napoleon faced Kutuzov at the river." };
+  let generateCalls = 0;
+  const ask = async () => { generateCalls += 1; return { answer: "yes", because: "Napoleon fought against Kutuzov" }; };
+  const selectAsk = async () => ({ stated: "no", sentence: 0 });
+  const w = await witnessNote("Napoleon fought against Kutuzov", src,
+    { ask, selectAsk, testimony: selectTestimony, splitSentences,
+      ends: { end1: "Napoleon", end2: "Kutuzov" } });
+  assert.equal(w.refused, "no-testimony");
+  assert.equal(generateCalls, 0, "select engaged, so generate was never called");
+});
+
+test("no segmenter or no selectAsk: the generate path runs unchanged (opt-in, byte-compatible)", async () => {
+  const out = await corroborateLedger(seed(), door, [SOURCE], { ask: saysYesWithDecider, testimony, maxAsks: 10 });
+  assert.equal(out.attested.length, 1, "generate path still lands its clean vote when select is not wired");
+});
+
+// ── statingCandidates (Pass 1/5, the select gatherer) ────────────────────
+import { statingCandidates } from "./corroboration.js";
+// an offset-carrying splitter, the engine's own shape ({text, offset})
+const splitWithOffsets = (t) => {
+  const out = []; let at = 0;
+  for (const part of String(t).split(/(?<=[.!?])\s+/)) {
+    const idx = t.indexOf(part, at);
+    out.push({ text: part, offset: idx });
+    at = idx + part.length;
+  }
+  return out;
+};
+
+test("statingCandidates gathers both-ends sentences across the WHOLE source, density-ranked, declared limit, OFFSETS CARRIED FROM THE CUT", () => {
+  const src = "Alpha alone here. Napoleon met Kutuzov at the ford and again Napoleon pressed Kutuzov hard. Kutuzov alone. Napoleon and Kutuzov spoke once.";
+  assert.throws(() => statingCandidates(src, { end1: "Napoleon", end2: "Kutuzov" }, { splitSentences: splitWithOffsets }), /declared by the caller/);
+  const got = statingCandidates(src, { end1: "Napoleon", end2: "Kutuzov" }, { splitSentences: splitWithOffsets, limit: 5 });
+  assert.equal(got.length, 2, "only the two both-ends sentences");
+  assert.match(got[0].shown, /again Napoleon pressed Kutuzov hard/, "the denser sentence ranks first");
+  // P5.2, the user's own correction ("can't we find it by knowing what we
+  // prompted it with?"): the address is CARRIED FORWARD from the cut, never
+  // searched for afterwards — the candidate knows where it came from.
+  assert.equal(src.slice(got[0].start, got[0].end), got[0].raw, "the carried span names exactly the sentence's own bytes");
+});
+
+test("the generic-title gate is SOURCE-MEASURED, no hand-list: a word that also lives lowercase is generic", () => {
+  // "general" lives lowercase in this source ("the general said"), so it is
+  // generic and must not activate candidates by itself; "Kutuzov" never
+  // lives lowercase, so it is the distinctive token that carries end2.
+  const src = "The general said nothing that day. Napoleon praised the plan loudly. General Kutuzov met Napoleon at the ford. A general rode past the line. The general slept.";
+  const got = statingCandidates(src, { end1: "Napoleon", end2: "General Kutuzov" }, { splitSentences: splitWithOffsets, limit: 8 });
+  assert.equal(got.length, 1, "only the sentence with BOTH real referents");
+  assert.match(got[0].shown, /General Kutúzov met Napoleon|General Kutuzov met Napoleon/);
+});
+
+// ── the BECOMING map: runnable referents of what an organ is trying to be ──
+//
+// A `BECOMING` test names the TARGET CAPABILITY as a runnable predicate —
+// the referent of what the organ is trying to become, not what it is and
+// not prose about what we think it should be. `todo: true` means it runs,
+// reports, and its failure does not fail the suite; the day the organ
+// becomes it, the todo flag comes off and the referent is inhabited.
+// Grep `BECOMING` across the repo's tests to read the whole aspiration map.
+
+test("BECOMING heard-clean: the generic gate must survive a case-stripped (heard-only) source", { todo: true }, () => {
+  // THE HEARD RULE (user, 2026-09-01, verbatim): "the system must be able
+  // to work equally well if it only heard the novel and didn't read it."
+  // The shipped gate decides on capitalization — a SCRIPT-stratum signal a
+  // listener does not have. On the same source with case stripped (what the
+  // ear gets), the gate must still separate the title from the name — the
+  // hearable signal is determiner precedence ("the general said" vs never
+  // "the kutuzov"), a received closed class with a giver, unbuilt here.
+  const heard = "the general said nothing that day. napoleon praised the plan loudly. general kutuzov met napoleon at the ford. a general rode past the line. the general slept. napoleon wrote to kutuzov."
+  const got = statingCandidates(heard, { end1: "napoleon", end2: "general kutuzov" }, { splitSentences: splitWithOffsets, limit: 8 });
+  assert.ok(got.length >= 1, "heard-only input still yields candidates");
+  assert.ok(got.every((c) => c.shown.includes("kutuzov")), "every candidate carries the real referent, not the title");
+});

@@ -150,6 +150,113 @@ const foldMarks = (t) => String(t ?? "").normalize("NFD").replace(/[\u0300-\u036
 const textFeatures = (t) => new Set(foldMarks(String(t ?? "").toLowerCase()).match(TEXT_CONTENT_WORD) ?? []);
 
 /**
+ * The activated candidate set for the SELECT protocol: real sentences from
+ * ANYWHERE in the source where BOTH ends fire, ranked by joint feature
+ * density, capped. This is the correction the first live select run
+ * exposed — the earlier code gathered from one co-presence WINDOW (a
+ * single keyword's neighbourhood, which centres on a lone end), while the
+ * select protocol wants the SET of stating places across the whole source.
+ * The window stays the generate path's slice (one place to read); the set
+ * is the select path's candidates (every place that could state it).
+ */
+export function statingCandidates(sourceText, ends, { featuresOf = textFeatures, splitSentences, limit, minLen = 12, maxLen = 400 } = {}) {
+  if (typeof splitSentences !== "function") throw new TypeError("statingCandidates: splitSentences is injected (the engine's own segmenter) — required");
+  if (!Number.isFinite(limit)) throw new TypeError("statingCandidates: limit is declared by the caller (P9)");
+  const src = String(sourceText ?? "");
+  const f1all = [...featuresOf(ends?.end1)], f2all = [...featuresOf(ends?.end2)];
+  if (!f1all.length || !f2all.length) return [];
+  // PROPER ACTIVATION (user, 2026-09-01: "never trust the model on content,
+  // but it's pretty good with meaning if you give it proper activation
+  // context"). The generic word is the trap: "General" is a feature of end2's
+  // own surface ("General Mikhail Kutuzov"), and it fired 6 of 8 candidates
+  // on sentences about OTHER generals — the model then judged garbage.
+  //
+  // STRATUM: S1-script, BECOMING heard-clean (LEVELS.md; the todo test in
+  // corroboration.test.mjs is the referent). This gate decides on
+  // capitalization — a reader's signal a listener does not have — and so
+  // sits below the heard rule's bar ("the system must be able to work
+  // equally well if it only heard the novel and didn't read it"). Shipped
+  // anyway, declared rather than silent: the S2 form is determiner
+  // precedence ("the general" is said; "the Kutuzov" is not), a received
+  // closed class, unbuilt.
+  //
+  // HOW A BABY LEARNS THIS (user, same session), and no hand-list: a title
+  // is a word you ALSO hear as a common noun — "the general said" — while a
+  // name never lives lowercase. Measured in this novel: general 424
+  // lowercase / prince 349 / count 439, but kutuzov 0, napoleon 0,
+  // bagration 0, pierre 0. Rarity cannot separate them (kutuzov 529 vs
+  // general 657 — a protagonist is not rare); the lowercase life can. A
+  // feature is generic when it recurs lowercase in the source past a
+  // declared ratio of its capitalized uses — the same signal title-fold.js
+  // already uses, measured here against the source rather than received as
+  // a list. An end whose only features are generic keeps them (a disclosed
+  // floor); its name's distinctive tokens carry the activation.
+  // Both counts run on the ORIGINAL-CASE source (diacritics folded only),
+  // so "lowercase" means genuinely lowercase — the first cut counted on an
+  // already-lowercased copy and every Name read as 508 "lowercase" uses, a
+  // measurement bug that emptied the set. Word-bounded, capped.
+  const rawSrc = foldMarks(src);
+  const countBounded = (w) => { let n = 0; const re = new RegExp(`(?<![\\p{L}])${w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?![\\p{L}])`, "gu"); while (re.exec(rawSrc)) { n++; if (n > 99999) break; } return n; };
+  const isGeneric = (w) => {
+    const lc = countBounded(w.toLowerCase());                 // genuinely lowercase life
+    const cap = countBounded(w[0].toUpperCase() + w.slice(1)); // Name life
+    return lc >= Math.max(2, cap); // lives lowercase as often as (or more than) as a Name
+  };
+  const distinctive = (feats) => {
+    const kept = feats.filter((w) => !isGeneric(w));
+    return kept.length ? kept : feats;
+  };
+  const f1 = distinctive(f1all), f2 = distinctive(f2all);
+  let sents = [];
+  try { sents = splitSentences(src); } catch { return []; }
+  // COORDINATE SPACES, NEVER MIXED SILENTLY (the b0/c0 law, met live): the
+  // engine's splitter collapses \r\n to \n BEFORE computing offsets, so on
+  // a CRLF source (Gutenberg's 66k of them in War and Peace) its offsets
+  // name the normalized text, not the file. Each \r\n before a normalized
+  // position costs exactly one raw char, so the map back is a count of
+  // preceding CRLFs. P5.2 makes the verification mandatory either way: a
+  // span ships only when the mapped slice re-normalizes to the sentence
+  // the splitter cut; otherwise the address is null, never guessed.
+  const crlf = [];
+  for (let i = src.indexOf("\r\n"); i >= 0; i = src.indexOf("\r\n", i + 2)) crlf.push(i);
+  const toRaw = (n) => {
+    // count CRLFs whose normalized position (rawIdx - rank) is < n
+    let lo = 0, hi = crlf.length;
+    while (lo < hi) { const mid = (lo + hi) >> 1; if (crlf[mid] - mid < n) lo = mid + 1; else hi = mid; }
+    return n + lo;
+  };
+  const normEq = (a, b) => a.replace(/\r\n/g, "\n") === b;
+  const scored = [];
+  for (const sent of sents) {
+    // CARRY THE ADDRESS FORWARD FROM THE CUT (P5.2), never search for it
+    // later: the segmenter already gives each sentence its own byte offset,
+    // so a candidate knows exactly where in the source it came from. `shown`
+    // is the whitespace-normalized form the model reads; `raw`/`start`/`end`
+    // are the sentence's own bytes and span, so the model's pick resolves to
+    // a real address with no regex and no wrong-occurrence risk.
+    const raw = typeof sent === "string" ? sent : sent?.text ?? "";
+    const offset = typeof sent === "object" && Number.isFinite(sent?.offset) ? sent.offset : null;
+    const shown = raw.replace(/\s+/g, " ").trim();
+    if (shown.length < minLen || shown.length > maxLen) continue;
+    const g = foldMarks(shown.toLowerCase());
+    const h1 = f1.filter((w) => g.includes(w)).length;
+    const h2 = f2.filter((w) => g.includes(w)).length;
+    if (h1 > 0 && h2 > 0) {
+      let start = null, end = null, rawBytes = raw;
+      if (offset != null) {
+        const a = toRaw(offset), b = toRaw(offset + raw.length);
+        const slice = src.slice(a, b);
+        if (normEq(slice, raw)) { start = a; end = b; rawBytes = slice; } // verified: the file's own bytes
+        else if (src.slice(offset, offset + raw.length) === raw) { start = offset; end = offset + raw.length; } // splitter did not normalize
+        // else: unverifiable — span stays null, never guessed (P5.2)
+      }
+      scored.push({ shown, raw: rawBytes, start, end, density: h1 + h2 });
+    }
+  }
+  return scored.sort((a, b) => b.density - a.density).slice(0, limit);
+}
+
+/**
  * REC·Figure at the fifth turn — ACT on a contradiction (or a thin
  * standing) by finding WHERE a further independent vote could come from.
  * Lamport made mechanical: at n=2 a disagreement is visible but not
@@ -311,13 +418,49 @@ export function endsCopresentWindow(sourceText, ends, { featuresOf = textFeature
  * ask -> foldTestimony. Returns the derived verdict with the decider's own
  * address in the source, or the typed refusal — never a bare boolean.
  */
-export async function witnessNote(sentence, source, { ask, testimony, ends = null, slice: sliceOverride = null } = {}) {
-  const { witnessSlice, siblingSwap, foldTestimony } = testimony ?? {};
+export async function witnessNote(sentence, source, { ask, selectAsk = null, testimony, ends = null, slice: sliceOverride = null, splitSentences = null } = {}) {
+  const { witnessSlice, siblingSwap, foldTestimony, buildSelectMessages, foldSelect } = testimony ?? {};
   if (typeof ask !== "function" || !witnessSlice || !siblingSwap || !foldTestimony)
     throw new TypeError("witnessNote: ask and the testimony organs are injected — required, never defaulted");
   const target = { kind: "name", text: sentence, sentence };
   const slice = sliceOverride ?? witnessSlice(target, source.text);
   if (!slice) return { refused: "no-slice" };
+
+  // SELECT PATH (preferred when a segmenter is injected): activate the
+  // slice into its own sentences, keep only those where BOTH ends fire,
+  // and have the model POINT at one. The decider is verbatim by
+  // construction, so the decider-company wall below is satisfied
+  // structurally and the echo failure mode cannot occur. Falls through to
+  // the generate path when there is no segmenter, no select organ, or no
+  // co-present candidate to offer.
+  if (splitSentences && selectAsk && buildSelectMessages && foldSelect && ends) {
+    // Candidates across the WHOLE source, not the centred window — the
+    // select set wants every place that could state the claim (see
+    // statingCandidates' own header for why the window was the wrong
+    // grain here). Feature fold is the module's own textFeatures, so
+    // Kutúzov reaches a Kutuzov claim.
+    const cands = statingCandidates(source.text, ends, { splitSentences, limit: 8 });
+    if (cands.length) {
+      const picked = foldSelect(await selectAsk(buildSelectMessages(sentence, cands.map((c) => c.shown))), cands.map((c) => c.shown));
+      if (picked.verdict === "states") {
+        // The pick's address is the one CARRIED FORWARD from its cut — no
+        // search. The decider shown is the source's own bytes (`raw`, line
+        // breaks and all); the span is the sentence's own offset. When the
+        // segmenter gave no offset, the address is honestly null rather
+        // than guessed.
+        const chosen = cands[picked.index - 1];
+        return {
+          verdict: "states",
+          because: chosen.raw,
+          via: "select",
+          span: chosen.start == null ? null : { ref: source.ref, at: `${source.ref}#${chosen.start}-${chosen.end}`, text: chosen.raw },
+        };
+      }
+      // a select refusal is a real "no from the activated set" — return it,
+      // don't silently retry the wanderable generate path on the same slice
+      return { refused: picked.refused ?? "no-testimony", via: "select" };
+    }
+  }
   const real = await ask(sentence, slice);
   const swapped = real ? siblingSwap(sentence, slice, { hint: real.because ?? "" }) : null;
   const arm = swapped ? await ask(swapped, slice) : null;
@@ -385,7 +528,7 @@ export async function witnessNote(sentence, source, { ask, testimony, ends = nul
  * `door` is the makeHyperlexicon bundle; `log` is threaded, never mutated.
  */
 export async function corroborateLedger(log, door, sources, {
-  ask, testimony, maxAsks, limitPerSource, featuresOfSource, featuresOfNote, render,
+  ask, selectAsk = null, testimony, maxAsks, limitPerSource, featuresOfSource, featuresOfNote, render, splitSentences = null,
   // The walk's boundary. Giver: the ledger's own >=2-witness mouth — the
   // quantity this module exists to feed — never a tuned number.
   settleFloor = 2,
@@ -454,6 +597,10 @@ export async function corroborateLedger(log, door, sources, {
       ends: { end1: best.note.end1 ?? best.note.subject, end2: best.note.end2 ?? best.note.object },
       // SLICE CENTERING: read where a stating sentence would have to live.
       slice: win?.text ?? null,
+      // ACTIVATION: when a segmenter AND a selectAsk are present,
+      // witnessNote prefers the select protocol over the centered slice —
+      // point, never generate.
+      selectAsk, splitSentences,
     });
     if (w.refused) { refusals[w.refused in refusals ? w.refused : "other"] += 1; continue; }
     if (w.verdict === "contradicts") {
