@@ -6,7 +6,7 @@
 // unmodified, §VIII.2 earns its point.
 import test from "node:test";
 import assert from "node:assert/strict";
-import { declareFrame, framed, comparable, REFUSALS } from "./frame.js";
+import { declareFrame, framed, comparable, FRAME_REFUSALS as REFUSALS } from "../eoreader7/native/organs/index.js";
 import { makeRelationReader } from "./hypergraph.js";
 
 test("the declaration gate: nothing defaulted, refusals name exactly what is missing (the NUL·Ground sibling's grammar)", async () => {
