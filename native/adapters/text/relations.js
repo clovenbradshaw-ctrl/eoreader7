@@ -78,6 +78,7 @@
 import { diaNorm } from "./surfaces.js";
 import {
   CLAUSE_OPENERS,
+  CLAUSE_COORDINATORS,
   NEGATION_WORDS, THIRD_PERSON_SINGULAR,
   AUXILIARY_VERBS, DEFINITE_DETERMINERS, INDEFINITE_DETERMINERS,
   POSSESSIVE_DETERMINERS, NP_COORDINATORS,
@@ -729,14 +730,27 @@ export const extractRelations = (text, { verbs, limit = Infinity, functionWords 
     // NP-expansion (further down) walks backward from where the SURVIVING
     // subject text actually begins, never from the raw (pre-strip) start.
     let subjectStart = m.index;
-    if (functionWords && functionWords.size) {
+    // The strip fires on the caller's MEASURED function-word class when one
+    // was supplied, and ALWAYS on the received closed classes (clause
+    // coordinators and clause openers — priors.js, giver lang/en).
+    // Measured 2026-09-02 on a real two-page ledger: the measured class is
+    // null below the corpus floor, so "and it" / "but he" / "after Smolensk"
+    // shipped as subjects in 55 of 83 notes. A received class needs no
+    // corpus to exist. A trailing clause OPENER on a two-token subject is
+    // a relative clause's first word, not the subject's ("battle that was
+    // part of…" → "battle"), and is dropped the same way.
+    const leadingStrip = (w) => (functionWords?.has(w)) || CLAUSE_COORDINATORS.has(w) || CLAUSE_OPENERS.has(w); // determiners stay behind the MEASURED class: "the King" is a subject a caller without one keeps whole (pinned below)
+    {
       const subjTokens = subject.split(/\s+/);
       if (
         subjTokens.length === 2 &&
-        functionWords.has(subjTokens[0].toLowerCase()) &&
+        leadingStrip(subjTokens[0].toLowerCase()) &&
         !negationWords.has(subjTokens[1].toLowerCase()) &&
         !(subjTokens[0].toLowerCase() in THIRD_PERSON_SINGULAR)
       ) { subjectStart = m.index + m[1].lastIndexOf(subjTokens[1]); subject = subjTokens[1]; }
+      else if (subjTokens.length === 2 && CLAUSE_OPENERS.has(subjTokens[1].toLowerCase()) && !negationWords.has(subjTokens[0].toLowerCase())) {
+        subject = subjTokens[0];
+      }
     }
     // DR5: the aux/negation chain MATCHER absorbed (empty string when
     // `phrasalPredicates` is off, or none was present) rides ahead of the
