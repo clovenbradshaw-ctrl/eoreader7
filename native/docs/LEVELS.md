@@ -115,3 +115,43 @@ design exists.
    design is: the todo test is replaced by a test pinning the measured
    refutation, and the refused list gets a line. An aspiration is not
    exempt from II.23.
+
+---
+
+## Amendment (2026-09-01, same day): the first becoming inhabited — and not by its named design
+
+`BECOMING heard-clean` was written naming determiner precedence (a
+received closed class) as the expected S2 form. It was inhabited the
+same session by something stronger, at the user's own direction: *"that
+there are words that sometimes have 'a' in front of it shouldn't be a
+hard written rule, it should be a discovered kind, and that kind can be
+addressable, and we can have a name for it in the hyperlexicon."*
+
+`kind-standing.js::discoverCompanyKinds` discovers the kinds from the
+heard stream itself — words grouped by the dominant `before=` feature of
+their own company, floors declared, nothing taught, the kind NAMED BY
+ITS OWN SIGNATURE (`kind:before=the`), with an II.23 shuffle control
+that dissolves every kind when company is destroyed (and which caught a
+chance kind at exactly the share floor on its first run). `frameWords`
+is the one structural consumption: a kind signed by a WORD is a frame; a
+kind signed by POSITION (`^` — the absence of a preceding word, not a
+word of any language) is not. Measured live on War and Peace's heard
+stream: `kind:before=the` = general, count, emperor, colonel, captain;
+`kind:before=^` = kutuzov, napoleon, pierre, rostov, denisov. The
+third-source vote re-ran through the discovered gate end to end and
+landed identically.
+
+This confirms the convention's design bet in its first use: **a becoming
+names a capability, never an implementation** (rule 3) — the todo test
+did not have to be rewritten when a better design inhabited it, only
+injected differently. And it adds the addressability rung: a discovered
+kind lands in the hyperlexicon as an ordinary note
+(`general|keeps-company|kind:before=the`), witnesses UNIONED across the
+sources that independently discover it — so kind membership is itself a
+corroboratable claim, riding the same door facts ride, and a future
+organ consults the address instead of re-deriving the measurement.
+
+One measured refusal from the same pass, kept so it is not retried:
+cross-kind precedence ("titles front many different names") reads 0.6%
+at any practical sample of the name kind, because a title fronts
+hundreds of names — unusable as a gate.
