@@ -5,10 +5,10 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { bind, REFUSALS } from "./binding-core.js";
+import { bind, BINDING_CORE_REFUSALS as REFUSALS } from "../eoreader7/native/organs/index.js";
 import { makeReferentIndex } from "./cast.js";
 import { makeRelationReader } from "./hypergraph.js";
-import { foldSelect, buildSelectMessages } from "./testimony.js";
+import { foldSelect, buildSelectMessages } from "../eoreader7/native/organs/index.js";
 
 const N = "../eoreader7/native/adapters/text/";
 async function organs() {
@@ -150,6 +150,6 @@ test("THE VERDICT: one core file, three domains, zero core edits between them", 
   // future domain needs more than that, it edits binding-core.js — and this
   // file's history is where §VIII.1 then loses its point.
   const src = readFileSync("binding-transfer.test.mjs", "utf8");
-  assert.equal((src.match(/from "\.\/binding-core\.js"/g) ?? []).length, 1, "one import of one core");
-  assert.ok(!/bind\s*=\s*/.test(src.replace('import { bind, REFUSALS }', "")), "the core is never reassigned or wrapped");
+  assert.equal((src.match(/import \{ bind, BINDING_CORE_REFUSALS as REFUSALS \} from "\.\.\/eoreader7\/native\/organs\/index\.js"/g) ?? []).length, 1, "one import of one core — through the seam");
+  assert.ok(!/bind\s*=\s*/.test(src.replace('import { bind, BINDING_CORE_REFUSALS as REFUSALS }', "")), "the core is never reassigned or wrapped");
 });
