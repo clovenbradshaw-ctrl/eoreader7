@@ -169,10 +169,15 @@ export function foldPermitted(a, b, members, vecs, { alpha }) {
  * the tests: shuffling words within sentences (marginals kept, company
  * destroyed) must dissolve every kind at the same declared floors.
  */
-export function discoverCompanyKinds(sentences, vocabulary, { minMentions, minShare, minMembers } = {}) {
+export function discoverCompanyKinds(sentences, vocabulary, { minMentions, minShare, minMembers, clean } = {}) {
   for (const [k, v] of Object.entries({ minMentions, minShare, minMembers }))
     if (!Number.isFinite(v)) throw new Error(`discoverCompanyKinds: ${k} must be declared`);
-  const vecs = contextVectors(sentences, vocabulary);
+  // `clean` is contextVectors' own token hygiene, forwarded — its DEFAULT
+  // strips non-letter edges, which is a TEXT prior (found live: a music
+  // stream's "d5" cleaned to "d", so no vocabulary word ever matched and
+  // the kinds were silently empty). A non-text caller declares its own
+  // cleaner (identity, usually); the default stays for text callers.
+  const vecs = contextVectors(sentences, vocabulary, { clean });
   const bySignature = new Map();
   for (const [word, v] of vecs) {
     let total = 0, best = null, bestN = 0;
