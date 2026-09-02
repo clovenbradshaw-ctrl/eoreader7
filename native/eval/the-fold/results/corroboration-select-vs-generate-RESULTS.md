@@ -100,3 +100,33 @@ vocabulary: the pages are co-present on the end-words but the model, asked
 under the armed protocol, cannot honestly say the second page states the
 note. The SELECT full-budget and whole-page arms are the next run, with a
 longer harness budget.
+
+## Full budget, both protocols (2026-09-02, completed — the earlier run was killed)
+
+Same ledger (87 notes, 4 planted), `BUDGET=200`, window ±400, run to the
+walk's own stop under each protocol:
+
+| arm | asks (walk's own stop) | model calls | wall | attested | at gate after | lied on planted | refusals |
+|---|---|---|---|---|---|---|---|
+| GENERATE | 119 | 140 | 532s | **13** | 13 | **0** | no-testimony 46 · unarmed 49 · decider_unrelated 10 · uncontained 1 |
+| SELECT | 103 | 157 | 385s | **33** | 33 | **0** | no-testimony 39 · indiscriminate 17 · unarmed-select 11 · unarmed 1 · other 2 |
+
+**The 30-ask reading was wrong by being early.** At 30 asks the two
+protocols looked equivalent (7 vs 6). Run to the stop, select attests
+2.5× as many notes at the same zero lies, in less wall time, on fewer
+asks (its own stop fired at 103: the walk ran out of pairs it could
+value). The generate arm's dominant refusal is `unarmed` (49): the model
+says yes to the sibling-swapped twin too, so the pair decides nothing.
+The select arm's `indiscriminate` (17) is the same failure in the
+pointing register, and it fires a third as often, because pointing at a
+sentence that states the twin is harder to do by accident than writing a
+because that fits both.
+
+**Consequence:** `/corroborate` in the-fold asks with the select protocol
+by default now (app.js, 74b1ed3), generate remaining `witnessNote`'s own
+fallback when no co-present candidate can be offered.
+
+**Caveat, unchanged:** one ledger, one model (gemma2:2b), two pages of
+one topic. The number licenses the default; it does not license a claim
+about other material. The precision guard is what licenses trusting
+either arm at all, and it held in every run.
