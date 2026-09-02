@@ -1,0 +1,286 @@
+{
+  "name": "drift-and-model-swap-stream",
+  "purpose": "One long, sustained sitting (40 turns, six distinct topic areas) built to stress the aperture/summary-refresh mechanism across a genuine hard topic pivot, a long-distance recall test, a correction beat, and two live model swaps at roughly the 40% and 75% marks, so the running summary's hold-vs-refresh behavior and answer quality can be watched across more than one locally-pulled model in one conversation.",
+  "turns": [
+    {
+      "n": 1,
+      "user": "hey",
+      "tests": "opens the trivially-chatty fast path — no question mark, no digits, one word",
+      "expects": "quick, low-effort greeting back; no grounding work, no summary refresh, nothing narrowed or widened yet",
+      "modelSwapBefore": false
+    },
+    {
+      "n": 2,
+      "user": "not bad",
+      "tests": "continues the trivial small-talk stretch",
+      "expects": "brief, casual reply; still fast-path",
+      "modelSwapBefore": false
+    },
+    {
+      "n": 3,
+      "user": "you around",
+      "tests": "continues the trivial small-talk stretch",
+      "expects": "brief confirmation; still fast-path, no over-elaboration",
+      "modelSwapBefore": false
+    },
+    {
+      "n": 4,
+      "user": "cool cool",
+      "tests": "closes the trivially-chatty opener (4 turns total) right before real content starts",
+      "expects": "light acknowledgment; establishes a calm baseline regime before the first substantive topic",
+      "modelSwapBefore": false
+    },
+    {
+      "n": 5,
+      "user": "okay actually — I've been down a Panama Canal rabbit hole this week. why did the french effort under de lesseps fail so badly before the US ever took over?",
+      "tests": "opens Topic A (Panama Canal): first substantive turn, begins the settled 6-turn stretch (turns 5-10) meant to test that the app narrows/holds context rather than re-summarizing every follow-up",
+      "expects": "a real historical answer (disease, the miscalculated sea-level approach copied from Suez, cost overruns, De Lesseps's failure); establishes the topic ground the running summary should now carry",
+      "modelSwapBefore": false
+    },
+    {
+      "n": 6,
+      "user": "right, and wasn't there also a huge disease problem — something with mosquitoes — separate from the engineering mess?",
+      "tests": "follow-up within settled Topic A",
+      "expects": "should surface yellow fever/malaria and likely Gorgas's mosquito-control campaign; a low-surprise continuation — the summary should plausibly be CARRIED here rather than refreshed",
+      "modelSwapBefore": false
+    },
+    {
+      "n": 7,
+      "user": "so walk me through the locks themselves — where does all the water that lifts the ships actually come from, and how big are the original chambers?",
+      "tests": "follow-up within settled Topic A; plants the RECALL-TARGET FACT this stream tests recall of 16 turns later at turn 23 (lock chamber dimensions + gravity-fed water source)",
+      "expects": "should state the locks are gravity-fed from Gatun Lake (no pumps) and give the original chamber dimensions (roughly 1,000 ft by 110 ft) — this specific figure is what turn 23 checks recall of across the intervening topic changes and a model swap",
+      "modelSwapBefore": false
+    },
+    {
+      "n": 8,
+      "user": "why didn't they just dig straight through at sea level instead of dealing with locks at all?",
+      "tests": "follow-up within settled Topic A",
+      "expects": "should explain the elevation/terrain problem and why a lock canal beat a full sea-level cut; still low-surprise, context should stay narrow rather than triggering a fresh summary pass",
+      "modelSwapBefore": false
+    },
+    {
+      "n": 9,
+      "user": "when did panama actually get full control of the canal? I feel like that's more recent than most people assume.",
+      "tests": "follow-up within settled Topic A",
+      "expects": "should give the 1999 handover under the Torrijos-Carter treaties; continues the same held ground",
+      "modelSwapBefore": false
+    },
+    {
+      "n": 10,
+      "user": "and that expansion project with the bigger locks a while back — what was actually driving that?",
+      "tests": "closing follow-up of the settled Topic A stretch (6 turns total, 5-10) — good checkpoint for whether the app has been needlessly re-summarizing every low-surprise turn",
+      "expects": "should explain the 2016 Neopanamax expansion, driven by container ships that had outgrown the original locks; last calm turn before the hard pivot",
+      "modelSwapBefore": false
+    },
+    {
+      "n": 11,
+      "user": "my sourdough starter died and I honestly can't tell if it's worth trying to revive or if I should just toss it and start over.",
+      "tests": "MARKED HARD PIVOT — zero transitional politeness, a genuine topic change from the Panama Canal to sourdough baking with no bridge sentence. This is the turn that should trigger a real summary refresh; the documented failure mode is a topic pivot landing just inside the gate's threshold and getting missed, leaving the running summary stuck on the old topic (the 'clobbered/stale summary' bug class).",
+      "expects": "the assistant should engage sourdough directly with no leftover canal-talk bleeding into the reply, and a real summary-refresh act (not a 'carried' one) should register for this exchange",
+      "modelSwapBefore": false
+    },
+    {
+      "n": 12,
+      "user": "what hydration percentage should I even be aiming for as a beginner, roughly?",
+      "tests": "opens the 5-turn settled stretch on Topic B (sourdough), turns 12-16",
+      "expects": "a practical hydration range for a beginner; begins a new low-surprise continuation on the new topic",
+      "modelSwapBefore": false
+    },
+    {
+      "n": 13,
+      "user": "someone told me skipping the autolyse step is fine — is that actually going to hurt gluten development?",
+      "tests": "follow-up within settled Topic B",
+      "expects": "should address autolyse's real role in gluten development without drifting back to unrelated material; continuation should stay narrow",
+      "modelSwapBefore": false
+    },
+    {
+      "n": 14,
+      "user": "how do I actually know bulk fermentation is done instead of just guessing?",
+      "tests": "follow-up within settled Topic B",
+      "expects": "should give concrete visual/tactile cues (poke test, volume increase, jiggle); low-surprise continuation",
+      "modelSwapBefore": false
+    },
+    {
+      "n": 15,
+      "user": "my scoring never opens up right and I barely get any oven spring — what's usually the cause?",
+      "tests": "follow-up within settled Topic B",
+      "expects": "should connect this to proofing state, blade angle, and steam; still within the same held ground",
+      "modelSwapBefore": false
+    },
+    {
+      "n": 16,
+      "user": "is a dense gummy crumb always underproofed, or can it mean something else?",
+      "tests": "closing follow-up of the settled Topic B stretch (turns 12-16) — last low-surprise turn before the first model swap",
+      "expects": "should note other real causes (underbaked, too much hydration for the flour, weak gluten) rather than defaulting to a single explanation",
+      "modelSwapBefore": false
+    },
+    {
+      "n": 17,
+      "user": "different thing entirely — I read that TV satellites just hover directly above whatever city they're broadcasting to. is that actually how it works?",
+      "tests": "MODEL SWAP HERE — switch the selected local model in the picker before sending this turn (roughly the 40% mark, turn 17 of 40). Also a natural drift into Topic C (satellites/orbital mechanics), landing right after Topic B settled — a clean segment boundary for the new model to pick up from the carried/refreshed summary. The question itself embeds a plausible-but-false premise (that a broadcast satellite sits directly above the city it serves), which sets up the correction beat three turns later at turn 20.",
+      "expects": "the new model should either correct the premise itself (geostationary orbit only works directly above the equator) or answer in a way that turn 20's pushback can land cleanly against either way",
+      "modelSwapBefore": true
+    },
+    {
+      "n": 18,
+      "user": "how high up are we even talking, and how long does one full orbit actually take?",
+      "tests": "follow-up within Topic C, first follow-up on the newly swapped model",
+      "expects": "should give the geostationary altitude (roughly 35,786 km / 22,236 mi) and a 24-hour orbital period",
+      "modelSwapBefore": false
+    },
+    {
+      "n": 19,
+      "user": "what's actually different about that versus something like the starlink satellites, since those seem to zip across the sky pretty fast?",
+      "tests": "follow-up within Topic C",
+      "expects": "should distinguish low earth orbit (fast, low altitude, visibly moving) from geostationary (fixed relative position, much higher altitude)",
+      "modelSwapBefore": false
+    },
+    {
+      "n": 20,
+      "user": "wait, that's not right though — I looked it up and geostationary only actually works directly above the equator, it can't just sit over new york or wherever. doesn't that break the whole 'hovers over the city' idea?",
+      "tests": "CORRECTION BEAT — the user directly pushes back on the plausible-sounding premise seeded in turn 17, testing the correction-loop mechanism.",
+      "expects": "if the model's earlier answer implied a satellite can sit directly above any city, this turn should make it concede plainly — e.g. state outright that geostationary requires an equatorial orbit and that a satellite 'serving' New York is actually positioned over the equator and viewed at an angle — without repeating the wrong framing behind a hedge ('well, it's sort of above the city...') and without over-apologizing. If the model had already stated the equator constraint correctly, it should hold that position clearly rather than wavering just because it was challenged.",
+      "modelSwapBefore": false
+    },
+    {
+      "n": 21,
+      "user": "so how does a dish antenna actually aim at something that's over the equator instead of straight overhead, then?",
+      "tests": "follow-up immediately after the correction beat — checks whether the corrected understanding actually carries forward into the next answer",
+      "expects": "should describe aiming at an angle toward the equatorial arc, consistent with the just-conceded correction and with no relapse into the 'directly overhead' framing",
+      "modelSwapBefore": false
+    },
+    {
+      "n": 22,
+      "user": "does that also explain why a lot of rocket launch sites are near the equator?",
+      "tests": "closing follow-up of Topic C (6 turns, 17-22)",
+      "expects": "should connect equatorial launch sites to Earth's rotational speed advantage for reaching geostationary transfer orbit",
+      "modelSwapBefore": false
+    },
+    {
+      "n": 23,
+      "user": "going back to the canal thing from way earlier — you mentioned the original lock chambers were something like a thousand feet by a hundred ten feet. how much bigger are the new expansion locks?",
+      "tests": "LONG-DISTANCE RECALL — references the specific figure planted at turn 7, sixteen turns back, across two intervening topic changes and a model swap. Tests whether the running summary/warrant record actually preserved that number rather than losing it in a refresh.",
+      "expects": "should recall the ~1,000 ft by 110 ft original figure (or a close paraphrase) and give the Neopanamax expansion dimensions (roughly 1,400 ft by 180 ft) without asking the user to re-supply the original number",
+      "modelSwapBefore": false
+    },
+    {
+      "n": 24,
+      "user": "did they have to widen gatun lake itself too, or was it purely new lock chambers?",
+      "tests": "natural one-turn follow-up on the recall answer",
+      "expects": "should stay grounded in the same canal material just re-surfaced rather than treating this as a brand-new topic",
+      "modelSwapBefore": false
+    },
+    {
+      "n": 25,
+      "user": "totally separate thing — my wifi actually drops every time someone microwaves popcorn. is that a real interference thing or just a coincidence?",
+      "tests": "natural drift into Topic D (home wifi troubleshooting) — not the officially marked hard pivot, but still a genuine topic change worth watching for a sensible response",
+      "expects": "should correctly identify 2.4GHz microwave leakage as a real, documented interference source rather than dismissing it as coincidence",
+      "modelSwapBefore": false
+    },
+    {
+      "n": 26,
+      "user": "would switching everything to 5ghz fully fix that or just help?",
+      "tests": "follow-up within settled Topic D",
+      "expects": "should note 5GHz avoids that interference band but trades off range/wall penetration — a real tradeoff, not a flat 'yes'",
+      "modelSwapBefore": false
+    },
+    {
+      "n": 27,
+      "user": "is a mesh system actually worth it for a normal two bedroom apartment, or is that overkill?",
+      "tests": "follow-up within settled Topic D",
+      "expects": "should scale the advice to apartment size rather than defaulting to a generic mesh recommendation",
+      "modelSwapBefore": false
+    },
+    {
+      "n": 28,
+      "user": "what about just a wifi extender instead — basically the same thing, or actually worse?",
+      "tests": "follow-up within settled Topic D",
+      "expects": "should distinguish extenders (single backhaul, can halve bandwidth) from mesh (dedicated backhaul) rather than treating them as interchangeable",
+      "modelSwapBefore": false
+    },
+    {
+      "n": 29,
+      "user": "what about a powerline adapter instead — worth it, or kind of a gimmick at this point?",
+      "tests": "closing follow-up of the settled Topic D stretch (turns 25-29) — last low-surprise turn before the second model swap",
+      "expects": "should give a realistic, conditional answer (depends on the home's wiring/panel setup) rather than a flat verdict",
+      "modelSwapBefore": false
+    },
+    {
+      "n": 30,
+      "user": "one more totally different one — my basil plant on the windowsill keeps yellowing from the bottom leaves up. overwatering or something else?",
+      "tests": "MODEL SWAP HERE — switch the selected local model in the picker before sending this turn (roughly the 75% mark, turn 30 of 40). Also a natural drift into Topic E (basil/houseplant care), landing right after Topic D settled — a clean segment boundary for the third distinct model to pick up the carried/refreshed summary from.",
+      "expects": "should give a real differential (overwatering is the classic cause of bottom-up yellowing, but nitrogen deficiency and a root-bound pot are also plausible) rather than defaulting to a single guess",
+      "modelSwapBefore": true
+    },
+    {
+      "n": 31,
+      "user": "should I be misting the leaves, or is that more of a humidity myth that doesn't really do much?",
+      "tests": "follow-up within Topic E, first follow-up on the third (swapped) model",
+      "expects": "should give a grounded take on misting's actual (limited) effect on ambient humidity for a windowsill plant, not just a flat yes or no",
+      "modelSwapBefore": false
+    },
+    {
+      "n": 32,
+      "user": "okay, I'll back off the water then and see if it recovers.",
+      "tests": "closing follow-up of the short Topic E stretch (turns 30-32)",
+      "expects": "brief, natural acknowledgment; not much new ground to cover",
+      "modelSwapBefore": false
+    },
+    {
+      "n": 33,
+      "user": "random one — how does decaf coffee actually get the caffeine out? is that chemicals, or is that a myth at this point?",
+      "tests": "drifts into a sixth topic (decaf coffee processing) — this is the longest stream in the set, so there's room for a second full settle-and-drift cycle after the second swap",
+      "expects": "should name a real decaffeination method (solvent-based, Swiss Water, or CO2 process) rather than dismissing the premise as a myth",
+      "modelSwapBefore": false
+    },
+    {
+      "n": 34,
+      "user": "does that process strip out flavor compounds too, or is it pretty targeted to just the caffeine?",
+      "tests": "follow-up within settled Topic F",
+      "expects": "should acknowledge some real flavor-compound loss as a tradeoff, not claim the process is perfectly selective",
+      "modelSwapBefore": false
+    },
+    {
+      "n": 35,
+      "user": "is there an actual naturally low-caffeine coffee bean, or is decaf always a processed thing?",
+      "tests": "follow-up within settled Topic F",
+      "expects": "can mention naturally low-caffeine varietals as a real but niche exception, distinct from processed decaf",
+      "modelSwapBefore": false
+    },
+    {
+      "n": 36,
+      "user": "why does decaf still have a little caffeine left in it — why can't they get it all the way to zero?",
+      "tests": "closing follow-up of Topic F",
+      "expects": "should explain decaf is regulated to a near-zero threshold rather than claiming it's literally caffeine-free",
+      "modelSwapBefore": false
+    },
+    {
+      "n": 37,
+      "user": "okay that's actually more interesting than I expected.",
+      "tests": "light closing beat on Topic F, first step into winding down",
+      "expects": "brief, natural acknowledgment",
+      "modelSwapBefore": false
+    },
+    {
+      "n": 38,
+      "user": "this got long — we went from canals to bread to satellites to my wifi to basil to decaf coffee somehow.",
+      "tests": "winding down (1 of 3) — user reflects across the whole session",
+      "expects": "should be able to briefly nod to the real arc of topics covered without needing them re-explained",
+      "modelSwapBefore": false
+    },
+    {
+      "n": 39,
+      "user": "appreciate you keeping up with all of that, honestly.",
+      "tests": "winding down (2 of 3)",
+      "expects": "brief, warm, low-effort close; no need to unpromptedly re-summarize the whole conversation",
+      "modelSwapBefore": false
+    },
+    {
+      "n": 40,
+      "user": "alright, I'm gonna go actually deal with the starter. talk later.",
+      "tests": "winding down (3 of 3) — natural sign-off, not an abrupt stop",
+      "expects": "short, friendly sign-off matching the register of the opener",
+      "modelSwapBefore": false
+    }
+  ]
+}

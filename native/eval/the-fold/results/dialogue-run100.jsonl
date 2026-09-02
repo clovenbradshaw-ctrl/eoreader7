@@ -1,0 +1,1 @@
+{"msg":3,"turn":1,"basis":"seed","question":"Who is Pierre Bezukhov?","answerChars":590,"passages":["pg2600.txt#24036-27993","pg2600.txt#93118-97079","pg2600.txt#188390-192328"],"grounded":[],"unsupported":["War not in the material","Leo Tolstoy not in the material"],"open":["material retrieved but uncited: Who is Pierre Bezukhov?"],"record":true,"transcript":613,"carried":1849}

@@ -1,0 +1,599 @@
+{
+  "model": "gemma2:2b",
+  "object": "spreadsheet",
+  "rows": [
+    {
+      "turnIndex": 1,
+      "ask": "add a button that clears all the cells to 0",
+      "predictedKind": "feature",
+      "routedAs": "resolved",
+      "landedAsRezero": null,
+      "landed": false,
+      "gap": "unlocated",
+      "structuralClean": null,
+      "structuralFindings": [],
+      "behavioralOwnCheck": {
+        "turnIndex": 1,
+        "ok": null,
+        "why": "no landing this turn — code unchanged or absent"
+      },
+      "regressionsIntroducedThisTurn": [],
+      "conformFindings": [],
+      "codeLenBefore": 814,
+      "codeLenAfter": 814,
+      "groundAfter": 1,
+      "tokens": 29
+    },
+    {
+      "turnIndex": 2,
+      "ask": "add a third row of two more cells, prefilled with 5 and 6",
+      "predictedKind": "feature",
+      "routedAs": null,
+      "landedAsRezero": false,
+      "landed": true,
+      "gap": null,
+      "structuralClean": true,
+      "structuralFindings": [],
+      "behavioralOwnCheck": {
+        "turnIndex": 2,
+        "ok": false,
+        "why": "2 rows"
+      },
+      "regressionsIntroducedThisTurn": [
+        {
+          "turnIndex": 0,
+          "ok": false,
+          "why": "sum after typing 10 into (0,0) = \"23\""
+        },
+        {
+          "turnIndex": 1,
+          "ok": false,
+          "why": "no clear button found"
+        }
+      ],
+      "conformFindings": [],
+      "codeLenBefore": 814,
+      "codeLenAfter": 814,
+      "groundAfter": 1,
+      "tokens": 118,
+      "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Mini Spreadsheet</title></head>\n<body>\n  <table id=\"grid\">\n    <tr><td><input class=\"cell\" data-r=\"0\" data-c=\"0\" value=\"5\"></td><td><input class=\"cell\" data-r=\"0\" data-c=\"1\" value=\"6\"></td></tr>\n    <tr><td><input class=\"cell\" data-r=\"1\" data-c=\"0\" value=\"3\"></td><td><input class=\"cell\" data-r=\"1\" data-c=\"1\" value=\"4\"></td></tr>\n  </table>\n  <div>Sum: <span id=\"sum\">0</span></div>\n  <script>\n    function recompute() {\n      let total = 0;\n      document.querySelectorAll('.cell').forEach(function(c) {\n        total += Number(c.value) || 0;\n      });\n      document.getElementById('sum').textContent = total;\n    }\n    document.querySelectorAll('.cell').forEach(function(c) {\n      c.addEventListener('input', recompute);\n    });\n    recompute();\n  </script>\n</body>\n</html>"
+    },
+    {
+      "turnIndex": 3,
+      "ask": "I don't like the colors, make it nicer",
+      "predictedKind": "judgment",
+      "routedAs": "anaphora",
+      "landedAsRezero": true,
+      "landed": true,
+      "gap": null,
+      "structuralClean": true,
+      "structuralFindings": [],
+      "behavioralOwnCheck": null,
+      "regressionsIntroducedThisTurn": [
+        {
+          "turnIndex": 0,
+          "ok": false,
+          "why": "sum after typing 10 into (0,0) = \"23\""
+        },
+        {
+          "turnIndex": 1,
+          "ok": false,
+          "why": "no clear button found"
+        },
+        {
+          "turnIndex": 2,
+          "ok": false,
+          "why": "2 rows"
+        }
+      ],
+      "conformFindings": [],
+      "codeLenBefore": 814,
+      "codeLenAfter": 910,
+      "groundAfter": 2,
+      "tokens": 162,
+      "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Mini Spreadsheet</title></head>\n<body>\n  <table id=\"grid\">\n    <tr><td><input class=\"cell\" data-r=\"0\" data-c=\"0\" value=\"5\" style=\"background-color: #f2f2f2; color: #333;\"></td><td><input class=\"cell\" data-r=\"0\" data-c=\"1\" value=\"6\" style=\"background-color: #f2f2f2; color: #333;\"></td></tr>\n    <tr><td><input class=\"cell\" data-r=\"1\" data-c=\"0\" value=\"3\"></td><td><input class=\"cell\" data-r=\"1\" data-c=\"1\" value=\"4\"></td></tr>\n  </table>\n  <div>Sum: <span id=\"sum\">0</span></div>\n  <script>\n    function recompute() {\n      let total = 0;\n      document.querySelectorAll('.cell').forEach(function(c) {\n        total += Number(c.value) || 0;\n      });\n      document.getElementById('sum').textContent = total;\n    }\n    document.querySelectorAll('.cell').forEach(function(c) {\n      c.addEventListener('input', recompute);\n    });\n    recompute();\n  </script>\n</body>\n</html>"
+    },
+    {
+      "turnIndex": 4,
+      "ask": "make it better",
+      "predictedKind": "vague",
+      "routedAs": "anaphora",
+      "landedAsRezero": null,
+      "landed": false,
+      "gap": "regressed",
+      "structuralClean": null,
+      "structuralFindings": [],
+      "behavioralOwnCheck": null,
+      "regressionsIntroducedThisTurn": [],
+      "conformFindings": [],
+      "codeLenBefore": 910,
+      "codeLenAfter": 910,
+      "groundAfter": 2,
+      "tokens": 20
+    },
+    {
+      "turnIndex": 5,
+      "ask": "show the average of the cells too, next to the sum",
+      "predictedKind": "feature",
+      "routedAs": "resolved",
+      "landedAsRezero": null,
+      "landed": false,
+      "gap": "unlocated",
+      "structuralClean": null,
+      "structuralFindings": [],
+      "behavioralOwnCheck": {
+        "turnIndex": 5,
+        "ok": null,
+        "why": "no landing this turn — code unchanged or absent"
+      },
+      "regressionsIntroducedThisTurn": [],
+      "conformFindings": [],
+      "codeLenBefore": 910,
+      "codeLenAfter": 910,
+      "groundAfter": 2,
+      "tokens": 85
+    },
+    {
+      "turnIndex": 6,
+      "ask": "the sum isn't updating right when I type in a cell, fix it",
+      "predictedKind": "judgment",
+      "routedAs": "resolved",
+      "landedAsRezero": null,
+      "landed": false,
+      "gap": "unlocated",
+      "structuralClean": null,
+      "structuralFindings": [],
+      "behavioralOwnCheck": {
+        "turnIndex": 6,
+        "ok": null,
+        "why": "no landing this turn — code unchanged or absent"
+      },
+      "regressionsIntroducedThisTurn": [],
+      "conformFindings": [],
+      "codeLenBefore": 910,
+      "codeLenAfter": 910,
+      "groundAfter": 2,
+      "tokens": 46
+    },
+    {
+      "turnIndex": 7,
+      "ask": "make the buttons bigger",
+      "predictedKind": "anaphora",
+      "routedAs": null,
+      "landedAsRezero": null,
+      "landed": false,
+      "gap": "churn",
+      "structuralClean": null,
+      "structuralFindings": [],
+      "behavioralOwnCheck": null,
+      "regressionsIntroducedThisTurn": [],
+      "conformFindings": [],
+      "codeLenBefore": 910,
+      "codeLenAfter": 910,
+      "groundAfter": 2,
+      "tokens": 20
+    },
+    {
+      "turnIndex": 8,
+      "ask": "put the clear button back the way it was before",
+      "predictedKind": "undo",
+      "routedAs": "anaphora",
+      "landedAsRezero": null,
+      "landed": false,
+      "gap": "regressed",
+      "structuralClean": null,
+      "structuralFindings": [],
+      "behavioralOwnCheck": null,
+      "regressionsIntroducedThisTurn": [],
+      "conformFindings": [],
+      "codeLenBefore": 910,
+      "codeLenAfter": 910,
+      "groundAfter": 2,
+      "tokens": 34
+    },
+    {
+      "turnIndex": 9,
+      "ask": "add a button that fills every cell with 1",
+      "predictedKind": "feature",
+      "routedAs": "resolved",
+      "landedAsRezero": false,
+      "landed": true,
+      "gap": null,
+      "structuralClean": true,
+      "structuralFindings": [],
+      "behavioralOwnCheck": {
+        "turnIndex": 9,
+        "ok": false,
+        "why": "no fill button found"
+      },
+      "regressionsIntroducedThisTurn": [
+        {
+          "turnIndex": 0,
+          "ok": false,
+          "why": "sum after typing 10 into (0,0) = \"18\""
+        },
+        {
+          "turnIndex": 1,
+          "ok": false,
+          "why": "no clear button found"
+        },
+        {
+          "turnIndex": 2,
+          "ok": false,
+          "why": "2 rows"
+        },
+        {
+          "turnIndex": 5,
+          "ok": false,
+          "why": "body mentions \"average\": false"
+        },
+        {
+          "turnIndex": 6,
+          "ok": false,
+          "why": "sum reads \"108\""
+        }
+      ],
+      "conformFindings": [],
+      "codeLenBefore": 910,
+      "codeLenAfter": 910,
+      "groundAfter": 2,
+      "tokens": 207,
+      "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Mini Spreadsheet</title></head>\n<body>\n  <table id=\"grid\">\n    <tr><td><input class=\"cell\" data-r=\"0\" data-c=\"0\" value=\"1\" style=\"background-color: #f2f2f2; color: #333;\"></td><td><input class=\"cell\" data-r=\"0\" data-c=\"1\" value=\"1\" style=\"background-color: #f2f2f2; color: #333;\"></td></tr>\n    <tr><td><input class=\"cell\" data-r=\"1\" data-c=\"0\" value=\"3\"></td><td><input class=\"cell\" data-r=\"1\" data-c=\"1\" value=\"4\"></td></tr>\n  </table>\n  <div>Sum: <span id=\"sum\">0</span></div>\n  <script>\n    function recompute() {\n      let total = 0;\n      document.querySelectorAll('.cell').forEach(function(c) {\n        total += Number(c.value) || 0;\n      });\n      document.getElementById('sum').textContent = total;\n    }\n    document.querySelectorAll('.cell').forEach(function(c) {\n      c.addEventListener('input', recompute);\n    });\n    recompute();\n  </script>\n</body>\n</html>"
+    },
+    {
+      "turnIndex": 10,
+      "ask": "it's broken",
+      "predictedKind": "judgment",
+      "routedAs": "anaphora",
+      "landedAsRezero": true,
+      "landed": true,
+      "gap": null,
+      "structuralClean": true,
+      "structuralFindings": [],
+      "behavioralOwnCheck": null,
+      "regressionsIntroducedThisTurn": [
+        {
+          "turnIndex": 0,
+          "ok": false,
+          "why": "sum after typing 10 into (0,0) = \"0\""
+        },
+        {
+          "turnIndex": 1,
+          "ok": false,
+          "why": "no clear button found"
+        },
+        {
+          "turnIndex": 2,
+          "ok": false,
+          "why": "2 rows"
+        },
+        {
+          "turnIndex": 5,
+          "ok": false,
+          "why": "body mentions \"average\": false"
+        },
+        {
+          "turnIndex": 6,
+          "ok": false,
+          "why": "sum reads \"0\""
+        },
+        {
+          "turnIndex": 9,
+          "ok": false,
+          "why": "no fill button found"
+        }
+      ],
+      "conformFindings": [],
+      "codeLenBefore": 910,
+      "codeLenAfter": 900,
+      "groundAfter": 3,
+      "tokens": 20,
+      "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Mini Spreadsheet</title></head>\n<body>\n  <table id=\"grid\">\n    <tr><td><input class=\"cell\" data-r=\"0\" data-c=\"0\" value=\"1\" style=\"background-color: #f2f2f2; color: #333;\"></td><td><input class=\"cell\" data-r=\"0\" data-c=\"1\" value=\"1\" style=\"background-color: #f2f2f2; color: #333;\"></td></tr>\n    <tr><td><input class=\"cell\" data-r=\"1\" data-c=\"0\" value=\"3\"></td><td><input class=\"cell\" data-r=\"1\" data-c=\"1\" value=\"4\"></td></tr>\n  </table>\n  <div>Sum: <span id=\"sum\">0</span></div>\n\n    function recompute() {\n      let total = 0;\n      document.querySelectorAll('.cell').forEach(function(c) {\n        total += Number(c.value) || 0;\n      });\n      document.getElementById('sum').textContent = total;\n    }\n    document.querySelectorAll('.cell').forEach(function(c) {\n      c.addEventListener('input', recompute);\n    });\n    recompute();\n  </script>\n</body>\n</html>"
+    },
+    {
+      "turnIndex": 11,
+      "ask": "the sum should still update live as I type, without clicking anything — check that still works",
+      "predictedKind": "structural",
+      "routedAs": "resolved",
+      "landedAsRezero": true,
+      "landed": true,
+      "gap": null,
+      "structuralClean": true,
+      "structuralFindings": [],
+      "behavioralOwnCheck": {
+        "turnIndex": 11,
+        "ok": false,
+        "why": "sum reads \"0\""
+      },
+      "regressionsIntroducedThisTurn": [
+        {
+          "turnIndex": 0,
+          "ok": false,
+          "why": "sum after typing 10 into (0,0) = \"0\""
+        },
+        {
+          "turnIndex": 1,
+          "ok": false,
+          "why": "no clear button found"
+        },
+        {
+          "turnIndex": 2,
+          "ok": false,
+          "why": "2 rows"
+        },
+        {
+          "turnIndex": 5,
+          "ok": false,
+          "why": "body mentions \"average\": false"
+        },
+        {
+          "turnIndex": 6,
+          "ok": false,
+          "why": "sum reads \"0\""
+        },
+        {
+          "turnIndex": 9,
+          "ok": false,
+          "why": "no fill button found"
+        }
+      ],
+      "conformFindings": [],
+      "codeLenBefore": 900,
+      "codeLenAfter": 877,
+      "groundAfter": 4,
+      "tokens": 44,
+      "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Mini Spreadsheet</title></head>\n<body>\n  <table id=\"grid\">\n    <tr><td><input class=\"cell\" data-r=\"0\" data-c=\"0\" value=\"1\" style=\"background-color: #f2f2f2; color: #333;\"></td><td><input class=\"cell\" data-r=\"0\" data-c=\"1\" value=\"1\" style=\"background-color: #f2f2f2; color: #333;\"></td></tr>\n    <tr><td><input class=\"cell\" data-r=\"1\" data-c=\"0\" value=\"3\"></td><td><input class=\"cell\" data-r=\"1\" data-c=\"1\" value=\"4\"></td></tr>\n  </table>\n  <div>Sum: <span id=\"sum\">0</span></div>\n\n    function recompute() {\n      let total = 0;\n        total += Number(c.value) || 0;,\n        total += Number(c.value) || 0;\n      });\n      document.getElementById('sum').textContent = total;\n    }\n    document.querySelectorAll('.cell').forEach(function(c) {\n      c.addEventListener('input', recompute);\n    });\n    recompute();\n  </script>\n</body>\n</html>"
+    },
+    {
+      "turnIndex": 12,
+      "ask": "highlight the cell with the highest value in yellow",
+      "predictedKind": "feature",
+      "routedAs": "resolved",
+      "landedAsRezero": true,
+      "landed": true,
+      "gap": null,
+      "structuralClean": true,
+      "structuralFindings": [],
+      "behavioralOwnCheck": null,
+      "regressionsIntroducedThisTurn": [
+        {
+          "turnIndex": 0,
+          "ok": false,
+          "why": "sum after typing 10 into (0,0) = \"0\""
+        },
+        {
+          "turnIndex": 1,
+          "ok": false,
+          "why": "no clear button found"
+        },
+        {
+          "turnIndex": 2,
+          "ok": false,
+          "why": "2 rows"
+        },
+        {
+          "turnIndex": 5,
+          "ok": false,
+          "why": "body mentions \"average\": false"
+        },
+        {
+          "turnIndex": 6,
+          "ok": false,
+          "why": "sum reads \"0\""
+        },
+        {
+          "turnIndex": 9,
+          "ok": false,
+          "why": "no fill button found"
+        },
+        {
+          "turnIndex": 11,
+          "ok": false,
+          "why": "sum reads \"0\""
+        }
+      ],
+      "conformFindings": [],
+      "codeLenBefore": 877,
+      "codeLenAfter": 877,
+      "groundAfter": 4,
+      "tokens": 208,
+      "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Mini Spreadsheet</title></head>\n<body>\n  <table id=\"grid\">\n    <tr><td><input class=\"cell\" data-r=\"0\" data-c=\"0\" value=\"1\" style=\"background-color: #f2f2f2; color: #333;\"></td><td><input class=\"cell\" data-r=\"0\" data-c=\"1\" value=\"1\" style=\"background-color: #f2f2f2; color: #333;\"></td></tr>\n    <tr><td><input class=\"cell\" data-r=\"1\" data-c=\"0\" value=\"3\"></td><td><input class=\"cell\" data-r=\"1\" data-c=\"1\" value=\"4\"></td></tr>\n  </table>\n  <div>Sum: <span id=\"sum\">0</span></div>\n\n    function recompute() {\n      let total = 0;\n        total += Number(c.value) || 0;,\n        total += Number(c.value) || 0;\n      });\n      document.getElementById('sum').textContent = total;\n    }\n    document.querySelectorAll('.cell').forEach(function(c) {\n      c.addEventListener('input', recompute);\n    });\n    recompute();\n  </script>\n</body>\n</html>"
+    },
+    {
+      "turnIndex": 13,
+      "ask": "fix it",
+      "predictedKind": "vague",
+      "routedAs": "anaphora",
+      "landedAsRezero": null,
+      "landed": false,
+      "gap": "unlocated",
+      "structuralClean": null,
+      "structuralFindings": [],
+      "behavioralOwnCheck": null,
+      "regressionsIntroducedThisTurn": [],
+      "conformFindings": [],
+      "codeLenBefore": 877,
+      "codeLenAfter": 877,
+      "groundAfter": 4,
+      "tokens": 47
+    },
+    {
+      "turnIndex": 14,
+      "ask": "add a reset button that sets every cell back to 0",
+      "predictedKind": "feature",
+      "routedAs": "resolved",
+      "landedAsRezero": null,
+      "landed": false,
+      "gap": "unlocated",
+      "structuralClean": null,
+      "structuralFindings": [],
+      "behavioralOwnCheck": {
+        "turnIndex": 14,
+        "ok": null,
+        "why": "no landing this turn — code unchanged or absent"
+      },
+      "regressionsIntroducedThisTurn": [],
+      "conformFindings": [],
+      "codeLenBefore": 877,
+      "codeLenAfter": 877,
+      "groundAfter": 4,
+      "tokens": 35
+    },
+    {
+      "turnIndex": 15,
+      "ask": "I don't like how the average looks, it should say 'Avg:' not 'Average:'",
+      "predictedKind": "judgment",
+      "routedAs": "anaphora",
+      "landedAsRezero": null,
+      "landed": false,
+      "gap": "unlocated",
+      "structuralClean": null,
+      "structuralFindings": [],
+      "behavioralOwnCheck": {
+        "turnIndex": 15,
+        "ok": null,
+        "why": "no landing this turn — code unchanged or absent"
+      },
+      "regressionsIntroducedThisTurn": [],
+      "conformFindings": [],
+      "codeLenBefore": 877,
+      "codeLenAfter": 877,
+      "groundAfter": 4,
+      "tokens": 18
+    },
+    {
+      "turnIndex": 16,
+      "ask": "add a max and a min value display too",
+      "predictedKind": "feature",
+      "routedAs": null,
+      "landedAsRezero": false,
+      "landed": true,
+      "gap": null,
+      "structuralClean": true,
+      "structuralFindings": [],
+      "behavioralOwnCheck": {
+        "turnIndex": 16,
+        "ok": true,
+        "why": "body mentions max/min: true/true"
+      },
+      "regressionsIntroducedThisTurn": [
+        {
+          "turnIndex": 0,
+          "ok": false,
+          "why": "sum after typing 10 into (0,0) = \"0\""
+        },
+        {
+          "turnIndex": 1,
+          "ok": false,
+          "why": "no clear button found"
+        },
+        {
+          "turnIndex": 2,
+          "ok": false,
+          "why": "2 rows"
+        },
+        {
+          "turnIndex": 5,
+          "ok": false,
+          "why": "body mentions \"average\": false"
+        },
+        {
+          "turnIndex": 6,
+          "ok": false,
+          "why": "sum reads \"0\""
+        },
+        {
+          "turnIndex": 9,
+          "ok": false,
+          "why": "no fill button found"
+        },
+        {
+          "turnIndex": 11,
+          "ok": false,
+          "why": "sum reads \"0\""
+        },
+        {
+          "turnIndex": 14,
+          "ok": false,
+          "why": "no reset button found"
+        },
+        {
+          "turnIndex": 15,
+          "ok": false,
+          "why": "body has \"Avg:\": false"
+        }
+      ],
+      "conformFindings": [],
+      "codeLenBefore": 877,
+      "codeLenAfter": 991,
+      "groundAfter": 4,
+      "tokens": 63,
+      "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Mini Spreadsheet</title></head>\n<body>\n  <table id=\"grid\">\n    <tr><td><input class=\"cell\" data-r=\"0\" data-c=\"0\" value=\"1\" style=\"background-color: #f2f2f2; color: #333;\"></td><td><input class=\"cell\" data-r=\"0\" data-c=\"1\" value=\"1\" style=\"background-color: #f2f2f2; color: #333;\"></td></tr>\n    <tr><td><input class=\"cell\" data-r=\"1\" data-c=\"0\" value=\"3\"></td><td><input class=\"cell\" data-r=\"1\" data-c=\"1\" value=\"4\"></td></tr>\n  </table>\n  <div>Sum: <span id=\"sum\">0</span></div>\n\n    function recompute() {\n      let total = 0;\n        total += Number(c.value) || 0; min = Math.min(total, min); max = Math.max(total, max); ,\n        total += Number(c.value) || 0; min = Math.min(total, min); max = Math.max(total, max); \n      });\n      document.getElementById('sum').textContent = total;\n    }\n    document.querySelectorAll('.cell').forEach(function(c) {\n      c.addEventListener('input', recompute);\n    });\n    recompute();\n  </script>\n</body>\n</html>"
+    },
+    {
+      "turnIndex": 17,
+      "ask": "undo the last change",
+      "predictedKind": "undo",
+      "routedAs": null,
+      "landedAsRezero": false,
+      "landed": true,
+      "gap": null,
+      "structuralClean": true,
+      "structuralFindings": [],
+      "behavioralOwnCheck": null,
+      "regressionsIntroducedThisTurn": [
+        {
+          "turnIndex": 0,
+          "ok": false,
+          "why": "sum after typing 10 into (0,0) = \"0\""
+        },
+        {
+          "turnIndex": 1,
+          "ok": false,
+          "why": "no clear button found"
+        },
+        {
+          "turnIndex": 2,
+          "ok": false,
+          "why": "2 rows"
+        },
+        {
+          "turnIndex": 5,
+          "ok": false,
+          "why": "body mentions \"average\": false"
+        },
+        {
+          "turnIndex": 6,
+          "ok": false,
+          "why": "sum reads \"0\""
+        },
+        {
+          "turnIndex": 9,
+          "ok": false,
+          "why": "no fill button found"
+        },
+        {
+          "turnIndex": 11,
+          "ok": false,
+          "why": "sum reads \"0\""
+        },
+        {
+          "turnIndex": 14,
+          "ok": false,
+          "why": "no reset button found"
+        },
+        {
+          "turnIndex": 15,
+          "ok": false,
+          "why": "body has \"Avg:\": false"
+        }
+      ],
+      "conformFindings": [],
+      "codeLenBefore": 991,
+      "codeLenAfter": 978,
+      "groundAfter": 4,
+      "tokens": 18,
+      "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Mini Spreadsheet</title></head>\n<body>\n  <table id=\"grid\">\n    <tr><td><input class=\"cell\" data-r=\"0\" data-c=\"0\" value=\"1\" style=\"background-color: #f2f2f2; color: #333;\"></td><td><input class=\"cell\" data-r=\"0\" data-c=\"1\" value=\"1\" style=\"background-color: #f2f2f2; color: #333;\"></td></tr>\n    <tr><td><input class=\"cell\" data-r=\"1\" data-c=\"0\" value=\"3\"></td><td><input class=\"cell\" data-r=\"1\" data-c=\"1\" value=\"4\"></td></tr>\n  </table>\n  <div>Sum: <span id=\"sum\">0</span></div>\n\n    function \n      let total = 0;\n        total += Number(c.value) || 0; min = Math.min(total, min); max = Math.max(total, max); ,\n        total += Number(c.value) || 0; min = Math.min(total, min); max = Math.max(total, max); \n      });\n      document.getElementById('sum').textContent = total;\n    }\n    document.querySelectorAll('.cell').forEach(function(c) {\n      c.addEventListener('input', recompute);\n    });\n    recompute();\n  </script>\n</body>\n</html>"
+    }
+  ]
+}

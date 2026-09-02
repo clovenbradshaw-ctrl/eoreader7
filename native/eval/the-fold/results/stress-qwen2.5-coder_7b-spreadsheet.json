@@ -1,0 +1,662 @@
+{
+  "model": "qwen2.5-coder:7b",
+  "object": "spreadsheet",
+  "rows": [
+    {
+      "turnIndex": 1,
+      "ask": "add a button that clears all the cells to 0",
+      "predictedKind": "feature",
+      "routedAs": "resolved",
+      "landedAsRezero": null,
+      "landed": false,
+      "gap": "regressed",
+      "structuralClean": null,
+      "structuralFindings": [],
+      "behavioralOwnCheck": {
+        "turnIndex": 1,
+        "ok": null,
+        "why": "no landing this turn — code unchanged or absent"
+      },
+      "regressionsIntroducedThisTurn": [],
+      "conformFindings": [],
+      "codeLenBefore": 814,
+      "codeLenAfter": 814,
+      "groundAfter": 1,
+      "tokens": 66
+    },
+    {
+      "turnIndex": 2,
+      "ask": "add a third row of two more cells, prefilled with 5 and 6",
+      "predictedKind": "feature",
+      "routedAs": null,
+      "landedAsRezero": false,
+      "landed": true,
+      "gap": null,
+      "structuralClean": true,
+      "structuralFindings": [],
+      "behavioralOwnCheck": {
+        "turnIndex": 2,
+        "ok": false,
+        "why": "2 rows"
+      },
+      "regressionsIntroducedThisTurn": [
+        {
+          "turnIndex": 0,
+          "ok": false,
+          "why": "sum after typing 10 into (0,0) = \"23\""
+        },
+        {
+          "turnIndex": 1,
+          "ok": false,
+          "why": "no clear button found"
+        }
+      ],
+      "conformFindings": [],
+      "codeLenBefore": 814,
+      "codeLenAfter": 814,
+      "groundAfter": 1,
+      "tokens": 113,
+      "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Mini Spreadsheet</title></head>\n<body>\n  <table id=\"grid\">\n    <tr><td><input class=\"cell\" data-r=\"0\" data-c=\"0\" value=\"1\"></td><td><input class=\"cell\" data-r=\"0\" data-c=\"1\" value=\"2\"></td></tr>\n    <tr><td><input class=\"cell\" data-r=\"2\" data-c=\"0\" value=\"5\"></td><td><input class=\"cell\" data-r=\"2\" data-c=\"1\" value=\"6\"></td></tr>\n  </table>\n  <div>Sum: <span id=\"sum\">0</span></div>\n  <script>\n    function recompute() {\n      let total = 0;\n      document.querySelectorAll('.cell').forEach(function(c) {\n        total += Number(c.value) || 0;\n      });\n      document.getElementById('sum').textContent = total;\n    }\n    document.querySelectorAll('.cell').forEach(function(c) {\n      c.addEventListener('input', recompute);\n    });\n    recompute();\n  </script>\n</body>\n</html>"
+    },
+    {
+      "turnIndex": 3,
+      "ask": "I don't like the colors, make it nicer",
+      "predictedKind": "judgment",
+      "routedAs": "anaphora",
+      "landedAsRezero": true,
+      "landed": true,
+      "gap": null,
+      "structuralClean": true,
+      "structuralFindings": [],
+      "behavioralOwnCheck": null,
+      "regressionsIntroducedThisTurn": [
+        {
+          "turnIndex": 0,
+          "ok": false,
+          "why": "sum after typing 10 into (0,0) = \"23\""
+        },
+        {
+          "turnIndex": 1,
+          "ok": false,
+          "why": "no clear button found"
+        },
+        {
+          "turnIndex": 2,
+          "ok": false,
+          "why": "2 rows"
+        }
+      ],
+      "conformFindings": [],
+      "codeLenBefore": 814,
+      "codeLenAfter": 966,
+      "groundAfter": 2,
+      "tokens": 42,
+      "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Mini Spreadsheet</title></head>\n<body>\n  <table { border-collapse: collapse; } td { border: 1px solid #ddd; padding: 8px; } id=\"grid\">\n    <tr><td><input class=\"cell\" data-r=\"0\" data-c=\"0\" value=\"1\"></td><td><input class=\"cell\" data-r=\"0\" data-c=\"1\" value=\"2\"></td></tr>\n    <tr><td><input class=\"cell\" data-r=\"2\" data-c=\"0\" value=\"5\"></td><td><input class=\"cell\" data-r=\"2\" data-c=\"1\" value=\"6\"></td></tr>\n  </table { border-collapse: collapse; } td { border: 1px solid #ddd; padding: 8px; }>\n  <div>Sum: <span id=\"sum\">0</span></div>\n  <script>\n    function recompute() {\n      let total = 0;\n      document.querySelectorAll('.cell').forEach(function(c) {\n        total += Number(c.value) || 0;\n      });\n      document.getElementById('sum').textContent = total;\n    }\n    document.querySelectorAll('.cell').forEach(function(c) {\n      c.addEventListener('input', recompute);\n    });\n    recompute();\n  </script>\n</body>\n</html>"
+    },
+    {
+      "turnIndex": 4,
+      "ask": "make it better",
+      "predictedKind": "vague",
+      "routedAs": "anaphora",
+      "landedAsRezero": true,
+      "landed": true,
+      "gap": null,
+      "structuralClean": true,
+      "structuralFindings": [],
+      "behavioralOwnCheck": null,
+      "regressionsIntroducedThisTurn": [
+        {
+          "turnIndex": 0,
+          "ok": false,
+          "why": "sum after typing 10 into (0,0) = \"23\""
+        },
+        {
+          "turnIndex": 1,
+          "ok": false,
+          "why": "no clear button found"
+        },
+        {
+          "turnIndex": 2,
+          "ok": false,
+          "why": "2 rows"
+        }
+      ],
+      "conformFindings": [],
+      "codeLenBefore": 966,
+      "codeLenAfter": 956,
+      "groundAfter": 3,
+      "tokens": 36,
+      "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Mini Spreadsheet</title></head>\n<body>\n  <table { border-collapse: collapse; } td { border: 1px solid #ddd; padding: 8px; } id=\"grid\">\n    <tr><td><input class=\"cell\" data-r=\"0\" data-c=\"0\" value=\"1\"></td><td><input class=\"cell\" data-r=\"0\" data-c=\"1\" value=\"2\"></td></tr>\n    <tr><td><input class=\"cell\" data-r=\"2\" data-c=\"0\" value=\"5\"></td><td><input class=\"cell\" data-r=\"2\" data-c=\"1\" value=\"6\"></td></tr>\n  </table { border-collapse: collapse; } td { border: 1px solid #ddd; padding: 8px; }>\n  <div>Sum: <span id=\"sum\">0</span></div>\n  <script>\n    function recompute() {\n      let total = 0;\n      document.querySelectorAll('.cell').forEach((c) => {\n        total += Number(c.value) || 0;\n      });\n      document.getElementById('sum').textContent = total;\n    }\n    document.querySelectorAll('.cell').forEach((c) => {\n      c.addEventListener('input', recompute);\n    });\n    recompute();\n  </script>\n</body>\n</html>"
+    },
+    {
+      "turnIndex": 5,
+      "ask": "show the average of the cells too, next to the sum",
+      "predictedKind": "feature",
+      "routedAs": "resolved",
+      "landedAsRezero": true,
+      "landed": true,
+      "gap": null,
+      "structuralClean": true,
+      "structuralFindings": [],
+      "behavioralOwnCheck": {
+        "turnIndex": 5,
+        "ok": true,
+        "why": "body mentions \"average\": true"
+      },
+      "regressionsIntroducedThisTurn": [
+        {
+          "turnIndex": 0,
+          "ok": false,
+          "why": "sum after typing 10 into (0,0) = \"0 | Average: 3.50 | Average: 5.75\""
+        },
+        {
+          "turnIndex": 1,
+          "ok": false,
+          "why": "no clear button found"
+        },
+        {
+          "turnIndex": 2,
+          "ok": false,
+          "why": "2 rows"
+        }
+      ],
+      "conformFindings": [],
+      "codeLenBefore": 956,
+      "codeLenAfter": 1038,
+      "groundAfter": 4,
+      "tokens": 53,
+      "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Mini Spreadsheet</title></head>\n<body>\n  <table { border-collapse: collapse; } td { border: 1px solid #ddd; padding: 8px; } id=\"grid\">\n    <tr><td><input class=\"cell\" data-r=\"0\" data-c=\"0\" value=\"1\"></td><td><input class=\"cell\" data-r=\"0\" data-c=\"1\" value=\"2\"></td></tr>\n    <tr><td><input class=\"cell\" data-r=\"2\" data-c=\"0\" value=\"5\"></td><td><input class=\"cell\" data-r=\"2\" data-c=\"1\" value=\"6\"></td></tr>\n  </table { border-collapse: collapse; } td { border: 1px solid #ddd; padding: 8px; }>\n  <div>Sum: <span id=\"sum\">0</span></div>\n  <script>\n    function recompute() {\n      let total = 0;\n      document.querySelectorAll('.cell').forEach((c) => {\n        total += Number(c.value) || 0;\n      });\n      ; document.getElementById('sum').textContent += ' | Average: ' + (total / document.querySelectorAll('.cell').length || 0).toFixed(2);\n    }\n    document.querySelectorAll('.cell').forEach((c) => {\n      c.addEventListener('input', recompute);\n    });\n    recompute();\n  </script>\n</body>\n</html>"
+    },
+    {
+      "turnIndex": 6,
+      "ask": "the sum isn't updating right when I type in a cell, fix it",
+      "predictedKind": "judgment",
+      "routedAs": "resolved",
+      "landedAsRezero": false,
+      "landed": true,
+      "gap": null,
+      "structuralClean": true,
+      "structuralFindings": [],
+      "behavioralOwnCheck": {
+        "turnIndex": 6,
+        "ok": false,
+        "why": "sum reads \" | Average: 28.25\""
+      },
+      "regressionsIntroducedThisTurn": [
+        {
+          "turnIndex": 0,
+          "ok": false,
+          "why": "sum after typing 10 into (0,0) = \" | Average: 5.75\""
+        },
+        {
+          "turnIndex": 1,
+          "ok": false,
+          "why": "no clear button found"
+        },
+        {
+          "turnIndex": 2,
+          "ok": false,
+          "why": "2 rows"
+        }
+      ],
+      "conformFindings": [],
+      "codeLenBefore": 1038,
+      "codeLenAfter": 1038,
+      "groundAfter": 4,
+      "tokens": 17,
+      "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Mini Spreadsheet</title></head>\n<body>\n  <table { border-collapse: collapse; } td { border: 1px solid #ddd; padding: 8px; } id=\"grid\">\n    <tr><td><input class=\"cell\" data-r=\"0\" data-c=\"0\" value=\"1\"></td><td><input class=\"cell\" data-r=\"0\" data-c=\"1\" value=\"2\"></td></tr>\n    <tr><td><input class=\"cell\" data-r=\"2\" data-c=\"0\" value=\"5\"></td><td><input class=\"cell\" data-r=\"2\" data-c=\"1\" value=\"6\"></td></tr>\n  </table { border-collapse: collapse; } td { border: 1px solid #ddd; padding: 8px; }>\n  <div>Sum: <span id=\"sum\">0</span></div>\n  <script>\n    function recompute() {\n      let total = 0;\n      document.querySelectorAll('.cell').forEach((c) => {\n        total += Number(c.value) || 0;\n      });\n      ; document.getElementById('sum').textContent =  ' | Average: ' + (total / document.querySelectorAll('.cell').length || 0).toFixed(2);\n    }\n    document.querySelectorAll('.cell').forEach((c) => {\n      c.addEventListener('input', recompute);\n    });\n    recompute();\n  </script>\n</body>\n</html>"
+    },
+    {
+      "turnIndex": 7,
+      "ask": "make the buttons bigger",
+      "predictedKind": "anaphora",
+      "routedAs": null,
+      "landedAsRezero": false,
+      "landed": true,
+      "gap": null,
+      "structuralClean": true,
+      "structuralFindings": [],
+      "behavioralOwnCheck": null,
+      "regressionsIntroducedThisTurn": [
+        {
+          "turnIndex": 0,
+          "ok": false,
+          "why": "sum after typing 10 into (0,0) = \" | Average: 5.75\""
+        },
+        {
+          "turnIndex": 1,
+          "ok": false,
+          "why": "no clear button found"
+        },
+        {
+          "turnIndex": 2,
+          "ok": false,
+          "why": "2 rows"
+        },
+        {
+          "turnIndex": 6,
+          "ok": false,
+          "why": "sum reads \" | Average: 28.25\""
+        }
+      ],
+      "conformFindings": [],
+      "codeLenBefore": 1038,
+      "codeLenAfter": 1072,
+      "groundAfter": 4,
+      "tokens": 59,
+      "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Mini Spreadsheet</title></head>\n<body>\n  <table { border-collapse: collapse; } td { border: 1px solid #ddd; padding: 8px; font-size: 18px; } id=\"grid\">\n    <tr><td><input class=\"cell\" data-r=\"0\" data-c=\"0\" value=\"1\"></td><td><input class=\"cell\" data-r=\"0\" data-c=\"1\" value=\"2\"></td></tr>\n    <tr><td><input class=\"cell\" data-r=\"2\" data-c=\"0\" value=\"5\"></td><td><input class=\"cell\" data-r=\"2\" data-c=\"1\" value=\"6\"></td></tr>\n  </table { border-collapse: collapse; } td { border: 1px solid #ddd; padding: 8px; font-size: 18px; }>\n  <div>Sum: <span id=\"sum\">0</span></div>\n  <script>\n    function recompute() {\n      let total = 0;\n      document.querySelectorAll('.cell').forEach((c) => {\n        total += Number(c.value) || 0;\n      });\n      ; document.getElementById('sum').textContent =  ' | Average: ' + (total / document.querySelectorAll('.cell').length || 0).toFixed(2);\n    }\n    document.querySelectorAll('.cell').forEach((c) => {\n      c.addEventListener('input', recompute);\n    });\n    recompute();\n  </script>\n</body>\n</html>"
+    },
+    {
+      "turnIndex": 8,
+      "ask": "put the clear button back the way it was before",
+      "predictedKind": "undo",
+      "routedAs": "anaphora",
+      "landedAsRezero": true,
+      "landed": true,
+      "gap": null,
+      "structuralClean": true,
+      "structuralFindings": [],
+      "behavioralOwnCheck": null,
+      "regressionsIntroducedThisTurn": [
+        {
+          "turnIndex": 0,
+          "ok": false,
+          "why": "sum after typing 10 into (0,0) = \" | Average: 5.75\""
+        },
+        {
+          "turnIndex": 1,
+          "ok": false,
+          "why": "no clear button found"
+        },
+        {
+          "turnIndex": 2,
+          "ok": false,
+          "why": "2 rows"
+        },
+        {
+          "turnIndex": 6,
+          "ok": false,
+          "why": "sum reads \" | Average: 28.25\""
+        }
+      ],
+      "conformFindings": [],
+      "codeLenBefore": 1072,
+      "codeLenAfter": 1072,
+      "groundAfter": 4,
+      "tokens": 21,
+      "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Mini Spreadsheet</title></head>\n<body>\n  <table { border-collapse: collapse; } td { border: 1px solid #ddd; padding: 8px; font-size: 18px; } id=\"grid\">\n    <tr><td><input class=\"cell\" data-r=\"0\" data-c=\"0\" value=\"1\"></td><td><input class=\"cell\" data-r=\"0\" data-c=\"1\" value=\"2\"></td></tr>\n    <tr><td><input class=\"cell\" data-r=\"2\" data-c=\"0\" value=\"5\"></td><td><input class=\"cell\" data-r=\"2\" data-c=\"1\" value=\"6\"></td></tr>\n  </table { border-collapse: collapse; } td { border: 1px solid #ddd; padding: 8px; font-size: 18px; }>\n  <div>Sum: <span id=\"sum\">0</span></div>\n  <script>\n    function recompute() {\n      let total = 0;\n      document.querySelectorAll('.cell').forEach((c) => {\n        total += Number(c.value) || 0;\n      });\n      ; document.getElementById('sum').textContent =  ' | Average: ' + (total / document.querySelectorAll('.cell').length || 0).toFixed(2);\n    }\n    document.querySelectorAll('.cell').forEach((c) => {\n      c.addEventListener('input', recompute);\n    });\n    recompute();\n  </script>\n</body>\n</html>"
+    },
+    {
+      "turnIndex": 9,
+      "ask": "add a button that fills every cell with 1",
+      "predictedKind": "feature",
+      "routedAs": "resolved",
+      "landedAsRezero": null,
+      "landed": false,
+      "gap": "no-ops",
+      "structuralClean": null,
+      "structuralFindings": [],
+      "behavioralOwnCheck": {
+        "turnIndex": 9,
+        "ok": null,
+        "why": "no landing this turn — code unchanged or absent"
+      },
+      "regressionsIntroducedThisTurn": [],
+      "conformFindings": [],
+      "codeLenBefore": 1072,
+      "codeLenAfter": 1072,
+      "groundAfter": 4,
+      "tokens": 27
+    },
+    {
+      "turnIndex": 10,
+      "ask": "it's broken",
+      "predictedKind": "judgment",
+      "routedAs": "anaphora",
+      "landedAsRezero": true,
+      "landed": true,
+      "gap": null,
+      "structuralClean": true,
+      "structuralFindings": [],
+      "behavioralOwnCheck": null,
+      "regressionsIntroducedThisTurn": [
+        {
+          "turnIndex": 0,
+          "ok": false,
+          "why": "sum after typing 10 into (0,0) = \" | Average: 5.75\""
+        },
+        {
+          "turnIndex": 1,
+          "ok": false,
+          "why": "no clear button found"
+        },
+        {
+          "turnIndex": 2,
+          "ok": false,
+          "why": "2 rows"
+        },
+        {
+          "turnIndex": 6,
+          "ok": false,
+          "why": "sum reads \" | Average: 28.25\""
+        },
+        {
+          "turnIndex": 9,
+          "ok": false,
+          "why": "no fill button found"
+        }
+      ],
+      "conformFindings": [],
+      "codeLenBefore": 1072,
+      "codeLenAfter": 1014,
+      "groundAfter": 5,
+      "tokens": 66,
+      "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Mini Spreadsheet</title></head>\n<body>\n  <table style=\"border-collapse: collapse;\" id=\"grid\">\n    <tr><td><input class=\"cell\" data-r=\"0\" data-c=\"0\" value=\"1\"></td><td><input class=\"cell\" data-r=\"0\" data-c=\"1\" value=\"2\"></td></tr>\n    <tr><td><input class=\"cell\" data-r=\"2\" data-c=\"0\" value=\"5\"></td><td><input class=\"cell\" data-r=\"2\" data-c=\"1\" value=\"6\"></td></tr>\n  </table { border-collapse: collapse; } td { border: 1px solid #ddd; padding: 8px; font-size: 18px; }>\n  <div>Sum: <span id=\"sum\">0</span></div>\n  <script>\n    function recompute() {\n      let total = 0;\n      document.querySelectorAll('.cell').forEach((c) => {\n        total += Number(c.value) || 0;\n      });\n      ; document.getElementById('sum').textContent =  ' | Average: ' + (total / document.querySelectorAll('.cell').length || 0).toFixed(2);\n    }\n    document.querySelectorAll('.cell').forEach((c) => {\n      c.addEventListener('input', recompute);\n    });\n    recompute();\n  </script>\n</body>\n</html>"
+    },
+    {
+      "turnIndex": 11,
+      "ask": "the sum should still update live as I type, without clicking anything — check that still works",
+      "predictedKind": "structural",
+      "routedAs": "resolved",
+      "landedAsRezero": null,
+      "landed": false,
+      "gap": "regressed",
+      "structuralClean": null,
+      "structuralFindings": [],
+      "behavioralOwnCheck": {
+        "turnIndex": 11,
+        "ok": null,
+        "why": "no landing this turn — code unchanged or absent"
+      },
+      "regressionsIntroducedThisTurn": [],
+      "conformFindings": [],
+      "codeLenBefore": 1014,
+      "codeLenAfter": 1014,
+      "groundAfter": 5,
+      "tokens": 57
+    },
+    {
+      "turnIndex": 12,
+      "ask": "highlight the cell with the highest value in yellow",
+      "predictedKind": "feature",
+      "routedAs": "resolved",
+      "landedAsRezero": null,
+      "landed": false,
+      "gap": "regressed",
+      "structuralClean": null,
+      "structuralFindings": [],
+      "behavioralOwnCheck": null,
+      "regressionsIntroducedThisTurn": [],
+      "conformFindings": [],
+      "codeLenBefore": 1014,
+      "codeLenAfter": 1014,
+      "groundAfter": 5,
+      "tokens": 97
+    },
+    {
+      "turnIndex": 13,
+      "ask": "fix it",
+      "predictedKind": "vague",
+      "routedAs": "anaphora",
+      "landedAsRezero": true,
+      "landed": true,
+      "gap": null,
+      "structuralClean": true,
+      "structuralFindings": [],
+      "behavioralOwnCheck": null,
+      "regressionsIntroducedThisTurn": [
+        {
+          "turnIndex": 0,
+          "ok": false,
+          "why": "sum after typing 10 into (0,0) = \"Sum: 23 | Average: 5.75\""
+        },
+        {
+          "turnIndex": 1,
+          "ok": false,
+          "why": "no clear button found"
+        },
+        {
+          "turnIndex": 2,
+          "ok": false,
+          "why": "2 rows"
+        },
+        {
+          "turnIndex": 6,
+          "ok": false,
+          "why": "sum reads \"Sum: 113 | Average: 28.25\""
+        },
+        {
+          "turnIndex": 9,
+          "ok": false,
+          "why": "no fill button found"
+        },
+        {
+          "turnIndex": 11,
+          "ok": false,
+          "why": "check threw: Cannot set properties of null (setting 'value')"
+        }
+      ],
+      "conformFindings": [],
+      "codeLenBefore": 1014,
+      "codeLenAfter": 1031,
+      "groundAfter": 6,
+      "tokens": 83,
+      "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Mini Spreadsheet</title></head>\n<body>\n  <table style=\"border-collapse: collapse;\" id=\"grid\">\n    <tr><td><input class=\"cell\" data-r=\"0\" data-c=\"0\" value=\"1\"></td><td><input class=\"cell\" data-r=\"0\" data-c=\"1\" value=\"2\"></td></tr>\n    <tr><td><input class=\"cell\" data-r=\"2\" data-c=\"0\" value=\"5\"></td><td><input class=\"cell\" data-r=\"2\" data-c=\"1\" value=\"6\"></td></tr>\n  </table { border-collapse: collapse; } td { border: 1px solid #ddd; padding: 8px; font-size: 18px; }>\n  <div>Sum: <span id=\"sum\">0</span></div>\n  <script>\n    function recompute() {\n      let total = 0;\n      document.querySelectorAll('.cell').forEach((c) => {\n        total += Number(c.value) || 0;\n      });\n      ; document.getElementById('sum').textContent = 'Sum: ' + total + ' | Average: ' + (total / document.querySelectorAll('.cell').length || 0).toFixed(2);\n    }\n    document.querySelectorAll('.cell').forEach((c) => {\n      c.addEventListener('input', recompute);\n    });\n    recompute();\n  </script>\n</body>\n</html>"
+    },
+    {
+      "turnIndex": 14,
+      "ask": "add a reset button that sets every cell back to 0",
+      "predictedKind": "feature",
+      "routedAs": "resolved",
+      "landedAsRezero": null,
+      "landed": false,
+      "gap": "regressed",
+      "structuralClean": null,
+      "structuralFindings": [],
+      "behavioralOwnCheck": {
+        "turnIndex": 14,
+        "ok": null,
+        "why": "no landing this turn — code unchanged or absent"
+      },
+      "regressionsIntroducedThisTurn": [],
+      "conformFindings": [],
+      "codeLenBefore": 1031,
+      "codeLenAfter": 1031,
+      "groundAfter": 6,
+      "tokens": 79
+    },
+    {
+      "turnIndex": 15,
+      "ask": "I don't like how the average looks, it should say 'Avg:' not 'Average:'",
+      "predictedKind": "judgment",
+      "routedAs": "judgment",
+      "landedAsRezero": true,
+      "landed": true,
+      "gap": null,
+      "structuralClean": true,
+      "structuralFindings": [],
+      "behavioralOwnCheck": {
+        "turnIndex": 15,
+        "ok": true,
+        "why": "body has \"Avg:\": true"
+      },
+      "regressionsIntroducedThisTurn": [
+        {
+          "turnIndex": 0,
+          "ok": false,
+          "why": "sum after typing 10 into (0,0) = \"Sum: 23 | Avg: 5.75\""
+        },
+        {
+          "turnIndex": 1,
+          "ok": false,
+          "why": "no clear button found"
+        },
+        {
+          "turnIndex": 2,
+          "ok": false,
+          "why": "2 rows"
+        },
+        {
+          "turnIndex": 5,
+          "ok": false,
+          "why": "body mentions \"average\": false"
+        },
+        {
+          "turnIndex": 6,
+          "ok": false,
+          "why": "sum reads \"Sum: 113 | Avg: 28.25\""
+        },
+        {
+          "turnIndex": 9,
+          "ok": false,
+          "why": "no fill button found"
+        },
+        {
+          "turnIndex": 11,
+          "ok": false,
+          "why": "check threw: Cannot set properties of null (setting 'value')"
+        },
+        {
+          "turnIndex": 14,
+          "ok": false,
+          "why": "no reset button found"
+        }
+      ],
+      "conformFindings": [],
+      "codeLenBefore": 1031,
+      "codeLenAfter": 1027,
+      "groundAfter": 7,
+      "tokens": 15,
+      "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Mini Spreadsheet</title></head>\n<body>\n  <table style=\"border-collapse: collapse;\" id=\"grid\">\n    <tr><td><input class=\"cell\" data-r=\"0\" data-c=\"0\" value=\"1\"></td><td><input class=\"cell\" data-r=\"0\" data-c=\"1\" value=\"2\"></td></tr>\n    <tr><td><input class=\"cell\" data-r=\"2\" data-c=\"0\" value=\"5\"></td><td><input class=\"cell\" data-r=\"2\" data-c=\"1\" value=\"6\"></td></tr>\n  </table { border-collapse: collapse; } td { border: 1px solid #ddd; padding: 8px; font-size: 18px; }>\n  <div>Sum: <span id=\"sum\">0</span></div>\n  <script>\n    function recompute() {\n      let total = 0;\n      document.querySelectorAll('.cell').forEach((c) => {\n        total += Number(c.value) || 0;\n      });\n      ; document.getElementById('sum').textContent = 'Sum: ' + total + ' | Avg: ' + (total / document.querySelectorAll('.cell').length || 0).toFixed(2);\n    }\n    document.querySelectorAll('.cell').forEach((c) => {\n      c.addEventListener('input', recompute);\n    });\n    recompute();\n  </script>\n</body>\n</html>"
+    },
+    {
+      "turnIndex": 16,
+      "ask": "add a max and a min value display too",
+      "predictedKind": "feature",
+      "routedAs": null,
+      "landedAsRezero": false,
+      "landed": true,
+      "gap": null,
+      "structuralClean": true,
+      "structuralFindings": [],
+      "behavioralOwnCheck": {
+        "turnIndex": 16,
+        "ok": true,
+        "why": "body mentions max/min: true/true"
+      },
+      "regressionsIntroducedThisTurn": [
+        {
+          "turnIndex": 0,
+          "ok": false,
+          "why": "sum after typing 10 into (0,0) = \"Sum: 23 | Avg: 5.75\""
+        },
+        {
+          "turnIndex": 1,
+          "ok": false,
+          "why": "no clear button found"
+        },
+        {
+          "turnIndex": 2,
+          "ok": false,
+          "why": "2 rows"
+        },
+        {
+          "turnIndex": 5,
+          "ok": false,
+          "why": "body mentions \"average\": false"
+        },
+        {
+          "turnIndex": 6,
+          "ok": false,
+          "why": "sum reads \"Sum: 113 | Avg: 28.25\""
+        },
+        {
+          "turnIndex": 9,
+          "ok": false,
+          "why": "no fill button found"
+        },
+        {
+          "turnIndex": 11,
+          "ok": false,
+          "why": "check threw: Cannot set properties of null (setting 'value')"
+        },
+        {
+          "turnIndex": 14,
+          "ok": false,
+          "why": "no reset button found"
+        }
+      ],
+      "conformFindings": [],
+      "codeLenBefore": 1027,
+      "codeLenAfter": 1311,
+      "groundAfter": 7,
+      "tokens": 110,
+      "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Mini Spreadsheet</title></head>\n<body>\n  <table style=\"border-collapse: collapse;\" id=\"grid\">\n    <tr><td><input class=\"cell\" data-r=\"0\" data-c=\"0\" value=\"1\"></td><td><input class=\"cell\" data-r=\"0\" data-c=\"1\" value=\"2\"></td></tr>\n    <tr><td><input class=\"cell\" data-r=\"2\" data-c=\"0\" value=\"5\"></td><td><input class=\"cell\" data-r=\"2\" data-c=\"1\" value=\"6\"></td></tr>\n  </table { border-collapse: collapse; } td { border: 1px solid #ddd; padding: 8px; font-size: 18px; }>\n  <div>Sum: <span id=\"sum\">0</span></div>\n  <script>\n    function recompute() {\n      let total = 0;\n      document.querySelectorAll('.cell').forEach((c) => {\n        total += Number(c.value) || 0;\nlet maxValue = Math.max(...document.querySelectorAll('.cell').map(c => Number(c.value) || 0));\nlet minValue = Math.min(...document.querySelectorAll('.cell').map(c => Number(c.value) || 0));\ndocument.getElementById('sum').innerText = `Sum: ${total}\nMax: ${maxValue}\nMin: ${minValue}`;\n      });\n      ; document.getElementById('sum').textContent = 'Sum: ' + total + ' | Avg: ' + (total / document.querySelectorAll('.cell').length || 0).toFixed(2);\n    }\n    document.querySelectorAll('.cell').forEach((c) => {\n      c.addEventListener('input', recompute);\n    });\n    recompute();\n  </script>\n</body>\n</html>"
+    },
+    {
+      "turnIndex": 17,
+      "ask": "undo the last change",
+      "predictedKind": "undo",
+      "routedAs": null,
+      "landedAsRezero": false,
+      "landed": true,
+      "gap": null,
+      "structuralClean": true,
+      "structuralFindings": [],
+      "behavioralOwnCheck": null,
+      "regressionsIntroducedThisTurn": [
+        {
+          "turnIndex": 0,
+          "ok": false,
+          "why": "sum after typing 10 into (0,0) = \"0\""
+        },
+        {
+          "turnIndex": 1,
+          "ok": false,
+          "why": "no clear button found"
+        },
+        {
+          "turnIndex": 2,
+          "ok": false,
+          "why": "2 rows"
+        },
+        {
+          "turnIndex": 5,
+          "ok": false,
+          "why": "body mentions \"average\": false"
+        },
+        {
+          "turnIndex": 6,
+          "ok": false,
+          "why": "sum reads \"0\""
+        },
+        {
+          "turnIndex": 9,
+          "ok": false,
+          "why": "no fill button found"
+        },
+        {
+          "turnIndex": 11,
+          "ok": false,
+          "why": "check threw: Cannot set properties of null (setting 'value')"
+        },
+        {
+          "turnIndex": 14,
+          "ok": false,
+          "why": "no reset button found"
+        },
+        {
+          "turnIndex": 15,
+          "ok": false,
+          "why": "body has \"Avg:\": false"
+        }
+      ],
+      "conformFindings": [],
+      "codeLenBefore": 1311,
+      "codeLenAfter": 1167,
+      "groundAfter": 7,
+      "tokens": 51,
+      "codeSnapshot": "<!DOCTYPE html>\n<html>\n<head><title>Mini Spreadsheet</title></head>\n<body>\n  <table style=\"border-collapse: collapse;\" id=\"grid\">\n    <tr><td><input class=\"cell\" data-r=\"0\" data-c=\"0\" value=\"1\"></td><td><input class=\"cell\" data-r=\"0\" data-c=\"1\" value=\"2\"></td></tr>\n    <tr><td><input class=\"cell\" data-r=\"2\" data-c=\"0\" value=\"5\"></td><td><input class=\"cell\" data-r=\"2\" data-c=\"1\" value=\"6\"></td></tr>\n  </table { border-collapse: collapse; } td { border: 1px solid #ddd; padding: 8px; font-size: 18px; }>\n  <div>Sum: <span id=\"sum\">0</span></div>\n  <script>\n    function recompute() {\n      let total = 0;\n      document.querySelectorAll('.cell').forEach((c) => {\n        total += Number(c.value) || 0;\nlet maxValue = Math.max(...document.querySelectorAll('.cell').map(c => Number(c.value) || 0));\nlet minValue = Math.min(...document.querySelectorAll('.cell').map(c => Number(c.value) || 0));\ndocument.getElementById('sum').innerText = `Sum: ${total}\nMax: ${maxValue}\nMin: ${minValue}`;\n      });\n      ; \n    }\n    document.querySelectorAll('.cell').forEach((c) => {\n      c.addEventListener('input', recompute);\n    });\n    recompute();\n  </script>\n</body>\n</html>"
+    }
+  ]
+}

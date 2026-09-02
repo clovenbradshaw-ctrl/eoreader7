@@ -1,0 +1,2078 @@
+{
+  "assembly": "EXPERIMENT — mhc-interact.js's ladder hand-wired to three counterparts (this repo's act grammar over the engine kernel; a python3 subprocess; an sh subprocess). NOT the-fold's assembled reader. READING-POLICY P0.",
+  "kernel": "eoreader7 (native/kernel)",
+  "draws": 5,
+  "seed": 0,
+  "runs": [
+    {
+      "material": "grid",
+      "kind": "this repo's act grammar (grid.js + landAct) over the engine kernel — in-process, stateful, refusal-bearing",
+      "sibling": "python",
+      "report": {
+        "giver": {
+          "name": "Model of Hierarchical Complexity",
+          "authors": "Michael Lamport Commons, Francis Asbury Richards (and others)",
+          "primary": "Commons, M. L., & Richards, F. A. (1984). Beyond formal operations, Vol. 1.",
+          "axioms": "Commons, M. L. (2008). Introduction to the model of hierarchical complexity and its relationship to postformal action. World Futures, 64(5-7), 305-320.",
+          "heldHere": "eo-wiki/articles/wiki/mhc-and-eo.md — this repo's own record of the convergence, and the source of the order table reproduced below"
+        },
+        "floor": {
+          "order": 5,
+          "gap": "out_of_scope_by_construction",
+          "detail": "Orders 0-4 are sensorimotor: they name operating on ambient conditions rather than on named things. This instrument receives symbols and has no sensor, so it does not perform these tasks and is not measured against them. The eo-wiki's phasepost reading places the sensorimotor-to-symbolic transition at orders ~4-5; this battery starts above it, by construction rather than by omission."
+        },
+        "assembly": "EXPERIMENT — mhc-interact.js's ladder hand-wired to three counterparts (this repo's act grammar over the engine kernel; a python3 subprocess; an sh subprocess). NOT the-fold's assembled reader. READING-POLICY P0.",
+        "priors": {
+          "declared": true,
+          "injected": []
+        },
+        "material": "grid",
+        "axiom1": {
+          "held": true,
+          "findings": []
+        },
+        "malformed": [],
+        "items": [
+          {
+            "id": "i5-nominal",
+            "order": 5,
+            "organ": "grid — accept / refuse",
+            "assembly": "EXPERIMENT — mhc-interact.js's ladder hand-wired to three counterparts (this repo's act grammar over the engine kernel; a python3 subprocess; an sh subprocess). NOT the-fold's assembled reader. READING-POLICY P0.",
+            "stages": [
+              "emission",
+              "acceptance"
+            ],
+            "name": "an act names an affordance the counterpart actually has",
+            "status": "passed",
+            "detail": "\"distinguish alpha at Entity from encounter gr...\" accepted (true); \"flurb alpha at Entity from encounter ground g...\" refused (true)",
+            "arms": {
+              "lowerOrder": {
+                "completed": false,
+                "detail": "the counterpart's responses were withheld; only the act strings remain",
+                "unreachable": false,
+                "perturbed": true,
+                "draws": 1,
+                "fired": 0
+              },
+              "arbitrary": {
+                "completed": false,
+                "detail": "accomplished the task in 0 of 5 seeded re-pairings of act to response",
+                "unreachable": false,
+                "perturbed": true,
+                "draws": 5,
+                "fired": 0
+              },
+              "discrimination": {
+                "completed": false,
+                "detail": "the same plan against \"python\", confirmed not to accept it",
+                "unreachable": false,
+                "perturbed": true,
+                "draws": 1,
+                "fired": 0
+              }
+            }
+          },
+          {
+            "id": "i6-sentential",
+            "order": 6,
+            "organ": "grid — act to effect",
+            "assembly": "EXPERIMENT — mhc-interact.js's ladder hand-wired to three counterparts (this repo's act grammar over the engine kernel; a python3 subprocess; an sh subprocess). NOT the-fold's assembled reader. READING-POLICY P0.",
+            "stages": [
+              "emission",
+              "acceptance",
+              "effect"
+            ],
+            "name": "one act, one effect, in order",
+            "status": "passed",
+            "detail": "\"distinguish alpha at Entity from encounter gr...\" produced its own effect; \"define finding at Field from generate\" produced its own; and the first did not produce the second's",
+            "arms": {
+              "lowerOrder": {
+                "completed": false,
+                "detail": "the effect texts were withheld; only acceptance remains",
+                "unreachable": false,
+                "perturbed": true,
+                "draws": 1,
+                "fired": 0
+              },
+              "arbitrary": {
+                "completed": false,
+                "detail": "accomplished the task in 0 of 5 seeded re-pairings of act to response",
+                "unreachable": false,
+                "perturbed": true,
+                "draws": 5,
+                "fired": 0
+              },
+              "discrimination": {
+                "completed": false,
+                "detail": "the same plan against \"python\", confirmed not to accept it",
+                "unreachable": false,
+                "perturbed": true,
+                "draws": 1,
+                "fired": 0
+              }
+            }
+          },
+          {
+            "id": "i7-preoperational",
+            "order": 7,
+            "organ": "grid — carried state",
+            "assembly": "EXPERIMENT — mhc-interact.js's ladder hand-wired to three counterparts (this repo's act grammar over the engine kernel; a python3 subprocess; an sh subprocess). NOT the-fold's assembled reader. READING-POLICY P0.",
+            "stages": [
+              "emission",
+              "acceptance",
+              "effect",
+              "carry"
+            ],
+            "name": "a later act computed from what came back",
+            "status": "passed",
+            "detail": "read \"act-1\" back from \"distinguish alpha at Entity from encounter gr...\", built \"revise alpha at Entity from encounter because...\" out of it, and the counterpart carried it",
+            "arms": {
+              "lowerOrder": {
+                "completed": false,
+                "detail": "the same 2 act(s) emitted open-loop, built from an empty response history — the acts came out different",
+                "unreachable": false,
+                "perturbed": true,
+                "draws": 1,
+                "fired": 0
+              },
+              "arbitrary": {
+                "completed": false,
+                "detail": "accomplished the task in 0 of 5 seeded re-orderings of the same acts",
+                "unreachable": false,
+                "perturbed": true,
+                "draws": 5,
+                "fired": 0
+              },
+              "discrimination": {
+                "completed": false,
+                "detail": "the same plan against \"python\", confirmed not to accept it",
+                "unreachable": false,
+                "perturbed": true,
+                "draws": 1,
+                "fired": 0
+              }
+            }
+          },
+          {
+            "id": "i8-primary",
+            "order": 8,
+            "organ": "grid — prediction then execution",
+            "assembly": "EXPERIMENT — mhc-interact.js's ladder hand-wired to three counterparts (this repo's act grammar over the engine kernel; a python3 subprocess; an sh subprocess). NOT the-fold's assembled reader. READING-POLICY P0.",
+            "stages": [
+              "emission",
+              "effect",
+              "carry",
+              "prediction"
+            ],
+            "name": "an empirical rule applied to a case not yet run",
+            "status": "passed",
+            "detail": "predicted \"2\" for a case never run, and the counterpart produced it; the rule declines the case it does not cover",
+            "arms": {
+              "lowerOrder": {
+                "completed": false,
+                "detail": "the rule was withheld; only an already-observed case's own value remains",
+                "unreachable": false,
+                "perturbed": true,
+                "draws": 1,
+                "fired": 0
+              },
+              "arbitrary": {
+                "completed": false,
+                "detail": "a seeded re-dealing of the rule's own case-to-value map predicted every case in 0 of 5 draws",
+                "unreachable": false,
+                "perturbed": true,
+                "draws": 5,
+                "fired": 0
+              },
+              "discrimination": {
+                "completed": false,
+                "detail": "the same plan against \"python\", confirmed not to accept it",
+                "unreachable": false,
+                "perturbed": true,
+                "draws": 1,
+                "fired": 0
+              }
+            }
+          },
+          {
+            "id": "i9-concrete",
+            "order": 9,
+            "organ": "grid — two routes to one effect",
+            "assembly": "EXPERIMENT — mhc-interact.js's ladder hand-wired to three counterparts (this repo's act grammar over the engine kernel; a python3 subprocess; an sh subprocess). NOT the-fold's assembled reader. READING-POLICY P0.",
+            "stages": [
+              "effect",
+              "prediction",
+              "corroboration"
+            ],
+            "name": "corroboration counted by route, not by repetition",
+            "status": "passed",
+            "detail": "3 arrival(s) of the same effect from 2 distinct route(s) — one route run twice is still one route",
+            "arms": {
+              "lowerOrder": {
+                "completed": false,
+                "detail": "counted by arrival rather than by route",
+                "unreachable": false,
+                "perturbed": true,
+                "draws": 1,
+                "fired": 0
+              },
+              "arbitrary": {
+                "completed": false,
+                "detail": "the same acts re-dealt into two routes of the same sizes reached the effect twice in 0 of 5 draws",
+                "unreachable": false,
+                "perturbed": true,
+                "draws": 5,
+                "fired": 0
+              },
+              "discrimination": {
+                "completed": false,
+                "detail": "the same plan against \"python\", confirmed not to accept it",
+                "unreachable": false,
+                "perturbed": true,
+                "draws": 1,
+                "fired": 0
+              }
+            }
+          },
+          {
+            "id": "i10-abstract",
+            "order": 10,
+            "organ": "grid — slot quantification",
+            "assembly": "EXPERIMENT — mhc-interact.js's ladder hand-wired to three counterparts (this repo's act grammar over the engine kernel; a python3 subprocess; an sh subprocess). NOT the-fold's assembled reader. READING-POLICY P0.",
+            "stages": [
+              "acceptance",
+              "corroboration",
+              "quantification"
+            ],
+            "name": "the whole filler set of an open slot in the counterpart",
+            "status": "passed",
+            "detail": "the open slot ranges over 3 of 10 candidate filler(s) — distinguish, define, void; a slot with no admissible filler ranges over 0",
+            "arms": {
+              "lowerOrder": {
+                "completed": false,
+                "detail": "answered from a single already-run instance rather than by quantifying over the slot",
+                "unreachable": false,
+                "perturbed": true,
+                "draws": 1,
+                "fired": 0
+              },
+              "arbitrary": {
+                "completed": false,
+                "detail": "a seeded random subset of the same size reproduced the admitted set in 0 of 5 draws",
+                "unreachable": false,
+                "perturbed": true,
+                "draws": 5,
+                "fired": 0
+              },
+              "discrimination": {
+                "completed": false,
+                "detail": "the same plan against \"python\", confirmed not to accept it",
+                "unreachable": false,
+                "perturbed": true,
+                "draws": 1,
+                "fired": 0
+              }
+            }
+          },
+          {
+            "id": "i11-formal",
+            "order": 11,
+            "organ": "grid — intervention",
+            "assembly": "EXPERIMENT — mhc-interact.js's ladder hand-wired to three counterparts (this repo's act grammar over the engine kernel; a python3 subprocess; an sh subprocess). NOT the-fold's assembled reader. READING-POLICY P0.",
+            "stages": [
+              "quantification",
+              "intervention"
+            ],
+            "name": "the do-operator: this act, against the world run again without it",
+            "status": "passed",
+            "detail": "with the act: 5/5 held. Without it: 5/5 broke. With an accepted-but-irrelevant act in its place: 5/5 broke — so the effect follows THIS act, not merely an act.",
+            "arms": {
+              "lowerOrder": {
+                "completed": false,
+                "detail": "read only which acts the counterpart accepts, which the omission leaves unchanged",
+                "unreachable": false,
+                "perturbed": true,
+                "draws": 1,
+                "fired": 0
+              },
+              "arbitrary": {
+                "completed": false,
+                "detail": "an arbitrary irrelevant insertion reproduced the task's own contrast in 0 of 5 draws",
+                "unreachable": false,
+                "perturbed": true,
+                "draws": 5,
+                "fired": 0
+              },
+              "discrimination": {
+                "completed": false,
+                "detail": "the same plan against \"python\", confirmed not to accept it",
+                "unreachable": false,
+                "perturbed": true,
+                "draws": 1,
+                "fired": 0
+              }
+            }
+          }
+        ],
+        "orders": [
+          {
+            "order": 5,
+            "name": "Nominal",
+            "status": "passed",
+            "items": [
+              {
+                "id": "i5-nominal",
+                "order": 5,
+                "organ": "grid — accept / refuse",
+                "assembly": "EXPERIMENT — mhc-interact.js's ladder hand-wired to three counterparts (this repo's act grammar over the engine kernel; a python3 subprocess; an sh subprocess). NOT the-fold's assembled reader. READING-POLICY P0.",
+                "stages": [
+                  "emission",
+                  "acceptance"
+                ],
+                "name": "an act names an affordance the counterpart actually has",
+                "status": "passed",
+                "detail": "\"distinguish alpha at Entity from encounter gr...\" accepted (true); \"flurb alpha at Entity from encounter ground g...\" refused (true)",
+                "arms": {
+                  "lowerOrder": {
+                    "completed": false,
+                    "detail": "the counterpart's responses were withheld; only the act strings remain",
+                    "unreachable": false,
+                    "perturbed": true,
+                    "draws": 1,
+                    "fired": 0
+                  },
+                  "arbitrary": {
+                    "completed": false,
+                    "detail": "accomplished the task in 0 of 5 seeded re-pairings of act to response",
+                    "unreachable": false,
+                    "perturbed": true,
+                    "draws": 5,
+                    "fired": 0
+                  },
+                  "discrimination": {
+                    "completed": false,
+                    "detail": "the same plan against \"python\", confirmed not to accept it",
+                    "unreachable": false,
+                    "perturbed": true,
+                    "draws": 1,
+                    "fired": 0
+                  }
+                }
+              }
+            ],
+            "failedCount": 0,
+            "refusedCount": 0,
+            "unmeasuredCount": 0
+          },
+          {
+            "order": 6,
+            "name": "Sentential",
+            "status": "passed",
+            "items": [
+              {
+                "id": "i6-sentential",
+                "order": 6,
+                "organ": "grid — act to effect",
+                "assembly": "EXPERIMENT — mhc-interact.js's ladder hand-wired to three counterparts (this repo's act grammar over the engine kernel; a python3 subprocess; an sh subprocess). NOT the-fold's assembled reader. READING-POLICY P0.",
+                "stages": [
+                  "emission",
+                  "acceptance",
+                  "effect"
+                ],
+                "name": "one act, one effect, in order",
+                "status": "passed",
+                "detail": "\"distinguish alpha at Entity from encounter gr...\" produced its own effect; \"define finding at Field from generate\" produced its own; and the first did not produce the second's",
+                "arms": {
+                  "lowerOrder": {
+                    "completed": false,
+                    "detail": "the effect texts were withheld; only acceptance remains",
+                    "unreachable": false,
+                    "perturbed": true,
+                    "draws": 1,
+                    "fired": 0
+                  },
+                  "arbitrary": {
+                    "completed": false,
+                    "detail": "accomplished the task in 0 of 5 seeded re-pairings of act to response",
+                    "unreachable": false,
+                    "perturbed": true,
+                    "draws": 5,
+                    "fired": 0
+                  },
+                  "discrimination": {
+                    "completed": false,
+                    "detail": "the same plan against \"python\", confirmed not to accept it",
+                    "unreachable": false,
+                    "perturbed": true,
+                    "draws": 1,
+                    "fired": 0
+                  }
+                }
+              }
+            ],
+            "failedCount": 0,
+            "refusedCount": 0,
+            "unmeasuredCount": 0
+          },
+          {
+            "order": 7,
+            "name": "Preoperational",
+            "status": "passed",
+            "items": [
+              {
+                "id": "i7-preoperational",
+                "order": 7,
+                "organ": "grid — carried state",
+                "assembly": "EXPERIMENT — mhc-interact.js's ladder hand-wired to three counterparts (this repo's act grammar over the engine kernel; a python3 subprocess; an sh subprocess). NOT the-fold's assembled reader. READING-POLICY P0.",
+                "stages": [
+                  "emission",
+                  "acceptance",
+                  "effect",
+                  "carry"
+                ],
+                "name": "a later act computed from what came back",
+                "status": "passed",
+                "detail": "read \"act-1\" back from \"distinguish alpha at Entity from encounter gr...\", built \"revise alpha at Entity from encounter because...\" out of it, and the counterpart carried it",
+                "arms": {
+                  "lowerOrder": {
+                    "completed": false,
+                    "detail": "the same 2 act(s) emitted open-loop, built from an empty response history — the acts came out different",
+                    "unreachable": false,
+                    "perturbed": true,
+                    "draws": 1,
+                    "fired": 0
+                  },
+                  "arbitrary": {
+                    "completed": false,
+                    "detail": "accomplished the task in 0 of 5 seeded re-orderings of the same acts",
+                    "unreachable": false,
+                    "perturbed": true,
+                    "draws": 5,
+                    "fired": 0
+                  },
+                  "discrimination": {
+                    "completed": false,
+                    "detail": "the same plan against \"python\", confirmed not to accept it",
+                    "unreachable": false,
+                    "perturbed": true,
+                    "draws": 1,
+                    "fired": 0
+                  }
+                }
+              }
+            ],
+            "failedCount": 0,
+            "refusedCount": 0,
+            "unmeasuredCount": 0
+          },
+          {
+            "order": 8,
+            "name": "Primary",
+            "status": "passed",
+            "items": [
+              {
+                "id": "i8-primary",
+                "order": 8,
+                "organ": "grid — prediction then execution",
+                "assembly": "EXPERIMENT — mhc-interact.js's ladder hand-wired to three counterparts (this repo's act grammar over the engine kernel; a python3 subprocess; an sh subprocess). NOT the-fold's assembled reader. READING-POLICY P0.",
+                "stages": [
+                  "emission",
+                  "effect",
+                  "carry",
+                  "prediction"
+                ],
+                "name": "an empirical rule applied to a case not yet run",
+                "status": "passed",
+                "detail": "predicted \"2\" for a case never run, and the counterpart produced it; the rule declines the case it does not cover",
+                "arms": {
+                  "lowerOrder": {
+                    "completed": false,
+                    "detail": "the rule was withheld; only an already-observed case's own value remains",
+                    "unreachable": false,
+                    "perturbed": true,
+                    "draws": 1,
+                    "fired": 0
+                  },
+                  "arbitrary": {
+                    "completed": false,
+                    "detail": "a seeded re-dealing of the rule's own case-to-value map predicted every case in 0 of 5 draws",
+                    "unreachable": false,
+                    "perturbed": true,
+                    "draws": 5,
+                    "fired": 0
+                  },
+                  "discrimination": {
+                    "completed": false,
+                    "detail": "the same plan against \"python\", confirmed not to accept it",
+                    "unreachable": false,
+                    "perturbed": true,
+                    "draws": 1,
+                    "fired": 0
+                  }
+                }
+              }
+            ],
+            "failedCount": 0,
+            "refusedCount": 0,
+            "unmeasuredCount": 0
+          },
+          {
+            "order": 9,
+            "name": "Concrete",
+            "status": "passed",
+            "items": [
+              {
+                "id": "i9-concrete",
+                "order": 9,
+                "organ": "grid — two routes to one effect",
+                "assembly": "EXPERIMENT — mhc-interact.js's ladder hand-wired to three counterparts (this repo's act grammar over the engine kernel; a python3 subprocess; an sh subprocess). NOT the-fold's assembled reader. READING-POLICY P0.",
+                "stages": [
+                  "effect",
+                  "prediction",
+                  "corroboration"
+                ],
+                "name": "corroboration counted by route, not by repetition",
+                "status": "passed",
+                "detail": "3 arrival(s) of the same effect from 2 distinct route(s) — one route run twice is still one route",
+                "arms": {
+                  "lowerOrder": {
+                    "completed": false,
+                    "detail": "counted by arrival rather than by route",
+                    "unreachable": false,
+                    "perturbed": true,
+                    "draws": 1,
+                    "fired": 0
+                  },
+                  "arbitrary": {
+                    "completed": false,
+                    "detail": "the same acts re-dealt into two routes of the same sizes reached the effect twice in 0 of 5 draws",
+                    "unreachable": false,
+                    "perturbed": true,
+                    "draws": 5,
+                    "fired": 0
+                  },
+                  "discrimination": {
+                    "completed": false,
+                    "detail": "the same plan against \"python\", confirmed not to accept it",
+                    "unreachable": false,
+                    "perturbed": true,
+                    "draws": 1,
+                    "fired": 0
+                  }
+                }
+              }
+            ],
+            "failedCount": 0,
+            "refusedCount": 0,
+            "unmeasuredCount": 0
+          },
+          {
+            "order": 10,
+            "name": "Abstract",
+            "status": "passed",
+            "items": [
+              {
+                "id": "i10-abstract",
+                "order": 10,
+                "organ": "grid — slot quantification",
+                "assembly": "EXPERIMENT — mhc-interact.js's ladder hand-wired to three counterparts (this repo's act grammar over the engine kernel; a python3 subprocess; an sh subprocess). NOT the-fold's assembled reader. READING-POLICY P0.",
+                "stages": [
+                  "acceptance",
+                  "corroboration",
+                  "quantification"
+                ],
+                "name": "the whole filler set of an open slot in the counterpart",
+                "status": "passed",
+                "detail": "the open slot ranges over 3 of 10 candidate filler(s) — distinguish, define, void; a slot with no admissible filler ranges over 0",
+                "arms": {
+                  "lowerOrder": {
+                    "completed": false,
+                    "detail": "answered from a single already-run instance rather than by quantifying over the slot",
+                    "unreachable": false,
+                    "perturbed": true,
+                    "draws": 1,
+                    "fired": 0
+                  },
+                  "arbitrary": {
+                    "completed": false,
+                    "detail": "a seeded random subset of the same size reproduced the admitted set in 0 of 5 draws",
+                    "unreachable": false,
+                    "perturbed": true,
+                    "draws": 5,
+                    "fired": 0
+                  },
+                  "discrimination": {
+                    "completed": false,
+                    "detail": "the same plan against \"python\", confirmed not to accept it",
+                    "unreachable": false,
+                    "perturbed": true,
+                    "draws": 1,
+                    "fired": 0
+                  }
+                }
+              }
+            ],
+            "failedCount": 0,
+            "refusedCount": 0,
+            "unmeasuredCount": 0
+          },
+          {
+            "order": 11,
+            "name": "Formal",
+            "status": "passed",
+            "items": [
+              {
+                "id": "i11-formal",
+                "order": 11,
+                "organ": "grid — intervention",
+                "assembly": "EXPERIMENT — mhc-interact.js's ladder hand-wired to three counterparts (this repo's act grammar over the engine kernel; a python3 subprocess; an sh subprocess). NOT the-fold's assembled reader. READING-POLICY P0.",
+                "stages": [
+                  "quantification",
+                  "intervention"
+                ],
+                "name": "the do-operator: this act, against the world run again without it",
+                "status": "passed",
+                "detail": "with the act: 5/5 held. Without it: 5/5 broke. With an accepted-but-irrelevant act in its place: 5/5 broke — so the effect follows THIS act, not merely an act.",
+                "arms": {
+                  "lowerOrder": {
+                    "completed": false,
+                    "detail": "read only which acts the counterpart accepts, which the omission leaves unchanged",
+                    "unreachable": false,
+                    "perturbed": true,
+                    "draws": 1,
+                    "fired": 0
+                  },
+                  "arbitrary": {
+                    "completed": false,
+                    "detail": "an arbitrary irrelevant insertion reproduced the task's own contrast in 0 of 5 draws",
+                    "unreachable": false,
+                    "perturbed": true,
+                    "draws": 5,
+                    "fired": 0
+                  },
+                  "discrimination": {
+                    "completed": false,
+                    "detail": "the same plan against \"python\", confirmed not to accept it",
+                    "unreachable": false,
+                    "perturbed": true,
+                    "draws": 1,
+                    "fired": 0
+                  }
+                }
+              }
+            ],
+            "failedCount": 0,
+            "refusedCount": 0,
+            "unmeasuredCount": 0
+          }
+        ]
+      },
+      "stage": {
+        "stage": 11,
+        "stageName": "Formal",
+        "cappedBy": {
+          "order": 12,
+          "status": "no_item_declared",
+          "detail": "the battery declares no item at order 12"
+        },
+        "ceilingIsReal": false,
+        "isolated": []
+      },
+      "gaps": []
+    },
+    {
+      "material": "python",
+      "kind": "a real `python3 -i` subprocess — out of process, an interpreter this repo did not write",
+      "sibling": "sh",
+      "report": {
+        "giver": {
+          "name": "Model of Hierarchical Complexity",
+          "authors": "Michael Lamport Commons, Francis Asbury Richards (and others)",
+          "primary": "Commons, M. L., & Richards, F. A. (1984). Beyond formal operations, Vol. 1.",
+          "axioms": "Commons, M. L. (2008). Introduction to the model of hierarchical complexity and its relationship to postformal action. World Futures, 64(5-7), 305-320.",
+          "heldHere": "eo-wiki/articles/wiki/mhc-and-eo.md — this repo's own record of the convergence, and the source of the order table reproduced below"
+        },
+        "floor": {
+          "order": 5,
+          "gap": "out_of_scope_by_construction",
+          "detail": "Orders 0-4 are sensorimotor: they name operating on ambient conditions rather than on named things. This instrument receives symbols and has no sensor, so it does not perform these tasks and is not measured against them. The eo-wiki's phasepost reading places the sensorimotor-to-symbolic transition at orders ~4-5; this battery starts above it, by construction rather than by omission."
+        },
+        "assembly": "EXPERIMENT — mhc-interact.js's ladder hand-wired to three counterparts (this repo's act grammar over the engine kernel; a python3 subprocess; an sh subprocess). NOT the-fold's assembled reader. READING-POLICY P0.",
+        "priors": {
+          "declared": true,
+          "injected": []
+        },
+        "material": "python",
+        "axiom1": {
+          "held": true,
+          "findings": []
+        },
+        "malformed": [],
+        "items": [
+          {
+            "id": "i5-nominal",
+            "order": 5,
+            "organ": "python — accept / refuse",
+            "assembly": "EXPERIMENT — mhc-interact.js's ladder hand-wired to three counterparts (this repo's act grammar over the engine kernel; a python3 subprocess; an sh subprocess). NOT the-fold's assembled reader. READING-POLICY P0.",
+            "stages": [
+              "emission",
+              "acceptance"
+            ],
+            "name": "an act names an affordance the counterpart actually has",
+            "status": "passed",
+            "detail": "\"print(6*7)\" accepted (true); \"zzz_not_a_function(1)\" refused (true)",
+            "arms": {
+              "lowerOrder": {
+                "completed": false,
+                "detail": "the counterpart's responses were withheld; only the act strings remain",
+                "unreachable": false,
+                "perturbed": true,
+                "draws": 1,
+                "fired": 0
+              },
+              "arbitrary": {
+                "completed": false,
+                "detail": "accomplished the task in 0 of 5 seeded re-pairings of act to response",
+                "unreachable": false,
+                "perturbed": true,
+                "draws": 5,
+                "fired": 0
+              },
+              "discrimination": {
+                "completed": false,
+                "detail": "the same plan against \"sh\", confirmed not to accept it",
+                "unreachable": false,
+                "perturbed": true,
+                "draws": 1,
+                "fired": 0
+              }
+            }
+          },
+          {
+            "id": "i6-sentential",
+            "order": 6,
+            "organ": "python — act to effect",
+            "assembly": "EXPERIMENT — mhc-interact.js's ladder hand-wired to three counterparts (this repo's act grammar over the engine kernel; a python3 subprocess; an sh subprocess). NOT the-fold's assembled reader. READING-POLICY P0.",
+            "stages": [
+              "emission",
+              "acceptance",
+              "effect"
+            ],
+            "name": "one act, one effect, in order",
+            "status": "passed",
+            "detail": "\"print(6*7)\" produced its own effect; \"print(10+20)\" produced its own; and the first did not produce the second's",
+            "arms": {
+              "lowerOrder": {
+                "completed": false,
+                "detail": "the effect texts were withheld; only acceptance remains",
+                "unreachable": false,
+                "perturbed": true,
+                "draws": 1,
+                "fired": 0
+              },
+              "arbitrary": {
+                "completed": false,
+                "detail": "accomplished the task in 0 of 5 seeded re-pairings of act to response",
+                "unreachable": false,
+                "perturbed": true,
+                "draws": 5,
+                "fired": 0
+              },
+              "discrimination": {
+                "completed": false,
+                "detail": "the same plan against \"sh\", confirmed not to accept it",
+                "unreachable": false,
+                "perturbed": true,
+                "draws": 1,
+                "fired": 0
+              }
+            }
+          },
+          {
+            "id": "i7-preoperational",
+            "order": 7,
+            "organ": "python — carried state",
+            "assembly": "EXPERIMENT — mhc-interact.js's ladder hand-wired to three counterparts (this repo's act grammar over the engine kernel; a python3 subprocess; an sh subprocess). NOT the-fold's assembled reader. READING-POLICY P0.",
+            "stages": [
+              "emission",
+              "acceptance",
+              "effect",
+              "carry"
+            ],
+            "name": "a later act computed from what came back",
+            "status": "passed",
+            "detail": "read \"42\" back from \"print(6*7)\", built \"print(42+1)\" out of it, and the counterpart carried it",
+            "arms": {
+              "lowerOrder": {
+                "completed": false,
+                "detail": "the same 2 act(s) emitted open-loop, built from an empty response history — the acts came out different",
+                "unreachable": false,
+                "perturbed": true,
+                "draws": 1,
+                "fired": 0
+              },
+              "arbitrary": {
+                "completed": false,
+                "detail": "accomplished the task in 0 of 5 seeded re-orderings of the same acts",
+                "unreachable": false,
+                "perturbed": true,
+                "draws": 5,
+                "fired": 0
+              },
+              "discrimination": {
+                "completed": false,
+                "detail": "the same plan against \"sh\", confirmed not to accept it",
+                "unreachable": false,
+                "perturbed": true,
+                "draws": 1,
+                "fired": 0
+              }
+            }
+          },
+          {
+            "id": "i8-primary",
+            "order": 8,
+            "organ": "python — prediction then execution",
+            "assembly": "EXPERIMENT — mhc-interact.js's ladder hand-wired to three counterparts (this repo's act grammar over the engine kernel; a python3 subprocess; an sh subprocess). NOT the-fold's assembled reader. READING-POLICY P0.",
+            "stages": [
+              "emission",
+              "effect",
+              "carry",
+              "prediction"
+            ],
+            "name": "an empirical rule applied to a case not yet run",
+            "status": "passed",
+            "detail": "predicted \"56\" for a case never run, and the counterpart produced it; the rule declines the case it does not cover",
+            "arms": {
+              "lowerOrder": {
+                "completed": false,
+                "detail": "the rule was withheld; only an already-observed case's own value remains",
+                "unreachable": false,
+                "perturbed": true,
+                "draws": 1,
+                "fired": 0
+              },
+              "arbitrary": {
+                "completed": false,
+                "detail": "a seeded re-dealing of the rule's own case-to-value map predicted every case in 0 of 5 draws",
+                "unreachable": false,
+                "perturbed": true,
+                "draws": 5,
+                "fired": 0
+              },
+              "discrimination": {
+                "completed": false,
+                "detail": "the same plan against \"sh\", confirmed not to accept it",
+                "unreachable": false,
+                "perturbed": true,
+                "draws": 1,
+                "fired": 0
+              }
+            }
+          },
+          {
+            "id": "i9-concrete",
+            "order": 9,
+            "organ": "python — two routes to one effect",
+            "assembly": "EXPERIMENT — mhc-interact.js's ladder hand-wired to three counterparts (this repo's act grammar over the engine kernel; a python3 subprocess; an sh subprocess). NOT the-fold's assembled reader. READING-POLICY P0.",
+            "stages": [
+              "effect",
+              "prediction",
+              "corroboration"
+            ],
+            "name": "corroboration counted by route, not by repetition",
+            "status": "passed",
+            "detail": "3 arrival(s) of the same effect from 2 distinct route(s) — one route run twice is still one route",
+            "arms": {
+              "lowerOrder": {
+                "completed": false,
+                "detail": "counted by arrival rather than by route",
+                "unreachable": false,
+                "perturbed": true,
+                "draws": 1,
+                "fired": 0
+              },
+              "arbitrary": {
+                "completed": false,
+                "detail": "the same acts re-dealt into two routes of the same sizes reached the effect twice in 0 of 5 draws",
+                "unreachable": false,
+                "perturbed": true,
+                "draws": 5,
+                "fired": 0
+              },
+              "discrimination": {
+                "completed": false,
+                "detail": "the same plan against \"sh\", confirmed not to accept it",
+                "unreachable": false,
+                "perturbed": true,
+                "draws": 1,
+                "fired": 0
+              }
+            }
+          },
+          {
+            "id": "i10-abstract",
+            "order": 10,
+            "organ": "python — slot quantification",
+            "assembly": "EXPERIMENT — mhc-interact.js's ladder hand-wired to three counterparts (this repo's act grammar over the engine kernel; a python3 subprocess; an sh subprocess). NOT the-fold's assembled reader. READING-POLICY P0.",
+            "stages": [
+              "acceptance",
+              "corroboration",
+              "quantification"
+            ],
+            "name": "the whole filler set of an open slot in the counterpart",
+            "status": "passed",
+            "detail": "the open slot ranges over 5 of 8 candidate filler(s) — len, sum, abs, min, max; a slot with no admissible filler ranges over 0",
+            "arms": {
+              "lowerOrder": {
+                "completed": false,
+                "detail": "answered from a single already-run instance rather than by quantifying over the slot",
+                "unreachable": false,
+                "perturbed": true,
+                "draws": 1,
+                "fired": 0
+              },
+              "arbitrary": {
+                "completed": false,
+                "detail": "a seeded random subset of the same size reproduced the admitted set in 0 of 5 draws",
+                "unreachable": false,
+                "perturbed": true,
+                "draws": 5,
+                "fired": 0
+              },
+              "discrimination": {
+                "completed": false,
+                "detail": "the same plan against \"sh\", confirmed not to accept it",
+                "unreachable": false,
+                "perturbed": true,
+                "draws": 1,
+                "fired": 0
+              }
+            }
+          },
+          {
+            "id": "i11-formal",
+            "order": 11,
+            "organ": "python — intervention",
+            "assembly": "EXPERIMENT — mhc-interact.js's ladder hand-wired to three counterparts (this repo's act grammar over the engine kernel; a python3 subprocess; an sh subprocess). NOT the-fold's assembled reader. READING-POLICY P0.",
+            "stages": [
+              "quantification",
+              "intervention"
+            ],
+            "name": "the do-operator: this act, against the world run again without it",
+            "status": "passed",
+            "detail": "with the act: 5/5 held. Without it: 5/5 broke. With an accepted-but-irrelevant act in its place: 5/5 broke — so the effect follows THIS act, not merely an act.",
+            "arms": {
+              "lowerOrder": {
+                "completed": false,
+                "detail": "read only which acts the counterpart accepts, which the omission leaves unchanged",
+                "unreachable": false,
+                "perturbed": true,
+                "draws": 1,
+                "fired": 0
+              },
+              "arbitrary": {
+                "completed": false,
+                "detail": "an arbitrary irrelevant insertion reproduced the task's own contrast in 0 of 5 draws",
+                "unreachable": false,
+                "perturbed": true,
+                "draws": 5,
+                "fired": 0
+              },
+              "discrimination": {
+                "completed": false,
+                "detail": "the same plan against \"sh\", confirmed not to accept it",
+                "unreachable": false,
+                "perturbed": true,
+                "draws": 1,
+                "fired": 0
+              }
+            }
+          }
+        ],
+        "orders": [
+          {
+            "order": 5,
+            "name": "Nominal",
+            "status": "passed",
+            "items": [
+              {
+                "id": "i5-nominal",
+                "order": 5,
+                "organ": "python — accept / refuse",
+                "assembly": "EXPERIMENT — mhc-interact.js's ladder hand-wired to three counterparts (this repo's act grammar over the engine kernel; a python3 subprocess; an sh subprocess). NOT the-fold's assembled reader. READING-POLICY P0.",
+                "stages": [
+                  "emission",
+                  "acceptance"
+                ],
+                "name": "an act names an affordance the counterpart actually has",
+                "status": "passed",
+                "detail": "\"print(6*7)\" accepted (true); \"zzz_not_a_function(1)\" refused (true)",
+                "arms": {
+                  "lowerOrder": {
+                    "completed": false,
+                    "detail": "the counterpart's responses were withheld; only the act strings remain",
+                    "unreachable": false,
+                    "perturbed": true,
+                    "draws": 1,
+                    "fired": 0
+                  },
+                  "arbitrary": {
+                    "completed": false,
+                    "detail": "accomplished the task in 0 of 5 seeded re-pairings of act to response",
+                    "unreachable": false,
+                    "perturbed": true,
+                    "draws": 5,
+                    "fired": 0
+                  },
+                  "discrimination": {
+                    "completed": false,
+                    "detail": "the same plan against \"sh\", confirmed not to accept it",
+                    "unreachable": false,
+                    "perturbed": true,
+                    "draws": 1,
+                    "fired": 0
+                  }
+                }
+              }
+            ],
+            "failedCount": 0,
+            "refusedCount": 0,
+            "unmeasuredCount": 0
+          },
+          {
+            "order": 6,
+            "name": "Sentential",
+            "status": "passed",
+            "items": [
+              {
+                "id": "i6-sentential",
+                "order": 6,
+                "organ": "python — act to effect",
+                "assembly": "EXPERIMENT — mhc-interact.js's ladder hand-wired to three counterparts (this repo's act grammar over the engine kernel; a python3 subprocess; an sh subprocess). NOT the-fold's assembled reader. READING-POLICY P0.",
+                "stages": [
+                  "emission",
+                  "acceptance",
+                  "effect"
+                ],
+                "name": "one act, one effect, in order",
+                "status": "passed",
+                "detail": "\"print(6*7)\" produced its own effect; \"print(10+20)\" produced its own; and the first did not produce the second's",
+                "arms": {
+                  "lowerOrder": {
+                    "completed": false,
+                    "detail": "the effect texts were withheld; only acceptance remains",
+                    "unreachable": false,
+                    "perturbed": true,
+                    "draws": 1,
+                    "fired": 0
+                  },
+                  "arbitrary": {
+                    "completed": false,
+                    "detail": "accomplished the task in 0 of 5 seeded re-pairings of act to response",
+                    "unreachable": false,
+                    "perturbed": true,
+                    "draws": 5,
+                    "fired": 0
+                  },
+                  "discrimination": {
+                    "completed": false,
+                    "detail": "the same plan against \"sh\", confirmed not to accept it",
+                    "unreachable": false,
+                    "perturbed": true,
+                    "draws": 1,
+                    "fired": 0
+                  }
+                }
+              }
+            ],
+            "failedCount": 0,
+            "refusedCount": 0,
+            "unmeasuredCount": 0
+          },
+          {
+            "order": 7,
+            "name": "Preoperational",
+            "status": "passed",
+            "items": [
+              {
+                "id": "i7-preoperational",
+                "order": 7,
+                "organ": "python — carried state",
+                "assembly": "EXPERIMENT — mhc-interact.js's ladder hand-wired to three counterparts (this repo's act grammar over the engine kernel; a python3 subprocess; an sh subprocess). NOT the-fold's assembled reader. READING-POLICY P0.",
+                "stages": [
+                  "emission",
+                  "acceptance",
+                  "effect",
+                  "carry"
+                ],
+                "name": "a later act computed from what came back",
+                "status": "passed",
+                "detail": "read \"42\" back from \"print(6*7)\", built \"print(42+1)\" out of it, and the counterpart carried it",
+                "arms": {
+                  "lowerOrder": {
+                    "completed": false,
+                    "detail": "the same 2 act(s) emitted open-loop, built from an empty response history — the acts came out different",
+                    "unreachable": false,
+                    "perturbed": true,
+                    "draws": 1,
+                    "fired": 0
+                  },
+                  "arbitrary": {
+                    "completed": false,
+                    "detail": "accomplished the task in 0 of 5 seeded re-orderings of the same acts",
+                    "unreachable": false,
+                    "perturbed": true,
+                    "draws": 5,
+                    "fired": 0
+                  },
+                  "discrimination": {
+                    "completed": false,
+                    "detail": "the same plan against \"sh\", confirmed not to accept it",
+                    "unreachable": false,
+                    "perturbed": true,
+                    "draws": 1,
+                    "fired": 0
+                  }
+                }
+              }
+            ],
+            "failedCount": 0,
+            "refusedCount": 0,
+            "unmeasuredCount": 0
+          },
+          {
+            "order": 8,
+            "name": "Primary",
+            "status": "passed",
+            "items": [
+              {
+                "id": "i8-primary",
+                "order": 8,
+                "organ": "python — prediction then execution",
+                "assembly": "EXPERIMENT — mhc-interact.js's ladder hand-wired to three counterparts (this repo's act grammar over the engine kernel; a python3 subprocess; an sh subprocess). NOT the-fold's assembled reader. READING-POLICY P0.",
+                "stages": [
+                  "emission",
+                  "effect",
+                  "carry",
+                  "prediction"
+                ],
+                "name": "an empirical rule applied to a case not yet run",
+                "status": "passed",
+                "detail": "predicted \"56\" for a case never run, and the counterpart produced it; the rule declines the case it does not cover",
+                "arms": {
+                  "lowerOrder": {
+                    "completed": false,
+                    "detail": "the rule was withheld; only an already-observed case's own value remains",
+                    "unreachable": false,
+                    "perturbed": true,
+                    "draws": 1,
+                    "fired": 0
+                  },
+                  "arbitrary": {
+                    "completed": false,
+                    "detail": "a seeded re-dealing of the rule's own case-to-value map predicted every case in 0 of 5 draws",
+                    "unreachable": false,
+                    "perturbed": true,
+                    "draws": 5,
+                    "fired": 0
+                  },
+                  "discrimination": {
+                    "completed": false,
+                    "detail": "the same plan against \"sh\", confirmed not to accept it",
+                    "unreachable": false,
+                    "perturbed": true,
+                    "draws": 1,
+                    "fired": 0
+                  }
+                }
+              }
+            ],
+            "failedCount": 0,
+            "refusedCount": 0,
+            "unmeasuredCount": 0
+          },
+          {
+            "order": 9,
+            "name": "Concrete",
+            "status": "passed",
+            "items": [
+              {
+                "id": "i9-concrete",
+                "order": 9,
+                "organ": "python — two routes to one effect",
+                "assembly": "EXPERIMENT — mhc-interact.js's ladder hand-wired to three counterparts (this repo's act grammar over the engine kernel; a python3 subprocess; an sh subprocess). NOT the-fold's assembled reader. READING-POLICY P0.",
+                "stages": [
+                  "effect",
+                  "prediction",
+                  "corroboration"
+                ],
+                "name": "corroboration counted by route, not by repetition",
+                "status": "passed",
+                "detail": "3 arrival(s) of the same effect from 2 distinct route(s) — one route run twice is still one route",
+                "arms": {
+                  "lowerOrder": {
+                    "completed": false,
+                    "detail": "counted by arrival rather than by route",
+                    "unreachable": false,
+                    "perturbed": true,
+                    "draws": 1,
+                    "fired": 0
+                  },
+                  "arbitrary": {
+                    "completed": false,
+                    "detail": "the same acts re-dealt into two routes of the same sizes reached the effect twice in 0 of 5 draws",
+                    "unreachable": false,
+                    "perturbed": true,
+                    "draws": 5,
+                    "fired": 0
+                  },
+                  "discrimination": {
+                    "completed": false,
+                    "detail": "the same plan against \"sh\", confirmed not to accept it",
+                    "unreachable": false,
+                    "perturbed": true,
+                    "draws": 1,
+                    "fired": 0
+                  }
+                }
+              }
+            ],
+            "failedCount": 0,
+            "refusedCount": 0,
+            "unmeasuredCount": 0
+          },
+          {
+            "order": 10,
+            "name": "Abstract",
+            "status": "passed",
+            "items": [
+              {
+                "id": "i10-abstract",
+                "order": 10,
+                "organ": "python — slot quantification",
+                "assembly": "EXPERIMENT — mhc-interact.js's ladder hand-wired to three counterparts (this repo's act grammar over the engine kernel; a python3 subprocess; an sh subprocess). NOT the-fold's assembled reader. READING-POLICY P0.",
+                "stages": [
+                  "acceptance",
+                  "corroboration",
+                  "quantification"
+                ],
+                "name": "the whole filler set of an open slot in the counterpart",
+                "status": "passed",
+                "detail": "the open slot ranges over 5 of 8 candidate filler(s) — len, sum, abs, min, max; a slot with no admissible filler ranges over 0",
+                "arms": {
+                  "lowerOrder": {
+                    "completed": false,
+                    "detail": "answered from a single already-run instance rather than by quantifying over the slot",
+                    "unreachable": false,
+                    "perturbed": true,
+                    "draws": 1,
+                    "fired": 0
+                  },
+                  "arbitrary": {
+                    "completed": false,
+                    "detail": "a seeded random subset of the same size reproduced the admitted set in 0 of 5 draws",
+                    "unreachable": false,
+                    "perturbed": true,
+                    "draws": 5,
+                    "fired": 0
+                  },
+                  "discrimination": {
+                    "completed": false,
+                    "detail": "the same plan against \"sh\", confirmed not to accept it",
+                    "unreachable": false,
+                    "perturbed": true,
+                    "draws": 1,
+                    "fired": 0
+                  }
+                }
+              }
+            ],
+            "failedCount": 0,
+            "refusedCount": 0,
+            "unmeasuredCount": 0
+          },
+          {
+            "order": 11,
+            "name": "Formal",
+            "status": "passed",
+            "items": [
+              {
+                "id": "i11-formal",
+                "order": 11,
+                "organ": "python — intervention",
+                "assembly": "EXPERIMENT — mhc-interact.js's ladder hand-wired to three counterparts (this repo's act grammar over the engine kernel; a python3 subprocess; an sh subprocess). NOT the-fold's assembled reader. READING-POLICY P0.",
+                "stages": [
+                  "quantification",
+                  "intervention"
+                ],
+                "name": "the do-operator: this act, against the world run again without it",
+                "status": "passed",
+                "detail": "with the act: 5/5 held. Without it: 5/5 broke. With an accepted-but-irrelevant act in its place: 5/5 broke — so the effect follows THIS act, not merely an act.",
+                "arms": {
+                  "lowerOrder": {
+                    "completed": false,
+                    "detail": "read only which acts the counterpart accepts, which the omission leaves unchanged",
+                    "unreachable": false,
+                    "perturbed": true,
+                    "draws": 1,
+                    "fired": 0
+                  },
+                  "arbitrary": {
+                    "completed": false,
+                    "detail": "an arbitrary irrelevant insertion reproduced the task's own contrast in 0 of 5 draws",
+                    "unreachable": false,
+                    "perturbed": true,
+                    "draws": 5,
+                    "fired": 0
+                  },
+                  "discrimination": {
+                    "completed": false,
+                    "detail": "the same plan against \"sh\", confirmed not to accept it",
+                    "unreachable": false,
+                    "perturbed": true,
+                    "draws": 1,
+                    "fired": 0
+                  }
+                }
+              }
+            ],
+            "failedCount": 0,
+            "refusedCount": 0,
+            "unmeasuredCount": 0
+          }
+        ]
+      },
+      "stage": {
+        "stage": 11,
+        "stageName": "Formal",
+        "cappedBy": {
+          "order": 12,
+          "status": "no_item_declared",
+          "detail": "the battery declares no item at order 12"
+        },
+        "ceilingIsReal": false,
+        "isolated": []
+      },
+      "gaps": []
+    },
+    {
+      "material": "sh",
+      "kind": "a real `sh` subprocess — out of process, acceptance read off a real exit status",
+      "sibling": "grid",
+      "report": {
+        "giver": {
+          "name": "Model of Hierarchical Complexity",
+          "authors": "Michael Lamport Commons, Francis Asbury Richards (and others)",
+          "primary": "Commons, M. L., & Richards, F. A. (1984). Beyond formal operations, Vol. 1.",
+          "axioms": "Commons, M. L. (2008). Introduction to the model of hierarchical complexity and its relationship to postformal action. World Futures, 64(5-7), 305-320.",
+          "heldHere": "eo-wiki/articles/wiki/mhc-and-eo.md — this repo's own record of the convergence, and the source of the order table reproduced below"
+        },
+        "floor": {
+          "order": 5,
+          "gap": "out_of_scope_by_construction",
+          "detail": "Orders 0-4 are sensorimotor: they name operating on ambient conditions rather than on named things. This instrument receives symbols and has no sensor, so it does not perform these tasks and is not measured against them. The eo-wiki's phasepost reading places the sensorimotor-to-symbolic transition at orders ~4-5; this battery starts above it, by construction rather than by omission."
+        },
+        "assembly": "EXPERIMENT — mhc-interact.js's ladder hand-wired to three counterparts (this repo's act grammar over the engine kernel; a python3 subprocess; an sh subprocess). NOT the-fold's assembled reader. READING-POLICY P0.",
+        "priors": {
+          "declared": true,
+          "injected": []
+        },
+        "material": "sh",
+        "axiom1": {
+          "held": true,
+          "findings": []
+        },
+        "malformed": [],
+        "items": [
+          {
+            "id": "i5-nominal",
+            "order": 5,
+            "organ": "sh — accept / refuse",
+            "assembly": "EXPERIMENT — mhc-interact.js's ladder hand-wired to three counterparts (this repo's act grammar over the engine kernel; a python3 subprocess; an sh subprocess). NOT the-fold's assembled reader. READING-POLICY P0.",
+            "stages": [
+              "emission",
+              "acceptance"
+            ],
+            "name": "an act names an affordance the counterpart actually has",
+            "status": "passed",
+            "detail": "\"echo hello\" accepted (true); \"zzz_not_a_command\" refused (true)",
+            "arms": {
+              "lowerOrder": {
+                "completed": false,
+                "detail": "the counterpart's responses were withheld; only the act strings remain",
+                "unreachable": false,
+                "perturbed": true,
+                "draws": 1,
+                "fired": 0
+              },
+              "arbitrary": {
+                "completed": false,
+                "detail": "accomplished the task in 0 of 5 seeded re-pairings of act to response",
+                "unreachable": false,
+                "perturbed": true,
+                "draws": 5,
+                "fired": 0
+              },
+              "discrimination": {
+                "completed": false,
+                "detail": "the same plan against \"grid\", confirmed not to accept it",
+                "unreachable": false,
+                "perturbed": true,
+                "draws": 1,
+                "fired": 0
+              }
+            }
+          },
+          {
+            "id": "i6-sentential",
+            "order": 6,
+            "organ": "sh — act to effect",
+            "assembly": "EXPERIMENT — mhc-interact.js's ladder hand-wired to three counterparts (this repo's act grammar over the engine kernel; a python3 subprocess; an sh subprocess). NOT the-fold's assembled reader. READING-POLICY P0.",
+            "stages": [
+              "emission",
+              "acceptance",
+              "effect"
+            ],
+            "name": "one act, one effect, in order",
+            "status": "passed",
+            "detail": "\"expr 6 \\* 7\" produced its own effect; \"expr 10 + 20\" produced its own; and the first did not produce the second's",
+            "arms": {
+              "lowerOrder": {
+                "completed": false,
+                "detail": "the effect texts were withheld; only acceptance remains",
+                "unreachable": false,
+                "perturbed": true,
+                "draws": 1,
+                "fired": 0
+              },
+              "arbitrary": {
+                "completed": false,
+                "detail": "accomplished the task in 0 of 5 seeded re-pairings of act to response",
+                "unreachable": false,
+                "perturbed": true,
+                "draws": 5,
+                "fired": 0
+              },
+              "discrimination": {
+                "completed": false,
+                "detail": "the same plan against \"grid\", confirmed not to accept it",
+                "unreachable": false,
+                "perturbed": true,
+                "draws": 1,
+                "fired": 0
+              }
+            }
+          },
+          {
+            "id": "i7-preoperational",
+            "order": 7,
+            "organ": "sh — carried state",
+            "assembly": "EXPERIMENT — mhc-interact.js's ladder hand-wired to three counterparts (this repo's act grammar over the engine kernel; a python3 subprocess; an sh subprocess). NOT the-fold's assembled reader. READING-POLICY P0.",
+            "stages": [
+              "emission",
+              "acceptance",
+              "effect",
+              "carry"
+            ],
+            "name": "a later act computed from what came back",
+            "status": "passed",
+            "detail": "read \"42\" back from \"expr 6 \\* 7\", built \"expr 42 + 1\" out of it, and the counterpart carried it",
+            "arms": {
+              "lowerOrder": {
+                "completed": false,
+                "detail": "the same 2 act(s) emitted open-loop, built from an empty response history — the acts came out different",
+                "unreachable": false,
+                "perturbed": true,
+                "draws": 1,
+                "fired": 0
+              },
+              "arbitrary": {
+                "completed": false,
+                "detail": "accomplished the task in 0 of 5 seeded re-orderings of the same acts",
+                "unreachable": false,
+                "perturbed": true,
+                "draws": 5,
+                "fired": 0
+              },
+              "discrimination": {
+                "completed": false,
+                "detail": "the same plan against \"grid\", confirmed not to accept it",
+                "unreachable": false,
+                "perturbed": true,
+                "draws": 1,
+                "fired": 0
+              }
+            }
+          },
+          {
+            "id": "i8-primary",
+            "order": 8,
+            "organ": "sh — prediction then execution",
+            "assembly": "EXPERIMENT — mhc-interact.js's ladder hand-wired to three counterparts (this repo's act grammar over the engine kernel; a python3 subprocess; an sh subprocess). NOT the-fold's assembled reader. READING-POLICY P0.",
+            "stages": [
+              "emission",
+              "effect",
+              "carry",
+              "prediction"
+            ],
+            "name": "an empirical rule applied to a case not yet run",
+            "status": "passed",
+            "detail": "predicted \"56\" for a case never run, and the counterpart produced it; the rule declines the case it does not cover",
+            "arms": {
+              "lowerOrder": {
+                "completed": false,
+                "detail": "the rule was withheld; only an already-observed case's own value remains",
+                "unreachable": false,
+                "perturbed": true,
+                "draws": 1,
+                "fired": 0
+              },
+              "arbitrary": {
+                "completed": false,
+                "detail": "a seeded re-dealing of the rule's own case-to-value map predicted every case in 0 of 5 draws",
+                "unreachable": false,
+                "perturbed": true,
+                "draws": 5,
+                "fired": 0
+              },
+              "discrimination": {
+                "completed": false,
+                "detail": "the same plan against \"grid\", confirmed not to accept it",
+                "unreachable": false,
+                "perturbed": true,
+                "draws": 1,
+                "fired": 0
+              }
+            }
+          },
+          {
+            "id": "i9-concrete",
+            "order": 9,
+            "organ": "sh — two routes to one effect",
+            "assembly": "EXPERIMENT — mhc-interact.js's ladder hand-wired to three counterparts (this repo's act grammar over the engine kernel; a python3 subprocess; an sh subprocess). NOT the-fold's assembled reader. READING-POLICY P0.",
+            "stages": [
+              "effect",
+              "prediction",
+              "corroboration"
+            ],
+            "name": "corroboration counted by route, not by repetition",
+            "status": "passed",
+            "detail": "3 arrival(s) of the same effect from 2 distinct route(s) — one route run twice is still one route",
+            "arms": {
+              "lowerOrder": {
+                "completed": false,
+                "detail": "counted by arrival rather than by route",
+                "unreachable": false,
+                "perturbed": true,
+                "draws": 1,
+                "fired": 0
+              },
+              "arbitrary": {
+                "completed": false,
+                "detail": "the same acts re-dealt into two routes of the same sizes reached the effect twice in 0 of 5 draws",
+                "unreachable": false,
+                "perturbed": true,
+                "draws": 5,
+                "fired": 0
+              },
+              "discrimination": {
+                "completed": false,
+                "detail": "the same plan against \"grid\", confirmed not to accept it",
+                "unreachable": false,
+                "perturbed": true,
+                "draws": 1,
+                "fired": 0
+              }
+            }
+          },
+          {
+            "id": "i10-abstract",
+            "order": 10,
+            "organ": "sh — slot quantification",
+            "assembly": "EXPERIMENT — mhc-interact.js's ladder hand-wired to three counterparts (this repo's act grammar over the engine kernel; a python3 subprocess; an sh subprocess). NOT the-fold's assembled reader. READING-POLICY P0.",
+            "stages": [
+              "acceptance",
+              "corroboration",
+              "quantification"
+            ],
+            "name": "the whole filler set of an open slot in the counterpart",
+            "status": "passed",
+            "detail": "the open slot ranges over 5 of 8 candidate filler(s) — echo, printf, cd, pwd, true; a slot with no admissible filler ranges over 0",
+            "arms": {
+              "lowerOrder": {
+                "completed": false,
+                "detail": "answered from a single already-run instance rather than by quantifying over the slot",
+                "unreachable": false,
+                "perturbed": true,
+                "draws": 1,
+                "fired": 0
+              },
+              "arbitrary": {
+                "completed": false,
+                "detail": "a seeded random subset of the same size reproduced the admitted set in 0 of 5 draws",
+                "unreachable": false,
+                "perturbed": true,
+                "draws": 5,
+                "fired": 0
+              },
+              "discrimination": {
+                "completed": false,
+                "detail": "the same plan against \"grid\", confirmed not to accept it",
+                "unreachable": false,
+                "perturbed": true,
+                "draws": 1,
+                "fired": 0
+              }
+            }
+          },
+          {
+            "id": "i11-formal",
+            "order": 11,
+            "organ": "sh — intervention",
+            "assembly": "EXPERIMENT — mhc-interact.js's ladder hand-wired to three counterparts (this repo's act grammar over the engine kernel; a python3 subprocess; an sh subprocess). NOT the-fold's assembled reader. READING-POLICY P0.",
+            "stages": [
+              "quantification",
+              "intervention"
+            ],
+            "name": "the do-operator: this act, against the world run again without it",
+            "status": "passed",
+            "detail": "with the act: 5/5 held. Without it: 5/5 broke. With an accepted-but-irrelevant act in its place: 5/5 broke — so the effect follows THIS act, not merely an act.",
+            "arms": {
+              "lowerOrder": {
+                "completed": false,
+                "detail": "read only which acts the counterpart accepts, which the omission leaves unchanged",
+                "unreachable": false,
+                "perturbed": true,
+                "draws": 1,
+                "fired": 0
+              },
+              "arbitrary": {
+                "completed": false,
+                "detail": "an arbitrary irrelevant insertion reproduced the task's own contrast in 0 of 5 draws",
+                "unreachable": false,
+                "perturbed": true,
+                "draws": 5,
+                "fired": 0
+              },
+              "discrimination": {
+                "completed": false,
+                "detail": "the same plan against \"grid\", confirmed not to accept it",
+                "unreachable": false,
+                "perturbed": true,
+                "draws": 1,
+                "fired": 0
+              }
+            }
+          }
+        ],
+        "orders": [
+          {
+            "order": 5,
+            "name": "Nominal",
+            "status": "passed",
+            "items": [
+              {
+                "id": "i5-nominal",
+                "order": 5,
+                "organ": "sh — accept / refuse",
+                "assembly": "EXPERIMENT — mhc-interact.js's ladder hand-wired to three counterparts (this repo's act grammar over the engine kernel; a python3 subprocess; an sh subprocess). NOT the-fold's assembled reader. READING-POLICY P0.",
+                "stages": [
+                  "emission",
+                  "acceptance"
+                ],
+                "name": "an act names an affordance the counterpart actually has",
+                "status": "passed",
+                "detail": "\"echo hello\" accepted (true); \"zzz_not_a_command\" refused (true)",
+                "arms": {
+                  "lowerOrder": {
+                    "completed": false,
+                    "detail": "the counterpart's responses were withheld; only the act strings remain",
+                    "unreachable": false,
+                    "perturbed": true,
+                    "draws": 1,
+                    "fired": 0
+                  },
+                  "arbitrary": {
+                    "completed": false,
+                    "detail": "accomplished the task in 0 of 5 seeded re-pairings of act to response",
+                    "unreachable": false,
+                    "perturbed": true,
+                    "draws": 5,
+                    "fired": 0
+                  },
+                  "discrimination": {
+                    "completed": false,
+                    "detail": "the same plan against \"grid\", confirmed not to accept it",
+                    "unreachable": false,
+                    "perturbed": true,
+                    "draws": 1,
+                    "fired": 0
+                  }
+                }
+              }
+            ],
+            "failedCount": 0,
+            "refusedCount": 0,
+            "unmeasuredCount": 0
+          },
+          {
+            "order": 6,
+            "name": "Sentential",
+            "status": "passed",
+            "items": [
+              {
+                "id": "i6-sentential",
+                "order": 6,
+                "organ": "sh — act to effect",
+                "assembly": "EXPERIMENT — mhc-interact.js's ladder hand-wired to three counterparts (this repo's act grammar over the engine kernel; a python3 subprocess; an sh subprocess). NOT the-fold's assembled reader. READING-POLICY P0.",
+                "stages": [
+                  "emission",
+                  "acceptance",
+                  "effect"
+                ],
+                "name": "one act, one effect, in order",
+                "status": "passed",
+                "detail": "\"expr 6 \\* 7\" produced its own effect; \"expr 10 + 20\" produced its own; and the first did not produce the second's",
+                "arms": {
+                  "lowerOrder": {
+                    "completed": false,
+                    "detail": "the effect texts were withheld; only acceptance remains",
+                    "unreachable": false,
+                    "perturbed": true,
+                    "draws": 1,
+                    "fired": 0
+                  },
+                  "arbitrary": {
+                    "completed": false,
+                    "detail": "accomplished the task in 0 of 5 seeded re-pairings of act to response",
+                    "unreachable": false,
+                    "perturbed": true,
+                    "draws": 5,
+                    "fired": 0
+                  },
+                  "discrimination": {
+                    "completed": false,
+                    "detail": "the same plan against \"grid\", confirmed not to accept it",
+                    "unreachable": false,
+                    "perturbed": true,
+                    "draws": 1,
+                    "fired": 0
+                  }
+                }
+              }
+            ],
+            "failedCount": 0,
+            "refusedCount": 0,
+            "unmeasuredCount": 0
+          },
+          {
+            "order": 7,
+            "name": "Preoperational",
+            "status": "passed",
+            "items": [
+              {
+                "id": "i7-preoperational",
+                "order": 7,
+                "organ": "sh — carried state",
+                "assembly": "EXPERIMENT — mhc-interact.js's ladder hand-wired to three counterparts (this repo's act grammar over the engine kernel; a python3 subprocess; an sh subprocess). NOT the-fold's assembled reader. READING-POLICY P0.",
+                "stages": [
+                  "emission",
+                  "acceptance",
+                  "effect",
+                  "carry"
+                ],
+                "name": "a later act computed from what came back",
+                "status": "passed",
+                "detail": "read \"42\" back from \"expr 6 \\* 7\", built \"expr 42 + 1\" out of it, and the counterpart carried it",
+                "arms": {
+                  "lowerOrder": {
+                    "completed": false,
+                    "detail": "the same 2 act(s) emitted open-loop, built from an empty response history — the acts came out different",
+                    "unreachable": false,
+                    "perturbed": true,
+                    "draws": 1,
+                    "fired": 0
+                  },
+                  "arbitrary": {
+                    "completed": false,
+                    "detail": "accomplished the task in 0 of 5 seeded re-orderings of the same acts",
+                    "unreachable": false,
+                    "perturbed": true,
+                    "draws": 5,
+                    "fired": 0
+                  },
+                  "discrimination": {
+                    "completed": false,
+                    "detail": "the same plan against \"grid\", confirmed not to accept it",
+                    "unreachable": false,
+                    "perturbed": true,
+                    "draws": 1,
+                    "fired": 0
+                  }
+                }
+              }
+            ],
+            "failedCount": 0,
+            "refusedCount": 0,
+            "unmeasuredCount": 0
+          },
+          {
+            "order": 8,
+            "name": "Primary",
+            "status": "passed",
+            "items": [
+              {
+                "id": "i8-primary",
+                "order": 8,
+                "organ": "sh — prediction then execution",
+                "assembly": "EXPERIMENT — mhc-interact.js's ladder hand-wired to three counterparts (this repo's act grammar over the engine kernel; a python3 subprocess; an sh subprocess). NOT the-fold's assembled reader. READING-POLICY P0.",
+                "stages": [
+                  "emission",
+                  "effect",
+                  "carry",
+                  "prediction"
+                ],
+                "name": "an empirical rule applied to a case not yet run",
+                "status": "passed",
+                "detail": "predicted \"56\" for a case never run, and the counterpart produced it; the rule declines the case it does not cover",
+                "arms": {
+                  "lowerOrder": {
+                    "completed": false,
+                    "detail": "the rule was withheld; only an already-observed case's own value remains",
+                    "unreachable": false,
+                    "perturbed": true,
+                    "draws": 1,
+                    "fired": 0
+                  },
+                  "arbitrary": {
+                    "completed": false,
+                    "detail": "a seeded re-dealing of the rule's own case-to-value map predicted every case in 0 of 5 draws",
+                    "unreachable": false,
+                    "perturbed": true,
+                    "draws": 5,
+                    "fired": 0
+                  },
+                  "discrimination": {
+                    "completed": false,
+                    "detail": "the same plan against \"grid\", confirmed not to accept it",
+                    "unreachable": false,
+                    "perturbed": true,
+                    "draws": 1,
+                    "fired": 0
+                  }
+                }
+              }
+            ],
+            "failedCount": 0,
+            "refusedCount": 0,
+            "unmeasuredCount": 0
+          },
+          {
+            "order": 9,
+            "name": "Concrete",
+            "status": "passed",
+            "items": [
+              {
+                "id": "i9-concrete",
+                "order": 9,
+                "organ": "sh — two routes to one effect",
+                "assembly": "EXPERIMENT — mhc-interact.js's ladder hand-wired to three counterparts (this repo's act grammar over the engine kernel; a python3 subprocess; an sh subprocess). NOT the-fold's assembled reader. READING-POLICY P0.",
+                "stages": [
+                  "effect",
+                  "prediction",
+                  "corroboration"
+                ],
+                "name": "corroboration counted by route, not by repetition",
+                "status": "passed",
+                "detail": "3 arrival(s) of the same effect from 2 distinct route(s) — one route run twice is still one route",
+                "arms": {
+                  "lowerOrder": {
+                    "completed": false,
+                    "detail": "counted by arrival rather than by route",
+                    "unreachable": false,
+                    "perturbed": true,
+                    "draws": 1,
+                    "fired": 0
+                  },
+                  "arbitrary": {
+                    "completed": false,
+                    "detail": "the same acts re-dealt into two routes of the same sizes reached the effect twice in 0 of 5 draws",
+                    "unreachable": false,
+                    "perturbed": true,
+                    "draws": 5,
+                    "fired": 0
+                  },
+                  "discrimination": {
+                    "completed": false,
+                    "detail": "the same plan against \"grid\", confirmed not to accept it",
+                    "unreachable": false,
+                    "perturbed": true,
+                    "draws": 1,
+                    "fired": 0
+                  }
+                }
+              }
+            ],
+            "failedCount": 0,
+            "refusedCount": 0,
+            "unmeasuredCount": 0
+          },
+          {
+            "order": 10,
+            "name": "Abstract",
+            "status": "passed",
+            "items": [
+              {
+                "id": "i10-abstract",
+                "order": 10,
+                "organ": "sh — slot quantification",
+                "assembly": "EXPERIMENT — mhc-interact.js's ladder hand-wired to three counterparts (this repo's act grammar over the engine kernel; a python3 subprocess; an sh subprocess). NOT the-fold's assembled reader. READING-POLICY P0.",
+                "stages": [
+                  "acceptance",
+                  "corroboration",
+                  "quantification"
+                ],
+                "name": "the whole filler set of an open slot in the counterpart",
+                "status": "passed",
+                "detail": "the open slot ranges over 5 of 8 candidate filler(s) — echo, printf, cd, pwd, true; a slot with no admissible filler ranges over 0",
+                "arms": {
+                  "lowerOrder": {
+                    "completed": false,
+                    "detail": "answered from a single already-run instance rather than by quantifying over the slot",
+                    "unreachable": false,
+                    "perturbed": true,
+                    "draws": 1,
+                    "fired": 0
+                  },
+                  "arbitrary": {
+                    "completed": false,
+                    "detail": "a seeded random subset of the same size reproduced the admitted set in 0 of 5 draws",
+                    "unreachable": false,
+                    "perturbed": true,
+                    "draws": 5,
+                    "fired": 0
+                  },
+                  "discrimination": {
+                    "completed": false,
+                    "detail": "the same plan against \"grid\", confirmed not to accept it",
+                    "unreachable": false,
+                    "perturbed": true,
+                    "draws": 1,
+                    "fired": 0
+                  }
+                }
+              }
+            ],
+            "failedCount": 0,
+            "refusedCount": 0,
+            "unmeasuredCount": 0
+          },
+          {
+            "order": 11,
+            "name": "Formal",
+            "status": "passed",
+            "items": [
+              {
+                "id": "i11-formal",
+                "order": 11,
+                "organ": "sh — intervention",
+                "assembly": "EXPERIMENT — mhc-interact.js's ladder hand-wired to three counterparts (this repo's act grammar over the engine kernel; a python3 subprocess; an sh subprocess). NOT the-fold's assembled reader. READING-POLICY P0.",
+                "stages": [
+                  "quantification",
+                  "intervention"
+                ],
+                "name": "the do-operator: this act, against the world run again without it",
+                "status": "passed",
+                "detail": "with the act: 5/5 held. Without it: 5/5 broke. With an accepted-but-irrelevant act in its place: 5/5 broke — so the effect follows THIS act, not merely an act.",
+                "arms": {
+                  "lowerOrder": {
+                    "completed": false,
+                    "detail": "read only which acts the counterpart accepts, which the omission leaves unchanged",
+                    "unreachable": false,
+                    "perturbed": true,
+                    "draws": 1,
+                    "fired": 0
+                  },
+                  "arbitrary": {
+                    "completed": false,
+                    "detail": "an arbitrary irrelevant insertion reproduced the task's own contrast in 0 of 5 draws",
+                    "unreachable": false,
+                    "perturbed": true,
+                    "draws": 5,
+                    "fired": 0
+                  },
+                  "discrimination": {
+                    "completed": false,
+                    "detail": "the same plan against \"grid\", confirmed not to accept it",
+                    "unreachable": false,
+                    "perturbed": true,
+                    "draws": 1,
+                    "fired": 0
+                  }
+                }
+              }
+            ],
+            "failedCount": 0,
+            "refusedCount": 0,
+            "unmeasuredCount": 0
+          }
+        ]
+      },
+      "stage": {
+        "stage": 11,
+        "stageName": "Formal",
+        "cappedBy": {
+          "order": 12,
+          "status": "no_item_declared",
+          "detail": "the battery declares no item at order 12"
+        },
+        "ceilingIsReal": false,
+        "isolated": []
+      },
+      "gaps": []
+    }
+  ],
+  "independence": {
+    "examined": true,
+    "materials": [
+      "grid",
+      "python",
+      "sh"
+    ],
+    "held": true,
+    "violations": [],
+    "performance": [],
+    "noProbe": [],
+    "agreed": [
+      {
+        "order": 5,
+        "status": "passed"
+      },
+      {
+        "order": 6,
+        "status": "passed"
+      },
+      {
+        "order": 7,
+        "status": "passed"
+      },
+      {
+        "order": 8,
+        "status": "passed"
+      },
+      {
+        "order": 9,
+        "status": "passed"
+      },
+      {
+        "order": 10,
+        "status": "passed"
+      },
+      {
+        "order": 11,
+        "status": "passed"
+      }
+    ]
+  }
+}

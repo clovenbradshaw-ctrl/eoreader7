@@ -1,0 +1,1068 @@
+{
+ "schema": "EOTenureMaterial@1",
+ "giver": "wikidata.org Special:EntityData, retrieved 2026-08-28 \u2014 P39 statements with P580/P582 and P1365/P1366 qualifiers, one row per tenure",
+ "purpose": "MATERIAL for the derivation: each row is one tenure, so a bridge can carry tenure identity instead of person identity.",
+ "note": "These are the same pages eval/fixtures/succession-terms.json was built from. The derivation uses start ONLY to NAME a tenure; the oracle uses start/end to ORDER tenures. The E-prime control (naming by statement index instead) reproduces the identical fact set, which is the evidence that no ordering leaked into the derivation.",
+ "entities": {
+  "Q1636152": {
+   "label": "Wyman B. S. Moor",
+   "tenures": [
+    {
+     "office": "Q4416090",
+     "start": "+1848-01-05T00:00:00Z",
+     "end": "+1848-06-07T00:00:00Z",
+     "replaces": "Q370652",
+     "replacedBy": "Q273546"
+    }
+   ]
+  },
+  "Q310852": {
+   "label": "Schuyler Colfax",
+   "tenures": [
+    {
+     "office": "Q13218630",
+     "start": "+1855-03-04T00:00:00Z",
+     "end": "+1869-03-04T00:00:00Z",
+     "replaces": "Q1999514",
+     "replacedBy": "Q1701285"
+    },
+    {
+     "office": "Q11699",
+     "start": "+1869-03-04T00:00:00Z",
+     "end": "+1873-03-04T00:00:00Z",
+     "replaces": "Q8612",
+     "replacedBy": "Q313302"
+    },
+    {
+     "office": "Q912994",
+     "start": "+1863-12-07T00:00:00Z",
+     "end": "+1869-03-03T00:00:00Z",
+     "replaces": "Q1492758",
+     "replacedBy": "Q451162"
+    },
+    {
+     "office": "Q2824523",
+     "start": "+1861-12-19T00:00:00Z",
+     "end": "+1862-00-00T00:00:00Z",
+     "replaces": null,
+     "replacedBy": null
+    },
+    {
+     "office": "Q2824523",
+     "start": "+1869-03-04T00:00:00Z",
+     "end": "+1873-03-04T00:00:00Z",
+     "replaces": null,
+     "replacedBy": null
+    }
+   ]
+  },
+  "Q703642": {
+   "label": "John Watson Foster",
+   "tenures": [
+    {
+     "office": "Q7889339",
+     "start": "+1873-06-16T00:00:00Z",
+     "end": "+1880-03-02T00:00:00Z",
+     "replaces": "Q7790307",
+     "replacedBy": "Q7183669"
+    },
+    {
+     "office": "Q110661415",
+     "start": "+1880-06-11T00:00:00Z",
+     "end": "+1881-08-01T00:00:00Z",
+     "replaces": "Q5346894",
+     "replacedBy": "Q373146"
+    },
+    {
+     "office": "Q1837668",
+     "start": "+1883-06-16T00:00:00Z",
+     "end": "+1885-08-28T00:00:00Z",
+     "replaces": "Q273546",
+     "replacedBy": null
+    },
+    {
+     "office": "Q14213",
+     "start": "+1892-06-29T00:00:00Z",
+     "end": "+1893-02-23T00:00:00Z",
+     "replaces": "Q8008895",
+     "replacedBy": "Q8008895"
+    }
+   ]
+  },
+  "Q4723126": {
+   "label": "Alfred Marshall",
+   "tenures": [
+    {
+     "office": "Q13218630",
+     "start": null,
+     "end": null,
+     "replaces": null,
+     "replacedBy": null
+    },
+    {
+     "office": "Q18713970",
+     "start": null,
+     "end": null,
+     "replaces": null,
+     "replacedBy": null
+    }
+   ]
+  },
+  "Q925629": {
+   "label": "David M. Key",
+   "tenures": [
+    {
+     "office": "Q4416090",
+     "start": "+1875-08-18T00:00:00Z",
+     "end": "+1877-01-19T00:00:00Z",
+     "replaces": "Q8612",
+     "replacedBy": "Q1680314"
+    },
+    {
+     "office": "Q15686806",
+     "start": null,
+     "end": null,
+     "replaces": null,
+     "replacedBy": null
+    }
+   ]
+  },
+  "Q181727": {
+   "label": "Parson Brownlow",
+   "tenures": [
+    {
+     "office": "Q5589724",
+     "start": "+1865-04-05T00:00:00Z",
+     "end": "+1869-02-25T00:00:00Z",
+     "replaces": "Q8612",
+     "replacedBy": "Q195774"
+    },
+    {
+     "office": "Q4416090",
+     "start": "+1869-03-04T00:00:00Z",
+     "end": "+1871-03-04T00:00:00Z",
+     "replaces": "Q5240252",
+     "replacedBy": null
+    },
+    {
+     "office": "Q4416090",
+     "start": "+1871-03-04T00:00:00Z",
+     "end": "+1873-03-04T00:00:00Z",
+     "replaces": null,
+     "replacedBy": null
+    },
+    {
+     "office": "Q4416090",
+     "start": "+1873-03-04T00:00:00Z",
+     "end": "+1875-03-04T00:00:00Z",
+     "replaces": null,
+     "replacedBy": "Q8612"
+    },
+    {
+     "office": "Q15686806",
+     "start": null,
+     "end": null,
+     "replaces": null,
+     "replacedBy": null
+    }
+   ]
+  },
+  "Q848367": {
+   "label": "Samuel Wells",
+   "tenures": [
+    {
+     "office": "Q18713970",
+     "start": null,
+     "end": null,
+     "replaces": null,
+     "replacedBy": null
+    },
+    {
+     "office": "Q3506352",
+     "start": "+1856-01-02T00:00:00Z",
+     "end": "+1857-01-08T00:00:00Z",
+     "replaces": "Q370659",
+     "replacedBy": "Q273546"
+    }
+   ]
+  },
+  "Q273212": {
+   "label": "John C. Breckinridge",
+   "tenures": [
+    {
+     "office": "Q13218630",
+     "start": null,
+     "end": null,
+     "replaces": null,
+     "replacedBy": null
+    },
+    {
+     "office": "Q11699",
+     "start": "+1857-03-04T00:00:00Z",
+     "end": "+1861-03-04T00:00:00Z",
+     "replaces": "Q298985",
+     "replacedBy": "Q273546"
+    },
+    {
+     "office": "Q2500100",
+     "start": "+1865-02-06T00:00:00Z",
+     "end": "+1865-05-10T00:00:00Z",
+     "replaces": "Q1679942",
+     "replacedBy": null
+    },
+    {
+     "office": "Q4416090",
+     "start": "+1861-03-04T00:00:00Z",
+     "end": "+1861-12-04T00:00:00Z",
+     "replaces": "Q880239",
+     "replacedBy": "Q1494443"
+    },
+    {
+     "office": "Q20065966",
+     "start": null,
+     "end": null,
+     "replaces": null,
+     "replacedBy": null
+    },
+    {
+     "office": "Q1837668",
+     "start": null,
+     "end": null,
+     "replaces": null,
+     "replacedBy": null
+    },
+    {
+     "office": "Q2824523",
+     "start": "+1857-03-04T00:00:00Z",
+     "end": "+1861-03-04T00:00:00Z",
+     "replaces": null,
+     "replacedBy": null
+    },
+    {
+     "office": "Q15686806",
+     "start": null,
+     "end": null,
+     "replaces": null,
+     "replacedBy": null
+    },
+    {
+     "office": "Q2518691",
+     "start": null,
+     "end": null,
+     "replaces": null,
+     "replacedBy": null
+    }
+   ]
+  },
+  "Q130715": {
+   "label": "Isham G. Harris",
+   "tenures": [
+    {
+     "office": "Q13218630",
+     "start": null,
+     "end": null,
+     "replaces": null,
+     "replacedBy": null
+    },
+    {
+     "office": "Q18534307",
+     "start": null,
+     "end": null,
+     "replaces": null,
+     "replacedBy": null
+    },
+    {
+     "office": "Q5589724",
+     "start": null,
+     "end": null,
+     "replaces": null,
+     "replacedBy": null
+    },
+    {
+     "office": "Q4416090",
+     "start": "+1877-03-04T00:00:00Z",
+     "end": "+1879-03-04T00:00:00Z",
+     "replaces": "Q1606623",
+     "replacedBy": null
+    },
+    {
+     "office": "Q4416090",
+     "start": "+1879-03-04T00:00:00Z",
+     "end": "+1881-03-04T00:00:00Z",
+     "replaces": null,
+     "replacedBy": null
+    },
+    {
+     "office": "Q4416090",
+     "start": "+1881-03-04T00:00:00Z",
+     "end": "+1883-03-04T00:00:00Z",
+     "replaces": null,
+     "replacedBy": null
+    },
+    {
+     "office": "Q4416090",
+     "start": "+1883-03-04T00:00:00Z",
+     "end": "+1885-03-04T00:00:00Z",
+     "replaces": null,
+     "replacedBy": null
+    },
+    {
+     "office": "Q4416090",
+     "start": "+1885-03-04T00:00:00Z",
+     "end": "+1887-03-04T00:00:00Z",
+     "replaces": null,
+     "replacedBy": null
+    },
+    {
+     "office": "Q4416090",
+     "start": "+1887-03-04T00:00:00Z",
+     "end": "+1889-03-04T00:00:00Z",
+     "replaces": null,
+     "replacedBy": null
+    },
+    {
+     "office": "Q4416090",
+     "start": "+1889-03-04T00:00:00Z",
+     "end": "+1891-03-04T00:00:00Z",
+     "replaces": null,
+     "replacedBy": null
+    },
+    {
+     "office": "Q4416090",
+     "start": "+1891-03-04T00:00:00Z",
+     "end": "+1893-03-04T00:00:00Z",
+     "replaces": null,
+     "replacedBy": null
+    },
+    {
+     "office": "Q4416090",
+     "start": "+1893-03-04T00:00:00Z",
+     "end": "+1895-03-04T00:00:00Z",
+     "replaces": null,
+     "replacedBy": null
+    },
+    {
+     "office": "Q4416090",
+     "start": "+1895-03-04T00:00:00Z",
+     "end": "+1897-03-04T00:00:00Z",
+     "replaces": null,
+     "replacedBy": null
+    },
+    {
+     "office": "Q4416090",
+     "start": "+1897-03-04T00:00:00Z",
+     "end": "+1897-07-08T00:00:00Z",
+     "replaces": null,
+     "replacedBy": "Q6217038"
+    },
+    {
+     "office": "Q15686806",
+     "start": null,
+     "end": null,
+     "replaces": null,
+     "replacedBy": null
+    }
+   ]
+  },
+  "Q267988": {
+   "label": "Lucius Fairchild",
+   "tenures": [
+    {
+     "office": "Q3112727",
+     "start": "+1866-01-01T00:00:00Z",
+     "end": "+1872-01-01T00:00:00Z",
+     "replaces": "Q369525",
+     "replacedBy": "Q369835"
+    },
+    {
+     "office": "Q121998",
+     "start": null,
+     "end": null,
+     "replaces": null,
+     "replacedBy": null
+    },
+    {
+     "office": "Q1837668",
+     "start": null,
+     "end": null,
+     "replaces": null,
+     "replacedBy": null
+    }
+   ]
+  },
+  "Q1641461": {
+   "label": "Thomas Dickens Arnold",
+   "tenures": [
+    {
+     "office": "Q13218630",
+     "start": null,
+     "end": null,
+     "replaces": null,
+     "replacedBy": null
+    }
+   ]
+  },
+  "Q34836": {
+   "label": "Ulysses S. Grant",
+   "tenures": [
+    {
+     "office": "Q11696",
+     "start": "+1869-03-04T00:00:00Z",
+     "end": "+1877-03-04T00:00:00Z",
+     "replaces": "Q8612",
+     "replacedBy": "Q35686"
+    },
+    {
+     "office": "Q1115127",
+     "start": "+1864-03-09T00:00:00Z",
+     "end": "+1869-03-04T00:00:00Z",
+     "replaces": "Q504369",
+     "replacedBy": "Q188936"
+    },
+    {
+     "office": "Q1467287",
+     "start": "+1868-11-03T00:00:00Z",
+     "end": "+1869-03-04T00:00:00Z",
+     "replaces": "Q91",
+     "replacedBy": "Q35686"
+    },
+    {
+     "office": "Q2419102",
+     "start": "+1867-08-12T00:00:00Z",
+     "end": "+1868-01-13T00:00:00Z",
+     "replaces": "Q448803",
+     "replacedBy": "Q448803"
+    }
+   ]
+  },
+  "Q5240252": {
+   "label": "David T. Patterson",
+   "tenures": [
+    {
+     "office": "Q4416090",
+     "start": "+1866-07-24T00:00:00Z",
+     "end": "+1867-03-04T00:00:00Z",
+     "replaces": "Q8612",
+     "replacedBy": null
+    },
+    {
+     "office": "Q4416090",
+     "start": "+1867-03-04T00:00:00Z",
+     "end": "+1869-03-04T00:00:00Z",
+     "replaces": null,
+     "replacedBy": "Q181727"
+    }
+   ]
+  },
+  "Q8612": {
+   "label": "Andrew Johnson",
+   "tenures": [
+    {
+     "office": "Q11696",
+     "start": "+1865-04-15T00:00:00Z",
+     "end": "+1869-03-04T00:00:00Z",
+     "replaces": "Q91",
+     "replacedBy": "Q34836"
+    },
+    {
+     "office": "Q13218630",
+     "start": "+1843-03-04T00:00:00Z",
+     "end": "+1853-03-03T00:00:00Z",
+     "replaces": "Q1641461",
+     "replacedBy": "Q929115"
+    },
+    {
+     "office": "Q18534307",
+     "start": null,
+     "end": null,
+     "replaces": null,
+     "replacedBy": null
+    },
+    {
+     "office": "Q18538054",
+     "start": null,
+     "end": null,
+     "replaces": null,
+     "replacedBy": null
+    },
+    {
+     "office": "Q11699",
+     "start": "+1865-03-04T00:00:00Z",
+     "end": "+1865-04-15T00:00:00Z",
+     "replaces": "Q273546",
+     "replacedBy": "Q310852"
+    },
+    {
+     "office": "Q5589724",
+     "start": "+1862-03-12T00:00:00Z",
+     "end": "+1865-03-04T00:00:00Z",
+     "replaces": "Q130715",
+     "replacedBy": "Q181727"
+    },
+    {
+     "office": "Q4416090",
+     "start": "+1857-10-08T00:00:00Z",
+     "end": "+1859-03-04T00:00:00Z",
+     "replaces": "Q358277",
+     "replacedBy": null
+    },
+    {
+     "office": "Q4416090",
+     "start": "+1859-03-04T00:00:00Z",
+     "end": "+1861-03-04T00:00:00Z",
+     "replaces": null,
+     "replacedBy": null
+    },
+    {
+     "office": "Q4416090",
+     "start": "+1861-03-04T00:00:00Z",
+     "end": "+1862-03-04T00:00:00Z",
+     "replaces": null,
+     "replacedBy": "Q5240252"
+    },
+    {
+     "office": "Q4416090",
+     "start": "+1875-03-04T00:00:00Z",
+     "end": "+1875-07-31T00:00:00Z",
+     "replaces": "Q181727",
+     "replacedBy": "Q925629"
+    },
+    {
+     "office": "Q15686806",
+     "start": null,
+     "end": null,
+     "replaces": null,
+     "replacedBy": null
+    }
+   ]
+  },
+  "Q391529": {
+   "label": "Joseph H. Williams",
+   "tenures": [
+    {
+     "office": "Q18713970",
+     "start": null,
+     "end": null,
+     "replaces": null,
+     "replacedBy": null
+    },
+    {
+     "office": "Q3506352",
+     "start": "+1857-02-25T00:00:00Z",
+     "end": "+1858-01-06T00:00:00Z",
+     "replaces": "Q273546",
+     "replacedBy": "Q580974"
+    },
+    {
+     "office": "Q18342769",
+     "start": null,
+     "end": null,
+     "replaces": null,
+     "replacedBy": null
+    }
+   ]
+  },
+  "Q474290": {
+   "label": "Amos Nourse",
+   "tenures": [
+    {
+     "office": "Q4416090",
+     "start": "+1857-01-16T00:00:00Z",
+     "end": "+1857-03-03T00:00:00Z",
+     "replaces": "Q273546",
+     "replacedBy": "Q273546"
+    }
+   ]
+  },
+  "Q358277": {
+   "label": "James C. Jones",
+   "tenures": [
+    {
+     "office": "Q18538054",
+     "start": null,
+     "end": null,
+     "replaces": null,
+     "replacedBy": null
+    },
+    {
+     "office": "Q5589724",
+     "start": "+1841-10-15T00:00:00Z",
+     "end": "+1845-10-14T00:00:00Z",
+     "replaces": "Q11891",
+     "replacedBy": "Q302874"
+    },
+    {
+     "office": "Q4416090",
+     "start": "+1851-03-04T00:00:00Z",
+     "end": "+1853-03-04T00:00:00Z",
+     "replaces": "Q1627671",
+     "replacedBy": null
+    },
+    {
+     "office": "Q4416090",
+     "start": "+1853-03-04T00:00:00Z",
+     "end": "+1855-03-04T00:00:00Z",
+     "replaces": null,
+     "replacedBy": null
+    },
+    {
+     "office": "Q4416090",
+     "start": "+1855-03-04T00:00:00Z",
+     "end": "+1857-03-04T00:00:00Z",
+     "replaces": null,
+     "replacedBy": "Q8612"
+    }
+   ]
+  },
+  "Q580974": {
+   "label": "Lot M. Morrill",
+   "tenures": [
+    {
+     "office": "Q4215834",
+     "start": "+1876-07-07T00:00:00Z",
+     "end": "+1877-03-09T00:00:00Z",
+     "replaces": "Q817531",
+     "replacedBy": "Q445392"
+    },
+    {
+     "office": "Q18342769",
+     "start": null,
+     "end": null,
+     "replaces": null,
+     "replacedBy": null
+    },
+    {
+     "office": "Q3506352",
+     "start": "+1858-01-06T00:00:00Z",
+     "end": "+1861-01-02T00:00:00Z",
+     "replaces": "Q391529",
+     "replacedBy": "Q433008"
+    },
+    {
+     "office": "Q4416090",
+     "start": "+1861-01-17T00:00:00Z",
+     "end": "+1861-03-04T00:00:00Z",
+     "replaces": "Q273546",
+     "replacedBy": null
+    },
+    {
+     "office": "Q4416090",
+     "start": "+1861-03-04T00:00:00Z",
+     "end": "+1863-03-04T00:00:00Z",
+     "replaces": null,
+     "replacedBy": null
+    },
+    {
+     "office": "Q4416090",
+     "start": "+1863-03-04T00:00:00Z",
+     "end": "+1865-03-04T00:00:00Z",
+     "replaces": null,
+     "replacedBy": null
+    },
+    {
+     "office": "Q4416090",
+     "start": "+1865-03-04T00:00:00Z",
+     "end": "+1867-03-04T00:00:00Z",
+     "replaces": null,
+     "replacedBy": null
+    },
+    {
+     "office": "Q4416090",
+     "start": "+1867-03-04T00:00:00Z",
+     "end": "+1869-03-04T00:00:00Z",
+     "replaces": null,
+     "replacedBy": "Q273546"
+    },
+    {
+     "office": "Q4416090",
+     "start": "+1869-10-30T00:00:00Z",
+     "end": "+1871-03-04T00:00:00Z",
+     "replaces": "Q968068",
+     "replacedBy": null
+    },
+    {
+     "office": "Q4416090",
+     "start": "+1871-03-04T00:00:00Z",
+     "end": "+1873-03-04T00:00:00Z",
+     "replaces": null,
+     "replacedBy": null
+    },
+    {
+     "office": "Q4416090",
+     "start": "+1873-03-04T00:00:00Z",
+     "end": "+1875-03-04T00:00:00Z",
+     "replaces": null,
+     "replacedBy": null
+    },
+    {
+     "office": "Q4416090",
+     "start": "+1875-03-04T00:00:00Z",
+     "end": "+1876-07-07T00:00:00Z",
+     "replaces": null,
+     "replacedBy": "Q448778"
+    },
+    {
+     "office": "Q18713970",
+     "start": null,
+     "end": null,
+     "replaces": null,
+     "replacedBy": null
+    }
+   ]
+  },
+  "Q91": {
+   "label": "Abraham Lincoln",
+   "tenures": [
+    {
+     "office": "Q13218630",
+     "start": "+1847-03-04T00:00:00Z",
+     "end": "+1849-03-04T00:00:00Z",
+     "replaces": "Q5321400",
+     "replacedBy": "Q2781217"
+    },
+    {
+     "office": "Q11696",
+     "start": "+1861-03-04T00:00:00Z",
+     "end": "+1865-04-15T00:00:00Z",
+     "replaces": "Q12325",
+     "replacedBy": "Q8612"
+    },
+    {
+     "office": "Q17495450",
+     "start": "+1834-00-00T00:00:00Z",
+     "end": "+1842-00-00T00:00:00Z",
+     "replaces": null,
+     "replacedBy": null
+    },
+    {
+     "office": "Q1467287",
+     "start": "+1860-11-06T00:00:00Z",
+     "end": "+1861-03-04T00:00:00Z",
+     "replaces": "Q12325",
+     "replacedBy": "Q34836"
+    },
+    {
+     "office": "Q1255921",
+     "start": null,
+     "end": null,
+     "replaces": null,
+     "replacedBy": null
+    }
+   ]
+  },
+  "Q929115": {
+   "label": "Brookins Campbell",
+   "tenures": [
+    {
+     "office": "Q13218630",
+     "start": null,
+     "end": null,
+     "replaces": null,
+     "replacedBy": null
+    },
+    {
+     "office": "Q18538054",
+     "start": null,
+     "end": null,
+     "replaces": null,
+     "replacedBy": null
+    }
+   ]
+  },
+  "Q1373107": {
+   "label": "Eugene Hale",
+   "tenures": [
+    {
+     "office": "Q13218630",
+     "start": null,
+     "end": null,
+     "replaces": null,
+     "replacedBy": null
+    },
+    {
+     "office": "Q18713970",
+     "start": null,
+     "end": null,
+     "replaces": null,
+     "replacedBy": null
+    },
+    {
+     "office": "Q4416090",
+     "start": "+1881-03-04T00:00:00Z",
+     "end": "+1883-03-04T00:00:00Z",
+     "replaces": "Q273546",
+     "replacedBy": null
+    },
+    {
+     "office": "Q4416090",
+     "start": "+1883-03-04T00:00:00Z",
+     "end": "+1885-03-04T00:00:00Z",
+     "replaces": null,
+     "replacedBy": null
+    },
+    {
+     "office": "Q4416090",
+     "start": "+1885-03-04T00:00:00Z",
+     "end": "+1887-03-04T00:00:00Z",
+     "replaces": null,
+     "replacedBy": null
+    },
+    {
+     "office": "Q4416090",
+     "start": "+1887-03-04T00:00:00Z",
+     "end": "+1889-03-04T00:00:00Z",
+     "replaces": null,
+     "replacedBy": null
+    },
+    {
+     "office": "Q4416090",
+     "start": "+1889-03-04T00:00:00Z",
+     "end": "+1891-03-04T00:00:00Z",
+     "replaces": null,
+     "replacedBy": null
+    },
+    {
+     "office": "Q4416090",
+     "start": "+1891-03-04T00:00:00Z",
+     "end": "+1893-03-04T00:00:00Z",
+     "replaces": null,
+     "replacedBy": null
+    },
+    {
+     "office": "Q4416090",
+     "start": "+1893-03-04T00:00:00Z",
+     "end": "+1895-03-04T00:00:00Z",
+     "replaces": null,
+     "replacedBy": null
+    },
+    {
+     "office": "Q4416090",
+     "start": "+1895-03-04T00:00:00Z",
+     "end": "+1897-03-04T00:00:00Z",
+     "replaces": null,
+     "replacedBy": null
+    },
+    {
+     "office": "Q4416090",
+     "start": "+1897-03-04T00:00:00Z",
+     "end": "+1899-03-04T00:00:00Z",
+     "replaces": null,
+     "replacedBy": null
+    },
+    {
+     "office": "Q4416090",
+     "start": "+1899-03-04T00:00:00Z",
+     "end": "+1901-03-04T00:00:00Z",
+     "replaces": null,
+     "replacedBy": null
+    },
+    {
+     "office": "Q4416090",
+     "start": "+1901-03-04T00:00:00Z",
+     "end": "+1903-03-04T00:00:00Z",
+     "replaces": null,
+     "replacedBy": null
+    },
+    {
+     "office": "Q4416090",
+     "start": "+1903-03-04T00:00:00Z",
+     "end": "+1905-03-04T00:00:00Z",
+     "replaces": null,
+     "replacedBy": null
+    },
+    {
+     "office": "Q4416090",
+     "start": "+1905-03-04T00:00:00Z",
+     "end": "+1907-03-04T00:00:00Z",
+     "replaces": null,
+     "replacedBy": null
+    },
+    {
+     "office": "Q4416090",
+     "start": "+1907-03-04T00:00:00Z",
+     "end": "+1909-03-04T00:00:00Z",
+     "replaces": null,
+     "replacedBy": null
+    },
+    {
+     "office": "Q4416090",
+     "start": "+1909-03-04T00:00:00Z",
+     "end": "+1911-03-04T00:00:00Z",
+     "replaces": null,
+     "replacedBy": "Q1064377"
+    },
+    {
+     "office": "Q15686806",
+     "start": null,
+     "end": null,
+     "replaces": null,
+     "replacedBy": null
+    }
+   ]
+  },
+  "Q273546": {
+   "label": "Hannibal Hamlin",
+   "tenures": [
+    {
+     "office": "Q13218630",
+     "start": "+1843-03-04T00:00:00Z",
+     "end": "+1847-03-03T00:00:00Z",
+     "replaces": "Q4723126",
+     "replacedBy": "Q1681074"
+    },
+    {
+     "office": "Q11699",
+     "start": "+1861-03-04T00:00:00Z",
+     "end": "+1865-03-04T00:00:00Z",
+     "replaces": "Q273212",
+     "replacedBy": "Q8612"
+    },
+    {
+     "office": "Q3506352",
+     "start": "+1857-01-08T00:00:00Z",
+     "end": "+1857-02-25T00:00:00Z",
+     "replaces": "Q848367",
+     "replacedBy": "Q391529"
+    },
+    {
+     "office": "Q1837668",
+     "start": null,
+     "end": null,
+     "replaces": "Q267988",
+     "replacedBy": "Q703642"
+    },
+    {
+     "office": "Q121998",
+     "start": null,
+     "end": null,
+     "replaces": null,
+     "replacedBy": null
+    },
+    {
+     "office": "Q4416090",
+     "start": "+1848-06-08T00:00:00Z",
+     "end": "+1849-03-04T00:00:00Z",
+     "replaces": "Q1636152",
+     "replacedBy": null
+    },
+    {
+     "office": "Q4416090",
+     "start": "+1849-03-04T00:00:00Z",
+     "end": "+1851-03-04T00:00:00Z",
+     "replaces": null,
+     "replacedBy": null
+    },
+    {
+     "office": "Q4416090",
+     "start": "+1851-03-04T00:00:00Z",
+     "end": "+1853-03-04T00:00:00Z",
+     "replaces": null,
+     "replacedBy": null
+    },
+    {
+     "office": "Q4416090",
+     "start": "+1853-03-04T00:00:00Z",
+     "end": "+1855-03-04T00:00:00Z",
+     "replaces": null,
+     "replacedBy": null
+    },
+    {
+     "office": "Q4416090",
+     "start": "+1855-03-04T00:00:00Z",
+     "end": "+1857-01-07T00:00:00Z",
+     "replaces": null,
+     "replacedBy": "Q474290"
+    },
+    {
+     "office": "Q4416090",
+     "start": "+1857-03-04T00:00:00Z",
+     "end": "+1859-03-04T00:00:00Z",
+     "replaces": "Q474290",
+     "replacedBy": null
+    },
+    {
+     "office": "Q4416090",
+     "start": "+1859-03-04T00:00:00Z",
+     "end": "+1861-01-17T00:00:00Z",
+     "replaces": null,
+     "replacedBy": "Q580974"
+    },
+    {
+     "office": "Q4416090",
+     "start": "+1869-03-04T00:00:00Z",
+     "end": "+1871-03-04T00:00:00Z",
+     "replaces": "Q580974",
+     "replacedBy": null
+    },
+    {
+     "office": "Q4416090",
+     "start": "+1871-03-04T00:00:00Z",
+     "end": "+1873-03-04T00:00:00Z",
+     "replaces": null,
+     "replacedBy": null
+    },
+    {
+     "office": "Q4416090",
+     "start": "+1873-03-04T00:00:00Z",
+     "end": "+1875-03-04T00:00:00Z",
+     "replaces": null,
+     "replacedBy": null
+    },
+    {
+     "office": "Q4416090",
+     "start": "+1875-03-04T00:00:00Z",
+     "end": "+1877-03-04T00:00:00Z",
+     "replaces": null,
+     "replacedBy": null
+    },
+    {
+     "office": "Q4416090",
+     "start": "+1877-03-04T00:00:00Z",
+     "end": "+1879-03-04T00:00:00Z",
+     "replaces": null,
+     "replacedBy": null
+    },
+    {
+     "office": "Q4416090",
+     "start": "+1879-03-04T00:00:00Z",
+     "end": "+1881-03-04T00:00:00Z",
+     "replaces": null,
+     "replacedBy": "Q1373107"
+    },
+    {
+     "office": "Q18713970",
+     "start": null,
+     "end": null,
+     "replaces": null,
+     "replacedBy": null
+    },
+    {
+     "office": "Q2824523",
+     "start": "+1861-03-04T00:00:00Z",
+     "end": "+1865-03-04T00:00:00Z",
+     "replaces": null,
+     "replacedBy": null
+    },
+    {
+     "office": "Q2824523",
+     "start": "+1870-01-18T00:00:00Z",
+     "end": "+1881-03-05T00:00:00Z",
+     "replaces": null,
+     "replacedBy": null
+    }
+   ]
+  },
+  "Q1681074": {
+   "label": "James S. Wiley",
+   "tenures": [
+    {
+     "office": "Q13218630",
+     "start": null,
+     "end": null,
+     "replaces": null,
+     "replacedBy": null
+    }
+   ]
+  }
+ }
+}

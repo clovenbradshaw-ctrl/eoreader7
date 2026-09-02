@@ -27,7 +27,7 @@ const priors = await import(path.join(HERE, "..", "adapters", "text", "priors.js
 const morph = await import(path.join(HERE, "..", "..", "legacy-eoreader6.1", "packages", "engine", "perceiver", "text", "morphology.js"));
 
 const actPrior = JSON.parse(fs.readFileSync(path.join(HERE, "..", "..", "..", "live_priors", "derived-priors", "act-priors", "act-prior-en.json"), "utf8"));
-const morphPrior = JSON.parse(fs.readFileSync(path.join(HERE, "..", "..", "..", "the-fold", "eval", "fixtures", "unimorph-morphology-prior.json"), "utf8"));
+const morphPrior = JSON.parse(fs.readFileSync(path.join(HERE, "..", "eval", "the-fold", "fixtures", "unimorph-morphology-prior.json"), "utf8"));
 const { lemmasOf } = morph.createLemmatizer(morphPrior.forms, { language: morphPrior.language });
 
 const pp = makePhasepost({

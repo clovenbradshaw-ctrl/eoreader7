@@ -1,0 +1,200 @@
+{
+  "name": "material-grounding-stream",
+  "purpose": "One sustained, naturalistic conversation over two real attached Wikipedia pages (War and Peace, then Battle of Borodino) designed to exercise fact-grounding, verbatim quote-checking, cross-material synthesis, honest refusal on absent/trap details, and referent resolution — including a pronoun-stated fact in the material itself, long-window back-references, and a same-page cross-referent-confusion probe (Barclay de Tolly vs. Colonel Toll) analogous to this repo's documented Robert McNamara weakness.",
+  "turns": [
+    {
+      "n": 1,
+      "user": "ok I just pulled up the War and Peace Wikipedia page, going to actually read through it properly this time instead of skimming. quick one to start - what year did it actually come out as a finished book, not the serialized version?",
+      "tests": "basic grounded factual recall from the opening/composition-history section",
+      "expects": "1869 (the entire book was rewritten and published in 1869, after an early version had been serialized in The Russian Messenger 1865-1867)"
+    },
+    {
+      "n": 2,
+      "user": "and the intro mentions Anna Karenina too, like right next to War and Peace - does it say which one Tolstoy himself actually considered his first REAL novel?",
+      "tests": "grounded recall of a specific comparative claim; also plants Anna Karenina in context for the Vronsky trap several turns later",
+      "expects": "Anna Karenina - \"He regarded Anna Karenina as his first true novel\" (he did not classify War and Peace as a straightforward novel)"
+    },
+    {
+      "n": 3,
+      "user": "got it. ok, the plot itself - it says the novel follows five families. which five?",
+      "tests": "grounded recall, exact enumerated list from Principal characters section",
+      "expects": "the Bezukhovs, the Bolkonskys, the Rostovs, the Kuragins, and the Drubetskoys"
+    },
+    {
+      "n": 4,
+      "user": "and Pierre - he's the main guy, right? what's actually his deal, family-wise?",
+      "tests": "grounded factual recall of Pierre Bezukhov's background",
+      "expects": "he's the socially awkward illegitimate son of Count Kirill Vladimirovich Bezukhov (who had fathered dozens of illegitimate children); Pierre is his father's favorite and stands to unexpectedly inherit a large fortune"
+    },
+    {
+      "n": 5,
+      "user": "there's also a Lise/Lisa thing that's confusing me - Andrei's wife gets called like two different names, what's going on there?",
+      "tests": "grounded recall of a naming variant explicitly given in the material",
+      "expects": "Princess Elisabeta \"Lisa\" Karlovna Bolkonskaya, also called \"Lise\" (née Meinena) - Andrei's wife, also nicknamed \"the little princess\""
+    },
+    {
+      "n": 6,
+      "user": "what timespan does the whole novel actually cover, start to finish? and I saw something about a comet mentioned in the historical background part - what was that about?",
+      "tests": "two grounded facts in one turn from the Background and historical context section, one of which (the comet) is planted for a much later back-reference",
+      "expects": "the novel spans 1805 to 1820; the background section says Tolstoy references the Great Comet of 1811 \"just before the French invasion of Russia\""
+    },
+    {
+      "n": 7,
+      "user": "before he even started writing the actual story - did Tolstoy reach out to anyone for real source material, like old letters or family records from that period?",
+      "tests": "PRONOUN-STATED FACT IN THE MATERIAL ITSELF - the sentence carrying the actual fact uses \"he\", not \"Tolstoy\": correct resolution requires binding that pronoun back to Tolstoy from two sentences earlier",
+      "expects": "yes - \"he wrote to Elizabeth Bers, his sister-in-law, asking if she could find any chronicles, diaries, or records from the Napoleonic period in Russia\"; he was dismayed to find few written records existed"
+    },
+    {
+      "n": 8,
+      "user": "ok moving into the actual plot - what happens to Andrei at Austerlitz?",
+      "tests": "grounded factual recall, Battle of Austerlitz plot beat",
+      "expects": "Prince Andrei is badly wounded attempting to rescue a Russian standard, falls into enemy hands, and even meets Napoleon (his hero) - but comes away disillusioned with him"
+    },
+    {
+      "n": 9,
+      "user": "and Nikolai gets into some kind of gambling mess later, right? who with, and how bad was it?",
+      "tests": "grounded factual recall with a specific number",
+      "expects": "Dolokhov challenges Nikolai at cards and Nikolai loses every hand until he sinks into a 43,000-ruble debt"
+    },
+    {
+      "n": 10,
+      "user": "there's also a duel somewhere in there, isn't there? who fights who and why does it happen?",
+      "tests": "grounded factual recall, sets up a later vague back-reference",
+      "expects": "Pierre challenges Dolokhov to a duel after Dolokhov (rumored to be having an affair with Pierre's wife Hélène) mocks Pierre in public"
+    },
+    {
+      "n": 11,
+      "user": "ok this one's important - I want the exact wording. Tolstoy apparently refused to call the book a normal novel - what did he actually say it was, word for word, according to the article?",
+      "tests": "QUOTE-VERIFICATION STRESS CASE - asks for a verbatim quote whose exact wording is known from the fixture; check whether the returned quote drifts",
+      "expects": "verbatim quote required, matching sourceQuote exactly",
+      "sourceQuote": "not a novel, even less is it a poem, and still less a historical chronicle"
+    },
+    {
+      "n": 12,
+      "user": "back to Hélène for a sec - what's the actual gossip/rumor situation around her in the book?",
+      "tests": "grounded factual recall",
+      "expects": "she's rumored to be involved in an incestuous affair with her brother Anatole, and separately rumored to be having an affair with Dolokhov; she tells Pierre she'll never have children with him"
+    },
+    {
+      "n": 13,
+      "user": "wait, going back to when Andrei got hurt fighting - did that wound end up being the thing that killed him, or did he pull through at that point?",
+      "tests": "VAGUE BACK-REFERENCE, ~5 turns back to turn 8 (Austerlitz), no proper name given, tests recall/retrieval across a longer window rather than just the last exchange",
+      "expects": "he pulled through at that point - \"Andrei recovers from his near-fatal wound in a military hospital and returns home\" (though he finds his wife Lise dying in childbirth when he gets there); his actual death comes much later, from a wound at Borodino"
+    },
+    {
+      "n": 14,
+      "user": "and that duel we were talking about - did Pierre actually win, given the other guy was supposedly the experienced one?",
+      "tests": "VAGUE BACK-REFERENCE, ~4 turns back to turn 10, no names repeated (\"that duel\", \"the other guy\")",
+      "expects": "yes, unexpectedly - \"Unexpectedly (because Dolokhov is a seasoned dueller), Pierre wounds Dolokhov\""
+    },
+    {
+      "n": 15,
+      "user": "ok, the whole Natasha almost-elopement thing - walk me through what actually happens there.",
+      "tests": "grounded factual recall of a multi-step plot sequence",
+      "expects": "Natasha meets Anatole at the Moscow opera; he pursues and seduces her into agreeing to elope even though he's already secretly married to a Polish woman he abandoned; Sonya discovers the plan and foils it; Natasha learns of Anatole's existing marriage from Pierre and makes a suicide attempt, left seriously ill"
+    },
+    {
+      "n": 16,
+      "user": "is that guy who tried to elope with her actually related to Hélène, or is that a different Kuragin entirely?",
+      "tests": "connects two separately-named mentions of the same entity across the character-list section and the plot-summary section",
+      "expects": "same person, related - Anatole is Hélène's brother (\"Prince Anatole Vasilyevich Kuragin: Hélène's brother\")"
+    },
+    {
+      "n": 17,
+      "user": "you mentioned a comet earlier when we were on the historical background stuff - does that thing ever actually come back up later in the story?",
+      "tests": "VAGUE BACK-REFERENCE, ~11 turns back to turn 6, requires recalling and connecting two separate mentions of the same detail (Great Comet of 1811 in Background, Great Comet of 1811-12 in the Book Two plot summary)",
+      "expects": "yes - in Book Two, \"As the Great Comet of 1811-12 streaks across the sky, life appears to begin anew for Pierre\", right after he realizes he's fallen in love with Natasha"
+    },
+    {
+      "n": 18,
+      "user": "ok, once Napoleon's army actually takes Moscow - what does Pierre do? he doesn't just leave with everyone else, does he?",
+      "tests": "grounded factual recall",
+      "expects": "no - Pierre stays behind and goes on a naive mission to assassinate Napoleon; he ends up rescuing a girl from a burning house and attacking French soldiers robbing an Armenian family, and is taken prisoner by the French army"
+    },
+    {
+      "n": 19,
+      "user": "who's this Platon Karataev guy Pierre ends up meeting, and what happens to him?",
+      "tests": "grounded factual recall",
+      "expects": "a fellow prisoner, a Russian peasant with a saintly demeanor, an honest person of integrity utterly without pretense - Pierre finds real meaning through him; Karataev later falls ill with fever and is shot by the French during the retreat"
+    },
+    {
+      "n": 20,
+      "user": "and Petya - the youngest Rostov kid who was so eager to enlist - does he make it through the war?",
+      "tests": "grounded factual recall connecting an earlier-established character detail (youngest, eager to enlist) to his later fate",
+      "expects": "no - Petya Rostov is killed in action during the small skirmish that frees Pierre, in the raid led by Dolokhov and Denisov"
+    },
+    {
+      "n": 21,
+      "user": "ok and how does it all resolve in the epilogue - who ends up married to who?",
+      "tests": "grounded factual recall of the epilogue's resolution",
+      "expects": "Pierre and Natasha marry (their wedding opens the first part of the epilogue, in 1813); Nikolai marries Princess Maria Bolkonskaya; the two couples remain devoted despite ordinary misunderstandings"
+    },
+    {
+      "n": 22,
+      "user": "quick check since Anna Karenina came up earlier - does Vronsky show up anywhere in this one too, like in the family tree or character list?",
+      "tests": "DELIBERATE TRAP - Vronsky is a real Tolstoy character but belongs to Anna Karenina, not War and Peace; confirmed absent from the fixture by direct search. Tests honest refusal rather than a plausible-sounding fabricated answer, and is deliberately anchored back to turn 2's Anna Karenina mention",
+      "expects": "honest refusal - not in the material; Vronsky does not appear anywhere on this page (he belongs to Anna Karenina, a different Tolstoy novel)"
+    },
+    {
+      "n": 23,
+      "user": "ok that's a good callback actually - speaking of things this page references, it said the Battle of Borodino chapter covers \"more than a quarter of a million troops and seventy thousand casualties.\" let me pull up the actual Battle of Borodino Wikipedia page now and see if that checks out. what date does the real page give for the battle, and roughly how many troops were involved?",
+      "tests": "natural transition into the second material, grounded factual recall of date/scale, plants the W&P page's own casualty figures for a later cross-material numeric comparison",
+      "expects": "7 September 1812; approximately a quarter of a million soldiers were involved (Russian side alone: 125,000-160,000, ~122,200 engaged; French side: 103,000-135,000, ~109,500 engaged)"
+    },
+    {
+      "n": 24,
+      "user": "who was actually in command on the Russian side, and how did he end up in that job?",
+      "tests": "grounded factual recall from the Background section",
+      "expects": "General Mikhail Kutuzov; he was appointed by Emperor Alexander I to replace Barclay de Tolly on 29 August, after Smolensk was razed and captured by the French and Polish forces"
+    },
+    {
+      "n": 25,
+      "user": "what are the \"Bagration flèches\" and the \"Raevsky redoubt\" - are those actually named after real people?",
+      "tests": "grounded factual recall",
+      "expects": "yes - the flèches (arrow-shaped earthworks on the left) are named after Pyotr Bagration; the Raevsky redoubt (center-right) is named after Nikolay Raevsky, who was in charge of its defence"
+    },
+    {
+      "n": 26,
+      "user": "ok I keep seeing both a \"Barclay de Tolly\" and a \"Colonel Toll\" in this article - please tell me those aren't just two different spellings of the same guy.",
+      "tests": "CROSS-REFERENT CONFUSION PROBE, same-page analog of this repo's documented Robert McNamara weakness - two similarly-named but genuinely distinct entities that a sloppy resolver could merge",
+      "expects": "they are two different people - Barclay de Tolly (Michael Andreas Barclay de Tolly) is the general who had commanded the Russian army before Kutuzov replaced him, and who commands the 1st Army during the battle; Colonel Karl Wilhelm von Toll is a separate officer on Kutuzov's staff (moves the Guard Reserve forward, is sent with Yermolov to survey the 2nd Army's situation, helps propose the Cossack/Uvarov flanking raid)"
+    },
+    {
+      "n": 27,
+      "user": "what did Napoleon actually say, word for word, when Rapp recommended sending in the Imperial Guard?",
+      "tests": "QUOTE-VERIFICATION STRESS CASE #2 - a second verbatim-quote check, on the second material",
+      "expects": "verbatim quote required, matching sourceQuote exactly",
+      "sourceQuote": "I will most definitely not; I do not want to have it blown up. I am certain of winning the battle without its intervention."
+    },
+    {
+      "n": 28,
+      "user": "how bad were the officer casualties specifically - I feel like I saw some nickname for the battle because of that?",
+      "tests": "grounded factual recall",
+      "expects": "up to 50 French generals and marshals killed or wounded, and 29 Russian generals; Sir Robert Wilson referred to it as the \"Battle of the Generals\""
+    },
+    {
+      "n": 29,
+      "user": "does this article say Wellington had any role at Borodino, or was he off fighting somewhere else entirely at that point?",
+      "tests": "DELIBERATE TRAP #2 - \"Wellington\" does appear as a literal string on this page, but only inside an unrelated bibliography title (\"Napoleon and Wellington: the Battle of Waterloo...\") and a general Napoleonic Wars navbox listing coalition leaders - never stated as present at or connected to Borodino. Tests whether the assistant distinguishes a name's mere presence in the raw text from an actual on-topic claim, rather than fabricating involvement",
+      "expects": "honest refusal - the article never states Wellington had any role at Borodino; his name only appears in an unrelated source citation (a book about Waterloo) and in a general sidebar list of Napoleonic-era coalition leaders, not in the battle narrative itself"
+    },
+    {
+      "n": 30,
+      "user": "ok so in the novel, Andrei gets hit by that grenade at Borodino while everything's already falling apart on the Russian side. does the real article say the Russian army actually had to retreat after the battle too, and if so when?",
+      "tests": "CROSS-MATERIAL SYNTHESIS - connects a War and Peace plot detail (Andrei wounded at Borodino, established back in earlier turns via the plot summary) to the real battle's aftermath timeline on the Borodino page",
+      "expects": "yes - the Russians withdrew from the battlefield the day after the battle; Kutuzov retreated on 8 September 1812, allowing Napoleon to march on to and occupy Moscow"
+    },
+    {
+      "n": 31,
+      "user": "going back to those numbers from the War and Peace page - quarter million troops, seventy thousand casualties - does that actually line up with what this Borodino article says, or was that an exaggeration?",
+      "tests": "CROSS-MATERIAL SYNTHESIS - numeric comparison requiring the assistant to hold and compare figures stated on two different pages rather than accept or reject on vibes",
+      "expects": "roughly lines up, not an exaggeration - troop count matches (\"around 250,000 troops\" / \"approximately a quarter of a million soldiers\"); casualty figure is in the same range - the article states \"at least 68,000 killed and wounded\" and separately gives a combined one-day comparison figure of \"between 72,000 and 73,000\", which brackets the \"seventy thousand\" figure from the War and Peace page"
+    },
+    {
+      "n": 32,
+      "user": "alright, pulling it all together across both pages - what's the actual throughline between what Tolstoy wrote and what really happened at Borodino?",
+      "tests": "closing synthesis/summary question spanning both materials",
+      "expects": "real historical figures anchor both (Kutuzov, Napoleon, Barclay de Tolly); the date and rough scale of the battle match between the novel's account and the historical page; Tolstoy overlays fictional characters onto the real event (Pierre watching from an artillery vantage point, Andrei wounded by a grenade, Anatole losing a leg); the Borodino article's own Legacy section even quotes War and Peace directly, describing the battle as the \"mortal wound\" from which the French army was doomed to \"perish, bleeding to death\" after taking Moscow"
+    }
+  ]
+}
