@@ -342,3 +342,30 @@ own hard-won version of the empty center is Dennett's refusal of the
 Cartesian theater — no seat where it all comes together, no homunculus
 occupying the deciding place; coalition competition with a structurally
 vacant chair. The wheel turns there too because no spoke wins it.
+
+
+---
+
+## Amendment (2026-09-02): "does the core mechanism do all three?" — measured
+
+No single mechanism does, on purpose, and the separation is enforced in
+code: `signal.js` carries zero composition vocabulary, `reaction.js` zero
+perturbation vocabulary, and `hl-acquire` stops at CANDIDATE — evidence
+can refute a license and never grant one. What the system does is run
+the three in RELAY, and `eval/full-circuit.mjs` now measures that relay
+end to end on one material (`eval/results/full-circuit-RESULTS.md`):
+discovery under the null → addressed arrangements → corroboration
+counting sources and instruments apart → candidate acquisition →
+declaration by a named giver → composition with provenance → refutation
+veto. Nine walls, all held, including the two controls that matter: with
+no declaration the chemistry derives nothing (construction cannot
+self-license), and the planted cycle-closer stopped by triangulation is
+ALSO stopped by refutation when triangulation is skipped — two
+independent walls, one corruption. Six never-stated facts derived, each
+walking to real addresses.
+
+The hub, restated by the measurement: at every handoff one way's
+authority ends and another's begins — a count never becomes a license,
+a license never becomes a count, a product never escapes its provenance
+— and no organ carries all three authorities at once. That is what "the
+hub stays empty" means operationally.
