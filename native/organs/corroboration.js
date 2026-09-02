@@ -373,6 +373,36 @@ export const WITNESS_OPERATING_POINT = Object.freeze({
 });
 
 /**
+ * THE CALIBRATIONS AS DECLARED FRAMES (frame.js's first live consumer,
+ * 2026-09-02 — DEF·Ground made load-bearing the day after it was built,
+ * per the floor-nothing-consumes rule). The two witness protocols'
+ * operating points are measurements taken under two different
+ * interpretive grounds — different method, different ask shape, different
+ * arm — and comparing "0.33 recall" (generate) against "2/6" (select) as
+ * if they were one scale is exactly the cross-frame sin frame.js walls.
+ * Each calibration gets a content-addressed frame built from ITS OWN
+ * declared method and numbers; a consumer weighing votes from both
+ * protocols must carry both frames or be refused by `comparable`.
+ */
+export async function calibrationFrames() {
+  const { declareFrame } = await import("./frame.js");
+  const op = WITNESS_OPERATING_POINT;
+  const g = op.models["gemma2:2b"];
+  const generate = await declareFrame({
+    organs: { protocol: "generate", model: "gemma2:2b", arm: "sibling-swap, insensitivity-checked" },
+    givers: { method: op.method },
+    numbers: { pStatesGivenStated: g.pStatesGivenStated, pStatesGivenFabricatedUpperBound: g.pStatesGivenFabricatedUpperBound, armedFabricatedAsks: g.armedFabricatedAsks },
+  });
+  const select = await declareFrame({
+    organs: { protocol: "select", model: op.select.model, arm: op.select.armRule },
+    givers: { method: "stated-by-construction trues vs fabricated co-occurring pairs, armed select, temp 0" },
+    numbers: { pStatesGivenStated: op.select.pStatesGivenStated, pStatesGivenFabricated: op.select.pStatesGivenFabricated },
+  });
+  if (generate.refused || select.refused) throw new Error("calibrationFrames: the operating point no longer declares a whole frame — fix the declaration, not this function");
+  return { generate: generate.frame, select: select.frame };
+}
+
+/**
  * The independence-aware count: DISTINCT SOURCES across both witness kinds.
  * A mechanical sighting on page A plus a testimony vote from page A is ONE
  * source; `witnesses.length >= 2` would read it as two. Consumers gating

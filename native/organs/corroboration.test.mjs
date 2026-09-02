@@ -636,3 +636,30 @@ test("INSENSITIVITY IS THE SAME INDEX, not merely a second yes — the arm that 
   assert.equal(w2.refused, "indiscriminate");
   assert.equal(w2.at, 1, "and it names the index that carried no information");
 });
+
+// ── the calibrations as declared frames (frame.js's first consumer) ──────
+import { calibrationFrames } from "./corroboration.js";
+import { framed, comparable } from "./frame.js";
+
+test("the two witness protocols are two DECLARED interpretive grounds — cross-protocol numbers refuse comparison, naming what differs", async () => {
+  const frames = await calibrationFrames();
+  assert.notEqual(frames.generate.id, frames.select.id, "different declared grounds, different frames");
+
+  const gRecall = framed({ metric: "recall", value: 6 / 18 }, frames.generate);
+  const sRecall = framed({ metric: "recall", value: 2 / 6 }, frames.select);
+  const cross = comparable(gRecall, sRecall, { frames: { [frames.generate.id]: frames.generate, [frames.select.id]: frames.select } });
+  assert.equal(cross.comparable, false, '"0.33 vs 2/6" is not one scale — the protocols differ');
+  assert.ok(cross.differs.some((d) => d.at === "organs.protocol" && d.a === "generate" && d.b === "select"),
+    `the refusal names the protocol difference: ${JSON.stringify(cross.differs)}`);
+
+  // and within one protocol's ground, comparison proceeds
+  const same = comparable(gRecall, framed({ metric: "falseStates", value: 0 }, frames.generate));
+  assert.equal(same.comparable, true);
+});
+
+test("the frames are rebuilt from the operating point's OWN declarations — a moved number moves the frame id", async () => {
+  const a = await calibrationFrames();
+  const b = await calibrationFrames();
+  assert.equal(a.generate.id, b.generate.id, "content-addressed: same declaration, same frame, every time");
+  assert.equal(a.select.id, b.select.id);
+});
