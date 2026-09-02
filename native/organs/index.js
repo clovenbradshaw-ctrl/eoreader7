@@ -23,8 +23,8 @@ export { CLAIM_PREFIX, REFUSALS as NESTING_REFUSALS, attributionsOf, claimRef, c
 export * as nesting from "./nesting.js";
 export { REFUSALS as FRAME_REFUSALS, comparable, declareFrame, framed } from "./frame.js";
 export * as frame from "./frame.js";
-export { REFUSALS as BINDING_CORE_REFUSALS, bind } from "../../../the-fold/binding-core.js";
-export * as bindingCore from "../../../the-fold/binding-core.js";
+export { REFUSALS as BINDING_CORE_REFUSALS, bind } from "./binding-core.js";
+export * as bindingCore from "./binding-core.js";
 export { REFUSALS as FOLD_GATE_REFUSALS, reviewMerges } from "../../../the-fold/fold-gate.js";
 export * as foldGate from "../../../the-fold/fold-gate.js";
 export { DOCUMENT_KINDS, DOCUMENT_KINDS_META, readHeading, speakerAt, speakerSections } from "../../../the-fold/speaker.js";
