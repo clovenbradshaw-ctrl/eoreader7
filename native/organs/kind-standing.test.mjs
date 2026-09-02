@@ -196,7 +196,7 @@ test("kindNotes projects a discovered kind into hyperlexicon-hearable, ADDRESSAB
   assert.equal(n.object, "kind:before=zub");
   assert.match(n.because, /before=zub carries \d+% of its before-company/);
   // the address: two organs asking about the same membership get one id
-  const { assertionId } = await import("../../../the-fold/hyperlexicon.js");
+  const { assertionId } = await import("./hyperlexicon.js");
   assert.equal(assertionId(n.subject, n.verb, n.object), assertionId("Rolea", "keeps-company", "KIND:BEFORE=ZUB"));
 });
 
@@ -204,7 +204,7 @@ test("a discovered kind lands in the REAL hyperlexicon: one addressable note, wi
   // the whole point of naming the kind: two independent sources that both
   // discover it fold to ONE note with TWO witnesses — kind membership is
   // itself a corroboratable note, riding the same door facts ride (P57).
-  const H = await import("../../../the-fold/hyperlexicon.js");
+  const H = await import("./hyperlexicon.js");
   const TL = await import("../kernel/task-log.js");
   const hl = H.makeHyperlexicon(TL);
   let log = hl.createHyperlexicon();

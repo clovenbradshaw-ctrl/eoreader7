@@ -3,7 +3,7 @@
 // that someone SAYS X must give X itself nothing.
 import test from "node:test";
 import assert from "node:assert/strict";
-import * as H from "../../../the-fold/hyperlexicon.js";
+import * as H from "./hyperlexicon.js";
 import * as TL from "../kernel/task-log.js";
 import { distinctSources, distinctRecipes } from "./index.js";
 import { claimRef, isClaimRef, innerId, depthOf, attributionsOf, corroborationOf, leakCheck, disagreement } from "./index.js";

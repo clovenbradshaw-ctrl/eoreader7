@@ -40,8 +40,8 @@ export * as capacities from "./capacities.js";
 // Phase 3 organs — re-exported from the-fold until each moves (hypergraph is
 // deferred: its closure reaches the-fold's surface through grounding.js →
 // source.js/web.js, and a moved organ may not import the surface).
-export { assertionId, recipeId, REFUSALS as HYPERLEXICON_REFUSALS, VERB_CLASS, makeHyperlexicon } from "../../../the-fold/hyperlexicon.js";
-export * as hyperlexicon from "../../../the-fold/hyperlexicon.js";
+export { assertionId, recipeId, REFUSALS as HYPERLEXICON_REFUSALS, VERB_CLASS, makeHyperlexicon } from "./hyperlexicon.js";
+export * as hyperlexicon from "./hyperlexicon.js";
 export { makeGrammarLens, mismatchedConnectors } from "./grammar-lens.js";
 export * as grammarLens from "./grammar-lens.js";
 export { stageFromEdges } from "../../../the-fold/hl.js";

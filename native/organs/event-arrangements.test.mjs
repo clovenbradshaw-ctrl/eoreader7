@@ -3,7 +3,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { arrangementsFrom, arrangementNotes } from "./index.js";
-import * as H from "../../../the-fold/hyperlexicon.js";
+import * as H from "./hyperlexicon.js";
 import * as TL from "../kernel/task-log.js";
 import { distinctSources, distinctRecipes } from "./index.js";
 

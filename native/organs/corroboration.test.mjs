@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { proposeCandidates, witnessNote, corroborateLedger, distinctSources } from "./index.js";
-import { makeHyperlexicon } from "../../../the-fold/hyperlexicon.js";
+import { makeHyperlexicon } from "./hyperlexicon.js";
 import { witnessSlice, siblingSwap, foldTestimony } from "./index.js";
 
 // real native task-log bundle — the same one hyperlexicon-stance.test.mjs uses
