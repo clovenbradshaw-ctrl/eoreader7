@@ -2466,3 +2466,51 @@ English nothing. `eval/the-fold/results/diet-boundary-RESULTS.md`.
 the door against planted structure with shuffle and body-only controls);
 `organs/corroboration.test.mjs` unchanged; the-fold suite 940/67 with zero
 new failures by name; the real page loaded in headless Chromium clean.
+
+## S44 — Subject walls: five received closed classes end the extractor's subject debris, measured against a random-wall control
+
+**Generality:** universal (English text; the walls are received classes
+with their giver, and the control is built to fail).
+
+**User direction (2026-09-02):** floor 5 first, "and if there was
+something on floor two, work on the steady foundation as needed." Floor 5
+is starved by ends that are debris: a note reading "night I" or "the
+window Lucy" can never be corroborated by anything. P74 had named
+subject-span debris as the lever nobody pulled.
+
+**What it is.** `relations.js::expandSubjectNP` (the DR4 walk) consults five
+walls, each a closed class the register already held or now holds with its
+giver: `CLAUSE_OPENERS` and `NEGATION_WORDS` as a trailing trim (the token
+before a verb is often the clause's relativizer or the polarity word, not
+the subject's last word); `SUBJECT_PRONOUNS` (new) — a pronoun is a whole
+subject and a wall to any walk that meets it; a determiner-initial anchor
+is already at its own left edge (chains continue across "of" and a
+received adposition; a `PREDETERMINERS` (new) token joins the phrase); and
+the reader's verb forms (`verbWall`, the POS prior's verb-dominant forms,
+threaded from `organs/hypergraph.js`) as a wall through a coordinator — the
+verb before the coordinator shares our subject — and as a trailing trim.
+A match with no subject left is refused and counted (`refusedSubjects`),
+never emitted. `subjectWalls: false` reproduces the earlier walk byte for
+byte, so the two are measurable against each other.
+
+**Measured** (`eval/the-fold/subject-wall.mjs`, real Dracula narrative and
+the Borodino page, three arms): on narrative prose debris subjects fall
+96 → 30 of the bound claims while referent-resolved subjects hold 83 → 78;
+the random-wall control (every class replaced by as many random words
+from the material) cuts harder and destroys referents (83 → 26). The gain
+is from which tokens wall, not from walling. Encyclopedic prose barely
+moves (debris 66 → 62); its debris is prepositional-phrase subjects and is
+not this pass's. The cost: 93 fewer bound claims on Dracula — 44 refused
+for want of a subject, the rest claims that had bound through debris.
+
+**Found by diffing, not by tallying.** The first cut's tally looked right
+and its rewrite list did not: "Lucy and I" → "I", "the ruins of the abbey"
+→ "of the abbey", "every joint in my body" → "my body". Each was a rule
+missing a received exception (a coordinated pronoun; a verb form after a
+determiner is a noun; an NP chain across an adposition), fixed and pinned.
+`results/subject-wall-RESULTS.md` carries the full table and the named
+residue (a common noun glued to a name's left needs the prior's nouns).
+
+**Enforced:** `tests/relations.test.js` 40 → 48, every new case a real
+Dracula sentence, each rule's old debris pinned beside its new reading.
+Full native suite 468/10 + 335/12, zero new failures by name.

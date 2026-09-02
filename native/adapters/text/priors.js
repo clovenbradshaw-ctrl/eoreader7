@@ -32,6 +32,33 @@ export const FIRST_PERSON = /^(i|me|my|mine|myself|we|us|our|ours)$/i;
 export const FIRST_PERSON_META = Object.freeze({ giver: "lang/en", scope: null });
 
 /**
+ * Pronouns that stand as a WHOLE subject — the nominative personal forms,
+ * the demonstratives and the interrogatives that can head a clause. A
+ * closed class, received: a pronoun is never the head of a wider noun
+ * phrase ("the window Lucy" is two things; "the window it" is not one), so
+ * a subject anchor that IS one of these is complete, and a walk widening a
+ * subject leftward that MEETS one has crossed into another clause. Same
+ * giver as the classes above. Measured need (2026-09-02, real Dracula
+ * prose): "I think it", "know it", "I hope I", "I wonder what he" — a
+ * pronoun subject glued to the matrix clause before it, one shape.
+ */
+export const SUBJECT_PRONOUNS = Object.freeze(new Set([
+  "i", "you", "he", "she", "it", "we", "they",
+  "this", "that", "these", "those",
+  "who", "what", "which", "whoever", "whatever",
+]));
+export const SUBJECT_PRONOUNS_META = Object.freeze({ giver: "lang/en", scope: null });
+
+/**
+ * Predeterminers — the closed class that stands BEFORE a determiner inside
+ * one noun phrase ("all the", "both the", "such a", "half the"). A subject
+ * walk that reaches a determiner has found the NP's left edge unless one
+ * of these precedes it. Same giver.
+ */
+export const PREDETERMINERS = Object.freeze(new Set(["all", "both", "half", "such", "quite", "rather"]));
+export const PREDETERMINERS_META = Object.freeze({ giver: "lang/en", scope: null });
+
+/**
  * Third-person SINGULAR, GENDERED pronoun forms — a small closed grammatical
  * class, the same standing as FIRST_PERSON above, not an open semantic list.
  * Each form maps to the gender class it grammaticalises in English, never to

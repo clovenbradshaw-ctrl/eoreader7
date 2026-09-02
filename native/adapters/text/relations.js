@@ -78,6 +78,8 @@
 import { diaNorm } from "./surfaces.js";
 import {
   CLAUSE_OPENERS,
+  PREDETERMINERS,
+  SUBJECT_PRONOUNS,
   CLAUSE_COORDINATORS,
   NEGATION_WORDS, THIRD_PERSON_SINGULAR,
   AUXILIARY_VERBS, DEFINITE_DETERMINERS, INDEFINITE_DETERMINERS,
@@ -486,6 +488,20 @@ export function expandSubjectNP(s, anchorStart, anchorEnd, leftBound, closed = {
     npCoordinators = NP_COORDINATORS,
     auxiliaryVerbs = AUXILIARY_VERBS,
     clauseOpeners = CLAUSE_OPENERS,
+    // THE SUBJECT WALLS (2026-09-02, measured on real Dracula prose — see the
+    // walk below). All received classes with their giver, or the caller's
+    // own vocabulary; `subjectWalls: false` reproduces the earlier walk
+    // byte-for-byte, so the two can be measured against each other.
+    subjectWalls = true,
+    clauseCoordinators = CLAUSE_COORDINATORS,
+    subjectPronouns = SUBJECT_PRONOUNS,
+    negationWords = null,
+    verbs = null,
+    // RECEIVED adpositions (a POS prior's ADP-dominant forms): an NP's own
+    // determiner may lie further left across one ("every joint IN my body",
+    // "the ruins OF the abbey"). Absent, only "of" chains, as before.
+    adpositions = null,
+    predeterminers = PREDETERMINERS,
   } = closed;
   const toks = [];
   WORD_TOKEN.lastIndex = Math.max(0, leftBound);
@@ -495,85 +511,118 @@ export function expandSubjectNP(s, anchorStart, anchorEnd, leftBound, closed = {
     toks.push({ text: tm[0], start: tm.index, end: tm.index + tm[0].length });
   }
   let i = toks.findIndex((t) => t.start === anchorStart);
-  if (i <= 0) return null; // anchor not found, or already at the leftmost token — nothing to expand
+  if (i < 0) return null; // anchor not found
+  if (!subjectWalls) return legacyWalk(s, toks, i, anchorEnd, { definiteDeterminers, indefiniteDeterminers, possessiveDeterminers, npCoordinators, auxiliaryVerbs, clauseOpeners });
+  const low = (t) => t.text.toLowerCase();
+  const isDet = (t) => definiteDeterminers.has(low(t)) || indefiniteDeterminers.has(low(t)) || possessiveDeterminers.has(low(t));
+  const isCoord = (t) => npCoordinators.has(low(t)) || clauseCoordinators.has(low(t));
+  const isWordy = (t) => /[\p{L}\p{N}]/u.test(t.text);
+  const isAdp = (t) => low(t) === "of" || (adpositions ? adpositions.has(low(t)) : false);
+  const anchorTokIdx = i;
+  const anchorEndIdx = toks.length;   // exclusive: the anchor's own tokens are toks[i..end)
+  let end = anchorEndIdx;
+  // (1) TRAILING TRIM. The MATCHER's anchor is the 1-2 tokens right before the
+  // verb, and the token right before a verb is often not the subject's last
+  // word: a relativizer ("the men WHO came" — the clause's own opener), or a
+  // negation ("I NEVER saw" — the polarity window's word, not the noun
+  // phrase's). Neither belongs to a subject NP; drop them from the right.
+  // A VERB at the anchor's edge is a predicate the anchor swallowed ("I
+  // WISHED to get", "it MIGHT HAVE") — trimmed too, with the one exception
+  // the walk below also makes: a verb form right after a determiner is a
+  // noun in that position ("the RUINS").
+  const isVerbHere = (k) => verbs && verbs.has(low(toks[k])) && !(k > 0 && isDet(toks[k - 1]));
+  while (end > i && (clauseOpeners.has(low(toks[end - 1])) || (negationWords && negationWords.has(low(toks[end - 1]))) || isVerbHere(end - 1))) end -= 1;
+  // (2) A PRONOUN IS A WHOLE SUBJECT. Anywhere in the anchor: "I hope I",
+  // "know it", "of what" — the pronoun is the subject and nothing to its
+  // left can be part of it (a pronoun never heads a wider NP).
+  // — unless an NP coordinator precedes it ("Lucy AND I"): then it is the
+  // second sibling of a coordinated subject and the walk continues.
+  for (let k = end - 1; k >= i; k -= 1) if (subjectPronouns.has(low(toks[k])) && !(k > 0 && npCoordinators.has(low(toks[k - 1])))) return done(k, k + 1);
+  // (3) A DETERMINER-INITIAL ANCHOR IS AT ITS OWN LEFT EDGE ("the cloud" in
+  // "when I came in view again the cloud had passed") — except through an
+  // "of" chain, where the outer NP's own determiner lies further back.
+  if (end > i && isDet(toks[i])) {
+    let left = i;
+    while (left > 0 && predeterminers.has(low(toks[left - 1]))) left -= 1;   // "such a thing", "all the men"
+    if (!(left > 0 && isAdp(toks[left - 1]))) return done(left, end);
+    i = left;   // an adposition precedes: the outer NP lies further back — walk on from here
+  }
+  // (4) THE WALK, leftward from the anchor.
+  let j = i;
+  let sawCoord = toks.slice(i, end).some(isCoord);   // a coordinator INSIDE the anchor counts ("quiet AND fell")
+  while (j > 0) {
+    const prev = toks[j - 1];
+    const between = s.slice(prev.end, toks[j].start);
+    if (/[^\s.]/u.test(between)) break;      // any mark but the period is a boundary (P50, the category)
+    if (!isWordy(prev)) break;                // punctuation wearing a token's clothes
+    const lower = low(prev);
+    if (auxiliaryVerbs.has(lower)) return null; // crossed into predicate territory: refuse (as before)
+    if (clauseOpeners.has(lower)) break;      // a clause opener is a left wall (as before)
+    if (subjectPronouns.has(lower)) {
+      // A pronoun met while walking: if nothing has been found yet it IS the
+      // subject ("I ran downstairs and looked" → "I"); otherwise it is the
+      // previous clause's subject and a wall.
+      if (j === end) { j -= 1; }
+      break;
+    }
+    if (verbs && verbs.has(lower) && !(j - 1 > 0 && isDet(toks[j - 2]))) {
+      // A VERB IN THE WALK (a form right after a determiner is a noun in
+      // that position — "the RUINS of the abbey" — and is not one). Through a coordinator it is a coordinated
+      // predicate sharing OUR subject ("the poor thing became quiet AND
+      // fell"): drop everything from that verb rightward and keep walking
+      // for the shared subject. Without a coordinator it is the matrix
+      // clause's verb: a wall.
+      if (sawCoord) { j -= 1; end = j; sawCoord = false; continue; }
+      break;
+    }
+    if (isDet(prev)) {
+      j -= 1;
+      if (j > 0 && isAdp(toks[j - 1]) && !/[,;:]/.test(s.slice(toks[j - 1].end, toks[j].start))) { j -= 1; continue; }
+      break;
+    }
+    if (npCoordinators.has(lower)) {
+      if (j - 1 === 0) break;
+      sawCoord = true; j -= 1; continue;
+    }
+    j -= 1;
+  }
+  // (5) A COORDINATOR OR OPENER LEADING THE SPAN WAS NEVER PAID FOR ("and he",
+  // "but he", "as time") — strip from the left.
+  while (j < end && (isCoord(toks[j]) || clauseOpeners.has(low(toks[j])))) j += 1;
+  return done(j, end);
+
+  function done(from, to) {
+    if (from >= to) return { refused: "no_subject" };
+    if (from === anchorTokIdx && to === anchorEndIdx) return null; // byte-identical to the anchor
+    return { subject: collapseWs(s.slice(toks[from].start, toks[to - 1].end)), start: toks[from].start, end: toks[to - 1].end };
+  }
+}
+
+/** The pre-wall walk, kept whole so `subjectWalls: false` is byte-identical to before 2026-09-02. */
+function legacyWalk(s, toks, i, anchorEnd, { definiteDeterminers, indefiniteDeterminers, possessiveDeterminers, npCoordinators, auxiliaryVerbs, clauseOpeners }) {
+  if (i <= 0) return null;
   const anchorTokIdx = i;
   while (i > 0) {
     const prev = toks[i - 1];
     const between = s.slice(prev.end, toks[i].start);
-    // THE CATEGORY, NOT THE CHARACTERS (P50, third sighting of this exact
-    // bug class). This stop used to enumerate /[,;:]/ — so the walk crossed
-    // em-dashes and opening quotes and captured dialogue framing into the
-    // subject: measured live on Dracula with nounPhraseSubjects first
-    // enabled, subjects arrived as «-- “Count Dracula». Between two word
-    // tokens, ANY non-space character is a boundary EXCEPT the period,
-    // which is the one mark with a dual role (abbreviation: "Mr. Hawkins"
-    // must stay one NP) — the same single exception surfaces.js's
-    // run-breaking already earned the hard way.
     if (/[^\s.]/u.test(between)) break;
-    // WORD_TOKEN admits '’- INSIDE words, so a run of pure marks ("--",
-    // "’") qualifies as a "token" while containing no letter or digit.
-    // That is punctuation wearing the token class's clothes — a boundary,
-    // never a word to include.
     if (!/[\p{L}\p{N}]/u.test(prev.text)) break;
     const lower = prev.text.toLowerCase();
-    // An auxiliary verb can never sit inside a subject NP — reaching one
-    // before ever finding a determiner (or `leftBound`) means the walk has
-    // crossed OUT of the noun phrase and INTO predicate territory, which
-    // only happens when the raw anchor this walk started from was itself
-    // mis-positioned (a fronted adverbial between an auxiliary and its main
-    // verb — "the peoples ... have IN THE CHARTER reaffirmed" — leaves the
-    // MATCHER's own bare anchor sitting on "the Charter", nowhere near the
-    // real subject, and widening blindly from there walked the whole
-    // preceding clause including "have" itself before this check existed).
-    // REFUSE outright (null, not a partial span) rather than return
-    // whatever was accumulated so far: a wrong wider subject is worse than
-    // a coarse one, the same standing rule this file's own span-pairing
-    // logic already states elsewhere. Checked before the determiner/
-    // coordinator branches only for readability — an auxiliary is never a
-    // member of either closed class, so the order does not change behavior.
     if (auxiliaryVerbs.has(lower)) return null;
-    // A CLAUSE OPENER IS A LEFT WALL — the proposition boundary, not the
-    // sentence boundary (priors.js CLAUSE_OPENERS, giver lang/en, the same
-    // closed class pronouns.js's own sameClause consults). `windowStart`
-    // walls this walk at the previous match or the SENTENCE start, which is
-    // typography: an assertion ends at its clause, and walking past one
-    // captures a span straddling two propositions. Measured on real prose
-    // before this existed: "if so my", "for I", "day belief" — fragments
-    // whose left half belongs to a different assertion than their right.
-    // STOP, keeping what was accumulated (unlike the auxiliary wall above,
-    // which REFUSES): everything right of a clause opener is a real, whole
-    // subject of the clause it opens — only the crossing is illegal.
     if (clauseOpeners.has(lower)) break;
     if (definiteDeterminers.has(lower) || indefiniteDeterminers.has(lower) || possessiveDeterminers.has(lower)) {
-      i -= 1; // include the determiner — normally the NP's own left edge...
-      // ...UNLESS what precedes it is "of" — "the peoples OF THE United
-      // Nations" — a genitive/PP-linking preposition means the just-found
-      // determiner belongs to an EMBEDDED noun phrase modifying an outer
-      // head noun, which has its OWN determiner further back still. Bounded
-      // by the same `i > 0`/`leftBound` walls as the rest of this loop —
-      // this can only continue as many times as real tokens remain, never
-      // an unbounded search — so "the King of England" and "the leader of
-      // the party of the coalition" both resolve to their true outer NP
-      // rather than stopping at the innermost embedded one.
-      if (i > 0 && toks[i - 1].text.toLowerCase() === "of" && !/[,;:]/.test(s.slice(toks[i - 1].end, toks[i].start))) {
-        i -= 1; continue;
-      }
+      i -= 1;
+      if (i > 0 && toks[i - 1].text.toLowerCase() === "of" && !/[,;:]/.test(s.slice(toks[i - 1].end, toks[i].start))) { i -= 1; continue; }
       break;
     }
     if (npCoordinators.has(lower)) {
-      if (i - 1 === 0) break; // a dangling coordinator with nothing behind it to join — do not consume it
-      i -= 1; continue; // include the coordinator, keep looking for the sibling NP's own edge
+      if (i - 1 === 0) break;
+      i -= 1; continue;
     }
-    i -= 1; // an ordinary content word — include, keep scanning
+    i -= 1;
   }
-  // A COORDINATOR IS ONLY EARNED BY THE SIBLING IT JOINS. The loop above
-  // consumes one hoping to find an NP behind it ("Anna and Vasili"); when
-  // the walk then hits a wall with nothing NP-ish found, the coordinator is
-  // left leading the span and the subject reads "and he" / "or it" — 24% of
-  // this extractor's junk subjects on real prose, all of this one shape.
-  // Drop any leading coordinator the walk did not actually pay for.
   while (i < anchorTokIdx && npCoordinators.has(toks[i].text.toLowerCase())) i += 1;
-  if (i === anchorTokIdx) return null; // nothing wider found
+  if (i === anchorTokIdx) return null;
   return { subject: collapseWs(s.slice(toks[i].start, anchorEnd)), start: toks[i].start };
 }
 
@@ -621,7 +670,7 @@ export const objectBoundaryFrom = (posPrior, { minShare } = {}) => {
   return out;
 };
 
-export const extractRelations = (text, { verbs, limit = Infinity, functionWords = null, negationWords = NEGATION_WORDS, phrasalPredicates = false, auxiliaryVerbs = AUXILIARY_VERBS, nounPhraseSubjects = false, definiteDeterminers = DEFINITE_DETERMINERS, indefiniteDeterminers = INDEFINITE_DETERMINERS, possessiveDeterminers = POSSESSIVE_DETERMINERS, npCoordinators = NP_COORDINATORS, objectBoundary = null } = {}) => {
+export const extractRelations = (text, { verbs, limit = Infinity, functionWords = null, negationWords = NEGATION_WORDS, phrasalPredicates = false, auxiliaryVerbs = AUXILIARY_VERBS, nounPhraseSubjects = false, subjectWalls = true, verbWall = null, adpositions = null, subjectPronouns = SUBJECT_PRONOUNS, clauseOpeners = CLAUSE_OPENERS, definiteDeterminers = DEFINITE_DETERMINERS, indefiniteDeterminers = INDEFINITE_DETERMINERS, possessiveDeterminers = POSSESSIVE_DETERMINERS, npCoordinators = NP_COORDINATORS, objectBoundary = null } = {}) => {
   const negationBeforeVerb = negationBeforeVerbFor(negationWords);
   const vocab = verbs instanceof Set ? verbs : new Set(verbs ?? []);
   if (vocab.size === 0) return [];
@@ -738,6 +787,7 @@ export const extractRelations = (text, { verbs, limit = Infinity, functionWords 
   };
 
   const rels = [];
+  let refusedSubjects = 0;
   const seen = new Set();
   const s = String(text ?? "");
   let m;
@@ -869,7 +919,16 @@ export const extractRelations = (text, { verbs, limit = Infinity, functionWords 
         // string's length here would undershoot whenever collapsing
         // actually removed characters (a hard-wrap newline run longer
         // than one char), truncating the widened span by that amount.
-        const expanded = expandSubjectNP(s, subjectStart, subjEnd, windowStart, { definiteDeterminers, indefiniteDeterminers, possessiveDeterminers, npCoordinators, auxiliaryVerbs });
+        const expanded = expandSubjectNP(s, subjectStart, subjEnd, windowStart, { definiteDeterminers, indefiniteDeterminers, possessiveDeterminers, npCoordinators, auxiliaryVerbs, subjectWalls, negationWords, subjectPronouns, clauseOpeners, adpositions,
+          // The verb wall: this material's own cleared vocabulary plus any
+          // RECEIVED verb forms the caller supplies (`verbWall` — a POS
+          // prior's verb-dominant forms). Received, asymmetric: a form here
+          // can only wall a subject, never admit an edge.
+          verbs: verbWall ? new Set([...vocab, ...verbWall]) : vocab });
+        // No subject survives the walls (a bare coordinator, a lone
+        // relativizer): the edge is not emitted — a typed refusal counted on
+        // the result rather than a debris subject on the record.
+        if (expanded?.refused) { refusedSubjects += 1; previousMatchEnd = clauseEndAfter(m.index + m[0].length); continue; }
         if (expanded) { finalSubject = expanded.subject; finalSubjectStart = expanded.start; }
       }
       rels.push({
@@ -893,5 +952,9 @@ export const extractRelations = (text, { verbs, limit = Infinity, functionWords 
     previousMatchEnd = clauseEndAfter(m.index + m[0].length);
   }
 
+  // Typed, on the array itself (non-enumerable, so every consumer that maps
+  // or spreads `rels` is byte-identical): how many matches were refused for
+  // want of a subject under the walls.
+  Object.defineProperty(rels, "refusedSubjects", { value: refusedSubjects, enumerable: false });
   return rels;
 };
