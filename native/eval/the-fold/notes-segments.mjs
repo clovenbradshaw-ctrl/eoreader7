@@ -28,7 +28,6 @@
 // (POSPrior@1 gate on, determiners + negation received, pronouns resolved).
 import { readFileSync, existsSync, writeFileSync } from "node:fs";
 
-const FOLD = new URL("../../../../the-fold/", import.meta.url).pathname;
 const NATIVE = new URL("../..", import.meta.url).pathname;
 const FIX = new URL("./fixtures/", import.meta.url).pathname;
 
@@ -45,7 +44,7 @@ const P = await import(`${NATIVE}/adapters/text/priors.js`);
 const { classifyWord, dominantClass, POS_PRIOR_META, THRAX_META } = await import(`${NATIVE}/adapters/text/wordclass.js`);
 const { makeGrammarLens } = await import(`${NATIVE}/organs/grammar-lens.js`);
 
-const posPath = `${FOLD}/priors-data/pos-prior-eng.json`;
+const posPath = `${FIX}/pos-prior-eng.json`;
 const posPrior = existsSync(posPath) ? JSON.parse(readFileSync(posPath, "utf8")) : null;
 const lens = posPrior ? makeGrammarLens({ classifyWord, dominantClass, posPrior, posPriorMeta: POS_PRIOR_META, thraxMeta: THRAX_META }) : null;
 

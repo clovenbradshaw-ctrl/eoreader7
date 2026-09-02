@@ -2373,8 +2373,14 @@ legacy submodule is absent (`ENGINE=legacy` still pins it where it exists) —
 `hypergraph.test.mjs`, which Pass 7 measured at 54/58 legacy and 52/58 native,
 runs 58/58 native now. One test did not belong to an organ and went back:
 web.test.mjs's P13 seam scan reads the-fold's own page files, a fact about
-the surface, now `the-fold/web-seam.test.mjs`. `native/package.json`'s test
-script now includes `organs/*.test.mjs`. Verified: the-fold's real page loaded
+the surface, now `the-fold/web-seam.test.mjs`. `native/package.json` gained
+`test:organs` (`organs/*.test.mjs`) beside `test`; the CI gate keeps its
+contract (conformance + tests) because several organ tests read material
+that exists only locally — the-fold as a sibling, or the gitignored legacy
+corpus — and a gate that ran them was red on its first run for reasons that
+are not this repo's. The committed `POSPrior@1` also lives in
+`eval/the-fold/fixtures/pos-prior-eng.json` now, so the ledger's own tests
+and driver need no sibling checkout. Verified: the-fold's real page loaded
 in headless Chromium against `serve.mjs` through the shims — boot completed
 (`#not-served` removed), zero uncaught exceptions, zero console errors.
 Suites, failure names diffed against a clean-worktree baseline: eoreader7
