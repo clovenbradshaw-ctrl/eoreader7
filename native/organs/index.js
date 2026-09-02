@@ -21,8 +21,8 @@ export { REFUSALS as SIGNAL_REFUSALS, REQUIRED, findSignal, phrase, scramble } f
 export * as signal from "../../../the-fold/signal.js";
 export { CLAIM_PREFIX, REFUSALS as NESTING_REFUSALS, attributionsOf, claimRef, corroborationOf, depthOf, disagreement, innerId, isClaimRef, leakCheck } from "../../../the-fold/nesting.js";
 export * as nesting from "../../../the-fold/nesting.js";
-export { REFUSALS as FRAME_REFUSALS, comparable, declareFrame, framed } from "../../../the-fold/frame.js";
-export * as frame from "../../../the-fold/frame.js";
+export { REFUSALS as FRAME_REFUSALS, comparable, declareFrame, framed } from "./frame.js";
+export * as frame from "./frame.js";
 export { REFUSALS as BINDING_CORE_REFUSALS, bind } from "../../../the-fold/binding-core.js";
 export * as bindingCore from "../../../the-fold/binding-core.js";
 export { REFUSALS as FOLD_GATE_REFUSALS, reviewMerges } from "../../../the-fold/fold-gate.js";
