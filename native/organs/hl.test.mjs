@@ -61,13 +61,13 @@ test("end to end against the REAL engine organs: reader edges → stage → R2",
   assert.ok(reader.examined);
   assert.ok(reader.edges.length > 0);
   const H = stageFromEdges(reader.edges);
-  const defeated = reader.edges.find((e) => e.verb === "defeated");
+  const defeated = reader.edges.find((e) => e.label === "defeated");
   assert.ok(defeated);
   const foldStr = (s) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().trim();
-  assert.equal(read(H, ["atom", "defeated", foldStr(defeated.subject), foldStr(defeated.object)]), BOUND);
-  const married = reader.edges.find((e) => e.verb === "married");
+  assert.equal(read(H, ["atom", "defeated", foldStr(defeated.end1), foldStr(defeated.end2)]), BOUND);
+  const married = reader.edges.find((e) => e.label === "married");
   assert.ok(married);
-  const ms = foldStr(married.subject);
+  const ms = foldStr(married.end1);
   H.anchors.add("someone else");
   assert.equal(read(H, ["atom", "married", ms, "someone else"]), UNBOUND, "before the declaration: silently unbound");
   declareFunctional(H, "married", { giver: "test fixture: monogamous marriage" });

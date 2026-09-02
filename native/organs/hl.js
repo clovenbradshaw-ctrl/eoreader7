@@ -85,14 +85,14 @@ export function stageFromEdges(edges, { anchorOf = null } = {}) {
     return resolved ?? foldAnchor(text);
   };
   for (const e of edges ?? []) {
-    if (!e || !e.verb) continue;
-    const s = anchor(e.subject);
-    const o = anchor(e.object);
+    if (!e || !(e.label ?? e.verb)) continue;
+    const s = anchor((e.end1 ?? e.subject));
+    const o = anchor((e.end2 ?? e.object));
     if (!s || !o) continue;
     addAnchor(stage, s);
     addAnchor(stage, o);
     addEdge(stage, {
-      rel: foldAnchor(e.verb),
+      rel: foldAnchor((e.label ?? e.verb)),
       s,
       o,
       polarity: e.polarity === "-" ? "-" : "+",
