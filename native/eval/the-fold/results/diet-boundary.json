@@ -1,0 +1,335 @@
+{
+  "declared": {
+    "DIET": {
+      "by": "end1",
+      "order": 3,
+      "alpha": 0.05,
+      "draws": 40,
+      "seed": 1
+    },
+    "CONT": {
+      "orders": [
+        1,
+        2,
+        3
+      ],
+      "draws": 20,
+      "seed": 5
+    }
+  },
+  "frame": {
+    "reader": "makeRelationReader",
+    "organs": {
+      "splitSentences": "native",
+      "surfaces": "native",
+      "relations": "native",
+      "pronouns": "native/en",
+      "posPrior": "POSPrior@1",
+      "determiners": "priors.js/en",
+      "negation": "priors.js/en"
+    },
+    "omitted": [
+      "lemmatizer",
+      "verbForms",
+      "noteIdentity"
+    ],
+    "diet": {
+      "by": "end1",
+      "order": 3,
+      "alpha": 0.05,
+      "draws": 40,
+      "seed": 1
+    },
+    "continuation": {
+      "orders": [
+        1,
+        2,
+        3
+      ],
+      "draws": 20,
+      "seed": 5
+    }
+  },
+  "results": {
+    "diet": {
+      "battle-of-borodino": {
+        "hearings": 341,
+        "run": 2,
+        "runNull": 10,
+        "boundary": false,
+        "conceded": 0,
+        "shuffled": {
+          "run": 1,
+          "runNull": 11,
+          "boundary": false
+        }
+      },
+      "battle-of-borodino · cut before \"See also\"": {
+        "hearings": 292,
+        "run": 1,
+        "runNull": 9,
+        "boundary": false,
+        "conceded": 0,
+        "shuffled": {
+          "run": 1,
+          "runNull": 9,
+          "boundary": false
+        }
+      },
+      "war-and-peace": {
+        "hearings": 310,
+        "run": 4,
+        "runNull": 12,
+        "boundary": false,
+        "conceded": 0,
+        "shuffled": {
+          "run": 5,
+          "runNull": 7,
+          "boundary": false
+        }
+      },
+      "war-and-peace · cut before \"See also\"": {
+        "hearings": 254,
+        "run": 12,
+        "runNull": 9,
+        "boundary": true,
+        "conceded": 12,
+        "shuffled": {
+          "run": 5,
+          "runNull": 9,
+          "boundary": false
+        }
+      },
+      "borodino-ru": {
+        "hearings": 677,
+        "run": 6,
+        "runNull": 17,
+        "boundary": false,
+        "conceded": 0,
+        "shuffled": {
+          "run": 4,
+          "runNull": 26,
+          "boundary": false
+        }
+      },
+      "borodino-ru · cut before \"Примечания\"": {
+        "hearings": 531,
+        "run": 23,
+        "runNull": 22,
+        "boundary": true,
+        "conceded": 23,
+        "shuffled": {
+          "run": 7,
+          "runNull": 19,
+          "boundary": false
+        }
+      },
+      "dracula · last 120KB with licence tail": {
+        "hearings": 410,
+        "run": 11,
+        "runNull": 20,
+        "boundary": false,
+        "conceded": 0,
+        "shuffled": {
+          "run": 5,
+          "runNull": 10,
+          "boundary": false
+        }
+      },
+      "dracula · same slice cut at the END marker": {
+        "hearings": 381,
+        "run": 2,
+        "runNull": 14,
+        "boundary": false,
+        "conceded": 0,
+        "shuffled": {
+          "run": 14,
+          "runNull": 19,
+          "boundary": false
+        }
+      }
+    },
+    "continuation": {
+      "battle-of-borodino->war-and-peace|end1|1": {
+        "bits": null,
+        "median": null,
+        "beats": 0
+      },
+      "battle-of-borodino->war-and-peace|end1|2": {
+        "bits": null,
+        "median": null,
+        "beats": 0
+      },
+      "battle-of-borodino->war-and-peace|end1|3": {
+        "bits": null,
+        "median": null,
+        "beats": 0
+      },
+      "battle-of-borodino->war-and-peace|label|1": {
+        "bits": null,
+        "median": null,
+        "beats": 0
+      },
+      "battle-of-borodino->war-and-peace|label|2": {
+        "bits": null,
+        "median": null,
+        "beats": 0
+      },
+      "battle-of-borodino->war-and-peace|label|3": {
+        "bits": null,
+        "median": null,
+        "beats": 0
+      },
+      "battle-of-borodino->borodino-ru|end1|1": {
+        "bits": null,
+        "median": null,
+        "beats": 0
+      },
+      "battle-of-borodino->borodino-ru|end1|2": {
+        "bits": null,
+        "median": null,
+        "beats": 0
+      },
+      "battle-of-borodino->borodino-ru|end1|3": {
+        "bits": null,
+        "median": null,
+        "beats": 0
+      },
+      "battle-of-borodino->borodino-ru|label|1": {
+        "bits": null,
+        "median": null,
+        "beats": 0
+      },
+      "battle-of-borodino->borodino-ru|label|2": {
+        "bits": null,
+        "median": null,
+        "beats": 0
+      },
+      "battle-of-borodino->borodino-ru|label|3": {
+        "bits": null,
+        "median": null,
+        "beats": 0
+      },
+      "war-and-peace->battle-of-borodino|end1|1": {
+        "bits": null,
+        "median": null,
+        "beats": 0
+      },
+      "war-and-peace->battle-of-borodino|end1|2": {
+        "bits": null,
+        "median": null,
+        "beats": 0
+      },
+      "war-and-peace->battle-of-borodino|end1|3": {
+        "bits": null,
+        "median": null,
+        "beats": 0
+      },
+      "war-and-peace->battle-of-borodino|label|1": {
+        "bits": null,
+        "median": null,
+        "beats": 0
+      },
+      "war-and-peace->battle-of-borodino|label|2": {
+        "bits": null,
+        "median": null,
+        "beats": 0
+      },
+      "war-and-peace->battle-of-borodino|label|3": {
+        "bits": null,
+        "median": null,
+        "beats": 0
+      },
+      "war-and-peace->borodino-ru|end1|1": {
+        "bits": null,
+        "median": null,
+        "beats": 0
+      },
+      "war-and-peace->borodino-ru|end1|2": {
+        "bits": null,
+        "median": null,
+        "beats": 0
+      },
+      "war-and-peace->borodino-ru|end1|3": {
+        "bits": null,
+        "median": null,
+        "beats": 0
+      },
+      "war-and-peace->borodino-ru|label|1": {
+        "bits": null,
+        "median": null,
+        "beats": 0
+      },
+      "war-and-peace->borodino-ru|label|2": {
+        "bits": null,
+        "median": null,
+        "beats": 0
+      },
+      "war-and-peace->borodino-ru|label|3": {
+        "bits": null,
+        "median": null,
+        "beats": 0
+      },
+      "borodino-ru->battle-of-borodino|end1|1": {
+        "bits": null,
+        "median": null,
+        "beats": 0
+      },
+      "borodino-ru->battle-of-borodino|end1|2": {
+        "bits": null,
+        "median": null,
+        "beats": 0
+      },
+      "borodino-ru->battle-of-borodino|end1|3": {
+        "bits": null,
+        "median": null,
+        "beats": 0
+      },
+      "borodino-ru->battle-of-borodino|label|1": {
+        "bits": null,
+        "median": null,
+        "beats": 0
+      },
+      "borodino-ru->battle-of-borodino|label|2": {
+        "bits": null,
+        "median": null,
+        "beats": 0
+      },
+      "borodino-ru->battle-of-borodino|label|3": {
+        "bits": null,
+        "median": null,
+        "beats": 0
+      },
+      "borodino-ru->war-and-peace|end1|1": {
+        "bits": null,
+        "median": null,
+        "beats": 0
+      },
+      "borodino-ru->war-and-peace|end1|2": {
+        "bits": null,
+        "median": null,
+        "beats": 0
+      },
+      "borodino-ru->war-and-peace|end1|3": {
+        "bits": null,
+        "median": null,
+        "beats": 0
+      },
+      "borodino-ru->war-and-peace|label|1": {
+        "bits": null,
+        "median": null,
+        "beats": 0
+      },
+      "borodino-ru->war-and-peace|label|2": {
+        "bits": null,
+        "median": null,
+        "beats": 0
+      },
+      "borodino-ru->war-and-peace|label|3": {
+        "bits": null,
+        "median": null,
+        "beats": 0
+      }
+    }
+  }
+}

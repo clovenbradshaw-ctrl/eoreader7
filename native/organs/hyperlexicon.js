@@ -121,7 +121,9 @@ export function makeHyperlexicon(taskLog) {
   return {
     createHyperlexicon, hear, attest: notes.attest, admit, concede: notes.concede, concededNotes, concededIds: notes.concededIds,
     foldHyperlexicon, readingFromHyperlexicon: notes.readingFromNotes,
-    frameOf: notes.frameOf, stream: notes.stream, figures: notes.figures, segment: notes.segment,
+    frameOf: notes.frameOf, frames: notes.frames, redeclareFrame: notes.redeclareFrame,
+    stream: notes.stream, figures: notes.figures, segment: notes.segment,
+    dietBoundaries: notes.dietBoundaries, concedeDiet: notes.concedeDiet,
     assertionId, recipeId, REFUSALS,
   };
 }

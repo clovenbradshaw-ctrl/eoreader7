@@ -94,3 +94,19 @@ with each other, not by review.
 cd eoreader7/native/eval/the-fold && node notes-segments.mjs
 ```
 ~60s; raw numbers in `results/notes-segments.json`. No model, no network.
+
+## Correction (same day, later): the "most surprising hearings are the furniture" reading was a floor artifact
+
+The bullet above that says surprise "locates the DIET BOUNDARY of a reading
+without being told there is one" is withdrawn. `figures()` computed each
+hearing's surprise with a GROWING alphabet floor (`1/(alphabet.size+1)` as
+the ground read), so every later first occurrence read a hair more
+surprising than an earlier one — 7.97 vs 7.94 bits — and a sort by bits
+simply named the last hearings of each page, which happen to be the
+wrapper. The kernel now uses one floor (the stream's own alphabet, the same
+rule `segment` and the music driver use); under it every first occurrence
+reads the same bits wherever it falls, pinned in `notes.test.js`. The
+question was then asked properly — a tail RUN above the null's cut against
+the shuffle's own tail runs — in `diet-boundary.mjs`; its results doc
+records what that found. The two walls in the same bullet list
+(~2% corroboration; the English POS gate silent on Russian) stand.

@@ -786,7 +786,8 @@ export async function corroborateLedger(log, door, sources, {
         if (!note) continue;
         if (askedPairs.has(`${noteId}\u0000${ref}`)) continue;
         // a source never seconds its own sighting (Ladha: one perspective)
-        if ((note.witnesses ?? []).some((w) => w === ref || w === `testimony:${ref}`)) continue;
+        // A witness may carry `~recipe` (P68); the source is what is compared.
+        if (distinctSources(note.witnesses ?? []).has(ref)) continue;
         const v = askValue(note, { contradictSources, settleFloor });
         if (v.value === 0) continue;
         // PREFILTER (the same per-end geometry as the decider wall, applied

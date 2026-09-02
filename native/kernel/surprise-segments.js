@@ -55,7 +55,7 @@ export function surprises(events, { order, alphabetSize = null } = {}) {
   return out;
 }
 
-const quantile = (sorted, q) => sorted[Math.min(sorted.length - 1, Math.max(0, Math.floor(q * (sorted.length - 1))))];
+export const quantile = (sorted, q) => sorted[Math.min(sorted.length - 1, Math.max(0, Math.floor(q * (sorted.length - 1))))];
 
 /**
  * segmentBySurprise(events, { order, alpha, draws, seed, minLength }) →

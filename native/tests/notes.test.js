@@ -131,3 +131,70 @@ test("OMNIMODAL: the kernel's executable body names no medium", () => {
     assert.ok(!new RegExp(`\\b${word}\\b`, "i").test(body), `kernel/notes.js's executable body must not mention "${word}" — it would not be medium-general`);
   }
 });
+
+test("a frame can be redeclared after birth: SUPERSEDE keeps the past, the latest is in force, an identical redeclaration appends nothing", () => {
+  let log = notes.createNotes({ frame: { priors: { pos: null } } });
+  log = notes.hear(log, { end1: "a", label: "r", end2: "b", spans: [span("s", 0, 1)], witness: "s~r0" });
+  const same = notes.redeclareFrame(log, { priors: { pos: null } });
+  assert.equal(same, log, "the frame in force is unchanged — nothing to say");
+  log = notes.redeclareFrame(log, { priors: { pos: "POSPrior@1" } });
+  assert.equal(notes.frameOf(log).declared.priors.pos, "POSPrior@1");
+  assert.equal(notes.frameOf(log).revisions, 1);
+  assert.equal(notes.frames(log).length, 2, "the birth frame is kept beneath the redeclared one");
+  assert.equal(log.entries.at(-1).kind, "supersede");
+  assert.equal(log.entries.at(-1).cell, "DEF·Ground");
+  const late = notes.redeclareFrame(notes.createNotes(), { organs: { reader: "x" } });
+  assert.equal(notes.frameOf(late).revisions, 0, "a frameless ledger given a frame late has a birth frame now, not a revision");
+  assert.equal(notes.fold(log).length, 1, "frames are never notes");
+});
+
+test("figures: the floor is the stream's own alphabet, so an early first occurrence and a late one read the same bits", () => {
+  let log = notes.createNotes();
+  const ids = ["p|r|q", "x|r|y", "p|r|q", "x|r|y", "p|r|q", "m|r|n"];
+  ids.forEach((id, i) => { const [end1, label, end2] = id.split("|"); log = notes.hear(log, { end1, label, end2, spans: [span("s", i, i + 1)], witness: `s~${i}` }); });
+  const f = notes.figures(log, { by: "id", order: 2 });
+  assert.equal(f[0].bits, f.at(-1).bits, "first occurrence at seq 0 and at the tail: identical surprise, not a growing-floor artifact");
+});
+
+test("dietBoundaries: a source whose tail stops recurring is a boundary; the same hearings shuffled are not; concedeDiet takes back only notes heard nowhere else", () => {
+  // The body: a small cast recurring in a planted rhythm. The tail: twelve
+  // hearings that share nothing with the body and nothing with each other —
+  // the shape of a wrapper, a bibliography, a licence.
+  const body = [];
+  const cast = ["a", "b", "c", "d"];
+  for (let i = 0; i < 60; i += 1) body.push(`${cast[i % 4]}|r|${cast[(i + 1) % 4]}`);
+  const tail = Array.from({ length: 12 }, (_, i) => `junk${i}|is|thing${i}`);
+  const build = (ids, src) => {
+    let log = notes.createNotes({ frame: { instrument: "planted" } });
+    ids.forEach((id, i) => { const [end1, label, end2] = id.split("|"); log = notes.hear(log, { end1, label, end2, spans: [span(src, i, i + 1)], witness: `${src}#${i}-${i + 1}~planted` }); });
+    return log;
+  };
+  const P = { by: "end1", order: 2, alpha: 0.05, draws: 40, seed: 3 };
+  const withTail = build([...body, ...tail], "doc");
+  const [b] = notes.dietBoundaries(withTail, P);
+  assert.equal(b.source, "doc", "the source is read off the witness up to its address");
+  assert.ok(b.boundary, `the planted tail is a boundary: run ${b.run} vs null ${b.runNull}`);
+  assert.ok(b.run >= 12 && b.seqs.length === b.run, "the run is the tail, and every seq in it is returned");
+  // control: the same hearings with their order destroyed
+  const rng = lcg(11);
+  const shuffledIds = [...body, ...tail].map((id) => ({ id, k: rng() })).sort((x, y) => x.k - y.k).map((x) => x.id);
+  const [c] = notes.dietBoundaries(build(shuffledIds, "doc"), P);
+  assert.ok(!c.boundary || c.run <= b.run / 3, `order destroyed: no comparable tail run (run ${c.run}, null ${c.runNull})`);
+  // control: the body alone — real material to its last hearing
+  const [d] = notes.dietBoundaries(build(body, "doc"), P);
+  assert.ok(!d.boundary, `a source that recurs to its end has no boundary (run ${d.run}, null ${d.runNull})`);
+  // the act: concede what was heard only inside the run
+  let mixed = withTail;
+  mixed = notes.hear(mixed, { end1: "junk3", label: "is", end2: "thing3", spans: [span("doc", 500, 501)], witness: "doc#500-501~planted" }); // heard again — still inside the run, still conceded
+  const before = notes.fold(withTail).length;
+  const r = notes.concedeDiet(withTail, b, { trigger: "diet boundary" });
+  assert.equal(r.conceded.length, 12, "every note heard only in the tail is conceded");
+  assert.equal(notes.fold(r.log).length, before - 12);
+  assert.equal(notes.fold(r.log).some((n) => n.end1.startsWith("junk")), false);
+  assert.match(notes.concededNotes(r.log)[0].trigger, /tail run of \d+ hearings/);
+  assert.equal(notes.concedeDiet(withTail, d).refused.type, "no_boundary");
+  // a source with one hearing is reported, never judged
+  const tiny = notes.dietBoundaries(build(["a|r|b"], "one"), P)[0];
+  assert.equal(tiny.refused, "too_short");
+  assert.throws(() => notes.dietBoundaries(withTail, { by: "end1", order: 2 }), /is declared/);
+});
