@@ -2514,3 +2514,48 @@ residue (a common noun glued to a name's left needs the prior's nouns).
 **Enforced:** `tests/relations.test.js` 40 → 48, every new case a real
 Dracula sentence, each rule's old debris pinned beside its new reading.
 Full native suite 468/10 + 335/12, zero new failures by name.
+
+## S45 — Floor 5 run live on CPU: the source count was wrong, and cross-source corroboration is structurally rare on a novel
+
+**Generality:** universal (the source-count fix); specimen-scoped (the two
+measurements — one novel, one page pair, one small model).
+
+**User direction (2026-09-02):** "you can run ollama on cpu." Ollama 0.33.2
+and gemma2:2b installed in the container (4 cores, no GPU; 2.6–3.5s per
+witness read). The witness tier ran live for the first time over a ledger
+read from a real book.
+
+**The bug the first run exposed.** `corroboration.js::distinctSources`
+compared witness strings with their passage address still on, so a
+mechanical witness `part-1.txt#178-275` and a testimony witness
+`testimony:part-1.txt` were two sources: the first walk attested eight
+notes, every one from the part it had been heard in, and reported the ≥2
+gate 2 → 10. Every ≥2-source number this project computed off
+chunk-addressed witnesses was inflated the same way — the ~2% book figure
+was chunk-distinct. `sourceOfWitness` is the one reduction now (ref
+without address or recipe); `independentReadings` keys (source, recipe)
+the same way; pinned; `docs/reading-recall-finding.md` carries the
+correction.
+
+**The corrected measurement.** Novel (240KB of *Dracula*, six chapter
+parts, 474 notes, 60 asks, select protocol): 1 cross-source attestation,
+53 `no-testimony`, guard 0 lies — 0.017 clean votes per ask. Two
+encyclopedia pages (82 notes with the subject walls on, 30 asks): 1
+attestation per arm, generate and select alike, guard 0 lies — 0.033.
+This corrects `corroboration-select-vs-generate-RESULTS.md`'s 7 vs 6,
+which counted with the old source function over an unwalled ledger.
+
+**What it decides.** NEXT-PASSES gated the memory floor on clean votes
+per ask and said that if Tier 1 could not raise it, the floor's DESIGN
+is what gets re-examined. It cannot be raised on a novel: a novel does
+not restate its propositions across chapters, it re-mentions its
+referents, and the witness says so honestly 53 times in 60. The design
+question is why a single-source note with a verified address, real ends
+and a real label must have a second source before it may reach the
+model — a gate chosen when the door admitted junk (P73), guarding now
+against a diet that no longer arrives (P74, S44). Corroboration should be
+DISCLOSED on a note, not used to withhold it. Named, not built.
+
+**Enforced:** `organs/corroboration.test.mjs` 45 → 46 (the self-attestation
+that counted as two sources, and the (source, recipe) key); the-fold's
+suite and this repo's, zero new failures by name.
