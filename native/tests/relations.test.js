@@ -406,3 +406,23 @@ test("the strip's own guards are untouched: a lone pronoun, a negation, and a po
   assert.notEqual(subj("The gauge does not measure pressure."), "not");
   assert.equal(subj("Then his King ruled the north."), "his King");
 });
+
+
+// ── the OOV connector gate takes a verb-form lexicon (2026-09-02) ──────────
+// Without a POS attestation a connector used to admit on absence of
+// evidence ("redoubt", "nobility", "aristocratic", Cyrillic "и" all shipped
+// as verbs on a real ledger). With a lexicon supplied, an OOV token must be
+// a known verb form to admit; without one the old posture is byte-identical.
+test("an OOV connector admits only through a supplied verb-form lexicon; no lexicon, the old asymmetric posture stands", () => {
+  const posPrior = { forms: { fell: { VERB: 9 }, rose: { VERB: 4 } } }; // nobility / diminishes unattested
+  const text = "Napoleon nobility rose. Kutuzov nobility fell. Napoleon diminishes daily. Kutuzov diminishes too.";
+  const surfaces = ["Napoleon", "Kutuzov"];
+  const bare = discoverRelationVocab(text, { surfaces, minSurfaces: 1, posPrior });
+  assert.ok(bare.verbs.has("nobility") && bare.verbs.has("diminishes"), "no lexicon: OOV admits, as before");
+  assert.deepEqual(bare.candidates.filter((c) => c.verb === "nobility").map((c) => c.posStanding), ["gap"]);
+  const gated = discoverRelationVocab(text, { surfaces, minSurfaces: 1, posPrior, verbForms: new Set(["diminishes", "fell", "rose"]) });
+  assert.ok(!gated.verbs.has("nobility"), "an OOV noun the lexicon does not know is refused");
+  assert.ok(gated.verbs.has("diminishes"), "an OOV verb form the lexicon knows admits");
+  const standings = Object.fromEntries(gated.candidates.map((c) => [c.verb, c.posStanding]));
+  assert.equal(standings.nobility, "gap_lexicon_refuses"); assert.equal(standings.diminishes, "gap_lexicon_admits");
+});
