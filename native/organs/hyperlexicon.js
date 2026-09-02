@@ -366,8 +366,18 @@ export function makeHyperlexicon(taskLog) {
    * cut for room cuts the least corroborated rather than the most recent.
    */
   function foldHyperlexicon(log) {
+    // TWO EXCLUSIONS, both floor-6 (derivation.js), both additive: a log
+    // that was never derived over and never conceded folds byte-identically.
+    //   * a DERIVED note (`derived: true`) is not a sighting — it has no
+    //     witnesses of its own and is a different floor's operand; it is
+    //     projected by derivation.js::foldDerived, never here, so every F5
+    //     consumer (the >=2 gate, the corroboration walk, the ledger block)
+    //     keeps reading only what the material was HEARD to say.
+    //   * a CONCEDED note (an EVIDENCE·REC entry naming it in `concedes`)
+    //     stays on the log — append-only — and leaves the projection.
+    const gone = concededIds(log);
     return projectTasks(log)
-      .filter((t) => t.subject && t.verb && t.object)
+      .filter((t) => t.subject && t.verb && t.object && !t.derived && !gone.has(t.task_id))
       .map((t) => ({
         id: t.task_id,
         subject: t.subject,
@@ -420,5 +430,54 @@ export function makeHyperlexicon(taskLog) {
     return { log: next, refused: null, noop: false };
   }
 
-  return { createHyperlexicon, hear, attest, admit, foldHyperlexicon, readingFromHyperlexicon, assertionId, recipeId, REFUSALS };
+  /** The ids every REC entry on this log has conceded. */
+  function concededIds(log) {
+    const out = new Set();
+    for (const e of log?.entries ?? []) if (e?.kind === ENTRY_KINDS.EVIDENCE && e.operator === "REC" && e.concedes) out.add(e.concedes);
+    return out;
+  }
+
+  /**
+   * concede(log, noteId, { trigger }) — REC on a note: the reader takes
+   * back something it heard. Mirrors grid.js::concedeEvaluation and
+   * declarations.js::concede exactly: EVIDENCE · REC, its own task_id, the
+   * conceded id in `concedes`, the reason VERBATIM in `trigger` — required,
+   * because a re-zero with no recorded reason is a deletion wearing a
+   * concession's name. Nothing is deleted: the note's entries stay, the
+   * fold stops projecting it, and `concededNotes` lists it with its trigger.
+   *
+   * A conceded note stays conceded. Hearing the same triple again lands on
+   * the same (conceded) task and does not resurrect it — a re-zero opens a
+   * new ground, it does not reopen the old one (build-log.js's own rezero
+   * rule). Disclosed here rather than left to be discovered.
+   *
+   * Grain is Figure: what is conceded is a note, a Figure-grain operand.
+   * Floor 6's cascade (derivation.js::withdrawDerived) concedes the
+   * PRODUCTS that rested on it at Pattern grain, on the same act.
+   */
+  function concede(log, noteId, { trigger } = {}) {
+    if (typeof trigger !== "string" || !trigger.trim())
+      return { log, refused: { type: "no_trigger", detail: "concede: a re-zero records its own reason as `trigger` — never a silent concession" } };
+    const prior = projectTasks(log).find((t) => t.task_id === noteId) ?? null;
+    if (!prior) return { log, refused: { type: "unknown_note", noteId, detail: "nothing stands to concede — a re-zero names a note that exists" } };
+    if (concededIds(log).has(noteId)) return { log, refused: null, noop: true };
+    const id = `rec:${log.nextSeq}`;
+    const next = append(log, {
+      kind: ENTRY_KINDS.EVIDENCE, task_id: id, operator: "REC", operator_basis: OPERATOR_BASIS.PRODUCED, grain: FIGURE,
+      ...cellFields("REC"),
+      description: `re-zero: ${trigger}`,
+      concedes: noteId, trigger,
+    });
+    return { log: next, refused: null, noop: false, id };
+  }
+
+  /** What this log has conceded, each with the reason it recorded. */
+  function concededNotes(log) {
+    const tasks = new Map(projectTasks(log).map((t) => [t.task_id, t]));
+    return (log?.entries ?? [])
+      .filter((e) => e?.kind === ENTRY_KINDS.EVIDENCE && e.operator === "REC" && e.concedes)
+      .map((e) => { const t = tasks.get(e.concedes); return { id: e.concedes, trigger: e.trigger, at: e.seq, subject: t?.subject ?? null, verb: t?.verb ?? null, object: t?.object ?? null }; });
+  }
+
+  return { createHyperlexicon, hear, attest, admit, concede, concededNotes, concededIds, foldHyperlexicon, readingFromHyperlexicon, assertionId, recipeId, REFUSALS };
 }

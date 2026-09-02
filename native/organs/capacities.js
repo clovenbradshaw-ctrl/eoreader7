@@ -68,6 +68,14 @@ export const CAPACITIES = Object.freeze([
     what: "relations linked to document-order neighbours and referent-siblings — relations only make sense linked",
   }),
   Object.freeze({
+    id: "derive",
+    terrain: "Network",
+    op: "SYN",
+    module: "eoreader7/native/organs/derivation.js",
+    fn: "makeDerivation",
+    what: "floor 6 — a corroborated note as a PREMISE: licensed composition (the reaction circuit, chemistry from the declarations register's GIVEN tier alone) derives never-stated facts from F5 notes at a declared standing floor and lands them on the same ledger as SYN·Pattern·derived notes with NO witnesses of their own — premises and walked provenance carry them, the >=2 gate excludes them by construction, conceding a premise withdraws every product transitively. Typing: a whole compiled from parts under a licence is Generate·Structure at Pattern grain — SYN·Network, Composing; task-log's own `operator_basis: derived`.",
+  }),
+  Object.freeze({
     id: "atmosphere",
     terrain: "Atmosphere",
     op: "EVA",
