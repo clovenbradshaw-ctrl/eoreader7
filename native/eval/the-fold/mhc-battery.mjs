@@ -130,7 +130,7 @@ async function buildRussianSeam(material) {
   }
   try {
     const prior = JSON.parse(
-      readFileSync(join(HERE, "..", "..", "live_priors", "derived-priors", "propernoun-priors", "propernoun-ru.json"), "utf8"),
+      readFileSync(join(HERE, "..", "..", "..", "..", "live_priors", "derived-priors", "propernoun-priors", "propernoun-ru.json"), "utf8"),
     );
     out.fold = module.makeProperNounFold(prior);
     out.language = prior?.language;
@@ -140,7 +140,7 @@ async function buildRussianSeam(material) {
   }
   try {
     const prior = JSON.parse(
-      readFileSync(join(HERE, "..", "..", "live_priors", "derived-priors", "pronoun-priors", "pronoun-ru.json"), "utf8"),
+      readFileSync(join(HERE, "..", "..", "..", "..", "live_priors", "derived-priors", "pronoun-priors", "pronoun-ru.json"), "utf8"),
     );
     out.pronounClass = prior;
     out.language = out.language ?? prior?.language;

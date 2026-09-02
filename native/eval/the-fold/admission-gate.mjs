@@ -46,7 +46,7 @@ import { dirname, join } from "node:path";
 
 import { makeRelationReader } from "../../../../the-fold/hypergraph.js";
 import { makeHyperlexicon } from "../../../../the-fold/hyperlexicon.js";
-import { makeGrammarLens } from "../../../../the-fold/grammar-lens.js";
+import { makeGrammarLens } from "../../organs/grammar-lens.js";
 import { GRAMMAR_MIN_SHARE } from "../../../../the-fold/hypergraph.js";
 import { makeReferentIndex } from "../../../../the-fold/cast.js";
 import { chunkSource, retrieve, tokenize, blankLabelRows } from "../../../../the-fold/source.js";
@@ -65,11 +65,11 @@ import { adaptTaskLog } from "../../../../the-fold/consequence.js";
 const HERE = dirname(fileURLToPath(import.meta.url));
 
 // ---- ground: live_priors' committed POSPrior@1, read where it ships ----
-const POS_PRIOR_PATH = join(HERE, "..", "..", "live_priors", "derived-priors", "pos-priors", "pos-prior-en.json");
+const POS_PRIOR_PATH = join(HERE, "..", "..", "..", "..", "live_priors", "derived-priors", "pos-priors", "pos-prior-en.json");
 const posPrior = JSON.parse(readFileSync(POS_PRIOR_PATH, "utf8"));
 
 // eoreader7's committed irregular-tail lemma table (form -> [lemmas]).
-const MORPH_PATH = join(HERE, "..", "..", "eoreader7", "native", "priors", "morphology-eng.json");
+const MORPH_PATH = join(HERE, "..", "..", "priors", "morphology-eng.json");
 const morph = JSON.parse(readFileSync(MORPH_PATH, "utf8")).forms;
 
 // ---- material: the two committed fixture pages ----

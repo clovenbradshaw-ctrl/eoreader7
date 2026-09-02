@@ -113,7 +113,7 @@ const TURNS = [
 ];
 
 async function main() {
-  const nulPath = join(HERE, "..", "..", "eoreader7", "legacy-eoreader6.1", "nul", "index.js");
+  const nulPath = join(HERE, "..", "..", "..", "legacy-eoreader6.1", "nul", "index.js");
   const text = readFileSync(nulPath, "utf8");
   console.log(`material: nul/index.js (${text.length} chars, ${text.split("\n").length} lines) — the same file CLAUDE.md's own "measuring door" section describes as this repo's flagship statistical engine`);
   console.log(`model: ${MODEL}\n`);

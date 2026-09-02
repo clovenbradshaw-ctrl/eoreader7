@@ -36,7 +36,7 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 // that organ writes them. The two encyclopedic runs were produced by this
 // session and are committed beside the two that were already there, so this
 // assembly reproduces from the repos alone rather than from a session's /tmp.
-const RESULTS = join(HERE, "..", "..", "eoreader7", "native", "eval", "results");
+const RESULTS = join(HERE, "..", "..", "eval", "results");
 
 const MIN_SUPPORT = 20; // declared: a share computed on fewer returns than
                         // this is read as noise, not a point. Swept below.

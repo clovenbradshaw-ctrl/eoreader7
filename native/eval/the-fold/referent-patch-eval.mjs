@@ -66,7 +66,7 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 const buildLog = makeBuildLog(taskLog);
 const SUFFIXES = enginePriors.INFLECTIONAL_SUFFIXES;
 
-const SOURCE_PATH = join(HERE, "..", "..", "eoreader7", "legacy-eoreader6.1", "nul", "index.js");
+const SOURCE_PATH = join(HERE, "..", "..", "..", "legacy-eoreader6.1", "nul", "index.js");
 const SOURCE_ID = "nul/index.js";
 const FULL_CODE = readFileSync(SOURCE_PATH, "utf8");
 
