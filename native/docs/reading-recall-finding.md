@@ -200,3 +200,49 @@ corroboration — the first fully-clean second vote the ledger has ever
 held. The pinned unit test carries the FULL live decider sentence, so
 the truncated-fixture mistake that let the first floor pass its own test
 cannot recur.
+
+---
+
+# Addendum 5: Pass 1 landed — 3.2× votes-per-ask, control hardened and holding (2026-09-01)
+
+NEXT-PASSES Tier 1, Pass 1. Diagnosis first: of the walk's top-40
+candidates, **14 (35%) were structurally hopeless** — their ends never
+co-occur anywhere in the corroborating page, so the per-end decider wall
+could never pass, and every ask spent on one was a wasted model call.
+
+Two mechanisms, one geometry (the decider wall's own per-end covering
+condition, applied BEFORE the spend):
+
+- **Prefilter**: `endsCopresentWindow` — no co-presence window anywhere
+  means skip WITHOUT an ask, tallied apart (`skippedNoCopresence`) from
+  the witness's own refusals, because no call was spent and no testimony
+  heard.
+- **Slice centering**: for plausible candidates the witness reads the
+  co-presence window — where a stating sentence would have to live —
+  instead of wherever generic anchor scoring wanders (P32's own named
+  prose-vs-table gap).
+
+Live, same material, same protocol: **25 asks spent (15 skipped free),
+106s, 2 clean votes** vs the prior 40 asks / 143s / 1 —
+**votes-per-ask 0.025 → 0.08, 3.2×.** The Kutuzov decider IMPROVED
+("aide-de-camp to Prince Mikhail Ilarionovich Kutuzov in the coming war
+(the Battle of Austerlitz) against Napoleon" — both ends verbatim plus
+the relation itself). The Grande Armée decider is marginal and said so:
+ends covered via "Russian countryside", it states the MARCH, not the
+fight — the residual gap is the LABEL, and mechanical label-company is
+the refuted synonymy road, so it stays a disclosed residue guarded by
+the armed sibling protocol, not chased.
+
+**The control was hardened, not just held**: four fabricated claims ALL
+with co-present ends — so they pass the prefilter and get the centered
+slice — including a plausible inversion adjacent to the true sentence
+("Napoleon was defeated by Kutuzov at Austerlitz") and a
+protagonist-commands-army fake ("Pierre Bezukhov commanded the Imperial
+Russian Army"). **0/4 false states.** Recall was not bought at
+precision's expense; the must-not-shield unit control additionally pins
+that the prefilter can never hide a copresent fake from the judge.
+
+Toward Pass 2 (calibration), one number this run already contributes:
+across all live fabricated batches to date, 0 false states in 12
+armed-protocol asks — an upper bound on p(states|false) that the SPRT
+ratios will inherit when the labeled-true batch is run.
