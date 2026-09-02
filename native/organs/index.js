@@ -17,8 +17,8 @@ export { SELECT_SCHEMA, WITNESS_SCHEMA, WITNESS_SLICE_MAX, becauseContained, bec
 export * as testimony from "../../../the-fold/testimony.js";
 export { contextVectors, cosine, discoverCompanyKinds, foldPermitted, frameWords, kindFit, kindMembership, kindNotes } from "./kind-standing.js";
 export * as kindStanding from "./kind-standing.js";
-export { REFUSALS as SIGNAL_REFUSALS, REQUIRED, findSignal, phrase, scramble } from "../../../the-fold/signal.js";
-export * as signal from "../../../the-fold/signal.js";
+export { REFUSALS as SIGNAL_REFUSALS, REQUIRED, findSignal, phrase, scramble } from "./signal.js";
+export * as signal from "./signal.js";
 export { CLAIM_PREFIX, REFUSALS as NESTING_REFUSALS, attributionsOf, claimRef, corroborationOf, depthOf, disagreement, innerId, isClaimRef, leakCheck } from "../../../the-fold/nesting.js";
 export * as nesting from "../../../the-fold/nesting.js";
 export { REFUSALS as FRAME_REFUSALS, comparable, declareFrame, framed } from "./frame.js";
