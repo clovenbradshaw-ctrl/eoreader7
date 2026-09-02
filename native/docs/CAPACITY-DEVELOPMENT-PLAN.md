@@ -109,7 +109,17 @@ register without that session's own boundary.**
 
 ### DEF·Ground — Clearing at Atmosphere: defining the interpretive ground
 
-**Sketch:** the constitution's channel (`constitution.js`'s
+**BUILT 2026-09-02 (`frame.js`), from its depth-siblings under §VIII.2's
+pre-registered protocol — and the gate below was met by a MEASURED
+specimen first: the hypergraph suite verifying an engine provider the app
+does not run (54/58 vs 52/58), invisible until the frame was declared.
+That incident also closes this entry's own "never produced a live
+incident" note. Registered (`frame` in capacities.js); the Clearing
+stance is FULL, and with it the whole Differentiate mode. Coverage
+25/27; the remaining two (CON·Ground, INS·Ground) stay gated on the
+fold-architecture session's boundary, exactly as written below.**
+
+**Original sketch:** the constitution's channel (`constitution.js`'s
 CONSTITUTION_PROMPT — the one folded paragraph that sets every turn's
 interpretive ambient) and the compiled-priors load (`loadCompiledPriors`
 — the standing experiential ground admitted at a gate) are both

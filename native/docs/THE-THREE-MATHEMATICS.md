@@ -269,6 +269,23 @@ is decoration:
    development plan's remaining Ground-row cells should be derivable
    this way, and if a sibling-derived design fails where a from-scratch
    one succeeds, this document is wrong about depth.
+
+   **RESULT (2026-09-02): held, first trial.** DEF·Ground was built
+   under the pre-registered protocol — the derivation (from NUL·Ground's
+   declared-numbers gate and SEG·Ground's extent-and-units, both
+   "declaration gates with typed refusals plus a comparability rule",
+   transposed to the calculus column) committed at `6e404c2` BEFORE the
+   module existed, predicting `declareFrame` / typed `undeclared_frame`
+   refusals / frame ids stamped on verdicts / a `cross_frame` comparison
+   wall. `frame.js` followed it with zero departures and passed its own
+   end-to-end unmodified: the two real engine providers as two declared
+   frames over one material, the cross-frame comparison refusing with
+   the differing component named. One trial is one point, not a law —
+   the depth axis has moved a build correctly ONCE, on the cell whose
+   specimen was already measured (the 54/58-vs-52/58 provider incident).
+   The remaining Ground-row cells (CON/INS) are gated on another
+   session's boundary, not on this axis, so the next trial of this
+   prediction waits there.
 3. **Violations of the crossing rule should always present as measured
    nonsense downstream, never as clean errors** — corroborated noise,
    percolated basins, double-counted witnesses. A counterexample (a
