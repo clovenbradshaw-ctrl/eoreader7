@@ -4,8 +4,8 @@
 // would carry none of the walls being tested.
 import test from "node:test";
 import assert from "node:assert/strict";
-import { findSignal, phrase, scramble, REQUIRED } from "./signal.js";
-import { discoverCompanyKinds } from "./kind-standing.js";
+import { findSignal, phrase, scramble, REQUIRED } from "../eoreader7/native/organs/index.js";
+import { discoverCompanyKinds } from "../eoreader7/native/organs/index.js";
 
 const NUMBERS = { draws: 60, seed: 3, alpha: 0.05, minMentions: 6, minShare: 0.4, minMembers: 2 };
 const KEEP = (t) => t; // identity cleaner: these streams are not text
