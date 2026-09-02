@@ -175,8 +175,8 @@ test("end to end: a real edge extracted by the real engine from real material re
   const report = reader.read(PASSAGES[0].text);
   assert.ok(report.edges.length > 0, "the material must yield at least one real edge");
 
-  const spokeEdge = report.edges.find((e) => e.verb === "spoke");
-  assert.ok(spokeEdge, `expected a real 'spoke' edge, got: ${JSON.stringify(report.edges.map((e) => e.verb))}`);
+  const spokeEdge = report.edges.find((e) => e.label === "spoke"); // earned name — P76 wipe
+  assert.ok(spokeEdge, `expected a real 'spoke' edge, got: ${JSON.stringify(report.edges.map((e) => e.label))}`);
 
   const lens = makeGrammarLens({ classifyWord, dominantClass, posPrior: POS_PRIOR });
   const classification = lens(spokeEdge, { minShare: MIN_SHARE });

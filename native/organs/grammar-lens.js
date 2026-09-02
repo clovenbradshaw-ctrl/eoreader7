@@ -114,7 +114,7 @@ export function makeGrammarLens({ classifyWord, dominantClass, posPrior = null, 
   // classification this lens ever produces.
   const givers = posPriorMeta || thraxMeta ? { measured: posPriorMeta ?? null, declared: thraxMeta ?? null } : null;
   return function classifyConnector(edge, { minShare } = {}) {
-    const c = classifyWord(edge?.verb ?? "", { posPrior });
+    const c = classifyWord(edge?.label ?? edge?.verb ?? "", { posPrior }); // earned name first (P76 wipe); .verb accepted for callers not yet migrated
     // An out-of-vocabulary word has no candidates for dominantClass to rank
     // in the first place — calling it anyway would force EVERY caller to
     // supply a minShare just to ask "was this word found at all," a
@@ -122,7 +122,7 @@ export function makeGrammarLens({ classifyWord, dominantClass, posPrior = null, 
     // minShare to answer. Short-circuit here, not inside dominantClass.
     const dominant = c.found ? dominantClass(c, { minShare }) : null;
     return {
-      surface: edge?.verb ?? null,
+      surface: edge?.label ?? edge?.verb ?? null,
       found: c.found,
       candidates: c.candidates,
       thraxClass: dominant?.thraxClass ?? null,
