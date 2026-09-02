@@ -206,6 +206,17 @@ test("THE CASCADE: conceding one premise withdraws every product resting on it, 
   assert.deepEqual(D.foldDerived(again.log).map(triple).sort(), ["c|after|e"]);
 });
 
+test("THE PHYSICS: a reaction needs contact with the present — an unconnected cue derives nothing, a connected one reaches the closure through its own products", () => {
+  const log = relayLedger();
+  assert.throws(() => D.derive(log, { declarations: licensed(), floor: FLOOR, maxSteps: 8, cue: ["e"] }), /floor/, "a real cue needs a declared presence floor");
+  const cold = D.derive(log, { declarations: licensed(), floor: FLOOR, maxSteps: 8, cue: ["z"], presenceFloor: 0.5 });
+  assert.equal(cold.derived.length, 0, "nothing lit touches any chain: no presence, no reasoning");
+  assert.equal(cold.withheld.length, 0, "and nothing was withheld either — the chains were never in contact");
+  const warm = D.derive(log, { declarations: licensed(), floor: FLOOR, maxSteps: 8, cue: ["e"], presenceFloor: 0.5 });
+  assert.equal(warm.derived.length, 6, "lit at one end, the front propagates because each product lights its own ends");
+  assert.ok(warm.quiescent);
+});
+
 test("a withdrawal or a concession without a trigger is refused, and an unknown note is named", () => {
   const r = D.derive(relayLedger(), { declarations: licensed(), floor: FLOOR, maxSteps: 8 });
   assert.equal(D.withdrawDerived(r.log, { premise: "x" }, {}).refused.type, "no_trigger");
