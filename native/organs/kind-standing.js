@@ -169,9 +169,27 @@ export function foldPermitted(a, b, members, vecs, { alpha }) {
  * the tests: shuffling words within sentences (marginals kept, company
  * destroyed) must dissolve every kind at the same declared floors.
  */
-export function discoverCompanyKinds(sentences, vocabulary, { minMentions, minShare, minMembers, clean } = {}) {
+export function discoverCompanyKinds(sentences, vocabulary, { minMentions, minShare, minMembers, clean, nullArm = null } = {}) {
   for (const [k, v] of Object.entries({ minMentions, minShare, minMembers }))
     if (!Number.isFinite(v)) throw new Error(`discoverCompanyKinds: ${k} must be declared`);
+  // THE NULL ARM (II.23, added 2026-09-01 after turbulence refuted the bare
+  // share floor). A share floor answers "does this word have a dominant
+  // predecessor" — which is trivially YES on a small alphabet where some
+  // symbol is already half of all tokens. Measured: quadrant events over
+  // {q1,q2,q3,q4} with q2 at ~50% marginal frequency cleared minShare 0.4
+  // BY CHANCE, and the within-phrase shuffle control survived — the
+  // statistic did not resolve the claim, exactly the failure II.23 exists
+  // to catch. Text/music/video never exposed it because their alphabets are
+  // large and no symbol dominates.
+  //
+  // The null is the SAME perturbation as the control: shuffle each phrase's
+  // own tokens (marginals kept exactly, company destroyed), redraw the
+  // shares, and admit a kind only when its observed share beats the
+  // (1 - alpha) quantile of that distribution. `nullArm` is optional so no
+  // existing caller moves; a caller that omits it gets the bare floors and
+  // OWES its own control, which is what every current caller already runs.
+  if (nullArm) for (const k of ["draws", "seed", "alpha"])
+    if (!Number.isFinite(nullArm[k])) throw new Error(`discoverCompanyKinds: nullArm.${k} must be declared`);
   // `clean` is contextVectors' own token hygiene, forwarded — its DEFAULT
   // strips non-letter edges, which is a TEXT prior (found live: a music
   // stream's "d5" cleaned to "d", so no vocabulary word ever matched and
@@ -191,15 +209,48 @@ export function discoverCompanyKinds(sentences, vocabulary, { minMentions, minSh
     if (share < minShare) continue;
     if (!bySignature.has(best)) bySignature.set(best, []);
     bySignature.get(best).push({ word, share });
+    // (the null ceiling is applied after it is computed, below)
   }
+  // the null: shares a word can reach when company is destroyed
+  let ceiling = null;
+  if (nullArm) {
+    let seed = nullArm.seed >>> 0;
+    const rnd = () => ((seed = (seed * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff);
+    const perWord = new Map();
+    for (let d = 0; d < nullArm.draws; d++) {
+      const redealt = sentences.map((sent) => {
+        const words = String(sent.text ?? sent).split(/\s+/);
+        for (let i = words.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [words[i], words[j]] = [words[j], words[i]]; }
+        return { text: words.join(" ") };
+      });
+      const nv = contextVectors(redealt, vocabulary, { clean });
+      for (const [word, v] of nv) {
+        let tot = 0, best = 0;
+        for (const [f, n] of v) { if (!f.startsWith("before=")) continue; tot += n; if (n > best) best = n; }
+        if (!tot) continue;
+        if (!perWord.has(word)) perWord.set(word, []);
+        perWord.get(word).push(best / tot);
+      }
+    }
+    ceiling = new Map();
+    for (const [word, shares] of perWord) {
+      shares.sort((a, b) => a - b);
+      const idx = Math.min(shares.length - 1, Math.ceil((1 - nullArm.alpha) * shares.length) - 1);
+      ceiling.set(word, shares[Math.max(0, idx)]);
+    }
+  }
+
   const kinds = [];
   for (const [signature, members] of bySignature) {
     if (members.length < minMembers) continue;
+    const kept = ceiling ? members.filter((m) => m.share > (ceiling.get(m.word) ?? 1)) : members;
+    if (kept.length < minMembers) continue;
     kinds.push({
       name: `kind:${signature}`,
       signature,
-      members: members.map((m) => m.word),
-      share: new Map(members.map((m) => [m.word, m.share])),
+      members: kept.map((m) => m.word),
+      share: new Map(kept.map((m) => [m.word, m.share])),
+      ...(ceiling ? { nullCeiling: new Map(kept.map((m) => [m.word, ceiling.get(m.word) ?? null])) } : {}),
     });
   }
   return kinds;
@@ -213,8 +264,16 @@ export function discoverCompanyKinds(sentences, vocabulary, { minMentions, minSh
  * "keeps-company", "kind:before=the") — so a future organ consults the note
  * instead of re-deriving the measurement.
  */
-export function kindNotes(kinds, { witness } = {}) {
+export function kindNotes(kinds, { witness, recipe = null } = {}) {
   if (!witness) throw new Error("kindNotes: witness (the source these kinds were discovered in) must be named");
+  // THE INSTRUMENT, named beside the source (P68 recipe identity; the
+  // shared-instrument failure measured in eval/omnimodal-pipeline.mjs).
+  // A kind is DISCOVERED BY a decoder, so a consumer asking "did two
+  // independent readings find this" needs to know which instrument read
+  // each source: `<source>~<recipe>` is corroboration.js's own shape,
+  // and an omitted recipe stays honestly undeclared rather than being
+  // counted as a second instrument.
+  const who = recipe ? `${witness}~${recipe}` : witness;
   const notes = [];
   for (const kind of kinds)
     for (const word of kind.members)
@@ -222,7 +281,7 @@ export function kindNotes(kinds, { witness } = {}) {
         subject: word,
         verb: "keeps-company",
         object: kind.name,
-        witness,
+        witness: who,
         because: `${kind.signature} carries ${(kind.share.get(word) * 100).toFixed(0)}% of its before-company in ${witness}`,
       });
   return notes;
