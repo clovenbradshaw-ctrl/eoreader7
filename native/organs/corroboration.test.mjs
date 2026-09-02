@@ -663,3 +663,24 @@ test("the frames are rebuilt from the operating point's OWN declarations — a m
   assert.equal(a.generate.id, b.generate.id, "content-addressed: same declaration, same frame, every time");
   assert.equal(a.select.id, b.select.id);
 });
+
+// ── the company wall folds morphology when given the organ (2026-09-02) ──
+test("the decider-company wall admits an inflected end-word through an injected sameForm, and stays exact without it", async () => {
+  const source = { ref: "s", text: "After the Battle of Smolensk, the Tsar replaced Barclay de Tolly with Mikhail Kutuzov, who on 18 August took over the army and ordered his soldiers to prepare for battle. Kutuzov strengthened the line with earthworks." };
+  const sentence = "After that, the Russian army prepared for battle.";
+  // ends where MORPHOLOGY is the only gap: "soldiers" is verbatim in the decider, "prepared" is there only as "prepare"
+  const ends = { end1: "soldiers", end2: "prepared" };
+  const decider = "the Tsar replaced Barclay de Tolly with Mikhail Kutuzov, who on 18 August took over the army and ordered his soldiers to prepare for battle";
+  // a generate-path witness that states the claim with the passage's own words as the decider, and refuses the sibling-swapped twin
+  const ask = async (s) => ({ verdict: /Russian army prepared/.test(s) ? "states" : "refuses", because: decider, armed: true });
+  // the generate path's real protocol: siblingSwap returns the twin CLAIM (a string), foldTestimony takes the pair
+  const base = { witnessSlice: (t, text) => text, siblingSwap: () => "After that, the Tsar prepared for battle.", foldTestimony: ({ real, arm }) => (real?.verdict === "states" && arm?.verdict !== "states" ? { verdict: "states", because: real.because, armed: true } : { refused: "unarmed" }) };
+  const exact = await witnessNote(sentence, source, { ask, testimony: base, ends });
+  assert.equal(exact.refused, "decider_unrelated", "prepare vs prepared: two strings, refused");
+  // the organ that will be injected live: the native lemmatizer over the received UniMorph prior
+  const { createLemmatizer, morphologyFromPrior } = await import("../adapters/text/morphology.js");
+  const prior = morphologyFromPrior(JSON.parse(readFileSync(new URL("../eval/the-fold/fixtures/unimorph-morphology-prior.json", import.meta.url), "utf8")));
+  const lem = createLemmatizer(prior.forms, { language: prior.language });
+  const folded = await witnessNote(sentence, source, { ask, testimony: { ...base, sameForm: lem.sameAct }, ends });
+  assert.equal(folded.verdict, "states", "with morphology folded, the same decider is company");
+});
