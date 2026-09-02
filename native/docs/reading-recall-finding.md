@@ -434,9 +434,11 @@ shape) has its subject vetoed, and 3 of 6 true claims refused
 two-page ledger (87 notes, 4 planted fabrications), the same 30-ask walk
 under each protocol: GENERATE 7 attested / 0 lies, SELECT 6 / 0 lies.
 The calibration gap measured on War and Peace does not separate them
-here. What does show: **46 candidate pairs skipped for no co-presence** —
-the paraphrase wall now stands at the ask gate, before any witness is
-consulted, and the walk cannot corroborate what it refuses to ask about.
-Loosening that gate is the next measurement, judged on its marginal asks
-(LP11) with the planted guard as the control. Also: one attested note is
+here. CORRECTED same day by the offline audit (`eval/copresence-audit.mjs`):
+the 46 skips are of 166 pairs, and 119 pairs were feasible at ±400 — the
+30-ask budget, not the gate, bounded recall. Of the skips, 18 are
+end-debris, 14 genuine paraphrase (an end absent from the whole page),
+15 recoverable only by widening the window to the whole page. The
+full-budget run and the widened-window arm (judged on its marginal pairs,
+LP11) are the real measure — see the results doc's second section. Also: one attested note is
 subject-span debris (`of Moscow —took→ …`) — lever 3 still first.
