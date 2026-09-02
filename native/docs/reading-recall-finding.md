@@ -308,3 +308,89 @@ CON·Pattern were the empties; now built. The remaining fifth-turn
 frontier is not a new mechanism but the witness's recall — which the
 calibration measured, the seeker is bottlenecked on, and which no wall
 should ever paper over.
+
+---
+
+# Addendum 7: the third vote lands — select, not generate; and the strata get names (2026-09-01)
+
+Addendum 6 closed with the honest negative: the seeker found the right
+windows and gemma2:2b could not produce a quotable decider — it echoed
+the claim as its own `because`, and the wall refused the unquoted vote.
+The user's steer resolved it in one sentence: **"never trust the model on
+content, but it's pretty good with meaning if you give it proper
+activation context."** The generate protocol was asking the model to do
+two jobs — FIND the stating sentence and JUDGE it — and generation is
+where a small model wanders. The fix is the project's own posture
+everywhere else, applied to the witness: the model slot-fills, the
+mechanism constrains.
+
+**The select protocol** (testimony.js: SELECT_SCHEMA /
+buildSelectMessages / foldSelect; corroboration.js: statingCandidates +
+the select path in witnessNote). Activation is assembled mechanically —
+every sentence in the WHOLE source where both ends' distinctive features
+fire, density-ranked, capped at a declared limit — and the model POINTS
+at one by index. The decider is a real source sentence BY CONSTRUCTION:
+the echo failure mode cannot occur, because the model never writes a
+`because`. Controls, run live before shipping and pinned as tests: a
+fabricated relation over a real co-present set → refused; a true-ish
+claim over an all-decoy set → refused; an out-of-range index → refused,
+never fabricated; a select refusal does NOT retry the wanderable
+generate path.
+
+**Three designs for "which features activate" were tried; two are
+refuted, kept here so they are not retried.** (1) Raw co-presence: 6 of
+8 candidates fired on the generic word "general" alone — sentences about
+OTHER generals; the model then judged garbage. (2) Rarity: refuted by
+measurement — kutuzov (529) ≈ general (657) in this novel; a protagonist
+is not rare. (2b) A hand-typed title list: refused on the project's own
+grounds (a sample of English standing in for the whole). (3) What
+shipped — the baby's signal, source-measured, no list: a title also
+lives LOWERCASE ("the general said", 424×); a name never does (kutuzov
+0×). A word whose lowercase life matches its capitalized life is
+generic. With this gate: 8 of 8 candidates genuinely contain Kutúzov.
+
+**The result, live, end to end:** the same note that refused in
+addendum 6 — *Napoleon fought against General Mikhail Kutuzov*,
+witnesses battle-of-borodino + testimony:war-and-peace — now takes its
+THIRD vote from the novel itself, via select: verdict `states`, decider
+*"If Kutúzov decided to remain at Krems, Napoleon's army of one hundred
+and fifty thousand men would cut him off completely and surround his
+exhausted army"* — a genuine statement of the military opposition —
+at address `pg2600-the-novel-itself#438131-438364`, verified to name
+exactly those bytes in the raw CRLF file. **Three distinct sources.**
+
+**Two P5.2 incidents inside this one pass, both caught by the address
+check rather than by eye.** First, the decider's span was being
+re-derived by regex search after the fact; the user's correction —
+"can't we find it by knowing what we prompted it with?" — moved the
+address to be CARRIED FORWARD from the cut (the segmenter's own
+offsets), and the search-back helper was deleted. Second, the engine's
+splitter normalizes CRLF before computing offsets, so on Gutenberg's
+66k-CRLF file the carried offsets named the normalized text, not the
+file; statingCandidates now maps offsets back through a CRLF count with
+MANDATORY self-verification — a span ships only when the mapped slice
+re-normalizes to the cut sentence, else the address is null, never
+guessed.
+
+**The strata.** The lowercase gate WORKS and is a reader's signal — it
+violates the session's new standing rule ("the system must be able to
+work equally well if it only heard the novel and didn't read it").
+Shipped anyway, declared rather than silent, with the vocabulary to say
+so precisely: LEVELS.md names the two ladders (FLOORS = operand grade,
+STRATA = evidence channel: S0 bytes / S1 script / S2 heard / S3
+meaning) and the BECOMING convention — a runnable `{todo:true}` test as
+the referent of what an organ is trying to become, greppable as the
+repo's aspiration map. First entry: `BECOMING heard-clean`, the
+determiner-precedence acceptance criterion, written before that design
+exists.
+
+**Ask economics, honestly:** the select path spends ONE call per
+source (the pointing ask) where the generate path spent two (claim +
+armed sibling). The arming is structural instead: decoys cannot be
+picked into a verdict because a pick is checked against the candidate
+list, and the both-ends filter plus the controls above carry the
+insensitivity check's job. Whether select's false-state rate matches
+generate's measured 0/36 is NOT yet calibrated — the operating point
+declaration covers the generate protocol only, and a select calibration
+batch is the natural next measurement before the walk trusts select
+votes at the same unit step.
