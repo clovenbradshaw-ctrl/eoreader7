@@ -27,7 +27,7 @@
 // plants it explicitly so a discovery can be scored, not admired.
 import fs from "node:fs";
 import * as K from "../../organs/index.js";
-import * as H from "../../../../the-fold/hyperlexicon.js";
+import * as H from "../../organs/hyperlexicon.js";
 import * as TL from "../../kernel/task-log.js";
 import { distinctSources, distinctRecipes } from "../../organs/index.js";
 import { runMeasurement, parseMeasure } from "../../../../the-fold/measure.js";

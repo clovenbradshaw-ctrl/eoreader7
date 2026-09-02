@@ -40,7 +40,7 @@ import { auditChemistry, vetoedPairs } from "../../kernel/refutation.js";
 import { createDeclarationLog, proposeCandidate, promote, concede, foldDeclarations } from "../../interpretation/declarations.js";
 
 import { parseEntity } from "../../../../the-fold/wikidata.js";
-import { makeHyperlexicon } from "../../../../the-fold/hyperlexicon.js";
+import { makeHyperlexicon } from "../../organs/hyperlexicon.js";
 import { adaptTaskLog } from "../../../../the-fold/consequence.js";
 import { assertionEdges } from "../../../../the-fold/predigest.js";
 

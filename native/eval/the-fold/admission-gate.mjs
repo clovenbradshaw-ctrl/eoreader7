@@ -45,7 +45,7 @@ import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
 import { makeRelationReader } from "../../../../the-fold/hypergraph.js";
-import { makeHyperlexicon } from "../../../../the-fold/hyperlexicon.js";
+import { makeHyperlexicon } from "../../organs/hyperlexicon.js";
 import { makeGrammarLens } from "../../organs/grammar-lens.js";
 import { GRAMMAR_MIN_SHARE } from "../../../../the-fold/hypergraph.js";
 import { makeReferentIndex } from "../../../../the-fold/cast.js";

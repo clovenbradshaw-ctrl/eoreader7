@@ -67,7 +67,7 @@ import { createTaskLog, append, projectTasks, ENTRY_KINDS, OPERATOR_BASIS } from
 import { GRAINS } from "../../kernel/cube.js";
 import { acquireCompositionCandidates } from "../../kernel/relation-composition.js";
 
-import { makeHyperlexicon } from "../../../../the-fold/hyperlexicon.js";
+import { makeHyperlexicon } from "../../organs/hyperlexicon.js";
 import { adaptTaskLog } from "../../../../the-fold/consequence.js";
 import { assertionEdges } from "../../../../the-fold/predigest.js";
 

@@ -61,7 +61,7 @@ import { createHyperlexicon, giveHyperlexiconAffordance } from "../../kernel/hyp
 import { createReactionSubstrate } from "../../kernel/reaction.js";
 import { auditChemistry } from "../../kernel/refutation.js";
 
-import { makeHyperlexicon } from "../../../../the-fold/hyperlexicon.js";
+import { makeHyperlexicon } from "../../organs/hyperlexicon.js";
 import { adaptTaskLog } from "../../../../the-fold/consequence.js";
 import { assertionEdges } from "../../../../the-fold/predigest.js";
 import { entityUrl, isQid } from "../../../../the-fold/wikidata.js";

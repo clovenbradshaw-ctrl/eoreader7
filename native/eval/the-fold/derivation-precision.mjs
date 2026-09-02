@@ -50,7 +50,7 @@ import { createReactionSubstrate, closureAffordances } from "../../kernel/reacti
 import { refuteRelation, afterVeto } from "../../kernel/refutation.js";
 
 import { parseEntity } from "../../../../the-fold/wikidata.js";
-import { makeHyperlexicon } from "../../../../the-fold/hyperlexicon.js";
+import { makeHyperlexicon } from "../../organs/hyperlexicon.js";
 import { adaptTaskLog } from "../../../../the-fold/consequence.js";
 import { assertionEdges } from "../../../../the-fold/predigest.js";
 

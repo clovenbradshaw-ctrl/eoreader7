@@ -21,7 +21,7 @@
 import fs from "node:fs";
 import { execFileSync } from "node:child_process";
 import * as K from "../../organs/index.js";
-import * as H from "../../../../the-fold/hyperlexicon.js";
+import * as H from "../../organs/hyperlexicon.js";
 import * as TL from "../../kernel/task-log.js";
 import { wavSamples } from "../../../../the-fold/measure.js";
 import { distinctSources, distinctRecipes, independentReadings } from "../../organs/index.js";

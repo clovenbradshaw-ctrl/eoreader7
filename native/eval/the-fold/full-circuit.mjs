@@ -40,10 +40,10 @@
 import { findSignal, phrase } from "../../organs/index.js";
 import { discoverCompanyKinds } from "../../organs/index.js";
 import { arrangementsFrom, arrangementNotes } from "../../organs/index.js";
-import { makeHyperlexicon } from "../../../../the-fold/hyperlexicon.js";
+import { makeHyperlexicon } from "../../organs/hyperlexicon.js";
 import { distinctSources, distinctRecipes } from "../../organs/index.js";
-import { acquireCandidates, promoteAndDeclare } from "../../../../the-fold/hl-acquire.js";
-import { stageFromEdges } from "../../../../the-fold/hl.js";
+import { acquireCandidates, promoteAndDeclare } from "../../organs/hl-acquire.js";
+import { stageFromEdges } from "../../organs/hl.js";
 import * as TL from "../../kernel/task-log.js";
 import { hyperedge } from "../../kernel/hypergraph.js";
 import { createHyperlexicon as createChemistry, giveHyperlexiconAffordance } from "../../kernel/hyperlexicon.js";

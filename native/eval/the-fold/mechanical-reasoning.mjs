@@ -77,7 +77,7 @@ import { createReactionSubstrate, closureAffordances, nominateFromExperience } f
 import { refuteRelation, auditChemistry, vetoedPairs, afterVeto } from "../../kernel/refutation.js";
 
 import { parseEntity } from "../../../../the-fold/wikidata.js";
-import { makeHyperlexicon } from "../../../../the-fold/hyperlexicon.js";
+import { makeHyperlexicon } from "../../organs/hyperlexicon.js";
 import { adaptTaskLog } from "../../../../the-fold/consequence.js";
 import { assertionEdges, loadCompiledPriors } from "../../../../the-fold/predigest.js";
 
