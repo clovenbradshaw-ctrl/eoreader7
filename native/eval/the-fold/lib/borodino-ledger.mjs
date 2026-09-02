@@ -31,6 +31,7 @@ const relationsFor = makeRelationReader({
   resolvePronouns,
   // opt-in from the environment so a census can measure each lever before the app adopts it
   ...(process.env.NP_SUBJECTS ? { nounPhraseSubjects: true } : {}),
+  ...(process.env.WIDEN ? { verbForms: new Set(JSON.parse(readFileSync(`${NATIVE}/eval/the-fold/fixtures/unimorph-eng-verb-forms.json`, "utf8"))) } : {}), // production widens with this set (app.js)
   ...(process.env.VERB_FORMS ? { oovLexicon: new Set(JSON.parse(readFileSync(`${NATIVE}/eval/the-fold/fixtures/unimorph-eng-verb-forms.json`, "utf8"))) } : {}),
 });
 const hl = makeHyperlexicon({ ...adaptTaskLog({ createTaskLog: nativeTaskLog.createTaskLog, append: nativeTaskLog.append, ENTRY_KINDS: nativeTaskLog.ENTRY_KINDS, OPERATOR_BASIS: nativeTaskLog.OPERATOR_BASIS, GRAINS }), projectTasks: nativeTaskLog.projectTasks, cellOf });

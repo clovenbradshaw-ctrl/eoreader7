@@ -57,3 +57,64 @@ export const actClosure = (verbs, tokenTypes, lemmatizer) => {
   }
   return { forms, added, gap: null };
 };
+
+// ── the lemmatizer itself, native (2026-09-02) ───────────────────────────
+// Ported from the frozen provider's perceiver/text/morphology.js under the
+// ratchet (native replaces legacy only under conformance — see
+// conformance/morphology-parity.test.mjs, which runs both over the same
+// forms). Its two standing decisions are kept verbatim: never pick ONE
+// lemma (lemmasOf returns the candidate SET), and the English suffix rule is
+// part of the lookup, unioned with the table, never a fallback chosen
+// between them — gated on the prior's own declared language ("eng", or
+// omitted), so a prior for another language never gets English guesses
+// folded under it. No file I/O here: a browser hands in the parsed prior.
+
+const stemsOf = (w) => {
+  const out = new Set();
+  const add = (s) => { if (s && s.length > 1) out.add(s); };
+  if (w.endsWith("ies")) { add(w.slice(0, -3) + "y"); }
+  if (w.endsWith("ied")) { add(w.slice(0, -3) + "y"); }
+  if (w.endsWith("ing")) { add(w.slice(0, -3)); add(w.slice(0, -3) + "e"); }
+  if (w.endsWith("es")) { add(w.slice(0, -2)); add(w.slice(0, -1)); }
+  if (w.endsWith("ed")) { add(w.slice(0, -2)); add(w.slice(0, -1)); }
+  if (w.endsWith("s") && !w.endsWith("ss")) { add(w.slice(0, -1)); }
+  for (const s of [...out]) if (/(.)\1$/.test(s)) add(s.slice(0, -1)); // stopped -> stop
+  return out;
+};
+
+/** A parsed MorphologyPrior@1 → { language, giver, forms, irregular }; refuses a prior with no giver. */
+export const morphologyFromPrior = (raw) => {
+  if (raw?.schema !== "MorphologyPrior@1") throw new TypeError(`morphologyFromPrior: unknown schema ${raw?.schema}`);
+  if (!raw.provenance?.source) throw new TypeError("morphologyFromPrior: a prior must name its giver");
+  return { language: raw.language, giver: raw.provenance.source, forms: raw.forms, irregular: raw.irregular };
+};
+
+// The index the lemmatizer reads IS the prior's own `forms` table (form →
+// lemma candidates), exactly as the frozen provider's callers pass it —
+// no second shape is built here.
+export const createLemmatizer = (index, { fallback = null, language = null } = {}) => {
+  const map = new Map();
+  if (index instanceof Map) for (const [k, v] of index) map.set(k, new Set(v));
+  else if (index && typeof index === "object") for (const [k, v] of Object.entries(index)) map.set(k, new Set(v));
+  const gap = map.size === 0
+    ? { reason: "no_morphology_prior", tier: "model", needsWitness: true, detail: "irregular inflections (lay/lie, went/go, saw/see) will not be recognised" }
+    : null;
+  const englishRule = language == null || language === "eng";
+  const lemmasOf = (form) => {
+    const w = String(form || "").toLowerCase();
+    const out = new Set();
+    if (w) out.add(w);
+    for (const l of map.get(w) ?? []) out.add(l);
+    if (englishRule) for (const s of stemsOf(w)) out.add(s);
+    return out;
+  };
+  const sameAct = (a, b) => {
+    const x = String(a || "").toLowerCase(), y = String(b || "").toLowerCase();
+    if (x && x === y) return true;
+    if (map.size === 0) return fallback ? fallback(x, y) : x === y;
+    const la = lemmasOf(x);
+    for (const l of lemmasOf(y)) if (la.has(l)) return true;
+    return false;
+  };
+  return { lemmasOf, sameAct, size: map.size, gap };
+};

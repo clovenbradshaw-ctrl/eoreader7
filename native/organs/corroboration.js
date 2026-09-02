@@ -693,8 +693,16 @@ export async function witnessNote(sentence, source, { ask, selectAsk = null, tes
       // (end1) or any fight — topic adjacency defeats any whole-claim
       // count, the same failure class that killed company-based act
       // identity. Per-end asks the structural question instead.
-      const e1 = [...cf(ends.end1)].some((w) => deciderFeats.has(w));
-      const e2 = [...cf(ends.end2)].some((w) => deciderFeats.has(w));
+      // COMPANY FOLDS MORPHOLOGY when a caller supplies `testimony.sameForm`
+      // (the engine's own sameAct over a received morphology prior): measured
+      // live 2026-09-02, the witness pointed at "ordered his soldiers to
+      // prepare for battle" for the end "prepared for battle" and this wall
+      // threw it out as unrelated — "prepared" and "prepare" were two strings.
+      // Without the organ, exact match, byte-identical to before.
+      const same = testimony.sameForm ?? null;
+      const inCompany = (w) => deciderFeats.has(w) || (same ? [...deciderFeats].some((d) => same(w, d)) : false);
+      const e1 = [...cf(ends.end1)].some(inCompany);
+      const e2 = [...cf(ends.end2)].some(inCompany);
       if (!e1 || !e2) return { refused: "decider_unrelated", because: t.because, missingEnd: !e1 ? "end1" : "end2" };
     } else {
       // no ends supplied (a direct caller with only a sentence): the weaker
