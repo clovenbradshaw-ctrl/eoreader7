@@ -394,3 +394,36 @@ generate's measured 0/36 is NOT yet calibrated — the operating point
 declaration covers the generate protocol only, and a select calibration
 batch is the natural next measurement before the walk trusts select
 votes at the same unit step.
+
+---
+
+# Addendum 8: select, armed and calibrated — three arm designs on one batch (2026-09-01)
+
+Addendum 7 shipped select uncalibrated and said so. Calibrated now, live
+against the real novel, claims stated-by-construction versus fabricated
+pairs that genuinely co-occur (the hard case — only the relation is
+invented). Three arm designs measured on the SAME batch, all three kept
+so none is retried blind:
+
+| arm design | true | fabricated |
+|---|---|---|
+| unarmed | 3/6 | **1/8 — a real false state** |
+| armed, refuse any arm "yes" | 0/6 | 0/8 |
+| **armed, refuse SAME INDEX** | **2/6** | **0/8** |
+
+The middle row is a wall nothing could pass, and its cause is worth
+keeping: a competing filler drawn FROM the candidates genuinely occurs in
+them, so a sentence naming it exists and answering "yes" about it is not
+by itself an error. **What decides nothing is a picker that returns the
+same sentence whatever it is asked** — an index carrying no information
+about the question. The shipped rule reads insensitivity that way.
+
+Recall lands at 0.33, matching the generate protocol's own measured 0.33,
+while the decider is verbatim by construction and the live false state is
+gone. Disclosed cost: one true claim ("Napoleon invaded Russia") is
+refused `indiscriminate`. Also disclosed: the arm's filler is built from
+the candidates rather than by `siblingSwap`, because that organ resolves
+the claim's own name through cite.js's `namesIn`, which carries the L2
+sentence-initial veto — a claim written subject-first (the ordinary
+shape) has its subject vetoed, and 3 of 6 true claims refused
+`unarmed-select` for that reason alone.
