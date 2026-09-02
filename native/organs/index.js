@@ -35,5 +35,5 @@ export { REFUSALS as EVENT_ARRANGEMENTS_REFUSALS, arrangementNotes, arrangements
 export * as eventArrangements from "./event-arrangements.js";
 export { SELF_WITNESS, isSelfWitness, landAct, landSelfAssertion, makeCapacityRunner, mergeTestimony, negationCandidates, perSourceReadings, readsNothing, speakerWho } from "../../../the-fold/capacity-runner.js";
 export * as capacityRunner from "../../../the-fold/capacity-runner.js";
-export { CAPACITIES, findCapacity, listCapacities, unresolvedCapacity } from "../../../the-fold/capacities.js";
-export * as capacities from "../../../the-fold/capacities.js";
+export { CAPACITIES, findCapacity, listCapacities, unresolvedCapacity } from "./capacities.js";
+export * as capacities from "./capacities.js";
