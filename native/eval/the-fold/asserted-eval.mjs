@@ -224,9 +224,9 @@ const scoreCase = (reader, kase) => {
     const inVocab = reader.vocabulary.verbs > 0;
     const exact = probeEdges.find(
       (e) =>
-        e.verb === want.verb &&
-        containsHead(e.subject, want.subject) &&
-        containsHead(e.object, want.object) &&
+        (e.label ?? e.verb) === want.verb &&
+        containsHead((e.end1 ?? e.subject), want.subject) &&
+        containsHead((e.end2 ?? e.object), want.object) &&
         e.polarity === want.polarity &&
         (!want.minStatements || e.assertion.statements >= want.minStatements),
     );
@@ -234,7 +234,7 @@ const scoreCase = (reader, kase) => {
       results.heard.push({ want, edge: exact });
       continue;
     }
-    const sameVerb = probeEdges.filter((e) => e.verb === want.verb);
+    const sameVerb = probeEdges.filter((e) => (e.label ?? e.verb) === want.verb);
     if (sameVerb.length) {
       results.misheard.push({ want, heardInstead: sameVerb });
     } else {
@@ -244,9 +244,9 @@ const scoreCase = (reader, kase) => {
   for (const bad of kase.forbidden) {
     const hit = probeEdges.find(
       (e) =>
-        e.verb === bad.verb &&
-        containsHead(e.subject, bad.subject) &&
-        containsHead(e.object, bad.object) &&
+        (e.label ?? e.verb) === bad.verb &&
+        containsHead((e.end1 ?? e.subject), bad.subject) &&
+        containsHead((e.end2 ?? e.object), bad.object) &&
         e.polarity === bad.polarity,
     );
     if (hit) results.fabricated.push({ bad, edge: hit });
@@ -298,22 +298,22 @@ for (const kase of CASES) {
       `- HEARD: ${h.want.subject} —${h.want.verb}${h.want.polarity === "-" ? " (negated)" : ""}→ ${h.want.object}` +
         ` · standing ${a.standing}, ${a.statements} statement(s), salad ${a.orderArm.fired}/${a.orderArm.draws}`,
     );
-    armTrue.push({ case: kase.id, verb: h.edge.verb, fired: a.orderArm.fired });
+    armTrue.push({ case: kase.id, verb: (h.edge.label ?? h.edge.verb), fired: a.orderArm.fired });
   }
   for (const m of results.misheard) {
     say(
       `- MIS-HEARD: wanted ${m.want.subject} —${m.want.verb}→ ${m.want.object}; heard instead ` +
-        m.heardInstead.map((e) => `"${e.subject}" —${e.verb}${e.polarity === "-" ? " (neg)" : ""}→ "${e.object}" [salad ${e.assertion.orderArm.fired}/${DRAWS}]`).join("; "),
+        m.heardInstead.map((e) => `"${(e.end1 ?? e.subject)}" —${(e.label ?? e.verb)}${e.polarity === "-" ? " (neg)" : ""}→ "${(e.end2 ?? e.object)}" [salad ${e.assertion.orderArm.fired}/${DRAWS}]`).join("; "),
     );
-    for (const e of m.heardInstead) armErrant.push({ case: kase.id, verb: e.verb, fired: e.assertion.orderArm.fired });
+    for (const e of m.heardInstead) armErrant.push({ case: kase.id, verb: (e.label ?? e.verb), fired: e.assertion.orderArm.fired });
   }
   for (const m of results.missed)
     say(`- MISSED: ${m.want.subject} —${m.want.verb}→ ${m.want.object} (vocabulary measured: ${m.vocabularyMeasured})`);
   for (const f of results.fabricated) {
     say(
-      `- FABRICATED (forbidden edge heard): "${f.edge.subject}" —${f.edge.verb}→ "${f.edge.object}" [salad ${f.edge.assertion.orderArm.fired}/${DRAWS}]`,
+      `- FABRICATED (forbidden edge heard): "${(f.edge.end1 ?? f.edge.subject)}" —${(f.edge.label ?? f.edge.verb)}→ "${(f.edge.end2 ?? f.edge.object)}" [salad ${f.edge.assertion.orderArm.fired}/${DRAWS}]`,
     );
-    armErrant.push({ case: kase.id, verb: f.edge.verb, fired: f.edge.assertion.orderArm.fired });
+    armErrant.push({ case: kase.id, verb: (f.edge.label ?? f.edge.verb), fired: f.edge.assertion.orderArm.fired });
   }
   if (!results.heard.length && !results.misheard.length && !results.missed.length && !results.fabricated.length)
     say("- (no intended or forbidden edges scored)");
@@ -326,7 +326,7 @@ for (const kase of CASES) {
   ]);
   for (const e of probeEdges.filter((e) => !accounted.has(e)))
     say(
-      `- also asserted: "${e.subject}" —${e.verb}${e.polarity === "-" ? " (neg)" : ""}→ "${e.object}" · ${e.assertion.standing}, salad ${e.assertion.orderArm.fired}/${DRAWS}`,
+      `- also asserted: "${(e.end1 ?? e.subject)}" —${(e.label ?? e.verb)}${e.polarity === "-" ? " (neg)" : ""}→ "${(e.end2 ?? e.object)}" · ${e.assertion.standing}, salad ${e.assertion.orderArm.fired}/${DRAWS}`,
     );
   say("");
 }
@@ -402,7 +402,7 @@ for (const [standing, edges] of Object.entries(strata)) {
     sheet.push({
       id,
       context: passage?.text ?? "",
-      statement: `${e.subject} —${e.verb}${e.polarity === "-" ? " (negated)" : ""}→ ${e.object}`,
+      statement: `${(e.end1 ?? e.subject)} —${(e.label ?? e.verb)}${e.polarity === "-" ? " (negated)" : ""}→ ${(e.end2 ?? e.object)}`,
       question:
         "Does the context passage state this subject-verb-object relation (with this polarity)? Answer YES, NO, or UNCLEAR.",
     });

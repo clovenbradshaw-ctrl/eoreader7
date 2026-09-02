@@ -104,7 +104,7 @@ function runArm(label, { withPrior, gate }) {
       const claims = relations.read(String(p.text ?? ""))?.claims ?? [];
       for (const c of claims) verdicts[c.verdict] = (verdicts[c.verdict] ?? 0) + 1;
       const edges = claims.filter((c) => c.verdict === "bound")
-        .map((c) => ({ subject: c.subject, verb: c.verb, object: c.object, spans: c.spans ?? [] }));
+        .map((c) => ({ subject: c.end1, verb: c.label, object: c.end2, spans: c.spans ?? [] })); // claims carry the earned names since the wipe; the ledger keeps its own subject/verb/object shape
       if (!edges.length) continue;
       offered += edges.length;
       const r = hyperlexiconFor.admit(log ?? hyperlexiconFor.createHyperlexicon(), edges, {

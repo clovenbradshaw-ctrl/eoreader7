@@ -143,7 +143,7 @@ function edgesOf(relationsFor, passage) {
   const claims = relations.read(passage.text)?.claims ?? [];
   return claims
     .filter((c) => c.verdict === "bound")
-    .map((c) => ({ subject: c.subject, verb: c.verb, object: c.object, spans: c.spans ?? [] }));
+    .map((c) => ({ subject: c.end1, verb: c.label, object: c.end2, spans: c.spans ?? [] })); // earned names since the wipe
 }
 
 function runArm(name, relationsFor, { classifyConnector = null } = {}) {

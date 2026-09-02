@@ -427,3 +427,16 @@ the claim's own name through cite.js's `namesIn`, which carries the L2
 sentence-initial veto — a claim written subject-first (the ordinary
 shape) has its subject vetoed, and 3 of 6 true claims refused
 `unarmed-select` for that reason alone.
+
+## Addendum 9 (2026-09-02) — select vs generate at ledger scale: equivalent, and the wall is the ask gate
+
+`eval/results/corroboration-select-vs-generate-RESULTS.md`. One real
+two-page ledger (87 notes, 4 planted fabrications), the same 30-ask walk
+under each protocol: GENERATE 7 attested / 0 lies, SELECT 6 / 0 lies.
+The calibration gap measured on War and Peace does not separate them
+here. What does show: **46 candidate pairs skipped for no co-presence** —
+the paraphrase wall now stands at the ask gate, before any witness is
+consulted, and the walk cannot corroborate what it refuses to ask about.
+Loosening that gate is the next measurement, judged on its marginal asks
+(LP11) with the planted guard as the control. Also: one attested note is
+subject-span debris (`of Moscow —took→ …`) — lever 3 still first.
