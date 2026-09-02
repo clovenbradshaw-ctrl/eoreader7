@@ -92,7 +92,7 @@ export function scanFunctionalCandidates(edges, { classifyConnector = null, minS
   if (classifyConnector && !Number.isFinite(minShare)) {
     throw new TypeError("scanFunctionalCandidates: minShare is declared — how dominant a candidate must be is never a default (only required when classifyConnector is supplied)");
   }
-  const rels = [...new Set((edges ?? []).map((e) => foldStr(e.verb)))];
+  const rels = [...new Set((edges ?? []).map((e) => foldStr((e.label ?? e.verb))))];
   const rejectedByGrammar = [];
   const verbLike = new Set();
   for (const rel of rels) {
@@ -108,14 +108,14 @@ export function scanFunctionalCandidates(edges, { classifyConnector = null, minS
   const byRel = new Map();
   for (const e of edges ?? []) {
     if (!e || e.polarity !== "+") continue;
-    const rel = foldStr(e.verb);
+    const rel = foldStr((e.label ?? e.verb));
     if (!verbLike.has(rel)) continue;
     let subjects = byRel.get(rel);
     if (!subjects) byRel.set(rel, (subjects = new Map()));
-    const s = foldStr(e.subject);
+    const s = foldStr((e.end1 ?? e.subject));
     let objs = subjects.get(s);
     if (!objs) subjects.set(s, (objs = new Set()));
-    objs.add(foldStr(e.object));
+    objs.add(foldStr((e.end2 ?? e.object)));
   }
 
   const refuted = [], candidates = [], underpowered = [];
@@ -182,14 +182,14 @@ export function recheckCandidates(declarationLog, allEdges) {
   const bySubj = new Map(); // rel -> subject -> Set(objects)
   for (const e of allEdges ?? []) {
     if (!e || e.polarity !== "+") continue;
-    const rel = foldStr(e.verb);
+    const rel = foldStr((e.label ?? e.verb));
     if (!rels.has(rel)) continue;
     let m = bySubj.get(rel);
     if (!m) bySubj.set(rel, (m = new Map()));
-    const s = foldStr(e.subject);
+    const s = foldStr((e.end1 ?? e.subject));
     let objs = m.get(s);
     if (!objs) m.set(s, (objs = new Set()));
-    objs.add(foldStr(e.object));
+    objs.add(foldStr((e.end2 ?? e.object)));
   }
   let log = declarationLog;
   const conceded = [];
