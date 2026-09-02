@@ -414,14 +414,30 @@ export async function calibrationFrames() {
  * "how many independent readings" are different questions, and collapsing
  * them would make one of the two unanswerable.
  */
+/**
+ * The SOURCE a witness names: its ref with the address and the recipe
+ * stripped. A mechanical witness carries its passage address
+ * (`page.txt#178-275`, P5.2's own shape) and a testimony witness does not
+ * (`testimony:page.txt`) — and until 2026-09-02 this function compared the
+ * two strings as they came, so ONE page re-witnessing its own note counted
+ * as two sources. Found live: the first witness walk over a real book
+ * (eval/the-fold/dracula-witness-walk.mjs) attested eight notes, every one
+ * from the part it was heard in, and reported the >=2-source gate 2 → 10.
+ * Two chunks of one file are one perspective (corroborateAtoms' own rule);
+ * so are a chunk and a testimony vote from the same file.
+ */
+export const sourceOfWitness = (w) => {
+  let s = String(w);
+  if (s.startsWith("testimony:")) s = s.slice("testimony:".length);
+  const tilde = s.indexOf("~");
+  if (tilde >= 0) s = s.slice(0, tilde);
+  const hash = s.indexOf("#");
+  return hash >= 0 ? s.slice(0, hash) : s;
+};
+
 export function distinctSources(witnesses) {
   const out = new Set();
-  for (const w of witnesses ?? []) {
-    let s = String(w);
-    if (s.startsWith("testimony:")) s = s.slice("testimony:".length);
-    const cut = s.indexOf("~");
-    out.add(cut >= 0 ? s.slice(0, cut) : s);
-  }
+  for (const w of witnesses ?? []) out.add(sourceOfWitness(w));
   return out;
 }
 
@@ -450,11 +466,11 @@ export function independentReadings(witnesses) {
   const pairs = new Set();
   let undeclared = 0;
   for (const w of witnesses ?? []) {
-    let s = String(w);
-    if (s.startsWith("testimony:")) s = s.slice("testimony:".length);
+    const s = String(w);
     const cut = s.indexOf("~");
-    if (cut < 0) { undeclared += 1; pairs.add(`${s}~<undeclared:${undeclared}>`); continue; }
-    pairs.add(s); // source~recipe, verbatim: one reading
+    const source = sourceOfWitness(w);
+    if (cut < 0) { undeclared += 1; pairs.add(`${source}~<undeclared:${undeclared}>`); continue; }
+    pairs.add(`${source}~${s.slice(cut + 1)}`); // (source, recipe) — the address is not part of the reading
   }
   return { readings: pairs, count: pairs.size, undeclared };
 }

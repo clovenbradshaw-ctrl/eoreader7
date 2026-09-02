@@ -684,3 +684,15 @@ test("the decider-company wall admits an inflected end-word through an injected 
   const folded = await witnessNote(sentence, source, { ask, testimony: { ...base, sameForm: lem.sameAct }, ends });
   assert.equal(folded.verdict, "states", "with morphology folded, the same decider is company");
 });
+
+// ── a witness's SOURCE is its ref without the address (2026-09-02) ────────
+import { sourceOfWitness } from "./corroboration.js";
+test("a chunk-addressed mechanical witness and a testimony vote from the same file are ONE source — the self-attestation the first book walk counted as two", () => {
+  assert.equal(sourceOfWitness("dracula-part-1.txt#178-275~walls-v1"), "dracula-part-1.txt");
+  assert.equal(sourceOfWitness("testimony:dracula-part-1.txt"), "dracula-part-1.txt");
+  assert.equal(distinctSources(["dracula-part-1.txt#178-275~walls-v1", "testimony:dracula-part-1.txt", "dracula-part-1.txt#900-960~walls-v1"]).size, 1, "two chunks of one file plus its own testimony: one perspective");
+  assert.equal(distinctSources(["dracula-part-1.txt#178-275~walls-v1", "testimony:dracula-part-2.txt"]).size, 2);
+  const r = independentReadings(["a.txt#1-9~r1", "a.txt#20-30~r1", "b.txt#1-9~r1", "a.txt#1-9~r2"]);
+  assert.equal(r.count, 3, "(a,r1) (b,r1) (a,r2): the address never makes a fourth reading");
+  assert.equal(r.undeclared, 0);
+});
