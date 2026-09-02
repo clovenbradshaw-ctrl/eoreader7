@@ -57,7 +57,7 @@ import { assertionEdges } from "../predigest.js";
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const FIXTURES = path.join(HERE, "fixtures", "wikidata");
 const ORACLE = path.join(HERE, "fixtures", "succession-terms.json");
-const OUT = path.join(HERE, "results", "derivation-precision.json");
+const OUT = process.env.OUT_PATH ?? path.join(HERE, "results", "derivation-precision.json");
 const GIVER = "eval/derivation-precision.mjs — per-office transitive closure, declared as this driver's own risk";
 
 const foldHl = makeHyperlexicon({ ...adaptTaskLog({ createTaskLog, append, ENTRY_KINDS, OPERATOR_BASIS, GRAINS }), projectTasks });
@@ -97,6 +97,27 @@ entities.forEach((e, i) => {
     if (p.replacedBy) { const s = addressOf(file, e.qid); offered.push({ witness: file, a: { subject: p.replacedBy, verb: rel, object: e.qid, spans: s ? [s] : [] } }); intervalByFact.set(factKey(rel, p.replacedBy, e.qid), iv); }
   }
 });
+
+// THE RESOLUTION NULL (II.23, added 2026-09-02 after the oracle run showed
+// this driver's judge is true for a random within-office pair ~0.82 of the
+// time). REDEAL_SEED=<n> shuffles every offered assertion's OBJECT among the
+// offered assertions of the SAME verb (office) — marginals kept exactly, the
+// succession relation destroyed — and the whole driver then runs unchanged
+// over the redealt material. eval/derivation-precision-resolution.mjs runs
+// this many times and asks, per arm, whether the real arm's numbers sit
+// outside what the shuffle produces. A number that does not is retracted
+// there, never here.
+if (process.env.REDEAL_SEED) {
+  let seed = Number(process.env.REDEAL_SEED) >>> 0;
+  const rnd = () => ((seed = (seed * 1664525 + 1013904223) >>> 0) / 4294967296);
+  const byVerb = new Map();
+  for (const o of offered) { if (!byVerb.has(o.a.verb)) byVerb.set(o.a.verb, []); byVerb.get(o.a.verb).push(o); }
+  for (const list of byVerb.values()) {
+    const objects = list.map((o) => o.a.object);
+    for (let i = objects.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [objects[i], objects[j]] = [objects[j], objects[i]]; }
+    list.forEach((o, k) => { o.a.object = objects[k]; });
+  }
+}
 
 let log = foldHl.createHyperlexicon();
 for (const file of files) {
