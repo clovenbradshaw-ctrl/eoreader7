@@ -286,27 +286,39 @@ for (let i = 0; i < targets.length; i += 1) {
 const poolSizes = [...faceCache.values()].map((f) => f.pool.length).sort((x, y) => y - x);
 console.log(`faces: ${poolSizes.length}; candidate pool per face (identical for every slicer) median ${poolSizes[poolSizes.length >> 1]}, largest ${poolSizes[0]}\n`);
 
-console.log("REAL:");
-const realOut = await arm(real, "real");
-console.log("CONTROL (end2 rotated, same face, same slicer, same witness):");
-const ctlOut = await arm(control, "control");
 
-console.log(`\nLICENSE TABLE (states, of ${real.length} notes):`);
-console.log(`  ${"slicer".padEnd(13)} ${"offered".padEnd(8)} ${"real".padEnd(6)} ${"control".padEnd(8)} verdict`);
-const license = {};
-for (const name of WANT) {
-  const r = realOut[name], c = ctlOut[name];
-  if (r?.gap) { console.log(`  ${name.padEnd(13)} ${"—".padEnd(8)} ${"—".padEnd(6)} ${"—".padEnd(8)} unavailable: ${r.gap.detail ?? r.gap.type}`); license[name] = { verdict: "unavailable", gap: r.gap }; continue; }
-  const sep = r.states - (c?.states ?? 0);
-  const verdict = r.offered === 0 ? "never offered — structurally inert on this class" : r.states === 0 ? "no landing — nothing to license" : sep <= 0 ? "REFUSED by its own control (II.23)" : "separates from control";
-  console.log(`  ${name.padEnd(13)} ${String(r.offered).padEnd(8)} ${String(r.states).padEnd(6)} ${String(c?.states ?? 0).padEnd(8)} ${verdict}`);
-  license[name] = { verdict, offered: r.offered, states: r.states, controlStates: c?.states ?? 0, separation: sep };
+// ── exported so a zero-call pass can measure the SAME instrument ─────────
+// The coverage pass asks a question that needs no witness: does a slicer's
+// top-K even CONTAIN a sentence that states the proposition? That is a
+// property of the ranking alone. Re-implementing the pool or the rankings
+// in a sibling script would measure a copy, so they are exported and the
+// driver's own run is guarded below.
+export { poolOf, candidatesFor, endsOf, targets, real, control, K, WANT, faceCache, allObjMissing, backwards, R };
+
+if (import.meta.main) {
+  console.log("REAL:");
+  const realOut = await arm(real, "real");
+  console.log("CONTROL (end2 rotated, same face, same slicer, same witness):");
+  const ctlOut = await arm(control, "control");
+
+  console.log(`\nLICENSE TABLE (states, of ${real.length} notes):`);
+  console.log(`  ${"slicer".padEnd(13)} ${"offered".padEnd(8)} ${"real".padEnd(6)} ${"control".padEnd(8)} verdict`);
+  const license = {};
+  for (const name of WANT) {
+    const r = realOut[name], c = ctlOut[name];
+    if (r?.gap) { console.log(`  ${name.padEnd(13)} ${"—".padEnd(8)} ${"—".padEnd(6)} ${"—".padEnd(8)} unavailable: ${r.gap.detail ?? r.gap.type}`); license[name] = { verdict: "unavailable", gap: r.gap }; continue; }
+    const sep = r.states - (c?.states ?? 0);
+    const verdict = r.offered === 0 ? "never offered — structurally inert on this class" : r.states === 0 ? "no landing — nothing to license" : sep <= 0 ? "REFUSED by its own control (II.23)" : "separates from control";
+    console.log(`  ${name.padEnd(13)} ${String(r.offered).padEnd(8)} ${String(r.states).padEnd(6)} ${String(c?.states ?? 0).padEnd(8)} ${verdict}`);
+    license[name] = { verdict, offered: r.offered, states: r.states, controlStates: c?.states ?? 0, separation: sep };
+  }
+
+  console.log(`\nLANDINGS (the witness signed these; the decider is the source's own bytes):`);
+  for (const name of WANT) for (const l of (realOut[name]?.landings ?? []).slice(0, 4)) console.log(`  [${name} · ${l.host}] ${l.note}\n     «${l.because}»\n     at ${l.span ?? "(address unverifiable)"}`);
+  const ctlLandings = WANT.flatMap((n) => (ctlOut[n]?.landings ?? []).map((l) => ({ ...l, slicer: n })));
+  if (ctlLandings.length) { console.log(`\nCONTROL LANDINGS (each one is evidence AGAINST the slicer that produced it):`); for (const l of ctlLandings.slice(0, 6)) console.log(`  [${l.slicer} · ${l.host}] ${l.note}\n     «${l.because}»`); }
+
+  writeFileSync(CKPT, JSON.stringify({ page: backwards.page, objectMissingPartials: allObjMissing, walked: real.length, K, window: WINDOW, model: MODEL, embedder: embed ? "Xenova/all-MiniLM-L6-v2" : (embedGap ?? "skipped"), modelCalls, real: realOut, control: ctlOut, license }, null, 2));
+  console.log(`\n${modelCalls} model calls. Raw: results/${OUT}`);
+
 }
-
-console.log(`\nLANDINGS (the witness signed these; the decider is the source's own bytes):`);
-for (const name of WANT) for (const l of (realOut[name]?.landings ?? []).slice(0, 4)) console.log(`  [${name} · ${l.host}] ${l.note}\n     «${l.because}»\n     at ${l.span ?? "(address unverifiable)"}`);
-const ctlLandings = WANT.flatMap((n) => (ctlOut[n]?.landings ?? []).map((l) => ({ ...l, slicer: n })));
-if (ctlLandings.length) { console.log(`\nCONTROL LANDINGS (each one is evidence AGAINST the slicer that produced it):`); for (const l of ctlLandings.slice(0, 6)) console.log(`  [${l.slicer} · ${l.host}] ${l.note}\n     «${l.because}»`); }
-
-writeFileSync(CKPT, JSON.stringify({ page: backwards.page, objectMissingPartials: allObjMissing, walked: real.length, K, window: WINDOW, model: MODEL, embedder: embed ? "Xenova/all-MiniLM-L6-v2" : (embedGap ?? "skipped"), modelCalls, real: realOut, control: ctlOut, license }, null, 2));
-console.log(`\n${modelCalls} model calls. Raw: results/${OUT}`);
