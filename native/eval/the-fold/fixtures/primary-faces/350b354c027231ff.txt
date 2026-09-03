@@ -1,0 +1,55 @@
+National Archives and Records Administration
+
+"The President held an interplanetary conversation with Apollo 11
+Astronauts, Neil Armstrong and Edwin Aldrin on the Moon."
+
+--President Richard Nixon's Daily Diary, July 20, 1969
+
+In the late 1950s the United States watched the Soviet Union take
+the lead in the rapidly escalating space race. The Soviet lead
+was both embarrassing and menacing to a nation that prided itself
+on technological know-how. On May 25, 1961, when President John
+F. Kennedy challenged the nation to landing a man on the Moon
+before the end of the decade, he struck a responsive chord with
+the American people.
+
+The Apollo program, created to meet the goal of landing men on
+the Moon, enlisted 20,000 companies, hundreds of thousands of
+individuals, and some 25.5 billion dollars. On July 20, 1969,
+astronauts of the Apollo 11 Mission became the first humans to
+set foot on the Moon. The Moon landing was a stunning
+achievement that commanded world attention.
+
+A portion of President Nixon's Daily Diary listing the telephone
+conversation
+with Apollo 11 astronauts on the Moon, July 20, 1969
+
+Shortly after stepping onto the Moon, astronauts Armstrong and
+Aldrin spoke with President Nixon by phone, in what the President
+described as "the most historic phone call ever made from the White House."
+
+National Archives, Nixon Presidential Materials Project
+
+Split television screen showing President Nixon in the
+White House speaking to Apollo 11 astronauts on the Moon
+
+National Archives, Nixon Presidential Materials Project
+
+National Archives records relating to the space program are in
+the Records of the National Aeronautics and Space Administration
+(NASA) and at several Presidential libraries and the Nixon
+Presidential Materials Project.
+
+[ American Originals Menu ]
+
+National Archives home page
+
+National Archives and Records Administration
+
+URL: http://www.archives.gov/exhibits/american_originals/apollo11.html
+
+inquire@nara.gov
+
+Last updated: March 1996
+
+<? include($_SERVER ['DOCUMENT_ROOT']."/includes/components/web.trends.php"); ?>

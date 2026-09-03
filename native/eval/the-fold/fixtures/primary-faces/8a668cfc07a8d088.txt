@@ -1,0 +1,121 @@
+133 captures
+
+22 Nov 2001 - 18 May 2026
+
+Jan
+FEB
+Mar
+
+19
+
+2007
+2008
+2009
+
+success
+
+fail
+
+About this capture
+
+COLLECTED BY
+
+Organization: Alexa Crawls
+
+Starting in 1996, Alexa Internet has been donating their crawl data to the Internet Archive. Flowing in every day, these data are added to the Wayback Machine after an embargo period.
+
+Collection: 52_crawl
+
+this data is currently not publicly accessible.
+
+TIMESTAMPS
+
+The Wayback Machine - https://web.archive.org/web/20080219204538/http://history.nasa.gov:80/SP-350/ch-9-5.html
+
+Apollo Expeditions to the Moon
+
+CHAPTER 9.5
+
+LIFTING FROM A SEA OF FLAME
+
+In the pink dawn of December 21 a quarter million persons lined the approaches
+to Cape Kennedy, many of them having camped overnight. At 7:51, amid a noise
+that sounded from three miles away like a million-ton truck rumbling over a corrugated
+road, the first manned Saturn V, an alabaster column as big as a naval destroyer,
+lifted slowly, ever so slowly, from the sea of flame that engulfed Pad 39-A. The
+upward pace quickened as the first stage's 531,000 gallons of kerosene and liquid
+oxygen were thirstily consumed, and in 2 minutes 34 seconds the big drink was
+finished, whereupon the second stage's five J-2 engines lit up. S-II's 359,000 gallons
+of liquid hydrogen and liquid oxygen boosted the S-IVB and CSM for 6 minutes
+10 seconds to an altitude of 108 miles. After the depleted S-II fell away, the S-IVB,
+this time the third stage, fired for 2 minutes 40 seconds to achieve Earth orbit. Except
+for slight pogo during the second-stage burn, Commander Borman reported all was
+smoothness.
+
+Intently watching the dials above them, the crew
+of Apollo 8, Anders , Lovell, Borman, left to right,
+rehearse for their lunar orbit mission inside a
+simulator at the Kennedy Space Center. Simulation
+was a central feature of the training given
+flight crews and mission controllers.
+
+Like a whirling dervish, the path of Apollo 8
+about the Earth and Moon spanned seven days
+and well over half a million miles. Ten lunar
+revolutions, at distances as close as 60 miles, were
+made. Translunar trip takes about 20 percent
+longer than the return trip because going out one
+has to overcome the stronger gravity of the Earth
+but can capitalize on it coming back. Not shown
+is the solar orbit trajectory taken by the burned
+S-IVB stage.
+
+During the second orbit, at 2 hours 27 minutes, CapCom Mike Collins sang out
+"You are go for TLI" (translunar injection), and 23 minutes after that Lovell calmly
+said, "Ignition". The S-IVB had restarted with a long burn over Hawaii that lasted
+5 minutes 19 seconds and boosted speed to the 24,200 mph necessary to escape the
+bonds of Earth. "You are on your way", said Chris Kraft, from the last row of consoles
+in Mission Control, "you are really on your way". The anticlimactic observation of the
+day came when Lovell said, "Tell Conrad he lost his record". (During Gemini 11 Pete
+Conrad and Dick Gordon had set an altitude record of 850 miles.) After the burn the
+S-IVB separated and was sent on its way to orbit the Sun.
+
+Brightly lit panel lights and screens confront Green Team Flight Director for Apollo 8,
+Cliff Charlesworth, at his console in the Mission Control Room in Houston.
+The radio signal between here and the Moon took three seconds roundtrip.
+
+In Mission Control early in the morning of December 24 the big center screen,
+which had carried an illuminated Mercator projection of the Earth for the past three
+and one-half years - a moving blip always indicated the spacecraft's position - underwent
+a dramatic change. The Earth disappeared, and upon the screen was flashed a
+scarred and pockmarked map with such labels as Mare Tranquillitatis, Mare Crisium,
+and many craters with such names as Tsiolkovsky, Grimaldi, and Gilbert. The effect
+was electrifying, symbolic evidence that man had reached the vicinity of the Moon.
+
+Walt Cunningham, lunar module pilot on Apollo 7 (which carried no
+LM), makes notes while a spare film magazine floats weightlessly a few
+inches above his pen. To "park" something in space, it had to be left
+with zero motion.
+
+CapCom Gerry Carr spoke to the three astronauts more than 200,000 miles away,
+"Ten seconds to go. You are GO all the way." Lovell replied, "We'll see you on the
+other side", and Apollo 8 disappeared behind the Moon, the first time in history men
+had been occulted. For 34 minutes there would be no way of knowing what happened.
+During that time the 247-second LOI (lunar orbit insertion) burn would take place
+that would slow down the spacecraft from 5758 to 3643 mph to enable it to latch on
+to the Moon's field of gravity and go into orbit. If the SPS engine failed, Apollo 8 would
+whip around the Moon and head back for Earth on a free-return trajectory (� la Apollo
+13); during one critical half minute if the engine conked out the spacecraft would be
+sent crashing into the Moon.
+
+Terraced inner walls lead from the rim of the crater Langrenus down
+to the smooth crater floor, broken by some central peaks. Langrenus is
+about 85 miles in diameter and its smooth, worn walls suggest that it is
+fairly old. The photo was taken from an altitude of some 150 miles.
+
+Slashing across the floor of the crater Goclenius, which
+is about 40 miles in diameter, are strange trenches called
+rilles. One rille extends over the entire crater floor, across
+the central peak, and continues up over the rim and out
+along the surrounding mare. This is only part of an
+Apollo 8 telephoto negative.

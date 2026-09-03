@@ -1,0 +1,183 @@
+137 captures
+
+05 Jul 2016 - 15 Apr 2026
+
+Aug
+SEP
+Oct
+
+25
+
+2017
+2018
+2019
+
+success
+
+fail
+
+About this capture
+
+COLLECTED BY
+
+Organization: Internet Archive
+
+These crawls are part of an effort to archive pages as they are created and archive the pages that they refer to. That way, as the pages that are referenced are changed or taken from the web, a link to the version that was live when the page was written will be preserved.
+
+Then the Internet Archive hopes that references to these archived pages will be put in place of a link that would be otherwise be broken, or a companion link to allow people to see what was originally intended by a page's authors.
+
+The goal is to fix all broken links on the web .
+
+Crawls of supported "No More 404" sites.
+
+Collection: Wikipedia Near Real Time (from IRC)
+
+This is a collection of web page captures from links added to, or changed on, Wikipedia pages. The idea is to bring a reliability to Wikipedia outlinks so that if the pages referenced by Wikipedia articles are changed, or go away, a reader can permanently find what was originally referred to.
+
+This is part of the Internet Archive's attempt to rid the web of broken links .
+
+TIMESTAMPS
+
+The Wayback Machine - https://web.archive.org/web/20180925025805/https://airandspace.si.edu/exhibitions/apollo-moon
+
+Skip to content
+
+You are here
+
+- Home
+
+- Exhibitions
+
+- Apollo to the Moon
+
+- Facebook
+
+- Twitter
+
+- Pinterest
+
+- Google +
+
+- Email
+
+When President Kennedy committed the nation in 1961 to landing a man on the Moon, America had sent only a single astronaut briefly into space. By the time the Apollo program ended, it had taken the efforts of more than a half-million people, produced the largest and most powerful rockets ever built, and sent humans farther than they had ever gone before.
+
+The great achievements of the Apollo program rested upon many small ones, upon thousands of technical innovations and boundless ingenuity. The heart of Apollo to the Moon is its unparalleled display of artifacts from Apollo and earlier missions that bring this sweeping endeavor down to a human scale. Displays range from a huge F-1 rocket engine and a scale model of the Saturn V rocket to space food and personal items that astronauts took into space. The gallery also displays some of the Museum's great treasures: spacesuits worn by Apollo astronauts on the Moon.
+
+See Online Exhibition
+
+Location in Museum
+
+Museum in Washington, DC
+
+July 1, 1976
+
+Plan Your Visit
+
+Curators
+
+Allan Needell
+
+Exhibition Highlights
+
+See all Apollo to the Moon objects
+
+-
+
+favorite
+
+Object
+
+F-1 Rocket Engine
+
+-
+
+favorite
+
+Object
+
+Skylab 4 Command Module
+
+-
+
+favorite
+
+Object
+
+Lunar Roving Vehicle
+
+Related Stories
+
+-
+
+favorite
+
+"We Choose to go to the Moon:" JFK's Moon Shot
+
+Read More about "We Choose to go to the Moon:" JFK's Moon Shot
+
+"We Choose to go to the Moon:" JFK's Moon Shot
+
+-
+
+favorite
+
+Learning from Tragedy: Apollo 1 Fire
+
+Read More about Learning from Tragedy: Apollo 1 Fire
+
+Learning from Tragedy: Apollo 1 Fire
+
+-
+
+favorite
+
+Remembering A Hero for the Ages
+
+Read More about Remembering A Hero for the Ages
+
+Remembering A Hero for the Ages
+
+-
+
+favorite
+
+Remembering Capt. Eugene Cernan
+
+Read More about Remembering Capt. Eugene Cernan
+
+Remembering Capt. Eugene Cernan
+
+-
+
+favorite
+
+Remembering Senator John Herschel Glenn Jr.
+
+Read More about Remembering Senator John Herschel Glenn Jr.
+
+Remembering Senator John Herschel Glenn Jr.
+
+-
+
+favorite
+
+Spacecraft Cookie Jar
+
+Read More about Spacecraft Cookie Jar
+
+Spacecraft Cookie Jar
+
+- Load more
+
+Related Topics
+
+- Space
+
+- Apollo Program
+
+- Human Spaceflight
+
+- Moon
+
+View your favorites
