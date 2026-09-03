@@ -98,6 +98,8 @@ const MODEL = process.env.MODEL ?? "gemma2:2b";
 const WANT = (process.env.SLICERS ?? "stating,random,containment,activation,embedding").split(",").map((s) => s.trim()).filter(Boolean);
 const SEED = Number(process.env.SEED ?? 0);
 const OUT = process.env.OUT ?? "ranke-slicers.json";
+const CLAIM = process.env.CLAIM ?? "fragment"; // fragment (claimOfNote) | article (row.article — reading-wall-RESULTS.md)
+const LABELED = process.env.LABELED ?? null; // LABELED=stated — only ids whose label status starts with this (results/slicer-labels.json)
 
 const { statingCandidates, witnessNote, textFeatures } = await import(`${NATIVE}/organs/corroboration.js`);
 const T = await import(`${NATIVE}/organs/index.js`);
@@ -252,20 +254,27 @@ async function arm(rows, label) {
   for (const name of WANT) {
     if (out[name] && !out[name].gap) { console.log(`  ${label} · ${name}: already on the checkpoint — states ${out[name].states}, skipped`); continue; }
     if (name === "embedding" && !embed) { out[name] = { gap: embedGap ?? { type: "skipped" } }; save(); continue; }
-    const t0 = Date.now(); const verdicts = {}; const landings = []; const candKeys = []; let offered = 0, noCandidates = 0;
+    const t0 = Date.now(); const verdicts = {}; const landings = []; const candKeys = []; const perNote = []; let offered = 0, noCandidates = 0;
     for (const { row, ends, face } of rows) {
       const claim = R.claimOfNote(ends);
+      // CLAIM=article: the article's own sentence (row.article, carried on
+      // every walk row) is the claim the witness is shown, instead of the
+      // extraction fragment. Mechanical — nothing rewritten. A control row
+      // carries `claimText` already substituted (or null: unbuildable).
+      const claimText = CLAIM === "article" ? (label === "control" ? ends.claimText ?? null : (row.article ? String(row.article).replace(/\s+/g, " ").trim() : null)) : claim.sentence;
+      if (CLAIM === "article" && !claimText) { verdicts["control-unbuildable"] = (verdicts["control-unbuildable"] ?? 0) + 1; perNote.push({ id: row.id, verdict: "control-unbuildable" }); continue; }
       const cands = await candidatesFor(name, face, ends, claim.sentence);
       if (cands == null) { noCandidates += 1; verdicts.no_slicer_candidate = (verdicts.no_slicer_candidate ?? 0) + 1; continue; }
       if (!cands.length) { noCandidates += 1; verdicts.no_candidate = (verdicts.no_candidate ?? 0) + 1; continue; }
       offered += 1;
       candKeys.push(cands.map((c) => `${c.start ?? "?"}:${c.shown.slice(0, 60)}`));
-      const w = await witnessNote(claim.sentence, { ref: row.host, text: face.src }, { ...witness, ends: { end1: ends.end1, end2: ends.end2 }, candidates: cands });
+      const w = await witnessNote(claimText, { ref: row.host, text: face.src }, { ...witness, ends: { end1: ends.end1, end2: ends.end2 }, candidates: cands });
       const v = w.refused ? `refused:${w.refused}` : w.verdict;
       verdicts[v] = (verdicts[v] ?? 0) + 1;
+      perNote.push({ id: row.id, claim: claimText, verdict: v, index: w.span?.at ?? null, at: w.at ?? null, arm: w.arm ?? null, because: w.verdict === "states" ? String(w.because ?? "").replace(/\s+/g, " ").slice(0, 220) : null });
       if (w.verdict === "states") landings.push({ note: row.note, host: row.host, because: String(w.because ?? "").replace(/\s+/g, " ").slice(0, 220), span: w.span?.at ?? null });
     }
-    out[name] = { offered, noCandidates, verdicts, states: verdicts.states ?? 0, contradicts: verdicts.contradicts ?? 0, landings, candKeys, seconds: Math.round((Date.now() - t0) / 1000) };
+    out[name] = { claim: CLAIM, offered, noCandidates, verdicts, states: verdicts.states ?? 0, contradicts: verdicts.contradicts ?? 0, landings, candKeys, perNote, seconds: Math.round((Date.now() - t0) / 1000) };
     save();
     console.log(`  ${label} · ${name}: offered ${offered}/${rows.length}, states ${verdicts.states ?? 0}, contradicts ${verdicts.contradicts ?? 0}, ${JSON.stringify(verdicts)} — ${Math.round((Date.now() - t0) / 1000)}s`);
   }
@@ -282,7 +291,12 @@ for (let i = 0; i < targets.length; i += 1) {
   // II.23: end2 rotated to the NEXT target's object — same subject, same
   // face, same slicer, a proposition the source does not make.
   const rot = endsOf(targets[(i + 1) % targets.length]);
-  control.push({ row, ends: { end1: ends.end1, label: ends.label, end2: rot.end2 }, face });
+  // the article-form control: the article sentence with end2 swapped for
+  // the rotated end2, verbatim; end2 not in the sentence -> unbuildable
+  const art = row.article ? String(row.article).replace(/\s+/g, " ").trim() : "";
+  const i2 = art.toLowerCase().indexOf(String(ends.end2).toLowerCase());
+  const claimText = i2 >= 0 ? art.slice(0, i2) + rot.end2 + art.slice(i2 + ends.end2.length) : null;
+  control.push({ row, ends: { end1: ends.end1, label: ends.label, end2: rot.end2, claimText }, face });
 }
 // ONLY=3,42,45 — restrict the walk to declared note indices (positions in the
 // real[] order the coverage pass and the labels both use). The control row
@@ -295,6 +309,13 @@ if (process.env.ONLY) {
   for (let i = 0; i < real.length; i += 1) if (keep.has(i)) { r2.push(real[i]); c2.push(control[i]); }
   real.length = 0; control.length = 0; real.push(...r2); control.push(...c2);
   console.log(`ONLY: walking ${real.length} declared notes [${[...keep].join(",")}]`);
+}
+if (LABELED) {
+  const L = JSON.parse(readFileSync(`${HERE}results/slicer-labels.json`, "utf8")).labels;
+  const r2 = [], c2 = [];
+  for (let i = 0; i < real.length; i += 1) if (String(L[real[i].row.id]?.status ?? "").startsWith(LABELED)) { r2.push(real[i]); c2.push(control[i]); }
+  real.length = 0; control.length = 0; real.push(...r2); control.push(...c2);
+  console.log(`LABELED=${LABELED}: walking ${real.length} labeled notes; claim form ${CLAIM}`);
 }
 const poolSizes = [...faceCache.values()].map((f) => f.pool.length).sort((x, y) => y - x);
 console.log(`faces: ${poolSizes.length}; candidate pool per face (identical for every slicer) median ${poolSizes[poolSizes.length >> 1]}, largest ${poolSizes[0]}\n`);

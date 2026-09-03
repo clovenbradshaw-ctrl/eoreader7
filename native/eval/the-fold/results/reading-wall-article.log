@@ -1,0 +1,29 @@
+object-missing partials: 127; with a kept face on disk: 127; walked here (declared budget N): 127
+LABELED=stated: walking 12 labeled notes; claim form article
+faces: 42; candidate pool per face (identical for every slicer) median 71, largest 8250
+
+REAL:
+  real · containment: offered 12/12, states 3, contradicts 0, {"refused:unarmed-select":1,"states":3,"refused:indiscriminate":5,"refused:no-testimony":3} — 54s
+CONTROL (end2 rotated, same face, same slicer, same witness):
+  control · containment: offered 11/12, states 1, contradicts 0, {"control-unbuildable":1,"refused:no-testimony":8,"refused:indiscriminate":2,"states":1} — 39s
+
+LICENSE TABLE (states, of 12 notes):
+  slicer        offered  real   control  verdict
+  containment   12       3      1        separates from control
+
+LANDINGS (the witness signed these; the decider is the source's own bytes):
+  [containment · nasa.gov] All of the —collected→ materials were flown to Ellington Air Force Base in Houston and taken to the Lunar Receiving Laboratory (LRL) within 48 hours of splashdown
+     «From there the two containers were placed aboard a C-141 cargo aircraft and flown directly to Ellington Air Force Base (AFB) near MSC in Houston, arriving there the afternoon of July 25.»
+     at nasa.gov#15226-15412
+  [containment · nasa.gov] BIGs —were→ worn until they reached isolation facilities on board Hornet
+     «Right: Apollo 11 astronauts await the recovery helicopter with the decontamination officer, all wearing BIGs.»
+     at nasa.gov#8668-8777
+  [containment · nasa.gov] The astronauts —were→ winched on board the recovery helicopter
+     «The recovery helicopter one by one retrieved the three astronauts from the raft using a Billy Pugh net, first Armstrong, then Collins and finally Aldrin.»
+     at nasa.gov#10742-10895
+
+CONTROL LANDINGS (each one is evidence AGAINST the slicer that produced it):
+  [containment · nasa.gov] Five sites —were→ considered: Sites 1 and 2 were in the Sea of Tranquility ( Mare Tranquillitatis )
+     «- Site Five: 41o40” West, 1o40” North, in the Ocean of Storms ( Oceanus Procellarum ).»
+
+34 model calls. Raw: results/reading-wall-article.json

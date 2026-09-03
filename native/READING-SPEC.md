@@ -2784,3 +2784,39 @@ in six seconds with no witness; it bounded every call the cross-product
 would have spent, and it made the budget argument the earlier pass had
 skipped. Pinned in `ranke.test.mjs`: hubs, the archive normalisation, lost
 paths, chrome, the duplicate-is-not-a-sibling case, and the lone face.
+
+## S49 — The reading wall is read before it is spent on: three refusals are right, two are the arm, two are the reader (2026-09-02)
+
+**Generality:** universal (read the refusals at zero calls before buying
+a hypothesis; a control asked more questions finds more); specimen-scoped
+(the twelve notes, the one model).
+
+S48 left one number: with the labeled stating sentence among the eight,
+the witness landed 4 of 11 and refused 7. `eval/the-fold/reading-wall-zero.mjs`
+dumps, at zero calls, what the witness was shown on every labeled note —
+the claim string (`claimOfNote`'s `end1 label end2` fragment), the article
+sentence the note was cut from, the eight with the labeled sentence's
+position, and the arm claim. Three of the seven resolve without a model:
+one note's stating sentence is not in the eight, one is labeled partial
+("April 12" is not on the page), one is prospective. Position is not it.
+Eleven of eleven arm claims are ungrammatical — `competingFiller` swaps a
+phrase-valued end2 whole for a single name (`Hornet launched Apollo`).
+
+The one hypothesis bought (≤96 declared, 70 spent,
+`results/reading-wall-RESULTS.md`): the fragment is the wall — show the
+article's own sentence instead, mechanically. Refused by its measurement:
+3 landings against the fragment's 5, and `indiscriminate` rose from 3 to
+5, because a longer claim shares more words with more candidates and the
+picker keys on shared words. `claimOfNote` is unchanged.
+
+Two corrections to S48's report. The witness DOES point at the wrong thing
+when the claim is ill-formed: one control landing in 23 per form, both on
+claims the extraction cut from an infobox or a list. And a landing can be
+on an unlabeled sentence that states less than the claim (a photo caption
+"all wearing BIGs" for "worn until the isolation facility") — the byte
+address is what shows it. What remains is two notes the arm cannot test
+(the phrase-valued-end swap is designed, not built) and two the reader
+does not cross; those stay refused and disclosed under P84(1).
+
+`ranke-slicers.mjs` records per-note verdicts on every checkpoint now;
+tallies alone made the seven recoverable only by subtraction.

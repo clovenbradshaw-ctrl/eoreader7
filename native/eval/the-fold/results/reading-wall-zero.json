@@ -1,0 +1,282 @@
+[
+  {
+    "id": "camera|had|been used to capture images of the first moon landing",
+    "status": "stated",
+    "pos": 1,
+    "claim": "Camera had been used to capture images of the first Moon landing",
+    "article": "The bag contained various items, which should have been left behind in the Lunar Module Eagle , including the 16mm Data Acquisition Camera that had been used to capture images of the first Moon landing.",
+    "armClaim": "Camera had Armstrong",
+    "filler": "Armstrong",
+    "pronounSubject": false,
+    "eight": [
+      "Neil Armstrong, the first man to walk on the moon, secretly took home a bag of mementos from the mission including the camera used to film his \"one small step\" and the planting of the US flag on the lunar surface.",
+      "Most importantly, it contained the 16mm data acquisition camera (DAC) used to film footage of the final approach to the moon on July 20, 1969.",
+      "The Wayback Machine - https://web.archive.org/web/20201129145206/https://www.telegraph.co.uk/news/worldnews/northamerica/usa/11401781/Neil-Armstrongs-widow-discovers-moon-camera-in-cupboard.html",
+      "The camera was also used to record Armstrong going down the ladder and taking his famous \"one small step,\" the planting of the flag and other footage of Armstrong and Buzz Aldrin on the lunar surface.",
+      "But Mr Needell told CollectSpace.com: \"The 16mm DAC, given the images that it captured, ranks as enormously important,\"",
+      "About this capture",
+      "[Photos] Neil Armstrong's hidden #Apollo11 flown-to-the-moon mementos: http://t.co/rDz3KAPl8V pic.twitter.com/BWOEJuau9Y — collectSPACE (@collectSPACE) February 9, 2015",
+      "The cartridges from the camera, containing the iconic footage, were taken back separately so there was no film in the camera found in Armstrong's cupboard."
+    ],
+    "labeled": [
+      "Most importantly, it contained the 16mm data acquisition camera (DAC) used to film footage of the final approach to the moon on July 20, 1969.",
+      "The camera was also used to record Armstrong going down the ladder and taking his famous \"one small step,\" the planting of the flag and other footage of Armstrong and Buzz Aldrin on the lunar surface.",
+      "Neil Armstrong, the first man to walk on the moon, secretly took home a bag of mementos from the mission including the camera used to film his \"one small step\" and the planting of the US flag on the lunar surface."
+    ]
+  },
+  {
+    "id": "collins|recovered|he joined armstrong's crew as cmp",
+    "status": "stated",
+    "pos": 2,
+    "claim": "Collins recovered he joined Armstrong's crew as CMP",
+    "article": "[ 49 ] Lovell took his place on the Apollo 8 crew, and when Collins recovered he joined Armstrong's crew as CMP.",
+    "armClaim": "Collins recovered Apollo",
+    "filler": "Apollo",
+    "pronounSubject": false,
+    "eight": [
+      "The prime crew consisted of Commander Neil A. Armstrong, Command Module Pilot (CMP) Michael Collins, and Lunar Module Pilot (LMP) Edwin E.",
+      "Armstrong and Aldrin had served on the backup crew for Apollo 8 the previous December and Collins was initially a member of that crew until a bone spur in his spine requiring surgery sidelined him.",
+      "50 Years Ago: NASA Names Apollo 11 Crew",
+      "9, 1969, NASA formally announced the crew for the Apollo 11 mission, scheduled for July of that year.",
+      "Planned as the fifth crewed Apollo mission, if all went well on the two flights preceding it, Apollo 11 would attempt the first human lunar landing, fulfilling President John F.",
+      "The next day, NASA introduced the Apollo 11 crew during a press conference at the Manned Spacecraft Center, now the Johnson Space Center in Houston.",
+      "Fully recovered from the operation, NASA added him to the Apollo 11 crew.",
+      "The Apollo 11 backup crew of Commander James A. Lovell, CMP William A. Anders, and LMP Fred W."
+    ],
+    "labeled": [
+      "Fully recovered from the operation, NASA added him to the Apollo 11 crew.",
+      "Armstrong and Aldrin had served on the backup crew for Apollo 8 the previous December and Collins was initially a member of that crew until a bone spur in his spine requiring surgery sidelined him."
+    ]
+  },
+  {
+    "id": "five sites|were|considered: sites 1 and 2 were in the sea of tranquility ( mare tranquillitatis )",
+    "status": "stated",
+    "pos": 2,
+    "claim": "Five sites were considered: Sites 1 and 2 were in the Sea of Tranquility ( Mare Tranquillitatis )",
+    "article": "[ 84 ] Five sites were considered: Sites 1 and 2 were in the Sea of Tranquility ( Mare Tranquillitatis ); Site 3 was in the Central Bay ( Sinus Medii ); and Sites 4 and 5 were in the Ocean of Storms ( Oceanus Procellarum ).",
+    "armClaim": "Five sites were North",
+    "filler": "North",
+    "pronounSubject": false,
+    "eight": [
+      "All five sites were within the Apollo Zone of Interest, an area on the visible side of the Moon between 45 degrees East and West longitude and between 5 degrees North and South of the lunar equator.",
+      "- Site One: 34o East, 2o40” North, in the Sea of Tranquility ( Mare Tranquilitatis );",
+      "- Site Two: 23o37” East, 0o45” North, in the Sea of Tranquility ( Mare Tranquilitatis );",
+      "Map of the Moon showing the five candidate landing sites chosen by the Apollo Site Selection Board in February 1968.",
+      "On February 8, 1968, after two years of study NASA’s Apollo Site Selection Board announced five potential landing sites for the first human lunar landing.",
+      "Each of the five 3 by 5-mile landing areas, chosen from an original list of 30 candidate sites, satisfied certain criteria in which astronaut safety was paramount.",
+      "The sites were centered around the following coordinates:",
+      "- Site Five: 41o40” West, 1o40” North, in the Ocean of Storms ( Oceanus Procellarum )."
+    ],
+    "labeled": [
+      "On February 8, 1968, after two years of study NASA’s Apollo Site Selection Board announced five potential landing sites for the first human lunar landing.",
+      "- Site One: 34o East, 2o40” North, in the Sea of Tranquility ( Mare Tranquilitatis );",
+      "- Site Two: 23o37” East, 0o45” North, in the Sea of Tranquility ( Mare Tranquilitatis );"
+    ]
+  },
+  {
+    "id": "they|found|on the atlantic seabed using advanced sonar scanning",
+    "status": "stated",
+    "pos": 1,
+    "claim": "They found on the Atlantic seabed using advanced sonar scanning",
+    "article": "They were found on the Atlantic seabed using advanced sonar scanning.",
+    "armClaim": "They found Mr Bezos",
+    "filler": "Mr Bezos",
+    "pronounSubject": true,
+    "eight": [
+      "In a blog post, Mr Bezos said the five engines were found using advanced sonar scanning some 14,000ft (4,300m) below the Atlantic Ocean's surface.",
+      "They burned for just a few minutes before separating from the second stage module and falling to Earth somewhere in the Atlantic.",
+      "The F-1 engines were used on the giant Saturn V rocket , external that carried the Apollo landing module out of the Earth's atmosphere and towards the Moon.",
+      "\"I was five years old when I watched Apollo 11 unfold on television, and without any doubt it was a big contributor to my passions for science, engineering, and exploration,\" he wrote, confirming that his team had located the engines but without hinting where they might be.",
+      "\"We don't know yet what condition these engines might be in - they hit the ocean at high velocity and have been in salt water for more than 40 years.",
+      "On the other hand, they're made of tough stuff, so we'll see,\" Mr Bezos wrote."
+    ],
+    "labeled": [
+      "In a blog post, Mr Bezos said the five engines were found using advanced sonar scanning some 14,000ft (4,300m) below the Atlantic Ocean's surface."
+    ]
+  },
+  {
+    "id": "a special display of armstrong's suit|was|unveiled for the 50th anniversary of apollo 11 in july 2019",
+    "status": "stated-prospective",
+    "pos": 1,
+    "claim": "A special display of Armstrong's suit was unveiled for the 50th anniversary of Apollo 11 in July 2019",
+    "article": "Based on the normal crew rotation scheme, Armstrong was then expected to command Apollo 11.",
+    "armClaim": "A special display of Armstrong's suit was Moon",
+    "filler": "Moon",
+    "pronounSubject": false,
+    "eight": [
+      "\"We will have Neil Armstrong's spacesuit opening [on display] in July 2019 for the 50th anniversary of Apollo 11 .",
+      "Two glassed-in displays in \"Apollo to the Moon\" once exhibited the spacesuits worn by Neil Armstrong, Buzz Aldrin and Gene Cernan while on the lunar surface.",
+      "Also on display here was a control panel and power-generating fuel cell from an Apollo command module, as well as the backup unit to the first astronomical observatory to be deployed on the moon.",
+      "Already removed from \"Apollo to the Moon\" but present in the gallery for decades were the spacesuits that astronauts Neil Armstrong, Buzz Aldrin and Gene Cernan wore on first and the last missions to land humans on the lunar surface.",
+      "Cernan's suit was displayed next to a test version of the lunar roving vehicle he drove while on the moon.",
+      "And we're going to have a special case of Apollo 11 astronaut artifacts in 2019.\"",
+      "Meanwhile, \"Apollo to the Moon\" is being replaced by \"Destination Moon,\" a new gallery that will display many of the prior exhibition's artifacts while also expanding the focus of the hall.",
+      "The one and a quarter F-1 engine display at the entrance to the \"Apollo to the Moon\" gallery at the National Air and Space Museum used mirrors to create the appearance of there being five engines as was at the base of a Saturn V rocket."
+    ],
+    "labeled": [
+      "\"We will have Neil Armstrong's spacesuit opening [on display] in July 2019 for the 50th anniversary of Apollo 11 ."
+    ]
+  },
+  {
+    "id": "the soviets|took|the lead on april 12",
+    "status": "stated-partial",
+    "pos": 1,
+    "claim": "The Soviets took the lead on April 12",
+    "article": "[ 18 ] The Soviets took the lead on April 12, 1961, when cosmonaut Yuri Gagarin became the first person in space and the first to orbit the Earth.",
+    "armClaim": "The Soviets took United States",
+    "filler": "United States",
+    "pronounSubject": false,
+    "eight": [
+      "In the late 1950s the United States watched the Soviet Union take the lead in the rapidly escalating space race.",
+      "The Soviet lead was both embarrassing and menacing to a nation that prided itself on technological know-how."
+    ],
+    "labeled": [
+      "In the late 1950s the United States watched the Soviet Union take the lead in the rapidly escalating space race."
+    ]
+  },
+  {
+    "id": "all of the|collected|materials were flown to ellington air force base in houston and taken to the lunar receiving laboratory (lrl) within 48 hours of splashdown",
+    "status": "stated",
+    "pos": 1,
+    "claim": "All of the collected materials were flown to Ellington Air Force Base in Houston and taken to the Lunar Receiving Laboratory (LRL) within 48 hours of splashdown",
+    "article": "All of the collected materials were flown to Ellington Air Force Base in Houston and taken to the Lunar Receiving Laboratory (LRL) within 48 hours of splashdown.",
+    "armClaim": "All of the collected Johnston Island",
+    "filler": "Johnston Island",
+    "pronounSubject": false,
+    "eight": [
+      "From there the two containers were placed aboard a C-141 cargo aircraft and flown directly to Ellington Air Force Base (AFB) near MSC in Houston, arriving there the afternoon of July 25.",
+      "Within 48 hours of splashdown, scientists in the LRL in Houston were examining the first lunar samples and processing the film.",
+      "The five of them remained inside the MQF until their arrival at the Lunar Receiving Laboratory (LRL) at the Manned Spacecraft Center (MSC), now the Johnson Space Center in Houston, two days later.",
+      "The previous day, managers were forced to move the splashdown point by 250 miles to the northeast due to inclement weather at the original recovery site.",
+      "McCain, Commander in Chief of Pacific naval forces, greeted the President on Johnston Island and flew separately to Hornet to be present for the splashdown and recovery.",
+      "The first aircraft carrying one ALSRC and a second package containing film departed Hornet within a few hours of the recovery, flying to Johnston Island 180 miles away.",
+      "He had flown aboard Air Force One from San Francisco via Hawaii to Johnston Island, an atoll 825 miles west-southwest of Honolulu, accompanied by NASA Administrator Thomas O.",
+      "From Johnston Island, they flew aboard Marine helicopters to the communications relay ship USS Arlington (AGMR-2), where they spent the night before helicoptering to Hornet early on splashdown day."
+    ],
+    "labeled": [
+      "From there the two containers were placed aboard a C-141 cargo aircraft and flown directly to Ellington Air Force Base (AFB) near MSC in Houston, arriving there the afternoon of July 25.",
+      "Within 48 hours of splashdown, scientists in the LRL in Houston were examining the first lunar samples and processing the film.",
+      "The first aircraft carrying one ALSRC and a second package containing film departed Hornet within a few hours of the recovery, flying to Johnston Island 180 miles away."
+    ]
+  },
+  {
+    "id": "bigs|were|worn until they reached isolation facilities on board hornet",
+    "status": "stated",
+    "pos": 4,
+    "claim": "BIGs were worn until they reached isolation facilities on board Hornet",
+    "article": "BIGs were worn until they reached isolation facilities on board Hornet .",
+    "armClaim": "BIGs were Apollo",
+    "filler": "Apollo",
+    "pronounSubject": false,
+    "eight": [
+      "From Johnston Island, they flew aboard Marine helicopters to the communications relay ship USS Arlington (AGMR-2), where they spent the night before helicoptering to Hornet early on splashdown day.",
+      "Right: Apollo 11 astronauts await the recovery helicopter with the decontamination officer, all wearing BIGs.",
+      "A helicopter lowered the Biological Isolation Garments (BIGs) for Hatleberg and the astronauts as well as the canisters containing decontamination solutions for the crew and the capsule.",
+      "The astronauts briefly opened the hatch to the capsule and Hatleberg handed them their BIGs, which they donned inside the spacecraft.",
+      "The ceremonies over, Nixon boarded Marine One and departed Hornet .",
+      "50 Years Ago: Hornet + 3 – The Recovery of Apollo 11",
+      "The aircraft carrier USS Hornet (CVS-12), the prime recovery ship for Apollo 11, was speeding for the new splashdown target area.",
+      "Overcast skies made stellar navigation impossible, so Hornet used the ancient mariner’s technique of dead reckoning to arrive on time and at the proper position to recover crew and spacecraft."
+    ],
+    "labeled": [
+      "Once inside the MQF, the astronauts removed their BIGs, took showers, changed into comfortable flight suits, and prepared to be welcomed by the President Nixon.",
+      "The astronauts briefly opened the hatch to the capsule and Hatleberg handed them their BIGs, which they donned inside the spacecraft."
+    ]
+  },
+  {
+    "id": "the astronauts|were|winched on board the recovery helicopter",
+    "status": "stated",
+    "pos": 2,
+    "claim": "The astronauts were winched on board the recovery helicopter",
+    "article": "The astronauts were winched on board the recovery helicopter.",
+    "armClaim": "The astronauts were Apollo",
+    "filler": "Apollo",
+    "pronounSubject": true,
+    "eight": [
+      "Right: Apollo 11 astronauts await the recovery helicopter with the decontamination officer, all wearing BIGs.",
+      "Left: From the recovery helicopter, the Billy Pugh net is lowered to the raft where the three astronauts await retrieval with Hatleberg.",
+      "The recovery helicopter one by one retrieved the three astronauts from the raft using a Billy Pugh net, first Armstrong, then Collins and finally Aldrin.",
+      "Left: Apollo 11 astronauts (left to right) Aldrin, Armstrong, and Collins followed by Dr. Carpentier (in orange) walk from the recovery helicopter to the MQF in Hornet ’s hangar bay.",
+      "Carl J. Seiberlich chose the slogan Hornet Plus 3 for the operation, signifying the safe recovery of the three Apollo 11 astronauts.",
+      "Hornet was still steaming toward the splashdown point but it had launched recovery helicopters already approaching their operational stations.",
+      "Recovery helicopters were either on station or rapidly approaching.",
+      "A helicopter lowered the Biological Isolation Garments (BIGs) for Hatleberg and the astronauts as well as the canisters containing decontamination solutions for the crew and the capsule."
+    ],
+    "labeled": [
+      "The recovery helicopter one by one retrieved the three astronauts from the raft using a Billy Pugh net, first Armstrong, then Collins and finally Aldrin.",
+      "Left: From the recovery helicopter, the Billy Pugh net is lowered to the raft where the three astronauts await retrieval with Hatleberg."
+    ]
+  },
+  {
+    "id": "they|would|fly to hornet in marine one for a few hours of ceremonies",
+    "status": "stated",
+    "pos": 1,
+    "claim": "they would fly to Hornet in Marine One for a few hours of ceremonies",
+    "article": "After a night on board, they would fly to Hornet in Marine One for a few hours of ceremonies.",
+    "armClaim": "they would Apollo",
+    "filler": "Apollo",
+    "pronounSubject": true,
+    "eight": [
+      "From Johnston Island, they flew aboard Marine helicopters to the communications relay ship USS Arlington (AGMR-2), where they spent the night before helicoptering to Hornet early on splashdown day.",
+      "The ceremonies over, Nixon boarded Marine One and departed Hornet .",
+      "The first aircraft carrying one ALSRC and a second package containing film departed Hornet within a few hours of the recovery, flying to Johnston Island 180 miles away.",
+      "The second aircraft departed Hornet six and a half hours after the first and included the second ALSRC, additional film as well as the astronaut medical samples.",
+      "50 Years Ago: Hornet + 3 – The Recovery of Apollo 11",
+      "The aircraft carrier USS Hornet (CVS-12), the prime recovery ship for Apollo 11, was speeding for the new splashdown target area.",
+      "Overcast skies made stellar navigation impossible, so Hornet used the ancient mariner’s technique of dead reckoning to arrive on time and at the proper position to recover crew and spacecraft.",
+      "Hornet ’s commanding officer Capt."
+    ],
+    "labeled": [
+      "From Johnston Island, they flew aboard Marine helicopters to the communications relay ship USS Arlington (AGMR-2), where they spent the night before helicoptering to Hornet early on splashdown day.",
+      "He had been onboard for three hours.",
+      "The ceremonies over, Nixon boarded Marine One and departed Hornet ."
+    ]
+  },
+  {
+    "id": "hornet|launched|four sea king helicopters and three grumman e-1 tracers",
+    "status": "stated-partial",
+    "pos": 4,
+    "claim": "Hornet launched four Sea King helicopters and three Grumman E-1 Tracers",
+    "article": "Before dawn on July 24, Hornet launched four Sea King helicopters and three Grumman E-1 Tracers .",
+    "armClaim": "Hornet launched Apollo",
+    "filler": "Apollo",
+    "pronounSubject": false,
+    "eight": [
+      "The three astronauts, Collins first, followed by Armstrong, Aldrin, and Dr. Carpentier, walked the ten steps from the helicopter to the MQF, amid the cheers of Hornet ’s crew and assembled media.",
+      "Carl J. Seiberlich chose the slogan Hornet Plus 3 for the operation, signifying the safe recovery of the three Apollo 11 astronauts.",
+      "From Johnston Island, they flew aboard Marine helicopters to the communications relay ship USS Arlington (AGMR-2), where they spent the night before helicoptering to Hornet early on splashdown day.",
+      "Hornet was still steaming toward the splashdown point but it had launched recovery helicopters already approaching their operational stations.",
+      "Three minutes later Hornet made a transient visual contact through the mostly overcast skies.",
+      "At 10,000 feet, the three main 83-foot diameter orange and white parachutes deployed, and Hornet established radio contact with Apollo 11 as it descended through the predawn sky.",
+      "A helicopter dropped the first raft into the water, which the three inflated and attached to the flotation collar.",
+      "Left: From the recovery helicopter, the Billy Pugh net is lowered to the raft where the three astronauts await retrieval with Hatleberg."
+    ],
+    "labeled": [
+      "Hornet was still steaming toward the splashdown point but it had launched recovery helicopters already approaching their operational stations."
+    ]
+  },
+  {
+    "id": "of mission|launch|date july 16",
+    "status": "stated",
+    "pos": null,
+    "claim": "of mission launch date July 16",
+    "article": "Start of mission Launch date July 16, 1969, 13:32:00 ( 1969-07-16UTC13:32Z ) UTC (9:32:00 am EDT ) [ 6 ] Rocket Saturn V SA-506 Launch site Kennedy , LC ‑ 39A",
+    "armClaim": "of mission launch Apollo",
+    "filler": "Apollo",
+    "pronounSubject": true,
+    "eight": [
+      "The correction was made July 22 at about 150 hours, 30 minutes into the mission.",
+      "Apollo 11 Mission Overview",
+      "- Mission Objective",
+      "- Mission Highlights",
+      "Apollo 11 mission insignia",
+      "Mission Objective",
+      "This was to be the last Apollo mission to fly a “free-return” trajectory, which would enable a return to Earth with no engine firing, providing a ready abort of the mission at any time prior to lunar orbit insertion.",
+      "Mission Highlights"
+    ],
+    "labeled": [
+      "Apollo 11 launched from Cape Kennedy on July 16, 1969, carrying Commander Neil Armstrong, Command Module Pilot Michael Collins and Lunar Module Pilot Edwin “Buzz” Aldrin into an initial Earth-orbit of 114 by 116 miles.",
+      "July 16, 1969; 9:32 a.m. EDT Launch Pad 39A Saturn-V AS-506 High Bay 1 Mobile Launcher Platform-1 Firing Room 1"
+    ]
+  }
+]
