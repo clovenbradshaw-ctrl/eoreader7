@@ -2823,7 +2823,29 @@ the second. So a chunk receives a copy only when that copy is verifiably ITS
 OWN text with nothing but spaces substituted — same length, every position
 either identical or blanked. P5.2's discipline applied to this mechanism
 itself: a parallel copy that cannot be shown to be the same text is not one.
-On six real pages the gate accepted 2,920 of 2,920 chunks.
+On six real pages the gate attached a copy to 990 of 2,920 chunks — the rest
+carried no furniture, and an identical copy is not retained. The two scopes
+are ADDITIVE and the reader's own organ is authoritative: the page copy is
+consulted only by a reader that is itself blanking, and that reader's own
+per-sentence pass still runs over the result.
+
+**THE BUG THIS SHIPPED WITH, found by adversarial review, fixed, and pinned.**
+`splitSentences` normalises newlines, which is LENGTH-CHANGING, so a
+sentence's offset addresses a NORMALISED copy while `chunk.blanked` is
+aligned to the RAW text. On CRLF material they diverge by one character per
+preceding CRLF pair, and the first guard was a LENGTH check — which a shifted
+window passes exactly. Reproduced on a CRLF document with NO furniture in it:
+three of four sentences corrupted, text beginning mid-word, and the edge
+extracted from it still carrying the clean address of the sentence it was
+meant to be — garbage with a good address, the worst failure shape here. It
+was invisible because every fixture in this repo is LF-only and the one
+book-reading control opened by stripping CRLF, normalising the failing input
+away before testing it. Fixed by converting through the material's own
+`normaliseNewlines.toRaw` when the caller injects it, and by verifying every
+candidate PER CHARACTER — usable only where each position is the sentence's
+own character or a space; otherwise the reader falls back, feature off and
+never wrong. **The generalisation: a guard that checks length is not a guard
+on content, and a control handed pre-normalised material is not a control.**
 
 **Result.** Furniture-derived notes **98 → 1** across six pages (3.96% →
 0.04%), measured exactly through each note's own span against the blanked
@@ -2866,10 +2888,18 @@ reader's own POS-prior vocabulary gate already ran during extraction, so any
 label reaching a note has passed the same prior at the same threshold and the
 lens cannot fire afterwards. Redundant by construction, not a bug.
 
+**Corrected from the first draft:** `chunkRows` does NOT reconstruct its
+rows — it slices and strips one trailing newline, so delimited chunks do read
+back and do receive a copy. The original "0 of 3 never match" came from
+comparing with strict equality against a span carrying that newline. What is
+true of CSV is that its rows are short non-terminal lines, so this blanker
+calls a data table furniture — and did so before this change too.
+
 **Files.** `organs/source.js` (`withPageBlanking`, `chunkSourceRaw`),
 `organs/hypergraph.js` (`passageBlanked`, `readSentenceText`),
-`organs/source-page-blanking.test.mjs` (13 cases, real organs, including two
-end-to-end proving the reader CONSUMES the copy and is inert on
-furniture-free prose), `eval/the-fold/furniture-page-context.mjs` +
+`organs/source-page-blanking.test.mjs` (17 cases, real organs, including the
+four CRLF regressions above, two end-to-end cases proving the reader CONSUMES
+the copy and is inert on furniture-free prose, and one proving a reader
+without the organ is unaffected by a chunker that had one), `eval/the-fold/furniture-page-context.mjs` +
 `results/furniture-page-context-RESULTS.md`. Full suite: 22 failures,
 identical by name to `origin/main` — zero regressions.

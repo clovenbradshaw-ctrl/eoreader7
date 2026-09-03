@@ -853,6 +853,7 @@ export function makeRelationReader(organs) {
     morphologyIndex = null,
     morphologyLanguage = null,
     blankFurniture = null,
+    normaliseNewlines = null,
     resolvePronouns = null,
     classifyConnector = null,
     minShare = undefined,
@@ -1062,6 +1063,12 @@ export function makeRelationReader(organs) {
       const b = p?.blanked;
       return typeof b === "string" && b.length === String(p.text ?? "").length ? b : null;
     });
+    // `splitSentences` normalises newlines, so a sentence's offset is in
+    // NORMALISED space while `blanked` is aligned to the RAW text. This maps
+    // one back to the other. Absent the organ every candidate simply fails
+    // the per-character check on CRLF material and falls back.
+    const passageToRaw = list.map((p, pi) =>
+      passageBlanked[pi] != null && normaliseNewlines ? normaliseNewlines(String(p.text ?? "")).toRaw : null);
     const passageBindings = list.map((p, pi) =>
       resolvePronouns ? pronounBindingsFor(passageSentences[pi], resolvePronouns, { extractSurfaces, discoverReferents }) : { bindings: [], bestSurface: new Map() });
 
@@ -1069,47 +1076,87 @@ export function makeRelationReader(organs) {
      * This passage's sentence i, rewritten locally for extraction only.
      *
      * FURNITURE IS BLANKED WITH THE PAGE IN VIEW WHEN THE CHUNKER SUPPLIED
-     * THAT VIEW, and per sentence otherwise. `blankLabelRows` needs `minRun`
+     * THAT VIEW, and per sentence either way. `blankLabelRows` needs `minRun`
      * CONSECUTIVE cells to call anything furniture, and the median chunk of a
-     * real page is 31-72 characters, so a navbox arrives already atomised
-     * into one-bullet passages and the run can never form here — measured,
-     * 13x to 63x less furniture blanked than the same organ sees when handed
-     * the whole page (source.js::withPageBlanking carries the numbers). The
+     * real page is 31-72 characters, so a navbox arrives already atomised into
+     * one-bullet passages and the run can never form here — measured, 13x to
+     * 63x less furniture blanked than the same organ sees when handed the
+     * whole page (source.js::withPageBlanking carries the numbers). The
      * evidence for a run lives ACROSS chunks, so `chunkSource` takes the
      * decision where the page still exists and hands each chunk its own span
      * of the result as `chunk.blanked`, gated on a readback check.
      *
-     * ORDER MATTERS, and it is the reverse of the fallback's. `chunk.blanked`
-     * is aligned to `chunk.text`, so it must be read at the sentence's own
-     * offset BEFORE any pronoun substitution, which is length-changing ("He"
-     * -> "Johnson") and would put every later offset out of true. The
-     * fallback keeps the old order because a per-sentence blank has no
-     * offsets to honour. One consequence is deliberate: a pronoun whose
-     * characters were blanked as furniture no longer resolves, because
+     * THE TWO SCOPES ARE ADDITIVE, NOT EXCLUSIVE. The page-scoped copy is
+     * applied first and the caller's OWN `blankFurniture` still runs over the
+     * result. That keeps the reader's injected organ authoritative — a caller
+     * that never asked for blanking never gets it, whatever the chunker was
+     * told — and it means the page copy can only ever ADD to what this reader
+     * already blanked, never replace its judgement with a stranger's
+     * parameters.
+     *
+     * COORDINATE SPACES, AND THE BUG THIS GUARD EXISTS FOR. `splitSentences`
+     * normalises newlines (`\r\n` -> `\n`, LENGTH-CHANGING), so
+     * `sentence.offset` addresses a NORMALISED copy of the passage, while
+     * `chunk.blanked` is aligned to the RAW `chunk.text`. On CRLF material —
+     * Gutenberg, anything Windows-authored — the two diverge by one character
+     * per preceding CRLF pair, and a length-only check cannot see it: a
+     * shifted window has exactly the right length. Measured: three of four
+     * sentences corrupted on a CRLF document carrying NO furniture at all,
+     * the shifted text beginning mid-word and still shipping the clean
+     * address of the sentence it was supposed to be.
+     *
+     * So the offset is converted through the material's own newline map when
+     * the caller injects `normaliseNewlines` (the engine's own organ, whose
+     * `toRaw` exists for exactly this), and EVERY candidate is verified
+     * per-character before use: it is usable only if each position is either
+     * the sentence's own character or a space. Absent the organ, or on any
+     * residual disagreement, the check fails and this falls back to the
+     * sentence's own text — feature off, never wrong.
+     *
+     * ORDER. The page copy is read first, because it is aligned to the
+     * original and pronoun substitution is length-changing ("He" ->
+     * "Johnson"). One consequence is deliberate: a pronoun whose characters
+     * were blanked as furniture no longer resolves, because
      * `sentenceWithPronouns`'s own staleness guard sees spaces where it
      * recorded a pronoun and refuses that binding rather than corrupting it
-     * in — which is the correct reading, a pronoun inside a navigation
-     * template is not the passage's anaphora.
+     * in — the correct reading, since a pronoun inside a navigation template
+     * is not the passage's anaphora.
      *
-     * NOTHING HERE RE-SPLITS ANYTHING, so the drift this file's
-     * per-sentence discipline exists to prevent (the eo-constitution claim
-     * `blank-furniture-sentence-drift`) is prevented the same way it always
-     * was: the segmentation is computed once, off the untouched bytes, and a
-     * rewrite is only ever applied WITHIN one already-fixed sentence's span.
-     * A page-aligned parallel copy satisfies that by construction — it is
-     * read at the sentence's own offset, never re-segmented.
+     * NOTHING HERE RE-SPLITS ANYTHING, so the drift the per-sentence
+     * discipline exists to prevent (`blank-furniture-sentence-drift`) is
+     * prevented exactly as before: the segmentation is computed once off the
+     * untouched bytes and a rewrite is only ever applied WITHIN one
+     * already-fixed sentence's span.
      */
+    const blankedSentence = (pi, sentence) => {
+      const prepared = passageBlanked[pi];
+      if (prepared == null) return null;
+      const own = sentence.text;
+      const toRaw = passageToRaw[pi];
+      let out = "";
+      for (let i = 0; i < own.length; i++) {
+        const at = toRaw ? toRaw(sentence.offset + i) : sentence.offset + i;
+        const ch = prepared[at];
+        // The only licensed difference is this character having been blanked.
+        if (ch !== own[i] && ch !== " ") return null;
+        out += ch;
+      }
+      return out;
+    };
+
     const readSentenceText = (pi, si) => {
       const sentence = passageSentences[pi][si];
       const { bindings, bestSurface } = passageBindings[pi];
-      const prepared = passageBlanked[pi];
-      if (prepared != null) {
-        const blanked = prepared.slice(sentence.offset, sentence.offset + sentence.text.length);
-        const base = blanked.length === sentence.text.length ? blanked : sentence.text;
-        return resolvePronouns ? sentenceWithPronouns({ ...sentence, text: base }, bindings, bestSurface) : base;
-      }
-      const withReferents = resolvePronouns ? sentenceWithPronouns(sentence, bindings, bestSurface) : sentence.text;
-      return blankFurniture ? sentenceWithBlanking({ text: withReferents }, blankFurniture) : withReferents;
+      // THE READER'S OWN ORGAN IS AUTHORITATIVE. The page-scoped copy is
+      // consulted only by a reader that is ITSELF blanking furniture — a
+      // caller who never injected the organ never gets blanking it did not
+      // ask for, decided by `minRun`/`maxCell` declared at a call site it has
+      // no relationship with. The two scopes then compose: page first, then
+      // this reader's own per-sentence pass over the result.
+      const fromPage = blankFurniture ? blankedSentence(pi, sentence) : null;
+      const base = fromPage ?? sentence.text;
+      const blanked = blankFurniture ? sentenceWithBlanking({ text: base }, blankFurniture) : base;
+      return resolvePronouns ? sentenceWithPronouns({ ...sentence, text: blanked }, bindings, bestSurface) : blanked;
     };
 
     // Rewritten passages, whole-text — the SAME per-sentence-safe rewrites
@@ -1118,7 +1165,10 @@ export function makeRelationReader(organs) {
     // the assertion tier's own order-shuffle null below); neither needs
     // spans, so rejoining costs nothing and stays exactly as useful as the
     // old passage-wide rewrite was, without ever re-splitting anything.
-    const rewrittenPassages = list.map((p, pi) => ({
+    // `blanked` is aligned to the ORIGINAL text and must not ride onto an
+    // object whose `text` has been rewritten — a later consumer re-reading
+    // these would slice a copy that no longer lines up.
+    const rewrittenPassages = list.map(({ blanked: _pageBlanked, ...p }, pi) => ({
       ...p,
       text: passageSentences[pi].map((_, si) => readSentenceText(pi, si)).join(" "),
     }));

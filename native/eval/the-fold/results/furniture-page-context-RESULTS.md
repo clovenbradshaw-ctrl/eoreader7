@@ -58,7 +58,16 @@ A chunk receives a blanked copy only when that copy is verifiably ITS OWN
 text with nothing but spaces substituted — same length, every position either
 identical or blanked. Anything else keeps no `blanked` field and falls back
 to the per-sentence path unchanged. On the six measured pages the gate
-accepted **2,920 of 2,920** chunks.
+accepted **990 of 2,920** chunks — the rest had no furniture in them, and a
+copy identical to the text is not attached at all, since retaining a second
+identical string per chunk duplicates every source in memory for no reading
+anyone would make differently.
+
+**The two scopes are additive, and the reader's own organ is authoritative.**
+The page copy is consulted only by a reader that is itself blanking, and its
+own per-sentence pass still runs over the result. A caller that never
+injected the organ never gets blanking it did not ask for, decided by
+`minRun`/`maxCell` declared at a call site it has no relationship with.
 
 `readSentenceText` prefers the copy, read at the sentence's own offset, and
 applies pronoun substitution AFTER — the reverse of the fallback's order,
@@ -96,6 +105,62 @@ different from Wikidata"`, `"Commons category link —is→ on Wikidata"`,
 `"Wikisource —templates→ with missing id"`, `"All articles —containing→
 potentially dated statements"`, `"Russian —adapted→ into films / operas /
 plays / radio programs / television shows"`.
+
+## The bug this shipped with, found by adversarial review and fixed
+
+Worth recording in full, because the shape is one this repo has hit before
+and the sample that hid it is the sample everything here is measured on.
+
+`splitSentences` normalises newlines (`\r\n` → `\n`) and that is
+**length-changing**, so a sentence's offset addresses a NORMALISED copy of
+the passage while `chunk.blanked` is aligned to the RAW text. On CRLF
+material the two diverge by one character per preceding CRLF pair. The first
+guard was a LENGTH check — and a shifted window has exactly the right length,
+so it passed. Reproduced on a CRLF document carrying **no furniture at all**:
+three of four sentences corrupted, the shifted text beginning mid-word, and
+the edge extracted from it still shipping the clean, self-verifying address
+of the sentence it was supposed to be. That is the worst failure shape this
+instrument has: garbage carrying a good address.
+
+**Why the measurements did not catch it.** Every Wikipedia fixture here is
+LF-only; there is no CRLF fixture in the directory at all. And the one
+control that reads a real book — the Frankenstein arm — opened with
+`.replace(/\r\n/g, "\n")`, normalising the failing input away before
+testing it. The control was built to fail and was handed material that
+could not.
+
+**The fix, at both levels.** The offset is converted through the material's
+own newline map (`normaliseNewlines`, the engine's own organ, whose `toRaw`
+exists for exactly this) when the caller injects it; and every candidate is
+verified PER CHARACTER before use — usable only if each position is either
+the sentence's own character or a space. Absent the map, or on any residual
+disagreement, the check fails and the reader falls back to the sentence's own
+text: feature off, never wrong. Measured across both arms: CRLF without the
+map falls back safely, CRLF with it aligns and real prose survives, and LF is
+unchanged either way. Pinned as four regressions.
+
+The book control no longer normalises: it reads Frankenstein as it sits on
+disk, **7,741 CRLF pairs** included.
+
+**And what the per-character check does NOT prove**, stated because it is the
+gate's one blind spot: it proves the copy differs from the chunk's text only
+by blanking. It does not prove ALIGNMENT, because a window that is entirely
+spaces passes every position trivially — which is the intended shape for
+every navbox row. Alignment rests on locating the text unambiguously, which
+is why an ambiguous occurrence or an out-of-range span is now refused rather
+than resolved by guesswork.
+
+## A claim in the first draft that was simply wrong
+
+The header stated that delimited chunks "never match at all, since chunkRows
+reconstructs its rows rather than slicing them". `chunkRows` does not
+reconstruct — it slices `body` and strips one trailing newline, so its rows
+DO read back and DO receive a copy. The original measurement said "0 of 3"
+because it compared with strict equality against a span carrying that
+trailing newline. What is true of CSV is disclosed instead: a data table's
+rows are short lines without terminal punctuation, so this blanker calls them
+furniture — and did so **before** this change too, since the whole table
+lands in one chunk that already met `minRun` on its own.
 
 ## The cost, and where it actually goes
 
@@ -142,9 +207,9 @@ cannot show — the label moves off a noun onto the real verb:
 **1. A page with no furniture must not move at all.** `ddg-results.html`:
 blanked 0→0, bound 7→7, notes 7→7. **Unchanged**, as it must be.
 
-**2. A real book must not lose real prose.** Gutenberg Frankenstein
-(438,841 chars, 747 chunks): **227 characters newly blanked of 417,000 read
-— 0.054%**. The largest newly-blanked fragments are the title block and the
+**2. A real book must not lose real prose.** Gutenberg Frankenstein, read as
+it sits on disk (**7,741 CRLF pairs**, deliberately not normalised):
+**228 characters newly blanked of 422,622 read — 0.0539%**. The largest newly-blanked fragments are the title block and the
 table of contents (`"CONTENTS  Letter 1  Letter 2 …"`) — furniture, correctly
 caught — with a real tail: `"affectionate"`, `"brother,"`, `"Saville,"` are
 the epistolary sign-off blocks (`"Your affectionate brother, / R. Walton"`,

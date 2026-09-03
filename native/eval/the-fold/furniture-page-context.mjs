@@ -31,7 +31,7 @@ const { makeRelationReader } = await import(`${NATIVE}/organs/hypergraph.js`);
 const { makeHyperlexicon } = await import(`${NATIVE}/organs/hyperlexicon.js`);
 const { chunkSource, tokenize, blankLabelRows } = await import(`${NATIVE}/organs/source.js`);
 const { extractReadable } = await import(`${NATIVE}/organs/web.js`);
-const { splitSentences } = await import(`${NATIVE}/adapters/text/spans.js`);
+const { splitSentences, normaliseNewlines } = await import(`${NATIVE}/adapters/text/spans.js`);
 const { extractSurfaces, discoverReferents, namesCorefer, diaNorm } = await import(`${NATIVE}/adapters/text/surfaces.js`);
 const { resolvePronouns } = await import(`${NATIVE}/adapters/text/pronouns.js`);
 const { discoverRelationVocab, extractRelations } = await import(`${NATIVE}/adapters/text/relations.js`);
@@ -71,6 +71,11 @@ const reader = makeRelationReader({
   determiners: new Set([...P.DEFINITE_DETERMINERS, ...P.INDEFINITE_DETERMINERS]),
   negationWords: P.NEGATION_WORDS,
   blankFurniture: blank,
+  // splitSentences normalises newlines (length-changing), so a sentence's
+  // offset is in normalised space while the page-blanked copy is aligned to
+  // the raw text. Without this the reader refuses every candidate on CRLF
+  // material and falls back — safe, but the feature is simply off there.
+  normaliseNewlines,
   resolvePronouns, nounPhraseSubjects: true,
 });
 const hl = makeHyperlexicon({ createTaskLog: taskLog.createTaskLog, append: taskLog.append, projectTasks: taskLog.projectTasks, ENTRY_KINDS: taskLog.ENTRY_KINDS, OPERATOR_BASIS: taskLog.OPERATOR_BASIS, GRAINS, cellOf });
@@ -258,7 +263,12 @@ if (existsSync(`${FIX}/ddg-results.html`)) {
 const BOOK = process.env.BOOK;
 if (BOOK && existsSync(BOOK)) {
   console.log("\n── CONTROL (built to fail): a real book — what does the change newly blank? ──");
-  const raw = readFileSync(BOOK, "utf8").replace(/\r\n/g, "\n");
+  // DELIBERATELY NOT newline-normalised. An earlier version of this control
+  // stripped CRLF before testing, which normalised away the exact coordinate-
+  // space bug the reader's guard exists for. A real book is read as it sits
+  // on disk.
+  const raw = readFileSync(BOOK, "utf8");
+  const crlf = (raw.match(/\r\n/g) ?? []).length;
   const cs = chunkSource("book", raw, { blankFurniture: blank });
   let covered = 0, newly = 0;
   const regions = [];
@@ -275,7 +285,8 @@ if (BOOK && existsSync(BOOK)) {
     if (run !== null) regions.push(own.slice(run));
   }
   regions.sort((x, y) => y.length - x.length);
-  console.log(`  ${BOOK}: ${newly} chars newly blanked of ${covered} read (${(100 * newly / covered).toFixed(4)}%)`);
+  console.log(`  ${BOOK}: ${crlf} CRLF pairs, read as it sits on disk`);
+  console.log(`  ${newly} chars newly blanked of ${covered} read (${(100 * newly / covered).toFixed(4)}%)`);
   console.log(`  largest newly-blanked fragments — judge these, do not trust the total:`);
   for (const r of regions.slice(0, 12)) console.log(`    ${JSON.stringify(r)}`);
 }

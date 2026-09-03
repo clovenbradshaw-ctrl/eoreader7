@@ -49,11 +49,17 @@ test("the run spans chunks, so per-chunk blanking cannot see it and page context
   }
 });
 
-test("prose is untouched — the control built to fail", () => {
+test("prose is untouched, and carries no copy at all — the control built to fail", () => {
   const chunks = chunkSource("page", NAVBOX_PAGE, { blankFurniture: blank });
   const prose = chunks.filter((c) => !c.text.startsWith("-"));
   assert.ok(prose.length >= 2);
-  for (const p of prose) assert.equal(p.blanked, p.text, "a sentence ending in terminal punctuation is never a cell");
+  for (const p of prose) {
+    // A sentence ending in terminal punctuation is never a cell, so nothing
+    // was blanked — and a copy identical to the text is not attached at all,
+    // because retaining a second identical string per chunk costs a full
+    // duplicate of every source for no reading anyone would make differently.
+    assert.equal(p.blanked, undefined, "an unblanked chunk keeps no copy");
+  }
 });
 
 test("a blanked copy may only ever turn a character into a space, never into another character", () => {
@@ -163,13 +169,14 @@ import { extractSurfaces, discoverReferents, namesCorefer, diaNorm } from "../ad
 import { discoverRelationVocab, extractRelations } from "../adapters/text/relations.js";
 import { tokenize } from "./source.js";
 
-const readerOver = (passages) => {
-  const relationsFor = makeRelationReader({
-    splitSentences, extractSurfaces, discoverReferents, namesCorefer, diaNorm,
-    discoverRelationVocab, extractRelations, tokenize,
-  });
-  return relationsFor(passages, { pool: passages });
-};
+// Every live caller injects this organ into the READER as well as (now) the
+// chunker, so the helper mirrors a real caller. A reader without it is tested
+// separately, below, precisely because the two must not be conflated.
+const readerOver = (passages) => makeRelationReader({
+  splitSentences, extractSurfaces, discoverReferents, namesCorefer, diaNorm,
+  discoverRelationVocab, extractRelations, tokenize,
+  blankFurniture: blank,
+})(passages, { pool: passages });
 
 // A navbox whose rows read as ordinary subject-verb-object if nothing blanks
 // them. The names are NOT sentence-initial, because `extractSurfaces` skips
@@ -213,4 +220,78 @@ test("real prose is read identically with and without the copy — the control b
     shape(chunkSource("p", prose, { blankFurniture: blank })),
     shape(chunkSource("p", prose)),
     "page context must be inert on material that contains no furniture");
+});
+
+// ── CRLF: the coordinate-space bug, pinned ──
+//
+// `splitSentences` normalises newlines (`\r\n` -> `\n`, LENGTH-CHANGING), so
+// a sentence's offset addresses a NORMALISED copy while `chunk.blanked` is
+// aligned to the RAW text. On CRLF material the two diverge by one character
+// per preceding CRLF pair, and a length-only guard cannot see it: a shifted
+// window has exactly the right length. Found by adversarial review of this
+// very change, reproduced, and fixed — these pin it.
+import { normaliseNewlines } from "../adapters/text/spans.js";
+
+const CRLF_DOC = (eol) => [
+  "Opening paragraph that is long enough to stand as its own chunk right here.",
+  ["- alpha row of the table", "- beta row of the table", "- gamma row of the table",
+   "- delta row of the table", "Napoleon commanded the guard at Borodino in 1812."].join(eol),
+].join(eol + eol);
+
+// What `readSentenceText` does, reproduced exactly: walk the sentence, take
+// each character's counterpart from the blanked copy, refuse on any
+// difference that is not a blank.
+const alignedSentence = (chunk, sentence, toRaw) => {
+  let out = "";
+  for (let i = 0; i < sentence.text.length; i++) {
+    const ch = chunk.blanked[toRaw ? toRaw(sentence.offset + i) : sentence.offset + i];
+    if (ch !== sentence.text[i] && ch !== " ") return null; // falls back
+    out += ch;
+  }
+  return out;
+};
+
+test("CRLF: without the newline map an unaligned window is REFUSED, never used", () => {
+  const doc = CRLF_DOC("\r\n");
+  const chunk = chunkSource("d", doc, { blankFurniture: blank }).find((c) => c.text.includes("Napoleon"));
+  assert.ok(chunk?.blanked, "the chunk carries a copy");
+  const sentence = (splitSentences(chunk.text) ?? []).find((s) => s.text.includes("Napoleon"));
+  assert.ok(sentence);
+  // Naive: length passes, content is shifted — this is the corruption.
+  const naive = chunk.blanked.slice(sentence.offset, sentence.offset + sentence.text.length);
+  assert.equal(naive.length, sentence.text.length, "a length-only guard passes on the shifted window");
+  assert.notEqual(naive, sentence.text, "and the window IS shifted — which is why length is not enough");
+  // The shipped check refuses it rather than handing garbage to the extractor.
+  assert.equal(alignedSentence(chunk, sentence, null), null, "refused, so the reader falls back to the sentence's own text");
+});
+
+test("CRLF: WITH the newline map the copy aligns and real prose survives", () => {
+  const doc = CRLF_DOC("\r\n");
+  const chunk = chunkSource("d", doc, { blankFurniture: blank }).find((c) => c.text.includes("Napoleon"));
+  const sentence = (splitSentences(chunk.text) ?? []).find((s) => s.text.includes("Napoleon"));
+  const aligned = alignedSentence(chunk, sentence, normaliseNewlines(chunk.text).toRaw);
+  assert.ok(aligned !== null, "the map puts the two coordinate spaces back in agreement");
+  assert.ok(aligned.includes("Napoleon commanded"), "and the real prose is NOT blanked away");
+});
+
+test("LF: the same material aligns with no map at all — CRLF is the whole difference", () => {
+  const doc = CRLF_DOC("\n");
+  const chunk = chunkSource("d", doc, { blankFurniture: blank }).find((c) => c.text.includes("Napoleon"));
+  const sentence = (splitSentences(chunk.text) ?? []).find((s) => s.text.includes("Napoleon"));
+  const aligned = alignedSentence(chunk, sentence, null);
+  assert.ok(aligned !== null && aligned.includes("Napoleon commanded"));
+});
+
+test("a reader that never asked for blanking does not get it from the chunker", () => {
+  // The reader's own injected organ stays authoritative: `minRun`/`maxCell`
+  // declared at the chunker's call site must not silently govern a consumer
+  // that has no relationship with them.
+  const withPage = chunkSource("page", NAVBOX_EDGES, { blankFurniture: blank });
+  const noOrgan = makeRelationReader({
+    splitSentences, extractSurfaces, discoverReferents, namesCorefer, diaNorm,
+    discoverRelationVocab, extractRelations, tokenize,   // no blankFurniture
+  })(withPage, { pool: withPage });
+  const shipped = readerOver(chunkSource("page", NAVBOX_EDGES));
+  const cmd = (r) => (r.edges ?? []).filter((e) => /command/i.test(e.verb ?? e.label ?? "")).length;
+  assert.equal(cmd(noOrgan), cmd(shipped), "identical to reading chunks that carry no copy at all");
 });

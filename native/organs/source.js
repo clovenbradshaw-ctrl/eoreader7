@@ -549,19 +549,41 @@ export function chunkSource(name, text, { boundaries, identity, atmosphere, blan
  * this only ever ADDS a parallel copy for extraction to read.
  *
  * THE READBACK GATE, and it is not decoration — it was found by running this
- * against a real Gutenberg book and a real CSV. `chunk.text` is `body.trim()`
- * while `start`/`end` span the UNTRIMMED body (chunkProse, above), so a
- * chunk's text is not always `text.slice(start, end)`: 6 of 747 Frankenstein
- * chunks differ by a leading space, and 0 of 3 delimited (CSV) chunks match
- * at all, since chunkRows reconstructs its rows rather than slicing them.
- * Blindly slicing the blanked page would shift the blanks by one character on
- * the first case and be entirely wrong on the second. So a chunk receives a
- * blanked copy only when that copy is verifiably ITS OWN text with nothing
- * but spaces substituted — same length, and every position either identical
- * or blanked. Anything else keeps no `blanked` field and its consumer falls
- * back to the per-sentence path, unchanged. P5.2's discipline applied to this
- * mechanism itself: a parallel copy that cannot be shown to be the same text
- * is not a parallel copy.
+ * against real Gutenberg books. `chunk.text` is `body.trim()` while
+ * `start`/`end` span the UNTRIMMED body (chunkProse, above), so a chunk's
+ * text is not always `text.slice(start, end)`: 66 of 2,249 Pride and
+ * Prejudice chunks carry leading whitespace inside their own span, shifted by
+ * up to 34 characters, and 1,218 of 36,837 do in the complete Shakespeare.
+ * Slicing the blanked page at `[start, end]` would hand those chunks a window
+ * shifted left by exactly that much — and a shifted window has EXACTLY the
+ * right length, so a length check cannot see it. Measured against the naive
+ * design on Pride and Prejudice: 60 chunks corrupted. So this LOCATES the
+ * chunk's own text inside its span and slices the blanked page there.
+ *
+ * The delimited path is a slice too, not a reconstruction: `chunkRows` takes
+ * `body` and strips one trailing newline, so its rows read back and DO
+ * receive a copy — an earlier note here claimed they never match, which was
+ * an artifact of comparing with strict equality against a span that carries
+ * that trailing newline. What is true of them is disclosed in the tests
+ * instead: a CSV's rows are short lines without terminal punctuation, so this
+ * blanker calls a data table furniture — and did so before this change too,
+ * since the whole table lands in one chunk that already met `minRun` on its
+ * own.
+ *
+ * A chunk receives a copy only when that copy is verifiably ITS OWN text with
+ * nothing but spaces substituted — same length, every position either
+ * identical or blanked. Anything else keeps no `blanked` field and its
+ * consumer falls back, unchanged. P5.2's discipline applied to this mechanism
+ * itself: a parallel copy that cannot be shown to be the same text is not a
+ * parallel copy.
+ *
+ * WHAT THE PER-CHARACTER CHECK DOES NOT PROVE, stated because it is the
+ * gate's one blind spot: it proves the copy differs from this chunk's text
+ * only by blanking. It does NOT prove alignment, because a window that is
+ * entirely spaces passes every position trivially — which is the intended
+ * shape for every navbox row. Alignment rests on locating the text
+ * unambiguously, which is why an ambiguous or out-of-range span is refused
+ * below rather than resolved by guesswork.
  */
 function withPageBlanking(chunks, text, blankFurniture) {
   const src = String(text ?? "");
@@ -576,18 +598,36 @@ function withPageBlanking(chunks, text, blankFurniture) {
 
   return chunks.map((chunk) => {
     const { start, end } = chunk;
+    // `slice` reads a negative index from the END of the string, so an
+    // out-of-range span would silently address a different region entirely.
     if (!Number.isInteger(start) || !Number.isInteger(end)) return chunk;
+    if (start < 0 || end > src.length || start > end) return chunk;
     const raw = src.slice(start, end);
     const own = String(chunk.text ?? "");
+    if (!own.length) return chunk; // nothing to align, and indexOf("") is 0
     // Where this chunk's own text sits inside its span (chunkProse trims).
     const at = raw.indexOf(own);
-    if (at === -1) return chunk; // not a slice of the source at all (chunkRows)
+    if (at === -1) return chunk;
+    // AMBIGUOUS: the text occurs more than once in its own span, so which
+    // occurrence this chunk is cannot be established from the bytes. Every
+    // chunker today yields a unique first occurrence (the trim boundary), so
+    // this refuses nothing in practice — it is here so that a future chunker
+    // which DOES reconstruct its text is refused rather than aligned by luck.
+    if (raw.indexOf(own, at + 1) !== -1) return chunk;
     const candidate = blanked.slice(start + at, start + at + own.length);
     if (candidate.length !== own.length) return chunk;
+    let differs = false;
     for (let i = 0; i < own.length; i++) {
       // The only licensed difference is a character becoming a space.
-      if (candidate[i] !== own[i] && candidate[i] !== " ") return chunk;
+      if (candidate[i] === own[i]) continue;
+      if (candidate[i] !== " ") return chunk;
+      differs = true;
     }
+    // Nothing was blanked here, so a copy would be a second identical string
+    // retained for every chunk of every source — on a 3.3MB book that is
+    // 3.3MB for no benefit. The consumer's own per-sentence blanking still
+    // runs, so omitting this changes no reading.
+    if (!differs) return chunk;
     return { ...chunk, blanked: candidate };
   });
 }
