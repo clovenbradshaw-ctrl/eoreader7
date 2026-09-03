@@ -1055,13 +1055,59 @@ export function makeRelationReader(organs) {
     // one already-fixed sentence's own span, never to the whole passage, so
     // there is no second sentence count to disagree with the first.
     const passageSentences = list.map((p) => splitSentences(p.text) ?? []);
+    // A chunk's own span of a whole-page furniture blanking, when the chunker
+    // was given the organ and its readback check passed (source.js). Null
+    // everywhere it was not — every existing caller, unchanged.
+    const passageBlanked = list.map((p) => {
+      const b = p?.blanked;
+      return typeof b === "string" && b.length === String(p.text ?? "").length ? b : null;
+    });
     const passageBindings = list.map((p, pi) =>
       resolvePronouns ? pronounBindingsFor(passageSentences[pi], resolvePronouns, { extractSurfaces, discoverReferents }) : { bindings: [], bestSurface: new Map() });
 
-    /** This passage's sentence i, rewritten locally for extraction only. */
+    /**
+     * This passage's sentence i, rewritten locally for extraction only.
+     *
+     * FURNITURE IS BLANKED WITH THE PAGE IN VIEW WHEN THE CHUNKER SUPPLIED
+     * THAT VIEW, and per sentence otherwise. `blankLabelRows` needs `minRun`
+     * CONSECUTIVE cells to call anything furniture, and the median chunk of a
+     * real page is 31-72 characters, so a navbox arrives already atomised
+     * into one-bullet passages and the run can never form here — measured,
+     * 13x to 63x less furniture blanked than the same organ sees when handed
+     * the whole page (source.js::withPageBlanking carries the numbers). The
+     * evidence for a run lives ACROSS chunks, so `chunkSource` takes the
+     * decision where the page still exists and hands each chunk its own span
+     * of the result as `chunk.blanked`, gated on a readback check.
+     *
+     * ORDER MATTERS, and it is the reverse of the fallback's. `chunk.blanked`
+     * is aligned to `chunk.text`, so it must be read at the sentence's own
+     * offset BEFORE any pronoun substitution, which is length-changing ("He"
+     * -> "Johnson") and would put every later offset out of true. The
+     * fallback keeps the old order because a per-sentence blank has no
+     * offsets to honour. One consequence is deliberate: a pronoun whose
+     * characters were blanked as furniture no longer resolves, because
+     * `sentenceWithPronouns`'s own staleness guard sees spaces where it
+     * recorded a pronoun and refuses that binding rather than corrupting it
+     * in — which is the correct reading, a pronoun inside a navigation
+     * template is not the passage's anaphora.
+     *
+     * NOTHING HERE RE-SPLITS ANYTHING, so the drift this file's
+     * per-sentence discipline exists to prevent (the eo-constitution claim
+     * `blank-furniture-sentence-drift`) is prevented the same way it always
+     * was: the segmentation is computed once, off the untouched bytes, and a
+     * rewrite is only ever applied WITHIN one already-fixed sentence's span.
+     * A page-aligned parallel copy satisfies that by construction — it is
+     * read at the sentence's own offset, never re-segmented.
+     */
     const readSentenceText = (pi, si) => {
       const sentence = passageSentences[pi][si];
       const { bindings, bestSurface } = passageBindings[pi];
+      const prepared = passageBlanked[pi];
+      if (prepared != null) {
+        const blanked = prepared.slice(sentence.offset, sentence.offset + sentence.text.length);
+        const base = blanked.length === sentence.text.length ? blanked : sentence.text;
+        return resolvePronouns ? sentenceWithPronouns({ ...sentence, text: base }, bindings, bestSurface) : base;
+      }
       const withReferents = resolvePronouns ? sentenceWithPronouns(sentence, bindings, bestSurface) : sentence.text;
       return blankFurniture ? sentenceWithBlanking({ text: withReferents }, blankFurniture) : withReferents;
     };

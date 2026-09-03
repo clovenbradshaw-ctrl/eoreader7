@@ -2775,3 +2775,97 @@ to HEAD, zero regressions.
 concession lifecycle (Pass 12 step 2, the-fold's `NEXT-PASSES.md`) — this
 entry establishes only that bridges are common and that the naive probe
 cannot yet validate them, not that they are safe.
+
+## S51 — Furniture is decided with the page in view; the evidence for a run lives across chunks
+
+**Generality:** universal.
+
+`blankLabelRows` calls something furniture only when it sees `minRun`
+CONSECUTIVE cells. Its one consumer (`hypergraph.js::readSentenceText`)
+applied it to one sentence of one already-chunked passage, and the median
+chunk of a real page is 31–72 characters — so a navbox arrives already
+atomised into one-bullet passages and the run of four can never form.
+Measured on three real fixtures: 286 / 1,157 / 742 characters blanked as
+shipped, against 16,176 / 14,963 / 47,098 with the page in view — **13× to
+63×**. The sentence boundary is not the constraint: per-sentence and
+per-passage blanking agree at 1.000 / 1.000 / 0.852. The PASSAGE boundary is.
+An earlier reading of this same defect blamed the sentence scoping and was
+wrong; measuring the two apart is what showed so.
+
+**The general rule this is an instance of: an organ that decides on a RUN
+cannot be scoped below the run.** Cross-line, cross-chunk or cross-document
+evidence has to be gathered where that evidence still exists, and handed down
+— never re-derived inside a unit too small to hold it.
+
+**What shipped.** `chunkSource` gains an optional injected `blankFurniture`
+organ (the precedent is its own `atmosphere` organ; absent is byte-identical
+to before). It blanks the whole page ONCE and attaches each chunk's own span
+as `chunk.blanked`. `chunk.text` is never touched, so every address still
+reads back — this only ever ADDS a parallel copy. `readSentenceText` prefers
+it, read at the sentence's own offset, applying pronoun substitution AFTER
+(the reverse of the fallback's order, because the copy is aligned to the
+original and pronoun substitution is length-changing). Nothing re-splits
+anything, so the drift `blank-furniture-sentence-drift` names is prevented
+exactly as before: the segmentation is computed once off untouched bytes and
+a rewrite is only ever applied within one already-fixed sentence's span.
+
+**THE READBACK GATE, and it was found by running rather than reasoning.**
+`chunk.text` is `body.trim()` while `start`/`end` span the UNTRIMMED body, so
+a chunk's text is not always `text.slice(start, end)`: 6 of 747 Frankenstein
+chunks differ by a leading space, and `chunkRows` reconstructs delimited rows
+rather than slicing them. Blindly slicing the blanked page would shift the
+blanks by one character in the first case and read somewhere else entirely in
+the second. So a chunk receives a copy only when that copy is verifiably ITS
+OWN text with nothing but spaces substituted — same length, every position
+either identical or blanked. P5.2's discipline applied to this mechanism
+itself: a parallel copy that cannot be shown to be the same text is not one.
+On six real pages the gate accepted 2,920 of 2,920 chunks.
+
+**Result.** Furniture-derived notes **98 → 1** across six pages (3.96% →
+0.04%), measured exactly through each note's own span against the blanked
+chunk it addresses — the blanker's own verdict read at the note's address, no
+hand list. Gone from the ledger: `"Short description —is→ different from
+Wikidata"`, `"Commons category link —is→ on Wikidata"`, `"Russian —adapted→
+into films / operas / plays"`.
+
+**The cost, disclosed and not summed.** 118 bindings stop being `bound`: 47
+not extracted, 40 `unbound`, 19 `beyond-reach`, 12 `unheard`. 75 of the 118
+were furniture-derived or mis-parsed. Of the 43 real ones, the one that was
+root-caused reframes the category — `"A divisional system" —was→ "introduced
+in 1806"` is still extracted identically and moves to `beyond-reach` because
+its subject had been resolving as a RECURRING FORM whose recurrence was
+partly navbox rows; removing them dropped it below the floor. That is a
+correction resting on withholding, not a conviction. Several other losses are
+paired with strictly better gains (`"The" —capsule→ "communicator …"` becomes
+`"The capsule communicator" —was→ "an astronaut …"`).
+
+**Controls (II.23).** A page with no furniture must not move: `ddg-results`
+is unchanged on every axis. A real book must not lose real prose: Gutenberg
+Frankenstein loses **0.054%** of read text, dominated by the title block and
+table of contents, with a real tail — the epistolary sign-offs (`"Your
+affectionate brother, / R. Walton"`) and prose running into an indented
+Wordsworth quotation. A UK statute blanks only its YAML frontmatter, no
+statute body.
+
+**The gain and the risk are the same mechanism, stated because it bounds
+where this may be pointed.** Navbox rows and screenplay dialogue are both
+short lines separated by blank lines; only page scope makes either visible.
+Verse, recipe steps and glossaries were already blanked before this change
+(identical at every scope) — that false positive is inherited, not
+introduced. Dialogue is the one shape newly exposed, and the book control is
+where it shows up for real.
+
+**A metric that measured nothing, recorded so it is not retried.** A
+mis-parsed-label column (a label settling as a non-verb under
+`makeGrammarLens` at the declared `minShare: 0.5`) reads 0→0 everywhere: the
+reader's own POS-prior vocabulary gate already ran during extraction, so any
+label reaching a note has passed the same prior at the same threshold and the
+lens cannot fire afterwards. Redundant by construction, not a bug.
+
+**Files.** `organs/source.js` (`withPageBlanking`, `chunkSourceRaw`),
+`organs/hypergraph.js` (`passageBlanked`, `readSentenceText`),
+`organs/source-page-blanking.test.mjs` (13 cases, real organs, including two
+end-to-end proving the reader CONSUMES the copy and is inert on
+furniture-free prose), `eval/the-fold/furniture-page-context.mjs` +
+`results/furniture-page-context-RESULTS.md`. Full suite: 22 failures,
+identical by name to `origin/main` — zero regressions.

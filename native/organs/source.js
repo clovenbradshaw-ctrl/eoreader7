@@ -522,7 +522,77 @@ function isParseableJson(s) {
   }
 }
 
-export function chunkSource(name, text, { boundaries, identity, atmosphere } = {}) {
+export function chunkSource(name, text, { boundaries, identity, atmosphere, blankFurniture } = {}) {
+  const chunks = chunkSourceRaw(name, text, { boundaries, identity, atmosphere });
+  return blankFurniture ? withPageBlanking(chunks, text, blankFurniture) : chunks;
+}
+
+/**
+ * Each chunk's own span of a WHOLE-PAGE furniture blanking, attached as
+ * `chunk.blanked` — the same characters as `chunk.text`, with furniture
+ * turned to spaces, decided with the whole document in view.
+ *
+ * WHY THIS EXISTS, MEASURED. `blankLabelRows` calls something furniture only
+ * when it sees `minRun` CONSECUTIVE cells. Its one consumer
+ * (`hypergraph.js::readSentenceText`) applied it to ONE SENTENCE of ONE
+ * already-chunked passage, and the median chunk of a real Wikipedia page is
+ * 31-72 characters — so a navbox is atomised into one-bullet passages and a
+ * run of four can never form. Measured on three real fixtures: blanking as
+ * shipped removed 286 / 1157 / 742 characters where blanking the whole page
+ * removes 16176 / 14963 / 47098 — 13x to 63x more furniture, and the
+ * difference is not the sentence boundary (per-sentence and per-passage agree
+ * at 1.000 / 1.000 / 0.852) but the PASSAGE boundary. The evidence for a run
+ * lives across chunks, so the decision has to be taken where the page still
+ * exists, which is here.
+ *
+ * `chunk.text` IS NEVER TOUCHED, so every existing address still reads back;
+ * this only ever ADDS a parallel copy for extraction to read.
+ *
+ * THE READBACK GATE, and it is not decoration — it was found by running this
+ * against a real Gutenberg book and a real CSV. `chunk.text` is `body.trim()`
+ * while `start`/`end` span the UNTRIMMED body (chunkProse, above), so a
+ * chunk's text is not always `text.slice(start, end)`: 6 of 747 Frankenstein
+ * chunks differ by a leading space, and 0 of 3 delimited (CSV) chunks match
+ * at all, since chunkRows reconstructs its rows rather than slicing them.
+ * Blindly slicing the blanked page would shift the blanks by one character on
+ * the first case and be entirely wrong on the second. So a chunk receives a
+ * blanked copy only when that copy is verifiably ITS OWN text with nothing
+ * but spaces substituted — same length, and every position either identical
+ * or blanked. Anything else keeps no `blanked` field and its consumer falls
+ * back to the per-sentence path, unchanged. P5.2's discipline applied to this
+ * mechanism itself: a parallel copy that cannot be shown to be the same text
+ * is not a parallel copy.
+ */
+function withPageBlanking(chunks, text, blankFurniture) {
+  const src = String(text ?? "");
+  let blanked;
+  try {
+    blanked = blankFurniture(src);
+  } catch {
+    return chunks; // an organ that throws leaves the chunking exactly as it was
+  }
+  // Length preservation is the whole premise — without it no offset survives.
+  if (typeof blanked !== "string" || blanked.length !== src.length) return chunks;
+
+  return chunks.map((chunk) => {
+    const { start, end } = chunk;
+    if (!Number.isInteger(start) || !Number.isInteger(end)) return chunk;
+    const raw = src.slice(start, end);
+    const own = String(chunk.text ?? "");
+    // Where this chunk's own text sits inside its span (chunkProse trims).
+    const at = raw.indexOf(own);
+    if (at === -1) return chunk; // not a slice of the source at all (chunkRows)
+    const candidate = blanked.slice(start + at, start + at + own.length);
+    if (candidate.length !== own.length) return chunk;
+    for (let i = 0; i < own.length; i++) {
+      // The only licensed difference is a character becoming a space.
+      if (candidate[i] !== own[i] && candidate[i] !== " ") return chunk;
+    }
+    return { ...chunk, blanked: candidate };
+  });
+}
+
+function chunkSourceRaw(name, text, { boundaries, identity, atmosphere } = {}) {
   if (looksDelimited(name, text)) return chunkRows(name, text, identity);
   // The addresses stay true to the file as it sits on disk: the container is
   // skipped, not renumbered.
