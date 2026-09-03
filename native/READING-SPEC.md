@@ -2994,3 +2994,153 @@ measured 7,794 units on one page and 7,806 on another). Not built.
 none shared — that is what makes it a replay).
 Suites: organs 383/362/12, conformance+tests 499/488/10 — identical failure
 counts to baseline, zero regressions.
+## S51 — Furniture is decided with the page in view; the evidence for a run lives across chunks
+
+**Generality:** universal.
+
+`blankLabelRows` calls something furniture only when it sees `minRun`
+CONSECUTIVE cells. Its one consumer (`hypergraph.js::readSentenceText`)
+applied it to one sentence of one already-chunked passage, and the median
+chunk of a real page is 31–72 characters — so a navbox arrives already
+atomised into one-bullet passages and the run of four can never form.
+Measured across six real committed fixtures: **2,313 characters blanked as
+shipped against 28,607 with the page in view — 12.4× overall**, and 7.5× to
+53.2× per page, the Russian one moving furthest because its furniture is
+least visible to an English POS gate. (The defect was first found on three
+other pages at 57× / 13× / 63×; those fixtures live on another PR's branch
+and are cited as provenance, not as reproducible here.) The sentence boundary
+is not the constraint: per-sentence and
+per-passage blanking agree at 1.000 / 1.000 / 0.852. The PASSAGE boundary is.
+An earlier reading of this same defect blamed the sentence scoping and was
+wrong; measuring the two apart is what showed so.
+
+**The general rule this is an instance of: an organ that decides on a RUN
+cannot be scoped below the run.** Cross-line, cross-chunk or cross-document
+evidence has to be gathered where that evidence still exists, and handed down
+— never re-derived inside a unit too small to hold it.
+
+**What shipped.** `chunkSource` gains an optional injected `blankFurniture`
+organ (the precedent is its own `atmosphere` organ; absent is byte-identical
+to before). It blanks the whole page ONCE and attaches each chunk's own span
+as `chunk.blanked`. `chunk.text` is never touched, so every address still
+reads back — this only ever ADDS a parallel copy. `readSentenceText` prefers
+it, read at the sentence's own offset, applying pronoun substitution AFTER
+(the reverse of the fallback's order, because the copy is aligned to the
+original and pronoun substitution is length-changing). Nothing re-splits
+anything, so the drift `blank-furniture-sentence-drift` names is prevented
+exactly as before: the segmentation is computed once off untouched bytes and
+a rewrite is only ever applied within one already-fixed sentence's span.
+
+**THE READBACK GATE, and it was found by running rather than reasoning.**
+`chunk.text` is `body.trim()` while `start`/`end` span the UNTRIMMED body, so
+a chunk's text is not always `text.slice(start, end)`: 6 of 747 Frankenstein
+chunks differ by a leading space, and `chunkRows` reconstructs delimited rows
+rather than slicing them. Blindly slicing the blanked page would shift the
+blanks by one character in the first case and read somewhere else entirely in
+the second. So a chunk receives a copy only when that copy is verifiably ITS
+OWN text with nothing but spaces substituted — same length, every position
+either identical or blanked. P5.2's discipline applied to this mechanism
+itself: a parallel copy that cannot be shown to be the same text is not one.
+On six real pages the gate attached a copy to 990 of 2,920 chunks — the rest
+carried no furniture, and an identical copy is not retained. The two scopes
+are ADDITIVE and the reader's own organ is authoritative: the page copy is
+consulted only by a reader that is itself blanking, and that reader's own
+per-sentence pass still runs over the result.
+
+**THE BUG THIS SHIPPED WITH, found by adversarial review, fixed, and pinned.**
+`splitSentences` normalises newlines, which is LENGTH-CHANGING, so a
+sentence's offset addresses a NORMALISED copy while `chunk.blanked` is
+aligned to the RAW text. On CRLF material they diverge by one character per
+preceding CRLF pair, and the first guard was a LENGTH check — which a shifted
+window passes exactly. Reproduced on a CRLF document with NO furniture in it:
+three of four sentences corrupted, text beginning mid-word, and the edge
+extracted from it still carrying the clean address of the sentence it was
+meant to be — garbage with a good address, the worst failure shape here. It
+was invisible because every fixture in this repo is LF-only and the one
+book-reading control opened by stripping CRLF, normalising the failing input
+away before testing it. Fixed by converting through the material's own
+`normaliseNewlines.toRaw` when the caller injects it, and by verifying every
+candidate PER CHARACTER — usable only where each position is the sentence's
+own character or a space; otherwise the reader falls back, feature off and
+never wrong. **The generalisation: a guard that checks length is not a guard
+on content, and a control handed pre-normalised material is not a control.**
+
+**Result.** Furniture-derived notes **98 → 1** across six pages (3.96% →
+0.04%), measured exactly through each note's own span against the blanked
+chunk it addresses — the blanker's own verdict read at the note's address, no
+hand list. Gone from the ledger: `"Short description —is→ different from
+Wikidata"`, `"Commons category link —is→ on Wikidata"`, `"Russian —adapted→
+into films / operas / plays"`.
+
+**The cost, disclosed and not summed.** 118 bindings stop being `bound`: 47
+not extracted, 40 `unbound`, 19 `beyond-reach`, 12 `unheard`. 75 of the 118
+were furniture-derived or mis-parsed. Of the 43 real ones, the one that was
+root-caused reframes the category — `"A divisional system" —was→ "introduced
+in 1806"` is still extracted identically and moves to `beyond-reach` because
+its subject had been resolving as a RECURRING FORM whose recurrence was
+partly navbox rows; removing them dropped it below the floor. That is a
+correction resting on withholding, not a conviction. Several other losses are
+paired with strictly better gains (`"The" —capsule→ "communicator …"` becomes
+`"The capsule communicator" —was→ "an astronaut …"`).
+
+**Controls (II.23).** A page with no furniture must not move: `ddg-results`
+is unchanged on every axis. A real book must not lose real prose: Gutenberg
+Frankenstein loses **0.054%** of read text, dominated by the title block and
+table of contents, with a real tail — the epistolary sign-offs (`"Your
+affectionate brother, / R. Walton"`) and prose running into an indented
+Wordsworth quotation. A UK statute blanks only its YAML frontmatter, no
+statute body.
+
+**The gain and the risk are the same mechanism, stated because it bounds
+where this may be pointed.** Navbox rows and screenplay dialogue are both
+short lines separated by blank lines; only page scope makes either visible.
+Verse, recipe steps and glossaries were already blanked before this change
+(identical at every scope) — that false positive is inherited, not
+introduced. Dialogue is the one shape newly exposed, and the book control is
+where it shows up for real.
+
+**A metric that measured nothing, recorded so it is not retried.** A
+mis-parsed-label column (a label settling as a non-verb under
+`makeGrammarLens` at the declared `minShare: 0.5`) reads 0→0 everywhere: the
+reader's own POS-prior vocabulary gate already ran during extraction, so any
+label reaching a note has passed the same prior at the same threshold and the
+lens cannot fire afterwards. Redundant by construction, not a bug.
+
+**OPT-IN, AND THAT IS THE DECISION, not a deferral.** By direction
+(2026-09-03), `blankFurniture` stays an organ a caller injects rather than a
+default: no existing caller's behaviour changes, and a reading that wants
+page-scoped furniture asks for it. The argument for shipping it on was real —
+P43's rule, that a prior which CLOSES a false binding is a correctness fix —
+and it is declined here for a reason this entry can state plainly: the
+measured cost is not only the 43 real relation losses but a NEWLY EXPOSED
+false-positive shape (screenplay dialogue is structurally identical to a
+navbox under this blanker), and an adversarial review found silent corruption
+in this very path, hidden by the fact that every fixture here is LF-only. A
+default is the wrong place for a mechanism whose blind spot was invisible to
+its own test material. What would change it: a caller measuring the arms on
+ITS OWN material, which is what `eval/the-fold/furniture-page-context.mjs`
+exists to make cheap.
+
+**Scope, stated because the headline reads wider than it is:** this reaches
+EXTRACTION only. `indexFor(list)` and the sentences `pronounBindingsFor`
+reads are built from the UNBLANKED text, so a name occurring only inside
+furniture still enters the referent index and can still be a pronoun's
+antecedent — verified. The change removes navbox EDGES, not navbox
+REFERENTS; blanking the index's input too is a separate decision with its own
+cost and is not taken here.
+
+**Corrected from the first draft:** `chunkRows` does NOT reconstruct its
+rows — it slices and strips one trailing newline, so delimited chunks do read
+back and do receive a copy. The original "0 of 3 never match" came from
+comparing with strict equality against a span carrying that newline. What is
+true of CSV is that its rows are short non-terminal lines, so this blanker
+calls a data table furniture — and did so before this change too.
+
+**Files.** `organs/source.js` (`withPageBlanking`, `chunkSourceRaw`),
+`organs/hypergraph.js` (`passageBlanked`, `readSentenceText`),
+`organs/source-page-blanking.test.mjs` (17 cases, real organs, including the
+four CRLF regressions above, two end-to-end cases proving the reader CONSUMES
+the copy and is inert on furniture-free prose, and one proving a reader
+without the organ is unaffected by a chunker that had one), `eval/the-fold/furniture-page-context.mjs` +
+`results/furniture-page-context-RESULTS.md`. Full suite: 22 failures,
+identical by name to `origin/main` — zero regressions.
