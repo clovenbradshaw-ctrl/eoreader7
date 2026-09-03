@@ -2843,6 +2843,23 @@ zero); and repetition was not followed TRANSITIVELY, so a note witnessed by
 two pages that met only through a third, non-witnessing body survived as
 "two voices". Both pinned as regressions.
 
+**The cross-domain leg (P71), and it separates two claims that would
+otherwise be one.** Replayed unmodified on two net-new pages in a different
+century, subject and article family (Alan Turing / Bletchley Park): the
+FINDER transfers — 135 runs / 6,702 units, including a shared bibliography
+row and Churchill's "Action This Day" memo carried on both pages, neither
+marking the other — while the CORRECTION collapses nothing, because that
+pair corroborates nothing (0 notes reach two sources at all). The
+correction is bounded by the thing it corrects, and this repo already
+measures that at ~2% (P83). A second arm reproducing arm 1's 10-of-10
+would have meant the two materials were less independent than claimed.
+That arm also shows what shared units do NOT distinguish: transclusion, a
+shared bibliography row, and two pages quoting one origin wear one shape,
+and the units do not carry the answer — which is exactly what the per-claim
+gate above exists for, since two pages quoting one memo are one voice for
+the memo and stay two for their own commentary on it. Both arms:
+`eval/the-fold/results/voices-RESULTS.md`.
+
 **What it never says**: that a repeater is dishonest, that an origin is
 right, that either claim is true, or which body came first. Every collapse
 carries `contextChecked: false` — shared units are shared units, and whether
@@ -2858,6 +2875,8 @@ measured 7,794 units on one page and 7,806 on another). Not built.
 
 **Files.** `kernel/reproduction.js` + `tests/reproduction.test.js` (11).
 `organs/voices.js` + `organs/voices.test.mjs` (7). `organs/quotes.js`
-(delegation only). `eval/the-fold/voices-measurement.mjs` + three fixtures.
+(delegation only). `eval/the-fold/voices-measurement.mjs` +
+`results/voices-RESULTS.md` + five fixtures (three for arm 1, two for arm 2,
+none shared — that is what makes it a replay).
 Suites: organs 383/362/12, conformance+tests 499/488/10 — identical failure
 counts to baseline, zero regressions.
