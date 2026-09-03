@@ -73,6 +73,10 @@
 //                  being the backwards walk's own `window` class so reach is
 //                  measured at one grain across both drivers. This is the
 //                  slicer that can see "the crew", "it", "the module".
+//   random       — a seeded shuffle: THE CONFOUND CONTROL. Every arm here
+//                  relaxes the both-ends gate, which alone hands the select
+//                  protocol eight sentences it never had; without this arm a
+//                  lift from the relaxed gate would be credited to a slicer.
 //   embedding    — cosine to the claim sentence (all-MiniLM-L6-v2, local,
 //                  vendored through the-fold's node_modules). LEAD-FINDER
 //                  ONLY (L4). If the package or model is absent this arm
@@ -90,7 +94,9 @@ const N_NOTES = Number(process.env.N ?? 40);
 const K = Number(process.env.K ?? 8);
 const WINDOW = Number(process.env.WINDOW ?? 3);
 const MODEL = process.env.MODEL ?? "gemma2:2b";
-const WANT = (process.env.SLICERS ?? "stating,containment,activation,embedding").split(",").map((s) => s.trim()).filter(Boolean);
+const WANT = (process.env.SLICERS ?? "stating,random,containment,activation,embedding").split(",").map((s) => s.trim()).filter(Boolean);
+const SEED = Number(process.env.SEED ?? 0);
+const OUT = process.env.OUT ?? "ranke-slicers.json";
 
 const { statingCandidates, witnessNote, textFeatures } = await import(`${NATIVE}/organs/corroboration.js`);
 const T = await import(`${NATIVE}/organs/index.js`);
@@ -99,6 +105,7 @@ const { splitSentences } = await import(`${NATIVE}/adapters/text/spans.js`);
 const { extractSurfaces, discoverReferents, diaNorm } = await import(`${NATIVE}/adapters/text/surfaces.js`);
 const { createLemmatizer, morphologyFromPrior } = await import(`${NATIVE}/adapters/text/morphology.js`);
 const { createActivation } = await import(`${NATIVE}/kernel/activation.js`);
+const { createSeededRng } = await import(`${NATIVE}/kernel/rng.js`);
 const morph = morphologyFromPrior(JSON.parse(readFileSync(`${FIX}/unimorph-morphology-prior.json`, "utf8")));
 const { sameAct } = createLemmatizer(morph.forms, { language: morph.language });
 
@@ -192,6 +199,16 @@ function rankActivation(face, ends) {
   const act = createActivation({ window: WINDOW });
   return face.pool.map((c) => { act.observe([...c.seen].filter((id) => ids.has(id))); return { c, score: [...ids].reduce((s, id) => s + act.activationOf(id), 0) }; });
 }
+// THE CONFOUND CONTROL, and the reason it is not optional. Every arm below
+// relaxes statingCandidates' both-ends gate, which by itself hands the
+// select protocol eight sentences it never had. If a RANDOM eight lands as
+// often as a ranked eight, the lift belongs to the relaxed gate and not to
+// any slicer, and reporting a ranked arm's number without this one would
+// credit the wrong thing. Seeded and declared, so it re-runs identically.
+function rankRandom(face, ends) {
+  const rng = createSeededRng(`${SEED}|${ends.end1}|${ends.end2}`);
+  return face.pool.map((c) => ({ c, score: rng() + 1e-9 }));
+}
 async function rankEmbedding(face, ends, claimSentence) {
   if (!embed) return null;
   if (!face.vecs) face.vecs = await embed(face.pool.map((c) => c.shown));
@@ -212,6 +229,7 @@ const witness = {
 
 async function candidatesFor(name, face, ends, claimSentence) {
   if (name === "stating") return statingCandidates(face.src, ends, { splitSentences, limit: K });
+  if (name === "random") return topK(rankRandom(face, ends));
   if (name === "containment") return topK(rankContainment(face, ends));
   if (name === "activation") return topK(rankActivation(face, ends));
   if (name === "embedding") return topK(await rankEmbedding(face, ends, claimSentence));
@@ -277,5 +295,5 @@ for (const name of WANT) for (const l of (realOut[name]?.landings ?? []).slice(0
 const ctlLandings = WANT.flatMap((n) => (ctlOut[n]?.landings ?? []).map((l) => ({ ...l, slicer: n })));
 if (ctlLandings.length) { console.log(`\nCONTROL LANDINGS (each one is evidence AGAINST the slicer that produced it):`); for (const l of ctlLandings.slice(0, 6)) console.log(`  [${l.slicer} · ${l.host}] ${l.note}\n     «${l.because}»`); }
 
-writeFileSync(`${HERE}results/ranke-slicers.json`, JSON.stringify({ page: backwards.page, objectMissingPartials: allObjMissing, walked: real.length, K, window: WINDOW, model: MODEL, embedder: embed ? "Xenova/all-MiniLM-L6-v2" : (embedGap ?? "skipped"), modelCalls, real: realOut, control: ctlOut, license }, null, 2));
-console.log(`\n${modelCalls} model calls. Raw: results/ranke-slicers.json`);
+writeFileSync(`${HERE}results/${OUT}`, JSON.stringify({ page: backwards.page, objectMissingPartials: allObjMissing, walked: real.length, K, window: WINDOW, model: MODEL, embedder: embed ? "Xenova/all-MiniLM-L6-v2" : (embedGap ?? "skipped"), modelCalls, real: realOut, control: ctlOut, license }, null, 2));
+console.log(`\n${modelCalls} model calls. Raw: results/${OUT}`);
