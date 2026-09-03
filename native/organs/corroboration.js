@@ -584,7 +584,7 @@ export function endsCopresentWindow(sourceText, ends, { featuresOf = textFeature
  * ask -> foldTestimony. Returns the derived verdict with the decider's own
  * address in the source, or the typed refusal — never a bare boolean.
  */
-export async function witnessNote(sentence, source, { ask, selectAsk = null, testimony, ends = null, slice: sliceOverride = null, splitSentences = null } = {}) {
+export async function witnessNote(sentence, source, { ask, selectAsk = null, testimony, ends = null, slice: sliceOverride = null, splitSentences = null, candidates = null } = {}) {
   const { witnessSlice, siblingSwap, foldTestimony, buildSelectMessages, foldSelect } = testimony ?? {};
   if (typeof ask !== "function" || !witnessSlice || !siblingSwap || !foldTestimony)
     throw new TypeError("witnessNote: ask and the testimony organs are injected — required, never defaulted");
@@ -605,7 +605,25 @@ export async function witnessNote(sentence, source, { ask, selectAsk = null, tes
     // statingCandidates' own header for why the window was the wrong
     // grain here). Feature fold is the module's own textFeatures, so
     // Kutúzov reaches a Kutuzov claim.
-    const cands = statingCandidates(source.text, ends, { splitSentences, limit: 8 });
+    // THE CANDIDATE SET MAY BE INJECTED (the cast.js pattern), and this is
+    // the one seam paraphrase needs. statingCandidates' own gate is
+    // `h1 > 0 && h2 > 0` — BOTH ends must fire LITERALLY — so a source that
+    // states the claim in other words offers nothing, `cands` is empty, and
+    // the armed select protocol never runs at all. That gate is right as the
+    // default: it is what makes an unsupervised candidate set trustworthy,
+    // and it is why the fallback below is a generate call on a containment
+    // slice. It is also exactly the wall a paraphrased end2 hits.
+    //
+    // A caller holding its OWN declared way to choose where a stating
+    // sentence would live (referent activation over the face, a local
+    // embedding ranking, anything it can name) passes that list here. What
+    // it does NOT get to relax is the arm: the swap, the indiscriminate
+    // check, the carried address and the typed refusals below are unchanged,
+    // so a picker that points at the same sentence for a competing filler
+    // still decides nothing, whatever list it was shown. A slicer can only
+    // change WHERE the model is asked to look, never whether its yes counts.
+    // Omitted, byte-identical to before.
+    const cands = candidates ?? statingCandidates(source.text, ends, { splitSentences, limit: 8 });
     if (cands.length) {
       const shownList = cands.map((c) => c.shown);
       const picked = foldSelect(await selectAsk(buildSelectMessages(sentence, shownList)), cands.map((c) => c.shown));

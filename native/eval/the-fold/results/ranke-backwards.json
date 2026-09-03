@@ -54,6 +54,7 @@
         "cls": "window",
         "via": "footnote",
         "host": "science.nasa.gov",
+        "facePath": "primary-faces/71653e4d2df860fa.txt",
         "sentence": "Akatsuki Launch Date May 21, 2010 Launch Site Tanegashima Space Center, Tanegashima, Japan Destination Venus Type Orbiter Status Successful–In Progress Nation… Apollo 15 Subsatellite",
         "missing": null,
         "missingSide": null
@@ -74,6 +75,7 @@
         "cls": "absent",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/f0846504330bc332.txt",
         "sentence": null,
         "missing": [
           "eagle",
@@ -101,6 +103,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -129,6 +132,7 @@
         "cls": "partial",
         "via": "footnote",
         "host": "web.archive.org",
+        "facePath": "primary-faces/4f1ed9698100bfbc.txt",
         "sentence": "The gallery also displays some of the Museum's great treasures: spacesuits worn by Apollo astronauts on the Moon.",
         "missing": [
           "years",
@@ -158,6 +162,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -180,6 +185,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/26120f15d911a264.txt",
         "sentence": "- Lunar Surface Technology",
         "missing": [
           "descent"
@@ -210,6 +216,7 @@
         "cls": "partial",
         "via": "link",
         "host": "archive.org",
+        "facePath": "primary-faces/d2ef9f7b449e04ee.txt",
         "sentence": "Internet Archive Audio",
         "missing": [
           "hour",
@@ -237,6 +244,7 @@
         "cls": "absent",
         "via": "link",
         "host": "web.archive.org",
+        "facePath": "primary-faces/4f69a8cb8bb11499.txt",
         "sentence": null,
         "missing": [
           "recovery",
@@ -264,6 +272,7 @@
         "cls": "partial",
         "via": "link",
         "host": "web.archive.org",
+        "facePath": "primary-faces/4f69a8cb8bb11499.txt",
         "sentence": "Here he was responsible for the preparation and\noperation of simulated missions used to train flight controllers in\nthe manned Mercury program.",
         "missing": [],
         "missingSide": "object"
@@ -284,6 +293,7 @@
         "cls": "absent",
         "via": "link",
         "host": "arxiv.org",
+        "facePath": "primary-faces/ac8d77211342568b.txt",
         "sentence": null,
         "missing": [
           "lighter",
@@ -315,6 +325,7 @@
         "cls": "absent",
         "via": "link",
         "host": "arxiv.org",
+        "facePath": "primary-faces/ac8d77211342568b.txt",
         "sentence": null,
         "missing": [
           "lighter",
@@ -346,6 +357,7 @@
         "cls": "partial",
         "via": "link",
         "host": "presidency.ucsb.edu",
+        "facePath": "primary-faces/8dba1bffe2e2311d.txt",
         "sentence": "Richard Nixon, Telephone Conversation With the Apollo 11 Astronauts on the Moon Online by Gerhard Peters and John T. Woolley, The American Presidency Project https://www.presidency.ucsb.edu/node/239626",
         "missing": [
           "name"
@@ -372,6 +384,7 @@
         "cls": "absent",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/936e909fa8565609.txt",
         "sentence": null,
         "missing": [
           "map",
@@ -405,6 +418,7 @@
         "cls": "absent",
         "via": "link",
         "host": "archive.org",
+        "facePath": "primary-faces/831100cf4ef89fd5.txt",
         "sentence": null,
         "missing": [
           "monte",
@@ -436,6 +450,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -462,6 +477,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/5a5fe281600f6cf1.txt",
         "sentence": "News & Events",
         "missing": [
           "location",
@@ -487,6 +503,7 @@
         "cls": "no-lead",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -512,6 +529,7 @@
         "cls": "absent",
         "via": "link",
         "host": "arxiv.org",
+        "facePath": "primary-faces/ac8d77211342568b.txt",
         "sentence": null,
         "missing": [
           "rendezvous",
@@ -545,6 +563,7 @@
         "cls": "partial",
         "via": "footnote",
         "host": "collectspace.com",
+        "facePath": "primary-faces/f7ee769d9d5b8cb5.txt",
         "sentence": "\"We will have Neil Armstrong's spacesuit opening [on display] in July 2019 for the 50th anniversary of Apollo 11 .",
         "missing": [
           "unveiled"
@@ -578,6 +597,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -602,6 +622,7 @@
         "cls": "partial",
         "via": "link",
         "host": "web.archive.org",
+        "facePath": "primary-faces/4f69a8cb8bb11499.txt",
         "sentence": "Apollo 7 MCC Activity-Flight Director\nGlynn Lunney is seated at his console in the Mission Operations\nControl Room in the Mission Control Center at Houston on the first\nday of the Apollo 7 mission, October 11, 1968.",
         "missing": [
           "recovery"
@@ -627,6 +648,7 @@
         "cls": "partial",
         "via": "link",
         "host": "klabs.org",
+        "facePath": "primary-faces/f42a6e08a420d62f.txt",
         "sentence": "Years previously, an interface control document (ICD) had\nbeen written to define the electrical interface between the PGNS and an\nelectronic assembly called the attitude and translation control assembly\n(ATCA) that was provided by Grumman Aerospace, the builder of the Moon\nlander.",
         "missing": [
           "aca"
@@ -655,6 +677,7 @@
         "cls": "absent",
         "via": "footnote",
         "host": "nasa.gov",
+        "facePath": "primary-faces/9190e06d76b22bc8.txt",
         "sentence": null,
         "missing": [
           "address",
@@ -696,6 +719,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -718,6 +742,7 @@
         "cls": "partial",
         "via": "link",
         "host": "archive.org",
+        "facePath": "primary-faces/bd238c38f301d454.txt",
         "sentence": "Space and the American imagination",
         "missing": [
           "alan",
@@ -748,6 +773,7 @@
         "cls": "partial",
         "via": "link",
         "host": "web.archive.org",
+        "facePath": "primary-faces/4f69a8cb8bb11499.txt",
         "sentence": "Adding\nthe descent phase and the lunar surface work was a tremendous amount\nof additional training, planning, and getting ready for that had to\noccur with both the flight crews, with the people in the Control\nCenter, and, of course, all the people that plan all these\nflights.",
         "missing": [
           "alan",
@@ -774,6 +800,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/26120f15d911a264.txt",
         "sentence": "With a half-Earth in the background, the Lunar Module ascent stage with Moon-walking astronauts Neil Armstrong and Edwin Aldrin Jr.",
         "missing": [
           "eva"
@@ -797,6 +824,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -820,6 +848,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -841,6 +870,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -864,6 +894,7 @@
         "cls": "absent",
         "via": "link",
         "host": "airandspace.si.edu",
+        "facePath": "primary-faces/360236aa71c7a2bb.txt",
         "sentence": null,
         "missing": [
           "aldrin",
@@ -895,6 +926,7 @@
         "cls": "absent",
         "via": "link",
         "host": "airandspace.si.edu",
+        "facePath": "primary-faces/360236aa71c7a2bb.txt",
         "sentence": null,
         "missing": [
           "aldrin",
@@ -926,6 +958,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/f0846504330bc332.txt",
         "sentence": "With a half-Earth in the background, the Lunar Module ascent stage with Moon-walking astronauts Neil Armstrong and Edwin Aldrin Jr.",
         "missing": [
           "out",
@@ -954,6 +987,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -977,6 +1011,7 @@
         "cls": "partial",
         "via": "footnote",
         "host": "archives.gov",
+        "facePath": "primary-faces/b1f6b4fc55dee644.txt",
         "sentence": "\"The President held an interplanetary conversation with Apollo 11\nAstronauts, Neil Armstrong and Edwin Aldrin on the Moon.",
         "missing": [
           "photo",
@@ -1002,6 +1037,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -1023,6 +1059,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/26120f15d911a264.txt",
         "sentence": "With a half-Earth in the background, the Lunar Module ascent stage with Moon-walking astronauts Neil Armstrong and Edwin Aldrin Jr.",
         "missing": [
           "civilian"
@@ -1046,6 +1083,7 @@
         "cls": "window",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/26120f15d911a264.txt",
         "sentence": "Explore the Apollo Lunar Surface Journal and Apollo Flight Journal to discover detailed historical resources on the Apollo missions. Visit the Apollo Journals Website With a half-Earth in the background, the Lunar Module ascent stage with Moon-walking astronauts Neil Armstrong and Edwin Aldrin Jr.",
         "missing": null,
         "missingSide": null
@@ -1071,6 +1109,7 @@
         "cls": "absent",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/9190e06d76b22bc8.txt",
         "sentence": null,
         "missing": [
           "him",
@@ -1096,6 +1135,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/7dd85f4b8d00e19f.txt",
         "sentence": "International Space Station",
         "missing": [
           "aldrin"
@@ -1124,6 +1164,7 @@
         "cls": "absent",
         "via": "link",
         "host": "arxiv.org",
+        "facePath": "primary-faces/ac8d77211342568b.txt",
         "sentence": null,
         "missing": [
           "aldrin",
@@ -1151,6 +1192,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -1179,6 +1221,7 @@
         "cls": "partial",
         "via": "footnote",
         "host": "nasa.gov",
+        "facePath": "primary-faces/4d2be2b4199b336f.txt",
         "sentence": "Climate Change",
         "missing": [
           "moving",
@@ -1212,6 +1255,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/9190e06d76b22bc8.txt",
         "sentence": "Astronaut Harrison H. Schmitt, Apollo 17 lunar module pilot, stands near the deployed United States flag on the lunar surface during NASA’s final lunar landing mission in the Apollo series.",
         "missing": [],
         "missingSide": "object"
@@ -1237,6 +1281,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -1258,6 +1303,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/f78739635739df53.txt",
         "sentence": "Download with captions: https://images.nasa.gov/details/Apollo_11_moonwalk_montage_720p",
         "missing": [
           "bag"
@@ -1283,6 +1329,7 @@
         "cls": "absent",
         "via": "footnote",
         "host": "web.archive.org",
+        "facePath": "primary-faces/50c15853ef821e39.txt",
         "sentence": null,
         "missing": [
           "afraid",
@@ -1310,6 +1357,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -1342,6 +1390,7 @@
         "cls": "partial",
         "via": "footnote",
         "host": "nasa.gov",
+        "facePath": "primary-faces/86570537bec568ff.txt",
         "sentence": "From there the two containers were placed aboard a C-141 cargo aircraft and flown directly to Ellington Air Force Base (AFB) near MSC in Houston, arriving there the afternoon of July 25.",
         "missing": [],
         "missingSide": "object",
@@ -1364,6 +1413,7 @@
         "cls": "same-sentence",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/babb9aea763ba359.txt",
         "sentence": "Finally, if we are to win the battle that is now going on around the world between freedom and tyranny, the dramatic achievements in space which occurred in recent weeks should have made clear to us all, as did the Sputnik in 1957, the impact of this adventure on the minds of men everywhere, who are attempting to make a determination of which road they should take.",
         "missing": null,
         "missingSide": null,
@@ -1390,6 +1440,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/fd29533beca320c0.txt",
         "sentence": "While Jones’s project cataloged astronaut activities on the lunar surface, this journal, supplemented by numerous contributors from around the world, covers all portions of the crewed Apollo flights that did not take place on the Moon.",
         "missing": [
           "step"
@@ -1414,6 +1465,7 @@
         "cls": "partial",
         "via": "link",
         "host": "archive.org",
+        "facePath": "primary-faces/bd238c38f301d454.txt",
         "sentence": "Space and the American imagination",
         "missing": [
           "won",
@@ -1439,6 +1491,7 @@
         "cls": "partial",
         "via": "footnote",
         "host": "thespacereview.com",
+        "facePath": "primary-faces/74058f38881bc226.txt",
         "sentence": "Accompanying that series is a book, also called Chasing the Moon , by filmmaker Robert Stone and Alan Andres, who served as a consulting producer and researcher for the series.",
         "missing": [
           "released"
@@ -1467,6 +1520,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -1495,6 +1549,7 @@
         "cls": "absent",
         "via": "link",
         "host": "arxiv.org",
+        "facePath": "primary-faces/ac8d77211342568b.txt",
         "sentence": null,
         "missing": [
           "early",
@@ -1530,6 +1585,7 @@
         "cls": "absent",
         "via": "link",
         "host": "web.archive.org",
+        "facePath": "primary-faces/301a8f5df661f8e5.txt",
         "sentence": null,
         "missing": [
           "estimated",
@@ -1561,6 +1617,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/4afd44f7819efef6.txt",
         "sentence": "In 1988, Eric M. Jones had an epiphany while visiting Johnson Space Center.",
         "missing": [
           "illustrator",
@@ -1591,6 +1648,7 @@
         "cls": "absent",
         "via": "link",
         "host": "airandspace.si.edu",
+        "facePath": "primary-faces/8a6951d211712f1a.txt",
         "sentence": null,
         "missing": [
           "anders",
@@ -1618,6 +1676,7 @@
         "cls": "partial",
         "via": "link",
         "host": "web.archive.org",
+        "facePath": "primary-faces/8d49e796cb6a202b.txt",
         "sentence": "Fred Haise (left) and Jim Lovell, the Apollo 11",
         "missing": [],
         "missingSide": "object"
@@ -1638,6 +1697,7 @@
         "cls": "absent",
         "via": "footnote",
         "host": "scientificamerican.com",
+        "facePath": "primary-faces/95211e254c891f1d.txt",
         "sentence": null,
         "missing": [
           "portion",
@@ -1662,6 +1722,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -1687,6 +1748,7 @@
         "cls": "absent",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/d90af7e1cfbe0bed.txt",
         "sentence": null,
         "missing": [
           "circular",
@@ -1714,6 +1776,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/eaab29993dab83f8.txt",
         "sentence": "Apollo 11 Mission Overview",
         "missing": [
           "fuel"
@@ -1744,6 +1807,7 @@
         "cls": "absent",
         "via": "footnote",
         "host": "nasa.gov",
+        "facePath": "primary-faces/d90af7e1cfbe0bed.txt",
         "sentence": null,
         "missing": [
           "behind",
@@ -1775,6 +1839,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -1799,6 +1864,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -1821,6 +1887,7 @@
         "cls": "absent",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/936e909fa8565609.txt",
         "sentence": null,
         "missing": [
           "apollo",
@@ -1851,6 +1918,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -1873,6 +1941,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -1896,6 +1965,7 @@
         "cls": "partial",
         "via": "link",
         "host": "airandspace.si.edu",
+        "facePath": "primary-faces/360236aa71c7a2bb.txt",
         "sentence": "Mockup, Lunar Module, Apollo",
         "missing": [
           "kilometers"
@@ -1919,6 +1989,7 @@
         "cls": "absent",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/f0846504330bc332.txt",
         "sentence": null,
         "missing": [
           "frank",
@@ -1942,6 +2013,7 @@
         "cls": "same-sentence",
         "via": "link",
         "host": "web.archive.org",
+        "facePath": "primary-faces/8d49e796cb6a202b.txt",
         "sentence": "See also, procedures for CSC use from the Apollo 11 Final Lunar Surface Procedures volume , in which we learn that the \"ring\" was part of the \"lip/bag assembly\".",
         "missing": null,
         "missingSide": null,
@@ -1969,6 +2041,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/6b5d76cb58d6c60b.txt",
         "sentence": "The Apollo 11 liftoff from the Moon came early, ending a 22-hour stay on the Moon by Armstrong and Aldrin.",
         "missing": [
           "close",
@@ -1994,6 +2067,7 @@
         "cls": "absent",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/26120f15d911a264.txt",
         "sentence": null,
         "missing": [
           "armalcolite",
@@ -2017,6 +2091,7 @@
         "cls": "window",
         "via": "link",
         "host": "airandspace.si.edu",
+        "facePath": "primary-faces/badc2b15566c31e0.txt",
         "sentence": "But two of the items are especially timely. Both have been placed on display as part of the recently opened temporary exhibition Outside the Spacecraft: 50 Years of Extra-Vehicular Activity . The first is the 16mm Data Acquisition Camera that was mounted in the window of the lunar module Eagle to record the historic landing and “one small step” made by Armstrong as humankind first set foot on another world.",
         "missing": null,
         "missingSide": null
@@ -2040,6 +2115,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/26120f15d911a264.txt",
         "sentence": "With a half-Earth in the background, the Lunar Module ascent stage with Moon-walking astronauts Neil Armstrong and Edwin Aldrin Jr.",
         "missing": [
           "aboard",
@@ -2069,6 +2145,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/26120f15d911a264.txt",
         "sentence": "The Apollo 11 liftoff from the Moon came early, ending a 22-hour stay on the Moon by Armstrong and Aldrin.",
         "missing": [
           "themselves",
@@ -2098,6 +2175,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/26120f15d911a264.txt",
         "sentence": "With a half-Earth in the background, the Lunar Module ascent stage with Moon-walking astronauts Neil Armstrong and Edwin Aldrin Jr.",
         "missing": [
           "off",
@@ -2123,6 +2201,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/26120f15d911a264.txt",
         "sentence": "With a half-Earth in the background, the Lunar Module ascent stage with Moon-walking astronauts Neil Armstrong and Edwin Aldrin Jr.",
         "missing": [
           "outside"
@@ -2149,6 +2228,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -2171,6 +2251,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/f0846504330bc332.txt",
         "sentence": "NASA Will Attempt to Observe Rocket Part’s Lunar Impact",
         "missing": [
           "notoriously",
@@ -2202,6 +2283,7 @@
         "cls": "absent",
         "via": "footnote",
         "host": "nasa.gov",
+        "facePath": "primary-faces/fd29533beca320c0.txt",
         "sentence": null,
         "missing": [
           "initially",
@@ -2232,6 +2314,7 @@
         "cls": "same-sentence",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/cf81fc278355b46c.txt",
         "sentence": "Armstrong and Aldrin had served on the backup crew for Apollo 8 the previous December and Collins was initially a member of that crew until a bone spur in his spine requiring surgery sidelined him.",
         "missing": null,
         "missingSide": null,
@@ -2260,6 +2343,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -2286,6 +2370,7 @@
         "cls": "partial",
         "via": "link",
         "host": "collectspace.com",
+        "facePath": "primary-faces/85694a820afc4db3.txt",
         "sentence": "Neil Armstrong's sons help open exhibit of father's spacecraft in Ohio",
         "missing": [
           "donald",
@@ -2318,6 +2403,7 @@
         "cls": "partial",
         "via": "link",
         "host": "web.archive.org",
+        "facePath": "primary-faces/e8da2a0bc4ed6525.txt",
         "sentence": "Post-landing Activities",
         "missing": [
           "completion",
@@ -2342,6 +2428,7 @@
         "cls": "absent",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/26120f15d911a264.txt",
         "sentence": null,
         "missing": [
           "individual",
@@ -2371,6 +2458,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -2396,6 +2484,7 @@
         "cls": "absent",
         "via": "link",
         "host": "curator.jsc.nasa.gov",
+        "facePath": "primary-faces/5d5dc5e7d5c940df.txt",
         "sentence": null,
         "missing": [
           "armstrong",
@@ -2428,6 +2517,7 @@
         "cls": "partial",
         "via": "link",
         "host": "collectspace.com",
+        "facePath": "primary-faces/4daa09090f5690eb.txt",
         "sentence": "Since 2005, collectSPACE has attempted to locate the current whereabouts of all the Apollo 11 lunar sample displays.",
         "missing": [
           "armstrong",
@@ -2453,6 +2543,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/26120f15d911a264.txt",
         "sentence": "With a half-Earth in the background, the Lunar Module ascent stage with Moon-walking astronauts Neil Armstrong and Edwin Aldrin Jr.",
         "missing": [
           "2012"
@@ -2493,6 +2584,7 @@
         "cls": "partial",
         "via": "footnote",
         "host": "space.com",
+        "facePath": "primary-faces/6ba34c6ddae12ae1.txt",
         "sentence": "In his reply, Armstrong, who was commander of the Apollo 11 flight, explained the main reasons for traversing such a small distance, which include the extremely high temperatures on the lunar surface, uncertainties surrounding how the astronauts' spacesuits with their water-cooled interiors would hold up, and requirements from NASA that the two astronauts perform experiments in front of a fixed camera.",
         "missing": [
           "empirical",
@@ -2527,6 +2619,7 @@
         "cls": "partial",
         "via": "link",
         "host": "airandspace.si.edu",
+        "facePath": "primary-faces/badc2b15566c31e0.txt",
         "sentence": "After a close examination of detailed photographs taken when the objects were in the Armstrong family’s possession and after they were shipped for cataloging and research to the National Air and Space Museum, the ALSJ experts were able to determine with almost complete certainty that all of the items were indeed from the Eagle, and that — although they were formally scheduled to be left behind — they were assembled in the Temporary Stowage Bag and saved from the fate that awaited Eagle’s ascent stage and all of its contents: crashing into the lunar surface.",
         "missing": [
           "descent",
@@ -2554,6 +2647,7 @@
         "cls": "partial",
         "via": "link",
         "host": "space.com",
+        "facePath": "primary-faces/6ba34c6ddae12ae1.txt",
         "sentence": "A former naval aviator, NASA test pilot and Apollo 11 commander, Armstrong was the first human to ever land a spacecraft on the moon and the first to step on the lunar surface.",
         "missing": [
           "clear",
@@ -2583,6 +2677,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/f0846504330bc332.txt",
         "sentence": "In April 1989, Jones sat down with Apollo 17 astronaut Harrison H. Schmitt, and over three days they worked together to thoroughly review a portion of the Apollo 17 activities on the Moon.",
         "missing": [
           "issues",
@@ -2610,6 +2705,7 @@
         "cls": "absent",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/4d2be2b4199b336f.txt",
         "sentence": null,
         "missing": [
           "say",
@@ -2641,6 +2737,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/5a5fe281600f6cf1.txt",
         "sentence": "50 Years Ago: Lunar Landing Sites Selected",
         "missing": [
           "armstrong",
@@ -2677,6 +2774,7 @@
         "cls": "absent",
         "via": "footnote",
         "host": "nasa.gov",
+        "facePath": "primary-faces/4d2be2b4199b336f.txt",
         "sentence": null,
         "missing": [
           "ring",
@@ -2713,6 +2811,7 @@
         "cls": "absent",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/26120f15d911a264.txt",
         "sentence": null,
         "missing": [
           "bag",
@@ -2741,6 +2840,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -2763,6 +2863,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/26120f15d911a264.txt",
         "sentence": "With a half-Earth in the background, the Lunar Module ascent stage with Moon-walking astronauts Neil Armstrong and Edwin Aldrin Jr.",
         "missing": [
           "moving",
@@ -2793,6 +2894,7 @@
         "cls": "absent",
         "via": "footnote",
         "host": "nasa.gov",
+        "facePath": "primary-faces/4d2be2b4199b336f.txt",
         "sentence": null,
         "missing": [
           "off",
@@ -2821,6 +2923,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/26120f15d911a264.txt",
         "sentence": "The Apollo 11 liftoff from the Moon came early, ending a 22-hour stay on the Moon by Armstrong and Aldrin.",
         "missing": [
           "him"
@@ -2845,6 +2948,7 @@
         "cls": "partial",
         "via": "link",
         "host": "airandspace.si.edu",
+        "facePath": "primary-faces/badc2b15566c31e0.txt",
         "sentence": "The first is the 16mm Data Acquisition Camera that was mounted in the window of the lunar module Eagle to record the historic landing and “one small step” made by Armstrong as humankind first set foot on another world.",
         "missing": [
           "plaque",
@@ -2873,6 +2977,7 @@
         "cls": "absent",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/26120f15d911a264.txt",
         "sentence": null,
         "missing": [
           "concerned",
@@ -2903,6 +3008,7 @@
         "cls": "absent",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/26120f15d911a264.txt",
         "sentence": null,
         "missing": [
           "supposed",
@@ -2930,6 +3036,7 @@
         "cls": "partial",
         "via": "footnote",
         "host": "collectspace.com",
+        "facePath": "primary-faces/f7ee769d9d5b8cb5.txt",
         "sentence": "Also on display here was a control panel and power-generating fuel cell from an Apollo command module, as well as the backup unit to the first astronomical observatory to be deployed on the moon.",
         "missing": [],
         "missingSide": "object",
@@ -2956,6 +3063,7 @@
         "cls": "partial",
         "via": "link",
         "host": "web.archive.org",
+        "facePath": "primary-faces/4f69a8cb8bb11499.txt",
         "sentence": "Lunney first became aware of the work being\ndone in manned space flight after viewing a preliminary drawing of\nwhat later became the Mercury spacecraft.",
         "missing": [
           "armstrong",
@@ -2982,6 +3090,7 @@
         "cls": "partial",
         "via": "link",
         "host": "web.archive.org",
+        "facePath": "primary-faces/4236d843fa4262eb.txt",
         "sentence": "But if I were to say, my fellow citizens, that we shall send to the moon,\n240,000 miles away from the control station in Houston, a giant rocket more than 300 feet tall, the length of this football field,\nmade of new metal alloys, some of which have not yet been invented, capable of standing heat and stresses several times more\nthan have ever been experienced, fitted together with a precision better than the finest watch, carrying all the equipment needed\nfor propulsion, guidance, control, communications, food and survival, on an untried mission, to an unknown celestial body, and\nthen return it safely to earth, re-entering the atmosphere at speeds of over 25,000 miles per hour, causing heat about half that of\nthe temperature of the sun--almost as hot as it is here today--and do all this, and do it right, and do it first before this decade is\nout--then we must be bold.",
         "missing": [
           "orbit"
@@ -3009,6 +3118,7 @@
         "cls": "partial",
         "via": "footnote",
         "host": "web.archive.org",
+        "facePath": "primary-faces/e27dd7964124dd57.txt",
         "sentence": "Buzz's statement about a walking return refers to the concept of emergency walk-back in which the astronaut would walk back to the LM in the event of a Rover failure.",
         "missing": [
           "metabolic"
@@ -3037,6 +3147,7 @@
         "cls": "absent",
         "via": "link",
         "host": "ntrs.nasa.gov",
+        "facePath": "primary-faces/5d73847fda12b23e.txt",
         "sentence": null,
         "missing": [
           "assembly",
@@ -3069,6 +3180,7 @@
         "cls": "absent",
         "via": "link",
         "host": "web.archive.org",
+        "facePath": "primary-faces/d04103f5856bac2f.txt",
         "sentence": null,
         "missing": [
           "assistant",
@@ -3109,6 +3221,7 @@
         "cls": "partial",
         "via": "footnote",
         "host": "archives.nyc",
+        "facePath": "primary-faces/3707d37aca4d53ab.txt",
         "sentence": "New York City ticker-tape parade for the Apollo 11 Astronauts, and receptions at City Hall and the United Nations, with Mayor John V. Lindsay, August 13, 1969.",
         "missing": [
           "headquarters"
@@ -3137,6 +3250,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/9190e06d76b22bc8.txt",
         "sentence": "- Lunar Surface Technology",
         "missing": [
           "pathogens",
@@ -3166,6 +3280,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/86570537bec568ff.txt",
         "sentence": "Right: Apollo 11 astronauts await the recovery helicopter with the decontamination officer, all wearing BIGs.",
         "missing": [
           "reached"
@@ -3197,6 +3312,7 @@
         "cls": "partial",
         "via": "link",
         "host": "web.archive.org",
+        "facePath": "primary-faces/8d49e796cb6a202b.txt",
         "sentence": "background is the deployed black and white lunar surface",
         "missing": [],
         "missingSide": "object"
@@ -3219,6 +3335,7 @@
         "cls": "no-lead",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -3241,6 +3358,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -3266,6 +3384,7 @@
         "cls": "absent",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/f0846504330bc332.txt",
         "sentence": null,
         "missing": [
           "broadway",
@@ -3297,6 +3416,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/c77f56303107df45.txt",
         "sentence": "President Barack Obama chats with Apollo 11 astronauts, from left, Buzz Aldrin, Michael Collins and Neil Armstrong, Monday, July 20, 2009, in the Oval Office of the White House in Washington, on the 40th anniversary of the Apollo 11 lunar landing.",
         "missing": [
           "officially",
@@ -3323,6 +3443,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/9190e06d76b22bc8.txt",
         "sentence": "- Lunar Surface Technology",
         "missing": [
           "buzz"
@@ -3348,6 +3469,7 @@
         "cls": "absent",
         "via": "footnote",
         "host": "web.archive.org",
+        "facePath": "primary-faces/4f1ed9698100bfbc.txt",
         "sentence": null,
         "missing": [
           "new",
@@ -3380,6 +3502,7 @@
         "cls": "partial",
         "via": "link",
         "host": "bbc.co.uk",
+        "facePath": "primary-faces/03b3ab122bf87b56.txt",
         "sentence": "Amazon founder Jeff Bezos says he has located the long-submerged F-1 engines that blasted the Apollo 11 Moon mission into space.",
         "missing": [
           "launched"
@@ -3406,6 +3529,7 @@
         "cls": "partial",
         "via": "footnote",
         "host": "web.archive.org",
+        "facePath": "primary-faces/a0d8c787f8a88998.txt",
         "sentence": "Neil Armstrong, the first man to walk on the moon, secretly took home a bag of mementos from the mission including the camera used to film his \"one small step\" and the planting of the US flag on the lunar surface.",
         "missing": [
           "landing"
@@ -3431,6 +3555,7 @@
         "cls": "same-sentence",
         "via": "footnote",
         "host": "web.archive.org",
+        "facePath": "primary-faces/4236d843fa4262eb.txt",
         "sentence": "We choose to go to the moon in this decade and do the other things, not because they are\neasy, but because they are hard, because that goal will serve to organize and measure the best of our energies and skills,\nbecause that challenge is one that we are willing to accept, one we are unwilling to postpone, and one which we intend to win,\nand the others, too.",
         "missing": null,
         "missingSide": null,
@@ -3456,6 +3581,7 @@
         "cls": "absent",
         "via": "link",
         "host": "ntrs.nasa.gov",
+        "facePath": "primary-faces/79a835c6a3df9e65.txt",
         "sentence": null,
         "missing": [
           "charlesworth",
@@ -3487,6 +3613,7 @@
         "cls": "absent",
         "via": "link",
         "host": "cambridge.org",
+        "facePath": "primary-faces/27af64af0d94b3a8.txt",
         "sentence": null,
         "missing": [
           "chris",
@@ -3517,6 +3644,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/9190e06d76b22bc8.txt",
         "sentence": "With a half-Earth in the background, the Lunar Module ascent stage with Moon-walking astronauts Neil Armstrong and Edwin Aldrin Jr.",
         "missing": [
           "distance"
@@ -3539,6 +3667,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -3560,6 +3689,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/eaab29993dab83f8.txt",
         "sentence": "- Missions",
         "missing": [],
         "missingSide": "object"
@@ -3584,6 +3714,7 @@
         "cls": "absent",
         "via": "link",
         "host": "science.nasa.gov",
+        "facePath": "primary-faces/71653e4d2df860fa.txt",
         "sentence": null,
         "missing": [
           "collins",
@@ -3609,6 +3740,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -3633,6 +3765,7 @@
         "cls": "same-sentence",
         "via": "footnote",
         "host": "nasa.gov",
+        "facePath": "primary-faces/c77f56303107df45.txt",
         "sentence": "President Barack Obama chats with Apollo 11 astronauts, from left, Buzz Aldrin, Michael Collins and Neil Armstrong, Monday, July 20, 2009, in the Oval Office of the White House in Washington, on the 40th anniversary of the Apollo 11 lunar landing.",
         "missing": null,
         "missingSide": null,
@@ -3667,6 +3800,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -3690,6 +3824,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/cf81fc278355b46c.txt",
         "sentence": "The prime crew consisted of Commander Neil A. Armstrong, Command Module Pilot (CMP) Michael Collins, and Lunar Module Pilot (LMP) Edwin E. “Buzz” Aldrin.",
         "missing": [],
         "missingSide": "object"
@@ -3713,6 +3848,7 @@
         "cls": "partial",
         "via": "link",
         "host": "presidency.ucsb.edu",
+        "facePath": "primary-faces/52563efaf873d1f3.txt",
         "sentence": "Remarks to Apollo 11 Astronauts Aboard the U.S.S. Hornet Following Completion of Their Lunar Mission.",
         "missing": [
           "orbit",
@@ -3737,6 +3873,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/03a97e93a8e6b09d.txt",
         "sentence": "approaches for a rendezvous with the Apollo Command Module manned by Michael Collins.",
         "missing": [
           "rested"
@@ -3762,6 +3899,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -3788,6 +3926,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -3812,6 +3951,7 @@
         "cls": "absent",
         "via": "link",
         "host": "web.archive.org",
+        "facePath": "primary-faces/a0d8c787f8a88998.txt",
         "sentence": null,
         "missing": [
           "columbia",
@@ -3842,6 +3982,7 @@
         "cls": "absent",
         "via": "link",
         "host": "ntrs.nasa.gov",
+        "facePath": "primary-faces/9c3ac072b80c2b4d.txt",
         "sentence": null,
         "missing": [
           "columbia",
@@ -3877,6 +4018,7 @@
         "cls": "absent",
         "via": "link",
         "host": "web.archive.org",
+        "facePath": "primary-faces/4f69a8cb8bb11499.txt",
         "sentence": null,
         "missing": [
           "columbia",
@@ -3914,6 +4056,7 @@
         "cls": "absent",
         "via": "link",
         "host": "airandspace.si.edu",
+        "facePath": "primary-faces/1054ff3aebfb6939.txt",
         "sentence": null,
         "missing": [
           "moved",
@@ -3945,6 +4088,7 @@
         "cls": "absent",
         "via": "link",
         "host": "airandspace.si.edu",
+        "facePath": "primary-faces/1054ff3aebfb6939.txt",
         "sentence": null,
         "missing": [
           "taken",
@@ -3971,6 +4115,7 @@
         "cls": "partial",
         "via": "link",
         "host": "airandspace.si.edu",
+        "facePath": "primary-faces/1054ff3aebfb6939.txt",
         "sentence": "The Last Time the Command Module Columbia Toured",
         "missing": [
           "training"
@@ -3996,6 +4141,7 @@
         "cls": "absent",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/362ed43e9c0cc643.txt",
         "sentence": null,
         "missing": [
           "communion",
@@ -4031,6 +4177,7 @@
         "cls": "partial",
         "via": "link",
         "host": "klabs.org",
+        "facePath": "primary-faces/f42a6e08a420d62f.txt",
         "sentence": "The story of what happened there has often been told � how it fell to a\n26-year-old mission control guidance officer named Steve Bales to say \"go\"\nor \"abort\".",
         "missing": [],
         "missingSide": "object"
@@ -4052,6 +4199,7 @@
         "cls": "absent",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/64abb6dbdb57e0a8.txt",
         "sentence": null,
         "missing": [
           "construction",
@@ -4080,6 +4228,7 @@
         "cls": "absent",
         "via": "link",
         "host": "web.archive.org",
+        "facePath": "primary-faces/4796d5c3d27b56a2.txt",
         "sentence": null,
         "missing": [
           "cosmonaut",
@@ -4111,6 +4260,7 @@
         "cls": "absent",
         "via": "link",
         "host": "ntrs.nasa.gov",
+        "facePath": "primary-faces/9c3ac072b80c2b4d.txt",
         "sentence": null,
         "missing": [
           "dawn",
@@ -4142,6 +4292,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -4165,6 +4316,7 @@
         "cls": "absent",
         "via": "link",
         "host": "archives.gov",
+        "facePath": "primary-faces/b1f6b4fc55dee644.txt",
         "sentence": null,
         "missing": [
           "disenfranchised",
@@ -4192,6 +4344,7 @@
         "cls": "absent",
         "via": "link",
         "host": "web.archive.org",
+        "facePath": "primary-faces/4f69a8cb8bb11499.txt",
         "sentence": null,
         "missing": [
           "duke",
@@ -4219,6 +4372,7 @@
         "cls": "window",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/cf81fc278355b46c.txt",
         "sentence": "On Jan. 9, 1969, NASA formally announced the crew for the Apollo 11 mission, scheduled for July of that year. Planned as the fifth crewed Apollo mission, if all went well on the two flights preceding it, Apollo 11 would attempt the first human lunar landing, fulfilling President John F. Kennedy’s goal of landing a man on the Moon and returning him safely to the Earth. The next day, NASA introduced the Apollo 11 crew during a press conference at the Manned Spacecraft Center, now the Johnson Space Center in Houston.",
         "missing": null,
         "missingSide": null
@@ -4242,6 +4396,7 @@
         "cls": "window",
         "via": "link",
         "host": "collectspace.com",
+        "facePath": "primary-faces/4daa09090f5690eb.txt",
         "sentence": "advertisements In November 1969, then-U.S. President Richard Nixon requested that NASA create approximately 250 displays containing lunar surface material and the flags of 135 nations, U.S. possessions and states. Each presentation included 0.05 grams of Apollo 11 moon dust, in the form of four small pieces encased in an acrylic button, as well as the flag of the recipient nation or state, also flown on the first manned lunar landing mission.",
         "missing": null,
         "missingSide": null
@@ -4264,6 +4419,7 @@
         "cls": "same-sentence",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/cf81fc278355b46c.txt",
         "sentence": "The Apollo 11 backup crew of Commander James A. Lovell, CMP William A. Anders, and LMP Fred W. Haise, would be ready to fly the mission in case something happened to the prime crew.",
         "missing": null,
         "missingSide": null,
@@ -4288,6 +4444,7 @@
         "cls": "partial",
         "via": "link",
         "host": "arxiv.org",
+        "facePath": "primary-faces/ac8d77211342568b.txt",
         "sentence": "Title: Long-term Orbit Stability of the Apollo 11 Eagle Lunar Module Ascent Stage",
         "missing": [
           "approaching",
@@ -4314,6 +4471,7 @@
         "cls": "morphology+window",
         "via": "footnote",
         "host": "nasa.gov",
+        "facePath": "primary-faces/eaab29993dab83f8.txt",
         "sentence": "Two hours, 44 minutes and one-and-a-half revolutions after launch, the S-IVB stage reignited for a second burn of five minutes, 48 seconds, placing Apollo 11 into a translunar orbit. The command and service module, or CSM, Columbia separated from the stage, which included the spacecraft-lunar module adapter, or SLA, containing the lunar module, or LM, Eagle. After transposition and jettisoning of the SLA panels on the S-IVB stage, the CSM docked with the LM.",
         "missing": null,
         "missingSide": null
@@ -4334,6 +4492,7 @@
         "cls": "absent",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/f0846504330bc332.txt",
         "sentence": null,
         "missing": [
           "eagle",
@@ -4365,6 +4524,7 @@
         "cls": "partial",
         "via": "footnote",
         "host": "nasa.gov",
+        "facePath": "primary-faces/9190e06d76b22bc8.txt",
         "sentence": "Schmitt then introduced Jones to the other 11 Apollo astronauts who walked on the lunar surface, and over many, many hours the astronauts participated in recorded sessions, detailing every aspect of their missions.",
         "missing": [
           "eagle",
@@ -4396,6 +4556,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -4423,6 +4584,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -4445,6 +4607,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -4467,6 +4630,7 @@
         "cls": "partial",
         "via": "link",
         "host": "airandspace.si.edu",
+        "facePath": "primary-faces/8a6951d211712f1a.txt",
         "sentence": "The Apollo 11 Command Module, \"Columbia,\" was the living quarters for the three-person crew during most of the first crewed lunar landing mission in July 1969.",
         "missing": [
           "utc"
@@ -4489,6 +4653,7 @@
         "cls": "absent",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/f0846504330bc332.txt",
         "sentence": null,
         "missing": [
           "eagle",
@@ -4513,6 +4678,7 @@
         "cls": "absent",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/f0846504330bc332.txt",
         "sentence": null,
         "missing": [
           "eagle",
@@ -4543,6 +4709,7 @@
         "cls": "partial",
         "via": "link",
         "host": "web.archive.org",
+        "facePath": "primary-faces/4f69a8cb8bb11499.txt",
         "sentence": "In 1975, he\nbecame manager of the Shuttle Payload Integration and Development\nProgram.",
         "missing": [
           "gemini",
@@ -4574,6 +4741,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -4595,6 +4763,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -4616,6 +4785,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/362ed43e9c0cc643.txt",
         "sentence": "Inspired by the work of historian J.C. Beaglehole, who annotated the expedition journals of explorer Captain James Cook, Jones saw the potential to do the same with the Apollo Moon-landing transcripts.",
         "missing": [
           "1969"
@@ -4643,6 +4813,7 @@
         "cls": "partial",
         "via": "footnote",
         "host": "nasa.gov",
+        "facePath": "primary-faces/5a5fe281600f6cf1.txt",
         "sentence": "- Site One: 34o East, 2o40” North, in the Sea of Tranquility ( Mare Tranquilitatis );",
         "missing": [
           "tranquillitatis"
@@ -4675,6 +4846,7 @@
         "cls": "partial",
         "via": "link",
         "host": "web.archive.org",
+        "facePath": "primary-faces/4f69a8cb8bb11499.txt",
         "sentence": "Apollo 7 MCC Activity-Flight Director\nGlynn Lunney is seated at his console in the Mission Operations\nControl Room in the Mission Control Center at Houston on the first\nday of the Apollo 7 mission, October 11, 1968.",
         "missing": [
           "pressure",
@@ -4701,6 +4873,7 @@
         "cls": "absent",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/3fe0de76afd9658b.txt",
         "sentence": null,
         "missing": [
           "fred",
@@ -4728,6 +4901,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/86570537bec568ff.txt",
         "sentence": "Johnson Space Center",
         "missing": [
           "39a"
@@ -4752,6 +4926,7 @@
         "cls": "partial",
         "via": "footnote",
         "host": "weather.gov",
+        "facePath": "primary-faces/0cebfe3ce99f1763.txt",
         "sentence": "Edouard will continue to bring gusty winds, heavy rainfall, and a flash flood threat over parts of eastern Texas.",
         "missing": [
           "broken"
@@ -4780,6 +4955,7 @@
         "cls": "absent",
         "via": "link",
         "host": "presidency.ucsb.edu",
+        "facePath": "primary-faces/8dba1bffe2e2311d.txt",
         "sentence": null,
         "missing": [
           "stage",
@@ -4806,6 +4982,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/64abb6dbdb57e0a8.txt",
         "sentence": "NASA’s Dark Universe-Seeking Nancy Grace Roman Space Telescope Launches",
         "missing": [
           "fueling"
@@ -4829,6 +5006,7 @@
         "cls": "absent",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/4afd44f7819efef6.txt",
         "sentence": null,
         "missing": [
           "george",
@@ -4852,6 +5030,7 @@
         "cls": "no-lead",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -4873,6 +5052,7 @@
         "cls": "absent",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/26120f15d911a264.txt",
         "sentence": null,
         "missing": [
           "greg",
@@ -4901,6 +5081,7 @@
         "cls": "absent",
         "via": "link",
         "host": "airandspace.si.edu",
+        "facePath": "primary-faces/1054ff3aebfb6939.txt",
         "sentence": null,
         "missing": [
           "haise",
@@ -4930,6 +5111,7 @@
         "cls": "partial",
         "via": "footnote",
         "host": "nasa.gov",
+        "facePath": "primary-faces/64abb6dbdb57e0a8.txt",
         "sentence": "NASA’s Dark Universe-Seeking Nancy Grace Roman Space Telescope Launches",
         "missing": [
           "haise",
@@ -4956,6 +5138,7 @@
         "cls": "partial",
         "via": "link",
         "host": "web.archive.org",
+        "facePath": "primary-faces/8d49e796cb6a202b.txt",
         "sentence": "Fred Haise (left) and Jim Lovell, the Apollo 11",
         "missing": [],
         "missingSide": "object"
@@ -4982,6 +5165,7 @@
         "cls": "partial",
         "via": "link",
         "host": "web.archive.org",
+        "facePath": "primary-faces/8d49e796cb6a202b.txt",
         "sentence": "Journal Contributor Paul White has made detailed comparisons of cloud patterns seen in a large number of Apollo images with imagery taken at close to the same time by various meteorlogical satellites.",
         "missing": [
           "brandli",
@@ -5007,6 +5191,7 @@
         "cls": "absent",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/26120f15d911a264.txt",
         "sentence": null,
         "missing": [
           "face",
@@ -5035,6 +5220,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -5061,6 +5247,7 @@
         "cls": "absent",
         "via": "link",
         "host": "web.archive.org",
+        "facePath": "primary-faces/4f69a8cb8bb11499.txt",
         "sentence": null,
         "missing": [
           "hirasaki",
@@ -5090,6 +5277,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/936e909fa8565609.txt",
         "sentence": "NASA’s LRO Images Falcon 9 Crater on Moon, Learns New Details",
         "missing": [
           "site"
@@ -5121,6 +5309,7 @@
         "cls": "absent",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/cf81fc278355b46c.txt",
         "sentence": null,
         "missing": [
           "ten",
@@ -5157,6 +5346,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/86570537bec568ff.txt",
         "sentence": "The aircraft carrier USS Hornet (CVS-12), the prime recovery ship for Apollo 11, was speeding for the new splashdown target area.",
         "missing": [
           "central"
@@ -5182,6 +5372,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/86570537bec568ff.txt",
         "sentence": "From Johnston Island, they flew aboard Marine helicopters to the communications relay ship USS Arlington (AGMR-2), where they spent the night before helicoptering to Hornet early on splashdown day.",
         "missing": [
           "sikorsky",
@@ -5210,6 +5401,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/86570537bec568ff.txt",
         "sentence": "From Johnston Island, they flew aboard Marine helicopters to the communications relay ship USS Arlington (AGMR-2), where they spent the night before helicoptering to Hornet early on splashdown day.",
         "missing": [
           "king",
@@ -5236,6 +5428,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/86570537bec568ff.txt",
         "sentence": "Once Columbia was aboard, Hornet set sail for Pearl Harbor, Hawaii.",
         "missing": [],
         "missingSide": "object"
@@ -5259,6 +5452,7 @@
         "cls": "partial",
         "via": "link",
         "host": "presidency.ucsb.edu",
+        "facePath": "primary-faces/52563efaf873d1f3.txt",
         "sentence": "Remarks to Apollo 11 Astronauts Aboard the U.S.S. Hornet Following Completion of Their Lunar Mission.",
         "missing": [
           "alongside",
@@ -5285,6 +5479,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/86570537bec568ff.txt",
         "sentence": "Left: Overall view of Hornet’s hangar bay where President Nixon welcomed home the Apollo 11 astronauts, sealed in the MQF.",
         "missing": [
           "long",
@@ -5307,6 +5502,7 @@
         "cls": "absent",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/64abb6dbdb57e0a8.txt",
         "sentence": null,
         "missing": [
           "countdown"
@@ -5333,6 +5529,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/d90af7e1cfbe0bed.txt",
         "sentence": "While Jones’s project cataloged astronaut activities on the lunar surface, this journal, supplemented by numerous contributors from around the world, covers all portions of the crewed Apollo flights that did not take place on the Moon.",
         "missing": [
           "uncrewed",
@@ -5359,6 +5556,7 @@
         "cls": "absent",
         "via": "link",
         "host": "ntrs.nasa.gov",
+        "facePath": "primary-faces/5d73847fda12b23e.txt",
         "sentence": null,
         "missing": [
           "ivb",
@@ -5400,6 +5598,7 @@
         "cls": "absent",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/26120f15d911a264.txt",
         "sentence": null,
         "missing": [
           "ken",
@@ -5444,6 +5643,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -5466,6 +5666,7 @@
         "cls": "partial",
         "via": "link",
         "host": "web.archive.org",
+        "facePath": "primary-faces/4236d843fa4262eb.txt",
         "sentence": "This year�s space budget is three times what it was in January 1961, and\nit is greater than the space budget of the previous eight years combined.",
         "missing": [],
         "missingSide": "object"
@@ -5492,6 +5693,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/babb9aea763ba359.txt",
         "sentence": "-\nExcerpt from the \"Special Message to the Congress on Urgent National Needs\"",
         "missing": [
           "declared"
@@ -5515,6 +5717,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -5536,6 +5739,7 @@
         "cls": "window",
         "via": "link",
         "host": "scientificamerican.com",
+        "facePath": "primary-faces/95211e254c891f1d.txt",
         "sentence": "The Cold War between the U.S. and the U.S.S.R. formed the backdrop of the Apollo program, as the two superpowers jockeyed for preeminence in space . Under premier Nikita Khrushchev, the Soviet Union had succeeded in launching Sputnik 1 , the first artificial satellite, and sending the first man into orbit. Reeling from a succession of Soviet space firsts, President John F. Kennedy promised that the U.S. would be first to send humans to the moon and return them to Earth before the end of the 1960s.",
         "missing": null,
         "missingSide": null
@@ -5558,6 +5762,7 @@
         "cls": "window",
         "via": "link",
         "host": "web.archive.org",
+        "facePath": "primary-faces/4236d843fa4262eb.txt",
         "sentence": "John F. Kennedy Moon Speech - Rice Stadium September 12, 1962 Movie clips of JFK speaking at Rice University:\n(.mov) or\n(.avi) (833K)",
         "missing": null,
         "missingSide": null
@@ -5578,6 +5783,7 @@
         "cls": "partial",
         "via": "link",
         "host": "scientificamerican.com",
+        "facePath": "primary-faces/95211e254c891f1d.txt",
         "sentence": "The Moon Landing through Soviet Eyes: A Q&A with Sergei Khrushchev, son of former premier Nikita Khrushchev",
         "missing": [
           "offer"
@@ -5602,6 +5808,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/9190e06d76b22bc8.txt",
         "sentence": "Astronaut Harrison H. Schmitt, Apollo 17 lunar module pilot, stands near the deployed United States flag on the lunar surface during NASA’s final lunar landing mission in the Apollo series.",
         "missing": [
           "gear",
@@ -5629,6 +5836,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -5650,6 +5858,7 @@
         "cls": "absent",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/9190e06d76b22bc8.txt",
         "sentence": null,
         "missing": [
           "complete",
@@ -5682,6 +5891,7 @@
         "cls": "absent",
         "via": "link",
         "host": "archive.org",
+        "facePath": "primary-faces/bd238c38f301d454.txt",
         "sentence": null,
         "missing": [
           "late",
@@ -5718,6 +5928,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/64abb6dbdb57e0a8.txt",
         "sentence": "NASA’s Dark Universe-Seeking Nancy Grace Roman Space Telescope Launches",
         "missing": [
           "operations",
@@ -5742,6 +5953,7 @@
         "cls": "partial",
         "via": "link",
         "host": "web.archive.org",
+        "facePath": "primary-faces/4f69a8cb8bb11499.txt",
         "sentence": "(NASA Photo\nS-68-49299.",
         "missing": [
           "list"
@@ -5774,6 +5986,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -5800,6 +6013,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/936e909fa8565609.txt",
         "sentence": "International Space Station",
         "missing": [
           "loose",
@@ -5829,6 +6043,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/cf81fc278355b46c.txt",
         "sentence": "Armstrong and Aldrin had served on the backup crew for Apollo 8 the previous December and Collins was initially a member of that crew until a bone spur in his spine requiring surgery sidelined him.",
         "missing": [],
         "missingSide": "object"
@@ -5851,6 +6066,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/cf81fc278355b46c.txt",
         "sentence": "The Apollo 11 backup crew of Commander James A. Lovell, CMP William A. Anders, and LMP Fred W. Haise, would be ready to fly the mission in case something happened to the prime crew.",
         "missing": [
           "place"
@@ -5873,6 +6089,7 @@
         "cls": "partial",
         "via": "footnote",
         "host": "science.nasa.gov",
+        "facePath": "primary-faces/71653e4d2df860fa.txt",
         "sentence": "- Lunar Science",
         "missing": [
           "utc"
@@ -5900,6 +6117,7 @@
         "cls": "absent",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/9190e06d76b22bc8.txt",
         "sentence": null,
         "missing": [
           "geology",
@@ -5931,6 +6149,7 @@
         "cls": "absent",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/362ed43e9c0cc643.txt",
         "sentence": null,
         "missing": [
           "samples",
@@ -5959,6 +6178,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/9190e06d76b22bc8.txt",
         "sentence": "- Lunar Surface Technology",
         "missing": [
           "make",
@@ -5988,6 +6208,7 @@
         "cls": "absent",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/9190e06d76b22bc8.txt",
         "sentence": null,
         "missing": [
           "destroyed",
@@ -6016,6 +6237,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/4b75498607aa6b5c.txt",
         "sentence": "While Jones’s project cataloged astronaut activities on the lunar surface, this journal, supplemented by numerous contributors from around the world, covers all portions of the crewed Apollo flights that did not take place on the Moon.",
         "missing": [
           "longer",
@@ -6046,6 +6268,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -6073,6 +6296,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -6103,6 +6327,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/babb9aea763ba359.txt",
         "sentence": "” Four years after the Sputnik shock of 1957, the cosmonaut Yuri Gagarin had become the first human in space on April 12, 1961, greatly embarrassing the U.S. While Alan Shepard became the first American in space on May 5, he only flew on a short suborbital flight instead of orbiting the Earth, as Gagarin had done.",
         "missing": [
           "able",
@@ -6137,6 +6362,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -6158,6 +6384,7 @@
         "cls": "absent",
         "via": "link",
         "host": "web.archive.org",
+        "facePath": "primary-faces/4f69a8cb8bb11499.txt",
         "sentence": null,
         "missing": [
           "minute",
@@ -6189,6 +6416,7 @@
         "cls": "partial",
         "via": "link",
         "host": "web.archive.org",
+        "facePath": "primary-faces/4f69a8cb8bb11499.txt",
         "sentence": "Apollo 7 MCC Activity-Flight Director\nGlynn Lunney is seated at his console in the Mission Operations\nControl Room in the Mission Control Center at Houston on the first\nday of the Apollo 7 mission, October 11, 1968.",
         "missing": [
           "him",
@@ -6218,6 +6446,7 @@
         "cls": "partial",
         "via": "footnote",
         "host": "nasa.gov",
+        "facePath": "primary-faces/6b5d76cb58d6c60b.txt",
         "sentence": "First published online by Jones in mid-1995, the Apollo Lunar Surface Journal provides corrected and annotated transcripts of all the recorded conversations between the astronauts on the lunar surface and mission control in Houston.",
         "missing": [
           "minute",
@@ -6247,6 +6476,7 @@
         "cls": "partial",
         "via": "link",
         "host": "web.archive.org",
+        "facePath": "primary-faces/4f69a8cb8bb11499.txt",
         "sentence": "Apollo 7 MCC Activity-Flight Director\nGlynn Lunney is seated at his console in the Mission Operations\nControl Room in the Mission Control Center at Houston on the first\nday of the Apollo 7 mission, October 11, 1968.",
         "missing": [
           "collins",
@@ -6276,6 +6506,7 @@
         "cls": "partial",
         "via": "link",
         "host": "klabs.org",
+        "facePath": "primary-faces/f42a6e08a420d62f.txt",
         "sentence": "ABSTRACT : The Apollo 11 mission succeeded in landing on\nthe moon despite two computer-related problems that affected the Lunar\nModule during the powered descent.",
         "missing": [],
         "missingSide": "object"
@@ -6303,6 +6534,7 @@
         "cls": "absent",
         "via": "link",
         "host": "web.archive.org",
+        "facePath": "primary-faces/4f69a8cb8bb11499.txt",
         "sentence": null,
         "missing": [
           "coded",
@@ -6333,6 +6565,7 @@
         "cls": "partial",
         "via": "link",
         "host": "web.archive.org",
+        "facePath": "primary-faces/4f69a8cb8bb11499.txt",
         "sentence": "Apollo 7 MCC Activity-Flight Director\nGlynn Lunney is seated at his console in the Mission Operations\nControl Room in the Mission Control Center at Houston on the first\nday of the Apollo 7 mission, October 11, 1968.",
         "missing": [
           "communications"
@@ -6359,6 +6592,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/babb9aea763ba359.txt",
         "sentence": "Now it is time to take longer strides—time for a great new American enterprise—time for this nation to take a clearly leading role in space achievement, which in many ways may hold the key to our future on earth.",
         "missing": [
           "proud"
@@ -6385,6 +6619,7 @@
         "cls": "partial",
         "via": "link",
         "host": "web.archive.org",
+        "facePath": "primary-faces/4f69a8cb8bb11499.txt",
         "sentence": "SP-4223 \"Before This Decade Is\nOut...",
         "missing": [
           "assembly",
@@ -6411,6 +6646,7 @@
         "cls": "absent",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/362ed43e9c0cc643.txt",
         "sentence": null,
         "missing": [
           "mstislav",
@@ -6439,6 +6675,7 @@
         "cls": "partial",
         "via": "link",
         "host": "web.archive.org",
+        "facePath": "primary-faces/8d49e796cb6a202b.txt",
         "sentence": "NASA Administrator Thomas",
         "missing": [
           "abernathy"
@@ -6475,6 +6712,7 @@
         "cls": "absent",
         "via": "link",
         "host": "arxiv.org",
+        "facePath": "primary-faces/ac8d77211342568b.txt",
         "sentence": null,
         "missing": [
           "head",
@@ -6513,6 +6751,7 @@
         "cls": "same-sentence",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/5a5fe281600f6cf1.txt",
         "sentence": "On February 8, 1968, after two years of study NASA’s Apollo Site Selection Board announced five potential landing sites for the first human lunar landing.",
         "missing": null,
         "missingSide": null,
@@ -6535,6 +6774,7 @@
         "cls": "same-sentence",
         "via": "link",
         "host": "web.archive.org",
+        "facePath": "primary-faces/4f69a8cb8bb11499.txt",
         "sentence": "When NACA became the\nNational Aeronautics and Space Administration in 1958, Lunney worked\nside by side with engineers at NASA's Langley Research Center, in the\narea of manned space flight, as part of the newly formed Space Task\nGroup (STG) which he joined in September 1959 as an aeronautical\nresearch engineer.",
         "missing": null,
         "missingSide": null,
@@ -6557,6 +6797,7 @@
         "cls": "same-sentence",
         "via": "link",
         "host": "web.archive.org",
+        "facePath": "primary-faces/8d49e796cb6a202b.txt",
         "sentence": "The NASA caption to this picture reads: \"Apollo-11",
         "missing": null,
         "missingSide": null,
@@ -6582,6 +6823,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/7dd85f4b8d00e19f.txt",
         "sentence": "NASA, SpaceX Adjust Crew-13 Launch Date",
         "missing": [
           "vague",
@@ -6608,6 +6850,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/7dd85f4b8d00e19f.txt",
         "sentence": "NASA Rocket Takes First Multi-Point Look Inside Radio-Disrupting Clouds",
         "missing": [
           "want",
@@ -6635,6 +6878,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/cf81fc278355b46c.txt",
         "sentence": "The Apollo 11 backup crew of Commander James A. Lovell, CMP William A. Anders, and LMP Fred W. Haise, would be ready to fly the mission in case something happened to the prime crew.",
         "missing": [
           "moved"
@@ -6666,6 +6910,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/eaab29993dab83f8.txt",
         "sentence": "Docking with Columbia occurred on the CSM’s 27th revolution at 128 hours, three minutes into the mission.",
         "missing": [
           "original",
@@ -6693,6 +6938,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/5a5fe281600f6cf1.txt",
         "sentence": "On February 8, 1968, after two years of study NASA’s Apollo Site Selection Board announced five potential landing sites for the first human lunar landing.",
         "missing": [
           "precautions",
@@ -6727,6 +6973,7 @@
         "cls": "absent",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/26120f15d911a264.txt",
         "sentence": null,
         "missing": [
           "ppk",
@@ -6760,6 +7007,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/26120f15d911a264.txt",
         "sentence": "NASA’s Pandora Mission Begins Study of Exoplanets, Host Stars",
         "missing": [
           "attitude",
@@ -6789,6 +7037,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/babb9aea763ba359.txt",
         "sentence": "5 min read",
         "missing": [
           "originally",
@@ -6822,6 +7071,7 @@
         "cls": "partial",
         "via": "link",
         "host": "collectspace.com",
+        "facePath": "primary-faces/4daa09090f5690eb.txt",
         "sentence": "In November 1969, then-U.S. President Richard Nixon requested that NASA create approximately 250 displays containing lunar surface material and the flags of 135 nations, U.S. possessions and states.",
         "missing": [],
         "missingSide": "object"
@@ -6848,6 +7098,7 @@
         "cls": "same-sentence",
         "via": "footnote",
         "host": "archives.gov",
+        "facePath": "primary-faces/b1f6b4fc55dee644.txt",
         "sentence": "Shortly after stepping onto the Moon, astronauts Armstrong and\nAldrin spoke with President Nixon by phone, in what the President\ndescribed as \"the most historic phone call ever made from the White House.",
         "missing": null,
         "missingSide": null,
@@ -6876,6 +7127,7 @@
         "cls": "partial",
         "via": "footnote",
         "host": "collectspace.com",
+        "facePath": "primary-faces/4daa09090f5690eb.txt",
         "sentence": "All other lunar samples' locations are well documented by the U.S. space agency to this day (with exception to similarly gifted Apollo 17 goodwill moon rocks ).",
         "missing": [
           "1970"
@@ -6902,6 +7154,7 @@
         "cls": "partial",
         "via": "link",
         "host": "presidency.ucsb.edu",
+        "facePath": "primary-faces/8dba1bffe2e2311d.txt",
         "sentence": "Richard Nixon, Telephone Conversation With the Apollo 11 Astronauts on the Moon Online by Gerhard Peters and John T. Woolley, The American Presidency Project https://www.presidency.ucsb.edu/node/239626",
         "missing": [
           "back"
@@ -6924,6 +7177,7 @@
         "cls": "partial",
         "via": "link",
         "host": "airandspace.si.edu",
+        "facePath": "primary-faces/1054ff3aebfb6939.txt",
         "sentence": "The Last Time the Command Module Columbia Toured",
         "missing": [
           "freeze"
@@ -6946,6 +7200,7 @@
         "cls": "no-lead",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -6967,6 +7222,7 @@
         "cls": "partial",
         "via": "footnote",
         "host": "nasa.gov",
+        "facePath": "primary-faces/eaab29993dab83f8.txt",
         "sentence": "The correction was made July 22 at about 150 hours, 30 minutes into the mission.",
         "missing": [],
         "missingSide": "object",
@@ -6996,6 +7252,7 @@
         "cls": "absent",
         "via": "link",
         "host": "arxiv.org",
+        "facePath": "primary-faces/ac8d77211342568b.txt",
         "sentence": null,
         "missing": [
           "off",
@@ -7028,6 +7285,7 @@
         "cls": "partial",
         "via": "link",
         "host": "scientificamerican.com",
+        "facePath": "primary-faces/95211e254c891f1d.txt",
         "sentence": "How widely was the news of the moon landing disseminated in the Soviet Union in advance of the event?",
         "missing": [
           "officials",
@@ -7053,6 +7311,7 @@
         "cls": "partial",
         "via": "link",
         "host": "space.com",
+        "facePath": "primary-faces/37cd7f3214d8c165.txt",
         "sentence": "PBS and BBC Studios will bring viewers through Apollo 11's major milestones in the new film \"8 Days: To the Moon and Back.",
         "missing": [
           "side"
@@ -7075,6 +7334,7 @@
         "cls": "partial",
         "via": "link",
         "host": "web.archive.org",
+        "facePath": "primary-faces/4236d843fa4262eb.txt",
         "sentence": "John F. Kennedy Moon Speech - Rice Stadium",
         "missing": [
           "utc"
@@ -7099,6 +7359,7 @@
         "cls": "absent",
         "via": "link",
         "host": "ntrs.nasa.gov",
+        "facePath": "primary-faces/79a835c6a3df9e65.txt",
         "sentence": null,
         "missing": [
           "like",
@@ -7126,6 +7387,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -7150,6 +7412,7 @@
         "cls": "partial",
         "via": "link",
         "host": "airandspace.si.edu",
+        "facePath": "primary-faces/360236aa71c7a2bb.txt",
         "sentence": "Mockup, Lunar Module, Apollo",
         "missing": [
           "tasks",
@@ -7180,6 +7443,7 @@
         "cls": "partial",
         "via": "link",
         "host": "airandspace.si.edu",
+        "facePath": "primary-faces/1054ff3aebfb6939.txt",
         "sentence": "The National Aeronautics and Space Administration (NASA) organized and executed an ambitious public tour of a Moon rock, Neil Armstrong’s lunar extravehicular activity (EVA) spacesuit, several small items that had returned from the mission, and the Command Module Columbia .",
         "missing": [
           "versions",
@@ -7212,6 +7476,7 @@
         "cls": "absent",
         "via": "link",
         "host": "presidency.ucsb.edu",
+        "facePath": "primary-faces/52563efaf873d1f3.txt",
         "sentence": null,
         "missing": [
           "flags",
@@ -7241,6 +7506,7 @@
         "cls": "absent",
         "via": "link",
         "host": "web.archive.org",
+        "facePath": "primary-faces/4f69a8cb8bb11499.txt",
         "sentence": null,
         "missing": [
           "possible",
@@ -7276,6 +7542,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -7297,6 +7564,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -7317,6 +7585,7 @@
         "cls": "partial",
         "via": "link",
         "host": "web.archive.org",
+        "facePath": "primary-faces/4f69a8cb8bb11499.txt",
         "sentence": "SP-4223 \"Before This Decade Is\nOut...",
         "missing": [
           "complex"
@@ -7342,6 +7611,7 @@
         "cls": "no-lead",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -7368,6 +7638,7 @@
         "cls": "absent",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/f0846504330bc332.txt",
         "sentence": null,
         "missing": [
           "p65",
@@ -7396,6 +7667,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -7419,6 +7691,7 @@
         "cls": "absent",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/d90af7e1cfbe0bed.txt",
         "sentence": null,
         "missing": [
           "test",
@@ -7443,6 +7716,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/64abb6dbdb57e0a8.txt",
         "sentence": "NASA Will Attempt to Observe Rocket Part’s Lunar Impact",
         "missing": [],
         "missingSide": "object"
@@ -7463,6 +7737,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/f0846504330bc332.txt",
         "sentence": "- Earth",
         "missing": [],
         "missingSide": "object"
@@ -7484,6 +7759,7 @@
         "cls": "no-lead",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -7508,6 +7784,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -7532,6 +7809,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/64abb6dbdb57e0a8.txt",
         "sentence": "Jones, an astronomer fascinated by the history of human exploration, began studying air-to-ground transcripts produced during the Apollo missions to learn more about the experience of astronauts on the surface of the Moon.",
         "missing": [
           "ppks",
@@ -7556,6 +7834,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -7584,6 +7863,7 @@
         "cls": "partial",
         "via": "link",
         "host": "presidency.ucsb.edu",
+        "facePath": "primary-faces/8dba1bffe2e2311d.txt",
         "sentence": "Note: The President spoke at 11:49 p.m. in the Oval Room at the White House with Apollo 11 astronauts Neil A. Armstrong and Col.",
         "missing": [
           "vice",
@@ -7618,6 +7898,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -7651,6 +7932,7 @@
         "cls": "partial",
         "via": "footnote",
         "host": "thesmokinggun.com",
+        "facePath": "primary-faces/e3a543100c239d13.txt",
         "sentence": "In a memo drafted two days before the Eagle landed, aide William Safire provided Nixon with a short speech to be delivered \"In Event of Moon Disaster.",
         "missing": [
           "writer",
@@ -7678,6 +7960,7 @@
         "cls": "partial",
         "via": "footnote",
         "host": "web.archive.org",
+        "facePath": "primary-faces/d04103f5856bac2f.txt",
         "sentence": "PROJECT APOLLO: THE CONCLUSION",
         "missing": [],
         "missingSide": "object",
@@ -7704,6 +7987,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -7733,6 +8017,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -7756,6 +8041,7 @@
         "cls": "absent",
         "via": "footnote",
         "host": "nasa.gov",
+        "facePath": "primary-faces/9190e06d76b22bc8.txt",
         "sentence": null,
         "missing": [
           "real",
@@ -7786,6 +8072,7 @@
         "cls": "partial",
         "via": "link",
         "host": "airandspace.si.edu",
+        "facePath": "primary-faces/1054ff3aebfb6939.txt",
         "sentence": "While this will mark the first time the spacecraft has left the Smithsonian since it was added to the collection in 1971, it is not the first time the Command Module Columbia toured the United States.",
         "missing": [
           "renovations",
@@ -7812,6 +8099,7 @@
         "cls": "partial",
         "via": "footnote",
         "host": "archives.gov",
+        "facePath": "primary-faces/b1f6b4fc55dee644.txt",
         "sentence": "--President Richard Nixon's Daily Diary, July 20, 1969",
         "missing": [
           "radio",
@@ -7841,6 +8129,7 @@
         "cls": "partial",
         "via": "link",
         "host": "web.archive.org",
+        "facePath": "primary-faces/4f69a8cb8bb11499.txt",
         "sentence": "So the fact that it blew up when it did\ndidn't leave us very much margin to get home, but at least it was\nsome margin, because we still had a full-up lunar module to live off\nof.",
         "missing": [
           "beach"
@@ -7864,6 +8153,7 @@
         "cls": "no-lead",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -7884,6 +8174,7 @@
         "cls": "absent",
         "via": "footnote",
         "host": "nasa.gov",
+        "facePath": "primary-faces/ef9205a47810aba9.txt",
         "sentence": null,
         "missing": [
           "orbit",
@@ -7911,6 +8202,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -7934,6 +8226,7 @@
         "cls": "absent",
         "via": "footnote",
         "host": "nasa.gov",
+        "facePath": "primary-faces/36627e02d7adeec7.txt",
         "sentence": null,
         "missing": [
           "seven",
@@ -7962,6 +8255,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/5a5fe281600f6cf1.txt",
         "sentence": "- Site One: 34o East, 2o40” North, in the Sea of Tranquility ( Mare Tranquilitatis );",
         "missing": [],
         "missingSide": "object"
@@ -7985,6 +8279,7 @@
         "cls": "same-sentence",
         "via": "footnote",
         "host": "nasa.gov",
+        "facePath": "primary-faces/5a5fe281600f6cf1.txt",
         "sentence": "- Site Three: 1o20” West, 0o25” North, in the Central Bay ( Sinus Medii );",
         "missing": null,
         "missingSide": null,
@@ -8008,6 +8303,7 @@
         "cls": "absent",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/cf81fc278355b46c.txt",
         "sentence": null,
         "missing": [
           "slayton",
@@ -8033,6 +8329,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/26120f15d911a264.txt",
         "sentence": "With a half-Earth in the background, the Lunar Module ascent stage with Moon-walking astronauts Neil Armstrong and Edwin Aldrin Jr.",
         "missing": [
           "slayton"
@@ -8059,6 +8356,7 @@
         "cls": "absent",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/936e909fa8565609.txt",
         "sentence": null,
         "missing": [
           "slayton",
@@ -8085,6 +8383,7 @@
         "cls": "absent",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/4afd44f7819efef6.txt",
         "sentence": null,
         "missing": [
           "slayton",
@@ -8115,6 +8414,7 @@
         "cls": "partial",
         "via": "footnote",
         "host": "web.archive.org",
+        "facePath": "primary-faces/4796d5c3d27b56a2.txt",
         "sentence": "The Personal Preference Kit was so named because all astronauts were permitted one small bag for personal or small items of significance they wished to carry into space.",
         "missing": [
           "wanted"
@@ -8156,6 +8456,7 @@
         "cls": "partial",
         "via": "link",
         "host": "klabs.org",
+        "facePath": "primary-faces/f42a6e08a420d62f.txt",
         "sentence": "(A paper presented to the 27th annual Guidance\nand Control Conference of the American Astronautical Society (AAS) ,\nin Breckenridge, Colorado on February 6, 2004, and designated AAS\n04-064.",
         "missing": [
           "2005",
@@ -8185,6 +8486,7 @@
         "cls": "absent",
         "via": "link",
         "host": "ntrs.nasa.gov",
+        "facePath": "primary-faces/9c3ac072b80c2b4d.txt",
         "sentence": null,
         "missing": [
           "highest",
@@ -8214,6 +8516,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/5a5fe281600f6cf1.txt",
         "sentence": "All five sites were within the Apollo Zone of Interest, an area on the visible side of the Moon between 45 degrees East and West longitude and between 5 degrees North and South of the lunar equator.",
         "missing": [
           "ranger",
@@ -8238,6 +8541,7 @@
         "cls": "absent",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/9190e06d76b22bc8.txt",
         "sentence": null,
         "missing": [
           "soviet",
@@ -8264,6 +8568,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -8286,6 +8591,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/86570537bec568ff.txt",
         "sentence": "50 Years Ago: Hornet + 3 – The Recovery of Apollo 11",
         "missing": [
           "special",
@@ -8319,6 +8625,7 @@
         "cls": "partial",
         "via": "link",
         "host": "airandspace.si.edu",
+        "facePath": "primary-faces/badc2b15566c31e0.txt",
         "sentence": "Mounted in the right-hand window of the lunar module Eagle , this camera filmed the first landing on the Moon and the “one small step” made by Neil Armstrong .",
         "missing": [
           "accomplished",
@@ -8345,6 +8652,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/5a5fe281600f6cf1.txt",
         "sentence": "50 Years Ago: Lunar Landing Sites Selected",
         "missing": [
           "found"
@@ -8376,6 +8684,7 @@
         "cls": "absent",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/9190e06d76b22bc8.txt",
         "sentence": null,
         "missing": [
           "tall",
@@ -8416,6 +8725,7 @@
         "cls": "absent",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/362ed43e9c0cc643.txt",
         "sentence": null,
         "missing": [
           "tall",
@@ -8452,6 +8762,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -8475,6 +8786,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/9190e06d76b22bc8.txt",
         "sentence": "- Lunar Surface Technology",
         "missing": [
           "aboard",
@@ -8501,6 +8813,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/eaab29993dab83f8.txt",
         "sentence": "Apollo 11 Mission Overview",
         "missing": [
           "emblem",
@@ -8529,6 +8842,7 @@
         "cls": "absent",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/cf81fc278355b46c.txt",
         "sentence": null,
         "missing": [
           "close",
@@ -8560,6 +8874,7 @@
         "cls": "partial",
         "via": "link",
         "host": "web.archive.org",
+        "facePath": "primary-faces/4f69a8cb8bb11499.txt",
         "sentence": "In 1972, he\nbecame manager of the Apollo-Soyuz Test Project (ASTP) where he\noversaw the planning, coordination, and integration of all U.S.\ntechnical and operational details, as well as the supervision and\ncoordination of the contracts and other elements supporting the\nprogram.",
         "missing": [
           "arguably",
@@ -8592,6 +8907,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -8620,6 +8936,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/9190e06d76b22bc8.txt",
         "sentence": "Schmitt then introduced Jones to the other 11 Apollo astronauts who walked on the lunar surface, and over many, many hours the astronauts participated in recorded sessions, detailing every aspect of their missions.",
         "missing": [
           "struggled",
@@ -8652,6 +8969,7 @@
         "cls": "partial",
         "via": "link",
         "host": "curator.jsc.nasa.gov",
+        "facePath": "primary-faces/5d5dc5e7d5c940df.txt",
         "sentence": "Several hundred other\npeople are served remotely each year by provision of samples for use\nin laboratories or classrooms.",
         "missing": [
           "astronauts",
@@ -8679,6 +8997,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/babb9aea763ba359.txt",
         "sentence": "The Decision to Go to the Moon: President John F. Kennedy’s May 25, 1961 Speech before a Joint Session of Congress",
         "missing": [],
         "missingSide": "object"
@@ -8701,6 +9020,7 @@
         "cls": "partial",
         "via": "link",
         "host": "presidency.ucsb.edu",
+        "facePath": "primary-faces/52563efaf873d1f3.txt",
         "sentence": "Remarks to Apollo 11 Astronauts Aboard the U.S.S. Hornet Following Completion of Their Lunar Mission.",
         "missing": [
           "lrl",
@@ -8724,6 +9044,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -8747,6 +9068,7 @@
         "cls": "partial",
         "via": "footnote",
         "host": "web.archive.org",
+        "facePath": "primary-faces/4796d5c3d27b56a2.txt",
         "sentence": "This shaving equipment was carried aboard the Apollo 11 mission by astronaut Michael Collins as part of his personal preference kit.",
         "missing": [
           "ppks"
@@ -8773,6 +9095,7 @@
         "cls": "partial",
         "via": "link",
         "host": "ntrs.nasa.gov",
+        "facePath": "primary-faces/9c3ac072b80c2b4d.txt",
         "sentence": "Back to Results\nTechnical information summary - Apollo 11 /AS-506/, Apollo Saturn 5 space vehicle Technical information summary on Apollo 11 flight and total lunar mission",
         "missing": [
           "small"
@@ -8801,6 +9124,7 @@
         "cls": "partial",
         "via": "link",
         "host": "presidency.ucsb.edu",
+        "facePath": "primary-faces/52563efaf873d1f3.txt",
         "sentence": "Remarks to Apollo 11 Astronauts Aboard the U.S.S. Hornet Following Completion of Their Lunar Mission.",
         "missing": [
           "behind",
@@ -8828,6 +9152,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -8848,6 +9173,7 @@
         "cls": "partial",
         "via": "link",
         "host": "ntrs.nasa.gov",
+        "facePath": "primary-faces/9c3ac072b80c2b4d.txt",
         "sentence": "S/E-ASTR-S-101-69",
         "missing": [
           "feet"
@@ -8871,6 +9197,7 @@
         "cls": "absent",
         "via": "link",
         "host": "ntrs.nasa.gov",
+        "facePath": "primary-faces/9c3ac072b80c2b4d.txt",
         "sentence": null,
         "missing": [
           "buckingham",
@@ -8896,6 +9223,7 @@
         "cls": "absent",
         "via": "link",
         "host": "ntrs.nasa.gov",
+        "facePath": "primary-faces/9c3ac072b80c2b4d.txt",
         "sentence": null,
         "missing": [
           "clean",
@@ -8932,6 +9260,7 @@
         "cls": "absent",
         "via": "link",
         "host": "presidency.ucsb.edu",
+        "facePath": "primary-faces/52563efaf873d1f3.txt",
         "sentence": null,
         "missing": [
           "rubbed",
@@ -8967,6 +9296,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/86570537bec568ff.txt",
         "sentence": "Right: Apollo 11 astronauts await the recovery helicopter with the decontamination officer, all wearing BIGs.",
         "missing": [
           "winched"
@@ -8990,6 +9320,7 @@
         "cls": "partial",
         "via": "footnote",
         "host": "web.archive.org",
+        "facePath": "primary-faces/a0d8c787f8a88998.txt",
         "sentence": "Allan Needell, a curator at the National Air and Space Museum in Washington, said: \"I received an email from Carol Armstrong that she had located, in one of Neil's closets, a white cloth bag filled with assorted small items that looked like they may have come from a spacecraft.",
         "missing": [
           "various"
@@ -9020,6 +9351,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -9042,6 +9374,7 @@
         "cls": "absent",
         "via": "link",
         "host": "ntrs.nasa.gov",
+        "facePath": "primary-faces/9c3ac072b80c2b4d.txt",
         "sentence": null,
         "missing": [
           "cabin",
@@ -9067,6 +9400,7 @@
         "cls": "absent",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/362ed43e9c0cc643.txt",
         "sentence": null,
         "missing": [
           "cabin",
@@ -9096,6 +9430,7 @@
         "cls": "partial",
         "via": "footnote",
         "host": "airandspace.si.edu",
+        "facePath": "primary-faces/badc2b15566c31e0.txt",
         "sentence": "At the National Air and Space Museum, as elsewhere around the world, we were enormously saddened when we learned that Neil Alden Armstrong, the first man to set foot on the Moon, had died of complications associated with heart surgery in August 2012.",
         "missing": [
           "currently"
@@ -9124,6 +9459,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/cf81fc278355b46c.txt",
         "sentence": "Armstrong and Aldrin had served on the backup crew for Apollo 8 the previous December and Collins was initially a member of that crew until a bone spur in his spine requiring surgery sidelined him.",
         "missing": [
           "capcoms",
@@ -9152,6 +9488,7 @@
         "cls": "partial",
         "via": "footnote",
         "host": "web.archive.org",
+        "facePath": "primary-faces/a1e9337d146f4f3f.txt",
         "sentence": "He had seen it when the Rendezvous Radar Switch was on (in the AUTO\nposition) and the computer was looking for radar data.",
         "missing": [
           "diagnosed",
@@ -9182,6 +9519,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -9206,6 +9544,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -9227,6 +9566,7 @@
         "cls": "window",
         "via": "link",
         "host": "airandspace.si.edu",
+        "facePath": "primary-faces/8a6951d211712f1a.txt",
         "sentence": "Primary Materials: Aluminum alloy, Stainless steel, Titanium Alternate Name Apollo 11 Command Module Columbia",
         "missing": null,
         "missingSide": null
@@ -9254,6 +9594,7 @@
         "cls": "partial",
         "via": "link",
         "host": "airandspace.si.edu",
+        "facePath": "primary-faces/8a6951d211712f1a.txt",
         "sentence": "National Air and Space Museum in Washington, DC .",
         "missing": [
           "preserved"
@@ -9280,6 +9621,7 @@
         "cls": "same-sentence",
         "via": "footnote",
         "host": "airandspace.si.edu",
+        "facePath": "primary-faces/1054ff3aebfb6939.txt",
         "sentence": "While this will mark the first time the spacecraft has left the Smithsonian since it was added to the collection in 1971, it is not the first time the Command Module Columbia toured the United States.",
         "missing": null,
         "missingSide": null,
@@ -9303,6 +9645,7 @@
         "cls": "partial",
         "via": "link",
         "host": "airandspace.si.edu",
+        "facePath": "primary-faces/1054ff3aebfb6939.txt",
         "sentence": "This week, we announced that the Apollo 11 Command Module Columbia , the original spacecraft that carried the first astronauts to walk on the Moon, and more than 20 additional flown artifacts from the Apollo 11 mission, will go on a national tour to four major American cities: Houston, Saint Louis, Pittsburgh, and Seattle.",
         "missing": [
           "egress"
@@ -9333,6 +9676,7 @@
         "cls": "partial",
         "via": "link",
         "host": "web.archive.org",
+        "facePath": "primary-faces/4f69a8cb8bb11499.txt",
         "sentence": "So once we got over the initial problems\nthat we had on 502 [Apollo 6], the unmanned flight, and saw that\nthose things were fixed, it became a matter of getting used to the\nidea of going to the Moon.",
         "missing": [
           "blaming",
@@ -9359,6 +9703,7 @@
         "cls": "partial",
         "via": "link",
         "host": "web.archive.org",
+        "facePath": "primary-faces/4f69a8cb8bb11499.txt",
         "sentence": "After obtaining a degree in aeronautical\nengineering from the University of Detroit in 1958, Lunney began his\ncareer with NASA upon entering the National Advisory Committee for\nAeronautic's (NACA) cooperative training program at the Lewis\nResearch Center in Cleveland, Ohio.",
         "missing": [
           "recognize",
@@ -9384,6 +9729,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/4afd44f7819efef6.txt",
         "sentence": "- NASA Brand & Usage Guidelines",
         "missing": [
           "conditions",
@@ -9412,6 +9758,7 @@
         "cls": "absent",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/64abb6dbdb57e0a8.txt",
         "sentence": null,
         "missing": [
           "countdown",
@@ -9441,6 +9788,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/c77f56303107df45.txt",
         "sentence": "SpaceX Crew-2",
         "missing": [
           "safely"
@@ -9473,6 +9821,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/936e909fa8565609.txt",
         "sentence": "Human-Related Microbes May Survive Moon’s South Pole, NASA Finds",
         "missing": [
           "passing",
@@ -9504,6 +9853,7 @@
         "cls": "partial",
         "via": "footnote",
         "host": "nasa.gov",
+        "facePath": "primary-faces/cf81fc278355b46c.txt",
         "sentence": "Planned as the fifth crewed Apollo mission, if all went well on the two flights preceding it, Apollo 11 would attempt the first human lunar landing, fulfilling President John F. Kennedy’s goal of landing a man on the Moon and returning him safely to the Earth.",
         "missing": [
           "awakened",
@@ -9536,6 +9886,7 @@
         "cls": "absent",
         "via": "footnote",
         "host": "nasa.gov",
+        "facePath": "primary-faces/36627e02d7adeec7.txt",
         "sentence": null,
         "missing": [
           "warned",
@@ -9566,6 +9917,7 @@
         "cls": "partial",
         "via": "link",
         "host": "archives.nyc",
+        "facePath": "primary-faces/3707d37aca4d53ab.txt",
         "sentence": "New York City ticker-tape parade for the Apollo 11 Astronauts, and receptions at City Hall and the United Nations, with Mayor John V. Lindsay, August 13, 1969.",
         "missing": [
           "crew",
@@ -9590,6 +9942,7 @@
         "cls": "partial",
         "via": "footnote",
         "host": "nasa.gov",
+        "facePath": "primary-faces/eaab29993dab83f8.txt",
         "sentence": "11/21/68 – LM-5 integrated systems test\n12/6/68 – CSM-107 integrated systems test\n12/13/68 – LM-5 acceptance test\n1/8/69 – LM-5 ascent stage delivered to Kennedy\n1/12/69 – LM-5 descent stage delivered to Kennedy\n1/18/69 – S-IVB ondock at Kennedy\n1/23/69 – CSM ondock at Kennedy\n1/29/69 – command and service module mated\n2/6/69 – S-II ondock at Kennedy\n2/20/69 – S-IC ondock at Kennedy\n2/17/69 – combined CSM-107 systems tests\n2/27/69 – S-IU ondock at Kennedy\n3/24/69 – CSM-107 altitude testing\n4/14/69 – rollover of CSM from the Operations and Checkout Building to the Vehicle Assembly Building\n4/22/69 – integrated systems test\n5/5/69 – CSM electrical mate to Saturn V\n5/20/69 – rollout to Launch Pad 39A\n6/1/69 – flight readiness test\n6/26/69 – Countdown Demonstration Test",
         "missing": [
           "january"
@@ -9617,6 +9970,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -9640,6 +9994,7 @@
         "cls": "partial",
         "via": "link",
         "host": "arxiv.org",
+        "facePath": "primary-faces/ac8d77211342568b.txt",
         "sentence": "Title: Long-term Orbit Stability of the Apollo 11 Eagle Lunar Module Ascent Stage",
         "missing": [
           "descent",
@@ -9665,6 +10020,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -9687,6 +10043,7 @@
         "cls": "absent",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/4d2be2b4199b336f.txt",
         "sentence": null,
         "missing": [
           "design",
@@ -9711,6 +10068,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -9735,6 +10093,7 @@
         "cls": "partial",
         "via": "link",
         "host": "web.archive.org",
+        "facePath": "primary-faces/4f69a8cb8bb11499.txt",
         "sentence": "Apollo 7 MCC Activity-Flight Director\nGlynn Lunney is seated at his console in the Mission Operations\nControl Room in the Mission Control Center at Houston on the first\nday of the Apollo 7 mission, October 11, 1968.",
         "missing": [
           "talons",
@@ -9763,6 +10122,7 @@
         "cls": "absent",
         "via": "link",
         "host": "ntrs.nasa.gov",
+        "facePath": "primary-faces/9c3ac072b80c2b4d.txt",
         "sentence": null,
         "missing": [
           "divers",
@@ -9789,6 +10149,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -9812,6 +10173,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -9832,6 +10194,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -9852,6 +10215,7 @@
         "cls": "same-sentence",
         "via": "link",
         "host": "cambridge.org",
+        "facePath": "primary-faces/27af64af0d94b3a8.txt",
         "sentence": "- > On Eagle's Wings: The Parkes Observatory's Support...",
         "missing": null,
         "missingSide": null,
@@ -9879,6 +10243,7 @@
         "cls": "absent",
         "via": "link",
         "host": "cambridge.org",
+        "facePath": "primary-faces/27af64af0d94b3a8.txt",
         "sentence": null,
         "missing": [
           "carrying",
@@ -9908,6 +10273,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -9930,6 +10296,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/babb9aea763ba359.txt",
         "sentence": "Let it be clear—and this is a judgment which the Members of the Congress must finally make—let it be clear that I am asking the Congress and the country to accept a firm commitment to a new course of action, a course which will last for many years and carry very heavy costs: 531 million dollars in fiscal ’62—an estimated seven to nine billion dollars additional over the next five years.",
         "missing": [
           "attended"
@@ -9960,6 +10327,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -9983,6 +10351,7 @@
         "cls": "partial",
         "via": "link",
         "host": "web.archive.org",
+        "facePath": "primary-faces/4f69a8cb8bb11499.txt",
         "sentence": "Apollo 7 MCC Activity-Flight Director\nGlynn Lunney is seated at his console in the Mission Operations\nControl Room in the Mission Control Center at Houston on the first\nday of the Apollo 7 mission, October 11, 1968.",
         "missing": [
           "fifth"
@@ -10008,6 +10377,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/5a5fe281600f6cf1.txt",
         "sentence": "Map of the Moon showing the five candidate landing sites chosen by the Apollo Site Selection Board in February 1968.",
         "missing": [
           "final",
@@ -10033,6 +10403,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -10056,6 +10427,7 @@
         "cls": "absent",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/f0846504330bc332.txt",
         "sentence": null,
         "missing": [
           "eagle",
@@ -10084,6 +10456,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -10110,6 +10483,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -10130,6 +10504,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -10153,6 +10528,7 @@
         "cls": "no-lead",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -10178,6 +10554,7 @@
         "cls": "partial",
         "via": "link",
         "host": "web.archive.org",
+        "facePath": "primary-faces/4236d843fa4262eb.txt",
         "sentence": "John F. Kennedy Moon Speech - Rice Stadium",
         "missing": [
           "idea",
@@ -10208,6 +10585,7 @@
         "cls": "absent",
         "via": "link",
         "host": "ntrs.nasa.gov",
+        "facePath": "primary-faces/9c3ac072b80c2b4d.txt",
         "sentence": null,
         "missing": [
           "interagency",
@@ -10242,6 +10620,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/5a5fe281600f6cf1.txt",
         "sentence": "50 Years Ago: Lunar Landing Sites Selected",
         "missing": [
           "minimize",
@@ -10272,6 +10651,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -10294,6 +10674,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/64abb6dbdb57e0a8.txt",
         "sentence": "NASA’s Dark Universe-Seeking Nancy Grace Roman Space Telescope Launches",
         "missing": [
           "televised",
@@ -10324,6 +10705,7 @@
         "cls": "absent",
         "via": "footnote",
         "host": "nasa.gov",
+        "facePath": "primary-faces/9190e06d76b22bc8.txt",
         "sentence": null,
         "missing": [
           "enough",
@@ -10361,6 +10743,7 @@
         "cls": "absent",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/9190e06d76b22bc8.txt",
         "sentence": null,
         "missing": [
           "flat",
@@ -10388,6 +10771,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -10413,6 +10797,7 @@
         "cls": "partial",
         "via": "link",
         "host": "cambridge.org",
+        "facePath": "primary-faces/27af64af0d94b3a8.txt",
         "sentence": "On Eagle's Wings: The Parkes Observatory's Support of the Apollo 11 Mission",
         "missing": [
           "motif",
@@ -10441,6 +10826,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/9190e06d76b22bc8.txt",
         "sentence": "Astronaut Harrison H. Schmitt, Apollo 17 lunar module pilot, stands near the deployed United States flag on the lunar surface during NASA’s final lunar landing mission in the Apollo series.",
         "missing": [
           "assembly"
@@ -10474,6 +10860,7 @@
         "cls": "absent",
         "via": "footnote",
         "host": "airandspace.si.edu",
+        "facePath": "primary-faces/360236aa71c7a2bb.txt",
         "sentence": null,
         "missing": [
           "gravity",
@@ -10504,6 +10891,7 @@
         "cls": "absent",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/9190e06d76b22bc8.txt",
         "sentence": null,
         "missing": [
           "laser",
@@ -10535,6 +10923,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/9190e06d76b22bc8.txt",
         "sentence": "Astronaut Harrison H. Schmitt, Apollo 17 lunar module pilot, stands near the deployed United States flag on the lunar surface during NASA’s final lunar landing mission in the Apollo series.",
         "missing": [
           "reconnaissance",
@@ -10567,6 +10956,7 @@
         "cls": "partial",
         "via": "link",
         "host": "curator.jsc.nasa.gov",
+        "facePath": "primary-faces/5d5dc5e7d5c940df.txt",
         "sentence": "Staff scientists prepare\nto divide a pristine lunar rock inside a nitrogen processing cabinet\nin the Lunar Sample Laboratory Facility at NASA JSC.",
         "missing": [
           "repository",
@@ -10594,6 +10984,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -10620,6 +11011,7 @@
         "cls": "partial",
         "via": "footnote",
         "host": "govinfo.gov",
+        "facePath": "primary-faces/2f57061e07694f39.txt",
         "sentence": "To require the Secretary of the Treasury to mint commemorative coins in\nrecognition of the 50th anniversary of the first manned landing on the\nMoon.",
         "missing": [
           "fiftieth",
@@ -10648,6 +11040,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/26120f15d911a264.txt",
         "sentence": "With a half-Earth in the background, the Lunar Module ascent stage with Moon-walking astronauts Neil Armstrong and Edwin Aldrin Jr.",
         "missing": [],
         "missingSide": "object"
@@ -10668,6 +11061,7 @@
         "cls": "partial",
         "via": "link",
         "host": "klabs.org",
+        "facePath": "primary-faces/f42a6e08a420d62f.txt",
         "sentence": "TALES FROM THE LUNAR MODULE GUIDANCE\nCOMPUTER",
         "missing": [],
         "missingSide": "object"
@@ -10696,6 +11090,7 @@
         "cls": "absent",
         "via": "link",
         "host": "arxiv.org",
+        "facePath": "primary-faces/ac8d77211342568b.txt",
         "sentence": null,
         "missing": [
           "moon",
@@ -10725,6 +11120,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -10754,6 +11150,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -10782,6 +11179,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/eaab29993dab83f8.txt",
         "sentence": "- Missions",
         "missing": [
           "snowcone",
@@ -10808,6 +11206,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -10835,6 +11234,7 @@
         "cls": "absent",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/9190e06d76b22bc8.txt",
         "sentence": null,
         "missing": [
           "nuffield",
@@ -10864,6 +11264,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -10890,6 +11291,7 @@
         "cls": "absent",
         "via": "footnote",
         "host": "airandspace.si.edu",
+        "facePath": "primary-faces/d5cde345f76df212.txt",
         "sentence": null,
         "missing": [
           "change",
@@ -10927,6 +11329,7 @@
         "cls": "absent",
         "via": "link",
         "host": "ntrs.nasa.gov",
+        "facePath": "primary-faces/9c3ac072b80c2b4d.txt",
         "sentence": null,
         "missing": [
           "parade",
@@ -10961,6 +11364,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/f0846504330bc332.txt",
         "sentence": "NASA Will Attempt to Observe Rocket Part’s Lunar Impact",
         "missing": [
           "greeted",
@@ -10989,6 +11393,7 @@
         "cls": "absent",
         "via": "link",
         "host": "arxiv.org",
+        "facePath": "primary-faces/ac8d77211342568b.txt",
         "sentence": null,
         "missing": [
           "passive",
@@ -11019,6 +11424,7 @@
         "cls": "absent",
         "via": "link",
         "host": "airandspace.si.edu",
+        "facePath": "primary-faces/8a6951d211712f1a.txt",
         "sentence": null,
         "missing": [
           "passive",
@@ -11047,6 +11453,7 @@
         "cls": "absent",
         "via": "link",
         "host": "web.archive.org",
+        "facePath": "primary-faces/4f69a8cb8bb11499.txt",
         "sentence": null,
         "missing": [
           "plaque",
@@ -11074,6 +11481,7 @@
         "cls": "absent",
         "via": "link",
         "host": "space.com",
+        "facePath": "primary-faces/37cd7f3214d8c165.txt",
         "sentence": null,
         "missing": [
           "plss",
@@ -11105,6 +11513,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -11127,6 +11536,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/cf81fc278355b46c.txt",
         "sentence": "The Apollo 11 backup crew of Commander James A. Lovell, CMP William A. Anders, and LMP Fred W. Haise, would be ready to fly the mission in case something happened to the prime crew.",
         "missing": [
           "simulators"
@@ -11161,6 +11571,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -11194,6 +11605,7 @@
         "cls": "absent",
         "via": "link",
         "host": "ntrs.nasa.gov",
+        "facePath": "primary-faces/79a835c6a3df9e65.txt",
         "sentence": null,
         "missing": [
           "minute",
@@ -11246,6 +11658,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -11270,6 +11683,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -11293,6 +11707,7 @@
         "cls": "absent",
         "via": "link",
         "host": "web.archive.org",
+        "facePath": "primary-faces/d04103f5856bac2f.txt",
         "sentence": null,
         "missing": [
           "reaction",
@@ -11317,6 +11732,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -11340,6 +11756,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -11366,6 +11783,7 @@
         "cls": "partial",
         "via": "link",
         "host": "thesmokinggun.com",
+        "facePath": "primary-faces/e3a543100c239d13.txt",
         "sentence": "In a memo drafted two days before the Eagle landed, aide William Safire provided Nixon with a short speech to be delivered \"In Event of Moon Disaster.",
         "missing": [
           "remarks",
@@ -11392,6 +11810,7 @@
         "cls": "partial",
         "via": "link",
         "host": "airandspace.si.edu",
+        "facePath": "primary-faces/37e157bcb3edee95.txt",
         "sentence": "Apollo Guidance Computer and the First Silicon Chips",
         "missing": [
           "radar",
@@ -11417,6 +11836,7 @@
         "cls": "partial",
         "via": "footnote",
         "host": "nasa.gov",
+        "facePath": "primary-faces/5a5fe281600f6cf1.txt",
         "sentence": "- Lighting: for optimum visibility during the landing approach, the Sun angle should be between 7 and 20 degrees behind the LM; for any given site, this results in a one-day launch window per month;",
         "missing": [
           "requirement",
@@ -11442,6 +11862,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/03a97e93a8e6b09d.txt",
         "sentence": "NASA’s Swift Restarts Science Observations",
         "missing": [
           "countries"
@@ -11466,6 +11887,7 @@
         "cls": "partial",
         "via": "footnote",
         "host": "collectspace.com",
+        "facePath": "primary-faces/85694a820afc4db3.txt",
         "sentence": "Rick and Mark Armstrong were among the Cincinnati Museum Center's (CMC) special guests on Saturday (Sept. 28) for the ribbon cutting marking the opening of \"Destination Moon: The Apollo 11 Mission,\" a Smithsonian traveling exhibition featuring their father's spacecraft.",
         "missing": [
           "ceremony"
@@ -11498,6 +11920,7 @@
         "cls": "partial",
         "via": "footnote",
         "host": "nasa.gov",
+        "facePath": "primary-faces/cf81fc278355b46c.txt",
         "sentence": "The Apollo 11 backup crew of Commander James A. Lovell, CMP William A. Anders, and LMP Fred W. Haise, would be ready to fly the mission in case something happened to the prime crew.",
         "missing": [
           "role",
@@ -11532,6 +11955,7 @@
         "cls": "absent",
         "via": "link",
         "host": "arxiv.org",
+        "facePath": "primary-faces/ac8d77211342568b.txt",
         "sentence": null,
         "missing": [
           "ivb",
@@ -11559,6 +11983,7 @@
         "cls": "absent",
         "via": "footnote",
         "host": "nasa.gov",
+        "facePath": "primary-faces/fd29533beca320c0.txt",
         "sentence": null,
         "missing": [
           "sample",
@@ -11589,6 +12014,7 @@
         "cls": "absent",
         "via": "link",
         "host": "presidency.ucsb.edu",
+        "facePath": "primary-faces/52563efaf873d1f3.txt",
         "sentence": null,
         "missing": [
           "schedule",
@@ -11617,6 +12043,7 @@
         "cls": "absent",
         "via": "link",
         "host": "ntrs.nasa.gov",
+        "facePath": "primary-faces/5d73847fda12b23e.txt",
         "sentence": null,
         "missing": [
           "engines",
@@ -11644,6 +12071,7 @@
         "cls": "partial",
         "via": "link",
         "host": "web.archive.org",
+        "facePath": "primary-faces/4f69a8cb8bb11499.txt",
         "sentence": "Both critical, and 9 was primarily-although,\nof course, we flew the command service module-was primarily the first\nmanned test of the lunar module, and so people wanted to put the\nlunar module through all the paces that they could in lower earth\norbit, and that's what the Apollo 9 mission was scheduled to do and\ndid.",
         "missing": [
           "shadow"
@@ -11669,6 +12097,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -11702,6 +12131,7 @@
         "cls": "absent",
         "via": "footnote",
         "host": "nasa.gov",
+        "facePath": "primary-faces/362ed43e9c0cc643.txt",
         "sentence": null,
         "missing": [
           "characterized",
@@ -11741,6 +12171,7 @@
         "cls": "partial",
         "via": "link",
         "host": "airandspace.si.edu",
+        "facePath": "primary-faces/37e157bcb3edee95.txt",
         "sentence": "National Air and Space Museum in Washington, DC",
         "missing": [
           "institute",
@@ -11768,6 +12199,7 @@
         "cls": "absent",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/9190e06d76b22bc8.txt",
         "sentence": null,
         "missing": [
           "soviet",
@@ -11795,6 +12227,7 @@
         "cls": "absent",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/7dd85f4b8d00e19f.txt",
         "sentence": null,
         "missing": [
           "soviet",
@@ -11825,6 +12258,7 @@
         "cls": "absent",
         "via": "link",
         "host": "ntrs.nasa.gov",
+        "facePath": "primary-faces/5d73847fda12b23e.txt",
         "sentence": null,
         "missing": [
           "soviet",
@@ -11852,6 +12286,7 @@
         "cls": "absent",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/64abb6dbdb57e0a8.txt",
         "sentence": null,
         "missing": [
           "soviet",
@@ -11881,6 +12316,7 @@
         "cls": "absent",
         "via": "link",
         "host": "curator.jsc.nasa.gov",
+        "facePath": "primary-faces/5d5dc5e7d5c940df.txt",
         "sentence": null,
         "missing": [
           "soviet",
@@ -11909,6 +12345,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -11935,6 +12372,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -11956,6 +12394,7 @@
         "cls": "partial",
         "via": "link",
         "host": "archives.gov",
+        "facePath": "primary-faces/b1f6b4fc55dee644.txt",
         "sentence": "In the late 1950s the United States watched the Soviet Union take\nthe lead in the rapidly escalating space race.",
         "missing": [
           "april"
@@ -11986,6 +12425,7 @@
         "cls": "absent",
         "via": "link",
         "host": "airandspace.si.edu",
+        "facePath": "primary-faces/360236aa71c7a2bb.txt",
         "sentence": null,
         "missing": [
           "saved",
@@ -12015,6 +12455,7 @@
         "cls": "absent",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/7dd85f4b8d00e19f.txt",
         "sentence": null,
         "missing": [
           "race",
@@ -12042,6 +12483,7 @@
         "cls": "partial",
         "via": "link",
         "host": "ntrs.nasa.gov",
+        "facePath": "primary-faces/5d73847fda12b23e.txt",
         "sentence": "Back to Results\nStages to Saturn: A Technological History of the Apollo/Saturn Launch Vehicles Part one of this report is intended to bring back into focus some of the facts, circumstances, and background of space exploration.",
         "missing": [
           "single",
@@ -12065,6 +12507,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/7dd85f4b8d00e19f.txt",
         "sentence": "International Space Station",
         "missing": [
           "difficult"
@@ -12091,6 +12534,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/936e909fa8565609.txt",
         "sentence": "International Space Station",
         "missing": [
           "small",
@@ -12117,6 +12561,7 @@
         "cls": "partial",
         "via": "link",
         "host": "web.archive.org",
+        "facePath": "primary-faces/4f69a8cb8bb11499.txt",
         "sentence": "After moving to Houston, Lunney began work at\nthe newly organized Manned Spacecraft Center (MSC), becoming head of\nthe Mission Logic and Computer Hardware Section of the Flight\nOperations Division (FOD), where he was responsible for establishing\nand coordinating the FOD flight dynamics requirements in the new\nMission Control Center (MCC).",
         "missing": [
           "stick"
@@ -12140,6 +12585,7 @@
         "cls": "no-lead",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -12163,6 +12609,7 @@
         "cls": "partial",
         "via": "link",
         "host": "web.archive.org",
+        "facePath": "primary-faces/8d49e796cb6a202b.txt",
         "sentence": "Australia is in sunlight on the left side of the Earth image",
         "missing": [],
         "missingSide": "object"
@@ -12185,6 +12632,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/cf81fc278355b46c.txt",
         "sentence": "50 Years Ago: NASA Names Apollo 11 Crew",
         "missing": [
           "support"
@@ -12210,6 +12658,7 @@
         "cls": "partial",
         "via": "link",
         "host": "web.archive.org",
+        "facePath": "primary-faces/a1e9337d146f4f3f.txt",
         "sentence": "Flowing in every day, these data are added to the Wayback Machine after an embargo period.",
         "missing": [
           "returning"
@@ -12232,6 +12681,7 @@
         "cls": "partial",
         "via": "link",
         "host": "web.archive.org",
+        "facePath": "primary-faces/4f69a8cb8bb11499.txt",
         "sentence": "(NASA Photo\nS-68-49299.",
         "missing": [
           "equipment"
@@ -12256,6 +12706,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/f0846504330bc332.txt",
         "sentence": "Schmitt then introduced Jones to the other 11 Apollo astronauts who walked on the lunar surface, and over many, many hours the astronauts participated in recorded sessions, detailing every aspect of their missions.",
         "missing": [
           "return"
@@ -12285,6 +12736,7 @@
         "cls": "absent",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/f0846504330bc332.txt",
         "sentence": null,
         "missing": [
           "cable",
@@ -12316,6 +12768,7 @@
         "cls": "partial",
         "via": "link",
         "host": "collectspace.com",
+        "facePath": "primary-faces/4daa09090f5690eb.txt",
         "sentence": "All other lunar samples' locations are well documented by the U.S. space agency to this day (with exception to similarly gifted Apollo 17 goodwill moon rocks ).",
         "missing": [
           "containers"
@@ -12341,6 +12794,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -12366,6 +12820,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -12388,6 +12843,7 @@
         "cls": "partial",
         "via": "link",
         "host": "ntrs.nasa.gov",
+        "facePath": "primary-faces/9c3ac072b80c2b4d.txt",
         "sentence": "Back to Results\nTechnical information summary - Apollo 11 /AS-506/, Apollo Saturn 5 space vehicle Technical information summary on Apollo 11 flight and total lunar mission",
         "missing": [
           "roll",
@@ -12416,6 +12872,7 @@
         "cls": "absent",
         "via": "link",
         "host": "airandspace.si.edu",
+        "facePath": "primary-faces/37e157bcb3edee95.txt",
         "sentence": null,
         "missing": [
           "high",
@@ -12444,6 +12901,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -12463,6 +12921,7 @@
         "cls": "same-sentence",
         "via": "link",
         "host": "arxiv.org",
+        "facePath": "primary-faces/ac8d77211342568b.txt",
         "sentence": "Title: Long-term Orbit Stability of the Apollo 11 Eagle Lunar Module Ascent Stage",
         "missing": null,
         "missingSide": null,
@@ -12490,6 +12949,7 @@
         "cls": "partial",
         "via": "footnote",
         "host": "nasa.gov",
+        "facePath": "primary-faces/eaab29993dab83f8.txt",
         "sentence": "The command and service module, or CSM, Columbia separated from the stage, which included the spacecraft-lunar module adapter, or SLA, containing the lunar module, or LM, Eagle.",
         "missing": [
           "arrived",
@@ -12521,6 +12981,7 @@
         "cls": "partial",
         "via": "link",
         "host": "web.archive.org",
+        "facePath": "primary-faces/4f69a8cb8bb11499.txt",
         "sentence": "Apollo 7 MCC Activity-Flight Director\nGlynn Lunney is seated at his console in the Mission Operations\nControl Room in the Mission Control Center at Houston on the first\nday of the Apollo 7 mission, October 11, 1968.",
         "missing": [
           "communicator",
@@ -12547,6 +13008,7 @@
         "cls": "partial",
         "via": "footnote",
         "host": "nasa.gov",
+        "facePath": "primary-faces/eaab29993dab83f8.txt",
         "sentence": "Panorama Showcasing the 34-Meter Antennas of the DSN’s Goldstone Complex",
         "missing": [
           "floodlit",
@@ -12578,6 +13040,7 @@
         "cls": "partial",
         "via": "link",
         "host": "arxiv.org",
+        "facePath": "primary-faces/ac8d77211342568b.txt",
         "sentence": "Title: Long-term Orbit Stability of the Apollo 11 Eagle Lunar Module Ascent Stage",
         "missing": [
           "assumed",
@@ -12605,6 +13068,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/936e909fa8565609.txt",
         "sentence": "- Earth, Our Planet",
         "missing": [
           "job",
@@ -12631,6 +13095,7 @@
         "cls": "absent",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/7dd85f4b8d00e19f.txt",
         "sentence": null,
         "missing": [
           "suits",
@@ -12667,6 +13132,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -12689,6 +13155,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -12710,6 +13177,7 @@
         "cls": "no-lead",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -12734,6 +13202,7 @@
         "cls": "partial",
         "via": "footnote",
         "host": "bbc.co.uk",
+        "facePath": "primary-faces/03b3ab122bf87b56.txt",
         "sentence": "In a blog post, Mr Bezos said the five engines were found using advanced sonar scanning some 14,000ft (4,300m) below the Atlantic Ocean's surface.",
         "missing": [
           "seabed"
@@ -12763,6 +13232,7 @@
         "cls": "absent",
         "via": "link",
         "host": "curator.jsc.nasa.gov",
+        "facePath": "primary-faces/5d5dc5e7d5c940df.txt",
         "sentence": null,
         "missing": [
           "stop",
@@ -12791,6 +13261,7 @@
         "cls": "no-lead",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -12811,6 +13282,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -12830,6 +13302,7 @@
         "cls": "same-sentence",
         "via": "link",
         "host": "web.archive.org",
+        "facePath": "primary-faces/8d49e796cb6a202b.txt",
         "sentence": "Apollo 11 Image Library",
         "missing": null,
         "missingSide": null,
@@ -12851,6 +13324,7 @@
         "cls": "same-sentence",
         "via": "link",
         "host": "arxiv.org",
+        "facePath": "primary-faces/ac8d77211342568b.txt",
         "sentence": "Title: Long-term Orbit Stability of the Apollo 11 Eagle Lunar Module Ascent Stage",
         "missing": null,
         "missingSide": null,
@@ -12875,6 +13349,7 @@
         "cls": "absent",
         "via": "link",
         "host": "web.archive.org",
+        "facePath": "primary-faces/4f69a8cb8bb11499.txt",
         "sentence": null,
         "missing": [
           "extending",
@@ -12902,6 +13377,7 @@
         "cls": "absent",
         "via": "link",
         "host": "airandspace.si.edu",
+        "facePath": "primary-faces/1054ff3aebfb6939.txt",
         "sentence": null,
         "missing": [
           "berlin",
@@ -12927,6 +13403,7 @@
         "cls": "absent",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/9190e06d76b22bc8.txt",
         "sentence": null,
         "missing": [
           "100",
@@ -12953,6 +13430,7 @@
         "cls": "absent",
         "via": "link",
         "host": "space.com",
+        "facePath": "primary-faces/37cd7f3214d8c165.txt",
         "sentence": null,
         "missing": [
           "begin",
@@ -12981,6 +13459,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/86570537bec568ff.txt",
         "sentence": "From Johnston Island, they flew aboard Marine helicopters to the communications relay ship USS Arlington (AGMR-2), where they spent the night before helicoptering to Hornet early on splashdown day.",
         "missing": [],
         "missingSide": "object"
@@ -13004,6 +13483,7 @@
         "cls": "absent",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/9190e06d76b22bc8.txt",
         "sentence": null,
         "missing": [
           "miles",
@@ -13028,6 +13508,7 @@
         "cls": "same-sentence",
         "via": "link",
         "host": "web.archive.org",
+        "facePath": "primary-faces/4f69a8cb8bb11499.txt",
         "sentence": "SP-4223 \"Before This Decade Is\nOut...",
         "missing": null,
         "missingSide": null,
@@ -13053,6 +13534,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -13075,6 +13557,7 @@
         "cls": "partial",
         "via": "footnote",
         "host": "science.nasa.gov",
+        "facePath": "primary-faces/71653e4d2df860fa.txt",
         "sentence": "NASA's Arcstone instrument will be the first mission exclusively dedicated to measuring moonlight, or lunar reflectance, from space as a…",
         "missing": [
           "men"
@@ -13099,6 +13582,7 @@
         "cls": "absent",
         "via": "footnote",
         "host": "science.nasa.gov",
+        "facePath": "primary-faces/71653e4d2df860fa.txt",
         "sentence": null,
         "missing": [
           "structured",
@@ -13124,6 +13608,7 @@
         "cls": "partial",
         "via": "footnote",
         "host": "science.nasa.gov",
+        "facePath": "primary-faces/71653e4d2df860fa.txt",
         "sentence": "President Trump Signs Executive Order to Create US Space Academy",
         "missing": [
           "really",
@@ -13150,6 +13635,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/f0846504330bc332.txt",
         "sentence": "article 4 days ago",
         "missing": [
           "proudest"
@@ -13174,6 +13660,7 @@
         "cls": "absent",
         "via": "footnote",
         "host": "airandspace.si.edu",
+        "facePath": "primary-faces/8a6951d211712f1a.txt",
         "sentence": null,
         "missing": [
           "center",
@@ -13200,6 +13687,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/362ed43e9c0cc643.txt",
         "sentence": "The Apollo Lunar Surface Journal and Apollo Flight Journal are impressive resources for exploring the Apollo missions.",
         "missing": [
           "1969"
@@ -13222,6 +13710,7 @@
         "cls": "no-lead",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -13241,6 +13730,7 @@
         "cls": "same-sentence",
         "via": "link",
         "host": "web.archive.org",
+        "facePath": "primary-faces/4796d5c3d27b56a2.txt",
         "sentence": "The Wayback Machine - https://web.archive.org/web/20181011013811/https://airandspace.si.edu/collection-objects/kit-pilots-personal-preference-apollo-11",
         "missing": null,
         "missingSide": null,
@@ -13265,6 +13755,7 @@
         "cls": "no-lead",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -13286,6 +13777,7 @@
         "cls": "absent",
         "via": "link",
         "host": "airandspace.si.edu",
+        "facePath": "primary-faces/1054ff3aebfb6939.txt",
         "sentence": null,
         "missing": [
           "inflation",
@@ -13312,6 +13804,7 @@
         "cls": "absent",
         "via": "link",
         "host": "arxiv.org",
+        "facePath": "primary-faces/ac8d77211342568b.txt",
         "sentence": null,
         "missing": [
           "done",
@@ -13339,6 +13832,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/eaab29993dab83f8.txt",
         "sentence": "The correction was made July 22 at about 150 hours, 30 minutes into the mission.",
         "missing": [
           "enough",
@@ -13365,6 +13859,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -13385,6 +13880,7 @@
         "cls": "no-lead",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -13405,6 +13901,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/cf81fc278355b46c.txt",
         "sentence": "SpaceX Crew-2",
         "missing": [
           "relayed"
@@ -13437,6 +13934,7 @@
         "cls": "partial",
         "via": "link",
         "host": "presidency.ucsb.edu",
+        "facePath": "primary-faces/52563efaf873d1f3.txt",
         "sentence": "Remarks to Apollo 11 Astronauts Aboard the U.S.S. Hornet Following Completion of Their Lunar Mission.",
         "missing": [
           "guarantee",
@@ -13465,6 +13963,7 @@
         "cls": "window",
         "via": "link",
         "host": "web.archive.org",
+        "facePath": "primary-faces/4f69a8cb8bb11499.txt",
         "sentence": "The philosophy behind these rules is sound\nenough that they remain in use at today's mission control\ncenter. Lunney continued taking on progressively\nlarger roles and responsibilities within NASA, including chief of the\nFlight Dynamics Branch at the Flight Control Division. In 1968, he\nbecame chief of the Flight Director's Office, a role he assumed\nthroughout most of the Apollo lunar program.",
         "missing": null,
         "missingSide": null
@@ -13487,6 +13986,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -13511,6 +14011,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/eaab29993dab83f8.txt",
         "sentence": "Apollo 11 Mission Overview",
         "missing": [
           "thought"
@@ -13539,6 +14040,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -13579,6 +14081,7 @@
         "cls": "absent",
         "via": "link",
         "host": "ntrs.nasa.gov",
+        "facePath": "primary-faces/9c3ac072b80c2b4d.txt",
         "sentence": null,
         "missing": [
           "time",
@@ -13621,6 +14124,7 @@
         "cls": "absent",
         "via": "footnote",
         "host": "nasa.gov",
+        "facePath": "primary-faces/03a97e93a8e6b09d.txt",
         "sentence": null,
         "missing": [
           "pen",
@@ -13649,6 +14153,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -13674,6 +14179,7 @@
         "cls": "partial",
         "via": "footnote",
         "host": "nasa.gov",
+        "facePath": "primary-faces/eaab29993dab83f8.txt",
         "sentence": "Back",
         "missing": [
           "structure",
@@ -13702,6 +14208,7 @@
         "cls": "absent",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/86570537bec568ff.txt",
         "sentence": null,
         "missing": [
           "kings",
@@ -13731,6 +14238,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -13755,6 +14263,7 @@
         "cls": "absent",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/7dd85f4b8d00e19f.txt",
         "sentence": null,
         "missing": [
           "engine",
@@ -13786,6 +14295,7 @@
         "cls": "absent",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/64abb6dbdb57e0a8.txt",
         "sentence": null,
         "missing": [
           "vice",
@@ -13816,6 +14326,7 @@
         "cls": "absent",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/f78739635739df53.txt",
         "sentence": null,
         "missing": [
           "broadcast",
@@ -13848,6 +14359,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -13877,6 +14389,7 @@
         "cls": "unreadable",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -13900,6 +14413,7 @@
         "cls": "absent",
         "via": "link",
         "host": "arxiv.org",
+        "facePath": "primary-faces/ac8d77211342568b.txt",
         "sentence": null,
         "missing": [
           "whipping",
@@ -13924,6 +14438,7 @@
         "cls": "no-lead",
         "via": null,
         "host": null,
+        "facePath": null,
         "sentence": null,
         "missing": null,
         "missingSide": null
@@ -13945,6 +14460,7 @@
         "cls": "absent",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/f0846504330bc332.txt",
         "sentence": null,
         "missing": [
           "busy",
@@ -13968,6 +14484,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/64abb6dbdb57e0a8.txt",
         "sentence": "The Apollo Lunar Surface Journal and Apollo Flight Journal",
         "missing": [
           "pad"
@@ -13994,6 +14511,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/cf81fc278355b46c.txt",
         "sentence": "The Apollo 11 backup crew of Commander James A. Lovell, CMP William A. Anders, and LMP Fred W. Haise, would be ready to fly the mission in case something happened to the prime crew.",
         "missing": [],
         "missingSide": "object"
@@ -14019,6 +14537,7 @@
         "cls": "absent",
         "via": "footnote",
         "host": "science.nasa.gov",
+        "facePath": "primary-faces/71653e4d2df860fa.txt",
         "sentence": null,
         "missing": [
           "british",
@@ -14046,6 +14565,7 @@
         "cls": "partial",
         "via": "link",
         "host": "web.archive.org",
+        "facePath": "primary-faces/4f69a8cb8bb11499.txt",
         "sentence": "Apollo 7 MCC Activity-Flight Director\nGlynn Lunney is seated at his console in the Mission Operations\nControl Room in the Mission Control Center at Houston on the first\nday of the Apollo 7 mission, October 11, 1968.",
         "missing": [
           "collins"
@@ -14071,6 +14591,7 @@
         "cls": "partial",
         "via": "link",
         "host": "presidency.ucsb.edu",
+        "facePath": "primary-faces/8dba1bffe2e2311d.txt",
         "sentence": "Note: The President spoke at 11:49 p.m. in the Oval Room at the White House with Apollo 11 astronauts Neil A. Armstrong and Col.",
         "missing": [],
         "missingSide": "object"
@@ -14093,6 +14614,7 @@
         "cls": "partial",
         "via": "link",
         "host": "nasa.gov",
+        "facePath": "primary-faces/936e909fa8565609.txt",
         "sentence": "News & Events",
         "missing": [
           "sites",

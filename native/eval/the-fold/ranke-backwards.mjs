@@ -213,9 +213,9 @@ async function walk(noteList, { useWitness }) {
       const cl = classify(claim, subjWords, got.text);
       cl.viaArchive = viaArchive; cl.identity = identity;
       consulted.push({ host: got.host ?? c.host, via: c.via, ...cl });
-      if (!best || CLASSES.indexOf(cl.cls) < CLASSES.indexOf(best.cls)) best = { ...cl, host: got.host ?? c.host, via: c.via, text: got.text };
+      if (!best || CLASSES.indexOf(cl.cls) < CLASSES.indexOf(best.cls)) best = { ...cl, host: got.host ?? c.host, via: c.via, text: got.text, path: got.path ?? null };
     }
-    const row = { id: n.id, note: `${n.subject} —${n.verb}→ ${n.object}`, article: n.spans?.[0]?.text ?? null, tokens: claim.tokens, bound: bound.length, readable: consulted.filter((c) => !c.gap).length, readableBound: consulted.filter((c) => !c.gap && /^footnote/.test(c.via)).length, wrongDocuments: consulted.filter((c) => c.gap?.type === "wrong-document").length, viaArchive: consulted.filter((c) => c.viaArchive).length, cls: best?.cls ?? (consulted.length ? "unreadable" : "no-lead"), via: best?.via ?? null, host: best?.host ?? null, sentence: best?.sentence ?? null, missing: best?.missing ?? null, missingSide: best?.missingSide ?? null };
+    const row = { id: n.id, note: `${n.subject} —${n.verb}→ ${n.object}`, article: n.spans?.[0]?.text ?? null, tokens: claim.tokens, bound: bound.length, readable: consulted.filter((c) => !c.gap).length, readableBound: consulted.filter((c) => !c.gap && /^footnote/.test(c.via)).length, wrongDocuments: consulted.filter((c) => c.gap?.type === "wrong-document").length, viaArchive: consulted.filter((c) => c.viaArchive).length, cls: best?.cls ?? (consulted.length ? "unreadable" : "no-lead"), via: best?.via ?? null, host: best?.host ?? null, facePath: best?.path ?? null, sentence: best?.sentence ?? null, missing: best?.missing ?? null, missingSide: best?.missingSide ?? null };
     const wrongDocs = consulted.filter((c) => c.gap?.type === "wrong-document").length;
     if (useWitness && best && (best.cls === "same-sentence" || best.cls === "morphology" || (best.cls === "partial" && /^footnote/.test(best.via ?? "") && best.sentence)) && witnessed < WITNESS_CAP) {
       witnessed += 1;

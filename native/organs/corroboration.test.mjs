@@ -696,3 +696,65 @@ test("a chunk-addressed mechanical witness and a testimony vote from the same fi
   assert.equal(r.count, 3, "(a,r1) (b,r1) (a,r2): the address never makes a fourth reading");
   assert.equal(r.undeclared, 0);
 });
+
+// ── the injected candidate set (the paraphrase seam) ─────────────────────
+// statingCandidates' gate is `h1 > 0 && h2 > 0`: BOTH ends must fire
+// LITERALLY. A source that states the claim in other words therefore offers
+// NOTHING, the armed select protocol never runs, and witnessNote falls
+// through to a generate call on a containment slice. That gate is right as
+// the default and is exactly the wall paraphrase hits, so a caller may
+// supply its own declared candidate set. What it may NOT do is relax the
+// arm — pinned by the second test, which is the control built to fail.
+const PARAPHRASE = {
+  ref: "nasa",
+  text: "Armstrong then climbed down the ladder toward the Moon. Aldrin waited inside the module until the checklist was complete.",
+};
+const PARA_ENDS = { end1: "Armstrong", end2: "his descent to the lunar surface" };
+const PARA_CLAIM = "Armstrong began his descent to the lunar surface";
+
+test("injected candidates reach the select protocol where statingCandidates is structurally empty", async () => {
+  // the premise, pinned rather than assumed: end2's words are absent, so
+  // the default gatherer offers nothing at all on this source
+  assert.equal(
+    statingCandidates(PARAPHRASE.text, PARA_ENDS, { splitSentences, limit: 8 }).length, 0,
+    "end2 never fires literally — this is what an object-missing partial IS");
+
+  const cands = splitSentences(PARAPHRASE.text).map((s) => ({
+    shown: s.text.replace(/\s+/g, " ").trim(), raw: s.text, start: s.offset, end: s.offset + s.text.length,
+  }));
+  // a picker that points at the paraphrase for the real claim and refuses
+  // the sibling-swapped arm — a discriminate pair, which is what a vote is
+  const selectAsk = async (messages) =>
+    /descent to the lunar surface/.test(messages.at(-1).content) ? { stated: "yes", sentence: 1 } : { stated: "no", sentence: 0 };
+  const w = await witnessNote(PARA_CLAIM, PARAPHRASE,
+    { ask: saysNo, selectAsk, testimony: selectTestimony, splitSentences, ends: PARA_ENDS, candidates: cands });
+  assert.equal(w.verdict, "states");
+  assert.equal(w.via, "select");
+  assert.match(w.because, /climbed down the ladder/);
+  const [a, b] = w.span.at.slice("nasa#".length).split("-").map(Number);
+  assert.equal(PARAPHRASE.text.slice(a, b), w.because, "the carried address still names the decider's own bytes");
+});
+
+test("CONTROL, built to fail: an injected candidate set cannot buy a yes — the arm still convicts an indiscriminate picker", async () => {
+  const cands = splitSentences(PARAPHRASE.text).map((s) => ({
+    shown: s.text.replace(/\s+/g, " ").trim(), raw: s.text, start: s.offset, end: s.offset + s.text.length,
+  }));
+  // the failure a slicer would silently license if the arm were relaxed:
+  // a picker that points at the SAME sentence whatever it is asked
+  const selectAsk = async () => ({ stated: "yes", sentence: 1 });
+  const w = await witnessNote(PARA_CLAIM, PARAPHRASE,
+    { ask: saysNo, selectAsk, testimony: selectTestimony, splitSentences, ends: PARA_ENDS, candidates: cands });
+  assert.equal(w.refused, "indiscriminate");
+  assert.equal(w.via, "select");
+  assert.ok(w.arm && w.arm !== PARA_CLAIM, "the arm really swapped a competing filler into end2's slot");
+});
+
+test("candidates omitted: statingCandidates runs unchanged (opt-in, byte-compatible)", async () => {
+  const src = { ref: "novel", text: "A preamble. Napoleon faced General Mikhail Kutuzov near Marshal Davout across the field that day." };
+  const selectAsk = async (messages) =>
+    /fought against General Mikhail Kutuzov/.test(messages.at(-1).content) ? { stated: "yes", sentence: 1 } : { stated: "no", sentence: 0 };
+  const w = await witnessNote("Napoleon fought against General Mikhail Kutuzov", src,
+    { ask: saysNo, selectAsk, testimony: selectTestimony, splitSentences, ends: { end1: "Napoleon", end2: "General Mikhail Kutuzov" } });
+  assert.equal(w.verdict, "states");
+  assert.match(w.because, /Napoleon faced General Mikhail Kutuzov/);
+});
