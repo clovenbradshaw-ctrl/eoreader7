@@ -42,7 +42,7 @@ able to read that document's own words for a given claim.
 | 1 | leads ranked by claim overlap (the walk's own `rankPrimary`) | 575 | 40 (47) | 21 | 285 | 6 | 1 | 96 | 182 | — | 7 | **7 vs real 6** |
 | 2 | **footnote binding** — the marker in the prose is an in-page link to one numbered note, whose outbound links are the lead for THAT sentence; trailing markers | 575 | 90 (61) | 42 | 342 | 9 | 2 | 163 | 168 | 32 | 13 | 8 vs 9 |
 | 3 | **document identity** (a face must carry the citation's title words or it is the wrong document, and the archive copy is read); bibliography region dropped; witness on footnote-bound partials | 524 | 120 (56) | 56 | 334 | 8 | 6 (+1 m+w) | 169 | 150 | 49 | 44 | 8 vs 8 |
-| 4 | archive copies actually reachable (see below) | RUN4_ROW |
+| 4 | **archive copies actually read** — the proxy honoured (`NODE_USE_ENV_PROXY=1`), the cached route failures purged, budget 160 fetches / 60 witness asks | 524 | 160 (58) | 98 | 404 | 18 | 9 (+1 m+w) | 226 | 150 | 67 | 76 | 16 vs 18 |
 
 **Run 1 chased the wrong documents.** Ranking a note's leads by word overlap
 with the claim picked whichever cited page shared the most vocabulary — a
@@ -94,34 +94,77 @@ is the identical driver with the proxy honoured and the budget raised so
 the archive fetches are not starved (`MAXF=160`, `WITNESS=60`; run 3 had
 spent its 120 to the last fetch).
 
-RUN4_SECTION
+**Run 4 read the documents run 3 could not, and the picture is now honest
+about what is left.** 83 wrong-document consults, 83 read through the
+archive copy (run 3: 129 and 0). Faces read 56 → 98; notes with a readable
+cited face 334 → 404; footnote-bound notes whose own footnote's face is
+readable, 69 of 129. `same-sentence` 8 → 18 — **and the control 8 → 16.**
+Reading more of the right documents doubled containment's hits on the real
+ledger and on the rotated one alike, which is what the driver's own header
+predicted for a class that measures where a note's words co-occur. The
+`window` specimens say the same thing in plain sight: a three-sentence
+window on a portal page "matches" *Apollo 11's launch* against a table
+listing the Akatsuki launch date, and *Aldrin joined Armstrong on the
+surface* against "Explore the Apollo Lunar Surface Journal…". Containment
+at any grain this driver can define sits at parity with its control on
+this material; it is a lead-finder, and the numbers now say so twice.
+
+**The witness is the only thing that separates.** 65 leads shown, 76
+model calls (the armed protocol asks twice on a yes): 3 `states`, 2
+`contradicts`, 60 typed refusals (`no-testimony` 33, `indiscriminate` 6,
+`uncontained` 6, `unarmed` 3, `unarmed-select` 2, `decider_unrelated` 2).
+The three that landed:
+
+- *Armstrong's crew became the backup for Apollo 8* — NASA's "Armstrong
+  and Aldrin had served on the backup crew for Apollo 8 the previous
+  December" (same-sentence, run 3's one landing, held).
+- *NASA confirmed [the engine] was from Apollo 11* — an archive copy the
+  direct route could not reach in run 3 (same-sentence).
+- **The one that prices the next rung:** *William Safire had prepared an
+  "In Event of Moon Disaster" announcement for Nixon* — through the
+  note's OWN footnote, to thesmokinggun.com, where the face reads "In a
+  memo drafted two days before the Eagle landed, aide William Safire
+  provided Nixon with a short speech to be delivered 'In Event of Moon
+  Disaster.'" Containment classed it `partial` (the source says
+  "provided… a short speech", the article says "had prepared… an
+  announcement"); the witness signed it. That is the route the whole
+  backwards walk was built to find: the right document by the author's
+  own footnote, the right sentence offered to a reader, a paraphrase
+  crossed by the one instrument licensed to cross it.
+
+The two `contradicts` are a 2B model over-reading, and they land as
+standing, never as conviction: the New York parade note against the city
+archive's photo caption ("receptions at City Hall and the United Nations"
+— the caption does not say where the parade ended, and the model read
+silence as denial), and the camera "currently on display" against a
+museum page about Armstrong's death (the wrong slice of the right site).
+Both are exactly why a `contradicts` from the witness is a witness of a
+kind on the ledger and not a verdict.
+
+**Paraphrase grew with reach, as it must.** `partial` 169 → 226, and the
+missing side is the OBJECT in 162 of them (subject 21, both 43): the cited
+document states the thing in other words. That is now the dominant class
+by a factor of eight over everything containment can reach (28), and it
+is the class no matcher has moved in this project's history — the same
+wall as MINE-1's `unbound` plateau and P74's `withdraws`/`retreated`.
+
 
 ## The ladder — what the next rung would need
 
-Cumulative over the readable notes, run 3 (run 4 in parentheses where it
-moved):
+Cumulative over the 404 readable notes, run 4 (run 3, over 334, in
+parentheses):
 
 | rung | notes reachable | what it needs |
 |---|---|---|
-| now (`same-sentence`) | 8 | nothing — `snipClaim` finds these today; put to the witness, 1 of 8 was signed and 7 refused, so even this rung is priced by the witness, not by containment |
-| + morphology | 8 | the lemmatizer widens nothing here: on this material every form-only miss also crosses a sentence |
-| + window (3 sentences) | 14 | cross-sentence binding: the face names "Armstrong" once and then "the commander"/"he"; the referent index + pronoun binding the reading pipeline already has, applied to the FACE rather than the article |
-| + both | 15 | |
-| `partial`, object missing (119) | — | the source states it in other words — paraphrase, the same wall MINE-1 and P74 named; the witness's job, not containment's |
-| `partial`, subject missing (16) | — | the source calls the thing something else — identity across documents ("Eagle" / "the LM" / "the lunar module") |
-| `partial`, both (34) | — | both |
-| `absent` (150) | — | this face does not state it: the wrong document (a portal, a summary page), a PDF (`beyond-reach: application/pdf`, 3 faces), or a page that answered 403 to this reader (71 addresses, 16 of them archive routes) |
+| now (`same-sentence`) | 18 (8) | nothing — `snipClaim` finds these today; put to the witness, 2 of 18 were signed and 16 refused, and the control scores 16 — this rung is priced by the witness, not by containment |
+| + morphology | 18 (8) | the lemmatizer widens nothing here: on this material every form-only miss also crosses a sentence |
+| + window (3 sentences) | 27 (14) | cross-sentence binding — but the control scores 5 to the real 9, and the specimens are portal menus: a bare window is co-occurrence; what this rung needs is the face's own referent index and pronoun binding (the reading pipeline's, applied to the FACE), so the window is chosen by activation, not adjacency |
+| + both | 28 (15) | |
+| `partial`, object missing (162; run 3 119) | — | the source states it in other words — paraphrase, the same wall MINE-1 and P74 named; the witness's job, not containment's, and the Safire landing above is the proof it can be crossed when the witness is shown the right sentence |
+| `partial`, subject missing (21; run 3 16) | — | the source calls the thing something else — identity across documents ("Eagle" / "the LM" / "the lunar module") |
+| `partial`, both (43; run 3 34) | — | both |
+| `absent` (150, unchanged) | — | this face does not state it: a summary page, a PDF (`beyond-reach: application/pdf`, 3 faces), or a page that answered 403 to this reader itself (55 addresses once the 16 archive routes are excluded — worldcat, doi.org, id.loc.gov, newspapers) |
 
-**What the witness said on the 33 leads it was shown (run 3, 44 model
-calls — the armed protocol asks twice on a yes):** 1 `states`, 1
-`contradicts`, 31 typed refusals (`no-testimony` 18, `indiscriminate` 5,
-`uncontained` 5, `unarmed` 2, `decider_unrelated` 1). The one "states" is a real one — *Armstrong's crew became
-the backup for Apollo 8* against NASA's own "Armstrong and Aldrin had served
-on the backup crew for Apollo 8" — and it lands `primary:nasa.gov#a-b~ranke-v1`
-with an address into the kept face. The one "contradicts" (*the camera is
-currently on display at the National Air and Space Museum*, against the
-museum's own page) is the model reading a page whose tense has moved on;
-the note's standing says so and nothing is convicted.
 
 ## What is established, and what is not
 
@@ -135,17 +178,28 @@ the note's standing says so and nothing is convicted.
   for a link that has rotted — which makes the archive route a
   load-bearing dependency, and its reachability a measured fact of the
   environment, never an assumption.
-- **The remaining gap is paraphrase and identity, not addressing.** Of 334
-  notes with a readable cited face, 15 are within reach of containment
-  plus a sentence window; 169 are `partial` with the missing side named,
-  and 119 of those are missing the OBJECT — the source says it in other
+- **Containment is at parity with its control at every grain this driver
+  can define** (same-sentence 18 vs 16, window 9 vs 5, on the same faces).
+  It finds where a note's words live; it does not find the claim. Twice
+  measured, on two runs that read different amounts of the right material.
+- **The remaining gap is paraphrase and identity, not addressing.** Of 404
+  notes with a readable cited face, 28 are within reach of containment
+  plus a sentence window; 226 are `partial` with the missing side named,
+  and 162 of those are missing the OBJECT — the source says it in other
   words. That is the witness tier's question, asked of the right document
-  at the right sentence, which is what the footnote binding now delivers.
+  at the right sentence, which is what the footnote binding now delivers —
+  and the Safire landing is one real instance of it being answered.
 - **Not established:** any rate for what the witness would sign on those
-  169. The 44 calls here were spent on containment's leads; pointing the
-  witness at every footnote-bound `partial` with its best window, at a
-  declared budget, is the next measurement, and it needs the archive
-  route to be open for the faces that rotted.
+  226. The 76 calls here were spent on leads containment chose, and 33 of
+  the 60 refusals are `no-testimony` — the slice offered did not state it,
+  which on a paraphrase is as often the wrong slice as the wrong answer.
+  The next measurement points the witness at every footnote-bound
+  `partial` with a window chosen by the face's own referent activation
+  rather than by word containment, at a declared budget, with the rotated
+  control through the identical slicer: if the witness signs the control
+  as often as the real ledger, the slicer found co-presence, not the claim.
 
-Raw: `results/ranke-backwards.json` (run 4), `ranke-backwards-run3.json`.
+Raw: `results/ranke-backwards.json` (run 4), `ranke-backwards-run3.json`
+(run 3). Runs 1 and 2 are recorded in the driver's own commit history
+(`9a78b20`, `1717e1c`) and their headline lines above.
 Faces: `fixtures/primary-faces/` (index + text faces).

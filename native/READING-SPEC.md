@@ -2655,3 +2655,42 @@ corroborated tier; the interrogative "what" counted as vocabulary), and a
 mechanical no-model mode (`MECHANICAL=1`) that measures reachability in
 seconds. Hits measure that the model said a heard claim back with its
 standing, never that the claim is true.
+
+**Amended 2026-09-03 — working backwards from an article whose sources
+are readable: what the chase would need.** User direction: "try it on an
+article that has useable sources and work backwards to what it would need
+to do to get the spans that create the equivalent hypergraph
+propositions." `eval/the-fold/ranke-backwards.mjs` over the real *Apollo
+11* article (524 notes after the bibliography region is dropped): for
+every note, the cited faces, and the gap to the nearest span in one,
+classified most-demanding-first (`same-sentence` / `morphology` / `window`
+/ `partial` with the missing side named / `absent`), with the witness on
+containment's leads and the rotated-end2 control on the same faces. Four
+runs, each rule earned by a specimen, all in `ranke.js`:
+**footnote binding** — a marker in the prose is an in-page link to one
+numbered note whose outbound links are the lead for THAT sentence,
+consulted before any overlap-ranked link (run 1's overlap ranking chased
+the wrong document: the control out-hit the real ledger, 7 to 6);
+`markersOfSpan` — a marker at a span's start belongs to the previous
+sentence, the sentence's own marker trails it; **document identity** —
+`documentMatches` requires a face to carry the citation's own title words,
+and on a miss the archive copy is read (31 of 62 footnote-bound addresses
+on a fifty-year-old article now serve a portal page); archive wrappers
+paired with their targets. **A route failure is not a document gap:**
+run 3 read zero archive copies because every Wayback fetch answered 403
+on the sandbox's direct egress path (200 through its proxy; Node's fetch
+honours `HTTPS_PROXY` only under `NODE_USE_ENV_PROXY=1`), and the kept
+index had cached those as gaps — purged, disclosed, rerun. **Run 4:** 83
+wrong-document consults, 83 read through the archive; 404 of 524 notes
+with a readable cited face; containment reaches 28 (`same-sentence` 18,
+control 16; `window` 9, control 5 — parity at every grain, twice
+measured: containment is a lead-finder); the witness signed 3 of 65
+leads, one of them a genuine paraphrase crossed through the note's own
+footnote (Safire's "In Event of Moon Disaster" memo — "provided… a short
+speech" for "had prepared… an announcement"); `partial` with the OBJECT
+missing is the dominant class at 162 of 226 — the cited document says it
+in other words. The named next rung is not a matcher: the witness pointed
+at every footnote-bound `partial`, its window chosen by the face's own
+referent activation rather than word containment, under a declared
+budget, with the control through the identical slicer. Full account:
+`eval/the-fold/results/ranke-backwards-RESULTS.md`.
