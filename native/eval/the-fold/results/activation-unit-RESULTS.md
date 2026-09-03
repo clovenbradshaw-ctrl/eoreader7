@@ -173,3 +173,91 @@ MODE=excerpt node activation-unit-probe.mjs               # arm 2 (excerpt)
 ```
 
 Arm 1 is ~2 minutes, nearly all of it chunking the book; arm 2 is instant.
+
+---
+
+# Amendment — the two walls widened, and the ceiling measured again
+
+The section above named two levers and did not build them. Built here, both
+DECLARED and both OFF by default, so every existing caller is byte-identical.
+
+- **`fillerPool`** (`competingFiller`, threaded through `witnessNote` /
+  `witnessSentences`) — a second source of competitors, searched only when the
+  candidates offer none. Callers pass the surfaces their own reader actually
+  established (`discoverReferents`' `DEF.admit` events), a pool that does not
+  shrink when retrieval narrows. Candidates are still searched FIRST and win:
+  a competitor the picker has just read is the strongest thing to confuse an
+  end with; a pool surface it has not read is weaker ammunition, not better.
+- **`armEitherEnd`** — when the literal swap of end2 is a no-op, swap end1
+  instead. Which end a claim states literally is an accident of wording, not a
+  fact about whether it can be tested: an arm that swaps end1 asks the picker
+  the same question ("is this sentence about THIS one, or that one").
+
+## The ceiling, re-measured — and it becomes scale-invariant
+
+```
+                       perfect reader, arm as shipped    both widenings ON
+excerpt (9KB, 1 source)              8 of 9                   8 of 9
+corpus  (3.3MB, limit 3)             4 of 9                   8 of 9
+```
+
+**4/9 → 8/9 on the corpus; unchanged on the excerpt.** That is the shape the
+diagnosis predicted: the widening closes a scale artifact and adds nothing
+where there was no artifact. The one item still unlandable in each arm is the
+same in both — a retrieval miss whose slice genuinely does not state the claim,
+which is the honest refusal, not a wall.
+
+The reader-resolved pool has a median size of 6 surfaces on the corpus's three
+retrieved passages and 23 on the excerpt — so it is thinnest exactly where it
+is needed, and still enough.
+
+## The control, built to fail (II.23)
+
+A widening that raises the ceiling for true claims **and** for false ones has
+weakened the protocol, not fixed it. Two adversaries, both with the widenings
+on, run over all sixteen battery items rather than the nine entailed ones:
+
+```
+FALSE twins landed `states`, arm as shipped            2 of 7
+FALSE twins landed `states`, widenings ON              2 of 7
+ADDED by the widening (the number that must be 0)      0
+indiscriminate picker got through, any item            0 of 16   (must be 0)
+```
+
+**Zero added.** The two false landings are the *oracle's* own construction and
+pre-date the change: it answers on both-ends-in-full, so a false claim whose
+two ends both occur ("Kutúzov"/"commander in chief"; "Moscow"/"French") gets a
+yes from it by definition. A real model is what has to catch those, and the
+live gemma2:2b run recorded **zero lies** across the FALSE set. Naming which
+leaks are the measuring instrument's and which are the protocol's is the whole
+reason the shipped and widened columns are reported side by side.
+
+**And the arm still works.** The indiscriminate picker — yes to everything,
+pointing at the same index whatever it is asked, which is precisely what the
+arm exists to catch — is refused on all sixteen items with the widenings on. A
+widened arm that let it through would have made the ceiling number worthless.
+
+## What is still not established
+
+**No model ran.** This measures the CEILING moving — what a flawless reader
+could land — which needs no model. Whether a real model then lands more of it
+is the separate question this environment cannot ask (no Ollama). The honest
+prediction, stated so it can be checked and be wrong: the real run scored 0 of
+4 reachable on the corpus, so a ceiling of 8 does not become a score of 8; it
+becomes 8 chances at a reading the model was failing 4 of 4 times.
+
+The widenings are **off by default** and no production caller passes either.
+Turning them on in the live app is a separate decision on the same terms
+`verbForms` and `createLemmatizer` already carry, and P43's distinguishing
+test says which way it leans: this WIDENS what can be heard rather than
+closing a false binding, so it does not ship on by itself.
+
+## Files
+
+`organs/corroboration.js` (`competingFiller` gains `pool`; `witnessNote` gains
+`fillerPool` / `armEitherEnd`), `organs/witness-sentences.js` (threads both),
+`organs/corroboration.test.mjs` (+3 cases: each wall with its own control that
+the default is untouched, plus the indiscriminate-picker case proving the
+widened arm still refuses), `eval/the-fold/activation-unit-probe.mjs` (the
+widened arm and both controls). Full native suite: 24 failures before and
+after, identical by name — zero regressions.
