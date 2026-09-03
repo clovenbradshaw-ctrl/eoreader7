@@ -14,13 +14,27 @@ already-chunked passage — and the median chunk of a real Wikipedia page is
 passages, and the run of four can never form. The evidence for a run lives
 ACROSS chunks; the decision was being taken where that evidence is not.
 
-Measured on three pages before any change (characters blanked):
+Characters blanked, per page, on this branch's own committed fixtures:
 
-| page | as shipped | whole page | |
+| page | as shipped | with page context | |
 |---|---|---|---|
-| battle-of-gettysburg | 286 | 16,176 | **57×** |
-| american-civil-war | 1,157 | 14,963 | 13× |
-| abraham-lincoln | 742 | 47,098 | **63×** |
+| battle-of-borodino | 501 | 3,766 | 7.5× |
+| war-and-peace | 349 | 4,736 | 13.6× |
+| apollo-11 | 784 | 7,682 | 9.8× |
+| battle-of-austerlitz | 207 | 4,467 | 21.6× |
+| war-of-the-third-coalition | 406 | 4,444 | 10.9× |
+| **borodino-ru** | 66 | 3,512 | **53.2×** |
+| **total** | **2,313** | **28,607** | **12.4×** |
+
+The Russian page moves furthest, which is what one would expect: its
+furniture is the least visible to an English POS gate, so the blanker is the
+only organ that can reach it at all.
+
+The defect was first measured on three other pages — gettysburg /
+american-civil-war / abraham-lincoln, at 57× / 13× / 63× — and those numbers
+are recorded here as provenance rather than as reproducible from this branch:
+those fixtures are committed on a different PR's branch, not on `main`. Every
+number in the rest of this document reproduces from this branch alone.
 
 **The sentence boundary is not the constraint; the passage boundary is.**
 Per-sentence and per-passage blanking agree at ratio 1.000 / 1.000 / 0.852 —

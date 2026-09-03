@@ -2785,9 +2785,13 @@ CONSECUTIVE cells. Its one consumer (`hypergraph.js::readSentenceText`)
 applied it to one sentence of one already-chunked passage, and the median
 chunk of a real page is 31–72 characters — so a navbox arrives already
 atomised into one-bullet passages and the run of four can never form.
-Measured on three real fixtures: 286 / 1,157 / 742 characters blanked as
-shipped, against 16,176 / 14,963 / 47,098 with the page in view — **13× to
-63×**. The sentence boundary is not the constraint: per-sentence and
+Measured across six real committed fixtures: **2,313 characters blanked as
+shipped against 28,607 with the page in view — 12.4× overall**, and 7.5× to
+53.2× per page, the Russian one moving furthest because its furniture is
+least visible to an English POS gate. (The defect was first found on three
+other pages at 57× / 13× / 63×; those fixtures live on another PR's branch
+and are cited as provenance, not as reproducible here.) The sentence boundary
+is not the constraint: per-sentence and
 per-passage blanking agree at 1.000 / 1.000 / 0.852. The PASSAGE boundary is.
 An earlier reading of this same defect blamed the sentence scoping and was
 wrong; measuring the two apart is what showed so.
