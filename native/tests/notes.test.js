@@ -241,3 +241,107 @@ test("foldWithStanding carries the standing on every projected note", () => {
   assert.equal(f[0].standing, "corroborated"); assert.equal(f[0].sources, 2);
   assert.equal(f[1].standing, "single-witness"); assert.deepEqual(f[1].kinds, { sighting: 1 });
 });
+
+// ── the join: proposition identity and referent identity are two claims ──
+// A triple that matches a note already here asserts the two PROPOSITIONS
+// are the same. A hearing that also arrives from a source no witness has
+// named asserts the two documents' REFERENTS are the same — a bridge
+// between two readings, each of which established its own universe. These
+// tests pin that the second claim is recorded with what it rested on, that
+// it can be refused, and that refusing it loses nothing.
+
+test("a cross-source join is RECORDED as an assumed bridge, with what it rested on", () => {
+  let log = notes.createNotes();
+  log = notes.hear(log, { end1: "Smith", label: "chaired", end2: "the commission", spans: [span("page-a", 10, 30)], witness: "page-a~walls" });
+  log = notes.hear(log, { end1: "Smith", label: "chaired", end2: "the commission", spans: [span("page-b", 40, 60)], witness: "page-b~walls" });
+  const [n] = notes.fold(log);
+  assert.equal(n.witnesses.length, 2, "the proposition still joins — that job is unchanged");
+  assert.equal(n.joins.length, 1, "and the referent claim it also made is on the record");
+  assert.deepEqual(n.joins[0].from, ["page-a"]);
+  assert.equal(n.joins[0].source, "page-b");
+  assert.deepEqual(n.joins[0].assumed, ["Smith", "the commission"]);
+  assert.equal(n.joins[0].basis, "string-identity", "with no identity organ, that is literally all it rested on");
+  assert.equal(n.joins[0].standing, "assumed");
+  const st = notes.standingOf(n);
+  assert.equal(st.standing, "corroborated");
+  assert.equal(st.assumedBridges, 1, "so 'corroborated' reads back as 'across one bridge nobody checked'");
+});
+
+test("a source re-witnessing its OWN note is not a bridge and records no join", () => {
+  let log = notes.createNotes();
+  log = notes.hear(log, { end1: "Smith", label: "chaired", end2: "the commission", spans: [span("page-a", 10, 30)], witness: "page-a~walls" });
+  log = notes.hear(log, { end1: "Smith", label: "chaired", end2: "the commission", spans: [span("page-a", 90, 110)], witness: "page-a~walls" });
+  const [n] = notes.fold(log);
+  assert.equal(n.spans.length, 2, "a second sighting in the same document is still evidence");
+  assert.equal(n.joins ?? undefined, undefined, "but it crosses no universe, so there is nothing to assume");
+  assert.equal(notes.standingOf(n).assumedBridges, 0);
+});
+
+test("CONTROL BUILT TO FAIL: one name, two referents — an unrefused join silently corroborates a claim neither document makes", () => {
+  // Two real documents. Each says "Smith chaired the commission". They are
+  // different Smiths chairing different commissions, and nothing in the
+  // triples can tell them apart — which is exactly the case that must not
+  // pass silently.
+  const heard = (ledger) => {
+    let log = ledger.createNotes();
+    log = ledger.hear(log, { end1: "Smith", label: "chaired", end2: "the commission", spans: [span("banking-1998", 10, 30)], witness: "banking-1998~walls" });
+    log = ledger.hear(log, { end1: "Smith", label: "chaired", end2: "the commission", spans: [span("fisheries-2011", 40, 60)], witness: "fisheries-2011~walls" });
+    return log;
+  };
+
+  // WITHOUT a bridge organ: one note, two sources, reads as corroborated —
+  // and the assumption is at least visible now, which is this step's floor.
+  const silent = notes.fold(heard(notes));
+  assert.equal(silent.length, 1);
+  assert.equal(notes.standingOf(silent[0]).standing, "corroborated");
+  assert.equal(notes.standingOf(silent[0]).assumedBridges, 1, "the false corroboration is countable rather than invisible");
+
+  // WITH one: an organ that knows these universes disagree refuses the
+  // crossing. The scripted disagreement stands in for whatever a real organ
+  // would read (a mismatched date, an incompatible kind) — what is pinned
+  // here is that a refusal is honoured and costs no evidence.
+  const universes = { "banking-1998": "person:smith-a", "fisheries-2011": "person:smith-b" };
+  const withBridge = makeNotes({
+    bridge: ({ from, to }) => {
+      const theirs = new Set(from.map((f) => universes[f]));
+      return theirs.has(universes[to]) ? null : { reason: "referents_differ", detail: `${[...theirs].join(",")} vs ${universes[to]}` };
+    },
+  });
+  const split = withBridge.fold(heard(withBridge));
+  assert.equal(split.length, 2, "two universes, two notes — the refusal is not a drop");
+  const base = split.find((n) => n.id === noteId("Smith", "chaired", "the commission"));
+  const scoped = split.find((n) => n.id !== base.id);
+  assert.equal(scoped.id, `${base.id}@fisheries-2011`, "the second sighting keeps its own address under its own source");
+  assert.deepEqual(base.witnesses, ["banking-1998~walls"]);
+  assert.deepEqual(scoped.witnesses, ["fisheries-2011~walls"]);
+  assert.equal(withBridge.standingOf(base).standing, "single-witness");
+  assert.equal(withBridge.standingOf(scoped).standing, "single-witness");
+  assert.equal(scoped.unbridged.of, base.id);
+  assert.equal(scoped.unbridged.reason, "referents_differ");
+  assert.deepEqual(scoped.unbridged.from, ["banking-1998"]);
+  assert.equal(scoped.spans.length, 1, "the evidence survives the refusal");
+});
+
+test("a refused source that hears the same triple twice accumulates on ITS OWN note, never back across the refusal", () => {
+  const withBridge = makeNotes({ bridge: () => ({ reason: "referents_differ" }) });
+  let log = withBridge.createNotes();
+  log = withBridge.hear(log, { end1: "Smith", label: "chaired", end2: "the commission", spans: [span("a", 1, 2)], witness: "a~w" });
+  log = withBridge.hear(log, { end1: "Smith", label: "chaired", end2: "the commission", spans: [span("b", 3, 4)], witness: "b~w" });
+  log = withBridge.hear(log, { end1: "Smith", label: "chaired", end2: "the commission", spans: [span("b", 9, 10)], witness: "b~w" });
+  const all = withBridge.fold(log);
+  assert.equal(all.length, 2);
+  const scoped = all.find((n) => n.id.endsWith("@b"));
+  assert.equal(scoped.spans.length, 2, "the second sighting from b lands on b's own note");
+  assert.equal(all.find((n) => !n.id.includes("@")).spans.length, 1, "and never on a's");
+});
+
+test("no bridge organ: witnesses, spans and ids are byte-identical to before this seam existed", () => {
+  let log = notes.createNotes();
+  for (const [ref, at] of [["a", 1], ["b", 2], ["c", 3]])
+    log = notes.hear(log, { end1: "q2", label: "precedes", end2: "q4", spans: [span(ref, at, at + 1)], witness: `${ref}~hole` });
+  const [n] = notes.fold(log);
+  assert.equal(n.id, noteId("q2", "precedes", "q4"));
+  assert.deepEqual(n.witnesses, ["a~hole", "b~hole", "c~hole"]);
+  assert.equal(n.spans.length, 3);
+  assert.equal(notes.standingOf(n).assumedBridges, 2, "two crossings past the first source, both recorded");
+});
