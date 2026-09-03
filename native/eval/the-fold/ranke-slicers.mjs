@@ -84,7 +84,8 @@
 //
 // env: N notes (declared budget, P9) · K candidates (8) · WINDOW (3) ·
 //      MODEL (gemma2:2b) · SLICERS (comma list) · EMB (0 to skip) ·
-//      FROM (a backwards-walk JSON other than this page's)
+//      FROM (a backwards-walk JSON other than this page's) · OUT · SEED ·
+//      FRESH=1 to discard the checkpoint and re-run every arm
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 
 const NATIVE = new URL("../..", import.meta.url).pathname;
@@ -236,10 +237,21 @@ async function candidatesFor(name, face, ends, claimSentence) {
   throw new Error(`unknown slicer ${name}`);
 }
 
+// CHECKPOINT AND RESUME. A full pass is ~2h of model calls on this CPU and
+// the container it runs in can be restarted out from under it — measured,
+// once, losing a complete pass. So each arm's result is written the moment
+// it lands, and a re-run reads what is already there and skips it. Not an
+// optimisation: an unwritten arm is an arm nobody can check.
+const CKPT = `${HERE}results/${OUT}`;
+let ckpt = existsSync(CKPT) ? JSON.parse(readFileSync(CKPT, "utf8")) : { real: {}, control: {} };
+if (process.env.FRESH === "1") ckpt = { real: {}, control: {} };
+const save = () => writeFileSync(CKPT, JSON.stringify(ckpt, null, 2));
+
 async function arm(rows, label) {
-  const out = {};
+  const out = ckpt[label] ?? (ckpt[label] = {});
   for (const name of WANT) {
-    if (name === "embedding" && !embed) { out[name] = { gap: embedGap ?? { type: "skipped" } }; continue; }
+    if (out[name] && !out[name].gap) { console.log(`  ${label} · ${name}: already on the checkpoint — states ${out[name].states}, skipped`); continue; }
+    if (name === "embedding" && !embed) { out[name] = { gap: embedGap ?? { type: "skipped" } }; save(); continue; }
     const t0 = Date.now(); const verdicts = {}; const landings = []; let offered = 0, noCandidates = 0;
     for (const { row, ends, face } of rows) {
       const claim = R.claimOfNote(ends);
@@ -253,6 +265,7 @@ async function arm(rows, label) {
       if (w.verdict === "states") landings.push({ note: row.note, host: row.host, because: String(w.because ?? "").replace(/\s+/g, " ").slice(0, 220), span: w.span?.at ?? null });
     }
     out[name] = { offered, noCandidates, verdicts, states: verdicts.states ?? 0, contradicts: verdicts.contradicts ?? 0, landings, seconds: Math.round((Date.now() - t0) / 1000) };
+    save();
     console.log(`  ${label} · ${name}: offered ${offered}/${rows.length}, states ${verdicts.states ?? 0}, contradicts ${verdicts.contradicts ?? 0}, ${JSON.stringify(verdicts)} — ${Math.round((Date.now() - t0) / 1000)}s`);
   }
   return out;
@@ -295,5 +308,5 @@ for (const name of WANT) for (const l of (realOut[name]?.landings ?? []).slice(0
 const ctlLandings = WANT.flatMap((n) => (ctlOut[n]?.landings ?? []).map((l) => ({ ...l, slicer: n })));
 if (ctlLandings.length) { console.log(`\nCONTROL LANDINGS (each one is evidence AGAINST the slicer that produced it):`); for (const l of ctlLandings.slice(0, 6)) console.log(`  [${l.slicer} · ${l.host}] ${l.note}\n     «${l.because}»`); }
 
-writeFileSync(`${HERE}results/${OUT}`, JSON.stringify({ page: backwards.page, objectMissingPartials: allObjMissing, walked: real.length, K, window: WINDOW, model: MODEL, embedder: embed ? "Xenova/all-MiniLM-L6-v2" : (embedGap ?? "skipped"), modelCalls, real: realOut, control: ctlOut, license }, null, 2));
+writeFileSync(CKPT, JSON.stringify({ page: backwards.page, objectMissingPartials: allObjMissing, walked: real.length, K, window: WINDOW, model: MODEL, embedder: embed ? "Xenova/all-MiniLM-L6-v2" : (embedGap ?? "skipped"), modelCalls, real: realOut, control: ctlOut, license }, null, 2));
 console.log(`\n${modelCalls} model calls. Raw: results/${OUT}`);

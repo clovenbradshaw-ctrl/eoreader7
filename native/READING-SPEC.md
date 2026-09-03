@@ -2694,3 +2694,31 @@ at every footnote-bound `partial`, its window chosen by the face's own
 referent activation rather than word containment, under a declared
 budget, with the control through the identical slicer. Full account:
 `eval/the-fold/results/ranke-backwards-RESULTS.md`.
+
+## S47 — The candidate set is the paraphrase seam: `witnessNote` takes an injected list, and the arm below it does not move
+
+**Generality:** universal.
+
+`statingCandidates`' gate is `h1 > 0 && h2 > 0` — BOTH ends must fire
+LITERALLY in a sentence for it to be offered to the select protocol. That
+gate is right as the default: it is what makes an unsupervised candidate set
+trustworthy, and it is why a caller with no better idea gets a conservative
+one. It is also, exactly, the wall paraphrase hits — an end the source
+states in other words never fires, `cands` comes back empty, and the armed
+select protocol (the one whose yes is checked by a sibling swap) never runs
+at all. `witnessNote` then falls through to a generate call on a containment
+slice, which is the weaker path.
+
+`witnessNote` now takes an optional `candidates` list. A caller holding its
+own declared way to choose where a stating sentence would live supplies it.
+Everything below is unchanged, and that is the design: the competing-filler
+arm, the indiscriminate-pick check, the carried address, the decider-company
+wall and the typed refusals all still stand. **A slicer may change WHERE the
+model is asked to look; it may never change whether its yes counts.**
+
+Pinned by three cases in `corroboration.test.mjs`, one of them the control
+built to fail: an indiscriminate picker over an injected candidate set is
+still convicted `indiscriminate`, so the seam cannot be used to buy a vote.
+The premise is pinned too rather than assumed — the test asserts
+`statingCandidates` returns zero on the paraphrase fixture, which is what an
+object-missing partial IS. Omitted, byte-identical to before.
