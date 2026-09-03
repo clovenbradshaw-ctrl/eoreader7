@@ -228,6 +228,71 @@ apart at its own seams (rather than cutting one figure, or one ground) is
 rare by the nature of the act: it needs a whole structure to already
 exist before there is anything to unravel.
 
+### 3.5 Cut by stance instead of grain, and the thinness sharpens into something actionable
+
+§3.2-3.3 cut the same 262 rows by grain and by domain/mode separately.
+Stance (mode × grain, cutting across all three domains at once — the
+axis `capacities.js`'s own "9 FULL stances" milestone tracks) is a third
+cut, and it is the one that turns "the Ground row is thin" into a
+specific, checkable claim rather than a general impression:
+
+| Stance | Ground∪Figure∪Pattern cells | Rows | Share |
+|---|---|---|---|
+| Binding | SIG·Figure, CON·Figure, EVA·Figure | 70 | 27% |
+| Dissecting | NUL·Figure, SEG·Figure, DEF·Figure | 44 | 17% |
+| Tracing | SIG·Pattern, CON·Pattern, EVA·Pattern | 35 | 13% |
+| Making | INS·Figure, SYN·Figure, REC·Figure | 32 | 12% |
+| Composing | INS·Pattern, SYN·Pattern, REC·Pattern | 19 | 7% |
+| Clearing | NUL·Ground, SEG·Ground, DEF·Ground | 22 | 8% |
+| Unraveling | NUL·Pattern, SEG·Pattern, DEF·Pattern | 17 | 6% |
+| Tending | SIG·Ground, CON·Ground, EVA·Ground | 18 | 7% |
+| **Cultivating** | **INS·Ground, SYN·Ground, REC·Ground** | **5** | **2%** |
+
+**Binding and Cultivating are the two extremes, 14× apart, and the gap
+is bigger than either the Generate-mode share (21%) or the Ground-grain
+share (17%) alone would predict for their intersection** — Cultivating
+is thinner than independence between the two would suggest, a real
+interaction rather than two ordinary-sized thin factors compounding.
+
+**The correct reading of this is narrower than "a missing capacity," and
+worth stating precisely so it isn't overclaimed.** Every Cultivating
+organ censused here runs constantly in a live reading —
+`source.js::atmosphereBoundaries` chunks every ingested document,
+`predigest.js::compilePriors` sediments every prior reading,
+`proof.js::preflightQuery` fires on every materialless grounded turn. The
+thinness is not absence and not low usage; it is **redundancy** — how
+many INDEPENDENT organs exist at that cell to check each other by
+agreement or disagreement. This is `organs/corroboration.js`'s own
+question (`distinctSources`/`independentReadings`/`distinctRecipes` —
+does ≥2 independent instruments back this claim) asked one level up,
+about the codebase's organs rather than about a claim in the material:
+Binding's 70 rows can and do converge on each other (§3.4's `contest.js::
+adjudicate`, self-declared identically by four separate callers, is
+exactly this kind of convergence); Cultivating's organs have no sibling
+to disagree with. A subtle bug in any one of them would go unnoticed by
+this instrument's own triangulation machinery, not because nobody looked,
+but because there is structurally nothing else there to compare it to.
+
+**This does independently corroborate one standing claim, from an
+unrelated direction.** `NEXT-PASSES.md` already declared floors 0-4
+(arithmetic and geometry — units, edges) done to the material's own
+ceiling and named the remaining work "calculus over earned units":
+accumulation, judgment, revision, i.e. Pattern-grain. §3.2's grain tally
+(Ground 17% / Pattern 27% / Figure 56%) reaches the identical priority
+from a bottom-up verb count, a completely different method than the
+top-down reasoning that produced the original claim. Two independent
+measurements landing on the same answer is worth more than either alone.
+
+**What this section does NOT license:** neither the order-7 pronoun
+ceiling nor the ~2% corroboration wall (both measured and diagnosed
+elsewhere, with named causes — cold-start activation and paraphrase-
+intolerance respectively) traces to a thin cell here. Reading a low
+organ-count as the CAUSE of a measured ceiling would be the same
+coherence-for-correspondence swap `P60`'s own precision-retraction
+already caught this project making once; this section only claims that
+the calculus layer is structurally sparse in DISTINCT IMPLEMENTATIONS,
+not that any specific measured ceiling is explained by it.
+
 ---
 
 ## 4. Discrepancies this pass surfaced, disclosed rather than silently fixed
