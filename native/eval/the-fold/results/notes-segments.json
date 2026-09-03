@@ -1,0 +1,344 @@
+{
+  "declared": {
+    "order": 3,
+    "alpha": 0.05,
+    "draws": 20,
+    "seed": 1,
+    "minLength": 3,
+    "depth": 3,
+    "alignDraws": 200,
+    "tolerance": 1
+  },
+  "frame": {
+    "reader": "makeRelationReader",
+    "organs": {
+      "splitSentences": "native",
+      "surfaces": "native",
+      "relations": "native",
+      "pronouns": "native/en",
+      "posPrior": "POSPrior@1",
+      "determiners": "priors.js/en",
+      "negation": "priors.js/en",
+      "blankFurniture": "blankLabelRows{minRun:4,maxCell:60}"
+    },
+    "omitted": [
+      "lemmatizer",
+      "verbForms",
+      "noteIdentity"
+    ],
+    "segmenter": {
+      "order": 3,
+      "alpha": 0.05,
+      "draws": 20,
+      "seed": 1,
+      "minLength": 3,
+      "depth": 3,
+      "alignDraws": 200,
+      "tolerance": 1
+    }
+  },
+  "results": {
+    "battle-of-borodino": {
+      "id": {
+        "hearings": 341,
+        "distinct": 340,
+        "cut": 8.413627929024173,
+        "figures": 113,
+        "found": 20,
+        "turns": 24,
+        "rate": 0.17699115044247787,
+        "nullMedian": 0.17699115044247787,
+        "nullP95": 0.23008849557522124,
+        "above": 107,
+        "levels": [
+          {
+            "figures": 113,
+            "stopped": null
+          },
+          {
+            "figures": 1,
+            "stopped": "too_few_segments"
+          }
+        ]
+      },
+      "end1": {
+        "hearings": 341,
+        "distinct": 250,
+        "cut": 7.971543553950772,
+        "figures": 106,
+        "found": 19,
+        "turns": 24,
+        "rate": 0.1792452830188679,
+        "nullMedian": 0.1792452830188679,
+        "nullP95": 0.22641509433962265,
+        "above": 100,
+        "levels": [
+          {
+            "figures": 106,
+            "stopped": null
+          },
+          {
+            "figures": 10,
+            "stopped": null
+          },
+          {
+            "figures": 3,
+            "stopped": "too_few_segments"
+          }
+        ]
+      },
+      "end2": {
+        "hearings": 341,
+        "distinct": 339,
+        "cut": 8.409390936137703,
+        "figures": 113,
+        "found": 20,
+        "turns": 24,
+        "rate": 0.17699115044247787,
+        "nullMedian": 0.17699115044247787,
+        "nullP95": 0.23008849557522124,
+        "above": 107,
+        "levels": [
+          {
+            "figures": 113,
+            "stopped": null
+          },
+          {
+            "figures": 1,
+            "stopped": "too_few_segments"
+          }
+        ]
+      },
+      "label": {
+        "hearings": 341,
+        "distinct": 106,
+        "cut": 6.741466986401147,
+        "figures": 98,
+        "found": 14,
+        "turns": 24,
+        "rate": 0.14285714285714285,
+        "nullMedian": 0.17346938775510204,
+        "nullP95": 0.23469387755102042,
+        "above": 172,
+        "levels": [
+          {
+            "figures": 98,
+            "stopped": null
+          },
+          {
+            "figures": 21,
+            "stopped": null
+          },
+          {
+            "figures": 6,
+            "stopped": null
+          }
+        ]
+      }
+    },
+    "war-and-peace": {
+      "id": {
+        "hearings": 310,
+        "distinct": 310,
+        "cut": 8.280770770130603,
+        "figures": 103,
+        "found": 20,
+        "turns": 24,
+        "rate": 0.1941747572815534,
+        "nullMedian": 0.1941747572815534,
+        "nullP95": 0.24271844660194175,
+        "above": 108,
+        "levels": [
+          {
+            "figures": 103,
+            "stopped": null
+          },
+          {
+            "figures": 1,
+            "stopped": "too_few_segments"
+          }
+        ]
+      },
+      "end1": {
+        "hearings": 310,
+        "distinct": 201,
+        "cut": 7.658211482751795,
+        "figures": 94,
+        "found": 19,
+        "turns": 24,
+        "rate": 0.20212765957446807,
+        "nullMedian": 0.19148936170212766,
+        "nullP95": 0.24468085106382978,
+        "above": 84,
+        "levels": [
+          {
+            "figures": 94,
+            "stopped": null
+          },
+          {
+            "figures": 10,
+            "stopped": null
+          },
+          {
+            "figures": 3,
+            "stopped": "too_few_segments"
+          }
+        ]
+      },
+      "end2": {
+        "hearings": 310,
+        "distinct": 307,
+        "cut": 8.266786540694902,
+        "figures": 102,
+        "found": 21,
+        "turns": 24,
+        "rate": 0.20588235294117646,
+        "nullMedian": 0.19607843137254902,
+        "nullP95": 0.24509803921568626,
+        "above": 83,
+        "levels": [
+          {
+            "figures": 102,
+            "stopped": null
+          },
+          {
+            "figures": 3,
+            "stopped": "too_few_segments"
+          }
+        ]
+      },
+      "label": {
+        "hearings": 310,
+        "distinct": 105,
+        "cut": 6.7279204545632,
+        "figures": 87,
+        "found": 17,
+        "turns": 24,
+        "rate": 0.19540229885057472,
+        "nullMedian": 0.19540229885057472,
+        "nullP95": 0.25287356321839083,
+        "above": 108,
+        "levels": [
+          {
+            "figures": 87,
+            "stopped": null
+          },
+          {
+            "figures": 18,
+            "stopped": null
+          },
+          {
+            "figures": 6,
+            "stopped": null
+          }
+        ]
+      }
+    },
+    "borodino-ru": {
+      "id": {
+        "hearings": 677,
+        "distinct": 667,
+        "cut": 9.383704292474052,
+        "figures": 224,
+        "found": 24,
+        "turns": 28,
+        "rate": 0.10714285714285714,
+        "nullMedian": 0.10714285714285714,
+        "nullP95": 0.13392857142857142,
+        "above": 110,
+        "levels": [
+          {
+            "figures": 224,
+            "stopped": null
+          },
+          {
+            "figures": 6,
+            "stopped": null
+          },
+          {
+            "figures": 2,
+            "stopped": "too_few_segments"
+          }
+        ]
+      },
+      "end1": {
+        "hearings": 677,
+        "distinct": 552,
+        "cut": 9.111135670234708,
+        "figures": 217,
+        "found": 22,
+        "turns": 28,
+        "rate": 0.10138248847926268,
+        "nullMedian": 0.11059907834101383,
+        "nullP95": 0.1382488479262673,
+        "above": 138,
+        "levels": [
+          {
+            "figures": 217,
+            "stopped": null
+          },
+          {
+            "figures": 22,
+            "stopped": null
+          },
+          {
+            "figures": 6,
+            "stopped": null
+          }
+        ]
+      },
+      "end2": {
+        "hearings": 677,
+        "distinct": 649,
+        "cut": 9.344295907915816,
+        "figures": 222,
+        "found": 22,
+        "turns": 28,
+        "rate": 0.0990990990990991,
+        "nullMedian": 0.10810810810810811,
+        "nullP95": 0.13513513513513514,
+        "above": 141,
+        "levels": [
+          {
+            "figures": 222,
+            "stopped": null
+          },
+          {
+            "figures": 11,
+            "stopped": null
+          },
+          {
+            "figures": 3,
+            "stopped": "too_few_segments"
+          }
+        ]
+      },
+      "label": {
+        "hearings": 677,
+        "distinct": 125,
+        "cut": 6.977279923499917,
+        "figures": 179,
+        "found": 22,
+        "turns": 28,
+        "rate": 0.12290502793296089,
+        "nullMedian": 0.10614525139664804,
+        "nullP95": 0.13966480446927373,
+        "above": 58,
+        "levels": [
+          {
+            "figures": 179,
+            "stopped": null
+          },
+          {
+            "figures": 35,
+            "stopped": null
+          },
+          {
+            "figures": 10,
+            "stopped": null
+          }
+        ]
+      }
+    }
+  }
+}

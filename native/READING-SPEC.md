@@ -2308,3 +2308,107 @@ membership-grade test (`the-fold/kind-standing.js`) rather than asking this
 one to answer a question it was not built for. Narrowing the organ's own
 declared regime, or refusing a basin whose size approaches its population, is
 real unstarted work named here rather than done silently.
+
+## S42 — The assertion ledger is kernel, medium-blind, and born with its frame; the reading closure crosses; the ledger cut by surprise finds no section
+
+**Generality:** universal (the ledger, the frame, the stream); the segmentation
+result is specimen-scoped (three Wikipedia pages, one oracle) and recorded as
+such.
+
+**User direction, verbatim (2026-09-02):** "the hyperlexicon should be part of
+eoreader7, medium agnostic" — "make that shift and learn lessons about music
+and priors and have all reading be vastly richer. no view from nowhere" —
+"the fold should only be an interaction surface."
+
+**What moved, and what it became.** the-fold's assertion ledger (its P57
+`hyperlexicon.js`, moved to `native/organs/` earlier the same day) held ends
+called subject/verb/object and a gate that asked whether a connector was a
+verb — a text reading's vocabulary carried into a store that
+`event-arrangements.js` had been feeding arrangements read off MIDI, WAV,
+video shots, turbulence fields and the instrument's own record.
+`kernel/notes.js` is the ledger one level down with the medium stripped: an
+arrangement is two ENDS and a LABEL (`end1/label/end2`, the-fold's P76 earned
+names — "an arrangement has ends, not parts of speech"); the only gate is the
+one a caller injects (`admit(log, arrangements, { gate })`, a refusal
+`{reason, detail, givers}` or null); the two structural refusals
+(`incomplete`, `unaddressed`) are the kernel's own; a span is an ADDRESS plus
+whatever the medium's adapter put beside it, carried opaque. `notes.test.js`
+reads the kernel's executable body and fails if `sentence`, `pronoun`,
+`surface`, `token`, `word`, `text`, `verb`, `subject`, `object`, `noun`,
+`bar` or `pitch` appears in it — contest.js's own pin, with the grammar words
+added. `organs/hyperlexicon.js` is now the TEXT FACE: the same API its callers
+speak (`hear` takes subject/verb/object, `foldHyperlexicon` returns them
+beside the neutral names), the verb gate as an injected kernel gate, and
+`makeHyperlexicon(taskLog)`'s injection unchanged — every existing test
+(36/36 across four files, including the one that could not load before)
+passes untouched. Stored entries carry the NEUTRAL names only; the SVO names
+are the face's projection, computed at fold time, never written twice. One
+consumer read stored fields by the old names and broke — `derivation.js`'s
+`heard` set, which then reported every derived note "never stated"; it reads
+either name now. That is exactly the drift the neutral shape exists to end.
+
+**No view from nowhere.** `createNotes({ frame })` records what the reader
+stood on as the log's own first entry — DEF · Ground · declared, the cell
+`frame.js` already gives a declaration of interpretive ground — so a fold can
+always say WHOSE reading this is. `frameOf(log)` returns the declaration or
+the gap `no_frame` by name; a frameless ledger is not refused (every caller
+that predates this would break, and a refusal that breaks the world is not a
+wall) but never gets an invented standing. the-fold's `app.js` declares its
+ledger's frame from the reader it actually built — organs, which priors had
+LOADED at birth (the POS prior, UniMorph verb forms and the morphology prior
+are fetched after boot, so a ledger born early says so), which are
+deliberately absent, and the model — threaded `runHolonicTask → runPart →
+createHyperlexicon({ frame })`.
+
+**The closure crosses.** `hypergraph.js` had been deferred because its
+closure reached the surface through `grounding.js → source.js/web.js`. Moved
+TOGETHER — hypergraph, cast, grounding, cite, source, asserted, web, measure,
+testimony, primary, capacity-runner, experiencer, quotes — the closure imports
+nothing outside `native/organs/`; the-fold keeps one-line shims at the old
+paths so no importer moves, and `organs/index.js` exports every moved organ by
+explicit name (generated off each organ's own `export` statements; collisions
+aliased under the organ's prefix). Eleven test files moved with them; the
+frozen-provider paths they carried resolve to the native adapters when the
+legacy submodule is absent (`ENGINE=legacy` still pins it where it exists) —
+`hypergraph.test.mjs`, which Pass 7 measured at 54/58 legacy and 52/58 native,
+runs 58/58 native now. One test did not belong to an organ and went back:
+web.test.mjs's P13 seam scan reads the-fold's own page files, a fact about
+the surface, now `the-fold/web-seam.test.mjs`. `native/package.json` gained
+`test:organs` (`organs/*.test.mjs`) beside `test`; the CI gate keeps its
+contract (conformance + tests) because several organ tests read material
+that exists only locally — the-fold as a sibling, or the gitignored legacy
+corpus — and a gate that ran them was red on its first run for reasons that
+are not this repo's. The committed `POSPrior@1` also lives in
+`eval/the-fold/fixtures/pos-prior-eng.json` now, so the ledger's own tests
+and driver need no sibling checkout. Verified: the-fold's real page loaded
+in headless Chromium against `serve.mjs` through the shims — boot completed
+(`#not-served` removed), zero uncaught exceptions, zero console errors.
+Suites, failure names diffed against a clean-worktree baseline: eoreader7
+592/23 → 792/22 (the one fixed: hyperlexicon.test.mjs), zero new; the-fold
+1052/125 → 940/67, zero new (the 168 moved cases account for every line that
+left).
+
+**The music lesson, applied and measured.** `notes.js` reads the ledger as
+the stream it is (`stream(log, { by: id | end1 | end2 | label })`, each
+element carrying its seq), measures each hearing's surprise under the ground
+heard before it (`figures`), and cuts it with `surprise-segments.js` unchanged
+(`segment`, null inside the cut, boundaries carried back to entries). Measured
+on three real pages read in document order, against the page's own section
+headings held aside: **at chance, every grain, every page** — best arm 12%
+found vs an 11% null median, 58/200 random placements at or above. A page's
+section is a convention of its script, as the sentence was; the ledger's
+figures are not there. Two things the run gave anyway: the most surprising
+hearings on all three pages are the last ones and they are all furniture
+(`category link —is→ on Wikidata`, `Статьи —со→ спам-ссылками`) — surprise
+locates the DIET BOUNDARY of a reading untold, a lead for the admission door;
+and a real kernel bug — `segment`'s flat cut ran without the stream's own
+alphabet as its floor while the recursion's level 0 used it, 1–17 boundaries
+against 87–224 on one stream, fixed to the music driver's one rule.
+`eval/the-fold/results/notes-segments-RESULTS.md`.
+
+**Enforced:** `tests/notes.test.js` (7: hearing/union/no-op with cells, the
+frame entry and its gap, the door with an injected gate and its givers,
+attest/concede, injected identity, stream/figures/segment on a planted
+rhythm with a shuffle control, the medium pin);
+`organs/hyperlexicon*.test.mjs` 36/36 unchanged; the eleven moved files
+168/168.

@@ -69,10 +69,13 @@ eoreader7 owns kernel, adapters, organs, and evals; the-fold owns the
 surface. `native/organs/index.js` is the one seam the-fold imports through
 (explicit names, `REFUSALS` aliased per organ); `native/organs/` holds the
 organs with their the-fold history (git filter-repo); `native/eval/the-fold/`
-the drivers, fixtures and results; `native/docs/` the theory. Still in
-the-fold, deferred with the reason in the seam's header: `hypergraph.js`
-(its closure reaches the surface through grounding.js → source.js/web.js),
-`testimony.js`, `capacity-runner.js`. This repo's `CLAUDE.md` is a symlink
+the drivers, fixtures and results; `native/docs/` the theory. The reading
+closure that had been deferred — `hypergraph.js` with cast, grounding, cite,
+source, asserted, web, measure, testimony, primary, capacity-runner,
+experiencer, quotes — crossed on 2026-09-02 (S42), moved together so no
+organ imports the surface; the-fold keeps one-line shims at the old paths.
+The assertion ledger is `native/kernel/notes.js`, medium-blind and born with
+its frame; `native/organs/hyperlexicon.js` is its text face. This repo's `CLAUDE.md` is a symlink
 into the frozen 6.1 submodule and is not where this repo's own rules go —
 this file is.
 

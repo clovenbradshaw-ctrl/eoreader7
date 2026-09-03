@@ -262,15 +262,19 @@ export function makeDerivation({ hl, taskLog } = {}) {
   function foldDerived(log) {
     const gone = hl.concededIds(log);
     const tasks = projectTasks(log);
-    const heard = new Set(tasks.filter((t) => t.subject && t.verb && t.object && !t.derived && !gone.has(t.task_id)).map((t) => t.task_id));
+    // Stored notes carry the NEUTRAL ends (kernel/notes.js: end1/label/end2);
+    // this organ's own derived entries still write subject/verb/object. Read
+    // either, so a heard note and a derived one meet on one identity.
+    const endsOf = (t) => ({ subject: t.subject ?? t.end1, verb: t.verb ?? t.label, object: t.object ?? t.end2 });
+    const heard = new Set(tasks.filter((t) => { const e = endsOf(t); return e.subject && e.verb && e.object && !t.derived && !gone.has(t.task_id); }).map((t) => t.task_id));
     return tasks
       .filter((t) => t.derived === true && !gone.has(t.task_id))
       .map((t) => ({
-        id: t.task_id, subject: t.subject, verb: t.verb, object: t.object,
+        id: t.task_id, ...endsOf(t),
         premises: [...(t.premises ?? [])], grounds: [...(t.grounds ?? [])], provenance: [...(t.provenance ?? [])],
         depth: t.depth, paths: t.paths, giver: t.giver ?? null, affordance: t.affordance ?? null,
         witnesses: [], spans: [],
-        stated: heard.has(hl.assertionId(t.subject, t.verb, t.object)),
+        stated: heard.has(hl.assertionId(endsOf(t).subject, endsOf(t).verb, endsOf(t).object)),
       }))
       .sort((a, b) => a.depth - b.depth || a.id.localeCompare(b.id));
   }
@@ -280,7 +284,7 @@ export function makeDerivation({ hl, taskLog } = {}) {
     const tasks = new Map(projectTasks(log).map((t) => [t.task_id, t]));
     return (log?.entries ?? [])
       .filter((e) => e?.kind === ENTRY_KINDS.EVIDENCE && e.operator === "REC" && isDerivedId(e.concedes ?? ""))
-      .map((e) => { const t = tasks.get(e.concedes); return { id: e.concedes, subject: t?.subject ?? null, verb: t?.verb ?? null, object: t?.object ?? null, trigger: e.trigger, cascadedFrom: e.cascadedFrom ?? null, cascadeDepth: e.cascadeDepth ?? 0, at: e.seq }; });
+      .map((e) => { const t = tasks.get(e.concedes); return { id: e.concedes, subject: t?.subject ?? t?.end1 ?? null, verb: t?.verb ?? t?.label ?? null, object: t?.object ?? t?.end2 ?? null, trigger: e.trigger, cascadedFrom: e.cascadedFrom ?? null, cascadeDepth: e.cascadeDepth ?? 0, at: e.seq }; });
   }
 
   /**
