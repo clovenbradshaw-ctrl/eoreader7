@@ -1,0 +1,935 @@
+-
+
+HOME
+
+-
+
+FORECAST
+
+-
+Local
+
+-
+Graphical
+
+-
+Aviation
+
+-
+Marine
+
+-
+Rivers and Lakes
+
+-
+Hurricanes
+
+-
+Severe Weather
+
+-
+Fire Weather
+
+-
+Sunrise/Sunset
+
+-
+Long Range Forecasts
+
+-
+Climate Prediction
+
+-
+Space Weather
+
+-
+
+PAST WEATHER
+
+-
+Past Weather
+
+-
+Astronomical Data
+
+-
+Certified Weather Data
+
+-
+
+SAFETY
+
+-
+
+INFORMATION
+
+-
+Wireless Emergency Alerts
+
+-
+Weather-Ready Nation
+
+-
+Brochures
+
+-
+Cooperative Observers
+
+-
+Daily Briefing
+
+-
+Damage/Fatality/Injury Statistics
+
+-
+Forecast Models
+
+-
+GIS Data Portal
+
+-
+NOAA Weather Radio
+
+-
+Publications
+
+-
+SKYWARN Storm Spotters
+
+-
+StormReady
+
+-
+TsunamiReady
+
+-
+Service Change Notices
+
+-
+
+EDUCATION
+
+-
+
+NEWS
+
+-
+
+SEARCH
+
+-
+
+-
+
+ABOUT
+
+-
+About NWS
+
+-
+Organization
+
+-
+For NWS Employees
+
+-
+National Centers
+
+-
+Careers
+
+-
+Contact Us
+
+-
+Glossary
+
+-
+Social Media
+
+-
+NWS Transformation
+
+Edouard Continues to Impact Texas; Severe Storms and Heavy Rain from the Lower Great Lakes to Mid-Atlantic
+
+Edouard will continue to bring gusty winds, heavy rainfall, and a flash flood threat over parts of eastern Texas. Severe thunderstorms and heavy rain are possible across portions of the eastern Great Lakes to the Mid-Atlantic overnight. Severe storms are also expected across parts of Montana. Dangerous heat persists over the central and eastern states through Friday night.
+Read More >
+
+LOADING...
+
+Spaceflight Meteorology Group
+
+National Center
+
+SMG Weather History - Apollo Program
+
+Weather.gov
+> Spaceflight Meteorology Group
+> SMG Weather History - Apollo Program
+
+-
+
+Spaceflight
+
+-
+NASA
+
+-
+NASA Mission Launch & Landing Schedule
+
+-
+Space Weather (Solar Flares, sun spots, etc.)
+
+-
+USSF 45th Weather Squadron (Cape Canaveral)
+
+-
+NASA Applied Meteorology Unit
+
+-
+
+Mission Weather
+
+-
+Mission Weather Information
+
+-
+Early AM Synoptic KSC Rawinsonde
+
+-
+Afternoon KXMR Rawinsonde
+
+-
+Latest KSC Mission Support Rawinsonde
+
+-
+KSC / USSF Eastern Range Wind Towers
+
+-
+KSC 48MHz Wind Profiler (TDRWP)
+
+-
+South Cape 915MHz Wind Profiler
+
+-
+False Cape 915MHz Wind Profiler
+
+-
+Merritt Island 915MHz Wind Profiler
+
+-
+Mosquito Lagoon 915MHz Wind Profiler
+
+-
+TICO Airport 915MHz Wind Profiler
+
+-
+45th Weather Squadron
+
+-
+KSC Spaceport Weather Archive
+
+-
+
+JSC Weather
+
+-
+JSC Area Weather Information
+
+-
+NWS Houston/Galveston
+
+-
+National Hurricane Center
+
+-
+Local Tropical Weather
+
+-
+JSC Building 30 Observations
+
+-
+NWS Forecast for JSC
+
+-
+NASA Ellington Field Observations
+
+-
+NWS Forecast for Sonny Carter Training Facility
+
+-
+Additional Observation Links for JSC B30 and Ellington
+
+-
+
+Other
+
+-
+About the Office
+
+-
+SMG History
+
+-
+SMG FAQ
+
+Apollo Program Weather Support
+
+An additional unit at Honululu was added to the Spaceflight Meteorology Group to support the expected increase in Pacific ocean recoveries during the Apollo program. The Spaceflight Meteorology Group supported the Apollo lunar missions, the Skylab orbital missions, and the Apollo-Soyuz Test Program during this period. Weather support was required not only for launch and recovery operations, but also for in-flight weather experiments conducted by the astronauts. This in-flight support was particularly important during the Skylab missions.
+
+At the close of the Apollo program, NASA allowed each center to select their weather support structures. Kennedy Space Center opted to use the Patrick Air Force Base/Cape Canaveral Air Force Station Air Weather Service unit (now the 45th Weather Squadron) for weather support to pre-launch and launch operations. Johnson Space Center chose to retain the National Weather Service for weather support services. The SMG subordinate units were closed with only the Houston office supporting the Mission Control Center remaining. Following the Apollo program, SMG provided staff support services and planning to support the next phase of the United States human spaceflight program - The Space Shuttle.
+
+Mission Weather Summary
+
+Apollo Missions (1)
+
+Mission
+Launch Date (UTC)
+Launch Weather
+Recovery Date (UTC)
+
+Location
+Recovery Weather
+
+Apollo 7
+11 Oct 1968
+
+15:02:45
+Cld: SCT021CB SCTxxx(CI) (2)
+
+Vis: 10SM CB SW
+
+Temp/Dew: 82F/69F
+
+Wind: 08017G22KTS
+
+60' Wind: 090/20KTS
+
+22 Oct 1968 11:11:48
+
+27.63N, 64.15E
+Cld: OVC006 (2)
+
+Vis: 2NM Light Rain
+
+Temp/Dew: 72F/70F
+
+Wind: 210/11KTS
+
+Water Temp: 81F
+
+Wave Height: 3 FT
+
+Apollo 8
+21 Dec 1968
+
+12:51:00
+Cld: SCTxxx(Ci) (3)
+
+Vis: 10SM
+
+Temp/Dew: 59F/56F
+
+Wind 34006KTS
+
+60' Wind: 348/11KTS
+
+27 Dec 1968 15:51:42
+
+8.10N, 165.00 W
+Cld:SCT025 BKN120 (3)
+
+Vis: 10 NM
+
+Temp/Dew: 82F/mmF
+
+Wind: 080/11KTS
+
+Water Temp: 82F (1)
+
+Wave Height: 6 FT
+
+Apollo 9
+03 Mar 1969
+
+16:00:00
+Cld: BKN040 OVC090 (AS) (4)
+
+Vis: 10SM Aircraft Report of BKN140
+
+Temp/Dew: 67F/54F
+
+Wind: 14012KTS
+
+60' Wind: 160/13KTS
+
+13 Mar 1969 17:00:54
+
+23.22N, 67.98W
+Cld: SCT020 BKN090 (5)
+
+Vis: 10 NM
+
+Temp/Dew: 79F/67F
+
+Wind: Calm
+
+Water Temp: 76F
+
+Wave Height: 5 FT
+
+Apollo 10
+18 May 1969
+
+16:49:00
+Cld: SCT023 SCT040 BKN110 OVCxxx(Ci) (6)
+
+Vis: 10SM
+
+Temp/Dew: 82F/73F
+
+Wind: 12012KTS
+
+60' Wind: 142/19KTS
+
+26 May 1969 16:52:23
+
+15.07S, 164.65W
+Cld: SCT020 SCT070 (7)
+
+Vis: 10 NM
+
+Temp/Dew: 79F/68F
+
+Wind: 100/09KTS
+
+Water Temp: 82F
+
+Wave Height: 3 FT
+
+Apollo 11
+16 Jul 1969
+
+13:32:00
+Cld: SCT030 SCT140 OVCxxx(CI) (8)
+
+Vis: 10SM
+
+Temp/Dew: 86F/75F
+
+Wind: 22005KTS
+
+60' Wind: 175/6KTS
+
+24 Jul 1969 16:50:35
+
+13.30N, 169.15W
+Cld: BKN015 BKNxxx(CI) (8)
+
+Vis: 10 NM
+
+Temp/Dew: 82F/mmF (Wet Bulb 77)
+
+Wind: 080/17 KTS
+
+Water Temp: mmF
+
+Wave Height: 6 FT
+
+Apollo 12
+14 Nov 1969
+
+16:22:00
+Cld: OVC021 (9)
+
+Vis: 7SM Rainshowers SCT015 OVC070
+
+Temp/Dew: 70F/66F
+
+Wind: 220/12G19KTS
+
+60' Wind: 280/13KTS
+
+24 Nov 1969 20:58:25
+
+15.78 S, 165.15 W
+Cld: SKC (10)
+
+Vis: 10+ NM
+
+Temp/Dew: 79F/72F
+
+Wind: 100/15KTS
+
+Water Temp: mmF
+
+Wave Height: 3 FT
+
+(swells to 7 ft)
+
+Apollo 13
+11 Apr 1970
+
+19:13:00
+Cld: BKN200 (11)
+
+Vis: 10SM Few Cu over land
+
+Temp/Dew: 76F/60F
+
+Wind: 080/10KTS
+
+60' Wind: 105/12KTS
+
+17 Apr 1970 18:07:41
+
+21.63 S, 165.37 W
+Cld: SCT025 BKNxxx(CI) (12)
+
+Vis: 7 NM
+
+Temp/Dew: 79F/mmF
+
+Wind: 270/06 KTS
+
+Water Temp: mm F
+
+Wave Height: 6 FT
+
+Apollo 14
+31 Jan 1971
+
+21:03:02
+Cld: BKN040 BKN080 (13)
+
+Vis: 10SM Rainshowers E NE SW
+
+Temp/Dew: 71F/67F
+
+Wind: 260/05KTS
+
+60' Wind: 255/10KTS
+
+09 Feb 1971 21:05:00
+
+27.02 S, 172.67 W
+Cld: SCT020 (14)
+
+Vis: 10 NM
+
+Temp/Dew: 23C/18C
+
+Wind: 100/10KTS
+
+Water Temp: mmF
+
+Wave Height: 4 FT
+
+Apollo 15
+26 Jul 1971
+
+13:34:00
+Cld: BKN250 (CI) (15)
+
+Vis: 10SM
+
+Temp/Dew: 84F/73F
+
+Wind: 170/05 KTS
+
+60' Wind: 156/10KTS 1
+
+07 Aug 1971 20:45:53
+
+26.13 N, 158.13 W
+Cld: SCTvBKN020 (16)
+
+Vis: 10 NM Rain Vicinity
+
+Temp/Dew: 81F/mmF
+
+Wind: 080/07KTS
+
+Water Temp: mm F
+
+Wave Height: Calm FT
+
+Apollo 16
+16 Apr 1972
+
+17:54:00
+Cld: SCT030 (CU) (17)
+
+Vis: 10SM
+
+Temp/Dew: 88F/63F
+
+Wind: 232/02P07KTS
+
+60' Wind: 269/12KTS 1
+
+27 Apr 1972 19:45:05
+
+0.70 S, 156.22 W
+Cld: SCT020 (18)
+
+Vis: 10 NM (19)
+
+Temp/Dew: 82F/mmF (19)
+
+Wind: 110/15KTS
+
+Water Temp: mmF
+
+Wave Height: 4 FT
+
+Apollo 17
+07 Dec 1972
+
+05:33:00
+Cld: SCT026 BKN260 (20)
+
+Vis: 10SM
+
+Temp/Dew: 70F/68F
+
+Wind: 300/07KTS
+
+60' Wind: 005/08KTS (21)
+
+19 Dec 1972 19:24:59
+
+17.88 S, 166.11 W
+Cld: BKN025 (22)
+
+Vis: 10 NM
+
+Temp/Dew: 23.9C/20C
+
+Wind: 120/14KTS
+
+Water Temp: 27.8C
+
+Wave Height: 1.5 FT
+
+Skylab missions
+
+Mission
+Launch Date
+Launch Weather
+Recovery Date (Duration)
+Recovery Weather
+
+Skylab I
+
+(Unmanned Station)
+14 May 1973
+Cld: SCT024 SCT050 BKN120 OVC230 (23)
+
+Vis: 10 SM
+
+Temp/Dew: 87F/65F
+
+Winds: 260/06KTS
+
+60' Wind: 155/10KTS (24)
+
+N/A
+Burned up on re-entry into atmosphere
+
+Skylab II
+
+1st manned mission
+25 May 1973
+Cld: SCT008 BKN025 BKN080 BKN300 (25)
+
+Vis: 6 SM Fog
+
+Temp/Dew: 79F/74F
+
+Wind: 260/06
+
+60' Wind: 212/11 KTS (26)
+
+6/22/1973
+
+(28 days
+
+0 hours
+
+50 minutes)
+Cld: BKN018 (29)
+
+Vis: 10 NM
+
+Temp/Dew: 64F/57F
+
+Wind: 030/09KTS
+
+Water Temp: 69 F
+
+Wave Height: 1.5 FT
+
+Skylab III
+28 July 1973
+Cld: BKN150 BKN300 (30)
+
+Vis: 3 SM FOG
+
+Temp/Dew: est 74F73/F
+
+Wind: Calm
+
+60' Wind: 264/05 KTS (31)
+
+9/25/1973
+
+(59 days
+
+11 hours
+
+9 minutes)
+Cld: BKN020 (32)
+
+Vis: 10 NM
+
+Temp/Dew: 65F/61F
+
+Wind: 360/18KTS
+
+Water Temp: 65 F
+
+Wave Height: 1.5 FT
+
+Skylab IV
+16 Nov 1973
+Cld: SCT100 (33)
+
+Vis: 10 SM
+
+Temp/Dew: 72F/63F
+
+Wind: 220/07KTS
+
+60' Wind: 202/07 KTS (34)
+
+02/08/1974
+
+(84 days
+
+1 hour
+
+17 minutes)
+Cld: BKNxxx (CI) (35)
+
+Vis: 10 NM
+
+Temp/Dew: 58F/52F
+
+Wind: 060/16KTS
+
+Water Temp: 57F
+
+Wave Height: 1.5 FT
+
+Apollo-Soyuz (ASTP)
+
+Mission
+Launch
+Launch Weather
+Recovery (Duration)
+Recovery Weather
+
+Apollo 18
+7/15/1975
+Cld:SCT029CB SCT140 SCT330 (36)
+
+Vis: 10SM CB SE and SW-W
+
+Temp/Dew: 84F/73F
+
+Wind: 090/09KTS
+
+60' Wind: KTS
+
+7/24/1975
+
+(9 days
+
+1 hour
+
+30 minutes)
+Cld:
+
+Vis: NM
+
+Temp/Dew: mmF/mmF
+
+Wind: KTS
+
+Water Temp: mm F
+
+Wave Height: FT
+
+Soyuz 19
+7/15/1975
+Cld: SKC
+
+Vis: Good
+
+Temp/Dew: xxF/xxF
+
+Wind: "Light" (37)
+7/21/1975
+
+(5 days
+
+23 hours
+
+31 minutes)
+N/A
+
+Significant Events
+
+Total Number of Weather Related Scrubs and Delays: 0 Scrubs, 1 Delay.
+
+Apollo 7: First Apollo Manned Flight (Schirra/Eisele/Cunningham)
+
+Launch winds close to limit
+
+Apollo 11: First Lunar Landing (Armstrong/Aldrin/Collins)
+
+Recovery location moved
+
+Apollo 12: Second Lunar Landing (Conrad/Bean/Gordon)
+
+Launch into precipitation and electrified clouds triggered lightning strike to vehicle. The mission continued to a successful conclusion after quick action on the part of the flight controllers and the crew to recover the spacecraft electrical systems.
+
+Apollo 13: Vehicle Crippled (Lovell/Haise/Swigert)
+
+Apollo 13 recovery location moved due to tropical storm
+
+Apollo 14: Lunar Landing (Shepard/Evans/Roosa) (1 Delay)
+
+Apollo 14 launch delayed
+
+Apollo 16: Lunar Landing (Young/Mattingly/Duke)
+
+The Apollo 16 mission was shortened 1 day due to technical issues not related to weather. However, this changed the recovery location which significantly improved the weather conditions in the recovery area.
+
+Skylab 2: (Conrad/Weitz/Kerwin)
+
+Thunderstorms developed during previous afternoon, but then continued into night and morning hours. However, storms remained west of area. 15
+
+Apollo-Soyuz Test Project (Stafford/Brand/Slayton)
+
+The Apollo and Soyuz spacecraft were launched on the same day with the Soyuz launching first during daylight hours. This necessitated an afternoon launch at KSC during July. Therefore, there was a great deal of concern regarding the potential for thunderstorm occurrence, the ability to predict thunderstorms 8 - 12 hours in advance, and whether it was reasonable to scrub the Soyuz launch at Baikonur due to a forecasted occurrence of thunderstorms at KSC . Although SMG was proud of its capability to predict thunderstorms at KSC, they recommended not scrubbing a launch due to forecast thunderstorms. The launch rules for ASTP were modifed from the version used in the Skylab missions. NOAA aircraft supported Apollo-Soyuz launch to provide measurements to help avoid any triggered lightning. As it turned out, thunderstorms ended up not being a significant threat on the launch day.
+
+References:
+
+1. NASA SP-4029: "Apollo by the Numbers: A Statistical Reference" Launch Weather Table Entry, Splashdown and Recovery Table
+
+2. Launch and Recovery Weather Form for Apollo 7 (Undated)
+
+3. Launch and Recovery Weather Form for Apollo 8 (Undated)
+
+4. Launch Weather Summary for Apollo 9 (Undated)
+
+5. Launch and Recovery Weather Form for Apollo 9 (Undated)
+
+6. Launch Weather Summary for Apollo 10 (18 May 1969)
+
+7. Launch and Recovery Weather Form for Apollo 10 (Undated)
+
+8. Launch and Recovery Weather Form for Apollo 11 (Undated)
+
+9. Launch Weather Summary for Apollo 12 (Undated, Jim Nicolson)
+
+10. Launch and Recovery Weather Form for Apollo 12 (Undated)
+
+11. Launch Weather Summary for Apollo 13 (Undated)
+
+12. Apollo 13 Operation Report, 30 Apr 1970 (O.A. Gordon NWS/HNL to Chief, SMG) and supporting documentation
+
+13. Launch Weather Summary for Apollo 14 (Undated)
+
+14. Apollo 14 Operation Report, Undated (O.A. Gordon NWS/HNL to Chief, SMG) and supporting documentation
+
+15. Apollo 15 Post-Launch Report, 27 July 1971 (Ernie Amman to Manager, Apollo-Skylab Programs, AA) and supporting documentation
+
+16. Apollo 15 Operation Report, 13 August 1971 (O.A. Gordon NWS/HNL to Chief, SMG) and supporting documentation
+
+17. Apollo 16 Post-Launch Report, 17 April 1972 (Ernie Amman to Manager, Apollo-Skylab Programs, AA) and supporting documentation
+
+18. Apollo 16 Operation Report, 13 May 1972 (O.A. Gordon NWS/HNL to Chief, SMG) and supporting documentation
+
+19. Memorandum: SMG's Forecast support for Apollo 16, 9 May 1972 (Chief, SMG to Chief, Flight Control Division) and supporting documentation
+
+20. Apollo 17 Launch Weather Summary (Jim Nicholson, undated memo)
+
+21. AS-512 Launch Wind Data, 10 Jan 1973 memo (Dale Johnson, S&E-AERO-YT to Distribution)
+
+22. Apollo 17 Operation Report, 10 Jan 1973 (O.A. Gordon NWS/HNL to Chief, SMG) and supporting documentation
+
+23. Skylab I Launch Weather Summary (Jim Nicholson, 14 May 1973 memo)
+
+24. SA-513/SL-1 Launch Wind Data, 19 Jun 1973 (Dale Johnson, S&E-AERO-YT to Distribution)
+
+25. Skylab II Launch Weather Summary (Jim Nicholson, 25 May 1973 memo)
+
+26. SA-206 Launch Wind Data, 18 Jun 1973 (Dale Johnson, S&E-AERO-YT to Distribution)
+
+27. Summary of Spaceflight Meteorology Group Activities at Kennedy Space Center in Support of the Launch of Skylab I, 12 June 1973 memo (MIC, Cape Kennedy Section to Chief, SMG)
+
+28. Summary of Spaceflight Meteorology Group Activities at Kennedy Space Center in Support of the Launch of Skylab II, 12 June 1973 memo (MIC, Cape Kennedy Section to Chief, SMG)
+
+29. Skylab II Operation Report, 5 Jul 1973 (O.A. Gordon NWS/HNL to Chief, SMG) and supporting documentation
+
+30. Skylab III Launch Weather Summary (Jim Nicholson, 28 July 1973 memo)
+
+31. SA-207/SL-3 Launch Wind Data, 29 Aug 1973 (Dale Johnson, S&E-AERO-YT to Distribution)
+
+32. Skylab III Operation Report, 12 Oct 1973 (O.A. Gordon NWS/HNL to Chief, SMG) and supporting documentation
+
+33. Skylab III Launch Weather Summary (Jim Nicholson, 28 July 1973 memo)
+
+34. SA-208/SL-4 Launch Wind Data, 21 Jan 1974 (Dale Johnson, S&E-AERO-YT to Distribution)
+
+35. Skylab IV Operation Report, 21 Feb 1974 (O.A. Gordon NWS/HNL to Chief, SMG) and supporting documentation
+
+36. ASTP Launch Weather Summary (Jim Nicholson, 15 July 1975 memo)
+
+Note: Conditions recorded for launch from post-launch reports represent conditions as recorded on the 150m tower included in the report.
+
+37. SP-4209 The Partnership: A History of the Apollo-Soyuz Test Project. Chap 11.
+
+Go to the Mercury or Gemini weather support pages.
+
+US Dept of Commerce
+
+National Oceanic and Atmospheric Administration
+
+National Weather Service
+
+Spaceflight Meteorology Group
+Johnson Space Center / WS8
+
+Houston, TX 77058
+
+Comments? Questions? Please Contact Us.
+
+Disclaimer
+
+Information Quality
+
+Help
+
+Glossary
+
+Privacy Policy
+
+Freedom of Information Act (FOIA)
+
+About Us
+
+Career Opportunities
