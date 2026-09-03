@@ -50,7 +50,8 @@
 // source and fails if one appears.
 import * as nativeTaskLog from "./task-log.js";
 import { cellOf as nativeCellOf } from "./cube.js";
-import { surprises, segmentBySurprise, recursiveSegments } from "./surprise-segments.js";
+import { surprises, segmentBySurprise, recursiveSegments, quantile } from "./surprise-segments.js";
+import { lcg, shuffled } from "./continuation.js";
 
 const norm = (v) => String(v ?? "").trim().toLowerCase();
 
@@ -86,6 +87,73 @@ export const REFUSALS = Object.freeze({
 
 /** The id every frame entry carries; one per ledger, at seq 0. */
 export const FRAME_TASK = "frame:0";
+
+/**
+ * THE WITNESS GRAMMAR, owned here because the ledger is what a witness
+ * strings attach to: `[kind:]<ref>[#address][~recipe]`. `kind:` names how
+ * the witness was earned (a testimony vote is `testimony:`); `#address` is
+ * P5.2's own span shape; `~recipe` is P68's identity of the reader. The
+ * SOURCE is the ref alone — two addresses in one ref are one perspective,
+ * and a testimony vote from a ref the ledger already heard is the same
+ * perspective wearing a second costume (found live, 2026-09-02: the first
+ * witness walk over a real book attested eight notes, every one by the
+ * part it was heard in, because the address was being compared as part of
+ * the source). The INSTRUMENT is the recipe alone: two sources read by one
+ * reader cannot disagree about anything the reader gets wrong.
+ */
+export const sourceOfWitness = (w) => {
+  let s = String(w ?? "");
+  const kind = s.indexOf(":");
+  if (kind > 0 && !/[#~]/.test(s.slice(0, kind))) s = s.slice(kind + 1);
+  const tilde = s.indexOf("~");
+  if (tilde >= 0) s = s.slice(0, tilde);
+  const hash = s.indexOf("#");
+  return hash >= 0 ? s.slice(0, hash) : s;
+};
+export const recipeOfWitness = (w) => { const s = String(w ?? ""); const t = s.indexOf("~"); return t >= 0 ? s.slice(t + 1) : null; };
+/** The declared KIND of a witness — the prefix before the first ":" when
+ * that prefix carries no address or recipe (`testimony:`, `primary:`,
+ * `planted:`); a witness with no kind is a mechanical sighting and reads
+ * `sighting`. Kinds are caller-declared vocabulary; this file counts them
+ * and never interprets one. */
+export const kindOfWitness = (w) => {
+  const s = String(w ?? "");
+  const kind = s.indexOf(":");
+  return kind > 0 && !/[#~]/.test(s.slice(0, kind)) ? s.slice(0, kind) : "sighting";
+};
+
+/**
+ * standingOf(note) — what a note's witnesses amount to, DISCLOSED as counts
+ * and a typed standing, never as a bit: `sources` (distinct refs),
+ * `instruments` (distinct recipes; undeclared recipes counted apart),
+ * and the standing:
+ *   single-witness             — one source
+ *   corroborated               — two or more sources through ONE instrument
+ *                                (they cannot disagree about that
+ *                                instrument's own errors)
+ *   corroborated-independently — two or more sources AND two or more
+ *                                instruments
+ * `kinds` counts witnesses by their declared kind (`sighting` for a bare
+ * mechanical witness) so a consumer can tell a note read off an ACCOUNT of
+ * a thing from one read off the thing itself — a report of a measurement
+ * and the instrument's own record are different kinds of witness in every
+ * medium, and which kinds exist is the caller's vocabulary, not this
+ * file's.
+ * The floor is 2, binding.js's structural minimum: one witness has no
+ * second to agree with. A consumer that gates on a standing gates on a
+ * fact the note carries; a consumer that WITHHOLDS a note for its standing
+ * is making a decision this file does not make for it.
+ */
+export function standingOf(note) {
+  const ws = note?.witnesses ?? [];
+  const sources = new Set(ws.map(sourceOfWitness));
+  const recipes = new Set(ws.map(recipeOfWitness).filter((r) => r != null));
+  const undeclared = ws.filter((w) => recipeOfWitness(w) == null).length;
+  const standing = sources.size < 2 ? "single-witness" : recipes.size >= 2 ? "corroborated-independently" : "corroborated";
+  const kinds = {};
+  for (const w of ws) { const k = kindOfWitness(w); kinds[k] = (kinds[k] ?? 0) + 1; }
+  return { sources: sources.size, instruments: recipes.size, undeclared, standing, kinds };
+}
 
 /**
  * makeNotes({ taskLog, cellOf, identity }) — the ledger, over an injected
@@ -132,10 +200,35 @@ export function makeNotes({ taskLog = nativeTaskLog, cellOf = nativeCellOf, iden
     });
   }
 
-  /** The declared frame, or the gap by name — never an invented one. */
+  /** Every frame this ledger has stood on, in order — the first at birth, the rest redeclared. */
+  const frames = (log) => (log?.entries ?? []).filter((x) => x?.task_id === FRAME_TASK && x.frame).map((e) => ({ declared: e.frame, at: e.seq }));
+
+  /** The frame IN FORCE (the latest declared), or the gap by name — never an invented one. */
   function frameOf(log) {
-    const e = (log?.entries ?? []).find((x) => x?.task_id === FRAME_TASK && x.frame);
-    return e ? { declared: e.frame, at: e.seq } : { gap: "no_frame", detail: "this ledger was created without declaring what its reader stood on" };
+    const all = frames(log);
+    if (!all.length) return { gap: "no_frame", detail: "this ledger was created without declaring what its reader stood on" };
+    const last = all.at(-1);
+    return { declared: last.declared, at: last.at, revisions: all.length - 1 };
+  }
+
+  /**
+   * redeclareFrame(log, frame) — the reader's standing CHANGED after birth (a
+   * prior loaded, an organ was swapped) and the ledger says so: SUPERSEDE on
+   * the frame task, the past kept (task-log's own rule), so a hearing's seq
+   * always falls under exactly one frame in force. A frame identical to the
+   * one in force appends nothing. A ledger born without a frame may still
+   * be given one here — late is honest, invented is not.
+   */
+  function redeclareFrame(log, frame) {
+    if (!frame || typeof frame !== "object" || Array.isArray(frame)) throw new TypeError("redeclareFrame: a frame is a descriptor — what this reader stands on, as a plain record");
+    const current = frameOf(log);
+    if (current.declared && canon(current.declared) === canon(frame)) return log;
+    return append(log, {
+      kind: current.declared ? ENTRY_KINDS.SUPERSEDE : ENTRY_KINDS.EVIDENCE, task_id: FRAME_TASK, operator: "DEF", operator_basis: OPERATOR_BASIS.DECLARED, grain: GROUND,
+      ...cellFields("DEF", GROUND),
+      description: current.declared ? "frame redeclared: what this reader stands on now" : "frame: what this reader stands on",
+      frame,
+    });
   }
 
   /**
@@ -292,6 +385,9 @@ export function makeNotes({ taskLog = nativeTaskLog, cellOf = nativeCellOf, iden
       .sort((a, b) => b.witnesses.length - a.witnesses.length || a.id.localeCompare(b.id));
   }
 
+  /** fold(log) with each note's standing disclosed beside it — the shape a consumer that never withholds should read. */
+  const foldWithStanding = (log) => fold(log).map((n) => ({ ...n, ...standingOf(n) }));
+
   /**
    * readingFromNotes(log, { source }) — the reader's own postures in the
    * shape experience-priors.js sediments. Only the ACT crosses (operator,
@@ -326,11 +422,107 @@ export function makeNotes({ taskLog = nativeTaskLog, cellOf = nativeCellOf, iden
     return hearings(log).map((e) => ({ symbol: String(pick(e)), seq: e.seq }));
   }
 
-  /** figures(log, { by, order }) — each hearing's surprise, in bits, under the ground heard before it. */
+  /**
+   * figures(log, { by, order }) — each hearing's surprise, in bits, under
+   * the ground heard before it. The floor is the stream's own alphabet
+   * (one rule with `segment`): with a GROWING floor every later first
+   * occurrence reads a hair more surprising than an earlier one, and a
+   * ranking by bits then just names the last hearings — which is exactly
+   * what the first run of notes-segments.mjs mistook for a finding.
+   */
   function figures(log, { by = "id", order } = {}) {
     const s = stream(log, { by });
-    const bits = surprises(s.map((x) => x.symbol), { order });
+    const symbols = s.map((x) => x.symbol);
+    const bits = surprises(symbols, { order, alphabetSize: new Set(symbols).size });
     return s.map((x, i) => ({ ...x, bits: bits[i] }));
+  }
+
+  /** The source a hearing came from: the witness it was last heard by, up to its address or its recipe. */
+  const defaultSourceOf = (e) => { const w = String((e?.witnesses ?? []).at(-1) ?? ""); return w ? w.split("#")[0].split("~")[0] : null; };
+
+  /**
+   * dietBoundaries(log, { by, order, alpha, draws, seed, sourceOf }) — where a
+   * reading stopped hearing its material.
+   *
+   * For each source, the ledger's hearings in order; each hearing's surprise
+   * under the ground heard before it; the TAIL RUN — how many hearings at the
+   * very end sit at or above the null's cut — against the tail runs the
+   * same hearings produce with their order destroyed. A tail run longer than
+   * the shuffle's own (1−alpha) quantile is a boundary: from that hearing on,
+   * nothing the reading heard recurred with what it had heard before. What
+   * that is (a wrapper, a bibliography, an index, a licence) this file does
+   * not know; it reports the run and its seqs, and `concedeDiet` is a
+   * separate act. No site rule, no vocabulary, no medium: the same test on a
+   * score would find where the applause starts.
+   *
+   * MEASURED, AND REFUTED AS A WRAPPER DOOR (2026-09-02, eval/the-fold/
+   * diet-boundary.mjs). On planted structure it is exact (the pin below).
+   * On real material it fails its control in both directions: the three
+   * Wikipedia wrappers and Project Gutenberg's 18KB licence tail do NOT form
+   * a run (their ends recur — "Project Gutenberg", "the Foundation",
+   * "Статьи"), while the pages cut back to prose DO fire — on a closing
+   * section that is a list of adaptations, or of streets named after the
+   * battle. What this measures is a TAIL OF ENDS THAT NEVER RECUR, which is
+   * the shape of a list, not of furniture. So `dietBoundaries` stays as a
+   * diagnostic (it reports exactly that, with its null), and `concedeDiet`
+   * is NOT licensed on real material — kept, tested, and named so it is not
+   * rebuilt as an admission act under a new name. The results doc has the
+   * numbers.
+   *
+   * `sourceOf(entry)` keys hearings to a source (default: the last witness up
+   * to its `#` address or `~` recipe — P5.2's own address shape). A source
+   * with fewer than two hearings is reported with `run: null`, never judged.
+   */
+  function dietBoundaries(log, { by = "end1", order, alpha, draws, seed, sourceOf = defaultSourceOf } = {}) {
+    for (const [k, v] of Object.entries({ order, alpha, draws, seed })) if (!Number.isFinite(v)) throw new TypeError(`dietBoundaries: ${k} is declared`);
+    const entryAt = new Map(hearings(log).map((e) => [e.seq, e]));
+    const bySource = new Map();
+    for (const x of stream(log, { by })) {
+      const src = sourceOf(entryAt.get(x.seq));
+      if (src == null) continue;
+      if (!bySource.has(src)) bySource.set(src, []);
+      bySource.get(src).push(x);
+    }
+    const tailRun = (bits, cut) => { let k = 0; for (let i = bits.length - 1; i >= 0 && bits[i] >= cut; i -= 1) k += 1; return k; };
+    const out = [];
+    for (const [source, xs] of bySource) {
+      if (xs.length < 2) { out.push({ source, hearings: xs.length, run: null, runNull: null, cut: null, boundary: false, seqs: [], refused: "too_short" }); continue; }
+      const symbols = xs.map((x) => x.symbol);
+      const alphabetSize = new Set(symbols).size;
+      const observed = surprises(symbols, { order, alphabetSize });
+      const rng = lcg(seed);
+      const nullBits = [];
+      for (let d = 0; d < draws; d += 1) nullBits.push(surprises(shuffled(symbols, rng), { order, alphabetSize }));
+      const pooled = nullBits.flatMap((b) => Array.from(b)).sort((a, b) => a - b);
+      const cut = quantile(pooled, 1 - alpha);
+      const nullRuns = nullBits.map((b) => tailRun(b, cut)).sort((a, b) => a - b);
+      const runNull = quantile(nullRuns, 1 - alpha);
+      const run = tailRun(observed, cut);
+      const boundary = run > runNull;
+      out.push({ source, hearings: xs.length, run, runNull, cut, boundary, seqs: boundary ? xs.slice(xs.length - run).map((x) => x.seq) : [], refused: null });
+    }
+    return out;
+  }
+
+  /**
+   * concedeDiet(log, boundary, { trigger }) — REC on every note whose EVERY
+   * hearing falls inside the boundary's run: the reading takes back what it
+   * heard after it stopped hearing the material. A note also heard before
+   * the run stays — it was material once. Append-only, like every concede.
+   */
+  function concedeDiet(log, boundary, { trigger } = {}) {
+    if (!boundary?.boundary || !boundary.seqs?.length) return { log, conceded: [], refused: { type: "no_boundary", detail: "nothing to concede — this source's tail cleared its own null" } };
+    const inRun = new Set(boundary.seqs);
+    const seqsOf = new Map();
+    for (const e of hearings(log)) { if (!seqsOf.has(e.task_id)) seqsOf.set(e.task_id, []); seqsOf.get(e.task_id).push(e.seq); }
+    const conceded = [];
+    let next = log;
+    for (const [id, seqs] of seqsOf) {
+      if (!seqs.every((q) => inRun.has(q))) continue;
+      const r = concede(next, id, { trigger: `${trigger ?? "diet boundary"}: ${boundary.source} tail run of ${boundary.run} hearings (null ${boundary.runNull})` });
+      if (!r.refused && !r.noop) { next = r.log; conceded.push(id); }
+    }
+    return { log: next, conceded, refused: null };
   }
 
   /**
@@ -353,5 +545,5 @@ export function makeNotes({ taskLog = nativeTaskLog, cellOf = nativeCellOf, iden
     return { levels, stream: s, boundarySeqs: (levels[0]?.boundaries ?? []).map((b) => s[b].seq) };
   }
 
-  return { createNotes, frameOf, hear, admit, attest, concede, concededIds, concededNotes, fold, readingFromNotes, stream, figures, segment, noteId, recipeId, REFUSALS, FRAME_TASK };
+  return { createNotes, frameOf, frames, redeclareFrame, hear, admit, attest, concede, concededIds, concededNotes, fold, foldWithStanding, standingOf, sourceOfWitness, recipeOfWitness, kindOfWitness, readingFromNotes, stream, figures, segment, dietBoundaries, concedeDiet, noteId, recipeId, REFUSALS, FRAME_TASK };
 }

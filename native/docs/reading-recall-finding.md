@@ -442,3 +442,15 @@ end-debris, 14 genuine paraphrase (an end absent from the whole page),
 full-budget run and the widened-window arm (judged on its marginal pairs,
 LP11) are the real measure — see the results doc's second section. Also: one attested note is
 subject-span debris (`of Moscow —took→ …`) — lever 3 still first.
+
+## Correction (2026-09-02): "distinct sources" counted distinct CHUNKS
+
+Every ≥2-source count in this document that was computed from
+chunk-addressed witnesses (`file#start-end`) overstates corroboration:
+`distinctSources` compared witness strings with their address still on, so
+two chunks of one book — or a chunk and a testimony vote from the same book
+— counted as two sources. Found live by the first witness walk over a real
+book (eoreader7 `eval/the-fold/results/dracula-witness-walk-RESULTS.md`),
+where every attested note had been "corroborated" by its own source. The
+organ now reduces a witness to its ref before counting; the numbers here
+are records of what the old count said and are not re-derived.

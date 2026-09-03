@@ -1,0 +1,2281 @@
+{
+  "pages": [
+    {
+      "ref": "wikipedia-battle-of-austerlitz.html",
+      "url": "https://en.wikipedia.org/wiki/Battle_of_Austerlitz",
+      "leads": {
+        "links": 51,
+        "quotes": 5
+      }
+    },
+    {
+      "ref": "wikipedia-war-of-the-third-coalition.html",
+      "url": "https://en.wikipedia.org/wiki/War_of_the_Third_Coalition",
+      "leads": {
+        "links": 19,
+        "quotes": 1
+      }
+    }
+  ],
+  "ledger": {
+    "notes": 605,
+    "heard": 627
+  },
+  "budget": {
+    "maxFetches": 30,
+    "maxSearches": 6,
+    "consult": 3
+  },
+  "witness": "gemma2:2b",
+  "real": {
+    "considered": 605,
+    "leads": 1,
+    "attested": 0,
+    "verdicts": {
+      "no-testimony": 1
+    },
+    "fetches": 30,
+    "searches": 3,
+    "gaps": {
+      "shell": 4,
+      "http": 8
+    },
+    "standing": {
+      "single-witness": 584,
+      "corroborated": 21
+    },
+    "chased": [
+      {
+        "noteId": "000|are|figures often present in the literature",
+        "note": "000 —are→ figures often present in the literature",
+        "leads": {
+          "links": 51,
+          "quotes": 5
+        },
+        "searched": [],
+        "consulted": [],
+        "attested": []
+      },
+      {
+        "noteId": "attacks out of telnitz|were|checked by french artillery",
+        "note": "attacks out of Telnitz —were→ checked by French artillery",
+        "leads": {
+          "links": 70,
+          "quotes": 6
+        },
+        "searched": [],
+        "consulted": [
+          {
+            "url": "https://books.google.com/books?id=hKVKFZ-4I3cC&pg=PA51",
+            "host": "books.google.com",
+            "via": "link",
+            "structuralClass": "dated-document",
+            "overlap": 1,
+            "citation": "Hugo, Victor (1843) [1840]. \"Regard jeté dans une mansarde\" . Œuvres (in French). Vol. 3. Société Belge de Librairie. p. 51. Je ne hais pas d'entendre au fond de ma pensée / Le bruit des lourds canons roulant vers Austerlitz.",
+            "textChars": 613,
+            "snipsFound": 0,
+            "snips": []
+          },
+          {
+            "url": "http://www.vialupo.com/austerlitz",
+            "host": "vialupo.com",
+            "via": "link",
+            "structuralClass": "dated-document",
+            "overlap": 1,
+            "citation": "(In French) Austerlitz 2005: la bataille des trois empereurs",
+            "gap": {
+              "type": "shell",
+              "detail": "0-char face"
+            }
+          },
+          {
+            "url": "http://www.pousse-pion.fr/mp/La-bataille-d-Austerlitz.php",
+            "host": "pousse-pion.fr",
+            "via": "link",
+            "structuralClass": "dated-document",
+            "overlap": 1,
+            "citation": "(In French) Austerlitz Online Game (Pousse-pion éditions, 2010)",
+            "textChars": 327,
+            "snipsFound": 0,
+            "snips": []
+          }
+        ],
+        "attested": []
+      },
+      {
+        "noteId": "austerlitz|had|driven neither russia nor britain",
+        "note": "Austerlitz —had→ driven neither Russia nor Britain",
+        "leads": {
+          "links": 70,
+          "quotes": 6
+        },
+        "searched": [],
+        "consulted": [
+          {
+            "url": "https://archive.org/details/bmk-brz-3/page/n300",
+            "host": "archive.org",
+            "via": "link",
+            "structuralClass": "archive-library-museum",
+            "overlap": 2,
+            "citation": "Novitsky, Vasily (1911). \"Аустерлицъ\" [ Austerlitz ] . Военная энциклопедия Сытина (in Russian). Vol. 3: Аральская флотилия – Афонское сражение. Moscow: Типография Т-ва И. Д. Сытина. pp. 258– 263 . Retrieved 16 September 2023 .",
+            "textChars": 5961,
+            "snipsFound": 0,
+            "snips": []
+          },
+          {
+            "url": "https://archive.org/stream/bmk-brz-3/bmk-brz-3_djvu.txt",
+            "host": "archive.org",
+            "via": "link:full-text",
+            "structuralClass": "archive-library-museum",
+            "overlap": 2,
+            "citation": "Novitsky, Vasily (1911). \"Аустерлицъ\" [ Austerlitz ] . Военная энциклопедия Сытина (in Russian). Vol. 3: Аральская флотилия – Афонское сражение. Moscow: Типография Т-ва И. Д. Сытина. pp. 258– 263 . Retrieved 16 September 2023 .",
+            "textChars": 5961,
+            "snipsFound": 0,
+            "snips": []
+          },
+          {
+            "url": "https://www.napoleon-series.org/military-info/battles/Austerlitz/c_russiancasualties.html",
+            "host": "napoleon-series.org",
+            "via": "link",
+            "structuralClass": "dated-document",
+            "overlap": 2,
+            "citation": "Mikaberidze, Alexander (February 2006). \"A Few Notes on the Russian Losses at Austerlitz\" . The Napoleon Series . The Waterloo Association . Retrieved 19 November 2025 .",
+            "gap": {
+              "type": "shell",
+              "detail": "0-char face"
+            }
+          }
+        ],
+        "attested": []
+      },
+      {
+        "noteId": "austria|agreed|to recognize french territory captured by the treaties of campo formio (1797) and lunéville (1801)",
+        "note": "Austria —agreed→ to recognize French territory captured by the treaties of Campo Formio (1797) and Lunéville (1801)",
+        "leads": {
+          "links": 70,
+          "quotes": 6
+        },
+        "searched": [],
+        "consulted": [
+          {
+            "url": "https://books.google.com/books?id=hKVKFZ-4I3cC&pg=PA51",
+            "host": "books.google.com",
+            "via": "link",
+            "structuralClass": "dated-document",
+            "overlap": 1,
+            "citation": "Hugo, Victor (1843) [1840]. \"Regard jeté dans une mansarde\" . Œuvres (in French). Vol. 3. Société Belge de Librairie. p. 51. Je ne hais pas d'entendre au fond de ma pensée / Le bruit des lourds canons roulant vers Austerlitz.",
+            "textChars": 613,
+            "snipsFound": 0,
+            "snips": []
+          },
+          {
+            "url": "http://www.vialupo.com/austerlitz",
+            "host": "vialupo.com",
+            "via": "link",
+            "structuralClass": "dated-document",
+            "overlap": 1,
+            "citation": "(In French) Austerlitz 2005: la bataille des trois empereurs",
+            "gap": {
+              "type": "shell",
+              "detail": "0-char face"
+            }
+          },
+          {
+            "url": "http://www.pousse-pion.fr/mp/La-bataille-d-Austerlitz.php",
+            "host": "pousse-pion.fr",
+            "via": "link",
+            "structuralClass": "dated-document",
+            "overlap": 1,
+            "citation": "(In French) Austerlitz Online Game (Pousse-pion éditions, 2010)",
+            "textChars": 327,
+            "snipsFound": 0,
+            "snips": []
+          }
+        ],
+        "attested": []
+      },
+      {
+        "noteId": "austria|decided|to go to war with france",
+        "note": "Austria —decided→ to go to war with France",
+        "leads": {
+          "links": 70,
+          "quotes": 6
+        },
+        "searched": [
+          "Napoleonic Wars: Art of War, Diplomacy and Imperialism"
+        ],
+        "consulted": [
+          {
+            "url": "https://catalogue.bnf.fr/ark:/12148/cb12389246n",
+            "host": "catalogue.bnf.fr",
+            "via": "link",
+            "structuralClass": "other",
+            "overlap": 1,
+            "citation": "France",
+            "textChars": 1531,
+            "snipsFound": 0,
+            "snips": []
+          }
+        ],
+        "attested": []
+      },
+      {
+        "noteId": "davout's soldiers|had|48 hours to march 110 km (68 mi)",
+        "note": "Davout's soldiers —had→ 48 hours to march 110 km (68 mi)",
+        "leads": {
+          "links": 70,
+          "quotes": 6
+        },
+        "searched": [],
+        "consulted": [
+          {
+            "url": "http://www.historyskills.com/classroom/modern-history/austerlitz/",
+            "host": "historyskills.com",
+            "via": "link",
+            "structuralClass": "dated-document",
+            "overlap": 1,
+            "citation": "\"Why the Battle of Austerlitz was Napoleon's greatest triumph\" . History Skills . Retrieved 19 March 2024 .",
+            "textChars": 8053,
+            "snipsFound": 0,
+            "snips": []
+          },
+          {
+            "url": "https://www.worldhistory.org/article/2249/ulm-campaign/",
+            "host": "worldhistory.org",
+            "via": "link",
+            "structuralClass": "dated-document",
+            "overlap": 1,
+            "citation": "Mark, Harrison W. (10 July 2023). \"Ulm Campaign\" . World History Encyclopedia . Retrieved 19 March 2024 .",
+            "textChars": 21207,
+            "snipsFound": 0,
+            "snips": []
+          },
+          {
+            "url": "https://news.bbc.co.uk/2/hi/europe/4491668.stm",
+            "host": "news.bbc.co.uk",
+            "via": "link",
+            "structuralClass": "dated-document",
+            "overlap": 1,
+            "citation": "\"Furore over Austerlitz ceremony\" . BBC News . 20 March 2006. Archived from the original on 11 January 2009.",
+            "gap": {
+              "type": "http",
+              "status": 403
+            }
+          }
+        ],
+        "attested": []
+      },
+      {
+        "noteId": "england|expects|that every man will do his duty",
+        "note": "England —expects→ that every man will do his duty",
+        "leads": {
+          "links": 70,
+          "quotes": 6
+        },
+        "searched": [],
+        "consulted": [],
+        "attested": []
+      },
+      {
+        "noteId": "friedrich wilhelm|von|buxhoeveden",
+        "note": "Friedrich Wilhelm —von→ Buxhoeveden",
+        "leads": {
+          "links": 70,
+          "quotes": 6
+        },
+        "searched": [],
+        "consulted": [
+          {
+            "url": "https://marxengels.public-archives.com/en/ME0936en.html",
+            "host": "marxengels.public-archives.com",
+            "via": "link",
+            "structuralClass": "dated-document",
+            "overlap": 1,
+            "citation": "Engles, Friedrich (August 1855). \"The Armies of Europe\" . Putnam's Magazine (XXXII) . Retrieved 4 November 2025 .",
+            "textChars": 187960,
+            "snipsFound": 0,
+            "snips": []
+          },
+          {
+            "url": "http://www.napoleon-online.de/AU_Generale/index.html",
+            "host": "napoleon-online.de",
+            "via": "link",
+            "structuralClass": "dated-document",
+            "overlap": 1,
+            "citation": "(in German) Jens-Florian Ebert. \"Heinrich von Schmitt\". Die Österreichischen Generäle 1792–1815 . Napoleon Online: Portal zu Epoch Archived 8 April 2000 at the Wayback Machine . Markus Stein, editor. Mannheim, Germany. 14 February 2010 version. Accessed 5 February 2010: (in German) Egger, p. 29.",
+            "textChars": 910,
+            "snipsFound": 0,
+            "snips": []
+          },
+          {
+            "url": "http://www.napoleon-online.de/",
+            "host": "napoleon-online.de",
+            "via": "link",
+            "structuralClass": "dated-document",
+            "overlap": 1,
+            "citation": "(in German) Jens-Florian Ebert. \"Heinrich von Schmitt\". Die Österreichischen Generäle 1792–1815 . Napoleon Online: Portal zu Epoch Archived 8 April 2000 at the Wayback Machine . Markus Stein, editor. Mannheim, Germany. 14 February 2010 version. Accessed 5 February 2010: (in German) Egger, p. 29.",
+            "textChars": 5304,
+            "snipsFound": 0,
+            "snips": []
+          }
+        ],
+        "attested": []
+      },
+      {
+        "noteId": "from the russian|nobles|and the austrian commanders",
+        "note": "from the Russian —nobles→ and the Austrian commanders",
+        "leads": {
+          "links": 70,
+          "quotes": 6
+        },
+        "searched": [
+          "I have beaten the Austro-Russian army commanded by the two emperors. I am a little weary. ... I embrace you."
+        ],
+        "consulted": [
+          {
+            "url": "https://muse.jhu.edu/article/180781/pdf",
+            "host": "muse.jhu.edu",
+            "via": "link",
+            "structuralClass": "academic",
+            "overlap": 1,
+            "citation": "Pagedas, Constantine A. (2005). \"Counterpoint to Trafalgar: The Anglo-Russian Invasion of Naples, 1805–1806 (Review)\" . Mediterranean Quarterly . 16 (1): 120– 122. doi : 10.1215/10474552-16-1-120 . S2CID 154229720 .",
+            "textChars": 206,
+            "snipsFound": 0,
+            "snips": []
+          },
+          {
+            "url": "https://doi.org/10.1215%2F10474552-16-1-120",
+            "host": "doi.org",
+            "via": "link",
+            "structuralClass": "identifier",
+            "overlap": 1,
+            "citation": "Pagedas, Constantine A. (2005). \"Counterpoint to Trafalgar: The Anglo-Russian Invasion of Naples, 1805–1806 (Review)\" . Mediterranean Quarterly . 16 (1): 120– 122. doi : 10.1215/10474552-16-1-120 . S2CID 154229720 .",
+            "gap": {
+              "type": "http",
+              "status": 403
+            }
+          },
+          {
+            "url": "https://api.semanticscholar.org/CorpusID:154229720",
+            "host": "api.semanticscholar.org",
+            "via": "link",
+            "structuralClass": "identifier",
+            "overlap": 1,
+            "citation": "Pagedas, Constantine A. (2005). \"Counterpoint to Trafalgar: The Anglo-Russian Invasion of Naples, 1805–1806 (Review)\" . Mediterranean Quarterly . 16 (1): 120– 122. doi : 10.1215/10474552-16-1-120 . S2CID 154229720 .",
+            "gap": {
+              "type": "shell",
+              "detail": "0-char face"
+            }
+          }
+        ],
+        "attested": []
+      },
+      {
+        "noteId": "karl mack|became|the new main commander in austria's army",
+        "note": "Karl Mack —became→ the new main commander in Austria's army",
+        "leads": {
+          "links": 70,
+          "quotes": 6
+        },
+        "searched": [
+          "I have beaten the Austro-Russian army commanded by the two emperors. I am a little weary. ... I embrace you."
+        ],
+        "consulted": [
+          {
+            "url": "http://www.westpoint.edu/history/SitePages/Napoleonic%20Wars.aspx",
+            "host": "westpoint.edu",
+            "via": "link",
+            "structuralClass": "academic",
+            "overlap": 1,
+            "citation": "\"Napoleonic Wars\" . Westpoint.edu . U.S. Army. Archived from the original on 28 July 2014 . Retrieved 1 July 2017 .",
+            "gap": {
+              "type": "http",
+              "status": 403
+            }
+          },
+          {
+            "url": "https://search.worldcat.org/oclc/185576578",
+            "host": "search.worldcat.org",
+            "via": "link",
+            "structuralClass": "archive-library-museum",
+            "overlap": 1,
+            "citation": "Chandler, David G. (1966a). The Campaigns of Napoleon . New York: Simon & Schuster . OCLC 185576578 .",
+            "gap": {
+              "type": "http",
+              "status": 403
+            }
+          },
+          {
+            "url": "https://www.archive.org/details/memoirsofnapoleo01meneiala",
+            "host": "archive.org",
+            "via": "link",
+            "structuralClass": "archive-library-museum",
+            "overlap": 1,
+            "citation": "de Méneval, Claude-François (1910). de Méneval, Napoléon Joseph Erenst; Collier, Peter Fenelon (eds.). Memoirs of Napoleon Bonaparte: The Court of the First Empire . Vol. II. New York: P.F. Collier & Son Publishers. OCLC 566100622 . Retrieved 15 June 2021 – via Internet Archive .",
+            "textChars": 5452,
+            "snipsFound": 0,
+            "snips": []
+          }
+        ],
+        "attested": []
+      },
+      {
+        "noteId": "kienmayer|covered|his withdrawal with the o'reilly light cavalry",
+        "note": "Kienmayer —covered→ his withdrawal with the O'Reilly light cavalry",
+        "leads": {
+          "links": 70,
+          "quotes": 6
+        },
+        "searched": [],
+        "consulted": [],
+        "attested": []
+      },
+      {
+        "noteId": "napoleon now|had|the option to strike at one of the wings",
+        "note": "Napoleon now —had→ the option to strike at one of the wings",
+        "leads": {
+          "links": 70,
+          "quotes": 6
+        },
+        "searched": [],
+        "consulted": [
+          {
+            "url": "http://www.westpoint.edu/history/SitePages/Napoleonic%20Wars.aspx",
+            "host": "westpoint.edu",
+            "via": "link",
+            "structuralClass": "academic",
+            "overlap": 1,
+            "citation": "\"Napoleonic Wars\" . Westpoint.edu . U.S. Army. Archived from the original on 28 July 2014 . Retrieved 1 July 2017 .",
+            "gap": {
+              "type": "http",
+              "status": 403
+            }
+          },
+          {
+            "url": "https://archive.org/details/lifenapoleonbon00irelgoog/page/548/mode/1up",
+            "host": "archive.org",
+            "via": "link",
+            "structuralClass": "archive-library-museum",
+            "overlap": 1,
+            "citation": "William Henry Ireland , The Life of Napoleon Bonaparte , Vol.II, p.548 (London: John Cumberland, 1828) (retrieved 18 July 2026).",
+            "textChars": 4639,
+            "snipsFound": 0,
+            "snips": []
+          },
+          {
+            "url": "https://archive.org/stream/lifenapoleonbon00irelgoog/lifenapoleonbon00irelgoog_djvu.txt",
+            "host": "archive.org",
+            "via": "link:full-text",
+            "structuralClass": "archive-library-museum",
+            "overlap": 1,
+            "citation": "William Henry Ireland , The Life of Napoleon Bonaparte , Vol.II, p.548 (London: John Cumberland, 1828) (retrieved 18 July 2026).",
+            "textChars": 1318238,
+            "snipsFound": 0,
+            "snips": []
+          }
+        ],
+        "attested": []
+      },
+      {
+        "noteId": "napoleon|ordered|his own heavy guard cavalry forward",
+        "note": "Napoleon —ordered→ his own heavy Guard cavalry forward",
+        "leads": {
+          "links": 70,
+          "quotes": 6
+        },
+        "searched": [],
+        "consulted": [
+          {
+            "url": "http://www.westpoint.edu/history/SitePages/Napoleonic%20Wars.aspx",
+            "host": "westpoint.edu",
+            "via": "link",
+            "structuralClass": "academic",
+            "overlap": 1,
+            "citation": "\"Napoleonic Wars\" . Westpoint.edu . U.S. Army. Archived from the original on 28 July 2014 . Retrieved 1 July 2017 .",
+            "gap": {
+              "type": "http",
+              "status": 403
+            }
+          },
+          {
+            "url": "https://archive.org/details/lifenapoleonbon00irelgoog/page/548/mode/1up",
+            "host": "archive.org",
+            "via": "link",
+            "structuralClass": "archive-library-museum",
+            "overlap": 1,
+            "citation": "William Henry Ireland , The Life of Napoleon Bonaparte , Vol.II, p.548 (London: John Cumberland, 1828) (retrieved 18 July 2026).",
+            "textChars": 4639,
+            "snipsFound": 0,
+            "snips": []
+          },
+          {
+            "url": "https://archive.org/stream/lifenapoleonbon00irelgoog/lifenapoleonbon00irelgoog_djvu.txt",
+            "host": "archive.org",
+            "via": "link:full-text",
+            "structuralClass": "archive-library-museum",
+            "overlap": 1,
+            "citation": "William Henry Ireland , The Life of Napoleon Bonaparte , Vol.II, p.548 (London: John Cumberland, 1828) (retrieved 18 July 2026).",
+            "textChars": 1318238,
+            "snipsFound": 0,
+            "snips": []
+          }
+        ],
+        "attested": []
+      },
+      {
+        "noteId": "napoleon|ordered|the attack",
+        "note": "Napoleon —ordered→ the attack",
+        "leads": {
+          "links": 70,
+          "quotes": 6
+        },
+        "searched": [],
+        "consulted": [
+          {
+            "url": "http://www.westpoint.edu/history/SitePages/Napoleonic%20Wars.aspx",
+            "host": "westpoint.edu",
+            "via": "link",
+            "structuralClass": "academic",
+            "overlap": 1,
+            "citation": "\"Napoleonic Wars\" . Westpoint.edu . U.S. Army. Archived from the original on 28 July 2014 . Retrieved 1 July 2017 .",
+            "gap": {
+              "type": "http",
+              "status": 403
+            }
+          },
+          {
+            "url": "https://archive.org/details/lifenapoleonbon00irelgoog/page/548/mode/1up",
+            "host": "archive.org",
+            "via": "link",
+            "structuralClass": "archive-library-museum",
+            "overlap": 1,
+            "citation": "William Henry Ireland , The Life of Napoleon Bonaparte , Vol.II, p.548 (London: John Cumberland, 1828) (retrieved 18 July 2026).",
+            "textChars": 4639,
+            "snipsFound": 0,
+            "snips": []
+          },
+          {
+            "url": "https://archive.org/stream/lifenapoleonbon00irelgoog/lifenapoleonbon00irelgoog_djvu.txt",
+            "host": "archive.org",
+            "via": "link:full-text",
+            "structuralClass": "archive-library-museum",
+            "overlap": 1,
+            "citation": "William Henry Ireland , The Life of Napoleon Bonaparte , Vol.II, p.548 (London: John Cumberland, 1828) (retrieved 18 July 2026).",
+            "textChars": 1318238,
+            "snipsFound": 9,
+            "snips": [
+              {
+                "text": "Napoleon embarks for France — Effect produced on the Army by his\nDeparture— Kleber appointed Commander-in-Chief— Description\nof that General — The Grand Vizir advances against the French,\nand is defeated — Negotiations between Kleber and Sir Sydney\nSmith — Armistice signed — M. Denon arrives at Keneh from\nwhence he proceeds to Rous— Ruins at that Place— Arrival at\nThebes — Temples at Karnac and Luxor, Salamieh and Esneh —\nTemple of Latopolis— Ruins at Chenubis and Apollinopolis— Re-\nmains at Etfu — Route to Tombuctoo— Crocodiles— Ruins at Den-\ndera— Ancient Zodiac— Tentyra— Tombs of the Egyptian Mo-\nnarchs at Thebes— Grottos, Paintings, and Sculptures— Ancient\nManuscript on Papyrus— Porticos of Medinet Abu — Statues of\nMemnon and Osymandyas— Concerning Mummies, and ancient\nMode of Sepulture— Embarkation for Cairo— Ruins of Antinoe—\nMonastery of the Chain— Embarkation for France, and arrival at\nFrejus — Amount of the Ottoman and French Armies — Convention\nsigned at El-Arish — Desaix embarks for France — Description of\nthat General — Kleber*g secret Despatches to the Directory fall into\nthe Hands ofthe English— The Convention with Kleber broken by\nthe British— Kleber attacks the Grand Vizir, and defeats, with\nThirteen Thousand Men, the Ottoman Army, composed of Forty",
+                "start": 11825,
+                "end": 13110,
+                "facePath": "primary-faces/b3e8a6b5bc040373.txt",
+                "url": "https://archive.org/stream/lifenapoleonbon00irelgoog/lifenapoleonbon00irelgoog_djvu.txt",
+                "host": "archive.org"
+              },
+              {
+                "text": "European Politics— Views of Napoleon after the Peace of Lune-\nville— Endeavours to revive the Confederacy of 1780 — Ambassador\nsent to Paris by the Emperor Paul— He arms against England —\nAn English Squadron despatched to Copenhagen — Napoleon's\nViews respecting the Invasion of Britain — He attacks Portugal\n— Mediation proposed by Spain, but rejected by England— Spain\njoins France in the War — Hostilities commenced, and rapid Pro-\ngress of the Spanish Arms— Peace between Spain and Portugal,\nto which Napoleon refuses to accede— Operations between the\nFrench and Portuguese— Peace concluded — Nelson's two Attacks\non Boulogne— Preparations for Peace — Signing of Preliminaries\nand enthusiastic Joy on that Occasion— The Concordat— Bonaparte\nconsolidates his Power — His Character and Views — Picture of\nFrance presented to the Nation — Anecdotes and Traits respecting *\nthe First Consul— Canova and the Arts — The Concordat ratified,\nwith Anecdotes on that Occasion — Lord Cornwallis departs from\nParis, and marked Honours paid to him— Proceeds to Amiens —\nDelay in the Negotiations — Napoleon repairs to Lyons to meet\nthe Deputies from the Cisalpine Republic, and is appointed its\nPresident— Returns to Paris — Disclosure of Secret Treaties with\nPortugal and the Sublime Porte, and Increase of Territory thereby\nacquired by the French Republic — Jealousy created in England\nand vigorous Preparations for a Renewal of War — The Treaty of\nPeace at length ratified at Amiens 370",
+                "start": 19033,
+                "end": 20513,
+                "facePath": "primary-faces/b3e8a6b5bc040373.txt",
+                "url": "https://archive.org/stream/lifenapoleonbon00irelgoog/lifenapoleonbon00irelgoog_djvu.txt",
+                "host": "archive.org"
+              },
+              {
+                "text": "Austrians and Russians at Ulm— Napoleon proceeds to Munich\n-—Disposition of his Army— The French pass the Inn, near Bran-\nnau— The Imperialists and Russians retreat towards Vienna — The\nEmperor of Austria's Proclamation to his Subjects— Saltzburg,\n~ Lintz, and the Ems, abandoned— At Amstettin the Russians make\na Stand and are defeated— An Armistice proposed by Count Giu-\nlay, but refused by Napoleon— Affair of Marienzell— Proclama-\ntions of the Emperor Francis disregarded by- his Subjects— The\nFrench enter Vienna without further Opposition, and quiet Beha-\nviour of the Troops — Part of the Army advances towards Moravia\n— Bravery of 6000 French opposed to 20,000 Russians at Stein—\nThe Emperor of Austria proceeds from Brunn to Olmutz— Ano-\nther Proclamation issued by Francis — Russians attacked and pur-\nsued, with the Events that preceded the Affair of Austerlitz..",
+                "start": 24148,
+                "end": 25023,
+                "facePath": "primary-faces/b3e8a6b5bc040373.txt",
+                "url": "https://archive.org/stream/lifenapoleonbon00irelgoog/lifenapoleonbon00irelgoog_djvu.txt",
+                "host": "archive.org"
+              },
+              {
+                "text": "From this day, till the 7th of May, Napoleon made\nalmost daily attacks; they all failed, and their ill success",
+                "start": 186976,
+                "end": 187086,
+                "facePath": "primary-faces/b3e8a6b5bc040373.txt",
+                "url": "https://archive.org/stream/lifenapoleonbon00irelgoog/lifenapoleonbon00irelgoog_djvu.txt",
+                "host": "archive.org"
+              },
+              {
+                "text": "Having amply detailed the operations of Napoleon in\n/Syria, the failure of his attack on Saint Jean d'Acre, and\nsubsequent return to Cairo ; it now becomes our task to\nsay something respecting tbe proceedings of General\nDesaix, in Vpper Egypt.",
+                "start": 310998,
+                "end": 311241,
+                "facePath": "primary-faces/b3e8a6b5bc040373.txt",
+                "url": "https://archive.org/stream/lifenapoleonbon00irelgoog/lifenapoleonbon00irelgoog_djvu.txt",
+                "host": "archive.org"
+              },
+              {
+                "text": "\" — Loud clamours and'\nthreats prevented the President's being heard any fur-\nther ; and the General was so overpowered by the number\nof those who precipitated themselves forward to attack\nhim, that he was - on the point of falling, when General\nLefebvre rushed into the Hall with a body of armed gre-\nnadiers, who surrounded Napoleon and escorted him out.",
+                "start": 604897,
+                "end": 605253,
+                "facePath": "primary-faces/b3e8a6b5bc040373.txt",
+                "url": "https://archive.org/stream/lifenapoleonbon00irelgoog/lifenapoleonbon00irelgoog_djvu.txt",
+                "host": "archive.org"
+              },
+              {
+                "text": "European Politics — Views of Napoleon after the Peace ofLu-\nneville — Endeavours to revive the Confederacy of 1780 —\nAmbassador sent to Paris by the Emperor Paul — He arms\nagainst England — An English Squadron despatched ta\nCopenhagen — Napoleon's Views respecting the Invasion of\nBritain — He attacks Portugal — Mediation proposed by\nSpain, but rejected by England — Spain joins France in the\nWar — Hostilities commenced, and rapid Progress of the Spa-\nnish Arms — Peace between Spain and Portugal, to which Na-\npoleon refuses to accede — Operations between the French and\nPortuguese — Peace concluded — Nelson's two Attacks on\nBoulogne — Preparations for Peace — Signing of Prelimi-\nnaries and enthusiastic Joy on that Occasion — The Concor-\ndat— Bonaparte consolidates his Power — His Character and\nViews— Picture of France presented to the Nation — Anec-\ndotes and Traits respecting the First Consul — Canova and\nthe Arts — The Concordat ratified, with Anecdotes on that\nOccasion — Lord Comwallis departs for Paris, and marked\nHonours paid to him — Proceeds to Amiens — Delay in the\nNegotiations — Napoleon repairs to Lyons to meet the De-\nputies from the Cisalpine Republic, and is appointed its Presi-\ndent— Returns to Paris — Disclosure of Secret Treaties with\nPortugal and the Sublime Porte, and Increase of Territory\nthereby acquired by the French Republic— Jealousy created\nin England and vigorous Preparations for a Renewal of\nWar — The, Treaty of Peace at length ratified at Amiens.",
+                "start": 901065,
+                "end": 902559,
+                "facePath": "primary-faces/b3e8a6b5bc040373.txt",
+                "url": "https://archive.org/stream/lifenapoleonbon00irelgoog/lifenapoleonbon00irelgoog_djvu.txt",
+                "host": "archive.org"
+              },
+              {
+                "text": "• Napoleon having failed with the northern confederacy,\nresolved to forsake, for awhile, the faithless element of\nthe seas, on which we rode triumphant, and attack us by\na more circuitous route, and by which he promised him-\nself more success.",
+                "start": 916186,
+                "end": 916429,
+                "facePath": "primary-faces/b3e8a6b5bc040373.txt",
+                "url": "https://archive.org/stream/lifenapoleonbon00irelgoog/lifenapoleonbon00irelgoog_djvu.txt",
+                "host": "archive.org"
+              },
+              {
+                "text": "The Camp at Boulogne broken up, and the Army marched to\noppose the Austrians and Russians in Germany— Talley-\nrand's Note to Count Cobentzel, previous to the above De-\ntermination on the Part of Napoleon — Expose of the Em-\nperor to the Conservative Senate of France — Napoleon\nquits Paris to join the Grand Army and March of the various\nCorps — His Proclamation to the Troops — Battles of Wer-\ntingen, Guntzburgh, Memmingen, and Elchingen, all of\nwhich were in favour of the French — Bonaparte's Ad-\ndress to his Army on investing Ulm— Account of the Affair\nat the latter City— Capitulation of Ulm, signed by General\nMack, when 30,000 Men laid down their Arms on the Glacis —\nA Campaign terminated in a few Days — Operations of Mar-\nshal Massena in Italy, against the Archduke Charles — Re-\nsults of the Defeats sustained by the Austrians and Russians\nat Ulm — Napoleon proceeds to Munich — Disposition of his\nArmy — The French pass the Inn, near Brannau— The Im-\nperialists and Russians retreat towards Vienna — The Empe-\nror of Austria's Proclamation to his Subjects— Saltzburg,\nLintz, and the Ems abandoned — AtAmstettin the Russians\nmake a Stand and are defeated \"An Armistice proposed by\nCount Giulay, but refused by Napoleon — Affair ofMarien-\nzell — Proclamations of the Emperor Francis disregarded\nby his Subjects — The French enter Vienna without further\nOpposition, and quiet Behaviour of the Troops — Part of the\nArmy advances towards Moravia — Bravery of 5000 French\nopposed to 20,000 Russians at Stein — The Emperor of\nAustria proceeds from Brunn to Olmutz — Another Procla-\nmation issued by Francis — Russians attacked and pursued,\nwith the Events that preceded the Affair of Austerlitz.",
+                "start": 1179276,
+                "end": 1180978,
+                "facePath": "primary-faces/b3e8a6b5bc040373.txt",
+                "url": "https://archive.org/stream/lifenapoleonbon00irelgoog/lifenapoleonbon00irelgoog_djvu.txt",
+                "host": "archive.org"
+              }
+            ],
+            "witness": {
+              "refused": "no-testimony"
+            }
+          }
+        ],
+        "attested": []
+      },
+      {
+        "noteId": "prince|von|schwarzenberg",
+        "note": "Prince —von→ Schwarzenberg",
+        "leads": {
+          "links": 70,
+          "quotes": 6
+        },
+        "searched": [],
+        "consulted": [
+          {
+            "url": "http://www.napoleon-online.de/AU_Generale/index.html",
+            "host": "napoleon-online.de",
+            "via": "link",
+            "structuralClass": "dated-document",
+            "overlap": 1,
+            "citation": "(in German) Jens-Florian Ebert. \"Heinrich von Schmitt\". Die Österreichischen Generäle 1792–1815 . Napoleon Online: Portal zu Epoch Archived 8 April 2000 at the Wayback Machine . Markus Stein, editor. Mannheim, Germany. 14 February 2010 version. Accessed 5 February 2010: (in German) Egger, p. 29.",
+            "textChars": 910,
+            "snipsFound": 0,
+            "snips": []
+          },
+          {
+            "url": "http://www.napoleon-online.de/",
+            "host": "napoleon-online.de",
+            "via": "link",
+            "structuralClass": "dated-document",
+            "overlap": 1,
+            "citation": "(in German) Jens-Florian Ebert. \"Heinrich von Schmitt\". Die Österreichischen Generäle 1792–1815 . Napoleon Online: Portal zu Epoch Archived 8 April 2000 at the Wayback Machine . Markus Stein, editor. Mannheim, Germany. 14 February 2010 version. Accessed 5 February 2010: (in German) Egger, p. 29.",
+            "textChars": 5304,
+            "snipsFound": 0,
+            "snips": []
+          }
+        ],
+        "attested": []
+      },
+      {
+        "noteId": "russian soldiers and commanders on top of the heights|were|stunned to see so many french troops coming towards them",
+        "note": "Russian soldiers and commanders on top of the heights —were→ stunned to see so many French troops coming towards them",
+        "leads": {
+          "links": 70,
+          "quotes": 6
+        },
+        "searched": [
+          "I have beaten the Austro-Russian army commanded by the two emperors. I am a little weary. ... I embrace you."
+        ],
+        "consulted": [
+          {
+            "url": "https://muse.jhu.edu/article/180781/pdf",
+            "host": "muse.jhu.edu",
+            "via": "link",
+            "structuralClass": "academic",
+            "overlap": 1,
+            "citation": "Pagedas, Constantine A. (2005). \"Counterpoint to Trafalgar: The Anglo-Russian Invasion of Naples, 1805–1806 (Review)\" . Mediterranean Quarterly . 16 (1): 120– 122. doi : 10.1215/10474552-16-1-120 . S2CID 154229720 .",
+            "textChars": 206,
+            "snipsFound": 0,
+            "snips": []
+          },
+          {
+            "url": "https://doi.org/10.1215%2F10474552-16-1-120",
+            "host": "doi.org",
+            "via": "link",
+            "structuralClass": "identifier",
+            "overlap": 1,
+            "citation": "Pagedas, Constantine A. (2005). \"Counterpoint to Trafalgar: The Anglo-Russian Invasion of Naples, 1805–1806 (Review)\" . Mediterranean Quarterly . 16 (1): 120– 122. doi : 10.1215/10474552-16-1-120 . S2CID 154229720 .",
+            "gap": {
+              "type": "http",
+              "status": 403
+            }
+          },
+          {
+            "url": "https://api.semanticscholar.org/CorpusID:154229720",
+            "host": "api.semanticscholar.org",
+            "via": "link",
+            "structuralClass": "identifier",
+            "overlap": 1,
+            "citation": "Pagedas, Constantine A. (2005). \"Counterpoint to Trafalgar: The Anglo-Russian Invasion of Naples, 1805–1806 (Review)\" . Mediterranean Quarterly . 16 (1): 120– 122. doi : 10.1215/10474552-16-1-120 . S2CID 154229720 .",
+            "gap": {
+              "type": "shell",
+              "detail": "0-char face"
+            }
+          }
+        ],
+        "attested": []
+      },
+      {
+        "noteId": "the allied army|had|been dangerously separated",
+        "note": "the Allied army —had→ been dangerously separated",
+        "leads": {
+          "links": 70,
+          "quotes": 6
+        },
+        "searched": [
+          "I have beaten the Austro-Russian army commanded by the two emperors. I am a little weary. ... I embrace you."
+        ],
+        "consulted": [
+          {
+            "url": "http://www.westpoint.edu/history/SitePages/Napoleonic%20Wars.aspx",
+            "host": "westpoint.edu",
+            "via": "link",
+            "structuralClass": "academic",
+            "overlap": 1,
+            "citation": "\"Napoleonic Wars\" . Westpoint.edu . U.S. Army. Archived from the original on 28 July 2014 . Retrieved 1 July 2017 .",
+            "gap": {
+              "type": "http",
+              "status": 403
+            }
+          }
+        ],
+        "attested": []
+      },
+      {
+        "noteId": "the allied|left|since other enemy sectors had already been cleared or were conducting fighting retreats",
+        "note": "the Allied —left→ since other enemy sectors had already been cleared or were conducting fighting retreats",
+        "leads": {
+          "links": 70,
+          "quotes": 6
+        },
+        "searched": [
+          "when the enemy is making a false movement we must take good care not to interrupt him."
+        ],
+        "consulted": [],
+        "attested": []
+      },
+      {
+        "noteId": "the allies|noticed|was lightly guarded",
+        "note": "the Allies —noticed→ was lightly guarded",
+        "leads": {
+          "links": 70,
+          "quotes": 6
+        },
+        "searched": [],
+        "consulted": [],
+        "attested": []
+      },
+      {
+        "noteId": "the allies|were|still fighting over sokolnitz and telnitz",
+        "note": "the Allies —were→ still fighting over Sokolnitz and Telnitz",
+        "leads": {
+          "links": 70,
+          "quotes": 6
+        },
+        "searched": [],
+        "consulted": [],
+        "attested": []
+      },
+      {
+        "noteId": "the grande armée|had|grown to a force of 350",
+        "note": "the Grande Armée —had→ grown to a force of 350",
+        "leads": {
+          "links": 70,
+          "quotes": 6
+        },
+        "searched": [],
+        "consulted": [],
+        "attested": []
+      },
+      {
+        "noteId": "the russian imperial guard|was|held in reserve while russian troops under bagration guarded the allied right",
+        "note": "The Russian Imperial Guard —was→ held in reserve while Russian troops under Bagration guarded the Allied right",
+        "leads": {
+          "links": 70,
+          "quotes": 6
+        },
+        "searched": [
+          "I have beaten the Austro-Russian army commanded by the two emperors. I am a little weary. ... I embrace you."
+        ],
+        "consulted": [
+          {
+            "url": "https://muse.jhu.edu/article/180781/pdf",
+            "host": "muse.jhu.edu",
+            "via": "link",
+            "structuralClass": "academic",
+            "overlap": 1,
+            "citation": "Pagedas, Constantine A. (2005). \"Counterpoint to Trafalgar: The Anglo-Russian Invasion of Naples, 1805–1806 (Review)\" . Mediterranean Quarterly . 16 (1): 120– 122. doi : 10.1215/10474552-16-1-120 . S2CID 154229720 .",
+            "textChars": 206,
+            "snipsFound": 0,
+            "snips": []
+          },
+          {
+            "url": "https://doi.org/10.1215%2F10474552-16-1-120",
+            "host": "doi.org",
+            "via": "link",
+            "structuralClass": "identifier",
+            "overlap": 1,
+            "citation": "Pagedas, Constantine A. (2005). \"Counterpoint to Trafalgar: The Anglo-Russian Invasion of Naples, 1805–1806 (Review)\" . Mediterranean Quarterly . 16 (1): 120– 122. doi : 10.1215/10474552-16-1-120 . S2CID 154229720 .",
+            "gap": {
+              "type": "http",
+              "status": 403
+            }
+          },
+          {
+            "url": "https://api.semanticscholar.org/CorpusID:154229720",
+            "host": "api.semanticscholar.org",
+            "via": "link",
+            "structuralClass": "identifier",
+            "overlap": 1,
+            "citation": "Pagedas, Constantine A. (2005). \"Counterpoint to Trafalgar: The Anglo-Russian Invasion of Naples, 1805–1806 (Review)\" . Mediterranean Quarterly . 16 (1): 120– 122. doi : 10.1215/10474552-16-1-120 . S2CID 154229720 .",
+            "gap": {
+              "type": "shell",
+              "detail": "0-char face"
+            }
+          }
+        ],
+        "attested": []
+      },
+      {
+        "noteId": "'s division|was|heading towards ulm",
+        "note": "'s division —was→ heading towards Ulm",
+        "leads": {
+          "links": 19,
+          "quotes": 1
+        },
+        "searched": [],
+        "consulted": [],
+        "attested": []
+      },
+      {
+        "noteId": "000 men|would|be enough to reconquer egypt",
+        "note": "000 men —would→ be enough to reconquer Egypt",
+        "leads": {
+          "links": 19,
+          "quotes": 1
+        },
+        "searched": [],
+        "consulted": [],
+        "attested": []
+      },
+      {
+        "noteId": "000 of|were|prisoners",
+        "note": "000 of —were→ prisoners",
+        "leads": {
+          "links": 19,
+          "quotes": 1
+        },
+        "searched": [],
+        "consulted": [],
+        "attested": []
+      },
+      {
+        "noteId": "000 russian casualties|are|incomplete",
+        "note": "000 Russian casualties —are→ incomplete",
+        "leads": {
+          "links": 51,
+          "quotes": 5
+        },
+        "searched": [
+          "I have beaten the Austro-Russian army commanded by the two emperors. I am a little weary. ... I embrace you."
+        ],
+        "consulted": [
+          {
+            "url": "https://archive.org/details/bmk-brz-3/page/n300",
+            "host": "archive.org",
+            "via": "link",
+            "structuralClass": "archive-library-museum",
+            "overlap": 1,
+            "citation": "Novitsky, Vasily (1911). \"Аустерлицъ\" [ Austerlitz ] . Военная энциклопедия Сытина (in Russian). Vol. 3: Аральская флотилия – Афонское сражение. Moscow: Типография Т-ва И. Д. Сытина. pp. 258– 263 . Retrieved 16 September 2023 .",
+            "textChars": 5961,
+            "snipsFound": 0,
+            "snips": []
+          },
+          {
+            "url": "https://archive.org/stream/bmk-brz-3/bmk-brz-3_djvu.txt",
+            "host": "archive.org",
+            "via": "link:full-text",
+            "structuralClass": "archive-library-museum",
+            "overlap": 1,
+            "citation": "Novitsky, Vasily (1911). \"Аустерлицъ\" [ Austerlitz ] . Военная энциклопедия Сытина (in Russian). Vol. 3: Аральская флотилия – Афонское сражение. Moscow: Типография Т-ва И. Д. Сытина. pp. 258– 263 . Retrieved 16 September 2023 .",
+            "textChars": 5961,
+            "snipsFound": 0,
+            "snips": []
+          },
+          {
+            "url": "https://www.napoleon-series.org/military-info/battles/Austerlitz/c_russiancasualties.html",
+            "host": "napoleon-series.org",
+            "via": "link",
+            "structuralClass": "dated-document",
+            "overlap": 1,
+            "citation": "Mikaberidze, Alexander (February 2006). \"A Few Notes on the Russian Losses at Austerlitz\" . The Napoleon Series . The Waterloo Association . Retrieved 19 November 2025 .",
+            "gap": {
+              "type": "shell",
+              "detail": "0-char face"
+            }
+          }
+        ],
+        "attested": []
+      },
+      {
+        "noteId": "000 strong ii corps of the army of naples|invaded|calabria",
+        "note": "000 strong II Corps of the Army of Naples —invaded→ Calabria",
+        "leads": {
+          "links": 19,
+          "quotes": 1
+        },
+        "searched": [],
+        "consulted": [
+          {
+            "url": "http://www.westpoint.edu/history/SitePages/Napoleonic%20Wars.aspx",
+            "host": "westpoint.edu",
+            "via": "link",
+            "structuralClass": "academic",
+            "overlap": 1,
+            "citation": "\"Napoleonic Wars\" . Westpoint.edu . U.S. Army. Archived from the original on 28 July 2014 . Retrieved 1 July 2017 .",
+            "gap": {
+              "type": "http",
+              "status": 403
+            }
+          },
+          {
+            "url": "https://muse.jhu.edu/article/180781/pdf",
+            "host": "muse.jhu.edu",
+            "via": "link",
+            "structuralClass": "academic",
+            "overlap": 1,
+            "citation": "Pagedas, Constantine A. (2005). \"Counterpoint to Trafalgar: The Anglo-Russian Invasion of Naples, 1805–1806 (Review)\" . Mediterranean Quarterly . 16 (1): 120– 122. doi : 10.1215/10474552-16-1-120 . S2CID 154229720 .",
+            "textChars": 206,
+            "snipsFound": 0,
+            "snips": []
+          },
+          {
+            "url": "https://doi.org/10.2307%2F1987151",
+            "host": "jstor.org",
+            "via": "link",
+            "structuralClass": "identifier",
+            "overlap": 1,
+            "citation": "Finley, Milton C. Jr. (1976). \"Prelude to Spain: The Calabrian Insurrection, 1806–1807\". Military Affairs . 40 (2): 84– 87. doi : 10.2307/1987151 . JSTOR 1987151 .",
+            "textChars": 209,
+            "snipsFound": 0,
+            "snips": []
+          }
+        ],
+        "attested": []
+      },
+      {
+        "noteId": "000 troops from the austrian garrison|managed|to escape",
+        "note": "000 troops from the Austrian garrison —managed→ to escape",
+        "leads": {
+          "links": 19,
+          "quotes": 1
+        },
+        "searched": [],
+        "consulted": [],
+        "attested": []
+      },
+      {
+        "noteId": "000 troops of the grande armée|prepared|to cross into germany and encircle the austrians",
+        "note": "000 troops of the Grande Armée —prepared→ to cross into Germany and encircle the Austrians",
+        "leads": {
+          "links": 19,
+          "quotes": 1
+        },
+        "searched": [],
+        "consulted": [
+          {
+            "url": "http://www.napoleon-online.de/AU_Generale/index.html",
+            "host": "napoleon-online.de",
+            "via": "link",
+            "structuralClass": "dated-document",
+            "overlap": 1,
+            "citation": "(in German) Jens-Florian Ebert. \"Heinrich von Schmitt\". Die Österreichischen Generäle 1792–1815 . Napoleon Online: Portal zu Epoch Archived 8 April 2000 at the Wayback Machine . Markus Stein, editor. Mannheim, Germany. 14 February 2010 version. Accessed 5 February 2010: (in German) Egger, p. 29.",
+            "textChars": 910,
+            "snipsFound": 0,
+            "snips": []
+          },
+          {
+            "url": "http://www.napoleon-online.de/",
+            "host": "napoleon-online.de",
+            "via": "link",
+            "structuralClass": "dated-document",
+            "overlap": 1,
+            "citation": "(in German) Jens-Florian Ebert. \"Heinrich von Schmitt\". Die Österreichischen Generäle 1792–1815 . Napoleon Online: Portal zu Epoch Archived 8 April 2000 at the Wayback Machine . Markus Stein, editor. Mannheim, Germany. 14 February 2010 version. Accessed 5 February 2010: (in German) Egger, p. 29.",
+            "textChars": 5304,
+            "snipsFound": 0,
+            "snips": []
+          }
+        ],
+        "attested": []
+      },
+      {
+        "noteId": "000 troops under davout|were|still far to the south in the direction of vienna",
+        "note": "000 troops under Davout —were→ still far to the south in the direction of Vienna",
+        "leads": {
+          "links": 19,
+          "quotes": 1
+        },
+        "searched": [],
+        "consulted": [],
+        "attested": []
+      },
+      {
+        "noteId": "000|was|wiped out by the french in 1806",
+        "note": "000 —was→ wiped out by the French in 1806",
+        "leads": {
+          "links": 19,
+          "quotes": 1
+        },
+        "searched": [],
+        "consulted": [
+          {
+            "url": "https://muse.jhu.edu/article/180781/pdf",
+            "host": "muse.jhu.edu",
+            "via": "link",
+            "structuralClass": "academic",
+            "overlap": 1,
+            "citation": "Pagedas, Constantine A. (2005). \"Counterpoint to Trafalgar: The Anglo-Russian Invasion of Naples, 1805–1806 (Review)\" . Mediterranean Quarterly . 16 (1): 120– 122. doi : 10.1215/10474552-16-1-120 . S2CID 154229720 .",
+            "textChars": 206,
+            "snipsFound": 0,
+            "snips": []
+          },
+          {
+            "url": "https://doi.org/10.2307%2F1987151",
+            "host": "jstor.org",
+            "via": "link",
+            "structuralClass": "identifier",
+            "overlap": 1,
+            "citation": "Finley, Milton C. Jr. (1976). \"Prelude to Spain: The Calabrian Insurrection, 1806–1807\". Military Affairs . 40 (2): 84– 87. doi : 10.2307/1987151 . JSTOR 1987151 .",
+            "textChars": 209,
+            "snipsFound": 0,
+            "snips": []
+          },
+          {
+            "url": "https://doi.org/10.1215%2F10474552-16-1-120",
+            "host": "doi.org",
+            "via": "link",
+            "structuralClass": "identifier",
+            "overlap": 1,
+            "citation": "Pagedas, Constantine A. (2005). \"Counterpoint to Trafalgar: The Anglo-Russian Invasion of Naples, 1805–1806 (Review)\" . Mediterranean Quarterly . 16 (1): 120– 122. doi : 10.1215/10474552-16-1-120 . S2CID 154229720 .",
+            "gap": {
+              "type": "http",
+              "status": 403
+            }
+          }
+        ],
+        "attested": []
+      },
+      {
+        "noteId": "18 allied ships|were|captured or destroyed",
+        "note": "18 allied ships —were→ captured or destroyed",
+        "leads": {
+          "links": 19,
+          "quotes": 1
+        },
+        "searched": [],
+        "consulted": [],
+        "attested": []
+      },
+      {
+        "noteId": "3rd divisions|were|to march to the city along the right bank of the danube while dupont's division",
+        "note": "3rd divisions —were→ to march to the city along the right bank of the Danube while Dupont's division",
+        "leads": {
+          "links": 19,
+          "quotes": 1
+        },
+        "searched": [],
+        "consulted": [],
+        "attested": []
+      },
+      {
+        "noteId": "400|cavalry|from günzburg to wertingen in preparation for the main austrian advance out of ulm",
+        "note": "400 —cavalry→ from Günzburg to Wertingen in preparation for the main Austrian advance out of Ulm",
+        "leads": {
+          "links": 19,
+          "quotes": 1
+        },
+        "searched": [],
+        "consulted": [],
+        "attested": []
+      },
+      {
+        "noteId": "47 officers and 895 men|were|captured",
+        "note": "47 officers and 895 men —were→ captured",
+        "leads": {
+          "links": 19,
+          "quotes": 1
+        },
+        "searched": [],
+        "consulted": [],
+        "attested": []
+      },
+      {
+        "noteId": "a battalion of the 4th line regiment|was|defeated)",
+        "note": "a battalion of the 4th Line Regiment —was→ defeated)",
+        "leads": {
+          "links": 51,
+          "quotes": 5
+        },
+        "searched": [],
+        "consulted": [],
+        "attested": []
+      },
+      {
+        "noteId": "a collection of german client states|pledged|themselves to raise an army of 63",
+        "note": "a collection of German client states —pledged→ themselves to raise an army of 63",
+        "leads": {
+          "links": 19,
+          "quotes": 1
+        },
+        "searched": [],
+        "consulted": [
+          {
+            "url": "https://id.loc.gov/authorities/sh2006007055",
+            "host": "id.loc.gov",
+            "via": "link",
+            "structuralClass": "government",
+            "overlap": 1,
+            "citation": "United States",
+            "gap": {
+              "type": "http",
+              "status": 403
+            }
+          },
+          {
+            "url": "http://www.westpoint.edu/history/SitePages/Napoleonic%20Wars.aspx",
+            "host": "westpoint.edu",
+            "via": "link",
+            "structuralClass": "academic",
+            "overlap": 1,
+            "citation": "\"Napoleonic Wars\" . Westpoint.edu . U.S. Army. Archived from the original on 28 July 2014 . Retrieved 1 July 2017 .",
+            "gap": {
+              "type": "http",
+              "status": 403
+            }
+          },
+          {
+            "url": "https://lux.collections.yale.edu/view/concept/0ebef9f0-d078-4595-b1f6-36037ce2772d",
+            "host": "lux.collections.yale.edu",
+            "via": "link",
+            "structuralClass": "academic",
+            "overlap": 1,
+            "citation": "Yale LUX",
+            "gap": {
+              "type": "http",
+              "status": 403
+            }
+          }
+        ],
+        "attested": []
+      },
+      {
+        "noteId": "a deadly toll on the russian|cavalry|and fusiliers",
+        "note": "a deadly toll on the Russian —cavalry→ and fusiliers",
+        "leads": {
+          "links": 19,
+          "quotes": 1
+        },
+        "searched": [],
+        "consulted": [
+          {
+            "url": "https://muse.jhu.edu/article/180781/pdf",
+            "host": "muse.jhu.edu",
+            "via": "link",
+            "structuralClass": "academic",
+            "overlap": 1,
+            "citation": "Pagedas, Constantine A. (2005). \"Counterpoint to Trafalgar: The Anglo-Russian Invasion of Naples, 1805–1806 (Review)\" . Mediterranean Quarterly . 16 (1): 120– 122. doi : 10.1215/10474552-16-1-120 . S2CID 154229720 .",
+            "textChars": 206,
+            "snipsFound": 0,
+            "snips": []
+          },
+          {
+            "url": "https://doi.org/10.1215%2F10474552-16-1-120",
+            "host": "doi.org",
+            "via": "link",
+            "structuralClass": "identifier",
+            "overlap": 1,
+            "citation": "Pagedas, Constantine A. (2005). \"Counterpoint to Trafalgar: The Anglo-Russian Invasion of Naples, 1805–1806 (Review)\" . Mediterranean Quarterly . 16 (1): 120– 122. doi : 10.1215/10474552-16-1-120 . S2CID 154229720 .",
+            "gap": {
+              "type": "http",
+              "status": 403
+            }
+          },
+          {
+            "url": "https://api.semanticscholar.org/CorpusID:154229720",
+            "host": "api.semanticscholar.org",
+            "via": "link",
+            "structuralClass": "identifier",
+            "overlap": 1,
+            "citation": "Pagedas, Constantine A. (2005). \"Counterpoint to Trafalgar: The Anglo-Russian Invasion of Naples, 1805–1806 (Review)\" . Mediterranean Quarterly . 16 (1): 120– 122. doi : 10.1215/10474552-16-1-120 . S2CID 154229720 .",
+            "gap": {
+              "type": "shell",
+              "detail": "0-char face"
+            }
+          }
+        ],
+        "attested": []
+      },
+      {
+        "noteId": "a few calabrians|resisted|the invading french force and the royal neapolitan army was soundly defeated at the battle of campo tenese on 10 march 1806",
+        "note": "a few Calabrians —resisted→ the invading French force and the Royal Neapolitan Army was soundly defeated at the Battle of Campo Tenese on 10 March 1806",
+        "leads": {
+          "links": 19,
+          "quotes": 1
+        },
+        "searched": [],
+        "consulted": [
+          {
+            "url": "https://doi.org/10.2307%2F1987151",
+            "host": "jstor.org",
+            "via": "link",
+            "structuralClass": "identifier",
+            "overlap": 2,
+            "citation": "Finley, Milton C. Jr. (1976). \"Prelude to Spain: The Calabrian Insurrection, 1806–1807\". Military Affairs . 40 (2): 84– 87. doi : 10.2307/1987151 . JSTOR 1987151 .",
+            "textChars": 209,
+            "snipsFound": 0,
+            "snips": []
+          },
+          {
+            "url": "https://www.jstor.org/stable/1987151",
+            "host": "jstor.org",
+            "via": "link",
+            "structuralClass": "archive-library-museum",
+            "overlap": 2,
+            "citation": "Finley, Milton C. Jr. (1976). \"Prelude to Spain: The Calabrian Insurrection, 1806–1807\". Military Affairs . 40 (2): 84– 87. doi : 10.2307/1987151 . JSTOR 1987151 .",
+            "textChars": 209,
+            "snipsFound": 0,
+            "snips": []
+          },
+          {
+            "url": "http://www.westpoint.edu/history/SitePages/Napoleonic%20Wars.aspx",
+            "host": "westpoint.edu",
+            "via": "link",
+            "structuralClass": "academic",
+            "overlap": 1,
+            "citation": "\"Napoleonic Wars\" . Westpoint.edu . U.S. Army. Archived from the original on 28 July 2014 . Retrieved 1 July 2017 .",
+            "gap": {
+              "type": "http",
+              "status": 403
+            }
+          }
+        ],
+        "attested": []
+      },
+      {
+        "noteId": "a forced march by davout|plugged|the gap left by napoleon just in time",
+        "note": "A forced march by Davout —plugged→ the gap left by Napoleon just in time",
+        "leads": {
+          "links": 51,
+          "quotes": 5
+        },
+        "searched": [],
+        "consulted": [
+          {
+            "url": "http://www.historyskills.com/classroom/modern-history/austerlitz/",
+            "host": "historyskills.com",
+            "via": "link",
+            "structuralClass": "dated-document",
+            "overlap": 2,
+            "citation": "\"Why the Battle of Austerlitz was Napoleon's greatest triumph\" . History Skills . Retrieved 19 March 2024 .",
+            "textChars": 8053,
+            "snipsFound": 0,
+            "snips": []
+          },
+          {
+            "url": "https://archive.org/details/lifenapoleonbon00irelgoog/page/548/mode/1up",
+            "host": "archive.org",
+            "via": "link",
+            "structuralClass": "archive-library-museum",
+            "overlap": 1,
+            "citation": "William Henry Ireland , The Life of Napoleon Bonaparte , Vol.II, p.548 (London: John Cumberland, 1828) (retrieved 18 July 2026).",
+            "textChars": 4639,
+            "snipsFound": 0,
+            "snips": []
+          },
+          {
+            "url": "https://archive.org/stream/lifenapoleonbon00irelgoog/lifenapoleonbon00irelgoog_djvu.txt",
+            "host": "archive.org",
+            "via": "link:full-text",
+            "structuralClass": "archive-library-museum",
+            "overlap": 1,
+            "citation": "William Henry Ireland , The Life of Napoleon Bonaparte , Vol.II, p.548 (London: John Cumberland, 1828) (retrieved 18 July 2026).",
+            "textChars": 1318238,
+            "snipsFound": 0,
+            "snips": []
+          }
+        ],
+        "attested": []
+      },
+      {
+        "noteId": "a french battle symphony by louis jadin|celebrating|napoleon's victory at austerlitz",
+        "note": "a French battle symphony by Louis Jadin —celebrating→ Napoleon's victory at Austerlitz",
+        "leads": {
+          "links": 51,
+          "quotes": 5
+        },
+        "searched": [],
+        "consulted": [
+          {
+            "url": "http://www.historyskills.com/classroom/modern-history/austerlitz/",
+            "host": "historyskills.com",
+            "via": "link",
+            "structuralClass": "dated-document",
+            "overlap": 3,
+            "citation": "\"Why the Battle of Austerlitz was Napoleon's greatest triumph\" . History Skills . Retrieved 19 March 2024 .",
+            "textChars": 8053,
+            "snipsFound": 0,
+            "snips": []
+          },
+          {
+            "url": "https://books.google.com/books?id=hKVKFZ-4I3cC&pg=PA51",
+            "host": "books.google.com",
+            "via": "link",
+            "structuralClass": "dated-document",
+            "overlap": 3,
+            "citation": "Hugo, Victor (1843) [1840]. \"Regard jeté dans une mansarde\" . Œuvres (in French). Vol. 3. Société Belge de Librairie. p. 51. Je ne hais pas d'entendre au fond de ma pensée / Le bruit des lourds canons roulant vers Austerlitz.",
+            "textChars": 613,
+            "snipsFound": 0,
+            "snips": []
+          },
+          {
+            "url": "https://www.napoleon-series.org/military-info/battles/Austerlitz/c_russiancasualties.html",
+            "host": "napoleon-series.org",
+            "via": "link",
+            "structuralClass": "dated-document",
+            "overlap": 3,
+            "citation": "Mikaberidze, Alexander (February 2006). \"A Few Notes on the Russian Losses at Austerlitz\" . The Napoleon Series . The Waterloo Association . Retrieved 19 November 2025 .",
+            "gap": {
+              "type": "shell",
+              "detail": "0-char face"
+            }
+          }
+        ],
+        "attested": []
+      },
+      {
+        "noteId": "a large wheeling manoeuvre by the grande armée|lasting|from late august to mid-october 1805 that captured an entire austrian army",
+        "note": "a large wheeling manoeuvre by the Grande Armée —lasting→ from late August to mid-October 1805 that captured an entire Austrian army",
+        "leads": {
+          "links": 19,
+          "quotes": 1
+        },
+        "searched": [],
+        "consulted": [
+          {
+            "url": "http://www.westpoint.edu/history/SitePages/Napoleonic%20Wars.aspx",
+            "host": "westpoint.edu",
+            "via": "link",
+            "structuralClass": "academic",
+            "overlap": 1,
+            "citation": "\"Napoleonic Wars\" . Westpoint.edu . U.S. Army. Archived from the original on 28 July 2014 . Retrieved 1 July 2017 .",
+            "gap": {
+              "type": "http",
+              "status": 403
+            }
+          },
+          {
+            "url": "https://muse.jhu.edu/article/180781/pdf",
+            "host": "muse.jhu.edu",
+            "via": "link",
+            "structuralClass": "academic",
+            "overlap": 1,
+            "citation": "Pagedas, Constantine A. (2005). \"Counterpoint to Trafalgar: The Anglo-Russian Invasion of Naples, 1805–1806 (Review)\" . Mediterranean Quarterly . 16 (1): 120– 122. doi : 10.1215/10474552-16-1-120 . S2CID 154229720 .",
+            "textChars": 206,
+            "snipsFound": 0,
+            "snips": []
+          },
+          {
+            "url": "https://doi.org/10.1215%2F10474552-16-1-120",
+            "host": "doi.org",
+            "via": "link",
+            "structuralClass": "identifier",
+            "overlap": 1,
+            "citation": "Pagedas, Constantine A. (2005). \"Counterpoint to Trafalgar: The Anglo-Russian Invasion of Naples, 1805–1806 (Review)\" . Mediterranean Quarterly . 16 (1): 120– 122. doi : 10.1215/10474552-16-1-120 . S2CID 154229720 .",
+            "gap": {
+              "type": "http",
+              "status": 403
+            }
+          }
+        ],
+        "attested": []
+      },
+      {
+        "noteId": "a notable monument|is|the pyramid of austerlitz",
+        "note": "A notable monument —is→ the Pyramid of Austerlitz",
+        "leads": {
+          "links": 51,
+          "quotes": 5
+        },
+        "searched": [],
+        "consulted": [
+          {
+            "url": "https://www.discover-utrecht.com/location/the-pyramid-of-austerlitz/",
+            "host": "discover-utrecht.com",
+            "via": "link",
+            "structuralClass": "dated-document",
+            "overlap": 2,
+            "citation": "\"The Pyramid of Austerlitz\" . Ontdek Utrecht [ Discover Utrecht ] (in Dutch) . Retrieved 11 July 2022 .",
+            "textChars": 2021,
+            "snipsFound": 0,
+            "snips": []
+          },
+          {
+            "url": "https://lccn.loc.gov/05040370",
+            "host": "lccn.loc.gov",
+            "via": "link",
+            "structuralClass": "government",
+            "overlap": 1,
+            "citation": "Rose, J. Holland; Reginald L. Poole, eds. (1902). \"The Ice Incident at the Battle of Austerlitz\". The English Historical Review . XVII (67). Oxford: Oxford University Press: 537– 538. doi : 10.1093/ehr/XVII.LXVII.537 . ISSN 0013-8266 . JSTOR 00138266 . LCCN 05040370 . OCLC 474766029 .",
+            "gap": {
+              "type": "shell",
+              "detail": "0-char face"
+            }
+          },
+          {
+            "url": "https://doi.org/10.1093%2Fehr%2FXVII.LXVII.537",
+            "host": "doi.org",
+            "via": "link",
+            "structuralClass": "identifier",
+            "overlap": 1,
+            "citation": "Rose, J. Holland; Reginald L. Poole, eds. (1902). \"The Ice Incident at the Battle of Austerlitz\". The English Historical Review . XVII (67). Oxford: Oxford University Press: 537– 538. doi : 10.1093/ehr/XVII.LXVII.537 . ISSN 0013-8266 . JSTOR 00138266 . LCCN 05040370 . OCLC 474766029 .",
+            "gap": {
+              "type": "http",
+              "status": 403
+            }
+          }
+        ],
+        "attested": []
+      },
+      {
+        "noteId": "a russian army under general mikhail kutuzov|was|also withdrawing east",
+        "note": "a Russian army under General Mikhail Kutuzov —was→ also withdrawing east",
+        "leads": {
+          "links": 19,
+          "quotes": 1
+        },
+        "searched": [],
+        "consulted": [
+          {
+            "url": "http://www.westpoint.edu/history/SitePages/Napoleonic%20Wars.aspx",
+            "host": "westpoint.edu",
+            "via": "link",
+            "structuralClass": "academic",
+            "overlap": 1,
+            "citation": "\"Napoleonic Wars\" . Westpoint.edu . U.S. Army. Archived from the original on 28 July 2014 . Retrieved 1 July 2017 .",
+            "gap": {
+              "type": "http",
+              "status": 403
+            }
+          },
+          {
+            "url": "https://muse.jhu.edu/article/180781/pdf",
+            "host": "muse.jhu.edu",
+            "via": "link",
+            "structuralClass": "academic",
+            "overlap": 1,
+            "citation": "Pagedas, Constantine A. (2005). \"Counterpoint to Trafalgar: The Anglo-Russian Invasion of Naples, 1805–1806 (Review)\" . Mediterranean Quarterly . 16 (1): 120– 122. doi : 10.1215/10474552-16-1-120 . S2CID 154229720 .",
+            "textChars": 206,
+            "snipsFound": 0,
+            "snips": []
+          },
+          {
+            "url": "https://doi.org/10.1215%2F10474552-16-1-120",
+            "host": "doi.org",
+            "via": "link",
+            "structuralClass": "identifier",
+            "overlap": 1,
+            "citation": "Pagedas, Constantine A. (2005). \"Counterpoint to Trafalgar: The Anglo-Russian Invasion of Naples, 1805–1806 (Review)\" . Mediterranean Quarterly . 16 (1): 120– 122. doi : 10.1215/10474552-16-1-120 . S2CID 154229720 .",
+            "gap": {
+              "type": "http",
+              "status": 403
+            }
+          }
+        ],
+        "attested": []
+      },
+      {
+        "noteId": "a russian soldier|was|considered steadfast though",
+        "note": "A Russian soldier —was→ considered steadfast though",
+        "leads": {
+          "links": 51,
+          "quotes": 5
+        },
+        "searched": [
+          "I have beaten the Austro-Russian army commanded by the two emperors. I am a little weary. ... I embrace you."
+        ],
+        "consulted": [
+          {
+            "url": "https://archive.org/details/bmk-brz-3/page/n300",
+            "host": "archive.org",
+            "via": "link",
+            "structuralClass": "archive-library-museum",
+            "overlap": 1,
+            "citation": "Novitsky, Vasily (1911). \"Аустерлицъ\" [ Austerlitz ] . Военная энциклопедия Сытина (in Russian). Vol. 3: Аральская флотилия – Афонское сражение. Moscow: Типография Т-ва И. Д. Сытина. pp. 258– 263 . Retrieved 16 September 2023 .",
+            "textChars": 5961,
+            "snipsFound": 0,
+            "snips": []
+          },
+          {
+            "url": "https://archive.org/stream/bmk-brz-3/bmk-brz-3_djvu.txt",
+            "host": "archive.org",
+            "via": "link:full-text",
+            "structuralClass": "archive-library-museum",
+            "overlap": 1,
+            "citation": "Novitsky, Vasily (1911). \"Аустерлицъ\" [ Austerlitz ] . Военная энциклопедия Сытина (in Russian). Vol. 3: Аральская флотилия – Афонское сражение. Moscow: Типография Т-ва И. Д. Сытина. pp. 258– 263 . Retrieved 16 September 2023 .",
+            "textChars": 5961,
+            "snipsFound": 0,
+            "snips": []
+          },
+          {
+            "url": "https://www.napoleon-series.org/military-info/battles/Austerlitz/c_russiancasualties.html",
+            "host": "napoleon-series.org",
+            "via": "link",
+            "structuralClass": "dated-document",
+            "overlap": 1,
+            "citation": "Mikaberidze, Alexander (February 2006). \"A Few Notes on the Russian Losses at Austerlitz\" . The Napoleon Series . The Waterloo Association . Retrieved 19 November 2025 .",
+            "gap": {
+              "type": "shell",
+              "detail": "0-char face"
+            }
+          }
+        ],
+        "attested": []
+      },
+      {
+        "noteId": "a scene from the battle|is|also depicted on the bas-relief of the eastern pillar of the arc de triomphe and arc de triomphe du carrousel",
+        "note": "A scene from the battle —is→ also depicted on the bas-relief of the eastern pillar of the Arc de Triomphe and Arc de Triomphe du Carrousel",
+        "leads": {
+          "links": 51,
+          "quotes": 5
+        },
+        "searched": [],
+        "consulted": [
+          {
+            "url": "https://lccn.loc.gov/05040370",
+            "host": "lccn.loc.gov",
+            "via": "link",
+            "structuralClass": "government",
+            "overlap": 1,
+            "citation": "Rose, J. Holland; Reginald L. Poole, eds. (1902). \"The Ice Incident at the Battle of Austerlitz\". The English Historical Review . XVII (67). Oxford: Oxford University Press: 537– 538. doi : 10.1093/ehr/XVII.LXVII.537 . ISSN 0013-8266 . JSTOR 00138266 . LCCN 05040370 . OCLC 474766029 .",
+            "gap": {
+              "type": "shell",
+              "detail": "0-char face"
+            }
+          },
+          {
+            "url": "https://doi.org/10.1093%2Fehr%2FXVII.LXVII.537",
+            "host": "doi.org",
+            "via": "link",
+            "structuralClass": "identifier",
+            "overlap": 1,
+            "citation": "Rose, J. Holland; Reginald L. Poole, eds. (1902). \"The Ice Incident at the Battle of Austerlitz\". The English Historical Review . XVII (67). Oxford: Oxford University Press: 537– 538. doi : 10.1093/ehr/XVII.LXVII.537 . ISSN 0013-8266 . JSTOR 00138266 . LCCN 05040370 . OCLC 474766029 .",
+            "gap": {
+              "type": "http",
+              "status": 403
+            }
+          },
+          {
+            "url": "https://search.worldcat.org/issn/0013-8266",
+            "host": "search.worldcat.org",
+            "via": "link",
+            "structuralClass": "archive-library-museum",
+            "overlap": 1,
+            "citation": "Rose, J. Holland; Reginald L. Poole, eds. (1902). \"The Ice Incident at the Battle of Austerlitz\". The English Historical Review . XVII (67). Oxford: Oxford University Press: 537– 538. doi : 10.1093/ehr/XVII.LXVII.537 . ISSN 0013-8266 . JSTOR 00138266 . LCCN 05040370 . OCLC 474766029 .",
+            "gap": {
+              "type": "http",
+              "status": 429
+            }
+          }
+        ],
+        "attested": []
+      },
+      {
+        "noteId": "a single corps|could|survive at least a day without support",
+        "note": "A single corps —could→ survive at least a day without support",
+        "leads": {
+          "links": 51,
+          "quotes": 5
+        },
+        "searched": [],
+        "consulted": [],
+        "attested": []
+      },
+      {
+        "noteId": "advance guard of general|von|buxhoeveden",
+        "note": "Advance Guard of General —von→ Buxhoeveden",
+        "leads": {
+          "links": 51,
+          "quotes": 5
+        },
+        "searched": [],
+        "consulted": [],
+        "attested": []
+      },
+      {
+        "noteId": "all difficulties|had|been resolved",
+        "note": "all difficulties —had→ been resolved",
+        "leads": {
+          "links": 19,
+          "quotes": 1
+        },
+        "searched": [],
+        "consulted": [],
+        "attested": []
+      },
+      {
+        "noteId": "all|supported|by 24 artillery pieces",
+        "note": "all —supported→ by 24 artillery pieces",
+        "leads": {
+          "links": 51,
+          "quotes": 5
+        },
+        "searched": [],
+        "consulted": [],
+        "attested": []
+      },
+      {
+        "noteId": "allied army|had|a sharp advantage in logistics",
+        "note": "Allied Army —had→ a sharp advantage in logistics",
+        "leads": {
+          "links": 51,
+          "quotes": 5
+        },
+        "searched": [
+          "I have beaten the Austro-Russian army commanded by the two emperors. I am a little weary. ... I embrace you."
+        ],
+        "consulted": [],
+        "attested": []
+      },
+      {
+        "noteId": "allied army|had|already retreated to olmütz",
+        "note": "allied army —had→ already retreated to Olmütz",
+        "leads": {
+          "links": 51,
+          "quotes": 5
+        },
+        "searched": [
+          "I have beaten the Austro-Russian army commanded by the two emperors. I am a little weary. ... I embrace you."
+        ],
+        "consulted": [],
+        "attested": []
+      },
+      {
+        "noteId": "allied commanders|were|now able to feed some of the delayed detachments of the fourth column into this bitter struggle",
+        "note": "Allied commanders —were→ now able to feed some of the delayed detachments of the fourth column into this bitter struggle",
+        "leads": {
+          "links": 19,
+          "quotes": 1
+        },
+        "searched": [],
+        "consulted": [],
+        "attested": []
+      },
+      {
+        "noteId": "allies of france|pledged|themselves to raise an army of 63",
+        "note": "allies of France —pledged→ themselves to raise an army of 63",
+        "leads": {
+          "links": 19,
+          "quotes": 1
+        },
+        "searched": [],
+        "consulted": [
+          {
+            "url": "http://www.westpoint.edu/history/SitePages/Napoleonic%20Wars.aspx",
+            "host": "westpoint.edu",
+            "via": "link",
+            "structuralClass": "academic",
+            "overlap": 1,
+            "citation": "\"Napoleonic Wars\" . Westpoint.edu . U.S. Army. Archived from the original on 28 July 2014 . Retrieved 1 July 2017 .",
+            "gap": {
+              "type": "http",
+              "status": 403
+            }
+          },
+          {
+            "url": "https://catalogue.bnf.fr/ark:/12148/cb12389246n",
+            "host": "catalogue.bnf.fr",
+            "via": "link",
+            "structuralClass": "other",
+            "overlap": 1,
+            "citation": "France",
+            "textChars": 1531,
+            "snipsFound": 0,
+            "snips": []
+          }
+        ],
+        "attested": []
+      },
+      {
+        "noteId": "allowed the|defeated|russian troops free passage",
+        "note": "allowed the —defeated→ Russian troops free passage",
+        "leads": {
+          "links": 19,
+          "quotes": 1
+        },
+        "searched": [],
+        "consulted": [
+          {
+            "url": "https://muse.jhu.edu/article/180781/pdf",
+            "host": "muse.jhu.edu",
+            "via": "link",
+            "structuralClass": "academic",
+            "overlap": 1,
+            "citation": "Pagedas, Constantine A. (2005). \"Counterpoint to Trafalgar: The Anglo-Russian Invasion of Naples, 1805–1806 (Review)\" . Mediterranean Quarterly . 16 (1): 120– 122. doi : 10.1215/10474552-16-1-120 . S2CID 154229720 .",
+            "textChars": 206,
+            "snipsFound": 0,
+            "snips": []
+          },
+          {
+            "url": "https://doi.org/10.1215%2F10474552-16-1-120",
+            "host": "doi.org",
+            "via": "link",
+            "structuralClass": "identifier",
+            "overlap": 1,
+            "citation": "Pagedas, Constantine A. (2005). \"Counterpoint to Trafalgar: The Anglo-Russian Invasion of Naples, 1805–1806 (Review)\" . Mediterranean Quarterly . 16 (1): 120– 122. doi : 10.1215/10474552-16-1-120 . S2CID 154229720 .",
+            "gap": {
+              "type": "http",
+              "status": 403
+            }
+          },
+          {
+            "url": "https://api.semanticscholar.org/CorpusID:154229720",
+            "host": "api.semanticscholar.org",
+            "via": "link",
+            "structuralClass": "identifier",
+            "overlap": 1,
+            "citation": "Pagedas, Constantine A. (2005). \"Counterpoint to Trafalgar: The Anglo-Russian Invasion of Naples, 1805–1806 (Review)\" . Mediterranean Quarterly . 16 (1): 120– 122. doi : 10.1215/10474552-16-1-120 . S2CID 154229720 .",
+            "gap": {
+              "type": "shell",
+              "detail": "0-char face"
+            }
+          }
+        ],
+        "attested": []
+      },
+      {
+        "noteId": "an area|broke|several allied battalions",
+        "note": "an area —broke→ several Allied battalions",
+        "leads": {
+          "links": 19,
+          "quotes": 1
+        },
+        "searched": [],
+        "consulted": [],
+        "attested": []
+      },
+      {
+        "noteId": "an armistice|had|been signed",
+        "note": "an armistice —had→ been signed",
+        "leads": {
+          "links": 19,
+          "quotes": 1
+        },
+        "searched": [],
+        "consulted": [],
+        "attested": []
+      },
+      {
+        "noteId": "an armistice|was|signed between austria and france after the battle on 6 december 1805",
+        "note": "an armistice —was→ signed between Austria and France after the battle on 6 December 1805",
+        "leads": {
+          "links": 51,
+          "quotes": 5
+        },
+        "searched": [],
+        "consulted": [
+          {
+            "url": "http://www.bellum.cz/en/battle-of-austerlitz.html",
+            "host": "bellum.cz",
+            "via": "link",
+            "structuralClass": "dated-document",
+            "overlap": 3,
+            "citation": "Bellum.cz – \"Battle of Austerlitz 2nd December 1805\"",
+            "textChars": 24777,
+            "snipsFound": 0,
+            "snips": []
+          },
+          {
+            "url": "https://lccn.loc.gov/05040370",
+            "host": "lccn.loc.gov",
+            "via": "link",
+            "structuralClass": "government",
+            "overlap": 1,
+            "citation": "Rose, J. Holland; Reginald L. Poole, eds. (1902). \"The Ice Incident at the Battle of Austerlitz\". The English Historical Review . XVII (67). Oxford: Oxford University Press: 537– 538. doi : 10.1093/ehr/XVII.LXVII.537 . ISSN 0013-8266 . JSTOR 00138266 . LCCN 05040370 . OCLC 474766029 .",
+            "gap": {
+              "type": "shell",
+              "detail": "0-char face"
+            }
+          },
+          {
+            "url": "https://doi.org/10.1093%2Fehr%2FXVII.LXVII.537",
+            "host": "doi.org",
+            "via": "link",
+            "structuralClass": "identifier",
+            "overlap": 1,
+            "citation": "Rose, J. Holland; Reginald L. Poole, eds. (1902). \"The Ice Incident at the Battle of Austerlitz\". The English Historical Review . XVII (67). Oxford: Oxford University Press: 537– 538. doi : 10.1093/ehr/XVII.LXVII.537 . ISSN 0013-8266 . JSTOR 00138266 . LCCN 05040370 . OCLC 474766029 .",
+            "gap": {
+              "type": "http",
+              "status": 403
+            }
+          }
+        ],
+        "attested": []
+      },
+      {
+        "noteId": "an impression of chaos during the retreat|would|induce the enemy to occupy the heights",
+        "note": "an impression of chaos during the retreat —would→ induce the enemy to occupy the Heights",
+        "leads": {
+          "links": 51,
+          "quotes": 5
+        },
+        "searched": [
+          "when the enemy is making a false movement we must take good care not to interrupt him."
+        ],
+        "consulted": [],
+        "attested": []
+      },
+      {
+        "noteId": "another column of russians|approached|dürenstein from the south",
+        "note": "Another column of Russians —approached→ Dürenstein from the south",
+        "leads": {
+          "links": 19,
+          "quotes": 1
+        },
+        "searched": [],
+        "consulted": [
+          {
+            "url": "https://muse.jhu.edu/article/180781/pdf",
+            "host": "muse.jhu.edu",
+            "via": "link",
+            "structuralClass": "academic",
+            "overlap": 1,
+            "citation": "Pagedas, Constantine A. (2005). \"Counterpoint to Trafalgar: The Anglo-Russian Invasion of Naples, 1805–1806 (Review)\" . Mediterranean Quarterly . 16 (1): 120– 122. doi : 10.1215/10474552-16-1-120 . S2CID 154229720 .",
+            "textChars": 206,
+            "snipsFound": 0,
+            "snips": []
+          },
+          {
+            "url": "https://doi.org/10.1215%2F10474552-16-1-120",
+            "host": "doi.org",
+            "via": "link",
+            "structuralClass": "identifier",
+            "overlap": 1,
+            "citation": "Pagedas, Constantine A. (2005). \"Counterpoint to Trafalgar: The Anglo-Russian Invasion of Naples, 1805–1806 (Review)\" . Mediterranean Quarterly . 16 (1): 120– 122. doi : 10.1215/10474552-16-1-120 . S2CID 154229720 .",
+            "gap": {
+              "type": "http",
+              "status": 403
+            }
+          },
+          {
+            "url": "https://api.semanticscholar.org/CorpusID:154229720",
+            "host": "api.semanticscholar.org",
+            "via": "link",
+            "structuralClass": "identifier",
+            "overlap": 1,
+            "citation": "Pagedas, Constantine A. (2005). \"Counterpoint to Trafalgar: The Anglo-Russian Invasion of Naples, 1805–1806 (Review)\" . Mediterranean Quarterly . 16 (1): 120– 122. doi : 10.1215/10474552-16-1-120 . S2CID 154229720 .",
+            "gap": {
+              "type": "shell",
+              "detail": "0-char face"
+            }
+          }
+        ],
+        "attested": []
+      },
+      {
+        "noteId": "archduke charles|was|assigned 95",
+        "note": "Archduke Charles —was→ assigned 95",
+        "leads": {
+          "links": 19,
+          "quotes": 1
+        },
+        "searched": [],
+        "consulted": [],
+        "attested": []
+      },
+      {
+        "noteId": "archduke john|was|given 23",
+        "note": "Archduke John —was→ given 23",
+        "leads": {
+          "links": 19,
+          "quotes": 1
+        },
+        "searched": [],
+        "consulted": [],
+        "attested": []
+      },
+      {
+        "noteId": "armed conflict|has|received various names:",
+        "note": "armed conflict —has→ received various names:",
+        "leads": {
+          "links": 19,
+          "quotes": 1
+        },
+        "searched": [],
+        "consulted": [],
+        "attested": []
+      },
+      {
+        "noteId": "army formation|was|the best in europe at that time",
+        "note": "army formation —was→ the best in Europe at that time",
+        "leads": {
+          "links": 19,
+          "quotes": 1
+        },
+        "searched": [],
+        "consulted": [
+          {
+            "url": "http://www.westpoint.edu/history/SitePages/Napoleonic%20Wars.aspx",
+            "host": "westpoint.edu",
+            "via": "link",
+            "structuralClass": "academic",
+            "overlap": 1,
+            "citation": "\"Napoleonic Wars\" . Westpoint.edu . U.S. Army. Archived from the original on 28 July 2014 . Retrieved 1 July 2017 .",
+            "gap": {
+              "type": "http",
+              "status": 403
+            }
+          },
+          {
+            "url": "https://marxengels.public-archives.com/en/ME0936en.html",
+            "host": "marxengels.public-archives.com",
+            "via": "link",
+            "structuralClass": "dated-document",
+            "overlap": 1,
+            "citation": "Engles, Friedrich (August 1855). \"The Armies of Europe\" . Putnam's Magazine (XXXII) . Retrieved 4 November 2025 .",
+            "textChars": 187960,
+            "snipsFound": 0,
+            "snips": []
+          }
+        ],
+        "attested": []
+      },
+      {
+        "noteId": "as napoleon|intentionally|expressed anxiety and hesitation to his opponents",
+        "note": "as Napoleon —intentionally→ expressed anxiety and hesitation to his opponents",
+        "leads": {
+          "links": 51,
+          "quotes": 5
+        },
+        "searched": [],
+        "consulted": [
+          {
+            "url": "https://archive.org/details/lifenapoleonbon00irelgoog/page/548/mode/1up",
+            "host": "archive.org",
+            "via": "link",
+            "structuralClass": "archive-library-museum",
+            "overlap": 1,
+            "citation": "William Henry Ireland , The Life of Napoleon Bonaparte , Vol.II, p.548 (London: John Cumberland, 1828) (retrieved 18 July 2026).",
+            "textChars": 4639,
+            "snipsFound": 0,
+            "snips": []
+          },
+          {
+            "url": "https://archive.org/stream/lifenapoleonbon00irelgoog/lifenapoleonbon00irelgoog_djvu.txt",
+            "host": "archive.org",
+            "via": "link:full-text",
+            "structuralClass": "archive-library-museum",
+            "overlap": 1,
+            "citation": "William Henry Ireland , The Life of Napoleon Bonaparte , Vol.II, p.548 (London: John Cumberland, 1828) (retrieved 18 July 2026).",
+            "textChars": 1318238,
+            "snipsFound": 0,
+            "snips": []
+          },
+          {
+            "url": "https://search.worldcat.org/oclc/37778325",
+            "host": "search.worldcat.org",
+            "via": "link",
+            "structuralClass": "archive-library-museum",
+            "overlap": 1,
+            "citation": "Bowden, Scott (1997). Napoleon and Austerlitz: An Unprecedentedly Detailed Combat Study of Napoleon's Epic Ulm-Austerlitz Campaigns of 1805 . Armies of the Napoleonic Wars Research Series, 'The Glory Years' of 1805–1807. Vol. 1. ISBN 978-0-9626-6557-8 . OCLC 37778325 . OL 3987035M .",
+            "gap": {
+              "type": "budget",
+              "detail": "maxFetches 30 spent"
+            }
+          }
+        ],
+        "attested": []
+      },
+      {
+        "noteId": "as vienna|fell|in november",
+        "note": "as Vienna —fell→ in November",
+        "leads": {
+          "links": 51,
+          "quotes": 5
+        },
+        "searched": [],
+        "consulted": [
+          {
+            "url": "https://www.britannica.com/event/Battle-of-Austerlitz",
+            "host": "britannica.com",
+            "via": "link",
+            "structuralClass": "dated-document",
+            "overlap": 1,
+            "citation": "Britannica Editors. \" Battle of Austerlitz \". Encyclopædia Britannica , 14 Aug. 2025. Accessed 19 November 2025.",
+            "gap": {
+              "type": "budget",
+              "detail": "maxFetches 30 spent"
+            }
+          },
+          {
+            "url": "https://www.napoleon-series.org/military-info/battles/Austerlitz/c_russiancasualties.html",
+            "host": "napoleon-series.org",
+            "via": "link",
+            "structuralClass": "dated-document",
+            "overlap": 1,
+            "citation": "Mikaberidze, Alexander (February 2006). \"A Few Notes on the Russian Losses at Austerlitz\" . The Napoleon Series . The Waterloo Association . Retrieved 19 November 2025 .",
+            "gap": {
+              "type": "shell",
+              "detail": "0-char face"
+            }
+          }
+        ],
+        "attested": []
+      },
+      {
+        "noteId": "auffenburg|attempted|a retreat to the southwest",
+        "note": "Auffenburg —attempted→ a retreat to the southwest",
+        "leads": {
+          "links": 19,
+          "quotes": 1
+        },
+        "searched": [],
+        "consulted": [],
+        "attested": []
+      },
+      {
+        "noteId": "auffenburg|was|in a dangerous position",
+        "note": "Auffenburg —was→ in a dangerous position",
+        "leads": {
+          "links": 19,
+          "quotes": 1
+        },
+        "searched": [],
+        "consulted": [],
+        "attested": []
+      },
+      {
+        "noteId": "austerlitz|is|acknowledged as an impressive military victory",
+        "note": "Austerlitz —is→ acknowledged as an impressive military victory",
+        "leads": {
+          "links": 51,
+          "quotes": 5
+        },
+        "searched": [],
+        "consulted": [
+          {
+            "url": "https://books.google.com/books?id=hKVKFZ-4I3cC&pg=PA51",
+            "host": "books.google.com",
+            "via": "link",
+            "structuralClass": "dated-document",
+            "overlap": 2,
+            "citation": "Hugo, Victor (1843) [1840]. \"Regard jeté dans une mansarde\" . Œuvres (in French). Vol. 3. Société Belge de Librairie. p. 51. Je ne hais pas d'entendre au fond de ma pensée / Le bruit des lourds canons roulant vers Austerlitz.",
+            "textChars": 613,
+            "snipsFound": 0,
+            "snips": []
+          },
+          {
+            "url": "https://www.napoleon-series.org/military-info/battles/Austerlitz/c_russiancasualties.html",
+            "host": "napoleon-series.org",
+            "via": "link",
+            "structuralClass": "dated-document",
+            "overlap": 2,
+            "citation": "Mikaberidze, Alexander (February 2006). \"A Few Notes on the Russian Losses at Austerlitz\" . The Napoleon Series . The Waterloo Association . Retrieved 19 November 2025 .",
+            "gap": {
+              "type": "shell",
+              "detail": "0-char face"
+            }
+          },
+          {
+            "url": "https://lccn.loc.gov/05040370",
+            "host": "lccn.loc.gov",
+            "via": "link",
+            "structuralClass": "government",
+            "overlap": 1,
+            "citation": "Rose, J. Holland; Reginald L. Poole, eds. (1902). \"The Ice Incident at the Battle of Austerlitz\". The English Historical Review . XVII (67). Oxford: Oxford University Press: 537– 538. doi : 10.1093/ehr/XVII.LXVII.537 . ISSN 0013-8266 . JSTOR 00138266 . LCCN 05040370 . OCLC 474766029 .",
+            "gap": {
+              "type": "shell",
+              "detail": "0-char face"
+            }
+          }
+        ],
+        "attested": []
+      },
+      {
+        "noteId": "austerlitz|set|the stage for a near-decade of french domination on the european continent",
+        "note": "Austerlitz —set→ the stage for a near-decade of French domination on the European continent",
+        "leads": {
+          "links": 19,
+          "quotes": 1
+        },
+        "searched": [],
+        "consulted": [
+          {
+            "url": "https://marxengels.public-archives.com/en/ME0936en.html",
+            "host": "marxengels.public-archives.com",
+            "via": "link",
+            "structuralClass": "dated-document",
+            "overlap": 1,
+            "citation": "Engles, Friedrich (August 1855). \"The Armies of Europe\" . Putnam's Magazine (XXXII) . Retrieved 4 November 2025 .",
+            "textChars": 187960,
+            "snipsFound": 0,
+            "snips": []
+          }
+        ],
+        "attested": []
+      },
+      {
+        "noteId": "austria and france|signed|the treaty of pressburg",
+        "note": "Austria and France —signed→ the Treaty of Pressburg",
+        "leads": {
+          "links": 19,
+          "quotes": 1
+        },
+        "searched": [],
+        "consulted": [
+          {
+            "url": "https://catalogue.bnf.fr/ark:/12148/cb12389246n",
+            "host": "catalogue.bnf.fr",
+            "via": "link",
+            "structuralClass": "other",
+            "overlap": 1,
+            "citation": "France",
+            "textChars": 1531,
+            "snipsFound": 0,
+            "snips": []
+          }
+        ],
+        "attested": []
+      },
+      {
+        "noteId": "austria and prussia|may|have been alarmed",
+        "note": "Austria and Prussia —may→ have been alarmed",
+        "leads": {
+          "links": 19,
+          "quotes": 1
+        },
+        "searched": [],
+        "consulted": [],
+        "attested": []
+      },
+      {
+        "noteId": "austria and russia|signed|a treaty on august 9",
+        "note": "Austria and Russia —signed→ a treaty on August 9",
+        "leads": {
+          "links": 19,
+          "quotes": 1
+        },
+        "searched": [],
+        "consulted": [
+          {
+            "url": "https://muse.jhu.edu/article/180781/pdf",
+            "host": "muse.jhu.edu",
+            "via": "link",
+            "structuralClass": "academic",
+            "overlap": 1,
+            "citation": "Pagedas, Constantine A. (2005). \"Counterpoint to Trafalgar: The Anglo-Russian Invasion of Naples, 1805–1806 (Review)\" . Mediterranean Quarterly . 16 (1): 120– 122. doi : 10.1215/10474552-16-1-120 . S2CID 154229720 .",
+            "textChars": 206,
+            "snipsFound": 0,
+            "snips": []
+          },
+          {
+            "url": "https://doi.org/10.1215%2F10474552-16-1-120",
+            "host": "doi.org",
+            "via": "link",
+            "structuralClass": "identifier",
+            "overlap": 1,
+            "citation": "Pagedas, Constantine A. (2005). \"Counterpoint to Trafalgar: The Anglo-Russian Invasion of Naples, 1805–1806 (Review)\" . Mediterranean Quarterly . 16 (1): 120– 122. doi : 10.1215/10474552-16-1-120 . S2CID 154229720 .",
+            "gap": {
+              "type": "http",
+              "status": 403
+            }
+          },
+          {
+            "url": "https://api.semanticscholar.org/CorpusID:154229720",
+            "host": "api.semanticscholar.org",
+            "via": "link",
+            "structuralClass": "identifier",
+            "overlap": 1,
+            "citation": "Pagedas, Constantine A. (2005). \"Counterpoint to Trafalgar: The Anglo-Russian Invasion of Naples, 1805–1806 (Review)\" . Mediterranean Quarterly . 16 (1): 120– 122. doi : 10.1215/10474552-16-1-120 . S2CID 154229720 .",
+            "gap": {
+              "type": "shell",
+              "detail": "0-char face"
+            }
+          }
+        ],
+        "attested": []
+      },
+      {
+        "noteId": "austria|joined|the coalition a few months later",
+        "note": "Austria —joined→ the Coalition a few months later",
+        "leads": {
+          "links": 51,
+          "quotes": 5
+        },
+        "searched": [],
+        "consulted": [],
+        "attested": []
+      },
+      {
+        "noteId": "austrian armies|had|converged",
+        "note": "Austrian armies —had→ converged",
+        "leads": {
+          "links": 51,
+          "quotes": 5
+        },
+        "searched": [],
+        "consulted": [
+          {
+            "url": "https://search.worldcat.org/oclc/37778325",
+            "host": "search.worldcat.org",
+            "via": "link",
+            "structuralClass": "archive-library-museum",
+            "overlap": 1,
+            "citation": "Bowden, Scott (1997). Napoleon and Austerlitz: An Unprecedentedly Detailed Combat Study of Napoleon's Epic Ulm-Austerlitz Campaigns of 1805 . Armies of the Napoleonic Wars Research Series, 'The Glory Years' of 1805–1807. Vol. 1. ISBN 978-0-9626-6557-8 . OCLC 37778325 . OL 3987035M .",
+            "gap": {
+              "type": "budget",
+              "detail": "maxFetches 30 spent"
+            }
+          },
+          {
+            "url": "https://openlibrary.org/books/OL3987035M",
+            "host": "openlibrary.org",
+            "via": "link",
+            "structuralClass": "dated-document",
+            "overlap": 1,
+            "citation": "Bowden, Scott (1997). Napoleon and Austerlitz: An Unprecedentedly Detailed Combat Study of Napoleon's Epic Ulm-Austerlitz Campaigns of 1805 . Armies of the Napoleonic Wars Research Series, 'The Glory Years' of 1805–1807. Vol. 1. ISBN 978-0-9626-6557-8 . OCLC 37778325 . OL 3987035M .",
+            "gap": {
+              "type": "budget",
+              "detail": "maxFetches 30 spent"
+            }
+          }
+        ],
+        "attested": []
+      }
+    ]
+  },
+  "control": {
+    "considered": 605,
+    "leads": 6,
+    "attested": 1,
+    "verdicts": {
+      "states": 1,
+      "no-testimony": 5
+    },
+    "standing": {
+      "corroborated-independently+primary": 1,
+      "single-witness": 604
+    }
+  }
+}

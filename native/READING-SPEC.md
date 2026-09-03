@@ -2412,3 +2412,313 @@ attest/concede, injected identity, stream/figures/segment on a planted
 rhythm with a shuffle control, the medium pin);
 `organs/hyperlexicon*.test.mjs` 36/36 unchanged; the eleven moved files
 168/168.
+
+## S43 — The ledger's frame follows the reader and every witness names its recipe; a "diet boundary" by surprise is refuted as a door and kept as a diagnostic
+
+**Generality:** universal (frame redeclaration, the recipe on witnesses);
+specimen-scoped for the two measurements (three Wikipedia pages and one
+Gutenberg book; the continuation number is on three pages).
+
+**User direction (2026-09-02):** do the first two of "diet-boundary door,
+frame as instrument, one cross-source measurement" together, controls built
+to fail.
+
+**The frame follows the reader.** `kernel/notes.js::redeclareFrame` —
+SUPERSEDE on the frame task, the past kept, an identical redeclaration
+appending nothing, a frameless ledger given a frame late getting a birth
+frame rather than a revision; `frames()` lists every standing, `frameOf()`
+the one in force with its revision count. the-fold's `holon.js` redeclares
+on every grounded turn from the reader as it stands, so a prior that loaded
+after the ledger's birth is no longer frozen out — P80's disclosed edge,
+closed.
+
+**Every witness names its recipe.** the-fold mints a recipe id per distinct
+frame (`recipeId`, cached by frame) and `holon.js` lands every mechanical
+witness as `<ref>~<recipe>`. `corroboration.js::independentReadings` counts
+(source, recipe) pairs, so two pages read by one reader are two sources and
+ONE instrument — the shared-instrument failure the music work measured, now
+counted in the live app rather than only in drivers. One raw witness
+comparison that would have re-asked a source already carrying `~recipe`
+(`corroborateLedger`'s skip) now compares through `distinctSources`.
+
+**The diet door, built, measured, refuted.** `dietBoundaries` (a source's
+tail run above the null's cut against the shuffle's own tail runs) and
+`concedeDiet` were built first against planted structure, where they are
+exact, then measured on real material: the three Wikipedia wrappers and
+Gutenberg's licence tail form NO run (their ends recur), and the pages cut
+back to prose DO fire, on closing sections that are lists. The statistic
+measures a tail of ends that never recur — a list — not furniture. The
+shuffle controls are silent 8 of 8, so the statistic is sound and the claim
+was wrong. `concedeDiet` is unlicensed on real material and wired nowhere;
+the refutation sits in the kernel's own header (P60's REFUSED discipline:
+named so it is not rebuilt). The ranking that had suggested it ("the most
+surprising hearings are the furniture") was a floor artifact — `figures()`
+grew its alphabet as it read — corrected to one floor, pinned.
+
+**The first cross-source number.** A prior sedimented from one page's
+hearings predicts another page's better than its own shuffle ONLY on the
+label stream between the two English pages: 0.2–0.3 bits per hearing,
+20/20 shuffles beaten at orders 1, 2 and 3. Nothing transfers on the ends;
+English → Russian a small consistent gain through shared labels; Russian →
+English nothing. `eval/the-fold/results/diet-boundary-RESULTS.md`.
+
+**Enforced:** `tests/notes.test.js` 10 (redeclaration, the figures floor,
+the door against planted structure with shuffle and body-only controls);
+`organs/corroboration.test.mjs` unchanged; the-fold suite 940/67 with zero
+new failures by name; the real page loaded in headless Chromium clean.
+
+## S44 — Subject walls: five received closed classes end the extractor's subject debris, measured against a random-wall control
+
+**Generality:** universal (English text; the walls are received classes
+with their giver, and the control is built to fail).
+
+**User direction (2026-09-02):** floor 5 first, "and if there was
+something on floor two, work on the steady foundation as needed." Floor 5
+is starved by ends that are debris: a note reading "night I" or "the
+window Lucy" can never be corroborated by anything. P74 had named
+subject-span debris as the lever nobody pulled.
+
+**What it is.** `relations.js::expandSubjectNP` (the DR4 walk) consults five
+walls, each a closed class the register already held or now holds with its
+giver: `CLAUSE_OPENERS` and `NEGATION_WORDS` as a trailing trim (the token
+before a verb is often the clause's relativizer or the polarity word, not
+the subject's last word); `SUBJECT_PRONOUNS` (new) — a pronoun is a whole
+subject and a wall to any walk that meets it; a determiner-initial anchor
+is already at its own left edge (chains continue across "of" and a
+received adposition; a `PREDETERMINERS` (new) token joins the phrase); and
+the reader's verb forms (`verbWall`, the POS prior's verb-dominant forms,
+threaded from `organs/hypergraph.js`) as a wall through a coordinator — the
+verb before the coordinator shares our subject — and as a trailing trim.
+A match with no subject left is refused and counted (`refusedSubjects`),
+never emitted. `subjectWalls: false` reproduces the earlier walk byte for
+byte, so the two are measurable against each other.
+
+**Measured** (`eval/the-fold/subject-wall.mjs`, real Dracula narrative and
+the Borodino page, three arms): on narrative prose debris subjects fall
+96 → 30 of the bound claims while referent-resolved subjects hold 83 → 78;
+the random-wall control (every class replaced by as many random words
+from the material) cuts harder and destroys referents (83 → 26). The gain
+is from which tokens wall, not from walling. Encyclopedic prose barely
+moves (debris 66 → 62); its debris is prepositional-phrase subjects and is
+not this pass's. The cost: 93 fewer bound claims on Dracula — 44 refused
+for want of a subject, the rest claims that had bound through debris.
+
+**Found by diffing, not by tallying.** The first cut's tally looked right
+and its rewrite list did not: "Lucy and I" → "I", "the ruins of the abbey"
+→ "of the abbey", "every joint in my body" → "my body". Each was a rule
+missing a received exception (a coordinated pronoun; a verb form after a
+determiner is a noun; an NP chain across an adposition), fixed and pinned.
+`results/subject-wall-RESULTS.md` carries the full table and the named
+residue (a common noun glued to a name's left needs the prior's nouns).
+
+**Enforced:** `tests/relations.test.js` 40 → 48, every new case a real
+Dracula sentence, each rule's old debris pinned beside its new reading.
+Full native suite 468/10 + 335/12, zero new failures by name.
+
+## S45 — Floor 5 run live on CPU: the source count was wrong, and cross-source corroboration is structurally rare on a novel
+
+**Generality:** universal (the source-count fix); specimen-scoped (the two
+measurements — one novel, one page pair, one small model).
+
+**User direction (2026-09-02):** "you can run ollama on cpu." Ollama 0.33.2
+and gemma2:2b installed in the container (4 cores, no GPU; 2.6–3.5s per
+witness read). The witness tier ran live for the first time over a ledger
+read from a real book.
+
+**The bug the first run exposed.** `corroboration.js::distinctSources`
+compared witness strings with their passage address still on, so a
+mechanical witness `part-1.txt#178-275` and a testimony witness
+`testimony:part-1.txt` were two sources: the first walk attested eight
+notes, every one from the part it had been heard in, and reported the ≥2
+gate 2 → 10. Every ≥2-source number this project computed off
+chunk-addressed witnesses was inflated the same way — the ~2% book figure
+was chunk-distinct. `sourceOfWitness` is the one reduction now (ref
+without address or recipe); `independentReadings` keys (source, recipe)
+the same way; pinned; `docs/reading-recall-finding.md` carries the
+correction.
+
+**The corrected measurement.** Novel (240KB of *Dracula*, six chapter
+parts, 474 notes, 60 asks, select protocol): 1 cross-source attestation,
+53 `no-testimony`, guard 0 lies — 0.017 clean votes per ask. Two
+encyclopedia pages (82 notes with the subject walls on, 30 asks): 1
+attestation per arm, generate and select alike, guard 0 lies — 0.033.
+This corrects `corroboration-select-vs-generate-RESULTS.md`'s 7 vs 6,
+which counted with the old source function over an unwalled ledger.
+
+**What it decides.** NEXT-PASSES gated the memory floor on clean votes
+per ask and said that if Tier 1 could not raise it, the floor's DESIGN
+is what gets re-examined. It cannot be raised on a novel: a novel does
+not restate its propositions across chapters, it re-mentions its
+referents, and the witness says so honestly 53 times in 60. The design
+question is why a single-source note with a verified address, real ends
+and a real label must have a second source before it may reach the
+model — a gate chosen when the door admitted junk (P73), guarding now
+against a diet that no longer arrives (P74, S44). Corroboration should be
+DISCLOSED on a note, not used to withhold it. Named, not built.
+
+**Enforced:** `organs/corroboration.test.mjs` 45 → 46 (the self-attestation
+that counted as two sources, and the (source, recipe) key); the-fold's
+suite and this repo's, zero new failures by name.
+
+## S46 — Ranke: a claim is chased to the document its account cites; the account and the document are two KINDS of witness, and a novel is never chased
+
+**Generality:** universal (the witness-kind axis in the kernel; the gate;
+the landing rule); specimen-scoped (two pages, one witness model, the
+faces those pages happened to cite).
+
+**User direction (2026-09-02/03), in order:** "when reading things like
+wikipedia, and in general, we must chase primary sources"; the activity is
+personified as an agent named after Leopold von Ranke; "if it is citing
+something via a hyperlink, it should go read that, not just Wikipedia
+shaped sourcing. if it is just quoting someone, it should go try to find
+that quote if the source isn't given"; "but that needs a gate so it doesn't
+explode in a novel"; "perhaps we toggle this one as this could be very
+burdensome"; and the frame for all of it: "we are not making claims about
+what is objectively true, just making the richest possible hypergraph of
+what claims are about the truth."
+
+**Kernel (`kernel/notes.js`).** A witness's KIND is now read off its
+declared prefix (`kindOfWitness`: `testimony:`, `primary:`, `planted:`; a
+bare address is a `sighting`) and `standingOf(note)` counts kinds apart
+beside sources and instruments (`foldWithStanding` projects it onto every
+note). The kernel names no kind's meaning — a report of a performance and
+the performance's own decoder are different kinds in every medium, and
+which kinds exist is the caller's vocabulary (`notes.test.js` pins the
+music-shaped case: `review.txt` sighting + `primary:performance.wav~goertzel`
+→ 2 sources, 2 instruments, kinds `{sighting:1, primary:1}`).
+`sourceOfWitness`/`recipeOfWitness` are the kernel's, and
+`corroboration.js` now imports them instead of keeping its own copy — the
+copy stripped `testimony:` alone, so a `primary:` witness would have read
+as a source named "primary" (the P22/P24/P25 drift class, caught before
+it shipped by the organ's first test).
+
+**Organ (`organs/ranke.js`).** Pure; fetch and search injected. `leadsOf(page)`
+is the GATE and the leads: outbound hyperlinks (any host that is not the
+page's own or the encyclopedia family's navigation — `extractCitations`,
+which is not Wikipedia-shaped past that family skip) and unsourced
+quotations (prose only — a quotation crossing a line break or carrying a
+URL, footnote arrow or page apparatus is a reference-list fragment, found
+live). A page with zero outbound links is `citing: false`, typed
+`no_citations`, and yields NO leads of either kind: Dracula's 509 quotation
+marks in a 300KB slice produced zero searches and zero fetches. `chase`
+ranks link leads by claim overlap (`rankPrimary`; a link sharing no word
+with the claim is not a lead for it — 178 of 318 consults on the first run
+were blind fetches before this rule), searches relevant quotes, fetches
+sequentially under the declared budget, snips each face for the note's
+words, and — THE LANDING RULE — lands `primary:<host>#a-b~ranke-v1` only
+on the witness tier's own "states" (`witnessNote`, the armed select
+protocol); without witness organs every containment hit is reported
+`unwitnessed` and nothing lands. `FULL_TEXT_FACES` is one declared address
+rule (archive.org `details/<id>` → `stream/<id>/<id>_djvu.txt`), never a
+layout scrape.
+
+**Why the landing rule is a rule and not a preference.** The control
+(II.23): the same chase over a ledger whose end2s are rotated, served from
+the same kept faces. Containment attested 1 real note and 6 redealt ones;
+with the witness reading every lead, 0 real and 1 redealt (a debris note
+the 2B model signed against a whole book's OCR). Containment finds where
+the words co-occur; the witness reads whether the sentence states the
+claim; the control is reported beside every number. Full account:
+`eval/the-fold/results/ranke-walk-RESULTS.md`.
+
+**What the two pages actually cite.** Of 30 fetches: 18 faces read, 8
+answered 403, 4 were shells; the readable ones are catalogue records,
+Google Books stubs, one full OCR book (through the address rule), one
+transcription, one essay. Zero notes landed on this material — the honest
+shape of "chase primary sources" on an encyclopedia battle article: the
+primaries are books behind catalogues, and reading them is a different
+budget than following a link. Named next: more address rules with givers;
+the witness at book scale; a search engine that answers.
+
+**Surface (the-fold, P84).** The ledger block now discloses standing
+instead of withholding on it; `/ranke <maxFetches> [maxSearches]` and a
+default-off `primary` switch beside `web`; the server route owns the two
+crossings and returns leads, the browser's witness reads them.
+
+**Enforced:** `organs/ranke.test.mjs` (6: the real page's leads; the novel
+gate on real Dracula bytes; accounts-only standing; link chase — unwitnessed
+reports and lands nothing, a witness's no lands nothing, a witness's yes
+lands an addressed `primary:` witness whose address reproduces the sentence,
+kinds counted apart; quote chase through search; the ledger walk with
+declared budgets, cached faces, and the redealt control), `tests/notes.test.js`
+(+2: standing kinds, foldWithStanding). Native suites' failure names
+identical to HEAD before and after (22 environment names); zero regressions.
+
+**Amended same day — the disclosure measured against a model.**
+`eval/the-fold/gate-proof.mjs` + `results/gate-proof-RESULTS.md`: the
+ledger block's disclosure (the-fold P84) run headlessly through the real
+pipeline on gemma2:2b over this ledger and a new book. The book: old gate
+0/8 shown, 0/8 hits; disclosed 6/8 shown, 4/8 hits. The pages, once both
+tiers were ranked by the question: 7/8 shown, 6/8 hits (old gate 3/8,
+2/8). Two leaks found and closed in the surface's block (an unranked
+corroborated tier; the interrogative "what" counted as vocabulary), and a
+mechanical no-model mode (`MECHANICAL=1`) that measures reachability in
+seconds. Hits measure that the model said a heard claim back with its
+standing, never that the claim is true.
+
+**Amended 2026-09-03 — working backwards from an article whose sources
+are readable: what the chase would need.** User direction: "try it on an
+article that has useable sources and work backwards to what it would need
+to do to get the spans that create the equivalent hypergraph
+propositions." `eval/the-fold/ranke-backwards.mjs` over the real *Apollo
+11* article (524 notes after the bibliography region is dropped): for
+every note, the cited faces, and the gap to the nearest span in one,
+classified most-demanding-first (`same-sentence` / `morphology` / `window`
+/ `partial` with the missing side named / `absent`), with the witness on
+containment's leads and the rotated-end2 control on the same faces. Four
+runs, each rule earned by a specimen, all in `ranke.js`:
+**footnote binding** — a marker in the prose is an in-page link to one
+numbered note whose outbound links are the lead for THAT sentence,
+consulted before any overlap-ranked link (run 1's overlap ranking chased
+the wrong document: the control out-hit the real ledger, 7 to 6);
+`markersOfSpan` — a marker at a span's start belongs to the previous
+sentence, the sentence's own marker trails it; **document identity** —
+`documentMatches` requires a face to carry the citation's own title words,
+and on a miss the archive copy is read (31 of 62 footnote-bound addresses
+on a fifty-year-old article now serve a portal page); archive wrappers
+paired with their targets. **A route failure is not a document gap:**
+run 3 read zero archive copies because every Wayback fetch answered 403
+on the sandbox's direct egress path (200 through its proxy; Node's fetch
+honours `HTTPS_PROXY` only under `NODE_USE_ENV_PROXY=1`), and the kept
+index had cached those as gaps — purged, disclosed, rerun. **Run 4:** 83
+wrong-document consults, 83 read through the archive; 404 of 524 notes
+with a readable cited face; containment reaches 28 (`same-sentence` 18,
+control 16; `window` 9, control 5 — parity at every grain, twice
+measured: containment is a lead-finder); the witness signed 3 of 65
+leads, one of them a genuine paraphrase crossed through the note's own
+footnote (Safire's "In Event of Moon Disaster" memo — "provided… a short
+speech" for "had prepared… an announcement"); `partial` with the OBJECT
+missing is the dominant class at 162 of 226 — the cited document says it
+in other words. The named next rung is not a matcher: the witness pointed
+at every footnote-bound `partial`, its window chosen by the face's own
+referent activation rather than word containment, under a declared
+budget, with the control through the identical slicer. Full account:
+`eval/the-fold/results/ranke-backwards-RESULTS.md`.
+
+## S47 — The candidate set is the paraphrase seam: `witnessNote` takes an injected list, and the arm below it does not move
+
+**Generality:** universal.
+
+`statingCandidates`' gate is `h1 > 0 && h2 > 0` — BOTH ends must fire
+LITERALLY in a sentence for it to be offered to the select protocol. That
+gate is right as the default: it is what makes an unsupervised candidate set
+trustworthy, and it is why a caller with no better idea gets a conservative
+one. It is also, exactly, the wall paraphrase hits — an end the source
+states in other words never fires, `cands` comes back empty, and the armed
+select protocol (the one whose yes is checked by a sibling swap) never runs
+at all. `witnessNote` then falls through to a generate call on a containment
+slice, which is the weaker path.
+
+`witnessNote` now takes an optional `candidates` list. A caller holding its
+own declared way to choose where a stating sentence would live supplies it.
+Everything below is unchanged, and that is the design: the competing-filler
+arm, the indiscriminate-pick check, the carried address, the decider-company
+wall and the typed refusals all still stand. **A slicer may change WHERE the
+model is asked to look; it may never change whether its yes counts.**
+
+Pinned by three cases in `corroboration.test.mjs`, one of them the control
+built to fail: an indiscriminate picker over an injected candidate set is
+still convicted `indiscriminate`, so the seam cannot be used to buy a vote.
+The premise is pinned too rather than assumed — the test asserts
+`statingCandidates` returns zero on the paraphrase fixture, which is what an
+object-missing partial IS. Omitted, byte-identical to before.

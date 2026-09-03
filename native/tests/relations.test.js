@@ -484,3 +484,73 @@ test("objectBoundaryFrom: minShare is declared, and a prior with no forms still 
   const bare = objectBoundaryFrom(null, { minShare: 0.5 });
   assert.ok(bare.has("and") && bare.has("but"), "clause coordinators are received, not measured");
 });
+
+// ── THE SUBJECT WALLS (2026-09-02) — real Dracula sentences, each the shape
+// of a debris subject the production reader emitted, pinned with the
+// subject it must read now. `subjectWalls: false` reproduces the old walk.
+import { NEGATION_WORDS } from "../adapters/text/priors.js";
+const wallsRead = (text, verbs, extra = {}) => extractRelations(text, { verbs: new Set(verbs), nounPhraseSubjects: true, negationWords: NEGATION_WORDS, ...extra });
+const subjectOf = (rels, verb) => rels.find((r) => r.verb === verb)?.subject ?? null;
+
+test("walls: a trailing negation is not part of the subject — 'I never saw' reads subject 'I', polarity negative", () => {
+  const rels = wallsRead("They are both quiet persons, and I never saw the man angry.", ["saw"]);
+  assert.equal(subjectOf(rels, "saw"), "I");
+  assert.equal(rels[0].polarity, "-");
+  assert.equal(subjectOf(wallsRead("They are both quiet persons, and I never saw the man angry.", ["saw"], { subjectWalls: false }), "saw"), "I never", "the old walk kept the negation — pinned so the flag is real");
+});
+
+test("walls: a relativizer at the anchor's edge belongs to the clause — 'the men who came' reads subject 'One of the men'", () => {
+  const rels = wallsRead("One of the men who came up here often to look for the boats was followed by his dog.", ["came"]);
+  assert.equal(subjectOf(rels, "came"), "One of the men");
+  const cows = wallsRead("Lucy was in gay spirits, owing to some dear cows who came nosing towards us.", ["came"]);
+  assert.equal(subjectOf(cows, "came"), "some dear cows");
+});
+
+test("walls: a pronoun is a whole subject wherever it sits in the anchor — 'I think it will', 'I hope I did', 'think of what might'", () => {
+  assert.equal(subjectOf(wallsRead("I think it will be best for her to go to bed.", ["will"]), "will"), "it");
+  assert.equal(subjectOf(wallsRead("I thought it wiser to do so. I hope I did right.", ["did"]), "did"), "I");
+  assert.equal(subjectOf(wallsRead("There was no time to think of what might happen.", ["might"]), "might"), "what");
+});
+
+test("walls: a determiner-initial anchor is already at its left edge — 'when I came in view again the cloud had passed'", () => {
+  assert.equal(subjectOf(wallsRead("When I came in view again the cloud had passed, and the moonlight struck.", ["had"]), "had"), "the cloud");
+  assert.equal(subjectOf(wallsRead("When I came in view again the cloud had passed, and the moonlight struck.", ["had"], { subjectWalls: false }), "had"), "I came in view again the cloud", "the old walk glued the matrix clause on");
+  // the of-chain still widens through a determiner (DR4's own flagship)
+  assert.equal(subjectOf(wallsRead("The peoples of the United Nations reaffirmed faith.", ["reaffirmed"]), "reaffirmed"), "The peoples of the United Nations");
+});
+
+test("walls: a verb reached through a coordinator is a coordinated predicate — the subject is shared ('the poor thing became quiet and fell', 'I ran downstairs and looked')", () => {
+  // The live shape: the FIRST predicate's verb was not in the cleared
+  // vocabulary (only "fell" / "looked" cleared), so the anchor was "quiet
+  // and" / "downstairs and" and the walk glued the first predicate on. The
+  // wall needs to KNOW "became"/"ran" are verbs — `verbWall`, a received
+  // verb-form set (the reader passes the POS prior's verb-dominant forms).
+  assert.equal(subjectOf(wallsRead("The moment it touched the stone the poor thing became quiet and fell all into a tremble.", ["fell"], { verbWall: new Set(["became"]) }), "fell"), "the poor thing");
+  assert.equal(subjectOf(wallsRead("I ran downstairs and looked in the sitting-room.", ["looked"], { verbWall: new Set(["ran"]) }), "looked"), "I");
+  // without the received wall the old debris shape comes back — pinned so
+  // the option is known to be load-bearing
+  // (the pronoun wall alone stops before "I" — the first predicate is still
+  // glued on; only the verb wall reaches the shared subject)
+  assert.equal(subjectOf(wallsRead("I ran downstairs and looked in the sitting-room.", ["looked"]), "looked"), "ran downstairs and");
+});
+
+test("walls: a match with no subject left under them is refused, counted, never emitted as debris", () => {
+  const rels = wallsRead("Which came first is unknown, and so.", ["came"]);
+  assert.ok(!rels.some((r) => /^(which|and|so)$/i.test(r.subject)), `no bare opener subject: ${JSON.stringify(rels.map((r) => r.subject))}`);
+  assert.equal(typeof rels.refusedSubjects, "number");
+});
+
+test("walls: a coordinated pronoun keeps its sibling ('Lucy and I'); a determiner chain continues across a received adposition ('every joint in my body', 'the ruins of the abbey'); a verb form right after a determiner is a noun", () => {
+  assert.equal(subjectOf(wallsRead("Lucy and I had both a fight for it with the dusty miller.", ["had"]), "had"), "Lucy and I");
+  const adpositions = new Set(["in", "of", "at"]);
+  assert.equal(subjectOf(wallsRead("It seemed to me as though every joint in my body were rusty.", ["were"], { adpositions }), "were"), "every joint in my body");
+  // "ruins" is a verb form in any English lexicon; after "the" it is a noun
+  assert.equal(subjectOf(wallsRead("The ruins of the abbey were coming into view.", ["were"], { adpositions, verbWall: new Set(["ruins"]) }), "were"), "The ruins of the abbey");
+});
+
+test("walls: a verb at the anchor's edge is trimmed ('I wished to get' → 'I', 'it might have' → 'it'); a predeterminer joins its noun phrase ('the knowledge of such a thing')", () => {
+  const verbWall = new Set(["wished", "might", "have"]);
+  assert.equal(subjectOf(wallsRead("For many other reasons I wished to get her home at once.", ["get"], { verbWall }), "get"), "I");
+  assert.equal(subjectOf(wallsRead("I feared it might have been worse.", ["been"], { verbWall }), "been"), "it");
+  assert.equal(subjectOf(wallsRead("How the knowledge of such a thing would fret her.", ["would"], { adpositions: new Set(["of"]) }), "would"), "the knowledge of such a thing");
+});

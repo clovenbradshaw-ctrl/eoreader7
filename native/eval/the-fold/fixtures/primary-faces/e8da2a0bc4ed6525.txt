@@ -1,0 +1,1563 @@
+240 captures
+
+17 Jun 1997 - 19 May 2026
+
+Apr
+MAY
+Jun
+
+10
+
+2012
+2013
+2014
+
+success
+
+fail
+
+About this capture
+
+COLLECTED BY
+
+Organization: Internet Archive
+
+The Internet Archive discovers and captures web pages through many different web crawls.
+
+At any given time several distinct crawls are running, some for months, and some every day or longer.
+
+View the web archive through the Wayback Machine .
+
+Collection: Wide Crawl started April 2013
+
+Web wide crawl with initial seedlist and crawler configuration from April 2013.
+
+TIMESTAMPS
+
+The Wayback Machine - https://web.archive.org/web/20130510224246/http://www.hq.nasa.gov/alsj/a11/a11.postland.html
+
+Post-landing Activities
+
+Corrected Transcript and Commentary Copyright © 1995 by Eric M. Jones .
+
+All rights reserved.
+
+Scan credits in the Image Library .
+
+Video credits in the Video Library .
+
+Last revised 18 December 2012.
+
+MP3 Audio Clip
+(52 min 00 sec; 19Mb) from the Public Affairs loop starting at about 102:47:46. Clip courtesy John Stoll, ACR Senior Technician at NASA Johnson.
+
+102:48:10 Aldrin: (Garbled) copy Noun 60...(Correcting himself) Noun 43. Over.
+
+102:48:13 Duke: Roger. We have it.
+
+[Journal Contributor Frank O'Brien notes, "Noun 43 displays the PGNS-calculated location of the landing site - in latitude, longitude and distance from the center of the moon."]
+
+102:48:14 Collins: Houston, how do you read Columbia on the high gain?
+
+[Journal Contributor David Harland notes that Charlie had warned Mike at 102:16:00 that he might lose high-gain lock-on during the LM's powered descent.]
+
+102:48:17 Duke: Roger...
+
+102:48:18 Aldrin: (Garbled)
+
+102:48:19 Duke: ...We read you five-by, Columbia. He has landed (at) Tranquility Base. Eagle is at Tranquility. Over.
+
+102:48:26 Collins: Yeah. I heard the whole thing.
+
+102:48:27 Duke: Good show.
+
+102:48:31 Collins: Fantastic.
+
+102:48:32 Aldrin: Engine Stop, Reset. (Long Pause)
+
+102:48:58 Collins: Houston, Columbia went Up Telemetry Command, Reset to re-acquire on the high gain.
+
+102:49:02 Duke: Copy. Out. (Long Pause)
+
+102:49:39 Duke: Eagle, Houston. You loaded R2 wrong. We want 10254.
+
+102:49:50 Aldrin: Roger. (Long Pause)
+
+[In Charlie's transmission at 102:49:39, the figure 10254 - with the '5' emphazied, indicating that something else was loaded in its place - is a Ground Elapsed Time of 102:54.]
+
+[During the 1969 Technical Debrief, Buzz indicated that he loaded the wrong data from the on-board, pre-printed data card.]
+
+[Aldrin, from the 1969 Technical Debrief - "On the data card, we've got the PDI Pad, which is referred to somewhat during the descent.
+It (the data card) has PDI aborts on it, with a No-PDI plus 12 (minutes) abort on the right side.
+I think that the No-PDI plus 12 abort would be better placed on the back of this altitude card because, once you ignite, you're through with that No-PDI plus 12 abort and you ought to get it out of there.
+In its place, I think the T-2 abort Pad should be on the data card because, when I started to load P12 with Noun 33 - the Tig for this T-2 abort, which is PDI plus 23 (minutes) - I loaded the Tig for the No-PDI plus 12 abort, and the ground caught me on it and said, 'You loaded R(egister)-2 wrong.'
+Now, the two are pretty close (that is, the times don't differ by much) and they both say Tig Noun 33.
+So, I think if we can get that one abort - No-PDI plus 12 - out of there and put the other one in its place, it'll save someone from coming up with the same sort of thing."]
+
+[Pads - or PADs - come up frequently during the missions and the following discussion has been provided by Journal Contributor Frank O'Brien - "The Pads are officially referred to as simply 'voice updates'. The name also refers to the actual form the data was written onto. Now, here's one of the best-kept secrets of the Apollo Program: Pads were nothing more than 'cheat-sheets' the crew could use during major mission activities. In preparation for major mission activities - such as platform alignments, descent, rendezvous, etc. - much of the information that wasn't obvious to the crew nor easily calculated by the computer was relayed verbally from the ground.
+The crew simply copied the data down onto forms (Pads) preformatted with the computer commands needed for data entry.
+Pads were the ultimate in 'fill in the blanks'! When and if the crew needed the data and procedures - particularly if comm with Houston were lost - it was trivial to refer to the appropriate Pad. Pads are the essence of good human engineering!"]
+
+102:50:28 Aldrin: And do you want V horizontal 5515 decimal 2?
+
+102:50:32 Duke: That's affirmative. (Long Pause)
+
+[Armstrong - "I suppose that 5515.2 is the known surface velocity of the Moon. Right?"]
+
+[Aldrin - "In some coordinates."]
+
+[Buzz is on checklist page Sur-11 . Journal Conributors Paul Fjeld and Harald Kuckarek point out that 5515.2 is the P-12 entry for the desired, post-liftoff, horizontal velocity at the Injection altitude of 30 nautical miles.]
+
+102:50:59 Aldrin: (To Houston) (How would you) like AGS to PGNS align? Over.
+
+102:51:04 Duke: Say again?
+
+102:51:07 Aldrin: Like an AGS to PGNS align? Over.
+
+102:51:11 Duke: Roger. We're standing by for it. (Long Pause)
+
+[Armstrong - "Clearly, we were trying to initialize AGS so that, if we would have to use it, we would have taken some of the drift out of it."]
+
+102:51:41 Aldrin: Propellant quantity (garbled)
+
+102:51:45 Duke: Eagle, Houston. You are Stay for T2. Over.
+
+102:51:50 Duke: Correction, you're...
+
+102:51:52 Armstrong: Roger. Stay for T2. We thank you.
+
+102:51:54 Duke: Roger, sir.
+
+[Comm Break]
+
+102:53:37 Duke: Tranquility Base, Houston. We recommend you exit P12. Over.
+
+[Comm Break. Houston is calling polite attention to the fact that Neil and Buzz have forgotten to exit program P12.]
+
+102:55:16 Armstrong: Hey, Houston, that may have seemed like a very long final phase. The Auto targeting was taking us right into a football-field-sized crater, with a large number of big boulders and rocks for about one or two crater diameters around it, and it required us going in P66 and flying manually over the rock field to find a reasonably good area.
+
+102:55:49 Duke: Roger. We copy. It was beautiful from here, Tranquility. Over.
+
+[On a detail from a 300 dpi scan of a Xerox copy of 1:5000 LM Lunar Surface Map LSE 2-48 ( 750 ), I have marked what is probably a boulder just east of West Crater. The grid squares on this 1:5000 map are 50 meters on a side and the north-south size of the boulder is about 1-2 meters and close to the resolution limit.]
+
+[During training, later crews had views in the simulator windows of their specific landing site. The Landing and Ascent facility - or the L&A, as it was called - consisted of a model of the landing site and a TV camera which flew to it in response to the crew's actions in the simulator. The accompanying photo was supplied by Frank O'Brien and shows the L&A facility on the left and the LM Mission Simulator on the right.]
+
+[I asked Neil and Buzz if they had an L&A representation of the Tranquility site.]
+
+[Aldrin - "We didn't have any identified terrain. It was so nondescript."]
+
+[Armstrong - "We did not have a specific lunar surface model for our destination. We had the surface photographs from (Apollo) 10 that went through our entire approach and landing path, but those were taken from high altitude."]
+
+[Aldrin - "Wasn't the Cat's Paw about the only identifiable thing that was on the photos and, then the (landing) ellipse was relative to that? Was that off ahead of us? What I'm kind of saying is that the specific, recognizable things were kind of early in the descent, and then when we got down to like pitchover and throttle down and, you know, 5 or 6,000 feet - and from there on down there weren't any things that we were looking for other than flatness."]
+
+[Phil Stooke of the Department of Geography, University of Western Ontario, has provided a post-flight map ( 312k ) showing the landing ellipse and surrounding area with some feature names, including the Cat's Paw. Stooke says that the map is an "untitled MSC graphic, post-landing, photocopied at the LPI library in Houston. Cat's Paw was named informally before the landing; but, as luck would have it, I can't find a document to prove it as I write this!"]
+
+[Armstrong - "I had certain expectations - 'hopes', maybe - of seeing certain crater patterns that I could recognize with respect to what our intended landing point was.
+But, after the pitchover, as we were, maybe, a couple of miles further downrange than we intended to be at that point, I could not pick them out."]
+
+[I then asked about the type of visuals they had in the simulators at the Cape and at Houston.]
+
+[Armstrong - "We had a generic lunar surface. A hypothetical surface."]
+
+[Aldrin - "General purpose. It was not specific to a...Well, it was for our mission, because the other guys didn't use it. It was an inverted thing mounted on the ceiling and the camera flew to it."]
+
+102:56:02 Aldrin: We'll get to the details of what's around here (later), but it looks like a collection of just about every variety of shape, angularity, granularity, about every variety of rock you could find. The color is...Well, it varies pretty much depending on how you're looking relative to the zero-phase point. There doesn't appear to be too much of a general color at all. However, it looks as though some of the rocks and boulders, of which there are quite a few in the near area... It looks as though they're going to have some interesting colors to them. Over.
+
+[The point on the horizon directly opposite the Sun is called the down-Sun or zero-phase direction. It is early morning at Tranquility and the Sun is low in the eastern sky.
+At zero phase there is a very strong reflection of sunlight which tends to washout the scene. The process chiefly responsible for the brightness of zero-phase is called Coherent Backscatter . In addition, rocks and craters tend to hide their own shadows, thereby making detail even harder to see.]
+
+[Armstrong - "Whenever we had time available and didn't have to press with the checklist, why we had a natural interest to look outside and report what we saw."]
+
+102:56:47 Duke: Roger. Copy. Sounds good to us, Tranquility. We'll let you press on through the simulated countdown, and we'll talk to you later. Over.
+
+102:57:00 Armstrong: Roger.
+
+102:57:01 Aldrin: Okay. This one-sixth g is just like the airplane.
+
+102:57:04 Duke: Rog. Tranquility. Be advised there're lots of smiling faces in this room and all over the world. Over.
+
+102:57:15 Armstrong: Well, there are two of them up here.
+
+102:57:17 Duke: Rog. That was a beautiful job, you guys.
+
+102:57:19 Collins: And don't forget one (smiling face) in the command module.
+
+102:57:22 Duke: Rog. (Long Pause)
+
+[In his extraordinary book, Carrying the Fire, Mike recalls that, because he was hearing Neil and Buzz on a relay from Houston, it was two and a half seconds before he heard Neil say "Well there are two of them (smiling faces) up here." Mike wrote that, as soon as he heard Neil, "I say 'And don't forget one in the Command Module'; but, in the meantime Houston has heard Neil and has answered him, 'Roger. That was a beautiful job, you guys.' I was more than a little embarrassed to hear their message coming in as I was mouthing mine. It sounded like I was asking them not to forget complimenting me for doing a beautiful job in the command module, instead of merely adding my smiling face to the list." Such are the hazards of communications with built-in time delays.]
+
+102:57:50 Duke: Tranquility, Houston. We have you pitched up about 4-1/2 degrees. Over.
+
+102:57:55 Armstrong: That's confirmed by our local observation.
+
+102:58:00 Duke: Roger. (Pause)
+
+[Because of the uneven terrain, the LM is tilted slightly backward. However, this is the smallest pitch/roll deviation of any of the landed LMs. Table 9.6.IV in the Apollo 11 Mission Report gives the orientation of the LM on the surface as indicated by the PGNS and AGS : pitch, +4.4 degrees (tilted back); roll, +0.5 degrees (Buzz's side of the spacecraft slightly higher than Neil's; and yaw, +13.3 degrees (a counterclockwise rotation around the vertical axis, hiding the LM shadow from Neil's view).]
+
+102:58:12 Collins: And thanks for putting me on relay, Houston. I was missing all the action.
+
+102:58:16 Duke: Roger. We'll enable MSFN (Manned Spaceflight Network) relay. (Pause)
+
+102:58:27 Collins: I just got it, I think.
+
+[Mike is in an orbit 60 nautical miles (110 km) above the surface, with a period of about 1 hour 58 minutes. In that orbit, he could maintain line-of-sight communications with the LM until he was below the Tranquility Base horizon, which would happen about 20/360ths of an orbit after passing over the landing site, or about 6.5 minutes. He passed over the landing site about about 102:41 which, because Eagle was decelerating throughout powered descent, was about five minutes before Eagle landed. He lost direct comm with the LM one or two mintues later and, thereafter, had heard no comm until Houston got the relay established. He has missed roughly eleven minutes of LM comm.]
+
+102:58:28 Duke: Rog, Columbia. This is Houston. Say something. They (the LM crew) ought to be able to hear you. Over.
+
+102:58:40 Collins: Roger. Tranquility Base, it sure sounded great from up here. You guys did a fantastic job.
+
+102:58:48 Armstrong: Thank you. Just keep that orbiting base ready for us up there now.
+
+102:58:55 Collins: Will do. (Long Pause)
+
+102:59:19 Duke: Columbia, Houston. LOS (Loss of Signal) 103:27; AOS (Acquisition of Signal) 104:13 . Over.
+
+102:59:32 Collins: Thank you.
+
+[Mike will go behind the Moon in about a half hour and re-emerge about forty-five minutes later.]
+
+[Comm Break.]
+
+103:00:44 Duke: Tranquility Base, Houston. All your consumables are solid. You're looking good in every respect. We copy the DPS (Descent Propulsion System) venting. Everything is copasetic. Over.
+
+103:00:58 Armstrong: Thank you, Houston.
+
+[Comm Break. They want to depressurize the propellant tanks so that any heating of the LM while it sits on the surface won't pressurize and possibly rupture a tank. The tanks are depressurized by venting the helium in the descent stage.]
+
+["Copasetic" is a word meaning "very satisfactory" which originate in about 1919 and was a part of popular, coffee-house culture during the early and mid-1950s when Charlie was in high school and the US Naval Academy.]
+
+103:02:03 Armstrong: Houston, the guys that said that we wouldn't be able to tell precisely where we are, are the winners today.
+We were a little busy worrying about program alarms and things like that in the part of the descent where we would normally be picking out our landing spot; and aside from a good look at several of the craters we came over in the final descent, I haven't been able to pick out the things on the horizon as a reference as yet.
+
+103:02:41 Duke: Rog, Tranquility. No sweat. We'll figure out...We'll figure it out. Over. (Long Pause)
+
+[During our 1991 mission review in Santa Fe, Buzz wanted to talk about the decision to do a simulated countdown at this point in the mission.]
+
+[Aldrin - "I've always had a question that I've never gotten around to posing to the other crews. Jack (Schmitt) and I had gotten involved in some of the timeline discussion - oh, maybe a year or less (before Apollo 11) - about what one ought to be doing right after you land. And it occurred to me that it would have been a number of days since we last trained in the simulator, and that most of that training would be on the critical landing. There would not have been a lot of (training on) lift-off preparation. And it occurred to me - everyone else thought it was a good idea, too - that the thing to do (right after the landing) was maybe to take the opportunity to rehearse what you might need to do in a hurry if you had to. Because, in fact, you might be on a countdown for a launch one rev later. So, why not go through the exact thing that you're going to do one day, two days, three days later (for the actual launch) and do a simulated countdown. So I had them put that in the flight plan. Maybe it's kind of a waste of two hours on the lunar surface; but it certainly seemed to me a well worthwhile investment of time. And I was kind of surprised - but, you know, who am I to judge - that the later crews didn't opt to do that. They had more time on the lunar surface than we did and, yet, they didn't do any. And I've often thought 'Well, it wasn't their idea, so why should they do what Aldrin and Armstrong did?'"]
+
+[Armstrong - "Just to add a bit to that, these procedures - the pre-lift-off procedures, launch prep, you might call it - had never been done before. And, since we had this (abort opportunity) coming up one (Command Module) orbit after the landing, and (since) we were going to have to do it the next day when we actually left, Buzz suggested - and I thought it was an excellent suggestion - that we use that opportunity to go through the procedures one time in the real world to (1) be ready if we needed it and (2) practice it and find out that those procedures really worked and everything seemed to be (okay). (For the later missions) they took it for granted that the procedures worked and, apparently, didn't need to convince themselves."]
+
+[Aldrin - "But the reason (for doing the simulated countdown) was not, necessarily, to see whether they worked or not, but to just have the comfort of having just recently gone through the lift-off procedures. Okay, so now you set that aside and you do all your surface stuff however long you're on there, and you know in your mind that, if anything comes up, 'Oh, I've just gone through the lift-off procedure; I'm familiar with those' So, if for some reason you've got to lift-off in a hurry or something like that, you know what it is you've got to do instead of scurrying down the checklist. Anyway, I'm just observing that I felt that those were good things and they were ignored and I didn't understand why."]
+
+103:03:32 Armstrong: You might be interested to know that I don't think we notice any difficulty at all in adapting to one-sixth g. It seems immediately natural to move in this environment.
+
+103:03:47 Duke: Roger, Tranquility. We copy. Over.
+
+[They have probably removed the waist-to-floor tethers that they wore during the landing to keep them firmly in place.]
+
+[Aldrin - "I can't remember hooking the tethers up before lift-off (from the Moon)."]
+
+[Armstrong - "I remember hooking them up, but I can't recall when that was."]
+
+[The relevant item is "Attach Restraints", which is the second line of Surface Checklist page Sur-58 .]
+
+[Aldrin - "You remember hooking yours up; I don't remember hooking mine up. But, I didn't notice that I was floating around when we got into orbit, either."]
+
+[During the landing, they also wore their gloves and helmets and, at this point in the mission review, I asked if the suits had been pressurized at all during the landing. Certainly, they wouldn't have wanted enough pressure in the suits to restrict hand motions.]
+
+[Aldrin - "It was probably just enough to give you flow (of oxygen through the suit). It wasn't a hard suit that would have constrained your actions. If anything (a little pressure) would have been easier because it would lift the suit."]
+
+[The Apollo 11 Flight Plan indicates that "For undocking, staging, descent, ascent, and rendezvous the LM crew will be fully suited. Before undocking, Neil and Buzz donned the suits and got hooked up to the Environmental Control System ( ECS ). Later, they donned their gloves and helmets and performed a pressure integrity check. They flew with the Suit Gas Diverter Valve set to Egress, which isolated the suits from the cabin and kept them at 3.8 psi. With the cabin pressurized, the suits weren't nearly as 'hard' as they would be in vacuum conditions.
+
+103:03:55 Armstrong: The area out the left-hand window is a relatively level plain cratered with a fairly large number of craters of the 5- to 50-foot variety; and some ridges (which are) small, 20, 30 feet high, I would guess; and literally thousands of little, 1- and 2-foot craters around the area. We see some angular blocks out several hundred feet in front of us that are probably two feet in size and have angular edges. There is a hill in view, just about on the ground track ahead of us. Difficult to estimate, but might be a half a mile or a mile.
+
+103:04:54 Duke: Roger, Tranquility. We copy. Over.
+
+[The 'hill' can be seen just to the right of the LM shadow in AS11-37- 5451 , which Neil took out his window prior to the EVA, and in AS11-37- 5454 and 5455 , which Buzz took out his window. These hills are discussed in section 4.5.4 in a new photogrammetric investigation of Tranquility Base by Journal Contributor Vlad Pustynski. The hills are raised portions of the rim of a 200m crater and are about 200m from the LM.]
+
+103:05:01 Collins: Sounds like it looks a lot better than it did yesterday...
+
+103:05:02 Armstrong: (Garbled under Mike)
+
+103:05:04 Collins: ...at that very low sun angle. It looked rough as a (corn) cob then.
+
+[With the Sun very low in the sky, even shallow, rimless craters are filled with shadow while those with rims cast long shadows on the surrounding terrain.]
+
+103:05:11 Armstrong: It really was rough, Mike. Over the targeted landing area, it was extremely rough, cratered, and large numbers of rocks that were probably some - many - larger than 5 or 10 feet in size.
+
+103:05:32 Collins: When in doubt, land long.
+
+103:05:38 Armstrong: That's what we did. (Long Pause)
+
+103:05:57 Duke: Tranquility, Houston. After you get through this P57, we'd like an E-memory dump. Over.
+
+[P57 is the platform alignment, beginning with a gravity alignment and followed by an alignment done with star sightings. The E-memory dump is simply a transmission to Houston of the contents of the computer's erasable memory. See Eldon Hall's Journey to the Moon: History of the Apollo Guidance Computer .]
+
+103:06:07 Aldrin: Roger. After this first P57, you want an E-memory dump.
+
+103:06:11 Duke: That's affirmative. (Pause) Columbia, Houston. We have a P22 update for you, if you're ready to copy. Over.
+
+103:06:27 Collins: At your service, sir.
+
+[For the LM, P22 is the program which uses the
+rendezvous radar ( LM-9 photo by Randy Attwood) to track the Command Module as it passes overhead.]
+
+[Aldrin - "His P22 was different than our P22. What he was trying to do was look in the sextant and try to see us."]
+
+[Armstrong - "I assume that what they're sending him are pointing angles for the sextant." (True)]
+
+103:06:29 Duke: Rog, Mike. T1, 104:32:18; T2, 104:37:28. And that is 4 miles south. This is based on the targeted landing site. Over.
+
+[The statement "4 miles south" indicates that Houston thinks the landing site is four miles south of Mike's ground track. Figure 5-14 in the Apollo 11 Mission Report shows the sextant targets that Mike tried on various passes over the landing site. Each of the small squares is 1 kilometer on a side and the circles, which represent the approximate sextant field-of-view, are each about 3.2 km (2 miles) in diameter. This first sextant target circle is, in fact, the only one that contains the actual landing site. According to the Mission Report, the LM is at lunar coordinates 0 degrees 41 minutes 15 seconds north, 23 degrees 26 minutes 00 seconds east. At 123:55:23 , about 30 minutes prior to LM liftoff, CapCom Ron Evans gives Mike a final positon estimate of J.5/7.7, which is only about 200 meters from the actual LM location at J.65/7.52 . The last estimate (J.5/7.7) is not shown in Figure 5-14 but was plotted by Mike as 'Last Bst Pos Prior L/O' on the flown copy of LAM-2 .]
+
+103:06:58 Collins: Okay. Roger. Understand. Based on the targeted landing site; T1, 104:32:18; T2, 104:37:28, and 4 miles south.
+
+103:07:10 Duke: Roger.
+
+103:07:13 Collins: Do you have any idea whether they landed left or right of center line? Just a little bit long, is that all we know?
+
+103:07:19 Duke: Apparently that's about all we can tell. Over.
+
+103:07:24 Collins: Okay. Thank you. (Long Pause)
+
+103:08:06 Duke: Tranquility, Houston...
+
+103:08:07 Armstrong: And, Houston, our mission timer is now reading 902:34:47 and static.
+
+[The timer is giving a nonsense reading and isn't advancing.]
+
+103:08:17 Duke: Roger. Copy your mission timer's now static. It...Say again the time.
+
+103:08:24 Armstrong: 902:34:47.
+
+103:08:35 Duke: Roger. Copy, Tranquility. That gravity align looked good to us. We see you recycling.
+
+103:08:47 Aldrin: Well, no. I was trying to get time, (Verb)16 (Noun) 65, out, and somehow it proceeded on to the 06 22 before I could do a Verb 32 Enter.
+I want to log a time here, and then I'd like to know whether you want me to proceed on the torquing angles or to go back and reenter again before torquing. Over.
+
+[David Woods tells us that Verb 16 - monitor in decimal form - and Noun 65 - time from the computer - would give Buzz the current Ground Elapsed Time. Buzz is doing the gravity alignment P57, on checklist page Sur-2 , which includes a step (Verb) 06 (Noun) 22, which displays the gimbal angles. Evidently, Buzz wanted to ask P57 to recycle to the beginning (Verb 32) so he could get the time with 16 65, but it proceeded with 06 22.]
+
+103:09:08 Duke: Rog, Buzz. Standby.
+
+[Comm Break]
+
+[Armstrong - "We needed to establish an initial attitude for the (inertial) platform. And the technique is to use a local vertical for one axis and use gravity to do that alignment. And the second is to use a star to align the platform in yaw, essentially."]
+
+[Jones - "In other words, what you need to know is the absolute orientation of the platform so that, when you're ready to leave, the spacecraft will know which way to go."]
+
+[Armstrong - "Precisely."]
+
+103:10:15 Duke: Tranquility, Houston. We'd like you to recall P57 and run through the gravity align one more time. Over.
+
+103:10:24 Aldrin: Roger. I concur with that.
+
+[Armstrong - "This type of alignment had never previously been done, and it was our interest, I think - since that would have to be done before launch - to get a chance to check that procedure out if we needed it for the first revolution (that is, needed to return to orbit when Mike came around again) or, if not, to have at least have gone through it before we had to do it the next day."]
+
+[Aldrin - "If you're going to have problems, it's best to have them happen now when you've got a lot of time."]
+
+103:10:26 Duke: Roger, Tranquility. For the mission timer, two suggestions. Check the circuit breaker, panel 11; also, Reset and attempt to start. That nine in the first digit might have something to do with it. Over.
+
+[Circuit breaker panel 11 ( CB(11) ) is at Neil's left shoulder while panel 16 ( CB(16) ) is at Buzz's right shoulder on the other side of the spacecraft.]
+
+103:10:45 Armstrong: Okay. We've tried both of those. If the circuit breaker is in, when I put it in Reset, I get 902:04:40. When I release it now, I get 902:04:49. I'm going to cycle the circuit breaker.
+
+103:11:08 Duke: Roger.
+
+103:11:12 Armstrong: I cycled the circuit breaker and got all nines. (Pause) And it will not now reset from all nines.
+
+103:11:22 Duke: Roger. (Long Pause)
+
+[Journal Contributor Frank O'Brien writes, "Also, the reason why cycling the breaker worked was most likely because a
+weak solder joint expanded from the heat, opening the circuit. Pulling the
+breaker allowed the equiment to cool off, reseal the cracked joint and
+continue operation."]
+
+103:11:37 Duke: Tranquility, Houston. We'll research this problem and be back with you momentarily on the mission event time - correction - the mission timer.
+
+103:11:47 Armstrong: Okay. (Long Pause)
+
+103:12:44 Armstrong: I'd say the color of the local surface is very comparable to that we observed from orbit at this Sun angle - about 10 degrees Sun angle, or that nature. It's pretty much without color.
+It's gray; and it's a very white, chalky gray, as you look into the zero-phase line. And it's considerably darker gray, more like ashen gray as you look out 90 degrees to the Sun.
+Some of the surface rocks in close here that have been fractured or disturbed by the rocket engine plume are coated with this light gray on the outside; but where they've been broken, they display a very dark gray interior; and it looks like it could be country basalt.
+
+[Neil's choice of inflection in this statement led me to ask if they had expected to see basalts.]
+
+[Armstrong - "We didn't expect any limestone."]
+
+[Aldrin - "Whatever I saw, I wasn't going to be too disappointed. I don't think I do now, nor do I think I did then, very much, have that much of an expectation or guess as to just what it might be. Whatever it is is okay with me."]
+
+[Armstrong - "I think both of us were trying to just describe what we saw whenever we had a little free time. Anything that might be helpful to the science teams on the ground. They'd been waiting a long time for this information."]
+
+[Regretably, I didn't ask Neil what he meant by ""country" basalt. One possibility that he means pieces of basalt not clearly associated with a visible lava bed. The important point is that he says it looks like basalt.]
+
+[I noted that they'd had geology field trips at various times over the years and asked if that had intensified in the months leading up to Apollo 11.]
+
+[Armstrong - "I'm not sure that we did any after we were assigned to the flight. We may have done one; but I don't remember. I think that most of that work was done earlier when we were not tied up with flight assignments."]
+
+[In fact, Neil and Buzz had only one field trip after being assigned to Apollo 11. That trip was a one-day exercise on February 24, 1969 to Sierra Blanca, Texas along with the backup LM crew, Jim Lovell and Fred Haise. The relative lack of geology work is unsurprising given the fact that the overwhelming focus of the training and the mission was a safe and successful first landing. NASA photo S69-25944 shows Neil and Buzz examining rock samples near the ruins of Fort Quitman. Apollo 16 geology team leader Bill Muehlberger writes, "They went into the large arroyos to learn how to sample when a variety of rocks are spread out. I wasn't part of (the Sierra Blanca field trip), but I have heard about it from Gordon Swann, Dale Jackson, and Uel Clanton."]
+
+[NASA photo S67-33609 , scanned from Gene Simmons' On the Moon with Apollo 16 - A Guidebook to the Descartes Region by Ken Glover, shows Neil (right) with Ken Mattingly during a geology field trip to Iceland in 1967.]
+
+[NASA photo S64-23847 shows a group of twenty astronauts at Philmont Scout Ranch during the 3-6 June 1964 field trip. From left to right, they are: Pete Conrad, Buzz Aldrin, Dick Gordon, Ted Freeman, Charlie Bassett, Walt Cunningham, Neil Armstrong, Donn Eisele, Rusty Schweikhart, Jim Lovell, Mike Collins, Elliot See, Gene Cernan (behind See), Ed White, Roger Chaffee, Gordon Cooper, C.C. Williams (behind Cooper), Bill Anders, Dave Scott, Al Bean. In the caption for this picture in Don Wilhelms' excellent book To a Rocky Moon - A Geologist's History of Lunar Exploration , Wilhelms writes "As they posed, they realized their resemblance to a glee club and spontaneously hummed a note to establish pitch."]
+
+103:14:02 Duke: Roger. Tranquility, we see the Noun 93. (Pause) Verb 34.
+
+103:14:10 Aldrin: Roger. I assume you want us (to)... (Hears "Verb 34") Roger. (Long Pause)
+
+[Buzz is at the bottom of Sur-2 . David Woods writes, "Noun 93 is the delta gyro angles which give the differences between the prealignment and post-alignment orientation of the platform. It is essentially a measure of how much the platform had to move to achieve proper alignment." The Greek letter delta ( &Delta; / &delta;), the ancestor of the modern Latin letter ' D / d', is often used in mathematics to indicate a difference, in this case, a difference in gyro angles.]
+
+103:14:32 Duke: Tranquility, Houston. Please vent fuel and Ox(idizer pressure) again. Over. It's building back up.
+
+[See the comment at 103:16:41 below]
+
+103:14:42 Armstrong: Okay. Ox going now. (Pause)
+
+103:14:52 Duke: Tranquility, Houston. You can open both fuel and Ox vent now. Over.
+
+103:14:59 Armstrong: Okay.
+
+103:15:01 Aldrin: Houston, Tranquility standing by for Go on AGS to PGNS align and a lunar align. Over.
+
+103:15:09 Duke: Stand by. (Pause) Tranquility, Houston. You are Go for the AGS to PGNS align, and then the lunar align. Over.
+
+103:15:26 Aldrin: Roger. (Long Pause)
+
+[Buzz is at the end of the top paragraph on Sur-3 . Houston will look over the proposed alignment before it is loaded.]
+
+[Aldrin - "You've got the previous alignment in the AGS and you've just re-aligned the PGNS and, if that (new PGNS alignment) isn't very good, you don't want to screw up the one in the AGS. If it is (good), you store it in the AGS."]
+
+103:15:44 Duke: Tranquility, Houston. Please vent the fuel. It's increasing rapidly. Over. (Pause)
+
+103:16:00 Armstrong: We show 30 psi in the fuel and 30 in the oxidizer (which are not unusual readings).
+
+103:16:05 Duke: Roger. We're reading somewhat different than that. Standby.
+
+103:16:14 Armstrong: The fuel temperature is reading 64 in the descent, and the oxidizer...(Clarifying what he has just said) That's descent (tank) 2. And the oxidizer is off-scale low. Descent 1 is showing 61 in the fuel and 65 in the oxidizer.
+
+103:16:41 Duke: Roger. Standby. (Pause) Tranquility, Houston. Please take the fuel vent switch and hold it open. Over.
+
+[Armstrong - "That switch was momentary to the vent position, which would account for why you couldn't just leave it open."]
+
+103:17:01 Armstrong: Okay. We're holding it open. Indicating about 24 psi on board.
+
+103:17:09 Duke: Roger. (Long Pause)
+
+103:17:34 Armstrong: Now indicating 20 psi on the fuel side.
+
+103:17:37 Duke: Roger.
+
+103:17:38 Armstrong: And 22 in the OX.
+
+103:17:41 Duke: Roger.
+
+[Comm Break]
+
+103:18:47 Armstrong: Now indicating 15 psi in both tanks.
+
+103:18:51 Duke: Roger. (Long Pause)
+
+103:19:17 Duke: Tranquility, Houston. If you haven't done so, you can release the fuel vent switch now. Over.
+
+103:19:25 Armstrong: Roger.
+
+[Comm Break]
+
+[Aldrin - (Chuckling) "You were holding the switch all that time?"]
+
+[Armstrong - "Yes."]
+
+103:20:52 Duke: Tranquility, Houston. We have an indication that we've frozen up the descent-fuel helium heat exchanger - and with some fuel trapped in the line between there and the valves...And the pressure we're looking at is increasing there. Over.
+
+103:21:10 Armstrong: Roger. Understand. (Long Pause)
+
+[Later, the NASA Public Affairs commentator tells the press that there is a small amount of fluid trapped in a line and, if the pressure had continued to increase, the worst that could have happened would have been a small leak which would then have relieved the pressure. A fuller discussion is linked here .]
+
+103:22:04 Duke: Tranquility Base, Houston. If you have not done so, please close both Fuel and Ox vents now. Over.
+
+103:22:17 Armstrong: They're closed.
+
+103:22:18 Duke: Thank you, sir. (Long Pause)
+
+103:22:30 Armstrong: From the surface, we could not see any stars out the window; but out my overhead hatch (means the overhead rendezvous window), I'm looking at the Earth. It's big and bright and beautiful. Buzz is going to give a try at seeing some stars through the optics.
+
+103:22:54 Duke: Roger, Tranquility. We understand. Must be a beautiful sight. Over.
+
+[Comm Break]
+
+[Gene Cernan says that, while standing in the shadow of the Apollo 17 LM, he could see some stars while he was outside. I asked the 11 crew if they had made any such experiment.]
+
+[Armstrong - "I don't recall doing it on the surface. We tried a good bit inside."]
+
+[Aldrin - "I guess I wouldn't have given it any hope at all."]
+
+[Armstrong - "There was a thought that, if you could look through a tube, you would probably be able to see stars. I don't remember that we tried anything like that."]
+
+[Aldrin - "You could see them in the AOT, which was sort of like that."]
+
+[Armstrong - "Which was just one power (meaning a telescope with no magnification)."]
+
+[A related question is whether or not stellar images could have been captured in any of the lunar surface photography. A discussion from Sky and Telescope Editor Dennis di Ciccio is linked here .]
+
+[Buzz is about to do a platform alignment using the Alignment Optical Telescope ( AOT ) to do star sightings.}
+
+[Aldrin, from the 1969 Technical Debrief - "The ideal was to get a gravity direction and then to do a two-star alignment and look at the torquing angles after the two-star check which would then give an indication as to what the drift had been since the last alignment.
+The initial gravity alignment, combined with the two-star alignment, would produce a new location of the landing site. (See below.)
+Had we landed straight ahead (instead of being yawed left 13 degrees), my intent was to use Rigel in the left (rear) detent number 6 and Capella in the right (rear) detent . The 13-degree yaw moved Capella out of the right-rear detent, but Rigel was in good shape there. That's the one I used first. I then selected Navi in number 4 detent, the right rear, and that wasn't particularly satisfactory. It was quite dim and it took a good bit longer than I had hoped to get the marks on that."]
+
+[Contrary to Buzz's statement here, the alignment procedures gave no information about landing site location. Frank O'Brien adds, " The gravity alignment and stellar alignments performed the same function, namely, to align the IMU to a known attitude. In both cases, the attitude was determined with respect to two vectors: either two stars (a stellar alignment) or one star and the local vertical as indicated by gravity (a gravity alignment). Neither procedure was used to determine position, which was the purpose of the state vector."]
+
+103:24:52 Duke: Columbia, Houston. Two minutes to LOS. You're looking great going over the hill. Over. (Pause)
+
+103:25:08 Collins: Okay. Thank you. Glad to hear the system's looking good. You have a suggested attitude for me? This one here seems all right.
+
+103:25:15 Duke: Stand by. (Pause)
+
+103:25:21 Collins: Let me know when it's lunch time, will you?
+
+103:25:24 Duke: Say again.
+
+103:25:29 Collins: Ah, disregard.
+
+103:25:31 Duke: Columbia, Houston. You got a good attitude right there.
+
+103:25:37 Collins: Okay. Thank you.
+
+[Long Comm Break. NASA Public Affairs announces to the media that Neil's heart rate at PDI was 110; at touchdown it was 150; now it is in the 90s. While they were in the spacecraft, only one of them could be monitored at a time and, for obvious reasons, it was always the Commander who was monitored during the landing. Of all of the landing-mission Commanders, Neil had the highest heart rate at touchdown. See figure 12-1 in the Apollo 11 Mission Report.]
+
+[Armstrong - "That's not surprising."]
+
+[Pete Conrad's heart rate was not recorded during the Apollo 12 descent. Of the remaining Commanders, John Young set the record low of 89 at the moment of Apollo 16 touchdown, while the other three were all in the mid to upper 90s.]
+
+103:33:16 Duke: Tranquility Base, Houston. If you want me to, I can give you a hack on the mission time, every 30 minutes. Over. (Long Pause) Tranquility, Houston. I'm counting down to T3 time.
+If you'd like to give me a hack, we can set up an event timer. Over.
+
+[T3 is the next pre-programmed launch opportunity, in this case a chance to catch Mike when he passes overhead on his second post-landing pass.]
+
+103:34:22 Aldrin: Okay. How about counting up?
+
+103:34:23 Duke: Roger. You want it counting up? Stand by.
+
+[Comm Break. While Buzz is doing the star sightings, they have shades drawn over the LM windows, hence the lack of commentary by Neil about the view outside.]
+
+103:35:30 Duke: Tranquility, Houston. On my Mark, 62:30. Mark. 62:30 past PDI. (Pause)
+
+103:35:46 Armstrong: What we're looking for, Charlie, is the time counting up to T2 that'll be equal to 60 minutes...(Correcting himself) Or, at T3 be equal to 60 minutes at T3.
+
+103:35:56 Duke: Roger. We'll have it for you. (Long Pause)
+
+[They have an event timer on the control panel - essentially a stopwatch - and they want to set it so that it reaches 60:00 at T3.
+The reason for doing this is so that, if they have lost comm with Houston and need to launch, they will know when to do so for a relatively easy rendezvous with Mike.]
+
+103:36:28 Duke: Tranquility Base, Houston. Reset the event timer to zero. And, on my Mark at 103:39:41, we'll give you a hack, and it'll be 1 hour (prior to T3). Over.
+
+103:36:44 Armstrong: Roger.
+
+103:36:45 Duke: And we've got almost 3 minutes to go, Neil. Over.
+
+103:36:51 Armstrong: Okay.
+
+[Comm Break]
+
+103:39:16 Duke: Tranquility Base, stand by on the event timer. (Pause) Tranquility Base, Houston. On my Mark start your event timer. (Pause)
+
+103:39:36 Duke: 5, 4, 3, 2, 1. Mark.
+
+103:39:46 Armstrong: Roger. We got it; thank you.
+
+103:39:47 Duke: Rog, Neil.
+
+[Long Comm Break. Houston estimates that the landing site is at 0.799 degrees north and 23.46 degrees east, or about 4 miles long. Charlie will give this information to Mike at 104:15:13 . The actual coordinates are 0.674 degrees north and 23.473 degrees east. On the copy of landing site map LAM-2 flown in the Command Module and bearing Mike's handwritten notes, the grid spacing is one kilometer. The target point at the center of the landing ellipse has map coordinates of L.0/14.0 and the actual landing location is J.65/7.52 (roughly two thirds of a grid spacing from the horizontal 'J' line toward the 'K' line and half a spacing from the vertical '7' line to the '8' line). The spot '4 miles long is at L.0/7.6. This location is also the center of the first sextant location shown in Figure 5-14 in the Apollo 11 Mission Report .]
+
+MP3 Audio Clip
+(53 min 30 sec; 51Mb) from the Public Affairs loop starting at about 103:39:57. Clip courtesy John Stoll, ACR Senior Technician at NASA Johnson.
+
+103:47:19 Duke: Tranquility, Houston. We see the star-angle difference. Looks good.
+
+103:47:29 Aldrin: Okay. That last star was Navi , and it wasn't too well distinguishable. I can see where that error could come in. I think for the gravity alignment with one star, Rigel will be quite good.
+
+103:47:42 Duke: Roger. Stand by on the Noun 93. (Long Pause) Hello, Tranquility Base. Houston. We'd like you to torque that. Over.
+
+[Comm Break. They are about two-thirds of the way down Surface Checklist page Sur-5 .]
+
+103:49:19 Aldrin: Houston, this is Tranquility. Do you want us to accept this position? Over.
+
+103:49:24 Duke: Tranquility, Houston. We're looking at it. Stand by. We'd like you to pull the circuit breaker on panel 11 for the mission timer. Over.
+
+103:49:35 Armstrong: Rog. I've already done that, Charlie.
+
+103:49:37 Duke: Okay. (Long Pause)
+
+[The reason for pulling the circuit breaker is to let the cracked solder joint cool down enough that it will stay closed the launch and ascent - which it does.]
+
+103:50:20 Duke: Tranquility, Houston. We'd like you to reject that RLS (Reference Landing Site). Over.
+
+103:50:29 Aldrin: Roger.
+
+103:50:32 Duke: And, Tranquility Base, Houston. We'd like you to call...After this, call P00 and give us a E(rasable)-memory dump. (Long Pause)
+
+103:51:24 Aldrin: Okay. Here comes the E-memory dump.
+
+103:51:28 Duke: Roger. (Long Pause)
+
+[They are at the bottom of Sur-5 and, once they are done, they will raise the shades and take photographs out Neil's window to the south and out Buzz's window to the north.]
+
+103:51:41 Aldrin: And we got 1106.
+
+[O'Brien - "A program alarm 1106 is an error during an E-memory dump."]
+
+103:51:43 Duke: Roger. (Long Pause) Hello, Tranquility Base; Houston. Did I copy Program Alarm 1106 from you? Over.
+
+103:52:16 Aldrin: Rog. That's affirmative.
+
+103:52:18 Duke: Okay. Stand by.
+
+103:52:19 Aldrin: Could that, by any chance, be due to the fact that I flashed the updata link switch to Data while that was going on? Over.
+
+103:52:29 Duke: Stand by. (Pause) Hello, Tranquility Base; Houston. The SPAN guys think that's conceivable. Stand by. I think we want another Verb 74.
+
+103:52:51 Aldrin: Okay. Standing by. (Pause)
+
+103:53:02 Duke: Hello, Tranquility Base; Houston. We'd like another Verb 74. Over.
+
+103:53:13 Aldrin: Roger. Here it comes. (Long Pause)
+
+103:53:54 Duke: Tranquility Base, Houston. On my Mark it will be GET (Ground Elapsed Time) 103:53
+
+[That is, Ground Elapsed Time 103:53:00 since launch. He actually means 103:54.]
+
+103:54:00 Duke: Mark. 53...Correction, 54.
+
+103:54:09 Aldrin: Roger.
+
+103:54:14 Duke: Hello, Tranquility. Houston. We have the LM ascent Pad. If you're ready to go. Over.
+
+103:54:28 Armstrong: Stand by. (Pause)
+
+[Before doing the photography, they are completing the tasks on Sur-7 . Specifically, they are copying down data they would need for a launch at T-3. Buzz will write the data on some pre-printed forms.]
+
+103:54:38 Aldrin: Roger. Ready to copy the LM ascent Pad.
+
+103:54:42 Duke: Rog, Tranquility. Tig, 104:39:47:00, 55358, 00322, plus 0022. DEDA 47, plus 37130, minus 70615, plus 58620, plus 56936. Over.
+
+[Next, Buzz will do a readback to be certain that he has copied the numbers correctly.]
+
+103:55:28 Aldrin: Roger. LM ascent Pad: 104:39:47:00, 55358, 00322, plus 0022, plus 37130, minus 70615, plus 58620, plus 56936. Over.
+
+103:55:53 Duke: Roger, Tranquility. Good readback. We also have a CSI Pad if you are ready to copy. (Pause)
+
+103:56:10 Armstrong: Okay. We are ready to go.
+
+103:56:12 Duke: Roger. Coming at you with a CSI: Noun 11, 105:35:3700; 107:11:3000, 0538, minus all zeros. FDAI is NA; 0937...Correction, 09356; 10315; plus 0538, minus all zeros, plus 0012. Over.
+
+103:57:08 Armstrong: Roger. Say again Rl and Noun 86.
+
+103:57:12 Duke: Roger. Rl is plus 0538, and we have a load for you. Will you please give us P00 and Data? Over.
+
+103:57:25 Aldrin: Roger. Before I do that I would like to designate the rendezvous radar up to plus-X.
+
+103:57:30 Duke: Roger. (Long Pause)
+
+[By putting the computer in Program 00 and Data, they will be able to accept memory updates radioed up from Houston. In moving the rendezvous radar "up to plus X", Buzz will be pointing it at the zenith.]
+
+103:57:44 Armstrong: Okay. CSI readback: Noun 11, 105:35:3700, 107:11:3000, 0538, minus all zeros, NA, 09356, 10315. Noun 86, plus 0538, plus all zeros, and the last one was 0012. And what's the sign of that, please? (Long Pause)
+
+103:58:55 Duke: Tranquility, Houston. The Delta-VY is minus all zeros. The Delta-VZ is plus 0012. Over.
+
+103:59:08 Armstrong: Roger. Plus 0012.
+
+103:59:10 Duke: Rog. Good readback. (Long Pause)
+
+103:59:41 Aldrin: Houston, Tranquility Base. The DSKY 's yours, and updata link to Data.
+
+103:59:47 Duke: Roger. Thank you, Tranquility.
+
+[Comm Break. Buzz is telling Houston that he has put the computer in P00 and Data. Neil and Buzz may now be taking pictures out the windows. A discussion of the window photography is linked here .]
+
+[I noted that Houston has just read up a long Pad of data and is now sending more data electronically and asked why.]
+
+[Aldrin - "We copied the data down that was useful to us in the normal sense for the activities that were going to be happening. CSI (for example), was a maneuver after we lifted off.
+What we copied wasn't the same data as what was going in the computer."]
+
+[Armstrong - "We copied maneuver data - time of ignition and things (like that) - and we always wanted to have that information current so that if we lost comm we would have a basis for knowing what we were doing and wouldn't have to rely on just the computer being absolutely right.
+We wanted a sense of what was supposed to be happening. The numbers (that Charlie read up) are times and what look like three axes of position and velocity."]
+
+[I asked if they had extensive training for the contingency of a major computer loss.]
+
+[Armstrong- "We wanted to be able to get off (the Moon) on either PGNS or AGS without comm, if we had to."]
+
+[Aldrin - "We had the capability, if the PGNS was working, to go through with the rendezvous maneuvers and if the AGS was too.
+And of course, the radar, if it was working, would close the loop. He (Collins) could make the maneuvers or he could track and feed maneuvers to us. It depends on what communications had failed - back to the Earth or a total communications failure."]
+
+[Armstrong - "We did have an open-loop program for going up into orbit without (either) PGNS or AGS, but we didn't have a lot of confidence in our ability to get into a safe orbit with that.
+There would have been no reason not to try it if that's all you had."]
+
+[Generally, NASA's Apollo philosophy was to not try to cover double-mode failures - situations in which there have been simultaneous failures of two systems such as the loss of both computers, or the loss of comm and one or both of the computers.]
+
+104:02:26 Duke: Hello, Tranquility Base. Houston. On my Mark it will be 37 minutes to T3. Over.
+
+104:02:35 Armstrong: Okay.
+
+104:02:42 Duke: Stand by. Mark. Thirty-seven minutes 'til T3.
+
+104:02:50 Armstrong: Okay; thank you. (Long Pause)
+
+104:03:10 Duke: Tranquility, this is Houston. It's your computer. We got the load in. You can start your P57.
+
+104:03:18 Armstrong: Roger; thank you.
+
+[Comm Break]
+
+[Neil and Buzz are about to start another platform alignment.
+They probably have taken pictures out the windows during the last few minutes, as per Surface Checklist page Sur-6 . They have three magazines onboard the LM: two color (HCEX) magazines, 37/R and 40S, and one black-and-white magazine, 39/Q. The pre-EVA window photos are AS11-37- 5449 to 5459, AS11-39- 5737 to 5791, and AS11-40- 5847 to 5849. On the whole, the B&W pictures capture detail better than the color pictures. They also had two Hasselblad cameras: a black IVA camera and a silver-colored EVA camera intended for use outside the spacecraft. A discussion of the various photographer/camera/magazine combinations that occured is linked here .]
+
+[Charlie's "Mark" at 104:02:42 was at 21:34:26 UTC on 20 July 1969. At that time, the solar elevation and azimuth was 11.37 and 88.81, respectively.]
+
+[AS11-37- 5454 is one of Buzz's photos, showing the LM shadow and the horizon. From the bottom of the footpads to the top of the rendezvous radar, the LM is 7.04 meters tall and, on level ground with the solar elevation 11.37 degrees, the LM shadow would be 35 meters long. Yuri Krasilnikov has made an animated GIF ( 0.3 Mb or 2.7 Mb ) from 5454 and AS11-37- 5477 , which Buzz will take after the EVA at about 05:43 on 21 July 1969. At that time, the shadow length was about 25 meters.]
+
+[They have two
+Hasselblad cameras : an EVA camera with a reseau plate and an IVA camera without a reseau plate. Both sets of photos discussed here have reseau crosses on the images, an indication that they were taken with the EVA camera. See the discussion following 109:26:54 .]
+
+[During the 1969 Technical Debrief, Neil and Buzz made the following comments about the view out the window.]
+
+[Armstrong, from the 1969 Technical Debrief - "The things that seem worthy of comment here are observations from the window prior to lunar surface work. We were in a relatively smooth area covered with craters varying (in diameter) from up to perhaps 100 feet in the near vicinity down to less than a foot, with density inversely proportional to the size of the crater. The smaller they were, the more there were of them (in a given area).
+The ground mass was very fine silt, and there were a lot of rocks of all sizes, angularities, and types in the area. Our immediate area was relatively free of large rocks (which is why Neil landed in it).
+Several hundred feet to our right (north), there was a significant boulder field - an array of boulders, essentially, that had many boulders greater than 1 or 2 feet in size.
+We were never able to get into that area to look at those rocks in detail."]
+
+[Aldrin, from the 1969 Technical Debrief - "Distances are deceiving. When we looked at this fairly large boulder field off to the right, it didn't look very far away at all, before we went out(side). Of course, once we got out, we wandered as far out as seemed appropriate; (and), of course, we never came close to this particular field. What really impressed me was the difference in distances. After we were back in(side) again, looking out at the flag, the television, and the experiments, they looked as though they were right outside the window. In fact, on the surface, we had moved them a reasonable distance away. So I think distance judgment is not too good on first setting down. The tendency is to think that things are a good bit closer than they actually are. This says they (meaning the boulders) are probably a good bit larger than what we might have initially estimated."]
+
+[Interested readers might want to compare AS11-40- 5952 , which shows the Lunar Ranging Retro-Reflectometer (LRRR or LR-cubed)
+from near the deployment site with the LM in the background, with AS11-37- 5551 , which is a post-EVA shot out Neil's window showing the LRRR out past the LM thrusters.]
+
+[Jack Schmitt, the Apollo 17 LMP, seemed to have less trouble estimating distances than did the others.
+During our Apollo 17 mission review, he suggested that, in addition to the problem of not having familiar objects in the scene to help with distance estimates, the absolute lack of obscuration by haze is an important factor.
+On Earth, haze makes distant objects less distinct than nearby objects and helps us judge relative distance.
+On the Moon, there is no atmosphere and no haze, so everything looks distinct and close.
+Readers who have spent time both in dry climates - such as the mountain west of the United States - and in wet climates - such as Florida - will have experienced a similar effect.
+The dry air of the West is clearer and, there, distant objects look much closer than they would in the wet air of the East.
+During the second Apollo 17 EVA, Gene Cernan also commented that the lack of color variation along a line of sight also contributed to the difficulty of estimating distances.]
+
+[Journal Contributor Ken Glover adds: "These discussions about judging distances on the moon always remind me of a trip I took several years ago to Baffin Island, in the Arctic. We hiked up a mountain there, and our local 'guide' was showing me how to distinguish distances using colour, that is; the blues and greys (I don't now recall which was near or far) in the absence of ANY other means of judging distance. I still found it difficult to do, but I guess one would get used to it in time. It was cool."]
+
+[Armstrong, from the 1969 Technical Debrief - "Probably the most surprising thing to me, even though I guess we suspected a certain amount of this, was the light and color observations of the surface. The down-Sun area was extremely bright. It appeared to be a light tan in color, and you could see into the washout region reasonably well. Detail was obscured somewhat by the washout, but not badly. As you proceeded back toward cross-Sun, brightness diminished, and the (tan) color started to fade, and it began to be more gray. As we looked back as far as we could from the LM windows, the color of the surface was actually a darker gray. I'd say not completely without color, but most of the tan had disappeared as we got back into that area, and we were looking at relatively dark gray. In the (LM) shadow, it was very dark. We could see into the shadows, but it was difficult."]
+
+[Aldrin, from the 1969 Technical Debrief - "We could see very small gradations in color (and brightness) that were the result of very small topographical changes."]
+
+[Armstrong, from the 1969 Technical Debrief - "Of course, when we actually looked at the material, particularly the silt, up close, it did, in fact, turn out to be sort of charcoal gray or the color of a graded lead pencil. When you're actually faced with trying to interpret this kind of color and that light reflectivity, it is amazing."]
+
+[Aldrin, from the 1969 Technical Debrief - "When illuminated, it did have a gray appearance, very light gray."]
+
+104:05:19 Aldrin: Houston, Tranquility Base. Does somebody down there have a mike button keyed? Over.
+
+[Buzz is asking if anyone connected to the audio circuit has a microphone switched on (keyed). Normally, the CapCom is the only person who transmits to the astronauts, but there are others who have the ability to do so if appropriate. Among these are the Flight Director and, designated individuals at the three tracking stations. See, for example, John Saxon's account of his conversation with the Apollo 16 crew when a communications link between Houston and the Honeysuckle Creek receiving station went down shortly after EVA-2 wake-up. Normally, anyone with the ability to talk to the crew would 'key' that circuit before talking to them and then switch off when the exchange was finished.]
+
+[On a historical note, beginning in the 1920s, the word 'microphone' was often shortened to 'mike'. Beginning in the 1960s, 'mic' came into fashion. Because the Apollo checklists use 'mike', the Journal uses that version.]
+
+104:05:26 Duke: Stand by, and we'll check. (Long Pause) Tranquility, Houston. Do you still hear it now? Over.
+
+104:05:59 Aldrin: I still hear it. It sounds like somebody's banging some chairs around in the back room.
+
+104:06:05 Duke: Roger. That's a VOGAA that you hear for the CSM to keep the noise down on the loop. Maybe we got a MSFN relay or something. Stand by.
+
+104:06:17 Aldrin: Okay. (Long Pause)
+
+104:06:43 Duke: Tranquility, Houston. We got the MSFN relay in. You're hearing the VOGAA, which is a noise suppression device. We'll try to take it out. Over.
+
+104:06:55 Aldrin: All right. Thank you.
+
+[Comm Break]
+
+104:08:00 Duke: Tranquility, Houston. It ought to be a little quieter up there now. We disabled the MSFN relay.
+
+104:08:11 Aldrin: Okay. I think the noise has stopped now. Thank you, Charlie.
+
+104:08:13 Duke: Roger.
+
+[Long Comm Break]
+
+104:14:32 Duke: Tranquility Base, Houston. On my Mark, 25 minutes 'til T3. Stand by. Mark. 25 minutes until T3.
+
+104:14:52 Armstrong: Roger. Thank you, Charlie. (Pause)
+
+104:15:00 Collins: Houston, Columbia. How's it going?
+
+104:15:02 Duke: Columbia, Houston. We're reading you about three-by. Over.
+
+104:15:10 Collins: Roger. I'm on Omni Charlie. How's it going?
+
+[There are four omni-directional antennas on the Command Module: A, B, C (Charlie), and D.]
+
+104:15:13 Duke: Roger. Understand. Omni Charlie. Mike, be advised we have an update for you on the P22 for the LM. We estimate he landed about 4 miles downrange. Your T1 times are updated and your T2, if you're ready to copy. Over.
+
+[In about two minutes, Charlie tells Mike that he will give him a map location, but never does. On the copy of landing site map LAM-2 flown in the Command Module and bearing Mike's handwritten notes, the grid spacing is one kilometer. The target point at the center of the landing ellipse has map coordinates of L.0/14.0 and the actual landing location is J.65/7.52 (seven tenths of a grid spacing from the horizontal 'J' line toward the 'K' line and four tenths from the vertical '7' line to the '8' line). The spot '4 miles long is at L.0/7.6. This location is also the center of the first sextant location shown in Figure 5-14 in the Apollo 11 Mission Report . Mike did not mark this location.]
+
+104:15:33 Collins: Ready to copy.
+
+104:15:37 Duke: Okay. Roger, Columbia. T1 104:32:24, 104:37:33, 2 miles south. Time of closest approach is 104:39:08 . (Pause)
+
+104:16:08 Duke: Hello, Tranquility Base. Houston. We copy the Noun 93. You can torque them. Over.
+
+[Comm Break. They may be on page Sur-10 , in the paragraph just above the box.]
+
+104:17:30 Collins: You said 4 miles long, is that correct, Houston?
+
+104:17:34 Duke: That's affirmative,...
+
+104:17:34 Aldrin: Houston, do you have an updated LM weight for us? Over.
+
+104:17:35 Duke: ...Columbia. It's about 4 miles long. Stand by. We'll have you a map location momentarily. Over. (Long Pause)
+
+104:18:38 Aldrin: Houston, Tranquility Base. Do you have an updated LM weight for us? Over.
+
+104:18:42 Duke: That's affirmative. Stand by on the DAP (Digital Auto Pilot). Our DAP Pad for you is LM weight 10906 (terrestrial pounds). Over.
+
+104:18:59 Aldrin: Roger. 10906.
+
+104:19:02 Duke: Rog. (Long Pause)
+
+[O'Brien - "One of the many tasks of the Digital AutoPilot is to calculate the firing times of the RCS thrusters for a given rotational rate. Because the LM's moment-of-inertia changes significantly with changes in weight, the DAP needs the most up-to-date value for optimal performance."]
+
+[Neil and Buzz are near the top of Sur-11 in the simulated countdown.]
+
+104:19:25 Duke: Columbia, Houston. With a latitude (and) longitude-over-two update for LM position. Over. (Pause) Columbia, Houston. Over.
+
+[Neil thought that, perhaps, they used the actual longitude divided by two to get more significant digits.]
+
+[Armstrong - "But why? I don't know."]
+
+[O'Brien - "The choice of 'longitude-over-two' was a way to realize three decimal digits of precision. As the computer display was limited to only five digits, it could not display the full range of longitude (plus or minus 180 degrees) plus the necessary three decimal digits. By dividing the longitude by two, a precision of +/- 0.002 degrees could be obtained." Because the full range of latitude is only plus or minus 90 degrees, it was not necessary to use the artifice of 'latitude-over-two'.]
+
+[The latitude and longitude of the landing site given in the Mission Report are 0.688 degrees north and 23.433 degrees east, respectively. A discussion of landing site coordinates is linked here .]
+
+104:20:26 Collins: Go ahead, Houston.
+
+104:20:28 Duke: Roger, Mike. We got an update on the lat(itude)/longitude for the LM, if you're ready to copy. Over.
+
+104:20:36 Collins: Go ahead. Go ahead.
+
+104:20:42 Duke: Roger. Columbia, it's plus 7 - correction - plus 0.799 for the Lat, plus 11.730 for the longitude-over-two. Over.
+
+[The difference between 23.46 degrees (2 x 11.730) and 23.433 degrees is 0.023 degrees or 0.6 kilometers on the ground.
+The difference in latitude corresponds to 2.8 kilometers on the surface. With the actual LM location at map coordinates J.65/7.52 , the latitude/longitude Charlie has just given to Mike correspond to map coordinates of M.5/8.0. See the discussion following 104:42:48 .]
+
+104:21:02 Collins: Thank you. The altitude remain unchanged?
+
+104:21:08 Duke: Say again. Over.
+
+104:21:12 Collins: Does the altitude remain unchanged? I guess it would.
+
+104:21:16 Duke: That's affirmative. (Long Pause) Hello, Tranquility Base; Houston. You are stay for a T3. We have some surface block data if you're ready to copy. Over.
+
+104:21:40 Armstrong: Roger. Understand we're stay for T3. Stand by. (Long Pause) Okay, Houston. Go ahead with your block data.
+
+[The following are estimated launch times for successive Command Module passes over the landing site.]
+
+104:22:30 Duke: Rog, Tranquility. T4, 106:38:02; T5, 108:36:15; T6, 110:34:30; T7, 112:32:45. Over.
+
+104:23:05 Armstrong: Copy. T4, 106:38:07(sic); T5. 108:36:15; T6, 110:34:30; T7, 112:32:45.
+
+104:23:20 Duke: Rog, Tranquility. Stand by one. (Pause) Tranquility, Houston. Say again your T4 copy. Over.
+
+104:23:33 Armstrong: T4, 106:38:07.
+
+104:23:37 Duke: Roger. Correction on T4: 106:38:02. Over.
+
+104:23:49 Armstrong: Got T4, 106:38:02.
+
+104:23:53 Duke: Roger.
+
+[Comm Break]
+
+104:24:51 Duke: Hello, Columbia. Houston. We will not come up on the MSFN relay. We'd like you to come on (control) panel 9 (and) turn on your VHF to TR. Over.
+
+104:25:08 Collins: (Faint) Okay. I'm on panel 9. Ready to receive. You want me to transmit for some reason with it?
+
+104:25:14 Duke: Say again, Mike...
+
+104:25:15 Aldrin: Houston; Tranquility Base. I have...(Listens) I'll wait. Go ahead.
+
+104:25:15 Duke: ...You're about two-by.
+
+104:25:21 Collins: Roger. Panel 9 is configured VHF, Receive. You want me to transmit with the VHF for some reason? Why do you want me in TR?
+
+104:25:31 Duke: Columbia, this is Houston. We don't want you to transmit, Mike. We just want you in that position in case you want to talk to Tranquility. Break. Tranquility, Houston. Say again. Over.
+
+104:25:47 Aldrin: Roger. I have a fairly good-sized difference between battery volts on (batteries) 5 and 6; 6 is reading 33.5 and 5 is reading 36.5. Is that what you expect? Over.
+
+104:26:03 Duke: Roger. Stand by. (Pause) Tranquility, Houston. They are both coming up in voltage. No problem. We're still Go. Over.
+
+104:26:19 Aldrin: Roger.
+
+[Long Comm Break. Buzz is now on page
+Sur-16 , near the bottom of the box on that page. Batteries 5 and 6 are Ascent Stage batteries.]
+
+104:32:38 Duke: Hello, Tranquility Base. Houston. Could you please give us a readout now of all of your descent tank pressures? Over.
+
+104:32:56 Armstrong: Okay, Houston. On descent 1, fuel and oxidizer are reading 10 psi; and descent 2, fuel is reading 10 psi, oxidizer 11 psi.
+
+104:33:09 Duke: Roger, Tranquility. Thank you much. Out.
+
+[Comm Break]
+
+104:34:55 Aldrin: Houston, Tranquility Base is ready to go through the powerdown and terminate the simulated countdown.
+
+104:35:00 Duke: Roger. Standby. (Long Pause) Hello, Tranquility Base. Houston. You can start your powerdown now. Over.
+
+104:35:31 Aldrin: Roger. It's in progress.
+
+[They are now at the top of Sur-18 .]
+
+[Aldrin, from the 1969 Technical Debrief, going through the events leading up to this decision to terminate the simulated countdown - "We gave them an E memory dump; got a new ascent Pad or CSI Pad for T-3.
+We then proceeded on with the option 3 alignment. Continuing through the checklist, looking at switch settings and circuit breaker cards, we found ourselves with 10 minutes to do and essentially up (that is, at the right place) on the checklist.
+At that point, we had to start pressurizing the APS (Ascent Propulsion System) if we were going to launch, so we read through the remainder of the simulated countdown and decided that there wasn't any point in sticking with that timeline any further.
+So we terminated the simulated countdown and went to the initial powerdown sequence."]
+
+104:35:37 Duke: And, Tranquility Base, the White Team is going off now and letting the Maroon Team take over. We appreciate the great show. It was a beautiful job, you guys.
+
+104:35:47 Aldrin: Roger. Couldn't have had better treatment from all of you back there.
+
+[Comm Break]
+
+104:39:07 Armstrong: Houston, Tranquility.
+
+104:39:09 Duke: Go, Tranquility. Over.
+
+104:39:14 Armstrong: Roger. Our recommendation at this point is planning an EVA, with your concurrence, starting about eight o'clock this evening, Houston time. That is about 3 hours from now.
+
+104:39:31 Duke: Stand by.
+
+104:39:35 Armstrong: Well, we will give you some time to think about that.
+
+104:39:40 Duke: Tranquility Base, Houston. We thought about it; we will support it. We're go at that time. Over.
+
+104:39:48 Armstrong: Roger.
+
+[Aldrin, from the 1969 Technical Debrief - "We had discussed, among ourselves, the possibility of evaluating, during this first 2 hours, whether we wanted to go on with the rest period (scheduled to begin at 104:50) or to proceed with the EVA preparation. I think we had concluded before the end of the simulated countdown that we would like to go ahead with the EVA and it was sometime in here that Neil called to ground and let them know that."]
+
+[Armstrong, from the 1969 Technical Debrief - "There were two factors that we thought might influence that decision. One was the spacecraft systems and any abnormalities that we might have that we'd want to work on; and the second was our adaptation to one-sixth g and whether we thought more time in one-sixth g before starting the EVA would be advantageous or disadvantageous at that point. Basically, my personal feeling was that the adaptation to one-sixth g was very rapid and was very pleasant, easy to work in, and I thought at the time that we were ready to go right ahead into the surface work and recommended that."]
+
+104:39:56 Duke: You guys are getting prime time TV there.
+
+104:40:08 Armstrong: Hope that little TV set works, but we'll see.
+
+104:40:11 Duke: Rog. (Long Pause)
+
+[I asked about the reason for flying the B&W TV camera versus the color camera that was flown on 10 and later on 12 and 14.]
+
+[Armstrong - "It was a much smaller camera."]
+
+[Aldrin - "They had much more flexibility to put that on 10 without disturbing things."]
+
+[Armstrong - "We had a color camera, too, in the Command Module. I don't know the answer to the question specifically, but this image orthicon (camera) was the one we had trained with and used in many of our ground simulations. We were concerned because we'd never seen a good picture on the ground.
+But the technicians assured us that, in the actual flight situation, we'd get a picture. And that accounts for my little question there, where I say, 'But, we'll see.'"]
+
+104:40:31 Duke: Hello, Tranquility Base. Houston. Was your eight o'clock Houston time a reference to opening the hatch or starting the Prep for EVA at that time? Over.
+
+104:40:46 Armstrong: That would be hatch opening.
+
+104:40:48 Duke: That's what we thought. Thank you much.
+
+104:40:52 Armstrong: It might be a little later than that, but in other words, start the Prep in about an hour or so.
+
+[Aldrin, from the 1969 Technical Debrief - "Now, we estimated EVA at 8 o'clock.
+I think that was a little optimistic. The ground recognized that, because they said, 'Do you mean beginning of Prep or beginning of hatch opening?'"]
+
+[EVA preps nominally take about 2 hours. In reality, it will be an hour and a half until they get started and then another three hours until they get the hatch open.
+Because the EVA will be a short one and there is plenty of padding built into the timeline, the delay will only be important to the global audience waiting for the historic moment.]
+
+[Armstrong - "It was always our plan (to prepare for the EVA at this point in the mission), unless circumstances prevented it. However, it wasn't published."]
+
+[Aldrin - "We wanted any change to be a positive change. So we sort of set the sequence up on the surface to allow for an orbit or two delay here or an orbit or two delay there and our being tired on the surface - which we didn't expect to be at all!
+So, if it was that way, we'd advance it. But, if we were pushed, then nobody would know. We'd just stay on the flight plan."]
+
+[Armstrong - "Just protecting against illogical criticism by the press if you delay anything. We didn't want it to appear as a failure of our planning."]
+
+104:40:57 Collins: Houston, Columbia. Copy Noun 49?
+
+104:41:00 Duke: Stand by, Columbia. Tranquility Base, Houston. That's fine. We are ready to support you any time, Neil. Over.
+
+104:41:09 Armstrong: Rog.
+
+104:41:10 Duke: Break. Columbia, we see the Noun 49. Stand by. (Long Pause) Columbia, Houston. We got the data. We would like a Verb 34. Over.
+
+104:41:46 Collins: Rog. Stand by one, Charlie, for the next (garbled).
+
+104:41:50 Duke: Roger, Columbia. How did Tranquility look down there to you? Over.
+
+104:41:58 Collins: Well, the area looks smooth, but I was unable to see him. I just picked out a distinguishable crater nearby and marked on it.
+
+104:42:08 Duke: Roger. (Pause)
+
+104:42:14 Collins: It looks like a nice area, though. (Pause)
+
+104:42:29 Duke: Hello, Columbia. Houston. I understand you could not see Tranquility. What were you marking on? Over.
+
+104:42:48 Collins: Houston, Columbia. I say again, I could not see him.
+Auto optics pointed at a spot very close to the coordinates which you gave me, so I picked a tiny crater in that area and marked on it so I will be able to have repeatable data, but I was unable to see him.
+
+104:42:50 Duke: Roger. Copy.
+
+[Long Comm Break]
+
+[At 104:20:42 , Charlie gave Mike estimated latitude and longitude for the LM corresponding to map coordinates M.5/8.0. Near that location, Mike drew a small circle in pencil with an arrow pointing to it. There is a very small crater at the center of the circle and this may be the 'tiny crater' Mike refers to here. Alternatively, the circle may be associated with the first and last of three sextant locations Mike seems to have tried during the pass over the landing site at approximately 108:35: M.8/8.2, P.2/6.3, and M.7/8.0. As indicated in Figure 5-14 in the Apollo 11 Mission Report , the sextant field-of view corresponds to a circle on the ground 3.2 km in diameter, so the differences between M.5/8.0, M.8/8.2, and M.7/8.0 are inconsequential. I am inclined to think that Mike circled the 'tiny crater' during the pass just completed.]
+
+[Aldrin, from the 1969 Technical Debrief - "All during this time, we could tell that Mike was kept busy each pass, doing P22s trying to find where we were."]
+
+104:46:11 Duke: Hello, Tranquility Base. Houston. On our DPS venting and that fuel problem, our heat exchanger is cleared up. It appears that the ice is melted, and we are in good shape now. Out.
+
+[Comm Break. The excess pressure in the descent fuel line has relieved.]
+
+104:49:39 Aldrin: Houston. Tranquility is going to put the track mode to Slew now.
+
+[Long Comm Break. They are at the middle of Surface Checklist page Sur-23 . "Slew" is the manual tracking mode in which the VHF antenna remains pointed in a fixed direction until the crew changes the pointing. This step is a handwritten addition to the checklist and Aldrin is confirming that they have performed it. Astronaut Owen Garriott takes over as CapCom.]
+
+MP3 Audio Clip
+(24 min 40 sec; 24Mb) from the Public Affairs loop, starting with tape accumulated during a post-landing press conference. Clip courtesy John Stoll, ACR Senior Technician at NASA Johnson.
+
+104:59:27 Garriott: Columbia, Houston. Over.
+
+104:59:34 Collins: Columbia. Go.
+
+104:59:35 Garriott: Columbia, Houston. We noticed you are maneuvering very close to gimbal lock. I suggest you move back away. Over.
+
+104:59:43 Collins: Yeah. I am going around it, doing a CMC Auto maneuver to the Pad values of roll 270, pitch 101, yaw 45.
+
+104:59:52 Garriott: Roger, Columbia. (Long Pause)
+
+105:00:30 Collins: (Faint, joking) How about sending me a fourth gimbal for Christmas.
+
+[Armstrong - "This is Mike at his best. We had a four-gimbal platform on Gemini ."]
+
+[The concept of gimbal lock was not an easy one - at least not for me - and the following explanation owes a great deal to Journal Contributors Henry Spencer and Paul Fjeld, and to Neil Armstrong. Stripped to the essentials, the inertial platform, which tells the computer how the spacecraft is oriented, is mounted inside a nested set of three gimbals .
+The outer gimbal (OG) is mounted on an axis attached to the spacecraft and the assembly is free to rotate around the outer-gimbal axis (OGA).
+The middle gimbal (MG) is attached to the inside of the outer gimbal at points 90-degrees from the OGA. Similarly, the inner gimbal carries the platform and is fixed at points perpendicular to the middle gimbal axis (MGA).]
+
+[As the spacecraft maneuvers, the gimbals swing in such a way as to keep the platform in the same absolute orientation.
+For the purposes of this discussion, let us assume that the platform and gimbal system always start in the configuration shown in the diagram. Now, let us imagine that the spacecraft does a rotation around the OGA.
+Clearly, the gimbal system will have no trouble keeping the platform properly aligned and, indeed, the three axes will remain mutually perpendicular no matter how large or small a rotation is done.]
+
+[Next, let us go back to the original configuration and consider what happens if the pilot rotates the spacecraft around the IGA. Again, for any arbitrary rotation, the three axes remain mutually perpendicular, with the platform in its original orientation.]
+
+[Finally, let us return to the original configuration and consider what would happen if the pilot did a rotation around the middle gimbal axis (MGA) in such a way that the upper part of OGA goes back away from us and the lower part comes up towards us.
+Here, the three axes do not remain mutually perpendicular and, if our pilot were to stop the rotation after 90 degrees, we would find ourselves with a gimbal lock, with the IGA and OGA aligned.
+In essence, we now have a two-axis system instead of a three axis system; and if, from this configuration, our pilot were to do rotation around an imaginary axis perpendicular to the horizontal plane that contains all three gimbal axes, then the platform orientation would change and indeed, would rotate in lockstep with the spacecraft. Hence the term, "gimbal lock".]
+
+[A discussion of the use of a fourth gimbal is linked here .]
+
+105:00:40 Garriott: Columbia, Houston. You were unreadable. Say again please.
+
+105:00:46 Collins: Disregard. (Long Pause)
+
+105:01:21 Garriott: Columbia, Houston. Several items for you. Over.
+
+105:01:28 Collins: Ready to copy.
+
+105:01:30 Garriott: Columbia, Houston. First of all, we'd like a waste water dump to 10 percent on the backside. Secondly, it does not look like we are going to need any plane change at this time, so we will not be uplinking a new REFSMMAT. Third item, I would like all of your Cryo heaters to Auto, and we are ready for a battery charge, battery Bravo; it will last about 7 hours. If you should go to sleep, we will be terminating that Batt charge, but at the moment, we can go ahead and start the Batt charge on Batt Bravo. And a final item, for your SM RCS configuration for your rest period, register 1 for the DAP is 11111; DAP register 2, 01100. And your AUTO RCS select switches, quad Alfa, pitch jets on only, quad Bravo all on, quad Charlie and quad Delta all off. Over.
+
+105:02:57 Collins: Roger. Dump waste water to 10 percent on the backside. Use prior REFSMMAT, CRYO heaters on to AUTO, battery B charge until I go to sleep. DAP is 11111, 01100. Select quads A pitch only on, C and D all up. Over.
+
+105:03:22 Garriott: Columbia, Houston. Roger. (Long Pause)
+
+105:04:25 Garriott: Columbia, Houston. We will have a state vector update for you a little later. We are not prepared with it right now. And on another subject, from Tranquility Base, they are prepared to begin the EVA early. They expect to begin Depress operations in about 3 hours at 108...approximately 108 GET (Ground Elapsed Time). Over.
+
+105:04:58 Collins: Sounds good to me. Tell them to eat some lunch before they go.
+
+[Comm Break. The hatch will come open at 109:07:33.]
+
+105:06:07 Garriott: Columbia, Houston. We'd like your PRD readouts when possible, and we've checked over your EM (Erasable-Memory) dump. It all looks okay. (Pause)
+
+105:06:48 Garriott: Tranquility Base, Houston. Over.
+
+105:06:54 Aldrin: Go ahead, Houston.
+
+105:06:56 Garriott: Tranquility, Houston. We'd like your PRD (Personal Radiation Dosimeter) readout, and we have double-checked your EM dump. It all looks okay. Over.
+
+105:07:26 Armstrong: Roger. Understand our E-memory dump was good. CDR's dosimeter is 11014. (Pause)
+
+105:07:37 Aldrin: And LMP is 09011.
+
+105:07:44 Garriott: Roger, Tranquility. Break. Columbia, we would like for you to Re-acq(uire) with your high gain; attempt a manual lock-on. Over.
+
+105:08:01 Collins: In work.
+
+105:08:11 Aldrin: Houston, Tranquility here. The LMP's (PRD) readout may possibly be 09017. Over.
+
+105:08:21 Garriott: Tranquility, Houston. Roger. 09017 is an update on your readout.
+
+105:08:31 Collins: Columbia's on high gain.
+
+105:08:32 Aldrin: I'll let you know for sure when it goes to either 12 or 18.
+
+105:08:41 Garriott: Tranquility, Houston. Roger. The medics report your latter reading, "17", appears to be the correct one. Over.
+
+105:08:54 Aldrin: Roger. (Pause)
+
+105:09:11 Collins: Columbia's on the high gain.
+
+105:09:13 Garriott: Roger, Columbia. You're sounding much better now. (Long Pause)
+
+105:09:57 Garriott: Columbia, Houston. Request P00 in Accept, and we'll uplink another
+state vector. Over.
+
+105:10:08 Collins: Roger. Going P00 in Accept.
+
+[Comm Break]
+
+105:12:02 Garriott: Columbia, Houston. Suggest you put Batt A on your Batt relay bus. Over.
+
+105:12:12 Collins: Okay.
+
+105:12:46 Garriott: Columbia, Houston. We're through with your computer. You can go to Block.
+
+105:12:53 Collins: Roger. Block.
+
+[Comm Break]
+
+105:14:43 Garriott: Tranquility Base, Houston. Over.
+
+105:14:53 Aldrin: Go ahead, Houston. Tranquility Base.
+
+105:14:55 Garriott: Tranquility Base, Houston. We've reviewed the checklist, and about the only change in order to advance the EVA that we've found is that you'll want to delay your lithium hydroxide change until after the EVA rather than before. Over.
+
+105:15:19 Aldrin: Roger. We'd just as soon make a change and jettison the old one. Over.
+
+[Comm Break. During the 1991 mission review, I noted that this exchange seemed a bit strange to me in light of the crew's prior comment that they had been planning to make an early EVA if everything was going well.]
+
+[Aldrin - "I don't know if they (meaning the people in the Mission Control Room) were all that privy to our plan."]
+
+[Armstrong - "They probably were going by the book."]
+
+[The Environmental Control System ( ECS ) contains two lithium hydroxide canisters to remove carbon dioxide from the cabin air. As detailed on Page EC-7 in the Grumman Lunar Module News Reference , the primary canister has a capacity of about 41 person hours. The secondary canister, identical to the canisters used in the PLSSs, has a capacity of about 18 person hours.
+The flight plan calls for replacement of the primary canister after the post-landing rest period at about 109:30 or about 20 person-hours of use.
+The replacement canister - stowed behind the ascent engine cover since before launch from Earth - would then be used until rendezvous and docking at about 128 hours. Subtracting off about six person hours for the EVA, the replacement canister was planned for about 31 person hours of use.
+Clearly, there is plenty of margin in both canisters and, in addition, they have a backup capacity of about 20 person hours from the secondary canister.]
+
+105:16:21 Garriott: Tranquility Base, Houston. We would like to delay that (primary) LiOH change until after the EVA. There is a possibility you could jettison the canister when you jettison your PLSS. Over.
+
+105:16:39 Aldrin: All right. We'll plan it that way. Over.
+
+105:16:42 Garriott: Roger, Tranquility.
+
+[Comm Break.]
+
+105:17:52 Garriott: Columbia, Houston. Over.
+
+105:17:58 Collins: Houston, Columbia.
+
+105:17:59 Garriott: Columbia, Houston. We show your EVAP OUT temperature running low. Request you go to manual temperature control and bring it up. You can check the procedures in ECS MAL 17. Over.
+
+105:18:20 Collins: Roger, Houston.
+
+105:19:49 Garriott: Columbia, Houston. I have a P22 update for you.
+
+105:19:57 Collins: Columbia. Go ahead.
+
+105:19:59 Garriott: Columbia, Houston. Your P22 AUTO - AUTO optics landmark ID on LM. T1, 106 plus 30 plus 31; T2, 106 plus 35 plus 41, 2 nautical miles south. Your TCA, 106 plus 37 plus 16. Shaft angle 357.9 and trunnion angle 44.3. Over.
+
+105:20:46 Collins: Roger. Thank you.
+
+105:21:35 Garriott: Columbia, Houston. We have your LOS in 3 minutes. AOS will be 106 plus 11. Over.
+
+105:21:47 Collins: Roger.
+
+[Long Comm Break.]
+
+105:25:29 Aldrin: Houston, Tranquility. Over.
+
+105:25:31 Garriott: Tranquility, Houston. Go ahead.
+
+105:25:38 Aldrin: Roger. This is the LM pilot. I'd like to take this opportunity to ask every person listening in, whoever and wherever they may be, to pause for a moment and contemplate the events of the past few hours and to give thanks in his or her own way. Over.
+
+105:26:08 Garriott: Roger, Tranquility Base.
+
+[Long Comm Break]
+
+[As he describes in his book "Return to Earth", Buzz is taking communion.]
+
+[Aldrin - "A critical item of avoidance was one of adverse publicity from people like Madalyn Murray O'Hair (a militant atheist of the time who was then involved in a legal battle with NASA over the reading from Genesis by the Apollo 8 crew). But I think enough time has passed. I think it projects a positive image, (even though) it might not be my choice, now, of something to do during that time period."]
+
+[Eventually, the U.S. Supreme Court rejected Mrs. O'Hair's Apollo 8 lawsuit.]
+
+[The following pair of lines are produced by an unintentional keying of the microphones. The crew is in the "Push to Talk" communications mode. Each is wearing a "Snoopy" helmet and a mike but, in order to talk, must push a button on the cable linking them to the comm panel or must squeeze a trigger on the handcontroller. The cable button is velcroed on their thigh and, if they bend forward, it's possible to press it accidentally.]
+
+105:35:03 Aldrin: That's about ready to fall off.
+
+105:35:07 Armstrong: As a matter of fact, it just doesn't look like it sunk in at all.
+
+[Armstrong - "I think we were grabbing a bite to eat, right here. Clearly, we were talking between ourselves about matters of the moment. But I don't know, specifically, what this was. It doesn't compute."]
+
+[Very Long Comm Break. Garriott's next transmission comes at about the time Armstrong originally estimated they would be ready to start the EVA preps.]
+
+105:47:17 Garriott: Tranquility Base, Houston. We'd like some estimate of how far along you are with your eating and when you may be ready to start your EVA Prep. Over. (Pause)
+
+105:47:43 Armstrong: I think that we'll be ready to start EVA Prep in about a half hour or so.
+
+105:47:50 Garriott: Roger, Tranquility.
+
+[Very Long Comm Break. Astronaut Bruce McCandless takes over as CapCom for the EVA. I asked if the crew had any input about the selection of members of the support team.]
+
+[Aldrin - (To Neil) "You kind of requested Charlie (Duke to be CapCom during the landing). Why was that? I guess we were sitting in the MOCR during (Apollo 10)..."]
+
+[Armstrong - "I can't remember. It seems highly likely that we would have wanted to use someone who had participated in a full-mission simulation during the same sequence of practice events."]
+
+[Aldrin - "10 flew in May and, until after they flew, we didn't really get into our sims hot and heavy. So we didn't need to have a CapCom assigned for us, really, until after that.
+As I recall we didn't have any particular reason for any preference except that we agreed that Charlie had appeared to have done such a good job. 'Cause we were watching him handle the conversations with Apollo 10."]
+
+[I then asked what constituted a "full sim".]
+
+[Armstrong - "It could just be LM descent, but as many people who would actually be involved in the real circumstance would be participating in their normal position. Everybody in Mission Control, the people in the backrooms, CapComs.
+And the crew would be in the simulators , sometimes with both the Command Module and the Lunar Module simulators manned simultaneously."]
+
+[Journal Contributor Mike Dinn, who was Deputy Director at the Honeysuckle Creek Tracking Station (HSK) during Apollo writes, "In retrospect I'm amazed at the confidence we (the whole Apollo project) had, but everything possible had been done to prepare, including contingency planning."]
+
+["Our HSK in-house sim capability came about as a result of a visit I had to Houston, when I sat in on several MOCR simulations with 'Network'. I realised that we at the Station didn't have the same depth of contingency capability as the Flight Control team. So when I got back to HSK, and with (HSK Director) Tom Reid's support, we decided to build an in-house capability based around some excess consoles from the tracking ship CSQ - which I selected at Fremantle - and various other pieces of equipment to assemble the many Apollo (radio frequency) spectrums. I even approached Howard Kyle at Houston at one point to see if we could lay our hands on an excess/spare/prototype PSP (pre-signal processor) which mixed the various signals in the CSM - but with no success. The only thing we couldn't simulate was American accents for astronaut and CAPCOM voice, so we had a number of laconic Australian voices pretending to land and step on the lunar surface. Messed it up a bit."]
+
+["The simulations were great for building confidence. I used to say that the Apollo project used only about 5 percent of support capability for a nominal mission, but we got to 95 per cent on 13. It was THE mission when the receiver operators earned their money - sorting out the LM signal from the S-IVB on the same frequency. We had four receivers at HSK, four at Tidbinbilla and two at Parkes all trying.":]
+
+MP3 Audio Clip
+(25 min 07 sec; 24Mb) from the Public Affairs loop, starting at about 105:52:17. Clip courtesy John Stoll, ACR Senior Technician at NASA Johnson.
+
+106:11:07 Collins: Houston, Columbia. How do you read?
+
+106:11:12 McCandless: Columbia, Columbia. This is Houston...
+
+106:11:14 Armstrong: Houston, this is Tranquility Base. We are beginning our EVA Prep.
+
+106:11:23 McCandless: Tranquility Base, this is Houston, Roger. Copy. You're beginning EVA Prep. Break. Break. Columbia, Columbia. This is Houston. Reading you loud and clear. Over
+
+106:11:35 Collins: You're loud and clear. The waste-water dump is down to 10 percent. I have a question on the P22. Do you want me to do another P22, or is all that information just for my own use in tracking the LM for photographic purposes?
+
+106:11:49 McCandless: Columbia, this is Houston. We request that you perform another P22. We'd like you to let the Auto optics take care of the tracking and devote your energies to trying to pick out the LM (visually) on the lunar surface.
+If you can find the LM, of course. We're looking for marks on it; but tracking of geographical features doesn't do us all that much good. Over.
+
+106:12:18 Collins: Okay. Fine. I'll do it.
+
+[Owen Garriott gave Mike the Auto Optics settings at 105:19:59 .]
+
+[Armstrong - "There were a couple of reasons for trying to find the LM on the surface. I would say, first, they wanted to find out if they could see it from the Command Module.
+Second, they wanted to try to help in establishing its position. A lot of people were interested in where we landed, particularly those people who were involved in the descent guidance trajectory controls.
+After all, in later flights, we were going to try to go to specific spots on the surface and we needed to get all the information we could regarding methods that might help precision.
+However, in this transcript one doesn't get a feeling of concern. Certainly, it didn't affect what we did very much. Nor did people on the ground think that this was a disastrous occurrence.
+But, the fact was, they didn't know exactly where we were and they did want to know if they could."]
+
+[Aldrin - "Well, I guess it's conceivable that it could affect the ability to rendezvous. But, you know that, once you get lifted off, you're going to approach the general vicinity (of the CSM).
+And, as soon as you start getting (rendezvous radar) data, then that narrows down. Unless you're so far off that you never acquire him."]
+
+[Armstrong - "It's probably worth mentioning that the perturbations by the mascons was still of concern.
+They were trying to reduce the error from these uncertainties to the point that we could have increasing confidence about going to a particular point on the surface."]
+
+[Mascons, or "mass concentrations" are local variations in the lunar crustal density which produces irregularities in the lunar gravitational field which, in turn, perturb spacecraft orbits. Mascons are generally associated with the mare and were discovered when it was noticed that the orbits of the Lunar Orbiter spacecraft varied in what were, at first, unpredictable ways. By the time of Apollo 11, experts were beginning to get a handle on orbital perturbations in the equatorial belt. However, outside that belt, there was too little data to build accurate models and, when it came time to fly Apollos 15 and 17, the two missions that would land well away from the equator, perturbation of the orbits of those two Command Modules could not be predicted with any confidence.]
+
+106:12:19 Collins: And on the ECS system, whatever the problem was, it seems to have gone away without any changing of J52 sensors or anything like that. My glycol evaporator outlet Temp is up above 50 now, and it's quite comfortable in the cockpit; so we'll talk more about that one later.
+
+106:12:43 McCandless: Roger, Columbia. Did you shift into manual control, or did the problem resolve itself under Auto control? Over.
+
+106:12:52 Collins: The problem went away under Auto.
+
+106:12:55 McCandless: Roger. That's the best type. Out.
+
+106:12:56 Collins: I did cycle out of Auto into Manual, back into Auto.
+
+106:13:05 McCandless: Houston. Roger. Out.
+
+[Long Comm Break]
+
+MP3 Audio Clip
+(44 min 25 sec; 43Mb) from the Public Affairs loop, starting at about 106:17:25. Clip courtesy John Stoll, ACR Senior Technician at NASA Johnson.
+
+106:22:56 McCandless: Tranquility Base. Tranquility Base. This is Houston. Over.
+
+106:23:05 Armstrong: Go ahead, Houston.
+
+106:23:07 McCandless: Tranquility, this is Houston. We need a second set of PRD readings so that we may establish a rate. Over.
+
+106:23:19 Armstrong: Okay. Stand by. (Pause) CDR is reading 11014. (Pause)
+
+106:23:44 Aldrin: LMP is reading 09017 and three-quarters.
+
+106:23:52 McCandless: (Guffaws over the "3/4") Tranquility, this is Houston. We copy your readings. Out.
+
+[The readings are unchanged since the landing.]
+
+[Long Comm Break]
+
+106:29:26 Collins: Houston, Columbia. How do you read on Omni D, Dog?
+
+106:29:30 McCandless: Columbia, this is Houston. We're reading you loud with background noise on Omni D. Over.
+
+106:29:41 Collins: Okay. I'll stay on D here for a while. I'm about to go into P22 (a tracking program which keeps the sextant pointed at the targeted spot on the ground while he passes overhead).
+
+106:29:45 McCandless: Roger. Out.
+
+[Long Comm Break]
+
+106:36:16 Collins: Houston, Columbia. I'm coming up on my time for the first pass when I may be able to see the LM. Do you have any topographical cues that might help me out here?
+Auto optics is tracking between two craters. One of them, as the LM sees it, would be long at 11 o'clock. The other would be short and behind him at 5 o'clock. (Pause) These are great big old craters (or) depressions.
+
+106:36:44 McCandless: Stand by. (Long Pause) Columbia, this is Houston. The best we can do on topo features is to advise you to look to the west of the irregularly shaped crater, and then work on down to the southwest of it. Over. (Pause)
+Columbia, Houston. Another possibility is the southern rim of the southern of the two old-looking craters. Over.
+
+[Unlike later Command Module Pilots, Mike is not attempting to make any formal geologic observations from orbit - and for good reason, as Neil explained during the 1991 mission review.]
+
+[Armstrong - "I think Mike's view - and I share it - was that his responsibility was to prove single-man operation of the Command-and-Service Module - a very complex piece of machinery - for the first time, for an extended duration, and in conjunction with a spacecraft on the ground. He needed to demonstrate communications procedures and many other things.
+It was a quite appropriate approach to this flight; and it was a full-time job."]
+
+[Comm Break]
+
+[Figure 5-14 in the Apollo 11 Mission Report shows the locations given to Mike in his attempts to find the LM. Each of the small squares is 1 kilometer on a side and the circles, which represent the approximate sextant field-of-view, are each about 3.2 km (2 miles) in diameter. For this second pass since the landing, Houston has Mike looking in an area about 2.5 km north of the first area he examined. Circle 2 is centered at about N.5/7.5 but, as indicated in the transcript and commentary at 106:43:08 , the area he examined is shown by the elipse centered at about M.8/6.9 that he drew on the flown copy of LAM-2 .]
+
+106:38:42 Collins: Roger, Houston. Columbia. No joy. I kept my eyes glued to the sextant that time hoping I'd get a flash of specular light off the LM, but I wasn't able to see any in my scan areas that you suggested.
+
+106:38:56 McCandless: Roger. On that southern of the old craters, there's a small bright crater on the southern rim.
+One plot would put him slightly to the west of that small bright crater, about 500 to 1000 feet. Do you see anything down there? Over.
+
+106:39:19 Collins: It's gone past now, Bruce, but I scanned that area that you are talking about very closely, and no, I did not see anything.
+
+106:39:26 McCandless: Roger. Out. (Long Pause) Columbia, this is Houston. Over.
+
+106:40:28 Collins: Go ahead.
+
+106:40:33 McCandless: Columbia, this is Houston. On your LAM-2 map , we'd like to confirm the topographical area in which you were looking on this last period of sightings. As we understand you, you were looking in the vicinity of Papa 7 to November 8. Is that correct? Over.
+
+106:40:59 Collins: Stand by one.
+
+106:41:01 McCandless: Roger.
+
+[Comm Break]
+
+[Papa 7 is the intersection of the P horizontal line with the 7 vertical line. The actual landing site is near J0.7 and 7.4; that is, seven tenths of the way from the J line to the K line and four tenths from the 7 line to the 8 line. Note that the lines are a kilometer apart.]
+
+106:43:00 Collins: Houston, Columbia.
+
+106:43:02 McCandless: Go ahead, Columbia.
+
+106:43:08 Collins: One of the craters I was talking about is located exactly at Mike 6.7 (on LAM-2 ).
+
+[This crater is in the southwestern part of the hand-drawn ellipse .]
+
+106:43:19 McCandless: Roger. We found that one.
+
+106:43:21 Collins: The other one is located at 7...(Listens) The other one is located at 7.2, two-thirds of the way from Mike to Nan.
+
+[This crater is in the northeastern part of the hand-drawn ellipse .]
+
+106:43:36 McCandless: Roger. We believe you were looking a little too far to the west and south. Over. (Long Pause)
+
+106:44:03 Collins: Roger. Understand. I was looking where auto optics was tracking, on the average; and (I) understand that it should have been more to the north and more to the west; actually a tiny bit outside the circle, huh?
+
+106:44:17 McCandless: More to the north and a little more to the east. The feature that I was describing to you - the small bright crater on the rim of the large, fairly old crater - would be about Mike 0.8 and 8.2 . Over.
+
+[This crater about 200 meters east of the 'tiny crater' Mike circled at M.7/8.0.]
+
+106:44:40 Collins: Well, just give me your best estimate as to his location in this coordinate system, and I'll plot it on my map and go from there.
+
+106:44:48 McCandless: Roger.
+
+[Long Comm Break]
+
+106:48:54 McCandless: Tranquility Base, this is Houston. Can you give us some idea of where you are in the surface checklist at the present time? Over
+
+106:49:07 Aldrin: Okay. We're on the top of page 27 .
+
+106:49:11 McCandless: Roger. Out.
+
+[Comm Break]
+
+[On checklist page Sur-25 , the notation "BTH" means "Both". UCTA is Urine Collection and Transfer Assembly. They are both wearing condom-like urine collection sleeves which, via a short hose, empty into a collection bag. In turn, the collection bag is connected to a valve/connector on the right thigh which can be connected to an external hose/bag assembly. Here, they are emptying the in-suit collection bags. They will place the external bag into a jettison bag for disposal. The PGA is the Pressure Garment Assembly or, more simply, the suit. The chest-mounted PGA diverter valve allows the astronaut either to have all of the oxygen flow into his suit come out of a vent in the neck ring (vertical position) or to divert some of the flow into a set of torso vents (horizontal position). In the last line of the Crew Status paragraph, they are checking small snap locks on the main zipper locks - literally, the locks on the locks.]
+
+[The One-Man EVA Transition card would be used in the case that, prior to cabin depressurization, one of the PLSSs (Portable Life Support System or backpack) proves inoperable. The Final EVA Configuration Cards show the circuit breaker configuration they want prior to the depressurization procedures listed on EVA Card No. 1. They will tape and clip these cards on the panel in front of them so that they can be read without handling. The AOT is the Alignment Optical Telescope mounted near the top of the panel. Because it sticks out into the cabin a way, it has guard rails to keep it from being damaged by an errant PLSS, Helmet, or head.]
+
+[The camera referred to near the bottom of Sur-25 is the 16mm movie camera which, on Page Sur-26 , they are positioning in Buzz's window so that the early stages of the EVA can be filmed. 'LHSSC' is Left-hand Side Stowage Compartment which is below Neil's circuit breaker panel ( CB(11) ) on the bulkhead to his left. In the middle of the page, they are preparing the
+Hasselblad (HBLAD) camera that they will use out on the surface and, as well, a non-EVA Hasselblad (HSLB) which they will leave in the cabin as discussed at
+109:26:54 and . HCEX is High-Speed Color Ektachrome. The LEC is the Lunar Equipment Conveyor, a clothesline-like device they will use to move gear between the cabin and the surface. ISA is the Interim Stowage Assembly, a set of soft-sided stowage bags on a frame that fits over Neil's wall-mounted PLSS. The ISA can be seen on the left at Neil's back in training photo
+KSC-69PC-319 . TTHR is tether; and one of the attachment points can be seen on the right hip of Neil's suit in the training photo.]
+
+[On page Sur-27 , they begin donning the PLSSs and the Oxygen Purge Systems (OPSs). The OPS sits on top of the PLSS and, in the event it is needed, can provide oxygen for up to 1 hour or both oxygen and cooling for up to 30 minutes. Note the high pressure in the OPS oxygen bottle. The RCU is the chest-mounted Remote Control Unit which contains a variety of gauges, warning flags, and control switches used to operate and monitor the PLSS.]
+
+[During the 1991 mission review, I noted that the checklists for this section of the mission - suit donning etc., are very detailed compared with the checklists used on later missions.]
+
+[Armstrong - "It's a fairly complicated procedure, and the consequences of having an improperly locked connection is (sic, means ":are") severe. It was an area where we wanted to feel very confident about having done the proper procedures. Of course, we didn't develop these procedures by ourselves. It was done by an entire group. But we used them in all our ground simulations and accepted them as being reasonable. I think it's true, in talking about the surface work, that we took the view that we would do it at a measured pace and make sure that we did each step properly along the way."]
+
+[Aldrin - "You develop a shorthand after a while, and I'm sure that, for the later missions, the guys overseeing the training for EVA Preps felt a growing confidence. And, maybe at first when you construct a checklist, you put in a lot of detail, because you'd rather have too much rather than too little."]
+
+[Armstrong - "Let me say that the suits were the same basic suits that had been on previous flights (that is, on Apollos 7 through 10). So (having trained as the Apollo 8 backup crew) we were experienced with the suits in general and how they operated. The EVA requirements of donning the suits in the Lunar Module posed some new requirements and some new understanding and some new procedures which we helped develop. We had been the backup crew on Apollo 8 and, although there were suits (on 8), there wasn't anything like these EVA Preps."]
+
+106:50:29 Collins: Houston, Columbia. Over.
+
+106:50:31 McCandless: Go ahead, Columbia.
+
+106:50:38 Collins: Roger. I finally got you back on Omni D. I've been unsuccessfully trying to get you on the high gain, and I've gone Command Reset to Process. How do you read me now?
+
+106:50:46 McCandless: Roger. Reading you loud with background noise. Understand that's Omni Delta or Omni Bravo? Over.
+
+106:50:56 Collins: Omni Delta and you were cut out. I never got your coordinates on estimated LM position. Over.
+
+106:51:04 McCandless: Columbia, this is Houston. Estimated LM position is latitude plus 0.799, longitude-over-two plus 11.730. On your chart we would place it...Stand by on the charts and (give me a) readback on the latitude and longitude.
+
+106:51:46 Collins: Yeah. The latitude and longitude over two: 799 and 11730 are the ones that I('ve) been using in P22. But what I'm interested in is grid coordinates on that map we're using.
+
+106:52:01 McCandless: Roger. We'll have them for you in a second.
+
+106:52:08 Collins: Thank you. (Long Pause) Houston, Columbia. Could you enable the S-band relay at least one-way from Eagle to Columbia so I can hear what's going on?
+
+106:53:12 McCandless: Roger. There's not much going on at the present time, Columbia. I'll see what I can do about the relay. (Pause) Columbia, this is Houston. Are you aware that Eagle plans the EVA about 4 hours early? Over.
+
+106:53:33 Collins: Affirmative. When's hatch open time in GET estimated?
+
+106:53:39 McCandless: Roger. Somewhere around 108 hours. We'll have an update for you on that a little later.
+
+106:53:52 Collins: Okay. I haven't heard a word from those guys, and I thought I'd be hearing them through your S-band relay.
+
+106:53:57 McCandless: Roger. They're on about page Surface 27 in the checklist, proceeding in good time.
+
+106:54:09 Collins: Glad to hear it. You got a crowd there in MCC (Mission Control Center)? (Long Pause)
+
+106:54:40 McCandless: "Roger" your last (transmission), Columbia.
+
+106:54:46 Collins: Roger. I'd expect you probably have about nine CapComs and eleven Flight Directors with no place to plug in (to the consoles).
+
+106:54:53 McCandless: (With a smile in his voice) Roger. Out.
+
+[NASA Photo S69-39600 shows Pete Conrad and Al Bean, and, behind them, their backups, Dave Scott (behind Al) and Jim Irwin, monitoring Apollo 11 activities after the landing.]
+
+106:55:00 Collins: That ratio might even be reversed. (Long Pause) Glycol evaporator outlet temperature is 50 degrees (Fahrenheit, 10 C) and the comfort in here is just fine.
+
+106:55:43 McCandless: Roger. We copy 50 degrees on the glycol, and comfort index fine. (Long Pause)
+
+106:56:24 Collins: And, if you'll excuse me a minute, I'm going to have a cup of coffee.
+
+106:56:28 McCandless: Roger. (Pause) Apollo...(Correcting himself) Columbia, this is Houston. Your map coordinates (for the LM) are Papa decimal 2 and 6 decimal 3 on the LAM-2 chart . Over. (No answer; Long Pause)
+Columbia, this is Houston. Did you copy the coordinates for the LM? Over. (No answer)
+
+[There is nothing drawn on the flown map at this location.]
+
+[Comm Break]
+
+106:58:49 McCandless: Columbia. Columbia. This is Houston. If you read, we request high-gain antenna yaw 180, pitch 0. I say again, yaw 180, pitch 0 on the high gain. Over. (No answer)
+
+[Long Comm Break]
+
+MP3 Audio Clip
+(28 min 30 sec; 27Mb) from the Public Affairs loop, starting at about 107:02:02. Clip courtesy John Stoll, ACR Senior Technician at NASA Johnson.
+
+107:02:15 McCandless: Columbia, Columbia, this is Houston. Do you read? Over.
+
+[Comm Break]
+
+107:05:15 Collins: Houston, Columbia on the high gain.
+
+107:05:18 McCandless: Columbia, this is Houston reading you loud and clear. Over.
+
+107:05:25 Collins: Reading you loud and clear, Bruce.
+
+107:05:26 McCandless: Roger, Mike. I have the coordinates...
+
+107:05:29 Collins: What's new?
+
+107:05:31 McCandless: Well, what's new is I think we have some more coordinates for you on the LM location. Over.
+
+107:05:41 Collins: Ready to copy.
+
+107:05:43 McCandless: Roger, Mike. Papa 0.2 and 6.3 on your LAM-2 chart . Over.
+
+107:06:02 Collins: Roger. Papa 0.2 and who decimal three?
+
+107:06:05 McCandless: Six decimal three, I say again, six decimal three. (Pause)
+
+107:06:17 Collins: Thank you. Papa 0.2 and 6.3. I'll try it.
+
+107:06:21 McCandless: Roger. (Long Pause)
+
+[The actual landing site is at about Juliett 0.7 and 7.4 (on LAM-2 ).
+West Crater is at about Juliett 0.5 and 8.1. Note that each of the boxes on LAM-2 represents a square kilometer.
+Because of the local terrain rises toward the west, the LM shadow, which is its most visible manifestation, is only about 20 meters long.]
+
+107:06:57 Collins: Okay. What you are saying is, if you look at the Cat's Paw, then that's just about, oh, his middle finger; a little bit...one to two o'clock from his middle finger. Is that right?
+
+[This location (P.2/6.3) is marked on a detail from LAM-2G and, as can be seen in Figure 5-14 from the Apollo 11 Mission Report, it is far enough outside the landing ellipse that none of the sextant field-of-view was inside the landing ellipse.]
+
+[As mentioned in the commentary after 102:55:49 a feature centered just west of the landing elipse on a portion of the Descent Monitoring Chart and labled Cat's Paw is more than five kilometers southwest of P.2/6.3. This conversation indicates that Mike is applying the name to the collection of craters in a square bounded by the M, R, 6, and 10 lines, as I have indicated on the LAM-2G detail .]
+
+107:07:16 McCandless: Roger. About one to two o'clock from the middle finger if you're using 12 o'clock being to the west. Over.
+
+107:07:29 Collins: (Joking) That must be the way cats face (on the Moon). Okay. I'm with you.
+
+[Mike may have mentioned the "middle finger" to ensure he and Bruce were reading the map the same way. Evidently, he's a bit amused that they are trying to pinpoint a location based on a pattern that only faintly resembles a cat's paw print.]
+
+[Phil Stooke notes that, in an untitled, post-flight, Manned Spacecraft Center graphic he found in the library at the Lunar and Planetary Institute in Houston ( 312k ), the larger craters in the area Mike and Bruce have been discussing, especially the largest one that is shaped like a half-moon, are part of a pattern labeled 'The Z'.]
+
+107:07:33 McCandless: Okay. And I got LOS and AOS times for you.
+
+107:07:40 Collins: Go ahead. (Pause) Go ahead, Houston.
+
+107:07:52 McCandless: Roger. Your LOS at 107 plus 23 plus 08. AOS at 108 plus 09 plus 06. The next pass for COAS tracking: your time of closest approach is 108:35:28. Look 3 miles south of track. Over.
+
+[Armstrong - "I think COAS means 'optical alignment sight' or something like that. (To Buzz) Do you remember?"]
+
+[Aldrin - "I didn't have one." (General laughter)]
+
+[In addition to the COAS (Crewman Optical Alignment Sight) in the Command Module, there is one in the LM - mounted over Neil's window. The COAS is prominent in a detail from pre-flight photo 69-H-134 . Journal Contributor Marv Hein notes that anyone interested in details of the LM interior would do well to study a video of the superb movie "Apollo 13".]
+
+107:08:28 Collins: I understand all that, but with this new information would you like me to try P22 and look for him in a different spot?
+
+107:08:40 McCandless: Stand by a minute, please.
+
+107:08:44 Collins: Okay. Because I was looking in the wrong place last time. Auto optics was not pointing me at the coordinates you gave.
+
+107:08:53 McCandless: Roger.
+
+[Comm Break]
+
+107:10:06 McCandless: Columbia, this is Houston. Over.
+
+107:10:13 Collins: Go ahead.
+
+107:10:15 McCandless: On your next pass, Columbia, rather than performing a P22 as such, we would like you to look in the vicinity of the coordinates that we gave you, which is our best analysis based on math/physics and the trajectory.
+And we also have another set of coordinates that we would like you to search in the vicinity of. This last one being based on an interpretation of the geological features that were seen by the crew on their way down.
+The coordinates of this second site are Mike 0.7 and 8.0. I say again, Mike 0.7 and 8 (garbled) I say again, Mike 0.7 and 8.0. Over.
+
+[This sextant target is about 3 kilometers north of the actual landing site, which is near Juliett 0.7 and 7.4. See Figure 5-14 in the Apollo 11 Mission Report. In the figure, each of the small squares is 1 kilometer on a side and the circles, which represent the approximate sextant field-of-view, are each about 3.2 km (2 miles) in diameter. See, also, the flown copy of LAM-2 .]
+
+107:11:08 Collins: Roger. Copy. Mike 0.7 and 8.0. The only thing is, my best tool for looking is the sextant and if I'm going to crank the sextant up, I might as well let P22 go at the same time, or don't you think so?
+
+107:11:24 McCandless: Roger. If you want to go that way, crank it up, and then you can drive it around and look where you want.
+
+107:11:33 Collins: Okay.
+
+107:11:35 McCandless: And if you can find the LM, then by all means, track it or make a note of where it was, and we can track it on the next Rev.
+If you're ready, we have a REFSMMAT update that we can pass up to you at this time, if you will give us P00 and Accept. Over. (Pause)
+
+[By going to Program 00 and Accept, Mike will allow Houston to radio up changes to some of the data in his computer.]
+
+107:12:06 Collins: Okay. P00 and Accept you got. And this is an updated landing site REFSMMAT. We still believe that a plane change is not required. Is that affirmative?
+
+107:12:15 McCandless: That's affirmative, Columbia.
+
+107:12:20 Collins: Good show.
+
+[Long Comm Break. Public Affairs reports that the LM cabin pressure is 4.86 psi and the temperature is 63F.]
+
+107:15:34 McCandless: Columbia, this is Houston. We are through with the uplink. It's your computer.
+
+107:15:43 Collins: Roger. Thank you.
+
+[Long Comm Break]
+
+107:19:27 Collins: Houston, Columbia.
+
+107:19:30 McCandless: Go ahead, Columbia.
+
+107:19:34 Collins: Roger, (on the) next pass, I'd appreciate the S-band relay mode. Over.
+
+107:19:40 McCandless: Roger. We're working on that. There haven't been any transmissions from Tranquility Base since we last talked to you.
+We cannot give you a full S-band relay without being assured of high-gain antenna. We're working on the partial relay for you. Over.
+
+107:20:00 Collins: Okay. Understand, Bruce. Thank you very much. (Long Pause)
+
+107:20:57 McCandless: Columbia, this is Houston. Approximately 2 minutes to LOS. All your systems are looking good from down here. Over.
+
+107:21:09 Collins: Does it look to you like the two-forty controller is properly controlling the glycol evaporator outlet Temp? It looks all right up here.
+
+[David Woods tells us that the unit known as two-forty ( or 2.40 ) is a glycol evaporator control, which is to the left of center and slightly down in the large diagram on page 2.7-25 (PDF page 25) in the Block II Apollo Operations Handbook ( 7 Mb PDF ). David writes, "I suspect the function of this controller is to adjust the valve that controls the steam pressure in the steam vent of the evaporator. This steam pressure affects how much heat is lost through evaporation. If the evaporators are needed, the system will know this because the outlet temperature will rise. The steam vent valve will open, allow more evaporation and the coolant (glycol) outlet temperature will fall."]
+
+107:21:19 McCandless: Roger, Columbia. During this pass on the front side, it looked okay to us.
+
+107:21:26 Collins: Okay. Thank you.
+
+[Long Comm Break]
+
+Journal Home Page
+
+Apollo 11 Journal Index
+
+EVA Preparations

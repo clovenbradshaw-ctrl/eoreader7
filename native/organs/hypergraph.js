@@ -1100,6 +1100,20 @@ export function makeRelationReader(organs) {
     // grammar disclosure must not narrow that; it only adds a caller-facing
     // fact about what was heard.
     const posPrior = organs.posPriorFor ? organs.posPriorFor() : null;
+    // THE RECEIVED VERB WALL (2026-09-02, relations.js's subject walls): every
+    // form the POS prior reads as verb-dominant (VERB or AUX at
+    // GRAMMAR_MIN_SHARE, the same declared floor the vocabulary gate uses)
+    // walls a subject's leftward walk. Asymmetric: a form here can only STOP
+    // a subject, never admit an edge — measured need: "the poor thing became
+    // quiet and fell" read subject "the poor thing became quiet and" because
+    // "became" had not cleared this material's own vocabulary.
+    const verbWall = posPrior?.forms
+      ? new Set(Object.entries(posPrior.forms).filter(([, c]) => { const total = Object.values(c).reduce((a, b) => a + b, 0); return total > 0 && ((c.VERB ?? 0) + (c.AUX ?? 0)) / total >= GRAMMAR_MIN_SHARE; }).map(([f]) => f))
+      : null;
+    // The same prior's ADP-dominant forms, for the subject walk's chains.
+    const adpositions = posPrior?.forms
+      ? new Set(Object.entries(posPrior.forms).filter(([, c]) => { const total = Object.values(c).reduce((a, b) => a + b, 0); return total > 0 && (c.ADP ?? 0) / total >= GRAMMAR_MIN_SHARE; }).map(([f]) => f))
+      : null;
     const vocabGrammar = new Map();
     let verbs = new Set();
     // How many DISTINCT surfaces each admitted verb followed — the
@@ -1478,7 +1492,7 @@ export function makeRelationReader(organs) {
                 functionWords,
                 negationWords,
                 ...(phrasalPredicates ? { phrasalPredicates } : {}),
-                ...(nounPhraseSubjects ? { nounPhraseSubjects } : {}),
+                ...(nounPhraseSubjects ? { nounPhraseSubjects, ...(verbWall ? { verbWall } : {}), ...(adpositions ? { adpositions } : {}) } : {}),
               })
             : [];
         } catch {
@@ -1599,7 +1613,7 @@ export function makeRelationReader(organs) {
             functionWords,
             negationWords,
             ...(phrasalPredicates ? { phrasalPredicates } : {}),
-            ...(nounPhraseSubjects ? { nounPhraseSubjects } : {}),
+            ...(nounPhraseSubjects ? { nounPhraseSubjects, ...(verbWall ? { verbWall } : {}), ...(adpositions ? { adpositions } : {}) } : {}),
           }),
         draws: assert.draws,
         seed: assert.seed ?? 0,
@@ -1982,7 +1996,7 @@ export function makeRelationReader(organs) {
 
         let heard = [];
         try {
-          heard = extractRelations(sentence, { verbs: sentenceVerbs, functionWords, ...(phrasalPredicates ? { phrasalPredicates } : {}), ...(nounPhraseSubjects ? { nounPhraseSubjects } : {}) });
+          heard = extractRelations(sentence, { verbs: sentenceVerbs, functionWords, ...(phrasalPredicates ? { phrasalPredicates } : {}), ...(nounPhraseSubjects ? { nounPhraseSubjects, ...(verbWall ? { verbWall } : {}), ...(adpositions ? { adpositions } : {}) } : {}) });
         } catch {
           heard = [];
         }
@@ -1996,7 +2010,7 @@ export function makeRelationReader(organs) {
         try {
           const unheardVerbs = new Set([...answerVerbs].filter((v) => !verbs.has(v) && !sameActExtra.has(v)));
           if (unheardVerbs.size) {
-            for (const t of extractRelations(sentence, { verbs: unheardVerbs, functionWords, ...(phrasalPredicates ? { phrasalPredicates } : {}), ...(nounPhraseSubjects ? { nounPhraseSubjects } : {}) })) {
+            for (const t of extractRelations(sentence, { verbs: unheardVerbs, functionWords, ...(phrasalPredicates ? { phrasalPredicates } : {}), ...(nounPhraseSubjects ? { nounPhraseSubjects, ...(verbWall ? { verbWall } : {}), ...(adpositions ? { adpositions } : {}) } : {}) })) {
               const subj = endpoint(t.subject, true);
               if (!subj.referents.size) continue; // a pronoun subject is noise here, not a claim about the cast
               report.claims.push({

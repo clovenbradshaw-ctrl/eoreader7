@@ -1,0 +1,174 @@
+177 captures
+
+18 Aug 2000 - 30 Aug 2026
+
+Apr
+MAY
+Jun
+
+27
+
+2012
+2013
+2014
+
+success
+
+fail
+
+About this capture
+
+COLLECTED BY
+
+Organization: Alexa Crawls
+
+Starting in 1996, Alexa Internet has been donating their crawl data to the Internet Archive. Flowing in every day, these data are added to the Wayback Machine after an embargo period.
+
+Collection: Alexa Crawls
+
+Starting in 1996, Alexa Internet has been donating their crawl data to the Internet Archive. Flowing in every day, these data are added to the Wayback Machine after an embargo period.
+
+TIMESTAMPS
+
+The Wayback Machine - https://web.archive.org/web/20130527012357/http://www.hq.nasa.gov:80/alsj/a11/a11.1201-fm.html
+
+Apollo 11: 25 Years Later
+
+by Fred H. Martin, Intermetrics, Inc.
+July 1994
+
+Copyright © 1994 by Fred H. Martin.
+
+All rights reserved.
+
+Used with permission.
+
+25 years ago it happened - the first Lunar Landing, Apollo 11 - July 20,
+1969. It was an exciting, exhilarating time of total focus and dedication.
+Current and alumni Intermetrics employees were intimately involved with the
+project since its inception in 1960 (John Miller, Jim Miller, Ed Copps, Jim
+Flanders, Dan Lickly, Joe Saponaro, Bill Widnall, John Green, Alex Kosmala,
+Ray Morth, Steve Copps, and me, Fred Martin). The most memorable part of the
+flight for me, aside from the landing and the moon-walk itself, was the
+descent from lunar orbit to the surface. I'd like to present a personal
+remembrance and perspective.
+
+I was at that time the Deputy Director of the Mission Development Group
+under Dr. Richard Battin, a pioneer in modern astronautical guidance. The
+M.I.T. Instrumentation Laboratory ("the Lab") was responsible for the Apollo
+Guidance and Navigation System; we had designed and implemented all of the
+on-board software for both the Command and Service Module (CSM) and the
+Lunar Excursion Module (LEM).
+
+On July 20th we all gathered in a large open conference room at the Lab, as
+we had for previous flights to listen and follow the progress of the flight.
+M.I.T. personnel actively supported each flight, 24 hours a day, by
+stationing expert engineers on-line linked to NASA's Manned Space Center
+(now JSC) in Houston. We waited with anticipation, pride and
+apprehensiveness as the LEM began its descent toward the lunar surface. As
+the vehicle approached the target, one of the astronauts, Buzz Aldrin I
+believe, announced that the on-board computer just displayed a "1202 alarm".
+
+They were confused by the alarm and appealed to the Houston controllers for
+help. In the meantime the descent proceeded normally. The computer alarms
+were buried deep within the executive software and really weren't meant for
+user recognition. The alarms continued to appear at intervals of
+approximately 10 seconds. Everyone was tense and anxious. The M.I.T.
+software people and their NASA counterparts knew that the computer was
+signaling overloaded executive job queues, and the potential loss of
+execution of certain tasks. But, we could not figure out, in real time, the
+immediate danger, the consequences for the mission, nor how in the world
+such a remote alarm could have been caused in the first place. I had never
+seen one or heard of one in all of our pre-flight testing.
+
+We scrambled to understand and advise Houston. Should the Descent be
+aborted? Should the Guidance System be pulled off-line in favor of the
+primitive AGS (Abort Guidance System) ? Cool NASA heads at MSC kept control
+and our most knowledgeable NASA software engineer, Jack Garman, advised the
+Mission Controller to inform the astronauts to push on. Jack was convinced,
+in a split second, that if the computer wasn't getting to certain
+computations, such algorithms were not essential and would not materially
+affect the landing. It was a gutsy call. He was right and the LEM landed
+safely. Now the fun began.
+
+It wasn't 10 seconds after the LEM was secured on the surface that NASA was
+on the phones to the Lab. This was the Lab's responsibility, our system, our
+machine, our alarms. "What were those alarms? We're launching in 24 hours
+and we're not going with alarms. We must have an operational computer." We
+really went to work. The computer seemed to be operating at 80% of its
+normal speed, but why?
+
+We turned to our simulation facilities. We had a high-fidelity digital
+simulation of the computer and the executing programs, surrounded by a
+digital simulation of the LEM vehicle, the equations of motion, and the
+gravitational environment. We also had an analog simulator with the real
+guidance computer, the inertial measurement unit (IMU), and a man-in-the
+loop. We tried every anomalous condition. We examined the executive code,
+the alarm mechanism, and the fundamental algorithms. We worked all night and
+time was running short. Our NASA buddies called us every 15-30 minutes
+anticipating, demanding a solution. We had to find it. We re-covered old
+ground, new ground, brainstorms, crazy ideas, anything.
+
+I remember bumping into one of our M.I.T. engineers, George Silver, who was
+usually at our office at Cape Kennedy. George had been involved in and
+witnessed many pre-flight tests. I asked him in frustration if he had ever
+seen the Apollo Guidance Computer run slowly and under what conditions. To
+my surprise and rather matter of fact, he said he had. He called it "cycle
+stealing" and he said it can occur when the I/O system keeps looking for
+data. He had seen it when the Rendezvous Radar Switch was on (in the AUTO
+position) and the computer was looking for radar data. He asked "the Switch
+isn't on, is it?" "Why would it be on for Descent, it's meant for Ascent?"
+
+I rushed upstairs and suggested we look at the telemetry data. Some of the
+M.I.T engineers found the telemetry print out, found the correct 16-bit
+packed word, found the correct bit, and... yikes!!!, the bit was ON. Why was
+it on? It had to be set in that position by an astronaut. We looked at the 4
+inch thick book of astronaut procedures and there it was -- they were
+supposed to put in on (in the AUTO position) prior to Descent. The computer
+had been looking for radar data. If the astronauts were trained this way,
+why had this effort never shown during training sessions? (I later found out
+that such training was for procedures only and the Switch was never
+connected to a real computer.)
+
+But there was no time now for analyses or reflections. We called Houston and
+delivered the cause and solution. The final countdown to Ascent was
+proceeding. Just before ignition, and the last message sent to the
+astronauts, Glenn Lunney, the Flight Director, calmly told the astronauts to
+"please put the Rendezvous Radar Switch in the Manual position".
+
+The Ascent and flight proceeded without incident.
+
+Software Engineering Postscript
+
+The Apollo program took some heat for this "software error" that almost
+caused Apollo 11 to abort. At M.I.T., we always thought and most would still
+maintain that the system operated as designed and saved the flight. We used
+a priority driven executive, rather than a round robin, FIFO, or table
+division executive. We provided for overload, or loss of computer speed, by
+continuing to execute the highest priority jobs. Those jobs (tasks) that
+fell off the queue were of lowest priority, perhaps a display refresh or
+some other non-essential procedure. Had we demanded computer time for every
+schedule task, then time would have run out, tasks would have overlapped,
+data would be confused and out of sync, and the flight would have been lost.
+Interestingly, this experience so influenced NASA's Jack Gorman and other
+NASA and Intermetrics software engineers, that we fought long and hard to
+retain a priority, asynchronous executive for Shuttle as manifested in the
+HAL/S language.
+
+The on-board Apollo Guidance Computer (AGC) was about 1 cubic foot with 2K
+of 16-bit RAM and 36K of hard-wired core-rope memory with copper wires
+threaded or not threaded through tiny magnetic cores. The 16-bit words were
+generally 14 bits of data (or two op-codes), 1 sign bit, and 1 parity bit.
+The cycle time was 11.7 micro-seconds. Programming was done in assembly
+language and in an interpretive language, in reverse Polish. Scaling was
+fixed point fractional. An assembly language ADD took about 23.4
+micro-seconds. The operating system featured a multi-programmed,
+priority/event driven asynchronous executive packed into 2K of memory. The
+Mean Time to Failure (MTBF) of the machine in a space environment was
+calculated at 50,000 hours -- almost 6 years, and it never failed in flight
+operations. It was truly a marvel for its time, a tribute to M.I.T.'s
+designers, and it accomplished a most complex mission.
+
+Journal Home Page
+
+Apollo 11 Journal Index

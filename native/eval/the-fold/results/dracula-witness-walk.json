@@ -1,0 +1,35 @@
+{
+  "model": "gemma2:2b",
+  "budget": 60,
+  "slice": 240000,
+  "offset": 100000,
+  "sources": 6,
+  "notes": 474,
+  "planted": 4,
+  "results": {
+    "select": {
+      "asks": 60,
+      "calls": 63,
+      "secs": 222.966,
+      "attested": 1,
+      "contradicted": 0,
+      "skipped": 1501,
+      "refusals": {
+        "no-slice": 0,
+        "no-testimony": 53,
+        "insensitive": 0,
+        "uncontained": 3,
+        "unreadable": 0,
+        "unarmed": 0,
+        "decider_unrelated": 1,
+        "unarmed-select": 0,
+        "indiscriminate": 2,
+        "other": 0
+      },
+      "gateBefore": 1,
+      "gateAfter": 2,
+      "lied": 0,
+      "cleanPerAsk": 0.016666666666666666
+    }
+  }
+}

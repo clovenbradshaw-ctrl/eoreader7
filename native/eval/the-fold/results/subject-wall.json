@@ -1,0 +1,195 @@
+{
+  "seed": 7,
+  "results": {
+    "dracula-200-320KB": {
+      "legacy": {
+        "bound": 371,
+        "referent": 83,
+        "form": 288,
+        "tally": {
+          "ok": 275,
+          "led by a function word": 76,
+          "common noun glued to a name": 16,
+          "over eight tokens": 4
+        },
+        "examples": {
+          "led by a function word": [
+            "I never",
+            "I think it",
+            "I wonder what he",
+            "I ran downstairs and"
+          ],
+          "common noun glued to a name": [
+            "Lucy and I",
+            "night I",
+            "found Lucy",
+            "the window Lucy"
+          ],
+          "over eight tokens": [
+            "a few minutes he stood up quite calmly and",
+            "the transfusion went on something like life seemed to",
+            "A telegram came from Van Helsing at Amsterdam whilst I",
+            "the weakness lost something of the amazement at what"
+          ]
+        }
+      },
+      "walls": {
+        "bound": 278,
+        "referent": 78,
+        "form": 200,
+        "tally": {
+          "ok": 248,
+          "common noun glued to a name": 13,
+          "led by a function word": 15,
+          "over eight tokens": 2
+        },
+        "examples": {
+          "common noun glued to a name": [
+            "Lucy and I",
+            "night I",
+            "found Lucy",
+            "back from the window Lucy"
+          ],
+          "led by a function word": [
+            "as time",
+            "on the band of her nightdress",
+            "at once",
+            "at length"
+          ],
+          "over eight tokens": [
+            "the poor lady’s mind about her daughter in her present state of health",
+            "’Ittin’ of them over the ’ead with a pole"
+          ]
+        }
+      },
+      "random": {
+        "bound": 246,
+        "referent": 26,
+        "form": 220,
+        "tally": {
+          "ok": 209,
+          "led by a function word": 26,
+          "common noun glued to a name": 11
+        },
+        "examples": {
+          "led by a function word": [
+            "I think it",
+            "I hope I",
+            "I suppose I",
+            "at once"
+          ],
+          "common noun glued to a name": [
+            "night I",
+            "suddenly Lucy",
+            "lest I",
+            "day I"
+          ]
+        }
+      }
+    },
+    "battle-of-borodino": {
+      "legacy": {
+        "bound": 344,
+        "referent": 253,
+        "form": 91,
+        "tally": {
+          "ok": 278,
+          "common noun glued to a name": 34,
+          "led by a function word": 23,
+          "lone function word": 7,
+          "over eight tokens": 2
+        },
+        "examples": {
+          "common noun glued to a name": [
+            "the Battle of Moscow",
+            "retreating Russians",
+            "the Battle of Shevardino",
+            "Battle of Borodino by Peter"
+          ],
+          "led by a function word": [
+            "on 18 August",
+            "with Kutuzov",
+            "in positions which",
+            "in artillery"
+          ],
+          "lone function word": [
+            "the",
+            "the",
+            "The",
+            "the"
+          ],
+          "over eight tokens": [
+            "The 2nd Army's command structure fell apart as Bagration",
+            "The heavy undergrowth greatly hindered Poniatowski's efforts but eventually he came near cutting off the Russian"
+          ]
+        }
+      },
+      "walls": {
+        "bound": 332,
+        "referent": 250,
+        "form": 82,
+        "tally": {
+          "ok": 270,
+          "common noun glued to a name": 34,
+          "led by a function word": 19,
+          "lone function word": 7,
+          "over eight tokens": 2
+        },
+        "examples": {
+          "common noun glued to a name": [
+            "the Battle of Moscow",
+            "retreating Russians",
+            "the Battle of Shevardino",
+            "Battle of Borodino by Peter"
+          ],
+          "led by a function word": [
+            "on 18 August",
+            "by the time of the battle",
+            "with Kutuzov",
+            "in positions"
+          ],
+          "lone function word": [
+            "the",
+            "the",
+            "The",
+            "the"
+          ],
+          "over eight tokens": [
+            "The over-reliance of western historians on French sources for the battle and campaign",
+            "More modern authors note in the camp of the French army there"
+          ]
+        }
+      },
+      "random": {
+        "bound": 186,
+        "referent": 121,
+        "form": 65,
+        "tally": {
+          "ok": 164,
+          "common noun glued to a name": 7,
+          "led by a function word": 12,
+          "lone function word": 3
+        },
+        "examples": {
+          "common noun glued to a name": [
+            "retreating Russians",
+            "about Toll's",
+            "two Jäger",
+            "retreat of Beauharnais'"
+          ],
+          "led by a function word": [
+            "of the battle",
+            "of Napoleon's",
+            "with Kutuzov",
+            "in artillery"
+          ],
+          "lone function word": [
+            "the",
+            "while",
+            "neither"
+          ]
+        }
+      }
+    }
+  }
+}

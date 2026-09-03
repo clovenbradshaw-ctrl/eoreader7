@@ -1,0 +1,1569 @@
+{
+ "ee1abf0695b36a8e": {
+  "url": "https://lccn.loc.gov/05040370",
+  "gap": {
+   "type": "shell",
+   "detail": "0-char face"
+  }
+ },
+ "2e07e6328cda2905": {
+  "url": "https://id.loc.gov/authorities/sh85009568",
+  "gap": {
+   "type": "http",
+   "status": 403
+  },
+  "viaArchive": false
+ },
+ "1f162b0e23aabc12": {
+  "url": "https://lux.collections.yale.edu/view/place/32e12c67-b978-4df2-a0a9-73bac3b1100a",
+  "gap": {
+   "type": "http",
+   "status": 403
+  },
+  "viaArchive": false
+ },
+ "621a0df32ad2029d": {
+  "url": "https://books.google.com/books?id=hKVKFZ-4I3cC&pg=PA51",
+  "finalUrl": "https://books.google.com/books?id=hKVKFZ-4I3cC&pg=PA51",
+  "host": "books.google.com",
+  "title": "Oeuvres de Victor Hugo - Victor Hugo - Google Books",
+  "chars": 613,
+  "viaArchive": false,
+  "retrievedAt": "2026-09-03T00:11:18.311Z"
+ },
+ "2df3287fa349101f": {
+  "url": "http://www.vialupo.com/austerlitz",
+  "gap": {
+   "type": "shell",
+   "detail": "0-char face"
+  }
+ },
+ "2cd5aceef5703390": {
+  "url": "http://www.pousse-pion.fr/mp/La-bataille-d-Austerlitz.php",
+  "finalUrl": "https://pousse-pion.fr/",
+  "host": "pousse-pion.fr",
+  "title": "Pousse Pion",
+  "chars": 327,
+  "viaArchive": false,
+  "retrievedAt": "2026-09-03T00:11:21.479Z"
+ },
+ "eb1e3b6f24c8329a": {
+  "url": "https://archive.org/details/bmk-brz-3/page/n300",
+  "finalUrl": "https://archive.org/details/bmk-brz-3/page/n300",
+  "host": "archive.org",
+  "title": "Военная энциклопедия . Том III. Аральская флотилия – Афонское сражение : BMK BRZ : Free Download, Borrow, and Streaming : Internet Archive",
+  "chars": 5961,
+  "viaArchive": false,
+  "retrievedAt": "2026-09-03T00:12:07.562Z"
+ },
+ "8c4236e2747bc239": {
+  "url": "https://www.napoleon-series.org/military-info/battles/Austerlitz/c_russiancasualties.html",
+  "gap": {
+   "type": "shell",
+   "detail": "0-char face"
+  }
+ },
+ "38367fd3c62bdb3c": {
+  "url": "https://catalogue.bnf.fr/ark:/12148/cb12389246n",
+  "finalUrl": "https://catalogue.bnf.fr/ark:/12148/cb12389246n",
+  "host": "catalogue.bnf.fr",
+  "title": "Notice RAMEAU \"Guerre de la troisième coalition (1805)\" | Accueil | Catalogue général | BnF- Bibliothèque nationale de France",
+  "chars": 1531,
+  "viaArchive": false,
+  "retrievedAt": "2026-09-03T00:13:09.643Z"
+ },
+ "083bf63727249fe9": {
+  "url": "http://www.historyskills.com/classroom/modern-history/austerlitz/",
+  "finalUrl": "https://www.historyskills.com/classroom/modern-history/austerlitz/",
+  "host": "historyskills.com",
+  "title": "Why the Battle of Austerlitz was Napoleon's greatest triumph - History Skills",
+  "chars": 8053,
+  "viaArchive": false,
+  "retrievedAt": "2026-09-03T00:13:13.147Z"
+ },
+ "87ff5369032f4bbf": {
+  "url": "https://www.worldhistory.org/article/2249/ulm-campaign/",
+  "finalUrl": "https://www.worldhistory.org/article/2249/ulm-campaign/",
+  "host": "worldhistory.org",
+  "title": "Ulm Campaign - World History Encyclopedia",
+  "chars": 21207,
+  "viaArchive": false,
+  "retrievedAt": "2026-09-03T00:13:14.090Z"
+ },
+ "92628dad3aad5477": {
+  "url": "https://news.bbc.co.uk/2/hi/europe/4491668.stm",
+  "gap": {
+   "type": "http",
+   "status": 403
+  },
+  "viaArchive": false
+ },
+ "f0b3dab601ea5dab": {
+  "url": "https://id.loc.gov/authorities/sh2006007055",
+  "gap": {
+   "type": "http",
+   "status": 403
+  },
+  "viaArchive": false
+ },
+ "89271295c55eaec0": {
+  "url": "https://marxengels.public-archives.com/en/ME0936en.html",
+  "finalUrl": "https://marxengels.public-archives.com/en/ME0936en.html",
+  "host": "marxengels.public-archives.com",
+  "title": "The Armies of Europe - Engels",
+  "chars": 187960,
+  "viaArchive": false,
+  "retrievedAt": "2026-09-03T00:13:15.756Z"
+ },
+ "cd10bb6b33a8c643": {
+  "url": "http://www.napoleon-online.de/AU_Generale/index.html",
+  "finalUrl": "https://napoleon-online.de/AU_Generale/index.html",
+  "host": "napoleon-online.de",
+  "title": "�sterreichische Generalit�t 1792-1815",
+  "chars": 910,
+  "viaArchive": false,
+  "retrievedAt": "2026-09-03T00:13:16.788Z"
+ },
+ "d5b09a7f8081e191": {
+  "url": "http://www.napoleon-online.de/",
+  "finalUrl": "https://napoleon-online.de/",
+  "host": "napoleon-online.de",
+  "title": "Napoleon Online - das Portal zur Militärgeschichte von 1789 bis 1815",
+  "chars": 5304,
+  "viaArchive": false,
+  "retrievedAt": "2026-09-03T00:13:17.199Z"
+ },
+ "afc6e77b15b2612e": {
+  "url": "https://muse.jhu.edu/article/180781/pdf",
+  "finalUrl": "https://muse.jhu.edu/verify?url=%2Farticle%2F180781%2Fpdf&r=6763759",
+  "host": "muse.jhu.edu",
+  "title": "Project MUSE -- Verification required!",
+  "chars": 206,
+  "viaArchive": false,
+  "retrievedAt": "2026-09-03T00:13:17.584Z"
+ },
+ "bfdee5bdffa1b7d4": {
+  "url": "https://doi.org/10.1215%2F10474552-16-1-120",
+  "gap": {
+   "type": "http",
+   "status": 403
+  },
+  "viaArchive": false
+ },
+ "83994f7c622efae5": {
+  "url": "https://api.semanticscholar.org/CorpusID:154229720",
+  "gap": {
+   "type": "shell",
+   "detail": "0-char face"
+  }
+ },
+ "199eb2f3ad85b759": {
+  "url": "http://www.westpoint.edu/history/SitePages/Napoleonic%20Wars.aspx",
+  "gap": {
+   "type": "http",
+   "status": 403
+  },
+  "viaArchive": true
+ },
+ "c78c4fb4e02058ce": {
+  "url": "https://search.worldcat.org/oclc/185576578",
+  "gap": {
+   "type": "http",
+   "status": 403
+  },
+  "viaArchive": false
+ },
+ "53d95b75cc0c7eb4": {
+  "url": "https://www.archive.org/details/memoirsofnapoleo01meneiala",
+  "finalUrl": "https://archive.org/details/memoirsofnapoleo01meneiala",
+  "host": "archive.org",
+  "title": "Memoirs of Napoleon Bonaparte, the court of the first empire : Méneval, Claude-François, baron de, 1778-1850 : Free Download, Borrow, and Streaming : Internet Archive",
+  "chars": 5452,
+  "viaArchive": false,
+  "retrievedAt": "2026-09-03T00:13:21.313Z"
+ },
+ "44b086159c14b556": {
+  "url": "https://archive.org/details/lifenapoleonbon00irelgoog/page/548/mode/1up",
+  "finalUrl": "https://archive.org/details/lifenapoleonbon00irelgoog/page/548/mode/1up",
+  "host": "archive.org",
+  "title": "The life of Napoleon Bonaparte : Ireland, W. H. (William Henry), 1777-1835 : Free Download, Borrow, and Streaming : Internet Archive",
+  "chars": 4639,
+  "viaArchive": false,
+  "retrievedAt": "2026-09-03T00:13:23.709Z"
+ },
+ "eac650f565dfbbb7": {
+  "url": "https://search.worldcat.org/oclc/37778325",
+  "gap": {
+   "type": "http",
+   "status": 403
+  },
+  "viaArchive": false
+ },
+ "5079b65d352fca9c": {
+  "url": "https://archive.org/stream/bmk-brz-3/bmk-brz-3_djvu.txt",
+  "finalUrl": "https://archive.org/details/bmk-brz-3/bmk-brz-3_djvu.txt?view=theater",
+  "host": "archive.org",
+  "title": "Военная энциклопедия . Том III. Аральская флотилия – Афонское сражение : BMK BRZ : Free Download, Borrow, and Streaming : Internet Archive",
+  "chars": 5961,
+  "viaArchive": false,
+  "retrievedAt": "2026-09-03T00:16:34.843Z"
+ },
+ "b3e8a6b5bc040373": {
+  "url": "https://archive.org/stream/lifenapoleonbon00irelgoog/lifenapoleonbon00irelgoog_djvu.txt",
+  "finalUrl": "https://archive.org/stream/lifenapoleonbon00irelgoog/lifenapoleonbon00irelgoog_djvu.txt",
+  "host": "archive.org",
+  "title": "Full text of \"The life of Napoleon Bonaparte\"",
+  "chars": 1318238,
+  "viaArchive": false,
+  "retrievedAt": "2026-09-03T00:16:35.827Z"
+ },
+ "2c7669441633a904": {
+  "url": "https://doi.org/10.2307%2F1987151",
+  "finalUrl": "https://www.jstor.org/stable/1987151?origin=crossref",
+  "host": "jstor.org",
+  "title": "Client Challenge",
+  "chars": 209,
+  "viaArchive": false,
+  "retrievedAt": "2026-09-03T00:16:37.711Z"
+ },
+ "b6338c4411534b80": {
+  "url": "https://lux.collections.yale.edu/view/concept/0ebef9f0-d078-4595-b1f6-36037ce2772d",
+  "gap": {
+   "type": "http",
+   "status": 403
+  },
+  "viaArchive": false
+ },
+ "e6e520d39bf33768": {
+  "url": "https://www.jstor.org/stable/1987151",
+  "finalUrl": "https://www.jstor.org/stable/1987151",
+  "host": "jstor.org",
+  "title": "Client Challenge",
+  "chars": 209,
+  "viaArchive": false,
+  "retrievedAt": "2026-09-03T00:16:37.979Z"
+ },
+ "f731ecd70d50c36a": {
+  "url": "https://www.discover-utrecht.com/location/the-pyramid-of-austerlitz/",
+  "finalUrl": "https://www.discover-utrecht.com/location/the-pyramid-of-austerlitz/",
+  "host": "discover-utrecht.com",
+  "title": "The Pyramid of Austerlitz | Ontdek Utrecht",
+  "chars": 2021,
+  "viaArchive": false,
+  "retrievedAt": "2026-09-03T00:16:41.859Z"
+ },
+ "d1a7d99c90f6e552": {
+  "url": "https://doi.org/10.1093%2Fehr%2FXVII.LXVII.537",
+  "gap": {
+   "type": "http",
+   "status": 403
+  },
+  "viaArchive": false
+ },
+ "ac75a233a78d000f": {
+  "url": "https://search.worldcat.org/issn/0013-8266",
+  "gap": {
+   "type": "http",
+   "status": 429
+  },
+  "viaArchive": false
+ },
+ "b2f38000f3555e8e": {
+  "url": "http://www.bellum.cz/en/battle-of-austerlitz.html",
+  "finalUrl": "https://bellum.cz/en/battle-of-austerlitz.html",
+  "host": "bellum.cz",
+  "title": "Battle of Austerlitz 2nd December 1805 | Bellum.cz",
+  "chars": 24777,
+  "viaArchive": false,
+  "retrievedAt": "2026-09-03T00:16:45.115Z"
+ },
+ "64abb6dbdb57e0a8": {
+  "url": "https://history.nasa.gov/afj/ap11fj/01launch.html",
+  "finalUrl": "https://www.nasa.gov/history/alsj-and-afj/",
+  "host": "nasa.gov",
+  "title": "The Apollo Lunar Surface Journal and Apollo Flight Journal - NASA",
+  "chars": 10338,
+  "retrievedAt": "2026-09-03T02:23:16.659Z"
+ },
+ "79a835c6a3df9e65": {
+  "url": "https://ntrs.nasa.gov/archive/nasa/casi.ntrs.nasa.gov/19790003956.pdf",
+  "finalUrl": "https://ntrs.nasa.gov/archive/nasa/casi.ntrs.nasa.gov/19790003956.pdf",
+  "host": "ntrs.nasa.gov",
+  "title": "Moonport: A History of Apollo Launch Facilities and Operations - NASA Technical Reports Server (NTRS)",
+  "chars": 1362,
+  "retrievedAt": "2026-09-03T02:23:17.544Z"
+ },
+ "5d73847fda12b23e": {
+  "url": "https://ntrs.nasa.gov/archive/nasa/casi.ntrs.nasa.gov/19970009949.pdf",
+  "finalUrl": "https://ntrs.nasa.gov/archive/nasa/casi.ntrs.nasa.gov/19970009949.pdf",
+  "host": "ntrs.nasa.gov",
+  "title": "Stages to Saturn: A Technological History of the Apollo/Saturn Launch Vehicles - NASA Technical Reports Server (NTRS)",
+  "chars": 1894,
+  "retrievedAt": "2026-09-03T02:23:18.125Z"
+ },
+ "c606f717c1eee954": {
+  "url": "https://ui.adsabs.harvard.edu/abs/2021P&SS..20505304M",
+  "gap": {
+   "type": "http",
+   "status": 405
+  }
+ },
+ "ac8d77211342568b": {
+  "url": "https://arxiv.org/abs/2105.10088",
+  "finalUrl": "https://arxiv.org/abs/2105.10088",
+  "host": "arxiv.org",
+  "title": "[2105.10088] Long-term Orbit Stability of the Apollo 11 Eagle Lunar Module Ascent Stage",
+  "chars": 3636,
+  "retrievedAt": "2026-09-03T02:23:26.174Z"
+ },
+ "17ba60de59575af0": {
+  "url": "https://arxiv.org/archive/physics.space-ph",
+  "finalUrl": "https://arxiv.org/archive/physics.space-ph",
+  "host": "arxiv.org",
+  "title": "Physics",
+  "chars": 8306,
+  "retrievedAt": "2026-09-03T02:23:26.356Z"
+ },
+ "a59298a613ce3c46": {
+  "url": "https://www.independent.co.uk/news/science/recording-tracks-russias-moon-gatecrash-attempt-1730851.html",
+  "gap": {
+   "type": "http",
+   "status": 403
+  }
+ },
+ "23017704bbfdc67f": {
+  "url": "http://www.independent.co.uk/news/science/recording-tracks-russias-moon-gatecrash-attempt-1730851.html",
+  "gap": {
+   "type": "http",
+   "status": 403
+  }
+ },
+ "3d2042ae72e93c0e": {
+  "url": "https://archive.org/details/raceuncensored00sche",
+  "finalUrl": "https://archive.org/details/raceuncensored00sche",
+  "host": "archive.org",
+  "title": "The race : the uncensored story of how America beat Russia to the moon : Schefter, James L : Free Download, Borrow, and Streaming : Internet Archive",
+  "chars": 4872,
+  "retrievedAt": "2026-09-03T02:23:36.170Z"
+ },
+ "cbdd0d5374da4b05": {
+  "url": "https://search.worldcat.org/issn/1553-8095",
+  "gap": {
+   "type": "http",
+   "status": 429
+  }
+ },
+ "c202483497f98cb0": {
+  "url": "https://search.worldcat.org/issn/0362-4331",
+  "gap": {
+   "type": "http",
+   "status": 429
+  }
+ },
+ "1a518fda8da09e1b": {
+  "url": "https://www.nytimes.com/2019/02/27/movies/apollo-11-review.html",
+  "gap": {
+   "type": "http",
+   "status": 403
+  }
+ },
+ "f0846504330bc332": {
+  "url": "https://history.nasa.gov/afj/ap11fj/15day4-eagle-checkout.html",
+  "finalUrl": "https://www.nasa.gov/history/alsj-and-afj/",
+  "host": "nasa.gov",
+  "title": "The Apollo Lunar Surface Journal and Apollo Flight Journal - NASA",
+  "chars": 10338,
+  "retrievedAt": "2026-09-03T02:23:37.147Z"
+ },
+ "cca56866a4441880": {
+  "url": "https://www.hq.nasa.gov/pao/History/SP-350/cover.html",
+  "gap": {
+   "type": "http",
+   "status": 403
+  }
+ },
+ "e2652b7535ef277d": {
+  "url": "http://history.nasa.gov/SP-350/ch-9-5.html",
+  "finalUrl": "https://ntrs.nasa.gov/citations/19760005868",
+  "host": "ntrs.nasa.gov",
+  "title": "Apollo Expeditions to the Moon - NASA Technical Reports Server (NTRS)",
+  "chars": 1287,
+  "retrievedAt": "2026-09-03T02:23:38.261Z"
+ },
+ "96c7de949f13916a": {
+  "url": "https://nssdc.gsfc.nasa.gov/misc/documents/b32116.pdf",
+  "finalUrl": "https://www.nasa.gov/nssdc/",
+  "host": "nasa.gov",
+  "title": "NASA Space Science Data Coordinated Archive Status - NASA",
+  "chars": 6894,
+  "retrievedAt": "2026-09-03T02:23:38.601Z"
+ },
+ "a2fb223b98f90f18": {
+  "url": "https://lccn.loc.gov/2005049992",
+  "gap": {
+   "type": "shell",
+   "detail": "0-char face"
+  }
+ },
+ "a1949dd33d17f53b": {
+  "url": "https://search.worldcat.org/oclc/937302502",
+  "gap": {
+   "type": "http",
+   "status": 403
+  }
+ },
+ "d5cde345f76df212": {
+  "url": "https://airandspace.si.edu/exhibitions/apollo-to-the-moon/online/science/scientific-experiments.cfm",
+  "finalUrl": "https://airandspace.si.edu/explore/topics/spaceflight/apollo-program",
+  "host": "airandspace.si.edu",
+  "title": "Apollo program | National Air and Space Museum",
+  "chars": 5455,
+  "retrievedAt": "2026-09-03T02:23:40.010Z"
+ },
+ "e25d80e8f6dfd689": {
+  "url": "https://airandspace.si.edu/exhibitions/apollo-moon",
+  "finalUrl": "https://airandspace.si.edu/exhibitions/apollo-moon",
+  "host": "airandspace.si.edu",
+  "title": "Apollo to the Moon | National Air and Space Museum",
+  "chars": 1513,
+  "retrievedAt": "2026-09-03T02:23:40.755Z"
+ },
+ "85694a820afc4db3": {
+  "url": "http://www.collectspace.com/news/news-093019a-destination-moon-cincinnati-museum.html",
+  "finalUrl": "http://www.collectspace.com/news/news-093019a-destination-moon-cincinnati-museum.html",
+  "host": "collectspace.com",
+  "title": "Neil Armstrong's sons help open exhibit of father's spacecraft in Cincinnati | collectSPACE",
+  "chars": 5708,
+  "retrievedAt": "2026-09-03T02:23:40.909Z"
+ },
+ "493f3d573fc3c19d": {
+  "url": "https://www.archives.gov/social-media/transcripts/transcript-eagle-has-landed-1969-45017.pdf",
+  "gap": {
+   "type": "beyond-reach",
+   "detail": "application/pdf"
+  }
+ },
+ "250cd80a799bc419": {
+  "url": "https://www.nytimes.com/2019/07/15/business/media/apollo-11-television-media.html",
+  "gap": {
+   "type": "http",
+   "status": 403
+  }
+ },
+ "26120f15d911a264": {
+  "url": "https://www.hq.nasa.gov/alsj/a11/a11ReturnedEagleArtifacts.html",
+  "finalUrl": "https://www.nasa.gov/history/alsj-and-afj/",
+  "host": "nasa.gov",
+  "title": "The Apollo Lunar Surface Journal and Apollo Flight Journal - NASA",
+  "chars": 10338,
+  "retrievedAt": "2026-09-03T02:23:42.400Z"
+ },
+ "9190e06d76b22bc8": {
+  "url": "https://www.hq.nasa.gov/alsj/a11/a11.landing.html",
+  "finalUrl": "https://www.nasa.gov/history/alsj-and-afj/",
+  "host": "nasa.gov",
+  "title": "The Apollo Lunar Surface Journal and Apollo Flight Journal - NASA",
+  "chars": 10338,
+  "retrievedAt": "2026-09-03T02:23:42.581Z"
+ },
+ "acf1d66864f16aa0": {
+  "url": "http://www.hq.nasa.gov/alsj/a11/a11.landing.html",
+  "gap": {
+   "type": "http",
+   "status": 403
+  }
+ },
+ "d2ef9f7b449e04ee": {
+  "url": "https://archive.org/details/gov.archives.arc.1257628",
+  "finalUrl": "https://archive.org/details/gov.archives.arc.1257628",
+  "host": "archive.org",
+  "title": "Moonwalk One, ca. 1970 : National Archives and Records Administration : Free Download, Borrow, and Streaming : Internet Archive",
+  "chars": 4696,
+  "retrievedAt": "2026-09-03T02:23:43.058Z"
+ },
+ "ff78e66f2892c506": {
+  "url": "https://archive.org/stream/gov.archives.arc.1257628/gov.archives.arc.1257628_djvu.txt",
+  "gap": {
+   "type": "http",
+   "status": 404
+  }
+ },
+ "1b0807b0671c2e8f": {
+  "url": "https://www.nasa.gov/centers/langley/news/factsheets/Rendezvous.html",
+  "gap": {
+   "type": "http",
+   "status": 403
+  }
+ },
+ "0e3151bf93b004d5": {
+  "url": "https://history.nasa.gov/SP-4223/ch9.htm",
+  "finalUrl": "https://ntrs.nasa.gov/citations/20000027506",
+  "host": "ntrs.nasa.gov",
+  "title": "\"Before This Decade Is Out...\": Personal Reflections on the Apollo Program - NASA Technical Reports Server (NTRS)",
+  "chars": 2034,
+  "retrievedAt": "2026-09-03T02:23:44.520Z"
+ },
+ "0cebfe3ce99f1763": {
+  "url": "https://www.weather.gov/smg/apollo",
+  "finalUrl": "https://www.weather.gov/smg/apollo",
+  "host": "weather.gov",
+  "title": "SMG Weather History - Apollo Program",
+  "chars": 14775,
+  "retrievedAt": "2026-09-03T02:23:44.978Z"
+ },
+ "567b045cdf44cdd4": {
+  "url": "https://www.history.nasa.gov/alsj/a11/Apollo11_Press-Kit_restored.pdf",
+  "gap": {
+   "type": "http",
+   "status": 403
+  }
+ },
+ "c2b45e2c64db96bd": {
+  "url": "http://ocw.mit.edu/courses/science-technology-and-society/sts-471j-engineering-apollo-the-moon-project-as-a-complex-system-spring-2007/readings/soviet_mand_lunr.pdf",
+  "gap": {
+   "type": "http",
+   "status": 403
+  }
+ },
+ "8dba1bffe2e2311d": {
+  "url": "https://www.presidency.ucsb.edu/documents/telephone-conversation-with-the-apollo-11-astronauts-the-moon",
+  "finalUrl": "https://www.presidency.ucsb.edu/documents/telephone-conversation-with-the-apollo-11-astronauts-the-moon",
+  "host": "presidency.ucsb.edu",
+  "title": "Telephone Conversation With the Apollo 11 Astronauts on the Moon | The American Presidency Project",
+  "chars": 2401,
+  "retrievedAt": "2026-09-03T02:23:45.992Z"
+ },
+ "433874432d84538e": {
+  "url": "https://search.worldcat.org/oclc/890357362",
+  "gap": {
+   "type": "http",
+   "status": 403
+  }
+ },
+ "936e909fa8565609": {
+  "url": "https://nssdc.gsfc.nasa.gov/planetary/lunar/lunar_sites.html",
+  "finalUrl": "https://www.nasa.gov/nssdc/",
+  "host": "nasa.gov",
+  "title": "NASA Space Science Data Coordinated Archive Status - NASA",
+  "chars": 6894,
+  "retrievedAt": "2026-09-03T02:23:46.447Z"
+ },
+ "48c7ef521975afd7": {
+  "url": "https://www.nasa.gov/audience/forstudents/5-8/features/F_Apollo_35th_Anniversary.html",
+  "gap": {
+   "type": "http",
+   "status": 404
+  }
+ },
+ "bf94abef5e215dae": {
+  "url": "http://www.nasa.gov/audience/forstudents/5-8/features/F_Apollo_35th_Anniversary.html",
+  "gap": {
+   "type": "http",
+   "status": 403
+  }
+ },
+ "831100cf4ef89fd5": {
+  "url": "https://archive.org/details/isbn_9780743200790",
+  "finalUrl": "https://archive.org/details/isbn_9780743200790",
+  "host": "archive.org",
+  "title": "Failure is not an option : mission control from Mercury to Apollo 13 and beyond : Kranz, Gene : Free Download, Borrow, and Streaming : Internet Archive",
+  "chars": 5056,
+  "retrievedAt": "2026-09-03T02:23:48.333Z"
+ },
+ "f8b68819ea0e0bdf": {
+  "url": "https://archive.org/stream/isbn_9780743200790/isbn_9780743200790_djvu.txt",
+  "finalUrl": "https://archive.org/stream/isbn_9780743200790/isbn_9780743200790_djvu.txt",
+  "host": "archive.org",
+  "title": "Full text of \"Failure is not an option : mission control from Mercury to Apollo 13 and beyond\"",
+  "chars": 2417,
+  "retrievedAt": "2026-09-03T02:23:48.509Z"
+ },
+ "de3810c94546a306": {
+  "url": "https://www.washingtonpost.com/history/2019/07/19/soviets-tried-beat-apollo-they-crashed-spacecraft-moon-instead/",
+  "gap": {
+   "type": "http",
+   "status": 503
+  }
+ },
+ "eaab29993dab83f8": {
+  "url": "https://www.nasa.gov/mission_pages/apollo/missions/apollo11.html",
+  "finalUrl": "https://www.nasa.gov/history/apollo-11-mission-overview/",
+  "host": "nasa.gov",
+  "title": "Apollo 11 Mission Overview - NASA",
+  "chars": 17006,
+  "retrievedAt": "2026-09-03T02:28:21.852Z"
+ },
+ "19158658e2381ea9": {
+  "url": "https://www.smithsonianmag.com/science-nature/what-you-didnt-know-about-apollo-11-mission-fifty-years-ago-180972165/",
+  "finalUrl": "https://www.smithsonianmag.com/science-nature/what-you-didnt-know-about-apollo-11-mission-fifty-years-ago-180972165/",
+  "host": "smithsonianmag.com",
+  "title": "What You Didn't Know About the Apollo 11 Mission",
+  "chars": 60269,
+  "retrievedAt": "2026-09-03T02:28:23.002Z"
+ },
+ "dad2d1458de7a95d": {
+  "url": "https://www.theatlantic.com/technology/archive/2012/09/moondoggle-the-forgotten-opposition-to-the-apollo-program/262254/",
+  "gap": {
+   "type": "http",
+   "status": 403
+  }
+ },
+ "dcf6c0c1a77b37ff": {
+  "url": "https://search.worldcat.org/oclc/829406416",
+  "gap": {
+   "type": "http",
+   "status": 403
+  }
+ },
+ "bf63e70e0fb905d6": {
+  "url": "https://search.worldcat.org/oclc/849992795",
+  "gap": {
+   "type": "http",
+   "status": 403
+  }
+ },
+ "87cb4133c46d0fd8": {
+  "url": "https://www.jfklibrary.org/Asset-Viewer/Archives/JFKPOF-046-041.aspx",
+  "gap": {
+   "type": "http",
+   "status": 403
+  }
+ },
+ "30c2edbc012923d1": {
+  "url": "http://wechoosethemoon.org/",
+  "finalUrl": "https://zakladysports.pl/",
+  "host": "zakladysports.pl",
+  "title": "Ranking bukmacherów w Polsce bez podatku - wrzesień 2026",
+  "chars": 56932,
+  "retrievedAt": "2026-09-03T02:28:25.272Z"
+ },
+ "5a5fe281600f6cf1": {
+  "url": "https://www.nasa.gov/feature/50-years-ago-lunar-landing-sites-selected",
+  "finalUrl": "https://www.nasa.gov/history/50-years-ago-lunar-landing-sites-selected/",
+  "host": "nasa.gov",
+  "title": "50 Years Ago: Lunar Landing Sites Selected - NASA",
+  "chars": 9651,
+  "retrievedAt": "2026-09-03T02:28:25.555Z"
+ },
+ "c11ad4afd2fed755": {
+  "url": "https://lccn.loc.gov/2001017080",
+  "gap": {
+   "type": "shell",
+   "detail": "0-char face"
+  }
+ },
+ "360236aa71c7a2bb": {
+  "url": "https://airandspace.si.edu/explore-and-learn/topics/apollo/apollo-program/spacecraft/location/lm.cfm?dom=pscau",
+  "finalUrl": "https://airandspace.si.edu/explore/topics/spaceflight/apollo-program",
+  "host": "airandspace.si.edu",
+  "title": "Apollo program | National Air and Space Museum",
+  "chars": 5455,
+  "retrievedAt": "2026-09-03T02:28:26.688Z"
+ },
+ "92214eba3b9e1783": {
+  "url": "https://airandspace.si.edu/explore-and-learn/topics/apollo/apollo-program/orbital-missions/apollo10-facts.cfm",
+  "gap": {
+   "type": "http",
+   "status": 403
+  }
+ },
+ "7ae39643ea0d35a3": {
+  "url": "https://www.reuters.com/article/us-space-exploration-moon-spacesuit/neil-armstrongs-apollo-11-spacesuit-unveiled-at-smithsonian-idUSKCN1UB2GX",
+  "gap": {
+   "type": "http",
+   "status": 403
+  }
+ },
+ "206d3fbfbcba2529": {
+  "url": "https://abcnews.go.com/Technology/wireStory/trump-marks-apollo-11-anniversary-meeting-astronauts-64439860",
+  "gap": {
+   "type": "http",
+   "status": 403
+  }
+ },
+ "f87412de74c1e0ce": {
+  "url": "https://www.latimes.com/archives/la-xpm-1999-jul-07-mn-53678-story.html",
+  "gap": {
+   "type": "http",
+   "status": 403
+  }
+ },
+ "acdfce6c6e1c1c00": {
+  "url": "http://articles.latimes.com/1999/jul/07/news/mn-53678",
+  "gap": {
+   "type": "http",
+   "status": 403
+  }
+ },
+ "924a8d2b4806947b": {
+  "url": "https://www.usmint.gov/historianscorner/?action=coinDetail&id=347",
+  "gap": {
+   "type": "http",
+   "status": 403
+  }
+ },
+ "86570537bec568ff": {
+  "url": "https://www.nasa.gov/history/50-years-ago-hornet-3-the-recovery-of-apollo-11/",
+  "finalUrl": "https://www.nasa.gov/history/50-years-ago-hornet-3-the-recovery-of-apollo-11/",
+  "host": "nasa.gov",
+  "title": "50 Years Ago: Hornet + 3 – The Recovery of Apollo 11 - NASA",
+  "chars": 20373,
+  "retrievedAt": "2026-09-03T02:28:28.012Z"
+ },
+ "9ef8aa1bdc35fd38": {
+  "url": "https://www.history.navy.mil/content/history/nhhc/browse-by-topic/exploration-and-innovation/navy-and-space-exploration/apollo-11-recovery.html",
+  "gap": {
+   "type": "http",
+   "status": 503
+  }
+ },
+ "f42a6e08a420d62f": {
+  "url": "http://klabs.org/history/apollo_11_alarms/eyles_2004/eyles_2004.htm",
+  "finalUrl": "http://klabs.org/history/apollo_11_alarms/eyles_2004/eyles_2004.htm",
+  "host": "klabs.org",
+  "title": "TALES FROM THE LUNAR MODULE GUIDANCE COMPUTER",
+  "chars": 58368,
+  "retrievedAt": "2026-09-03T02:28:28.917Z"
+ },
+ "71653e4d2df860fa": {
+  "url": "https://solarsystem.nasa.gov/missions/luna-15/in-depth",
+  "finalUrl": "https://science.nasa.gov/science-missions/",
+  "host": "science.nasa.gov",
+  "title": "Science Missions - NASA Science",
+  "chars": 13914,
+  "retrievedAt": "2026-09-03T02:28:29.869Z"
+ },
+ "f7ee769d9d5b8cb5": {
+  "url": "http://www.collectspace.com/news/news-113018a-nasm-apollo-moon-closure.html",
+  "finalUrl": "http://www.collectspace.com/news/news-113018a-nasm-apollo-moon-closure.html",
+  "host": "collectspace.com",
+  "title": "'Apollo to the Moon' no more: Air and Space Museum closes gallery | collectSPACE",
+  "chars": 7305,
+  "retrievedAt": "2026-09-03T02:28:30.098Z"
+ },
+ "4eb376b4e65dd3a6": {
+  "url": "https://airandspace.si.edu/explore-and-learn/topics/apollo/apollo-program/landing-missions/apollo11.cfm",
+  "gap": {
+   "type": "http",
+   "status": 403
+  }
+ },
+ "37e157bcb3edee95": {
+  "url": "https://airandspace.si.edu/stories/editorial/apollo-guidance-computer-and-first-silicon-chips",
+  "finalUrl": "https://airandspace.si.edu/stories/editorial/apollo-guidance-computer-and-first-silicon-chips",
+  "host": "airandspace.si.edu",
+  "title": "Apollo Guidance Computer and the First Silicon Chips | National Air and Space Museum",
+  "chars": 9477,
+  "retrievedAt": "2026-09-03T02:28:30.214Z"
+ },
+ "f78739635739df53": {
+  "url": "https://www.nasa.gov/multimedia/hd/apollo11_hdpage.html",
+  "finalUrl": "https://www.nasa.gov/history/apollo-11-hd-videos/",
+  "host": "nasa.gov",
+  "title": "Apollo 11 HD Videos - NASA",
+  "chars": 7990,
+  "retrievedAt": "2026-09-03T02:28:39.924Z"
+ },
+ "d1fe55003f53cdf9": {
+  "url": "http://www.nasa.gov/multimedia/hd/apollo11_hdpage.html",
+  "finalUrl": "https://www.nasa.gov/history/apollo-11-hd-videos/",
+  "host": "nasa.gov",
+  "title": "Apollo 11 HD Videos - NASA",
+  "chars": 7990,
+  "retrievedAt": "2026-09-03T02:28:40.120Z"
+ },
+ "bd238c38f301d454": {
+  "url": "https://archive.org/details/spaceamericanima0000mccu",
+  "finalUrl": "https://archive.org/details/spaceamericanima0000mccu",
+  "host": "archive.org",
+  "title": "Space and the American imagination : McCurdy, Howard E : Free Download, Borrow, and Streaming : Internet Archive",
+  "chars": 4721,
+  "retrievedAt": "2026-09-03T02:28:40.932Z"
+ },
+ "45356d7504829ed9": {
+  "url": "https://archive.org/stream/spaceamericanima0000mccu/spaceamericanima0000mccu_djvu.txt",
+  "finalUrl": "https://archive.org/stream/spaceamericanima0000mccu/spaceamericanima0000mccu_djvu.txt",
+  "host": "archive.org",
+  "title": "Full text of \"Space and the American imagination\"",
+  "chars": 2372,
+  "retrievedAt": "2026-09-03T02:28:41.128Z"
+ },
+ "7c5b83de16c863dc": {
+  "url": "https://search.worldcat.org/oclc/36186250",
+  "gap": {
+   "type": "http",
+   "status": 403
+  }
+ },
+ "49630409172bf644": {
+  "url": "https://history.nasa.gov/afj/ap11fj/08day3-africa-breakfast.html",
+  "finalUrl": "https://www.nasa.gov/history/alsj-and-afj/",
+  "host": "nasa.gov",
+  "title": "The Apollo Lunar Surface Journal and Apollo Flight Journal - NASA",
+  "chars": 10338,
+  "retrievedAt": "2026-09-03T02:28:42.145Z"
+ },
+ "36cdfc6f8dedee8e": {
+  "url": "https://search.worldcat.org/oclc/1623434",
+  "gap": {
+   "type": "http",
+   "status": 403
+  }
+ },
+ "804e544027a3afbb": {
+  "url": "https://search.worldcat.org/oclc/1023166907",
+  "gap": {
+   "type": "http",
+   "status": 403
+  }
+ },
+ "b31297610ff670fa": {
+  "url": "https://www.americansamoa.gov/apollo-11",
+  "gap": {
+   "type": "http",
+   "status": 404
+  }
+ },
+ "4d2be2b4199b336f": {
+  "url": "https://www.hq.nasa.gov/alsj/a11/a11.step.html",
+  "finalUrl": "https://www.nasa.gov/history/alsj-and-afj/",
+  "host": "nasa.gov",
+  "title": "The Apollo Lunar Surface Journal and Apollo Flight Journal - NASA",
+  "chars": 10338,
+  "retrievedAt": "2026-09-03T02:28:43.547Z"
+ },
+ "db1fd4284769a977": {
+  "url": "http://www.hq.nasa.gov/alsj/a11/a11.step.html",
+  "gap": {
+   "type": "http",
+   "status": 403
+  }
+ },
+ "7dd85f4b8d00e19f": {
+  "url": "https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=1969-059A",
+  "finalUrl": "https://www.nasa.gov/nssdc/",
+  "host": "nasa.gov",
+  "title": "NASA Space Science Data Coordinated Archive Status - NASA",
+  "chars": 6894,
+  "retrievedAt": "2026-09-03T02:28:44.036Z"
+ },
+ "c325f61842c03b8e": {
+  "url": "https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=1969-059C",
+  "finalUrl": "https://www.nasa.gov/nssdc/",
+  "host": "nasa.gov",
+  "title": "NASA Space Science Data Coordinated Archive Status - NASA",
+  "chars": 6894,
+  "retrievedAt": "2026-09-03T02:28:44.249Z"
+ },
+ "aa637ff5070b7711": {
+  "url": "https://curator.jsc.nasa.gov/lunar/lsc/10010.pdf",
+  "gap": {
+   "type": "beyond-reach",
+   "detail": "application/pdf"
+  }
+ },
+ "00cc53e3920245e3": {
+  "url": "http://curator.jsc.nasa.gov/lunar/lsc/10010.pdf",
+  "gap": {
+   "type": "http",
+   "status": 403
+  }
+ },
+ "fd29533beca320c0": {
+  "url": "https://www.hq.nasa.gov/alsj/a11/a11.summary.html",
+  "finalUrl": "https://www.nasa.gov/history/alsj-and-afj/",
+  "host": "nasa.gov",
+  "title": "The Apollo Lunar Surface Journal and Apollo Flight Journal - NASA",
+  "chars": 10338,
+  "retrievedAt": "2026-09-03T02:29:00.269Z"
+ },
+ "92c5ad4de332e5a5": {
+  "url": "http://www.hq.nasa.gov/alsj/a11/a11.summary.html",
+  "gap": {
+   "type": "http",
+   "status": 403
+  }
+ },
+ "b442960cc251d8fe": {
+  "url": "https://books.google.com/books?id=QlVQAAAAIBAJ&dq=Apollo+launch+Florida&pg=PA2&article_id=7068,896931",
+  "finalUrl": "https://books.google.com/books?id=QlVQAAAAIBAJ&dq=Apollo+launch+Florida&pg=PA2&article_id=7068,896931",
+  "host": "books.google.com",
+  "title": "The Evening Independent - Google Books",
+  "chars": 387,
+  "retrievedAt": "2026-09-03T02:29:00.822Z"
+ },
+ "35b57182ec5b9ee7": {
+  "url": "https://www.bbc.co.uk/bitesize/articles/z3x6b7h",
+  "gap": {
+   "type": "http",
+   "status": 403
+  }
+ },
+ "badc2b15566c31e0": {
+  "url": "https://airandspace.si.edu/stories/editorial/armstrong-purse-flown-apollo-11-lunar-artifacts",
+  "finalUrl": "https://airandspace.si.edu/stories/editorial/armstrong-purse-flown-apollo-11-lunar-artifacts",
+  "host": "airandspace.si.edu",
+  "title": "The Armstrong Purse: Flown Apollo 11 Lunar Artifacts | National Air and Space Museum",
+  "chars": 9630,
+  "retrievedAt": "2026-09-03T02:29:01.975Z"
+ },
+ "5d5dc5e7d5c940df": {
+  "url": "https://curator.jsc.nasa.gov/lunar/lun-fac.cfm",
+  "finalUrl": "https://curator.jsc.nasa.gov/lunar/lun-fac.cfm",
+  "host": "curator.jsc.nasa.gov",
+  "title": "Lunar Sample Laboratory Facility",
+  "chars": 5840,
+  "retrievedAt": "2026-09-03T02:29:02.188Z"
+ },
+ "babb9aea763ba359": {
+  "url": "https://www.nasa.gov/vision/space/features/jfk_speech_text.html",
+  "finalUrl": "https://www.nasa.gov/history/the-decision-to-go-to-the-moon/",
+  "host": "nasa.gov",
+  "title": "The Decision to Go to the Moon: President John F. Kennedy's May 25, 1961 Speech before a Joint Session of Congress - NASA",
+  "chars": 16089,
+  "retrievedAt": "2026-09-03T02:29:02.362Z"
+ },
+ "36627e02d7adeec7": {
+  "url": "https://history.nasa.gov/afj/ap11fj/26day9-reentry.html",
+  "finalUrl": "https://www.nasa.gov/history/alsj-and-afj/",
+  "host": "nasa.gov",
+  "title": "The Apollo Lunar Surface Journal and Apollo Flight Journal - NASA",
+  "chars": 10338,
+  "retrievedAt": "2026-09-03T02:34:26.360Z"
+ },
+ "f870362e493f5d58": {
+  "url": "https://www.theguardian.com/science/blog/2010/jul/20/sound-apollo-11-moon-landing",
+  "gap": {
+   "type": "http",
+   "status": 403
+  }
+ },
+ "892deb78145b8662": {
+  "url": "http://www.theguardian.com/science/blog/2010/jul/20/sound-apollo-11-moon-landing",
+  "gap": {
+   "type": "http",
+   "status": 403
+  }
+ },
+ "09d1a51abc92d639": {
+  "url": "https://search.worldcat.org/oclc/54435670",
+  "gap": {
+   "type": "http",
+   "status": 403
+  }
+ },
+ "b1f6b4fc55dee644": {
+  "url": "https://www.archives.gov/exhibits/american_originals/apollo11.html",
+  "finalUrl": "https://www.archives.gov/exhibits/american_originals/apollo11.html",
+  "host": "archives.gov",
+  "title": "Exhibit: Apollo 11 and Nixon",
+  "chars": 2068,
+  "retrievedAt": "2026-09-03T02:34:34.746Z"
+ },
+ "350b354c027231ff": {
+  "url": "http://www.archives.gov/exhibits/american_originals/apollo11.html",
+  "finalUrl": "https://www.archives.gov/exhibits/american_originals/apollo11.html",
+  "host": "archives.gov",
+  "title": "Exhibit: Apollo 11 and Nixon",
+  "chars": 2068,
+  "retrievedAt": "2026-09-03T02:34:34.981Z"
+ },
+ "3fe0de76afd9658b": {
+  "url": "https://www.hq.nasa.gov/alsj/a11/a11.1201-fm.html",
+  "finalUrl": "https://www.nasa.gov/history/alsj-and-afj/",
+  "host": "nasa.gov",
+  "title": "The Apollo Lunar Surface Journal and Apollo Flight Journal - NASA",
+  "chars": 10338,
+  "retrievedAt": "2026-09-03T02:34:38.494Z"
+ },
+ "6b10e2f92b8f138e": {
+  "url": "https://www.theattic.space/home-page-blogs/2018/9/27/4j6861bez3j568c31rzj7lynevmtpt",
+  "finalUrl": "https://www.theattic.space/home-page-blogs/2018/9/27/4j6861bez3j568c31rzj7lynevmtpt",
+  "host": "theattic.space",
+  "title": "A FLAG ON THE MOON",
+  "chars": 5137,
+  "retrievedAt": "2026-09-03T02:34:42.386Z"
+ },
+ "ef9205a47810aba9": {
+  "url": "http://nssdc.gsfc.nasa.gov/planetary/lunar/apollo_tables.html",
+  "finalUrl": "https://www.nasa.gov/nssdc/",
+  "host": "nasa.gov",
+  "title": "NASA Space Science Data Coordinated Archive Status - NASA",
+  "chars": 6894,
+  "retrievedAt": "2026-09-03T02:34:52.838Z"
+ },
+ "5bd107396a787ae5": {
+  "url": "https://history.nasa.gov/Apollomon/Apollo.html",
+  "gap": {
+   "type": "beyond-reach",
+   "detail": "application/pdf"
+  }
+ },
+ "5a6875aac3ae2bc0": {
+  "url": "https://www.hq.nasa.gov/office/pao/History/Apollomon/Apollo.html",
+  "gap": {
+   "type": "http",
+   "status": 403
+  }
+ },
+ "74058f38881bc226": {
+  "url": "https://www.thespacereview.com/article/3749/1",
+  "finalUrl": "https://www.thespacereview.com/article/3749/1",
+  "host": "thespacereview.com",
+  "title": "The Space Review: Review: Chasing the Moon",
+  "chars": 4524,
+  "retrievedAt": "2026-09-03T02:34:59.868Z"
+ },
+ "791a4a5495ae56c3": {
+  "url": "https://thespacereview.com/article/3749/1",
+  "finalUrl": "https://thespacereview.com/article/3749/1",
+  "host": "thespacereview.com",
+  "title": "The Space Review: Review: Chasing the Moon",
+  "chars": 4524,
+  "retrievedAt": "2026-09-03T02:35:00.329Z"
+ },
+ "cf81fc278355b46c": {
+  "url": "https://www.nasa.gov/feature/50-years-ago-nasa-names-apollo-11-crew",
+  "finalUrl": "https://www.nasa.gov/history/50-years-ago-nasa-names-apollo-11-crew/",
+  "host": "nasa.gov",
+  "title": "50 Years Ago: NASA Names Apollo 11 Crew - NASA",
+  "chars": 8799,
+  "retrievedAt": "2026-09-03T02:35:00.475Z"
+ },
+ "ad8b1dc4915505f8": {
+  "url": "https://www.opencongress.org/bill/111-s951/text",
+  "gap": {
+   "type": "http",
+   "status": 403
+  }
+ },
+ "189a5c4f31fc8a80": {
+  "url": "http://www.opencongress.org/bill/111-s951/text",
+  "gap": {
+   "type": "http",
+   "status": 404
+  }
+ },
+ "de2498cdd85948c9": {
+  "url": "https://www.opencongress.org/bill/111-h2245/text",
+  "gap": {
+   "type": "http",
+   "status": 403
+  }
+ },
+ "068749c9ab2b5553": {
+  "url": "https://www.nasa.gov/wp-content/uploads/static/history/alsj/a11/a11MIssionReport_1971015566.pdf",
+  "gap": {
+   "type": "http",
+   "status": 404
+  }
+ },
+ "4afd44f7819efef6": {
+  "url": "https://www.hq.nasa.gov/alsj/a11/a11MIssionReport_1971015566.pdf",
+  "finalUrl": "https://www.nasa.gov/history/alsj-and-afj/",
+  "host": "nasa.gov",
+  "title": "The Apollo Lunar Surface Journal and Apollo Flight Journal - NASA",
+  "chars": 10338,
+  "retrievedAt": "2026-09-03T02:35:06.204Z"
+ },
+ "f66ddb5a00a3a510": {
+  "url": "https://search.worldcat.org/oclc/10970862",
+  "gap": {
+   "type": "http",
+   "status": 403
+  }
+ },
+ "035de70c6b0d027e": {
+  "url": "https://www.hq.nasa.gov/office/pao/History/SP-4201/cover.htm",
+  "gap": {
+   "type": "http",
+   "status": 403
+  }
+ },
+ "af923f9c47c975c6": {
+  "url": "http://www.hq.nasa.gov/office/pao/History/SP-4201/cover.htm",
+  "gap": {
+   "type": "http",
+   "status": 403
+  }
+ },
+ "8a6951d211712f1a": {
+  "url": "https://airandspace.si.edu/collection-objects/command-module-apollo-11",
+  "finalUrl": "https://airandspace.si.edu/collection-objects/command-module-apollo-11/nasm_A19700102000",
+  "host": "airandspace.si.edu",
+  "title": "Apollo 11 Command Module Columbia | National Air and Space Museum",
+  "chars": 3512,
+  "retrievedAt": "2026-09-03T02:35:07.132Z"
+ },
+ "453dd085c0fefa45": {
+  "url": "https://www.hq.nasa.gov/alsj/a11/images11.html#Mag37",
+  "finalUrl": "https://www.nasa.gov/history/alsj-and-afj/",
+  "host": "nasa.gov",
+  "title": "The Apollo Lunar Surface Journal and Apollo Flight Journal - NASA",
+  "chars": 10338,
+  "retrievedAt": "2026-09-03T02:35:07.324Z"
+ },
+ "95211e254c891f1d": {
+  "url": "https://www.scientificamerican.com/article/apollo-moon-khrushchev/",
+  "finalUrl": "https://www.scientificamerican.com/article/apollo-moon-khrushchev/",
+  "host": "scientificamerican.com",
+  "title": "The Moon Landing through Soviet Eyes: A Q&A with Sergei Khrushchev, son of former premier Nikita Khrushchev | Scientific American",
+  "chars": 7274,
+  "retrievedAt": "2026-09-03T02:35:08.498Z"
+ },
+ "b9eb67c07c8c796e": {
+  "url": "http://www.scientificamerican.com/article/apollo-moon-khrushchev/",
+  "finalUrl": "https://www.scientificamerican.com/article/apollo-moon-khrushchev/",
+  "host": "scientificamerican.com",
+  "title": "The Moon Landing through Soviet Eyes: A Q&A with Sergei Khrushchev, son of former premier Nikita Khrushchev | Scientific American",
+  "chars": 7274,
+  "retrievedAt": "2026-09-03T02:35:08.777Z"
+ },
+ "d90af7e1cfbe0bed": {
+  "url": "https://history.nasa.gov/afj/ap11fj/11day4-loi1.html",
+  "finalUrl": "https://www.nasa.gov/history/alsj-and-afj/",
+  "host": "nasa.gov",
+  "title": "The Apollo Lunar Surface Journal and Apollo Flight Journal - NASA",
+  "chars": 10338,
+  "retrievedAt": "2026-09-03T02:35:09.179Z"
+ },
+ "362ed43e9c0cc643": {
+  "url": "https://www.hq.nasa.gov/alsj/a11/A11_PressKit.pdf",
+  "finalUrl": "https://www.nasa.gov/history/alsj-and-afj/",
+  "host": "nasa.gov",
+  "title": "The Apollo Lunar Surface Journal and Apollo Flight Journal - NASA",
+  "chars": 10338,
+  "retrievedAt": "2026-09-03T02:35:09.376Z"
+ },
+ "8bfff77a92c8cba5": {
+  "url": "http://www.smh.com.au/news/national/one-giant-blunder-for-mankind-how-nasa-lost-moon-pictures/2006/08/04/1154198328978.html",
+  "gap": {
+   "type": "http",
+   "status": 403
+  }
+ },
+ "e4027401d07c7126": {
+  "url": "https://www.smh.com.au/national/one-giant-blunder-for-mankind-how-nasa-lost-moon-pictures-20060805-gdo42n.html",
+  "gap": {
+   "type": "http",
+   "status": 403
+  }
+ },
+ "429333730cd9d3b4": {
+  "url": "https://history.nasa.gov/sp4801.pdf",
+  "gap": {
+   "type": "http",
+   "status": 403
+  }
+ },
+ "13668bb8b4c98789": {
+  "url": "https://nssdc.gsfc.nasa.gov/planetary/lunar/apollo_tables.html",
+  "finalUrl": "https://www.nasa.gov/nssdc/",
+  "host": "nasa.gov",
+  "title": "NASA Space Science Data Coordinated Archive Status - NASA",
+  "chars": 6894,
+  "retrievedAt": "2026-09-03T02:35:09.995Z"
+ },
+ "da650ddcc39fee7f": {
+  "url": "https://search.worldcat.org/issn/0011-6963",
+  "gap": {
+   "type": "http",
+   "status": 429
+  }
+ },
+ "9f3f710ecc4dbcd2": {
+  "url": "https://www.nixonlibrary.gov/sites/default/files/virtuallibrary/documents/PDD/1969/013%20July%2016-31%201969.pdf",
+  "gap": {
+   "type": "http",
+   "status": 403
+  }
+ },
+ "cf8007a1140cdfe1": {
+  "url": "https://history.nasa.gov/SP-4029/Apollo_18-19_Ground_Ignition_Weights.htm",
+  "gap": {
+   "type": "censored-above"
+  }
+ },
+ "f453a63ff941127b": {
+  "url": "https://www.telegraph.co.uk/science/space/5848707/Moon-landings-British-scientists-salute-space-heroes.html",
+  "gap": {
+   "type": "http",
+   "status": 403
+  }
+ },
+ "ab39e62c9cda326f": {
+  "url": "https://www.theatlantic.com/science/archive/2019/07/tiny-imprecision-heart-apollo-11/594556/",
+  "gap": {
+   "type": "http",
+   "status": 403
+  }
+ },
+ "8a668cfc07a8d088": {
+  "url": "https://web.archive.org/web/20080219204538/http://history.nasa.gov/SP-350/ch-9-5.html",
+  "finalUrl": "https://web.archive.org/web/20080219204538/http://history.nasa.gov/SP-350/ch-9-5.html",
+  "host": "web.archive.org",
+  "title": "Apollo Expeditions to the Moon: Chapter 9",
+  "chars": 5483,
+  "retrievedAt": "2026-09-03T02:41:46.837Z"
+ },
+ "b70de6ddffb74b08": {
+  "url": "https://web.archive.org/web/20210227092923/https://nssdc.gsfc.nasa.gov/misc/documents/b32116.pdf",
+  "finalUrl": "https://web.archive.org/web/20210227092923/https://nssdc.gsfc.nasa.gov/misc/documents/b32116.pdf",
+  "host": "web.archive.org",
+  "title": "Wayback Machine",
+  "chars": 2380,
+  "retrievedAt": "2026-09-03T02:41:47.953Z"
+ },
+ "4f1ed9698100bfbc": {
+  "url": "https://web.archive.org/web/20180925025805/https://airandspace.si.edu/exhibitions/apollo-moon",
+  "finalUrl": "https://web.archive.org/web/20180925025805/https://airandspace.si.edu/exhibitions/apollo-moon",
+  "host": "web.archive.org",
+  "title": "Apollo to the Moon | National Air and Space Museum",
+  "chars": 3635,
+  "retrievedAt": "2026-09-03T02:41:52.203Z"
+ },
+ "4f69a8cb8bb11499": {
+  "url": "https://web.archive.org/web/20210227181902/https://history.nasa.gov/SP-4223/ch9.htm",
+  "finalUrl": "https://web.archive.org/web/20210227181902/https://history.nasa.gov/SP-4223/ch9.htm",
+  "host": "web.archive.org",
+  "title": "ch9",
+  "chars": 34220,
+  "retrievedAt": "2026-09-03T02:41:55.647Z"
+ },
+ "17f0edf672de648d": {
+  "url": "https://web.archive.org/web/2/https://arxiv.org/archive/physics.space-ph",
+  "finalUrl": "https://web.archive.org/web/20260830044719/https://arxiv.org/archive/physics.space-ph",
+  "host": "web.archive.org",
+  "title": "Physics",
+  "chars": 8584,
+  "retrievedAt": "2026-09-03T02:41:58.040Z"
+ },
+ "2b7b41a53a04b82c": {
+  "url": "https://web.archive.org/web/2/https://archive.org/stream/isbn_9780743200790/isbn_9780743200790_djvu.txt",
+  "gap": {
+   "type": "http",
+   "status": 403
+  }
+ },
+ "2179620526279944": {
+  "url": "https://web.archive.org/web/20090617230719/http://wechoosethemoon.org/",
+  "finalUrl": "https://web.archive.org/web/20090617230719/http://wechoosethemoon.org/",
+  "host": "web.archive.org",
+  "title": "We Choose the Moon: Celebrating the 40th Anniversary of the Apollo 11 Lunar Landing",
+  "chars": 1576,
+  "retrievedAt": "2026-09-03T02:41:59.487Z"
+ },
+ "50c15853ef821e39": {
+  "url": "https://web.archive.org/web/20200726090216/https://www.theattic.space/home-page-blogs/2018/9/27/4j6861bez3j568c31rzj7lynevmtpt",
+  "finalUrl": "https://web.archive.org/web/20200726090216/https://www.theattic.space/home-page-blogs/2018/9/27/4j6861bez3j568c31rzj7lynevmtpt",
+  "host": "web.archive.org",
+  "title": "A FLAG ON THE MOON",
+  "chars": 5532,
+  "retrievedAt": "2026-09-03T02:42:13.991Z"
+ },
+ "301a8f5df661f8e5": {
+  "url": "https://web.archive.org/web/2/https://books.google.com/books?id=QlVQAAAAIBAJ&dq=Apollo+launch+Florida&pg=PA2&article_id=7068,896931",
+  "finalUrl": "https://web.archive.org/web/20260801140751/https://books.google.com/books?id=QlVQAAAAIBAJ&dq=Apollo+launch+Florida&pg=PA2&article_id=7068%2C896931",
+  "host": "web.archive.org",
+  "title": "",
+  "chars": 2607,
+  "retrievedAt": "2026-09-03T02:42:34.702Z"
+ },
+ "8d49e796cb6a202b": {
+  "url": "https://web.archive.org/web/20200224163200/https://www.hq.nasa.gov/alsj/a11/images11.html#Mag37",
+  "finalUrl": "https://web.archive.org/web/20200224163200/https://www.hq.nasa.gov/alsj/a11/images11.html",
+  "host": "web.archive.org",
+  "title": "Apollo 11 Image Library",
+  "chars": 349803,
+  "retrievedAt": "2026-09-03T02:42:35.742Z"
+ },
+ "6b5d76cb58d6c60b": {
+  "url": "https://www.hq.nasa.gov/alsj/a11/a11.clsout.html",
+  "finalUrl": "https://www.nasa.gov/history/alsj-and-afj/",
+  "host": "nasa.gov",
+  "title": "The Apollo Lunar Surface Journal and Apollo Flight Journal - NASA",
+  "chars": 10338,
+  "retrievedAt": "2026-09-03T02:42:42.432Z"
+ },
+ "a1e2014f82401403": {
+  "url": "https://history.nasa.gov/ap11-35ann/july16/1969congress.html",
+  "gap": {
+   "type": "http",
+   "status": 404
+  }
+ },
+ "50e3715a57f3c620": {
+  "url": "https://search.worldcat.org/issn/0307-1235",
+  "gap": {
+   "type": "http",
+   "status": 429
+  }
+ },
+ "51bd802cb25a3218": {
+  "url": "https://search.worldcat.org/oclc/175218028",
+  "gap": {
+   "type": "http",
+   "status": 403
+  }
+ },
+ "0c7907a30078071d": {
+  "url": "https://www.upi.com/Top_News/US/2019/07/19/Trump-Apollo-11-astronauts-discuss-merits-of-going-to-moon-before-Mars/2601563563187/",
+  "gap": {
+   "type": "unreachable",
+   "detail": "fetch failed"
+  }
+ },
+ "4b75498607aa6b5c": {
+  "url": "https://www.hq.nasa.gov/alsj/a11/a11.postland.html",
+  "finalUrl": "https://www.nasa.gov/history/alsj-and-afj/",
+  "host": "nasa.gov",
+  "title": "The Apollo Lunar Surface Journal and Apollo Flight Journal - NASA",
+  "chars": 10338,
+  "retrievedAt": "2026-09-03T02:43:01.555Z"
+ },
+ "e8da2a0bc4ed6525": {
+  "url": "http://www.hq.nasa.gov/alsj/a11/a11.postland.html",
+  "finalUrl": "https://web.archive.org/web/20130510224246/http://www.hq.nasa.gov/alsj/a11/a11.postland.html",
+  "host": "web.archive.org",
+  "title": "Post-landing Activities",
+  "chars": 115409,
+  "retrievedAt": "2026-09-03T02:43:10.042Z"
+ },
+ "568ae96dd18118b0": {
+  "url": "https://www.washingtonpost.com/national/health-science/neil-armstrong-first-man-to-step-on-the-moon-dies-at-82/2012/08/25/7091c8bc-412d-11e0-a16f-4c3fe0fd37f0_story.html",
+  "gap": {
+   "type": "unreachable",
+   "detail": "fetch failed"
+  }
+ },
+ "4daa09090f5690eb": {
+  "url": "http://www.collectspace.com/resources/moonrocks_apollo11.html",
+  "finalUrl": "http://www.collectspace.com/resources/moonrocks_apollo11.html",
+  "host": "collectspace.com",
+  "title": "Where Today are the Apollo 11 Lunar Sample Displays? | collectSPACE",
+  "chars": 15468,
+  "retrievedAt": "2026-09-03T02:43:40.807Z"
+ },
+ "6ba34c6ddae12ae1": {
+  "url": "http://www.space.com/10469-neil-armstrong-explains-famous-apollo-11-moonwalk.html",
+  "finalUrl": "https://www.space.com/10469-neil-armstrong-explains-famous-apollo-11-moonwalk.html",
+  "host": "space.com",
+  "title": "Neil Armstrong Explains His Famous Apollo 11 Moonwalk | Space",
+  "chars": 7040,
+  "retrievedAt": "2026-09-03T02:43:41.566Z"
+ },
+ "d214a1f524f97830": {
+  "url": "https://er.jsc.nasa.gov/seh/ricetalk.htm",
+  "finalUrl": "https://www.nasa.gov/software-robotics-and-simulation-division/",
+  "host": "nasa.gov",
+  "title": "ER Home: Software, Robotics, and Simulation Division - NASA",
+  "chars": 8669,
+  "retrievedAt": "2026-09-03T02:43:42.824Z"
+ },
+ "41aa14693545aab3": {
+  "url": "https://web.archive.org/web/2/https://er.jsc.nasa.gov/seh/ricetalk.htm",
+  "finalUrl": "https://web.archive.org/web/20260831044713/https://er.jsc.nasa.gov/seh/ricetalk.htm",
+  "host": "web.archive.org",
+  "title": "",
+  "chars": 2455,
+  "retrievedAt": "2026-09-03T02:43:44.723Z"
+ },
+ "04e05d08cd25a51a": {
+  "url": "https://history.nasa.gov/alsj/a11/a11.step.html#1092413",
+  "finalUrl": "https://www.nasa.gov/history/alsj-and-afj/",
+  "host": "nasa.gov",
+  "title": "The Apollo Lunar Surface Journal and Apollo Flight Journal - NASA",
+  "chars": 10338,
+  "retrievedAt": "2026-09-03T02:43:48.999Z"
+ },
+ "76e7db2cd7bce97d": {
+  "url": "https://www.nasa.gov/mission_pages/LRO/multimedia/lroimages/apollosites.html",
+  "finalUrl": "https://web.archive.org/web/20210215074327/https://www.nasa.gov/mission_pages/LRO/multimedia/lroimages/apollosites.html",
+  "host": "web.archive.org",
+  "title": "LRO Sees Apollo Landing Sites | NASA",
+  "chars": 3221,
+  "retrievedAt": "2026-09-03T02:43:50.446Z"
+ },
+ "a1e9337d146f4f3f": {
+  "url": "http://www.hq.nasa.gov/alsj/a11/a11.1201-fm.html",
+  "finalUrl": "https://web.archive.org/web/20130527012357/http://www.hq.nasa.gov/alsj/a11/a11.1201-fm.html",
+  "host": "web.archive.org",
+  "title": "Apollo 11 Lunar Surface Journal: Program Alarms",
+  "chars": 8699,
+  "retrievedAt": "2026-09-03T02:43:56.849Z"
+ },
+ "f12a2625de8b0c9c": {
+  "url": "http://er.jsc.nasa.gov/seh/ricetalk.htm",
+  "finalUrl": "https://www.nasa.gov/software-robotics-and-simulation-division/",
+  "host": "nasa.gov",
+  "title": "ER Home: Software, Robotics, and Simulation Division - NASA",
+  "chars": 8669,
+  "retrievedAt": "2026-09-03T02:43:57.653Z"
+ },
+ "4236d843fa4262eb": {
+  "url": "https://web.archive.org/web/20150706061817/http://er.jsc.nasa.gov/seh/ricetalk.htm",
+  "finalUrl": "https://web.archive.org/web/20150706061817/http://er.jsc.nasa.gov/seh/ricetalk.htm",
+  "host": "web.archive.org",
+  "title": "JFK RICE MOON SPEECH",
+  "chars": 13878,
+  "retrievedAt": "2026-09-03T02:43:59.415Z"
+ },
+ "e27dd7964124dd57": {
+  "url": "http://www.hq.nasa.gov/alsj/a11/a11.clsout.html",
+  "finalUrl": "https://web.archive.org/web/20140225025455/http://www.hq.nasa.gov/alsj/a11/a11.clsout.html",
+  "host": "web.archive.org",
+  "title": "EASEP Deployment and Closeout",
+  "chars": 96593,
+  "retrievedAt": "2026-09-03T02:44:01.312Z"
+ },
+ "9c3ac072b80c2b4d": {
+  "url": "https://ntrs.nasa.gov/archive/nasa/casi.ntrs.nasa.gov/19700011707.pdf",
+  "finalUrl": "https://ntrs.nasa.gov/archive/nasa/casi.ntrs.nasa.gov/19700011707.pdf",
+  "host": "ntrs.nasa.gov",
+  "title": "Technical information summary - Apollo 11 /AS-506/, Apollo Saturn 5 space vehicle - NASA Technical Reports Server (NTRS)",
+  "chars": 964,
+  "retrievedAt": "2026-09-03T02:44:05.047Z"
+ },
+ "d04103f5856bac2f": {
+  "url": "https://www.hq.nasa.gov/office/pao/History/SP-4214/ch14-7.html",
+  "finalUrl": "https://web.archive.org/web/20190626193736/https://www.hq.nasa.gov/office/pao/History/SP-4214/ch14-7.html",
+  "host": "web.archive.org",
+  "title": "Where No Man Has Gone Before, Ch14-7",
+  "chars": 5344,
+  "retrievedAt": "2026-09-03T02:44:07.154Z"
+ },
+ "2f57061e07694f39": {
+  "url": "https://www.govinfo.gov/link/plaw/114/public/282?link-type=html",
+  "finalUrl": "https://www.govinfo.gov/content/pkg/PLAW-114publ282/html/PLAW-114publ282.htm",
+  "host": "govinfo.gov",
+  "title": "",
+  "chars": 12581,
+  "retrievedAt": "2026-09-03T02:44:08.246Z"
+ },
+ "3707d37aca4d53ab": {
+  "url": "https://www.archives.nyc/blog/2019/7/29/the-apollo-11-ticker-tape-parade",
+  "finalUrl": "https://www.archives.nyc/blog/2019/7/29/the-apollo-11-ticker-tape-parade",
+  "host": "archives.nyc",
+  "title": "The Apollo 11 Ticker Tape Parade: August 13, 1969 — NYC Department of Records & Information Services",
+  "chars": 5724,
+  "retrievedAt": "2026-09-03T02:44:09.211Z"
+ },
+ "52563efaf873d1f3": {
+  "url": "https://www.presidency.ucsb.edu/documents/remarks-apollo-11-astronauts-aboard-the-uss-hornet-following-completion-their-lunar",
+  "finalUrl": "https://www.presidency.ucsb.edu/documents/remarks-apollo-11-astronauts-aboard-the-uss-hornet-following-completion-their-lunar",
+  "host": "presidency.ucsb.edu",
+  "title": "Remarks to Apollo 11 Astronauts Aboard the U.S.S. Hornet Following Completion of Their Lunar Mission. | The American Presidency Project",
+  "chars": 16602,
+  "retrievedAt": "2026-09-03T02:44:19.836Z"
+ },
+ "c77f56303107df45": {
+  "url": "https://www.nasa.gov/multimedia/imagegallery/image_feature_1422.html",
+  "finalUrl": "https://www.nasa.gov/image-article/apollo-11-crew-meets-with-president-obama/",
+  "host": "nasa.gov",
+  "title": "Apollo 11 Crew Meets With President Obama - NASA",
+  "chars": 7098,
+  "retrievedAt": "2026-09-03T02:44:22.661Z"
+ },
+ "29f5d8ad80906b18": {
+  "url": "http://www.nasa.gov/multimedia/imagegallery/image_feature_1422.html",
+  "finalUrl": "https://www.nasa.gov/image-article/apollo-11-crew-meets-with-president-obama/",
+  "host": "nasa.gov",
+  "title": "Apollo 11 Crew Meets With President Obama - NASA",
+  "chars": 7098,
+  "retrievedAt": "2026-09-03T02:44:22.878Z"
+ },
+ "03b3ab122bf87b56": {
+  "url": "https://www.bbc.co.uk/news/world-us-canada-17544565",
+  "finalUrl": "https://www.bbc.co.uk/news/world-us-canada-17544565",
+  "host": "bbc.co.uk",
+  "title": "Amazon boss Jeff Bezos 'finds Apollo 11 Moon engines' - BBC News",
+  "chars": 2742,
+  "retrievedAt": "2026-09-03T02:44:23.689Z"
+ },
+ "a0d8c787f8a88998": {
+  "url": "https://www.telegraph.co.uk/news/worldnews/northamerica/usa/11401781/Neil-Armstrongs-widow-discovers-moon-camera-in-cupboard.html",
+  "finalUrl": "https://web.archive.org/web/20201129145206/https://www.telegraph.co.uk/news/worldnews/northamerica/usa/11401781/Neil-Armstrongs-widow-discovers-moon-camera-in-cupboard.html",
+  "host": "web.archive.org",
+  "title": "Neil Armstrong's widow discovers moon camera in cupboard",
+  "chars": 2872,
+  "retrievedAt": "2026-09-03T02:44:25.868Z"
+ },
+ "b77d384d43b10d9d": {
+  "url": "https://ui.adsabs.harvard.edu/abs/2001PASA...18..287S",
+  "gap": {
+   "type": "http",
+   "status": 405
+  }
+ },
+ "27af64af0d94b3a8": {
+  "url": "https://doi.org/10.1071%2FAS01038",
+  "finalUrl": "https://www.cambridge.org/core/journals/publications-of-the-astronomical-society-of-australia/article/on-eagles-wings-the-parkes-observatorys-support-of-the-apollo-11-mission/8834270C084B409CB182F45F6FB54A4F",
+  "host": "cambridge.org",
+  "title": "On Eagle's Wings: The Parkes Observatory's Support of the Apollo 11 Mission | Publications of the Astronomical Society of Australia | Cambridge Core",
+  "chars": 8079,
+  "retrievedAt": "2026-09-03T02:44:36.168Z"
+ },
+ "e3a543100c239d13": {
+  "url": "http://www.thesmokinggun.com/documents/crime/white-house-lost-space-scenarios",
+  "finalUrl": "http://www.thesmokinggun.com/documents/crime/white-house-lost-space-scenarios",
+  "host": "thesmokinggun.com",
+  "title": "White House \"Lost In Space\" Scenarios | The Smoking Gun",
+  "chars": 3182,
+  "retrievedAt": "2026-09-03T02:44:36.499Z"
+ },
+ "03a97e93a8e6b09d": {
+  "url": "https://www.hq.nasa.gov/alsj/a11/a11.posteva.html",
+  "finalUrl": "https://www.nasa.gov/history/alsj-and-afj/",
+  "host": "nasa.gov",
+  "title": "The Apollo Lunar Surface Journal and Apollo Flight Journal - NASA",
+  "chars": 10338,
+  "retrievedAt": "2026-09-03T02:44:40.923Z"
+ },
+ "82e38221872740c6": {
+  "url": "http://www.hq.nasa.gov/alsj/a11/a11.posteva.html",
+  "gap": {
+   "type": "unreachable",
+   "detail": "fetch failed"
+  }
+ },
+ "37cd7f3214d8c165": {
+  "url": "https://www.space.com/pbs-8-days-moon-back-apollo-11.html",
+  "finalUrl": "https://www.space.com/pbs-8-days-moon-back-apollo-11.html",
+  "host": "space.com",
+  "title": "'8 Days: To the Moon and Back' Shows Apollo 11 Milestones | Space",
+  "chars": 5916,
+  "retrievedAt": "2026-09-03T02:44:52.371Z"
+ },
+ "1054ff3aebfb6939": {
+  "url": "https://airandspace.si.edu/stories/editorial/last-time-command-module-columbia-toured",
+  "finalUrl": "https://airandspace.si.edu/stories/editorial/last-time-command-module-columbia-toured",
+  "host": "airandspace.si.edu",
+  "title": "The Last Time the Command Module Columbia Toured | National Air and Space Museum",
+  "chars": 5268,
+  "retrievedAt": "2026-09-03T02:44:54.328Z"
+ },
+ "2b2e594e5de549da": {
+  "url": "http://www.hq.nasa.gov/alsj/a11/A11_PressKit.pdf",
+  "finalUrl": "https://web.archive.org/web/20130811082927/http://www.hq.nasa.gov/alsj/a11/A11_PressKit.pdf",
+  "host": "web.archive.org",
+  "title": "Wayback Machine",
+  "chars": 896,
+  "retrievedAt": "2026-09-03T02:44:56.152Z"
+ },
+ "2999819fdc20197b": {
+  "url": "https://web.archive.org/web/20130811082927/http://www.hq.nasa.gov/alsj/a11/A11_PressKit.pdf",
+  "finalUrl": "https://web.archive.org/web/20130811082927/http://www.hq.nasa.gov/alsj/a11/A11_PressKit.pdf",
+  "host": "web.archive.org",
+  "title": "Wayback Machine",
+  "chars": 896,
+  "retrievedAt": "2026-09-03T02:44:56.834Z"
+ },
+ "4796d5c3d27b56a2": {
+  "url": "https://airandspace.si.edu/collection-objects/kit-pilots-personal-preference-apollo-11",
+  "finalUrl": "https://web.archive.org/web/20181011013811/https://airandspace.si.edu/collection-objects/kit-pilots-personal-preference-apollo-11",
+  "host": "web.archive.org",
+  "title": "Kit, Pilot's Personal Preference, Apollo 11 | National Air and Space Museum",
+  "chars": 4104,
+  "retrievedAt": "2026-09-03T02:44:57.904Z"
+ }
+}

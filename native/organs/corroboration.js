@@ -1,3 +1,4 @@
+import { sourceOfWitness as kernelSourceOfWitness, recipeOfWitness } from "../kernel/notes.js";
 // corroboration.js — the witness tier as the ledger's OFFICIAL second vote.
 // Handle: Bukhari — after al-Bukhari, whose hadith verification stands only on independent chains of transmission; a shared chain counts as one witness. Amendment XVII.
 //
@@ -415,14 +416,29 @@ export async function calibrationFrames() {
  * "how many independent readings" are different questions, and collapsing
  * them would make one of the two unanswerable.
  */
+/**
+ * The SOURCE a witness names: its ref with the address and the recipe
+ * stripped. A mechanical witness carries its passage address
+ * (`page.txt#178-275`, P5.2's own shape) and a testimony witness does not
+ * (`testimony:page.txt`) — and until 2026-09-02 this function compared the
+ * two strings as they came, so ONE page re-witnessing its own note counted
+ * as two sources. Found live: the first witness walk over a real book
+ * (eval/the-fold/dracula-witness-walk.mjs) attested eight notes, every one
+ * from the part it was heard in, and reported the >=2-source gate 2 → 10.
+ * Two chunks of one file are one perspective (corroborateAtoms' own rule);
+ * so are a chunk and a testimony vote from the same file.
+ */
+// ONE implementation: the kernel's (notes.js), which strips ANY declared
+// kind prefix — `testimony:`, `primary:`, `planted:` — not only the one
+// this file happened to know about when it was written. A second copy here
+// stripped `testimony:` alone, so a `primary:` witness (ranke.js) would
+// have read as a source named "primary" — the drift class this repo's own
+// postmortems keep naming (P22, P24, P25).
+export const sourceOfWitness = kernelSourceOfWitness;
+
 export function distinctSources(witnesses) {
   const out = new Set();
-  for (const w of witnesses ?? []) {
-    let s = String(w);
-    if (s.startsWith("testimony:")) s = s.slice("testimony:".length);
-    const cut = s.indexOf("~");
-    out.add(cut >= 0 ? s.slice(0, cut) : s);
-  }
+  for (const w of witnesses ?? []) out.add(sourceOfWitness(w));
   return out;
 }
 
@@ -451,11 +467,11 @@ export function independentReadings(witnesses) {
   const pairs = new Set();
   let undeclared = 0;
   for (const w of witnesses ?? []) {
-    let s = String(w);
-    if (s.startsWith("testimony:")) s = s.slice("testimony:".length);
+    const s = String(w);
     const cut = s.indexOf("~");
-    if (cut < 0) { undeclared += 1; pairs.add(`${s}~<undeclared:${undeclared}>`); continue; }
-    pairs.add(s); // source~recipe, verbatim: one reading
+    const source = sourceOfWitness(w);
+    if (cut < 0) { undeclared += 1; pairs.add(`${source}~<undeclared:${undeclared}>`); continue; }
+    pairs.add(`${source}~${s.slice(cut + 1)}`); // (source, recipe) — the address is not part of the reading
   }
   return { readings: pairs, count: pairs.size, undeclared };
 }
@@ -468,12 +484,7 @@ export function independentReadings(witnesses) {
  */
 export function distinctRecipes(witnesses) {
   const out = new Set();
-  for (const w of witnesses ?? []) {
-    let s = String(w);
-    if (s.startsWith("testimony:")) s = s.slice("testimony:".length);
-    const cut = s.indexOf("~");
-    if (cut >= 0) out.add(s.slice(cut + 1));
-  }
+  for (const w of witnesses ?? []) { const r = recipeOfWitness(w); if (r != null) out.add(r); }
   return out;
 }
 
@@ -574,7 +585,7 @@ export function endsCopresentWindow(sourceText, ends, { featuresOf = textFeature
  * ask -> foldTestimony. Returns the derived verdict with the decider's own
  * address in the source, or the typed refusal — never a bare boolean.
  */
-export async function witnessNote(sentence, source, { ask, selectAsk = null, testimony, ends = null, slice: sliceOverride = null, splitSentences = null } = {}) {
+export async function witnessNote(sentence, source, { ask, selectAsk = null, testimony, ends = null, slice: sliceOverride = null, splitSentences = null, candidates = null } = {}) {
   const { witnessSlice, siblingSwap, foldTestimony, buildSelectMessages, foldSelect } = testimony ?? {};
   if (typeof ask !== "function" || !witnessSlice || !siblingSwap || !foldTestimony)
     throw new TypeError("witnessNote: ask and the testimony organs are injected — required, never defaulted");
@@ -595,7 +606,25 @@ export async function witnessNote(sentence, source, { ask, selectAsk = null, tes
     // statingCandidates' own header for why the window was the wrong
     // grain here). Feature fold is the module's own textFeatures, so
     // Kutúzov reaches a Kutuzov claim.
-    const cands = statingCandidates(source.text, ends, { splitSentences, limit: 8 });
+    // THE CANDIDATE SET MAY BE INJECTED (the cast.js pattern), and this is
+    // the one seam paraphrase needs. statingCandidates' own gate is
+    // `h1 > 0 && h2 > 0` — BOTH ends must fire LITERALLY — so a source that
+    // states the claim in other words offers nothing, `cands` is empty, and
+    // the armed select protocol never runs at all. That gate is right as the
+    // default: it is what makes an unsupervised candidate set trustworthy,
+    // and it is why the fallback below is a generate call on a containment
+    // slice. It is also exactly the wall a paraphrased end2 hits.
+    //
+    // A caller holding its OWN declared way to choose where a stating
+    // sentence would live (referent activation over the face, a local
+    // embedding ranking, anything it can name) passes that list here. What
+    // it does NOT get to relax is the arm: the swap, the indiscriminate
+    // check, the carried address and the typed refusals below are unchanged,
+    // so a picker that points at the same sentence for a competing filler
+    // still decides nothing, whatever list it was shown. A slicer can only
+    // change WHERE the model is asked to look, never whether its yes counts.
+    // Omitted, byte-identical to before.
+    const cands = candidates ?? statingCandidates(source.text, ends, { splitSentences, limit: 8 });
     if (cands.length) {
       const shownList = cands.map((c) => c.shown);
       const picked = foldSelect(await selectAsk(buildSelectMessages(sentence, shownList)), cands.map((c) => c.shown));
@@ -787,7 +816,8 @@ export async function corroborateLedger(log, door, sources, {
         if (!note) continue;
         if (askedPairs.has(`${noteId}\u0000${ref}`)) continue;
         // a source never seconds its own sighting (Ladha: one perspective)
-        if ((note.witnesses ?? []).some((w) => w === ref || w === `testimony:${ref}`)) continue;
+        // A witness may carry `~recipe` (P68); the source is what is compared.
+        if (distinctSources(note.witnesses ?? []).has(ref)) continue;
         const v = askValue(note, { contradictSources, settleFloor });
         if (v.value === 0) continue;
         // PREFILTER (the same per-end geometry as the decider wall, applied

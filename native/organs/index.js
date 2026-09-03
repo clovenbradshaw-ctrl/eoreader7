@@ -44,6 +44,9 @@ export * as capacities from "./capacities.js";
 // The assertion ledger itself is now kernel/notes.js (medium-blind); this
 // hyperlexicon.js is its text face.
 export { assertionId, recipeId, REFUSALS as HYPERLEXICON_REFUSALS, VERB_CLASS, makeHyperlexicon } from "./hyperlexicon.js";
+export { standingOf as noteStanding, sourceOfWitness, recipeOfWitness, kindOfWitness } from "../kernel/notes.js";
+export { RANKE, PRIMARY_KIND, QUOTE_MIN_WORDS, claimOfNote, primaryWitness, standsOnAccountsOnly, leadsOf, footnoteLeads, footnoteLeadsForNote, markersIn, markersOfSpan, documentMatches, archiveAddressFor, chase, chaseLedger } from "./ranke.js";
+export * as ranke from "./ranke.js";
 export * as hyperlexicon from "./hyperlexicon.js";
 export { makeGrammarLens, mismatchedConnectors } from "./grammar-lens.js";
 export * as grammarLens from "./grammar-lens.js";

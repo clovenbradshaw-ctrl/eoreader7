@@ -1,0 +1,666 @@
+SP-4223 "Before This Decade Is
+Out..."
+
+Chapter 9
+
+Glynn S. LUNNEY
+
+(1936- )
+
+[ 202 ]
+
+Apollo 7 MCC Activity-Flight Director
+Glynn Lunney is seated at his console in the Mission Operations
+Control Room in the Mission Control Center at Houston on the first
+day of the Apollo 7 mission, October 11, 1968. (NASA Photo
+S-68-49299.)
+
+[ 203 ] Born in Old Forge,
+Pennsylvania on November 27, 1936, Glynn S. Lunney grew up with a
+fascination for flight. Focusing that interest while entering
+college, Lunney recalled studying aeronautics because "I wanted to
+work in the field of flight which meant aircraft since the field
+known today as aerospace was virtually non-existent."
+
+After obtaining a degree in aeronautical
+engineering from the University of Detroit in 1958, Lunney began his
+career with NASA upon entering the National Advisory Committee for
+Aeronautic's (NACA) cooperative training program at the Lewis
+Research Center in Cleveland, Ohio. There, he worked with a group
+that used a B-57 bomber to launch small rockets high into the
+atmosphere to make heat transfer measurements.
+
+Lunney first became aware of the work being
+done in manned space flight after viewing a preliminary drawing of
+what later became the Mercury spacecraft. When NACA became the
+National Aeronautics and Space Administration in 1958, Lunney worked
+side by side with engineers at NASA's Langley Research Center, in the
+area of manned space flight, as part of the newly formed Space Task
+Group (STG) which he joined in September 1959 as an aeronautical
+research engineer.
+
+[ 204 ] One of Lunney's
+first duties with the STG involved working in the Control Center
+Simulation Group. Here he was responsible for the preparation and
+operation of simulated missions used to train flight controllers in
+the manned Mercury program.
+
+After moving to Houston, Lunney began work at
+the newly organized Manned Spacecraft Center (MSC), becoming head of
+the Mission Logic and Computer Hardware Section of the Flight
+Operations Division (FOD), where he was responsible for establishing
+and coordinating the FOD flight dynamics requirements in the new
+Mission Control Center (MCC). One of Lunney's key roles at Houston
+was in helping establish the MCC mission rules for all flight
+controllers and crews. The philosophy behind these rules is sound
+enough that they remain in use at today's mission control
+center.
+
+Lunney continued taking on progressively
+larger roles and responsibilities within NASA, including chief of the
+Flight Dynamics Branch at the Flight Control Division. In 1968, he
+became chief of the Flight Director's Office, a role he assumed
+throughout most of the Apollo lunar program. While in this role,
+Lunney's duties grew to supervise all other flight directors and
+manage the training of flight control teams. From 1970 to 1972,
+Lunney also acted as technical assistant for Apollo to the director
+of Flight Operations.
+
+Lunney became involved in NASA's first
+cooperative space venture with the former Soviet Union. In 1972, he
+became manager of the Apollo-Soyuz Test Project (ASTP) where he
+oversaw the planning, coordination, and integration of all U.S.
+technical and operational details, as well as the supervision and
+coordination of the contracts and other elements supporting the
+program. When Lunney was promoted to manager of the Apollo Spacecraft
+Office in 1973, he continued with his ASTP responsibilities. Working
+with the Soviet Union required a great deal of skill in diplomacy and
+management; under Lunney's direction, the ASTP mission was launched
+in 1975 and proved to be an international success.
+
+During his long and distinguished career with
+NASA, Lunney served in a variety of different positions. In 1975, he
+became manager of the Shuttle Payload Integration and Development
+Program. During this time, he also served two appointments at NASA
+Headquarters: from 1976 to 1977 he served as deputy associate
+administrator for Space [ 205 ] Flight and from
+1979 to 1980 he became acting associate administrator for Space
+Transportation Operations. From 1981 to 1985, Lunney returned to
+Houston where he became manager of the National Space Transportation
+System program where he oversaw all Shuttle vehicle systems
+engineering, design, and integration.
+
+In 1985, Lunney retired from NASA and began
+work for Rockwell International. After the United Space Alliance
+(USA) formed in 1995 as NASA's prime contractor for all Space Shuttle
+operations, Lunney became vice president and program manager for USA
+in Houston in support of NASA's Space Flight Operations
+contract.
+
+[ 206 ] Editor's note: The
+following are edited excerpts from two separate interviews conducted
+with Glynn S. Lunney. Interview #1 was conducted on February 8, 1999,
+by Carol Butler and assisted by Summer Chick Bergen and Kevin Rusnak.
+Interview #2 was conducted on February 26, 1999, by Summer Chick
+Bergen and Kevin Rusnak. Both interviews were conducted as part of
+the Johnson Space Center Oral History Project.
+
+Interview #1
+
+You mentioned. . . that one of the Saturn V
+missions, in fact, the one right before Apollo 8, had experienced a
+variety of difficulties.
+
+Yes. Right.
+
+When the decision was made for Apollo 8 and
+you were going to use the Saturn V again, did you have any concerns
+about it?
+
+We did, but we talked about this pogo thing
+that was causing one engine to shut down, and then the mixed wiring
+caused another engine to shut down also, and there was a good fix for
+the center engine just by shutting it down early. The engine testing
+had gone well. Once we were getting to the point of saying we were
+going to put people on board, to light the thing and fire it, we felt
+that since we're taking all the risks, we might as well try to get
+the best gain that we possibly can from it. You could have used the
+Saturn V to do an Earth orbital flight, but the rocket was oversized
+for that, and you wouldn't have obtained a full, complete test of it.
+As a result, we began to adopt the attitude of going for the mission
+that the rocket was designed for and take it out to the Moon, which
+was done on Apollo 8. . . So once we got over the initial problems
+that we had on 502 [Apollo 6], the unmanned flight, and saw that
+those things were fixed, it became a matter of getting used to the
+idea of going to the Moon.
+
+And Apollo 8 was quite
+successful.
+
+Apollo 8 was great. . . Apollo 8 was kind of
+like the door opener for the lunar landing mission. I think all the
+people, certainly in [ 207 ] the operations
+team-the flight crews, I think, didn't feel quite the same way, but
+for us, all that had to be done to plan and execute the Apollo 8
+mission says that we really knew how to do that. We kind of opened
+the door so that the next couple of flights were test flights.
+Getting to the lunar landing mission was shorter than it otherwise
+would have been, but we got there with confidence as a result of
+Apollo 8.
+
+Looking at Apollo 8 and talking about the
+risk with the rocket, in hindsight, after having seen Apollo 13,
+there was some risk with the spacecraft to some degree. .
+.
+
+Oh, yes. There are a lot of-I'm not sure I
+could recount them all, but there are a lot of times when things
+happened that, had they happened in other sequences or under other
+conditions, would have been really bad, but for the most part, the
+things that happened were manageable, in the sequence we had them
+in.
+
+Apollo 13, for example, had it blown up while
+the lunar module was on the lunar surface, we'd have been stranded
+without a way to get home. So the fact that it blew up when it did
+didn't leave us very much margin to get home, but at least it was
+some margin, because we still had a full-up lunar module to live off
+of. And had it happened 36 or whatever hours later, we'd have been
+stuck. We'd have lost the mission, we'd have lost the crew, etc. So
+there's a variety of things that happened where the sequence turned
+out to be forgiving, if that's the right term, and the program was
+able to continue without grinding to a halt.
+
+We were lucky. . . if we hadn't gotten to the
+Moon as quickly as we did and Apollo 13 happened somewhere in the
+getting ready to go to the Moon stage, it probably would have
+engendered another debate about, gee, maybe this is too risky and we
+shouldn't be doing it at all, especially if we'd missed the goal of
+doing it within the decade. It just would have had a different flavor
+to the discussion than it did.
+
+Apollo 13 happening after a couple of lunar
+landing missions made people feel confident that, well, if we fix
+this problem, we can go back and repeat what we were doing before.
+All of that [ 208 ] wasn't still in
+front of us. We already had that under our belt as two successful
+lunar landing missions. If we did not have that, then the terms of
+reference for the discussion would have been different.
+
+You mentioned the buildup to the lunar
+landing of Apollo 11. In between Apollo 8 and Apollo 11 were 9 and
+10, both critical missions.
+
+Both critical, and 9 was primarily-although,
+of course, we flew the command service module-was primarily the first
+manned test of the lunar module, and so people wanted to put the
+lunar module through all the paces that they could in lower earth
+orbit, and that's what the Apollo 9 mission was scheduled to do and
+did. I didn't work on Apollo 9. I was around the Control Center, but
+I didn't have a planned shift for Apollo 9 because, by that time, I
+was occupied with Apollo 10. Apollo 10 was another step like that,
+although it took the lunar module out of earth orbit and we took it
+all the way to the Moon, and we did everything short of the actual
+descent phase and the lunar surface phase.
+
+So we had to do all the navigation things
+having to do with the two vehicles in orbit. We separated them. We
+approximated the rendezvous sequence that we would have when we
+lifted off from the Moon. So we got through all of the phases of
+flight except the actual descent itself, and then, of course, the
+traverses that were planned for the surface work.
+
+So we took the lunar module to earth orbit,
+did everything we could with it, took it to the Moon, did everything
+we could with it, and then, on the third flight, we were ready to
+commit it to the landing and it worked fine. It worked fine in terms
+of most of its performance. There were a few problems that people had
+to work around in order to be sure that it got to landing.
+
+Go into a little more detail with Apollo
+10. . .
+
+Apollo 10 was a great flight. I was the lead
+flight director on it, and it was, you know, do everything except the
+landing phase, is basically the way the mission design came down. A
+number of us [ 209 ] argued at the time
+that if we're going to go all that way and do all that, then we ought
+to go land on the Moon. Probably the staunchest advocate of stopping
+short of the descent phase was Chris Kraft at the time. He wanted us
+to have the experience of navigating these two vehicles around the
+Moon, navigating, knowing where they are and how fast they're going
+so that you can get them back together. Because there were unknowns
+associated with flying so close to the lunar surface, because the
+trajectories would be disturbed by concentrations of mass from
+whatever hit the Moon and it would change the orbit a little bit, and
+that doesn't sound like much, but you can't afford to miss very much
+when you're doing what we were doing.
+
+So we debated that for a while, but after a
+while we all got satis-fied that this was the right thing to do. So
+we set about to do everything. Tom [Thomas P.] Stafford, Gene [Eugene
+A.] Cernan, and John [W.] Young were on Apollo 10, and we had a
+chance to do everything short of the landing on that flight. The
+flight pretty much went by the book. There were a few funny anomalies
+where the spacecraft got out of configuration at one time and was
+kind of spinning up or going in a direction that the crew didn't
+expect, and Cernan reacted to that, I think, profanely on the
+air-to-ground, but that got settled down and got the configuration
+right, and they got that fixed, and things went smoothly from then
+on.
+
+Basically, Apollo 10 was sort of like the last
+clearance test for the Apollo 11 lunar landing try, and the flight
+went well, everything behaved well, and basically the whole system,
+hardware and people, passed the clearance test that we needed to pass
+to be sure that we could go land on the Moon on the next one. Adding
+the descent phase and the lunar surface work was a tremendous amount
+of additional training, planning, and getting ready for that had to
+occur with both the flight crews, with the people in the Control
+Center, and, of course, all the people that plan all these
+flights.
+
+So in retrospect, Apollo 10 probably could
+have landed on the Moon, but it was a matter of how much do you bite
+off at a time, and the way it came out, Apollo 10 was absolutely the
+right thing to do.
+
+[ 210 ] Apollo 11 had been such a big event and was covered
+extensively by the media, and then by the time of Apollo 13, there
+was little coverage. . .
+
+Yes, we could see that, because, of course, it
+would show up in the numbers of people from the media who would come
+here to follow the flights. It would take the form of the coverage
+that would occur in the television, newspapers, or whatever. And we
+had a sense that the coverage was dropping off, and a number of
+people-people react to that in different ways. A number of people
+felt like they were disappointed and it should always be the same as
+it was, for example, for Apollo 11.
+
+My attitude, I think, all along was there's
+just something natural in this. I mean, people pay attention to
+things when they believe that they should pay attention to them.
+Certainly the first lunar landing mission was something in that
+category. But then when you repeat it once and you're going back to
+repeat it again and again-and I say repeat it. From the outside
+that's what it looks like. From the inside you're doing a lot of
+different things, but from the outside it looks like you're repeating
+it, then the interest and the anxiety about it probably goes down a
+little bit.
+
+So, yes, we sensed and saw the decrease, the
+indicators of decreased attention to the flights, and my reaction was
+that's normal, that's human nature, and it wasn't anything to be
+terribly distressed about, although some people were more stressed,
+certainly, than I was about it. But I think it was unrealistic to
+believe that the attention that the world focused on Apollo 11 was
+going to continue to be focused on every subsequent flight. It just
+isn't like that. So, while others might have been more upset, I was
+sort of benign about it. I thought that was normal, and I didn't get
+too upset about it.
+
+Looking at the attention of the world and
+the media, some people have mentioned before that they were so caught
+up in the Apollo program or the other programs that they kind of lost
+touch with what was going on in the outside world, like with Vietnam.
+. .
+
+Let me talk about that. Because the '60s were
+such a tremendously...
+
+[ 211 ]
+
+Apollo 11 flight directors pose for a
+group photo in the Mission Control Center. Pictured left to right,
+and the shifts that they served during the mission, are (in front and
+sitting) Clifford E. Charlesworth (Shift 1), Gerald D. Griffin (Shift
+1), Eugene F. Kranz (Shift 2), Milton L. Windler (Shift 4), and Glynn
+S. Lunney (Shift 3). (NASA Photo S-69-39192.)
+
+...volatile and kind of a tearing apart
+environment in the United States, and speaking for myself and, I
+expect, for other people, we experienced all that, I mean, especially
+Vietnam. So many young men were being killed and wounded. There was a
+sense that you didn't have any idea of how long it was going to go
+on, how bad it was going to continue to be, and so on. It was bad.
+So, you know, as an American or even as a human being, I was affected
+by all that and all the other things that were going on in America at
+the time-civil rights, the assassination, marches, the hippie stuff,
+the drug stuff started to come on the scene.
+
+I remember the convention that was held in
+Chicago in 1968 where there was so much mayhem, really, on the
+streets of Chicago-tear gasses and the police hitting people to
+control the crowds-and the people were expressing their point of
+view, mostly about Vietnam, that we were on the wrong track and
+[ 212 ] needed to get out of there. It was a very divisive,
+terribly emotional kind of issue. That and other things, all those
+other things were terribly emotional, and we still were in the middle
+of the cold war. The threat from the Russians was real, and on and
+on. So there was a lot of emotional things that were upsetting-that's
+a mild word. I mean, "upsetting" is just too mild to capture it. It
+was distressing the hell out of people in the country, and it had
+that kind of effect on me.
+
+The difference, though, that I felt for myself
+and maybe for those of us in the program was that we had a real focus
+on significant events in the '60s, and we could do something about
+it. I think a lot of people were frustrated because, depending on
+what their interest was or what their main concern was during the
+'60s, most people couldn't do very much about it. I mean, people
+protested, and that was, by the way, an activity that eventually had
+its result, but it was a long time frame, and it was not clear that
+it was going to have a positive outcome.
+
+So a lot of people, I think, were frustrated
+because there was nothing that they could personally do to make any
+of these things that might have been distressing the hell out of them
+come out okay. I mean, there they were, and events were out of their
+control, and these things were happening. So there was a lot of
+loss-of-control frustration, I think, that people had over the things
+that were going on. And people felt it all to varying degrees, I
+suppose, but I think most people in America felt it pretty strongly
+at the time. All these things were occurring. It was a very difficult
+environment, and it all caused people to be stressed and frustrated,
+perhaps, at not being able to do anything about it.
+
+At least in our case, and certainly speaking
+for myself, I always had the sense that we were involved in a
+significant activity of our time, significant for our country and for
+our country's position in the world, and we were-kind of-stewards. I
+was one of the stewards for this program to make it come out right.
+So we could return to our little island or our little Camelot, or
+whatever you want to call it, that we had here in the space program
+and that we especially felt here at the Johnson Space Center, where
+everybody in this thing worked so closely together. Of course, we
+worked with [ 213 ] the other Centers,
+too, but it was keenly felt here at the Johnson Space Center in terms
+of the teamwork and the comradeship, and the reliance that you had to
+have on other people. So there was a strong sense of community and
+people working together and pulling in the same direction and so
+on.
+
+So the frustration that other people had,
+perhaps, where they couldn't do anything about this inability to
+control these events, we at least had a set of events that we had
+some active control that we could apply to, even on a personal basis.
+We could personally do our best to assure that our part of this
+national scene was going to go well. I think it gave us a sense,
+perhaps, of insulation from the emotional fallout from all these
+other things that were going on, the frustration, the lack of
+control, the stressing part of it. They were all real, but for me it
+was a little different, I think, than for most of the population,
+because we had this major '60s activity that we were involved in, and
+we could actually go do something about it every day. We'd go to work
+every day and work on it, and we could do something about it.
+
+So in that sense, I think, we had an outlet
+that most people probably didn't have to express their feelings and
+their sense of what they thought ought to be done about conditions in
+the country. We had this thing we could do, so it kept us together,
+and it was a little bit like, when we did our thing, we were on a
+little island and around us were all these terrible thunderstorms and
+hurricanes and tornadoes and earthquakes, which were the events of
+the time, both nationally and internationally, but they were kind of
+violent, and you almost had the feeling that they were cataclysmic,
+although it turned out that they weren't.
+
+You got a sense that there was an impending
+blowup of all these things going on, but we were on this little
+island with all this going on around us, and yet we were able to
+focus on the stuff that we had to do, and in that sense it gave us
+something that we could control personally and something that we
+could go do and contribute to, and we could do it every day.
+
+So for us it was probably a rock that we could
+hang onto, and it did mitigate, to some extent, at least for me
+personally, the frustration in the sense of out-of-controlness that
+most other people [ 214 ] must have been
+suffering from. But it was very real. It was very real and very
+painful. No matter what point of view anybody would represent on a
+given subject, it had to be painful for everybody that was in
+America-maybe not everybody, but everybody who wanted the country to
+do well and come through this stuff. It was very painful for people.
+It was very distressing. And they're mild words. I think what they
+were feeling was a lot stronger than that, and there were many points
+of view on almost every subject.
+
+But we had our island and our rock that we
+could go back to, that we could do something about. We felt like we
+were making our contribution. We could contribute what the program
+was going to contribute to the country. So it was like a solace of
+sorts, or a port, or island in the storm that was going on all around
+us.
+
+So we were in a different condition, I think,
+than other people in the country, and we benefited from that, I mean,
+benefited from it in the sense that we had a focus and a way to
+express ourselves that was constructive.
+
+I think it did make a difference. I have
+found in my research that after the Apollo 8 mission, a woman sent in
+a telegram saying, "Thank you for saving 1968."
+
+Yes. 1968 was a violent, difficult year. It
+was the year of the Chicago thing. It was the year of the Tet
+Offensive that started the year off. Assassinations. I mean, it was
+awful stuff. The hippies and the drug thing was going on. Everybody
+had a reaction to that, pro or con or otherwise. . . And then Apollo
+8 ended the year with the Book of Genesis being read from the Moon.
+It was quite a change. It was a very absolutely different kind of
+public event than a lot of the previous ones, most of which had been
+with hurt, pain, and agony wrapped around them. This was an entirely
+different kind of thing, and we were part of it and felt like we were
+continuing, and that we had more in front of us yet to do.
+
+That's the other thing that happened to us.
+Because of the pace of things, we never really had time to stop and
+just enjoy it or even to reflect very much on it in a broad way or an
+overall way. We never had time to sit around and talk about it. We
+were always....
+
+[ 215 ]
+
+Glynn S. Lunney at console during the
+Apollo 16 mission. Lunney later served as the project director for
+the Apollo/Soyuz Test Project. (NASA. Photo S-71-16812.)
+
+....so involved in a mission and then the next
+one, and then the next one, that we did not have time to enjoy it,
+perhaps, as much as we should have, although the enjoyment came from
+the energy and the adrenaline that was pumping the whole time. But we
+didn't have time to be very reflective about it, and that's really
+come, for [ 216 ] me, in the last 5
+to 10 years. It has been a revisiting of a lot of the events and a
+lot of people, one thing and another, books and movies and coverage
+and anniversaries, and so on.
+
+I'm now grandfather to 12 little people. I
+have a sense of what life's going to be for them and that, as a
+member of the family, I participated in some way. I'm leaving
+something for them to have some sense of what I had a chance to be a
+part of.
+
+Interview #2
+
+As you were moving into the more
+scientifically focused phases, Apollo was beginning to lose support,
+or funding. Did that affect you at all at the time?
+
+I guess I could answer that in a couple of
+different ways. When I was doing this work in the '60s, I never
+thought about what was going to come afterwards. I had this sense
+that it was going to go on forever. It's probably a failing or an
+idealism of youth, I guess, but you sort of think like, God, this is
+wonderful stuff, and you think it's going to go on forever. .
+.
+
+On the other hand, this was set up, as you
+said, as a response to what was considered to be a major threat, and
+this was seen as a way to demonstrate capability and accomplishment
+in this field, and we had done that. Within the program, it's
+probably like any bureaucracy or any enterprise. Once you get to do
+something, you think you'd like to do it several more times and
+repeat it and so on. And as a matter of fact, at the time, there
+wasn't an alternative that was sitting in front of us that says,
+"Okay, now that we've done that, we're going to go do this." It took
+a little while to develop what we were going to do next.
+
+So there was a sense of inertia carrying the
+missions along, and there was a sense in the program by a lot of
+people that they wanted to continue and fly another one, another two,
+another five, depending on, you know, whoever you talked to. Some
+people just thought we ought to fly them indefinitely, I suppose. And
+certainly that was a very strong opinion in the lunar science
+community, [ 217 ] because, to them we
+had just gotten over all this operational stuff and we were really
+getting ready to be able to do the scientific things that they wanted
+to do, and the 15 [Apollo 15] was the first mission that had an
+extensive set of scientific capabilities after the initial
+capabilities of 11, 12, and 14. And I'm sure they would want to have
+continued it, and they would probably still be exploring the Moon
+today.
+
+But it was a response to a certain set of
+circumstances. Once responded to, what we saw was acknowledgment,
+explicit or otherwise, by both the political system in America and
+probably by the public, that we had indeed achieved satisfaction of
+the purpose, or that the response that we undertook satisfied what
+caused it in the first place. I think the political system was
+satisfied, and the public was satisfied that we had done that, and
+that there was a sense that it was costing a considerable amount of
+money. The percentage, for example, of the Federal budget that NASA
+took in the peak years was like four percent. Today, and for long
+periods of time, almost all the time, it's been one or less than one
+percent of the Federal budget. So, four percent and one percent is a
+big multiple. . . And there was a sense that, with everything else
+that was going on in America, priorities needed changing, and that
+was the political sound bite that became popular to describe the fact
+that we needed to reorient and couldn't be spending this amount of
+money or this high a percentage of our Federal budget for this kind
+of thing. In light of the fact that it had accomplished its original
+purpose, and the return, although seen as very valuable by the lunar
+scientists, was not seen as so valuable to be worth that kind of
+money by the political system. And I think that was probably,
+although they might not have known exactly what the numbers were, the
+sense that the public had at the time.
+
+So I think it was natural that it served a
+purpose, but there wasn't a lot of purpose to be served by just
+continuing to do the same thing over and over again. And it was
+disappointing to people, I think, but being realistic about it, I
+think it was appropriate.
+
+You know, other endeavors were different. For
+example, the opening up of the New World. There clearly was, once
+people got over here, a reason to come back. . .
+
+[ 218 ] In the case of the
+Apollo sequence, the reason to go back would have been the
+satisfaction of scientific understanding, or the gaining of
+scientific understanding about what's going on. That doesn't
+have-didn't at the time and doesn't today-as high a priority as some
+other things, like the motivations that were operative at the time of
+the opening up of the New World. Not only was there trade, there was
+competition with the other major European powers and so on. There was
+a different set of circumstances. . . that's why it's difficult, I
+think, to get another major new initiative in space started, beyond
+the Space Station. It isn't obvious what the relevance and what the
+rationale is for going ahead and doing that, especially since it's
+very expensive. If it's a very expensive thing, it's hard to convince
+people that we should go do that to satisfy our curiosity. It's not
+much the curiosity of the American public, at least as I can read it
+today, and I suppose they would say, "Yes, I'm curious about that,
+and if it costs 10 bucks, go find out, but if it costs lots more than
+that (which it would), then I don't know that I'm all that curious
+about it today. I'll wait another day. And maybe you can do it
+cheaper in the future. Technology changes and things will change and
+so on and so on, so what's the hurry. I can do that later."
+
+And I think that's the kind of valley that the
+space program is in right now in terms of the surrounding environment
+in the country. There's no urgency to go do something, and there's
+nothing very specific or tangible that we can articulate that there's
+a reason for going to do that. If, for example, we could solve all
+the pollution problems of energy and do it on the Moon or some other
+place and microwave it back to the Earth, well, that might have some
+interest, if we could do it at a price that was competitive or
+effective.
+
+I think it's difficult to sell exploration for
+exploration's sake when it has a real, real high price tag on it, and
+that's the difficulty that the space program is going to face in
+trying to chart a course beyond the Space Station. It's not clear yet
+what that rationale and relevancy is going to be, but I think we need
+to struggle to find it, so that we can continue. In the big scheme of
+things, man has moved, and he's probably going to continue to move,
+and it will take a while.
+
+On the other hand, the exploration of the New
+World took a while. I mean, it went on for decades/centuries, so, you
+know, this [ 219 ] will, too, and it
+will have periods when it's fast and periods when it's not so fast,
+and periods when it's searching for what we are going to do next, and
+what we are going to do next is probably going to be an agenda for
+NASA. It is today, to some extent, but it will become more of an
+agenda as the Space Station program begins to mature.
+
+Is there anything today that we've talked
+about that you wanted to close off points on?
+
+Let's see. I will probably say this a couple
+of different ways, a couple of different times, but when I look back
+on it, I mean, I think we would all say the same thing in slightly
+different words. We loved what we were able to do. We loved the
+opportunity to be able to do it. We loved the-I don't want to
+dramatize this about the challenge of it-but we loved the newness and
+uniqueness of it, and the fact that we were able to participate in
+it. I loved the privilege of being in the role that I was.
+
+When I go back and talk about what happened in
+space, I find that, gee, I was kind of in a spot doing something on
+almost all of the significant events that ever happened in the human
+space program in the country, one way or another. I didn't get to do
+them all, but I got to do a lot of them. And you know, it was done
+by-not only what we did, but the whole program-people all over
+America. They weren't necessarily the best and the brightest at
+anything, they were just pretty good and dedicated.
+
+What took it to another level was dedication
+to doing it very well, and you took a set of people that I guess
+you'd have to say were average, and they were dedicated to doing
+something that was really, in its sum, far above average. We were all
+successful at pulling it off, and I think we all carry a sense that
+we were involved in something that was much bigger than each of us as
+individuals. What we ended up doing in Apollo was a lot bigger than
+the sum of all of us and I think we all articulate it differently
+perhaps, but we all carry a sense of that kind of a watershed event
+in history, and in the development of civilization and the race as we
+knew it.
+
+[ 220 ] It remains to be
+seen what forms this new frontier is going to take in the future, but
+I think all of us who participated would have confidence and faith
+that, yes, indeed, we have opened up an entirely new thing that was
+not a window, perhaps, a dimension that was not available before. And
+I don't know exactly what the form of exploring and exploiting that
+window will be in the future, but it will be there and it will be
+significant for all of us here on the planet.
+
+We loved it. We loved the work, we loved the
+comradeship, we loved the competition, we loved the sense of doing
+something that was important to our fellow Americans. We were
+obsessed with it. But it took a lot of average people and a few
+extraordinary leaders, and we managed to do big things. Maybe that's
+a lesson to take away from this history. You really can do
+significant things and accomplish extraordinary things just by the
+proper energy and structuring of what you want to do, but it has to
+be meaningful and relevant to people. I think that was part of what
+was so right about Apollo, articulated, of course, at the beginning
+by John F. Kennedy. But it was something the American public seemed
+to need the most during that period in terms of a response and
+reassurance about America's role in the emerging frontier of space.
+So I think we have to be sure that we have that kind of component,
+and not a purely self-serving interest, in our rationales and
+attempts to justify new exploration initiatives.

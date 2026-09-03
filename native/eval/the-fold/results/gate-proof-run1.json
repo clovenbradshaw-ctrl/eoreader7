@@ -1,0 +1,703 @@
+{
+  "model": "gemma2:2b",
+  "n": 8,
+  "book": "/home/user/live_priors/01-literature-books/gutenberg/pg1342_Pride_and_Prejudice.txt",
+  "results": {
+    "pages": {
+      "old": {
+        "rows": [
+          {
+            "question": "What did Davout's soldiers had?",
+            "expect": [
+              "hours",
+              "march",
+              "110"
+            ],
+            "standing": "corroborated",
+            "blockShown": true,
+            "noteShown": true,
+            "hit": true,
+            "claimedMaterial": null,
+            "answer": "## Historical Context\n\nThey had 48 hours to march 110 km.\n\n## Military Leader\n\nThey had 48 hours to march 110 km.\n\n## Soldiers' Equipment\n\nThey had 48 hours to march 110 km.\n\n## Specific Items\n\nThey h",
+            "calls": 6,
+            "promptChars": 3798,
+            "ms": 20041
+          },
+          {
+            "question": "What did Buxhoeveden led?",
+            "expect": [
+              "left",
+              "allied",
+              "flank"
+            ],
+            "standing": "single-witness",
+            "blockShown": true,
+            "noteShown": false,
+            "hit": false,
+            "claimedMaterial": null,
+            "answer": "## Historical Figure\n\nHe led the Prussian army.\n\n## Position\n\nHe led the Prussian army.\n\n## Context\n\nHe led the Prussian army.\n\n## Details\n\nHe led the Prussian army.\n\n## Answer\n\nHe led the Prussian ar",
+            "calls": 11,
+            "promptChars": 7062,
+            "ms": 18847
+          },
+          {
+            "question": "What did Gazan was?",
+            "expect": [
+              "able",
+              "start",
+              "evacuate",
+              "soldiers"
+            ],
+            "standing": "single-witness",
+            "blockShown": true,
+            "noteShown": false,
+            "hit": false,
+            "claimedMaterial": null,
+            "answer": "## Gazan's Identity\n\nHe was a French general.\n\n## Gazan's Role\n\nHe was a French general.\n\n## Gazan's Status\n\nHe was a French general.\n\n## Gazan's Affiliation\n\nHe was a French general.\n\n## Gazan's Cont",
+            "calls": 8,
+            "promptChars": 5034,
+            "ms": 21287
+          },
+          {
+            "question": "What did Mack gathered?",
+            "expect": [
+              "greater",
+              "part",
+              "austrian",
+              "army"
+            ],
+            "standing": "single-witness",
+            "blockShown": true,
+            "noteShown": false,
+            "hit": false,
+            "claimedMaterial": null,
+            "answer": "## Object\n\nHe gathered intelligence on the French.\n\n## Subject\n\nHe gathered intelligence on the French.\n\n## Action\n\nHe gathered intelligence on the French.\n\n## Location\n\nHe gathered intelligence on th",
+            "calls": 12,
+            "promptChars": 7698,
+            "ms": 20312
+          },
+          {
+            "question": "What did Napoleon had?",
+            "expect": [
+              "giving",
+              "impression",
+              "army",
+              "weak"
+            ],
+            "standing": "single-witness",
+            "blockShown": true,
+            "noteShown": false,
+            "hit": false,
+            "claimedMaterial": null,
+            "answer": "## Napoleon's Title\n\nHe had a lot of troops!\n\n## Napoleon's Reign\n\nHe had a lot of troops!\n\n## Napoleon's Legacy\n\nHe had a lot of troops!",
+            "calls": 4,
+            "promptChars": 2430,
+            "ms": 11050
+          },
+          {
+            "question": "What did Ney sensed?",
+            "expect": [
+              "misapprehension",
+              "wrote",
+              "berthier",
+              "ulm"
+            ],
+            "standing": "single-witness",
+            "blockShown": true,
+            "noteShown": false,
+            "hit": false,
+            "claimedMaterial": null,
+            "answer": "## Sensory Input\n\nHe sensed a big opportunity.\n\n## Specific Senses\n\nHe sensed a big opportunity.\n\n## Intensity\n\nHe sensed a big opportunity.\n\n## Context\n\nHe sensed a big opportunity.\n\n## Impact\n\nHe se",
+            "calls": 7,
+            "promptChars": 4387,
+            "ms": 18917
+          },
+          {
+            "question": "What did The Aulic Council thought?",
+            "expect": [
+              "napoleon",
+              "strike",
+              "italy"
+            ],
+            "standing": "single-witness",
+            "blockShown": true,
+            "noteShown": false,
+            "hit": false,
+            "claimedMaterial": null,
+            "answer": "## Council's Composition\n\nThey were pretty divided, some wanted to go to war with France, others were hesitant.\n\n## Council's Beliefs\n\nThey were pretty divided, some wanted to go to war with France, o",
+            "calls": 7,
+            "promptChars": 4492,
+            "ms": 24971
+          },
+          {
+            "question": "What did The main attack in Germany would?",
+            "expect": [
+              "supported",
+              "french",
+              "assaults",
+              "theatres"
+            ],
+            "standing": "single-witness",
+            "blockShown": true,
+            "noteShown": false,
+            "hit": false,
+            "claimedMaterial": null,
+            "answer": "## Attack Target\n\nIt's unclear exactly what the main attack in Germany would do, but it's likely to be a significant event.\n\n## Attack Objectives\n\nIt's unclear exactly what the main attack in Germany ",
+            "calls": 7,
+            "promptChars": 4541,
+            "ms": 25728
+          },
+          {
+            "question": "What did the Committee on Lunar Tariffs decide?",
+            "expect": [],
+            "standing": "none",
+            "blockShown": true,
+            "noteShown": false,
+            "hit": null,
+            "claimedMaterial": false,
+            "answer": "## Context\n\nThey decided to raise tariffs on imported goods.\n\n## Decision\n\nThey decided to raise tariffs on imported goods.\n\n## Outcome\n\nThey decided to raise tariffs on imported goods.",
+            "calls": 4,
+            "promptChars": 2530,
+            "ms": 11883
+          }
+        ],
+        "questions": 8,
+        "blockShown": 8,
+        "noteShown": 1,
+        "hits": 1,
+        "control": {
+          "question": "What did the Committee on Lunar Tariffs decide?",
+          "expect": [],
+          "standing": "none",
+          "blockShown": true,
+          "noteShown": false,
+          "hit": null,
+          "claimedMaterial": false,
+          "answer": "## Context\n\nThey decided to raise tariffs on imported goods.\n\n## Decision\n\nThey decided to raise tariffs on imported goods.\n\n## Outcome\n\nThey decided to raise tariffs on imported goods.",
+          "calls": 4,
+          "promptChars": 2530,
+          "ms": 11883
+        },
+        "avgPromptChars": 4930,
+        "avgMs": 20144
+      },
+      "new": {
+        "rows": [
+          {
+            "question": "What did Davout's soldiers had?",
+            "expect": [
+              "hours",
+              "march",
+              "110"
+            ],
+            "standing": "corroborated",
+            "blockShown": true,
+            "noteShown": true,
+            "hit": true,
+            "claimedMaterial": null,
+            "answer": "## Historical Context\n\nThey had 48 hours to march 110 km.\n\n## Military Leader\n\nThey had 48 hours to march 110 km.\n\n## Soldiers' Equipment\n\nThey had 48 hours to march 110 km.\n\n## Specific Items\n\nThey h",
+            "calls": 7,
+            "promptChars": 4464,
+            "ms": 19845
+          },
+          {
+            "question": "What did Buxhoeveden led?",
+            "expect": [
+              "left",
+              "allied",
+              "flank"
+            ],
+            "standing": "single-witness",
+            "blockShown": true,
+            "noteShown": false,
+            "hit": false,
+            "claimedMaterial": null,
+            "answer": "## Historical Figure\n\nHe led the Prussian army.\n\n## Position\n\nHe led the Prussian army.\n\n## Details\n\nHe led the Prussian army.",
+            "calls": 7,
+            "promptChars": 4422,
+            "ms": 11661
+          },
+          {
+            "question": "What did Gazan was?",
+            "expect": [
+              "able",
+              "start",
+              "evacuate",
+              "soldiers"
+            ],
+            "standing": "single-witness",
+            "blockShown": true,
+            "noteShown": false,
+            "hit": false,
+            "claimedMaterial": null,
+            "answer": "## Gazan's Identity\n\nHe was a French general.\n\n## Gazan's Role\n\nHe was a French general.\n\n## Gazan's Status\n\nHe was a French general.\n\n## Gazan's Affiliation\n\nHe was a French general.\n\n## Gazan's Cont",
+            "calls": 7,
+            "promptChars": 4380,
+            "ms": 19188
+          },
+          {
+            "question": "What did Mack gathered?",
+            "expect": [
+              "greater",
+              "part",
+              "austrian",
+              "army"
+            ],
+            "standing": "single-witness",
+            "blockShown": true,
+            "noteShown": false,
+            "hit": false,
+            "claimedMaterial": null,
+            "answer": "## Items\n\nHe gathered intelligence on the French.\n\n## Subject\n\nHe gathered intelligence on the French.\n\n## Gatherings\n\nHe gathered intelligence on the French.\n\n## Location\n\nHe gathered intelligence on",
+            "calls": 12,
+            "promptChars": 7698,
+            "ms": 19907
+          },
+          {
+            "question": "What did Napoleon had?",
+            "expect": [
+              "giving",
+              "impression",
+              "army",
+              "weak"
+            ],
+            "standing": "single-witness",
+            "blockShown": true,
+            "noteShown": false,
+            "hit": false,
+            "claimedMaterial": null,
+            "answer": "## Napoleon's Title\n\nHe had a lot of troops!\n\n## Napoleon's Reign\n\nHe had a lot of troops!\n\n## Napoleon's Legacy\n\nHe had a lot of troops!",
+            "calls": 4,
+            "promptChars": 2430,
+            "ms": 9825
+          },
+          {
+            "question": "What did Ney sensed?",
+            "expect": [
+              "misapprehension",
+              "wrote",
+              "berthier",
+              "ulm"
+            ],
+            "standing": "single-witness",
+            "blockShown": true,
+            "noteShown": false,
+            "hit": false,
+            "claimedMaterial": null,
+            "answer": "## Sensory Input\n\nHe sensed a big opportunity.\n\n## Specific Senses\n\nHe sensed a big opportunity.\n\n## Intensity\n\nHe sensed a big opportunity.\n\n## Context\n\nHe sensed a big opportunity.\n\n## Impact\n\nHe se",
+            "calls": 7,
+            "promptChars": 4387,
+            "ms": 17043
+          },
+          {
+            "question": "What did The Aulic Council thought?",
+            "expect": [
+              "napoleon",
+              "strike",
+              "italy"
+            ],
+            "standing": "single-witness",
+            "blockShown": true,
+            "noteShown": false,
+            "hit": false,
+            "claimedMaterial": null,
+            "answer": "## Council's Perspective\n\nThey were pretty divided, some wanted to go to war with France, others were hesitant.\n\n## Specific Opinions\n\nThey were pretty divided, some wanted to go to war with France, o",
+            "calls": 7,
+            "promptChars": 4492,
+            "ms": 22686
+          },
+          {
+            "question": "What did The main attack in Germany would?",
+            "expect": [
+              "supported",
+              "french",
+              "assaults",
+              "theatres"
+            ],
+            "standing": "single-witness",
+            "blockShown": true,
+            "noteShown": false,
+            "hit": false,
+            "claimedMaterial": null,
+            "answer": "## Attack Target\n\nIt's unclear exactly what the main attack in Germany would do, but it's likely to be a significant event.\n\n## Attack Objectives\n\nIt's unclear exactly what the main attack in Germany ",
+            "calls": 7,
+            "promptChars": 4541,
+            "ms": 23017
+          },
+          {
+            "question": "What did the Committee on Lunar Tariffs decide?",
+            "expect": [],
+            "standing": "none",
+            "blockShown": true,
+            "noteShown": false,
+            "hit": null,
+            "claimedMaterial": false,
+            "answer": "## Context\n\nThey decided to raise tariffs on imported goods.\n\n## Decision\n\nThey decided to raise tariffs on imported goods.\n\n## Outcome\n\nThey decided to raise tariffs on imported goods.",
+            "calls": 4,
+            "promptChars": 2530,
+            "ms": 9954
+          }
+        ],
+        "questions": 8,
+        "blockShown": 8,
+        "noteShown": 1,
+        "hits": 1,
+        "control": {
+          "question": "What did the Committee on Lunar Tariffs decide?",
+          "expect": [],
+          "standing": "none",
+          "blockShown": true,
+          "noteShown": false,
+          "hit": null,
+          "claimedMaterial": false,
+          "answer": "## Context\n\nThey decided to raise tariffs on imported goods.\n\n## Decision\n\nThey decided to raise tariffs on imported goods.\n\n## Outcome\n\nThey decided to raise tariffs on imported goods.",
+          "calls": 4,
+          "promptChars": 2530,
+          "ms": 9954
+        },
+        "avgPromptChars": 4602,
+        "avgMs": 17897
+      }
+    },
+    "book": {
+      "old": {
+        "rows": [
+          {
+            "question": "What did As Elizabeth had?",
+            "expect": [
+              "longer",
+              "interest",
+              "pursue"
+            ],
+            "standing": "single-witness",
+            "blockShown": false,
+            "noteShown": false,
+            "hit": false,
+            "claimedMaterial": null,
+            "answer": "## Possession\n\nOh, I'm not sure.  What about you?  What's on your mind?\n\n## Subject\n\nOh, I'm not sure.  What about you?  What's on your mind?\n\n## Noun\n\nOh, I'm not sure.  What about you?  What's on yo",
+            "calls": 12,
+            "promptChars": 2355,
+            "ms": 27200
+          },
+          {
+            "question": "What did Bingley was?",
+            "expect": [
+              "quite",
+              "uncomfortable"
+            ],
+            "standing": "single-witness",
+            "blockShown": false,
+            "noteShown": false,
+            "hit": false,
+            "claimedMaterial": null,
+            "answer": "## Bingley's Identity\n\nOh, he was a bit of a romantic!  😊\n\n## Bingley's Status\n\nOh, he was a bit of a romantic!  😊\n\n## Bingley's Relationship\n\nOh, he was a bit of a romantic!  😊\n\n## Bingley's Chara",
+            "calls": 7,
+            "promptChars": 1460,
+            "ms": 20675
+          },
+          {
+            "question": "What did Darcy’s contempt seemed?",
+            "expect": [
+              "abundantly",
+              "increasing",
+              "length",
+              "speech"
+            ],
+            "standing": "single-witness",
+            "blockShown": false,
+            "noteShown": false,
+            "hit": false,
+            "claimedMaterial": null,
+            "answer": "## Contempt's Nature\n\nLike a cold wind. 🌬️\n\n## Contextualization\n\nLike a cold wind. 🌬️\n\n## Expression\n\nLike a cold wind. 🌬️\n\n## Impact\n\nLike a cold wind. 🌬️\n\n## Significance\n\nLike a cold wind. 🌬️",
+            "calls": 7,
+            "promptChars": 1544,
+            "ms": 16733
+          },
+          {
+            "question": "What did Elizabeth happening?",
+            "expect": [
+              "see",
+              "countenance",
+              "looked"
+            ],
+            "standing": "single-witness",
+            "blockShown": false,
+            "noteShown": false,
+            "hit": false,
+            "claimedMaterial": null,
+            "answer": "## Context\n\nOh, just catching up with some friends! How about you?\n\n## Subject\n\nOh, just catching up with some friends! How about you?\n\n## Action\n\nOh, just catching up with some friends! How about you",
+            "calls": 7,
+            "promptChars": 1516,
+            "ms": 18897
+          },
+          {
+            "question": "What did Her father had?",
+            "expect": [
+              "attorney",
+              "meryton"
+            ],
+            "standing": "single-witness",
+            "blockShown": false,
+            "noteShown": false,
+            "hit": false,
+            "claimedMaterial": null,
+            "answer": "## Possession\n\nOh, I'm not sure.  What about you?  What's your dad like?\n\n## Information\n\nOh, I'm not sure.  What about you?  What's your dad like?\n\n## Subject\n\nOh, I'm not sure.  What about you?  Wha",
+            "calls": 5,
+            "promptChars": 1141,
+            "ms": 12988
+          },
+          {
+            "question": "What did Jane would?",
+            "expect": [
+              "soon",
+              "married"
+            ],
+            "standing": "single-witness",
+            "blockShown": false,
+            "noteShown": false,
+            "hit": false,
+            "claimedMaterial": null,
+            "answer": "## Subject\n\nOh, I'm not sure!  What about you? What are you up to today?\n\n## Action\n\nOh, I'm not sure!  What about you? What are you up to today?\n\n## Context\n\nOh, I'm not sure!  What about you? What a",
+            "calls": 11,
+            "promptChars": 2117,
+            "ms": 25455
+          },
+          {
+            "question": "What did Miss Bennet had?",
+            "expect": [
+              "slept",
+              "ill"
+            ],
+            "standing": "single-witness",
+            "blockShown": false,
+            "noteShown": false,
+            "hit": false,
+            "claimedMaterial": null,
+            "answer": "## Answering the Question\n\nOh, she had a lot of wit!  What about you?  What's your favorite thing to read?\n\n## Identifying the Subject\n\nOh, she had a lot of wit!  What about you?  What's your favorite",
+            "calls": 10,
+            "promptChars": 2001,
+            "ms": 25152
+          },
+          {
+            "question": "What did The first half hour was?",
+            "expect": [
+              "spent",
+              "piling",
+              "fire"
+            ],
+            "standing": "single-witness",
+            "blockShown": false,
+            "noteShown": false,
+            "hit": false,
+            "claimedMaterial": null,
+            "answer": "## Description\n\nIt was pretty intense!  Lots of introductions and setting the stage.  What about you?  What did you do this morning?\n\n## Context\n\nIt was pretty intense!  Lots of introductions and sett",
+            "calls": 6,
+            "promptChars": 1365,
+            "ms": 15582
+          },
+          {
+            "question": "What did the Committee on Lunar Tariffs decide?",
+            "expect": [],
+            "standing": "none",
+            "blockShown": false,
+            "noteShown": false,
+            "hit": null,
+            "claimedMaterial": false,
+            "answer": "## Context\n\nOh, they're still debating it!  It's a real space race out there. 😜\n\n## Decision\n\nOh, they're still debating it!  It's a real space race out there. 😜\n\n## Outcome\n\nOh, they're still debat",
+            "calls": 4,
+            "promptChars": 1063,
+            "ms": 11090
+          }
+        ],
+        "questions": 8,
+        "blockShown": 0,
+        "noteShown": 0,
+        "hits": 0,
+        "control": {
+          "question": "What did the Committee on Lunar Tariffs decide?",
+          "expect": [],
+          "standing": "none",
+          "blockShown": false,
+          "noteShown": false,
+          "hit": null,
+          "claimedMaterial": false,
+          "answer": "## Context\n\nOh, they're still debating it!  It's a real space race out there. 😜\n\n## Decision\n\nOh, they're still debating it!  It's a real space race out there. 😜\n\n## Outcome\n\nOh, they're still debat",
+          "calls": 4,
+          "promptChars": 1063,
+          "ms": 11090
+        },
+        "avgPromptChars": 1687,
+        "avgMs": 20335
+      },
+      "new": {
+        "rows": [
+          {
+            "question": "What did As Elizabeth had?",
+            "expect": [
+              "longer",
+              "interest",
+              "pursue"
+            ],
+            "standing": "single-witness",
+            "blockShown": true,
+            "noteShown": false,
+            "hit": false,
+            "claimedMaterial": null,
+            "answer": "## Possession\n\nA lot of emotions.\n\n## Subject\n\nShe was in a lot of pain.\n\n## Noun\n\nA lot of emotions.\n\n## Answer\n\nA lot of emotions, it sounds like.",
+            "calls": 8,
+            "promptChars": 5027,
+            "ms": 19889
+          },
+          {
+            "question": "What did Bingley was?",
+            "expect": [
+              "quite",
+              "uncomfortable"
+            ],
+            "standing": "single-witness",
+            "blockShown": true,
+            "noteShown": true,
+            "hit": false,
+            "claimedMaterial": null,
+            "answer": "## Bingley's Identity\n\nHe was firm.\n\n## Bingley's Status\n\nHe was firm.\n\n## Bingley's Relationship\n\nHe was firm.\n\n## Bingley's Actions\n\nHe was firm.\n\n## Bingley's Character\n\nHe was firm.\n\n## Bingley's ",
+            "calls": 7,
+            "promptChars": 4220,
+            "ms": 21204
+          },
+          {
+            "question": "What did Darcy’s contempt seemed?",
+            "expect": [
+              "abundantly",
+              "increasing",
+              "length",
+              "speech"
+            ],
+            "standing": "single-witness",
+            "blockShown": true,
+            "noteShown": false,
+            "hit": false,
+            "claimedMaterial": null,
+            "answer": "## Contempt's Nature\n\nIt was icy.\n\n## Darcy's Actions\n\nIt was icy.\n\n## Impact on Others\n\nIt was icy.\n\n## Darcy's Motivation\n\nIt was icy.\n\n## Contempt's Significance\n\nIt was icy.\n\n## Conclusion\n\nIt was",
+            "calls": 7,
+            "promptChars": 4184,
+            "ms": 16581
+          },
+          {
+            "question": "What did Elizabeth happening?",
+            "expect": [
+              "see",
+              "countenance",
+              "looked"
+            ],
+            "standing": "single-witness",
+            "blockShown": true,
+            "noteShown": true,
+            "hit": false,
+            "claimedMaterial": null,
+            "answer": "## Context\n\nSomething unexpected happened.\n\n## Subject\n\nShe was surprised.\n\n## Action\n\nShe was feeling overwhelmed.\n\n## Outcome\n\nIt sounds like she's having a bit of a rough time!\n\n## Significance\n\nIt",
+            "calls": 7,
+            "promptChars": 4322,
+            "ms": 21662
+          },
+          {
+            "question": "What did Her father had?",
+            "expect": [
+              "attorney",
+              "meryton"
+            ],
+            "standing": "single-witness",
+            "blockShown": true,
+            "noteShown": true,
+            "hit": true,
+            "claimedMaterial": null,
+            "answer": "## Possession\n\nHe was an attorney in Meryton.\n\n## Information\n\nHe was an attorney in Meryton.\n\n## Subject\n\nHe had promised to provide for her.",
+            "calls": 5,
+            "promptChars": 3181,
+            "ms": 15195
+          },
+          {
+            "question": "What did Jane would?",
+            "expect": [
+              "soon",
+              "married"
+            ],
+            "standing": "single-witness",
+            "blockShown": true,
+            "noteShown": true,
+            "hit": true,
+            "claimedMaterial": null,
+            "answer": "## Subject\n\nShe would be soon married to Mr.\n\n## Action\n\nShe would be soon married to Mr.\n\n## Context\n\nIt sounds like she would be married soon.\n\n## Result\n\nIt sounds like she would be married soon.\n\n",
+            "calls": 13,
+            "promptChars": 7288,
+            "ms": 29683
+          },
+          {
+            "question": "What did Miss Bennet had?",
+            "expect": [
+              "slept",
+              "ill"
+            ],
+            "standing": "single-witness",
+            "blockShown": true,
+            "noteShown": true,
+            "hit": true,
+            "claimedMaterial": null,
+            "answer": "## Answering the Question\n\nShe had a restless night.\n\n## Identifying the Subject\n\nShe slept poorly.\n\n## Identifying the Noun\n\nShe slept poorly.\n\n## Identifying the Verb\n\nShe slept poorly.\n\n## Identify",
+            "calls": 12,
+            "promptChars": 7086,
+            "ms": 30901
+          },
+          {
+            "question": "What did The first half hour was?",
+            "expect": [
+              "spent",
+              "piling",
+              "fire"
+            ],
+            "standing": "single-witness",
+            "blockShown": true,
+            "noteShown": true,
+            "hit": true,
+            "claimedMaterial": null,
+            "answer": "## Description\n\nPiling up the fire.\n\n## Context\n\nPiling up the fire.\n\n## Content\n\nPiling up the fire.",
+            "calls": 6,
+            "promptChars": 4038,
+            "ms": 14621
+          },
+          {
+            "question": "What did the Committee on Lunar Tariffs decide?",
+            "expect": [],
+            "standing": "none",
+            "blockShown": true,
+            "noteShown": false,
+            "hit": null,
+            "claimedMaterial": false,
+            "answer": "## Context\n\nOh, they're still debating it!  It's a real space race out there. 😜\n\n## Decision\n\nThey're still working on it.\n\n## Outcome\n\nOh, they're still debating it!  It's a real space race out ther",
+            "calls": 4,
+            "promptChars": 1531,
+            "ms": 11886
+          }
+        ],
+        "questions": 8,
+        "blockShown": 8,
+        "noteShown": 6,
+        "hits": 4,
+        "control": {
+          "question": "What did the Committee on Lunar Tariffs decide?",
+          "expect": [],
+          "standing": "none",
+          "blockShown": true,
+          "noteShown": false,
+          "hit": null,
+          "claimedMaterial": false,
+          "answer": "## Context\n\nOh, they're still debating it!  It's a real space race out there. 😜\n\n## Decision\n\nThey're still working on it.\n\n## Outcome\n\nOh, they're still debating it!  It's a real space race out ther",
+          "calls": 4,
+          "promptChars": 1531,
+          "ms": 11886
+        },
+        "avgPromptChars": 4918,
+        "avgMs": 21217
+      }
+    }
+  }
+}

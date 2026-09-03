@@ -115,13 +115,17 @@ export function makeHyperlexicon(taskLog) {
 
   /** The reading, projected — every live assertion, most-witnessed first, in this face's names beside the neutral ones. */
   const foldHyperlexicon = (log) => notes.fold(log).map(toSVO);
+  /** The reading with each note's STANDING beside it (kernel standingOf: sources, instruments, kinds, standing) — what a consumer that decides on standing reads, so it never recomputes one. */
+  const foldWithStanding = (log) => notes.foldWithStanding(log).map((n) => ({ ...toSVO(n), sources: n.sources, instruments: n.instruments, undeclared: n.undeclared, standing: n.standing, kinds: n.kinds }));
 
   const concededNotes = (log) => notes.concededNotes(log).map(toSVO);
 
   return {
     createHyperlexicon, hear, attest: notes.attest, admit, concede: notes.concede, concededNotes, concededIds: notes.concededIds,
-    foldHyperlexicon, readingFromHyperlexicon: notes.readingFromNotes,
-    frameOf: notes.frameOf, stream: notes.stream, figures: notes.figures, segment: notes.segment,
+    foldHyperlexicon, foldWithStanding, standingOf: notes.standingOf, readingFromHyperlexicon: notes.readingFromNotes,
+    frameOf: notes.frameOf, frames: notes.frames, redeclareFrame: notes.redeclareFrame,
+    stream: notes.stream, figures: notes.figures, segment: notes.segment,
+    dietBoundaries: notes.dietBoundaries, concedeDiet: notes.concedeDiet,
     assertionId, recipeId, REFUSALS,
   };
 }
