@@ -2888,6 +2888,21 @@ reader's own POS-prior vocabulary gate already ran during extraction, so any
 label reaching a note has passed the same prior at the same threshold and the
 lens cannot fire afterwards. Redundant by construction, not a bug.
 
+**OPT-IN, AND THAT IS THE DECISION, not a deferral.** By direction
+(2026-09-03), `blankFurniture` stays an organ a caller injects rather than a
+default: no existing caller's behaviour changes, and a reading that wants
+page-scoped furniture asks for it. The argument for shipping it on was real —
+P43's rule, that a prior which CLOSES a false binding is a correctness fix —
+and it is declined here for a reason this entry can state plainly: the
+measured cost is not only the 43 real relation losses but a NEWLY EXPOSED
+false-positive shape (screenplay dialogue is structurally identical to a
+navbox under this blanker), and an adversarial review found silent corruption
+in this very path, hidden by the fact that every fixture here is LF-only. A
+default is the wrong place for a mechanism whose blind spot was invisible to
+its own test material. What would change it: a caller measuring the arms on
+ITS OWN material, which is what `eval/the-fold/furniture-page-context.mjs`
+exists to make cheap.
+
 **Scope, stated because the headline reads wider than it is:** this reaches
 EXTRACTION only. `indexFor(list)` and the sentences `pronounBindingsFor`
 reads are built from the UNBLANKED text, so a name occurring only inside
