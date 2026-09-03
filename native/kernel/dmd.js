@@ -1,4 +1,5 @@
 // native/kernel/dmd.js — Dynamic Mode Decomposition: the coherent modes of a
+// Handle: Koopman — after the operator whose eigenvalues DMD approximates: modes with their own growth rate and their own frequency. Amendment XVII.
 // state trajectory, each with its own growth rate and its own FREQUENCY.
 //
 // WHY THIS IS HERE, and what it closes. A received prior holds a form's class

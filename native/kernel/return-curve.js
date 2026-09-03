@@ -1,4 +1,5 @@
 // native/kernel/return-curve.js — how identity RETURNS, measured. Omnimodal.
+// Handle: Sockeye — after the salmon's natal homing: how an identity comes home, run as a curve rather than a point. Amendment XVII.
 //
 // Events in, curve out: each event is (key, at, form) — an identity the
 // caller tracks, an integer position on the caller's own clock, and a label

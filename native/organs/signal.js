@@ -1,4 +1,5 @@
 // signal.js — try things, find signal, and be refused when there is none.
+// Handle: Platanista — after the blind river dolphin that hunts by echolocation alone: probe, listen; a clean nothing is itself a result. Amendment XVII.
 //
 // User direction (2026-09-01): "let's have this enter our DNA and be useable
 // for anything, trying things to find signal." Four media went through the

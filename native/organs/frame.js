@@ -1,4 +1,5 @@
 // frame.js — DEF·Ground: Clearing at Atmosphere. The interpretive ground of
+// Handle: Alhazen — after Ibn al-Haytham's Book of Optics: declare the frame before comparing results, never after. Amendment XVII.
 // a judgment, declared before the judgment runs.
 //
 // BUILT TO A PRE-REGISTERED DESIGN (def-ground-derivation.md, committed

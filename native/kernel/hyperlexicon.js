@@ -1,4 +1,5 @@
 // Canonical EOReader 7 Hyperlexicon.
+// Handle: Xushen — after the Shuowen Jiezi, the first dictionary built from attested character usage rather than decree. Amendment XVII.
 //
 // HL is not a vocabulary or synonym table. It is an explicit ledger of
 // relation-composition affordances. Experience may nominate candidates; only

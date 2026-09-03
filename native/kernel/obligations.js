@@ -1,3 +1,5 @@
+// Handle: Jaimini — after Mimamsa's vidhi: a scriptural injunction opens a standing obligation that persists until the enjoined act discharges it. Amendment XVII.
+
 import { eoOperation } from "./fold.js";
 
 export function obligation({ id, distinction, grounds = [], alternatives = [], consequences = [], openedAt = null, persistence = 0, status = "open" }) {

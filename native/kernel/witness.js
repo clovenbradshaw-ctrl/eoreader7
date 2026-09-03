@@ -1,3 +1,5 @@
+// Handle: Thymus — after the organ where a candidate is presented and selected, not admitted on presentation alone: nomination is not admission. Amendment XVII.
+
 const asArray = (value) => value == null ? [] : Array.isArray(value) ? value : [value];
 
 function sameAnchor(a, b) {

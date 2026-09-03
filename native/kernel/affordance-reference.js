@@ -1,4 +1,5 @@
 // native/kernel/affordance-reference.js — a reference licensed by what it is
+// Handle: Clark — after Herbert Clark's bridging inference: "the engine" is licensed by "the car" already in common ground. Amendment XVII.
 // GIVEN to belong to, not only by having been said before. Medium-general,
 // kernel-level.
 //

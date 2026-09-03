@@ -1,3 +1,5 @@
+// Handle: Vasana — after the residual impressions of past experience that condition later perception without being perceived themselves. Amendment XVII.
+
 const freeze = (value) => Object.freeze(value);
 
 const TERRAINS = Object.freeze(["Void", "Entity", "Kind", "Field", "Link", "Network", "Atmosphere", "Lens", "Paradigm"]);

@@ -1,3 +1,5 @@
+// Handle: Ise — after the Ise shrine's Shikinen Sengu: the same shrine persists through total periodic rebuilding. Amendment XVII.
+
 import { eoOperation, deltaFold } from "./fold.js";
 import { expectation, expectationTransition, openExpectation } from "./expectations.js";
 

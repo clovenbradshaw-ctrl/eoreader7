@@ -1,3 +1,5 @@
+// Handle: Tarski — after the calculus of relations. Amendment XVII.
+
 import { compositionAffordance } from "./hyperlexicon.js";
 
 const freeze = (value) => Object.freeze(value);

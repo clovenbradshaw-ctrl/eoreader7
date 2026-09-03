@@ -1,4 +1,5 @@
 // native/kernel/contest.js — CO-PRESENCE IS EVIDENCE, NEVER AN ANSWER.
+// Handle: Tungara — after the túngara frog, whose call grows more complex only when a competing male is in the frame, raising the margin a rival must clear. Amendment XVII.
 // Medium-general, kernel-level. No notion of text, sentence, name or pronoun
 // appears below; the only inputs are scored candidates and the set of
 // candidates the CURRENT FRAME carries alongside the deixis being resolved.

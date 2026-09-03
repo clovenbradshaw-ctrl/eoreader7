@@ -1,4 +1,5 @@
 // native/kernel/activation.js — activation decays. Medium-general, kernel-level.
+// Handle: Atta — after the leafcutter ant's pheromone trail: it evaporates unless reinforced by continued traffic. Amendment XVII.
 //
 // READING-POLICY P1 is the load-bearing rule of that whole document:
 // "Activation decays. Identity does not. Recall is retrieval." This module is

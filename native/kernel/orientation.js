@@ -1,4 +1,5 @@
 // Fold-conditioned orientation toward the next encounter.
+// Handle: Meerkat — after the sentinel on watch: a raised stance that conditions the group's attention and is never itself evidence of what it's watching for. Amendment XVII.
 // Orientation is transient and defeasible: it conditions attention but is not witness.
 
 export function deriveOrientation(fold = {}, { tasks = [] } = {}) {

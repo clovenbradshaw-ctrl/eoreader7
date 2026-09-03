@@ -1,3 +1,5 @@
+// Handle: Bharata — after the Natyashastra's rasa theory: an expectation is built, strengthened, weakened, and released like a staged emotion. Amendment XVII.
+
 import { eoOperation } from "./fold.js";
 
 export const EXPECTATION_STATES = Object.freeze(["open", "strengthened", "weakened", "fulfilled", "violated", "reframed", "superseded"]);

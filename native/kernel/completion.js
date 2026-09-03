@@ -1,4 +1,5 @@
 // native/kernel/completion.js — a declared-absent slot is a NUL, not a
+// Handle: Brahmagupta — after the first formal arithmetic of zero: a declared absence is a value, not a gap. Amendment XVII.
 // silence; resolving it is an ordinary CON. Medium-general, kernel-level.
 //
 // WHY THIS EXISTS. `adapters/text/relations.js` either extracts a complete

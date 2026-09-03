@@ -1,4 +1,5 @@
 // native/kernel/terrain-activation.js — the reach of the present, per terrain.
+// Handle: Hubel — after the receptive field: the reach of the present moment is local and bounded, like a cortical neuron's patch of the visual field. Amendment XVII.
 //
 // P1: activation is the reach of the present, not the size of memory. This
 // organ makes that operational across the nine-cell grid: every proposition,

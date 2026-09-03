@@ -1,4 +1,5 @@
 // witness-sentences.js — the witness over an ANSWER's own sentences, against
+// Handle: Khaldun — after Ibn Khaldun, who checked a transmitted report against the nature of things before admitting it as history. Amendment XVII.
 // the passages the answer was drafted from. The relation tier reads SLOT
 // (subject —label→ object) and stops at the paraphrase wall: a true
 // sentence arranged differently from the material ("Kutuzov replaced

@@ -1,4 +1,5 @@
 // kind-standing.js — what KIND of thing is this referent? Measured from the
+// Handle: Shizhen — after Li Shizhen's Bencao Gangmu: one individual specimen placed into a ranked, classified kind. Amendment XVII.
 // material's own company, never taught, and gated by a null that is licensed
 // for the question actually being asked.
 //

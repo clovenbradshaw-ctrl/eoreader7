@@ -1,4 +1,5 @@
 // native/kernel/scoped-kind.js — a variable bound by a quantifier resolves
+// Handle: Frege — after the founder of quantification theory: a variable is bound within its quantifier's scope, and nowhere else. Amendment XVII.
 // to a PATTERN, not a particular. Medium-general, kernel-level.
 //
 // WHY THIS EXISTS. "Every farmer who owns a donkey beats it" has no single

@@ -1,4 +1,5 @@
 // the-fold · grammar-lens — Dionysius Thrax's parts of speech laid over
+// Handle: Thrax — after Dionysius Thrax's Techne grammatike, the first systematic parts-of-speech reading, given by a named grammarian. Amendment XVII.
 // hypergraph.js's edges as a giver-named READING, never folded into the
 // edge itself and never a fact this repo derives.
 //

@@ -1,4 +1,5 @@
 // derivation.js — floor 6: a corroborated note as a PREMISE.
+// Handle: Liu Hui — after the mathematician who proved each step from results already established; what isn't derived from a premise doesn't count. Amendment XVII.
 //
 // THE LADDER, so this floor is placed rather than asserted. F0 units → F1
 // referents → F2 arrangements → F3 claims → F4½ nesting → F5 corroborated

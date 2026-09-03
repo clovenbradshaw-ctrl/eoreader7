@@ -75,3 +75,87 @@ the-fold, deferred with the reason in the seam's header: `hypergraph.js`
 `testimony.js`, `capacity-runner.js`. This repo's `CLAUDE.md` is a symlink
 into the frozen 6.1 submodule and is not where this repo's own rules go —
 this file is.
+
+## Handles (Amendment XVII)
+
+One handle per organ or kernel module — the best-fitting historical or
+biological namesake, regardless of tradition. The ancestor is disclosed in
+a `// Handle: …` line at the top of the file itself; this table is the
+canonical index. Physical location follows the boundary above: an entry
+below not resolvable under `native/organs/` or `native/kernel/` lives in
+the-fold's flat top level under the same basename.
+
+**Evidentiary walk**
+
+| File | Handle | One line |
+|---|---|---|
+| `organs/primary.js` | Sima | Walk past the received account to the archive. |
+| `organs/corroboration.js` | Bukhari | Stands only on independent chains; shared chain = one witness. |
+| `organs/testimony.js` | Wigmore | Ask the witness twice, swapped twin, verdict from the pair. |
+| `organs/witness-sentences.js` | Khaldun | Check the report against the nature of things before admitting it. |
+| `organs/grounding.js` | Mozi | It is in the bytes the eyes and ears can witness, or it isn't. |
+| `organs/quotes.js` | Dai | A quotation is verified to its source or not printed as one. |
+| `organs/source.js` | Nadim | Addressed catalogue; retrieval by where it sits, never by judgment. |
+| `organs/asserted.js` | Dignaga | A word designates by exclusion; a verb is a hypothesis with counted support. |
+| `organs/derivation.js` | Liu Hui | Rests on established premises or doesn't count. |
+| `kernel/refutation.js` | Nagarjuna | Refutes by consequence, asserts nothing. |
+| `kernel/contest.js` | Tungara | Competitors in the frame raise the margin required. |
+| `kernel/witness.js` | Thymus | Nomination is not admission. |
+| `organs/measure.js` | Fisher | A figure is a placement against a permutation null, or refused. |
+
+**Belief, obligation, perspective**
+
+| File | Handle | One line |
+|---|---|---|
+| `organs/experiencer.js` | Panini | Every belief carries who is undergoing it. |
+| `kernel/perspective.js` | Mahavira | True from a standpoint; standpoints kept apart. |
+| `kernel/obligations.js` | Jaimini | An injunction persists until discharged. |
+| `kernel/expectations.js` | Bharata | Expectation built, strengthened, weakened, released. |
+| `kernel/orientation.js` | Meerkat | A watch that conditions attention and is not evidence. |
+| `kernel/notes.js` | Arokin | Append-only record of what was said. |
+
+**Reference and scope**
+
+| File | Handle | One line |
+|---|---|---|
+| `kernel/affordance-reference.js` | Clark | Bridging: "the engine" licensed by the car. |
+| `kernel/holder-scope.js` | Roberts | Resolves inside the hypothesis that introduced it. |
+| `kernel/scoped-kind.js` | Frege | Bound within its quantifier's scope. |
+| `organs/cast.js` | Zhengming | A name answers to its referent, not its string. |
+| `organs/speaker.js` | Scheherazade | Nested tellers, each "I" bound to its declared frame. |
+| `kernel/temporal-reference.js` | Partee | Tense is anaphora. |
+| `kernel/pending-sig.js` | Synapse | Docks, waits bounded, fires on match or clears. |
+
+**Memory, time, identity**
+
+| File | Handle | One line |
+|---|---|---|
+| `kernel/activation.js` | Atta | Trails evaporate unless reinforced. |
+| `kernel/identity.js` | Ise | Same shrine through total rebuilding. |
+| `kernel/return-curve.js` | Sockeye | How an identity comes home, as a curve. |
+| `kernel/rhythm-priors.js` | Tala | The WHEN, held independent of content. |
+| `kernel/experience-priors.js` | Vasana | Residual impressions that condition later perception. |
+| `kernel/completion.js` | Brahmagupta | A declared absence is a value, not a gap. |
+
+**Structure, kind, dynamics**
+
+| File | Handle | One line |
+|---|---|---|
+| `kernel/hypergraph.js` | Berge | He coined it. |
+| `kernel/relation-composition.js` | Tarski | Calculus of relations. |
+| `kernel/kind-induction.js` | Kanada | A kind induced from what instances share. |
+| `organs/kind-standing.js` | Shizhen | One individual placed into a ranked kind. |
+| `kernel/kind-graph-structure.js` | Xunzi | Names graded by resemblance — a graph, not a tree. |
+| `kernel/lexicon.js` / `hyperlexicon.js` | Xushen | Dictionary projected from attested usage. |
+| `kernel/dmd.js` | Koopman | Modes with growth and frequency. |
+| `kernel/surprise-segments.js` | Rubin | The boundary is where the ground was most wrong. |
+| `kernel/terrain-activation.js` | Hubel | Reach of the present is local and bounded. |
+| `organs/frame.js` | Alhazen | Declare the frame before comparing results. |
+| `organs/grammar-lens.js` | Thrax | Parts of speech as a giver-named reading. |
+| `organs/signal.js` | Platanista | Probe, listen; a clean nothing is a result. |
+
+**Left plain** — no handle: `sequence`, `cite`, `web`, `fold`, `cube`,
+`artifact`, `assembly`, `task-log`, `cast-ledger`.
+
+`kernel/notes.js` (Arokin) is not yet built; the row above is reserved,
+not installed.

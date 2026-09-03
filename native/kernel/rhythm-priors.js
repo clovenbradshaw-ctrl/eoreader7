@@ -1,4 +1,5 @@
 // native/kernel/rhythm-priors.js — the WHEN half of portable experience.
+// Handle: Tala — after the Indian classical rhythmic cycle: the WHEN, held independent of whatever content rides on top of it. Amendment XVII.
 //
 // experience-priors.js sediments WHICH structures a reader has met before
 // (relation forms, network signatures, terrain/stance/operator expectations).

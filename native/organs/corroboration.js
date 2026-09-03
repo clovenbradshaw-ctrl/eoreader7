@@ -1,4 +1,5 @@
 // corroboration.js — the witness tier as the ledger's OFFICIAL second vote.
+// Handle: Bukhari — after al-Bukhari, whose hadith verification stands only on independent chains of transmission; a shared chain counts as one witness. Amendment XVII.
 //
 // THE MEASURED CASE FOR THIS EXISTING (reading-recall-finding.md, both
 // addenda). Two real Wikipedia pages about one battle share ZERO

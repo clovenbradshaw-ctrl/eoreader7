@@ -1,4 +1,5 @@
 // native/kernel/perspective.js — who holds what, projected from the log.
+// Handle: Mahavira — after anekantavada: a claim is true from a standpoint, and standpoints are kept apart rather than merged into one voice. Amendment XVII.
 //
 // A person reading Frankenstein does not hold one set of facts. They hold
 // several, indexed by WHO: what the book has established, what Walton

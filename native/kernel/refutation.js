@@ -1,4 +1,5 @@
 // native/kernel/refutation.js — the veto organ: what the material REFUSES,
+// Handle: Nagarjuna — after the Madhyamaka method of prasanga: refutation runs entirely by consequence, and asserts no thesis of its own. Amendment XVII.
 // never what it licenses.
 //
 // WHY THIS IS A VETO AND NOT A GATE, measured before it was written.

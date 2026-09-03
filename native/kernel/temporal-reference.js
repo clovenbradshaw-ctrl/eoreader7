@@ -1,4 +1,5 @@
 // native/kernel/temporal-reference.js — tense is anaphora: a bare temporal
+// Handle: Partee — after Barbara Partee's "Tense, Aspect and Anaphora": tense is anaphora, referring back to an established reference time. Amendment XVII.
 // deixis points back at an already-established reference ground, and
 // narrative advances that ground the way any other act advances a ground.
 // Medium-general, kernel-level.

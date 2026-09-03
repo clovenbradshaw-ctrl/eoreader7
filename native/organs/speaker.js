@@ -1,4 +1,5 @@
 // speaker.js — the speaker boundary (Tier 4 #11): epistolary "I" bound to
+// Handle: Scheherazade — after the nested tales of the Nights: each "I" is bound to the frame that declared it, however deep the nesting goes. Amendment XVII.
 // its section's DECLARED author, as a binding table beside immutable text.
 //
 // THE DEFECT (pinned as future work since the Dracula cast cleanup, user

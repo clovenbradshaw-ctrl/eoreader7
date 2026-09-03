@@ -1,3 +1,5 @@
+// Handle: Xunzi — after the Zhengming chapter's graded names: kinds relate by resemblance in a graph, never a strict tree. Amendment XVII.
+
 const freeze = (value) => Object.freeze(value);
 
 const OCCURRENCE_BINDING_SCHEMAS = new Set(["EOPronounBinding@1", "EODefiniteBinding@1"]);

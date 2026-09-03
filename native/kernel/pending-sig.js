@@ -1,4 +1,5 @@
 // native/kernel/pending-sig.js — a SIG allowed to wait, briefly, for the INS
+// Handle: Synapse — after the biological synapse: a signal docks, waits a bounded window, and fires on match or clears. Amendment XVII.
 // that will license it. Medium-general, kernel-level.
 //
 // WHY THIS EXISTS. Every reading organ in this repo is deliberately causal

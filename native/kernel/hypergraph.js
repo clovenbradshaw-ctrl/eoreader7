@@ -1,3 +1,5 @@
+// Handle: Berge — after Claude Berge, who coined "hypergraph." Amendment XVII.
+
 const freeze = (value) => Object.freeze(value);
 const REF_RE = /^(ref|obs|edge|expectation|obligation|frame|pattern|motif|delta|op|occ|surface|mention|encounter|lex):/;
 const addRef = (set, value) => { if (typeof value === "string" && REF_RE.test(value)) set.add(value); };

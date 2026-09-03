@@ -1,3 +1,5 @@
+// Handle: Kanada — after the Vaisheshika atomist: a kind (samanya) is induced from what its instances share, nothing declared in advance. Amendment XVII.
+
 import { createKindGraphStructureLedger } from "./kind-graph-structure.js";
 import { induceEntityKindCandidates } from "./entity-kind-induction.js";
 

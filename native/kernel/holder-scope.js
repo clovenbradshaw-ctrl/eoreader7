@@ -1,4 +1,5 @@
 // native/kernel/holder-scope.js — a reference resolves only against what its
+// Handle: Roberts — after Craige Roberts' discourse structure: a reference resolves inside the hypothesis that introduced it, not beyond it. Amendment XVII.
 // OWN holder (or something reachable from it) has established. Medium-
 // general, kernel-level.
 //

@@ -1,4 +1,5 @@
 // native/kernel/lexicon.js — the reading's dictionary, PROJECTED FROM THE LOG.
+// Handle: Xushen — after the Shuowen Jiezi, the first dictionary built from attested character usage rather than decree. Amendment XVII.
 //
 // Not a second store, and not a read of the live Fold: the append-only witness
 // log is the reality, and the lexicon is one projection of it — the same

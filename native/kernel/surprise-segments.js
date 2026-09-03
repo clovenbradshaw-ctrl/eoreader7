@@ -1,4 +1,5 @@
 // kernel/surprise-segments.js — ground / figure / pattern, as a recursive
+// Handle: Rubin — after Edgar Rubin's figure-ground boundary: the segment boundary sits exactly where the ground was most wrong. Amendment XVII.
 // segmentation of any stream by its own surprise. Medium-blind.
 //
 // THE CLAIM THIS MAKES OPERATIONAL (user, 2026-09-02): "the system has no
