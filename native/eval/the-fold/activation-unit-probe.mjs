@@ -34,6 +34,7 @@ const { witnessSentences } = await import(`${NATIVE}/organs/witness-sentences.js
 const { chunkSource, retrieve } = await import(`${FOLD}/source.js`);
 const { splitSentences } = await import(`${NATIVE}/adapters/text/spans.js`);
 const { competingFiller } = await import(`${NATIVE}/organs/corroboration.js`);
+const { extractSurfaces: xs, discoverReferents: dr } = await import(`${NATIVE}/adapters/text/surfaces.js`);
 const { createLemmatizer, morphologyFromPrior } = await import(`${NATIVE}/adapters/text/morphology.js`);
 
 // The battery is INLINED, not imported: witness-paraphrase-corpus.mjs runs its
@@ -152,7 +153,6 @@ function oracleRecorder(log, claimSentence, end1, end2) {
 
 const rows = [];
 for (const [id, question, sentence, truth, shape, end1, end2] of items) {
-  if (truth !== "ENTAILED") continue;
   const passages = passagesFor(question);
   const claims = [{ sentence, end1, end2, verdict: "unbound" }];
   const log = { select: [], generate: [] };
@@ -162,6 +162,44 @@ for (const [id, question, sentence, truth, shape, end1, end2] of items) {
   const olog = { select: [], generate: [] };
   const or_ = await witnessSentences([sentence], claims, passages, { ...oracleRecorder(olog, sentence, end1, end2), maxAsks: 1 });
   const orow = or_.rows[0] ?? {};
+
+  // THE WIDENED ARM. Same material, same perfect reader, both declared
+  // widenings on: the filler pool is the reader's OWN resolved referent
+  // surfaces over the retrieved passages — what it actually read, not a list
+  // typed here — and armEitherEnd lets the swap reach the end the claim
+  // states literally. This measures the CEILING moving, which needs no model;
+  // whether a real model then lands more of it is a separate question this
+  // environment cannot ask (no Ollama).
+  let pool = [];
+  try {
+    const sents = passages.flatMap((p) => splitSentences(p.text) ?? []);
+    const refs = dr(xs(sents), {});
+    // discoverReferents returns {events, gaps, merges}; the referents it
+    // actually ESTABLISHED are its DEF.admit events. Surfaces it merely saw
+    // are not the reader's referent state — a pool built from those would be
+    // "every capitalized run again", which is the wall, not the fix.
+    pool = [...new Set((refs?.events ?? []).filter((e) => e?.type === "DEF.admit").map((e) => e?.surface).filter((x) => typeof x === "string" && x))];
+  } catch { pool = []; }
+  const wlog = { select: [], generate: [] };
+  const wr = await witnessSentences([sentence], claims, passages,
+    { ...oracleRecorder(wlog, sentence, end1, end2), maxAsks: 1, fillerPool: pool, armEitherEnd: true });
+  const wrow = wr.rows[0] ?? {};
+
+  // THE CONTROL, BUILT TO FAIL (II.23). A widening that raises the ceiling for
+  // true claims AND for false ones has weakened the protocol, not fixed it.
+  // Two adversaries, both with the widenings ON:
+  //   - the INDISCRIMINATE picker: says yes and points at the same place
+  //     whatever it is asked, which is exactly what the arm exists to catch.
+  //     It must still be refused. If a widened arm lets it through, the arm is
+  //     broken and the ceiling number is worthless.
+  //   - the FALSE twins run through the SAME oracle as the true ones. That
+  //     oracle is not truth-aware — it answers on both-ends-in-full — so a
+  //     false claim whose ends both occur gets a yes from it, and the protocol
+  //     has to be what refuses it.
+  const clog = { select: [], generate: [] };
+  const stuck = { ...oracleRecorder(clog, sentence, end1, end2), selectAsk: async () => JSON.stringify({ stated: "yes", sentence: 1 }) };
+  const cr = await witnessSentences([sentence], claims, passages, { ...stuck, maxAsks: 1, fillerPool: pool, armEitherEnd: true });
+  const crow = cr.rows[0] ?? {};
 
   // Which protocol was reached, and with what. The select path is handed a
   // candidate LIST; the generate path one containment slice. A row whose
@@ -185,18 +223,20 @@ for (const [id, question, sentence, truth, shape, end1, end2] of items) {
   const passageCarries = passages.some((p) => hasAll(p.text, end1) && hasAll(p.text, end2));
   const joinedCarries = hasAll(passages.map((p) => p.text).join("\n\n"), end1) && hasAll(passages.map((p) => p.text).join("\n\n"), end2);
 
-  rows.push({ id, shape, end1, end2, psg: passages.length, reached, cands: cands.length, adequate,
-              passageCarries, joinedCarries, filler, end2Literal, witness: row.witness ?? "?", why: row.why ?? null, oracle: orow.witness ?? "?", oracleWhy: orow.why ?? null,
+  rows.push({ id, truth, shape, end1, end2, psg: passages.length, reached, cands: cands.length, adequate,
+              passageCarries, joinedCarries, filler, end2Literal, witness: row.witness ?? "?", why: row.why ?? null, oracle: orow.witness ?? "?", oracleWhy: orow.why ?? null, poolSize: pool.length, widened: wrow.witness ?? "?", widenedWhy: wrow.why ?? null, stuck: crow.witness ?? "?",
               sample: cands.find((c) => hasAll(c, end1) && hasAll(c, end2)) ?? cands[0] ?? "" });
 }
 
 const pad = (s, n) => String(s).padEnd(n);
-console.log(pad("id", 4), pad("shape", 16), pad("psg", 4), pad("reached", 12), pad("cands", 6), pad("adequate", 9), pad("one-psg", 8), pad("joined", 7), pad("arm-filler", 22), pad("end2-in-claim", 14), pad("always-no", 10), "PERFECT READER");
+console.log(pad("id", 4), pad("shape", 16), pad("psg", 4), pad("reached", 12), pad("cands", 6), pad("adequate", 9), pad("one-psg", 8), pad("joined", 7), pad("arm-filler", 22), pad("end2-in-claim", 14), pad("pool", 5), pad("PERFECT READER", 16), "WIDENED");
 for (const r of rows)
   console.log(pad(r.id, 4), pad(r.shape, 16), pad(r.psg, 4), pad(r.reached, 12), pad(r.cands, 6),
-    pad(r.adequate ? "yes" : "no", 9), pad(r.passageCarries ? "yes" : "no", 8), pad(r.joinedCarries ? "yes" : "no", 7), pad(r.filler ? JSON.stringify(r.filler).slice(0, 21) : "— no competitor", 22), pad(r.end2Literal ? "literal" : "PARAPHRASED", 14), pad(r.witness, 10), r.oracle === "states" ? "states" : `${r.oracle} — ${String(r.oracleWhy ?? "").slice(0, 60)}`);
+    pad(r.adequate ? "yes" : "no", 9), pad(r.passageCarries ? "yes" : "no", 8), pad(r.joinedCarries ? "yes" : "no", 7), pad(r.filler ? JSON.stringify(r.filler).slice(0, 21) : "— no competitor", 22), pad(r.end2Literal ? "literal" : "PARAPHRASED", 14), pad(r.poolSize, 5), pad(r.oracle === "states" ? "states" : "refused", 16),
+    r.widened === "states" ? "states" : `${r.widened} — ${String(r.widenedWhy ?? "").replace("witness could not reach a verdict: ", "").slice(0, 40)}`);
 
-const n = rows.length, c = (f) => rows.filter(f).length;
+const ent = rows.filter((r) => r.truth === "ENTAILED"), fal = rows.filter((r) => r.truth === "FALSE");
+const n = ent.length, c = (f) => ent.filter(f).length;
 console.log(`\n── ${MODE}: the entailed set, partitioned (the shipped path, a recorder in the model's chair) ──`);
 console.log(`  entailed items                                     ${n}`);
 console.log(`  died on a gate — model NEVER ASKED                  ${c((r) => r.reached === "NEVER ASKED")}`);
@@ -208,13 +248,28 @@ console.log(`  material carried neither / one end only             ${c((r) => r.
 console.log(`\n── with a PERFECT reader in the model's chair (same material, same protocol) ──`);
 console.log(`  landed \`states\`                                     ${c((r) => r.oracle === "states")} of ${n}`);
 console.log(`  refused ANYWAY — the protocol, not the model         ${c((r) => r.oracle !== "states")}`);
-for (const r of rows.filter((x) => x.oracle !== "states")) console.log(`     [${r.id}] ${r.oracle}: ${r.oracleWhy ?? ""}`);
+for (const r of ent.filter((x) => x.oracle !== "states")) console.log(`     [${r.id}] ${r.oracle}: ${r.oracleWhy ?? ""}`);
 console.log(`  of the ${c((r) => r.reached === "select")} select-path items, the arm could be built for ${c((r) => r.reached === "select" && r.filler)}` +
   ` — the two arm walls, measured apart:`);
 console.log(`     no competing filler in the candidate set          ${c((r) => r.reached === "select" && !r.filler)}   (its only capitalized surfaces ARE the ends)`);
 console.log(`     end2 PARAPHRASED in the claim, so the swap no-ops  ${c((r) => r.reached === "select" && r.filler && !r.end2Literal)}   (a literal replace on a sentence that never says it)`);
+console.log(`\n-- the same perfect reader, both declared widenings ON --`);
+console.log(`  landed \`states\`                                     ${c((r) => r.widened === "states")} of ${n}   (was ${c((r) => r.oracle === "states")})`);
+console.log(`  reader-resolved filler pool, median size            ${(() => { const v = ent.map((r) => r.poolSize).sort((a, b) => a - b); return v[v.length >> 1] ?? 0; })()}`);
+for (const r of ent.filter((x) => x.widened !== "states")) console.log(`     still unlandable [${r.id}]: ${r.widenedWhy ?? r.widened}`);
+console.log(`\n-- the control, built to fail (II.23), widenings ON --`);
+// A leak the UNWIDENED arm already had is the oracle's, not the widening's:
+// this oracle answers on both-ends-in-full, so a false claim whose two ends
+// both occur gets a yes from it by construction. What the widening must not
+// do is ADD any.
+console.log(`  FALSE twins landed \`states\`, arm as shipped            ${fal.filter((r) => r.oracle === "states").length} of ${fal.length}`);
+console.log(`  FALSE twins landed \`states\`, widenings ON              ${fal.filter((r) => r.widened === "states").length} of ${fal.length}`);
+console.log(`  ADDED by the widening (the number that must be 0)       ${fal.filter((r) => r.widened === "states" && r.oracle !== "states").length}`);
+for (const r of fal) console.log(`     [${String(r.id).padStart(2)}] ${r.shape.padEnd(20)} shipped=${String(r.oracle === "states").padEnd(5)} widened=${r.widened === "states"}`);
+console.log(`  indiscriminate picker got through, any item             ${rows.filter((r) => r.stuck === "states").length} of ${rows.length}   (must be 0)`);
+for (const r of rows.filter((x) => x.stuck === "states")) console.log(`     LEAK [${r.id}] ${r.truth} ${r.shape}`);
 console.log(`\n  a single retrieved passage carries both ends        ${c((r) => r.passageCarries)} of ${n}`);
 console.log(`  the JOINED source carries both ends                 ${c((r) => r.joinedCarries)} of ${n}`);
 
 console.log(`\n── the best thing the model was shown, per item ──`);
-for (const r of rows) console.log(`  [${String(r.id).padStart(2)}] ${r.adequate ? "BOTH ENDS" : "thin     "} ${JSON.stringify(String(r.sample).replace(/\s+/g, " ").slice(0, 120))}`);
+for (const r of ent) console.log(`  [${String(r.id).padStart(2)}] ${r.adequate ? "BOTH ENDS" : "thin     "} ${JSON.stringify(String(r.sample).replace(/\s+/g, " ").slice(0, 120))}`);

@@ -758,3 +758,72 @@ test("candidates omitted: statingCandidates runs unchanged (opt-in, byte-compati
   assert.equal(w.verdict, "states");
   assert.match(w.because, /Napoleon faced General Mikhail Kutuzov/);
 });
+
+// ── the two arm walls, and their declared widenings (S52) ────────────────
+// Both were MEASURED before either was built: running the real path with a
+// perfect reader in the model's chair lands 4 of 9 on a corpus against 8 of 9
+// on a wider source, and the whole loss is the arm refusing `unarmed-select`
+// for two distinct reasons. Each widening is pinned here with its own control
+// showing the default is untouched.
+
+test("wall 1 — a candidate set whose only names ARE the ends offers no competitor; a declared pool reaches one, and never outranks the candidates", () => {
+  // The measured corpus shape: ONE retrieved candidate, both ends in it, and
+  // nothing else capitalized. Candidate-only, this is an empty pool.
+  const lone = ["Countess Hélène Bezúkhova had suddenly died of that terrible malady."];
+  assert.equal(competingFiller("died", lone, { exclude: ["Hélène"] }), null,
+    "candidates alone: no competitor, so no arm — the shipped default, unchanged");
+  assert.equal(competingFiller("died", lone, { exclude: ["Hélène"], pool: [] }), null,
+    "an empty pool is the same as none");
+
+  // The reader's own resolved surfaces reach one.
+  const pool = ["Natásha Rostova", "Prince Andrew"];
+  assert.equal(competingFiller("died", lone, { exclude: ["Hélène"], pool }), "Natásha Rostova",
+    "a pool surface arms a claim the candidates could not");
+
+  // A pool NEVER outranks a real candidate: a competitor the picker has just
+  // read is the strongest thing to confuse an end with.
+  const rich = ["Napoleon faced General Mikhail Kutuzov near Marshal Davout.", "Marshal Davout rode at dawn."];
+  assert.equal(competingFiller("General Mikhail Kutuzov", rich, { exclude: ["Napoleon"], pool: ["Somebody Else"] }),
+    "Marshal Davout", "candidates win; the pool is a fallback, not a merge");
+
+  // A pool surface sharing the end's own words is excluded exactly as a
+  // candidate surface is — the arm may not swap an end for itself.
+  assert.equal(competingFiller("Hélène Bezúkhova", lone, { exclude: ["died"], pool: ["Hélène"] }), null,
+    "a pool surface that IS the end is not a competitor");
+});
+
+test("wall 2 — a claim that paraphrases its own end2 cannot be swapped literally; armEitherEnd swaps the end the claim does say", async () => {
+  // The measured specimen: end2 is "inhabitants", the claim says "the people
+  // who had abandoned it". The literal replace is a no-op, so the arm equals
+  // the claim and refuses — with a perfectly good filler in hand.
+  const src = { ref: "novel", text: "A preamble. Moscow was burned by its own inhabitants, not by the Russians who marched past. The Russians camped nearby. An epilogue." };
+  const claim = "Moscow was burned by the people who had abandoned it";
+  const ends = { end1: "Moscow", end2: "inhabitants" };
+  const discriminating = async (m) => (/Russians was burned|Russians  *was/.test(m.at(-1).content.split("\n")[0])
+    ? { stated: "yes", sentence: 2 } : { stated: "yes", sentence: 1 });
+
+  // The cause must be the NO-OP SWAP, not an empty pool — otherwise this
+  // pins wall 1 twice and wall 2 never. Named here so the test cannot pass
+  // for the other wall's reason.
+  const cands = statingCandidates(src.text, ends, { splitSentences, limit: 8 }).map((c) => c.shown);
+  assert.ok(competingFiller(ends.end2, cands, { exclude: [ends.end1] }),
+    "a filler EXISTS — so any refusal below is the swap, not the ammunition");
+
+  const off = await witnessNote(claim, src,
+    { ask: saysNo, selectAsk: discriminating, testimony: selectTestimony, splitSentences, ends });
+  assert.equal(off.refused, "unarmed-select", "default: the literal swap is a no-op and the arm cannot be built");
+
+  const on = await witnessNote(claim, src,
+    { ask: saysNo, selectAsk: discriminating, testimony: selectTestimony, splitSentences, ends, armEitherEnd: true });
+  assert.equal(on.verdict, "states", "widened: end1 is literally present, so a real arm exists and the picker discriminated");
+});
+
+test("armEitherEnd widens what can be ARMED, never what a yes is worth — an indiscriminate picker is still refused", async () => {
+  const src = { ref: "novel", text: "A preamble. Moscow was burned by its own inhabitants, not by the Russians who marched past. The Russians camped nearby. An epilogue." };
+  const stuck = async () => ({ stated: "yes", sentence: 1 }); // same index whatever it is asked
+  const w = await witnessNote("Moscow was burned by the people who had abandoned it", src,
+    { ask: saysNo, selectAsk: stuck, testimony: selectTestimony, splitSentences,
+      ends: { end1: "Moscow", end2: "inhabitants" }, armEitherEnd: true });
+  assert.equal(w.refused, "indiscriminate",
+    "the arm was buildable where it was not before, and it did its job: the yes still decided nothing");
+});

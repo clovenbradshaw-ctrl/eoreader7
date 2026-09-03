@@ -66,11 +66,13 @@ export function settledBy(sentence, claims) {
 /**
  * witnessSentences(sentences, claims, passages, organs) → per-sentence
  * witness rows, in order. `organs`: ask (generate), selectAsk, splitSentences,
- * testimony bundle, maxAsks (required, P9). Passages are joined into one
+ * testimony bundle, maxAsks (required, P9), and the two declared arm
+ * widenings `fillerPool` / `armEitherEnd` (both off by default; see
+ * corroboration.js's own headers and S52 for what each measures). Passages are joined into one
  * source so a stating sentence anywhere in what the answer was drafted from
  * can be pointed at.
  */
-export async function witnessSentences(sentences, claims, passages, { ask, selectAsk = null, splitSentences = null, testimony, maxAsks } = {}) {
+export async function witnessSentences(sentences, claims, passages, { ask, selectAsk = null, splitSentences = null, testimony, maxAsks, fillerPool = null, armEitherEnd = false } = {}) {
   if (!Number.isFinite(maxAsks)) throw new TypeError("witnessSentences: maxAsks is declared by the caller (P9)");
   const text = (passages ?? []).map((p) => String(p?.text ?? "")).filter(Boolean).join("\n\n");
   const source = { ref: "passages", text };
@@ -83,7 +85,7 @@ export async function witnessSentences(sentences, claims, passages, { ask, selec
     if (asks >= maxAsks) { rows.push({ sentence, witness: "skipped", why: `budget of ${maxAsks} ask(s) spent` }); continue; }
     asks += 1;
     let w;
-    try { w = await witnessNote(sentence, source, { ask, selectAsk, splitSentences, testimony, ends: { end1: ends.end1, end2: ends.end2 } }); }
+    try { w = await witnessNote(sentence, source, { ask, selectAsk, splitSentences, testimony, ends: { end1: ends.end1, end2: ends.end2 }, fillerPool, armEitherEnd }); }
     catch (err) { rows.push({ sentence, witness: "skipped", why: `witness threw: ${err?.message ?? err}` }); continue; }
     rows.push({ sentence, ...rowFor(w), ends });
   }

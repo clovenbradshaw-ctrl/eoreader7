@@ -3209,3 +3209,55 @@ became trustworthy once every arm was read against the organ's own source.
 
 **Files.** `eval/the-fold/activation-unit-probe.mjs`,
 `results/activation-unit-RESULTS.md`. No production file touched.
+
+## S53 — The witness arm's two walls, widened and measured; the ceiling becomes scale-invariant
+
+**Generality:** universal — the widenings are declared organ parameters with no
+material-specific constant, measured on two materials at two scales with a
+control built to fail on both. Neither is enabled by default.
+
+S52 measured the witness ceiling at 4 of 9 on a corpus against 8 of 9 on a
+wider source and located the whole loss in the arm, refusing `unarmed-select`
+for two distinct reasons. Both are now closed, DECLARED and OFF by default, so
+every existing caller is byte-identical:
+
+- **`fillerPool`** — a second source of competitors for `competingFiller`,
+  searched ONLY when the candidates offer none. A caller passes the surfaces
+  its own reader established (`discoverReferents`' `DEF.admit` events), a pool
+  that does not shrink when retrieval narrows. Candidates are searched first
+  and win: a competitor the picker has just read is the strongest thing to
+  confuse an end with; one it has not read is weaker ammunition, not better.
+- **`armEitherEnd`** — when the literal swap of end2 is a no-op because the
+  claim paraphrases its own end2, swap end1 instead. Which end a claim states
+  literally is an accident of wording, not a fact about whether it can be
+  tested; an arm on either end asks the picker the same question.
+
+**The ceiling: 4/9 → 8/9 on the corpus, unchanged at 8/9 on the excerpt.** The
+widening closes a scale artifact and adds nothing where there was none. The one
+item still unlandable in each arm is a retrieval miss whose slice genuinely
+does not state the claim — the honest refusal, not a wall. The reader-resolved
+pool is 6 surfaces on the corpus's three passages and 23 on the excerpt:
+thinnest exactly where it is needed, and still enough.
+
+**The control (II.23), over all sixteen battery items rather than the nine
+entailed ones.** FALSE twins landing `states`: 2 of 7 as shipped, 2 of 7
+widened, **0 added**. Those two are the measuring oracle's own construction —
+it answers on both-ends-in-full, so a false claim whose ends both occur gets a
+yes by definition — and the live gemma2:2b run recorded zero lies across the
+FALSE set. Reporting shipped and widened side by side is what separates the
+instrument's leaks from the protocol's. And the arm still works: the
+indiscriminate picker (yes to everything, same index whatever it is asked) is
+refused on all sixteen with the widenings on.
+
+**Not established: no model ran.** This measures what a flawless reader could
+land, which needs none. The real run scored 0 of 4 reachable, so a ceiling of 8
+is 8 chances at a reading the model was failing every time — stated as a
+prediction that can be checked and be wrong. Enabling either widening live is a
+separate decision on `verbForms`' own terms, and P43's test says which way it
+leans: this WIDENS what can be heard rather than closing a false binding.
+
+**Files.** `organs/corroboration.js`, `organs/witness-sentences.js`,
+`organs/corroboration.test.mjs` (+3 cases, each wall with a control that the
+default is untouched), `eval/the-fold/activation-unit-probe.mjs`,
+`results/activation-unit-RESULTS.md`. Full native suite: 24 failures before and
+after, identical by name — zero regressions.
