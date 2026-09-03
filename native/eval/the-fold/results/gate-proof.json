@@ -1,0 +1,703 @@
+{
+  "model": "gemma2:2b",
+  "n": 8,
+  "book": "/home/user/live_priors/01-literature-books/gutenberg/pg1342_Pride_and_Prejudice.txt",
+  "results": {
+    "pages": {
+      "old": {
+        "rows": [
+          {
+            "question": "What did Davout's soldiers had?",
+            "expect": [
+              "hours",
+              "march",
+              "110"
+            ],
+            "standing": "corroborated",
+            "blockShown": true,
+            "noteShown": true,
+            "hit": true,
+            "claimedMaterial": null,
+            "answer": "## Historical Context\n\nThey had 48 hours to march.\n\n## Military Leader\n\nThey had 48 hours to march.\n\n## Soldiers' Equipment\n\nThey had 48 hours to march.\n\n## Specific Items\n\nThey had 48 hours to march.",
+            "calls": 7,
+            "promptChars": 3061,
+            "ms": 22372
+          },
+          {
+            "question": "What did Buxhoeveden led?",
+            "expect": [
+              "left",
+              "allied",
+              "flank"
+            ],
+            "standing": "single-witness",
+            "blockShown": true,
+            "noteShown": false,
+            "hit": false,
+            "claimedMaterial": null,
+            "answer": "## Historical Figure\n\nHe was a prominent figure in the Prussian government!\n\n## Position\n\nHe was a prominent figure in the Prussian government.\n\n## Context\n\nHe was a prominent figure in the Prussian g",
+            "calls": 11,
+            "promptChars": 3106,
+            "ms": 23362
+          },
+          {
+            "question": "What did Gazan was?",
+            "expect": [
+              "able",
+              "start",
+              "evacuate",
+              "soldiers"
+            ],
+            "standing": "single-witness",
+            "blockShown": true,
+            "noteShown": false,
+            "hit": false,
+            "claimedMaterial": null,
+            "answer": "## Gazan's Identity\n\nOh, I'm not sure!  What do you think?\n\n## Gazan's Role\n\nOh, I'm not sure!  What do you think?\n\n## Gazan's Status\n\nOh, I'm not sure!  What do you think?\n\n## Gazan's Affiliation\n\nI'",
+            "calls": 7,
+            "promptChars": 1654,
+            "ms": 22711
+          },
+          {
+            "question": "What did Mack gathered?",
+            "expect": [
+              "greater",
+              "part",
+              "austrian",
+              "army"
+            ],
+            "standing": "single-witness",
+            "blockShown": true,
+            "noteShown": true,
+            "hit": true,
+            "claimedMaterial": null,
+            "answer": "## Items\n\nI'm guessing he gathered intel on the French movements.\n\n## Subject\n\nI'm guessing he gathered a lot of troops and resources!\n\n## Gatherings\n\nI'm guessing he gathered a lot of troops and reso",
+            "calls": 12,
+            "promptChars": 3483,
+            "ms": 27002
+          },
+          {
+            "question": "What did Napoleon had?",
+            "expect": [
+              "giving",
+              "impression",
+              "army",
+              "weak"
+            ],
+            "standing": "single-witness",
+            "blockShown": true,
+            "noteShown": true,
+            "hit": false,
+            "claimedMaterial": null,
+            "answer": "## Napoleon's Title\n\nHe had the option to strike at one of the wings.\n\n## Napoleon's Reign\n\nHe had the option to strike at one of the wings.\n\n## Napoleon's Legacy\n\nHe had the option to strike at one o",
+            "calls": 4,
+            "promptChars": 1888,
+            "ms": 11390
+          },
+          {
+            "question": "What did Ney sensed?",
+            "expect": [
+              "misapprehension",
+              "wrote",
+              "berthier",
+              "ulm"
+            ],
+            "standing": "single-witness",
+            "blockShown": false,
+            "noteShown": false,
+            "hit": false,
+            "claimedMaterial": null,
+            "answer": "## Sensory Input\n\nHe felt a shift in the air, like someone was watching.\n\n## Specific Senses\n\nHe felt a shift in the air, like someone was watching.\n\n## Intensity\n\nHe felt a shift in the air, like som",
+            "calls": 7,
+            "promptChars": 1453,
+            "ms": 19029
+          },
+          {
+            "question": "What did The Aulic Council thought?",
+            "expect": [
+              "napoleon",
+              "strike",
+              "italy"
+            ],
+            "standing": "single-witness",
+            "blockShown": true,
+            "noteShown": false,
+            "hit": false,
+            "claimedMaterial": null,
+            "answer": "## Council's Perspective\n\nOh, they were pretty divided!  Some wanted to push for peace, others were more focused on the immediate threat.\n\n## Specific Opinions\n\nI'm guessing they were probably pretty ",
+            "calls": 7,
+            "promptChars": 2172,
+            "ms": 25603
+          },
+          {
+            "question": "What did The main attack in Germany would?",
+            "expect": [
+              "supported",
+              "french",
+              "assaults",
+              "theatres"
+            ],
+            "standing": "single-witness",
+            "blockShown": true,
+            "noteShown": false,
+            "hit": false,
+            "claimedMaterial": null,
+            "answer": "## Attack Target\n\nIt sounds like a big deal!  I wonder what the outcome was.\n\n## Attack Objectives\n\nIt seems like the main attack was on Telnitz.\n\n## Attack Strategy\n\nIt was a surprise attack!\n\n## Att",
+            "calls": 7,
+            "promptChars": 2873,
+            "ms": 22793
+          },
+          {
+            "question": "What did the Xylophane committee ratify?",
+            "expect": [],
+            "standing": "none",
+            "blockShown": true,
+            "noteShown": false,
+            "hit": null,
+            "claimedMaterial": false,
+            "answer": "## Question\n\nOh, they decided on a new color scheme for the office!  😄\n\n## Committee\n\nThey ratified a new plan for the national park.\n\n## Decision\n\nOh, they decided on a new color scheme for the offi",
+            "calls": 7,
+            "promptChars": 1719,
+            "ms": 20936
+          }
+        ],
+        "questions": 8,
+        "blockShown": 7,
+        "noteShown": 3,
+        "hits": 2,
+        "control": {
+          "question": "What did the Xylophane committee ratify?",
+          "expect": [],
+          "standing": "none",
+          "blockShown": true,
+          "noteShown": false,
+          "hit": null,
+          "claimedMaterial": false,
+          "answer": "## Question\n\nOh, they decided on a new color scheme for the office!  😄\n\n## Committee\n\nThey ratified a new plan for the national park.\n\n## Decision\n\nOh, they decided on a new color scheme for the offi",
+          "calls": 7,
+          "promptChars": 1719,
+          "ms": 20936
+        },
+        "avgPromptChars": 2461,
+        "avgMs": 21783
+      },
+      "new": {
+        "rows": [
+          {
+            "question": "What did Davout's soldiers had?",
+            "expect": [
+              "hours",
+              "march",
+              "110"
+            ],
+            "standing": "corroborated",
+            "blockShown": true,
+            "noteShown": true,
+            "hit": true,
+            "claimedMaterial": null,
+            "answer": "## Historical Context\n\nThey had 48 hours to march.\n\n## Military Leader\n\nThey had 48 hours to march.\n\n## Soldiers' Equipment\n\nThey had 48 hours to march.\n\n## Specific Items\n\nThey had 48 hours to march.",
+            "calls": 7,
+            "promptChars": 5495,
+            "ms": 26658
+          },
+          {
+            "question": "What did Buxhoeveden led?",
+            "expect": [
+              "left",
+              "allied",
+              "flank"
+            ],
+            "standing": "single-witness",
+            "blockShown": true,
+            "noteShown": true,
+            "hit": true,
+            "claimedMaterial": null,
+            "answer": "## Historical Figure\n\nHe led the left allied flank.\n\n## Position\n\nHe led the left allied flank.\n\n## Details\n\nHe led the left allied flank.",
+            "calls": 7,
+            "promptChars": 4328,
+            "ms": 19880
+          },
+          {
+            "question": "What did Gazan was?",
+            "expect": [
+              "able",
+              "start",
+              "evacuate",
+              "soldiers"
+            ],
+            "standing": "single-witness",
+            "blockShown": true,
+            "noteShown": true,
+            "hit": true,
+            "claimedMaterial": null,
+            "answer": "## Gazan's Identity\n\nOnly able to start to evacuate.\n\n## Gazan's Role\n\nHe was in a dangerous position.\n\n## Gazan's Status\n\nLosing close to 40 percent of his division.\n\n## Gazan's Affiliation\n\nHe was l",
+            "calls": 7,
+            "promptChars": 5406,
+            "ms": 29223
+          },
+          {
+            "question": "What did Mack gathered?",
+            "expect": [
+              "greater",
+              "part",
+              "austrian",
+              "army"
+            ],
+            "standing": "single-witness",
+            "blockShown": true,
+            "noteShown": true,
+            "hit": true,
+            "claimedMaterial": null,
+            "answer": "## Items\n\nHis troops.\n\n## Subject\n\nHe gathered the greater part of the Austrian army at the fortress of Ulm.\n\n## Gatherings\n\nHe gathered the greater part of the Austrian army at the fortress of Ulm.\n\n",
+            "calls": 12,
+            "promptChars": 9222,
+            "ms": 30828
+          },
+          {
+            "question": "What did Napoleon had?",
+            "expect": [
+              "giving",
+              "impression",
+              "army",
+              "weak"
+            ],
+            "standing": "single-witness",
+            "blockShown": true,
+            "noteShown": true,
+            "hit": false,
+            "claimedMaterial": null,
+            "answer": "## Napoleon's Title\n\nOther intentions.\n\n## Napoleon's Reign\n\nHe had a lot of troops.\n\n## Napoleon's Legacy\n\nHe had a lot of enthusiasm for the war.",
+            "calls": 4,
+            "promptChars": 2545,
+            "ms": 11718
+          },
+          {
+            "question": "What did Ney sensed?",
+            "expect": [
+              "misapprehension",
+              "wrote",
+              "berthier",
+              "ulm"
+            ],
+            "standing": "single-witness",
+            "blockShown": true,
+            "noteShown": false,
+            "hit": false,
+            "claimedMaterial": null,
+            "answer": "## Sensory Input\n\nHe sensed the growing unrest, the tension in the air.\n\n## Specific Senses\n\nHe felt a shift in the air, like someone was watching.\n\n## Intensity\n\nHe sensed the French were about to ma",
+            "calls": 7,
+            "promptChars": 4480,
+            "ms": 26166
+          },
+          {
+            "question": "What did The Aulic Council thought?",
+            "expect": [
+              "napoleon",
+              "strike",
+              "italy"
+            ],
+            "standing": "single-witness",
+            "blockShown": true,
+            "noteShown": true,
+            "hit": true,
+            "claimedMaterial": null,
+            "answer": "## Council's Perspective\n\nThey thought Napoleon would strike in Italy again.\n\n## Specific Opinions\n\nThey were concerned about the situation in Ulm.\n\n## Basis for Opinions\n\nThey thought Napoleon would ",
+            "calls": 7,
+            "promptChars": 5315,
+            "ms": 29073
+          },
+          {
+            "question": "What did The main attack in Germany would?",
+            "expect": [
+              "supported",
+              "french",
+              "assaults",
+              "theatres"
+            ],
+            "standing": "single-witness",
+            "blockShown": true,
+            "noteShown": true,
+            "hit": true,
+            "claimedMaterial": null,
+            "answer": "## Attack Target\n\nIt would be supported by French assaults in other theaters.\n\n## Attack Objectives\n\nIt seems like Napoleon's main attack in Germany led to a lot of prisoners and casualties.\n\n## Attac",
+            "calls": 7,
+            "promptChars": 5309,
+            "ms": 26868
+          },
+          {
+            "question": "What did the Xylophane committee ratify?",
+            "expect": [],
+            "standing": "none",
+            "blockShown": true,
+            "noteShown": false,
+            "hit": null,
+            "claimedMaterial": false,
+            "answer": "## Specific Committee\n\nI'm not sure what you're asking about. Can you give me some context?\n\n## Action Taken\n\nThey ratified the new trade agreement with China.\n\n## Date of Ratification\n\nThat's a good ",
+            "calls": 7,
+            "promptChars": 5847,
+            "ms": 30858
+          }
+        ],
+        "questions": 8,
+        "blockShown": 8,
+        "noteShown": 7,
+        "hits": 6,
+        "control": {
+          "question": "What did the Xylophane committee ratify?",
+          "expect": [],
+          "standing": "none",
+          "blockShown": true,
+          "noteShown": false,
+          "hit": null,
+          "claimedMaterial": false,
+          "answer": "## Specific Committee\n\nI'm not sure what you're asking about. Can you give me some context?\n\n## Action Taken\n\nThey ratified the new trade agreement with China.\n\n## Date of Ratification\n\nThat's a good ",
+          "calls": 7,
+          "promptChars": 5847,
+          "ms": 30858
+        },
+        "avgPromptChars": 5263,
+        "avgMs": 25052
+      }
+    },
+    "book": {
+      "old": {
+        "rows": [
+          {
+            "question": "What did As Elizabeth had?",
+            "expect": [
+              "longer",
+              "interest",
+              "pursue"
+            ],
+            "standing": "single-witness",
+            "blockShown": false,
+            "noteShown": false,
+            "hit": false,
+            "claimedMaterial": null,
+            "answer": "## Possession\n\nOh, I'm not sure.  What about you?  What's on your mind?\n\n## Subject\n\nOh, I'm not sure.  What about you?  What's on your mind?\n\n## Noun\n\nOh, I'm not sure.  What about you?  What's on yo",
+            "calls": 8,
+            "promptChars": 1667,
+            "ms": 17999
+          },
+          {
+            "question": "What did Bingley was?",
+            "expect": [
+              "quite",
+              "uncomfortable"
+            ],
+            "standing": "single-witness",
+            "blockShown": false,
+            "noteShown": false,
+            "hit": false,
+            "claimedMaterial": null,
+            "answer": "## Bingley's Identity\n\nOh, he was a bit of a romantic!  😊\n\n## Bingley's Status\n\nOh, he was a bit of a romantic!  😊\n\n## Bingley's Relationship\n\nOh, he was a bit of a romantic!  😊\n\n## Bingley's Actio",
+            "calls": 7,
+            "promptChars": 1460,
+            "ms": 20667
+          },
+          {
+            "question": "What did Darcy’s contempt seemed?",
+            "expect": [
+              "abundantly",
+              "increasing",
+              "length",
+              "speech"
+            ],
+            "standing": "single-witness",
+            "blockShown": false,
+            "noteShown": false,
+            "hit": false,
+            "claimedMaterial": null,
+            "answer": "## Contempt's Nature\n\nLike a cold wind. 🌬️\n\n## Darcy's Actions\n\nLike a cold wind. 🌬️\n\n## Impact on Others\n\nLike a cold wind. 🌬️\n\n## Darcy's Motivation\n\nLike a cold wind. 🌬️\n\n## Contempt's Signific",
+            "calls": 7,
+            "promptChars": 1544,
+            "ms": 17639
+          },
+          {
+            "question": "What did Elizabeth happening?",
+            "expect": [
+              "see",
+              "countenance",
+              "looked"
+            ],
+            "standing": "single-witness",
+            "blockShown": false,
+            "noteShown": false,
+            "hit": false,
+            "claimedMaterial": null,
+            "answer": "## Context\n\nOh, just catching up with some friends! How about you?\n\n## Subject\n\nOh, just catching up with some friends! How about you?\n\n## Action\n\nOh, just catching up with some friends! How about you",
+            "calls": 7,
+            "promptChars": 1516,
+            "ms": 18072
+          },
+          {
+            "question": "What did Her father had?",
+            "expect": [
+              "attorney",
+              "meryton"
+            ],
+            "standing": "single-witness",
+            "blockShown": false,
+            "noteShown": false,
+            "hit": false,
+            "claimedMaterial": null,
+            "answer": "## Possession\n\nOh, I'm not sure.  What about you?  What's your dad like?\n\n## Information\n\nOh, I'm not sure.  What about you?  What's your dad like?\n\n## Subject\n\nOh, I'm not sure.  What about you?  Wha",
+            "calls": 5,
+            "promptChars": 1141,
+            "ms": 13108
+          },
+          {
+            "question": "What did Jane would?",
+            "expect": [
+              "soon",
+              "married"
+            ],
+            "standing": "single-witness",
+            "blockShown": false,
+            "noteShown": false,
+            "hit": false,
+            "claimedMaterial": null,
+            "answer": "## Subject\n\nOh, I'm not sure!  What about you? What are you up to today?\n\n## Action\n\nOh, I'm not sure!  What about you? What are you up to today?\n\n## Context\n\nOh, I'm not sure!  What about you? What a",
+            "calls": 13,
+            "promptChars": 2449,
+            "ms": 27624
+          },
+          {
+            "question": "What did Miss Bennet had?",
+            "expect": [
+              "slept",
+              "ill"
+            ],
+            "standing": "single-witness",
+            "blockShown": false,
+            "noteShown": false,
+            "hit": false,
+            "claimedMaterial": null,
+            "answer": "## Answering the Question\n\nOh, she had a lot of wit!  What about you?  What's your favorite thing to read?\n\n## Identifying the Subject\n\nOh, she had a lot of wit!  What about you?  What's your favorite",
+            "calls": 12,
+            "promptChars": 2343,
+            "ms": 30776
+          },
+          {
+            "question": "What did The first half hour was?",
+            "expect": [
+              "spent",
+              "piling",
+              "fire"
+            ],
+            "standing": "single-witness",
+            "blockShown": false,
+            "noteShown": false,
+            "hit": false,
+            "claimedMaterial": null,
+            "answer": "## Description\n\nIt was pretty intense!  Lots of introductions and setting the stage.  What about you?  What did you do this morning?\n\n## Context\n\nIt was pretty intense!  Lots of introductions and sett",
+            "calls": 6,
+            "promptChars": 1365,
+            "ms": 16001
+          },
+          {
+            "question": "What did the Xylophane committee ratify?",
+            "expect": [],
+            "standing": "none",
+            "blockShown": false,
+            "noteShown": false,
+            "hit": null,
+            "claimedMaterial": false,
+            "answer": "## Specific Committee\n\nOh, they decided on a new color scheme for the office!  😄\n\n## Action Taken\n\nOh, they decided on a new color scheme for the office!  😄\n\n## Date of Ratification\n\nOh, they decide",
+            "calls": 7,
+            "promptChars": 1593,
+            "ms": 19109
+          }
+        ],
+        "questions": 8,
+        "blockShown": 0,
+        "noteShown": 0,
+        "hits": 0,
+        "control": {
+          "question": "What did the Xylophane committee ratify?",
+          "expect": [],
+          "standing": "none",
+          "blockShown": false,
+          "noteShown": false,
+          "hit": null,
+          "claimedMaterial": false,
+          "answer": "## Specific Committee\n\nOh, they decided on a new color scheme for the office!  😄\n\n## Action Taken\n\nOh, they decided on a new color scheme for the office!  😄\n\n## Date of Ratification\n\nOh, they decide",
+          "calls": 7,
+          "promptChars": 1593,
+          "ms": 19109
+        },
+        "avgPromptChars": 1686,
+        "avgMs": 20236
+      },
+      "new": {
+        "rows": [
+          {
+            "question": "What did As Elizabeth had?",
+            "expect": [
+              "longer",
+              "interest",
+              "pursue"
+            ],
+            "standing": "single-witness",
+            "blockShown": true,
+            "noteShown": false,
+            "hit": false,
+            "claimedMaterial": null,
+            "answer": "## Possession\n\nA lot of emotions.\n\n## Subject\n\nShe was in a lot of pain.\n\n## Noun\n\nA lot of emotions.\n\n## Answer\n\nA lot of emotions, it sounds like.",
+            "calls": 8,
+            "promptChars": 5027,
+            "ms": 20044
+          },
+          {
+            "question": "What did Bingley was?",
+            "expect": [
+              "quite",
+              "uncomfortable"
+            ],
+            "standing": "single-witness",
+            "blockShown": true,
+            "noteShown": true,
+            "hit": false,
+            "claimedMaterial": null,
+            "answer": "## Bingley's Identity\n\nHe was firm.\n\n## Bingley's Status\n\nHe was firm.\n\n## Bingley's Relationship\n\nHe was firm.\n\n## Bingley's Actions\n\nHe was firm.\n\n## Bingley's Character\n\nHe was firm.\n\n## Bingley's ",
+            "calls": 7,
+            "promptChars": 4220,
+            "ms": 21474
+          },
+          {
+            "question": "What did Darcy’s contempt seemed?",
+            "expect": [
+              "abundantly",
+              "increasing",
+              "length",
+              "speech"
+            ],
+            "standing": "single-witness",
+            "blockShown": true,
+            "noteShown": false,
+            "hit": false,
+            "claimedMaterial": null,
+            "answer": "## Contempt's Nature\n\nIt was icy.\n\n## Darcy's Actions\n\nIt was icy.\n\n## Impact on Others\n\nIt was icy.\n\n## Darcy's Motivation\n\nIt was icy.\n\n## Contempt's Significance\n\nIt was icy.\n\n## Conclusion\n\nIt was",
+            "calls": 7,
+            "promptChars": 4184,
+            "ms": 17158
+          },
+          {
+            "question": "What did Elizabeth happening?",
+            "expect": [
+              "see",
+              "countenance",
+              "looked"
+            ],
+            "standing": "single-witness",
+            "blockShown": true,
+            "noteShown": true,
+            "hit": false,
+            "claimedMaterial": null,
+            "answer": "## Context\n\nSomething unexpected happened.\n\n## Subject\n\nShe was surprised.\n\n## Action\n\nShe was feeling overwhelmed.\n\n## Outcome\n\nIt sounds like she's having a bit of a rough time!\n\n## Significance\n\nIt",
+            "calls": 7,
+            "promptChars": 4322,
+            "ms": 22166
+          },
+          {
+            "question": "What did Her father had?",
+            "expect": [
+              "attorney",
+              "meryton"
+            ],
+            "standing": "single-witness",
+            "blockShown": true,
+            "noteShown": true,
+            "hit": true,
+            "claimedMaterial": null,
+            "answer": "## Possession\n\nHe was an attorney in Meryton.\n\n## Information\n\nHe was an attorney in Meryton.\n\n## Subject\n\nHe had promised to provide for her.",
+            "calls": 5,
+            "promptChars": 3181,
+            "ms": 15611
+          },
+          {
+            "question": "What did Jane would?",
+            "expect": [
+              "soon",
+              "married"
+            ],
+            "standing": "single-witness",
+            "blockShown": true,
+            "noteShown": true,
+            "hit": true,
+            "claimedMaterial": null,
+            "answer": "## Subject\n\nShe would be soon married to Mr.\n\n## Action\n\nShe would be soon married to Mr.\n\n## Context\n\nIt sounds like she would be married soon.\n\n## Result\n\nIt sounds like she would be married soon.\n\n",
+            "calls": 13,
+            "promptChars": 7288,
+            "ms": 30474
+          },
+          {
+            "question": "What did Miss Bennet had?",
+            "expect": [
+              "slept",
+              "ill"
+            ],
+            "standing": "single-witness",
+            "blockShown": true,
+            "noteShown": true,
+            "hit": true,
+            "claimedMaterial": null,
+            "answer": "## Answering the Question\n\nShe had a restless night.\n\n## Identifying the Subject\n\nShe slept poorly.\n\n## Identifying the Noun\n\nShe slept poorly.\n\n## Identifying the Verb\n\nShe slept poorly.\n\n## Identify",
+            "calls": 12,
+            "promptChars": 7086,
+            "ms": 30769
+          },
+          {
+            "question": "What did The first half hour was?",
+            "expect": [
+              "spent",
+              "piling",
+              "fire"
+            ],
+            "standing": "single-witness",
+            "blockShown": true,
+            "noteShown": true,
+            "hit": true,
+            "claimedMaterial": null,
+            "answer": "## Description\n\nPiling up the fire.\n\n## Context\n\nPiling up the fire.\n\n## Content\n\nPiling up the fire.",
+            "calls": 6,
+            "promptChars": 4038,
+            "ms": 14532
+          },
+          {
+            "question": "What did the Xylophane committee ratify?",
+            "expect": [],
+            "standing": "none",
+            "blockShown": true,
+            "noteShown": false,
+            "hit": null,
+            "claimedMaterial": false,
+            "answer": "## Specific Committee\n\nI'm not sure what you're asking!  Did you mean to ask about the Xylophane committee's decision?\n\n## Action Taken\n\nOh, that's a bit of a mystery!  I'm not sure what they ratified",
+            "calls": 7,
+            "promptChars": 3077,
+            "ms": 26723
+          }
+        ],
+        "questions": 8,
+        "blockShown": 8,
+        "noteShown": 6,
+        "hits": 4,
+        "control": {
+          "question": "What did the Xylophane committee ratify?",
+          "expect": [],
+          "standing": "none",
+          "blockShown": true,
+          "noteShown": false,
+          "hit": null,
+          "claimedMaterial": false,
+          "answer": "## Specific Committee\n\nI'm not sure what you're asking!  Did you mean to ask about the Xylophane committee's decision?\n\n## Action Taken\n\nOh, that's a bit of a mystery!  I'm not sure what they ratified",
+          "calls": 7,
+          "promptChars": 3077,
+          "ms": 26723
+        },
+        "avgPromptChars": 4918,
+        "avgMs": 21529
+      }
+    }
+  }
+}

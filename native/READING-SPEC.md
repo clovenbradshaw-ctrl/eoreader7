@@ -2643,3 +2643,15 @@ kinds counted apart; quote chase through search; the ledger walk with
 declared budgets, cached faces, and the redealt control), `tests/notes.test.js`
 (+2: standing kinds, foldWithStanding). Native suites' failure names
 identical to HEAD before and after (22 environment names); zero regressions.
+
+**Amended same day — the disclosure measured against a model.**
+`eval/the-fold/gate-proof.mjs` + `results/gate-proof-RESULTS.md`: the
+ledger block's disclosure (the-fold P84) run headlessly through the real
+pipeline on gemma2:2b over this ledger and a new book. The book: old gate
+0/8 shown, 0/8 hits; disclosed 6/8 shown, 4/8 hits. The pages, once both
+tiers were ranked by the question: 7/8 shown, 6/8 hits (old gate 3/8,
+2/8). Two leaks found and closed in the surface's block (an unranked
+corroborated tier; the interrogative "what" counted as vocabulary), and a
+mechanical no-model mode (`MECHANICAL=1`) that measures reachability in
+seconds. Hits measure that the model said a heard claim back with its
+standing, never that the claim is true.

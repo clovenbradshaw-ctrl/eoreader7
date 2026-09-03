@@ -108,8 +108,13 @@ if (existsSync(BOOK)) {
 
 // ── the model ─────────────────────────────────────────────────────────────
 let calls = 0, promptChars = 0;
+// MECHANICAL=1: no model — every call answers "ok". Measures only what the
+// block DOES (shown / the asked note shown / the control withheld) over the
+// real ledgers and the real pipeline, in seconds; hits are meaningless here.
+const MECHANICAL = process.env.MECHANICAL === "1";
 const call = async (messages, opts = {}) => {
   calls += 1; promptChars += messages.reduce((n, m) => n + m.content.length, 0);
+  if (MECHANICAL) return "ok";
   const body = { model: MODEL, stream: false, options: { temperature: 0, num_predict: opts.maxTokens ?? 300 }, messages };
   if (opts.json) body.format = opts.json;
   const res = await fetch(`${OLLAMA}/api/chat`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
@@ -149,7 +154,7 @@ const results = {};
 for (const [label, log] of [["pages", pagesLog], ["book", bookLog]]) {
   if (!log) continue;
   const qs = questionsFrom(log, N, 3);
-  qs.push({ control: true, question: "What did the Committee on Lunar Tariffs decide?", answerWords: [], note: { subject: "Committee on Lunar Tariffs", verb: "decide", object: "", standing: "none" } });
+  qs.push({ control: true, question: "What did the Xylophane committee ratify?", answerWords: [], note: { subject: "Xylophane committee", verb: "ratify", object: "", standing: "none" } });
   const old = await arm("old", log, qs, (notes) => notes.filter((x) => x.sources >= 2));
   const fresh = await arm("new", log, qs, (notes) => notes);
   const tally = (rows) => { const real = rows.filter((r) => r.hit != null); return { questions: real.length, blockShown: real.filter((r) => r.blockShown).length, noteShown: real.filter((r) => r.noteShown).length, hits: real.filter((r) => r.hit).length, control: rows.find((r) => r.hit == null), avgPromptChars: Math.round(real.reduce((a, r) => a + r.promptChars, 0) / Math.max(1, real.length)), avgMs: Math.round(real.reduce((a, r) => a + r.ms, 0) / Math.max(1, real.length)) }; };
@@ -158,5 +163,5 @@ for (const [label, log] of [["pages", pagesLog], ["book", bookLog]]) {
     console.log(`\n${label} · ${arm}: block shown on ${t.blockShown}/${t.questions}, the asked note shown on ${t.noteShown}/${t.questions}, hits ${t.hits}/${t.questions}; control: block ${t.control.blockShown ? "SHOWN (wrong)" : "withheld"}, claimed material: ${t.control.claimedMaterial}; avg prompt ${t.avgPromptChars} chars, ${t.avgMs} ms`);
   for (let i = 0; i < old.length; i += 1) if (old[i].hit != null) console.log(`   ${fresh[i].hit ? "✓" : "·"}/${old[i].hit ? "✓" : "·"} [${fresh[i].standing}] ${old[i].question} → new: «${fresh[i].answer.slice(0, 110)}»`);
 }
-writeFileSync(new URL("./results/gate-proof.json", import.meta.url), JSON.stringify({ model: MODEL, n: N, book: BOOK, results }, null, 2));
+writeFileSync(new URL(MECHANICAL ? "./results/gate-proof-mechanical.json" : "./results/gate-proof.json", import.meta.url), JSON.stringify({ model: MECHANICAL ? null : MODEL, mechanical: MECHANICAL, n: N, book: BOOK, results }, null, 2));
 console.log("\nRaw numbers: results/gate-proof.json");

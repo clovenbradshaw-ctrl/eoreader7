@@ -1,0 +1,704 @@
+{
+  "model": null,
+  "mechanical": true,
+  "n": 8,
+  "book": "/home/user/live_priors/01-literature-books/gutenberg/pg1342_Pride_and_Prejudice.txt",
+  "results": {
+    "pages": {
+      "old": {
+        "rows": [
+          {
+            "question": "What did Davout's soldiers had?",
+            "expect": [
+              "hours",
+              "march",
+              "110"
+            ],
+            "standing": "corroborated",
+            "blockShown": true,
+            "noteShown": true,
+            "hit": false,
+            "claimedMaterial": null,
+            "answer": "ok",
+            "calls": 2,
+            "promptChars": 918,
+            "ms": 14
+          },
+          {
+            "question": "What did Buxhoeveden led?",
+            "expect": [
+              "left",
+              "allied",
+              "flank"
+            ],
+            "standing": "single-witness",
+            "blockShown": true,
+            "noteShown": false,
+            "hit": false,
+            "claimedMaterial": null,
+            "answer": "ok",
+            "calls": 2,
+            "promptChars": 745,
+            "ms": 8
+          },
+          {
+            "question": "What did Gazan was?",
+            "expect": [
+              "able",
+              "start",
+              "evacuate",
+              "soldiers"
+            ],
+            "standing": "single-witness",
+            "blockShown": false,
+            "noteShown": false,
+            "hit": false,
+            "claimedMaterial": null,
+            "answer": "ok",
+            "calls": 2,
+            "promptChars": 621,
+            "ms": 4
+          },
+          {
+            "question": "What did Mack gathered?",
+            "expect": [
+              "greater",
+              "part",
+              "austrian",
+              "army"
+            ],
+            "standing": "single-witness",
+            "blockShown": true,
+            "noteShown": true,
+            "hit": false,
+            "claimedMaterial": null,
+            "answer": "ok",
+            "calls": 2,
+            "promptChars": 765,
+            "ms": 5
+          },
+          {
+            "question": "What did Napoleon had?",
+            "expect": [
+              "giving",
+              "impression",
+              "army",
+              "weak"
+            ],
+            "standing": "single-witness",
+            "blockShown": true,
+            "noteShown": true,
+            "hit": false,
+            "claimedMaterial": null,
+            "answer": "ok",
+            "calls": 2,
+            "promptChars": 892,
+            "ms": 5
+          },
+          {
+            "question": "What did Ney sensed?",
+            "expect": [
+              "misapprehension",
+              "wrote",
+              "berthier",
+              "ulm"
+            ],
+            "standing": "single-witness",
+            "blockShown": false,
+            "noteShown": false,
+            "hit": false,
+            "claimedMaterial": null,
+            "answer": "ok",
+            "calls": 2,
+            "promptChars": 623,
+            "ms": 5
+          },
+          {
+            "question": "What did The Aulic Council thought?",
+            "expect": [
+              "napoleon",
+              "strike",
+              "italy"
+            ],
+            "standing": "single-witness",
+            "blockShown": false,
+            "noteShown": false,
+            "hit": false,
+            "claimedMaterial": null,
+            "answer": "ok",
+            "calls": 2,
+            "promptChars": 653,
+            "ms": 4
+          },
+          {
+            "question": "What did The main attack in Germany would?",
+            "expect": [
+              "supported",
+              "french",
+              "assaults",
+              "theatres"
+            ],
+            "standing": "single-witness",
+            "blockShown": true,
+            "noteShown": false,
+            "hit": false,
+            "claimedMaterial": null,
+            "answer": "ok",
+            "calls": 2,
+            "promptChars": 855,
+            "ms": 5
+          },
+          {
+            "question": "What did the Xylophane committee ratify?",
+            "expect": [],
+            "standing": "none",
+            "blockShown": false,
+            "noteShown": false,
+            "hit": null,
+            "claimedMaterial": false,
+            "answer": "ok",
+            "calls": 2,
+            "promptChars": 663,
+            "ms": 5
+          }
+        ],
+        "questions": 8,
+        "blockShown": 5,
+        "noteShown": 3,
+        "hits": 0,
+        "control": {
+          "question": "What did the Xylophane committee ratify?",
+          "expect": [],
+          "standing": "none",
+          "blockShown": false,
+          "noteShown": false,
+          "hit": null,
+          "claimedMaterial": false,
+          "answer": "ok",
+          "calls": 2,
+          "promptChars": 663,
+          "ms": 5
+        },
+        "avgPromptChars": 759,
+        "avgMs": 6
+      },
+      "new": {
+        "rows": [
+          {
+            "question": "What did Davout's soldiers had?",
+            "expect": [
+              "hours",
+              "march",
+              "110"
+            ],
+            "standing": "corroborated",
+            "blockShown": true,
+            "noteShown": true,
+            "hit": false,
+            "claimedMaterial": null,
+            "answer": "ok",
+            "calls": 2,
+            "promptChars": 1395,
+            "ms": 8
+          },
+          {
+            "question": "What did Buxhoeveden led?",
+            "expect": [
+              "left",
+              "allied",
+              "flank"
+            ],
+            "standing": "single-witness",
+            "blockShown": true,
+            "noteShown": true,
+            "hit": false,
+            "claimedMaterial": null,
+            "answer": "ok",
+            "calls": 2,
+            "promptChars": 1204,
+            "ms": 8
+          },
+          {
+            "question": "What did Gazan was?",
+            "expect": [
+              "able",
+              "start",
+              "evacuate",
+              "soldiers"
+            ],
+            "standing": "single-witness",
+            "blockShown": true,
+            "noteShown": true,
+            "hit": false,
+            "claimedMaterial": null,
+            "answer": "ok",
+            "calls": 2,
+            "promptChars": 1111,
+            "ms": 8
+          },
+          {
+            "question": "What did Mack gathered?",
+            "expect": [
+              "greater",
+              "part",
+              "austrian",
+              "army"
+            ],
+            "standing": "single-witness",
+            "blockShown": true,
+            "noteShown": true,
+            "hit": false,
+            "claimedMaterial": null,
+            "answer": "ok",
+            "calls": 2,
+            "promptChars": 1182,
+            "ms": 7
+          },
+          {
+            "question": "What did Napoleon had?",
+            "expect": [
+              "giving",
+              "impression",
+              "army",
+              "weak"
+            ],
+            "standing": "single-witness",
+            "blockShown": true,
+            "noteShown": true,
+            "hit": false,
+            "claimedMaterial": null,
+            "answer": "ok",
+            "calls": 2,
+            "promptChars": 1145,
+            "ms": 8
+          },
+          {
+            "question": "What did Ney sensed?",
+            "expect": [
+              "misapprehension",
+              "wrote",
+              "berthier",
+              "ulm"
+            ],
+            "standing": "single-witness",
+            "blockShown": true,
+            "noteShown": true,
+            "hit": false,
+            "claimedMaterial": null,
+            "answer": "ok",
+            "calls": 2,
+            "promptChars": 1021,
+            "ms": 8
+          },
+          {
+            "question": "What did The Aulic Council thought?",
+            "expect": [
+              "napoleon",
+              "strike",
+              "italy"
+            ],
+            "standing": "single-witness",
+            "blockShown": true,
+            "noteShown": true,
+            "hit": false,
+            "claimedMaterial": null,
+            "answer": "ok",
+            "calls": 2,
+            "promptChars": 1404,
+            "ms": 7
+          },
+          {
+            "question": "What did The main attack in Germany would?",
+            "expect": [
+              "supported",
+              "french",
+              "assaults",
+              "theatres"
+            ],
+            "standing": "single-witness",
+            "blockShown": true,
+            "noteShown": true,
+            "hit": false,
+            "claimedMaterial": null,
+            "answer": "ok",
+            "calls": 2,
+            "promptChars": 1349,
+            "ms": 7
+          },
+          {
+            "question": "What did the Xylophane committee ratify?",
+            "expect": [],
+            "standing": "none",
+            "blockShown": false,
+            "noteShown": false,
+            "hit": null,
+            "claimedMaterial": false,
+            "answer": "ok",
+            "calls": 2,
+            "promptChars": 663,
+            "ms": 8
+          }
+        ],
+        "questions": 8,
+        "blockShown": 8,
+        "noteShown": 8,
+        "hits": 0,
+        "control": {
+          "question": "What did the Xylophane committee ratify?",
+          "expect": [],
+          "standing": "none",
+          "blockShown": false,
+          "noteShown": false,
+          "hit": null,
+          "claimedMaterial": false,
+          "answer": "ok",
+          "calls": 2,
+          "promptChars": 663,
+          "ms": 8
+        },
+        "avgPromptChars": 1226,
+        "avgMs": 8
+      }
+    },
+    "book": {
+      "old": {
+        "rows": [
+          {
+            "question": "What did As Elizabeth had?",
+            "expect": [
+              "longer",
+              "interest",
+              "pursue"
+            ],
+            "standing": "single-witness",
+            "blockShown": false,
+            "noteShown": false,
+            "hit": false,
+            "claimedMaterial": null,
+            "answer": "ok",
+            "calls": 2,
+            "promptChars": 635,
+            "ms": 3
+          },
+          {
+            "question": "What did Bingley was?",
+            "expect": [
+              "quite",
+              "uncomfortable"
+            ],
+            "standing": "single-witness",
+            "blockShown": false,
+            "noteShown": false,
+            "hit": false,
+            "claimedMaterial": null,
+            "answer": "ok",
+            "calls": 2,
+            "promptChars": 625,
+            "ms": 3
+          },
+          {
+            "question": "What did Darcy’s contempt seemed?",
+            "expect": [
+              "abundantly",
+              "increasing",
+              "length",
+              "speech"
+            ],
+            "standing": "single-witness",
+            "blockShown": false,
+            "noteShown": false,
+            "hit": false,
+            "claimedMaterial": null,
+            "answer": "ok",
+            "calls": 2,
+            "promptChars": 649,
+            "ms": 3
+          },
+          {
+            "question": "What did Elizabeth happening?",
+            "expect": [
+              "see",
+              "countenance",
+              "looked"
+            ],
+            "standing": "single-witness",
+            "blockShown": false,
+            "noteShown": false,
+            "hit": false,
+            "claimedMaterial": null,
+            "answer": "ok",
+            "calls": 2,
+            "promptChars": 641,
+            "ms": 3
+          },
+          {
+            "question": "What did Her father had?",
+            "expect": [
+              "attorney",
+              "meryton"
+            ],
+            "standing": "single-witness",
+            "blockShown": false,
+            "noteShown": false,
+            "hit": false,
+            "claimedMaterial": null,
+            "answer": "ok",
+            "calls": 2,
+            "promptChars": 631,
+            "ms": 3
+          },
+          {
+            "question": "What did Jane would?",
+            "expect": [
+              "soon",
+              "married"
+            ],
+            "standing": "single-witness",
+            "blockShown": false,
+            "noteShown": false,
+            "hit": false,
+            "claimedMaterial": null,
+            "answer": "ok",
+            "calls": 2,
+            "promptChars": 623,
+            "ms": 2
+          },
+          {
+            "question": "What did Miss Bennet had?",
+            "expect": [
+              "slept",
+              "ill"
+            ],
+            "standing": "single-witness",
+            "blockShown": false,
+            "noteShown": false,
+            "hit": false,
+            "claimedMaterial": null,
+            "answer": "ok",
+            "calls": 2,
+            "promptChars": 633,
+            "ms": 4
+          },
+          {
+            "question": "What did The first half hour was?",
+            "expect": [
+              "spent",
+              "piling",
+              "fire"
+            ],
+            "standing": "single-witness",
+            "blockShown": false,
+            "noteShown": false,
+            "hit": false,
+            "claimedMaterial": null,
+            "answer": "ok",
+            "calls": 2,
+            "promptChars": 649,
+            "ms": 3
+          },
+          {
+            "question": "What did the Xylophane committee ratify?",
+            "expect": [],
+            "standing": "none",
+            "blockShown": false,
+            "noteShown": false,
+            "hit": null,
+            "claimedMaterial": false,
+            "answer": "ok",
+            "calls": 2,
+            "promptChars": 663,
+            "ms": 2
+          }
+        ],
+        "questions": 8,
+        "blockShown": 0,
+        "noteShown": 0,
+        "hits": 0,
+        "control": {
+          "question": "What did the Xylophane committee ratify?",
+          "expect": [],
+          "standing": "none",
+          "blockShown": false,
+          "noteShown": false,
+          "hit": null,
+          "claimedMaterial": false,
+          "answer": "ok",
+          "calls": 2,
+          "promptChars": 663,
+          "ms": 2
+        },
+        "avgPromptChars": 636,
+        "avgMs": 3
+      },
+      "new": {
+        "rows": [
+          {
+            "question": "What did As Elizabeth had?",
+            "expect": [
+              "longer",
+              "interest",
+              "pursue"
+            ],
+            "standing": "single-witness",
+            "blockShown": true,
+            "noteShown": false,
+            "hit": false,
+            "claimedMaterial": null,
+            "answer": "ok",
+            "calls": 2,
+            "promptChars": 1101,
+            "ms": 5
+          },
+          {
+            "question": "What did Bingley was?",
+            "expect": [
+              "quite",
+              "uncomfortable"
+            ],
+            "standing": "single-witness",
+            "blockShown": true,
+            "noteShown": true,
+            "hit": false,
+            "claimedMaterial": null,
+            "answer": "ok",
+            "calls": 2,
+            "promptChars": 1085,
+            "ms": 5
+          },
+          {
+            "question": "What did Darcy’s contempt seemed?",
+            "expect": [
+              "abundantly",
+              "increasing",
+              "length",
+              "speech"
+            ],
+            "standing": "single-witness",
+            "blockShown": true,
+            "noteShown": false,
+            "hit": false,
+            "claimedMaterial": null,
+            "answer": "ok",
+            "calls": 2,
+            "promptChars": 1089,
+            "ms": 4
+          },
+          {
+            "question": "What did Elizabeth happening?",
+            "expect": [
+              "see",
+              "countenance",
+              "looked"
+            ],
+            "standing": "single-witness",
+            "blockShown": true,
+            "noteShown": true,
+            "hit": false,
+            "claimedMaterial": null,
+            "answer": "ok",
+            "calls": 2,
+            "promptChars": 1107,
+            "ms": 5
+          },
+          {
+            "question": "What did Her father had?",
+            "expect": [
+              "attorney",
+              "meryton"
+            ],
+            "standing": "single-witness",
+            "blockShown": true,
+            "noteShown": true,
+            "hit": false,
+            "claimedMaterial": null,
+            "answer": "ok",
+            "calls": 2,
+            "promptChars": 1167,
+            "ms": 5
+          },
+          {
+            "question": "What did Jane would?",
+            "expect": [
+              "soon",
+              "married"
+            ],
+            "standing": "single-witness",
+            "blockShown": true,
+            "noteShown": true,
+            "hit": false,
+            "claimedMaterial": null,
+            "answer": "ok",
+            "calls": 2,
+            "promptChars": 1086,
+            "ms": 4
+          },
+          {
+            "question": "What did Miss Bennet had?",
+            "expect": [
+              "slept",
+              "ill"
+            ],
+            "standing": "single-witness",
+            "blockShown": true,
+            "noteShown": true,
+            "hit": false,
+            "claimedMaterial": null,
+            "answer": "ok",
+            "calls": 2,
+            "promptChars": 1087,
+            "ms": 5
+          },
+          {
+            "question": "What did The first half hour was?",
+            "expect": [
+              "spent",
+              "piling",
+              "fire"
+            ],
+            "standing": "single-witness",
+            "blockShown": true,
+            "noteShown": true,
+            "hit": false,
+            "claimedMaterial": null,
+            "answer": "ok",
+            "calls": 2,
+            "promptChars": 1249,
+            "ms": 5
+          },
+          {
+            "question": "What did the Xylophane committee ratify?",
+            "expect": [],
+            "standing": "none",
+            "blockShown": false,
+            "noteShown": false,
+            "hit": null,
+            "claimedMaterial": false,
+            "answer": "ok",
+            "calls": 2,
+            "promptChars": 663,
+            "ms": 4
+          }
+        ],
+        "questions": 8,
+        "blockShown": 8,
+        "noteShown": 6,
+        "hits": 0,
+        "control": {
+          "question": "What did the Xylophane committee ratify?",
+          "expect": [],
+          "standing": "none",
+          "blockShown": false,
+          "noteShown": false,
+          "hit": null,
+          "claimedMaterial": false,
+          "answer": "ok",
+          "calls": 2,
+          "promptChars": 663,
+          "ms": 4
+        },
+        "avgPromptChars": 1121,
+        "avgMs": 5
+      }
+    }
+  }
+}
