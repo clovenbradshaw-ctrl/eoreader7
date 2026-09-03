@@ -1,4 +1,5 @@
 // measure.js — a figure is a placement, or it is refused.
+// Handle: Fisher — after Ronald Fisher's permutation test: a figure is a placement against a null built by shuffling, or it is refused. Amendment XVII.
 //
 // The fold could already draw a table and a bar chart from a loaded file's own
 // bytes (tables.js, artifact.js::chartFrom). What it could not do is say

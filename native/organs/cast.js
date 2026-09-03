@@ -1,4 +1,5 @@
 // cast.js — names resolve to referents, not to strings.
+// Handle: Zhengming — after Confucius's rectification of names: a name answers to its referent, not to its string. Amendment XVII.
 //
 // Measured motivation, in order: the grounding check flagged "Pierre
 // Bezukhov" as not-in-the-material against the very chapters that name him,

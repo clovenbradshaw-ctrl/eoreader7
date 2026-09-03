@@ -1,4 +1,5 @@
 // quotes.js — a quotation is the source's bytes or it is not printed as one.
+// Handle: Dai — after Dai Zhen's evidential scholarship: a quotation is verified back to its source or it is not printed as one. Amendment XVII.
 //
 // The class of fabrication this organ exists for is the worst one: words
 // inside quotation marks that the material never wrote. A model asked to

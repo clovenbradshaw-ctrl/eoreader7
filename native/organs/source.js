@@ -1,4 +1,5 @@
 // source.js — the address half.
+// Handle: Nadim — after Ibn al-Nadim's Fihrist, an addressed catalogue of every known work; retrieval by where it sits, never by judgment of what it says. Amendment XVII.
 //
 // A System 2 record is only worth more than a paraphrase because its refs can
 // be read back. That requires material with addresses, so this module holds

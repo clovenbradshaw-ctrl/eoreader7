@@ -1,4 +1,5 @@
 // the-fold · experiencer.js — every belief names who is believing it.
+// Handle: Panini — after the karaka grammar, which names the experiencer as its own case role: every belief carries who is undergoing it. Amendment XVII.
 //
 // THE FINDING THIS CLOSES (user direction, verbatim: "everything isn't just
 // given by a source it is believed BY an experiencer"). Measured live this

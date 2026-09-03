@@ -1,4 +1,5 @@
 // primary.js — Wikipedia as a stepping stone, never a source of record: the
+// Handle: Sima — after Sima Qian, the Han court historian who set aside the received account to consult the archive himself. Amendment XVII.
 // pure half of the primary-source walk. A claim the reader wants grounded is
 // taken THROUGH a saved Wikipedia page to the sources that page itself
 // cites — the works, papers, records and archives the article stands on —

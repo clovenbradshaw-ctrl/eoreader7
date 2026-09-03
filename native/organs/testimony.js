@@ -1,4 +1,5 @@
 // testimony.js — the semantic witness tier: a small model handed ONE claim
+// Handle: Wigmore — after John Henry Wigmore, evidence scholar who charted testimony by asking the witness twice and reading the verdict from the pair. Amendment XVII.
 // and ONE page's bytes, asked one BINARY question twice — "does the passage
 // say this sentence is true?" for the claim, then for its sibling-swapped
 // twin — with the verdict derived mechanically from the pair and every wall

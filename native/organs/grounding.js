@@ -1,4 +1,5 @@
 // grounding.js — is every checkable claim in this answer actually in the bytes?
+// Handle: Mozi — after Mozi's test of the senses: a claim stands if it is in what the eyes and ears can witness, or it doesn't stand at all. Amendment XVII.
 //
 // Ported from eochatX's app/client/eo-citation-check.ts (itself a port of
 // eoWebLLM's, itself a port of eochat's server/citation-check.js). The

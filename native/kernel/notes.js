@@ -1,5 +1,6 @@
 // kernel/notes.js — what a reading was heard to say, as an append-only
 // event stream; the current belief always a projection. Medium-blind.
+// Handle: Arokin — after the Yoruba court historians, whose oral tradition kept an append-only record of what was said. Amendment XVII.
 //
 // LINEAGE. This is the-fold's assertion ledger (its P57 `hyperlexicon.js`,
 // moved into native/organs on 2026-09-02) brought down one more level and

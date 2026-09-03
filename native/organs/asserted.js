@@ -1,4 +1,5 @@
 // asserted.js — the assertion tier for relation edges: a mechanical reader's
+// Handle: Dignaga — after the Buddhist logician: a word designates by excluding its contraries, and a verb is a hypothesis carrying its own counted support. Amendment XVII.
 // "this word is the verb of this clause" treated as a HYPOTHESIS with
 // disclosed support, never a recovered fact.
 //
