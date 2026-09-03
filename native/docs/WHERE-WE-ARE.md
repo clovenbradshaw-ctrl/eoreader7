@@ -282,6 +282,9 @@ completely different standings:
 | the **labels** denote the same act | **no — this is the whole wall** | none exists |
 
 Two of three are solved. The residue is exactly one question: verb synonymy.
+**Amended the same day — the ends conjunct is solved as REFERENT identity,
+which is weaker than it reads, and the synonymy residue turned out empty.
+See the amendment at the end of this document.**
 
 Note also what the 0-join result did and did not test. It tested ends **and**
 label jointly, and its own diagnosis attributed the zero to the label half —
@@ -419,3 +422,50 @@ and a revisable commitment rather than a cleverer statistic.
 The apparatus for receiving that answer is built. What is not yet built is
 the proposer that hands it the candidates — and the first, free measurement
 that would tell us whether the candidates exist at all.
+
+---
+
+## Amendment (2026-09-03, same day) — the free measurement was taken, and it moved two of this document's own claims
+
+`eval/the-fold/ends-only-proposer.mjs`; full account in
+`eval/the-fold/results/ends-only-proposer-RESULTS.md`; spec entry S55.
+Two materials, zero model calls.
+
+**The ends conjunct is solved as REFERENT identity, and that is weaker than
+§V read as.** An arrangement's ends are not referents. "the battle", "the
+battlefield", "control of the battle" are different ends resolving to one
+referent, and keying on the referent answers *are these about the same two
+things* — which is not the question. Measured: 19 candidates on the
+Wikipedia set against **25** under deranged resolution, so the proposal is
+refuted by its own control; six keys absorbed 6, 5, 2, 2, 2 and 2 distinct
+raw end-pairs. `Kutuzov —arrived→ at the battlefield` and `Kutuzov
+—retreated→ from the battlefield on 8 September` key identically.
+
+**The synonymy residue is empty, and this is the more useful result.**
+Decomposing every cross-source pair whose raw ends collide: 22 collided on
+ends *and* label (already folded), and **zero** collided on ends while
+differing in label. Across 1,404 notes on two genres, exactly one pair
+anywhere is blocked by the label alone. A paraphrase never gets as far as
+having matching ends. So the Wiktionary route §V recommends would have had
+one candidate to act on — buying it would have bought nothing. The argument
+that a Pattern-grain claim needs a giver rather than a model still stands
+whole; the giver it needs is simply not a thesaurus.
+
+**And the one candidate names the giver it does need.** `The door —is→
+shut` / `The door —was→ shut` — tense, not synonymy, and `sameAct` does not
+fold it: the vendored morphology prior carries **zero of eight** English
+copula forms, keeping only an irregular tail from which the copula was
+dropped. Reach over this material's own labels: the copula is 29% of
+Wikipedia label heads and **50% of Dracula's**. Half a novel's assertions
+are copular and the organ deciding whether two labels denote the same act
+is blind to every one of them.
+
+**What §V's "three things that would change the shape" should now read as.**
+Item one is unchanged and confirmed with a number: 53% of Wikipedia notes
+and 99% of Dracula notes have at least one end resolving to no referent in
+their own universe, so lever 3 caps everything above it. Item two is
+unchanged. A new, cheaper item joins them: restore the copula to the
+morphology prior and commit its builder — which is currently absent from
+the repository, with its input path pointing at a previous session's
+scratchpad. A received prior whose builder is not committed cannot be
+corrected, only replaced.

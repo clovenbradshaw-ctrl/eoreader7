@@ -230,3 +230,19 @@ Everything now hangs on one number: one corroborated note per sixty asks. And on
 Two of that question's three parts are already mechanical. The third is a pattern-grain claim, which means no corpus will ever earn it, which means the answer is a named giver and a revisable commitment — not a cleverer statistic.
 
 The apparatus for receiving that answer is built. What isn't built yet is the proposer that hands it the candidates. And the first free measurement that would tell us whether the candidates exist at all.
+
+---
+
+## Amendment, the same day — the measurement was taken, and it moved two of the claims above
+
+The free measurement named at the end of this piece got run, on two materials, with no model calls at all. It changed two things I said.
+
+First. When I said two of the three parts of the sameness question are solved, the ends part is solved as *referent* identity — and that turns out to be weaker than it sounds. An arrangement's ends are not referents. "The battle," "the battlefield," and "control of the battle" are three different ends that all resolve to one referent. Keying on the referent answers "are these two notes about the same two things," which is not the question being asked. Measured: nineteen candidates on the encyclopedic set, against twenty-five when each source's notes were deliberately resolved against the wrong source's universe. So the proposal is refuted by its own control. Six keys absorbed six, five, two, two, two and two different end pairs. "Kutuzov arrived at the battlefield" and "Kutuzov retreated from the battlefield on the eighth of September" key identically. They are not the same proposition. They are two different propositions about the same two things, and between any two entities there are many.
+
+Second, and this is the more useful result. The synonymy residue is empty. Taking every cross-source pair of notes whose raw ends collide: twenty-two collided on both ends and label, and those had already been folded together. Zero collided on ends while differing in label. Across one thousand four hundred and four notes on two different genres, exactly one pair anywhere is blocked by the label alone. A paraphrase does not get as far as having matching ends, so the label never becomes the thing standing in the way. Which means the Wiktionary route I recommended would have had one single candidate to act on. Buying it would have bought nothing.
+
+The argument itself still stands whole — a pattern-grain claim needs a named giver rather than a model. The giver it needs is just not a thesaurus.
+
+And the one remaining candidate names the giver it does need. The pair is "The door is shut" from one chapter and "The door was shut" from another. That's tense, not synonymy. And the organ built precisely for tense does not fold it: the vendored morphology prior carries zero of the eight English copula forms. It keeps only an irregular tail, and the copula was dropped from it. The reach of that gap, measured over this material's own labels: the copula is twenty-nine percent of the encyclopedic labels, and fifty percent of the novel's. Half of a novel's assertions are copular, and the organ that decides whether two labels denote the same act is blind to every single one of them.
+
+So the three things that would change the shape now read a little differently. The first — feeding the referent index into extraction — is unchanged and now has a number: fifty-three percent of encyclopedic notes and ninety-nine percent of the novel's have at least one end that resolves to no referent at all. That caps everything above it. The second is unchanged. And a new, much cheaper third joins them: restore the copula to the morphology prior, and commit its builder — which is currently not in the repository at all, with its input path pointing at a previous session's scratch directory. A received prior whose builder isn't committed cannot be corrected. It can only be replaced.

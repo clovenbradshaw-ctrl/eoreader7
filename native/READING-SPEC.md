@@ -3321,3 +3321,103 @@ embedder arm never ran, so the embedder half of P85's question is still
 open. The two landings that survive the post-hoc wall were not adjudicated
 against an oracle — surviving a mechanical relatedness check is not being
 true.
+
+## S54 — The ledger gets Interpretation's triad: sameness and significance as declared, revisable commitments
+
+**Generality: universal.** The mechanism holds no vocabulary of any medium
+or language; it is `DEF`/`EVA`/`REC` over an append-only act log, and its
+tests are organ-free on purpose so the walls stay testable wherever this
+repo is checked out.
+
+**What shipped.** `kernel/commitments.js` (+ `tests/commitments.test.js`,
+19 cases against the real `makeNotes()`). Three verbs over one log:
+
+* `declare(kind, members, giver, purpose)` — **DEF**. A giver AND a purpose
+  are required; either missing is a typed refusal. Lands as a **wish**.
+* `evaluate(id, ground, broken, verdict)` — **EVA**. A named ground and a
+  declared perturbation are required, and the verdict must be `holds` or
+  `refused`. Promotes the wish to **testimony**, or **refuses** it.
+* `concede(id, trigger)` — **REC**. The trigger is carried verbatim. A
+  conceded commitment's withheld notes become readable again.
+
+Three kinds: `same-as` (two notes are one proposition), `does-not-matter`
+(withhold), `matters` (an override that beats a withholding).
+`readUnder(log, notes, {include})` is the projection: same-as classes fold
+with witnesses and spans unioned, first face kept; every touched note is
+marked with what it was read under. `redeal` is the II.23 control, and it
+runs on a **scratch** `createTaskLog()` so an experiment never lands on the
+record.
+
+**The four walls, each mutation-checked.** (1) `fold()` is byte-identical
+under any set of commitments not in force — an interpretation is not a
+hearing. (2) A commitment **never counts as a witness**; corroboration is
+untouched by declaring anything. (3) **Recoverability** — conceding a
+`does-not-matter` makes its notes readable again, which is exactly the
+property a filter cannot have and is why this is a ledger rather than a
+predicate. (4) A conceded *commitment* is not a conceded *note*
+(`concededNotes` in `kernel/notes.js` gained an ends filter for this; it had
+been listing null-ended commitments as notes).
+
+**Why this and not a same-as table.** The load-bearing user correction:
+*"that may be its identity, but it's not its MEANING."* Two notes'
+propositional sameness is not a fact the material states, and no corpus can
+earn it — a Pattern-grain claim. So it enters the record the only way such a
+claim may: declared by a named giver, evaluated against a ground with a
+perturbation, and conceded when it turns out wrong. The apparatus is the
+receiving end for a prior, not a decision procedure.
+
+## S55 — The ends-only proposer, refuted; and the gap the refutation named
+
+**Generality: universal.** The claim is about what a referent-grain key can
+say about propositional identity, measured on two genres with a control
+built to fail. The morphology gap it uncovers is English-specific and is
+named as such.
+
+**What was asked.** P74 measured the same-proposition conjunction (ends
+correspond AND labels denote the same act) and got zero joins, blaming the
+label half. So the ENDS half had never been measured alone. This driver
+(`eval/the-fold/ends-only-proposer.mjs`, zero model calls) drops the label
+conjunct and asks whether ends-only correspondence proposes any candidates
+at all.
+
+**Three findings, in order of how much they change the plan.**
+
+1. **Referent identity is the wrong grain for propositional identity, and
+   its own control says so.** 19 candidates on the Wikipedia set, 25 under
+   deranged resolution — resolution contributes nothing a wrong universe
+   would not. Reading the landings says why: six keys absorbed 6, 5, 2, 2,
+   2 and 2 distinct raw end-pairs. `Kutuzov —arrived→ at the battlefield`
+   and `Kutuzov —retreated→ from the battlefield on 8 September` key
+   identically as *kutuzov / the battle*. **An arrangement's ends are not
+   referents** — "the battle", "the battlefield", "control of the battle"
+   are different ends resolving to one referent, and collapsing them
+   answers *are these about the same two things*, which is not the
+   question.
+
+2. **The synonymy program has essentially nothing to work on.** Decomposing
+   every cross-source pair whose RAW ends collide: 22 collided on ends AND
+   label (already folded by `hear()`), and **zero** collided on ends while
+   differing in label. Across 1,404 notes on two genres, exactly one pair
+   anywhere is blocked by the label alone. A paraphrase does not get as far
+   as having matching ends, so the label never becomes the blocker.
+
+3. **That one pair is tense, and `sameAct` does not fold it.** `The door
+   —is→ shut` / `The door —was→ shut`. The vendored `MorphologyPrior@1`
+   carries **zero of eight** English copula forms, by an artefact of its own
+   design: 224,550 pairs read, 216,011 dropped as rule-recoverable, 5,531
+   kept as the irregular tail — and a suffix rule cannot get from *was* to
+   *be*, so the copula should have been kept and was not (the shipped
+   artifact's `irregular` field is empty). Reach, measured over this
+   material's own labels: the copula is **29%** of Wikipedia label heads and
+   **50%** of Dracula's, and the prior carries none of it. Every consumer of
+   `sameAct` silently reads every copular restatement as a different act.
+
+**Disclosed, and it blocks the fix here:** the prior's provenance names
+`scripts/build-morphology-prior.mjs`, which is **not in this repository**,
+with an `input` path pointing at a previous session's scratchpad. The prior
+cannot be rebuilt from this checkout. That is itself the finding — a
+received prior whose builder is not committed cannot be corrected, only
+replaced.
+
+Full numbers, the samples, and the disclosed limits:
+`eval/the-fold/results/ends-only-proposer-RESULTS.md`.
