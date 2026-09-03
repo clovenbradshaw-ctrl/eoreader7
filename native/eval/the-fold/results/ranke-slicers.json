@@ -1,0 +1,82 @@
+{
+  "page": "wikipedia-apollo-11.html",
+  "objectMissingPartials": 162,
+  "walked": 2,
+  "K": 8,
+  "window": 3,
+  "model": "gemma2:2b",
+  "embedder": "skipped",
+  "modelCalls": 9,
+  "real": {
+    "containment": {
+      "offered": 2,
+      "noCandidates": 0,
+      "verdicts": {
+        "states": 1,
+        "refused:no-testimony": 1
+      },
+      "states": 1,
+      "contradicts": 0,
+      "landings": [
+        {
+          "note": "51 Armstrong —began→ his descent to the lunar surface",
+          "host": "nasa.gov",
+          "because": "Schmitt then introduced Jones to the other 11 Apollo astronauts who walked on the lunar surface, and over many, many hours the astronauts participated in recorded sessions, detailing every aspect of their missions.",
+          "span": "nasa.gov#7597-7811"
+        }
+      ],
+      "seconds": 19
+    },
+    "random": {
+      "offered": 2,
+      "noCandidates": 0,
+      "verdicts": {
+        "refused:no-testimony": 2
+      },
+      "states": 0,
+      "contradicts": 0,
+      "landings": [],
+      "seconds": 7
+    }
+  },
+  "control": {
+    "containment": {
+      "offered": 2,
+      "noCandidates": 0,
+      "verdicts": {
+        "refused:no-testimony": 2
+      },
+      "states": 0,
+      "contradicts": 0,
+      "landings": [],
+      "seconds": 8
+    },
+    "random": {
+      "offered": 2,
+      "noCandidates": 0,
+      "verdicts": {
+        "refused:no-testimony": 2
+      },
+      "states": 0,
+      "contradicts": 0,
+      "landings": [],
+      "seconds": 7
+    }
+  },
+  "license": {
+    "containment": {
+      "verdict": "separates from control",
+      "offered": 2,
+      "states": 1,
+      "controlStates": 0,
+      "separation": 1
+    },
+    "random": {
+      "verdict": "no landing — nothing to license",
+      "offered": 2,
+      "states": 0,
+      "controlStates": 0,
+      "separation": 0
+    }
+  }
+}

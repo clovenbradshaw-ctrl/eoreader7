@@ -3249,3 +3249,75 @@ It touches none of `kernel/notes.js`, `organs/bridges.js`,
 file-level conflict with this pass — but the two are thematically
 convergent, and reconciling them is real, named, unattempted work rather
 than something either side should assume away.
+## S53 — P85's licensing run, taken: the company wall cannot guard the slot L4 names it for
+
+**Generality:** universal.
+
+P85 shipped the five-condition licensing rule for a learned component and
+said of its own evidence: *"Measured? Not yet… the verdict is not taken,
+and this entry claims none."* Its run died with its container twice. Taken
+now (`eval/the-fold/ranke-slicers.mjs`, N=40 of the 162 object-missing
+partials, live `gemma2:2b`, 220 calls): **no slicer earns a license.**
+
+| slicer | offered | real | control | verdict |
+|---|---|---|---|---|
+| containment | 40/40 | 9 | 1 | separates from control |
+| activation | 16/40 | 2 | 2 | REFUSED by its own control (II.23) |
+| random (confound) | 40/40 | 2 | 3 | REFUSED by its own control (II.23) |
+| embedding | — | — | — | `unavailable`, typed (L5) |
+
+**The table is not the finding; the sample is.** Containment's nine
+landings include deciders like «Support the Museum», «Visit the Apollo
+Journals Website», a video caption, and an unrelated Schmitt sentence —
+page furniture signed as testimony. Applying the decider-company wall
+post-hoc over the recorded landings (the same `textFeatures`/`sameAct`
+organs the generate path uses) takes containment from **9-vs-1 to 1-vs-0**:
+8 of 9 fail. S50 already recorded this exact pattern once — a plausible
+number that dissolves on inspecting the sample rather than the count.
+
+**THE STRUCTURAL FINDING.** P85's L4 bounds a learned part's authority by
+non-learned organs and names them, *"the sibling-swap arm, the
+indiscriminate-pick check, the decider-company wall, and the
+distinct-source count."* The decider-company wall **is not below the select
+path at all** — it runs only on the generate path, skipped there on a
+justification stated in `witnessNote`'s own comment: *"the decider is
+verbatim by construction, so the decider-company wall below is satisfied
+structurally."* That conflates two failure modes. Verbatim-ness does make
+the ECHO mode impossible; it says nothing about whether the decider is
+RELATED. `statingCandidates`' `h1 > 0 && h2 > 0` gate covered relatedness in
+practice, which is why the gap was invisible — until callers began
+INJECTING candidate lists, the seam P85 itself added for slicers, which
+bypasses that gate.
+
+**And the wall cannot simply be switched on.** Implemented and measured
+rather than reasoned about: applying it to the select path breaks
+`corroboration.test.mjs`'s own pinned capability test, whose premise the
+test states outright — *"end2 never fires literally — this is what an
+object-missing partial IS."* The wall requires each end's own words; the
+seam exists to reach cases where an end's words are absent. **Mutually
+exclusive as designed.** The change was reverted; organs is back to its
+baseline 11 failures, identical by name.
+
+So: the slicer slot has **no non-learned organ guarding relatedness**, L4
+is unsatisfied there, and no slicer earns a license — not because slicing
+is wrong, but because its landings are dominated by an unguarded failure
+mode and the named guard is the one this seam cannot use.
+
+**Named, not built.** A guard for injected candidates must not require an
+end's literal words, since that is the case being reached. Two shapes exist
+in this repo and neither is measured for this: referent identity on the
+ends (`makeReferentIndex` — resolve "the crew" to the crew rather than
+matching letters), or the arm's sibling pool drawn from the reader's own
+referent state rather than capitalized surfaces in one candidate list. Both
+are the same move — resolve the end, then ask about the referent.
+
+**Files.** `eval/the-fold/results/ranke-slicers-RESULTS.md` (the full
+account, the landings quoted, the post-hoc wall table) and
+`results/ranke-slicers-run4.json` (raw). No production file changed:
+`corroboration.js` is byte-identical to before this entry.
+
+**Disclosed.** n = 40 of 162, one page, one model, one temperature. The
+embedder arm never ran, so the embedder half of P85's question is still
+open. The two landings that survive the post-hoc wall were not adjudicated
+against an oracle — surviving a mechanical relatedness check is not being
+true.
