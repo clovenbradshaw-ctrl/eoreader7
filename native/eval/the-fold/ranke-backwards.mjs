@@ -88,11 +88,22 @@ for (const p of passages) {
   const edges = (rel.read(String(p.text ?? ""))?.claims ?? []).filter((c) => c.verdict === "bound").map((c) => ({ subject: c.end1, verb: c.label, object: c.end2, spans: c.spans ?? [] }));
   if (edges.length) log = hl.admit(log, edges, { witness: `${p.ref ?? PAGE}~walls-v1` }).log;
 }
-const notes = hl.foldWithStanding(log);
+// the text that follows a span in its passage — where the sentence's own marker sits
+const passageText = new Map(passages.map((p) => [p.ref, p.text]));
+const afterOf = (sp) => { const t = passageText.get(sp?.ref); const m = String(sp?.at ?? "").match(/#(\d+)-(\d+)$/); return t && m ? t.slice(Number(m[2]), Number(m[2]) + 40) : ""; };
+// the bibliography is not the article: notes whose sentence sits in the
+// references region are the page's own reference list read as prose — a
+// diet fact, counted and dropped here (the admission door's, eventually)
+const refsAt = page.text.search(/\n\s*References\s*\n/);
+const inBibliography = (n) => { const a = n.spans?.[0]?.text ?? ""; const j = a ? page.text.indexOf(a.slice(0, 60)) : -1; return refsAt >= 0 && j >= refsAt; };
+const allNotes = hl.foldWithStanding(log);
+const bibliography = allNotes.filter(inBibliography);
+const notes = allNotes.filter((n) => !inBibliography(n));
 const leads = R.leadsOf(page);
 const footnotes = R.footnoteLeads(page);
-const marked = notes.filter((n) => (n.spans ?? []).some((sp) => R.markersIn(sp.text).length));
-const boundNotes = notes.filter((n) => R.footnoteLeadsForNote(n, footnotes).length);
+const marked = notes.filter((n) => (n.spans ?? []).some((sp) => R.markersOfSpan(sp.text, afterOf(sp)).length));
+const boundNotes = notes.filter((n) => R.footnoteLeadsForNote(n, footnotes, { afterOf }).length);
+console.log(`  bibliography region at ${refsAt} of ${page.text.length} chars; notes read from it (dropped): ${bibliography.length} of ${allNotes.length}`);
 console.log(`${PAGE}: ${notes.length} notes in ${((Date.now() - t0) / 1000).toFixed(1)}s; ${leads.links.length} link leads, ${leads.quotes.length} unsourced quotes; ${footnotes.markers} footnote markers, ${footnotes.notes} numbered notes with an outbound link`);
 console.log(`  notes whose article sentence carries a marker: ${marked.length}; whose footnote links out: ${boundNotes.length}`);
 
@@ -179,20 +190,30 @@ async function walk(noteList, { useWitness }) {
     const claim = R.claimOfNote(n);
     if (!claim) { rows.push({ id: n.id, note: `${n.subject} —${n.verb}→ ${n.object}`, cls: "no-claim" }); continue; }
     const subjWords = new Set(R.claimOfNote({ end1: n.subject, label: "", end2: "" })?.tokens ?? []);
-    const bound = R.footnoteLeadsForNote(n, footnotes).flatMap((c) => [{ ...c, via: "footnote" }, ...R.expandLead(c).map((u) => ({ ...c, url: u, via: "footnote:full-text", archiveUrl: null }))]);
+    const bound = R.footnoteLeadsForNote(n, footnotes, { afterOf }).flatMap((c) => [{ ...c, via: "footnote" }, ...R.expandLead(c).map((u) => ({ ...c, url: u, via: "footnote:full-text", archiveUrl: null }))]);
     const ranked = rankPrimary(claim, leads.links).filter((c) => c.overlap > 0 && !bound.some((b) => b.url === c.url)).flatMap((c) => [{ ...c, via: "link" }, ...R.expandLead(c).map((u) => ({ ...c, url: u, via: "link:full-text", archiveUrl: null }))]);
     const cands = [...bound, ...ranked].slice(0, CONSULT);
     let best = null;
     const consulted = [];
     for (const c of cands) {
-      const got = await cached(c.url, c.archiveUrl ?? null);
-      if (!got || got.gap || !got.text) { consulted.push({ host: c.host, gap: got?.gap ?? { type: "no_face" } }); continue; }
+      let got = await cached(c.url, c.archiveUrl ?? null);
+      if (!got || got.gap || !got.text) { consulted.push({ host: c.host, via: c.via, gap: got?.gap ?? { type: "no_face" } }); continue; }
+      let identity = c.text ? R.documentMatches(got.text, c.text) : { matches: null };
+      let viaArchive = false;
+      if (identity.matches === false) {
+        const again = await cached(c.archiveUrl ?? R.archiveAddressFor(c.url), null);
+        const id2 = again && !again.gap && again.text ? R.documentMatches(again.text, c.text) : { matches: false };
+        if (id2.matches !== false) { got = again; identity = id2; viaArchive = true; }
+        else { consulted.push({ host: got.host ?? c.host, via: c.via, gap: { type: "wrong-document", detail: `${identity.hit}/${identity.of} title words; archive ${again?.gap?.type ?? "read"}` } }); continue; }
+      }
       const cl = classify(claim, subjWords, got.text);
+      cl.viaArchive = viaArchive; cl.identity = identity;
       consulted.push({ host: got.host ?? c.host, via: c.via, ...cl });
       if (!best || CLASSES.indexOf(cl.cls) < CLASSES.indexOf(best.cls)) best = { ...cl, host: got.host ?? c.host, via: c.via, text: got.text };
     }
-    const row = { id: n.id, note: `${n.subject} —${n.verb}→ ${n.object}`, article: n.spans?.[0]?.text ?? null, tokens: claim.tokens, bound: bound.length, readable: consulted.filter((c) => !c.gap).length, readableBound: consulted.filter((c) => !c.gap && /^footnote/.test(c.via)).length, cls: best?.cls ?? (consulted.length ? "unreadable" : "no-lead"), via: best?.via ?? null, host: best?.host ?? null, sentence: best?.sentence ?? null, missing: best?.missing ?? null, missingSide: best?.missingSide ?? null };
-    if (useWitness && best && (best.cls === "same-sentence" || best.cls === "morphology") && witnessed < WITNESS_CAP) {
+    const row = { id: n.id, note: `${n.subject} —${n.verb}→ ${n.object}`, article: n.spans?.[0]?.text ?? null, tokens: claim.tokens, bound: bound.length, readable: consulted.filter((c) => !c.gap).length, readableBound: consulted.filter((c) => !c.gap && /^footnote/.test(c.via)).length, wrongDocuments: consulted.filter((c) => c.gap?.type === "wrong-document").length, viaArchive: consulted.filter((c) => c.viaArchive).length, cls: best?.cls ?? (consulted.length ? "unreadable" : "no-lead"), via: best?.via ?? null, host: best?.host ?? null, sentence: best?.sentence ?? null, missing: best?.missing ?? null, missingSide: best?.missingSide ?? null };
+    const wrongDocs = consulted.filter((c) => c.gap?.type === "wrong-document").length;
+    if (useWitness && best && (best.cls === "same-sentence" || best.cls === "morphology" || (best.cls === "partial" && /^footnote/.test(best.via ?? "") && best.sentence)) && witnessed < WITNESS_CAP) {
       witnessed += 1;
       const w = await witnessNote(claim.sentence, { ref: best.host, text: best.text }, { ...witness, ends: { end1: n.subject, end2: n.object }, slice: best.sentence });
       row.witness = w.refused ? `refused:${w.refused}` : w.verdict;
@@ -216,7 +237,9 @@ console.log(`  notes bound to a footnote that links out: ${real.filter((r) => r.
 const partial = readable.filter((r) => r.cls === "partial");
 console.log(`  partial by missing side: ${JSON.stringify(tally(partial.map((r) => ({ cls: r.missingSide }))))}`);
 const wv = {}; for (const r of real) if (r.witness) wv[r.witness] = (wv[r.witness] ?? 0) + 1;
-console.log(`  witness on same-sentence+morphology leads: ${JSON.stringify(wv)}`);
+console.log(`  witness on same-sentence, morphology and footnote-bound partial leads: ${JSON.stringify(wv)}`);
+const wvByCls = {}; for (const r of real) if (r.witness) { wvByCls[r.cls] = wvByCls[r.cls] ?? {}; wvByCls[r.cls][r.witness] = (wvByCls[r.cls][r.witness] ?? 0) + 1; } console.log(`    by class: ${JSON.stringify(wvByCls)}`);
+console.log(`  wrong-document faces (address serves another document): ${real.reduce((a, r) => a + (r.wrongDocuments ?? 0), 0)} consults; read through the archive copy instead: ${real.reduce((a, r) => a + (r.viaArchive ?? 0), 0)}`);
 console.log(`  the ladder (cumulative, of ${readable.length}): now=${readable.filter((r) => r.cls === "same-sentence").length} · +morphology=${readable.filter((r) => ["same-sentence", "morphology"].includes(r.cls)).length} · +window=${readable.filter((r) => ["same-sentence", "morphology", "window"].includes(r.cls)).length} · +both=${readable.filter((r) => r.cls !== "partial" && r.cls !== "absent").length}`);
 
 // ── the control ───────────────────────────────────────────────────────────
@@ -238,5 +261,5 @@ for (const cls of CLASSES) {
     console.log(`     ${r.host}: «${String(r.sentence ?? "").replace(/\s+/g, " ").slice(0, 200)}»`);
   }
 }
-writeFileSync(new URL("./results/ranke-backwards.json", import.meta.url), JSON.stringify({ page: PAGE, notes: notes.length, leads: { links: leads.links.length, quotes: leads.quotes.length }, footnotes: { markers: footnotes.markers, linking: footnotes.notes, notesMarked: marked.length, notesBound: boundNotes.length }, fetches, facesRead: [...faces.values()].filter((f) => !f.gap).length, real: { tally: tally(readable), partialBySide: tally(partial.map((r) => ({ cls: r.missingSide }))), witness: wv, rows: real }, control: { tally: tally(ctlReadable) } }, null, 2));
+writeFileSync(new URL("./results/ranke-backwards.json", import.meta.url), JSON.stringify({ page: PAGE, notes: notes.length, bibliographyDropped: bibliography.length, leads: { links: leads.links.length, quotes: leads.quotes.length }, footnotes: { markers: footnotes.markers, linking: footnotes.notes, notesMarked: marked.length, notesBound: boundNotes.length }, fetches, facesRead: [...faces.values()].filter((f) => !f.gap).length, real: { tally: tally(readable), partialBySide: tally(partial.map((r) => ({ cls: r.missingSide }))), witness: wv, rows: real }, control: { tally: tally(ctlReadable) } }, null, 2));
 console.log("\nRaw: results/ranke-backwards.json");

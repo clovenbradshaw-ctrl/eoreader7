@@ -101,7 +101,7 @@
 // sources — a paper's bibliography, a report's data appendix, a review
 // naming the recording); the two lead readers here are text/HTML adapters.
 
-import { extractCitations, rankPrimary, snipClaim, isWikiFamilyHost, PRIMARY_SOURCES_CONSULTED, PRIMARY_SNIPS_KEPT } from "./primary.js";
+import { extractCitations, rankPrimary, snipClaim, isWikiFamilyHost, unwrapArchiveUrl, PRIMARY_SOURCES_CONSULTED, PRIMARY_SNIPS_KEPT } from "./primary.js";
 import { hostOf } from "./web.js";
 import { CLAIM_STOPWORDS, wordSet, hasWord } from "./grounding.js";
 import { sourceOfWitness, kindOfWitness } from "../kernel/notes.js";
@@ -245,12 +245,19 @@ export function footnoteLeads(page) {
     const end = html.indexOf("</li", at);
     const block = html.slice(at, end > 0 ? Math.min(end, at + 8000) : at + 8000);
     const links = [];
+    const text = stripTags(block).slice(0, 400);
     for (const a of block.matchAll(/href="(https?:\/\/[^"]+)"/gi)) {
-      const url = a[1].replace(/&amp;/g, "&");
+      const raw = a[1].replace(/&amp;/g, "&");
+      // an archive wrapper is the SAME source with a fallback address:
+      // paired with its target (primary.js's own unwrapping), never a
+      // second lead — the wrapper exists because the target was dying
+      const wrapped = unwrapArchiveUrl(raw);
+      const url = wrapped ? wrapped.target : raw;
       const host = hostOf(url);
       if (!host || host === self || isWikiFamilyHost(host)) continue;
-      if (links.some((l) => l.url === url)) continue;
-      links.push({ url, host, text: stripTags(block).slice(0, 400), index: links.length, structuralClass: "other", overlap: 0 });
+      const prev = links.find((l) => l.url === url);
+      if (prev) { if (wrapped && !prev.archiveUrl) prev.archiveUrl = wrapped.archive; continue; }
+      links.push({ url, host, text, index: links.length, structuralClass: "other", overlap: 0, ...(wrapped ? { archiveUrl: wrapped.archive } : {}) });
     }
     if (links.length) byNumber.set(num, [...(byNumber.get(num) ?? []), ...links]);
   }
@@ -258,13 +265,57 @@ export function footnoteLeads(page) {
 }
 /** The footnote numbers a text span carries — "[ 139 ]" as the text face renders a marker. */
 export const markersIn = (text) => [...String(text ?? "").matchAll(/\[\s*(\d{1,4})\s*\]/g)].map((m) => Number(m[1]));
-/** The links a note's own sentences bound, through the page's footnotes; [] when the note carries no marker or its note has no outbound link. */
-export function footnoteLeadsForNote(note, footnotes) {
+/**
+ * The footnote numbers that belong to a span. A marker follows the sentence
+ * it cites, so one at the very START of a span (before any letter) is the
+ * PREVIOUS sentence's — the text face renders "…surface.[139] At 02:51…"
+ * and a sentence splitter hands "[139]" to the next sentence. Markers
+ * inside the span are its own, and so are markers immediately AFTER it in
+ * the passage (`after`: the text that follows the span), which is where
+ * this sentence's own citation actually sits.
+ */
+export function markersOfSpan(spanText, after = "") {
+  const own = String(spanText ?? "");
+  const lead = own.match(/^\s*(?:\[\s*\d{1,4}\s*\]\s*)+/);
+  const inside = markersIn(lead ? own.slice(lead[0].length) : own);
+  const trailing = (String(after ?? "").match(/^\s*(?:\[\s*\d{1,4}\s*\]\s*)+/) ?? [""])[0];
+  return [...new Set([...inside, ...markersIn(trailing)])];
+}
+/**
+ * The links a note's own sentences bound, through the page's footnotes; []
+ * when the note carries no marker or its note has no outbound link.
+ * `afterOf(span)` (optional) returns the text that follows the span in its
+ * passage, so the trailing marker — the sentence's own — is read.
+ */
+export function footnoteLeadsForNote(note, footnotes, { afterOf = null } = {}) {
   if (!footnotes?.byNumber?.size) return [];
   const out = [];
-  for (const sp of note?.spans ?? []) for (const n of markersIn(sp?.text)) for (const l of footnotes.byNumber.get(n) ?? []) if (!out.some((x) => x.url === l.url)) out.push({ ...l, footnote: n });
+  for (const sp of note?.spans ?? []) {
+    const after = afterOf ? afterOf(sp) : "";
+    for (const n of markersOfSpan(sp?.text, after)) for (const l of footnotes.byNumber.get(n) ?? []) if (!out.some((x) => x.url === l.url)) out.push({ ...l, footnote: n });
+  }
   return out;
 }
+/**
+ * documentMatches(face, citationText) — is the fetched face the DOCUMENT the
+ * citation names, or something the address now serves instead? Measured
+ * backwards on Apollo 11: 31 of 62 fetched faces answered from a different
+ * address, and every Apollo Lunar Surface Journal transcript the article
+ * cites now redirects to one portal page. The check: at least a third of
+ * the citation's own content words (its title, mostly) appear in the face.
+ * A face that fails is `wrong-document`, and the chase reads the archive
+ * copy instead — the citation's own archive wrapper when it carries one,
+ * else the public archive's address for the target (an existing snapshot
+ * read, never a Save Page Now — that is a different crossing).
+ */
+export function documentMatches(faceText, citationText) {
+  const words = content(citationText).filter((w) => !/^\d+$/.test(w));
+  if (words.length < 3) return { matches: null, reason: "citation_too_short" };
+  const ws = wordSet(String(faceText ?? ""));
+  const hit = words.filter((w) => hasWord(ws, w)).length;
+  return { matches: hit * 3 >= words.length, hit, of: words.length };
+}
+export const archiveAddressFor = (url) => `https://web.archive.org/web/2/${url}`;
 
 // ── one chase ───────────────────────────────────────────────────────────────
 /**
@@ -277,7 +328,7 @@ export function footnoteLeadsForNote(note, footnotes) {
  *   search    — async (query) → [{ url, host?, title? }] (omit to skip quotes)
  * Returns { log, consulted:[{url, host, via, structuralClass?, snipsFound, snips|gap}], attested:[witness], claim, searched:[query] }.
  */
-export async function chase(log, door, note, { leads, fetchFace, search = null, consult = PRIMARY_SOURCES_CONSULTED, recipe = RANKE.recipe, witness = null, footnotes = null } = {}) {
+export async function chase(log, door, note, { leads, fetchFace, search = null, consult = PRIMARY_SOURCES_CONSULTED, recipe = RANKE.recipe, witness = null, footnotes = null, afterOf = null } = {}) {
   if (typeof fetchFace !== "function") throw new TypeError("ranke.chase: fetchFace is injected — this organ owns no network");
   const claim = claimOfNote(note);
   if (!claim) return { log, consulted: [], attested: [], searched: [], claim: null, refused: { type: "no_claim", detail: "the note's ends carry no content word to chase" } };
@@ -291,7 +342,7 @@ export async function chase(log, door, note, { leads, fetchFace, search = null, 
   // sentence — then the page's links ranked by overlap, minus any already
   // bound. A footnote lead needs no shared word: the binding is the page's
   // own, not a guess from vocabulary.
-  const bound = footnoteLeadsForNote(note, footnotes).flatMap((c) => [{ ...c, via: "footnote" }, ...expandLead(c).map((u) => ({ ...c, url: u, via: "footnote:full-text", archiveUrl: null }))]);
+  const bound = footnoteLeadsForNote(note, footnotes, { afterOf }).flatMap((c) => [{ ...c, via: "footnote" }, ...expandLead(c).map((u) => ({ ...c, url: u, via: "footnote:full-text", archiveUrl: null }))]);
   const ranked = rankPrimary(claim, leads.links).filter((c) => c.overlap > 0 && !bound.some((b) => b.url === c.url)).flatMap((c) => [{ ...c, via: "link" }, ...expandLead(c).map((u) => ({ ...c, url: u, via: "link:full-text", archiveUrl: null }))]);
   const candidates = [...bound, ...ranked];
   const searched = [];
@@ -314,9 +365,22 @@ export async function chase(log, door, note, { leads, fetchFace, search = null, 
   let next = log;
   for (const cand of candidates.slice(0, consult)) {
     const base = { url: cand.url, host: cand.host, via: cand.via, ...(cand.quote ? { quote: cand.quote } : {}), structuralClass: cand.structuralClass, overlap: cand.overlap, citation: cand.text || null };
-    const got = await fetchFace(cand.url, cand.archiveUrl ?? null);
+    let got = await fetchFace(cand.url, cand.archiveUrl ?? null);
     if (!got || got.gap) { consulted.push({ ...base, gap: got?.gap ?? { type: "no_face" } }); continue; }
     if (got.text == null) { consulted.push({ ...base, gap: { type: "beyond-reach", detail: "no text face — snipping needs one" } }); continue; }
+    // is this the cited document, or what the address serves now?
+    let identity = cand.text ? documentMatches(got.text, cand.text) : { matches: null, reason: "no_citation_text" };
+    let viaArchive = false;
+    if (identity.matches === false) {
+      const archive = cand.archiveUrl ?? archiveAddressFor(cand.url);
+      const again = await fetchFace(archive, null);
+      if (again && !again.gap && again.text) {
+        const id2 = documentMatches(again.text, cand.text);
+        if (id2.matches !== false) { got = again; identity = id2; viaArchive = true; }
+        else { consulted.push({ ...base, host: got.host ?? cand.host, wrongDocument: identity, archiveTried: archive, gap: { type: "wrong-document", detail: `the address serves another document (${identity.hit}/${identity.of} title words) and so does its archive copy` } }); continue; }
+      } else { consulted.push({ ...base, host: got.host ?? cand.host, wrongDocument: identity, archiveTried: archive, gap: { type: "wrong-document", detail: `the address serves another document (${identity.hit}/${identity.of} title words); no archive copy could be read` } }); continue; }
+    }
+    base.identity = identity; if (viaArchive) base.viaArchive = true;
     const host = got.host ?? cand.host ?? hostOf(got.url ?? cand.url);
     const snips = snipClaim(claim, got.text, { facePath: got.path ?? null, url: got.url ?? cand.url, host });
     const quoteFound = cand.quote ? snipClaim({ kind: "name", tokens: content(cand.quote), text: cand.quote }, got.text).length : null;
@@ -351,7 +415,7 @@ export async function chase(log, door, note, { leads, fetchFace, search = null, 
  * Walks every note standing on accounts only, most-witnessed first.
  * Returns { log, chased, fetches, searches, faces, pagesRefused, notesConsidered, notesAttested }.
  */
-export async function chaseLedger(log, door, pages, { fetchFace, search = null, maxFetches, maxSearches = null, isAccount = null, consult = PRIMARY_SOURCES_CONSULTED, recipe = RANKE.recipe, witness = null } = {}) {
+export async function chaseLedger(log, door, pages, { fetchFace, search = null, maxFetches, maxSearches = null, isAccount = null, consult = PRIMARY_SOURCES_CONSULTED, recipe = RANKE.recipe, witness = null, afterOf = null } = {}) {
   const footnotesByRef = new Map();
   const footnotesOf = (ref) => { if (!footnotesByRef.has(ref)) footnotesByRef.set(ref, footnoteLeads(byRef.get(ref) ?? {})); return footnotesByRef.get(ref); };
   if (!Number.isFinite(maxFetches)) throw new TypeError("ranke.chaseLedger: maxFetches is declared by the caller (P9)");
@@ -392,7 +456,7 @@ export async function chaseLedger(log, door, pages, { fetchFace, search = null, 
     const merged = { citing: refs.length > 0, links: refs.flatMap((r) => leads(r).links), quotes: refs.flatMap((r) => leads(r).quotes) };
     const fn = { byNumber: new Map() };
     for (const ref of refs) for (const [k, v] of footnotesOf(ref).byNumber) fn.byNumber.set(k, [...(fn.byNumber.get(k) ?? []), ...v]);
-    const r = await chase(next, door, n, { leads: merged, fetchFace: cachedFetch, search: budgetedSearch, consult, recipe, witness, footnotes: fn });
+    const r = await chase(next, door, n, { leads: merged, fetchFace: cachedFetch, search: budgetedSearch, consult, recipe, witness, footnotes: fn, afterOf });
     next = r.log;
     chased.push({ noteId: n.id, note: `${n.subject} —${n.verb}→ ${n.object}`, leads: { links: merged.links.length, quotes: merged.quotes.length }, searched: r.searched, consulted: r.consulted, attested: r.attested, ...(r.refused ? { refused: r.refused } : {}) });
     if (fetches >= maxFetches && r.consulted.length && r.consulted.every((c) => c.gap?.type === "budget")) break;

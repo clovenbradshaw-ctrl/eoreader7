@@ -6,7 +6,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync, existsSync } from "node:fs";
 import { makeHyperlexicon } from "./hyperlexicon.js";
-import { RANKE, PRIMARY_KIND, QUOTE_MIN_WORDS, claimOfNote, primaryWitness, standsOnAccountsOnly, leadsOf, footnoteLeads as leadsOfFootnotes, footnoteLeadsForNote, markersIn, chase, chaseLedger } from "./ranke.js";
+import { RANKE, PRIMARY_KIND, QUOTE_MIN_WORDS, claimOfNote, primaryWitness, standsOnAccountsOnly, leadsOf, footnoteLeads as leadsOfFootnotes, footnoteLeadsForNote, markersIn, markersOfSpan, documentMatches, archiveAddressFor, chase, chaseLedger } from "./ranke.js";
 import { kindOfWitness, sourceOfWitness } from "../kernel/notes.js";
 import { distinctSources, independentReadings } from "./corroboration.js";
 import { witnessSlice, siblingSwap, foldTestimony, buildSelectMessages, foldSelect } from "./testimony.js";
@@ -43,6 +43,11 @@ const html = readFileSync(`${FIX}/wikipedia-battle-of-austerlitz.html`, "utf8");
 const hl = makeHyperlexicon({ createTaskLog: nativeTaskLog.createTaskLog, append: nativeTaskLog.append, projectTasks: nativeTaskLog.projectTasks, ENTRY_KINDS: nativeTaskLog.ENTRY_KINDS, OPERATOR_BASIS: nativeTaskLog.OPERATOR_BASIS, GRAINS, cellOf });
 const PAGE = "wikipedia-battle-of-austerlitz.html";
 const pages = [{ ref: PAGE, html, host: "en.wikipedia.org", text: "" }];
+
+// A served face carries the citation's own title words, as the cited
+// document does — the identity check (documentMatches) reads them; a stub
+// face without them is, correctly, the wrong document.
+const titled = (url, text, links) => `${(links ?? []).find((l) => l.url === url)?.text ?? ""} ${text}`;
 
 const ledger = () => {
   let log = hl.createHyperlexicon({ frame: { reader: "test", walls: true } });
@@ -102,9 +107,9 @@ test("chase by link: the stating primary attests the note with an addressed prim
   let i = 0;
   const fetchFace = async (url) => {
     i += 1;
-    if (i === 1) return { text: faces.stating, url, host: "archive.org", path: "/faces/1.txt" };
+    if (i === 1) return { text: titled(url, faces.stating, leads.links), url, host: "archive.org", path: "/faces/1.txt" };
     if (i === 2) return { gap: { type: "http", status: 503 } };
-    return { text: faces.silent, url, host: "example.edu", path: "/faces/3.txt" };
+    return { text: titled(url, faces.silent, leads.links), url, host: "example.edu", path: "/faces/3.txt" };
   };
   // no witness injected: the lead is REPORTED and nothing lands
   i = 0;
@@ -129,7 +134,7 @@ test("chase by link: the stating primary attests the note with an addressed prim
   const w = r.attested[0];
   assert.match(w, /^primary:archive\.org#\d+-\d+~ranke-v1$/);
   const [start, end] = w.slice(w.indexOf("#") + 1, w.indexOf("~")).split("-").map(Number);
-  assert.equal(faces.stating.slice(start, end), "Napoleon defeated the armies of the Third Coalition at Austerlitz on 2 December.", "the address reproduces the stating sentence (P5.2)");
+  assert.equal(titled(r.consulted[0].url, faces.stating, leads.links).slice(start, end), "Napoleon defeated the armies of the Third Coalition at Austerlitz on 2 December.", "the address reproduces the stating sentence in the served face (P5.2)");
   const after = hl.foldWithStanding(r.log).find((n) => n.id === note.id);
   assert.equal(after.sources, 2);
   assert.deepEqual(after.kinds, { sighting: 1, primary: 1 });
@@ -173,7 +178,8 @@ test("chaseLedger: one face is read once across notes, budgets are declared and 
   const log = ledger();
   const face = "Napoleon defeated the armies of the Third Coalition at Austerlitz. Kutuzov commanded the Allied army that day.";
   let fetches = 0;
-  const fetchFace = async (url) => { fetches += 1; return { text: face, url, host: "archive.org", path: "/f" }; };
+  const links = leadsOf(pages[0]).links;
+  const fetchFace = async (url) => { fetches += 1; return { text: titled(url, face, links), url, host: "archive.org", path: "/f" }; };
   const r = await chaseLedger(log, hl, pages, { fetchFace, maxFetches: 2, consult: 1, witness: stubWitness(["Napoleon defeated the Third Coalition", "Kutuzov commanded the Allied army"]) });
   assert.equal(r.witnessed, true);
   assert.equal(r.notesConsidered, 2);
@@ -196,7 +202,7 @@ test("chaseLedger: one face is read once across notes, budgets are declared and 
   // a face that is one long sentence naming everything DOES attest the
   // redeal — containment is not a verdict, which is why the control is
   // reported beside the number and the witness tier judges the sentence
-  const glued = async (url) => ({ text: face.replace(". ", ", and "), url, host: "archive.org" });
+  const glued = async (url) => ({ text: titled(url, face.replace(". ", ", and "), links), url, host: "archive.org" });
   // a witness that (wrongly) declares the redealt claim stated DOES land it
   // on the glued face — the landing is exactly as good as the witness's read,
   // which is why the live witness is a model and the control is reported
@@ -226,7 +232,7 @@ test("footnote binding: a marker in the prose is an in-page link to one numbered
   assert.deepEqual(footnoteLeadsForNote({ spans: [{ text: "[ 139 ] At 02:51 Armstrong began his descent." }] }, { byNumber: new Map() }), []);
   // pick a numbered note that DOES link out, and a span carrying its marker
   const [num] = fn.byNumber.keys();
-  const note = { subject: "Armstrong", verb: "began", object: "his descent to the lunar surface", end1: "Armstrong", end2: "his descent to the lunar surface", witnesses: ["apollo#1-2~r"], spans: [{ ref: "apollo", at: "apollo#1-2", text: `[ ${num} ] At 02:51 Armstrong began his descent to the lunar surface.` }] };
+  const note = { subject: "Armstrong", verb: "began", object: "his descent to the lunar surface", end1: "Armstrong", end2: "his descent to the lunar surface", witnesses: ["apollo#1-2~r"], spans: [{ ref: "apollo", at: "apollo#1-2", text: `At 02:51 Armstrong began his descent to the lunar surface. [ ${num} ]` }] };
   const bound = footnoteLeadsForNote(note, fn);
   assert.ok(bound.length >= 1, "the note's own footnote binds to at least one outbound link");
   assert.equal(bound[0].footnote, num);
@@ -240,4 +246,30 @@ test("footnote binding: a marker in the prose is an in-page link to one numbered
   const r = await chase(log, hl, n, { leads: leadsOf(pg), footnotes: fn, fetchFace: async (u) => { urls.push(u); return { gap: { type: "x" } }; }, consult: 2 });
   assert.equal(r.consulted[0].via, "footnote");
   assert.equal(urls[0], bound[0].url);
+});
+
+test("a marker at the start of a span is the previous sentence's; the sentence's own marker trails it — and a fetched face that lacks the citation's title words is the wrong document, so the archive copy is read", async () => {
+  assert.deepEqual(markersOfSpan("[ 139 ] At 02:51 Armstrong began his descent.", "[ 140 ] Aldrin followed."), [140], "the leading marker is excluded, the trailing one (in the text after the span) is this sentence's");
+  assert.deepEqual(markersOfSpan("Aldrin joined Armstrong on the surface. [ 152 ]", ""), [152]);
+  assert.deepEqual(markersOfSpan("[ 5 ] plain sentence", "no marker follows"), []);
+  const cite = `"The Apollo Lunar Surface Journal: Apollo 11 landing transcript". NASA History. Retrieved 2024.`;
+  assert.equal(documentMatches("Explore the Apollo Lunar Surface Journal and Apollo Flight Journal to discover detailed historical resources.", cite).matches, true);
+  assert.equal(documentMatches("NASA's Dark Universe-Seeking Nancy Grace Roman Space Telescope Launches", cite).matches, false);
+  assert.equal(documentMatches("anything", "NASA").matches, null, "a citation with fewer than three content words cannot be checked");
+  assert.equal(archiveAddressFor("https://hq.nasa.gov/alsj/a11/a11.landing.html"), "https://web.archive.org/web/2/https://hq.nasa.gov/alsj/a11/a11.landing.html");
+  // in chase: a bound lead whose face is another document → the archive copy is fetched and read
+  const fn = { byNumber: new Map([[7, [{ url: "https://hq.nasa.gov/alsj/a11/a11.landing.html", host: "hq.nasa.gov", text: cite, index: 0, structuralClass: "other", overlap: 0 }]]]) };
+  let log = hl.createHyperlexicon({ frame: { reader: "test" } });
+  log = hl.hear(log, { subject: "Aldrin", verb: "joined", object: "Armstrong on the surface", witness: "apollo#1-2~r", spans: [{ ref: "apollo", at: "apollo#1-2", text: "Aldrin joined Armstrong on the surface. [ 7 ]" }] });
+  const [n] = hl.foldHyperlexicon(log);
+  const fetched = [];
+  const fetchFace = async (u) => { fetched.push(u); return /web\.archive\.org/.test(u)
+    ? { text: "Apollo Lunar Surface Journal. Apollo 11 landing transcript. Aldrin joined Armstrong on the surface at 109:43, and Houston acknowledged. Collins circled above.", url: u, host: "hq.nasa.gov" }
+    : { text: "NASA's Dark Universe-Seeking Nancy Grace Roman Space Telescope Launches. Explore missions.", url: "https://www.nasa.gov/", host: "nasa.gov" }; };
+  const r = await chase(log, hl, n, { leads: { citing: true, links: [], quotes: [] }, footnotes: fn, fetchFace, consult: 2, witness: stubWitness(["Aldrin joined Armstrong on the surface"]) });
+  assert.equal(fetched.length, 2, "the portal face failed the identity check, so the archive address was read");
+  assert.match(fetched[1], /^https:\/\/web\.archive\.org\/web\/2\//);
+  assert.equal(r.consulted[0].viaArchive, true);
+  assert.equal(r.consulted[0].snipsFound, 1);
+  assert.equal(r.attested.length, 1);
 });
