@@ -314,7 +314,19 @@ export function makeNotes({ taskLog = nativeTaskLog, cellOf = nativeCellOf, iden
         joins = prior?.joins ?? [];
         unbridged = prior?.unbridged ?? { of: baseId, from: crossing.from, reason: refusal.reason ?? "bridge_refused", detail: refusal.detail ?? null };
       } else {
-        joins = [...joins, { source: incomingSource, from: crossing.from, assumed: [prior.end1, prior.end2], basis: crossing.basis, standing: "assumed" }];
+        joins = [...joins, {
+          source: incomingSource, from: crossing.from, assumed: [prior.end1, prior.end2],
+          // The prior side already has a face (`assumed`, above — the
+          // established note's own display). Step 1 dropped the INCOMING
+          // side's own face and spans the moment `bridge()` returned, so a
+          // bridge could be COUNTED but never actually SHOWN — two ends,
+          // one recorded. `crossing.incoming` already carried both; this
+          // keeps them, so `native/organs/bridges.js` (step 2) has a real
+          // correspondence to record, not a fabricated one.
+          incomingEnds: { end1: end1Face || end1, end2: end2Face || end2 },
+          incomingSpans: crossing.incoming.spans,
+          basis: crossing.basis, standing: "assumed",
+        }];
       }
     }
     const witnesses = [...new Set([...(prior?.witnesses ?? []), ...(witness ? [witness] : [])])];
