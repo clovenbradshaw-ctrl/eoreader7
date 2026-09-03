@@ -1,0 +1,373 @@
+Search
+
+Institution Login
+
+Search
+
+Hostname: page-component-5d84bcc8dc-z9l2z
+Total loading time: 0
+Render date: 2026-09-02T09:45:18.970Z
+Has data issue: false
+hasContentIssue false
+
+- Home
+
+- > Journals
+
+- > Publications of the Astronomical Society of Australia
+
+- > Volume 18 Issue 3
+
+- > On Eagle's Wings: The Parkes Observatory's Support...
+
+- English
+
+-
+Français
+
+Publications of the Astronomical Society of Australia
+
+Article contents
+
+- Abstract
+
+- References
+
+On Eagle's Wings: The Parkes Observatory's Support of the Apollo 11 Mission
+
+Published online by Cambridge University Press:
+05 March 2013
+
+John M. Sarkissian
+
+Show author details
+
+John M. Sarkissian*
+Affiliation:
+CSIRO ATNF Parkes Observatory, PO Box 276, Parkes NSW, 2870, Australia; jsarkiss@atnf.csiro.au
+
+- Article
+
+- Metrics
+
+Article contents
+- Abstract
+
+- References
+
+Save PDF
+
+Save PDF (0.53 mb)
+View PDF
+[Opens in a new window] Save to Dropbox Save to Google Drive Save to Kindle
+
+Share
+
+Cite Rights & Permissions
+[Opens in a new window]
+
+Abstract
+
+Core share and HTML view are not available for this content. However, as you have access to this content, a full PDF is available via the 'Save PDF' action button.
+
+At 12:56 p.m., on Monday 21 July 1969 (AEST), six hundred million people witnessed Neil Armstrong's historic first steps on the Moon through television pictures transmitted to Earth from the lunar module, Eagle . Three tracking stations were receiving the signals simultaneously. They were the CSIRO's Parkes Radio Telescope, the Honeysuckle Creek tracking station near Canberra, and NASA's Goldstone station in California. During the first nine minutes of the broadcast, NASA alternated between the signals being received by the three stations. When they switched to the Parkes pictures, they were of such superior quality that NASA remained with them for the rest of the 2-hour moonwalk. The television pictures from Parkes were received under extremely trying and dangerous conditions. A violent squall struck the telescope on the day of the historic moonwalk. The telescope was buffeted by strong winds that swayed the support tower and threatened the integrity of the telescope structure. Fortunately, cool heads prevailed and as Aldrin activated the TV camera, the Moon rose into the field-of-view of the Parkes telescope. This report endeavours to explain the circumstances of the Parkes Observatory's support of the Apollo 11 mission, and how it came to be involved in the historic enterprise.
+
+Keywords
+
+history and philosophy of astronomy radio astronomy
+
+Information
+
+Type
+
+Research Article
+
+Information
+
+Publications of the Astronomical Society of Australia
+
+,
+Volume 18
+
+,
+Issue 3
+, 2001 , pp. 287 - 310
+
+DOI: https://doi.org/10.1071/AS01038
+[Opens in a new window]
+
+NASA ADS Abstract Service
+[Opens in a new window]
+
+Copyright
+
+Copyright © Astronomical Society of Australia 2001
+
+References
+
+Bolton , J. G.
+1973 , ‘Support of the Apollo Missions to the Moon’. CSIRO Division of Radiophysics brochure on Research Activities 1973 Google Scholar
+
+Goddard , D. E. , & Haynes , R. (Editors). 1994 , ‘ Pioneering a New Astronomy: Papers in memory of John G. Bolton ”. Australian Journal of Physics Vol. 47 , Number 5
+Google Scholar
+
+Goddard , D. E. , & Milne , D. K. (Editors). 1994 , ‘Parkes: Thirty Years of Radio Astronomy” . (John Bolton”s account of the Apollo Missions, pp. 134 – 137 .) ( Melbourne : CSIRO Publishing ) Google Scholar
+
+Kelly , H. W.
+1969 , ‘Apollo Mission Communications: Said the Spider in the Sky”. Electronics Australia, August 1969 Google Scholar
+
+Lindsay , H. , ‘Tracks to the Moon”. Extracts from Hamish Lindsay”s unpublished book received by the author in 1998 Google Scholar
+
+NASA , 1969 , ‘Apollo II Lunar Landing Mission Press Kit”. NASA Release No.: 69–83K Google Scholar
+
+Robertson , P. , 1992 , ‘Beyond Southern Skies: Radio Astronomy and the Parkes Telescope” ( Cambridge: Cambridge University Press ) Google Scholar
+
+You have
+Access
+
+9
+Cited by
+
+Cited by
+
+Loading...
+
+Cited by
+
+-
+
+9
+
+-
+
+Crossref Citations
+
+This article has been cited by the following publications. This list is generated based on data provided by
+Crossref .
+
+Spennemann, Dirk H.R.
+2004.
+The ethics of treading on Neil Armstrong's footprints .
+
+Space Policy,
+Vol. 20,
+Issue. 4,
+
+p.
+279.
+
+- CrossRef
+
+- Google Scholar
+
+Spennemann, Dirk H.R.
+2005.
+The naval heritage of the US space programme: A case of losses .
+
+Journal for Maritime Research,
+Vol. 7,
+Issue. 1,
+
+p.
+170.
+
+- CrossRef
+
+- Google Scholar
+
+Spennemann, Dirk H. R.
+2006.
+Out of this World: Issues of Managing Tourism and Humanity’s Heritage on the Moon .
+
+International Journal of Heritage Studies,
+Vol. 12,
+Issue. 4,
+
+p.
+356.
+
+- CrossRef
+
+- Google Scholar
+
+Spennemann, Dirk H.R.
+2007.
+Extreme cultural tourism from Antarctica to the Moon .
+
+Annals of Tourism Research,
+Vol. 34,
+Issue. 4,
+
+p.
+898.
+
+- CrossRef
+
+- Google Scholar
+
+Serria, Elham
+
+Gadhafi, Rida
+
+AlMaeeni, Sara
+
+Mukhtar, Husameldin
+
+Copiaco, Abigail
+
+Abd-Alhameed, Raed
+
+Lemieux, Frederic
+and
+Mansoor, Wathiq
+2023.
+A Review of Lunar Communications and Antennas: Assessing Performance in the Context of Propagation and Radiation .
+
+Sensors,
+Vol. 23,
+Issue. 24,
+
+p.
+9832.
+
+- CrossRef
+
+- Google Scholar
+
+Spennemann, Dirk H. R.
+2023.
+Conceptualizing a Methodology for Cultural Heritage Futures: Using Futurist Hindsight to Make ‘Known Unknowns’ Knowable .
+
+Heritage,
+Vol. 6,
+Issue. 1,
+
+p.
+548.
+
+- CrossRef
+
+- Google Scholar
+
+Wang, Jie
+2024.
+Eye Beyond the Sky .
+
+p.
+17.
+
+- CrossRef
+
+- Google Scholar
+
+Holland, Travis A.
+2024.
+From Apollo to the ISS: The Televisual Image in Human Spaceflight .
+
+Television & New Media,
+Vol. 25,
+Issue. 1,
+
+p.
+57.
+
+- CrossRef
+
+- Google Scholar
+
+Lomb, Nick
+and
+Stevenson, Toner
+2024.
+Spreading across the continent: the Astronomical Society of Australia 1966–2023 .
+
+Historical Records of Australian Science,
+Vol. 36,
+Issue. 1,
+
+- CrossRef
+
+- Google Scholar
+
+Google Scholar Citations
+
+View all Google Scholar citations
+for this article.
+
+×
+
+Cancel
+
+Confirm
+
+×
+
+Save article to Kindle
+
+To send this article to your Kindle, first ensure no-reply@cambridge.org is added to your Approved Personal Document E-mail List under your Personal Document Settings on the Manage Your Content and Devices page of your Amazon account. Then enter the ‘name’ part of your Kindle email address below. Find out more about sending to your Kindle.
+Find out more about saving to your Kindle .
+
+Note you can select to save to either the @free.kindle.com or @kindle.com variations. ‘@free.kindle.com’ emails are free but can only be saved to your device when it is connected to wi-fi. ‘@kindle.com’ emails can be delivered even when you are not connected to wi-fi, but note that service fees apply.
+
+Find out more about the Kindle Personal Document Service.
+
+On Eagle's Wings: The Parkes Observatory's Support of the Apollo 11 Mission
+
+- Volume 18, Issue 3
+
+-
+John M. Sarkissian (a1)
+
+- DOI: https://doi.org/10.1071/AS01038
+
+Cancel
+
+Save
+
+×
+
+Save article to Dropbox
+
+To save this article to your Dropbox account, please select one or more formats and confirm that you agree to abide by our usage policies. If this is the first time you used this feature, you will be asked to authorise Cambridge Core to connect with your Dropbox account.
+Find out more about saving content to Dropbox .
+
+On Eagle's Wings: The Parkes Observatory's Support of the Apollo 11 Mission
+
+- Volume 18, Issue 3
+
+-
+John M. Sarkissian (a1)
+
+- DOI: https://doi.org/10.1071/AS01038
+
+Cancel
+
+Save
+
+×
+
+Save article to Google Drive
+
+To save this article to your Google Drive account, please select one or more formats and confirm that you agree to abide by our usage policies. If this is the first time you used this feature, you will be asked to authorise Cambridge Core to connect with your Google Drive account.
+Find out more about saving content to Google Drive .
+
+On Eagle's Wings: The Parkes Observatory's Support of the Apollo 11 Mission
+
+- Volume 18, Issue 3
+
+-
+John M. Sarkissian (a1)
+
+- DOI: https://doi.org/10.1071/AS01038
+
+Cancel
+
+Save
+
+×
+
+×
+
+Reply to:
+
+Submit a response

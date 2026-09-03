@@ -1,0 +1,976 @@
+305 captures
+
+17 Jun 1997 - 31 Aug 2026
+
+Jan
+FEB
+Mar
+
+25
+
+2013
+2014
+2015
+
+success
+
+fail
+
+About this capture
+
+COLLECTED BY
+
+Organization: Alexa Crawls
+
+Starting in 1996, Alexa Internet has been donating their crawl data to the Internet Archive. Flowing in every day, these data are added to the Wayback Machine after an embargo period.
+
+Collection: Alexa Crawls
+
+Starting in 1996, Alexa Internet has been donating their crawl data to the Internet Archive. Flowing in every day, these data are added to the Wayback Machine after an embargo period.
+
+TIMESTAMPS
+
+The Wayback Machine - https://web.archive.org/web/20140225025455/http://www.hq.nasa.gov:80/alsj/a11/a11.clsout.html
+
+EASEP Deployment and Closeout
+
+Corrected Transcript and Commentary Copyright © 1995 by Eric M. Jones .
+
+All rights reserved.
+
+Scan credits in the Image Library .
+
+Video credits in the Video Library .
+
+Last revised 11 July 2013.
+
+Apollo 11 mp3 clips produced by Ken Glover from files provided by John Stoll, ACR (Audio Control Room) Senior Technician at NASA Johnson.
+
+Restored Video Clip 2 minutes 41 seconds ( 3.8 Mb FLV or 4.2 Mb AVI ). May require VLC for playback.
+
+MP3 Audio Clip
+(46 min 16 sec; 42 Mb) from the Public Affairs loop starting at about 110:52:53. Clip courtesy John Stoll, ACR Senior Technician at NASA Johnson.
+
+110:52:57 Aldrin: Can you see us underneath the LM over at the SEQ bay, Houston?
+
+110:53:00 McCandless: Yes indeed, Buzz. We can see your feet sticking out underneath the structure of the LM descent stage.
+
+[Neil bobs briefly to one knee. During the 1991 mission review, we considered the possibility that Neil was taking pictures - either of the Earth or Hasselblad close-ups of the east footpad. However, at that time none of us realized that, at 110:51:29 , Buzz had said that he was taking a stereopair just before giving the Hasselblad to Neil. It is very difficult to pick Buzz's words out of the static but I now have no doubt about the statement or about the conclusion that Buzz took AS11-40- 5925
+and 5926 . Because frame 5927 is a picture of Buzz off-loading the EASEP, I conclude that Neil is probably going to one knee to pick something up off the ground, possibly the Gold camera as he says in the section of the Technical Debrief reproduced after 110:45:03 .]
+
+110:53:08 Aldrin: Okay. I'm just on the other side of the...
+
+110:53:13 McCandless: Now we can see you (actually Neil)...
+
+110:53:14 Aldrin: ...of the Solar Wind.
+
+110:53:14 McCandless: ...through the structure of the minus-Z (east) secondary strut. (Pause)
+
+[Neil moves behind the LM to take pictures of the EASEP off-load . Buzz comes into view as he pulls a tape which raises the horizontally-hinged, main door. There is a smaller, vertically hinged door on the left, which he opened first. Diagrams on page 58 of Scott Sullivan's Virtual LM illustrate the way the door is hinged. Additonal details can be found on pages 38 to 47.]
+
+110:53:38 Aldrin: All right. The doors are open, and it looks like they are going to stay up without any problem. (Pause)
+
+[Aldrin, from the 1969 Technical Debrief - "Taking the cover off the lanyard (tape) was very easy. It pulled away and didn't seem to have any thermal or blast effects on it. Underneath the EASEP, the (landing) radar looked like it came through without any heat damage that I could tell. When (the doors) folded out, (they) went up even easier than the trainer. As the top door folded back, it didn't seem to fall into a detent and I tugged on it a couple of times. It looked like it was going to stay up there without any tendency to come back down again."]
+
+[Neil's first two pictures of Buzz preparing to offload the passive seismometer from the lefthand compartment of the SEQ Bay are AS11-40- 5927 and
+5928 .]
+
+[The next frame, 5929 , shows Buzz draping a tape over the lefthand SEQ Bay door.]
+
+[Journal Contributor Yuri Krasilnikov has created a three-frame movie ( 0.6 Mb ).
+
+110:53:46 McCandless: Columbia, Columbia, this is Houston. We are about to lose you on the Omnis. Request high-gain antenna, REACQ mode; pitch 20, yaw 135. Over.
+
+110:54:03 Aldrin: You want to pick an area, Neil?
+
+[That is, pick an area to deploy the scientific gear.]
+
+110:54:05 McCandless: (To Mike) Make that yaw 175. Columbia, yaw 175 on the high gain.
+
+110:54:14 Collins: Columbia's locked up on the high gain, Houston.
+
+110:54:16 McCandless: Roger. Out.
+
+[Comm Break]
+
+Restored Video Clip 3 minutes 31 seconds ( 4.4 Mb FLV or 5.2 Mb AVI ). May require VLC for playback.
+
+RealVideo Clip ( 3 min 27 sec )
+
+[Neil comes into view to the left of the spacecraft and puts the Gold camera down, out of the way. He then turns to face Buzz who is removing the seismometer from the SEQ Bay. We can see Buzz's feet and legs under the spacecraft, beyond the left edge of the descent engine bell.]
+
+110:55:42 Aldrin: Houston, the passive seismometer ( PSEP , Passive Seismic Experiment Package) has been deployed manually (as per checklist ).
+
+110:55:49 McCandless: Roger. (Long Pause)
+
+[The experiment packages were attached to a boom-mounted rail and Buzz had the option of using tapes to slide the packages out of the SEQ Bay and then lower them to the surface. Training photo 69-H-675 shows Buzz using the tapes to get the LRRR out of the righthand compartment.]
+
+[Aldrin, from the 1969 Technical Debrief - "In an effort to save some time, I elected to deploy both packages manually. I pulled the seismometer a few inches, disengaged the hook, disconnected it from the top, and slid it out. I was unable to toss the lanyard over the side door to keep it out of the way, so it did come down from the boom and had a tendency to get in the way. The package itself was quite easy to manage. I had my left hand on the handle and moved the right hand around to support the weight as it slid off the rails. It was disengaged quite easily from the boom at the pip pin. I had it down on the surface; and, then, to get ample maneuvering room to get the retro-reflector down, I decided that I wanted to move the seismometer away. However, there happened to be a small crater right there, so I had to move it (the seismometer) maybe 10 feet away and come back. Remember, it didn't seem to be a good place to set that seismometer down, other than right in front. It appeared to be in my way a little bit."]
+
+[Neil's photo AS11-40- 5929 shows Buzz removing the seismometer from the SEQ Bay.]
+
+[As can be seen at the left edge of the TV frame, after taking Buzz's picture, Neil takes a pan , turning clockwise between images, as indicated in his checklist .]
+
+Pan 4: 5930 to 5941 )
+
+110:56:30 Aldrin: And (on) the manual deployment of the LR cubed, the little spring that is at the end of the string pulled off of the pip pin. However, I was able to reach up and get hold of the pip pin and pull it loose. So, it will be deployed manually, also.
+
+110:56:51 McCandless: Roger. (Pause)
+
+[The LR-cubed is the Laser Ranging Retro-Reflector or LRRR, which will give experimenters on Earth a means of accurately measuring the distance between their telescopes and the LR-cubed. A series of distance measurements will yield important information about the Moon's motions, will
+provide tests of the theory of General Relativity, and will even provide information on internal motions in the Earth and Moon. LRRRs were also deployed by the Apollo 14 and 15 crews. As of February 2005, the retroreflectors were still being used in conjunction with a dedicated facility at the McDonald Observatory in Texas. In March 2005, a Jet Propulsion Laboratory Team announced that the array of retroreflectors - including a French array landed on the Soviet Lunokhod 2 rover - had been used to confirm Eistein's Strong Equivalence Principle (that all types of matter accelerate at the same rate in a gravitational field) to twice the accuracy previously achieved by any method and the time-invariance of Newton's gravitational constant to ten times previous accuracy.]
+
+[Aldrin, from the 1969 Technical Debrief - "In pulling out the laser package, I used the same technique, pulling out a few inches, then disconnecting the lanyard from the package itself, then pulling the string that was attached to the pip pin. In training sessions , I had pulled this one rather slowly and firmly and had a few problems with the pip pin binding. The recommendation was to give it a fairly good jerk. When I did this, the wire ring that attached the cord itself to the pip pin sprung open. Either it was a welded joint that separated, or thermal effects somehow weakened it; but it opened up and came loose from the pin. I was able to get the pin out by depressing the one side. Then by pushing it with my right hand and pushing it through, it came loose. Then I lowered it down to the surface and, again, it was quite easy to handle."]
+
+110:57:05 Armstrong: And the panorama is complete. I'm at about the LM 7:30 position (SE) at about 60 feet. (Long Pause)
+
+[Armstrong - "I say that I'm at about the LM 7:30 position, and this is the LM 7:30 position here in photograph (AS11-40- 5931 ). So it appears as though the panorama to which I am addressing at 57:05 was the panorama which started with
+5930 and went through maybe 5941 ."]
+
+[After finishing the pan, Neil goes over to the Gold camera and picks it up so that he can take it out to the EASEP deployment site.]
+
+110:57:39 Aldrin: And the doors are closed and locked.
+
+110:57:43 McCandless: Roger. (Pause)
+
+[Buzz has closed the doors to keep out sunlight which, otherwise, would heat the interior of the Descent Stage.]
+
+[Aldrin, from the 1969 Technical Debrief - "The boom slid back in with no problem. I left the lanyards dangling out the bottom, pulled the (door) retract lanyards, and the doors came back down and fitted together very nicely. The whole operation was quite smooth and I thought we got a little bit ahead in time in the deployment of these things."]
+
+110:57:50 Aldrin: (To Neil) Okay; have you got us a good area picked out?
+
+110:57:53 Armstrong: Well, I think right out on that rise out there is probably as good as any. (Pause)
+
+[Aldrin, from the 1969 Technical Debrief - "I picked up the two packages and we headed out to the minus-Y strut looking for a relatively level area."]
+
+110:58:06 Aldrin: Right over here?
+
+110:58:08 Armstrong: Let's probably stay on the high ground there and...(Pause)
+
+110:58:16 Aldrin: Watch it. The edge of that crater is really soft.
+
+110:58:19 Armstrong: Yeah; that's real soft there, isn't it?
+
+[Buzz is coming into view past the right edge of the LM. Neil's picture of Buzz carrying the EASEP past this crater is AS11-40-
+5942 .]
+
+110:58:24 Aldrin: (To Neil) Get a couple of close-ups on these quite rounded, large boulders. (Long Pause)
+
+[AS11-40- 5943 shows the rounded boulders. After taking 5943, Neil steps to his left to get a stereo companion, which is
+5944 . He may have taken a Hasselblad stereopair to document the location of the boulders.]
+
+110:58:44 Armstrong: About 40 feet out; I'd say out at the end of that next...
+
+110:58:50 Aldrin: Well, it's going to be a little difficult to find a good level spot here.
+
+[Aldrin, from the 1969 Technical Debrief - "Looking for level areas, I found it difficult in looking down at the surface and saying exactly what was level. I don't know what to attribute this to, particularly. You don't have as good a horizon definition as on the Earth. When you look out to the side, you've got a very flat area on the Moon. When you look out to the edges, you've got varying slopes. I think it's further compounded by the fact that, with one-sixth g and a center of mass displaced considerably aft and up from where it normally is (because of the backpack), your physical cues of supporting your weight are different. The result was that it was just a little bit difficult to tell what was level and what was sloping, either to one side or up and down."]
+
+[Armstrong, from the 1969 Technical Debrief - "You don't have as strong a gravity indication either, I don't think."]
+
+[Aldrin, from the 1969 Technical Debrief - "Yes. It doesn't have as firm an orientation."]
+
+110:58:55 Armstrong: The top of that next little ridge there. Wouldn't that be a pretty good place? (Pause)
+
+[As Buzz moves off-camera to the right, Neil comes into view beyond the plus-Z strut. He is carrying the close-up camera out in front. When he gets to the boulders Buzz mentioned at 110:58:24, he stops briefly, probably to examine with the eye of a well-trained geologic observer, but doesn't appear to use the Gold Camera.]
+
+[Armstrong - "There was some discussion about the possibility of moving the television position during this sequence; and the conclusion, as I remember it, was that you didn't gain that much and it took time. Initially we had a number of positions that were candidate positions for the TV tripod and, at some point in time, it was concluded that just finding one position that would get the majority of the action was probably the best conclusion."]
+
+Restored Video Clip 3 minutes 48 seconds ( 4.8 Mb FLV or 5.6 Mb AVI ). May require VLC for playback.
+
+110:59:03 Aldrin: Okay; how about I put the LR-cubed right about here?
+
+110:59:07 Armstrong: All right. (Pause) Right about...
+
+110:59:12 Aldrin: I'm going to have to get on the other side of this rock here. (Pause)
+
+[In the TV record, during his next transmission Neil stops about 2-3 meters past the place where Buzz was at 110:58:24 when he mentioned the boulders. Here, Neil may use the Apollo Lunar Surface Close-up Camera (ALSCC or Gold Camera) to take some images of boulder surfaces, possibly AS11-45- 6709 and 10 . He may also take 6712 in the same area, apparently a close-up image of a small, rounded rock. The close-up camera images are 3 inches (7.6 cm) across, so the visible dimensions of the rounded rock in 6712 are about 2 by 2.5 inches (5 by 6.4 cm). For some unknown reason, there is no image numbered 6711.]
+
+110:59:19 Armstrong: I would go right around that crater to the left there. Isn't that a level spot there?
+
+110:59:25 Aldrin: I think this right here is just as level.
+
+110:59:28 Armstrong: Okay. (Long Pause)
+
+[At about this time, Neil takes AS11-40- 5945 , which shows Buzz just after he put the LR-cubed down on the surface and moved off to the left with the seismometer.]
+
+[Neil moves toward Buzz and then stops for about 16 seconds at the edge of the TV field-of-view. His next comment comes as he moves out of the field-of-view and suggests that he was examining another boulder. We know from the Hasselblad images he took to document the EASEP deployment that, while he was deploying the LR-Cube and taking the documentation photos, he left the close-up camera standing upright on a boulder about 2 meters northeast of the LR-Cubed and, therefore, just out of the TV field-of-view. This suggests the strong possibility that this boulder is the subject of the final close-up camera images, AS11-45- 6713 and 14 .]
+
+111:00:01 Armstrong: (Garbled) boulders look like basalt, and they have probably two percent white minerals in them - white crystals. And the thing that I reported as the vesicular before, I don't believe I believe that any more. I think it's small craters; they look like little impact craters where BB shot has hit the surface.
+
+[These are the "zap-pits" of later missions. They are, indeed, tiny craters formed by the impact of micrometeorites. ALSCC image 6713 contains a prominent example at the upper right while 6709 contains several smaller examples, including one immediately below the white inclusion. At 111:22:34, Neil will recognize and collect samples of genuinely vesicular basalt.]
+
+[Comm Break]
+
+[The checklists indicate that, while Buzz deploys the seismometer, Neil will deploy the EASEP or, more accurately, the laser reflector and take photos of both deployments.]
+
+RealVideo Clip ( 2 min 47 sec )
+
+111:02:08 Aldrin: Houston. I have the seismic experiment flipped over now, and I'm aligning it with the Sun; (but) I'm having a little bit of difficulty getting the BB (to) go in the center. It wants to move around and around on the outside. (Garbled)
+
+111:02:34 McCandless: You're cutting out again, Buzz. (Long Pause)
+
+Restored Video Clip 2 minutes 52 seconds ( 3.7 Mb FLV or 4.4 Mb AVI ). May require VLC for playback.
+
+111:02:49 Aldrin: Roger. I say I'm not having too much success in leveling the PSE experiment.
+
+[Comm Break]
+
+[AS11-40- 5946 is a picture of Buzz as he uses a handle on the seismometer to try to get the experiment leveled and aligned. In order to level the seismometer, he simply moves it around on the uneven surface, pushing dirt aside when necessary, until the small ball (BB) is centered in the cup that holds it. To get proper alignment, he makes sure that the shadow cast by a small gnomon on the top of the package falls on a predetermined mark. See, also, a labelled drawing with dimensions provided by Allan Needell of the National Air and Space Museum.]
+
+[Aldrin, from the 1969 Technical Debrief - "In going through the numbers of pulling the little lanyards, everything progressed as neat as can be. The handle deployed upward and rotated around, even though I wasn't able to see it fit into its slot. This is the maneuvering handle on the PSEP (Passive Seismic Experiment Package). I might point out that the flight article was different in configuration than the training package, the difference being that you couldn't see when the handle was out and locked in its detent as well on the flight package as you could on the training package. Anyway, this worked out quite well. Orienting the package in azimuth was quite easy. The shadow of the gnomon stood out quite well in our session in the lab with the flight packages. We had had some concern as to just how well this shadow was going to stand out against this silver surface. However, all three of the pins in the gnomon were quite clear. I won't say they were a very crisp shadow, as there was a little bit of fuzziness to them (because of the finite size of the solar disk), but it was quite easy to determine where the center of it was and get it oriented at the 45-degree mark."]
+
+[Aldrin, from the 1969 Technical Debrief - "The big problem arose in trying to get the BB to settle down into the center of its little cup. It seemed to want to find a home away from me at about 11 o'clock as I faced the package. I would try to push it (the package) down to get it (the BB) to rotate around, and it would move away from this position and start spinning around the outside. Try as I would to move it gradually away or push down on the package - away from where the bubble was - to get it to drift across, I was completely unsuccessful in getting the BB to find a home anywhere but along the perimeter."]
+
+111:03:57 Armstrong: The laser reflector is (pause) installed and the bubble is level and the alignment appears to be good.
+
+[Note that the two instruments have different level indicators. On later missions, all of the instruments will have level bubbles.]
+
+[Armstrong - "(If there was an antenna) it would have been on the seismic experiment. The LR-Cubed had no power in it. It had a gnomon and a bubble. The PSE had a BB and it had different alignment requirements."]
+
+111:04:16 McCandless: Neil, this is Houston. Roger. Out.
+
+111:04:23 Aldrin: (To Neil) Okay, you want to take a look at this BB and see what you make out of it? (Pause)
+
+111:04:30 Armstrong: I found it pretty hard to get perfectly level, too.
+
+[Armstrong, from the 1969 Technical Debrief - "It would have been nice to have a big rock table to set those packages on, but there wasn't any. The area where they were placed was a ridge between some shallow craters. I think we have reasonably good pictures of those ridges. They have this same kind of soil consistency as the surrounding area. The packages were in essentially soft material which allowed us to jiggle them down and get them reasonably well set into the sand, but there is no knowing whether they will stay there for a long period of time or might slowly settle."]
+
+[Aldrin, from the 1969 Technical Debrief - "I think that they retained their present position pretty well. When I decided that I wanted to change the slope of the package one way or another, I found that I had difficulty in getting it to sink down a little more on one side. Even by scraping it back and forth, I couldn't seem to lower one edge as much as I would have liked to have."]
+
+111:04:37 Aldrin: That BB likes the outside. It won't go on the inside. (Pause)
+
+111:04:48 Armstrong: That little cup is convex now, instead of concave.
+
+[That is, it is domed upward, rather than forming a bowl.]
+
+111:04:53 Aldrin: I think you're right.
+
+111:04:56 Armstrong: (I) believe it is.
+
+[Neil's next photo, AS11-40- 5946 , shows Buzz still trying to level the seismometer. Note that neither of the solar panels has deployed. Neil's footprints pass relataively near the seismometer on the left. His next photo, AS11-40- 5947 , which shows one of the solar panels open and, so, hasn't been taken yet, doesn't show any additional footprints, indicating that Neil looked at the BB before taking 5946. See, also, a labelled drawing of the PSEP .]
+
+111:04:57 Aldrin: Houston, I don't think there's any hope for using this leveling device to come up with an accurate level. It looks to me as though the cup here, that the BB is in, is now convex instead of concave. Over. (Pause)
+
+111:05:19 McCandless: Roger, 11. Press on. If you think it looks level by eyeball, go ahead.
+
+111:05:28 Aldrin: Okay. (Long Pause)
+
+[Aldrin, from the 1969 Technical Debrief - "As I would bend down and look at this thing, it just appeared that this cup - instead of being concave - had somehow changed its shape and was convex. It didn't appear that there was any hope of the BB ever being anywhere but along the edge, so I visually tried to level it as best I could. As I indicated before, that wasn't easy to do with any degree of confidence."]
+
+Restored Video Clip 5 minutes 02 seconds ( 6.5 Mb FLV or 7.2 Mb AVI ). May require VLC for playback.
+
+111:06:03 Armstrong: (Garbled) (Long Pause)
+
+111:06:20 Armstrong: There you go. Good work; good show. Hey, whoa; stop, stop! Back up. (Pause)
+
+[Neil may have taken AS11-40- 5947 at this point.]
+
+111:06:34 Aldrin: Houston, as I was facing the PSE (Passive Seismic Experiment), the right-hand solar array deployed automatically. The left-hand I had to manually (garbled) restraining bar at the far end. And all parts of the solar array are clear of the ground now.
+
+[Aldrin, from the 1969 Technical Debrief - "One of the
+two retaining structures that should have fallen away when you right the package - both should fall down, exposing the panels - failed. So I walked around the package and easily reached down with my finger and flicked it loose. It didn't require much force at all. When I deployed the panels, the left one came out and deployed completely; then, following another pull on the lanyard, the right one deployed. There was a certain amount of rocking motion and dancing around on the surface and the two deployed panels flung themselves around before finally settling down. During the process of doing this, I believe two of the four corners came in contact with the surface and picked up a light coating of surface material. I'd say that the triangle that was coated might have been 2 inches on one side and maybe one inch on the other - a very small triangle. So I don't think there was much (thermal) degradation at all on the surfaces with the particular coating. I made one final inspection and then I left it."]
+
+[After Buzz gets both solar panels deployed, Neil takes AS11-40- 5948 to 5951 to document the seismometer deployment.]
+
+[Journal Contributor Harald Kucharek notes that, in a detail from 5951 , we see Buzz's face and suggests that he is looking over at Neil.]
+
+111:07:02 McCandless: Buzz, this is Houston. I understand that you did successfully deploy both solar arrays. Over.
+
+111:07:10 Aldrin: Roger. That's affirmative. (Pause) And there isn't any way of telling whether that's lined up, without getting in the way; maybe I can get down here. (Pause)
+
+[Buzz appears at the right of the TV picture, running easily. He stops after a short distance and turns to look back at the seismometer to check on antenna pointing.]
+
+111:07:40 Well, that appears to be pointing (garbled) (Long Pause)
+
+[Buzz heads back to the seismometer and stops with just the back of his PLSS on the edge of the TV image.]
+
+[Aldrin, from the 1969 Technical Debrief - "I made one final inspection and, when I left it, the
+BB was still sitting on the edge."]
+
+[By this time, Neil is probably taken a documentation photo of the LR-cubed, AS11-40- 5952 . Note the close-up stereocamera perched on a rock in the background.]
+
+[Shortly before Bruce's next transmission, Buzz goes out of view to the right.
+
+111:08:08 McCandless: Neil, this is Houston. Over.
+
+111:08:13 Armstrong: Go ahead, Houston.
+
+111:08:15 McCandless: Roger. We've been looking at your consumables, and you're in good shape. Subject to your concurrence, we'd like to extend the duration of the EVA one-five (15) minutes from nominal. We will still give Buzz a hack at 10 minutes prior, for heading in. Your current elapsed time is 2 plus 12. Over.
+
+111:08:45 Armstrong: Okay. That sounds fine.
+
+111:08:47 McCandless: Roger. Out. (Long Pause) Buzz, this is Houston. If you're still in the vicinity of the PSE, could you get a photograph of the ball level? Over.
+
+111:09:16 Armstrong: I'll do that, Buzz.
+
+111:09:18 Aldrin: Right. We'll get a photograph of that. Houston, what time would you estimate we should allow for the documented sample ? Over. (Long Pause)
+
+[Buzz appears at the right edge of the TV picture, headed for the MESA to open the second rock box to receive the documented samples they are planning to collect.]
+
+111:09:43 Armstrong: Oh, shoot! Would you believe the ball is right in the middle now?
+
+111:09:50 Aldrin: Wonderful. Take a picture before it moves. (Pause)
+
+[Neil's picture of the PSE BB is AS11-40- 5953 . in 2011, in an effort to locate the level indicator, Allan Needell at the National Air and Space Museum examined the Qual Unit in the Apollo 11 display and took a number of photographs. These show that the BB level indicator is on the top of the seismometer can. In a comparison between 5953 and one of Needell's photos, note that the middle of the three gnomon posts (or stumps, to use the appropriate cricket term) ends just above BB-cup's cover and points at the center of the cup. See, slso, a full-resolution version of Needell's photo.]
+
+111:10:00 McCandless: (Responding to the question Buzz asked at 111:09:18, making a mis-identification) Neil, this is Houston. We're estimating about 10 minutes for the documented sampling. Over. (Long Pause)
+
+[In the Apollo 11 Lunar Surface Operations Plan, about 30 minutes was allocated to the documented sampling activity. Documented sampling was planned as a two-man activity, starting with Buzz hammering a core tube into the surface while Neil took pictures of him. Then they would move on to the collection of individual rock samples which they would photograph in place and then put into individual sample bags . Then they would seal some soil in special "environment sample" containers, which were vacuum-sealed cans which, when placed inside the vacuum-sealed rock box, would provide double protection for any easily volatilized constituents. Finally, if time permitted, they would collect a second core tube sample before starting the EVA closeout.]
+
+[Aldrin, from the 1969 Technical Debrief - "We were obviously running out of time at the end of the EASEP deployment. We had a limited amount of time to conduct the documented sample. A figure of 10 minutes was used. I thought we might actually progress in a formal excursion and get something started anyway. (However), as the (rock)box was opened, we got the report that they wanted two core tubes, and it looked like that was probably going to take most of the time. While I proceeded to that - because that's essentially a one-man operation - Neil went around the backside of the LM and picked up what rocks he could identify, getting as wide a variety as possible."]
+
+[Buzz goes to the MESA. Neil won't start his sampling activities until after he makes a brief trip out to Little West Crater , and then helps Buzz with the core tubes.]
+
+[Aldrin, from the 1969 Technical Debrief - "In unpacking the box with the core tubes, I was quite careful to try to identify where the caps were. In some simulations, we had misplaced them, or they had dropped to the surface. I do think we need a better way of identifying the various packages that have this (woven metallic) packing material wrapped around them, so that, at a glance, you'd know what is inside a certain roll. In many cases, there is nothing in it (because the roll is acting as a space filler to keep the other rolls from moving around). In other cases, it's got an environmental container in it, or it's got the caps to the core tubes."]
+
+[Because of the shortage of time, no environmental samples will be collected on Apollo 11.]
+
+111:10:25 McCandless: Columbia. Columbia. This is Houston. Over.
+
+Restored Video Clip 1 minutes 45 seconds ( 2.3 Mb FLV or 2.8 Mb AVI ). May require VLC for playback.
+
+111:10:34 Collins: Go ahead, Houston. Columbia.
+
+111:10:36 McCandless: Roger. Like you to terminate charging battery Bravo at 111 plus 15. Over.
+
+111:10:47 Collins: How about right now?
+
+111:10:49 McCandless: Roger. (Long Pause)
+
+[Neil appears at the right edge of the TV picture. Initially we only see the back of his PLSS. He is likely to be grabbing the Gold Camera (ALSCC), which he left upright on a boulder about 3 meters northeast of the LRRR and just off-screen to the right in the TV view. As he starts moving again and comes fully into view, he is turning to his right with the ALSCC in his trailing left hand. He then heads east toward the 30 meter-diameter crater - now known as Little West Crater - that is 60 meters east of the LM. He will take a pan from the rim.]
+
+[Neil's run across the TV picture takes about 22 seconds. In a labeled detail from the 01 October 2009 LROC image of the site - with the approximate TV field-of-view indicated - the distance he covered in this time is about 22 meters. His running speed is, therefore, about 3.6 km/hr. Considering how little opportunity Neil and Buzz have had to acquire running skills, Neil's speed is quite respectable. Later crews regularly achieved speeds of over 5 km/hr over distances of up to 300 meters. As Neil re-emerges from behind the LM, we can see sunlight scattered off the fans of dirt that he kicks out ahead with his feet. Neil is using a loping, foot-to-foot stride.]
+
+[Armstrong - "I had the documented sample to do. I was running out of time and I wanted to get those pictures (of Little West Crater). So I was hustling."]
+
+111:11:15 McCandless: Buzz, this is Houston. You've got about 10 minutes left now prior to commencing your EVA termination activities. Over.
+
+111:11:31 Aldrin: Roger. I understand.
+
+Restored Video Clip 3 minutes 33 seconds ( 4.7 Mb FLV or 5.3 Mb AVI ). May require VLC for playback.
+
+[Comm Break]
+
+[Buzz is still at the MESA and may be attaching one of the core tubes to an extension handle. The extension handle will allow him to hammer the core tube into the ground without having to bend over very far. The extension handle and attached core tube can be seen in training photo S69-31206 .]
+
+[Aldrin, from the 1969 Technical Debrief - "In putting the extension handle on the core tube, the first one went on fairly cleanly and locked into position with a fairly high degree of confidence that it was not going to come out. I won't say that there was complete certainty that they were not going to come apart."]
+
+[The locking collars on the extension handles generally worked without problem on all the Apollo missions. The exception was on Apollo 17 when, during the third EVA, the collars became sufficiently fouled with dust that they didn't seat properly and, during the drive back to the LM, both the scoop and the rake fell off their respective extension handles.]
+
+111:12:31 McCandless: Tranquility Base, this is Houston. The passive seismic experiment has been uncaged and we're observing short-period oscillations in it. Over. (No answer)
+
+[Comm Break]
+
+[The seismic experiment is picking up their foot steps.]
+
+[Three minutes and fifteen seconds after he started his run out to Little West Crater , Neil reappears at the left edge of the TV picture, running quickly. While at Little West, he took a partial pan .]
+
+Neil's Little West Crater Partial Pan (frames 5954 to 5961 )
+
+[Armstrong - "(Looking at the pan frames) At that large crater, that's the Gold camera (in
+5954 ). So I was apparently carrying that little dude everywhere I went. (Chuckling) No wonder I was tired of it."]
+
+[We don't know if Neil purposefully took 5957 and 5958 as a stereopair but, between the frames he did step to his right. Ulli Lotzmann has combined portions of the two photos as a red-blue anaglyph and Eric Nelson has produced an alternate version with greater emphasis on vertical relief.]
+
+[On the way back to the LM, Neil stopped and took 5962 .]
+
+[Neil's mini-expedition to the Little West Crater and back took 3 minutes 15 seconds and covered about 120 meters. If we assume that he maintained the 3.6 km/hr pace estimated for the start of the run, the actual trip out and back took about 2 minutes, leaving about 1minute 15 seconds for the pictures - not an unreasonable estimate.]
+
+[Armstrong, from the Technical Debriefing - "I went the farthest. While Buzz was returning from the EASEP, I went back to a big crater behind us. It was a crater that I'd estimate to be 70 or 80 feet in diameter
+and 15 or 20 feet deep. I went back to take some pictures
+of that ; it was between 200 and 300 feet from the LM. I
+ran there and ran back because I didn't want to spend
+much time doing that , but it was no trouble to make that
+kind of a trek - a couple of hundred feet or so. It just
+took a few minutes to lope back there, take those pictures,
+and then come back."]
+
+[To get an idea of how close Neil and Buzz stayed to the LM, I thought it might be useful to overlay a sketch version of Figure 3-16 from the Apollo 11 Preliminary Science Report onto a drawing of a baseball diamond. My attempt was of very poor quality. Thomas Schwagmeier came to the rescue and produced a high-quality realization. Neil's trip to Little West Crater was equivalent to a stroll from the pitcher's mound into short centerfield and back. Joe O'Dea suggested that a comparison with a football (soccer) pitch would be of greater interest to readers outside North America and Japan, and Thomas quickly turned Joe's idea into reality. Both comparisons can be found in the Image Library .]
+
+[About the time that Neil gets back to the LM, and as he makes his way around the south side of the spacecraft, Buzz moves away from the MESA carrying the first core tube out to a spot near the solar wind collector. Buzz pushes the core tube a few inches into the ground and starts hitting the top of the extension handle with the hammer. At first, he raises the hammer only to about chest height - the top of the extension handle is at about his waist height - and eventually to head height, swinging down sharply with each blow.]
+
+MP4 clip from the restored Apollo 11 TV ( 1 min 16 sec; 7 Mb )
+
+111:15:13 Aldrin: (To Houston) I hope you're watching how hard I have to hit this into the ground, to the tune of about 5 inches, Houston.
+
+111:15:22 McCandless: Roger. (Long Pause)
+
+[A poor design choice is causing the soil to compact as it enters the tube. The surface soil is very soft but, below about 4 inches, it is quite compact, having been shaken repeatedly by impacts. Consequently, Buzz meets stiff mechanical resistance to his hammering below about 4 inches and can drive the tube in no deeper. There is a further discussion of the core tube design at 114:41:27 . For his final strokes, Buzz is raising his hand to helmet height.]
+
+[Aldrin - "They weren't large, sweeping strokes, but they had a lot of energy in them and it didn't seem to be effective."]
+
+[While Buzz is talking to Houston about the difficulty he was having driving the core tube, Neil takes AS11-40- 5963 and 5964 from near the MESA.]
+
+[Aldrin, from the 1969 Technical Debrief - "I picked up the hammer, went out in the vicinity of where the solar wind experiment was, and drove the first core tube into the ground. I pushed it in about 3 or 4 inches and then started tapping it with the hammer. I found that wasn't doing much at all in the way of making it penetrate further. I started beating on it harder and harder, and I managed to get it into the ground maybe 2 inches more. I found that, when I would hit it as hard as I could and let my hand that was steadying the tube release it, the tube appeared as though it were going to fall over. It didn't stay where it had been pounded in. This made it harder, because you couldn't back off and really let it have it. I don't know if we have any way of measuring the exact force or impact that was applied - other than subjective. Maybe watching television would be some help. I was hammering it in about as hard as I felt I could safely do it. Unfortunately, we don't have any of the surfaces on the extension handle back to look at the impact. (The extension handle was not brought back to Earth for damage analysis that would indicate how hard Buzz was hitting it.) I was hitting it with the hammer to the point that I was putting significant dents in the top of it."]
+
+[Buzz removes the core from the ground while Neil watches. Based on his comments at 114:42:59, his following statement refers to the appearance of the soil in the bottom of the tube.]
+
+111:15:35 Aldrin: It almost looks wet. (Pause)
+
+[Buzz rotates toward Neil, who can then see the bit end of the core tube and the dirt inside.]
+
+Restored Video Clip 4 minutes 12 seconds ( 5.5 Mb FLV or 6.1 Mb AVI ). May require VLC for playback.
+
+111:15:46 Armstrong: (You) got it! Sampled. (Neil chuckles; Pause)
+
+[Buzz goes toward the MESA so that they can remove the extension handle and then put caps on the core tube prior to stowing it in the second rock box.]
+
+[Aldrin, from the 1969 Technical Debrief - "I didn't find any resistance at all in retracting the core tube. It came up quite easily. On rotating it up to the inverted position to keep anything from coming out, I didn't find any tendency at all for the material to come out of the core tube. When I unscrewed the cutter (that is, the bit) the surface seemed to separate again without any tendency for the material to flow or move. This meant that the consistency of this material (from 4 to 6 inches down), even though it looked to be about the same, was a good bit different. If I had some very close surface material and shifted it a little (with his boot), it would tend to move from one side to the other. At the bottom of the core tube, I had the distinct impression - and it's just a descriptive phrase - that this was moist material. It was adhering or had the cohesive property that wet sand would have. Once it was separated from the cutter, there was no tendency at all for it to flake or to flow."]
+
+[As evidenced by the footprint photos, such as AS11-40- 5878 , the surface soil also becomes very cohesive when it is compressed.]
+
+[Buzz approaches the MESA with the core tube in his left hand. The extensiton handle is still attached. He has the hammer in his right hand.]
+
+111:15:57 Aldrin: Wait a minute. Wait a minute. Wait a minute.
+
+111:15:59 Armstrong: Cable?
+
+111:16:00 Aldrin: Yeah, you caught the cable again.
+
+111:16:03 McCandless: Neil and Buzz,...
+
+111:16:03 Aldrin: (Garbled under Bruce) turn to the right.
+
+[Neil kicks backwards with his right foot.]
+
+111:16:04 Aldrin: Turn to your right. Turn to your right.
+
+[Neil turns about half a clockwise turn.]
+
+111:16:04 McCandless: This is Houston. We'd like you to...
+
+111:16:10 Armstrong: Am I clear?
+
+111:16:11 Aldrin: Not quite.
+
+[In a clip from the restored video, we see Buzz bend his right knee enough that he can use the extension handle to flick the cable off Neil's boot.]
+
+111:16:13 McCandless: Neil, this is Houston. We'd like you all to get two core tubes and the solar wind experiment; two core tubes and the solar wind. Over.
+
+111:16:25 Armstrong: Roger. (Long Pause)
+
+[Buzz is at the right, shadowed end of the MESA.]
+
+111:16:51 Aldrin: Okay. While I'm getting the next one (the second core), maybe you can (garbled) the box a little bit. (Pause)
+
+111:17:04 Armstrong: Okay; I'll take care of it. (Long Pause)
+
+[Buzz goes off-camera to the left, carrying the second core tube. Neil is at the MESA and is probably capping the first core tube.]
+
+111:18:04 McCandless: Buzz, this is Houston. You have approximately 3 minutes until you must commence your EVA termination activities. Over.
+
+111:18:14 Aldrin: Roger. Understand.
+
+111:18:22 McCandless: Columbia, this is Houston. Approximately 1 minute to LOS. Over.
+
+111:18:32 Collins: Columbia. Roger.
+
+111:18:37 McCandless: And, do you plan on commencing your sleep on the backside this pass? If so, we'll disable uplink to you while we're talking to the LM. Over.
+
+111:18:51 Collins: Negative that. (Pause)
+
+111:18:59 Aldrin: Houston, were you able to record, in a documentary way (with the TV), where the two core tube samples were taken?
+
+[Bruce asks the Science Backroom for an answer but, receiving none and recognizing how little time remains, answers Buzz himself.]
+
+111:19:12 McCandless: Negative.
+
+[Buzz rejoins Neil at the MESA, carrying the second core tube.]
+
+[Aldrin, from the 1969 Technical Debrief - "I went out to another area I would judge 10 - maybe 15 - feet away. I encountered about the same difficulty in driving the tube in. I imagine it went in about the same depth. It struck me that, when I was removing this core tube from the extension handle, it was coming off (that is, that it hadn't been securely locked). I had less confidence in initially putting the two together that they were going to stay together properly. When I was removing it, it appeared as though the end of the core tube that attaches to the extension handle had a tendency to come off. I had noted this earlier in some of the bench checks (during training ). When you screw the core tube in, if you aren't careful when you disengage it, you're liable to disengage the cap on the other end. And the reason I'm belaboring this particular point is that I understand that one of the ends did come off. I guess I can't be sure that it did not come off at the time of disengaging (from the extension handle). Perhaps it could have come off in the box, but I don't believe they found the other end. So the assumption is that, when it was taken off the extension handle, the other end came off with it. It doesn't appear as though the material spread around inside the box, because none could be found, so it must have adhered (to the inside of the tube) pretty well."]
+
+111:19:19 Armstrong: I didn't get a stereopair of those two, but they are right in the vicinity of the solar wind. (Pause)
+
+[Although Neil did take two Hasselblad images - 5963 and 5964 - of the first core, he didn't get much stereo separation. He turned slightly to his left between the frames but didn't take a step to one side to get stereo. Erwin D'Hoore has created an anaglyph from the pair, but the only significant stereo effect is due to the fact that Buzz moved between the frames. Neil did not take any photos of the second core.]
+
+111:19:29 McCandless: Neil, this is Houston. After you've got the core tubes and the solar wind, anything else that you can throw into the box would be acceptable.
+
+111:19:44 Armstrong: Righto. (Long Pause)
+
+Restored Video Clip 3 minutes 06 seconds ( 4.1 Mb FLV or 4.7 Mb AVI ). May require VLC for playback.
+
+111:19:58 Armstrong: Caps, that's right.
+
+111:20:01 Aldrin: I got the cap.
+
+111:20:03 Armstrong: Got the cap?
+
+111:20:04 Aldrin: They're both good caps on (garbled)
+
+111:20:05 Armstrong: Okay.
+
+[These are caps for the ends of the core tubes.]
+
+111:20:07 Aldrin: And, you want to pick up some stuff, and I'll...
+
+Video Clip (1 min 13 sec; 3.7 Mb)
+
+111:20:09 Armstrong: Get these aseptic ones.
+
+111:20:11 Aldrin: ...throw the solar wind in. (Long Pause)
+
+[The aseptic samples would be the ones to be put in the vacuum-sealed cans. This is the "Envir/Gas Samp" indicated on Buzz's checklist . As mentioned at 111:22:53, by the time Neil collects some undocumented rock samples, time runs out and they never do get any samples in the cans.]
+
+[Buzz gets the solar wind and, as he moves, shifts his weight from foot to foot in a loping stride, albeit with relatively short steps compared with those taken by some members of later crews. He will put the solar wind in a protective, Teflon bag before putting it in the rock box. While he works on the solar wind, Neil goes off-camera to the right to collect rock samples.]
+
+[Aldrin, from the 1969 Technical Debrief - "The solar wind disengaged from its staff quite easily. When it rolled up, it had a tendency to sneak off to the side and crinkle on the edges. I spent some 20 to 30 seconds unrolling it and trying to get it a little smoother. I then remembered that they really didn't care about exact neatness. All they wanted was the material back, because they were going to cut it up in many pieces anyway. So I just bunched it together and it slid into its container (the Teflon bag) fairly easily."]
+
+111:21:05 McCandless: Buzz, this is Houston. It's about time for you to start your EVA closeout activities.
+
+111:21:16 Aldrin: Roger. (Pause) That's in progress. (Long Pause)
+
+[Neil has come back into view, near the right edge of the TV picture. He is using a pair of long-handled tongs to collect rocks, wielding the tongs with his right hand and putting the rocks into a weigh bag which he is holding in his left.]
+
+[Armstrong - "I went around and, in whatever time I had left there, I picked up just the most different kinds of rocks in the immediate area of the lunar module that I could."]
+
+[As he collects each sample, Neil bends his right knee and rotates slightly to his left in order to get the tongs down to the surface. Then, as he straightens up, he rotates back to his original position and brings the bag across in front of him to receive the sample.]
+
+[In total, he collected about 20 rocks with a total weight of about 6 kilograms. Some of these can be seen in the Documented Sample rock box as it was being opened at the Lunar Receiving Laboratory on 26 July 1969.]
+
+[One of the samples that Neil collected during this time,
+Sample No. 10072 , is a 447-gram piece of vesicular basalt. A portion of this sample, Sample No. 10072,80 , weighing 142 grams, was hand-carried to Australia by Honeysuckle Creek veteran
+John Saxon in 1994 and was presented by John Young to honor Australia's contribution to the success of Apollo 11 twenty-five years previously. Sample 10072,80 can be
+seen at the visitor's center at the Tidbinbilla Tracking Station near Canberra . NASA photos courtesy of Gary Lofgren and Terrie Bevill. Tidbinbilla photo by Mike Dinn, former Deputy Director of Honeysuckle Creek.]
+
+[Jack Schmitt notes that the small, white areas, particuarly at the lower right in the LRL photo , "are the result of shattered plagioclase feldspar crystals in the fine matrix. The contrast is heightened because of the ubiquitous patina of brown glass splatter that is on all exposed surfaces."]
+
+[After Buzz finishes removing the foil from the solar wind collector, he tries to stab the pole back into the ground. Apparently, he is not happy that it will stay upright and moves it about three feet to the left and stabs it into the ground a second time. It stays upright as he moves back toward the MESA to pack the solar wind in its Teflon bag.]
+
+111:22:20 McCandless: Neil and Buzz, this is Houston. We'd like to remind you of the close-up (Gold) camera magazine before you start up the ladder, Buzz.
+
+[Bruce is reminding Buzz to pack the film cassette (or magazine), as indicated in his checklist .]
+
+RealVideo Clip ( 2 min 41 sec )
+
+111:22:30 Aldrin: Okay. Got that (meaning the ALSCC) over with you, Neil?
+
+111:22:34 Armstrong: No, the close-up camera's underneath the MESA. I'll have to pick it up with the tongs. (Just off-camera at the right) I'm picking up several pieces of really vesicular rock out here, now. (Pause)
+
+[Later crews will wear a device called the yo-yo, which is a spring-wound cable on an enclosed reel. They attached the yo-yo case to their hoses at waist height and then attached a clip at the end of the yo-yo cable to the tongs or some other long-handled tool. Then, whenever they needed to use the tongs, they simply grabbed the tool handle, pulled it out into position for use and, when they were done, let go and the cable pulled the tool back out of the way at their waist. During the 1991 mission review, Buzz remembered that there were discussions about the need for such a device at some point after Apollo 11.]
+
+Restored Video Clip 2 minutes 42 seconds ( 3.6 Mb FLV or 4.2 Mb AVI ). May require VLC for playback.
+
+111:22:53 Aldrin: You didn't get anything in those environmental samples, did you?
+
+111:22:56 Armstrong: Not yet.
+
+111:22:59 Aldrin: Well, I don't think we'll have time. (Pause)
+
+[Armstrong ( post-mission press conference ) - "The primary difficulty that we observed was that there was just far too little time to do the variety of things that we would have liked to have done. (There were) rocks in a boulder field (that we photographed) out Buzz's window that were 3 and 4 feet in size. Very likely pieces of lunar bedrock. And it would have been very interesting to go over and get some samples of those. We have the problem of a 5-year-old boy in a candy store. There are just too many interesting things to do."]
+
+[ Photogrammetric analysis of AS11-37-5516 , a post-EVA photo taken out Buzz's window and various shots taken during the EVA shows that three of the nearer rocks in this boulder field are 80 to 100 m from the LM.]
+
+[Aldrin, from the 1969 Technical Debrief - "It is the sort of thing you just cannot anticipate before flight. You can plan to some degree when you are on the surface but, until you get out and look around, you can't make your final decision as to what you are really going to do. (From) inside (the cabin), you are only looking at perhaps 60 percent of the available panorama. We were supposedly in a nondescript area, but there was far more to investigate than we could ever hope to cover. We didn't even scratch the surface."]
+
+[Armstrong, from the 1969 Technical Debrief - "I'll be interested in getting the pictures back and looking at them. I think you'll find that, even though it is not a terribly rough area - it is basically a smooth area - operating around in any type of vehicle is going to take some planning. The Moon has fairly steep slopes, deep holes, ridges, et cetera. I am sure that we can devise things that will do that, but it isn't going to be just any vehicle that will cover that kind of ground."]
+
+[Aldrin, from the 1969 Technical Debrief - "It will be interesting to see just how soon you depart from the walking-return concept. I don't think you can stretch that too far. I wouldn't guess as to what that distance is: you could give some reasonable distance you could return on foot, but it isn't miles. When you talk about miles, you are talking about being out of sight of the LM."]
+
+[By the end of Apollo 12, enough experience had been gained with mare sites that a place like the immediate vicinity of the Apollo 11 LM would have been of little scientific interest. The rocks collected by the Apollo 11 and 12 crews provided general information about the properties of typical mare basalts and, with that matter settled, it was of greater interest to sample non-mare materials or to look for samples on the rims of large craters that would show if there were any variations in basalt properties with depth. What the crews needed to do was to explore larger areas around a single landing site and, in May 1969, NASA Administrator Thomas Paine gave his approval for the development of a small roving vehicle that would let the astronauts drive to a variety of places in a landing site area. Buzz's statement about a walking return refers to the concept of emergency walk-back in which the astronaut would walk back to the LM in the event of a Rover failure. Of necessity, at any given time they could not be farther from the LM than the distance they could safely cover with their remaining cooling water and oxygen. The Apollo 12 and 14 crews walked for distances of up to 1.5 kilometers with no significant difficulty and, for the Rover missions, walk-back constraints were developed from their experience.]
+
+[During a drive from one crater or large boulder to the next, a Rover crew might have commented on the frequency of rocks and the size and depth of craters, but would have seen nothing sufficiently out of the ordinary to warrant a stop. This line of thought calls to mind a trip to Africa I made in 1977 and the general excitement that came over the entire tour group when we saw our first giraffe. However, after a few days we had seen so many giraffe that they were no longer worth more than a passing glance.]
+
+111:23:07 McCandless: Roger, Neil and Buzz. Let's press on with getting the close-up camera magazine and closing out of the sample return container. We're running a little low on time.
+
+111:23:19 Armstrong: Roger. (Long Pause)
+
+[Buzz has moved over to the left end of the MESA and, while holding onto the MESA with his left hand for stability, bends his knees and reaches forward with his right hand to grab the close-up camera. With the MESA to hold on to, he gets up easily. He then goes over into the LM shadow, near the ladder, to remove the film magazine from the camera.]
+
+111:24:04 Aldrin: (Going to Neil) Okay. Can you quickly stick this (film magazine) in my pocket, Neil...
+
+111:24:07 Armstrong: Yep.
+
+111:24:07 Aldrin: ...and I'll head on up the ladder? (Pause)
+
+111:24:18 Aldrin: I'll hold it. You open the pocket up. (Long Pause)
+
+[Neil bends his right knee so that he can get low enough get the film magazine in the utility pocket ( 150k ) on Buzz's left thigh. Although Neil is wearing a strap-on pocket on his left thigh to hold the contingency sampler, Buzz is not wearing strap on pocket, as can be seen in AS11-40- 5903 and in a pre-flight photo of his suit .]
+
+111:24:39 Armstrong: (Garbled) Just hold it right down. (Pause) Okay. Let the pocket go.
+
+[This statement suggests that, after Neil got the pocket open, he had Buzz help him hold it open long enough for him to get the magazine in.]
+
+111:24:49 Aldrin: About closed?
+
+111:24:52 Armstrong: Got it.
+
+111:24:53 Aldrin: Okay. Adios, amigo.
+
+[Journal Contributor Bethany Lewis notes that this is probably the first use of Spanish on the lunar surface. Living in Houston with its substantial Hispanic population, the astronauts would have picked up at least a little Spanish simply by living there.]
+
+111:24:56 Armstrong: Okay.
+
+111:24:58 Aldrin: Anything more before I head on up, Bruce?
+
+111:25:04 McCandless: Negative. Head on up the ladder, Buzz. (Long Pause)
+
+Restored Video Clip 3 minutes 02 seconds ( 4.0 Mb FLV or 4.6 Mb AVI ). May require VLC for playback.
+
+[Note that Buzz is not taking the time to have Neil clean his suit as indicated in his checklist . Neil goes to the MESA, Buzz starts up the ladder.]
+
+[We miss Buzz's jump onto the ladder because, unfortunately, Neil walks in front of Buzz just as he jumps up to the first rung and then, for the next several rungs, he is obscured by the U.S. flag in
+the foreground. When he reappears, he is in such deep shadow that it is difficult to tell what he is doing. However, his movements seem consistent with those of later astronauts who could be watched with a much better TV system. What he seems to be doing is moving his hands up the outside rails and then, with a combination of pulling with his arms and pushing with his legs, he jumps up to the next rung. Once he reaches the porch, he stops, perhaps to get the LEC (Lunar Equipment conveyor, the clothesline) ready for use. Note that, in the interest of collecting samples, Neil does not take the LMP Ingress photos indicated in his checklist .]
+
+[At some point during the closeout, Neil decides to use dirt as packing for the rocks he has put in the open rock box (ALSRC 1003, aka the Documented Sample container). In all, he shovels in about 6 kilograms. Jim Gooding describes this sample as being very representative of the mare regolith and that, because there is so much of it, it is the material which is now being put to use in lunar base engineering studies. Small amounts have been used in lab-scale demonstrations of processes proposed for the manufacture of such basic engineering materials as cement and ceramics. From the TV, it is not at all obvious when or how he collects this soil. Because he had the tongs with him while he was collecting rocks, it seems most likely that he collected this soil once he got back to the MESA. The lack of any movements in the TV that can be easily interpreted as soil collection suggests that he was able to reach down to the surface with the scoop without bending over very much at all.]
+
+[Note added in 2006: My original impression, source unknown at this writing, is that Neil added about 6 kilograms of regolith to the Documented Sample container before closing it. However, the Apollo 11 Lunar Sample Catalog ( 16Mb PDF ) indicates that it was the Bulk Sample container into which he put 6 kilos of loose regolith; and that he only put about 0.5 kilos of regolith into the Documented Sample container. Whatever the details of how much he collected at any particular point in the EVA, it is clear that Neil collected a great deal more lunar soil than had been planned and put a great deal of it loose into the boxes because there was room for it. He was using his head and putting the limited time available to good use.]
+
+[As can be seen in full-resolution versions of the restored video, about 40 seconds before Buzz's next transmission, he reaches the top of the ladder and, before he gets up on the porch, appears to be doing something with his left hand at the base of the porch rail. In a detail from AS11-40-5868, taken by Neil as Buzz was climbing down the ladder not long after 109:39:43 , we see the large waist-tether carabiner Buzz hooked to the base of the left porch rail. Note that the strap goes from the base of the carabiner up onto the porch, around the inside of the porch rail, and then hangs down with the small waist-tether carabiner visible behind the ladder strut. Before going up on the porch, Buzz may be repositioning the carabiner and strap so that the strap hangs its full length and the small carabiner may be in Neil's reach, as Buzz suggests at 111:26:47. A detail from training photo S69-31114 shows a waist tether hanging down its full length with a Hasselblad attached to the small carabiner. The waist tether is approximately 4 ft (1.2 m) long.]
+
+111:25:57 Aldrin: How are you coming, Neil?
+
+111:25:58 Armstrong: Okay. (Long Pause) Did you get that solar wind rolled up there, Buzz?
+
+111:26:24 Aldrin: Right. That's it, right there.
+
+111:26:25 Armstrong: Okay. (Long Pause)
+
+111:26:47 Aldrin: If you think you can reach this hook that's hanging over here? You might entertain the idea of sending up the second one (that is, the second rock box) that way.
+
+111:26:59 Armstrong: Okay. (Pause)
+
+[Buzz is suggesting that, rather than use the LEC, clothesline-style for the second rock box, Neil hook the box to the small waist-tether carabiner, climb up to the porch, and then pull the box up hand-over-hand. In the end, Neil decides not to do that but, on Apollos 16 and 17, the crews will do several transfers that way.]
+
+111:27:05 Aldrin: Get the film off of the (Hasselblad)...
+
+111:27:08 Armstrong: I will. (Pause) Pick that up (that is, take care of the task) now. (Pause)
+
+[As indicated on his checklist , Neil is removing the Hasselblad magazine so he can attach it to the first rock box - the one containing the bulk sample - for transfer up to the cabin. The magazine has a hook attached to the back for this purpose.]
+
+[Journal Contributor Andrew Vignaux suggests that, before removing the magazine, Neil advances the film, undoubtedly to prevent the last EVA images from getting sunstruck. Without aiming the camera, Neil gets two incidental frames showing views to the southeast, AS11-40- 5965 and 5966 . Vignaux suggests that these may have been accidental exposures. The next four frames, AS11-40- 5967 , 5968 , 5969 , and 5970 , give views to the northwest and almost certainly represent purposeful film advances. The final frame is, indeed, sunstruck. In the two views to the southeast, 5965 and 66, we see some deeply-shadowed Mylar covering, possibly part of the MESA blanket; and, on the surface, the parallel shadows of the south (minus-Y) strut and probe. Compare with 5850 . The first two views to the northwest, 5967 and 68, show the TV camera and SWC pole and, in the lower left a fuzzy, triangular area that may be Neil's left arm which, because it is so close to the camera, is out of focus. With regard to the last two frames, 5969 and 5970, Vignaux suggests that the fuzzy, dark area on the left is the left side of Neil's suit, as indicated in a labeled version of 5970 . Throughout this interval, Neil is at the MESA, facing the spacecraft, and the difference in direction between the first two frames and the rest is undoubtedly the result of Neil changing the orientation of the camera.]
+
+[Neil will attach the magazine to the LEC at about 111:27:46. Note that, as planned, Neil and Buzz removed the dark slide from the magazine in the cabin early in preparations for the EVA and stowed it in the LHSSC (Left Hand Side Stowage Compartment). They will insert the dark slide again once the magazine is back in the cabin.]
+
+111:27:23 Aldrin: Okay. I'm heading on in.
+
+111:27:24 Armstrong: Okay.
+
+111:27:26 Aldrin: And I'll get the LEC all ready for the first rock box. (Long Pause)
+
+[Aldrin, from the 1969 Technical Debrief - "The hatch moved inward very easily. As I faced the hatch, I moved the ( spare, non-EVA Hasselblad ) camera from its position on the right side (Buzz's right as he came in) of the floor, up onto the (plus) Z-27 bulkhead (on what is also called the midstep ). (In getting in) I had very little difficulty, again using the same technique that Neil used (at the start of the EVA when he went part way out and then tested his ability to re-enter). About
+halfway in, make a concerted effort to arch your back to keep
+the PLSS down by keeping your belly down against the floor.
+This affords you the least profile going in. There didn't seem to be any exertion at all associated with raising yourself up and transitioning to a point where you can bring your knees on inside the cockpit, and then moving from a kneeling (position) to an upright position. It all seemed to work quite smoothly. When there is a large bulk (that is, the PLSS), attached to you, you have to be careful. Once you get inside, before you start to turn around, you must make adequate allowance for all this material behind you."]
+
+[Armstrong, from the 1969 Technical Debrief - "That was an interface problem. As a matter of caution, each person should be helping the other as much as possible. The first man in has the biggest problem, at least when he gets inside the cockpit. He has nobody to help him with clearance and I'm sure he must use a good bit of caution."]
+
+[The other side of that issue is that the first person in doesn't have somebody standing behind the hatch, and that gives him more room to maneuver. However, generally the Commanders watched the LMPs go in through the hatch, and helped them get aligned in the narrow opening.]
+
+[Aldrin, from the 1969 Technical Debrief - "The LEC didn't seem to get in the way at all while I was getting in. We had the mirror available, but I don't think either of us found any particular use for it."]
+
+[Some of the crews wore wrist-mounted mirrors, in part so that, if necessary, they could examine the front of their own suits.]
+
+[Neil moves sideways to his right from the MESA an prepares the LEC for attachment of the first rock box.]
+
+111:28:02 McCandless: Neil, this is Houston. Did the Hasselblad magazine go up on that sample return container also?
+
+111:28:12 Armstrong: I've got the Hasselblad magazine hooked to the SRC now, yeah.
+
+111:28:17 McCandless: Roger, out. (Long Pause)
+
+[Apparently, Houston thinks that Buzz took a rock box up with him, or hauled it up with the waist tether from the porch.]
+
+Restored Video Clip 4 minutes 16 seconds ( 5.6 Mb FLV or 6.2 Mb AVI ). May require VLC for playback.
+
+111:28:58 Armstrong: How are you doing, Buzz?
+
+111:29:00 Aldrin: I'm okay. (Long Pause) About ready to send up the (first rock box with the Hasselblad magazine attached via the) LEC?
+
+RealVideo Clip ( 3 min 33 sec )
+
+111:29:39 Armstrong: Yeah; just about. (Long Pause) Okay! (Long Pause)
+
+[Neil has had some trouble closing the rock box, but now has it closed. In an effort to prevent contamination of the lunar environment, the contractor had cleaned the hinges. This meant that there was no lubricant and that the force Neil had to apply to close the top increased from 20-25 pounds up to 32 pounds. For subsequent missions, the hinge surfaces were burnished to reduce the closing force.]
+
+[Armstrong, from the 1969 Technical Debrief - "Closing the bulk sample box (the first rock box) took a lot more strength than I had expected. It took just about everything I could do to close the documented sample box (the second rock box). I was afraid I might have left the seal in the box. I don't think I did, because, at the time, I thought I remembered clearly taking the seal off and throwing it away; but that's what it felt like."]
+
+[The rock box sealing mechanism consists of O-rings on the inner and outer edges and, between them in the bottom rim, a knife edge and, in the top rim, a strip of soft indium metal into which the knife edge would seat. To prevent contact between the knife edge and the indium prior to use of the box on the Moon, when the box was being prepared in a vacuum chamber on Earth, a stiff Teflon spacer was inserted to keep the two separated. Closing a box with its spacer in place would have required considerable force and that is why, when Neil first opened the boxes on the Moon, he discarded the spacers.]
+
+[Armstrong, from the 1969 Technical Debrief - "I inadvertently tried to close one with the seal in place at one time during training, and this was very much the same kind of situation. It took an inordinate amount of force. There's another difficulty in the fact that the gravity is so low that the box tends to slip around very easily. It feels very light (and) skids away from you. So, in addition to closing it, you have to hold it firmly down on the table. The table's not very rigid. It's quite flexible. So, just holding the box securely enough in position to apply the high force on the sealing handles was some trouble."]
+
+[The table is a frame on the MESA designed to hold a rock box and can be seen in training photo
+
+S69-31080 .]
+
+[Now, Neil gets the LEC which has been hanging from the porch, hooks the SRC on, and goes west of the ladder to get the line in tension. He goes out of the field-of-view and, after a moment, the SRC starts moving up toward the cabin.]
+
+[Training photo S69-32232 shows Neil operating the LEC while Buzz watches. During the mission, Buzz was always in the cabin during LEC operations.]
+
+111:30:45 Aldrin: Okay. That's got it clear. (Long Pause)
+
+111:31:04 Armstrong: Uh oh! The camera came off. I mean the film pack came off. (Long Pause)
+
+111:31:30 Aldrin: Okay. Just ease it down now. Don't pull so hard on it. All right, let it go. (Pause)
+
+[With the SRC up to the porch, Buzz asks Neil to ease the tension in the line so that the rock box will drop down enough to come through the hatch and into grabbing range.]
+
+[Armstrong, from the 1969 Technical Debrief - "Concerning the LEC, I had neglected to lock one of the LEC hooks which normally wouldn't have caused any trouble. You would expect to proceed normally whether that was locked or not. However, for some unknown reason, when I got the SRC about half way up, the Hasselblad pack just fell off. I can't account for that. I just took the pack on up and attached it, and ensured that it was locked when I put it on the SRC the second time. When it fell onto the surface, it was covered with surface material."]
+
+[Aldrin, from the 1969 Technical Debrief - "I'm sure there is a lot of inertia with any package like that and, with that low gravity, it tends to swing back and forth; and if there is some tendency to reach an unlocked position, it will."]
+
+111:31:46 Armstrong: While you're getting that (rock box out of the way), I've got to get this camera (actually, the film mag which has dropped at the foot of the ladder).
+
+111:31:55 Aldrin: (Garbled) This one's in. No problem.
+
+111:31:58 Armstrong: Okay. Standby a second. (Pause)
+
+[Aldrin, from the 1969 Technical Debrief - "It appears that objects can be handled easier in one-sixth g than we had anticipated. In maneuvering objects around, they do have a certain mass. When they get going in a direction, they will keep going that way. This was evidenced when the objects were coming in the hatch on the LEC. They were fairly easy to manage, but you had to take your time in handling them."]
+
+[Aldrin, from the 1969 Technical Debrief - "Subjectively comparing the weight of the boxes, I would say (that the apparent weight on the Moon relative to the apparent weight on the Earth was) closer to one to ten - just judging the differences in weight and feel of things and the way the masses behaved."]
+
+[The Apollo 17 crew attributed this impression, in part, to the fact that, for much of the time during the EVAs they didn't handle heavy objects. After hours of handling light objects, a heavy object like a rock box felt really heavy. Of course, Buzz had carried the EASEP packages out to the deployment site only an hour before climbing into the LM, so the effect would not have been as great for him.]
+
+[Aldrin, from the 1969 Technical Debrief - "Now, in your own maneuvering around, it doesn't seem to be anything like a factor of six in the ease of being able to do things. It would appear as though the gravity difference was much less. What I'm saying is that it looks like the human can adapt himself to this quite easily."]
+
+[Neil goes to the ladder and leans on it with one hand so that he can reach down to get the film pack.]
+
+[Armstrong, from the 1969 Technical Debrief - "There was no problem (picking up the film magazine) because the ladder was right there. So I just leaned over and down to the ground and picked it up. I had the ladder to hold on to, and then I could push myself right back up to a standing position."]
+
+111:32:02 McCandless: Neil, this is Houston. Request an EMU check. Over.
+
+[This is a disguised request that Neil slow down for a moment. He is at the MESA. Starting with the final sample collection and now during the closeout, his heart rate has been rising to a peak of nearly 160 beats per minute. Buzz's peak heart rate during the EVA was about 105. See Figure
+12-3 redrafted from the Apollo 11 Mission Report by Thomas Schwagmeier. In response to a question in 2002, Neil remembers that his resting heart rate "was usually about 60".]
+
+[Armstrong - "It's not surprising. This was a fairly heavy workload."]
+
+111:32:09 Armstrong: Roger. Got 3.8 (psi); (pause) and I got 54 (percent) on the O 2 and no flags, and my (cooling) flow is in Min.
+
+[Comm Break. Neil goes to the bottom of the ladder, works the LEC straps to get the hooks down from the cabin, and returns to the MESA to attach them to the second rock box.]
+
+[I asked if Buzz just got the rock boxes out of the way or stored them in the hard points.]
+
+[Armstrong - "My guess is that we got them up there (into the cabin) and laid them down someplace out of the way and got on with the work."]
+
+[In Houston, the Experiments spokesman tells the Flight Director that " Lick Observatory (in California) did get a return from the laser". Bruce asks if he can tell the crew this news, but the Flight Director decides not to distract them. McCandless passes the news up to Collins at 112:34:29 . There is no further mention of the experiment during the flight.]
+
+[James E. Faller, LRRR PI, from a 2005 e-mail - "Lick did range on July 20th, and I was there as a part of that activity with the group controlling the laser and return electronics. To my knowledge, there were no known returns. As you may know, a search was required as they didn't land at the planned spot. It was a search for a weak signal in a large lunar landscape."]
+
+[Coincidentally, the footprint of the Lick Observatory laser was about 2 miles (3.2 km) and virtually the same as the field-of-view of the CSM sextant Mike Collins was using to find the LM. See Figure 5-14 for the areas searched by Collins on various post-landing passes. Each of the small squares is 1 km on a side and the circles represent the sextant field-of-view.]
+
+[Faller - "I remember that NASA hoped for a return signal while the astronauts were still on the lunar surface because there was considerable fear that the blast off of the lunar vehicle would result in the array being covered with 'lunar sand'. In fact, during the design of the experiment, here had been considerable debate if it would be a good idea or not to have a cover over the array to be opened after the lift-off. But it was finally decided to avoid the single-point failure mode - the cover release mechanism failing - and risk the lunar sand. Amazingly, to my knowledge, the array has not suffered from slowly accumulating sand as can be judged from the fact of the return signal strength not changing over all these years."]
+
+["We had tried to get a return on a few nights subsequent to the 20th, with no success, and then took a break. I don't remember exactly why we stopped for a while -- perhaps because the illumination was bad -- but I remember taking a few days off."]
+
+[Once the telescope at Lick Observatory (about 25 km east of the airport at San Jose, California) was pointed close to the Apollo 11 landing site, final pointing and guidance during a set of laser pulses was done visually. This was most easily done when the Sun was low in the sky at Tranquility Base, giving good shadow definition. Once the experiment team had a good visual understanding of the site, the telescope could be correctly aimed when the site was illuminated from higher Sun elevations.]
+
+Faller - "Then, on August 1st, having not tried for a few days, I carefully realigned everything and we received strong and persistent return signals. I remember Bob Dicke, who was there that night with Joe Wampler in the guide room with me, saying that we had them pretty excited upstairs (that is, NASA programs managers)."]
+
+Restored Video Clip 2 minutes 56 seconds ( 3.9 Mb FLV or 4.5 Mb AVI ). May require VLC for playback.
+
+111:33:46 McCandless: Neil and Buzz, for your information, your consumables remain in good shape. Out.
+
+111:33:53 Aldrin: Roger. How's it coming, Neil?
+
+111:33:56 Armstrong: Okay. I've got one side hooked up to the second box and I've got the film pack on.
+
+111:34:01 Aldrin: Okay. Good. (Long Pause)
+
+111:34:21 Armstrong: Boy, that filth from on the LEC is kind of falling over me while I'm doing this.
+
+111:34:29 Aldrin: (Garbled) soot, huh?
+
+111:34:36 Armstrong: That's what it looks like down here.
+
+[Armstrong, from the 1969 Technical Debrief - "The LEC worked as expected; however, I have a few comments worth noting. The primary one is that the LEC was a great attractor of lunar dust. It was impossible to operate the LEC without getting it on the ground some of the time. Whenever it touched the surface (or, for that matter, Neil's gloves), it picked up a lot of the surface powder. As the LEC was operated, that powder was carried up into the cabin. When the LEC went through the pulley, the lunar dust would shake off, and the part of the LEC that was coming down would rain powder on top of me, the MESA, and the SRCs so that we all looked like chimney sweeps. I was just covered with this powder, primarily as a result of dirt being thrown out by the LEC. This also tended to bind the pulley. I felt like there was enough silt collecting in the pulley that it was actually binding. Fortunately, Buzz was able to help a great deal. He actually put the majority of the forces into pulling the boxes up from the top end, rather than me from the bottom end. I was standing at a very severe angle (leaning back), which prevented me from using as much force as I had planned for pulling. The ground was too soft and my feet slipped easily. I was leaning over at approximately a 45-degree angle. I had one foot behind me so that, if my foot slipped, I wouldn't fall down. I couldn't get the footing in this soft powder that you needed to do that job."]
+
+[Aldrin, from the 1969 Technical Debrief - "There are several points (means "factors") that tend to make footing more difficult. One is the powdery, graphite-like substance. (Lunar dust is very fine, like graphite. However, unlike graphite, it is very abrasive.) When it comes in contact with rock, it makes the rock quite slippery. I checked this on a fairly smooth, sloped rock. It was quite easy to get this material on it, and the boot would slip fairly easily. That factor tends to make one more unstable. The second point is that the surface may look the same, but we found that in many areas - with just very small changes in the local surface topography - there would be unexpected differences in the consistency and softness of this top layer. For example, we might find in some areas where there was just a small slope that, when we were on the edge of this slope, there would be little change in the depth at which we penetrated. In other places, we would find we had put our feet down and we would tend to depress this surface to a new location (means "penetration distance"), as if there were a different depth of the resistive surface. These two factors gave us a low confidence level in our balance and footing setups."]
+
+[Aldrin, from the 1969 Technical Debrief - "To keep the LEC coming smoothly on the inside and to have me pull on it in the appropriate direction so that it neither tangled up near the pulley end nor tended to move or slide the pulley as it went out the hatch, I found that I was completely unable to look out the window at the same time. It was a question of my looking at the LEC, talking to Neil, and hoping we were coordinated. It would be nice to work this over more and try to find some way to maintain visual contact back and forth. I didn't find that easy to do."]
+
+[Starting with Apollo 14, the astronauts carried various pieces of gear up the ladder by hand. Indeed, the 16 and 17 crews dispensed with the clothesline LEC entirely; and, other than using a lanyard to raise and lower the equipment bag full of cameras over the side of the porch, carried everything by hand. As Buzz's comments suggest, the LEC was not a simple device to use and, in the end, the astronauts decided that it was more trouble than it was worth.]
+
+111:34:43 Aldrin: I think my watch stopped, Neil.
+
+111:34:46 Armstrong: Did it? (Pause)
+
+111:35:01 Aldrin: No it didn't, either. (Garbled) second hand. (Pause)
+
+[Neil now has the second SRC on the LEC and has moved just west of the ladder, holding the line.]
+
+111:35:11 Aldrin: Okay; if you can just kind of hold it there, I think I can do the pulling.
+
+111:35:15 Armstrong: Okay. (Pause) Standby a minute; let me move back (to put some tension in the line). (Long Pause)
+
+Restored Video Clip 3 minutes 27 seconds ( 4.5 Mb FLV or 5.2 Mb AVI ). May require VLC for playback.
+
+111:35:39 Aldrin: Okay; easy. (Pause) All right; easy in the hatch now. (Pause) Okay; I'll get it the rest of the way.
+
+111:35:51 Armstrong: Okay. (Pause)
+
+111:35:56 Aldrin: And I'll give it (the LEC) to you to throw away (in) just a second. Let me have a little more. (Long Pause)
+
+111:36:32 Armstrong: Buzz?
+
+111:36:33 Aldrin: Okay; it (the SRC)'s unhooked.
+
+111:36:38 Armstrong: How about that package out of your sleeve? Get that?
+
+111:36:53 Aldrin: No.
+
+111:36:55 Armstrong: Okay, I'll get it. When I get up there (to the porch). (Pause)
+
+[Just below the shoulder on each sleeve, Buzz has a small pocket ( 150k ). One of them contains a small packet of memorial items that he and Neil want to place on the surface. Buzz relates in his 1989 book, Men from Earth , that the items included (1) an Apollo 1 patch commemorating Gus Grissom, Ed White, and Roger Chaffee, the astronauts who had died in the 1967 Apollo launch pad fire; (2) a Soviet medal commemorating Vladimir Komarov, who was killed at the end of the Soyuz 1 flight when the parachutes on his spacecraft failed; (3) a Soviet medal honoring Yuri Gagarin, the first man to orbit the Earth, who had been killed in an aircraft accident seven years after his historic 1961 flight; and, finally, (4) a small, gold olive branch identical to the ones that they were carrying for the three Apollo 11 wives.]
+
+[NASA News Release No. 69-83F, dated 13 July 1969 mentions the Apollo 1 patch, the gold olive branch, and a silicion message disk but not the Soviet items. Ulrich Lotzmann has provided a summary . Goodnight CapCom Owen Garriott asks abut the message disk at 114:52:28 .]
+
+[In his 1973 book Return to Earth - repeated in Men from Earth - Buzz states that, when he was halfway up the ladder - that is, at about 111:26 - Neil reminded him to take care of this task. Clearly, the reminder came a little later than Buzz remembered but, as Journal Contributor Jim Failes notes, "it was a busy EVA".]
+
+[Aldrin - "We had forgotten about this up to this point. And I don't think we really wanted to totally openly talk about what it was. So it was sort of guarded. And I knew what he was talking about..."]
+
+[Armstrong - "About it being on your sleeve."]
+
+111:37:02 Aldrin: Want it now?
+
+111:37:06 Armstrong: Guess so. (Pause)
+
+[From Neil's actions in the TV record, it appears that Buzz has tossed the package down to the surface. It falls to Neil's right. He turns and, apparently, moves it slightly with his foot.]
+
+111:37:15 Armstrong: (Asking Buzz if he likes the placement of the package) Okay?
+
+111:37:15 Aldrin: Okay. (Pause)
+
+[In addition to the memorial items they have just placed on the surface, Neil and Buzz have in the cabin small pieces of the original Wright Flyer. These items are currently on display at the National Air and Space Museum, as shown in an Angele Glover photo of Ken and the display in September 2005. A close-up photograph of the display has been provided by the NASM Public Affairs Office for use in the Apollo Lunar Surface Journal. Other uses of the image require approval from the NASM Public Affairs Office.]
+
+[To the right of the Flyer fragments is a reproduction (greatly reduced in size) of a letter from Harold S. Miller, Co-Executor of the Orville Wright Estate, dated November 14, 1969: "I certify that the wooden and fabric materials carried to the surface of the Moon on July 20, 1969 by Astronaut Neil A. Armstrong aboard the lunar module 'Eagle' were part of the Wright 'Kitty Hawk' airplane that made history's first powered, controlled flight on December 17, 1903. The wood was part of the left propeller and the fabric was from the upper left wing; these were removed from the 'Kitty Hawk' following its fourth flight of December 17, 1903 when it was blown over by a gust of wind and damaged." To the left of the fragments is reproduction (also greatly reduced in size) of a letter from Neil A. Armstrong, Command Pilot, dated 26 January 1970: "I certify that the wooden and fabric materials presented by the Air Force Museum were placed aboard Apollo XI and carried to the surface of the moon by the lunar module 'Eagle' on mankind's first lunar landing, July 20, 1969."]
+
+111:37:29 McCandless: Neil, this is Houston. Did you get the Hasselblad magazine?
+
+[At 111:37:22, Neil climbed up onto the footpad and, just as Bruce's question gets to him, he pushes up with his legs and pulls with his arms.]
+
+[Aldrin, from the 1969 Technical Debrief - "The first step up to the bottom rung is a pretty good step, though Neil tells me he got up to the third one."]
+
+[Armstrong, from the 1969 Technical Debrief - "The third step."]
+
+[Aldrin, from the 1969 Technical Debrief - "The capability exists to do a good bit more in terms of a vertical jump than certainly the POGO leads you to believe. There's no way to evaluate that in an airplane (because the cabin ceiling is too low). The big problem in the POGO was that it just didn't seem to be able to bring you down with enough to bear so that your inertia would carry you as far as it's able to with good leg extension."]
+
+[My interpretation of what Buzz is saying is that, when he bent his legs to get a good upward push, the POGO wouldn't let him get his knees bent as much as he could on the Moon. Another possibility is that POGO's response to his push upward didn't take him as far up as he got on the Moon.]
+
+[Armstrong, from the 1969 Technical Debrief - "The technique I used was one in which I did a deep knee bend with both legs and got my torso down absolutely as close to the footpad as I could. I then sprang vertically up and guided myself with my hands by use of the handrails. That's how I go to the third step, which I guess was easily 5 to 6 feet above the ground."]
+
+[Although relatively few jumps up the ladder were recorded on TV,
+Neil's may be an Apollo record. On the later missions, the astronauts often were carrying something and wouldn't have tried to jump quite as high.]
+
+[Aldrin, from the 1969 Technical Debrief - "The rungs of the ladder were not, in any way, dangerously slippery. Material on the bottom of your boots tended to cause them to slide back and forth."]
+
+[Armstrong, from the 1969 Technical Debrief - "They were a little slippery."]
+
+[Members of later crews usually stomped their feet on the first rung when they got up on the ladder, a technique that removed a great deal of dust from the boots and lower legs.]
+
+111:37:35 Armstrong: (Sounding quite relaxed) Yes, I did. And we got about, I'd say, 20 pounds of carefully selected - if not documented - samples.
+
+111:37:45 McCandless: (Background laughter in Houston) Houston; Roger. Well done. Out.
+
+111:37:47 Armstrong: In the second box. (Pause)
+
+<[When Neil got to the top of the ladder, he probably unhooked the waist tether from the porch rail, so he could take it in the cabin. They would need both waist tethers if they had to make an EVA transfer to the Command Module.]
+
+111:38:08 Aldrin: Just keep your head down close. Now start arching your back. That's good. Plenty of room. Okay now, all right, arch your back a little, your head up against (garbled). Roll right just a little bit. Head down. Getting in(to the cabin) in good shape.
+
+111:38:26 Armstrong: Thank you. (Pause) Am I bumping now?
+
+111:38:33 Aldrin: No, you're clear. You're rubbing up against me a little bit.
+
+111:38:36 Armstrong: Okay.
+
+111:38:38 Aldrin: Turn right. That's right. (Garbled) to the left. (Pause) Okay. Now move your foot, and I'll get the hatch. (Pause)
+
+Restored Video Clip 3 minutes 56 seconds ( 5.1 Mb FLV or 5.8 Mb AVI ). May require VLC for playback.
+
+MP3 Audio Clip
+(17 min 26 sec; 16 Mb) from the Public Affairs loop starting at about 111:38:56. Clip courtesy John Stoll, ACR Senior Technician at NASA Johnson.
+
+111:38:58 Armstrong: Okay! (Long Pause)
+
+111:39:13 Aldrin: Okay. The hatch is closed and latched, (pause) and verified secured.
+
+[In a labeled detail by Thomas Schwagmeier, the latching decal reads, Latch Operation: 1.Insert handle in end of shaft; 2. To lock - push on handle and rotate CW (clockwise) to stop; 3. To unlock - push on handle and rotate CCW (counter clockwise) to stop. In emergency - if latch is jammed in locked position - To open hatch pull landyard to remove lock pin, rotate cam plate out of way of latch and open hatch.]
+
+111:39:25 Armstrong: Okay. (Pause) (Reading the Post-EVA Cue card) Now we close the feedwater valves . (Yours is) Closed. And I got your PLSS antenna stowed. Get mine? (Pause)
+
+[It is easier to reach each other's valves.]
+
+111:39:52 Aldrin: Okay. Feedwater valve's Closed. (Pause) And your antenna's stowed. (Pause)
+
+111:40:16 Armstrong: Okay. (Pause) What am I bumping into? Okay. That's out. (Garbled). (Garbled) Okay.
+
+111:40:44 McCandless: This is Houston. Go ahead.
+
+111:40:49 LM Crew: (Garbled).
+
+111:40:54 McCandless: You're cutting out, Neil. You're not readable. I understand you said something about contingency sample container on the ascent engine? (Pause)
+
+[Neil put the contingency sample in this thigh pocket at 109:36:47 . Bruce is reminding Neil to put either the contingency sample or, perhaps more likely, the strap-on pocket, on the ascent cover. There is no mention of the sample in the checklists or transcripts that I have been able to find; but there is a statement in the Apollo 11 Sample Catalog ( 15 Mb ) on page 14 that "the contingency sample container was stowed in a Beta-cloth bag during the return trip (to Earth) and accompanied the astronauts to the Crew Reception Area of the LRL (Lunar Receiving Laboratory in Houston).]
+
+111:41:11 McCandless: We are not reading you, Neil. Buzz. Buzz. This is Houston. Do you read? Over. (Pause)
+
+111:41:24 Armstrong: (Garbled)
+
+111:41:28 McCandless: Tranquility Base, this is Houston. We're reading neither one of you, but standing by.
+
+[Very Long Comm Break. There are intermittent transmissions, all unreadable. However, Houston continuously monitors various LM systems and, among other things, watches them pressurize the cabin up to 4.8 psi at the appropriate time.]
+
+[During the 1991 mission review, I asked Neil and Buzz if they had anything they wanted to say about having gotten the EVA out of the way.]
+
+[Aldrin - "After the landing, there was still a lot to get done, I mean, the whole (process of getting ready to) go outside. After we got back in here, I think it was a little bit of downhill - slightly - at this point. 'Cause we didn't have anything really pressing except, I guess, the communications was a little disturbing when that doesn't work too well."]
+
+[Armstrong - "I would mention that - and I can't speak for Buzz - I was pleasantly surprised by the quality of the environment inside the suit. The suit was cumbersome and bulky and not really easy to operate, but on the whole, for the first time of actually having it in the foreign environment - that we could (only partly) simulate in vacuum chambers and things like that - it performed remarkably well. When you think that the surface temperature was something north of 100 centigrade, in terms of the (air) flow and the cooling, it was really doing an excellent job, and allowed us to really do most of the things we planned to do - although perhaps not as quickly as we would have liked to do them - without really any difficulties from the environment that was provided by the suit."]
+
+[Aldrin - "I guess I didn't have any particular feelings - good or bad - about the suit. And that's typically the case when things work okay. I wasn't anticipating any trouble, and it all worked so smoothly. (During the EVA) I felt a little bit (like I was) following the activities out there instead of leading the activities. In other words, reacting to things. I didn't feel as though they were going in a way that I was right on top of what was happening all the time. There were sort of 'Well, I guess we ought to do this next, and then this and then this.' There wasn't that feeling, you know, of checking off things one after another. And I think it may be typical of forgetting to deploy those things in the pocket. There wasn't a particular thing set in the flight plan to do that; it was sort of an unofficial thing. And, then, it sort of slipped our minds because of the other things happening. I don't know how much you'd have to go through and rehearse all of it to change that feeling. Maybe I was expecting more than I should have."]
+
+[I noted that they were the first crew to experience how long it took to get things done and asked if that was part of it.]
+
+[Armstrong - "That's part of it. I would just say that I share Buzz's feeling that we probably were a bit disappointed that we weren't ahead of everything all the time, rather than sort of trying to catch up all the time. But, on balance, looking back on it, we did get almost everything done that we had intended to do. Some things didn't go as smoothly as we would have liked, but we also did some things that we hadn't expected to do. On balance, I had to be pretty pleased with the way it came out in an integrated fashion."]
+
+[Aldrin - "Lunar surface activities are not as precise and crisp as other things in the spacecraft: (that is, times outside the LM) where you're setting up to do something and then something else happens. They're sort of very subjective and kind of reactive. And maybe that was different for me during this portion of the mission than the others."]
+
+[I asked if they had much of a chance to talk with the 12 crew before heading out on their world tour.]
+
+[Armstrong - "Not as much as we would have liked, because the world tour and all of the other things we were involved in really took us away from that conversation with later crews. Nonetheless, we had some and they would certainly talk to us when it was convenient."]
+
+[Aldrin - "We weren't totally inaccessible."]
+
+[During the 1969 Technical Debrief and the discussion of the dropped Hasselblad magazine, Buzz asked Neil if "the film magazine hit the pad or dropped right to the surface".]
+
+[Armstrong, from the 1969 Technical Debrief - "I think it hit the surface clear of the pad, on the right side, which would be the spacecraft's left. I wasn't worried about the (possible fire hazard from dust on the) contingency sample, because that was inside a bag. If anything was going to catch fire, it was going to be my whole suit, because it was just covered with that stuff."]
+
+Restored Video Clip 3 minutes 24 seconds ( 4.4 Mb FLV or 5.0 Mb AVI ). May require VLC for playback.
+
+Restored Video Clip 3 minutes 24 seconds ( 4.5 Mb FLV or 5.1 Mb AVI ). May require VLC for playback.
+
+Restored Video Clip 3 minutes 24 seconds ( 4.5 Mb FLV or 5.1 Mb AVI ). May require VLC for playback.
+
+111:52:46 McCandless: Neil, this is Houston. Neil, this is Houston. Radio check. Over. (Pause) Buzz. Buzz. This is Houston. Radio check, radio check. Over. (Long Pause)
+
+Restored Video Clip 3 minutes 36 seconds ( 4.7 Mb FLV or 5.3 Mb AVI ). May require VLC for playback.
+
+111:53:31 Armstrong: (Garbled)
+
+111:53:38 McCandless: This is Houston. I copy a transmission calling Houston. All else was broken up. Over. (Long Pause) Neil, this is Houston. If you read, we suggest you unstow one PLSS antenna so we can have communications. Over.
+
+[Comm Break]
+
+[Aldrin - (To Neil) "Where's the contingency sample right now?"]
+
+[Armstrong - "I don't know. I mean, we don't care about that anymore, once we got the rock boxes."]
+
+[Aldrin - "Did we throw it out? Or did we keep it?"]
+
+[Armstrong - "Oh, I think we kept it."]
+
+[Aldrin - "How did it get back without kind of being out loose and all that?"]
+
+[Armstrong - "It was in my pocket."]
+
+[Aldrin - "I'm just trying to...because I don't remember dealing with it hardly at all."]
+
+[Armstrong - (Chuckling) "It may still be in that suit pocket, for all I know."]
+
+[Aldrin - (Joking) " You got it (at) home in your top drawer?"]
+
+[Neil stowed the sample in his tight pocket at 109:36:33 . The Apollo 11 Preliminary Science Report , assures us that the Contingency Sample did make it back to the Lunar Receiving Laboratory in Houston. Journal Contributor David Harland notes that Neil showed the sample to Mike Collins in orbit at about 129:14:17, soon after re-entering Columbia.]
+
+Journal Home Page
+
+Apollo 11 Journal Index
+
+Trying to Rest

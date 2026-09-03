@@ -7,6 +7,10 @@
 //   env: PAGE fixture (wikipedia-apollo-11.html) · MAXF fetches (40) ·
 //        CONSULT per note (3) · WITNESS model calls cap (40) ·
 //        MODEL (gemma2:2b) · OFFLINE=1
+//   Run with NODE_USE_ENV_PROXY=1 where egress goes through a proxy: Node's
+//   fetch ignores HTTPS_PROXY otherwise, and run 3 measured every
+//   web.archive.org fetch as a 403 on the direct path (200 through the
+//   proxy) — a route failure the kept index had cached as a document gap.
 //
 // For each (note, readable cited face) the gap is CLASSIFIED mechanically,
 // most-demanding-first, by what a snip would need to see the proposition:

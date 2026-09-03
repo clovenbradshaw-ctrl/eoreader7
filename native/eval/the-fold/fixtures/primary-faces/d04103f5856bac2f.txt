@@ -1,0 +1,122 @@
+132 captures
+
+16 Jun 1997 - 30 Aug 2026
+
+May
+JUN
+Jul
+
+26
+
+2018
+2019
+2020
+
+success
+
+fail
+
+About this capture
+
+COLLECTED BY
+
+Organization: Internet Archive
+
+The Internet Archive discovers and captures web pages through many different web crawls.
+
+At any given time several distinct crawls are running, some for months, and some every day or longer.
+
+View the web archive through the Wayback Machine .
+
+Collection: Live Web Proxy Crawls
+
+Content crawled via the Wayback Machine Live Proxy mostly by the Save Page Now feature on web.archive.org.
+
+Liveweb proxy is a component of Internet Archive’s wayback machine project. The liveweb proxy captures the content of a web page in real time, archives it into a ARC or WARC file and returns the ARC/WARC record back to the wayback machine to process. The recorded ARC/WARC file becomes part of the wayback machine in due course of time.
+
+TIMESTAMPS
+
+The Wayback Machine - https://web.archive.org/web/20190626193736/https://www.hq.nasa.gov/office/pao/History/SP-4214/ch14-7.html
+
+PROJECT APOLLO: THE CONCLUSION
+
+Project Apollo: Stunt or Portent?
+
+A decade and a half after Eugene Cernan left the last human footprint on
+the moon, the value and the wisdom of the Apollo project can still be
+debated. As an engineering accomplishment it is unparalleled in history.
+As a scientific project it enabled researchers on earth to study
+documented specimens from another body in the solar system, perhaps the
+only such specimens that will be available in this century. As an
+exercise in the management of an unprecedentedly large and complex
+effort it stands alone in human experience.
+
+Yet all these achievements can be read two ways. Magnificent as they
+were, the launch vehicles that carried men to the moon turned out to be
+too expensive for other missions. The choice of lunar-orbit rendezvous
+as the mission mode - largely dictated by the end-of-the-decade
+challenge - produced two spacecraft ideally adapted to their function
+but without sufficient margin for growth to advance the exploration of
+the moon as far as scientists wanted. Apollo's scientific results were
+of vital interest to only a very small fraction of the scientific
+community and did not authoritatively answer the questions scientists
+hoped they would answer before the first landing. (As one critic
+caustically commented, the scientists were able to obtain "a neater
+fix, so to speak, on the number of angels who can dance on the point of
+a pin." 42 ) The methods devised for
+managing Apollo were impressive; yet the question remains,
+
+Has the whole operation represented but another highly
+successful one-shot exercise in crisis management, or has it represented
+incorporation into American society of a new way to organize,
+systematically and purposefully, the development and use of scientific
+and technological resources to the furtherance of national goals? 43
+
+James Webb, under whose direction NASA developed those methods, believed
+them to be the lasting contribution of Apollo, but in the 18 years since
+the first lunar landing they have not been applied to any undertaking of
+comparable size.
+
+It was unfortunate, in a sense, for the United States's space program
+that Kennedy's challenge called for NASA to proceed directly to the most
+difficult goal that seemed achievable in 1961, for it doomed whatever
+followed to be an anticlimax:
+
+The first Apollo landing was, in one sense, a
+triumph that failed, not because the achievement was anything short of
+magnificent but because of misdirected expectations and a general
+misinterpretation of its real meaning. The public was encouraged to view
+it only as the grand climax of the space program, a geopolitical horse
+race and extraterrestrial entertainment - not as a dramatic means to the
+greater end of developing a far-ranging spacefaring capability
+[italics in the original]. 44
+
+Americans had plenty to occupy their attention in 1969 - civil rights,
+the plight of the poor, an increasingly unpopular war in southeast Asia,
+rising federal deficits, and growing concern for the preservation of a
+livable environment - and plenty of advocates for every cause clamoring
+for action. If the nation had not set its space goals as high as
+possible at the outset, the concerns of the late 1960s could easily have
+stopped a more measured approach well short of the moon.
+
+Future generations may look back on Apollo as a costly technological
+stunt or the portent of man's destiny in the universe. Scientists
+studying the origin and evolution of the solar system may devise other
+means of acquiring data from the moon and the planets, but they will
+surely be thankful for the samples gathered by the twelve men who made
+the first lunar voyages.
+
+42 . William Hines, "End of a Crazy
+Business," Chicago Sun-Times , Dec. 21, 1972.
+
+43 . Fov D. Kohler and Dodd L. Harvey,
+"Administering and Managing the U.S. and Soviet Space
+Programs," Science 169 (1970):1049-55.
+
+44 . John Noble Wilford, "A
+Spacefaring People: Keynote Address," in Alex Roland, ed., A
+Spacefaring People: Perspectives on Early Spaceflight , NASA
+SP-4405 (Washington, 1985), proceedings of a conference on the history
+of space activity held at Yale University, Feb. 6-7, 1981.
+
+<img src="https://web.archive.org/web/20190626193736im_/http://www.dfrc.nasa.gov/GIF/index.gif" align="absmiddle" alt="Index" of contents]">
