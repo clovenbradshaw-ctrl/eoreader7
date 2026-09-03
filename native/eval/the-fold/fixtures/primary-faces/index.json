@@ -851,5 +851,175 @@
    "type": "http",
    "status": 403
   }
+ },
+ "b31297610ff670fa": {
+  "url": "https://www.americansamoa.gov/apollo-11",
+  "gap": {
+   "type": "http",
+   "status": 404
+  }
+ },
+ "4d2be2b4199b336f": {
+  "url": "https://www.hq.nasa.gov/alsj/a11/a11.step.html",
+  "finalUrl": "https://www.nasa.gov/history/alsj-and-afj/",
+  "host": "nasa.gov",
+  "title": "The Apollo Lunar Surface Journal and Apollo Flight Journal - NASA",
+  "chars": 10338,
+  "retrievedAt": "2026-09-03T02:28:43.547Z"
+ },
+ "db1fd4284769a977": {
+  "url": "http://www.hq.nasa.gov/alsj/a11/a11.step.html",
+  "gap": {
+   "type": "http",
+   "status": 403
+  }
+ },
+ "93fde9ce5fd022ad": {
+  "url": "https://web.archive.org/web/20190808082450/https://www.hq.nasa.gov/alsj/a11/a11.step.html",
+  "gap": {
+   "type": "http",
+   "status": 403
+  }
+ },
+ "7dd85f4b8d00e19f": {
+  "url": "https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=1969-059A",
+  "finalUrl": "https://www.nasa.gov/nssdc/",
+  "host": "nasa.gov",
+  "title": "NASA Space Science Data Coordinated Archive Status - NASA",
+  "chars": 6894,
+  "retrievedAt": "2026-09-03T02:28:44.036Z"
+ },
+ "c325f61842c03b8e": {
+  "url": "https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=1969-059C",
+  "finalUrl": "https://www.nasa.gov/nssdc/",
+  "host": "nasa.gov",
+  "title": "NASA Space Science Data Coordinated Archive Status - NASA",
+  "chars": 6894,
+  "retrievedAt": "2026-09-03T02:28:44.249Z"
+ },
+ "aa637ff5070b7711": {
+  "url": "https://curator.jsc.nasa.gov/lunar/lsc/10010.pdf",
+  "gap": {
+   "type": "beyond-reach",
+   "detail": "application/pdf"
+  }
+ },
+ "00cc53e3920245e3": {
+  "url": "http://curator.jsc.nasa.gov/lunar/lsc/10010.pdf",
+  "gap": {
+   "type": "http",
+   "status": 403
+  }
+ },
+ "fd29533beca320c0": {
+  "url": "https://www.hq.nasa.gov/alsj/a11/a11.summary.html",
+  "finalUrl": "https://www.nasa.gov/history/alsj-and-afj/",
+  "host": "nasa.gov",
+  "title": "The Apollo Lunar Surface Journal and Apollo Flight Journal - NASA",
+  "chars": 10338,
+  "retrievedAt": "2026-09-03T02:29:00.269Z"
+ },
+ "92c5ad4de332e5a5": {
+  "url": "http://www.hq.nasa.gov/alsj/a11/a11.summary.html",
+  "gap": {
+   "type": "http",
+   "status": 403
+  }
+ },
+ "ac19af89f1af3084": {
+  "url": "https://web.archive.org/web/20061009173831/http://www.hq.nasa.gov/alsj/a11/a11.summary.html",
+  "gap": {
+   "type": "http",
+   "status": 403
+  }
+ },
+ "b442960cc251d8fe": {
+  "url": "https://books.google.com/books?id=QlVQAAAAIBAJ&dq=Apollo+launch+Florida&pg=PA2&article_id=7068,896931",
+  "finalUrl": "https://books.google.com/books?id=QlVQAAAAIBAJ&dq=Apollo+launch+Florida&pg=PA2&article_id=7068,896931",
+  "host": "books.google.com",
+  "title": "The Evening Independent - Google Books",
+  "chars": 387,
+  "retrievedAt": "2026-09-03T02:29:00.822Z"
+ },
+ "35b57182ec5b9ee7": {
+  "url": "https://www.bbc.co.uk/bitesize/articles/z3x6b7h",
+  "gap": {
+   "type": "http",
+   "status": 403
+  }
+ },
+ "badc2b15566c31e0": {
+  "url": "https://airandspace.si.edu/stories/editorial/armstrong-purse-flown-apollo-11-lunar-artifacts",
+  "finalUrl": "https://airandspace.si.edu/stories/editorial/armstrong-purse-flown-apollo-11-lunar-artifacts",
+  "host": "airandspace.si.edu",
+  "title": "The Armstrong Purse: Flown Apollo 11 Lunar Artifacts | National Air and Space Museum",
+  "chars": 9630,
+  "retrievedAt": "2026-09-03T02:29:01.975Z"
+ },
+ "5d5dc5e7d5c940df": {
+  "url": "https://curator.jsc.nasa.gov/lunar/lun-fac.cfm",
+  "finalUrl": "https://curator.jsc.nasa.gov/lunar/lun-fac.cfm",
+  "host": "curator.jsc.nasa.gov",
+  "title": "Lunar Sample Laboratory Facility",
+  "chars": 5840,
+  "retrievedAt": "2026-09-03T02:29:02.188Z"
+ },
+ "babb9aea763ba359": {
+  "url": "https://www.nasa.gov/vision/space/features/jfk_speech_text.html",
+  "finalUrl": "https://www.nasa.gov/history/the-decision-to-go-to-the-moon/",
+  "host": "nasa.gov",
+  "title": "The Decision to Go to the Moon: President John F. Kennedy's May 25, 1961 Speech before a Joint Session of Congress - NASA",
+  "chars": 16089,
+  "retrievedAt": "2026-09-03T02:29:02.362Z"
+ },
+ "8a668cfc07a8d088": {
+  "url": "https://web.archive.org/web/20080219204538/http://history.nasa.gov/SP-350/ch-9-5.html",
+  "gap": {
+   "type": "http",
+   "status": 403
+  }
+ },
+ "b70de6ddffb74b08": {
+  "url": "https://web.archive.org/web/20210227092923/https://nssdc.gsfc.nasa.gov/misc/documents/b32116.pdf",
+  "gap": {
+   "type": "http",
+   "status": 403
+  }
+ },
+ "4f69a8cb8bb11499": {
+  "url": "https://web.archive.org/web/20210227181902/https://history.nasa.gov/SP-4223/ch9.htm",
+  "gap": {
+   "type": "http",
+   "status": 403
+  }
+ },
+ "17f0edf672de648d": {
+  "url": "https://web.archive.org/web/2/https://arxiv.org/archive/physics.space-ph",
+  "gap": {
+   "type": "http",
+   "status": 403
+  }
+ },
+ "2b7b41a53a04b82c": {
+  "url": "https://web.archive.org/web/2/https://archive.org/stream/isbn_9780743200790/isbn_9780743200790_djvu.txt",
+  "gap": {
+   "type": "http",
+   "status": 403
+  }
+ },
+ "2179620526279944": {
+  "url": "https://web.archive.org/web/20090617230719/http://wechoosethemoon.org/",
+  "gap": {
+   "type": "http",
+   "status": 403
+  }
+ },
+ "36627e02d7adeec7": {
+  "url": "https://history.nasa.gov/afj/ap11fj/26day9-reentry.html",
+  "finalUrl": "https://www.nasa.gov/history/alsj-and-afj/",
+  "host": "nasa.gov",
+  "title": "The Apollo Lunar Surface Journal and Apollo Flight Journal - NASA",
+  "chars": 10338,
+  "retrievedAt": "2026-09-03T02:34:26.360Z"
  }
 }
