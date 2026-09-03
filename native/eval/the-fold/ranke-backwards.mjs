@@ -90,7 +90,11 @@ for (const p of passages) {
 }
 const notes = hl.foldWithStanding(log);
 const leads = R.leadsOf(page);
-console.log(`${PAGE}: ${notes.length} notes in ${((Date.now() - t0) / 1000).toFixed(1)}s; ${leads.links.length} link leads, ${leads.quotes.length} unsourced quotes`);
+const footnotes = R.footnoteLeads(page);
+const marked = notes.filter((n) => (n.spans ?? []).some((sp) => R.markersIn(sp.text).length));
+const boundNotes = notes.filter((n) => R.footnoteLeadsForNote(n, footnotes).length);
+console.log(`${PAGE}: ${notes.length} notes in ${((Date.now() - t0) / 1000).toFixed(1)}s; ${leads.links.length} link leads, ${leads.quotes.length} unsourced quotes; ${footnotes.markers} footnote markers, ${footnotes.notes} numbered notes with an outbound link`);
+console.log(`  notes whose article sentence carries a marker: ${marked.length}; whose footnote links out: ${boundNotes.length}`);
 
 // ── faces, kept content-addressed (the walk's own cache) ─────────────────
 mkdirSync(FACES, { recursive: true });
@@ -175,17 +179,19 @@ async function walk(noteList, { useWitness }) {
     const claim = R.claimOfNote(n);
     if (!claim) { rows.push({ id: n.id, note: `${n.subject} —${n.verb}→ ${n.object}`, cls: "no-claim" }); continue; }
     const subjWords = new Set(R.claimOfNote({ end1: n.subject, label: "", end2: "" })?.tokens ?? []);
-    const cands = rankPrimary(claim, leads.links).filter((c) => c.overlap > 0).flatMap((c) => [c, ...R.expandLead(c).map((u) => ({ ...c, url: u, archiveUrl: null }))]).slice(0, CONSULT);
+    const bound = R.footnoteLeadsForNote(n, footnotes).flatMap((c) => [{ ...c, via: "footnote" }, ...R.expandLead(c).map((u) => ({ ...c, url: u, via: "footnote:full-text", archiveUrl: null }))]);
+    const ranked = rankPrimary(claim, leads.links).filter((c) => c.overlap > 0 && !bound.some((b) => b.url === c.url)).flatMap((c) => [{ ...c, via: "link" }, ...R.expandLead(c).map((u) => ({ ...c, url: u, via: "link:full-text", archiveUrl: null }))]);
+    const cands = [...bound, ...ranked].slice(0, CONSULT);
     let best = null;
     const consulted = [];
     for (const c of cands) {
       const got = await cached(c.url, c.archiveUrl ?? null);
       if (!got || got.gap || !got.text) { consulted.push({ host: c.host, gap: got?.gap ?? { type: "no_face" } }); continue; }
       const cl = classify(claim, subjWords, got.text);
-      consulted.push({ host: got.host ?? c.host, ...cl });
-      if (!best || CLASSES.indexOf(cl.cls) < CLASSES.indexOf(best.cls)) best = { ...cl, host: got.host ?? c.host, text: got.text };
+      consulted.push({ host: got.host ?? c.host, via: c.via, ...cl });
+      if (!best || CLASSES.indexOf(cl.cls) < CLASSES.indexOf(best.cls)) best = { ...cl, host: got.host ?? c.host, via: c.via, text: got.text };
     }
-    const row = { id: n.id, note: `${n.subject} —${n.verb}→ ${n.object}`, article: n.spans?.[0]?.text ?? null, tokens: claim.tokens, readable: consulted.filter((c) => !c.gap).length, cls: best?.cls ?? (consulted.length ? "unreadable" : "no-lead"), host: best?.host ?? null, sentence: best?.sentence ?? null, missing: best?.missing ?? null, missingSide: best?.missingSide ?? null };
+    const row = { id: n.id, note: `${n.subject} —${n.verb}→ ${n.object}`, article: n.spans?.[0]?.text ?? null, tokens: claim.tokens, bound: bound.length, readable: consulted.filter((c) => !c.gap).length, readableBound: consulted.filter((c) => !c.gap && /^footnote/.test(c.via)).length, cls: best?.cls ?? (consulted.length ? "unreadable" : "no-lead"), via: best?.via ?? null, host: best?.host ?? null, sentence: best?.sentence ?? null, missing: best?.missing ?? null, missingSide: best?.missingSide ?? null };
     if (useWitness && best && (best.cls === "same-sentence" || best.cls === "morphology") && witnessed < WITNESS_CAP) {
       witnessed += 1;
       const w = await witnessNote(claim.sentence, { ref: best.host, text: best.text }, { ...witness, ends: { end1: n.subject, end2: n.object }, slice: best.sentence });
@@ -204,6 +210,9 @@ const readable = real.filter((r) => r.readable > 0);
 console.log(`\nREAL: ${real.length} notes; ${fetches} fetches (${network} network), faces read ${[...faces.values()].filter((f) => !f.gap).length}; ${modelCalls} witness calls; ${((Date.now() - t1) / 1000).toFixed(0)}s`);
 console.log(`  notes with >=1 readable cited face: ${readable.length} of ${real.length}`);
 console.log(`  gap classes (notes with a readable face): ${JSON.stringify(tally(readable))}`);
+const viaFootnote = readable.filter((r) => /^footnote/.test(r.via ?? ""));
+console.log(`  of which the best face came through the note's OWN footnote: ${viaFootnote.length} — classes ${JSON.stringify(tally(viaFootnote))}`);
+console.log(`  notes bound to a footnote that links out: ${real.filter((r) => r.bound > 0).length}; with that footnote's face readable: ${real.filter((r) => r.readableBound > 0).length}`);
 const partial = readable.filter((r) => r.cls === "partial");
 console.log(`  partial by missing side: ${JSON.stringify(tally(partial.map((r) => ({ cls: r.missingSide }))))}`);
 const wv = {}; for (const r of real) if (r.witness) wv[r.witness] = (wv[r.witness] ?? 0) + 1;
@@ -211,21 +220,23 @@ console.log(`  witness on same-sentence+morphology leads: ${JSON.stringify(wv)}`
 console.log(`  the ladder (cumulative, of ${readable.length}): now=${readable.filter((r) => r.cls === "same-sentence").length} · +morphology=${readable.filter((r) => ["same-sentence", "morphology"].includes(r.cls)).length} · +window=${readable.filter((r) => ["same-sentence", "morphology", "window"].includes(r.cls)).length} · +both=${readable.filter((r) => r.cls !== "partial" && r.cls !== "absent").length}`);
 
 // ── the control ───────────────────────────────────────────────────────────
-const rotated = notes.map((n, i) => ({ ...n, object: notes[(i + 1) % notes.length].object, end2: notes[(i + 1) % notes.length].object, spans: [] }));
+// the control keeps each note's OWN spans (so its own footnotes still bind) and rotates only end2
+const rotated = notes.map((n, i) => ({ ...n, object: notes[(i + 1) % notes.length].object, end2: notes[(i + 1) % notes.length].object }));
 modelCalls = 0;
 const ctl = await walk(rotated, { useWitness: false });
 const ctlReadable = ctl.filter((r) => r.readable > 0);
-console.log(`\nCONTROL (end2 rotated, same faces): gap classes ${JSON.stringify(tally(ctlReadable))}`);
+console.log(`\nCONTROL (end2 rotated, same spans and footnotes, same faces): gap classes ${JSON.stringify(tally(ctlReadable))}`);
+const ctlVia = ctlReadable.filter((r) => /^footnote/.test(r.via ?? "")); console.log(`  through the note's own footnote: ${ctlVia.length} — classes ${JSON.stringify(tally(ctlVia))}`);
 console.log(`  proposition-measuring classes real vs control: same-sentence ${tally(readable)["same-sentence"] ?? 0} vs ${tally(ctlReadable)["same-sentence"] ?? 0}; morphology ${tally(readable).morphology ?? 0} vs ${tally(ctlReadable).morphology ?? 0}; window ${tally(readable).window ?? 0} vs ${tally(ctlReadable).window ?? 0}`);
 
 // ── specimens ─────────────────────────────────────────────────────────────
 console.log(`\nSPECIMENS (article sentence → best cited sentence):`);
 for (const cls of CLASSES) {
   for (const r of readable.filter((r) => r.cls === cls).slice(0, cls === "partial" ? 4 : 3)) {
-    console.log(`  [${cls}${r.missingSide ? ":" + r.missingSide + " missing " + r.missing.join(",") : ""}${r.witness ? " · witness " + r.witness : ""}] ${r.note}`);
+    console.log(`  [${cls}${r.missingSide ? ":" + r.missingSide + " missing " + r.missing.join(",") : ""}${r.witness ? " · witness " + r.witness : ""} · via ${r.via}] ${r.note}`);
     console.log(`     article: «${String(r.article ?? "").replace(/\s+/g, " ").slice(0, 160)}»`);
     console.log(`     ${r.host}: «${String(r.sentence ?? "").replace(/\s+/g, " ").slice(0, 200)}»`);
   }
 }
-writeFileSync(new URL("./results/ranke-backwards.json", import.meta.url), JSON.stringify({ page: PAGE, notes: notes.length, leads: { links: leads.links.length, quotes: leads.quotes.length }, fetches, facesRead: [...faces.values()].filter((f) => !f.gap).length, real: { tally: tally(readable), partialBySide: tally(partial.map((r) => ({ cls: r.missingSide }))), witness: wv, rows: real }, control: { tally: tally(ctlReadable) } }, null, 2));
+writeFileSync(new URL("./results/ranke-backwards.json", import.meta.url), JSON.stringify({ page: PAGE, notes: notes.length, leads: { links: leads.links.length, quotes: leads.quotes.length }, footnotes: { markers: footnotes.markers, linking: footnotes.notes, notesMarked: marked.length, notesBound: boundNotes.length }, fetches, facesRead: [...faces.values()].filter((f) => !f.gap).length, real: { tally: tally(readable), partialBySide: tally(partial.map((r) => ({ cls: r.missingSide }))), witness: wv, rows: real }, control: { tally: tally(ctlReadable) } }, null, 2));
 console.log("\nRaw: results/ranke-backwards.json");

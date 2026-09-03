@@ -14,6 +14,22 @@
 // that states the note as its own witness — a `primary:` witness, kind
 // declared, addressed into the primary's bytes, recipe named.
 //
+// THE FOOTNOTE BINDING (2026-09-03, measured backwards on Apollo 11 —
+// eval/the-fold/ranke-backwards.mjs): a citing page does not cite "for the
+// page", it cites PER SENTENCE — a superscript marker in the prose is an
+// in-page link to one numbered note, and that note's outbound links are
+// the source the page attached to THAT claim. Ranking a page's whole
+// bibliography by word overlap with a note's ends picked a NASA landing
+// page for "Armstrong began his descent" while the sentence itself carried
+// [139]; over 285 notes with a readable cited face the overlap-ranked
+// leads found the proposition in one sentence 6 times and the redealt
+// control 7 — the leads were noise. `footnoteLeads(page)` binds marker
+// number → note → links, generically: any <sup> whose in-page anchor
+// resolves to an element with that id (numeric-style citation, the
+// convention of encyclopedias and journals alike; nothing keyed on one
+// site's ids), and `chase` consults a note's own footnotes FIRST, the
+// overlap-ranked links only after.
+//
 // TWO KINDS OF LEAD, both the user's own direction (2026-09-03): "if it is
 // citing something via a hyperlink, it should go read that, not just
 // Wikipedia-shaped sourcing. if it is just quoting someone, it should go
@@ -198,6 +214,58 @@ export function leadsOf(page) {
   return { citing: true, links, quotes };
 }
 
+// ── the footnote binding ──────────────────────────────────────────────────
+const stripTags = (h) => String(h ?? "").replace(/<[^>]+>/g, " ").replace(/&nbsp;|&#160;/g, " ").replace(/\s+/g, " ").trim();
+/**
+ * footnoteLeads(page) — number → the outbound links of the note that
+ * number points at. A marker is a <sup> carrying an in-page anchor
+ * (href="#id") whose visible text is a number; the note is the element
+ * with that id, read to the end of its list item. Returns
+ * { byNumber: Map<number, [{url, host, text}]>, markers, notes } — a page
+ * with no such markers returns an empty map (its links are still leads
+ * through leadsOf; they are just not bound to sentences).
+ */
+export function footnoteLeads(page) {
+  const html = String(page?.html ?? "");
+  const self = String(page?.host ?? hostOf(page?.url ?? "") ?? "");
+  const byNumber = new Map();
+  let markers = 0;
+  const seen = new Set();
+  for (const m of html.matchAll(/<sup\b[^>]*>([\s\S]{0,600}?)<\/sup\s*>/gi)) {
+    const inner = m[1];
+    const href = inner.match(/href="#([^"]+)"/);
+    if (!href) continue;
+    const num = Number((stripTags(inner).match(/\d+/) ?? [])[0]);
+    if (!Number.isInteger(num)) continue;
+    markers += 1;
+    if (seen.has(href[1])) continue;
+    seen.add(href[1]);
+    const at = html.indexOf(`id="${href[1]}"`);
+    if (at < 0) continue;
+    const end = html.indexOf("</li", at);
+    const block = html.slice(at, end > 0 ? Math.min(end, at + 8000) : at + 8000);
+    const links = [];
+    for (const a of block.matchAll(/href="(https?:\/\/[^"]+)"/gi)) {
+      const url = a[1].replace(/&amp;/g, "&");
+      const host = hostOf(url);
+      if (!host || host === self || isWikiFamilyHost(host)) continue;
+      if (links.some((l) => l.url === url)) continue;
+      links.push({ url, host, text: stripTags(block).slice(0, 400), index: links.length, structuralClass: "other", overlap: 0 });
+    }
+    if (links.length) byNumber.set(num, [...(byNumber.get(num) ?? []), ...links]);
+  }
+  return { byNumber, markers, notes: byNumber.size };
+}
+/** The footnote numbers a text span carries — "[ 139 ]" as the text face renders a marker. */
+export const markersIn = (text) => [...String(text ?? "").matchAll(/\[\s*(\d{1,4})\s*\]/g)].map((m) => Number(m[1]));
+/** The links a note's own sentences bound, through the page's footnotes; [] when the note carries no marker or its note has no outbound link. */
+export function footnoteLeadsForNote(note, footnotes) {
+  if (!footnotes?.byNumber?.size) return [];
+  const out = [];
+  for (const sp of note?.spans ?? []) for (const n of markersIn(sp?.text)) for (const l of footnotes.byNumber.get(n) ?? []) if (!out.some((x) => x.url === l.url)) out.push({ ...l, footnote: n });
+  return out;
+}
+
 // ── one chase ───────────────────────────────────────────────────────────────
 /**
  * chase(log, door, note, { leads, fetchFace, search, consult, recipe })
@@ -209,7 +277,7 @@ export function leadsOf(page) {
  *   search    — async (query) → [{ url, host?, title? }] (omit to skip quotes)
  * Returns { log, consulted:[{url, host, via, structuralClass?, snipsFound, snips|gap}], attested:[witness], claim, searched:[query] }.
  */
-export async function chase(log, door, note, { leads, fetchFace, search = null, consult = PRIMARY_SOURCES_CONSULTED, recipe = RANKE.recipe, witness = null } = {}) {
+export async function chase(log, door, note, { leads, fetchFace, search = null, consult = PRIMARY_SOURCES_CONSULTED, recipe = RANKE.recipe, witness = null, footnotes = null } = {}) {
   if (typeof fetchFace !== "function") throw new TypeError("ranke.chase: fetchFace is injected — this organ owns no network");
   const claim = claimOfNote(note);
   if (!claim) return { log, consulted: [], attested: [], searched: [], claim: null, refused: { type: "no_claim", detail: "the note's ends carry no content word to chase" } };
@@ -219,7 +287,13 @@ export async function chase(log, door, note, { leads, fetchFace, search = null, 
   // on the first walk: 178 of 318 consults were overlap-0 fetches of
   // whatever the page cited first, and the budget was gone before a lead
   // with a shared word was reached.
-  const candidates = rankPrimary(claim, leads.links).filter((c) => c.overlap > 0).flatMap((c) => [{ ...c, via: "link" }, ...expandLead(c).map((u) => ({ ...c, url: u, via: "link:full-text", archiveUrl: null }))]);
+  // The note's OWN footnotes first — the source the page attached to this
+  // sentence — then the page's links ranked by overlap, minus any already
+  // bound. A footnote lead needs no shared word: the binding is the page's
+  // own, not a guess from vocabulary.
+  const bound = footnoteLeadsForNote(note, footnotes).flatMap((c) => [{ ...c, via: "footnote" }, ...expandLead(c).map((u) => ({ ...c, url: u, via: "footnote:full-text", archiveUrl: null }))]);
+  const ranked = rankPrimary(claim, leads.links).filter((c) => c.overlap > 0 && !bound.some((b) => b.url === c.url)).flatMap((c) => [{ ...c, via: "link" }, ...expandLead(c).map((u) => ({ ...c, url: u, via: "link:full-text", archiveUrl: null }))]);
+  const candidates = [...bound, ...ranked];
   const searched = [];
   if (search && leads.quotes?.length) {
     const want = new Set(claim.tokens);
@@ -278,6 +352,8 @@ export async function chase(log, door, note, { leads, fetchFace, search = null, 
  * Returns { log, chased, fetches, searches, faces, pagesRefused, notesConsidered, notesAttested }.
  */
 export async function chaseLedger(log, door, pages, { fetchFace, search = null, maxFetches, maxSearches = null, isAccount = null, consult = PRIMARY_SOURCES_CONSULTED, recipe = RANKE.recipe, witness = null } = {}) {
+  const footnotesByRef = new Map();
+  const footnotesOf = (ref) => { if (!footnotesByRef.has(ref)) footnotesByRef.set(ref, footnoteLeads(byRef.get(ref) ?? {})); return footnotesByRef.get(ref); };
   if (!Number.isFinite(maxFetches)) throw new TypeError("ranke.chaseLedger: maxFetches is declared by the caller (P9)");
   if (search && !Number.isFinite(maxSearches)) throw new TypeError("ranke.chaseLedger: maxSearches is declared when a search organ is injected (P9)");
   const byRef = new Map((pages ?? []).map((p) => [p.ref, p]));
@@ -314,7 +390,9 @@ export async function chaseLedger(log, door, pages, { fetchFace, search = null, 
   for (const n of notes) {
     const refs = [...new Set((n.witnesses ?? []).map(sourceOfWitness))].filter((r) => byRef.has(r) && leads(r).citing);
     const merged = { citing: refs.length > 0, links: refs.flatMap((r) => leads(r).links), quotes: refs.flatMap((r) => leads(r).quotes) };
-    const r = await chase(next, door, n, { leads: merged, fetchFace: cachedFetch, search: budgetedSearch, consult, recipe, witness });
+    const fn = { byNumber: new Map() };
+    for (const ref of refs) for (const [k, v] of footnotesOf(ref).byNumber) fn.byNumber.set(k, [...(fn.byNumber.get(k) ?? []), ...v]);
+    const r = await chase(next, door, n, { leads: merged, fetchFace: cachedFetch, search: budgetedSearch, consult, recipe, witness, footnotes: fn });
     next = r.log;
     chased.push({ noteId: n.id, note: `${n.subject} —${n.verb}→ ${n.object}`, leads: { links: merged.links.length, quotes: merged.quotes.length }, searched: r.searched, consulted: r.consulted, attested: r.attested, ...(r.refused ? { refused: r.refused } : {}) });
     if (fetches >= maxFetches && r.consulted.length && r.consulted.every((c) => c.gap?.type === "budget")) break;

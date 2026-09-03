@@ -6,7 +6,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync, existsSync } from "node:fs";
 import { makeHyperlexicon } from "./hyperlexicon.js";
-import { RANKE, PRIMARY_KIND, QUOTE_MIN_WORDS, claimOfNote, primaryWitness, standsOnAccountsOnly, leadsOf, chase, chaseLedger } from "./ranke.js";
+import { RANKE, PRIMARY_KIND, QUOTE_MIN_WORDS, claimOfNote, primaryWitness, standsOnAccountsOnly, leadsOf, footnoteLeads as leadsOfFootnotes, footnoteLeadsForNote, markersIn, chase, chaseLedger } from "./ranke.js";
 import { kindOfWitness, sourceOfWitness } from "../kernel/notes.js";
 import { distinctSources, independentReadings } from "./corroboration.js";
 import { witnessSlice, siblingSwap, foldTestimony, buildSelectMessages, foldSelect } from "./testimony.js";
@@ -210,4 +210,34 @@ test("chaseLedger: one face is read once across notes, budgets are declared and 
   // an account predicate that names nothing chases nothing
   const none = await chaseLedger(log, hl, pages, { fetchFace, maxFetches: 2, isAccount: () => false });
   assert.equal(none.notesConsidered, 0);
+});
+
+test("footnote binding: a marker in the prose is an in-page link to one numbered note, and that note's outbound links are the lead for THAT sentence — bound first, before any overlap-ranked link", async () => {
+  const apollo = readFileSync(`${FIX}/wikipedia-apollo-11.html`, "utf8");
+  const pg = { ref: "apollo", html: apollo, host: "en.wikipedia.org", url: "https://en.wikipedia.org/wiki/Apollo_11" };
+  const fn = leadsOfFootnotes(pg);
+  assert.ok(fn.markers > 200, `the real page carries ${fn.markers} markers`);
+  assert.ok(fn.byNumber.size > 100, `${fn.byNumber.size} numbered notes carry an outbound link`);
+  for (const [, links] of fn.byNumber) for (const l of links) assert.ok(!/wikipedia|wikimedia/.test(l.host), "self and family links are never leads");
+  // "[ 139 ] At 02:51 Armstrong began his descent to the lunar surface." — the text face keeps the marker
+  assert.deepEqual(markersIn("[ 139 ] At 02:51 Armstrong began his descent."), [139]);
+  assert.deepEqual(markersIn("no marker here"), []);
+  // a footnote that cites a book carries no outbound link — an honest empty binding
+  assert.deepEqual(footnoteLeadsForNote({ spans: [{ text: "[ 139 ] At 02:51 Armstrong began his descent." }] }, { byNumber: new Map() }), []);
+  // pick a numbered note that DOES link out, and a span carrying its marker
+  const [num] = fn.byNumber.keys();
+  const note = { subject: "Armstrong", verb: "began", object: "his descent to the lunar surface", end1: "Armstrong", end2: "his descent to the lunar surface", witnesses: ["apollo#1-2~r"], spans: [{ ref: "apollo", at: "apollo#1-2", text: `[ ${num} ] At 02:51 Armstrong began his descent to the lunar surface.` }] };
+  const bound = footnoteLeadsForNote(note, fn);
+  assert.ok(bound.length >= 1, "the note's own footnote binds to at least one outbound link");
+  assert.equal(bound[0].footnote, num);
+  // a note with no marker binds nothing — and is still chased by overlap
+  assert.deepEqual(footnoteLeadsForNote({ ...note, spans: [{ text: "At 02:51 Armstrong began his descent." }] }, fn), []);
+  // in chase, the footnote lead is consulted FIRST
+  let log = hl.createHyperlexicon({ frame: { reader: "test" } });
+  log = hl.hear(log, { subject: "Armstrong", verb: "began", object: "his descent to the lunar surface", witness: "apollo#1-2~r", spans: [{ ref: "apollo", at: "apollo#1-2", text: note.spans[0].text }] });
+  const [n] = hl.foldHyperlexicon(log);
+  const urls = [];
+  const r = await chase(log, hl, n, { leads: leadsOf(pg), footnotes: fn, fetchFace: async (u) => { urls.push(u); return { gap: { type: "x" } }; }, consult: 2 });
+  assert.equal(r.consulted[0].via, "footnote");
+  assert.equal(urls[0], bound[0].url);
 });

@@ -45,7 +45,7 @@ export * as capacities from "./capacities.js";
 // hyperlexicon.js is its text face.
 export { assertionId, recipeId, REFUSALS as HYPERLEXICON_REFUSALS, VERB_CLASS, makeHyperlexicon } from "./hyperlexicon.js";
 export { standingOf as noteStanding, sourceOfWitness, recipeOfWitness, kindOfWitness } from "../kernel/notes.js";
-export { RANKE, PRIMARY_KIND, QUOTE_MIN_WORDS, claimOfNote, primaryWitness, standsOnAccountsOnly, leadsOf, chase, chaseLedger } from "./ranke.js";
+export { RANKE, PRIMARY_KIND, QUOTE_MIN_WORDS, claimOfNote, primaryWitness, standsOnAccountsOnly, leadsOf, footnoteLeads, footnoteLeadsForNote, markersIn, chase, chaseLedger } from "./ranke.js";
 export * as ranke from "./ranke.js";
 export * as hyperlexicon from "./hyperlexicon.js";
 export { makeGrammarLens, mismatchedConnectors } from "./grammar-lens.js";
