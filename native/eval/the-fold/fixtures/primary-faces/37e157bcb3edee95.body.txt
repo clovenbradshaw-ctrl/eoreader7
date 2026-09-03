@@ -1,0 +1,66 @@
+Apollo Guidance Computer and the First Silicon Chips
+
+Oct 14, 2015
+
+By
+Paul Ceruzzi
+
+Put all your eggs in one basket—AND WATCH THAT BASKET!
+
+Mark Twain, Pudd’nhead Wilson’s Calendar (1897), Chapter 15
+
+As the Apollo program took form in the early 1960s, NASA engineers always kept the safety of their astronauts at the fore in light of the enormous risks they knew were inherent in the goal of landing on the Moon and returning safely. Wherever possible, they designed backup systems so that if a primary system failed the crew would still have the means to return home safely. Sometimes creating a backup was not always practical. For example, the Service Module’s engine needed to fire while the crew was behind the Moon to place them in a trajectory that would return them to Earth. There was no practical backup if the engine failed. But even in that instance a plan was worked out to use the Lunar Module’s (LM) engine as a backup. During Apollo 8, which carried no LM, this wasn’t a practical solution, but during the Apollo 13 mission the LM engine was used to help return the astronauts safely to Earth. There are numerous other examples of similar trade-offs that illustrate the need for safety against the need to venture so far away from Earth orbit, and to meet President Kennedy’s deadline of putting a man on the Moon by 1969. One of the most interesting examples of these decisions concerned the Apollo Guidance and Navigation system, controlled by the Apollo Guidance Computer. Due to size, weight, and power constraints, the Command and Lunar Modules would each carry only one computer, which had to work. What was more, the designers of the computer, at the MIT Instrumentation Laboratory, decided to build the computer using the newly-invented integrated circuit, or silicon “chip” as we now know it. That seems obvious in retrospect, as today we enjoy the fruits of integrated circuit technology in our consumer devices. But in the early 1960s, when this decision was made, the chip was untested, and its reliability was a large unknown. MIT’s decision did not go unchallenged. Early in the Apollo program, NASA contracted with AT&T to provide technical and managerial assistance for select technical issues. AT&T in turn established Bellcomm, an entity that carried out these analyses. In late 1962, Bellcomm recommended that IBM, not MIT, supply the computers for the Apollo Command and Lunar Modules. The arguments were complex and contentious and even reached members of the House of Representatives. In a letter to NASA administrator James Webb, Representative Joseph E. Karth (D-Minnesota) listed a number of questions. Among them were these:
+
+2. There has always been apprehension about the MIT guidance system achieving the required reliability to ensure a safe mission. Is there documented test-proven data to show that it will meet the needs of APOLLO/LEM?
+
+3. In regard to the previous question, is there a back-up guidance function of sufficient breadth and proven development that can allow the APOLLO/LEM mission to attain success … in the event of catastrophic failure of the MIT guidance? …
+
+7. Is a backup system still contemplated for either APOLLO or LEM?
+
+The letter listed five other questions, but of all the questions raised, one stood out: Was the MIT system reliable? Bellcomm’s recommendation was due in part to IBM’s role as supplier of the computer that guided the Saturn V rocket into Earth orbit and then to a lunar trajectory. The IBM Launch Vehicle Digital Computer did not use integrated circuits, but rather a more conservative circuit developed at IBM called “Unit Logic Device.” What was more, the circuits in the computer were installed in threes—so called “Triple Modular Redundancy” so that a failure of a single circuit would be “outvoted” by the other two.
+
+Wernher Von Braun, left, examines the Launch Vehicle Digital Computer used to guide the Saturn V rocket.
+
+The engineers at the MIT Instrumentation Lab mounted a vigorous defense of their design and were able to persuade NASA to not use the IBM computers in the Command and Lunar Module. In short, MIT chose to follow Puddin’head Wilson and make the computer work right the first time. The Lab worked closely with Fairchild Semiconductor, the California company where the integrated circuit was invented, to ensure reliability. Chips were tested under rigorous conditions of temperature, vibration, contamination, and so on. If a chip failed these tests, the entire lot from which it came from was discarded. If a chip passed these tests, one could be confident that it would not fail during a mission. Although Fairchild was offering a line of chips that could be used to make a computer, MIT chose only one type, giving them an ability to test it more thoroughly and to allow the manufacturer to build up more experience making them reliably. No Apollo Guidance Computer, on either the Command or Lunar Modules, ever experienced a hardware failure during a mission.
+
+Apollo production line in Landsdale, Pennsylvania. Photo: David Chester, Philco
+
+MIT did not entirely prevail, however, as NASA specified that primary navigation for Apollo would be conducted from Houston, using its array of large mainframe computers (supplied by IBM), with the on-board system as a secondary. The wisdom of that decision was proven during Apollo 13 when the Command Module’s power was lost. In other missions, the on-board computers and navigation systems worked perfectly and worked more in tandem with Houston than as a backup. It also functioned reliably during the burns of the Service Module engine behind the Moon, when there was no communication with Houston. Grumman Aerospace, the builder of the Lunar Module, insisted that a small back-up controller be installed in case of a computer failure. Grumman envisioned this “Abort Guidance System” (AGS) as a modest controller intended only to get the crew off the Moon quickly and into Lunar Orbit, where they would be rescued by the Command Module pilot. As finally supplied by TRW Inc., it grew into a general-purpose computer of its own, with its own display and keyboard. Like the Apollo Guidance Computer, it also used integrated circuits. It was tested successfully during the Apollo 10 mission, but it was never needed.
+
+Microscopic view of dual, three-element NOR gate, the inside of a silicon chip, used in Apollo. Photo: Lisa Young, Smithsonian
+
+And this brings us to one of the ironies of the Apollo decision to use integrated circuits. In 1965, a Fairchild Semiconductor employee named Gordon Moore wrote a provocative essay on “cramming more components onto integrated circuits.” Thus was born Moore’s Law: The density of computer chips would double every year, later stretched out to every 18 months. It is still going on more than 50 years later. For Apollo, it meant that by the time astronauts were flying Apollo 7 in October 1968, the six-device circuit specified for the computer was way obsolete. Fairchild and others were supplying chips that incorporated several hundred devices on a chip, but there was no way to test these new chips and incorporate them into the Apollo Guidance Computer. The area of Santa Clara County, where Fairchild and its competitors were located, began going by the name “Silicon Valley” by the end of the decade. The Apollo contract was not the sole reason for the transformation of the Valley, but it was a major factor. In truth, Fairchild ended up not being the main supplier of Apollo chips after all. Their design was licensed to Philco of suburban Philadelphia, which supplied the thousands of integrated circuits used in all the Apollo Guidance Computers. And because the Abort Guidance System was specified a year or two after the Apollo Guidance Computer, its designers were able to take advantage of newer circuit designs, not from Fairchild but from one of its Silicon Valley competitors, Signetics. By the time of the last Apollo missions, to the Moon in 1972 and to a rendezvous with a Soviet Soyuz in 1975, the Silicon Valley revolution was in full swing. As we enjoy the products and software flowing like a torrent out of the Valley, we should recall its modest beginnings and the courage of the Apollo engineers who were bold enough to choose a circuit that “crammed” all of six devices on a sliver of silicon.
+
+Related Topics
+
+-
+
+Spaceflight
+
+-
+
+Apollo program
+
+-
+
+Technology and Engineering
+
+Comments? Contact Us
+
+You may also like
+
+Exhibition
+
+Apollo to the Moon
+
+-
+
+National Air and Space Museum in Washington, DC
+
+-
+
+Past Exhibition
+
+Story
+
+Apollo Inflight Exerciser

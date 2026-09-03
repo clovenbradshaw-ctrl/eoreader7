@@ -468,3 +468,83 @@ export async function chaseLedger(log, door, pages, { fetchFace, search = null, 
     notesConsidered: notes.length, notesAttested: chased.filter((c) => c.attested.length).length,
   };
 }
+
+// ── the address that answers for many documents is none of them ──────────
+/**
+ * redirectHubs(index) — from a face index ({ key: { url, finalUrl, ... } }),
+ * the final addresses that MORE THAN ONE distinct cited path resolved to.
+ * Measured backwards on Apollo 11 (2026-09-02): seventeen different Apollo
+ * Lunar Surface Journal transcripts all answered from one portal page, six
+ * NSSDCA pages from one status page, and every one passed documentMatches
+ * because the portal's title carries the journal's name. One document
+ * cannot be the resolution of two different citations; a final address
+ * that is, is a hub, and a face read from it is not the document cited.
+ * No threshold: two is the floor at which the claim "this is that document"
+ * is refuted by the index itself.
+ */
+export const normalizedPath = (u) => {
+  // an archive copy IS its target: any snapshot of one document, under any
+  // timestamp and either scheme, is that document — never a sibling of it
+  const m = String(u ?? "").match(/^https?:\/\/web\.archive\.org\/web\/\d+[a-z_]*\/(https?:\/\/.+)$/i);
+  if (m) { const t = normalizedPath(m[1]); return t ? `archive:${t}` : null; }
+  try { const x = new URL(u); return `${x.hostname.replace(/^www\./, "")}${x.pathname.replace(/\/+$/, "").replace(/\.(html?|htm|shtml|cfm)$/i, "").replace(/\/index$/, "") || "/"}`; } catch { return null; }
+};
+export function redirectHubs(index) {
+  const sources = new Map();
+  for (const e of Object.values(index ?? {})) {
+    if (!e || e.gap || !e.url || !e.finalUrl) continue;
+    const a = normalizedPath(e.url), b = normalizedPath(e.finalUrl);
+    if (!a || !b || a === b) continue;
+    if (!sources.has(b)) sources.set(b, new Set());
+    sources.get(b).add(a);
+  }
+  return new Set([...sources].filter(([, s]) => s.size >= 2).map(([b]) => b));
+}
+/** Did a redirect drop the cited document's own path segment? A typed doubt, not a verdict — the hub rule or an archive copy decides. */
+export function pathLost(url, finalUrl) {
+  const a = normalizedPath(url), b = normalizedPath(finalUrl);
+  if (!a || !b || a === b) return false;
+  const last = a.split("/").filter(Boolean).pop() ?? "";
+  return b.split("/").length < a.split("/").length && !b.includes(last);
+}
+
+// ── chrome: what a host says on every page is not what any page says ─────
+/**
+ * chromeLines(texts) — the leading and trailing runs of lines that at least
+ * two of the given faces share verbatim. On nasa.gov every face opened with
+ * the same 156 navigation lines and closed with the same "Keep Exploring"
+ * block; a token-overlap classifier read "Lunar Surface Technology" in that
+ * menu as partial support for "descent to the lunar surface". Measured, not
+ * listed: the chrome is whatever the host's own faces agree on, and a face
+ * with no sibling has no chrome removed (typed: nothing to compare).
+ */
+export function chromeLines(texts) {
+  const lines = (texts ?? []).map((t) => String(t ?? "").split("\n"));
+  if (lines.length < 2) return { head: 0, tail: 0, headLines: [], tailLines: [] };
+  const runs = (dir) => {
+    // for each face, the longest prefix (or suffix) it shares with ANY other face
+    let best = [];
+    for (let i = 0; i < lines.length; i += 1) for (let j = i + 1; j < lines.length; j += 1) {
+      const A = dir > 0 ? lines[i] : [...lines[i]].reverse(), B = dir > 0 ? lines[j] : [...lines[j]].reverse();
+      let n = 0; while (n < A.length && n < B.length && A[n] === B[n]) n += 1;
+      if (n > best.length) best = A.slice(0, n);
+    }
+    return best;
+  };
+  const head = runs(1), tail = runs(-1).reverse();
+  return { head: head.length, tail: tail.length, headLines: head, tailLines: tail };
+}
+/** stripChrome(text, siblings) — remove the lines `text` shares as a prefix/suffix with at least one sibling face of the same host. */
+export function stripChrome(text, siblings) {
+  const mine = String(text ?? "").split("\n");
+  let head = 0, tail = 0;
+  for (const s of siblings ?? []) {
+    const other = String(s ?? "").split("\n");
+    let n = 0; while (n < mine.length && n < other.length && mine[n] === other[n]) n += 1;
+    head = Math.max(head, n);
+    let m = 0; while (m < mine.length - n && m < other.length - n && mine[mine.length - 1 - m] === other[other.length - 1 - m]) m += 1;
+    tail = Math.max(tail, m);
+  }
+  if (head + tail >= mine.length) return { text: "", head, tail };
+  return { text: mine.slice(head, mine.length - tail).join("\n"), head, tail };
+}

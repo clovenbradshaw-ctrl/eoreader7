@@ -278,7 +278,8 @@ present — is where P84's ledger-side next step applies.
 | pricing probes before the coverage idea (a fault, recorded) | 7 |
 | post-refactor identity check | 4 |
 | measurement, 12 notes, 2 arms, 2 sides | 60 |
-| **session total** | **71** |
+| post-repair driver identity check (N=2 random) | 4 |
+| **session total** | **75** |
 | the cross-product as queued before | 2,592 |
 
 Zero-call passes did the rest: silence, distinctness, control divergence,
@@ -292,3 +293,86 @@ cost — 64 notes, every face read whole — and they are the reusable part.
 `ranke-slicers.mjs` gained exports, an `import.meta.main` guard, `ONLY=`,
 per-arm `candKeys`, and a license verdict that says when the control saw
 the identical candidates.
+
+---
+
+# Making the population real (2026-09-02, later the same day)
+
+**Re-walk:** `OFFLINE=1 WITNESS=0 MAXF=100000 node ranke-backwards.mjs` — the
+run-4 cache read again through four new rules, **0 network, 0 model calls,
+10 seconds.** Run 4's rows are kept as `results/ranke-backwards-run4.json`.
+
+## Four rules, each measured, none a threshold
+
+**1. A hub is none of the documents it answers for** (`ranke.js
+redirectHubs`). From the face index alone: a final address that more than
+one *distinct* cited path resolved to. Seventeen ALSJ transcripts answered
+from `nasa.gov/history/alsj-and-afj`, six NSSDCA pages from
+`nasa.gov/nssdc`, two Smithsonian pages from one program page. Every one
+had passed `documentMatches` because the portal's title carries the
+journal's name. A face read from a hub is a typed gap `redirect-hub`
+carrying the archive address of the cited URL. An archive copy is
+normalised to its target — any snapshot, any timestamp, either scheme — so
+snapshots of one document are never counted as two citations (this bit
+once: three same-sentence hits went `unreadable` before the fix).
+
+**2. On a hub gap, the citation's own archive wrapper is the route** (P84).
+The walk used to give up on any gap; run 4 had only reached the archive
+through the `wrong-document` branch. Now `redirect-hub` → the wrapper the
+footnote carried, else `web.archive.org/web/2/<url>`. Offline, this reads
+what run 4 kept: 81 consults now read through the archive copy.
+
+**3. Chrome is what a host says on every page** (`ranke.js stripChrome`).
+The leading and trailing lines a face shares verbatim with a *sibling* face
+of the same host — a sibling being a different final address; the same page
+fetched under `http://` and `https://` is a duplicate, and a face compared
+with its own duplicate is all chrome by construction (this bit once too:
+90 false `all-chrome` gaps, now 4). The stripped body is written beside the
+raw face as `<key>.body.txt` and the row's `facePath` points at it, so the
+slicers read what the walk classified. A face with no sibling keeps its
+chrome, typed as zero removed.
+
+**4. A ranked link is a guess, not a citation.** Rows now carry
+`lead: "citation" | "guess"`. 131 of the original 162 object-missing
+partials came through a link the page merely contained, chosen by word
+overlap, never through the note's own footnote.
+
+**Also landed, untestable here:** `application/pdf` faces go through
+`pdftotext`; the NTRS download API answered 429 on this box and
+web.archive.org resets the connection, so both stay typed gaps. A redirect
+that drops the cited path segment tries the archive copy first and, failing
+that, keeps the live face with `lostPath: true` for the hub rule to convict
+later.
+
+## Before and after, zero calls both sides
+
+| | run 4 | now |
+|---|---|---|
+| same-sentence (real / control) | 18 / 10 | **18 / 14** — nothing lost |
+| object-missing partials | 162 | **127** — 30 citations, 97 guesses |
+| faces by fingerprint: wrong-document | 15 faces, 47 notes | **1 face, 3 notes** (a missions index only one citation hit; the hub rule needs two) |
+| faces carrying nasa.gov nav chrome | 19 faces, 80 notes | **1 face, 3 notes** |
+| median candidate pool per face | 191 sentences | **74** |
+| `redirect-hub` consults | — | 287, each with its archive address |
+| labeled-stated notes still in class | 12 | **12 of 12** |
+| coverage@8, containment / random | 11/12 / 0/12 | **11/12 / 2/12** |
+
+Random's coverage rose from 0 to 2 because the haystack is a third the
+size — the honest effect of removing the menu, and the reason the random
+arm exists.
+
+## What the fixture now says the class is
+
+Of 127 object-missing partials, 30 are footnote-bound. The labeled sample
+(64 notes, read whole) found 12 stated, of which 6 were citations and 6
+were guesses that happened to be right. So the paraphrase population — the
+cited source, readable, saying it in other words — is on the order of
+thirty notes on this page, not 162, and the honest measurement of the
+reading wall is the one already taken: 4 landings in 11 with 0 wrong.
+
+## Not done
+
+Live archive fetches (network blocked here); the NTRS PDF (429); the
+missions-index hub that only one citation reached. Each is a typed gap with
+its route recorded, and a box that can reach the archive will fill them
+by re-running the same command without `OFFLINE=1`.

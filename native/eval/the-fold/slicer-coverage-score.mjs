@@ -10,13 +10,19 @@ const key = (c) => `${c.start ?? "?"}:${c.shown.slice(0, 60)}`;
 const tally = {};
 for (const [i, lab] of Object.entries(L)) { tally[lab.status] = (tally[lab.status] ?? 0) + 1; }
 console.log("\nLABEL TALLY over 30 notes:", JSON.stringify(tally));
-const stated = Object.entries(L).filter(([, l]) => l.status.startsWith("stated"));
+// labels are keyed by note id; resolve each to its position in THIS run's real[] (a re-walk shifts positions)
+const posOf = new Map(D.real.map((r, i) => [r.row.id, i]));
+const stated = Object.entries(L).filter(([, l]) => l.status.startsWith("stated")).map(([id, l]) => [posOf.has(id) ? String(posOf.get(id)) : null, { ...l, id }]).filter(([i]) => i != null);
+console.log(`labels resolved to this run: ${stated.length} stated of ${Object.values(L).filter((l) => l.status.startsWith("stated")).length} (a label whose note left the class is not counted)`);
 console.log(`\nCOVERAGE@${cov.K} — of the ${stated.length} notes where the face states the proposition, does the arm's top-K contain a stating sentence?`);
 console.log(`  ${"note".padEnd(6)} ${"status".padEnd(20)} ${cov.arms.map((a) => a.padEnd(12)).join("")}`);
 const hits = Object.fromEntries(cov.arms.map((a) => [a, 0]));
 for (const [i, lab] of stated) {
   const face = D.real[Number(i)].face;
-  const targets = new Set(lab.sentences.map((n) => key(face.pool[n])));
+  // a label names sentences by TEXT: a re-cut face keeps its sentences and loses its indices
+  const want = (lab.sentenceText ?? []).filter(Boolean).map((t) => t.replace(/\s+/g, " ").trim());
+  const targets = new Set(face.pool.filter((c) => want.some((t) => c.shown === t || c.shown.includes(t) || t.includes(c.shown))).map(key));
+  if (!targets.size) { console.log(`  ${i.padEnd(6)} ${lab.status.padEnd(20)} labeled sentence not in this face (${D.real[Number(i)].row.facePath}); label not applicable`); continue; }
   const row = cov.arms.map((a) => {
     const c = cov.real[a][Number(i)].cands;
     if (c == null) return "silent";

@@ -2722,3 +2722,65 @@ still convicted `indiscriminate`, so the seam cannot be used to buy a vote.
 The premise is pinned too rather than assumed — the test asserts
 `statingCandidates` returns zero on the paraphrase fixture, which is what an
 object-missing partial IS. Omitted, byte-identical to before.
+
+## S48 — The population is not what the class label says: a hub is none of its documents, chrome is what a host says everywhere, a ranked link is a guess
+
+**Generality:** universal.
+
+The licensing measurement S47 was written for was taken (2026-09-02,
+`eval/the-fold/results/slicer-coverage-RESULTS.md`), and the first thing it
+returned was not a number but a census: of 64 object-missing partials read
+whole, 32 were not the cited document at all. Seventeen Apollo Lunar
+Surface Journal transcripts had all answered from one portal page; six
+NSSDCA pages from one status page; a chapter of SP-4223 answered for
+fifteen propositions that are in a different chapter; and every one had
+passed `documentMatches`, because a portal's title carries the journal's
+name and a chapter of a book carries the book's. Nineteen of 52 faces
+opened with the same 156 navigation lines, and a token-overlap classifier
+had read "Lunar Surface Technology" in that menu as partial support for
+"descent to the lunar surface". And 131 of the 162 had never been cited:
+the note carried no footnote, so the walk had taken the best-overlapping
+link the page contained as a guess, and `partial` admitted the guess.
+
+Four rules now stand in `organs/ranke.js` and the backwards walk, each a
+measurement of the fixture against itself and none a threshold:
+
+- **`redirectHubs(index)`** — a final address that more than one distinct
+  cited path resolved to is a hub, and a face read from it is none of the
+  documents cited. Two is the floor: one document cannot be the resolution
+  of two citations. An archive copy normalises to its target (any snapshot,
+  either scheme), so snapshots of one document are never two citations —
+  measured, because they were, and three same-sentence hits went
+  `unreadable` before the fix. A hub face is a typed gap `redirect-hub`
+  carrying the archive address of the cited URL.
+- **On a hub gap the citation's own archive wrapper is the route** (P84).
+  The walk gave up on any gap; now `redirect-hub` reaches for the wrapper
+  the footnote carried, else the public archive's address for the target.
+- **`stripChrome(text, siblings)`** — the leading and trailing lines a face
+  shares verbatim with a sibling face of the same host. A sibling is a
+  different final address; the same page fetched under two spellings is a
+  duplicate, and a face compared with its duplicate is all chrome by
+  construction — measured, because it was: 90 false `all-chrome` gaps, now
+  4. The body is written beside the raw face as `<key>.body.txt` and the row
+  points at it, so every downstream reader sees what the walk classified.
+  A face with no sibling keeps its chrome, typed as zero removed.
+- **`lead: "citation" | "guess"`** on every row. A footnote is a citation. A
+  ranked link is a guess, and a guess that happens to be right is still not
+  what the page cited.
+
+Re-walked offline against the run-4 cache in ten seconds with no model
+call: same-sentence 18 of 18 preserved; object-missing partials 162 → 127,
+of which 30 are citations; wrong-document faces 47 notes → 3; faces with
+navigation chrome 80 notes → 3; median candidate pool 191 → 74 sentences.
+The paraphrase population on this page is on the order of thirty notes, and
+the reading wall S47's seam exposed — the witness pointing at the stating
+sentence 4 times in 11 with 0 wrong — is measured against that, not
+against a menu.
+
+The rule the day taught, stated once: **before a model call is priced, ask
+whether it can succeed given what is in front of it.** The slicers'
+coverage of the labeled sentence was a property of the ranking alone, read
+in six seconds with no witness; it bounded every call the cross-product
+would have spent, and it made the budget argument the earlier pass had
+skipped. Pinned in `ranke.test.mjs`: hubs, the archive normalisation, lost
+paths, chrome, the duplicate-is-not-a-sibling case, and the lone face.

@@ -3,310 +3,736 @@
   "sample": "results/slicer-labels-sample.json — 30 notes, 21 faces, MAXPOOL=250, SEED=0",
   "rule": "STATED = some sentence in the face asserts the proposition in any words. Sentence numbers index the face pool. wrong-document = the fetched face is an index, landing, stub or metadata page and not the cited document's content. not-stated = a real content page that does not assert the proposition.",
   "labels": {
-    "42": {
+    "camera|had|been used to capture images of the first moon landing": {
       "status": "stated",
       "sentences": [
         15,
         16,
         9
       ],
-      "why": "16mm DAC 'used to film footage of the final approach' / 'used to record Armstrong going down the ladder'"
+      "why": "16mm DAC 'used to film footage of the final approach' / 'used to record Armstrong going down the ladder'",
+      "note": "Camera —had→ been used to capture images of the first Moon landing",
+      "facePath": "primary-faces/a0d8c787f8a88998.txt",
+      "via": "footnote",
+      "positionInRun4": 42,
+      "sentenceText": [
+        "Most importantly, it contained the 16mm data acquisition camera (DAC) used to film footage of the final approach to the moon on July 20, 1969.",
+        "The camera was also used to record Armstrong going down the ladder and taking his famous \"one small step,\" the planting of the flag and other footage of Armstrong and Buzz Aldrin on the lunar surface.",
+        "Neil Armstrong, the first man to walk on the moon, secretly took home a bag of mementos from the mission including the camera used to film his \"one small step\" and the planting of the US flag on the lunar surface."
+      ],
+      "sentenceBytes": [
+        [
+          1514,
+          1656
+        ],
+        [
+          1658,
+          1858
+        ],
+        [
+          454,
+          667
+        ]
+      ]
     },
-    "45": {
+    "collins|recovered|he joined armstrong's crew as cmp": {
       "status": "stated",
       "sentences": [
         167,
         166
       ],
-      "why": "'Fully recovered from the operation, NASA added him to the Apollo 11 crew' — the paraphrase exactly"
+      "why": "'Fully recovered from the operation, NASA added him to the Apollo 11 crew' — the paraphrase exactly",
+      "note": "Collins —recovered→ he joined Armstrong's crew as CMP",
+      "facePath": "primary-faces/cf81fc278355b46c.txt",
+      "via": "link",
+      "positionInRun4": 45,
+      "sentenceText": [
+        "Fully recovered from the operation, NASA added him to the Apollo 11 crew.",
+        "Armstrong and Aldrin had served on the backup crew for Apollo 8 the previous December and Collins was initially a member of that crew until a bone spur in his spine requiring surgery sidelined him."
+      ],
+      "sentenceBytes": [
+        [
+          7459,
+          7532
+        ],
+        [
+          7261,
+          7458
+        ]
+      ]
     },
-    "54": {
+    "five sites|were|considered: sites 1 and 2 were in the sea of tranquility ( mare tranquillitatis )": {
       "status": "stated",
       "sentences": [
         161,
         165,
         166
       ],
-      "why": "'announced five potential landing sites' + Site One/Two 'in the Sea of Tranquility'"
+      "why": "'announced five potential landing sites' + Site One/Two 'in the Sea of Tranquility'",
+      "note": "Five sites —were→ considered: Sites 1 and 2 were in the Sea of Tranquility ( Mare Tranquillitatis )",
+      "facePath": "primary-faces/5a5fe281600f6cf1.txt",
+      "via": "footnote",
+      "positionInRun4": 54,
+      "sentenceText": [
+        "On February 8, 1968, after two years of study NASA’s Apollo Site Selection Board announced five potential landing sites for the first human lunar landing.",
+        "- Site One: 34o East, 2o40” North, in the Sea of Tranquility ( Mare Tranquilitatis );",
+        "- Site Two: 23o37” East, 0o45” North, in the Sea of Tranquility ( Mare Tranquilitatis );"
+      ],
+      "sentenceBytes": [
+        [
+          6717,
+          6871
+        ],
+        [
+          7294,
+          7379
+        ],
+        [
+          7381,
+          7469
+        ]
+      ]
     },
-    "149": {
+    "they|found|on the atlantic seabed using advanced sonar scanning": {
       "status": "stated",
       "sentences": [
         1
       ],
-      "why": "'found using advanced sonar scanning some 14,000ft below the Atlantic Ocean's surface'"
+      "why": "'found using advanced sonar scanning some 14,000ft below the Atlantic Ocean's surface'",
+      "note": "They —found→ on the Atlantic seabed using advanced sonar scanning",
+      "facePath": "primary-faces/03b3ab122bf87b56.txt",
+      "via": "footnote",
+      "positionInRun4": 149,
+      "sentenceText": [
+        "In a blog post, Mr Bezos said the five engines were found using advanced sonar scanning some 14,000ft (4,300m) below the Atlantic Ocean's surface."
+      ],
+      "sentenceBytes": [
+        [
+          130,
+          276
+        ]
+      ]
     },
-    "3": {
+    "a special display of armstrong's suit|was|unveiled for the 50th anniversary of apollo 11 in july 2019": {
       "status": "stated-prospective",
       "sentences": [
         35
       ],
-      "why": "Nov 2018 source says the suit 'will have ... opening [on display] in July 2019 for the 50th anniversary' — states the plan, not the past event"
+      "why": "Nov 2018 source says the suit 'will have ... opening [on display] in July 2019 for the 50th anniversary' — states the plan, not the past event",
+      "note": "A special display of Armstrong's suit —was→ unveiled for the 50th anniversary of Apollo 11 in July 2019",
+      "facePath": "primary-faces/f7ee769d9d5b8cb5.txt",
+      "via": "footnote",
+      "positionInRun4": 3,
+      "sentenceText": [
+        "\"We will have Neil Armstrong's spacesuit opening [on display] in July 2019 for the 50th anniversary of Apollo 11 ."
+      ],
+      "sentenceBytes": [
+        [
+          4044,
+          4158
+        ]
+      ]
     },
-    "136": {
+    "the soviets|took|the lead on april 12": {
       "status": "stated-partial",
       "sentences": [
         3
       ],
-      "why": "'watched the Soviet Union take the lead' — the lead is stated, 'April 12' is not"
+      "why": "'watched the Soviet Union take the lead' — the lead is stated, 'April 12' is not",
+      "note": "The Soviets —took→ the lead on April 12",
+      "facePath": "primary-faces/b1f6b4fc55dee644.txt",
+      "via": "link",
+      "positionInRun4": 136,
+      "sentenceText": [
+        "In the late 1950s the United States watched the Soviet Union take the lead in the rapidly escalating space race."
+      ],
+      "sentenceBytes": [
+        [
+          227,
+          339
+        ]
+      ]
     },
-    "122": {
+    "the crew|saw|passing views of their landing site in the southern sea of tranquility about 12 miles (19 km) southwest of the crater sabine d": {
       "status": "wrong-document",
-      "why": "NSSDCA 'temporarily offline for maintenance' stub"
+      "why": "NSSDCA 'temporarily offline for maintenance' stub",
+      "note": "the crew —saw→ passing views of their landing site in the southern Sea of Tranquility about 12 miles (19 km) southwest of the crater Sabine D",
+      "facePath": "primary-faces/936e909fa8565609.txt",
+      "via": "link",
+      "positionInRun4": 122
     },
-    "81": {
+    "nasa|included|the vague date as a reason to include a": {
       "status": "wrong-document",
-      "why": "NSSDCA 'temporarily offline for maintenance' stub"
+      "why": "NSSDCA 'temporarily offline for maintenance' stub",
+      "note": "NASA —included→ the vague date as a reason to include A",
+      "facePath": "primary-faces/7dd85f4b8d00e19f.txt",
+      "via": "link",
+      "positionInRun4": 81
     },
-    "144": {
+    "the vehicle|began|to roll into its flight azimuth of 72": {
       "status": "wrong-document",
-      "why": "NTRS metadata page, 'No Preview Available'; the PDF was not fetched"
+      "why": "NTRS metadata page, 'No Preview Available'; the PDF was not fetched",
+      "note": "the vehicle —began→ to roll into its flight azimuth of 72",
+      "facePath": "primary-faces/9c3ac072b80c2b4d.txt",
+      "via": "link",
+      "positionInRun4": 144
     },
-    "112": {
+    "the astronauts|walked|the 30 feet (9": {
       "status": "wrong-document",
-      "why": "NTRS metadata page, 'No Preview Available'; the PDF was not fetched"
+      "why": "NTRS metadata page, 'No Preview Available'; the PDF was not fetched",
+      "note": "the astronauts —walked→ the 30 feet (9",
+      "facePath": "primary-faces/9c3ac072b80c2b4d.txt",
+      "via": "link",
+      "positionInRun4": 112
     },
-    "9": {
+    "aldrin|remarked|that moving from sunlight into eagle ' s shadow produced no temperature change inside the suit": {
       "status": "wrong-document",
-      "why": "Apollo Lunar Surface Journal LANDING page, not the journal page cited"
+      "why": "Apollo Lunar Surface Journal LANDING page, not the journal page cited",
+      "note": "Aldrin —remarked→ that moving from sunlight into Eagle ' s shadow produced no temperature change inside the suit",
+      "facePath": "primary-faces/4d2be2b4199b336f.txt",
+      "via": "footnote",
+      "positionInRun4": 9
     },
-    "5": {
+    "aldrin and armstrong|completed|their eva": {
       "status": "wrong-document",
-      "why": "ALSJ landing page"
+      "why": "ALSJ landing page",
+      "note": "Aldrin and Armstrong —completed→ their EVA",
+      "facePath": "primary-faces/26120f15d911a264.txt",
+      "via": "link",
+      "positionInRun4": 5
     },
-    "0": {
+    "51 armstrong|began|his descent to the lunar surface": {
       "status": "wrong-document",
-      "why": "ALSJ landing page"
+      "why": "ALSJ landing page",
+      "note": "51 Armstrong —began→ his descent to the lunar surface",
+      "facePath": "primary-faces/26120f15d911a264.txt",
+      "via": "link",
+      "positionInRun4": 0
     },
-    "20": {
+    "armstrong and aldrin|descended|to the surface aboard the lm eagle": {
       "status": "wrong-document",
-      "why": "ALSJ landing page; s184 '22-hour stay on the Moon by Armstrong and Aldrin' implies but does not state descent aboard Eagle"
+      "why": "ALSJ landing page; s184 '22-hour stay on the Moon by Armstrong and Aldrin' implies but does not state descent aboard Eagle",
+      "note": "Armstrong and Aldrin —descended→ to the surface aboard the LM Eagle",
+      "facePath": "primary-faces/26120f15d911a264.txt",
+      "via": "link",
+      "positionInRun4": 20
     },
-    "8": {
+    "aldrin|heard|that armstrong would be the first because armstrong was a civilian": {
       "status": "wrong-document",
-      "why": "ALSJ landing page"
+      "why": "ALSJ landing page",
+      "note": "Aldrin —heard→ that Armstrong would be the first because Armstrong was a civilian",
+      "facePath": "primary-faces/26120f15d911a264.txt",
+      "via": "link",
+      "positionInRun4": 8
     },
-    "24": {
+    "armstrong in particular|was|notoriously aloof": {
       "status": "wrong-document",
-      "why": "ALSJ landing page"
+      "why": "ALSJ landing page",
+      "note": "Armstrong in particular —was→ notoriously aloof",
+      "facePath": "primary-faces/f0846504330bc332.txt",
+      "via": "link",
+      "positionInRun4": 24
     },
-    "95": {
+    "part of|launch|complex 39": {
       "status": "wrong-document",
-      "why": "ALSJ landing page"
+      "why": "ALSJ landing page",
+      "note": "part of —launch→ Complex 39",
+      "facePath": "primary-faces/64abb6dbdb57e0a8.txt",
+      "via": "link",
+      "positionInRun4": 95
     },
-    "159": {
+    "with apollo 11 still on the|launch|pad": {
       "status": "wrong-document",
-      "why": "ALSJ landing page"
+      "why": "ALSJ landing page",
+      "note": "with Apollo 11 still on the —launch→ pad",
+      "facePath": "primary-faces/64abb6dbdb57e0a8.txt",
+      "via": "link",
+      "positionInRun4": 159
     },
-    "128": {
+    "the launch|was|televised live in 33 countries": {
       "status": "wrong-document",
-      "why": "ALSJ landing page"
+      "why": "ALSJ landing page",
+      "note": "The launch —was→ televised live in 33 countries",
+      "facePath": "primary-faces/64abb6dbdb57e0a8.txt",
+      "via": "link",
+      "positionInRun4": 128
     },
-    "47": {
+    "collins|slept|so he could be rested for the rendezvous": {
       "status": "wrong-document",
-      "why": "ALSJ landing page"
+      "why": "ALSJ landing page",
+      "note": "Collins —slept→ so he could be rested for the rendezvous",
+      "facePath": "primary-faces/03a97e93a8e6b09d.txt",
+      "via": "link",
+      "positionInRun4": 47
     },
-    "151": {
+    "this|has|been far more than three men on a mission to the moon": {
       "status": "wrong-document",
-      "why": "science.nasa.gov missions index"
+      "why": "science.nasa.gov missions index",
+      "note": "This —has→ been far more than three men on a mission to the Moon",
+      "facePath": "primary-faces/71653e4d2df860fa.txt",
+      "via": "footnote",
+      "positionInRun4": 151
     },
-    "40": {
+    "buzz aldrin on the backup crew for apollo 9|was|officially announced on november 20": {
       "status": "wrong-document",
-      "why": "'Apollo 11 Crew Meets With President Obama' photo page"
+      "why": "'Apollo 11 Crew Meets With President Obama' photo page",
+      "note": "Buzz Aldrin on the backup crew for Apollo 9 —was→ officially announced on November 20",
+      "facePath": "primary-faces/c77f56303107df45.txt",
+      "via": "link",
+      "positionInRun4": 40
     },
-    "11": {
+    "aldrin|tossed|the bag down": {
       "status": "wrong-document",
-      "why": "'Apollo 11 HD Videos' page"
+      "why": "'Apollo 11 HD Videos' page",
+      "note": "Aldrin —tossed→ the bag down",
+      "facePath": "primary-faces/f78739635739df53.txt",
+      "via": "link",
+      "positionInRun4": 11
     },
-    "123": {
+    "the crew|was|awakened by houston to prepare for the return flight": {
       "status": "not-stated",
-      "why": "'50 Years Ago: NASA Names Apollo 11 Crew' — a real article, does not cover the return-flight wakeup"
+      "why": "'50 Years Ago: NASA Names Apollo 11 Crew' — a real article, does not cover the return-flight wakeup",
+      "note": "the crew —was→ awakened by Houston to prepare for the return flight",
+      "facePath": "primary-faces/cf81fc278355b46c.txt",
+      "via": "footnote",
+      "positionInRun4": 123
     },
-    "83": {
+    "nasa|reassigned|his crew to apollo 14 and moved lovell's crew up to fly apollo 13 instead": {
       "status": "not-stated",
-      "why": "same article; Lovell as Apollo 11 backup is stated, the Apollo 13/14 reassignment is not"
+      "why": "same article; Lovell as Apollo 11 backup is stated, the Apollo 13/14 reassignment is not",
+      "note": "NASA —reassigned→ his crew to Apollo 14 and moved Lovell's crew up to fly Apollo 13 instead",
+      "facePath": "primary-faces/cf81fc278355b46c.txt",
+      "via": "link",
+      "positionInRun4": 83
     },
-    "79": {
+    "most americans|were|proud of their nation's achievements in space exploration": {
       "status": "not-stated",
-      "why": "JFK 1961 speech page; nothing on public opinion"
+      "why": "JFK 1961 speech page; nothing on public opinion",
+      "note": "most Americans —were→ proud of their nation's achievements in space exploration",
+      "facePath": "primary-faces/babb9aea763ba359.txt",
+      "via": "link",
+      "positionInRun4": 79
     },
-    "104": {
+    "such site|was|found": {
       "status": "not-stated",
-      "why": "site-selection article lists the crater criterion but never says no crater-free site was found. NOTE: the note itself dropped the negation — article says 'no such site was found', note reads 'such site —was→ found'"
+      "why": "site-selection article lists the crater criterion but never says no crater-free site was found. NOTE: the note itself dropped the negation — article says 'no such site was found', note reads 'such site —was→ found'",
+      "note": "such site —was→ found",
+      "facePath": "primary-faces/5a5fe281600f6cf1.txt",
+      "via": "link",
+      "positionInRun4": 104
     },
-    "25": {
+    "armstrong's sons|were|hosted by president donald trump in the oval office": {
       "status": "not-stated",
-      "why": "Cincinnati exhibit article; no Oval Office"
+      "why": "Cincinnati exhibit article; no Oval Office",
+      "note": "Armstrong's sons —were→ hosted by President Donald Trump in the Oval Office",
+      "facePath": "primary-faces/85694a820afc4db3.txt",
+      "via": "link",
+      "positionInRun4": 25
     },
-    "51": {
+    "eagle|rendezvoused|with columbia at 21:24 utc on july 21": {
       "status": "not-stated",
-      "why": "Columbia object page; no rendezvous time"
+      "why": "Columbia object page; no rendezvous time",
+      "note": "Eagle —rendezvoused→ with Columbia at 21:24 UTC on July 21",
+      "facePath": "primary-faces/8a6951d211712f1a.txt",
+      "via": "link",
+      "positionInRun4": 51
     },
-    "67": {
+    "khrushchev|declined|the offer": {
       "status": "not-stated",
-      "why": "Sergei Khrushchev interview; the joint-project offer is not mentioned"
+      "why": "Sergei Khrushchev interview; the joint-project offer is not mentioned",
+      "note": "Khrushchev —declined→ the offer",
+      "facePath": "primary-faces/95211e254c891f1d.txt",
+      "via": "link",
+      "positionInRun4": 67
     },
-    "1": {
+    "a different sequence of computer programs|was|used": {
       "status": "wrong-document",
-      "why": "SP-4223 fetched as the Glynn Lunney biography/oral-history chapter; none of the cited Apollo 11 propositions are in it"
+      "why": "SP-4223 fetched as the Glynn Lunney biography/oral-history chapter; none of the cited Apollo 11 propositions are in it",
+      "note": "A different sequence of computer programs —was→ used",
+      "facePath": "primary-faces/4f69a8cb8bb11499.txt",
+      "via": "link",
+      "positionInRun4": 1
     },
-    "4": {
+    "a storm front|was|headed for the apollo recovery area": {
       "status": "wrong-document",
-      "why": "SP-4223 fetched as the Glynn Lunney biography/oral-history chapter; none of the cited Apollo 11 propositions are in it"
+      "why": "SP-4223 fetched as the Glynn Lunney biography/oral-history chapter; none of the cited Apollo 11 propositions are in it",
+      "note": "a storm front —was→ headed for the Apollo recovery area",
+      "facePath": "primary-faces/4f69a8cb8bb11499.txt",
+      "via": "link",
+      "positionInRun4": 4
     },
-    "52": {
+    "early lead|was|overtaken by the us gemini program and soviet failure to develop the n1 launcher": {
       "status": "wrong-document",
-      "why": "SP-4223 fetched as the Glynn Lunney biography/oral-history chapter; none of the cited Apollo 11 propositions are in it"
+      "why": "SP-4223 fetched as the Glynn Lunney biography/oral-history chapter; none of the cited Apollo 11 propositions are in it",
+      "note": "early lead —was→ overtaken by the US Gemini program and Soviet failure to develop the N1 launcher",
+      "facePath": "primary-faces/4f69a8cb8bb11499.txt",
+      "via": "link",
+      "positionInRun4": 52
     },
-    "55": {
+    "flight director gene kranz|speculated|that it could have resulted from extra air pressure in the docking tunnel": {
       "status": "wrong-document",
-      "why": "SP-4223 fetched as the Glynn Lunney biography/oral-history chapter; none of the cited Apollo 11 propositions are in it"
+      "why": "SP-4223 fetched as the Glynn Lunney biography/oral-history chapter; none of the cited Apollo 11 propositions are in it",
+      "note": "Flight Director Gene Kranz —speculated→ that it could have resulted from extra air pressure in the docking tunnel",
+      "facePath": "primary-faces/4f69a8cb8bb11499.txt",
+      "via": "link",
+      "positionInRun4": 55
     },
-    "74": {
+    "mission control|advised|him to assume manual control and implement environmental control system malfunction procedure 17": {
       "status": "wrong-document",
-      "why": "SP-4223 fetched as the Glynn Lunney biography/oral-history chapter; none of the cited Apollo 11 propositions are in it"
+      "why": "SP-4223 fetched as the Glynn Lunney biography/oral-history chapter; none of the cited Apollo 11 propositions are in it",
+      "note": "Mission Control —advised→ him to assume manual control and implement Environmental Control System Malfunction Procedure 17",
+      "facePath": "primary-faces/4f69a8cb8bb11499.txt",
+      "via": "link",
+      "positionInRun4": 74
     },
-    "76": {
+    "mission control|informed|collins there was a problem with the temperature of the coolant": {
       "status": "wrong-document",
-      "why": "SP-4223 fetched as the Glynn Lunney biography/oral-history chapter; none of the cited Apollo 11 propositions are in it"
+      "why": "SP-4223 fetched as the Glynn Lunney biography/oral-history chapter; none of the cited Apollo 11 propositions are in it",
+      "note": "Mission Control —informed→ Collins there was a problem with the temperature of the coolant",
+      "facePath": "primary-faces/4f69a8cb8bb11499.txt",
+      "via": "link",
+      "positionInRun4": 76
     },
-    "78": {
+    "mission control|would|\"close down communications\" with the lm": {
       "status": "wrong-document",
-      "why": "SP-4223 fetched as the Glynn Lunney biography/oral-history chapter; none of the cited Apollo 11 propositions are in it"
+      "why": "SP-4223 fetched as the Glynn Lunney biography/oral-history chapter; none of the cited Apollo 11 propositions are in it",
+      "note": "Mission Control —would→ \"close down communications\" with the LM",
+      "facePath": "primary-faces/4f69a8cb8bb11499.txt",
+      "via": "link",
+      "positionInRun4": 78
     },
-    "94": {
+    "out|launch|complex 39": {
       "status": "wrong-document",
-      "why": "SP-4223 fetched as the Glynn Lunney biography/oral-history chapter; none of the cited Apollo 11 propositions are in it"
+      "why": "SP-4223 fetched as the Glynn Lunney biography/oral-history chapter; none of the cited Apollo 11 propositions are in it",
+      "note": "out —launch→ Complex 39",
+      "facePath": "primary-faces/4f69a8cb8bb11499.txt",
+      "via": "link",
+      "positionInRun4": 94
     },
-    "99": {
+    "s air wing|was|left behind in long beach": {
       "status": "wrong-document",
-      "why": "SP-4223 fetched as the Glynn Lunney biography/oral-history chapter; none of the cited Apollo 11 propositions are in it"
+      "why": "SP-4223 fetched as the Glynn Lunney biography/oral-history chapter; none of the cited Apollo 11 propositions are in it",
+      "note": "s air wing —was→ left behind in Long Beach",
+      "facePath": "primary-faces/4f69a8cb8bb11499.txt",
+      "via": "link",
+      "positionInRun4": 99
     },
-    "106": {
+    "the apollo programme|is|arguably the greatest technical achievement of mankind to date": {
       "status": "wrong-document",
-      "why": "SP-4223 fetched as the Glynn Lunney biography/oral-history chapter; none of the cited Apollo 11 propositions are in it"
+      "why": "SP-4223 fetched as the Glynn Lunney biography/oral-history chapter; none of the cited Apollo 11 propositions are in it",
+      "note": "The Apollo programme —is→ arguably the greatest technical achievement of mankind to date",
+      "facePath": "primary-faces/4f69a8cb8bb11499.txt",
+      "via": "link",
+      "positionInRun4": 106
     },
-    "119": {
+    "the computer for the apollo 11 problems|is|like blaming the person who spots a fire and calls the fire department": {
       "status": "wrong-document",
-      "why": "SP-4223 fetched as the Glynn Lunney biography/oral-history chapter; none of the cited Apollo 11 propositions are in it"
+      "why": "SP-4223 fetched as the Glynn Lunney biography/oral-history chapter; none of the cited Apollo 11 propositions are in it",
+      "note": "the computer for the Apollo 11 problems —is→ like blaming the person who spots a fire and calls the fire department",
+      "facePath": "primary-faces/4f69a8cb8bb11499.txt",
+      "via": "link",
+      "positionInRun4": 119
     },
-    "120": {
+    "the computer|was|programmed to do more than recognize error conditions": {
       "status": "wrong-document",
-      "why": "SP-4223 fetched as the Glynn Lunney biography/oral-history chapter; none of the cited Apollo 11 propositions are in it"
+      "why": "SP-4223 fetched as the Glynn Lunney biography/oral-history chapter; none of the cited Apollo 11 propositions are in it",
+      "note": "the computer —was→ programmed to do more than recognize error conditions",
+      "facePath": "primary-faces/4f69a8cb8bb11499.txt",
+      "via": "link",
+      "positionInRun4": 120
     },
-    "125": {
+    "the director of the msc|felt|the talons of the eagle looked \"too warlike\"": {
       "status": "wrong-document",
-      "why": "SP-4223 fetched as the Glynn Lunney biography/oral-history chapter; none of the cited Apollo 11 propositions are in it"
+      "why": "SP-4223 fetched as the Glynn Lunney biography/oral-history chapter; none of the cited Apollo 11 propositions are in it",
+      "note": "the director of the MSC —felt→ the talons of the eagle looked \"too warlike\"",
+      "facePath": "primary-faces/4f69a8cb8bb11499.txt",
+      "via": "link",
+      "positionInRun4": 125
     },
-    "142": {
+    "the third|carried|photographic equipment": {
       "status": "wrong-document",
-      "why": "SP-4223 fetched as the Glynn Lunney biography/oral-history chapter; none of the cited Apollo 11 propositions are in it"
+      "why": "SP-4223 fetched as the Glynn Lunney biography/oral-history chapter; none of the cited Apollo 11 propositions are in it",
+      "note": "The third —carried→ photographic equipment",
+      "facePath": "primary-faces/4f69a8cb8bb11499.txt",
+      "via": "link",
+      "positionInRun4": 142
     },
-    "146": {
+    "the|capsule|communicator (capcom) was an astronaut stationed at the mission control center in houston": {
       "status": "wrong-document",
-      "why": "SP-4223 fetched as the Glynn Lunney biography/oral-history chapter; none of the cited Apollo 11 propositions are in it"
+      "why": "SP-4223 fetched as the Glynn Lunney biography/oral-history chapter; none of the cited Apollo 11 propositions are in it",
+      "note": "The —capsule→ communicator (CAPCOM) was an astronaut stationed at the Mission Control Center in Houston",
+      "facePath": "primary-faces/4f69a8cb8bb11499.txt",
+      "via": "link",
+      "positionInRun4": 146
     },
-    "12": {
+    "all of the|collected|materials were flown to ellington air force base in houston and taken to the lunar receiving laboratory (lrl) within 48 hours of splashdown": {
       "status": "stated",
       "sentences": [
         261,
         264,
         260
       ],
-      "why": "'flown directly to Ellington Air Force Base (AFB) near MSC in Houston' + 'Within 48 hours of splashdown, scientists in the LRL in Houston were examining the first lunar samples'"
+      "why": "'flown directly to Ellington Air Force Base (AFB) near MSC in Houston' + 'Within 48 hours of splashdown, scientists in the LRL in Houston were examining the first lunar samples'",
+      "note": "All of the —collected→ materials were flown to Ellington Air Force Base in Houston and taken to the Lunar Receiving Laboratory (LRL) within 48 hours of splashdown",
+      "facePath": "primary-faces/86570537bec568ff.txt",
+      "via": "footnote",
+      "positionInRun4": 12,
+      "sentenceText": [
+        "From there the two containers were placed aboard a C-141 cargo aircraft and flown directly to Ellington Air Force Base (AFB) near MSC in Houston, arriving there the afternoon of July 25.",
+        "Within 48 hours of splashdown, scientists in the LRL in Houston were examining the first lunar samples and processing the film.",
+        "The first aircraft carrying one ALSRC and a second package containing film departed Hornet within a few hours of the recovery, flying to Johnston Island 180 miles away."
+      ],
+      "sentenceBytes": [
+        [
+          19017,
+          19203
+        ],
+        [
+          19496,
+          19623
+        ],
+        [
+          18848,
+          19016
+        ]
+      ]
     },
-    "38": {
+    "bigs|were|worn until they reached isolation facilities on board hornet": {
       "status": "stated",
       "sentences": [
         244,
         219
       ],
-      "why": "'Once inside the MQF, the astronauts removed their BIGs' — worn until the isolation facility, in other words"
+      "why": "'Once inside the MQF, the astronauts removed their BIGs' — worn until the isolation facility, in other words",
+      "note": "BIGs —were→ worn until they reached isolation facilities on board Hornet",
+      "facePath": "primary-faces/86570537bec568ff.txt",
+      "via": "link",
+      "positionInRun4": 38,
+      "sentenceText": [
+        "Once inside the MQF, the astronauts removed their BIGs, took showers, changed into comfortable flight suits, and prepared to be welcomed by the President Nixon.",
+        "The astronauts briefly opened the hatch to the capsule and Hatleberg handed them their BIGs, which they donned inside the spacecraft."
+      ],
+      "sentenceBytes": [
+        [
+          16932,
+          17092
+        ],
+        [
+          13742,
+          13875
+        ]
+      ]
     },
-    "113": {
+    "the astronauts|were|winched on board the recovery helicopter": {
       "status": "stated",
       "sentences": [
         227,
         224
       ],
-      "why": "'The recovery helicopter one by one retrieved the three astronauts from the raft using a Billy Pugh net' — winched, in other words"
+      "why": "'The recovery helicopter one by one retrieved the three astronauts from the raft using a Billy Pugh net' — winched, in other words",
+      "note": "The astronauts —were→ winched on board the recovery helicopter",
+      "facePath": "primary-faces/86570537bec568ff.txt",
+      "via": "link",
+      "positionInRun4": 113,
+      "sentenceText": [
+        "The recovery helicopter one by one retrieved the three astronauts from the raft using a Billy Pugh net, first Armstrong, then Collins and finally Aldrin.",
+        "Left: From the recovery helicopter, the Billy Pugh net is lowered to the raft where the three astronauts await retrieval with Hatleberg."
+      ],
+      "sentenceBytes": [
+        [
+          14533,
+          14686
+        ],
+        [
+          14297,
+          14433
+        ]
+      ]
     },
-    "150": {
+    "they|would|fly to hornet in marine one for a few hours of ceremonies": {
       "status": "stated",
       "sentences": [
         169,
         248,
         247
       ],
-      "why": "'helicoptering to Hornet early on splashdown day' + 'He had been onboard for three hours'"
+      "why": "'helicoptering to Hornet early on splashdown day' + 'He had been onboard for three hours'",
+      "note": "they —would→ fly to Hornet in Marine One for a few hours of ceremonies",
+      "facePath": "primary-faces/86570537bec568ff.txt",
+      "via": "link",
+      "positionInRun4": 150,
+      "sentenceText": [
+        "From Johnston Island, they flew aboard Marine helicopters to the communications relay ship USS Arlington (AGMR-2), where they spent the night before helicoptering to Hornet early on splashdown day.",
+        "He had been onboard for three hours.",
+        "The ceremonies over, Nixon boarded Marine One and departed Hornet ."
+      ],
+      "sentenceBytes": [
+        [
+          8022,
+          8219
+        ],
+        [
+          17471,
+          17507
+        ],
+        [
+          17403,
+          17470
+        ]
+      ]
     },
-    "61": {
+    "hornet|launched|four sea king helicopters and three grumman e-1 tracers": {
       "status": "stated-partial",
       "sentences": [
         182
       ],
-      "why": "'it had launched recovery helicopters' — the launch is stated, four Sea Kings and three Tracers are not"
+      "why": "'it had launched recovery helicopters' — the launch is stated, four Sea Kings and three Tracers are not",
+      "note": "Hornet —launched→ four Sea King helicopters and three Grumman E-1 Tracers",
+      "facePath": "primary-faces/86570537bec568ff.txt",
+      "via": "link",
+      "positionInRun4": 61,
+      "sentenceText": [
+        "Hornet was still steaming toward the splashdown point but it had launched recovery helicopters already approaching their operational stations."
+      ],
+      "sentenceBytes": [
+        [
+          9468,
+          9610
+        ]
+      ]
     },
-    "56": {
+    "from kennedy space center's|launch|complex 39a": {
       "status": "not-stated",
-      "why": "page begins on the last day in space"
+      "why": "page begins on the last day in space",
+      "note": "from Kennedy Space Center's —launch→ Complex 39A",
+      "facePath": "primary-faces/86570537bec568ff.txt",
+      "via": "link",
+      "positionInRun4": 56
     },
-    "59": {
+    "hornet|departed|pearl harbor for the recovery area in the central pacific": {
       "status": "not-stated",
-      "why": "'speeding for the new splashdown target area' — not the Pearl Harbor departure"
+      "why": "'speeding for the new splashdown target area' — not the Pearl Harbor departure",
+      "note": "Hornet —departed→ Pearl Harbor for the recovery area in the central Pacific",
+      "facePath": "primary-faces/86570537bec568ff.txt",
+      "via": "link",
+      "positionInRun4": 59
     },
-    "60": {
+    "hornet|embarked|the sikorsky sh-3 sea king helicopters of hs-4": {
       "status": "not-stated",
-      "why": "HS-4 embarkation not on the page"
+      "why": "HS-4 embarkation not on the page",
+      "note": "Hornet —embarked→ the Sikorsky SH-3 Sea King helicopters of HS-4",
+      "facePath": "primary-faces/86570537bec568ff.txt",
+      "via": "link",
+      "positionInRun4": 60
     },
-    "62": {
+    "hornet|returned|to pearl harbor on july 26": {
       "status": "not-stated",
-      "why": "'set sail for Pearl Harbor' is the departure, not the July 26 return"
+      "why": "'set sail for Pearl Harbor' is the departure, not the July 26 return",
+      "note": "Hornet —returned→ to Pearl Harbor on July 26",
+      "facePath": "primary-faces/86570537bec568ff.txt",
+      "via": "link",
+      "positionInRun4": 62
     },
-    "64": {
+    "hornet|was|then at her home port of long beach": {
       "status": "not-stated",
-      "why": "Long Beach not on the page"
+      "why": "Long Beach not on the page",
+      "note": "Hornet —was→ then at her home port of Long Beach",
+      "facePath": "primary-faces/86570537bec568ff.txt",
+      "via": "link",
+      "positionInRun4": 64
     },
-    "91": {
+    "of mission|launch|date july 16": {
       "status": "stated",
       "sentences": [
         172,
         234
       ],
-      "why": "'Apollo 11 launched from Cape Kennedy on July 16, 1969' — near-literal; end2 'July 16' is on the page"
+      "why": "'Apollo 11 launched from Cape Kennedy on July 16, 1969' — near-literal; end2 'July 16' is on the page",
+      "note": "of mission —launch→ date July 16",
+      "facePath": "primary-faces/eaab29993dab83f8.txt",
+      "via": "footnote",
+      "positionInRun4": 91,
+      "sentenceText": [
+        "Apollo 11 launched from Cape Kennedy on July 16, 1969, carrying Commander Neil Armstrong, Command Module Pilot Michael Collins and Lunar Module Pilot Edwin “Buzz” Aldrin into an initial Earth-orbit of 114 by 116 miles.",
+        "July 16, 1969; 9:32 a.m. EDT Launch Pad 39A Saturn-V AS-506 High Bay 1 Mobile Launcher Platform-1 Firing Room 1"
+      ],
+      "sentenceBytes": [
+        [
+          7691,
+          7909
+        ],
+        [
+          15971,
+          16082
+        ]
+      ]
     },
-    "17": {
+    "apollo 11|landed|with less fuel than most subsequent missions": {
       "status": "not-stated",
-      "why": "Mission Overview does not cover it"
+      "why": "Mission Overview does not cover it",
+      "note": "Apollo 11 —landed→ with less fuel than most subsequent missions",
+      "facePath": "primary-faces/eaab29993dab83f8.txt",
+      "via": "link",
+      "positionInRun4": 17
     },
-    "44": {
+    "collins|felt|very much a part of the mission": {
       "status": "not-stated",
-      "why": "Mission Overview does not cover it"
+      "why": "Mission Overview does not cover it",
+      "note": "Collins —felt→ very much a part of the mission",
+      "facePath": "primary-faces/eaab29993dab83f8.txt",
+      "via": "link",
+      "positionInRun4": 44
     },
-    "84": {
+    "nasa|streamed|the original mission audio on its website in real time 40 years to the minute after the events occurred": {
       "status": "not-stated",
-      "why": "Mission Overview does not cover it"
+      "why": "Mission Overview does not cover it",
+      "note": "NASA —streamed→ the original mission audio on its website in real time 40 years to the minute after the events occurred",
+      "facePath": "primary-faces/eaab29993dab83f8.txt",
+      "via": "link",
+      "positionInRun4": 84
     },
-    "124": {
+    "the csm|was|mated on january 29": {
       "status": "not-stated",
-      "why": "Mission Overview does not cover it"
+      "why": "Mission Overview does not cover it",
+      "note": "The CSM —was→ mated on January 29",
+      "facePath": "primary-faces/eaab29993dab83f8.txt",
+      "via": "footnote",
+      "positionInRun4": 124
     },
-    "145": {
+    "the|ascent|stage of lm-5 eagle arrived at the kennedy space center on january 8": {
       "status": "not-stated",
-      "why": "Mission Overview does not cover it"
+      "why": "Mission Overview does not cover it",
+      "note": "The —ascent→ stage of LM-5 Eagle arrived at the Kennedy Space Center on January 8",
+      "facePath": "primary-faces/eaab29993dab83f8.txt",
+      "via": "footnote",
+      "positionInRun4": 145
     },
-    "147": {
+    "the|launch|complex was floodlit on the night of july 15": {
       "status": "not-stated",
-      "why": "Mission Overview does not cover it"
+      "why": "Mission Overview does not cover it",
+      "note": "The —launch→ complex was floodlit on the night of July 15",
+      "facePath": "primary-faces/eaab29993dab83f8.txt",
+      "via": "footnote",
+      "positionInRun4": 147
     },
-    "155": {
+    "this|was|enough for mission planners to make their decision": {
       "status": "not-stated",
-      "why": "Mission Overview does not cover it"
+      "why": "Mission Overview does not cover it",
+      "note": "this —was→ enough for mission planners to make their decision",
+      "facePath": "primary-faces/eaab29993dab83f8.txt",
+      "via": "link",
+      "positionInRun4": 155
     },
-    "158": {
+    "transporter|carried|the mobile service structure back to its parking area": {
       "status": "not-stated",
-      "why": "Mission Overview does not cover it"
+      "why": "Mission Overview does not cover it",
+      "note": "transporter —carried→ the mobile service structure back to its parking area",
+      "facePath": "primary-faces/eaab29993dab83f8.txt",
+      "via": "footnote",
+      "positionInRun4": 158
     }
   },
-  "extension": "34 notes on the 3 faces with pool >250 that the seeded sample excluded (4f69a8cb archive 264s ×15 notes, 86570537 nasa.gov 274s ×10, eaab2999 nasa.gov 251s ×9), read in full with nav chrome elided. NOT a random extension: chosen because they were excluded, and because the archive-route face was expected to be a real document. Disclosed."
+  "extension": "34 notes on the 3 faces with pool >250 that the seeded sample excluded (4f69a8cb archive 264s ×15 notes, 86570537 nasa.gov 274s ×10, eaab2999 nasa.gov 251s ×9), read in full with nav chrome elided. NOT a random extension: chosen because they were excluded, and because the archive-route face was expected to be a real document. Disclosed.",
+  "keyedBy": "note id (row.id) — positions shift when the walk is re-run; the face path is recorded so a label can be re-checked against the same bytes",
+  "sentenceMatching": "a label is matched to a pool by sentence TEXT (sentenceText), never by index — a re-cut face (chrome stripped, re-split) shifts indices; the raw byte span in the run-4 face is kept as sentenceBytes for audit"
 }
