@@ -1,0 +1,96 @@
+NTRS
+
+NTRS - NASA Technical Reports Server
+
+Search
+
+more_vert
+
+Collections About News Help Login
+
+Press Enter or click the Search button to begin your search.
+
+Back to Results
+Biomedical Results of Apollo The biomedical program developed for Apollo is described in detail. The findings are listed of those investigations which are conducted to assess the effects of space flight on man's physiological and functional capacities, and significant medical events in Apollo are documented. Topics discussed include crew health and inflight monitoring, preflight and postflight medical testing, inflight experiments, quarantine, and life support systems.
+
+Document ID
+
+19760005580
+
+Acquisition Source
+
+Headquarters
+
+Document Type
+
+Special Publication (SP)
+
+Authors
+
+Richard S. Johnston (Johnson Space Center Houston, Texas, United States)
+
+Lawrence F. Dietlein (Johnson Space Center Houston, Texas, United States)
+
+Charles A. Berry (Johnson Space Center Houston, Texas, United States)
+
+James F. Parker, Jr. (BioTechnology, Inc. Arlington, VA, United States)
+
+Vita West (BioTechnology, Inc. Arlington, VA, United States)
+
+Walton L. Jones (National Aeronautics and Space Administration Washington D.C., District of Columbia, United States)
+
+Date Acquired
+
+September 3, 2013
+
+Publication Date
+
+January 1, 1975
+
+Publication Information
+
+Publication: Biomedical Results of Apollo
+
+Publisher: National Aeronautics and Space Administration
+
+Volume: NASA-SP-368
+
+Issue Publication Date: January 1, 1975
+
+Subject Category
+
+Aerospace Medicine
+
+Report/Patent Number
+
+LC-75-600030
+
+Report Number: NASA-SP-368
+
+Report Number: LC-75-600030
+
+Accession Number
+
+76N12668
+
+Funding Number(s)
+
+CONTRACT_GRANT: NASW-2630
+
+Distribution Limits
+
+Public
+
+Copyright
+
+Public Use Permitted.
+
+Available Downloads
+
+Name Type 19760005580.pdf STI cloud_download content_copy visibility
+
+Related Records
+
+ID Relation Title 19760005582 Collected Works Microbiological investigations 19760005583 Collected Works Radiation protection and instrumentation 19760005585 Collected Works Environmental factors 19760005586 Collected Works Flight crew health stabilization program 19760005587 Collected Works The role of toxicology in the Apollo space program 19760005588 Collected Works Endocrine, electrolyte, and fluid volume changes associated with Apollo missions 19760005589 Collected Works Clinical biochemistry 19760005590 Collected Works Hematology and immunology studies 19760005591 Collected Works Apollo flight crew cardiovascular evaluations 19760005592 Collected Works Exercise response 19760005593 Collected Works Nutritional studies 19760005594 Collected Works Skeletal response 19760005595 Collected Works Apollo flight crew vestibular assessment 19760005596 Collected Works Biostack: A study of the biological effects on HZE galactic cosmic radiation 19760005597 Collected Works Apollo light flash investigations 19760005598 Collected Works The Apollo 16 microbial response to space environment experiment 19760005599 Collected Works The Apollo 17 pocket mouse experiment (Biocore) 19760005600 Collected Works The lunar quarantine program 19760005601 Collected Works Quarantine testing and biocharacterization of lunar materials 19760005602 Collected Works Apollo food technology 19760005603 Collected Works Waste management system 19760005604 Collected Works Bioinstrumentation 19760005605 Collected Works Potable water supply 19760005606 Collected Works Apollo command and service module and lunar module environmental control systems 19760005607 Collected Works Extravehicular mobility unit 19760005581 Collected Works Clinical aspects of crew health
+
+visibility_off No Preview Available

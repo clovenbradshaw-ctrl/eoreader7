@@ -1,0 +1,75 @@
+24 Jul 2009 - 30 Aug 2026
+
+Jan
+FEB
+Mar
+
+11
+
+2020
+2021
+2022
+
+success
+
+fail
+
+About this capture
+
+COLLECTED BY
+
+Organization: Archive Team
+
+Formed in 2009, the Archive Team (not to be confused with the archive.org Archive-It Team) is a rogue archivist collective dedicated to saving copies of rapidly dying or deleted websites for the sake of history and digital heritage. The group is 100% composed of volunteers and interested parties, and has expanded into a large amount of related projects for saving online and digital history.
+
+History is littered with hundreds of conflicts over the future of a community, group, location or business that were "resolved" when one of the parties stepped ahead and destroyed what was there. With the original point of contention destroyed, the debates would fall to the wayside. Archive Team believes that by duplicated condemned data, the conversation and debate can continue, as well as the richness and insight gained by keeping the materials. Our projects have ranged in size from a single volunteer downloading the data to a small-but-critical site, to over 100 volunteers stepping forward to acquire terabytes of user-created data to save for future generations.
+
+The main site for Archive Team is at archiveteam.org and contains up to the date information on various projects, manifestos, plans and walkthroughs.
+
+This collection contains the output of many Archive Team projects, both ongoing and completed. Thanks to the generous providing of disk space by the Internet Archive, multi-terabyte datasets can be made available, as well as in use by the Wayback Machine , providing a path back to lost websites and work.
+
+Our collection has grown to the point of having sub-collections for the type of data we acquire. If you are seeking to browse the contents of these collections, the Wayback Machine is the best first stop. Otherwise, you are free to dig into the stacks to see what you may find.
+
+The Archive Team Panic Downloads are full pulldowns of currently extant websites, meant to serve as emergency backups for needed sites that are in danger of closing, or which will be missed dearly if suddenly lost due to hard drive crashes or server failures.
+
+Collection: Archive Team: URLs
+
+TIMESTAMPS
+
+The Wayback Machine - https://web.archive.org/web/20210211230936/http://www.nytimes.com/2009/07/21/science/space/21obama.html
+
+Space & Cosmos | Obama Hails Apollo Crew From a Lens of Childhood
+
+-
+
+-
+
+-
+
+-
+
+-
+
+-
+
+Advertisement
+
+Continue reading the main story
+
+WASHINGTON  President Obama paid tribute on Monday to the astronauts of Apollo 11, who took man’s first steps on the moon 40 years ago in a landmark moment that he said inspired a generation of scientists and engineers.
+
+But as Mr. Obama welcomed Buzz Aldrin, Neil A. Armstrong and Michael Collins to the White House and hailed them as “genuine American heroes,” he was silent about specific intentions for a new chapter of space exploration. He talked about increasing standards for math and science education but seemed to suggest the best days of the space program were in the past.
+
+“I think it’s fair to say,” Mr. Obama said, “that the touchstone for excellence in exploration and discovery is always going to be represented by the men of Apollo 11.”
+
+While Mr. Obama has been compared to John F. Kennedy, few ready similarities were at hand on Monday. President Kennedy used a joint session of Congress in 1961 to call for putting a man on the moon by the end of the decade. For his part, Mr. Obama did not talk about the timing of another voyage to the moon or mention the planet Mars.
+
+On the anniversary of the first landing on the Moon, several Apollo astronauts called for new emphasis on space exploration. Mr. Obama has endorsed the Bush administration’s plan to return astronauts to the Moon by 2020, asking for a 5 percent increase in the National Aeronautics and Space Administration budget.
+
+“We need to go back to the moon,” said Eugene A. Cernan, the last man on the Moon as a member of the Apollo 17 mission in 1972, adding that he was frustrated at the lack of preparation for a mission to Mars.
+
+Mr. Obama, who was not quite 8 at the time of the lunar landing, spoke fondly of space exploration as he stood with the Apollo astronauts in the Oval Office on Monday. He recalled his childhood in Hawaii, when he said he would climb atop his grandfather’s shoulders and watch space capsules land in the Pacific Ocean.
+
+In addition to the 5 percent increase in the NASA budget, about $1 billion has been allocated to the program in the economic stimulus, including $400 million for climate-research missions and computer technology and $400 million for exploration.
+
+“We expect that there’s, as we speak, another generation of kids out there who are looking up at the sky and are going to be the next Armstrong, Collins and Aldrins,” Mr. Obama said. “We want to make sure that NASA is going to be there for them when they want to take their journey.”

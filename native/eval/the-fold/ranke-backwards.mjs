@@ -78,6 +78,11 @@ const reader = makeRelationReader({
   negationWords: P.NEGATION_WORDS,
   blankFurniture: (t) => blankLabelRows(t, { minRun: 4, maxCell: 60 }),
   resolvePronouns, nounPhraseSubjects: true,
+  // S50: the verb chain rides in the act (DR5), the received priors' verb
+  // forms join the vocabulary on first arrival (attestedVerbs), and acts
+  // compare by lemma. DEFAULT ON (user, 2026-09-02: "the hypergraph should be
+  // this rich ALWAYS"); RICH=0 reproduces every run before S50 byte for byte.
+  ...(process.env.RICH !== "0" ? (() => { const forms = new Set(); for (const [k, v] of Object.entries(morph.forms ?? {})) { forms.add(String(k).toLowerCase()); for (const x of Array.isArray(v) ? v : [v]) if (typeof x === "string") forms.add(x.toLowerCase()); } for (const [w, att] of Object.entries(posPrior.forms ?? {})) { const t = Object.values(att).reduce((a, b) => a + b, 0); if (t > 0 && ((att.VERB ?? 0) + (att.AUX ?? 0)) / t > 0.5) forms.add(w.toLowerCase()); } return { phrasalPredicates: true, verbForms: forms, attestedVerbs: true, createLemmatizer, morphologyIndex: morph.forms, morphologyLanguage: morph.language }; })() : {}),
 });
 const hl = makeHyperlexicon({ createTaskLog: nativeTaskLog.createTaskLog, append: nativeTaskLog.append, projectTasks: nativeTaskLog.projectTasks, ENTRY_KINDS: nativeTaskLog.ENTRY_KINDS, OPERATOR_BASIS: nativeTaskLog.OPERATOR_BASIS, GRAINS, cellOf });
 
@@ -320,5 +325,5 @@ for (const cls of CLASSES) {
     console.log(`     ${r.host}: «${String(r.sentence ?? "").replace(/\s+/g, " ").slice(0, 200)}»`);
   }
 }
-writeFileSync(new URL("./results/ranke-backwards.json", import.meta.url), JSON.stringify({ page: PAGE, notes: notes.length, bibliographyDropped: bibliography.length, leads: { links: leads.links.length, quotes: leads.quotes.length }, footnotes: { markers: footnotes.markers, linking: footnotes.notes, notesMarked: marked.length, notesBound: boundNotes.length }, fetches, facesRead: [...faces.values()].filter((f) => !f.gap).length, real: { tally: tally(readable), partialBySide: tally(partial.map((r) => ({ cls: r.missingSide }))), witness: wv, rows: real }, control: { tally: tally(ctlReadable) } }, null, 2));
-console.log("\nRaw: results/ranke-backwards.json");
+writeFileSync(new URL(`./results/${process.env.OUT ?? "ranke-backwards.json"}`, import.meta.url), JSON.stringify({ page: PAGE, notes: notes.length, bibliographyDropped: bibliography.length, leads: { links: leads.links.length, quotes: leads.quotes.length }, footnotes: { markers: footnotes.markers, linking: footnotes.notes, notesMarked: marked.length, notesBound: boundNotes.length }, fetches, facesRead: [...faces.values()].filter((f) => !f.gap).length, real: { tally: tally(readable), partialBySide: tally(partial.map((r) => ({ cls: r.missingSide }))), witness: wv, rows: real }, control: { tally: tally(ctlReadable) } }, null, 2));
+console.log(`\nRaw: results/${process.env.OUT ?? "ranke-backwards.json"}`);

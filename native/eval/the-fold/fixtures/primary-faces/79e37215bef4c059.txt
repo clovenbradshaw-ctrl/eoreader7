@@ -1,0 +1,2026 @@
+57 captures
+
+21 Jul 2017 - 30 Aug 2026
+
+Jan
+FEB
+Mar
+
+27
+
+2020
+2021
+2022
+
+success
+
+fail
+
+About this capture
+
+COLLECTED BY
+
+Organization: Archive Team
+
+Formed in 2009, the Archive Team (not to be confused with the archive.org Archive-It Team) is a rogue archivist collective dedicated to saving copies of rapidly dying or deleted websites for the sake of history and digital heritage. The group is 100% composed of volunteers and interested parties, and has expanded into a large amount of related projects for saving online and digital history.
+
+History is littered with hundreds of conflicts over the future of a community, group, location or business that were "resolved" when one of the parties stepped ahead and destroyed what was there. With the original point of contention destroyed, the debates would fall to the wayside. Archive Team believes that by duplicated condemned data, the conversation and debate can continue, as well as the richness and insight gained by keeping the materials. Our projects have ranged in size from a single volunteer downloading the data to a small-but-critical site, to over 100 volunteers stepping forward to acquire terabytes of user-created data to save for future generations.
+
+The main site for Archive Team is at archiveteam.org and contains up to the date information on various projects, manifestos, plans and walkthroughs.
+
+This collection contains the output of many Archive Team projects, both ongoing and completed. Thanks to the generous providing of disk space by the Internet Archive, multi-terabyte datasets can be made available, as well as in use by the Wayback Machine , providing a path back to lost websites and work.
+
+Our collection has grown to the point of having sub-collections for the type of data we acquire. If you are seeking to browse the contents of these collections, the Wayback Machine is the best first stop. Otherwise, you are free to dig into the stacks to see what you may find.
+
+The Archive Team Panic Downloads are full pulldowns of currently extant websites, meant to serve as emergency backups for needed sites that are in danger of closing, or which will be missed dearly if suddenly lost due to hard drive crashes or server failures.
+
+Collection: Archive Team: URLs
+
+TIMESTAMPS
+
+The Wayback Machine - https://web.archive.org/web/20210227062352/https://history.nasa.gov/afj/ap11fj/11day4-loi1.html
+
+Day 3: Flight Plan Updates
+
+Journal Home Page
+
+Day 4: Lunar Orbit Circularization
+
+Apollo 11
+
+Day 4, part 1: Entering Lunar Orbit
+
+Corrected Transcript and Commentary Copyright © 2009 by W. David Woods, Kenneth D. MacTaggart and Frank O'Brien. All rights reserved.
+
+Last updated 2017-02-10
+
+[As the crew sleep, Apollo 11 falls towards the Moon, now accelerating under its gravitational pull in the final leg of its outward journey. On waking, the spacecraft passes into the Moon's shadow and they see star constellations and the solar corona clearly for the first time. The Service Module's main engine is fired to enter a lunar orbit very close to the planned dimensions, and the crew witness their first Earthrise.]
+
+[ MP3 audio file. 1,336 kB. ]
+
+PAO: This is Apollo Control at 62 hours, 29 minutes. The Flight Surgeon reports that the crew appears to have been asleep now for about the past 30 minutes. The spacecraft appears also to be holding its Passive Thermal Control attitude very well and at this time Apollo 11 is about 32,000 miles [59,000 km] from the Moon, traveling at a speed of 3,782 feet per second [1,153 m/s]. In the past 50 minutes or so, we've seen that velocity increase about 10 feet per second [3 m/s], going from 3,772 feet per second [1,150 m/s] to the present 3,782, as the spacecraft continues to accelerate toward the Moon. The Change-of-Shift Briefing following this shift will occur at about 11:15 pm Central Daylight Time. Flight Director Glynn Lunney and his team of flight controllers are coming on now, being debriefed by the Eugene Kranz team, and that shift change will be occuring shortly here. The new capsule communicator will be astronaut Ron Evans. At 62 hours, 30 minutes, this is Apollo Control.
+
+[ MP3 audio file. 1,206 kB. ]
+
+PAO: This is Apollo Control; 63 hours, 29 minutes Ground Elapsed Time. Some 5&frac12; hours remaining in the Apollo 11 crew scheduled rest period. Crew apparently soundly asleep at this time. Spacecraft now 29,716 nautical miles [55,034 km] out from the Moon. Velocity now 3,796 feet per second [1,157 m/s]. Black Team Flight Director Glynn Lunney going around the room discussing with the various flight control positions the situation for the sleep shift. Talking now to Flight Dynamics Officer on the pros and cons of doing or not doing Midcourse Correction burn number 4. And at 63 hours, 30 minutes Ground Elapsed Time; this is Apollo Control.
+
+[ MP3 audio file. 1,604 kB. ]
+
+PAO: This is Apollo Control; 64 hours, 28 minutes Ground Elapsed Time. Some 4&frac12; hours remaining now in the scheduled Apollo 11 crew sleep period. However, since there's a little likelihood that Midcourse Correction burn number 4 will be done, since it's a very small magnitude maneuver, that the crew will be allowed to sleep another couple of hours. At this time, Apollo 11 is some 27,529 nautical miles [50,984 km] out from the Moon, traveling at a velocity of 3,812 feet per second [1,162 m/s]. The Black Team of flight controllers has settled in for the night. Everything rather quiet here in the control room. We're anticipating a playback of yesterday afternoon's TV transmission from Apollo 11 which lasted some hour-and-a-half in which the camera was taken on - taken into the Lunar Module at the end of its cable. This will be played back for the flight controllers who, at that time, were - most of them were asleep. At 64 hours, 29 minutes Ground Elapsed Time; this is Apollo Control.
+
+[ MP3 audio file. 1,534 kB. ]
+
+PAO: This is Apollo Control, 65 hours, 28 minutes Ground Elapsed Time. 3&frac12; hours remaining in the scheduled sleep period for the crew of Apollo 11, however this will likely run into more like 5&frac12; hours remaining. Countdown clock for lunar landing now showing 37 hours, 18 minutes. Apollo 11 now 25,280 nautical miles [46,819 m/s] out from the Moon, traveling at a velocity of 3,832 feet per second [1,168 m/s]. In terms of distance... Stand by, we thought we had some Earth-reference numbers, but apparently that display is not up at this time. Present weight of the spacecraft; 96,029 pounds [43,558 kg]. Presently being tracked by the tracking station at Honeysuckle Creek in Australia. And at 65 hours, 29 minutes Ground Elapsed Time; this is Apollo Control.
+
+[ MP3 audio file. 963 kB. ]
+
+PAO: This is Apollo Control; 66 hours, 29 minutes Ground Elapsed Time. Apollo 11 presently 22,952 nautical miles [42,507 km] out from the Moon, and traveling at a velocity of 3,858 feet per second [1,176 m/s]. 2 hours, 29 minutes showing remaining in the sleep period. However, as mentioned earlier, this likely will run another 2 hours. Clock counting down to lunar landing, showing 36 hours, 16 minutes. Still tracking through the Honeysuckle Creek, Australia tracking station, and all is rather quiet here in the Control Center during the sleep watch. At 66 hours, 30 minutes Ground Elapsed Time; this is Apollo Control.
+
+[ MP3 audio file. 1,848 kB. ]
+
+PAO: This is Apollo Control; 67 hours, 28 minutes Ground Elapsed Time. Midcourse Correction burn number 4 has been deleted from the Flight Plan on the recommendation to Flight Director Glynn Lunney from the Flight Dynamics Officer, Jay Greene. The maneuver, had it been carried out as planned, would be in the neighborhood of one-half foot per second velocity change. As it is now, the trajectory is being predicted to arrive at near-point or closest approach of about 62 nautical miles [115 km] plus or minus two miles [3.7 km] if nothing else is done to the trajectory - that is, if no maneuver is made. Spacecraft cabin pressure now holding at 4.7 pounds per square inch [32.4 kPa]; temperature, 60 degrees Fahrenheit [16° Celsius]. The planned sleep period has another hour-and-a-half to go but, as mentioned earlier, will likely run another couple hours in as much as Midcourse Correction burn number 4 will not be made and the crew will not have to spend the time preparing to do the burn, to align the platform and do all the chores necessary for doing a maneuver of this sort. Clock counting down to lunar landing showing 35 hours, 17 minutes. And at 67 hours, 29 minutes Ground Elapsed Time; this is Apollo Control.
+
+[ MP3 audio file. 914 kB. ]
+
+PAO: This is Apollo Control; 68 hours, 28 minutes Ground Elapsed Time. Some 2 hours and 31 minutes remaining in the crew sleep period according to the revised schedule inasmuch as a midcourse correction burn number 4 has been omitted. Still being tracked - Apollo 11 still being tracked by the Honeysuckle Creek, Australia station. And, here in Mission Control, the - yesterday's hour-and-a-half long television pass, as the crew manned the LM for the first time in checkout, is being replayed. This will be piped across to the News Center for anyone who might want to view it again. At 68 hours, 29 minutes Ground Elapsed Time; this is Apollo Control.
+
+069:10:24 Aldrin: Houston, Apollo 11. [No answer.]
+
+069:11:01 Aldrin: Houston, Apollo 11. [No answer.]
+
+[Long comm break.]
+
+069:13:14 Comm Tech: Goddard voice, Houston Comm Tech. GOSS conference.
+
+[GOSS is the Ground Operational Support System.]
+
+069:13:17 MSFN: You're loud and clear, how me?
+
+069:13:19 Comm Tech: Roger. Read you the same.
+
+069:13:21 MSFN: Roger.
+
+069:17:37 Comm Tech: Madrid, Houston Comm Tech. Net 1, voice check.
+
+069:17:41 Comm Tech: Houston Comm Tech, Madrid. I read you loud and clear.
+
+069:17:44 Comm Tech: Roger. Read you loud and clear also.
+
+069:18:07 Aldrin: Hello, Houston. Apollo 11.
+
+069:18:16 Evans: Apollo 11, Houston. Good morning.
+
+069:18:21 Aldrin: Good morning. Are you planning a Midcourse Correction 4 this morning?
+
+069:18:26 Evans: That's negative. Midcourse number 4 is not required. We were going to let you sleep in until about 71 hours if you'd like to turn over.
+
+[ MP3 audio file. 805 kB. ]
+
+069:18:38 Aldrin: Okay. That'll be fine. We'll [radio squeal.]
+
+069:18:48 Evans: Say again, Buzz. You were cut out there.
+
+069:18:52 Aldrin: Okay. I'll see you at 71 hours.
+
+069:18:55 Evans: He he, Roger.
+
+[Very long comm break.]
+
+PAO: This is Apollo Control. So much for that. Looks like they'd rather turn over and go back to sleep. At 69 hours, 19 minutes Ground Elapsed Time; this is Apollo Control.
+
+[ MP3 audio file. 691 kB. ]
+
+PAO: Planned wake-up time for the crew is 71 hours Elapsed. Cliff Charlesworth and the Green Team of flight controllers has just relieved Glynn Lunney's Black Team. CapCom now is Bruce McCandless. Apollo 11 is 13,638 nautical miles [25,258 km] from the Moon. Velocity 4,047 feet per second [1,234 m/s], lunar referenced.
+
+PAO: This is Apollo Control, at 71 hours into the mission.
+
+[ MP3 audio file. 404 kB. ]
+
+PAO: Apollo 11 is 12,486 nautical miles [23,124 km] from the Moon. Approaching at a velocity of 4,087 feet per second [1,246 m/s]. We'll stand by here and see whether we put in a call to the crew.
+
+[ MP3 audio file. 6,712 kB. ]
+
+PAO: We're putting a call in to the crew now.
+
+071:03:30 McCandless: Apollo 11, Apollo 11, this is Houston. Over.
+
+071:03:38 Aldrin: Good morning again, Houston. Apollo 11.
+
+071:03:41 McCandless: Roger 11. Good morning. [Pause.] When you...
+
+071:03:48 Aldrin: Would you like the O 2 purge this morning?
+
+071:03:52 McCandless: Yes indeed. O 2 fuel cell purge at 71 hours, and when you feel like copying, I've got a Flight Plan update containing - I guess that and some other items for you.
+
+071:04:08 Aldrin: Okay. Stand by.
+
+[Comm break.]
+
+071:06:59 Aldrin: Houston, Apollo 11. Go ahead with the Flight Plan update.
+
+071:07:05 McCandless: Roger, 11. This is Houston. At approximately 71 hours to 72 hours, we have you down for an eat period which I imagine is probably in progress already. 71 hours: O 2 fuel cell purge. 72 hours GET: CO 2 filter change number 6, secondary radiator flow check, and we'll send you up a P37 block data on a 2-hour pass - pericynthion pass return mode abort. At 73 hours, 00 minutes, stop PTC at approximately 0 degrees roll, that is when you're coming up on 0 degrees roll angle around 73 hours we'd like you to stop PTC. And perform a P52 option 3 remaining in the PTC REFSMMAT for a drift check. 73 hours, 20 minutes, we'll give you a P27 update to the landing site REFSMMAT, LOI-1 state vector and target load. 73 hours, 30 minutes; maneuver to 000 roll, pitch, and yaw. High Gain Antenna angles will be pitch 0, yaw 335; and perform a P52 option 1 using the new landing site REFSMMAT. Resume the nominal Flight Plan at 74 hours GET. Over. [Pause.]
+
+071:09:08 Aldrin: Okay. We'll get started on the fuel cell purge while we're eating. CO 2 canister change number 6; secondary radiator flow check; copy some PADs. Also at 72 hours, stop PTC 0 roll at 73; do a P52 option 3; we'll get your uplink REFSMMAT for the landing site; and - and at 000 degrees, now was this with the old REFSMMAT or the new REFSMMAT?
+
+071:09:45 McCandless: This is with the...
+
+071:09:46 Aldrin: [Garble] antenna and, pitch.
+
+071:09:50 McCandless: This is with the new REFSMMAT, Buzz.
+
+071:09:58 Aldrin: Okay. You want the P52 done at that attitude with the new REFSMMAT?
+
+071:10:05 McCandless: Roger.
+
+[Comm break.]
+
+[ MP3 audio file. 3,403 kB. ]
+
+071:12:01 McCandless: Apollo 11, this is Houston. Over. [No answer.]
+
+071:12:17 McCandless: Apollo 11, this is Houston. Over. [No answer.]
+
+071:12:35 McCandless: Apollo 11, this is Houston. Over.
+
+071:12:41 Collins: Houston, go ahead.
+
+071:12:42 McCandless: Roger, 11. Correction on my last. At 73:20, we uplink you the new REFSMMAT. And at 73:30, we'd like you to maneuver to 0 roll, 0 pitch, 0 yaw in the old REFSMMAT. And then torque around to the new REFSMMAT and run your P52 option 1 in that same inertial attitude. Over.
+
+071:13:12 Collins: Roger, understand.
+
+071:13:15 McCandless: And I've got a consumables update, when you're ready to copy.
+
+071:13:22 Collins: I just got up, but you didn't catch me on that one.
+
+071:13:26 McCandless: I say, I have one for you. [Long pause.]
+
+071:13:55 Aldrin: Okay. We're ready to copy that consumable update.
+
+071:13:59 McCandless: Roger. As of GET 68:00; RCS total, minus 4.5 percent, corresponding to approximately minus 53 pounds. Alpha, minus 6.0 percent, minus 1.0 percent, minus 7.0 percent, minus 3.0 percent; H 2 total, minus 1.2 pounds; O 2 total, plus 10 pounds. Over.
+
+071:14:49 Aldrin: Roger. And our readouts on board are Alpha is 82, Bravo is 84, Cocoa is 84, and Delta is 87.
+
+071:15:09 McCandless: Houston. Roger. Out.
+
+071:15:14 Aldrin: And you want us to cycle the O 2 and H 2 fans, I imagine?
+
+071:15:24 McCandless: 11, this is Houston. Affirmative. Over.
+
+071:15:31 Aldrin: Okay.
+
+[Long comm break.]
+
+[ MP3 audio file. 2,183 kB. ]
+
+071:23:26 Aldrin: Houston, Apollo 11. I have a status report for you.
+
+071:23:34 McCandless: Go ahead, 11.
+
+071:23:38 Aldrin: Roger. On sleep, CDR, CMP 7.5, LMP 6.5. Over.
+
+071:23:46 McCandless: Roger. 7.5 for each. Over.
+
+071:23:54 Aldrin: Negative. LMP 6.5.
+
+071:23:59 McCandless: Roger. 7.5, 7.5 and 6.5. And I got a few words for you here on the SPS engine performance. Over. [Pause.]
+
+071:24:14 Aldrin: Okay. We're ready to listen.
+
+071:24:18 McCandless: Okay, 11. It turns out that the engine performance during both of your burns so far this mission has been the same as it was on engine acceptance tests. The onboard PC reading is due to a known gauge calibration factor between what you've actually got in the chamber and what you're reading out on the gauge. We expect single-bank operation to be 90 - that is, 90 psi on the gauge with an actual chamber pressure of 95 psi [655 kPa]. In dual-bank operation, the chamber pressure is 94 psi on the gauge with an actual of 99 psi [683 kPa]. 80 psi on the gauge on board correlates to 83 psi [572 kPa] actual. And we recommend that you stick to an LOI termination cue of 80 psi on the gauge. That is, no change to the mission rules. Over. [Pause.]
+
+071:25:37 Armstrong: Apollo 11. Roger. We got all that.
+
+071:25:40 McCandless: Houston. Out.
+
+[Long comm break.]
+
+[ MP3 audio file. 330 kB. ]
+
+PAO: This is Apollo Control at 71 hours, 31 minutes. Apollo 11's distance from the Moon now 11,232 nautical miles [20,802 km]. Approaching at a velocity of 4,141 feet per second [1,262 m/s].
+
+[ MP3 audio file. 3,887 kB. ]
+
+071:33:08 Aldrin: Houston. Apollo 11. [Garble].
+
+071:33:12 McCandless: Apollo 11, this is Houston. Go ahead. Over. [No answer.]
+
+071:33:25 McCandless: Apollo 11, this is Houston. Go ahead. Over. [No answer.]
+
+071:33:40 McCandless: Apollo 11, this is Houston. Go ahead. Over.
+
+071:33:47 Armstrong: Houston, do you read Apollo 11?
+
+071:33:49 McCandless: Roger, 11. We're reading you loud and clear now. We were down in the noise as we switched antennas a minute or so ago. Over.
+
+071:34:00 Collins: Roger. What sort of settings could you recommend for that solar corona? We've got the Sun right behind the edge of the Moon now.
+
+071:34:12 McCandless: Roger.
+
+071:34:16 Collins: It's quite an eerie sight. There is a very marked three-dimensional aspect of having the Sun's corona coming from behind the Moon the way it is.
+
+071:34:27 McCandless: Roger.
+
+071:34:31 Aldrin: And it looks as though - I guess what's giving it that three-dimensional effect, the Earthshine. I can see Tycho fairly clearly - at least if I'm right side-up, I believe it's Tycho, in Moonshine - I mean, in Earthshine. And, of course, I can see the sky is lit all the way around the Moon, even on the limb of it where there's no Earthshine or sunshine. [Long pause.]
+
+071:35:40 McCandless: Apollo 11, this is Houston. Over.
+
+071:35:45 Aldrin: Go ahead.
+
+071:35:47 McCandless: Roger. If you'd like to take some pictures, we recommend using magazine Uniform which is loaded with high speed black and white film, interior lights off, electric Hasselblad with the 80-millimeter lens. And you're going to have to hand-hold this, I guess. We're recommending an f-stop of 2.8, and we'd like to get a sequence of time exposures. Over.
+
+071:36:24 Aldrin: Okay. You want magazine Uniform instead of magazine Tango? Over.
+
+071:36:30 McCandless: Roger. We're not trying to get you all wrapped up in a procedure here. This is on a not-to-interfere basis, of course. Over.
+
+071:36:43 Aldrin: Okay.
+
+071:36:46 McCandless: And on the exposures we're looking for an eighth of a second, a half a second. And, if you think you can steady the camera against anything to get longer exposures, 2 seconds, 4 seconds, and 8 seconds. Over.
+
+071:37:11 Aldrin: Roger. We copy.
+
+071:37:13 McCandless: Roger. Out.
+
+[Comm break.]
+
+[ MP3 audio file. 1,291 kB. ]
+
+071:39:15 McCandless: Apollo 11, Houston. Over.
+
+071:39:23 Aldrin: Go ahead, Houston.
+
+071:39:25 McCandless: Roger. We'd like to do a little cryo tank balancing. So, if you could position the Oxygen Tank number 1 heater switch to Off and Hydrogen Tank 2 heater switch to Off, leaving all the rest of the cryo switches the same, we'll let it run that way for a few hours. Over.
+
+071:39:48 Collins: Okay. Stand by one, on those switches. We'll get them in a minute.
+
+071:39:51 McCandless: Roger. And how far out can you see the corona extending? Over. [Long pause.]
+
+071:40:13 Armstrong: Well, its a bit like zodiacal light. It keeps going out farther and farther. We'll talk about it a little more later.
+
+071:40:31 McCandless: Roger. Out.
+
+[Comm break.]
+
+[ MP3 audio file. 2,448 kB. ]
+
+071:42:46 Armstrong: [Garble].
+
+071:43:11 Armstrong: We've got quite a few pictures [garble] windows [garble] corresponding [garble].
+
+071:44:06 McCandless: Apollo 11, this is Houston. I think we have Comm again. We heard you calling. Over. [No answer.]
+
+071:44:27 McCandless: Apollo 11, this is Houston. Were you calling? Over. [Long pause.]
+
+071:44:48 Collins: Houston, Apollo 11. Understand you want the heaters Off for Hydrogen Tank 1 and Oxygen Tank 1. Is that affirmative?
+
+071:44:56 McCandless: That's negative, Mike. Hydrogen Tank number 2 heaters, Off, and Oxygen Tank number 1 heaters, Off.
+
+071:45:05 Collins: Okay.
+
+071:45:07 McCandless: Roger. Out.
+
+071:45:12 Collins: I have Hydrogen Tank number 2 heaters, Off. I have Oxygen Tank number 1 heaters, Off.
+
+071:45:18 McCandless: Roger. Out.
+
+[Long comm break.]
+
+[ MP3 audio file. 385 kB. ]
+
+071:52:15 Collins: Houston. Apollo 11. The Earthshine coming through the window is so bright you can read a book by it.
+
+071:52:24 McCandless: Oh, very good.
+
+[Long comm break.]
+
+PAO: That was Mike Collins reporting.
+
+[ MP3 audio file. 3,833 kB. ]
+
+071:56:00 Armstrong: And, Houston, I'd suggest that along the ecliptic line we can see corona light out to two lunar diameters from this location. The bright light only extends out about an eighth to a quarter of the lunar radius.
+
+[They are currently about 19,000 km from the Moon. The Moon's diameter is 3,474 km. At their current distance, its angular diameter is about 10 degrees. In comparison, the Sun's angular diameter as seen from the Earth or Moon is about 0.5 degrees.]
+
+071:56:35 McCandless: Roger. Understand that you can see the corona approximately 200 solar diameters out along the ecliptic, and the bright light extends out approximately one-eighth to one-quarter lunar radius. Over.
+
+[McCandless may be trying to use mental arithmetic to convert two lunar diameters to its equivalent in solar diameters. The correct answer is about 40 solar diameters.]
+
+071:56:52 Armstrong: That's two lunar - two lunar diameters along the ecliptic in the bright part - (perhaps acknowledging a suggestion from either Aldrin or Collins) right - (To McCandless) a quarter to an eighth of a lunar radius out, and that's perpendicular to the ecliptic line on the South Pole.
+
+[The outer parts of the corona are known as the F-corona and represent sunlight reflected by interplanetary dust particles. In the plane of the ecliptic beyond roughly 40 solar radii, it is often called zodiacal light. At that distance, it is about 500 times fainter than the inner parts of the corona visible from the ground during a total solar eclipse. What Neil is reporting out as far as two lunar diameters (80 solar radii) may be light coming from the outer F-corona. See Brightness of the Solar F-corona (PDF) ]
+
+071:57:07 McCandless: Roger.
+
+[Comm break.]
+
+PAO: That last transmission was from Neil Armstrong.
+
+071:59:20 Armstrong: Houston, it's been a real change for us. Now we're able to see stars again and recognize constellations for the first time on the trip. It's - the sky is full of stars. Just like the night side of Earth. But all the way here, we've only been able to see stars occasionally and perhaps through the monocular, but not recognize any star patterns.
+
+071:59:52 McCandless: I guess it's turned into night up there really, hasn't it?
+
+071:59:58 Armstrong: Really has.
+
+[Long comm break.]
+
+[ MP3 audio file. 228 kB. ]
+
+072:04:57 McCandless: 11, this is Houston. Go ahead. Over.
+
+[Long comm break.]
+
+[ MP3 audio file. 406 kB. ]
+
+PAO: This is Apollo Control at 72 hours, 7 minutes. Apollo 11 is 9,761 nautical miles [18,077 km] from the Moon. Velocity; 4,217 feet per second [1,285 m/s]. Weight; 96,012 pounds [43,550 kg].
+
+[ MP3 audio file. 8,306 kB. ]
+
+072:13:48 McCandless: Apollo 11, this is Houston. Do you read? Over. [No answer.]
+
+072:14:38 McCandless: Apollo 11, this is Houston. How do you read? Over.
+
+072:14:43 Armstrong: Okay. We went to the High Gain. Looks like you had a little trouble getting signal strength there.
+
+072:14:49 McCandless: Roger. We missed an Omni switch there. Over.
+
+072:14:55 Armstrong: All right. On the secondary loop check when we went to Flow on the secondary radiators, the quantity dropped from 40 percent down to 36 in the first 10 seconds and then stabilized at 36 for the remainder of the 30 seconds. [Long pause.]
+
+072:15:30 McCandless: Apollo 11, this is Houston. We believe that is normal system operation. The radiators are expected to be very cold right now and apparently the decrease you saw was due to contraction in the fluid. Over.
+
+072:15:49 Armstrong: Okay. We'll go ahead with the procedure just as if there were no decrease in accumulator quantity. Right?
+
+072:15:55 McCandless: Roger. Press on.
+
+[Comm break.]
+
+072:17:25 Armstrong: And, Houston, the secondary radiator flow check is complete and satisfactory.
+
+072:17:31 McCandless: Houston. Roger. Out. [Pause.]
+
+072:17:40 Collins: And that's a good deal because we don't have to have any meetings about whether we're going to do it or don't do it any more.
+
+072:17:47 McCandless: [Laughter.] That's for sure. [Pause.]
+
+PAO: That was a Mike Collins' comment.
+
+072:18:00 McCandless: The Flight Director says 'ouch!' [Pause.]
+
+072:18:12 Collins: No. No 'ouch' intended. I enjoyed every one of those meetings. [Long pause.]
+
+072:19:10 McCandless: 11, this is Houston. I have your pericynthion-plus-2 PAD, P30 format, when you're ready to copy. [Pause.]
+
+072:19:24 Armstrong: Roger. Stand by. [Long pause.]
+
+072:20:17 Aldrin: Houston, Apollo 11. Ready to copy pericynthion-plus-2.
+
+072:20:24 McCandless: Apollo 11, this is Houston. Pericynthion-plus-2 hours PAD. SPS/G&N: 62710, plus 0.98, minus 0.19; GET ignition 077:46:22.48, Delta-V X NOUN 81, plus 3214.8, minus 0045.5, minus 1037.7; roll NA, pitch 307, and the remainder of the PAD is NA. GDC align stars; Vega and Deneb. Roll 243, 183, 012; no ullage. Remarks: Assumes landing site REFSMMAT and docked. Over. [Pause.]
+
+072:21:48 Aldrin: Roger. SPS/G&N: 62710, plus 0.98, minus 0.19; 077:46:22.48; plus 3214.8, minus 0045.5, minus 1037.7; NA, 307; Vega and Deneb; 243, 183, 012; no ullage. Landing site REFSMMAT, docked. And ya'aven't - change on the LM weight. Over.
+
+072:22:30 McCandless: No change in the LM's weight - in the LM weight, and the readback is correct. Out.
+
+[Comm break.]
+
+[ MP3 audio file. 3,239 kB. ]
+
+072:25:06 McCandless: Apollo 11, this is Houston. Over.
+
+072:25:13 Armstrong: Roger. Go ahead.
+
+072:25:14 McCandless: Roger. We're having difficulty getting commands into the spacecraft. We'd like you to cycle your Up Telemetry switch to Command Reset and Off and then back to Normal. Over.
+
+072:25:32 Armstrong: Okay. We'll do it. [Long pause.]
+
+072:25:50 Armstrong: We have you on High Gain right now. You want us to switch over to Omni? [Pause.]
+
+072:26:02 McCandless: Negative. We'd like to stay on the High Gain if we can. Over.
+
+072:26:11 Armstrong: Okay.
+
+[Comm break.]
+
+072:27:16 McCandless: Apollo 11, this is Houston. Over. [Pause.]
+
+072:27:24 Armstrong: Go ahead.
+
+072:27:25 McCandless: Roger. We'd like you to switch to Omni Delta as we show you approximately at the scan limit of the High Gain Antenna. We will then command Omni Delta down here after you advise us you've switched, and then you can select Bravo on board and we'll be back in the Omni antenna commanding business. Over.
+
+072:27:46 Armstrong: Okay. We're going to Delta now. [Long pause.]
+
+072:28:16 McCandless: 11, Houston. You can go ahead and select Omni Bravo on board now.
+
+072:28:24 Armstrong: You have it.
+
+072:28:27 McCandless: Roger. Out. [Long pause.]
+
+[ MP3 audio file. 11.1 MB. ]
+
+072:29:24 McCandless: Apollo 11, this is Houston. If you have a minute or so free, we can read you up the morning news here.
+
+072:29:35 Armstrong: Go right ahead, let's hear it.
+
+072:29:37 McCandless: Roger. Hot from the wires of the MSC Public Affairs Office, especially prepared for the crew of Apollo 11. [Pause.]
+
+[From this point, McCandless takes turns with backup LMP Fred Haise in reading up the news.]
+
+072:29:46 Haise: Okay. First off, looks like it's going to be impossible to get away from the fact that you guys are dominating all the news back here on Earth. Even Pravda in Russia is headlining the mission and calls Neil, the Czar of the Ship. I think maybe they got the wrong mission.
+
+[Pravda was the main official newspaper, the organ of the Central Committee of the Communist Party of the Soviet Union.]
+
+072:30:06 McCandless: West Germany has declared Monday to be Apollo Day. School children in Bavaria have been given the day off. Post Office clerks have been encouraged to bring radios to work and Frankfurt is installing TV sets in public places.
+
+072:30:24 Haise: BBC in London is considering a special radio alarm system to call people to their TV sets in case there is a change in the EVA time on the Moon.
+
+072:30:35 McCandless: And in Italy, Pope Paul VI has arranged for a special color TV circuit at his summer residence in order to watch you, even though Italian television is still black and white.
+
+[Ironically, the moon walk would only be broadcast in black-and-white, although orbital TV from Apollo 11 was in color.]
+
+072:30:48 Haise: Back here in Houston, your three wives and children got together for lunch yesterday at Buzz's house. And according to Pat, it turned out to be a gab-fest. The children swam and did some high jumping over at Buzz's bamboo pole.
+
+072:31:11 McCandless: In Moscow, space engineer Anatol Koritsky was quoted by TASS as saying that Luna 15 could accomplish everything that has been done by earlier Luna spacecraft. This was taken by the press to mean Luna 15 could investigate the gravitational field, photograph the Moon, and go down to the surface to scoop up a bit for analysis.
+
+072:31:35 Haise: Even the kids at camp got in the news when Mike Junior was quoted as replying 'yeah' when somebody asked him if his daddy was going to be in history. Then after a short pause he asked: 'What is history?' In Washington, President Nixon is planning to use his executive power to streamline the Interstate Commerce Commission. According to the industry sources, it was reported Nixon would trim the commission from 11 to 7 members by not making new appointments.
+
+072:32:12 McCandless: And the big news around Houston today concerns the Astros. In the sports world, the Houston Astros rallied in the ninth inning at Cincinnati to dump the Reds 7 to 4. Going into the ninth however, things looked pretty bleak: the Astros were trailing 4 to 3. Then with one out, Jesus Alou stroked a single to right field. John Edwards hit another single to right, and Sandy Valdespino hit a double to bring in the tying run. Julio Gotay was walked and Joe Morgan dropped a bunt for the game-winning play. A wild throw to the plate allowed another run to score, then a sacrifice fly by Dennis Menke brought in the final run. They really came through in the ninth.
+
+072:32:56 Haise: And other games in the National League...
+
+072:32:57 Collins: Yes. Those Astros have really been catching those flies since they put a roof on the stadium.
+
+072:33:05 Haise: Good work. [Long pause.]
+
+072:33:19 Haise: In other games in the National League, New York beat Montreal 5 to 2; Pittsburgh beat St. Louis 4 to 1; and Atlanta over San Diego in the first game of a double header, 6 to 2.
+
+072:33:32 McCandless: In the American League, Detroit beat Cleveland 4 to nothing; New York trounced Washington 5 to nothing; Baltimore out hit - Boston out hit Baltimore to score 6 runs to the Orioles' 2; and Chicago beat Kansas City 6 to 1.
+
+072:33:50 Haise: Okay. In golf world, Tommy Jacobs, an infrequent competitor in recent years, took the lead in the Philadelphia Golf Classic yesterday. His second round score was 139.
+
+072:34:02 McCandless: You might be interested in knowing, since you are already on the way, that a Houston astrologer, Ruby Graham, says that all the signs are right for your trip to the Moon. She says that Neil is clever, Mike has good judgment, and Buzz can work out intricate problems. She also says Neil tends to see the world through rose-colored glasses, but he is always ready to help the afflicted or distressed. Neil, you are also supposed to have, quote, intuition that enables you to interpret life with feeling, unquote. Buzz is to be very sociable and cannot bear to be alone in addition to having excellent critical ability. Since she didn't know at what hour Mike was born, she has decided that he either has the same attributes as Neil or he is inventive with an unconventional attitude that might seem eccentric to the unimaginative.
+
+072:34:56 Haise: And last but not...
+
+072:34:58 Collins: Who said all that?
+
+072:35:00 McCandless: [Laughter] Ruby Graham, an astrologer here in Houston. Now we check with Flight Operations for all the signs for the mission, and then we, of course, had to make sure that everything was really all set. [Long pause.]
+
+072:35:49 Armstrong: Houston, 11. You're cutting out [garble].
+
+072:35:56 McCandless: Apollo 11, Apollo 11, this is Houston. We're switching Omnis. Can you stand by for about 2 minutes?
+
+[Comm break.]
+
+072:37:30 Armstrong: Houston, 11. Radio check.
+
+072:37:35 Haise: 11, Houston. Go ahead.
+
+072:37:41 Armstrong: Roger. You cut out after Tommy Jacobs and I guess we got into antenna switching problems.
+
+072:37:49 McCandless: Okay. Following Tommy Jacobs, we have the hot smoking word from a local Houston astrologer by the name of Ruby Graham. She says that all the signs are right for your trip to the Moon. Neil is clever, Mike has good judgement, and Buzz can work out intricate problems. She also says Neil tends to see the world through rose-colored glasses but is always ready to help the afflicted or distressed. Neil, you are also supposed to have, quote, intuition that enables you to interpret life with feeling, unquote. Buzz is supposed to be very sociable and cannot bear to be alone in addition to having excellent critical ability. Since she didn't know at what hour Mike was born, she decided he either has the same attributes as Neil or that he is inventive with an unconventional attitude that might seem eccentric to the unimaginative. And that's 30 for today. Over.
+
+072:38:51 Armstrong: Thank you much there, Bruce and Fred Show, we appreciate that.
+
+072:38:58 McCandless: Roger.
+
+PAO: That was Fred Haise alternating with Bruce McCandless on that newscast.
+
+072:39:13 Collins: Did you hear our comment about the Astros?
+
+072:39:17 McCandless: The one about the roof?
+
+072:39:23 Collins: Yep. [Long pause.]
+
+072:39:44 McCandless: Hey, Mike, the game was at Cincinnati there, and we think that they're still using Crosby Field up there. I don't believe it has a roof on it. [Pause.]
+
+072:40:00 Aldrin: You got him on that one.
+
+072:40:02 McCandless: Right...
+
+072:40:03 Armstrong: I think they're just getting to be a good team in the clinch.
+
+072:40:05 McCandless: They certainly seem to be.
+
+072:40:11 Collins: Well, if they can do that well without a roof, think of what they're going to do with a roof.
+
+072:40:16 McCandless: Roger. Out.
+
+072:40:21 Collins: They're trying. [Long pause.]
+
+072:40:41 Collins: An old Oiler fan is trying to comment on an alien game. [Long pause.]
+
+072:41:23 Collins: You tell Michael Junior, history or no history, he'd better behave himself.
+
+072:41:29 McCandless: Roger. We'll pass that along, Mike.
+
+[Long comm break.]
+
+[ MP3 audio file. 349 kB. ]
+
+PAO: This is Apollo Control at 72 hours, 45 minutes. Apollo 11 is now 8,188 nautical miles from the Moon, approaching at a velocity of 4,324 feet per second.
+
+[ MP3 audio file. 8,543 kB. ]
+
+072:48:58 McCandless: Apollo 11, Houston. If it's convenient with you, we have an LOI-1 PAD that we can pass up to you now. Over.
+
+072:49:10 Armstrong: Stand by. [Pause.]
+
+072:49:17 Collins: Houston, Apollo 11. The next time we pass through roll 0, we're going to stop PTC and that'll give us 90 degrees pitch. Now, I understand you want us to move from 90 degrees pitch to 0 degrees pitch for the platform align, option 1. Is that affirmative? [Long pause.]
+
+072:49:42 McCandless: Standby, please.
+
+072:49:47 Armstrong: And we're ready to copy on the LOI-1. [Long pause.]
+
+072:50:37 McCandless: Apollo 11, this is Houston. When you stop at 0 roll, you'll be in approximately 90 pitch, 0 yaw, and 0 roll. We'd like you to run the first P52, that is, the P52 option 3, from that attitude. Then we'll uplink you a new REFSMMAT, either before or while you're maneuvering to 000, then you can torque the platform around and run the second REFSMMAT. Over. Run the second P52. Over.
+
+072:51:13 Collins: Okay.
+
+072:51:15 McCandless: And I copied you're ready for the LOI-1 PAD. Over.
+
+072:51:22 Armstrong: Go ahead.
+
+072:51:24 McCandless: LOI-1, SPS/G&N: 62710, plus 0.98, minus 0.19, GET ignition 075:49:49.65; minus 2889.7, minus 0394.4, minus 0068.6; roll 358, pitch 226, 347; 0169.2, plus 00610; 2917.3, 6:02, 2910.8; sextant star 31, 1066, 358. Remainder of the PAD is NA. GDC align, Vega and Deneb, 243, 183, 012. No ullage. The horizon will be visible just below the upper edge of the hatch window 2 minutes prior to the LOI burn. It will not be visible in the rendezvous window on the left-hand side. LOS at 75 hours, 41 minutes, 23 seconds. AOS at 76:15:29. AOS without the LOI burn, 76:05:30. The values which you would see on Noun 42 prior to LOI burn are H A , plus 431.3; H P , minus 128.2. Read back, over.
+
+072:53:54 Armstrong: Roger. LOI-1, SPS/G&N: 62710, plus 0.98, minus 0.19; 075:49:49.65; minus 2889.7, minus 0394.4, minus 0068.6; 358, 226, 347; 0169.2, plus 0061.0; 2917.3, 6:02, 2910.8; 31, 106.6, 35.8. GDC align, Vega and Deneb, 243, 183, 012. No ullage. Horizon in the hatch window 2 minutes before T IG . AOS with an LOI, 76:15:29; AOS without an LOI, 76:05:30. H A before the burn, 431.3; H P , minus 128.2. Say again LOS time.
+
+[The PAD is interpreted as follows:
+
+Purpose: This PAD gives the parameters for Lunar Orbit Insertion burn 1. This burn will Apollo 11 enough to cause it to be captured in orbit around the Moon. A second burn will be made after two revolutions to refine their orbit.
+
+Systems: The burn will be made using the large SPS (Service Propulsion System) engine at the rear of the Service Module, under the control of the Guidance and Navigation system.
+
+CSM Weight (Noun 47): 62,710 pounds (28,445 kg).
+
+Pitch and yaw trim (Noun 48): +0.98° and -0.19°. These are the angles through which the SPS engine should be swivelled to ensure its thrust acts through the spacecraft's centre of gravity.
+
+Time of ignition, T IG (Noun 33): 75 hours, 49 minutes, 49.65 seconds.
+
+Change in velocity (Noun 81), fps (m/s): x, -2,889.7 (-880.8); y, -394.4 (-120.2); z, -68.6 (-20.9). The change in velocity is resolved into three components expressed relative to the
+Local Vertical/Local Horizontal frame of reference.
+
+Spacecraft attitude: Roll, 358°; Pitch, 226°; Yaw, 347°. The desired spacecraft attitude is measured relative to the alignment of the guidance platform.
+
+H A , expected apocynthion of resulting orbit (Noun 44): 169.2 nautical miles (313.4 km).
+
+H P , expected pericynthion of resulting orbit (Noun 44): 61.0 nautical miles (113.0 km).
+
+The pericynthion will be over the Moon's far side, at roughly the same position that LOI occurred; with the apocynthion occurring over the near side.
+
+Delta-V T : 2,917.3 fps (889.2 m/s). This is the total change in velocity the spacecraft would experience. (It is a vector sum of the three components given above.)
+
+Burn duration or burn time: 6 minutes, 2 seconds.
+
+Delta-V C : 2,910.8 fps (887.2 m/s). This value is entered into the Delta-V display of the EMS (Entry Monitor System) panel. They will watch this figure descend to zero as the engine burns. If the Guidance and Control System fails to stop the burn, the EMS will do so but it has to be given a low Delta-V figure to take account of the engine's tail-off thrust after shutdown.
+
+Sextant star: Star 31 (Arcturus, or Alpha Bootes) visible in sextant when shaft and trunnion angles are 106.6° and 35.8° respectively. This is part of an attitude check.
+
+GDC align stars: Stars to be used for GDC align purposes are Vega and Deneb. The align angles are roll, 243°; pitch, 183°; yaw, 12°. The purpose of this is to allow their backup gyros to be aligned in case the IMU fails. By viewing these two stars through the telescope and adjusting the spacecraft's attitude so they align with the reticle or graticule in a certain way, the crew will know they are in the attitude stated, and can pass this onto the GDCs, the box of electronics that makes sense of the gyros.
+
+The SPS propellant tanks are full, so there is no need to perform an ullage burn to settle their contents.
+
+The next comment refers to where in the rendezvous window the commander can expect to see the Moon's horizon, and when this occurs. Usually, this is with respect to a series of lines scribed on the window but in this case, the upper edge of the window is being used. It is a coarse check of the spacecraft's control system.]
+
+Next come three times for when the crew can expect to loose their radio link with Earth, when they will reacquire it if the burn goes as planned and when reacquisition occurs if they fail to make the burn.
+
+Finally come two altitudes, an apolune and a perilune, that they should see on their display prior to the burn.]
+
+072:55:47 McCandless: Roger. LOS time 75:41:23. Over.
+
+072:55:58 Armstrong: Understand 75:41:23.
+
+072:56:03 McCandless: 11, this is Houston. Readback correct. Out.
+
+[Long comm break.]
+
+PAO: That was Neil Armstrong with the readback of the Lunar Orbit Insertion burn number 1 PAD. The ignition time for that burn; 75 hours, 49 minutes, 49 seconds. That's 2 hours, 57 minutes, 49 seconds from this time. Duration of that burn; 6 minutes, 2 seconds retrograde, and the change in velocity; 2,917.3 feet per second [889.2 m/s]. The expected orbit following that maneuver is 169.2 by 61 nautical miles [313.4 by 113.0 km]. To repeat the LOS/AOS times; we will lose signal with Apollo 11 at 75 hours, 41 minutes, 23 seconds as it goes behind the Moon. Given a successful Lunar Orbit Insertion number 1 burn, we will acquire the signal at 76 hours, 15 minutes, 29 seconds. If for some reason Apollo 11 cannot perform the burn, we will acquire the spacecraft at 76 hours, 5 minutes, 30 seconds.
+
+[ MP3 audio file. 2,478 kB. ]
+
+073:04:38 McCandless: Apollo 11, this is Houston. Over.
+
+073:04:43 Aldrin: Go ahead.
+
+073:04:44 McCandless: Roger. Apparently we missed getting your onboard readouts on battery Charlie and Pyro batteries Alpha and Bravo last night. I wonder if you could give us some fresh numbers. Over.
+
+073:04:59 Armstrong: You want the readings now?
+
+073:05:01 McCandless: Yes, please. If it's convenient for you. [Long pause.]
+
+073:05:16 Aldrin: Okay. All three of the them are still 37.1 [Volts].
+
+073:05:20 McCandless: Roger. 37.1 cubed. Out.
+
+[Long comm break.]
+
+PAO: This is Apollo Control at 73 hours, 6 minutes. Apollo 11's distance from the Moon is now 7,331 nautical miles [13,577 km]. Velocity; 4,399 feet per second [1,341 m/s]. The ignition time passed up to the crew on this PAD is 4 minutes, 39 seconds earlier than the LOI-1 time published in the Flight Plan prior to lift-off. This means that all lunar events will move forward from the published Flight Plan times by this amount of time - 4 minutes, 39 seconds. This time will be made up during the trans-Earth coast, and splash should occur at the Flight Plan time. This is Mission Control, Houston.
+
+[ MP3 audio file. 276 kB. ]
+
+073:09:14 Collins: Houston, Apollo 11. The P52 option 3 is complete. We're maneuvering to 000.
+
+073:09:20 McCandless: Roger. We observe your maneuvering, and we'll have some uplinks for you in a couple of minutes here.
+
+073:09:27 Collins: Okay.
+
+[Long comm break.]
+
+[ MP3 audio file. 288 kB. ]
+
+073:13:13 McCandless: Apollo 11, this is Houston. We observe you're in P00. If you'll give us Accept, we'll start our uplinks.
+
+073:13:24 Collins: You got it, Houston.
+
+073:13:25 McCandless: Roger. Out.
+
+[Long comm break.]
+
+[ MP3 audio file. 8,055 kB. ]
+
+073:16:51 McCandless: Apollo 11, this is Houston. Over.
+
+073:16:58 Armstrong: Go ahead, Houston.
+
+073:16:59 McCandless: Roger. We're on low bit rate at the present time so it's going to take us a little bit longer than normal to get this stuff up to you. Over.
+
+073:17:12 Armstrong: I guess we're in no rush.
+
+073:17:15 McCandless: Okay. We're here, if you're there. [Pause.]
+
+073:17:24 Armstrong: The view of the Moon that we've been having recently is really spectacular. It fills about three-quarters of the hatch window, and of course, we can see the entire circumference, even though part of it is in complete shadow and part of it's in Earthshine. It's a view worth the price of the trip.
+
+073:17:45 McCandless: Well, there are a lot of us down here that would be willing to come along. [Pause.]
+
+PAO: That was Neil Armstrong.
+
+073:17:58 Collins: I hope you get your turn, and soon. [Long pause.]
+
+073:18:11 Armstrong: One of these days, we'll be able to bring the whole MOCR along, I hope. Save a lot of antenna switching.
+
+073:18:21 McCandless: Say again, 11.
+
+073:18:26 Armstrong: One of these days, we could bring the whole MOCR along, and then that'll save a lot of antenna switching.
+
+073:18:34 McCandless: That's jolly.
+
+[Comm break.]
+
+PAO: The MOCR is the Mission Operations Control Room. That's the control center here.
+
+073:20:21 McCandless: Apollo 11, this is Houston. Over.
+
+073:20:28 Collins: Go ahead, Houston.
+
+073:20:30 McCandless: 11, this is Houston. We're showing you...
+
+073:20:32 Collins: The Czar is brushing his teeth, so I'm filling in for him.
+
+073:20:36 McCandless: Say again, please.
+
+073:20:42 Collins: I said the Czar is brushing his teeth, so I'm filling in for him. What can we do for you?
+
+073:20:47 McCandless: Roger. Well, if you don't get in the way of the Czar while he's brushing his teeth, we'd like you to bring up the primary accumulator quantity a little bit. We're showing the quantity now at 20.6 percent on TM. Seems to have gone down a bit since you've gone into the shadow. We'd like it serviced to bring the quantity up to between 30 and 40 percent, preferably 35 percent. Over.
+
+073:21:19 Collins: Okay.
+
+073:21:23 McCandless: The computer is yours, 11. The loads are in and verified. You can go back to Block.
+
+073:21:31 Collins: We're in Block.
+
+[Comm break.]
+
+073:23:52 McCandless: 11, this is Houston. On the basis of your last P52 alignment, the platform looks like it's indeed performing very well. No problems there, no updates required, and no PIPA bias update is required either. Over.
+
+073:24:12 Collins: Sounds good.
+
+[Very long comm break.]
+
+PAO: This is Apollo Control at 73 hours, 25 minutes. Apollo 11 is 6,522 nautical miles away from the Moon; approaching at a velocity of 4,483 feet per second.
+
+[ MP3 audio file. 1,927 kB. ]
+
+073:40:51 Collins: Houston, Apollo 11. Radio check.
+
+073:40:54 McCandless: 11, this is Houston. Loud and clear. Over.
+
+073:41:00 Collins: Okay. Just checking. Do you want the High Gain?
+
+073:41:06 McCandless: Roger. If you can give it to us.
+
+073:41:11 Collins: Okay.
+
+[Comm break.]
+
+073:42:19 Collins: Houston, Apollo 11. How do you read on the High Gain?
+
+073:42:23 McCandless: Loud and clear on the High Gain.
+
+073:42:29 Collins: Same here. We've completed the P52 option 1.
+
+073:42:36 McCandless: Roger. We've been looking over your shoulder by TM. [Pause.]
+
+073:42:48 Collins: Glad to have you.
+
+[Very long comm break.]
+
+[ MP3 audio file. 6,407 kB. ]
+
+073:58:37 Aldrin: Houston, Apollo 11. Standing by to copy TEI-1 and TEI-4. Over.
+
+073:58:43 McCandless: Roger. I've got the 1 and 4 PADs here, right now. I'll be ready to read them up to you in just a second. [Long pause.]
+
+073:59:31 McCandless: 11, this is Houston. I'm ready with the TEI-1 and 4 PADs. Over. [Pause.]
+
+073:59:44 Aldrin: Ready to copy.
+
+073:59:46 McCandless: Roger. TEI-1, SPS/G&N; 38658, minus 0.54, plus 0.65, T IG , 078:02:03.45; plus 2918.0, plus 0377.9, minus 0132.5; roll NA, pitch 041. The balance of the PAD is NA. Ullage; two jets, 19 seconds. TEI-4 PAD, SPS/G&N:, 38658, minus 0.54, plus 0.65, T IG , 084:29:50.59; plus 3137.3, plus 0376.0, minus 0096.8; roll NA, pitch 034. The rest of the PAD is NA. Ullage; two jets, 19 seconds. Both of these PADs are for an undocked maneuver. TEI-plus-4 PAD assumes no LOI-2. Over. Make that TEI-4 PAD assumes no LOI-2. [Long pause.]
+
+074:01:53 Aldrin: Roger. TEI-1, SPS/G&N; 38658, minus 0.54, plus 0.65; 078:02:03.45; plus 2918.0, plus 0377.9, minus 0132.5; roll NA, pitch 041; two jets, 19 seconds; undocked. TEI-4: 38658, minus 0.54, plus 0.65, 084:29:50.59, plus 3137.3, plus 0376.0, minus 0096.8; roll NA, pitch 034; two jets, 19 seconds; undocked; assumes no LOI-2.
+
+074:02:59 McCandless: 11, this is Houston...
+
+074:03:00 Aldrin: ...Apollo 11. Over.
+
+074:03:01 McCandless: ...11, this is Houston. Readback correct. Out.
+
+[Comm break.]
+
+PAO: That was Buzz Aldrin with the readback of that information which was for contingency Trans-Earth Injection burns if required shortly after Lunar Orbit Insertion.
+
+[As is normal throughout a flight, Mission Control are ensuring the crew will have enought information to hand in case they lost communications and have to return to Earth themselves. A fuller interpretation of the TEI-1 PAD follows:
+
+Purpose: This PAD will be used for a contingency Return-to-Earth burn after one orbit of the Moon.
+
+Systems: The burn would be made using the SPS (Service Propulsion System) engine under the control of the Guidance and Navigation system.
+
+CSM Weight (Noun 47): 38,658 pounds (17,535 kg).
+
+Pitch and yaw trim (Noun 48): -0.54° and +0.65°.
+
+Time of ignition, T IG (Noun 33): 78 hours, 2 minutes, 3.45 seconds.
+
+Change in velocity (Noun 81), fps (m/s): x, +2,918.0 (+889.4); y, +377.9 (+115.2); z, -132.5 (-40.4). These velocities are expressed with respect to the Local Vertical/Local Horizontal frame of reference of the Moon.
+
+Spacecraft attitude: Roll, NA; Pitch, 41°. The desired spacecraft attitude is measured relative to the alignment of the guidance platform which itself has been aligned to the lunar lift-off REFSMMAT.
+
+The ullage burn to settle the contents of the propellant tanks is to fire two RCS (Reaction Control System) jets for 19 seconds.
+
+The TEI-4 PAD is interpreted as follows:
+
+Purpose: This PAD will be used for a contingency Return-to-Earth burn after four orbits of the Moon.
+
+Systems: The burn would be made using the SPS (Service Propulsion System) engine under the control of the Guidance and Navigation system.
+
+CSM Weight (Noun 47): 38,658 pounds (17,535 kg).
+
+Pitch and yaw trim (Noun 48): -0.54° and +0.65°.
+
+Time of ignition, T IG (Noun 33): 84 hours, 29 minutes, 50.59 seconds.
+
+Change in velocity (Noun 81), fps (m/s): x, +3,137.3 (+956.2); y, +376.0 (+114.6); z, -96.8 (-29.5).
+
+Spacecraft attitude: Roll, NA; Pitch, 34°.
+
+The ullage burn to settle the contents of the propellant tanks is to fire two RCS (Reaction Control System) jets for 19 seconds.]
+
+074:04:24 McCandless: 11, this is Houston. Over. [Pause.]
+
+074:04:30 Aldrin: Roger. Go ahead, Houston.
+
+074:04:32 McCandless: Roger. At GET of 74:30, we'd like you to cycle the fans in all four Cryo tanks and position the heaters in all four Cryo tanks to the Auto position. We're doing this in advance of LOI in order to ensure that you don't have any destratification as a result of the burn, which might result in giving you a master Caution and Warning during the burn. Over.
+
+074:05:08 Aldrin: Okay. Was that 74:30 you want us to cycle the heaters and turn - cycle the fans and turn all the heaters on?
+
+074:05:16 McCandless: All the heaters to Auto; cycle the fans at 74:30, about 25 minutes from now. Over.
+
+074:05:23 Aldrin: Okay.
+
+[Very long comm break.]
+
+[ MP3 audio file. 623 kB. ]
+
+PAO: This is Apollo Control at 74 hours, 8 minutes. Apollo 11 is 4,625 nautical miles [8,566 km] away from the Moon. Velocity; 4,765 feet per second [1,452 m/s]. We're 1 hour, 32 minutes away from Loss Of Signal as Apollo 11 goes behind the Moon, and we're about 1 hour, 41 minutes away from the LOI number 1 burn.
+
+[ MP3 audio file. 3,851 kB. ]
+
+PAO: This is Apollo Control at 74 hours, 32 minutes. Apollo 11 is traveling at a velocity of 3 thousand... stand by. We've got a static display here.
+
+074:34:44 McCandless: 11, this is Houston. Radio check. Over.
+
+074:34:49 Armstrong: Houston, 11.
+
+074:34:51 McCandless: Roger. Loud and clear now. [Long pause.]
+
+074:35:10 Armstrong: Houston, Apollo 11.
+
+074:35:12 McCandless: Go ahead, 11.
+
+074:35:20 Armstrong: Apparently this is not a very good Omni attitude for you. We're ready to start our PTC check. [Long pause.]
+
+074:35:52 McCandless: 11, this is Houston. We're ready, except that we'd like to get the High Gain Antenna prior to this test. Over.
+
+074:36:06 Armstrong: Can you give us a couple of pointing angles?
+
+074:36:09 McCandless: Roger. From an attitude with 60 degrees roll, around to an attitude of roll 058 inertial. It would be pitch plus 30 and yaw 270 on the High Gain Antenna.
+
+074:36:27 Armstrong: Thank you.
+
+[Very long comm break.]
+
+[ MP3 audio file. 2,163 kB. ]
+
+074:51:01 McCandless: Apollo 11, Apollo 11, this is Houston. Radio check. Over. [No answer.]
+
+074:51:13 McCandless: Apollo 11, Apollo 11, this is Houston. Radio check. Over. [No answer.]
+
+074:51:36 McCandless: Apollo 11, this is Houston. Do you read? Over.
+
+074:51:43 Armstrong: Roger. Loud and clear.
+
+074:51:45 McCandless: Roger. We're reading you weak but clear.
+
+074:51:52 Armstrong: Roger. We put our - our roll for MSFN track in on the wrong sign. Going to continue rolling around until we get High Gain here. And, we'll delete the - the pitch that was scheduled after the TVC check.
+
+074:52:15 McCandless: Say again please, 11.
+
+074:52:20 Armstrong: Roger. We put the wrong sign in...
+
+074:52:24 McCandless: Roger.
+
+074:52:25 Armstrong: ...for the roll correction to get MSFN High Gain, and we're continuing rolling around to get the proper attitude for High Gain at this time. We will delete the pitch maneuver that was scheduled subsequent to - subsequent to the TV check since we already have those pictures.
+
+074:52:46 McCandless: Roger. We copy. And [pause] and we recommend that you go ahead and complete your TVC test on board. If you have problems, we'll talk to you when you get around further into the High Gain Antenna attitude. Over.
+
+074:53:12 Armstrong: Roger.
+
+[Long comm break.]
+
+[ MP3 audio file. 4,402 kB. ]
+
+074:58:59 Armstrong: Houston, how do you read on High Gain?
+
+074:59:02 McCandless: Oh, loud and clear on High Gain, 11.
+
+074:59:07 Armstrong: Roger. We're proceeding.
+
+074:59:09 McCandless: Roger.
+
+[Long comm break.]
+
+PAO: This is Apollo Control at 75 hours into the mission. Apollo 11 is 2,241 nautical miles away from the Moon. Velocity; 5,512 feet per second. We're 41 minutes away from Loss Of Signal as Apollo 11 goes behind the Moon. We're 49 minutes away from the Lunar Orbit Insertion maneuver number 1.
+
+075:03:22 McCandless: Apollo 11, this is Houston. We observed your gimbal test down here, and it looked good to us. Over.
+
+075:03:32 Armstrong: Roger. It looked good here.
+
+[Very long comm break.]
+
+[ MP3 audio file. 3,805 kB. ]
+
+PAO: This is Apollo Control at 75 hours, 15 minutes into the mission. Apollo 11's distance from the Moon now is 1,516 nautical miles [2,808 km]; 1,516 nautical miles. Velocity; 5,981 feet per second [1,823 m/s].
+
+075:18:49 McCandless: Apollo 11, this is Houston. Radio check. Over.
+
+075:18:55 Collins: Loud and clear.
+
+075:18:56 McCandless: Roger. And your systems are looking good from down here.
+
+075:19:02 Collins: Yeah. Looks good up here too, Bruce.
+
+[Very long comm break.]
+
+[ MP3 audio file. 5,312 kB. ]
+
+PAO: This is Apollo Control at 75 hours, 26 minutes. We're 15 minutes away from Loss Of Signal. Apollo 11 is 966 miles [1,789 km] from the Moon. Velocity; 6,511 feet per second [1,985 m/s]. We're 23 minutes away from the LOI burn.
+
+PAO: Flight Director Cliff Charlesworth polling flight controllers for the Go/No-Go status for LOI now.
+
+075:30:38 McCandless: Apollo 11, this is Houston. Over.
+
+075:30:44 Aldrin: Roger. Go ahead Houston, Apollo 11.
+
+075:30:46 McCandless: 11, this is Houston. You are Go for LOI. Over.
+
+075:30:53 Aldrin: Roger. Go for LOI.
+
+075:30:55 McCandless: And we're showing about 10 minutes and 30 seconds to LOS. I would like to remind you to enable the B/D roll on the Auto RCS switches. Over.
+
+075:31:09 Aldrin: Roger. And confirm you want PCM Low [bit-rate] going over the hill. Over.
+
+075:31:18 McCandless: That's affirmative, 11.
+
+075:31:24 Aldrin: Roger. [Long pause.]
+
+PAO: That was Buzz Aldrin confirming the Go.
+
+075:31:43 Aldrin: If you want to, I'll put it back to high 'til just before LOS. Over.
+
+075:31:51 McCandless: Negative, 11. Low is okay for now. Over.
+
+075:31:57 Aldrin: Roger.
+
+[Long comm break.]
+
+[ MP3 audio file. 7,555 kB. ]
+
+075:35:55 Armstrong: Houston, do you want to give me a time check, please?
+
+075:35:58 McCandless: Roger. I'll give you a Mark at 13 minutes and 30 seconds to ignition.
+
+075:36:11 Armstrong: Okay. And then a GET, please.
+
+075:36:16 McCandless: Stand by a minute. [Long pause.]
+
+075:36:41 McCandless: I'll give you a time hack on the GET at 75 hours, 37 minutes and I'll try to bias it about a second and a half to allow for the time of flight.
+
+075:36:55 Armstrong: Okay.
+
+075:36:57 McCandless: Stand by.
+
+075:37:01 McCandless: Mark.
+
+075:37:02 McCandless: 75 hours, 37 minutes GET.
+
+075:37:07 Armstrong: Thank you.
+
+075:37:12 McCandless: And I'll give you a time hack on time to ignition at 12 minutes to ignition. Over.
+
+075:37:22 Collins: Okay. [Long pause.]
+
+075:37:44 McCandless: Stand by for a Mark at T IG minus 12.
+
+075:37:51 McCandless: Mark.
+
+075:37:52 McCandless: T IG minus 12.
+
+075:37:56 Collins: You were right on, Bruce. Thank you.
+
+075:37:58 McCandless: Roger. Out.
+
+[Comm break.]
+
+PAO: We're 3 minutes away from Loss Of Signal. Apollo 11 is 425 nautical miles [787 km] from the Moon. Velocity 7,368 feet per second [2,246 m/s]. Weight; 96,012 pounds [43,550 kg].
+
+075:39:29 McCandless: Two minutes to LOS.
+
+[Comm break.]
+
+[On board Columbia, the DSE recorder is started. Its voice track of the crew's conversations around the Moon's far side, along with a range of telemetry readings, will be radioed to Earth later, allowing historians to follow Apollo 11's insertion into lunar orbit.]
+
+075:40:17 Collins (onboard): Optics [garble] are up?
+
+075:40:19 Armstrong (onboard): Yes.
+
+075:40:25 Aldrin (onboard): Okay, 41:23. One minute to LOS. Mark that.
+
+075:40:33 McCandless: Apollo 11, this is Houston. All your systems are looking good going around the corner, and we'll see you on the other side. Over.
+
+075:40:42 Armstrong: Roger.
+
+075:40:48 Aldrin (onboard): How much time have we got, Mike?
+
+075:40:49 Armstrong: Everything looks okay up here.
+
+075:40:51 McCandless: Roger. Out.
+
+[Very long comm break.]
+
+075:40:51 Collins (onboard): 9 minutes.
+
+075:41:13 Aldrin (onboard): Well, let's let them look at the main bus ties coming on, alright?
+
+075:41:17 Collins (onboard): Sure.
+
+075:41:19 Aldrin (onboard): What time is it?
+
+075:41:20 Collins (onboard): 8&frac12; minutes.
+
+[At 075:41:23, precisely when Houston predicted, the radio signal from Apollo 11 is lost.]
+
+075:41:23 Aldrin (onboard): How soon are we going to...
+
+075:41:24 Armstrong (onboard): [Garble] take 2.
+
+075:41:25 Aldrin (onboard): 1 second early. Okay. Main Bus Ties...
+
+075:41:28 Armstrong (onboard): Okay.
+
+075:41:29 Collins (onboard): I'm going to turn my S-Band Volume down, so you can [garble].
+
+075:41:33 Armstrong (onboard): Down Voice Backup.
+
+075:41:39 Aldrin (onboard): Main Bus Tie A coming On. Have you got TVC Gimbal Drive - Pitch and Yaw to Auto, huh?
+
+PAO: And we've had Loss Of Signal as Apollo 11 goes behind the Moon. We were showing a distance to the Moon of 309 nautical miles [572 km] at LOS. Velocity; 7,664 feet per second [2,336 m/s]. Weight was 96,012 pounds [43,550 kg]. We're 7 minutes, 45 seconds away from the LOI number 1 burn, which will take place behind the Moon, out of communications. Here in the control center, two members of the backup crew, Bill Anders and Jim Lovell, have joined Bruce McCandless at the CapCom console. Fred Haise, the third member of the backup crew, has just come in, too, and Deke Slayton, Director of Flight Crew Operations, is at that console. The viewing room is filling up. Among those we noticed on the front row in the viewing room are astronauts Tom Stafford, John Glenn, Gene Cernan, Dave Scott, Al Worden and Jack Swigert. With a good Lunar Orbit Insertion burn, the Madrid station should acquire Apollo 11 at 76 hours, 15 minutes, 29 seconds. Aquisition time for no burn; 76 hours, 5 minutes, 30 seconds.
+
+075:41:46 Collins (onboard): TVC Gimbal Drive, Pitch and Yaw to Auto.
+
+075:41:55 Aldrin (onboard): Okay, TVC...
+
+075:41:57 Collins (onboard): He's not going to have the Sun in your eyes - I mean, on this thing, why don't we [garble]?
+
+075:42:00 Aldrin (onboard): Is that right?
+
+075:42:01 Armstrong (onboard): Now, you may have the sun in your eyes coming around the corner. Now, you've got your patch ready in case you want it?
+
+075:42:05 Collins (onboard): Got it right here.
+
+[Armstrong is reminding Collins because he failed to have his sun shade ready to block the sun's glare during TLI.]
+
+075:42:08 Aldrin (onboard): Okay, TVC Servo Power 1, to AC 1,
+
+075:42:11 Collins (onboard): TVC Servo Power 1, to AC 1.
+
+075:42:15 Aldrin (onboard): 2 to AC 2.
+
+075:42:16 Armstrong (onboard): Look the other way.
+
+075:42:18 Collins (onboard): 2 to AC 2.
+
+075:42:20 Aldrin (onboard): Translational Control Power, On.
+
+075:42:24 Collins (onboard): Translational Control Power is On.
+
+075:42:27 Aldrin (onboard): Rotation Control Power, Normal, number 2, to AC.
+
+075:42:33 Collins (onboard): Okay, stand by. Rotational Control Power is Normal, number 2, to AC.
+
+075:42:47 Aldrin (onboard): Rotation Hand Controller, number 2, Armed.
+
+075:43:01 Collins (onboard): Rotational Hand Controller, number 2, is Armed.
+
+075:43:07 Aldrin (onboard): It's going to have to get up pretty high to [garble]. Alright, time check.
+
+075:43:14 Armstrong (onboard): Okay, we've got 6&frac12;.
+
+075:43:21 Collins (onboard): Mark it...
+
+075:43:22 Collins (onboard): 6&frac12;.
+
+075:44:05 Aldrin (onboard): 10-minutes difference whether we [garble], huh? That's a lot of time.
+
+075:44:10 Collins (onboard): Yes.
+
+075:44:16 Aldrin (onboard): Now, what do we do? Turn up - Where did the noise come from?
+
+075:44:20 Armstrong (onboard): VHF or the S-band?
+
+075:44:23 Aldrin (onboard): I don't know.
+
+075:44:24 Collins (onboard): VHF, I think. It's a woo-woo noise.
+
+075:44:28 Aldrin (onboard): Woo-oo, what time is it?
+
+075:44:29 Collins (onboard): I turned my S-Band Volume down to get rid of that background noise. Now don't forget for us to turn it back up on the other side.
+
+075:44:36 Aldrin (onboard): What time you got?
+
+075:44:37 Collins (onboard): It's coming up on 5 minutes to T IG . I'll give you a mark.
+
+075:44:41 Aldrin (onboard): Alright. Start giving me Pitch 1, Yaw 1.
+
+075:44:44 Collins (onboard): Okay, here comes Pitch 1.
+
+075:44:46 Aldrin (onboard): Got it.
+
+075:44:47 Collins (onboard): Here comes Yaw 1.
+
+075:44:49 Aldrin (onboard): Got it.
+
+075:44:50 Collins (onboard): Mark...
+
+075:44:51 Collins (onboard): ...5 minutes to T IG .
+
+075:44:52 Aldrin (onboard): Alright. Translation Hand Controller's counter-clock - clockwise.
+
+075:44:57 Collins (onboard): Hey, are you - are you on your Intercom switch? Intercom Push-To-Talk and all that?
+
+075:45:03 Aldrin (onboard): Yes, yes.
+
+075:45:04 Collins (onboard): Okay. Alright. Translational Controller's...
+
+075:45:07 Aldrin (onboard): [Garble] going TVC.
+
+075:45:09 Collins (onboard): ...clockwise - that's verified. Alright, secondary TVC check; Gimbal Motors, Pitch 2, Yaw 2, On.
+
+075:45:18 Armstrong (onboard): Pitch 2, Mark.
+
+075:45:19 Collins (onboard): Got it.
+
+075:45:20 Armstrong (onboard): Yaw 2, Mark.
+
+075:45:22 Collins (onboard): Got it.
+
+075:45:23 Armstrong (onboard): Okay.
+
+075:45:24 Collins (onboard): Set GPI trim.
+
+075:45:25 Armstrong (onboard): Plus...
+
+075:45:26 Collins (onboard): Okay, it's set.
+
+075:45:27 Armstrong (onboard): ...1.0, minus 0.2.
+
+075:45:31 Collins (onboard): Yes, it's set. Verify MTVC.
+
+075:45:38 Armstrong (onboard): Verified.
+
+075:45:41 Collins (onboard): THC, Neutral.
+
+075:45:43 Armstrong (onboard): Neutral.
+
+075:45:45 Collins (onboard): Verify GPI return to zero, zero.
+
+075:45:47 Armstrong (onboard): Verified.
+
+075:45:48 Collins (onboard): Rot Control Power, Normal, number 2, to AC/DC.
+
+075:45:52 Armstrong (onboard): AC/DC.
+
+075:45:54 Collins (onboard): Spacecraft Control, CMC, verify.
+
+075:45:55 Armstrong (onboard): CMC.
+
+075:45:57 Collins (onboard): Okay. Now you got an option of trimming or bypassing.
+
+075:46:01 Armstrong (onboard): Let's bypass.
+
+075:46:02 Collins (onboard): Alright. BMAG Mode, three, to Att 1/Rate 2.
+
+075:46:06 Armstrong (onboard): Okay, we're going to - Did you say after Enter?
+
+075:46:08 Collins (onboard): Before Enter.
+
+075:46:10 Armstrong (onboard): Okay, Att 1/Rate 2. BMAG's in shape.
+
+075:46:13 Collins (onboard): Enter.
+
+075:46:15 Armstrong (onboard): Enter.
+
+075:46:17 Collins (onboard): Verify Spacecraft Control, CMC.
+
+075:46:20 Armstrong (onboard): CMC.
+
+075:46:22 Collins (onboard): Accept this with a Proceed.
+
+075:46:24 Armstrong (onboard): Proceed. You ready to go?
+
+075:46:26 Collins (onboard): Yes. Up, down, zero. Up, down, zero. [Garble] Off and the [garble] Off.
+
+075:46:46 Armstrong (onboard): Three minutes. Three...
+
+075:46:48 Collins (onboard): Rotational Control Power, Direct, two of them, to Main A/Main B.
+
+075:46:52 Armstrong (onboard): Rotational Control Power, Direct, Main A/Main B.
+
+075:46:56 Collins (onboard): Okay. SPS Helium Valves, verified Auto, barber pole. Limit Cycle, OFF.
+
+075:47:00 Armstrong (onboard): Okay.
+
+075:47:03 Collins (onboard): FDAI scale, 50/15.
+
+075:47:05 Armstrong (onboard): Alright.
+
+075:47:07 Collins (onboard): Stand by for 2 minutes; then we'll have Delta-V Thrust B, On, okay?
+
+075:47:11 Armstrong (onboard): That's right. Guess we want to turn it on at 2 minutes - Want to wait a while?
+
+075:47:19 Collins (onboard): You already asked them that and they said turn it on at 2 minutes.
+
+075:47:21 Armstrong (onboard): I never saw any lights, so they never saw a signal, so everything looks good. Put it on 2 minutes and be ready to turn it off.
+
+075:47:27 Collins (onboard): Okay. I'll be ready. Coming up on 2 minutes.
+
+075:47:50 Collins (onboard): Mark...
+
+075:47:52 Collins (onboard): Go on, nothing happened.
+
+075:47:56 Aldrin (onboard): Translation Controller, Armed.
+
+075:47:59 Collins (onboard): Okay.
+
+075:48:00 Aldrin (onboard): Rotation Controller, Armed.
+
+075:48:02 Collins (onboard): Okay.
+
+075:48:03 Aldrin (onboard): Tape Recorder [garble] Reset it...
+
+075:48:04 Unidentified speaker (onboard): [Garble].
+
+075:48:21 Collins (onboard): Tape recorder's running, right?
+
+075:48:22 Aldrin (onboard): Tape recorder is running. You verify the EMS set up to 81, is it, huh?
+
+075:48:30 Collins (onboard): Yes, I got to go to horizontal at 35.
+
+075:48:31 Unidentified speaker (onboard): [Garble].
+
+075:48:32 Aldrin (onboard): ...35, 30 seconds, yes.
+
+075:48:37 Collins (onboard): I'll proceed on the 99.
+
+075:48:39 Aldrin (onboard): Alright. 60...
+
+[ MP3 audio file. 618 kB. ]
+
+PAO: This is Apollo Control at 75 hours, 49 minutes. Apollo 11 should have started this long burn; duration 6 minutes, 2 seconds. Delta-V; 2,917 feet per second [889 m/s]. Given that burn, we expect an orbit of 61 by 169.2 nautical miles [113 by 313.4 km].
+
+075:48:59 Collins (onboard): You're going to watch the - go gray...
+
+075:49:00 Aldrin (onboard): Right.
+
+075:49:02 Collins (onboard): ...and the ball valve.
+
+075:49:03 Aldrin (onboard): Right.
+
+075:49:14 Armstrong (onboard): 35 seconds; DSKY's blank, EMS Mode, Normal. Okay.
+
+075:49:26 Collins (onboard): Yes, the Moon is there, boy - in all its splendor.
+
+075:49:30 Armstrong (onboard): Man, it's a...
+
+075:49:32 Collins (onboard): Plaster of paris gray to me.
+
+075:49:34 Aldrin (onboard): Man, look at it.
+
+075:49:35 Armstrong (onboard): Don't look at it. Here we come up...
+
+075:49:36 Collins (onboard): Okay.
+
+075:49:37 Armstrong (onboard): ... [garble] to T IG .
+
+[ MP3 audio file. 734 kB. ]
+
+PAO: We're 24&frac12; minutes away from Acquisition Of Signal with a good burn. Four... well, the clock - the clock has not yet started counting for the other acquisition time. We'll take this line down now. Come back just prior to the acquisition time for no burn. This is Mission Control, Houston.
+
+075:49:42 Aldrin (onboard): 8 seconds.
+
+075:49:45 Collins (onboard): 99...
+
+075:49:46 Armstrong/Collins (onboard): Proceed.
+
+075:49:48 Collins (onboard): Stand by for T IG .
+
+075:49:50 Collins (onboard): Got B mode...
+
+075:49:51 Armstrong (onboard): Burning. We're looking good.
+
+075:49:54 Collins (onboard): ...A, here comes B - B, I mean, Thrust A...
+
+075:49:56 Collins (onboard): Mark.
+
+075:49:57 Aldrin (onboard): Got them.
+
+075:49:58 Collins (onboard): Got them both? Okay, now what's your - read your chamber pressure?
+
+075:50:00 Aldrin (onboard): It's good. 95, 95.
+
+075:50:03 Armstrong (onboard): PUGS is oscillating around. Okay, we're steering.
+
+075:50:15 Aldrin (onboard): 95 seconds in, it says go Decrease, and we're [garble].
+
+075:50:21 Collins (onboard): You're in pretty good. Your gimbals are working a little bit more busily than I would have guessed, but everything's looking good.
+
+PAO: We'll stand by.
+
+075:50:34 Armstrong (onboard): EMS and G&N CALS together.
+
+075:50:36 Aldrin (onboard): Okay.
+
+075:50:38 Collins (onboard): Pitch trim is up at 1.5 degrees, cycling about that, which is a little bit off the SIM value. Yaw trim is cycling about zero. Chamber pressure...
+
+075:50:49 Aldrin (onboard): {Garble].
+
+075:50:50 Collins (onboard): ...is 95.
+
+075:50:51 Aldrin (onboard): Right, going Increase.
+
+075:50:54 Collins (onboard): Yes, you're into - a minute into it. Yes.
+
+075:50:56 Armstrong (onboard): Well, it's still below zero, I just...
+
+075:50:59 Collins (onboard): I'll bet you we're never going to catch up. Let's do it and see what happens.
+
+075:51:09 Armstrong (onboard): Okay, that should be gray...
+
+075:51:13 Collins (onboard): g feels sort of pleasant, doesn't it? We're measuring just a shadow over zero g on the g-meter.
+
+075:51:19 Aldrin (onboard): Tank pressures are good.
+
+075:51:20 Collins (onboard): Okay. The chamber pressure is holding steady as a rock. It's holding - it's building up a little bit, actually; it's up around 96 now. Gimbals are sure a little bit busier than I would have guessed.
+
+075:51:36 Armstrong (onboard): That's a little more chamber pressure than they were predicting.
+
+075:51:42 Collins (onboard): Yes, they're all plus 95.
+
+075:51:44 Armstrong (onboard): We may...
+
+075:51:45 Collins (onboard): Shut down a little early.
+
+075:51:46 Armstrong (onboard): ...shut down a little early.
+
+075:51:48 Aldrin (onboard): What do you think about this crazy g-scale?
+
+075:51:56 Armstrong (onboard): All your [garble] look okay over there, Buzz?
+
+075:51:58 Aldrin (onboard): Man, I'm not going to look at them.
+
+075:52:00 Armstrong (onboard): Alright, probably a good rule.
+
+075:52:15 Collins (onboard): How about that? It's running a couple up.
+
+075:52:16 Armstrong (onboard): 35 more seconds, and we'll be out of mode 2.
+
+075:52:29 Aldrin (onboard): Well, it's more than just...
+
+075:52:31 Collins (onboard): Chamber pressure continuing. It's up to about 97 - 98 percent.
+
+075:52:35 Aldrin (onboard): ...more than just gray.
+
+075:52:36 Collins (onboard): Yes, there's a little pinging in there. That might have jammed. Keep your arms off the cockpit, [garble] all day to look at that thing.
+
+075:52:42 Aldrin (onboard): Look at that thing; that's just where I want it. What do you think about that? A tad low. We're not going to - match it - [garble] creep up. Okay? Pressure is on Increase - -
+
+075:53:04 Armstrong (onboard): Tank pressures are still good.
+
+075:53:05 Aldrin (onboard): ... [garble] at the beginning.
+
+075:53:07 Collins (onboard): Chamber pressure...
+
+075:53:08 Aldrin (onboard): Take a look at this.
+
+075:53:09 Collins (onboard): ...is holding. Wandering off a little bit in roll; that's to be expected. Coming back.
+
+075:53:22 Aldrin (onboard): Okay...
+
+075:53:23 Armstrong (onboard): We're well into mode 3.
+
+075:53:24 Aldrin (onboard): ...it's going to be about 3 seconds early - cut-off.
+
+075:53:30 Collins (onboard): Alright, cut-off nominal at 06:02; expect cut-off around 6 minutes even then, huh?
+
+075:53:36 Aldrin (onboard): [Garble].
+
+075:53:42 Collins (onboard): Okay, the rates. We're [garble] all three axes are about 0.1 degree per second. APS is punting back and forth.
+
+075:53:52 Armstrong (onboard): I'm predicting 05:58.
+
+075:53:55 Collins (onboard): Okay.
+
+075:53:56 Armstrong (onboard): 4 seconds early.
+
+075:53:58 Collins (onboard): Right now.
+
+075:53:59 Armstrong (onboard): May be - might be 5 by the time I get my [garble].
+
+075:54:05 Collins (onboard): Okay, she's steering like a champ; chamber pressure sneaking up to 100.
+
+075:54:10 Armstrong (onboard): Look at the [garble].
+
+075:54:11 Collins (onboard): [Garble], didn't recognize it. [Garble].
+
+075:54:23 Collins (onboard): Pitch trim is holding a little over 2; it's oscillating between 2 and 2.4, roughly. Yaw trim is oscillating between minus 0.5 and zero. It's just sort of aimlessly wandering back and forth between those values. Rates are still wandering; they're deadbanding the rates in all three axes; they're plus or minus 0.1 a degree.
+
+075:54:53 Armstrong (onboard): We're now predicting 5 seconds early, 05:57.
+
+075:54:57 Collins (onboard): Chamber pressure is 100 psi even.
+
+075:55:11 Collins (onboard): Ball number 1 and ball number 2 both right on value. Roll zero, pitch 225, roughly, and yaw 348. And hold.
+
+075:55:29 Aldrin (onboard): Okay, going to get the Delta-V switches Off right at shutdown?
+
+075:55:34 Collins (onboard): Shutdown, I'll get both Delta-V Thrust, Normal switches, Off.
+
+075:55:38 Armstrong (onboard): 10 seconds.
+
+075:55:40 Collins (onboard): Okay. 9, 8, 7, 6, 5, 4, 3...
+
+075:55:48 Unidentified speaker (onboard): [Garble].
+
+075:55:49 Armstrong (onboard): Shutdown.
+
+075:55:50 Collins (onboard): Okay, now.
+
+075:55:51 Aldrin (onboard): Ball valves closed...
+
+075:55:52 Collins (onboard): 50 seconds.
+
+075:55:53 Aldrin (onboard): ...barber poles...
+
+075:55:54 Collins (onboard): Okay.
+
+075:55:55 Aldrin (onboard): All four. Standing by for the gimbal motors.
+
+075:55:56 Collins (onboard): Alright. Pitch 1 - Off.
+
+075:55:57 Aldrin (onboard): Got it.
+
+075:55:58 Collins (onboard): Yaw 1, Off.
+
+075:55:59 Aldrin (onboard): Got it.
+
+075:56:00 Collins (onboard): Pitch 2, Off.
+
+075:56:02 Aldrin (onboard): Got it.
+
+075:56:03 Collins (onboard): Yaw 2, Off.
+
+075:56:04 Aldrin (onboard): Got it.
+
+075:56:05 Collins (onboard): Okay. TVC Servo Power 1 and 2, Off.
+
+075:56:08 Aldrin (onboard): 1, Off. 2, Off.
+
+075:56:10 Collins (onboard): Main Bus Tie is Off.
+
+075:56:11 Aldrin (onboard): Okay.
+
+075:56:12 Collins (onboard): 1, Off. 2, Off.
+
+075:56:14 Aldrin (onboard): Man, man!
+
+075:56:15 Collins (onboard): Alright.
+
+075:56:16 Armstrong (onboard): Understand.
+
+075:56:17 Aldrin (onboard): Look at the residuals. Proceed.
+
+075:56:20 Collins (onboard): Proceed? Copy them down; we're not going to trim them.
+
+075:56:22 Unidentified speaker (onboard): [Garble].
+
+075:56:23 Collins (onboard): [Garble] minus 1, minus 1, plus 1. Jesus!
+
+075:56:27 Aldrin (onboard): Got them.
+
+075:56:29 Collins (onboard): I take back any bad things I ever said about MIT - which I never have.
+
+075:56:34 Armstrong (onboard): Okay, will you just leave them, now? They vary around.
+
+075:56:35 Aldrin (onboard): Alright, get the EMS, too.
+
+075:56:37 Collins (onboard): Okay, EMS says minus 6.8.
+
+075:56:39 Aldrin (onboard): Got it. You got them on the [garble] switches?
+
+075:56:43 Collins (onboard): Minus 6.8 to the Delta-V to B.
+
+075:56:45 Armstrong (onboard): [Garble] Flight Plan.
+
+075:56:47 Aldrin (onboard): Alright, no nulling residuals. EMS Function to Off, we got that [garble]?
+
+075:56:51 Collins (onboard): 1 minute - Neil's got it. We got it, minus 6.8. Okay, stand by on Off on EMS. What else you got, Buzz, in the way of a checklist?
+
+075:57:02 Aldrin (onboard): The EMS Mode, Standby.
+
+075:57:04 Collins (onboard): Standby.
+
+075:57:05 Aldrin (onboard): BMAG Mode, three, to Rate 2.
+
+075:57:06 Collins (onboard): Three to Rate 2.
+
+075:57:07 Aldrin (onboard): ATT Deadband, Max?
+
+075:57:08 Collins (onboard): ATT Deadband, Max.
+
+075:57:09 Aldrin (onboard): PCM Bit Rate, Low.
+
+075:57:13 Aldrin (onboard): Rotation Control Power, Direct, two of them, Off?
+
+075:57:14 Collins (onboard): Direct, two, is Off.
+
+075:57:15 Aldrin (onboard): Circuit breakers - Pitch 1, Pitch 2, Yaw 1, Yaw 2, Open.
+
+075:57:17 Collins (onboard): Pitch 1, Pitch 2, Yaw 1, Yaw 2, Open. Proceed.
+
+075:57:21 Aldrin (onboard): Okay, proceed. Okay, Verb 82 in there. Go to P00. Well, that isn't what it says, but...
+
+075:57:30 Collins (onboard): Well, it's good.
+
+075:57:45 Armstrong (onboard): I think we're going to have to - Well, we'll leave this here anyway [garble] magazine [garble].
+
+075:57:48 Collins (onboard): What goes in this VG X column?
+
+075:57:53 Aldrin (onboard): That was the - that's the VG X residual at - before you spin.
+
+075:58:00 Collins (onboard): Okay.
+
+075:58:02 Aldrin (onboard): So just read the [garble] A.
+
+075:58:04 Collins (onboard): Alright.
+
+075:58:10 Armstrong (onboard): That was a beautiful burn.
+
+075:58:12 Collins (onboard): God damn, I guess.
+
+075:58:14 Aldrin (onboard): Whoo! Well, I have to vote with the 10 crew, that thing is brown.
+
+075:58:19 Armstrong (onboard): Yes.
+
+075:58:20 Collins (onboard): Sure is.
+
+075:58:21 Armstrong (onboard): Looks tan to me.
+
+075:58:23 Aldrin (onboard): But when I first saw it, at the other Sun angle...
+
+075:58:24 Armstrong (onboard): Yes?
+
+075:58:25 Collins (onboard): It looked gray.
+
+075:58:26 Aldrin (onboard): ...it really looked gray.
+
+075:58:27 Armstrong (onboard): Yes.
+
+075:58:28 Collins (onboard): More - more Sun angle you get...
+
+075:58:29 Aldrin (onboard): It got more - more brown - with increasing Sun angle.
+
+075:58:35 Collins (onboard): Okay.
+
+075:58:36 Aldrin (onboard): It's a long ways off.
+
+075:58:37 Armstrong (onboard): Alright, let's - Okay, now we've got some things to do...
+
+075:58:43 Aldrin (onboard): Okay, let's do them.
+
+075:58:48 Armstrong (onboard): We got to do a Verb 66.
+
+075:58:51 Aldrin (onboard): Hey, wait a minute - alright.
+
+075:58:53 Collins (onboard): Buzz will want to do a Verb 82. Now, I don't know what comes first here.
+
+075:58:55 Aldrin (onboard): Yes, Verb 82.
+
+075:59:08 Collins (onboard): Well, I don't know if we're 60 miles or not, but at least we haven't hit that mother.
+
+075:59:11 Aldrin (onboard): Look at that! Look at that! 169.6 by 60.9.
+
+075:59:15 Collins (onboard): Beautiful, beautiful, beautiful, beautiful!
+
+075:59:17 Aldrin (onboard): What - what'd it say...
+
+075:59:18 Collins (onboard): You want to write that down or something?
+
+075:59:19 Aldrin (onboard): ...60.2.
+
+075:59:20 Collins (onboard): Write it down, just for the hell of it. 170 by 60, like gangbustsers!
+
+075:59:28 Aldrin (onboard): We only missed by a couple of tenths of a mile.
+
+075:59:36 Collins (onboard): Hello, Moon. How's the old back side?
+
+075:59:41 Aldrin (onboard): Well, it's...
+
+075:59:42 Armstrong (onboard): Verb 66, alright?
+
+075:59:43 Aldrin (onboard): Verb 66.
+
+075:59:47 Armstrong (onboard): We won't need that other vector ever again.
+
+075:59:49 Aldrin (onboard): Now, we're - PCM, Low, and we want to turn the tape recorder, Off?
+
+075:59:52 Collins (onboard): Yes, why - I don't care.
+
+075:59:53 Aldrin (onboard): Okay.
+
+075:59:54 Collins (onboard): Why don't you go PCM, Low, and don't worry about the tape recorder; it's got 2 hours.
+
+075:59:57 Aldrin (onboard): Okay.
+
+075:59:58 Armstrong (onboard): Okay, we'll look at Service Module RCS - and SCS...
+
+076:00:07 Collins (onboard): I want to look at the DAP again and enter a Verb 48, Enter.
+
+076:00:14 Aldrin (onboard): What was our [garble]?
+
+076:00:16 Armstrong (onboard): 1500.
+
+076:00:24 Collins (onboard): Okay.
+
+076:00:26 Aldrin (onboard): You got all your things logged now?
+
+076:00:30 Collins (onboard): Yes, sir, I'm all logged.
+
+076:00:31 Aldrin (onboard): Okay.
+
+076:00:34 Armstrong (onboard): Now, it says what we do is roll 180 and pitch down 70.
+
+076:00:39 Aldrin (onboard): That do it? Alrighty, let's go to SCS and do it.
+
+076:00:45 Armstrong (onboard): And...
+
+076:00:53 Aldrin (onboard): Don't waste all the gas, now.
+
+076:00:55 Collins (onboard): [Garble]. When I get around there, I'll pitch down 70, huh? What are we pitching down for, what, what, what...
+
+076:01:01 Armstrong (onboard): We're going to - what we're...
+
+076:01:02 Collins (onboard): I don't even know what we're doing.
+
+076:01:04 Collins/Aldrin (onboard): (Laughter)
+
+076:01:05 Armstrong (onboard): Well, we're going to roll over and pitch down so we're looking out the front windows, down at the...
+
+076:01:10 Collins (onboard): Oh, yes, okay.
+
+076:01:11 Armstrong (onboard): Okay?
+
+076:01:12 Collins (onboard): We can pitch down - [garble] picture...
+
+076:01:13 Aldrin (onboard): [Garble]...
+
+076:01:14 Collins (onboard): ...can we take a picture...
+
+076:01:15 Aldrin (onboard): ... [garble] pitch attitude.
+
+076:01:16 Collins (onboard): Yes.
+
+076:01:17 Armstrong (onboard): Now, we're going to have High Gain, and then we're...
+
+076:01:18 Collins (onboard): How would you...
+
+076:01:19 Armstrong (onboard): ...going to be able to...
+
+076:01:20 Collins (onboard): ...like it with the...
+
+076:01:21 Armstrong (onboard): ...look at the Moon ahead of us, coming out the window right now.
+
+076:01:22 Collins (onboard): Can we see the Earth horizon from here?
+
+076:01:23 Aldrin (onboard): Well, we [garble]...
+
+076:01:24 Armstrong (onboard): We should be able to [garble].
+
+076:01:25 Aldrin (onboard): ...[garble] precise. What was the time we got on it, Neil?
+
+076:01:28 Armstrong (onboard): Yes, we can...
+
+076:01:29 Aldrin (onboard): Neil?
+
+076:01:31 Armstrong (onboard): What's that?
+
+076:01:32 Aldrin (onboard): What was the time we got on it?
+
+076:01:34 Armstrong (onboard): Burn time?
+
+076:01:38 Aldrin (onboard): No, no...
+
+076:01:39 Armstrong (onboard): Burn time or what?
+
+076:01:41 Collins (onboard): We want the big camera, huh? Big lens or small one?
+
+076:01:46 Armstrong (onboard): Oh, it doesn't really matter.
+
+076:01:48 Aldrin (onboard): 80 millimeter will probably be as good for...
+
+076:01:50 Collins (onboard): For the Earth coming up?
+
+076:01:51 Armstrong (onboard): No, for the Earth...
+
+076:01:52 Aldrin (onboard): No, for the Earth coming up, we want 250. Might take some...
+
+076:01:54 Armstrong (onboard): ...not sure we can get the Earth coming up...
+
+076:01:55 Aldrin (onboard): ...might take some - some luck to get that, but...
+
+076:01:59 Collins (onboard): Here, you want...
+
+076:02:03 Armstrong (onboard): Tape recorder still running?
+
+076:02:04 Aldrin (onboard): Yes.
+
+076:02:06 Collins (onboard): It doesn't matter, we've got 2 hours on that tape, and they don't care if you run out. As long as you're on Bit-rate Low.
+
+076:02:18 Aldrin (onboard): Okay, infinity, at f:11 - and 1/250th, huh?
+
+076:02:28 Collins (onboard): Okay, let me get my - let me get my gouge out here. I got my gouge...
+
+076:02:30 Armstrong (onboard): You might want to back off a half stop to get the Earth...
+
+076:02:33 Collins (onboard): Are you - you black and white or color?
+
+076:02:35 Aldrin (onboard): Color.
+
+076:02:37 Collins (onboard): Alrighty.
+
+076:02:38 Aldrin (onboard): Moon [garble], 5.6. Earth [garble], 11; [garble] terminator, 1.8...
+
+076:02:44 Armstrong (onboard): You think it's on your - your spot meter reading for the Earth?
+
+076:02:54 Collins (onboard): Which way are you maneuvering now, friend?
+
+076:02:58 Aldrin (onboard): 5.6 at - 5.6 at 1/250th is probably...
+
+076:03:01 Collins (onboard): Are you rolling?
+
+076:03:02 Armstrong (onboard): Rolling?
+
+076:03:03 Collins (onboard): You are, aren't you?
+
+076:03:04 Armstrong (onboard): I'm rolling right.
+
+076:03:07 Collins (onboard): Boy, they rate some rough country over there.
+
+076:03:09 Armstrong (onboard): You might get it coming sideways here. Stand by in case it does. What's the AOS time?
+
+076:03:15 Aldrin (onboard): It was 15 with the burn. 15:23, something like that.
+
+076:03:23 Collins (onboard): Just be with you in 10 seconds, Neil. I just want to get my...
+
+076:03:27 Aldrin (onboard): We ought to be able to get it...
+
+076:03:28 Collins (onboard): ...book put back together here.
+
+076:03:29 Aldrin (onboard): ...a couple of good shots.
+
+076:03:33 Collins (onboard): The Earth's going to be over here?
+
+076:03:35 Armstrong (onboard): AOS, 76:15. That's exact...
+
+076:03:38 Aldrin (onboard): Can you verify that you got the state vectors transferred with the Verb 83?
+
+076:03:41 Armstrong (onboard): I'll do that.
+
+076:03:47 Aldrin (onboard): Now, what else we got?
+
+076:03:49 Armstrong (onboard): Coming up there.
+
+076:03:53 Aldrin (onboard): [Garble]. Eyeballing and chattering. We got the burn status report? That's all?
+
+076:04:02 Collins (onboard): Ready to go.
+
+076:04:05 Aldrin (onboard): Okay, that looks good. Give me a Verb - 64.
+
+076:04:12 Armstrong (onboard): What happened?
+
+076:04:27 Aldrin (onboard): Ought to wash this window over here...
+
+076:04:28 Armstrong (onboard): You have a map so we can look at [garble].
+
+076:04:30 Aldrin (onboard): Anybody got a...
+
+076:04:31 Collins (onboard): Yes, it...
+
+076:04:32 Aldrin (onboard): ...anybody got a Kleenex?
+
+076:04:33 Armstrong (onboard): Yes, I think I've got one. Here you go.
+
+076:04:40 Collins (onboard): Here's one; it's a little moist, though.
+
+076:04:43 Aldrin (onboard): [Garble].
+
+076:04:49 Collins (onboard): Well, one more [garble] burn.
+
+076:04:53 Aldrin (onboard): Two more.
+
+076:04:57 Armstrong (onboard): You got two more.
+
+076:04:59 Aldrin (onboard): Yes, [garble] got a few more.
+
+076:05:05 Collins (onboard): Look at those craters in a row. You see them right - going right out there?
+
+076:05:07 Armstrong (onboard): [Garble].
+
+076:05:08 Collins (onboard): Look at that line of them.
+
+076:05:10 Armstrong (onboard): [Garble].
+
+076:05:13 Aldrin (onboard): [Garble].
+
+076:05:15 Collins (onboard): Something really peppered that one. There's a lot less variation in color than I would have thought, you know, looking down?
+
+076:05:26 Aldrin (onboard): Yes, but when you look down, you say it's brownish color?
+
+076:05:29 Collins (onboard): Sure.
+
+[ MP3 audio file. 172 kB. ]
+
+PAO: We're past the no-burn acquisition time now and we have received no signal.
+
+076:05:32 Aldrin (onboard): Oh, golly, let me have that camera back. There's a huge, magnificent crater over here. I wish we had the other lens on, but God, that's a big beauty. You want to look at that guy, Neil?
+
+076:05:43 Armstrong (onboard): Yes, I see him.
+
+076:05:45 Aldrin (onboard): He's coming your way.
+
+076:05:48 Armstrong (onboard): That dark spot.
+
+076:05:50 Aldrin (onboard): Oh, let me - here, let me...
+
+076:05:53 Collins (onboard): Well, there's no doubt that this is a little smaller than the Earth...
+
+076:05:57 Aldrin (onboard): Look at that one.
+
+076:05:58 Collins (onboard): ...would you look at that curvature?
+
+076:06:01 Aldrin (onboard): Where is that dark spot?
+
+076:06:02 Armstrong (onboard): The dark spot's right up here. You want to get the other lens on?
+
+076:06:06 Aldrin (onboard): Yes.
+
+076:06:07 Collins (onboard): Don't you want to get the Earth coming up? It's going to be 9 minutes.
+
+076:06:11 Aldrin (onboard): Yes, let's take some pictures here, first.
+
+076:06:15 Collins (onboard): Well, don't miss that first one.
+
+[ MP3 audio file. 274 kB. ]
+
+PAO: It's very quiet here in the control room. Most of the controllers seated at their consoles, a few standing up, but very quiet.
+
+076:06:16 Aldrin (onboard): See how am I doing. Yes, you're right.
+
+076:06:21 Armstrong (onboard): We'll need - we need to catch it about 10.
+
+076:06:27 Collins (onboard): Shoot, you're going to have plenty of passes.
+
+076:06:30 Aldrin (onboard): Yes, right.
+
+076:06:33 Collins (onboard): Plenty of Earthrises, I guess.
+
+076:06:37 Armstrong (onboard): Yes, we are.
+
+076:06:38 Collins (onboard): Are we about there?
+
+076:06:40 Armstrong (onboard): Boy, look at that [garble] crater. You can probably see him right there.
+
+076:06:44 Collins (onboard): Yes, that's what I was talking about just a minute ago. It's kind of hard to believe that that's volcanic and formed by some faulting, isn't it? I don't believe that - but it's such a perfect straight line.
+
+076:07:05 Collins (onboard): Hope none of those meteors come by right now.
+
+076:07:18 Collins (onboard): Let me look through the sextant, Neil.
+
+076:07:41 Collins (onboard): Well, where's the freaking Earth going to be now? I'm confused.
+
+076:07:46 Aldrin (onboard): In plane, I hope.
+
+076:07:50 Armstrong (onboard): How are you doing on your roll there?
+
+076:07:52 Aldrin (onboard): Well, we got about another 60 degrees to go. When' s AOS?
+
+076:08:00 Armstrong (onboard): 15 - we're 7 minutes away.
+
+076:08:03 Aldrin (onboard): Okay.
+
+[ MP3 audio file. 105 kB. ]
+
+PAO: We're 7 minutes from acquisition time.
+
+076:08:37 Armstrong (onboard): What a spectacular view!
+
+076:08:48 Collins (onboard): God, look at that Moon!
+
+076:09:20 Collins (onboard): Fantastic. Look back there behind us, sure looks like a gigantic crater; look at the mountains going around it. My gosh, they're monsters.
+
+[ MP3 audio file. 769 kB. ]
+
+PAO: If Apollo 11 achieved only a partial burn, we could receive a signal any - anytime so we'll continue to stay up until acquisition time of 76 hours, 15 minutes, 29 seconds.
+
+076:09:58 Armstrong (onboard): See that real big...
+
+076:10:01 Collins (onboard): Yes, there's a moose down here you just wouldn't believe. There's the biggest one yet. God, it's huge! It is enormous! It's so big I can't even get it in the window. You want to look at that? That's the biggest one you ever seen in your life. Neil? God, look at this central mountain peak.
+
+PAO: And that time is the initial acquisition time, but it could take a little longer to lock onto the signal for voice communications.
+
+076:10:23 Unidentified speaker (onboard): [Garble].
+
+076:10:24 Collins (onboard): Isn't that a huge one?
+
+076:10:26 Armstrong (onboard): Look at the [garble] Did you get some pictures of that?
+
+076:10:29 Collins (onboard): Yes, I just took one. Can take another one here when he gets around a little better. It's fantastic!
+
+076:10:35 Armstrong (onboard): That's kind of a foggy window.
+
+076:10:37 Collins (onboard): That's a horrible window. It's too bad we have to shoot through this one, but - Oh, boy, you could spend a lifetime just geologizing that one crater alone, you know that?
+
+076:10:51 Armstrong (onboard): You could.
+
+076:10:53 Collins (onboard): That's not how I'd like to spend my lifetime, but - picture that. Beautiful!
+
+076:11:01 Aldrin (onboard): Yes, there's a big mother over here, too.
+
+076:11:07 Collins (onboard): Come on now, Buzz, don't refer to them as big mothers. Give them some scientific name.
+
+076:11:17 Aldrin (onboard): It sure looks like a lot of them have slumped down.
+
+076:11:20 Collins (onboard): A slumping big mother. Well, you see those every once in a while.
+
+076:11:26 Aldrin (onboard): Most of them are slumping. The bigger they are, the more they slump - that's a truism, isn't it?
+
+[ MP3 audio file. 87 kB. ]
+
+PAO: We are 4 minutes away now.
+
+076:11:41 Aldrin (onboard): That is, the older they get.
+
+076:11:50 Armstrong (onboard): Well, we're at 180 degrees, and now we're going to want to stop that and start a slow pitchdown. We want to go...
+
+076:11:59 Aldrin (onboard): We're not going to see the Earth come up over the horizon.
+
+076:12:02 Armstrong (onboard): ...about 70 degrees.
+
+076:12:03 Collins (onboard): It says pitchdown or pitchup?
+
+076:12:04 Armstrong (onboard): Pitchdown, so we're looking forward.
+
+076:12:06 Collins (onboard): Pitchdown, so we're looking forward, alright. I wonder what kind of a rate we ought to...
+
+076:12:11 Aldrin (onboard): We got 4 minutes to get down.
+
+076:12:13 Collins (onboard): Alright.
+
+076:12:14 Aldrin (onboard): Never make it. There's a couple of new craters.
+
+[ MP3 audio file. 276 kB. ]
+
+PAO: There are a few conversations taking place here in the control room, but not very many. Most of the people sitting quietly, watching and listening, not talking.
+
+076:12:25 Armstrong (onboard): There's a good view of that...
+
+076:12:29 Aldrin (onboard): Look warm down there, Neil?
+
+076:12:32 Armstrong (onboard): I sure can't tell.
+
+076:12:35 Aldrin (onboard): Looks hotter than hell to me. Boy, look at the size of that one.
+
+076:12:47 Collins (onboard): Golly! Whoo! Get another picture of that big fellow.
+
+076:12:51 Armstrong (onboard): Yes. I'm going to take one out here of him.
+
+076:12:59 Aldrin (onboard): I've got an Easter egg coming up, gentlemen.
+
+076:13:02 Armstrong (onboard): That's good. Gosh, it's one o'clock already.
+
+076:13:07 Aldrin (onboard): Hey, you know, we got a TV show at...
+
+076:13:14 Unidentified speaker (onboard): [Garble].
+
+076:13:15 Collins (onboard): Huh?
+
+076:13:16 Armstrong (onboard): The next rev around, that is.
+
+076:13:18 Aldrin (onboard): Before LOI-2.
+
+076:13:20 Armstrong (onboard): Yes.
+
+076:13:24 Collins (onboard): Could you give me a gimbal angle to pitch to?
+
+076:13:26 Armstrong (onboard): What are you going to do on that one?
+
+076:13:29 Collins (onboard): Oh, I guess - get 10 pictures of the Moon.
+
+076:13:36 Aldrin (onboard): What did you want, Mike?
+
+076:13:39 Collins (onboard): A gimbal angle to pitch to - if it's pitchdown 70 - why, let's see, from 226, that's 70, that's 296?
+
+076:13:54 Aldrin (onboard): Yes, you were at 2...
+
+076:13:58 Collins (onboard): 296, I would guess. How many minutes we got - to AOS?
+
+076:14:08 Armstrong (onboard): About another minute and a half.
+
+[The crew of Apollo 11 are about to re-establish contact with Mission Control as they re-emerge from the far side of the Moon.]
+
+Day 3: Flight Plan Updates
+
+Journal Home Page
+
+Day 4: Lunar Orbit Circularization

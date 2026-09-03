@@ -1,0 +1,63 @@
+Skip to content
+
+Celebrating 60 Years of Milestones: The Apollo 11 Lunar Laser Ranging Experiment
+
+-
+
+August 1, 2025
+
+As the IEEE Photonics Society marks its 60th anniversary , it’s not only a time to celebrate the community’s growth and innovations, but also to reflect on the defining milestones that have illuminated its remarkable journey. One such milestone, both in technical achievement and historical impact, is the Apollo 11 Lunar Laser Ranging Experiment (LURE), a moment of brilliance that helped shape the course of space science and photonics engineering.
+
+Lighting the Way to the Moon
+
+On 1 August 1969, just days after the Apollo 11 astronauts made their historic moon landing, a team of scientists at Lick Observatory in California performed the first successful Earth-to-Moon laser distance measurement. Using a 1.2-gigawatt ruby laser system developed by KORAD Laser Systems, researchers fired a concentrated pulse of red light at a retro-reflector array placed on the lunar surface by the astronauts at Tranquility Base. The time it took for the light to bounce back and return to Earth, roughly 2.5 seconds, enabled a calculation of the lunar distance with unprecedented centimeter-level accuracy.
+
+This achievement was more than a scientific triumph—it was the first experiment to successfully utilize a human-placed instrument beyond Earth. The success of LURE not only demonstrated the viability of laser ranging across astronomical distances but also laid the groundwork for decades of scientific exploration in gravitation, geophysics, and planetary science.
+
+The Sites of Innovation and Commemoration
+
+The importance of this work has been formally recognized as an IEEE Milestone, with commemorative plaques installed at two key locations:
+
+- Site 1 : The Shane 120-inch Reflector Telescope Dome at Lick Observatory, Mt. Hamilton, CA (37.34344, -121.63720), where the experiment was conducted. The plaque is located in the Visitor Gallery, which is open to the public daily. Joseph Wampler, professor emeritus of astronomy, coordinated the experiment for the observatory.
+
+- Site 2 : Santa Monica, CA (34.0292694, -118.4743055), near the headquarters of KORAD Lasers, where the powerful laser used in the experiment was developed. The plaque is mounted on an outdoor pedestal, protected by 24-hour camera security adjacent to the Water Garden complex.
+
+Retroreflector in place on Moon. Photo credit: Engineering and Technology History Wiki (ETHW)
+
+Overcoming Challenges, Inspiring Generations
+
+Executing the LURE project required overcoming formidable technical and geopolitical challenges. The laser technology used was cutting-edge, built with a weapons-grade ruby crystal, capable of producing brief, high-powered pulses. The retroreflector on the Moon was no larger than a suitcase and aligning a beam of light with it across nearly 384,000 kilometers required pinpoint accuracy, timing, and relentless determination.
+
+Hal Walker Jr., the KORAD engineer who led the laser operations at Lick Observatory, played a crucial role. When their laser system suffered a critical failure, Walker drove over 350 miles to Santa Monica to retrieve replacement components, returning just in time to resume successful operations. That dedication led to 169 verified laser shots that measured the Moon’s distance, ushering in a new era of high-precision space measurement.
+
+Beyond the technical feat, LURE held strategic implications during the height of the space race. Competing teams from the U.S. and Soviet Union sought to be the first to make successful contact with the lunar reflector. NASA and DARPA closely monitored efforts, underscoring the political weight behind this scientific endeavor.
+
+Setting up laser underneath Shane Telescope; from top to bottom: Barry Turnrose, Jim Faller, Irv Winer; (c) National Geographic
+
+Joseph Wampler firing laser while pointing Shane Telescope at presumed Apollo 11 landing site; (c) National Geographic
+
+Annotated image of the near side of the Moon showing the location of retroreflectors left on the surface by Apollo and Lunokhod missions. Photo credit: Wikipedia
+
+A Legacy That Endures
+
+The Apollo 11 LURE experiment continues to influence science and engineering more than five decades later. It validated fundamental theories of gravitation, contributed to the early understanding of continental drift, and helped refine models of lunar and Earth dynamics. Laser ranging to the Moon remains active today, with follow-up retroreflectors placed by Apollo 14, Apollo 15, and Soviet missions.
+
+This enduring legacy exemplifies the kind of pioneering spirit that the IEEE Photonics Society honors in its 60th year . Milestones like LURE remind us that the convergence of imagination, precision, and persistence can literally move mountains, or, in this case, measure the movement of celestial bodies.
+
+As we continue to explore new frontiers in photonics and space science, we celebrate the visionaries who made these first leaps, and the society that continues to light the path forward.
+
+Featured photo caption: Buzz Aldrin holding Seismometer (left hand) and Retroreflector (right hand) on Moon. Photo Credit: Engineering and Technology History Wiki (ETHW)
+
+Learn more about the Apollo 11 LURE’s legacy within this IEEE Spectrum article, “ One Apollo 11 Experiment Is Still Going 50 Years Later “.
+
+Prev Previous The Role of Photonics in Rainwater Preservation and Climate Action
+
+Next Chandigarh University: Empowering Curiosity, Research, and Sustainability Through Photonics Next
+
+Explore more
+
+Bringing Technology to Life in the Classroom Through IEEE REACH
+
+Chapter Spotlight: IEEE Kenya Building Connections and Empowering Women in STEM
+
+Building India’s Photonics Community Through Education, Innovation, and Emerging Technologies

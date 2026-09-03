@@ -1,0 +1,152 @@
+379 captures
+
+20 Aug 1999 - 30 Aug 2026
+
+Nov
+DEC
+Jan
+
+25
+
+2017
+2018
+2019
+
+success
+
+fail
+
+About this capture
+
+COLLECTED BY
+
+Organization: Internet Archive
+
+The Internet Archive discovers and captures web pages through many different web crawls.
+
+At any given time several distinct crawls are running, some for months, and some every day or longer.
+
+View the web archive through the Wayback Machine .
+
+Collection: Live Web Proxy Crawls
+
+Content crawled via the Wayback Machine Live Proxy mostly by the Save Page Now feature on web.archive.org.
+
+Liveweb proxy is a component of Internet Archive’s wayback machine project. The liveweb proxy captures the content of a web page in real time, archives it into a ARC or WARC file and returns the ARC/WARC record back to the wayback machine to process. The recorded ARC/WARC file becomes part of the wayback machine in due course of time.
+
+TIMESTAMPS
+
+The Wayback Machine - https://web.archive.org/web/20181225003326/https://nssdc.gsfc.nasa.gov/planetary/lunar/lunar_sites.html
+
+Apollo Landing Site Coordinates
+
+Site coordinates are based on the planetocentric Mean Earth/Polar Axis Lunar
+
+Reference System - DE421 ephemeris. Coordinates determined from Lunar
+
+Reconnaissance Orbiter images, see Wagner et al., Icarus 283, pp. 92-103 (2017)
+
+The full locations are given below:
+
+degrees N
+latitude
+degrees E
+longitude
+
+Apollo 11
+
+LRRR
+0.67345
+23.47307
+
+Lunar Module
+0.67416
+23.47314
+
+Apollo 12
+
+ALSEP
+-3.0098
+-23.4249
+
+Lunar Module
+-3.0128
+-23.4219
+
+Apollo 14
+
+LRRR
+-3.64417
+-17.47865
+
+ALSEP
+-3.64419
+-17.47768
+
+Lunar Module
+-3.64589
+-17.47194
+
+Apollo 15
+
+LRRR
+26.13341
+3.62850
+
+ALSEP
+26.13406
+3.62991
+
+Lunar Module
+26.13239
+3.63330
+
+Apollo 16
+
+ALSEP
+-8.9759
+15.4986
+
+Lunar Module
+-8.9734
+15.5011
+
+Apollo 17
+
+ALSEP
+20.1923
+30.7655
+
+Lunar Module
+20.1911
+30.7723
+
+Lunar Landing Site Map
+- Map showing landing sites of the Apollo, Luna, and Surveyor missions
+
+More details on Apollo lunar landings
+
+Where are they now?
+- A guide to the current locations of the Apollo Command and Lunar Modules
+
+Impact sites of the Apollo LM's and SIVB's
+
+Return to Apollo home page
+
+Return to Lunar home page
+
+Author/Curator:
+
+Dr. David R. Williams, dave.williams@nasa.gov
+
+NSSDCA, Mail Code 690.1
+
+NASA Goddard Space Flight Center
+
+Greenbelt, MD 20771
+
++1-301-286-1258
+
+NASA Official: Dr. David R. Williams, david.r.williams@nasa.gov
+
+Last Updated: 06 March 2017, DRW

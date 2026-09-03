@@ -1,0 +1,198 @@
+The Television Broadcasts
+
+There were two versions of the broadcast of the Apollo 11 moonwalk - the international and Australian versions. The international version was supplied to the US networks by NASA, and was then distributed worldwide. The Australian version was supplied by the ABC and distributed to Australian networks.
+
+Click here to view video clip highlights of the Apollo 11 lunar EVA TV .
+
+The International telecast via Houston TV:
+
+On 21 July 1969 at 12:54:00 (AEST) Aldrin pushed in the TV circuit breakers and activated the lunar television camera. Three stations were tracking the LM at that time: the 64 metre antennas at Parkes and Goldstone as well as the 26 metre antenna at Honeysuckle Creek. All three stations received the TV simultaneously. At Goldstone and Honeysuckle Creek the pictures were scan-converted to the EIA (NTSC) commercial standard TV at the tracking stations themselves, but the Parkes pictures were scan-converted at the OTC Paddington terminal in Sydney. The converted Honeysuckle Creek pictures were passed on to Paddington, where the NASA Goddard Spaceflight Centre employee, Charlie Goodman ( Sydney Video ), selected the best quality picture from the Parkes and Honeysuckle Creek signals, and passed it on to Houston TV. At Houston TV a controller then selected the best quality TV picture from the Australian and Goldstone pictures. His selection was distributed to the US television networks for international broadcast.
+
+Since the lunar EVA was commencing earlier than planned, the Goldstone dish assumed the role of prime receiving station for the lunar EVA TV. Consequently, as the broadcast commenced, NASA began by using the Goldstone pictures.
+
+A videotape of the original international broadcast, and videotapes of telerecorded kine footage provided by NASA have been carefully studied. Before the general advent of videotapes, a television broadcast was usually recorded by simply filming the TV screen with a 16mm movie camera. This process was referred to as 'telerecording' and the resultant recording was known as 'kine'. From an analysis of these videotapes and of a recording of the NASA NET 2 communications loop (the communications loop that controlled the TV reception), timings were obtained and are presented in the table below.
+
+Video Transmission Time (mm:ss) NET 2 Dialogue Time (mm:ss)
+
+TV on (upside down) 00:00 GDS TV on line 00:00
+Picture is from GDS. HSK video on line
+Time is 12:54:00 (AEST)
+
+Picture is inverted 00:27 We are in reverse 00:31
+
+Picture switched to HSK 01:39 We have just switched 01:50
+video to HSK
+
+Armstrong steps onto Moon 02:20
+(the timing is vague,since
+it isn't clear when he
+actually steps on the Moon).
+The time is 12:56:20 (AEST)
+
+Picture switched to GDS 04:42 We have just switched 05:15
+(GDS picture is negative) to GDS video
+
+Picture switched to HSK 05:36 HSK, Houston TV. We 06:04
+have switched back to you
+again.
+
+GDS TV, Houston TV 06:10
+Would you check your
+polarity switch please.
+
+Picture back to GDS 06:49 All stations, Houston TV 07:10
+(GDS picture positive again) switching to GDS
+
+Houston TV, Sydney Video 09:09
+Please be advised I have a
+good picture from PKS,
+shall I give it to you?
+
+Roger, beautiful picture.
+
+Picture from Parkes 08:51 We are switching to PKS 09:16
+Main Beam. Time is at this time.
+13:02:51 (AEST)
+
+Quick change back to 08:55
+GDS to see difference
+
+Back to PKS, since its 08:57
+much better.
+
+Network HSK 11:05
+Right, you might pass on
+to the PKS people that
+their labour was not in
+vain, they've given us the
+best TV yet.
+
+The timings from the NET 2 dialogue don't quite match the timings from the video broadcast. The NET 2 tape obtained by the author was provided by Mike Dinn, who was the Deputy Director of Operations at Honeysuckle Creek, so it has mixed with it the internal Honeysuckle Creek intercom ('Alpha'). The mistimings on NET 2 could simply be due to a poor recording of the master tapes. Whatever the case, the comparative timings are sufficiently close and the number and sequence of the video switches correspond. According to the NET 2 dialogue, in the first eight to nine minutes of the broadcast Houston TV was alternating between the pictures from its two stations at Goldstone and Honeysuckle Creek, searching for the best picture. Goldstone were having terrible problems with their TV, and the Honeysuckle Creek pictures had a very low signal-to-noise ratio, so both pictures were comparatively poor. When the Parkes main beam signals came in, they were of such superior quality that Houston did not hesitate to switch to them. They stayed with the Parkes main-beam pictures for the remainder of the 2 ½ hour moonwalk.
+
+Why wasn't Parkes used earlier? Unfortunately, recollections are imperfect on this point. The author has obtained two differing accounts. The truth no doubt lies somewhere in between, so they are presented without alteration. According to Richard Holl, there was a tense debate at the OTC Paddington terminal over which picture should be sent to Houston. Richard Holl was sitting at the Parkes scan-converter when the Parkes TV pictures appeared. He had the inverting switch correctly set for the lunar camera being upside-down. He saw a good picture coming from the Parkes off-axis receiver and it was the right way up. He says that he looked over to the monitors on his right where the Parkes and Honeysuckle Creek scan-converted pictures were being displayed. He noticed that the Honeysuckle Creek picture was upside-down and that it was of lower quality than the Parkes picture. He naturally assumed that Charlie Goodman had selected the better Parkes pictures for Houston. After Armstrong had stepped onto the surface, he was astonished to realise that Charlie was feeding Houston the Honeysuckle Creek pictures instead. He asked Charlie to select the Parkes pictures, but Charlie refused. Richard was uneasy with this decision. When the much improved Parkes main beam pictures came in, Charlie hesitated. Richard Holl demanded that he switch to Parkes, and said that if he didn't do so, he would reach over and switch it himself. Vern McGlynn, who was seated next to Charlie, convinced him to make the switch. It was at that point that Charlie Goodman called Houston TV and informed them of the Parkes main beam pictures. Richard Holl recalls:
+"Ours was the only converter which had the designer tweaking it and we had a good picture shortly after the panel deployed. I know I watched all of Armstrong's descent down the ladder after his feet came in view and it was a very good picture. I just wish I had seen he was sending Honeysuckle Creek video sooner. If Houston had Parkes from the start I think they would have used it."
+
+Bob Goodman, the OTC International Co-ordinator for all the transmissions between Australia and the USA, was in the glass-panelled room located directly behind Charlie. The room was sealed off so he could not hear the exchange between Charlie and Richard Holl. Bob was preoccupied with the large press contingent present, but recalls that at the beginning of the broadcast only one of the stations was sending TV to Paddington. There was a delay of a few minutes before the other Australian station came through. He remembers that there was a small window of opportunity of between two to three minutes at most when only one station was sending the pictures. He is certain that it was Parkes that came on-line first, and that it was Parkes that Charlie Goodman had selected from the start. Bob and his team had been working constantly for weeks, and in the days leading up to the EVA they had slept very little; he recalls they were running on adrenalin. Bob may have the roles of Parkes and Honeysuckle Creek confused here. If there was a slight delay, then it was more likely due to Parkes, since Parkes had to first acquire and centre the LM in its off-axis beam in very dangerous conditions.
+
+[ Update received on 16 June 2004: Following further recollections on the events described above, Richard Holl adds the following. NOTE: These new recollections were gleaned after this report first appeared in 2000 and read by Richard Holl. Despite the possibility that Richard's recollections may be coloured and influenced by the prior findings of this report, they are none-the-less consistent with what was first presented in 2000, and they are presented here without alteration.
+"I have talked with a lot of people, looked at a lot of information from
+a variety of sources and reviewed all the statements.
+
+On Apollo 11 we were getting a sharp contrast black and white image at
+the start of the EVA. A picture did start to come in but dropped in and out.
+We did have bits and pieces during the descent down the ladder but the image
+didn't settle down until 4-6 minutes into the EVA. There was a
+significant change when Parkes switched to the main feed. We definitely had a good picture before the main feed switch over.
+
+The first good pictures from Parkes came when Neil Armstrong was standing at the bottom of the ladder. The video Bob Goodman was seeing from one
+station only was HSK. Parkes video was better than HSK when it settled
+down before the main feed cut in. How much better is of course
+relative to the viewer. I wasn't sitting at that console but the quality was better enough that the argument between Charlie and I took place as I could see the video from both on the video recorder monitors. That was somewhere
+between 4-6 minutes into the EVA . When the main feed came on Vern stepped in
+and suggested Charlie contact Houston as he was reluctant to switch the
+video on his own. I vividly remember the change in the quality of the picture
+when the main feed came up so we had an image prior to that time.
+
+I kept the converter on the Multiburst test pattern until the Parkes Video settled down. I deliberately did that to send Charlie a sight que when
+Parkes came on line. That concurs with what others were seeing."
+]
+
+As contradictory as the above recollections may be, it is clear that the Parkes TV pictures were being received well before the acquisition on the main feed. Why did Charlie Goodman hesitate then in switching to the better Parkes pictures? Bob Goodman recalls that Charlie felt the enormous responsibility and pressure of world expectations - the world was watching his decision. It was his opinion that Charlie's technical competency was first rate, and that he just wanted to do the best job possible and to make no mistakes. Richard Nafzger, the Goddard Spaceflight Centre engineer who was responsible for all the systems hardware in support of TV (Richard's and Charlie's boss), thinks that perhaps Charlie wanted to be sure that the Parkes relays were stable and functioning well before switching away from a picture he already knew to be okay. Bob Goodman was aware of the high winds at Parkes and so was Charlie. The possibility that the Parkes dish may be stowed at any moment may have loomed large in Charlie's mind, that is, he may not have wanted to switch to Parkes knowing he could lose the picture just as Armstrong was to step onto the Moon. Whatever the reason, the better Parkes pictures were not sent to Houston until well after Armstrong had stepped onto the Moon.
+
+According to Bob Goodman, high resolution pictures of Armstrong stepping onto the Moon were taken by press photographers who queued to use pre-mounted Rolex cameras shooting the black-and-white monitors in his room. These pictures were later distributed worldwide by the wire services. Richard Holl recalls that shortly after Armstrong stepped onto the surface, Ted Knotts took high resolution Polaroid pictures off the slow-scan monitor. These were later given to the press for worldwide distribution also.
+
+[Updated: 27 April 2004]: Click here to view a comparison of the image quality from the Parkes SSTV Monitor and the images captured by the press on the black-and-white monitors.
+
+What happened at Goldstone? This has been a matter of conjecture ever since the day of the broadcast. The dish at Goldstone was 64 metres in diameter like the Parkes dish, so it should have had the best signal of all since the LM was in the main beam of the antenna. The fact that Goldstone wasn't scheduled to be receiving the TV pictures in the first place may have contributed to the problems.
+
+Nonetheless, what appears to have happened is that the video settings were all preset to the expected signal levels, and the problems began when they realised the signal was much more modulated than expected. As the transmission began, two things were evident: the picture was upside-down and it had a very high contrast. Apparently someone at Goldstone had forgotten to set the inverting switch on the scan-converter's front panel. Since their picture was going out live, the operators were reluctant to throw the switch until prompted to do so by Houston TV.
+
+Bill Wood, the lead video engineer at Goldstone, explained that the high contrast may have been a result of the picture running into clipping. Clipping results when the video signal is stronger than expected. Normally, TV pictures have a voltage fluctuation of 1 volt peak-to-peak. If the signal is greater than this, then the top part of the signal is chopped off, or clipped. This has the effect of stretching the contrast in the image; the darker areas appear black and the lighter areas appear white. There is very little shading in between. Bill explains:
+"Before the Apollo 11 mission, the Goddard Spaceflight Centre installed 5 MHz wide bandpass filters in the 50 MHz IF of our Block III receivers. The reason why these were installed was to reduce the beat note produced when the command module (2287.5 MHz) and lunar module (2282.5 MHz) transmitters were in the same antenna beamwidth at the Moon. When the TV camera was powered up, the total deviation was somewhat in excess of the 5MHz bandwidth allowed by the filters. When we checked the signal with a spectrum analyser before the 5MHz filters, the total peak-to-peak bandwidth was more like 10 MHz. The result was a clipping of the white and black peaks on the output of the early series Motorola 50 MHz wideband demodulators that we used. I suspect that the signal from Parkes was not bandpass limited and would produce a good signal with no clipping.
+
+"Another possibility was that the alignment of the black level on the slow-scan monitor was less than ideal. When I investigated the problem after the Moon had set, I found that a composite FM signal with the same bandwidth as the LM downlink would cause clipping. Since there was no further TV from the lunar surface, there was no way that we could prove whether or not the problem was caused by the 5 MHz filter or the less than ideal adjustment of the scan-converter.
+
+"Since we had no idea of what to expect in the way of TV quality, the much improved signal through Honeysuckle and later Parkes surprised us. I saw the network TV here - we were picking up the commercial television out of Los Angeles - and when we saw the switch from Goldstone to Honeysuckle there was a pronounced improvement in video quality. 'Hey, look at the picture from Honeysuckle!', I thought. 'Good Lord there's something wrong with our system - they are getting it better than we are."
+
+In the process of correcting the switch settings, it appears that the operators at Goldstone somehow inverted the polarity of their picture, producing a negative image. Again, Houston TV switched away to give them time to correct the problem. By the time they returned to them, the Parkes main beam signal came in, and that was it for Goldstone. NASA has since corrected this negative image anomaly in the videotapes it provides the public. They have simply re-inverted the polarity and made the negative image appear positive. However, an unedited videotape of the original international broadcast clearly shows the negative image.
+
+One peculiarity with the Goldstone TV was that the pictures always had a small white spot on them, located just above the centre of the broadcast image. In the videotapes of the doctored NASA versions of the EVA, this white spot suddenly appears black when the negative image segment is made positive. This confirms that the correction on these tapes was indeed made later by NASA.
+
+Ed von Renouard, the Honeysuckle Creek video technician, also noticed that his picture was upside-down at first. However, Ed was a former ABC employee and had worked on many live television shows in his time. He was used to the live show atmosphere, and felt no apprehension in playing with switch settings as his pictures went out live. Within a few seconds of his noticing the upside-down image, he threw the scan-converter's inverter switch and inverted the Honeysuckle Creek picture. He also adjusted the brightness and contrast settings to try to correct the high contrast of the picture. He related the following to the author:
+"... I heard Aldrin say 'TV circuit breaker in', when suddenly the picture became visible. No one had ever seen TV from the Moon before, so it took me a few seconds to realise what I was seeing. There was a white diagonal streak near the top, and black at the bottom. I realised the sky on the Moon should have been black, so I threw the toggle switch and inverted the image. This whole process took at most about 20 seconds to do. Also, in adjusting the brightness and contrast, the picture flared momentarily, but I was able to correct it before it went out to Houston."
+
+He had no other problems with the TV pictures after that.
+
+Like Goldstone, the Parkes pictures had a small white spot on the broadcast image. Parkes' spot was less prominent and located just above the middle of the right-hand edge of the scan-converter's screen. When the camera was in the MESA, the inverted (upside-down) image caused the white spot to appear just below the middle of the left-hand edge of the broadcast image, superimposed on one of the shadowed struts of the LM ladder leg. When the camera was positioned on the surface, the spot was visible just above the lunar horizon on the right-hand edge of the image. It was easily mistaken for a star. Pictures from Honeysuckle Creek do not appear to have any spots on them. The presence and locations of these spots confirm the above sequence of inclusion of the TV pictures from the various sources.
+
+Eleven minutes after the transmission began, the Network Controller, Ernie Randall, working in mission control, reported the following:
+
+"Right, you might pass on to the Parkes people that their labour was not in vain, they've given us the best TV yet."
+
+One last point to note is that even though the pictures alternated between the three stations before settling on Parkes, the voice downlink that was used throughout the broadcast was exclusively from Goldstone.
+
+The Australian telecast via the ABC:
+
+Trying to determine what happened with the Australian telecast is an extremely difficult task, owing to the fact that footage of the broadcast is very difficult to obtain.
+
+Up until about five hours before the moonwalk, Parkes was fully expected to be the prime receiving station for the TV signals. The ABC and other media outlets had advertised for several weeks before the event that the pictures to be broadcast to Australian and international audiences would be coming from Parkes. Everything had been prepared in advance based on this plan. But did it happen?
+
+At times throughout the mission, Australian networks received telecasts from the American networks and from the 'Voice of Apollo' programs. These were included in local telecasts at appropriate times.
+
+The author has obtained videotapes of kine footage of the ABC Australian broadcast. Unfortunately, much of the first few minutes of the broadcast is missing, owing to the film being cut and edited for use in news programs. However a short segment is available. It starts about 45 seconds after the TV transmission from the Moon begins. It lasts 2 minutes and 42 seconds, which is equivalent to it ending 3 minutes and 27 seconds after the start of the transmission. This period includes Armstrong's first step on the Moon.
+
+Fortuitously, the first frame of the segment contains a small white spot, just above the centre of the screen. This indicates that the source of the picture is Goldstone. It appears that at this point the ABC was using the feed from the American networks. Now, OTC was supposed to provide the ABC with the 'return leg' feed from Houston which had the six second delay introduced by NASA [Update 3 May 2009: As stated earlier, this six second delay is erroneous. It was NOT introduced by NASA in the broadcast of the Apollo 11 EVA] . However, Bob Goodman and OTC took a punt that there would be no accident with the astronauts, so they fed the ABC the live signals they were receiving from the Australian stations instead. It was at that point that the picture is seen to switch away to either Parkes or Honeysuckle Creek, since the white spot disappears in the next frame. This switch was some 57 seconds before the international broadcast first switched away from Goldstone. The telerecording cameras did not photograph the entire screen, but instead cropped the edges of the images in order to hide the edges of the TV screen. This has meant that the region in the image that would have had the white spot from Parkes is not visible. However, since the ABC was receiving the same Sydney Video TV selection as was Houston, then according to NET 2 and the international version video the switch away from Goldstone must have been to Honeysuckle Creek. In addition, the picture appears to flare or brighten momentarily, immediately after the switch away. It appears that this is the result of Ed von Renouard adjusting the picture settings. Because the ABC received these pictures before Houston switched to them, Australians saw Ed's adjustments while the rest of the world did not.
+
+Parkes was clearly in a position to be the source of the broadcast pictures of Armstrong's first step on the Moon, but for whatever reason, first Goldstone then Honeysuckle Creek, 45 seconds later, appear to have been the sources of the Australian telecast until Parkes acquired on main beam.
+
+Confusion (?):
+
+Over the years a considerable amount of confusion has surrounded the timing of the inclusion of the signals from the various tracking stations into the broadcasts of the EVA. Several factors have contributed to this.
+
+1. Parkes didn't have the NET 2 network coming through speakers and did not hear the switch-over or the message from Ernie Randall about '... the best TV yet'. The Parkes control room only had access to NET 7, as well as the up and down links to the spacecraft through speakers (NET 1). The Parkes personnel had assumed that Goldstone would be prime, since it had a clear view of the Moon in its main beam. According to John Bolton, the first indication that Parkes had that it was going out world wide was from Walter Cronkite's US commentary overlaid on the ABC relay:
+"That white spot on your screen is coming from Parkes".
+
+Jasper Wall recalls:
+
+"I do recollect watching live TV transmission at one point when a bright
+spot appeared on the right of the screen. The NASA pundits told the
+watching world that it was due to a problem at Parkes. John Bolton was
+furious. This was at a time when Goldstone was supposed to be prime."
+
+2. Following the EVA, John Bolton and Taffy Bowen were having a quiet congratulatory beer together when they decided to call Bill Merrick at Goldstone to find out what had happened with their signal. Bill had built the 64 metre dish and was a former collaborator of John Bolton's, so he was able to get hold of him fairly easily. Bill informed them that they had a very good picture at the dish itself, but that it had disappeared into the ground some 20 miles from the site. John Bolton took that to mean that it had been substantially degraded.
+
+Why did Bill Merrick say they had a good picture when they didn't? Was he fully aware of the problems?
+
+3. It is entirely probable that John Bolton also phoned OTC Paddington to enquire about what had happened with his signals. He may have been informed that his pictures were used from the start. When the author asked Bob Goodman if John Bolton had phoned him after the EVA, he said that he may have but couldn't remember.
+
+4. Following the telecast, Australian media outlets (newspapers, TV, radio) gave differing reports of when the Parkes signals were included in the telecast. Some had the signal included shortly after Parkes acquired it in the main beam at 1:05 p.m. (AEST), others had it included just before President Richard Nixon spoke to the astronauts at 1:50 p.m. (AEST). Other reports stated that Goldstone wasn't used at all!
+
+5. When Aldrin activated the TV camera, the LM was just entering the beam of the off-axis receiver. A weak, but usable, signal was received at Parkes. It would have taken about a minute or so longer for the LM to be fully centred in the beam and a strong signal received. The first switch away from Goldstone, in both versions of the broadcast, occurred at approximately the time the LM was fully centred in the beam. It therefore gave the impression that the picture switched to Parkes.
+
+6. NASA and Houston were unaware that Parkes had acquired the signal before the predicted acquisition on the main feed.
+
+Mike Dinn, who is a seasoned tracking professional, has stated that;
+"Real-time ops, especially Manned Flight, and especially in the 1960's, was all about making quick, best decisions in your area of expertise and responsibility, and assuming and trusting that others did the same."
+Confusion is therefore all the more likely when the situation is as fluid and complex as it was for the first lunar landing.
+
+Shortly before his death John Bolton, in his final correspondence with Mike Dinn, wrote:
+
+"It would be of interest to have everything cleared up. As you imply you couldn't care less about the priorities and neither do I. The same is probably true of everyone else who was involved in the operation at the time, we collectively succeeded and that was all that mattered to us - unfortunately this is something that historians never seem to understand; for them A has to have beaten B."
+
+The success of the Apollo 11 mission was due to the combined effort, dedication and professionalism of many hundreds of thousands of people around the world. John Bolton's sentiments surely ring true.
+
+Other TV:
+
+Because there was no broadband link across the continent at the time, Bob Goodman from OTC arranged to send the ABC's live broadcast via satellite to the Carnarvon station in Western Australia. From there the signal was sent on to Perth via microwave relays, for distribution in Western Australia. In the town of Carnarvon, a 14-inch (35.6 cm) monitor was installed in the local theatre. Hundreds of people from the town and surrounding districts crowded into the hall to watch the moonwalk. Those in the back of the hall resorted to using binoculars and rifle telescopes to view the moonwalk (Lindsay 1998).
+
+At Tidbinbilla, following the disappointment of the receiver fire and the switch in its tracking role with Honeysuckle Creek, the controllers were busy tracking the command module, Columbia . The beamwidth of the 26 metre dish was so large that the LM was within the beam and the TV signals were being received also. The controllers, working under Don Grey, the Director of Tidbinbilla, were able to jury rig a system, whereby the TV signals were extracted from the LM signal and the pictures displayed on television sets at the station. This was all unofficial.
+
+At Honeysuckle Creek Kevin Gallegos, the technical officer responsible for the SDSS, was working away in the bowels of the control building, unable to see the TV pictures he was processing. He wasn't allowed to view the video in real-time since he had important work to concentrate on. Eager to view the live transmission, and unable to contain his curiosity any longer, he fed the TV signals from the demodulators straight into the video input of his small oscilloscope and was able to view the moonwalk live in glorious black and green. As he related to the author:
+
+"There I was in the bowels of the building monitoring the signals coming in. This most historic event was unfolding and I couldn't see it since I had no TV - I wasn't allowed. So I decided to feed the TV signals into the video input of my small oscilloscope and there it was. I saw the pictures of Armstrong and Aldrin on the Moon on the small black and green screen of my CRO."
+
+Highlights of the Apollo 11 EVA
+
+Click here to view video clip highlights of the Apollo 11 lunar EVA TV .
+
+Next Comments to: John Sarkissian

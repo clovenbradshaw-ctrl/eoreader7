@@ -21,6 +21,18 @@ const P = await import(`${NATIVE}/adapters/text/priors.js`);
 const posPrior = JSON.parse(readFileSync(`${FIX}/pos-prior-eng.json`, "utf8"));
 const morph = morphologyFromPrior(JSON.parse(readFileSync(`${FIX}/unimorph-morphology-prior.json`, "utf8")));
 const { sameAct } = createLemmatizer(morph.forms, { language: morph.language });
+// VERBS=prior: the received morphology prior's verb forms join the vocabulary
+// (hypergraph.js `organs.verbForms`) — a one-page face cannot recur "placed"
+// or "winched" after a surface often enough to derive them; the prior
+// already attests them. And the lemmatizer, so "take" reaches "took".
+const formSet = (f) => { const out = new Set(); for (const [k, v] of Object.entries(f ?? {})) { out.add(String(k).toLowerCase()); for (const x of Array.isArray(v) ? v : [v]) if (typeof x === "string") out.add(x.toLowerCase()); } return out; };
+// VERBS=prior: UniMorph forms alone. VERBS=both: UniMorph ∪ the POS prior's
+// verb-dominant forms (UD English-EWT, share > 0.5 declared here) — UniMorph
+// English is a 10k-form sample that lacks "placed", "retrieved", "launched";
+// the POS prior attests all three as verbs at 100%.
+const posVerbForms = (floor) => { const out = new Set(); for (const [w, att] of Object.entries(posPrior.forms ?? {})) { const t = Object.values(att).reduce((a, b) => a + b, 0); if (t > 0 && ((att.VERB ?? 0) + (att.AUX ?? 0)) / t > floor) out.add(w.toLowerCase()); } return out; };
+const verbForms = process.env.VERBS === "both" ? new Set([...formSet(morph.forms), ...posVerbForms(0.5)]) : process.env.VERBS === "prior" ? formSet(morph.forms) : null;
+const priorOrgans = verbForms ? { verbForms, createLemmatizer, morphologyIndex: morph.forms, morphologyLanguage: morph.language, ...(process.env.ATTEST === "1" ? { attestedVerbs: true } : {}) } : {};
 const reader = makeRelationReader({
   splitSentences, extractSurfaces, discoverReferents, namesCorefer, diaNorm, discoverRelationVocab, extractRelations, tokenize,
   posPriorFor: () => posPrior,
@@ -28,6 +40,8 @@ const reader = makeRelationReader({
   negationWords: P.NEGATION_WORDS,
   blankFurniture: (t) => blankLabelRows(t, { minRun: 4, maxCell: 60 }),
   resolvePronouns, nounPhraseSubjects: true,
+  ...(process.env.FINE === "1" ? { phrasalPredicates: true } : {}),
+  ...priorOrgans, // FINE=1: the verb chain rides in the act (DR5), never split with its head inside the object
 });
 
 export { reader, chunkSource, sameAct, textFeatures };
@@ -42,11 +56,16 @@ const overlap = (a, b) => a.filter((w) => b.some((x) => x === w || sameAct(x, w)
 
 const labeled = Object.entries(L).filter(([, l]) => l.status.startsWith("stated")).map(([id, l]) => ({ id, l, row: backwards.real.rows.find((r) => r.id === id) })).filter((x) => x.row);
 const faceEdges = new Map();
+// POOL=article: the article's own passages join the face's as the corpus
+// the verb vocabulary is measured over — a one-page face cannot recur a
+// verb enough to derive it alone; the article already did.
+const { extractReadable } = await import(`${NATIVE}/organs/web.js`);
+const articlePassages = process.env.POOL === "article" ? chunkSource("wikipedia-apollo-11.html", extractReadable(readFileSync(`${FIX}/wikipedia-apollo-11.html`, "utf8")).text) : [];
 function edgesOf(facePath) {
   if (faceEdges.has(facePath)) return faceEdges.get(facePath);
   const text = readFileSync(`${FIX}/${facePath}`, "utf8");
   const passages = chunkSource(facePath, text);
-  const rel = reader(passages, { pool: passages });
+  const rel = reader(passages, { pool: [...passages, ...articlePassages] });
   const out = (rel.edges ?? []).map((e) => ({ e, s: feats(e.end1), a: String(e.label ?? ""), o: feats(e.end2), sent: norm(e.spans?.[0]?.text ?? "") }));
   faceEdges.set(facePath, out);
   return out;
@@ -83,5 +102,5 @@ for (let i = 0; i < labeled.length; i += 1) {
 const n = rows.length;
 console.log(`\n${n} labeled notes · real matched ${rows.filter((r) => r.real).length}, on a labeled sentence ${rows.filter((r) => r.real?.labeled).length} · control matched ${rows.filter((r) => r.control).length} · pronoun subjects ${rows.filter((r) => r.pronoun).length}`);
 const { writeFileSync } = await import("node:fs");
-writeFileSync(`${HERE}results/note-match-zero.json`, JSON.stringify(rows, null, 2));
+writeFileSync(`${HERE}results/note-match-zero${process.env.FINE === "1" ? "-fine" : ""}${process.env.POOL === "article" ? "-pool" : ""}${process.env.VERBS ? "-" + process.env.VERBS : ""}${process.env.ATTEST === "1" ? "-attested" : ""}.json`, JSON.stringify(rows, null, 2));
 }

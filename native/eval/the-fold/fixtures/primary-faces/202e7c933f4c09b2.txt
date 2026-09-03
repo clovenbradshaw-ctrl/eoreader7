@@ -1,0 +1,178 @@
+Skip to content
+
+Close Image
+
+Weather or Not
+
+By Jeffrey T. Richelson
+
+Oct. 1, 2013
+
+-
+
+-
+
+-
+
+-
+
+-
+
+Share Article
+
+Audio of this article is brought to you by the Air & Space Forces Association, honoring and supporting our Airmen, Guardians, and their families. Find out more at afa.org
+
+Weather has always been a key consideration in war. Sun Tzu, writing more than 2,000 years ago, said, “Know the ground, know the weather; your victory will then be total.” He also identified “the heavens”—referring to day and night, cold and heat, and times and seasons—as one of the five constant factors of war. Severe winter weather helped Russia defeat Napoleon and Hitler both.
+
+The lesson hasn’t been lost on the US and its adversaries. During the Cold War and beyond, the importance of intelligence about weather conditions has been underscored in conflicts hot and cold with the Soviet Union, North Vietnam, and Iraq.
+
+In 2011, weather played a crucial role in the raid that killed Osama bin Laden. Higher-than-expected temperatures (along with the weight of the stealth equipment onboard) contributed to the crash of a special helicopter that carried Navy SEALs to the compound in Abbottabad, Pakistan. The mission was still a success, however.
+
+For the night of Feb. 14, 1991, Stephen Rose, the staff weather officer for the 3rd Special Forces Group (Airborne) predicted “overcast skies with 1,000-foot ceilings, quarter-mile visibility, winds from the south at 12, gusting to 18 knots” for Iraq. The forecast proved out, and those winds blew smoke onto the Iraqi forces that had just set their oil fields afire. The Iraqis soon discovered the hard way that the Russian optics on their weapon systems couldn’t penetrate smoke and haze.
+
+The US has gathered information on foreign weather and forecasting procedures for decades. Part of that effort has been conducted openly, including Air Force interception of weather broadcasts. Other collection activities—whether in space or on the ground—have been conducted in secret by the Central Intelligence Agency, National Reconnaissance Office, and National Security Agency. But collecting weather data hasn’t been the only challenge; part of the art is deciding if intercepted weather reports are accurate or intended to deceive.
+
+In March 1945, US airmen began flying B-24L aircraft over Japan to gather weather data in support of B-29 bombing missions. After the war’s end, some of those B-29s became WB-29s, employed for weather reconnaissance as well as sniffing the air for evidence that Russia had detonated a nuclear device. They found that evidence during a Sept. 3, 1949 flight directed by various elements of the US government and where beneficiaries included a secret Special Projects Section of the US Weather Bureau. The weather spies also gathered data on the nature of the device and where it was detonated.
+
+Over time, the units and airplanes involved in weather intelligence changed, but the need for the mission remained constant. The information required, however, exceeded what any air fleet could provide. Weather data would be needed from inside the Soviet Union—not only for possible wartime operations but also to assist US reconnaissance satellites photographing the Soviet interior.
+
+In 1951, RAND Corp. scientists explored the feasibility and utility of a weather satellite—including the ability of such a craft to provide information on clouds, temperature, pressure, moisture, and precipitation. They noted that a weather satellite could identify cloud cover which could prevent photographic reconnaissance satellites capturing images of their targets. At the time, though, an operational reconnaissance satellite was almost a decade away.
+
+By late 1960 the US had succeeded in photographing the Soviet Union from space. A November 1960 presentation to the Air Force Ballistic Missile Division on weather support to the SAMOS recce satellite program indicated the requirement hadn’t been forgotten. The following April, NASA was assigned responsibility for developing the National Operational Meteorological Satellite System for both civil and military users.
+
+Joseph V. Charyk, undersecretary of the Air Force and head of the National Reconnaissance Office, was skeptical of the effort, however. He was convinced that NASA’s weather satellite wouldn’t arrive in orbit for at least two or three years, during which time opportunities to photograph Soviet ICBM sites under construction could be lost. In May 1961, he received and approved a proposal for a separate weather satellite. The program, managed by Air Force Lt. Col. Thomas O. Haig, would be known by a variety of designations during its classified existence—including Program II, P-35, Program 417 (shortly after Aug. 23, 1962), the Defense Systems Application Program—and finally as the Defense Meteorological Satellite Program (DMSP).
+
+After one failure, the NRO/Air Force satellite—a 100-pound, spin-stabilized, weather-sensing craft—arrived in a 391- by-539-mile orbit in August 1962. Its sensors captured video images of cloud cover with about one-mile resolution, transmitted to ground stations at Vandenberg AFB, Calif., and New Boston, N.H. By December, 3,820 useable pictures were received and incorporated into the daily forecasts produced by the Air Force’s Global Weather Central—“in direct support of satellite reconnaissance activities,” according to a late 1962 NRO assessment. An NRO history of the KH-9/Hexagon program (1971 to 1984) noted the importance of cloud-free imagery to the success of each KH-9 mission and the “accuracy of weather forecasts was critical to Hexagon success.”
+
+Saving Apollo 11
+
+In addition to providing weather imagery in support of intelligence and military operations, the secret satellites would play a key role in the very public Apollo program of moon exploration. Weather reconnaissance helped prevent what would have been a huge disaster: the loss of the Apollo 11 crew after its July 1969 success in the first moon landing.
+
+Capt. Hank Brandli was working at Hickam AFB, Hawaii, as a specialist in weather tracking and prediction, employing data from Program 417 satellites to support the Corona reconnaissance satellite program. In mid-July, Brandli was examining classified weather satellite photos that showed that Neil Armstrong and fellow astronauts Buzz Aldrin and Michael Collins were scheduled to splash down right in the midst of violent thunderstorms with powerful high-altitude winds. Brandli has recalled that the storm “would have ripped their parachutes to shreds” and that “without parachutes, they’d have crashed into the ocean with a force that would have killed them instantly.”
+
+The secrecy attached to the program limited Brandli’s ability to tell others of the danger facing the Apollo 11 crew. But ultimately, he was able to convince the right people of the problem, which eventually led NASA and the Navy to alter Apollo 11’s re-entry and splashdown profile. Re-routing the entire carrier task force that would recover the re-entry capsule to the new splashdown site saved the astronauts’ lives.
+
+The satellites developed under Haig’s direction—and their successors—are the most advanced method of weather collection, but the practice of monitoring foreign weather forecasting procedures and intercepting foreign—particularly Soviet Bloc—weather reports did not abate. One early example of intelligence interest in foreign prediction methods is a 1953 CIA information report, classified “Secret/Control—US Officials Only” and titled “Weather Forecasting in China.” The report focused on a new forecasting method and its success in predicting the weather for different future time periods.
+
+But more important than understanding how foreign nations produced forecasts was gathering raw data on foreign weather, and satellite data collection was not enough. During the Vietnam War, the chief of US air operations, Gen. William W. Momyer, while declaring the NRO’s weather satellites to be “the greatest innovation of the war,” still needed to rely on additional methods of weather data collection. Such methods—including the monitoring of weather broadcasts—could provide even more timely data on very small areas necessary to support combat operations.
+
+In June 1956, William M. McMurray, a staff member of the US Weather Bureau, had reported—in an unclassified publication—on the intercept of Soviet weather reports. He noted that the majority of reports from the Soviet Union were received by radio teletypewriter via a multiple relay system. He also explained that the availability of the intercept teletypewriter source was made possible “through the cooperation of … US Air Force installations in Germany, Japan, and Arabia and a similar intercept station in Alaska operated by the Civil Aeronautics Administration.”
+
+The overt nature of some of the weather intercept activity was evident almost three decades later when the Air Weather Service issued a 73-page unclassified regulation, Global Weather Intercepts. It identified 11 different intercept stations distributed across the planet. In addition, there was a 46-page section listing the frequencies and types (radio teletype, fax, continuous wave) of weather broadcasts from sites from Addis Ababa in Ethiopia to Yakutsk in the Soviet Union. On that list were 27 separate sites in China and the Soviet Union whose weather broadcasts (often involving multiple frequencies) were of interest to the Air Force. Special interest in the Soviet Union and China was indicated by a requirement for more detailed reporting. While there was a general requirement for acquisition of surface weather data covering 62-mile segments every three hours, the regulation specified that surface weather data from Russia and China be collected every hour for 19-mile segments.
+
+But overt Air Force weather intercept stations weren’t the only source of weather data. Some of the National Security Agency’s clandestine collection operations were directed toward providing weather data. In 1958, a secret article in the NSA Technical Journal noted that a weather unit had been included in the communications intelligence effort since the early months of World War II and followed with a brief discussion of the “NSA Weather Unit.” Some of it is still classified 55 years later.
+
+It reported that, while the civilian weather services of all nations maintain special channels solely for the transmission of meteorological data, military services—particularly major commands—“have special channels set apart for the dissemination of weather data.” In addition, they “may, and very often do, employ other nets (operational, administrative, etc.) for the same purpose.” While the stations designated for Air Force monitoring employed a universal system of identifying themselves, the article noted that “on internal weather networks of some countries unique methods are employed.” Those methods could include encryption of the data and the weather station location—making them a subject for NSA collection.
+
+The NRO history of Hexagon stated that broadcasts from Soviet weather stations “were intercepted by Sigint [signal intelligence] collection means” and relayed to the Air Force’s Global Weather Central.
+
+Keeping It to Ourselves
+
+From the mid-1960s into the first years of the next decade, NSA was keenly interested in North Vietnam’s weather. During that period, the author of another article in the NSA Technical Journal wrote that “precise knowledge of the actual surface weather conditions existing at stations throughout North Vietnam is of utmost importance in the conduct of offensive operations.” Not only did NSA’s weather intercept operations target reporting of surface weather conditions, they also sought data on the three-dimensional distribution of atmospheric conditions in the troposphere—where clouds, other weather, and combat aircraft could be found. It was challenging to find and validate these data.
+
+The value of keeping accurate weather data out of the wrong hands is understood by both the US and its adversaries. In December 1990, in the midst of Operation Desert Shield, the Naval Technical Intelligence Center (subsequently absorbed into the Office of Naval Intelligence) produced a secret report: Meteorological Satellites and the Iraq Crisis. The report, released with substantial redactions, characterized Iraq’s need for meteorological data, particularly that provided by the US National Oceanic and Atmospheric Administration satellites, as “very urgent” and concluded that “if access to the US information is terminated, Iraq’s meteorological support [deleted, but probably “to its military”] should be downgraded.”
+
+During the Cold War and the war in Vietnam other nations tried to block the US from accumulating accurate weather data. In his 1983 portrait of Russia, journalist David K. Shipler said that “even the weather is considered a security item with military implications,” and that it wasn’t until the late ’70s that Soviet newspapers began publishing weather maps. He recounted how, when an American reporter writing about a Soviet New Year’s celebration called the meteorological service to find out how much snow had fallen that day, he was told that if he wanted the information he would have to “write a letter to the protocol department.”
+
+Red Herrings
+
+But even after Soviet newspapers began publishing weather maps, there was suspicion, at least among some analysts, that some internal weather stations were broadcasting data intended to deceive those eavesdropping on the broadcasts about actual meteorological conditions in the Soviet interior. Certainly, NSA’s experience during the Vietnam War in pursuit of data on atmospheric conditions led analysts to question if the intercepted reports were accurate.
+
+During most of 1965 NSA had a hard time gathering intercepts on conditions over North Vietnam because upper-air observations were rarely reported in that country’s communications, leaving US forecasters with little data on which to base their predictions. Then, in September 1965, data from Hanoi on wind speed, derived from unmanned balloon-carried equipment, began to appear regularly, along with surface weather reports. According to a 1967 NSA paper, those data were passed on “with great delight and much satisfaction.”
+
+It didn’t last long, however—the upper-air data soon became suspect. When the content of the intercepted messages was plotted on upper-air charts, “the laws and principles governing the nature of the elements measured and the character and behavior of the upper air were violated.” Anomalies included unreasonable wind shifts, distorted temperature inversions, and impossible temperature/dew point temperature readings. A number of benign explanations were offered, including poor intercepts, inexperienced North Vietnamese weather observers, faulty equipment or data, or some peculiar alteration of the basic international code. Encryption was temporarily ruled out.
+
+It’s unclear how NSA established that the data were deceptive; a key part of the solution remains classified. However, it started with examining all sources of upper-air data, no matter how they were obtained. Upper-atmosphere weather reports originated by Hanoi were, to the surprise of NSA analysts, detected in the exchange of weather data between the Soviet Union and the US. Analysts were apparently able to compare those with the Vietnamese reports being intercepted by NSA and figure out a way to convert the deceptive reports into accurate ones. Thus, the 1967 paper begins, “This paper describes some of the special security measures introduced in North Vietnamese weather communications” and concludes with: “Never before has a system such as that described been observed in weather traffic from any country. It is considered an ingenious method of providing security in weather communications; until the system was detected, the weather analysts and forecasters were effectively and unwittingly misled.”
+
+Victims of a bad weather report may wonder about the competency of the weatherman, but few will imagine they were being deliberately misled. The US Intelligence Community, however, has dealt for decades with the challenges of collecting weather information on conditions inside unfriendly nations—that definitely don’t want to provide an accurate forecast.
+
+Jeffrey T. Richelson is a senior fellow and consultant of the National Security Archive in Washington, D.C., and author of nine books on intelligence and military topics. His most recent article for Air Force Magazine, “Eavesdroppers in Disguise,” appeared in the August 2012 issue.
+
+Audio of this article is brought to you by the Air & Space Forces Association, honoring and supporting our Airmen, Guardians, and their families. Find out more at afa.org
+
+Related
+
+AFRL Seeks Payload-Agnostic, Affordable Hypersonic Cruise Missile
+
+Sept. 2, 2026
+
+The Air Force Research Laboratory has signaled to industry it wants to develop a low-cost hypersonic cruise missile to deliver a wide range of payloads at a range up to 500 nautical miles.
+
+US and Iran Trade Strikes as Fighting Resumes in Gulf
+
+Sept. 2, 2026
+
+U.S. Central Command launched a wave of strikes against Iran on Sept. 1, and President Donald Trump said forces are “prepared to do another one” as Iranian forces launched retaliatory attacks Sept. 2.
+
+Doubling of F-15EX Fleet Comes with Risks for USAF to Manage: New Pentagon Report
+
+Sept. 2, 2026
+
+The Air Force’s decision to more than double its purchase of F-15EX Eagle II jets may bolster the service’s fighter fleet, but it also comes with risks and questions officials will have to manage in the years ahead, a new Pentagon report warns.
+
+MH-139 Reaches Initial Operational Capability
+
+Sept. 1, 2026
+
+The Air Force’s new nuclear security helicopter, the MH-139A Grey Wolf, achieved initial operational capability this month—a significant milestone in the service’s effort to replace its Vietnam War-era UH-1N Hueys but years later than originally planned.
+
+Congress Passes Short-Term Funding Bill, Putting DOD’s $1.5T Budget Ask on Hold
+
+Sept. 1, 2026
+
+With 30 days to go before the end of fiscal 2026, Congress passed a continuing resolution Sept. 1 to extend current spending levels through Dec. 11—putting on hold the Pentagon's request for $1.5 trillion in spending authority.
+
+$100M Software Contract Will Streamline How Air Force Manages Aircrews
+
+Sept. 1, 2026
+
+The Air Force has issued a $100 million contract to combine its long-disjointed systems for managing aircrew readiness with software that is expected to reach initial operational capability next year, starting with the T-6A Texan II and the C-17 Globemaster III.
+
+Pentagon Issues Contracts to Boost Manufacturing Capacity for Space Systems
+
+Sept. 1, 2026
+
+The Pentagon is moving forward with plans to invest in manufacturing capacity for the space industrial base, awarding multiple contracts in recent weeks to companies who supply key space components and subsystems as well as firms with innovative manufacturing technology that’s ready to scale.
+
+What to Watch from Trump’s US Space Academy Commission
+
+Aug. 31, 2026
+
+As President Donald Trump’s commission to study a U.S. Space Academy formulates recommendations, experts say they’ll be watching for more detail on the academy’s mission and scope as well as efforts to garner feedback from members of Congress, who will ultimately get the final say on whether the U.S. needs…
+
+Air Force Pulls ICBM Testing Device After Finding Likely Carcinogen
+
+Aug. 31, 2026
+
+The Air Force has pulled a piece of testing equipment for its Minuteman III intercontinental ballistic missiles after discovering some appeared to be contaminated with a possible carcinogen.
+
+×
+
+✓
+
+Thank You!
+
+Check your inbox to verify your email address and finish setting up your AFA account.
+
+Close
+
+&starf;
+
+Welcome Back!
+
+An account with this email already exists. Please log in to continue.
+
+Log In Now
+
+Subscribe to the
+Air & Space Forces
+Daily Report
+
+The latest news from Air & Space Forces Magazine, as well as news from other leading publications, delivered right to your inbox every morning!
+
+We’re sorry, there has been an error. Please review your input or try again later.
+
+Thank you for subscribing
+to the Daily Report!
+
+×

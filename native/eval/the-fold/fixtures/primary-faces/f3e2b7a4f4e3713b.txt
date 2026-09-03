@@ -1,0 +1,659 @@
+Home
+Guide
+Links
+Contact
+Valuation
+
+< Previous Guide
+
+Personal Preference Kits [PPKs]
+
+Next Guide >
+
+The concept of the Personal Preference Kit (PPK) was introduced by NASA to formalize the carrying of
+mementos by the astronauts on their missions. Before a flight the astronauts had to get the list of items they intended to
+take as souvenirs validated by NASA. The total allowed weight of the items was limited and the bulk restricted to
+what would fit in the small bag provided to contain them.
+
+Although the exact contents of most of the PPKs will always remain unknown (since this was
+regarded as a private matter for the astronaut), the flown (now empty) PPK bags are themselves collectible items
+so it's interesting to see how many were carried on each flight. The sections below attempt to answer this question.
+
+Gemini PPKs
+
+Gemini PPK bag
+
+During the Gemini project each astronaut was allowed to carry personal mementos in a small
+6x7"
+grey nylon bag that could be closed with a drawstring. The strict weight limitations and cramped interior of the
+Gemini spacecraft meant that the astronauts were only able to carry a small amount of items with them
+as mementos, so only one
+PPK bag per crewmember was carried on each flight.
+
+The only PPK manifest to have been made public over the years is that of Wally Schirra from
+the Gemini 6A mission, but this single list probably gives a good idea as to the number and kind of items
+typically carried on these flights.
+
+The content of Schirra's Personal Preference Kit was listed as:
+Navy wings, 33rd Degree Masonic ring, 1950D coin, dime-sized momento, 5c-sized momento,
+miniature Gemini s/c, Fla. hunting license, 20 gold medals, 5 silver medals, various flags,
+and 15 GTA-6 patches.
+
+FLOWN availability - With only one PPK per Gemini astronaut
+there are likely only twenty flown bags existing in total. Of these twenty I've seen four offered at auction. See the Annex below for details.
+
+Unflown availability -
+Unflown Gemini PPK bags used in training are likely extremely rare.
+
+Apollo PPKs
+
+Standard Apollo PPK bag
+P/N SEB12100018-202
+
+Larger Apollo PPK bag
+P/N SEB12100025-301
+
+As on the Gemini project, the Apollo astronauts were authorized by NASA to carry a small amount of personal momentos on their missions in the form of a Personal Preference Kit. These items were packed into small beta cloth bags which were closed with a drawstring.
+
+The standard PPK
+bags (with part no. SEB12100018-202) as shown on the left measured roughly 8" x 4" x 2". A larger size bag (with part no. SEB12100025-301) measuring roughly 10" x 10" x 2", as shown on the right, was also carried on some missions.
+
+For Apollo 17 the Personal Preference Kits were replaced by Astronaut Preference Kits
+(with part no. APK/SEC 12100087-301) and the same bags were later used on the Skylab project.
+
+In the sections below I have attempted to identify from the available stowage lists for Apollos 7, 8 and 11 through 17 how many PPKs were carried on each mission,
+where they were carried, and what weight of items they contained.
+
+Although this sounds simple enough the resulting picture is actually far from clear, particularly in the later missions. In any case the details below at least provide a starting point for further study.
+
+FLOWN availability - A significant number of Apollo flown
+PPK bags have been sold at auction over the years, with examples appearing in most major space auctions.
+See the Annex below for details.
+
+Unflown availability -
+Unflown examples used in training are probably more scarce that flown examples.
+
+Apollo 7
+
+For Apollo 7 the stowage lists clearly identify 3 PPKs of 0.5lb (227g) each stowed at launch.
+
+ITEM NUMBER
+PART NUMBER
+NOMENCLATURE
+UNIT WEIGHT
+QTY/ SC
+STOWAGE LOCATION
+
+110
+SEB12100018-202
+PILOTS' PREFERENCE KIT
+.5
+3
+VOLUME A8
+
+Apollo 7 Stowage List (Rev. D) - Personal Preference Kit entry
+
+Apollo 8
+
+As for Apollo 7,
+the Apollo 8 the stowage lists clearly identify 3 PPKs of 0.5lb (227g) each.
+
+ITEM NUMBER
+PART NUMBER
+NOMENCLATURE
+UNIT WEIGHT
+QTY/ SC
+STOWAGE LOCATION
+
+115
+SEB12100018-202
+PILOTS PREFERENCE KIT
+.5
+3
+VOLUME A8
+
+Apollo 8 Stowage List (Rev.C) - Personal Preference Kit entry
+
+Apollo 9
+
+I have only seen extracts of the Apollo 9 stowage lists covering
+the PPKs stowed in the Command Module at launch, which shows that 7 PPKs of 0.5lb (227g) each
+were carried on the mission.
+
+ITEM NUMBER
+PART NUMBER
+NOMENCLATURE
+UNIT WEIGHT
+QTY/ SC
+STOWAGE LOCATION
+
+A 0114.
+SEB12100018-202
+PILOTS PREFERENCE KIT
+.5
+7
+CM AT LAUNCH
+
+Apollo 9 Stowage List - Personal Preference Kit entry for CM only
+
+At this point in time I have no details of how many PPKs were carried
+in the Apollo 9 Lunar Module.
+
+Apollo 10
+
+For Apollo 10 the stowage lists identify 8 PPKs of 0.5lb (227g) each stowed in the Command Module
+plus 1 PPK of 0.5lb stowed in the Lunar Module at launch. There is no mention in the CM to LM transfer list,
+LM lunar launch stowage list, or in the LM to CM transfer list of the first set of PPKs so these would have stayed in place on
+the Command Module for the mission.
+
+ITEM NUMBER
+PART NUMBER
+NOMENCLATURE
+UNIT WEIGHT
+QTY/ SC
+STOWAGE LOCATION
+
+A 0112.
+SEB12100018-202
+KIT, PILOTS PREFERENCE
+.5
+8
+CM AT LAUNCH
+
+A 1007.
+SEB12100018-202
+KIT, PILOTS PREFERENCE (PPK)
+.5
+1
+LM AT LAUNCH
+
+Apollo 10 Stowage List - Personal Preference Kit entries compiled from Lists A, B and C
+
+Interestingly, the number of PPKs listed for Apollo 10 exceeds that of the Apollo 11 mission,
+although only one PPK was carried on the Apollo 10 Lunar Module, as opposed to two on the Apollo 11 LM.
+
+Apollo 11
+
+For Apollo 11 the stowage lists clearly identify 3 PPKs of 0.5lb (227g) each stowed in the Command Module
+plus 2 PPKs also of 0.5lb each stowed in the Lunar Module at launch. There is no mention in the CM to LM transfer list,
+LM lunar launch stowage list, or in the LM to CM transfer list of the first set of PPKs so these would have stayed in place on
+the Command Module for the mission.
+
+ITEM NUMBER
+PART NUMBER
+NOMENCLATURE
+UNIT WEIGHT
+QTY/ SC
+STOWAGE LOCATION
+
+A 0112.
+SEB12100018-202
+KIT, PILOTS PREFERENCE
+.5
+3
+CM AT LAUNCH
+
+A 1007.
+SEB12100018-202
+KIT, PILOTS PREFERENCE (PPK)
+.5
+2
+LM AT LAUNCH
+
+Apollo 11 Stowage List - Personal Preference Kit entries compiled from Lists A, B and C
+
+In some later flights the weight allowance for the CM PPKs was significantly higher. It should be noted
+that although the LM PPKs were ostensibly those of the CDR and LMP they carried items for the CMP in these LM PPKs.
+
+Apollo 12
+
+For Apollo 12 the stowage lists identify 8 PPKs of 0.5lb (227g) each stowed in the Command Module
+plus 1 PPK of 0.5lb stowed in the Lunar Module at launch.
+One of the 8 CM-stowed PPKs is on the CM to LM transfer list
+and subsequently the LM lunar launch and LM to CM transfer lists, so in fact two of the nine PPKs in total were carried to the
+lunar surface whilst seven stayed in the CM for the entire mission.
+
+ITEM NUMBER
+PART NUMBER
+NOMENCLATURE
+UNIT WEIGHT
+QTY/ SC
+STOWAGE LOCATION
+
+A 0112.
+SEB12100018-202
+KIT, PILOTS PREFERENCE
+.5
+7
+CM AT LAUNCH
+
+A 0112.
+SEB12100018-202
+KIT, PILOTS PREFERENCE
+.5
+1
+CM AT LAUNCH T/SFER TO LM
+
+A 1007.
+SEB12100018-202
+KIT, PILOTS PREFERENCE (PPK)
+.5
+1
+LM AT LAUNCH
+
+Apollo 12 Stowage List - Personal Preference Kit entries compiled from Lists A, B and C
+
+It's not clear why one PPK is stowed on the CM at launch then transferred across to the LM.
+The end result in any case is that as with Apollo 11, two PPKs of 0.5lb each were carried to the lunar surface.
+The difference to Apollo 11 comes with the fact that there were now seven CM PPKs as opposed to just three. The logic behind the numbers may be that three of these were assigned to the CMP, and two each to the CDR and LMP, so that each
+crewmember had three PPKs in total.
+
+Apollo 13
+
+For Apollo 13 the stowage lists identify 11 PPKs of 0.5lb (227g) each stowed in the Command Module
+plus 3 PPKs of 0.5lb stowed in the Lunar Module at launch. Another CM PPK is identified but no weight is specified.
+The Part number indicates that this is the larger type of PPK bag, and indeed this may be the bag used to carry
+Apollo 13 beta cloth patches, sold by Jim Lovell at auction in 2008.
+
+ITEM NUMBER
+PART NUMBER
+NOMENCLATURE
+UNIT WEIGHT
+QTY/ SC
+STOWAGE LOCATION
+
+A 0112.
+SEB12100018-202
+KIT, PILOTS PREFERENCE
+.5
+11
+CM AT LAUNCH
+
+A 0112. 1
+SEB12100025-201
+KIT, PILOTS PREFERENCE
+
+1
+CM AT LAUNCH
+
+A 1007.
+SEB12100018-202
+KIT, PILOTS PREFERENCE (PPK)
+.5
+3
+LM AT LAUNCH
+
+Apollo 13 Stowage List - Personal Preference Kit entries compiled from Lists A, B and C
+
+Apollo 13 differs from the preceding two missions in that there
+are now three PPKs of 0.5lb each stowed in the LM, presumably one per crewmember. From this point on the CMP no longer
+had to rely on the generosity of his crewmates to have items carried to the lunar surface.
+
+There are now also 11 standard PPKs of 0.5lb on the Command Module, up from 7 on Apollo 12 and 3 on Apollo 11.
+It's not clear how these were divided amongst the crew. If we start on the basis of three per crewmember we are still
+left with two CM PPKs unaccounted for.
+
+Interestingly enough, a PPK bag sold at the 2009 Bonhams Space Auction by Fred Haise was labelled "SHAVE KIT" and marked "4 of 12". Haise noted in the accompanying LOA " Apollo Astronauts were allowed to carry a small number of personal mementos inside Beta cloth containers called PPKs. But since these bags were a convenient design to carry all sorts of crew personal equipment, some were used to store hygienic items such as this 'Shave Kit'."
+
+This tells us that not all the PPKs in the Stowage Lists are actually being used to carry mementos.
+
+Apollo 14
+
+For Apollo 14 the stowage lists identify 14 PPKs of 0.5lb (227g) each stowed in the Command Module
+plus 3 PPKs of 0.9lb (408g) stowed in the Lunar Module at launch. As with Apollo 13, another larger CM PPK is identified
+but no weight is specified. This may be a PPK dedicated to carrying beta cloth patches but there's no way to know for sure.
+
+ITEM NUMBER
+PART NUMBER
+NOMENCLATURE
+UNIT WEIGHT
+QTY/ SC
+STOWAGE LOCATION
+
+A 0112.
+SEB12100018-202
+KIT, PILOTS PREFERENCE
+.5
+14
+CM AT LAUNCH
+
+A 0159.
+SEB12100025-201
+KIT, PILOTS PREFERENCE
+
+1
+CM AT LAUNCH
+
+A 1007.
+SEB12100018-202
+KIT, PILOTS PREFERENCE (PPK)
+.9
+3
+LM AT LAUNCH
+
+Apollo 14 Stowage List - Personal Preference Kit entries compiled from Lists A, B and C
+
+Ignoring the larger bag, Apollo 14 continues with three PPKs stowed in the LM, presumably one per crewmember, but the weight of these have been boosted from 0.5lb to 0.9lb each. The Revision Notice section of the lists
+notes this as "WT. CHG FROM .5 02-09-71"
+
+There are now also 14 PPKs of 0.5lb on the Command Module, up from 11 on Apollo 13. Again, it
+is not clear how these were divided amongst the crew but each must have had at least three or four PPKs. Apollo 14 set the record
+for the highest total weight of PPKs at 9.7lb (4.4kg).
+
+Apollo 15
+
+For Apollo 15 the stowage lists identify three PPKs of only 0.1lb (45g) each stowed in the Command Module
+plus just one PPK of 0.1lb stowed in the Lunar Module at launch. Two other CM PPKs are identified but no weight is specified for these.
+
+ITEM NUMBER
+PART NUMBER
+NOMENCLATURE
+UNIT WEIGHT
+QTY/ SC
+STOWAGE LOCATION
+
+A 0112.
+SEB12100018-202
+KIT, PILOTS PREFERENCE
+.1
+3
+CM AT LAUNCH
+
+A 0166.
+SEB12100018-204
+KIT, PILOTS PREFERENCE
+
+1
+CM AT LAUNCH
+
+A 0167.
+SEB12100018-205
+KIT, PILOTS PREFERENCE
+
+1
+CM AT LAUNCH
+
+A 1007.
+SEB12100018-205
+KIT, PILOTS PREFERENCE (PPK)
+.1
+1
+LM AT LAUNCH
+
+Apollo 15 Stowage List - Personal Preference Kit entries compiled from Lists A, B and C
+
+Ignoring the odd items 0166 and 0167, Apollo 15 shows a dramatic reduction in PPKs from the previous
+flights. Instead of three PPKs of 0.5lb each in the Lunar Module there was apparently just one of 0.1lb. In fact it looks like
+the listing only gives the weight of the bag itself rather than the contents but it's impossible to know for sure. The single PPK bag
+may actually have contained the three PPKs of the astronauts. In any case
+it is worth noting that in his book "To Rule The Night" , Apollo 15 LMP Jim Irwin states that the LM PPK was
+accidentally left behind on the Lunar Module during the mission. Read the extract
+
+here .
+
+In place of the 14 PPKs of 0.5lb each carried on the Command Module of Apollo 14, we have
+just three PPKs (presumably one per crewmember) of 0.1lb each. Again, this seems like it might just be the weight of the bag itself
+so perhaps they did carry 0.5lb each on the CM.
+
+Apollo 16
+
+For Apollo 16 the stowage lists identify 12 PPKs of 0.1lb (45g) each stowed in the Command Module
+plus just one PPK of 0.1lb stowed in the Lunar Module at launch.
+
+ITEM NUMBER
+PART NUMBER
+NOMENCLATURE
+UNIT WEIGHT
+QTY/ SC
+STOWAGE LOCATION
+
+A 0112.
+SEB12100018-202
+KIT, PILOTS PREFERENCE
+.1
+12
+CM AT LAUNCH
+
+A 1007.
+SEB12100018-202
+KIT, PILOTS PREFERENCE (PPK)
+.1
+1
+LM AT LAUNCH
+
+Apollo 16 Stowage List - Personal Preference Kit entries compiled from Lists A, B and C
+
+Apollo 16 follows the pattern set by Apollo 15 of listing just one PPK of 0.1lb in the
+Lunar Module. Again, this single bag likely contained the three PPks of the astronauts. Instead of Apollo 15s
+three CM PPKs of 0.1lb each, Apollo 16 has 12. As with Apollo 15 it appears
+as if only the weight of the empty bags is being given rather the weight of the loaded bags.
+
+Apollo 17
+
+For Apollo 17 the stowage lists identify three Astronaut Preference Kits of 0.5lb (227g) each, stowed in a single bag
+in the Command Module at launch but later transferred to the Lunar Module for the landing.
+
+ITEM NUMBER
+PART NUMBER
+NOMENCLATURE
+UNIT WEIGHT
+QTY/ SC
+STOWAGE LOCATION
+
+A 0181.
+SEC12100087-301
+KIT, ASTRONAUT PREFERENCE (APK) (3 IN ONE BAG)
+1.5
+1
+CM AT LAUNCH T/SFER TO LM
+
+Apollo 17 Stowage List - Personal Preference Kit entries compiled from Lists A, B and C
+
+The rules for Astronaut Preference Kits were re-written following the Apollo 15 unauthorized
+covers scandal and applied in time for the Apollo 17 mission. The rules
+specified that each astroanut had one APK (stowed in the Lunar Module) which could contain a maximum of 12 individual items and weigh 0.5lb at most.
+
+Annex: NASA-issue PPK & AFK bags sold at auction or identified in private or museum collections
+
+Mssn. Astronaut Status P/N S/N Sold via Sale Date Lot no. Price Reference / Notes
+
+GT4 McDivitt FLOWN Astro-Auction Mid 2008 $2,392
+
+Bonhams Sep 27 2017 71 $2,750 Auction Listing
+
+GT4 White FLOWN Swann Apr 2 2005 66 $3,910
+
+GT4 White FLOWN Superior May 15 1999 402 $3,450 Marked "78 silver" (medallions)
+
+Superior May 18 1996 201
+
+GT4 White FLOWN Superior May 15 1999 403 $7,015 Marked "1 gold / 24 silver" (Medallions)
+
+Superior Oct 28 1995 352
+
+GT7 Borman FLOWN Donated to Experimental Aircraft Association Aviation Museum, Oshkosh, WI EAA Aviation Museum website
+
+GT10 Young FLOWN CF 55053-1 Heritage Oct 8 2009 38 $2,988 Auction Listing
+
+GT10 Collins FLOWN CF 55053-2 Heritage Jun 2 2022 50014 $13,750 Marked "FLAGS PATCHES"
+Auction Listing
+
+GT11 Gordon FLOWN CF 55053-1 Aurora Apr 1 2006 149A $2,644
+
+RRAuction Nov 20 2014 141 $5,461 Auction Listing
+
+AS7 Cunningham FLOWN Swann Mar 27 2004 124 $4,830
+
+AS7 Cunningham FLOWN Odyssey 1995 93 Unsold
+
+AS7 Cunningham FLOWN Odyssey 1994 147 Unsold
+
+AS8 Borman FLOWN SEB 12100018-202 1012 Donated to Experimental Aircraft Association Aviation Museum, Oshkosh, WI Marked "MERRY CHRISTMAS" & "FRANK BORMAN" ; EAA Aviation Museum website
+
+AS8 Lovell FLOWN SEB 12100018-202 1013 Heritage Oct 7 2008 80 $6,573 Auction listing
+
+AS8 Borman FLOWN SEB 12100018-202 1014 Donated to Experimental Aircraft Association Aviation Museum, Oshkosh, WI EAA Aviation Museum website
+
+AS8 Lovell FLOWN SEB 12100018-202 1018 Heritage Apr 1 2009 54 $5,676 Auction Listing
+
+AS9 McDivitt FLOWN SEB 12100018-202 1038 Astro-Auction Aug 4 2008 $2,550 Private collection.
+
+AS9 Schweickart FLOWN SEB 12100018-202 1025 Heritage Nov 30 2011 40060 $2,271 Auction listing
+
+AS9 Schweickart FLOWN SEB 12100018-202 1032 Heritage Nov 30 2011 40061 $1,673 Auction listing
+
+AS9 Schweickart FLOWN SEB 12100018-202 1039 Heritage Nov 30 2011 40062 $2,271 Auction listing
+
+AS9 McDivitt FLOWN SEB 32100025-301 1004 AstronautCentral 2012 n/a $3,600 Larger size 10"x11.5"
+Cue card bag
+
+AS10 Young FLOWN SEB 12100018-202 1034 Heritage Apr 1 2009 111 $4,183 Auction Listing
+
+AS11 Aldrin CM FLOWN SEB 12100018-202 1057 Superior May 16 1998 748D $3,220 Marked "BUZZ CM A8"
+
+RRAuction Jun 25 2015 5048 $49,000 Auction listing
+
+AS11 PAO CM FLOWN SEB 12100018-202 1058 Referenced in Armstrong PPK lists as flown for NASA Public Affairs Office. Held stamp materials. Article
+
+AS11 Aldrin CM FLOWN SEB 12100018-202 1061 Superior Oct 26 1996 306 Marked "BUZZ CM R13"
+
+AS11 Armstrong CM FLOWN SEB 12100018-202 1062 Referenced in Armstrong PPK lists as 1 of his 2 CM PPKs. Article
+
+AS11 Collins CM FLOWN 1069 Part of Smithsonian collection, NASM Marked "MIKE CM A8"
+NASM collection
+
+AS11 Armstrong CM FLOWN SEB 12100018-202 1070 Referenced in Armstrong PPK lists. Held shave kit and watch. Article
+
+AS11 Collins CM FLOWN SEB 12100018-202 1071 Heritage Jun 2 2022 50055 $13,750 Marked "MIKE CM A8"
+Auction Listing
+
+AS11 Collins CM FLOWN SEB 12100018-202 1072 Heritage Dec 15 2022 50066 $37,500 Auction Listing
+
+AS11 Armstrong LM FLOWN SEB 12100018-202 1076 Referenced in Armstrong PPK lists as his LM PPK. Article
+
+AS11 PAO LM FLOWN SEB 12100018-202 1080 Referenced in Armstrong PPK lists as holding the LM flag kit. Article
+
+AS11 Armstrong CM FLOWN SEB 12100018-202 1081? Referenced in Armstrong PPK lists as 1 of his 2 CM PPKs. Article
+
+AS11 Aldrin LM FLOWN SEB 12100018-202 1085 Superior Feb 25 1995 327A $1,150 Marked "ALDRIN-LM"
+
+RRAuction Apr 16 2020 8218 UNSOLD
+
+RRAuction Oct 21 2021 3201 UNSOLD
+
+AS12 Conrad FLOWN SEB 12100018-202 1054 Aurora Apr 24 2004 535 $2,820
+
+AS12 Conrad FLOWN SEB 12100018-202 1055 Odyssey 1995
+
+AS12 Conrad CM FLOWN Odyssey 1995 145 $805
+
+AS12 Conrad CM FLOWN Odyssey 1994 216 Unsold
+
+AS12 Conrad LM FLOWN Odyssey 1995 150 $1,725 Marked "Shaving gear, Tapes"
+
+AS12 Conrad LM FLOWN Odyssey 1994 217 Unsold
+
+AS13 Lovell FLOWN SEB 32100025-301 1016 Regency Jan 16 2010 222 TBD Larger size 10"x10"
+
+Regency Apr 16 2009 272 Unsold
+
+Heritage Oct 7 2008 104 $8,575 Auction listing
+
+AS13 Haise FLOWN SEB 12100018-202 1075 Bonhams Jul 16 2009 241 Unsold Marked "Shave kit, 4 of 12"
+
+AS14 Mitchell CM FLOWN SEB 32100025-301 1047 Heritage Nov 2 2012 40173 $4,780 Larger size 10"x11.5"
+Auction listing
+
+Bonhams Oct 23 2024 96 $7,680 Auction listing
+
+AS14 Mitchell CM FLOWN SEB 12100018-202 1112 Nate D Sanders Apr 12 2011 121 $3,119 Auction listing
+
+RRAuction Nov 29 2012 500 $3,319 Auction listing
+
+AS14 Mitchell FLOWN SEB 12100018-202 1113 Heritage Nov 30 2011 40153 $8,365 Auction listing
+
+AS14 Mitchell LM FLOWN SEB 12100018-202 1114 Heritage Nov 2 2012 40172 $3,884 Auction listing
+
+AS14 Mitchell LM FLOWN SEB 12100018-202 1099 Spacerelics website
+
+AS15 Scott CM FLOWN SEB 12100018-204 1177 RRAuction Oct 20 2016 6375 UNSOLD
+
+RRAuction Apr 20 2017 8335 UNSOLD
+
+RRAuction Jun 14 2017 45 $6,125 Auction listing
+
+RRAuction Oct 21 2021 3374 UNSOLD
+
+RRAuction Apr 21 022 9378 $6,875 Auction listing
+
+AS15 Scott CM FLOWN SEB 32100025-301 1049 RRAuction Dec 7 2016 51 $4,447 Auction listing
+
+AS15 Scott LM FOWN SEB 32100025-303 1025 RRAuction Oct 19 2017 8403 $12,240 LM Transfer bag ; Auction listing
+
+AS15 Irwin FLOWN SEB 12100018-202 1130 Odyssey 1994 228 Unsold From Irwin's estate
+
+Odyssey 1995 181 $1,725
+
+Regency Dec 3 2005 478 $4,025
+
+Regency Oct 11 2007 480 $2,645
+
+RRAuction Apr 28 2015 263 UNSOLD
+
+RRAuction Oct 23 2015 9405 $2,512 Auction listing
+
+AS15 Worden CM FLOWN SEB 12100018-202 1128 Superior Feb 25 1995 547 $977
+
+RRAuction Jun 25 2015 5080 $6,738 Auction listing
+
+AS16 Young FLOWN SEB 12100018-202 1146 Heritage Oct 8 2009 142 Unsold Unsold at $4,182.50
+
+Heritage Apr 1 2009 127 Unsold Auction listing
+
+RRAuction Jan 20 2011 337 $6,019 Auction listing
+
+RRAuction Nov 21 2013 677 $6,211 Auction listing
+
+AS16 Young FLOWN SEB 12100018-202 1145 Heritage Oct 8 2009 141 Unsold Unsold at $4,182.50
+
+Heritage Apr 1 2009 128 Unsold Auction listing
+
+AS16 Young FLOWN SEB 12100018-202 1149 Heritage Apr 1 2009 129 $4,481 Auction listing
+
+AS16 Duke LM FLOWN SEB 12100018-202 1150 Peachstate Spacerelics website
+
+AS16 Duke LM FLOWN Odyssey 1995 253 Unsold
+
+AS16 Duke Unknown SEB 12100018-202 1144 Heritage May 19 2017 50155 $2,250 Auction listing <a href="http://historical.ha.com/c/item.zx?saleNo=6173&lotNo=
+
+AS17 Cernan LM FLOWN APK/SEC 12100087-301 1007 Heritage Mar 25 2008 31 $11,651 Auction Listing
+
+RRAuction Apr 23 2015 287 $12,826 Auction listing
+
+AS17 Cernan LM FOWN SEB 32100025-301 1041 RRAuction Apr 18 2019 5420 $18,751 LM Transfer bag ; Auction listing
+
+SLIII Carr FLOWN APK/SEC 12100087-301 1088 ASF Auction Aug 12 2006 $2,400 Auction Listing
+
+SLIII Carr FLOWN APK/SEC 12100087-301 1024 Heritage Dec 15 2023 50256 TBD (with 4 flown cassette tapes) Auction Listing
+
+SLII Lousma FLOWN APK/SEC 12100087-301 1006 Heritage Jun 3 2011 41214 $1,315 Auction Listing
+
+n/a n/a UNFLOWN APK/SEC 12100087-301 1100 Goldberg Jul 1 2018 770 TBD Flight spare 1973 ; Auction Listing
+
+n/a n/a UNFLOWN APK/SEC 12100087-301 1216 SWOF Auction Nov 18 2017 339 $660 Flight spare 1974 ; Auction Listing
+
+Footnotes :
+
+[1] Wally Schirra's Gemini 6A PPK manifest can be seen in the Resources section of CollectSpace.com .
+
+[2] Neil Armstrong's Apollo 11 PPK manifest, and NASA's Public Affairs Office OFK listings can be seen in an article on CollectSpace.com .
+
+Legal Disclaimer:
+
+While every effort is made to ensure that the content of this website is accurate, the website is provided as is and I make no representations or warranties in relation to the accuracy or completeness of the information found on it. Nothing on this website should be taken to constitute professional advice or a formal recommendation and the author excludes all representations and warranties relating to the content and use of this site.
+
+In no event shall the author be liable for any incidental, indirect, consequential or special damages of any kind, or any damages whatsoever, including, without limitation, those resulting from loss of profit, goodwill, income, or anticipated savings, whether or not advised of the possibility of such damage, arising out of or in connection with the use of this website or any linked websites.
+
+< Previous Guide
+[ Back to the Guide ]
+Next Guide >

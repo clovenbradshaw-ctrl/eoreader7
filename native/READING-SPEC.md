@@ -2820,3 +2820,36 @@ does not cross; those stay refused and disclosed under P84(1).
 
 `ranke-slicers.mjs` records per-note verdicts on every checkpoint now;
 tallies alone made the seven recoverable only by subtraction.
+
+## S50 — The hypergraph is rich by default: a received prior's verb is an act on first arrival, the chain rides in the act, and a capitalised recurrence is a surface (2026-09-02)
+
+**Generality:** universal (the three gates; the surface guard; the
+walk-level null); specimen-scoped (the counts).
+
+User: *"I think the hypergraph should be this rich ALWAYS"*, after S49's
+notes-against-notes pass showed every note on both sides folding to
+`subject —were→ the rest of the sentence`. Read at zero calls one gate at
+a time (`eval/the-fold/results/rich-extraction-RESULTS.md`): the
+recurrence floor keeps unsupervised vocabulary discovery honest but
+starves a one-page face, where *placed* arrives once and can never be an
+act; UniMorph English is a 10k-form sample that lacks *placed, retrieved,
+launched*; and DR5's auxiliary chain was built and never wired into the
+walk. `organs.attestedVerbs` (declared, off in the organ, byte-identical
+otherwise) admits a form a received prior attests as verb-dominant on its
+first arrival; the walk passes UniMorph ∪ UD English-EWT verb-dominant
+forms with the chain on, by default (`RICH=0` reproduces every earlier
+run). The leak it opened — *Buzz* recurs, UD attests *buzz*, the widening
+read `Armstrong and —buzz→ Aldrin` — is closed on both widening paths by
+the passage's own casing: a form capitalised away from a sentence start
+more often than lowercase is a surface, not an act.
+
+Walk-level null, offline, 0 calls, 150 faces: notes 524 → 674, bare-
+auxiliary acts 245 → 131, same-sentence real 31 → 57 against control 21 →
+31, through the note's own footnote 8 → 17 against 2 → 5. Half the
+same-sentence gain is notes of three content words or fewer, said plainly;
+a length-aware null is owed before that count stands alone. What the rich
+graph still lacks is named: coordination as one edge, passives unturned,
+the object as the whole predicate, the vocabulary gap. Three labels need
+re-keying on their article sentence. 111 model calls were spent
+undeclared by the walk's own witness on the live and first offline runs;
+recorded, and `WITNESS=0` on every measurement run since.

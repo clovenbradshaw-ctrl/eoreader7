@@ -1,0 +1,116 @@
+[
+  {
+    "id": "camera|had|been used to capture images of the first moon landing",
+    "pos": 42,
+    "status": "stated",
+    "faceEdges": 7,
+    "pronoun": false,
+    "real": null,
+    "control": null
+  },
+  {
+    "id": "collins|recovered|he joined armstrong's crew as cmp",
+    "pos": 45,
+    "status": "stated",
+    "faceEdges": 9,
+    "pronoun": false,
+    "real": null,
+    "control": null
+  },
+  {
+    "id": "five sites|were|considered: sites 1 and 2 were in the sea of tranquility ( mare tranquillitatis )",
+    "pos": 54,
+    "status": "stated",
+    "faceEdges": 5,
+    "pronoun": false,
+    "real": null,
+    "control": null
+  },
+  {
+    "id": "they|found|on the atlantic seabed using advanced sonar scanning",
+    "pos": 149,
+    "status": "stated",
+    "faceEdges": 13,
+    "pronoun": true,
+    "real": null,
+    "control": null
+  },
+  {
+    "id": "a special display of armstrong's suit|was|unveiled for the 50th anniversary of apollo 11 in july 2019",
+    "pos": 3,
+    "status": "stated-prospective",
+    "faceEdges": 17,
+    "pronoun": false,
+    "real": null,
+    "control": null
+  },
+  {
+    "id": "the soviets|took|the lead on april 12",
+    "pos": 136,
+    "status": "stated-partial",
+    "faceEdges": 3,
+    "pronoun": false,
+    "real": {
+      "note": "the Soviet Union —take→ the lead in the rapidly escalating space race",
+      "sent": "In the late 1950s the United States watched the Soviet Union take the lead in the rapidly escalating space race.",
+      "score": 3,
+      "subj": true,
+      "labeled": true
+    },
+    "control": null
+  },
+  {
+    "id": "all of the|collected|materials were flown to ellington air force base in houston and taken to the lunar receiving laboratory (lrl) within 48 hours of splashdown",
+    "pos": 12,
+    "status": "stated",
+    "faceEdges": 67,
+    "pronoun": true,
+    "real": null,
+    "control": null
+  },
+  {
+    "id": "bigs|were|worn until they reached isolation facilities on board hornet",
+    "pos": 38,
+    "status": "stated",
+    "faceEdges": 67,
+    "pronoun": false,
+    "real": null,
+    "control": null
+  },
+  {
+    "id": "the astronauts|were|winched on board the recovery helicopter",
+    "pos": 113,
+    "status": "stated",
+    "faceEdges": 67,
+    "pronoun": false,
+    "real": null,
+    "control": null
+  },
+  {
+    "id": "they|would|fly to hornet in marine one for a few hours of ceremonies",
+    "pos": 150,
+    "status": "stated",
+    "faceEdges": 67,
+    "pronoun": true,
+    "real": null,
+    "control": null
+  },
+  {
+    "id": "hornet|launched|four sea king helicopters and three grumman e-1 tracers",
+    "pos": 61,
+    "status": "stated-partial",
+    "faceEdges": 67,
+    "pronoun": false,
+    "real": null,
+    "control": null
+  },
+  {
+    "id": "of mission|launch|date july 16",
+    "pos": 91,
+    "status": "stated",
+    "faceEdges": 55,
+    "pronoun": false,
+    "real": null,
+    "control": null
+  }
+]
