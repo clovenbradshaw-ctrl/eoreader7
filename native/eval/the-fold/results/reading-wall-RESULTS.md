@@ -187,3 +187,51 @@ witness changed.
 `results/reading-wall-{fragment,article}.{json,log}`. `ranke-slicers.mjs`
 gained `CLAIM=fragment|article`, `LABELED=<status prefix>`, and per-note
 verdicts (`perNote`) on every checkpoint.
+
+---
+
+# Notes against notes (2026-09-02, later): the grain is the wall
+
+User: *"it never says it literally, but can't we compare hypergraphical
+notes?"* — `note-match-zero.mjs`, `results/note-match-zero.json`. **0 calls.**
+
+The cited face is folded with the SAME relation reader that folded the
+article (`makeRelationReader`, same organs, same priors), and the article
+note is matched against the face's own edges: subject by shared features
+through `sameAct`, act by lemma, object by feature overlap; a pronoun
+subject is typed unresolved rather than matched loosely. The rotated end2
+is the control. Then, as a second arm, the reader's own `read(article
+sentence)` against the face — the binding by referent identity the
+hypergraph already does for every answer.
+
+| | matched | on a labeled sentence | control matched |
+|---|---|---|---|
+| structural match, 12 labeled notes | 1 | 1 (note 136, graded partial) | 0 |
+| `read()` binding, 12 labeled notes | 0 bound (9 unbound/unheard/beyond-reach, 3 no claims) | — | — |
+
+**Why: the notes are sentence-shaped.** Both sides' edges are `subject —
+first verb → the rest of the sentence`. On the face, the sentence that
+states note 12 folds to *"the two containers —were→ placed aboard a C-141
+cargo aircraft and flown directly to Ellington Air Force Base (AFB) near
+MSC in Houston"*; note 61's to *"Hornet —was→ still steaming toward the
+splashdown point but it had launched recovery helicopters already
+approaching their operational stations"*. Across the 127 object-missing
+partials the act is an auxiliary on 40 (`was` 25, `were` 8, `had` 7). A
+passive ("were found") carries its verb inside the object; a coordination
+("placed … and flown …") is one edge; the object is the whole predicate.
+Comparing these structurally is comparing sentence strings with the
+subject removed — which is what containment already did, and it is
+exactly the grain gap the hyperlexicon work named: **a grain gap floors
+where a vocabulary gap degrades.** Six of the twelve stating sentences
+yield no edge at all (lists, captions, quotations, "one by one retrieved").
+
+**So the answer is yes, and not yet.** Note-to-note comparison is the
+right organ and it exists (`read()` is it). It cannot cross paraphrase
+until the extraction cuts finer: the verb chain resolved to its head act
+(`were placed` → `placed`; passive turned so the patient is the subject),
+coordination split into edges, the object reduced to its head phrase. That
+is an extraction-grain change in `adapters/text/relations.js` and the
+reader, with its own control (the same 12 labels, the same rotation), not
+a matcher. The reader model stays where it is until then; the vocabulary
+gap (`film footage` / `capture images`) is the only part of this wall a
+model or lexicon could earn under P85, and it is the smaller part.
