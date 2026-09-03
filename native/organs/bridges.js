@@ -59,7 +59,8 @@ export const BRIDGE_REFUSALS = Object.freeze({
   NO_INCOMING_FACE: "no_incoming_face",
 });
 
-const priorSideKey = (from) => [...new Set(from ?? [])].sort().join("+");
+/** The sorted, deduplicated key for "which sources already stood on this note" — the same key a join's own `from` and a bridge's `end1` prefix both use, so a caller deriving a bridge id independently (bridge-witness.js) computes the identical id. */
+export const priorSideKey = (from) => [...new Set(from ?? [])].sort().join("+");
 
 /**
  * deriveBridgeArrangements(note) — every referent correspondence a note's

@@ -3144,3 +3144,108 @@ the copy and is inert on furniture-free prose, and one proving a reader
 without the organ is unaffected by a chunker that had one), `eval/the-fold/furniture-page-context.mjs` +
 `results/furniture-page-context-RESULTS.md`. Full suite: 22 failures,
 identical by name to `origin/main` — zero regressions.
+## S52 — Pass 12 step 4: a witness reads a bridge, and the reading is bounded by the match that made it
+
+**Generality:** universal.
+
+S49 recorded referent bridges as their own corroboratable objects and named
+its own gap in the same breath: a bridge reaches `corroborated` only when a
+SECOND independently-derived content note happens to assume the identical
+correspondence, so 40 of that run's 43 bridges stood `single-witness` with
+nothing in the mechanism able ever to move them. `organs/bridge-witness.js`
+is the asking.
+
+**The question is not any other witness's question**, which is why it is not
+answered by reusing one. `corroboration.js::witnessNote` (and `ranke.js`
+through it) asks *does this source state this PROPOSITION* — a claim against
+a body of text. A bridge asks *do these two MENTIONS, each already read in
+its own document, name the SAME REFERENT* — a correspondence between two
+already-addressed spans, never a search. `testimony.js::buildSelectMessages`
+is worded for the first question and would put the wrong question to the
+model, so this file writes its own prompt on the SAME schema shape
+(`{stated, sentence}`, point-never-write) and reuses `foldSelect` UNCHANGED:
+one response-parser, two questions.
+
+**The arm mirrors witnessNote's real+decoy shape rather than folding both
+into one multi-candidate call** (P85's own postmortem: every arm in this
+codebase runs twice; one call risks position bias contaminating both
+readings). The decoy is a SIBLING bridge candidate — same incoming source,
+different prior face — a real competing referent from the very document
+being read. An unarmed "same" is refused, not trusted (witnessNote's own
+"an unchallenged yes is not a second witness"); an unarmed "no" still
+stands, because withholding trust in a yes is not disbelieving a no.
+
+**DIAGNOSTIC AND ACT KEPT APART**, `dietBoundaries`/`concedeDiet`'s own
+precedent: `witnessBridge` decides and touches no ledger;
+`applyBridgeWitness` lands a `same` as an additional witness and, on a
+`different`, returns a NAMED SUGGESTION (a ready `concede` trigger) rather
+than conceding — retracting a bridge is a decision this file leaves to
+whoever holds that authority.
+
+**Measured on real material** (`eval/the-fold/bridge-witness-measurement.mjs`,
+the three fixtures S49 used, the SAME production pipeline copied from
+`bridge-object-measurement.mjs` rather than reimplemented — a driver that
+rebuilds the path it measures reports on a pipeline nobody runs, and this
+project paid for that once already). Live `gemma2:2b`, 60 calls, 161s, run
+twice at temperature 0 with identical results:
+
+| arm | landed "same" |
+|---|---|
+| real correspondence | 8 of 12 |
+| MISPAIRED control, wrong by construction | 2 of 12 |
+
+**Fisher exact, one-sided, α = 0.05 declared before the run: p = 0.0180.**
+The control separates. A bare inequality would not have been a result.
+
+**THE FINDING THAT MATTERS MORE, and it bounds the whole pass: 12 of 12
+examined candidates have two faces that are the IDENTICAL STRING.** Not a
+sampling accident — a bridge exists only where `hear()`'s exact-triple match
+already fired, so a paraphrased restatement never produces a join, never
+becomes a bridge candidate, and is never put to a witness. **Witnessing
+bridges therefore cannot touch the ~2% corroboration wall** (P74/P83), which
+is caused by propositions never matching in the first place; this organ
+operates strictly downstream of the match that never happened. Step 4 makes
+bridges ACCOUNTABLE; it does not make more of them.
+
+**A landed witness does not raise `standing`** — every witnessed bridge
+still reads `single-witness`, deliberately: `standingOf` counts distinct
+SOURCES, and one model reading two passages is not a second source. It
+appears in `kinds` instead (`{"bridge-inferred":1,"bridge-witness":1}`),
+counted apart and never summed — P84's own rule for `primary:` against
+account witnesses, applied one register over.
+
+**Files.** `organs/bridge-witness.js` (new; `contextOf`,
+`buildBridgeSelectMessages`, `witnessBridge`, `applyBridgeWitness`,
+`decoysFor`, `witnessBridgesFor`, `BRIDGE_WITNESS_KIND`) +
+`organs/bridge-witness.test.mjs` (new, 15 cases against the REAL kernel and
+REAL bridges.js, `selectAsk` scripted so every wall is covered offline —
+including a CONTROL BUILT TO FAIL: a picker that says yes to everything is
+refused `indiscriminate`. Mutation-checked: stripping the indiscriminate
+check, trusting an unarmed yes, and making `same` land nothing each fail the
+suite). `organs/bridges.js` (one line: `priorSideKey` exported, so a caller
+deriving a bridge id independently computes the identical id rather than
+restating the rule). `eval/the-fold/bridge-witness-measurement.mjs` +
+`results/bridge-witness-RESULTS.md`.
+
+**Gates.** organs 415 tests / 396 pass / 11 fail / 8 skipped; conformance+
+tests 499/488/10 — failure NAMES diffed against a baseline with this pass's
+files removed and `bridges.js` reverted: identical, zero regressions.
+
+**Disclosed limits.** The control may be easy (a mispaired passage is
+usually off-topic, so "different" is cheap); a harder same-topic control is
+named and unbuilt. n = 12, one material, one model. 4 of 12 real
+correspondences read "different" and no oracle adjudicated them. And the
+organ is unmeasured on non-identical faces, because this material produces
+none — the case bridges were designed for is the case this material cannot
+exercise.
+
+**Concurrent-work note.** `eoreader7` PR #16 (`codex/hyperlexicon-deep-
+reading`, open, 9,649 additions, based on a pre-S48 main) independently
+develops "earned identity at the shared bridge" in an entirely separate file
+set (`kernel/relation-composition.js`, `kernel/identity-groupoid.js`,
+`kernel/identity-quotient.js`, `kernel/hyperlexicon.js` the chemistry table).
+It touches none of `kernel/notes.js`, `organs/bridges.js`,
+`organs/testimony.js` or `organs/corroboration.js`, so there is no
+file-level conflict with this pass — but the two are thematically
+convergent, and reconciling them is real, named, unattempted work rather
+than something either side should assume away.
