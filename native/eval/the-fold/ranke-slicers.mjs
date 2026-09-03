@@ -252,19 +252,20 @@ async function arm(rows, label) {
   for (const name of WANT) {
     if (out[name] && !out[name].gap) { console.log(`  ${label} · ${name}: already on the checkpoint — states ${out[name].states}, skipped`); continue; }
     if (name === "embedding" && !embed) { out[name] = { gap: embedGap ?? { type: "skipped" } }; save(); continue; }
-    const t0 = Date.now(); const verdicts = {}; const landings = []; let offered = 0, noCandidates = 0;
+    const t0 = Date.now(); const verdicts = {}; const landings = []; const candKeys = []; let offered = 0, noCandidates = 0;
     for (const { row, ends, face } of rows) {
       const claim = R.claimOfNote(ends);
       const cands = await candidatesFor(name, face, ends, claim.sentence);
       if (cands == null) { noCandidates += 1; verdicts.no_slicer_candidate = (verdicts.no_slicer_candidate ?? 0) + 1; continue; }
       if (!cands.length) { noCandidates += 1; verdicts.no_candidate = (verdicts.no_candidate ?? 0) + 1; continue; }
       offered += 1;
+      candKeys.push(cands.map((c) => `${c.start ?? "?"}:${c.shown.slice(0, 60)}`));
       const w = await witnessNote(claim.sentence, { ref: row.host, text: face.src }, { ...witness, ends: { end1: ends.end1, end2: ends.end2 }, candidates: cands });
       const v = w.refused ? `refused:${w.refused}` : w.verdict;
       verdicts[v] = (verdicts[v] ?? 0) + 1;
       if (w.verdict === "states") landings.push({ note: row.note, host: row.host, because: String(w.because ?? "").replace(/\s+/g, " ").slice(0, 220), span: w.span?.at ?? null });
     }
-    out[name] = { offered, noCandidates, verdicts, states: verdicts.states ?? 0, contradicts: verdicts.contradicts ?? 0, landings, seconds: Math.round((Date.now() - t0) / 1000) };
+    out[name] = { offered, noCandidates, verdicts, states: verdicts.states ?? 0, contradicts: verdicts.contradicts ?? 0, landings, candKeys, seconds: Math.round((Date.now() - t0) / 1000) };
     save();
     console.log(`  ${label} · ${name}: offered ${offered}/${rows.length}, states ${verdicts.states ?? 0}, contradicts ${verdicts.contradicts ?? 0}, ${JSON.stringify(verdicts)} — ${Math.round((Date.now() - t0) / 1000)}s`);
   }
@@ -282,6 +283,18 @@ for (let i = 0; i < targets.length; i += 1) {
   // face, same slicer, a proposition the source does not make.
   const rot = endsOf(targets[(i + 1) % targets.length]);
   control.push({ row, ends: { end1: ends.end1, label: ends.label, end2: rot.end2 }, face });
+}
+// ONLY=3,42,45 — restrict the walk to declared note indices (positions in the
+// real[] order the coverage pass and the labels both use). The control row
+// keeps its rotation from the full target list: still a proposition the same
+// page does not make. Lets a budgeted run spend only where a label says the
+// answer is present to be pointed at.
+if (process.env.ONLY) {
+  const keep = new Set(process.env.ONLY.split(",").map((x) => Number(x.trim())).filter(Number.isFinite));
+  const r2 = [], c2 = [];
+  for (let i = 0; i < real.length; i += 1) if (keep.has(i)) { r2.push(real[i]); c2.push(control[i]); }
+  real.length = 0; control.length = 0; real.push(...r2); control.push(...c2);
+  console.log(`ONLY: walking ${real.length} declared notes [${[...keep].join(",")}]`);
 }
 const poolSizes = [...faceCache.values()].map((f) => f.pool.length).sort((x, y) => y - x);
 console.log(`faces: ${poolSizes.length}; candidate pool per face (identical for every slicer) median ${poolSizes[poolSizes.length >> 1]}, largest ${poolSizes[0]}\n`);
@@ -308,9 +321,19 @@ if (import.meta.main) {
     const r = realOut[name], c = ctlOut[name];
     if (r?.gap) { console.log(`  ${name.padEnd(13)} ${"—".padEnd(8)} ${"—".padEnd(6)} ${"—".padEnd(8)} unavailable: ${r.gap.detail ?? r.gap.type}`); license[name] = { verdict: "unavailable", gap: r.gap }; continue; }
     const sep = r.states - (c?.states ?? 0);
-    const verdict = r.offered === 0 ? "never offered — structurally inert on this class" : r.states === 0 ? "no landing — nothing to license" : sep <= 0 ? "REFUSED by its own control (II.23)" : "separates from control";
+    // Does the II.23 control actually change what this arm ranks? An arm that
+    // reads end1 only sees the identical top-K under a rotated end2, so any
+    // separation it shows is the WITNESS discriminating between two claims
+    // over the same eight sentences — real, but not a property of the slicer,
+    // and not the thing L3 licenses. Measured, not assumed: the zero-call
+    // pass found activation identical on 69/69 (slicer-coverage-RESULTS.md).
+    const rk = r.candKeys ?? [], ck = c?.candKeys ?? [];
+    const paired = Math.min(rk.length, ck.length);
+    const identical = paired ? rk.slice(0, paired).filter((k, i) => JSON.stringify(k) === JSON.stringify(ck[i])).length : 0;
+    const controlInert = paired > 0 && identical === paired;
+    const verdict = r.offered === 0 ? "never offered — structurally inert on this class" : r.states === 0 ? "no landing — nothing to license" : sep <= 0 ? "REFUSED by its own control (II.23)" : controlInert ? "separates — but the control saw the IDENTICAL candidates: this is the witness's separation, not the slicer's; L3 unmeasured for this arm" : "separates from control";
     console.log(`  ${name.padEnd(13)} ${String(r.offered).padEnd(8)} ${String(r.states).padEnd(6)} ${String(c?.states ?? 0).padEnd(8)} ${verdict}`);
-    license[name] = { verdict, offered: r.offered, states: r.states, controlStates: c?.states ?? 0, separation: sep };
+    license[name] = { verdict, offered: r.offered, states: r.states, controlStates: c?.states ?? 0, separation: sep, controlCandidatesIdentical: paired ? `${identical}/${paired}` : null };
   }
 
   console.log(`\nLANDINGS (the witness signed these; the decider is the source's own bytes):`);

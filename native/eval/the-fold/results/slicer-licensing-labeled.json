@@ -1,0 +1,335 @@
+{
+  "page": "wikipedia-apollo-11.html",
+  "objectMissingPartials": 162,
+  "walked": 6,
+  "K": 8,
+  "window": 3,
+  "model": "gemma2:2b",
+  "embedder": "skipped",
+  "modelCalls": 33,
+  "real": {
+    "containment": {
+      "offered": 6,
+      "noCandidates": 0,
+      "verdicts": {
+        "refused:indiscriminate": 2,
+        "refused:no-testimony": 3,
+        "states": 1
+      },
+      "states": 1,
+      "contradicts": 0,
+      "landings": [
+        {
+          "note": "They —found→ on the Atlantic seabed using advanced sonar scanning",
+          "host": "bbc.co.uk",
+          "because": "In a blog post, Mr Bezos said the five engines were found using advanced sonar scanning some 14,000ft (4,300m) below the Atlantic Ocean's surface.",
+          "span": "bbc.co.uk#130-276"
+        }
+      ],
+      "candKeys": [
+        [
+          "4044:\"We will have Neil Armstrong's spacesuit opening [on display",
+          "5371:Two glassed-in displays in \"Apollo to the Moon\" once exhibit",
+          "2572:Also on display here was a control panel and power-generatin",
+          "2769:Already removed from \"Apollo to the Moon\" but present in the",
+          "3003:Cernan's suit was displayed next to a test version of the lu",
+          "4159:And we're going to have a special case of Apollo 11 astronau",
+          "4242:Meanwhile, \"Apollo to the Moon\" is being replaced by \"Destin",
+          "4918:The one and a quarter F-1 engine display at the entrance to "
+        ],
+        [
+          "454:Neil Armstrong, the first man to walk on the moon, secretly ",
+          "1514:Most importantly, it contained the 16mm data acquisition cam",
+          "195:The Wayback Machine - https://web.archive.org/web/2020112914",
+          "1658:The camera was also used to record Armstrong going down the ",
+          "2102:But Mr Needell told CollectSpace.com: \"The 16mm DAC, given t",
+          "88:About this capture",
+          "1095:[Photos] Neil Armstrong's hidden #Apollo11 flown-to-the-moon",
+          "1945:The cartridges from the camera, containing the iconic footag"
+        ],
+        [
+          "7261:Armstrong and Aldrin had served on the backup crew for Apoll",
+          "7076:Armstrong, Command Module Pilot (CMP) Michael Collins, and L",
+          "94:SpaceX Crew-2",
+          "506:NASA, SpaceX Adjust Crew-13 Launch Date",
+          "3270:NASA, SpaceX Adjust Crew-13 Launch Date",
+          "5995:President Honors NASA’s Artemis II Crew with Highest US Spac",
+          "6421:50 Years Ago: NASA Names Apollo 11 Crew",
+          "6517:9, 1969, NASA formally announced the crew for the Apollo 11 "
+        ],
+        [
+          "7036:All five sites were within the Apollo Zone of Interest, an a",
+          "7294:- Site One: 34o East, 2o40” North, in the Sea of Tranquility",
+          "7381:- Site Two: 23o37” East, 0o45” North, in the Sea of Tranquil",
+          "6532:Map of the Moon showing the five candidate landing sites cho",
+          "6717:On February 8, 1968, after two years of study NASA’s Apollo ",
+          "6872:Each of the five 3 by 5-mile landing areas, chosen from an o",
+          "7235:The sites were centered around the following coordinates:",
+          "7635:- Site Five: 41o40” West, 1o40” North, in the Ocean of Storm"
+        ],
+        [
+          "227:In the late 1950s the United States watched the Soviet Union",
+          "340:The Soviet lead was both embarrassing and menacing to a nati"
+        ],
+        [
+          "130:In a blog post, Mr Bezos said the five engines were found us",
+          "620:They burned for just a few minutes before separating from th",
+          "462:The F-1 engines were used on the giant Saturn V rocket , ext",
+          "1271:\"I was five years old when I watched Apollo 11 unfold on tel",
+          "1547:\"We don't know yet what condition these engines might be in ",
+          "1697:On the other hand, they're made of tough stuff, so we'll see"
+        ]
+      ],
+      "seconds": 28
+    },
+    "random": {
+      "offered": 6,
+      "noCandidates": 0,
+      "verdicts": {
+        "states": 1,
+        "refused:indiscriminate": 1,
+        "refused:no-testimony": 4
+      },
+      "states": 1,
+      "contradicts": 0,
+      "landings": [
+        {
+          "note": "A special display of Armstrong's suit —was→ unveiled for the 50th anniversary of Apollo 11 in July 2019",
+          "host": "collectspace.com",
+          "because": "'Apollo to the Moon' no more: Air and Space Museum closes gallery",
+          "span": "collectspace.com#197-262"
+        }
+      ],
+      "candKeys": [
+        [
+          "197:'Apollo to the Moon' no more: Air and Space Museum closes ga",
+          "3424:The hall's exit also offered an exhibit of several moon rock",
+          "6231:(collectSPACE)",
+          "6975:(collectSPACE)",
+          "7253:(collectSPACE)",
+          "6379:(collectSPACE)",
+          "4918:The one and a quarter F-1 engine display at the entrance to ",
+          "5948:Turning the corner from the F-1 engine, visitors touring \"Ap"
+        ],
+        [
+          "1860:Armstrong stepped onto the lunar surface at 02:56:15 (UT) on",
+          "2223:The white cloth storage bag itself was known as a \"McDivitt ",
+          "391:Jump to navigation",
+          "108:COLLECTED BY",
+          "2630:It was not unusual for astronauts to keep small surplus piec",
+          "1265:\"Needless to say, for a curator of a collection of space art",
+          "148:Web crawl data from Common Crawl.",
+          "195:The Wayback Machine - https://web.archive.org/web/2020112914"
+        ],
+        [
+          "1617:- Earth Science",
+          "925:- OSIRIS-Rex",
+          "1051:- Living in Space",
+          "2583:- Doing Business with NASA",
+          "2733:News & Events",
+          "7581:Lovell, CMP William A.",
+          "1938:- Supersonic Flight",
+          "2812:- Podcasts & Audio"
+        ],
+        [
+          "2408:- STEM Engagement at NASA",
+          "23:Climate Change",
+          "7547:- Site Four: 36o25” West, 3o30” South, in the Ocean of Storm",
+          "975:- Astronauts",
+          "3791:11 hours ago",
+          "6304:La NASA refuerza Artemis: añade una misión y perfecciona su ",
+          "3109:- NASA Brand & Usage Guidelines",
+          "3074:- Interactives"
+        ],
+        [
+          "906:The Moon landing was a stunning achievement that commanded w",
+          "340:The Soviet lead was both embarrassing and menacing to a nati",
+          "1944:inquire@nara.gov",
+          "489:Kennedy challenged the nation to landing a man on the Moon b",
+          "634:The Apollo program, created to meet the goal of landing men ",
+          "1768:[ American Originals Menu ]",
+          "449:On May 25, 1961, when President John F.",
+          "1378:Split television screen showing President Nixon in the White"
+        ],
+        [
+          "462:The F-1 engines were used on the giant Saturn V rocket , ext",
+          "2611:26 March 2012",
+          "1777:His privately funded team was planning to raise one or more ",
+          "620:They burned for just a few minutes before separating from th",
+          "952:Image caption,",
+          "2563:Sub reaches Earth's deepest place",
+          "2005:Nasa said it looked forward to hearing more about the recove",
+          "2100:Other elements of the Apollo missions - including the Apollo"
+        ]
+      ],
+      "seconds": 19
+    }
+  },
+  "control": {
+    "containment": {
+      "offered": 6,
+      "noCandidates": 0,
+      "verdicts": {
+        "refused:indiscriminate": 2,
+        "refused:no-testimony": 4
+      },
+      "states": 0,
+      "contradicts": 0,
+      "landings": [],
+      "candKeys": [
+        [
+          "4044:\"We will have Neil Armstrong's spacesuit opening [on display",
+          "5371:Two glassed-in displays in \"Apollo to the Moon\" once exhibit",
+          "2572:Also on display here was a control panel and power-generatin",
+          "2769:Already removed from \"Apollo to the Moon\" but present in the",
+          "3003:Cernan's suit was displayed next to a test version of the lu",
+          "3252:In total, \"Apollo to the Moon\" showcased more than 200 artif",
+          "4159:And we're going to have a special case of Apollo 11 astronau",
+          "4242:Meanwhile, \"Apollo to the Moon\" is being replaced by \"Destin"
+        ],
+        [
+          "454:Neil Armstrong, the first man to walk on the moon, secretly ",
+          "1658:The camera was also used to record Armstrong going down the ",
+          "2223:The white cloth storage bag itself was known as a \"McDivitt ",
+          "195:The Wayback Machine - https://web.archive.org/web/2020112914",
+          "815:Allan Needell, a curator at the National Air and Space Museu",
+          "1514:Most importantly, it contained the 16mm data acquisition cam",
+          "1860:Armstrong stepped onto the lunar surface at 02:56:15 (UT) on",
+          "1945:The cartridges from the camera, containing the iconic footag"
+        ],
+        [
+          "7076:Armstrong, Command Module Pilot (CMP) Michael Collins, and L",
+          "7715:Lovell and Anders had just completed the Apollo 8 lunar orbi",
+          "1747:- Lunar Science",
+          "2104:- Lunar Surface Technology",
+          "3630:NASA Will Attempt to Observe Rocket Part’s Lunar Impact",
+          "6110:La NASA anuncia la cobertura de la misión lunar Artemis II",
+          "6619:Planned as the fifth crewed Apollo mission, if all went well",
+          "7261:Armstrong and Aldrin had served on the backup crew for Apoll"
+        ],
+        [
+          "6872:Each of the five 3 by 5-mile landing areas, chosen from an o",
+          "7723:To select the five areas, the Board used high-resolution orb",
+          "6532:Map of the Moon showing the five candidate landing sites cho",
+          "6717:On February 8, 1968, after two years of study NASA’s Apollo ",
+          "7036:All five sites were within the Apollo Zone of Interest, an a",
+          "7635:- Site Five: 41o40” West, 1o40” North, in the Ocean of Storm",
+          "8039:- Smoothness of the area: the sites should have relatively f",
+          "8501:- Free-return: the sites must be within reach of the Apollo "
+        ],
+        [
+          "340:The Soviet lead was both embarrassing and menacing to a nati",
+          "227:In the late 1950s the United States watched the Soviet Union",
+          "906:The Moon landing was a stunning achievement that commanded w"
+        ],
+        [
+          "620:They burned for just a few minutes before separating from th",
+          "1271:\"I was five years old when I watched Apollo 11 unfold on tel",
+          "1547:\"We don't know yet what condition these engines might be in ",
+          "1697:On the other hand, they're made of tough stuff, so we'll see"
+        ]
+      ],
+      "seconds": 23
+    },
+    "random": {
+      "offered": 6,
+      "noCandidates": 0,
+      "verdicts": {
+        "states": 1,
+        "refused:indiscriminate": 1,
+        "refused:no-testimony": 4
+      },
+      "states": 1,
+      "contradicts": 0,
+      "landings": [
+        {
+          "note": "A special display of Armstrong's suit —was→ unveiled for the 50th anniversary of Apollo 11 in July 2019",
+          "host": "collectspace.com",
+          "because": "\"We will have Neil Armstrong's spacesuit opening [on display] in July 2019 for the 50th anniversary of Apollo 11 .",
+          "span": "collectspace.com#4044-4158"
+        }
+      ],
+      "candKeys": [
+        [
+          "4044:\"We will have Neil Armstrong's spacesuit opening [on display",
+          "5371:Two glassed-in displays in \"Apollo to the Moon\" once exhibit",
+          "3111:\"They actually had a kind of dune buggy, a rover that the as",
+          "6843:A ground test unit of the Apollo lunar roving vehicle (LRV),",
+          "2769:Already removed from \"Apollo to the Moon\" but present in the",
+          "2102:The optical illusion allowed for the sight of five of the en",
+          "?:Space News space history and artifacts articles Messages spa",
+          "1791:\"Actually, it is one and a quarter rocket engines, with mirr"
+        ],
+        [
+          "195:The Wayback Machine - https://web.archive.org/web/2020112914",
+          "2102:But Mr Needell told CollectSpace.com: \"The 16mm DAC, given t",
+          "454:Neil Armstrong, the first man to walk on the moon, secretly ",
+          "1514:Most importantly, it contained the 16mm data acquisition cam",
+          "1095:[Photos] Neil Armstrong's hidden #Apollo11 flown-to-the-moon",
+          "2518:He said: \"That (is) just a bunch of trash that we want to ta",
+          "391:Jump to navigation",
+          "2393:Armstrong did mention the bag to Michael Collins, the comman"
+        ],
+        [
+          "2231:- For Kids and Students",
+          "401:NASA’s Dark Universe-Seeking Nancy Grace Roman Space Telesco",
+          "6110:La NASA anuncia la cobertura de la misión lunar Artemis II",
+          "1801:- Aeronautics Research",
+          "1547:- Black Holes",
+          "6395:6 months ago",
+          "2666:- Aeronáutica",
+          "1102:- Climate Change"
+        ],
+        [
+          "311:- About NASA",
+          "2901:- Upcoming Launches & Landings",
+          "6497:Feb 08, 2018",
+          "956:- Why Go to Space",
+          "4193:What’s Up: September 2026 Skywatching Tips from NASA",
+          "4289:9 Things to Know About NASA’s Nancy Grace Roman Space Telesc",
+          "2933:- Virtual Guest Program",
+          "5397:Panorama Showcasing the 34-Meter Antennas of the DSN’s Golds"
+        ],
+        [
+          "1115:Shortly after stepping onto the Moon, astronauts Armstrong a",
+          "1826:National Archives and Records Administration",
+          "340:The Soviet lead was both embarrassing and menacing to a nati",
+          "1321:National Archives, Nixon Presidential Materials Project",
+          "449:On May 25, 1961, when President John F.",
+          "1991:include($_SERVER ['DOCUMENT_ROOT'].\"/includes/components/web",
+          "46:\"The President held an interplanetary conversation with Apol",
+          "1944:inquire@nara.gov"
+        ],
+        [
+          "968:Although some F-1 engines remain, those from Apollo 11 do no",
+          "2361:In 2000 he founded a private space flight firm, Blue Origin,",
+          "952:Image caption,",
+          "462:The F-1 engines were used on the giant Saturn V rocket , ext",
+          "130:In a blog post, Mr Bezos said the five engines were found us",
+          "1271:\"I was five years old when I watched Apollo 11 unfold on tel",
+          "389:Apollo 11 carried astronauts on the first Moon landing missi",
+          "2563:Sub reaches Earth's deepest place"
+        ]
+      ],
+      "seconds": 21
+    }
+  },
+  "license": {
+    "containment": {
+      "verdict": "separates from control",
+      "offered": 6,
+      "states": 1,
+      "controlStates": 0,
+      "separation": 1,
+      "controlCandidatesIdentical": "0/6"
+    },
+    "random": {
+      "verdict": "REFUSED by its own control (II.23)",
+      "offered": 6,
+      "states": 1,
+      "controlStates": 1,
+      "separation": 0,
+      "controlCandidatesIdentical": "0/6"
+    }
+  }
+}

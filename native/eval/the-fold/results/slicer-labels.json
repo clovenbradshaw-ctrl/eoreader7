@@ -1,0 +1,312 @@
+{
+  "labeler": "Claude (Fable 5.1), reading every face in full from results/slicer-labels-dump.txt; 2026-09-02",
+  "sample": "results/slicer-labels-sample.json — 30 notes, 21 faces, MAXPOOL=250, SEED=0",
+  "rule": "STATED = some sentence in the face asserts the proposition in any words. Sentence numbers index the face pool. wrong-document = the fetched face is an index, landing, stub or metadata page and not the cited document's content. not-stated = a real content page that does not assert the proposition.",
+  "labels": {
+    "42": {
+      "status": "stated",
+      "sentences": [
+        15,
+        16,
+        9
+      ],
+      "why": "16mm DAC 'used to film footage of the final approach' / 'used to record Armstrong going down the ladder'"
+    },
+    "45": {
+      "status": "stated",
+      "sentences": [
+        167,
+        166
+      ],
+      "why": "'Fully recovered from the operation, NASA added him to the Apollo 11 crew' — the paraphrase exactly"
+    },
+    "54": {
+      "status": "stated",
+      "sentences": [
+        161,
+        165,
+        166
+      ],
+      "why": "'announced five potential landing sites' + Site One/Two 'in the Sea of Tranquility'"
+    },
+    "149": {
+      "status": "stated",
+      "sentences": [
+        1
+      ],
+      "why": "'found using advanced sonar scanning some 14,000ft below the Atlantic Ocean's surface'"
+    },
+    "3": {
+      "status": "stated-prospective",
+      "sentences": [
+        35
+      ],
+      "why": "Nov 2018 source says the suit 'will have ... opening [on display] in July 2019 for the 50th anniversary' — states the plan, not the past event"
+    },
+    "136": {
+      "status": "stated-partial",
+      "sentences": [
+        3
+      ],
+      "why": "'watched the Soviet Union take the lead' — the lead is stated, 'April 12' is not"
+    },
+    "122": {
+      "status": "wrong-document",
+      "why": "NSSDCA 'temporarily offline for maintenance' stub"
+    },
+    "81": {
+      "status": "wrong-document",
+      "why": "NSSDCA 'temporarily offline for maintenance' stub"
+    },
+    "144": {
+      "status": "wrong-document",
+      "why": "NTRS metadata page, 'No Preview Available'; the PDF was not fetched"
+    },
+    "112": {
+      "status": "wrong-document",
+      "why": "NTRS metadata page, 'No Preview Available'; the PDF was not fetched"
+    },
+    "9": {
+      "status": "wrong-document",
+      "why": "Apollo Lunar Surface Journal LANDING page, not the journal page cited"
+    },
+    "5": {
+      "status": "wrong-document",
+      "why": "ALSJ landing page"
+    },
+    "0": {
+      "status": "wrong-document",
+      "why": "ALSJ landing page"
+    },
+    "20": {
+      "status": "wrong-document",
+      "why": "ALSJ landing page; s184 '22-hour stay on the Moon by Armstrong and Aldrin' implies but does not state descent aboard Eagle"
+    },
+    "8": {
+      "status": "wrong-document",
+      "why": "ALSJ landing page"
+    },
+    "24": {
+      "status": "wrong-document",
+      "why": "ALSJ landing page"
+    },
+    "95": {
+      "status": "wrong-document",
+      "why": "ALSJ landing page"
+    },
+    "159": {
+      "status": "wrong-document",
+      "why": "ALSJ landing page"
+    },
+    "128": {
+      "status": "wrong-document",
+      "why": "ALSJ landing page"
+    },
+    "47": {
+      "status": "wrong-document",
+      "why": "ALSJ landing page"
+    },
+    "151": {
+      "status": "wrong-document",
+      "why": "science.nasa.gov missions index"
+    },
+    "40": {
+      "status": "wrong-document",
+      "why": "'Apollo 11 Crew Meets With President Obama' photo page"
+    },
+    "11": {
+      "status": "wrong-document",
+      "why": "'Apollo 11 HD Videos' page"
+    },
+    "123": {
+      "status": "not-stated",
+      "why": "'50 Years Ago: NASA Names Apollo 11 Crew' — a real article, does not cover the return-flight wakeup"
+    },
+    "83": {
+      "status": "not-stated",
+      "why": "same article; Lovell as Apollo 11 backup is stated, the Apollo 13/14 reassignment is not"
+    },
+    "79": {
+      "status": "not-stated",
+      "why": "JFK 1961 speech page; nothing on public opinion"
+    },
+    "104": {
+      "status": "not-stated",
+      "why": "site-selection article lists the crater criterion but never says no crater-free site was found. NOTE: the note itself dropped the negation — article says 'no such site was found', note reads 'such site —was→ found'"
+    },
+    "25": {
+      "status": "not-stated",
+      "why": "Cincinnati exhibit article; no Oval Office"
+    },
+    "51": {
+      "status": "not-stated",
+      "why": "Columbia object page; no rendezvous time"
+    },
+    "67": {
+      "status": "not-stated",
+      "why": "Sergei Khrushchev interview; the joint-project offer is not mentioned"
+    },
+    "1": {
+      "status": "wrong-document",
+      "why": "SP-4223 fetched as the Glynn Lunney biography/oral-history chapter; none of the cited Apollo 11 propositions are in it"
+    },
+    "4": {
+      "status": "wrong-document",
+      "why": "SP-4223 fetched as the Glynn Lunney biography/oral-history chapter; none of the cited Apollo 11 propositions are in it"
+    },
+    "52": {
+      "status": "wrong-document",
+      "why": "SP-4223 fetched as the Glynn Lunney biography/oral-history chapter; none of the cited Apollo 11 propositions are in it"
+    },
+    "55": {
+      "status": "wrong-document",
+      "why": "SP-4223 fetched as the Glynn Lunney biography/oral-history chapter; none of the cited Apollo 11 propositions are in it"
+    },
+    "74": {
+      "status": "wrong-document",
+      "why": "SP-4223 fetched as the Glynn Lunney biography/oral-history chapter; none of the cited Apollo 11 propositions are in it"
+    },
+    "76": {
+      "status": "wrong-document",
+      "why": "SP-4223 fetched as the Glynn Lunney biography/oral-history chapter; none of the cited Apollo 11 propositions are in it"
+    },
+    "78": {
+      "status": "wrong-document",
+      "why": "SP-4223 fetched as the Glynn Lunney biography/oral-history chapter; none of the cited Apollo 11 propositions are in it"
+    },
+    "94": {
+      "status": "wrong-document",
+      "why": "SP-4223 fetched as the Glynn Lunney biography/oral-history chapter; none of the cited Apollo 11 propositions are in it"
+    },
+    "99": {
+      "status": "wrong-document",
+      "why": "SP-4223 fetched as the Glynn Lunney biography/oral-history chapter; none of the cited Apollo 11 propositions are in it"
+    },
+    "106": {
+      "status": "wrong-document",
+      "why": "SP-4223 fetched as the Glynn Lunney biography/oral-history chapter; none of the cited Apollo 11 propositions are in it"
+    },
+    "119": {
+      "status": "wrong-document",
+      "why": "SP-4223 fetched as the Glynn Lunney biography/oral-history chapter; none of the cited Apollo 11 propositions are in it"
+    },
+    "120": {
+      "status": "wrong-document",
+      "why": "SP-4223 fetched as the Glynn Lunney biography/oral-history chapter; none of the cited Apollo 11 propositions are in it"
+    },
+    "125": {
+      "status": "wrong-document",
+      "why": "SP-4223 fetched as the Glynn Lunney biography/oral-history chapter; none of the cited Apollo 11 propositions are in it"
+    },
+    "142": {
+      "status": "wrong-document",
+      "why": "SP-4223 fetched as the Glynn Lunney biography/oral-history chapter; none of the cited Apollo 11 propositions are in it"
+    },
+    "146": {
+      "status": "wrong-document",
+      "why": "SP-4223 fetched as the Glynn Lunney biography/oral-history chapter; none of the cited Apollo 11 propositions are in it"
+    },
+    "12": {
+      "status": "stated",
+      "sentences": [
+        261,
+        264,
+        260
+      ],
+      "why": "'flown directly to Ellington Air Force Base (AFB) near MSC in Houston' + 'Within 48 hours of splashdown, scientists in the LRL in Houston were examining the first lunar samples'"
+    },
+    "38": {
+      "status": "stated",
+      "sentences": [
+        244,
+        219
+      ],
+      "why": "'Once inside the MQF, the astronauts removed their BIGs' — worn until the isolation facility, in other words"
+    },
+    "113": {
+      "status": "stated",
+      "sentences": [
+        227,
+        224
+      ],
+      "why": "'The recovery helicopter one by one retrieved the three astronauts from the raft using a Billy Pugh net' — winched, in other words"
+    },
+    "150": {
+      "status": "stated",
+      "sentences": [
+        169,
+        248,
+        247
+      ],
+      "why": "'helicoptering to Hornet early on splashdown day' + 'He had been onboard for three hours'"
+    },
+    "61": {
+      "status": "stated-partial",
+      "sentences": [
+        182
+      ],
+      "why": "'it had launched recovery helicopters' — the launch is stated, four Sea Kings and three Tracers are not"
+    },
+    "56": {
+      "status": "not-stated",
+      "why": "page begins on the last day in space"
+    },
+    "59": {
+      "status": "not-stated",
+      "why": "'speeding for the new splashdown target area' — not the Pearl Harbor departure"
+    },
+    "60": {
+      "status": "not-stated",
+      "why": "HS-4 embarkation not on the page"
+    },
+    "62": {
+      "status": "not-stated",
+      "why": "'set sail for Pearl Harbor' is the departure, not the July 26 return"
+    },
+    "64": {
+      "status": "not-stated",
+      "why": "Long Beach not on the page"
+    },
+    "91": {
+      "status": "stated",
+      "sentences": [
+        172,
+        234
+      ],
+      "why": "'Apollo 11 launched from Cape Kennedy on July 16, 1969' — near-literal; end2 'July 16' is on the page"
+    },
+    "17": {
+      "status": "not-stated",
+      "why": "Mission Overview does not cover it"
+    },
+    "44": {
+      "status": "not-stated",
+      "why": "Mission Overview does not cover it"
+    },
+    "84": {
+      "status": "not-stated",
+      "why": "Mission Overview does not cover it"
+    },
+    "124": {
+      "status": "not-stated",
+      "why": "Mission Overview does not cover it"
+    },
+    "145": {
+      "status": "not-stated",
+      "why": "Mission Overview does not cover it"
+    },
+    "147": {
+      "status": "not-stated",
+      "why": "Mission Overview does not cover it"
+    },
+    "155": {
+      "status": "not-stated",
+      "why": "Mission Overview does not cover it"
+    },
+    "158": {
+      "status": "not-stated",
+      "why": "Mission Overview does not cover it"
+    }
+  },
+  "extension": "34 notes on the 3 faces with pool >250 that the seeded sample excluded (4f69a8cb archive 264s ×15 notes, 86570537 nasa.gov 274s ×10, eaab2999 nasa.gov 251s ×9), read in full with nav chrome elided. NOT a random extension: chosen because they were excluded, and because the archive-route face was expected to be a real document. Disclosed."
+}
