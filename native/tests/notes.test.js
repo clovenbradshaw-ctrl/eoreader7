@@ -345,3 +345,31 @@ test("no bridge organ: witnesses, spans and ids are byte-identical to before thi
   assert.equal(n.spans.length, 3);
   assert.equal(notes.standingOf(n).assumedBridges, 2, "two crossings past the first source, both recorded");
 });
+
+// ── the join now carries BOTH sides — step 2's own prerequisite ──────────
+// Step 1 recorded only the established side's face (`assumed`); a bridge
+// with one end visible cannot be shown as a correspondence, only counted.
+// `bridges.js` (step 2) needs the incoming side's own face and spans to
+// record a bridge as a real arrangement, not a fabricated one.
+
+test("a join now carries the INCOMING side's own face and spans, not only the established side's", () => {
+  const withIdentity = makeNotes({ identity: () => ({ end1: "smith-1998", end2: "the-commission-1998" }) });
+  let log = withIdentity.createNotes();
+  log = withIdentity.hear(log, { end1: "Smith", label: "chaired", end2: "the commission", spans: [span("page-a", 10, 30)], witness: "page-a~walls" });
+  log = withIdentity.hear(log, {
+    end1: "Smith", label: "chaired", end2: "the commission", spans: [span("page-b", 40, 60)], witness: "page-b~walls",
+    end1Face: "Sir John Smith", end2Face: "the Fisheries Commission",
+  });
+  const [n] = withIdentity.fold(log);
+  assert.deepEqual(n.joins[0].incomingEnds, { end1: "Sir John Smith", end2: "the Fisheries Commission" }, "the incoming source's OWN words for each end, not the established note's");
+  assert.equal(n.joins[0].incomingSpans.length, 1);
+  assert.equal(n.joins[0].incomingSpans[0].at, "page-b#40-60");
+});
+
+test("with no face supplied, incomingEnds falls back to the raw end text — never blank, never invented", () => {
+  let log = notes.createNotes();
+  log = notes.hear(log, { end1: "Smith", label: "chaired", end2: "the commission", spans: [span("page-a", 10, 30)], witness: "page-a~walls" });
+  log = notes.hear(log, { end1: "Smith", label: "chaired", end2: "the commission", spans: [span("page-b", 40, 60)], witness: "page-b~walls" });
+  const [n] = notes.fold(log);
+  assert.deepEqual(n.joins[0].incomingEnds, { end1: "Smith", end2: "the commission" });
+});

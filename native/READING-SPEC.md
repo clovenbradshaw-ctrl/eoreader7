@@ -2776,6 +2776,85 @@ concession lifecycle (Pass 12 step 2, the-fold's `NEXT-PASSES.md`) — this
 entry establishes only that bridges are common and that the naive probe
 cannot yet validate them, not that they are safe.
 
+## S49 — Pass 12 step 2: the referent bridge, as a recorded object
+
+**Generality:** universal.
+
+S48 split `hear()`'s conflated match into proposition identity (unchanged)
+and referent identity (a `join`, recorded on the note but living nowhere
+of its own — no independent witness, no way for two SEPARATE content
+notes that happen to rest on the same correspondence to corroborate each
+other, no concession). `bridge-audit-RESULTS.md` measured bridges as
+common (22/22) and warranted step 2 on that finding alone, explicitly
+without claiming any bridge validated.
+
+**The design, derived rather than invented.** Pass 12's own load-bearing
+clause: "it is the same set of operations, just at another level." A
+bridge is an ARRANGEMENT — one reading's face for a referent, a fixed
+declared label (`same-referent-as`), the other reading's face for the
+same referent — and `notes.js`'s `hear`/`concede` already compute
+SIG/INS/SYN/REC correctly on any arrangement. So `organs/bridges.js` adds
+no new ledger mechanism: it derives bridge arrangements from a note's own
+`joins` and hears them onto a SEPARATE ledger via the SAME injected
+`notes` instance a caller already has. Two content notes that
+independently cross the same two sources via the same referent pair now
+corroborate ONE bridge object — the capability step 1's per-note `join`
+could not represent, because it kept the assumption but never gave it an
+identity of its own. A separate ledger, not the content one, because a
+bridge is a claim about referent correspondence, never something the
+material itself stated — folding it onto content notes would let `fold()`
+surface a correspondence no source ever asserted.
+
+**One real gap closed to make this possible.** A `join` recorded only the
+ESTABLISHED side's face (`assumed: [prior.end1, prior.end2]`); the
+crossing's own `incoming` object already carried the other side's face and
+spans, and `hear()` discarded them the moment `bridge()` returned. Widened,
+additively (`incomingEnds`, `incomingSpans` on the `join`), so a bridge
+has two real faces to show, not one assumed and one invented — pinned in
+`tests/notes.test.js` (a real face carried through; a missing one falls
+back to the raw end text, never blank).
+
+**Measured on the SAME real material step 1 used**
+(`eval/the-fold/bridge-object-measurement.mjs`, no fixtures faked — the
+three Wikipedia pages `bridge-audit.mjs` already reads, same production
+pipeline unchanged). 46 bridge arrangements derived from 22 joined content
+notes, collapsing to 43 distinct bridge objects — **3 corroborated by two
+independently-derived content notes**: Austria, Napoleon, and "the Allies"
+each correctly recognised as the same referent crossing the Austerlitz and
+Third-Coalition pages. This is the capability step 1 could not show: a
+finding step 2 exists to make visible, not asserted from the design alone.
+Step 1's own probe, re-pointed at the 43 distinct objects instead of raw
+crossings, reads `{"suspect":1,"clean":27,"unexaminable":15}` — consistent
+with step 1's own numbers; its disclosed limits (a probe that cannot beat
+its own redealt control at this sample size; 57% of crossings unexaminable
+because a joined end is often a definite description) are UNCHANGED by
+this pass and are not re-litigated here.
+
+**Files.** `kernel/notes.js` (the `incomingEnds`/`incomingSpans` widening
+on `join`, additive; `tests/notes.test.js` 17 → 19). `organs/bridges.js`
+(new — `deriveBridgeArrangements`, `syncBridges`, `bridgeStandingFor`,
+`BRIDGE_LABEL`, `BRIDGE_REFUSALS`) + `organs/bridges.test.mjs` (new, 8
+cases against the REAL kernel: the flagship corroboration capability; a
+CONTROL BUILT TO FAIL — two different face pairs crossing the same two
+sources must stay two bridges, never merged; idempotent re-sync; a
+concede reaching one end's bridge and not the other's; a crossing REFUSED
+upstream by a real `bridge()` organ produces no join and nothing for this
+module to see). `eval/the-fold/bridge-object-measurement.mjs` (new, the
+real-material run above). Full native suite: 376/355/12 (organs),
+488/477/10 (conformance+tests) — identical failure names to HEAD both
+suites, zero regressions.
+
+**Not built, named rather than implied done.** No retroactive cascade: a
+bridge conceded via `notes.concede` on the bridge ledger does NOT touch
+the content ledger's own notes or standings — `bridgeStandingFor` is a
+read-only lookup a caller consults, the same posture `dietBoundaries`/
+`concedeDiet` already keep apart (a diagnostic and an act, kept separate
+until the act itself is measured). No wiring into the-fold's app.js or the
+ledger-block disclosure — the-fold's own NEXT-PASSES.md names this as
+Pass 12's remaining steps 3 (read a cited/bridged document with the same
+full extraction apparatus, replacing the regex-window slicer) and 4
+(witnessed paraphrase landing as a bridge), both still real, unattempted
+work.
 ## S50 — Reproduction, generalized out of `quotes.js`; and how many VOICES a ledger is counting
 
 **Generality:** universal.
