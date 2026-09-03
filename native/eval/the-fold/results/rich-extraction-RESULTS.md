@@ -113,3 +113,37 @@ paths), `ranke-backwards.mjs` (rich default, `RICH=0`, `OUT=`),
 `note-match-zero.mjs` (`FINE`, `VERBS=prior|both`, `ATTEST`, `POOL`),
 `results/ranke-backwards-{base,rich,live-base,live-maxf40,run5-offline}.json`
 and logs, `results/note-match-zero*.json`.
+
+## In the app, live (2026-09-03)
+
+the-fold `app.js` (branch `rich-hypergraph-default`, ce06032) passes the
+chain, `attestedVerbs`, and UniMorph ∪ the POS prior's verb-dominant forms
+(through the app's own `dominantClass` contract, floor 0.5 — the floor
+`connectorLens` already uses), with `sameAct` deferred to the morphology
+prior the app loads anyway. Test suite 1567 pass / 3 fail before and
+after, identical names (all three environment: the contract manifests and
+the SELF/MATERIAL plane test).
+
+Verified in the served app on a pasted two-paragraph text. The same
+modules, built in the page with the plain options and the rich ones:
+
+| | edges | acts |
+|---|---|---|
+| plain | 3 | `were`, `were`, `were` |
+| rich | 6 | `had launched`, `retrieved`, `removed`, `were placed`, `were examining`, `were` |
+
+*Buzz* stays a surface. And the model's own system prompt on the first
+turn carried the rich notes — *"The recovery helicopter one by one —
+retrieved→ the three astronauts from the raft using a Billy Pugh net"*,
+*"the astronauts — removed→ their BIGs and took showers"*.
+
+**One thing seen and not chased.** The block showed four notes; the
+containers note (*were placed aboard … and flown directly to Ellington*)
+was cut but not shown, though it shares two words with the question, and
+*"Armstrong and Buzz Aldrin — were→ still on the lunar surface"*, which
+shares none, was. The model then answered *"flown to the Lunar Module"*.
+Which notes the five-line block picks is `holon.js`'s ranking, not the
+reader's; recorded here for its own pass.
+
+**Calls:** the one live turn spent 5 (the holonic task's own: answer,
+summary, and its checks), against a declared 3. Recorded.
