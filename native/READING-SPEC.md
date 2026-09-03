@@ -3144,3 +3144,68 @@ the copy and is inert on furniture-free prose, and one proving a reader
 without the organ is unaffected by a chunker that had one), `eval/the-fold/furniture-page-context.mjs` +
 `results/furniture-page-context-RESULTS.md`. Full suite: 22 failures,
 identical by name to `origin/main` — zero regressions.
+
+## S52 — The reading unit was the wrong suspect: the witness's own ARM is the ceiling
+
+**Generality:** not-applicable — this is a measurement over shipped organs; no
+organ changed, no default moved, no number was tuned.
+
+S49's corpus measurement (3/9 on a 9KB excerpt, 0/9 on the whole book) traced
+one item by hand, found retrieval correct and the candidate correct, and
+diagnosed the reading UNIT. It named a wider unit as the next move. That move
+was about to be taken; this says do not take it.
+
+`eval/the-fold/activation-unit-probe.mjs` runs the REAL path — real
+`chunkSource`, real `retrieve`, real `witnessSentences` over the real joined
+source — with the model replaced twice: an **always-no** recorder (what did the
+path SHOW it?) and a **perfect reader** (what could a flawless model land?).
+The material is read off the organs' own arguments, never parsed back out of a
+prompt.
+
+**8 of 9 entailed items reached the model already holding a single sentence
+carrying both ends of the claim in full.** A wider reading unit cannot improve
+material that is already adequate.
+
+**A perfect reader lands 4 of 9.** Five are unlandable by any model, and the
+walls are measured apart because they need different fixes:
+
+- one **retrieval miss** — the generate fallback got a slice from the wrong
+  chapter; the material never arrived;
+- three **no competing filler** — the arm harvests its swap from the candidate
+  list's own capitalized surfaces, and with ONE candidate those surfaces are
+  the claim's own ends, so the pool is empty and an unarmed yes is refused
+  however correct;
+- one **end2 paraphrased in the claim** — the swap is a literal string replace,
+  so a claim saying "the people who had abandoned it" for end2 "inhabitants"
+  produces an arm identical to the claim. Found because that item HAS a filler
+  and still refuses.
+
+**The ceiling halves with scale: 8/9 excerpt, 4/9 corpus** — the excerpt hands
+its whole 9KB as one source (candidates rich in names, arms build), the corpus
+retrieves three narrow passages (one candidate, no names but the ends). So the
+excerpt/corpus gap is substantially a PROTOCOL ceiling narrowing as retrieval
+narrows. And the two drivers use different batteries over different material,
+so "3/9 vs 0/9" never compared one item set at two scales; against their own
+ceilings the real model scored 3 of 8 reachable and 0 of 4 reachable.
+
+The arm is not wrong — unarmed select measured p(states|fabricated) = 1/8 live
+(P32), and refusing an unarmed yes is the correct posture. What is measured is
+that its AMMUNITION runs out exactly where retrieval is narrowest, so the
+refusal rate carried an undeclared scale artifact.
+
+**Where the activation lever actually is**, named and NOT built: the arm's
+sibling pool, drawn from the reader's own referent state (`makeReferentIndex`
+and the surfaces it resolved) rather than by capitalization from one sentence —
+a pool that does not shrink when retrieval narrows; and a swap through the
+referent/lemma an end resolves to rather than a literal replace, which survives
+a claim that paraphrases its own end. Neither may relax the arm itself: a
+richer pool changes only what the picker is asked to confuse the end WITH.
+
+Four probe bugs are kept in the write-up because each produced a plausible
+table with an inverted conclusion — reimplementing the path instead of running
+it, reading a prompt to learn what was shown, a wrong field name (`shown`, not
+`text`), and a wrong schema (`{answer}`, not `{states}`). The measurement only
+became trustworthy once every arm was read against the organ's own source.
+
+**Files.** `eval/the-fold/activation-unit-probe.mjs`,
+`results/activation-unit-RESULTS.md`. No production file touched.
