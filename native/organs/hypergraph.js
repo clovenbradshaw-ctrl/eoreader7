@@ -1122,6 +1122,17 @@ export function makeRelationReader(organs) {
      * in — the correct reading, since a pronoun inside a navigation template
      * is not the passage's anaphora.
      *
+     * SCOPE, STATED BECAUSE THE HEADLINE NUMBER READS WIDER THAN IT IS.
+     * This reaches EXTRACTION only. `indexFor(list)` and the sentences
+     * `pronounBindingsFor` reads are both built from the UNBLANKED `p.text`,
+     * so a name that occurs only inside furniture still enters the referent
+     * index and can still be a pronoun's antecedent — verified: a name
+     * appearing solely in navbox rows still resolves as a referent form with
+     * page blanking on, while its edges are gone. What the change removes is
+     * navbox EDGES, not navbox REFERENTS. Blanking the index's input too is a
+     * separate decision with its own cost (a name genuinely introduced in a
+     * caption or a list is then unknown to the reading) and is not taken here.
+     *
      * NOTHING HERE RE-SPLITS ANYTHING, so the drift the per-sentence
      * discipline exists to prevent (`blank-furniture-sentence-drift`) is
      * prevented exactly as before: the segmentation is computed once off the

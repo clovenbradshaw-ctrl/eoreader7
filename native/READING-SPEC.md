@@ -2888,6 +2888,14 @@ reader's own POS-prior vocabulary gate already ran during extraction, so any
 label reaching a note has passed the same prior at the same threshold and the
 lens cannot fire afterwards. Redundant by construction, not a bug.
 
+**Scope, stated because the headline reads wider than it is:** this reaches
+EXTRACTION only. `indexFor(list)` and the sentences `pronounBindingsFor`
+reads are built from the UNBLANKED text, so a name occurring only inside
+furniture still enters the referent index and can still be a pronoun's
+antecedent — verified. The change removes navbox EDGES, not navbox
+REFERENTS; blanking the index's input too is a separate decision with its own
+cost and is not taken here.
+
 **Corrected from the first draft:** `chunkRows` does NOT reconstruct its
 rows — it slices and strips one trailing newline, so delimited chunks do read
 back and do receive a copy. The original "0 of 3 never match" came from
