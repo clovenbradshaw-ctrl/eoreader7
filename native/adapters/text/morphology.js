@@ -92,11 +92,37 @@ export const morphologyFromPrior = (raw) => {
 // The index the lemmatizer reads IS the prior's own `forms` table (form →
 // lemma candidates), exactly as the frozen provider's callers pass it —
 // no second shape is built here.
-export const createLemmatizer = (index, { fallback = null, language = null } = {}) => {
+// `supplement` is an OPTIONAL second giver's form -> lemma table, merged over
+// the prior's own. It exists because a received prior can have a hole its
+// builder cannot close: UniMorph English carries zero rows for the lemma `be`
+// (measured, S56), so a lemmatizer built from it alone reads every copular
+// restatement as a different act -- 29% of encyclopedic label heads and 50%
+// of a novel's. A hole in one giver is closed by a second named giver, and
+// the two are kept apart on the returned object (`size` counts the prior's
+// own entries; `supplemented` counts what a second giver added) so a caller
+// can never mistake one giver's reach for the other's.
+//
+// It is NOT merged by default, and that is a decision rather than an
+// oversight: folding `is` with `was` says the two are the same ACT, not that
+// they are the same claim, and a consumer that binds a present-tense claim
+// to past-tense material has widened what it hears. Every caller injects it
+// deliberately.
+export const createLemmatizer = (index, { fallback = null, language = null, supplement = null } = {}) => {
   const map = new Map();
   if (index instanceof Map) for (const [k, v] of index) map.set(k, new Set(v));
   else if (index && typeof index === "object") for (const [k, v] of Object.entries(index)) map.set(k, new Set(v));
-  const gap = map.size === 0
+  const priorSize = map.size;
+  let supplemented = 0;
+  if (supplement) {
+    const entries = supplement instanceof Map ? supplement : Object.entries(supplement ?? {});
+    for (const [k, v] of entries) {
+      const form = String(k).toLowerCase();
+      if (!map.has(form)) map.set(form, new Set());
+      for (const l of (Array.isArray(v) ? v : [v])) map.get(form).add(String(l).toLowerCase());
+      supplemented += 1;
+    }
+  }
+  const gap = priorSize === 0
     ? { reason: "no_morphology_prior", tier: "model", needsWitness: true, detail: "irregular inflections (lay/lie, went/go, saw/see) will not be recognised" }
     : null;
   const englishRule = language == null || language === "eng";
@@ -116,5 +142,5 @@ export const createLemmatizer = (index, { fallback = null, language = null } = {
     for (const l of lemmasOf(y)) if (la.has(l)) return true;
     return false;
   };
-  return { lemmasOf, sameAct, size: map.size, gap };
+  return { lemmasOf, sameAct, size: priorSize, supplemented, gap };
 };
