@@ -1,0 +1,52 @@
+{
+ "page": "wikipedia-war-of-the-third-coalition.html",
+ "model": "gemma2:2b",
+ "window": 40,
+ "oracle": {
+  "navbox": 511,
+  "infobox": 67,
+  "hatnote": 10,
+  "catlinks": 38,
+  "reflist": 46,
+  "table": 0,
+  "prose": 229
+ },
+ "arms": [
+  {
+   "name": "admit everything",
+   "tp": 229,
+   "fp": 761,
+   "fn": 0,
+   "tn": 0,
+   "prec": 0.2313131313131313,
+   "rec": 1,
+   "f1": 0.37571780147662015,
+   "junk": 0.7686868686868686,
+   "admitted": 990
+  },
+  {
+   "name": "length >= 72",
+   "tp": 107,
+   "fp": 10,
+   "fn": 122,
+   "tn": 751,
+   "prec": 0.9145299145299145,
+   "rec": 0.4672489082969432,
+   "f1": 0.6184971098265896,
+   "junk": 0.08547008547008547,
+   "admitted": 117
+  },
+  {
+   "name": "region median>=72",
+   "tp": 27,
+   "fp": 4,
+   "fn": 202,
+   "tn": 757,
+   "prec": 0.8709677419354839,
+   "rec": 0.11790393013100436,
+   "f1": 0.20769230769230768,
+   "junk": 0.12903225806451613,
+   "admitted": 31
+  }
+ ]
+}

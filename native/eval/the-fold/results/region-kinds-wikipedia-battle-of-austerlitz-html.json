@@ -1,0 +1,52 @@
+{
+ "page": "wikipedia-battle-of-austerlitz.html",
+ "model": "gemma2:2b",
+ "window": 40,
+ "oracle": {
+  "navbox": 446,
+  "infobox": 74,
+  "hatnote": 1,
+  "catlinks": 48,
+  "reflist": 136,
+  "table": 4,
+  "prose": 245
+ },
+ "arms": [
+  {
+   "name": "admit everything",
+   "tp": 245,
+   "fp": 757,
+   "fn": 0,
+   "tn": 0,
+   "prec": 0.24451097804391217,
+   "rec": 1,
+   "f1": 0.39294306335204493,
+   "junk": 0.7554890219560878,
+   "admitted": 1002
+  },
+  {
+   "name": "length >= 72",
+   "tp": 133,
+   "fp": 29,
+   "fn": 112,
+   "tn": 728,
+   "prec": 0.8209876543209876,
+   "rec": 0.5428571428571428,
+   "f1": 0.6535626535626535,
+   "junk": 0.17901234567901234,
+   "admitted": 162
+  },
+  {
+   "name": "region median>=72",
+   "tp": 87,
+   "fp": 24,
+   "fn": 158,
+   "tn": 733,
+   "prec": 0.7837837837837838,
+   "rec": 0.3551020408163265,
+   "f1": 0.48876404494382014,
+   "junk": 0.21621621621621623,
+   "admitted": 111
+  }
+ ]
+}

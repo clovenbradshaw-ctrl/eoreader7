@@ -42,6 +42,7 @@
 //   node region-kinds.mjs     env: PAGE - WINDOW (40) - MODEL - ARMS
 import { readFileSync, writeFileSync } from "node:fs";
 import { oracleFor } from "./region-oracle.mjs";
+import { segmentBySurprise } from "../../kernel/surprise-segments.js";
 
 const FIX = new URL("./fixtures/", import.meta.url).pathname;
 const PAGE = process.env.PAGE ?? "wikipedia-battle-of-borodino.html";
@@ -78,7 +79,15 @@ const row = (s) => `  ${s.name.padEnd(16)} admits ${String(s.admitted).padStart(
 // A line's shape: characters collapsed to classes, runs collapsed, capped.
 // No letter, digit or mark keeps its identity, so this is blind to language
 // and to format alike.
-const CAP = 12;
+// The cap is chosen on a CONVERGENCE criterion, declared before any score was
+// seen, never fitted: a prequential order-2 reader needs its alphabet small
+// enough that N observations cover |A|^2 contexts. At N=990 lines, |A| <= 9
+// gives ~10 observations per context. Measured alphabet sizes on this page:
+// cap 1 -> 8 (15.5 obs/context), cap 2 -> 18 (3.1), cap 3 -> 31 (1.0),
+// cap 12 -> 164 (0.04). Only cap 1 meets it. The first run used cap 12 and
+// the segmenter put ALL of its boundaries in the last 40 lines, leaving 950
+// lines as one region — a reader that never converges cannot find a peak.
+const CAP = Number(process.env.CAP ?? 1);
 export function lineShape(s) {
   const cls = String(s).trim().replace(/[\p{L}\p{M}]+/gu, "a").replace(/\p{N}+/gu, "0").replace(/\s+/gu, "_").replace(/[^a0_]+/gu, ".");
   const collapsed = cls.replace(/(.)\1+/g, "$1");
@@ -140,6 +149,36 @@ if (ARMS.includes("shape")) {
 // The trivial baselines every arm must beat, or it has measured nothing.
 results.push(score(texts.map(() => true), "admit everything"));
 results.push(score(texts.map((t) => t.length >= 72), "length >= 72"));
+
+// -- the region arm: the SAME question, asked one grain up ---------------
+// The line arm failed because it asked "is this shape unique" of a line, and
+// prose is shape-UNIFORM rather than shape-unique -- 266 prose lines over 72
+// shapes, against navbox's 500 lines over 35 with one shape covering 271. The
+// shapes discriminate; the grain was wrong.
+//
+// The control already established that shape REGIONS are real (adjacent lines
+// share a shape far more than shuffling produces). So cut the shape stream
+// into regions with the segmenter that already exists -- the caller's
+// instruments decide what an event is, and here an event is a line's shape --
+// and judge each REGION by its own profile. Nothing is named: the region's
+// own median line length decides, at the same declared threshold the line arm
+// uses, so this measures GRAIN and nothing else.
+if (ARMS.includes("region")) {
+  const shapes = texts.map(lineShape);
+  const seg = segmentBySurprise(shapes, { order: 2, alpha: 0.05, draws: 20, seed: SEED, minLength: 3 });
+  const pred = new Array(texts.length).fill(false);
+  let at = 0, admittedRegions = 0;
+  for (const region of seg.segments) {
+    const idx = [];
+    for (let k = 0; k < region.length; k += 1) idx.push(at + k);
+    at += region.length;
+    const lens = idx.map((i) => texts[i].length).sort((a, b) => a - b);
+    const median = lens[lens.length >> 1] ?? 0;
+    if (median >= 72) { admittedRegions += 1; for (const i of idx) pred[i] = true; }
+  }
+  console.log(`  region arm: ${seg.segments.length} regions cut (cut ${seg.cut.toFixed(2)} bits), ${admittedRegions} admitted`);
+  results.push(score(pred, `region median>=72`));
+}
 
 if (ARMS.includes("model")) {
   const { pred, calls } = await modelArm(texts);
