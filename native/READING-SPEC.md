@@ -2775,3 +2775,89 @@ to HEAD, zero regressions.
 concession lifecycle (Pass 12 step 2, the-fold's `NEXT-PASSES.md`) — this
 entry establishes only that bridges are common and that the naive probe
 cannot yet validate them, not that they are safe.
+
+## S50 — Reproduction, generalized out of `quotes.js`; and how many VOICES a ledger is counting
+
+**Generality:** universal.
+
+`organs/quotes.js` already followed a quotation to the bytes. Its matching
+core — normalize both sides through ONE fold, search, map the hit back to
+real addresses, report whether the RAW units matched or only the folded ones
+— is not about quotations at all, and quotation marks are one text-specific,
+entirely optional SIGNAL that a reproduction is being CLAIMED. Marks give
+two of three cases:
+
+```
+claimed + found    -> a real quotation           (quotes.js today)
+claimed + absent    -> a fabricated quotation     (quotes.js today)
+NOT claimed + found -> material repeated with nothing saying so
+```
+
+The third had no representation anywhere in this instrument, and it is the
+one that decides how many INDEPENDENT voices a ledger counts.
+
+**`kernel/reproduction.js` (new), medium-blind.** `locate` and `sharedRuns`,
+with the caller's own `fold` (a normalized sequence plus a map back to the
+original's coordinates) and its own `sameRaw`. Nothing in its body names a
+medium; `tests/reproduction.test.js` reads the source and fails if one
+appears, and — more to the point — RUNS the same organ over a non-text event
+stream. That test earned its keep immediately: it caught `String(...).slice`
+in the kernel, a text operation on material that was an array.
+
+**`organs/quotes.js` now delegates to it.** `locateSegment` is the kernel
+organ with this file's fold injected; what stays here is what is genuinely
+about quotations (the edge-punctuation strip — a quotation's closing period
+is routinely the quoting sentence's). One implementation of "is this
+reproduced here", not two. 13/13 unchanged.
+
+**The terrain, because it decided the shape.** A reproduction is
+STRUCTURE·FIGURE — a Link between two bodies, `A repeats B`, landed as an
+ordinary arrangement, corroboratable and concedable. The rule that a
+repeated witness is not a second voice is INTERPRETATION·FIGURE — a lens:
+declared, giver named, defeasible, never baked into arithmetic
+(`repetitionLens`). What the counts become is INTERPRETATION·GROUND, which
+is why `organs/voices.js` reports beside `standingOf` and never overwrites
+it. A lens whose repeated application demonstrably moved that ground would
+be a PARADIGM; nothing here measures that.
+
+**No statistic anywhere.** A shape-based furniture detector was measured
+first and refused: on real `splitSentences` units a navbox scored z = 5.29
+against real prose at z = 2.55 over 200 shuffle draws — a real signal that
+does not separate safely, the same class already refused once as "sound
+statistic, wrong claim". Reproduction needs no threshold and no null because
+it is an observation about units, with both addresses, re-read.
+
+**PER CLAIM, never per source pair** — the sharpest rule. Two pages sharing
+a navbox are one voice for the navbox's content and remain two independent
+voices for everything else. A witness is demoted only when THAT NOTE'S OWN
+span sits inside the shared run; the control built to fail pins exactly this.
+
+**Measured on three real Wikipedia pages** (`eval/the-fold/voices-measurement.mjs`):
+277 reproduced runs / 38,718 units found in 2.2s, the largest a 7,806-unit
+transcluded template. Of the 10 notes the ledger calls corroborated,
+**0 stand on two independent voices** — all 10 are one voice repeated. Two
+bugs were found by running it rather than reasoning about it: both witnesses
+of a pair were demoted, leaving ZERO voices (repetitions are reported in
+both directions — fixed to connected components, one voice per group, never
+zero); and repetition was not followed TRANSITIVELY, so a note witnessed by
+two pages that met only through a third, non-witnessing body survived as
+"two voices". Both pinned as regressions.
+
+**What it never says**: that a repeater is dishonest, that an origin is
+right, that either claim is true, or which body came first. Every collapse
+carries `contextChecked: false` — shared units are shared units, and whether
+a repeater used its origin faithfully needs the origin read in its own
+context, which nothing here does.
+
+**Disclosed residue**, found by reading the rule rather than by a failure:
+grouping is by repetition COMPONENT, which is coarser than "carrying the
+same run" — two witnesses carried by DIFFERENT templates that happen to sit
+in one component can be collapsed together. The tighter rule groups by the
+covering run's own material (overlap, not equality: the same template
+measured 7,794 units on one page and 7,806 on another). Not built.
+
+**Files.** `kernel/reproduction.js` + `tests/reproduction.test.js` (11).
+`organs/voices.js` + `organs/voices.test.mjs` (7). `organs/quotes.js`
+(delegation only). `eval/the-fold/voices-measurement.mjs` + three fixtures.
+Suites: organs 383/362/12, conformance+tests 499/488/10 — identical failure
+counts to baseline, zero regressions.
