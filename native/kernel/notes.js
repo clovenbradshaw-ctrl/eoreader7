@@ -88,6 +88,73 @@ export const REFUSALS = Object.freeze({
 export const FRAME_TASK = "frame:0";
 
 /**
+ * THE WITNESS GRAMMAR, owned here because the ledger is what a witness
+ * strings attach to: `[kind:]<ref>[#address][~recipe]`. `kind:` names how
+ * the witness was earned (a testimony vote is `testimony:`); `#address` is
+ * P5.2's own span shape; `~recipe` is P68's identity of the reader. The
+ * SOURCE is the ref alone — two addresses in one ref are one perspective,
+ * and a testimony vote from a ref the ledger already heard is the same
+ * perspective wearing a second costume (found live, 2026-09-02: the first
+ * witness walk over a real book attested eight notes, every one by the
+ * part it was heard in, because the address was being compared as part of
+ * the source). The INSTRUMENT is the recipe alone: two sources read by one
+ * reader cannot disagree about anything the reader gets wrong.
+ */
+export const sourceOfWitness = (w) => {
+  let s = String(w ?? "");
+  const kind = s.indexOf(":");
+  if (kind > 0 && !/[#~]/.test(s.slice(0, kind))) s = s.slice(kind + 1);
+  const tilde = s.indexOf("~");
+  if (tilde >= 0) s = s.slice(0, tilde);
+  const hash = s.indexOf("#");
+  return hash >= 0 ? s.slice(0, hash) : s;
+};
+export const recipeOfWitness = (w) => { const s = String(w ?? ""); const t = s.indexOf("~"); return t >= 0 ? s.slice(t + 1) : null; };
+/** The declared KIND of a witness — the prefix before the first ":" when
+ * that prefix carries no address or recipe (`testimony:`, `primary:`,
+ * `planted:`); a witness with no kind is a mechanical sighting and reads
+ * `sighting`. Kinds are caller-declared vocabulary; this file counts them
+ * and never interprets one. */
+export const kindOfWitness = (w) => {
+  const s = String(w ?? "");
+  const kind = s.indexOf(":");
+  return kind > 0 && !/[#~]/.test(s.slice(0, kind)) ? s.slice(0, kind) : "sighting";
+};
+
+/**
+ * standingOf(note) — what a note's witnesses amount to, DISCLOSED as counts
+ * and a typed standing, never as a bit: `sources` (distinct refs),
+ * `instruments` (distinct recipes; undeclared recipes counted apart),
+ * and the standing:
+ *   single-witness             — one source
+ *   corroborated               — two or more sources through ONE instrument
+ *                                (they cannot disagree about that
+ *                                instrument's own errors)
+ *   corroborated-independently — two or more sources AND two or more
+ *                                instruments
+ * `kinds` counts witnesses by their declared kind (`sighting` for a bare
+ * mechanical witness) so a consumer can tell a note read off an ACCOUNT of
+ * a thing from one read off the thing itself — a report of a measurement
+ * and the instrument's own record are different kinds of witness in every
+ * medium, and which kinds exist is the caller's vocabulary, not this
+ * file's.
+ * The floor is 2, binding.js's structural minimum: one witness has no
+ * second to agree with. A consumer that gates on a standing gates on a
+ * fact the note carries; a consumer that WITHHOLDS a note for its standing
+ * is making a decision this file does not make for it.
+ */
+export function standingOf(note) {
+  const ws = note?.witnesses ?? [];
+  const sources = new Set(ws.map(sourceOfWitness));
+  const recipes = new Set(ws.map(recipeOfWitness).filter((r) => r != null));
+  const undeclared = ws.filter((w) => recipeOfWitness(w) == null).length;
+  const standing = sources.size < 2 ? "single-witness" : recipes.size >= 2 ? "corroborated-independently" : "corroborated";
+  const kinds = {};
+  for (const w of ws) { const k = kindOfWitness(w); kinds[k] = (kinds[k] ?? 0) + 1; }
+  return { sources: sources.size, instruments: recipes.size, undeclared, standing, kinds };
+}
+
+/**
  * makeNotes({ taskLog, cellOf, identity }) — the ledger, over an injected
  * task-log (default: this kernel's own) so a caller that reads through a
  * different provider of the same algebra can still keep its notes here.
@@ -317,6 +384,9 @@ export function makeNotes({ taskLog = nativeTaskLog, cellOf = nativeCellOf, iden
       .sort((a, b) => b.witnesses.length - a.witnesses.length || a.id.localeCompare(b.id));
   }
 
+  /** fold(log) with each note's standing disclosed beside it — the shape a consumer that never withholds should read. */
+  const foldWithStanding = (log) => fold(log).map((n) => ({ ...n, ...standingOf(n) }));
+
   /**
    * readingFromNotes(log, { source }) — the reader's own postures in the
    * shape experience-priors.js sediments. Only the ACT crosses (operator,
@@ -474,5 +544,5 @@ export function makeNotes({ taskLog = nativeTaskLog, cellOf = nativeCellOf, iden
     return { levels, stream: s, boundarySeqs: (levels[0]?.boundaries ?? []).map((b) => s[b].seq) };
   }
 
-  return { createNotes, frameOf, frames, redeclareFrame, hear, admit, attest, concede, concededIds, concededNotes, fold, readingFromNotes, stream, figures, segment, dietBoundaries, concedeDiet, noteId, recipeId, REFUSALS, FRAME_TASK };
+  return { createNotes, frameOf, frames, redeclareFrame, hear, admit, attest, concede, concededIds, concededNotes, fold, foldWithStanding, standingOf, sourceOfWitness, recipeOfWitness, kindOfWitness, readingFromNotes, stream, figures, segment, dietBoundaries, concedeDiet, noteId, recipeId, REFUSALS, FRAME_TASK };
 }

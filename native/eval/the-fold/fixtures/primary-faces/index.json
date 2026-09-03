@@ -1,0 +1,280 @@
+{
+ "ee1abf0695b36a8e": {
+  "url": "https://lccn.loc.gov/05040370",
+  "gap": {
+   "type": "shell",
+   "detail": "0-char face"
+  }
+ },
+ "2e07e6328cda2905": {
+  "url": "https://id.loc.gov/authorities/sh85009568",
+  "gap": {
+   "type": "http",
+   "status": 403
+  },
+  "viaArchive": false
+ },
+ "1f162b0e23aabc12": {
+  "url": "https://lux.collections.yale.edu/view/place/32e12c67-b978-4df2-a0a9-73bac3b1100a",
+  "gap": {
+   "type": "http",
+   "status": 403
+  },
+  "viaArchive": false
+ },
+ "621a0df32ad2029d": {
+  "url": "https://books.google.com/books?id=hKVKFZ-4I3cC&pg=PA51",
+  "finalUrl": "https://books.google.com/books?id=hKVKFZ-4I3cC&pg=PA51",
+  "host": "books.google.com",
+  "title": "Oeuvres de Victor Hugo - Victor Hugo - Google Books",
+  "chars": 613,
+  "viaArchive": false,
+  "retrievedAt": "2026-09-03T00:11:18.311Z"
+ },
+ "2df3287fa349101f": {
+  "url": "http://www.vialupo.com/austerlitz",
+  "gap": {
+   "type": "shell",
+   "detail": "0-char face"
+  }
+ },
+ "2cd5aceef5703390": {
+  "url": "http://www.pousse-pion.fr/mp/La-bataille-d-Austerlitz.php",
+  "finalUrl": "https://pousse-pion.fr/",
+  "host": "pousse-pion.fr",
+  "title": "Pousse Pion",
+  "chars": 327,
+  "viaArchive": false,
+  "retrievedAt": "2026-09-03T00:11:21.479Z"
+ },
+ "eb1e3b6f24c8329a": {
+  "url": "https://archive.org/details/bmk-brz-3/page/n300",
+  "finalUrl": "https://archive.org/details/bmk-brz-3/page/n300",
+  "host": "archive.org",
+  "title": "Военная энциклопедия . Том III. Аральская флотилия – Афонское сражение : BMK BRZ : Free Download, Borrow, and Streaming : Internet Archive",
+  "chars": 5961,
+  "viaArchive": false,
+  "retrievedAt": "2026-09-03T00:12:07.562Z"
+ },
+ "8c4236e2747bc239": {
+  "url": "https://www.napoleon-series.org/military-info/battles/Austerlitz/c_russiancasualties.html",
+  "gap": {
+   "type": "shell",
+   "detail": "0-char face"
+  }
+ },
+ "38367fd3c62bdb3c": {
+  "url": "https://catalogue.bnf.fr/ark:/12148/cb12389246n",
+  "finalUrl": "https://catalogue.bnf.fr/ark:/12148/cb12389246n",
+  "host": "catalogue.bnf.fr",
+  "title": "Notice RAMEAU \"Guerre de la troisième coalition (1805)\" | Accueil | Catalogue général | BnF- Bibliothèque nationale de France",
+  "chars": 1531,
+  "viaArchive": false,
+  "retrievedAt": "2026-09-03T00:13:09.643Z"
+ },
+ "083bf63727249fe9": {
+  "url": "http://www.historyskills.com/classroom/modern-history/austerlitz/",
+  "finalUrl": "https://www.historyskills.com/classroom/modern-history/austerlitz/",
+  "host": "historyskills.com",
+  "title": "Why the Battle of Austerlitz was Napoleon's greatest triumph - History Skills",
+  "chars": 8053,
+  "viaArchive": false,
+  "retrievedAt": "2026-09-03T00:13:13.147Z"
+ },
+ "87ff5369032f4bbf": {
+  "url": "https://www.worldhistory.org/article/2249/ulm-campaign/",
+  "finalUrl": "https://www.worldhistory.org/article/2249/ulm-campaign/",
+  "host": "worldhistory.org",
+  "title": "Ulm Campaign - World History Encyclopedia",
+  "chars": 21207,
+  "viaArchive": false,
+  "retrievedAt": "2026-09-03T00:13:14.090Z"
+ },
+ "92628dad3aad5477": {
+  "url": "https://news.bbc.co.uk/2/hi/europe/4491668.stm",
+  "gap": {
+   "type": "http",
+   "status": 403
+  },
+  "viaArchive": false
+ },
+ "f0b3dab601ea5dab": {
+  "url": "https://id.loc.gov/authorities/sh2006007055",
+  "gap": {
+   "type": "http",
+   "status": 403
+  },
+  "viaArchive": false
+ },
+ "89271295c55eaec0": {
+  "url": "https://marxengels.public-archives.com/en/ME0936en.html",
+  "finalUrl": "https://marxengels.public-archives.com/en/ME0936en.html",
+  "host": "marxengels.public-archives.com",
+  "title": "The Armies of Europe - Engels",
+  "chars": 187960,
+  "viaArchive": false,
+  "retrievedAt": "2026-09-03T00:13:15.756Z"
+ },
+ "cd10bb6b33a8c643": {
+  "url": "http://www.napoleon-online.de/AU_Generale/index.html",
+  "finalUrl": "https://napoleon-online.de/AU_Generale/index.html",
+  "host": "napoleon-online.de",
+  "title": "�sterreichische Generalit�t 1792-1815",
+  "chars": 910,
+  "viaArchive": false,
+  "retrievedAt": "2026-09-03T00:13:16.788Z"
+ },
+ "d5b09a7f8081e191": {
+  "url": "http://www.napoleon-online.de/",
+  "finalUrl": "https://napoleon-online.de/",
+  "host": "napoleon-online.de",
+  "title": "Napoleon Online - das Portal zur Militärgeschichte von 1789 bis 1815",
+  "chars": 5304,
+  "viaArchive": false,
+  "retrievedAt": "2026-09-03T00:13:17.199Z"
+ },
+ "afc6e77b15b2612e": {
+  "url": "https://muse.jhu.edu/article/180781/pdf",
+  "finalUrl": "https://muse.jhu.edu/verify?url=%2Farticle%2F180781%2Fpdf&r=6763759",
+  "host": "muse.jhu.edu",
+  "title": "Project MUSE -- Verification required!",
+  "chars": 206,
+  "viaArchive": false,
+  "retrievedAt": "2026-09-03T00:13:17.584Z"
+ },
+ "bfdee5bdffa1b7d4": {
+  "url": "https://doi.org/10.1215%2F10474552-16-1-120",
+  "gap": {
+   "type": "http",
+   "status": 403
+  },
+  "viaArchive": false
+ },
+ "83994f7c622efae5": {
+  "url": "https://api.semanticscholar.org/CorpusID:154229720",
+  "gap": {
+   "type": "shell",
+   "detail": "0-char face"
+  }
+ },
+ "199eb2f3ad85b759": {
+  "url": "http://www.westpoint.edu/history/SitePages/Napoleonic%20Wars.aspx",
+  "gap": {
+   "type": "http",
+   "status": 403
+  },
+  "viaArchive": true
+ },
+ "c78c4fb4e02058ce": {
+  "url": "https://search.worldcat.org/oclc/185576578",
+  "gap": {
+   "type": "http",
+   "status": 403
+  },
+  "viaArchive": false
+ },
+ "53d95b75cc0c7eb4": {
+  "url": "https://www.archive.org/details/memoirsofnapoleo01meneiala",
+  "finalUrl": "https://archive.org/details/memoirsofnapoleo01meneiala",
+  "host": "archive.org",
+  "title": "Memoirs of Napoleon Bonaparte, the court of the first empire : Méneval, Claude-François, baron de, 1778-1850 : Free Download, Borrow, and Streaming : Internet Archive",
+  "chars": 5452,
+  "viaArchive": false,
+  "retrievedAt": "2026-09-03T00:13:21.313Z"
+ },
+ "44b086159c14b556": {
+  "url": "https://archive.org/details/lifenapoleonbon00irelgoog/page/548/mode/1up",
+  "finalUrl": "https://archive.org/details/lifenapoleonbon00irelgoog/page/548/mode/1up",
+  "host": "archive.org",
+  "title": "The life of Napoleon Bonaparte : Ireland, W. H. (William Henry), 1777-1835 : Free Download, Borrow, and Streaming : Internet Archive",
+  "chars": 4639,
+  "viaArchive": false,
+  "retrievedAt": "2026-09-03T00:13:23.709Z"
+ },
+ "eac650f565dfbbb7": {
+  "url": "https://search.worldcat.org/oclc/37778325",
+  "gap": {
+   "type": "http",
+   "status": 403
+  },
+  "viaArchive": false
+ },
+ "5079b65d352fca9c": {
+  "url": "https://archive.org/stream/bmk-brz-3/bmk-brz-3_djvu.txt",
+  "finalUrl": "https://archive.org/details/bmk-brz-3/bmk-brz-3_djvu.txt?view=theater",
+  "host": "archive.org",
+  "title": "Военная энциклопедия . Том III. Аральская флотилия – Афонское сражение : BMK BRZ : Free Download, Borrow, and Streaming : Internet Archive",
+  "chars": 5961,
+  "viaArchive": false,
+  "retrievedAt": "2026-09-03T00:16:34.843Z"
+ },
+ "b3e8a6b5bc040373": {
+  "url": "https://archive.org/stream/lifenapoleonbon00irelgoog/lifenapoleonbon00irelgoog_djvu.txt",
+  "finalUrl": "https://archive.org/stream/lifenapoleonbon00irelgoog/lifenapoleonbon00irelgoog_djvu.txt",
+  "host": "archive.org",
+  "title": "Full text of \"The life of Napoleon Bonaparte\"",
+  "chars": 1318238,
+  "viaArchive": false,
+  "retrievedAt": "2026-09-03T00:16:35.827Z"
+ },
+ "2c7669441633a904": {
+  "url": "https://doi.org/10.2307%2F1987151",
+  "finalUrl": "https://www.jstor.org/stable/1987151?origin=crossref",
+  "host": "jstor.org",
+  "title": "Client Challenge",
+  "chars": 209,
+  "viaArchive": false,
+  "retrievedAt": "2026-09-03T00:16:37.711Z"
+ },
+ "b6338c4411534b80": {
+  "url": "https://lux.collections.yale.edu/view/concept/0ebef9f0-d078-4595-b1f6-36037ce2772d",
+  "gap": {
+   "type": "http",
+   "status": 403
+  },
+  "viaArchive": false
+ },
+ "e6e520d39bf33768": {
+  "url": "https://www.jstor.org/stable/1987151",
+  "finalUrl": "https://www.jstor.org/stable/1987151",
+  "host": "jstor.org",
+  "title": "Client Challenge",
+  "chars": 209,
+  "viaArchive": false,
+  "retrievedAt": "2026-09-03T00:16:37.979Z"
+ },
+ "f731ecd70d50c36a": {
+  "url": "https://www.discover-utrecht.com/location/the-pyramid-of-austerlitz/",
+  "finalUrl": "https://www.discover-utrecht.com/location/the-pyramid-of-austerlitz/",
+  "host": "discover-utrecht.com",
+  "title": "The Pyramid of Austerlitz | Ontdek Utrecht",
+  "chars": 2021,
+  "viaArchive": false,
+  "retrievedAt": "2026-09-03T00:16:41.859Z"
+ },
+ "d1a7d99c90f6e552": {
+  "url": "https://doi.org/10.1093%2Fehr%2FXVII.LXVII.537",
+  "gap": {
+   "type": "http",
+   "status": 403
+  },
+  "viaArchive": false
+ },
+ "ac75a233a78d000f": {
+  "url": "https://search.worldcat.org/issn/0013-8266",
+  "gap": {
+   "type": "http",
+   "status": 429
+  },
+  "viaArchive": false
+ },
+ "b2f38000f3555e8e": {
+  "url": "http://www.bellum.cz/en/battle-of-austerlitz.html",
+  "finalUrl": "https://bellum.cz/en/battle-of-austerlitz.html",
+  "host": "bellum.cz",
+  "title": "Battle of Austerlitz 2nd December 1805 | Bellum.cz",
+  "chars": 24777,
+  "viaArchive": false,
+  "retrievedAt": "2026-09-03T00:16:45.115Z"
+ }
+}

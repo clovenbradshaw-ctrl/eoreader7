@@ -1,3 +1,4 @@
+import { sourceOfWitness as kernelSourceOfWitness, recipeOfWitness } from "../kernel/notes.js";
 // corroboration.js — the witness tier as the ledger's OFFICIAL second vote.
 //
 // THE MEASURED CASE FOR THIS EXISTING (reading-recall-finding.md, both
@@ -426,14 +427,13 @@ export async function calibrationFrames() {
  * Two chunks of one file are one perspective (corroborateAtoms' own rule);
  * so are a chunk and a testimony vote from the same file.
  */
-export const sourceOfWitness = (w) => {
-  let s = String(w);
-  if (s.startsWith("testimony:")) s = s.slice("testimony:".length);
-  const tilde = s.indexOf("~");
-  if (tilde >= 0) s = s.slice(0, tilde);
-  const hash = s.indexOf("#");
-  return hash >= 0 ? s.slice(0, hash) : s;
-};
+// ONE implementation: the kernel's (notes.js), which strips ANY declared
+// kind prefix — `testimony:`, `primary:`, `planted:` — not only the one
+// this file happened to know about when it was written. A second copy here
+// stripped `testimony:` alone, so a `primary:` witness (ranke.js) would
+// have read as a source named "primary" — the drift class this repo's own
+// postmortems keep naming (P22, P24, P25).
+export const sourceOfWitness = kernelSourceOfWitness;
 
 export function distinctSources(witnesses) {
   const out = new Set();
@@ -483,12 +483,7 @@ export function independentReadings(witnesses) {
  */
 export function distinctRecipes(witnesses) {
   const out = new Set();
-  for (const w of witnesses ?? []) {
-    let s = String(w);
-    if (s.startsWith("testimony:")) s = s.slice("testimony:".length);
-    const cut = s.indexOf("~");
-    if (cut >= 0) out.add(s.slice(cut + 1));
-  }
+  for (const w of witnesses ?? []) { const r = recipeOfWitness(w); if (r != null) out.add(r); }
   return out;
 }
 

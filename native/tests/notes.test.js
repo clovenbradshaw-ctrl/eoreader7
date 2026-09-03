@@ -198,3 +198,46 @@ test("dietBoundaries: a source whose tail stops recurring is a boundary; the sam
   assert.equal(tiny.refused, "too_short");
   assert.throws(() => notes.dietBoundaries(withTail, { by: "end1", order: 2 }), /is declared/);
 });
+
+// ── witness standing: kinds, sources, instruments — medium-blind ──────────
+test("standingOf: one source is single-witness however many kinds repeat it; two sources through one instrument corroborate; two instruments corroborate independently; kinds are counted apart", () => {
+  const n = (witnesses) => ({ witnesses });
+  // a bare mechanical sighting plus a testimony vote FROM THE SAME source: one perspective
+  const one = notes.standingOf(n(["page-a.txt#10-40~r1", "testimony:page-a.txt"]));
+  assert.equal(one.sources, 1); assert.equal(one.standing, "single-witness");
+  assert.deepEqual(one.kinds, { sighting: 1, testimony: 1 });
+  // two sources, one decoder: they cannot disagree about the decoder
+  const shared = notes.standingOf(n(["take1.wav#0-9~tracker-a", "take2.wav#3-7~tracker-a"]));
+  assert.equal(shared.sources, 2); assert.equal(shared.instruments, 1); assert.equal(shared.standing, "corroborated");
+  // two sources, two decoders
+  const indep = notes.standingOf(n(["take1.wav#0-9~tracker-a", "take2.wav#3-7~tracker-b"]));
+  assert.equal(indep.instruments, 2); assert.equal(indep.standing, "corroborated-independently");
+  // the omnimodal shape of the primary-source law: an ACCOUNT of a
+  // performance (a review) and the performance's own record are different
+  // KINDS of witness; the kernel counts them apart and interprets neither
+  const account = notes.standingOf(n(["review.txt#120-180~walls-v1"]));
+  assert.deepEqual(account.kinds, { sighting: 1 });
+  const chased = notes.standingOf(n(["review.txt#120-180~walls-v1", "primary:performance.wav#40-52~goertzel"]));
+  assert.equal(chased.sources, 2); assert.equal(chased.instruments, 2);
+  assert.deepEqual(chased.kinds, { sighting: 1, primary: 1 });
+  assert.equal(chased.standing, "corroborated-independently");
+  // undeclared recipes are counted, never silently merged
+  assert.equal(notes.standingOf(n(["a.txt#1-2", "b.txt#3-4"])).undeclared, 2);
+  // the witness grammar, read back one field at a time
+  assert.equal(notes.sourceOfWitness("primary:archive.org#5-9~ranke-v1"), "archive.org");
+  assert.equal(notes.recipeOfWitness("primary:archive.org#5-9~ranke-v1"), "ranke-v1");
+  assert.equal(notes.kindOfWitness("primary:archive.org#5-9~ranke-v1"), "primary");
+  assert.equal(notes.kindOfWitness("archive.org#5-9~ranke-v1"), "sighting");
+  // a ref that itself contains a colon after an address is not a kind
+  assert.equal(notes.kindOfWitness("http://x#1-2"), "http"); // a declared kind is whatever precedes the first colon with no address in it — callers keep refs colon-free or declare the kind
+});
+
+test("foldWithStanding carries the standing on every projected note", () => {
+  let log = notes.createNotes({ frame: { reader: "test" } });
+  log = notes.hear(log, { end1: "Kutuzov", label: "commanded", end2: "the army", spans: [span("a.txt", 0, 10)], witness: "a.txt#0-10~r" });
+  log = notes.hear(log, { end1: "Kutuzov", label: "commanded", end2: "the army", spans: [span("b.txt", 5, 15)], witness: "b.txt#5-15~r" });
+  log = notes.hear(log, { end1: "Bagration", label: "held", end2: "the flèches", spans: [span("a.txt", 20, 30)], witness: "a.txt#20-30~r" });
+  const f = notes.foldWithStanding(log);
+  assert.equal(f[0].standing, "corroborated"); assert.equal(f[0].sources, 2);
+  assert.equal(f[1].standing, "single-witness"); assert.deepEqual(f[1].kinds, { sighting: 1 });
+});

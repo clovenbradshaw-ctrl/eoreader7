@@ -2559,3 +2559,87 @@ DISCLOSED on a note, not used to withhold it. Named, not built.
 **Enforced:** `organs/corroboration.test.mjs` 45 → 46 (the self-attestation
 that counted as two sources, and the (source, recipe) key); the-fold's
 suite and this repo's, zero new failures by name.
+
+## S46 — Ranke: a claim is chased to the document its account cites; the account and the document are two KINDS of witness, and a novel is never chased
+
+**Generality:** universal (the witness-kind axis in the kernel; the gate;
+the landing rule); specimen-scoped (two pages, one witness model, the
+faces those pages happened to cite).
+
+**User direction (2026-09-02/03), in order:** "when reading things like
+wikipedia, and in general, we must chase primary sources"; the activity is
+personified as an agent named after Leopold von Ranke; "if it is citing
+something via a hyperlink, it should go read that, not just Wikipedia
+shaped sourcing. if it is just quoting someone, it should go try to find
+that quote if the source isn't given"; "but that needs a gate so it doesn't
+explode in a novel"; "perhaps we toggle this one as this could be very
+burdensome"; and the frame for all of it: "we are not making claims about
+what is objectively true, just making the richest possible hypergraph of
+what claims are about the truth."
+
+**Kernel (`kernel/notes.js`).** A witness's KIND is now read off its
+declared prefix (`kindOfWitness`: `testimony:`, `primary:`, `planted:`; a
+bare address is a `sighting`) and `standingOf(note)` counts kinds apart
+beside sources and instruments (`foldWithStanding` projects it onto every
+note). The kernel names no kind's meaning — a report of a performance and
+the performance's own decoder are different kinds in every medium, and
+which kinds exist is the caller's vocabulary (`notes.test.js` pins the
+music-shaped case: `review.txt` sighting + `primary:performance.wav~goertzel`
+→ 2 sources, 2 instruments, kinds `{sighting:1, primary:1}`).
+`sourceOfWitness`/`recipeOfWitness` are the kernel's, and
+`corroboration.js` now imports them instead of keeping its own copy — the
+copy stripped `testimony:` alone, so a `primary:` witness would have read
+as a source named "primary" (the P22/P24/P25 drift class, caught before
+it shipped by the organ's first test).
+
+**Organ (`organs/ranke.js`).** Pure; fetch and search injected. `leadsOf(page)`
+is the GATE and the leads: outbound hyperlinks (any host that is not the
+page's own or the encyclopedia family's navigation — `extractCitations`,
+which is not Wikipedia-shaped past that family skip) and unsourced
+quotations (prose only — a quotation crossing a line break or carrying a
+URL, footnote arrow or page apparatus is a reference-list fragment, found
+live). A page with zero outbound links is `citing: false`, typed
+`no_citations`, and yields NO leads of either kind: Dracula's 509 quotation
+marks in a 300KB slice produced zero searches and zero fetches. `chase`
+ranks link leads by claim overlap (`rankPrimary`; a link sharing no word
+with the claim is not a lead for it — 178 of 318 consults on the first run
+were blind fetches before this rule), searches relevant quotes, fetches
+sequentially under the declared budget, snips each face for the note's
+words, and — THE LANDING RULE — lands `primary:<host>#a-b~ranke-v1` only
+on the witness tier's own "states" (`witnessNote`, the armed select
+protocol); without witness organs every containment hit is reported
+`unwitnessed` and nothing lands. `FULL_TEXT_FACES` is one declared address
+rule (archive.org `details/<id>` → `stream/<id>/<id>_djvu.txt`), never a
+layout scrape.
+
+**Why the landing rule is a rule and not a preference.** The control
+(II.23): the same chase over a ledger whose end2s are rotated, served from
+the same kept faces. Containment attested 1 real note and 6 redealt ones;
+with the witness reading every lead, 0 real and 1 redealt (a debris note
+the 2B model signed against a whole book's OCR). Containment finds where
+the words co-occur; the witness reads whether the sentence states the
+claim; the control is reported beside every number. Full account:
+`eval/the-fold/results/ranke-walk-RESULTS.md`.
+
+**What the two pages actually cite.** Of 30 fetches: 18 faces read, 8
+answered 403, 4 were shells; the readable ones are catalogue records,
+Google Books stubs, one full OCR book (through the address rule), one
+transcription, one essay. Zero notes landed on this material — the honest
+shape of "chase primary sources" on an encyclopedia battle article: the
+primaries are books behind catalogues, and reading them is a different
+budget than following a link. Named next: more address rules with givers;
+the witness at book scale; a search engine that answers.
+
+**Surface (the-fold, P84).** The ledger block now discloses standing
+instead of withholding on it; `/ranke <maxFetches> [maxSearches]` and a
+default-off `primary` switch beside `web`; the server route owns the two
+crossings and returns leads, the browser's witness reads them.
+
+**Enforced:** `organs/ranke.test.mjs` (6: the real page's leads; the novel
+gate on real Dracula bytes; accounts-only standing; link chase — unwitnessed
+reports and lands nothing, a witness's no lands nothing, a witness's yes
+lands an addressed `primary:` witness whose address reproduces the sentence,
+kinds counted apart; quote chase through search; the ledger walk with
+declared budgets, cached faces, and the redealt control), `tests/notes.test.js`
+(+2: standing kinds, foldWithStanding). Native suites' failure names
+identical to HEAD before and after (22 environment names); zero regressions.
