@@ -2722,3 +2722,56 @@ still convicted `indiscriminate`, so the seam cannot be used to buy a vote.
 The premise is pinned too rather than assumed — the test asserts
 `statingCandidates` returns zero on the paraphrase fixture, which is what an
 object-missing partial IS. Omitted, byte-identical to before.
+
+## S48 — `hear()` was asserting two claims from one string match; the second is now a recorded, refusable bridge
+
+**Generality:** universal.
+
+Two readings each establish their OWN universe of referents. `hear()`
+unioning two sources' witnesses on an exact triple match was asserting
+both that the two propositions are the same AND that the two documents'
+referents are the same — the second claim, a bridge between the two
+universes, was never made explicit, never recorded, and could not be
+conceded. Usually right; silently catastrophic when it is not (two
+different Smiths, one note, two witnesses, no way to find out).
+
+**The fix, additive.** Proposition identity still decides the note's id.
+A cross-source hearing now also records a `join` on the entry — source,
+which prior sources it crossed from, what was assumed, its basis, and a
+standing of `"assumed"` — so a corroborated note can be read back as
+"corroborated across N bridges nobody checked" rather than a bare count.
+An optional `bridge(crossing)` organ may refuse a crossing; refusal never
+drops evidence, it splits the sighting onto its own source-scoped note
+(`<id>@<source>`) with a typed reason, so a bridge established later still
+has two real notes to join. No organ: every crossing allowed, byte-
+identical to before. `standingOf` gained `crossings`/`assumedBridges`.
+
+**The gate measurement (`eval/the-fold/bridge-audit-RESULTS.md`).** On
+three real Wikipedia pages, 22 of 22 corroborated notes rest on an
+assumed bridge — common, not rare, so building bridges as first-class
+objects is warranted. A zero-model probe (do the two sources' own
+`discoverReferents` universes independently name the joined ends the same
+way) was built, and its first cut manufactured false disagreements by
+using stricter string identity than `namesCorefer` already licenses
+elsewhere in this codebase — fixed at the source. Even corrected, a
+seeded, both-ends-redealt control (II.23) matches the real suspect rate
+exactly (4.3% both), so **the probe does not separate real bridges from
+random ones at this sample size** — a power problem, honestly reported as
+undecided rather than as a clearance. 57% of real crossings are
+unexaminable by this method at all, because a joined end is often a
+definite description `discoverReferents` never captures as a named
+referent — the probe inherits the extractor's own reach.
+
+**Files.** `kernel/notes.js` (`hear`'s crossing check, `makeNotes`'
+`bridge`/`identityGiver` options, `standingOf`, `fold`'s carried
+`joins`/`unbridged`). `tests/notes.test.js` (12 → 17, incl. the control
+built to fail: two documents independently stating "Smith chaired the
+commission" about two different Smiths — refused with a scripted bridge
+organ, silently corroborated without one). `eval/the-fold/bridge-audit.mjs`
++ its results doc. Full native suite: 780/755/16, identical failure names
+to HEAD, zero regressions.
+
+**Not built:** bridges as objects with their own witness/provenance/
+concession lifecycle (Pass 12 step 2, the-fold's `NEXT-PASSES.md`) — this
+entry establishes only that bridges are common and that the naive probe
+cannot yet validate them, not that they are safe.
