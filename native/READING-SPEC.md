@@ -2776,6 +2776,224 @@ concession lifecycle (Pass 12 step 2, the-fold's `NEXT-PASSES.md`) — this
 entry establishes only that bridges are common and that the naive probe
 cannot yet validate them, not that they are safe.
 
+## S49 — Pass 12 step 2: the referent bridge, as a recorded object
+
+**Generality:** universal.
+
+S48 split `hear()`'s conflated match into proposition identity (unchanged)
+and referent identity (a `join`, recorded on the note but living nowhere
+of its own — no independent witness, no way for two SEPARATE content
+notes that happen to rest on the same correspondence to corroborate each
+other, no concession). `bridge-audit-RESULTS.md` measured bridges as
+common (22/22) and warranted step 2 on that finding alone, explicitly
+without claiming any bridge validated.
+
+**The design, derived rather than invented.** Pass 12's own load-bearing
+clause: "it is the same set of operations, just at another level." A
+bridge is an ARRANGEMENT — one reading's face for a referent, a fixed
+declared label (`same-referent-as`), the other reading's face for the
+same referent — and `notes.js`'s `hear`/`concede` already compute
+SIG/INS/SYN/REC correctly on any arrangement. So `organs/bridges.js` adds
+no new ledger mechanism: it derives bridge arrangements from a note's own
+`joins` and hears them onto a SEPARATE ledger via the SAME injected
+`notes` instance a caller already has. Two content notes that
+independently cross the same two sources via the same referent pair now
+corroborate ONE bridge object — the capability step 1's per-note `join`
+could not represent, because it kept the assumption but never gave it an
+identity of its own. A separate ledger, not the content one, because a
+bridge is a claim about referent correspondence, never something the
+material itself stated — folding it onto content notes would let `fold()`
+surface a correspondence no source ever asserted.
+
+**One real gap closed to make this possible.** A `join` recorded only the
+ESTABLISHED side's face (`assumed: [prior.end1, prior.end2]`); the
+crossing's own `incoming` object already carried the other side's face and
+spans, and `hear()` discarded them the moment `bridge()` returned. Widened,
+additively (`incomingEnds`, `incomingSpans` on the `join`), so a bridge
+has two real faces to show, not one assumed and one invented — pinned in
+`tests/notes.test.js` (a real face carried through; a missing one falls
+back to the raw end text, never blank).
+
+**Measured on the SAME real material step 1 used**
+(`eval/the-fold/bridge-object-measurement.mjs`, no fixtures faked — the
+three Wikipedia pages `bridge-audit.mjs` already reads, same production
+pipeline unchanged). 46 bridge arrangements derived from 22 joined content
+notes, collapsing to 43 distinct bridge objects — **3 corroborated by two
+independently-derived content notes**: Austria, Napoleon, and "the Allies"
+each correctly recognised as the same referent crossing the Austerlitz and
+Third-Coalition pages. This is the capability step 1 could not show: a
+finding step 2 exists to make visible, not asserted from the design alone.
+Step 1's own probe, re-pointed at the 43 distinct objects instead of raw
+crossings, reads `{"suspect":1,"clean":27,"unexaminable":15}` — consistent
+with step 1's own numbers; its disclosed limits (a probe that cannot beat
+its own redealt control at this sample size; 57% of crossings unexaminable
+because a joined end is often a definite description) are UNCHANGED by
+this pass and are not re-litigated here.
+
+**Files.** `kernel/notes.js` (the `incomingEnds`/`incomingSpans` widening
+on `join`, additive; `tests/notes.test.js` 17 → 19). `organs/bridges.js`
+(new — `deriveBridgeArrangements`, `syncBridges`, `bridgeStandingFor`,
+`BRIDGE_LABEL`, `BRIDGE_REFUSALS`) + `organs/bridges.test.mjs` (new, 8
+cases against the REAL kernel: the flagship corroboration capability; a
+CONTROL BUILT TO FAIL — two different face pairs crossing the same two
+sources must stay two bridges, never merged; idempotent re-sync; a
+concede reaching one end's bridge and not the other's; a crossing REFUSED
+upstream by a real `bridge()` organ produces no join and nothing for this
+module to see). `eval/the-fold/bridge-object-measurement.mjs` (new, the
+real-material run above). Full native suite: 376/355/12 (organs),
+488/477/10 (conformance+tests) — identical failure names to HEAD both
+suites, zero regressions.
+
+**Not built, named rather than implied done.** No retroactive cascade: a
+bridge conceded via `notes.concede` on the bridge ledger does NOT touch
+the content ledger's own notes or standings — `bridgeStandingFor` is a
+read-only lookup a caller consults, the same posture `dietBoundaries`/
+`concedeDiet` already keep apart (a diagnostic and an act, kept separate
+until the act itself is measured). No wiring into the-fold's app.js or the
+ledger-block disclosure — the-fold's own NEXT-PASSES.md names this as
+Pass 12's remaining steps 3 (read a cited/bridged document with the same
+full extraction apparatus, replacing the regex-window slicer) and 4
+(witnessed paraphrase landing as a bridge), both still real, unattempted
+work.
+## S50 — Reproduction, generalized out of `quotes.js`; and how many VOICES a ledger is counting
+
+**Generality:** universal.
+
+`organs/quotes.js` already followed a quotation to the bytes. Its matching
+core — normalize both sides through ONE fold, search, map the hit back to
+real addresses, report whether the RAW units matched or only the folded ones
+— is not about quotations at all, and quotation marks are one text-specific,
+entirely optional SIGNAL that a reproduction is being CLAIMED. Marks give
+two of three cases:
+
+```
+claimed + found    -> a real quotation           (quotes.js today)
+claimed + absent    -> a fabricated quotation     (quotes.js today)
+NOT claimed + found -> material repeated with nothing saying so
+```
+
+The third had no representation anywhere in this instrument, and it is the
+one that decides how many INDEPENDENT voices a ledger counts.
+
+**`kernel/reproduction.js` (new), medium-blind.** `locate` and `sharedRuns`,
+with the caller's own `fold` (a normalized sequence plus a map back to the
+original's coordinates) and its own `sameRaw`. Nothing in its body names a
+medium; `tests/reproduction.test.js` reads the source and fails if one
+appears, and — more to the point — RUNS the same organ over a non-text event
+stream. That test earned its keep immediately: it caught `String(...).slice`
+in the kernel, a text operation on material that was an array.
+
+**`organs/quotes.js` now delegates to it.** `locateSegment` is the kernel
+organ with this file's fold injected; what stays here is what is genuinely
+about quotations (the edge-punctuation strip — a quotation's closing period
+is routinely the quoting sentence's). One implementation of "is this
+reproduced here", not two. 13/13 unchanged.
+
+**The terrain, because it decided the shape.** A reproduction is
+STRUCTURE·FIGURE — a Link between two bodies, `A repeats B`, landed as an
+ordinary arrangement, corroboratable and concedable. The rule that a
+repeated witness is not a second voice is INTERPRETATION·FIGURE — a lens:
+declared, giver named, defeasible, never baked into arithmetic
+(`repetitionLens`). What the counts become is INTERPRETATION·GROUND, which
+is why `organs/voices.js` reports beside `standingOf` and never overwrites
+it. A lens whose repeated application demonstrably moved that ground would
+be a PARADIGM; nothing here measures that.
+
+**No statistic anywhere.** A shape-based furniture detector was measured
+first and refused: on real `splitSentences` units a navbox scored z = 5.29
+against real prose at z = 2.55 over 200 shuffle draws — a real signal that
+does not separate safely, the same class already refused once as "sound
+statistic, wrong claim". Reproduction needs no threshold and no null because
+it is an observation about units, with both addresses, re-read.
+
+**PER CLAIM, never per source pair** — the sharpest rule. Two pages sharing
+a navbox are one voice for the navbox's content and remain two independent
+voices for everything else. A witness is demoted only when THAT NOTE'S OWN
+span sits inside the shared run; the control built to fail pins exactly this.
+
+**Measured on three real Wikipedia pages** (`eval/the-fold/voices-measurement.mjs`):
+277 reproduced runs / 38,718 units found in 2.2s, the largest a 7,806-unit
+transcluded template. Of the 10 notes the ledger calls corroborated,
+**0 stand on two independent voices** — all 10 are one voice repeated. Two
+bugs were found by running it rather than reasoning about it: both witnesses
+of a pair were demoted, leaving ZERO voices (repetitions are reported in
+both directions — fixed to connected components, one voice per group, never
+zero); and repetition was not followed TRANSITIVELY, so a note witnessed by
+two pages that met only through a third, non-witnessing body survived as
+"two voices". Both pinned as regressions.
+
+**The cross-domain leg (P71), and it separates two claims that would
+otherwise be one.** Replayed unmodified on two net-new pages in a different
+century, subject and article family (Alan Turing / Bletchley Park): the
+FINDER transfers — 135 runs / 6,702 units, including a shared bibliography
+row and Churchill's "Action This Day" memo carried on both pages, neither
+marking the other — while the CORRECTION collapses nothing, because that
+pair corroborates nothing (0 notes reach two sources at all). The
+correction is bounded by the thing it corrects, and this repo already
+measures that at ~2% (P83). A second arm reproducing arm 1's 10-of-10
+would have meant the two materials were less independent than claimed.
+That arm also shows what shared units do NOT distinguish: transclusion, a
+shared bibliography row, and two pages quoting one origin wear one shape,
+and the units do not carry the answer — which is exactly what the per-claim
+gate above exists for, since two pages quoting one memo are one voice for
+the memo and stay two for their own commentary on it. Both arms:
+`eval/the-fold/results/voices-RESULTS.md`.
+
+**What it never says**: that a repeater is dishonest, that an origin is
+right, that either claim is true, or which body came first. Every collapse
+carries `contextChecked: false` — shared units are shared units, and whether
+a repeater used its origin faithfully needs the origin read in its own
+context, which nothing here does.
+
+**`contextChecked` was the named next rung, and it is REFUSED on
+measurement** — kept so it is not retried. The design: for a found run, read
+what each body CLAIMS around it (marked as a quotation on each side? same
+origin named?) — the one cell `reproduction.js`'s own table tabulates and
+never checks. Four findings against it. (1) The interesting cell is empty:
+**3 of 412 runs** are claimed on one side only, and all three are *titles*,
+where quoting is typographic convention rather than attribution. (2) The
+mutual-quotation cell is **2/14 precise** measured through the repo's own
+`quotes.js::extractQuotedSpans` — arm 2's 2 are one real case (Churchill's
+memo), arm 1's 12 are all reference-list scaffolding, landing there because a
+maximal run begins at the closing quote of an adjacent citation TITLE. (3)
+Separating those needs per-site formatting rules — the trap `succession.js`
+is condemned by name for. (4) The fallback of comparing the two sides'
+extracted arrangements instead is already on record as flat
+(`organs/corroboration.js`'s header: every mechanical identity tried measured
+flat across two real pages), and `makeRelationReader` refuses a run-sized
+window as too small to measure a vocabulary from. Two earlier, cruder probes
+of the same idea each produced a plausible number that dissolved on
+inspecting the sample rather than the count. The shape is not wrong — real
+mutual quotation of one origin is exactly `ranke.js`'s input — these bodies
+just do not supply the specimens.
+
+**What IS measured thick, from the same runs**: cross-body reproduction
+between two articles of one encyclopedia is a FURNITURE observation — page
+chrome, maintenance categories, navbox rows, reference scaffolding,
+bibliography publisher strings, 366 of 412 runs — resting on shared units
+with both addresses, re-read, where this project's shape-based furniture
+detector was refused for not separating safely. A LEAD, never a verdict: it
+catches real shared prose too, and recurrence breadth was tested as a
+narrowing and refused (the 2-of-3 and 3-of-3 buckets each hold both furniture
+and content). It bears on the blanking gap directly — `blankLabelRows` via
+`sentenceWithBlanking` is structurally defeated here, since `splitSentences`
+pre-atomizes navbox bullets so a per-sentence pass can never meet its own
+`minRun` of 4. Reported, not fixed.
+
+**Disclosed residue**, found by reading the rule rather than by a failure:
+grouping is by repetition COMPONENT, which is coarser than "carrying the
+same run" — two witnesses carried by DIFFERENT templates that happen to sit
+in one component can be collapsed together. The tighter rule groups by the
+covering run's own material (overlap, not equality: the same template
+measured 7,794 units on one page and 7,806 on another). Not built.
+
+**Files.** `kernel/reproduction.js` + `tests/reproduction.test.js` (11).
+`organs/voices.js` + `organs/voices.test.mjs` (7). `organs/quotes.js`
+(delegation only). `eval/the-fold/voices-measurement.mjs` +
+`results/voices-RESULTS.md` + five fixtures (three for arm 1, two for arm 2,
+none shared — that is what makes it a replay).
+Suites: organs 383/362/12, conformance+tests 499/488/10 — identical failure
+counts to baseline, zero regressions.
 ## S51 — Furniture is decided with the page in view; the evidence for a run lives across chunks
 
 **Generality:** universal.
