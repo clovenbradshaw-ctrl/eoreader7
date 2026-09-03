@@ -38,7 +38,7 @@ first call, not after.
     NODE_USE_ENV_PROXY=1 SLICERS=random,activation N=60 node ranke-slicers.mjs
 
 Each arm checkpoints to `results/ranke-slicers.json` as it lands and a
-re-run skips what is there. `results/.slicer-analyze.mjs` prints the license
+re-run skips what is there. `results/slicer-analyze.mjs` prints the license
 table and cross-arm overlap. Env: `N` notes, `K` candidates, `SLICERS`,
 `SEED`, `OUT`, `FRESH=1`, `FROM` for another page's walk.
 

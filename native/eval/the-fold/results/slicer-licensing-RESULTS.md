@@ -166,5 +166,5 @@ Each arm is written to `results/ranke-slicers.json` the moment it lands and
 a re-run skips what is already there, so a restart costs one arm rather than
 a pass. `FRESH=1` discards the checkpoint. `SLICERS=` selects arms,
 `N=` the declared note budget, `SEED=` the random arm's seed.
-`results/.slicer-analyze.mjs` prints the license table and the cross-arm
+`results/slicer-analyze.mjs` prints the license table and the cross-arm
 overlap from one or more result files.
