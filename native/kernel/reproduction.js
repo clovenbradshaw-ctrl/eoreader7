@@ -34,6 +34,22 @@
 // repeater's surrounding material makes it mean the opposite. Every result
 // says so (`contextChecked: false`), and nothing here can set that true.
 //
+// AND THAT IS NOW A MEASURED REFUSAL, not only a design boundary — stated
+// here because this is where a reader meets the table above and thinks of
+// filling its unchecked cell. Checking whether a FOUND run is CLAIMED on
+// each side was measured on 412 real runs and refused: the claimed-on-one-
+// side cell holds 3, all of them titles (quoting as typographic convention,
+// not attribution); the mutually-claimed cell is 2/14 precise, its 12 false
+// members all reference-list scaffolding caught because a maximal run begins
+// at the closing quote of an adjacent citation TITLE; telling those apart
+// needs per-site formatting rules; and the fallback of comparing the two
+// sides' extracted arrangements is already on record as flat
+// (`organs/corroboration.js`'s header). The shape is not wrong — real mutual
+// quotation of one origin is `organs/ranke.js`'s own input — encyclopedia
+// articles just do not supply the specimens, because 366 of those 412 runs
+// are machine-generated furniture neither body claims at all.
+// Full account: `eval/the-fold/results/voices-RESULTS.md`; spec entry S50.
+//
 // MEDIUM-BLIND, and the fold is the caller's. `fold(material)` returns
 // `{ norm, map }` — a normalized SEQUENCE (a string, or an array of
 // symbols) plus `map[i]`, the index in the ORIGINAL material that produced

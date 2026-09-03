@@ -112,13 +112,105 @@ own content and stay two voices for everything they each say about it. That
 is the control built to fail in `voices.test.mjs`, and arm 2's Churchill case
 is the real-material instance of it.
 
+## `contextChecked` — the next rung was measured and REFUSED
+
+`contextChecked: false` stands on every finding and every collapse, and this
+section is why it is not being lifted. Four findings, three of them measured
+here, all pointing the same way. Kept so nobody retries it.
+
+**The design that was tried on paper.** For a run found in both bodies, read
+what each body CLAIMS around it — is the reproduction marked as a quotation
+on each side, and is the same origin named? That is the one cell
+`kernel/reproduction.js`'s own three-case table tabulates and never checks
+(`claimed + found`), and it looked like the honest version of "used
+faithfully" — one that never says *faithful*, only *what each body claims*.
+
+**(1) The interesting cell is empty. 3 of 412 runs**, across both arms, are
+claimed on one side only — the case closest to the question. All three are
+*titles* (`"When Lilacs Last in the Dooryard Bloom'd"`; a records-compilation
+title), where quoting is a typographic convention rather than an attribution
+claim. Not a signal, an artifact.
+
+**(2) The mutual-quotation cell is 2/14 precise**, measured with the repo's
+own `quotes.js::extractQuotedSpans` rather than a hand-rolled regex. Arm 2's
+2 are one real case reported from both sides — Churchill's memo, genuinely
+quoted and attributed on both pages. Arm 1's 12 are **all** reference-list
+scaffolding (`". Journal of the Abraham Lincoln Association"`, `". National
+Park Service. Archived from the original on March"`), landing in the bucket
+because a maximal run begins at the closing quote of an adjacent citation
+TITLE.
+
+**(3) Separating the two would need per-site formatting rules.** What
+distinguishes Churchill's memo from a citation title here is Wikipedia's own
+reference layout. That is the trap `succession.js` is condemned by name for
+("it should never have been made"; "cannot be formatted to specific sites"),
+and the same one this project refused when it declined to chase title
+separators one character at a time.
+
+**(4) The fallback route is already on record as flat.**
+`organs/corroboration.js`'s own header: two real Wikipedia pages about one
+battle share ZERO mechanically-matchable restatements, and *every* mechanical
+identity tried — exact triple, referent-canonical ends, deranged-alias
+control — measured flat. So comparing the two sides' extracted arrangements
+instead of their quotation marks is a road this repo has already measured
+closed, and `makeRelationReader` additionally refuses a window too small to
+measure a verb vocabulary from (`vocabulary.gap`), which a run-sized window
+routinely is.
+
+**A first, cruder probe of the same idea is kept here because it was wrong in
+an instructive way.** An "opening quote within 120 characters, unclosed"
+heuristic reported 108/277 and 66/135 mutually-claimed — an order of
+magnitude high, because that window catches unrelated quotation marks in
+ordinary prose. It was replaced with a paragraph-scoped parity rule (19/3/255
+and 24/0/111), and only inspecting the *contents* of the surviving cell
+showed even those were mostly `". BBC News . Archived from the original on"`.
+Two rounds of a plausible number that dissolved on inspection: the count was
+never the evidence, the sample was.
+
+**What would change this.** A body whose reproductions are substantive prose
+rather than machine-generated furniture — the ratio here is 366 of 412
+against. Real quoting of one origin by two independent bodies is exactly what
+`organs/ranke.js`'s citation chase is built for, and pointing it at a *found*
+reproduction remains the right shape; what this measurement says is that
+these bodies do not supply the specimens, not that the shape is wrong.
+
+## The finding that IS measured thick
+
+Sampled across arm 1's 277 runs: page chrome (`"From Wikipedia, the free
+encyclopedia"`), maintenance categories (`"All Wikipedia articles written in
+American English"`, `"Wikipedia indefinitely semi-protected pages"`), navbox
+rows (`"- California - Colorado - Connecticut -"`), reference scaffolding
+(`". Archived from the original on April 20, 201"`) and bibliography
+publisher strings (`". Baton Rouge: Louisiana State University Press"`) — with
+one substantive item in a twelve-item spread, a 156-unit run of real prose.
+
+**Cross-body reproduction between two articles of one encyclopedia is,
+empirically, a furniture observation** — and unlike the shape-based furniture
+detector this project measured and refused (navbox z = 5.29 against real
+prose z = 2.55 over 200 draws: a real signal that does not separate safely),
+it rests on shared units with both addresses, re-read. No threshold, no null.
+
+It is a LEAD, not a verdict, and the control says why: it catches real
+content too — the 156-unit run is prose one article genuinely shares with
+another, and blanking it would delete content. **Recurrence breadth does not
+rescue it**, tested and refused: the 2-of-3 bucket holds both `"From
+Wikipedia, the free encyclopedia"` and `"issued the Emancipation
+Proclamation, which declared"`, and the 3-of-3 bucket holds both a navbox row
+and `". Archived from the original on September"`. Breadth separates nothing
+here.
+
+That matters beyond this file, because furniture reaching the ledger is the
+measured cause of arm 1's 10-of-10 false corroboration, and this instrument's
+existing blanker (`blankLabelRows` via `sentenceWithBlanking`) is
+structurally defeated on exactly this material: `splitSentences`
+pre-atomizes navbox bullets, so a per-sentence blanking pass can never meet
+its own `minRun` of 4. Reported, not fixed here.
+
 ## What no arm establishes
 
-`contextChecked: false` on every finding and every collapse. A verified
-reproduction says the units are shared. Whether a repeater's surrounding
-material uses them faithfully needs the origin read in its own context, and
-nothing in either organ does that. Pointing Ranke's citation-chase at a
-*found* reproduction is the named next rung, not something measured here.
+That any collapsed claim is false, that any surviving claim is true, or which
+body came first — reproduction is symmetric and both directions are reported,
+deliberately.
 
 Neither arm establishes that any collapsed claim is false, that any surviving
 claim is true, or which body came first — reproduction is symmetric and both

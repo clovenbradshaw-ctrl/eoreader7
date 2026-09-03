@@ -2866,6 +2866,41 @@ carries `contextChecked: false` — shared units are shared units, and whether
 a repeater used its origin faithfully needs the origin read in its own
 context, which nothing here does.
 
+**`contextChecked` was the named next rung, and it is REFUSED on
+measurement** — kept so it is not retried. The design: for a found run, read
+what each body CLAIMS around it (marked as a quotation on each side? same
+origin named?) — the one cell `reproduction.js`'s own table tabulates and
+never checks. Four findings against it. (1) The interesting cell is empty:
+**3 of 412 runs** are claimed on one side only, and all three are *titles*,
+where quoting is typographic convention rather than attribution. (2) The
+mutual-quotation cell is **2/14 precise** measured through the repo's own
+`quotes.js::extractQuotedSpans` — arm 2's 2 are one real case (Churchill's
+memo), arm 1's 12 are all reference-list scaffolding, landing there because a
+maximal run begins at the closing quote of an adjacent citation TITLE. (3)
+Separating those needs per-site formatting rules — the trap `succession.js`
+is condemned by name for. (4) The fallback of comparing the two sides'
+extracted arrangements instead is already on record as flat
+(`organs/corroboration.js`'s header: every mechanical identity tried measured
+flat across two real pages), and `makeRelationReader` refuses a run-sized
+window as too small to measure a vocabulary from. Two earlier, cruder probes
+of the same idea each produced a plausible number that dissolved on
+inspecting the sample rather than the count. The shape is not wrong — real
+mutual quotation of one origin is exactly `ranke.js`'s input — these bodies
+just do not supply the specimens.
+
+**What IS measured thick, from the same runs**: cross-body reproduction
+between two articles of one encyclopedia is a FURNITURE observation — page
+chrome, maintenance categories, navbox rows, reference scaffolding,
+bibliography publisher strings, 366 of 412 runs — resting on shared units
+with both addresses, re-read, where this project's shape-based furniture
+detector was refused for not separating safely. A LEAD, never a verdict: it
+catches real shared prose too, and recurrence breadth was tested as a
+narrowing and refused (the 2-of-3 and 3-of-3 buckets each hold both furniture
+and content). It bears on the blanking gap directly — `blankLabelRows` via
+`sentenceWithBlanking` is structurally defeated here, since `splitSentences`
+pre-atomizes navbox bullets so a per-sentence pass can never meet its own
+`minRun` of 4. Reported, not fixed.
+
 **Disclosed residue**, found by reading the rule rather than by a failure:
 grouping is by repetition COMPONENT, which is coarser than "carrying the
 same run" — two witnesses carried by DIFFERENT templates that happen to sit
