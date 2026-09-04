@@ -69,7 +69,12 @@ export const actClosure = (verbs, tokenTypes, lemmatizer) => {
 // omitted), so a prior for another language never gets English guesses
 // folded under it. No file I/O here: a browser hands in the parsed prior.
 
-const stemsOf = (w) => {
+// Exported so `scripts/build-morphology-prior.mjs` can decide what is
+// rule-recoverable using THIS rule rather than a restatement of it. A builder
+// that restates the reader's rule drops forms the reader cannot re-derive the
+// moment the two drift — measured: a five-way divergent restatement produced
+// 6,831 entries where this rule produces a different set entirely.
+export const stemsOf = (w) => {
   const out = new Set();
   const add = (s) => { if (s && s.length > 1) out.add(s); };
   if (w.endsWith("ies")) { add(w.slice(0, -3) + "y"); }
