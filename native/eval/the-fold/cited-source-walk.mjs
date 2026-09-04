@@ -62,7 +62,7 @@ const T = await import(`${NATIVE}/organs/index.js`);
 const { corroborateLedger, distinctSources } = T;
 // sharedTextGroups is not on organs/index.js's export list — imported from its
 // own module rather than adding an export in a measurement pass.
-const { sharedTextGroups } = await import(`${NATIVE}/organs/corroboration.js`);
+const { sharedTextGroups, textFeatures } = await import(`${NATIVE}/organs/corroboration.js`);
 const { splitSentences } = await import(`${NATIVE}/adapters/text/spans.js`);
 const { extractSurfaces, discoverReferents, namesCorefer, diaNorm } = await import(`${NATIVE}/adapters/text/surfaces.js`);
 const { resolvePronouns } = await import(`${NATIVE}/adapters/text/pronouns.js`);
@@ -110,9 +110,11 @@ console.log(`model ${MODEL}; budget ${BUDGET} asks; arm ${ARMS.join(",")}\n`);
 let log = hl.createHyperlexicon({ frame: { reader: "makeRelationReader", walls: true, posPrior: "POSPrior@1", model: MODEL, budget: BUDGET, corpus: "cited-source" } });
 let heard = 0; const t0 = Date.now();
 const admitted = [];
+const faceEdges = new Map(); // ref -> [{o, sFace, oFace}] — the ordered read's product
 for (const s of sources) {
   const passages = chunkSource(s.ref, s.text);
   const rel = reader(passages, { pool: passages });
+  faceEdges.set(s.ref, (rel.edges ?? []).map((e) => ({ o: e.end2, sFace: e.end1Face ?? null, oFace: e.end2Face ?? null })));
   for (const p of passages) {
     const edges = (rel.read(String(p.text ?? ""))?.claims ?? []).filter((c) => c.verdict === "bound").map((c) => ({ subject: c.end1, verb: c.label, object: c.end2, spans: c.spans ?? [] }));
     if (!edges.length) continue;
@@ -132,7 +134,32 @@ if (REDEAL !== null) {
   for (let i = 0; i < flat.length; i += 1) if (objs[i] !== flat[i].object) flat[i].object = objs[i];
   console.log(`REDEAL_SEED=${REDEAL}: ${flat.length} edges, object deranged (marginals kept, relation destroyed)`);
 }
-for (const a of admitted) { const r = hl.admit(log, a.edges, { witness: a.witness }); log = r.log; heard += r.heard.length; }
+// FACE_ONLY=1 — ask only about notes the ORDERED READ reaches: some edge in
+// another source has its RESOLVED REFERENT FACE matching this note's ends.
+// ordered-read-reach.mjs measured this selector at 51 real notes against a
+// redealt median of 39, outside all 20 draws (p ~ 0.048), where the copresence
+// lookup the walk uses by default reads p ~ 0.905 — no signal at all. This
+// arm spends the same budget on the selected set instead of a near-random one.
+let admit = admitted;
+if (process.env.FACE_ONLY === "1") {
+  let probe = hl.createHyperlexicon({ frame: { probe: "face-select" } });
+  for (const a of admitted) probe = hl.admit(probe, a.edges, { witness: a.witness }).log;
+  const F = (t) => [...textFeatures(t)];
+  const ov = (a, b) => { const x = F(a), y = F(b); return x.length && y.length && x.some((w) => y.includes(w)); };
+  const keep = new Set();
+  for (const n of hl.foldHyperlexicon(probe)) {
+    const own = distinctSources(n.witnesses ?? []);
+    for (const src of sources) {
+      if (own.has(src.ref)) continue;
+      const hit = (faceEdges.get(src.ref) ?? []).some((e) =>
+        e.sFace && ov(e.sFace, n.end1 ?? n.subject) && ((e.oFace && ov(e.oFace, n.end2 ?? n.object)) || ov(e.o, n.end2 ?? n.object)));
+      if (hit) { keep.add(`${n.subject}|${n.verb}|${n.object}`.toLowerCase()); break; }
+    }
+  }
+  admit = admitted.map((a) => ({ witness: a.witness, edges: a.edges.filter((e) => keep.has(`${e.subject}|${e.verb}|${e.object}`.toLowerCase())) })).filter((a) => a.edges.length);
+  console.log(`FACE_ONLY: ${keep.size} notes reached by the ordered read (of the full ledger); walking only those`);
+}
+for (const a of admit) { const r = hl.admit(log, a.edges, { witness: a.witness }); log = r.log; heard += r.heard.length; }
 const notes0 = hl.foldHyperlexicon(log);
 const planted = [];
 for (let i = 0; i + 1 < Math.min(notes0.length, 8) && planted.length < 4; i += 2) {
