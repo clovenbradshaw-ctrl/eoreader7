@@ -5,6 +5,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync, existsSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 import { makeHyperlexicon } from "./hyperlexicon.js";
 import { RANKE, PRIMARY_KIND, QUOTE_MIN_WORDS, claimOfNote, primaryWitness, standsOnAccountsOnly, leadsOf, footnoteLeads as leadsOfFootnotes, footnoteLeadsForNote, markersIn, markersOfSpan, documentMatches, archiveAddressFor, chase, chaseLedger } from "./ranke.js";
 import { kindOfWitness, sourceOfWitness } from "../kernel/notes.js";
@@ -38,6 +39,15 @@ const stubWitness = (stated = []) => ({
 import * as nativeTaskLog from "../kernel/task-log.js";
 import { cellOf, GRAINS } from "../kernel/cube.js";
 
+// Resolved from this file, not hardcoded — until 2026-09-04 this named
+// "/home/user/live_priors/...", a Linux container path that exists on no
+// developer machine, and the gate case below quietly substituted a synthetic
+// `.repeat(400)` string that carried enough quotation marks to satisfy every
+// assertion. The real-bytes arm had therefore NEVER executed outside that
+// container. A missing corpus is now a NAMED SKIP, never a synthetic stand-in.
+const DRACULA = fileURLToPath(new URL("../../../live_priors/01-literature-books/gutenberg/pg345_Dracula.txt", import.meta.url));
+const HAVE_DRACULA = existsSync(DRACULA);
+
 const FIX = new URL("../eval/the-fold/fixtures/", import.meta.url).pathname;
 const html = readFileSync(`${FIX}/wikipedia-battle-of-austerlitz.html`, "utf8");
 const hl = makeHyperlexicon({ createTaskLog: nativeTaskLog.createTaskLog, append: nativeTaskLog.append, projectTasks: nativeTaskLog.projectTasks, ENTRY_KINDS: nativeTaskLog.ENTRY_KINDS, OPERATOR_BASIS: nativeTaskLog.OPERATOR_BASIS, GRAINS, cellOf });
@@ -70,10 +80,10 @@ test("leads: a citing page's outbound links are leads and the page's own host an
   assert.equal(RANKE.recipe, "ranke-v1");
 });
 
-test("THE GATE: a novel cites nothing, so its thousands of quotation marks are not leads — typed no_citations, zero searches, zero fetches", async () => {
-  const book = "/home/user/live_priors/01-literature-books/gutenberg/pg345_Dracula.txt";
-  const text = existsSync(book) ? readFileSync(book, "utf8").slice(100000, 400000) : `“I am glad you found your way in here, for I am sure there is much that will interest you,” he said. `.repeat(400);
-  assert.ok((text.match(/[“”"]/g) ?? []).length > 500, "the control is full of quotation marks"); // both curly marks: the fallback text has no straight quotes
+test("THE GATE: a novel cites nothing, so its thousands of quotation marks are not leads — typed no_citations, zero searches, zero fetches",
+  { skip: HAVE_DRACULA ? false : `corpus absent: ${DRACULA}` }, async () => {
+  const text = readFileSync(DRACULA, "utf8").slice(100000, 400000);
+  assert.ok((text.match(/[“”"]/g) ?? []).length > 500, "the control is full of quotation marks");
   const novel = { ref: "dracula.txt", html: text, text, host: "" };
   const l = leadsOf(novel);
   assert.equal(l.citing, false);

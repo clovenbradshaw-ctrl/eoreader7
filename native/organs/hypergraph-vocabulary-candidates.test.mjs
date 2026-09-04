@@ -36,11 +36,22 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import path from "node:path";
+import { readFileSync, existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { makeRelationReader, MIN_SURFACES_PER_VERB } from "./hypergraph.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const NATIVE = path.join(HERE, "..");
+
+// Resolved from this file, not from the process cwd — the organs suite runs from
+// native/ (npm run test:organs) and from the repo root (node --test), and the
+// corpus sits beside the repo either way. This path was WRONG until 2026-09-04
+// (it joined against HERE/.. = native/, naming a native/live_priors that has
+// never existed), and a bare `catch { return; }` turned the ENOENT into a
+// green PASS — so every assertion below had never once executed. A missing
+// corpus is now a NAMED SKIP, never a silent pass.
+const SBLGNT = fileURLToPath(new URL("../../../live_priors/14-holy-texts/sblgnt/John.txt", import.meta.url));
+const HAVE_SBLGNT = existsSync(SBLGNT);
 
 async function loadOrgans() {
   const spans = await import(path.join(NATIVE, "adapters/text/spans.js"));
@@ -85,13 +96,10 @@ test("vocabulary.candidates: present and equal to verbs on ordinary prose (real 
 // blindness it exposed. The case now pins S34's effect from THIS repo's
 // consumer side; the zero-candidates meaning is pinned on a fixture that
 // is candidate-less by construction, below, rather than by a bug.
-test("vocabulary.candidates: the SBLGNT Greek excerpt NOMINATES candidates now — the old zero was S34's script-blindness, re-pinned as the fix's consumer-side witness", async () => {
+test("vocabulary.candidates: the SBLGNT Greek excerpt NOMINATES candidates now — the old zero was S34's script-blindness, re-pinned as the fix's consumer-side witness",
+  { skip: HAVE_SBLGNT ? false : `corpus absent: ${SBLGNT}` }, async () => {
   const { relationsFor } = await loadOrgans();
-  const fs = await import("node:fs");
-  const sblgntPath = path.join(HERE, "..", "live_priors", "14-holy-texts", "sblgnt", "John.txt");
-  let raw;
-  try { raw = fs.readFileSync(sblgntPath, "utf8"); }
-  catch { return; } // sibling corpus not present in this checkout — skip rather than fail
+  const raw = readFileSync(SBLGNT, "utf8");
   const excerpt = raw.slice(0, 8000);
   const p = { ref: "sblgnt", text: excerpt };
   const report = relationsFor([p], { pool: [p] });

@@ -1,9 +1,13 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
+import { fileURLToPath } from "node:url";
 import { contextVectors, cosine, kindFit, kindMembership, foldPermitted } from "./index.js";
 
-const LP = "/Users/mlacy/Documents/3.0/live_priors";
+// Resolved from this file, not hardcoded to one machine's home directory —
+// the corpus is a sibling of the repo, and this suite runs both from native/
+// (npm run test:organs) and from the repo root (node --test).
+const LP = fileURLToPath(new URL("../../../live_priors", import.meta.url));
 const BOOK = `${LP}/01-literature-books/gutenberg/pg345_Dracula.txt`;
 const ALPHA = 0.05; // declared once for every case below, never defaulted in the module
 
@@ -75,7 +79,7 @@ async function realVectors() {
   return contextVectors(sentences, surfaces);
 }
 
-test("THE SPECIMEN: Castle Dracula reads as a place, Count Dracula does not", { skip: !haveBook }, async () => {
+test("THE SPECIMEN: Castle Dracula reads as a place, Count Dracula does not", { skip: haveBook ? false : `corpus absent: ${BOOK}` }, async () => {
   const v = await realVectors();
   const castle = kindMembership("Castle Dracula", PLACES, v, { alpha: ALPHA });
   const count = kindMembership("Count Dracula", PLACES, v, { alpha: ALPHA });
@@ -84,21 +88,21 @@ test("THE SPECIMEN: Castle Dracula reads as a place, Count Dracula does not", { 
   assert.ok(castle.fit > count.fit * 2, "and the separation is wide, not marginal");
 });
 
-test("THE FIX: the fold that started this is now refused, on positive evidence", { skip: !haveBook }, async () => {
+test("THE FIX: the fold that started this is now refused, on positive evidence", { skip: haveBook ? false : `corpus absent: ${BOOK}` }, async () => {
   const v = await realVectors();
   const r = foldPermitted("Castle Dracula", "Count Dracula", PLACES, v, { alpha: ALPHA });
   assert.equal(r.permitted, false);
   assert.equal(r.reason, "different_kind");
 });
 
-test("CONTROL: real people are never read as places", { skip: !haveBook }, async () => {
+test("CONTROL: real people are never read as places", { skip: haveBook ? false : `corpus absent: ${BOOK}` }, async () => {
   const v = await realVectors();
   for (const person of ["Van Helsing", "Mina", "Lucy", "Renfield"]) {
     assert.equal(kindMembership(person, PLACES, v, { alpha: ALPHA }).verdict, "not_member", person);
   }
 });
 
-test("CONTROL: the kind recovers its own declared members — 9 of 10, and the tenth is disclosed", { skip: !haveBook }, async () => {
+test("CONTROL: the kind recovers its own declared members — 9 of 10, and the tenth is disclosed", { skip: haveBook ? false : `corpus absent: ${BOOK}` }, async () => {
   const v = await realVectors();
   const verdicts = PLACES.map((p) => [p, kindMembership(p, PLACES, v, { alpha: ALPHA }).verdict]);
   const members = verdicts.filter(([, x]) => x === "member").map(([p]) => p);
@@ -107,7 +111,7 @@ test("CONTROL: the kind recovers its own declared members — 9 of 10, and the t
   assert.equal(members.includes("Purfleet"), false, "the marginal member stays marginal — this test pins the disclosure, not a pass");
 });
 
-test("THE JUDGE SHUFFLED (II.23 on this test's own number): a RANDOM declared kind must not recover 9 of 10", { skip: !haveBook }, async () => {
+test("THE JUDGE SHUFFLED (II.23 on this test's own number): a RANDOM declared kind must not recover 9 of 10", { skip: haveBook ? false : `corpus absent: ${BOOK}` }, async () => {
   // "9 of 10 recover" is only evidence if a random set of ten referents,
   // declared as a kind, does NOT also recover ~9 of itself. This is the
   // same question the oracle run put to P60's judge, asked of this
@@ -129,7 +133,7 @@ test("THE JUDGE SHUFFLED (II.23 on this test's own number): a RANDOM declared ki
   assert.ok(median <= 6, `random kinds recover a median of ${median}/10 (draws ${JSON.stringify(recoveries)}) — must sit well below the real kind's 9`);
 });
 
-test("DISCLOSED LIMIT: a thin profile lands not_member for want of evidence — East/West Cliff is NOT closed", { skip: !haveBook }, async () => {
+test("DISCLOSED LIMIT: a thin profile lands not_member for want of evidence — East/West Cliff is NOT closed", { skip: haveBook ? false : `corpus absent: ${BOOK}` }, async () => {
   const v = await realVectors();
   const cliff = kindMembership("East Cliff", PLACES, v, { alpha: ALPHA });
   assert.equal(cliff.verdict, "not_member");
@@ -219,7 +223,7 @@ test("a discovered kind lands in the REAL hyperlexicon: one addressable note, wi
   assert.deepEqual(folded[0].witnesses.sort(), ["chronicle-a(heard)", "chronicle-b(heard)"], "witnesses unioned, never replaced");
 });
 
-test("P79's DECLARED place-kind is RECOVERED from nothing: discovered locative kinds on the real book contain most of it", { skip: !haveBook }, async () => {
+test("P79's DECLARED place-kind is RECOVERED from nothing: discovered locative kinds on the real book contain most of it", { skip: haveBook ? false : `corpus absent: ${BOOK}` }, async () => {
   // The kind foldPermitted was validated against was typed by hand
   // (PLACES). Run discoverCompanyKinds over the book's own recurring
   // surfaces, taught nothing, under the null arm: the kinds signed by

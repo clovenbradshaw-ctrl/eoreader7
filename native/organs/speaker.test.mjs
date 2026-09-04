@@ -1,10 +1,15 @@
 // speaker.test.mjs — the boundary against REAL Dracula bytes, plus the walls.
 import test from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readFileSync, existsSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 import { readHeading, speakerSections, speakerAt, DOCUMENT_KINDS } from "./index.js";
 
-const DRACULA = "../live_priors/01-literature-books/gutenberg/pg345_Dracula.txt";
+// Resolved from this file, not from the process cwd — the organs suite runs from
+// native/ (npm run test:organs) and from the repo root (node --test), and the
+// corpus sits beside the repo either way.
+const DRACULA = fileURLToPath(new URL("../../../live_priors/01-literature-books/gutenberg/pg345_Dracula.txt", import.meta.url));
+const HAVE_DRACULA = existsSync(DRACULA);
 
 test("readHeading reads Dracula's real heading shapes — possessive, from-phrase, letter-comma, and kind-only", () => {
   assert.deepEqual(readHeading("JONATHAN HARKER’S JOURNAL"), { kind: "journal", speaker: "JONATHAN HARKER", how: "possessive" });
@@ -24,7 +29,8 @@ test("ordinary prose is never a heading — the kind-word alone does not qualify
   assert.equal(readHeading("CHAPTER I"), null, "no kind-word, no heading");
 });
 
-test("THE REAL BOOK: sections carry the right speakers at the right offsets, and 'I' has a different binding per section", () => {
+test("THE REAL BOOK: sections carry the right speakers at the right offsets, and 'I' has a different binding per section",
+  { skip: HAVE_DRACULA ? false : `corpus absent: ${DRACULA}` }, () => {
   const text = readFileSync(DRACULA, "utf8");
   const sections = speakerSections(text);
   assert.ok(sections.length >= 20, `Dracula declares its sections densely: got ${sections.length}`);
