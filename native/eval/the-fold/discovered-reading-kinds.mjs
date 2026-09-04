@@ -45,7 +45,12 @@ import { oracleFor } from "./region-oracle.mjs";
 const NATIVE = new URL("../..", import.meta.url).pathname;
 const FIX = new URL("./fixtures/", import.meta.url).pathname;
 const REFS = (process.env.PAGES ?? "wikipedia-battle-of-borodino.html,wikipedia-battle-of-austerlitz.html,wikipedia-war-of-the-third-coalition.html").split(",");
-const CAP = Number(process.env.CAP ?? 2);
+// Cap 4 is the value this driver's own results document derives and reports
+// against — the smallest cap whose maximum marginal share falls below 0.5 on
+// every page. The default had drifted to 2, so a plain run reproduced kinds
+// the document never describes (`la_` where it reports `la_a_`). The marginal
+// table that chooses it is a fact about shapes, not about any oracle.
+const CAP = Number(process.env.CAP ?? 4);
 const MIN_MENTIONS = Number(process.env.MIN_MENTIONS ?? 4);
 const MIN_SHARE = Number(process.env.MIN_SHARE ?? 0.4);
 const MIN_MEMBERS = Number(process.env.MIN_MEMBERS ?? 2);

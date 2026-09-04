@@ -146,3 +146,49 @@ in a row is the reason the ledger's addresses can be trusted.
   helped find a kind, and it did not choose among them.
 - No claim is made that any admitted line is TRUE, or that these kinds
   generalise past pages built by this one publishing system.
+
+---
+
+## Amendment, same day: the oracle changed underneath this, and nothing here moved
+
+`region-oracle.mjs` was corrected (see `door-by-kind-RESULTS.md`'s amendment):
+prose was its **residual** class, so 43% of what it called prose on Borodino
+was the site's chrome and the campaign map's pin labels. Three strips were
+added, declared by container, costing zero lines of 60 characters or more.
+
+This driver reads the oracle for `truth` when it scores a discovered kind's
+prose share, so every number below the discovery step is affected. **Not one
+conclusion is.**
+
+| | before | after |
+|---|---|---|
+| Borodino base rate | 26.9% | 22.3% |
+| `kind:before=la_a_` | 71 lines, 99% prose | **71 lines, 99% prose** |
+| `kind:before=s._a` | 315 lines, 0% | **315 lines, 0%** |
+| `kind:before=m._._` | 70 lines, 0% | **70 lines, 0%** |
+| standings | s._a 3 sources, m._._ 2, la_a_ 1 | **identical** |
+| conceded by REC | 0 | **0** |
+
+Every kind still clears its own null arm, the separations move only because
+the base rate moved, and the three standings are unchanged. That is what
+should happen: **the oracle appears only in scoring and never in discovery**,
+so a correction to it can move a kind's reported prose share and cannot move
+which kinds a document has.
+
+## A second finding, from re-running: the driver's cap default had drifted
+
+This document derives cap **4** by a stated criterion — the smallest shape cap
+whose maximum marginal share falls below 0.5 on every page — and reports
+cap-4 kinds throughout. The driver's own default was **2**, so a plain
+`node discovered-reading-kinds.mjs` produced kinds this document does not
+describe (`kind:before=la_` with members `La_ La.`, and only one kind clearing
+on one page instead of three across three).
+
+Nothing about the numbers here was wrong; the driver had simply stopped
+reproducing them. The default is now 4, matching the criterion. The marginal
+table that chooses the cap is a fact about shapes and is untouched by the
+oracle correction.
+
+**A driver whose defaults do not reproduce its own results document is a
+result nobody can check** — which is the same standing this project already
+gives an unwritten arm and an unread gap.

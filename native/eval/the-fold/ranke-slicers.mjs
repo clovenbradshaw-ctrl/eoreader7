@@ -98,6 +98,17 @@ const MODEL = process.env.MODEL ?? "gemma2:2b";
 const WANT = (process.env.SLICERS ?? "stating,random,containment,activation,embedding").split(",").map((s) => s.trim()).filter(Boolean);
 const SEED = Number(process.env.SEED ?? 0);
 const OUT = process.env.OUT ?? "ranke-slicers.json";
+// P66: A NULL DRAWN ONCE IS A NULL DRAWN ZERO TIMES. The control below is a
+// fixed +1 rotation — deterministic, and therefore ONE draw. Run 4 measured
+// containment at 9 real states against 1 control state and read that as a
+// separation; it is a separation from a single draw of the null, which this
+// project's own law says decides nothing. `ROTATE_SEED` replaces the fixed
+// rotation with a seeded DERANGEMENT (no note keeps its own end2), and
+// `BAND=D` runs the control arm D times at seeds 1..D to report the spread
+// the real number must sit outside of. Both absent, the run is byte-identical
+// to run 4 — the default is the fixed rotation it already used.
+const ROTATE_SEED = process.env.ROTATE_SEED ? Number(process.env.ROTATE_SEED) : null;
+const BAND = Number(process.env.BAND ?? 0);
 
 const { statingCandidates, witnessNote, textFeatures } = await import(`${NATIVE}/organs/corroboration.js`);
 const T = await import(`${NATIVE}/organs/index.js`);
@@ -272,19 +283,66 @@ async function arm(rows, label) {
 }
 
 // build the real and control row sets over the SAME faces
-const real = [], control = [];
-for (let i = 0; i < targets.length; i += 1) {
-  const row = targets[i], ends = endsOf(row);
+const real = [];
+for (const row of targets) {
+  const ends = endsOf(row);
   if (!ends) continue;
-  const face = poolOf(row.facePath);
-  real.push({ row, ends, face });
-  // II.23: end2 rotated to the NEXT target's object — same subject, same
-  // face, same slicer, a proposition the source does not make.
-  const rot = endsOf(targets[(i + 1) % targets.length]);
-  control.push({ row, ends: { end1: ends.end1, label: ends.label, end2: rot.end2 }, face });
+  real.push({ row, ends, face: poolOf(row.facePath) });
 }
+
+// II.23: end2 rotated away from its own note — same subject, same face, same
+// slicer, a proposition the source does not make. `seed === null` is the fixed
+// +1 rotation run 4 used; a seed draws a DERANGEMENT instead, so the null can
+// be drawn more than once.
+function controlRows(seed) {
+  const n = real.length;
+  let idx;
+  if (seed === null) idx = real.map((_, i) => (i + 1) % n);
+  else {
+    let st = (seed >>> 0) || 1;
+    const rnd = () => ((st = (st * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff);
+    idx = real.map((_, i) => i);
+    for (let i = n - 1; i > 0; i -= 1) { const j = Math.floor(rnd() * (i + 1)); [idx[i], idx[j]] = [idx[j], idx[i]]; }
+    // a fixed point would hand a note its OWN object back — that row would be
+    // real, not control, and would inflate the null toward the real number.
+    for (let i = 0; i < n; i += 1) if (idx[i] === i) { const j = (i + 1) % n; [idx[i], idx[j]] = [idx[j], idx[i]]; }
+  }
+  return real.map((r, i) => ({ row: r.row, face: r.face, ends: { end1: r.ends.end1, label: r.ends.label, end2: real[idx[i]].ends.end2 } }));
+}
+const control = controlRows(ROTATE_SEED);
 const poolSizes = [...faceCache.values()].map((f) => f.pool.length).sort((x, y) => y - x);
 console.log(`faces: ${poolSizes.length}; candidate pool per face (identical for every slicer) median ${poolSizes[poolSizes.length >> 1]}, largest ${poolSizes[0]}\n`);
+
+if (BAND > 0) {
+  // THE BAND. Only the control is redrawn: the real arm runs at temperature 0
+  // and is deterministic, so re-running it would spend calls to reproduce a
+  // number already on the checkpoint.
+  const realStates = {};
+  for (const name of WANT) realStates[name] = ckpt.real?.[name]?.states ?? null;
+  console.log(`BAND: ${BAND} seeded derangements of the control, arms ${WANT.join(",")}`);
+  const draws = {};
+  for (const name of WANT) draws[name] = [];
+  for (let d = 1; d <= BAND; d += 1) {
+    const out = await arm(controlRows(d), `band-${d}`);
+    for (const name of WANT) if (out[name] && !out[name].gap) draws[name].push(out[name].states);
+    console.log(`  draw ${d}: ${WANT.map((n) => `${n} ${out[n]?.states ?? "-"}`).join(", ")}`);
+  }
+  console.log(`\n${"=".repeat(72)}\nTHE REAL NUMBER AGAINST THE NULL'S OWN SPREAD (P66)`);
+  ckpt.band = {};
+  for (const name of WANT) {
+    const ds = draws[name].slice().sort((a, b) => a - b);
+    if (!ds.length) { console.log(`  ${name}: no draws landed`); continue; }
+    const obs = realStates[name];
+    const atOrAbove = obs == null ? null : ds.filter((x) => x >= obs).length;
+    const med = ds[ds.length >> 1];
+    ckpt.band[name] = { observed: obs, draws: ds, median: med, atOrAbove, rankP: atOrAbove == null ? null : (atOrAbove + 1) / (ds.length + 1) };
+    console.log(`  ${name.padEnd(13)} real ${String(obs).padStart(3)}   null median ${String(med).padStart(3)} (${ds[0]}-${ds.at(-1)}), ${ds.length} draws` +
+      (atOrAbove == null ? "" : `   ${atOrAbove} at or above real  ->  rank p ${(((atOrAbove + 1) / (ds.length + 1))).toFixed(3)}`));
+  }
+  save();
+  console.log(`\n  A rank p is the only claim ${BAND} draws support; it cannot go below ${(1 / (BAND + 1)).toFixed(3)}.`);
+  process.exit(0);
+}
 
 console.log("REAL:");
 const realOut = await arm(real, "real");

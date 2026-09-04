@@ -193,3 +193,65 @@ replayed here:
 
 Precision 0.909–0.916 across the real pages against the threshold's
 0.821–0.915. Junk admitted falls from the reader's current 73–77% to 8–9%.
+
+---
+
+## Amendment, same day: the oracle's denominator was wrong, and both findings survive
+
+`region-oracle.mjs` assigned `prose` as its **residual** class — `kindOf.get(text)
+?? "prose"`, with no positive test for prose anywhere in it. So 114 of 266
+lines it called prose on Borodino (43%) were `"Jump to content"`, `"From
+Wikipedia, the free encyclopedia"`, and the campaign map's own pin labels.
+Three strips were added, declared by container and written before their effect
+on any arm here was looked at, costing zero lines of 60 characters or more.
+Full account: `door-by-kind-RESULTS.md`'s amendment.
+
+**Every recall figure in this document was understated by roughly a fifth.**
+Precision was unaffected — the chrome was being refused by every arm, so it
+never entered a numerator.
+
+### The arms, recomputed (Borodino)
+
+| arm | before | after |
+|---|---|---|
+| admit everything | 0.424 | **0.365** (base rate 0.269 → 0.223) |
+| shape-recurrence (floor 5) | 0.401 | **0.009** |
+| `length >= 72` | — | **0.714** (P 0.840, R 0.620) |
+| fills the measure (the door) | 0.641 | **0.720** (P 0.916, R 0.593) |
+| region, cap 1 | 0.730 | **0.800** (P 0.868, R 0.742) |
+
+### Both findings survive, and one gets sharper
+
+**The region arm still does not replay**, which is the reason it is a
+paragraph here and not a shipped organ:
+
+| page | before | after |
+|---|---|---|
+| Borodino (developed on) | 0.730 | **0.800** |
+| Austerlitz | 0.489 | **0.527** |
+| Third Coalition | 0.208 | **0.245** |
+
+The gap between the page it was built on and the worst page it was not is
+*larger* after the correction (0.555, was 0.522). And the contrast that
+matters is now much clearer: measured on the same three pages, the door
+("fills the measure") reads **0.720 / 0.718 / 0.730** — a rule that replays,
+beside one that does not.
+
+**The model is still at the trivial baseline**, and this follows structurally
+rather than from a re-run: the finding is a comparison between two arms scored
+against one oracle, and a denominator change moves both identically —
+admit-everything's precision *is* the base rate by definition, and the model's
+precision moves with it. The original margin was 0.425 against 0.424 and
+precision 0.275 against a base rate of 0.269. What the correction changes is
+the level (admit-everything falls 0.424 -> 0.365 as the base rate falls
+0.269 -> 0.223), and the margin is what the finding rests on.
+
+### The shape-recurrence collapse is real, not an artifact
+
+`shape-recurrence (floor 5)` fell from 0.401 to 0.009 — by far the largest
+move here, and worth stating plainly rather than leaving in a table. It
+admitted 228 lines before and 4 now. The arm was scoring almost entirely on
+the chrome and map labels that the corrected oracle no longer calls prose:
+its apparent 0.401 was not weak evidence of a real regularity, it was the
+denominator. **The correction did not weaken this arm; it revealed that it
+was never measuring what the column header said.**
