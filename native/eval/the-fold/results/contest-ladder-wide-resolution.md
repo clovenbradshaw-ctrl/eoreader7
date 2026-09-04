@@ -6,14 +6,14 @@ A number outside the shuffle's range is LICENSED. A number inside it is RETRACTE
 
 | metric | good | real | null median | null range | verdict |
 |---|---|---|---|---|---|
-| `derivedFacts` | high | **9** | 3.5 | 1–8 | **LICENSED** |
-| `trueAgainstOracle` | high | **5** | 1 | 0–4 | **LICENSED** |
-| `falseAgainstOracle` | low | **0** | 0 | 0–0 | **AT THE EDGE** |
-| `precisionOnDecided` | high | **1** | 1 | 1–1 | **AT THE EDGE** |
-| `layerSize` | high | **9** | 3.5 | 1–8 | **LICENSED** |
-| `worstConcessionShare` | low | **0.333** | 0.55 | 0.2–1 | **NOT COMPARABLE** |
-| `meanConcessionShare` | low | **0.084** | 0.08 | 0.077–0.09 | **NOT COMPARABLE** |
-| `crossSourceDisagreements` | low | **0** | 2 | 0–4 | **AT THE EDGE** |
+| `derivedFacts` | high | **289** | 12 | 5–24 | **LICENSED** |
+| `trueAgainstOracle` | high | **142** | 0 | 0–2 | **LICENSED** |
+| `falseAgainstOracle` | low | **0** | 0 | 0–1 | **AT THE EDGE** |
+| `precisionOnDecided` | high | **1** | 1 | 0–1 | **AT THE EDGE** |
+| `layerSize` | high | **289** | 12 | 5–24 | **LICENSED** |
+| `worstConcessionShare` | low | **0.19** | 0.214 | 0.071–0.5 | **NOT COMPARABLE** |
+| `meanConcessionShare` | low | **0.01** | 0.003 | 0.003–0.004 | **NOT COMPARABLE** |
+| `crossSourceDisagreements` | low | **0** | 0 | 0–0 | **AT THE EDGE** |
 | `gateDerivedFacts` | high | **0** | 0 | 0–0 | **AT THE EDGE** |
 
 ## What each row is asking
@@ -30,16 +30,16 @@ A number outside the shuffle's range is LICENSED. A number inside it is RETRACTE
 
 ## Retractions
 
-* **`falseAgainstOracle` claims nothing.** Real 0; the shuffle reaches 0–0 (median 0), and 40 of 40 draws match or beat it.
-* **`precisionOnDecided` claims nothing.** Real 1; the shuffle reaches 1–1 (median 1), and 35 of 35 draws match or beat it.
-* **`crossSourceDisagreements` claims nothing.** Real 0; the shuffle reaches 0–4 (median 2), and 3 of 40 draws match or beat it.
+* **`falseAgainstOracle` claims nothing.** Real 0; the shuffle reaches 0–1 (median 0), and 35 of 40 draws match or beat it.
+* **`precisionOnDecided` claims nothing.** Real 1; the shuffle reaches 0–1 (median 1), and 7 of 12 draws match or beat it.
+* **`crossSourceDisagreements` claims nothing.** Real 0; the shuffle reaches 0–0 (median 0), and 40 of 40 draws match or beat it.
 * **`gateDerivedFacts` claims nothing.** Real 0; the shuffle reaches 0–0 (median 0), and 40 of 40 draws match or beat it.
 
 ## Not comparable (a stronger statement than retracted)
 
-The real layer holds **9** derived facts; the shuffle's holds 1–8. A SHARE of the layer is therefore a different quantity in each arm, and these rows were not scored at all:
+The real layer holds **289** derived facts; the shuffle's holds 5–24. A SHARE of the layer is therefore a different quantity in each arm, and these rows were not scored at all:
 
-* `worstConcessionShare` — real 0.333, shuffle 0.2–1. **The comparison was not made, because it cannot be.** A fragility claim needs a layer-size-matched null, which does not exist yet.
-* `meanConcessionShare` — real 0.084, shuffle 0.077–0.09. **The comparison was not made, because it cannot be.** A fragility claim needs a layer-size-matched null, which does not exist yet.
+* `worstConcessionShare` — real 0.19, shuffle 0.071–0.5. **The comparison was not made, because it cannot be.** A fragility claim needs a layer-size-matched null, which does not exist yet.
+* `meanConcessionShare` — real 0.01, shuffle 0.003–0.004. **The comparison was not made, because it cannot be.** A fragility claim needs a layer-size-matched null, which does not exist yet.
 
 This is why the earlier 17.4%-vs-39.3% fragility result and this run's 19.0% do not reconcile: neither was measured against a null whose layer was the same size.

@@ -46,8 +46,18 @@ const METRICS = [
   { key: "trueAgainstOracle", better: "high", real: (r) => r.arms[1].TRUE, why: "how many derived facts an oracle built from OTHER properties confirms" },
   { key: "falseAgainstOracle", better: "low", real: (r) => r.arms[1].FALSE, why: "hard convictions" },
   { key: "precisionOnDecided", better: "high", real: (r) => r.arms[1].precisionOnDecided, why: "the ratio this repo has already caught being uninformative once" },
-  { key: "worstConcessionShare", better: "low", real: (r) => r.fragility.worstShare, why: "concentration is fragility: the teetering tower is what destroying the relation produces" },
-  { key: "meanConcessionShare", better: "low", real: (r) => r.fragility.meanShare, why: "how evenly the layer's load is spread" },
+  // CONFOUNDED, and reported as such rather than scored. A SHARE of the
+  // layer cannot be compared across arms whose layers differ in size by
+  // more than an order of magnitude: the real wide run spreads 289 facts,
+  // the shuffle spreads 5-24, so "19% of the layer" and "21% of the layer"
+  // are not the same quantity. This is the aggregate-level trap one
+  // register over — a number that is real and also irrelevant, because the
+  // comparison it invites cannot be made. `layerSize` is carried beside
+  // them so the confound is visible instead of inferred, and no fragility
+  // claim is licensed here until a LAYER-SIZE-MATCHED null exists.
+  { key: "layerSize", better: "high", real: (r) => r.fragility.liveDerived, why: "the denominator the two rows below are shares OF — if this differs across arms, those rows compare nothing" },
+  { key: "worstConcessionShare", better: "low", confounded: "layerSize", real: (r) => r.fragility.worstShare, why: "concentration is fragility — CONFOUNDED by layer size, see above" },
+  { key: "meanConcessionShare", better: "low", confounded: "layerSize", real: (r) => r.fragility.meanShare, why: "how evenly the layer's load is spread — CONFOUNDED by layer size, see above" },
   { key: "crossSourceDisagreements", better: "low", real: (r) => r.contest.crossSource, why: "how many genuine n=2 disagreements the material contains" },
   { key: "gateDerivedFacts", better: "high", real: (r) => r.arms[0].derived, why: "what the shipped >=2-source gate yields" },
 ];
@@ -63,7 +73,10 @@ const rows = METRICS.map((m) => {
   return {
     key: m.key, better: m.better, why: m.why, real: rv, nullMedian: med, nullLow: lo, nullHigh: hi, draws: ns.length,
     beatenBy: m.better === "high" ? ns.filter((x) => x >= rv).length : ns.filter((x) => x <= rv).length,
-    verdict: outside ? "LICENSED" : ties ? "AT THE EDGE" : "RETRACTED",
+    // A confounded row is never scored. Calling it RETRACTED would imply the
+    // comparison was made and failed; it was not made, because it cannot be.
+    verdict: m.confounded ? "NOT COMPARABLE" : outside ? "LICENSED" : ties ? "AT THE EDGE" : "RETRACTED",
+    confoundedBy: m.confounded ?? null,
     inside,
   };
 });
@@ -83,6 +96,14 @@ L.push(`\n## Retractions\n`);
 const retracted = rows.filter((r) => r.verdict === "RETRACTED" || r.verdict === "AT THE EDGE");
 if (!retracted.length) L.push(`None.`);
 for (const r of retracted) L.push(`* **\`${r.key}\` claims nothing.** Real ${r.real}; the shuffle reaches ${r.nullLow}–${r.nullHigh} (median ${r.nullMedian}), and ${r.beatenBy} of ${r.draws} draws match or beat it.`);
+const confounded = rows.filter((r) => r.confoundedBy);
+if (confounded.length) {
+  const size = rows.find((r) => r.key === "layerSize");
+  L.push(`\n## Not comparable (a stronger statement than retracted)\n`);
+  L.push(`The real layer holds **${size?.real}** derived facts; the shuffle's holds ${size?.nullLow}–${size?.nullHigh}. A SHARE of the layer is therefore a different quantity in each arm, and these rows were not scored at all:\n`);
+  for (const r of confounded) L.push(`* \`${r.key}\` — real ${r.real}, shuffle ${r.nullLow}–${r.nullHigh}. **The comparison was not made, because it cannot be.** A fragility claim needs a layer-size-matched null, which does not exist yet.`);
+  L.push(`\nThis is why the earlier 17.4%-vs-39.3% fragility result and this run's 19.0% do not reconcile: neither was measured against a null whose layer was the same size.`);
+}
 fs.writeFileSync(MD, L.join("\n") + "\n");
 
 console.log(L.join("\n"));

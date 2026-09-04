@@ -43,8 +43,18 @@ import { contestedSearch } from "../../organs/corroboration.js";
 import { createDeclarationLog, proposeCandidate, promote } from "../../interpretation/declarations.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
+// CORPUS=wide runs the SAME ladder over the 2-hop crawl (158 entities)
+// instead of the 3 committed entity files (23 entities). The oracle widens
+// with it, and its independence is unchanged and explicit in the fixture's
+// own header: "the oracle reads P580/P582 only; the derivation reads
+// P1365/P1366 and tenure indices only — same pages, different properties."
+// This driver never reads a date. Dates exist in the wide material and are
+// dropped at load, which is the E' control derivation-precision.mjs runs by
+// re-naming; here it is structural, because nothing else is ever read.
+const WIDE = process.env.CORPUS === "wide";
 const FIXTURES = path.join(HERE, "fixtures", "wikidata");
-const ORACLE = path.join(HERE, "fixtures", "succession-terms.json");
+const WIDE_MATERIAL = path.join(HERE, "fixtures", "succession-tenures-wide.json");
+const ORACLE = path.join(HERE, "fixtures", WIDE ? "succession-terms-wide.json" : "succession-terms.json");
 const OUT = process.env.OUT_PATH ?? path.join(HERE, "results", "contest-ladder.json");
 const GIVER = "native/eval/the-fold/contest-ladder.mjs — per-office succession composition, declared as this driver's own risk";
 const MAX_STEPS = Number(process.env.MAX_STEPS ?? 6);
@@ -54,12 +64,12 @@ const hl = makeHyperlexicon(taskLog);
 const D = makeDerivation({ hl, taskLog });
 
 // ── the material, addressed into its own bytes (P5.2) ─────────────────────
-const files = fs.readdirSync(FIXTURES).filter((f) => f.endsWith(".json")).sort();
-const raws = new Map(files.map((f) => [f, fs.readFileSync(path.join(FIXTURES, f), "utf8")]));
-const entities = files.map((f) => parseEntity(JSON.parse(raws.get(f)))).filter(Boolean);
+const files = WIDE ? ["succession-tenures-wide.json"] : fs.readdirSync(FIXTURES).filter((f) => f.endsWith(".json")).sort();
+const raws = new Map(files.map((f) => [f, fs.readFileSync(WIDE ? WIDE_MATERIAL : path.join(FIXTURES, f), "utf8")]));
+const entities = WIDE ? [] : files.map((f) => parseEntity(JSON.parse(raws.get(f)))).filter(Boolean);
 function addressOf(file, qid) {
   const raw = raws.get(file);
-  const needle = `"id":"${qid}"`;
+  const needle = WIDE ? `"${qid}"` : `"id":"${qid}"`;
   const start = raw.indexOf(needle);
   if (start < 0) return null;
   if (raw.slice(start, start + needle.length) !== needle) throw new Error(`address self-verification failed: ${file}`);
@@ -67,6 +77,20 @@ function addressOf(file, qid) {
 }
 
 const offered = [];
+if (WIDE) {
+  // Person-grain, exactly the narrow run's shape, so the two are comparable.
+  // ONLY `replaces` / `replacedBy` are read — `start` and `end` sit in these
+  // rows and are never touched, which is what keeps the oracle independent.
+  const file = files[0];
+  const rows = JSON.parse(raws.get(file)).entities;
+  for (const [qid, e] of Object.entries(rows)) {
+    for (const t of e.tenures ?? []) {
+      const rel = `replaces:${t.office}`;
+      if (t.replaces) { const s = addressOf(file, qid); offered.push({ witness: `wikidata/${file}`, subject: qid, verb: rel, object: t.replaces, spans: s ? [s] : [] }); }
+      if (t.replacedBy) { const s = addressOf(file, qid); offered.push({ witness: `wikidata/${file}`, subject: t.replacedBy, verb: rel, object: qid, spans: s ? [s] : [] }); }
+    }
+  }
+}
 entities.forEach((e, i) => {
   const file = files[i];
   for (const p of e.positions ?? []) {
@@ -199,8 +223,13 @@ const routedReal = contestedSearch(contestLog, hl, sources, { limit: 5, kinds: h
 // the premise with the MOST resting on it — so the planted arm exercises
 // the cascade rather than a leaf that would take nothing with it
 const target = notes.find((n) => n.id === (exposures.find((e) => e.withdrawn > 0)?.id)) ?? notes.find((n) => srcOf(n.witnesses).size === 1);
-const outsider = files.map((f) => `wikidata/${f}`).find((r) => !srcOf(target.witnesses).has(r));
-const planted = {};
+// A real outsider when the corpus has one; otherwise a DISCLOSED synthetic
+// ref. The wide crawl is a single retrieval, so no real second source
+// exists and a cross-source contest is unavailable BY CONSTRUCTION — which
+// is itself reported (`crossSource: 0` above), not hidden behind a null.
+const realOutsider = files.map((f) => `wikidata/${f}`).find((r) => !srcOf(target.witnesses).has(r));
+const outsider = realOutsider ?? "PLANTED-OUTSIDER (disclosed: this corpus is one retrieval, so no real second source exists)";
+const planted = { outsider, outsiderIsReal: Boolean(realOutsider) };
 for (const kind of [hl.DISPUTE_KINDS.INDIVIDUATION, hl.DISPUTE_KINDS.CONTEST]) {
   const r = hl.dispute(carried.log, target.id, { source: outsider, because: `PLANTED (${kind}): this file records the office differently.`, kind });
   const search = r.refused ? null : contestedSearch(r.log, hl, sources, { limit: 5, kinds: hl.NEEDS_THIRD_SOURCE });
@@ -210,6 +239,7 @@ for (const kind of [hl.DISPUTE_KINDS.INDIVIDUATION, hl.DISPUTE_KINDS.CONTEST]) {
 
 const report = {
   driver: "contest-ladder.mjs",
+  corpus: WIDE ? "wide (158 entities, 2-hop crawl)" : "narrow (23 entities, committed seeds)",
   ran: new Date().toISOString().slice(0, 10),
   modelCalls: 0,
   redealSeed: process.env.REDEAL_SEED ?? null,
@@ -243,7 +273,7 @@ fs.mkdirSync(path.dirname(OUT), { recursive: true });
 fs.writeFileSync(OUT, JSON.stringify(report, null, 2));
 
 const say = (s) => console.log(s);
-say(`\n=== contest-ladder ${process.env.REDEAL_SEED ? `(REDEAL ${process.env.REDEAL_SEED})` : "(real)"} — ${report.modelCalls} model calls ===`);
+say(`\n=== contest-ladder [${WIDE ? "WIDE 158-entity crawl" : "narrow 23-entity seeds"}] ${process.env.REDEAL_SEED ? `(REDEAL ${process.env.REDEAL_SEED})` : "(real)"} — ${report.modelCalls} model calls ===`);
 say(`material: ${offered.length} offered assertions -> ${notes.length} notes across ${relations.length} offices, ${files.length} sources`);
 say(`premise levels: ${report.premiseLevels.atFloor} at floor(>=2 sources), ${report.premiseLevels.belowFloor} below (${(report.premiseLevels.singleSourceShare * 100).toFixed(1)}% single-source)`);
 for (const a of report.arms) say(`  ${a.arm}\n    premises ${a.premises} (stopped ${a.stopped}, carried ${a.carried}) -> derived ${a.derived}  TRUE ${a.TRUE} FALSE ${a.FALSE} UNVERIFIABLE ${a.UNVERIFIABLE}  precision ${a.precisionOnDecided ?? "n/a"}  maxDepth ${a.maxDepth}  resting on a single source: ${a.restingOnSingleSource}`);
@@ -252,6 +282,6 @@ say(`fragility: worst single concession withdraws ${worst?.withdrawn ?? 0} of ${
 say(`contest (real): ${apparent.length} apparent contradictions in ${groups.length} groups — cross-source ${crossSource}, SAME-source ${sameSource}`);
 say(`  landed as disputes: ${landedReal.length}; refused: ${JSON.stringify(refusedReal)}`);
 say(`  routed to a third source: ${routedReal.seeking.length}`);
-say(`contest (planted, disclosed — so the arm is REACHED, not decorative):`);
-for (const [k, v] of Object.entries(planted)) say(`  ${k}: landed ${v.landed}, routed ${v.routedToThirdSource}, unrouted ${v.unrouted}, would withdraw ${v.wouldWithdraw} of ${liveDerived}`);
+say(`contest (planted on the highest-exposure premise, disclosed — so the arm is REACHED, not decorative; outsider real: ${Boolean(realOutsider)}):`);
+for (const [k, v] of Object.entries(planted).filter(([, v]) => v && typeof v === "object")) say(`  ${k}: landed ${v.landed}, routed ${v.routedToThirdSource}, unrouted ${v.unrouted}, would withdraw ${v.wouldWithdraw} of ${liveDerived}`);
 say(`\nwrote ${OUT}\n`);
