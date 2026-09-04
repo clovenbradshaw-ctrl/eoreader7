@@ -11,7 +11,7 @@
 // exported under the organ's prefix: FRAME_REFUSALS, SIGNAL_REFUSALS, …
 // Every organ is also available whole as a namespace (`frame.REFUSALS`).
 
-export { WITNESS_OPERATING_POINT, askValue, calibrationFrames, competingFiller, corroborateLedger, distinctRecipes, distinctSources, endsCopresentWindow, independentReadings, proposeCandidates, statingCandidates, textFeatures, thirdSourceCandidates, witnessNote } from "./corroboration.js";
+export { WITNESS_OPERATING_POINT, askValue, calibrationFrames, competingFiller, contestedSearch, corroborateLedger, distinctRecipes, distinctSources, endsCopresentWindow, independentReadings, proposeCandidates, statingCandidates, textFeatures, thirdSourceCandidates, witnessNote } from "./corroboration.js";
 export * as corroboration from "./corroboration.js";
 export { SELECT_SCHEMA, WITNESS_SCHEMA, WITNESS_SLICE_MAX, becauseContained, becauseVerbatim, buildSelectMessages, buildWitnessMessages, foldSelect, foldTestimony, locateDecider, readTestimony, siblingSwap, witnessSlice } from "./testimony.js";
 export * as testimony from "./testimony.js";

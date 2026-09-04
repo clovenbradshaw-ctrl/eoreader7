@@ -458,6 +458,203 @@ export function makeNotes({ taskLog = nativeTaskLog, cellOf = nativeCellOf, iden
       .map((e) => { const t = tasks.get(e.concedes); return { id: e.concedes, trigger: e.trigger, at: e.seq, end1: t.end1, label: t.label, end2: t.end2 }; });
   }
 
+
+  // ── CON · Figure · CONTESTED — the act this ledger was missing ─────────
+  //
+  // `attest` lands agreement. `concede` lands retraction. Between them sat
+  // a hole the kernel's own vocabulary had already named and never written:
+  // `OPERATOR_BASIS.CONTESTED` was declared in task-log.js and, audited
+  // 2026-09-04, used by NOTHING on disk. Corroboration accumulated across
+  // runs; contest evaporated at the end of every one, because the only
+  // branch that reached the record was the agreement branch — corroboration
+  // .js kept its contradictions in a Map local to one call, commented
+  // "THIS RUN", and returned a `contests` structure that its own test was
+  // the only reader of. A disagreement was heard, tallied, reported, and
+  // dropped.
+  //
+  // WHY THIS IS NOT A CONVICTION, and why the old behaviour had a real
+  // reason. Lamport, already cited by the walk that feeds this: at n=2 you
+  // can SEE a disagreement but not WHO IS WRONG. Landing "the note is
+  // false" would be a verdict the evidence cannot support, and refusing to
+  // land it is the same restraint that keeps this engine's false-statement
+  // count low everywhere else. But that reason licenses NOT CONVICTING. It
+  // does not license FORGETTING. That two sources disagree is true whatever
+  // eventually settles it — a durable fact about the record, and precisely
+  // the fact a third source would settle.
+  //
+  // WHAT THE ACT MAY NOT TOUCH. It appends no witness, removes none, moves
+  // no span, concedes nothing: `standingOf` reads a disputed note exactly
+  // as it read it before, and notes.test.js holds that as a leak assay
+  // (witness set byte-identical across a dispute) rather than a promise.
+  // What it adds is AVAILABILITY. The disagreement is now in the place the
+  // third-source seeker, the walk's contested-first ranking and floor 6's
+  // premise report all already read, instead of dying in the return value
+  // of the call that heard it. What gets broadcast is the disagreement,
+  // never an adjudication of it.
+  //
+  // NOT A GLOBAL WORKSPACE, AND THE DIFFERENCE IS THE POINT. Anthropic's
+  // J-space result (2026-07) found a workspace that EMERGED unplanned, as a
+  // privileged self-accessible slice of the model's own representations —
+  // the same substrate doing everything else. This ledger is the opposite
+  // construction: external, symbolic, code-computed, and the model is
+  // barred from being its substrate at all. Against that paper's five
+  // signatures this record matches REPORTABILITY (the ledger is the
+  // reportable layer; the model is its mouth), CAUSAL MEDIATION
+  // (`concedePremise`'s transitive withdrawal IS an ablation, and the
+  // measured 17% worst-case layer loss is its coefficient), FLEXIBLE REUSE
+  // (write-once, many readers) and SELECTIVITY (one claim in sixty gets a
+  // second-source candidate at all). It has NO analog for the fifth,
+  // CONTROLLABILITY — nothing lets the generating model steer what enters —
+  // and that absence is deliberate. The reason is measured rather than
+  // preferred: the witness's own does-this-passage-state-this judgment,
+  // precisely the kind of internal call a spontaneous workspace produces,
+  // came back at a likelihood ratio of 1.0 (25 real / 25 fabricated,
+  // 2 states each). The separation is not an architectural flourish; it is
+  // what that number licenses. The lineage this act actually sits in is
+  // signal detection, source criticism and falsificationism — Popper's
+  // point was never that a claim is well-supported but that it sticks its
+  // neck out, and a structure with nowhere to put disagreement has not.
+  //
+  // A source disputes a note ONCE (Ladha: two chunks of one file are one
+  // perspective), and a source already standing on the note is refused
+  // rather than allowed to testify on both sides.
+
+  const DISPUTE_OUTCOMES = Object.freeze({ UPHELD: "upheld", CONCEDED: "conceded" });
+
+  /**
+   * THE KINDS OF DISAGREEMENT, and why an untyped one must not be routed.
+   * Measured 2026-09-04 (`contradiction-kinds.mjs`): "contradicted" is not
+   * one thing, and only ONE of its kinds is the undecidable-at-n=2 case
+   * that wants a third source.
+   *
+   *   individuation — one referent standing for two things (one person, one
+   *                   office, DISJOINT tenures). Decidable at n=1.
+   *   provenance    — one material arriving under two refs, so one
+   *                   perspective is counted twice. Decidable at n=1.
+   *   force         — an `ought` set against an `is`. Decidable at n=1.
+   *   grain         — a Figure claim set against a Pattern one. n=1.
+   *   contest       — same referents, same grain, same force, genuinely
+   *                   opposed. THIS is Lamport's n=2, and only this one
+   *                   needs a third source.
+   *   untyped       — heard as a denial with nothing said about its kind.
+   *                   The honest landing for a model witness, which cannot
+   *                   type what it produced. NOT a defect, and NOT a
+   *                   licence to route: on the real succession material
+   *                   BOTH apparent contradictions were individuation, so a
+   *                   seeker sent after every untyped dispute would have
+   *                   been sent twice and could have settled neither.
+   *
+   * Typing does not convict — the control does not separate real
+   * individuation from a fabricated adjacency, and that limit is on the
+   * record. What typing earns is the ROUTING decision: is a third source
+   * the lever here. `contestedSearch` therefore takes the kinds it seeks as
+   * a DECLARED argument and reports everything else as unrouted rather than
+   * spending on it.
+   */
+  const DISPUTE_KINDS = Object.freeze({
+    INDIVIDUATION: "individuation", PROVENANCE: "provenance", FORCE: "force",
+    GRAIN: "grain", CONTEST: "contest", UNTYPED: "untyped",
+  });
+  const KIND_VALUES = Object.freeze(new Set(Object.values(DISPUTE_KINDS)));
+  /** The one kind a third source can settle. */
+  const NEEDS_THIRD_SOURCE = Object.freeze([DISPUTE_KINDS.CONTEST]);
+
+  const disputeEntries = (log) => (log?.entries ?? []).filter((e) => e?.kind === ENTRY_KINDS.EVIDENCE && e.operator === "CON" && e.disputes);
+
+  /** Dispute id -> how it was settled. A settlement is itself CON·Figure; nothing is deleted. */
+  function settlements(log) {
+    const out = new Map();
+    for (const e of log?.entries ?? []) {
+      if (e?.kind === ENTRY_KINDS.EVIDENCE && e.operator === "CON" && e.settles) out.set(e.settles, { outcome: e.outcome, trigger: e.trigger, at: e.seq, noteId: e.noteId });
+    }
+    return out;
+  }
+
+  /**
+   * dispute(log, id, { source, because, span }) — a source that disagrees
+   * with a note, on the record. `because` is the decider the witness
+   * actually read; `span` is its byte address in the disputing source's own
+   * bytes, so the contest is re-openable (P5.2) rather than a bare vote.
+   */
+  function dispute(log, id, { source, because = null, span = null, kind = DISPUTE_KINDS.UNTYPED } = {}) {
+    if (!KIND_VALUES.has(kind))
+      return { log, refused: { type: "unknown_kind", kind, detail: `dispute: kind is one of ${[...KIND_VALUES].join(", ")} — "untyped" is the honest landing for a witness that cannot say which, never an invented one` } };
+    if (typeof source !== "string" || !source.trim())
+      return { log, refused: { type: "no_source", detail: "dispute: a disagreement names the source that disagrees — an unattributed contest is one no third source could ever settle" } };
+    if (typeof because !== "string" || !because.trim())
+      return { log, refused: { type: "no_decider", detail: "dispute: a disagreement records what it read as denying the note — never a bare vote" } };
+    const prior = projectTasks(log).find((t) => t.task_id === id) ?? null;
+    if (!prior) return { log, refused: { type: "unknown_note", noteId: id, detail: "nothing stands to dispute — a contest names a note that exists" } };
+    if (concededIds(log).has(id)) return { log, refused: { type: "already_conceded", noteId: id, detail: "dispute: the note is already withdrawn — nothing is left to contest" } };
+    if (new Set((prior.witnesses ?? []).map(sourceOfWitness)).has(source))
+      return { log, refused: { type: "source_already_witnesses", noteId: id, source, detail: "dispute: this source already stands on the note — one perspective does not testify on both sides" } };
+    if ((disputesOf(log).get(id) ?? []).some((d) => d.source === source)) return { log, refused: null, noop: true };
+    const conId = `con:${log.nextSeq}`;
+    const next = append(log, {
+      kind: ENTRY_KINDS.EVIDENCE, task_id: conId, operator: "CON", operator_basis: OPERATOR_BASIS.CONTESTED, grain: FIGURE,
+      ...cellFields("CON", FIGURE),
+      description: `contested (${kind}) by ${source}: ${because}`,
+      disputes: id, source, because, span: span ?? null, disputeKind: kind,
+    });
+    return { log: next, refused: null, noop: false, id: conId };
+  }
+
+  /**
+   * settleDispute(log, disputeId, { trigger, outcome }) — a third source
+   * arrived and the contest is over. `upheld`: the note stands. `conceded`:
+   * the note falls — and THIS FUNCTION STILL DOES NOT CONCEDE IT. It hands
+   * back a ready `concession` (the note's id and a trigger naming this
+   * settlement) so the withdrawal stays a separate, recorded act performed
+   * by whoever holds that authority — `derivation.js::concedePremise`, which
+   * is what cascades to the products. bridge-witness.js's posture exactly,
+   * and the reason a settlement can never quietly become a conviction.
+   */
+  function settleDispute(log, disputeId, { trigger, outcome } = {}) {
+    if (typeof trigger !== "string" || !trigger.trim())
+      return { log, refused: { type: "no_trigger", detail: "settleDispute: a settlement records what settled it — never a silent closing" } };
+    if (outcome !== DISPUTE_OUTCOMES.UPHELD && outcome !== DISPUTE_OUTCOMES.CONCEDED)
+      return { log, refused: { type: "no_outcome", detail: `settleDispute: a settlement says which way it went — "${DISPUTE_OUTCOMES.UPHELD}" (the note stands) or "${DISPUTE_OUTCOMES.CONCEDED}" (the note falls)` } };
+    const entry = disputeEntries(log).find((e) => e.task_id === disputeId) ?? null;
+    if (!entry) return { log, refused: { type: "unknown_dispute", disputeId, detail: "nothing stands to settle — a settlement names a dispute that exists" } };
+    if (settlements(log).has(disputeId)) return { log, refused: null, noop: true };
+    const setId = `con:${log.nextSeq}`;
+    const next = append(log, {
+      kind: ENTRY_KINDS.EVIDENCE, task_id: setId, operator: "CON", operator_basis: OPERATOR_BASIS.CONTESTED, grain: FIGURE,
+      ...cellFields("CON", FIGURE),
+      description: `settled ${outcome}: ${trigger}`,
+      settles: disputeId, noteId: entry.disputes, outcome, trigger,
+    });
+    const concession = outcome === DISPUTE_OUTCOMES.CONCEDED
+      ? { id: entry.disputes, trigger: `dispute ${disputeId} (${entry.source}) settled against it: ${trigger}` }
+      : null;
+    return { log: next, refused: null, noop: false, id: setId, concession };
+  }
+
+  /**
+   * The LIVE contests, note id -> disputes not yet settled. This is the
+   * durable replacement for corroboration.js's per-run Map: a contest read
+   * from here survives the run that heard it, which is the whole point.
+   */
+  function disputesOf(log) {
+    const settled = settlements(log);
+    const byNote = new Map();
+    for (const e of disputeEntries(log)) {
+      if (settled.has(e.task_id)) continue;
+      if (!byNote.has(e.disputes)) byNote.set(e.disputes, []);
+      byNote.get(e.disputes).push({ id: e.task_id, source: e.source, because: e.because, span: e.span ?? null, kind: e.disputeKind ?? DISPUTE_KINDS.UNTYPED, at: e.seq });
+    }
+    return byNote;
+  }
+
+  /** Note ids carrying a live contest. */
+  const disputedIds = (log) => new Set(disputesOf(log).keys());
+
+  /** Every dispute this log ever recorded, settled ones included, with how they closed — history stays whole. */
+  function disputeHistory(log) {
+    const settled = settlements(log);
+    return disputeEntries(log).map((e) => ({ id: e.task_id, noteId: e.disputes, source: e.source, because: e.because, span: e.span ?? null, kind: e.disputeKind ?? DISPUTE_KINDS.UNTYPED, at: e.seq, settled: settled.get(e.task_id) ?? null }));
+  }
+
   /**
    * fold(log) — the reading, projected: every live note with its witnesses
    * and spans, most-witnessed first. Derived notes (`derived: true`, a
@@ -466,11 +663,16 @@ export function makeNotes({ taskLog = nativeTaskLog, cellOf = nativeCellOf, iden
    */
   function fold(log) {
     const gone = concededIds(log);
+    // The contest, projected beside the note. `disputedBy` rides ONLY when a
+    // live dispute exists, so a ledger that has heard no disagreement folds
+    // byte-identically to how it folded before this act existed — the same
+    // rule `joins` and `unbridged` already follow one line down.
+    const contested = disputesOf(log);
     return projectTasks(log)
       .filter((t) => t.end1 && t.label && t.end2 && !t.derived && !gone.has(t.task_id))
       // `joins` and `unbridged` ride only when they exist, so a note that
       // crossed no universe has exactly the shape it always had.
-      .map((t) => ({ id: t.task_id, end1: t.end1, label: t.label, end2: t.end2, witnesses: t.witnesses ?? [], spans: t.spans ?? [], ...(t.joins?.length ? { joins: t.joins } : {}), ...(t.unbridged ? { unbridged: t.unbridged } : {}) }))
+      .map((t) => ({ id: t.task_id, end1: t.end1, label: t.label, end2: t.end2, witnesses: t.witnesses ?? [], spans: t.spans ?? [], ...(t.joins?.length ? { joins: t.joins } : {}), ...(t.unbridged ? { unbridged: t.unbridged } : {}), ...(contested.get(t.task_id)?.length ? { disputedBy: contested.get(t.task_id).map((d) => d.source) } : {}) }))
       .sort((a, b) => b.witnesses.length - a.witnesses.length || a.id.localeCompare(b.id));
   }
 
@@ -634,5 +836,5 @@ export function makeNotes({ taskLog = nativeTaskLog, cellOf = nativeCellOf, iden
     return { levels, stream: s, boundarySeqs: (levels[0]?.boundaries ?? []).map((b) => s[b].seq) };
   }
 
-  return { createNotes, frameOf, frames, redeclareFrame, hear, admit, attest, concede, concededIds, concededNotes, fold, foldWithStanding, standingOf, sourceOfWitness, recipeOfWitness, kindOfWitness, readingFromNotes, stream, figures, segment, dietBoundaries, concedeDiet, noteId, recipeId, REFUSALS, FRAME_TASK };
+  return { createNotes, frameOf, frames, redeclareFrame, hear, admit, attest, concede, concededIds, concededNotes, dispute, settleDispute, disputesOf, disputedIds, disputeHistory, DISPUTE_OUTCOMES, DISPUTE_KINDS, NEEDS_THIRD_SOURCE, fold, foldWithStanding, standingOf, sourceOfWitness, recipeOfWitness, kindOfWitness, readingFromNotes, stream, figures, segment, dietBoundaries, concedeDiet, noteId, recipeId, REFUSALS, FRAME_TASK };
 }

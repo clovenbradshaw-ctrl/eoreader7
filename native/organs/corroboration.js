@@ -27,12 +27,22 @@ import { sourceOfWitness as kernelSourceOfWitness, recipeOfWitness } from "../ke
 //
 // WHAT A VERDICT MAY DO:
 //   states      -> attest (the second vote)
-//   contradicts -> REPORTED, never landed. The door has no contradiction
-//                  field, and inventing one here would be a silent schema
-//                  widening; a contradiction is returned typed so the
-//                  caller can route it to the machinery that owns
-//                  contradiction (the claims tier), and the note is left
-//                  exactly as it stood. Disclosed limit, not an oversight.
+//   contradicts -> LANDED as CON·Figure·CONTESTED through the door's own
+//                  `dispute` (kernel notes.js, 2026-09-04), carrying the
+//                  decider and its address in the DISPUTING source's bytes.
+//                  It is NOT a conviction: no witness moves, no span moves,
+//                  `standingOf` is byte-identical across it, and the note
+//                  stays live and stays premise-eligible. Until that act
+//                  existed this branch only REPORTED — and the report died
+//                  with the run, which is how corroboration accumulated
+//                  across sessions while contest evaporated at the end of
+//                  every one. The old header called that a disclosed limit
+//                  ("the door has no contradiction field, and inventing one
+//                  here would be a silent schema widening"). The limit was
+//                  real; the remedy was wrong. The kernel had ALREADY named
+//                  the basis — OPERATOR_BASIS.CONTESTED, declared in
+//                  task-log.js and written by nothing on disk — so the act
+//                  was placed, not invented.
 //   refused     -> nothing. A refusal is the witness's designed
 //                  conservatism (P32: low recall, zero wrong corrections),
 //                  never evidence against the note.
@@ -59,10 +69,13 @@ import { sourceOfWitness as kernelSourceOfWitness, recipeOfWitness } from "../ke
 // 2. THE SECOND SOURCE IS THE BIGGEST GAIN; THE THIRD IS QUALITATIVELY
 //    DIFFERENT. Lamport: two sources can never EXPOSE a liar — you see
 //    the disagreement but not who is wrong. This is exactly why a
-//    "contradicts" verdict is REPORTED and never landed: at n=2 a
-//    states/contradicts pair is undecidable by construction, and routing
-//    it to the claims tier (which can seek a third source) is the honest
-//    move, not schema-widening the ledger.
+//    "contradicts" verdict lands as a CONTEST and never as a verdict: at
+//    n=2 a states/contradicts pair is undecidable by construction, so the
+//    record keeps THAT THEY DISAGREE — true whichever way it settles — and
+//    keeps no opinion about which is right. `contestedSearch` then reads
+//    the standing contests back off the ledger and ranks the third source
+//    for each, which is the seeker's input and, before this, did not
+//    exist. It justifies not convicting. It does not justify forgetting.
 //
 // 3. NO CASCADES BY CONSTRUCTION. The witness is never shown the ledger,
 //    other witnesses' votes, or the note's current standing —
@@ -106,9 +119,11 @@ import { sourceOfWitness as kernelSourceOfWitness, recipeOfWitness } from "../ke
 //
 // THE WALK, and what is honestly NOT calibrated. Each note runs a
 // unit-step walk: net = (distinct sources stating) − (distinct sources
-// contradicting, this run). Settled-corroborated at net >= settleFloor
-// with no live contradiction; disconfirmed at net <= −settleFloor
-// (reported, never landed — the same rule as `contradicts` itself). The
+// contradicting, LEDGER-WIDE — the disputing set is seeded from the log's
+// own standing contests, so a note contested last session is still
+// contested this one). Settled-corroborated at net >= settleFloor with no
+// live contradiction; disconfirmed at the mirror boundary (reported, never
+// landed: a note is withdrawn only by `concede`, never by a walk). The
 // floor's giver is the ledger's own ≥2-witness mouth (the quantity being
 // fed), not a tuned number. This is SPRT's SHAPE — two boundaries, walk
 // until crossed — without SPRT's calibrated likelihood ratios, because the
@@ -358,6 +373,58 @@ export function thirdSourceCandidates(note, sources, { featuresOf = textFeatures
     if (w) out.push({ source, window: w });
   }
   return out.sort((a, b) => b.window.score ?? 0 - (a.window.score ?? 0)).slice(0, limit);
+}
+
+/**
+ * CON·Pattern — THE STANDING CONTESTS, and where a third source could
+ * settle each. `thirdSourceCandidates` has always been able to answer
+ * "where would a further vote come from for THIS note"; what it never had
+ * was a caller that knew which notes needed one, because the only record
+ * of a disagreement lived in a Map that died with the run that built it.
+ * This reads the live disputes OFF THE LEDGER and ranks a search for each,
+ * so the question survives the session that raised it.
+ *
+ * Lamport's n=3, made into work: a contested note is the highest-value ask
+ * in the pool (askValue gives it 2) precisely because one more independent
+ * vote DECIDES it, where a vote on a thin note merely seconds it. Returns
+ * `{ noteId, note, disputes, stating, candidates }` — a search list, never
+ * a verdict, and never an ordering of who is more likely right.
+ */
+export function contestedSearch(log, door, sources, { limit, kinds, featuresOf = textFeatures } = {}) {
+  if (!Number.isFinite(limit)) throw new TypeError("contestedSearch: limit is declared by the caller (P9)");
+  // WHICH KINDS A THIRD SOURCE CAN SETTLE IS DECLARED, NEVER DEFAULTED.
+  // Measured (contradiction-kinds.mjs, 2026-09-04): both apparent
+  // contradictions in the real succession material were INDIVIDUATION —
+  // one person, one office, disjoint tenures, both sides from the same
+  // file — decidable at n=1 and settleable by no third source whatever. A
+  // seeker routed on "is it disputed" would have been sent after both and
+  // could have resolved neither. `door.NEEDS_THIRD_SOURCE` is the engine's
+  // own answer (`["contest"]`) for a caller that wants it; passing it is
+  // still the caller's act.
+  if (!Array.isArray(kinds) || kinds.length === 0)
+    throw new TypeError("contestedSearch: `kinds` is declared — which kinds of disagreement a third source could settle here (door.NEEDS_THIRD_SOURCE is the measured answer). Routing every dispute is what this argument exists to stop");
+  const want = new Set(kinds);
+  const live = door.disputesOf(log);
+  const seeking = [], unrouted = [];
+  if (!live.size) return { seeking, unrouted };
+  const byId = new Map(door.foldHyperlexicon(log).map((n) => [n.id, n]));
+  for (const [noteId, disputes] of live) {
+    const note = byId.get(noteId);
+    if (!note) continue; // conceded or otherwise gone; the contest is moot
+    const routable = disputes.filter((d) => want.has(d.kind));
+    const rest = disputes.filter((d) => !want.has(d.kind));
+    // Reported, never silently skipped — an unrouted contest is still a
+    // live disagreement, and what it needs is TYPING, not a third source.
+    for (const d of rest) unrouted.push({ noteId, disputeId: d.id, source: d.source, kind: d.kind, reason: d.kind === "untyped" ? "untyped — nothing said which kind of disagreement this is; a third source cannot be aimed" : `${d.kind} is decidable at n=1 — a third source is the wrong lever` });
+    if (!routable.length) continue;
+    // A source that already spoke — on either side — is not a third source.
+    const spoken = new Set([...distinctSources(note.witnesses ?? []), ...disputes.map((d) => d.source)]);
+    const candidates = thirdSourceCandidates(note, (sources ?? []).filter((x) => !spoken.has(x.ref)), { featuresOf, limit });
+    seeking.push({ noteId, note, disputes: routable, stating: [...distinctSources(note.witnesses ?? [])], contradicting: routable.map((d) => d.source), candidates });
+  }
+  // Most-contested first: the notes where the record most needs a third voice.
+  seeking.sort((a, b) => b.disputes.length - a.disputes.length || b.candidates.length - a.candidates.length);
+  return { seeking, unrouted };
 }
 
 /**
@@ -917,7 +984,16 @@ export async function corroborateLedger(log, door, sources, {
   // because no model call was spent and no testimony was heard.
   let skippedNoCopresence = 0;
   const copresence = new Map(); // `${noteId}\u0000${ref}` -> window|null, computed once
-  const contradictSources = new Map(); // note id -> Set of source refs, THIS RUN (contradicts is reported, never landed)
+  // note id -> Set of source refs disputing it. SEEDED FROM THE LEDGER, not
+  // empty: this Map used to be born blank every run and commented "THIS
+  // RUN", which is exactly how contest evaporated while corroboration
+  // accumulated — a note contested on Monday ranked as merely thin on
+  // Tuesday, and the third source that would have settled it was never
+  // sought. Reading the standing disputes back means the walk STARTS
+  // knowing what is contested, and askValue's contested-first ranking
+  // (value 2, the highest-information ask available) finally spans runs.
+  const contradictSources = new Map();
+  for (const [noteId, ds] of door.disputesOf(next)) contradictSources.set(noteId, new Set(ds.map((d) => d.source)));
   const askedPairs = new Set();        // `${noteId}\u0000${sourceRef}` — a spent call is spent, refusal included
 
   // Feasibility is precomputed per source (overlap cannot change mid-run);
@@ -981,7 +1057,16 @@ export async function corroborateLedger(log, door, sources, {
     if (w.verdict === "contradicts") {
       if (!contradictSources.has(best.note.id)) contradictSources.set(best.note.id, new Set());
       contradictSources.get(best.note.id).add(best.ref);
-      contradicted.push({ note: best.note, source: best.ref, because: w.because });
+      // LANDED, through the door's own contest act — the note is NOT
+      // convicted (no witness moves, no span moves, standingOf is
+      // byte-identical), but that this source denied it is now a durable
+      // fact carrying its decider and that decider's address in the
+      // DISPUTING source's bytes. A contradiction with no decider is
+      // refused by the act rather than landed as a bare vote, and the
+      // refusal is reported here rather than swallowed.
+      const d = door.dispute(next, best.note.id, { source: best.ref, because: w.because, span: w.span });
+      if (!d.refused) next = d.log;
+      contradicted.push({ note: best.note, source: best.ref, because: w.because, disputeId: d.id ?? null, landed: Boolean(!d.refused && !d.noop), refused: d.refused ?? null });
       continue;
     }
     const r = door.attest(next, best.note.id, { witness: `testimony:${best.ref}`, span: w.span, because: w.because });
@@ -996,11 +1081,12 @@ export async function corroborateLedger(log, door, sources, {
   // who states, who contradicts, per note — as data a caller (the claims
   // tier, the third-source seeker) can act on, never a flat list of ids.
   const contests = [];
+  const live = door.disputesOf(next);
   for (const n of door.foldHyperlexicon(next)) {
     const v = askValue(n, { contradictSources, settleFloor });
     standings[v.reason === "settled" ? "settled" : v.reason === "disconfirmed" ? "disconfirmed" : v.reason === "contested" ? "contested" : "thin"].push(n.id);
     const contra = contradictSources.get(n.id);
-    if (contra?.size) contests.push({ noteId: n.id, stating: [...distinctSources(n.witnesses)], contradicting: [...contra] });
+    if (contra?.size) contests.push({ noteId: n.id, stating: [...distinctSources(n.witnesses)], contradicting: [...contra], disputes: (live.get(n.id) ?? []).map((x) => ({ id: x.id, source: x.source, because: x.because, span: x.span })) });
   }
-  return { log: next, attested, contradicted, refusals, asks, skippedNoCopresence, standings, contests, calibration: WITNESS_OPERATING_POINT, settleFloor };
+  return { log: next, attested, contradicted, refusals, asks, skippedNoCopresence, standings, contests, disputes: live, calibration: WITNESS_OPERATING_POINT, settleFloor };
 }

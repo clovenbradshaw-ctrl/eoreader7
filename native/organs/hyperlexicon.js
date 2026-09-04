@@ -122,6 +122,12 @@ export function makeHyperlexicon(taskLog) {
 
   return {
     createHyperlexicon, hear, attest: notes.attest, admit, concede: notes.concede, concededNotes, concededIds: notes.concededIds,
+    // The contest half of the record (kernel CON·Figure·CONTESTED). `attest`
+    // lands agreement, `dispute` lands disagreement, `concede` lands
+    // retraction — and only the third one withdraws anything.
+    dispute: notes.dispute, settleDispute: notes.settleDispute, disputesOf: notes.disputesOf,
+    disputedIds: notes.disputedIds, disputeHistory: notes.disputeHistory, DISPUTE_OUTCOMES: notes.DISPUTE_OUTCOMES,
+    DISPUTE_KINDS: notes.DISPUTE_KINDS, NEEDS_THIRD_SOURCE: notes.NEEDS_THIRD_SOURCE,
     foldHyperlexicon, foldWithStanding, standingOf: notes.standingOf, readingFromHyperlexicon: notes.readingFromNotes,
     frameOf: notes.frameOf, frames: notes.frames, redeclareFrame: notes.redeclareFrame,
     stream: notes.stream, figures: notes.figures, segment: notes.segment,
