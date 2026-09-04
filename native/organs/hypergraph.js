@@ -883,6 +883,20 @@ export function makeRelationReader(organs) {
     phrasalPredicates = false,
     nounPhraseSubjects = false,
     attestedVerbs = false,
+    // `organs.castReadsBlanked` — OPTIONAL. Extends the page-scoped furniture
+    // blanking this reader already applies to EXTRACTION so that it also
+    // reaches the REFERENT INDEX. This file's own SCOPE note below records
+    // that decision being deferred, with the cost it carries named: "a name
+    // genuinely introduced in a caption or a list is then unknown to the
+    // reading". Measured 2026-09-04 (eval/the-fold/cast-furniture.mjs), 20
+    // size-matched null draws per page over six real Wikipedia pages: the
+    // furniture selection beats its own null on 2 of 6 — the two pages where
+    // navbox link titles were observed merging with real people — and is
+    // indistinguishable from blanking an equal quantity of arbitrary text on
+    // the other four. So it is earned as a CANDIDATE, per page, and this flag
+    // is how a caller takes that risk explicitly. Default false: omitted,
+    // every existing caller sees byte-identical extraction and identity.
+    castReadsBlanked = false,
   } = organs;
   const indexFor = makeReferentIndex(organs);
 
@@ -1012,7 +1026,7 @@ export function makeRelationReader(organs) {
     // and every caller that never injects `extractLeadingSurfaces`),
     // `withConfirmedLeadingReferents` returns `indexFor(list)` untouched on
     // its very first line — byte-identical.
-    const index = withConfirmedLeadingReferents(list, indexFor(list), {
+    const index = withConfirmedLeadingReferents(list, indexFor(list, { blanked: castReadsBlanked }), {
       splitSentences,
       extractSurfaces,
       extractLeadingSurfaces,
@@ -1130,9 +1144,19 @@ export function makeRelationReader(organs) {
      * index and can still be a pronoun's antecedent — verified: a name
      * appearing solely in navbox rows still resolves as a referent form with
      * page blanking on, while its edges are gone. What the change removes is
-     * navbox EDGES, not navbox REFERENTS. Blanking the index's input too is a
-     * separate decision with its own cost (a name genuinely introduced in a
-     * caption or a list is then unknown to the reading) and is not taken here.
+     * navbox EDGES, not navbox REFERENTS.
+     *
+     * AMENDED 2026-09-04. Blanking the index's input too was named here as a
+     * separate decision with its own cost — "a name genuinely introduced in a
+     * caption or a list is then unknown to the reading" — and left untaken.
+     * It is now available as `organs.castReadsBlanked`, DEFAULT FALSE, so
+     * this paragraph still describes every caller that does not set it. The
+     * cost it names is real and was measured rather than argued away:
+     * cast-furniture.mjs, six Wikipedia pages, 20 size-matched null draws
+     * each, 716 furniture-only referents removed against 136 real names lost,
+     * and the selection beats its own null on 2 of 6 pages. A candidate per
+     * page, never a global rule — which is why this is a flag and not a
+     * change of default.
      *
      * NOTHING HERE RE-SPLITS ANYTHING, so the drift the per-sentence
      * discipline exists to prevent (`blank-furniture-sentence-drift`) is

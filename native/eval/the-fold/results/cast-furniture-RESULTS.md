@@ -1,5 +1,16 @@
 # Should the referent index read the furniture-blanked page?
 
+> **SUPERSEDED AT THE GRAPH TIER, 2026-09-04 (same day).** Everything below is
+> a measurement of the REFERENT INDEX, and it stands as one. It is not a
+> measurement of the hypergraph, and the option it exercised reached no real
+> reading — `hypergraph.js` called `indexFor(list)` with no options, so no
+> edge, claim or slot was affected. `cast-furniture-hypergraph-RESULTS.md`
+> takes the question to the graph tier and answers it: **0 corrupt edges
+> removed, 24 real edges lost, across three pages, enrichment 0 against a null
+> of 0.** Two claims made from this document — that the defect is "upstream of
+> every identity claim in the repo" and that it is the highest-leverage next
+> fix — are **withdrawn there**.
+
 Ran 2026-09-04. **0 model calls, offline, 20 null draws per page.**
 Driver: `cast-furniture.mjs`.
 
