@@ -3,9 +3,9 @@
 // THE QUESTION. `premisesOf` gates floor 6 on a witness COUNT. Measured
 // before (premise-levels.mjs): 24 of 25 succession premises are
 // single-source, so the gate yields ZERO derived facts — the layer above
-// is not sparse, it is empty. P87 replaced the gate with `carry`: admit at
+// is not sparse, it is empty. P89 replaced the gate with `carry`: admit at
 // one source, carry the fragility on every product, and let the falling
-// machinery (P86's dispute → settle → concede → cascade) be what licenses
+// machinery (P88's dispute → settle → concede → cascade) be what licenses
 // building rather than the count.
 //
 // This driver runs that claim against the SAME independent oracle

@@ -971,18 +971,18 @@ export function mergeTestimony(readings) {
  * `refused`, and — audited 2026-09-04 — it is called from exactly one eval
  * driver and one registry string. Nothing landed it. That is the third
  * organ in this engine found producing a typed finding no caller writes
- * down (the concession cascade before P86; corroboration.js's `contests`
+ * down (the concession cascade before P88; corroboration.js's `contests`
  * before it), and P57's whole law is the answer: a finding read from the
  * world is ADMITTED and projected, never re-derived per turn and discarded.
  *
  * WHY THIS IS THE RIGHT INPUT, and a string comparison was not. These
  * readings are verdicts on ONE claim_id. Same claim, same arrangement, same
  * polarity question, judged separately per source. So the disagreement is
- * `contest` in P86's taxonomy BY CONSTRUCTION — individuation and grain are
+ * `contest` in P88's taxonomy BY CONSTRUCTION — individuation and grain are
  * excluded because it is one claim, force because it is one claim — and the
  * kind is EARNED by the claim-id spine rather than guessed. A detector that
  * compares subject/verb/object strings across sources cannot earn that, and
- * measured, does not: P11 forbids the string comparison outright, and P88
+ * measured, does not: P11 forbids the string comparison outright, and P90
  * records the run that made it anyway.
  *
  * FOUR WALLS, each a typed refusal rather than a silent skip:

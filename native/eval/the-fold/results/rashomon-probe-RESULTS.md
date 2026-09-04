@@ -98,4 +98,4 @@ That comparison is the one this driver reimplemented badly. The open
 question it leaves is not about Tolstoy: it is that `mergeTestimony` is
 called from one eval driver and one registry string, and **nothing lands
 its `DISAGREE` on the ledger** — the same unwired shape as the concession
-cascade before P86.
+cascade before P88.
