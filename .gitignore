@@ -1,1 +1,27 @@
-legacy-eoreader6.1/.gitignore
+# Until 2026-09-04 this file was a SYMLINK to legacy-eoreader6.1/.gitignore.
+# Git could not resolve it — every command printed
+#   warning: unable to access '.gitignore': Too many levels of symbolic links
+# — and so honored NO ignore rules at all, not even node_modules/. That is
+# why regenerable eval output accumulated in the tree. It is a real file now.
+
+node_modules/
+.DS_Store
+
+# Regenerable eval output. Neither of these is read by the test suite —
+# checked, not assumed: `npm test` and `npm run test:organs` reference only
+# ddg-*.html, midi/, pos-prior-eng.json, unimorph-morphology-prior.json,
+# wikipedia-war-and-peace.html, wikipedia-apollo-11.html and
+# wikipedia-battle-of-austerlitz.html, all of which stay tracked so the
+# suite keeps running with no network.
+#
+# primary-faces is ranke-backwards.mjs's offline replay cache of fetched
+# third-party documents (archive.org captures, Google Books, LoC records);
+# the results JSON are run outputs. The results/*.md write-ups are the
+# findings themselves and are deliberately NOT ignored.
+#
+# Files already committed stay tracked — an ignore rule does not untrack
+# anything. This stops NEW cache from landing; it does not remove the
+# ~5.7 MB already on main.
+native/eval/the-fold/fixtures/primary-faces/
+native/eval/the-fold/results/*.json
+native/eval/results/*.json

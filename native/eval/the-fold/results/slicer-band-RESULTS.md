@@ -114,3 +114,65 @@ refusal mixes *cannot choose* with *chose wrong*.
 **Generality:** specimen-scoped — the licence is for containment-as-slicer on
 this note population; the P66 lesson it re-earns (a deterministic control is
 one draw, and one draw reports no spread) is universal.
+
+---
+
+## Correction, same day: the null was the wrong question, and this document answered it
+
+**This document's conclusion above is withdrawn.** It reports that containment's
+separation survives a twenty-draw null at p = 0.048 and reads that as L3 met.
+The arithmetic is right and the inference is not, because **the nine landings
+were counted and never read.**
+
+Read, they are:
+
+| # | claim | the passage offered as its evidence | states it? |
+|---|---|---|---|
+| 1 | Armstrong began his descent | "Schmitt then introduced Jones to the other 11 Apollo astronauts…" | no |
+| 2 | Aldrin tossed the bag down | "This video shows Buzz Aldrin descending the lunar module ladder…" | no — a video blurb |
+| 3 | collected materials flown to Ellington AFB | "…flown directly to Ellington Air Force Base" | **yes** |
+| 4 | Apollo has come close to that excitement | "Astronaut Harrison H. Schmitt … stands near the deployed flag" | no — a photo caption |
+| 5 | Armstrong and Aldrin descended aboard the LM Eagle | "With a half-Earth in the background, the Lunar Module ascent stage…" | no — a photo caption |
+| 6 | Armstrong's sons hosted by Trump in the Oval Office | "Now, 49 years later, it was the first moonwalker's sons who had the honor." | no — names neither |
+| 7 | Armstrong explained NASA limited the moonwalk | "NASA officials limited our surface working time to 2 and 3/4 hours…" | **yes** |
+| 8 | Armstrong uncovered a plaque on the LM ladder | "The bag and its contents were returned to Earth…" | no — about a bag |
+| 9 | parade down Broadway to City Hall | "…along the traditional parade route up Broadway to City Hall" | **yes** |
+
+**Three of nine.** The rest are captions and adjacent text that share the
+claim's vocabulary without asserting it — which is exactly what a
+containment slicer is built to find and exactly what the witness, shown only
+that slice, has no way to refuse.
+
+**So the separation is real and it is not a license.** The rotated control
+lands fewer because a rotated object shares less vocabulary with the
+surrounding page, not because the arm is distinguishing stated from
+unstated. A null answers *is nine more than chance*. It cannot answer *are
+these nine right*, and no number of draws will start answering it.
+
+**A prior pass had already established this by reading the sample** and
+recorded "no slicer earns a license" in the-fold's `NEXT-PASSES.md`, noting
+that containment "separated on the count (9 vs 1) and then dissolved on
+inspecting the sample." This pass found the driver's checkpoint, read the
+handoff's line that the measurement "was never taken," and re-derived a
+weaker conclusion from the counts alone without opening the landings. The
+handoff was stale; the sample was on disk the whole time.
+
+**The lesson, which is this project's own and was available in advance:** a
+control built to fail tells you an arm is not chance. It never tells you the
+arm is right. `landings` is a field in every checkpoint this driver writes,
+and printing it costs nothing. **Read the sample before reporting the
+statistic** — a measured separation over a mis-scored population is a
+precise account of the wrong thing.
+
+**What stands and what does not.** The `ROTATE_SEED` / `BAND` machinery
+stands: a deterministic control is one draw, twenty draws is the honest
+form, and the finding that run 4's single draw sat at the bottom of the real
+spread (1, against a median of 2 and a ceiling of 5) is worth keeping. The
+5% figure also stands but is now a floor, not a rate: the control's median 2
+of 40 counts only rotated claims signed, while the real arm's own six
+mis-landings show the witness signs unstated propositions at a far higher
+rate than the rotation control can see. **L3 is not met. No slicer earns a
+license, and the prior pass's verdict is restored.**
+
+**Generality:** universal — "a null licenses against chance, never against
+being wrong" is not specific to this population or this slicer.
