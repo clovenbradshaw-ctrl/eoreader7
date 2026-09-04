@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { proposeCandidates, witnessNote, corroborateLedger, distinctSources } from "./index.js";
+import { proposeCandidates, witnessNote, corroborateLedger, distinctSources, contestedSearch } from "./index.js";
 import { makeHyperlexicon } from "./hyperlexicon.js";
 import { witnessSlice, siblingSwap, foldTestimony } from "./index.js";
 
@@ -358,17 +358,74 @@ test("DEF·Pattern: the operating point is declared with method and date, and ri
   assert.equal(out.calibration, WITNESS_OPERATING_POINT, "every run carries its calibration basis");
 });
 
+// A witness that denies the claim and AFFIRMS the sibling swap — the only
+// shape foldTestimony derives `contradicts` from. The arm call receives an
+// OBJECT, not a string, so the regex misses it and the swap reads yes;
+// that is load-bearing, and the assertions below are unconditional so a
+// change that stopped producing contradictions FAILS here instead of
+// quietly skipping. (The `if (out.contradicted.length)` this replaces was
+// the shape this project's own essay names: a guard that cannot be
+// reached is a decoration, and it passes forever.)
+const contradicting = async (sentence) =>
+  /Kutuzov commanded/.test(sentence)
+    ? { answer: "no", because: null }
+    : { answer: "yes", because: "Marshal Kutuzov commanded the Imperial Russian Army through the retreat." };
+
 test("CON·Pattern: a contradiction lands in the contests structure with BOTH sides named", async () => {
-  const contradicting = async (sentence) =>
-    /Kutuzov commanded/.test(sentence)
-      ? { answer: "no", because: null }
-      : { answer: "yes", because: "Marshal Kutuzov commanded the Imperial Russian Army through the retreat." };
   const out = await corroborateLedger(seed(), door, [SOURCE], { ask: contradicting, testimony, maxAsks: 10 });
-  if (out.contradicted.length) {
-    assert.ok(out.contests.length >= 1);
-    const c = out.contests[0];
-    assert.ok(c.stating.length >= 1 && c.contradicting.length >= 1, "both sides of the contest are data");
-  }
+  assert.equal(out.contradicted.length, 1, "the scripted contradiction is REACHED — asserted, never assumed");
+  assert.equal(out.contests.length, 1);
+  const c = out.contests[0];
+  assert.deepEqual(c.stating, ["page-a"]);
+  assert.deepEqual(c.contradicting, ["page-b"]);
+  assert.equal(c.disputes[0].source, "page-b");
+});
+
+test("a contradiction LANDS ON THE LEDGER — the branch that used to report and drop", async () => {
+  const out = await corroborateLedger(seed(), door, [SOURCE], { ask: contradicting, testimony, maxAsks: 10 });
+  assert.equal(out.contradicted[0].landed, true);
+  assert.ok(out.contradicted[0].disputeId, "the contest has an id on the record");
+  const live = door.disputesOf(out.log);
+  assert.equal(live.size, 1);
+  const [[noteId, ds]] = [...live];
+  assert.equal(ds[0].source, "page-b");
+  assert.match(ds[0].span.at, /^page-b#\d+-\d+$/, "with the decider addressed in the DISPUTING source's own bytes — the contest is re-openable");
+  // and it is not a conviction: the note still stands, still witnessed by page-a
+  const note = door.foldHyperlexicon(out.log).find((n) => n.id === noteId);
+  assert.deepEqual(distinctSources(note.witnesses), new Set(["page-a"]));
+  assert.equal(door.standingOf(note).standing, "single-witness");
+  assert.equal(door.concededIds(out.log).size, 0);
+});
+
+test("CONTROL BUILT TO FAIL: a SECOND walk over the same ledger starts KNOWING the note is contested — on the per-run Map it read `thin` and the third source was never sought", async () => {
+  const first = await corroborateLedger(seed(), door, [SOURCE], { ask: contradicting, testimony, maxAsks: 10 });
+  const noteId = [...door.disputesOf(first.log).keys()][0];
+  const note = door.foldHyperlexicon(first.log).find((n) => n.id === noteId);
+  const seeded = new Map([...door.disputesOf(first.log)].map(([k, v]) => [k, new Set(v.map((d) => d.source))]));
+  assert.deepEqual(askValue(note, { contradictSources: seeded, settleFloor: 2 }), { value: 2, reason: "contested", net: 0 });
+  assert.deepEqual(askValue(note, { contradictSources: new Map(), settleFloor: 2 }), { value: 1, reason: "thin", net: 1 },
+    "the old behaviour, kept as the thing being fixed: same note, same ledger, contest forgotten");
+  // and the second walk really does re-rank: it re-asks the contested note
+  // rather than treating it as merely under-witnessed
+  const second = await corroborateLedger(first.log, door, [SOURCE], { ask: contradicting, testimony, maxAsks: 10 });
+  assert.equal(door.disputesOf(second.log).size, 1, "the contest survives a second run without being re-heard");
+});
+
+test("the WALK's own contradictions land UNTYPED, and an untyped contest is not routed to a third source — the model cannot type what it produced", async () => {
+  const first = await corroborateLedger(seed(), door, [SOURCE], { ask: contradicting, testimony, maxAsks: 10 });
+  const THIRD = { ref: "page-c", text: "Kutuzov commanded the Imperial Russian Army from August 1812. Bagration commanded the Second Army." };
+  const noteId = [...door.disputesOf(first.log).keys()][0];
+  assert.equal(door.disputesOf(first.log).get(noteId)[0].kind, "untyped");
+  const r = contestedSearch(first.log, door, [SOURCE, THIRD, { ref: "page-a", text: "..." }], { limit: 5, kinds: door.NEEDS_THIRD_SOURCE });
+  assert.equal(r.seeking.length, 0, "measured: routing every disagreement spends the seeker where it can settle nothing");
+  assert.equal(r.unrouted.length, 1, "and the disagreement stays visible, needing typing rather than a source");
+
+  // typed as a genuine contest, the same ledger DOES route
+  const typed = door.dispute(first.log, noteId, { source: "page-d", because: "Bagration commanded the Second Army.", kind: "contest" }).log;
+  const r2 = contestedSearch(typed, door, [SOURCE, THIRD, { ref: "page-a", text: "..." }], { limit: 5, kinds: door.NEEDS_THIRD_SOURCE });
+  assert.equal(r2.seeking.length, 1);
+  assert.deepEqual(r2.seeking[0].candidates.map((c) => c.source.ref), ["page-c"], "neither the stating source nor a disputing one is a third source");
+  assert.equal(contestedSearch(door.createHyperlexicon(), door, [THIRD], { limit: 5, kinds: ["contest"] }).seeking.length, 0);
 });
 
 // ── the SELECT path: activate, then point (never generate) ──────────────

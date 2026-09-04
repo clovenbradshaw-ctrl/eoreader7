@@ -11,7 +11,7 @@
 // exported under the organ's prefix: FRAME_REFUSALS, SIGNAL_REFUSALS, …
 // Every organ is also available whole as a namespace (`frame.REFUSALS`).
 
-export { WITNESS_OPERATING_POINT, askValue, calibrationFrames, competingFiller, corroborateLedger, distinctRecipes, distinctSources, endsCopresentWindow, independentReadings, proposeCandidates, statingCandidates, textFeatures, thirdSourceCandidates, witnessNote } from "./corroboration.js";
+export { WITNESS_OPERATING_POINT, askValue, calibrationFrames, competingFiller, contestedSearch, corroborateLedger, distinctRecipes, distinctSources, endsCopresentWindow, independentReadings, proposeCandidates, statingCandidates, textFeatures, thirdSourceCandidates, witnessNote } from "./corroboration.js";
 export * as corroboration from "./corroboration.js";
 export { SELECT_SCHEMA, WITNESS_SCHEMA, WITNESS_SLICE_MAX, becauseContained, becauseVerbatim, buildSelectMessages, buildWitnessMessages, foldSelect, foldTestimony, locateDecider, readTestimony, siblingSwap, witnessSlice } from "./testimony.js";
 export * as testimony from "./testimony.js";
@@ -33,7 +33,7 @@ export { REFUSALS as OBLIGATION_REFUSALS, STANDINGS, admitObligations, coverage,
 export * as obligation from "./obligation.js";
 export { REFUSALS as EVENT_ARRANGEMENTS_REFUSALS, arrangementNotes, arrangementsFrom } from "./event-arrangements.js";
 export * as eventArrangements from "./event-arrangements.js";
-export { SELF_WITNESS, isSelfWitness, landAct, landSelfAssertion, makeCapacityRunner, mergeTestimony, negationCandidates, perSourceReadings, readsNothing, speakerWho } from "./capacity-runner.js";
+export { SELF_WITNESS, isSelfWitness, landAct, landContest, landSelfAssertion, makeCapacityRunner, mergeTestimony, negationCandidates, perSourceReadings, readsNothing, speakerWho } from "./capacity-runner.js";
 export * as capacityRunner from "./capacity-runner.js";
 export { CAPACITIES, findCapacity, listCapacities, unresolvedCapacity } from "./capacities.js";
 export * as capacities from "./capacities.js";

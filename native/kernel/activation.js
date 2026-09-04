@@ -66,17 +66,29 @@ export function gammaFor(window) {
  * `derive` is the caller's own conclusion-drawing (what the closed class is,
  * what the cast is, whatever this reader actually decides on), because "makes
  * a difference" is only meaningful with respect to a difference TO SOMETHING.
+ *
+ * `restrict(observations, depth)` says WHAT "depth" NARROWS. It defaults to
+ * the last `depth` observations — recency, the axis this organ was built on.
+ * But the rule ("the shallowest bound at which dropping everything beyond it
+ * changed no conclusion") is not about time; it is about any nested family
+ * ordered by inclusion, and pinning it to a tail slice was an accident of the
+ * first caller. Injecting `restrict` lets the same measurement bound HOPS in
+ * a graph: depth becomes a radius, and the question becomes how far from a
+ * referent you must look before the conclusion stops moving. Nothing else
+ * changes, and the default is byte-identical to the previous behaviour, so
+ * every existing caller measures exactly what it measured before.
  */
-export function dmdWindow(observations = [], derive, { candidates, equal = (a, b) => JSON.stringify(a) === JSON.stringify(b) } = {}) {
+export function dmdWindow(observations = [], derive, { candidates, equal = (a, b) => JSON.stringify(a) === JSON.stringify(b), restrict = (obs, depth) => obs.slice(Math.max(0, obs.length - depth)) } = {}) {
   if (typeof derive !== "function") throw new TypeError("dmdWindow: derive is the conclusion a difference must make a difference TO — it is required");
   if (!Array.isArray(candidates) || !candidates.length) throw new TypeError("dmdWindow: candidate depths are declared by the caller — which depths are worth testing is not this function's to guess");
+  if (typeof restrict !== "function") throw new TypeError("dmdWindow: restrict says what `depth` narrows — a function, or omit it for recency");
   const whole = derive(observations);
   const tried = [];
   for (const depth of [...candidates].sort((a, b) => a - b)) {
-    const recent = observations.slice(Math.max(0, observations.length - depth));
+    const recent = restrict(observations, depth);
     const agrees = equal(derive(recent), whole);
     tried.push({ depth, agrees });
-    if (agrees) return Object.freeze({ window: depth, gamma: depth > 1 ? gammaFor(depth) : 1, basis: "difference-that-makes-a-difference: the shallowest depth at which forgetting everything older changed no conclusion", tried: Object.freeze(tried) });
+    if (agrees) return Object.freeze({ window: depth, gamma: depth > 1 ? gammaFor(depth) : 1, basis: "difference-that-makes-a-difference: the shallowest depth at which dropping everything beyond it changed no conclusion", tried: Object.freeze(tried) });
   }
   return Object.freeze({ window: null, gamma: null, gap: "reach_exceeds_candidates", basis: "no candidate depth reproduced the whole reading's conclusion — this material reaches further back than anything tried", tried: Object.freeze(tried) });
 }

@@ -965,6 +965,92 @@ export function mergeTestimony(readings) {
 }
 
 /**
+ * landContest(notesLog, door, merged, { textAt }) — THE WIRE.
+ *
+ * `mergeTestimony` has always produced a typed DISAGREE naming `holds` and
+ * `refused`, and — audited 2026-09-04 — it is called from exactly one eval
+ * driver and one registry string. Nothing landed it. That is the third
+ * organ in this engine found producing a typed finding no caller writes
+ * down (the concession cascade before P88; corroboration.js's `contests`
+ * before it), and P57's whole law is the answer: a finding read from the
+ * world is ADMITTED and projected, never re-derived per turn and discarded.
+ *
+ * WHY THIS IS THE RIGHT INPUT, and a string comparison was not. These
+ * readings are verdicts on ONE claim_id. Same claim, same arrangement, same
+ * polarity question, judged separately per source. So the disagreement is
+ * `contest` in P88's taxonomy BY CONSTRUCTION — individuation and grain are
+ * excluded because it is one claim, force because it is one claim — and the
+ * kind is EARNED by the claim-id spine rather than guessed. A detector that
+ * compares subject/verb/object strings across sources cannot earn that, and
+ * measured, does not: P11 forbids the string comparison outright, and P90
+ * records the run that made it anyway.
+ *
+ * FOUR WALLS, each a typed refusal rather than a silent skip:
+ *
+ *   self-witness      A `self:model` reading may NEVER dispute. The model
+ *                     refusing the material is not a source disagreeing; it
+ *                     is the mouth convicting the record, which P2 forbids.
+ *                     mergeTestimony already refuses to let a self-witness
+ *                     co-sign corroboration alone (BUILD-4); this is that
+ *                     wall pointed the other way, and it is the more
+ *                     dangerous direction.
+ *   read nothing      An unaddressed refusal is an assertion, not a reading
+ *                     (floor 4½'s wall, the same `readsNothing` mergeTestimony
+ *                     applies to holds).
+ *   no bytes          The decider is the SOURCE'S OWN BYTES at the address
+ *                     it read (P17: a quotation is the source's bytes or it
+ *                     is not printed as one). `textAt` is injected; no text
+ *                     for the address means no dispute, never a bare vote —
+ *                     which `dispute` itself would refuse anyway.
+ *   not a contest     AGREE / SINGLE / UNDETERMINED land nothing. Only a
+ *                     split (DISAGREE) or a unanimous refusal (CONTRADICTED)
+ *                     is a disagreement to record.
+ *
+ * AND IT NEVER CONVICTS. CONTRADICTED — every determining source refuses,
+ * none holds — is the settled case, and this function still only DISPUTES
+ * it, reporting `unanimous: true` so a caller holding that authority can
+ * decide about conceding. `mergeTestimony`'s own header refuses to resolve
+ * DISAGREE mechanically toward CONTRADICTED because that "would smuggle in"
+ * a conviction; landing a concession here would smuggle in the same one,
+ * one register down.
+ *
+ * Diagnostic and act stay apart: `mergeTestimony` is untouched and still
+ * writes nothing.
+ */
+export function landContest(notesLog, door, merged, { textAt } = {}) {
+  const refusals = { self_witness: 0, read_nothing: 0, no_bytes: 0, not_a_contest: 0 };
+  const landed = [];
+  if (typeof textAt !== "function")
+    throw new TypeError("landContest: textAt is injected — the decider is the source's own bytes at the address it read (P17), never a paraphrase this function invents");
+  if (!merged || (merged.case !== "DISAGREE" && merged.case !== "CONTRADICTED")) {
+    refusals.not_a_contest += 1;
+    return { log: notesLog, landed, refusals, unanimous: false, case: merged?.case ?? null };
+  }
+  let next = notesLog;
+  for (const reading of merged.refused ?? []) {
+    if (isSelfWitness(reading)) { refusals.self_witness += 1; continue; }
+    if (readsNothing(reading)) { refusals.read_nothing += 1; continue; }
+    const edge = reading.edges?.[0];
+    const at = reading.read?.[0];
+    const text = at ? textAt(at) : null;
+    if (!edge || !at || !text) { refusals.no_bytes += 1; continue; }
+    const ref = String(at).split("#")[0];
+    const r = door.dispute(next, door.assertionId(edge.subject, edge.verb, edge.object), {
+      // `who` may carry a speaker (`source:speaker`, speakerWho above); the
+      // SOURCE is what independence is counted in, so the ref is what rides.
+      source: ref,
+      because: text,
+      span: { at, ref, text },
+      kind: door.DISPUTE_KINDS.CONTEST,
+    });
+    if (r.refused) { refusals[r.refused.type] = (refusals[r.refused.type] ?? 0) + 1; continue; }
+    next = r.log;
+    if (!r.noop) landed.push({ claim_id: reading.claim_id, source: ref, at, disputeId: r.id });
+  }
+  return { log: next, landed, refusals, unanimous: merged.case === "CONTRADICTED", case: merged.case };
+}
+
+/**
  * The Per-Source Testimony spec's own remaining named gap (CLAUDE.md's
  * claim-id-spine section, closing paragraph, verbatim): "the model's own
  * bare, unprompted assertion entering as its OWN witness (`who:

@@ -46,6 +46,43 @@
 // never a default here. `distinctSources`/`distinctRecipes` are the
 // corroboration walk's own counters, reused.
 //
+// ── TWO REGIMES, ONE LEDGER: what `carry` separates ────────────────────
+//
+// The floor conflated two different epistemic jobs behind one number, and
+// the conflation is why this floor has stood empty.
+//
+// BASE TESTIMONY — what a source says happened — is token-level evidentiary
+// reasoning, the domain courts and historians already work in and the
+// domain Bayesian evidence was built for. Its correct form is not a COUNT
+// of witnesses but a SUM of their calibrated log-odds, and a witness at
+// LR = 1 contributes exactly zero however many of it you collect. That is
+// the mathematical statement of what was measured by hand on 2026-09-03
+// (25 real / 25 fabricated, 2 states in each arm, LR = 1.0), and it is why
+// this file does NOT ship a log-odds gate: the one calibration this engine
+// has says the available witness carries no information, and inventing
+// likelihood ratios to sum would be worse than admitting that (II.10 — an
+// uncalibrated ratio is a change of units that fails invisibly). What the
+// count still legitimately is, is a LABEL.
+//
+// DERIVED STRUCTURE — what this floor builds on top of those claims — is
+// synthesised, generalising and theory-shaped, and that is Popper's
+// register, not Bayes'. Nothing here is ever "confirmed". A product earns
+// its place by being REFUTABLE and by having somewhere to land when it
+// falls, never by its premises having accumulated corroboration. So the
+// permission to build is the falling machinery being wired: `exposure`
+// says what rests on a premise before anything is decided, `dispute`
+// (kernel) gives a challenge somewhere to land, and `concedePremise`
+// takes the tower down transitively with every withdrawal named.
+//
+// `carry: true` is that separation, made operational: below-floor notes
+// are ADMITTED as premises and reported in `carried` with their level, so
+// a caller builds on n=1 and knows exactly where it is thin — rather than
+// `stopped`, which refuses to build at all and has, measured, left this
+// floor empty rather than sparse. A count that gates is corroboration
+// buying permission; a count that rides is corroboration doing its actual
+// job. `carry: false` keeps the old gate for callers that want it, and
+// neither is a default — the caller declares which regime it is in.
+//
 // THE LICENCE COMES FROM THE REGISTER, NEVER FROM THIS FILE. Chemistry is
 // projected from `interpretation/declarations.js`'s GIVEN tier alone
 // (`affordancesFromDeclarations`) so every affordance can be CONCEDED; a
@@ -82,6 +119,7 @@ export const isDerivedId = (id) => typeof id === "string" && id.startsWith(DERIV
 
 export const REFUSALS = Object.freeze({
   no_floor: "the standing floor is declared — {sources, instruments}: sources a positive integer, instruments a non-negative integer (0 = instrument independence not required, said so) (P4/P9)",
+  no_carry: "`carry` is a declared boolean — whether below-floor premises are ADMITTED with their fragility carried (true) or REFUSED (false). Never inferred from the floor",
   no_declarations: "chemistry comes from the declarations register, so a derivation names the register it reads",
   no_steps: "maxSteps is a declared positive integer — how long a settling may run is the caller's to say",
   no_trigger: "a withdrawal records its own reason as `trigger` — never a silent concession",
@@ -96,7 +134,7 @@ const sameSet = (a, b) => a.size === b.size && [...a].every((x) => b.has(x));
  * below the floor is STOPPED, typed with the counts it actually had, never
  * silently dropped: a caller can see exactly what the floor excluded.
  */
-export function premisesOf(notes, { floor } = {}) {
+export function premisesOf(notes, { floor, carry = false } = {}) {
   // `instruments: 0` is a DECLARATION, not a default: the caller says
   // instrument independence is not required. Measured live (2026-09-02):
   // a witness admitted by a chat turn is a bare source ref with no
@@ -105,14 +143,27 @@ export function premisesOf(notes, { floor } = {}) {
   // ledger is declared 0, and the report still carries the count.
   if (!floor || !Number.isInteger(floor.sources) || floor.sources < 1 || !Number.isInteger(floor.instruments) || floor.instruments < 0)
     throw new TypeError("premisesOf: " + REFUSALS.no_floor);
-  const premises = [], stopped = [];
+  if (typeof carry !== "boolean") throw new TypeError("premisesOf: " + REFUSALS.no_carry);
+  const premises = [], stopped = [], contested = [], carried = [];
   for (const n of notes ?? []) {
     const sources = distinctSources(n.witnesses).size;
     const instruments = distinctRecipes(n.witnesses).size;
-    if (sources >= floor.sources && instruments >= floor.instruments) premises.push(n);
-    else stopped.push({ id: n.id, subject: n.subject, verb: n.verb, object: n.object, sources, instruments, floor: { ...floor } });
+    const level = { sources, instruments, contested: n.disputedBy?.length ?? 0 };
+    const meets = sources >= floor.sources && instruments >= floor.instruments;
+    if (meets || carry) {
+      premises.push(carry ? { ...n, level } : n);
+      if (!meets) carried.push({ id: n.id, subject: n.subject, verb: n.verb, object: n.object, ...level, floor: { ...floor } });
+      // A LIVE DISPUTE DOES NOT BLOCK A PREMISE, AND MUST NOT. At n=2 a
+      // disagreement is visible but not adjudicable, so refusing the
+      // premise would convict on evidence that cannot convict — and the
+      // whole point of the falling machinery is that you may build on a
+      // contested base PROVIDED the structure carries what would fall.
+      // Reported, never withheld: a caller reads `contested` and knows
+      // exactly which part of its tower has a live challenge underneath.
+      if (n.disputedBy?.length) contested.push({ id: n.id, subject: n.subject, verb: n.verb, object: n.object, disputedBy: [...n.disputedBy] });
+    } else stopped.push({ id: n.id, subject: n.subject, verb: n.verb, object: n.object, sources, instruments, floor: { ...floor } });
   }
-  return { premises, stopped };
+  return { premises, stopped, contested, carried };
 }
 
 /** Chemistry from the register's GIVEN tier — and nothing else. */
@@ -295,7 +346,7 @@ export function makeDerivation({ hl, taskLog } = {}) {
    * every chain in contact; a real cue with a `presenceFloor` lets the
    * reader's present gate the reaction (reaction.js's physics).
    */
-  function derive(log, { declarations, floor, maxSteps, cue = null, presenceFloor = null, cycleLimit = 3 } = {}) {
+  function derive(log, { declarations, floor, carry = false, maxSteps, cue = null, presenceFloor = null, cycleLimit = 3 } = {}) {
     if (!declarations) throw new TypeError("derive: " + REFUSALS.no_declarations);
     if (!Number.isInteger(maxSteps) || maxSteps < 1) throw new TypeError("derive: " + REFUSALS.no_steps);
     // A real cue needs its presence floor beside it. Without this check a
@@ -303,7 +354,10 @@ export function makeDerivation({ hl, taskLog } = {}) {
     // arm — and reported itself as gated. Found by the test, not by review.
     if (cue !== null && !Number.isFinite(presenceFloor)) throw new TypeError("derive: " + REFUSALS.no_presence);
     const notes = hl.foldHyperlexicon(log);
-    const { premises, stopped } = premisesOf(notes, { floor });
+    const { premises, stopped, contested, carried } = premisesOf(notes, { floor, carry });
+    // The evidentiary LEVEL of every note, so a product can carry the level
+    // of its WEAKEST ground rather than pretend its premises were equal.
+    const levelById = new Map(notes.map((n) => [n.id, { sources: distinctSources(n.witnesses).size, instruments: distinctRecipes(n.witnesses).size, contested: n.disputedBy?.length ?? 0 }]));
     const { chemistry, given, candidates } = chemistryFor(declarations);
     const edges = substrateEdges(premises);
     const audit = auditChemistry(edges, chemistry, { cycleLimit });
@@ -336,7 +390,19 @@ export function makeDerivation({ hl, taskLog } = {}) {
       walk(f.edge.id, grounds, addresses);
       const prior = projectTasks(next).find((t) => t.task_id === id) ?? null;
       const unchanged = prior && sameSet(asSet(prior.premises), asSet(premiseIds)) && prior.paths === f.paths;
-      const row = { id, subject, verb: f.relation, object, depth: f.depth, paths: f.paths, premises: premiseIds, grounds: [...grounds], provenance: [...addresses], giver: f.giver, affordance: { left: f.edge.meta.affordance.left, right: f.edge.meta.affordance.right } };
+      // THE FRAGILITY, CARRIED. A product is exactly as well-attested as its
+      // WEAKEST ground — min, never mean: an average would let a strong
+      // premise launder a single-source one, which is the same laundering
+      // the two-witness gate was invented to stop. `contested` counts the
+      // grounds carrying a live dispute; it is a label, and blocks nothing.
+      const groundLevels = [...grounds].map((g) => levelById.get(g)).filter(Boolean);
+      const restsOn = {
+        sources: groundLevels.length ? Math.min(...groundLevels.map((l) => l.sources)) : 0,
+        instruments: groundLevels.length ? Math.min(...groundLevels.map((l) => l.instruments)) : 0,
+        contested: groundLevels.filter((l) => l.contested > 0).length,
+        grounds: groundLevels.length,
+      };
+      const row = { id, subject, verb: f.relation, object, depth: f.depth, paths: f.paths, premises: premiseIds, grounds: [...grounds], provenance: [...addresses], giver: f.giver, restsOn, affordance: { left: f.edge.meta.affordance.left, right: f.edge.meta.affordance.right } };
       if (unchanged) { derived.push({ ...row, landed: "unchanged" }); continue; }
       next = append(next, {
         kind: prior ? ENTRY_KINDS.SUPERSEDE : ENTRY_KINDS.PROPOSE,
@@ -348,18 +414,54 @@ export function makeDerivation({ hl, taskLog } = {}) {
         witnesses: [], spans: [],   // THE WALL: stated nowhere, carried by its premises
         derived: true,
         premises: premiseIds, grounds: [...grounds], provenance: [...addresses],
-        depth: f.depth, paths: f.paths, giver: f.giver, affordance: row.affordance,
+        depth: f.depth, paths: f.paths, giver: f.giver, restsOn, affordance: row.affordance,
       });
       derived.push({ ...row, landed: prior ? "updated" : "new" });
     }
     return {
       log: next, derived,
-      premises: premises.map((n) => n.id), stopped,
+      premises: premises.map((n) => n.id), stopped, contested, carried,
       licences: given.map((g) => ({ kind: g.declKind, rel: g.rel, yields: g.yields ?? null, giver: g.giver })),
       candidates: candidates.map((c) => ({ kind: c.declKind, rel: c.rel })),
       withheld: [...settled.withheld], vetoed: [...settled.vetoed], audit: [...audit],
       quiescent: settled.quiescent, steps: settled.steps.length,
     };
+  }
+
+  /**
+   * exposure(log, premise) — WHAT WOULD FALL, without anything falling.
+   * The same transitive walk `withdrawDerived` performs, run as a query:
+   * every live derived note resting on this premise, with the depth it
+   * sits at. This is what lets a contested premise be CARRIED rather than
+   * either trusted or refused — the disagreement is on the record, and so
+   * is the size of what rests on it, before anyone decides anything.
+   *
+   * It is also the measurement instrument the 17%-worst-concession figure
+   * came from, promoted out of an eval driver into the organ, so the same
+   * number can be read off a live ledger instead of recomputed by hand.
+   */
+  function exposure(log, premise) {
+    if (!premise) return { premise: null, withdrawn: [], depth: 0 };
+    const gone = new Set(hl.concededIds(log));
+    const live = foldDerived(log).filter((d) => !gone.has(d.id));
+    const taken = [];
+    const seen = new Set();
+    let frontier = [{ id: premise, depth: 0 }];
+    let maxDepth = 0;
+    while (frontier.length) {
+      const step = [];
+      for (const { id, depth } of frontier) {
+        for (const d of live) {
+          if (seen.has(d.id) || !d.premises.includes(id)) continue;
+          seen.add(d.id);
+          taken.push({ id: d.id, subject: d.subject, verb: d.verb, object: d.object, cascadedFrom: id, cascadeDepth: depth + 1 });
+          maxDepth = Math.max(maxDepth, depth + 1);
+          step.push({ id: d.id, depth: depth + 1 });
+        }
+      }
+      frontier = step;
+    }
+    return { premise, withdrawn: taken, depth: maxDepth, share: live.length ? taken.length / live.length : 0 };
   }
 
   /**
@@ -411,5 +513,5 @@ export function makeDerivation({ hl, taskLog } = {}) {
     return { log: w.log, refused: null, conceded: noteId, withdrawn: w.withdrawn };
   }
 
-  return { derive, foldDerived, withdrawDerived, withdrawnDerived, concedePremise, derivedId };
+  return { derive, foldDerived, exposure, withdrawDerived, withdrawnDerived, concedePremise, derivedId };
 }
