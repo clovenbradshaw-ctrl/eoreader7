@@ -2,7 +2,7 @@
 wikipedia-apollo-11.html: 674 notes in 30.7s; 294 link leads, 26 unsourced quotes; 379 footnote markers, 163 numbered notes with an outbound link
   notes whose article sentence carries a marker: 309; whose footnote links out: 161
 
-REAL: 674 notes; 300 fetches (0 network), faces read 149; 0 witness calls; 23s
+REAL: 674 notes; 300 fetches (0 network), faces read 149; 0 witness calls; 5997s
   notes with >=1 readable cited face: 549 of 674
   gap classes (notes with a readable face): {"same-sentence":57,"window":12,"absent":165,"partial":312,"morphology+window":1,"morphology":2}
   of which the best face came through the note's OWN footnote: 101 — classes {"partial":62,"same-sentence":17,"absent":19,"morphology+window":1,"morphology":1,"window":1}

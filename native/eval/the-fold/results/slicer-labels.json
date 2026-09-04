@@ -3,38 +3,6 @@
   "sample": "results/slicer-labels-sample.json — 30 notes, 21 faces, MAXPOOL=250, SEED=0",
   "rule": "STATED = some sentence in the face asserts the proposition in any words. Sentence numbers index the face pool. wrong-document = the fetched face is an index, landing, stub or metadata page and not the cited document's content. not-stated = a real content page that does not assert the proposition.",
   "labels": {
-    "camera|had|been used to capture images of the first moon landing": {
-      "status": "stated",
-      "sentences": [
-        15,
-        16,
-        9
-      ],
-      "why": "16mm DAC 'used to film footage of the final approach' / 'used to record Armstrong going down the ladder'",
-      "note": "Camera —had→ been used to capture images of the first Moon landing",
-      "facePath": "primary-faces/a0d8c787f8a88998.txt",
-      "via": "footnote",
-      "positionInRun4": 42,
-      "sentenceText": [
-        "Most importantly, it contained the 16mm data acquisition camera (DAC) used to film footage of the final approach to the moon on July 20, 1969.",
-        "The camera was also used to record Armstrong going down the ladder and taking his famous \"one small step,\" the planting of the flag and other footage of Armstrong and Buzz Aldrin on the lunar surface.",
-        "Neil Armstrong, the first man to walk on the moon, secretly took home a bag of mementos from the mission including the camera used to film his \"one small step\" and the planting of the US flag on the lunar surface."
-      ],
-      "sentenceBytes": [
-        [
-          1514,
-          1656
-        ],
-        [
-          1658,
-          1858
-        ],
-        [
-          454,
-          667
-        ]
-      ]
-    },
     "collins|recovered|he joined armstrong's crew as cmp": {
       "status": "stated",
       "sentences": [
@@ -90,26 +58,6 @@
         [
           7381,
           7469
-        ]
-      ]
-    },
-    "they|found|on the atlantic seabed using advanced sonar scanning": {
-      "status": "stated",
-      "sentences": [
-        1
-      ],
-      "why": "'found using advanced sonar scanning some 14,000ft below the Atlantic Ocean's surface'",
-      "note": "They —found→ on the Atlantic seabed using advanced sonar scanning",
-      "facePath": "primary-faces/03b3ab122bf87b56.txt",
-      "via": "footnote",
-      "positionInRun4": 149,
-      "sentenceText": [
-        "In a blog post, Mr Bezos said the five engines were found using advanced sonar scanning some 14,000ft (4,300m) below the Atlantic Ocean's surface."
-      ],
-      "sentenceBytes": [
-        [
-          130,
-          276
         ]
       ]
     },
@@ -549,38 +497,6 @@
         ]
       ]
     },
-    "they|would|fly to hornet in marine one for a few hours of ceremonies": {
-      "status": "stated",
-      "sentences": [
-        169,
-        248,
-        247
-      ],
-      "why": "'helicoptering to Hornet early on splashdown day' + 'He had been onboard for three hours'",
-      "note": "they —would→ fly to Hornet in Marine One for a few hours of ceremonies",
-      "facePath": "primary-faces/86570537bec568ff.txt",
-      "via": "link",
-      "positionInRun4": 150,
-      "sentenceText": [
-        "From Johnston Island, they flew aboard Marine helicopters to the communications relay ship USS Arlington (AGMR-2), where they spent the night before helicoptering to Hornet early on splashdown day.",
-        "He had been onboard for three hours.",
-        "The ceremonies over, Nixon boarded Marine One and departed Hornet ."
-      ],
-      "sentenceBytes": [
-        [
-          8022,
-          8219
-        ],
-        [
-          17471,
-          17507
-        ],
-        [
-          17403,
-          17470
-        ]
-      ]
-    },
     "hornet|launched|four sea king helicopters and three grumman e-1 tracers": {
       "status": "stated-partial",
       "sentences": [
@@ -730,9 +646,100 @@
       "facePath": "primary-faces/eaab29993dab83f8.txt",
       "via": "footnote",
       "positionInRun4": 158
+    },
+    "camera|had been used|to capture images of the first moon landing": {
+      "status": "stated",
+      "sentences": [
+        15,
+        16,
+        9
+      ],
+      "why": "16mm DAC 'used to film footage of the final approach' / 'used to record Armstrong going down the ladder'",
+      "note": "Camera —had→ been used to capture images of the first Moon landing",
+      "facePath": "primary-faces/a0d8c787f8a88998.txt",
+      "via": "footnote",
+      "positionInRun4": 42,
+      "sentenceText": [
+        "Most importantly, it contained the 16mm data acquisition camera (DAC) used to film footage of the final approach to the moon on July 20, 1969.",
+        "The camera was also used to record Armstrong going down the ladder and taking his famous \"one small step,\" the planting of the flag and other footage of Armstrong and Buzz Aldrin on the lunar surface.",
+        "Neil Armstrong, the first man to walk on the moon, secretly took home a bag of mementos from the mission including the camera used to film his \"one small step\" and the planting of the US flag on the lunar surface."
+      ],
+      "sentenceBytes": [
+        [
+          1514,
+          1656
+        ],
+        [
+          1658,
+          1858
+        ],
+        [
+          454,
+          667
+        ]
+      ],
+      "rekeyedFrom": "camera|had|been used to capture images of the first moon landing",
+      "rekeyedOn": "2026-09-03 S50 rich reader re-cut the act; matched on the article sentence, overlap 9-10 content words"
+    },
+    "they|were found|on the atlantic seabed using advanced sonar scanning": {
+      "status": "stated",
+      "sentences": [
+        1
+      ],
+      "why": "'found using advanced sonar scanning some 14,000ft below the Atlantic Ocean's surface'",
+      "note": "They —found→ on the Atlantic seabed using advanced sonar scanning",
+      "facePath": "primary-faces/03b3ab122bf87b56.txt",
+      "via": "footnote",
+      "positionInRun4": 149,
+      "sentenceText": [
+        "In a blog post, Mr Bezos said the five engines were found using advanced sonar scanning some 14,000ft (4,300m) below the Atlantic Ocean's surface."
+      ],
+      "sentenceBytes": [
+        [
+          130,
+          276
+        ]
+      ],
+      "rekeyedFrom": "they|found|on the atlantic seabed using advanced sonar scanning",
+      "rekeyedOn": "2026-09-03 S50 rich reader re-cut the act; matched on the article sentence, overlap 9-10 content words"
+    },
+    "they|would fly|to hornet in marine one for a few hours of ceremonies": {
+      "status": "stated",
+      "sentences": [
+        169,
+        248,
+        247
+      ],
+      "why": "'helicoptering to Hornet early on splashdown day' + 'He had been onboard for three hours'",
+      "note": "they —would→ fly to Hornet in Marine One for a few hours of ceremonies",
+      "facePath": "primary-faces/86570537bec568ff.txt",
+      "via": "link",
+      "positionInRun4": 150,
+      "sentenceText": [
+        "From Johnston Island, they flew aboard Marine helicopters to the communications relay ship USS Arlington (AGMR-2), where they spent the night before helicoptering to Hornet early on splashdown day.",
+        "He had been onboard for three hours.",
+        "The ceremonies over, Nixon boarded Marine One and departed Hornet ."
+      ],
+      "sentenceBytes": [
+        [
+          8022,
+          8219
+        ],
+        [
+          17471,
+          17507
+        ],
+        [
+          17403,
+          17470
+        ]
+      ],
+      "rekeyedFrom": "they|would|fly to hornet in marine one for a few hours of ceremonies",
+      "rekeyedOn": "2026-09-03 S50 rich reader re-cut the act; matched on the article sentence, overlap 9-10 content words"
     }
   },
   "extension": "34 notes on the 3 faces with pool >250 that the seeded sample excluded (4f69a8cb archive 264s ×15 notes, 86570537 nasa.gov 274s ×10, eaab2999 nasa.gov 251s ×9), read in full with nav chrome elided. NOT a random extension: chosen because they were excluded, and because the archive-route face was expected to be a real document. Disclosed.",
   "keyedBy": "note id (row.id) — positions shift when the walk is re-run; the face path is recorded so a label can be re-checked against the same bytes",
-  "sentenceMatching": "a label is matched to a pool by sentence TEXT (sentenceText), never by index — a re-cut face (chrome stripped, re-split) shifts indices; the raw byte span in the run-4 face is kept as sentenceBytes for audit"
+  "sentenceMatching": "a label is matched to a pool by sentence TEXT (sentenceText), never by index — a re-cut face (chrome stripped, re-split) shifts indices; the raw byte span in the run-4 face is kept as sentenceBytes for audit",
+  "rekeying": "S50 (2026-09-03): ids are `end1|act|end2`; when the reader re-cuts the act the id moves. Re-key on the row article sentence (ranke-backwards-run5-offline.json holds the old rows)."
 }
