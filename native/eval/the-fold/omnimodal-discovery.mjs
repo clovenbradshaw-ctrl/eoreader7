@@ -92,11 +92,34 @@ function pdfStream(path) {
     at = e + 9;
     let text = null;
     try { text = inflateSync(body).toString("latin1"); } catch { continue; }
-    // Tj / TJ / ' / " — the operators that put glyphs on a page.
-    for (const m of text.matchAll(/\((?:\\.|[^\\()])*\)|\[((?:[^\][]|\\.)*)\]\s*TJ/g)) {
-      const chunk = m[0].startsWith("[") ? [...m[1].matchAll(/\((?:\\.|[^\\()])*\)/g)].map((x) => x[0]).join("") : m[0];
-      const str = chunk.replace(/[()]/g, "").replace(/\\(\d{3})/g, (_, o) => String.fromCharCode(parseInt(o, 8))).replace(/\\(.)/g, "$1");
-      if (str.trim()) out.push(str.replace(/\s+/g, " ").trim());
+    // A LINEAR SCANNER, not a regex. The first cut matched parenthesised
+    // strings with a nested quantifier and BACKTRACKED CATASTROPHICALLY on
+    // real inflated content streams: extraction alone did not finish in 110
+    // seconds on a 12-page paper, and it was the extraction — not the null
+    // arm — that was slow. A PDF string is balanced parens with backslash
+    // escapes, so a walk reads it exactly, in one pass, and cannot blow up.
+    for (let i = 0; i < text.length; i += 1) {
+      if (text[i] !== "(") continue;
+      let depth = 1, j = i + 1, sb = "";
+      while (j < text.length && depth > 0) {
+        const ch = text[j];
+        if (ch === "\\") {
+          const nx = text[j + 1];
+          if (nx >= "0" && nx <= "7") {
+            let oct = "", k = j + 1;
+            while (k < text.length && oct.length < 3 && text[k] >= "0" && text[k] <= "7") oct += text[k++];
+            sb += String.fromCharCode(parseInt(oct, 8)); j = k; continue;
+          }
+          sb += nx === "n" ? "\n" : nx === "t" ? "\t" : nx === "r" ? "\r" : (nx ?? "");
+          j += 2; continue;
+        }
+        if (ch === "(") { depth += 1; sb += ch; j += 1; continue; }
+        if (ch === ")") { depth -= 1; if (depth) sb += ch; j += 1; continue; }
+        sb += ch; j += 1;
+      }
+      i = j - 1;
+      const str = sb.replace(/\s+/g, " ").trim();
+      if (str) out.push(str);
     }
   }
   return { tokens: out.map(lineShape), raw: out };
