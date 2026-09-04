@@ -554,3 +554,21 @@ test("walls: a verb at the anchor's edge is trimmed ('I wished to get' → 'I', 
   assert.equal(subjectOf(wallsRead("I feared it might have been worse.", ["been"], { verbWall }), "been"), "it");
   assert.equal(subjectOf(wallsRead("How the knowledge of such a thing would fret her.", ["would"], { adpositions: new Set(["of"]) }), "would"), "the knowledge of such a thing");
 });
+
+test("A DECIMAL IS ONE TOKEN: a measured quantity survives the subject walk, whole", () => {
+  // Found 2026-09-04 by pointing the reader at a corpus chosen for its
+  // measured quantities (the 2026 Sanriku earthquake). Two separate cuts were
+  // destroying every decimal in a subject: this adapter's own token regex
+  // disagreed with the engine's own tokenizer (source.js::tokenize keeps
+  // "9.0" whole), and the clause window could land BETWEEN "9." and "0" so
+  // the walk began mid-number. The ledger held "0 magnitude earthquake killed
+  // thousands in 2011" for a source that says 9.0 — a wrong number that reads
+  // as a right one, which no wall downstream can catch because the bytes are
+  // already gone at the cut.
+  assert.equal(subjectOf(wallsRead("A 9.0 magnitude earthquake killed thousands in 2011.", ["killed"]), "killed"), "9.0 magnitude earthquake");
+  assert.equal(subjectOf(wallsRead("A 7.7 magnitude earthquake struck off Sanriku.", ["struck"]), "struck"), "7.7 magnitude earthquake");
+  assert.equal(subjectOf(wallsRead("The 1,200 residents evacuated the coast.", ["evacuated"]), "evacuated"), "The 1,200 residents", "the anchor itself began mid-token here — the matcher captured \"200 residents\"");
+  // The continuation requires DIGITS, so a sentence-final period is still not
+  // part of its token and an abbreviation is untouched.
+  assert.equal(subjectOf(wallsRead("Kuji reported a wave of 80 cm.", ["reported"]), "reported"), "Kuji");
+});

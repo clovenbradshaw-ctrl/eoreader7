@@ -447,7 +447,21 @@ export const discoverRelationVocab = (text, { surfaces, functionWords = null, mi
  * falls back to the original clause-final shape, same discipline as every
  * other optional filter in this file.
  */
-const WORD_TOKEN = /[\p{L}\p{N}_'’-]+/gu;
+// A DECIMAL IS ONE TOKEN. This adapter carried its own token regex, and it
+// disagreed with the engine's own tokenizer (source.js::tokenize, which
+// returns "9.0" whole): `[\p{L}\p{N}_'’-]+` cut every decimal at the
+// point, so expandSubjectNP walked left over the fragment and the ledger
+// recorded "0 magnitude earthquake killed thousands in 2011" for a source
+// that says 9.0, and "7 magnitude earthquake occurred off Sanriku" for one
+// that says 7.7. A wrong number that reads as a right one is the worst shape
+// a note can have, and no wall downstream could catch it -- the bytes were
+// already gone at the cut. Found 2026-09-04 by pointing the reader at a
+// corpus chosen for its measured quantities.
+//
+// The continuation requires DIGITS after the separator, so a sentence-final
+// period is still not part of its token ("in 2011." -> "2011") and an
+// abbreviation is untouched ("Dr." -> "Dr").
+const WORD_TOKEN = /[\p{L}\p{N}_'’-]+(?:[.,]\d+)*/gu;
 
 /**
  * expandSubjectNP(s, anchorStart, anchorEnd, leftBound, closed) — DR4
@@ -503,14 +517,31 @@ export function expandSubjectNP(s, anchorStart, anchorEnd, leftBound, closed = {
     adpositions = null,
     predeterminers = PREDETERMINERS,
   } = closed;
+  // THE WINDOW MAY LAND INSIDE A TOKEN, and starting the scan there cuts it.
+  // `leftBound` is a clause/window boundary computed over characters, so on
+  // "A 9.0 magnitude earthquake" it can fall between "9." and "0" — and a
+  // scan begun there reads "0" as the first token, which is how the ledger
+  // came to hold "0 magnitude earthquake killed thousands in 2011" for a
+  // source that says 9.0. Scanning the whole sentence and keeping every token
+  // that REACHES PAST the bound keeps a straddling token whole; the bound
+  // still does its real job, which is stopping the subject from crossing a
+  // clause, because a token that straddles it is one word either way.
+  // (Sentences are short; this is a scan of one sentence, not the corpus.)
   const toks = [];
-  WORD_TOKEN.lastIndex = Math.max(0, leftBound);
+  WORD_TOKEN.lastIndex = 0;
   let tm;
   while ((tm = WORD_TOKEN.exec(s)) !== null) {
     if (tm.index >= anchorEnd) break;
-    toks.push({ text: tm[0], start: tm.index, end: tm.index + tm[0].length });
+    const end = tm.index + tm[0].length;
+    if (end > Math.max(0, leftBound)) toks.push({ text: tm[0], start: tm.index, end });
   }
-  let i = toks.findIndex((t) => t.start === anchorStart);
+  // The ANCHOR can also begin mid-token, for the same reason the window can:
+  // the matcher's own subject class cannot span a digit separator, so on
+  // "The 1,200 residents evacuated" it captures "200 residents" and anchors
+  // at the "2". Accept the token CONTAINING the anchor, so the number is
+  // carried whole rather than the expansion refusing and leaving the
+  // fragment standing.
+  let i = toks.findIndex((t) => t.start === anchorStart || (t.start < anchorStart && t.end > anchorStart));
   if (i < 0) return null; // anchor not found
   if (!subjectWalls) return legacyWalk(s, toks, i, anchorEnd, { definiteDeterminers, indefiniteDeterminers, possessiveDeterminers, npCoordinators, auxiliaryVerbs, clauseOpeners });
   const low = (t) => t.text.toLowerCase();
