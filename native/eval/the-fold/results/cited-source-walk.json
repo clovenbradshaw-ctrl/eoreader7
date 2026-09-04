@@ -19,33 +19,33 @@
     "web.archive.org|primary-faces/ce38707da6c8dc8c.txt",
     "web.archive.org|primary-faces/4236d843fa4262eb.txt"
   ],
-  "notes": 919,
+  "notes": 55,
   "planted": 4,
   "independentTexts": 89,
   "results": {
     "select": {
       "asks": 60,
-      "calls": 71,
-      "secs": 288.299,
-      "attested": 2,
+      "calls": 73,
+      "secs": 226.992,
+      "attested": 9,
       "contradicted": 0,
-      "skipped": 6483,
+      "skipped": 339,
       "refusals": {
         "no-slice": 0,
-        "no-testimony": 56,
+        "no-testimony": 51,
         "insensitive": 0,
-        "uncontained": 1,
+        "uncontained": 0,
         "unreadable": 0,
         "unarmed": 0,
-        "decider_unrelated": 1,
+        "decider_unrelated": 0,
         "unarmed-select": 0,
         "indiscriminate": 0,
         "other": 0
       },
       "gateBefore": 0,
-      "gateAfter": 2,
-      "lied": 0,
-      "cleanPerAsk": 0.03333333333333333
+      "gateAfter": 9,
+      "lied": 2,
+      "cleanPerAsk": 0.15
     }
   }
 }
