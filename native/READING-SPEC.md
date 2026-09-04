@@ -3779,3 +3779,90 @@ its null at the note level was found for nothing.**
 similarity score. That is a better lookup, not a reading, and rule 2 says why
 it would have measured true and useless — the gap would have moved in the
 aggregate while the top of the list stayed the same.
+
+## S63 — an alias is declared by the material; the fold researches, the model points
+
+**Generality:** universal.
+
+Two things landed together, from one live research walk on a subject this
+project had never read (`eval/the-fold/nashville-partnership.mjs`, the
+Nashville Downtown Partnership).
+
+### The organ: `organs/aliases.js`
+
+`surfaces.js::namesCorefer` folds a name shortened by DROPPING WORDS and,
+measured 2026-09-04, does not fold one shortened by INITIALS —
+`namesCorefer("NDP", "Nashville Downtown Partnership")` is `false`. The
+patch that suggests itself, deriving an initialism and comparing it, is
+refused on this project's standing grounds: a rule that DERIVES a name can
+INVENT one.
+
+Prose declares its own short forms, at addresses. `declaredAliases` reads
+them, and the shapes it reads with are RECEIVED — `live_priors` measured
+which shapes English prose actually uses (LP15, `AliasDeclarationPrior@1`;
+the parenthetical fires 23,375 times at 0.478 confirmed, every connective
+phrase in single digits or never). This organ holds no declaration
+vocabulary of its own, both floors are the caller's, every admitted gloss is
+walled against the material's own USE of it (`minUses`, giver: the
+structural minimum 2 this project uses wherever recurrence has to mean
+anything), and the declaring sentence's byte span is re-read before an alias
+ships (P5.2). **An acronym is one subtype of alias and needs no rule of its
+own; nothing here knows what an acronym is.**
+
+Verified live: reading its first pages, the walk learned `NDP` and `CBID`
+from the material's own glosses, each citing the sentence that taught it.
+11 conformance cases against the REAL prior, no fixture written for them.
+
+### The walk, and six defects it exposed
+
+The driver is the fold researching: `preflightQuery` derives the opening
+search, then `proofQuery(claimOfNote(n))` over the ledger's own thin notes
+and `preflightQuery(name, TASK)` over the names its own reading named, in
+rounds. Reading, snipping, standing and the prose are all mechanical —
+`crown.js`/`compose.js` render model-free, and the model's entire authority
+is the select protocol. Measured: 91 calls, every one an index-pick, nothing
+it wrote in the document.
+
+Each of these was found by running, not by reasoning, and each is fixed in
+the process rather than in the output:
+
+1. An aggregator's recirculation furniture became notes, and the expansion
+   spent four fetches chasing a Catholic newsletter. → a declared anchor
+   floor that gates SPENDING and ordering, never admission.
+2. A search every face refused was cached as `[]`, making "the upstream
+   refused us" indistinguishable from "the web has nothing" for every later
+   run. → a refusal is never cached as an answer.
+3. A feed answers a STRING; the fold asked a QUESTION. Asked for a second
+   source on a CBID vote it was offered Huffman coding and Belvidere,
+   Illinois. → a result must carry the question's own content words before
+   it earns a fetch.
+4. A generic Wikipedia article on downtowns shares four words with the
+   question and contributed 105 of one run's 230 propositions. → a page that
+   never NAMES the subject is kept, addressable, and not read. Word overlap
+   cannot tell a named organisation from a common noun.
+5. A warm search cache made the whole expansion no-op — the code skipped a
+   query because it was cached, rather than reusing the cached results. → the
+   cache prevents a re-fetch, not a re-read.
+6. The composition accepted only containment-found spans, so the
+   corroboration walk's attestations — the paraphrase evidence the walk is
+   SPENT to get — were silently discarded and §3.1 read "none" while five
+   notes had reached two sources. → a reading counts whether its evidence
+   was found by containment or attested by the witness, and says which.
+
+One heuristic was REFUTED by measurement before it shipped: median sentence
+length does not separate an index page from an article (a real news article
+measured 3, a section front 9). It was dropped rather than tuned.
+
+### Disclosed
+
+The redealt control (II.23) spends 0 asks on this material: every rotated
+proposition is refused by the mechanical co-presence gate before the model
+is consulted. That is a real result about the gate and NOT a test of whether
+the model can be fooled; the stronger control — rotating each object only
+among objects that DO co-occur with its subject — is named in the run's own
+output and was not built.
+
+`web.archive.org`'s replay path answers 403 to this environment even for
+URLs its own availability API reports as archived, so three of the largest
+local outlets (403/429) are absent from the ledger. That is a fact about the
+run's reach and the output says so.

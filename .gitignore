@@ -33,3 +33,11 @@ native/eval/results/*.json
 # is scored against, not a cache of prose, and sanriku-quantities.mjs already
 # degrades with a named "(absent: …)" line when a page is missing.
 native/eval/the-fold/fixtures/sanriku/*.html
+
+# The Nashville research walk's kept page faces — the same category as
+# primary-faces and sanriku/*.html above: a cache of fetched third-party
+# prose, 1.2 MB, regenerable by re-running the driver. The FINDING
+# (results/nashville-partnership-READING.md) stays tracked, and every
+# address in it names the live URL and retrieval timestamp the bytes came
+# from, so a reader re-fetches rather than trusting a cache they cannot see.
+native/eval/the-fold/fixtures/nashville-faces/
