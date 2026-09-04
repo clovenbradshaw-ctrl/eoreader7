@@ -49,7 +49,35 @@ function stripBlocks(html, openRe, tag) {
   return out;
 }
 
+// PROSE IS A RESIDUAL HERE, and that is this oracle's one structural weakness:
+// `kindOf.get(text) ?? "prose"` calls prose whatever no strip claimed. Nothing
+// tests for prose positively, so any rendered content outside the listed kinds
+// is convicted of being prose by default — the absence-is-presence shape this
+// project refuses everywhere else, found in its own ground truth.
+//
+// Measured on the Borodino fixture: 114 of 266 `prose` lines (43%) are
+// "Jump to content", "From Wikipedia, the free encyclopedia", and the campaign
+// map's own pin labels — "Pultusk", "Gorodeczno", "330km", "15". Every recall
+// figure taken against this oracle carried them in its denominator.
+//
+// They are genuinely RENDERED content, checked rather than assumed: stripping
+// all 416 `data-mw` attributes from the page leaves the text face byte-identical
+// (80,299 chars either way), so this is not the Parsoid payload leaking — the
+// map draws its labels as real divs, and `web.js`'s own attribute fix holds.
+//
+// The three strips below are declared by CONTAINER with a reason each, and they
+// were written before their effect on any consumer's score was looked at. That
+// ordering is the whole guard: an oracle adjusted until the instrument under
+// test scores better is not an oracle.
 const REGIONS = [
+  // A figure is not body prose — its caption, its embedded map labels, its
+  // scale bar. The same standing `infobox` and `table` already have here.
+  { kind: "figure", tag: "div", re: () => /<div[^>]*class="[^"]*\bthumb\b[^"]*"[^>]*>/gi },
+  // `.noprint` is the print-CSS convention for "not part of the document" —
+  // the page's own declaration that this is furniture, not a guess about it.
+  { kind: "chrome", tag: "div", re: () => /<div[^>]*class="[^"]*\bnoprint\b[^"]*"[^>]*>/gi },
+  // Accessibility skip-links: in the DOM for screen readers, never body text.
+  { kind: "chrome", tag: "a", re: () => /<a[^>]*class="[^"]*\bmw-jump-link\b[^"]*"[^>]*>/gi },
   { kind: "navbox", tag: "div", re: () => /<div[^>]*class="[^"]*\bnavbox\b[^"]*"[^>]*>/gi },
   { kind: "infobox", tag: "table", re: () => /<table[^>]*class="[^"]*\binfobox\b[^"]*"[^>]*>/gi },
   { kind: "hatnote", tag: "div", re: () => /<div[^>]*class="[^"]*\bhatnote\b[^"]*"[^>]*>/gi },
