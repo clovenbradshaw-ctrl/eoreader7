@@ -1,129 +1,101 @@
-# Rashomon: the material disagrees, and the engine cannot see it
+# RETRACTED — this measured an open door, not the material
 
-Ran 2026-09-04. `rashomon-probe.mjs`, **zero model calls**, 200 null draws.
-Pair: English Wikipedia's *Battle of Borodino* against Tolstoy's Borodino
-chapters, extracted from Project Gutenberg's *War and Peace* (public
-domain). Same battle, both English, and the second written expressly
-against the first — Tolstoy's argument is that nobody commanded anything
-and Napoleon's dispositions were irrelevant.
+**Retracted 2026-09-04, the same day it was written.** Every conclusion
+below about Tolstoy, about prose, and about whether Rashomon-shaped
+material can host a contest is **withdrawn**. The numbers are real
+arithmetic on a real run. They are facts about the harness this driver
+configured, not about the material it read.
 
-## Why this pair
+## What was wrong
 
-`contest-ladder.mjs` found the ledger's new contest machinery had **no
-cases**: every apparent contradiction in the Wikidata succession corpus was
-intra-source, one file recording two disjoint terms of office. One source
-agreeing with itself is not two sources disagreeing.
+`rashomon-probe.mjs` built its ledger through `lib/borodino-ledger.mjs`,
+which calls:
 
-The remedy proposed at the time — go and fetch multi-agency measurements,
-seismic bulletins — was **wrong**, and its wrongness was already on this
-project's record. An earthquake's 25 km hypocentre, 35 km centroid and
-10 km tsunami-working-depth do not disagree; they answer three different
-questions, each labelled with the method that produced it. That is
-individuation, decidable at n=1, and no quantity of it makes a contest.
+```js
+hl.admit(log, edges, { witness: p.ref ?? s.ref })
+```
 
-Rashomon-shaped material is the opposite: contested by construction, where
-no labelling dissolves the conflict.
+**No gate.** `hyperlexicon.js`'s `admit` builds its connector gate only
+`if (classifyConnector)`, so with none injected the door is open and every
+extraction artifact enters with the standing of a real assertion. P57
+documents this exact failure mode verbatim, from a live prompt dump:
 
-## What ran
+> `and —in→ that time had to get along with many politicians`
+> `complete list —is→ given above`
+> `the Victorian —era's→ hallmark industrialization`
 
-| | |
+and states the rule this run broke — **admission is a door, not a
+funnel.** P82 then put received walls on that door precisely because *"a
+note whose end is debris is a note nothing will ever corroborate,"* with
+the measured effect: debris subjects 96 → 30 while referent subjects held
+83 → 78.
+
+This run had no gate and no walls. It then reported
+`and | was | mortally wounded while leading this counter-attack` as
+evidence about Tolstoy.
+
+## Every claim below, and its status
+
+| claim | status |
 |---|---|
-| hearings into notes | 456 |
-| sources | Wikipedia 328 · Tolstoy 128 |
-| distinct relations extracted | 111 |
-| relations appearing in **both** sources | 14 |
+| 111 relations, 14 shared across sources | **withdrawn** — a census of ungated debris |
+| "no shared relation is functional" | **withdrawn** — the connector slot was never gated to verbs |
+| "prose extraction yields only non-functional relations" | **withdrawn** — unmeasured; the reader was not in production configuration |
+| cross-source candidates 5 vs null 6–23 | **withdrawn as a finding about the material.** The arithmetic holds and the null is correctly size-matched; what it shows is that an ungated extractor's collisions cluster inside documents. That is a fact about the extractor. |
+| "the wall sits upstream of the witness" | **withdrawn** — asserted from this run |
+| 10 shared ends of 899 | **withdrawn** — and the comparison was made with `end.toLowerCase()`, which P11 forbids by name: identity goes through the cast organs (`extractSurfaces` / `discoverReferents` / `namesCorefer`), never a local notion of "the same name." The policy records the identical failure (Bezúkhov flagged invented over a diacritic); this run reproduced it with Kutúzov and misdiagnosed it as coreference pool scope. |
 
-The fourteen shared relations, in full:
+## The method errors, named so they are not repeated
 
-> was, were, had, be, left, would, began, sent, could, continued, remained,
-> knew, did, arrived
+1. **The instrument's configuration was read as a property of the world.**
+   No claim about material is valid until the reader is shown to be in the
+   configuration whose results are on the record. This run used a legacy
+   corroboration-driver ledger with three opt-in levers off and no
+   admission gate, and drew conclusions about a novel.
+2. **An exact-structural-match test measured its own strictness.** The
+   contradiction detector required identical verb and object strings. P29
+   is written about this defect: nine vocabulary configurations chased it
+   before the finding landed that *"the exact-structural-match verdict was
+   measuring its own strictness more than the graph's quality"* — the same
+   graph scored 80% under an entailment rubric.
+3. **A detector was hand-rolled that already existed, better.**
+   `hypergraph.js`'s `unbound` verdict carries `competing` — the material
+   binding this exact verb+object to one and only one OTHER subject —
+   gated on the object resolving to a referent and on there being exactly
+   one rival, *"a slot the material shows filled by two+ different subjects
+   proves nothing."* The hand-rolled version had neither guard.
+4. **The policy already contained the finding.** P76 records that
+   `relations.js` slot-finding is positional, and closes the wrong next
+   step this run then proposed anyway: *"building a SECOND, case-marking
+   strategy that still recovers 'subject' and 'object' by a different
+   signal is the same borrowed category surviving through a different
+   mechanism, not removed."*
 
-## The finding
+## What survives
 
-**A contradiction requires a functional relation** — one where two
-different answers cannot both be true. Wikidata's `replaces` is 1:1 by the
-property's own semantics, which is the only reason the succession corpus
-could host contests at all. `kernel/refutation.js` is explicit that this
-must never be guessed: *"the caller declares the claim … an undeclared
-relation gets the cycle check alone."*
+* **`fixtures/tolstoy-borodino.txt`** — 233 KB of Tolstoy's Borodino
+  narrative, Project Gutenberg, public domain. Real material, unaffected.
+* **`lib/borodino-ledger.mjs`'s `pages` parameter** — backwards-compatible;
+  the default pair verified byte-identical.
+* **The source-label null construction** — size-matched by design (same
+  notes, same groups, only labels shuffled). Sound, and reusable. But P29's
+  `asserted.js::orderArm` is strictly better for this question: it shuffles
+  sentences in place while holding vocabulary and referent identity fixed,
+  which isolates structure from vocabulary. Use that instead.
+* **The question.** Whether Rashomon-shaped material hosts real contests is
+  still open and still worth asking. It has not been answered here.
 
-Of the fourteen relations shared across both accounts, **five are refuted
-as functional by the material itself** — one subject takes several
-different objects inside a single source, so that source would be
-contradicting itself on every occurrence (`was`, `were`, `had`, `be`,
-`left`).
+## What the run should have been
 
-The remaining nine are unrefuted only because they are rare — `arrived`
-appears three times. P41 applies exactly here: **the absence of a refusal
-is not a check.** And none of the nine is a relation anyone would declare
-one-valued. That last sentence is a judgement, not a measurement, and is
-marked as such.
+The production path: the door with its connector gate, P82's received
+walls, the cast organs for identity, `hypergraph.js`'s five typed verdicts
+(bound / contradicted / unbound+competing / beyond-reach / unheard), and
+`capacity-runner.js::mergeTestimony` for the cross-source comparison —
+which already returns a typed `DISAGREE` naming `holds` and `refused`, per
+claim, on a claim-id spine that never compares surface strings.
 
-So: **there is no relation shared across the two accounts on which two
-different answers would contradict.**
-
-## The null, and which direction it points
-
-| | real | null median | null range | verdict |
-|---|---|---|---|---|
-| cross-source contradiction candidates | **5** | 15 | 6–23 | RETRACTED |
-
-Null: the same notes, the same candidate groups, only the **source labels**
-shuffled, each source keeping its exact note count. Size-matched by
-construction — which is the property the fragility measurement could not
-manage.
-
-All 200 draws match or beat the real number. The real count does not merely
-fail to exceed the null; it sits **below the entire range**. The detector's
-hits cluster *inside* documents rather than across them, because a document
-repeats its own phrasings. They are extraction artifacts.
-
-The five that did cross are visibly not disagreements:
-
-```
-the Emperor | had | stated many times   vs   the Emperor | had | left Moscow
-the French  | would | outflank his right vs  the French  | would | enter Moscow
-```
-
-Two facts sharing an auxiliary verb. Nothing is in dispute.
-
-## What this changes
-
-The wall is **not** a shortage of contested material. Tolstoy and the
-historians disagree profoundly, on purpose, in the material that was read.
-
-The wall is that **prose extraction yields only non-functional relations,
-and a contradiction is undefined on a non-functional relation.** The
-connector slot fills with copulas and auxiliaries — and with outright
-non-verbs (`cavalry`, `redoubt`, `von` appear as relations) — which are
-precisely the relations on which no two answers can conflict.
-
-**This sits upstream of the witness.** The corroboration witness measured
-at a likelihood ratio of 1.0 and cannot separate a true claim from an
-invented one. Repairing it would not open this door, because the contest
-detector here never asks it: the detector is mechanical, it runs for free,
-and it fails before any model is consulted. Two walls that looked like one
-are two.
-
-## What would open it
-
-1. **Declared functional relations.** `interpretation/declarations.js`'s
-   GIVEN tier already holds licences that carry a giver and can be conceded
-   — the same machinery derivation uses for composition. A declaration that
-   `killed`, `commanded at`, `won` are one-valued is the same kind of
-   object, with someone's name on it. Contests would then be detected only
-   on relations somebody vouched for, which is the correct posture.
-2. **An extractor that reaches those verbs at all.** None of `killed`,
-   `commanded`, `won`, `ordered` survives into the shared vocabulary here.
-   Until it does, there is nothing for a declaration to apply to.
-
-Both are named as scoped work, neither attempted in this pass.
-
-## Also produced
-
-`fixtures/tolstoy-borodino.txt` — 233 KB of Tolstoy's Borodino narrative
-(Project Gutenberg *War and Peace*, public domain), 65 mentions of the
-battle. `lib/borodino-ledger.mjs` gained a `pages` parameter; its default
-pair is unchanged and every existing caller reads a byte-identical ledger,
-verified by re-running the probe on the old pair (80 hearings, 80 notes,
-6 candidates, 0 cross-source — identical before and after).
+That comparison is the one this driver reimplemented badly. The open
+question it leaves is not about Tolstoy: it is that `mergeTestimony` is
+called from one eval driver and one registry string, and **nothing lands
+its `DISAGREE` on the ledger** — the same unwired shape as the concession
+cascade before P86.
