@@ -3,9 +3,20 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync, existsSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 import { reviewMerges } from "./index.js";
 
 const N = "../adapters/text/";
+
+// Resolved from this file, not from the process cwd — the organs suite runs from
+// native/ (npm run test:organs) and from the repo root (node --test), and both
+// candidates sit at fixed places relative to THIS file either way. Until
+// 2026-09-04 these were cwd-relative strings, so the flagship below ran only
+// from the repo root and SKIPPED under `npm run test:organs` — and its skip
+// reason was a bare `true`, printing "# SKIP" that named nothing.
+const FIXTURE = fileURLToPath(new URL("../../eval/fixtures/pg345_Dracula.txt", import.meta.url));
+const SIBLING = fileURLToPath(new URL("../../../live_priors/01-literature-books/gutenberg/pg345_Dracula.txt", import.meta.url));
+const DRACULA = existsSync(FIXTURE) ? FIXTURE : existsSync(SIBLING) ? SIBLING : null;
 const splitSentences = (t) => String(t).split(/(?<=[.!?])\s+/).filter(Boolean).map((text) => ({ text }));
 
 test("the kind is DECLARED or the gate refuses to run — a self-derived kind is the refuted basin null", () => {
@@ -40,9 +51,9 @@ test("a merge of two SAME-KIND surfaces is permitted; a cross-kind merge is VETO
   assert.ok(cross, `the cross-kind merge must not land permitted: ${JSON.stringify(out.permitted.map((p) => [p.a, p.b]))}`);
 });
 
-test("THE FLAGSHIP, on real bytes when present: Castle Dracula vs Count Dracula under a declared place-kind", { skip: !existsSync("eval/fixtures/pg345_Dracula.txt") && !existsSync("../live_priors/01-literature-books/gutenberg/pg345_Dracula.txt") }, async () => {
-  const path = existsSync("eval/fixtures/pg345_Dracula.txt") ? "eval/fixtures/pg345_Dracula.txt" : "../live_priors/01-literature-books/gutenberg/pg345_Dracula.txt";
-  const text = readFileSync(path, "utf8").slice(0, 400000); // the opening journals carry both surfaces densely
+test("THE FLAGSHIP, on real bytes when present: Castle Dracula vs Count Dracula under a declared place-kind",
+  { skip: DRACULA ? false : `corpus absent: neither ${FIXTURE} nor ${SIBLING}` }, async () => {
+  const text = readFileSync(DRACULA, "utf8").slice(0, 400000); // the opening journals carry both surfaces densely
   const sp = await import(N + "spans.js");
   const passages = [{ ref: "dracula", text }];
   // P79's own validated kind, declared with its giver — the place set its
