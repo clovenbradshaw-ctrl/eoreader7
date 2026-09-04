@@ -3587,3 +3587,195 @@ rows where form differs from lemma while `kept` counts distinct forms.
 Enforced by `conformance/copula-supplement.test.mjs` — including a case that
 **fails the day UniMorph ships `be`**, so the supplement is retired rather
 than left duplicating a giver that now carries it.
+
+## S59 — The population is not what the class label says: a hub is none of its documents, chrome is what a host says everywhere, a ranked link is a guess
+
+**Generality:** universal.
+
+The licensing measurement S47 was written for was taken (2026-09-02,
+`eval/the-fold/results/slicer-coverage-RESULTS.md`), and the first thing it
+returned was not a number but a census: of 64 object-missing partials read
+whole, 32 were not the cited document at all. Seventeen Apollo Lunar
+Surface Journal transcripts had all answered from one portal page; six
+NSSDCA pages from one status page; a chapter of SP-4223 answered for
+fifteen propositions that are in a different chapter; and every one had
+passed `documentMatches`, because a portal's title carries the journal's
+name and a chapter of a book carries the book's. Nineteen of 52 faces
+opened with the same 156 navigation lines, and a token-overlap classifier
+had read "Lunar Surface Technology" in that menu as partial support for
+"descent to the lunar surface". And 131 of the 162 had never been cited:
+the note carried no footnote, so the walk had taken the best-overlapping
+link the page contained as a guess, and `partial` admitted the guess.
+
+Four rules now stand in `organs/ranke.js` and the backwards walk, each a
+measurement of the fixture against itself and none a threshold:
+
+- **`redirectHubs(index)`** — a final address that more than one distinct
+  cited path resolved to is a hub, and a face read from it is none of the
+  documents cited. Two is the floor: one document cannot be the resolution
+  of two citations. An archive copy normalises to its target (any snapshot,
+  either scheme), so snapshots of one document are never two citations —
+  measured, because they were, and three same-sentence hits went
+  `unreadable` before the fix. A hub face is a typed gap `redirect-hub`
+  carrying the archive address of the cited URL.
+- **On a hub gap the citation's own archive wrapper is the route** (P84).
+  The walk gave up on any gap; now `redirect-hub` reaches for the wrapper
+  the footnote carried, else the public archive's address for the target.
+- **`stripChrome(text, siblings)`** — the leading and trailing lines a face
+  shares verbatim with a sibling face of the same host. A sibling is a
+  different final address; the same page fetched under two spellings is a
+  duplicate, and a face compared with its duplicate is all chrome by
+  construction — measured, because it was: 90 false `all-chrome` gaps, now
+  4. The body is written beside the raw face as `<key>.body.txt` and the row
+  points at it, so every downstream reader sees what the walk classified.
+  A face with no sibling keeps its chrome, typed as zero removed.
+- **`lead: "citation" | "guess"`** on every row. A footnote is a citation. A
+  ranked link is a guess, and a guess that happens to be right is still not
+  what the page cited.
+
+Re-walked offline against the run-4 cache in ten seconds with no model
+call: same-sentence 18 of 18 preserved; object-missing partials 162 → 127,
+of which 30 are citations; wrong-document faces 47 notes → 3; faces with
+navigation chrome 80 notes → 3; median candidate pool 191 → 74 sentences.
+The paraphrase population on this page is on the order of thirty notes, and
+the reading wall S47's seam exposed — the witness pointing at the stating
+sentence 4 times in 11 with 0 wrong — is measured against that, not
+against a menu.
+
+The rule the day taught, stated once: **before a model call is priced, ask
+whether it can succeed given what is in front of it.** The slicers'
+coverage of the labeled sentence was a property of the ranking alone, read
+in six seconds with no witness; it bounded every call the cross-product
+would have spent, and it made the budget argument the earlier pass had
+skipped. Pinned in `ranke.test.mjs`: hubs, the archive normalisation, lost
+paths, chrome, the duplicate-is-not-a-sibling case, and the lone face.
+
+## S60 — The reading wall is read before it is spent on: three refusals are right, two are the arm, two are the reader (2026-09-02)
+
+**Generality:** universal (read the refusals at zero calls before buying
+a hypothesis; a control asked more questions finds more); specimen-scoped
+(the twelve notes, the one model).
+
+S48 left one number: with the labeled stating sentence among the eight,
+the witness landed 4 of 11 and refused 7. `eval/the-fold/reading-wall-zero.mjs`
+dumps, at zero calls, what the witness was shown on every labeled note —
+the claim string (`claimOfNote`'s `end1 label end2` fragment), the article
+sentence the note was cut from, the eight with the labeled sentence's
+position, and the arm claim. Three of the seven resolve without a model:
+one note's stating sentence is not in the eight, one is labeled partial
+("April 12" is not on the page), one is prospective. Position is not it.
+Eleven of eleven arm claims are ungrammatical — `competingFiller` swaps a
+phrase-valued end2 whole for a single name (`Hornet launched Apollo`).
+
+The one hypothesis bought (≤96 declared, 70 spent,
+`results/reading-wall-RESULTS.md`): the fragment is the wall — show the
+article's own sentence instead, mechanically. Refused by its measurement:
+3 landings against the fragment's 5, and `indiscriminate` rose from 3 to
+5, because a longer claim shares more words with more candidates and the
+picker keys on shared words. `claimOfNote` is unchanged.
+
+Two corrections to S48's report. The witness DOES point at the wrong thing
+when the claim is ill-formed: one control landing in 23 per form, both on
+claims the extraction cut from an infobox or a list. And a landing can be
+on an unlabeled sentence that states less than the claim (a photo caption
+"all wearing BIGs" for "worn until the isolation facility") — the byte
+address is what shows it. What remains is two notes the arm cannot test
+(the phrase-valued-end swap is designed, not built) and two the reader
+does not cross; those stay refused and disclosed under P84(1).
+
+`ranke-slicers.mjs` records per-note verdicts on every checkpoint now;
+tallies alone made the seven recoverable only by subtraction.
+
+## S61 — The hypergraph is rich by default: a received prior's verb is an act on first arrival, the chain rides in the act, and a capitalised recurrence is a surface (2026-09-02)
+
+**Generality:** universal (the three gates; the surface guard; the
+walk-level null); specimen-scoped (the counts).
+
+User: *"I think the hypergraph should be this rich ALWAYS"*, after S49's
+notes-against-notes pass showed every note on both sides folding to
+`subject —were→ the rest of the sentence`. Read at zero calls one gate at
+a time (`eval/the-fold/results/rich-extraction-RESULTS.md`): the
+recurrence floor keeps unsupervised vocabulary discovery honest but
+starves a one-page face, where *placed* arrives once and can never be an
+act; UniMorph English is a 10k-form sample that lacks *placed, retrieved,
+launched*; and DR5's auxiliary chain was built and never wired into the
+walk. `organs.attestedVerbs` (declared, off in the organ, byte-identical
+otherwise) admits a form a received prior attests as verb-dominant on its
+first arrival; the walk passes UniMorph ∪ UD English-EWT verb-dominant
+forms with the chain on, by default (`RICH=0` reproduces every earlier
+run). The leak it opened — *Buzz* recurs, UD attests *buzz*, the widening
+read `Armstrong and —buzz→ Aldrin` — is closed on both widening paths by
+the passage's own casing: a form capitalised away from a sentence start
+more often than lowercase is a surface, not an act.
+
+Walk-level null, offline, 0 calls, 150 faces: notes 524 → 674, bare-
+auxiliary acts 245 → 131, same-sentence real 31 → 57 against control 21 →
+31, through the note's own footnote 8 → 17 against 2 → 5. Half the
+same-sentence gain is notes of three content words or fewer, said plainly;
+a length-aware null is owed before that count stands alone. What the rich
+graph still lacks is named: coordination as one edge, passives unturned,
+the object as the whole predicate, the vocabulary gap. Three labels need
+re-keying on their article sentence. 111 model calls were spent
+undeclared by the walk's own witness on the live and first offline runs;
+recorded, and `WITNESS=0` on every measurement run since.
+
+## S62 — Null the free stage before buying the paid one; and measure the null where the budget is spent
+
+**Generality:** universal.
+
+User, 2026-09-04, on a plan to spend ~350 model calls drawing a null band for
+a walk that had just returned 0.033: *"what are you running calls for? that's
+a lot, i feel like the point of making RULES is so we can do minimal calls."*
+Then, on the statistic itself: *"is that right? or is it when there is a
+difference that makes a difference?"* And then: *"we should have always been
+doing this."* That last is correct and this entry exists to say so on the
+record: **every walk in this repo before today spent model calls without ever
+nulling the stage that chose what to ask about.**
+
+**The shape of the mistake.** A measurement that spends calls has a mechanical
+stage in front of it that decides which pairs the model ever sees — here
+`endsCopresentWindow`, which skipped 6,483 pairs for free and passed 60. That
+stage costs nothing, and it bounds everything after it. Spending on the judge
+before nulling the selector buys a number about a candidate set nobody has
+checked.
+
+**Three rules, each with the measurement that earned it.**
+
+1. **Null the SELECTOR, not only the judge.** Derange the relation with
+   marginals kept — same subjects, verbs, objects, witnesses, spans, only
+   which object belongs to which subject destroyed — and recount what the
+   selector admits. Measured (`ordered-read-reach.mjs`, 915 notes, 16
+   independent sources, 20 draws): the copresence lookup admits **491** notes
+   against a redealt median of **500**, with 18 of 20 draws at or above real,
+   **p ≈ 0.905**. That is not a weak signal, it is the absence of one. The
+   guard the walk *did* carry — four planted fabrications, 0 attested — is
+   four points chosen by hand and answers a different question.
+
+2. **Measure the null WHERE THE BUDGET IS SPENT, not across the pool.** A gap
+   averaged over everything the system ignores is not information about
+   anything it does. Measured: over the whole pool the selector reads a 9.6%
+   lift at p ≈ 0.048 and looks alive; at the note level, where the ask is
+   actually chosen, it reads p ≈ 0.905 and is dead. The same instrument, the
+   same corpus, opposite verdicts — the aggregate was the wrong statistic.
+
+3. **A real number and a null that are BOTH ZERO is a broken instrument, not a
+   finding.** `cited-source-null.mjs`'s first draft called
+   `endsCopresentWindow(note, text)` with the arguments reversed; both arms
+   read 0 feasible pairs and it printed the confident conclusion that the
+   candidate set carried nothing. It was caught only because a walk had
+   already spent 60 asks, so 0 was known to be wrong. Check that the real arm
+   reproduces a number you already have before reading any null against it.
+
+**What the free pass bought, stated as the reason to keep doing it.** The
+~350 declared calls were never spent. The zero-call pass settled more than
+they would have: it killed the lookup (p ≈ 0.905), found the one selector in
+this corpus that does separate — the reader's own resolved referent face,
+**51 real against a redealt median of 39, outside every one of 20 draws,
+p ≈ 0.048** — and narrowed the next spend from a band to a single 60-ask run
+against that 51. **The first quantity in this line of work to separate from
+its null at the note level was found for nothing.**
+
+**Refused, so it is not retried:** ranking the candidate pool by a stronger
+similarity score. That is a better lookup, not a reading, and rule 2 says why
+it would have measured true and useless — the gap would have moved in the
+aggregate while the top of the list stayed the same.

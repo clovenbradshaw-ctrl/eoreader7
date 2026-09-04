@@ -25,3 +25,11 @@ node_modules/
 native/eval/the-fold/fixtures/primary-faces/
 native/eval/the-fold/results/*.json
 native/eval/results/*.json
+
+# Fetched third-party PAGES cached for offline replay — the same category as
+# primary-faces above, extended 2026-09-04 when a 512 KB news page landed in a
+# branch. The AGENCY RECORDS beside them stay tracked (usgs-*.json, isc.csv,
+# emsc.json, 71 KB together): those are the measured oracle a falsifiable run
+# is scored against, not a cache of prose, and sanriku-quantities.mjs already
+# degrades with a named "(absent: …)" line when a page is missing.
+native/eval/the-fold/fixtures/sanriku/*.html
