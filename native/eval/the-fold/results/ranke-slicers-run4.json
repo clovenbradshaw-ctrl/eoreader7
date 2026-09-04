@@ -233,5 +233,113 @@
       "controlStates": 3,
       "separation": -1
     }
+  },
+  "band-1": {
+    "containment": {
+      "offered": 40,
+      "noCandidates": 0,
+      "verdicts": {
+        "refused:no-testimony": 35,
+        "refused:indiscriminate": 4,
+        "states": 1
+      },
+      "states": 1,
+      "contradicts": 0,
+      "landings": [
+        {
+          "note": "Armstrong —took→ it with him on Apollo 11",
+          "host": "nasa.gov",
+          "because": "- Lunar Surface Technology",
+          "span": "nasa.gov#2104-2130"
+        }
+      ],
+      "seconds": 300
+    }
+  },
+  "band-2": {
+    "containment": {
+      "offered": 39,
+      "noCandidates": 1,
+      "verdicts": {
+        "refused:no-testimony": 34,
+        "refused:indiscriminate": 2,
+        "no_candidate": 1,
+        "states": 3
+      },
+      "states": 3,
+      "contradicts": 0,
+      "landings": [
+        {
+          "note": "Armstrong in particular —was→ notoriously aloof",
+          "host": "nasa.gov",
+          "because": "With a half-Earth in the background, the Lunar Module ascent stage with Moon-walking astronauts Neil Armstrong and Edwin Aldrin Jr.",
+          "span": "nasa.gov#9847-9978"
+        },
+        {
+          "note": "Armstrong —focused→ on them during his descent so he could determine the spacecraft's speed",
+          "host": "airandspace.si.edu",
+          "because": "The Armstrong Purse: Flown Apollo 11 Lunar Artifacts",
+          "span": "airandspace.si.edu#22-74"
+        },
+        {
+          "note": "Armstrong —took→ it with him on Apollo 11",
+          "host": "nasa.gov",
+          "because": "- Lunar Surface Technology",
+          "span": "nasa.gov#2104-2130"
+        }
+      ],
+      "seconds": 149
+    }
+  },
+  "band-3": {
+    "containment": {
+      "offered": 39,
+      "noCandidates": 1,
+      "verdicts": {
+        "refused:no-testimony": 38,
+        "no_candidate": 1,
+        "states": 1
+      },
+      "states": 1,
+      "contradicts": 0,
+      "landings": [
+        {
+          "note": "Armstrong's sons —were→ hosted by President Donald Trump in the Oval Office",
+          "host": "collectspace.com",
+          "because": "Now, 49 years later, it was the first moonwalker's sons who had the honor.",
+          "span": "collectspace.com#627-701"
+        }
+      ],
+      "seconds": 128
+    }
+  },
+  "band-4": {
+    "containment": {
+      "offered": 39,
+      "noCandidates": 1,
+      "verdicts": {
+        "refused:no-testimony": 36,
+        "no_candidate": 1,
+        "states": 2,
+        "refused:indiscriminate": 1
+      },
+      "states": 2,
+      "contradicts": 0,
+      "landings": [
+        {
+          "note": "Armstrong —had→ no issues working with Aldrin but thought it over for a day before declining",
+          "host": "nasa.gov",
+          "because": "Astronaut Harrison H. Schmitt, Apollo 17 lunar module pilot, stands near the deployed United States flag on the lunar surface during NASA’s final lunar landing mission in the Apollo series.",
+          "span": "nasa.gov#7813-8002"
+        },
+        {
+          "note": "Armstrong —uncovered→ a plaque mounted on the LM ladder",
+          "host": "airandspace.si.edu",
+          "because": "The bag and its contents were returned to Earth, despite being scheduled to remain on the Lunar surface, and remained in the possession of astronaut Neil Armstrong until his death in 2012.",
+          "span": "airandspace.si.edu#1728-1916"
+        }
+      ],
+      "seconds": 462
+    }
   }
 }
