@@ -40,9 +40,50 @@
  * its referent least ambiguously. Same organs, same discovery as the
  * resolver; the two cannot drift.
  */
+/**
+ * The text this organ reads for one passage: its own span of a whole-page
+ * furniture blanking when the caller asks for it AND the chunker attached a
+ * verified copy, otherwise the passage's raw text.
+ *
+ * THE DECISION THIS TAKES, AND WHY IT IS OPT-IN. hypergraph.js already reads
+ * `chunk.blanked` for EXTRACTION, and its own header states — deliberately,
+ * as a deferral rather than an oversight — that the referent index was left
+ * on the unblanked text: "What the change removes is navbox EDGES, not navbox
+ * REFERENTS. Blanking the index's input too is a separate decision with its
+ * own cost (a name genuinely introduced in a caption or a list is then
+ * unknown to the reading) and is not taken here."
+ *
+ * That deferral had a real benefit on one side and a real cost on the other
+ * and no measurement of either. Measured 2026-09-04 on three accounts of
+ * Borodino: with the index on raw text, Wikipedia navbox link titles enter
+ * the cast as referents and the longest-established-surface rule MERGES them
+ * with real people — "Prince Andrew" became "August Prince Andrew", Barclay
+ * de Tolly merged with Pyotr Bagration, and "Light While There" (a link to
+ * Tolstoy's 1888 "Walk in the Light While There is Light") became a referent
+ * competing for slots. Since P11 routes ALL identity through this organ, a
+ * corrupted cast corrupts every claim downstream of it.
+ *
+ * So the option exists and the default does not change. Omitted, every
+ * caller sees byte-identical behaviour — the same posture `blankFurniture`,
+ * `verbForms` and `nounPhraseSubjects` already hold. The cost the deferral
+ * named is real and is measured beside the benefit rather than assumed away
+ * (eval/the-fold/cast-furniture.mjs), because "this region is furniture" is a
+ * Pattern-grain claim a corpus can refute and never earn.
+ *
+ * The readback gate is hypergraph.js's own, reused rather than re-derived: a
+ * copy is usable only when it is the same length as the text it stands for.
+ * Anything else falls back to the raw text — feature off, never wrong.
+ */
+function readableOf(p, blanked) {
+  const raw = String(p?.text ?? "");
+  if (!blanked) return raw;
+  const b = p?.blanked;
+  return typeof b === "string" && b.length === raw.length ? b : raw;
+}
+
 export function makeCastHandles({ splitSentences, extractSurfaces, discoverReferents }) {
-  return function handlesFor(passages) {
-    const text = (passages ?? []).map((p) => p?.text ?? "").join("\n\n");
+  return function handlesFor(passages, { blanked = false } = {}) {
+    const text = (passages ?? []).map((p) => readableOf(p, blanked)).join("\n\n");
     if (!text.trim()) return [];
     let events;
     try {
@@ -74,8 +115,8 @@ export function makeCastHandles({ splitSentences, extractSurfaces, discoverRefer
  * index, so support and identity cannot drift apart.
  */
 export function makeReferentIndex({ splitSentences, extractSurfaces, discoverReferents, namesCorefer, diaNorm }) {
-  return function indexFor(passages) {
-    const text = (passages ?? []).map((p) => p?.text ?? "").join("\n\n");
+  return function indexFor(passages, { blanked = false } = {}) {
+    const text = (passages ?? []).map((p) => readableOf(p, blanked)).join("\n\n");
     const empty = { events: [], referents: new Set(), resolve: () => new Set(), represent: () => null };
     if (!text.trim()) return empty;
     let events;
@@ -144,8 +185,8 @@ export function makeReferentIndex({ splitSentences, extractSurfaces, discoverRef
 
 export function makeCastResolver(organs) {
   const indexFor = makeReferentIndex(organs);
-  return function castFor(passages) {
-    const index = indexFor(passages);
+  return function castFor(passages, { blanked = false } = {}) {
+    const index = indexFor(passages, { blanked });
     if (!index.events.length) return () => false;
     // The resolver is the index's boolean face: a name is supported exactly
     // when it resolves to at least one referent. One implementation, two
