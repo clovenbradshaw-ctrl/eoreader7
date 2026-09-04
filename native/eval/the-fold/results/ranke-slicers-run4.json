@@ -341,5 +341,540 @@
       ],
       "seconds": 462
     }
+  },
+  "band-5": {
+    "containment": {
+      "offered": 38,
+      "noCandidates": 2,
+      "verdicts": {
+        "refused:no-testimony": 33,
+        "refused:indiscriminate": 4,
+        "states": 1,
+        "no_candidate": 2
+      },
+      "states": 1,
+      "contradicts": 0,
+      "landings": [
+        {
+          "note": "Aldrin —tossed→ the bag down",
+          "host": "nasa.gov",
+          "because": "Buzz Aldrin Sets Foot on the Moon This video shows Buzz Aldrin descending the lunar module ladder and compares existing footage with the partially restored video.",
+          "span": "nasa.gov#6970-7132"
+        }
+      ],
+      "seconds": 146
+    }
+  },
+  "band-6": {
+    "containment": {
+      "offered": 39,
+      "noCandidates": 1,
+      "verdicts": {
+        "refused:no-testimony": 34,
+        "states": 3,
+        "no_candidate": 1,
+        "refused:indiscriminate": 2
+      },
+      "states": 3,
+      "contradicts": 0,
+      "landings": [
+        {
+          "note": "all —was→ in readiness for Apollo 11 to take the final step onto the Moon",
+          "host": "nasa.gov",
+          "because": "Schmitt then introduced Jones to the other 11 Apollo astronauts who walked on the lunar surface, and over many, many hours the astronauts participated in recorded sessions, detailing every aspect of their missions.",
+          "span": "nasa.gov#7597-7811"
+        },
+        {
+          "note": "Armstrong's sons —were→ hosted by President Donald Trump in the Oval Office",
+          "host": "collectspace.com",
+          "because": "Now, 49 years later, it was the first moonwalker's sons who had the honor.",
+          "span": "collectspace.com#627-701"
+        },
+        {
+          "note": "Armstrong —focused→ on them during his descent so he could determine the spacecraft's speed",
+          "host": "airandspace.si.edu",
+          "because": "The bag and its contents were returned to Earth, despite being scheduled to remain on the Lunar surface, and remained in the possession of astronaut Neil Armstrong until his death in 2012.",
+          "span": "airandspace.si.edu#1728-1916"
+        }
+      ],
+      "seconds": 143
+    }
+  },
+  "band-7": {
+    "containment": {
+      "offered": 39,
+      "noCandidates": 1,
+      "verdicts": {
+        "refused:no-testimony": 30,
+        "refused:indiscriminate": 4,
+        "states": 5,
+        "no_candidate": 1
+      },
+      "states": 5,
+      "contradicts": 0,
+      "landings": [
+        {
+          "note": "Aldrin —salutes→ the deployed United States flag on the lunar surface",
+          "host": "nasa.gov",
+          "because": "In April 1989, Jones sat down with Apollo 17 astronaut Harrison H. Schmitt, and over three days they worked together to thoroughly review a portion of the Apollo 17 activities on the Moon.",
+          "span": "nasa.gov#7408-7596"
+        },
+        {
+          "note": "All of the —collected→ materials were flown to Ellington Air Force Base in Houston and taken to the Lunar Receiving Laboratory (LRL) within 48 hours of splashdown",
+          "host": "nasa.gov",
+          "because": "Left: President Nixon (center) with NASA Administrator Paine to his right and US Navy Admiral McCain to his left watch the Apollo 11 recovery operations from the flag bridge of the USS Hornet .",
+          "span": "nasa.gov#12265-12458"
+        },
+        {
+          "note": "An accompanying book of the same name —was→ also released",
+          "host": "thespacereview.com",
+          "because": "Accompanying that series is a book, also called Chasing the Moon , by filmmaker Robert Stone and Alan Andres, who served as a consulting producer and researcher for the series.",
+          "span": "thespacereview.com#859-1035"
+        },
+        {
+          "note": "Armstrong and Aldrin —found→ themselves passing landmarks on the surface two or three seconds early",
+          "host": "nasa.gov",
+          "because": "The Apollo 11 liftoff from the Moon came early, ending a 22-hour stay on the Moon by Armstrong and Aldrin.",
+          "span": "nasa.gov#10065-10171"
+        },
+        {
+          "note": "BIGs —were→ worn until they reached isolation facilities on board Hornet",
+          "host": "nasa.gov",
+          "because": "Right: Apollo 11 astronauts await the recovery helicopter with the decontamination officer, all wearing BIGs.",
+          "span": "nasa.gov#12459-12568"
+        }
+      ],
+      "seconds": 153
+    }
+  },
+  "band-8": {
+    "containment": {
+      "offered": 39,
+      "noCandidates": 1,
+      "verdicts": {
+        "refused:no-testimony": 32,
+        "refused:indiscriminate": 4,
+        "no_candidate": 1,
+        "states": 3
+      },
+      "states": 3,
+      "contradicts": 0,
+      "landings": [
+        {
+          "note": "Armstrong's sons —were→ hosted by President Donald Trump in the Oval Office",
+          "host": "collectspace.com",
+          "because": "Now, 49 years later, it was the first moonwalker's sons who had the honor.",
+          "span": "collectspace.com#627-701"
+        },
+        {
+          "note": "Armstrong —acknowledged→ Aldrin's completion of the post-landing checklist with \"Engine arm is off\"",
+          "host": "web.archive.org",
+          "because": "[Armstrong - \"I think Mike's view - and I share it - was that his responsibility was to prove single-man operation of the Command-and-Service Module - a very complex piece of machinery - for the first time, for an extend",
+          "span": "web.archive.org#95030-95314"
+        },
+        {
+          "note": "Armstrong —was→ then expected to command Apollo 11",
+          "host": "collectspace.com",
+          "because": "Already removed from \"Apollo to the Moon\" but present in the gallery for decades were the spacesuits that astronauts Neil Armstrong, Buzz Aldrin and Gene Cernan wore on first and the last missions to land humans on the l",
+          "span": "collectspace.com#2769-3002"
+        }
+      ],
+      "seconds": 146
+    }
+  },
+  "band-9": {
+    "containment": {
+      "offered": 39,
+      "noCandidates": 1,
+      "verdicts": {
+        "refused:no-testimony": 34,
+        "refused:indiscriminate": 4,
+        "no_candidate": 1,
+        "states": 1
+      },
+      "states": 1,
+      "contradicts": 0,
+      "landings": [
+        {
+          "note": "Armstrong —focused→ on them during his descent so he could determine the spacecraft's speed",
+          "host": "airandspace.si.edu",
+          "because": "The bag and its contents were returned to Earth, despite being scheduled to remain on the Lunar surface, and remained in the possession of astronaut Neil Armstrong until his death in 2012.",
+          "span": "airandspace.si.edu#1728-1916"
+        }
+      ],
+      "seconds": 135
+    }
+  },
+  "band-10": {
+    "containment": {
+      "offered": 40,
+      "noCandidates": 0,
+      "verdicts": {
+        "refused:indiscriminate": 4,
+        "refused:no-testimony": 34,
+        "states": 2
+      },
+      "states": 2,
+      "contradicts": 0,
+      "landings": [
+        {
+          "note": "Anders —flown→ with Lovell on Apollo 8",
+          "host": "web.archive.org",
+          "because": "of the Apollo 11 landing site between 12 July 2009 and and 22 May",
+          "span": "web.archive.org#9545-9610"
+        },
+        {
+          "note": "Armstrong and Aldrin —found→ themselves passing landmarks on the surface two or three seconds early",
+          "host": "nasa.gov",
+          "because": "The Apollo 11 liftoff from the Moon came early, ending a 22-hour stay on the Moon by Armstrong and Aldrin.",
+          "span": "nasa.gov#10065-10171"
+        }
+      ],
+      "seconds": 140
+    }
+  },
+  "band-11": {
+    "containment": {
+      "offered": 39,
+      "noCandidates": 1,
+      "verdicts": {
+        "refused:no-testimony": 34,
+        "no_candidate": 1,
+        "states": 3,
+        "refused:indiscriminate": 2
+      },
+      "states": 3,
+      "contradicts": 0,
+      "landings": [
+        {
+          "note": "Armstrong in particular —was→ notoriously aloof",
+          "host": "nasa.gov",
+          "because": "With a half-Earth in the background, the Lunar Module ascent stage with Moon-walking astronauts Neil Armstrong and Edwin Aldrin Jr.",
+          "span": "nasa.gov#9847-9978"
+        },
+        {
+          "note": "Armstrong —focused→ on them during his descent so he could determine the spacecraft's speed",
+          "host": "airandspace.si.edu",
+          "because": "The white cloth bag was returned to Earth, despite being scheduled to remain on the Lunar surface, and remained in the possession of astronaut Neil Armstrong until his death in 2012.",
+          "span": "airandspace.si.edu#3069-3251"
+        },
+        {
+          "note": "at Bowling Green —going→ down Broadway to City Hall where Mayor John Lindsay greeted them and ended at the United Nations headquarters",
+          "host": "archives.nyc",
+          "because": "certainly not a very inviting place to live or work.”",
+          "span": "archives.nyc#2357-2410"
+        }
+      ],
+      "seconds": 129
+    }
+  },
+  "band-12": {
+    "containment": {
+      "offered": 39,
+      "noCandidates": 1,
+      "verdicts": {
+        "refused:no-testimony": 36,
+        "refused:indiscriminate": 2,
+        "no_candidate": 1,
+        "states": 1
+      },
+      "states": 1,
+      "contradicts": 0,
+      "landings": [
+        {
+          "note": "BIGs —were→ worn until they reached isolation facilities on board Hornet",
+          "host": "nasa.gov",
+          "because": "Right: Apollo 11 astronauts await the recovery helicopter with the decontamination officer, all wearing BIGs.",
+          "span": "nasa.gov#12459-12568"
+        }
+      ],
+      "seconds": 131
+    }
+  },
+  "band-13": {
+    "containment": {
+      "offered": 38,
+      "noCandidates": 2,
+      "verdicts": {
+        "refused:no-testimony": 33,
+        "refused:indiscriminate": 2,
+        "no_candidate": 2,
+        "states": 3
+      },
+      "states": 3,
+      "contradicts": 0,
+      "landings": [
+        {
+          "note": "Apollo —has→ come close [to] the excitement that was generated by those astronauts—Armstrong",
+          "host": "nasa.gov",
+          "because": "Astronaut Harrison H. Schmitt, Apollo 17 lunar module pilot, stands near the deployed United States flag on the lunar surface during NASA’s final lunar landing mission in the Apollo series.",
+          "span": "nasa.gov#7813-8002"
+        },
+        {
+          "note": "Armstrong —focused→ on them during his descent so he could determine the spacecraft's speed",
+          "host": "airandspace.si.edu",
+          "because": "The Armstrong Purse: Flown Apollo 11 Lunar Artifacts",
+          "span": "airandspace.si.edu#22-74"
+        },
+        {
+          "note": "Armstrong —uncovered→ a plaque mounted on the LM ladder",
+          "host": "airandspace.si.edu",
+          "because": "The bag and its contents were returned to Earth, despite being scheduled to remain on the Lunar surface, and remained in the possession of astronaut Neil Armstrong until his death in 2012.",
+          "span": "airandspace.si.edu#1728-1916"
+        }
+      ],
+      "seconds": 135
+    }
+  },
+  "band-14": {
+    "containment": {
+      "offered": 39,
+      "noCandidates": 1,
+      "verdicts": {
+        "refused:no-testimony": 33,
+        "refused:indiscriminate": 3,
+        "no_candidate": 1,
+        "states": 3
+      },
+      "states": 3,
+      "contradicts": 0,
+      "landings": [
+        {
+          "note": "Armstrong and Aldrin —found→ themselves passing landmarks on the surface two or three seconds early",
+          "host": "nasa.gov",
+          "because": "The Apollo 11 liftoff from the Moon came early, ending a 22-hour stay on the Moon by Armstrong and Aldrin.",
+          "span": "nasa.gov#10065-10171"
+        },
+        {
+          "note": "Armstrong's sons —were→ hosted by President Donald Trump in the Oval Office",
+          "host": "collectspace.com",
+          "because": "Now, 49 years later, it was the first moonwalker's sons who had the honor.",
+          "span": "collectspace.com#627-701"
+        },
+        {
+          "note": "Armstrong —uncovered→ a plaque mounted on the LM ladder",
+          "host": "airandspace.si.edu",
+          "because": "The white cloth bag was returned to Earth, despite being scheduled to remain on the Lunar surface, and remained in the possession of astronaut Neil Armstrong until his death in 2012.",
+          "span": "airandspace.si.edu#3069-3251"
+        }
+      ],
+      "seconds": 138
+    }
+  },
+  "band-15": {
+    "containment": {
+      "offered": 39,
+      "noCandidates": 1,
+      "verdicts": {
+        "refused:indiscriminate": 2,
+        "refused:no-testimony": 35,
+        "states": 2,
+        "no_candidate": 1
+      },
+      "states": 2,
+      "contradicts": 0,
+      "landings": [
+        {
+          "note": "Aldrin —remarked→ that moving from sunlight into Eagle ' s shadow produced no temperature change inside the suit",
+          "host": "nasa.gov",
+          "because": "Astronaut Harrison H. Schmitt, Apollo 17 lunar module pilot, stands near the deployed United States flag on the lunar surface during NASA’s final lunar landing mission in the Apollo series.",
+          "span": "nasa.gov#7813-8002"
+        },
+        {
+          "note": "Armstrong —uncovered→ a plaque mounted on the LM ladder",
+          "host": "airandspace.si.edu",
+          "because": "The bag and its contents were returned to Earth, despite being scheduled to remain on the Lunar surface, and remained in the possession of astronaut Neil Armstrong until his death in 2012.",
+          "span": "airandspace.si.edu#1728-1916"
+        }
+      ],
+      "seconds": 132
+    }
+  },
+  "band-16": {
+    "containment": {
+      "offered": 38,
+      "noCandidates": 2,
+      "verdicts": {
+        "refused:no-testimony": 34,
+        "refused:indiscriminate": 1,
+        "states": 3,
+        "no_candidate": 2
+      },
+      "states": 3,
+      "contradicts": 0,
+      "landings": [
+        {
+          "note": "Aldrin —tossed→ the bag down",
+          "host": "nasa.gov",
+          "because": "Buzz Aldrin Sets Foot on the Moon This video shows Buzz Aldrin descending the lunar module ladder and compares existing footage with the partially restored video.",
+          "span": "nasa.gov#6970-7132"
+        },
+        {
+          "note": "Armstrong —uncovered→ a plaque mounted on the LM ladder",
+          "host": "airandspace.si.edu",
+          "because": "The white cloth bag was returned to Earth, despite being scheduled to remain on the Lunar surface, and remained in the possession of astronaut Neil Armstrong until his death in 2012.",
+          "span": "airandspace.si.edu#3069-3251"
+        },
+        {
+          "note": "Armstrong —was→ then expected to command Apollo 11",
+          "host": "collectspace.com",
+          "because": "Already removed from \"Apollo to the Moon\" but present in the gallery for decades were the spacesuits that astronauts Neil Armstrong, Buzz Aldrin and Gene Cernan wore on first and the last missions to land humans on the l",
+          "span": "collectspace.com#2769-3002"
+        }
+      ],
+      "seconds": 128
+    }
+  },
+  "band-17": {
+    "containment": {
+      "offered": 39,
+      "noCandidates": 1,
+      "verdicts": {
+        "refused:no-testimony": 33,
+        "refused:indiscriminate": 4,
+        "states": 2,
+        "no_candidate": 1
+      },
+      "states": 2,
+      "contradicts": 0,
+      "landings": [
+        {
+          "note": "Aldrin —tossed→ the bag down",
+          "host": "nasa.gov",
+          "because": "Buzz Aldrin Sets Foot on the Moon This video shows Buzz Aldrin descending the lunar module ladder and compares existing footage with the partially restored video.",
+          "span": "nasa.gov#6970-7132"
+        },
+        {
+          "note": "Armstrong —found→ a clear patch of ground and maneuvered the spacecraft towards it",
+          "host": "space.com",
+          "because": "\"NASA officials limited our surface working time to 2 and 3/4 hours on that first surface exploration to assure that we would not expire of hyperthermia.",
+          "span": "space.com#4929-5082"
+        }
+      ],
+      "seconds": 136
+    }
+  },
+  "band-18": {
+    "containment": {
+      "offered": 38,
+      "noCandidates": 2,
+      "verdicts": {
+        "refused:no-testimony": 33,
+        "refused:indiscriminate": 4,
+        "states": 1,
+        "no_candidate": 2
+      },
+      "states": 1,
+      "contradicts": 0,
+      "landings": [
+        {
+          "note": "All of the —collected→ materials were flown to Ellington Air Force Base in Houston and taken to the Lunar Receiving Laboratory (LRL) within 48 hours of splashdown",
+          "host": "nasa.gov",
+          "because": "He retrieved the two Apollo Lunar Sample Return Containers (ALSRC) containing the Moon rocks and soil, film cassettes, and spacesuits from the capsule and returned with them to the MQF without breaking the biological bar",
+          "span": "nasa.gov#18307-18532"
+        }
+      ],
+      "seconds": 137
+    }
+  },
+  "band-19": {
+    "containment": {
+      "offered": 39,
+      "noCandidates": 1,
+      "verdicts": {
+        "refused:no-testimony": 34,
+        "refused:indiscriminate": 3,
+        "no_candidate": 1,
+        "states": 2
+      },
+      "states": 2,
+      "contradicts": 0,
+      "landings": [
+        {
+          "note": "Anders —flown→ with Lovell on Apollo 8",
+          "host": "web.archive.org",
+          "because": "The US flag, deployed on the surface of the Moon,",
+          "span": "web.archive.org#212972-213021"
+        },
+        {
+          "note": "Armstrong in particular —was→ notoriously aloof",
+          "host": "nasa.gov",
+          "because": "With a half-Earth in the background, the Lunar Module ascent stage with Moon-walking astronauts Neil Armstrong and Edwin Aldrin Jr.",
+          "span": "nasa.gov#9847-9978"
+        }
+      ],
+      "seconds": 135
+    }
+  },
+  "band-20": {
+    "containment": {
+      "offered": 39,
+      "noCandidates": 1,
+      "verdicts": {
+        "refused:no-testimony": 34,
+        "no_candidate": 1,
+        "states": 4,
+        "refused:indiscriminate": 1
+      },
+      "states": 4,
+      "contradicts": 0,
+      "landings": [
+        {
+          "note": "An accompanying book of the same name —was→ also released",
+          "host": "thespacereview.com",
+          "because": "The book’s subtitle notes its emphasis on “the people, the politics, and the promise” of going to the Moon.",
+          "span": "thespacereview.com#1193-1300"
+        },
+        {
+          "note": "Armstrong and Aldrin —found→ themselves passing landmarks on the surface two or three seconds early",
+          "host": "nasa.gov",
+          "because": "The Apollo 11 liftoff from the Moon came early, ending a 22-hour stay on the Moon by Armstrong and Aldrin.",
+          "span": "nasa.gov#10065-10171"
+        },
+        {
+          "note": "Armstrong —explained→ that NASA limited the first moonwalk's time and distance because there was no empirical proof of how much cooling water the astronauts' PLSS backpacks would consume to handle their body heat generation while working on the Moon",
+          "host": "space.com",
+          "because": "A former naval aviator, NASA test pilot and Apollo 11 commander, Armstrong was the first human to ever land a spacecraft on the moon and the first to step on the lunar surface.",
+          "span": "space.com#2636-2812"
+        },
+        {
+          "note": "Armstrong —found→ a clear patch of ground and maneuvered the spacecraft towards it",
+          "host": "space.com",
+          "because": "A former naval aviator, NASA test pilot and Apollo 11 commander, Armstrong was the first human to ever land a spacecraft on the moon and the first to step on the lunar surface.",
+          "span": "space.com#2636-2812"
+        }
+      ],
+      "seconds": 135
+    }
+  },
+  "band": {
+    "containment": {
+      "observed": 9,
+      "draws": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        4,
+        5
+      ],
+      "median": 2,
+      "atOrAbove": 0,
+      "rankP": 0.047619047619047616
+    }
   }
 }
