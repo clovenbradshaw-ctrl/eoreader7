@@ -161,3 +161,35 @@ a page it was not built on.
   and as a PDF — is **not run here**, and it is the next thing that should be.
 - No claim is made that any arm's admitted lines are TRUE. This measures what
   reaches the door, not what is right.
+
+---
+
+## Amendment (same day) — the threshold was a rendering artifact, and the arm that replaces it
+
+`cross-format-RESULTS.md` carries the full account. The short version, because
+it changes Finding 2 above:
+
+`length >= 72` scored 0.769 on markdown and plaintext and **0.148** on the
+same content hard-wrapped at 72 columns — recall 0.091, one prose line in
+eleven. Hard-wrapping is the defining property of a PDF's text layer, so the
+Wikipedia result was a fact about ONE rendering convention (one line = one
+paragraph), not about documents.
+
+The shape arm degraded identically, to three decimals, because at cap 1 its
+length bucket was the whole signal — it was the threshold in a costume.
+
+**`fills the measure`** replaces both: does this line reach 80% of the
+document's own 90th-percentile line length, in a run of at least two? The
+measure is read off the document, so the arm knows nothing about page widths,
+formats or sites. Pre-registered on the constructed-oracle renderings, then
+replayed here:
+
+| page | `length >= 72` | fills the measure |
+|---|---|---|
+| Borodino | 0.639 · junk 16.0% | **0.641 · junk 8.4%** |
+| Austerlitz | 0.654 · junk 17.9% | **0.670 · junk 9.1%** |
+| Third Coalition | 0.618 · junk 8.5% | **0.648 · junk 8.7%** |
+| wrapped rendering | 0.148 | **0.936** |
+
+Precision 0.909–0.916 across the real pages against the threshold's
+0.821–0.915. Junk admitted falls from the reader's current 73–77% to 8–9%.

@@ -146,6 +146,30 @@ if (ARMS.includes("shape")) {
   }
 }
 
+// -- the measure arm, carried over from cross-format.mjs ------------------
+// Built and pre-registered THERE, on renderings whose oracle is exact by
+// construction, and only then brought here. It asks whether a line FILLS THE
+// MEASURE in a run, with the measure read off the document's own line lengths
+// -- so it knows nothing about page widths, formats or sites. It cost a
+// little against `length >= 72` on unwrapped renderings (0.727 vs 0.769) and
+// beat it 0.936 to 0.148 on the same content hard-wrapped, which is the
+// defining property of a PDF's text layer.
+function measureArm(texts) {
+  const lens = texts.map((t) => t.length).filter((n) => n > 0).sort((a, b) => a - b);
+  if (!lens.length) return texts.map(() => false);
+  const measure = lens[Math.floor(0.9 * (lens.length - 1))];
+  const fills = texts.map((t) => t.length >= 0.8 * measure);
+  const pred = texts.map(() => false);
+  for (let i = 0; i < fills.length; i += 1) {
+    if (!fills[i]) continue;
+    if (!(fills[i - 1] || fills[i + 1])) continue;
+    pred[i] = true;
+    for (let j = i + 1; j < fills.length && !fills[j]; j += 1) { pred[j] = true; break; }
+  }
+  return pred.some(Boolean) ? pred : fills;
+}
+results.push(score(measureArm(texts), "fills the measure"));
+
 // The trivial baselines every arm must beat, or it has measured nothing.
 results.push(score(texts.map(() => true), "admit everything"));
 results.push(score(texts.map((t) => t.length >= 72), "length >= 72"));
