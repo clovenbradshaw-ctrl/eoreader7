@@ -28,6 +28,7 @@ import * as TL from "../kernel/task-log.js";
 import * as cube from "../kernel/cube.js";
 import { makeDerivation, premisesOf } from "../organs/derivation.js";
 import { contestedSearch, askValue } from "../organs/corroboration.js";
+import { mergeTestimony, landContest, SELF_WITNESS } from "../organs/capacity-runner.js";
 import { createDeclarationLog, proposeCandidate, promote } from "../interpretation/declarations.js";
 
 const notes = makeNotes();
@@ -357,4 +358,102 @@ test("THE POPPERIAN CONDITION: a tower built on n=1 still FALLS — that, not th
   const c = D.concedePremise(s.log, s.concession.id, { trigger: s.concession.trigger });
   assert.deepEqual(c.withdrawn.map((w) => w.id).sort(), ex.withdrawn.map((w) => w.id).sort());
   assert.equal(D.foldDerived(c.log).filter((x) => x.grounds?.includes(single)).length, 0);
+});
+
+
+// ── 7. THE WIRE: mergeTestimony's DISAGREE lands as a contest ─────────────
+//
+// The third organ found producing a typed finding no caller wrote down.
+// mergeTestimony has always returned DISAGREE with `holds` and `refused`
+// named, per claim_id — and was called from one eval driver and one
+// registry string. These readings are verdicts on ONE claim, which is why
+// the kind is `contest` BY CONSTRUCTION rather than guessed: individuation
+// and grain are excluded because it is one claim, force because it is one
+// claim. A subject/verb/object string comparison across sources cannot earn
+// that, and P11 forbids it outright.
+
+const reading = (who, verdict, at = `${who}#10-40`) => ({
+  claim_id: "c1", who, verdict, read: at ? [at] : [],
+  edges: [{ subject: "lincoln", verb: "was succeeded by", object: "hamlin", refs: at ? [at] : [] }],
+});
+const TEXTS = {
+  "page-b#10-40": "Andrew Johnson succeeded Lincoln as president in 1865.",
+  "page-c#10-40": "The office passed to Johnson on Lincoln's death.",
+  "self:model#10-40": "I recall it was Johnson.",
+};
+const textAt = (at) => TEXTS[at] ?? null;
+
+test("THE WIRE: a DISAGREE lands one contest per refusing source, typed `contest` because one claim_id excludes every other kind", () => {
+  const merged = mergeTestimony([reading("page-a", "holds"), reading("page-b", "refused")]);
+  assert.equal(merged.case, "DISAGREE");
+  const r = landContest(seed(), hl, merged, { textAt });
+  assert.equal(r.landed.length, 1);
+  assert.equal(r.landed[0].source, "page-b");
+  const live = notes.disputesOf(r.log).get(ID);
+  assert.equal(live.length, 1);
+  assert.equal(live[0].kind, "contest");
+  assert.equal(live[0].because, TEXTS["page-b#10-40"], "the decider is the SOURCE'S OWN BYTES at the address it read (P17)");
+  assert.equal(live[0].span.at, "page-b#10-40");
+  assert.equal(r.unanimous, false);
+});
+
+test("THE WALL THAT MATTERS: a self-witness may NEVER dispute — the mouth does not convict the record", () => {
+  const merged = mergeTestimony([reading("page-a", "holds"), reading(SELF_WITNESS, "refused")]);
+  assert.equal(merged.case, "DISAGREE", "the merge still sees the split — the wall is at landing, not at judgement");
+  const r = landContest(seed(), hl, merged, { textAt });
+  assert.equal(r.landed.length, 0);
+  assert.equal(r.refusals.self_witness, 1);
+  assert.equal(notes.disputesOf(r.log).size, 0);
+  // mergeTestimony refuses a self-witness co-signing corroboration alone
+  // (BUILD-4). This is that wall pointed the other way, and P2 makes it the
+  // more dangerous direction: a model that can dispute can convict.
+});
+
+test("an unaddressed refusal is an assertion, not a reading, and lands nothing", () => {
+  const merged = mergeTestimony([reading("page-a", "holds"), { ...reading("page-b", "refused"), read: [] }]);
+  const r = landContest(seed(), hl, merged, { textAt });
+  assert.equal(r.landed.length, 0);
+  assert.equal(r.refusals.read_nothing, 1);
+});
+
+test("no bytes at the address, no dispute — never a bare vote", () => {
+  const merged = mergeTestimony([reading("page-a", "holds"), reading("page-z", "refused")]);
+  const r = landContest(seed(), hl, merged, { textAt });
+  assert.equal(r.landed.length, 0);
+  assert.equal(r.refusals.no_bytes, 1);
+  assert.throws(() => landContest(seed(), hl, merged, {}), /injected/);
+});
+
+test("AGREE, SINGLE and UNDETERMINED are not disagreements and land nothing", () => {
+  for (const readings of [
+    [reading("page-a", "holds"), reading("page-b", "holds")],
+    [reading("page-a", "holds")],
+    [reading("page-a", "undetermined")],
+  ]) {
+    const merged = mergeTestimony(readings);
+    assert.ok(["AGREE", "SINGLE", "UNDETERMINED"].includes(merged.case), merged.case);
+    const r = landContest(seed(), hl, merged, { textAt });
+    assert.equal(r.landed.length, 0);
+    assert.equal(r.refusals.not_a_contest, 1);
+  }
+});
+
+test("CONTRADICTED — every source refuses — is REPORTED unanimous and still only disputed, never conceded", () => {
+  const merged = mergeTestimony([reading("page-b", "refused"), reading("page-c", "refused")]);
+  assert.equal(merged.case, "CONTRADICTED");
+  assert.equal(merged.standing, "corroborated");
+  const r = landContest(seed(), hl, merged, { textAt });
+  assert.equal(r.landed.length, 2);
+  assert.equal(r.unanimous, true, "so a caller holding that authority can decide about conceding");
+  assert.equal(notes.concededIds(r.log).size, 0, "and this function concedes nothing — that would smuggle in the conviction mergeTestimony's own header refuses");
+  assert.equal(notes.fold(r.log).length, 1, "the note still stands");
+});
+
+test("LEAK ASSAY, again at the wire: landing a contest moves no witness, no span, no standing", () => {
+  const before = notes.fold(seed())[0];
+  const merged = mergeTestimony([reading("page-a", "holds"), reading("page-b", "refused")]);
+  const after = notes.fold(landContest(seed(), hl, merged, { textAt }).log)[0];
+  assert.deepEqual(after.witnesses, before.witnesses);
+  assert.deepEqual(after.spans, before.spans);
+  assert.deepEqual(notes.standingOf(after), notes.standingOf(before));
 });

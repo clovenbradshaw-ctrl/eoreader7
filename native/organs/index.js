@@ -33,7 +33,7 @@ export { REFUSALS as OBLIGATION_REFUSALS, STANDINGS, admitObligations, coverage,
 export * as obligation from "./obligation.js";
 export { REFUSALS as EVENT_ARRANGEMENTS_REFUSALS, arrangementNotes, arrangementsFrom } from "./event-arrangements.js";
 export * as eventArrangements from "./event-arrangements.js";
-export { SELF_WITNESS, isSelfWitness, landAct, landSelfAssertion, makeCapacityRunner, mergeTestimony, negationCandidates, perSourceReadings, readsNothing, speakerWho } from "./capacity-runner.js";
+export { SELF_WITNESS, isSelfWitness, landAct, landContest, landSelfAssertion, makeCapacityRunner, mergeTestimony, negationCandidates, perSourceReadings, readsNothing, speakerWho } from "./capacity-runner.js";
 export * as capacityRunner from "./capacity-runner.js";
 export { CAPACITIES, findCapacity, listCapacities, unresolvedCapacity } from "./capacities.js";
 export * as capacities from "./capacities.js";
