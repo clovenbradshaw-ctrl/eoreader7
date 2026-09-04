@@ -30,7 +30,21 @@
 //   below it, the corpus was never the binding constraint and the memory
 //   floor's design is what gets re-examined, which is NEXT-PASSES' own rule.
 //
+//   THE BORN NULL (P66, added the same day the real arm returned 0.033).
+//   A planted guard of four hand-made fabrications is NOT a null: it is four
+//   points, chosen by me, and it answers "does the witness attest nonsense"
+//   rather than "what does this witness attest AT ALL, on material with the
+//   relation destroyed". REDEAL_SEED=<n> deranges the OBJECT across the
+//   admitted edges -- every subject kept, every verb kept, every object kept,
+//   only which object belongs to which subject+verb destroyed -- and runs the
+//   identical walk. BAND=<d> draws it d times, because a null drawn once is a
+//   null drawn zero times.
+//   WHAT IT DECIDES: if the deranged arms attest at the real arm's rate, then
+//   0.033 is this instrument's own baseline and carries no information about
+//   the material.
+//
 //   env: MODEL (gemma2:2b) · BUDGET (60) · SOURCES (16) · ARMS (select)
+//        REDEAL_SEED · BAND
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 const NATIVE = new URL("../..", import.meta.url).pathname;
 const FIX = new URL("./fixtures/", import.meta.url).pathname;
@@ -95,16 +109,30 @@ console.log(`model ${MODEL}; budget ${BUDGET} asks; arm ${ARMS.join(",")}\n`);
 // ── the ledger ───────────────────────────────────────────────────────────
 let log = hl.createHyperlexicon({ frame: { reader: "makeRelationReader", walls: true, posPrior: "POSPrior@1", model: MODEL, budget: BUDGET, corpus: "cited-source" } });
 let heard = 0; const t0 = Date.now();
+const admitted = [];
 for (const s of sources) {
   const passages = chunkSource(s.ref, s.text);
   const rel = reader(passages, { pool: passages });
   for (const p of passages) {
     const edges = (rel.read(String(p.text ?? ""))?.claims ?? []).filter((c) => c.verdict === "bound").map((c) => ({ subject: c.end1, verb: c.label, object: c.end2, spans: c.spans ?? [] }));
     if (!edges.length) continue;
-    const r = hl.admit(log, edges, { witness: `${p.ref ?? s.ref}~walls-v1` });
-    log = r.log; heard += r.heard.length;
+    admitted.push({ witness: `${p.ref ?? s.ref}~walls-v1`, edges });
   }
 }
+// THE BORN NULL: the object deranged across every admitted edge. Marginals
+// kept exactly -- same subjects, same verbs, same multiset of objects, same
+// witnesses, same spans -- and only the RELATION destroyed.
+const REDEAL = process.env.REDEAL_SEED ? Number(process.env.REDEAL_SEED) : null;
+if (REDEAL !== null) {
+  let st = (REDEAL >>> 0) || 1;
+  const rnd = () => ((st = (st * 1664525 + 1013904223) >>> 0) / 4294967296);
+  const flat = admitted.flatMap((a) => a.edges);
+  const objs = flat.map((e) => e.object);
+  for (let i = objs.length - 1; i > 0; i -= 1) { const j = Math.floor(rnd() * (i + 1)); [objs[i], objs[j]] = [objs[j], objs[i]]; }
+  for (let i = 0; i < flat.length; i += 1) if (objs[i] !== flat[i].object) flat[i].object = objs[i];
+  console.log(`REDEAL_SEED=${REDEAL}: ${flat.length} edges, object deranged (marginals kept, relation destroyed)`);
+}
+for (const a of admitted) { const r = hl.admit(log, a.edges, { witness: a.witness }); log = r.log; heard += r.heard.length; }
 const notes0 = hl.foldHyperlexicon(log);
 const planted = [];
 for (let i = 0; i + 1 < Math.min(notes0.length, 8) && planted.length < 4; i += 2) {
