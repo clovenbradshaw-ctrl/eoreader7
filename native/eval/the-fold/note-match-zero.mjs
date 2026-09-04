@@ -32,6 +32,14 @@ const formSet = (f) => { const out = new Set(); for (const [k, v] of Object.entr
 // the POS prior attests all three as verbs at 100%.
 const posVerbForms = (floor) => { const out = new Set(); for (const [w, att] of Object.entries(posPrior.forms ?? {})) { const t = Object.values(att).reduce((a, b) => a + b, 0); if (t > 0 && ((att.VERB ?? 0) + (att.AUX ?? 0)) / t > floor) out.add(w.toLowerCase()); } return out; };
 const verbForms = process.env.VERBS === "both" ? new Set([...formSet(morph.forms), ...posVerbForms(0.5)]) : process.env.VERBS === "prior" ? formSet(morph.forms) : null;
+// ACTHEAD=1: compare acts by their HEAD. S50 put the auxiliary chain INTO the
+// act (`were placed`, `had been used`), which fixed the object — and left the
+// act a multi-word string that exact-match and the single-form lemmatizer
+// cannot meet against a one-word act (`used`, `flew`). The head is found with
+// the RECEIVED POS prior's own AUX-dominant measure at the floor already
+// declared for verb-dominance (0.5); no hand list of auxiliaries.
+const auxDominant = (w) => { const a = posPrior.forms?.[String(w).toLowerCase()]; if (!a) return false; const t = Object.values(a).reduce((x, y) => x + y, 0); return t > 0 && (a.AUX ?? 0) / t > 0.5; };
+export const headAct = (act) => { const t = String(act ?? "").trim().split(/\s+/).filter(Boolean); for (let i = t.length - 1; i >= 0; i -= 1) if (!auxDominant(t[i])) return t[i].toLowerCase(); return t.at(-1)?.toLowerCase() ?? ""; };
 const priorOrgans = verbForms ? { verbForms, createLemmatizer, morphologyIndex: morph.forms, morphologyLanguage: morph.language, ...(process.env.ATTEST === "1" ? { attestedVerbs: true } : {}) } : {};
 const reader = makeRelationReader({
   splitSentences, extractSurfaces, discoverReferents, namesCorefer, diaNorm, discoverRelationVocab, extractRelations, tokenize,
@@ -75,7 +83,8 @@ function match(ends, edges) {
   let best = null;
   for (const f of edges) {
     const subj = pronoun ? null : overlap(s, f.s) > 0;
-    const act = f.a && (f.a.toLowerCase() === ends.label.toLowerCase() || sameAct(f.a, ends.label));
+    let act = f.a && (f.a.toLowerCase() === ends.label.toLowerCase() || sameAct(f.a, ends.label));
+    if (!act && process.env.ACTHEAD === "1" && f.a) { const hN = headAct(ends.label), hF = headAct(f.a); act = !!hN && !!hF && (hN === hF || sameAct(hN, hF)); }
     const obj = overlap(o, [...f.o, ...f.s]);
     if (!act) continue;
     if (subj === false) continue;
@@ -102,5 +111,5 @@ for (let i = 0; i < labeled.length; i += 1) {
 const n = rows.length;
 console.log(`\n${n} labeled notes · real matched ${rows.filter((r) => r.real).length}, on a labeled sentence ${rows.filter((r) => r.real?.labeled).length} · control matched ${rows.filter((r) => r.control).length} · pronoun subjects ${rows.filter((r) => r.pronoun).length}`);
 const { writeFileSync } = await import("node:fs");
-writeFileSync(`${HERE}results/note-match-zero${process.env.FINE === "1" ? "-fine" : ""}${process.env.POOL === "article" ? "-pool" : ""}${process.env.VERBS ? "-" + process.env.VERBS : ""}${process.env.ATTEST === "1" ? "-attested" : ""}.json`, JSON.stringify(rows, null, 2));
+writeFileSync(`${HERE}results/note-match-zero${process.env.FINE === "1" ? "-fine" : ""}${process.env.POOL === "article" ? "-pool" : ""}${process.env.VERBS ? "-" + process.env.VERBS : ""}${process.env.ATTEST === "1" ? "-attested" : ""}${process.env.ACTHEAD === "1" ? "-acthead" : ""}.json`, JSON.stringify(rows, null, 2));
 }
