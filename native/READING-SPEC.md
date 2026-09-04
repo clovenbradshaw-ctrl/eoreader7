@@ -3718,3 +3718,64 @@ the object as the whole predicate, the vocabulary gap. Three labels need
 re-keying on their article sentence. 111 model calls were spent
 undeclared by the walk's own witness on the live and first offline runs;
 recorded, and `WITNESS=0` on every measurement run since.
+
+## S62 — Null the free stage before buying the paid one; and measure the null where the budget is spent
+
+**Generality:** universal.
+
+User, 2026-09-04, on a plan to spend ~350 model calls drawing a null band for
+a walk that had just returned 0.033: *"what are you running calls for? that's
+a lot, i feel like the point of making RULES is so we can do minimal calls."*
+Then, on the statistic itself: *"is that right? or is it when there is a
+difference that makes a difference?"* And then: *"we should have always been
+doing this."* That last is correct and this entry exists to say so on the
+record: **every walk in this repo before today spent model calls without ever
+nulling the stage that chose what to ask about.**
+
+**The shape of the mistake.** A measurement that spends calls has a mechanical
+stage in front of it that decides which pairs the model ever sees — here
+`endsCopresentWindow`, which skipped 6,483 pairs for free and passed 60. That
+stage costs nothing, and it bounds everything after it. Spending on the judge
+before nulling the selector buys a number about a candidate set nobody has
+checked.
+
+**Three rules, each with the measurement that earned it.**
+
+1. **Null the SELECTOR, not only the judge.** Derange the relation with
+   marginals kept — same subjects, verbs, objects, witnesses, spans, only
+   which object belongs to which subject destroyed — and recount what the
+   selector admits. Measured (`ordered-read-reach.mjs`, 915 notes, 16
+   independent sources, 20 draws): the copresence lookup admits **491** notes
+   against a redealt median of **500**, with 18 of 20 draws at or above real,
+   **p ≈ 0.905**. That is not a weak signal, it is the absence of one. The
+   guard the walk *did* carry — four planted fabrications, 0 attested — is
+   four points chosen by hand and answers a different question.
+
+2. **Measure the null WHERE THE BUDGET IS SPENT, not across the pool.** A gap
+   averaged over everything the system ignores is not information about
+   anything it does. Measured: over the whole pool the selector reads a 9.6%
+   lift at p ≈ 0.048 and looks alive; at the note level, where the ask is
+   actually chosen, it reads p ≈ 0.905 and is dead. The same instrument, the
+   same corpus, opposite verdicts — the aggregate was the wrong statistic.
+
+3. **A real number and a null that are BOTH ZERO is a broken instrument, not a
+   finding.** `cited-source-null.mjs`'s first draft called
+   `endsCopresentWindow(note, text)` with the arguments reversed; both arms
+   read 0 feasible pairs and it printed the confident conclusion that the
+   candidate set carried nothing. It was caught only because a walk had
+   already spent 60 asks, so 0 was known to be wrong. Check that the real arm
+   reproduces a number you already have before reading any null against it.
+
+**What the free pass bought, stated as the reason to keep doing it.** The
+~350 declared calls were never spent. The zero-call pass settled more than
+they would have: it killed the lookup (p ≈ 0.905), found the one selector in
+this corpus that does separate — the reader's own resolved referent face,
+**51 real against a redealt median of 39, outside every one of 20 draws,
+p ≈ 0.048** — and narrowed the next spend from a band to a single 60-ask run
+against that 51. **The first quantity in this line of work to separate from
+its null at the note level was found for nothing.**
+
+**Refused, so it is not retried:** ranking the candidate pool by a stronger
+similarity score. That is a better lookup, not a reading, and rule 2 says why
+it would have measured true and useless — the gap would have moved in the
+aggregate while the top of the list stayed the same.
