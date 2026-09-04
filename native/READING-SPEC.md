@@ -3780,7 +3780,7 @@ similarity score. That is a better lookup, not a reading, and rule 2 says why
 it would have measured true and useless — the gap would have moved in the
 aggregate while the top of the list stayed the same.
 
-## S63 — an alias is declared by the material; the fold researches, the model points
+## S64 — an alias is declared by the material; the fold researches, the model points
 
 **Generality:** universal.
 
