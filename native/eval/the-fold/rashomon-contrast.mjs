@@ -105,7 +105,15 @@ const relationsFor = makeRelationReader({
   blankFurniture: (t) => blankLabelRows(t, { minRun: 4, maxCell: 60 }),
   resolvePronouns, nounPhraseSubjects: true,
 });
-const referentIndexFor = makeReferentIndex({ splitSentences, extractSurfaces, discoverReferents, namesCorefer, diaNorm });
+const referentIndexFor = makeReferentIndex({
+  splitSentences, extractSurfaces, discoverReferents, namesCorefer, diaNorm,
+  // cast.js's own furniture wall (2026-09-04): opting in here is what
+  // `passagesOf`'s own blankFurniture (below) is actually FOR — a chunk can
+  // carry a page-scoped `.blanked` copy and this reader still ignore it
+  // unless it says so itself (the same rule hypergraph.js's relation
+  // reader already holds two screens up).
+  blankFurniture: (t) => blankLabelRows(t, { minRun: 4, maxCell: 60 }),
+});
 const runCapacity = makeCapacityRunner({ referentIndexFor, relationsFor });
 
 // ── the material ──────────────────────────────────────────────────────────
@@ -129,7 +137,17 @@ const sources = Object.fromEntries([...accounts, control].map((a) => [a.id, a.te
 // Bound edges only — `verdict === "bound"` is hypergraph.js's own gate, the
 // one the retracted run bypassed. A claim is a TRIPLE, minted to a claim_id,
 // and from that point on nothing downstream compares a surface string.
-function passagesOf(a) { return chunkSource(a.id, a.text); }
+// blankFurniture was already declared in READER_CONFIG and wired into
+// relationsFor above — but chunkSource here never received it, so the cast
+// this driver builds (referentIndexFor, which capacity-runner.js's `cast`
+// capacity and every `evaluate` act read identity through) was reading raw,
+// unblanked page text the whole time. Fixed 2026-09-04, alongside cast.js's
+// own fix (it now prefers a passage's `.blanked` field when chunkSource
+// produces one) — see cast.js's header and cast.test.mjs's real-fixture
+// case, which pins the exact Barclay de Tolly/Bagration fusion this drove.
+function passagesOf(a) {
+  return chunkSource(a.id, a.text, { blankFurniture: (t) => blankLabelRows(t, { minRun: 4, maxCell: 60 }) });
+}
 
 // ── A/B: THREE READERS, OR ONE DOCUMENT THAT REMEMBERS WHO SAID WHAT ──────
 //

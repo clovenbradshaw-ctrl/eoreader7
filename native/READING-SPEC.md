@@ -3779,3 +3779,162 @@ its null at the note level was found for nothing.**
 similarity score. That is a better lookup, not a reading, and rule 2 says why
 it would have measured true and useless — the gap would have moved in the
 aggregate while the top of the list stayed the same.
+
+## S63 — A cross-document referent is instantiated the same way a within-document one is; and the cast's own furniture wall was still open
+
+**Generality:** specimen-scoped. The cast furniture-wall fix itself is
+universal (it closes a real gap in `cast.js` for every caller), but this
+entry's headline claim — a referent's reality-kind, read from a name-level
+cross-source correspondence — is measured, not universal: the same
+measurement below shows it real but noisy on this material, and the
+generic-token refinement tried against that noise is shown to cost more
+than it buys on this specific cast's own pre-existing fragmentation.
+
+User direction, near-verbatim: cross-document referent identity "is the
+same thing as when we instantiate an entity... just a cross document
+entity, a different type of being-hood" — and the-fold should organically
+discover, by kind induction, that some referents are real, some fictional,
+some a fictionalization of a real one, with Borodino named as the specimen
+(the real battle, and Tolstoy's own literary account of it, mixing real
+historical figures with invented characters).
+
+**The first half was already the design — `organs/bridges.js`'s own
+header states it almost verbatim** ("it is the same set of operations,
+just at another level"): a referent bridge is an ARRANGEMENT heard onto
+its own ledger through the identical `hear()`/`concede()` machinery an
+ordinary within-document entity uses. `bridge-witness.js` (S52, merged
+the day before this entry) can even ask a model to confirm one, measured
+with a real null (Fisher exact p=0.018). Its own disclosed boundary: a
+bridge exists only where an exact (subject, verb, object) triple matched
+across documents — 12 of 12 examined candidates were identical strings,
+so a paraphrase never becomes a bridge candidate. That ceiling, not the
+concept, is what stood between the design and the Borodino specimen.
+
+**Chasing the second half found a live, previously-undiagnosed production
+bug, not a missing feature.** `rashomon-contrast.mjs` (the most recent
+related work, the corrected successor to a retracted Rashomon run) had
+already found and named the next step: "a furniture wall on the cast, not
+only on admission" — Wikipedia navbox link text (unrelated Tolstoy story
+titles, an unrelated battle) was entering `cast.js`'s referent index and
+merging with real people (Barclay de Tolly and Pyotr Bagration fused into
+one referent carrying the infobox abbreviation "DOW"). Tracing exactly
+where this lived found it was not a missing organ: `source.js::chunkSource`
+already computes a page-aware, furniture-blanked `chunk.blanked` field
+whenever a caller passes `blankFurniture` (P82) — but `cast.js`'s
+`makeCastHandles`/`makeReferentIndex` read `p.text` unconditionally, so
+every caller that had wired `blankFurniture` into `chunkSource` believing
+it protected the cast (the-fold's own production `addSource`/web-fetch
+`chunkSource` calls did NOT even do that much — this pass found and fixed
+both) got no benefit at all.
+
+**The naive fix (read `.blanked` whenever present) broke a real,
+independently-tested architectural rule.** `hypergraph.js`'s
+`readSentenceText` already enforces, and `source-page-blanking.test.mjs`
+already tests, "a reader that never asked for blanking does not get it
+from the chunker" — a caller's own injected organ is authoritative, never
+a side channel it has no relationship with. `hypergraph.js` internally
+calls `cast.js::makeReferentIndex(organs)` to resolve edge endpoints
+(`import { makeReferentIndex } from "./cast.js"`, line 163), passing its
+whole `organs` bundle straight through — so an unconditional `.blanked`
+read made a reader that was deliberately NOT given `blankFurniture` see
+page-scoped blanking anyway, through referent identity rather than
+sentence text, and that exact test caught it. Fixed the same way
+`readSentenceText` already does it: `cast.js` now takes an optional
+`blankFurniture` (any truthy value — never invoked, only checked, since
+the blanking already happened at `chunkSource` time) and consults
+`.blanked` only when the CALLER of `makeCastHandles`/`makeReferentIndex`
+opted in. `hypergraph.js` needed no change at all — its own `organs`
+bundle already carries `blankFurniture`, so `makeReferentIndex(organs)`
+was already threading it through. The-fold's three cast.js call sites and
+this repo's own `rashomon-contrast.mjs` now opt in explicitly.
+
+**Measured on the real fetched Battle of Borodino page** (`cast.test.mjs`,
+5 cases, the first direct unit tests this module has ever had): the two
+fused garbage referents disappear entirely once opted in; Barclay de
+Tolly's surname reappears as its own (still partial) referent rather than
+fused into Bagration's; a reader that never opts in is provably
+byte-identical to before this fix, even when the SAME passages carry a
+`.blanked` field for another consumer's sake.
+
+**`organs/reality-kind.js`** is the new capacity (`realityKind`, INS·Kind
+— a SECOND organ at the cell `skill` already occupies, resolved and the
+registry checked BEFORE writing per P92's own rule): real / fictionalized-
+real / fictional, instantiated per referent from a caller-DECLARED genre
+(fiction/nonfiction — never induced) and a NAME-LEVEL cross-source
+correspondence (`namesCorefer`, the same sameness test `cast.js`'s own
+`resolve()` uses for within-document identity) — deliberately NOT routed
+through `bridges.js`'s own exact-triple ledger, because two independently
+authored accounts of one event essentially never share a full triple
+verbatim (`rashomon-contrast-RESULTS.md` measured 1 shared claim in 1,663
+on this EXACT material) and routing through it would answer "fictional"
+for nearly everyone, Napoleon included — not because he is fictional, but
+because the bridge mechanism's own disclosed ceiling was never built to
+reach a paraphrase. A name is a narrower object than a whole asserted
+relation, and an exact match on one is common where an exact match on the
+other is vanishingly rare. "Fictional" is deliberately never phrased as
+"does not exist" — every row carries `checkedAgainst`, naming exactly
+which nonfiction sources were examined, the withhold-vs-convict rule
+applied to a new axis.
+
+**Verified against the user's own falsifiable prediction, live, on the
+real fixtures already in this repo** (`wikipedia-battle-of-borodino.html`,
+`tolstoy-borodino.txt`): Napoleon and Kutuzov correctly correspond across
+the encyclopedic and novelistic accounts and read `fictionalized-real`;
+Bezukhov, Bolkonsky, and Rostova never do and read `fictional`. 178
+correspondences found across 289 Tolstoy referents; a hand spot-check of
+20 (not just counted — read, this project's own standing discipline)
+found roughly two-thirds genuine (Moscow, Smolensk, Shevardino Redoubt,
+Murat, Bennigsen, Kutuzov, Napoleon among them) and the rest real, named
+noise: generic military-rank/unit words ("Colonel", "Division") admitted
+as matchable surfaces by the cast in the first place, and at least one
+likely collision with an unrelated person sharing a common name (a
+Wikipedia bibliography author named Boris, not the novel's own character).
+
+**A second, real, measured finding — a proposed fix for the first noise
+class was tried, found to cost more than it buys, and shipped opt-in
+rather than on.** `surfaces.js::genericTokens` (already built, unrelated
+to this file, an IQR-fenced measure of how many distinct partner tokens a
+name-token co-occurs with — "so two Princesses never merge") looked like
+the exact tool for "pierre" being too common a given name to individuate
+a match on its own, and DOES fix that specimen (Tolstoy's bare "Pierre",
+this excerpt's only surface for him, no longer corresponds to a real but
+different officer, "Jean Pierre Lanabère Charles", once gated). Run on
+the real fixture rather than assumed safe: the SAME statistic, computed
+over this cast's own pre-existing prose-coreference fragmentation
+(Napoleon alone surfaces as seven distinct garbage referents on the
+Wikipedia side — "How Napoleon", "Napoleon Europe", "Napoleon Against
+Kutuzov" among them, each contributing a different partner token), pushes
+"napoleon" AND "kutuzov" past the identical fence — refusing the two
+correspondences the whole specimen is about, for a reason that has
+nothing to do with either being a common name. Pinned as its own test
+(`cast.test.mjs`'s sibling reads this fixture's own generic set directly
+and asserts both names are wrongly in it), shipped as a real, tested,
+OPT-IN organ parameter — off in the demonstrated configuration, on for a
+caller who has separately dealt with the underlying fragmentation.
+
+**Disclosed, not silently narrower than it sounds.** The generic-military-
+word noise class (Colonel/Division as matchable "referents" at all) is an
+upstream referent-admission question this pass did not touch. A stronger
+correspondence signal — composing this file's name-level check with
+`bridges.js`'s own corroborated triples where one exists, the stronger
+winning — is real, scoped, unattempted future work, named rather than
+implied done. The prose-coreference fragmentation the generic-token
+finding surfaced is a pre-existing, separate engine limitation (distinct
+from the furniture bug this same pass fixed), not addressed here.
+
+**Files.** `organs/cast.js` (the furniture-wall fix, additive, backward
+compatible) + `organs/cast.test.mjs` (new, 5 cases — this module's first
+direct unit tests). `organs/reality-kind.js` + `organs/reality-kind.test.mjs`
+(8 cases, including the real-fixture falsifiable-prediction test and the
+generic-token guard's own measured benefit-and-cost). `organs/capacities.js`
+(`realityKind` registered, 27/27 cells unchanged, geometry re-asserted).
+`eval/the-fold/rashomon-contrast.mjs` (the same furniture-wall fix applied
+to its own passage construction, so its own cast is no longer the thing
+this entry just fixed). the-fold's `app.js` (both `chunkSource` call sites
+— `addSource`, the one choke-point every attachment/paste/upload/library
+pull passes through, and the web-fetch path — now pass `blankFurniture`;
+all three cast.js construction sites opt into it). Full suites, failure
+names diffed via `git stash` rather than counted: the-fold 1025/958/67
+before and after (zero regressions); eoreader7 core 555/543/10 and organs
+441→449/437/11 before and after (the 8 new reality-kind cases the only
+count change, same 11 pre-existing names both times).
