@@ -37,11 +37,21 @@ const relationsFor = makeRelationReader({
 });
 const hl = makeHyperlexicon({ ...adaptTaskLog({ createTaskLog: nativeTaskLog.createTaskLog, append: nativeTaskLog.append, ENTRY_KINDS: nativeTaskLog.ENTRY_KINDS, OPERATOR_BASIS: nativeTaskLog.OPERATOR_BASIS, GRAINS }), projectTasks: nativeTaskLog.projectTasks, cellOf });
 
-export async function buildLedger({ cap = 40 } = {}) {
+// The default pair is unchanged, so every existing caller reads the same
+// ledger it always did. `pages` lets a caller name a different pair —
+// rashomon-probe.mjs sets two accounts OF ONE EVENT, which this default
+// pair is not (a battle and a novel are different subjects, and the probe
+// measured that they produce no cross-source disagreement at all).
+// A `.txt` entry is read as plain text; anything else as a Wikipedia page.
+export const DEFAULT_PAGES = ["battle-of-borodino", "war-and-peace"];
+export async function buildLedger({ cap = 40, pages = DEFAULT_PAGES } = {}) {
+const FIX = `${NATIVE}/eval/the-fold/fixtures`;
 const sources = [];
-for (const name of ["battle-of-borodino", "war-and-peace"]) {
-  const face = extractReadable(readFileSync(`${FOLD}/../eoreader7/native/eval/the-fold/fixtures/wikipedia-${name}.html`, "utf8"));
-  sources.push({ ref: `${name}.txt`, text: typeof face === "string" ? face : face?.text ?? "" });
+for (const name of pages) {
+  const text = name.endsWith(".txt")
+    ? readFileSync(`${FIX}/${name}`, "utf8")
+    : (() => { const f = extractReadable(readFileSync(`${FIX}/wikipedia-${name}.html`, "utf8")); return typeof f === "string" ? f : f?.text ?? ""; })();
+  sources.push({ ref: name.endsWith(".txt") ? name : `${name}.txt`, text });
 }
 let log = hl.createHyperlexicon();
 let heard = 0;
