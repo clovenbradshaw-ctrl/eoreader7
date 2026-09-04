@@ -25,6 +25,18 @@
    "admitted": 143
   },
   {
+   "name": "fills alone",
+   "tp": 110,
+   "fp": 15,
+   "fn": 156,
+   "tn": 709,
+   "prec": 0.88,
+   "rec": 0.41353383458646614,
+   "f1": 0.5626598465473145,
+   "junk": 0.12,
+   "admitted": 125
+  },
+  {
    "name": "admit everything",
    "tp": 266,
    "fp": 724,

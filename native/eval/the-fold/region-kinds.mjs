@@ -168,7 +168,14 @@ function measureArm(texts) {
   }
   return pred.some(Boolean) ? pred : fills;
 }
+function fillsAlone(texts) {
+  const lens = texts.map((t) => t.length).filter((n) => n > 0).sort((a, b) => a - b);
+  if (!lens.length) return texts.map(() => false);
+  const measure = lens[Math.floor(0.9 * (lens.length - 1))];
+  return texts.map((t) => t.length >= 0.8 * measure);
+}
 results.push(score(measureArm(texts), "fills the measure"));
+results.push(score(fillsAlone(texts), "fills alone"));
 
 // The trivial baselines every arm must beat, or it has measured nothing.
 results.push(score(texts.map(() => true), "admit everything"));

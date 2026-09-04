@@ -200,6 +200,12 @@ function measureArm(texts) {
   return pred.some(Boolean) ? pred : fills;
 }
 
+function fillsAlone(texts) {
+  const lens = texts.map((t) => t.length).filter((n) => n > 0).sort((a, b) => a - b);
+  if (!lens.length) return texts.map(() => false);
+  const measure = lens[Math.floor(0.9 * (lens.length - 1))];
+  return texts.map((t) => t.length >= 0.8 * measure);
+}
 // ── run every rendering through every arm ────────────────────────────────
 const dir = mkdtempSync(join(tmpdir(), "xfmt-"));
 const renderings = {
@@ -245,13 +251,14 @@ for (const [name, lines] of Object.entries(renderings)) {
     score(texts.map((t) => t.length >= 72), truth, "length >= 72"),
     score(shapeArm(texts), truth, "shape median >= 72"),
     score(measureArm(texts), truth, "fills the measure"),
+    score(fillsAlone(texts), truth, "fills alone"),
   ];
   for (const a of arms) console.log(`    ${a.name.padEnd(20)} F1 ${a.f1.toFixed(3)}  precision ${a.prec.toFixed(3)}  recall ${a.rec.toFixed(3)}  junk ${(100 * a.junk).toFixed(1)}%`);
   table.push({ rendering: name, arms });
 }
 
 console.log(`\nVERDICT — which arms survive a change of rendering?`);
-const names = ["admit everything", "length >= 72", "shape median >= 72", "fills the measure"];
+const names = ["admit everything", "length >= 72", "shape median >= 72", "fills the measure", "fills alone"];
 console.log(`  ${"arm".padEnd(20)}${table.map((r) => r.rendering.padStart(11)).join("")}   spread`);
 for (const n of names) {
   const fs = table.map((r) => r.arms.find((a) => a.name === n).f1);

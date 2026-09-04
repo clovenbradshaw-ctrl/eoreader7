@@ -291,6 +291,18 @@ export function stripContainer(text) {
  * improve any downstream grounding score, and this docstring is not the
  * place such a claim would be allowed to appear without one.
  */
+/**
+ * Does this line end a sentence? Terminal punctuation read as a CLASS —
+ * Unicode's own terminators plus their closing quotes — never an enumeration
+ * of the marks seen so far. P50's rule, which this repo has walked into three
+ * times. ONE implementation: `blankLabelRows` and `blankBelowMeasure` both
+ * ask it, so a fourth walk-in cannot happen in only one of them.
+ */
+export const endsASentence = (line) => {
+  const t = String(line ?? "").trim().replace(/[\p{Pf}\p{Pe}"'\u2019\u201d]+$/u, "");
+  return t.length > 0 && /[.!?\u2026\u3002\uFF01\uFF1F]$/u.test(t);
+};
+
 export function blankLabelRows(text, { minRun, maxCell } = {}) {
   if (!Number.isInteger(minRun) || minRun < 2)
     throw new TypeError("blankLabelRows: minRun is declared — how many consecutive cells make a table is the caller's to say, and two is the structural floor (one line is not a run)");
@@ -305,7 +317,7 @@ export function blankLabelRows(text, { minRun, maxCell } = {}) {
   // repo has now walked into three times.
   const isCell = (line) => {
     const t = line.trim().replace(/[\p{Pf}\p{Pe}"'\u2019\u201d]+$/u, "");
-    return t.length > 0 && t.length <= maxCell && !/[.!?\u2026\u3002\uFF01\uFF1F]$/u.test(t);
+    return t.length > 0 && t.length <= maxCell && !endsASentence(t);
   };
 
   const out = lines.slice();
@@ -1057,4 +1069,105 @@ export function openQuestions(question, chunks, used) {
 function truncateOne(s, n) {
   const t = String(s || "").trim();
   return t.length > n ? t.slice(0, n - 3) + "..." : t;
+}
+
+/**
+ * measureOf(text, { percentile }) — the document's own measure: the line
+ * length at a DECLARED percentile of its non-empty lines.
+ *
+ * This is separated from the blanker on purpose. A measure is a fact about a
+ * WHOLE document, and `blankBelowMeasure` may be handed one sentence or one
+ * passage — so the caller measures once, over everything it has, and declares
+ * the number. An organ that measured its own input would compute a different
+ * measure for every chunk and silently mean something different each time.
+ *
+ * `percentile` is declared, never defaulted (P4): where the measure sits is a
+ * choice about how much of a document is expected to be running prose, and a
+ * constant chosen here would be that choice made invisibly.
+ */
+export function measureOf(text, { percentile } = {}) {
+  if (!Number.isFinite(percentile) || percentile <= 0 || percentile > 1)
+    throw new TypeError("measureOf: percentile is declared — where the measure sits is a claim about the material, never a constant chosen here");
+  const lens = String(text ?? "").split("\n").map((l) => l.trim().length).filter((n) => n > 0).sort((a, b) => a - b);
+  return lens.length ? lens[Math.floor(percentile * (lens.length - 1))] : 0;
+}
+
+/**
+ * blankBelowMeasure(text, { measure, fill, minRun }) — blank every line that
+ * does not FILL the measure in a run, LENGTH-PRESERVING, so every byte offset
+ * into the result is the same offset into the input (P5.2, and the same
+ * discipline `blankLabelRows` above already holds).
+ *
+ * WHY A RUN AND NOT A LINE. Measured (eval/the-fold/results/
+ * cross-format-RESULTS.md): a bare length threshold scores F1 0.769 on a
+ * document whose paragraphs are single lines and **0.148** on the SAME content
+ * hard-wrapped at 72 columns — recall 0.091, one prose line in eleven. Hard
+ * wrapping is what a PDF's text layer IS. Wrapping destroys per-line length
+ * and PRESERVES the paragraph: a wrapped paragraph is a run of lines at the
+ * wrap column ending in a short one, a table is a run of short lines. Asking
+ * about the run instead of the line scored 0.936 on that same wrapped
+ * rendering, and 0.641 / 0.670 / 0.648 on three real pages where the
+ * threshold scored 0.639 / 0.654 / 0.618 — at precision 0.909-0.916 against
+ * 0.821-0.915, with junk admitted falling from 73-77% to 8-9%.
+ *
+ * The short line that ENDS a paragraph is kept by adjacency, which is the
+ * whole reason a run is the unit. A LONE filling line is not a paragraph (a
+ * wide table row, a long heading) and is blanked.
+ *
+ * NOTHING HERE IS NAMED. No format, no site, no vocabulary: the measure comes
+ * from the caller and everything else is a line's own length relative to it.
+ *
+ * `fill` and `minRun` are declared. `fill` is what fraction of the measure a
+ * line must reach; `minRun` is how many filling lines make a paragraph, and
+ * two is the structural floor for the same reason `blankLabelRows` gives —
+ * one line is not a run.
+ */
+export function blankBelowMeasure(text, { measure, fill, minRun } = {}) {
+  if (!Number.isFinite(measure) || measure < 0)
+    throw new TypeError("blankBelowMeasure: measure is declared — see measureOf, which the caller runs once over the whole document");
+  if (!Number.isFinite(fill) || fill <= 0 || fill > 1)
+    throw new TypeError("blankBelowMeasure: fill is declared — what fraction of the measure a line must reach is the caller's to say");
+  if (!Number.isInteger(minRun) || minRun < 2)
+    throw new TypeError("blankBelowMeasure: minRun is declared, and two is the structural floor — one line is not a run");
+
+  const lines = String(text ?? "").split("\n");
+  const floor = fill * measure;
+  const fills = lines.map((l) => l.trim().length >= floor && l.trim().length > 0);
+  const blank = lines.map((l) => l.trim().length === 0);
+  // A BLANK LINE DOES NOT BREAK A RUN. Measured, and it was a real defect:
+  // computing runs over every line meant that in a real extracted page — where
+  // paragraphs are separated by blank lines — no two filling lines were ever
+  // adjacent, so the run rule fired almost nowhere and two of three real pages
+  // kept 1% of their lines. A blank line separates paragraphs; it does not
+  // make each paragraph a lone line.
+  const prevFilling = (i) => { for (let j = i - 1; j >= 0; j -= 1) { if (blank[j]) continue; return fills[j]; } return false; };
+  const nextFilling = (i) => { for (let j = i + 1; j < lines.length; j += 1) { if (blank[j]) continue; return fills[j]; } return false; };
+  const keep = lines.map(() => false);
+  for (let i = 0; i < fills.length; i += 1) {
+    if (!fills[i]) continue;
+    let run = 1;
+    if (prevFilling(i)) run += 1;
+    if (nextFilling(i)) run += 1;
+    if (run < minRun) continue;
+    keep[i] = true;
+    // The short line that ends the paragraph travels with it — but ONLY if it
+    // ends a sentence. Measured while writing this: without that condition the
+    // rule cannot tell a paragraph's last line from the FIRST ROW OF A TABLE
+    // sitting immediately after it, and admitted `| a | b |` on exactly that
+    // arrangement. Requiring a terminator is conservative in the right
+    // direction — it can drop a real trailing line that ends mid-thought
+    // before a heading, and can never admit a table row.
+    for (let j = i + 1; j < fills.length; j += 1) {
+      if (blank[j]) continue;
+      if (fills[j]) break;
+      if (endsASentence(lines[j])) keep[j] = true;
+      break;
+    }
+  }
+  // A document with no runs at all — every paragraph a single line, which is
+  // the unwrapped case — has nothing for the run rule to find, so filling
+  // alone decides. Reported here as the fallback it is rather than returning
+  // an empty document.
+  const anyRun = keep.some(Boolean);
+  return lines.map((l, i) => ((anyRun ? keep[i] : fills[i]) ? l : " ".repeat(l.length))).join("\n");
 }

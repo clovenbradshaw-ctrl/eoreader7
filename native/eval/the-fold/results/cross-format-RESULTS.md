@@ -119,3 +119,75 @@ the 22 "corroborated" notes on that page set are Wikipedia maintenance
 categories, and the other twenty are two articles sharing 20 verbatim
 sentences. Getting the door right is upstream of every corroboration number
 this project has published.
+
+---
+
+## Amendment — wired into the door, measured end to end, and its limit named
+
+`organs/source.js` gained `measureOf` / `blankBelowMeasure` (+ 7 conformance
+cases in `organs/measure-blanking.test.mjs`), at the **existing**
+length-preserving blanking seam `blankLabelRows` already occupies — so
+offsets stay valid and addresses still name the real file (P5.2). The measure
+is the caller's declaration, computed once over the whole document;
+`percentile`, `fill` and `minRun` are all declared and none is defaulted.
+`endsASentence` was factored out of `blankLabelRows` rather than restated, so
+P50's terminal-punctuation-as-a-class rule has one implementation.
+
+**Two real bugs, both found by running it rather than reasoning about it.**
+
+1. The trailing-short-line rule could not tell a paragraph's last line from
+   the FIRST ROW of a table sitting right after it, and admitted `| a | b |`
+   on exactly that arrangement. Fixed by requiring a sentence terminator to
+   carry a short line — conservative in the right direction: it can drop a
+   real trailing line that ends mid-thought, and can never admit a table row.
+
+2. **A blank line was breaking every run.** Runs were computed over all lines,
+   and in a real extracted page paragraphs are separated by blank lines — so
+   no two filling lines were ever adjacent, the run rule fired almost nowhere,
+   and two of three pages kept **1%** of their lines. A blank line separates
+   paragraphs; it does not make each paragraph a lone line. Fixed: 1%/13%/1%
+   became 12%/12%/10%.
+
+### End to end on the three real pages
+
+| | before the door | after |
+|---|---|---|
+| lines kept | 990 / 1002 / 990 | 121 / 124 / 102 (10–12%) |
+| notes | 934 | 821 (88%) |
+| declared junk notes | 3 | **0** |
+| notes naming the material's own subjects | 214 | 181 (85%) |
+| corroborated | 22 | 9 |
+
+The junk is named, not counted: `Short description —is→ different from
+Wikidata` (a Wikipedia maintenance category), `Prince —von→ Schwarzenberg` (a
+navbox name fragment), `Russian —partisan→ movement [ ru ]` (an interlanguage
+marker). All three gone. 85% of subject-naming notes survive, and one of the
+apparent losses is itself furniture the filter miscounted (`Battle of Borodino
+by Peter —von→ Hess`, an image caption), so retention reads pessimistically.
+
+### The limit, and it is the more important half
+
+**The nine surviving corroborated notes are still the syndicated ones** —
+"Napoleon ordered the attack", "the Allies were still fighting over Sokolnitz
+and Telnitz", "the Grande Armée had grown to a force of 350". Those are among
+the 20 verbatim sentences the Austerlitz and Third Coalition articles share.
+
+So the door removed the furniture half of the corroboration problem (2 of the
+22) and cannot touch the syndication half (the other 20), because those notes
+were never furniture. **One text in two places is one witness**, and no
+admission door detects that — it needs source independence, which is a
+different organ and is not built.
+
+### The run rule, split and both numbers reported
+
+Whether a filling line needs a filling NEIGHBOUR does not have one answer:
+
+| arm | markdown | plaintext | wrapped | real pages (F1) |
+|---|---|---|---|---|
+| fills the measure (run) | 0.727 | 0.727 | 0.936 | 0.641 / 0.670 / 0.648 |
+| fills alone (no run) | **1.000** | **1.000** | 0.837 | 0.563 / 0.612 / 0.612 |
+
+`fills alone` is perfect on documents whose paragraphs are single lines and
+has the smaller spread (0.163 vs 0.209); the run rule wins on all three real
+pages. The run rule ships because the real pages are the target, and the
+disagreement is recorded rather than resolved by preference.
