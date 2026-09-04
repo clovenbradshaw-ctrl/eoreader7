@@ -1,8 +1,0 @@
-Apollo by the numbers a statistical reference
-
-Author : Richard W. Orloff
-
-Summary : This work is a unique collection of valuable statistical information about Project Apollo. It includes a chapter (about 20 pages each) for Apollo 1 through Apollo 17. There are several data tables for each mission, plus a 50-page section with additional statistics and tables that merge data for each mission so you can easily make comparisons. Tables include launch and ascent data, fuel consumption, stage impact locations, very detailed mission timelines, and much more
-
-Print Book , English , 2000
-Publisher : History Office NASA , 2000

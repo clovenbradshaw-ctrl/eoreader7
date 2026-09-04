@@ -1,8 +1,0 @@
-https://books.google.com/books?id=QlVQAAAAIBAJ&dq=Apollo+launch+Florida&pg=PA2&article_id=7068%2C896931 |
-14:07:51 August 01, 2026
-
-Got an HTTP 302 response at crawl time
-
-Redirecting to...
-
-https://books.google.ca/books?id=QlVQAAAAIBAJ&dq=Apollo+launch+Florida&pg=PA2&article_id=7068,896931&redir_esc=y
