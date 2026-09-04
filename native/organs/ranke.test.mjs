@@ -283,3 +283,42 @@ test("a marker at the start of a span is the previous sentence's; the sentence's
   assert.equal(r.consulted[0].snipsFound, 1);
   assert.equal(r.attested.length, 1);
 });
+
+// ── hubs, lost paths, chrome (2026-09-02) ─────────────────────────────────
+import { redirectHubs, pathLost, normalizedPath, chromeLines, stripChrome } from "./ranke.js";
+{
+  const index = {
+    a: { url: "https://www.hq.nasa.gov/alsj/a11/a11.step.html", finalUrl: "https://www.nasa.gov/history/alsj-and-afj/" },
+    b: { url: "https://history.nasa.gov/afj/ap11fj/01launch.html", finalUrl: "https://www.nasa.gov/history/alsj-and-afj/" },
+    c: { url: "https://www.nasa.gov/mission_pages/apollo/missions/apollo11.html", finalUrl: "https://www.nasa.gov/history/apollo-11-mission-overview/" },
+    d: { url: "http://www.nasa.gov/x.html", finalUrl: "https://www.nasa.gov/x" },
+    e: { url: "https://x.org/gone", gap: { type: "http" } },
+  };
+  const hubs = redirectHubs(index);
+  assert.ok(hubs.has("nasa.gov/history/alsj-and-afj"), "two different transcripts resolving to one portal make it a hub");
+  assert.ok(!hubs.has("nasa.gov/history/apollo-11-mission-overview"), "one citation moving to one new address is a move, not a hub");
+  assert.strictEqual(normalizedPath(index.d.url), normalizedPath(index.d.finalUrl), "scheme/www/.html are not a different path");
+  assert.ok(pathLost(index.a.url, index.a.finalUrl), "a11.step lost its own segment");
+  assert.ok(!pathLost(index.d.url, index.d.finalUrl), "a normalisation-only redirect loses nothing");
+  // archive copies: two snapshots of one target under two schemes are ONE document, not a hub (measured: three same-sentence hits lost to this, 2026-09-02)
+  const arch = {
+    p: { url: "https://web.archive.org/web/2/http://www.hq.nasa.gov/alsj/a11/images11.html", finalUrl: "https://web.archive.org/web/20200224163200/https://www.hq.nasa.gov/alsj/a11/images11.html" },
+    q: { url: "https://web.archive.org/web/2/https://www.hq.nasa.gov/alsj/a11/images11.html#Mag37", finalUrl: "https://web.archive.org/web/20200224163200/https://www.hq.nasa.gov/alsj/a11/images11.html" },
+  };
+  assert.strictEqual(redirectHubs(arch).size, 0, "snapshots of one target are that target");
+  assert.strictEqual(normalizedPath(arch.p.url), "archive:hq.nasa.gov/alsj/a11/images11");
+}
+{
+  const nav = "Suggested Searches\n- Humans in Space\n- The Universe";
+  const foot = "Keep Exploring\nWas this page helpful?";
+  const f1 = `${nav}\nArmstrong began his descent.\nThe crew rested.\n${foot}`;
+  const f2 = `${nav}\nFive sites were considered.\n${foot}`;
+  const lone = "Only page on its host.\nNothing shared.";
+  const c = chromeLines([f1, f2]);
+  assert.strictEqual(c.head, 3); assert.strictEqual(c.tail, 2);
+  const s = stripChrome(f1, [f2]);
+  assert.strictEqual(s.text, "Armstrong began his descent.\nThe crew rested.", "body survives, chrome does not");
+  assert.deepStrictEqual(stripChrome(lone, []), { text: lone, head: 0, tail: 0 }, "no sibling: nothing removed, typed as zero");
+  assert.strictEqual(stripChrome(f2, [f2]).text, "", "a face identical to its sibling is all chrome — an empty face, which is the honest answer");
+}
+console.log("ranke: hubs, lost paths, chrome — ok");

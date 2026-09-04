@@ -882,6 +882,7 @@ export function makeRelationReader(organs) {
     // than silently assumed symmetric.
     phrasalPredicates = false,
     nounPhraseSubjects = false,
+    attestedVerbs = false,
   } = organs;
   const indexFor = makeReferentIndex(organs);
 
@@ -1307,7 +1308,39 @@ export function makeRelationReader(organs) {
     // it has, which is exactly the starvation case this widening exists for.
     if (verbForms) {
       const nonverbDominant = (w) => { const att = posPrior?.forms?.[w]; if (!att) return false; const total = Object.values(att).reduce((a, b) => a + b, 0); return total > 0 && ((att.VERB ?? 0) + (att.AUX ?? 0)) / total <= 0.5; };
-      for (const w of forms) if (verbForms.has(w) && !nonverbDominant(w)) verbs.add(w);
+      // a form that occurs CAPITALISED away from a sentence start more often
+      // than it occurs lowercase is a surface, not an act: "Buzz" recurs in
+      // every Apollo passage and UD attests "buzz" as a verb, so the widening
+      // read `Armstrong and —buzz→ Aldrin` (measured 2026-09-02, S50). The
+      // passage's own casing decides, no name list.
+      const surfaceNotAct = (w) => {
+        const cap = w[0].toUpperCase() + w.slice(1);
+        const capped = (text.match(new RegExp(`(?<!^|[.!?]\\s+)\\b${cap}\\b`, "gu")) ?? []).length;
+        const lower = (text.match(new RegExp(`\\b${w}\\b`, "gu")) ?? []).length;
+        return capped > lower;
+      };
+      for (const w of forms) if (verbForms.has(w) && !nonverbDominant(w) && !surfaceNotAct(w)) verbs.add(w);
+      // `organs.attestedVerbs` (declared, default off — byte-identical
+      // otherwise): a form the RECEIVED prior attests as a verb joins the
+      // vocabulary on its first arrival, not its second. The recurrence
+      // gate above is what keeps UNSUPERVISED discovery honest — a word
+      // seen once after one surface is not testimony. A prior-attested
+      // verb has a giver already; on a one-page face "placed", "winched",
+      // "retrieved" each arrive once and, gated, can never be an act, so
+      // the face folds to `subject —were→ the rest of the sentence`.
+      // Measured 2026-09-02 (eval/the-fold/note-match-zero.mjs, S50).
+      if (attestedVerbs) {
+        try {
+          for (const sentence of splitSentences(text)) {
+            const sText = typeof sentence === "string" ? sentence : sentence?.text ?? "";
+            for (const w of new Set(tokenize(sText))) {
+              if (w.length < 3 || functionWords?.has(w)) continue;
+              if (!verbForms.has(w) || nonverbDominant(w) || surfaceNotAct(w)) continue;
+              verbs.add(w);
+            }
+          }
+        } catch { /* a segmenter refusal leaves the gated vocabulary as it was */ }
+      }
     }
 
     // ── endpoint resolution ──────────────────────────────────────────────

@@ -1,0 +1,72 @@
+  bibliography region at 91125 of 151527 chars; notes read from it (dropped): 51 of 575
+wikipedia-apollo-11.html: 524 notes in 14.4s; 294 link leads, 26 unsourced quotes; 379 footnote markers, 163 numbered notes with an outbound link
+  notes whose article sentence carries a marker: 244; whose footnote links out: 129
+
+REAL: 524 notes; 287 fetches (0 network), faces read 150; 0 witness calls; 21s
+  notes with >=1 readable cited face: 435 of 524
+  gap classes (notes with a readable face): {"same-sentence":31,"window":11,"partial":260,"absent":130,"morphology+window":1,"morphology":2}
+  of which the best face came through the note's OWN footnote: 86 — classes {"partial":57,"absent":18,"same-sentence":8,"morphology+window":1,"morphology":1,"window":1}
+  notes bound to a footnote that links out: 129; with that footnote's face readable: 93
+  partial by missing side: {"subject":21,"both":47,"object":192}
+  witness on same-sentence, morphology and footnote-bound partial leads: {}
+    by class: {}
+  redirect-hub gaps (address answers for many documents): 84 consults; all-chrome faces: 29
+  object-missing partials by lead kind: {"guess":146,"citation":46} — a guess is a ranked link, not a citation
+  wrong-document faces (address serves another document): 94 consults; read through the archive copy instead: 287
+  the ladder (cumulative, of 435): now=31 · +morphology=33 · +window=44 · +both=45
+
+CONTROL (end2 rotated, same spans and footnotes, same faces): gap classes {"same-sentence":21,"partial":264,"absent":150,"morphology+window":1,"window":9,"morphology":1}
+  through the note's own footnote: 69 — classes {"partial":41,"absent":26,"same-sentence":2}
+  proposition-measuring classes real vs control: same-sentence 31 vs 21; morphology 2 vs 1; window 11 vs 9
+
+SPECIMENS (article sentence → best cited sentence):
+  [same-sentence · via link] Apollo —11's→ launch
+     article: «On July 13, three days before Apollo 11's launch, the Soviet Union launched Luna 15 , which reached lunar orbit before Apollo 11.»
+     web.archive.org: «The transcript begins at the start of a hold in the Apollo 11 countdown at the three-and-a-half-hour point before launch.»
+  [same-sentence · via link] 51 Armstrong —began→ his descent to the lunar surface
+     article: «[ 139 ] At 02:51 Armstrong began his descent to the lunar surface.»
+     web.archive.org: «The camera was mounted behind the right forward window of the lunar module and was used to film the final phase of the descent to the lunar surface, the landing, as well as Neil Armstrong�s and Buzz A»
+  [same-sentence · via link] Aldrin —joined→ Armstrong on the surface
+     article: «[ 152 ] Aldrin joined Armstrong on the surface.»
+     web.archive.org: «The camera was mounted behind the right forward window of the lunar module and was used to film the final phase of the descent to the lunar surface, the landing, as well as Neil Armstrong�s and Buzz A»
+  [morphology · via footnote] Greg —was→ later thanked by Armstrong
+     article: «Greg was later thanked by Armstrong.»
+     cnn.com: «"To Greg," reads the note, which Armstrong wrote on a newspaper clipping of Greg's story, "with thanks for your help on Apollo 11.»
+  [morphology · via link] The astronauts —had→ personal preference kits (PPKs)
+     article: «The astronauts had personal preference kits (PPKs), small bags containing personal items of significance they wanted to take with them on the mission.»
+     spaceflownartifacts.com: «The concept of the Personal Preference Kit (PPK) was introduced by NASA to formalize the carrying of mementos by the astronauts on their missions.»
+  [window · via link] 00 Eagle —separated→ from Columbia
+     article: «[ 8 ] At 17:44:00 Eagle separated from Columbia .»
+     web.archive.org: «] 083:13:03 Duke: Eagle, this is Houston. We have lost all our voice and data with Columbia.»
+  [window · via link] Aldrin —left→ the spacecraft first
+     article: «The crew tried a simulation in which Aldrin left the spacecraft first, but he damaged the simulator while attempting to egress.»
+     web.archive.org: «Lunar orbit insertion was achieved on 19 July at 17:21:50 UT by a retrograde firing of the main engine for 357.5 seconds while the spacecraft was behind the Moon and out of contact with Earth. A later»
+  [window · via link] Apollo —astronaut→ Frank Borman
+     article: «[ 104 ] [ 99 ] President Richard Nixon viewed the launch from his office in the White House with his NASA liaison officer, Apollo astronaut Frank Borman .»
+     web.archive.org: «This is Apollo Control at 50 hours, 53 minutes into the mission. An important news release will be available in the Apollo News Center at 11:45 Central Daylight Time this morning. At noon, Colonel Fra»
+  [morphology+window · via footnote] Eagle ' s —ascent→ stage was jettisoned into lunar orbit at 23:41
+     article: «The ascent stage of LM-5 Eagle arrived at the Kennedy Space Center on January 8, 1969, followed by the descent stage four days later, and CSM-107 Columbia on Ja»
+     nasa.gov: «Two hours, 44 minutes and one-and-a-half revolutions after launch, the S-IVB stage reignited for a second burn of five minutes, 48 seconds, placing Apollo 11 into a translunar orbit. The command and s»
+  [partial:subject missing years,armstrong,aldrin,suits · via footnote] 40 years Armstrong's and Aldrin's space suits —were→ displayed in the museum's Apollo to the Moon exhibit
+     article: «For 40 years Armstrong's and Aldrin's space suits were displayed in the museum's Apollo to the Moon exhibit, [ 246 ] until it permanently closed on December 3, »
+     web.archive.org: «The gallery also displays some of the Museum's great treasures: spacesuits worn by Apollo astronauts on the Moon.»
+  [partial:both missing hour,documentary,available,free,internet · via link] a 1-hour documentary on the Apollo program —is→ available for free viewing and download at the Internet Archive
+     article: «To blame the computer for the Apollo 11 problems is like blaming the person who spots a fire and calls the fire department.»
+     archive.org: «The film also explores some of the critical preliminary stages of the Apollo program, including medical testing of the human body in space conditions, as well as the assembly and testing of space suit»
+  [partial:object missing  · via link] A different sequence of computer programs —was→ used
+     article: «A different sequence of computer programs was used, one never before attempted.»
+     web.archive.org: «Here he was responsible for the preparation and operation of simulated missions used to train flight controllers in the manned Mercury program.»
+  [partial:object missing name · via link] a man on the Moon already —had→ a name: Project Apollo
+     article: «[ 26 ] [ 27 ] The effort to land a man on the Moon already had a name: Project Apollo .»
+     presidency.ucsb.edu: «Richard Nixon, Telephone Conversation With the Apollo 11 Astronauts on the Moon Online by Gerhard Peters and John T. Woolley, The American Presidency Project https://www.presidency.ucsb.edu/node/23962»
+  [absent · via link] A complete —set→ of recovery programs was incorporated into the software
+     article: «A complete set of recovery programs was incorporated into the software.»
+     web.archive.org: «»
+  [absent · via link] a lighter —ascent→ engine
+     article: «Launched atop a Saturn V rocket from Kennedy Space Center in Florida on July 16 at 13:32 UTC , the Apollo spacecraft consisted of three parts: the command modul»
+     arxiv.org: «»
+  [absent · via link] a lighter —ascent→ stage containing a cabin for two astronauts and a small engine to return them to lunar orbit
+     article: «Launched atop a Saturn V rocket from Kennedy Space Center in Florida on July 16 at 13:32 UTC , the Apollo spacecraft consisted of three parts: the command modul»
+     arxiv.org: «»
+
+Raw: results/ranke-backwards-base.json

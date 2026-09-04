@@ -1,0 +1,55 @@
+
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8">
+<link rel=stylesheet type=text/css href="/css/searchstyle.css">
+
+</head>
+
+<body text="#000000" bgcolor="#FFFFFF">
+
+<center>
+<div class="header">
+  <h1>
+    International Seismological Centre<br>
+    ISC: Event catalogue
+  </h1>
+</div>
+</center>
+
+<p>Any use of data from the ISC <b>should be cited</b>. The correct format for citations may be found on our <a href="http://www.isc.ac.uk/citations/">citation page</a>.</p>
+
+<p>Once the search has completed, a compressed <a href="/temp/kml/870870393.kmz">KML file</a> will be available to view the results in <a STYLE="text-decoration:none" href="http://earth.google.com/">Google Earth</a>.</p>Sorry a problem has occured with the map.
+<table><tr><td><b>Search summary:</b></td><tr><td>Database: ISC Bulletin</td></tr><tr><td>Search type: Rectangular search</td></tr><tr><td>Latitude range: 38 to 42</td></tr><tr><td>Longitude range: 141 to 145</td></tr><tr><td>Start date: 2026-04-20 07:40:00</td></tr><tr><td>End date: 2026-04-20 08:10:00</td></tr><tr><td>Magnitude &gt;= 6</td></tr><tr><td>Events found: 1</td></tr><tr><td>Date of search: Fri Sep  4 15:59:26 2026 GMT</td></tr></table><p style="color:red">Agencies whose data contributed towards the results of this search are listed at the bottom of the page.</p>
+<pre>
+</pre><p><em>Please note:</em><br>
+<p>Data on or after 2024/09/01 have not been reviewed by the ISC.</p>
+<pre>
+DATA_TYPE EVENT_CATALOGUE
+ISC Bulletin
+----EVENT-----|-----------------------ORIGIN (PRIME HYPOCENTRE)----------------|------MAGNITUDES-----...
+  EVENTID,TYPE,AUTHOR   ,DATE      ,TIME       ,LAT     ,LON      ,DEPTH,DEPFIX,AUTHOR   ,TYPE  ,MAG 
+645637641,ke  ,GFZ      ,2026-04-20,07:52:59.30, 39.8740, 143.0020, 29.2,      ,GFZ      ,mb    , 6.7,GFZ      ,mB    , 7.4,GFZ      ,Me    , 7.4,GFZ      ,Mw(mB , 7.5,GFZ      ,MwMwp , 7.4,GFZ      ,Mwp   , 7.3,IDC      ,MS    , 7.5,VAO      ,mb    , 6.5,PTWC     ,Mwp   , 7.4,NIED     ,MW    , 7.4,CSEM     ,Mw    , 7.4,MOS      ,MS    , 7.8,ROM      ,Mwpd  , 7.5,IPGP     ,Mw    , 7.5,NEIC     ,M     , 7.4,AUST     ,Mww   , 7.4,GCMT     ,MW    , 7.5,SFS      ,mB    , 6.9,SFS      ,ML    , 6.5,SFS      ,Mw(mB), 6.9,SFS      ,MwMwp , 7.1,SFS      ,Mwp   , 6.9
+
+STOP
+
+Agencies whose data contributed towards the results of this search:
+
+ AUST      Geoscience Australia
+ BUC       National Institute for Earth Physics
+ GCMT      The Global CMT Project
+ GFZ       Helmholtz Centre Potsdam GFZ German Research Centre For Geosciences
+ IDC       International Data Centre, CTBTO
+ IPEC      The Institute of Physics of the Earth (IPEC)
+ IPGP      Institut de Physique du Globe de Paris
+ MOS       Geophysical Survey of Russian Academy of Sciences
+ NEIC      National Earthquake Information Center
+ NIED      National Research Institute for Earth Science and Disaster Resilience
+ PTWC      Pacific Tsunami Warning Center
+ ROM       Istituto Nazionale di Geofisica e Vulcanologia
+ SFS       Real Instituto y Observatorio de la Armada
+ VAO       Instituto Astronomico e Geofísico
+
+<br>Fri Sep  4 15:59:26 2026 GMT<br><br>International Seismological Centre<br>Pipers Lane, Thatcham, Berkshire<br>United Kingdom RG19 4NS<br>+44 (0)1635 861022, voice; +44 (0)1635 872351, fax<br>admin<img src="/images/staff/at.jpg" height="13"></img>isc.ac.uk, e-mail<br><br></pre>
+</body>
+</html>

@@ -98,6 +98,9 @@ const MODEL = process.env.MODEL ?? "gemma2:2b";
 const WANT = (process.env.SLICERS ?? "stating,random,containment,activation,embedding").split(",").map((s) => s.trim()).filter(Boolean);
 const SEED = Number(process.env.SEED ?? 0);
 const OUT = process.env.OUT ?? "ranke-slicers.json";
+const CLAIM = process.env.CLAIM ?? "fragment"; // fragment (claimOfNote) | article (row.article — reading-wall-RESULTS.md)
+const LABELED = process.env.LABELED ?? null; // LABELED=stated — only ids whose label status starts with this (results/slicer-labels.json)
+
 // P66: A NULL DRAWN ONCE IS A NULL DRAWN ZERO TIMES. The control below is a
 // fixed +1 rotation — deterministic, and therefore ONE draw. Run 4 measured
 // containment at 9 real states against 1 control state and read that as a
@@ -263,19 +266,27 @@ async function arm(rows, label) {
   for (const name of WANT) {
     if (out[name] && !out[name].gap) { console.log(`  ${label} · ${name}: already on the checkpoint — states ${out[name].states}, skipped`); continue; }
     if (name === "embedding" && !embed) { out[name] = { gap: embedGap ?? { type: "skipped" } }; save(); continue; }
-    const t0 = Date.now(); const verdicts = {}; const landings = []; let offered = 0, noCandidates = 0;
+    const t0 = Date.now(); const verdicts = {}; const landings = []; const candKeys = []; const perNote = []; let offered = 0, noCandidates = 0;
     for (const { row, ends, face } of rows) {
       const claim = R.claimOfNote(ends);
+      // CLAIM=article: the article's own sentence (row.article, carried on
+      // every walk row) is the claim the witness is shown, instead of the
+      // extraction fragment. Mechanical — nothing rewritten. A control row
+      // carries `claimText` already substituted (or null: unbuildable).
+      const claimText = CLAIM === "article" ? (label === "control" ? ends.claimText ?? null : (row.article ? String(row.article).replace(/\s+/g, " ").trim() : null)) : claim.sentence;
+      if (CLAIM === "article" && !claimText) { verdicts["control-unbuildable"] = (verdicts["control-unbuildable"] ?? 0) + 1; perNote.push({ id: row.id, verdict: "control-unbuildable" }); continue; }
       const cands = await candidatesFor(name, face, ends, claim.sentence);
       if (cands == null) { noCandidates += 1; verdicts.no_slicer_candidate = (verdicts.no_slicer_candidate ?? 0) + 1; continue; }
       if (!cands.length) { noCandidates += 1; verdicts.no_candidate = (verdicts.no_candidate ?? 0) + 1; continue; }
       offered += 1;
-      const w = await witnessNote(claim.sentence, { ref: row.host, text: face.src }, { ...witness, ends: { end1: ends.end1, end2: ends.end2 }, candidates: cands });
+      candKeys.push(cands.map((c) => `${c.start ?? "?"}:${c.shown.slice(0, 60)}`));
+      const w = await witnessNote(claimText, { ref: row.host, text: face.src }, { ...witness, ends: { end1: ends.end1, end2: ends.end2 }, candidates: cands });
       const v = w.refused ? `refused:${w.refused}` : w.verdict;
       verdicts[v] = (verdicts[v] ?? 0) + 1;
+      perNote.push({ id: row.id, claim: claimText, verdict: v, index: w.span?.at ?? null, at: w.at ?? null, arm: w.arm ?? null, because: w.verdict === "states" ? String(w.because ?? "").replace(/\s+/g, " ").slice(0, 220) : null });
       if (w.verdict === "states") landings.push({ note: row.note, host: row.host, because: String(w.because ?? "").replace(/\s+/g, " ").slice(0, 220), span: w.span?.at ?? null });
     }
-    out[name] = { offered, noCandidates, verdicts, states: verdicts.states ?? 0, contradicts: verdicts.contradicts ?? 0, landings, seconds: Math.round((Date.now() - t0) / 1000) };
+    out[name] = { claim: CLAIM, offered, noCandidates, verdicts, states: verdicts.states ?? 0, contradicts: verdicts.contradicts ?? 0, landings, candKeys, perNote, seconds: Math.round((Date.now() - t0) / 1000) };
     save();
     console.log(`  ${label} · ${name}: offered ${offered}/${rows.length}, states ${verdicts.states ?? 0}, contradicts ${verdicts.contradicts ?? 0}, ${JSON.stringify(verdicts)} — ${Math.round((Date.now() - t0) / 1000)}s`);
   }
@@ -288,6 +299,24 @@ for (const row of targets) {
   const ends = endsOf(row);
   if (!ends) continue;
   real.push({ row, ends, face: poolOf(row.facePath) });
+}
+
+// ONLY=3,42,45 — restrict the walk to declared note indices (positions in the
+// real[] order the coverage pass and the labels both use). Applied BEFORE the
+// control is drawn, so a derangement over the kept set still hands no note its
+// own end2 back (the property II.23 needs); the pre-merge code rotated within
+// the FULL target list, which a seeded derangement makes unnecessary.
+if (process.env.ONLY) {
+  const keep = new Set(process.env.ONLY.split(",").map((x) => Number(x.trim())).filter(Number.isFinite));
+  const r2 = real.filter((_, i) => keep.has(i));
+  real.length = 0; real.push(...r2);
+  console.log(`ONLY: walking ${real.length} declared notes [${[...keep].join(",")}]`);
+}
+if (LABELED) {
+  const L = JSON.parse(readFileSync(`${HERE}results/slicer-labels.json`, "utf8")).labels;
+  const r2 = real.filter((r) => String(L[r.row.id]?.status ?? "").startsWith(LABELED));
+  real.length = 0; real.push(...r2);
+  console.log(`LABELED=${LABELED}: walking ${real.length} labeled notes; claim form ${CLAIM}`);
 }
 
 // II.23: end2 rotated away from its own note — same subject, same face, same
@@ -307,7 +336,17 @@ function controlRows(seed) {
     // real, not control, and would inflate the null toward the real number.
     for (let i = 0; i < n; i += 1) if (idx[i] === i) { const j = (i + 1) % n; [idx[i], idx[j]] = [idx[j], idx[i]]; }
   }
-  return real.map((r, i) => ({ row: r.row, face: r.face, ends: { end1: r.ends.end1, label: r.ends.label, end2: real[idx[i]].ends.end2 } }));
+  // CLAIM=article: the control claim is the article's own sentence with end2
+  // replaced by the rotated end2 VERBATIM; where end2 is not verbatim in that
+  // sentence the control is `control-unbuildable`, typed, and costs no call
+  // (reading-wall-RESULTS.md's declared budget).
+  return real.map((r, i) => {
+    const end2 = real[idx[i]].ends.end2;
+    const art = r.row.article ? String(r.row.article).replace(/\s+/g, " ").trim() : "";
+    const at = art.toLowerCase().indexOf(String(r.ends.end2).toLowerCase());
+    const claimText = at >= 0 ? art.slice(0, at) + end2 + art.slice(at + r.ends.end2.length) : null;
+    return { row: r.row, face: r.face, ends: { end1: r.ends.end1, label: r.ends.label, end2, claimText } };
+  });
 }
 const control = controlRows(ROTATE_SEED);
 const poolSizes = [...faceCache.values()].map((f) => f.pool.length).sort((x, y) => y - x);
@@ -349,22 +388,48 @@ const realOut = await arm(real, "real");
 console.log("CONTROL (end2 rotated, same face, same slicer, same witness):");
 const ctlOut = await arm(control, "control");
 
-console.log(`\nLICENSE TABLE (states, of ${real.length} notes):`);
-console.log(`  ${"slicer".padEnd(13)} ${"offered".padEnd(8)} ${"real".padEnd(6)} ${"control".padEnd(8)} verdict`);
-const license = {};
-for (const name of WANT) {
-  const r = realOut[name], c = ctlOut[name];
-  if (r?.gap) { console.log(`  ${name.padEnd(13)} ${"—".padEnd(8)} ${"—".padEnd(6)} ${"—".padEnd(8)} unavailable: ${r.gap.detail ?? r.gap.type}`); license[name] = { verdict: "unavailable", gap: r.gap }; continue; }
-  const sep = r.states - (c?.states ?? 0);
-  const verdict = r.offered === 0 ? "never offered — structurally inert on this class" : r.states === 0 ? "no landing — nothing to license" : sep <= 0 ? "REFUSED by its own control (II.23)" : "separates from control";
-  console.log(`  ${name.padEnd(13)} ${String(r.offered).padEnd(8)} ${String(r.states).padEnd(6)} ${String(c?.states ?? 0).padEnd(8)} ${verdict}`);
-  license[name] = { verdict, offered: r.offered, states: r.states, controlStates: c?.states ?? 0, separation: sep };
+// ── exported so a zero-call pass can measure the SAME instrument ─────────
+// The coverage pass asks a question that needs no witness: does a slicer's
+// top-K even CONTAIN a sentence that states the proposition? That is a
+// property of the ranking alone. Re-implementing the pool or the rankings
+// in a sibling script would measure a copy, so they are exported and the
+// driver's own run is guarded below.
+export { poolOf, candidatesFor, endsOf, targets, real, control, K, WANT, faceCache, allObjMissing, backwards, R };
+
+if (import.meta.main) {
+  console.log("REAL:");
+  const realOut = await arm(real, "real");
+  console.log("CONTROL (end2 rotated, same face, same slicer, same witness):");
+  const ctlOut = await arm(control, "control");
+
+  console.log(`\nLICENSE TABLE (states, of ${real.length} notes):`);
+  console.log(`  ${"slicer".padEnd(13)} ${"offered".padEnd(8)} ${"real".padEnd(6)} ${"control".padEnd(8)} verdict`);
+  const license = {};
+  for (const name of WANT) {
+    const r = realOut[name], c = ctlOut[name];
+    if (r?.gap) { console.log(`  ${name.padEnd(13)} ${"—".padEnd(8)} ${"—".padEnd(6)} ${"—".padEnd(8)} unavailable: ${r.gap.detail ?? r.gap.type}`); license[name] = { verdict: "unavailable", gap: r.gap }; continue; }
+    const sep = r.states - (c?.states ?? 0);
+    // Does the II.23 control actually change what this arm ranks? An arm that
+    // reads end1 only sees the identical top-K under a rotated end2, so any
+    // separation it shows is the WITNESS discriminating between two claims
+    // over the same eight sentences — real, but not a property of the slicer,
+    // and not the thing L3 licenses. Measured, not assumed: the zero-call
+    // pass found activation identical on 69/69 (slicer-coverage-RESULTS.md).
+    const rk = r.candKeys ?? [], ck = c?.candKeys ?? [];
+    const paired = Math.min(rk.length, ck.length);
+    const identical = paired ? rk.slice(0, paired).filter((k, i) => JSON.stringify(k) === JSON.stringify(ck[i])).length : 0;
+    const controlInert = paired > 0 && identical === paired;
+    const verdict = r.offered === 0 ? "never offered — structurally inert on this class" : r.states === 0 ? "no landing — nothing to license" : sep <= 0 ? "REFUSED by its own control (II.23)" : controlInert ? "separates — but the control saw the IDENTICAL candidates: this is the witness's separation, not the slicer's; L3 unmeasured for this arm" : "separates from control";
+    console.log(`  ${name.padEnd(13)} ${String(r.offered).padEnd(8)} ${String(r.states).padEnd(6)} ${String(c?.states ?? 0).padEnd(8)} ${verdict}`);
+    license[name] = { verdict, offered: r.offered, states: r.states, controlStates: c?.states ?? 0, separation: sep, controlCandidatesIdentical: paired ? `${identical}/${paired}` : null };
+  }
+
+  console.log(`\nLANDINGS (the witness signed these; the decider is the source's own bytes):`);
+  for (const name of WANT) for (const l of (realOut[name]?.landings ?? []).slice(0, 4)) console.log(`  [${name} · ${l.host}] ${l.note}\n     «${l.because}»\n     at ${l.span ?? "(address unverifiable)"}`);
+  const ctlLandings = WANT.flatMap((n) => (ctlOut[n]?.landings ?? []).map((l) => ({ ...l, slicer: n })));
+  if (ctlLandings.length) { console.log(`\nCONTROL LANDINGS (each one is evidence AGAINST the slicer that produced it):`); for (const l of ctlLandings.slice(0, 6)) console.log(`  [${l.slicer} · ${l.host}] ${l.note}\n     «${l.because}»`); }
+
+  writeFileSync(CKPT, JSON.stringify({ page: backwards.page, objectMissingPartials: allObjMissing, walked: real.length, K, window: WINDOW, model: MODEL, embedder: embed ? "Xenova/all-MiniLM-L6-v2" : (embedGap ?? "skipped"), modelCalls, real: realOut, control: ctlOut, license }, null, 2));
+  console.log(`\n${modelCalls} model calls. Raw: results/${OUT}`);
+
 }
-
-console.log(`\nLANDINGS (the witness signed these; the decider is the source's own bytes):`);
-for (const name of WANT) for (const l of (realOut[name]?.landings ?? []).slice(0, 4)) console.log(`  [${name} · ${l.host}] ${l.note}\n     «${l.because}»\n     at ${l.span ?? "(address unverifiable)"}`);
-const ctlLandings = WANT.flatMap((n) => (ctlOut[n]?.landings ?? []).map((l) => ({ ...l, slicer: n })));
-if (ctlLandings.length) { console.log(`\nCONTROL LANDINGS (each one is evidence AGAINST the slicer that produced it):`); for (const l of ctlLandings.slice(0, 6)) console.log(`  [${l.slicer} · ${l.host}] ${l.note}\n     «${l.because}»`); }
-
-writeFileSync(CKPT, JSON.stringify({ page: backwards.page, objectMissingPartials: allObjMissing, walked: real.length, K, window: WINDOW, model: MODEL, embedder: embed ? "Xenova/all-MiniLM-L6-v2" : (embedGap ?? "skipped"), modelCalls, real: realOut, control: ctlOut, license }, null, 2));
-console.log(`\n${modelCalls} model calls. Raw: results/${OUT}`);

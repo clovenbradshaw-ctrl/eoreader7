@@ -34,6 +34,7 @@
 // the ledger with end2 rotated — the classes that measure a proposition
 // (same-sentence, morphology) must fall; `partial` is expected to survive,
 // because single words co-occur, which is exactly why partial is not a lead.
+import { spawnSync } from "node:child_process";
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
 import { createHash } from "node:crypto";
 
@@ -77,6 +78,11 @@ const reader = makeRelationReader({
   negationWords: P.NEGATION_WORDS,
   blankFurniture: (t) => blankLabelRows(t, { minRun: 4, maxCell: 60 }),
   resolvePronouns, nounPhraseSubjects: true,
+  // S61: the verb chain rides in the act (DR5), the received priors' verb
+  // forms join the vocabulary on first arrival (attestedVerbs), and acts
+  // compare by lemma. DEFAULT ON (user, 2026-09-02: "the hypergraph should be
+  // this rich ALWAYS"); RICH=0 reproduces every run before S61 byte for byte.
+  ...(process.env.RICH !== "0" ? (() => { const forms = new Set(); for (const [k, v] of Object.entries(morph.forms ?? {})) { forms.add(String(k).toLowerCase()); for (const x of Array.isArray(v) ? v : [v]) if (typeof x === "string") forms.add(x.toLowerCase()); } for (const [w, att] of Object.entries(posPrior.forms ?? {})) { const t = Object.values(att).reduce((a, b) => a + b, 0); if (t > 0 && ((att.VERB ?? 0) + (att.AUX ?? 0)) / t > 0.5) forms.add(w.toLowerCase()); } return { phrasalPredicates: true, verbForms: forms, attestedVerbs: true, createLemmatizer, morphologyIndex: morph.forms, morphologyLanguage: morph.language }; })() : {}),
 });
 const hl = makeHyperlexicon({ createTaskLog: nativeTaskLog.createTaskLog, append: nativeTaskLog.append, projectTasks: nativeTaskLog.projectTasks, ENTRY_KINDS: nativeTaskLog.ENTRY_KINDS, OPERATOR_BASIS: nativeTaskLog.OPERATOR_BASIS, GRAINS, cellOf });
 
@@ -115,12 +121,43 @@ console.log(`  notes whose article sentence carries a marker: ${marked.length}; 
 mkdirSync(FACES, { recursive: true });
 const INDEX = `${FACES}/index.json`;
 const index = existsSync(INDEX) ? JSON.parse(readFileSync(INDEX, "utf8")) : {};
+// An address that answered for more than one cited document is a hub, and
+// a face read from it is none of them (ranke.js redirectHubs). Computed from
+// the index itself, so a re-run over a cache convicts what the first pass
+// admitted — 17 ALSJ transcripts and 6 NSSDCA pages, measured 2026-09-02.
+let hubs = R.redirectHubs(index);
+const hubGap = (e) => ({ type: "redirect-hub", detail: `${R.normalizedPath(e.url)} answered from ${R.normalizedPath(e.finalUrl)}`, archive: R.archiveAddressFor(e.url) });
+// chrome: the lines a face shares with a sibling face of the same host
+const facesOfHost = new Map();
+// a sibling is ANOTHER document on the host — the same final address fetched
+// under two cited spellings (http/https, a fragment) is a duplicate, and a
+// face compared with its own duplicate is all chrome by construction
+const siblingsOf = (host, key) => {
+  if (!facesOfHost.has(host)) facesOfHost.set(host, Object.entries(index).filter(([k, e]) => !e.gap && e.host === host && existsSync(`${FACES}/${k}.txt`)).map(([k, e]) => ({ k, fin: R.normalizedPath(e.finalUrl ?? e.url) })));
+  const mine = R.normalizedPath(index[key]?.finalUrl ?? index[key]?.url);
+  const seen = new Set();
+  return facesOfHost.get(host).filter((s) => s.k !== key && s.fin !== mine && !seen.has(s.fin) && seen.add(s.fin)).map((s) => readFileSync(`${FACES}/${s.k}.txt`, "utf8"));
+};
+const bodyCache = new Map();
+const bodyOf = (text, host, key) => { if (bodyCache.has(key)) return bodyCache.get(key); const sib = siblingsOf(host, key); const out = !sib.length ? { text, head: 0, tail: 0, siblings: 0 } : { ...R.stripChrome(text, sib), siblings: sib.length }; bodyCache.set(key, out); return out; };
+const PDFTOTEXT = process.env.PDFTOTEXT ?? "pdftotext";
+const pdfText = (buf) => { try { const r = spawnSync(PDFTOTEXT, ["-layout", "-", "-"], { input: buf, maxBuffer: 64 * 1024 * 1024 }); return r.status === 0 ? r.stdout.toString("utf8") : null; } catch { return null; } };
 const sha16 = (s) => createHash("sha256").update(s).digest("hex").slice(0, 16);
 const UA = "the-fold/ranke-backwards (+https://github.com/clovenbradshaw-ctrl/the-fold; primary-source chase eval)";
 let network = 0;
 async function fetchFace(url, archiveUrl) {
   const key = sha16(url);
-  if (index[key]) { const e = index[key]; return e.gap ? { gap: e.gap } : { text: readFileSync(`${FACES}/${key}.txt`, "utf8"), url: e.finalUrl, host: e.host, path: `primary-faces/${key}.txt` }; }
+  if (index[key]) {
+    const e = index[key];
+    if (e.gap) return { gap: e.gap };
+    if (e.finalUrl && hubs.has(R.normalizedPath(e.finalUrl))) return { gap: hubGap(e) };
+    const raw = readFileSync(`${FACES}/${key}.txt`, "utf8");
+    const b = bodyOf(raw, e.host, key);
+    if (b.text.trim().length < 200) return { gap: { type: "all-chrome", detail: `${b.head}+${b.tail} of ${raw.split("\n").length} lines shared with ${b.siblings} sibling faces` } };
+    let path = `primary-faces/${key}.txt`;
+    if (b.head + b.tail > 0) { path = `primary-faces/${key}.body.txt`; if (!existsSync(`${FIX}/${path}`)) writeFileSync(`${FIX}/${path}`, b.text); }
+    return { text: b.text, chrome: { head: b.head, tail: b.tail }, url: e.finalUrl, host: e.host, path, lostPath: !!e.lostPath };
+  }
   if (OFFLINE) return { gap: { type: "offline" } };
   const tryOne = async (u) => {
     const ctl = new AbortController(); const t = setTimeout(() => ctl.abort(), 20000);
@@ -133,17 +170,30 @@ async function fetchFace(url, archiveUrl) {
       if (buf.length > 6_000_000) return { gap: { type: "censored-above" } };
       if (/html|xml/i.test(ct)) { const f = extractReadable(buf.toString("utf8")); return { text: f.text, title: f.title, finalUrl: res.url || u }; }
       if (/text\//i.test(ct)) return { text: buf.toString("utf8"), finalUrl: res.url || u };
+      if (/pdf/i.test(ct) || buf.subarray(0, 5).toString() === "%PDF-") { const t = pdfText(buf); return t && t.trim().length ? { text: t, finalUrl: res.url || u, pdf: true } : { gap: { type: "beyond-reach", detail: "pdf: no text layer or no pdftotext" } }; }
       return { gap: { type: "beyond-reach", detail: ct } };
     } catch (e) { return { gap: { type: "unreachable", detail: String(e?.message ?? e).slice(0, 80) } }; } finally { clearTimeout(t); }
   };
   let got = await tryOne(url);
+  let lostPath = false;
+  if (!got.gap && got.finalUrl && R.pathLost(url, got.finalUrl)) {
+    // the address answered with something that is not at the cited path.
+    // The archive copy of the ORIGINAL address is the second witness: read
+    // it if it can be read; else keep the live face with the doubt typed,
+    // and let the hub rule convict it once a sibling citation lands there.
+    const arch = await tryOne(archiveUrl ?? R.archiveAddressFor(url));
+    if (!arch.gap && arch.text && arch.text.length >= 200) got = { ...arch, viaArchive: true };
+    else lostPath = true;
+  }
   if (got.gap && archiveUrl) got = await tryOne(archiveUrl);
   const host = (() => { try { return new URL(got.finalUrl ?? url).hostname.replace(/^www\./, ""); } catch { return hostOf(url); } })();
   if (got.gap || !got.text || got.text.length < 200) { index[key] = { url, gap: got.gap ?? { type: "shell", detail: `${got.text?.length ?? 0}-char face` } }; writeFileSync(INDEX, JSON.stringify(index, null, 1)); return { gap: index[key].gap }; }
   writeFileSync(`${FACES}/${key}.txt`, got.text);
-  index[key] = { url, finalUrl: got.finalUrl ?? url, host, title: got.title ?? null, chars: got.text.length, retrievedAt: new Date().toISOString() };
+  index[key] = { url, finalUrl: got.finalUrl ?? url, host, title: got.title ?? null, chars: got.text.length, retrievedAt: new Date().toISOString(), ...(lostPath ? { lostPath: true } : {}), ...(got.pdf ? { pdf: true } : {}), ...(got.viaArchive ? { viaArchive: true } : {}) };
   writeFileSync(INDEX, JSON.stringify(index, null, 1));
-  return { text: got.text, url: got.finalUrl ?? url, host, path: `primary-faces/${key}.txt` };
+  hubs = R.redirectHubs(index);
+  if (hubs.has(R.normalizedPath(index[key].finalUrl))) return { gap: hubGap(index[key]) };
+  return { text: got.text, url: got.finalUrl ?? url, host, path: `primary-faces/${key}.txt`, lostPath };
 }
 const faces = new Map(); let fetches = 0;
 const cached = async (url, archiveUrl) => { if (faces.has(url)) return faces.get(url); if (fetches >= MAXF) return { gap: { type: "budget" } }; fetches += 1; const g = await fetchFace(url, archiveUrl); faces.set(url, g); return g; };
@@ -201,9 +251,17 @@ async function walk(noteList, { useWitness }) {
     const consulted = [];
     for (const c of cands) {
       let got = await cached(c.url, c.archiveUrl ?? null);
+      let viaArchive = false;
+      if (got?.gap?.type === "redirect-hub") {
+        // the address answers for many documents; the archive copy of THIS
+        // address is the route to the one cited (P84: the archive route is
+        // load-bearing). Offline, this reads what an earlier pass kept.
+        const alt = await cached(c.archiveUrl ?? got.gap.archive, null);
+        if (alt && !alt.gap && alt.text) { got = { ...alt }; viaArchive = true; }
+        else { consulted.push({ host: c.host, via: c.via, gap: { ...got.gap, archiveGap: alt?.gap?.type ?? "no_face" } }); continue; }
+      }
       if (!got || got.gap || !got.text) { consulted.push({ host: c.host, via: c.via, gap: got?.gap ?? { type: "no_face" } }); continue; }
       let identity = c.text ? R.documentMatches(got.text, c.text) : { matches: null };
-      let viaArchive = false;
       if (identity.matches === false) {
         const again = await cached(c.archiveUrl ?? R.archiveAddressFor(c.url), null);
         const id2 = again && !again.gap && again.text ? R.documentMatches(again.text, c.text) : { matches: false };
@@ -215,7 +273,7 @@ async function walk(noteList, { useWitness }) {
       consulted.push({ host: got.host ?? c.host, via: c.via, ...cl });
       if (!best || CLASSES.indexOf(cl.cls) < CLASSES.indexOf(best.cls)) best = { ...cl, host: got.host ?? c.host, via: c.via, text: got.text, path: got.path ?? null };
     }
-    const row = { id: n.id, note: `${n.subject} —${n.verb}→ ${n.object}`, article: n.spans?.[0]?.text ?? null, tokens: claim.tokens, bound: bound.length, readable: consulted.filter((c) => !c.gap).length, readableBound: consulted.filter((c) => !c.gap && /^footnote/.test(c.via)).length, wrongDocuments: consulted.filter((c) => c.gap?.type === "wrong-document").length, viaArchive: consulted.filter((c) => c.viaArchive).length, cls: best?.cls ?? (consulted.length ? "unreadable" : "no-lead"), via: best?.via ?? null, host: best?.host ?? null, facePath: best?.path ?? null, sentence: best?.sentence ?? null, missing: best?.missing ?? null, missingSide: best?.missingSide ?? null };
+    const row = { id: n.id, note: `${n.subject} —${n.verb}→ ${n.object}`, article: n.spans?.[0]?.text ?? null, tokens: claim.tokens, bound: bound.length, readable: consulted.filter((c) => !c.gap).length, readableBound: consulted.filter((c) => !c.gap && /^footnote/.test(c.via)).length, wrongDocuments: consulted.filter((c) => c.gap?.type === "wrong-document").length, viaArchive: consulted.filter((c) => c.viaArchive).length, cls: best?.cls ?? (consulted.length ? "unreadable" : "no-lead"), via: best?.via ?? null, lead: best ? (/^footnote/.test(best.via ?? "") ? "citation" : "guess") : null, hubGaps: consulted.filter((c) => c.gap?.type === "redirect-hub").length, chromeGaps: consulted.filter((c) => c.gap?.type === "all-chrome").length, host: best?.host ?? null, facePath: best?.path ?? null, sentence: best?.sentence ?? null, missing: best?.missing ?? null, missingSide: best?.missingSide ?? null };
     const wrongDocs = consulted.filter((c) => c.gap?.type === "wrong-document").length;
     if (useWitness && best && (best.cls === "same-sentence" || best.cls === "morphology" || (best.cls === "partial" && /^footnote/.test(best.via ?? "") && best.sentence)) && witnessed < WITNESS_CAP) {
       witnessed += 1;
@@ -243,6 +301,8 @@ console.log(`  partial by missing side: ${JSON.stringify(tally(partial.map((r) =
 const wv = {}; for (const r of real) if (r.witness) wv[r.witness] = (wv[r.witness] ?? 0) + 1;
 console.log(`  witness on same-sentence, morphology and footnote-bound partial leads: ${JSON.stringify(wv)}`);
 const wvByCls = {}; for (const r of real) if (r.witness) { wvByCls[r.cls] = wvByCls[r.cls] ?? {}; wvByCls[r.cls][r.witness] = (wvByCls[r.cls][r.witness] ?? 0) + 1; } console.log(`    by class: ${JSON.stringify(wvByCls)}`);
+console.log(`  redirect-hub gaps (address answers for many documents): ${real.reduce((a, r) => a + (r.hubGaps ?? 0), 0)} consults; all-chrome faces: ${real.reduce((a, r) => a + (r.chromeGaps ?? 0), 0)}`);
+console.log(`  object-missing partials by lead kind: ${JSON.stringify(tally(readable.filter((r) => r.cls === "partial" && r.missingSide === "object").map((r) => ({ cls: r.lead }))))} — a guess is a ranked link, not a citation`);
 console.log(`  wrong-document faces (address serves another document): ${real.reduce((a, r) => a + (r.wrongDocuments ?? 0), 0)} consults; read through the archive copy instead: ${real.reduce((a, r) => a + (r.viaArchive ?? 0), 0)}`);
 console.log(`  the ladder (cumulative, of ${readable.length}): now=${readable.filter((r) => r.cls === "same-sentence").length} · +morphology=${readable.filter((r) => ["same-sentence", "morphology"].includes(r.cls)).length} · +window=${readable.filter((r) => ["same-sentence", "morphology", "window"].includes(r.cls)).length} · +both=${readable.filter((r) => r.cls !== "partial" && r.cls !== "absent").length}`);
 
@@ -265,5 +325,5 @@ for (const cls of CLASSES) {
     console.log(`     ${r.host}: «${String(r.sentence ?? "").replace(/\s+/g, " ").slice(0, 200)}»`);
   }
 }
-writeFileSync(new URL("./results/ranke-backwards.json", import.meta.url), JSON.stringify({ page: PAGE, notes: notes.length, bibliographyDropped: bibliography.length, leads: { links: leads.links.length, quotes: leads.quotes.length }, footnotes: { markers: footnotes.markers, linking: footnotes.notes, notesMarked: marked.length, notesBound: boundNotes.length }, fetches, facesRead: [...faces.values()].filter((f) => !f.gap).length, real: { tally: tally(readable), partialBySide: tally(partial.map((r) => ({ cls: r.missingSide }))), witness: wv, rows: real }, control: { tally: tally(ctlReadable) } }, null, 2));
-console.log("\nRaw: results/ranke-backwards.json");
+writeFileSync(new URL(`./results/${process.env.OUT ?? "ranke-backwards.json"}`, import.meta.url), JSON.stringify({ page: PAGE, notes: notes.length, bibliographyDropped: bibliography.length, leads: { links: leads.links.length, quotes: leads.quotes.length }, footnotes: { markers: footnotes.markers, linking: footnotes.notes, notesMarked: marked.length, notesBound: boundNotes.length }, fetches, facesRead: [...faces.values()].filter((f) => !f.gap).length, real: { tally: tally(readable), partialBySide: tally(partial.map((r) => ({ cls: r.missingSide }))), witness: wv, rows: real }, control: { tally: tally(ctlReadable), rows: ctlReadable.map((r) => ({ id: r.id, note: r.note, tokens: r.tokens, cls: r.cls, via: r.via, lead: r.lead, host: r.host })) } }, null, 2));
+console.log(`\nRaw: results/${process.env.OUT ?? "ranke-backwards.json"}`);

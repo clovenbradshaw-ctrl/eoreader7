@@ -1,3 +1,5 @@
+> **Taken (2026-09-02).** See `slicer-coverage-RESULTS.md`: 71 calls, not 2,592. Containment covers 11/12 labeled notes at zero calls; the witness lands 4/11 with 0 false positives; half the population is wrong-document. Next move is the fetch route, not a slicer.
+
 # Handoff: take the slicer licensing measurement (2026-09-03)
 
 Paste the block below into a fresh local session. Everything it needs is on

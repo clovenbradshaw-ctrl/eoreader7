@@ -1,3 +1,5 @@
+> **Superseded in part (2026-09-02, later the same day).** The measurement WAS taken — on a labeled subset, after a zero-call coverage pass changed the design. Two of this document's premises did not survive: `stating` is not inert on this class (fires on 64/162), and `activation`'s II.23 control is structurally inert (reads end1 only). Read `slicer-coverage-RESULTS.md` first.
+
 # When does the system earn an LLM or an embedder? (2026-09-03)
 
 **Driver:** `eval/the-fold/ranke-slicers.mjs`. **Subject:** the 162
