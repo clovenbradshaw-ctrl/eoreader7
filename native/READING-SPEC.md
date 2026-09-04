@@ -3261,3 +3261,329 @@ leans: this WIDENS what can be heard rather than closing a false binding.
 default is untouched), `eval/the-fold/activation-unit-probe.mjs`,
 `results/activation-unit-RESULTS.md`. Full native suite: 24 failures before and
 after, identical by name — zero regressions.
+
+## S54 — Pass 12 step 4: a witness reads a bridge, and the reading is bounded by the match that made it
+
+**Generality:** universal.
+
+S49 recorded referent bridges as their own corroboratable objects and named
+its own gap in the same breath: a bridge reaches `corroborated` only when a
+SECOND independently-derived content note happens to assume the identical
+correspondence, so 40 of that run's 43 bridges stood `single-witness` with
+nothing in the mechanism able ever to move them. `organs/bridge-witness.js`
+is the asking.
+
+**The question is not any other witness's question**, which is why it is not
+answered by reusing one. `corroboration.js::witnessNote` (and `ranke.js`
+through it) asks *does this source state this PROPOSITION* — a claim against
+a body of text. A bridge asks *do these two MENTIONS, each already read in
+its own document, name the SAME REFERENT* — a correspondence between two
+already-addressed spans, never a search. `testimony.js::buildSelectMessages`
+is worded for the first question and would put the wrong question to the
+model, so this file writes its own prompt on the SAME schema shape
+(`{stated, sentence}`, point-never-write) and reuses `foldSelect` UNCHANGED:
+one response-parser, two questions.
+
+**The arm mirrors witnessNote's real+decoy shape rather than folding both
+into one multi-candidate call** (P85's own postmortem: every arm in this
+codebase runs twice; one call risks position bias contaminating both
+readings). The decoy is a SIBLING bridge candidate — same incoming source,
+different prior face — a real competing referent from the very document
+being read. An unarmed "same" is refused, not trusted (witnessNote's own
+"an unchallenged yes is not a second witness"); an unarmed "no" still
+stands, because withholding trust in a yes is not disbelieving a no.
+
+**DIAGNOSTIC AND ACT KEPT APART**, `dietBoundaries`/`concedeDiet`'s own
+precedent: `witnessBridge` decides and touches no ledger;
+`applyBridgeWitness` lands a `same` as an additional witness and, on a
+`different`, returns a NAMED SUGGESTION (a ready `concede` trigger) rather
+than conceding — retracting a bridge is a decision this file leaves to
+whoever holds that authority.
+
+**Measured on real material** (`eval/the-fold/bridge-witness-measurement.mjs`,
+the three fixtures S49 used, the SAME production pipeline copied from
+`bridge-object-measurement.mjs` rather than reimplemented — a driver that
+rebuilds the path it measures reports on a pipeline nobody runs, and this
+project paid for that once already). Live `gemma2:2b`, 60 calls, 161s, run
+twice at temperature 0 with identical results:
+
+| arm | landed "same" |
+|---|---|
+| real correspondence | 8 of 12 |
+| MISPAIRED control, wrong by construction | 2 of 12 |
+
+**Fisher exact, one-sided, α = 0.05 declared before the run: p = 0.0180.**
+The control separates. A bare inequality would not have been a result.
+
+**THE FINDING THAT MATTERS MORE, and it bounds the whole pass: 12 of 12
+examined candidates have two faces that are the IDENTICAL STRING.** Not a
+sampling accident — a bridge exists only where `hear()`'s exact-triple match
+already fired, so a paraphrased restatement never produces a join, never
+becomes a bridge candidate, and is never put to a witness. **Witnessing
+bridges therefore cannot touch the ~2% corroboration wall** (P74/P83), which
+is caused by propositions never matching in the first place; this organ
+operates strictly downstream of the match that never happened. Step 4 makes
+bridges ACCOUNTABLE; it does not make more of them.
+
+**A landed witness does not raise `standing`** — every witnessed bridge
+still reads `single-witness`, deliberately: `standingOf` counts distinct
+SOURCES, and one model reading two passages is not a second source. It
+appears in `kinds` instead (`{"bridge-inferred":1,"bridge-witness":1}`),
+counted apart and never summed — P84's own rule for `primary:` against
+account witnesses, applied one register over.
+
+**Files.** `organs/bridge-witness.js` (new; `contextOf`,
+`buildBridgeSelectMessages`, `witnessBridge`, `applyBridgeWitness`,
+`decoysFor`, `witnessBridgesFor`, `BRIDGE_WITNESS_KIND`) +
+`organs/bridge-witness.test.mjs` (new, 15 cases against the REAL kernel and
+REAL bridges.js, `selectAsk` scripted so every wall is covered offline —
+including a CONTROL BUILT TO FAIL: a picker that says yes to everything is
+refused `indiscriminate`. Mutation-checked: stripping the indiscriminate
+check, trusting an unarmed yes, and making `same` land nothing each fail the
+suite). `organs/bridges.js` (one line: `priorSideKey` exported, so a caller
+deriving a bridge id independently computes the identical id rather than
+restating the rule). `eval/the-fold/bridge-witness-measurement.mjs` +
+`results/bridge-witness-RESULTS.md`.
+
+**Gates.** organs 415 tests / 396 pass / 11 fail / 8 skipped; conformance+
+tests 499/488/10 — failure NAMES diffed against a baseline with this pass's
+files removed and `bridges.js` reverted: identical, zero regressions.
+
+**Disclosed limits.** The control may be easy (a mispaired passage is
+usually off-topic, so "different" is cheap); a harder same-topic control is
+named and unbuilt. n = 12, one material, one model. 4 of 12 real
+correspondences read "different" and no oracle adjudicated them. And the
+organ is unmeasured on non-identical faces, because this material produces
+none — the case bridges were designed for is the case this material cannot
+exercise.
+
+**Concurrent-work note.** `eoreader7` PR #16 (`codex/hyperlexicon-deep-
+reading`, open, 9,649 additions, based on a pre-S48 main) independently
+develops "earned identity at the shared bridge" in an entirely separate file
+set (`kernel/relation-composition.js`, `kernel/identity-groupoid.js`,
+`kernel/identity-quotient.js`, `kernel/hyperlexicon.js` the chemistry table).
+It touches none of `kernel/notes.js`, `organs/bridges.js`,
+`organs/testimony.js` or `organs/corroboration.js`, so there is no
+file-level conflict with this pass — but the two are thematically
+convergent, and reconciling them is real, named, unattempted work rather
+than something either side should assume away.
+## S55 — P85's licensing run, taken: the company wall cannot guard the slot L4 names it for
+
+**Generality:** universal.
+
+P85 shipped the five-condition licensing rule for a learned component and
+said of its own evidence: *"Measured? Not yet… the verdict is not taken,
+and this entry claims none."* Its run died with its container twice. Taken
+now (`eval/the-fold/ranke-slicers.mjs`, N=40 of the 162 object-missing
+partials, live `gemma2:2b`, 220 calls): **no slicer earns a license.**
+
+| slicer | offered | real | control | verdict |
+|---|---|---|---|---|
+| containment | 40/40 | 9 | 1 | separates from control |
+| activation | 16/40 | 2 | 2 | REFUSED by its own control (II.23) |
+| random (confound) | 40/40 | 2 | 3 | REFUSED by its own control (II.23) |
+| embedding | — | — | — | `unavailable`, typed (L5) |
+
+**The table is not the finding; the sample is.** Containment's nine
+landings include deciders like «Support the Museum», «Visit the Apollo
+Journals Website», a video caption, and an unrelated Schmitt sentence —
+page furniture signed as testimony. Applying the decider-company wall
+post-hoc over the recorded landings (the same `textFeatures`/`sameAct`
+organs the generate path uses) takes containment from **9-vs-1 to 1-vs-0**:
+8 of 9 fail. S50 already recorded this exact pattern once — a plausible
+number that dissolves on inspecting the sample rather than the count.
+
+**THE STRUCTURAL FINDING.** P85's L4 bounds a learned part's authority by
+non-learned organs and names them, *"the sibling-swap arm, the
+indiscriminate-pick check, the decider-company wall, and the
+distinct-source count."* The decider-company wall **is not below the select
+path at all** — it runs only on the generate path, skipped there on a
+justification stated in `witnessNote`'s own comment: *"the decider is
+verbatim by construction, so the decider-company wall below is satisfied
+structurally."* That conflates two failure modes. Verbatim-ness does make
+the ECHO mode impossible; it says nothing about whether the decider is
+RELATED. `statingCandidates`' `h1 > 0 && h2 > 0` gate covered relatedness in
+practice, which is why the gap was invisible — until callers began
+INJECTING candidate lists, the seam P85 itself added for slicers, which
+bypasses that gate.
+
+**And the wall cannot simply be switched on.** Implemented and measured
+rather than reasoned about: applying it to the select path breaks
+`corroboration.test.mjs`'s own pinned capability test, whose premise the
+test states outright — *"end2 never fires literally — this is what an
+object-missing partial IS."* The wall requires each end's own words; the
+seam exists to reach cases where an end's words are absent. **Mutually
+exclusive as designed.** The change was reverted; organs is back to its
+baseline 11 failures, identical by name.
+
+So: the slicer slot has **no non-learned organ guarding relatedness**, L4
+is unsatisfied there, and no slicer earns a license — not because slicing
+is wrong, but because its landings are dominated by an unguarded failure
+mode and the named guard is the one this seam cannot use.
+
+**Named, not built.** A guard for injected candidates must not require an
+end's literal words, since that is the case being reached. Two shapes exist
+in this repo and neither is measured for this: referent identity on the
+ends (`makeReferentIndex` — resolve "the crew" to the crew rather than
+matching letters), or the arm's sibling pool drawn from the reader's own
+referent state rather than capitalized surfaces in one candidate list. Both
+are the same move — resolve the end, then ask about the referent.
+
+**Files.** `eval/the-fold/results/ranke-slicers-RESULTS.md` (the full
+account, the landings quoted, the post-hoc wall table) and
+`results/ranke-slicers-run4.json` (raw). No production file changed:
+`corroboration.js` is byte-identical to before this entry.
+
+**Disclosed.** n = 40 of 162, one page, one model, one temperature. The
+embedder arm never ran, so the embedder half of P85's question is still
+open. The two landings that survive the post-hoc wall were not adjudicated
+against an oracle — surviving a mechanical relatedness check is not being
+true.
+
+## S56 — The ledger gets Interpretation's triad: sameness and significance as declared, revisable commitments
+
+**Generality:** universal. The mechanism holds no vocabulary of any medium
+or language; it is `DEF`/`EVA`/`REC` over an append-only act log, and its
+tests are organ-free on purpose so the walls stay testable wherever this
+repo is checked out.
+
+**What shipped.** `kernel/commitments.js` (+ `tests/commitments.test.js`,
+19 cases against the real `makeNotes()`). Three verbs over one log:
+
+* `declare(kind, members, giver, purpose)` — **DEF**. A giver AND a purpose
+  are required; either missing is a typed refusal. Lands as a **wish**.
+* `evaluate(id, ground, broken, verdict)` — **EVA**. A named ground and a
+  declared perturbation are required, and the verdict must be `holds` or
+  `refused`. Promotes the wish to **testimony**, or **refuses** it.
+* `concede(id, trigger)` — **REC**. The trigger is carried verbatim. A
+  conceded commitment's withheld notes become readable again.
+
+Three kinds: `same-as` (two notes are one proposition), `does-not-matter`
+(withhold), `matters` (an override that beats a withholding).
+`readUnder(log, notes, {include})` is the projection: same-as classes fold
+with witnesses and spans unioned, first face kept; every touched note is
+marked with what it was read under. `redeal` is the II.23 control, and it
+runs on a **scratch** `createTaskLog()` so an experiment never lands on the
+record.
+
+**The four walls, each mutation-checked.** (1) `fold()` is byte-identical
+under any set of commitments not in force — an interpretation is not a
+hearing. (2) A commitment **never counts as a witness**; corroboration is
+untouched by declaring anything. (3) **Recoverability** — conceding a
+`does-not-matter` makes its notes readable again, which is exactly the
+property a filter cannot have and is why this is a ledger rather than a
+predicate. (4) A conceded *commitment* is not a conceded *note*
+(`concededNotes` in `kernel/notes.js` gained an ends filter for this; it had
+been listing null-ended commitments as notes).
+
+**Why this and not a same-as table.** The load-bearing user correction:
+*"that may be its identity, but it's not its MEANING."* Two notes'
+propositional sameness is not a fact the material states, and no corpus can
+earn it — a Pattern-grain claim. So it enters the record the only way such a
+claim may: declared by a named giver, evaluated against a ground with a
+perturbation, and conceded when it turns out wrong. The apparatus is the
+receiving end for a prior, not a decision procedure.
+
+## S57 — The ends-only proposer, refuted; and the gap the refutation named
+
+**Generality:** universal. The claim is about what a referent-grain key can
+say about propositional identity, measured on two genres with a control
+built to fail. The morphology gap it uncovers is English-specific and is
+named as such.
+
+**What was asked.** P74 measured the same-proposition conjunction (ends
+correspond AND labels denote the same act) and got zero joins, blaming the
+label half. So the ENDS half had never been measured alone. This driver
+(`eval/the-fold/ends-only-proposer.mjs`, zero model calls) drops the label
+conjunct and asks whether ends-only correspondence proposes any candidates
+at all.
+
+**Three findings, in order of how much they change the plan.**
+
+1. **Referent identity is the wrong grain for propositional identity, and
+   its own control says so.** 19 candidates on the Wikipedia set, 25 under
+   deranged resolution — resolution contributes nothing a wrong universe
+   would not. Reading the landings says why: six keys absorbed 6, 5, 2, 2,
+   2 and 2 distinct raw end-pairs. `Kutuzov —arrived→ at the battlefield`
+   and `Kutuzov —retreated→ from the battlefield on 8 September` key
+   identically as *kutuzov / the battle*. **An arrangement's ends are not
+   referents** — "the battle", "the battlefield", "control of the battle"
+   are different ends resolving to one referent, and collapsing them
+   answers *are these about the same two things*, which is not the
+   question.
+
+2. **The synonymy program has essentially nothing to work on.** Decomposing
+   every cross-source pair whose RAW ends collide: 22 collided on ends AND
+   label (already folded by `hear()`), and **zero** collided on ends while
+   differing in label. Across 1,404 notes on two genres, exactly one pair
+   anywhere is blocked by the label alone. A paraphrase does not get as far
+   as having matching ends, so the label never becomes the blocker.
+
+3. **That one pair is tense, and `sameAct` does not fold it.** `The door
+   —is→ shut` / `The door —was→ shut`. The vendored `MorphologyPrior@1`
+   carries **zero of eight** English copula forms, by an artefact of its own
+   design: 224,550 pairs read, 216,011 dropped as rule-recoverable, 5,531
+   kept as the irregular tail — and a suffix rule cannot get from *was* to
+   *be*, so the copula should have been kept and was not (the shipped
+   artifact's `irregular` field is empty). Reach, measured over this
+   material's own labels: the copula is **29%** of Wikipedia label heads and
+   **50%** of Dracula's, and the prior carries none of it. Every consumer of
+   `sameAct` silently reads every copular restatement as a different act.
+
+**Disclosed, and it blocks the fix here:** the prior's provenance names
+`scripts/build-morphology-prior.mjs`, which is **not in this repository**,
+with an `input` path pointing at a previous session's scratchpad. The prior
+cannot be rebuilt from this checkout. That is itself the finding — a
+received prior whose builder is not committed cannot be corrected, only
+replaced.
+
+Full numbers, the samples, and the disclosed limits:
+`eval/the-fold/results/ends-only-proposer-RESULTS.md`.
+
+## S58 — A hole in a received prior is closed by a second named giver
+
+**Generality:** universal for the rule, English-specific for the hole.
+
+`sameAct` — the organ that decides whether two labels denote the same act —
+was blind to the most common verb in English. `createLemmatizer` built from
+`MorphologyPrior@1` alone answers **false** for `is`/`was`, `is`/`are`,
+`was`/`were` and `is`/`be`, so every copular restatement read as a different
+act: **29% of encyclopedic label heads and 50% of a novel's**.
+
+**It is the giver's hole, not the builder's.** UniMorph English carries
+**zero rows for the lemma `be`** across all 652,477 of them, while every other
+top-frequency irregular (have, do, go, say, get, make, know, take, see, come,
+think, give) carries five verb rows apiece. The three rows in which `am`,
+`are` and `were` appear at all are tagged `N;SG` — the noun senses.
+
+So it is closed the only way a received hole may be: by a **second named
+giver**. `priors.js::COPULA_PARADIGM` (`giver: "lang/en"`, scope declared as
+*"the copula's paradigm alone; tense is not carried"*) is merged through
+`createLemmatizer`'s new optional `supplement`. The two givers' reaches are
+reported **apart and never summed** — `size` counts the prior's own entries,
+`supplemented` counts what the second giver added — so one giver's reach can
+never be mistaken for the other's.
+
+**Not merged by default, and that is a decision.** Folding `is` with `was`
+says the two are the same ACT, not that they are the same claim: a consumer
+binding a present-tense claim to past-tense material has widened what it
+hears. Every caller injects it deliberately. `BECOMING copula-tense-aware`
+names what is missing — no organ here carries tense — and reports its own gap
+without failing the suite.
+
+**And the builder is recovered.** The prior's provenance named
+`scripts/build-morphology-prior.mjs`, which was not in the repository, with an
+input path into a previous session's scratch directory — so the prior could be
+replaced but never corrected. It is committed now and reproduces the shipped
+artifact **exactly**: `pairs_read` 224,550, `rule_recoverable_dropped`
+216,011, `kept` 5,531, identical forms table. Three divergences were found by
+measuring rather than guessed: `stemsOf` is now **exported** from
+`morphology.js` and imported by the builder rather than restated (a five-way
+divergent restatement produced a wholly different artifact — the same lesson
+`OPERATOR_ORDER` taught, which is to remove a restatement rather than flip
+it); the tag filter is every tag, not verbs alone; and `pairs_read` counts
+rows where form differs from lemma while `kept` counts distinct forms.
+
+Enforced by `conformance/copula-supplement.test.mjs` — including a case that
+**fails the day UniMorph ships `be`**, so the supplement is retired rather
+than left duplicating a giver that now carries it.

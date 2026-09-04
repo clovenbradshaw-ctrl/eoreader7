@@ -318,5 +318,30 @@ export const CLAUSE_OPENERS = Object.freeze(new Set([
 ]));
 export const CLAUSE_OPENERS_META = Object.freeze({ giver: "lang/en", scope: null });
 
-
-
+/**
+ * The English copula's own paradigm, form -> lemma. A closed class of the
+ * language, given the same way every class in this file is given.
+ *
+ * WHY THIS IS HERE AND NOT IN THE MORPHOLOGY PRIOR, measured rather than
+ * assumed (eoreader7 S58): UniMorph English -- the giver `MorphologyPrior@1`
+ * names -- carries **zero rows** for the lemma `be` across all 652,477 of
+ * them, while every other top-frequency irregular (have, do, go, say, get,
+ * make, know, take, see, come, think, give) carries five verb rows apiece.
+ * The three rows in which `am`, `are` and `were` appear at all are tagged
+ * `N;SG` -- the noun senses. So this is not a bug in the prior's builder,
+ * which faithfully kept what it was given; it is a single, isolated hole in
+ * the giver, and it happens to be the most common verb in English. A hole in
+ * a received prior is closed by a second named giver, never by inference.
+ *
+ * SCOPE, stated because it bounds every consumer: this maps FORMS to the
+ * lemma `be` and says nothing about tense, aspect or number. Folding `is`
+ * with `was` says the two are the same ACT. It does not say they are the
+ * same claim -- "X is in command" and "X was in command" are about different
+ * times -- which is why every consumer takes this by explicit injection and
+ * none takes it by default.
+ */
+export const COPULA_PARADIGM = Object.freeze({
+  be: "be", am: "be", is: "be", are: "be", was: "be", were: "be",
+  been: "be", being: "be", "'s": "be", "'re": "be", "'m": "be",
+});
+export const COPULA_PARADIGM_META = Object.freeze({ giver: "lang/en", scope: "the copula's paradigm alone; tense is not carried" });

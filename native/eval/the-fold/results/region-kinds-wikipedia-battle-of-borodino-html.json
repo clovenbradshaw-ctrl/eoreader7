@@ -1,0 +1,64 @@
+{
+ "page": "wikipedia-battle-of-borodino.html",
+ "model": "gemma2:2b",
+ "window": 40,
+ "oracle": {
+  "navbox": 455,
+  "infobox": 46,
+  "hatnote": 6,
+  "catlinks": 36,
+  "reflist": 128,
+  "table": 3,
+  "prose": 266
+ },
+ "arms": [
+  {
+   "name": "fills the measure",
+   "tp": 131,
+   "fp": 12,
+   "fn": 135,
+   "tn": 712,
+   "prec": 0.916083916083916,
+   "rec": 0.4924812030075188,
+   "f1": 0.6405867970660146,
+   "junk": 0.08391608391608392,
+   "admitted": 143
+  },
+  {
+   "name": "fills alone",
+   "tp": 110,
+   "fp": 15,
+   "fn": 156,
+   "tn": 709,
+   "prec": 0.88,
+   "rec": 0.41353383458646614,
+   "f1": 0.5626598465473145,
+   "junk": 0.12,
+   "admitted": 125
+  },
+  {
+   "name": "admit everything",
+   "tp": 266,
+   "fp": 724,
+   "fn": 0,
+   "tn": 0,
+   "prec": 0.2686868686868687,
+   "rec": 1,
+   "f1": 0.42356687898089174,
+   "junk": 0.7313131313131314,
+   "admitted": 990
+  },
+  {
+   "name": "length >= 72",
+   "tp": 137,
+   "fp": 26,
+   "fn": 129,
+   "tn": 698,
+   "prec": 0.8404907975460123,
+   "rec": 0.5150375939849624,
+   "f1": 0.6386946386946386,
+   "junk": 0.15950920245398773,
+   "admitted": 163
+  }
+ ]
+}

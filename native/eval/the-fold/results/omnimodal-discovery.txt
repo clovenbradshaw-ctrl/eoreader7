@@ -1,0 +1,45 @@
+ONE ORGAN, FOUR MEDIA — discoverCompanyKinds, identical call, declared floors
+  minMentions 4, minShare 0.4, minMembers 2, nullArm { draws 40, alpha 0.05, seed 0 }
+
+TEXT — real Wikipedia HTML (Borodino), one token per line
+  990 events, 50 distinct kinds of event, max marginal 0.28
+  3 kind(s) cleared the null arm (draws 40, alpha 0.05)
+    kind:before=la_a_       71 events  members La_a_ La._a
+        e.g. "For the World War II battle that was part of the Battle of Mos"
+        e.g. "The Battle of Borodino [ h ] or the Battle of Moscow [ i ] too"
+    kind:before=s._a       315 events  members S._a S._0a S._a.
+        e.g. "- France"
+        e.g. "- Poland"
+    kind:before=m._._       70 events  members M._._ S._._
+        e.g. "- • approx. 109,500 engaged [ 2 ] [ 3 ]"
+        e.g. "- • approx. 122,200 engaged, [ a ] including 10,000 irregulars"
+
+PDF — a real fetched 12-page report (/tmp/r.pdf)
+  4000 of 12907 (capped at the declared MAX_EVENTS 4000) events, 22 distinct kinds of event, max marginal 0.82  (DEGENERATE — the organ's own stated failure regime)
+  0 kind(s) cleared the null arm (draws 40, alpha 0.05)
+    — nothing cleared: this stream's arrangement is not distinguishable from its own shuffle at these floors
+
+MUSIC — real Bach MIDI (bwv-988-aria.mid), one token per note
+  417 events, 52 distinct kinds of event, max marginal 0.13
+  2 kind(s) cleared the null arm (draws 40, alpha 0.05)
+    kind:before=u5t1        25 events  members u1t1 d2t1
+        e.g. "pitch 83, interval +2, dur 96"
+        e.g. "pitch 67, interval +1, dur 96"
+    kind:before=d5t2        51 events  members u5t4 u4t3 u5t1
+        e.g. "pitch 74, interval +17, dur 768"
+        e.g. "pitch 69, interval +17, dur 576"
+
+MUSIC — real Bach MIDI (wtk1-prelude1.mid), one token per note
+  548 events, 19 distinct kinds of event, max marginal 0.31
+  2 kind(s) cleared the null arm (draws 40, alpha 0.05)
+    kind:before=d5t4        64 events  members u2t4 u1t4 u3t4 u4t4
+        e.g. "pitch 64, interval +4, dur 672"
+        e.g. "pitch 64, interval +4, dur 672"
+    kind:before=u3t1       118 events  members d4t1 d5t4
+        e.g. "pitch 67, interval -9, dur 96"
+        e.g. "pitch 60, interval -16, dur 768"
+
+VIDEO — a real animated GIF, one token per frame descriptor
+  44 events, 3 distinct kinds of event, max marginal 0.66  (DEGENERATE — the organ's own stated failure regime)
+  0 kind(s) cleared the null arm (draws 40, alpha 0.05)
+    — nothing cleared: this stream's arrangement is not distinguishable from its own shuffle at these floors

@@ -439,12 +439,23 @@ export function makeNotes({ taskLog = nativeTaskLog, cellOf = nativeCellOf, iden
     return { log: next, refused: null, noop: false, id: recId };
   }
 
-  /** What this log has conceded, each with the reason it recorded. */
+  /**
+   * What this log has conceded AS A NOTE, each with the reason it recorded.
+   *
+   * A REC may concede something that is not a note — the log is a ledger of
+   * ACTS, and `commitments.js` lands DEF/EVA/REC over declared readings on
+   * this same log (which is why the frame has always lived here too). Those
+   * concessions are real and belong on the record; they are simply not
+   * notes, and this function's name is its contract. Filtered on having
+   * ends rather than on an id convention, so it stays right for any act a
+   * later pass adds.
+   */
   function concededNotes(log) {
     const tasks = new Map(projectTasks(log).map((t) => [t.task_id, t]));
     return (log?.entries ?? [])
       .filter((e) => e?.kind === ENTRY_KINDS.EVIDENCE && e.operator === "REC" && e.concedes)
-      .map((e) => { const t = tasks.get(e.concedes); return { id: e.concedes, trigger: e.trigger, at: e.seq, end1: t?.end1 ?? null, label: t?.label ?? null, end2: t?.end2 ?? null }; });
+      .filter((e) => { const t = tasks.get(e.concedes); return Boolean(t?.end1 && t.label && t.end2); })
+      .map((e) => { const t = tasks.get(e.concedes); return { id: e.concedes, trigger: e.trigger, at: e.seq, end1: t.end1, label: t.label, end2: t.end2 }; });
   }
 
   /**
