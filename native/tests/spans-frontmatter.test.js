@@ -10,15 +10,24 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { detectFrontMatterRun } from "../adapters/text/spans.js";
 
+// All corpus paths are resolved from THIS file, never from the process cwd —
+// this suite runs from native/ (npm test) and from the repo root (node --test).
 const HERE = path.dirname(fileURLToPath(import.meta.url));
-const GUTENBERG = path.join(HERE, "..", "..", "..", "live_priors", "01-literature-books", "gutenberg");
-const SHAKESPEARE = path.join(HERE, "..", "..", "..", "live_priors", "15-western-canon", "folger-shakespeare");
+const LIVE_PRIORS = path.join(HERE, "..", "..", "..", "live_priors");
+const GUTENBERG = path.join(LIVE_PRIORS, "01-literature-books", "gutenberg");
+const SHAKESPEARE = path.join(LIVE_PRIORS, "15-western-canon", "folger-shakespeare");
+const LES_MIS = path.join(GUTENBERG, "pg135_Les_Mis_rables__French_.txt");
+const MOBY_DICK = path.join(GUTENBERG, "pg2701_Moby_Dick.txt");
+const HAMLET = path.join(SHAKESPEARE, "Hamlet.txt");
+const NL_CODE = path.join(LIVE_PRIORS, "06-government-legal", "world-legislation", "nl", "BWBR0001838.md");
 
-function readIfPresent(...segments) {
-  const p = path.join(...segments);
-  try { return fs.readFileSync(p, "utf8"); }
-  catch { return null; }
-}
+// An absent specimen is a NAMED SKIP that prints the path it looked for —
+// never a silent green. Until 2026-09-04 a read helper that swallowed ENOENT
+// to null, five callers that then `return`ed on it, and one bare
+// `catch { return; }` around the sweep's readdir meant all six real-specimen
+// cases below PASSED on any checkout without the sibling corpus, having
+// asserted nothing at all.
+const absent = (p) => (fs.existsSync(p) ? false : `specimen absent: ${p}`);
 
 // ── synthetic cases, always runnable regardless of sibling corpus presence ──
 
@@ -67,9 +76,9 @@ test("REAL-CORPUS-SWEEP counter-example: a markdown-structured legal code with m
   assert.equal(r.detected, false, "a run of markdown headings and their own short-but-real content ('Vervallen') must never be misread as a table of contents");
 });
 
-test("REAL SPECIMEN — the exact Dutch legal code this counter-example is drawn from does not misfire, end to end", () => {
-  const raw = readIfPresent(path.join(HERE, "..", "..", "..", "live_priors", "06-government-legal", "world-legislation", "nl"), "BWBR0001838.md");
-  if (raw == null) return;
+test("REAL SPECIMEN — the exact Dutch legal code this counter-example is drawn from does not misfire, end to end",
+  { skip: absent(NL_CODE) }, () => {
+  const raw = fs.readFileSync(NL_CODE, "utf8");
   const r = detectFrontMatterRun(raw);
   assert.equal(r.detected, false, "the real specimen that motivated the ATX-heading exclusion must not fire");
 });
@@ -116,9 +125,9 @@ test("empty and non-string input refuse gracefully", () => {
 
 // ── real specimens, skipped (never failed) if the sibling corpus is absent ──
 
-test("REAL SPECIMEN — Les Misérables (the case this function was built for): detects the TOC and skips to real prose past the excerpt window", () => {
-  const raw = readIfPresent(GUTENBERG, "pg135_Les_Mis_rables__French_.txt");
-  if (raw == null) return;
+test("REAL SPECIMEN — Les Misérables (the case this function was built for): detects the TOC and skips to real prose past the excerpt window",
+  { skip: absent(LES_MIS) }, () => {
+  const raw = fs.readFileSync(LES_MIS, "utf8");
   const r = detectFrontMatterRun(raw);
   assert.equal(r.detected, true);
   const landed = raw.slice(r.skipTo, r.skipTo + 200);
@@ -133,9 +142,9 @@ test("REAL SPECIMEN — Les Misérables (the case this function was built for): 
   assert.ok(r.skipTo > 8000, "the whole point: the real prose sits past the flat 8000-char excerpt window");
 });
 
-test("REAL SPECIMEN — Les Misérables: an excerpt built from the detected skip point actually extracts real relation edges (0 before, real edges after)", async () => {
-  const raw = readIfPresent(GUTENBERG, "pg135_Les_Mis_rables__French_.txt");
-  if (raw == null) return;
+test("REAL SPECIMEN — Les Misérables: an excerpt built from the detected skip point actually extracts real relation edges (0 before, real edges after)",
+  { skip: absent(LES_MIS) }, async () => {
+  const raw = fs.readFileSync(LES_MIS, "utf8");
   const { extractSurfaces, discoverReferents } = await import("../adapters/text/surfaces.js");
   const { discoverRelationVocab, extractRelations } = await import("../adapters/text/relations.js");
   const { splitSentences } = await import("../adapters/text/spans.js");
@@ -165,23 +174,21 @@ test("REAL SPECIMEN — Les Misérables: an excerpt built from the detected skip
   assert.ok(edgesAfter > 0, `the skipped-to excerpt must extract real edges; got ${edgesAfter}`);
 });
 
-test("REAL SPECIMEN — Moby Dick's real ~28KB Etymology/Extracts front section is prose-shaped and must NOT be flagged", () => {
-  const raw = readIfPresent(GUTENBERG, "pg2701_Moby_Dick.txt");
-  if (raw == null) return;
+test("REAL SPECIMEN — Moby Dick's real ~28KB Etymology/Extracts front section is prose-shaped and must NOT be flagged",
+  { skip: absent(MOBY_DICK) }, () => {
+  const raw = fs.readFileSync(MOBY_DICK, "utf8");
   const r = detectFrontMatterRun(raw, { maxScanChars: 32000 });
   assert.equal(r.detected, false, "Moby Dick's Etymology/Extracts section is real quoted prose with real terminators, not a TOC — must be left alone");
 });
 
-test("REAL SPECIMEN SWEEP — every other gutenberg book in this corpus is checked; a positive fire outside the known TOC-bearing specimens is reported by name", () => {
-  let entries;
-  try { entries = fs.readdirSync(GUTENBERG); }
-  catch { return; }
+test("REAL SPECIMEN SWEEP — every other gutenberg book in this corpus is checked; a positive fire outside the known TOC-bearing specimens is reported by name",
+  { skip: absent(GUTENBERG) }, () => {
+  const entries = fs.readdirSync(GUTENBERG);
   const KNOWN_TOC = new Set(["pg135_Les_Mis_rables__French_.txt"]);
   const fired = [];
   for (const name of entries) {
     if (!name.endsWith(".txt")) continue;
-    const raw = readIfPresent(GUTENBERG, name);
-    if (raw == null) continue;
+    const raw = fs.readFileSync(path.join(GUTENBERG, name), "utf8");
     const r = detectFrontMatterRun(raw, { maxScanChars: 32000 });
     if (r.detected) fired.push({ name, skipTo: r.skipTo, runLength: r.runLength });
   }
@@ -193,9 +200,9 @@ test("REAL SPECIMEN SWEEP — every other gutenberg book in this corpus is check
   assert.deepEqual(unexpected, [], `unexpected front-matter detections outside the known set: ${JSON.stringify(unexpected)}`);
 });
 
-test("REAL SPECIMEN — a folger-shakespeare play (short front matter, real prose stage directions) does not misfire", () => {
-  const raw = readIfPresent(SHAKESPEARE, "Hamlet.txt");
-  if (raw == null) return;
+test("REAL SPECIMEN — a folger-shakespeare play (short front matter, real prose stage directions) does not misfire",
+  { skip: absent(HAMLET) }, () => {
+  const raw = fs.readFileSync(HAMLET, "utf8");
   const r = detectFrontMatterRun(raw, { maxScanChars: 32000 });
   assert.equal(r.detected, false);
 });
