@@ -100,7 +100,7 @@ export const morphologyFromPrior = (raw) => {
 // `supplement` is an OPTIONAL second giver's form -> lemma table, merged over
 // the prior's own. It exists because a received prior can have a hole its
 // builder cannot close: UniMorph English carries zero rows for the lemma `be`
-// (measured, S56), so a lemmatizer built from it alone reads every copular
+// (measured, S58), so a lemmatizer built from it alone reads every copular
 // restatement as a different act -- 29% of encyclopedic label heads and 50%
 // of a novel's. A hole in one giver is closed by a second named giver, and
 // the two are kept apart on the returned object (`size` counts the prior's

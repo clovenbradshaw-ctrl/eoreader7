@@ -3144,7 +3144,125 @@ the copy and is inert on furniture-free prose, and one proving a reader
 without the organ is unaffected by a chunker that had one), `eval/the-fold/furniture-page-context.mjs` +
 `results/furniture-page-context-RESULTS.md`. Full suite: 22 failures,
 identical by name to `origin/main` — zero regressions.
-## S52 — Pass 12 step 4: a witness reads a bridge, and the reading is bounded by the match that made it
+
+## S52 — The reading unit was the wrong suspect: the witness's own ARM is the ceiling
+
+**Generality:** not-applicable — this is a measurement over shipped organs; no
+organ changed, no default moved, no number was tuned.
+
+S49's corpus measurement (3/9 on a 9KB excerpt, 0/9 on the whole book) traced
+one item by hand, found retrieval correct and the candidate correct, and
+diagnosed the reading UNIT. It named a wider unit as the next move. That move
+was about to be taken; this says do not take it.
+
+`eval/the-fold/activation-unit-probe.mjs` runs the REAL path — real
+`chunkSource`, real `retrieve`, real `witnessSentences` over the real joined
+source — with the model replaced twice: an **always-no** recorder (what did the
+path SHOW it?) and a **perfect reader** (what could a flawless model land?).
+The material is read off the organs' own arguments, never parsed back out of a
+prompt.
+
+**8 of 9 entailed items reached the model already holding a single sentence
+carrying both ends of the claim in full.** A wider reading unit cannot improve
+material that is already adequate.
+
+**A perfect reader lands 4 of 9.** Five are unlandable by any model, and the
+walls are measured apart because they need different fixes:
+
+- one **retrieval miss** — the generate fallback got a slice from the wrong
+  chapter; the material never arrived;
+- three **no competing filler** — the arm harvests its swap from the candidate
+  list's own capitalized surfaces, and with ONE candidate those surfaces are
+  the claim's own ends, so the pool is empty and an unarmed yes is refused
+  however correct;
+- one **end2 paraphrased in the claim** — the swap is a literal string replace,
+  so a claim saying "the people who had abandoned it" for end2 "inhabitants"
+  produces an arm identical to the claim. Found because that item HAS a filler
+  and still refuses.
+
+**The ceiling halves with scale: 8/9 excerpt, 4/9 corpus** — the excerpt hands
+its whole 9KB as one source (candidates rich in names, arms build), the corpus
+retrieves three narrow passages (one candidate, no names but the ends). So the
+excerpt/corpus gap is substantially a PROTOCOL ceiling narrowing as retrieval
+narrows. And the two drivers use different batteries over different material,
+so "3/9 vs 0/9" never compared one item set at two scales; against their own
+ceilings the real model scored 3 of 8 reachable and 0 of 4 reachable.
+
+The arm is not wrong — unarmed select measured p(states|fabricated) = 1/8 live
+(P32), and refusing an unarmed yes is the correct posture. What is measured is
+that its AMMUNITION runs out exactly where retrieval is narrowest, so the
+refusal rate carried an undeclared scale artifact.
+
+**Where the activation lever actually is**, named and NOT built: the arm's
+sibling pool, drawn from the reader's own referent state (`makeReferentIndex`
+and the surfaces it resolved) rather than by capitalization from one sentence —
+a pool that does not shrink when retrieval narrows; and a swap through the
+referent/lemma an end resolves to rather than a literal replace, which survives
+a claim that paraphrases its own end. Neither may relax the arm itself: a
+richer pool changes only what the picker is asked to confuse the end WITH.
+
+Four probe bugs are kept in the write-up because each produced a plausible
+table with an inverted conclusion — reimplementing the path instead of running
+it, reading a prompt to learn what was shown, a wrong field name (`shown`, not
+`text`), and a wrong schema (`{answer}`, not `{states}`). The measurement only
+became trustworthy once every arm was read against the organ's own source.
+
+**Files.** `eval/the-fold/activation-unit-probe.mjs`,
+`results/activation-unit-RESULTS.md`. No production file touched.
+
+## S53 — The witness arm's two walls, widened and measured; the ceiling becomes scale-invariant
+
+**Generality:** universal — the widenings are declared organ parameters with no
+material-specific constant, measured on two materials at two scales with a
+control built to fail on both. Neither is enabled by default.
+
+S52 measured the witness ceiling at 4 of 9 on a corpus against 8 of 9 on a
+wider source and located the whole loss in the arm, refusing `unarmed-select`
+for two distinct reasons. Both are now closed, DECLARED and OFF by default, so
+every existing caller is byte-identical:
+
+- **`fillerPool`** — a second source of competitors for `competingFiller`,
+  searched ONLY when the candidates offer none. A caller passes the surfaces
+  its own reader established (`discoverReferents`' `DEF.admit` events), a pool
+  that does not shrink when retrieval narrows. Candidates are searched first
+  and win: a competitor the picker has just read is the strongest thing to
+  confuse an end with; one it has not read is weaker ammunition, not better.
+- **`armEitherEnd`** — when the literal swap of end2 is a no-op because the
+  claim paraphrases its own end2, swap end1 instead. Which end a claim states
+  literally is an accident of wording, not a fact about whether it can be
+  tested; an arm on either end asks the picker the same question.
+
+**The ceiling: 4/9 → 8/9 on the corpus, unchanged at 8/9 on the excerpt.** The
+widening closes a scale artifact and adds nothing where there was none. The one
+item still unlandable in each arm is a retrieval miss whose slice genuinely
+does not state the claim — the honest refusal, not a wall. The reader-resolved
+pool is 6 surfaces on the corpus's three passages and 23 on the excerpt:
+thinnest exactly where it is needed, and still enough.
+
+**The control (II.23), over all sixteen battery items rather than the nine
+entailed ones.** FALSE twins landing `states`: 2 of 7 as shipped, 2 of 7
+widened, **0 added**. Those two are the measuring oracle's own construction —
+it answers on both-ends-in-full, so a false claim whose ends both occur gets a
+yes by definition — and the live gemma2:2b run recorded zero lies across the
+FALSE set. Reporting shipped and widened side by side is what separates the
+instrument's leaks from the protocol's. And the arm still works: the
+indiscriminate picker (yes to everything, same index whatever it is asked) is
+refused on all sixteen with the widenings on.
+
+**Not established: no model ran.** This measures what a flawless reader could
+land, which needs none. The real run scored 0 of 4 reachable, so a ceiling of 8
+is 8 chances at a reading the model was failing every time — stated as a
+prediction that can be checked and be wrong. Enabling either widening live is a
+separate decision on `verbForms`' own terms, and P43's test says which way it
+leans: this WIDENS what can be heard rather than closing a false binding.
+
+**Files.** `organs/corroboration.js`, `organs/witness-sentences.js`,
+`organs/corroboration.test.mjs` (+3 cases, each wall with a control that the
+default is untouched), `eval/the-fold/activation-unit-probe.mjs`,
+`results/activation-unit-RESULTS.md`. Full native suite: 24 failures before and
+after, identical by name — zero regressions.
+
+## S54 — Pass 12 step 4: a witness reads a bridge, and the reading is bounded by the match that made it
 
 **Generality:** universal.
 
@@ -3249,7 +3367,7 @@ It touches none of `kernel/notes.js`, `organs/bridges.js`,
 file-level conflict with this pass — but the two are thematically
 convergent, and reconciling them is real, named, unattempted work rather
 than something either side should assume away.
-## S53 — P85's licensing run, taken: the company wall cannot guard the slot L4 names it for
+## S55 — P85's licensing run, taken: the company wall cannot guard the slot L4 names it for
 
 **Generality:** universal.
 
@@ -3322,7 +3440,7 @@ open. The two landings that survive the post-hoc wall were not adjudicated
 against an oracle — surviving a mechanical relatedness check is not being
 true.
 
-## S54 — The ledger gets Interpretation's triad: sameness and significance as declared, revisable commitments
+## S56 — The ledger gets Interpretation's triad: sameness and significance as declared, revisable commitments
 
 **Generality: universal.** The mechanism holds no vocabulary of any medium
 or language; it is `DEF`/`EVA`/`REC` over an append-only act log, and its
@@ -3366,7 +3484,7 @@ claim may: declared by a named giver, evaluated against a ground with a
 perturbation, and conceded when it turns out wrong. The apparatus is the
 receiving end for a prior, not a decision procedure.
 
-## S55 — The ends-only proposer, refuted; and the gap the refutation named
+## S57 — The ends-only proposer, refuted; and the gap the refutation named
 
 **Generality: universal.** The claim is about what a referent-grain key can
 say about propositional identity, measured on two genres with a control
@@ -3421,3 +3539,51 @@ replaced.
 
 Full numbers, the samples, and the disclosed limits:
 `eval/the-fold/results/ends-only-proposer-RESULTS.md`.
+
+## S58 — A hole in a received prior is closed by a second named giver
+
+**Generality: universal for the rule, English-specific for the hole.**
+
+`sameAct` — the organ that decides whether two labels denote the same act —
+was blind to the most common verb in English. `createLemmatizer` built from
+`MorphologyPrior@1` alone answers **false** for `is`/`was`, `is`/`are`,
+`was`/`were` and `is`/`be`, so every copular restatement read as a different
+act: **29% of encyclopedic label heads and 50% of a novel's**.
+
+**It is the giver's hole, not the builder's.** UniMorph English carries
+**zero rows for the lemma `be`** across all 652,477 of them, while every other
+top-frequency irregular (have, do, go, say, get, make, know, take, see, come,
+think, give) carries five verb rows apiece. The three rows in which `am`,
+`are` and `were` appear at all are tagged `N;SG` — the noun senses.
+
+So it is closed the only way a received hole may be: by a **second named
+giver**. `priors.js::COPULA_PARADIGM` (`giver: "lang/en"`, scope declared as
+*"the copula's paradigm alone; tense is not carried"*) is merged through
+`createLemmatizer`'s new optional `supplement`. The two givers' reaches are
+reported **apart and never summed** — `size` counts the prior's own entries,
+`supplemented` counts what the second giver added — so one giver's reach can
+never be mistaken for the other's.
+
+**Not merged by default, and that is a decision.** Folding `is` with `was`
+says the two are the same ACT, not that they are the same claim: a consumer
+binding a present-tense claim to past-tense material has widened what it
+hears. Every caller injects it deliberately. `BECOMING copula-tense-aware`
+names what is missing — no organ here carries tense — and reports its own gap
+without failing the suite.
+
+**And the builder is recovered.** The prior's provenance named
+`scripts/build-morphology-prior.mjs`, which was not in the repository, with an
+input path into a previous session's scratch directory — so the prior could be
+replaced but never corrected. It is committed now and reproduces the shipped
+artifact **exactly**: `pairs_read` 224,550, `rule_recoverable_dropped`
+216,011, `kept` 5,531, identical forms table. Three divergences were found by
+measuring rather than guessed: `stemsOf` is now **exported** from
+`morphology.js` and imported by the builder rather than restated (a five-way
+divergent restatement produced a wholly different artifact — the same lesson
+`OPERATOR_ORDER` taught, which is to remove a restatement rather than flip
+it); the tag filter is every tag, not verbs alone; and `pairs_read` counts
+rows where form differs from lemma while `kept` counts distinct forms.
+
+Enforced by `conformance/copula-supplement.test.mjs` — including a case that
+**fails the day UniMorph ships `be`**, so the supplement is retired rather
+than left duplicating a giver that now carries it.

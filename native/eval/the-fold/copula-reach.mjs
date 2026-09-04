@@ -1,4 +1,4 @@
-// copula-reach.mjs — S56's impact measurement. The copula supplement closes a
+// copula-reach.mjs — S58's impact measurement. The copula supplement closes a
 // hole in a received prior; this asks what closing it actually reaches.
 //
 // THE DISTINCTION THAT HAD TO BE DRAWN FIRST, because it decides what to

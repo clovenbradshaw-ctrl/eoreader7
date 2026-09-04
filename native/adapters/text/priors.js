@@ -323,7 +323,7 @@ export const CLAUSE_OPENERS_META = Object.freeze({ giver: "lang/en", scope: null
  * language, given the same way every class in this file is given.
  *
  * WHY THIS IS HERE AND NOT IN THE MORPHOLOGY PRIOR, measured rather than
- * assumed (eoreader7 S56): UniMorph English -- the giver `MorphologyPrior@1`
+ * assumed (eoreader7 S58): UniMorph English -- the giver `MorphologyPrior@1`
  * names -- carries **zero rows** for the lemma `be` across all 652,477 of
  * them, while every other top-frequency irregular (have, do, go, say, get,
  * make, know, take, see, come, think, give) carries five verb rows apiece.

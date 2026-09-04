@@ -175,8 +175,30 @@ export const textFeatures = (t) => new Set(foldMarks(String(t ?? "").toLowerCase
  * this slot in these sentences" — a first-word name is a perfectly good
  * competitor. Capitalization is used as a CANDIDATE signal and never as a
  * verdict, which is L2's actual rule.
+ *
+ * `pool` — DECLARED and off by default — is a second source of competitors
+ * for the case the candidates cannot cover, and it exists because the
+ * candidate-only pool was MEASURED to run dry exactly where retrieval is
+ * narrowest (S52): with one retrieved candidate sentence, its only
+ * capitalized surfaces are usually the claim's own ends, so `seen` is empty,
+ * the arm cannot be built, and a correct yes is refused however right it is.
+ * The corpus ceiling that produces is 4 of 9 against the same battery's 8 of
+ * 9 on a wider source — a scale artifact in the refusal rate that nobody
+ * declared.
+ *
+ * A caller passes the surfaces its own reader actually resolved (referent
+ * faces — `makeReferentIndex` and the surfaces behind it), which is a pool
+ * that does NOT shrink when retrieval narrows. Candidates are still searched
+ * FIRST and win: a competitor the picker has just read is the strongest thing
+ * to confuse an end with, and a pool surface it has not read is weaker
+ * ammunition, not better. An empty pool changes nothing, and omitting it is
+ * byte-identical to before.
+ *
+ * What this may never do is relax the arm. A richer pool changes only WHAT
+ * the picker is asked to confuse the end with; the swap, the indiscriminate
+ * check and the typed refusals still decide what a yes is worth.
  */
-export function competingFiller(end, candidates, { featuresOf = textFeatures, exclude = [] } = {}) {
+export function competingFiller(end, candidates, { featuresOf = textFeatures, exclude = [], pool = null } = {}) {
   // BOTH ends are excluded, not just the one being replaced: the other end
   // is by construction the most frequent capitalized surface in candidates
   // that all mention it, and swapping end2 for end1 builds a nonsense arm
@@ -193,6 +215,16 @@ export function competingFiller(end, candidates, { featuresOf = textFeatures, ex
       if (!words.length) continue;
       if (words.some((w) => endWords.has(w))) continue; // shares the end -> not competing
       seen.set(surface, (seen.get(surface) ?? 0) + 1);
+    }
+  }
+  if (!seen.size) {
+    // The candidates offered nothing. Fall back to the caller's declared pool
+    // — never merged with the candidates, so a pool surface can only ever be
+    // reached when the candidate-only arm would have refused outright.
+    for (const surface of pool ?? []) {
+      const words = [...featuresOf(surface)];
+      if (!words.length || words.some((w) => endWords.has(w))) continue;
+      seen.set(String(surface), 1);
     }
   }
   if (!seen.size) return null;
@@ -585,7 +617,7 @@ export function endsCopresentWindow(sourceText, ends, { featuresOf = textFeature
  * ask -> foldTestimony. Returns the derived verdict with the decider's own
  * address in the source, or the typed refusal — never a bare boolean.
  */
-export async function witnessNote(sentence, source, { ask, selectAsk = null, testimony, ends = null, slice: sliceOverride = null, splitSentences = null, candidates = null } = {}) {
+export async function witnessNote(sentence, source, { ask, selectAsk = null, testimony, ends = null, slice: sliceOverride = null, splitSentences = null, candidates = null, fillerPool = null, armEitherEnd = false } = {}) {
   const { witnessSlice, siblingSwap, foldTestimony, buildSelectMessages, foldSelect } = testimony ?? {};
   if (typeof ask !== "function" || !witnessSlice || !siblingSwap || !foldTestimony)
     throw new TypeError("witnessNote: ask and the testimony organs are injected — required, never defaulted");
@@ -659,9 +691,27 @@ export async function witnessNote(sentence, source, { ask, selectAsk = null, tes
         // `unarmed-select` for that reason alone, a wall nothing could pass.
         // Here end2 is GIVEN by the caller, so no name resolution is needed
         // to know what to replace.
-        const armFiller = competingFiller(ends.end2, shownList, { exclude: [ends.end1] });
+        const armFiller = competingFiller(ends.end2, shownList, { exclude: [ends.end1], pool: fillerPool });
         if (!armFiller) return { refused: "unarmed-select", via: "select" };
-        const armClaim = sentence.replace(new RegExp(String(ends.end2).replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i"), armFiller);
+        const lit = (end) => new RegExp(String(end).replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i");
+        let armClaim = sentence.replace(lit(ends.end2), armFiller);
+        // THE SECOND ARM WALL (S52), and its declared widening. The swap is a
+        // LITERAL replacement of end2 in the claim, so a claim that
+        // paraphrases its own end2 — "the people who had abandoned it" where
+        // end2 is "inhabitants" — leaves the sentence unchanged and refuses
+        // `unarmed-select` for a reason that has nothing to do with the
+        // ammunition. Which end a claim says literally is an accident of how
+        // it was worded, not a fact about whether it can be tested: an arm
+        // that swaps end1 asks the picker exactly the same question ("is this
+        // sentence about THIS one, or that one"), so when end2 cannot be
+        // reached the other end is a real arm and not a weaker one. Declared
+        // and off by default, because it can only ever build an arm where
+        // none was buildable — it widens what can land, and a widening is
+        // never shipped on by default here.
+        if (armClaim === sentence && armEitherEnd) {
+          const other = competingFiller(ends.end1, shownList, { exclude: [ends.end2], pool: fillerPool });
+          if (other) armClaim = sentence.replace(lit(ends.end1), other);
+        }
         if (armClaim === sentence) return { refused: "unarmed-select", via: "select" };
         const armPick = foldSelect(await selectAsk(buildSelectMessages(armClaim, shownList)), shownList);
         // INSENSITIVITY IS POINTING AT THE SAME PLACE, not merely saying yes

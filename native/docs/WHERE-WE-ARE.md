@@ -428,7 +428,7 @@ that would tell us whether the candidates exist at all.
 ## Amendment (2026-09-03, same day) — the free measurement was taken, and it moved two of this document's own claims
 
 `eval/the-fold/ends-only-proposer.mjs`; full account in
-`eval/the-fold/results/ends-only-proposer-RESULTS.md`; spec entry S55.
+`eval/the-fold/results/ends-only-proposer-RESULTS.md`; spec entry S57.
 Two materials, zero model calls.
 
 **The ends conjunct is solved as REFERENT identity, and that is weaker than

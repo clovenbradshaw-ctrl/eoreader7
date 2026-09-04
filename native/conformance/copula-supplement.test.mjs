@@ -1,4 +1,4 @@
-// copula-supplement.test.mjs — S56. A hole in a received prior is closed by a
+// copula-supplement.test.mjs — S58. A hole in a received prior is closed by a
 // SECOND NAMED GIVER, never by inference, and the two givers' reaches are
 // never summed into one number.
 //

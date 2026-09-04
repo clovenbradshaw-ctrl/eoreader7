@@ -4,7 +4,7 @@
 // `scripts/build-morphology-prior.mjs` and that file was NOT in this
 // repository, with an `input` path pointing at a previous session's scratch
 // directory. So the prior could not be rebuilt, only replaced — which means a
-// hole in it could not be corrected. That is the finding S56 was written
+// hole in it could not be corrected. That is the finding S58 was written
 // around, and committing the builder is what closes it.
 //
 // WHAT IT KEEPS, and why the artifact is small. UniMorph English is 652,477
