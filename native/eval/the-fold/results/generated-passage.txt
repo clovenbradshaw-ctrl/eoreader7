@@ -1,0 +1,17 @@
+material: 158 entities -> 158 stated succession edges at tenure grain
+chemistry: 17 relation(s) declared GIVEN, 0 refuted by the corpus itself
+derived: 229 fact(s) no record in this corpus states
+
+========================================================================
+GENERATED PASSAGE — every fact derived, no model, no record states any of it
+========================================================================
+Ulysses S. Grant held Q11696 after Abraham Lincoln. Andrew Johnson held Q11696 after James Buchanan. John Watson Foster held Q14213 after James G. Blaine. Ulysses S. Grant held Q1467287 after James Buchanan. Lot M. Morrill held Q3506352 after Hannibal Hamlin. Joseph H. Williams held Q3506352 after Samuel Wells. Hannibal Hamlin held Q3506352 after Anson Morrill. David M. Key held Q4416090 after Parson Brownlow. Hannibal Hamlin held Q4416090 after John Fairfield. Theodore M. Pomeroy held Q912994 after Galusha A. Grow. Schuyler Colfax held Vice President of the United States after Hannibal Hamlin. Andrew Johnson held Vice President of the United States after John C. Breckinridge. Hannibal Hamlin held Vice President of the United States after William R. King. Henry Wilson held Vice President of the United States after Andrew Johnson.
+========================================================================
+composed 14 of 14, withheld 0
+
+JUDGED AFTERWARDS by term dates the derivation never read:
+  true 14, false 0, unverifiable 0
+
+provenance of the first composed fact:
+  "Ulysses S. Grant held Q11696 after Abraham Lincoln."
+  derived at depth 1, from wikidata:Q34836 and wikidata:Q91
