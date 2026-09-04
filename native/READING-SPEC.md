@@ -3442,7 +3442,7 @@ true.
 
 ## S56 — The ledger gets Interpretation's triad: sameness and significance as declared, revisable commitments
 
-**Generality: universal.** The mechanism holds no vocabulary of any medium
+**Generality:** universal. The mechanism holds no vocabulary of any medium
 or language; it is `DEF`/`EVA`/`REC` over an append-only act log, and its
 tests are organ-free on purpose so the walls stay testable wherever this
 repo is checked out.
@@ -3486,7 +3486,7 @@ receiving end for a prior, not a decision procedure.
 
 ## S57 — The ends-only proposer, refuted; and the gap the refutation named
 
-**Generality: universal.** The claim is about what a referent-grain key can
+**Generality:** universal. The claim is about what a referent-grain key can
 say about propositional identity, measured on two genres with a control
 built to fail. The morphology gap it uncovers is English-specific and is
 named as such.
@@ -3542,7 +3542,7 @@ Full numbers, the samples, and the disclosed limits:
 
 ## S58 — A hole in a received prior is closed by a second named giver
 
-**Generality: universal for the rule, English-specific for the hole.**
+**Generality:** universal for the rule, English-specific for the hole.
 
 `sameAct` — the organ that decides whether two labels denote the same act —
 was blind to the most common verb in English. `createLemmatizer` built from
