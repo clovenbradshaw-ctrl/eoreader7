@@ -62,6 +62,7 @@
 // Pure: no DOM, no IO, no model.
 
 import { foldDiacritics } from "./source.js";
+import { makeReproduction, EXACT } from "../kernel/reproduction.js";
 
 // ── declared numbers ────────────────────────────────────────────────────────
 // Below this many words a quoted span is not judged: a two-word "quote" is
@@ -171,27 +172,34 @@ const prepareChunks = (chunks) =>
 // source file's line wrap and the answer's italics are typesetting.
 const shedLayout = (s) => String(s).replace(/[*_`]/g, "").replace(/\s+/g, " ").trim();
 
+// ONE IMPLEMENTATION OF "IS THIS REPRODUCED HERE". The search, the map back
+// to the source's own coordinates, the P5.2 re-read check and the
+// exact/folded verdict are `kernel/reproduction.js`'s — medium-blind, with
+// this file's fold and this file's notion of raw sameness injected. What
+// stays here is what is genuinely about QUOTATIONS: the edge-punctuation
+// strip (`needleOf`), because a quotation's closing period is routinely the
+// quoting sentence's rather than the source's, and that rule has no meaning
+// for a score or an event stream.
+const reproduction = makeReproduction({
+  fold: normalizedIndex,
+  sameRaw: (found, raw) => shedLayout(found) === shedLayout(raw).replace(/^[.,;:!?'"()-\s]+|[.,;:!?'"()-\s]+$/g, ""),
+});
+
 function locateSegment(prepared, segment) {
   const needle = needleOf(segment);
   if (!needle) return null;
-  for (const { chunk, norm, map } of prepared) {
-    const at = norm.indexOf(needle);
-    if (at === -1) continue;
-    const cStart = map[at];
-    const cEnd = map[at + needle.length - 1] + 1;
-    const exact = chunk.text.slice(cStart, cEnd);
-    const c0 = (chunk.start ?? 0) + cStart;
-    const c1 = (chunk.start ?? 0) + cEnd;
-    return {
-      text: segment,
-      ref: chunk.ref ?? null,
-      source: chunk.source ?? null,
-      anchor: chunk.source != null ? `${chunk.source}#${c0}-${c1}` : null,
-      exact: shedLayout(exact),
-      drifted: shedLayout(exact) !== shedLayout(segment).replace(/^[.,;:!?'"()-\s]+|[.,;:!?'"()-\s]+$/g, ""),
-    };
-  }
-  return null;
+  const bodies = prepared.map(({ chunk }) => ({ id: chunk.source ?? null, material: chunk.text, start: chunk.start ?? 0, chunk }));
+  const hit = reproduction.locateFolded(needle, bodies, { raw: segment });
+  if (hit.status === "absent") return null;
+  const chunk = hit.chunk;
+  return {
+    text: segment,
+    ref: chunk.ref ?? null,
+    source: chunk.source ?? null,
+    anchor: chunk.source != null ? hit.address : null,
+    exact: shedLayout(hit.raw),
+    drifted: hit.status !== EXACT,
+  };
 }
 
 // ── the report ──────────────────────────────────────────────────────────────

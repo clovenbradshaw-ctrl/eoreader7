@@ -6,7 +6,7 @@
 `reading-wall-RESULTS.md`'s last section left the note-to-note matcher at
 1 of 12 and predicted the fix: *"an extraction-grain change in
 `adapters/text/relations.js` and the reader, with its own control ... not a
-matcher."* S50 made that extraction change — the auxiliary chain now rides
+matcher."* S61 made that extraction change — the auxiliary chain now rides
 inside the act. This pass reads what the change actually left, and the
 prediction is **half wrong in a way worth recording: the extraction moved,
 and the comparator did not follow it.**
@@ -34,7 +34,7 @@ is four different things:
 | **multi-word act vs one-word act** | **150, 42, 91** | `had been used` vs `used`; `would fly` vs `flew` |
 | genuine lexical paraphrase | 12, 149 | `collected` vs `placed`; and 149's content sits inside a reported-speech object (`Mr Bezos —said→ the five engines were found…`) |
 
-The third row is the one S50 created. Putting the chain in the act fixed
+The third row is the one S61 created. Putting the chain in the act fixed
 the object and made the act a multi-word string; the comparator still asks
 for an exact match or a single-form lemma, and `had been used` cannot
 reach `used` by either.

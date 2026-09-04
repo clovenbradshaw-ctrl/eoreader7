@@ -1,0 +1,144 @@
+{
+ "renderings": {
+  "markdown": 18,
+  "plaintext": 17,
+  "wrapped": 34
+ },
+ "table": [
+  {
+   "rendering": "markdown",
+   "arms": [
+    {
+     "name": "admit everything",
+     "prec": 0.2777777777777778,
+     "rec": 1,
+     "f1": 0.4347826086956522,
+     "admitted": 18,
+     "junk": 0.7222222222222222
+    },
+    {
+     "name": "length >= 72",
+     "prec": 0.625,
+     "rec": 1,
+     "f1": 0.7692307692307693,
+     "admitted": 8,
+     "junk": 0.375
+    },
+    {
+     "name": "shape median >= 72",
+     "prec": 0.625,
+     "rec": 1,
+     "f1": 0.7692307692307693,
+     "admitted": 8,
+     "junk": 0.375
+    },
+    {
+     "name": "fills the measure",
+     "prec": 0.6666666666666666,
+     "rec": 0.8,
+     "f1": 0.7272727272727272,
+     "admitted": 6,
+     "junk": 0.3333333333333333
+    },
+    {
+     "name": "fills alone",
+     "prec": 1,
+     "rec": 1,
+     "f1": 1,
+     "admitted": 5,
+     "junk": 0
+    }
+   ]
+  },
+  {
+   "rendering": "plaintext",
+   "arms": [
+    {
+     "name": "admit everything",
+     "prec": 0.29411764705882354,
+     "rec": 1,
+     "f1": 0.45454545454545453,
+     "admitted": 17,
+     "junk": 0.7058823529411765
+    },
+    {
+     "name": "length >= 72",
+     "prec": 0.625,
+     "rec": 1,
+     "f1": 0.7692307692307693,
+     "admitted": 8,
+     "junk": 0.375
+    },
+    {
+     "name": "shape median >= 72",
+     "prec": 0.625,
+     "rec": 1,
+     "f1": 0.7692307692307693,
+     "admitted": 8,
+     "junk": 0.375
+    },
+    {
+     "name": "fills the measure",
+     "prec": 0.6666666666666666,
+     "rec": 0.8,
+     "f1": 0.7272727272727272,
+     "admitted": 6,
+     "junk": 0.3333333333333333
+    },
+    {
+     "name": "fills alone",
+     "prec": 1,
+     "rec": 1,
+     "f1": 1,
+     "admitted": 5,
+     "junk": 0
+    }
+   ]
+  },
+  {
+   "rendering": "wrapped",
+   "arms": [
+    {
+     "name": "admit everything",
+     "prec": 0.6470588235294118,
+     "rec": 1,
+     "f1": 0.7857142857142858,
+     "admitted": 34,
+     "junk": 0.35294117647058826
+    },
+    {
+     "name": "length >= 72",
+     "prec": 0.4,
+     "rec": 0.09090909090909091,
+     "f1": 0.14814814814814814,
+     "admitted": 5,
+     "junk": 0.6
+    },
+    {
+     "name": "shape median >= 72",
+     "prec": 0.4,
+     "rec": 0.09090909090909091,
+     "f1": 0.14814814814814814,
+     "admitted": 5,
+     "junk": 0.6
+    },
+    {
+     "name": "fills the measure",
+     "prec": 0.88,
+     "rec": 1,
+     "f1": 0.9361702127659575,
+     "admitted": 25,
+     "junk": 0.12
+    },
+    {
+     "name": "fills alone",
+     "prec": 0.8571428571428571,
+     "rec": 0.8181818181818182,
+     "f1": 0.8372093023255814,
+     "admitted": 21,
+     "junk": 0.14285714285714285
+    }
+   ]
+  }
+ ]
+}

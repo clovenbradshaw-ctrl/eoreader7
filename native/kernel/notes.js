@@ -152,7 +152,17 @@ export function standingOf(note) {
   const standing = sources.size < 2 ? "single-witness" : recipes.size >= 2 ? "corroborated-independently" : "corroborated";
   const kinds = {};
   for (const w of ws) { const k = kindOfWitness(w); kinds[k] = (kinds[k] ?? 0) + 1; }
-  return { sources: sources.size, instruments: recipes.size, undeclared, standing, kinds };
+  // WHAT THE CORROBORATION RESTS ON. Every source past the first joined
+  // this note across a referent bridge (see `hear`). `assumedBridges`
+  // counts the ones nothing established, so "corroborated" can be read
+  // back as "corroborated across N bridges nobody checked" rather than as
+  // a bare number. A note standing on one source has none by construction.
+  // Named `crossings`/`assumedBridges` rather than `joins` on purpose:
+  // foldWithStanding spreads this over the note itself, and a count here
+  // called `joins` would shadow the note's own record of them.
+  const joins = note?.joins ?? [];
+  const assumedBridges = joins.filter((j) => j?.standing === "assumed").length;
+  return { sources: sources.size, instruments: recipes.size, undeclared, standing, kinds, crossings: joins.length, assumedBridges };
 }
 
 /**
@@ -168,8 +178,14 @@ export function standingOf(note) {
  *    display keeps the first hearing's own face). A gapping organ (falsy or
  *    an empty field) falls back to the face — an identity gap never blocks
  *    admission.
+ *  - `bridge(crossing)` decides whether a hearing from a NEW SOURCE may join
+ *    a note an OLD source already stands on. See `hear` below for why that
+ *    is a separate question from whether the two propositions match. Absent,
+ *    every crossing is allowed and RECORDED as assumed — never silent.
+ *  - `identityGiver` names what the id rested on, for the join record. It is
+ *    a label on evidence, never a check.
  */
-export function makeNotes({ taskLog = nativeTaskLog, cellOf = nativeCellOf, identity = null } = {}) {
+export function makeNotes({ taskLog = nativeTaskLog, cellOf = nativeCellOf, identity = null, bridge = null, identityGiver = null } = {}) {
   const { createTaskLog, append, projectTasks, ENTRY_KINDS, OPERATOR_BASIS } = taskLog;
   const grains = taskLog.GRAIN_RANK
     ? Object.keys(taskLog.GRAIN_RANK).sort((a, b) => taskLog.GRAIN_RANK[a] - taskLog.GRAIN_RANK[b])
@@ -253,8 +269,66 @@ export function makeNotes({ taskLog = nativeTaskLog, cellOf = nativeCellOf, iden
    * when the sighting moved neither the witness set nor the span set.
    */
   function hear(log, { end1, label, end2, spans = [], witness = null, because = null, end1Face = null, end2Face = null }) {
-    const id = canonId(end1, label, end2, end1Face, end2Face);
-    const prior = projectTasks(log).find((t) => t.task_id === id) ?? null;
+    const baseId = canonId(end1, label, end2, end1Face, end2Face);
+    const tasks = projectTasks(log);
+    const incomingSource = witness ? sourceOfWitness(witness) : null;
+
+    // ── ONE MATCH WAS DOING TWO JOBS ──────────────────────────────────
+    // A triple that matches a note already on this ledger asserts that the
+    // two PROPOSITIONS are the same. When the hearing also arrives from a
+    // source no witness of that note has named, it asserts something else
+    // as well: that the two documents' REFERENTS are the same. That second
+    // claim is a bridge between two readings, each of which established its
+    // own universe of referents, and it was never made explicitly, never
+    // recorded, and could not be conceded. Usually right; silently
+    // catastrophic when it is not — two Smiths, one note, two witnesses,
+    // nothing to find out from.
+    //
+    // The two jobs are separated here. Proposition identity still decides
+    // the id. Referent identity becomes a JOIN carried on the entry, with
+    // what it rested on and a standing of its own, so a `corroborated`
+    // reading can be read back as "corroborated across N assumed bridges".
+    // With no `bridge` organ every crossing is still allowed, so behaviour
+    // is unchanged — but it is no longer invisible, which is the whole of
+    // this step. Establishing or conceding a bridge is the next one.
+    let prior = tasks.find((t) => t.task_id === baseId) ?? null;
+    let id = baseId;
+    let joins = prior?.joins ?? [];
+    let unbridged = prior?.unbridged ?? null;
+    const priorSources = new Set((prior?.witnesses ?? []).map(sourceOfWitness));
+    if (prior && incomingSource && !priorSources.has(incomingSource)) {
+      const crossing = {
+        end1: prior.end1, label: prior.label, end2: prior.end2,
+        incoming: { end1, label, end2, spans: addressed(spans), witness },
+        from: [...priorSources], to: incomingSource,
+        basis: identityGiver ?? (identity ? "identity-organ" : "string-identity"),
+      };
+      const refusal = bridge ? bridge(crossing) : null;
+      if (refusal) {
+        // REFUSED: these are two universes, so this is two notes. The
+        // sighting keeps its own address under its own source rather than
+        // being dropped — nothing is lost, and a bridge established later
+        // has two real notes to join.
+        id = `${baseId}@${incomingSource}`;
+        prior = tasks.find((t) => t.task_id === id) ?? null;
+        joins = prior?.joins ?? [];
+        unbridged = prior?.unbridged ?? { of: baseId, from: crossing.from, reason: refusal.reason ?? "bridge_refused", detail: refusal.detail ?? null };
+      } else {
+        joins = [...joins, {
+          source: incomingSource, from: crossing.from, assumed: [prior.end1, prior.end2],
+          // The prior side already has a face (`assumed`, above — the
+          // established note's own display). Step 1 dropped the INCOMING
+          // side's own face and spans the moment `bridge()` returned, so a
+          // bridge could be COUNTED but never actually SHOWN — two ends,
+          // one recorded. `crossing.incoming` already carried both; this
+          // keeps them, so `native/organs/bridges.js` (step 2) has a real
+          // correspondence to record, not a fabricated one.
+          incomingEnds: { end1: end1Face || end1, end2: end2Face || end2 },
+          incomingSpans: crossing.incoming.spans,
+          basis: crossing.basis, standing: "assumed",
+        }];
+      }
+    }
     const witnesses = [...new Set([...(prior?.witnesses ?? []), ...(witness ? [witness] : [])])];
     const at = new Set((prior?.spans ?? []).map((s) => s.at));
     const merged = [...(prior?.spans ?? [])];
@@ -275,6 +349,8 @@ export function makeNotes({ taskLog = nativeTaskLog, cellOf = nativeCellOf, iden
       end2: prior?.end2 ?? end2,
       witnesses,
       spans: merged,
+      ...(joins.length ? { joins } : {}),
+      ...(unbridged ? { unbridged } : {}),
       ...(because != null ? { because } : {}),
     });
   }
@@ -363,12 +439,23 @@ export function makeNotes({ taskLog = nativeTaskLog, cellOf = nativeCellOf, iden
     return { log: next, refused: null, noop: false, id: recId };
   }
 
-  /** What this log has conceded, each with the reason it recorded. */
+  /**
+   * What this log has conceded AS A NOTE, each with the reason it recorded.
+   *
+   * A REC may concede something that is not a note — the log is a ledger of
+   * ACTS, and `commitments.js` lands DEF/EVA/REC over declared readings on
+   * this same log (which is why the frame has always lived here too). Those
+   * concessions are real and belong on the record; they are simply not
+   * notes, and this function's name is its contract. Filtered on having
+   * ends rather than on an id convention, so it stays right for any act a
+   * later pass adds.
+   */
   function concededNotes(log) {
     const tasks = new Map(projectTasks(log).map((t) => [t.task_id, t]));
     return (log?.entries ?? [])
       .filter((e) => e?.kind === ENTRY_KINDS.EVIDENCE && e.operator === "REC" && e.concedes)
-      .map((e) => { const t = tasks.get(e.concedes); return { id: e.concedes, trigger: e.trigger, at: e.seq, end1: t?.end1 ?? null, label: t?.label ?? null, end2: t?.end2 ?? null }; });
+      .filter((e) => { const t = tasks.get(e.concedes); return Boolean(t?.end1 && t.label && t.end2); })
+      .map((e) => { const t = tasks.get(e.concedes); return { id: e.concedes, trigger: e.trigger, at: e.seq, end1: t.end1, label: t.label, end2: t.end2 }; });
   }
 
   /**
@@ -381,7 +468,9 @@ export function makeNotes({ taskLog = nativeTaskLog, cellOf = nativeCellOf, iden
     const gone = concededIds(log);
     return projectTasks(log)
       .filter((t) => t.end1 && t.label && t.end2 && !t.derived && !gone.has(t.task_id))
-      .map((t) => ({ id: t.task_id, end1: t.end1, label: t.label, end2: t.end2, witnesses: t.witnesses ?? [], spans: t.spans ?? [] }))
+      // `joins` and `unbridged` ride only when they exist, so a note that
+      // crossed no universe has exactly the shape it always had.
+      .map((t) => ({ id: t.task_id, end1: t.end1, label: t.label, end2: t.end2, witnesses: t.witnesses ?? [], spans: t.spans ?? [], ...(t.joins?.length ? { joins: t.joins } : {}), ...(t.unbridged ? { unbridged: t.unbridged } : {}) }))
       .sort((a, b) => b.witnesses.length - a.witnesses.length || a.id.localeCompare(b.id));
   }
 

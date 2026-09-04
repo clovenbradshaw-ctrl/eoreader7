@@ -1,0 +1,4964 @@
+{
+ "ref": "wikipedia-battle-of-borodino.html",
+ "counts": {
+  "navbox": 455,
+  "infobox": 46,
+  "hatnote": 6,
+  "catlinks": 36,
+  "reflist": 128,
+  "table": 3,
+  "prose": 266
+ },
+ "lines": [
+  {
+   "i": 0,
+   "text": "Jump to content",
+   "kind": "prose"
+  },
+  {
+   "i": 1,
+   "text": "From Wikipedia, the free encyclopedia",
+   "kind": "prose"
+  },
+  {
+   "i": 2,
+   "text": "1812 battle of the French invasion of Russia",
+   "kind": "prose"
+  },
+  {
+   "i": 3,
+   "text": "\"Borodino\" redirects here. For other uses, see Borodino (disambiguation) .",
+   "kind": "hatnote"
+  },
+  {
+   "i": 4,
+   "text": "For the World War II battle that was part of the Battle of Moscow, see Battle at Borodino Field .",
+   "kind": "hatnote"
+  },
+  {
+   "i": 5,
+   "text": "Battle of Borodino",
+   "kind": "infobox"
+  },
+  {
+   "i": 6,
+   "text": "Part of the French invasion of Russia",
+   "kind": "infobox"
+  },
+  {
+   "i": 7,
+   "text": "The Battle of Moscow",
+   "kind": "infobox"
+  },
+  {
+   "i": 8,
+   "text": "Louis-François Lejeune , 1822",
+   "kind": "infobox"
+  },
+  {
+   "i": 9,
+   "text": "Date 7 September 1812",
+   "kind": "infobox"
+  },
+  {
+   "i": 10,
+   "text": "Location",
+   "kind": "infobox"
+  },
+  {
+   "i": 11,
+   "text": "Borodino , Russian Empire",
+   "kind": "infobox"
+  },
+  {
+   "i": 12,
+   "text": "Result",
+   "kind": "infobox"
+  },
+  {
+   "i": 13,
+   "text": "See § Aftermath",
+   "kind": "infobox"
+  },
+  {
+   "i": 14,
+   "text": "Territorial",
+   "kind": "infobox"
+  },
+  {
+   "i": 15,
+   "text": "changes",
+   "kind": "infobox"
+  },
+  {
+   "i": 16,
+   "text": "French occupation of Moscow",
+   "kind": "infobox"
+  },
+  {
+   "i": 17,
+   "text": "Belligerents",
+   "kind": "infobox"
+  },
+  {
+   "i": 18,
+   "text": "- France",
+   "kind": "navbox"
+  },
+  {
+   "i": 19,
+   "text": "- Poland",
+   "kind": "infobox"
+  },
+  {
+   "i": 20,
+   "text": "- Italy",
+   "kind": "navbox"
+  },
+  {
+   "i": 21,
+   "text": "- Naples",
+   "kind": "navbox"
+  },
+  {
+   "i": 22,
+   "text": "- Bavaria",
+   "kind": "navbox"
+  },
+  {
+   "i": 23,
+   "text": "- Westphalia",
+   "kind": "navbox"
+  },
+  {
+   "i": 24,
+   "text": "- Württemberg",
+   "kind": "navbox"
+  },
+  {
+   "i": 25,
+   "text": "Saxony",
+   "kind": "infobox"
+  },
+  {
+   "i": 26,
+   "text": "- Hesse",
+   "kind": "infobox"
+  },
+  {
+   "i": 27,
+   "text": "Russia",
+   "kind": "infobox"
+  },
+  {
+   "i": 28,
+   "text": "Commanders and leaders",
+   "kind": "infobox"
+  },
+  {
+   "i": 29,
+   "text": "Napoleon I",
+   "kind": "infobox"
+  },
+  {
+   "i": 30,
+   "text": "L.-N. Davout ( WIA )",
+   "kind": "infobox"
+  },
+  {
+   "i": 31,
+   "text": "Auguste J.-G. de Caulaincourt †",
+   "kind": "infobox"
+  },
+  {
+   "i": 32,
+   "text": "Michel Ney",
+   "kind": "infobox"
+  },
+  {
+   "i": 33,
+   "text": "Joachim Murat",
+   "kind": "infobox"
+  },
+  {
+   "i": 34,
+   "text": "Eugène de Beauharnais",
+   "kind": "infobox"
+  },
+  {
+   "i": 35,
+   "text": "Józef A. Poniatowski",
+   "kind": "infobox"
+  },
+  {
+   "i": 36,
+   "text": "Mikhail Kutuzov",
+   "kind": "infobox"
+  },
+  {
+   "i": 37,
+   "text": "Michael A. Barclay de Tolly",
+   "kind": "infobox"
+  },
+  {
+   "i": 38,
+   "text": "Pyotr Bagration ( DOW )",
+   "kind": "infobox"
+  },
+  {
+   "i": 39,
+   "text": "Karl W. von Toll",
+   "kind": "infobox"
+  },
+  {
+   "i": 40,
+   "text": "Aleksey Yermolov",
+   "kind": "infobox"
+  },
+  {
+   "i": 41,
+   "text": "Nikolay Tuchkov ( DOW )",
+   "kind": "infobox"
+  },
+  {
+   "i": 42,
+   "text": "Nikolay Raevsky",
+   "kind": "infobox"
+  },
+  {
+   "i": 43,
+   "text": "Matvei Platov",
+   "kind": "infobox"
+  },
+  {
+   "i": 44,
+   "text": "Fyodor Uvarov",
+   "kind": "infobox"
+  },
+  {
+   "i": 45,
+   "text": "Strength",
+   "kind": "infobox"
+  },
+  {
+   "i": 46,
+   "text": "- 103,000–135,000 [ 1 ]",
+   "kind": "infobox"
+  },
+  {
+   "i": 47,
+   "text": "- • approx. 109,500 engaged [ 2 ] [ 3 ]",
+   "kind": "infobox"
+  },
+  {
+   "i": 48,
+   "text": "...see § Opposing forces",
+   "kind": "infobox"
+  },
+  {
+   "i": 49,
+   "text": "- 125,000–160,000 [ 1 ]",
+   "kind": "infobox"
+  },
+  {
+   "i": 50,
+   "text": "- • approx. 122,200 engaged, [ a ] including 10,000 irregulars [ 3 ]",
+   "kind": "infobox"
+  },
+  {
+   "i": 51,
+   "text": "...see § Opposing forces",
+   "kind": "infobox"
+  },
+  {
+   "i": 52,
+   "text": "Casualties and losses",
+   "kind": "infobox"
+  },
+  {
+   "i": 53,
+   "text": "30,000–42,000 killed, wounded or missing [ 6 ] [ 7 ] [ 8 ] [ b ]",
+   "kind": "infobox"
+  },
+  {
+   "i": 54,
+   "text": "50 generals [ c ]",
+   "kind": "infobox"
+  },
+  {
+   "i": 55,
+   "text": "...see § Casualties",
+   "kind": "infobox"
+  },
+  {
+   "i": 56,
+   "text": "40,000–53,000 killed, wounded or missing [ d ] [ 7 ] [ 6 ] [ e ] [ f ]",
+   "kind": "infobox"
+  },
+  {
+   "i": 57,
+   "text": "29 generals [ g ]",
+   "kind": "infobox"
+  },
+  {
+   "i": 58,
+   "text": "...see § Casualties",
+   "kind": "infobox"
+  },
+  {
+   "i": 59,
+   "text": "- v",
+   "kind": "navbox"
+  },
+  {
+   "i": 60,
+   "text": "- t",
+   "kind": "navbox"
+  },
+  {
+   "i": 61,
+   "text": "- e",
+   "kind": "navbox"
+  },
+  {
+   "i": 62,
+   "text": "French invasion of Russia",
+   "kind": "navbox"
+  },
+  {
+   "i": 63,
+   "text": "- Deltuva [ lt ]",
+   "kind": "navbox"
+  },
+  {
+   "i": 64,
+   "text": "- Grodno",
+   "kind": "navbox"
+  },
+  {
+   "i": 65,
+   "text": "- Mir",
+   "kind": "navbox"
+  },
+  {
+   "i": 66,
+   "text": "- Prussian Baltic campaign [ de ]",
+   "kind": "navbox"
+  },
+  {
+   "i": 67,
+   "text": "- Ekau",
+   "kind": "navbox"
+  },
+  {
+   "i": 68,
+   "text": "- Riga",
+   "kind": "navbox"
+  },
+  {
+   "i": 69,
+   "text": "- Dahlenkirchen",
+   "kind": "navbox"
+  },
+  {
+   "i": 70,
+   "text": "- Mesoten",
+   "kind": "navbox"
+  },
+  {
+   "i": 71,
+   "text": "- Romanovo [ ru ]",
+   "kind": "navbox"
+  },
+  {
+   "i": 72,
+   "text": "- Saltanovka",
+   "kind": "navbox"
+  },
+  {
+   "i": 73,
+   "text": "- Ostrovno",
+   "kind": "navbox"
+  },
+  {
+   "i": 74,
+   "text": "- Kobrin",
+   "kind": "navbox"
+  },
+  {
+   "i": 75,
+   "text": "- 1st Vitebsk",
+   "kind": "navbox"
+  },
+  {
+   "i": 76,
+   "text": "- Klyastitsy",
+   "kind": "navbox"
+  },
+  {
+   "i": 77,
+   "text": "- Inkovo",
+   "kind": "navbox"
+  },
+  {
+   "i": 78,
+   "text": "- Swolna",
+   "kind": "navbox"
+  },
+  {
+   "i": 79,
+   "text": "- Gorodechno",
+   "kind": "navbox"
+  },
+  {
+   "i": 80,
+   "text": "- 1st Krasnoi",
+   "kind": "navbox"
+  },
+  {
+   "i": 81,
+   "text": "- Smolensk",
+   "kind": "navbox"
+  },
+  {
+   "i": 82,
+   "text": "- 1st Polotsk",
+   "kind": "navbox"
+  },
+  {
+   "i": 83,
+   "text": "- Valutino",
+   "kind": "navbox"
+  },
+  {
+   "i": 84,
+   "text": "- Shevardino",
+   "kind": "navbox"
+  },
+  {
+   "i": 85,
+   "text": "- Osma River [ ru ]",
+   "kind": "navbox"
+  },
+  {
+   "i": 86,
+   "text": "- Gzhatsk [ ru ]",
+   "kind": "navbox"
+  },
+  {
+   "i": 87,
+   "text": "- Borodino",
+   "kind": "navbox"
+  },
+  {
+   "i": 88,
+   "text": "- Mozhaysk [ ru ]",
+   "kind": "navbox"
+  },
+  {
+   "i": 89,
+   "text": "- Zvenigorod [ ru ]",
+   "kind": "navbox"
+  },
+  {
+   "i": 90,
+   "text": "- Moscow",
+   "kind": "navbox"
+  },
+  {
+   "i": 91,
+   "text": "- Ustyluh",
+   "kind": "navbox"
+  },
+  {
+   "i": 92,
+   "text": "- Tarutino",
+   "kind": "navbox"
+  },
+  {
+   "i": 93,
+   "text": "- 2nd Polotsk",
+   "kind": "navbox"
+  },
+  {
+   "i": 94,
+   "text": "- Slonim",
+   "kind": "navbox"
+  },
+  {
+   "i": 95,
+   "text": "- Maloyaroslavets",
+   "kind": "navbox"
+  },
+  {
+   "i": 96,
+   "text": "- Chashniki",
+   "kind": "navbox"
+  },
+  {
+   "i": 97,
+   "text": "- Vyazma",
+   "kind": "navbox"
+  },
+  {
+   "i": 98,
+   "text": "- Dorogobuzh [ ru ]",
+   "kind": "navbox"
+  },
+  {
+   "i": 99,
+   "text": "- Dukhovshchina [ ru ]",
+   "kind": "navbox"
+  },
+  {
+   "i": 100,
+   "text": "- 2nd Vitebsk [ ru ]",
+   "kind": "navbox"
+  },
+  {
+   "i": 101,
+   "text": "- Liaskowa",
+   "kind": "navbox"
+  },
+  {
+   "i": 102,
+   "text": "- Nowo Schwerschen",
+   "kind": "navbox"
+  },
+  {
+   "i": 103,
+   "text": "- Smoliani",
+   "kind": "navbox"
+  },
+  {
+   "i": 104,
+   "text": "- Wolkowisk",
+   "kind": "navbox"
+  },
+  {
+   "i": 105,
+   "text": "- Kaidanowo",
+   "kind": "navbox"
+  },
+  {
+   "i": 106,
+   "text": "- 2nd Krasnoi",
+   "kind": "navbox"
+  },
+  {
+   "i": 107,
+   "text": "- Borisov",
+   "kind": "navbox"
+  },
+  {
+   "i": 108,
+   "text": "- Loschniza",
+   "kind": "navbox"
+  },
+  {
+   "i": 109,
+   "text": "- Berezina",
+   "kind": "navbox"
+  },
+  {
+   "i": 110,
+   "text": "- French retreat [ ru ]",
+   "kind": "navbox"
+  },
+  {
+   "i": 111,
+   "text": "- Pleshchenitsy [ ru ]",
+   "kind": "navbox"
+  },
+  {
+   "i": 112,
+   "text": "- Maladzyechna [ ru ]",
+   "kind": "navbox"
+  },
+  {
+   "i": 113,
+   "text": "- Piktupen [ ru ]",
+   "kind": "navbox"
+  },
+  {
+   "i": 114,
+   "text": "- Polessk [ ru ]",
+   "kind": "navbox"
+  },
+  {
+   "i": 115,
+   "text": "Guerrilla Partisan Warfare [ ru ]",
+   "kind": "navbox"
+  },
+  {
+   "i": 116,
+   "text": "French invasion of Russia",
+   "kind": "navbox"
+  },
+  {
+   "i": 117,
+   "text": "330km",
+   "kind": "prose"
+  },
+  {
+   "i": 118,
+   "text": "205miles",
+   "kind": "prose"
+  },
+  {
+   "i": 119,
+   "text": "15",
+   "kind": "prose"
+  },
+  {
+   "i": 120,
+   "text": "Pultusk",
+   "kind": "prose"
+  },
+  {
+   "i": 121,
+   "text": "14",
+   "kind": "prose"
+  },
+  {
+   "i": 122,
+   "text": "Gorodeczno",
+   "kind": "prose"
+  },
+  {
+   "i": 123,
+   "text": "13",
+   "kind": "prose"
+  },
+  {
+   "i": 124,
+   "text": "Drohiczyn",
+   "kind": "prose"
+  },
+  {
+   "i": 125,
+   "text": "12",
+   "kind": "prose"
+  },
+  {
+   "i": 126,
+   "text": "Tauroggen",
+   "kind": "prose"
+  },
+  {
+   "i": 127,
+   "text": "11",
+   "kind": "prose"
+  },
+  {
+   "i": 128,
+   "text": "Riga",
+   "kind": "prose"
+  },
+  {
+   "i": 129,
+   "text": "10",
+   "kind": "prose"
+  },
+  {
+   "i": 130,
+   "text": "Tilsit",
+   "kind": "prose"
+  },
+  {
+   "i": 131,
+   "text": "9",
+   "kind": "prose"
+  },
+  {
+   "i": 132,
+   "text": "Warsaw",
+   "kind": "prose"
+  },
+  {
+   "i": 133,
+   "text": "8",
+   "kind": "prose"
+  },
+  {
+   "i": 134,
+   "text": "Berezina",
+   "kind": "prose"
+  },
+  {
+   "i": 135,
+   "text": "7",
+   "kind": "prose"
+  },
+  {
+   "i": 136,
+   "text": "Maloyaroslavets",
+   "kind": "prose"
+  },
+  {
+   "i": 137,
+   "text": "6",
+   "kind": "prose"
+  },
+  {
+   "i": 138,
+   "text": "Moscow",
+   "kind": "prose"
+  },
+  {
+   "i": 139,
+   "text": "5",
+   "kind": "prose"
+  },
+  {
+   "i": 140,
+   "text": "Borodino",
+   "kind": "prose"
+  },
+  {
+   "i": 141,
+   "text": "4",
+   "kind": "prose"
+  },
+  {
+   "i": 142,
+   "text": "Smolensk",
+   "kind": "prose"
+  },
+  {
+   "i": 143,
+   "text": "3",
+   "kind": "prose"
+  },
+  {
+   "i": 144,
+   "text": "Vitebsk",
+   "kind": "prose"
+  },
+  {
+   "i": 145,
+   "text": "2",
+   "kind": "prose"
+  },
+  {
+   "i": 146,
+   "text": "Vilna",
+   "kind": "prose"
+  },
+  {
+   "i": 147,
+   "text": "1",
+   "kind": "prose"
+  },
+  {
+   "i": 148,
+   "text": "Kowno",
+   "kind": "prose"
+  },
+  {
+   "i": 149,
+   "text": "current battle",
+   "kind": "prose"
+  },
+  {
+   "i": 150,
+   "text": "Prussian corps",
+   "kind": "prose"
+  },
+  {
+   "i": 151,
+   "text": "Napoleon",
+   "kind": "prose"
+  },
+  {
+   "i": 152,
+   "text": "Austrian corps",
+   "kind": "prose"
+  },
+  {
+   "i": 153,
+   "text": "The Battle of Borodino [ h ] or the Battle of Moscow [ i ] took place on the outskirts of Moscow near the village of Borodino on 7 September 1812, [ j ] during Napoleon's invasion of Russia . The Grande Armée fought against the Imperial Russian Army .",
+   "kind": "prose"
+  },
+  {
+   "i": 154,
+   "text": "After the Russian retreat at the Battle of Smolensk , the road to Moscow lay open. Napoleon fought against General Mikhail Kutuzov , whom the Emperor Alexander I had appointed to replace Barclay de Tolly on 29 August after Smolensk was razed and captured by the French and Polish forces. Approximately a quarter of a million soldiers were involved in the battle, and it was the bloodiest single day of the Napoleonic Wars . In the battle, up to 50 French generals and marshals were killed or wounded, as well as 29 Russian generals; hence Sir Robert Wilson referred to it as the Battle of the Generals. [ 19 ]",
+   "kind": "prose"
+  },
+  {
+   "i": 155,
+   "text": "After the Battle of Borodino, Napoleon remained on the battlefield with his army; the Imperial Russian forces retreated southwards. What followed was the French occupation of Moscow , while the retreating Russians resorted to scorched earth tactics to trap Napoleon and his men within their own largest city. [ 23 ] The main results of the battle were that Napoleon managed to take the Russian strong but unfinished defensive positions: the redoubt and the flèches , though he was unable to end the war as he hoped. In particular, Napoleon's reluctance to deploy his Imperial Guard , as he wished to negotiate with Alexander to make him re-join against the British, has been widely criticized by historians as a large blunder, as it allowed the Russian army to retreat into territory increasingly hostile to the French. [ 24 ]",
+   "kind": "prose"
+  },
+  {
+   "i": 156,
+   "text": "Background",
+   "kind": "prose"
+  },
+  {
+   "i": 157,
+   "text": "[ edit ]",
+   "kind": "prose"
+  },
+  {
+   "i": 158,
+   "text": "Napoleon's invasion of Russia",
+   "kind": "prose"
+  },
+  {
+   "i": 159,
+   "text": "[ edit ]",
+   "kind": "prose"
+  },
+  {
+   "i": 160,
+   "text": "Main article: French invasion of Russia",
+   "kind": "hatnote"
+  },
+  {
+   "i": 161,
+   "text": "Napoleon with the French Grande Armée began his invasion of Russia on 24 June 1812 by crossing the Niemen river. [ 25 ]",
+   "kind": "prose"
+  },
+  {
+   "i": 162,
+   "text": "As his Russian army was outnumbered by far, Mikhail Bogdanovich Barclay de Tolly successfully used a \"delaying operation\", defined as an operation where a force under pressure trades space for time by slowing down the enemy's momentum and inflicting maximum damage on the enemy without, in principle, becoming decisively engaged, [ 26 ] using a Fabian strategy as a defence in depth by retreating further eastwards into Russia without giving battle. [ 27 ]",
+   "kind": "prose"
+  },
+  {
+   "i": 163,
+   "text": "After the Battle of Smolensk , the Tsar replaced the unpopular Barclay de Tolly with Mikhail Kutuzov , who on 18 August took over the army at Tsaryovo-Zaymishche and ordered his soldiers to prepare for battle. [ 28 ] Kutuzov understood Barclay's decision to retreat was correct, but the Tsar, the Russian troops and Russia could not accept further retreat. A battle had to occur in order to preserve the morale of the soldiers and the nation. He then ordered not another retreat, but a search for a battleground eastwards at Gzhatsk on 30 August, thus using Barclay's delaying operation again, by which time the ratio of French to Russian forces had shrunk from 3:1 to 5:4. [ 29 ] The main part of Napoleon's army had entered Russia with 286,000 soldiers, [ 30 ] but by the time of the battle was reduced mostly through starvation and disease. [ 23 ]",
+   "kind": "prose"
+  },
+  {
+   "i": 164,
+   "text": "Napoleon I on the Borodino Heights , by Vasily Vereshchagin (1897)",
+   "kind": "prose"
+  },
+  {
+   "i": 165,
+   "text": "Kutuzov's army established a defensive line near the village of Borodino . [ 31 ] Although the Borodino field was too open and had too few natural obstacles to protect the Russian center and the left flank, it was chosen because it blocked both Smolensk–Moscow roads and because there were simply no better locations. [ 32 ] Starting on 3 September, Kutuzov strengthened the line with earthworks, including the Raevsky redoubt (named after Nikolay Raevsky who was in charge of its defence [ 33 ] ) in the center-right of the line, and three open, arrow-shaped \" Bagration flèches \" (named after Pyotr Bagration ) on the left. [ 34 ]",
+   "kind": "prose"
+  },
+  {
+   "i": 166,
+   "text": "Battle of Shevardino",
+   "kind": "prose"
+  },
+  {
+   "i": 167,
+   "text": "[ edit ]",
+   "kind": "prose"
+  },
+  {
+   "i": 168,
+   "text": "Main article: Battle of Shevardino",
+   "kind": "hatnote"
+  },
+  {
+   "i": 169,
+   "text": "The initial Russian position, which stretched south of the new Smolensk Highway (Napoleon's expected route of advance), was anchored on its left by a pentagonal earthwork redoubt erected on a mound near the village of Shevardino. [ 35 ] The Russian generals soon realized their left wing was overly exposed and vulnerable, [ 36 ] [ page needed ] so the Russian line was moved back from this position, but the redoubt remained manned, with Kutuzov stating the fortification was manned simply to delay the advance of the French forces. Historian Dmitry Buturlin reports it was used as an observation point to determine the course of the French advance. Historians Witner and Ratch, and many others, reported it was used as a fortification to threaten the French right flank, despite being beyond the effective reach of guns of the period. [ 35 ]",
+   "kind": "prose"
+  },
+  {
+   "i": 170,
+   "text": "The Chief of Staff of the Russian 1st Army , Aleksey Yermolov , said the Russian left was shifting positions when the French Army arrived sooner than expected; thus, the Battle of Shevardino became a delaying effort to shield the redeployment of the Russian left. The construction of the redoubt and its purpose is disputed by historians to this day. [ 35 ]",
+   "kind": "prose"
+  },
+  {
+   "i": 171,
+   "text": "The conflict began on September 5 when Marshal Joachim Murat 's French forces met Pyotr Konovnitsyn 's Russians in a massive cavalry clash, the Russians eventually retreating to the Kolorzkoi Cloister when their flank was threatened. Combat resumed the next day but Konovnitsyn again retreated when Viceroy Eugène de Beauharnais ' Fourth Corps arrived, threatening his flank. The Russians withdrew to the Shevardino Redoubt, where a pitched battle ensued. Murat led Nansouty 's First Cavalry Corps and Montbrun 's Second Cavalry Corps, supported by Compans 's Division of Davout 's First Infantry Corps against the redoubt. Simultaneously, Prince Józef Poniatowski 's Polish infantry attacked the position from the south. The fighting was heavy and very fierce, as the Russians refused to retreat until Kutuzov personally ordered them to do so. [ 36 ] [ page needed ] The French captured the redoubt at the cost of 4,000–5,000 French and 6,000 Russian casualties. [ 37 ] The small redoubt was destroyed and covered by the dead and dying of both sides. [ 38 ]",
+   "kind": "prose"
+  },
+  {
+   "i": 172,
+   "text": "The unexpected French advance from the west and the fall of the Shevardino redoubt threw the Russian formation into disarray. Since the left flank of their defensive position had collapsed, Russian forces withdrew to the east, constructing a makeshift position centered around the village of Utitsa. The left flank of the Russian position was thus ripe for a flanking attack. [ 39 ]",
+   "kind": "prose"
+  },
+  {
+   "i": 173,
+   "text": "Opposing forces",
+   "kind": "prose"
+  },
+  {
+   "i": 174,
+   "text": "[ edit ]",
+   "kind": "prose"
+  },
+  {
+   "i": 175,
+   "text": "See also: Estimates of opposing forces in the Battle of Borodino and Russian Army order of battle (1812)",
+   "kind": "hatnote"
+  },
+  {
+   "i": 176,
+   "text": "Russian forces",
+   "kind": "prose"
+  },
+  {
+   "i": 177,
+   "text": "[ edit ]",
+   "kind": "prose"
+  },
+  {
+   "i": 178,
+   "text": "Battle of Borodino by Peter von Hess , 1843. In the center it shows Bagration after being wounded.",
+   "kind": "prose"
+  },
+  {
+   "i": 179,
+   "text": "A series of reforms to the Russian army had begun in 1802, creating regiments of three battalions , each battalion having four companies . The defeats of Austerlitz , Eylau and Friedland led to important additional reforms, though continuous fighting in the course of three wars with France, two with Sweden and two with the Ottoman Empire had not allowed time for these to be fully implemented and absorbed. [ 40 ] A divisional system was introduced in 1806, and corps were established in 1812. [ 40 ] Prussian influence may be seen in the organizational setup. By the time of Borodino the Russian army had changed greatly from the force which met the French in 1805–1807.",
+   "kind": "prose"
+  },
+  {
+   "i": 180,
+   "text": "Russian forces present at the battle included 180 infantry battalions, 164 cavalry squadrons , 20 Cossack regiments and 55 artillery batteries (637 artillery pieces). In total, the Russians fielded 155,200 troops. [ 3 ] There were 10,000 Cossacks and 33,000 Russian militiamen in the area who did not participate in the battle; for a total of 43,000 irregulars . After the battle the militia units were broken up to provide reinforcements for depleted regular infantry battalions. Of the 637 Russian artillery pieces, 300 were held in reserve and many of these were never committed to the battle. [ 5 ]",
+   "kind": "prose"
+  },
+  {
+   "i": 181,
+   "text": "French forces",
+   "kind": "prose"
+  },
+  {
+   "i": 182,
+   "text": "[ edit ]",
+   "kind": "prose"
+  },
+  {
+   "i": 183,
+   "text": "According to historian Alexander Mikaberidze , the French army remained the finest army of its day by a good margin. [ 41 ] The vast French military resources in manpower, horsepower, and firepower along with fusion of the Ancien Régime 's legacy with the formations of the French revolution and Napoleon's reforms transformed it into a military machine that had dominated Europe by 1799. Each corps of the French army was in fact its own mini-army capable of independent action. [ 41 ] Despite being the finest army of its day in 1812, [ citation needed ] the French military was in decline since the Battle of Austerlitz due to spending military resources in the Peninsular War , and losing many French veterans in battles like Eylau , Aspern , and Wagram .",
+   "kind": "prose"
+  },
+  {
+   "i": 184,
+   "text": "French forces included 214 battalions of infantry, 317 squadrons of cavalry and 587 artillery pieces totaling 128,000 troops. [ 2 ] However, the French Imperial Guard , which consisted of 30 infantry battalions, 27 cavalry squadrons and 109 artillery pieces – a total of 18,500 troops – never committed to action. [ 3 ]",
+   "kind": "prose"
+  },
+  {
+   "i": 185,
+   "text": "Battle",
+   "kind": "prose"
+  },
+  {
+   "i": 186,
+   "text": "[ edit ]",
+   "kind": "prose"
+  },
+  {
+   "i": 187,
+   "text": "Position",
+   "kind": "prose"
+  },
+  {
+   "i": 188,
+   "text": "[ edit ]",
+   "kind": "prose"
+  },
+  {
+   "i": 189,
+   "text": "Detailed battle maps",
+   "kind": "prose"
+  },
+  {
+   "i": 190,
+   "text": "Situation about 06:30",
+   "kind": "prose"
+  },
+  {
+   "i": 191,
+   "text": "Situation about 09:30",
+   "kind": "prose"
+  },
+  {
+   "i": 192,
+   "text": "Situation about 16:00",
+   "kind": "prose"
+  },
+  {
+   "i": 193,
+   "text": "(by West Point Military Academy)",
+   "kind": "prose"
+  },
+  {
+   "i": 194,
+   "text": "According to Carl von Clausewitz , although the Russian left was on marginally higher ground, this was but a superficial matter and did not provide much of a defensive advantage. The positioning of the Russian right was such that for the French the left seemed an obvious choice. [ 42 ] The Russian position at Borodino consisted of a series of disconnected earthworks running in an arc from the Moskva River on the right, along its tributary, the Kolocha (whose steep banks added to the defense), and towards the village of Utitsa on the left. [ 34 ] Thick woods interspersed along the Russian left and center (on the French side of the Kolocha) made the deployment and control of French forces difficult, aiding the defenders. The Russian center was defended by the Raevsky Redoubt, a massive open-backed earthwork mounting nineteen 12-pounder cannons with a clear field of fire all the way to the Kolocha's banks. [ citation needed ]",
+   "kind": "prose"
+  },
+  {
+   "i": 195,
+   "text": "Kutuzov was very concerned the French might take the New Smolensk Road around his positions and on to Moscow, [ 42 ] so he placed the more powerful 1st Army under Barclay on the right, in positions which were already strong and virtually unassailable by the French. The 2nd Army under Bagration was expected to hold the left. The fall of Shevardino unanchored the Russian left flank but Kutuzov did nothing to change these initial dispositions despite the repeated pleas of his generals to redeploy their forces. [ 34 ]",
+   "kind": "prose"
+  },
+  {
+   "i": 196,
+   "text": "Thus, when the action began and became a defensive rather than an offensive battle for the Russians, their heavy preponderance in artillery was wasted on a right wing that would never be attacked, while the French artillery did much to help win the battle. [ 34 ] Colonel Karl Wilhelm von Toll and others would make attempts to cover up their mistakes in this deployment and later attempts by historians would compound the issue. [ 43 ] Indeed, Clausewitz also complained about Toll's dispositions being so narrow and deep that needless losses were incurred from artillery fire. The Russian position therefore was just about 8 kilometres (5 mi) long with about 80,000 of the 1st Army on the right and 34,000 of the 2nd Army on the left. [ 44 ]",
+   "kind": "prose"
+  },
+  {
+   "i": 197,
+   "text": "Bagration's flèches",
+   "kind": "prose"
+  },
+  {
+   "i": 198,
+   "text": "[ edit ]",
+   "kind": "prose"
+  },
+  {
+   "i": 199,
+   "text": "Main article: Bagration flèches",
+   "kind": "hatnote"
+  },
+  {
+   "i": 200,
+   "text": "Bagration encouraging advancing Russian infantry",
+   "kind": "prose"
+  },
+  {
+   "i": 201,
+   "text": "The first area of operations was on the Bagration flèches , as was predicted by both Barclay de Tolly and Bagration. Napoleon, commanding the French forces, made errors similar to his Russian adversary, deploying his forces inefficiently and failing to exploit the weaknesses in the Russian line. Despite Marshal Davout's suggestion of a maneuver to outflank the weak Russian left, the Emperor instead ordered Davout's First Corps to move directly into the teeth of the defense, while the flanking maneuver was left to the weak Fifth Corps of Prince Poniatowski. [ 32 ]",
+   "kind": "prose"
+  },
+  {
+   "i": 202,
+   "text": "The initial French attack was aimed at seizing three Russian positions collectively known as the Bagration flèches , three arrowhead-shaped, open-backed earthworks which arced out to the left en échelon in front of the Kolocha stream. These positions helped support the Russian left, which had no terrain advantages. There was much to be desired in the construction of the flèches, one officer noting the ditches were much too shallow, the embrasures open to the ground, making them easy to enter, and they were much too wide, exposing infantry inside them. [ 45 ] The flèches were supported by artillery from the village of Semyanovskaya, whose elevation dominated the other side of the Kolocha. [ 34 ]",
+   "kind": "prose"
+  },
+  {
+   "i": 203,
+   "text": "Nansouty 's heavy cavalry attacks squares of Russian guards to the left of Semyanovskaya (background) to support Ney 's attack. Detail from the Borodino Panorama by Franz Roubaud , 1912",
+   "kind": "prose"
+  },
+  {
+   "i": 204,
+   "text": "The battle began at 06:00 with the opening of the 102-gun French grand battery against the Russian center. [ 46 ] Davout sent Compans's Division against the southernmost of the flèches , with Dessaix 's Division echeloned out to the left. [ 32 ] They were opposed by Vorontsov 's and Neverovsky 's divisions. When Compans exited the woods on the far bank of the Kolocha, he was hit by massed Russian cannon fire; both Compans and Dessaix were wounded, but the French continued their assault. [ 47 ] [ 33 ] Davout, seeing the confusion, personally led the 57th Line Regiment ( Le Terrible ) forward until he had his horse shot from under him; he fell so hard General Jean-Barthélemot Sorbier reported him dead. General Jean Rapp arrived to replace him, only to find Davout alive and leading the 57th forward again. Rapp then led the 61st Line Regiment forward when he was wounded (for the 22nd time in his career). [ 47 ]",
+   "kind": "prose"
+  },
+  {
+   "i": 205,
+   "text": "By 07:30, Davout had gained control of the three flèches . Prince Bagration quickly led a counterattack that threw the French out of the positions, only to have Marshal Michel Ney lead a charge by the 24th Regiment that retook them. [ 47 ] Although not enamoured of Barclay, Bagration turned to him for aid, ignoring Kutuzov altogether; Barclay, to his credit, responded quickly, sending three guard regiments, eight grenadier battalions and twenty-four 12-pounder cannons at their best pace to bolster Semyаnovskaya. [ 47 ] Colonel Toll and Kutuzov moved the Guard Reserve units forward as early as 09:00. [ 48 ]",
+   "kind": "prose"
+  },
+  {
+   "i": 206,
+   "text": "During the confused fighting, French and Russian units moved forward into impenetrable smoke and were smashed by artillery and musketry fire horrendous even by Napoleonic standards. Infantry and cavalry had difficulty maneuvering over the heaps of corpses and masses of wounded. Murat advanced with his cavalry around the flèches to attack Bagration's infantry, but was confronted by General Duka's 2nd Cuirassier Division supported by Neverovsky's infantry. [ 49 ] The French carried out seven assaults against the flèches and each time were beaten back in fierce close combat. Bagration in some instances was personally leading counterattacks, and in a final attempt to push the French completely back he got hit in the leg by cannonball splinters somewhere around 11:00. He insisted on staying on the field to observe Duka's decisive cavalry attack. [ 49 ]",
+   "kind": "prose"
+  },
+  {
+   "i": 207,
+   "text": "Ney's infantry push Russian grenadiers back from the flèches (which can be seen from the rear in the background). Detail from the Borodino Panorama",
+   "kind": "prose"
+  },
+  {
+   "i": 208,
+   "text": "This counter-punch drove Murat to seek the cover of allied Württemberger infantry. Barclay's reinforcements, however, were sent into the fray only to be torn to pieces by French artillery, leaving Friant 's Division in control of the Russian forward position at 11:30. Dust, smoke, and exhaustion all combined kept the French commanders (Davout, Ney and Murat) from comprehending that the Russians had fallen back and vulnerable for a French attack. [ 50 ] The 2nd Army's command structure fell apart as Bagration was removed from the battlefield, and the report of his being hit quickly spread and led to a collapse in morale. General Dmitry Dokhturov took over command in the center instead of Bagration. Napoleon, who was sick with a cold and too far from the action to really observe what was going on, refused to reinforce his subordinates. He was hesitant to release his last reserve, the Imperial Guard, in a location so far away from France. [ 50 ] [ 33 ]",
+   "kind": "prose"
+  },
+  {
+   "i": 209,
+   "text": "First attacks on the Raevsky redoubt",
+   "kind": "prose"
+  },
+  {
+   "i": 210,
+   "text": "[ edit ]",
+   "kind": "prose"
+  },
+  {
+   "i": 211,
+   "text": "Saxon cuirassiers and Polish lancers of Latour-Maubourg 's cavalry corps clash with Russian cuirassiers. The rise of Raevsky redoubt is on the right, the steeple of Borodino church in the background. Detail from the Borodino Panorama",
+   "kind": "prose"
+  },
+  {
+   "i": 212,
+   "text": "Beauharnais advanced his corps against Borodino, rushing the village and capturing it from the Russian Guard Jägers . [ 51 ] However, the advancing columns rapidly lost their cohesion; shortly after clearing Borodino, they faced fresh Russian assault columns and retreated to the village. General Delzons was posted to Borodino to prevent the Russians retaking it. [ 52 ] Morand 's division then crossed to the north side of the Semyenovka stream, while the remainder of Beauharnais' forces traversed three bridges across the Kolocha to the south, placing them on the same side of the stream as the Russians. He then deployed most of his artillery and began to push the Russians back toward the Raevsky redoubt. Broussier and Morand's divisions then advanced together with furious artillery support. The redoubt changed hands as Barclay was forced to personally rally Paskevich's routed regiment. [ 53 ]",
+   "kind": "prose"
+  },
+  {
+   "i": 213,
+   "text": "Kutuzov ordered Yermolov to take action; the general brought forward three horse artillery batteries that began to blast the open-ended redoubt, while the 3rd Battalion of the Ufa Regiment and two Jäger regiments brought up by Barclay rushed in with the bayonet to eliminate Bonnamy 's brigade , which broke into the redoubt. [ 53 ] [ 33 ] The Russian reinforcements' assault returned the redoubt to Russian control.",
+   "kind": "prose"
+  },
+  {
+   "i": 214,
+   "text": "French and Russian cavalry clash behind the Raevsky redoubt. Details from Roubaud's panoramic painting",
+   "kind": "prose"
+  },
+  {
+   "i": 215,
+   "text": "Beauharnais' artillery continued to pound Russian support columns, while Marshals Ney and Davout set up a crossfire with artillery positioned on the Semyonovskaya heights. [ 54 ] Barclay countered by moving the Prussian General Eugen over to the right to support Miloradovich , who led both IV Infantry and II Cavalry corps, in his defense of the redoubt. [ 55 ] The French responded to this move by sending forward General Sorbier , the commander of the Imperial Guard artillery. Sorbier brought forth 36 artillery pieces from the Imperial Guard Artillery Park and also took command of 49 horse artillery pieces from Nansouty 's Ist Cavalry Corps and La Tour Maubourg 's IV Cavalry Corps, as well as Beauharnais' own artillery, opening up a massive artillery barrage. [ 56 ]",
+   "kind": "prose"
+  },
+  {
+   "i": 216,
+   "text": "When Barclay brought up troops against an attacking French brigade, he described it as \"a walk into Hell \". [ 54 ] During the height of the battle, Kutuzov's subordinates were making almost all of the tactical decisions for him; according to Clausewitz, the Russian commander \"seemed to be in a trance\". [ 55 ] Kutuzov ordered Yermolov and Toll to survey the situation of the 2nd Army after the fall of the flèches . Afterwards, he reorganized the entire Russian army with a front facing west, thus abandoning the original idea that the French would outflank his right. [ 33 ] With the death of General Kutaisov , the Chief of Artillery, most of the Russian cannons sat useless on the heights to the rear and were never ordered into battle, while the French artillery wreaked havoc on the Russians. [ 55 ]",
+   "kind": "prose"
+  },
+  {
+   "i": 217,
+   "text": "Cossack raid on the northern flank",
+   "kind": "prose"
+  },
+  {
+   "i": 218,
+   "text": "[ edit ]",
+   "kind": "prose"
+  },
+  {
+   "i": 219,
+   "text": "General Uvarov behind French lines, by Auguste-Joseph Desarnod",
+   "kind": "prose"
+  },
+  {
+   "i": 220,
+   "text": "On the morning of the battle at around 07:30, Don Cossack patrols from Matvei Platov 's regiment discovered a ford across the Kolocha river on the extreme Russian right (northern) flank. Seeing the ground in front of them was clear of enemy forces, Platov saw an opportunity to go around the French left flank and into the enemy's rear. He at once sent one of his aides to ask for permission from Kutuzov for such an operation. Platov's aide was lucky enough to encounter Colonel von Toll, an enterprising member of Kutuzov's staff, who suggested General Uvarov 's 1st Cavalry Corps be added to the operation and at once volunteered to present the plan to the commander-in-chief. [ 36 ] [ page needed ]",
+   "kind": "prose"
+  },
+  {
+   "i": 221,
+   "text": "Together, they went to see Kutuzov, who nonchalantly gave his permission. There was no clear plan and no objectives were drawn up, the whole manoeuvre being interpreted by both Kutuzov and Uvarov as a feint. Uvarov and Platov thus set off with just around 8,000 cavalry and 12 guns in total, and no infantry support. As Uvarov moved southwest and south and Platov moved west, they eventually arrived at the undefended rear of Beauharnais' IV Corps. This was near midday, just as he was getting his orders to conduct another assault on the Raevsky redoubt. [ 36 ] [ page needed ]",
+   "kind": "prose"
+  },
+  {
+   "i": 222,
+   "text": "The sudden appearance of masses of enemy cavalry so close to the supply train and the Emperor's headquarters caused panic and consternation, prompting Beauharnais to immediately cancel his attack and pull back his entire Corps westwards to deal with the alarming situation. Meanwhile, the two Russian cavalry commanders tried to break what French infantry they could find in the vicinity. Having no infantry of their own, the poorly coordinated Russian attacks came to nothing. [ 36 ] [ page needed ]",
+   "kind": "prose"
+  },
+  {
+   "i": 223,
+   "text": "Unable to achieve much else, Platov and Uvarov moved back to their own lines and the action was perceived as a failure by both Kutuzov and the Russian General Staff (chief – Bennigsen ). [ 57 ] As it turned out, the action had the utmost importance in the outcome of the battle, as it delayed the attack of the IV Corps on the Raevsky redoubt for a critical two hours. During these two hours, the Russians were able to reassess the situation, realize the terrible state of Bagration's 2nd Army and send reinforcements to the front line. General Alexander Ostermann-Tolstoy and his corps filled the fallen ranks, but suffered heavy cannonfire. Meanwhile, the retreat of Beauharnais' Corps left Montbrun 's II French Cavalry Corps to fill the gap under the most murderous fire, which used up and demoralized these cavalry, greatly reducing their combat effectiveness. The delay contradicted a military principle the Emperor had stated many times: \"Ground I may recover, time never\". [ 58 ] [ 33 ] The Cossack raid contributed to Napoleon's later decision not to commit his Imperial Guard to battle. [ 36 ] [ page needed ] [ 33 ]",
+   "kind": "prose"
+  },
+  {
+   "i": 224,
+   "text": "Final attack on Raevsky redoubt",
+   "kind": "prose"
+  },
+  {
+   "i": 225,
+   "text": "[ edit ]",
+   "kind": "prose"
+  },
+  {
+   "i": 226,
+   "text": "French cuirassiers charge into the Raevsky redoubt",
+   "kind": "prose"
+  },
+  {
+   "i": 227,
+   "text": "At 14:00, Napoleon renewed the assault against the redoubt, as Broussier's, Morand's and Gérard 's divisions launched a massive frontal attack, with Chastel 's light cavalry division on their left and the II Reserve Cavalry Corps on their right. [ 55 ]",
+   "kind": "prose"
+  },
+  {
+   "i": 228,
+   "text": "The Russians sent Likhachyov's 24th Division into the battle, who fought bravely under Likhachyov's motto: \"Brothers, behind us is Moscow !\" But the French troops approached too close for the cannons to fire, and the cannoneers fought a pitched close-order defence against the attackers. [ 36 ] General Caulaincourt ordered Watier 's cuirassier division to lead the assault. Barclay saw Beauharnais' preparations for the assault and attempted to counter it, moving his forces against them. The French artillery, however, began bombarding the assembling force even as it gathered. Caulaincourt led Watier's cuirassiers in an assault on the opening at the back of the redoubt; he was killed as the charge was beaten off by fierce Russian musketry. [ 59 ]",
+   "kind": "prose"
+  },
+  {
+   "i": 229,
+   "text": "General Thielmann then led eight Saxon and two Polish cavalry squadrons against the rear of the redoubt, while officers and sergeants of his command actually forced their horses through the redoubt's embrasures, sowing confusion amongst the defenders and allowing the French cavalry and infantry to take the position. The battle had all but ended, with both sides so exhausted that only the artillery was still at work. [ 23 ] At 15:30, the Raevsky redoubt fell with most of the 24th Division's troops. General Likhachyov was captured by the French. [ 60 ] However, the French attempts to break through further were thwarted by the Russian Guard Cavalry , which charged and repelled the French assault. In this assault, cavalry general Grouchy was wounded when his units tried to break through the Russians, whilst Barclay and his retinue took part in the fight and was forced to draw his sword in self-defense. [ 33 ]",
+   "kind": "prose"
+  },
+  {
+   "i": 230,
+   "text": "Utitsa",
+   "kind": "prose"
+  },
+  {
+   "i": 231,
+   "text": "[ edit ]",
+   "kind": "prose"
+  },
+  {
+   "i": 232,
+   "text": "The third area of operations was around the village of Utitsa. The village was at the southern end of the Russian positions and lay along the old Smolensk road. It was rightly perceived as a potential weak point in the defense as a march along the road could turn the entire position at Borodino. Despite such concerns, the area was a tangle of rough country thickly covered in heavy brush well suited for deploying light infantry. The forest was dense, the ground marshy, and Russian Jaegers were deployed there in some numbers. Russian General Nikolay Tuchkov had some 23,000 troops but half were untrained Opolchenye (militia) armed only with pikes and axes and not ready for deployment. [ 61 ]",
+   "kind": "prose"
+  },
+  {
+   "i": 233,
+   "text": "Poniatowski had about 10,000 soldiers, all trained and eager to fight, but his first attempt did not go well. It was at once realized the massed troops and artillery could not move through the forest against Jaeger opposition, so they had to reverse to Yelnya and then move eastward. [ 61 ] Tuchkov had deployed his 1st Grenadier Division in line, backing it with the 3rd division in battalion columns. Some four regiments were called away to help defend the redoubts under attack and another two Jäger regiments were deployed in the Utitsa woods, weakening the position.",
+   "kind": "prose"
+  },
+  {
+   "i": 234,
+   "text": "The Polish contingent contested control of Utitsa village and mound , capturing them with their first attempt. Tuchkov later ejected the French forces from both by 08:00, and was mortally wounded while leading this counter-attack. General Jean-Andoche Junot led the Westphalians to join the attack and again captured the village, which was set on fire by the Russians. After the village's capture, Russians and Poles continued to skirmish and cannonade for the rest of the day without much progress. The heavy undergrowth greatly hindered Poniatowski's efforts but eventually he came near cutting off the Russian left from the rest of the Russian forces. [ 62 ]",
+   "kind": "prose"
+  },
+  {
+   "i": 235,
+   "text": "General Barclay sent help in the form of Karl Gustav von Baggovut with Pyotr Konovnitsyn in support. [ 62 ] The latter asked Kutuzov for reinforcements, but he refused, fearing for the redoubt sector. [ 33 ] Baggovut took command of the Russian left flank in place of the wounded Tuchkov. Any hope of real progress by the Poles was lost. [ 63 ]",
+   "kind": "prose"
+  },
+  {
+   "i": 236,
+   "text": "Napoleon's refusal to commit the Guard",
+   "kind": "prose"
+  },
+  {
+   "i": 237,
+   "text": "[ edit ]",
+   "kind": "prose"
+  },
+  {
+   "i": 238,
+   "text": "Towards 15:00, after hours of resistance, the Russian army was in dire straits, but the French forces were exhausted and had neither the necessary stamina nor will to carry out another assault. Both armies were exhausted after the battle and the Russians withdrew from the field the following day. Borodino represented the last Russian effort at stopping the French advance on Moscow, which fell a week later. At this crucial juncture, Murat's chief of staff , General Augustin Daniel Belliard , rode straight to the Emperor's Headquarters and, according to General Ségur who wrote an account of the campaign, told him the Russian line was breached, the road to Mozhaysk behind the Russian line was visible through the gaping hole the French attack had pierced, an enormous crowd of runaways and vehicles were hastily retreating, and a final push would be enough to decide the fate of the Russian army and the war. Generals Daru , Dumas and Marshal Louis Alexandre Berthier also joined in and told the Emperor everyone thought the time had come for the Guard to be committed to battle. [ citation needed ]",
+   "kind": "prose"
+  },
+  {
+   "i": 239,
+   "text": "Given the ferocity of the Russian defense, everyone was aware such a move would cost the lives of thousands of Guards, but it was thought the presence of this prestigious unit would bolster the morale of the entire army for a final decisive push. A notable exception was Marshal Bessières , commander of the Guard cavalry, who was one of the very few senior generals to strongly advise against the intervention of the Guard. As the general staff were discussing the matter, General Rapp , a senior aide-de-camp to the Emperor, was being brought from the field of battle, having been wounded in action. [ 64 ]",
+   "kind": "prose"
+  },
+  {
+   "i": 240,
+   "text": "Rapp immediately recommended to the Emperor the Guard be deployed for action and the Emperor is said to have retorted: \"I will most definitely not; I do not want to have it blown up. I am certain of winning the battle without its intervention.\" [ 64 ] Determined not to commit this valuable final reserve so far away from France, Napoleon rejected another such request, this time from Marshal Ney . Instead, he called the commander of the \" Young Guard \", Marshal Mortier , and instructed him to guard the field of battle without moving forward or backward, while at the same time unleashing a massive cannonade with his 400 guns. [ 65 ]",
+   "kind": "prose"
+  },
+  {
+   "i": 241,
+   "text": "End of the battle",
+   "kind": "prose"
+  },
+  {
+   "i": 242,
+   "text": "[ edit ]",
+   "kind": "prose"
+  },
+  {
+   "i": 243,
+   "text": "Napoleon went forward to see the situation from the former Russian front lines shortly after the redoubts were taken. The Russians had moved to the next ridge-line in much disarray; however, this disarray was not clear to the French, with dust and haze obscuring the Russian dispositions. Kutuzov ordered the Russian Guard to hold the line and it did. The compact squares of the Russian formation made for easy artillery targets, though the Russian Guard stood in place from 4 pm to 6 pm, resulting in a large amount of casualties. [ 66 ] All he could see were masses of troops in the distance and thus nothing more was attempted. Neither the attack which relied on brute force, nor the refusal to use the Guard to finish the day's work, showed any brilliance on Napoleon's part. [ 67 ]",
+   "kind": "prose"
+  },
+  {
+   "i": 244,
+   "text": "M. I. Kutuzov and his staff in the meeting at Fili village , when Kutuzov decided the Russian army had to retreat from Moscow. Painting by Aleksey Kivshenko",
+   "kind": "prose"
+  },
+  {
+   "i": 245,
+   "text": "Clausewitz and Alexander I of Russia both noted the poor positioning of the Russian troops particularly hobbled the defense. Barclay communicated with Kutuzov to receive further instructions. According to Ludwig von Wolzogen (in an account dripping with sarcasm), the commander was found a half-hour away on the road to Moscow, encamped with an entourage of young nobles and grandly pronouncing he would drive Napoleon off the next day. [ 23 ]",
+   "kind": "prose"
+  },
+  {
+   "i": 246,
+   "text": "Despite his bluster, Kutuzov knew from dispatches his army was too badly mauled to fight a continuing action the following day. He knew exactly what he was doing: by fighting the pitched battle, he could now retreat with the Russian army still intact, lead its recovery, and force the weakened French forces to move even further from their bases of supply. The dénouement became a textbook example of what a hold logistics had upon an army far from its center of supply. [ 67 ] On September 8, the Russian army moved away from the battlefield in twin columns, allowing Napoleon to occupy Moscow and await for five weeks a Russian surrender that would never come. [ 68 ]",
+   "kind": "prose"
+  },
+  {
+   "i": 247,
+   "text": "Kutuzov would proclaim over the course of several days the Russian Army would fight again before the walls of Moscow. In fact, a site was chosen near Poklonnaya Gora within a few miles of Moscow as a battle site. However, the Russian Army had not received enough reinforcements, and it was too risky to cling to Moscow at all costs. Kutuzov understood the Russian people would never want to abandon Moscow, the city regarded as Russia's \"second capital\" after Saint Petersburg ; however he also believed the Russian Army did not have enough forces to protect the city. Kutuzov called for a council of war in the afternoon of 13 September at Fili village. In a heated debate that split the council five to four in favour of giving battle, Kutuzov, after listening to each General, endorsed a retreat. Thus passed the last chance of battle before Moscow was taken. [ 36 ] [ 69 ]",
+   "kind": "prose"
+  },
+  {
+   "i": 248,
+   "text": "Historiography",
+   "kind": "prose"
+  },
+  {
+   "i": 249,
+   "text": "[ edit ]",
+   "kind": "prose"
+  },
+  {
+   "i": 250,
+   "text": "It is not unusual for a pivotal battle of this era to be difficult to document. Similar difficulties exist with the Battle of Waterloo or battles of the War of 1812 in North America, while the Battle of Borodino offers its own particular challenges to accuracy. [ 70 ] It has been repeatedly subjected to overtly political uses. [ 71 ]",
+   "kind": "prose"
+  },
+  {
+   "i": 251,
+   "text": "Personal accounts of the battle frequently magnified an individual's own role or minimised those of rivals. [ 72 ] The politics of the time were complex, and further complicated by ethnic divisions between the native Russian nobility and those of second and third-generation German descent , leading to rivalry for positions in command of the army. Not only do historians have to deal with the normal problem of a veteran looking back and recalling events as they would have liked them to have been, but in some cases outright malice was involved. Nor was this strictly a Russian event, as bickering and sabotage were known amongst the French marshals and their reporting generals. To \"lie like a bulletin\" was a recognised phrase amongst his troops. [ k ] [ 73 ] [ 74 ] It was not just a French affair either, with Kutuzov in particular promoting misinformation that has continued to this day. [ 70 ] Further distortions occurred during the Soviet years, when an adherence to ideology was the expectation during the Stalinist era and for some time after. The over-reliance of western historians on French sources for the battle and campaign was noted by later historians. [ 70 ]",
+   "kind": "prose"
+  },
+  {
+   "i": 252,
+   "text": "The views of historians regarding the outcome of the battle changed with the passage of time and changing political situations. Kutuzov proclaimed a victory both to the army and to Emperor Alexander. While many a general throughout history has claimed victory out of defeat, in this case Kutuzov was commander-in-chief of the entire Russian army: an army that, despite the huge losses, considered itself undefeated. Announcing a defeat would have removed Kutuzov from command, and damaged the morale of the soldiers. While Alexander was not deceived by the announcement, it gave him the justification needed to allow Kutuzov to march his army off to rebuild the Russian forces and later complete the near utter destruction of the French army. [ 75 ] As such, what was said by Kutuzov and those supporting his views was allowed to pass into the histories of the time unchecked. [ 70 ]",
+   "kind": "prose"
+  },
+  {
+   "i": 253,
+   "text": "Histories during the Soviet era raised the battle to a mythic contest with serious political overtones. They depicted Kutuzov as a master tactician, directing every move on the battlefield with the precision of a ballet master directing his troupe. [ 70 ] Kutuzov's abilities on the battlefield were, in the eyes of his contemporaries and fellow Russian generals, far more complex; they were often described in less than flattering terms. Historian David G. Chandler , writing in 1966, echoes the Soviet-era Russian histories in several ways, asserting General Kutuzov remained in control of the battle throughout, for instance by ordering counter-moves to Napoleon's tactics personally rather than Bagration and Barclay doing so, and putting aside personal differences to overcome any dispositional mistakes. Far from languishing in his tent at a distance from the battle, Chandler argued Kutuzov remained with the army. Chandler also has the Russian army in much better shape, moving to secondary prepared positions and seriously considering attacking the next day. [ 76 ] Later historians Riehn and Mikaberidze have Kutuzov leaving most of the battle to Bagration and Barclay de Tolly, leaving early in the afternoon and relaying orders from his camp 30 minutes from the front. [ 77 ] However, Chandler did concede most of the errors on the Russian side were \"the responsibility of their senior generals\", [ 78 ] and \"Kutuzov made as small a personal contribution to the general development of the battle as his famous opponent.\" [ 78 ]",
+   "kind": "prose"
+  },
+  {
+   "i": 254,
+   "text": "Kutuzov's dispositions for the battle are described as clearly mistaken, by leaving the right far too strong and the left much too weak. Only the fact that Bagration and Barclay cooperated fully saved the Russian army, doing much to mitigate the bad positioning overall. [ 66 ] Nothing was more damning than the 300 artillery pieces which stood silent on the Russian right. [ 5 ]",
+   "kind": "prose"
+  },
+  {
+   "i": 255,
+   "text": "Casualties",
+   "kind": "prose"
+  },
+  {
+   "i": 256,
+   "text": "[ edit ]",
+   "kind": "prose"
+  },
+  {
+   "i": 257,
+   "text": "Dead soldiers of the Grande Armée on the Kolocha river bridge, by Christian Wilhelm von Faber du Faur",
+   "kind": "prose"
+  },
+  {
+   "i": 258,
+   "text": "The fighting involved around 250,000 troops and left at least 68,000 killed and wounded, making Borodino the deadliest single-day battle of the Napoleonic Wars and one of the bloodiest single-day battles in military history until the First Battle of the Marne in 1914. [ 79 ]",
+   "kind": "prose"
+  },
+  {
+   "i": 259,
+   "text": "The casualties of the battle were staggering: according to French General Staff Inspector P. Denniee, the Grande Armée lost approximately 28,000 soldiers: 6,562 (including 269 officers) were reported dead, 21,450 wounded. [ 80 ] But according to French historian Aristid Martinien, [ 81 ] at least 460 French officers (known by name) were killed in battle. In total, the Grande Armée lost 1,928 officers dead and wounded, including 49 generals. [ 81 ] This list included French Generals of Division Auguste-Jean-Gabriel de Caulaincourt , Louis-Pierre Montbrun , Jean Victor Tharreau ; and Generals of Brigade Claude Antoine Compère , François Auguste Damas , Léonard Jean Aubry Huard de Saint-Aubin , Jean Pierre Lanabère , Charles Stanislas Marion , Louis Auguste Marchand Plauzonne and Jean Louis Romeuf . [ 82 ]",
+   "kind": "prose"
+  },
+  {
+   "i": 260,
+   "text": "Suffering a wound on the Borodino battlefield was effectively a death sentence, as French forces did not possess enough food for the healthy, much less the sick; consequently, equal numbers of wounded soldiers starved to death, died of their injuries, or perished through neglect. [ 83 ] The casualties were for a single day of battle, while the Russian figures are for the 5th and 7th combined. Using the same accounting method for both armies brings the actual French Army casualty count to 34,000–35,000. [ 8 ]",
+   "kind": "prose"
+  },
+  {
+   "i": 261,
+   "text": "Both the French and Russians suffered terrible casualties during the fighting, losing over a third of their armies. Some 52,000 Russian troops were reported dead, wounded or missing, including 1,000 prisoners; some 8,000 soldiers were separated from their units and returned over the next few days, bringing the total Russian losses to 44,000. 22 Russian generals were killed or wounded, including Prince Bagration , who died of his wounds on 24 September. [ 6 ] Historian Gwynne Dyer compared the carnage at Borodino to \"a fully- loaded 747 crashing, with no survivors, every 5 minutes for eight hours\". Taken as a one-day battle in the scope of the Napoleonic conflict, this was the bloodiest battle of this series of conflicts with combined casualties between 72,000 and 73,000. The next nearest battle would be Waterloo , at about 55,000 for the day. [ 84 ] The French lost about roughly the same number of soldiers. [ b ] However, the Russian Empire could relieve these losses, whilst Napoleon, fighting over 1,000 miles from home, could not. [ 9 ]",
+   "kind": "prose"
+  },
+  {
+   "i": 262,
+   "text": "In the historiography of this battle, the figures would be deliberately inflated or underplayed by the generals of both sides attempting to lessen the impact the figures would have on public opinion both during aftermath of the battle or, for political reasons, later during the Soviet period. [ 85 ]",
+   "kind": "prose"
+  },
+  {
+   "i": 263,
+   "text": "Aftermath",
+   "kind": "prose"
+  },
+  {
+   "i": 264,
+   "text": "[ edit ]",
+   "kind": "prose"
+  },
+  {
+   "i": 265,
+   "text": "Attrition warfare",
+   "kind": "prose"
+  },
+  {
+   "i": 266,
+   "text": "[ edit ]",
+   "kind": "prose"
+  },
+  {
+   "i": 267,
+   "text": "Estimates of the Battle of Borodino appear in different ways in historiography, from the victory of the French, to the victory of the Russians and a draw. The battle was undoubtedly a moral success for the Russians in imperial Russian sources. [ 86 ] More modern authors note in the camp of the French army there was a feeling of victory incredibly difficult, but still a victory. [ 87 ] However, some French testimony from the battlefield confirms the opposite. General Pelleport, commander of the 18th Line Regiment, wrote: \"This victory was so painfully and so bought, it was incomplete. She made us sad!\".",
+   "kind": "prose"
+  },
+  {
+   "i": 268,
+   "text": "The aforementioned Segur also wrote: \"The French soldiers were amazed by the number of dead and wounded, such a small number of prisoners, there are no more than 800 of them! The dead testified more to the bravery of the vanquished than to our victory. If the surviving enemy retreated in such complete, brilliant order, proud and undaunted, what did it mean for us to capture a battlefield?\". [ 88 ] Kutuzov retreated from the battlefield on 8 September, and Napoleon and his army managed to capture Moscow ; the city was actually used as bait to lure and trap the French forces. The fierce defense of the Imperial Russian Army devastated the Grande Armée to such an extent it caused the French Army 's force to become impuissant . [ 89 ] [ 90 ] [ 91 ] When Napoleon and his army visited the city, he found it was burnt and abandoned; accordingly, it was impossible to count on a devastated Moscow as a place from which a soldier could live in the run-up to winter. While Napoleon was in Moscow, he sent a letter to the tsar residing in Saint Petersburg demanding he surrender and accept defeat. Napoleon received no response. Whilst patiently waiting for an answer from the tsar, as soon as the cold winter and snowfall started to form, Napoleon, realizing what was happening, attempted to escape the country with his army. Seeing they were fleeing, the Imperial Russian army launched a massive attack on the French. Attrition warfare was used by Kutuzov by burning Moscow's resources, guerrilla warfare by the Cossacks against any kind of transport and total war by the peasants against foraging. This kind of warfare weakened the French army at its most vulnerable point: logistics , as it was unable to pillage Russian land, which was insufficiently populated nor cultivated, [ 92 ] meaning starvation became the most dangerous enemy long before the cold set in. [ 93 ]",
+   "kind": "prose"
+  },
+  {
+   "i": 269,
+   "text": "The feeding of horses by supply trains was extremely difficult, as a ration for a horse weighs about ten times as much as one for a soldier. It was tried in vain to feed and water all the horses by foraging expeditions. [ 94 ] Of the more than 600,000 soldiers who invaded the Russian Empire, 112,000 returned. [ 95 ] Thus Borodino cannot be called a strategic victory for the French.",
+   "kind": "prose"
+  },
+  {
+   "i": 270,
+   "text": "\"An indecisive victory\"",
+   "kind": "prose"
+  },
+  {
+   "i": 271,
+   "text": "[ edit ]",
+   "kind": "prose"
+  },
+  {
+   "i": 272,
+   "text": "Most scholars and contemporaries describe Borodino as a draw or French Pyrrhic victory . It can be called a tactical victory for the French, with some reservations described further, and strategically indecisive encounter. The French managed to press the Russians back to a distance of plus or minus 1 kilometer (±0.6 mi) having captured the redoubt and flèches , but did not break through their formations and generally failed to achieve the set tactical (to destroy the Russian army) and strategic (to end the war) goals. Assuming short-term objectives , such as capturing the flèches /redoubt and pushing back the Russian army, were achieved, and also the French remained masters of the battlefield after Kutuzov's decision to retreat the next day, it can be said the French had won a tactical victory. Historian Oleg Sokolov who once earned the title of the chevalier of the National Order of Legion of Honour , spoke out on this matter and posited Borodino constituted a Pyrrhic victory for the French, which would ultimately cost Napoleon the war and his crown, although at the time none of this was apparent to either side. Sokolov added the decision to not commit the Guard saved the Russians from an Austerlitz -style defeat. He quoted Marshal Laurent de Gouvion Saint-Cyr , one of Napoleon's finest strategists, who analyzed the battle and concluded an intervention of the Guard would have torn the Russian army to pieces, allowed Napoleon to safely follow his plans to take winter quarters in Moscow, and resume his successful campaign in spring or offer the Tsar acceptable peace terms. [ 64 ] He also claims the victory \"did not bring anything to the French.\" [ 87 ] Historian Digby Smith called Borodino 'a draw', but believes posterity proved Napoleon right in his decision to not commit the Guard so far away from his homeland. [ 96 ] According to historian Christopher Duffy , the battle of Borodino could be seen as a new Battle of Torgau , where both sides sustained terrible losses but neither could achieve their tactical goals, and the battle itself did not have a clear result, [ 97 ] [ 98 ] although both sides claimed the battle as their own victory. [ 99 ] Historian Frederick Kagan called the battle a \"victory for the Russians, which they got at a great price\". [ 100 ] Historian",
+   "kind": "prose"
+  },
+  {
+   "i": 273,
+   "text": "Nikolai Troitsky [ru] argues the battle was indecisive for both sides, but in light of long-term events, the French were in a worse position. [ 9 ] Soviet historian Pavel Zhilin [ru] concluded Kutuzov did not have enough strength to win, but he was able to inflict great damage on the French in a battle that did not give advantages to anyone. [ 101 ] In 1992, In the Russian magazine Rodina , there was a debate between historians Boris Abalikhin [ru] and Alexey Vasilyev, the first claiming the battle ended in a draw, the second that the French won a tactical victory. [ 102 ]",
+   "kind": "prose"
+  },
+  {
+   "i": 274,
+   "text": "However, in what had become a war of attrition, the battle was just one more source of losses to the French when they were losing two soldiers to one. Both the French and the Russians suffered terribly but the Russians had reserve troops and a clear logistical advantage. The French Army supplies came over a long road lined with hostile forces. According to Riehn, so long as the Russian Army existed the French continued to lose. [ 47 ]",
+   "kind": "prose"
+  },
+  {
+   "i": 275,
+   "text": "This battle was not decisive, but it allowed the French emperor to occupy Moscow to await a surrender that would never come. The capture of Moscow proved a Pyrrhic victory, since the Russians had no intention of negotiating with Napoleon for peace. Historian Riehn notes the Borodino victory allowed Napoleon to move on to Moscow, where – even allowing for the arrival of reinforcements – the French Army only possessed a maximum of 95,000 soldiers, who would be ill-equipped to win a battle due to a lack of supplies and ammunition. [ 103 ] The main part of the Grande Armée suffered more than 90,000 casualties by the time of the Moscow retreat (see Minard's map); typhus , dysentery , starvation and hypothermia ensured only about 10,000 of the main force returned across the Russian border alive. Furthermore, although the Russian army suffered heavy casualties in the battle, it regrouped by the time of Napoleon's retreat from Moscow; it soon began to interfere with the French withdrawal and made it a catastrophe. [ 104 ]",
+   "kind": "prose"
+  },
+  {
+   "i": 276,
+   "text": "Napoleon himself summed up the battle and its ambiguous outcome, writing, \"The French showed themselves worthy of victory and the Russians of being invincible.\" [ 105 ]",
+   "kind": "prose"
+  },
+  {
+   "i": 277,
+   "text": "Legacy",
+   "kind": "prose"
+  },
+  {
+   "i": 278,
+   "text": "[ edit ]",
+   "kind": "prose"
+  },
+  {
+   "i": 279,
+   "text": "Franz Roubaud panorama Battle of Borodino",
+   "kind": "prose"
+  },
+  {
+   "i": 280,
+   "text": "Historical reenactment of 1812 battle near Borodino, 2011",
+   "kind": "prose"
+  },
+  {
+   "i": 281,
+   "text": "Pyotr Ilyich Tchaikovsky composed his 1812 Overture to commemorate Russia's successful defence against the French invasion, including the defence at Borodino. [ 106 ] Karol Kurpiński composed his \"Grand Symphony Imagining a Battle\", also known as \"The Battle of Mozhaysk Symphony\", to commemorate the Battle. [ 107 ]",
+   "kind": "prose"
+  },
+  {
+   "i": 282,
+   "text": "The battle was famously described by Leo Tolstoy in his novel War and Peace : \"After the shock that was received, the French army was still able to crawl to Moscow; but there, without any new efforts on the part of the Russian troops, it was doomed to perish, bleeding to death from the mortal wound received at Borodino\". [ 108 ] The battle is depicted in Sergei Bondarchuk 's film adaptation of Tolstoy's novel , which has a monumental depiction of the battle using 12,000 Soviet troops. [ 109 ]",
+   "kind": "prose"
+  },
+  {
+   "i": 283,
+   "text": "Poet Mikhail Lermontov romanticized the battle in his poem Borodino . [ 110 ] A huge panorama representing the battle was painted by Franz Roubaud for the 100th anniversary of Borodino in 1912. [ 111 ] In Russia, the Battle of Borodino is reenacted yearly on the first Sunday of September and commemorated as a Day of Military Honour . [ 112 ] [ 113 ] On the battlefield itself, the Bagration flèches are preserved. [ citation needed ] In 1912, on the initiative by French people, Russian government sanction construction of a monument dedicated to the French soldiers who fell in the Battle of Borodino. The building spot coincided with the location where Napoleon set up his tent during the battle. Additionally, it is a rare example of monument established on the Russian territory that is dedicated to their war opponents. [ 88 ]",
+   "kind": "prose"
+  },
+  {
+   "i": 284,
+   "text": "A commemorative one-ruble coin was released in the Soviet Union in 1987 to commemorate the 175th anniversary of the Battle of Borodino, and four million were minted. [ 114 ] A minor planet , 3544 Borodino , discovered by Soviet astronomer Nikolai Stepanovich Chernykh in 1977, was named after the village of Borodino. [ 115 ]",
+   "kind": "prose"
+  },
+  {
+   "i": 285,
+   "text": "1987 Soviet commemorative coin, reverse",
+   "kind": "prose"
+  },
+  {
+   "i": 286,
+   "text": "Since May 1813, at least 29 ships were named Borodino after the battle (see List of ships named Borodino ), and many others after participants in the battle: 24 ships in honor of Mikhail Kutuzov , 18 ships in honor of Matvei Platov , 15 ships in honor of Pyotr Bagration , 33 ships in honor of the Cossacks , four ships in honor of Denis Davydov , two ships each in honor of Louis-Alexandre Berthier , Jean-Baptiste Bessières and Michel Ney ; and one ship each in honor of the officers of the Marine Guards crew I. P. Kartsov, N. P. Rimsky-Korsakov and M. N. Lermontov; Prince Vorontsov , generals Yermolov and Raevsky , and Marshal of the Empire Louis-Nicolas Davout . [ 116 ]",
+   "kind": "prose"
+  },
+  {
+   "i": 287,
+   "text": "In 1821, the year the Emperor of the French passed away, the American poet Sumner Lincoln Fairfield published his first poetic work—the poem \"The Battle of Borodino\"—in Savannah, USA. [ 117 ]",
+   "kind": "prose"
+  },
+  {
+   "i": 288,
+   "text": "See also",
+   "kind": "prose"
+  },
+  {
+   "i": 289,
+   "text": "[ edit ]",
+   "kind": "prose"
+  },
+  {
+   "i": 290,
+   "text": "- Military career of Napoleon Bonaparte",
+   "kind": "prose"
+  },
+  {
+   "i": 291,
+   "text": "- List of battles of the French invasion of Russia",
+   "kind": "prose"
+  },
+  {
+   "i": 292,
+   "text": "- Nikolay Vuich",
+   "kind": "prose"
+  },
+  {
+   "i": 293,
+   "text": "- Ivan Shevich",
+   "kind": "prose"
+  },
+  {
+   "i": 294,
+   "text": "- Andrei Miloradovich",
+   "kind": "prose"
+  },
+  {
+   "i": 295,
+   "text": "- Avram Ratkov",
+   "kind": "prose"
+  },
+  {
+   "i": 296,
+   "text": "- Ivan Adamovich",
+   "kind": "prose"
+  },
+  {
+   "i": 297,
+   "text": "- Nikolay Bogdanov",
+   "kind": "prose"
+  },
+  {
+   "i": 298,
+   "text": "- Ilya Duka",
+   "kind": "prose"
+  },
+  {
+   "i": 299,
+   "text": "- Georgi Emmanuel",
+   "kind": "prose"
+  },
+  {
+   "i": 300,
+   "text": "- Peter Ivanovich Ivelich",
+   "kind": "prose"
+  },
+  {
+   "i": 301,
+   "text": "References",
+   "kind": "prose"
+  },
+  {
+   "i": 302,
+   "text": "[ edit ]",
+   "kind": "prose"
+  },
+  {
+   "i": 303,
+   "text": "Explanatory notes",
+   "kind": "prose"
+  },
+  {
+   "i": 304,
+   "text": "[ edit ]",
+   "kind": "prose"
+  },
+  {
+   "i": 305,
+   "text": "- ↑ Regular army and Cossacks . The militia were not ready to deploy to the battlefield and were therefore not involved. [ 4 ] [ 5 ]",
+   "kind": "reflist"
+  },
+  {
+   "i": 306,
+   "text": "- 1 2 French documents : c. 30,000; [ 9 ] (This may be incomplete data, because the number is rounded only from the killed and wounded.) [ 10 ] Napoleon's report : 10,000 (propaganda embellishment, as per Napoleon). [ 11 ] Napoleon's General Ségur claimed in his memoirs that the French lost around 40,000 men killed and wounded, but it was written under the Bourbons and, in Alexey Vasilyev's view, Ségur's desire to honour France's new masters is palpable, despite the fact that this information is \"not without reputed objectivity\". [ 12 ] As Vasilyev writes, in Russian literature the figure of 58,478 French casualties is very often found. It was published in 1813 by Count Fyodor Rostopchin based on a Swiss adventurer Alexander Schmidt's information, who in October 1812 defected to the Russians and pretended to be a major. Count Rostopchin, apparently interested in overstating the enemy's losses, did not notice the mass of absurdities contained in Schmidt's data. As M. Kazantsev pointed out, using Vasilyev's findings, this figure (58,478) is \" hugely far from the truth\" and \"a figment of Schmidt's imagination\"; it is \"most likely that the French actually lost about 30,000 men on the day\". [ 13 ] Dmitry Tselorungo noted that the mentioned number of losses in French documents (28,000, in historiography it rises to 30,000), it only takes into account the killed (6,547) and wounded (21,453), completely omitting the missing from the calculations, which are always taken into account when assessing Russian losses. [ 10 ] V. N. Zemtsov [ru] estimated French losses from 5 to 7 September at 38,500 men, [ 14 ] [ 15 ] – appropriately, losses also beyond the Borodino battle itself and include Battle of Shevardino . Gaston Bodart and Boris Uralanis estimated French casualties as 42,000 killed, wounded or captured. [ 16 ] [ 17 ] Oleg Sokolov claims that Dennie data on the dead is incomplete, and there may be significantly more than the figures mentioned. [ 18 ]",
+   "kind": "reflist"
+  },
+  {
+   "i": 307,
+   "text": "- ↑ 49 killed, wounded/shell-shocked [ 19 ] or 12 killed, 38 wounded [ 20 ]",
+   "kind": "reflist"
+  },
+  {
+   "i": 308,
+   "text": "- ↑ As per Mikhail Kutuzov , 39,312 (5–7 September); casualties of irregular troops /militia are not given and, in addition, it is incomplete data also due to lack of information on some regular army units. [ 21 ] An analysis with these data later revealed losses of 37,665 – 39,060, as a huge part of the missing returned to their regiments. [ 15 ] As Adam Zamoyski and Sergei Lvov note, there are casualty figures in the literature ranging from 38,500 to 58,000. [ 7 ] [ 21 ] 38,500 men (identical to Zemtsov's assessment of French losses on 5–7 September), e.g., data from the September statement where there is an undercount or an error. 58,000 is the figure coming from Alexander Mikhailovsky-Danilevsky . S. Shvedov's research notes the imperfections in Mikhailovsky-Danilevsky's estimate, for example, this estimate erroneously omits the 2nd Army 's losses in the December statement. [ 22 ]",
+   "kind": "reflist"
+  },
+  {
+   "i": 309,
+   "text": "- ↑ \"40,000 to 50,000\" [ 9 ]",
+   "kind": "reflist"
+  },
+  {
+   "i": 310,
+   "text": "- ↑ Gaston Bodart estimated the losses at 52,000. [ 16 ] There is no agreement among some modern researchers regarding casualty figures. Thus, S. Shvedov's calculations regarding losses of 53,000 do take place; however, they are called methodologically incorrect and erroneous by Sergei Lvov. Lvov makes a remark that, despite the value of Shvedov's work in the active use of the rich funds of the Russian State Military Archive [ru] , Shvedov, due to the lack of reports from corps commanders, roughly calculated the casualties. Shvedov's figures are well-established among historians. [ 15 ] [ 22 ] [ 21 ]",
+   "kind": "reflist"
+  },
+  {
+   "i": 311,
+   "text": "- ↑ 4 killed, 23 wounded, [ 20 ] or up to 29 killed, wounded/shell-shocked [ 19 ]",
+   "kind": "reflist"
+  },
+  {
+   "i": 312,
+   "text": "- ↑ Russian : Бopoди́нcкoe cpaже́ниe , romanized : Borodínskoye srazhéniye , Russian pronunciation: [ bərədʲɪˈno ]",
+   "kind": "reflist"
+  },
+  {
+   "i": 313,
+   "text": "- ↑ French : bataille de la Moskova",
+   "kind": "reflist"
+  },
+  {
+   "i": 314,
+   "text": "- ↑ Old Style date : 26 August 1812",
+   "kind": "reflist"
+  },
+  {
+   "i": 315,
+   "text": "- ↑ Napoleon was in the habit of issuing regular bulletins describing his campaigns.",
+   "kind": "reflist"
+  },
+  {
+   "i": 316,
+   "text": "Citations",
+   "kind": "prose"
+  },
+  {
+   "i": 317,
+   "text": "[ edit ]",
+   "kind": "prose"
+  },
+  {
+   "i": 318,
+   "text": "- 1 2 Dwyer 2014 , p. 383.",
+   "kind": "reflist"
+  },
+  {
+   "i": 319,
+   "text": "- 1 2 Riehn 1990 , p. 479.",
+   "kind": "reflist"
+  },
+  {
+   "i": 320,
+   "text": "- 1 2 3 4 Mikaberidze 2007 , p. 52.",
+   "kind": "reflist"
+  },
+  {
+   "i": 321,
+   "text": "- ↑ Mikaberidze 2007 , pp. 52, 136.",
+   "kind": "reflist"
+  },
+  {
+   "i": 322,
+   "text": "- 1 2 3 Smith 1998 , p. 392.",
+   "kind": "reflist"
+  },
+  {
+   "i": 323,
+   "text": "- 1 2 3 Riehn 1990 , p. 255.",
+   "kind": "reflist"
+  },
+  {
+   "i": 324,
+   "text": "- 1 2 3 Zamoyski 2004 , p. 287.",
+   "kind": "reflist"
+  },
+  {
+   "i": 325,
+   "text": "- 1 2 Mikaberidze 2007 , p. 209.",
+   "kind": "reflist"
+  },
+  {
+   "i": 326,
+   "text": "- 1 2 3 4 Troitsky 2024 .",
+   "kind": "reflist"
+  },
+  {
+   "i": 327,
+   "text": "- 1 2 Tselorungo 2014 , pp. 306–307.",
+   "kind": "reflist"
+  },
+  {
+   "i": 328,
+   "text": "- ↑ Vasilyev 1992 , p. 69.",
+   "kind": "reflist"
+  },
+  {
+   "i": 329,
+   "text": "- ↑ Vasilyev 1992 , pp. 69, 71.",
+   "kind": "reflist"
+  },
+  {
+   "i": 330,
+   "text": "- ↑ Kazantsev 1999 ; Vasilyev 1992 , p. 69.",
+   "kind": "reflist"
+  },
+  {
+   "i": 331,
+   "text": "- ↑ Zemtsov 2001 , pp. 260–265.",
+   "kind": "reflist"
+  },
+  {
+   "i": 332,
+   "text": "- 1 2 3 Tselorungo, Dmitry Georgievich, О потерях русской и наполеоновской армий в Бородинском сражении, 24–26 августа 1812 г.",
+   "kind": "reflist"
+  },
+  {
+   "i": 333,
+   "text": "- 1 2 Bodart 1916 , p. 119.",
+   "kind": "reflist"
+  },
+  {
+   "i": 334,
+   "text": "- ↑ Uralanis 1960 , p. 80.",
+   "kind": "reflist"
+  },
+  {
+   "i": 335,
+   "text": "- ↑ Sokolov 2020 , p. 94.",
+   "kind": "reflist"
+  },
+  {
+   "i": 336,
+   "text": "- 1 2 3 Shishov 2001 , p. 230.",
+   "kind": "reflist"
+  },
+  {
+   "i": 337,
+   "text": "- 1 2 Егоршина 2023 , p. 273.",
+   "kind": "reflist"
+  },
+  {
+   "i": 338,
+   "text": "- 1 2 3 Lvov .",
+   "kind": "reflist"
+  },
+  {
+   "i": 339,
+   "text": "- 1 2 Shvedov .",
+   "kind": "reflist"
+  },
+  {
+   "i": 340,
+   "text": "- 1 2 3 4 Riehn 1990 , p. 253.",
+   "kind": "reflist"
+  },
+  {
+   "i": 341,
+   "text": "- ↑ Sokolov 2020 , p. 338.",
+   "kind": "reflist"
+  },
+  {
+   "i": 342,
+   "text": "- ↑ Riehn 1990 , p. 166.",
+   "kind": "reflist"
+  },
+  {
+   "i": 343,
+   "text": "- ↑ \"Delaying Operation Definition\" . MilitaryDictionary . Retrieved July 3, 2025 .",
+   "kind": "reflist"
+  },
+  {
+   "i": 344,
+   "text": "- ↑ Riehn 1990 , p. 220.",
+   "kind": "reflist"
+  },
+  {
+   "i": 345,
+   "text": "- ↑ Riehn 1990 , p. 235.",
+   "kind": "reflist"
+  },
+  {
+   "i": 346,
+   "text": "- ↑ Riehn 1990 , p. 237.",
+   "kind": "reflist"
+  },
+  {
+   "i": 347,
+   "text": "- ↑ Riehn 1990 , p. 259.",
+   "kind": "reflist"
+  },
+  {
+   "i": 348,
+   "text": "- ↑ Riehn 1990 , p. 238.",
+   "kind": "reflist"
+  },
+  {
+   "i": 349,
+   "text": "- 1 2 3 Riehn 1990 , p. 243.",
+   "kind": "reflist"
+  },
+  {
+   "i": 350,
+   "text": "- 1 2 3 4 5 6 7 8 9 Novitsky, Vasily F. (1911). \"Бородино\" [ Borodino ] . Военная энциклопедия (in Russian). Vol. 5: Бомбарда – Верещагин. Moscow: Ivan Sytin . pp. 19– 31 . Retrieved 4 November 2023 .",
+   "kind": "reflist"
+  },
+  {
+   "i": 351,
+   "text": "- 1 2 3 4 5 Riehn 1990 , p. 244.",
+   "kind": "reflist"
+  },
+  {
+   "i": 352,
+   "text": "- 1 2 3 Mikaberidze 2007 , p. 33.",
+   "kind": "reflist"
+  },
+  {
+   "i": 353,
+   "text": "- 1 2 3 4 5 6 7 8 Nguyễn Thị Thư; Lê Phụng Hoàng (1997). \"Chapter IV: Cutudốp\". In Lê Vinh Quốc (ed.). Các nhân vật Lịch sử Cận đại, Tập II: Nga [ Characters of Modern History, Volume II: Russia ] (in Vietnamese). Ho Chi Minh City: Giáo dục. [ page needed ]",
+   "kind": "reflist"
+  },
+  {
+   "i": 354,
+   "text": "- ↑ Mikaberidze 2007 , p. 47.",
+   "kind": "reflist"
+  },
+  {
+   "i": 355,
+   "text": "- ↑ Mikaberidze 2007 , p. 45.",
+   "kind": "reflist"
+  },
+  {
+   "i": 356,
+   "text": "- ↑ Stoker 2015 .",
+   "kind": "reflist"
+  },
+  {
+   "i": 357,
+   "text": "- 1 2 Mikaberidze 2007 , p. 57.",
+   "kind": "reflist"
+  },
+  {
+   "i": 358,
+   "text": "- 1 2 Mikaberidze 2007 , p. 53.",
+   "kind": "reflist"
+  },
+  {
+   "i": 359,
+   "text": "- 1 2 Mikaberidze 2007 , p. 26.",
+   "kind": "reflist"
+  },
+  {
+   "i": 360,
+   "text": "- ↑ Mikaberidze 2007 , p. 77.",
+   "kind": "reflist"
+  },
+  {
+   "i": 361,
+   "text": "- ↑ Mikaberidze 2007 , p. 79.",
+   "kind": "reflist"
+  },
+  {
+   "i": 362,
+   "text": "- ↑ Mikaberidze 2007 , p. 81.",
+   "kind": "reflist"
+  },
+  {
+   "i": 363,
+   "text": "- ↑ Riehn 1990 , p. 245.",
+   "kind": "reflist"
+  },
+  {
+   "i": 364,
+   "text": "- 1 2 3 4 5 Riehn 1990 , p. 246.",
+   "kind": "reflist"
+  },
+  {
+   "i": 365,
+   "text": "- ↑ Mikaberidze 2007 , p. 107.",
+   "kind": "reflist"
+  },
+  {
+   "i": 366,
+   "text": "- 1 2 Mikaberidze 2021 .",
+   "kind": "reflist"
+  },
+  {
+   "i": 367,
+   "text": "- 1 2 Riehn 1990 , p. 247.",
+   "kind": "reflist"
+  },
+  {
+   "i": 368,
+   "text": "- ↑ Hourtoulle 2000 , p. 33.",
+   "kind": "reflist"
+  },
+  {
+   "i": 369,
+   "text": "- ↑ Riehn 1990 , p. 248.",
+   "kind": "reflist"
+  },
+  {
+   "i": 370,
+   "text": "- 1 2 Riehn 1990 , p. 249.",
+   "kind": "reflist"
+  },
+  {
+   "i": 371,
+   "text": "- 1 2 Riehn 1990 , p. 250.",
+   "kind": "reflist"
+  },
+  {
+   "i": 372,
+   "text": "- 1 2 3 4 Riehn 1990 , p. 251.",
+   "kind": "reflist"
+  },
+  {
+   "i": 373,
+   "text": "- ↑ Smith 2003 , p. 126.",
+   "kind": "reflist"
+  },
+  {
+   "i": 374,
+   "text": "- ↑ Polovtsov 1900 , p. 710.",
+   "kind": "reflist"
+  },
+  {
+   "i": 375,
+   "text": "- ↑ Smith 2003 , pp. 122–129.",
+   "kind": "reflist"
+  },
+  {
+   "i": 376,
+   "text": "- ↑ Riehn 1990 , p. 252.",
+   "kind": "reflist"
+  },
+  {
+   "i": 377,
+   "text": "- ↑ Duffy 1972 , p. 131.",
+   "kind": "reflist"
+  },
+  {
+   "i": 378,
+   "text": "- 1 2 Mikaberidze 2007 , p. 136.",
+   "kind": "reflist"
+  },
+  {
+   "i": 379,
+   "text": "- 1 2 Riehn 1990 , p. 254.",
+   "kind": "reflist"
+  },
+  {
+   "i": 380,
+   "text": "- ↑ Mikaberidze 2007 , p. 137.",
+   "kind": "reflist"
+  },
+  {
+   "i": 381,
+   "text": "- 1 2 3 Sokolov 2005 , pp. 454–455.",
+   "kind": "reflist"
+  },
+  {
+   "i": 382,
+   "text": "- ↑ Pigeard 2004 , p. 585.",
+   "kind": "reflist"
+  },
+  {
+   "i": 383,
+   "text": "- 1 2 Mikaberidze 2007 , p. 224.",
+   "kind": "reflist"
+  },
+  {
+   "i": 384,
+   "text": "- 1 2 Riehn 1990 , p. 256.",
+   "kind": "reflist"
+  },
+  {
+   "i": 385,
+   "text": "- ↑ Riehn 1990 , p. 236.",
+   "kind": "reflist"
+  },
+  {
+   "i": 386,
+   "text": "- ↑ Mikaberidze 2007 , p. 221.",
+   "kind": "reflist"
+  },
+  {
+   "i": 387,
+   "text": "- 1 2 3 4 5 Mikaberidze 2007 , p. xi.",
+   "kind": "reflist"
+  },
+  {
+   "i": 388,
+   "text": "- ↑ Zamoyski 2004 , p. xv.",
+   "kind": "reflist"
+  },
+  {
+   "i": 389,
+   "text": "- ↑ Mikaberidze 2007 , p. 13.",
+   "kind": "reflist"
+  },
+  {
+   "i": 390,
+   "text": "- ↑ Herold 1969 , p. 125.",
+   "kind": "reflist"
+  },
+  {
+   "i": 391,
+   "text": "- ↑ Philippart 1813 , p. 67.",
+   "kind": "reflist"
+  },
+  {
+   "i": 392,
+   "text": "- ↑ Mikaberidze 2007 , p. 201.",
+   "kind": "reflist"
+  },
+  {
+   "i": 393,
+   "text": "- ↑ Chandler 1966 , p. 806.",
+   "kind": "reflist"
+  },
+  {
+   "i": 394,
+   "text": "- ↑ Mikaberidze 2007 , pp. 198, 224.",
+   "kind": "reflist"
+  },
+  {
+   "i": 395,
+   "text": "- 1 2 Chandler 1966 , p. 808.",
+   "kind": "reflist"
+  },
+  {
+   "i": 396,
+   "text": "- ↑ Andrew Roberts \"Napoleon\", p. 604 of paperback version",
+   "kind": "reflist"
+  },
+  {
+   "i": 397,
+   "text": "- ↑ Denniee 1842 .",
+   "kind": "reflist"
+  },
+  {
+   "i": 398,
+   "text": "- 1 2 Martinien 1899 .",
+   "kind": "reflist"
+  },
+  {
+   "i": 399,
+   "text": "- ↑ Smith 1998 , p. 391.",
+   "kind": "reflist"
+  },
+  {
+   "i": 400,
+   "text": "- ↑ Riehn 1990 , p. 261.",
+   "kind": "reflist"
+  },
+  {
+   "i": 401,
+   "text": "- ↑ Mikaberidze 2007 , p. 217.",
+   "kind": "reflist"
+  },
+  {
+   "i": 402,
+   "text": "- ↑ Mikaberidze 2007 , p. 208.",
+   "kind": "reflist"
+  },
+  {
+   "i": 403,
+   "text": "- ↑ Egorshina & Petrova 2023 , p. 272.",
+   "kind": "reflist"
+  },
+  {
+   "i": 404,
+   "text": "- 1 2 Sokolov 2020 , p. 482.",
+   "kind": "reflist"
+  },
+  {
+   "i": 405,
+   "text": "- 1 2 Vasilyev 1992 , p. 71.",
+   "kind": "reflist"
+  },
+  {
+   "i": 406,
+   "text": "- ↑ The Battle of Borodino: The History and Legacy of Napoleon's Pyrrhic Victory during the Invasion of Russia . Charles River Editors.",
+   "kind": "reflist"
+  },
+  {
+   "i": 407,
+   "text": "- ↑ Kershaw, Robert (2021). Borodino Field 1812 and 1941: How Napoleon and Hitler Met Their Matches Outside Moscow . The History Press. ISBN 978-0750995955 .",
+   "kind": "reflist"
+  },
+  {
+   "i": 408,
+   "text": "- ↑ Haythornthwaite 2012 .",
+   "kind": "reflist"
+  },
+  {
+   "i": 409,
+   "text": "- ↑ Riehn 1990 , p. 144.",
+   "kind": "reflist"
+  },
+  {
+   "i": 410,
+   "text": "- ↑ Riehn 1990 , p. 138.",
+   "kind": "reflist"
+  },
+  {
+   "i": 411,
+   "text": "- ↑ Clausewitz 1873 , chapter 5.14.",
+   "kind": "reflist"
+  },
+  {
+   "i": 412,
+   "text": "- ↑ Bodart 1916 , p. 127.",
+   "kind": "reflist"
+  },
+  {
+   "i": 413,
+   "text": "- ↑ Smith 2003 , p. 146.",
+   "kind": "reflist"
+  },
+  {
+   "i": 414,
+   "text": "- ↑ Duffy 1972 , p. 11.",
+   "kind": "reflist"
+  },
+  {
+   "i": 415,
+   "text": "- ↑ Duffy 1985 , p. 217.",
+   "kind": "reflist"
+  },
+  {
+   "i": 416,
+   "text": "- ↑ Fremont-Barnes 2006 , p. 174.",
+   "kind": "reflist"
+  },
+  {
+   "i": 417,
+   "text": "- ↑ Kagan 2002 , p. 118.",
+   "kind": "reflist"
+  },
+  {
+   "i": 418,
+   "text": "- ↑ Zhilin 1987 , pp. 216–217.",
+   "kind": "reflist"
+  },
+  {
+   "i": 419,
+   "text": "- ↑ Vasilyev 1992 , pp. 72–73.",
+   "kind": "reflist"
+  },
+  {
+   "i": 420,
+   "text": "- ↑ Riehn 1990 , p. 285.",
+   "kind": "reflist"
+  },
+  {
+   "i": 421,
+   "text": "- ↑ Zamoyski 2004 , p. 530.",
+   "kind": "reflist"
+  },
+  {
+   "i": 422,
+   "text": "- ↑ Roger Parkinson, The Fox of the North , p. 157 (New York, David McKay Co. , 1976).",
+   "kind": "reflist"
+  },
+  {
+   "i": 423,
+   "text": "- ↑ Green, Aaron (30 January 2018). \"The History of Tchaikovsky's 1812 Overture\" . ThoughtCo . Archived from the original on 17 April 2019 . Retrieved 13 April 2018 .",
+   "kind": "reflist"
+  },
+  {
+   "i": 424,
+   "text": "- ↑ \"Muzyka: Kurpiński – Możajsk 1812. Galop koni, brzęk szabel, salwy armatnie\" . Muzyka: Bitwa pod Możajskiem (Borodino), Karol Kurpiński – Muzyka: Kurpiński – Możajsk 1812. Galop koni, brzęk szabel, salwy armatnie – Muzyka – Wiedza – Historian: Poszukaj (in Polish) . Retrieved 2023-11-28 .",
+   "kind": "reflist"
+  },
+  {
+   "i": 425,
+   "text": "- ↑ Tolstoy 1949 , p. 481.",
+   "kind": "reflist"
+  },
+  {
+   "i": 426,
+   "text": "- ↑ White 1986 , p. 764.",
+   "kind": "reflist"
+  },
+  {
+   "i": 427,
+   "text": "- ↑ Umanskaja, Margarita Michajlovna (1971). Лермонтов и романтизм его времени (in Russian). Upper Volga Book Publishing House. p. 271.",
+   "kind": "reflist"
+  },
+  {
+   "i": 428,
+   "text": "- ↑ \"Музей-панорама 'Бородинская битва' \" . RIA Novosti . 18 October 2017.",
+   "kind": "reflist"
+  },
+  {
+   "i": 429,
+   "text": "- ↑ Kustov, Maxim (2008-12-24). \"В дни воинской славы России вкралась ошибка\" . Сегодня.ру (in Russian). Archived from the original on 2022-01-11 . Retrieved 2021-03-04 .",
+   "kind": "reflist"
+  },
+  {
+   "i": 430,
+   "text": "- ↑ Zubkov, Roman (2003-10-10). \"Календари не врут, их перевирают люди\" (in Russian). Nezavisimoye Voyennoye Obozreniye . Archived from the original on 2017-11-17 . Retrieved 2021-03-04 .",
+   "kind": "reflist"
+  },
+  {
+   "i": 431,
+   "text": "- ↑ \"Добро пожаловать на сервер 'Монетный двор' \" (in Russian). Archived from the original on 2020-02-18.",
+   "kind": "reflist"
+  },
+  {
+   "i": 432,
+   "text": "- ↑ Schmadel 2003 , p. 298.",
+   "kind": "reflist"
+  },
+  {
+   "i": 433,
+   "text": "- ↑ Rychkov 2020 .",
+   "kind": "reflist"
+  },
+  {
+   "i": 434,
+   "text": "- ↑ Military-Historical Journal // Rychkov S.Yu. American Poetry about the Battle of Borodino: Sumner Lincoln Fairfield's Poem, 1821.",
+   "kind": "reflist"
+  },
+  {
+   "i": 435,
+   "text": "Sources",
+   "kind": "prose"
+  },
+  {
+   "i": 436,
+   "text": "[ edit ]",
+   "kind": "prose"
+  },
+  {
+   "i": 437,
+   "text": "- Shishov, Alexei (2001). Неизвестный Кутузов [ Unknown Kutuzov ] (in Russian). Moscow : Олма медиа групп. ISBN 5-224-03158-3 .",
+   "kind": "prose"
+  },
+  {
+   "i": 438,
+   "text": "- Sokolov, Oleg (2020) [1999]. Армия Наполеона [ Army of Napoleon ] (in Russian) (2 ed.). Moscow : Яуза-каталог. ISBN 978-5-00155-024-2 .",
+   "kind": "prose"
+  },
+  {
+   "i": 439,
+   "text": "- Bell, David Avrom (2007). The First Total War: Napoleon's Europe and the Birth of Warfare as We Know It . Houghton, Mifflin and company.",
+   "kind": "prose"
+  },
+  {
+   "i": 440,
+   "text": "- Chambray, George de (1823). Histoire de l'expédition de Russie . Retrieved 13 March 2021 .",
+   "kind": "prose"
+  },
+  {
+   "i": 441,
+   "text": "- Chandler, David (1966). The Campaigns of Napoleon . Weidenfeld and Nicolson. ISBN 978-0025236608 . Retrieved 13 March 2021 .",
+   "kind": "prose"
+  },
+  {
+   "i": 442,
+   "text": "- Chandler, David G. (1999). Dictionary of the Napoleonic Wars . Ware, UK: Wordsworth Editions. ISBN 978-1-84022-203-6 .",
+   "kind": "prose"
+  },
+  {
+   "i": 443,
+   "text": "- Chandler, David; Nafziger, George F. (1988). Napoleon's Invasion of Russia . Novato CA: Presidio Press. ISBN 978-0-89141-661-6 .",
+   "kind": "prose"
+  },
+  {
+   "i": 444,
+   "text": "- Clausewitz, Carl von (1873). On War . Retrieved 13 March 2021 .",
+   "kind": "prose"
+  },
+  {
+   "i": 445,
+   "text": "- (in French) Denniee, P. (1842). Itineraire de l'Empereur Napoleon .",
+   "kind": "prose"
+  },
+  {
+   "i": 446,
+   "text": "- Dodge, Theodore Ayrault (2006). Napoleon; a History of the Art of War: From the beginning of the Peninsular war to the end of the Russian campaign, with a detailed account of the Napoleonic wars . Riverside Press. ISBN 978-1871048285 .",
+   "kind": "prose"
+  },
+  {
+   "i": 447,
+   "text": "- Dodge, Theodore Ayrault (1907). Napoleon; a History of the Art of War: Great captains . Houghton, Mifflin and company.",
+   "kind": "prose"
+  },
+  {
+   "i": 448,
+   "text": "- Duffy, Christopher (1972). Borodino and the War of 1812 . London: Cassell & Company. ISBN 978-0-304-35278-4 .",
+   "kind": "prose"
+  },
+  {
+   "i": 449,
+   "text": "- Duffy, Christopher (1985). Frederick the Great: A Military Life .",
+   "kind": "prose"
+  },
+  {
+   "i": 450,
+   "text": "- Dwyer, Philip (2014). Citizen Emperor: Napoleon in Power 1799–1815 . Yale University Press.",
+   "kind": "prose"
+  },
+  {
+   "i": 451,
+   "text": "- Dyer, Gwynne (1988). War . Crown Pub. ISBN 978-0-517-55615-3 .",
+   "kind": "prose"
+  },
+  {
+   "i": 452,
+   "text": "- Fremont-Barnes, Gregory (2006). The encyclopedia of the French revolutionary and Napoleonic Wars: a political, social, and military history .",
+   "kind": "prose"
+  },
+  {
+   "i": 453,
+   "text": "- Haythornthwaite, Philip (2012). Borodino 1812; Napoleon's great gamble . Osprey Publishing; Campaign Series #246. ISBN 978-1-84908-696-7 .",
+   "kind": "prose"
+  },
+  {
+   "i": 454,
+   "text": "- Herold, J. Christopher (1969). The Mind of Napoleon, A Selection from His Written and Spoken Words . New York: Columbia University Press. ISBN 0-231-08523-0 .",
+   "kind": "prose"
+  },
+  {
+   "i": 455,
+   "text": "- Horne, Alistair (1998). How Far from Austerlitz?: Napoleon 1805–1815 . Macmillan. ISBN 978-0-312-18724-8 .",
+   "kind": "prose"
+  },
+  {
+   "i": 456,
+   "text": "- Hourtoulle, F.G. (2000). Borodino: The Moskova. The Battle for the Redoubts . Paris: Histoire & Collections. ISBN 978-2-908182-96-5 .",
+   "kind": "prose"
+  },
+  {
+   "i": 457,
+   "text": "- Kazantsev, Mikhail (1999), О тактическом плане Кутузова в Бородинском сражении (in Russian), 1812 год",
+   "kind": "prose"
+  },
+  {
+   "i": 458,
+   "text": "- Kuehn, John T. (26 October 2008). \"The Battle of Borodino: Napoleon Against Kutuzov (review)\" . The Journal of Military History . 72 (4): 1295– 1296. doi : 10.1353/jmh.0.0141 . ISSN 1543-7795 . S2CID 161057504 . Retrieved 5 September 2020 .",
+   "kind": "prose"
+  },
+  {
+   "i": 459,
+   "text": "- Lindqvist, Herman (2004). Napoleon .",
+   "kind": "prose"
+  },
+  {
+   "i": 460,
+   "text": "- Lvov, S. V., О потерях Российской армии в сражении при Бородино 24–26 августа 1812 года (in Russian)",
+   "kind": "prose"
+  },
+  {
+   "i": 461,
+   "text": "- Markham, David (2005). Napoleon for Dummies . New York: John Wiley & Sons. ISBN 978-0-7645-9798-5 .",
+   "kind": "prose"
+  },
+  {
+   "i": 462,
+   "text": "- Martinien, A. (1899). Tableaux par corps et par batailles des officiers tues et blesses pendant les guerres de l'Empire (1805–1815) . Retrieved 22 March 2021 .",
+   "kind": "prose"
+  },
+  {
+   "i": 463,
+   "text": "- Mikaberidze, Alexander (2007). The Battle of Borodino: Napoleon Against Kutuzov . London: Pen & Sword. ISBN 978-1-84884-404-9 .",
+   "kind": "prose"
+  },
+  {
+   "i": 464,
+   "text": "- Mikaberidze (2021). \"Peter Bagration: The Best Georgian General of the Napoleonic Wars: Chapter 12: Borodino – the Final Glory\" . Retrieved 22 March 2021 .",
+   "kind": "prose"
+  },
+  {
+   "i": 465,
+   "text": "- Philippart, John (1813). Northern Campaigns Vol.2: Bulletins del la Grand Armee . Retrieved 13 March 2021 .",
+   "kind": "prose"
+  },
+  {
+   "i": 466,
+   "text": "- (in French) Pigeard, Alain (2004). Dictionnaire des batailles de Napoléon . Tallandier, Bibliothèque Napoléonienne. ISBN 2-84734-073-4 .",
+   "kind": "prose"
+  },
+  {
+   "i": 467,
+   "text": "- Polovtsov, Alexander (1900). Russian Biographical Dictionary . Vol. II: Алексинский – Бестужев-Рюмин. Saint Petersburg: Типография Главного Управления Уделов.",
+   "kind": "prose"
+  },
+  {
+   "i": 468,
+   "text": "- (in Russian) Razin, Eugene A. (1966). История военного искусства (History of Military Art) . Moscow: Воениздат .",
+   "kind": "prose"
+  },
+  {
+   "i": 469,
+   "text": "- Riehn, Richard K. (1990). 1812 : Napoleon's Russian campaign . McGraw-Hill. ISBN 978-0070527317 . Retrieved 20 March 2021 .",
+   "kind": "prose"
+  },
+  {
+   "i": 470,
+   "text": "- Roberts, Andrew (2015). Napoleon the Great . National Geographic Books. ISBN 978-0141032016 .",
+   "kind": "prose"
+  },
+  {
+   "i": 471,
+   "text": "- Rychkov, S. Yu. (2020). \"Invincible Napoleon – the memory of the participant in the battle of Borodino, Emperor Napoleon I in the names of the ships. On the 200th anniversary of the death of the emperor of the french\" . Patriotic War of 1812 About the Liberation Campaigns of the Russian Army of 1813–1814. Sources. Monuments. Problems. Materials of the XXIII International Scientific Conference, 3–5 September .",
+   "kind": "prose"
+  },
+  {
+   "i": 472,
+   "text": "- Schmadel, Lutz D. (2003). Dictionary of Minor Planet Names (5th ed.). New York: Springer Verlag. ISBN 978-3-540-00238-3 .",
+   "kind": "prose"
+  },
+  {
+   "i": 473,
+   "text": "- Shvedov, S. V., Численность и потери русской армии в Бородинском сражении (in Russian)",
+   "kind": "prose"
+  },
+  {
+   "i": 474,
+   "text": "- Smith, Digby (1998). The Greenhill Napoleonic Wars Data Book . London: Greenhill Books. ISBN 978-1-85367-276-7 .",
+   "kind": "prose"
+  },
+  {
+   "i": 475,
+   "text": "- Smith, Digby (2003). Charge! Great Cavalry Charges of the Napoleonic Wars . London: Greenhill Books. ISBN 978-1-85367-541-6 .",
+   "kind": "prose"
+  },
+  {
+   "i": 476,
+   "text": "- Sokolov, Oleg (2005). L'armée de Napoléon (in French). Éditions Commios. ISBN 978-2-9518364-1-9 .",
+   "kind": "prose"
+  },
+  {
+   "i": 477,
+   "text": "- Stoker, Donald (2015). \"Clausewitz at War\" . Military History Quarterly .",
+   "kind": "prose"
+  },
+  {
+   "i": 478,
+   "text": "- Tolstoy, Leo (1949). War and Peace . Garden City: International Collectors Library.",
+   "kind": "prose"
+  },
+  {
+   "i": 479,
+   "text": "- Troitsky, N. A. (7 February 2024). \"Бородинское сражение 1812\" . Great Russian Encyclopedia . Retrieved 20 March 2024 .",
+   "kind": "prose"
+  },
+  {
+   "i": 480,
+   "text": "- Vasilyev, Alexey (1992). \"Лукавая цифирь авантюриста. Потери подлинные и придуманные\" . Rodina (5/6): 68– 71.",
+   "kind": "prose"
+  },
+  {
+   "i": 481,
+   "text": "- White, Peter T. (June 1986). \"The World of Tolstoy\". National Geographic . 169 (6). ISSN 0027-9358 .",
+   "kind": "prose"
+  },
+  {
+   "i": 482,
+   "text": "- Zamoyski, Adam (2004). Moscow 1812: Napoleon's Fatal March . Harper Collins. ISBN 978-0061075582 . Retrieved 22 March 2021 .",
+   "kind": "prose"
+  },
+  {
+   "i": 483,
+   "text": "- Bodart, Gaston (1916). Losses of Life in Modern Wars, Austria-Hungary; France . Creative Media Partners, LLC. ISBN 978-1371465520 . Retrieved 15 April 2021 . {{ cite book }} : ISBN / Date incompatibility ( help )",
+   "kind": "prose"
+  },
+  {
+   "i": 484,
+   "text": "- Uralanis, Boris (1960). Войны и народонаселение Европы: людские потери вооруженных сил Европейских стран в XVII–XX веках [ Wars and the population of Europe: human losses of the armed forces of European countries in the XVII–XX centuries ] (in Russian). Moscow : Социально-экономическая литература.",
+   "kind": "prose"
+  },
+  {
+   "i": 485,
+   "text": "- Zemtsov, Vladimir (2001). Битва при Москве-реке: Армия Наполеона в Бородинском сражении (in Russian) (2nd ed.). Moscow: Рейттаръ. ISBN 9785806700484 .",
+   "kind": "prose"
+  },
+  {
+   "i": 486,
+   "text": "- Egorshina, O.; Petrova, A. (2023). История русской армии [ The history of the Russian Army ] (in Russian). Moscow: Edition of the Russian Imperial Library. ISBN 978-5-699-42397-2 .",
+   "kind": "prose"
+  },
+  {
+   "i": 487,
+   "text": "- Kagan, Frederick (2002). \"Russia's Wars with Napoleon, 1801–1815\". The Military History of Tsarist Russia . Palgrave. pp. 107– 122. ISBN 978-0-230-10822-6 .",
+   "kind": "prose"
+  },
+  {
+   "i": 488,
+   "text": "- Егоршина, Петрова (2023). История русской армии [ The history of the Russian Army ] (in Russian). Moscow: Edition of the Russian Imperial Library. ISBN 978-5-699-42397-2 .",
+   "kind": "prose"
+  },
+  {
+   "i": 489,
+   "text": "- Tselorungo, Dmitry (2014). Проблемы современной историографии Бородинского сражения по публикациям 2007–2012 [ Problems of modern historiography of the Battle of Borodino based on publications 2007–2012 ] (PDF) . Бородино (in Russian). По материалам международной научной конференции, 2–4 сентября 2013: 294– 209 . Retrieved 29 August 2023 .",
+   "kind": "prose"
+  },
+  {
+   "i": 490,
+   "text": "- Zhilin, Pavel A. (1987). Бородино 1812 [ Borodino 1812 ] (in Russian). Moscow : Мысль.",
+   "kind": "prose"
+  },
+  {
+   "i": 491,
+   "text": "Further reading",
+   "kind": "prose"
+  },
+  {
+   "i": 492,
+   "text": "[ edit ]",
+   "kind": "prose"
+  },
+  {
+   "i": 493,
+   "text": "- Roberts, Andrew (2001). Napoleon and Wellington: the Battle of Waterloo and the great commanders who fought it . Simon and Schuster. ISBN 978-0-7432-2832-9 .",
+   "kind": "prose"
+  },
+  {
+   "i": 494,
+   "text": "- Rychkov, S. Yu. (2019). \"The historical memory about the participants of the Borodino battle in the names of ships\" . Patriotic War of 1812 About the Liberation Campaigns of the Russian Army of 1813–1814. Sources. Monuments. Problems. Materials of the XXIII International Scientific Conference, 3–5 September .",
+   "kind": "prose"
+  },
+  {
+   "i": 495,
+   "text": "- Troitsky, Nikolai (2003). Фельдмаршал Кутузов: Мифы и Факты (Field Marshal Kutuzov: Myths and Facts) (in Russian). Moscow: Центрполиграф.",
+   "kind": "prose"
+  },
+  {
+   "i": 496,
+   "text": "- Ségur, Comte de (2004). \"Hike to Russia\" . Retrieved 11 March 2021 .",
+   "kind": "prose"
+  },
+  {
+   "i": 497,
+   "text": "External links",
+   "kind": "prose"
+  },
+  {
+   "i": 498,
+   "text": "[ edit ]",
+   "kind": "prose"
+  },
+  {
+   "i": 499,
+   "text": "Wikisource has the text of the 1911 Encyclopædia Britannica article \" Borodino \".",
+   "kind": "prose"
+  },
+  {
+   "i": 500,
+   "text": "- First-hand account of the battle by Louis-François, Baron Lejeune a French aide-de-camp",
+   "kind": "prose"
+  },
+  {
+   "i": 501,
+   "text": "- Borodino: maps, diagrams, illustrations",
+   "kind": "prose"
+  },
+  {
+   "i": 502,
+   "text": "- The celebration of the centennial anniversary of Victory in the Patriotic war of 1812. Emperor Nicholas II on Borodinsky celebrations 1912.",
+   "kind": "prose"
+  },
+  {
+   "i": 503,
+   "text": "- The Battle of Borodino, situation at 12.30 p.m. Visual tour of Borodino Panorama by Franz A. Roubaud",
+   "kind": "prose"
+  },
+  {
+   "i": 504,
+   "text": "- The battle of Borodino reconstruction. 195 Anniversary Photos Archived 2016-11-23 at the Wayback Machine",
+   "kind": "prose"
+  },
+  {
+   "i": 505,
+   "text": "- French Army, Battle of Borodino, 5–7 September 1812 (George Nafziger collection)",
+   "kind": "prose"
+  },
+  {
+   "i": 506,
+   "text": "- Russian Army, Battle of Borodino, 5–7 September 1812 (George Nafziger collection) Archived 26 January 2017 at the Wayback Machine",
+   "kind": "prose"
+  },
+  {
+   "i": 507,
+   "text": "- Media related to Battle of Borodino at Wikimedia Commons",
+   "kind": "prose"
+  },
+  {
+   "i": 508,
+   "text": "Preceded by",
+   "kind": "table"
+  },
+  {
+   "i": 509,
+   "text": "Battle of Mesoten",
+   "kind": "table"
+  },
+  {
+   "i": 510,
+   "text": "Napoleonic Wars",
+   "kind": "navbox"
+  },
+  {
+   "i": 511,
+   "text": "Battle of Borodino",
+   "kind": "infobox"
+  },
+  {
+   "i": 512,
+   "text": "Succeeded by",
+   "kind": "table"
+  },
+  {
+   "i": 513,
+   "text": "French occupation of Moscow",
+   "kind": "infobox"
+  },
+  {
+   "i": 514,
+   "text": "- v",
+   "kind": "navbox"
+  },
+  {
+   "i": 515,
+   "text": "- t",
+   "kind": "navbox"
+  },
+  {
+   "i": 516,
+   "text": "- e",
+   "kind": "navbox"
+  },
+  {
+   "i": 517,
+   "text": "Napoleonic Wars",
+   "kind": "navbox"
+  },
+  {
+   "i": 518,
+   "text": "- Third Coalition",
+   "kind": "navbox"
+  },
+  {
+   "i": 519,
+   "text": "- Fourth Coalition",
+   "kind": "navbox"
+  },
+  {
+   "i": 520,
+   "text": "- Peninsular War",
+   "kind": "navbox"
+  },
+  {
+   "i": 521,
+   "text": "- Fifth Coalition",
+   "kind": "navbox"
+  },
+  {
+   "i": 522,
+   "text": "- French Invasion of Russia",
+   "kind": "navbox"
+  },
+  {
+   "i": 523,
+   "text": "- Sixth Coalition",
+   "kind": "navbox"
+  },
+  {
+   "i": 524,
+   "text": "- Seventh Coalition",
+   "kind": "navbox"
+  },
+  {
+   "i": 525,
+   "text": "Belli-",
+   "kind": "navbox"
+  },
+  {
+   "i": 526,
+   "text": "gerents",
+   "kind": "navbox"
+  },
+  {
+   "i": 527,
+   "text": "France,",
+   "kind": "navbox"
+  },
+  {
+   "i": 528,
+   "text": "client states",
+   "kind": "navbox"
+  },
+  {
+   "i": 529,
+   "text": "and allies",
+   "kind": "navbox"
+  },
+  {
+   "i": 530,
+   "text": "- France",
+   "kind": "navbox"
+  },
+  {
+   "i": 531,
+   "text": "- Polish Legions",
+   "kind": "navbox"
+  },
+  {
+   "i": 532,
+   "text": "- Italy",
+   "kind": "navbox"
+  },
+  {
+   "i": 533,
+   "text": "- Holland",
+   "kind": "navbox"
+  },
+  {
+   "i": 534,
+   "text": "- Etruria",
+   "kind": "navbox"
+  },
+  {
+   "i": 535,
+   "text": "- Swiss Confederation",
+   "kind": "navbox"
+  },
+  {
+   "i": 536,
+   "text": "- Naples",
+   "kind": "navbox"
+  },
+  {
+   "i": 537,
+   "text": "- Confederation of the Rhine",
+   "kind": "navbox"
+  },
+  {
+   "i": 538,
+   "text": "- Bavaria",
+   "kind": "navbox"
+  },
+  {
+   "i": 539,
+   "text": "- Saxony",
+   "kind": "navbox"
+  },
+  {
+   "i": 540,
+   "text": "- Westphalia",
+   "kind": "navbox"
+  },
+  {
+   "i": 541,
+   "text": "- Württemberg",
+   "kind": "navbox"
+  },
+  {
+   "i": 542,
+   "text": "- Denmark–Norway",
+   "kind": "navbox"
+  },
+  {
+   "i": 543,
+   "text": "- Ottoman Empire",
+   "kind": "navbox"
+  },
+  {
+   "i": 544,
+   "text": "- Persia",
+   "kind": "navbox"
+  },
+  {
+   "i": 545,
+   "text": "- Spain",
+   "kind": "navbox"
+  },
+  {
+   "i": 546,
+   "text": "Coalition",
+   "kind": "navbox"
+  },
+  {
+   "i": 547,
+   "text": "forces",
+   "kind": "navbox"
+  },
+  {
+   "i": 548,
+   "text": "- United Kingdom",
+   "kind": "navbox"
+  },
+  {
+   "i": 549,
+   "text": "- Austria",
+   "kind": "navbox"
+  },
+  {
+   "i": 550,
+   "text": "- Russia",
+   "kind": "navbox"
+  },
+  {
+   "i": 551,
+   "text": "- Prussia",
+   "kind": "navbox"
+  },
+  {
+   "i": 552,
+   "text": "- Spain",
+   "kind": "navbox"
+  },
+  {
+   "i": 553,
+   "text": "- Portugal",
+   "kind": "navbox"
+  },
+  {
+   "i": 554,
+   "text": "- Sicily",
+   "kind": "navbox"
+  },
+  {
+   "i": 555,
+   "text": "- Papal States",
+   "kind": "navbox"
+  },
+  {
+   "i": 556,
+   "text": "- Ottoman Empire",
+   "kind": "navbox"
+  },
+  {
+   "i": 557,
+   "text": "- Persia",
+   "kind": "navbox"
+  },
+  {
+   "i": 558,
+   "text": "- Sardinia",
+   "kind": "navbox"
+  },
+  {
+   "i": 559,
+   "text": "- Sweden",
+   "kind": "navbox"
+  },
+  {
+   "i": 560,
+   "text": "- Netherlands",
+   "kind": "navbox"
+  },
+  {
+   "i": 561,
+   "text": "- Brunswick",
+   "kind": "navbox"
+  },
+  {
+   "i": 562,
+   "text": "- Hanover",
+   "kind": "navbox"
+  },
+  {
+   "i": 563,
+   "text": "- Nassau",
+   "kind": "navbox"
+  },
+  {
+   "i": 564,
+   "text": "- French Royalists",
+   "kind": "navbox"
+  },
+  {
+   "i": 565,
+   "text": "Major",
+   "kind": "navbox"
+  },
+  {
+   "i": 566,
+   "text": "battles",
+   "kind": "navbox"
+  },
+  {
+   "i": 567,
+   "text": "Prelude",
+   "kind": "navbox"
+  },
+  {
+   "i": 568,
+   "text": "- French Revolution",
+   "kind": "navbox"
+  },
+  {
+   "i": 569,
+   "text": "- First Coalition",
+   "kind": "navbox"
+  },
+  {
+   "i": 570,
+   "text": "- Second Coalition",
+   "kind": "navbox"
+  },
+  {
+   "i": 571,
+   "text": "- 18 Brumaire",
+   "kind": "navbox"
+  },
+  {
+   "i": 572,
+   "text": "- Planned invasion of the United Kingdom",
+   "kind": "navbox"
+  },
+  {
+   "i": 573,
+   "text": "- Duc d'Enghien Execution",
+   "kind": "navbox"
+  },
+  {
+   "i": 574,
+   "text": "- Coronation of Napoleon",
+   "kind": "navbox"
+  },
+  {
+   "i": 575,
+   "text": "1805",
+   "kind": "navbox"
+  },
+  {
+   "i": 576,
+   "text": "- Diamond Rock",
+   "kind": "navbox"
+  },
+  {
+   "i": 577,
+   "text": "- Cape Finisterre",
+   "kind": "navbox"
+  },
+  {
+   "i": 578,
+   "text": "- Wertingen",
+   "kind": "navbox"
+  },
+  {
+   "i": 579,
+   "text": "- Günzburg",
+   "kind": "navbox"
+  },
+  {
+   "i": 580,
+   "text": "- Haslach-Jungingen",
+   "kind": "navbox"
+  },
+  {
+   "i": 581,
+   "text": "- Elchingen",
+   "kind": "navbox"
+  },
+  {
+   "i": 582,
+   "text": "- Ulm",
+   "kind": "navbox"
+  },
+  {
+   "i": 583,
+   "text": "- Verona",
+   "kind": "navbox"
+  },
+  {
+   "i": 584,
+   "text": "- Trafalgar",
+   "kind": "navbox"
+  },
+  {
+   "i": 585,
+   "text": "- Caldiero",
+   "kind": "navbox"
+  },
+  {
+   "i": 586,
+   "text": "- Cape Ortegal",
+   "kind": "navbox"
+  },
+  {
+   "i": 587,
+   "text": "- Amstetten",
+   "kind": "navbox"
+  },
+  {
+   "i": 588,
+   "text": "- Dürenstein",
+   "kind": "navbox"
+  },
+  {
+   "i": 589,
+   "text": "- Schöngrabern",
+   "kind": "navbox"
+  },
+  {
+   "i": 590,
+   "text": "- Austerlitz",
+   "kind": "navbox"
+  },
+  {
+   "i": 591,
+   "text": "1806",
+   "kind": "navbox"
+  },
+  {
+   "i": 592,
+   "text": "- Gaeta",
+   "kind": "navbox"
+  },
+  {
+   "i": 593,
+   "text": "- Campo Tenese",
+   "kind": "navbox"
+  },
+  {
+   "i": 594,
+   "text": "- Maida",
+   "kind": "navbox"
+  },
+  {
+   "i": 595,
+   "text": "- Schleiz",
+   "kind": "navbox"
+  },
+  {
+   "i": 596,
+   "text": "- Saalfeld",
+   "kind": "navbox"
+  },
+  {
+   "i": 597,
+   "text": "- Jena–Auerstedt",
+   "kind": "navbox"
+  },
+  {
+   "i": 598,
+   "text": "- Erfurt",
+   "kind": "navbox"
+  },
+  {
+   "i": 599,
+   "text": "- Halle",
+   "kind": "navbox"
+  },
+  {
+   "i": 600,
+   "text": "- Magdeburg",
+   "kind": "navbox"
+  },
+  {
+   "i": 601,
+   "text": "- Prenzlau",
+   "kind": "navbox"
+  },
+  {
+   "i": 602,
+   "text": "- Pasewalk",
+   "kind": "navbox"
+  },
+  {
+   "i": 603,
+   "text": "- Stettin",
+   "kind": "navbox"
+  },
+  {
+   "i": 604,
+   "text": "- Waren-Nossentin",
+   "kind": "navbox"
+  },
+  {
+   "i": 605,
+   "text": "- Lübeck",
+   "kind": "navbox"
+  },
+  {
+   "i": 606,
+   "text": "- Greater Poland uprising",
+   "kind": "navbox"
+  },
+  {
+   "i": 607,
+   "text": "- Hamelin",
+   "kind": "navbox"
+  },
+  {
+   "i": 608,
+   "text": "- Czarnowo",
+   "kind": "navbox"
+  },
+  {
+   "i": 609,
+   "text": "- Golymin",
+   "kind": "navbox"
+  },
+  {
+   "i": 610,
+   "text": "- Pułtusk",
+   "kind": "navbox"
+  },
+  {
+   "i": 611,
+   "text": "1807",
+   "kind": "navbox"
+  },
+  {
+   "i": 612,
+   "text": "- Mohrungen",
+   "kind": "navbox"
+  },
+  {
+   "i": 613,
+   "text": "- Eylau",
+   "kind": "navbox"
+  },
+  {
+   "i": 614,
+   "text": "- Ostrołęka",
+   "kind": "navbox"
+  },
+  {
+   "i": 615,
+   "text": "- Kolberg",
+   "kind": "navbox"
+  },
+  {
+   "i": 616,
+   "text": "- Danzig",
+   "kind": "navbox"
+  },
+  {
+   "i": 617,
+   "text": "- Stralsund I",
+   "kind": "navbox"
+  },
+  {
+   "i": 618,
+   "text": "- Mileto",
+   "kind": "navbox"
+  },
+  {
+   "i": 619,
+   "text": "- Guttstadt-Deppen",
+   "kind": "navbox"
+  },
+  {
+   "i": 620,
+   "text": "- Heilsberg",
+   "kind": "navbox"
+  },
+  {
+   "i": 621,
+   "text": "- Friedland",
+   "kind": "navbox"
+  },
+  {
+   "i": 622,
+   "text": "- Stralsund II",
+   "kind": "navbox"
+  },
+  {
+   "i": 623,
+   "text": "- Copenhagen",
+   "kind": "navbox"
+  },
+  {
+   "i": 624,
+   "text": "- Invasion of Portugal",
+   "kind": "navbox"
+  },
+  {
+   "i": 625,
+   "text": "1808",
+   "kind": "navbox"
+  },
+  {
+   "i": 626,
+   "text": "- Dos de Mayo",
+   "kind": "navbox"
+  },
+  {
+   "i": 627,
+   "text": "- Bruch",
+   "kind": "navbox"
+  },
+  {
+   "i": 628,
+   "text": "- Rosily Squadron",
+   "kind": "navbox"
+  },
+  {
+   "i": 629,
+   "text": "- Cabezón",
+   "kind": "navbox"
+  },
+  {
+   "i": 630,
+   "text": "- 1st Zaragoza",
+   "kind": "navbox"
+  },
+  {
+   "i": 631,
+   "text": "- Valencia",
+   "kind": "navbox"
+  },
+  {
+   "i": 632,
+   "text": "- Medina de Rioseco",
+   "kind": "navbox"
+  },
+  {
+   "i": 633,
+   "text": "- Bailén",
+   "kind": "navbox"
+  },
+  {
+   "i": 634,
+   "text": "- Roliça",
+   "kind": "navbox"
+  },
+  {
+   "i": 635,
+   "text": "- Vimeiro",
+   "kind": "navbox"
+  },
+  {
+   "i": 636,
+   "text": "- Zornoza",
+   "kind": "navbox"
+  },
+  {
+   "i": 637,
+   "text": "- Valmaseda",
+   "kind": "navbox"
+  },
+  {
+   "i": 638,
+   "text": "- Burgos",
+   "kind": "navbox"
+  },
+  {
+   "i": 639,
+   "text": "- Espinosa",
+   "kind": "navbox"
+  },
+  {
+   "i": 640,
+   "text": "- Tudela",
+   "kind": "navbox"
+  },
+  {
+   "i": 641,
+   "text": "- Somosierra",
+   "kind": "navbox"
+  },
+  {
+   "i": 642,
+   "text": "- 2nd Zaragoza",
+   "kind": "navbox"
+  },
+  {
+   "i": 643,
+   "text": "- Sahagún",
+   "kind": "navbox"
+  },
+  {
+   "i": 644,
+   "text": "- Benavente",
+   "kind": "navbox"
+  },
+  {
+   "i": 645,
+   "text": "1809",
+   "kind": "navbox"
+  },
+  {
+   "i": 646,
+   "text": "- Castellón",
+   "kind": "navbox"
+  },
+  {
+   "i": 647,
+   "text": "- Uclés",
+   "kind": "navbox"
+  },
+  {
+   "i": 648,
+   "text": "- Corunna",
+   "kind": "navbox"
+  },
+  {
+   "i": 649,
+   "text": "- Valls",
+   "kind": "navbox"
+  },
+  {
+   "i": 650,
+   "text": "- Tyrolean Rebellion",
+   "kind": "navbox"
+  },
+  {
+   "i": 651,
+   "text": "- Villafranca",
+   "kind": "navbox"
+  },
+  {
+   "i": 652,
+   "text": "- Yevenes/Yébenes",
+   "kind": "navbox"
+  },
+  {
+   "i": 653,
+   "text": "- Ciudad Real",
+   "kind": "navbox"
+  },
+  {
+   "i": 654,
+   "text": "- 1st Porto",
+   "kind": "navbox"
+  },
+  {
+   "i": 655,
+   "text": "- Medellín",
+   "kind": "navbox"
+  },
+  {
+   "i": 656,
+   "text": "- Bergisel",
+   "kind": "navbox"
+  },
+  {
+   "i": 657,
+   "text": "- Sacile",
+   "kind": "navbox"
+  },
+  {
+   "i": 658,
+   "text": "- Teugen-Hausen",
+   "kind": "navbox"
+  },
+  {
+   "i": 659,
+   "text": "- Raszyn",
+   "kind": "navbox"
+  },
+  {
+   "i": 660,
+   "text": "- Abensberg",
+   "kind": "navbox"
+  },
+  {
+   "i": 661,
+   "text": "- Landshut",
+   "kind": "navbox"
+  },
+  {
+   "i": 662,
+   "text": "- Eckmühl",
+   "kind": "navbox"
+  },
+  {
+   "i": 663,
+   "text": "- Ratisbon",
+   "kind": "navbox"
+  },
+  {
+   "i": 664,
+   "text": "- Neumarkt-Sankt Veit",
+   "kind": "navbox"
+  },
+  {
+   "i": 665,
+   "text": "- Dalmatian Campaign",
+   "kind": "navbox"
+  },
+  {
+   "i": 666,
+   "text": "- Ebelsberg",
+   "kind": "navbox"
+  },
+  {
+   "i": 667,
+   "text": "- Girona",
+   "kind": "navbox"
+  },
+  {
+   "i": 668,
+   "text": "- Piave River",
+   "kind": "navbox"
+  },
+  {
+   "i": 669,
+   "text": "- Grijó",
+   "kind": "navbox"
+  },
+  {
+   "i": 670,
+   "text": "- 2nd Porto",
+   "kind": "navbox"
+  },
+  {
+   "i": 671,
+   "text": "- Wörgl",
+   "kind": "navbox"
+  },
+  {
+   "i": 672,
+   "text": "- Tarvis",
+   "kind": "navbox"
+  },
+  {
+   "i": 673,
+   "text": "- Aspern-Essling",
+   "kind": "navbox"
+  },
+  {
+   "i": 674,
+   "text": "- Alcañiz",
+   "kind": "navbox"
+  },
+  {
+   "i": 675,
+   "text": "- Sankt Michael",
+   "kind": "navbox"
+  },
+  {
+   "i": 676,
+   "text": "- Stralsund",
+   "kind": "navbox"
+  },
+  {
+   "i": 677,
+   "text": "- Raab",
+   "kind": "navbox"
+  },
+  {
+   "i": 678,
+   "text": "- María",
+   "kind": "navbox"
+  },
+  {
+   "i": 679,
+   "text": "- Graz",
+   "kind": "navbox"
+  },
+  {
+   "i": 680,
+   "text": "- Wagram",
+   "kind": "navbox"
+  },
+  {
+   "i": 681,
+   "text": "- Korneuburg",
+   "kind": "navbox"
+  },
+  {
+   "i": 682,
+   "text": "- Stockerau",
+   "kind": "navbox"
+  },
+  {
+   "i": 683,
+   "text": "- Gefrees",
+   "kind": "navbox"
+  },
+  {
+   "i": 684,
+   "text": "- Hollabrunn",
+   "kind": "navbox"
+  },
+  {
+   "i": 685,
+   "text": "- Schöngrabern",
+   "kind": "navbox"
+  },
+  {
+   "i": 686,
+   "text": "- Armistice of Znaim",
+   "kind": "navbox"
+  },
+  {
+   "i": 687,
+   "text": "- Talavera",
+   "kind": "navbox"
+  },
+  {
+   "i": 688,
+   "text": "- Walcheren Campaign",
+   "kind": "navbox"
+  },
+  {
+   "i": 689,
+   "text": "- Ölper",
+   "kind": "navbox"
+  },
+  {
+   "i": 690,
+   "text": "- Almonacid",
+   "kind": "navbox"
+  },
+  {
+   "i": 691,
+   "text": "- Tamames",
+   "kind": "navbox"
+  },
+  {
+   "i": 692,
+   "text": "- Ocaña",
+   "kind": "navbox"
+  },
+  {
+   "i": 693,
+   "text": "- Alba de Tormes",
+   "kind": "navbox"
+  },
+  {
+   "i": 694,
+   "text": "1810",
+   "kind": "navbox"
+  },
+  {
+   "i": 695,
+   "text": "- Cádiz",
+   "kind": "navbox"
+  },
+  {
+   "i": 696,
+   "text": "- Astorga",
+   "kind": "navbox"
+  },
+  {
+   "i": 697,
+   "text": "- Ciudad Rodrigo",
+   "kind": "navbox"
+  },
+  {
+   "i": 698,
+   "text": "- Barquilla",
+   "kind": "navbox"
+  },
+  {
+   "i": 699,
+   "text": "- Côa",
+   "kind": "navbox"
+  },
+  {
+   "i": 700,
+   "text": "- Almeida",
+   "kind": "navbox"
+  },
+  {
+   "i": 701,
+   "text": "- Bussaco",
+   "kind": "navbox"
+  },
+  {
+   "i": 702,
+   "text": "1811",
+   "kind": "navbox"
+  },
+  {
+   "i": 703,
+   "text": "- Gebora",
+   "kind": "navbox"
+  },
+  {
+   "i": 704,
+   "text": "- Barrosa",
+   "kind": "navbox"
+  },
+  {
+   "i": 705,
+   "text": "- Pombal",
+   "kind": "navbox"
+  },
+  {
+   "i": 706,
+   "text": "- Redinha",
+   "kind": "navbox"
+  },
+  {
+   "i": 707,
+   "text": "- Casal Novo",
+   "kind": "navbox"
+  },
+  {
+   "i": 708,
+   "text": "- Campo Maior",
+   "kind": "navbox"
+  },
+  {
+   "i": 709,
+   "text": "- Sabugal",
+   "kind": "navbox"
+  },
+  {
+   "i": 710,
+   "text": "- Almeida",
+   "kind": "navbox"
+  },
+  {
+   "i": 711,
+   "text": "- Fuentes de Oñoro",
+   "kind": "navbox"
+  },
+  {
+   "i": 712,
+   "text": "- Tarragona",
+   "kind": "navbox"
+  },
+  {
+   "i": 713,
+   "text": "- Albuera",
+   "kind": "navbox"
+  },
+  {
+   "i": 714,
+   "text": "- Usagre",
+   "kind": "navbox"
+  },
+  {
+   "i": 715,
+   "text": "- Saguntum",
+   "kind": "navbox"
+  },
+  {
+   "i": 716,
+   "text": "- Arroyo dos Molinos",
+   "kind": "navbox"
+  },
+  {
+   "i": 717,
+   "text": "- Valencia",
+   "kind": "navbox"
+  },
+  {
+   "i": 718,
+   "text": "1812",
+   "kind": "navbox"
+  },
+  {
+   "i": 719,
+   "text": "- Ciudad Rodrigo",
+   "kind": "navbox"
+  },
+  {
+   "i": 720,
+   "text": "- Badajoz",
+   "kind": "navbox"
+  },
+  {
+   "i": 721,
+   "text": "- Villagarcia",
+   "kind": "navbox"
+  },
+  {
+   "i": 722,
+   "text": "- Almaraz",
+   "kind": "navbox"
+  },
+  {
+   "i": 723,
+   "text": "- Maguilla",
+   "kind": "navbox"
+  },
+  {
+   "i": 724,
+   "text": "- Mir",
+   "kind": "navbox"
+  },
+  {
+   "i": 725,
+   "text": "- Ekau",
+   "kind": "navbox"
+  },
+  {
+   "i": 726,
+   "text": "- Salamanca",
+   "kind": "navbox"
+  },
+  {
+   "i": 727,
+   "text": "- García Hernández",
+   "kind": "navbox"
+  },
+  {
+   "i": 728,
+   "text": "- Saltanovka",
+   "kind": "navbox"
+  },
+  {
+   "i": 729,
+   "text": "- Ostrovno",
+   "kind": "navbox"
+  },
+  {
+   "i": 730,
+   "text": "- Vitebsk",
+   "kind": "navbox"
+  },
+  {
+   "i": 731,
+   "text": "- Kobryn",
+   "kind": "navbox"
+  },
+  {
+   "i": 732,
+   "text": "- Klyastitsy",
+   "kind": "navbox"
+  },
+  {
+   "i": 733,
+   "text": "- Majadahonda",
+   "kind": "navbox"
+  },
+  {
+   "i": 734,
+   "text": "- Gorodechno",
+   "kind": "navbox"
+  },
+  {
+   "i": 735,
+   "text": "- Smolensk",
+   "kind": "navbox"
+  },
+  {
+   "i": 736,
+   "text": "- 1st Polotsk",
+   "kind": "navbox"
+  },
+  {
+   "i": 737,
+   "text": "- Valutino",
+   "kind": "navbox"
+  },
+  {
+   "i": 738,
+   "text": "- Mesoten",
+   "kind": "navbox"
+  },
+  {
+   "i": 739,
+   "text": "- Borodino",
+   "kind": "navbox"
+  },
+  {
+   "i": 740,
+   "text": "- Moscow",
+   "kind": "navbox"
+  },
+  {
+   "i": 741,
+   "text": "- Burgos",
+   "kind": "navbox"
+  },
+  {
+   "i": 742,
+   "text": "- Tarutino",
+   "kind": "navbox"
+  },
+  {
+   "i": 743,
+   "text": "- 2nd Polotsk",
+   "kind": "navbox"
+  },
+  {
+   "i": 744,
+   "text": "- Venta del Pozo",
+   "kind": "navbox"
+  },
+  {
+   "i": 745,
+   "text": "- Maloyaroslavets",
+   "kind": "navbox"
+  },
+  {
+   "i": 746,
+   "text": "- Chashniki",
+   "kind": "navbox"
+  },
+  {
+   "i": 747,
+   "text": "- Vyazma",
+   "kind": "navbox"
+  },
+  {
+   "i": 748,
+   "text": "- Smoliani",
+   "kind": "navbox"
+  },
+  {
+   "i": 749,
+   "text": "- Krasnoi",
+   "kind": "navbox"
+  },
+  {
+   "i": 750,
+   "text": "- Berezina",
+   "kind": "navbox"
+  },
+  {
+   "i": 751,
+   "text": "1813",
+   "kind": "navbox"
+  },
+  {
+   "i": 752,
+   "text": "- Castalla",
+   "kind": "navbox"
+  },
+  {
+   "i": 753,
+   "text": "- Lützen",
+   "kind": "navbox"
+  },
+  {
+   "i": 754,
+   "text": "- Bautzen",
+   "kind": "navbox"
+  },
+  {
+   "i": 755,
+   "text": "- Tarragona",
+   "kind": "navbox"
+  },
+  {
+   "i": 756,
+   "text": "- Luckau",
+   "kind": "navbox"
+  },
+  {
+   "i": 757,
+   "text": "- Vitoria",
+   "kind": "navbox"
+  },
+  {
+   "i": 758,
+   "text": "- San Sebastián",
+   "kind": "navbox"
+  },
+  {
+   "i": 759,
+   "text": "- Pyrenees",
+   "kind": "navbox"
+  },
+  {
+   "i": 760,
+   "text": "- Sorauren",
+   "kind": "navbox"
+  },
+  {
+   "i": 761,
+   "text": "- Großbeeren",
+   "kind": "navbox"
+  },
+  {
+   "i": 762,
+   "text": "- Katzbach",
+   "kind": "navbox"
+  },
+  {
+   "i": 763,
+   "text": "- Dresden",
+   "kind": "navbox"
+  },
+  {
+   "i": 764,
+   "text": "- 1st Kulm",
+   "kind": "navbox"
+  },
+  {
+   "i": 765,
+   "text": "- San Marcial",
+   "kind": "navbox"
+  },
+  {
+   "i": 766,
+   "text": "- Dennewitz",
+   "kind": "navbox"
+  },
+  {
+   "i": 767,
+   "text": "- 2nd Kulm",
+   "kind": "navbox"
+  },
+  {
+   "i": 768,
+   "text": "- Göhrde",
+   "kind": "navbox"
+  },
+  {
+   "i": 769,
+   "text": "- Roßlau",
+   "kind": "navbox"
+  },
+  {
+   "i": 770,
+   "text": "- Wartenburg",
+   "kind": "navbox"
+  },
+  {
+   "i": 771,
+   "text": "- Bidassoa",
+   "kind": "navbox"
+  },
+  {
+   "i": 772,
+   "text": "- Leipzig",
+   "kind": "navbox"
+  },
+  {
+   "i": 773,
+   "text": "- Hanau",
+   "kind": "navbox"
+  },
+  {
+   "i": 774,
+   "text": "- Nivelle",
+   "kind": "navbox"
+  },
+  {
+   "i": 775,
+   "text": "- Bornhöved",
+   "kind": "navbox"
+  },
+  {
+   "i": 776,
+   "text": "- Sehested",
+   "kind": "navbox"
+  },
+  {
+   "i": 777,
+   "text": "1814",
+   "kind": "navbox"
+  },
+  {
+   "i": 778,
+   "text": "- 1st Bar-sur-Aube",
+   "kind": "navbox"
+  },
+  {
+   "i": 779,
+   "text": "- Brienne",
+   "kind": "navbox"
+  },
+  {
+   "i": 780,
+   "text": "- La Rothière",
+   "kind": "navbox"
+  },
+  {
+   "i": 781,
+   "text": "- Mincio River",
+   "kind": "navbox"
+  },
+  {
+   "i": 782,
+   "text": "- Champaubert",
+   "kind": "navbox"
+  },
+  {
+   "i": 783,
+   "text": "- Montmirail",
+   "kind": "navbox"
+  },
+  {
+   "i": 784,
+   "text": "- Château-Thierry",
+   "kind": "navbox"
+  },
+  {
+   "i": 785,
+   "text": "- Vauchamps",
+   "kind": "navbox"
+  },
+  {
+   "i": 786,
+   "text": "- Garris",
+   "kind": "navbox"
+  },
+  {
+   "i": 787,
+   "text": "- Mormant",
+   "kind": "navbox"
+  },
+  {
+   "i": 788,
+   "text": "- Montereau",
+   "kind": "navbox"
+  },
+  {
+   "i": 789,
+   "text": "- Orthez",
+   "kind": "navbox"
+  },
+  {
+   "i": 790,
+   "text": "- 2nd Bar-sur-Aube",
+   "kind": "navbox"
+  },
+  {
+   "i": 791,
+   "text": "- Gué-à-Tresmes",
+   "kind": "navbox"
+  },
+  {
+   "i": 792,
+   "text": "- Saint-Julien",
+   "kind": "navbox"
+  },
+  {
+   "i": 793,
+   "text": "- Laubressel",
+   "kind": "navbox"
+  },
+  {
+   "i": 794,
+   "text": "- Craonne",
+   "kind": "navbox"
+  },
+  {
+   "i": 795,
+   "text": "- Laon",
+   "kind": "navbox"
+  },
+  {
+   "i": 796,
+   "text": "- Mâcon",
+   "kind": "navbox"
+  },
+  {
+   "i": 797,
+   "text": "- Reims",
+   "kind": "navbox"
+  },
+  {
+   "i": 798,
+   "text": "- Limonest",
+   "kind": "navbox"
+  },
+  {
+   "i": 799,
+   "text": "- Arcis-sur-Aube",
+   "kind": "navbox"
+  },
+  {
+   "i": 800,
+   "text": "- Fère-Champenoise",
+   "kind": "navbox"
+  },
+  {
+   "i": 801,
+   "text": "- Saint-Dizier",
+   "kind": "navbox"
+  },
+  {
+   "i": 802,
+   "text": "- Montmartre",
+   "kind": "navbox"
+  },
+  {
+   "i": 803,
+   "text": "- Paris",
+   "kind": "navbox"
+  },
+  {
+   "i": 804,
+   "text": "- Toulouse",
+   "kind": "navbox"
+  },
+  {
+   "i": 805,
+   "text": "- Bayonne",
+   "kind": "navbox"
+  },
+  {
+   "i": 806,
+   "text": "1815",
+   "kind": "navbox"
+  },
+  {
+   "i": 807,
+   "text": "- Panaro",
+   "kind": "navbox"
+  },
+  {
+   "i": 808,
+   "text": "- Occhiobello",
+   "kind": "navbox"
+  },
+  {
+   "i": 809,
+   "text": "- Carpi",
+   "kind": "navbox"
+  },
+  {
+   "i": 810,
+   "text": "- Casaglia",
+   "kind": "navbox"
+  },
+  {
+   "i": 811,
+   "text": "- Ronco",
+   "kind": "navbox"
+  },
+  {
+   "i": 812,
+   "text": "- Cesenatico",
+   "kind": "navbox"
+  },
+  {
+   "i": 813,
+   "text": "- Pesaro",
+   "kind": "navbox"
+  },
+  {
+   "i": 814,
+   "text": "- Scapezzano",
+   "kind": "navbox"
+  },
+  {
+   "i": 815,
+   "text": "- Tolentino",
+   "kind": "navbox"
+  },
+  {
+   "i": 816,
+   "text": "- Ancona",
+   "kind": "navbox"
+  },
+  {
+   "i": 817,
+   "text": "- Castel di Sangro",
+   "kind": "navbox"
+  },
+  {
+   "i": 818,
+   "text": "- San Germano",
+   "kind": "navbox"
+  },
+  {
+   "i": 819,
+   "text": "- Gaeta",
+   "kind": "navbox"
+  },
+  {
+   "i": 820,
+   "text": "- Quatre Bras",
+   "kind": "navbox"
+  },
+  {
+   "i": 821,
+   "text": "- Ligny",
+   "kind": "navbox"
+  },
+  {
+   "i": 822,
+   "text": "- Waterloo",
+   "kind": "navbox"
+  },
+  {
+   "i": 823,
+   "text": "- Wavre",
+   "kind": "navbox"
+  },
+  {
+   "i": 824,
+   "text": "- Rocheserviere",
+   "kind": "navbox"
+  },
+  {
+   "i": 825,
+   "text": "- La Suffel",
+   "kind": "navbox"
+  },
+  {
+   "i": 826,
+   "text": "- Rocquencourt",
+   "kind": "navbox"
+  },
+  {
+   "i": 827,
+   "text": "- Issy",
+   "kind": "navbox"
+  },
+  {
+   "i": 828,
+   "text": "Info",
+   "kind": "navbox"
+  },
+  {
+   "i": 829,
+   "text": "French and ally",
+   "kind": "navbox"
+  },
+  {
+   "i": 830,
+   "text": "military and",
+   "kind": "navbox"
+  },
+  {
+   "i": 831,
+   "text": "political leaders",
+   "kind": "navbox"
+  },
+  {
+   "i": 832,
+   "text": "- Napoleon",
+   "kind": "navbox"
+  },
+  {
+   "i": 833,
+   "text": "- Louis-Alexandre Berthier",
+   "kind": "navbox"
+  },
+  {
+   "i": 834,
+   "text": "- Joachim Murat",
+   "kind": "navbox"
+  },
+  {
+   "i": 835,
+   "text": "- Louis-Nicolas Davout",
+   "kind": "navbox"
+  },
+  {
+   "i": 836,
+   "text": "- Jean Lannes",
+   "kind": "navbox"
+  },
+  {
+   "i": 837,
+   "text": "- Auguste de Marmont",
+   "kind": "navbox"
+  },
+  {
+   "i": 838,
+   "text": "- André Masséna",
+   "kind": "navbox"
+  },
+  {
+   "i": 839,
+   "text": "- Michel Ney",
+   "kind": "navbox"
+  },
+  {
+   "i": 840,
+   "text": "- Jean-de-Dieu Soult",
+   "kind": "navbox"
+  },
+  {
+   "i": 841,
+   "text": "- Marshal Victor",
+   "kind": "navbox"
+  },
+  {
+   "i": 842,
+   "text": "- Jean-Baptiste Bessières",
+   "kind": "navbox"
+  },
+  {
+   "i": 843,
+   "text": "- Pierre-Charles Villeneuve",
+   "kind": "navbox"
+  },
+  {
+   "i": 844,
+   "text": "- Joseph I",
+   "kind": "navbox"
+  },
+  {
+   "i": 845,
+   "text": "- Louis Bonaparte",
+   "kind": "navbox"
+  },
+  {
+   "i": 846,
+   "text": "- Jérôme Bonaparte",
+   "kind": "navbox"
+  },
+  {
+   "i": 847,
+   "text": "- Prince Poniatowski",
+   "kind": "navbox"
+  },
+  {
+   "i": 848,
+   "text": "- Prince Eugène",
+   "kind": "navbox"
+  },
+  {
+   "i": 849,
+   "text": "- Maximilian I Joseph of Bavaria",
+   "kind": "navbox"
+  },
+  {
+   "i": 850,
+   "text": "- Frederick Augustus I of Saxony",
+   "kind": "navbox"
+  },
+  {
+   "i": 851,
+   "text": "- Frederick I of Württemberg",
+   "kind": "navbox"
+  },
+  {
+   "i": 852,
+   "text": "- Frederick VI of Denmark",
+   "kind": "navbox"
+  },
+  {
+   "i": 853,
+   "text": "Coalition",
+   "kind": "navbox"
+  },
+  {
+   "i": 854,
+   "text": "military and",
+   "kind": "navbox"
+  },
+  {
+   "i": 855,
+   "text": "political leaders",
+   "kind": "navbox"
+  },
+  {
+   "i": 856,
+   "text": "- Duke of Wellington",
+   "kind": "navbox"
+  },
+  {
+   "i": 857,
+   "text": "- Rowland Hill",
+   "kind": "navbox"
+  },
+  {
+   "i": 858,
+   "text": "- John Moore",
+   "kind": "navbox"
+  },
+  {
+   "i": 859,
+   "text": "- Horatio Nelson",
+   "kind": "navbox"
+  },
+  {
+   "i": 860,
+   "text": "- Thomas Cochrane",
+   "kind": "navbox"
+  },
+  {
+   "i": 861,
+   "text": "- Francis II, Holy Roman Emperor",
+   "kind": "navbox"
+  },
+  {
+   "i": 862,
+   "text": "- Manuel Lapeña",
+   "kind": "navbox"
+  },
+  {
+   "i": 863,
+   "text": "- Archduke Charles",
+   "kind": "navbox"
+  },
+  {
+   "i": 864,
+   "text": "- Prince von Schwarzenberg",
+   "kind": "navbox"
+  },
+  {
+   "i": 865,
+   "text": "- Archduke John of Austria",
+   "kind": "navbox"
+  },
+  {
+   "i": 866,
+   "text": "- Alexander I of Russia",
+   "kind": "navbox"
+  },
+  {
+   "i": 867,
+   "text": "- Mikhail Kutuzov",
+   "kind": "navbox"
+  },
+  {
+   "i": 868,
+   "text": "- Michael Andreas Barclay de Tolly",
+   "kind": "navbox"
+  },
+  {
+   "i": 869,
+   "text": "- Count Bennigsen",
+   "kind": "navbox"
+  },
+  {
+   "i": 870,
+   "text": "- Pyotr Bagration",
+   "kind": "navbox"
+  },
+  {
+   "i": 871,
+   "text": "- Peter Wittgenstein",
+   "kind": "navbox"
+  },
+  {
+   "i": 872,
+   "text": "- Frederick William III of Prussia",
+   "kind": "navbox"
+  },
+  {
+   "i": 873,
+   "text": "- Gebhard von Blücher",
+   "kind": "navbox"
+  },
+  {
+   "i": 874,
+   "text": "- Duke of Brunswick",
+   "kind": "navbox"
+  },
+  {
+   "i": 875,
+   "text": "- Prince of Hohenlohe",
+   "kind": "navbox"
+  },
+  {
+   "i": 876,
+   "text": "- Ferdinand VII of Spain",
+   "kind": "navbox"
+  },
+  {
+   "i": 877,
+   "text": "- Miguel de Álava",
+   "kind": "navbox"
+  },
+  {
+   "i": 878,
+   "text": "- Maria I of Portugal",
+   "kind": "navbox"
+  },
+  {
+   "i": 879,
+   "text": "- Prince Regent John of Portugal",
+   "kind": "navbox"
+  },
+  {
+   "i": 880,
+   "text": "- Count of Feira",
+   "kind": "navbox"
+  },
+  {
+   "i": 881,
+   "text": "- William, Prince of Orange",
+   "kind": "navbox"
+  },
+  {
+   "i": 882,
+   "text": "- Ferdinand I of the Two Sicilies",
+   "kind": "navbox"
+  },
+  {
+   "i": 883,
+   "text": "- Gustav IV Adolf of Sweden",
+   "kind": "navbox"
+  },
+  {
+   "i": 884,
+   "text": "- Prince Charles John of Sweden",
+   "kind": "navbox"
+  },
+  {
+   "i": 885,
+   "text": "- Louis XVIII",
+   "kind": "navbox"
+  },
+  {
+   "i": 886,
+   "text": "Related",
+   "kind": "navbox"
+  },
+  {
+   "i": 887,
+   "text": "conflicts",
+   "kind": "navbox"
+  },
+  {
+   "i": 888,
+   "text": "- Anglo-Russian War",
+   "kind": "navbox"
+  },
+  {
+   "i": 889,
+   "text": "- Anglo-Spanish War",
+   "kind": "navbox"
+  },
+  {
+   "i": 890,
+   "text": "- Anglo-Swedish War",
+   "kind": "navbox"
+  },
+  {
+   "i": 891,
+   "text": "- Anglo-Turkish War",
+   "kind": "navbox"
+  },
+  {
+   "i": 892,
+   "text": "- Anglo-Danish War",
+   "kind": "navbox"
+  },
+  {
+   "i": 893,
+   "text": "- Gunboat War",
+   "kind": "navbox"
+  },
+  {
+   "i": 894,
+   "text": "- Dano-Swedish War",
+   "kind": "navbox"
+  },
+  {
+   "i": 895,
+   "text": "- Russo-Swedish War (Finnish War)",
+   "kind": "navbox"
+  },
+  {
+   "i": 896,
+   "text": "- Franco-Swedish War (Pomeranian War)",
+   "kind": "navbox"
+  },
+  {
+   "i": 897,
+   "text": "- Russo-Persian War",
+   "kind": "navbox"
+  },
+  {
+   "i": 898,
+   "text": "- Russo-Turkish War",
+   "kind": "navbox"
+  },
+  {
+   "i": 899,
+   "text": "- Spanish American wars of independence",
+   "kind": "navbox"
+  },
+  {
+   "i": 900,
+   "text": "- Swedish–Norwegian War",
+   "kind": "navbox"
+  },
+  {
+   "i": 901,
+   "text": "- War of 1812",
+   "kind": "navbox"
+  },
+  {
+   "i": 902,
+   "text": "Treaties",
+   "kind": "navbox"
+  },
+  {
+   "i": 903,
+   "text": "- Campo Formio",
+   "kind": "navbox"
+  },
+  {
+   "i": 904,
+   "text": "- Lunéville",
+   "kind": "navbox"
+  },
+  {
+   "i": 905,
+   "text": "- Amiens",
+   "kind": "navbox"
+  },
+  {
+   "i": 906,
+   "text": "- Artlenburg",
+   "kind": "navbox"
+  },
+  {
+   "i": 907,
+   "text": "- Pressburg",
+   "kind": "navbox"
+  },
+  {
+   "i": 908,
+   "text": "- Finckenstein",
+   "kind": "navbox"
+  },
+  {
+   "i": 909,
+   "text": "- Tilsit",
+   "kind": "navbox"
+  },
+  {
+   "i": 910,
+   "text": "- Cintra",
+   "kind": "navbox"
+  },
+  {
+   "i": 911,
+   "text": "- Schönbrunn",
+   "kind": "navbox"
+  },
+  {
+   "i": 912,
+   "text": "- Paris (1810)",
+   "kind": "navbox"
+  },
+  {
+   "i": 913,
+   "text": "- Paris (February 1812)",
+   "kind": "navbox"
+  },
+  {
+   "i": 914,
+   "text": "- Paris (March 1812)",
+   "kind": "navbox"
+  },
+  {
+   "i": 915,
+   "text": "- Paris (1814)",
+   "kind": "navbox"
+  },
+  {
+   "i": 916,
+   "text": "- Tauroggen",
+   "kind": "navbox"
+  },
+  {
+   "i": 917,
+   "text": "- Ried",
+   "kind": "navbox"
+  },
+  {
+   "i": 918,
+   "text": "- Chaumont",
+   "kind": "navbox"
+  },
+  {
+   "i": 919,
+   "text": "- Kiel",
+   "kind": "navbox"
+  },
+  {
+   "i": 920,
+   "text": "- Mantua",
+   "kind": "navbox"
+  },
+  {
+   "i": 921,
+   "text": "- Casalanza",
+   "kind": "navbox"
+  },
+  {
+   "i": 922,
+   "text": "- Fontainebleau (1814)",
+   "kind": "navbox"
+  },
+  {
+   "i": 923,
+   "text": "- Paris (1815)",
+   "kind": "navbox"
+  },
+  {
+   "i": 924,
+   "text": "- Congress of Vienna",
+   "kind": "navbox"
+  },
+  {
+   "i": 925,
+   "text": "Miscellaneous",
+   "kind": "navbox"
+  },
+  {
+   "i": 926,
+   "text": "- Bibliography",
+   "kind": "navbox"
+  },
+  {
+   "i": 927,
+   "text": "- Bourbon Restoration",
+   "kind": "navbox"
+  },
+  {
+   "i": 928,
+   "text": "- Casualties",
+   "kind": "navbox"
+  },
+  {
+   "i": 929,
+   "text": "- Congress of Erfurt",
+   "kind": "navbox"
+  },
+  {
+   "i": 930,
+   "text": "- Continental System",
+   "kind": "navbox"
+  },
+  {
+   "i": 931,
+   "text": "- Conference of Dresden",
+   "kind": "navbox"
+  },
+  {
+   "i": 932,
+   "text": "- Economics and logistics",
+   "kind": "navbox"
+  },
+  {
+   "i": 933,
+   "text": "- England expects that every man will do his duty",
+   "kind": "navbox"
+  },
+  {
+   "i": 934,
+   "text": "- Films",
+   "kind": "navbox"
+  },
+  {
+   "i": 935,
+   "text": "- Grande Armée",
+   "kind": "navbox"
+  },
+  {
+   "i": 936,
+   "text": "- Uniforms",
+   "kind": "navbox"
+  },
+  {
+   "i": 937,
+   "text": "- Longwood House",
+   "kind": "navbox"
+  },
+  {
+   "i": 938,
+   "text": "- Types of military",
+   "kind": "navbox"
+  },
+  {
+   "i": 939,
+   "text": "Authority control databases",
+   "kind": "navbox"
+  },
+  {
+   "i": 940,
+   "text": "National",
+   "kind": "navbox"
+  },
+  {
+   "i": 941,
+   "text": "- United States",
+   "kind": "navbox"
+  },
+  {
+   "i": 942,
+   "text": "- France",
+   "kind": "navbox"
+  },
+  {
+   "i": 943,
+   "text": "- BnF data",
+   "kind": "navbox"
+  },
+  {
+   "i": 944,
+   "text": "- Czech Republic",
+   "kind": "navbox"
+  },
+  {
+   "i": 945,
+   "text": "- Israel",
+   "kind": "navbox"
+  },
+  {
+   "i": 946,
+   "text": "Other",
+   "kind": "navbox"
+  },
+  {
+   "i": 947,
+   "text": "- Yale LUX",
+   "kind": "navbox"
+  },
+  {
+   "i": 948,
+   "text": "Retrieved from \" https://en.wikipedia.org/w/index.php?title=Battle_of_Borodino&oldid=1366798929 \"",
+   "kind": "prose"
+  },
+  {
+   "i": 949,
+   "text": "Categories :",
+   "kind": "catlinks"
+  },
+  {
+   "i": 950,
+   "text": "- 1812 in the Russian Empire",
+   "kind": "catlinks"
+  },
+  {
+   "i": 951,
+   "text": "- Battles inscribed on the Arc de Triomphe",
+   "kind": "catlinks"
+  },
+  {
+   "i": 952,
+   "text": "- Battles involving France",
+   "kind": "catlinks"
+  },
+  {
+   "i": 953,
+   "text": "- Battles involving Poland",
+   "kind": "catlinks"
+  },
+  {
+   "i": 954,
+   "text": "- Battles involving the Russian Empire",
+   "kind": "catlinks"
+  },
+  {
+   "i": 955,
+   "text": "- Battles involving the Kingdom of Italy (Napoleonic)",
+   "kind": "catlinks"
+  },
+  {
+   "i": 956,
+   "text": "- Battles of the French invasion of Russia",
+   "kind": "catlinks"
+  },
+  {
+   "i": 957,
+   "text": "- 1812 conflicts",
+   "kind": "catlinks"
+  },
+  {
+   "i": 958,
+   "text": "- History of Moscow Oblast",
+   "kind": "catlinks"
+  },
+  {
+   "i": 959,
+   "text": "- September 1812",
+   "kind": "catlinks"
+  },
+  {
+   "i": 960,
+   "text": "- Joachim Murat",
+   "kind": "navbox"
+  },
+  {
+   "i": 961,
+   "text": "Hidden categories:",
+   "kind": "catlinks"
+  },
+  {
+   "i": 962,
+   "text": "- Articles with short description",
+   "kind": "catlinks"
+  },
+  {
+   "i": 963,
+   "text": "- Short description is different from Wikidata",
+   "kind": "catlinks"
+  },
+  {
+   "i": 964,
+   "text": "- Pages using infobox military conflict with deprecated parameters",
+   "kind": "catlinks"
+  },
+  {
+   "i": 965,
+   "text": "- Articles containing OSM location maps",
+   "kind": "catlinks"
+  },
+  {
+   "i": 966,
+   "text": "- Articles containing Russian-language text",
+   "kind": "catlinks"
+  },
+  {
+   "i": 967,
+   "text": "- Pages with Russian IPA",
+   "kind": "catlinks"
+  },
+  {
+   "i": 968,
+   "text": "- Articles containing French-language text",
+   "kind": "catlinks"
+  },
+  {
+   "i": 969,
+   "text": "- Wikipedia articles needing page number citations from September 2022",
+   "kind": "catlinks"
+  },
+  {
+   "i": 970,
+   "text": "- All articles with unsourced statements",
+   "kind": "catlinks"
+  },
+  {
+   "i": 971,
+   "text": "- Articles with unsourced statements from January 2026",
+   "kind": "catlinks"
+  },
+  {
+   "i": 972,
+   "text": "- Articles with unsourced statements from September 2020",
+   "kind": "catlinks"
+  },
+  {
+   "i": 973,
+   "text": "- Articles containing German-language text",
+   "kind": "catlinks"
+  },
+  {
+   "i": 974,
+   "text": "- CS1 Vietnamese-language sources (vi)",
+   "kind": "catlinks"
+  },
+  {
+   "i": 975,
+   "text": "- CS1: long volume value",
+   "kind": "catlinks"
+  },
+  {
+   "i": 976,
+   "text": "- CS1 Russian-language sources (ru)",
+   "kind": "catlinks"
+  },
+  {
+   "i": 977,
+   "text": "- CS1 Polish-language sources (pl)",
+   "kind": "catlinks"
+  },
+  {
+   "i": 978,
+   "text": "- CS1 uses Russian-language script (ru)",
+   "kind": "catlinks"
+  },
+  {
+   "i": 979,
+   "text": "- Articles with French-language sources (fr)",
+   "kind": "catlinks"
+  },
+  {
+   "i": 980,
+   "text": "- Articles with Russian-language sources (ru)",
+   "kind": "catlinks"
+  },
+  {
+   "i": 981,
+   "text": "- CS1 French-language sources (fr)",
+   "kind": "catlinks"
+  },
+  {
+   "i": 982,
+   "text": "- CS1 errors: ISBN date",
+   "kind": "catlinks"
+  },
+  {
+   "i": 983,
+   "text": "- Webarchive template wayback links",
+   "kind": "catlinks"
+  },
+  {
+   "i": 984,
+   "text": "- Commons category link from Wikidata",
+   "kind": "catlinks"
+  },
+  {
+   "i": 985,
+   "text": "- Pages using the Kartographer extension",
+   "kind": "catlinks"
+  },
+  {
+   "i": 986,
+   "text": "Search",
+   "kind": "prose"
+  },
+  {
+   "i": 987,
+   "text": "Battle of Borodino",
+   "kind": "infobox"
+  },
+  {
+   "i": 988,
+   "text": "61 languages",
+   "kind": "prose"
+  },
+  {
+   "i": 989,
+   "text": "Add topic",
+   "kind": "prose"
+  }
+ ]
+}

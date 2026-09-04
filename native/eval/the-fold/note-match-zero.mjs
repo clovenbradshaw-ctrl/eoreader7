@@ -32,7 +32,7 @@ const formSet = (f) => { const out = new Set(); for (const [k, v] of Object.entr
 // the POS prior attests all three as verbs at 100%.
 const posVerbForms = (floor) => { const out = new Set(); for (const [w, att] of Object.entries(posPrior.forms ?? {})) { const t = Object.values(att).reduce((a, b) => a + b, 0); if (t > 0 && ((att.VERB ?? 0) + (att.AUX ?? 0)) / t > floor) out.add(w.toLowerCase()); } return out; };
 const verbForms = process.env.VERBS === "both" ? new Set([...formSet(morph.forms), ...posVerbForms(0.5)]) : process.env.VERBS === "prior" ? formSet(morph.forms) : null;
-// ACTHEAD=1: compare acts by their HEAD. S50 put the auxiliary chain INTO the
+// ACTHEAD=1: compare acts by their HEAD. S61 put the auxiliary chain INTO the
 // act (`were placed`, `had been used`), which fixed the object — and left the
 // act a multi-word string that exact-match and the single-form lemmatizer
 // cannot meet against a one-word act (`used`, `flew`). The head is found with

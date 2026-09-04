@@ -136,7 +136,7 @@ measurement; `claimOfNote` stays as it is.
    The byte address is what lets a reader see it.
 
 **Why 5 here and 4 yesterday on the same notes.** The eight changed: the
-population repair (S48) re-cut every face with its chrome stripped, so the
+population repair (S59) re-cut every face with its chrome stripped, so the
 containment candidates are not yesterday's. This is not temperature-0
 drift; the two checkpoints were not the same prompt.
 

@@ -1,4 +1,4 @@
-# The hypergraph made rich by default (2026-09-02, S50)
+# The hypergraph made rich by default (2026-09-02, S61)
 
 User: *"I think the hypergraph should be this rich ALWAYS."* Said after
 `reading-wall-RESULTS.md`'s last section showed both sides' notes folding

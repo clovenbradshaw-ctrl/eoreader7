@@ -2723,7 +2723,872 @@ The premise is pinned too rather than assumed — the test asserts
 `statingCandidates` returns zero on the paraphrase fixture, which is what an
 object-missing partial IS. Omitted, byte-identical to before.
 
-## S48 — The population is not what the class label says: a hub is none of its documents, chrome is what a host says everywhere, a ranked link is a guess
+## S48 — `hear()` was asserting two claims from one string match; the second is now a recorded, refusable bridge
+
+**Generality:** universal.
+
+Two readings each establish their OWN universe of referents. `hear()`
+unioning two sources' witnesses on an exact triple match was asserting
+both that the two propositions are the same AND that the two documents'
+referents are the same — the second claim, a bridge between the two
+universes, was never made explicit, never recorded, and could not be
+conceded. Usually right; silently catastrophic when it is not (two
+different Smiths, one note, two witnesses, no way to find out).
+
+**The fix, additive.** Proposition identity still decides the note's id.
+A cross-source hearing now also records a `join` on the entry — source,
+which prior sources it crossed from, what was assumed, its basis, and a
+standing of `"assumed"` — so a corroborated note can be read back as
+"corroborated across N bridges nobody checked" rather than a bare count.
+An optional `bridge(crossing)` organ may refuse a crossing; refusal never
+drops evidence, it splits the sighting onto its own source-scoped note
+(`<id>@<source>`) with a typed reason, so a bridge established later still
+has two real notes to join. No organ: every crossing allowed, byte-
+identical to before. `standingOf` gained `crossings`/`assumedBridges`.
+
+**The gate measurement (`eval/the-fold/bridge-audit-RESULTS.md`).** On
+three real Wikipedia pages, 22 of 22 corroborated notes rest on an
+assumed bridge — common, not rare, so building bridges as first-class
+objects is warranted. A zero-model probe (do the two sources' own
+`discoverReferents` universes independently name the joined ends the same
+way) was built, and its first cut manufactured false disagreements by
+using stricter string identity than `namesCorefer` already licenses
+elsewhere in this codebase — fixed at the source. Even corrected, a
+seeded, both-ends-redealt control (II.23) matches the real suspect rate
+exactly (4.3% both), so **the probe does not separate real bridges from
+random ones at this sample size** — a power problem, honestly reported as
+undecided rather than as a clearance. 57% of real crossings are
+unexaminable by this method at all, because a joined end is often a
+definite description `discoverReferents` never captures as a named
+referent — the probe inherits the extractor's own reach.
+
+**Files.** `kernel/notes.js` (`hear`'s crossing check, `makeNotes`'
+`bridge`/`identityGiver` options, `standingOf`, `fold`'s carried
+`joins`/`unbridged`). `tests/notes.test.js` (12 → 17, incl. the control
+built to fail: two documents independently stating "Smith chaired the
+commission" about two different Smiths — refused with a scripted bridge
+organ, silently corroborated without one). `eval/the-fold/bridge-audit.mjs`
++ its results doc. Full native suite: 780/755/16, identical failure names
+to HEAD, zero regressions.
+
+**Not built:** bridges as objects with their own witness/provenance/
+concession lifecycle (Pass 12 step 2, the-fold's `NEXT-PASSES.md`) — this
+entry establishes only that bridges are common and that the naive probe
+cannot yet validate them, not that they are safe.
+
+## S49 — Pass 12 step 2: the referent bridge, as a recorded object
+
+**Generality:** universal.
+
+S48 split `hear()`'s conflated match into proposition identity (unchanged)
+and referent identity (a `join`, recorded on the note but living nowhere
+of its own — no independent witness, no way for two SEPARATE content
+notes that happen to rest on the same correspondence to corroborate each
+other, no concession). `bridge-audit-RESULTS.md` measured bridges as
+common (22/22) and warranted step 2 on that finding alone, explicitly
+without claiming any bridge validated.
+
+**The design, derived rather than invented.** Pass 12's own load-bearing
+clause: "it is the same set of operations, just at another level." A
+bridge is an ARRANGEMENT — one reading's face for a referent, a fixed
+declared label (`same-referent-as`), the other reading's face for the
+same referent — and `notes.js`'s `hear`/`concede` already compute
+SIG/INS/SYN/REC correctly on any arrangement. So `organs/bridges.js` adds
+no new ledger mechanism: it derives bridge arrangements from a note's own
+`joins` and hears them onto a SEPARATE ledger via the SAME injected
+`notes` instance a caller already has. Two content notes that
+independently cross the same two sources via the same referent pair now
+corroborate ONE bridge object — the capability step 1's per-note `join`
+could not represent, because it kept the assumption but never gave it an
+identity of its own. A separate ledger, not the content one, because a
+bridge is a claim about referent correspondence, never something the
+material itself stated — folding it onto content notes would let `fold()`
+surface a correspondence no source ever asserted.
+
+**One real gap closed to make this possible.** A `join` recorded only the
+ESTABLISHED side's face (`assumed: [prior.end1, prior.end2]`); the
+crossing's own `incoming` object already carried the other side's face and
+spans, and `hear()` discarded them the moment `bridge()` returned. Widened,
+additively (`incomingEnds`, `incomingSpans` on the `join`), so a bridge
+has two real faces to show, not one assumed and one invented — pinned in
+`tests/notes.test.js` (a real face carried through; a missing one falls
+back to the raw end text, never blank).
+
+**Measured on the SAME real material step 1 used**
+(`eval/the-fold/bridge-object-measurement.mjs`, no fixtures faked — the
+three Wikipedia pages `bridge-audit.mjs` already reads, same production
+pipeline unchanged). 46 bridge arrangements derived from 22 joined content
+notes, collapsing to 43 distinct bridge objects — **3 corroborated by two
+independently-derived content notes**: Austria, Napoleon, and "the Allies"
+each correctly recognised as the same referent crossing the Austerlitz and
+Third-Coalition pages. This is the capability step 1 could not show: a
+finding step 2 exists to make visible, not asserted from the design alone.
+Step 1's own probe, re-pointed at the 43 distinct objects instead of raw
+crossings, reads `{"suspect":1,"clean":27,"unexaminable":15}` — consistent
+with step 1's own numbers; its disclosed limits (a probe that cannot beat
+its own redealt control at this sample size; 57% of crossings unexaminable
+because a joined end is often a definite description) are UNCHANGED by
+this pass and are not re-litigated here.
+
+**Files.** `kernel/notes.js` (the `incomingEnds`/`incomingSpans` widening
+on `join`, additive; `tests/notes.test.js` 17 → 19). `organs/bridges.js`
+(new — `deriveBridgeArrangements`, `syncBridges`, `bridgeStandingFor`,
+`BRIDGE_LABEL`, `BRIDGE_REFUSALS`) + `organs/bridges.test.mjs` (new, 8
+cases against the REAL kernel: the flagship corroboration capability; a
+CONTROL BUILT TO FAIL — two different face pairs crossing the same two
+sources must stay two bridges, never merged; idempotent re-sync; a
+concede reaching one end's bridge and not the other's; a crossing REFUSED
+upstream by a real `bridge()` organ produces no join and nothing for this
+module to see). `eval/the-fold/bridge-object-measurement.mjs` (new, the
+real-material run above). Full native suite: 376/355/12 (organs),
+488/477/10 (conformance+tests) — identical failure names to HEAD both
+suites, zero regressions.
+
+**Not built, named rather than implied done.** No retroactive cascade: a
+bridge conceded via `notes.concede` on the bridge ledger does NOT touch
+the content ledger's own notes or standings — `bridgeStandingFor` is a
+read-only lookup a caller consults, the same posture `dietBoundaries`/
+`concedeDiet` already keep apart (a diagnostic and an act, kept separate
+until the act itself is measured). No wiring into the-fold's app.js or the
+ledger-block disclosure — the-fold's own NEXT-PASSES.md names this as
+Pass 12's remaining steps 3 (read a cited/bridged document with the same
+full extraction apparatus, replacing the regex-window slicer) and 4
+(witnessed paraphrase landing as a bridge), both still real, unattempted
+work.
+## S50 — Reproduction, generalized out of `quotes.js`; and how many VOICES a ledger is counting
+
+**Generality:** universal.
+
+`organs/quotes.js` already followed a quotation to the bytes. Its matching
+core — normalize both sides through ONE fold, search, map the hit back to
+real addresses, report whether the RAW units matched or only the folded ones
+— is not about quotations at all, and quotation marks are one text-specific,
+entirely optional SIGNAL that a reproduction is being CLAIMED. Marks give
+two of three cases:
+
+```
+claimed + found    -> a real quotation           (quotes.js today)
+claimed + absent    -> a fabricated quotation     (quotes.js today)
+NOT claimed + found -> material repeated with nothing saying so
+```
+
+The third had no representation anywhere in this instrument, and it is the
+one that decides how many INDEPENDENT voices a ledger counts.
+
+**`kernel/reproduction.js` (new), medium-blind.** `locate` and `sharedRuns`,
+with the caller's own `fold` (a normalized sequence plus a map back to the
+original's coordinates) and its own `sameRaw`. Nothing in its body names a
+medium; `tests/reproduction.test.js` reads the source and fails if one
+appears, and — more to the point — RUNS the same organ over a non-text event
+stream. That test earned its keep immediately: it caught `String(...).slice`
+in the kernel, a text operation on material that was an array.
+
+**`organs/quotes.js` now delegates to it.** `locateSegment` is the kernel
+organ with this file's fold injected; what stays here is what is genuinely
+about quotations (the edge-punctuation strip — a quotation's closing period
+is routinely the quoting sentence's). One implementation of "is this
+reproduced here", not two. 13/13 unchanged.
+
+**The terrain, because it decided the shape.** A reproduction is
+STRUCTURE·FIGURE — a Link between two bodies, `A repeats B`, landed as an
+ordinary arrangement, corroboratable and concedable. The rule that a
+repeated witness is not a second voice is INTERPRETATION·FIGURE — a lens:
+declared, giver named, defeasible, never baked into arithmetic
+(`repetitionLens`). What the counts become is INTERPRETATION·GROUND, which
+is why `organs/voices.js` reports beside `standingOf` and never overwrites
+it. A lens whose repeated application demonstrably moved that ground would
+be a PARADIGM; nothing here measures that.
+
+**No statistic anywhere.** A shape-based furniture detector was measured
+first and refused: on real `splitSentences` units a navbox scored z = 5.29
+against real prose at z = 2.55 over 200 shuffle draws — a real signal that
+does not separate safely, the same class already refused once as "sound
+statistic, wrong claim". Reproduction needs no threshold and no null because
+it is an observation about units, with both addresses, re-read.
+
+**PER CLAIM, never per source pair** — the sharpest rule. Two pages sharing
+a navbox are one voice for the navbox's content and remain two independent
+voices for everything else. A witness is demoted only when THAT NOTE'S OWN
+span sits inside the shared run; the control built to fail pins exactly this.
+
+**Measured on three real Wikipedia pages** (`eval/the-fold/voices-measurement.mjs`):
+277 reproduced runs / 38,718 units found in 2.2s, the largest a 7,806-unit
+transcluded template. Of the 10 notes the ledger calls corroborated,
+**0 stand on two independent voices** — all 10 are one voice repeated. Two
+bugs were found by running it rather than reasoning about it: both witnesses
+of a pair were demoted, leaving ZERO voices (repetitions are reported in
+both directions — fixed to connected components, one voice per group, never
+zero); and repetition was not followed TRANSITIVELY, so a note witnessed by
+two pages that met only through a third, non-witnessing body survived as
+"two voices". Both pinned as regressions.
+
+**The cross-domain leg (P71), and it separates two claims that would
+otherwise be one.** Replayed unmodified on two net-new pages in a different
+century, subject and article family (Alan Turing / Bletchley Park): the
+FINDER transfers — 135 runs / 6,702 units, including a shared bibliography
+row and Churchill's "Action This Day" memo carried on both pages, neither
+marking the other — while the CORRECTION collapses nothing, because that
+pair corroborates nothing (0 notes reach two sources at all). The
+correction is bounded by the thing it corrects, and this repo already
+measures that at ~2% (P83). A second arm reproducing arm 1's 10-of-10
+would have meant the two materials were less independent than claimed.
+That arm also shows what shared units do NOT distinguish: transclusion, a
+shared bibliography row, and two pages quoting one origin wear one shape,
+and the units do not carry the answer — which is exactly what the per-claim
+gate above exists for, since two pages quoting one memo are one voice for
+the memo and stay two for their own commentary on it. Both arms:
+`eval/the-fold/results/voices-RESULTS.md`.
+
+**What it never says**: that a repeater is dishonest, that an origin is
+right, that either claim is true, or which body came first. Every collapse
+carries `contextChecked: false` — shared units are shared units, and whether
+a repeater used its origin faithfully needs the origin read in its own
+context, which nothing here does.
+
+**`contextChecked` was the named next rung, and it is REFUSED on
+measurement** — kept so it is not retried. The design: for a found run, read
+what each body CLAIMS around it (marked as a quotation on each side? same
+origin named?) — the one cell `reproduction.js`'s own table tabulates and
+never checks. Four findings against it. (1) The interesting cell is empty:
+**3 of 412 runs** are claimed on one side only, and all three are *titles*,
+where quoting is typographic convention rather than attribution. (2) The
+mutual-quotation cell is **2/14 precise** measured through the repo's own
+`quotes.js::extractQuotedSpans` — arm 2's 2 are one real case (Churchill's
+memo), arm 1's 12 are all reference-list scaffolding, landing there because a
+maximal run begins at the closing quote of an adjacent citation TITLE. (3)
+Separating those needs per-site formatting rules — the trap `succession.js`
+is condemned by name for. (4) The fallback of comparing the two sides'
+extracted arrangements instead is already on record as flat
+(`organs/corroboration.js`'s header: every mechanical identity tried measured
+flat across two real pages), and `makeRelationReader` refuses a run-sized
+window as too small to measure a vocabulary from. Two earlier, cruder probes
+of the same idea each produced a plausible number that dissolved on
+inspecting the sample rather than the count. The shape is not wrong — real
+mutual quotation of one origin is exactly `ranke.js`'s input — these bodies
+just do not supply the specimens.
+
+**What IS measured thick, from the same runs**: cross-body reproduction
+between two articles of one encyclopedia is a FURNITURE observation — page
+chrome, maintenance categories, navbox rows, reference scaffolding,
+bibliography publisher strings, 366 of 412 runs — resting on shared units
+with both addresses, re-read, where this project's shape-based furniture
+detector was refused for not separating safely. A LEAD, never a verdict: it
+catches real shared prose too, and recurrence breadth was tested as a
+narrowing and refused (the 2-of-3 and 3-of-3 buckets each hold both furniture
+and content). It bears on the blanking gap directly — `blankLabelRows` via
+`sentenceWithBlanking` is structurally defeated here, since `splitSentences`
+pre-atomizes navbox bullets so a per-sentence pass can never meet its own
+`minRun` of 4. Reported, not fixed.
+
+**Disclosed residue**, found by reading the rule rather than by a failure:
+grouping is by repetition COMPONENT, which is coarser than "carrying the
+same run" — two witnesses carried by DIFFERENT templates that happen to sit
+in one component can be collapsed together. The tighter rule groups by the
+covering run's own material (overlap, not equality: the same template
+measured 7,794 units on one page and 7,806 on another). Not built.
+
+**Files.** `kernel/reproduction.js` + `tests/reproduction.test.js` (11).
+`organs/voices.js` + `organs/voices.test.mjs` (7). `organs/quotes.js`
+(delegation only). `eval/the-fold/voices-measurement.mjs` +
+`results/voices-RESULTS.md` + five fixtures (three for arm 1, two for arm 2,
+none shared — that is what makes it a replay).
+Suites: organs 383/362/12, conformance+tests 499/488/10 — identical failure
+counts to baseline, zero regressions.
+## S51 — Furniture is decided with the page in view; the evidence for a run lives across chunks
+
+**Generality:** universal.
+
+`blankLabelRows` calls something furniture only when it sees `minRun`
+CONSECUTIVE cells. Its one consumer (`hypergraph.js::readSentenceText`)
+applied it to one sentence of one already-chunked passage, and the median
+chunk of a real page is 31–72 characters — so a navbox arrives already
+atomised into one-bullet passages and the run of four can never form.
+Measured across six real committed fixtures: **2,313 characters blanked as
+shipped against 28,607 with the page in view — 12.4× overall**, and 7.5× to
+53.2× per page, the Russian one moving furthest because its furniture is
+least visible to an English POS gate. (The defect was first found on three
+other pages at 57× / 13× / 63×; those fixtures live on another PR's branch
+and are cited as provenance, not as reproducible here.) The sentence boundary
+is not the constraint: per-sentence and
+per-passage blanking agree at 1.000 / 1.000 / 0.852. The PASSAGE boundary is.
+An earlier reading of this same defect blamed the sentence scoping and was
+wrong; measuring the two apart is what showed so.
+
+**The general rule this is an instance of: an organ that decides on a RUN
+cannot be scoped below the run.** Cross-line, cross-chunk or cross-document
+evidence has to be gathered where that evidence still exists, and handed down
+— never re-derived inside a unit too small to hold it.
+
+**What shipped.** `chunkSource` gains an optional injected `blankFurniture`
+organ (the precedent is its own `atmosphere` organ; absent is byte-identical
+to before). It blanks the whole page ONCE and attaches each chunk's own span
+as `chunk.blanked`. `chunk.text` is never touched, so every address still
+reads back — this only ever ADDS a parallel copy. `readSentenceText` prefers
+it, read at the sentence's own offset, applying pronoun substitution AFTER
+(the reverse of the fallback's order, because the copy is aligned to the
+original and pronoun substitution is length-changing). Nothing re-splits
+anything, so the drift `blank-furniture-sentence-drift` names is prevented
+exactly as before: the segmentation is computed once off untouched bytes and
+a rewrite is only ever applied within one already-fixed sentence's span.
+
+**THE READBACK GATE, and it was found by running rather than reasoning.**
+`chunk.text` is `body.trim()` while `start`/`end` span the UNTRIMMED body, so
+a chunk's text is not always `text.slice(start, end)`: 6 of 747 Frankenstein
+chunks differ by a leading space, and `chunkRows` reconstructs delimited rows
+rather than slicing them. Blindly slicing the blanked page would shift the
+blanks by one character in the first case and read somewhere else entirely in
+the second. So a chunk receives a copy only when that copy is verifiably ITS
+OWN text with nothing but spaces substituted — same length, every position
+either identical or blanked. P5.2's discipline applied to this mechanism
+itself: a parallel copy that cannot be shown to be the same text is not one.
+On six real pages the gate attached a copy to 990 of 2,920 chunks — the rest
+carried no furniture, and an identical copy is not retained. The two scopes
+are ADDITIVE and the reader's own organ is authoritative: the page copy is
+consulted only by a reader that is itself blanking, and that reader's own
+per-sentence pass still runs over the result.
+
+**THE BUG THIS SHIPPED WITH, found by adversarial review, fixed, and pinned.**
+`splitSentences` normalises newlines, which is LENGTH-CHANGING, so a
+sentence's offset addresses a NORMALISED copy while `chunk.blanked` is
+aligned to the RAW text. On CRLF material they diverge by one character per
+preceding CRLF pair, and the first guard was a LENGTH check — which a shifted
+window passes exactly. Reproduced on a CRLF document with NO furniture in it:
+three of four sentences corrupted, text beginning mid-word, and the edge
+extracted from it still carrying the clean address of the sentence it was
+meant to be — garbage with a good address, the worst failure shape here. It
+was invisible because every fixture in this repo is LF-only and the one
+book-reading control opened by stripping CRLF, normalising the failing input
+away before testing it. Fixed by converting through the material's own
+`normaliseNewlines.toRaw` when the caller injects it, and by verifying every
+candidate PER CHARACTER — usable only where each position is the sentence's
+own character or a space; otherwise the reader falls back, feature off and
+never wrong. **The generalisation: a guard that checks length is not a guard
+on content, and a control handed pre-normalised material is not a control.**
+
+**Result.** Furniture-derived notes **98 → 1** across six pages (3.96% →
+0.04%), measured exactly through each note's own span against the blanked
+chunk it addresses — the blanker's own verdict read at the note's address, no
+hand list. Gone from the ledger: `"Short description —is→ different from
+Wikidata"`, `"Commons category link —is→ on Wikidata"`, `"Russian —adapted→
+into films / operas / plays"`.
+
+**The cost, disclosed and not summed.** 118 bindings stop being `bound`: 47
+not extracted, 40 `unbound`, 19 `beyond-reach`, 12 `unheard`. 75 of the 118
+were furniture-derived or mis-parsed. Of the 43 real ones, the one that was
+root-caused reframes the category — `"A divisional system" —was→ "introduced
+in 1806"` is still extracted identically and moves to `beyond-reach` because
+its subject had been resolving as a RECURRING FORM whose recurrence was
+partly navbox rows; removing them dropped it below the floor. That is a
+correction resting on withholding, not a conviction. Several other losses are
+paired with strictly better gains (`"The" —capsule→ "communicator …"` becomes
+`"The capsule communicator" —was→ "an astronaut …"`).
+
+**Controls (II.23).** A page with no furniture must not move: `ddg-results`
+is unchanged on every axis. A real book must not lose real prose: Gutenberg
+Frankenstein loses **0.054%** of read text, dominated by the title block and
+table of contents, with a real tail — the epistolary sign-offs (`"Your
+affectionate brother, / R. Walton"`) and prose running into an indented
+Wordsworth quotation. A UK statute blanks only its YAML frontmatter, no
+statute body.
+
+**The gain and the risk are the same mechanism, stated because it bounds
+where this may be pointed.** Navbox rows and screenplay dialogue are both
+short lines separated by blank lines; only page scope makes either visible.
+Verse, recipe steps and glossaries were already blanked before this change
+(identical at every scope) — that false positive is inherited, not
+introduced. Dialogue is the one shape newly exposed, and the book control is
+where it shows up for real.
+
+**A metric that measured nothing, recorded so it is not retried.** A
+mis-parsed-label column (a label settling as a non-verb under
+`makeGrammarLens` at the declared `minShare: 0.5`) reads 0→0 everywhere: the
+reader's own POS-prior vocabulary gate already ran during extraction, so any
+label reaching a note has passed the same prior at the same threshold and the
+lens cannot fire afterwards. Redundant by construction, not a bug.
+
+**OPT-IN, AND THAT IS THE DECISION, not a deferral.** By direction
+(2026-09-03), `blankFurniture` stays an organ a caller injects rather than a
+default: no existing caller's behaviour changes, and a reading that wants
+page-scoped furniture asks for it. The argument for shipping it on was real —
+P43's rule, that a prior which CLOSES a false binding is a correctness fix —
+and it is declined here for a reason this entry can state plainly: the
+measured cost is not only the 43 real relation losses but a NEWLY EXPOSED
+false-positive shape (screenplay dialogue is structurally identical to a
+navbox under this blanker), and an adversarial review found silent corruption
+in this very path, hidden by the fact that every fixture here is LF-only. A
+default is the wrong place for a mechanism whose blind spot was invisible to
+its own test material. What would change it: a caller measuring the arms on
+ITS OWN material, which is what `eval/the-fold/furniture-page-context.mjs`
+exists to make cheap.
+
+**Scope, stated because the headline reads wider than it is:** this reaches
+EXTRACTION only. `indexFor(list)` and the sentences `pronounBindingsFor`
+reads are built from the UNBLANKED text, so a name occurring only inside
+furniture still enters the referent index and can still be a pronoun's
+antecedent — verified. The change removes navbox EDGES, not navbox
+REFERENTS; blanking the index's input too is a separate decision with its own
+cost and is not taken here.
+
+**Corrected from the first draft:** `chunkRows` does NOT reconstruct its
+rows — it slices and strips one trailing newline, so delimited chunks do read
+back and do receive a copy. The original "0 of 3 never match" came from
+comparing with strict equality against a span carrying that newline. What is
+true of CSV is that its rows are short non-terminal lines, so this blanker
+calls a data table furniture — and did so before this change too.
+
+**Files.** `organs/source.js` (`withPageBlanking`, `chunkSourceRaw`),
+`organs/hypergraph.js` (`passageBlanked`, `readSentenceText`),
+`organs/source-page-blanking.test.mjs` (17 cases, real organs, including the
+four CRLF regressions above, two end-to-end cases proving the reader CONSUMES
+the copy and is inert on furniture-free prose, and one proving a reader
+without the organ is unaffected by a chunker that had one), `eval/the-fold/furniture-page-context.mjs` +
+`results/furniture-page-context-RESULTS.md`. Full suite: 22 failures,
+identical by name to `origin/main` — zero regressions.
+
+## S52 — The reading unit was the wrong suspect: the witness's own ARM is the ceiling
+
+**Generality:** not-applicable — this is a measurement over shipped organs; no
+organ changed, no default moved, no number was tuned.
+
+S49's corpus measurement (3/9 on a 9KB excerpt, 0/9 on the whole book) traced
+one item by hand, found retrieval correct and the candidate correct, and
+diagnosed the reading UNIT. It named a wider unit as the next move. That move
+was about to be taken; this says do not take it.
+
+`eval/the-fold/activation-unit-probe.mjs` runs the REAL path — real
+`chunkSource`, real `retrieve`, real `witnessSentences` over the real joined
+source — with the model replaced twice: an **always-no** recorder (what did the
+path SHOW it?) and a **perfect reader** (what could a flawless model land?).
+The material is read off the organs' own arguments, never parsed back out of a
+prompt.
+
+**8 of 9 entailed items reached the model already holding a single sentence
+carrying both ends of the claim in full.** A wider reading unit cannot improve
+material that is already adequate.
+
+**A perfect reader lands 4 of 9.** Five are unlandable by any model, and the
+walls are measured apart because they need different fixes:
+
+- one **retrieval miss** — the generate fallback got a slice from the wrong
+  chapter; the material never arrived;
+- three **no competing filler** — the arm harvests its swap from the candidate
+  list's own capitalized surfaces, and with ONE candidate those surfaces are
+  the claim's own ends, so the pool is empty and an unarmed yes is refused
+  however correct;
+- one **end2 paraphrased in the claim** — the swap is a literal string replace,
+  so a claim saying "the people who had abandoned it" for end2 "inhabitants"
+  produces an arm identical to the claim. Found because that item HAS a filler
+  and still refuses.
+
+**The ceiling halves with scale: 8/9 excerpt, 4/9 corpus** — the excerpt hands
+its whole 9KB as one source (candidates rich in names, arms build), the corpus
+retrieves three narrow passages (one candidate, no names but the ends). So the
+excerpt/corpus gap is substantially a PROTOCOL ceiling narrowing as retrieval
+narrows. And the two drivers use different batteries over different material,
+so "3/9 vs 0/9" never compared one item set at two scales; against their own
+ceilings the real model scored 3 of 8 reachable and 0 of 4 reachable.
+
+The arm is not wrong — unarmed select measured p(states|fabricated) = 1/8 live
+(P32), and refusing an unarmed yes is the correct posture. What is measured is
+that its AMMUNITION runs out exactly where retrieval is narrowest, so the
+refusal rate carried an undeclared scale artifact.
+
+**Where the activation lever actually is**, named and NOT built: the arm's
+sibling pool, drawn from the reader's own referent state (`makeReferentIndex`
+and the surfaces it resolved) rather than by capitalization from one sentence —
+a pool that does not shrink when retrieval narrows; and a swap through the
+referent/lemma an end resolves to rather than a literal replace, which survives
+a claim that paraphrases its own end. Neither may relax the arm itself: a
+richer pool changes only what the picker is asked to confuse the end WITH.
+
+Four probe bugs are kept in the write-up because each produced a plausible
+table with an inverted conclusion — reimplementing the path instead of running
+it, reading a prompt to learn what was shown, a wrong field name (`shown`, not
+`text`), and a wrong schema (`{answer}`, not `{states}`). The measurement only
+became trustworthy once every arm was read against the organ's own source.
+
+**Files.** `eval/the-fold/activation-unit-probe.mjs`,
+`results/activation-unit-RESULTS.md`. No production file touched.
+
+## S53 — The witness arm's two walls, widened and measured; the ceiling becomes scale-invariant
+
+**Generality:** universal — the widenings are declared organ parameters with no
+material-specific constant, measured on two materials at two scales with a
+control built to fail on both. Neither is enabled by default.
+
+S52 measured the witness ceiling at 4 of 9 on a corpus against 8 of 9 on a
+wider source and located the whole loss in the arm, refusing `unarmed-select`
+for two distinct reasons. Both are now closed, DECLARED and OFF by default, so
+every existing caller is byte-identical:
+
+- **`fillerPool`** — a second source of competitors for `competingFiller`,
+  searched ONLY when the candidates offer none. A caller passes the surfaces
+  its own reader established (`discoverReferents`' `DEF.admit` events), a pool
+  that does not shrink when retrieval narrows. Candidates are searched first
+  and win: a competitor the picker has just read is the strongest thing to
+  confuse an end with; one it has not read is weaker ammunition, not better.
+- **`armEitherEnd`** — when the literal swap of end2 is a no-op because the
+  claim paraphrases its own end2, swap end1 instead. Which end a claim states
+  literally is an accident of wording, not a fact about whether it can be
+  tested; an arm on either end asks the picker the same question.
+
+**The ceiling: 4/9 → 8/9 on the corpus, unchanged at 8/9 on the excerpt.** The
+widening closes a scale artifact and adds nothing where there was none. The one
+item still unlandable in each arm is a retrieval miss whose slice genuinely
+does not state the claim — the honest refusal, not a wall. The reader-resolved
+pool is 6 surfaces on the corpus's three passages and 23 on the excerpt:
+thinnest exactly where it is needed, and still enough.
+
+**The control (II.23), over all sixteen battery items rather than the nine
+entailed ones.** FALSE twins landing `states`: 2 of 7 as shipped, 2 of 7
+widened, **0 added**. Those two are the measuring oracle's own construction —
+it answers on both-ends-in-full, so a false claim whose ends both occur gets a
+yes by definition — and the live gemma2:2b run recorded zero lies across the
+FALSE set. Reporting shipped and widened side by side is what separates the
+instrument's leaks from the protocol's. And the arm still works: the
+indiscriminate picker (yes to everything, same index whatever it is asked) is
+refused on all sixteen with the widenings on.
+
+**Not established: no model ran.** This measures what a flawless reader could
+land, which needs none. The real run scored 0 of 4 reachable, so a ceiling of 8
+is 8 chances at a reading the model was failing every time — stated as a
+prediction that can be checked and be wrong. Enabling either widening live is a
+separate decision on `verbForms`' own terms, and P43's test says which way it
+leans: this WIDENS what can be heard rather than closing a false binding.
+
+**Files.** `organs/corroboration.js`, `organs/witness-sentences.js`,
+`organs/corroboration.test.mjs` (+3 cases, each wall with a control that the
+default is untouched), `eval/the-fold/activation-unit-probe.mjs`,
+`results/activation-unit-RESULTS.md`. Full native suite: 24 failures before and
+after, identical by name — zero regressions.
+
+## S54 — Pass 12 step 4: a witness reads a bridge, and the reading is bounded by the match that made it
+
+**Generality:** universal.
+
+S49 recorded referent bridges as their own corroboratable objects and named
+its own gap in the same breath: a bridge reaches `corroborated` only when a
+SECOND independently-derived content note happens to assume the identical
+correspondence, so 40 of that run's 43 bridges stood `single-witness` with
+nothing in the mechanism able ever to move them. `organs/bridge-witness.js`
+is the asking.
+
+**The question is not any other witness's question**, which is why it is not
+answered by reusing one. `corroboration.js::witnessNote` (and `ranke.js`
+through it) asks *does this source state this PROPOSITION* — a claim against
+a body of text. A bridge asks *do these two MENTIONS, each already read in
+its own document, name the SAME REFERENT* — a correspondence between two
+already-addressed spans, never a search. `testimony.js::buildSelectMessages`
+is worded for the first question and would put the wrong question to the
+model, so this file writes its own prompt on the SAME schema shape
+(`{stated, sentence}`, point-never-write) and reuses `foldSelect` UNCHANGED:
+one response-parser, two questions.
+
+**The arm mirrors witnessNote's real+decoy shape rather than folding both
+into one multi-candidate call** (P85's own postmortem: every arm in this
+codebase runs twice; one call risks position bias contaminating both
+readings). The decoy is a SIBLING bridge candidate — same incoming source,
+different prior face — a real competing referent from the very document
+being read. An unarmed "same" is refused, not trusted (witnessNote's own
+"an unchallenged yes is not a second witness"); an unarmed "no" still
+stands, because withholding trust in a yes is not disbelieving a no.
+
+**DIAGNOSTIC AND ACT KEPT APART**, `dietBoundaries`/`concedeDiet`'s own
+precedent: `witnessBridge` decides and touches no ledger;
+`applyBridgeWitness` lands a `same` as an additional witness and, on a
+`different`, returns a NAMED SUGGESTION (a ready `concede` trigger) rather
+than conceding — retracting a bridge is a decision this file leaves to
+whoever holds that authority.
+
+**Measured on real material** (`eval/the-fold/bridge-witness-measurement.mjs`,
+the three fixtures S49 used, the SAME production pipeline copied from
+`bridge-object-measurement.mjs` rather than reimplemented — a driver that
+rebuilds the path it measures reports on a pipeline nobody runs, and this
+project paid for that once already). Live `gemma2:2b`, 60 calls, 161s, run
+twice at temperature 0 with identical results:
+
+| arm | landed "same" |
+|---|---|
+| real correspondence | 8 of 12 |
+| MISPAIRED control, wrong by construction | 2 of 12 |
+
+**Fisher exact, one-sided, α = 0.05 declared before the run: p = 0.0180.**
+The control separates. A bare inequality would not have been a result.
+
+**THE FINDING THAT MATTERS MORE, and it bounds the whole pass: 12 of 12
+examined candidates have two faces that are the IDENTICAL STRING.** Not a
+sampling accident — a bridge exists only where `hear()`'s exact-triple match
+already fired, so a paraphrased restatement never produces a join, never
+becomes a bridge candidate, and is never put to a witness. **Witnessing
+bridges therefore cannot touch the ~2% corroboration wall** (P74/P83), which
+is caused by propositions never matching in the first place; this organ
+operates strictly downstream of the match that never happened. Step 4 makes
+bridges ACCOUNTABLE; it does not make more of them.
+
+**A landed witness does not raise `standing`** — every witnessed bridge
+still reads `single-witness`, deliberately: `standingOf` counts distinct
+SOURCES, and one model reading two passages is not a second source. It
+appears in `kinds` instead (`{"bridge-inferred":1,"bridge-witness":1}`),
+counted apart and never summed — P84's own rule for `primary:` against
+account witnesses, applied one register over.
+
+**Files.** `organs/bridge-witness.js` (new; `contextOf`,
+`buildBridgeSelectMessages`, `witnessBridge`, `applyBridgeWitness`,
+`decoysFor`, `witnessBridgesFor`, `BRIDGE_WITNESS_KIND`) +
+`organs/bridge-witness.test.mjs` (new, 15 cases against the REAL kernel and
+REAL bridges.js, `selectAsk` scripted so every wall is covered offline —
+including a CONTROL BUILT TO FAIL: a picker that says yes to everything is
+refused `indiscriminate`. Mutation-checked: stripping the indiscriminate
+check, trusting an unarmed yes, and making `same` land nothing each fail the
+suite). `organs/bridges.js` (one line: `priorSideKey` exported, so a caller
+deriving a bridge id independently computes the identical id rather than
+restating the rule). `eval/the-fold/bridge-witness-measurement.mjs` +
+`results/bridge-witness-RESULTS.md`.
+
+**Gates.** organs 415 tests / 396 pass / 11 fail / 8 skipped; conformance+
+tests 499/488/10 — failure NAMES diffed against a baseline with this pass's
+files removed and `bridges.js` reverted: identical, zero regressions.
+
+**Disclosed limits.** The control may be easy (a mispaired passage is
+usually off-topic, so "different" is cheap); a harder same-topic control is
+named and unbuilt. n = 12, one material, one model. 4 of 12 real
+correspondences read "different" and no oracle adjudicated them. And the
+organ is unmeasured on non-identical faces, because this material produces
+none — the case bridges were designed for is the case this material cannot
+exercise.
+
+**Concurrent-work note.** `eoreader7` PR #16 (`codex/hyperlexicon-deep-
+reading`, open, 9,649 additions, based on a pre-S48 main) independently
+develops "earned identity at the shared bridge" in an entirely separate file
+set (`kernel/relation-composition.js`, `kernel/identity-groupoid.js`,
+`kernel/identity-quotient.js`, `kernel/hyperlexicon.js` the chemistry table).
+It touches none of `kernel/notes.js`, `organs/bridges.js`,
+`organs/testimony.js` or `organs/corroboration.js`, so there is no
+file-level conflict with this pass — but the two are thematically
+convergent, and reconciling them is real, named, unattempted work rather
+than something either side should assume away.
+## S55 — P85's licensing run, taken: the company wall cannot guard the slot L4 names it for
+
+**Generality:** universal.
+
+P85 shipped the five-condition licensing rule for a learned component and
+said of its own evidence: *"Measured? Not yet… the verdict is not taken,
+and this entry claims none."* Its run died with its container twice. Taken
+now (`eval/the-fold/ranke-slicers.mjs`, N=40 of the 162 object-missing
+partials, live `gemma2:2b`, 220 calls): **no slicer earns a license.**
+
+| slicer | offered | real | control | verdict |
+|---|---|---|---|---|
+| containment | 40/40 | 9 | 1 | separates from control |
+| activation | 16/40 | 2 | 2 | REFUSED by its own control (II.23) |
+| random (confound) | 40/40 | 2 | 3 | REFUSED by its own control (II.23) |
+| embedding | — | — | — | `unavailable`, typed (L5) |
+
+**The table is not the finding; the sample is.** Containment's nine
+landings include deciders like «Support the Museum», «Visit the Apollo
+Journals Website», a video caption, and an unrelated Schmitt sentence —
+page furniture signed as testimony. Applying the decider-company wall
+post-hoc over the recorded landings (the same `textFeatures`/`sameAct`
+organs the generate path uses) takes containment from **9-vs-1 to 1-vs-0**:
+8 of 9 fail. S50 already recorded this exact pattern once — a plausible
+number that dissolves on inspecting the sample rather than the count.
+
+**THE STRUCTURAL FINDING.** P85's L4 bounds a learned part's authority by
+non-learned organs and names them, *"the sibling-swap arm, the
+indiscriminate-pick check, the decider-company wall, and the
+distinct-source count."* The decider-company wall **is not below the select
+path at all** — it runs only on the generate path, skipped there on a
+justification stated in `witnessNote`'s own comment: *"the decider is
+verbatim by construction, so the decider-company wall below is satisfied
+structurally."* That conflates two failure modes. Verbatim-ness does make
+the ECHO mode impossible; it says nothing about whether the decider is
+RELATED. `statingCandidates`' `h1 > 0 && h2 > 0` gate covered relatedness in
+practice, which is why the gap was invisible — until callers began
+INJECTING candidate lists, the seam P85 itself added for slicers, which
+bypasses that gate.
+
+**And the wall cannot simply be switched on.** Implemented and measured
+rather than reasoned about: applying it to the select path breaks
+`corroboration.test.mjs`'s own pinned capability test, whose premise the
+test states outright — *"end2 never fires literally — this is what an
+object-missing partial IS."* The wall requires each end's own words; the
+seam exists to reach cases where an end's words are absent. **Mutually
+exclusive as designed.** The change was reverted; organs is back to its
+baseline 11 failures, identical by name.
+
+So: the slicer slot has **no non-learned organ guarding relatedness**, L4
+is unsatisfied there, and no slicer earns a license — not because slicing
+is wrong, but because its landings are dominated by an unguarded failure
+mode and the named guard is the one this seam cannot use.
+
+**Named, not built.** A guard for injected candidates must not require an
+end's literal words, since that is the case being reached. Two shapes exist
+in this repo and neither is measured for this: referent identity on the
+ends (`makeReferentIndex` — resolve "the crew" to the crew rather than
+matching letters), or the arm's sibling pool drawn from the reader's own
+referent state rather than capitalized surfaces in one candidate list. Both
+are the same move — resolve the end, then ask about the referent.
+
+**Files.** `eval/the-fold/results/ranke-slicers-RESULTS.md` (the full
+account, the landings quoted, the post-hoc wall table) and
+`results/ranke-slicers-run4.json` (raw). No production file changed:
+`corroboration.js` is byte-identical to before this entry.
+
+**Disclosed.** n = 40 of 162, one page, one model, one temperature. The
+embedder arm never ran, so the embedder half of P85's question is still
+open. The two landings that survive the post-hoc wall were not adjudicated
+against an oracle — surviving a mechanical relatedness check is not being
+true.
+
+## S56 — The ledger gets Interpretation's triad: sameness and significance as declared, revisable commitments
+
+**Generality:** universal. The mechanism holds no vocabulary of any medium
+or language; it is `DEF`/`EVA`/`REC` over an append-only act log, and its
+tests are organ-free on purpose so the walls stay testable wherever this
+repo is checked out.
+
+**What shipped.** `kernel/commitments.js` (+ `tests/commitments.test.js`,
+19 cases against the real `makeNotes()`). Three verbs over one log:
+
+* `declare(kind, members, giver, purpose)` — **DEF**. A giver AND a purpose
+  are required; either missing is a typed refusal. Lands as a **wish**.
+* `evaluate(id, ground, broken, verdict)` — **EVA**. A named ground and a
+  declared perturbation are required, and the verdict must be `holds` or
+  `refused`. Promotes the wish to **testimony**, or **refuses** it.
+* `concede(id, trigger)` — **REC**. The trigger is carried verbatim. A
+  conceded commitment's withheld notes become readable again.
+
+Three kinds: `same-as` (two notes are one proposition), `does-not-matter`
+(withhold), `matters` (an override that beats a withholding).
+`readUnder(log, notes, {include})` is the projection: same-as classes fold
+with witnesses and spans unioned, first face kept; every touched note is
+marked with what it was read under. `redeal` is the II.23 control, and it
+runs on a **scratch** `createTaskLog()` so an experiment never lands on the
+record.
+
+**The four walls, each mutation-checked.** (1) `fold()` is byte-identical
+under any set of commitments not in force — an interpretation is not a
+hearing. (2) A commitment **never counts as a witness**; corroboration is
+untouched by declaring anything. (3) **Recoverability** — conceding a
+`does-not-matter` makes its notes readable again, which is exactly the
+property a filter cannot have and is why this is a ledger rather than a
+predicate. (4) A conceded *commitment* is not a conceded *note*
+(`concededNotes` in `kernel/notes.js` gained an ends filter for this; it had
+been listing null-ended commitments as notes).
+
+**Why this and not a same-as table.** The load-bearing user correction:
+*"that may be its identity, but it's not its MEANING."* Two notes'
+propositional sameness is not a fact the material states, and no corpus can
+earn it — a Pattern-grain claim. So it enters the record the only way such a
+claim may: declared by a named giver, evaluated against a ground with a
+perturbation, and conceded when it turns out wrong. The apparatus is the
+receiving end for a prior, not a decision procedure.
+
+## S57 — The ends-only proposer, refuted; and the gap the refutation named
+
+**Generality:** universal. The claim is about what a referent-grain key can
+say about propositional identity, measured on two genres with a control
+built to fail. The morphology gap it uncovers is English-specific and is
+named as such.
+
+**What was asked.** P74 measured the same-proposition conjunction (ends
+correspond AND labels denote the same act) and got zero joins, blaming the
+label half. So the ENDS half had never been measured alone. This driver
+(`eval/the-fold/ends-only-proposer.mjs`, zero model calls) drops the label
+conjunct and asks whether ends-only correspondence proposes any candidates
+at all.
+
+**Three findings, in order of how much they change the plan.**
+
+1. **Referent identity is the wrong grain for propositional identity, and
+   its own control says so.** 19 candidates on the Wikipedia set, 25 under
+   deranged resolution — resolution contributes nothing a wrong universe
+   would not. Reading the landings says why: six keys absorbed 6, 5, 2, 2,
+   2 and 2 distinct raw end-pairs. `Kutuzov —arrived→ at the battlefield`
+   and `Kutuzov —retreated→ from the battlefield on 8 September` key
+   identically as *kutuzov / the battle*. **An arrangement's ends are not
+   referents** — "the battle", "the battlefield", "control of the battle"
+   are different ends resolving to one referent, and collapsing them
+   answers *are these about the same two things*, which is not the
+   question.
+
+2. **The synonymy program has essentially nothing to work on.** Decomposing
+   every cross-source pair whose RAW ends collide: 22 collided on ends AND
+   label (already folded by `hear()`), and **zero** collided on ends while
+   differing in label. Across 1,404 notes on two genres, exactly one pair
+   anywhere is blocked by the label alone. A paraphrase does not get as far
+   as having matching ends, so the label never becomes the blocker.
+
+3. **That one pair is tense, and `sameAct` does not fold it.** `The door
+   —is→ shut` / `The door —was→ shut`. The vendored `MorphologyPrior@1`
+   carries **zero of eight** English copula forms, by an artefact of its own
+   design: 224,550 pairs read, 216,011 dropped as rule-recoverable, 5,531
+   kept as the irregular tail — and a suffix rule cannot get from *was* to
+   *be*, so the copula should have been kept and was not (the shipped
+   artifact's `irregular` field is empty). Reach, measured over this
+   material's own labels: the copula is **29%** of Wikipedia label heads and
+   **50%** of Dracula's, and the prior carries none of it. Every consumer of
+   `sameAct` silently reads every copular restatement as a different act.
+
+**Disclosed, and it blocks the fix here:** the prior's provenance names
+`scripts/build-morphology-prior.mjs`, which is **not in this repository**,
+with an `input` path pointing at a previous session's scratchpad. The prior
+cannot be rebuilt from this checkout. That is itself the finding — a
+received prior whose builder is not committed cannot be corrected, only
+replaced.
+
+Full numbers, the samples, and the disclosed limits:
+`eval/the-fold/results/ends-only-proposer-RESULTS.md`.
+
+## S58 — A hole in a received prior is closed by a second named giver
+
+**Generality:** universal for the rule, English-specific for the hole.
+
+`sameAct` — the organ that decides whether two labels denote the same act —
+was blind to the most common verb in English. `createLemmatizer` built from
+`MorphologyPrior@1` alone answers **false** for `is`/`was`, `is`/`are`,
+`was`/`were` and `is`/`be`, so every copular restatement read as a different
+act: **29% of encyclopedic label heads and 50% of a novel's**.
+
+**It is the giver's hole, not the builder's.** UniMorph English carries
+**zero rows for the lemma `be`** across all 652,477 of them, while every other
+top-frequency irregular (have, do, go, say, get, make, know, take, see, come,
+think, give) carries five verb rows apiece. The three rows in which `am`,
+`are` and `were` appear at all are tagged `N;SG` — the noun senses.
+
+So it is closed the only way a received hole may be: by a **second named
+giver**. `priors.js::COPULA_PARADIGM` (`giver: "lang/en"`, scope declared as
+*"the copula's paradigm alone; tense is not carried"*) is merged through
+`createLemmatizer`'s new optional `supplement`. The two givers' reaches are
+reported **apart and never summed** — `size` counts the prior's own entries,
+`supplemented` counts what the second giver added — so one giver's reach can
+never be mistaken for the other's.
+
+**Not merged by default, and that is a decision.** Folding `is` with `was`
+says the two are the same ACT, not that they are the same claim: a consumer
+binding a present-tense claim to past-tense material has widened what it
+hears. Every caller injects it deliberately. `BECOMING copula-tense-aware`
+names what is missing — no organ here carries tense — and reports its own gap
+without failing the suite.
+
+**And the builder is recovered.** The prior's provenance named
+`scripts/build-morphology-prior.mjs`, which was not in the repository, with an
+input path into a previous session's scratch directory — so the prior could be
+replaced but never corrected. It is committed now and reproduces the shipped
+artifact **exactly**: `pairs_read` 224,550, `rule_recoverable_dropped`
+216,011, `kept` 5,531, identical forms table. Three divergences were found by
+measuring rather than guessed: `stemsOf` is now **exported** from
+`morphology.js` and imported by the builder rather than restated (a five-way
+divergent restatement produced a wholly different artifact — the same lesson
+`OPERATOR_ORDER` taught, which is to remove a restatement rather than flip
+it); the tag filter is every tag, not verbs alone; and `pairs_read` counts
+rows where form differs from lemma while `kept` counts distinct forms.
+
+Enforced by `conformance/copula-supplement.test.mjs` — including a case that
+**fails the day UniMorph ships `be`**, so the supplement is retired rather
+than left duplicating a giver that now carries it.
+
+## S59 — The population is not what the class label says: a hub is none of its documents, chrome is what a host says everywhere, a ranked link is a guess
 
 **Generality:** universal.
 
@@ -2785,7 +3650,7 @@ would have spent, and it made the budget argument the earlier pass had
 skipped. Pinned in `ranke.test.mjs`: hubs, the archive normalisation, lost
 paths, chrome, the duplicate-is-not-a-sibling case, and the lone face.
 
-## S49 — The reading wall is read before it is spent on: three refusals are right, two are the arm, two are the reader (2026-09-02)
+## S60 — The reading wall is read before it is spent on: three refusals are right, two are the arm, two are the reader (2026-09-02)
 
 **Generality:** universal (read the refusals at zero calls before buying
 a hypothesis; a control asked more questions finds more); specimen-scoped
@@ -2821,7 +3686,7 @@ does not cross; those stay refused and disclosed under P84(1).
 `ranke-slicers.mjs` records per-note verdicts on every checkpoint now;
 tallies alone made the seven recoverable only by subtraction.
 
-## S50 — The hypergraph is rich by default: a received prior's verb is an act on first arrival, the chain rides in the act, and a capitalised recurrence is a surface (2026-09-02)
+## S61 — The hypergraph is rich by default: a received prior's verb is an act on first arrival, the chain rides in the act, and a capitalised recurrence is a surface (2026-09-02)
 
 **Generality:** universal (the three gates; the surface guard; the
 walk-level null); specimen-scoped (the counts).
