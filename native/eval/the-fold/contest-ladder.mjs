@@ -153,10 +153,17 @@ function scoreArm(name, out) {
   for (const r of rows) c[r.verdict] += 1;
   const decided = c.TRUE + c.FALSE;
   const thin = rows.filter((r) => (r.restsOn?.sources ?? 0) < 2).length;
+  // WHY the undecided rows are undecided. A precision computed over `decided`
+  // silently drops these, so the reason they left has to be on the record:
+  // "the oracle has never heard of this person" and "the oracle knows the
+  // person and has no dates" are different failures with different fixes.
+  const because = {};
+  for (const r of rows) if (r.verdict === "UNVERIFIABLE") because[r.why] = (because[r.why] ?? 0) + 1;
   return {
     arm: name, premises: out.premises.length, stopped: out.stopped.length, carried: out.carried.length,
     derived: rows.length, ...c,
     precisionOnDecided: decided ? Number((c.TRUE / decided).toFixed(3)) : null,
+    unverifiableBecause: because,
     restingOnSingleSource: thin,
     maxDepth: rows.reduce((m, r) => Math.max(m, r.depth ?? 0), 0),
     falseFacts: rows.filter((r) => r.verdict === "FALSE").map((r) => `${labelOf(r.from)} after ${labelOf(r.to)} (${r.office})`),
@@ -169,6 +176,156 @@ const gated = D.derive(log, { declarations: decl, floor: FLOOR, carry: false, ma
 const carried = D.derive(log, { declarations: decl, floor: FLOOR, carry: true, maxSteps: MAX_STEPS });
 const L0 = scoreArm("L0 gate (carry:false) — the shipped floor", gated);
 const L1 = scoreArm("L1 carry (carry:true) — admit at one source, carry the fragility", carried);
+
+// ── the judge, put on trial ───────────────────────────────────────────────
+// A precision of 1.000 with ZERO convictions says one of two things and does
+// not distinguish them: the derivation is sound, or this oracle cannot convict
+// this material at all. Both print the same number. The shuffle does not
+// separate them either — `falseAgainstOracle` reads 0 real and a median of 0
+// null, which is the LR = 1 shape this ledger exists to refuse. A ratio whose
+// denominator is "the cases the judge agreed to decide" is not a measurement
+// until the judge is shown able to decide against you.
+//
+// So the instrument gets a POSITIVE CONTROL: defendants guilty by
+// construction. Every derived claim `X held O after Y` is INVERTED to
+// `Y held O after X` and put to the same `verdict()`. Where both people hold
+// exactly ONE dated term in that office and the forward claim scored TRUE,
+// the inversion cannot also be true — from sx >= ey with well-formed terms,
+// sy <= ey <= sx <= ex, so `Y after X` is false unless every date coincides.
+// That subset is the guaranteed-guilty docket, and the share of it the oracle
+// convicts is the judge's measured POWER.
+//
+// DISCLOSED: selecting that subset reads the oracle's own term counts. In a
+// precision arm that would be leakage. Here it is the whole point — this arm
+// asks nothing about the material, reads no P1365/P1366, and derives nothing.
+// It prices a verdict that never happens, which is the only way to tell an
+// acquittal from an empty courtroom.
+function calibrateJudge(rows) {
+  const datedTerms = (q, office) => (oracle.entities[q]?.terms?.[office] ?? [])
+    .filter((t) => stamp(t.start) !== null && stamp(t.end) !== null);
+  const seen = new Set();
+  const inverted = [];
+  const docket = [];
+  for (const r of rows) {
+    if (r.from === r.to) continue;                        // "after himself" proves nothing either way
+    const k = `${r.office}|${r.from}|${r.to}`;
+    if (seen.has(k)) continue;
+    seen.add(k);
+    const [v] = verdict(r.office, r.to, r.from);          // the SAME judge, the claim reversed
+    inverted.push(v);
+    if (r.verdict !== "TRUE") continue;
+    if (datedTerms(r.from, r.office).length !== 1) continue;
+    if (datedTerms(r.to, r.office).length !== 1) continue;
+    docket.push({ office: r.office, accused: `${labelOf(r.to)} after ${labelOf(r.from)}`, verdict: v });
+  }
+  const tally = { TRUE: 0, FALSE: 0, UNVERIFIABLE: 0 };
+  for (const v of inverted) tally[v] += 1;
+  const convicted = docket.filter((d) => d.verdict === "FALSE").length;
+  const power = docket.length ? Number((convicted / docket.length).toFixed(3)) : null;
+  return {
+    invertedClaims: inverted.length,
+    invertedVerdicts: tally,
+    guaranteedGuilty: docket.length,
+    convicted,
+    power,
+    escaped: docket.filter((d) => d.verdict !== "FALSE").slice(0, 8),
+    // NAMED, because the arm is weaker than its number looks: for a
+    // single-term pair, forward-TRUE ENTAILS inverse-FALSE by the
+    // comparator's own arithmetic (sx >= ey with sy <= ey and sx <= ex
+    // leaves no room for sy >= ex). So a perfect score here rules out the
+    // empty courtroom — UNVERIFIABLE swallowing everything, or degenerate
+    // sx == ex dates that never compare — and rules out nothing else. It is
+    // a NON-DEGENERACY check, not a power measurement. The power
+    // measurement is `discrimination`, below, which the arithmetic does not
+    // entail.
+    what: power === null
+      ? "NO guaranteed-guilty pair exists in this layer: the judge is UNCALIBRATED here and precisionOnDecided claims nothing"
+      : power >= 0.999
+        ? "the oracle's data for every decided pair reaches a verdict in BOTH directions — no empty courtroom, no degenerate dates"
+        : `${docket.length - convicted} of ${docket.length} analytically-false claims did NOT come back FALSE, which is a defect in the comparator or in the oracle's data`,
+  };
+}
+const judge = calibrateJudge(L1.rows);
+
+// ── the power measurement the inversion cannot give ───────────────────────
+// SUBSTITUTION. Keep the office and keep X; replace Y with a DIFFERENT real
+// person Z who holds a dated term in that same office. `X held O after Z` is
+// then a plausible wrong answer rather than an impossible one — Z might
+// genuinely precede X, so nothing about the comparator's definition decides
+// this in advance. The share of substitutions the oracle convicts is its
+// DISCRIMINATION: how often a wrong-but-reasonable succession claim gets
+// caught.
+//
+// This is the number `precisionOnDecided` has always needed and never had.
+// A judge that convicts substitutions at ~0% is one for whom nearly any
+// within-office pair reads TRUE, and a precision of 1.000 against it means
+// only "the derivation named people who held the office" — which is the
+// aggregate-level trap, one register over. Draws are seeded off the row's
+// own key so the arm is deterministic and re-runnable, and the seed is on
+// the record.
+function discriminate(rows, seedNote) {
+  const holdersOf = new Map();
+  for (const [qid, e] of Object.entries(oracle.entities)) {
+    for (const [office, terms] of Object.entries(e.terms ?? {})) {
+      if (!terms.some((t) => stamp(t.start) !== null && stamp(t.end) !== null)) continue;
+      if (!holdersOf.has(office)) holdersOf.set(office, []);
+      holdersOf.get(office).push(qid);
+    }
+  }
+  const hash = (str) => { let h = 2166136261 >>> 0; for (let i = 0; i < str.length; i += 1) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619) >>> 0; } return h; };
+  const tally = { TRUE: 0, FALSE: 0, UNVERIFIABLE: 0 };
+  const seen = new Set();
+  let attempted = 0, unavailable = 0;
+  const examples = [];
+  for (const r of rows) {
+    if (r.verdict !== "TRUE" || r.from === r.to) continue;
+    const k = `${r.office}|${r.from}|${r.to}`;
+    if (seen.has(k)) continue;
+    seen.add(k);
+    const pool = (holdersOf.get(r.office) ?? []).filter((q) => q !== r.from && q !== r.to);
+    if (!pool.length) { unavailable += 1; continue; }
+    const Z = pool[hash(k + seedNote) % pool.length];
+    const [v] = verdict(r.office, r.from, Z);
+    tally[v] += 1; attempted += 1;
+    if (examples.length < 8) examples.push({ office: r.office, swapped: `${labelOf(r.from)} after ${labelOf(Z)}`, was: `${labelOf(r.from)} after ${labelOf(r.to)}`, verdict: v });
+  }
+  const decided = tally.TRUE + tally.FALSE;
+  const rate = decided ? Number((tally.FALSE / decided).toFixed(3)) : null;
+  // THE BASELINE, MEASURED — not a threshold picked by hand. A substitution
+  // that reads TRUE is a wrong claim this oracle would have waved through, so
+  // the TRUE share of the substitution arm IS the precision a derivation earns
+  // by naming plausible people and nothing else. That, not 0.5 and not the
+  // shuffle, is what an observed precision has to beat.
+  const baseline = decided ? Number((tally.TRUE / decided).toFixed(3)) : null;
+  return {
+    seed: seedNote, substitutions: attempted, noRivalInOffice: unavailable, verdicts: tally,
+    convictionRateOnDecided: rate,
+    expectedPrecisionOfAPlausibleGuess: baseline,
+    what: rate === null
+      ? "no substitution was decidable — DISCRIMINATION UNMEASURED, and precisionOnDecided claims nothing"
+      : `a wrong-but-plausible partner reads TRUE ${((baseline ?? 0) * 100).toFixed(1)}% of the time, so ${baseline} is the precision a derivation earns for naming real holders of the office and nothing more`,
+    examples,
+  };
+}
+
+// How surprised should we be by the arm's precision, GIVEN that baseline?
+// This is the whole point of measuring the baseline: a raw 1.000 is not a
+// result until there is something it could have been instead. Bits of
+// surprise = -log2 P(every decided claim reads TRUE | the substitution rate),
+// which is the arm's own null and carries no constant chosen by hand.
+function surpriseOf(arm, baseline) {
+  const decided = arm.TRUE + arm.FALSE;
+  if (!decided || baseline === null || baseline <= 0) return null;
+  if (arm.FALSE > 0) return { decided, baseline, note: "the arm has convictions of its own; the all-TRUE tail does not apply" };
+  return {
+    decided, baseline,
+    observedPrecision: arm.precisionOnDecided,
+    bits: Number((-decided * Math.log2(baseline)).toFixed(1)),
+    what: `${decided} decided claims all read TRUE where a plausible guess reads TRUE ${(baseline * 100).toFixed(1)}% of the time: ${(-decided * Math.log2(baseline)).toFixed(1)} bits of surprise against the arm's own measured null`,
+  };
+}
+const discrimination = discriminate(L1.rows, process.env.DISCRIM_SEED ?? "eo");
+const surprise = surpriseOf(L1, discrimination.expectedPrecisionOfAPlausibleGuess);
 
 // ── the fragility this buys, priced ───────────────────────────────────────
 const levels = premisesOf(notes, { floor: FLOOR, carry: true });
@@ -251,6 +408,9 @@ const report = {
     singleSourceShare: notes.length ? Number((levels.carried.length / notes.length).toFixed(3)) : 0,
   },
   arms: [L0, L1].map(({ rows, ...rest }) => rest),
+  judge,
+  discrimination,
+  surprise,
   fragility: {
     liveDerived,
     worstConcession: worst,
@@ -278,6 +438,16 @@ say(`material: ${offered.length} offered assertions -> ${notes.length} notes acr
 say(`premise levels: ${report.premiseLevels.atFloor} at floor(>=2 sources), ${report.premiseLevels.belowFloor} below (${(report.premiseLevels.singleSourceShare * 100).toFixed(1)}% single-source)`);
 for (const a of report.arms) say(`  ${a.arm}\n    premises ${a.premises} (stopped ${a.stopped}, carried ${a.carried}) -> derived ${a.derived}  TRUE ${a.TRUE} FALSE ${a.FALSE} UNVERIFIABLE ${a.UNVERIFIABLE}  precision ${a.precisionOnDecided ?? "n/a"}  maxDepth ${a.maxDepth}  resting on a single source: ${a.restingOnSingleSource}`);
 if (report.arms[1].falseFacts.length) say(`    FALSE: ${report.arms[1].falseFacts.join("; ")}`);
+say(`  undecided because: ${JSON.stringify(report.arms[1].unverifiableBecause)}`);
+say(`judge (positive control — the same verdict(), every claim reversed):`);
+say(`  inverted ${judge.invertedClaims} claims -> TRUE ${judge.invertedVerdicts.TRUE} FALSE ${judge.invertedVerdicts.FALSE} UNVERIFIABLE ${judge.invertedVerdicts.UNVERIFIABLE}`);
+say(`  guaranteed-guilty docket ${judge.guaranteedGuilty}, convicted ${judge.convicted}, POWER ${judge.power ?? "n/a"}`);
+say(`  ${judge.what}`);
+say(`discrimination (same office, same X, a DIFFERENT real holder swapped in for Y — seed "${discrimination.seed}"):`);
+say(`  ${discrimination.substitutions} substitutions -> TRUE ${discrimination.verdicts.TRUE} FALSE ${discrimination.verdicts.FALSE} UNVERIFIABLE ${discrimination.verdicts.UNVERIFIABLE}  (no rival in office: ${discrimination.noRivalInOffice})`);
+say(`  conviction rate on decided: ${discrimination.convictionRateOnDecided ?? "n/a"}`);
+say(`  ${discrimination.what}`);
+if (surprise) say(`  ${surprise.what ?? surprise.note}`);
 say(`fragility: worst single concession withdraws ${worst?.withdrawn ?? 0} of ${liveDerived} (${((worst?.share ?? 0) * 100).toFixed(1)}%), mean ${(report.fragility.meanShare * 100).toFixed(1)}%`);
 say(`contest (real): ${apparent.length} apparent contradictions in ${groups.length} groups — cross-source ${crossSource}, SAME-source ${sameSource}`);
 say(`  landed as disputes: ${landedReal.length}; refused: ${JSON.stringify(refusedReal)}`);
