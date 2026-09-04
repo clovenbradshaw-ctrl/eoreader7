@@ -104,3 +104,81 @@ material that exists, with no oracle and no model.
 
 ## Files
 `premise-levels.mjs` (new).
+
+---
+
+# Addendum, same day — the other Ns can arrive, and there is nowhere for them to land
+
+User: *"a scientist can have an N=1 and build an entire worldview, and in fact
+that's the only way to start. the other Ns must be able to come and knock it
+down tho."*
+
+The first half is confirmed above. This is the second half, traced through the
+code rather than argued. **Zero model calls; this is a structural audit.**
+
+## The demolition machinery is complete, and nothing calls it
+
+`concedePremise` (derivation.js) concedes a premise **and** withdraws every
+product resting on it, transitively, each withdrawal appended as its own
+REC·Pattern entry naming its `trigger` and what it `cascadedFrom`, nothing
+deleted. It refuses a concession with no trigger. It is well built and it is
+tested.
+
+Its only callers are `derivation.test.mjs`. Same for `withdrawDerived`.
+
+## And nothing *could* call it, because a contradiction never lands
+
+In the entire corroboration walk the log is assigned in **exactly one place**:
+
+```
+910:  let next = log;
+988:    if (!r.refused) { next = r.log; attested.push({...}); }
+```
+
+Line 988 is inside the **attestation** branch. The contradiction branch
+(981–984) writes only `contradictSources`, an in-memory `Map` the file's own
+comment marks `THIS RUN`, and a `contradicted` array returned for display.
+
+So a contradicting source is heard, tallied, reported — and discarded when the
+function returns. It cannot persist, cannot accumulate, and can never reach
+the cascade. **The record has a place for agreement and no place for
+disagreement.**
+
+## The reason is principled, and it justifies less than it is doing
+
+The file states it: at n=2 a states/contradicts pair is **undecidable by
+construction** — nothing says which of the two sources is wrong, so landing a
+contradiction would be a conviction the evidence does not support. That is
+correct, and it is the same withhold-rather-than-convict rule that keeps the
+lie count at zero everywhere else.
+
+But it justifies **not convicting**. It does not justify **forgetting**. That
+two sources disagree about a note is true whoever turns out right, and it is
+precisely the thing a third source would settle. `thirdSourceCandidates`
+exists to go find that third source — and nothing carries the contest forward
+to make the search worth mounting later.
+
+## What it costs, concretely
+
+On the succession material measured above: the most load-bearing premise
+carries 4 of the 23 derived facts. If a contradiction could land on it and
+cascade, those 4 would be withdrawn, each naming its trigger.
+
+Today the number that falls, for any premise, under any amount of contradicting
+evidence, in any number of runs, is **0**.
+
+## The gap, named
+
+Not "land contradictions" — that is the conviction the n=2 argument correctly
+refuses. **A contest must be a durable object on the record**: this note, these
+sources stating, these sources contradicting, unresolved. Then a third source
+can settle it, a settled contest can trigger a concession, and the concession
+already knows how to bring down everything resting on it.
+
+Corroboration accumulates across runs. Contest evaporates at the end of each
+one. That asymmetry is the whole gap between "can be knocked down" and "is
+never actually at risk."
+
+## Files
+Read-only audit — `organs/corroboration.js` (lines 910, 981–988),
+`organs/derivation.js` (`concedePremise`, `withdrawDerived`).
