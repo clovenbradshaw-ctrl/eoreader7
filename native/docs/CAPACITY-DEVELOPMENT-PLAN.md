@@ -228,3 +228,9 @@ joined Binding, Making, Composing), Figure and Pattern grains complete at
 CON·Ground, DEF·Ground, INS·Ground, exactly Tier 2's gated three. The
 gates stand as written above: two on the fold-architecture session's
 boundary, one on a workable specimen.
+
+---
+
+## Addendum 2026-09-05 — the perceivers beyond text are seated (S76)
+
+The audio perceiver named in the-fold/EOT-BEYOND-TEXT.md as "already right, in the wrong repository" is crossed (`adapters/audio/`), with the image and video material perceivers beside it, under `conformance/media-perceiver-parity.test.mjs`. None is REGISTERED as a capacity row: a perceiver measures nothing on the cube's own terms (it is the material's giver, like `adapters/text/`), and the organ that places its series — `organs/measure.js`, NUL·Void, already registered as `measure` — is the one whose row stands. The second step, a line of reading out of a frame, remains the open item this plan's Tier 1 SIG·Pattern and the essay both point at.

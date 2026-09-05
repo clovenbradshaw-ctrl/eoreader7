@@ -4322,3 +4322,13 @@ who or what the pilot was.
 **What it says.** THE-NULL-STATES law 5 holds as measured: the same draft wears `unheard`, then `bound`, and which it wears is decided by the cursor, not by the draft. A reader that reports `unheard` without its `unread_extent` beside it has reported a verdict wearing a count.
 
 **Amended same day — `fillingsSince(log, seq)`.** The re-zeros landed at or after a caller's cursor, so a turn can ask what moved its ground since it began (the-fold P109 consumes it: a filled void forces the summary refresh). Pinned in `notes.test.js` (27).
+
+## S76 — The perceivers beyond text take their seat: audio, image and video crossed under parity; the measuring door reads decoded media as each medium's own series
+
+**Generality:** universal for the crossing rule (a perceiver crosses from the frozen provider only under a parity test over the same decoded material — the ratchet morphology-parity.test.mjs already runs); specimen-scoped for the fixtures.
+
+`native/adapters/audio/` now holds the frozen 6.1 field perceiver (reading.js and its six helpers) and eoreader6's pure `reduce.js` (rms, flux, locate) with `material.js` re-exporting it and decoding through ffmpeg; `native/adapters/image/material.js` reads scanline luminance, `native/adapters/video/material.js` motion energy per transition, both ffmpeg-decoded and disclosed as such. `conformance/media-perceiver-parity.test.mjs` 4/4 against the frozen provider on `eval/the-fold/fixtures/media/`.
+
+`organs/measure.js::seriesFromMedia` accepts decoded media — `{kind:"image", buf, w, h}`, `{kind:"video", frames, w, h, fps}`, `{kind:"pcm", samples, sampleRate, container}` — beside bytes; `reduce` may be `{audio, image, video}`; a decoded image or video frames in scanlines or transitions (floor 1), PCM and bytes in samples (floor 2, as before). `probeMaterial` teaches each decoded medium its one channel and names the node-side decoder for an undecoded container (`DECODABLE`). `tests/measure-media.test.js` 5/5; the-fold `measure.test.mjs` 51/51 unchanged.
+
+The essay's next step — a line of reading out of a frame (extents, fillers, eliminations over the perceiver's units) — is named, not built. `eval/the-fold/lib/frontier-25.mjs` carries the five media declarations (the-fold P115) and the twenty-five tasks; `tests/frontier-25.test.js` reads the zero-call arm.
