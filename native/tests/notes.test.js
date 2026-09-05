@@ -459,3 +459,70 @@ test("a denial through time: the link, the cut, the contest and a concession are
   assert.equal(notes.foldCuts(log).length, 0, "a conceded cut leaves the fold and stays in the timeline");
   assert.deepEqual(notes.negationTimeline(log, "nobody|did|nothing").standing, { link: "unheard", cut: "unheard", contest: "none" });
 });
+
+test("the void (DEF·Ground): declared with its scope, refused without one, refused where a live link already fills it, re-zeroed by ONE arrival at the door, tracked through time", () => {
+  const notes = makeNotes();
+  let log = notes.createNotes();
+  const r0 = notes.declareVoid(log, { end1: "the observatory", label: "opened" });
+  assert.equal(r0.refused.type, "no_scope", "a nothing with no denominator is refused");
+  const r1 = notes.declareVoid(log, { end1: "the observatory", label: "opened", scope: { sources: ["a.txt"], read: 2, total: 3 } });
+  assert.equal(r1.refused, null);
+  log = r1.log;
+  let vs = notes.foldVoids(log);
+  assert.equal(vs.length, 1);
+  assert.equal(vs[0].reached, false, "two of three read: the search has not reached its object");
+  assert.equal(notes.voidTimeline(log, r1.id).standing, "open");
+  // a cut over the same ends is not an arrival of the thing: the void stays open
+  log = notes.admit(log, [{ end1: "the observatory", label: "opened", end2: "in 1889", polarity: "-", decider: "never opened", spans: [span("b.txt", 0, 10)] }], { witness: "b.txt#0-10~r" }).log;
+  assert.equal(notes.foldVoids(log).length, 1, "a denial does not fill a void");
+  // one arrival re-zeros it, at the door, with the filling named
+  const r2 = notes.admit(log, [{ end1: "the observatory", label: "opened", end2: "in 1889", spans: [span("a.txt", 0, 10)] }], { witness: "a.txt#0-10~r" });
+  log = r2.log;
+  assert.equal(r2.rezeroed.length, 1);
+  assert.equal(r2.rezeroed[0].void, r1.id);
+  assert.equal(notes.foldVoids(log).length, 0, "a filled void leaves the fold");
+  const t = notes.voidTimeline(log, r1.id);
+  assert.deepEqual(t.events.map((e) => e.act), ["declared", "filled"]);
+  assert.ok(t.events[0].at < t.events[1].at);
+  assert.equal(t.events[1].by, notes.noteId("the observatory", "opened", "in 1889"));
+  assert.equal(t.standing, "filled");
+  // re-declaring over a filled extent is refused: the link is live
+  assert.equal(notes.declareVoid(log, { end1: "the observatory", label: "opened", scope: { sources: ["a.txt"] } }).refused.type, "not_empty");
+  // a void with an end2 declared fills only on that end2
+  const r3 = notes.declareVoid(log, { end1: "the observatory", label: "closed", end2: "in 1900", scope: { cursor: 7 } });
+  log = r3.log;
+  log = notes.admit(log, [{ end1: "the observatory", label: "closed", end2: "in 1950", spans: [span("a.txt", 20, 30)] }], { witness: "a.txt#20-30~r" }).log;
+  assert.equal(notes.foldVoids(log).length, 1, "a different extent does not fill it");
+  assert.deepEqual(notes.voidTimeline(log, "void:nobody|did|*").standing, "undeclared");
+  assert.equal(notes.fold(log).length, 2, "voids never enter the link fold");
+});
+
+test("a void the reader takes back: concede lands REC with its trigger, the void leaves the fold, and the timeline says conceded", () => {
+  const notes = makeNotes();
+  let log = notes.createNotes();
+  const r = notes.declareVoid(log, { end1: "the observatory", label: "director", scope: { sources: ["a.txt"], read: 1, total: 1 } });
+  log = r.log;
+  assert.equal(notes.foldVoids(log).length, 1);
+  assert.equal(notes.concede(log, r.id, {}).refused.type, "no_trigger");
+  log = notes.concede(log, r.id, { trigger: "declared over the wrong ends" }).log;
+  assert.equal(notes.foldVoids(log).length, 0);
+  const t = notes.voidTimeline(log, r.id);
+  assert.deepEqual(t.events.map((e) => e.act), ["declared", "conceded"]);
+  assert.equal(t.standing, "conceded");
+});
+
+test("a filling found by a face's own organ re-zeros the void by name; an unknown or already-filled void is refused; the filling must be named", () => {
+  const notes = makeNotes();
+  let log = notes.createNotes();
+  const r = notes.declareVoid(log, { end1: "the observatory", label: "director", scope: { sources: ["a.txt"], read: 1, total: 1 } });
+  log = r.log;
+  assert.equal(notes.rezeroVoid(log, r.id, {}).refused.type, "no_filling");
+  assert.equal(notes.rezeroVoid(log, "void:x|y|*", { by: "z" }).refused.type, "no_open_void");
+  const f = notes.rezeroVoid(log, r.id, { by: "Amelia Hartley", witness: "a.txt#0-40~r" });
+  assert.equal(f.refused, null);
+  log = f.log;
+  assert.equal(notes.foldVoids(log).length, 0);
+  assert.equal(notes.rezeroVoid(log, r.id, { by: "again" }).refused.type, "no_open_void");
+  const t = notes.voidTimeline(log, r.id);
+  assert.deepEqual(t.events.map((e) => [e.act, e.by ?? null]), [["declared", null], ["filled", "Amelia Hartley"]]);
+});

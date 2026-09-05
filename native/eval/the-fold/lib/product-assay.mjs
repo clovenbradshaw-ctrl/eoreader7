@@ -375,5 +375,33 @@ export async function runProductAssay({ corpus = CORPUS } = {}) {
   wall("8", "recourse", Boolean(premiseId) && exposure.withdrawn.length >= 1 && !conceded.refused && conceded.withdrawn.length === exposure.withdrawn.length && !afterConcession.some((d) => d.id === implied.id) && (conceded.log.entries.length > reading.log.entries.length),
     `exposure named ${exposure.withdrawn.length} product(s) before the act; conceding withdrew exactly those; the derived fact is gone from the fold and the record grew, never shrank`);
 
-  return { lines, walls, records, numbers, log: conceded.log ?? reading.log };
+  // 8. the void, through time (S70 / THE-NULL-STATES DEF·Ground): a declared
+  // emptiness over an extent WITH its scope, before any mouth speaks; ONE
+  // arrival re-zeros it at the door; the timeline reads both events. The
+  // control built to fail: a void with no scope is refused; a void over an
+  // extent the reader has not finished is a fact about the reader
+  // (`reached: false`), never a finding about the material.
+  const base = conceded.log ?? reading.log;
+  const ARRIVAL = { "northgate-c.txt": "The Northgate Observatory closed in 1950." };
+  const noScope = O.hl.declareVoid(base, { end1: "the Northgate Observatory", label: "closed" });
+  const unread = O.hl.declareVoid(base, { end1: "the Northgate Observatory", label: "closed", scope: { sources: Object.keys(corpus), read: 1, total: reading.passages.length } });
+  const declared = O.hl.declareVoid(base, { end1: "the Northgate Observatory", label: "closed", scope: { sources: Object.keys(corpus), read: reading.passages.length, total: reading.passages.length }, because: "the question asks when it closed; nothing read states it" });
+  const openVoids = declared.refused ? [] : O.hl.foldVoids(declared.log);
+  let filledLog = declared.log ?? base, rezeroed = [];
+  if (!declared.refused) {
+    const arrival = readCorpus(O, ARRIVAL);
+    for (const p of arrival.passages) {
+      const claims = arrival.rel.read(String(p.text ?? ""))?.claims ?? [];
+      const edges = claims.filter((c) => c.verdict === "bound").map((c) => ({ subject: c.end1, verb: c.label, object: c.end2, polarity: c.polarity ?? "+", spans: c.spans ?? [] }));
+      const r = O.hl.admit(filledLog, edges, { witness: `${p.ref}~${O.recipe}`, classifyConnector: null });
+      filledLog = r.log; rezeroed.push(...(r.rezeroed ?? []));
+    }
+  }
+  const timeline = declared.refused ? null : O.hl.voidTimeline(filledLog, declared.id);
+  numbers.void = { noScopeRefused: noScope.refused?.type ?? null, unreadReached: unread.refused ? null : O.hl.foldVoids(unread.log)[0]?.reached ?? null, declared: openVoids.length, reached: openVoids[0]?.reached ?? null, rezeroed: rezeroed.length, liveAfter: O.hl.foldVoids(filledLog).filter((v) => v.id === declared.id).length, timeline: timeline?.events.map((e) => e.act) ?? [], standing: timeline?.standing ?? null };
+  say(`\n8. THE VOID — declared over ${Object.keys(corpus).length} source(s), ${reading.passages.length} of ${reading.passages.length} passages read (reached: ${numbers.void.reached}); no-scope declaration refused: ${numbers.void.noScopeRefused}; unread-extent declaration reads reached=${numbers.void.unreadReached}; one arrival ("${ARRIVAL["northgate-c.txt"]}") re-zeroed ${rezeroed.length}; timeline ${numbers.void.timeline.join(" → ")}; standing ${numbers.void.standing}`);
+  wall("9", "void-through-time", numbers.void.noScopeRefused === "no_scope" && numbers.void.unreadReached === false && numbers.void.declared === 1 && numbers.void.reached === true && numbers.void.rezeroed === 1 && numbers.void.liveAfter === 0 && numbers.void.timeline.join(",") === "declared,filled" && numbers.void.standing === "filled",
+    `a void names its scope or is refused; an unfinished read is a fact about the reader; the void stood open before the mouth and ONE arrival re-zeroed it at the door; the timeline holds both events with their seqs`);
+
+  return { lines, walls, records, numbers, log: filledLog };
 }

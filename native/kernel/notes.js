@@ -379,6 +379,7 @@ export function makeNotes({ taskLog = nativeTaskLog, cellOf = nativeCellOf, iden
     const heard = [];
     const turnedAway = [];
     const contests = [];
+    const rezeroed = [];
     for (const a of arrangements ?? []) {
       const end1 = String(a?.end1 ?? "").trim();
       const label = String(a?.label ?? "").trim();
@@ -404,6 +405,7 @@ export function makeNotes({ taskLog = nativeTaskLog, cellOf = nativeCellOf, iden
       // its walls (a source that witnesses the link cannot also deny it; a
       // repeat is a no-op), so the door never convicts and never doubles.
       const tasks = projectTasks(next);
+      if (!cut) { const rz = rezeroVoids(next, { linkId, end1, label, end2, witness }); if (rz.rezeroed.length) { next = rz.log; for (const r of rz.rezeroed) rezeroed.push(r); } }
       if (cut) {
         const link = tasks.find((t) => t.task_id === linkId);
         const src = witness ? sourceOfWitness(witness) : null;
@@ -419,7 +421,7 @@ export function makeNotes({ taskLog = nativeTaskLog, cellOf = nativeCellOf, iden
         }
       }
     }
-    return { log: next, heard, turnedAway, contests };
+    return { log: next, heard, turnedAway, contests, rezeroed };
   }
 
   /**
@@ -709,6 +711,119 @@ export function makeNotes({ taskLog = nativeTaskLog, cellOf = nativeCellOf, iden
       .sort((a, b) => b.witnesses.length - a.witnesses.length || a.id.localeCompare(b.id));
   }
 
+  // ---------------------------------------------------------------------
+  // THE VOID (S70; THE-NULL-STATES, DEF·Ground). A declared emptiness over
+  // an extent WITH ITS SCOPE — "nothing heard for <end1 —label→ ?> in what
+  // was read so far". It obeys the six laws: it names its scope (what was
+  // read: sources, a cursor, an extent — refused without one); it names
+  // what would fill it (the arrangement it is empty of); it is a finding
+  // only where the search reached what it sought (`reached` is read off the
+  // scope, never assumed); it never convicts (a void disputes nothing); and
+  // ONE ARRIVAL RE-ZEROS IT — the door itself lands REC·Ground the moment a
+  // link matching the void's ends is heard, so a void is an EVENT with a
+  // cursor and a filling, never a state. `voidTimeline` is its reading
+  // through time; a filled void stays on the record with its filling after
+  // it. The mouth relays a void; it never declares one (law 6 is the
+  // caller's — nothing here takes a model's say-so for emptiness).
+  // ---------------------------------------------------------------------
+  const VOID_PREFIX = "void:";
+  const isVoidId = (id) => typeof id === "string" && id.startsWith(VOID_PREFIX);
+  const voidIdOf = (end1, label, end2) => VOID_PREFIX + noteId(end1, label, end2 ?? "*");
+  const scopeIsDeclared = (scope) => scope && typeof scope === "object" && ((Array.isArray(scope.sources) && scope.sources.length > 0) || Number.isFinite(scope.cursor) || Number.isFinite(scope.extent));
+
+  function declareVoid(log, { end1, label, end2 = null, scope, because = null } = {}) {
+    if (!end1 || !label) return { log, refused: { type: "no_extent", detail: "a void names what would fill it — at least a first end and a label" } };
+    if (!scopeIsDeclared(scope)) return { log, refused: { type: "no_scope", detail: "a void names its scope — what was read (sources, a cursor, an extent); a nothing with no denominator is a verdict wearing a count" } };
+    const id = voidIdOf(end1, label, end2);
+    // A void over ends the ledger already holds a live link for is not a
+    // void: refused, with the filling named — the search has already found
+    // what it sought.
+    const filler = fold(log).find((n) => matchesVoid(n, { end1, label, end2 }));
+    if (filler) return { log, refused: { type: "not_empty", noteId: filler.id, detail: "a live link already fills this extent" } };
+    const prior = projectTasks(log).find((t) => t.task_id === id) ?? null;
+    const reached = scope.total == null ? null : Number(scope.read ?? 0) >= Number(scope.total);
+    const next = append(log, {
+      kind: prior ? ENTRY_KINDS.SUPERSEDE : ENTRY_KINDS.PROPOSE, task_id: id, operator: "DEF", operator_basis: OPERATOR_BASIS.DECLARED, grain: GROUND,
+      ...cellFields("DEF", GROUND),
+      description: `void: nothing heard for ${end1} ${label} ${end2 ?? "?"}`,
+      void: true, end1, label, end2, scope: { ...scope }, reached, because,
+      ...(prior ? { supersedes: prior.last_seq } : {}),
+    });
+    return { log: next, id, refused: null, redeclared: Boolean(prior) };
+  }
+
+  const matchesVoid = (n, v) => noteId(n.end1, "", "") === noteId(v.end1, "", "") && noteId("", n.label, "") === noteId("", v.label, "") && (v.end2 == null || noteId("", "", n.end2) === noteId("", "", v.end2));
+
+  /** Void id -> the arrival that re-zeroed it (the latest). */
+  function fillings(log) {
+    const out = new Map();
+    for (const e of log?.entries ?? []) if (e?.kind === ENTRY_KINDS.EVIDENCE && e.operator === "REC" && e.rezeros) out.set(e.rezeros, { by: e.by, witness: e.witness ?? null, at: e.seq });
+    return out;
+  }
+
+  /** The live voids: declared, not yet filled. Redeclaring after a filling opens it again (a new declaration is a new event). */
+  function foldVoids(log) {
+    const filled = fillings(log);
+    const gone = concededIds(log);
+    return projectTasks(log)
+      .filter((t) => t.void === true && !gone.has(t.task_id))
+      .filter((t) => { const f = filled.get(t.task_id); return !f || f.at < t.last_seq; })
+      .map((t) => ({ id: t.task_id, end1: t.end1, label: t.label, end2: t.end2 ?? null, scope: t.scope ?? null, reached: t.reached ?? null, because: t.because ?? null, declaredAt: t.last_seq }))
+      .sort((a, b) => a.declaredAt - b.declaredAt);
+  }
+
+  /** One arrival re-zeros every live void it fills. Called by the door; returns the log and what was re-zeroed. */
+  function rezeroVoids(log, { linkId, end1, label, end2, witness }) {
+    let next = log;
+    const rezeroed = [];
+    for (const v of foldVoids(next)) {
+      if (!matchesVoid({ end1, label, end2 }, v)) continue;
+      const recId = `rec:${next.nextSeq}`;
+      next = append(next, {
+        kind: ENTRY_KINDS.EVIDENCE, task_id: recId, operator: "REC", operator_basis: OPERATOR_BASIS.PRODUCED, grain: GROUND,
+        ...cellFields("REC", GROUND),
+        description: `re-zero: ${v.id} filled by ${linkId}`,
+        rezeros: v.id, by: linkId, witness: witness ?? null,
+      });
+      rezeroed.push({ void: v.id, by: linkId, id: recId });
+    }
+    return { log: next, rezeroed };
+  }
+
+  /**
+   * rezeroVoid(log, voidId, { by, witness }) — a filling that did not come
+   * through the door as an arrangement (a face's own filler organ found what
+   * the void was empty of): the same REC·Ground the door lands, with the
+   * filling NAMED. Refused for an unknown or already-filled void; `by` is
+   * required — a re-zero names what re-zeroed it (P41: never a silent fill).
+   */
+  function rezeroVoid(log, voidId, { by, witness = null } = {}) {
+    if (typeof by !== "string" || !by.trim()) return { log, refused: { type: "no_filling", detail: "a re-zero names what filled the void" } };
+    const v = foldVoids(log).find((x) => x.id === voidId);
+    if (!v) return { log, refused: { type: "no_open_void", voidId, detail: "nothing stands open to fill — the void is undeclared, filled, or withdrawn" } };
+    const recId = `rec:${log.nextSeq}`;
+    const next = append(log, {
+      kind: ENTRY_KINDS.EVIDENCE, task_id: recId, operator: "REC", operator_basis: OPERATOR_BASIS.PRODUCED, grain: GROUND,
+      ...cellFields("REC", GROUND),
+      description: `re-zero: ${voidId} filled by ${by}`,
+      rezeros: voidId, by, witness,
+    });
+    return { log: next, id: recId, refused: null };
+  }
+
+  /** A void THROUGH TIME: every declaration and every filling, in order, with its standing now. */
+  function voidTimeline(log, voidId) {
+    const events = [];
+    for (const e of log?.entries ?? []) {
+      if (e?.task_id === voidId && e.void === true) events.push({ at: e.seq, act: e.kind === ENTRY_KINDS.SUPERSEDE ? "redeclared" : "declared", scope: e.scope ?? null, reached: e.reached ?? null });
+      if (e?.kind === ENTRY_KINDS.EVIDENCE && e.operator === "REC" && e.rezeros === voidId) events.push({ at: e.seq, act: "filled", by: e.by, witness: e.witness ?? null });
+      if (e?.kind === ENTRY_KINDS.EVIDENCE && e.operator === "REC" && e.concedes === voidId) events.push({ at: e.seq, act: "conceded", trigger: e.trigger ?? null });
+    }
+    events.sort((a, b) => a.at - b.at);
+    const last = events.at(-1) ?? null;
+    return { void: voidId, events, standing: !last ? "undeclared" : last.act === "filled" ? "filled" : last.act === "conceded" ? "conceded" : "open" };
+  }
+
   /**
    * negationTimeline(log, linkId) — a denial THROUGH TIME. A cut, a link and
    * the contest between them are events on the record, never a state: this
@@ -757,7 +872,7 @@ export function makeNotes({ taskLog = nativeTaskLog, cellOf = nativeCellOf, iden
     // rule `joins` and `unbridged` already follow one line down.
     const contested = disputesOf(log);
     return projectTasks(log)
-      .filter((t) => t.end1 && t.label && t.end2 && !t.derived && !t.cut && !gone.has(t.task_id))
+      .filter((t) => t.end1 && t.label && t.end2 && !t.derived && !t.cut && !t.void && !gone.has(t.task_id))
       // `joins` and `unbridged` ride only when they exist, so a note that
       // crossed no universe has exactly the shape it always had.
       .map((t) => ({ id: t.task_id, end1: t.end1, label: t.label, end2: t.end2, witnesses: t.witnesses ?? [], spans: t.spans ?? [], ...(t.joins?.length ? { joins: t.joins } : {}), ...(t.unbridged ? { unbridged: t.unbridged } : {}), ...(contested.get(t.task_id)?.length ? { disputedBy: contested.get(t.task_id).map((d) => d.source) } : {}) }))
@@ -924,5 +1039,5 @@ export function makeNotes({ taskLog = nativeTaskLog, cellOf = nativeCellOf, iden
     return { levels, stream: s, boundarySeqs: (levels[0]?.boundaries ?? []).map((b) => s[b].seq) };
   }
 
-  return { createNotes, frameOf, frames, redeclareFrame, hear, admit, attest, concede, concededIds, concededNotes, dispute, settleDispute, disputesOf, disputedIds, disputeHistory, DISPUTE_OUTCOMES, DISPUTE_KINDS, NEEDS_THIRD_SOURCE, fold, foldWithStanding, standingOf, sourceOfWitness, recipeOfWitness, kindOfWitness, readingFromNotes, stream, figures, segment, dietBoundaries, concedeDiet, noteId, recipeId, REFUSALS, FRAME_TASK, foldCuts, negationTimeline, isCutId, CUT_PREFIX };
+  return { createNotes, frameOf, frames, redeclareFrame, hear, admit, attest, concede, concededIds, concededNotes, dispute, settleDispute, disputesOf, disputedIds, disputeHistory, DISPUTE_OUTCOMES, DISPUTE_KINDS, NEEDS_THIRD_SOURCE, fold, foldWithStanding, standingOf, sourceOfWitness, recipeOfWitness, kindOfWitness, readingFromNotes, stream, figures, segment, dietBoundaries, concedeDiet, noteId, recipeId, REFUSALS, FRAME_TASK, foldCuts, negationTimeline, isCutId, CUT_PREFIX, declareVoid, foldVoids, voidTimeline, rezeroVoid, isVoidId, VOID_PREFIX };
 }

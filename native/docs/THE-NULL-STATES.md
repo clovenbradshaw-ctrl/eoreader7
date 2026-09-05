@@ -62,3 +62,7 @@ Names in `code` exist; names in **bold** are proposed and unbuilt.
 ## What is not claimed
 
 Coherence never establishes correspondence. A complete grid of nulls means the instrument can say "no" at every grain; it does not mean any "no" is true of the world. That null — the void of correspondence — has one filler, an oracle, and this document does not pretend to it.
+
+## Amendment 2026-09-05 — the two empty cells are built
+
+**SEG·Figure — the cut** is `kernel/notes.js`'s `cut:<noteId>` (S69 / P104): a denial heard apart from the link it denies, sharing its ends and never its id; a denying source is never a witness of the link; a cut meeting its link lands CON·Figure·CONTESTED at the door with the denying bytes as decider. **DEF·Ground — the void** is `declareVoid` / `foldVoids` / `rezeroVoid` / `voidTimeline` (S70 / P105): a declared emptiness over an extent WITH its scope, refused without one, `reached` read off the scope, cancelled by one arrival as REC·Ground with the filling named. **Both are tracked through time** (`negationTimeline`, `voidTimeline`): every act at its seq, a conceded cut or void still in the timeline with its concession after it — the user's standing instruction. The grid above is otherwise unchanged; the pairing rule now has its two hardest cases filled, and the meta-null (EVA·Figure's unreachable guard) is what the live run checked first: the first cut on the real page landed the first contest the circuit ever produced by itself.

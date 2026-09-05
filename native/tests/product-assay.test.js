@@ -85,3 +85,15 @@ test("the fabrication set is the declared one and the reader's verdicts are repo
   assert.ok(Number.isInteger(run.numbers.fabricationsBound));
   console.log(`  fabrications bound at the reader: ${run.numbers.fabricationsBound}/${FABRICATIONS.length} (2026-09-05: 1 — the sub-floor tokensShare mechanism, wall 6)`);
 });
+
+test("the void through time (wall 9): refused without scope, a reader fact when unread, open before the mouth, re-zeroed by one arrival, both events on the timeline", () => {
+  const v = run.numbers.void;
+  assert.equal(v.noScopeRefused, "no_scope");
+  assert.equal(v.unreadReached, false);
+  assert.equal(v.declared, 1);
+  assert.equal(v.reached, true);
+  assert.equal(v.rezeroed, 1);
+  assert.equal(v.liveAfter, 0);
+  assert.deepEqual(v.timeline, ["declared", "filled"]);
+  assert.equal(v.standing, "filled");
+});

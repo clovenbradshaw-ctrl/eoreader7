@@ -116,6 +116,7 @@ export function makeHyperlexicon(taskLog) {
       log: r.log,
       heard: r.heard.map((h) => ({ id: h.id, subject: h.end1, verb: h.label, object: h.end2, ...(h.cut ? { cut: true } : {}) })),
       contests: r.contests ?? [],
+      rezeroed: r.rezeroed ?? [],
       turnedAway: r.turnedAway.map((t) => ({ edge: originals.get(t.arrangement) ?? t.arrangement, reason: t.reason, detail: t.detail, ...(t.givers !== undefined ? { givers: t.givers } : {}) })),
     };
   }
@@ -142,5 +143,7 @@ export function makeHyperlexicon(taskLog) {
     stream: notes.stream, figures: notes.figures, segment: notes.segment,
     dietBoundaries: notes.dietBoundaries, concedeDiet: notes.concedeDiet,
     assertionId, recipeId, REFUSALS, foldCuts, negationTimeline: notes.negationTimeline, isCutId: notes.isCutId, CUT_PREFIX: notes.CUT_PREFIX,
+    declareVoid: (log, v) => notes.declareVoid(log, { end1: v.end1 ?? v.subject, label: v.label ?? v.verb, end2: v.end2 ?? v.object ?? null, scope: v.scope, because: v.because ?? null }),
+    foldVoids: (log) => notes.foldVoids(log).map(toSVO), voidTimeline: notes.voidTimeline, rezeroVoid: notes.rezeroVoid, isVoidId: notes.isVoidId, VOID_PREFIX: notes.VOID_PREFIX,
   };
 }
