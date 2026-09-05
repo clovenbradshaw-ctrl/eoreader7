@@ -393,8 +393,12 @@ function safeClaimWord(s) {
   return String(s ?? "").replace(/"/g, "'").replace(/\s+/g, " ").trim();
 }
 
+const sae = (e) => ({ ...e, subject: e.end1 ?? e.subject, verb: e.label ?? e.verb, object: e.end2 ?? e.object });
+
 async function crownPassForTurn(turnTag, relationReport, sourcesMap) {
-  const claims = relationReport?.claims ?? [];
+  // ONE seam: claim rows carry end1/label/end2 (hypergraph.js); every claim
+  // read here as `c.subject` and was skipped as "empty subject" (Pass 15).
+  const claims = (relationReport?.claims ?? []).map(sae);
   const candidates = claims.filter((c) => c.verdict !== "bound");
   const checked = candidates.slice(0, CROWN_CANDIDATES_PER_TURN);
   const results = [];
@@ -508,7 +512,7 @@ async function answerTurn({ model, question, chatHistory, discourse, chunks, sou
     planMode,
     corrections: section?.corrections ?? 0,
     grounding,
-    relationClaims: (relationReport?.claims ?? []).map((c) => ({ subject: c.subject, verb: c.verb, object: c.object, verdict: c.verdict, polarity: c.polarity })),
+    relationClaims: (relationReport?.claims ?? []).map(sae).map((c) => ({ subject: c.subject, verb: c.verb, object: c.object, verdict: c.verdict, polarity: c.polarity })),
     narration,
     crownPass,
     usage,

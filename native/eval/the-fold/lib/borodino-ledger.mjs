@@ -15,7 +15,11 @@ const { corroborateLedger, distinctSources } = await import(`${NATIVE}/organs/in
 const { splitSentences } = await import(`${NATIVE}/adapters/text/spans.js`);
 const { extractSurfaces, discoverReferents, namesCorefer, diaNorm } = await import(`${NATIVE}/adapters/text/surfaces.js`);
 const { resolvePronouns } = await import(`${NATIVE}/adapters/text/pronouns.js`);
-const { discoverRelationVocab, extractRelations, objectBoundaryFrom } = await import(`${NATIVE}/adapters/text/relations.js`);
+const { discoverRelationVocab, extractRelations } = await import(`${NATIVE}/adapters/text/relations.js`);
+// BOUNDED (the `boundedObjects` opt-in) came out here: P80 removed the option from
+// the reader, so the flag had selected nothing since 2026-09-02 while reading as a
+// lever (P95 / Pass 14 item 2). The referent-aware trim that replaces it is
+// capability work, named there, not a flag.
 const { tokenize } = await import(`${NATIVE}/adapters/text/material.js`);
 const enginePriors = await import(`${NATIVE}/adapters/text/priors.js`);
 const { cellOf, GRAINS } = await import(`${NATIVE}/kernel/cube.js`);
@@ -31,7 +35,6 @@ const relationsFor = makeRelationReader({
   resolvePronouns,
   // opt-in from the environment so a census can measure each lever before the app adopts it
   ...(process.env.NP_SUBJECTS ? { nounPhraseSubjects: true } : {}),
-  ...(process.env.BOUNDED ? { objectBoundaryFrom, boundedObjects: true } : {}), // the received object boundary (P74 lever 3)
   ...(process.env.WIDEN ? { verbForms: new Set(JSON.parse(readFileSync(`${NATIVE}/eval/the-fold/fixtures/unimorph-eng-verb-forms.json`, "utf8"))) } : {}), // production widens with this set (app.js)
   ...(process.env.VERB_FORMS ? { oovLexicon: new Set(JSON.parse(readFileSync(`${NATIVE}/eval/the-fold/fixtures/unimorph-eng-verb-forms.json`, "utf8"))) } : {}),
 });

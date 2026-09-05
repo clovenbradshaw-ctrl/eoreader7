@@ -50,7 +50,7 @@ Disclosed confound, visible in the counts themselves: an edge's fired count scal
 ## 3. Real prose — Wikipedia War and Peace fixture, blind sheet emitted
 
 Paragraphs admitted by the two-sentence gate: 156.
-Edges: 827 (corroborated 20, single-witness 807) · vocabulary 231 verbs · armed at 200 draws in 32.6s.
+Edges: 827 (corroborated 20, single-witness 807) · vocabulary 231 verbs · armed at 200 draws.
 Salad counts across all edges: median 3/200, max 130/200.
 
 Blind sheet: 24 items (12 per stratum) → eval/results/asserted-blind-sheet.json

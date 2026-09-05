@@ -65,7 +65,10 @@ for (const t of turns) {
 
   let landed = 0, refused = 0;
   const refusals = [];
-  for (const e of reader.edges) {
+  // ONE seam: reader edges carry end1/label/end2; `e.subject.toLowerCase()` threw on
+  // every edge since the SVO wipe (Pass 15).
+  const sae = (e) => ({ ...e, subject: e.end1 ?? e.subject, verb: e.label ?? e.verb, object: e.end2 ?? e.object });
+  for (const e of reader.edges.map(sae)) {
     const key = `${e.subject.toLowerCase()}|${e.verb.toLowerCase()}|${e.polarity}|${e.object.toLowerCase()}`;
     if (sp.landedEdgeKeys.has(key)) continue; // already landed earlier — don't re-land the same claim every window
     sp.landedEdgeKeys.add(key);

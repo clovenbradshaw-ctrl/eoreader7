@@ -324,6 +324,11 @@ export function makeDerivation({ hl, taskLog } = {}) {
         id: t.task_id, ...endsOf(t),
         premises: [...(t.premises ?? [])], grounds: [...(t.grounds ?? [])], provenance: [...(t.provenance ?? [])],
         depth: t.depth, paths: t.paths, giver: t.giver ?? null, affordance: t.affordance ?? null,
+        // P89: every product RECORDS restsOn (the min across its transitive
+        // grounds). The fold projected everything but that field, so a reader
+        // of the fold saw a derived fact with no fragility — found by the
+        // product assay's derivation wall (the-fold P97), not by review.
+        restsOn: t.restsOn ?? null,
         witnesses: [], spans: [],
         stated: heard.has(hl.assertionId(endsOf(t).subject, endsOf(t).verb, endsOf(t).object)),
       }))
