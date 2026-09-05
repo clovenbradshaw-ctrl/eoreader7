@@ -3881,3 +3881,106 @@ is trusted.
 URLs its own availability API reports as archived, so three of the largest
 local outlets (403/429) are absent from the ledger. That is a fact about the
 run's reach and the output says so.
+
+### Amended 2026-09-05 — prepared for a local run: discovery over seeding, nothing saved, S62 operationalized
+
+**Generality:** universal.
+
+Three user directions, acted on together before the walk is ever run again.
+First, on saving: *"priors are only so the reader doesn't start fresh. but
+it shouldn't be saving these test documents."* Second, on where the next
+pass's own draft had proposed seeding primary-record sites (nashville.gov,
+ProPublica) as declared sources: *"im not telling you the answer, it should
+discover than [sic]."* Third: *"prep this and we'll run locally."*
+
+**The distinction the first direction draws, made structural rather than
+left to judgment.** A PRIOR is a measured artifact of a permanent corpus
+(LP15's alias-declaration shapes, over live_priors) that exists precisely
+so a reader does not start cold on every run — it stays. A TEST DOCUMENT is
+this specific walk's own fetched material and its own produced reading,
+naming a real, specific, living subject — it does not stay, ever, in this
+repo. `.gitignore` now covers any `*-READING.md` this driver shape
+produces, not only this one; `results/nashville-partnership-READING.md`
+was untracked from git and deleted from local disk along with the 7.5MB
+fetched-page cache the earlier live run had left behind, both regenerable
+by re-running the driver, neither belonging here.
+
+**The second direction corrects something this document had not yet
+written down but a companion plan draft (the-fold's own NEXT-PASSES.md)
+had proposed: hand-declaring which document CLASSES matter for a subject
+(a legislative record, a financial filing, an audit) as seed sources.**
+Checked against the driver itself first, and it already held the line: no
+document, site, or record class has ever been named in this file — the
+fold derives every query from the declared TASK and its own reading (the
+subject's own names, the ledger's own thin notes), and `TASK` is now
+overridable via env specifically so a different QUESTION can be asked
+without a human ever naming which documents answer it. The correction is
+recorded here because the temptation was real and specific (a plan
+document proposed it in so many words) and the refusal generalizes: **a
+reader may be told what is being asked; it may not be told where to look.**
+Discovery is not merely cheaper than seeding — a hand-picked source list is
+exactly the kind of authority the read-frankenstein register already
+distrusts on the noun side (L2's capitalisation veto, the cube refused as
+a content classifier); this is the same distrust on the corpus side.
+
+**The third direction is a portability pass, not a research pass.**
+`THE_FOLD_DIR`/`LIVE_PRIORS_DIR`/`ALIAS_PRIOR` env overrides replace three
+absolute `/home/user` imports (proof.js, crown.js, compose.js, and the
+alias prior path) with a default assuming the sibling-checkout layout this
+project already develops under. `CHECK=1` runs a preflight — sibling files
+found, Ollama reachable, the declared model pulled — and exits before any
+search, fetch, or model call is spent; a real bug in its first draft (an
+`||` in the exit-code branch made a FAILED check under `CHECK=1` exit 0)
+was caught by testing the failure path deliberately, not assumed passing
+because the success path worked. The header comment is now the run
+instructions in full.
+
+**S62's own two selectors are now a declared runtime choice, not only a
+measurement.** `corroboration.js::facesReachable` is the referent-face
+selector S62 measured separating (p≈0.048) where literal co-presence does
+not (p≈0.905), extracted from where it was first built
+(`ordered-read-reach.mjs`'s Arm B) into a reusable, tested organ rather
+than re-derived per driver — the same asymmetry it was measured with is
+kept exactly (a resolved face required on the subject side, a literal
+fallback kept on the object side, because an object is frequently a bare
+description with no face to resolve and narrowing recall there was never
+measured). `corroborateLedger` takes an optional `reachable(sourceRef,
+ends)` that REPLACES the co-presence admission decision when supplied —
+never ANDs with it, because ANDing a measured-noisy gate onto a
+measured-separating one would silently suppress exactly the recall the
+better selector exists to recover. `SELECTOR=referent-face` wires it into
+BOTH walk arms identically, via a per-page carry of each bound edge's own
+`end1Face`/`end2Face` alongside its raw text. `candidatePairs` is added to
+the walk's return (S60: read the wall at zero calls) so a run can report
+how many pairs were even proposed before either prefilter had a chance to
+refuse one.
+
+**The named-but-unbuilt inspection from the prior run — which six control
+propositions were attested, and whether the swap is leaky — is built.**
+Every attested control proposition is now printed with its subject, label,
+swapped object, the address the witness pointed at, and a mechanical check
+against the REAL ledger: does it already join the same subject to the same
+swapped object under ANY label. A swap the material also independently
+states convicts the control's OWN construction (its no-shared-content-word
+rule did not guarantee no-shared-fact), not the model; only a genuinely
+false attested swap bears on whether the model can be fooled, and the
+reading now says which is which rather than reporting a bare rate.
+
+**Tests.** Two new cases in `corroboration.test.mjs`: `facesReachable`'s
+asymmetric behavior (both faces resolve; object falls back to raw; subject
+has no fallback and refuses; no edges refuses), and `corroborateLedger`'s
+`reachable` override actually replacing the admission decision in both
+directions (opening a pair co-presence would refuse; closing one it would
+admit) — proving it is a replacement, not a widening. Full organs suite:
+437/449, the same 11 pre-existing failures confirmed identical by name via
+`git stash` (all in `grammar-lens.js`/`frame.js`, unrelated to this
+change), zero regressions. The driver's `CHECK=1` and a zero-budget
+`OFFLINE=1` smoke run were both verified end to end against this
+worktree's real Ollama before committing.
+
+**Not yet run.** No research walk was executed this pass — per the third
+direction, the next run happens on the user's own machine, against their
+own material, not in this container. What ships here is the ground for
+that run: nothing to seed, nothing saved, and the two named next-step
+levers (the six control propositions, the referent-face selector) ready to
+use rather than merely proposed.
