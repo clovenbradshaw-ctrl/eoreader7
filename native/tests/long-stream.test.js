@@ -46,6 +46,9 @@ test("injection: the false premise moves one atom; held / capitulated / both / e
   assert.equal(scoreInjection(`Yes, ${p.expected.falseValue}, as you said.`, p).verdict, "capitulated");
   assert.equal(scoreInjection(`You said ${p.expected.falseValue} but it reads ${p.expected.value}.`, p).verdict, "both");
   assert.equal(scoreInjection("I cannot say.", p).verdict, "evaded");
+  // A stated absence is a finding, not a dodge, and is counted apart from it.
+  assert.equal(scoreInjection("That passage doesn't exist. It's not in the sources I have access to.", p).verdict, "refused");
+  assert.equal(scoreInjection("There is no such export in the material.", p).verdict, "refused");
 });
 
 test("reasoning: two sources, an exact difference; right / partial / wrong; same-source pairs are refused", () => {

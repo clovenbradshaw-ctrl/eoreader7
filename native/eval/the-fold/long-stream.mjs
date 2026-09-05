@@ -64,6 +64,10 @@ const { runHolonicTask, needsDecomposition } = await import(`${FOLD}holon.js`);
 const { makeCastResolver } = await import(`${FOLD}cast.js`);
 const { mechanicalFoldLine, RECENCY_WINDOW } = await import(`${FOLD}fold.js`);
 const { splitSentences } = await import(`${NATIVE}/adapters/text/spans.js`);
+// The instance's PERMANENT MEMORY (P123): corrections learned on any earlier
+// run, in the chain's own entry shape, so matrix.js can seal them into a room
+// and a second machine inherits them. Kept beside the runs, not inside one.
+const { learn, correctionsIn, learnable } = await import(`${FOLD}learned.js`);
 const { extractSurfaces, discoverReferents, namesCorefer, diaNorm } = await import(`${NATIVE}/adapters/text/surfaces.js`);
 const { lineIndex, outlineOfIndex } = await import(`${ROOT}eoreader7/legacy-eoreader6.1/packages/engine/perceiver/text/segments.js`);
 const W = await import(`${NATIVE}/organs/index.js`);
@@ -133,6 +137,22 @@ console.log(`long-stream — ${MODEL}, depth ${DEPTH}, ${TURNS} turns, probe eve
 for (const l of loaded) console.log(`  ${l.kind.padEnd(8)} ${l.name.padEnd(36)} ${String(l.bytes).padStart(9)} bytes ${String(l.chunks).padStart(5)} chunks  bank ${config.bankBySource[l.name]}`);
 console.log(`  ${chunks.length} chunks in all; bank ${state.bank.length}; recipe ${O.recipe}\n  ${DIR}`);
 
+// ── the learned store: permanent, across runs ───────────────────────────────
+const LEARNED_PATH = join(NATIVE, "eval/the-fold/results/long-stream", "learned.json");
+let learnedStore = [];
+// The wall runs on the way OUT as well as in (P123): a store written by an
+// older build can hold shapes the wall has since learned to refuse, and a
+// poisoned entry is handed to the mouth as a fact. Swept every load.
+try {
+  if (existsSync(LEARNED_PATH)) {
+    const raw = correctionsIn(JSON.parse(readFileSync(LEARNED_PATH, "utf8")));
+    learnedStore = raw.filter((e) => !learnable(e.claimed, e.corrected));
+    if (learnedStore.length !== raw.length) console.log(`  swept ${raw.length - learnedStore.length} entr(ies) the wall now refuses`);
+  }
+} catch { learnedStore = []; }
+const saveLearned = () => { const tmp = `${LEARNED_PATH}.tmp`; writeFileSync(tmp, JSON.stringify(learnedStore, null, 1)); renameSync(tmp, LEARNED_PATH); };
+console.log(`  learned so far: ${learnedStore.length} correction(s) carried in from earlier runs — ${LEARNED_PATH}`);
+
 const saveState = () => { const tmp = `${STATE_PATH}.tmp`; writeFileSync(tmp, JSON.stringify({ ...state, draws: rng.draws })); renameSync(tmp, STATE_PATH); };
 const ledgerSize = () => { try { return state.hlLog ? O.hl.fold(state.hlLog).length : 0; } catch { return null; } };
 
@@ -156,7 +176,7 @@ for (let turn = state.turn + 1; turn <= TURNS; turn++) {
       task: question, chunks, call, foldedRefs: [],
       makeNameResolver: castFor, makeRelationReader: O.relationsFor, witnessSentences,
       checkLink: null, planMode: needsDecomposition(question) ? "model" : "flat",
-      chatHistory: history, discourse, depth: DEPTH,
+      chatHistory: history, discourse, depth: DEPTH, learnedStore,
       hyperlexicon: O.hl, hyperlexiconLog: state.hlLog, hyperlexiconFrame: O.frame, hyperlexiconRecipe: O.recipe,
       grid: O.grid, gridLog: state.gridLog, runCapacity: O.runCapacity,
     });
@@ -164,6 +184,11 @@ for (let turn = state.turn + 1; turn <= TURNS; turn++) {
   const answer = r ? String(r.output ?? "") : "";
   if (r?.hyperlexiconLog) state.hlLog = r.hyperlexiconLog;
   if (r?.gridLog) state.gridLog = r.gridLog;
+  // What this turn learned goes into the permanent store immediately, so the
+  // very next turn is handed it — the loop is live, not a post-run report.
+  let learnedAdded = 0;
+  for (const e of r?.learned ?? []) { const before = learnedStore.length; learnedStore = learn(learnedStore, e); if (learnedStore.length > before) learnedAdded += 1; }
+  if (learnedAdded) saveLearned();
   let score = null;
   if (probe && r) {
     if (probe.kind === "recall") score = scoreRecall(answer, probe);
@@ -175,6 +200,10 @@ for (let turn = state.turn + 1; turn <= TURNS; turn++) {
     turn, at: new Date().toISOString(), kind: probe?.kind ?? "organic", question, answer, probe: probe ? { ...probe, question: undefined } : null, ...(organic ? { organic } : {}), score,
     ms: Date.now() - t0, calls: usage.calls - calls0, promptTokens: usage.promptTokens - pt0, completionTokens: usage.completionTokens - ct0,
     refs: r?.refs ?? [], unsupported: (r?.unsupported ?? []).length, unbacked: (r?.unbacked ?? []).length, sections: (r?.sections ?? []).length,
+    // The correction loop's own numbers (P122/P123), per turn.
+    correction: r?.correction ? { flagged: r.correction.flagged, asked: r.correction.asked, afterFlagged: r.correction.after?.flagged, outcomes: (r.correction.outcomes ?? []).map((o) => o.outcome) } : null,
+    premises: r?.premises ? { checked: r.premises.checked, unverified: r.premises.unverified, contradicted: r.premises.contradicted } : null,
+    learnedUsed: r?.learnedUsed ?? [], learnedAdded, learnedTotal: learnedStore.length,
     witnessAsks: (r?.sections ?? []).reduce((a, s) => a + (s.witness?.asks ?? 0), 0), retrieved: (r?.sections ?? []).flatMap((s) => (s.passages ?? []).map((p) => p.source ?? String(p.ref ?? "").split("#")[0])),
     ledgerNotes: ledgerSize(), historyTurns: history.length, error,
   };
@@ -182,7 +211,8 @@ for (let turn = state.turn + 1; turn <= TURNS; turn++) {
   if (!error) { state.history.push({ role: "user", content: question }, { role: "assistant", content: answer }); state.transcript.push({ turn, question, answer }); }
   state.turn = turn; saveState();
   const verdict = score ? (score.verdict ?? (score.any != null ? `any=${score.any} share=${score.share.toFixed(2)}${score.contradicted ? " CONTRADICTED" : ""}` : "")) : "";
-  console.log(`[${turn}/${TURNS}] ${row.kind.padEnd(9)} ${(row.ms / 1000).toFixed(0).padStart(4)}s ${String(row.calls).padStart(2)} calls ${verdict.padEnd(12)} ${error ? "ERROR " + error.split("\n")[0].slice(0, 80) : question.slice(0, 70).replace(/\s+/g, " ")}`);
+  const learnMark = `${row.premises?.contradicted || row.premises?.unverified ? "P" : ""}${row.correction?.flagged ? `f${row.correction.flagged}` : ""}${row.correction?.outcomes?.filter((o) => o === "rewritten").length ? `→${row.correction.outcomes.filter((o) => o === "rewritten").length}` : ""}${row.learnedUsed.length ? `↺${row.learnedUsed.length}` : ""}`;
+  console.log(`[${turn}/${TURNS}] ${row.kind.padEnd(9)} ${(row.ms / 1000).toFixed(0).padStart(4)}s ${String(row.calls).padStart(2)} calls ${verdict.padEnd(12)} ${learnMark.padEnd(9)} ${error ? "ERROR " + error.split("\n")[0].slice(0, 80) : question.slice(0, 70).replace(/\s+/g, " ")}`);
 }
 console.log(`\ndone — ${usage.calls} calls, ${usage.promptTokens} prompt tokens, ${usage.completionTokens} completion tokens; ${DIR}`);
 console.log(`score: node eval/the-fold/long-stream-score.mjs ${DIR}`);
