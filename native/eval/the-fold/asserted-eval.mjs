@@ -382,8 +382,12 @@ const strata = { corroborated: [], "single-witness": [] };
 for (const e of wiki.edges) strata[e.assertion.standing]?.push(e);
 say(
   `Edges: ${wiki.edges.length} (corroborated ${strata.corroborated.length}, single-witness ${strata["single-witness"].length}) · ` +
-    `vocabulary ${wiki.vocabulary.verbs} verbs · armed at ${DRAWS} draws in ${elapsed}s.`,
+    `vocabulary ${wiki.vocabulary.verbs} verbs · armed at ${DRAWS} draws.`,
 );
+// Wall-clock goes to stderr, never into the tracked transcript: a results
+// doc that prints its own elapsed seconds never diffs to zero (P95 / Pass 14
+// item 4 — this driver was the one that reproduced "except for 32.6s").
+process.stderr.write(`armed at ${DRAWS} draws in ${elapsed}s\n`);
 const salads = wiki.edges.map((e) => e.assertion.orderArm.fired).sort((a, b) => a - b);
 const mid = salads.length ? salads[Math.floor(salads.length / 2)] : null;
 say(`Salad counts across all edges: median ${mid}/${DRAWS}, max ${salads[salads.length - 1] ?? "—"}/${DRAWS}.`);

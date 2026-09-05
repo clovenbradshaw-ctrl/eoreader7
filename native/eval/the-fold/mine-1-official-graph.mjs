@@ -51,7 +51,10 @@ async function main() {
   for (const ex of data.examples) {
     const passages = [{ ref: `mine1:${ex.idx}#0`, text: ex.content }];
     const built = reader(passages);
-    const edges = built.examined ? built.edges : [];
+    // ONE seam: the reader's edges carry end1/label/end2 (P76/P80 wiped the
+    // SVO names); this driver read `e.subject` and counted nothing (Pass 15).
+    const sae = (e) => ({ ...e, subject: e.end1 ?? e.subject, verb: e.label ?? e.verb, object: e.end2 ?? e.object });
+    const edges = (built.examined ? built.edges : []).map(sae);
     const nodeSet = new Set();
     for (const e of edges) {
       nodeSet.add(e.subject);
