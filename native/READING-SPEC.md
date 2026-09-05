@@ -4320,3 +4320,5 @@ who or what the pilot was.
 **Numbers.** Forward: founded bound@1 (stated@1), opened unheard@1 → bound@3 (stated@3), repaired unheard@1 → bound@4 (stated@4); bakery unbound@1 and comets unheard@1 to the end; derivedOnly unheard@1 → unbound@2, derived@5; cut@6 = contest@6; final census unread 0, cuts 1, contests 1, derived 1. Truncated at 2: unread 5, opened/repaired still unheard, 0 contests, 0 derived. 12 shuffles: one census; 5–6 distinct closing cursors per stated draft, 5 distinct contest cursors.
 
 **What it says.** THE-NULL-STATES law 5 holds as measured: the same draft wears `unheard`, then `bound`, and which it wears is decided by the cursor, not by the draft. A reader that reports `unheard` without its `unread_extent` beside it has reported a verdict wearing a count.
+
+**Amended same day — `fillingsSince(log, seq)`.** The re-zeros landed at or after a caller's cursor, so a turn can ask what moved its ground since it began (the-fold P109 consumes it: a filled void forces the summary refresh). Pinned in `notes.test.js` (27).

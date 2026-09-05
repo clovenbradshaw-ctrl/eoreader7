@@ -811,6 +811,13 @@ export function makeNotes({ taskLog = nativeTaskLog, cellOf = nativeCellOf, iden
     return { log: next, id: recId, refused: null };
   }
 
+  /** The fillings landed at or after `seq` — what re-zeroed since a caller's cursor (a turn's start, a reader's last look). */
+  function fillingsSince(log, seq = 0) {
+    const out = [];
+    for (const e of log?.entries ?? []) if (e?.kind === ENTRY_KINDS.EVIDENCE && e.operator === "REC" && e.rezeros && e.seq >= seq) out.push({ void: e.rezeros, by: e.by ?? null, witness: e.witness ?? null, at: e.seq });
+    return out;
+  }
+
   /** A void THROUGH TIME: every declaration and every filling, in order, with its standing now. */
   function voidTimeline(log, voidId) {
     const events = [];
@@ -1039,5 +1046,5 @@ export function makeNotes({ taskLog = nativeTaskLog, cellOf = nativeCellOf, iden
     return { levels, stream: s, boundarySeqs: (levels[0]?.boundaries ?? []).map((b) => s[b].seq) };
   }
 
-  return { createNotes, frameOf, frames, redeclareFrame, hear, admit, attest, concede, concededIds, concededNotes, dispute, settleDispute, disputesOf, disputedIds, disputeHistory, DISPUTE_OUTCOMES, DISPUTE_KINDS, NEEDS_THIRD_SOURCE, fold, foldWithStanding, standingOf, sourceOfWitness, recipeOfWitness, kindOfWitness, readingFromNotes, stream, figures, segment, dietBoundaries, concedeDiet, noteId, recipeId, REFUSALS, FRAME_TASK, foldCuts, negationTimeline, isCutId, CUT_PREFIX, declareVoid, foldVoids, voidTimeline, rezeroVoid, isVoidId, VOID_PREFIX };
+  return { createNotes, frameOf, frames, redeclareFrame, hear, admit, attest, concede, concededIds, concededNotes, dispute, settleDispute, disputesOf, disputedIds, disputeHistory, DISPUTE_OUTCOMES, DISPUTE_KINDS, NEEDS_THIRD_SOURCE, fold, foldWithStanding, standingOf, sourceOfWitness, recipeOfWitness, kindOfWitness, readingFromNotes, stream, figures, segment, dietBoundaries, concedeDiet, noteId, recipeId, REFUSALS, FRAME_TASK, foldCuts, negationTimeline, isCutId, CUT_PREFIX, declareVoid, foldVoids, voidTimeline, rezeroVoid, fillingsSince, isVoidId, VOID_PREFIX };
 }
