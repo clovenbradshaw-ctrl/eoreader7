@@ -1,10 +1,12 @@
-// nashville-partnership.mjs — THE FOLD DOES THE RESEARCH.
+// civic-research-walk.mjs — THE FOLD DOES THE RESEARCH.
 //
-// A live research walk on a real subject the project has never read: the
-// Nashville Downtown Partnership, the non-profit that manages Nashville's
-// Central Business Improvement District. The instrument surfs, reads,
-// snips, summarises and checks itself; this driver only wires its organs
-// together and prints what they returned. Nothing here writes a finding.
+// A GENERIC driver: point it at a real subject via a declared TASK
+// question and it surfs, reads, snips, summarises, and checks itself; it
+// only wires its organs together and prints what they returned. Nothing
+// here writes a finding, and nothing here names a subject — TASK is
+// required, with no default, so this file carries no research content of
+// its own between runs (see READING-SPEC.md S64 for the lessons a real
+// run on a real subject already taught it).
 //
 // ── WHAT THE FOLD IS ASKED FOR, AND WHAT IT MAY NOT SAY ──────────────────
 //
@@ -82,19 +84,22 @@
 // run's own, regenerable, and belong beside wherever the subject's own
 // material lives — never in this repo. The CODE is what this repo owns.
 //
-// CHECK=1 node nashville-partnership.mjs
+// CHECK=1 node civic-research-walk.mjs
 //   Verifies the ground before spending anything: the two sibling repos
 //   (the-fold, live_priors) are found, and whether Ollama and the
 //   declared MODEL are reachable. No search, no fetch, no model call.
 //   Exits 0 if nothing fatal, 1 otherwise. Run this first on a new
-//   machine or after moving the checkout.
+//   machine or after moving the checkout. TASK is not required for
+//   CHECK=1 — preflight runs before the TASK requirement is enforced.
 //
-// TASK="<your own question>" node nashville-partnership.mjs
-//   The task is the ONLY place a human names the subject or the question
-//   (default: the Nashville Downtown Partnership question this driver was
-//   built against). Which documents answer it is discovered by the walk
-//   itself — chased, searched for, never seeded — by standing decision:
-//   this driver does not accept a document or source list.
+// TASK="<your own question>" node civic-research-walk.mjs
+//   REQUIRED, with no default. The task is the ONLY place a human names
+//   the subject or the question — e.g. "How is the Riverside Housing
+//   Trust funded, governed and overseen, and what has the County
+//   Commission said about its budget and its contracts?" Which documents
+//   answer it is discovered by the walk itself — chased, searched for,
+//   never seeded — by standing decision: this driver does not accept a
+//   document or source list.
 //
 // Sibling repos (only if this checkout is not itself a sibling of
 // the-fold and live_priors):
@@ -119,7 +124,7 @@ import { createHash } from "node:crypto";
 
 const NATIVE = new URL("../..", import.meta.url).pathname;
 const FIX = new URL("./fixtures/", import.meta.url).pathname;
-const FACES = `${FIX}nashville-faces`;
+const FACES = `${FIX}research-faces`;
 const OUT = new URL("./results/", import.meta.url).pathname;
 
 // ── PORTABLE SIBLING PATHS ──────────────────────────────────────────────
@@ -189,8 +194,9 @@ const CHASE_S = Number(process.env.CHASE_S ?? 4);  // Ranke searches
 const MODEL = process.env.MODEL ?? "gemma2:2b";
 const OLLAMA = process.env.OLLAMA ?? "http://127.0.0.1:11434";
 const OFFLINE = process.env.OFFLINE === "1";
-// Two DECLARED SPENDING RULES, added after the first live run spent four
-// fetches on a Catholic newsletter. They gate what the fold spends budget
+// Two DECLARED SPENDING RULES, added after a first live run spent several
+// fetches chasing an aggregator's recirculation module to an unrelated
+// newsletter site. They gate what the fold spends budget
 // on and how §3 is ordered; they NEVER gate admission — everything heard
 // still lands in the ledger and the off-anchor count is printed, so this
 // narrows the walk without hiding anything from the reader.
@@ -208,14 +214,15 @@ const OFFLINE = process.env.OFFLINE === "1";
 const MAX_END_CHARS = Number(process.env.MAX_END_CHARS ?? 60);
 const MIN_FACE_CHARS = Number(process.env.MIN_FACE_CHARS ?? 400); // a readable face under this is a shell or a sign-in wall, not a document
 // How many of the declared task's own content words a proposition must carry
-// before the fold spends a search on it. ONE is too few, measured: "Nashville
-// pedestrian hit by tow truck" shares "nashville" and nothing else, and
-// chasing it cost this run five fetches of a television station's section
-// fronts. TWO is the same structural minimum this project already uses
+// before the fold spends a search on it. ONE is too few, measured on a real
+// run: a proposition sharing exactly one word with the task (the subject's
+// own city name, and nothing else) cost that run several fetches of an
+// unrelated outlet's section fronts, chasing a coincidence rather than the
+// subject. TWO is the same structural minimum this project already uses
 // wherever recurrence has to mean something (WITNESS_FLOOR, FORM_MIN_ARRIVALS,
 // EVIDENCE_FLOOR — all 2, all for the same reason). Declared cost: real
-// propositions that name the subject only once ("the district is shifting
-// toward a model built around uniformed") are heard, kept, and not chased.
+// propositions that name the subject only once are heard, kept, and not
+// chased.
 const ANCHOR_MIN = Number(process.env.ANCHOR_MIN ?? 2);
 // How often a glossed short form must occur before the fold treats it as a
 // name the material actually uses. Giver: the same structural minimum this
@@ -234,15 +241,23 @@ const PREFLIGHT_OVERLAP = Number(process.env.PREFLIGHT_OVERLAP ?? 0.3);      // 
 const SECOND_SOURCE_OVERLAP = Number(process.env.SECOND_SOURCE_OVERLAP ?? 0.6); // of a proposition's own words, for the stricter question "does anyone else STATE this?"
 const ARCHIVE_PROBE_LIMIT = Number(process.env.ARCHIVE_PROBE_LIMIT ?? 3); // consecutive archive refusals before the route is marked closed for this run
 const SEARCH_PAUSE_MS = Number(process.env.SEARCH_PAUSE_MS ?? 4000); // between searches; sequential, never a burst
-const RECIPE = "nashville-v1";
+const RECIPE = "civic-research-v1";
 
 // The declared task. The fold derives every query it spends from this and
 // from its own reading — no source is hand-picked, and this string is the
-// only place a human names the subject or the question; which documents
+// ONLY place a human names the subject or the question; which documents
 // answer it is discovered by the walk itself (chased, searched for, never
 // seeded here), by explicit standing decision — the fold is not told which
-// records matter for a subject, only what is being asked about it.
-const TASK = process.env.TASK ?? "How is the Nashville Downtown Partnership funded, governed and overseen, and what has the Metro Council said about the Central Business Improvement District budget and its contracts?";
+// records matter for a subject, only what is being asked about it. There
+// is deliberately NO default: a driver that ships with a subject baked in
+// is carrying research content, not a template, so a bare invocation
+// refuses rather than quietly re-running whatever this file was last
+// pointed at.
+if (!process.env.TASK) {
+  process.stdout.write("\nTASK is required and has no default — see the header comment above for the shape of a good one (a real, checkable question naming a real subject and body).\n");
+  process.exit(1);
+}
+const TASK = process.env.TASK;
 
 // ── the organs, native only ────────────────────────────────────────────────
 const { makeRelationReader } = await import(`${NATIVE}/organs/hypergraph.js`);
@@ -398,7 +413,7 @@ async function fetchFace(url, archiveUrl) {
     if (e.gap) return { gap: e.gap };
     facesFromCache += 1;
     const rawPath = `${FACES}/${key}.raw`;
-    return { text: readFileSync(`${FACES}/${key}.txt`, "utf8"), raw: existsSync(rawPath) ? readFileSync(rawPath, "utf8") : "", url: e.finalUrl, host: e.host, title: e.title, path: `nashville-faces/${key}.txt`, rawPath: `nashville-faces/${key}.raw`, retrievedAt: e.retrievedAt, chars: e.chars };
+    return { text: readFileSync(`${FACES}/${key}.txt`, "utf8"), raw: existsSync(rawPath) ? readFileSync(rawPath, "utf8") : "", url: e.finalUrl, host: e.host, title: e.title, path: `research-faces/${key}.txt`, rawPath: `research-faces/${key}.raw`, retrievedAt: e.retrievedAt, chars: e.chars };
   }
   if (OFFLINE) return { gap: { type: "offline", detail: "face not kept and OFFLINE=1" } };
   if (fetchesSpent >= MAXTRY) return { gap: { type: "budget", detail: `${MAXTRY} fetch attempt(s) spent` } };
@@ -453,7 +468,7 @@ async function fetchFace(url, archiveUrl) {
   index[key] = { url, finalUrl: got.finalUrl ?? url, host, title: got.title ?? null, chars: got.text.length, rawChars: (got.raw ?? "").length, viaArchive, retrievedAt: at };
   writeFileSync(INDEX, JSON.stringify(index, null, 1));
   crossings.push({ act: "fetch", url, host, chars: got.text.length, title: got.title ?? null, at });
-  return { text: got.text, raw: got.raw ?? "", url: got.finalUrl ?? url, host, title: got.title ?? null, path: `nashville-faces/${key}.txt`, rawPath: `nashville-faces/${key}.raw`, retrievedAt: at, chars: got.text.length };
+  return { text: got.text, raw: got.raw ?? "", url: got.finalUrl ?? url, host, title: got.title ?? null, path: `research-faces/${key}.txt`, rawPath: `research-faces/${key}.raw`, retrievedAt: at, chars: got.text.length };
 }
 
 // ── the model: POINT-only, and every call recorded ────────────────────────
@@ -501,26 +516,27 @@ const onAnchor = (note) => anchorHits(note) >= ANCHOR_MIN;
 
 // ── THE SUBJECT HAS NAMES, AND THE MATERIAL TEACHES THE REST OF THEM ──────
 //
-// Measured, and this is why any of it exists: asked about the Downtown
-// Partnership, a feed face answered with Wikipedia's general article on
-// downtowns, which shares "downtown", "business", "district" and "central"
-// with the declared question and contributed 105 of that run's 230
-// propositions, none about this subject. Word overlap cannot tell a named
-// organisation from a common noun. A NAME can — so a fetched page that
-// never says one of the subject's names is kept, addressable, and not read.
+// Measured, and this is why any of it exists: asked about a downtown
+// improvement organisation, a feed face answered with an encyclopedia's
+// general article on the common noun "downtown", which shares several
+// content words with the declared question and, uncaught, would have
+// contributed a large share of a run's propositions with none of them
+// about the actual subject. Word overlap cannot tell a named organisation
+// from a common noun. A NAME can — so a fetched page that never says one
+// of the subject's names is kept, addressable, and not read.
 //
 // The names the question itself gives are read off it mechanically (its own
 // maximal capitalised runs — that is reading the declared question, not a
 // rule about the world). But real prose calls things by short forms, and
 // the fold's own alias organ has a measured hole exactly there:
 //
-//   namesCorefer("Nashville Downtown Partnership", "Downtown Partnership") -> true
-//   namesCorefer("NDP", "Nashville Downtown Partnership")                  -> false
+//   namesCorefer("Regional Transit Authority", "Transit Authority") -> true
+//   namesCorefer("RTA", "Regional Transit Authority")                -> false
 //
 // The fix is NOT a rule that builds an initialism and compares it: a rule
 // that derives a name is a rule that can invent one. The material declares
-// its own short forms, at addresses — "Central Business Improvement
-// District (CBID)", "The Nashville Downtown Partnership (NDP)" — so the
+// its own short forms, at addresses — "the Regional Transit
+// Authority (RTA)", "the Central Zoning Board (CZB)" — so the
 // fold LEARNS the rest of the subject's names by reading them, walled by
 // use (organs/aliases.js: a gloss the text never uses again is an aside,
 // not a name) and carrying the byte span that declared each one. An
@@ -551,10 +567,11 @@ function learnAliasesFrom(pg) {
 // A RESULT MUST CARRY THE QUESTION BEFORE IT IS WORTH A FETCH.
 //
 // Measured, and this rule exists because of it: asked for a second source
-// for "Huffman urged his fellow councilmembers to approve the CBID budget",
-// the feed face answered with a car dealership, Huffman coding, and a
-// California congressman; asked about a downtown building closed by a 2025
-// fire, it answered with Belvidere, Illinois. A search engine answers a
+// for a proposition naming a real board member and a real budget vote, the
+// feed face answered with a car dealership, an unrelated coding algorithm
+// sharing the member's surname, and a distant lawmaker; asked about a
+// downtown building closed by a fire, it answered with an unrelated small
+// town sharing one word with the question. A search engine answers a
 // STRING; the fold asked a QUESTION. So a result earns a fetch only if its
 // own title and snippet already carry a declared share of the question's
 // content words — the same containment fold (grounding.js's wordSet/hasWord)
@@ -994,7 +1011,7 @@ const L = [];
 const w = (s = "") => L.push(s);
 const esc = (s) => String(s ?? "").replace(/\|/g, "\\|");
 
-w(`# The Nashville Downtown Partnership — what the record states, and who states it`);
+w(`# ${esc(TASK)}\n\n## What the record states, and who states it`);
 w();
 w(`*Assembled by the fold on ${new Date().toISOString().slice(0, 10)}. Every sentence below is either a page's own bytes at an address that reads back, a sentence assembled by template from a claim's own words and its source's name, or a count. Nothing here is a claim about what is true — it is a ledger of what is stated, and by whom.*`);
 w();
@@ -1253,7 +1270,7 @@ w(`- **No document supplied by the person who commissioned this run was read.** 
 w(`- **The extractor's reach is not the page's content.** A page yielding no bound proposition is a limit of the reader on that prose, never a finding that the page is empty.`);
 w(`- **Corroboration is counted, never assumed.** Two hosts carrying one wire story are two hosts and one perspective, and nothing here can tell those apart.`);
 
-const outPath = `${OUT}nashville-partnership-READING.md`;
+const outPath = `${OUT}civic-research-READING.md`;
 const doc = L.join("\n") + "\n";
 writeFileSync(outPath, doc);
 say(`\nwrote ${outPath} (${doc.length} chars, ${L.length} lines)`);

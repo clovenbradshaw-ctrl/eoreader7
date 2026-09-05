@@ -1,12 +1,11 @@
 // aliases.js — WHAT ELSE THIS MATERIAL CALLS THE SAME THING, IN ITS OWN WORDS.
 //
 // `surfaces.js::namesCorefer` already folds one very common kind of alias:
-// a name shortened by DROPPING WORDS. Measured live on real news prose,
-// 2026-09-04:
+// a name shortened by DROPPING WORDS. Measured live on real prose, this
+// hole was found: a name shortened by INITIALS is not folded at all.
 //
-//   namesCorefer("Nashville Downtown Partnership", "Downtown Partnership") -> true
-//   namesCorefer("NDP", "Nashville Downtown Partnership")                  -> false
-//   namesCorefer("CBID", "Central Business Improvement District")          -> false
+//   namesCorefer("Regional Transit Authority", "Transit Authority") -> true
+//   namesCorefer("RTA", "Regional Transit Authority")               -> false
 //
 // So the alias layer has a hole exactly where a name is shortened by
 // INITIALS rather than by omission. The tempting fix is a rule that builds
@@ -19,8 +18,8 @@
 // The material almost always says it itself. Prose that introduces an
 // abbreviation glosses it, once, at a byte address:
 //
-//   "Central Business Improvement District (CBID)"
-//   "The Nashville Downtown Partnership (NDP)"
+//   "the Regional Transit Authority (RTA)"
+//   "the Central Zoning Board (CZB)"
 //
 // That is a DECLARATION, not an inference, and reading it is the same act
 // as reading any other claim: nominate structurally, wall against the

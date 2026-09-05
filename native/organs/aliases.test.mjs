@@ -14,39 +14,39 @@ const MIN = 2;
 const run = (t) => declaredAliases(t, { splitSentences, minUses: MIN, shapes: SHAPES });
 
 test("a glossed name the text goes on to use is admitted, with its address", () => {
-  const t = "The Central Business Improvement District (CBID) covers downtown. The CBID budget was rejected by the council.";
+  const t = "The Regional Transit Authority (RTA) covers downtown. The RTA budget was rejected by the board.";
   const { aliases } = run(t);
-  const a = aliases.find((x) => x.alias === "CBID");
-  assert.ok(a, "CBID should be admitted");
-  assert.ok(a.full.endsWith("Central Business Improvement District"), `full was ${a.full}`);
+  const a = aliases.find((x) => x.alias === "RTA");
+  assert.ok(a, "RTA should be admitted");
+  assert.ok(a.full.endsWith("Regional Transit Authority"), `full was ${a.full}`);
   assert.equal(t.slice(a.start, a.end), a.sentence, "the address must read back from the bytes");
 });
 
 test("an initialism is admitted as ONE SUBTYPE of alias, with no rule about initials", () => {
   // The alias here shares no initials with its full name at all; it is
-  // admitted on exactly the same evidence as CBID above — the text declared
+  // admitted on exactly the same evidence as RTA above — the text declared
   // it and then used it. Nothing in the organ knows what an acronym is.
-  const t = "The Nashville Downtown Partnership (the Partnership) filed a budget. The Partnership later resubmitted it.";
+  const t = "The Riverside Housing Trust (the Trust) filed a budget. The Trust later resubmitted it.";
   const { aliases } = run(t);
-  assert.ok(aliases.some((x) => x.alias === "the Partnership"), "a non-initial short form is an alias too");
+  assert.ok(aliases.some((x) => x.alias === "the Trust"), "a non-initial short form is an alias too");
 });
 
 test("a gloss the text never uses again is refused, not dropped silently", () => {
-  const t = "The Central Business Improvement District (CBID) covers downtown. Nothing further was said.";
+  const t = "The Regional Transit Authority (RTA) covers downtown. Nothing further was said.";
   const { aliases, refused } = run(t);
   assert.equal(aliases.length, 0);
-  assert.equal(refused.find((r) => r.alias === "CBID")?.why, ALIAS_REFUSALS.USED_ONCE);
+  assert.equal(refused.find((r) => r.alias === "RTA")?.why, ALIAS_REFUSALS.USED_ONCE);
 });
 
 test("a parenthetical that is not a name is refused", () => {
-  const t = "The Metro Council (which met on Tuesday night after a long debate) voted. The Metro Council voted again.";
+  const t = "The County Commission (which met on Tuesday night after a long debate) voted. The County Commission voted again.";
   const { aliases, refused } = run(t);
   assert.equal(aliases.length, 0);
   assert.ok(refused.some((r) => r.why === ALIAS_REFUSALS.NOT_A_NAME));
 });
 
 test("a year in parentheses is never an alias", () => {
-  const t = "The Nashville Downtown Partnership (2026) filed. The 2026 filing was late and 2026 was busy.";
+  const t = "The Riverside Housing Trust (2026) filed. The 2026 filing was late and 2026 was busy.";
   const { aliases } = run(t);
   assert.equal(aliases.length, 0);
 });
@@ -76,28 +76,28 @@ test("a shape the corpus never confirmed does not reach the reader", () => {
 });
 
 test("two fulls glossed to one alias are both kept, never resolved for the reader", () => {
-  const t = "The Central Business Improvement District (CBID) met. The Community Board In Denver (CBID) also met. CBID is ambiguous here and CBID recurs.";
+  const t = "The Regional Transit Authority (RTA) met. The River Trail Association (RTA) also met. RTA is ambiguous here and RTA recurs.";
   const { aliases } = run(t);
   const idx = aliasIndex(aliases);
-  const e = idx.get("cbid");
-  assert.ok(e, "CBID should be indexed");
+  const e = idx.get("rta");
+  assert.ok(e, "RTA should be indexed");
   assert.equal(e.fulls.length, 2, "both full names are kept");
 });
 
 test("real prose from a fetched page: the material's own declarations are read", () => {
-  const t = "Concerns intensified this week. The Nashville Downtown Partnership (NDP) manages the district. NDP officials confirmed the change, and NDP submitted a revised budget.";
+  const t = "Concerns intensified this week. The Regional Transit Authority (RTA) manages the district. RTA officials confirmed the change, and RTA submitted a revised budget.";
   const { aliases } = run(t);
-  const a = aliases.find((x) => x.alias === "NDP");
+  const a = aliases.find((x) => x.alias === "RTA");
   assert.ok(a);
-  assert.ok(a.full.endsWith("Nashville Downtown Partnership"), `full was ${a.full}`);
-  assert.ok(a.uses >= 3, `NDP is used ${a.uses} times`);
+  assert.ok(a.full.endsWith("Regional Transit Authority"), `full was ${a.full}`);
+  assert.ok(a.uses >= 3, `RTA is used ${a.uses} times`);
 });
 
 test("a sentence organ that carries no offsets yields no alias — an address that cannot be verified is never shipped", () => {
   // spans.js's splitSentences returns text without a start; P5.2 says an
   // address that does not read back is refused, and this is that refusal
   // reached from the one direction a caller can actually cause.
-  const t = "The Central Business Improvement District (CBID) covers downtown. The CBID budget was rejected.";
+  const t = "The Regional Transit Authority (RTA) covers downtown. The RTA budget was rejected.";
   const { aliases, refused } = declaredAliases(t, { splitSentences: offsetlessSentences, minUses: 2, shapes: SHAPES });
   assert.equal(aliases.length, 0);
   assert.equal(refused[0]?.why, ALIAS_REFUSALS.ADDRESS_UNVERIFIED);
