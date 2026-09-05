@@ -4312,3 +4312,11 @@ container, this pass or the last. The next run happens on the user's own
 machine, against their own material. What ships here is the ground for
 that run and the general lessons a pilot already taught it — nothing about
 who or what the pilot was.
+
+## S75 — A census of nulls through time: a draft's null changes TYPE as the read advances, and every closing cursor is the arrival of the thing
+
+**Generality:** universal for the rules (a not-yet-stated draft reads `unheard` while its verb is unread and `bound` at exactly the cursor its passage arrives — the null composes downward from the unread extent, and its TYPE is a fact about how far the read got; a fabrication is `unbound` from the cursor its verb is heard; a derived-only sentence is `unbound` at the reader from the cursor its verb arrives and derived on the record from the cursor its second premise lands — the third ground, P102, on a timeline; the cut and its contest land at one cursor; a shuffled order moves every closing cursor and no final census; a truncated read is typed by `unread > 0`, never as findings) — pinned on the built corpus; counts are its own. The-fold NEXT-PASSES Pass 26 is the plan entry; `results/null-census-RESULTS.md` the transcription; `tests/null-census.test.js` the enforcement (4 tests). Files: `eval/the-fold/lib/null-census.mjs`, the driver.
+
+**Numbers.** Forward: founded bound@1 (stated@1), opened unheard@1 → bound@3 (stated@3), repaired unheard@1 → bound@4 (stated@4); bakery unbound@1 and comets unheard@1 to the end; derivedOnly unheard@1 → unbound@2, derived@5; cut@6 = contest@6; final census unread 0, cuts 1, contests 1, derived 1. Truncated at 2: unread 5, opened/repaired still unheard, 0 contests, 0 derived. 12 shuffles: one census; 5–6 distinct closing cursors per stated draft, 5 distinct contest cursors.
+
+**What it says.** THE-NULL-STATES law 5 holds as measured: the same draft wears `unheard`, then `bound`, and which it wears is decided by the cursor, not by the draft. A reader that reports `unheard` without its `unread_extent` beside it has reported a verdict wearing a count.
