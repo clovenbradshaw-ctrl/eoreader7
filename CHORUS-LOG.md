@@ -31,14 +31,14 @@ Constitution: `../eo-constitution/CONSTITUTION.md` + this repo's READING-SPEC.md
 
 **Fixed this run:** Diaconis ×1, Dijkstra ×1, Frankfurt ×1, Ostrom ×1 (wording), Pearl ×1 (wording). **Deferred with reason, carried in NEXT-PASSES Pass 14:** Simon ×1, Holmes ×1, Chekhov ×1. Suites re-run after the fixes; counts in the commit message.
 
-## 2026-09-05 — S75: the perceivers beyond text crossed under parity; the measuring door over decoded media; frontier-25 (branch `frontier-25`)
+## 2026-09-05 — S76: the perceivers beyond text crossed under parity; the measuring door over decoded media; frontier-25 (branch `frontier-25`)
 
-Constitution: `../eo-constitution/CONSTITUTION.md` + READING-SPEC.md + the-fold POLICIES.md. Tier 1 (`chorus-fast.sh --working`): law ok (P108, S75 resolve; P19/S17 pre-existing warned), routed Diaconis · Feynman · Dijkstra · Marshall; native suite 655 pass / 0 fail / 1 TODO (pre-existing) · media-perceiver-parity 4/4 · measure-media 5/5 · frontier-25 4/4.
+Constitution: `../eo-constitution/CONSTITUTION.md` + READING-SPEC.md + the-fold POLICIES.md. Tier 1 (`chorus-fast.sh --working`): law ok (P115, S76 resolve; P19/S17 pre-existing warned), routed Diaconis · Feynman · Dijkstra · Marshall; native suite 655 pass / 0 fail / 1 TODO (pre-existing) · media-perceiver-parity 4/4 · measure-media 5/5 · frontier-25 4/4.
 
 | lens | citation | file:line | verdict | one line |
 |---|---|---|---|---|
 | Diaconis | II.23 | organs/measure.js:581 (probe's example declaration) | clean | draws 200 is the repo's standing null-arm number the probe already taught for wav; the decoded media use the same door, same nothing, and the two-shot video's `degenerate_ground` is pinned as the honest verdict (tests/measure-media.test.js) |
 | Feynman | III.3 | organs/measure.js:486 `frameFloor` 1 vs 2 | clean | a scanline or a transition is one unit; two samples are the least PCM can be heard in — both are the material's own grain, and the refusal text says which |
 | Dijkstra | III.4 one implementation | adapters/{image,video}/material.js | clean | crossed verbatim from the frozen provider, ffmpeg spawn included and disclosed; parity 4/4 on identical decoded frames; no second reduce anywhere (measure.js takes the reduces injected) |
-| Marshall | IV.1; P71 | READING-SPEC S75, README pointer, CAPACITY-DEVELOPMENT-PLAN addendum | upheld — compliant | S75 carries its Generality line and its enforcement (parity, measure-media, frontier-25 tests) in the same diff; no capacity row added — the plan's addendum says why (a perceiver is a giver, `measure` is the registered organ) |
+| Marshall | IV.1; P71 | READING-SPEC S76, README pointer, CAPACITY-DEVELOPMENT-PLAN addendum | upheld — compliant | S76 carries its Generality line and its enforcement (parity, measure-media, frontier-25 tests) in the same diff; no capacity row added — the plan's addendum says why (a perceiver is a giver, `measure` is the registered organ) |
 clean: nothing struck.

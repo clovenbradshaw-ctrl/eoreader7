@@ -408,7 +408,7 @@ export function extForContentType(ct) {
 }
 
 // ── public gateways: the fall-through when a direct fetch is blocked ────────
-// (added 2026-09-05, the-fold P110)
+// (added 2026-09-05, the-fold P117)
 //
 // A page that refuses this reader's own address — a 403, a 429, a
 // bot-challenge shell — can often still be READ through a public gateway:

@@ -1,5 +1,5 @@
 // frontier-25.test.js — the zero-call arm of the twenty-five "frontier" tasks,
-// read on every suite run (the-fold P108 / S75).
+// read on every suite run (the-fold P115 / S76).
 //
 // What is pinned: every task an organ CLAIMS outright is answered by that
 // organ with no model (arithmetic.js's pure door, shaped questions and

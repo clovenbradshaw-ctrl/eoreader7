@@ -1,4 +1,4 @@
-// web-gateways.test.js — the public-gateway fall-through's pure half (the-fold P110).
+// web-gateways.test.js — the public-gateway fall-through's pure half (the-fold P117).
 //
 // Offline, no network: address builders, body readers, the blocked shape,
 // and the fold over the record's own `web-gateway` lines that decides the

@@ -1,6 +1,6 @@
 # Frontier-25 — twenty-five "frontier" tasks, claimed or witnessed by organs already here
 
-*Dated transcription of `node eval/the-fold/frontier-25.mjs` on 2026-09-05, branch `frontier-25` in both repos (the-fold P108 / eoreader7 S75). The zero-call arm is enforcement (`tests/frontier-25.test.js` reads it on every suite run, `tests/measure-media.test.js` the media door); the mouth arm is one run, dated, and says so.*
+*Dated transcription of `node eval/the-fold/frontier-25.mjs` on 2026-09-05, branch `frontier-25` in both repos (the-fold P115 / eoreader7 S76). The zero-call arm is enforcement (`tests/frontier-25.test.js` reads it on every suite run, `tests/measure-media.test.js` the media door); the mouth arm is one run, dated, and says so.*
 
 ## The rule the fixture makes operational
 
@@ -54,7 +54,7 @@ What is NOT built and not claimed: a line of reading out of a frame (extents, fi
 
 ## Suites at this commit
 
-the-fold: 1,608 pass / 0 fail / 6 skipped (the `webllm-rung.test.mjs` mirror walks skip typed where a mirror is absent, fail where one drifted — P109); arithmetic 23/23, shape 17/17, measure 51/51 unchanged, generality-gate + constitution 16/16. eoreader7 native: 655 pass / 0 fail / 1 TODO (pre-existing); media-perceiver-parity 4/4, measure-media 5/5, frontier-25 4/4.
+the-fold: 1,608 pass / 0 fail / 6 skipped (the `webllm-rung.test.mjs` mirror walks skip typed where a mirror is absent, fail where one drifted — P116); arithmetic 23/23, shape 17/17, measure 51/51 unchanged, generality-gate + constitution 16/16. eoreader7 native: 655 pass / 0 fail / 1 TODO (pre-existing); media-perceiver-parity 4/4, measure-media 5/5, frontier-25 4/4.
 
 ## Mouth arm — two small mouths through the real turn, the witness judging, one retry with the result fed back
 
