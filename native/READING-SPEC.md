@@ -4064,3 +4064,11 @@ The-fold **P95** is the paired entry (the law and the fold-side files); this is 
 **What ships.** `kernel/notes.js`: `declareVoid(log, {end1, label, end2?, scope, because})` → `void:<noteId>` as DEF·Ground (`no_scope` without sources / cursor / extent; `not_empty` where a live link already fills the ends; a second declaration supersedes, a new event); `foldVoids` (live: not filled since last declared, not conceded; `reached` read off `scope.read >= scope.total`); the door re-zeros every live void a heard LINK fills (`admit` returns `rezeroed`; cuts never fill); `rezeroVoid(log, id, {by, witness})` for a filling a face's own organ found (`no_filling` / `no_open_void`); `concede` works on a void; `voidTimeline(log, id)`. The face (`organs/hyperlexicon.js`) speaks SVO for all of it. Product assay **wall 9, void-through-time: 13/13 walls held** — no-scope refused, unread extent `reached: false`, declared open before the mouth, one arrival ("The Northgate Observatory closed in 1950.") re-zeroed it at the door, timeline `declared → filled`.
 
 **Suites.** native 631 → 633 tests (`notes.test.js` 26); organs 449 / 449; `product-assay.test.js` 8/8.
+
+## S71 — Re-zero under a stream: a void fills at the first stating arrival, never at a denial; the open set is order-invariant, the cursors are not
+
+**Generality:** universal for the rules (voids declared before reading are events with cursors; the fill cursor is order-dependent and the final open set order-invariant; a denial never fills; a void still open when the search reached the end is a finding, and one left by a truncated read is a fact about the reader) — pinned on the built corpus; counts are its own. The-fold NEXT-PASSES Pass 24 is the plan entry; `results/void-rezero-stream-RESULTS.md` the transcription; `tests/void-rezero-stream.test.js` the enforcement.
+
+**Files.** `eval/the-fold/lib/void-rezero-stream.mjs` (`streamOf`, `VOIDS_BEFORE_READING`, `shuffled`, `runStream`, `runVoidRezeroStream`), the driver, the test. `lib/product-assay.mjs` exports `organs` and `readCorpus` for its siblings.
+
+**Numbers.** Forward: filled@3 / @4 / @3, `closed-never` open reached true (7/7), cut at 6 filled nothing; denial-first: cut@1, exact void filled@4; 20 shuffles: one open set, 5 distinct cursors per filled void; truncated at 2: all open, reached false; deranged: a different fill set.

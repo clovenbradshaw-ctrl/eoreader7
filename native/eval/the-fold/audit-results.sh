@@ -28,6 +28,7 @@ cited-source-null|print-only (results/cited-source-null.json is gitignored)|test
 ordered-read-reach|print-only (results/ordered-read-reach.json is gitignored)|tests/walk-fixtures.test.js (the refusal)
 full-circuit|print-only|tests/full-circuit.test.js
 hyperlexicon-door-probe|print-only|tests/hyperlexicon-door-probe.test.js
+void-rezero-stream|print-only|tests/void-rezero-stream.test.js
 mechanical-reasoning|mechanical-reasoning.json|none
 object-boundary|print-only|tests/object-boundary.test.js (the refusal; the doc's numbers are not re-measurable)
 pruning-timeline|pruning-timeline.json|none

@@ -74,7 +74,7 @@ export const FABRICATIONS = Object.freeze([
 export const GIVER = "native/eval/the-fold/lib/product-assay.mjs — a stand-in giver, DISCLOSED: that `preceded` composes with itself is declared by this assay for its built corpus, never read off the material";
 
 // ── THE PRODUCTION READER, headless ──────────────────────────────────────
-async function organs() {
+export async function organs() {
   const { makeRelationReader } = await import(`${NATIVE}/organs/hypergraph.js`);
   const { makeHyperlexicon } = await import(`${NATIVE}/organs/hyperlexicon.js`);
   const { makeDerivation } = await import(`${NATIVE}/organs/derivation.js`);
@@ -154,7 +154,7 @@ export function constitutionIdentity() {
 }
 
 // ── THE READING (Pass 18's shape: read when material arrives) ────────────
-function readCorpus(O, corpus) {
+export function readCorpus(O, corpus) {
   const passages = [];
   for (const [name, text] of Object.entries(corpus)) for (const p of O.chunkSource(name, text)) passages.push(p);
   const rel = O.relationsFor(passages, { pool: passages });
