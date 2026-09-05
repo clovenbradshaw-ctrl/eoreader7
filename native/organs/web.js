@@ -406,3 +406,234 @@ export function extForContentType(ct) {
   if (t.startsWith("text/")) return ".txt";
   return ".bin";
 }
+
+// ── public gateways: the fall-through when a direct fetch is blocked ────────
+// (added 2026-09-05, the-fold P110)
+//
+// A page that refuses this reader's own address — a 403, a 429, a
+// bot-challenge shell — can often still be READ through a public gateway:
+// the Wayback Machine's snapshot, a reader service, a CORS relay. The user's
+// standing rule for the launch is that nothing about a person passes the
+// maintainer; a public gateway is a third party the PERSON chooses to reach
+// (the web toggle is on, the direct fetch was refused), and it sees the
+// address fetched. So every gateway here names what it is and what it sees,
+// the server records every try, the page says which route a page came by,
+// and the ROSTER IS NOT A RANKING: which gateways are open is learned off
+// the record (foldGateways / rankGateways below), never asserted — a
+// gateway that answered last week may be closed today, and the instrument
+// finds that out by trying, in the order its own history suggests.
+//
+// Still pure: address builders and body readers only. The fetches live in
+// explore-server.mjs (P13's one egress, recorded).
+export const GATEWAYS = Object.freeze([
+  Object.freeze({
+    id: "wayback",
+    kind: "archive",
+    sees: "archive.org sees the address; the page comes from its most recent snapshot, not the live site",
+    // two hops: the availability API names the closest snapshot, then the
+    // snapshot's raw face (the `id_` flag drops the archive's own toolbar)
+    address: (url) => `https://archive.org/wayback/available?url=${encodeURIComponent(url)}`,
+    read: "wayback-available",
+  }),
+  Object.freeze({
+    id: "jina",
+    kind: "reader",
+    sees: "r.jina.ai fetches the address for you and returns its text as markdown",
+    address: (url) => `https://r.jina.ai/${url}`,
+    read: "jina-markdown",
+  }),
+  Object.freeze({
+    id: "allorigins",
+    kind: "relay",
+    sees: "api.allorigins.win fetches the address for you and returns the raw page",
+    address: (url) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+    read: "raw",
+  }),
+  Object.freeze({
+    id: "corsproxy",
+    kind: "relay",
+    sees: "corsproxy.io fetches the address for you and returns the raw page",
+    address: (url) => `https://corsproxy.io/?url=${encodeURIComponent(url)}`,
+    read: "raw",
+  }),
+  Object.freeze({
+    id: "codetabs",
+    kind: "relay",
+    sees: "api.codetabs.com fetches the address for you and returns the raw page",
+    address: (url) => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
+    read: "raw",
+  }),
+  Object.freeze({
+    id: "archive-today",
+    kind: "archive",
+    sees: "archive.today sees the address; the page comes from its newest capture",
+    address: (url) => `https://archive.ph/newest/${url}`,
+    read: "raw",
+  }),
+]);
+export const GATEWAY_IDS = Object.freeze(GATEWAYS.map((g) => g.id));
+export const gatewayOf = (id) => GATEWAYS.find((g) => g.id === id) ?? null;
+
+/** HTTP statuses that mean "this address refused THIS reader", not "the page
+ * is gone" — the shape a gateway can get around. A 404 is not in it: an
+ * absent page is absent everywhere. */
+export const BLOCKED_STATUSES = Object.freeze([401, 403, 407, 429, 451, 503]);
+
+/**
+ * Why a direct fetch counts as blocked, or null when it does not. Typed so
+ * the record and the page can say which shape it was.
+ */
+export function blockedShape({ status = null, challenge = false, error = null, html = false, textChars = null } = {}) {
+  if (challenge) return "challenge-page";
+  if (status != null && BLOCKED_STATUSES.includes(Number(status))) return `status-${status}`;
+  // A 200 whose readable face is EMPTY is a script shell, not a page this
+  // reader can read (measured 2026-09-05: reddit.com answers 200 with a
+  // title and no text) — a snapshot or a reader service may hold the text.
+  if (html && status != null && Number(status) < 400 && textChars === 0) return "empty-face";
+  if (error && /timeout|timed out|ECONNRESET|EPROTO|socket hang up|fetch failed/i.test(String(error))) return "no-answer";
+  return null;
+}
+
+/**
+ * Read a gateway's response into the page's bytes, or a typed refusal.
+ * `wayback-available` yields {next: url} — a second hop the server takes;
+ * `jina-markdown` yields text; `raw` yields the body as the page.
+ */
+export function readGatewayBody(read, { status, contentType = "", body = "" }) {
+  const s = String(body ?? "");
+  if (status >= 400) return { ok: false, detail: `the gateway answered ${status}` };
+  if (read === "wayback-available") {
+    try {
+      const j = JSON.parse(s);
+      const closest = j?.archived_snapshots?.closest;
+      if (!closest?.available || !closest.url) return { ok: false, detail: "the Wayback Machine holds no snapshot of this address" };
+      // the raw face: web.archive.org/web/<timestamp>id_/<url>
+      const next = String(closest.url).replace(/\/web\/(\d+)\//, "/web/$1id_/");
+      return { ok: true, next, timestamp: closest.timestamp ?? null };
+    } catch {
+      return { ok: false, detail: "the availability answer was not JSON" };
+    }
+  }
+  if (read === "jina-markdown") {
+    // "Title: …\nURL Source: …\nMarkdown Content:\n…" — the header lines are
+    // the reader's own framing; the content after them is the page
+    const m = s.match(/^Title:\s*(.*)$/m);
+    const at = s.indexOf("Markdown Content:");
+    const text = at >= 0 ? s.slice(at + "Markdown Content:".length).trim() : s.trim();
+    if (!text) return { ok: false, detail: "the reader returned no content" };
+    return { ok: true, text, title: m ? m[1].trim() : null, contentType: "text/markdown" };
+  }
+  if (!s.trim()) return { ok: false, detail: "the gateway returned an empty body" };
+  return { ok: true, html: s, contentType: contentType || "text/html" };
+}
+
+/**
+ * The learned state of every gateway, folded off the record's own
+ * `web-gateway` lines: {gateway, ok, status, ms, at}. Natural frequencies,
+ * never a verdict — `open` is only ever "its LAST try answered".
+ */
+export function foldGateways(events) {
+  const table = Object.fromEntries(GATEWAY_IDS.map((id) => [id, { id, tried: 0, ok: 0, blocked: 0, msSum: 0, lastOk: null, lastAt: null, last: null, leak: null }]));
+  for (const e of events ?? []) {
+    if (e?.event === "web-gateway-leak" && table[e.gateway]) {
+      const t = table[e.gateway];
+      t.leak = { last: e.forwardsAddress ?? null, at: e.at ?? null, carriers: e.carriers ?? [] };
+      continue;
+    }
+    if (e?.event !== "web-gateway" || !table[e.gateway]) continue;
+    const t = table[e.gateway];
+    t.tried += 1;
+    if (e.ok) t.ok += 1; else t.blocked += 1;
+    if (Number.isFinite(e.ms)) t.msSum += e.ms;
+    t.last = e.ok ? "open" : "closed";
+    t.lastAt = e.at ?? t.lastAt;
+    if (e.ok) t.lastOk = e.at ?? t.lastOk;
+  }
+  return Object.values(table).map((t) => ({ ...t, rate: t.tried ? t.ok / t.tried : null, meanMs: t.ok ? Math.round(t.msSum / t.ok) : null }));
+}
+
+/**
+ * The order to try gateways in: the ones that have answered most often
+ * first (natural frequency, no threshold), an untried one before one that
+ * has only failed (it has a chance the failed one has spent), and among
+ * equals the faster. Every gateway is still tried — the order is learned,
+ * the roster is not pruned by the instrument.
+ */
+export function rankGateways(fold, ids = GATEWAY_IDS) {
+  const by = Object.fromEntries((fold ?? []).map((t) => [t.id, t]));
+  const score = (id) => {
+    const t = by[id];
+    if (!t || !t.tried) return 0.5; // untried: between "always answered" and "never answered"
+    return t.ok / t.tried;
+  };
+  return [...ids].sort((a, b) => {
+    const d = score(b) - score(a);
+    if (d) return d;
+    const ta = by[a]?.tried ?? 0, tb = by[b]?.tried ?? 0;
+    if (ta !== tb) return ta - tb; // fewer tries first among equals: explore
+    return (by[a]?.meanMs ?? Infinity) - (by[b]?.meanMs ?? Infinity);
+  });
+}
+
+/** One line per gateway for the page — counts, never a promise. */
+export function gatewayLines(fold) {
+  return (fold ?? []).map((t) => {
+    const g = gatewayOf(t.id);
+    const state = !t.tried ? "never tried" : `${t.ok}/${t.tried} answered · last ${t.last}${t.lastAt ? ` (${t.lastAt.slice(0, 16).replace("T", " ")})` : ""}${t.meanMs != null ? ` · ~${t.meanMs} ms` : ""}`;
+    const leak = g?.kind === "archive"
+      ? "the far side never hears from you"
+      : !t.leak ? "forwards your address: not measured"
+        : t.leak.last === true ? `forwards your address: YES (${t.leak.carriers.map((c) => c.name).join(", ")})`
+          : t.leak.last === false ? "forwards your address: no" : (t.last === "closed" ? "forwards your address: not measurable while closed" : "forwards your address: unreadable");
+    return `${t.id} (${g?.kind ?? "?"}) — ${state} — ${leak} — ${g?.sees ?? ""}`;
+  });
+}
+
+// ── what a gateway forwards: the leak probe's pure half ────────────────────
+// A relay or a reader fetches the address FOR the person; what it tells the
+// far side about the person is measurable — fetch an echo endpoint through
+// the gateway and read back the headers the gateway sent. If the person's
+// own address (read directly off the same echo) appears in them, the gateway
+// forwards it; if not, the far side sees only the gateway. An archive is not
+// probed: it serves a snapshot it took on its own, so the far side never
+// hears from the person at all. Recorded as `web-gateway-leak`, reported as
+// counts and the last verdict — never a promise.
+export const ECHO_HEADERS_URL = "https://httpbin.org/headers";
+export const ECHO_IP_URL = "https://httpbin.org/ip";
+export const ADDRESS_HEADERS = Object.freeze(["x-forwarded-for", "x-real-ip", "forwarded", "via", "cf-connecting-ip", "true-client-ip", "x-client-ip", "x-originating-ip"]);
+
+/** The headers an echo endpoint saw, lower-cased, or null when the body is not its JSON. */
+export function parseEchoHeaders(body) {
+  try {
+    const j = JSON.parse(String(body ?? ""));
+    const h = j?.headers;
+    if (!h || typeof h !== "object") return null;
+    return Object.fromEntries(Object.entries(h).map(([k, v]) => [String(k).toLowerCase(), String(v)]));
+  } catch {
+    return null;
+  }
+}
+/** The caller's address as the echo endpoint saw it, or null. */
+export function parseEchoIp(body) {
+  try {
+    const j = JSON.parse(String(body ?? ""));
+    const ip = String(j?.origin ?? "").split(",")[0].trim();
+    return ip || null;
+  } catch {
+    return null;
+  }
+}
+/**
+ * Does the gateway forward the person's address? `forwardsAddress` is true
+ * when the person's own address appears in any header the far side saw,
+ * false when address-carrying headers are absent or carry only other
+ * addresses, null when the echo could not be read or the own address is
+ * unknown. `carriers` names every address-carrying header, with its value.
+ */
+export function leakVerdict(headers, ownIp) {
+  if (!headers) return { forwardsAddress: null, carriers: [] };
+  const carriers = ADDRESS_HEADERS.filter((k) => headers[k] != null).map((k) => ({ name: k, value: headers[k] }));
+  if (!ownIp) return { forwardsAddress: null, carriers };
+  const forwardsAddress = carriers.some((c) => c.value.includes(ownIp));
+  return { forwardsAddress, carriers };
+}
