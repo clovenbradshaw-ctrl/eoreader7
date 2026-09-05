@@ -4030,3 +4030,13 @@ The-fold **P95** is the paired entry (the law and the fold-side files); this is 
 
 **Suites.** native 619 → 626 tests, 618 → 625 pass, 1 todo; organs 449 / 449.
 
+## S68 — Object specificity at the judge, and the model-swap diff: the record is model-independent, the mouth's additions are counted
+
+**Generality:** universal for the two rules (with `objectSpecificity` a claim binds only to an edge whose object states every content token of the claim's object, stem-tolerant, else `unbound` with the nearest edges named; the thing a model swap compares is the AnswerRecord — the record-backed claim set and the count of claims nothing backs — never the prose); every count is the built corpus's own and dated. The-fold **P100** is the paired entry.
+
+**Object specificity** (`organs/hypergraph.js`, opt-in, declared by construction in the reader's frame): P36's rule, which `capacity-runner.js::checkObjectSpecificity` applied only on the `/act evaluate` path, moved into `judge()`'s bound branch so every consumer of the reader inherits it — the draft checker, the arrival read, the assay. Below `CORPUS_MINIMUM` the object match was `tokensShare` alone and one shared token bound: "the Royal Society in 1887" to "the Northgate Observatory in 1887" on `in 1887`. With the option on, the product assay's wall 6 holds — **4/4 fabricated drafts refused** — while walls 1, 2 and 5 hold unchanged (21/21 true spans still bind, the stated-once note still reaches the record, the deranged corpus still shares 0 claim ids). Default off: 626/625/1 todo, organs 449/449 byte-identical.
+
+**The model-swap diff** (`eval/the-fold/model-swap-diff.mjs`, results doc beside it): the real `runHolonicTask` with the production reader and a ledger read on arrival, gemma2:2b (14 calls, 74 s) against llama3.2:latest (24 calls, 219 s) on the three assay questions. Nothing-backs = 0 held for **neither** model; record-backed sets identical on **0/3**. The bar is restated in P100 rather than tuned toward.
+
+**Files.** `organs/hypergraph.js` (`objectSpecificity`), `eval/the-fold/lib/product-assay.mjs` (enables it), `eval/the-fold/model-swap-diff.mjs` (new), `results/model-swap-diff-RESULTS.md` (new, dated).
+
