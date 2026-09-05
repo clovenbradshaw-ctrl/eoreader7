@@ -162,3 +162,18 @@ the-fold's flat top level under the same basename.
 
 `kernel/notes.js` (Arokin) is not yet built; the row above is reserved,
 not installed.
+
+## Before committing: the two-tier chorus (2026-09-05)
+
+Run `~/.claude/skills/chorus-lint/chorus-fast.sh` from the repo root. In
+seconds it checks the law files (duplicate S/P headers, citations that
+resolve, Generality on new P entries), runs only the `native/` and
+`conformance/` tests that import a changed file, and names which persona
+lenses the diff touches with a `file:line` pointer each. Read only those
+lenses, against the context file it writes (cited entries only). The
+eleven-persona form is `chorus full`, for audits and PR reviews, not per
+commit. The skill's `SKILL.md` carries the lens questions and the log
+format; the-fold's POLICIES.md P35 is the authority that a chorus is a
+label, not eleven agent calls. The root `npm test` is the legacy 6.1
+conformance suite (2.6 min, nine pre-existing failures as of this date);
+`cd native && npm test` is the live package's suite.
