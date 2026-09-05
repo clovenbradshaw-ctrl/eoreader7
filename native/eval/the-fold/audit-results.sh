@@ -30,6 +30,7 @@ full-circuit|print-only|tests/full-circuit.test.js
 hyperlexicon-door-probe|print-only|tests/hyperlexicon-door-probe.test.js
 void-rezero-stream|print-only|tests/void-rezero-stream.test.js
 settlement-by-arrival|print-only|tests/settlement-by-arrival.test.js
+null-census|print-only|tests/null-census.test.js
 mechanical-reasoning|mechanical-reasoning.json|none
 object-boundary|print-only|tests/object-boundary.test.js (the refusal; the doc's numbers are not re-measurable)
 pruning-timeline|pruning-timeline.json|none

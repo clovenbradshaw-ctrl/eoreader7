@@ -144,6 +144,6 @@ export function makeHyperlexicon(taskLog) {
     dietBoundaries: notes.dietBoundaries, concedeDiet: notes.concedeDiet,
     assertionId, recipeId, REFUSALS, foldCuts, negationTimeline: notes.negationTimeline, isCutId: notes.isCutId, CUT_PREFIX: notes.CUT_PREFIX,
     declareVoid: (log, v) => notes.declareVoid(log, { end1: v.end1 ?? v.subject, label: v.label ?? v.verb, end2: v.end2 ?? v.object ?? null, scope: v.scope, because: v.because ?? null }),
-    foldVoids: (log) => notes.foldVoids(log).map(toSVO), voidTimeline: notes.voidTimeline, rezeroVoid: notes.rezeroVoid, isVoidId: notes.isVoidId, VOID_PREFIX: notes.VOID_PREFIX,
+    foldVoids: (log) => notes.foldVoids(log).map(toSVO), voidTimeline: notes.voidTimeline, rezeroVoid: notes.rezeroVoid, fillingsSince: notes.fillingsSince, isVoidId: notes.isVoidId, VOID_PREFIX: notes.VOID_PREFIX,
   };
 }
