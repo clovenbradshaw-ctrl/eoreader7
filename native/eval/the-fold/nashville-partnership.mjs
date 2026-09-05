@@ -75,10 +75,44 @@
 // redeal reproduces is measuring topic, not proposition, and this driver
 // reports both rather than the real one alone.
 //
-// Run: node nashville-partnership.mjs
-//   env: MAXQ searches (8) · MAXF fetches (14) · RESULTS per query (6)
-//        SUM_ASKS per page (6) · WALK_ASKS (40) · CHASE_F (10) · CHASE_S (4)
-//        MODEL (gemma2:2b) · OFFLINE=1 (kept faces only; a miss is a gap)
+// ── RUNNING THIS LOCALLY ──────────────────────────────────────────────
+//
+// Nothing this run fetches or writes is committed (see .gitignore): the
+// kept pages, the search cache, and the produced *-READING.md are this
+// run's own, regenerable, and belong beside wherever the subject's own
+// material lives — never in this repo. The CODE is what this repo owns.
+//
+// CHECK=1 node nashville-partnership.mjs
+//   Verifies the ground before spending anything: the two sibling repos
+//   (the-fold, live_priors) are found, and whether Ollama and the
+//   declared MODEL are reachable. No search, no fetch, no model call.
+//   Exits 0 if nothing fatal, 1 otherwise. Run this first on a new
+//   machine or after moving the checkout.
+//
+// TASK="<your own question>" node nashville-partnership.mjs
+//   The task is the ONLY place a human names the subject or the question
+//   (default: the Nashville Downtown Partnership question this driver was
+//   built against). Which documents answer it is discovered by the walk
+//   itself — chased, searched for, never seeded — by standing decision:
+//   this driver does not accept a document or source list.
+//
+// Sibling repos (only if this checkout is not itself a sibling of
+// the-fold and live_priors):
+//   THE_FOLD_DIR=/path/to/the-fold  LIVE_PRIORS_DIR=/path/to/live_priors
+//   ALIAS_PRIOR=/path/to/alias-declaration-en.json (overrides the prior file directly)
+//
+// Model / reach:
+//   MODEL (gemma2:2b) · OLLAMA (http://127.0.0.1:11434)
+//   OFFLINE=1 (kept faces only; a miss is a typed gap, no network)
+//   SELECTOR=referent-face (S62 — swaps the corroboration walk's
+//     admission gate from literal word co-presence, measured dead at the
+//     level a walk spends its budget, to the reader's own resolved
+//     referent face, the one selector measured to separate. Default:
+//     copresence, the original behavior, unchanged.)
+//
+// Budgets (P4/P9 — every one is a declared leash, never a hidden default):
+//   MAXQ searches (10) · MAXF pages kept (16) · MAXTRY fetch attempts (40)
+//   RESULTS per query (8) · WALK_ASKS (40) · CHASE_F (10) · CHASE_S (4)
 
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
 import { createHash } from "node:crypto";
@@ -87,6 +121,61 @@ const NATIVE = new URL("../..", import.meta.url).pathname;
 const FIX = new URL("./fixtures/", import.meta.url).pathname;
 const FACES = `${FIX}nashville-faces`;
 const OUT = new URL("./results/", import.meta.url).pathname;
+
+// ── PORTABLE SIBLING PATHS ──────────────────────────────────────────────
+//
+// This organ lives in eoreader7 but reaches two sibling repos: the-fold
+// (proof.js/crown.js/compose.js — the surf-question and model-free-render
+// organs that have not yet crossed the ratchet) and live_priors (the
+// received alias-declaration prior, LP15). The default assumes the layout
+// every repo in this project is developed under — three checkouts as
+// siblings under one parent — and is overridable per machine so this file
+// never hard-codes one person's directory.
+const SIBLINGS_ROOT = new URL("../../../..", import.meta.url).pathname;
+const THE_FOLD_DIR = (process.env.THE_FOLD_DIR ?? `${SIBLINGS_ROOT}the-fold`).replace(/\/$/, "");
+const LIVE_PRIORS_DIR = (process.env.LIVE_PRIORS_DIR ?? `${SIBLINGS_ROOT}live_priors`).replace(/\/$/, "");
+
+// ── PREFLIGHT: check the ground this run needs before spending anything ──
+//
+// CHECK=1 runs ONLY this and exits — no search, no fetch, no model call —
+// so a fresh checkout (or a different machine) can be confirmed wired
+// before a single crossing is made. A missing sibling file is fatal (the
+// driver cannot surf or compose without it); a missing or unpulled model
+// is NOT fatal here — phases 1-4 (surf/read/snip/compose) call no model at
+// all, and the chase/corroboration phases already degrade to a typed,
+// caught gap rather than crashing (their own try/catch), so this preflight
+// reports it rather than blocking on it.
+async function preflight() {
+  const rows = [];
+  const fileOk = (label, p) => rows.push({ label, ok: existsSync(p), detail: p });
+  fileOk("the-fold: proof.js", `${THE_FOLD_DIR}/proof.js`);
+  fileOk("the-fold: crown.js", `${THE_FOLD_DIR}/crown.js`);
+  fileOk("the-fold: compose.js", `${THE_FOLD_DIR}/compose.js`);
+  fileOk("live_priors: alias prior", `${LIVE_PRIORS_DIR}/derived-priors/alias-priors/alias-declaration-en.json`);
+  let ollamaOk = false, modelsSeen = [];
+  try {
+    const res = await fetch(`${process.env.OLLAMA ?? "http://127.0.0.1:11434"}/api/tags`, { signal: AbortSignal.timeout(5000) });
+    if (res.ok) { ollamaOk = true; modelsSeen = ((await res.json())?.models ?? []).map((m) => m.name); }
+  } catch (e) { rows.push({ label: "ollama reachable", ok: false, detail: String(e?.message ?? e).slice(0, 100) }); }
+  const model = process.env.MODEL ?? "gemma2:2b";
+  if (ollamaOk) {
+    rows.push({ label: "ollama reachable", ok: true, detail: process.env.OLLAMA ?? "http://127.0.0.1:11434" });
+    rows.push({ label: `model "${model}" pulled`, ok: modelsSeen.includes(model), detail: modelsSeen.includes(model) ? "" : `pulled: ${modelsSeen.join(", ") || "(none)"} — this is a soft gap, not fatal` });
+  }
+  const fatal = rows.filter((r) => !r.label.startsWith("model") && !r.label.startsWith("ollama") && !r.ok);
+  process.stdout.write("\n# preflight\n");
+  for (const r of rows) process.stdout.write(`  ${r.ok ? "OK  " : "FAIL"}  ${r.label}${r.detail ? ` (${r.detail})` : ""}\n`);
+  if (fatal.length) {
+    process.stdout.write(`\n${fatal.length} fatal check(s) failed — set THE_FOLD_DIR / LIVE_PRIORS_DIR if this checkout is not a sibling of the-fold and live_priors, or fetch/build the missing prior. Stopping before any crossing is spent.\n`);
+  } else if (!ollamaOk || !modelsSeen.includes(model)) {
+    process.stdout.write(`\nNo fatal checks failed. Surf/read/snip/compose need no model and will run; the chase and the corroboration walk will report a typed gap in place of each call until this is fixed.\n`);
+  } else {
+    process.stdout.write(`\nAll checks pass.\n`);
+  }
+  return fatal.length === 0;
+}
+const PREFLIGHT_OK = await preflight();
+if (!PREFLIGHT_OK || process.env.CHECK === "1") process.exit(PREFLIGHT_OK ? 0 : 1);
 
 // ── declared parameters (P4/P9: every budget is the caller's, never a default
 // discovered at the call site) ───────────────────────────────────────────────
@@ -149,8 +238,11 @@ const RECIPE = "nashville-v1";
 
 // The declared task. The fold derives every query it spends from this and
 // from its own reading — no source is hand-picked, and this string is the
-// only place a human names the subject.
-const TASK = "How is the Nashville Downtown Partnership funded, governed and overseen, and what has the Metro Council said about the Central Business Improvement District budget and its contracts?";
+// only place a human names the subject or the question; which documents
+// answer it is discovered by the walk itself (chased, searched for, never
+// seeded here), by explicit standing decision — the fold is not told which
+// records matter for a subject, only what is being asked about it.
+const TASK = process.env.TASK ?? "How is the Nashville Downtown Partnership funded, governed and overseen, and what has the Metro Council said about the Central Business Improvement District budget and its contracts?";
 
 // ── the organs, native only ────────────────────────────────────────────────
 const { makeRelationReader } = await import(`${NATIVE}/organs/hypergraph.js`);
@@ -166,7 +258,7 @@ const { declaredAliases, shapesFrom } = await import(`${NATIVE}/organs/aliases.j
 // floors below are this run's own declaration — the prior measures, the
 // caller decides what is good enough. Absent the prior, the fold simply
 // does not learn names from the material and says so.
-const ALIAS_PRIOR_PATH = process.env.ALIAS_PRIOR ?? "/home/user/live_priors/derived-priors/alias-priors/alias-declaration-en.json";
+const ALIAS_PRIOR_PATH = process.env.ALIAS_PRIOR ?? `${LIVE_PRIORS_DIR}/derived-priors/alias-priors/alias-declaration-en.json`;
 const ALIAS_MIN_CONFIRM = Number(process.env.ALIAS_MIN_CONFIRM ?? 0.3);
 const ALIAS_MIN_FIRES = Number(process.env.ALIAS_MIN_FIRES ?? 100);
 let ALIAS_PRIOR = null, ALIAS_SHAPES = [];
@@ -184,7 +276,7 @@ const { discoverRelationVocab, extractRelations } = await import(`${NATIVE}/adap
 const P = await import(`${NATIVE}/adapters/text/priors.js`);
 const { cellOf, GRAINS } = await import(`${NATIVE}/kernel/cube.js`);
 const nativeTaskLog = await import(`${NATIVE}/kernel/task-log.js`);
-const { preflightQuery, proofQuery } = await import("/home/user/the-fold/proof.js");
+const { preflightQuery, proofQuery } = await import(`${THE_FOLD_DIR}/proof.js`);
 const posPrior = JSON.parse(readFileSync(`${FIX}pos-prior-eng.json`, "utf8"));
 
 const reader = makeRelationReader({
@@ -523,20 +615,31 @@ let log = hl.createHyperlexicon({
 const passagesOf = new Map();  // ref -> passages
 let heard = 0, turnedAway = 0;
 
+// ref -> [{s, o, sFace, oFace}] — every BOUND edge this run read from that
+// page, carrying the reader's own resolved referent face when it found
+// one. This is S62's own selector, kept per source so the corroboration
+// walk can ask "does this page's READING reach these two ends" instead of
+// "do these two words sit near each other in its raw bytes" — see
+// corroboration.js::facesReachable for the measured reason the two
+// questions disagree.
+const edgesWithFacesOf = new Map();
+
 function readPage(pg) {
   const passages = chunkSource(pg.ref, pg.text, { blankFurniture: (t) => blankLabelRows(t, { minRun: 4, maxCell: 60 }) });
   passagesOf.set(pg.ref, passages);
   const rel = reader(passages, { pool: passages });
   let admitted = 0;
+  const faceEdges = edgesWithFacesOf.get(pg.ref) ?? [];
   for (const p of passages) {
-    const edges = (rel.read(String(p.text ?? ""))?.claims ?? [])
-      .filter((c) => c.verdict === "bound")
-      .map((c) => ({ subject: c.end1, verb: c.label, object: c.end2, spans: c.spans ?? [] }));
+    const claims = (rel.read(String(p.text ?? ""))?.claims ?? []).filter((c) => c.verdict === "bound");
+    for (const c of claims) faceEdges.push({ s: c.end1, o: c.end2, sFace: c.end1Face ?? null, oFace: c.end2Face ?? null });
+    const edges = claims.map((c) => ({ subject: c.end1, verb: c.label, object: c.end2, spans: c.spans ?? [] }));
     if (!edges.length) continue;
     const r = hl.admit(log, edges, { witness: `${pg.ref}~${RECIPE}` });
     log = r.log; heard += r.heard.length; admitted += r.heard.length;
     turnedAway += (r.turnedAway ?? []).length;
   }
+  edgesWithFacesOf.set(pg.ref, faceEdges);
   return { passages: passages.length, admitted };
 }
 
@@ -698,7 +801,18 @@ try {
 
 // ═══ PHASE 6 — CORROBORATE, WITH ITS CONTROL ══════════════════════════════
 MODEL_PHASE = "corroboration walk";
+// S62: literal co-presence (the default admission gate) measured
+// indistinguishable from a redealt null at the level a walk actually
+// spends its budget (p ≈ 0.905); the reader's own resolved referent face
+// is the one selector measured to separate (p ≈ 0.048). SELECTOR=
+// referent-face swaps it in for BOTH arms — the same budget, the same
+// protocol, only which pairs are ever offered to the model changes.
+const SELECTOR = process.env.SELECTOR === "referent-face" ? "referent-face" : "copresence";
+const reachableFn = SELECTOR === "referent-face"
+  ? (ref, ends) => T.corroboration.facesReachable(edgesWithFacesOf.get(ref) ?? [], ends)
+  : null;
 say(`\n# the fold corroborates (and runs the redeal control in the same breath)`);
+say(`  selector: ${SELECTOR}${SELECTOR === "referent-face" ? " (S62 — literal co-presence measured dead at note-level, p\u22480.905; this separates, p\u22480.048)" : ""}`);
 const sources = pages.map((p) => ({ ref: p.ref, text: p.text }));
 // Two hosts carrying one wire story are one perspective. corroboration.js's
 // own sharedTextGroups says which of these pages are the same text, and its
@@ -711,9 +825,9 @@ const gateOf = (l) => hl.foldWithStanding(l).filter((n) => T.distinctSources(n.w
 const gateBefore = gateOf(log);
 let walk = null;
 try {
-  walk = await T.corroborateLedger(log, hl, sources, { ask, selectAsk, splitSentences, testimony, maxAsks: WALK_ASKS });
+  walk = await T.corroborateLedger(log, hl, sources, { ask, selectAsk, splitSentences, testimony, maxAsks: WALK_ASKS, reachable: reachableFn });
   log = walk.log;
-  say(`  REAL: ${walk.asks} ask(s) · attested ${walk.attested.length} · contradicted ${walk.contradicted.length} · refusals ${JSON.stringify(walk.refusals)}`);
+  say(`  REAL: ${walk.candidatePairs ?? "?"} candidate pair(s) proposed → ${walk.asks} ask(s) spent (${walk.skippedNoCopresence ?? 0} refused before any ask) · attested ${walk.attested.length} · contradicted ${walk.contradicted.length} · refusals ${JSON.stringify(walk.refusals)}`);
   say(`  notes at >=2 distinct sources: ${gateBefore} → ${gateOf(log)}`);
 } catch (e) { say(`  walk gap: ${String(e?.message ?? e).slice(0, 160)}`); }
 
@@ -773,7 +887,7 @@ try {
   }
   if (turnedAwayInControl) say(`  control: ${turnedAwayInControl} redealt edge(s) turned away at the door`);
   say(`  control: ${controlBuilt} redealt proposition(s) survive the co-presence gate, ${controlUnbuildable} could not be built`);
-  control = await T.corroborateLedger(rl, hl, sources, { ask, selectAsk, splitSentences, testimony, maxAsks: WALK_ASKS });
+  control = await T.corroborateLedger(rl, hl, sources, { ask, selectAsk, splitSentences, testimony, maxAsks: WALK_ASKS, reachable: reachableFn });
   say(`  CONTROL (redealt): ${control.asks} ask(s) · attested ${control.attested.length} · contradicted ${control.contradicted.length} · skipped-no-copresence ${control.skippedNoCopresence ?? 0}`);
 } catch (e) { say(`  control gap: ${String(e?.message ?? e).slice(0, 160)}`); }
 
@@ -782,8 +896,8 @@ try {
 // claim's own words, the source's own name, and a closed connective
 // vocabulary; compose.js joins them under a DECLARED order. Every rendered
 // sentence is followed by the page's own bytes that state it.
-const { renderCrown } = await import("/home/user/the-fold/crown.js");
-const { compose, coverageLine } = await import("/home/user/the-fold/compose.js");
+const { renderCrown } = await import(`${THE_FOLD_DIR}/crown.js`);
+const { compose, coverageLine } = await import(`${THE_FOLD_DIR}/compose.js`);
 const { mergeTestimony } = await import(`${NATIVE}/organs/capacity-runner.js`);
 
 const after = hl.foldWithStanding(log);
@@ -1078,6 +1192,31 @@ if (walk && control) {
     w(`The control was asked ${control.asks} time(s) and attested **nothing**. The real arm attested ${walk.attested.length} of ${walk.asks}. On this material the walk is reading whether a page states a proposition, not whether it shares a topic with one.`);
   } else {
     w(`The control attested ${control.attested.length} of ${control.asks} (${rate(control)} per ask) against the real arm's ${rate(walk)}. **A control that attests at the real arm's rate means §3's corroboration is measuring topic overlap**, and should be read as unproven until the gap is real.`);
+    w();
+    w(`**Every attested control proposition, so the reading above is checked rather than taken on its rate alone.** Each row is either LEAKY (the real ledger, independently of this control, already joins the same subject to the same swapped object under some label — the swap happened to also be true, which convicts the control's construction, not the model) or a genuine FOOLED case (the ledger holds no such joint anywhere — the model attested a proposition nothing in the real material states).`);
+    w();
+    w(`| subject | label | swapped object | leaky? | page | decider the witness pointed at |`);
+    w(`|---|---|---|---|---|---|`);
+    const realJoins = hl.foldWithStanding(log); // the REAL ledger (unaffected by the control's own separate ledger \`rl\`)
+    let leaky = 0;
+    for (const item of control.attested) {
+      const subj = String(item.note.end1 ?? "").trim();
+      const swapObj = String(item.note.end2 ?? "").trim();
+      const isLeaky = realJoins.some((n) => String(n.end1 ?? "").trim() === subj && String(n.end2 ?? "").trim() === swapObj);
+      if (isLeaky) leaky += 1;
+      const pg = pageOf.get(item.source);
+      const at = pg && item.because ? pg.text.indexOf(item.because) : -1;
+      const addr = at >= 0 ? `${item.source}#${at}-${at + item.because.length}` : item.source;
+      w(`| ${esc(subj)} | ${esc(item.note.label)} | ${esc(swapObj)} | ${isLeaky ? "**yes**" : "no"} | \`${addr}\` | ${esc(String(item.because ?? "").trim()).slice(0, 140)} |`);
+    }
+    w();
+    if (leaky === control.attested.length) {
+      w(`**All ${leaky} of ${control.attested.length} are leaky.** The redeal's own no-shared-content-word rule did not stop it from drawing a swap the material ALSO independently states elsewhere — the control convicts its own construction, not the model, and this run's parity result should be re-measured with a stricter swap (excluding any object the subject is already joined to under any label, not only the true end2) before it is trusted either way.`);
+    } else if (leaky === 0) {
+      w(`**None are leaky.** Every attested control proposition is a false statement the real ledger states nowhere, and the model attested it anyway. On this material and this budget, §3.1 should be read as unproven, per II.23, exactly as stated above — and for the stronger reason that this is a fooled model, not a leaky control.`);
+    } else {
+      w(`**${leaky} of ${control.attested.length} are leaky** and ${control.attested.length - leaky} are not. The leaky ones are a defect in the swap, not evidence about the model; only the non-leaky ones bear on whether the walk can be fooled, which narrows this run's real sample size for that question to ${control.attested.length - leaky}.`);
+    }
   }
   w();
   w(`Refusals in the real arm, by name: \`${JSON.stringify(walk.refusals)}\`. \`no-testimony\` is the model saying no to every sentence it was offered — a fact about those pages, never a conviction of the proposition.`);

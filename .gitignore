@@ -34,10 +34,15 @@ native/eval/results/*.json
 # degrades with a named "(absent: …)" line when a page is missing.
 native/eval/the-fold/fixtures/sanriku/*.html
 
-# The Nashville research walk's kept page faces — the same category as
-# primary-faces and sanriku/*.html above: a cache of fetched third-party
-# prose, 1.2 MB, regenerable by re-running the driver. The FINDING
-# (results/nashville-partnership-READING.md) stays tracked, and every
-# address in it names the live URL and retrieval timestamp the bytes came
-# from, so a reader re-fetches rather than trusting a cache they cannot see.
+# The Nashville research walk (and any other named-subject investigative
+# walk this driver shape is reused for) is a TEST OF THE INSTRUMENT, not a
+# permanent finding, and its target is frequently a real, specific, living
+# subject — unlike sanriku's earthquake catalog or primary-faces' public-
+# domain archive captures above. Neither the fetched pages nor the produced
+# reading is kept: the CODE (the driver, the organs, their tests) is the
+# artifact this repo owns; the material a run reads and the document it
+# writes are the run's own, regenerable by re-running it, and belong beside
+# wherever that run's subject material is held — never committed here.
 native/eval/the-fold/fixtures/nashville-faces/
+native/eval/the-fold/results/nashville-partnership-READING.md
+native/eval/the-fold/results/*-READING.md
