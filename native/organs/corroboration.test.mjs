@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { proposeCandidates, witnessNote, corroborateLedger, distinctSources, contestedSearch } from "./index.js";
+import { proposeCandidates, witnessNote, corroborateLedger, distinctSources, contestedSearch, facesReachable } from "./index.js";
 import { makeHyperlexicon } from "./hyperlexicon.js";
 import { witnessSlice, siblingSwap, foldTestimony } from "./index.js";
 
@@ -45,6 +45,49 @@ const saysYesWithDecider = async (sentence) =>
     : { answer: "no", because: null };
 const saysYesToEverything = async () => ({ answer: "yes", because: "Marshal Kutuzov commanded the Imperial Russian Army through the retreat." });
 const saysNo = async () => ({ answer: "no", because: null });
+
+test("facesReachable (S62): a resolved subject face plus either a resolved or a raw object match reaches; an unresolved subject face never does", () => {
+  const bothResolved = [{ s: "the crew", o: "the vessel", sFace: "Captain Ahab", oFace: "the Pequod" }];
+  assert.equal(facesReachable(bothResolved, { end1: "Ahab", end2: "Pequod" }), true, "both ends resolve through their faces");
+  const objectRaw = [{ s: "the crew", o: "the vessel", sFace: "Captain Ahab", oFace: null }];
+  assert.equal(facesReachable(objectRaw, { end1: "Ahab", end2: "the vessel" }), true, "object falls back to the raw text when no face resolved");
+  const subjectUnresolved = [{ s: "the crew", o: "the vessel", sFace: null, oFace: "the Pequod" }];
+  assert.equal(facesReachable(subjectUnresolved, { end1: "Ahab", end2: "Pequod" }), false, "the subject side has no raw fallback — an unresolved face never admits (asymmetric on purpose)");
+  assert.equal(facesReachable([], { end1: "Ahab", end2: "Pequod" }), false, "no edges, nothing to check against");
+});
+
+test("corroborateLedger's `reachable` override REPLACES the co-presence admission decision, never ANDs with it (S62)", async () => {
+  const far = "x ".repeat(260); // pushes the two names well outside a 400-char window
+  const farSource = { ref: "page-far", text: `Alpha appeared here. ${far} Bravo appeared far away.` };
+  const seeded = door.admit(door.createHyperlexicon(), [
+    { subject: "Alpha", verb: "matched", object: "Bravo", spans: [{ ref: "page-seed", at: "page-seed#0-10", text: "..." }] },
+  ], { witness: "page-seed" });
+  const spy = async () => ({ answer: "yes", because: "Alpha appeared here." });
+
+  // DEFAULT (no override): literal co-presence cannot find "alpha" and
+  // "bravo" within the window — refused before any ask, byte-identical to
+  // the pre-S62 behavior.
+  const withoutOverride = await corroborateLedger(seeded.log, door, [farSource], { ask: spy, testimony, maxAsks: 10 });
+  assert.equal(withoutOverride.asks, 0);
+  assert.equal(withoutOverride.skippedNoCopresence, 1);
+
+  // An override that says yes regardless of literal distance spends the
+  // ask the default refused — proving the override REPLACES the decision,
+  // not merely widens it.
+  const withOverrideOpening = await corroborateLedger(seeded.log, door, [farSource], { ask: spy, testimony, maxAsks: 10, reachable: () => true });
+  assert.equal(withOverrideOpening.asks, 1);
+  assert.equal(withOverrideOpening.skippedNoCopresence, 0);
+
+  // And the reverse: a note the DEFAULT would admit (both ends literally
+  // near each other) is refused when the override says no — proving the
+  // override can also CLOSE what co-presence would have opened.
+  const closeSeed = door.admit(door.createHyperlexicon(), [
+    { subject: "Kutuzov", verb: "commanded", object: "the Imperial Russian Army", spans: [{ ref: "page-a", at: "page-a#10-40", text: "..." }] },
+  ], { witness: "page-a" });
+  const withOverrideClosing = await corroborateLedger(closeSeed.log, door, [SOURCE], { ask: spy, testimony, maxAsks: 10, reachable: () => false });
+  assert.equal(withOverrideClosing.asks, 0);
+  assert.equal(withOverrideClosing.skippedNoCopresence, 1);
+});
 
 test("declared budgets and injected organs are required (P3/P9)", async () => {
   assert.throws(() => proposeCandidates([], "", {}), /declared by the caller/);

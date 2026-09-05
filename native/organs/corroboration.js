@@ -957,6 +957,46 @@ export async function witnessNote(sentence, source, { ask, selectAsk = null, tes
 }
 
 /**
+ * Whether a note's two ends are reachable through a SOURCE'S OWN RESOLVED
+ * REFERENT FACE, rather than through literal word co-presence in the raw
+ * text (`endsCopresentWindow`'s question). S62 measured these as two
+ * different selectors with opposite verdicts at the level a walk actually
+ * spends its budget: literal co-presence admits at a redealt-null rate
+ * (p ≈ 0.905 — dead), while the reader's own resolved face, over the
+ * SAME material, separates from its redealt null (p ≈ 0.048). This is
+ * that measured selector, made reusable rather than re-derived per driver
+ * (P14): given a source's own extracted edges — each optionally carrying
+ * `sFace`/`oFace`, the referent face `hypergraph.js`'s reader resolved for
+ * that edge's ends, alongside its raw `s`/`o` — and a note's two ends, it
+ * asks whether SOME edge's face covers end1 AND some edge's face (or, when
+ * no face resolved, its raw object text) covers end2. `overlaps` is the
+ * module's own content-word share, `featuresOf` overridable exactly like
+ * every other selector here.
+ *
+ * Deliberately asymmetric on purpose, carried unchanged from where it was
+ * measured (`eval/the-fold/ordered-read-reach.mjs`): the subject side
+ * requires a resolved face (a bare literal match is exactly what this
+ * selector exists to stop trusting); the object side keeps a literal
+ * fallback, because an object is frequently a description with no face to
+ * resolve at all and refusing it outright would silently narrow recall in
+ * a way never measured.
+ */
+export function facesReachable(sourceEdges, ends, { featuresOf = textFeatures } = {}) {
+  const overlaps = (a, b) => {
+    const x = [...featuresOf(a)], y = [...featuresOf(b)];
+    return x.length > 0 && y.length > 0 && x.some((w) => y.includes(w));
+  };
+  const e1 = String(ends?.end1 ?? ""), e2 = String(ends?.end2 ?? "");
+  if (!e1 || !e2) return false;
+  for (const e of sourceEdges ?? []) {
+    const sHit = e.sFace && overlaps(e.sFace, e1);
+    const oHit = (e.oFace && overlaps(e.oFace, e2)) || overlaps(e.o, e2);
+    if (sHit && oHit) return true;
+  }
+  return false;
+}
+
+/**
  * The wiring: walk proposed candidates under a declared ask budget, land
  * every "states" through the door's attest, report everything typed.
  * `door` is the makeHyperlexicon bundle; `log` is threaded, never mutated.
@@ -972,6 +1012,16 @@ export async function corroborateLedger(log, door, sources, {
   // (LP11), never on aggregate — eval/copresence-audit.mjs is the offline
   // measure of how many pairs each width would add.
   copresenceWindow = 400,
+  // OPTIONAL, and REPLACES the co-presence admission decision when
+  // supplied — never ANDs with it, because S62 measured the two selectors
+  // as disagreeing about which pairs are worth an ask, and ANDing a
+  // measured-noisy gate onto a measured-separating one would silently
+  // suppress exactly the recall the better selector was built to recover.
+  // `reachable(sourceRef, {end1, end2})` → boolean. The co-presence WINDOW
+  // is still computed either way, because `witnessNote`'s slice text wants
+  // it when one exists; only the ADMIT decision moves. Omitted, this
+  // function's behavior is byte-identical to before.
+  reachable = null,
 } = {}) {
   if (!Number.isFinite(maxAsks)) throw new TypeError("corroborateLedger: maxAsks is declared by the caller (P9)");
   let next = log;
@@ -999,10 +1049,16 @@ export async function corroborateLedger(log, door, sources, {
   // Feasibility is precomputed per source (overlap cannot change mid-run);
   // VALUE is recomputed after every ask, because every ask can move it.
   const feasible = new Map(); // source.ref -> Map(note id -> {sentence, shared})
+  // S60: "read the wall at zero calls" — the candidate count BEFORE either
+  // prefilter runs, so a caller can see how much of a walk's own reach was
+  // spent by proposeCandidates's word-overlap floor versus the co-presence
+  // (or `reachable`) admission gate, without re-deriving either count.
+  let candidatePairs = 0;
   for (const source of sources) {
     const notes = door.foldHyperlexicon(next);
     const proposed = proposeCandidates(notes, source.text, { limit: limitPerSource ?? notes.length, ...(featuresOfSource ? { featuresOfSource } : {}), ...(featuresOfNote ? { featuresOfNote } : {}), ...(render ? { render } : {}) });
     feasible.set(source.ref, new Map(proposed.map((c) => [c.note.id, c])));
+    candidatePairs += proposed.length;
   }
   const sourceByRef = new Map(sources.map((s) => [s.ref, s]));
 
@@ -1027,13 +1083,15 @@ export async function corroborateLedger(log, door, sources, {
         // before spending): no co-presence window means the wall could
         // never pass — skip without an ask, once per pair.
         const pairKey = `${noteId}\u0000${ref}`;
+        const ends = { end1: note.end1 ?? note.subject, end2: note.end2 ?? note.object };
         if (!copresence.has(pairKey)) {
           const srcText = sourceByRef.get(ref).text;
-          const w = endsCopresentWindow(srcText, { end1: note.end1 ?? note.subject, end2: note.end2 ?? note.object }, { window: Number.isFinite(copresenceWindow) ? copresenceWindow : srcText.length });
-          copresence.set(pairKey, w);
-          if (!w) { skippedNoCopresence += 1; askedPairs.add(pairKey); }
+          const w = endsCopresentWindow(srcText, ends, { window: Number.isFinite(copresenceWindow) ? copresenceWindow : srcText.length });
+          const admitted = reachable ? Boolean(reachable(ref, ends)) : Boolean(w);
+          copresence.set(pairKey, { w, admitted });
+          if (!admitted) { skippedNoCopresence += 1; askedPairs.add(pairKey); }
         }
-        if (!copresence.get(pairKey)) continue;
+        if (!copresence.get(pairKey).admitted) continue;
         if (!best || v.value > best.v.value || (v.value === best.v.value && c.shared > best.c.shared)) {
           best = { note, c, v, ref };
         }
@@ -1042,7 +1100,7 @@ export async function corroborateLedger(log, door, sources, {
     if (!best) break; // everything reachable is settled, disconfirmed, or spent — the walk's own stop, not the budget's
     asks += 1;
     askedPairs.add(`${best.note.id}\u0000${best.ref}`);
-    const win = copresence.get(`${best.note.id}\u0000${best.ref}`);
+    const win = copresence.get(`${best.note.id}\u0000${best.ref}`)?.w ?? null;
     const w = await witnessNote(best.c.sentence, sourceByRef.get(best.ref), {
       ask, testimony,
       ends: { end1: best.note.end1 ?? best.note.subject, end2: best.note.end2 ?? best.note.object },
@@ -1088,5 +1146,5 @@ export async function corroborateLedger(log, door, sources, {
     const contra = contradictSources.get(n.id);
     if (contra?.size) contests.push({ noteId: n.id, stating: [...distinctSources(n.witnesses)], contradicting: [...contra], disputes: (live.get(n.id) ?? []).map((x) => ({ id: x.id, source: x.source, because: x.because, span: x.span })) });
   }
-  return { log: next, attested, contradicted, refusals, asks, skippedNoCopresence, standings, contests, disputes: live, calibration: WITNESS_OPERATING_POINT, settleFloor };
+  return { log: next, attested, contradicted, refusals, asks, skippedNoCopresence, candidatePairs, standings, contests, disputes: live, calibration: WITNESS_OPERATING_POINT, settleFloor };
 }

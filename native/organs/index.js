@@ -11,7 +11,7 @@
 // exported under the organ's prefix: FRAME_REFUSALS, SIGNAL_REFUSALS, …
 // Every organ is also available whole as a namespace (`frame.REFUSALS`).
 
-export { WITNESS_OPERATING_POINT, askValue, calibrationFrames, competingFiller, contestedSearch, corroborateLedger, distinctRecipes, distinctSources, endsCopresentWindow, independentReadings, proposeCandidates, statingCandidates, textFeatures, thirdSourceCandidates, witnessNote } from "./corroboration.js";
+export { WITNESS_OPERATING_POINT, askValue, calibrationFrames, competingFiller, contestedSearch, corroborateLedger, distinctRecipes, distinctSources, endsCopresentWindow, facesReachable, independentReadings, proposeCandidates, statingCandidates, textFeatures, thirdSourceCandidates, witnessNote } from "./corroboration.js";
 export * as corroboration from "./corroboration.js";
 export { SELECT_SCHEMA, WITNESS_SCHEMA, WITNESS_SLICE_MAX, becauseContained, becauseVerbatim, buildSelectMessages, buildWitnessMessages, foldSelect, foldTestimony, locateDecider, readTestimony, siblingSwap, witnessSlice } from "./testimony.js";
 export * as testimony from "./testimony.js";
@@ -56,6 +56,8 @@ export { EVIDENCE_FLOOR, scanFunctionalCandidates, acquireCandidates, recheckCan
 export * as hlAcquire from "./hl-acquire.js";
 // hl.js also RE-EXPORTS the engine's own HL API (verdicts, stage builders) — names the seam generator's export scan missed, added when void-hl broke on BEYOND_REACH.
 export { BOUND, CONTRADICTED, CONTESTED, UNBOUND, BEYOND_REACH, UNREFUTED, UNDETERMINED, flip, createStage, addAnchor, addEdge, declareFunctional, declareTransitive, declareComplete, extendStage, atomic, read, attach } from "./hl.js";
+export { ALIAS_REFUSALS, aliasIndex, declaredAliases, shapesFrom } from "./aliases.js";
+export * as aliases from "./aliases.js";
 export { witnessSentences, endsFor, settledBy, rowFor, WITNESS_VERDICTS } from "./witness-sentences.js";
 export * as witnessSentencesOrgan from "./witness-sentences.js";
 // floor 6 — a corroborated note as a premise (derivation.js)
