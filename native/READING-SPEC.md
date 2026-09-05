@@ -4072,3 +4072,7 @@ The-fold **P95** is the paired entry (the law and the fold-side files); this is 
 **Files.** `eval/the-fold/lib/void-rezero-stream.mjs` (`streamOf`, `VOIDS_BEFORE_READING`, `shuffled`, `runStream`, `runVoidRezeroStream`), the driver, the test. `lib/product-assay.mjs` exports `organs` and `readCorpus` for its siblings.
 
 **Numbers.** Forward: filled@3 / @4 / @3, `closed-never` open reached true (7/7), cut at 6 filled nothing; denial-first: cut@1, exact void filled@4; 20 shuffles: one open set, 5 distinct cursors per filled void; truncated at 2: all open, reached false; deranged: a different fill set.
+
+## S72 — Settlement by arrival: a third source corroborates or leads, never settles; only a recorded settlement closes a contest; the seeker is blind to numeric ends under its default featurizer
+
+**Generality:** universal for the rules (a restating third source raises the standing and leaves the contest open — P89; a silent one is no candidate; a co-present one is a candidate and never a landing; a source that already spoke is never a candidate; `settleDispute` alone settles, with outcome and trigger, and `negationTimeline` reads link → cut → contest → settled (→ conceded)); the numeric-end finding is about the default `textFeatures` and holds for any note whose end is a bare numeral. The-fold NEXT-PASSES Pass 27 is the plan entry; `results/settlement-by-arrival-RESULTS.md` the transcription; `tests/settlement-by-arrival.test.js` the enforcement (5 tests). Files: `eval/the-fold/lib/settlement-by-arrival.mjs`, the driver.
