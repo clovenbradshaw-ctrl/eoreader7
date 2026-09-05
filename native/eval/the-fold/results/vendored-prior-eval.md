@@ -1,5 +1,7 @@
 # vendored-prior-eval — does a real, cited prior close the reach gap?
 
+**Audit 2026-09-05 (the-fold P95 / S65): unreproducible-by-construction.** The three corpora are research-use text kept in `eval/corpus/`, gitignored and never committed (the driver's own header). The driver now refuses with a typed `fixture_absent` gap naming the missing files instead of an ENOENT stack. The numbers below are a dated record; nothing can read them from the repo.
+
 Three cases: Basque (a genuinely different LANGUAGE), Nigerian Pidgin (an English-lexified pidgin that looks close to English but isn't), and AAVE (not a separate language at all — a DIALECT of English, the sharpest test of whether one hardcoded closed class silently assumed one dialect speaks for the whole language).
 
 ## Basque (Domingo Agirre, Garoa, 1912)

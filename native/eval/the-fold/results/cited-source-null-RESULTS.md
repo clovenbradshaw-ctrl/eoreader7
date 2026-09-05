@@ -1,5 +1,7 @@
 # The null, at zero model calls — and the selection is only 10% better than chance (2026-09-04)
 
+**Audit 2026-09-05 (the-fold P95 / S65): reproducible only where the walk's fixtures exist.** The walk names 106 faces; 86 were untracked at `5541af4` (32 minutes after this doc). The driver now REFUSES with a typed `fixture_absent` gap and exit 2 on any checkout lacking them (`lib/walk-fixtures.mjs`, pinned by `native/tests/walk-fixtures.test.js`) — never a narrowed pool. On this checkout it refuses.
+
 `node native/eval/the-fold/cited-source-null.mjs`. **Zero model calls.**
 
 User, on a plan to spend ~350 calls on a null band for the walk: *"what are

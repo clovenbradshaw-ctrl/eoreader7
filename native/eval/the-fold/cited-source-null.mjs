@@ -23,7 +23,8 @@
 // carry.
 //
 //   env: SOURCES (16) · DRAWS (20)
-import { readFileSync, existsSync, writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
+import { walkFaces, describeWalkGap } from "./lib/walk-fixtures.mjs";
 const NATIVE = new URL("../..", import.meta.url).pathname;
 const FIX = new URL("./fixtures/", import.meta.url).pathname;
 const HERE = new URL("./", import.meta.url).pathname;
@@ -55,21 +56,24 @@ const hl = makeHyperlexicon({ createTaskLog: ntl.createTaskLog, append: ntl.appe
 
 // ── the same 16 sources the walk used, one per shared-text group ─────────
 const walkJson = JSON.parse(readFileSync(`${HERE}results/ranke-backwards.json`, "utf8"));
+// The fixture rule (the-fold P95 / S65, lib/walk-fixtures.mjs): a face the
+// walk names and this checkout lacks is a typed gap and a non-zero exit —
+// never a narrowed pool. The 2026-09-05 audit found 86 of the walk's 106
+// faces untracked after this doc was written and this driver printing the
+// same "16 independent sources" over the 20 that remained; disclosure came
+// first, refusal now. The results doc is reproducible only where the walk's
+// fixtures exist.
+const walk = walkFaces(walkJson, FIX);
+if (walk.gap) {
+  console.log(describeWalkGap(walk.gap, { driver: "cited-source-null.mjs" }));
+  process.exitCode = 2;
+} else {
 const faces = new Map();
 for (const r of walkJson.real.rows) {
-  if (!r.facePath || !existsSync(FIX + r.facePath)) continue;
+  if (!r.facePath) continue;
   if (!faces.has(r.facePath)) faces.set(r.facePath, { ref: r.facePath, host: r.host ?? "?", notes: 0 });
   faces.get(r.facePath).notes += 1;
 }
-// S64 / the-fold P41: a face the walk names but this checkout lacks is a
-// SKIPPED SOURCE, and the pool it leaves is not the walk's. Found by the
-// 2026-09-05 reproducibility audit: 86 of 106 faces had been untracked 32
-// minutes after the results doc was written, and this driver printed the
-// same "16 independent sources" line over the 20 that remained. The skip
-// stays (an absent fixture must not crash a null); the silence does not.
-const namedFaces = new Set(walkJson.real.rows.map((r) => r.facePath).filter(Boolean));
-const absentFaces = [...namedFaces].filter((f) => !existsSync(FIX + f));
-if (absentFaces.length) console.log(`NOTE: the walk names ${namedFaces.size} faces; ${absentFaces.length} are absent from fixtures/ and were skipped — this run's pool is ${namedFaces.size - absentFaces.length} faces, not the walk's ${namedFaces.size}. Its numbers are not comparable to a run over the full walk.\n`);
 const all = [...faces.values()];
 const doorText = (t) => blankBelowMeasure(t, { measure: measureOf(t, { percentile: 0.9 }), fill: 0.8, minRun: 2 });
 const texts = new Map(all.map((f) => [f.ref, readFileSync(FIX + f.ref, "utf8")]));
@@ -147,3 +151,4 @@ console.log(atOrAbove === 0
   ? `  -> the candidate set CARRIES the relation: the pairs the witness sees are selected by something real.`
   : `  -> THE CANDIDATE SET DOES NOT CARRY THE RELATION. The pairs reaching the witness are\n     selected as often by a ledger whose relations were destroyed, so the 60 asks the walk\n     spent were drawn from a noise-selected set — and no spend downstream can recover\n     information the selection never carried.`);
 writeFileSync(`${HERE}results/cited-source-null.json`, JSON.stringify({ sources: sources.length, real, draws, calls: 0 }, null, 2));
+}

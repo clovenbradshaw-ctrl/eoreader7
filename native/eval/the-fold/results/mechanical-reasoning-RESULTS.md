@@ -1,5 +1,7 @@
 # Mechanical reasoning over the reaction substrate — measured (2026-08-28)
 
+**Audit 2026-09-05 (the-fold P95 / S65): reproduced** — `results/mechanical-reasoning.json` byte-identical on re-run (the tracked artifact is the measure; this doc is the reading of it).
+
 Driver: `eval/mechanical-reasoning.mjs` (re-runnable; writes
 `eval/results/mechanical-reasoning.json`, committed). Engine mechanism:
 `eoreader7/native/kernel/reaction.js` (new this pass — see the-fold

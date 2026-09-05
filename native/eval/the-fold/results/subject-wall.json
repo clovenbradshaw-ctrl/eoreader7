@@ -3,13 +3,13 @@
   "results": {
     "dracula-200-320KB": {
       "legacy": {
-        "bound": 371,
-        "referent": 83,
-        "form": 288,
+        "bound": 373,
+        "referent": 84,
+        "form": 289,
         "tally": {
-          "ok": 275,
-          "led by a function word": 76,
-          "common noun glued to a name": 16,
+          "ok": 274,
+          "led by a function word": 78,
+          "common noun glued to a name": 17,
           "over eight tokens": 4
         },
         "examples": {
@@ -34,12 +34,12 @@
         }
       },
       "walls": {
-        "bound": 278,
+        "bound": 277,
         "referent": 78,
-        "form": 200,
+        "form": 199,
         "tally": {
-          "ok": 248,
-          "common noun glued to a name": 13,
+          "ok": 246,
+          "common noun glued to a name": 14,
           "led by a function word": 15,
           "over eight tokens": 2
         },
@@ -63,12 +63,12 @@
         }
       },
       "random": {
-        "bound": 246,
-        "referent": 26,
-        "form": 220,
+        "bound": 249,
+        "referent": 25,
+        "form": 224,
         "tally": {
-          "ok": 209,
-          "led by a function word": 26,
+          "ok": 211,
+          "led by a function word": 27,
           "common noun glued to a name": 11
         },
         "examples": {
@@ -76,7 +76,7 @@
             "I think it",
             "I hope I",
             "I suppose I",
-            "at once"
+            "at once--as I"
           ],
           "common noun glued to a name": [
             "night I",
@@ -89,12 +89,12 @@
     },
     "battle-of-borodino": {
       "legacy": {
-        "bound": 344,
-        "referent": 253,
-        "form": 91,
+        "bound": 350,
+        "referent": 258,
+        "form": 92,
         "tally": {
-          "ok": 278,
-          "common noun glued to a name": 34,
+          "ok": 285,
+          "common noun glued to a name": 33,
           "led by a function word": 23,
           "lone function word": 7,
           "over eight tokens": 2
@@ -125,12 +125,12 @@
         }
       },
       "walls": {
-        "bound": 332,
-        "referent": 250,
-        "form": 82,
+        "bound": 338,
+        "referent": 255,
+        "form": 83,
         "tally": {
-          "ok": 270,
-          "common noun glued to a name": 34,
+          "ok": 277,
+          "common noun glued to a name": 33,
           "led by a function word": 19,
           "lone function word": 7,
           "over eight tokens": 2
@@ -161,12 +161,12 @@
         }
       },
       "random": {
-        "bound": 186,
+        "bound": 189,
         "referent": 121,
-        "form": 65,
+        "form": 68,
         "tally": {
-          "ok": 164,
-          "common noun glued to a name": 7,
+          "ok": 168,
+          "common noun glued to a name": 6,
           "led by a function word": 12,
           "lone function word": 3
         },

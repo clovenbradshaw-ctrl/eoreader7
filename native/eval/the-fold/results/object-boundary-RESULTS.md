@@ -1,5 +1,7 @@
 # The received object boundary, measured — refuted at book scale (2026-09-02)
 
+**Audit 2026-09-05 (the-fold P95 / S65): unreproducible-by-construction since the-fold `2214e1a` (P80, 2026-09-03).** The `boundedObjects` opt-in this doc's verdict kept was removed from the-fold's `hypergraph.js` with P80; `makeRelationReader` ignores the unknown option, and the re-run printed three byte-identical arms (1,590 edges, debris 0.459 each) while still reporting "moved by the cut: 53" — address-key collisions, not moves. The driver now REFUSES with a typed `organ_unreachable` gap when the material offers cuttable objects and the bounded arm is identical to the baseline; `native/tests/object-boundary.test.js` pins that refusal on synthetic edges with the real boundary set and discloses which state the production reader is in. The numbers below are a dated record of a run made while the organ existed; nothing reads them.
+
 **Driver:** `eval/the-fold/object-boundary.mjs` (re-runnable; `BOOK=`, `CAP=`,
 `SEED=`). **Material:** Project Gutenberg Dracula (pg345), the first 400
 passages of `chunkSource`. **Reader:** the-fold's production bundle
