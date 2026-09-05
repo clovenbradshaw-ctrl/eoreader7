@@ -54,7 +54,7 @@ What is NOT built and not claimed: a line of reading out of a frame (extents, fi
 
 ## Suites at this commit
 
-the-fold: 1,605 pass / 3 fail — the three are `webllm-rung.test.mjs`'s mirrored-weights walls, whose gitignored mirror is absent in this worktree and present in the main checkout; arithmetic 23/23, shape 17/17, measure 51/51 unchanged, generality-gate + constitution 16/16. eoreader7 native: 655 pass / 0 fail / 1 TODO (pre-existing); media-perceiver-parity 4/4, measure-media 5/5, frontier-25 4/4.
+the-fold: 1,608 pass / 0 fail / 6 skipped (the `webllm-rung.test.mjs` mirror walks skip typed where a mirror is absent, fail where one drifted — P109); arithmetic 23/23, shape 17/17, measure 51/51 unchanged, generality-gate + constitution 16/16. eoreader7 native: 655 pass / 0 fail / 1 TODO (pre-existing); media-perceiver-parity 4/4, measure-media 5/5, frontier-25 4/4.
 
 ## Mouth arm — two small mouths through the real turn, the witness judging, one retry with the result fed back
 
