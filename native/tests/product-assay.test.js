@@ -36,10 +36,11 @@ test("the two disclosed walls carry a mechanism, and their state is logged, not 
   }
 });
 
-test("built material: 2 passages, 6 notes, 1 corroborated, 1 derived with a giver and 0 without, 1 contest landed with no leak", () => {
+test("built material: 2 passages, 5 links and 1 cut (the denial is a SEG note, never a link with a sign), 1 corroborated, 1 derived with a giver and 0 without, 1 contest landed with no leak", () => {
   const n = run.numbers;
   assert.equal(n.passages, 2);
-  assert.equal(n.notes, 6);
+  assert.equal(n.notes, 5);
+  assert.equal(n.cuts, 1, "the denying passage lands a cut on its own fold");
   assert.equal(n.derived, 1);
   assert.equal(n.derivedWithoutGiver, 0);
   assert.equal(n.contests.landed, 1);
@@ -68,7 +69,7 @@ test("the answer record: one per question, claims byte-addressed and deduplicate
 
 test("the shuffled arm differs: a control that can fail, and did not", () => {
   const s = run.numbers.shuffle;
-  assert.ok(s.real >= 6 && s.deranged >= 1);
+  assert.ok(s.real >= 5 && s.deranged >= 1);
   assert.ok(s.shared < s.real, `the deranged corpus shares ${s.shared} of ${s.real} claim ids — the record measured nothing if these were equal`);
 });
 

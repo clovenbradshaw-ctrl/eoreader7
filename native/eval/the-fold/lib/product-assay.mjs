@@ -162,7 +162,7 @@ function readCorpus(O, corpus) {
   const admitted = [];
   for (const p of passages) {
     const claims = rel.read(String(p.text ?? ""))?.claims ?? [];
-    const edges = claims.filter((c) => c.verdict === "bound").map((c) => ({ subject: c.end1, verb: c.label, object: c.end2, spans: c.spans ?? [] }));
+    const edges = claims.filter((c) => c.verdict === "bound").map((c) => ({ subject: c.end1, verb: c.label, object: c.end2, polarity: c.polarity ?? "+", spans: c.spans ?? [] }));
     if (!edges.length) continue;
     const r = O.hl.admit(log, edges, { witness: `${p.ref}~${O.recipe}`, classifyConnector: null });
     log = r.log;
@@ -254,7 +254,8 @@ export async function runProductAssay({ corpus = CORPUS } = {}) {
   const reading = readCorpus(O, corpus);
   const notes = O.hl.foldWithStanding(reading.log);
   numbers.passages = reading.passages.length; numbers.notes = notes.length;
-  say(`\n1. READ ON ARRIVAL — ${reading.passages.length} passage(s), ${notes.length} note(s) on the ledger before any question`);
+  const cutsHeard = O.hl.foldCuts ? O.hl.foldCuts(reading.log) : [];
+  say(`\n1. READ ON ARRIVAL — ${reading.passages.length} passage(s), ${notes.length} link(s) and ${cutsHeard.length} cut(s) on the ledger before any question`);
   for (const n of notes) say(`     ${n.subject} —${n.verb}→ ${n.object}  · sources ${n.sources} · ${n.standing}`);
 
   // 2. the giver, declared; 3. derivation with fragility carried
@@ -298,15 +299,23 @@ export async function runProductAssay({ corpus = CORPUS } = {}) {
   const at = `${denial.name}#${start}-${start + denial.sentence.length}`;
   const target = notes.find((n) => /northgate observatory/i.test(n.subject) && n.verb === "opened");
   const before = stable(O.hl.foldWithStanding(reading.log).map(({ disputedBy, ...n }) => n));
+  // Since S69 the cut ("never opened in 1889") entered the ledger as a SEG
+  // note of its own and the door landed the contest against the link when
+  // the two met. `landContest` from the spine's DISAGREE then finds the
+  // dispute already on the record (a repeat is the act's own no-op) — both
+  // routes to one contest, never two.
+  const atDoor = O.hl.disputesOf(reading.log).size;
+  const cuts = O.hl.foldCuts(reading.log);
   const landed = O.landContest(reading.log, O.hl, { case: "DISAGREE", holds: [], refused: [{ who: denial.name, read: [at], verdict: "refused", edges: target ? [{ subject: target.subject, verb: target.verb, object: target.object }] : [] }] }, { textAt });
   reading.log = landed.log;
   const after = stable(O.hl.foldWithStanding(reading.log).map(({ disputedBy, ...n }) => n));
   const disputes = O.hl.disputesOf(reading.log);
   const premisesNow = O.D.derive(reading.log, { declarations, floor: { sources: 1, instruments: 0 }, carry: true, maxSteps: 4 });
-  numbers.contests = { landed: landed.landed.length, refusals: landed.refusals, leak: before === after };
-  say(`   CONTEST — landed ${landed.landed.length} typed dispute(s) from ${denial.name}'s bytes at ${at}; refusals ${stable(landed.refusals)}; standing byte-identical across the act: ${before === after}`);
-  wall("4b", "contest-recorded", landed.landed.length === 1 && before === after && disputes.size === 1 && (premisesNow.contested ?? []).length === 1 && textAt(at) === denial.sentence,
-    `1 CON·Figure·CONTESTED on the record, kind contest, decider = the denying source's own bytes; leak assay holds (no standing moved); derivation reports the contested premise, never withholds it`);
+  numbers.contests = { landed: disputes.size, atDoor, cuts: cuts.length, viaSpine: landed.landed.length, refusals: landed.refusals, leak: before === after };
+  numbers.cuts = cuts.length;
+  say(`   CONTEST — ${atDoor} landed at the door when the cut met its link (${cuts.length} cut(s) on their own fold); the spine's DISAGREE landed ${landed.landed.length} more (a repeat is a no-op); refusals ${stable(landed.refusals)}; standing byte-identical across the acts: ${before === after}`);
+  wall("4b", "contest-recorded", disputes.size === 1 && atDoor === 1 && cuts.length === 1 && before === after && (premisesNow.contested ?? []).length === 1 && textAt(at) === denial.sentence && landed.refusals.not_a_contest === 0,
+    `1 CON·Figure·CONTESTED on the record, kind contest, decider = the denying source's own bytes, landed at the door and not doubled by the spine; the cut is a SEG note apart from the link it denies; leak assay holds (no standing moved); derivation reports the contested premise, never withholds it`);
 
   // 5. the records, per question — twice, for determinism
   const buildAll = async (c, r) => { const out = []; for (const q of QUESTIONS) out.push(await answerRecord(O, r, c, q, { declarations })); return out; };

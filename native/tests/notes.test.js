@@ -373,3 +373,89 @@ test("with no face supplied, incomingEnds falls back to the raw end text — nev
   const [n] = notes.fold(log);
   assert.deepEqual(n.joins[0].incomingEnds, { end1: "Smith", end2: "the commission" });
 });
+
+// ── S69: the cut — a denial is SEG·Figure with its own id, never a witness of its link ──
+test("a cut lands SEG·Figure under its own id, folds apart from the links, and can never corroborate the link it denies", () => {
+  let log = notes.createNotes();
+  const r1 = notes.admit(log, [{ end1: "the observatory", label: "opened", end2: "in 1889", spans: [span("a.txt", 0, 10)] }], { witness: "a.txt#0-10~r" });
+  log = r1.log;
+  const r2 = notes.admit(log, [{ end1: "the observatory", label: "opened", end2: "in 1889", polarity: "-", decider: "never opened in 1889", spans: [span("b.txt", 5, 20)] }], { witness: "b.txt#5-20~r" });
+  log = r2.log;
+  assert.equal(r2.heard[0].cut, true);
+  assert.ok(r2.heard[0].id.startsWith("cut:"));
+  const links = notes.fold(log);
+  assert.equal(links.length, 1, "the fold carries the link only");
+  assert.deepEqual(links[0].witnesses, ["a.txt#0-10~r"], "the denial is NOT a witness of the link");
+  const cuts = notes.foldCuts(log);
+  assert.equal(cuts.length, 1);
+  assert.equal(cuts[0].link, links[0].id);
+  assert.deepEqual(cuts[0].witnesses, ["b.txt#5-20~r"]);
+  const cutEntry = log.entries.find((e) => e.cut === true);
+  assert.equal(cutEntry.operator, "SEG");
+  assert.equal(cutEntry.cell, "SEG·Figure");
+});
+
+test("a cut meeting its link lands the contest at the door — either order — kind contest, the denying span as decider, and never twice", () => {
+  const link = { end1: "the observatory", label: "opened", end2: "in 1889", spans: [span("a.txt", 0, 10)] };
+  const cut = { ...link, polarity: "-", decider: "never opened in 1889", spans: [span("b.txt", 5, 20)] };
+  let log = notes.createNotes();
+  log = notes.admit(log, [link], { witness: "a.txt#0-10~r" }).log;
+  const r = notes.admit(log, [cut], { witness: "b.txt#5-20~r" });
+  assert.equal(r.contests.length, 1);
+  assert.equal(r.contests[0].source, "b.txt");
+  const ds = notes.disputesOf(r.log);
+  assert.equal(ds.size, 1);
+  const [[id, list]] = [...ds.entries()];
+  assert.equal(id, noteId("the observatory", "opened", "in 1889"));
+  assert.equal(list[0].kind ?? list[0].disputeKind, "contest");
+  assert.equal(list[0].because, "never opened in 1889");
+  // the other order: the cut first, then the link
+  let log2 = notes.createNotes();
+  log2 = notes.admit(log2, [cut], { witness: "b.txt#5-20~r" }).log;
+  assert.equal(notes.disputesOf(log2).size, 0, "a cut alone waits for its link");
+  const r2 = notes.admit(log2, [link], { witness: "a.txt#0-10~r" });
+  assert.equal(r2.contests.length, 1);
+  assert.equal(notes.disputesOf(r2.log).size, 1);
+  // a repeat is a no-op, never a second contest
+  const r3 = notes.admit(r2.log, [cut], { witness: "b.txt#5-20~r" });
+  assert.equal(notes.disputesOf(r3.log).size, 1);
+  assert.equal([...notes.disputesOf(r3.log).values()][0].length, 1);
+  // the leak assay: the link's standing is byte-identical across the acts
+  const standing = (l) => JSON.stringify(notes.foldWithStanding(l).map(({ disputedBy, ...n }) => n));
+  assert.equal(standing(r2.log), standing(log2.entries.length ? notes.admit(notes.createNotes(), [link], { witness: "a.txt#0-10~r" }).log : r2.log));
+});
+
+test("a source that witnesses the link cannot also cut it — the act refuses, one perspective never testifies on both sides", () => {
+  const link = { end1: "x", label: "did", end2: "y", spans: [span("a.txt", 0, 5)] };
+  let log = notes.createNotes();
+  log = notes.admit(log, [link], { witness: "a.txt#0-5~r" }).log;
+  const r = notes.admit(log, [{ ...link, polarity: "-", decider: "not", spans: [span("a.txt", 9, 14)] }], { witness: "a.txt#9-14~r" });
+  assert.equal(r.contests.length, 0);
+  assert.equal(notes.foldCuts(r.log).length, 1, "the cut still lands as its own note");
+  assert.equal(notes.disputesOf(r.log).size, 0);
+});
+
+
+test("a denial through time: the link, the cut, the contest and a concession are ordered events with seqs, and a conceded cut stays in the timeline", () => {
+  const notes = makeNotes();
+  let log = notes.createNotes();
+  const link = { end1: "the observatory", label: "opened", end2: "in 1889", spans: [span("a.txt", 0, 10)] };
+  log = notes.admit(log, [link], { witness: "a.txt#0-10~r" }).log;
+  const linkId = notes.noteId(link.end1, link.label, link.end2);
+  const r2 = notes.admit(log, [{ ...link, polarity: "-", decider: "never opened in 1889", spans: [span("b.txt", 5, 20)] }], { witness: "b.txt#5-20~r" });
+  log = r2.log;
+  let t = notes.negationTimeline(log, linkId);
+  assert.deepEqual(t.events.map((e) => e.act), ["link", "cut", "contest"]);
+  assert.ok(t.events[0].at < t.events[1].at && t.events[1].at <= t.events[2].at, "the acts landed in the order they are told");
+  assert.equal(t.events[1].because, "never opened in 1889");
+  assert.deepEqual(t.standing, { link: "live", cut: "live", contest: "open" });
+  assert.equal(notes.foldCuts(log)[0].heardAt, t.events[1].at, "the cut's fold row carries the seq it was heard at");
+  const cutId = notes.CUT_PREFIX + linkId;
+  log = notes.concede(log, cutId, { trigger: "b.txt retracted its denial" }).log;
+  t = notes.negationTimeline(log, linkId);
+  assert.deepEqual(t.events.map((e) => e.act), ["link", "cut", "contest", "conceded"]);
+  assert.equal(t.events.at(-1).id, cutId);
+  assert.equal(t.standing.cut, "conceded");
+  assert.equal(notes.foldCuts(log).length, 0, "a conceded cut leaves the fold and stays in the timeline");
+  assert.deepEqual(notes.negationTimeline(log, "nobody|did|nothing").standing, { link: "unheard", cut: "unheard", contest: "none" });
+});

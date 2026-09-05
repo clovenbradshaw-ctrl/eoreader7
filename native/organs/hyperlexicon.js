@@ -89,6 +89,12 @@ export function makeHyperlexicon(taskLog) {
     const arrangements = (edges ?? []).map((e) => {
       const a = {
         end1: e?.subject, label: e?.verb, end2: e?.object,
+        // A negated edge is a CUT (S69), not a link with a sign: the door
+        // reads polarity "-" here and nowhere else.
+        polarity: e?.polarity === "-" ? "-" : "+",
+        // The denying bytes, for a cut: this face reads the span's text; the
+        // kernel carries it as the contest's `because`.
+        ...(e?.polarity === "-" ? { decider: String((e?.spans ?? []).map((s) => s?.text).find(Boolean) ?? "").replace(/\s+/g, " ").trim() || null } : {}),
         // A text span's face is its bytes, whitespace-folded; a span with no
         // bytes behind it is not an address for this face's purposes.
         spans: (e?.spans ?? []).map((s) => ({ ...s, text: String(s?.text ?? "").replace(/\s+/g, " ").trim() })).filter((s) => s.text),
@@ -108,7 +114,8 @@ export function makeHyperlexicon(taskLog) {
     const r = notes.admit(log, arrangements, { gate, witness });
     return {
       log: r.log,
-      heard: r.heard.map((h) => ({ id: h.id, subject: h.end1, verb: h.label, object: h.end2 })),
+      heard: r.heard.map((h) => ({ id: h.id, subject: h.end1, verb: h.label, object: h.end2, ...(h.cut ? { cut: true } : {}) })),
+      contests: r.contests ?? [],
       turnedAway: r.turnedAway.map((t) => ({ edge: originals.get(t.arrangement) ?? t.arrangement, reason: t.reason, detail: t.detail, ...(t.givers !== undefined ? { givers: t.givers } : {}) })),
     };
   }
@@ -119,6 +126,8 @@ export function makeHyperlexicon(taskLog) {
   const foldWithStanding = (log) => notes.foldWithStanding(log).map((n) => ({ ...toSVO(n), sources: n.sources, instruments: n.instruments, undeclared: n.undeclared, standing: n.standing, kinds: n.kinds }));
 
   const concededNotes = (log) => notes.concededNotes(log).map(toSVO);
+  /** The cuts — every live denial, in this face's names, apart from the links (S69). */
+  const foldCuts = (log) => notes.foldCuts(log).map(toSVO);
 
   return {
     createHyperlexicon, hear, attest: notes.attest, admit, concede: notes.concede, concededNotes, concededIds: notes.concededIds,
@@ -132,6 +141,6 @@ export function makeHyperlexicon(taskLog) {
     frameOf: notes.frameOf, frames: notes.frames, redeclareFrame: notes.redeclareFrame,
     stream: notes.stream, figures: notes.figures, segment: notes.segment,
     dietBoundaries: notes.dietBoundaries, concedeDiet: notes.concedeDiet,
-    assertionId, recipeId, REFUSALS,
+    assertionId, recipeId, REFUSALS, foldCuts, negationTimeline: notes.negationTimeline, isCutId: notes.isCutId, CUT_PREFIX: notes.CUT_PREFIX,
   };
 }

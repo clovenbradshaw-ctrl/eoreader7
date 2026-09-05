@@ -1551,6 +1551,38 @@ export function makeRelationReader(organs) {
     // disagree about what a negation is on opposite sides of the same read.
     const negationInUse = negationWords ?? negationClass;
     const negationLed = (str) => Boolean(negationInUse?.has(firstToken(str)));
+    // THE DENIAL, READ (S69 / the-fold P104). Two shapes the extractor
+    // produced left a negation where no comparison could meet it — P43
+    // named them and this tier refused them as "polarity never measured":
+    //   "never opened in 1889"  → act "never opened", polarity "-" (DR5 folds
+    //                              the adverb into the act, so `opened` never
+    //                              meets it)
+    //   "did not repair X"      → act "did", object "not repair X", polarity
+    //                              "+" (the aux chain broke on the negation)
+    // Both are one act under a negation. Folded here, once, for the material
+    // side and the claim side alike: a received negation word LEADING the act
+    // is removed and the polarity is "-"; a received negation word leading
+    // the OBJECT after an AUX-dominant act (the POS prior's own AUX share)
+    // whose next token is a verb the vocabulary or the prior attests becomes
+    // that verb, polarity "-", with the rest as the object. Nothing here is
+    // a hand list: the negation class and the AUX/VERB shares are received.
+    // A shape neither rule fits keeps P43's typed refusal, unchanged.
+    const posPriorNow = organs.posPriorFor ? organs.posPriorFor() : null;
+    const shareOf = (w, tags) => { const att = posPriorNow?.forms?.[String(w).toLowerCase()]; if (!att) return null; const total = Object.values(att).reduce((a, b) => a + b, 0); return total > 0 ? tags.reduce((a, k) => a + (att[k] ?? 0), 0) / total : null; };
+    const auxDominant = (w) => (shareOf(w, ["AUX"]) ?? 0) >= 0.5;
+    const verbAttested = (w) => { const lw = String(w).toLowerCase(); return verbs.has(lw) || Boolean(organs.verbForms?.has?.(lw)) || (shareOf(lw, ["VERB", "AUX"]) ?? 0) >= 0.5; };
+    const foldNegation = (t) => {
+      if (!negationInUse || !t) return t;
+      const vt = String(t.verb ?? "").trim().split(/\s+/).filter(Boolean);
+      if (vt.length > 1 && negationInUse.has(vt[0].toLowerCase())) {
+        return { ...t, verb: vt.slice(1).join(" "), polarity: "-", negationFolded: "act" };
+      }
+      const ot = String(t.object ?? "").trim().split(/\s+/).filter(Boolean);
+      if (ot.length > 2 && negationInUse.has(ot[0].toLowerCase()) && vt.length && auxDominant(vt[vt.length - 1]) && verbAttested(ot[1])) {
+        return { ...t, verb: ot[1], object: ot.slice(2).join(" "), polarity: "-", negationFolded: "object" };
+      }
+      return t;
+    };
 
     const stemEq = (a, b) =>
       a === b || (Math.min(a.length, b.length) >= MIN_STEM && (a.startsWith(b) || b.startsWith(a)));
@@ -1652,7 +1684,8 @@ export function makeRelationReader(organs) {
           origin && p.ref
             ? { ref: p.ref, start: origin.offset, end: origin.offset + origin.text.length, text: origin.text }
             : null;
-        for (const t of triples) {
+        for (const t0 of triples) {
+        const t = foldNegation(t0);
         const subjectEnd = endpoint(t.subject, true);
         const objectEnd = endpoint(t.object, Boolean(createLemmatizer));
         const bucketKey = bucketOf(t.verb, t.polarity);
@@ -2166,7 +2199,7 @@ export function makeRelationReader(organs) {
         } catch {
           heard = [];
         }
-        for (const t of heard) report.claims.push(judge(sentence, t));
+        for (const t of heard) report.claims.push(judge(sentence, foldNegation(t)));
 
         // The claims this tier CANNOT hear: verbs the answer uses after an
         // established surface that the material's vocabulary never measured,
