@@ -212,7 +212,11 @@ const searches = existsSync(SEARCHES) ? JSON.parse(readFileSync(SEARCHES, "utf8"
 const sha16 = (s) => createHash("sha256").update(s).digest("hex").slice(0, 16);
 const UA = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36";
 const crossings = [];   // every network act, in order, for the appendix
-let searchesSpent = 0, fetchesSpent = 0, archiveRefusals = 0, archiveClosed = false;   // fetchesSpent counts ATTEMPTS; pages kept is pages.length
+let searchesSpent = 0, fetchesSpent = 0, archiveRefusals = 0, archiveClosed = false;
+// A page SERVED FROM THE KEPT CACHE is not a page this run fetched, and a
+// run that reports "7 pages kept, 0 fetches" without saying which is which
+// reads as a contradiction. Counted apart, printed apart.
+let facesFromCache = 0, searchesFromCache = 0;   // fetchesSpent counts ATTEMPTS; pages kept is pages.length
 
 // THE SEARCH FACES, IN ORDER, EACH TYPED.
 //
@@ -254,7 +258,7 @@ function unwrapRedirect(href) {
 }
 
 async function search(q) {
-  if (searches[q]) return searches[q];
+  if (searches[q]) { searchesFromCache += 1; return searches[q]; }
   if (OFFLINE || searchesSpent >= MAXQ) return [];
   searchesSpent += 1;
   // one query at a time, with a declared pause — a burst is what earns the
@@ -300,6 +304,7 @@ async function fetchFace(url, archiveUrl) {
   if (index[key]) {
     const e = index[key];
     if (e.gap) return { gap: e.gap };
+    facesFromCache += 1;
     const rawPath = `${FACES}/${key}.raw`;
     return { text: readFileSync(`${FACES}/${key}.txt`, "utf8"), raw: existsSync(rawPath) ? readFileSync(rawPath, "utf8") : "", url: e.finalUrl, host: e.host, title: e.title, path: `nashville-faces/${key}.txt`, rawPath: `nashville-faces/${key}.raw`, retrievedAt: e.retrievedAt, chars: e.chars };
   }
@@ -365,7 +370,7 @@ async function fetchFace(url, archiveUrl) {
 // asked for an index. MODEL_LOG keeps every call so §7 can print the whole
 // of its contribution.
 let modelCalls = 0, modelMs = 0;
-let MODEL_PHASE = "boot";
+let MODEL_PHASE = "read";
 const MODEL_LOG = [];
 const chat = async (messages, schema, numPredict = 220) => {
   const t = Date.now();
@@ -656,6 +661,7 @@ for (const note of before) {
 say(`  ${snipCount} snip(s) over ${snipsOf.size} note(s); ${snipVerified}/${snipCount} addresses read back from the kept bytes`);
 
 // ═══ PHASE 5 — CHASE (Ranke) ══════════════════════════════════════════════
+MODEL_PHASE = "chase (Ranke)";
 say(`\n# the fold chases its accounts to what they cite`);
 // Ranke reads its leads off the RAW bytes (a page's own outbound links and
 // its unsourced quotations), and its containment off the text face.
@@ -691,6 +697,7 @@ try {
 } catch (e) { say(`  chase gap: ${String(e?.message ?? e).slice(0, 160)}`); }
 
 // ═══ PHASE 6 — CORROBORATE, WITH ITS CONTROL ══════════════════════════════
+MODEL_PHASE = "corroboration walk";
 say(`\n# the fold corroborates (and runs the redeal control in the same breath)`);
 const sources = pages.map((p) => ({ ref: p.ref, text: p.text }));
 // Two hosts carrying one wire story are one perspective. corroboration.js's
@@ -710,19 +717,62 @@ try {
   say(`  notes at >=2 distinct sources: ${gateBefore} → ${gateOf(log)}`);
 } catch (e) { say(`  walk gap: ${String(e?.message ?? e).slice(0, 160)}`); }
 
-// THE CONTROL (II.23): the same walk over a ledger whose notes have been
-// rotated so each carries the NEXT note's object. Same slicer, same model,
-// same budget. An attest rate the redeal reproduces measures topic.
-let control = null;
+// THE CONTROL (II.23), BUILT SO THE MODEL ACTUALLY SEES IT.
+//
+// The first version of this control rotated each note's object to the next
+// note's and measured 0 asks: every rotated proposition was refused by the
+// mechanical co-presence gate before a single model call, because a
+// rotated object almost never appears near its new subject in any page.
+// That is a real result about the gate and NO TEST OF THE MODEL AT ALL —
+// an arm that always refuses is not an arm, it is a rubber stamp
+// (`competingFiller`'s own header learned the same lesson from the other
+// direction).
+//
+// So the redeal is built to SURVIVE the gate: each note keeps its own
+// subject and takes a DIFFERENT object drawn from this material's own
+// other objects, chosen so that (a) it shares no content word with the
+// true object — otherwise it is not a redeal — and (b) it genuinely
+// co-occurs with the subject somewhere in the read pages, measured with
+// `endsCopresentWindow`, the walk's own gate. The result is a false
+// proposition the material makes PLAUSIBLE, offered to the model under the
+// identical protocol and budget. If the model attests these at the real
+// ledger's rate, the walk is measuring topic overlap and nothing in §3 may
+// be read as corroboration.
+MODEL_PHASE = "control (redealt, gate-surviving)";
+let control = null, controlBuilt = 0, controlUnbuildable = 0;
 try {
   const real = hl.foldWithStanding(log);
-  let rl = hl.createHyperlexicon({ frame: { reader: "makeRelationReader", redealt: true, recipe: `${RECIPE}-control` } });
-  for (let i = 0; i < real.length; i++) {
-    const n = real[i], m = real[(i + 1) % real.length];
-    const w = (n.witnesses ?? [])[0] ?? `redeal~${RECIPE}`;
-    const r = hl.admit(rl, [{ subject: n.end1, verb: n.label, object: m.end2, spans: [] }], { witness: w });
+  const objects = [...new Set(real.map((n) => String(n.end2 ?? "").trim()).filter(Boolean))];
+  const wordsOf = (t) => T.textFeatures(t);
+  const shares = (a, b) => { const fb = wordsOf(b); return [...wordsOf(a)].some((w) => fb.has(w)); };
+  let rl = hl.createHyperlexicon({ frame: { reader: "makeRelationReader", redealt: "gate-surviving", recipe: `${RECIPE}-control` } });
+  // A redealt note needs a REAL ADDRESS, and the door is right to insist:
+  // it refuses an unaddressed edge outright ("no addressed span backs it"),
+  // which is how the first version of this arm silently built an empty
+  // ledger and reported 0 asks. The honest address for a false proposition
+  // is the very window that makes it plausible — the stretch of a real page
+  // where both of its ends co-occur, found by the walk's own
+  // `endsCopresentWindow` and carried with the page's own byte offsets.
+  // It asserts nothing; it is where a careless reader would look.
+  let turnedAwayInControl = 0;
+  for (const n of real) {
+    let swap = null, window = null, at = null;
+    for (const o of objects) {
+      if (o === String(n.end2).trim() || shares(o, n.end2) || shares(o, n.end1)) continue;
+      for (const src of sources) {
+        const win = T.endsCopresentWindow(src.text, { end1: n.end1, end2: o });
+        if (win) { swap = o; window = win; at = src.ref; break; }
+      }
+      if (swap) break;
+    }
+    if (!swap) { controlUnbuildable += 1; continue; }
+    const spans = [{ ref: `${at}#${window.start}-${window.end}`, start: 0, end: window.text.length, text: window.text }];
+    const r = hl.admit(rl, [{ subject: n.end1, verb: n.label, object: swap, spans }], { witness: `${at}~${RECIPE}-control` });
     rl = r.log;
+    if (r.heard?.length) controlBuilt += 1; else turnedAwayInControl += (r.turnedAway ?? []).length;
   }
+  if (turnedAwayInControl) say(`  control: ${turnedAwayInControl} redealt edge(s) turned away at the door`);
+  say(`  control: ${controlBuilt} redealt proposition(s) survive the co-presence gate, ${controlUnbuildable} could not be built`);
   control = await T.corroborateLedger(rl, hl, sources, { ask, selectAsk, splitSentences, testimony, maxAsks: WALK_ASKS });
   say(`  CONTROL (redealt): ${control.asks} ask(s) · attested ${control.attested.length} · contradicted ${control.contradicted.length} · skipped-no-copresence ${control.skippedNoCopresence ?? 0}`);
 } catch (e) { say(`  control gap: ${String(e?.message ?? e).slice(0, 160)}`); }
@@ -980,6 +1030,15 @@ w(`## 4 — Ranke: the accounts chased to what they themselves cite`);
 w();
 if (!chase) w(`*The chase did not run in this pass.*`);
 else {
+  const leadTally = pages.map((pg) => { const l = R.leadsOf({ ref: pg.ref, url: pg.url, host: pg.host, html: pg.raw || pg.text, text: pg.text }); return { ref: pg.ref, host: pg.host, links: l.links?.length ?? 0, quotes: l.quotes?.length ?? 0, citing: l.citing, refused: l.refused?.type ?? null }; });
+  const totalLinks = leadTally.reduce((a, x) => a + x.links, 0);
+  const totalQuotes = leadTally.reduce((a, x) => a + x.quotes, 0);
+  w(`What these pages offered to chase, before any of it was spent:`);
+  w();
+  w(`| page | outbound link leads | unsourced quotes | cites anything |`);
+  w(`|---|---|---|---|`);
+  for (const t of leadTally) w(`| ${t.host} | ${t.links} | ${t.quotes} | ${t.citing ? "yes" : `no${t.refused ? ` (${t.refused})` : ""}`} |`);
+  w();
   w(`${chase.notesConsidered} proposition(s) standing on accounts alone were chased to the documents those accounts cite; ${chase.fetches} fetch(es) and ${chase.searches} search(es) were spent; ${chase.leads} containment lead(s) were found. **Containment is a lead, never a landing** — a page carrying a proposition's words is not thereby a page that states it, and only the witness's own "states" lands a primary witness on a note.`);
   w();
   const gaps = {};
@@ -994,7 +1053,10 @@ else {
     for (const x of landed) { w(); w(`> ${String(x.witness?.because ?? "").trim()}`); w(`>`); w(`> — ${x.host ?? ""} · ${esc(x.url ?? "")}`); }
     w();
   }
-  if (!landedAny) { w(`No proposition was landed on a cited document in this pass.`); w(); }
+  if (!landedAny) {
+    w(`**No proposition was landed on a cited document in this pass, and the reason is upstream of the witness.** Across these pages the chase had ${totalLinks} outbound link lead(s) and ${totalQuotes} unsourced quotation(s) to work with, and ${chase.leads} of the documents it fetched carried a proposition's own words. Ranke's own gate is that a page which cites nothing chases nothing; contemporary news pages cite by naming a body or an outlet in prose, not by linking a document, which is the shape this organ was built for on encyclopedic material. That is a limit of this medium against this organ, not a finding about the sources.`);
+    w();
+  }
 }
 
 w(`## 5 — The corroboration walk, and its control (II.23)`);
@@ -1004,14 +1066,18 @@ if (walk && control) {
   w(`| arm | asks spent | attested | contradicted | skipped before any ask | clean votes per ask |`);
   w(`|---|---|---|---|---|---|`);
   w(`| real ledger | ${walk.asks} | ${walk.attested.length} | ${walk.contradicted.length} | ${walk.skippedNoCopresence ?? 0} | ${rate(walk)} |`);
-  w(`| redealt — each note carries the NEXT note's object | ${control.asks} | ${control.attested.length} | ${control.contradicted.length} | ${control.skippedNoCopresence ?? 0} | ${rate(control)} |`);
+  w(`| redealt, built to survive the gate | ${control.asks} | ${control.attested.length} | ${control.contradicted.length} | ${control.skippedNoCopresence ?? 0} | ${rate(control)} |`);
   w();
-  w(`Same slicer, same model, same budget, same pages; the redeal is built to fail.`);
+  w(`**How the control is built, and why this way.** Each redealt proposition keeps its real subject and takes a DIFFERENT object drawn from this material's own other objects, chosen so it shares no content word with the true object and yet genuinely co-occurs with the subject somewhere in the read pages (\`corroboration.js::endsCopresentWindow\`, the walk's own gate). ${controlBuilt} proposition(s) were built this way; ${controlUnbuildable} could not be and are absent from the arm.`);
+  w();
+  w(`An earlier version of this control rotated each object to the next note's and spent **0 asks** — every rotated proposition was refused by the co-presence gate before a single model call. That measured the gate and tested the model not at all; an arm that always refuses is a rubber stamp, not an arm. This version is a false proposition the material makes PLAUSIBLE, put to the same model under the same protocol and the same budget.`);
   w();
   if (control.asks === 0) {
-    w(`**Read this control precisely.** The redealt arm spent ${control.asks} asks: every rotated proposition was refused *before the model was consulted*, by the mechanical co-presence gate — no window of any page carried both of a rotated note's ends, so there was nothing to offer. That is a real result about the gate (it discriminates without spending a call), and it is **not** a test of whether the model can be fooled, because the model never saw these. A stronger control — rotating each object only among objects that DO co-occur with the subject, so the redeal survives the gate and reaches the model — is named here and was not run.`);
+    w(`On this run the arm still reached 0 asks, so **no claim is made about whether the model can be fooled.** ${controlUnbuildable} of ${controlBuilt + controlUnbuildable} propositions could not be given a gate-surviving substitute at all, which is itself a fact about how narrow this material is.`);
+  } else if (control.attested.length === 0) {
+    w(`The control was asked ${control.asks} time(s) and attested **nothing**. The real arm attested ${walk.attested.length} of ${walk.asks}. On this material the walk is reading whether a page states a proposition, not whether it shares a topic with one.`);
   } else {
-    w(`If the redeal attests at the real ledger's rate, the walk is measuring topic overlap rather than whether a page states a proposition, and nothing in §3 may be read as corroboration.`);
+    w(`The control attested ${control.attested.length} of ${control.asks} (${rate(control)} per ask) against the real arm's ${rate(walk)}. **A control that attests at the real arm's rate means §3's corroboration is measuring topic overlap**, and should be read as unproven until the gap is real.`);
   }
   w();
   w(`Refusals in the real arm, by name: \`${JSON.stringify(walk.refusals)}\`. \`no-testimony\` is the model saying no to every sentence it was offered — a fact about those pages, never a conviction of the proposition.`);
@@ -1043,7 +1109,7 @@ else {
 w(`### What this run did not do, named rather than left implied`);
 w();
 w(`- **It asserts no wrongdoing.** Every proposition above is attributed to the page that states it. This instrument has no organ that reaches a verdict about conduct, and it does not pretend to one.`);
-w(`- **Reach is the declared budget, not the record.** ${pages.length} page(s) kept of ${MAXF} allowed, ${fetchesSpent} fetch attempt(s) of ${MAXTRY}, ${searchesSpent} search(es) of ${MAXQ}. A page not fetched is absent here, and that absence is a fact about this run.`);
+w(`- **Reach is the declared budget, not the record.** ${pages.length} page(s) read of ${MAXF} allowed. Of the crossings behind them, **${fetchesSpent} fetch(es) and ${searchesSpent} search(es) were made over the network this run** (budgets: ${MAXTRY} and ${MAXQ}); ${facesFromCache} face(s) and ${searchesFromCache} search(es) were served from the kept store a previous run of this driver filled. A cached page is a real page with a real retrieval timestamp — §1 carries it — but it is not a crossing this run made, and the two are counted apart here so "7 pages, 0 fetches" cannot read as a contradiction.`);
 w(`- **No document supplied by the person who commissioned this run was read.** The ledger stands on the public record the fold reached on its own; anything held privately is outside it.`);
 w(`- **The extractor's reach is not the page's content.** A page yielding no bound proposition is a limit of the reader on that prose, never a finding that the page is empty.`);
 w(`- **Corroboration is counted, never assumed.** Two hosts carrying one wire story are two hosts and one perspective, and nothing here can tell those apart.`);

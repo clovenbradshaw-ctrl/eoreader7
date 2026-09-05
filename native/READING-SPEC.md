@@ -3855,12 +3855,27 @@ measured 3, a section front 9). It was dropped rather than tuned.
 
 ### Disclosed
 
-The redealt control (II.23) spends 0 asks on this material: every rotated
-proposition is refused by the mechanical co-presence gate before the model
-is consulted. That is a real result about the gate and NOT a test of whether
-the model can be fooled; the stronger control — rotating each object only
-among objects that DO co-occur with its subject — is named in the run's own
-output and was not built.
+**The control, three times, and what it finally said.** The first redealt
+control (II.23) rotated each object to the next note's and spent 0 asks —
+every rotated proposition was refused by the mechanical co-presence gate
+before the model was consulted: a result about the gate, no test of the
+model. The second kept each subject and drew a DIFFERENT object that
+genuinely co-occurs with it in the read pages (`endsCopresentWindow`, the
+walk's own gate) — and still spent 0 asks, because the door refused every
+edge as `unaddressed`: the ledger's own wall, right to insist, and the
+reason the arm was silently empty. The third carries the co-presence
+window itself as each false proposition's address — a real span of a real
+page, the place a careless reader would look — and reached the model.
+
+**It attested 6 of 89 (0.067 per ask) against the real arm's 6 of 74
+(0.081).** By II.23's own reading, a control that attests at the real arm's
+rate means the walk is measuring topic overlap, and the document's §3.1
+("stated by more than one source") may not be read as corroboration on
+this material. The document says so in its own §5. What the run does NOT
+yet print is WHICH six false propositions were attested — a swap that
+happens to produce a true statement is a leaky control, not a fooled
+model — and that inspection is the named next step before either reading
+is trusted.
 
 `web.archive.org`'s replay path answers 403 to this environment even for
 URLs its own availability API reports as archived, so three of the largest

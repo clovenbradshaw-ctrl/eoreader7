@@ -1,13 +1,13 @@
 # The Nashville Downtown Partnership — what the record states, and who states it
 
-*Assembled by the fold on 2026-09-04. Every sentence below is either a page's own bytes at an address that reads back, a sentence assembled by template from a claim's own words and its source's name, or a count. Nothing here is a claim about what is true — it is a ledger of what is stated, and by whom.*
+*Assembled by the fold on 2026-09-05. Every sentence below is either a page's own bytes at an address that reads back, a sentence assembled by template from a claim's own words and its source's name, or a count. Nothing here is a claim about what is true — it is a ledger of what is stated, and by whom.*
 
 ## 0 — How little the model did
 
 | | |
 |---|---|
 | model | `gemma2:2b`, local, temperature 0 |
-| calls | **91** — 247s of a 249s run |
+| calls | **198** — 602s of a 604s run |
 | what it was allowed to do | point at one sentence, by index, from a list the material already contained |
 | what it wrote into this document | **nothing** — no sentence below came out of the model |
 | who chose the searches | `proof.js::preflightQuery` over the declared task, then `proofQuery(claimOfNote(n))` over the ledger's own thin notes |
@@ -357,22 +357,36 @@ These were heard from the same pages and share no content word with the declared
 
 ## 4 — Ranke: the accounts chased to what they themselves cite
 
+What these pages offered to chase, before any of it was spent:
+
+| page | outbound link leads | unsourced quotes | cites anything |
+|---|---|---|---|
+| nashvilledowntown.com | 7 | 3 | yes |
+| nashvillepost.com | 22 | 0 | yes |
+| fox17.com | 15 | 3 | yes |
+| hoodline.com | 13 | 1 | yes |
+| nashvilledowntown.com | 8 | 0 | yes |
+| nashvilledowntown.com | 7 | 6 | yes |
+| nashvillescene.com | 29 | 4 | yes |
+
 15 proposition(s) standing on accounts alone were chased to the documents those accounts cite; 20 fetch(es) and 6 search(es) were spent; 0 containment lead(s) were found. **Containment is a lead, never a landing** — a page carrying a proposition's words is not thereby a page that states it, and only the witness's own "states" lands a primary witness on a note.
 
 Gaps by type: `{"http":7,"shell":6}`
 
-No proposition was landed on a cited document in this pass.
+**No proposition was landed on a cited document in this pass, and the reason is upstream of the witness.** Across these pages the chase had 101 outbound link lead(s) and 17 unsourced quotation(s) to work with, and 0 of the documents it fetched carried a proposition's own words. Ranke's own gate is that a page which cites nothing chases nothing; contemporary news pages cite by naming a body or an outlet in prose, not by linking a document, which is the shape this organ was built for on encyclopedic material. That is a limit of this medium against this organ, not a finding about the sources.
 
 ## 5 — The corroboration walk, and its control (II.23)
 
 | arm | asks spent | attested | contradicted | skipped before any ask | clean votes per ask |
 |---|---|---|---|---|---|
 | real ledger | 74 | 6 | 0 | 111 | 0.081 |
-| redealt — each note carries the NEXT note's object | 0 | 0 | 0 | 0 | 0.000 |
+| redealt, built to survive the gate | 89 | 6 | 0 | 104 | 0.067 |
 
-Same slicer, same model, same budget, same pages; the redeal is built to fail.
+**How the control is built, and why this way.** Each redealt proposition keeps its real subject and takes a DIFFERENT object drawn from this material's own other objects, chosen so it shares no content word with the true object and yet genuinely co-occurs with the subject somewhere in the read pages (`corroboration.js::endsCopresentWindow`, the walk's own gate). 37 proposition(s) were built this way; 7 could not be and are absent from the arm.
 
-**Read this control precisely.** The redealt arm spent 0 asks: every rotated proposition was refused *before the model was consulted*, by the mechanical co-presence gate — no window of any page carried both of a rotated note's ends, so there was nothing to offer. That is a real result about the gate (it discriminates without spending a call), and it is **not** a test of whether the model can be fooled, because the model never saw these. A stronger control — rotating each object only among objects that DO co-occur with the subject, so the redeal survives the gate and reaches the model — is named here and was not run.
+An earlier version of this control rotated each object to the next note's and spent **0 asks** — every rotated proposition was refused by the co-presence gate before a single model call. That measured the gate and tested the model not at all; an arm that always refuses is a rubber stamp, not an arm. This version is a false proposition the material makes PLAUSIBLE, put to the same model under the same protocol and the same budget.
+
+The control attested 6 of 89 (0.067 per ask) against the real arm's 0.081. **A control that attests at the real arm's rate means §3's corroboration is measuring topic overlap**, and should be read as unproven until the gap is real.
 
 Refusals in the real arm, by name: `{"no-slice":0,"no-testimony":60,"insensitive":0,"uncontained":2,"unreadable":0,"unarmed":1,"decider_unrelated":1,"unarmed-select":0,"indiscriminate":4,"other":0}`. `no-testimony` is the model saying no to every sentence it was offered — a fact about those pages, never a conviction of the proposition.
 
@@ -383,106 +397,213 @@ Refusals in the real arm, by name: `{"no-slice":0,"no-testimony":60,"insensitive
 
 ## 7 — Every call the model was asked to make
 
-91 call(s). In each, the model was shown a numbered list of sentences drawn from the material and asked for an index; the "answer" column is the whole of what it returned.
+198 call(s). In each, the model was shown a numbered list of sentences drawn from the material and asked for an index; the "answer" column is the whole of what it returned.
 
 | # | phase | protocol | asked (chars) | answer | ms |
 |---|---|---|---|---|---|
-| 1 | boot | select (point at an index) | 729 | `{ "stated": "yes", "sentence": 1 }` | 4266 |
-| 2 | boot | select (point at an index) | 729 | `{ "stated": "yes", "sentence": 1 }` | 3104 |
-| 3 | boot | witness (yes/no + the words it read) | 913 | `{ "answer": "no","because": "The passage does not say that the Nashville Downtown Partners` | 3794 |
-| 4 | boot | select (point at an index) | 1835 | `{ "stated": "yes", "sentence": 1 }` | 1364 |
-| 5 | boot | select (point at an index) | 1683 | `{ "stated": "yes", "sentence": 3 }` | 1621 |
-| 6 | boot | select (point at an index) | 371 | `{ "stated": "no", "sentence": 0 }` | 2570 |
-| 7 | boot | select (point at an index) | 535 | `{ "stated": "no", "sentence": 0 }` | 2603 |
-| 8 | boot | select (point at an index) | 861 | `{ "stated": "no", "sentence": 0 }` | 3079 |
-| 9 | boot | select (point at an index) | 602 | `{ "stated": "no", "sentence": 0 }` | 2842 |
-| 10 | boot | select (point at an index) | 640 | `{ "stated": "no", "sentence": 0 }` | 2886 |
-| 11 | boot | select (point at an index) | 638 | `{ "stated": "yes", "sentence": 1 }` | 2787 |
-| 12 | boot | select (point at an index) | 559 | `{ "stated": "yes", "sentence": 1 }` | 2828 |
-| 13 | boot | witness (yes/no + the words it read) | 904 | `{ "answer": "no","because": "money for downtown safety is important" }` | 3032 |
-| 14 | boot | select (point at an index) | 182 | `{ "stated": "no", "sentence": 0 }` | 1990 |
-| 15 | boot | witness (yes/no + the words it read) | 936 | `{ "answer": "yes","because": "The Nashville Downtown Partnership has teamed with Pillars D` | 1623 |
-| 16 | boot | select (point at an index) | 1103 | `{ "stated": "yes", "sentence": 1 }` | 3614 |
-| 17 | boot | select (point at an index) | 1019 | `{ "stated": "yes", "sentence": 2 }` | 3502 |
-| 18 | boot | select (point at an index) | 624 | `{ "stated": "no", "sentence": 0 }` | 2925 |
-| 19 | boot | select (point at an index) | 583 | `{ "stated": "no", "sentence": 0 }` | 2824 |
-| 20 | boot | select (point at an index) | 299 | `{ "stated": "no", "sentence": 0 }` | 2232 |
-| 21 | boot | select (point at an index) | 299 | `{ "stated": "no", "sentence": 0 }` | 2276 |
-| 22 | boot | select (point at an index) | 568 | `{ "stated": "no", "sentence": 0 }` | 2451 |
-| 23 | boot | select (point at an index) | 563 | `{ "stated": "yes", "sentence": 1 }` | 2808 |
-| 24 | boot | select (point at an index) | 512 | `{ "stated": "yes", "sentence": 2 }` | 1122 |
-| 25 | boot | select (point at an index) | 382 | `{ "stated": "yes", "sentence": 1 }` | 2278 |
-| 26 | boot | select (point at an index) | 291 | `{ "stated": "yes", "sentence": 1 }` | 2317 |
-| 27 | boot | witness (yes/no + the words it read) | 936 | `{ "answer": "no","because": "The passage does not mention the Nashville Downtown Partnersh` | 1889 |
-| 28 | boot | witness (yes/no + the words it read) | 936 | `{ "answer": "no","because": "The passage does not say this sentence is true." }` | 1901 |
-| 29 | boot | witness (yes/no + the words it read) | 936 | `{ "answer": "no","because": "The passage does not say that the Nashville Downtown Partners` | 2291 |
-| 30 | boot | select (point at an index) | 522 | `{ "stated": "yes", "sentence": 1 }` | 2648 |
-| 31 | boot | select (point at an index) | 510 | `{ "stated": "no", "sentence": 0 }` | 1132 |
-| 32 | boot | select (point at an index) | 546 | `{ "stated": "no", "sentence": 0 }` | 2529 |
-| 33 | boot | witness (yes/no + the words it read) | 953 | `{ "answer": "no","because": "Confusion and skepticism around a city agreement with the Nas` | 8366 |
-| 34 | boot | witness (yes/no + the words it read) | 881 | `{ "answer": "no","because": "Confusion and skepticism around a city agreement with the Nas` | 5396 |
-| 35 | boot | select (point at an index) | 392 | `{ "stated": "no", "sentence": 0 }` | 2285 |
-| 36 | boot | witness (yes/no + the words it read) | 921 | `{ "answer": "no","because": "The passage does not say that Metro Council is ready to spend` | 3942 |
-| 37 | boot | witness (yes/no + the words it read) | 881 | `{ "answer": "yes","because": "nancial report submitted to the Metropolitan Council on Wedn` | 4985 |
-| 38 | boot | witness (yes/no + the words it read) | 982 | `{ "answer": "no","because": "The passage does not say the sentence is true." }` | 3870 |
-| 39 | boot | witness (yes/no + the words it read) | 881 | `{ "answer": "no","because": "The passage does not say this sentence is true." }` | 3497 |
-| 40 | boot | select (point at an index) | 362 | `{ "stated": "yes", "sentence": 1 }` | 2346 |
-| 41 | boot | select (point at an index) | 278 | `{ "stated": "no", "sentence": 0 }` | 2280 |
-| 42 | boot | select (point at an index) | 552 | `{ "stated": "no", "sentence": 0 }` | 2579 |
-| 43 | boot | witness (yes/no + the words it read) | 984 | `{ "answer": "no","because": "The passage does not mention the Metro Council giving its app` | 4611 |
-| 44 | boot | witness (yes/no + the words it read) | 881 | `{ "answer": "no","because": "As discussed in coverage by Nashville Scene , members say th"` | 3301 |
-| 45 | boot | witness (yes/no + the words it read) | 645 | `{ "answer": "yes","because": "The CBID is a self-funded assessment district that provides ` | 4097 |
-| 46 | boot | witness (yes/no + the words it read) | 829 | `{ "answer": "no","because": "The passage does not say that downtown is safe for all to enj` | 3445 |
-| 47 | boot | select (point at an index) | 354 | `{ "stated": "no", "sentence": 0 }` | 2323 |
-| 48 | boot | select (point at an index) | 765 | `{ "stated": "no", "sentence": 0 }` | 2965 |
-| 49 | boot | select (point at an index) | 691 | `{ "stated": "no", "sentence": 0 }` | 2814 |
-| 50 | boot | witness (yes/no + the words it read) | 953 | `{ "answer": "no","because": "the budget for one additional meeting failed before the counc` | 1931 |
-| 51 | boot | witness (yes/no + the words it read) | 923 | `{ "answer": "no","because": "This passage does not mention the sentence: 'Nashville pedest` | 2366 |
-| 52 | boot | witness (yes/no + the words it read) | 923 | `{ "answer": "no","because": "The passage does not mention anything about a Nashville pedes` | 2158 |
-| 53 | boot | witness (yes/no + the words it read) | 943 | `{ "answer": "yes","because": "Safety ambassadors offer eyes and ears to support and assist` | 1926 |
-| 54 | boot | witness (yes/no + the words it read) | 949 | `{ "answer": "no","because": "The passage does not mention public restrooms or their import` | 1826 |
-| 55 | boot | select (point at an index) | 439 | `{ "stated": "no", "sentence": 0 }` | 2729 |
-| 56 | boot | witness (yes/no + the words it read) | 1052 | `{ "answer": "no","because": "The passage does not say this sentence is true." }` | 1671 |
-| 57 | boot | witness (yes/no + the words it read) | 1052 | `{ "answer": "no","because": "The passage does not say this sentence is true." }` | 3883 |
-| 58 | boot | witness (yes/no + the words it read) | 881 | `{ "answer": "no","because": "Many advocates and councilmembers are also skeptical of furth` | 4013 |
-| 59 | boot | select (point at an index) | 579 | `{ "stated": "no", "sentence": 0 }` | 2535 |
-| 60 | boot | select (point at an index) | 645 | `{ "stated": "no", "sentence": 0 }` | 2741 |
-| 61 | boot | select (point at an index) | 1021 | `{ "stated": "no", "sentence": 0 }` | 1249 |
-| 62 | boot | select (point at an index) | 356 | `{ "stated": "no", "sentence": 0 }` | 2463 |
-| 63 | boot | select (point at an index) | 381 | `{ "stated": "no", "sentence": 0 }` | 2265 |
-| 64 | boot | witness (yes/no + the words it read) | 953 | `{ "answer": "no","because": "The passage states that the council gave its approval to a $9` | 3667 |
-| 65 | boot | witness (yes/no + the words it read) | 921 | `{ "answer": "no","because": "The passage does not say that the Metro Council is ready to s` | 2450 |
-| 66 | boot | witness (yes/no + the words it read) | 755 | `{ "answer": "no","because": "The passage does not say this sentence is true." }` | 1678 |
-| 67 | boot | select (point at an index) | 257 | `{ "stated": "no", "sentence": 0 }` | 2118 |
-| 68 | boot | witness (yes/no + the words it read) | 953 | `{ "answer": "no","because": "The passage does not mention the budget for one additional me` | 2267 |
-| 69 | boot | select (point at an index) | 372 | `{ "stated": "no", "sentence": 0 }` | 2356 |
-| 70 | boot | witness (yes/no + the words it read) | 984 | `{ "answer": "no","because": "The passage does not mention the Metro Council giving its app` | 4521 |
-| 71 | boot | witness (yes/no + the words it read) | 881 | `{ "answer": "no","because": "The passage does not say this sentence is true." }` | 3210 |
-| 72 | boot | select (point at an index) | 645 | `{ "stated": "no", "sentence": 0 }` | 2760 |
-| 73 | boot | select (point at an index) | 370 | `{ "stated": "no", "sentence": 0 }` | 2341 |
-| 74 | boot | witness (yes/no + the words it read) | 565 | `{ "answer": "no","because": "does not say" }` | 2648 |
-| 75 | boot | witness (yes/no + the words it read) | 981 | `{ "answer": "no","because": "Councilmember Delishia Porterfield criticized what she viewed` | 2408 |
-| 76 | boot | select (point at an index) | 450 | `{ "stated": "no", "sentence": 0 }` | 2666 |
-| 77 | boot | witness (yes/no + the words it read) | 665 | `{ "answer": "no","because": "Metro Council approved the Central Business Improvement Distr` | 1651 |
-| 78 | boot | witness (yes/no + the words it read) | 906 | `{ "answer": "no","because": "The passage does not say that downtown is safe for all to enj` | 1899 |
-| 79 | boot | witness (yes/no + the words it read) | 949 | `{ "answer": "no","because": "public restrooms has emerged as an important component of cre` | 2121 |
-| 80 | boot | witness (yes/no + the words it read) | 943 | `{ "answer": "no","because": "The passage focuses on the planning initiative for public res` | 3887 |
-| 81 | boot | witness (yes/no + the words it read) | 881 | `{ "answer": "no","because": "The project is funded under an agreement with the State of Te` | 4514 |
-| 82 | boot | select (point at an index) | 448 | `{ "stated": "no", "sentence": 0 }` | 1201 |
-| 83 | boot | select (point at an index) | 336 | `{ "stated": "no", "sentence": 0 }` | 2377 |
-| 84 | boot | witness (yes/no + the words it read) | 990 | `{ "answer": "no","because": "The passage does not mention anything about the growth of the` | 2243 |
-| 85 | boot | select (point at an index) | 572 | `{ "stated": "yes", "sentence": 3 }` | 2565 |
-| 86 | boot | select (point at an index) | 485 | `{ "stated": "yes", "sentence": 1 }` | 2446 |
-| 87 | boot | witness (yes/no + the words it read) | 949 | `{ "answer": "no","because": "The passage does not say this sentence is true." }` | 1769 |
-| 88 | boot | witness (yes/no + the words it read) | 953 | `{ "answer": "no","because": "The passage does not mention anything about a budget for one ` | 2541 |
-| 89 | boot | select (point at an index) | 1274 | `{ "stated": "yes", "sentence": 4 }` | 1409 |
-| 90 | boot | select (point at an index) | 1139 | `{ "stated": "yes", "sentence": 4 }` | 1537 |
-| 91 | boot | select (point at an index) | 447 | `{ "stated": "no", "sentence": 0 }` | 1297 |
+| 1 | corroboration walk | select (point at an index) | 729 | `{ "stated": "yes", "sentence": 1 }` | 3379 |
+| 2 | corroboration walk | select (point at an index) | 729 | `{ "stated": "yes", "sentence": 1 }` | 3061 |
+| 3 | corroboration walk | witness (yes/no + the words it read) | 913 | `{ "answer": "no","because": "The passage does not say that the Nashville Downtown Partners` | 3613 |
+| 4 | corroboration walk | select (point at an index) | 1835 | `{ "stated": "yes", "sentence": 1 }` | 1317 |
+| 5 | corroboration walk | select (point at an index) | 1683 | `{ "stated": "yes", "sentence": 3 }` | 1763 |
+| 6 | corroboration walk | select (point at an index) | 371 | `{ "stated": "no", "sentence": 0 }` | 2413 |
+| 7 | corroboration walk | select (point at an index) | 535 | `{ "stated": "no", "sentence": 0 }` | 2583 |
+| 8 | corroboration walk | select (point at an index) | 861 | `{ "stated": "no", "sentence": 0 }` | 3011 |
+| 9 | corroboration walk | select (point at an index) | 602 | `{ "stated": "no", "sentence": 0 }` | 2768 |
+| 10 | corroboration walk | select (point at an index) | 640 | `{ "stated": "no", "sentence": 0 }` | 2703 |
+| 11 | corroboration walk | select (point at an index) | 638 | `{ "stated": "yes", "sentence": 1 }` | 2753 |
+| 12 | corroboration walk | select (point at an index) | 559 | `{ "stated": "yes", "sentence": 1 }` | 2823 |
+| 13 | corroboration walk | witness (yes/no + the words it read) | 904 | `{ "answer": "no","because": "money for downtown safety is important" }` | 3062 |
+| 14 | corroboration walk | select (point at an index) | 182 | `{ "stated": "no", "sentence": 0 }` | 1949 |
+| 15 | corroboration walk | witness (yes/no + the words it read) | 936 | `{ "answer": "yes","because": "The Nashville Downtown Partnership has teamed with Pillars D` | 1637 |
+| 16 | corroboration walk | select (point at an index) | 1103 | `{ "stated": "yes", "sentence": 1 }` | 3577 |
+| 17 | corroboration walk | select (point at an index) | 1019 | `{ "stated": "yes", "sentence": 2 }` | 3337 |
+| 18 | corroboration walk | select (point at an index) | 624 | `{ "stated": "no", "sentence": 0 }` | 2893 |
+| 19 | corroboration walk | select (point at an index) | 583 | `{ "stated": "no", "sentence": 0 }` | 2735 |
+| 20 | corroboration walk | select (point at an index) | 299 | `{ "stated": "no", "sentence": 0 }` | 2244 |
+| 21 | corroboration walk | select (point at an index) | 299 | `{ "stated": "no", "sentence": 0 }` | 2255 |
+| 22 | corroboration walk | select (point at an index) | 568 | `{ "stated": "no", "sentence": 0 }` | 2457 |
+| 23 | corroboration walk | select (point at an index) | 563 | `{ "stated": "yes", "sentence": 1 }` | 2747 |
+| 24 | corroboration walk | select (point at an index) | 512 | `{ "stated": "yes", "sentence": 2 }` | 1057 |
+| 25 | corroboration walk | select (point at an index) | 382 | `{ "stated": "yes", "sentence": 1 }` | 2278 |
+| 26 | corroboration walk | select (point at an index) | 291 | `{ "stated": "yes", "sentence": 1 }` | 2208 |
+| 27 | corroboration walk | witness (yes/no + the words it read) | 936 | `{ "answer": "no","because": "The passage does not mention the Nashville Downtown Partnersh` | 1904 |
+| 28 | corroboration walk | witness (yes/no + the words it read) | 936 | `{ "answer": "no","because": "The passage does not say this sentence is true." }` | 2038 |
+| 29 | corroboration walk | witness (yes/no + the words it read) | 936 | `{ "answer": "no","because": "The passage does not say that the Nashville Downtown Partners` | 2393 |
+| 30 | corroboration walk | select (point at an index) | 522 | `{ "stated": "yes", "sentence": 1 }` | 2517 |
+| 31 | corroboration walk | select (point at an index) | 510 | `{ "stated": "no", "sentence": 0 }` | 1141 |
+| 32 | corroboration walk | select (point at an index) | 546 | `{ "stated": "no", "sentence": 0 }` | 2484 |
+| 33 | corroboration walk | witness (yes/no + the words it read) | 953 | `{ "answer": "no","because": "Confusion and skepticism around a city agreement with the Nas` | 8447 |
+| 34 | corroboration walk | witness (yes/no + the words it read) | 881 | `{ "answer": "no","because": "Confusion and skepticism around a city agreement with the Nas` | 5377 |
+| 35 | corroboration walk | select (point at an index) | 392 | `{ "stated": "no", "sentence": 0 }` | 2298 |
+| 36 | corroboration walk | witness (yes/no + the words it read) | 921 | `{ "answer": "no","because": "The passage does not say that Metro Council is ready to spend` | 3847 |
+| 37 | corroboration walk | witness (yes/no + the words it read) | 881 | `{ "answer": "yes","because": "nancial report submitted to the Metropolitan Council on Wedn` | 4883 |
+| 38 | corroboration walk | witness (yes/no + the words it read) | 982 | `{ "answer": "no","because": "The passage does not say the sentence is true." }` | 3819 |
+| 39 | corroboration walk | witness (yes/no + the words it read) | 881 | `{ "answer": "no","because": "The passage does not say this sentence is true." }` | 3471 |
+| 40 | corroboration walk | select (point at an index) | 362 | `{ "stated": "yes", "sentence": 1 }` | 2279 |
+| 41 | corroboration walk | select (point at an index) | 278 | `{ "stated": "no", "sentence": 0 }` | 2239 |
+| 42 | corroboration walk | select (point at an index) | 552 | `{ "stated": "no", "sentence": 0 }` | 2527 |
+| 43 | corroboration walk | witness (yes/no + the words it read) | 984 | `{ "answer": "no","because": "The passage does not mention the Metro Council giving its app` | 4454 |
+| 44 | corroboration walk | witness (yes/no + the words it read) | 881 | `{ "answer": "no","because": "As discussed in coverage by Nashville Scene , members say th"` | 3292 |
+| 45 | corroboration walk | witness (yes/no + the words it read) | 645 | `{ "answer": "yes","because": "The CBID is a self-funded assessment district that provides ` | 4089 |
+| 46 | corroboration walk | witness (yes/no + the words it read) | 829 | `{ "answer": "no","because": "The passage does not say that downtown is safe for all to enj` | 3567 |
+| 47 | corroboration walk | select (point at an index) | 354 | `{ "stated": "no", "sentence": 0 }` | 2272 |
+| 48 | corroboration walk | select (point at an index) | 765 | `{ "stated": "no", "sentence": 0 }` | 2904 |
+| 49 | corroboration walk | select (point at an index) | 691 | `{ "stated": "no", "sentence": 0 }` | 2786 |
+| 50 | corroboration walk | witness (yes/no + the words it read) | 953 | `{ "answer": "no","because": "the budget for one additional meeting failed before the counc` | 1868 |
+| 51 | corroboration walk | witness (yes/no + the words it read) | 923 | `{ "answer": "no","because": "This passage does not mention the sentence: 'Nashville pedest` | 2435 |
+| 52 | corroboration walk | witness (yes/no + the words it read) | 923 | `{ "answer": "no","because": "The passage does not mention anything about a Nashville pedes` | 2082 |
+| 53 | corroboration walk | witness (yes/no + the words it read) | 943 | `{ "answer": "yes","because": "Safety ambassadors offer eyes and ears to support and assist` | 1890 |
+| 54 | corroboration walk | witness (yes/no + the words it read) | 949 | `{ "answer": "no","because": "The passage does not mention public restrooms or their import` | 1830 |
+| 55 | corroboration walk | select (point at an index) | 439 | `{ "stated": "no", "sentence": 0 }` | 2648 |
+| 56 | corroboration walk | witness (yes/no + the words it read) | 1052 | `{ "answer": "no","because": "The passage does not say this sentence is true." }` | 1567 |
+| 57 | corroboration walk | witness (yes/no + the words it read) | 1052 | `{ "answer": "no","because": "The passage does not say this sentence is true." }` | 3807 |
+| 58 | corroboration walk | witness (yes/no + the words it read) | 881 | `{ "answer": "no","because": "Many advocates and councilmembers are also skeptical of furth` | 3986 |
+| 59 | corroboration walk | select (point at an index) | 579 | `{ "stated": "no", "sentence": 0 }` | 2677 |
+| 60 | corroboration walk | select (point at an index) | 645 | `{ "stated": "no", "sentence": 0 }` | 3267 |
+| 61 | corroboration walk | select (point at an index) | 1021 | `{ "stated": "no", "sentence": 0 }` | 1241 |
+| 62 | corroboration walk | select (point at an index) | 356 | `{ "stated": "no", "sentence": 0 }` | 2457 |
+| 63 | corroboration walk | select (point at an index) | 381 | `{ "stated": "no", "sentence": 0 }` | 2252 |
+| 64 | corroboration walk | witness (yes/no + the words it read) | 953 | `{ "answer": "no","because": "The passage states that the council gave its approval to a $9` | 3588 |
+| 65 | corroboration walk | witness (yes/no + the words it read) | 921 | `{ "answer": "no","because": "The passage does not say that the Metro Council is ready to s` | 2286 |
+| 66 | corroboration walk | witness (yes/no + the words it read) | 755 | `{ "answer": "no","because": "The passage does not say this sentence is true." }` | 1548 |
+| 67 | corroboration walk | select (point at an index) | 257 | `{ "stated": "no", "sentence": 0 }` | 2013 |
+| 68 | corroboration walk | witness (yes/no + the words it read) | 953 | `{ "answer": "no","because": "The passage does not mention the budget for one additional me` | 2075 |
+| 69 | corroboration walk | select (point at an index) | 372 | `{ "stated": "no", "sentence": 0 }` | 2440 |
+| 70 | corroboration walk | witness (yes/no + the words it read) | 984 | `{ "answer": "no","because": "The passage does not mention the Metro Council giving its app` | 4410 |
+| 71 | corroboration walk | witness (yes/no + the words it read) | 881 | `{ "answer": "no","because": "The passage does not say this sentence is true." }` | 3138 |
+| 72 | corroboration walk | select (point at an index) | 645 | `{ "stated": "no", "sentence": 0 }` | 2727 |
+| 73 | corroboration walk | select (point at an index) | 370 | `{ "stated": "no", "sentence": 0 }` | 2307 |
+| 74 | corroboration walk | witness (yes/no + the words it read) | 565 | `{ "answer": "no","because": "does not say" }` | 2692 |
+| 75 | corroboration walk | witness (yes/no + the words it read) | 981 | `{ "answer": "no","because": "Councilmember Delishia Porterfield criticized what she viewed` | 2340 |
+| 76 | corroboration walk | select (point at an index) | 450 | `{ "stated": "no", "sentence": 0 }` | 2790 |
+| 77 | corroboration walk | witness (yes/no + the words it read) | 665 | `{ "answer": "no","because": "Metro Council approved the Central Business Improvement Distr` | 1664 |
+| 78 | corroboration walk | witness (yes/no + the words it read) | 906 | `{ "answer": "no","because": "The passage does not say that downtown is safe for all to enj` | 2004 |
+| 79 | corroboration walk | witness (yes/no + the words it read) | 949 | `{ "answer": "no","because": "public restrooms has emerged as an important component of cre` | 2001 |
+| 80 | corroboration walk | witness (yes/no + the words it read) | 943 | `{ "answer": "no","because": "The passage focuses on the planning initiative for public res` | 3916 |
+| 81 | corroboration walk | witness (yes/no + the words it read) | 881 | `{ "answer": "no","because": "The project is funded under an agreement with the State of Te` | 4819 |
+| 82 | corroboration walk | select (point at an index) | 448 | `{ "stated": "no", "sentence": 0 }` | 1095 |
+| 83 | corroboration walk | select (point at an index) | 336 | `{ "stated": "no", "sentence": 0 }` | 2294 |
+| 84 | corroboration walk | witness (yes/no + the words it read) | 990 | `{ "answer": "no","because": "The passage does not mention anything about the growth of the` | 2056 |
+| 85 | corroboration walk | select (point at an index) | 572 | `{ "stated": "yes", "sentence": 3 }` | 2459 |
+| 86 | corroboration walk | select (point at an index) | 485 | `{ "stated": "yes", "sentence": 1 }` | 2590 |
+| 87 | corroboration walk | witness (yes/no + the words it read) | 949 | `{ "answer": "no","because": "The passage does not say this sentence is true." }` | 1573 |
+| 88 | corroboration walk | witness (yes/no + the words it read) | 953 | `{ "answer": "no","because": "The passage does not mention anything about a budget for one ` | 2516 |
+| 89 | corroboration walk | select (point at an index) | 1274 | `{ "stated": "yes", "sentence": 4 }` | 1215 |
+| 90 | corroboration walk | select (point at an index) | 1139 | `{ "stated": "yes", "sentence": 4 }` | 1497 |
+| 91 | corroboration walk | select (point at an index) | 447 | `{ "stated": "no", "sentence": 0 }` | 1196 |
+| 92 | control (redealt, gate-surviving) | select (point at an index) | 421 | `{ "stated": "no", "sentence": 0 }` | 2239 |
+| 93 | control (redealt, gate-surviving) | witness (yes/no + the words it read) | 981 | `{ "answer": "no","because": "The passage focuses on the planning initiative for public res` | 4433 |
+| 94 | control (redealt, gate-surviving) | witness (yes/no + the words it read) | 974 | `{ "answer": "no","because": "The firm has previously played central roles in shaping Nashv` | 7834 |
+| 95 | control (redealt, gate-surviving) | select (point at an index) | 877 | `{ "stated": "yes", "sentence": 1 }` | 2873 |
+| 96 | control (redealt, gate-surviving) | select (point at an index) | 788 | `{ "stated": "no", "sentence": 0 }` | 2775 |
+| 97 | control (redealt, gate-surviving) | select (point at an index) | 876 | `{ "stated": "yes", "sentence": 1 }` | 2922 |
+| 98 | control (redealt, gate-surviving) | select (point at an index) | 787 | `{ "stated": "no", "sentence": 0 }` | 2737 |
+| 99 | control (redealt, gate-surviving) | select (point at an index) | 581 | `{ "stated": "yes", "sentence": 1 }` | 2481 |
+| 100 | control (redealt, gate-surviving) | select (point at an index) | 505 | `{ "stated": "yes", "sentence": 1 }` | 2489 |
+| 101 | control (redealt, gate-surviving) | witness (yes/no + the words it read) | 990 | `{ "answer": "no","because": "Downtown Nashville continues to grow its residential and busi` | 3698 |
+| 102 | control (redealt, gate-surviving) | witness (yes/no + the words it read) | 993 | `{ "answer": "no","because": "Downtown Nashville continues to grow its residential and busi` | 3644 |
+| 103 | control (redealt, gate-surviving) | select (point at an index) | 370 | `{ "stated": "no", "sentence": 0 }` | 2372 |
+| 104 | control (redealt, gate-surviving) | witness (yes/no + the words it read) | 980 | `{ "answer": "yes","because": "Downtown Nashville continues to grow its residential and bus` | 3651 |
+| 105 | control (redealt, gate-surviving) | witness (yes/no + the words it read) | 978 | `{ "answer": "no","because": "The passage does not mention the Metro Council or its plans f` | 3579 |
+| 106 | control (redealt, gate-surviving) | select (point at an index) | 859 | `{ "stated": "yes", "sentence": 1 }` | 2855 |
+| 107 | control (redealt, gate-surviving) | select (point at an index) | 770 | `{ "stated": "no", "sentence": 0 }` | 2609 |
+| 108 | control (redealt, gate-surviving) | witness (yes/no + the words it read) | 982 | `{ "answer": "no","because": "The passage focuses on the planning of public restroom facili` | 4669 |
+| 109 | control (redealt, gate-surviving) | select (point at an index) | 726 | `{ "stated": "no", "sentence": 0 }` | 2767 |
+| 110 | control (redealt, gate-surviving) | witness (yes/no + the words it read) | 1006 | `{ "answer": "no","because": "The passage does not mention anything about a budget for one ` | 4459 |
+| 111 | control (redealt, gate-surviving) | select (point at an index) | 534 | `{ "stated": "no", "sentence": 0 }` | 2601 |
+| 112 | control (redealt, gate-surviving) | witness (yes/no + the words it read) | 984 | `{ "answer": "no","because": "The passage focuses on the planning of public restroom facili` | 4375 |
+| 113 | control (redealt, gate-surviving) | witness (yes/no + the words it read) | 986 | `{ "answer": "no","because": "Downtown Nashville continues to grow its residential and busi` | 3598 |
+| 114 | control (redealt, gate-surviving) | select (point at an index) | 530 | `{ "stated": "no", "sentence": 0 }` | 2604 |
+| 115 | control (redealt, gate-surviving) | select (point at an index) | 499 | `{ "stated": "no", "sentence": 0 }` | 2419 |
+| 116 | control (redealt, gate-surviving) | select (point at an index) | 379 | `{ "stated": "yes", "sentence": 1 }` | 2268 |
+| 117 | control (redealt, gate-surviving) | select (point at an index) | 295 | `{ "stated": "no", "sentence": 0 }` | 2190 |
+| 118 | control (redealt, gate-surviving) | select (point at an index) | 473 | `{ "stated": "no", "sentence": 0 }` | 2393 |
+| 119 | control (redealt, gate-surviving) | witness (yes/no + the words it read) | 968 | `{ "answer": "no","because": "public restrooms has the Central Business Improvement Distric` | 4257 |
+| 120 | control (redealt, gate-surviving) | witness (yes/no + the words it read) | 881 | `{ "answer": "no","because": "Skeptical councilmembers will review $15 million resource-sha` | 4162 |
+| 121 | control (redealt, gate-surviving) | witness (yes/no + the words it read) | 1006 | `{ "answer": "no","because": "The passage does not say this sentence is true." }` | 3678 |
+| 122 | control (redealt, gate-surviving) | select (point at an index) | 390 | `{ "stated": "no", "sentence": 0 }` | 2447 |
+| 123 | control (redealt, gate-surviving) | select (point at an index) | 623 | `{ "stated": "no", "sentence": 0 }` | 2733 |
+| 124 | control (redealt, gate-surviving) | select (point at an index) | 371 | `{ "stated": "no", "sentence": 0 }` | 2273 |
+| 125 | control (redealt, gate-surviving) | witness (yes/no + the words it read) | 993 | `{ "answer": "no","because": "The passage does not say that the Downtown Partnership failed` | 4590 |
+| 126 | control (redealt, gate-surviving) | witness (yes/no + the words it read) | 881 | `{ "answer": "no","because": "Supporters argued the district has made progress over the pas` | 4058 |
+| 127 | control (redealt, gate-surviving) | select (point at an index) | 465 | `{ "stated": "no", "sentence": 0 }` | 2369 |
+| 128 | control (redealt, gate-surviving) | witness (yes/no + the words it read) | 1041 | `{ "answer": "no","because": "The passage does not mention anything about a Nashville Downt` | 4713 |
+| 129 | control (redealt, gate-surviving) | witness (yes/no + the words it read) | 968 | `{ "answer": "no","because": "public restrooms has the Central Business Improvement Distric` | 4058 |
+| 130 | control (redealt, gate-surviving) | select (point at an index) | 352 | `{ "stated": "no", "sentence": 0 }` | 2334 |
+| 131 | control (redealt, gate-surviving) | select (point at an index) | 366 | `{ "stated": "no", "sentence": 0 }` | 2235 |
+| 132 | control (redealt, gate-surviving) | select (point at an index) | 365 | `{ "stated": "no", "sentence": 0 }` | 2291 |
+| 133 | control (redealt, gate-surviving) | witness (yes/no + the words it read) | 981 | `{ "answer": "no","because": "Tennessee nonprofit to grow its residential and business comm` | 4404 |
+| 134 | control (redealt, gate-surviving) | select (point at an index) | 369 | `{ "stated": "no", "sentence": 0 }` | 2423 |
+| 135 | control (redealt, gate-surviving) | select (point at an index) | 893 | `{ "stated": "yes", "sentence": 1 }` | 2986 |
+| 136 | control (redealt, gate-surviving) | select (point at an index) | 720 | `{ "stated": "yes", "sentence": 2 }` | 2775 |
+| 137 | control (redealt, gate-surviving) | witness (yes/no + the words it read) | 1041 | `{ "answer": "no","because": "The passage does not mention the Nashville Downtown Partnersh` | 4729 |
+| 138 | control (redealt, gate-surviving) | witness (yes/no + the words it read) | 881 | `{ "answer": "no","because": "Confusion and skepticism around a city agreement with the Nas` | 5416 |
+| 139 | control (redealt, gate-surviving) | witness (yes/no + the words it read) | 990 | `{ "answer": "no","because": "Supporters argued the district has made progress over the pas` | 4275 |
+| 140 | control (redealt, gate-surviving) | select (point at an index) | 366 | `{ "stated": "no", "sentence": 0 }` | 2168 |
+| 141 | control (redealt, gate-surviving) | select (point at an index) | 408 | `{ "stated": "no", "sentence": 0 }` | 2191 |
+| 142 | control (redealt, gate-surviving) | select (point at an index) | 242 | `{ "stated": "no", "sentence": 0 }` | 1989 |
+| 143 | control (redealt, gate-surviving) | witness (yes/no + the words it read) | 993 | `{ "answer": "no","because": "The passage does not say that the Downtown Partnership failed` | 4285 |
+| 144 | control (redealt, gate-surviving) | witness (yes/no + the words it read) | 990 | `{ "answer": "no","because": "money for downtown safety is to grow its residential and busi` | 4524 |
+| 145 | control (redealt, gate-surviving) | select (point at an index) | 585 | `{ "stated": "yes", "sentence": 3 }` | 2502 |
+| 146 | control (redealt, gate-surviving) | select (point at an index) | 498 | `{ "stated": "yes", "sentence": 1 }` | 2507 |
+| 147 | control (redealt, gate-surviving) | witness (yes/no + the words it read) | 1006 | `{ "answer": "no","because": "The passage does not say this sentence is true." }` | 3881 |
+| 148 | control (redealt, gate-surviving) | select (point at an index) | 353 | `{ "stated": "no", "sentence": 0 }` | 2356 |
+| 149 | control (redealt, gate-surviving) | select (point at an index) | 589 | `{ "stated": "no", "sentence": 0 }` | 2761 |
+| 150 | control (redealt, gate-surviving) | select (point at an index) | 387 | `{ "stated": "no", "sentence": 0 }` | 2338 |
+| 151 | control (redealt, gate-surviving) | select (point at an index) | 324 | `{ "stated": "no", "sentence": 0 }` | 2269 |
+| 152 | control (redealt, gate-surviving) | select (point at an index) | 328 | `{ "stated": "no", "sentence": 0 }` | 2274 |
+| 153 | control (redealt, gate-surviving) | witness (yes/no + the words it read) | 980 | `{ "answer": "no","because": "Supporters argued the district has made progress over the pas` | 4196 |
+| 154 | control (redealt, gate-surviving) | select (point at an index) | 587 | `{ "stated": "no", "sentence": 0 }` | 2485 |
+| 155 | control (redealt, gate-surviving) | select (point at an index) | 591 | `{ "stated": "no", "sentence": 0 }` | 2616 |
+| 156 | control (redealt, gate-surviving) | select (point at an index) | 376 | `{ "stated": "no", "sentence": 0 }` | 2193 |
+| 157 | control (redealt, gate-surviving) | select (point at an index) | 362 | `{ "stated": "no", "sentence": 0 }` | 2231 |
+| 158 | control (redealt, gate-surviving) | select (point at an index) | 380 | `{ "stated": "no", "sentence": 0 }` | 2268 |
+| 159 | control (redealt, gate-surviving) | witness (yes/no + the words it read) | 972 | `{ "answer": "no","because": "Jacob Kupin said to grow its residential and business communi` | 3999 |
+| 160 | control (redealt, gate-surviving) | witness (yes/no + the words it read) | 978 | `{ "answer": "no","because": "Metro Council is to grow its residential and business communi` | 4319 |
+| 161 | control (redealt, gate-surviving) | witness (yes/no + the words it read) | 881 | `{ "answer": "no","because": "Confusion and skepticism around a city agreement with the Nas` | 5383 |
+| 162 | control (redealt, gate-surviving) | select (point at an index) | 334 | `{ "stated": "no", "sentence": 0 }` | 2376 |
+| 163 | control (redealt, gate-surviving) | witness (yes/no + the words it read) | 982 | `{ "answer": "no","because": "The passage does not say the Metro Council is to grow its res` | 4680 |
+| 164 | control (redealt, gate-surviving) | witness (yes/no + the words it read) | 881 | `{ "answer": "no","because": "Confusion and skepticism around a city agreement with the Nas` | 5284 |
+| 165 | control (redealt, gate-surviving) | select (point at an index) | 330 | `{ "stated": "no", "sentence": 0 }` | 2372 |
+| 166 | control (redealt, gate-surviving) | select (point at an index) | 339 | `{ "stated": "no", "sentence": 0 }` | 2288 |
+| 167 | control (redealt, gate-surviving) | select (point at an index) | 593 | `{ "stated": "no", "sentence": 0 }` | 2586 |
+| 168 | control (redealt, gate-surviving) | witness (yes/no + the words it read) | 986 | `{ "answer": "no","because": "Safety Ambassadors offer to grow its residential and business` | 4076 |
+| 169 | control (redealt, gate-surviving) | select (point at an index) | 382 | `{ "stated": "yes", "sentence": 1 }` | 2350 |
+| 170 | control (redealt, gate-surviving) | select (point at an index) | 295 | `{ "stated": "yes", "sentence": 1 }` | 2366 |
+| 171 | control (redealt, gate-surviving) | select (point at an index) | 297 | `{ "stated": "no", "sentence": 0 }` | 2198 |
+| 172 | control (redealt, gate-surviving) | witness (yes/no + the words it read) | 984 | `{ "answer": "no","because": "Metro Council debates a memorandum of understanding that incl` | 5677 |
+| 173 | control (redealt, gate-surviving) | witness (yes/no + the words it read) | 881 | `{ "answer": "no","because": "Confusion and skepticism around a city agreement with the Nas` | 5404 |
+| 174 | control (redealt, gate-surviving) | witness (yes/no + the words it read) | 986 | `{ "answer": "no","because": "The passage does not mention Safety Ambassadors or their acti` | 3907 |
+| 175 | control (redealt, gate-surviving) | witness (yes/no + the words it read) | 881 | `{ "answer": "no","because": "Many advocates and council" }` | 3203 |
+| 176 | control (redealt, gate-surviving) | witness (yes/no + the words it read) | 993 | `{ "answer": "no","because": "The passage does not say that the Downtown Partnership failed` | 5042 |
+| 177 | control (redealt, gate-surviving) | witness (yes/no + the words it read) | 881 | `{ "answer": "no","because": "Confusion and skepticism around a city agreement with the Nas` | 5461 |
+| 178 | control (redealt, gate-surviving) | select (point at an index) | 497 | `{ "stated": "no", "sentence": 0 }` | 2576 |
+| 179 | control (redealt, gate-surviving) | select (point at an index) | 323 | `{ "stated": "no", "sentence": 0 }` | 2291 |
+| 180 | control (redealt, gate-surviving) | witness (yes/no + the words it read) | 973 | `{ "answer": "no","because": "The passage does not mention anything about the city's growth` | 4159 |
+| 181 | control (redealt, gate-surviving) | select (point at an index) | 323 | `{ "stated": "no", "sentence": 0 }` | 2419 |
+| 182 | control (redealt, gate-surviving) | witness (yes/no + the words it read) | 974 | `{ "answer": "no","because": "The passage does not mention anything about the firm's need t` | 4722 |
+| 183 | control (redealt, gate-surviving) | select (point at an index) | 371 | `{ "stated": "yes", "sentence": 1 }` | 2246 |
+| 184 | control (redealt, gate-surviving) | select (point at an index) | 284 | `{ "stated": "yes", "sentence": 1 }` | 2203 |
+| 185 | control (redealt, gate-surviving) | select (point at an index) | 375 | `{ "stated": "no", "sentence": 0 }` | 2274 |
+| 186 | control (redealt, gate-surviving) | witness (yes/no + the words it read) | 973 | `{ "answer": "no","because": "the city is to grow its residential and business communities ` | 4266 |
+| 187 | control (redealt, gate-surviving) | select (point at an index) | 326 | `{ "stated": "no", "sentence": 0 }` | 2412 |
+| 188 | control (redealt, gate-surviving) | witness (yes/no + the words it read) | 980 | `{ "answer": "no","because": "The passage does not say that the downtown is to grow its res` | 4278 |
+| 189 | control (redealt, gate-surviving) | witness (yes/no + the words it read) | 777 | `{ "answer": "no","because": "The CBID is a self-funded assessment district that provides t` | 4410 |
+| 190 | control (redealt, gate-surviving) | select (point at an index) | 623 | `{ "stated": "no", "sentence": 0 }` | 2786 |
+| 191 | control (redealt, gate-surviving) | witness (yes/no + the words it read) | 980 | `{ "answer": "no","because": "The passage does not say this sentence is true." }` | 3850 |
+| 192 | control (redealt, gate-surviving) | select (point at an index) | 336 | `{ "stated": "no", "sentence": 0 }` | 2345 |
+| 193 | control (redealt, gate-surviving) | witness (yes/no + the words it read) | 787 | `{ "answer": "no","because": "The passage does not say that money for downtown safety is to` | 4189 |
+| 194 | control (redealt, gate-surviving) | witness (yes/no + the words it read) | 1006 | `{ "answer": "no","because": "The passage does not mention a budget for one additional meet` | 4196 |
+| 195 | control (redealt, gate-surviving) | witness (yes/no + the words it read) | 1006 | `{ "answer": "no","because": "The passage does not mention anything about a budget for one ` | 4276 |
+| 196 | control (redealt, gate-surviving) | witness (yes/no + the words it read) | 1007 | `{ "answer": "no","because": "The passage does not mention anything about Councilmember Del` | 4455 |
+| 197 | control (redealt, gate-surviving) | witness (yes/no + the words it read) | 881 | `{ "answer": "no","because": "Many advocates and councilmembers are also skeptical of furth` | 6242 |
+| 198 | control (redealt, gate-surviving) | select (point at an index) | 425 | `{ "stated": "no", "sentence": 0 }` | 2353 |
 
 ### What this run did not do, named rather than left implied
 
 - **It asserts no wrongdoing.** Every proposition above is attributed to the page that states it. This instrument has no organ that reaches a verdict about conduct, and it does not pretend to one.
-- **Reach is the declared budget, not the record.** 7 page(s) kept of 40 allowed, 0 fetch attempt(s) of 120, 0 search(es) of 40. A page not fetched is absent here, and that absence is a fact about this run.
+- **Reach is the declared budget, not the record.** 7 page(s) read of 40 allowed. Of the crossings behind them, **0 fetch(es) and 0 search(es) were made over the network this run** (budgets: 120 and 40); 14 face(s) and 18 search(es) were served from the kept store a previous run of this driver filled. A cached page is a real page with a real retrieval timestamp — §1 carries it — but it is not a crossing this run made, and the two are counted apart here so "7 pages, 0 fetches" cannot read as a contradiction.
 - **No document supplied by the person who commissioned this run was read.** The ledger stands on the public record the fold reached on its own; anything held privately is outside it.
 - **The extractor's reach is not the page's content.** A page yielding no bound proposition is a limit of the reader on that prose, never a finding that the page is empty.
 - **Corroboration is counted, never assumed.** Two hosts carrying one wire story are two hosts and one perspective, and nothing here can tell those apart.
