@@ -409,3 +409,141 @@ test("the fold unifies a real register's case-forms into one referent end to end
     assert.notEqual(ctlMoskve, ctlMoskvu, "unfolded control: the same two forms strand");
   }
 });
+
+// ── the letterless-token break: a token with no letters at all is a hard
+// break, never a run continuation ───────────────────────────────────────
+//
+// Found 2026-09-05 re-running the MHC battery on the War and Peace fixture
+// (the-fold POLICIES.md "the stale stage"): the 2012 musical's own title,
+// "Natasha, Pierre & The Great Comet of 1812", extracted "Pierre The Great
+// Comet" — a surface the material never contains — because the bare "&"
+// stripped to nothing, vanished from the token list, and left "Pierre" and
+// "The" adjacent. The comma fix above catches junk glued to a token's own
+// edge; this is the one shape that check cannot see: junk that is its own
+// whitespace-delimited token. The category is "no letters" (P50: name the
+// category, never the marks) — a spaced dash or a stray colon breaks the
+// same way, and a numeral cannot join a name either.
+test("a letterless token between two capitalised runs is a hard break: '&' never glues two titles into one surface", () => {
+  const lines = [
+    "Tolstoy also references the Great Comet of 1811 before the invasion.",
+    "Astronomers had watched the Great Comet of 1811 for months that autumn.",
+    "A musical by Dave Malloy called Natasha, Pierre & The Great Comet of 1812 premiered in Manhattan.",
+    "Critics praised Natasha, Pierre & The Great Comet of 1812 for its staging.",
+    "In the corner sat Pierre reading a letter from his estate.",
+    "Later that week Pierre left for Moscow without a word.",
+  ];
+  const found = xs2(corpus(lines), {});
+  const names = new Set(found.map((s) => s.surface));
+  assert.ok(names.has("Pierre"), "the real one-word name must still extract");
+  assert.ok(names.has("Great Comet"), "the real astronomical referent must still extract");
+  assert.ok(!names.has("Pierre The"), "the '&' must break the run — no glued 2-token surface");
+  assert.ok(!names.has("Pierre The Great"), "the '&' must break the run — no glued 3-token surface");
+  assert.ok(!names.has("Pierre The Great Comet"), "the '&' must break the run — no glued 4-token surface");
+
+  const d = dr2(found, { minPartners: 5, minSentences: 1 });
+  const pierre = refIdOf(d.events, "Pierre");
+  const comet = refIdOf(d.events, "Great Comet");
+  assert.ok(pierre && comet, "both real referents must actually be admitted");
+  assert.notEqual(pierre, comet, "a person and a comet, never merged through a surface that should not exist");
+});
+
+test("a spaced dash between two names breaks the run the same way — the rule is the category, not the ampersand", () => {
+  const lines = [
+    "The retreat is often summarised as Kutuzov – Napoleon in the older histories.",
+    "Every schoolbook prints the pairing Kutuzov – Napoleon beside the map.",
+    "By then Kutuzov had already chosen the longer road.",
+    "Meanwhile Napoleon waited for an envoy who never came.",
+  ];
+  const names = new Set(xs2(corpus(lines), {}).map((s) => s.surface));
+  assert.ok(names.has("Kutuzov") && names.has("Napoleon"), "both names must still extract");
+  assert.ok(!names.has("Kutuzov Napoleon"), "a letterless dash token is a hard break");
+});
+
+// ── containment is not transitive through a shared anchor: two different
+// sub-phrases of one longer surface do not become one being ─────────────
+//
+// The same MHC re-run: the Translations bibliography lists Oxford University
+// Press three times, and the fold folded BOTH "Oxford University" and
+// "University Press" into it — each is a subset of the anchor's tokens, so
+// each matched the group's maximal member on its own, and nothing ever
+// asked whether they matched EACH OTHER (they do not: {oxford, university}
+// and {university, press} overlap on one token and neither contains the
+// other). The witnessed-merge rules above catch a fragment bridging two
+// EXISTING groups; this is the blind spot when the anchor arrives first
+// (it always does — assignment is most-individuated-first) and the
+// fragments then face only it, one at a time. The fix checks an arriving
+// fragment against the group's other CHILDREN for partial overlap without
+// containment, and lands a conflict as the same typed ambiguity the
+// two-bearer wall already uses — withheld, never guessed.
+test("two sub-phrases of one anchor that partially overlap without containing each other are not folded into one being — the second lands as a typed ambiguity", () => {
+  const lines = [
+    "The Maude translation appeared under Oxford University Press in the spring.",
+    "A later edition, again from Oxford University Press, corrected the maps.",
+    "The letters were kept at Oxford University for a decade after the war.",
+    "Scholars at Oxford University argued over the manuscript's date.",
+    "It was reprinted by University Press without the translator's notes.",
+    "A cheaper issue from University Press followed within the year.",
+  ];
+  const d = dr2(xs2(corpus(lines), {}), { minPartners: 5, minSentences: 1 });
+  const anchor = refIdOf(d.events, "Oxford University Press");
+  const oxford = refIdOf(d.events, "Oxford University");
+  const press = refIdOf(d.events, "University Press");
+  assert.ok(anchor, "the anchor must actually be admitted");
+  // Exactly one of the two fragments joins the anchor by containment; the
+  // other — which shares a token with the first but contains neither it nor
+  // the anchor — is refused. Which one is decided by the loop's own
+  // deterministic tie-break (spelling), not pinned here: the wall is that
+  // they never share a referent.
+  assert.ok(!(oxford && press && oxford === press), "Oxford University and University Press must never be one being");
+  const refused = d.gaps.filter((g) => g.reason === "ambiguous_surface" && (g.surface === "University Press" || g.surface === "Oxford University"));
+  assert.equal(refused.length, 1, "exactly one fragment is refused as ambiguous, as a typed gap");
+  assert.ok(refused[0].candidates.includes(anchor), "the gap names the anchor it was refused from");
+  assert.ok(refused[0].conflictsWith, "the gap names the sibling it conflicted with");
+  assert.match(refused[0].detail, /sibling|overlap/i);
+});
+
+test("disjoint fragments of one anchor still merge — the overlap wall does not touch a first name and a surname", () => {
+  // The necessary control: {ilya, andreyevich} and {rostov} are both subsets
+  // of the anchor and DISJOINT from each other. A rule that refused these
+  // would split every person named in full and then by surname alone.
+  const lines = [
+    "At the ball Ilya Andreyevich Rostov greeted every guest by name.",
+    "The old count, Ilya Andreyevich Rostov, kept an open house all winter.",
+    "By spring Ilya Andreyevich had spent what remained of the estate.",
+    "Everyone agreed Ilya Andreyevich was the kindest host in Moscow.",
+    "The creditors wrote to Rostov twice before the sale.",
+    "In the end Rostov signed away the last of the land.",
+  ];
+  const d = dr2(xs2(corpus(lines), {}), { minPartners: 5, minSentences: 1 });
+  const full = refIdOf(d.events, "Ilya Andreyevich Rostov");
+  const given = refIdOf(d.events, "Ilya Andreyevich");
+  const surname = refIdOf(d.events, "Rostov");
+  assert.ok(full && given && surname, "all three surfaces must actually be admitted");
+  assert.equal(given, full, "the given-name fragment still joins its anchor");
+  assert.equal(surname, full, "the surname fragment still joins its anchor — disjoint from its sibling, no conflict");
+});
+
+test("disclosed cost of the overlap wall: a fragment that shares a token with a sibling and contains neither is refused even when world knowledge would merge it", () => {
+  // {ilya, rostov} against a sibling {ilya, andreyevich}: the same structural
+  // shape as "University Press" against "Oxford University", told apart only
+  // by knowing that a person carries a patronymic and a publisher does not —
+  // knowledge this engine-tier rule does not have and must not fake. So it
+  // withholds, as a typed gap the occurrence layer may still close (S11),
+  // and this test pins the cost rather than hiding it. A future organ that
+  // closes it earns its place by keeping the Oxford case refused.
+  const lines = [
+    "At the ball Ilya Andreyevich Rostov greeted every guest by name.",
+    "The old count, Ilya Andreyevich Rostov, kept an open house all winter.",
+    "By spring Ilya Andreyevich had spent what remained of the estate.",
+    "Everyone agreed Ilya Andreyevich was the kindest host in Moscow.",
+    "The creditors addressed their letters to Ilya Rostov twice before the sale.",
+    "In the end Ilya Rostov signed away the last of the land.",
+  ];
+  const d = dr2(xs2(corpus(lines), {}), { minPartners: 5, minSentences: 1 });
+  const full = refIdOf(d.events, "Ilya Andreyevich Rostov");
+  assert.ok(full, "the anchor must actually be admitted");
+  assert.equal(refIdOf(d.events, "Ilya Rostov"), undefined, "the overlapping fragment is not admitted as a member");
+  const gap = d.gaps.find((g) => g.reason === "ambiguous_surface" && g.surface === "Ilya Rostov");
+  assert.ok(gap, "…and not as a third being either: a typed gap");
+  assert.ok(gap.candidates.includes(full));
+});
