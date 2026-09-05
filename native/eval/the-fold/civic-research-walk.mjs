@@ -5,7 +5,7 @@
 // only wires its organs together and prints what they returned. Nothing
 // here writes a finding, and nothing here names a subject — TASK is
 // required, with no default, so this file carries no research content of
-// its own between runs (see READING-SPEC.md S64 for the lessons a real
+// its own between runs (see READING-SPEC.md S65 for the lessons a real
 // run on a real subject already taught it).
 //
 // ── WHAT THE FOLD IS ASKED FOR, AND WHAT IT MAY NOT SAY ──────────────────

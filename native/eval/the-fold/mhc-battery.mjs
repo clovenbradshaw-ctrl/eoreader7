@@ -224,7 +224,7 @@ function loadMaterial(key) {
 
 // ── the specimen set, read OUT of the material ────────────────────────────
 function deriveSpec(material, reader, index, control, organs, foldToken) {
-  const edges = reader.edges ?? [];
+  const edges = edgesOf(reader);
 
   // WHICH EDGES MAY SERVE AS A SPECIMEN, and why the filter is not cosmetic.
   // The first version took the most-corroborated edge outright and drew
@@ -266,7 +266,7 @@ function deriveSpec(material, reader, index, control, organs, foldToken) {
   const statedInControl = (e) => {
     if (!control) return false;
     try {
-      return queryEdges(control.reader.edges ?? [], { subject: e.subject, verb: e.verb, object: e.object }).length > 0;
+      return queryEdges(edgesOf(control.reader), { subject: e.subject, verb: e.verb, object: e.object }).length > 0;
     } catch {
       return false;
     }
@@ -512,16 +512,30 @@ function deriveSpec(material, reader, index, control, organs, foldToken) {
     const claim = `${edge.subject} ${edge.verb} ${edge.object}.`;
     return sourceReaders.map((s) => {
       let v = null;
+      let c = null;
       try {
-        v = (s.reader.read(claim).claims ?? [])[0]?.verdict ?? null;
+        c = (s.reader.read(claim).claims ?? [])[0] ?? null;
+        v = c?.verdict ?? null;
       } catch {
         v = null;
       }
+      // THE ADDRESS A HOLD READ. `mergeTestimony` counts toward
+      // corroboration only holds that carry one (`readsNothing`, floor 4½'s
+      // wall — "a hold that read nothing asserted rather than read", landed
+      // 2026-09-01). These readings were built before that wall with
+      // `read: []`, so after it no claim here could ever reach AGREE and
+      // order 13's arm reported "the two claims' merges do not differ" on
+      // every material (found 2026-09-05, migrating this driver). A
+      // source-system that binds the claim READ its own passage: the
+      // claim's own refs where the reader states them, else the passage it
+      // was built over — a real address either way, never a bare vote. The
+      // same convention `readPerSource` below already keeps.
+      const bound = v === "bound";
       return {
         claim_id: `mhc:${edge.subject}|${edge.verb}|${edge.object}`,
         who: s.ref,
-        verdict: v === "bound" ? "holds" : v === "contradicted" ? "refused" : "undetermined",
-        read: [],
+        verdict: bound ? "holds" : v === "contradicted" ? "refused" : "undetermined",
+        read: bound ? (c?.refs?.length ? c.refs : [s.ref]) : [],
         edges: [],
         grammar: [],
         corroboration: null,
@@ -730,6 +744,54 @@ const against = (lacks, detail, attempt) => ({
 
 const GAP = (detail) => ({ unreachable: true, detail });
 
+// ── THE EDGE'S NAMES, READ ONCE ──────────────────────────────────────────
+//
+// hypergraph.js's edges carry ONLY the earned names — end1 / label / end2 —
+// since the SVO wipe (eoreader7 ffbbc0b, 2026-09-02 16:02; the-fold P76/P80).
+// This driver was written against subject / verb / object and reads them at
+// 47 sites. It was never migrated, and JavaScript answers a missing property
+// with `undefined`, not an error: every edge failed the specimen filter's
+// `clean(e.subject)`, `candidates` came back empty on ALL three materials,
+// and orders 6/8/9/10/12/13 reported "this material offers no edge whose two
+// ends are both admitted referents" — a statement about the MATERIAL, when
+// the truth was a statement about THIS DRIVER. That is P41 ("the absence of
+// a refusal is not a check") committed by the very file whose own header
+// warns about the same shape for engine LAYOUTS. Found 2026-09-05, when the
+// committed results (stage 13 on War and Peace, measured 2026-08-30) failed
+// to reproduce — see the-fold POLICIES.md "the stale stage".
+//
+// The migration is ONE seam, not 47 edits: every place this driver takes
+// edges off a reader goes through `edgesOf`, which lays the driver's own
+// vocabulary over the earned names and KEEPS the earned names, so the same
+// objects still satisfy `queryEdges`/`queryFillers` (which read end1/label/
+// end2). And an edge carrying NEITHER vocabulary is refused loudly, as a
+// fact about the driver — never folded into "the material offers no
+// specimen" again.
+const sae = (e) => ({ ...e, subject: e.end1 ?? e.subject, verb: e.label ?? e.verb, object: e.end2 ?? e.object });
+const saeEdges = (edges) => {
+  const list = edges ?? [];
+  if (list.length && list[0].end1 === undefined && list[0].subject === undefined) {
+    throw new Error(
+      "mhc-battery: the relation reader's edges carry neither end1/label/end2 nor subject/verb/object — " +
+        "this driver's edge vocabulary is out of date with hypergraph.js (a driver defect, not a material one)",
+    );
+  }
+  return list.map(sae);
+};
+// Memoised per reader: several arms locate the specimen INSIDE the edge list
+// by reference (`edges.indexOf(specimen)` in redealCountAgainstExactNull),
+// and a fresh `.map()` on every call would hand `deriveSpec` and
+// `buildItems` two different sets of objects for one reading — measured on
+// the first migrated run as order 9 refusing every material with "the
+// specimen is not among this reading's own edges". One reading, one set of
+// objects, however many times it is asked for.
+const edgeMemo = new WeakMap();
+const edgesOf = (reader) => {
+  if (!reader) return [];
+  if (!edgeMemo.has(reader)) edgeMemo.set(reader, saeEdges(reader.edges));
+  return edgeMemo.get(reader);
+};
+
 /** Does an arbitrary fold reproduce the individuation rule's own verdicts —
  * gathering every pair the rule calls one being, and keeping apart every pair
  * it withholds on? The order-5 arbitrary arm's whole question, broken out so
@@ -776,7 +838,7 @@ function buildItems(ctx) {
   const ASSEMBLY =
     "EXPERIMENT — engine text adapters hand-chained through the-fold's cast.js / hypergraph.js / verification.js / capacity-runner.js. NOT packages/host's assembled reader (absent from this checkout). READING-POLICY P0.";
 
-  const edges = reader.edges ?? [];
+  const edges = edgesOf(reader);
   const text = material.text;
   const heavyText = material.passages.slice(0, HEAVY_PASSAGES).map((p) => p.text).join("");
   // The Russian material's cell of the coreference seam: single-lemma
@@ -995,7 +1057,7 @@ function buildItems(ctx) {
               const e = spec.specimen;
               if (!e) return false;
               const r = makeRelationReader(organs)([{ ref: "salad#0", text: salad }], { pool: material.passages });
-              return queryEdges(r.edges, { subject: e.subject, verb: e.verb, object: e.object }).length > 0;
+              return queryEdges(edgesOf(r), { subject: e.subject, verb: e.verb, object: e.object }).length > 0;
             },
 
           ),
@@ -1005,7 +1067,7 @@ function buildItems(ctx) {
             `the control material (${control?.key}) is different content`,
             () => {
               const e = spec.specimen;
-              return queryEdges(control.reader.edges ?? [], { subject: e.subject, verb: e.verb, object: e.object }).length > 0;
+              return queryEdges(edgesOf(control.reader), { subject: e.subject, verb: e.verb, object: e.object }).length > 0;
             },
           ),
       },
@@ -1267,7 +1329,7 @@ function buildItems(ctx) {
             !!spec.specimen,
             "a claim the material states once must not report corroboration at the witness floor",
             () => {
-              const single = (reader.edges ?? []).find((x) => (x.refs?.length ?? 0) === 1);
+              const single = edgesOf(reader).find((x) => (x.refs?.length ?? 0) === 1);
               if (!single) return false;
               const rep = reader.read(`${single.subject} ${single.verb} ${single.object}.`);
               const claim = (rep.claims ?? []).find((c) => c.verdict === "bound");
@@ -1319,7 +1381,9 @@ function buildItems(ctx) {
               // Marginals preserved: the same objects, the same group sizes.
               // Destroyed: which subject+verb key each object is filed under.
               const objects = seededShuffle(edges.map((x) => x.object), seed);
-              const redealt = edges.map((x, i) => ({ ...x, object: objects[i] }));
+              // Both vocabularies move together: `queryFillers` below reads
+              // the earned name (end2), the driver reads its own (object).
+              const redealt = edges.map((x, i) => ({ ...x, object: objects[i], end2: objects[i] }));
               return { changed: redealt.some((x, i) => x.object !== edges[i].object), value: redealt };
             },
             (redealt) => {
@@ -1333,7 +1397,7 @@ function buildItems(ctx) {
             !!control,
             `the same slot queried against different content (${control?.key}) must not return the same range`,
             () => {
-              const got = queryFillers(control.reader.edges ?? [], { subject: spec.slot.subject, verb: spec.slot.verb });
+              const got = queryFillers(edgesOf(control.reader), { subject: spec.slot.subject, verb: spec.slot.verb });
               return (got?.length ?? 0) >= 2;
             },
           ),
@@ -1450,7 +1514,7 @@ function buildItems(ctx) {
               const sentences = organs.splitSentences(heavyText);
               const salad = sentences.map((s, i) => shuffleSentenceWords(typeof s === "string" ? s : s.text, i)).join(" ");
               const r = makeRelationReader(organs)([{ ref: "salad#0", text: salad }], { pool: material.passages });
-              const corr = (r.edges ?? []).filter((e) => e.assertion?.standing === "corroborated").length;
+              const corr = edgesOf(r).filter((e) => e.assertion?.standing === "corroborated").length;
               const realCorr = edges.filter((e) => e.assertion?.standing === "corroborated").length;
               return corr >= realCorr && realCorr > 0;
             },

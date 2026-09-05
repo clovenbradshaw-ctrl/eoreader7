@@ -3780,7 +3780,197 @@ similarity score. That is a better lookup, not a reading, and rule 2 says why
 it would have measured true and useless — the gap would have moved in the
 aggregate while the top of the list stayed the same.
 
-## S64 — an alias is declared by the material; the fold researches, the model points
+## S63 — A cross-document referent is instantiated the same way a within-document one is; and the cast's own furniture wall was still open
+
+**Generality:** specimen-scoped. The cast furniture-wall fix itself is
+universal (it closes a real gap in `cast.js` for every caller), but this
+entry's headline claim — a referent's reality-kind, read from a name-level
+cross-source correspondence — is measured, not universal: the same
+measurement below shows it real but noisy on this material, and the
+generic-token refinement tried against that noise is shown to cost more
+than it buys on this specific cast's own pre-existing fragmentation.
+
+User direction, near-verbatim: cross-document referent identity "is the
+same thing as when we instantiate an entity... just a cross document
+entity, a different type of being-hood" — and the-fold should organically
+discover, by kind induction, that some referents are real, some fictional,
+some a fictionalization of a real one, with Borodino named as the specimen
+(the real battle, and Tolstoy's own literary account of it, mixing real
+historical figures with invented characters).
+
+**The first half was already the design — `organs/bridges.js`'s own
+header states it almost verbatim** ("it is the same set of operations,
+just at another level"): a referent bridge is an ARRANGEMENT heard onto
+its own ledger through the identical `hear()`/`concede()` machinery an
+ordinary within-document entity uses. `bridge-witness.js` (S52, merged
+the day before this entry) can even ask a model to confirm one, measured
+with a real null (Fisher exact p=0.018). Its own disclosed boundary: a
+bridge exists only where an exact (subject, verb, object) triple matched
+across documents — 12 of 12 examined candidates were identical strings,
+so a paraphrase never becomes a bridge candidate. That ceiling, not the
+concept, is what stood between the design and the Borodino specimen.
+
+**Chasing the second half found a live, previously-undiagnosed production
+bug, not a missing feature.** `rashomon-contrast.mjs` (the most recent
+related work, the corrected successor to a retracted Rashomon run) had
+already found and named the next step: "a furniture wall on the cast, not
+only on admission" — Wikipedia navbox link text (unrelated Tolstoy story
+titles, an unrelated battle) was entering `cast.js`'s referent index and
+merging with real people (Barclay de Tolly and Pyotr Bagration fused into
+one referent carrying the infobox abbreviation "DOW"). Tracing exactly
+where this lived found it was not a missing organ: `source.js::chunkSource`
+already computes a page-aware, furniture-blanked `chunk.blanked` field
+whenever a caller passes `blankFurniture` (P82) — but `cast.js`'s
+`makeCastHandles`/`makeReferentIndex` read `p.text` unconditionally, so
+every caller that had wired `blankFurniture` into `chunkSource` believing
+it protected the cast (the-fold's own production `addSource`/web-fetch
+`chunkSource` calls did NOT even do that much — this pass found and fixed
+both) got no benefit at all.
+
+**The naive fix (read `.blanked` whenever present) broke a real,
+independently-tested architectural rule.** `hypergraph.js`'s
+`readSentenceText` already enforces, and `source-page-blanking.test.mjs`
+already tests, "a reader that never asked for blanking does not get it
+from the chunker" — a caller's own injected organ is authoritative, never
+a side channel it has no relationship with. `hypergraph.js` internally
+calls `cast.js::makeReferentIndex(organs)` to resolve edge endpoints
+(`import { makeReferentIndex } from "./cast.js"`, line 163), passing its
+whole `organs` bundle straight through — so an unconditional `.blanked`
+read made a reader that was deliberately NOT given `blankFurniture` see
+page-scoped blanking anyway, through referent identity rather than
+sentence text, and that exact test caught it. Fixed the same way
+`readSentenceText` already does it: `cast.js` now takes an optional
+`blankFurniture` (any truthy value — never invoked, only checked, since
+the blanking already happened at `chunkSource` time) and consults
+`.blanked` only when the CALLER of `makeCastHandles`/`makeReferentIndex`
+opted in. `hypergraph.js` needed no change at all — its own `organs`
+bundle already carries `blankFurniture`, so `makeReferentIndex(organs)`
+was already threading it through. The-fold's three cast.js call sites and
+this repo's own `rashomon-contrast.mjs` now opt in explicitly.
+
+**Measured on the real fetched Battle of Borodino page** (`cast.test.mjs`,
+5 cases, the first direct unit tests this module has ever had): the two
+fused garbage referents disappear entirely once opted in; Barclay de
+Tolly's surname reappears as its own (still partial) referent rather than
+fused into Bagration's; a reader that never opts in is provably
+byte-identical to before this fix, even when the SAME passages carry a
+`.blanked` field for another consumer's sake.
+
+**`organs/reality-kind.js`** is the new capacity (`realityKind`, INS·Kind
+— a SECOND organ at the cell `skill` already occupies, resolved and the
+registry checked BEFORE writing per P92's own rule): real / fictionalized-
+real / fictional, instantiated per referent from a caller-DECLARED genre
+(fiction/nonfiction — never induced) and a NAME-LEVEL cross-source
+correspondence (`namesCorefer`, the same sameness test `cast.js`'s own
+`resolve()` uses for within-document identity) — deliberately NOT routed
+through `bridges.js`'s own exact-triple ledger, because two independently
+authored accounts of one event essentially never share a full triple
+verbatim (`rashomon-contrast-RESULTS.md` measured 1 shared claim in 1,663
+on this EXACT material) and routing through it would answer "fictional"
+for nearly everyone, Napoleon included — not because he is fictional, but
+because the bridge mechanism's own disclosed ceiling was never built to
+reach a paraphrase. A name is a narrower object than a whole asserted
+relation, and an exact match on one is common where an exact match on the
+other is vanishingly rare. "Fictional" is deliberately never phrased as
+"does not exist" — every row carries `checkedAgainst`, naming exactly
+which nonfiction sources were examined, the withhold-vs-convict rule
+applied to a new axis.
+
+**Verified against the user's own falsifiable prediction, live, on the
+real fixtures already in this repo** (`wikipedia-battle-of-borodino.html`,
+`tolstoy-borodino.txt`): Napoleon and Kutuzov correctly correspond across
+the encyclopedic and novelistic accounts and read `fictionalized-real`;
+Bezukhov, Bolkonsky, and Rostova never do and read `fictional`. 178
+correspondences found across 289 Tolstoy referents; a hand spot-check of
+20 (not just counted — read, this project's own standing discipline)
+found roughly two-thirds genuine (Moscow, Smolensk, Shevardino Redoubt,
+Murat, Bennigsen, Kutuzov, Napoleon among them) and the rest real, named
+noise: generic military-rank/unit words ("Colonel", "Division") admitted
+as matchable surfaces by the cast in the first place, and at least one
+likely collision with an unrelated person sharing a common name (a
+Wikipedia bibliography author named Boris, not the novel's own character).
+
+**A second, real, measured finding — a proposed fix for the first noise
+class was tried, found to cost more than it buys, and shipped opt-in
+rather than on.** `surfaces.js::genericTokens` (already built, unrelated
+to this file, an IQR-fenced measure of how many distinct partner tokens a
+name-token co-occurs with — "so two Princesses never merge") looked like
+the exact tool for "pierre" being too common a given name to individuate
+a match on its own, and DOES fix that specimen (Tolstoy's bare "Pierre",
+this excerpt's only surface for him, no longer corresponds to a real but
+different officer, "Jean Pierre Lanabère Charles", once gated). Run on
+the real fixture rather than assumed safe: the SAME statistic, computed
+over this cast's own pre-existing prose-coreference fragmentation
+(Napoleon alone surfaces as seven distinct garbage referents on the
+Wikipedia side — "How Napoleon", "Napoleon Europe", "Napoleon Against
+Kutuzov" among them, each contributing a different partner token), pushes
+"napoleon" AND "kutuzov" past the identical fence — refusing the two
+correspondences the whole specimen is about, for a reason that has
+nothing to do with either being a common name. Pinned as its own test
+(`cast.test.mjs`'s sibling reads this fixture's own generic set directly
+and asserts both names are wrongly in it), shipped as a real, tested,
+OPT-IN organ parameter — off in the demonstrated configuration, on for a
+caller who has separately dealt with the underlying fragmentation.
+
+**Disclosed, not silently narrower than it sounds.** The generic-military-
+word noise class (Colonel/Division as matchable "referents" at all) is an
+upstream referent-admission question this pass did not touch. A stronger
+correspondence signal — composing this file's name-level check with
+`bridges.js`'s own corroborated triples where one exists, the stronger
+winning — is real, scoped, unattempted future work, named rather than
+implied done. The prose-coreference fragmentation the generic-token
+finding surfaced is a pre-existing, separate engine limitation (distinct
+from the furniture bug this same pass fixed), not addressed here.
+
+**Files.** `organs/cast.js` (the furniture-wall fix, additive, backward
+compatible) + `organs/cast.test.mjs` (new, 5 cases — this module's first
+direct unit tests). `organs/reality-kind.js` + `organs/reality-kind.test.mjs`
+(8 cases, including the real-fixture falsifiable-prediction test and the
+generic-token guard's own measured benefit-and-cost). `organs/capacities.js`
+(`realityKind` registered, 27/27 cells unchanged, geometry re-asserted).
+`eval/the-fold/rashomon-contrast.mjs` (the same furniture-wall fix applied
+to its own passage construction, so its own cast is no longer the thing
+this entry just fixed). the-fold's `app.js` (both `chunkSource` call sites
+— `addSource`, the one choke-point every attachment/paste/upload/library
+pull passes through, and the web-fetch path — now pass `blankFurniture`;
+all three cast.js construction sites opt into it). Full suites, failure
+names diffed via `git stash` rather than counted: the-fold 1025/958/67
+before and after (zero regressions); eoreader7 core 555/543/10 and organs
+441→449/437/11 before and after (the 8 new reality-kind cases the only
+count change, same 11 pre-existing names both times).
+
+## S64 — A committed eval result is not enforcement until a test reads it; and the three drifts that kept a stage-13 reading on the books for six days
+
+**Generality:** universal for the two organ rules and the driver migration below (each is a structural rule with no tuned number, replayed on a second material and on synthetic controls in both directions); the stage readings themselves are specimen-scoped, as every MHC number here has always been.
+
+The-fold's own **P94** is the paired entry (the law, the fold-side files, the audit); this is the engine side. The user's challenge, verbatim: *"I don't believe we can reason at level 13 with war and peace, prove it."* The honest answer was that it could not be proven — and the proof of that is the finding.
+
+**What the doc said, and what the driver did.** `native/eval/the-fold/results/mhc-RESULTS.md` reported War and Peace at **stage 13 (Metasystematic)**. Re-run live on 2026-09-05 against the identical committed fixtures — twice, the second time from clean `origin/main` worktrees in both repos to rule out the session's own unmerged branch — it reported **"Stage: none readable"**: order 5 `failed` ("gathered 60/60 … kept apart 17/19"), and orders 6, 8, 9, 10, 12, 13 `unmeasured (organ_unreachable)` on **all three** materials, each saying "this material offers no edge whose two ends are both admitted referents." Borodino, whose order 5 passed, capped at stage 5 for the same reason.
+
+**Three independent drifts, dated.** The stage was measured for real on 2026-08-30 (P70's third amendment). Then:
+
+1. **2026-08-30, same day — `WORKING_PASSAGES` 40 → 70** (raised to give order 10 a specimen) pulled the article's back matter into the candidate pool for the first time. The Translations bibliography ("Oxford University Press", ×3, beside Cambridge and Cornell University Press) and the Adaptations list ("Natasha, Pierre & The Great Comet of 1812") sit at characters 48,469 and 54,682 — both past the old 48,000 cutoff. Two organ defects the front matter never exercised then produced two false merges on the fold's own individuation rule (below), order 5 failed, and `stageFrom` — correctly — read no stage across a failed floor. Isolated with one variable: the identical code over the first 40 passages has neither surface in its pool and zero false merges; over 61 it has both.
+2. **2026-09-01 — `readsNothing`** (floor 4½'s wall, consumed by `mergeTestimony`): a hold carrying no address no longer counts toward corroboration. The battery's order-13 readings (`readAcross`) were built with `read: []`, so no claim could reach AGREE and the arm reported "the two claims' merges do not differ" on every material.
+3. **2026-09-02 16:02 — the SVO wipe** (`ffbbc0b`; the-fold P76/P80): edges carry only `end1/label/end2`. The battery read `e.subject/e.verb/e.object` at **47 sites** and was never migrated. JavaScript answers a missing property with `undefined`, not an error: every edge failed the specimen filter's `clean(e.subject)`, `candidates` came back empty, and the driver reported the absence as a property of the **material**. That is P41 committed by the very file whose own header warns about the identical shape one level up ("a driver that hardcodes one [engine layout] reports 'organ unreachable' … a statement about the SYSTEM when it is a statement about a path").
+
+The results file was carried through the eval migration at 2026-09-02 10:00 — already wrong two ways, wrong a third way six hours later, and read as truth for three more days. Nothing read the number, so nothing failed. **eo-constitution III.5 — a typed gap no test reads is a report, not an enforcement — applies to a committed measurement exactly as it applies to a gap.**
+
+**Organ rule 1 — a token with no letters breaks a capitalised run** (`adapters/text/surfaces.js`, both `accumulateSurfaceEvidence`'s scan and `extractLeadingSurfaces`, which is that scan with one stated difference). A whitespace-delimited token that strips to nothing — a bare "&", a spaced dash, a stray colon, a numeral — vanished from `toks` with no break recorded, so the tokens either side read as adjacent and the run-walker bridged across. "Natasha, Pierre & The Great Comet of 1812" extracted **"Pierre The Great Comet"** — a surface the material never contains (`indexOf` = −1) — and merged the character with the 1811 comet through it. The comma fix (S44's lineage) catches junk glued to a token's own edge; this is the one shape that check cannot see. Fix: `pendingHardBreak`, folded into the next real token's `leadingJunk`. The category is "no letters" — never a list of marks (P50); a spaced dash is pinned to break the same way.
+
+**Organ rule 2 — containment is not transitive through a shared anchor** (`discoverReferents`). The two-bearer rules (S17) catch a fragment bridging two *existing* groups. Their shared blind spot: assignment is most-individuated-first, so the anchor arrives first and every fragment then faces its maximal member alone, one at a time. "Oxford University" and "University Press" are each a subset of "Oxford University Press"'s tokens, each matched it on its own, and both were absorbed — though they never match *each other* ({oxford, university} and {university, press} overlap on one token and neither contains the other). There was only ever one group in play, never two to bridge. Fix: each group carries its `children` (every member but the current maximal; a witnessed merge carries the folded groups' members across), and a fragment arriving into a single matched group is held against those children for **partial overlap without containment**; a conflict lands as the *same* typed `ambiguous_surface` gap the two-bearer wall uses, now naming `conflictsWith`. Membership is still decided against the maximal only — the design S17 chose to keep a weak member from admitting a third party is untouched. Disjoint siblings never conflict: {ilya, andreyevich} and {rostov} under "Ilya Andreyevich Rostov" keep merging (pinned as the control). **Disclosed cost, pinned rather than hidden:** {ilya, rostov} against a sibling {ilya, andreyevich} is the same structural shape as the publisher case and is refused too — only world knowledge (a person carries a patronymic, a press does not) tells them apart, and this tier does not have it. Measured on the real fixtures, the rule's whole cost is **one refusal**: "University Press" on War and Peace (the intended one); Borodino's single refusal ("Pyotr", two bearers) is the pre-existing wall.
+
+**The driver, migrated at one seam, not 47 edits.** `edgesOf(reader)` lays the driver's vocabulary over the earned names and keeps them, so the same objects still satisfy `queryEdges`/`queryFillers`; it is memoised per reader (a fresh `.map()` per call handed `deriveSpec` and `buildItems` different objects for one reading, and order 9's `indexOf` refused every material with "the specimen is not among this reading's own edges" — found on the first migrated run, not reasoned about); the order-10 redeal sets both names; and an edge carrying *neither* vocabulary is refused **loudly, as a fact about the driver**. `readAcross` readings now carry the address they read (the claim's own refs, else the passage), `readPerSource`'s existing convention.
+
+**Measured, before and after, same fixtures.** War and Peace: none readable → **stage 13**; order 5 gathered 60/60 → 51/51, withheld 17/19 → **11/11** (the pool shrank because the fabricated surfaces are gone and one fragment is refused — LP11's marginal accounting, above). Borodino: 5 → **stage 6** (its real order-7 ceiling, unchanged); order 5 27/27 → 32/32 and 2/2 → 6/6 — *more* pairs adjudicated, all clean, because runs the "&" rule now splits are real names (and one bare given name, "Pyotr", refused as ambiguous between its bearers — the S17 two-bearer gap doing its job, not the overlap rule). Orders 9 and 13 measured and passing on both English materials. borodino-ru stays "none readable" on the disclosed register limits (`Огюст Коленкур | Огюст` stranded; `Италии Евгения Богарне | Италии Евгений` merged — S39/S40's own), untouched here. Scale held: 0 order changed its order-hood with the content.
+
+**Enforced now, not reported.** `native/eval/the-fold/lib/coref-agreement.mjs` is the order-5 computation moved out of `deriveSpec` verbatim (comments kept — they record three wrong versions of the probe) so ONE implementation serves the driver and `native/tests/mhc-order5-precision.test.js`, which asserts zero wrong merges and zero strandings on both English fixtures on every suite run, logs the refusals by name, and pins the two false merges that found this. `native/tests/rich-referents.test.js` grew five cases: the "&" glue, the spaced dash (the category), the Oxford overlap, the disjoint control, and the disclosed Ilya cost. Every new test was run against the *unfixed* organs first and failed on exactly the expected cases while the control passed — a pin built to fail, per II.23.
+
+**What is not claimed.** 13 is the same cascade-gated number it was: it stands on order 5's precision on these two fixtures and will move again the next time the pool moves. It says nothing about correspondence. And the stale doc is one instance caught because a reader disbelieved it; P94 carries the audit of the others.
+
+**The audit of the other results docs, run from this side and stopped at 3 of 13** (the-fold P94 carries the full account and the continuation). Its own first finding: only five of the thirteen wipe-exposed drivers write a tracked results file; the rest are transcriptions of stdout, so a `git diff` of `results/` measures nothing for them and had to be replaced by reading stdout against the doc. `admission-gate` drifted by one `the`-labeled note in its blind arm (32 → 31 admitted, 18 → 17 junk, 18 → 17 gate refusals), gated arms byte-identical. `asserted-eval` cannot run here: it imports `legacy-eoreader6.1/packages/engine/perceiver/text/spans.js` by path and that submodule is uninitialized, its remote outside the session's reach — the migrated tests were given the native fallback, this driver was not. `cited-source-null` and `ordered-read-reach` both read `results/ranke-backwards.json`'s faces and skip absent ones silently, and 86 of the 106 the walk names were untracked (`5541af4`, 09-04 11:52) after both docs landed (11:20, 11:29): the live pool is 20 faces, printed as the same "16 independent sources"; on that pool the null's 18 draws (7,316–7,672) all exceed the real 7,271 where the doc had a 9.6% lift — the doc's run is not refuted; its re-run is impossible from the repo. Both drivers now print the walk's face count, the absent count and the pool used, and say the numbers are not comparable. Nine drivers unrun: `full-circuit`, `hyperlexicon-door-probe`, `mechanical-reasoning`, `object-boundary`, `pruning-timeline`, `rashomon-contrast`, `reasoning-e2e-no-llm`, `subject-wall`, `vendored-prior-eval`. The rule this earns: a fixture a driver needs and `.gitignore` refuses is a result nobody can reproduce, and the driver should refuse rather than narrow — a decision for the next pass, not taken here.
+
+**Files.** `adapters/text/surfaces.js`; `eval/the-fold/mhc-battery.mjs`; `eval/the-fold/lib/coref-agreement.mjs` (new); `tests/mhc-order5-precision.test.js` (new); `tests/rich-referents.test.js`; `eval/the-fold/results/mhc-RESULTS.md` + `mhc-battery.json` regenerated from the real run; `eval/the-fold/cited-source-null.mjs` and `eval/the-fold/ordered-read-reach.mjs` (the skipped-face disclosure, numbers untouched).
+## S65 — an alias is declared by the material; the fold researches, the model points
 
 **Generality:** universal.
 
