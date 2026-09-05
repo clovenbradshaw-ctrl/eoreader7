@@ -526,3 +526,18 @@ test("a filling found by a face's own organ re-zeros the void by name; an unknow
   const t = notes.voidTimeline(log, r.id);
   assert.deepEqual(t.events.map((e) => [e.act, e.by ?? null]), [["declared", null], ["filled", "Amelia Hartley"]]);
 });
+
+test("fillingsSince(log, seq): the re-zeros landed at or after a cursor — a turn can ask what moved its ground since it began", () => {
+  const notes = makeNotes();
+  let log = notes.createNotes();
+  const v = notes.declareVoid(log, { end1: "the observatory", label: "opened", scope: { sources: ["a.txt"], read: 1, total: 1 } });
+  log = v.log;
+  const mark = log.nextSeq;
+  assert.deepEqual(notes.fillingsSince(log, mark), []);
+  log = notes.admit(log, [{ end1: "the observatory", label: "opened", end2: "in 1889", spans: [span("a.txt", 0, 10)] }], { witness: "a.txt#0-10~r" }).log;
+  const since = notes.fillingsSince(log, mark);
+  assert.equal(since.length, 1);
+  assert.equal(since[0].void, v.id);
+  assert.ok(since[0].at >= mark);
+  assert.deepEqual(notes.fillingsSince(log, log.nextSeq), [], "nothing after the present");
+});
