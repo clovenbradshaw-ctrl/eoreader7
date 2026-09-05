@@ -1,5 +1,7 @@
 # The full circuit — three ways of knowing in relay, measured (2026-09-02)
 
+**Audit 2026-09-05 (the-fold P95 / S65): reproduced exactly** — every number below re-read live. One transcription error: the heading "Nine walls" sits over a table of ten rows; the driver prints ten. Enforced now by `native/tests/full-circuit.test.js`, which reads every wall and every by-construction number on each suite run; the computation lives in `lib/full-circuit.mjs`.
+
 *Driver: `eval/full-circuit.mjs`, re-runnable, deterministic (every arm
 seeded). Answers the direct question "does our core mechanism do all
 three?" — the honest answer being no, no single mechanism does, on

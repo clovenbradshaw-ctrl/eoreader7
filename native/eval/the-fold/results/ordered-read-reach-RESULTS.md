@@ -1,5 +1,7 @@
 # The lookup is noise; the resolved referent is not (2026-09-04)
 
+**Audit 2026-09-05 (the-fold P95 / S65): reproducible only where the walk's fixtures exist.** Same walk file, same 86 of 106 faces absent, same rule: the driver refuses with a typed `fixture_absent` gap and exit 2 (`lib/walk-fixtures.mjs`, `native/tests/walk-fixtures.test.js`) rather than narrowing to the 20 on disk. On this checkout it refuses.
+
 `node native/eval/the-fold/ordered-read-reach.mjs`. **Zero model calls.**
 
 User: *"remember that we need to walk the activation in order and truly read

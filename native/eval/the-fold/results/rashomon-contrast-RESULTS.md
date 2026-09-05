@@ -1,5 +1,7 @@
 # Contrasting three accounts of one battle: what actually stops it
 
+**Audit 2026-09-05 (the-fold P95 / S65): drifted.** A/B now read 1,445 / 1,441 / **0** and 1,619 / 1,614 / **0** (was 1,471 / 1,466 / 1 and 1,669 / 1,663 / 1): the referent pool moved and the single shared claim is gone — the cast's furniture wall (P93 / S63, this doc's own "next 1") and S64's surface rules are the candidates, not isolated here; the driver falls back to the full list and both arms still read 0.0%, so the negative result stands and nothing about Borodino follows. `results/rashomon-contrast.json` is gitignored, so `git diff` measures nothing here, and the slot-level table below is not computed by the driver at all — a report by construction, enforced by nothing. Named as such in `audit-results.sh`.
+
 Ran 2026-09-04. **0 model calls, fully offline.** Supersedes the retracted
 `rashomon-probe-RESULTS.md`.
 

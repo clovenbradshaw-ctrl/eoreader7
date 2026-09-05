@@ -2,7 +2,7 @@
  "schema": "EOPruningTimeline@1",
  "question": "how long does a licence survive as the corpus grows — and does the instrument take it back when the material refutes it?",
  "declared": {
-  "giver": "eval/pruning-timeline.mjs — per-office succession closure, declared as this driver's own risk",
+  "giver": "native/eval/the-fold/pruning-timeline.mjs — per-office succession closure, declared as this driver's own risk",
   "offices": 7,
   "facts": 26
  },

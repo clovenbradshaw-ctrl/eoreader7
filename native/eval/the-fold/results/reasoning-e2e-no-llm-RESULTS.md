@@ -1,5 +1,7 @@
 # How far without an LLM — e2e reasoning driver
 
+**Audit 2026-09-05 (the-fold P95 / S65): every verdict reproduced; the driver's display had drifted.** It printed `undefined —undefined→ undefined` for all nine edges, every "read as:" and every "nearest:" — it read `e.subject/e.verb/e.object` off edges that have carried `end1/label/end2` since the SVO wipe (S64's defect, in a second driver). Migrated at one seam in `lib/reasoning-e2e.mjs`; the-fold's `hypergraph.js`/`cast.js` re-export the engine's organs, and the engine's own adapters read the identical verdict table the frozen provider does — one reader over two adapter providers, so this corroborates the adapters, not the reader (both run, both reported). Enforced by `native/tests/reasoning-e2e.test.js`, which pins every tier's table below.
+
 `eval/reasoning-e2e-no-llm.mjs` asks a small set of questions against real
 prose and answers them using only mechanical organs already in this repo —
 `hypergraph.js`'s real extraction/judgment (`makeRelationReader`), its
