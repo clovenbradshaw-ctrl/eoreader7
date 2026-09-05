@@ -89,11 +89,11 @@ for (const model of MODELS) {
       planMode: false, chatHistory: [], discourse: "",
       hyperlexicon: hl, hyperlexiconLog: ledger, hyperlexiconFrame: frame, hyperlexiconRecipe: recipe,
     });
-    const rec = answerRecord({ question: q.question, answer: r.output ?? "", model, frame, recipe, sections: r.sections ?? [], unsupported: r.unsupported ?? [], unbacked: r.unbacked ?? [], sources: Object.keys(CORPUS).map((name) => ({ name })) });
+    const rec = answerRecord({ question: q.question, answer: r.output ?? "", model, frame, recipe, sections: r.sections ?? [], unsupported: r.unsupported ?? [], unbacked: r.unbacked ?? [], sources: Object.keys(CORPUS).map((name) => ({ name })), voids: hl.foldVoids ? hl.foldVoids(ledger) : [], witness: r.witness ?? [] });
     byModel[model].records.push(rec);
     byModel[model].answers.push(String(r.output ?? "").replace(/\s+/g, " ").slice(0, 240));
     byModel[model].ms += Date.now() - t0;
-    console.log(`\n[${model}] ${q.question}\n  → ${byModel[model].answers.at(-1)}\n  record: ${JSON.stringify(rec.tally)} · unsupported ${rec.unsupported.length} · unbacked ${rec.unbacked.length}`);
+    console.log(`\n[${model}] ${q.question}\n  → ${byModel[model].answers.at(-1)}\n  record: ${JSON.stringify(rec.tally)} · unsupported ${rec.unsupported.length} · unbacked ${rec.unbacked.length} · absences ${rec.absenceTally.citingVoid} cite a declared gap / ${rec.absenceTally.citingNone} cite none (P106)`);
   }
   byModel[model].calls = calls;
 }
