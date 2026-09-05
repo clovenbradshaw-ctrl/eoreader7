@@ -4080,3 +4080,235 @@ The-fold **P95** is the paired entry (the law and the fold-side files); this is 
 ## S73 — The mouth's absence leak, one question, two mouths: the void tier in the prompt turns a dodge into a stated gap and cuts a fabrication
 
 **Generality:** not-applicable (a dated model arm — one question, two small models, one run; `results/absence-leak-RESULTS.md` carries the table). Two measure findings are universal and shipped: absences are witness-refused sentences only (the-fold P106 amended — the instrument's own finding strings are not the mouth's sentences), and `voidInScope` matches the label exactly, so an act-labelled void misses a slot-shaped absence until the label is folded through morphology (named, not done). Driver `eval/the-fold/absence-leak.mjs` binds the sentence witness as app.js does.
+
+## S74 — an alias is declared by the material; the fold researches, the model points
+
+**Generality:** universal.
+
+Two things landed together, from one live research walk on a real subject
+this project had never read (`eval/the-fold/civic-research-walk.mjs`, a
+generic driver; the pilot subject — a local nonprofit and the city
+government that funds it — is deliberately not named here: see the
+amendment below for why nothing about a specific research subject is kept
+in this repo at all).
+
+### The organ: `organs/aliases.js`
+
+`surfaces.js::namesCorefer` folds a name shortened by DROPPING WORDS and,
+measured, does not fold one shortened by INITIALS — an organisation's real
+initialism did not fold to its own full name. The patch that suggests
+itself, deriving an initialism and comparing it, is refused on this
+project's standing grounds: a rule that DERIVES a name can INVENT one.
+
+Prose declares its own short forms, at addresses. `declaredAliases` reads
+them, and the shapes it reads with are RECEIVED — `live_priors` measured
+which shapes English prose actually uses (LP15, `AliasDeclarationPrior@1`;
+the parenthetical fires 23,375 times at 0.478 confirmed, every connective
+phrase in single digits or never). This organ holds no declaration
+vocabulary of its own, both floors are the caller's, every admitted gloss is
+walled against the material's own USE of it (`minUses`, giver: the
+structural minimum 2 this project uses wherever recurrence has to mean
+anything), and the declaring sentence's byte span is re-read before an alias
+ships (P5.2). **An acronym is one subtype of alias and needs no rule of its
+own; nothing here knows what an acronym is.**
+
+Verified live: reading its first pages, the walk learned two of the
+subject's own short forms directly from the material's own glosses, each
+citing the sentence that taught it. 11 conformance cases against the REAL
+prior, no fixture written for them (rewritten 2026-09-05 to use synthetic
+organisations — see the amendment below).
+
+### The walk, and six defects it exposed
+
+The driver is the fold researching: `preflightQuery` derives the opening
+search, then `proofQuery(claimOfNote(n))` over the ledger's own thin notes
+and `preflightQuery(name, TASK)` over the names its own reading named, in
+rounds. Reading, snipping, standing and the prose are all mechanical —
+`crown.js`/`compose.js` render model-free, and the model's entire authority
+is the select protocol. Measured: 91 calls, every one an index-pick, nothing
+it wrote in the document.
+
+Each of these is a general lesson about running this class of task, found
+by running it, not by reasoning about it, and each is fixed in the process
+rather than in the output:
+
+1. An aggregator's recirculation furniture became notes, and the expansion
+   spent several fetches chasing an unrelated site the aggregator merely
+   linked to. → a declared anchor floor that gates SPENDING and ordering,
+   never admission.
+2. A search every face refused was cached as `[]`, making "the upstream
+   refused us" indistinguishable from "the web has nothing" for every later
+   run. → a refusal is never cached as an answer.
+3. A feed answers a STRING; the fold asked a QUESTION. Asked for a second
+   source on a real funding vote naming a real board member, it was offered
+   an unrelated business, an unrelated technical topic sharing the member's
+   surname, and a distant, unrelated public figure. → a result must carry
+   the question's own content words before it earns a fetch.
+4. A generic encyclopedia article on the subject's own common-noun category
+   (the kind of body it is, not the body itself) shared several words with
+   the question and would have swamped the ledger with propositions about
+   nothing in particular. → a page that never NAMES the subject is kept,
+   addressable, and not read. Word overlap cannot tell a named organisation
+   from a common noun.
+5. A warm search cache made the whole expansion no-op — the code skipped a
+   query because it was cached, rather than reusing the cached results. → the
+   cache prevents a re-fetch, not a re-read.
+6. The composition accepted only containment-found spans, so the
+   corroboration walk's attestations — the paraphrase evidence the walk is
+   SPENT to get — were silently discarded and §3.1 read "none" while several
+   notes had reached two sources. → a reading counts whether its evidence
+   was found by containment or attested by the witness, and says which.
+
+One heuristic was REFUTED by measurement before it shipped: median sentence
+length does not separate an index page from an article (a real news article
+measured 3, a section front 9). It was dropped rather than tuned.
+
+### Disclosed
+
+**The control, three times, and what it finally said.** The first redealt
+control (II.23) rotated each object to the next note's and spent 0 asks —
+every rotated proposition was refused by the mechanical co-presence gate
+before the model was consulted: a result about the gate, no test of the
+model. The second kept each subject and drew a DIFFERENT object that
+genuinely co-occurs with it in the read pages (`endsCopresentWindow`, the
+walk's own gate) — and still spent 0 asks, because the door refused every
+edge as `unaddressed`: the ledger's own wall, right to insist, and the
+reason the arm was silently empty. The third carries the co-presence
+window itself as each false proposition's address — a real span of a real
+page, the place a careless reader would look — and reached the model.
+
+**It attested 6 of 89 (0.067 per ask) against the real arm's 6 of 74
+(0.081).** By II.23's own reading, a control that attests at the real arm's
+rate means the walk is measuring topic overlap, and the document's §3.1
+("stated by more than one source") may not be read as corroboration on
+this material. The document says so in its own §5. What the run did NOT
+yet print is WHICH six false propositions were attested — a swap that
+happens to produce a true statement is a leaky control, not a fooled
+model — and that inspection was the named next step before either reading
+could be trusted. **Built in the amendment below.**
+
+`web.archive.org`'s replay path answers 403 to this environment even for
+URLs its own availability API reports as archived, so several large local
+outlets (403/429) were absent from the ledger on the pilot run. That is a
+fact about a run's reach in this environment, and the output says so.
+
+### Amended 2026-09-05 — de-identified: no research subject preserved, only the lessons
+
+**Generality:** universal.
+
+Direct user instruction: *"i dont want you to preserve any content specific
+to this research on nashville in the repos, only preserve the lessons we
+learned about how we need to run tasks like this."* Every proper noun
+naming the pilot subject, its funders, its officials, or any fact about it
+is removed from every file in this repository and its sibling repos —
+`organs/aliases.js`'s doc comments and `aliases.test.mjs`'s fixtures now
+use synthetic organisations invented for the tests alone (a "Regional
+Transit Authority", a "Central Zoning Board", a "Riverside Housing Trust",
+a "County Commission" — none real); the driver itself was renamed from a
+subject-bearing filename to `civic-research-walk.mjs` and rewritten to
+require `TASK` with **no default** — a driver that ships with a subject
+baked in is carrying research content, not a template, so a bare
+invocation now refuses rather than quietly re-running whatever it was last
+pointed at. What is preserved, per the same instruction, is everything
+this pass actually learned about HOW to run a task like this — the
+findings above (both defects and the control's own reading) are kept in
+full, because they are facts about the MECHANISM's measured behavior, not
+facts about the pilot subject: a call count, an attestation rate, or "a
+generic encyclopedia article can swamp a ledger with off-subject
+propositions" reveals nothing about who or what was investigated.
+
+This amendment also folds in three further user directions from the same
+session, acted on together before the walk is ever run again.
+
+**On saving:** *"priors are only so the reader doesn't start fresh. but it
+shouldn't be saving these test documents."* A PRIOR is a measured artifact
+of a permanent corpus (LP15's alias-declaration shapes, over live_priors)
+that exists precisely so a reader does not start cold on every run — it
+stays. A TEST DOCUMENT is one run's own fetched material and its own
+produced reading, naming a real, specific, living subject — it does not
+stay, ever, in this repo. `.gitignore` covers any `*-READING.md` this
+driver shape produces; the earlier pilot's own reading and its 7.5MB
+fetched-page cache were untracked from git and deleted from local disk,
+both regenerable by re-running the driver, neither belonging here.
+
+**On discovery over seeding:** a companion plan draft (the-fold's own
+NEXT-PASSES.md) had proposed hand-declaring which document CLASSES matter
+for a subject (a legislative record, a financial filing, an audit) as seed
+sources, naming specific real government and nonprofit-filing websites.
+Refused directly by the user: *"im not telling you the answer, it should
+discover that."* Checked against the driver itself first, and it already
+held the line: no document, site, or record class has ever been named in
+this file — the fold derives every query from the declared TASK and its
+own reading (the subject's own names, the ledger's own thin notes), and
+`TASK` is the one required, human-set line. The refusal generalizes: **a
+reader may be told what is being asked; it may not be told where to
+look.** Discovery is not merely cheaper than seeding — a hand-picked
+source list is exactly the kind of authority the read-frankenstein
+register already distrusts on the noun side (L2's capitalisation veto, the
+cube refused as a content classifier); this is the same distrust on the
+corpus side.
+
+**On where the next run happens:** *"prep this and we'll run locally."*
+Confirmed for starting the next lever too — "same answer." Nothing was
+executed on any real subject this pass; the ground for a local run was
+built instead: portable sibling-repo paths (`THE_FOLD_DIR`/
+`LIVE_PRIORS_DIR`/`ALIAS_PRIOR` env overrides replacing three absolute
+imports, defaulting to the sibling-checkout layout this project already
+develops under), a `CHECK=1` preflight — sibling files found, Ollama
+reachable, the declared model pulled — that exits before any search,
+fetch, or model call is spent (a real bug in its first draft, an `||` in
+the exit-code branch that made a FAILED check under `CHECK=1` exit 0, was
+caught by testing the failure path deliberately, not assumed passing
+because the success path worked), and a header comment rewritten as the
+run instructions in full.
+
+**S62's own two selectors are now a declared runtime choice, not only a
+measurement.** `corroboration.js::facesReachable` is the referent-face
+selector S62 measured separating (p≈0.048) where literal co-presence does
+not (p≈0.905), extracted from where it was first built
+(`ordered-read-reach.mjs`'s Arm B) into a reusable, tested organ rather
+than re-derived per driver — the same asymmetry it was measured with is
+kept exactly (a resolved face required on the subject side, a literal
+fallback kept on the object side, because an object is frequently a bare
+description with no face to resolve and narrowing recall there was never
+measured). `corroborateLedger` takes an optional `reachable(sourceRef,
+ends)` that REPLACES the co-presence admission decision when supplied —
+never ANDs with it, because ANDing a measured-noisy gate onto a
+measured-separating one would silently suppress exactly the recall the
+better selector exists to recover. `SELECTOR=referent-face` wires it into
+BOTH walk arms identically, via a per-page carry of each bound edge's own
+`end1Face`/`end2Face` alongside its raw text. `candidatePairs` is added to
+the walk's return (S60: read the wall at zero calls) so a run can report
+how many pairs were even proposed before either prefilter had a chance to
+refuse one.
+
+**The named-but-unbuilt inspection from the pilot run — which six control
+propositions were attested, and whether the swap is leaky — is built.**
+Every attested control proposition is now printed with its subject, label,
+swapped object, the address the witness pointed at, and a mechanical check
+against the REAL ledger: does it already join the same subject to the same
+swapped object under ANY label. A swap the material also independently
+states convicts the control's OWN construction (its no-shared-content-word
+rule did not guarantee no-shared-fact), not the model; only a genuinely
+false attested swap bears on whether the model can be fooled, and the
+reading now says which is which rather than reporting a bare rate.
+
+**Tests.** Two new cases in `corroboration.test.mjs`: `facesReachable`'s
+asymmetric behavior (both faces resolve; object falls back to raw; subject
+has no fallback and refuses; no edges refuses), and `corroborateLedger`'s
+`reachable` override actually replacing the admission decision in both
+directions (opening a pair co-presence would refuse; closing one it would
+admit) — proving it is a replacement, not a widening. `aliases.test.mjs`'s
+11 cases were rewritten onto synthetic organisations, same semantics,
+still passing. Full organs suite: 437/449, the same 11 pre-existing
+failures confirmed identical by name via `git stash` (all in
+`grammar-lens.js`/`frame.js`, unrelated to this change), zero regressions.
+The driver's `CHECK=1`, its TASK-required refusal, and a zero-budget
+`OFFLINE=1` smoke run against a synthetic subject were all verified end to
+end against this worktree's real Ollama before committing.
+
+**Not yet run.** No research walk was executed on any real subject in this
+container, this pass or the last. The next run happens on the user's own
+machine, against their own material. What ships here is the ground for
+that run and the general lessons a pilot already taught it — nothing about
+who or what the pilot was.
