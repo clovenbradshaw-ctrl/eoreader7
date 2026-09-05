@@ -30,7 +30,8 @@
 // recovering signal or just matching more often.
 //
 //   env: SOURCES (16) · DRAWS (20)
-import { readFileSync, existsSync, writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
+import { walkFaces, describeWalkGap } from "./lib/walk-fixtures.mjs";
 const NATIVE = new URL("../..", import.meta.url).pathname;
 const FIX = new URL("./fixtures/", import.meta.url).pathname;
 const HERE = new URL("./", import.meta.url).pathname;
@@ -61,21 +62,24 @@ const reader = makeRelationReader({
 const hl = makeHyperlexicon({ createTaskLog: ntl.createTaskLog, append: ntl.append, projectTasks: ntl.projectTasks, ENTRY_KINDS: ntl.ENTRY_KINDS, OPERATOR_BASIS: ntl.OPERATOR_BASIS, GRAINS, cellOf });
 
 const walkJson = JSON.parse(readFileSync(`${HERE}results/ranke-backwards.json`, "utf8"));
+// The fixture rule (the-fold P95 / S65, lib/walk-fixtures.mjs): a face the
+// walk names and this checkout lacks is a typed gap and a non-zero exit —
+// never a narrowed pool. The 2026-09-05 audit found 86 of the walk's 106
+// faces untracked after this doc was written and this driver printing the
+// same "16 independent sources" over the 20 that remained; disclosure came
+// first, refusal now. The results doc is reproducible only where the walk's
+// fixtures exist.
+const walk = walkFaces(walkJson, FIX);
+if (walk.gap) {
+  console.log(describeWalkGap(walk.gap, { driver: "ordered-read-reach.mjs" }));
+  process.exitCode = 2;
+} else {
 const faces = new Map();
 for (const r of walkJson.real.rows) {
-  if (!r.facePath || !existsSync(FIX + r.facePath)) continue;
+  if (!r.facePath) continue;
   if (!faces.has(r.facePath)) faces.set(r.facePath, { ref: r.facePath, host: r.host ?? "?", notes: 0 });
   faces.get(r.facePath).notes += 1;
 }
-// S64 / the-fold P41: a face the walk names but this checkout lacks is a
-// SKIPPED SOURCE, and the pool it leaves is not the walk's. Same silent
-// skip cited-source-null.mjs carried (found by the 2026-09-05
-// reproducibility audit; both drivers read the same walk file, and 86 of
-// its 106 faces were untracked after both results docs were written). The
-// skip stays (an absent fixture must not crash a null); the silence does not.
-const namedFaces = new Set(walkJson.real.rows.map((r) => r.facePath).filter(Boolean));
-const absentFaces = [...namedFaces].filter((f) => !existsSync(FIX + f));
-if (absentFaces.length) console.log(`NOTE: the walk names ${namedFaces.size} faces; ${absentFaces.length} are absent from fixtures/ and were skipped — this run's pool is ${namedFaces.size - absentFaces.length} faces, not the walk's ${namedFaces.size}. Its numbers are not comparable to a run over the full walk.\n`);
 const all = [...faces.values()];
 const doorText = (t) => blankBelowMeasure(t, { measure: measureOf(t, { percentile: 0.9 }), fill: 0.8, minRun: 2 });
 const texts = new Map(all.map((f) => [f.ref, readFileSync(FIX + f.ref, "utf8")]));
@@ -169,3 +173,4 @@ console.log(`  B ONLY (what order recovers): real ${real.onlyB}   redealt ${q(bo
 const ab = A.filter((x) => x >= real.A).length, bb = B.filter((x) => x >= real.B).length, ob = bo.filter((x) => x >= real.onlyB).length;
 console.log(`\n  draws at or above real —  A: ${ab}/${DRAWS} (p≈${((ab + 1) / (DRAWS + 1)).toFixed(3)})   B: ${bb}/${DRAWS} (p≈${((bb + 1) / (DRAWS + 1)).toFixed(3)})   B-only: ${ob}/${DRAWS} (p≈${((ob + 1) / (DRAWS + 1)).toFixed(3)})`);
 writeFileSync(`${HERE}results/ordered-read-reach.json`, JSON.stringify({ sources: sources.length, edges: total, faced, real, draws, calls: 0 }, null, 2));
+}

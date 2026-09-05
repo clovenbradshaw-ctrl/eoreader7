@@ -46,7 +46,6 @@ const SEED = Number(process.env.SEED ?? 7);
 const posPrior = JSON.parse(readFileSync(`${FOLD}/priors-data/pos-prior-eng.json`, "utf8"));
 const text = readFileSync(BOOK, "utf8");
 const passages = chunkSource("book.txt", text).slice(0, CAP);
-const boundary = objectBoundaryFrom(posPrior, { minShare: MIN_SHARE });
 
 function reader({ objectBoundaryFrom: obf } = {}) {
   return makeRelationReader({
@@ -61,48 +60,25 @@ function reader({ objectBoundaryFrom: obf } = {}) {
   });
 }
 const lcg = (seed) => { let s = seed >>> 0; return () => ((s = (s * 1664525 + 1013904223) >>> 0) / 4294967296); };
-function redealtBoundary(seed) {
-  const r = lcg(seed);
-  const pool = Object.keys(posPrior.forms).filter((f) => !boundary.has(f));
-  const out = new Set();
-  while (out.size < boundary.size) out.add(pool[Math.floor(r() * pool.length)]);
-  return out;
-}
-
-function measure(rel, label) {
-  const edges = rel.edges ?? [];
-  const objs = edges.map((e) => String(e.end2 ?? e.object ?? ""));
-  const toks = (o) => o.toLowerCase().split(/\s+/).filter(Boolean);
-  const debris = objs.filter((o) => toks(o).slice(1).some((t) => boundary.has(t))).length;
-  const faced = edges.filter((e) => e.end2Face).length;
-  const lens = objs.map((o) => toks(o).length).sort((a, b) => a - b);
-  const median = lens.length ? lens[Math.floor(lens.length / 2)] : 0;
-  return { label, edges: edges.length, distinctObjects: new Set(objs.map((o) => o.toLowerCase())).size, debrisRate: edges.length ? debris / edges.length : 0, end2FaceRate: edges.length ? faced / edges.length : 0, medianObjectTokens: median, objs, rows: edges };
-}
+// The computation lives in lib/object-boundary.mjs (P95/S65) so that
+// native/tests/object-boundary.test.js reads it on every suite run; this
+// file prints. It also REFUSES, typed, when the cut cannot have reached the
+// reader — the 2026-09-05 re-run printed three byte-identical arms because
+// the-fold's hypergraph.js dropped the `boundedObjects` opt-in in P80.
+import { measureObjectBoundary } from "./lib/object-boundary.mjs";
 
 const t0 = Date.now();
-const base = measure(reader()(passages, { pool: passages }), "baseline");
-const bound = measure(reader({ objectBoundaryFrom })(passages, { pool: passages }), "bounded");
-const redealt = measure(reader({ objectBoundaryFrom: () => redealtBoundary(SEED) })(passages, { pool: passages }), "redealt-control");
+const M = measureObjectBoundary({ reader, passages, posPrior, objectBoundaryFrom, minShare: MIN_SHARE, seed: SEED });
+const { boundary, base, bound, redealt, moved, paired, unpaired, facedGained, facedLost } = M;
 const say = (s) => console.log(s);
 say(`object boundary — ${BOOK.split("/").pop()}, ${passages.length} passage(s), minShare ${MIN_SHARE}, boundary forms ${boundary.size}, ${((Date.now() - t0) / 1000).toFixed(1)}s\n`);
 say(`arm                edges  distinct-objects  debris-rate  end2Face-rate  median-obj-tokens`);
 for (const m of [base, bound, redealt]) say(`${m.label.padEnd(18)} ${String(m.edges).padStart(5)}  ${String(m.distinctObjects).padStart(16)}  ${m.debrisRate.toFixed(3).padStart(11)}  ${m.end2FaceRate.toFixed(3).padStart(13)}  ${String(m.medianObjectTokens).padStart(17)}`);
-
-// THE MARGINAL CHANGES — paired by the edge's own ADDRESS START and verb
-// (the trim never moves a match's start; it can change how many matches a
-// per-sentence limit admits, so index pairing is not safe — found by running).
-const addr = (e) => { const a = e.spans?.[0]?.at ?? e.refs?.[0] ?? ""; const m = String(a).match(/^(.*#\d+)-\d+$/); return `${m ? m[1] : a}|${String(e.label ?? e.verb)}|${String(e.end1 ?? e.subject)}`; };
-const after = new Map(bound.rows.map((e) => [addr(e), e]));
-const moved = [];
-let paired = 0, facedGained = 0, facedLost = 0, unpaired = 0;
-for (const e of base.rows) {
-  const b = after.get(addr(e));
-  if (!b) { unpaired += 1; continue; }
-  paired += 1;
-  const before = String(e.end2 ?? e.object), afterO = String(b.end2 ?? b.object);
-  if (before !== afterO) { moved.push([before, afterO]); if (!e.end2Face && b.end2Face) facedGained += 1; if (e.end2Face && !b.end2Face) facedLost += 1; }
+if (M.gap) {
+  say(`\nREFUSED (${M.gap.type}, organ ${M.gap.organ}): ${M.gap.detail}`);
+  process.exit(2);
 }
+
 say(`\npaired ${paired} of ${base.edges} baseline edges by address (${unpaired} unpaired; bounded has ${bound.edges - paired} not in baseline — matches a per-sentence limit newly admitted).`);
 say(`moved by the cut: ${moved.length}; among them end2Face GAINED ${facedGained}, LOST ${facedLost}. A sample (LP11 — judged on the marginal, never the aggregate):`);
 const r = lcg(SEED);

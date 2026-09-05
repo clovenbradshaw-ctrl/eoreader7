@@ -1,5 +1,7 @@
 # The refutation horizon, measured on real data (2026-08-28)
 
+**Audit 2026-09-05 (the-fold P95 / S65): reproduced in every number.** The tracked `pruning-timeline.json` differed in one string — the declared giver, which is the driver's own path and had moved in the 09-02 eval migration without the artifact being regenerated. Regenerated; the numbers did not move.
+
 Driver: `eval/pruning-timeline.mjs` (re-runnable; writes
 `eval/results/pruning-timeline.json`). Material: the three committed
 Wikidata succession fixtures, streamed one fact at a time. No model call

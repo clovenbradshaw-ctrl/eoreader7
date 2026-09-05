@@ -37,6 +37,7 @@
 // This is also the only construction under which the MHC's own central
 // property — content-independence — can be tested at all rather than assumed.
 
+import { controlRule } from "./lib/mhc-control.mjs";
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -1847,6 +1848,14 @@ async function main() {
   }
   console.error(`engine: ${engine.layout}`);
 
+  // The control rule (lib/mhc-control.mjs, P95/S65): a one-material run has
+  // no control and used to read "none readable" — refused up front now.
+  const rule = controlRule(chosen);
+  if (!rule.ok) {
+    console.error(`REFUSED (${rule.gap.type}): ${rule.gap.detail}`);
+    process.exitCode = 2;
+    return;
+  }
   const materials = chosen.map(loadMaterial);
   const built = materials.map((m) => {
     const reader = makeRelationReader(engine.organs)(m.passages, { pool: m.passages });
@@ -1856,7 +1865,7 @@ async function main() {
 
   const runs = [];
   for (let i = 0; i < materials.length; i += 1) {
-    const control = built.find((b) => b.key !== materials[i].key) ?? null;
+    const control = built.find((b) => b.key === rule.controlFor(i)) ?? null;
     console.error(`running ${materials[i].key} (${materials[i].passages.length} passages, control: ${control?.key ?? "none"})...`);
     const out = await runOne(engine, materials[i], control);
     runs.push({ material: materials[i].key, totalPassages: materials[i].totalPassages, ...out });

@@ -24,7 +24,7 @@
 // Materials: a 120KB slice of the real Gutenberg Dracula (narrative prose,
 // the material the debris was found on) and the committed Battle of
 // Borodino page (encyclopedic prose). Declared: seed 7 for the control.
-import { readFileSync, writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync, existsSync } from "node:fs";
 
 const NATIVE = new URL("../..", import.meta.url).pathname;
 const FIX = new URL("./fixtures/", import.meta.url).pathname;
@@ -98,8 +98,19 @@ const say = (s) => console.log(s);
 say(`# Subject walls — floor 2 for floor 5 (${new Date().toISOString().slice(0, 10)})`);
 say(`Control seed ${SEED}; every received class randomised at its own size from the material's own words (${P.SUBJECT_PRONOUNS.size} pronouns, ${P.CLAUSE_OPENERS.size} openers, ${P.NEGATION_WORDS.size} negations, and the POS prior's verb and adposition forms).`);
 const out = {};
+// The book is the sibling `live_priors` clone's Gutenberg Dracula (object-
+// boundary.mjs's own resolution), `BOOK=` to point elsewhere. The 2026-09-05
+// audit found this path pinned to another machine's home directory
+// (`/home/user/live_priors/…`) — the doc's run was unreproducible from any
+// other checkout by construction, and the crash was an ENOENT stack, not a
+// statement. Absent, the driver REFUSES with a typed gap (P95/S65).
+const BOOK = process.env.BOOK ?? `${NATIVE}/../../live_priors/01-literature-books/gutenberg/pg345_Dracula.txt`;
+if (!existsSync(BOOK)) {
+  console.error(`REFUSED (fixture_absent): the Dracula slice is read from ${BOOK}, which this checkout lacks — set BOOK= to the Gutenberg pg345 text. A fact about the checkout, not the material; results/subject-wall.json is reproducible only where the book exists.`);
+  process.exit(2);
+}
 const materials = [
-  ["dracula-200-320KB", readFileSync("/home/user/live_priors/01-literature-books/gutenberg/pg345_Dracula.txt", "utf8").replace(/\r\n/g, "\n").slice(200000, 320000)],
+  ["dracula-200-320KB", readFileSync(BOOK, "utf8").replace(/\r\n/g, "\n").slice(200000, 320000)],
   ["battle-of-borodino", (() => { const f = extractReadable(readFileSync(`${FIX}/wikipedia-battle-of-borodino.html`, "utf8")); return typeof f === "string" ? f : f.text; })()],
 ];
 for (const [name, text] of materials) {

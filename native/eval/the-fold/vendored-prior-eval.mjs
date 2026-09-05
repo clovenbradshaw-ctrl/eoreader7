@@ -52,7 +52,7 @@
 // Pidgin's and AAVE's are 3 (each source sits well under a million
 // characters, so a denser sample stays tractable at the same cap).
 
-import { readFileSync, writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -218,6 +218,21 @@ say(
     "for the whole language).",
 );
 say("");
+
+// The material is research-use text kept in eval/corpus/, gitignored and
+// never committed (the header above says so). Absent, the doc's run is
+// unreproducible from the repo BY CONSTRUCTION — the 2026-09-05 audit met
+// that as an ENOENT stack. Refuse with a typed gap instead (P95/S65);
+// results/vendored-prior-eval.{md,json} are reproducible only where the
+// corpus exists.
+{
+  const needed = ["garoa-eu.txt", "nigerian-pidgin.txt", "coraal-prose.txt|coraal-transcripts.csv"];
+  const absent = needed.filter((n) => !n.split("|").some((alt) => existsSync(join(HERE, "corpus", alt))));
+  if (absent.length) {
+    console.error(`REFUSED (fixture_absent): eval/corpus/ lacks ${absent.join(", ")} — the research corpus this eval reads is gitignored and never committed (see the header). A fact about the checkout, not the material.`);
+    process.exit(2);
+  }
+}
 
 const results = [];
 

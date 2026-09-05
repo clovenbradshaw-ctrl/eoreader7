@@ -1,5 +1,7 @@
 # The hyperlexicon door, measured — and made ready (P73)
 
+**Audit 2026-09-05 (the-fold P95 / S65): drifted, finding intact.** Live: arm A 29 → 30 notes (18 closed-class, unchanged); arms B/C bound 15 → 16, notes 10 → 12, still 0 hand-listed closed-class labels. The two new C notes are the article's Russian title, `Война —и→ мир` / `миръ` — a Cyrillic "and" that the probe's English hand list cannot see and the English POS prior has no entry for. The probe now reports labels the prior has no entry for beside the hand-list count. Enforced by `native/tests/hyperlexicon-door-probe.test.js` (the rule: A admits closed-class labels, B and C admit none, the gate turns away nothing B did not refuse — counts disclosed, not asserted); computation in `lib/door-probe.mjs`.
+
 `node eval/hyperlexicon-door-probe.mjs` · 2026-09-01 · re-runnable driver
 (P19/P27's posture), mirroring the LIVE turn exactly: app.js's own
 relation-reader configuration, holon.js's admission (retrieve → read →

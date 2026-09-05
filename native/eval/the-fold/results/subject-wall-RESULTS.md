@@ -1,5 +1,7 @@
 # Subject walls — floor 2 for floor 5 (2026-09-02)
 
+**Audit 2026-09-05 (the-fold P95 / S65): drifted by one to six edges per arm; the finding stands.** Dracula: legacy 373 / walls 277 / random 249 bound (was 371 / 278 / 246), referent rate 23% / 28% / 10%, debris 27% / 11% / 15%; Borodino 350 / 338 / 189 (was 344 / 332 / 186) — the reader's organs moved after 09-02; S63's cast wall and S64's surface rules are the candidates, and this pass did not isolate the drift to either. The driver's book path was pinned to another machine's home directory (`/home/user/live_priors/…`); it now resolves the sibling `live_priors` clone, honours `BOOK=`, and refuses typed when the book is absent. `results/subject-wall.json` regenerated from this run.
+
 **Driver:** `eval/the-fold/subject-wall.mjs` (~30s, no model, no network;
 raw numbers in `results/subject-wall.json`). **Organ:** `adapters/text/
 relations.js::expandSubjectNP`, the DR4 subject walk, with five walls added
