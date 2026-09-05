@@ -4012,3 +4012,21 @@ The-fold **P95** is the paired entry (the law and the fold-side files); this is 
 
 **Suites.** native 619 / 618 / 1 todo before and after; organs 449 / 449. No organ changed; every edit is in `eval/the-fold/`.
 
+## S67 — The product assay: the finish line as a lib, a driver and a test; `foldDerived` projects `restsOn`
+
+**Generality:** universal for the rule (a product bar is a runnable object; its zero-call walls are read by a test; a breached wall carries its mechanism and is logged, not pinned) and for the two mechanisms (P43's negation inversion and the sub-floor `tokensShare` object match replay on any English prose the production reader is handed); every count is the built corpus's own and dated. The-fold **P97** is the paired entry.
+
+**Files.** `eval/the-fold/lib/product-assay.mjs` (CORPUS, CORPUS_SHUFFLED, QUESTIONS, FABRICATIONS, GIVER, `runProductAssay`, `constitutionIdentity`), `eval/the-fold/product-assay.mjs` (prints; `MODEL=`/`MODELS=` spends declared calls through the-fold's `runHolonicTask`), `tests/product-assay.test.js` (ten earned walls asserted, two disclosed walls logged with mechanism, by-construction numbers pinned: 2 passages, 6 notes, 1 derived with a giver and 0 without, 1 contest landed with no leak, 1 exposed and 1 withdrawn), `results/product-assay-RESULTS.md` (dated transcription + the one model run), `organs/derivation.js` (`foldDerived` now projects `restsOn`).
+
+**The reader, headless, in production configuration.** `RELATION_READER_OPTIONS` is the app's object key for key — POS prior, UniMorph verb forms as `verbForms` and `oovLexicon`, `nounPhraseSubjects`, `phrasalPredicates`, `attestedVerbs`, the morphology-prior lemmatizer, received determiners and negation words, `blankLabelRows`, `resolvePronouns` — and the frame is derived from it by the-fold's `reader-frame.js` (P96), with `connectorLens: null` declared (the browser builds it from a fetch; the door's gate does not run here, its own disclosed behaviour). The grid is built as app.js builds it (native `cube.js` operators, native task-log).
+
+**Walls, first run.** 0 configuration · 1 addressed (21/21 spans, source coordinates) · 2 stated-once · 3 derivation (after the projection fix) · 3b derived-in-record · 4a contest-detected **BREACHED** · 4b contest-recorded · 4c contest-in-record · 5 deterministic (0 of 6 claim ids shared with the deranged corpus) · 6 fabrication **BREACHED** (1 of 4 bound) · 7 derived-not-material · 8 recourse (entries 10 → 12).
+
+**4a, the mechanism.** "The Northgate Observatory never opened in 1889" enters the ledger as `never opened`, polarity `-` (DR5 folds the adverb into the act). The draft "The Northgate Observatory opened in 1889" against that source: the act `opened` never meets `never opened`, so the read is `unbound`, not `contradicted`; `perSourceReadings` maps only `contradicted` to `refused`; `mergeTestimony` reads holds + undetermined → SINGLE. With DR5 off the same sentence reads `did`/`not …` — P43's inverted shape — and the draft is `unheard`. There is no configuration of the shipped reader under which a negated statement produces `contradicted`, so the DISAGREE case of `mergeTestimony` is unreachable from prose negation; the only live path to a contest is a model witness.
+
+**6, the mechanism.** Below `CORPUS_MINIMUM` the object side of `endpointsMatch` falls to `tokensShare`, where one shared token binds (hypergraph.js's own disclosed fallback, kept because the type-level `commonTerms` measure refuses itself at turn scale). "the Royal Society in 1887" ⊃ `in 1887` ⊂ "the Northgate Observatory in 1887" → bound. Every live turn's retrieved passages are sub-floor.
+
+**Not done here.** Neither mechanism is repaired: both sit at the draft checker and are Pass 19's walls, where the mouth is handed the record and its draft is checked against the record's claims rather than re-read against passages. The assay is the instrument that will say when they hold.
+
+**Suites.** native 619 → 626 tests, 618 → 625 pass, 1 todo; organs 449 / 449.
+
