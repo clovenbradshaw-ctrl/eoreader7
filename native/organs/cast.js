@@ -19,6 +19,54 @@
 // and the node tests (which load them by relative path). The organs are
 // used, never copied — the fold discipline (diaNorm's disclosed-narrow
 // scope) rides in with them.
+//
+// THE FURNITURE WALL, closed 2026-09-04 (rashomon-contrast-RESULTS.md's own
+// named next step: "the cast's own universe has no such wall"). Measured on
+// the real fetched Battle of Borodino page: a six-line succession-box
+// passage ("Preceded by / Battle of Mesoten / Napoleonic Wars / Battle of
+// Borodino / Succeeded by / French occupation of Moscow") and a bottom-page
+// navbox both fed `extractSurfaces`/`discoverReferents` their own link text,
+// which then MERGED with real people — Barclay de Tolly and Pyotr Bagration
+// fused into one referent carrying the infobox abbreviation "DOW". This was
+// never a gap in `blankLabelRows` itself: `source.js::chunkSource`'s own
+// `blankFurniture` option already computes a page-aware `chunk.blanked`
+// field for exactly this (P82) — verified live, that field is furniture-free
+// where this file's own `.text` read was not.
+//
+// THE GATE, and why it is not a bare `p.blanked ?? p.text`. `hypergraph.js`
+// already enforces, and tests (`source-page-blanking.test.mjs`, "a reader
+// that never asked for blanking does not get it from the chunker"), the
+// rule this file must not quietly break: A CALLER'S OWN INJECTED ORGAN IS
+// AUTHORITATIVE, never a side channel it has no relationship with. A first
+// cut here read `.blanked` unconditionally whenever a chunk happened to
+// carry one — which broke exactly that test, because `hypergraph.js`
+// builds its OWN internal referent index by calling
+// `makeReferentIndex(organs)` with its whole `organs` bundle, so a reader
+// that was NOT given `blankFurniture` (by design, in that test) was
+// suddenly seeing page-scoped blanking anyway, through this file's own
+// referent resolution rather than through the sentence-text path the test
+// was actually checking. Fixed the same way `readSentenceText` already
+// gates it: `.blanked` is consulted only when THIS caller's own
+// `blankFurniture` (any truthy value — the function is never invoked here,
+// only checked, since the blanking itself already happened at `chunkSource`
+// time) says so. Omit it entirely and behaviour is byte-identical to
+// before this fix, for both a chunk with no `.blanked` field and one that
+// has it. `hypergraph.js` needed no change at all: its own `organs` bundle
+// already carries `blankFurniture`, and `makeReferentIndex(organs)` was
+// already passing the whole bundle through.
+//
+// Measured effect on the real fixture, WITH `blankFurniture` opted in: the
+// two fused garbage referents disappear entirely; Barclay de Tolly's
+// surname reappears as its own real (if still partial) referent rather
+// than fused into Bagration's. See cast.test.mjs for both the opted-in and
+// opted-out cases, pinned against the real fixture and against a synthetic
+// leak-check mirroring `source-page-blanking.test.mjs`'s own.
+//
+// STILL OPEN, disclosed rather than implied closed: opting in is still each
+// caller's own act. `app.js`'s three cast.js call sites and this repo's
+// `rashomon-contrast.mjs` now pass `blankFurniture`; other eval drivers
+// that build a cast from `chunkSource`'d passages without it are unchanged
+// and still see raw text here, named rather than swept in silently.
 
 /**
  * Build a per-passage-set name resolver from the engine's own organs.
@@ -40,9 +88,9 @@
  * its referent least ambiguously. Same organs, same discovery as the
  * resolver; the two cannot drift.
  */
-export function makeCastHandles({ splitSentences, extractSurfaces, discoverReferents }) {
+export function makeCastHandles({ splitSentences, extractSurfaces, discoverReferents, blankFurniture = null }) {
   return function handlesFor(passages) {
-    const text = (passages ?? []).map((p) => p?.text ?? "").join("\n\n");
+    const text = (passages ?? []).map((p) => (blankFurniture ? (p?.blanked ?? p?.text ?? "") : (p?.text ?? ""))).join("\n\n");
     if (!text.trim()) return [];
     let events;
     try {
@@ -73,9 +121,9 @@ export function makeCastHandles({ splitSentences, extractSurfaces, discoverRefer
  * implementation of "the same name" — the resolver is a projection of this
  * index, so support and identity cannot drift apart.
  */
-export function makeReferentIndex({ splitSentences, extractSurfaces, discoverReferents, namesCorefer, diaNorm }) {
+export function makeReferentIndex({ splitSentences, extractSurfaces, discoverReferents, namesCorefer, diaNorm, blankFurniture = null }) {
   return function indexFor(passages) {
-    const text = (passages ?? []).map((p) => p?.text ?? "").join("\n\n");
+    const text = (passages ?? []).map((p) => (blankFurniture ? (p?.blanked ?? p?.text ?? "") : (p?.text ?? ""))).join("\n\n");
     const empty = { events: [], referents: new Set(), resolve: () => new Set(), represent: () => null };
     if (!text.trim()) return empty;
     let events;

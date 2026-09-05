@@ -303,12 +303,33 @@ export const accumulateSurfaceEvidence = (sentences, evidence, { abbreviations =
     const toks = [];
     const breaksAfter = [];
     const leadingJunk = [];
+    // A whitespace-delimited token with NO letters at all — a bare "&", a
+    // spaced dash, a stray colon, a numeral — reduces to an empty `cleaned`
+    // and used to vanish from `toks` without a trace, so the tokens either
+    // side of it read as directly adjacent and the run-walker bridged
+    // straight across. A token without letters is never part of a name;
+    // whatever it does between two words (a coordinating "&" joining two
+    // DIFFERENT titles, a list separator) is exactly what must break a
+    // capitalised run — the same fact the comma glued to a token's edge
+    // states just below, for the one shape the edge check cannot see: junk
+    // that is its own token. Found live (2026-09-05) on the War and Peace
+    // fixture, in the 2012 musical's own title "Natasha, Pierre & The Great
+    // Comet of 1812": "Pierre" glued onto "The Great Comet" across the bare
+    // "&", fabricating a surface that appears nowhere in the material and
+    // merging two referents through it — the-fold POLICIES.md "the stale
+    // stage" (2026-09-05) and READING-SPEC's paired entry carry the run.
+    // The category is "no letters", never a list of marks (P50).
+    let pendingHardBreak = false;
     for (const raw of rawToks) {
       const withoutLeading = raw.replace(/^[^\p{L}]+/gu, "");
       const cleaned = withoutLeading.replace(/[^\p{L}'’]+$/gu, "");
-      if (!cleaned) continue;
+      if (!cleaned) {
+        pendingHardBreak = true;
+        continue;
+      }
       toks.push(cleaned);
-      leadingJunk.push(withoutLeading.length !== raw.length);
+      leadingJunk.push(withoutLeading.length !== raw.length || pendingHardBreak);
+      pendingHardBreak = false;
       const trailing = withoutLeading.slice(cleaned.length);
       const isAbbreviatedTitle = trailing === "." && (abbrev.has(cleaned) || HONORIFIC_TITLES.has(cleaned.toLowerCase()));
       breaksAfter.push(trailing.length > 0 && !isAbbreviatedTitle);
@@ -452,12 +473,20 @@ export const extractLeadingSurfaces = (sentences, { abbreviations } = {}) => {
     const toks = [];
     const breaksAfter = [];
     const leadingJunk = [];
+    // The same letterless-token break as the main scan's (see
+    // accumulateSurfaceEvidence) — this function is that scan with one
+    // stated difference, and the two must not drift.
+    let pendingHardBreak = false;
     for (const raw of rawToks) {
       const withoutLeading = raw.replace(/^[^\p{L}]+/gu, "");
       const cleaned = withoutLeading.replace(/[^\p{L}'’]+$/gu, "");
-      if (!cleaned) continue;
+      if (!cleaned) {
+        pendingHardBreak = true;
+        continue;
+      }
       toks.push(cleaned);
-      leadingJunk.push(withoutLeading.length !== raw.length);
+      leadingJunk.push(withoutLeading.length !== raw.length || pendingHardBreak);
+      pendingHardBreak = false;
       const trailing = withoutLeading.slice(cleaned.length);
       const isAbbreviatedTitle = trailing === "." && (abbrev.has(cleaned) || HONORIFIC_TITLES.has(cleaned.toLowerCase()));
       breaksAfter.push(trailing.length > 0 && !isAbbreviatedTitle);
@@ -942,7 +971,45 @@ export const discoverReferents = (surfaces, { minSentences, minPartners, groups,
   // shared token generic and it stops individuating at all); these rules
   // close the two-bearer band the fence's own strict-exceeds convention
   // deliberately leaves open.
-  const clusters = new Map(); // canonical id -> { maximal, maximalTokens, born }
+  // A THIRD SHAPE, found 2026-09-05 by the same battery re-run, and the
+  // blind spot the two rules above share: the ANCHOR ARRIVES FIRST. Assignment
+  // is most-individuated-first (below), so a group's maximal member is
+  // usually its founder, and every fragment then faces THAT member alone,
+  // one at a time. Two different fragments of one anchor — "Oxford
+  // University" and "University Press" against "Oxford University Press",
+  // the Translations bibliography that also lists Cambridge and Cornell
+  // University Press — each pass rule 1 on their own (each is a subset of
+  // the maximal's tokens) and both are absorbed, though they never match
+  // EACH OTHER: {oxford, university} and {university, press} overlap on one
+  // token and neither contains the other. Rule 2 cannot see it: there is
+  // only ever one group in play, never two to bridge. The greedy closure is
+  // still not transitive, just through the anchor now instead of a bare
+  // fragment.
+  //
+  // The cut is exactly the shape and nothing wider: a fragment arriving
+  // into a single matched group is held against that group's OTHER
+  // CHILDREN (never its maximal — matching the maximal is what got it
+  // here), and a sibling it PARTIALLY OVERLAPS — a token in common, neither
+  // containing the other — is a conflict. Disjoint siblings are not: {ilya,
+  // andreyevich} and {rostov} under "Ilya Andreyevich Rostov" are the
+  // ordinary given-name-then-surname pair and must keep merging (pinned).
+  // A conflict lands as the SAME typed ambiguity rule 2 already uses —
+  // withheld, candidates named, the sibling named — never a guess and never
+  // a third being. Disclosed cost, pinned rather than hidden: {ilya,
+  // rostov} against a sibling {ilya, andreyevich} is the same structural
+  // shape as the publisher case and is refused too; only world knowledge
+  // (a person carries a patronymic, a press does not) tells them apart,
+  // and this tier does not have it. rich-referents.test.js pins all four.
+  const partiallyOverlaps = (a, b) => {
+    if (!a.length || !b.length) return false;
+    const shared = a.some((t) => b.includes(t));
+    if (!shared) return false;
+    const aInB = a.every((t) => b.includes(t));
+    const bInA = b.every((t) => a.includes(t));
+    return !aInB && !bInA;
+  };
+
+  const clusters = new Map(); // canonical id -> { maximal, maximalTokens, born, children: [{ surface, tokens }] }
   const aliases = new Map(); // folded id -> surviving id
   const resolveId = (id) => {
     let c = id;
@@ -986,7 +1053,15 @@ export const discoverReferents = (surfaces, { minSentences, minPartners, groups,
     let referentId = null;
     let basis = "name-variant coreference";
     if (matched.length === 1) {
-      referentId = matched[0][0];
+      const [id, g] = matched[0];
+      // The anchor-first blind spot (see partiallyOverlaps above): matched
+      // the group's maximal, now held against the group's other children.
+      const sibling = g.children.find((c) => partiallyOverlaps(arriving, c.tokens));
+      if (sibling) {
+        ambiguities.push({ surface, candidates: [id], conflictsWith: sibling.surface });
+        continue;
+      }
+      referentId = id;
     } else if (matched.length > 1) {
       const witnessed =
         arriving.length > 0 &&
@@ -994,11 +1069,16 @@ export const discoverReferents = (surfaces, { minSentences, minPartners, groups,
       if (witnessed) {
         matched.sort((a, b) => a[1].born - b[1].born);
         referentId = matched[0][0];
+        const kept = matched[0][1];
         const folded = [];
-        for (const [otherId] of matched.slice(1)) {
+        for (const [otherId, og] of matched.slice(1)) {
           aliases.set(otherId, referentId);
           clusters.delete(otherId);
           folded.push(otherId);
+          // The folded group's members are the kept group's members now —
+          // its maximal becomes a child, its children come along — so a
+          // later fragment is held against everything the group holds.
+          kept.children.push({ surface: og.maximal, tokens: og.maximalTokens }, ...og.children);
         }
         merges.push({ kept: referentId, folded, witness: surface });
         basis = "name-variant coreference (this surface's own tokens contain every merged referent's evidence — a witnessed merge)";
@@ -1020,12 +1100,18 @@ export const discoverReferents = (surfaces, { minSentences, minPartners, groups,
     }
     if (!referentId) {
       referentId = `ref:auto:${diaNorm(surface).replace(/\s+/g, "_")}`;
-      clusters.set(referentId, { maximal: surface, maximalTokens: arriving, born: clusters.size + aliases.size });
+      clusters.set(referentId, { maximal: surface, maximalTokens: arriving, born: clusters.size + aliases.size, children: [] });
     } else {
       const g = clusters.get(referentId);
+      // The invariant `children` keeps: every member except the current
+      // maximal. A longer arrival displaces the maximal into the children;
+      // anything else joins them.
       if (arriving.length > g.maximalTokens.length) {
+        g.children.push({ surface: g.maximal, tokens: g.maximalTokens });
         g.maximal = surface;
         g.maximalTokens = arriving;
+      } else {
+        g.children.push({ surface, tokens: arriving });
       }
     }
 
@@ -1059,13 +1145,20 @@ export const discoverReferents = (surfaces, { minSentences, minPartners, groups,
       reason: "ambiguous_surface",
       surface: a.surface,
       candidates: a.candidates.map(resolveId),
+      conflictsWith: a.conflictsWith ?? null,
       tier: "model",
       needsWitness: true,
-      detail:
-        "this form corefers with more than one established referent, so the type level withholds " +
-        "admission; each of its mentions is an occurrence-level question — resolve by activation " +
-        "recall against the candidates (the perceiver's pronouns/roles machinery), or close with " +
-        "a per-text prior.",
+      detail: a.conflictsWith
+        ? `this form corefers with the group's maximal member but partially overlaps a sibling already ` +
+          `in it ("${a.conflictsWith}") without containing it or being contained by it — two different ` +
+          `sub-phrases of one anchor, or two fragments of one name that only world knowledge could tell apart; ` +
+          `the type level withholds admission rather than guess. Each of its mentions is an occurrence-level ` +
+          `question — resolve by activation recall against the candidate (the perceiver's pronouns/roles ` +
+          `machinery), or close with a per-text prior.`
+        : "this form corefers with more than one established referent, so the type level withholds " +
+          "admission; each of its mentions is an occurrence-level question — resolve by activation " +
+          "recall against the candidates (the perceiver's pronouns/roles machinery), or close with " +
+          "a per-text prior.",
     });
   }
 

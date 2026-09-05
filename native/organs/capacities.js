@@ -304,6 +304,14 @@ export const CAPACITIES = Object.freeze([
     fn: "atmosphereBoundaries",
     what: "the ambient reading regime's tolerance-triggered re-zero — operators.js's own REC line ('rezero — a new ambient ground begins'), the one place REC fires as a literal numeric event (loops/atmosphere.js, consumed here); the terrain is the organ's own name",
   }),
+  Object.freeze({
+    id: "realityKind",
+    terrain: "Kind",
+    op: "INS",
+    module: "reality-kind.js",
+    fn: "classifyReferents",
+    what: "a referent instantiated into ONE of three declared, fixed templates — real / fictionalized-real / fictional — from checked cross-document evidence (a name-level correspondence to a caller-declared nonfiction source), never discovered statistically. A SECOND organ at INS·Kind (`skill` — 'a procedure kept as code, instantiated onto new material' — is the first): reasoned per this table's own hand-check discipline, since typing a specific referent into a small closed taxonomy from checked evidence is instantiation, not the discovery `kinds` (SIG·Kind) or null-tested membership `kindnull` (NUL·Kind) already occupy. Genre is caller-declared, never induced (a source with none is refused, not guessed); 'fictional' is 'examined against every declared-nonfiction source and none corresponded', never 'does not exist' (checkedAgainst names what ran). Measured live on the real Battle of Borodino Wikipedia article and Tolstoy's own War and Peace excerpt: Napoleon and Kutuzov correctly correspond and read fictionalized-real; Bezukhov/Bolkonsky/Rostova never do. A disclosed, measured trade-off: an optional generic-token guard (surfaces.js::genericTokens) fixes a real false positive (a common given name colliding with an unrelated person) but, on this same imperfectly-merged real cast, also refuses the correct Napoleon/Kutuzov correspondence — shipped opt-in, off by default, not resolved.",
+  }),
 ]);
 
 const byId = new Map(CAPACITIES.map((c) => [c.id, c]));

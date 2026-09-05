@@ -61,6 +61,15 @@ for (const r of walkJson.real.rows) {
   if (!faces.has(r.facePath)) faces.set(r.facePath, { ref: r.facePath, host: r.host ?? "?", notes: 0 });
   faces.get(r.facePath).notes += 1;
 }
+// S64 / the-fold P41: a face the walk names but this checkout lacks is a
+// SKIPPED SOURCE, and the pool it leaves is not the walk's. Found by the
+// 2026-09-05 reproducibility audit: 86 of 106 faces had been untracked 32
+// minutes after the results doc was written, and this driver printed the
+// same "16 independent sources" line over the 20 that remained. The skip
+// stays (an absent fixture must not crash a null); the silence does not.
+const namedFaces = new Set(walkJson.real.rows.map((r) => r.facePath).filter(Boolean));
+const absentFaces = [...namedFaces].filter((f) => !existsSync(FIX + f));
+if (absentFaces.length) console.log(`NOTE: the walk names ${namedFaces.size} faces; ${absentFaces.length} are absent from fixtures/ and were skipped — this run's pool is ${namedFaces.size - absentFaces.length} faces, not the walk's ${namedFaces.size}. Its numbers are not comparable to a run over the full walk.\n`);
 const all = [...faces.values()];
 const doorText = (t) => blankBelowMeasure(t, { measure: measureOf(t, { percentile: 0.9 }), fill: 0.8, minRun: 2 });
 const texts = new Map(all.map((f) => [f.ref, readFileSync(FIX + f.ref, "utf8")]));

@@ -11,7 +11,7 @@
  ],
  "registry": {
   "source": "capacities.js",
-  "entries": 29,
+  "entries": 30,
   "selfDescribed": "a DATA TABLE, NOT A RUNTIME — 'starts, deliberately does not finish, the library seed' (its own header)"
  },
  "counts": {
@@ -331,7 +331,8 @@
      "grain": "Pattern",
      "terrain": "Kind",
      "organs": [
-      "skill"
+      "skill",
+      "realityKind"
      ]
     },
     {

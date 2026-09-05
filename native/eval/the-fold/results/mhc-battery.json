@@ -52,7 +52,7 @@
             ],
             "name": "a name denotes a being the material establishes",
             "status": "passed",
-            "detail": "\"Rostovs\" resolves (1); \"Zzyrflax Quenbourne\" does not (0); gathered 34/34 pairs its own individuation rule calls one being; kept apart 5/5 it withholds on",
+            "detail": "\"Rostovs\" resolves (1); \"Zzyrflax Quenbourne\" does not (0); gathered 51/51 pairs its own individuation rule calls one being; kept apart 11/11 it withholds on",
             "arms": {
               "lowerOrder": {
                 "completed": false,
@@ -183,7 +183,7 @@
               },
               "arbitrary": {
                 "completed": false,
-                "detail": "exact P(a uniform redeal reproduces this triple) = 0.0058 over n=692 edges, K=4 sharing the subject, m=1 sharing the verb+object — below alpha 0.05, so the true match is not explained by chance alone",
+                "detail": "exact P(a uniform redeal reproduces this triple) = 0.0057 over n=707 edges, K=4 sharing the subject, m=1 sharing the verb+object — below alpha 0.05, so the true match is not explained by chance alone",
                 "unreachable": false,
                 "perturbed": true,
                 "draws": 1,
@@ -221,7 +221,7 @@
               },
               "arbitrary": {
                 "completed": false,
-                "detail": "exact P(an arbitrary redeal hands this specimen a count clearing the witness floor) = 0.0145 (10 of 692 edges in this reading already clear it) — below alpha 0.05, so clearing it is not explained by chance alone",
+                "detail": "exact P(an arbitrary redeal hands this specimen a count clearing the witness floor) = 0.0170 (12 of 707 edges in this reading already clear it) — below alpha 0.05, so clearing it is not explained by chance alone",
                 "unreachable": false,
                 "perturbed": true,
                 "draws": 1,
@@ -285,7 +285,7 @@
             ],
             "name": "one hypothesis tested against a constructed null: is this edge's connector asserted, or an artefact",
             "status": "passed",
-            "detail": "692/692 edges carry a standing — 14 corroborated, 678 single-witness",
+            "detail": "707/707 edges carry a standing — 16 corroborated, 691 single-witness",
             "arms": {
               "lowerOrder": {
                 "completed": false,
@@ -297,7 +297,7 @@
               },
               "arbitrary": {
                 "completed": false,
-                "detail": "exact P(an arbitrary same-size redeal of the \"corroborated\" label lands entirely on genuine floor-clearers) = 1.72e-29 (14 of 692 edges genuinely clear the floor; 14 carry the label) — below alpha 0.05, so the real derivation is not explained by chance",
+                "detail": "exact P(an arbitrary same-size redeal of the \"corroborated\" label lands entirely on genuine floor-clearers) = 6.37e-33 (16 of 707 edges genuinely clear the floor; 16 carry the label) — below alpha 0.05, so the real derivation is not explained by chance",
                 "unreachable": false,
                 "perturbed": true,
                 "draws": 1,
@@ -363,7 +363,7 @@
             ],
             "name": "several whole systems compared: a standing no single system carries",
             "status": "passed",
-            "detail": "10 source-systems. \"French invasion of Russia\" bound by 3 -> AGREE/corroborated; \"Russian author Leo\" bound by 1 -> SINGLE/single. Below the merge both read identically (a system saying \"holds\"), and no reading carries a standing of its own.",
+            "detail": "10 source-systems. \"French invasion of Russia\" bound by 3 -> AGREE/corroborated; \"Peace at Wikisource\" bound by 1 -> SINGLE/single. Below the merge both read identically (a system saying \"holds\"), and no reading carries a standing of its own.",
             "arms": {
               "lowerOrder": {
                 "completed": false,
@@ -410,7 +410,7 @@
                 ],
                 "name": "a name denotes a being the material establishes",
                 "status": "passed",
-                "detail": "\"Rostovs\" resolves (1); \"Zzyrflax Quenbourne\" does not (0); gathered 34/34 pairs its own individuation rule calls one being; kept apart 5/5 it withholds on",
+                "detail": "\"Rostovs\" resolves (1); \"Zzyrflax Quenbourne\" does not (0); gathered 51/51 pairs its own individuation rule calls one being; kept apart 11/11 it withholds on",
                 "arms": {
                   "lowerOrder": {
                     "completed": false,
@@ -571,7 +571,7 @@
                   },
                   "arbitrary": {
                     "completed": false,
-                    "detail": "exact P(a uniform redeal reproduces this triple) = 0.0058 over n=692 edges, K=4 sharing the subject, m=1 sharing the verb+object — below alpha 0.05, so the true match is not explained by chance alone",
+                    "detail": "exact P(a uniform redeal reproduces this triple) = 0.0057 over n=707 edges, K=4 sharing the subject, m=1 sharing the verb+object — below alpha 0.05, so the true match is not explained by chance alone",
                     "unreachable": false,
                     "perturbed": true,
                     "draws": 1,
@@ -619,7 +619,7 @@
                   },
                   "arbitrary": {
                     "completed": false,
-                    "detail": "exact P(an arbitrary redeal hands this specimen a count clearing the witness floor) = 0.0145 (10 of 692 edges in this reading already clear it) — below alpha 0.05, so clearing it is not explained by chance alone",
+                    "detail": "exact P(an arbitrary redeal hands this specimen a count clearing the witness floor) = 0.0170 (12 of 707 edges in this reading already clear it) — below alpha 0.05, so clearing it is not explained by chance alone",
                     "unreachable": false,
                     "perturbed": true,
                     "draws": 1,
@@ -703,7 +703,7 @@
                 ],
                 "name": "one hypothesis tested against a constructed null: is this edge's connector asserted, or an artefact",
                 "status": "passed",
-                "detail": "692/692 edges carry a standing — 14 corroborated, 678 single-witness",
+                "detail": "707/707 edges carry a standing — 16 corroborated, 691 single-witness",
                 "arms": {
                   "lowerOrder": {
                     "completed": false,
@@ -715,7 +715,7 @@
                   },
                   "arbitrary": {
                     "completed": false,
-                    "detail": "exact P(an arbitrary same-size redeal of the \"corroborated\" label lands entirely on genuine floor-clearers) = 1.72e-29 (14 of 692 edges genuinely clear the floor; 14 carry the label) — below alpha 0.05, so the real derivation is not explained by chance",
+                    "detail": "exact P(an arbitrary same-size redeal of the \"corroborated\" label lands entirely on genuine floor-clearers) = 6.37e-33 (16 of 707 edges genuinely clear the floor; 16 carry the label) — below alpha 0.05, so the real derivation is not explained by chance",
                     "unreachable": false,
                     "perturbed": true,
                     "draws": 1,
@@ -801,7 +801,7 @@
                 ],
                 "name": "several whole systems compared: a standing no single system carries",
                 "status": "passed",
-                "detail": "10 source-systems. \"French invasion of Russia\" bound by 3 -> AGREE/corroborated; \"Russian author Leo\" bound by 1 -> SINGLE/single. Below the merge both read identically (a system saying \"holds\"), and no reading carries a standing of its own.",
+                "detail": "10 source-systems. \"French invasion of Russia\" bound by 3 -> AGREE/corroborated; \"Peace at Wikisource\" bound by 1 -> SINGLE/single. Below the merge both read identically (a system saying \"holds\"), and no reading carries a standing of its own.",
                 "arms": {
                   "lowerOrder": {
                     "completed": false,
@@ -848,12 +848,12 @@
         "isolated": []
       },
       "coref": {
-        "shouldMerge": 34,
-        "didMerge": 34,
+        "shouldMerge": 51,
+        "didMerge": 51,
         "stranded": [],
-        "shouldWithhold": 5,
+        "shouldWithhold": 11,
         "wronglyMerged": [],
-        "abstained": 44
+        "abstained": 33
       },
       "specimen": {
         "subject": "Nikolai",
@@ -907,7 +907,7 @@
             ],
             "name": "a name denotes a being the material establishes",
             "status": "passed",
-            "detail": "\"Kolocha\" resolves (1); \"Zzyrflax Quenbourne\" does not (0); gathered 22/22 pairs its own individuation rule calls one being; kept apart 9/9 it withholds on",
+            "detail": "\"Kolocha\" resolves (1); \"Zzyrflax Quenbourne\" does not (0); gathered 32/32 pairs its own individuation rule calls one being; kept apart 6/6 it withholds on",
             "arms": {
               "lowerOrder": {
                 "completed": false,
@@ -1038,7 +1038,7 @@
               },
               "arbitrary": {
                 "completed": false,
-                "detail": "exact P(a uniform redeal reproduces this triple) = 0.0176 over n=854 edges, K=15 sharing the subject, m=1 sharing the verb+object — below alpha 0.05, so the true match is not explained by chance alone",
+                "detail": "exact P(a uniform redeal reproduces this triple) = 0.0173 over n=868 edges, K=15 sharing the subject, m=1 sharing the verb+object — below alpha 0.05, so the true match is not explained by chance alone",
                 "unreachable": false,
                 "perturbed": true,
                 "draws": 1,
@@ -1076,7 +1076,7 @@
               },
               "arbitrary": {
                 "completed": false,
-                "detail": "exact P(an arbitrary redeal hands this specimen a count clearing the witness floor) = 0.0187 (16 of 854 edges in this reading already clear it) — below alpha 0.05, so clearing it is not explained by chance alone",
+                "detail": "exact P(an arbitrary redeal hands this specimen a count clearing the witness floor) = 0.0184 (16 of 868 edges in this reading already clear it) — below alpha 0.05, so clearing it is not explained by chance alone",
                 "unreachable": false,
                 "perturbed": true,
                 "draws": 1,
@@ -1140,7 +1140,7 @@
             ],
             "name": "one hypothesis tested against a constructed null: is this edge's connector asserted, or an artefact",
             "status": "passed",
-            "detail": "854/854 edges carry a standing — 18 corroborated, 836 single-witness",
+            "detail": "868/868 edges carry a standing — 18 corroborated, 850 single-witness",
             "arms": {
               "lowerOrder": {
                 "completed": false,
@@ -1152,7 +1152,7 @@
               },
               "arbitrary": {
                 "completed": false,
-                "detail": "exact P(an arbitrary same-size redeal of the \"corroborated\" label lands entirely on genuine floor-clearers) = 1.31e-37 (18 of 854 edges genuinely clear the floor; 18 carry the label) — below alpha 0.05, so the real derivation is not explained by chance",
+                "detail": "exact P(an arbitrary same-size redeal of the \"corroborated\" label lands entirely on genuine floor-clearers) = 9.77e-38 (18 of 868 edges genuinely clear the floor; 18 carry the label) — below alpha 0.05, so the real derivation is not explained by chance",
                 "unreachable": false,
                 "perturbed": true,
                 "draws": 1,
@@ -1265,7 +1265,7 @@
                 ],
                 "name": "a name denotes a being the material establishes",
                 "status": "passed",
-                "detail": "\"Kolocha\" resolves (1); \"Zzyrflax Quenbourne\" does not (0); gathered 22/22 pairs its own individuation rule calls one being; kept apart 9/9 it withholds on",
+                "detail": "\"Kolocha\" resolves (1); \"Zzyrflax Quenbourne\" does not (0); gathered 32/32 pairs its own individuation rule calls one being; kept apart 6/6 it withholds on",
                 "arms": {
                   "lowerOrder": {
                     "completed": false,
@@ -1426,7 +1426,7 @@
                   },
                   "arbitrary": {
                     "completed": false,
-                    "detail": "exact P(a uniform redeal reproduces this triple) = 0.0176 over n=854 edges, K=15 sharing the subject, m=1 sharing the verb+object — below alpha 0.05, so the true match is not explained by chance alone",
+                    "detail": "exact P(a uniform redeal reproduces this triple) = 0.0173 over n=868 edges, K=15 sharing the subject, m=1 sharing the verb+object — below alpha 0.05, so the true match is not explained by chance alone",
                     "unreachable": false,
                     "perturbed": true,
                     "draws": 1,
@@ -1474,7 +1474,7 @@
                   },
                   "arbitrary": {
                     "completed": false,
-                    "detail": "exact P(an arbitrary redeal hands this specimen a count clearing the witness floor) = 0.0187 (16 of 854 edges in this reading already clear it) — below alpha 0.05, so clearing it is not explained by chance alone",
+                    "detail": "exact P(an arbitrary redeal hands this specimen a count clearing the witness floor) = 0.0184 (16 of 868 edges in this reading already clear it) — below alpha 0.05, so clearing it is not explained by chance alone",
                     "unreachable": false,
                     "perturbed": true,
                     "draws": 1,
@@ -1558,7 +1558,7 @@
                 ],
                 "name": "one hypothesis tested against a constructed null: is this edge's connector asserted, or an artefact",
                 "status": "passed",
-                "detail": "854/854 edges carry a standing — 18 corroborated, 836 single-witness",
+                "detail": "868/868 edges carry a standing — 18 corroborated, 850 single-witness",
                 "arms": {
                   "lowerOrder": {
                     "completed": false,
@@ -1570,7 +1570,7 @@
                   },
                   "arbitrary": {
                     "completed": false,
-                    "detail": "exact P(an arbitrary same-size redeal of the \"corroborated\" label lands entirely on genuine floor-clearers) = 1.31e-37 (18 of 854 edges genuinely clear the floor; 18 carry the label) — below alpha 0.05, so the real derivation is not explained by chance",
+                    "detail": "exact P(an arbitrary same-size redeal of the \"corroborated\" label lands entirely on genuine floor-clearers) = 9.77e-38 (18 of 868 edges genuinely clear the floor; 18 carry the label) — below alpha 0.05, so the real derivation is not explained by chance",
                     "unreachable": false,
                     "perturbed": true,
                     "draws": 1,
@@ -1728,12 +1728,12 @@
         ]
       },
       "coref": {
-        "shouldMerge": 22,
-        "didMerge": 22,
+        "shouldMerge": 32,
+        "didMerge": 32,
         "stranded": [],
-        "shouldWithhold": 9,
+        "shouldWithhold": 6,
         "wronglyMerged": [],
-        "abstained": 56
+        "abstained": 34
       },
       "specimen": {
         "subject": "Borodino",
@@ -1787,7 +1787,7 @@
             ],
             "name": "a name denotes a being the material establishes",
             "status": "failed",
-            "detail": "\"Бородинском\" resolves (1); \"Zzyrflax Quenbourne\" does not (0); gathered 22/23 pairs its own individuation rule calls one being (stranded: \"Огюст Коленкур\" | \"Огюст\"); kept apart 2/5 it withholds on",
+            "detail": "\"Бородино\" resolves (1); \"Zzyrflax Quenbourne\" does not (0); gathered 21/22 pairs its own individuation rule calls one being (stranded: \"Огюст Коленкур\" | \"Огюст\"); kept apart 1/2 it withholds on",
             "arms": {
               "lowerOrder": {
                 "completed": false,
@@ -1807,7 +1807,7 @@
               },
               "discrimination": {
                 "completed": false,
-                "detail": "the control material (war-and-peace) does not establish \"Бородинском\"",
+                "detail": "the control material (war-and-peace) does not establish \"Бородино\"",
                 "unreachable": false,
                 "perturbed": true,
                 "draws": 1,
@@ -1868,7 +1868,7 @@
             ],
             "name": "a sequence coordinated across sentences: a pronoun bound to what was read before it",
             "status": "passed",
-            "detail": "11 pronoun(s) bound, 19 refused (pronoun_no_candidate, pronoun_no_margin), 0 bound to an unadmitted referent",
+            "detail": "10 pronoun(s) bound, 20 refused (pronoun_no_candidate, pronoun_no_margin), 0 bound to an unadmitted referent",
             "arms": {
               "lowerOrder": {
                 "completed": false,
@@ -1905,9 +1905,8 @@
               "typed, directional relation"
             ],
             "name": "an empirical rule applied: a claim checked against the material's own edges",
-            "status": "unmeasured",
-            "reason": "unlicensed_perturbation",
-            "detail": "the arbitrary arm's perturbation did not reach what the task reads (every edge shares the specimen's own subject — a redeal is a no-op and tested nothing), so it tested nothing. READING-POLICY A10: a statistic insensitive to its perturbation fails invisibly and globally. UNMEASURED, not passed.",
+            "status": "passed",
+            "detail": "stated claim -> bound; reversed claim -> unbound",
             "arms": {
               "lowerOrder": {
                 "completed": false,
@@ -1919,9 +1918,17 @@
               },
               "arbitrary": {
                 "completed": false,
-                "detail": "every edge shares the specimen's own subject — a redeal is a no-op and tested nothing",
+                "detail": "exact P(a uniform redeal reproduces this triple) = 0.0016 over n=612 edges, K=1 sharing the subject, m=1 sharing the verb+object — below alpha 0.05, so the true match is not explained by chance alone",
                 "unreachable": false,
-                "perturbed": false,
+                "perturbed": true,
+                "draws": 1,
+                "fired": 0
+              },
+              "discrimination": {
+                "completed": false,
+                "detail": "the same claim checked against different content (war-and-peace) must not bind",
+                "unreachable": false,
+                "perturbed": true,
                 "draws": 1,
                 "fired": 0
               }
@@ -1936,9 +1943,8 @@
               "typed, directional relation"
             ],
             "name": "multiple concrete instances coordinated: corroboration counted by perspective, not by mention",
-            "status": "unmeasured",
-            "reason": "unlicensed_perturbation",
-            "detail": "the arbitrary arm's perturbation did not reach what the task reads (every edge in this reading carries the same ref-count — a redeal is a no-op and tested nothing), so it tested nothing. READING-POLICY A10: a statistic insensitive to its perturbation fails invisibly and globally. UNMEASURED, not passed.",
+            "status": "passed",
+            "detail": "passages=2, sources=1 — counted apart",
             "arms": {
               "lowerOrder": {
                 "completed": false,
@@ -1950,9 +1956,17 @@
               },
               "arbitrary": {
                 "completed": false,
-                "detail": "every edge in this reading carries the same ref-count — a redeal is a no-op and tested nothing",
+                "detail": "exact P(an arbitrary redeal hands this specimen a count clearing the witness floor) = 0.0343 (21 of 612 edges in this reading already clear it) — below alpha 0.05, so clearing it is not explained by chance alone",
                 "unreachable": false,
-                "perturbed": false,
+                "perturbed": true,
+                "draws": 1,
+                "fired": 0
+              },
+              "discrimination": {
+                "completed": false,
+                "detail": "a claim the material states once must not report corroboration at the witness floor",
+                "unreachable": false,
+                "perturbed": true,
                 "draws": 1,
                 "fired": 0
               }
@@ -1990,9 +2004,8 @@
               "typed, directional relation"
             ],
             "name": "one hypothesis tested against a constructed null: is this edge's connector asserted, or an artefact",
-            "status": "unmeasured",
-            "reason": "unlicensed_perturbation",
-            "detail": "the arbitrary arm's perturbation did not reach what the task reads (no corroborated edges, or every edge is — a redeal of which edges carry the label has nothing to vary), so it tested nothing. READING-POLICY A10: a statistic insensitive to its perturbation fails invisibly and globally. UNMEASURED, not passed.",
+            "status": "passed",
+            "detail": "612/612 edges carry a standing — 29 corroborated, 583 single-witness",
             "arms": {
               "lowerOrder": {
                 "completed": false,
@@ -2004,9 +2017,17 @@
               },
               "arbitrary": {
                 "completed": false,
-                "detail": "no corroborated edges, or every edge is — a redeal of which edges carry the label has nothing to vary",
+                "detail": "exact P(an arbitrary same-size redeal of the \"corroborated\" label lands entirely on genuine floor-clearers) = 2.65e-50 (29 of 612 edges genuinely clear the floor; 29 carry the label) — below alpha 0.05, so the real derivation is not explained by chance",
                 "unreachable": false,
-                "perturbed": false,
+                "perturbed": true,
+                "draws": 1,
+                "fired": 0
+              },
+              "discrimination": {
+                "completed": false,
+                "detail": "a word-salad copy must not yield corroborated standings at the real material's rate",
+                "unreachable": false,
+                "perturbed": true,
                 "draws": 1,
                 "fired": 0
               }
@@ -2094,7 +2115,7 @@
                 ],
                 "name": "a name denotes a being the material establishes",
                 "status": "failed",
-                "detail": "\"Бородинском\" resolves (1); \"Zzyrflax Quenbourne\" does not (0); gathered 22/23 pairs its own individuation rule calls one being (stranded: \"Огюст Коленкур\" | \"Огюст\"); kept apart 2/5 it withholds on",
+                "detail": "\"Бородино\" resolves (1); \"Zzyrflax Quenbourne\" does not (0); gathered 21/22 pairs its own individuation rule calls one being (stranded: \"Огюст Коленкур\" | \"Огюст\"); kept apart 1/2 it withholds on",
                 "arms": {
                   "lowerOrder": {
                     "completed": false,
@@ -2114,7 +2135,7 @@
                   },
                   "discrimination": {
                     "completed": false,
-                    "detail": "the control material (war-and-peace) does not establish \"Бородинском\"",
+                    "detail": "the control material (war-and-peace) does not establish \"Бородино\"",
                     "unreachable": false,
                     "perturbed": true,
                     "draws": 1,
@@ -2195,7 +2216,7 @@
                 ],
                 "name": "a sequence coordinated across sentences: a pronoun bound to what was read before it",
                 "status": "passed",
-                "detail": "11 pronoun(s) bound, 19 refused (pronoun_no_candidate, pronoun_no_margin), 0 bound to an unadmitted referent",
+                "detail": "10 pronoun(s) bound, 20 refused (pronoun_no_candidate, pronoun_no_margin), 0 bound to an unadmitted referent",
                 "arms": {
                   "lowerOrder": {
                     "completed": false,
@@ -2231,7 +2252,7 @@
           {
             "order": 8,
             "name": "Primary",
-            "status": "unmeasured",
+            "status": "passed",
             "items": [
               {
                 "id": "o8-primary",
@@ -2242,9 +2263,8 @@
                   "typed, directional relation"
                 ],
                 "name": "an empirical rule applied: a claim checked against the material's own edges",
-                "status": "unmeasured",
-                "reason": "unlicensed_perturbation",
-                "detail": "the arbitrary arm's perturbation did not reach what the task reads (every edge shares the specimen's own subject — a redeal is a no-op and tested nothing), so it tested nothing. READING-POLICY A10: a statistic insensitive to its perturbation fails invisibly and globally. UNMEASURED, not passed.",
+                "status": "passed",
+                "detail": "stated claim -> bound; reversed claim -> unbound",
                 "arms": {
                   "lowerOrder": {
                     "completed": false,
@@ -2256,9 +2276,17 @@
                   },
                   "arbitrary": {
                     "completed": false,
-                    "detail": "every edge shares the specimen's own subject — a redeal is a no-op and tested nothing",
+                    "detail": "exact P(a uniform redeal reproduces this triple) = 0.0016 over n=612 edges, K=1 sharing the subject, m=1 sharing the verb+object — below alpha 0.05, so the true match is not explained by chance alone",
                     "unreachable": false,
-                    "perturbed": false,
+                    "perturbed": true,
+                    "draws": 1,
+                    "fired": 0
+                  },
+                  "discrimination": {
+                    "completed": false,
+                    "detail": "the same claim checked against different content (war-and-peace) must not bind",
+                    "unreachable": false,
+                    "perturbed": true,
                     "draws": 1,
                     "fired": 0
                   }
@@ -2267,12 +2295,12 @@
             ],
             "failedCount": 0,
             "refusedCount": 0,
-            "unmeasuredCount": 1
+            "unmeasuredCount": 0
           },
           {
             "order": 9,
             "name": "Concrete",
-            "status": "unmeasured",
+            "status": "passed",
             "items": [
               {
                 "id": "o9-concrete",
@@ -2283,9 +2311,8 @@
                   "typed, directional relation"
                 ],
                 "name": "multiple concrete instances coordinated: corroboration counted by perspective, not by mention",
-                "status": "unmeasured",
-                "reason": "unlicensed_perturbation",
-                "detail": "the arbitrary arm's perturbation did not reach what the task reads (every edge in this reading carries the same ref-count — a redeal is a no-op and tested nothing), so it tested nothing. READING-POLICY A10: a statistic insensitive to its perturbation fails invisibly and globally. UNMEASURED, not passed.",
+                "status": "passed",
+                "detail": "passages=2, sources=1 — counted apart",
                 "arms": {
                   "lowerOrder": {
                     "completed": false,
@@ -2297,9 +2324,17 @@
                   },
                   "arbitrary": {
                     "completed": false,
-                    "detail": "every edge in this reading carries the same ref-count — a redeal is a no-op and tested nothing",
+                    "detail": "exact P(an arbitrary redeal hands this specimen a count clearing the witness floor) = 0.0343 (21 of 612 edges in this reading already clear it) — below alpha 0.05, so clearing it is not explained by chance alone",
                     "unreachable": false,
-                    "perturbed": false,
+                    "perturbed": true,
+                    "draws": 1,
+                    "fired": 0
+                  },
+                  "discrimination": {
+                    "completed": false,
+                    "detail": "a claim the material states once must not report corroboration at the witness floor",
+                    "unreachable": false,
+                    "perturbed": true,
                     "draws": 1,
                     "fired": 0
                   }
@@ -2308,7 +2343,7 @@
             ],
             "failedCount": 0,
             "refusedCount": 0,
-            "unmeasuredCount": 1
+            "unmeasuredCount": 0
           },
           {
             "order": 10,
@@ -2346,7 +2381,7 @@
           {
             "order": 11,
             "name": "Formal",
-            "status": "unmeasured",
+            "status": "passed",
             "items": [
               {
                 "id": "o11-formal",
@@ -2357,9 +2392,8 @@
                   "typed, directional relation"
                 ],
                 "name": "one hypothesis tested against a constructed null: is this edge's connector asserted, or an artefact",
-                "status": "unmeasured",
-                "reason": "unlicensed_perturbation",
-                "detail": "the arbitrary arm's perturbation did not reach what the task reads (no corroborated edges, or every edge is — a redeal of which edges carry the label has nothing to vary), so it tested nothing. READING-POLICY A10: a statistic insensitive to its perturbation fails invisibly and globally. UNMEASURED, not passed.",
+                "status": "passed",
+                "detail": "612/612 edges carry a standing — 29 corroborated, 583 single-witness",
                 "arms": {
                   "lowerOrder": {
                     "completed": false,
@@ -2371,9 +2405,17 @@
                   },
                   "arbitrary": {
                     "completed": false,
-                    "detail": "no corroborated edges, or every edge is — a redeal of which edges carry the label has nothing to vary",
+                    "detail": "exact P(an arbitrary same-size redeal of the \"corroborated\" label lands entirely on genuine floor-clearers) = 2.65e-50 (29 of 612 edges genuinely clear the floor; 29 carry the label) — below alpha 0.05, so the real derivation is not explained by chance",
                     "unreachable": false,
-                    "perturbed": false,
+                    "perturbed": true,
+                    "draws": 1,
+                    "fired": 0
+                  },
+                  "discrimination": {
+                    "completed": false,
+                    "detail": "a word-salad copy must not yield corroborated standings at the real material's rate",
+                    "unreachable": false,
+                    "perturbed": true,
                     "draws": 1,
                     "fired": 0
                   }
@@ -2382,7 +2424,7 @@
             ],
             "failedCount": 0,
             "refusedCount": 0,
-            "unmeasuredCount": 1
+            "unmeasuredCount": 0
           },
           {
             "order": 12,
@@ -2486,6 +2528,18 @@
           {
             "order": 7,
             "name": "Preoperational"
+          },
+          {
+            "order": 8,
+            "name": "Primary"
+          },
+          {
+            "order": 9,
+            "name": "Concrete"
+          },
+          {
+            "order": 11,
+            "name": "Formal"
           },
           {
             "order": 12,
@@ -2723,30 +2777,22 @@
         }
       },
       "coref": {
-        "shouldMerge": 23,
-        "didMerge": 22,
+        "shouldMerge": 22,
+        "didMerge": 21,
         "stranded": [
           {
             "a": "Огюст Коленкур",
             "b": "Огюст"
           }
         ],
-        "shouldWithhold": 5,
+        "shouldWithhold": 2,
         "wronglyMerged": [
           {
             "a": "Италии Евгения Богарне",
             "b": "Италии Евгений"
-          },
-          {
-            "a": "Италии Евгений Богарне",
-            "b": "Италии Евгения"
-          },
-          {
-            "a": "Италии Евгения",
-            "b": "Италии Евгений"
           }
         ],
-        "abstained": 7
+        "abstained": 0
       },
       "specimen": {
         "subject": "The Battle",
@@ -2808,67 +2854,7 @@
     ],
     "noProbe": [
       {
-        "order": 8,
-        "cells": [
-          {
-            "material": "war-and-peace",
-            "status": "passed",
-            "validity": "valid"
-          },
-          {
-            "material": "borodino",
-            "status": "passed",
-            "validity": "valid"
-          },
-          {
-            "material": "borodino-ru",
-            "status": "unmeasured",
-            "validity": "no-probe"
-          }
-        ]
-      },
-      {
-        "order": 9,
-        "cells": [
-          {
-            "material": "war-and-peace",
-            "status": "passed",
-            "validity": "valid"
-          },
-          {
-            "material": "borodino",
-            "status": "passed",
-            "validity": "valid"
-          },
-          {
-            "material": "borodino-ru",
-            "status": "unmeasured",
-            "validity": "no-probe"
-          }
-        ]
-      },
-      {
         "order": 10,
-        "cells": [
-          {
-            "material": "war-and-peace",
-            "status": "passed",
-            "validity": "valid"
-          },
-          {
-            "material": "borodino",
-            "status": "passed",
-            "validity": "valid"
-          },
-          {
-            "material": "borodino-ru",
-            "status": "unmeasured",
-            "validity": "no-probe"
-          }
-        ]
-      },
-      {
-        "order": 11,
         "cells": [
           {
             "material": "war-and-peace",
@@ -2911,6 +2897,18 @@
     "agreed": [
       {
         "order": 6,
+        "status": "passed"
+      },
+      {
+        "order": 8,
+        "status": "passed"
+      },
+      {
+        "order": 9,
+        "status": "passed"
+      },
+      {
+        "order": 11,
         "status": "passed"
       },
       {
