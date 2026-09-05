@@ -110,6 +110,7 @@ async function organs() {
     posPriorFor: () => posPrior,
     verbForms, oovLexicon: verbForms,
     nounPhraseSubjects: true, phrasalPredicates: true, attestedVerbs: true,
+    objectSpecificity: true,
     createLemmatizer: () => ({ sameAct }),
     morphologyIndex: {},
     determiners: new Set([...P.DEFINITE_DETERMINERS, ...P.INDEFINITE_DETERMINERS]),

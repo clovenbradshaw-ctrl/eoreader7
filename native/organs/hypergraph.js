@@ -883,6 +883,14 @@ export function makeRelationReader(organs) {
     phrasalPredicates = false,
     nounPhraseSubjects = false,
     attestedVerbs = false,
+    // P36's object-specificity rule at the reader (opt-in, declared — a reader
+    // option reaches the frame by construction, the-fold P96): a claim binds
+    // only to an edge whose object states EVERY content token of the claim's
+    // object. Below CORPUS_MINIMUM the object match is `tokensShare` — one
+    // shared token — so "the Royal Society in 1887" bound to "the Northgate
+    // Observatory in 1887" on `in 1887` (the product assay's wall 6, the-fold
+    // P97). A live turn's retrieved passages are always sub-floor.
+    objectSpecificity = false,
   } = organs;
   const indexFor = makeReferentIndex(organs);
 
@@ -1930,8 +1938,26 @@ export function makeRelationReader(organs) {
       if (matching.length) {
         const agree = matching.filter((e) => e.polarity === t.polarity);
         const oppose = matching.filter((e) => e.polarity !== t.polarity);
-        if (agree.length) {
-          const refs = [...new Set(agree.flatMap((e) => e.refs))];
+        // `objectSpecificity`: of the agreeing edges, keep those whose object
+        // states every content token of the claim's object (stem-tolerant,
+        // the same `stemEq` tokensShare uses). A claim that agrees with edges
+        // on subject and act but whose object no edge states in full is
+        // `unbound` with those edges named as nearest — never a silent bind
+        // on one shared word.
+        const specific = objectSpecificity
+          ? agree.filter((e) => [...obj.tokens].every((x) => [...e.objectEnd.tokens].some((y) => stemEq(x, y))))
+          : agree;
+        if (objectSpecificity && agree.length && !specific.length) {
+          return {
+            ...claim,
+            verdict: "unbound",
+            reason: `object_unspecific: the material states this subject and act, but no passage states the whole of “${t.object}” — only part of it`,
+            nearest: agree.slice(0, NEAREST_EDGES_MAX).map(edgeFace),
+            ...cardinality,
+          };
+        }
+        if (specific.length) {
+          const refs = [...new Set(specific.flatMap((e) => e.refs))];
           return {
             ...claim,
             verdict: "bound",
@@ -1946,7 +1972,7 @@ export function makeRelationReader(organs) {
             spans: (() => {
               const seen = new Set();
               const out = [];
-              for (const e of agree) {
+              for (const e of specific) {
                 for (const sp of e.spans ?? []) {
                   const k = `${sp.ref}#${sp.start}-${sp.end}`;
                   if (seen.has(k)) continue;
