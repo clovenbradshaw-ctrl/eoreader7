@@ -1,0 +1,106 @@
+{
+  "ran": "2026-09-05T21:52:13.222Z",
+  "model": "gemma2:2b",
+  "depth": 1,
+  "turns": 4,
+  "every": 2,
+  "seed": 3,
+  "witness": false,
+  "cap": 200000,
+  "bank": 60,
+  "sources": [
+    {
+      "kind": "prose",
+      "name": "pg2600.txt",
+      "bytes": 200000,
+      "chunks": 60
+    },
+    {
+      "kind": "greek",
+      "name": "odyssey-greek.txt",
+      "bytes": 200000,
+      "chunks": 335
+    },
+    {
+      "kind": "markdown",
+      "name": "POLICIES.md",
+      "bytes": 200000,
+      "chunks": 244
+    },
+    {
+      "kind": "code",
+      "name": "holon.js",
+      "bytes": 178270,
+      "chunks": 80
+    },
+    {
+      "kind": "json",
+      "name": "stress-eval-all.json",
+      "bytes": 123763,
+      "chunks": 1
+    },
+    {
+      "kind": "html",
+      "name": "wikipedia-american-civil-war.html",
+      "bytes": 200000,
+      "chunks": 317
+    }
+  ],
+  "chunks": 1037,
+  "bankSize": 114,
+  "bankBySource": {
+    "pg2600.txt": 0,
+    "odyssey-greek.txt": 2,
+    "POLICIES.md": 31,
+    "holon.js": 20,
+    "stress-eval-all.json": 1,
+    "wikipedia-american-civil-war.html": 60
+  },
+  "recencyWindow": 4,
+  "frame": {
+    "reader": "makeRelationReader",
+    "organs": {
+      "blankFurniture": "blankFurniture",
+      "createLemmatizer": "createLemmatizer",
+      "diaNorm": "diaNorm",
+      "discoverReferents": "discoverReferents",
+      "discoverRelationVocab": "discoverRelationVocab",
+      "extractRelations": "extractRelations",
+      "extractSurfaces": "extractSurfaces",
+      "namesCorefer": "namesCorefer",
+      "posPriorFor": "posPriorFor",
+      "resolvePronouns": "resolvePronouns",
+      "splitSentences": "splitSentences",
+      "tokenize": "tokenize"
+    },
+    "levers": {
+      "attestedVerbs": true,
+      "determiners": "Set(10)",
+      "morphologyIndex": "object",
+      "negationWords": "Set(15)",
+      "nounPhraseSubjects": true,
+      "objectSpecificity": true,
+      "oovLexicon": "Set(103318)",
+      "phrasalPredicates": true,
+      "verbForms": "Set(103318)"
+    },
+    "priors": {
+      "posPrior": "POSPrior@1",
+      "posGate": "on (type-level vocabulary gate over POSPrior@1)",
+      "verbForms": "UniMorph eng verb forms (103318)",
+      "morphology": "UniMorph morphology prior (sameAct)",
+      "connectorLens": null
+    },
+    "identity": {
+      "ends": "makeCastResolver (cast.js)",
+      "noteIdentity": null
+    },
+    "omitted": [
+      "identity.noteIdentity"
+    ],
+    "model": null
+  },
+  "recipe": "9c70723fe2b4d37f",
+  "ollama": "http://127.0.0.1:11434",
+  "note": "the fold's turn, headless: retrieval on the question's own words, the product reader, the ledger and grid threaded turn to turn; every fifth turn a probe scored with no model"
+}
