@@ -316,7 +316,15 @@ export function hasNumber(numbers, token) {
 // the reverse. These are fixed, symmetric equivalences applied to the index at
 // build time, so the check itself stays exact string containment. Deliberately
 // small: office roles only, nothing that collides with ordinary prose.
-const ABBREV_EXPANSIONS = {
+// A NULL PROTOTYPE, deliberately. A plain object literal inherits from
+// Object.prototype, so a lookup by a word the MATERIAL happens to contain —
+// "constructor", "toString", "valueOf", "hasOwnProperty" — returns an
+// inherited function instead of undefined, and the caller's `for (const e of
+// exp)` throws "exp is not iterable". Measured live (S77, 2026-09-06): three
+// turns of a long stream died this way within thirty turns of adding
+// react-dom.js to the corpus, because React source says "constructor"
+// constantly. Any table keyed by words read out of material has this hole.
+const ABBREV_EXPANSIONS = Object.assign(Object.create(null), {
   ceo: ["chief", "executive"],
   coo: ["chief", "operating", "officer"],
   cfo: ["chief", "financial", "officer"],
@@ -324,11 +332,15 @@ const ABBREV_EXPANSIONS = {
   cio: ["chief", "information", "officer"],
   cmo: ["chief", "marketing", "officer"],
   vp: ["vice", "president"],
-};
+});
 
 export function abbreviationExpansion(word) {
   const key = String(word || "").toLowerCase().replace(/[^a-z0-9]/g, "");
-  return ABBREV_EXPANSIONS[key] ?? null;
+  // Own properties only, and only a real list — belt and braces beside the
+  // null prototype above, so a future edit that restores a plain literal
+  // cannot reopen the hole.
+  const exp = Object.hasOwn(ABBREV_EXPANSIONS, key) ? ABBREV_EXPANSIONS[key] : null;
+  return Array.isArray(exp) ? exp : null;
 }
 
 /** One index over everything the turn was given, both directions expanded. */
