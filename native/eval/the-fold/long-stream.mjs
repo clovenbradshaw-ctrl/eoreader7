@@ -83,6 +83,13 @@ const { splitSentences } = await import(`${NATIVE}/adapters/text/spans.js`);
 // run, in the chain's own entry shape, so matrix.js can seal them into a room
 // and a second machine inherits them. Kept beside the runs, not inside one.
 const { learn, correctionsIn, learnable } = await import(`${FOLD}learned.js`);
+// The arithmetic engine (P129): ordering and difference over the values a
+// question names are the instrument's to compute, not the mouth's to attempt.
+// Resolved from the-fold's own node_modules, where the page's vendored copy
+// comes from; absent, the turn simply does not compute and says so by omission.
+let math = null;
+try { math = await import(`${FOLD}node_modules/mathjs/lib/esm/index.js`); }
+catch { try { math = await import("mathjs"); } catch { math = null; } }
 const { extractSurfaces, discoverReferents, namesCorefer, diaNorm } = await import(`${NATIVE}/adapters/text/surfaces.js`);
 const { lineIndex, outlineOfIndex } = await import(`${ROOT}eoreader7/legacy-eoreader6.1/packages/engine/perceiver/text/segments.js`);
 const W = await import(`${NATIVE}/organs/index.js`);
@@ -169,7 +176,7 @@ if (RESUME && existsSync(STATE_PATH)) {
 }
 const config = { ran: new Date().toISOString(), model: MODEL, corpusId, depth: DEPTH, turns: TURNS, every: EVERY, seed: SEED, witness: WITNESS, cap: CAP, bank: PER_SOURCE, sources: loaded, chunks: chunks.length, bankSize: state.bank.length, bankBySource: Object.fromEntries(loaded.map((l) => [l.name, state.bank.filter((f) => f.source === l.name).length])), recencyWindow: RECENCY_WINDOW, frame: O.frame, recipe: O.recipe, ollama: OLLAMA, note: "the fold's turn, headless: retrieval on the question's own words, the product reader, the ledger and grid threaded turn to turn; every fifth turn a probe scored with no model" };
 writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2));
-console.log(`long-stream — ${MODEL}, depth ${DEPTH}, ${TURNS} turns, probe every ${EVERY}, witness ${WITNESS ? "on" : "off"}`);
+console.log(`long-stream — ${MODEL}, depth ${DEPTH}, ${TURNS} turns, probe every ${EVERY}, witness ${WITNESS ? "on" : "off"}, arithmetic ${math ? "computed" : "UNAVAILABLE"}`);
 for (const l of loaded) console.log(`  ${l.kind.padEnd(8)} ${l.name.padEnd(36)} ${String(l.bytes).padStart(9)} bytes ${String(l.chunks).padStart(5)} chunks  ${l.sha256}  bank ${config.bankBySource[l.name]}`);
 console.log(`  ${chunks.length} chunks in all; bank ${state.bank.length}; recipe ${O.recipe}; corpus ${corpusId}\n  ${DIR}`);
 
@@ -216,6 +223,7 @@ for (let turn = state.turn + 1; turn <= TURNS; turn++) {
       // The conversation's own record (P128): a question about what was said
       // retrieves from it, so what the recency window drops is still reachable.
       transcript: state.transcript,
+      math,
       hyperlexicon: O.hl, hyperlexiconLog: state.hlLog, hyperlexiconFrame: O.frame, hyperlexiconRecipe: O.recipe,
       grid: O.grid, gridLog: state.gridLog, runCapacity: O.runCapacity,
     });
