@@ -83,6 +83,20 @@ const { splitSentences } = await import(`${NATIVE}/adapters/text/spans.js`);
 // run, in the chain's own entry shape, so matrix.js can seal them into a room
 // and a second machine inherits them. Kept beside the runs, not inside one.
 const { learn, correctionsIn, learnable } = await import(`${FOLD}learned.js`);
+// The arithmetic engine (P129): ordering and difference over the values a
+// question names are the instrument's to compute, not the mouth's to attempt.
+// Resolved from the-fold's own node_modules, where the page's vendored copy
+// comes from; absent, the turn simply does not compute and says so by omission.
+let math = null;
+try { math = await import(`${FOLD}node_modules/mathjs/lib/esm/index.js`); }
+catch { try { math = await import("mathjs"); } catch { math = null; } }
+// The tower (P131/P132): the engine's licensed null apparatus, the stream's
+// own coverage history, and the audit that decides whether the measured cut
+// is trusted at all. Absent, the declared floor decides and the run says so.
+let nul = null;
+try { nul = await import(`${ROOT}eoreader7/legacy-eoreader6.1/nul/index.js`); } catch { nul = null; }
+const { rememberCoverage, chooseCut } = await import(`${FOLD}calibration.js`);
+const { discriminating } = await import(`${FOLD}layers.js`);
 const { extractSurfaces, discoverReferents, namesCorefer, diaNorm } = await import(`${NATIVE}/adapters/text/surfaces.js`);
 const { lineIndex, outlineOfIndex } = await import(`${ROOT}eoreader7/legacy-eoreader6.1/packages/engine/perceiver/text/segments.js`);
 const W = await import(`${NATIVE}/organs/index.js`);
@@ -164,12 +178,12 @@ if (RESUME && existsSync(STATE_PATH)) {
   console.log(`resumed ${DIR} at turn ${state.turn}`);
 } else {
   const bank = buildFactBank(chunks, { perSource: PER_SOURCE, rng });
-  state = { turn: 0, history: [], transcript: [], hlLog: null, gridLog: null, bank, draws: rng.draws };
+  state = { turn: 0, history: [], transcript: [], hlLog: null, gridLog: null, bank, draws: rng.draws, coverage: [], cutFires: { measured: 0, declared: 0, measurable: 0, turns: 0 }, useMeasuredCut: false };
   writeFileSync(TURNS_PATH, "");
 }
 const config = { ran: new Date().toISOString(), model: MODEL, corpusId, depth: DEPTH, turns: TURNS, every: EVERY, seed: SEED, witness: WITNESS, cap: CAP, bank: PER_SOURCE, sources: loaded, chunks: chunks.length, bankSize: state.bank.length, bankBySource: Object.fromEntries(loaded.map((l) => [l.name, state.bank.filter((f) => f.source === l.name).length])), recencyWindow: RECENCY_WINDOW, frame: O.frame, recipe: O.recipe, ollama: OLLAMA, note: "the fold's turn, headless: retrieval on the question's own words, the product reader, the ledger and grid threaded turn to turn; every fifth turn a probe scored with no model" };
 writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2));
-console.log(`long-stream — ${MODEL}, depth ${DEPTH}, ${TURNS} turns, probe every ${EVERY}, witness ${WITNESS ? "on" : "off"}`);
+console.log(`long-stream — ${MODEL}, depth ${DEPTH}, ${TURNS} turns, probe every ${EVERY}, witness ${WITNESS ? "on" : "off"}, arithmetic ${math ? "computed" : "UNAVAILABLE"}`);
 for (const l of loaded) console.log(`  ${l.kind.padEnd(8)} ${l.name.padEnd(36)} ${String(l.bytes).padStart(9)} bytes ${String(l.chunks).padStart(5)} chunks  ${l.sha256}  bank ${config.bankBySource[l.name]}`);
 console.log(`  ${chunks.length} chunks in all; bank ${state.bank.length}; recipe ${O.recipe}; corpus ${corpusId}\n  ${DIR}`);
 
@@ -216,6 +230,10 @@ for (let turn = state.turn + 1; turn <= TURNS; turn++) {
       // The conversation's own record (P128): a question about what was said
       // retrieves from it, so what the recency window drops is still reachable.
       transcript: state.transcript,
+      math,
+      coverageHistory: state.coverage ?? [],
+      nul,
+      useMeasuredCut: state.useMeasuredCut === true,
       hyperlexicon: O.hl, hyperlexiconLog: state.hlLog, hyperlexiconFrame: O.frame, hyperlexiconRecipe: O.recipe,
       grid: O.grid, gridLog: state.gridLog, runCapacity: O.runCapacity,
     });
@@ -225,6 +243,26 @@ for (let turn = state.turn + 1; turn <= TURNS; turn++) {
   if (r?.gridLog) state.gridLog = r.gridLog;
   // What this turn learned goes into the permanent store immediately, so the
   // very next turn is handed it — the loop is live, not a post-run report.
+  // LAYER 3 and LAYER 4, online. The coverage this turn saw joins the stream's
+  // record; both cuts are scored against it; and the audit above decides which
+  // cut the NEXT turn is allowed to use. The tower adjusts the layer below it,
+  // never itself.
+  const cov = r?.strain?.[0]?.coverage ?? null;
+  if (Number.isFinite(cov)) {
+    state.cutFires.turns += 1;
+    if (cov < 0.34) state.cutFires.declared += 1;
+    if (nul && (state.coverage ?? []).length) {
+      const { placeCoverage } = await import(`${FOLD}calibration.js`);
+      const placed = placeCoverage(cov, state.coverage, { nul });
+      if (placed.strained === true) state.cutFires.measured += 1;
+      if (placed.strained !== null) state.cutFires.measurable += 1;
+    }
+    state.coverage = rememberCoverage(state.coverage ?? [], cov);
+    const audit = discriminating(state.cutFires.measured, state.cutFires.measurable);
+    const choice = chooseCut(null, 0.34, audit.gap ? null : audit);
+    state.useMeasuredCut = choice.use === "measured";
+    state.lastAudit = { ...audit, use: choice.use, why: choice.why };
+  }
   let learnedAdded = 0;
   for (const e of r?.learned ?? []) { const before = learnedStore.length; learnedStore = learn(learnedStore, e); if (learnedStore.length > before) learnedAdded += 1; }
   if (learnedAdded) saveLearned();
@@ -243,6 +281,10 @@ for (let turn = state.turn + 1; turn <= TURNS; turn++) {
     correction: r?.correction ? { flagged: r.correction.flagged, asked: r.correction.asked, afterFlagged: r.correction.after?.flagged, outcomes: (r.correction.outcomes ?? []).map((o) => o.outcome) } : null,
     premises: r?.premises ? { checked: r.premises.checked, unverified: r.premises.unverified, contradicted: r.premises.contradicted } : null,
     learnedUsed: r?.learnedUsed ?? [], learnedAdded, learnedTotal: learnedStore.length,
+    strain: r?.strain?.[0] ? { level: r.strain[0].level, recruited: r.strain[0].recruited, coverage: r.strain[0].coverage, cut: r.strain[0].cut } : null,
+    answeredBeforeTheModel: r?.answeredBeforeTheModel ? r.answeredBeforeTheModel.kind : null,
+    substituted: (r?.substituted ?? []).length > 0,
+    tower: state.lastAudit ? { fires: { measured: state.cutFires.measured, declared: state.cutFires.declared, of: state.cutFires.measurable }, use: state.lastAudit.use } : null,
     recalledTurns: r?.recalledTurns ?? [],
     witnessAsks: (r?.sections ?? []).reduce((a, s) => a + (s.witness?.asks ?? 0), 0), retrieved: (r?.sections ?? []).flatMap((s) => (s.passages ?? []).map((p) => p.source ?? String(p.ref ?? "").split("#")[0])),
     ledgerNotes: ledgerSize(), historyTurns: history.length, error,
@@ -251,8 +293,9 @@ for (let turn = state.turn + 1; turn <= TURNS; turn++) {
   if (!error) { state.history.push({ role: "user", content: question }, { role: "assistant", content: answer }); state.transcript.push({ turn, question, answer }); }
   state.turn = turn; saveState();
   const verdict = score ? (score.verdict ?? (score.any != null ? `any=${score.any} share=${score.share.toFixed(2)}${score.contradicted ? " CONTRADICTED" : ""}` : "")) : "";
-  const learnMark = `${row.premises?.contradicted || row.premises?.unverified ? "P" : ""}${row.correction?.flagged ? `f${row.correction.flagged}` : ""}${row.correction?.outcomes?.filter((o) => o === "rewritten").length ? `→${row.correction.outcomes.filter((o) => o === "rewritten").length}` : ""}${row.learnedUsed.length ? `↺${row.learnedUsed.length}` : ""}${row.recalledTurns.length ? `T${row.recalledTurns.length}` : ""}`;
-  console.log(`[${turn}/${TURNS}] ${row.kind.padEnd(9)} ${(row.ms / 1000).toFixed(0).padStart(4)}s ${String(row.calls).padStart(2)} calls ${verdict.padEnd(12)} ${learnMark.padEnd(9)} ${error ? "ERROR " + error.split("\n")[0].slice(0, 80) : question.slice(0, 70).replace(/\s+/g, " ")}`);
+  const towerMark = row.answeredBeforeTheModel ? `S1:${row.answeredBeforeTheModel.slice(0, 4)}` : (row.strain ? `d${row.strain.recruited}` : "");
+  const learnMark = `${row.premises?.contradicted || row.premises?.unverified ? "P" : ""}${row.correction?.flagged ? `f${row.correction.flagged}` : ""}${row.correction?.outcomes?.filter((o) => o === "rewritten").length ? `→${row.correction.outcomes.filter((o) => o === "rewritten").length}` : ""}${row.learnedUsed.length ? `↺${row.learnedUsed.length}` : ""}${row.recalledTurns.length ? `T${row.recalledTurns.length}` : ""}${row.substituted ? " SWAP" : ""}`;
+  console.log(`[${turn}/${TURNS}] ${row.kind.padEnd(9)} ${(row.ms / 1000).toFixed(0).padStart(4)}s ${String(row.calls).padStart(2)} calls ${verdict.padEnd(12)} ${towerMark.padEnd(8)} ${learnMark.padEnd(9)} ${error ? "ERROR " + error.split("\n")[0].slice(0, 80) : question.slice(0, 70).replace(/\s+/g, " ")}`);
 }
 console.log(`\ndone — ${usage.calls} calls, ${usage.promptTokens} prompt tokens, ${usage.completionTokens} completion tokens; ${DIR}`);
 console.log(`score: node eval/the-fold/long-stream-score.mjs ${DIR}`);
