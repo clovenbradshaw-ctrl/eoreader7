@@ -33,6 +33,15 @@ json    .../fixtures/unimorph-eng-verb-forms.json      a linguistic dataset, 1.4
 html    .../fixtures/wikipedia-abraham-lincoln.html    an encyclopaedia article, 1.9 MB
 ```
 
+**The corpus is declared by content, not by path.** Every run hashes each
+source AS READ — after any `--cap` slice and after html is rendered down — and
+prints the per-file sha with a single `corpusId` over all six. `config.json`
+records them. Two runs are comparable only if their `corpusId` matches; a path
+proves nothing, and this project has already had a run read files it was
+editing. A `--resume` into different bytes is REFUSED with a per-file diff,
+because a resumed run's fact bank, transcript and learned corrections were all
+formed against the bytes it started on.
+
 Override with `--source kind=path` (repeatable) when a run needs different
 material; a run that deliberately reads this project's own files should say so
 in its own results, because its answers cannot be read the same way.

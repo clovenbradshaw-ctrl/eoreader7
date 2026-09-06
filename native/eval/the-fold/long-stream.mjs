@@ -26,6 +26,7 @@
 // dies resumes at its last turn with --resume <dir>. The configuration is
 // printed first (P88) and written to <dir>/config.json.
 import { readFileSync, writeFileSync, appendFileSync, mkdirSync, existsSync, renameSync } from "node:fs";
+import { createHash } from "node:crypto";
 import { join } from "node:path";
 import { organs as productOrgans } from "./lib/product-assay.mjs";
 import { buildFactBank, makeRng, recallProbe, scoreRecall, memoryProbe, scoreMemory, injectionProbe, scoreInjection, reasoningProbe, scoreReasoning, organicQuestion, scheduleFor, memoryDistanceFor } from "./lib/long-stream.mjs";
@@ -106,7 +107,12 @@ for (const s of SOURCES) {
   const name = s.path.split("/").pop();
   const cs = O.chunkSource(name, text, { boundaries: s.kind === "prose" || s.kind === "markdown" ? boundariesOf(text) : null }).map((c) => ({ ...c, source: name, kind: s.kind }));
   chunks.push(...cs);
-  loaded.push({ kind: s.kind, name, bytes: text.length, chunks: cs.length });
+  // THE CORPUS IS DECLARED BY CONTENT, NOT BY PATH (P88: state the reader's
+  // configuration). Two runs are comparable only if they read the same bytes;
+  // a path says nothing, and this project has already had a run read files it
+  // was editing. The sha is of the text AS READ — after any --cap slice and
+  // after html is rendered down — so it is the thing the chunker actually saw.
+  loaded.push({ kind: s.kind, name, path: s.path, bytes: text.length, chunks: cs.length, sha256: createHash("sha256").update(text).digest("hex").slice(0, 16) });
 }
 
 // ── the model ───────────────────────────────────────────────────────────────
@@ -134,6 +140,22 @@ const stamp = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
 const DIR = RESUME ?? join(NATIVE, "eval/the-fold/results/long-stream", `${stamp}-${MODEL.replace(/[^\w.-]+/g, "_")}-d${DEPTH}`);
 mkdirSync(DIR, { recursive: true });
 const TURNS_PATH = join(DIR, "turns.jsonl"), STATE_PATH = join(DIR, "state.json"), CONFIG_PATH = join(DIR, "config.json");
+const CONFIG_PATH_EARLY = () => CONFIG_PATH;
+const corpusId = createHash("sha256").update(loaded.map((l) => `${l.kind}:${l.name}:${l.sha256}`).join("|")).digest("hex").slice(0, 16);
+// A run may be resumed only into the corpus it started on: the fact bank, the
+// transcript and every learned correction were formed against those bytes.
+if (RESUME && existsSync(CONFIG_PATH_EARLY())) {
+  try {
+    const prior = JSON.parse(readFileSync(CONFIG_PATH_EARLY(), "utf8"));
+    if (prior.corpusId && prior.corpusId !== corpusId) {
+      console.error(`refusing to resume: this run was built on corpus ${prior.corpusId}, and the files on disk now make ${corpusId}.`);
+      console.error("  A resumed run must read the same bytes, or its bank, transcript and learned corrections point at material that is gone.");
+      for (const l of loaded) { const was = (prior.sources ?? []).find((x) => x.name === l.name); if (!was) console.error(`  + ${l.name} (${l.sha256}) was not in that run`); else if (was.sha256 !== l.sha256) console.error(`  ~ ${l.name} ${was.sha256} -> ${l.sha256}`); }
+      for (const w of prior.sources ?? []) if (!loaded.some((l) => l.name === w.name)) console.error(`  - ${w.name} (${w.sha256}) is gone`);
+      process.exit(3);
+    }
+  } catch (e) { if (e?.status === 3) throw e; }
+}
 let state;
 const rng = makeRng(SEED);
 if (RESUME && existsSync(STATE_PATH)) {
@@ -145,11 +167,11 @@ if (RESUME && existsSync(STATE_PATH)) {
   state = { turn: 0, history: [], transcript: [], hlLog: null, gridLog: null, bank, draws: rng.draws };
   writeFileSync(TURNS_PATH, "");
 }
-const config = { ran: new Date().toISOString(), model: MODEL, depth: DEPTH, turns: TURNS, every: EVERY, seed: SEED, witness: WITNESS, cap: CAP, bank: PER_SOURCE, sources: loaded, chunks: chunks.length, bankSize: state.bank.length, bankBySource: Object.fromEntries(loaded.map((l) => [l.name, state.bank.filter((f) => f.source === l.name).length])), recencyWindow: RECENCY_WINDOW, frame: O.frame, recipe: O.recipe, ollama: OLLAMA, note: "the fold's turn, headless: retrieval on the question's own words, the product reader, the ledger and grid threaded turn to turn; every fifth turn a probe scored with no model" };
+const config = { ran: new Date().toISOString(), model: MODEL, corpusId, depth: DEPTH, turns: TURNS, every: EVERY, seed: SEED, witness: WITNESS, cap: CAP, bank: PER_SOURCE, sources: loaded, chunks: chunks.length, bankSize: state.bank.length, bankBySource: Object.fromEntries(loaded.map((l) => [l.name, state.bank.filter((f) => f.source === l.name).length])), recencyWindow: RECENCY_WINDOW, frame: O.frame, recipe: O.recipe, ollama: OLLAMA, note: "the fold's turn, headless: retrieval on the question's own words, the product reader, the ledger and grid threaded turn to turn; every fifth turn a probe scored with no model" };
 writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2));
 console.log(`long-stream — ${MODEL}, depth ${DEPTH}, ${TURNS} turns, probe every ${EVERY}, witness ${WITNESS ? "on" : "off"}`);
-for (const l of loaded) console.log(`  ${l.kind.padEnd(8)} ${l.name.padEnd(36)} ${String(l.bytes).padStart(9)} bytes ${String(l.chunks).padStart(5)} chunks  bank ${config.bankBySource[l.name]}`);
-console.log(`  ${chunks.length} chunks in all; bank ${state.bank.length}; recipe ${O.recipe}\n  ${DIR}`);
+for (const l of loaded) console.log(`  ${l.kind.padEnd(8)} ${l.name.padEnd(36)} ${String(l.bytes).padStart(9)} bytes ${String(l.chunks).padStart(5)} chunks  ${l.sha256}  bank ${config.bankBySource[l.name]}`);
+console.log(`  ${chunks.length} chunks in all; bank ${state.bank.length}; recipe ${O.recipe}; corpus ${corpusId}\n  ${DIR}`);
 
 // ── the learned store: permanent, across runs ───────────────────────────────
 const LEARNED_PATH = join(NATIVE, "eval/the-fold/results/long-stream", "learned.json");
