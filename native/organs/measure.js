@@ -329,6 +329,10 @@ export function runMeasurement(decl, material, { nul, bindLinks, reduce }) {
  * the PCM walk); every non-wav container measures identically as frames of
  * bytes. Naming it is honesty about what was framed, not a promise to parse it.
  */
+/** Containers the perceivers' own loaders decode to a medium's series
+ * (native/adapters/{audio,image,video}/material.js, node side). */
+export const DECODABLE = new Set(["png", "jpeg", "mp4", "mpeg-audio", "ogg", "webm"]);
+
 export function sniffContainer(bytes) {
   const b = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);
   if (b.length < 8) return null;
@@ -442,7 +446,10 @@ export function seriesFromMedia(media, decl, reduce) {
         detail: "`channel:<rms|flux>` — what is heard in each frame. rms is energy (blind to arrangement inside the frame); flux is sample-to-sample motion (order-sensitive). This is binary material, so a column name cannot be the series.",
       },
     };
-  if (!Number.isInteger(decl.frame) || decl.frame < 2)
+  // A decoded image or video is framed in scanlines / transitions, where one
+  // is a real unit; PCM and bytes need at least two samples to hear anything.
+  const frameFloor = media.kind === "image" || media.kind === "video" ? 1 : 2;
+  if (!Number.isInteger(decl.frame) || decl.frame < frameFloor)
     return {
       refused: {
         type: "undeclared",
@@ -451,6 +458,38 @@ export function seriesFromMedia(media, decl, reduce) {
       },
     };
 
+  // Decoded media (2026-09-05): a caller that has already decoded the
+  // container with the perceivers' own loaders (eoreader7 native/adapters/
+  // {audio,image,video}/material.js — ffmpeg on the node side; the page has
+  // no decoder yet and says so in the probe) hands the decoded material in,
+  // and the series is that perceiver's own reduce: scanline luminance for
+  // an image, motion energy per transition for a video, rms/flux over PCM
+  // for compressed audio. `reduce` may then be an object {audio, image,
+  // video}; a bare function is the audio reduce, exactly as before.
+  const reducers = typeof reduce === "function" ? { audio: reduce } : (reduce ?? {});
+  if (media.kind === "image" || media.kind === "video") {
+    const want = media.kind === "image" ? "luminance" : "motion";
+    if (decl.channel !== want)
+      return { refused: { type: "unknown_spec", what: "channel", detail: `a decoded ${media.kind} has one channel, \`channel:${want}\` (${media.kind === "image" ? "mean luminance per scanline, top to bottom" : "mean |Δ| per frame transition"}) — rms/flux are heard, not seen.` } };
+    const r = reducers[media.kind];
+    if (typeof r !== "function") return { refused: { type: "unknown_spec", what: "channel", detail: `no ${media.kind} reduce was offered to this door` } };
+    let raw;
+    try { raw = media.kind === "image" ? r(media) : r(media.frames); } catch (e) { return { refused: { type: "unknown_spec", what: "channel", detail: e.message } }; }
+    // `frame:<n>` is the grain: n scanlines (or n transitions) make one unit,
+    // read as their mean — the same coarsening frameSamples is for PCM.
+    const series = [];
+    for (let i = 0; i + decl.frame <= raw.length; i += decl.frame) {
+      let sum = 0;
+      for (let j = i; j < i + decl.frame; j++) sum += raw[j];
+      series.push(sum / decl.frame);
+    }
+    if (series.length < 2)
+      return { refused: { type: "empty_material", detail: `frame ${decl.frame} leaves ${series.length} unit(s) — nothing to measure at this grain.` } };
+    const label = media.kind === "image"
+      ? `${want} per ${decl.frame}-scanline frame (${media.w}×${media.h} as read)`
+      : `${want} per ${decl.frame}-transition frame (${media.frames.length} frames${media.fps ? `, ${media.fps} fps` : ""})`;
+    return { series, label };
+  }
   let source;
   let label;
   if (media.kind === "wav") {
@@ -458,11 +497,16 @@ export function seriesFromMedia(media, decl, reduce) {
     if (got.refused) return got;
     source = got.samples;
     label = `${decl.channel} per ${decl.frame}-sample frame (${got.sampleRate} Hz, ${got.seconds.toFixed(1)}s)`;
+  } else if (media.kind === "pcm") {
+    source = media.samples;
+    label = `${decl.channel} per ${decl.frame}-sample frame (${media.sampleRate} Hz, ${(media.samples.length / media.sampleRate).toFixed(1)}s, decoded${media.container ? ` from ${media.container}` : ""})`;
   } else {
     source = media.bytes;
     const kindNote = media.kind && media.kind !== "bytes" ? `, ${media.kind}` : "";
     label = `${decl.channel} per ${decl.frame}-byte frame (${media.bytes.length.toLocaleString()} bytes${kindNote})`;
   }
+  reduce = reducers.audio;
+  if (typeof reduce !== "function") return { refused: { type: "unknown_spec", what: "channel", detail: "no audio reduce was offered to this door" } };
   let series;
   try {
     series = reduce(source, { frameSamples: decl.frame, channel: decl.channel });
@@ -521,11 +565,26 @@ export function probeMaterial(decl, material, nul) {
       lines.push(`/measure ${decl.file} pairs:${recurring.h} at:${at} draws:200 window:2`);
     }
   } else {
+    if (material.kind === "image" || material.kind === "video" || material.kind === "pcm") {
+      // decoded by the perceivers' own loaders — the probe teaches that medium's one channel
+      const what = material.kind === "image"
+        ? `a decoded image, ${material.w}×${material.h} as read — frames are scanlines`
+        : material.kind === "video"
+          ? `a decoded video, ${material.frames.length} frames${material.fps ? ` at ${material.fps} fps` : ""} — frames are transitions`
+          : `decoded PCM, ${material.sampleRate} Hz, ${(material.samples.length / material.sampleRate).toFixed(1)}s${material.container ? ` (from ${material.container})` : ""} — frames are samples`;
+      lines.push(`${decl.file} · ${what}`);
+      if (material.kind === "image") lines.push("channels: luminance (mean luminance per scanline, top to bottom)");
+      else if (material.kind === "video") lines.push("channels: motion (mean |Δ| per frame transition — perceive only by difference)");
+      else lines.push("channels: rms (energy per frame), flux (motion per frame)");
+      lines.push("");
+      const ch = material.kind === "image" ? "luminance frame:<scanlines per unit>" : material.kind === "video" ? "motion frame:<transitions per unit>" : "rms frame:<samples per heard unit>";
+      lines.push(`/measure ${decl.file} channel:${ch} as:burstiness broken:shuffle draws:200 window:<n>`);
+    } else {
     const kindLine =
       material.kind === "wav"
         ? "a PCM WAV — frames are samples"
         : material.kind && material.kind !== "bytes"
-          ? `a ${material.kind.toUpperCase()} container — frames are bytes (the container is named, not parsed)`
+          ? `a ${material.kind.toUpperCase()} container — frames are bytes (the container is named, not parsed${DECODABLE.has(material.kind) ? "; a decoder that offers it as its own series exists on the node side, not in this page" : ""})`
           : "binary — frames are bytes";
     const wav = material.kind === "wav" ? wavSamples(material.bytes) : null;
     lines.push(
@@ -535,6 +594,7 @@ export function probeMaterial(decl, material, nul) {
     lines.push(`channels: rms (energy per frame), flux (motion per frame)`);
     lines.push("");
     lines.push(`/measure ${decl.file} channel:rms frame:<samples per heard unit> as:burstiness broken:shuffle draws:200 window:<n>`);
+    }
   }
   lines.push("");
   lines.push("Established statistic/broken pairings:");

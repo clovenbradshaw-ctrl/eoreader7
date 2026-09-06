@@ -177,3 +177,7 @@ format; the-fold's POLICIES.md P35 is the authority that a chorus is a
 label, not eleven agent calls. The root `npm test` is the legacy 6.1
 conformance suite (2.6 min, nine pre-existing failures as of this date);
 `cd native && npm test` is the live package's suite.
+
+## Frontier-25 and the perceivers' seat (2026-09-05)
+
+READING-SPEC **S76** / the-fold **P115**. `native/adapters/{audio,image,video}/` hold the crossed perceivers (parity: `native/conformance/media-perceiver-parity.test.mjs`); `native/organs/measure.js` reads decoded media as each medium's own series (`native/tests/measure-media.test.js`); `native/eval/the-fold/frontier-25.mjs` runs the twenty-five tasks' zero-call arm and, with `MODELS=`, the mouth arm (`native/tests/frontier-25.test.js` is the enforcement).
