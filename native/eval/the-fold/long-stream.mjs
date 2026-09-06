@@ -191,6 +191,9 @@ for (let turn = state.turn + 1; turn <= TURNS; turn++) {
       makeNameResolver: castFor, makeRelationReader: O.relationsFor, witnessSentences,
       checkLink: null, planMode: needsDecomposition(question) ? "model" : "flat",
       chatHistory: history, discourse, depth: DEPTH, learnedStore,
+      // The conversation's own record (P125): a question about what was said
+      // retrieves from it, so what the recency window drops is still reachable.
+      transcript: state.transcript,
       hyperlexicon: O.hl, hyperlexiconLog: state.hlLog, hyperlexiconFrame: O.frame, hyperlexiconRecipe: O.recipe,
       grid: O.grid, gridLog: state.gridLog, runCapacity: O.runCapacity,
     });
@@ -218,6 +221,7 @@ for (let turn = state.turn + 1; turn <= TURNS; turn++) {
     correction: r?.correction ? { flagged: r.correction.flagged, asked: r.correction.asked, afterFlagged: r.correction.after?.flagged, outcomes: (r.correction.outcomes ?? []).map((o) => o.outcome) } : null,
     premises: r?.premises ? { checked: r.premises.checked, unverified: r.premises.unverified, contradicted: r.premises.contradicted } : null,
     learnedUsed: r?.learnedUsed ?? [], learnedAdded, learnedTotal: learnedStore.length,
+    recalledTurns: r?.recalledTurns ?? [],
     witnessAsks: (r?.sections ?? []).reduce((a, s) => a + (s.witness?.asks ?? 0), 0), retrieved: (r?.sections ?? []).flatMap((s) => (s.passages ?? []).map((p) => p.source ?? String(p.ref ?? "").split("#")[0])),
     ledgerNotes: ledgerSize(), historyTurns: history.length, error,
   };
@@ -225,7 +229,7 @@ for (let turn = state.turn + 1; turn <= TURNS; turn++) {
   if (!error) { state.history.push({ role: "user", content: question }, { role: "assistant", content: answer }); state.transcript.push({ turn, question, answer }); }
   state.turn = turn; saveState();
   const verdict = score ? (score.verdict ?? (score.any != null ? `any=${score.any} share=${score.share.toFixed(2)}${score.contradicted ? " CONTRADICTED" : ""}` : "")) : "";
-  const learnMark = `${row.premises?.contradicted || row.premises?.unverified ? "P" : ""}${row.correction?.flagged ? `f${row.correction.flagged}` : ""}${row.correction?.outcomes?.filter((o) => o === "rewritten").length ? `→${row.correction.outcomes.filter((o) => o === "rewritten").length}` : ""}${row.learnedUsed.length ? `↺${row.learnedUsed.length}` : ""}`;
+  const learnMark = `${row.premises?.contradicted || row.premises?.unverified ? "P" : ""}${row.correction?.flagged ? `f${row.correction.flagged}` : ""}${row.correction?.outcomes?.filter((o) => o === "rewritten").length ? `→${row.correction.outcomes.filter((o) => o === "rewritten").length}` : ""}${row.learnedUsed.length ? `↺${row.learnedUsed.length}` : ""}${row.recalledTurns.length ? `T${row.recalledTurns.length}` : ""}`;
   console.log(`[${turn}/${TURNS}] ${row.kind.padEnd(9)} ${(row.ms / 1000).toFixed(0).padStart(4)}s ${String(row.calls).padStart(2)} calls ${verdict.padEnd(12)} ${learnMark.padEnd(9)} ${error ? "ERROR " + error.split("\n")[0].slice(0, 80) : question.slice(0, 70).replace(/\s+/g, " ")}`);
 }
 console.log(`\ndone — ${usage.calls} calls, ${usage.promptTokens} prompt tokens, ${usage.completionTokens} completion tokens; ${DIR}`);
