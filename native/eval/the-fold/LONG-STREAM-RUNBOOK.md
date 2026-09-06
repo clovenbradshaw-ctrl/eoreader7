@@ -128,3 +128,62 @@ the wrong thing is retired with its reason on this file.
 
 - 2026-09-05 · `--turns 4 --every 2 --cap 200000 --witness off` — 4 turns, 10 calls, 11–66 s per turn; found: the bank starved on a novel (year+name is rare) → two atoms with a name among them; "118" blanked inside "P121" → whole-token atoms; a 124 KB JSON dump was one chunk → 1,500-char windows.
 - 2026-09-05 · `--turns 6 --every 2 --witness on`, all six sources whole (4,107 chunks, bank 222) — 6 turns, 77 calls, 8–77 s per turn (mean ≈ 35 s; a probe turn with the witness ≈ 15 calls) → **a 1,000-turn run ≈ 10 h**; found: a bibliography fragment drawn as a fact → citation filter; heading-shaped answer atoms ("Location\n\nThe", "It's") → atoms per sentence, function words refused. Recall 0/1 (the mouth answered off Odyssey passages retrieval had pulled in beside the html chunk — a real finding, kept); memory at distance 1: share 0.5.
+
+## Preparing a battery (what run 1 taught)
+
+Run 1 was 1,000 turns over ~10 hours with 0 errors, and almost everything it
+taught was about the INSTRUMENT and the MEASUREMENT rather than the model.
+Before starting another, do these, in this order.
+
+**1. Freeze the corpus, and prove it.** Every source is hashed as read and
+rolled into one `corpusId`. Two arms are comparable only if theirs match. Do
+not add a source between arms — a new kind is a new experiment, not a longer
+one. (Audio is now addressable by time (P138) and is the obvious next kind;
+give it its own arm.)
+
+**2. Snapshot and reset the learned store.** It reached 1,149 corrections
+during run 1 and persists across runs, so a second arm would start with
+knowledge the first never had. Copy `learned.json` aside and start the arm
+from the state the control started from, or the arms differ in two things at
+once and neither number means anything.
+
+```bash
+cp eval/the-fold/results/long-stream/learned.json /tmp/learned-run1.json
+echo '[]' > eval/the-fold/results/long-stream/learned.json
+```
+
+**3. Rescore the control with the CURRENT scorer.** The scorers changed under
+P135 and S77's follow-ups — capitulation now reads the claim rather than the
+corpus, addresses are stripped before numbers, apparatus is refused. Old
+verdicts and new verdicts are different quantities. The answers are all on
+disk, so rescore rather than compare across scorer versions.
+
+**4. Read the four probe columns knowing what each measures.** Run 1's own
+numbers, and what turned out to be wrong with them:
+
+| probe | what run 1 showed | what to trust |
+|---|---|---|
+| recall | 32 hit / 42 | real; the cloze door does most of it |
+| reasoning | 19 right / 25 | real; the comparison door computes it |
+| memory | 30 of 42, share 0.34 | weakest column, and the least diagnosed |
+| injection | 8 held, 5 capitulated | was pessimistic — rescored, held 10 / capitulated 4 |
+
+**5. Watch the three things that are still open**, none of which run 1
+settled:
+
+- **Substitution.** 99 answers (12%) shared under a fifth of their question's
+  content words — they changed the subject. Detected now, acted on nowhere.
+- **Strain never escalated.** Every one of 725 model turns recruited depth 1.
+  A strain meter that never escalates is close to the failure layer 4 caught
+  in the calibrator; either the corpus is uniformly easy or the signals are
+  too blunt, and the run cannot tell you which.
+- **The measured cut still never fires.** Layer 4 has refused to license it
+  on 713 measurable turns. Either find the reading it should be making, or
+  retire it and say so — a cut that never fires is the failure this project
+  has caught most often.
+
+**6. Expect the next battery to find instrument bugs, not model limits.**
+Run 1 found eight, including a rendered article invisible to every check for
+442 retrieved passages, and a prototype-chain crash that killed three turns.
+Budget the run for that, and fix at the root: of the fourteen violations the
+dependency-order audit confirmed, most shared one cause.
