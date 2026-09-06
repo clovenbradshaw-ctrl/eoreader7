@@ -10,6 +10,33 @@ User direction (2026-09-05): "load up multiple very large different types of
 files and run chat for 1,000 turns with adversarial tests on its recall,
 memory, and reasoning."
 
+## The corpus must not be this instrument
+
+The first version loaded `the-fold/POLICIES.md` and `the-fold/holon.js` — the
+instrument's own changelog and its own answering code — and both were being
+EDITED while the run read them. Two things went wrong at once. The corpus was
+not stable: a phrase committed to POLICIES.md at 00:40 came back out of the
+mouth, paraphrased, at 00:52. And the corpus was ABOUT ANSWERING, which makes
+"the model narrating its own process" and "the model faithfully summarising a
+document about process" the same string — a run cannot measure either one
+then, and it corrupts the very check (P124) written to catch the first.
+
+The six kinds are kept; every source is now stable and about something else,
+and none is written by this project's code:
+
+```
+prose   the-fold/pg2600.txt                            War and Peace, 3.3 MB
+greek   eoreader7/legacy-.../odyssey-greek.txt         the Odyssey, Greek, 0.7 MB
+xml     live_priors/14-holy-texts/sblgnt/Luke.xml      marked-up text with apparatus notes
+code    eopm/public/vendor/react-dom.js                a real library, 1.0 MB
+json    .../fixtures/unimorph-eng-verb-forms.json      a linguistic dataset, 1.4 MB
+html    .../fixtures/wikipedia-abraham-lincoln.html    an encyclopaedia article, 1.9 MB
+```
+
+Override with `--source kind=path` (repeatable) when a run needs different
+material; a run that deliberately reads this project's own files should say so
+in its own results, because its answers cannot be read the same way.
+
 ## Launch
 
 From `eoreader7/native/` with Ollama up on :11434 and `gemma2:2b` pulled:

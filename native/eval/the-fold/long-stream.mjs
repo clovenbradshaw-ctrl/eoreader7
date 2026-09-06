@@ -48,13 +48,27 @@ const CAP = Number(flag("cap", 0));
 const RESUME = flag("resume", null);
 const PER_SOURCE = Number(flag("bank", 60));
 const sourceArgs = args.flatMap((a, i) => (a === "--source" && args[i + 1] ? [args[i + 1]] : []));
+// THE CORPUS MUST NOT BE THIS INSTRUMENT (measured 2026-09-05, mid-run).
+// The first six sources included `the-fold/POLICIES.md` and `the-fold/holon.js`
+// — the instrument's own changelog and its own answering code — and both were
+// being EDITED while the run read them. Two things went wrong at once:
+//
+//   * The corpus was not stable. A phrase committed to POLICIES.md at 00:40
+//     came back out of the mouth at 00:52, paraphrased.
+//   * The corpus was ABOUT ANSWERING, so "the model narrating its own process"
+//     and "the model faithfully summarising a document about process" are the
+//     same string. That makes the run unable to measure either one, and it
+//     corrupts the very check (P124) written to catch the first.
+//
+// So the six kinds are kept and every source is now stable and about
+// something else. None of these files is written by this project's code.
 const DEFAULT_SOURCES = [
-  { kind: "prose", path: `${FOLD}pg2600.txt` },
-  { kind: "greek", path: `${ROOT}eoreader7/legacy-eoreader6.1/odyssey-greek.txt` },
-  { kind: "markdown", path: `${FOLD}POLICIES.md` },
-  { kind: "code", path: `${FOLD}holon.js` },
-  { kind: "json", path: `${NATIVE}/eval/the-fold/results/stress-eval-all.json` },
-  { kind: "html", path: `${NATIVE}/eval/the-fold/fixtures/wikipedia-american-civil-war.html` },
+  { kind: "prose", path: `${FOLD}pg2600.txt` },                                             // War and Peace, English narrative
+  { kind: "greek", path: `${ROOT}eoreader7/legacy-eoreader6.1/odyssey-greek.txt` },         // the Odyssey, Greek verse
+  { kind: "xml", path: `${ROOT}live_priors/14-holy-texts/sblgnt/Luke.xml` },                // marked-up text with apparatus notes
+  { kind: "code", path: `${ROOT}eopm/public/vendor/react-dom.js` },                         // a real library, about rendering, not answering
+  { kind: "json", path: `${NATIVE}/eval/the-fold/fixtures/unimorph-eng-verb-forms.json` },  // a linguistic dataset
+  { kind: "html", path: `${NATIVE}/eval/the-fold/fixtures/wikipedia-abraham-lincoln.html` },// an encyclopaedia article
 ];
 const SOURCES = sourceArgs.length ? sourceArgs.map((s) => { const [kind, ...rest] = s.split("="); return { kind, path: rest.join("=") }; }) : DEFAULT_SOURCES;
 
