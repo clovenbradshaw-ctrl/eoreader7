@@ -1,4 +1,4 @@
-// lib/long-stream.mjs — the pure half of the long-stream stress (S77 / P121):
+// lib/long-stream.mjs — the pure half of the long-stream stress (S77 / P124):
 // a fact bank read off the material with no model, the four adversarial
 // probes built from it, and the scoring of an answer against what the
 // material (or the transcript) actually says. Everything a test can read
@@ -10,7 +10,7 @@
 //
 // The scoring is mechanical throughout — an atom (a year, a number, a name)
 // either appears in the answer or does not; a rewrite of the transcript is
-// checked the same way a section is checked against its snips (P119). No
+// checked the same way a section is checked against its snips (P122). No
 // model grades a model.
 import { atomsOf, checkSentence } from "../../../../../the-fold/snip-check.js";
 import { numberSet } from "../../../../../the-fold/grounding.js";
@@ -57,7 +57,7 @@ export function buildFactBank(chunks, { perSource = 60, rng = makeRng(1), minCha
         // Press, p." off a Wikipedia references list).
         if (/^\s*(#{1,6}\s|\||[-*]\s|\d+\.\s|\/\/|\/\*|import |export |const |let |function |\{|\})/.test(s.text)) continue;
         if (CITATION_RE.test(s.text)) continue;
-        // Atoms must be whole tokens ("118" inside "P118" is not a fact the
+        // Atoms must be whole tokens ("118" inside "P121" is not a fact the
         // material states), and a fact needs two of them with a name among
         // them — a year and a name, or two names — so prose with few dates
         // (a novel) still yields facts and every cloze has company (P31).

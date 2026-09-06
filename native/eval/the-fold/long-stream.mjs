@@ -1,4 +1,4 @@
-// eval/the-fold/long-stream.mjs — the long-stream stress (S77 / P121): many
+// eval/the-fold/long-stream.mjs — the long-stream stress (S77 / P124): many
 // large sources of different kinds attached at once, a chat run for N turns
 // through the REAL fold turn (holon.js::runHolonicTask with the product
 // reader configuration — lib/product-assay.mjs::organs), the ledger and
@@ -59,7 +59,7 @@ const sourceArgs = args.flatMap((a, i) => (a === "--source" && args[i + 1] ? [ar
 //   * The corpus was ABOUT ANSWERING, so "the model narrating its own process"
 //     and "the model faithfully summarising a document about process" are the
 //     same string. That makes the run unable to measure either one, and it
-//     corrupts the very check (P124) written to catch the first.
+//     corrupts the very check (P127) written to catch the first.
 //
 // So the six kinds are kept and every source is now stable and about
 // something else. None of these files is written by this project's code.
@@ -79,7 +79,7 @@ const { runHolonicTask, needsDecomposition } = await import(`${FOLD}holon.js`);
 const { makeCastResolver } = await import(`${FOLD}cast.js`);
 const { mechanicalFoldLine, RECENCY_WINDOW } = await import(`${FOLD}fold.js`);
 const { splitSentences } = await import(`${NATIVE}/adapters/text/spans.js`);
-// The instance's PERMANENT MEMORY (P123): corrections learned on any earlier
+// The instance's PERMANENT MEMORY (P126): corrections learned on any earlier
 // run, in the chain's own entry shape, so matrix.js can seal them into a room
 // and a second machine inherits them. Kept beside the runs, not inside one.
 const { learn, correctionsIn, learnable } = await import(`${FOLD}learned.js`);
@@ -176,7 +176,7 @@ console.log(`  ${chunks.length} chunks in all; bank ${state.bank.length}; recipe
 // ── the learned store: permanent, across runs ───────────────────────────────
 const LEARNED_PATH = join(NATIVE, "eval/the-fold/results/long-stream", "learned.json");
 let learnedStore = [];
-// The wall runs on the way OUT as well as in (P123): a store written by an
+// The wall runs on the way OUT as well as in (P126): a store written by an
 // older build can hold shapes the wall has since learned to refuse, and a
 // poisoned entry is handed to the mouth as a fact. Swept every load.
 try {
@@ -213,7 +213,7 @@ for (let turn = state.turn + 1; turn <= TURNS; turn++) {
       makeNameResolver: castFor, makeRelationReader: O.relationsFor, witnessSentences,
       checkLink: null, planMode: needsDecomposition(question) ? "model" : "flat",
       chatHistory: history, discourse, depth: DEPTH, learnedStore,
-      // The conversation's own record (P125): a question about what was said
+      // The conversation's own record (P128): a question about what was said
       // retrieves from it, so what the recency window drops is still reachable.
       transcript: state.transcript,
       hyperlexicon: O.hl, hyperlexiconLog: state.hlLog, hyperlexiconFrame: O.frame, hyperlexiconRecipe: O.recipe,
@@ -239,7 +239,7 @@ for (let turn = state.turn + 1; turn <= TURNS; turn++) {
     turn, at: new Date().toISOString(), kind: probe?.kind ?? "organic", question, answer, probe: probe ? { ...probe, question: undefined } : null, ...(organic ? { organic } : {}), score,
     ms: Date.now() - t0, calls: usage.calls - calls0, promptTokens: usage.promptTokens - pt0, completionTokens: usage.completionTokens - ct0,
     refs: r?.refs ?? [], unsupported: (r?.unsupported ?? []).length, unbacked: (r?.unbacked ?? []).length, sections: (r?.sections ?? []).length,
-    // The correction loop's own numbers (P122/P123), per turn.
+    // The correction loop's own numbers (P125/P126), per turn.
     correction: r?.correction ? { flagged: r.correction.flagged, asked: r.correction.asked, afterFlagged: r.correction.after?.flagged, outcomes: (r.correction.outcomes ?? []).map((o) => o.outcome) } : null,
     premises: r?.premises ? { checked: r.premises.checked, unverified: r.premises.unverified, contradicted: r.premises.contradicted } : null,
     learnedUsed: r?.learnedUsed ?? [], learnedAdded, learnedTotal: learnedStore.length,

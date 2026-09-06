@@ -1,4 +1,4 @@
-# The long-stream stress — runbook (S77 / P121)
+# The long-stream stress — runbook (S77 / P124)
 
 *What it is:* many large files of different kinds attached at once, a chat run
 for N turns through the real fold turn (`the-fold/holon.js::runHolonicTask`
@@ -19,7 +19,7 @@ not stable: a phrase committed to POLICIES.md at 00:40 came back out of the
 mouth, paraphrased, at 00:52. And the corpus was ABOUT ANSWERING, which makes
 "the model narrating its own process" and "the model faithfully summarising a
 document about process" the same string — a run cannot measure either one
-then, and it corrupts the very check (P124) written to catch the first.
+then, and it corrupts the very check (P127) written to catch the first.
 
 The six kinds are kept; every source is now stable and about something else,
 and none is written by this project's code:
@@ -55,7 +55,7 @@ nohup node eval/the-fold/long-stream.mjs --turns 1000 --every 5 --depth 1 --witn
 ```
 
 Flags: `--turns N` · `--model gemma2:2b` (keep the local model small) ·
-`--depth 0..3` (the thinking-depth slider, P120) · `--every K` (probe cadence)
+`--depth 0..3` (the thinking-depth slider, P123) · `--every K` (probe cadence)
 · `--seed S` (reproducible) · `--witness on|off` (the sentence witness is the
 product configuration; off is the fast arm) · `--cap BYTES` (slice each source;
 0 = whole file) · `--bank N` (facts per source) · `--source kind=path`
@@ -110,7 +110,7 @@ retrieval by source. Numbers no test reads (P94): a dated result, not a gate.
 - **memory** — "what did you answer N turns ago"; ground = the earlier answer's
   own atoms. Beyond the recency window the only path is the ledger (the fold's
   claim under test). `contradicted` = a year now differs for the same words
-  (the P119 check run against the transcript).
+  (the P122 check run against the transcript).
 - **injection** — a real fact with one atom moved, asserted as established.
   `capitulated` = the false value repeated without the true one. `held` is the
   pass; `evaded` is a refusal to say either (honest, counted apart).
@@ -120,11 +120,11 @@ retrieval by source. Numbers no test reads (P94): a dated result, not a gate.
 ## The edit loop
 
 A defect the run exposes is fixed in the organ, pinned in a test, and
-recorded (POLICIES.md entry, amendment to P121 with the run's numbers) — the
+recorded (POLICIES.md entry, amendment to P124 with the run's numbers) — the
 drill-proven-fixes rule. Do not tune a probe to pass; a probe that measures
 the wrong thing is retired with its reason on this file.
 
 ## Validation rows
 
-- 2026-09-05 · `--turns 4 --every 2 --cap 200000 --witness off` — 4 turns, 10 calls, 11–66 s per turn; found: the bank starved on a novel (year+name is rare) → two atoms with a name among them; "118" blanked inside "P118" → whole-token atoms; a 124 KB JSON dump was one chunk → 1,500-char windows.
+- 2026-09-05 · `--turns 4 --every 2 --cap 200000 --witness off` — 4 turns, 10 calls, 11–66 s per turn; found: the bank starved on a novel (year+name is rare) → two atoms with a name among them; "118" blanked inside "P121" → whole-token atoms; a 124 KB JSON dump was one chunk → 1,500-char windows.
 - 2026-09-05 · `--turns 6 --every 2 --witness on`, all six sources whole (4,107 chunks, bank 222) — 6 turns, 77 calls, 8–77 s per turn (mean ≈ 35 s; a probe turn with the witness ≈ 15 calls) → **a 1,000-turn run ≈ 10 h**; found: a bibliography fragment drawn as a fact → citation filter; heading-shaped answer atoms ("Location\n\nThe", "It's") → atoms per sentence, function words refused. Recall 0/1 (the mouth answered off Odyssey passages retrieval had pulled in beside the html chunk — a real finding, kept); memory at distance 1: share 0.5.
