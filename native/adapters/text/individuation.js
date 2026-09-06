@@ -143,7 +143,7 @@ const surfaceGroups = chainView(
  * Recurrence earns an identity hypothesis, never timeless sameness.
  */
 export function descriptorHypotheses(graphEntries = []) {
-  return hypothesesFrom(surfaceGroups(graphEntries));
+  return hypothesesFor(surfaceGroups(graphEntries));
 }
 
 
@@ -159,7 +159,7 @@ export function descriptorHypotheses(graphEntries = []) {
  */
 export function descriptorHypothesesWith(foldEntries = [], extraOccurrences = []) {
   const cached = surfaceGroups(foldEntries);
-  if (!extraOccurrences.length) return hypothesesFrom(cached);
+  if (!extraOccurrences.length) return hypothesesFor(cached);
   const overlay = new Map(cached);
   for (const x of extraOccurrences) {
     if (x?.schema !== "EOReferentOccurrence@1") continue;
@@ -167,7 +167,66 @@ export function descriptorHypothesesWith(foldEntries = [], extraOccurrences = []
     const base = overlay.get(key);
     overlay.set(key, base ? (overlay.get(key) === cached.get(key) ? [...base, x] : (base.push(x), base)) : [x]);
   }
-  return hypothesesFrom(overlay);
+  return hypothesesFor(overlay);
+}
+
+/**
+ * THE PER-SURFACE MEMO (P157) — the same defect the discourse projection had.
+ *
+ * `surfaceGroups` rides the chain view and hits (measured: 1 compute in 3,392
+ * sentences). But `hypothesesFrom` then walked EVERY surface group on EVERY
+ * encounter, so the incremental view bought nothing downstream of itself —
+ * one O(surfaces) pass per sentence, which is the quadratic term.
+ *
+ * A hypothesis is a pure function of ONE group, so it is cached per group
+ * array. An encounter touching three surfaces recomputes three, not all.
+ *
+ * ORDER IS PRESERVED EXACTLY, and that is the part that could have broken:
+ * the walk is still over the map in its own insertion order, so fold-known
+ * surfaces stay in first-occurrence order and new-only surfaces stay appended
+ * in arrival order. Only the VALUE for an untouched key is reused, never its
+ * position.
+ */
+const HYPOTHESIS = new WeakMap();
+
+/**
+ * One group's hypothesis, cached on the group ARRAY.
+ *
+ * The surface is carried in the cached value and checked, because the surface
+ * is not incidental — it appears in the hypothesis's own id
+ * (`identity:descriptor:${slug(surface)}`) and as a field. Keying on the array
+ * alone and assuming the surface would be right is how this memo would
+ * silently rewrite every id; the check costs one comparison and makes that
+ * unrepresentable.
+ */
+function hypothesisForGroup(surface, group) {
+  const hit = HYPOTHESIS.get(group);
+  if (hit !== undefined && hit.surface === surface) return hit.value;
+  const one = hypothesesFrom(new Map([[surface, group]]));
+  const value = one.length ? one[0] : null;
+  HYPOTHESIS.set(group, { surface, value });
+  return value;
+}
+
+/**
+ * The same walk as before, in the same order, but each group's hypothesis is
+ * looked up rather than rebuilt. An untouched group is the SAME ARRAY as the
+ * cached one, so it hits; a touched group is a new array, so it misses and
+ * recomputes. No bookkeeping about what changed is needed — array identity
+ * already carries it.
+ *
+ * ORDER IS UNCHANGED, and that is the part that could have broken: the walk
+ * is still over the map in its own insertion order, so fold-known surfaces
+ * stay in first-occurrence order and new-only surfaces stay appended in
+ * arrival order. Only a VALUE is reused, never a position.
+ */
+function hypothesesFor(bySurface) {
+  const out = [];
+  for (const [surface, group] of bySurface) {
+    const h = hypothesisForGroup(surface, group);
+    if (h) out.push(h);
+  }
+  return Object.freeze(out);
 }
 
 function hypothesesFrom(bySurface) {

@@ -9,6 +9,7 @@ import {
 import {
   appositionalDescriptorBindings,
   projectDiscourseReferents,
+  projectDiscourseReferentsWith,
 } from "./discourse-referents.js";
 import { textIdentityEvidence } from "./identity-evidence.js";
 import { idSetOf, entriesBySchema } from "../../kernel/fold.js";
@@ -146,11 +147,12 @@ export async function reviseTextFold({ observations = [], fold = {}, canonicaliz
     }));
   }
 
-  const discourseSource = [
-    ...(fold?.graphEntries ?? []),
-    ...currentGraphEntries,
-  ];
-  for (const referent of projectDiscourseReferents(discourseSource)) {
+  // THE FOLD'S OWN ARRAY, NOT A SPREAD OF IT (P157). A fresh array literal
+  // carries no delta link, so the incremental view could never walk back and
+  // recomputed over the entire fold every sentence — measured at zero hits in
+  // 3,392 calls. This is the same shape `descriptorHypothesesWith` above uses,
+  // and for the same reason.
+  for (const referent of projectDiscourseReferentsWith(fold?.graphEntries ?? [], currentGraphEntries)) {
     if (known.has(referent.id)) continue;
     admitGraphObject(referent, {
       op: "INS",

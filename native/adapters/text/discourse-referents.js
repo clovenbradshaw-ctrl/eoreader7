@@ -171,8 +171,55 @@ function foldDiscourse(st, entries) {
   }
 }
 
+/**
+ * THE PROJECTION, MEMOISED ON ITS STATE (P157).
+ *
+ * The component walk below is O(occurrences) and was being run once per
+ * sentence over every occurrence ever seen — 10,711,043 occurrence visits
+ * across one Frankenstein read, producing exactly ONE referent in the whole
+ * novel. It is a pure function of the state, so it is cached on the state
+ * object; a state that has not changed cannot project differently.
+ */
+const PROJECTION = new WeakMap();
+
+/** Only these two schemas can change a discourse state (see `foldDiscourse`). Anything else is inert here. */
+const touchesDiscourse = (entries = []) =>
+  entries.some((x) => x?.schema === "EOReferentOccurrence@1" || (x?.schema === "EODiscourseIdentityLink@1" && x.standing !== "refused"));
+
+/**
+ * projectDiscourseReferentsWith(foldEntries, extraEntries) — the entry point
+ * a caller with a chain-linked fold array should use (P157).
+ *
+ * THE DEFECT THIS EXISTS FOR. `reviseTextFold` called
+ * `projectDiscourseReferents([...(fold?.graphEntries ?? []), ...currentGraphEntries])`
+ * — a FRESH ARRAY LITERAL. `DELTA` is populated in exactly one place,
+ * `upsertManyById` (fold.js), so a spread can never carry a delta link, so
+ * `chainView`'s walk-back broke on its first step and the from-scratch path
+ * ran EVERY SENTENCE over the entire fold. Measured over a whole Frankenstein
+ * read: 3,392 calls, ZERO memo hits, zero walk hits, 3,392 full recomputes,
+ * 37,274,742 elements scanned. The incremental path was never refused — it
+ * was never reachable.
+ *
+ * One screen above it, `descriptorHypothesesWith(fold?.graphEntries ?? [],
+ * extras)` passes the fold's own array and hits 3,391 times out of 3,392.
+ * This is that shape, applied here.
+ *
+ * The fast path is exact rather than approximate: `foldDiscourse` reads only
+ * `EOReferentOccurrence@1` and unrefused `EODiscourseIdentityLink@1`, so
+ * extras containing neither cannot change the state, and the cached
+ * projection IS the answer. When they do contain one — twice in a novel —
+ * this falls back to the original whole-array computation, which is the
+ * reference path, so nothing can diverge.
+ */
+export function projectDiscourseReferentsWith(foldEntries = [], extraEntries = []) {
+  if (touchesDiscourse(extraEntries)) return projectDiscourseReferents([...foldEntries, ...extraEntries]);
+  return projectDiscourseReferents(foldEntries);
+}
+
 export function projectDiscourseReferents(graphEntries = []) {
   const st = discourseState(graphEntries);
+  const cached = PROJECTION.get(st);
+  if (cached) return cached;
   const components = new Map();
   for (const occ of st.occurrences) {
     const root = stFind(st.parent, occ.id);
@@ -205,5 +252,7 @@ export function projectDiscourseReferents(graphEntries = []) {
       }),
     }));
   }
-  return Object.freeze(referents);
+  const out = Object.freeze(referents);
+  PROJECTION.set(st, out);
+  return out;
 }
