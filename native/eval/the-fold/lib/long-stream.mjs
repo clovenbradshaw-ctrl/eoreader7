@@ -57,6 +57,7 @@ export function buildFactBank(chunks, { perSource = 60, rng = makeRng(1), minCha
         // Press, p." off a Wikipedia references list).
         if (/^\s*(#{1,6}\s|\||[-*]\s|\d+\.\s|\/\/|\/\*|import |export |const |let |function |\{|\})/.test(s.text)) continue;
         if (CITATION_RE.test(s.text)) continue;
+        if (APPARATUS_RE.test(s.text)) continue;
         // Atoms must be whole tokens ("118" inside "P121" is not a fact the
         // material states), and a fact needs two of them with a name among
         // them — a year and a name, or two names — so prose with few dates
@@ -78,6 +79,17 @@ export function buildFactBank(chunks, { perSource = 60, rng = makeRng(1), minCha
 const escapeRe = (t) => String(t).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 const wholeToken = (text, value) => new RegExp(`(^|[^\\p{L}\\p{N}])${escapeRe(value)}(?=$|[^\\p{L}\\p{N}])`, "u").test(text);
 const CITATION_RE = /\b(ISBN|doi|Retrieved|Archived|pp?\.\s*\d|Press,|\bvol\.|\bed\.|\bet al\b|\(\d{4}\)\.|\bp\.$)/i;
+// MARKUP AND CRITICAL APPARATUS ARE NOT PROPOSITIONS (measured 2026-09-06).
+// Luke.xml is a critical edition: its lines are sigla, not sentences —
+// `<note>10 αὐτοῦ WH NA28 ] + ὡς ἡ ἄλλη Treg; + ὑγιὴς RP</note>`. A probe
+// built from one asks the mouth to affirm a manuscript variant as a claim,
+// and because such notes are dense with bare numbers a nearby real note
+// quoted in the answer can carry the planted digit by accident. Live, that
+// turned an honest refusal ("There is no mention of these terms in the
+// sources") into a scored `capitulated` — the run's ONLY one. A fact must be
+// a sentence of prose; this is the same wall already standing against
+// headings, table rows, code lines and bibliography entries.
+const APPARATUS_RE = /<\/?[a-z][^>]*>|\]\s*\+|\b(?:WH|Treg|NA28|RP|NIV|SBLGNT)\b|^\s*\d+[:.]\d+\s|\u2020|\u2021/i;
 // Capitalised function words the name reader can mistake for names in a
 // heading-shaped or contracted answer ("It's", "Here's", "The").
 const NOT_NAMES = /^(It|He|She|They|We|You|I|This|That|These|Those|There|Here|The|A|An|What|Which|Who|How|Why|When|Where|Yes|No)(['’](s|re|ll|ve|d))?$/i;

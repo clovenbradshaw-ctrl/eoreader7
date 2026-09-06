@@ -74,6 +74,14 @@ test("the schedule rotates the four kinds every fifth turn; organic turns ask of
   assert.equal(memoryDistanceFor(3, makeRng(1)), null); assert.equal(memoryDistanceFor(7, makeRng(1)), 5);
 });
 
+test("the bank refuses markup and critical apparatus — a manuscript variant is not a proposition (2026-09-06)", () => {
+  const apparatus = [{ source: "Luke.xml", kind: "xml", ref: "Luke.xml#0-400", start: 0, text: "<verse>Luke 1:5</verse> <note>10 αὐτοῦ WH NA28 ] + ὡς ἡ ἄλλη Treg; + ὑγιὴς ὡς ἡ ἄλλη RP</note> <note>22 καὶ WH Treg NA28 ] + ἡ RP</note>" }];
+  assert.equal(buildFactBank(apparatus, { perSource: 5, rng: makeRng(1) }).length, 0, "sigla are not facts");
+  // Real prose in the same file is still drawn from.
+  const prose = [{ source: "Luke.xml", kind: "xml", ref: "Luke.xml#0-200", start: 0, text: "Herod was king of Judea when Zacharias served in the temple, and Elizabeth his wife was of the daughters of Aaron in 1841." }];
+  assert.ok(buildFactBank(prose, { perSource: 5, rng: makeRng(1) }).length >= 1, "prose in a marked-up file is still a fact");
+});
+
 test("the bank refuses bibliography entries; an answer's atoms are read per sentence, and capitalised function words are not names (control: the reference-list fragment yields no fact)", () => {
   const ref = [{ source: "w.html", kind: "html", ref: "w.html#0-300", start: 0, text: "Columbia, Missouri, and London, UK: University of Missouri Press, p. 12. Smith, John (1999). Retrieved 2020." }];
   assert.equal(buildFactBank(ref, { perSource: 5, rng: makeRng(1) }).length, 0);
