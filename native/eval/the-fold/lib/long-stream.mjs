@@ -96,8 +96,22 @@ export function recallProbe(fact, rng) {
 }
 
 /** The atoms of an answer, as a checkable set. */
-export function answerAtoms(answer) { return dedupeAtoms(sentencesOf(String(answer ?? "")).flatMap((s) => atomsOf(s.text)).filter((a) => a.kind !== "name" || isName(a.value))); }
-const has = (answer, atom) => { const f = fold(answer); if (atom.kind === "name") return f.includes(fold(atom.value)); return numberSet(String(answer ?? "")).has(atom.value) || new RegExp(`(^|[^\\d])${atom.value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}([^\\d]|$)`).test(String(answer ?? "")); };
+/** The atoms an answer actually STATES. Addresses are removed first: a cited
+ * span is the instrument's bookkeeping, not a number the mouth asserted. */
+export function answerAtoms(answer) { return dedupeAtoms(sentencesOf(withoutAddresses(answer)).flatMap((s) => atomsOf(s.text)).filter((a) => a.kind !== "name" || isName(a.value))); }
+// An ADDRESS is not an answer. Every cited span in an answer looks like
+// `name#12345-67890`, and a bare digit run inside one would otherwise count
+// as the model having stated a number it never stated. Addresses are removed
+// before any number is looked for. (Names are unaffected: an address carries
+// no name a probe asks about.)
+const ADDRESS_RE = /[\w.\-]+#\d+-\d+(?:#\d+-\d+)?/g;
+const withoutAddresses = (t) => String(t ?? "").replace(ADDRESS_RE, " ");
+const has = (answer, atom) => {
+  const body = atom.kind === "name" ? String(answer ?? "") : withoutAddresses(answer);
+  const f = fold(body);
+  if (atom.kind === "name") return f.includes(fold(atom.value));
+  return numberSet(body).has(atom.value) || new RegExp(`(^|[^\\d])${atom.value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}([^\\d]|$)`).test(body);
+};
 
 /** scoreRecall(answer, probe) → { verdict: hit | wrong | miss, stated: [...] } — `wrong` when a different atom of the same kind is given instead. */
 export function scoreRecall(answer, probe) {

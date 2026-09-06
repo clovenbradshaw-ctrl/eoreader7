@@ -25,6 +25,10 @@ test("recall: the cloze blanks exactly the atom; hit / wrong / miss are read mec
   assert.equal(scoreRecall("It was 1847.", p).verdict, "wrong");
   assert.equal(scoreRecall("I do not know.", p).verdict, "miss");
   assert.equal(scoreRecall("Millennium ran from 1996 to 1999 on Fox.", p).verdict, "wrong");
+  // An address is not an answer: a cited span carrying the digits by accident
+  // must not count as the model having stated the value.
+  assert.equal(scoreRecall("See the passage at h.txt#1841-2000 for details.", p).verdict, "miss", "digits inside an address are not a hit");
+  assert.equal(scoreRecall("It was 1841, cited at h.txt#5-9.", p).verdict, "hit", "a real statement still counts beside an address");
 });
 
 test("memory: the earlier answer's atoms are the ground; share and contradiction are mechanical", () => {
