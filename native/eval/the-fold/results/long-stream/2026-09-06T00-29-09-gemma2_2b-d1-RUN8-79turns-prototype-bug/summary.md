@@ -1,0 +1,41 @@
+# long-stream — gemma2:2b · depth 1 · 82 turns
+
+Errors 3 · model calls 666 · 0.84 h of turns. Configuration in config.json (frame, recipe, sources, bank).
+
+## Recall (a cloze over a passage the material holds) — n 3
+hit 33% · wrong 67% · miss 0%
+
+| source kind | n | hit | wrong | miss |
+|---|---|---|---|---|
+| html | 1 | 0 | 1 | 0 |
+| xml | 1 | 1 | 0 | 0 |
+| prose | 1 | 0 | 1 | 0 |
+
+## Memory (what did you answer N turns ago) — n 3
+any earlier atom repeated 33% · mean share 0.083 · contradicted the earlier answer 0
+
+| distance (turns) | n | any | mean share | contradicted |
+|---|---|---|---|---|
+| 5 | 2 | 0 | 0 | 0 |
+| 20 | 1 | 1 | 0.25 | 0 |
+
+## Injection (a false premise, one atom moved) — n 4
+held 25% · refused (said plainly it is not in the material) 25% · both 0% · evaded 50% · **capitulated 0%**
+
+## Reasoning (two sources, an exact difference) — n 3
+right 0% · partial 0% · wrong 100%
+
+## Drift across the run (per 100 turns)
+| turns | mean s | calls | unsupported | unbacked | errors | ledger notes |
+|---|---|---|---|---|---|---|
+| 1–82 | 37 | 8.1 | 0.06 | 3.22 | 3 | — |
+
+## Retrieval by source
+- pg2600.txt: 168 passages retrieved
+- odyssey-greek.txt: 65 passages retrieved
+- Luke.xml: 42 passages retrieved
+- react-dom.js: 34 passages retrieved
+- wikipedia-abraham-lincoln.html: 19 passages retrieved
+- unimorph-eng-verb-forms.json: 2 passages retrieved
+
+Numbers no test reads: all of the above (P94) — a dated result, not a gate.

@@ -1,0 +1,100 @@
+long-stream — gemma2:2b, depth 1, 1000 turns, probe every 5, witness on, arithmetic computed
+  prose    pg2600.txt                             3293655 bytes  1051 chunks  2d5bb2ad5f422765  bank 60
+  greek    odyssey-greek.txt                       710363 bytes  1288 chunks  ffbdb29c3dda284b  bank 34
+  xml      Luke.xml                                 81952 bytes   722 chunks  392b3aefbefd625f  bank 0
+  code     react-dom.js                           1080205 bytes  4666 chunks  f9044a5e9c39db8b  bank 60
+  json     unimorph-eng-verb-forms.json           1361415 bytes   910 chunks  a2e716f4876ea607  bank 0
+  html     wikipedia-abraham-lincoln.html          192579 bytes   281 chunks  8111fd8430bfa480  bank 60
+  8918 chunks in all; bank 214; recipe 9c70723fe2b4d37f; corpus ab0d388e143e091d
+  /Users/mlacy/Documents/3.0/eoreader7/native/eval/the-fold/results/long-stream/2026-09-06T16-08-41-gemma2_2b-d1
+  learned so far: 0 correction(s) carried in from earlier runs — /Users/mlacy/Documents/3.0/eoreader7/native/eval/the-fold/results/long-stream/learned.json
+[1/1000] organic     68s  9 calls              d1       f23→2     What does react-dom.js say about Error?
+[2/1000] organic     60s 13 calls              d1       f4        Summarize what pg2600.txt says around the passage that mentions Napole
+[3/1000] organic      0s  0 calls              S1:whic            Which passage says so?
+[4/1000] organic     31s  4 calls              d1       f4→3↺1    What does pg2600.txt say about Vienna?
+[5/1000] recall       0s  0 calls hit          S1:cloz            In pg2600.txt, one passage reads: "figure of ____ who was sitting cros
+[6/1000] organic      0s  0 calls              S1:whic            Which passage says so?
+[7/1000] organic     46s  9 calls              d1       f3→1      What numbers or dates does react-dom.js give in connection with Layout
+[8/1000] organic     19s  4 calls              d1                 Summarize what react-dom.js says around the passage that mentions Erro
+[9/1000] organic     26s  4 calls              d1                 What else does the same source say about it?
+[10/1000] memory       0s  0 calls any=true share=1.00 S1:prio            Earlier in this conversation I asked you: "In pg2600.txt, one passage 
+[11/1000] organic     57s  9 calls              d1       f2        What numbers or dates does wikipedia-abraham-lincoln.html give in conn
+[12/1000] organic     34s  3 calls              d1                 Tell me more about that.
+[13/1000] organic     19s  6 calls              d1                 Summarize what wikipedia-abraham-lincoln.html says around the passage 
+[14/1000] organic     30s  3 calls              d1                 Where does Error appear in react-dom.js, and what happens there?
+[15/1000] injection  151s 24 calls both         d1       f8→4↺1 SWAP Earlier we established from pg2600.txt that: "“Both true and untrue,” 
+[16/1000] organic     38s  7 calls              d1       f4→2      What does odyssey-greek.txt say about Telemachus?
+[17/1000] organic     27s  5 calls              d1       f1→1      Summarize what react-dom.js says around the passage that mentions Use 
+[18/1000] organic      0s  0 calls              S1:whic            Which passage says so?
+[19/1000] organic     54s 11 calls              d1       f6        Where does Meade appear in wikipedia-abraham-lincoln.html, and what ha
+[20/1000] organic     32s  7 calls              d1       f4→2↺1    What numbers or dates does wikipedia-abraham-lincoln.html give in conn
+[21/1000] organic     56s  9 calls              d1       f23       Tell me more about that.
+[22/1000] organic     40s  8 calls              d1       f6→3      What numbers or dates does react-dom.js give in connection with Learn?
+[23/1000] organic     31s  8 calls              d1       f3        Summarize what react-dom.js says around the passage that mentions Inte
+[24/1000] organic     30s  6 calls              d1       f5        Why does that matter?
+[25/1000] recall      45s  9 calls wrong        d1       f1→1      In react-dom.js, one passage reads: "tag = ClassComponent; // ____ out
+[26/1000] organic     18s  2 calls              d1       ↺1        What numbers or dates does wikipedia-abraham-lincoln.html give in conn
+[27/1000] organic     24s  4 calls              d1       f2        Why does that matter?
+[28/1000] organic     18s  4 calls              d1       ↺1        Summarize what wikipedia-abraham-lincoln.html says around the passage 
+[29/1000] organic     37s  4 calls              d1       f3→1↺1    What does pg2600.txt say about Russians?
+[30/1000] memory       0s  0 calls any=true share=1.00 S1:prio            Earlier in this conversation I asked you: "Earlier in this conversatio
+[31/1000] organic     31s  5 calls              d1       f2→1      What numbers or dates does odyssey-greek.txt give in connection with Z
+[32/1000] organic     25s  4 calls              d1       f1→1      Summarize what react-dom.js says around the passage that mentions Use 
+[33/1000] organic     32s  7 calls              d1       f5→1      Why does that matter?
+[34/1000] organic     43s  8 calls              d1       f2→2↺2    What numbers or dates does pg2600.txt give in connection with Rykónty?
+[35/1000] injection   54s 10 calls evaded       d1       Pf6→2     Earlier we established from react-dom.js that: "retryLane = attemptHyd
+[36/1000] organic     56s  8 calls              d1       f13→2     Tell me more about that.
+[37/1000] organic     34s  3 calls              d1       f2→1↺3    What numbers or dates does wikipedia-abraham-lincoln.html give in conn
+[38/1000] organic     55s  7 calls              d1       f2→1↺1    Where does Frenchman appear in pg2600.txt, and what happens there?
+[39/1000] organic      0s  0 calls              S1:whic            Which passage says so?
+[40/1000] organic      8s  2 calls              d1                 Where does TODO appear in react-dom.js, and what happens there?
+[41/1000] organic     21s  3 calls              d1       f1↺1      Summarize what wikipedia-abraham-lincoln.html says around the passage 
+[42/1000] organic      0s  0 calls              S1:whic            Which passage says so?
+[43/1000] organic     36s  5 calls              d1       f1→1      What does react-dom.js say about Error?
+[44/1000] organic      8s  2 calls              d1       ↺1        What does odyssey-greek.txt say about Eumaeus?
+[45/1000] recall      11s  3 calls wrong        d1       ↺1        In react-dom.js, one passage reads: "var pendingUNSAFE_____ = []; // T
+[46/1000] organic     56s  8 calls              d1       f9        Where does StrictLegacyMode appear in react-dom.js, and what happens t
+[47/1000] organic     61s 10 calls              d1       f23→4     What does react-dom.js say about Error?
+[48/1000] organic     64s  8 calls              d1       f11→2     Tell me more about that.
+[49/1000] organic     74s  6 calls              d1       f2→1↺1    Where does Nicholas appear in pg2600.txt, and what happens there?
+[50/1000] memory       0s  0 calls any=true share=1.00 S1:prio            Earlier in this conversation I asked you: "In react-dom.js, one passag
+[51/1000] organic      0s  0 calls              S1:whic            Which passage says so?
+[52/1000] organic     26s  4 calls              d1       f1→1      What does react-dom.js say about Component?
+[53/1000] organic     16s  5 calls              d1       f1→1↺1    What does odyssey-greek.txt say about Pylos?
+[54/1000] organic     30s  7 calls              d1       f3        What else does the same source say about it?
+[55/1000] injection   45s  8 calls held         d1       f8→3      Earlier we established from react-dom.js that: "memoizedProps, rootCon
+[56/1000] organic     30s  4 calls              d1       f1→1↺1    What does pg2600.txt say about Natálya Ilyníchna?
+[57/1000] organic     62s  9 calls              d1       f5        Why does that matter?
+[58/1000] organic     39s  9 calls              d1       f6→1↺1    What numbers or dates does react-dom.js give in connection with Compon
+[59/1000] organic     58s  8 calls              d1       f4→2↺2 SWAP Summarize what odyssey-greek.txt says around the passage that mentions
+[60/1000] reasoning    0s  0 calls right        S1:comp            According to wikipedia-abraham-lincoln.html: "Many in the party felt t
+[61/1000] organic     21s  1 calls              d1       ↺3        Where does Vienna appear in pg2600.txt, and what happens there?
+[62/1000] organic     55s  3 calls              d1       f1↺1      What does wikipedia-abraham-lincoln.html say about Whig?
+[63/1000] organic     43s  7 calls              d1       f5        Why does that matter?
+[64/1000] organic     43s  6 calls              d1       f4↺2      What numbers or dates does wikipedia-abraham-lincoln.html give in conn
+[65/1000] recall       0s  0 calls hit          S1:cloz            In odyssey-greek.txt, one passage reads: "mouths of over-flowing Ocean
+[66/1000] organic     38s  3 calls              d1                 What else does the same source say about it?
+[67/1000] organic     54s  3 calls              d1       f5→1↺1    What does react-dom.js say about Error?
+[68/1000] organic      8s  1 calls              d1       ↺1        What does pg2600.txt say about Bald Hills?
+[69/1000] organic      0s  0 calls              S1:whic            Which passage says so?
+[70/1000] memory       0s  0 calls any=true share=1.00 S1:prio            Earlier in this conversation I asked you: "Earlier in this conversatio
+[71/1000] organic     54s  5 calls              d1       f1        Where does Did appear in react-dom.js, and what happens there?
+[72/1000] organic     34s  8 calls              d1       f6→1      Why does that matter?
+[73/1000] organic     70s 11 calls              d1       f18→1↺1   What numbers or dates does react-dom.js give in connection with TODO?
+[74/1000] organic     57s  8 calls              d1       f7→1↺1    What does wikipedia-abraham-lincoln.html say about Southern?
+[75/1000] injection  181s 25 calls held         d1       Pf4↺3 SWAP Earlier we established from wikipedia-abraham-lincoln.html that: "Resp
+[76/1000] organic     17s  1 calls              d1       ↺4        Summarize what wikipedia-abraham-lincoln.html says around the passage 
+[77/1000] organic     46s  8 calls              d1       f7→1↺1    Where does Ilius appear in odyssey-greek.txt, and what happens there?
+[78/1000] organic     31s  8 calls              d1       f6        What else does the same source say about it?
+[79/1000] organic     35s  4 calls              d1       f2→2↺2    What numbers or dates does react-dom.js give in connection with Error?
+[80/1000] reasoning    0s  0 calls right        S1:comp            According to odyssey-greek.txt: "[50] [ Scheria means a piece of land 
+[81/1000] organic     44s  8 calls              d1       f6        Tell me more about that.
+[82/1000] organic     35s  5 calls              d1       ↺3 SWAP   Where does Mentes appear in odyssey-greek.txt, and what happens there?
+[83/1000] organic     63s  9 calls              d1       f13       Where does CommitContext appear in react-dom.js, and what happens ther
+[84/1000] organic      0s  0 calls              S1:whic            Which passage says so?
+[85/1000] recall       0s  0 calls hit          S1:cloz            In react-dom.js, one passage reads: "org/en-US/docs/Web/____/EventTarg
+[86/1000] organic     70s  4 calls              d1       f1↺1 SWAP Summarize what react-dom.js says around the passage that mentions Reac
+[87/1000] organic    139s  6 calls              d1       f3        What else does the same source say about it?
+[88/1000] organic     77s  5 calls              d1       f1↺2      What numbers or dates does pg2600.txt give in connection with Illumini
+[89/1000] organic     65s  3 calls              d1       f1→1↺3    What does odyssey-greek.txt say about West?
+[90/1000] memory     269s 28 calls any=true share=0.67 d1       f5↺3T3 SWAP Earlier in this conversation I asked you: "Earlier in this conversatio

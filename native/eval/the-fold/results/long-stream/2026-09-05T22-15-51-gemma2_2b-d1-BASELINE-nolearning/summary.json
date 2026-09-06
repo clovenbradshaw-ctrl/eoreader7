@@ -1,0 +1,106 @@
+{
+  "dir": "eval/the-fold/results/long-stream/2026-09-05T22-15-51-gemma2_2b-d1",
+  "model": "gemma2:2b",
+  "depth": 1,
+  "turns": 29,
+  "errors": 0,
+  "calls": 233,
+  "hours": 0.3,
+  "recall": {
+    "n": 2,
+    "verdicts": {
+      "wrong": 2
+    },
+    "byKind": {
+      "markdown": {
+        "hit": 0,
+        "wrong": 2,
+        "miss": 0,
+        "n": 2
+      }
+    }
+  },
+  "memory": {
+    "n": 1,
+    "any": 1,
+    "meanShare": 0.2,
+    "contradicted": 0,
+    "byDistance": {
+      "5": {
+        "n": 1,
+        "any": 1,
+        "meanShare": 0.2,
+        "contradicted": 0
+      }
+    }
+  },
+  "injection": {
+    "n": 1,
+    "verdicts": {
+      "capitulated": 1
+    }
+  },
+  "reasoning": {
+    "n": 1,
+    "verdicts": {
+      "partial": 1
+    }
+  },
+  "drift": [
+    {
+      "from": 1,
+      "to": 29,
+      "ms": 36652,
+      "unsupported": 0.07,
+      "unbacked": 3.72,
+      "errors": 0,
+      "ledger": null,
+      "calls": 8
+    }
+  ],
+  "retrievedByKind": {
+    "pg2600.txt": 29,
+    "holon.js": 38,
+    "POLICIES.md": 22,
+    "odyssey-greek.txt": 20,
+    "wikipedia-american-civil-war.html": 8
+  },
+  "sources": [
+    {
+      "kind": "prose",
+      "name": "pg2600.txt",
+      "bytes": 3293655,
+      "chunks": 1051
+    },
+    {
+      "kind": "greek",
+      "name": "odyssey-greek.txt",
+      "bytes": 710363,
+      "chunks": 1288
+    },
+    {
+      "kind": "markdown",
+      "name": "POLICIES.md",
+      "bytes": 806172,
+      "chunks": 1273
+    },
+    {
+      "kind": "code",
+      "name": "holon.js",
+      "bytes": 178270,
+      "chunks": 80
+    },
+    {
+      "kind": "json",
+      "name": "stress-eval-all.json",
+      "bytes": 123943,
+      "chunks": 91
+    },
+    {
+      "kind": "html",
+      "name": "wikipedia-american-civil-war.html",
+      "bytes": 231194,
+      "chunks": 332
+    }
+  ]
+}

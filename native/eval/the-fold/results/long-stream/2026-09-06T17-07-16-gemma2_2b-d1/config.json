@@ -1,0 +1,119 @@
+{
+  "ran": "2026-09-06T17:07:20.491Z",
+  "model": "gemma2:2b",
+  "corpusId": "ab0d388e143e091d",
+  "depth": 1,
+  "turns": 22,
+  "every": 7,
+  "seed": 11,
+  "witness": false,
+  "cap": 0,
+  "bank": 60,
+  "sources": [
+    {
+      "kind": "prose",
+      "name": "pg2600.txt",
+      "path": "/Users/mlacy/Documents/3.0/the-fold/pg2600.txt",
+      "bytes": 3293655,
+      "chunks": 1051,
+      "sha256": "2d5bb2ad5f422765"
+    },
+    {
+      "kind": "greek",
+      "name": "odyssey-greek.txt",
+      "path": "/Users/mlacy/Documents/3.0/eoreader7/legacy-eoreader6.1/odyssey-greek.txt",
+      "bytes": 710363,
+      "chunks": 1288,
+      "sha256": "ffbdb29c3dda284b"
+    },
+    {
+      "kind": "xml",
+      "name": "Luke.xml",
+      "path": "/Users/mlacy/Documents/3.0/live_priors/14-holy-texts/sblgnt/Luke.xml",
+      "bytes": 81952,
+      "chunks": 722,
+      "sha256": "392b3aefbefd625f"
+    },
+    {
+      "kind": "code",
+      "name": "react-dom.js",
+      "path": "/Users/mlacy/Documents/3.0/eopm/public/vendor/react-dom.js",
+      "bytes": 1080205,
+      "chunks": 4666,
+      "sha256": "f9044a5e9c39db8b"
+    },
+    {
+      "kind": "json",
+      "name": "unimorph-eng-verb-forms.json",
+      "path": "/Users/mlacy/Documents/3.0/eoreader7/native//eval/the-fold/fixtures/unimorph-eng-verb-forms.json",
+      "bytes": 1361415,
+      "chunks": 910,
+      "sha256": "a2e716f4876ea607"
+    },
+    {
+      "kind": "html",
+      "name": "wikipedia-abraham-lincoln.html",
+      "path": "/Users/mlacy/Documents/3.0/eoreader7/native//eval/the-fold/fixtures/wikipedia-abraham-lincoln.html",
+      "bytes": 192579,
+      "chunks": 281,
+      "sha256": "8111fd8430bfa480"
+    }
+  ],
+  "chunks": 8918,
+  "bankSize": 214,
+  "bankBySource": {
+    "pg2600.txt": 60,
+    "odyssey-greek.txt": 34,
+    "Luke.xml": 0,
+    "react-dom.js": 60,
+    "unimorph-eng-verb-forms.json": 0,
+    "wikipedia-abraham-lincoln.html": 60
+  },
+  "recencyWindow": 4,
+  "frame": {
+    "reader": "makeRelationReader",
+    "organs": {
+      "blankFurniture": "blankFurniture",
+      "createLemmatizer": "createLemmatizer",
+      "diaNorm": "diaNorm",
+      "discoverReferents": "discoverReferents",
+      "discoverRelationVocab": "discoverRelationVocab",
+      "extractRelations": "extractRelations",
+      "extractSurfaces": "extractSurfaces",
+      "namesCorefer": "namesCorefer",
+      "posPriorFor": "posPriorFor",
+      "resolvePronouns": "resolvePronouns",
+      "splitSentences": "splitSentences",
+      "tokenize": "tokenize"
+    },
+    "levers": {
+      "attestedVerbs": true,
+      "determiners": "Set(10)",
+      "morphologyIndex": "object",
+      "negationWords": "Set(15)",
+      "nounPhraseSubjects": true,
+      "objectSpecificity": true,
+      "oovLexicon": "Set(103318)",
+      "phrasalPredicates": true,
+      "verbForms": "Set(103318)"
+    },
+    "priors": {
+      "posPrior": "POSPrior@1",
+      "posGate": "on (type-level vocabulary gate over POSPrior@1)",
+      "verbForms": "UniMorph eng verb forms (103318)",
+      "morphology": "UniMorph morphology prior (sameAct)",
+      "connectorLens": null
+    },
+    "identity": {
+      "ends": "makeCastResolver (cast.js)",
+      "noteIdentity": null
+    },
+    "omitted": [
+      "identity.noteIdentity"
+    ],
+    "model": null
+  },
+  "recipe": "9c70723fe2b4d37f",
+  "ollama": "http://127.0.0.1:11434",
+  "note": "the fold's turn, headless: retrieval on the question's own words, the product reader, the ledger and grid threaded turn to turn; every fifth turn a probe scored with no model"
+}

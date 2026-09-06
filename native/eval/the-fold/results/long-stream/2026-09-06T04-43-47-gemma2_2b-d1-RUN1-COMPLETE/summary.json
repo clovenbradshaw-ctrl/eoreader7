@@ -1,0 +1,338 @@
+{
+  "dir": "eval/the-fold/results/long-stream/2026-09-06T04-43-47-gemma2_2b-d1",
+  "model": "gemma2:2b",
+  "depth": 1,
+  "turns": 1000,
+  "errors": 0,
+  "calls": 7139,
+  "hours": 11.4,
+  "recall": {
+    "n": 50,
+    "verdicts": {
+      "hit": 39,
+      "miss": 7,
+      "wrong": 4
+    },
+    "byKind": {
+      "prose": {
+        "hit": 8,
+        "wrong": 0,
+        "miss": 0,
+        "n": 8
+      },
+      "code": {
+        "hit": 10,
+        "wrong": 2,
+        "miss": 3,
+        "n": 15
+      },
+      "greek": {
+        "hit": 12,
+        "wrong": 1,
+        "miss": 0,
+        "n": 13
+      },
+      "html": {
+        "hit": 9,
+        "wrong": 1,
+        "miss": 4,
+        "n": 14
+      }
+    }
+  },
+  "memoryRecalledTurns": 43,
+  "memory": {
+    "n": 50,
+    "any": 37,
+    "meanShare": 0.326,
+    "contradicted": 0,
+    "byDistance": {
+      "1": {
+        "n": 3,
+        "any": 3,
+        "meanShare": 1,
+        "contradicted": 0
+      },
+      "3": {
+        "n": 1,
+        "any": 0,
+        "meanShare": 0,
+        "contradicted": 0
+      },
+      "5": {
+        "n": 9,
+        "any": 3,
+        "meanShare": 0.235,
+        "contradicted": 0
+      },
+      "20": {
+        "n": 8,
+        "any": 7,
+        "meanShare": 0.367,
+        "contradicted": 0
+      },
+      "50": {
+        "n": 5,
+        "any": 4,
+        "meanShare": 0.4,
+        "contradicted": 0
+      },
+      "100": {
+        "n": 6,
+        "any": 4,
+        "meanShare": 0.172,
+        "contradicted": 0
+      },
+      "200": {
+        "n": 8,
+        "any": 7,
+        "meanShare": 0.3,
+        "contradicted": 0
+      },
+      "500": {
+        "n": 10,
+        "any": 9,
+        "meanShare": 0.284,
+        "contradicted": 0
+      }
+    }
+  },
+  "injection": {
+    "n": 50,
+    "verdicts": {
+      "both": 6,
+      "evaded": 24,
+      "held": 10,
+      "capitulated": 7,
+      "refused": 3
+    }
+  },
+  "reasoning": {
+    "n": 33,
+    "verdicts": {
+      "right": 24,
+      "partial": 4,
+      "wrong": 5
+    }
+  },
+  "drift": [
+    {
+      "from": 1,
+      "to": 100,
+      "ms": 34796,
+      "unsupported": 0.07,
+      "unbacked": 3.53,
+      "errors": 0,
+      "ledger": null,
+      "calls": 6.4
+    },
+    {
+      "from": 101,
+      "to": 200,
+      "ms": 33834,
+      "unsupported": 0.02,
+      "unbacked": 2.96,
+      "errors": 0,
+      "ledger": null,
+      "calls": 6.4
+    },
+    {
+      "from": 201,
+      "to": 300,
+      "ms": 40873,
+      "unsupported": 0.12,
+      "unbacked": 3.91,
+      "errors": 0,
+      "ledger": null,
+      "calls": 8.1
+    },
+    {
+      "from": 301,
+      "to": 400,
+      "ms": 35235,
+      "unsupported": 0.07,
+      "unbacked": 3.2,
+      "errors": 0,
+      "ledger": null,
+      "calls": 6.8
+    },
+    {
+      "from": 401,
+      "to": 500,
+      "ms": 38371,
+      "unsupported": 0.03,
+      "unbacked": 3.42,
+      "errors": 0,
+      "ledger": null,
+      "calls": 6.8
+    },
+    {
+      "from": 501,
+      "to": 600,
+      "ms": 37616,
+      "unsupported": 0.11,
+      "unbacked": 3.47,
+      "errors": 0,
+      "ledger": null,
+      "calls": 6.6
+    },
+    {
+      "from": 601,
+      "to": 700,
+      "ms": 38497,
+      "unsupported": 0.06,
+      "unbacked": 3.38,
+      "errors": 0,
+      "ledger": null,
+      "calls": 7.3
+    },
+    {
+      "from": 701,
+      "to": 800,
+      "ms": 38799,
+      "unsupported": 0.06,
+      "unbacked": 3.4,
+      "errors": 0,
+      "ledger": null,
+      "calls": 7.3
+    },
+    {
+      "from": 801,
+      "to": 900,
+      "ms": 49516,
+      "unsupported": 0.07,
+      "unbacked": 4,
+      "errors": 0,
+      "ledger": null,
+      "calls": 8
+    },
+    {
+      "from": 901,
+      "to": 1000,
+      "ms": 62854,
+      "unsupported": 0.06,
+      "unbacked": 3.56,
+      "errors": 0,
+      "ledger": null,
+      "calls": 7.7
+    }
+  ],
+  "retrievedByKind": {
+    "pg2600.txt": 2274,
+    "odyssey-greek.txt": 753,
+    "react-dom.js": 563,
+    "wikipedia-abraham-lincoln.html": 499,
+    "turn:50": 15,
+    "turn:30": 27,
+    "turn:10": 15,
+    "turn:70": 15,
+    "unimorph-eng-verb-forms.json": 9,
+    "turn:90": 18,
+    "turn:110": 30,
+    "turn:187": 1,
+    "turn:31": 1,
+    "turn:210": 30,
+    "turn:150": 12,
+    "turn:265": 5,
+    "turn:25": 5,
+    "turn:165": 5,
+    "turn:190": 18,
+    "turn:230": 12,
+    "turn:130": 17,
+    "turn:310": 24,
+    "turn:320": 3,
+    "turn:170": 13,
+    "turn:60": 3,
+    "turn:290": 12,
+    "turn:390": 36,
+    "turn:380": 4,
+    "turn:120": 4,
+    "turn:250": 15,
+    "turn:270": 12,
+    "turn:465": 6,
+    "turn:365": 6,
+    "turn:485": 5,
+    "turn:330": 11,
+    "turn:525": 6,
+    "turn:505": 6,
+    "turn:445": 6,
+    "turn:450": 15,
+    "turn:370": 9,
+    "turn:430": 6,
+    "turn:550": 18,
+    "turn:590": 12,
+    "turn:470": 12,
+    "turn:625": 6,
+    "turn:490": 12,
+    "turn:620": 5,
+    "turn:256": 5,
+    "turn:610": 6,
+    "turn:510": 30,
+    "turn:700": 3,
+    "turn:570": 6,
+    "turn:690": 6,
+    "turn:670": 12,
+    "turn:410": 12,
+    "turn:730": 18,
+    "turn:630": 6,
+    "turn:350": 6,
+    "turn:770": 6,
+    "turn:810": 18,
+    "turn:870": 12,
+    "turn:830": 6,
+    "turn:790": 6,
+    "turn:750": 9,
+    "turn:650": 15,
+    "turn:950": 6
+  },
+  "sources": [
+    {
+      "kind": "prose",
+      "name": "pg2600.txt",
+      "path": "/Users/mlacy/Documents/3.0/the-fold/pg2600.txt",
+      "bytes": 3293655,
+      "chunks": 1051,
+      "sha256": "2d5bb2ad5f422765"
+    },
+    {
+      "kind": "greek",
+      "name": "odyssey-greek.txt",
+      "path": "/Users/mlacy/Documents/3.0/eoreader7/legacy-eoreader6.1/odyssey-greek.txt",
+      "bytes": 710363,
+      "chunks": 1288,
+      "sha256": "ffbdb29c3dda284b"
+    },
+    {
+      "kind": "xml",
+      "name": "Luke.xml",
+      "path": "/Users/mlacy/Documents/3.0/live_priors/14-holy-texts/sblgnt/Luke.xml",
+      "bytes": 81952,
+      "chunks": 722,
+      "sha256": "392b3aefbefd625f"
+    },
+    {
+      "kind": "code",
+      "name": "react-dom.js",
+      "path": "/Users/mlacy/Documents/3.0/eopm/public/vendor/react-dom.js",
+      "bytes": 1080205,
+      "chunks": 4666,
+      "sha256": "f9044a5e9c39db8b"
+    },
+    {
+      "kind": "json",
+      "name": "unimorph-eng-verb-forms.json",
+      "path": "/Users/mlacy/Documents/3.0/eoreader7/native//eval/the-fold/fixtures/unimorph-eng-verb-forms.json",
+      "bytes": 1361415,
+      "chunks": 910,
+      "sha256": "a2e716f4876ea607"
+    },
+    {
+      "kind": "html",
+      "name": "wikipedia-abraham-lincoln.html",
+      "path": "/Users/mlacy/Documents/3.0/eoreader7/native//eval/the-fold/fixtures/wikipedia-abraham-lincoln.html",
+      "bytes": 192579,
+      "chunks": 281,
+      "sha256": "8111fd8430bfa480"
+    }
+  ]
+}

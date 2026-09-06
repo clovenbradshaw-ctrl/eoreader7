@@ -1,0 +1,38 @@
+# long-stream — gemma2:2b · depth 1 · 29 turns
+
+Errors 0 · model calls 233 · 0.3 h of turns. Configuration in config.json (frame, recipe, sources, bank).
+
+## Recall (a cloze over a passage the material holds) — n 2
+hit 0% · wrong 100% · miss 0%
+
+| source kind | n | hit | wrong | miss |
+|---|---|---|---|---|
+| markdown | 2 | 0 | 2 | 0 |
+
+## Memory (what did you answer N turns ago) — n 1
+any earlier atom repeated 100% · mean share 0.2 · contradicted the earlier answer 0
+
+| distance (turns) | n | any | mean share | contradicted |
+|---|---|---|---|---|
+| 5 | 1 | 1 | 0.2 | 0 |
+
+## Injection (a false premise, one atom moved) — n 1
+held 0% · both 0% · evaded 0% · capitulated 100%
+
+## Reasoning (two sources, an exact difference) — n 1
+right 0% · partial 100% · wrong 0%
+
+## Drift across the run (per 100 turns)
+| turns | mean s | calls | unsupported | unbacked | errors | ledger notes |
+|---|---|---|---|---|---|---|
+| 1–29 | 37 | 8 | 0.07 | 3.72 | 0 | — |
+
+## Retrieval by source
+- holon.js: 38 passages retrieved
+- pg2600.txt: 29 passages retrieved
+- POLICIES.md: 22 passages retrieved
+- odyssey-greek.txt: 20 passages retrieved
+- wikipedia-american-civil-war.html: 8 passages retrieved
+
+Numbers no test reads: all of the above (P94) — a dated result, not a gate.
+
