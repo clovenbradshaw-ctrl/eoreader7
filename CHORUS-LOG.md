@@ -62,3 +62,18 @@ Constitution: `../eo-constitution/CONSTITUTION.md` + READING-SPEC.md + the-fold 
 | Chekhov | — | native/kernel/fold.js:143 `isOwned` | clean | exported for the test that pins the invariant, and used there; the old backward `d.removed` path is gone with the chain it walked |
 | Marshall | II.10, II.11, IV.1; P71 | POLICIES P166, READING-SPEC S78, CLAUDE.md pointer | upheld — compliant | P166 carries its Generality line and names its enforcement (fold-transient tests, the two gates); no new constant; P157–P165 had never been written into POLICIES.md and are now, from their commit bodies, each with a Generality line (the gate passes 4/4). One defect about the RUN, not the diff, recorded so it is not repeated: the control's progress was read as `wc -l` of turns.jsonl (744) and reported as "744/1000 turns"; the records reach turn 1000 — read the record's own turn, never the file's line count |
 fixed: 2 (Feynman: transience declared; Frankfurt: stale header hash). struck: none.
+
+## 2026-09-07 — the discourse projection's time term (branch `fold-memory-p157`, first of the time-term commits)
+
+Constitution: `../eo-constitution/CONSTITUTION.md` + READING-SPEC.md + the-fold POLICIES.md. Lenses in-session over `native/adapters/text/discourse-referents.js`, `native/tests/discourse-incremental.test.js` (new).
+
+| lens | citation | file:line | verdict | one line |
+|---|---|---|---|---|
+| Diaconis | II.10 | tests/discourse-incremental.test.js | clean | the compute is COUNTED (`discourseStats.computes`): sixty sentences with extras, zero further computes; a spread would fail it at once |
+| Feynman | P157 header claim | discourse-referents.js (old header: "twice in a novel") | **fixed** | measured on 60 KB: the slow branch fired on 392 of 926 sentences (42%), not twice — the claim was never measured on this material and the profile (×12.5 growth of the from-scratch lambda) contradicted it |
+| Dijkstra | III.4 | `DiscourseState` layer | clean | one implementation serves persistent and layered use; the layer's `gone`/`multi`/`unmulti` sets make deletion and threshold crossing representable without touching the base |
+| Holmes | P11 | `projectState` root order | clean | components ordered by their first member's arrival index, groups merged by index — the original's own order, pinned equal to the reference path byte-for-byte |
+| Pearl | II.10 | gates | clean | 60 KB identity unchanged; 240 KB (123 steps) and 480 KB (120) byte-identical; the reference-path equality test is a second, independent oracle on synthetic appositions |
+| Chekhov | — | old `unionFind` factory | **fixed** | dead since the incremental state landed (its only reference was its own definition); removed |
+| Marshall | II.10; P159 | the versioned memo | upheld | the old memo keyed on a state object that `foldStep` mutates in place — stale by construction, harmless only because revision.js ignores known ids; now versioned by (count, seq), pinned by a test that folds a delta and asks again |
+fixed: 2. struck: none.

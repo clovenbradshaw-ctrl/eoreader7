@@ -80,51 +80,142 @@ export function appositionalDescriptorBindings(text, { encounterRef = "unknown",
   });
 }
 
-const unionFind = (ids) => {
-  const parent = new Map(ids.map((id) => [id, id]));
-  const find = (x) => {
-    let p = parent.get(x);
-    if (p == null) return null;
-    while (p !== parent.get(p)) p = parent.get(p);
-    let y = x;
-    while (parent.get(y) !== p) {
-      const next = parent.get(y);
-      parent.set(y, p);
-      y = next;
-    }
-    return p;
-  };
-  const join = (a, b) => {
-    const ra = find(a), rb = find(b);
-    if (ra == null || rb == null || ra === rb) return;
-    // Stable by lexical id; this is only component bookkeeping, not salience.
-    if (ra < rb) parent.set(rb, ra); else parent.set(ra, rb);
-  };
-  return { find, join };
-};
-
 /**
  * Current discourse-referent projection from immutable occurrence/link history.
  * Only linked occurrence components of size >=2 become referents. Same surface
  * recurrence alone is deliberately insufficient.
  *
- * INCREMENTAL over the fold's delta chain (kernel chainView): occurrences
+ * INCREMENTAL over the fold's delta stream (kernel chainView): occurrences
  * and links are add-only (a link is born "supported" and never re-emitted;
- * the "refused" filter is defensive), so the union-find and per-component
- * link counts persist across encounters and each delta folds in O(delta).
- * Any UPDATE touching these schemas demands the from-scratch path —
- * exactness first. A link arriving before its occurrences waits in
- * `pending` and is retried as they land, so arrival order inside or across
- * deltas cannot diverge from the whole-history reading. Output order is
- * the original's own (components in first-occurrence order), and a full
- * Frankenstein read diffed byte-identical against the pre-incremental
- * projection before this landed.
+ * the "refused" filter is defensive), so the union-find, the per-component
+ * link lists and the per-component GROUPS persist across encounters and
+ * each delta folds in O(delta). Any UPDATE touching these schemas demands
+ * the from-scratch path — exactness first. A link arriving before its
+ * occurrences waits in `pending` and is retried as they land, so arrival
+ * order inside or across deltas cannot diverge from the whole-history
+ * reading.
+ *
+ * ── THE TIME TERM THIS CLOSES (measured, 2026-09-07) ─────────────────────
+ *
+ * P157 gave this projection an incremental state and a memo, and its header
+ * said the fallback to a whole-array computation happened "twice in a
+ * novel". Profiled on War and Peace, 1,707 -> 3,051 sentences (1.79×): the
+ * projection's inclusive time grew 7.9× and the from-scratch lambda 12.5× —
+ * 30% of the read at 240 KB. The fallback was the COMMON case: this
+ * sentence's own admissions carry a descriptor occurrence far more often
+ * than twice, and each one spread a fresh array, which the chain view can
+ * only compute from scratch. Two more terms sat beside it: the component
+ * walk over EVERY occurrence per projection (`stFind` alone 4%), and a
+ * projection memo keyed on a state object that `foldStep` mutates in place
+ * — stale by construction, harmless only because its consumer admits new
+ * ids and ignores known ones.
+ *
+ * Three changes, each exact:
+ *   1. The state is a class that is either PERSISTENT or a LAYER over a
+ *      base. This sentence's extras fold into a layer that is projected and
+ *      discarded; the persistent state is never touched by an entry the
+ *      fold does not yet hold. Same shape as individuation.js's overlay.
+ *   2. Groups are maintained per root and merged on union, so a projection
+ *      walks the referents, not the occurrences. Group order is occurrence
+ *      order (merged by index); component order is first-occurrence order
+ *      (sorted by the group's first member) — the original's own order.
+ *   3. The projection memo is versioned by the state's own counters
+ *      (occurrences seen, links stamped), never by object identity.
  */
+class DiscourseState {
+  constructor(base = null) {
+    this.base = base;
+    this.parent = new Map();   // occurrence id -> parent id (this layer's writes)
+    this.links = new Map();    // root -> [{seq, id}] (this layer's arrays)
+    this.groups = new Map();   // root -> [occurrence] in occurrence order (this layer's arrays)
+    this.index = new Map();    // occurrence id -> arrival index (this layer's)
+    this.gone = new Set();     // roots whose links/groups this layer deleted
+    this.multi = new Set();    // roots this layer made >= 2
+    this.unmulti = new Set();  // roots this layer took out of >= 2
+    this.count = base ? base.count : 0;   // occurrences seen (arrival index)
+    this.seq = base ? base.seq : 0;       // links stamped
+    this.pending = base ? [...base.pending] : [];
+  }
+  getParent(x) { return this.parent.has(x) ? this.parent.get(x) : this.base?.getParent(x); }
+  setParent(x, v) { this.parent.set(x, v); }
+  hasOcc(id) { return this.getParent(id) !== undefined; }
+  indexOf(id) { return this.index.has(id) ? this.index.get(id) : this.base?.indexOf(id); }
+  getLinks(r) { if (this.links.has(r)) return this.links.get(r); if (this.gone.has(r)) return undefined; return this.base?.getLinks(r); }
+  setLinks(r, arr) { this.links.set(r, arr); this.gone.delete(r); }
+  appendLink(r, stamped) { if (this.links.has(r)) this.links.get(r).push(stamped); else this.setLinks(r, [...(this.getLinks(r) ?? []), stamped]); }
+  getGroup(r) { if (this.groups.has(r)) return this.groups.get(r); if (this.gone.has(r)) return undefined; return this.base?.getGroup(r); }
+  setGroup(r, arr) { this.groups.set(r, arr); this.gone.delete(r); }
+  appendOcc(r, occ) { if (this.groups.has(r)) this.groups.get(r).push(occ); else this.setGroup(r, [...(this.getGroup(r) ?? []), occ]); }
+  drop(r) { this.links.delete(r); this.groups.delete(r); this.gone.add(r); }
+  isMulti(r) { if (this.multi.has(r)) return true; if (this.unmulti.has(r)) return false; return this.base ? this.base.isMulti(r) : false; }
+  setMulti(r, on) { if (on) { this.multi.add(r); this.unmulti.delete(r); } else { this.unmulti.add(r); this.multi.delete(r); } }
+  multiRoots() { const out = this.base ? this.base.multiRoots().filter((r) => !this.unmulti.has(r)) : []; for (const r of this.multi) out.push(r); return out; }
+  find(x) {
+    let p = this.getParent(x);
+    if (p == null) return null;
+    while (p !== this.getParent(p)) p = this.getParent(p);
+    let y = x;
+    while (this.getParent(y) !== p) { const next = this.getParent(y); this.setParent(y, p); y = next; }
+    return p;
+  }
+  addOcc(occ) {
+    const i = this.count++;
+    this.index.set(occ.id, i);
+    if (!this.hasOcc(occ.id)) { this.setParent(occ.id, occ.id); this.setLinks(occ.id, []); this.setGroup(occ.id, [occ]); return; }
+    // The same id arriving twice: the original pushed it into `occurrences`
+    // again and its component listed it twice. Mirrored, so the reference path
+    // and this one cannot differ on it.
+    const r = this.find(occ.id);
+    this.appendOcc(r, occ);
+    if ((this.getGroup(r) ?? []).length >= 2 && !this.isMulti(r)) this.setMulti(r, true);
+  }
+}
+
+/** Merge two groups already in occurrence order into one, by arrival index. */
+const mergeByIndex = (st, a = [], b = []) => {
+  const out = [];
+  let i = 0, j = 0;
+  while (i < a.length && j < b.length) { if (st.indexOf(a[i].id) <= st.indexOf(b[j].id)) out.push(a[i++]); else out.push(b[j++]); }
+  while (i < a.length) out.push(a[i++]);
+  while (j < b.length) out.push(b[j++]);
+  return out;
+};
+
+function foldDiscourse(st, entries) {
+  const tryLink = (link) => {
+    const ra = st.find(link.leftOccurrence);
+    const rb = st.find(link.rightOccurrence);
+    if (ra == null || rb == null) return false;
+    const stamped = { seq: st.seq++, id: link.id };
+    if (ra === rb) { st.appendLink(ra, stamped); return true; }
+    const [keep, drop] = ra < rb ? [ra, rb] : [rb, ra]; // stable by lexical id — the original's own tiebreak
+    st.setParent(drop, keep);
+    st.setLinks(keep, [...(st.getLinks(keep) ?? []), ...(st.getLinks(drop) ?? []), stamped]);
+    st.setGroup(keep, mergeByIndex(st, st.getGroup(keep), st.getGroup(drop)));
+    st.drop(drop);
+    if (st.isMulti(drop)) st.setMulti(drop, false);
+    if (!st.isMulti(keep)) st.setMulti(keep, true);
+    return true;
+  };
+  for (const x of entries ?? []) {
+    if (x?.schema === "EOReferentOccurrence@1") {
+      st.addOcc(x);
+      if (st.pending.length) st.pending = st.pending.filter((l) => !tryLink(l));
+    } else if (x?.schema === "EODiscourseIdentityLink@1" && x.standing !== "refused") {
+      if (!tryLink(x)) st.pending.push(x);
+    }
+  }
+}
+
 import { chainView } from "../../kernel/fold.js";
+
+/** Exported for the test that pins the invariant: how many times the from-scratch path ran. */
+export const discourseStats = { computes: 0 };
 
 const discourseState = chainView(
   (graphEntries) => {
-    const st = emptyDiscourseState();
+    discourseStats.computes += 1;
+    const st = new DiscourseState();
     foldDiscourse(st, graphEntries);
     return st;
   },
@@ -135,52 +226,37 @@ const discourseState = chainView(
   },
 );
 
-const emptyDiscourseState = () => ({ occurrences: [], parent: new Map(), linkIds: new Map(), pending: [], seq: 0 });
-
-const stFind = (parent, x) => {
-  let p = parent.get(x);
-  if (p == null) return null;
-  while (p !== parent.get(p)) p = parent.get(p);
-  let y = x;
-  while (parent.get(y) !== p) { const next = parent.get(y); parent.set(y, p); y = next; }
-  return p;
-};
-
-function foldDiscourse(st, entries) {
-  const tryLink = (link) => {
-    const ra = stFind(st.parent, link.leftOccurrence);
-    const rb = stFind(st.parent, link.rightOccurrence);
-    if (ra == null || rb == null) return false;
-    const stamped = { seq: st.seq++, id: link.id };
-    if (ra === rb) { st.linkIds.get(ra).push(stamped); return true; }
-    const [keep, drop] = ra < rb ? [ra, rb] : [rb, ra]; // stable by lexical id — the original's own tiebreak
-    st.parent.set(drop, keep);
-    const merged = [...(st.linkIds.get(keep) ?? []), ...(st.linkIds.get(drop) ?? []), stamped];
-    st.linkIds.set(keep, merged);
-    st.linkIds.delete(drop);
-    return true;
-  };
-  for (const x of entries ?? []) {
-    if (x?.schema === "EOReferentOccurrence@1") {
-      st.occurrences.push(x);
-      if (!st.parent.has(x.id)) { st.parent.set(x.id, x.id); st.linkIds.set(x.id, st.linkIds.get(x.id) ?? []); }
-      if (st.pending.length) st.pending = st.pending.filter((l) => !tryLink(l));
-    } else if (x?.schema === "EODiscourseIdentityLink@1" && x.standing !== "refused") {
-      if (!tryLink(x)) st.pending.push(x);
-    }
-  }
-}
-
-/**
- * THE PROJECTION, MEMOISED ON ITS STATE (P157).
- *
- * The component walk below is O(occurrences) and was being run once per
- * sentence over every occurrence ever seen — 10,711,043 occurrence visits
- * across one Frankenstein read, producing exactly ONE referent in the whole
- * novel. It is a pure function of the state, so it is cached on the state
- * object; a state that has not changed cannot project differently.
- */
+/** THE PROJECTION, MEMOISED ON ITS STATE'S OWN VERSION — (count, seq), never object identity. */
 const PROJECTION = new WeakMap();
+
+function projectState(st) {
+  const roots = st.multiRoots().filter((r) => (st.getLinks(r) ?? []).length > 0);
+  roots.sort((a, b) => st.indexOf(st.getGroup(a)[0].id) - st.indexOf(st.getGroup(b)[0].id));
+  const referents = [];
+  for (const root of roots) {
+    const group = st.getGroup(root);
+    const stampedLinks = st.getLinks(root);
+    // Global arrival order, dedup by id — the original's own [...linkedIds]
+    // Set semantics over the links array.
+    const linkedIds = [...new Map([...stampedLinks].sort((a, b) => a.seq - b.seq).map((l) => [l.id, l])).keys()];
+    const surfaces = [...new Set(group.map((x) => x.canonicalSurface).filter(Boolean))];
+    referents.push(Object.freeze({
+      schema: "EOReferent@1",
+      id: `ref:discourse:${slug(root)}`,
+      display: group[0].surface,
+      surfaces: Object.freeze(surfaces),
+      occurrenceRefs: Object.freeze(group.map((x) => x.id)),
+      supportRefs: Object.freeze([...linkedIds]),
+      standing: "provisional",
+      revisable: true,
+      provenance: Object.freeze({
+        giver: "text/discourse-referents::projectDiscourseReferents",
+        basis: "connected component of explicitly supported occurrence-level identity links",
+      }),
+    }));
+  }
+  return Object.freeze(referents);
+}
 
 /** Only these two schemas can change a discourse state (see `foldDiscourse`). Anything else is inert here. */
 const touchesDiscourse = (entries = []) =>
@@ -212,47 +288,21 @@ const touchesDiscourse = (entries = []) =>
  * reference path, so nothing can diverge.
  */
 export function projectDiscourseReferentsWith(foldEntries = [], extraEntries = []) {
-  if (touchesDiscourse(extraEntries)) return projectDiscourseReferents([...foldEntries, ...extraEntries]);
-  return projectDiscourseReferents(foldEntries);
+  if (!touchesDiscourse(extraEntries)) return projectDiscourseReferents(foldEntries);
+  // This sentence's own admissions, folded into a LAYER over the persistent
+  // state and projected from there. The layer is discarded; the persistent
+  // state never holds an entry the fold does not. The fold's own array is
+  // what reaches the chain view, so the incremental path is the one taken.
+  const layer = new DiscourseState(discourseState(foldEntries));
+  foldDiscourse(layer, extraEntries);
+  return projectState(layer);
 }
 
 export function projectDiscourseReferents(graphEntries = []) {
   const st = discourseState(graphEntries);
   const cached = PROJECTION.get(st);
-  if (cached) return cached;
-  const components = new Map();
-  for (const occ of st.occurrences) {
-    const root = stFind(st.parent, occ.id);
-    if (!root) continue;
-    if (!components.has(root)) components.set(root, []);
-    components.get(root).push(occ);
-  }
-
-  const referents = [];
-  for (const [root, group] of components) {
-    if (group.length < 2) continue;
-    const stampedLinks = st.linkIds.get(root) ?? [];
-    if (!stampedLinks.length) continue;
-    // Global arrival order, dedup by id — the original's own [...linkedIds]
-    // Set semantics over the links array.
-    const linkedIds = [...new Map([...stampedLinks].sort((a, b) => a.seq - b.seq).map((l) => [l.id, l])).keys()];
-    const surfaces = [...new Set(group.map((x) => x.canonicalSurface).filter(Boolean))];
-    referents.push(Object.freeze({
-      schema: "EOReferent@1",
-      id: `ref:discourse:${slug(root)}`,
-      display: group[0].surface,
-      surfaces: Object.freeze(surfaces),
-      occurrenceRefs: Object.freeze(group.map((x) => x.id)),
-      supportRefs: Object.freeze([...linkedIds]),
-      standing: "provisional",
-      revisable: true,
-      provenance: Object.freeze({
-        giver: "text/discourse-referents::projectDiscourseReferents",
-        basis: "connected component of explicitly supported occurrence-level identity links",
-      }),
-    }));
-  }
-  const out = Object.freeze(referents);
-  PROJECTION.set(st, out);
-  return out;
+  if (cached && cached.count === st.count && cached.seq === st.seq) return cached.value;
+  const value = projectState(st);
+  PROJECTION.set(st, { count: st.count, seq: st.seq, value });
+  return value;
 }
