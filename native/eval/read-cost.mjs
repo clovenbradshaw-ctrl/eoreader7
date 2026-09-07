@@ -70,6 +70,7 @@ import { createCausalTextPerceiver, textEncounters } from "../adapters/text/recu
 import { reviseTextFold } from "../adapters/text/revision.js";
 import { createRecursiveReader } from "../../kernel.js";
 import { projectHypergraph } from "../kernel/hypergraph-projection.js";
+import { reconstruct } from "../kernel/fold.js";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const POS = JSON.parse(fs.readFileSync(path.join(here, "../../legacy-eoreader6.1/bin/priors/pos/en-ud-ewt.json"), "utf8"));
@@ -100,6 +101,78 @@ async function readPrefix(file, bytes) {
 }
 
 const hash = (x) => createHash("sha256").update(JSON.stringify(x)).digest("hex").slice(0, 16);
+
+/**
+ * THE GATE THAT SURVIVES A REPRESENTATION CHANGE (P159).
+ *
+ * `identity` below hashes the LOG, which is exactly right while the log's
+ * shape is fixed and exactly wrong the moment it is not. Storing acts in EO
+ * notation — `(operator, grain)` with mode/domain/terrain/stance derived by
+ * `cellOf` rather than written out — changes the record without changing the
+ * reading, and a log hash cannot tell those two apart.
+ *
+ * So the claim moves to where it belongs: **the reading is the same even
+ * though the record is written differently.** `projectionIdentity` hashes what
+ * the log PROJECTS TO — nodes, links and the reconstructed graphEntries at
+ * several cursors — and says nothing about how the log spells itself.
+ *
+ * `trace` is the sharper instrument and the one to reach for first: it records
+ * a hash per STEP, so a divergence is localised to the encounter that caused
+ * it instead of being discovered at the end of a book. A whole-run hash tells
+ * you that something broke; a step trace tells you where.
+ */
+
+/** A hash per step: the fold after each encounter. A divergence names its own step. */
+export async function trace(file, bytes, { every = 1 } = {}) {
+  const stripped = stripContainer(fs.readFileSync(file, "utf8").slice(0, bytes));
+  const encounters = textEncounters(stripped.text, { source: `file:${path.basename(file)}`, offset: stripped.offset });
+  const reader = makeReader();
+  const steps = [];
+  for (const [i, e] of encounters.entries()) {
+    await reader.step(e);
+    if (i % every !== 0 && i !== encounters.length - 1) continue;
+    const f = reader.getFold();
+    steps.push({ step: i, entries: (f?.graphEntries ?? []).length, hash: hash(f?.graphEntries ?? []) });
+  }
+  return { file: path.basename(file), bytes, sentences: encounters.length, every, steps };
+}
+
+/** Compare a fresh trace against a recorded one. The FIRST differing step is the answer. */
+export function differential(before, after) {
+  const n = Math.min(before.steps.length, after.steps.length);
+  for (let i = 0; i < n; i += 1) {
+    const b = before.steps[i], a = after.steps[i];
+    if (b.hash !== a.hash || b.entries !== a.entries) {
+      return { same: false, step: b.step,
+        why: `first divergence at step ${b.step}: ${b.entries} entries/${b.hash} became ${a.entries}/${a.hash}` };
+    }
+  }
+  if (before.steps.length !== after.steps.length) return { same: false, step: n, why: `same through ${n} steps, then the traces differ in length (${before.steps.length} vs ${after.steps.length})` };
+  return { same: true, steps: n, why: `identical across all ${n} sampled steps` };
+}
+
+/**
+ * What the log PROJECTS TO, hashed — independent of how the log spells itself.
+ * `graphEntries` is included deliberately: nodes and links alone would not
+ * notice a change to entries that no node or link happens to carry.
+ */
+export async function projectionIdentity(file, bytes, { cursors = [0.25, 0.5, 0.75, 1] } = {}) {
+  const { reading, seconds, sentences, heapMB } = await readPrefix(file, bytes);
+  const rebuilt = reconstruct(reading.log);
+  return {
+    file: path.basename(file), bytes, sentences, logEntries: reading.log.length,
+    seconds: Number(seconds.toFixed(2)), heapMB,
+    // The fold as the log projects it — the thing that must not change.
+    reconstructedEntries: (rebuilt?.graphEntries ?? []).length,
+    reconstructedHash: hash(rebuilt?.graphEntries ?? []),
+    cursors: cursors.map((q) => {
+      const atSeq = Math.floor(reading.log.length * q);
+      const g = projectHypergraph(reading.log, { atSeq });
+      return { at: q, atSeq, nodes: g.nodes.length, links: g.links.length,
+        nodeHash: hash(g.nodes), linkHash: hash(g.links), entryHash: hash(g.graphEntries ?? []) };
+    }),
+  };
+}
 
 /** The gate: the reading's log and its projection at four cursors, hashed. A faster read must be the SAME read. */
 export async function identity(file, bytes) {
@@ -132,10 +205,31 @@ export async function scale(file, sizes) {
 
 if (import.meta.url === `file://${process.argv[1]}`) {
   const file = arg("file", path.join(here, "../../legacy-eoreader6.1/scripts/adversarial/fixtures/pg84-frankenstein.txt"));
-  if (has("identity")) {
-    const out = await identity(file, Number(arg("bytes", 60000)));
-    const to = arg("out", null);
-    if (to) { fs.writeFileSync(to, JSON.stringify(out, null, 1)); console.log(`wrote ${to}`); }
+  const bytes = Number(arg("bytes", 60000));
+  const save = (name, obj) => { const to = arg("out", null); if (to) { fs.writeFileSync(to, JSON.stringify(obj, null, 1)); console.log(`wrote ${to}`); } return obj; };
+
+  if (has("trace")) {
+    // Per-step hashes. With --against <file>, compares and names the first
+    // differing step; without it, writes a baseline.
+    const t = await trace(file, bytes, { every: Number(arg("every", 1)) });
+    const against = arg("against", null);
+    if (against) {
+      const before = JSON.parse(fs.readFileSync(against, "utf8"));
+      const d = differential(before, t);
+      console.log(d.same ? `DIFFERENTIAL: identical — ${d.why}` : `DIFFERENTIAL: DIVERGED — ${d.why}`);
+      process.exitCode = d.same ? 0 : 1;
+    } else {
+      save("trace", t);
+      console.log(`traced ${t.steps.length} of ${t.sentences} steps (every ${t.every})`);
+      console.log(`  final: ${t.steps[t.steps.length - 1]?.entries} entries, ${t.steps[t.steps.length - 1]?.hash}`);
+    }
+  } else if (has("projection-identity")) {
+    const p = await projectionIdentity(file, bytes);
+    save("projection", p);
+    console.log(JSON.stringify(p, null, 1));
+  } else if (has("identity")) {
+    const out = await identity(file, bytes);
+    save("identity", out);
     console.log(JSON.stringify(out, null, 1));
   } else {
     const sizes = String(arg("sizes", "15000,30000,60000,120000")).split(",").map(Number);
