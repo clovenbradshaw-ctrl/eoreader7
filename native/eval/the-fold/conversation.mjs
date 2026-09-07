@@ -3,7 +3,7 @@
 //
 //   node eval/the-fold/conversation.mjs --source prose=/path/novel.txt [--turns 1000]
 //        [--model gemma2:2b] [--reader-model gemma2:2b] [--seed 3] [--witness on|off]
-//        [--depth 1] [--resolutions 0|1|2|3] [--resume <dir>]
+//        [--depth 1] [--resolutions 0|1|2|3] [--material auto|passages|snips] [--resume <dir>]
 //
 // Not the probe bank (long-stream.mjs asks templated questions scored by
 // atoms). This is what a person does over a long conversation about a book:
@@ -47,6 +47,8 @@ const DEPTH = Number(flag("depth", 1));
 const SEED = Number(flag("seed", 3));
 // The discourse at three resolutions (the-fold resolutions.js, P171): 0 = today's one-line stand-in only, 1 = + atmosphere, 2 = + lens, 3 = + paradigm. The arm of the measurement, declared here, printed with the configuration, carried on every row.
 const RESOLUTIONS = Number(flag("resolutions", 0));
+// What the mouth is handed as material: "auto" = the passages leave at level ≥ 2 (compression), "passages" forces them in (the additive control), "snips" forces them out.
+const MATERIAL = String(flag("material", "auto"));
 const WITNESS = flag("witness", "on") !== "off";
 const RESUME = flag("resume", null);
 const sourceArgs = args.flatMap((a, i) => (a === "--source" && args[i + 1] ? [args[i + 1]] : []));
@@ -122,10 +124,10 @@ if (RESUME && existsSync(STATE_PATH)) { state = JSON.parse(readFileSync(STATE_PA
 else {
   const bank = buildFactBank(chunks, { perSource: 120, rng });
   state = { turn: 0, history: [], transcript: [], hlLog: null, gridLog: null, bank, draws: rng.draws, asked: [], seen: [], coverage: [], useMeasuredCut: false };
-  writeFileSync(CONFIG_PATH, JSON.stringify({ ran: new Date().toISOString(), model: MODEL, readerModel: READER_MODEL, corpusId, depth: DEPTH, turns: TURNS, seed: SEED, witness: WITNESS, resolutions: RESOLUTIONS, sources: loaded, recipe: O.recipe }, null, 2));
+  writeFileSync(CONFIG_PATH, JSON.stringify({ ran: new Date().toISOString(), model: MODEL, readerModel: READER_MODEL, corpusId, depth: DEPTH, turns: TURNS, seed: SEED, witness: WITNESS, resolutions: RESOLUTIONS, material: MATERIAL, sources: loaded, recipe: O.recipe }, null, 2));
   writeFileSync(TRANSCRIPT_PATH, `# A conversation about ${loaded[0].name}\n\n${MODEL} answering through the real turn; the reader is ${READER_MODEL} phrasing moves computed from the record. Seed ${SEED}. Corpus ${corpusId}.\n\n`);
 }
-console.log(`conversation — ${MODEL} answering, ${READER_MODEL} reading, ${TURNS} turns, witness ${WITNESS ? "on" : "off"}, arithmetic ${math ? "computed" : "UNAVAILABLE"}, resolutions ${RESOLUTIONS} (0 one-line stand-in only, 1 + atmosphere, 2 + lens, 3 + paradigm)`);
+console.log(`conversation — ${MODEL} answering, ${READER_MODEL} reading, ${TURNS} turns, witness ${WITNESS ? "on" : "off"}, arithmetic ${math ? "computed" : "UNAVAILABLE"}, resolutions ${RESOLUTIONS} (0 one-line stand-in only, 1 + atmosphere, 2 + lens, 3 + paradigm), material ${MATERIAL}`);
 for (const l of loaded) console.log(`  ${l.kind.padEnd(8)} ${l.name.padEnd(28)} ${String(l.bytes).padStart(9)} bytes ${String(l.chunks).padStart(5)} chunks  ${l.sha256}`);
 console.log(`  cast/fact bank ${state.bank.length}; recipe ${O.recipe}; corpus ${corpusId}\n  ${DIR}`);
 const LEARNED_PATH = join(NATIVE, "eval/the-fold/results/long-stream", "learned.json");
@@ -228,7 +230,7 @@ for (let turn = state.turn + 1; turn <= TURNS; turn++) {
       makeNameResolver: castFor, makeReferentIndexFor: indexFor, makeRelationReader: O.relationsFor, witnessSentences,
       checkLink: null, planMode: needsDecomposition(question) ? "model" : "flat",
       chatHistory: history, discourse, depth: DEPTH, learnedStore, transcript: state.transcript,
-      resolutions: RESOLUTIONS, dmdWindow, conversationIndex: corpusIndex, records: [],
+      resolutions: RESOLUTIONS, dmdWindow, conversationIndex: corpusIndex, records: [], material: MATERIAL,
       math, coverageHistory: state.coverage ?? [], nul, useMeasuredCut: false,
       hyperlexicon: O.hl, hyperlexiconLog: state.hlLog, hyperlexiconFrame: O.frame, hyperlexiconRecipe: O.recipe,
       grid: O.grid, gridLog: state.gridLog, runCapacity: O.runCapacity,
@@ -254,7 +256,7 @@ for (let turn = state.turn + 1; turn <= TURNS; turn++) {
   const row = {
     turn, at: new Date().toISOString(), move: m.move, target: m.target ?? null, targetInSource: m.target ? inSource(m.target) : null, phrasedBy, question, answer,
     earlierTurn: earlier?.turn ?? null, addressed, cited, admitsAbsence: absent, resolved,
-    resolutions: r?.resolutions ? r.resolutions.map((x) => ({ level: x.level, index: x.index, active: x.active?.ids?.length ?? 0, atmosphere: x.atmosphere, lens: x.lens, paradigm: x.paradigm, windows: x.windows })) : null,
+    resolutions: r?.resolutions ? r.resolutions.map((x) => ({ level: x.level, handed: x.handed ?? null, index: x.index, active: x.active?.ids?.length ?? 0, atmosphere: x.atmosphere, lens: x.lens, paradigm: x.paradigm, windows: x.windows })) : null,
     historyDepth: win.depth, historyBasis: win.basis ?? null,
     turnAddressed: r?.addressed ?? null, expectation: r?.expectation ?? null, selfContradictions: r?.selfContradictions ?? [], position: r?.position ?? null,
     ms: Date.now() - t0, calls: usage.calls - calls0, promptTokens: usage.promptTokens - pt0, completionTokens: usage.completionTokens - ct0,
@@ -275,7 +277,7 @@ for (let turn = state.turn + 1; turn <= TURNS; turn++) {
     for (const x of rows) { const b = by[x.move] ??= { n: 0, addressed: 0, resolved: 0, cited: 0, mech: 0 }; b.n++; if (x.addressed) b.addressed++; if (x.resolved) b.resolved++; if (x.cited) b.cited++; if (x.phrasedBy === "mechanical") b.mech++; }
     const line = Object.entries(by).map(([k, b]) => `${k} ${b.n}: addressed ${b.addressed}, resolved ${b.resolved}, cited ${b.cited}${b.mech ? `, mech ${b.mech}` : ""}`).join(" | ");
     const auth = rows.map((x) => x.expectation?.authorship).filter((a) => a != null);
-    console.log(`  — after ${turn}: ${line} | unsupported/answer ${(rows.reduce((a, x) => a + x.unsupported, 0) / rows.length).toFixed(2)} | contradicted ${rows.filter((x) => x.premises?.contradicted).length} | before-the-model ${rows.filter((x) => x.answeredBeforeTheModel).length} | re-asked ${rows.filter((x) => x.turnAddressed?.some?.((a) => a.reasked)).length} | positions ${rows.filter((x) => x.position).length} | self-contradictions ${rows.filter((x) => x.selfContradictions?.length).length} | authorship ${auth.length ? (auth.reduce((a, b) => a + b, 0) / auth.length).toFixed(2) : "—"} (${auth.length}) | history depth ${(rows.reduce((a, x) => a + (x.historyDepth ?? 0), 0) / rows.length).toFixed(1)} | ${(rows.reduce((a, x) => a + x.ms, 0) / rows.length / 1000).toFixed(0)}s/turn | resolutions ${RESOLUTIONS}: blocks/turn ${(rows.reduce((a, x) => a + ((x.resolutions ?? []).reduce((b, y) => b + (y.atmosphere ? 1 : 0) + (y.lens ? 1 : 0) + (y.paradigm ? 1 : 0), 0)), 0) / rows.length).toFixed(2)} | prompt tokens/turn ${(rows.reduce((a, x) => a + (x.promptTokens ?? 0), 0) / rows.length).toFixed(0)}`);
+    console.log(`  — after ${turn}: ${line} | unsupported/answer ${(rows.reduce((a, x) => a + x.unsupported, 0) / rows.length).toFixed(2)} | contradicted ${rows.filter((x) => x.premises?.contradicted).length} | before-the-model ${rows.filter((x) => x.answeredBeforeTheModel).length} | re-asked ${rows.filter((x) => x.turnAddressed?.some?.((a) => a.reasked)).length} | positions ${rows.filter((x) => x.position).length} | self-contradictions ${rows.filter((x) => x.selfContradictions?.length).length} | authorship ${auth.length ? (auth.reduce((a, b) => a + b, 0) / auth.length).toFixed(2) : "—"} (${auth.length}) | history depth ${(rows.reduce((a, x) => a + (x.historyDepth ?? 0), 0) / rows.length).toFixed(1)} | ${(rows.reduce((a, x) => a + x.ms, 0) / rows.length / 1000).toFixed(0)}s/turn | resolutions ${RESOLUTIONS}: blocks/turn ${(rows.reduce((a, x) => a + ((x.resolutions ?? []).reduce((b, y) => b + (y.atmosphere ? 1 : 0) + (y.lens ? 1 : 0) + (y.paradigm ? 1 : 0), 0)), 0) / rows.length).toFixed(2)} | prompt tokens/turn ${(rows.reduce((a, x) => a + (x.promptTokens ?? 0), 0) / rows.length).toFixed(0)}, per call ${(rows.reduce((a, x) => a + (x.promptTokens ?? 0), 0) / Math.max(1, rows.reduce((a, x) => a + (x.calls ?? 0), 0))).toFixed(0)} | handed ${JSON.stringify(rows.reduce((a, x) => { for (const y of x.resolutions ?? []) a[y.handed ?? "passages"] = (a[y.handed ?? "passages"] ?? 0) + 1; return a; }, {}))}`);
   }
 }
 console.log(`done: ${TURNS} turns — ${DIR}`);
