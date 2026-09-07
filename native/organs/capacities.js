@@ -169,6 +169,38 @@ export const CAPACITIES = Object.freeze([
   // TERRAIN_BY_DOMAIN[domain][grain] — the same arithmetic that caught
   // `skill` and `build` mistyped when this table was first written).
 
+  // ── Ground, Figure, Pattern (GROUND-FIGURE-PATTERN-SPEC.md, Pass 32,
+  // 2026-09-07). Three rows, one per grain of the triad, cells CONFIRMED by
+  // cellOf rather than proposed: SIG·Figure -> Entity, EVA·Ground ->
+  // Atmosphere, SYN·Pattern -> Network (the-fold relative-seat.test.mjs
+  // asserts each against cube.js and that each fn is a real export). The
+  // modules live in the-fold beside the ledger and the page crossings they
+  // will get (OPFS, the reopen door, the room), which is where this table's
+  // other page organs live too.
+  Object.freeze({
+    id: "recall",
+    terrain: "Entity",
+    op: "SIG",
+    module: "relative.js",
+    fn: "Field",
+    what: "a cue settles a keyless field; a figure only above the band random cues of that length pull out of THIS field (Field#recallAgainstNull — the class is the export; no get, no id, no key: relative.test.mjs asserts Field.get is undefined). SIG·Figure: a signal picks out a figure from a field; nothing is asserted about bytes.",
+  }),
+  Object.freeze({
+    id: "drift",
+    terrain: "Atmosphere",
+    op: "EVA",
+    module: "relative-pattern.js",
+    fn: "drift",
+    what: "does an address still name its bytes — exact, shifted, moved, gone; nothing rewritten, ever (G1, G2). EVA·Ground: an evaluation of whether an address still names its bytes.",
+  }),
+  Object.freeze({
+    id: "correspond",
+    terrain: "Network",
+    op: "SYN",
+    module: "relative-pattern.js",
+    fn: "correspond",
+    what: "the pattern over a ground and a figure — agree, repaired, ground-only, ground-shifted, apart — as a ledger act resting on both, carrying the band it was measured against (P1, P2: moved is never reported as gone). SYN·Pattern: a product derived over a ground and a figure.",
+  }),
   Object.freeze({
     id: "network",
     terrain: "Network",
