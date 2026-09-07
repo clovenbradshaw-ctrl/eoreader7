@@ -173,3 +173,10 @@ chorus-fast on each: the only FAIL across the five runs was `matrix-client.test.
 | Marshall | IV.4 | THE-HOLOGRAPH.md; preregistered-lens-arm.md | upheld | predictions written before the arms; the additive control's null result recorded before the compressed arm ran; the void line in fact-block.js (P55's pin) left standing, flagged |
 
 deferred-with-reason: the P55 void line carries negative knowledge in the prompt (user's own rule) but is a measured pin — the user's call. false-positive-on-review: none.
+
+## 2026-09-07 — Merge `fold-memory-p157` (53 commits: S77 long-stream, the kernel memory work, the holograph evals) into main (branch `fold-memory-p157` → main, scope origin/main..HEAD)
+
+fast: 102 files · 53 affected test files, 526 pass, 0 real fail (the one ✖ is the script handing `tests/earned-constants.json` to `node --test`; false-positive-on-review) · full native `npm test` on the merged tree 711 tests, 690 pass, 0 fail, 1 TODO · law: WARN pre-existing duplicate S17 (and the-fold's P19 P115–P117); WARN cited-not-written P0 P171 P580 P582 (pre-existing on the branch).
+| Alexander | II.10 | native/eval/the-fold/long-stream.mjs, lib/long-stream.mjs | fixed | two conflicts with main's S77 follow-ups (a083898): the branch's side is the superset (top-level `placeCoverage` import and P145 `expectFor`; `scored()` verdicts), main's inline import and bare verdicts dropped; `tests/long-stream.test.js` 8/8, `frontier-25.test.js` 4/4 with `../the-fold` at its paired merge |
+| Simon/Chekhov | — | eval scripts no test imports (read-run, holograph-reading, conversation, read-cost, frankenstein) | noted | evals, reviewed at their commits |
+clean: Diaconis, Feynman, Dijkstra, Holmes, Pearl, Ostrom, Frankfurt, Marshall — the merge itself edits no law.
