@@ -59,6 +59,7 @@ const { splitSentences } = await import(`${NATIVE}/adapters/text/spans.js`);
 const { learn, correctionsIn, learnable } = await import(`${FOLD}learned.js`);
 const { historyWindow, referentsOf } = await import(`${FOLD}dialogue.js`);
 const { namesIn } = await import(`${FOLD}ground-ladder.js`);
+const { ANAPHORIC_PRONOUNS } = await import("../../adapters/text/priors.js"); // a received closed class with its giver (lang/en): "She's" is not a being to ask about
 const { makeReferentIndex } = await import(`${FOLD}cast.js`);
 const { dmdWindow } = await import(`${NATIVE}/kernel/activation.js`);
 let math = null;
@@ -136,7 +137,8 @@ const fold = (t) => String(t ?? "").normalize("NFD").replace(/[̀-ͯ]/g, "").toL
 const trim = (t, n) => { const s = String(t ?? "").replace(/\s+/g, " ").trim(); return s.length > n ? `${s.slice(0, n)}…` : s; };
 const inSource = (name) => corpusIndex.resolve(name).size > 0; // a referent the material establishes, not a substring
 /** Names the answer introduces (ground-ladder.js::namesIn — the one implementation), dedup, in order; a real reader may ask about a name the book never establishes, so all are kept and each is tagged by the corpus index. */
-const namesOf = (text) => { const seen = new Set(); return namesIn(String(text ?? "")).filter((n) => { const k = fold(n); if (seen.has(k)) return false; seen.add(k); return true; }); };
+const pronoun = (n) => ANAPHORIC_PRONOUNS.has(fold(n)) || ANAPHORIC_PRONOUNS.has(String(n).toLowerCase());
+const namesOf = (text) => { const seen = new Set(); return namesIn(String(text ?? "")).map((n) => n.replace(/['’]s$/u, "")).filter((n) => { const k = fold(n); if (!n || pronoun(n) || seen.has(k)) return false; seen.add(k); return true; }); };
 const quotedIn = (text) => [...String(text ?? "").matchAll(/[“"]([^”"]{12,120})[”"]/g)].map((m) => m[1]);
 const admitsAbsence = (a) => /\b(do(es)? not (use|mention|say|name)|not (in|found in|present in) (the|these|this) (source|book|novel|text|passage)|nothing (here|in the (book|text|sources))|no passage|isn'?t mentioned|not mentioned)\b/i.test(a);
 const mentions = (a, target) => target ? fold(a).includes(fold(target)) : null;
@@ -150,10 +152,11 @@ function chooseMove(last, turn) {
   if (names.length) push("clarify", 0.28, { target: rng.pick(names) });
   if (quotes.length) push("clarify", 0.10, { target: rng.pick(quotes), quoted: true });
   if (sentencesOf(last.answer).length >= 2) push("reflect", 0.18);
-  if (names.length) push("deepen", 0.14, { target: rng.pick(names) });
+  const established = names.filter(inSource); // deepen / why are about a being the material establishes; clarify may ask about a name that resolves to nothing — that is what clarify is for
+  if (established.length) push("deepen", 0.14, { target: rng.pick(established) });
   push("verify", 0.08 + (last.unsupported > 0 ? 0.14 : 0) + (last.refs.length === 0 ? 0.06 : 0));
   if (state.transcript.length >= 6) push("revisit", 0.10);
-  if (names.length) push("why", 0.08, { target: rng.pick(names) });
+  if (established.length) push("why", 0.08, { target: rng.pick(established) });
   push("open", names.length ? 0.04 : 0.30);
   const total = options.reduce((a, o) => a + o.w, 0);
   let r = rng.next() * total;
