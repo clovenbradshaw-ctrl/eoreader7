@@ -252,7 +252,7 @@ block and the handed sentences are two faces of one activation: the
 claims, and the sentences they were read from.
 
 **The cut, corrected, and the replacement rule (2026-09-07, the-fold
-`348e1c9`).** The shared cut had offered the whole candidate set as one of
+`0d2cf4d`).** The shared cut had offered the whole candidate set as one of
 its own depths, and a set whose every row carries a distinct act agrees
 with itself — the "measured" window was the ceiling wearing a
 measurement's face (the Lens handed 94 lines about one referent; the

@@ -4371,7 +4371,7 @@ The mechanism this entry names is spread over the reading's per-sentence path an
 
 **Generality:** universal for the mechanism (the-fold `reading-log.js`, `resolutions.js::dmdCut/lensCut`, `activation-retrieval.js`; eoreader7 `eval/the-fold/conversation.mjs --reading constitutional`, `holograph-compression.mjs`); the counts are one novel's, transcribed from the compression driver, which refuses when the reading and the ledger are not in the checkout (S65).
 
-> **giver:** earned-here — the-fold `6e74f0e`, `348e1c9`; eoreader7 `bed533e`
+> **giver:** earned-here — the-fold `6e74f0e`, `0d2cf4d`; eoreader7 `bed533e`
 
 The holograph (`docs/THE-HOLOGRAPH.md` §7) is a pattern computed from the log, and a log written by a cheaper organ than the reader gives a compression of the wrong reading. Three laws this entry pins, each found by running the constitutional reader through a real conversation:
 
