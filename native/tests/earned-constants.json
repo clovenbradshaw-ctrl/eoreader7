@@ -1,0 +1,15 @@
+{
+  "note": "FOLD-CONSTITUTION II.11 baseline for eoreader7, disclosed 2026-09-07. These exported numeric constants name neither a measurement nor a giver. The ratchet in earned-constants.test.js fails on any NEW one; entries here may be removed as they are accounted for, and may not be added to without saying why.",
+  "unaccounted": [
+    "organs/asserted.js:WITNESS_FLOOR",
+    "organs/cite.js:MIN_RUN",
+    "organs/cite.js:NULL_SAMPLES",
+    "organs/hypergraph.js:MIN_SURFACES_PER_VERB",
+    "organs/hypergraph.js:GRAMMAR_MIN_SHARE",
+    "organs/hypergraph.js:NEAREST_EDGES_MAX",
+    "organs/quotes.js:MIN_QUOTE_WORDS",
+    "organs/web.js:WEB_FETCH_TIMEOUT_MS",
+    "organs/web.js:WEB_SEARCH_MAX_RESULTS",
+    "organs/web.js:WEB_ARCHIVE_TIMEOUT_MS"
+  ]
+}
