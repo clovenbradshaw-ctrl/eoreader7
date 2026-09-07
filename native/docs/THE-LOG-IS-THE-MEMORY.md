@@ -202,6 +202,12 @@ Wall-clock, old (0bcb90d) and final (6c40ab5) back to back:
       5904     OOM   13.57         —      486 MB
 ```
 
+The full book on the final code: 34,229 sentences in **627 s** (9,801 s on
+the P166 code), reconstruct(log) hash 6fcb505f24492f60 — identical to the
+P166 run's, so the whole-book reading is unchanged byte-for-byte. Heap
+4,437 MB (3,590 MB then): the indexes and view states that replaced the
+scans are resident, and that is the next memory term.
+
 Two of this pass's own cuts were refused by the differential before they
 landed — `changedOnly` offering only the extras (the LOG hash moved, the
 nodes held), and fold steps applying `updated` before `appended` (an index
