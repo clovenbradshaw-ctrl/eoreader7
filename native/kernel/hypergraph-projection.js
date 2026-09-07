@@ -79,6 +79,21 @@ export function projectHypergraph(log = [], { atSeq = null, seed = {}, standing 
     .filter((g) => g?.schema === "EOHyperedge@1")
     .map((g) => freeze({ id: g.id, relation: g.relation ?? null, participants: g.participants ?? [], meta: g.meta ?? null }));
 
+  // THE MERGE RECORD, PROJECTED (P165). This file's own header has said since
+  // it was written that "a node at cursor 500 may be two nodes at cursor 200,
+  // and scrubbing the cursor SHOWS that" — and it did not show it, because
+  // the perceiver discarded the merge record and nothing here could carry
+  // what was never landed. Now it is landed (EOReferentMerge@1, recursive.js)
+  // and projected here as TESTIMONY: kept, folded, the surface that proved it.
+  //
+  // ADDITIVE, and deliberately not folded into `nodes`: the node shape
+  // {id, surfaces, arrivals} is what read-cost.mjs --projection-identity
+  // hashes, and a representation change must not masquerade as a reading
+  // change. A consumer wanting `foldedInto` on a node derives it from here.
+  const merges = graph
+    .filter((g) => g?.schema === "EOReferentMerge@1")
+    .map((g) => freeze({ id: g.id, kept: g.kept, folded: freeze([...(g.folded ?? [])]), witness: g.witness ?? null, encounterRef: g.encounterRef ?? null }));
+
   const network = standing
     ? (() => {
         const beings = nodes.map((n) => ({ id: n.id, arrivals: [...n.arrivals] }));
@@ -103,6 +118,7 @@ export function projectHypergraph(log = [], { atSeq = null, seed = {}, standing 
     cursorExtent: lastPosition,
     nodes: freeze(nodes),
     links: freeze(links),
+    merges: freeze(merges),
     network,
     // Downstream projections of THIS cursor read the reconstructed fold's
     // graph entries — the log rows are DELTAS, and a first cut handed the

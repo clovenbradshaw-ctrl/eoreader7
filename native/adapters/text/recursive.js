@@ -253,7 +253,11 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
   let priorText = "";
   let relationRefreshFrom = 0;
   const relationEvidence = new Map();
-  let cache = { closed: new Set(), refs: new Map(), referents: [], gaps: [], verbs: new Set() };
+  let cache = { closed: new Set(), refs: new Map(), referents: [], gaps: [], merges: [], reassignments: [], verbs: new Set() };
+  // discoverReferents re-clusters everything on every refresh, so the same
+  // merge is rediscovered each time. It lands ONCE, in the observation of the
+  // sentence whose refresh first proved it.
+  const emittedMerges = new Set();
   // THE FOLD IS THE ACTIVATION — nothing is re-read. Each sentence's
   // surface evidence and word counts are folded in ONCE (arithmetic tier:
   // monotone accumulation, S10); refresh() only PROJECTS from the
@@ -279,6 +283,30 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
     const closed = earnedClosedClass(table);
     const surfaces = surfacesFromEvidence(surfaceEvidence, { functionWords: closed });
     const discovered = discoverReferents(surfaces);
+    // REASSIGNMENT ACROSS REFRESHES, RECORDED (P165). discoverReferents
+    // re-clusters from scratch every refresh, longest surface first. So at
+    // refresh k a fragment ("Vasili") that has cleared its sentence floor
+    // gets its own id; at refresh k+1 the fuller name ("Prince Vasili
+    // Kuragin") clears ITS floor, is processed first, the fragment now
+    // corefers with it and is REASSIGNED — but ref:auto:vasili was already
+    // emitted into the fold at refresh k and is never revisited. That orphan
+    // is the "three ids for one being" residue the-fold's P156 found and had
+    // to reconstruct by inference. The `merges` branch does not cover it:
+    // measured on 120 KB of real material it fired 0 times, because its
+    // condition (one surface spanning two established clusters' full token
+    // sets) is nearly unreachable under longest-first assignment.
+    //
+    // The old map is still in hand here. A surface whose id CHANGED is a
+    // reassignment, witnessed by that surface, and it is recorded where it
+    // was decided instead of being inferred downstream from dormancy.
+    const nextRefs = surfaceMap(discovered.events);
+    const originalSurface = new Map();
+    for (const e of discovered.events) if (e?.type === "DEF.admit" && !originalSurface.has(diaNorm(e.surface))) originalSurface.set(diaNorm(e.surface), e.surface);
+    const reassignments = [];
+    for (const [key, from] of cache.refs ?? []) {
+      const to = nextRefs.get(key);
+      if (to && to !== from) reassignments.push({ kept: to, folded: [from], witness: originalSurface.get(key) ?? key, basis: "reassigned on refresh — the fuller name cleared its floor and this surface now corefers with it" });
+    }
     const batchSentences = priorSentences.slice(relationRefreshFrom);
     const batchText = batchSentences.map((sentence) => sentence.text).join("\n");
     if (batchText && surfaces.length) {
@@ -299,6 +327,17 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
       refs: surfaceMap(discovered.events),
       referents: referentObjects(discovered.events),
       gaps: discovered.gaps,
+      // THE MERGE RECORD, KEPT (P165). discoverReferents detects when two
+      // surface clusters name one being and records it — `merges.push({kept,
+      // folded, witness})` — and this cache used to read `events` and `gaps`
+      // and never `merges`. So the testimony was computed and thrown away,
+      // and the projection's own header — "a node at cursor 500 may be two
+      // nodes at cursor 200, and scrubbing the cursor SHOWS that" — was left
+      // to whoever compared two node lists. the-fold's cursor.js had to
+      // RECONSTRUCT merges from dormancy plus surface capture and mark every
+      // one `inferred`, because the record it needed was unavailable.
+      merges: discovered.merges ?? [],
+      reassignments,
       verbs: admittedRelationVerbs(relationEvidence, minRelationSurfaces),
     };
   };
@@ -338,6 +377,26 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
       }));
 
       const seenReferents = currentReferents(encounter.material, cache.referents);
+      // A merge is TESTIMONY, not an inference: it arrives with the surface
+      // that proved it. The folded referents are never deleted — the fold is
+      // upsert-only and cursor scrubbing depends on replaying the past — they
+      // are MARKED, by this entry, as folded into the kept one.
+      const mergeEntries = [];
+      const witnessedMerges = (cache.merges ?? []).map((m) => ({ ...m, basis: "name-variant coreference — a witnessed merge, recorded where it was decided" }));
+      for (const m of [...witnessedMerges, ...(cache.reassignments ?? [])]) {
+        const key = `${m.kept}|${[...(m.folded ?? [])].sort().join("+")}`;
+        if (emittedMerges.has(key) || !m.kept || !(m.folded ?? []).length) continue;
+        emittedMerges.add(key);
+        mergeEntries.push(Object.freeze({
+          schema: "EOReferentMerge@1",
+          id: `merge:${sequencePosition}:${slug(m.kept)}:${(m.folded ?? []).map(slug).join("+")}`,
+          kept: m.kept,
+          folded: Object.freeze([...(m.folded ?? [])]),
+          witness: m.witness ?? null,
+          encounterRef: `encounter:${sequencePosition}`,
+          provenance: { giver: "surfaces/discoverReferents", tier: "engine", basis: m.basis },
+        }));
+      }
       const mentions = seenReferents.map((ref) => Object.freeze({
         schema: "EOMention@1",
         id: `mention:${sequencePosition}:${slug(ref.id)}`,
@@ -421,7 +480,7 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
             ...targetedOccurrences.map((occ) => ({ occurrence: occ.id, surfaceKey: occ.surfaceKey, taskNominated: true })),
           ],
           hyperedges: edges,
-          graphEntries: [...seenReferents, ...mentions, ...lexicalOccurrences, ...targetedOccurrences, ...gaps, ...anchorEvidence, ...descriptorOccsEmitted],
+          graphEntries: [...seenReferents, ...mergeEntries, ...mentions, ...lexicalOccurrences, ...targetedOccurrences, ...gaps, ...anchorEvidence, ...descriptorOccsEmitted],
         },
         anchor: encounter.anchor,
         evidence: encounter.material,
