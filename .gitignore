@@ -46,3 +46,12 @@ native/eval/the-fold/fixtures/sanriku/*.html
 native/eval/the-fold/fixtures/research-faces/
 native/eval/the-fold/results/civic-research-READING.md
 native/eval/the-fold/results/*-READING.md
+
+# conversation-eval run outputs (2026-09-07): the ledger on disk, the
+# constitutional reading on disk (80 MB for one novel), and each run's
+# turns.jsonl are reproduced from the corpus + recipe by
+# native/eval/the-fold/conversation.mjs. The results/*.md write-ups and
+# the lib/ computations a test reads are what is kept.
+native/eval/the-fold/results/readings/
+native/eval/the-fold/results/ledgers/
+native/eval/the-fold/results/conversation/

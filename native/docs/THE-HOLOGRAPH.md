@@ -242,75 +242,169 @@ The unit is the sentence, because that is what the organs read; the reach is
 the neighbourhood, because that is what a referent is; and the cut is
 measured, because a hand-picked count of chunks was the one number in the
 turn nothing had earned. The address book this needs — referent id to the
-addresses of its mentions — is a projection of the index, which the whole
-novel yields in under two seconds, so nothing in this path waits on the
-relation reader's full admission. The Lens block and the handed sentences
-are two faces of one activation: the claims, and the sentences they were
-read from.
+addresses of its mentions — is a projection of the constitutional reader's
+log (§7): the `EOReferent@1`, `EOMention@1` and `fedBy` entries the reader
+wrote as it read, keyed to the addresses it gave at birth, never a second
+scan of the bytes by a cheaper organ. A first cut projected it from a
+presence index instead — every capitalised surface, no floor, no case
+significance, no scripts — and that is the violation §7 records. The Lens
+block and the handed sentences are two faces of one activation: the
+claims, and the sentences they were read from.
 
-## 7. Reading: what we understand
+## 7. The reading policies the holograph stands on
 
-Everything above stands on the reading, so this is what the record says
-reading is, as of the day the holograph landed.
+A holograph is only as true as the log it projects from. If the log was
+written by a cheaper organ than the reader — a scan for capital letters, a
+string index, a chapter chunker — every block above is a compression of
+the wrong reading, and no wall at the mouth's door can recover what the
+reader never heard. So this section is the reading law as it binds the
+holograph, the way it was violated the first time the holograph ran, and
+the shape it has now. The law itself lives in `READING-SPEC.md`,
+`READING-POLICY.md` (P0–P7), `LEVELS.md` and `THE-NULL-STATES.md`;
+what follows cites, never restates.
 
-**Reading is admission, once, by structure, onto an append-only ledger.**
-When material arrives the organs walk it in order and what they hear lands
-as notes with addresses and witnesses — the ledger — under a declared frame
-and a recipe that names the reader. The ledger persists (the page keeps it
-across reloads; the driver keeps it on disk keyed by corpus and recipe) and
-a read resumes from its cursor. Two recipes are two instruments, and
-corroboration counts (source, recipe) pairs, so a reading is never confused
-with the thing it read. Nothing re-reads: a corpus admitted once is a
-projection source from then on.
+**The reader is the constitutional one, and nothing else writes the log
+(S1, S25, S80).** Material enters through `createRecursiveReader` with the
+`causalTextPerceiver` and `reviseTextFold` assembly and `textEncounters`
+over the bytes as they are. What that reader writes is the log: an
+`Encounter@1` per sentence, observations whose `graphEntries` carry the
+occurrences it heard (`EOReferentOccurrence@1`, `EOLexicalOccurrence@1`),
+and at each refresh the beings it has established (`EOReferent@1` with its
+surfaces, its provenance and the mention that fed it), their mentions, the
+identity hypotheses it holds and the gaps it reached. An address is given
+at birth and kept (S80); a referent's id is a birth, not a spelling. The
+assembly is the persistence boundary (S25): what persists is the log of
+that assembly under that recipe, and the reading resumes from its cursor
+by reconstructing the fold from the log (`reconstruct`), never by reading
+again.
 
-**Reading takes the time it takes, and the design's obligation is that it
-is paid once and paid while the conversation goes on.** Measured on Crime
-and Punishment (1.15 MB, 3,743 paragraphs, 4,570 sentences that carry an
-established referent): the referent index takes 1.5 s; the mention book,
-every referent's sentence addresses, 12 s; the relation reader admits about
-twenty paragraphs a second, so the whole book is roughly three minutes of
-reading, spread between turns under a declared budget and kept. Building
-the reader over the whole corpus at once, then discarding it, cost 362 s
-per run and re-did that reading every time — the one shape to refuse. No
-model is involved in any of it; the model only ever reads a slice, as a
-witness, and only where structure cannot decide.
+**Presence is not establishment (S24, P38).** A being is on the record
+when the reader admitted it by evidence — recurrence past the floor the
+material itself sets, a surface that survives the case and script rules
+below — not when a capital letter occurs. A mechanism that cannot fire
+says so: a sentence-initial capital the reader refused is a typed refusal,
+not a name, and an absence the record states needs two bars (the index
+resolving nothing and the bytes lacking the surface). The number that
+makes this concrete, measured on Crime and Punishment (1.15 MB, 3,743
+paragraphs): the presence index counts 333 "referents" and 4,570 sentences
+carrying one; the constitutional reader establishes 113 and addresses
+4,018 sentences. The 220 the presence index adds are the ones the law
+refuses — capitalised runs with no second occurrence, sentence openers,
+titles, "God Which".
 
-**The conversation projects from what is read so far.** A question asked
-mid-read is answered from the ledger as it stands and told what is not yet
-read ("Still reading: k of n"). The activation, the Lens and the Paradigm
-grow as the ledger grows; nothing waits for the read to finish, and nothing
-pretends the unread part is silent.
+**Reading is omnilingual and omnimodal by construction, or it is not the
+reader (S6, S16, S34–S39).** The kernel speaks no medium's grammar; the
+text face declares its script, whether case is significant in it
+(`capitalisationIsSignificant` is a fact about a script, not a default),
+its declension and its closed classes, each with a giver. A scan that
+looks for `[A-Z]` has decided that every script is English and every
+language marks names by case; Cyrillic, Hebrew, Arabic and Chinese
+material read through it are read as having no beings at all, silently.
+The violation this names: the first holograph built its address book
+from capitalised runs, and would have handed a Russian reader an empty
+Atmosphere with no refusal on the record. The projection now reads
+referents off the log with `caseless: true` — the reader's own rules
+decided case where case decides anything.
 
-**What reading yields, by grain.** Referents (Entity) with the addresses of
-every mention; claims (Link) with spans, witnesses and standing; recurrence
-(Network) from witness counts; the material's atmosphere as a regime with
-its re-zero points; kinds (Kind) with their nulls; declared voids; and the
-keyless field for recall by cue (GFP Pass 32–33). Each is addressed to
-bytes that read back, and each is a projection some consumer can be handed
-without the material.
+**Lookahead is not reading, and decay is measured (S3, S5).** The reader
+is causal: a sentence is scored only with what came before it, and a
+driver that derives state over the whole text and then scores every unit
+with it has produced a lookahead bound, labeled as one, never a reading.
+Reading the whole material before the first turn is not lookahead — the
+log is still written in sequence, one encounter at a time; lookahead is
+scoring a unit with later evidence during the read. Activation decays at
+a rate the material measures, and the cut on any projected block is
+`dmdWindow` over that activation. A harness that chunks by chapter and
+hands the top three chunks has replaced the measured cut with a number
+nobody earned, and it measures the harness (P88).
 
-**What reading cannot do, and says so.** A sentence-initial capital is not
-evidence of a name, so a being that only ever opens sentences is never
-established, and an absence the record states needs two bars — the index
-resolving nothing and the bytes lacking the surface. The relation reader
-hears a fraction of what a passage states, and the paraphrase wall is the
-one every recent pass hit; the authorship number is that wall per turn.
+**Identity is by the order of evidence (S17), and the loops decide on it
+(P170).** Two surfaces are one being when the reader's evidence says so,
+in the order it arrived, and a later refresh may reassign a fragment to
+the fuller name and record that it did (`EOReferentMerge@1`). Every
+decision the conversation makes about who is meant — anaphora, the
+restatement, the address check, the absence, self-consistency across
+turns — resolves through that index and never through a string. A
+question-side candidate is every token the index can resolve, in the
+reader's case, not the capitalised ones.
+
+**The frame is declared with the ledger, and the witness carries the
+recipe (S42, S43).** What the reader stood on — assembly, priors,
+levers, provider — is the log's first entry, and every witness on a note
+names `<source>~<recipe>`, so two readings of one book by two recipes
+are two instruments and corroboration counts them apart. The driver
+writes `results/readings/<corpus>-<assembly>.jsonl` with its cursor and
+`results/ledgers/<corpus>-<recipe>.jsonl` beside it; a run that changes
+the reader gets a new file, never a rewritten one.
+
+**A number is enforced by the test that reads its computation (S64,
+S65), and mouths are compared by record (S68).** The figures a run is
+judged by — tokens per call, calls per turn, re-asks, absences, voids,
+positions, authorship over the turns where one was measurable, the
+record-backed claims and the mouth's additions — are computed once in
+`eval/the-fold/lib/conversation-compare.mjs` and read by
+`tests/conversation-compare.test.js` on by-construction rows. Two mouths
+are compared on what their answers' records bind and what they add, never
+on prose.
+
+**A void and a cut are events with a cursor (S69, S70, S71).** A name the
+question asks for that the reading has not established is declared a void
+on the ledger with its scope — how much of the material was read when it
+was declared — and re-zeroed the moment a link fills it. The scope comes
+from the admission cursor, never from a hand-set count; the projection
+tells the mouth "looked for and not found so far" with that scope, and
+"Still reading: k of n" while the cursor moves.
+
+**Heard, not read (LEVELS, the heard rule).** The system has to work as
+well if it only heard the novel. Every organ above is stream-fed and
+address-keyed, and the reader admits one encounter at a time in sequence,
+so a read that arrives as a stream over a day and a read that arrives at
+once produce the same log to the byte. What a script carries (S1 stratum)
+may accelerate the reading and never silently decide it.
+
+**What was violated, named.** The first holograph (2026-09-07, the
+morning's arms) built its mention book from `cast.js::makeReferentIndex`
+— a presence index with no recurrence floor, built for citation checks —
+over capitalised runs, rescanned the bytes at every turn, chunked a novel
+by chapter in the harness, cut the absence veto at a hand-set bar, left
+the triggers' language undeclared, and gave a void no scope. Each is a
+rule above, broken. Each was found by the review the user asked for, not
+by a test, which is the finding under the finding: the reading law had
+no test at the projection's seam.
+
+**What the fix is.** `the-fold/reading-log.js` projects the address book
+from the constitutional reader's log — `foldReading` gathers the
+referents, mentions and feeders across the log's observations,
+`readingIndexFromLog` is the index the loops resolve through, and
+`mentionBookFromLog` is what activation walks. The reader's own
+`surfaceIndex`/`surfacesIn` attach the pre-birth mentions the log has
+no `EOMention@1` for (only the birthing mention is fed), and an
+ambiguous surface is counted, never attached. `stepChunks` feeds the
+reader chunk by chunk with one global sequence (per-chunk numbering
+collided the encounter refs). The driver reads the whole corpus before
+turn 1 by default (`--read-ahead all`, 209 s for the novel, contended)
+or progressively under a budget, persists the reading and resumes it.
+The absence veto reads the material's own vocabulary; the triggers name
+their language; a void carries the cursor's scope. The page still runs
+the presence index at the turn — read-on-arrival with the constitutional
+reader in a worker is the owed step, and until it lands the page's
+holograph is the reading of the wrong reader.
+
+**What reading yields, by grain.** Referents (Entity) with the addresses
+of every mention; claims (Link) with spans, witnesses and standing;
+recurrence (Network) from witness counts; the material's atmosphere as a
+regime with its re-zero points; kinds (Kind) with their nulls; declared
+voids and cuts with their timelines; and the keyless field for recall by
+cue. Each is addressed to bytes that read back, and each is a projection
+some consumer can be handed without the material.
+
+**What reading cannot do, and says so.** The relation reader hears a
+fraction of what a passage states, and the paraphrase wall is the one
+every recent pass hit; the authorship number is that wall per turn.
 Lowercase referents ("the pawnbroker") are ends of claims, never beings,
-unless they recur into the subject slot. The cast admits noise ("God
-Which"), and prominence, not a threshold, keeps it from naming a ground.
-And coherence is not correspondence: a reading can be complete, consistent
-and wrong, which only an oracle on facts can say.
-
-**Two strata, one rule.** What the organs hear (S2) is the reading; what a
-script carries (S1) may accelerate it and never silently decide. The system
-has to work as well if it only heard the novel, and every organ above is
-stream-fed and address-keyed, so it does. The mouth is not a reader in
-either stratum.
-
-**Retrieval is a query over the reading**, at the sentence, by activation,
-cut at the act (§6); the chunk is the paragraph the writer chose, kept as
-an address. Chunking by chapter was a harness's choice that measured a
-reader the page does not run, and it is gone.
+unless they recur into the subject slot. And coherence is not
+correspondence: a reading can be complete, consistent and wrong, which
+only an oracle on facts can say.
 
 ## 8. The walls that stay
 
@@ -336,6 +430,16 @@ summary, not a holograph; the property lives in the pair, not in the text.
   `results/ledgers/`; the ladder's arms.
 - `activation-retrieval.js` — the retrieval as activation over mentions and
   notes, cut at the sentence grain; term retrieval as the disclosed fallback.
+- `reading-log.js` — the address book and the referent index as a
+  projection of the constitutional reader's log (`foldReading`,
+  `readingIndexFromLog`, `mentionBookFromLog`, `stepChunks`); the presence
+  index retired from the holograph's path (§7).
+- `eval/the-fold/conversation.mjs` — `--reading constitutional|cast`,
+  `--read-ahead all|<ms>`; the reading on disk under `results/readings/`
+  with its cursor; resume by `reconstruct`.
+- `eval/the-fold/lib/conversation-compare.mjs` + `tests/conversation-compare.test.js`
+  — the run figures computed once and read by a test (S64/S65); mouths
+  compared by record-backed claims and additions (S68).
 - `eval/the-fold/holograph-reading.mjs` — reading by address against reading
   by string, with a redealt-address control.
 - Pending numbers: the compression ladder (A0, A3, A3p, A2, A1) and the two

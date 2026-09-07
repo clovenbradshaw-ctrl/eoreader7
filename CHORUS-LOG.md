@@ -173,3 +173,9 @@ chorus-fast on each: the only FAIL across the five runs was `matrix-client.test.
 | Marshall | IV.4 | THE-HOLOGRAPH.md; preregistered-lens-arm.md | upheld | predictions written before the arms; the additive control's null result recorded before the compressed arm ran; the void line in fact-block.js (P55's pin) left standing, flagged |
 
 deferred-with-reason: the P55 void line carries negative knowledge in the prompt (user's own rule) but is a measured pin — the user's call. false-positive-on-review: none.
+
+## 2026-09-07 — the driver reads constitutionally and persists the reading; the run figures live in a lib a test reads; THE-HOLOGRAPH §7 is the reading policies (staged: conversation.mjs, lib/conversation-compare.mjs, tests/conversation-compare.test.js, docs/THE-HOLOGRAPH.md, .gitignore)
+- chorus-fast: PASS — 3/3 in the one affected test file; citations resolve except `P0`, which is eoreader6's READING-POLICY.md P0 (the constitutional-reader baseline the doc names by its own register), not a the-fold policy — a cross-repo cite, kept.
+- Diaconis (conversation.mjs:189, the resumed reader seeded from `reconstruct`): the perceiver's refresh state restarts on resume — disclosed in the code, not hidden; a fresh read and a resumed read are not byte-identical and the doc does not claim they are.
+- Holmes / Pearl / Ostrom / Alexander (THE-HOLOGRAPH.md §7): prose citing S17, S42/S43, S70/S71, S1/S25 as they read; no mechanism changed in this repo for identity, corroboration or scope.
+- Simon/Chekhov: `conversation.mjs` is an eval driver, imported by no test by design (P19/P27's posture); `lib/conversation-compare.mjs` is read by `tests/conversation-compare.test.js` (S64/S65) — the first cut read `sections[].relations.claims` off a number and threw on the first real run; reshaped to the driver's own row fields (P96).
