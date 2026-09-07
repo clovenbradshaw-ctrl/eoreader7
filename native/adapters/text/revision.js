@@ -101,13 +101,32 @@ export async function reviseTextFold({ observations = [], fold = {}, canonicaliz
       currentGraphEntries.push(entry);
       if (entry?.schema !== "EOReferent@1" || !entry.id || known.has(entry.id)) continue;
       known.add(entry.id);
+      // WHAT FED IT, RECORDED WHERE IT IS KNOWN (P160).
+      //
+      // A paradigm has a single address linked to all the things that fed it.
+      // Measured before this: a referent reached exactly ONE thing — itself.
+      // Fifteen EOMention@1 entries pointed AT `ref:auto:french`, each
+      // carrying real byte offsets; the referent pointed at none of them. The
+      // links only ran upward, so going DOWN from a referent meant scanning
+      // the whole log, and the reverse index that made that bearable was a
+      // substitute for links that should have existed.
+      //
+      // They cost nothing to record. At this instant the observation that
+      // produced the referent is in hand, and the mentions inside it already
+      // name it. `inputs` is a declared field on every operation and was
+      // being left empty while `outputs` was filled — the lineage was
+      // half-written, in the direction that cannot be walked.
+      const fedBy = (observation?.graphEntries ?? [])
+        .filter((x) => x?.id && x.id !== entry.id && (x.referent === entry.id || (x.referentId === entry.id)))
+        .map((x) => x.id);
       operations.push(eoOperation({
         op: "INS",
         grain: "Figure",
         witness: witnessRef,
+        inputs: fedBy,
         outputs: [entry.id],
         consequence: { kind: "referent_admitted", ref: entry.id },
-        payload: { action: "graph-object", value: entry },
+        payload: { action: "graph-object", value: fedBy.length ? { ...entry, fedBy: Object.freeze(fedBy) } : entry },
       }));
     }
 

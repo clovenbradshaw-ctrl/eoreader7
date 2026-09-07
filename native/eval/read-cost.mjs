@@ -174,6 +174,71 @@ export async function projectionIdentity(file, bytes, { cursors = [0.25, 0.5, 0.
   };
 }
 
+/**
+ * THE LINEAGE (P160). A paradigm has a single address linked to all the
+ * things that fed it — so from one address the walk must reach its feeders,
+ * dangle nowhere, and terminate in material bytes.
+ *
+ * Measured before feeders were recorded: a referent reached exactly ONE thing
+ * (itself), 0 reached bytes. Fifteen mentions pointed AT it, each carrying
+ * real byte offsets; it pointed at none of them. The links ran only upward,
+ * so going down from a referent meant scanning the whole log.
+ *
+ * A WITNESS IS NOT A FEEDER, and this walk must not treat it as one:
+ * `witness` and `encounterRef` say where we came to know a thing, not what it
+ * was made from, and they name encounters and text positions rather than
+ * addressable entries — following them manufactures dangling addresses that
+ * were never links.
+ */
+const FEEDERS = ["fedBy", "inputs", "supportRefs", "occurrenceRefs", "participants", "referent", "sourceEdge", "end1", "end2", "leftOccurrence", "rightOccurrence"];
+
+export function lineageOf(seedId, byId, { maxDepth = 40 } = {}) {
+  const seen = new Set([seedId]);
+  let frontier = [seedId], depth = 0, material = 0, dangling = 0;
+  const feedersOf = (e) => {
+    const out = [];
+    const take = (v) => {
+      if (typeof v === "string") { if (v.includes(":") || v.includes("#")) out.push(v); return; }
+      if (Array.isArray(v)) { for (const x of v) take(x); return; }
+      if (v && typeof v === "object") { if (v.ref) take(v.ref); if (v.id) take(v.id); }
+    };
+    for (const f of FEEDERS) if (e?.[f] != null) take(e[f]);
+    return out;
+  };
+  while (frontier.length && depth < maxDepth) {
+    const next = [];
+    for (const id of frontier) {
+      const e = byId.get(id);
+      if (!e) { dangling += 1; continue; }
+      if (e?.anchor && Number.isFinite(e.anchor.start) && Number.isFinite(e.anchor.end)) material += 1;
+      for (const f of feedersOf(e)) if (!seen.has(f)) { seen.add(f); next.push(f); }
+    }
+    frontier = next; depth += 1;
+  }
+  return { reached: seen.size, depth, material, dangling };
+}
+
+/** Every referent's lineage, in one reading. `dangling` must be 0 and `material` must be > 0. */
+export async function lineage(file, bytes) {
+  const { reading } = await readPrefix(file, bytes);
+  const G = reading.fold?.graphEntries ?? [];
+  const byId = new Map();
+  for (const e of [...G, ...(reading.fold?.transformationObjects ?? []), ...reading.log]) if (e?.id) byId.set(e.id, e);
+  const refs = G.filter((e) => e?.schema === "EOReferent@1");
+  const rows = refs.map((x) => ({ id: x.id, ...lineageOf(x.id, byId) }));
+  const n = rows.length || 1;
+  return {
+    referents: rows.length,
+    meanReached: Number((rows.reduce((s, x) => s + x.reached, 0) / n).toFixed(2)),
+    danglingTotal: rows.reduce((s, x) => s + x.dangling, 0),
+    reachingBytes: rows.filter((x) => x.material > 0).length,
+    // The three-part claim, in one line.
+    verdict: rows.length && rows.every((x) => x.dangling === 0) && rows.every((x) => x.material > 0)
+      ? "every referent reaches its feeders, dangles nowhere, and terminates in material bytes"
+      : `${rows.reduce((s, x) => s + x.dangling, 0)} dangling address(es); ${rows.filter((x) => x.material === 0).length} referent(s) reach no bytes`,
+  };
+}
+
 /** The gate: the reading's log and its projection at four cursors, hashed. A faster read must be the SAME read. */
 export async function identity(file, bytes) {
   const { reading, seconds, sentences, heapMB } = await readPrefix(file, bytes);
@@ -233,6 +298,10 @@ if (import.meta.url === `file://${process.argv[1]}`) {
       console.log(`traced ${t.steps.length} of ${t.sentences} steps (every ${t.every})`);
       console.log(`  final: ${t.steps[t.steps.length - 1]?.entries} entries, ${t.steps[t.steps.length - 1]?.hash}`);
     }
+  } else if (has("lineage")) {
+    const l = await lineage(file, bytes);
+    console.log(JSON.stringify(l, null, 1));
+    process.exitCode = l.danglingTotal === 0 && l.reachingBytes === l.referents ? 0 : 1;
   } else if (has("projection-identity")) {
     const p = await projectionIdentity(file, bytes);
     save("projection", p);
