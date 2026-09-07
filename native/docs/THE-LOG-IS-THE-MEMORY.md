@@ -160,3 +160,20 @@ neighbourhood walks — and is the next thing to measure, not to assume.
 Gates on the final code: `--identity` at 60 KB unchanged; `--trace
 --against` byte-identical at all 123 sampled steps (240 KB) and all 120
 (480 KB), baselines from a clean worktree of the previous HEAD.
+
+**The full book, on the new code** (`--projection-identity --bytes 3300000`,
+War and Peace, run beside the P145 arm's model calls):
+
+```
+sentences        34,229        log entries    98,940
+read             9,801 s       heap           3,590 MB
+fold entries    286,642        reconstruct(log) hash == live entry hash: YES
+                               (6fcb505f24492f60 at cursor 100%)
+cursors  25%: 219 nodes / 7,149 links   50%: 347 / 17,932
+         75%: 531 / 30,353              100%: 658 / 43,633
+```
+
+It completes, where the old code died at 8 GB after 300 s, and the
+reconstruction is exact at this scale. And it is slow: 286 ms/sentence
+against ~11 at 3,051 sentences under the same load — the super-linear TIME
+term is the next problem, and it is not the copy.
