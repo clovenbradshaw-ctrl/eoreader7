@@ -248,7 +248,71 @@ relation reader's full admission. The Lens block and the handed sentences
 are two faces of one activation: the claims, and the sentences they were
 read from.
 
-## 7. The walls that stay
+## 7. Reading: what we understand
+
+Everything above stands on the reading, so this is what the record says
+reading is, as of the day the holograph landed.
+
+**Reading is admission, once, by structure, onto an append-only ledger.**
+When material arrives the organs walk it in order and what they hear lands
+as notes with addresses and witnesses — the ledger — under a declared frame
+and a recipe that names the reader. The ledger persists (the page keeps it
+across reloads; the driver keeps it on disk keyed by corpus and recipe) and
+a read resumes from its cursor. Two recipes are two instruments, and
+corroboration counts (source, recipe) pairs, so a reading is never confused
+with the thing it read. Nothing re-reads: a corpus admitted once is a
+projection source from then on.
+
+**Reading takes the time it takes, and the design's obligation is that it
+is paid once and paid while the conversation goes on.** Measured on Crime
+and Punishment (1.15 MB, 3,743 paragraphs, 4,570 sentences that carry an
+established referent): the referent index takes 1.5 s; the mention book,
+every referent's sentence addresses, 12 s; the relation reader admits about
+twenty paragraphs a second, so the whole book is roughly three minutes of
+reading, spread between turns under a declared budget and kept. Building
+the reader over the whole corpus at once, then discarding it, cost 362 s
+per run and re-did that reading every time — the one shape to refuse. No
+model is involved in any of it; the model only ever reads a slice, as a
+witness, and only where structure cannot decide.
+
+**The conversation projects from what is read so far.** A question asked
+mid-read is answered from the ledger as it stands and told what is not yet
+read ("Still reading: k of n"). The activation, the Lens and the Paradigm
+grow as the ledger grows; nothing waits for the read to finish, and nothing
+pretends the unread part is silent.
+
+**What reading yields, by grain.** Referents (Entity) with the addresses of
+every mention; claims (Link) with spans, witnesses and standing; recurrence
+(Network) from witness counts; the material's atmosphere as a regime with
+its re-zero points; kinds (Kind) with their nulls; declared voids; and the
+keyless field for recall by cue (GFP Pass 32–33). Each is addressed to
+bytes that read back, and each is a projection some consumer can be handed
+without the material.
+
+**What reading cannot do, and says so.** A sentence-initial capital is not
+evidence of a name, so a being that only ever opens sentences is never
+established, and an absence the record states needs two bars — the index
+resolving nothing and the bytes lacking the surface. The relation reader
+hears a fraction of what a passage states, and the paraphrase wall is the
+one every recent pass hit; the authorship number is that wall per turn.
+Lowercase referents ("the pawnbroker") are ends of claims, never beings,
+unless they recur into the subject slot. The cast admits noise ("God
+Which"), and prominence, not a threshold, keeps it from naming a ground.
+And coherence is not correspondence: a reading can be complete, consistent
+and wrong, which only an oracle on facts can say.
+
+**Two strata, one rule.** What the organs hear (S2) is the reading; what a
+script carries (S1) may accelerate it and never silently decide. The system
+has to work as well if it only heard the novel, and every organ above is
+stream-fed and address-keyed, so it does. The mouth is not a reader in
+either stratum.
+
+**Retrieval is a query over the reading**, at the sentence, by activation,
+cut at the act (§6); the chunk is the paragraph the writer chose, kept as
+an address. Chunking by chapter was a harness's choice that measured a
+reader the page does not run, and it is gone.
+
+## 8. The walls that stay
 
 The holograph inherits every limit of the reading it compresses. The Lens is
 only as full as the relation reader's recall, and that reader hears a
@@ -259,7 +323,7 @@ oracle on facts can say so (P60's judge, shuffled). And a consumer that
 cannot re-expand — a person reading a block without the record — has a
 summary, not a holograph; the property lives in the pair, not in the text.
 
-## 8. Where it stands in the code
+## 9. Where it stands in the code
 
 - `resolutions.js` — the three blocks, the shared cut, the address strike on
   handed text.
@@ -268,7 +332,8 @@ summary, not a holograph; the property lives in the pair, not in the text.
 - `firewall.js` — `strikeAddresses`, `mouthFacing`.
 - `dialogue.js` — identity through the index for everything the loops decide.
 - `eval/the-fold/conversation.mjs` — `--resolutions`, `--material`,
-  `--chunking`; the ladder's arms.
+  `--chunking`, `--retrieval`, `--admit`; the ledger on disk under
+  `results/ledgers/`; the ladder's arms.
 - `activation-retrieval.js` — the retrieval as activation over mentions and
   notes, cut at the sentence grain; term retrieval as the disclosed fallback.
 - `eval/the-fold/holograph-reading.mjs` — reading by address against reading
