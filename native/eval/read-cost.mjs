@@ -46,11 +46,22 @@
 //   node native/eval/read-cost.mjs --identity \
 //     --file ../the-fold/pg2600.txt --bytes 60000
 // and expect, on an unchanged read path:
-//   logHash            bcf5d8196b69d8f0   (was 45bbbbbd578d027f before P165 put the
-//                                         merge record into the log; re-verified at HEAD
-//                                         0bcb90d from a clean worktree, 2026-09-07)
+//   logHash            c7576b117903818a   (P168, 2026-09-07: addresses are given at
+//                                         birth and kept — a DELIBERATE reading change;
+//                                         was bcf5d8196b69d8f0 from P165 to P167, and
+//                                         45bbbbbd578d027f before P165 put the merge
+//                                         record into the log)
 //   926 sentences, 2691 log entries
-//   cursor 2691: 38 nodes, 166 links
+//   cursor 2691: 33 nodes, 166 links   (38 nodes with the same 166 links before P168:
+//                                       the five were second addresses of the same
+//                                       beings — vasili/prince_vasili, helene/
+//                                       princess_helene and their kin)
+//   node hashes at 25/50/75/100%: 4f53cda18c2baa0c 0b47434b337ebe53 a2095c10c40580b4
+//                                  9ca94947acdbf011 (the last two moved with P168;
+//                                  before: 206f6f5aa4a00916 04b9ae704f9c583a)
+//   --trace final hashes under P168: 240 KB (every 25) 19,150 entries c97b62caff973dcb;
+//                                    480 KB (every 50) 40,387 entries 5ac4320ccbafc581
+//                                    (before P168: 19,187 a9e21b5a04663f45; 40,480 a42efb5264d50a0e)
 // Verified reproducible across runs (timings vary; hashes must not). A change
 // to the read path that alters any of these has changed the reading, whatever
 // it did to the clock.

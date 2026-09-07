@@ -299,7 +299,14 @@ function witnessRelatedPairs(store, sentences, refs, matcher = null) {
   }
 }
 
-export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEvery = 25, posPrior = null, descriptorAnchoring = null } = {}) {
+export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEvery = 25, posPrior = null, descriptorAnchoring = null, addresses = "birth" } = {}) {
+  // `addresses` (2026-09-07): "birth" — the default, decided by measurement
+  // (the-fold POLICIES.md P168) — hands the previous refresh's addresses to
+  // discoverReferents so a being keeps the id it was born with (surfaces.js,
+  // `prior`); "founder" mints a cluster's id from whichever member founds it
+  // at each refresh, the reading as it was until P168, kept so the
+  // oscillation it produces stays reproducible (tests/referent-merge.test.js).
+  if (addresses !== "founder" && addresses !== "birth") throw new TypeError('addresses is "founder" or "birth"');
   if (!Number.isInteger(refreshEvery) || refreshEvery < 1) throw new TypeError("refreshEvery must be a positive integer");
   if (posPrior && (posPrior.schema !== "POSPrior@1" || !posPrior.provenance?.source)) throw new TypeError("posPrior must be a giver-named POSPrior@1");
   // OPT-IN: descriptor anchoring (one-hop activation recall binding
@@ -341,7 +348,7 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
     const table = { freq: runningFreq, total: runningTotal };
     const closed = earnedClosedClass(table);
     const surfaces = surfacesFromEvidence(surfaceEvidence, { functionWords: closed });
-    const discovered = discoverReferents(surfaces);
+    const discovered = discoverReferents(surfaces, addresses === "birth" ? { prior: { refs: cache.refs, born: cache.born ?? new Map(), next: cache.bornNext ?? 0 } } : {});
     // REASSIGNMENT ACROSS REFRESHES, RECORDED (P165). discoverReferents
     // re-clusters from scratch every refresh, longest surface first. So at
     // refresh k a fragment ("Vasili") that has cleared its sentence floor
@@ -362,9 +369,12 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
     const originalSurface = new Map();
     for (const e of discovered.events) if (e?.type === "DEF.admit" && !originalSurface.has(diaNorm(e.surface))) originalSurface.set(diaNorm(e.surface), e.surface);
     const reassignments = [];
+    // A merge of two prior beings is already testimony (discovered.merges);
+    // its bearers' id changes are not a second record.
+    const foldedByMerge = new Set((discovered.merges ?? []).flatMap((m) => m.folded ?? []));
     for (const [key, from] of cache.refs ?? []) {
       const to = nextRefs.get(key);
-      if (to && to !== from) reassignments.push({ kept: to, folded: [from], witness: originalSurface.get(key) ?? key, basis: "reassigned on refresh — the fuller name cleared its floor and this surface now corefers with it" });
+      if (to && to !== from && !foldedByMerge.has(from)) reassignments.push({ kept: to, folded: [from], witness: originalSurface.get(key) ?? key, basis: "reassigned on refresh — the fuller name cleared its floor and this surface now corefers with it" });
     }
     const batchSentences = priorSentences.slice(relationRefreshFrom);
     const batchText = batchSentences.map((sentence) => sentence.text).join("\n");
@@ -400,6 +410,8 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
       // one `inferred`, because the record it needed was unavailable.
       merges: discovered.merges ?? [],
       reassignments,
+      born: discovered.addresses?.born ?? cache.born,
+      bornNext: discovered.addresses?.next ?? cache.bornNext,
       verbs: admittedRelationVerbs(relationEvidence, minRelationSurfaces),
     };
   };
@@ -444,7 +456,7 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
       // upsert-only and cursor scrubbing depends on replaying the past — they
       // are MARKED, by this entry, as folded into the kept one.
       const mergeEntries = [];
-      const witnessedMerges = (cache.merges ?? []).map((m) => ({ ...m, basis: "name-variant coreference — a witnessed merge, recorded where it was decided" }));
+      const witnessedMerges = (cache.merges ?? []).map((m) => ({ ...m, basis: m.basis ?? "name-variant coreference — a witnessed merge, recorded where it was decided" }));
       for (const m of [...witnessedMerges, ...(cache.reassignments ?? [])]) {
         const key = `${m.kept}|${[...(m.folded ?? [])].sort().join("+")}`;
         if (emittedMerges.has(key) || !m.kept || !(m.folded ?? []).length) continue;

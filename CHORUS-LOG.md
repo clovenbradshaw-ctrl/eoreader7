@@ -142,3 +142,18 @@ Constitution: `../eo-constitution/CONSTITUTION.md` + READING-SPEC.md + the-fold 
 | Pearl | II.10 | gates | clean | 60 KB identity unchanged; 240 KB (123) and 480 KB (120) byte-identical after the reorder; the bisect and the two-worktree delta comparison are recorded above as the method that found it |
 | Marshall | II.10, II.11 | all five files | upheld | no new constant; the first cut of part 3 was landed nowhere — the gate ran before the commit, which is the order the constitution asks for |
 fixed: 1 (the fold-step order). struck: none.
+
+## 2026-09-07 — P168 / S80: an address is given at birth and kept (branch `fold-memory-p157`)
+
+Constitution: `../eo-constitution/CONSTITUTION.md` + READING-SPEC.md + the-fold POLICIES.md. Lenses in-session over `adapters/text/surfaces.js`, `adapters/text/recursive.js`, `tests/addresses-birth.test.js`, `tests/referent-merge.test.js`, `native/eval/read-cost.mjs` (header).
+
+| lens | citation | file:line | verdict | one line |
+|---|---|---|---|---|
+| Diaconis | II.10 | tests/addresses-birth.test.js (partition) | clean | the invariant is asserted refresh by refresh on 120 KB of real material, and the test refuses to pass unless a rename actually occurred — the vacuous pass is closed by construction |
+| Holmes | P11; SEED "identity by consequence" | surfaces.js `prior` block | clean | identity is unchanged (the same clusters); only the ADDRESS is stabilised — the earliest-born being keeps its id, a split follows the majority of bearers, a merge is witnessed by the uniting surface |
+| Feynman | P159 step 0 | read-cost.mjs header | clean, disclosed | the hashes moved because the reading changed on purpose; the old values stand beside the new with the reason (33 nodes for 38, the same 166 links) |
+| Ostrom | P161 | P168's table | clean | cast recall is stated as unable to move under a rename (same partition); the claims are fragmentation, oscillation and record count, measured on one read of one book |
+| Simon | P95 | recursive.js reassignment loop | clean | a merge of two prior beings is one record (`merges`, own basis), not a second set of reassignment records for its bearers |
+| Chekhov | — | `addresses: "founder"` | clean, named | kept as an opt-in so P165's oscillation stays reproducible in `referent-merge.test.js`; not dead, a control |
+| Marshall | IV.1; P71 | P168, S80, the retired test | upheld | the P165 test's own text asked to be retired "with that finding recorded" when the clustering was stabilised; it now pins the finding under the old rule and its absence under the default, in the same diff as the change |
+fixed: none needed. struck: none.

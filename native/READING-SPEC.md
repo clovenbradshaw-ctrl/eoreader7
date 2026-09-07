@@ -4358,3 +4358,11 @@ The mechanism this entry names is spread over the reading's per-sentence path an
 **The gate is the method's own defect record.** `native/eval/read-cost.mjs --trace --against` a baseline captured from the old code in a clean worktree — 240 KB at every 25th step, 480 KB at every 50th — plus `--identity` at 60 KB. It refused two of this pass's own cuts before they landed (P167 tells both), and neither was visible to any test in `tests/`. Before claiming a term is closed here, run both differentials with a heap flag, one at a time, and count the computes (`discourseStats`, `identityStats`) rather than trusting the profile's absolute seconds, which are contended.
 
 **Handed forward, not fixed:** anchoring's recall (the posting walk), the refresh's re-clustering (a reading change — P165's oscillation lives there), and the relation matcher's alternation.
+
+## S80 — A referent's address is given at birth and kept across refreshes; the clustering's partition is untouched (2026-09-07)
+
+**Generality:** universal for the mechanism (rename after clustering, never re-cluster; earliest-born address wins; a split keeps the address with the majority of its bearers; a merge of two prior addresses is testimony with a witness); specimen-scoped for the numbers in the-fold POLICIES.md **P168**.
+
+`adapters/text/surfaces.js::discoverReferents(surfaces, { prior })` — `prior` is the previous refresh's `{ refs, born, next }`; the clustering runs unchanged and the clusters are then renamed; `addresses` is returned for the next refresh. `adapters/text/recursive.js::createCausalTextPerceiver({ addresses })` — `"birth"` (default) carries `born`/`bornNext` in its cache and hands `prior` over; `"founder"` is the reading as it was, kept for reproducibility. A merge of two prior beings comes back in `merges` with its own basis, and the perceiver's reassignment loop skips surfaces already covered by one.
+
+**The gate is the partition invariant**, not the hashes: `tests/addresses-birth.test.js` proves clusters identical refresh by refresh on real material under both rules, with a rename asserted to have happened. The hashes moved by design (`read-cost.mjs` header, with the old values beside the new).

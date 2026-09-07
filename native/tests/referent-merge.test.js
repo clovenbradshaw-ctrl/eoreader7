@@ -34,20 +34,27 @@ const BOOK = "/Users/mlacy/Documents/3.0/the-fold/pg2600.txt";
 const BYTES = 60000;
 const POSp = POS;
 
+// P168 (2026-09-07): the default address rule is now "birth" — a being keeps
+// the id it was born with — which is exactly the stabilisation this file's
+// last test said would retire it. The finding is kept reproducible: every
+// test below reads under `addresses: "founder"`, the rule as it was, so the
+// oscillation it pins is still on record; the final test reads under the
+// default and pins its absence.
 let cached = null;
-async function readAll() {
-  if (cached) return cached;
+async function readAll(addresses = "founder") {
+  if (addresses === "founder" && cached) return cached;
   const stripped = stripContainer(fs.readFileSync(BOOK, "utf8").slice(0, BYTES));
   const encounters = textEncounters(stripped.text, { source: "file:pg2600", offset: stripped.offset });
   const reader = createRecursiveReader({
-    perceivers: [createCausalTextPerceiver({ minRelationSurfaces: 2, refreshEvery: 25, posPrior: POSp, descriptorAnchoring: { minActivation: 0.05, minMargin: 0.2 } })],
+    perceivers: [createCausalTextPerceiver({ minRelationSurfaces: 2, refreshEvery: 25, posPrior: POSp, descriptorAnchoring: { minActivation: 0.05, minMargin: 0.2 }, addresses })],
     adapters: {
       revise: reviseTextFold,
       retrieve: (_f, ev) => Object.freeze({ schema: "EORelevantFold@1", witnessed: Object.freeze([...ev]), provisional: Object.freeze([]), expectations: Object.freeze([]), obligations: Object.freeze([]), exclusions: Object.freeze([]), unresolvedAlternatives: Object.freeze([]), activeFrames: Object.freeze([]), receivedPriors: Object.freeze([]) }),
     },
   });
-  cached = await reader.read(encounters);
-  return cached;
+  const out = await reader.read(encounters);
+  if (addresses === "founder") cached = out;
+  return out;
 }
 const landed = (r) => r.log.flatMap((e) => (e?.schema === "Observation@1" ? (e.graphEntries ?? []) : [])).filter((g) => g?.schema === "EOReferentMerge@1");
 
@@ -166,4 +173,18 @@ test("THE FINDING THE RECORD MAKES VISIBLE: the clustering OSCILLATES, and a cyc
     assert.ok(new Set(legs.map((m) => m.encounterRef)).size >= 2, "decided at different encounters, not twice at one");
     assert.ok(legs.every((m) => m.witness), "each leg carries the surface that decided it");
   }
+});
+
+test("P168 — UNDER THE DEFAULT (addresses: \"birth\") the oscillation is gone: no address flips back, the merges that remain are witnessed, and the partition of surfaces is the founder rule's", async () => {
+  const founder = await readAll("founder");
+  const birth = await readAll("birth");
+  const merges = (r) => landed(r);
+  const { resolve } = chainsOf(merges(birth));
+  for (const id of ["ref:auto:vasili", "ref:auto:helene", "ref:auto:prince_vasili", "ref:auto:princess_helene"]) assert.equal(resolve(id).cyclic, false, `${id} does not oscillate under the birth rule`);
+  const surfacesByBeing = (r) => r.fold.graphEntries.filter((g) => g.schema === "EOReferent@1").map((x) => [...x.surfaces].sort().join("|")).sort();
+  // Every being the founder rule ends with exists under the birth rule with the same surfaces — the partition is the same; only addresses differ.
+  const b = new Set(surfacesByBeing(birth));
+  const liveFounder = (() => { const folded = new Set(merges(founder).flatMap((m) => m.folded)); return founder.fold.graphEntries.filter((g) => g.schema === "EOReferent@1" && !folded.has(g.id)); })();
+  for (const ref of liveFounder) assert.ok(b.has([...ref.surfaces].sort().join("|")) || ref.surfaces.every((s) => birth.fold.graphEntries.some((g) => g.schema === "EOReferent@1" && g.surfaces.includes(s))), `the founder rule's being ${ref.id} (${ref.surfaces.join(", ")}) has its surfaces under the birth rule`);
+  assert.ok(merges(birth).length < merges(founder).length, `fewer records: birth ${merges(birth).length}, founder ${merges(founder).length}`);
 });
