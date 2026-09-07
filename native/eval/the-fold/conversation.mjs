@@ -3,7 +3,7 @@
 //
 //   node eval/the-fold/conversation.mjs --source prose=/path/novel.txt [--turns 1000]
 //        [--model gemma2:2b] [--reader-model gemma2:2b] [--seed 3] [--witness on|off]
-//        [--depth 1] [--resolutions 0|1|2|3] [--material auto|passages|snips] [--resume <dir>]
+//        [--depth 1] [--resolutions 0|1|2|3] [--material auto|passages|snips] [--chunking app|outline] [--resume <dir>]
 //
 // Not the probe bank (long-stream.mjs asks templated questions scored by
 // atoms). This is what a person does over a long conversation about a book:
@@ -49,6 +49,8 @@ const SEED = Number(flag("seed", 3));
 const RESOLUTIONS = Number(flag("resolutions", 0));
 // What the mouth is handed as material: "auto" = the passages leave at level ≥ 2 (compression), "passages" forces them in (the additive control), "snips" forces them out.
 const MATERIAL = String(flag("material", "auto"));
+// THE READER'S CONFIGURATION (P88): the app chunks by paragraph (source.js chunkSource, no boundaries — 3,743 chunks on this novel, median 135 chars); the long-stream rig this driver copied chunked prose by outline heading (328 chapter-sized chunks, ~3.5 KB), which is not what the page runs and was most of the raw-passage bloat. "app" is the default; "outline" keeps the rig's unit for the runs already recorded under it.
+const CHUNKING = String(flag("chunking", "app"));
 const WITNESS = flag("witness", "on") !== "off";
 const RESUME = flag("resume", null);
 const sourceArgs = args.flatMap((a, i) => (a === "--source" && args[i + 1] ? [args[i + 1]] : []));
@@ -87,7 +89,7 @@ for (const s of SOURCES) {
   if (!/\n\s*\n/.test(text)) text = windowed(text, 1500);
   const name = s.path.split("/").pop();
   sourceText[name] = text;
-  const cs = O.chunkSource(name, text, { boundaries: s.kind === "prose" ? boundariesOf(text) : null }).map((c) => ({ ...c, source: name, kind: s.kind }));
+  const cs = O.chunkSource(name, text, { boundaries: CHUNKING === "outline" && s.kind === "prose" ? boundariesOf(text) : null }).map((c) => ({ ...c, source: name, kind: s.kind }));
   chunks.push(...cs);
   loaded.push({ kind: s.kind, name, path: s.path, bytes: text.length, chunks: cs.length, sha256: createHash("sha256").update(text).digest("hex").slice(0, 16) });
 }
@@ -124,10 +126,10 @@ if (RESUME && existsSync(STATE_PATH)) { state = JSON.parse(readFileSync(STATE_PA
 else {
   const bank = buildFactBank(chunks, { perSource: 120, rng });
   state = { turn: 0, history: [], transcript: [], hlLog: null, gridLog: null, bank, draws: rng.draws, asked: [], seen: [], coverage: [], useMeasuredCut: false };
-  writeFileSync(CONFIG_PATH, JSON.stringify({ ran: new Date().toISOString(), model: MODEL, readerModel: READER_MODEL, corpusId, depth: DEPTH, turns: TURNS, seed: SEED, witness: WITNESS, resolutions: RESOLUTIONS, material: MATERIAL, sources: loaded, recipe: O.recipe }, null, 2));
+  writeFileSync(CONFIG_PATH, JSON.stringify({ ran: new Date().toISOString(), model: MODEL, readerModel: READER_MODEL, corpusId, depth: DEPTH, turns: TURNS, seed: SEED, witness: WITNESS, resolutions: RESOLUTIONS, material: MATERIAL, chunking: CHUNKING, sources: loaded, recipe: O.recipe }, null, 2));
   writeFileSync(TRANSCRIPT_PATH, `# A conversation about ${loaded[0].name}\n\n${MODEL} answering through the real turn; the reader is ${READER_MODEL} phrasing moves computed from the record. Seed ${SEED}. Corpus ${corpusId}.\n\n`);
 }
-console.log(`conversation — ${MODEL} answering, ${READER_MODEL} reading, ${TURNS} turns, witness ${WITNESS ? "on" : "off"}, arithmetic ${math ? "computed" : "UNAVAILABLE"}, resolutions ${RESOLUTIONS} (0 one-line stand-in only, 1 + atmosphere, 2 + lens, 3 + paradigm), material ${MATERIAL}`);
+console.log(`conversation — ${MODEL} answering, ${READER_MODEL} reading, ${TURNS} turns, witness ${WITNESS ? "on" : "off"}, arithmetic ${math ? "computed" : "UNAVAILABLE"}, resolutions ${RESOLUTIONS} (0 one-line stand-in only, 1 + atmosphere, 2 + lens, 3 + paradigm), material ${MATERIAL}, chunking ${CHUNKING}`);
 for (const l of loaded) console.log(`  ${l.kind.padEnd(8)} ${l.name.padEnd(28)} ${String(l.bytes).padStart(9)} bytes ${String(l.chunks).padStart(5)} chunks  ${l.sha256}`);
 console.log(`  cast/fact bank ${state.bank.length}; recipe ${O.recipe}; corpus ${corpusId}\n  ${DIR}`);
 const LEARNED_PATH = join(NATIVE, "eval/the-fold/results/long-stream", "learned.json");

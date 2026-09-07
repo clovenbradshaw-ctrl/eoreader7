@@ -45,9 +45,10 @@ const boundariesOf = (t) => { try { const out = outlineOfIndex(lineIndex(t), { m
 const t0 = Date.now();
 const name = SOURCE.split("/").pop();
 const text = readFileSync(SOURCE, "utf8");
-const chunks = O.chunkSource(name, text, { boundaries: boundariesOf(text) }).map((c) => ({ ...c, source: name, kind: "prose" }));
+const CHUNKING = String(flag("chunking", "app")); // the app's own unit (paragraphs) by default — P88; "outline" is the long-stream rig's chapter unit
+const chunks = O.chunkSource(name, text, { boundaries: CHUNKING === "outline" ? boundariesOf(text) : null }).map((c) => ({ ...c, source: name, kind: "prose" }));
 const byRef = new Map(chunks.map((c) => [c.ref, c]));
-console.log(`holograph-reading — ${name}: ${text.length} bytes, ${chunks.length} chunks, top ${TOP}, seed ${SEED}`);
+console.log(`holograph-reading — ${name}: ${text.length} bytes, ${chunks.length} chunks (${CHUNKING}), top ${TOP}, seed ${SEED}`);
 const index = indexFor(chunks);
 console.log(`  corpus referents: ${index.referents.size} (${((Date.now() - t0) / 1000).toFixed(1)}s)`);
 const t1 = Date.now();
@@ -113,5 +114,5 @@ console.log(`  both ${tally.both}, address-only ${tally.addressOnly}, string-onl
 console.log(`  handed per fact: string ${(bytes.string / n).toFixed(0)} bytes (${TOP} passages) vs address ${(bytes.address / n).toFixed(0)} bytes (note lines) — compression ${(bytes.string / Math.max(1, bytes.address)).toFixed(1)}×`);
 mkdirSync(`${NATIVE}/eval/the-fold/results`, { recursive: true });
 const stamp = new Date().toISOString().slice(0, 10);
-writeFileSync(`${NATIVE}/eval/the-fold/results/holograph-reading-${stamp}.json`, JSON.stringify({ ran: new Date().toISOString(), source: name, chunks: chunks.length, referents: index.referents.size, notes: notes.length, noteRows: noteRows.length, top: TOP, seed: SEED, facts: n, tally, bytes: { string: bytes.string / n, address: bytes.address / n }, rows: rowsOut }, null, 1));
-console.log(`  rows → results/holograph-reading-${stamp}.json (${((Date.now() - t0) / 1000).toFixed(0)}s total)`);
+writeFileSync(`${NATIVE}/eval/the-fold/results/holograph-reading-${stamp}-${CHUNKING}.json`, JSON.stringify({ ran: new Date().toISOString(), source: name, chunking: CHUNKING, chunks: chunks.length, referents: index.referents.size, notes: notes.length, noteRows: noteRows.length, top: TOP, seed: SEED, facts: n, tally, bytes: { string: bytes.string / n, address: bytes.address / n }, rows: rowsOut }, null, 1));
+console.log(`  rows → results/holograph-reading-${stamp}-${CHUNKING}.json (${((Date.now() - t0) / 1000).toFixed(0)}s total)`);
