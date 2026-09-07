@@ -196,11 +196,12 @@ export async function reviseTextFold({ observations = [], fold = {}, canonicaliz
     identityAttacks.push(...anchorEvidence.attacks);
   }
 
+  // THE FOLD'S OWN ARRAY, NOT A SPREAD OF IT (P157, a third time): the edge
+  // index rides the fold's delta stream; this sentence's admissions go in
+  // beside it as `extraEntries` and are scanned after it, in their order.
   const identityDelta = deriveIdentityRevision({
-    fold: {
-      ...fold,
-      graphEntries: [...(fold?.graphEntries ?? []), ...currentGraphEntries],
-    },
+    fold,
+    extraEntries: currentGraphEntries,
     supports: identitySupports,
     attacks: identityAttacks,
     canonicalizationFloor,

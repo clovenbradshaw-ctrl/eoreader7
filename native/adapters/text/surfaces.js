@@ -875,8 +875,20 @@ export const discoverReferents = (surfaces, { minSentences, minPartners, groups,
   // corefer. "Princess Mary" vs "Princess Hélène" -> mary vs helene -> no.
   // "Victor Frankenstein" vs "Frankenstein" -> victor vs (empty) -> falls
   // back to the unstripped test, which containment answers correctly.
-  const individuating = (surface) =>
-    diaNorm(surface).split(/\s+/).filter((t) => t.length > 2 && !generic.has(t));
+  // (2026-09-07) Both are asked once per PAIR by the assignment below —
+  // O(surfaces²) diaNorm/split/filter calls per refresh, on the same
+  // surfaces every time. Profiled at 480 KB: individuating, diaNorm and
+  // tokensOf together 19% of the read, growing 19x for 2x the sentences.
+  // Memoised for the life of THIS call only: `generic` is decided per call,
+  // so a value cannot outlive the evidence it was computed against.
+  const normMemo = new Map();
+  const normOf = (surface) => { let n = normMemo.get(surface); if (n === undefined) { n = diaNorm(surface); normMemo.set(surface, n); } return n; };
+  const indMemo = new Map();
+  const individuating = (surface) => {
+    let v = indMemo.get(surface);
+    if (v === undefined) { v = normOf(surface).split(/\s+/).filter((t) => t.length > 2 && !generic.has(t)); indMemo.set(surface, v); }
+    return v;
+  };
 
   // The singleton-partner rescue's evidence: each token's partner set,
   // counted over EVIDENCE-WORTHY surfaces only (the same sentences floor
@@ -916,16 +928,16 @@ export const discoverReferents = (surfaces, { minSentences, minPartners, groups,
     // and the Network standing organ read the split alias as a top "bond"
     // — self-company, not company.
     const rescued = (bare, other) => {
-      const toks = diaNorm(bare).split(/\s+/).filter((t) => t.length > 2);
+      const toks = normOf(bare).split(/\s+/).filter((t) => t.length > 2);
       if (toks.length !== 1) return false;
       const ps = eligiblePartners.get(toks[0]);
       if (!ps || ps.size !== 1) return false;
       const [only] = ps;
-      return diaNorm(other).split(/\s+/).includes(only);
+      return normOf(other).split(/\s+/).includes(only);
     };
     if (!ia.length && ib.length && rescued(a, b)) return true;
     if (!ib.length && ia.length && rescued(b, a)) return true;
-    return diaNorm(a) === diaNorm(b);
+    return normOf(a) === normOf(b);
   };
 
   // ── assignment: against the group's own strongest evidence, with merges

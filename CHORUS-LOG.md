@@ -127,3 +127,18 @@ Constitution: `../eo-constitution/CONSTITUTION.md` + READING-SPEC.md + the-fold 
 | Pearl | II.10 | gates | clean | 60 KB identity unchanged after the fix; 240 KB (123) and 480 KB (120) byte-identical on all five changes together |
 | Marshall | II.11 | all six files | upheld | no new constant; the one memo bound (`MATCHERS`, part 1) is a budget and is named there |
 fixed: 2 (the changedOnly hole, the shared cache). struck: none.
+
+## 2026-09-07 — the 480 KB cliff, part 3: the identity index handed the fold's own array; the refresh's per-pair normalisation memoised; appended-before-updated in every fold step (branch `fold-memory-p157`)
+
+Constitution: `../eo-constitution/CONSTITUTION.md` + READING-SPEC.md + the-fold POLICIES.md. Lenses in-session over `kernel/identity.js`, `adapters/text/revision.js`, `adapters/text/surfaces.js`, `adapters/text/discourse-referents.js`, `adapters/text/individuation.js` and their tests.
+
+| lens | citation | file:line | verdict | one line |
+|---|---|---|---|---|
+| Diaconis | II.10 | tests/identity-index.test.js | clean | the edge index's from-scratch builds are COUNTED (`identityStats.computes`): 170 in 1,707 sentences before, 1 after; the reference is the concatenation scan, met at every one of 30 steps with extras |
+| Feynman | II.10; P159 step 0 | kernel/identity.js edgeIndex foldStep | **fixed, by the gate** | the 480 KB differential diverged at step 5550 while 240 KB held; a bisect cleared the surfaces memo; a per-step delta comparison of two worktrees found step 5534, where the fold's canonical for eleven edges lacked "anatole" and the index's had it. Cause: one delta appends an edge's canonical (a support's REC) and updates it (an attack's REC) in the same call, and my step applied `updated` before `appended`, leaving the index on the stale first. Appended first, then updated, in all three fold steps; a test builds exactly that delta; 480 KB identical again |
+| Dijkstra | III.4 | revision.js → deriveIdentityRevision({ fold, extraEntries }) | clean | P157's shape in a third place — a fresh spread of the fold's array — replaced by the fold's own array plus this sentence's entries scanned after it in their own order; `touchesIdentity` is the index's `valuesOf`, the scan's `participantValue` |
+| Holmes | P11 | surfaces.js normOf/individuating memos | clean | memoised for the life of one `discoverReferents` call only, since `generic` is decided per call; no caller mutates a returned array (checked: `.length`, `.find`, `.includes`, `.every`) |
+| Simon | P95 | discourse-referents.js, individuation.js fold steps | clean | the same reorder applied to the two views where it had only cost a recompute, not correctness — the same seam, fixed in every sibling at once |
+| Pearl | II.10 | gates | clean | 60 KB identity unchanged; 240 KB (123) and 480 KB (120) byte-identical after the reorder; the bisect and the two-worktree delta comparison are recorded above as the method that found it |
+| Marshall | II.10, II.11 | all five files | upheld | no new constant; the first cut of part 3 was landed nowhere — the gate ran before the commit, which is the order the constitution asks for |
+fixed: 1 (the fold-step order). struck: none.

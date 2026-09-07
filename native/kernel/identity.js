@@ -95,9 +95,20 @@ const foldEdgeIndex = (st, entries) => {
   }
   return st;
 };
+/** Exported for the test that pins the invariant: how many times the edge index was built from scratch. */
+export const identityStats = { computes: 0 };
 const edgeIndex = chainView(
-  (list) => foldEdgeIndex(emptyEdgeIndex(), list),
+  (list) => { identityStats.computes += 1; return foldEdgeIndex(emptyEdgeIndex(), list); },
   (st, d) => {
+    // APPENDED FIRST, THEN UPDATED. One upsert call can append an entry and
+    // update it in the same breath — a support's REC lands an edge's
+    // canonical and an attack later in the same sentence lands the merged
+    // replacement; the delta records the first as appended and the merged
+    // second as updated. Applying updates first left this index holding the
+    // stale first canonical while the fold held the second; the 480 KB gate
+    // caught it at step 5534 (eleven canonicals carrying an alternative the
+    // fold's did not). Order is time.
+    foldEdgeIndex(st, d.appended);
     for (const x of d.updated) {
       if (x?.schema === "EOCanonicalHyperedge@1") { st.canonical.set(x.sourceEdge, x); continue; }
       if (x?.schema !== "EOHyperedge@1") continue;
@@ -108,7 +119,7 @@ const edgeIndex = chainView(
       for (const v of new Set(valuesOf(x))) { const bucket = st.byValue.get(v); const i = bucket.findIndex((e) => e.id === x.id); if (i < 0) return null; bucket[i] = x; }
       st.byId.set(x.id, x);
     }
-    return foldEdgeIndex(st, d.appended);
+    return st;
   },
 );
 const currentCanonical = (index, edgeId) => index.canonical.get(edgeId) ?? null;
@@ -132,13 +143,26 @@ const touchedEdges = (index, identity) => {
 const meetsFloor = (alternative, floor) =>
   !Number.isFinite(floor) || (alternative.supportRefs ?? []).length >= floor;
 
-function recanonicalizationOperations(fold, alternatives, touchedIdentity, witness, floor) {
+const touchesIdentity = (edge, identity) => valuesOf(edge).some((v) => v === identity.left || v === identity.right);
+
+function recanonicalizationOperations(fold, extraEntries, alternatives, touchedIdentity, witness, floor) {
   const operations = [];
   const projecting = activeByValue(alternatives.filter((x) => meetsFloor(x, floor)));
+  // THE FOLD'S OWN ARRAY reaches the index (revision.js used to hand a fresh
+  // spread of it plus this sentence's admissions — P157's shape in a third
+  // place; measured: the index rebuilt from scratch 170 times in 1,707
+  // sentences). This sentence's entries are scanned after it, in their own
+  // order, exactly where the concatenation scan would have met them.
   const index = edgeIndex(fold?.graphEntries ?? []);
-  for (const edge of touchedEdges(index, touchedIdentity)) {
+  const extraCanonical = new Map();
+  const extraEdges = [];
+  for (const x of extraEntries ?? []) {
+    if (x?.schema === "EOCanonicalHyperedge@1" && !extraCanonical.has(x.sourceEdge)) extraCanonical.set(x.sourceEdge, x);
+    else if (x?.schema === "EOHyperedge@1" && touchesIdentity(x, touchedIdentity)) extraEdges.push(x);
+  }
+  for (const edge of [...touchedEdges(index, touchedIdentity), ...extraEdges]) {
     const next = canonicalizeHyperedge(edge, null, projecting);
-    const before = currentCanonical(index, edge.id);
+    const before = currentCanonical(index, edge.id) ?? extraCanonical.get(edge.id) ?? null;
     if (before && stable(before) === stable(next)) continue;
     operations.push(eoOperation({
       op: "REC",
@@ -160,7 +184,7 @@ function recanonicalizationOperations(fold, alternatives, touchedIdentity, witne
  * records refusal of the prior identity reading. Canonical relation projections
  * are then REC-written; raw witnessed edges remain untouched.
  */
-export function deriveIdentityRevision({ fold = {}, supports = [], attacks = [], witness = null, giver = null, canonicalizationFloor = undefined } = {}) {
+export function deriveIdentityRevision({ fold = {}, extraEntries = [], supports = [], attacks = [], witness = null, giver = null, canonicalizationFloor = undefined } = {}) {
   if (canonicalizationFloor !== undefined && (!Number.isInteger(canonicalizationFloor) || canonicalizationFloor < 1))
     throw new TypeError("deriveIdentityRevision: canonicalizationFloor, when declared, is a positive integer — how much corroboration licenses canonical projection is never a fraction or a guess");
   const operations = [];
@@ -219,7 +243,7 @@ export function deriveIdentityRevision({ fold = {}, supports = [], attacks = [],
     } else {
       transitionFor(next.id, "strengthened", ref, "expectation_strengthened");
     }
-    operations.push(...recanonicalizationOperations(fold, [...working.values()], next, ref, canonicalizationFloor));
+    operations.push(...recanonicalizationOperations(fold, extraEntries, [...working.values()], next, ref, canonicalizationFloor));
   }
 
   for (const evidence of attacks ?? []) {
@@ -241,7 +265,7 @@ export function deriveIdentityRevision({ fold = {}, supports = [], attacks = [],
       payload: { action: "exclusion", value: Object.freeze({ schema: "EOExclusion@1", id: `exclusion:${prior.id}`, kind: "identity_refused", target: prior.id, witness: ref }) },
     }));
     transitionFor(prior.id, "violated", ref, "expectation_violated");
-    operations.push(...recanonicalizationOperations(fold, [...working.values()], next, ref, canonicalizationFloor));
+    operations.push(...recanonicalizationOperations(fold, extraEntries, [...working.values()], next, ref, canonicalizationFloor));
   }
 
   return deltaFold(operations, { schemaVersion: "EOIdentityRevision@1" });

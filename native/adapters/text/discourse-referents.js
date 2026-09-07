@@ -242,12 +242,15 @@ const discourseState = chainView(
     // surface and canonicalSurface and nothing else; an update that keeps
     // those three is the same occurrence to it, and the object is swapped at
     // its position. Anything else, or a link update, still recomputes.
+    // Appended first, then updated — one call can do both to one id, and the
+    // update is the later fact (see identity.js's edge index for the case
+    // the 480 KB gate caught).
+    foldDiscourse(st, d.appended);
     for (const x of d.updated) {
       if (x?.schema === "EODiscourseIdentityLink@1") return null;
       if (x?.schema !== "EOReferentOccurrence@1") continue;
       if (!st.replaceOcc(x)) return null;
     }
-    foldDiscourse(st, d.appended);
     return st;
   },
 );

@@ -185,6 +185,10 @@ const surfaceState = chainView(
     // an update is exactly what changes those. Only a changed surface key,
     // which would move the occurrence between groups, still recomputes the
     // whole state.
+    // Appended first, then updated — one call can do both to one id, and the
+    // update is the later fact (see identity.js's edge index for the case
+    // the 480 KB gate caught).
+    foldGroups(st, d.appended);
     const touched = [];
     for (const x of d.updated) {
       if (x?.schema !== "EOReferentOccurrence@1") continue;
@@ -195,7 +199,7 @@ const surfaceState = chainView(
       HYPOTHESIS.delete(group);
       touched.push(x.canonicalSurface);
     }
-    return foldGroups(st, d.appended, touched);
+    return touched.length ? foldGroups(st, [], touched) : st;
   },
 );
 
