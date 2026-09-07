@@ -57,6 +57,10 @@ const { makeCastResolver } = await import(`${FOLD}cast.js`);
 const { mechanicalFoldLine, RECENCY_WINDOW } = await import(`${FOLD}fold.js`);
 const { splitSentences } = await import(`${NATIVE}/adapters/text/spans.js`);
 const { learn, correctionsIn, learnable } = await import(`${FOLD}learned.js`);
+const { historyWindow, referentsOf } = await import(`${FOLD}dialogue.js`);
+const { namesIn } = await import(`${FOLD}ground-ladder.js`);
+const { makeReferentIndex } = await import(`${FOLD}cast.js`);
+const { dmdWindow } = await import(`${NATIVE}/kernel/activation.js`);
 let math = null;
 try { math = await import(`${FOLD}node_modules/mathjs/lib/esm/index.js`); } catch { try { math = await import("mathjs"); } catch { math = null; } }
 let nul = null;
@@ -65,6 +69,8 @@ const { extractSurfaces, discoverReferents, namesCorefer, diaNorm } = await impo
 const { lineIndex, outlineOfIndex } = await import(`${ROOT}eoreader7/legacy-eoreader6.1/packages/engine/perceiver/text/segments.js`);
 const W = await import(`${NATIVE}/organs/index.js`);
 const castFor = makeCastResolver({ splitSentences, extractSurfaces, discoverReferents, namesCorefer, diaNorm });
+// THE REFERENT INDEX (P11): the turn gets one per part over its passages; the reader's moves and the driver's own measures use one over the whole corpus.
+const indexFor = makeReferentIndex({ splitSentences, extractSurfaces, discoverReferents, namesCorefer, diaNorm });
 
 // ── the rig (long-stream.mjs, verbatim) ───────────────────────────────────
 const windowed = (text, size) => { const out = []; let i = 0; while (i < text.length) { let j = Math.min(text.length, i + size); const nl = text.lastIndexOf("\n", j); const cm = text.lastIndexOf(",", j); const cut = nl > i + size / 2 ? nl + 1 : cm > i + size / 2 ? cm + 1 : j; out.push(text.slice(i, cut)); i = cut; } return out.join("\n\n"); };
@@ -80,6 +86,8 @@ for (const s of SOURCES) {
   chunks.push(...cs);
   loaded.push({ kind: s.kind, name, path: s.path, bytes: text.length, chunks: cs.length, sha256: createHash("sha256").update(text).digest("hex").slice(0, 16) });
 }
+const corpusIndex = indexFor(chunks);
+console.log(`  corpus referents: ${corpusIndex.referents.size} (cast.js makeReferentIndex over ${chunks.length} chunks)`);
 const usage = { calls: 0, promptTokens: 0, completionTokens: 0, readerCalls: 0 };
 async function callWith(model, messages, opts = {}) {
   for (let attempt = 0; attempt < 2; attempt++) {
@@ -124,23 +132,18 @@ const saveState = () => { const tmp = `${STATE_PATH}.tmp`; writeFileSync(tmp, JS
 
 // ── the reader ───────────────────────────────────────────────────────────
 const fold = (t) => String(t ?? "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
-const STOP = new Set(["The", "A", "An", "In", "On", "At", "He", "She", "It", "They", "We", "I", "You", "This", "That", "There", "Here", "But", "And", "Or", "So", "If", "When", "Then", "His", "Her", "Their", "Its", "Not", "No", "Yes", "What", "Who", "How", "Why", "Which", "Where", "After", "Before", "Chapter", "Part", "Book", "Passage", "Source"]);
+
 const trim = (t, n) => { const s = String(t ?? "").replace(/\s+/g, " ").trim(); return s.length > n ? `${s.slice(0, n)}…` : s; };
-const inSource = (name) => Object.values(sourceText).some((t) => t.includes(name));
-/** Names the answer introduces: capitalised runs that are not sentence-initial function words, dedup, in order of appearance. */
-function namesIn(text) {
-  const out = []; const seen = new Set();
-  const re = /(?<![.!?]\s|^)\b([A-Z][\p{L}'’-]+(?:\s+[A-Z][\p{L}'’-]+){0,2})\b/gu;
-  let m; while ((m = re.exec(String(text ?? "")))) { const n = m[1].replace(/['’]s$/, ""); if (STOP.has(n.split(/\s+/)[0]) || n.length < 3 || seen.has(fold(n))) continue; seen.add(fold(n)); out.push(n); }
-  return out;
-}
+const inSource = (name) => corpusIndex.resolve(name).size > 0; // a referent the material establishes, not a substring
+/** Names the answer introduces (ground-ladder.js::namesIn — the one implementation), dedup, in order; a real reader may ask about a name the book never establishes, so all are kept and each is tagged by the corpus index. */
+const namesOf = (text) => { const seen = new Set(); return namesIn(String(text ?? "")).filter((n) => { const k = fold(n); if (seen.has(k)) return false; seen.add(k); return true; }); };
 const quotedIn = (text) => [...String(text ?? "").matchAll(/[“"]([^”"]{12,120})[”"]/g)].map((m) => m[1]);
 const admitsAbsence = (a) => /\b(do(es)? not (use|mention|say|name)|not (in|found in|present in) (the|these|this) (source|book|novel|text|passage)|nothing (here|in the (book|text|sources))|no passage|isn'?t mentioned|not mentioned)\b/i.test(a);
 const mentions = (a, target) => target ? fold(a).includes(fold(target)) : null;
 
 function chooseMove(last, turn) {
   if (!last) return { move: "open" };
-  const names = namesIn(last.answer).filter((n) => !state.asked.includes(fold(n)));
+  const names = namesOf(last.answer).filter((n) => !state.asked.includes(fold(n)));
   const quotes = quotedIn(last.answer);
   const options = [];
   const push = (move, w, extra = {}) => { if (w > 0) options.push({ move, w, ...extra }); };
@@ -182,7 +185,9 @@ async function phrase(m, last, earlier, name) {
     let out = "";
     try { out = await callWith(READER_MODEL, messages, { maxTokens: 90, temperature }); usage.readerCalls += 1; } catch { out = ""; }
     const q = out.replace(/\s+/g, " ").replace(/^["“]|["”]$/g, "").trim();
-    if (q && q.length <= 320 && /\?/.test(q) && (!m.target || mentions(q, m.target))) return { question: q, phrasedBy: "model" };
+    // The guard on the mouth's phrasing: the question must still name its target — by REFERENT through the corpus index where the target resolves, by surface only where it does not.
+    const keepsTarget = (text) => { if (!m.target) return true; const ids = corpusIndex.resolve(m.target); return ids.size ? [...ids].every((id) => referentsOf(text, corpusIndex).ids.has(id)) : mentions(text, m.target); };
+    if (q && q.length <= 320 && /\?/.test(q) && keepsTarget(q)) return { question: q, phrasedBy: "model" };
   }
   const fallback = { clarify: `What do you mean by "${m.target}" — who or what is that?`, deepen: `Can you say more about ${m.target}?`, why: `Why does ${m.target} matter here?`, revisit: `Earlier you told me "${trim(earlier?.answer, 120)}". How does that fit with what you just said about ${m.target}?`, reflect: `So, if I follow you: ${trim(last?.answer, 160)} Is that what the book says?`, open: `What does the book say about ${m.target}?` };
   return { question: fallback[m.move] ?? `Can you say more about ${m.target}?`, phrasedBy: "mechanical" };
@@ -194,19 +199,27 @@ for (let turn = state.turn + 1; turn <= TURNS; turn++) {
   const last = state.transcript.at(-1) ?? null;
   const m = chooseMove(last, turn);
   let earlier = null;
-  if (m.move === "revisit") { earlier = pickEarlier(); m.target = namesIn(earlier.answer)[0] ?? namesIn(last.answer)[0] ?? null; if (!m.target) { m.move = "reflect"; } }
-  if (m.move === "open") { const f = rng.pick(state.bank); m.target = f?.atoms?.find((a) => a.kind === "name")?.value ?? null; if (!m.target) { m.move = "reflect"; if (!last) { m.move = "open"; m.target = "the opening chapter"; } } }
+  if (m.move === "revisit") { earlier = pickEarlier(); m.target = namesOf(earlier.answer)[0] ?? namesOf(last.answer)[0] ?? null; if (!m.target) { m.move = "reflect"; } }
+  if (m.move === "open") {
+    // A fresh thread is one not opened before: names from the bank not yet asked about (turn 7 of the first run re-opened Razumihin).
+    // A thread the reader may open names a being the material ESTABLISHES (the corpus index resolves it) — the fact bank's name atoms include capitalised words that are no one (turn 2 of the first wired run asked about "Lent", a verb).
+    const fresh = state.bank.flatMap((f) => (f?.atoms ?? []).filter((a) => a.kind === "name").map((a) => a.value)).filter((n, i, arr) => inSource(n) && arr.indexOf(n) === i && !state.asked.includes(fold(n)));
+    m.target = fresh.length ? rng.pick(fresh) : null;
+    if (!m.target) { m.move = last ? "reflect" : "open"; if (!last) m.target = "the opening chapter"; }
+  }
   const { question, phrasedBy } = await phrase(m, last, earlier, NAME);
   if (m.target) state.asked.push(fold(m.target));
 
   const t0 = Date.now(); const calls0 = usage.calls, pt0 = usage.promptTokens, ct0 = usage.completionTokens;
-  const history = state.history.slice(-RECENCY_WINDOW);
+  // The history the mouth is handed is MEASURED (dialogue.js::historyWindow via dmdWindow): the shallowest depth at which forgetting the older turns changes nothing the question reaches — RECENCY_WINDOW is the cap, never the count.
+  const win = historyWindow(state.history.slice(-RECENCY_WINDOW * 2), question, { dmdWindow, index: corpusIndex });
+  const history = win.messages;
   const discourse = mechanicalFoldLine(state.history.slice(-2).map((h) => h.content).join(" "), "");
   let r = null, error = null;
   try {
     r = await runHolonicTask({
       task: question, chunks, call, foldedRefs: [], expect: null,
-      makeNameResolver: castFor, makeRelationReader: O.relationsFor, witnessSentences,
+      makeNameResolver: castFor, makeReferentIndexFor: indexFor, makeRelationReader: O.relationsFor, witnessSentences,
       checkLink: null, planMode: needsDecomposition(question) ? "model" : "flat",
       chatHistory: history, discourse, depth: DEPTH, learnedStore, transcript: state.transcript,
       math, coverageHistory: state.coverage ?? [], nul, useMeasuredCut: false,
@@ -221,13 +234,21 @@ for (let turn = state.turn + 1; turn <= TURNS; turn++) {
   for (const e of r?.learned ?? []) { const before = learnedStore.length; learnedStore = learn(learnedStore, e); if (learnedStore.length > before) learnedAdded += 1; }
   if (learnedAdded) saveLearned();
   const refs = r?.refs ?? [];
-  const addressed = m.target ? mentions(answer, m.target) : null;
+  // The answer's graded claims ride on the transcript so the next turn's self-consistency check has them (dialogue.js::selfContradictions).
+  // The answer's bound claims ride on the transcript for the next turn's self-consistency check (keyed there, through that turn's own index).
+  const claims = (r?.sections ?? []).flatMap((s) => (s?.relations?.claims ?? []).filter((c) => c && c.verdict === "bound" && (c.end1 ?? c.subject) != null).map((c) => ({ polarity: c.polarity ?? "+", end1: c.end1 ?? c.subject ?? null, label: c.label ?? c.verb ?? null, end2: c.end2 ?? c.object ?? null })));
+  // The driver's own measure of "addressed": by REFERENT — the answer's referents (corpus index) cover the target's.
+  const targetIds = m.target ? corpusIndex.resolve(m.target) : null;
+  // A target the index resolves is scored by identity; a target it does not resolve is UNMEASURED (null), never a substring hit — "I lent you" is not an answer about Lent.
+  const addressed = m.target ? (targetIds.size ? [...targetIds].every((id) => referentsOf(answer, corpusIndex).ids.has(id)) : null) : null;
   const absent = admitsAbsence(answer);
   const cited = refs.length > 0;
   const resolved = m.target ? Boolean(addressed && (cited || absent)) : (m.move === "verify" ? cited : m.move === "reflect" ? Boolean(cited || /\b(yes|no|not quite|that'?s right|correct|actually)\b/i.test(answer)) : null);
   const row = {
     turn, at: new Date().toISOString(), move: m.move, target: m.target ?? null, targetInSource: m.target ? inSource(m.target) : null, phrasedBy, question, answer,
     earlierTurn: earlier?.turn ?? null, addressed, cited, admitsAbsence: absent, resolved,
+    historyDepth: win.depth, historyBasis: win.basis ?? null,
+    turnAddressed: r?.addressed ?? null, expectation: r?.expectation ?? null, selfContradictions: r?.selfContradictions ?? [], position: r?.position ?? null,
     ms: Date.now() - t0, calls: usage.calls - calls0, promptTokens: usage.promptTokens - pt0, completionTokens: usage.completionTokens - ct0,
     refs, unsupported: (r?.unsupported ?? []).length, unbacked: (r?.unbacked ?? []).length, sections: (r?.sections ?? []).length,
     premises: r?.premises ? { checked: r.premises.checked, unverified: r.premises.unverified, contradicted: r.premises.contradicted } : null,
@@ -235,8 +256,8 @@ for (let turn = state.turn + 1; turn <= TURNS; turn++) {
     answeredBeforeTheModel: r?.answeredBeforeTheModel ? r.answeredBeforeTheModel.kind : null, recalledTurns: r?.recalledTurns ?? [], learnedAdded, error,
   };
   appendFileSync(TURNS_PATH, JSON.stringify(row) + "\n");
-  appendFileSync(TRANSCRIPT_PATH, `**Reader** (turn ${turn}, ${m.move}${m.target ? ` · ${m.target}` : ""}${phrasedBy === "mechanical" ? " · mechanical" : ""}): ${question}\n\n**The Fold**: ${answer.trim() || (error ? `_error: ${trim(error, 120)}_` : "_(no answer)_")}\n\n<sub>${refs.length ? `refs ${refs.slice(0, 4).join(", ")}${refs.length > 4 ? "…" : ""}` : "no refs"} · unsupported ${row.unsupported} · ${row.addressed === null ? "" : row.addressed ? "addressed" : "did not address the target"}${absent ? " · admits absence" : ""}${row.premises?.contradicted ? ` · contradicted ${row.premises.contradicted}` : ""} · ${row.calls} calls · ${(row.ms / 1000).toFixed(0)}s</sub>\n\n`);
-  if (!error) { state.history.push({ role: "user", content: question }, { role: "assistant", content: answer }); state.transcript.push({ turn, question, answer, move: m.move, target: m.target ?? null, refs, unsupported: row.unsupported }); }
+  appendFileSync(TRANSCRIPT_PATH, `**Reader** (turn ${turn}, ${m.move}${m.target ? ` · ${m.target}` : ""}${phrasedBy === "mechanical" ? " · mechanical" : ""}): ${question}\n\n**The Fold**: ${answer.trim() || (error ? `_error: ${trim(error, 120)}_` : "_(no answer)_")}\n\n<sub>${refs.length ? `refs ${refs.slice(0, 4).join(", ")}${refs.length > 4 ? "…" : ""}` : "no refs"} · unsupported ${row.unsupported} · ${row.addressed === null ? "" : row.addressed ? "addressed" : "did not address the target"}${absent ? " · admits absence" : ""}${row.premises?.contradicted ? ` · contradicted ${row.premises.contradicted}` : ""}${row.answeredBeforeTheModel ? ` · before the model: ${row.answeredBeforeTheModel}` : ""}${row.position ? ` · position: ${row.position}` : ""}${row.turnAddressed?.some?.((a) => a.reasked) ? " · re-asked" : ""}${row.expectation?.authorship != null ? ` · authorship ${row.expectation.authorship}` : ""}${row.selfContradictions?.length ? ` · self-contradiction ${row.selfContradictions.length}` : ""} · history ${row.historyDepth} · ${row.calls} calls · ${(row.ms / 1000).toFixed(0)}s</sub>\n\n`);
+  if (!error) { state.history.push({ role: "user", content: question }, { role: "assistant", content: answer }); state.transcript.push({ turn, question, answer, move: m.move, target: m.target ?? null, refs, claims, unsupported: row.unsupported }); }
   state.turn = turn; saveState();
   console.log(`[${turn}/${TURNS}] ${m.move.padEnd(8)} ${String(Math.round(row.ms / 1000)).padStart(4)}s ${String(row.calls).padStart(2)} calls  ${row.addressed === null ? "  " : row.addressed ? "✓ " : "✗ "}${cited ? "cited " : "      "}${absent ? "absent " : ""}${m.target ? `· ${trim(m.target, 24)} ` : ""}${phrasedBy === "mechanical" ? "(mech) " : ""}${trim(question, 70)}`);
   if (turn % 25 === 0) {
@@ -244,7 +265,8 @@ for (let turn = state.turn + 1; turn <= TURNS; turn++) {
     const by = {};
     for (const x of rows) { const b = by[x.move] ??= { n: 0, addressed: 0, resolved: 0, cited: 0, mech: 0 }; b.n++; if (x.addressed) b.addressed++; if (x.resolved) b.resolved++; if (x.cited) b.cited++; if (x.phrasedBy === "mechanical") b.mech++; }
     const line = Object.entries(by).map(([k, b]) => `${k} ${b.n}: addressed ${b.addressed}, resolved ${b.resolved}, cited ${b.cited}${b.mech ? `, mech ${b.mech}` : ""}`).join(" | ");
-    console.log(`  — after ${turn}: ${line} | unsupported/answer ${(rows.reduce((a, x) => a + x.unsupported, 0) / rows.length).toFixed(2)} | contradicted ${rows.filter((x) => x.premises?.contradicted).length} | ${(rows.reduce((a, x) => a + x.ms, 0) / rows.length / 1000).toFixed(0)}s/turn`);
+    const auth = rows.map((x) => x.expectation?.authorship).filter((a) => a != null);
+    console.log(`  — after ${turn}: ${line} | unsupported/answer ${(rows.reduce((a, x) => a + x.unsupported, 0) / rows.length).toFixed(2)} | contradicted ${rows.filter((x) => x.premises?.contradicted).length} | before-the-model ${rows.filter((x) => x.answeredBeforeTheModel).length} | re-asked ${rows.filter((x) => x.turnAddressed?.some?.((a) => a.reasked)).length} | positions ${rows.filter((x) => x.position).length} | self-contradictions ${rows.filter((x) => x.selfContradictions?.length).length} | authorship ${auth.length ? (auth.reduce((a, b) => a + b, 0) / auth.length).toFixed(2) : "—"} (${auth.length}) | history depth ${(rows.reduce((a, x) => a + (x.historyDepth ?? 0), 0) / rows.length).toFixed(1)} | ${(rows.reduce((a, x) => a + x.ms, 0) / rows.length / 1000).toFixed(0)}s/turn`);
   }
 }
 console.log(`done: ${TURNS} turns — ${DIR}`);
