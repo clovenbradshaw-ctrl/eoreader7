@@ -161,8 +161,8 @@ function place(st, surface, value) {
   return true;
 }
 
-function foldGroups(st, entries) {
-  const touched = new Set();
+function foldGroups(st, entries, alsoTouched = []) {
+  const touched = new Set(alsoTouched);
   for (const x of entries) {
     if (x?.schema !== "EOReferentOccurrence@1") continue;
     const key = x.canonicalSurface;
@@ -179,8 +179,23 @@ function foldGroups(st, entries) {
 const surfaceState = chainView(
   (graphEntries) => foldGroups(emptyState(), graphEntries),
   (st, d) => {
-    if (d.updated.some((x) => x?.schema === "EOReferentOccurrence@1")) return null;
-    return foldGroups(st, d.appended);
+    // AN UPDATE IS REPLACED IN PLACE and its group's hypothesis recomputed
+    // (2026-09-07) — the memo is bypassed for that group because a
+    // hypothesis reads `edge`, `relation` and `role` off each occurrence and
+    // an update is exactly what changes those. Only a changed surface key,
+    // which would move the occurrence between groups, still recomputes the
+    // whole state.
+    const touched = [];
+    for (const x of d.updated) {
+      if (x?.schema !== "EOReferentOccurrence@1") continue;
+      const group = st.groups.get(x.canonicalSurface);
+      const i = group ? group.findIndex((g) => g.id === x.id) : -1;
+      if (i < 0) return null;
+      group[i] = x;
+      HYPOTHESIS.delete(group);
+      touched.push(x.canonicalSurface);
+    }
+    return foldGroups(st, d.appended, touched);
   },
 );
 

@@ -158,6 +158,19 @@ class DiscourseState {
     while (this.getParent(y) !== p) { const next = this.getParent(y); this.setParent(y, p); y = next; }
     return p;
   }
+  /** Swap an updated occurrence into its group if id, surface and canonicalSurface are unchanged; false demands a recompute. */
+  replaceOcc(occ) {
+    if (!this.hasOcc(occ.id)) return false;
+    const r = this.find(occ.id);
+    const group = this.getGroup(r) ?? [];
+    const i = group.findIndex((g) => g.id === occ.id);
+    if (i < 0) return false;
+    const was = group[i];
+    if (was.surface !== occ.surface || was.canonicalSurface !== occ.canonicalSurface) return false;
+    if (was === occ) return true;
+    if (this.groups.has(r)) group[i] = occ; else { const copy = [...group]; copy[i] = occ; this.setGroup(r, copy); }
+    return true;
+  }
   addOcc(occ) {
     const i = this.count++;
     this.index.set(occ.id, i);
@@ -220,7 +233,20 @@ const discourseState = chainView(
     return st;
   },
   (st, d) => {
-    if (d.updated.some((x) => x?.schema === "EOReferentOccurrence@1" || x?.schema === "EODiscourseIdentityLink@1")) return null;
+    // AN UPDATE THAT KEEPS WHAT THIS STATE READS IS REPLACED IN PLACE (2026-09-07).
+    // A descriptor occurrence whose participant carries no occurrence id falls
+    // back to its surface slug, so two edges in one sentence sharing a surface
+    // yield ONE id with different `edge`/`relation` fields — a real update,
+    // 112 times at 240 KB, and each one used to demand this whole state from
+    // scratch (26x growth at 480 KB). This state reads an occurrence's id,
+    // surface and canonicalSurface and nothing else; an update that keeps
+    // those three is the same occurrence to it, and the object is swapped at
+    // its position. Anything else, or a link update, still recomputes.
+    for (const x of d.updated) {
+      if (x?.schema === "EODiscourseIdentityLink@1") return null;
+      if (x?.schema !== "EOReferentOccurrence@1") continue;
+      if (!st.replaceOcc(x)) return null;
+    }
     foldDiscourse(st, d.appended);
     return st;
   },

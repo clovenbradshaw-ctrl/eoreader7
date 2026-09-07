@@ -206,6 +206,8 @@ function tipOf(list, transient) {
   return own([...list]);
 }
 
+const isNoop = (current, value) => { for (const k in value) if (!(k in current) || current[k] !== value[k]) return false; return true; };
+
 function upsertManyById(list = [], values = [], { transient = false } = {}) {
   if (!values.length) return list;
   const next = tipOf(list, transient);
@@ -227,7 +229,20 @@ function upsertManyById(list = [], values = [], { transient = false } = {}) {
     const id = value?.id;
     if (id != null && index.has(id)) {
       const i = index.get(id);
-      next[i] = { ...next[i], ...value };
+      // AN UPDATE THAT CHANGES NOTHING IS NOT AN UPDATE (2026-09-07). Measured
+      // at 240 KB: 1,628 hyperedge "updates" on 1,166 sentences and 112
+      // occurrence "updates" — revision.js re-admits this sentence's own
+      // observation entries (the fold does not hold them yet at revise time),
+      // so applyDelta upserted the very same object a second time. Every
+      // schema view read that as an update and answered with an exact O(n)
+      // recompute; at 480 KB the from-scratch lambdas grew 26x. When every
+      // field of the value is already the current entry's own, the entry
+      // stays, and nothing is recorded — the fold's bytes are identical
+      // either way, and the views keep their state. A value that differs in
+      // any field is an update, as before.
+      const current = next[i];
+      if (isNoop(current, value)) continue;
+      next[i] = { ...current, ...value };
       updated.push(next[i]);
       continue;
     }

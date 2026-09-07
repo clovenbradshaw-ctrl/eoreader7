@@ -94,3 +94,19 @@ Constitution: `../eo-constitution/CONSTITUTION.md` + READING-SPEC.md + the-fold 
 | Chekhov | — | `descriptorHypotheses` (fold-only) | clean | returns the state's frozen list, the same array while nothing changed (asserted) |
 | Marshall | II.10, II.11 | both files | upheld | no new constant; no timing asserted anywhere — structure only (identity, equality, counted hits); the `place()` re-index that showed at 7% self was replaced by a binary search before this landed |
 fixed: 1. struck: none.
+
+## 2026-09-07 — the 480 KB cliff, part 1: no-op updates, updates handled in place by the views, same-object re-index skipped, the relation matcher built per vocabulary (branch `fold-memory-p157`)
+
+Constitution: `../eo-constitution/CONSTITUTION.md` + READING-SPEC.md + the-fold POLICIES.md. Lenses in-session over `kernel/fold.js`, `kernel/hypergraph.js`, `adapters/text/discourse-referents.js`, `adapters/text/individuation.js`, `adapters/text/relations.js` and their tests.
+
+| lens | citation | file:line | verdict | one line |
+|---|---|---|---|---|
+| Diaconis | II.10 | tests/fold-transient.test.js (no-op), tests/discourse-incremental.test.js (update) | clean | both directions asserted: a same-object re-upsert leaves the array and every view untouched; a value differing in one field IS an update and the view recomputes for it |
+| Feynman | P159 step 2 | this entry's own numbers | **disclosed** | the update census I ran counts ids seen twice in the LOG, so it could not show the no-op skip's effect (the log is unchanged by design); the 480 KB profile after the batch moved 79.2 → 77.1 s, within run-to-run contention (perceive rose 26.6 → 33.5 s on unchanged code between two runs). The batch is landed for what it verifiably does — the from-scratch lambdas fell (discourse 4.6 → 0 s, `reviseTextFold` 37 → 27 s) — not for a headline |
+| Dijkstra | III.4 | discourse-referents.js `replaceOcc`; individuation.js foldStep | clean | each view names exactly what it reads off an occurrence (id, surface, canonicalSurface; and for individuation edge/relation/role via a forced recompute of that one group) and recomputes on anything else — the update handling is scoped to the fields the state depends on |
+| Simon | P95 | hypergraph.js:113 | clean | the skip is on object identity only (`byId.get(id) === entry`); a new object with equal keys still re-indexes — no structural-equality shortcut was invented |
+| Holmes | P11 | relations.js `matcherFor` | clean | same source, same flags, same regex; `lastIndex` rewound before every use so the `exec` loop at :872 starts where it always did |
+| Pearl | II.10 | gates | clean | 60 KB identity unchanged; 240 KB (123) and 480 KB (120) byte-identical after each of the four changes |
+| Chekhov | — | `MATCHERS` bound at 32 | clean, named | a bound of 32 compiled matchers is a budget (memory), not a judgment about material; it is cleared, never evicted by rule |
+| Marshall | II.11 | relations.js:212 `32` | upheld | the one new number is a cache bound, commented as such; earned-constants scans exported constants and this is not one, but it is named here so it is not mistaken for a threshold |
+fixed: 4 (the four changes). struck: none.

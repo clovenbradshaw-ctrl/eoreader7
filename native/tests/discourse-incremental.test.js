@@ -61,3 +61,21 @@ test("the memo is versioned by the state, not by object identity: a delta that a
   assert.notEqual(b, a, "the same state object, folded forward, must not return the earlier projection");
   assert.deepEqual(b, projectDiscourseReferents([...fold.graphEntries]));
 });
+
+test("an occurrence UPDATE that keeps id, surface and canonicalSurface is swapped in place — no recompute — and equals the reference path", () => {
+  let fold = applyObservation(receivedGround(), obs(0, bindings(0)), T);
+  fold = applyObservation(fold, obs(1, bindings(1)), T);
+  projectDiscourseReferentsWith(fold.graphEntries, []);
+  const before = discourseStats.computes;
+  const target = fold.graphEntries.find((g) => g.schema === "EOReferentOccurrence@1");
+  const updated = Object.freeze({ ...target, edge: "edge:changed", relation: "changed" });
+  fold = applyObservation(fold, obs(2, [updated]), T);
+  const out = projectDiscourseReferentsWith(fold.graphEntries, []);
+  assert.equal(discourseStats.computes, before, "swapped in place: the state was not rebuilt");
+  assert.deepEqual(out, projectDiscourseReferents([...fold.graphEntries]), "and it is the reference projection");
+  const afterReference = discourseStats.computes; // the reference call above is itself a from-scratch compute
+  const moved = Object.freeze({ ...target, canonicalSurface: "somewhere else" });
+  fold = applyObservation(fold, obs(3, [moved]), T);
+  projectDiscourseReferentsWith(fold.graphEntries, []);
+  assert.equal(discourseStats.computes, afterReference + 1, "a changed surface key still recomputes — exactness first");
+});

@@ -118,6 +118,12 @@ export function indexHypergraphEntries(graph, entries = []) {
   graph.sequence ??= new Map();
   for (const entry of entries) {
     if (!entry?.id) continue;
+    // The perceiver re-emits a seen referent (and its gap) on every sentence
+    // it appears in; within a refresh window it is the same object. Removing
+    // and re-adding every one of its dependent keys for an entry that is
+    // already the indexed object is work that changes nothing — measured at
+    // 480 KB as 6% of the read, growing 16x for 2x the sentences.
+    if (graph.byId.get(entry.id) === entry) continue;
     const priorKeys = keysById.get(entry.id);
     if (priorKeys) {
       for (const key of priorKeys.incident) removeIndex(graph.incident, key, entry.id);

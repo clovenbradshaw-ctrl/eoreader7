@@ -152,3 +152,21 @@ test("A SUPERSEDED TURN'S FOLD IS THAT TURN'S FOLD — the log's projection at i
   assert.deepEqual(rebuilt.graphEntries, live.graphEntries);
   assert.notEqual(rebuilt.graphEntries, live.graphEntries, "a reconstruction owns its own arrays");
 });
+
+test("AN UPDATE THAT CHANGES NOTHING IS NOT AN UPDATE: re-upserting the same entry leaves the array, the entry and every view untouched", () => {
+  const S = "EOMention@1";
+  let fold = applyObservation(receivedGround(), obs(0), T);
+  fold = applyObservation(fold, obs(1), T);
+  const entry = fold.graphEntries[2];
+  const view = entriesBySchema(fold.graphEntries, S);
+  const same = Object.freeze({ schema: "Observation@1", id: "obs:again", witness: "w", anchor: null, distinctions: [], hyperedges: Object.freeze([]), graphEntries: Object.freeze([entry, { ...entry }]), provenance: {} });
+  const next = applyObservation(fold, same, T);
+  assert.equal(next.graphEntries[2], entry, "the very same object stays — no merged copy");
+  assert.equal(next.graphEntries.length, 6, "nothing appended");
+  assert.equal(entriesBySchema(next.graphEntries, S), view, "the schema view was not asked to recompute — nothing was recorded");
+  const real = Object.freeze({ schema: "Observation@1", id: "obs:real", witness: "w", anchor: null, distinctions: [], hyperedges: Object.freeze([]), graphEntries: Object.freeze([{ ...entry, surface: "CHANGED" }]), provenance: {} });
+  const after = applyObservation(next, real, T);
+  assert.notEqual(after.graphEntries[2], entry, "a value that differs in any field is an update");
+  assert.equal(after.graphEntries[2].surface, "CHANGED");
+  assert.notEqual(entriesBySchema(after.graphEntries, S), view, "and the view recomputes for it, as before");
+});

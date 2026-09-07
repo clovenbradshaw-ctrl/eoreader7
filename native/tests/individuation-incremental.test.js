@@ -63,3 +63,14 @@ test("ORDER: fold-known surfaces in first-occurrence order, new-only surfaces ap
   assert.deepEqual(out.map((h) => h.surface), ["the room", "the sun", "the door", "the letter"]);
   assert.deepEqual(descriptorHypothesesWith([...fold.graphEntries, ...extras], []).map((h) => h.surface), ["the room", "the sun", "the door", "the letter"], "and the fresh-array path agrees");
 });
+
+test("an occurrence UPDATE is replaced in place and its group's hypothesis recomputed — the memo is bypassed for that group", () => {
+  let fold = applyObservation(receivedGround(), obs(0, [occ(0, "the prince", 0), occ(1, "the prince", 1)]), T);
+  const a = descriptorHypotheses(fold.graphEntries).find((h) => h.surface === "the prince");
+  assert.equal(a.relationContexts[0].edge, null);
+  const target = fold.graphEntries.find((g) => g.id === "ref-occ:0:0:the_prince");
+  fold = applyObservation(fold, obs(1, [{ ...target, edge: "edge:1", relation: "carried", role: "actor" }]), T);
+  const b = descriptorHypotheses(fold.graphEntries).find((h) => h.surface === "the prince");
+  assert.equal(b.relationContexts[0].edge, "edge:1", "the update reached the hypothesis — a memo keyed on the same-length group alone would have answered null");
+  assert.deepEqual(ids(descriptorHypotheses(fold.graphEntries)), ids(descriptorHypotheses([...fold.graphEntries])), "and equals the fresh compute");
+});
