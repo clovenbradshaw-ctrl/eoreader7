@@ -46,7 +46,9 @@
 //   node native/eval/read-cost.mjs --identity \
 //     --file ../the-fold/pg2600.txt --bytes 60000
 // and expect, on an unchanged read path:
-//   logHash            45bbbbbd578d027f
+//   logHash            bcf5d8196b69d8f0   (was 45bbbbbd578d027f before P165 put the
+//                                         merge record into the log; re-verified at HEAD
+//                                         0bcb90d from a clean worktree, 2026-09-07)
 //   926 sentences, 2691 log entries
 //   cursor 2691: 38 nodes, 166 links
 // Verified reproducible across runs (timings vary; hashes must not). A change

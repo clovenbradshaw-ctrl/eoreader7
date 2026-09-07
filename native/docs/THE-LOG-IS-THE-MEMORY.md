@@ -115,7 +115,8 @@ and the object is reassembled when something reaches for it.
 - **Exactness.** `native/eval/read-cost.mjs --identity` hashes the log and the
   projection's nodes and links at four cursors. A change that alters any of
   them has changed the reading, whatever it did to the clock. Expected on an
-  unchanged read path: `logHash 45bbbbbd578d027f`, 926 sentences, 2,691 log
+  unchanged read path: `logHash bcf5d8196b69d8f0` (was `45bbbbbd578d027f`
+  until P165 put the merge record into the log), 926 sentences, 2,691 log
   entries, 38 nodes and 166 links at the final cursor.
 - **The cursor.** A query must be answerable *as of* a point in the reading,
   or retrieval-time identity is lost and with it the ability to see that a
@@ -124,3 +125,38 @@ and the object is reassembled when something reaches for it.
   reachable in principle and never hit in practice. Any query layer must be
   measured for hit rate, not assumed to have one — the last one measured
   **zero hits in 3,392 calls** while looking correct.
+
+## The array copy (P166)
+
+The last resident term. `upsertManyById` copied the whole array on every
+call and the delta record pointed backward, so the tip held every
+intermediate array alive: the O(n²) was memory, not only time. On the old
+code a full book dies at an 8 GB heap after 300 s; so does 1 MB.
+
+Now an array the fold created is owned and extended in place; the delta
+stream points forward and retains nothing behind the views; a superseded
+turn's `fold` is the log's projection at its seq, reconstructed on demand.
+Transience is declared by the chain's owner (`{ transient: true }` in
+`reading.js` and `reconstruct`) — `applyObservation`/`applyDelta` stay pure
+by default, because `tests/identity-revision.test.js` holds an earlier fold
+and reads it after the next delta, and that is a legitimate thing to do with
+a pure function.
+
+Measured, old and new back-to-back under the same load (the P145 arm's
+model calls beside both; the heap column is per-process):
+
+```
+ sentences   old s   new s   old heap MB   new heap MB
+       926    1.56    3.9          160            77
+      1707    8.27    3.45         413           173
+      3051   33.35   33.28        1482           421
+```
+
+**The copy was the memory term, not the time term.** Heap 3.5× lower at
+3,051 sentences; read time unchanged. The remaining super-linear time is
+elsewhere — the per-refresh re-clustering in `discoverReferents`, the
+neighbourhood walks — and is the next thing to measure, not to assume.
+
+Gates on the final code: `--identity` at 60 KB unchanged; `--trace
+--against` byte-identical at all 123 sampled steps (240 KB) and all 120
+(480 KB), baselines from a clean worktree of the previous HEAD.

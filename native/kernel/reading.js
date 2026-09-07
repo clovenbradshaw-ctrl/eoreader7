@@ -1,4 +1,4 @@
-import { receivedGround, applyObservation, applyDelta, deltaFold } from "./fold.js";
+import { receivedGround, applyObservation, applyDelta, deltaFold, reconstruct } from "./fold.js";
 import { deriveOrientation } from "./orientation.js";
 import { perceive as defaultPerceive } from "./perception.js";
 import { witness as defaultWitness } from "./witness.js";
@@ -74,13 +74,23 @@ export function createRecursiveReader({ seed = {}, priors = [], perceivers = [],
 
     log.push(currentEncounter, ...observations, ...taskEvidence, canonicalDelta);
     let nextFold = beforeFold;
-    for (const observation of observations) nextFold = applyObservation(nextFold, observation);
-    nextFold = applyDelta(nextFold, canonicalDelta);
+    // (P166) The reader declares its chain transient: nothing reads a superseded
+    // fold — see the accessor below and fold.js's delta-stream header.
+    for (const observation of observations) nextFold = applyObservation(nextFold, observation, { transient: true });
+    nextFold = applyDelta(nextFold, canonicalDelta, { transient: true });
     fold = nextFold;
+    // (P166) The fold's arrays are extended IN PLACE along the reader's linear
+    // chain, so this turn's `fold` is the tip only while it is the tip. Once
+    // superseded, the turn's fold is the log's projection at this seq (P159:
+    // the log is the record, the fold is state) — reconstructed on demand,
+    // never retained. Byte-identity of that projection with the live fold is
+    // what read-cost.mjs --identity and --trace pin.
+    const tip = fold;
+    const at = log.length;
     indexHypergraphEntries(graphIndex, deltaGraph(canonicalDelta, fold));
     const taskUpdate = proposeObligationTasks(tasks, fold); tasks = taskUpdate.log;
 
-    return Object.freeze({ encounter: currentEncounter, orientation, candidates, challenge, observations, awakenedTasks, scheduledTasks, taskEvidence, proposedTasks: taskUpdate.proposed, tasks: Object.freeze(projectTasks(tasks)), relevantFold: neighborhood, interrogation, deltaFold: canonicalDelta, fold, surprise: deriveSurprise(canonicalDelta), tension: deriveTension(fold), release: deriveRelease(canonicalDelta, beforeFold, fold) });
+    return Object.freeze({ encounter: currentEncounter, orientation, candidates, challenge, observations, awakenedTasks, scheduledTasks, taskEvidence, proposedTasks: taskUpdate.proposed, tasks: Object.freeze(projectTasks(tasks)), relevantFold: neighborhood, interrogation, deltaFold: canonicalDelta, get fold() { return fold === tip ? tip : reconstruct(log.slice(0, at), seed); }, surprise: deriveSurprise(canonicalDelta), tension: deriveTension(fold), release: deriveRelease(canonicalDelta, beforeFold, fold) });
   }
 
   async function read(encounters = []) { const turns = []; for (const item of encounters) turns.push(await step(item)); return Object.freeze({ turns, fold, tasks: Object.freeze(projectTasks(tasks)), taskLog: tasks, log: [...log] }); }
