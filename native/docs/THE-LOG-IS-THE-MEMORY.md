@@ -177,3 +177,32 @@ It completes, where the old code died at 8 GB after 300 s, and the
 reconstruction is exact at this scale. And it is slow: 286 ms/sentence
 against ~11 at 3,051 sentences under the same load — the super-linear TIME
 term is the next problem, and it is not the copy.
+
+## The time term (P167)
+
+Closed by growth ranking: profile the same read at two sizes, rank inclusive
+time by its growth ratio, fix the term whose share grows, gate against the
+old code byte-for-byte, re-profile. Nine terms in six commits; the ladder
+and each term are in the-fold POLICIES.md P167.
+
+```
+                    120->240 KB growth      240->480 KB growth
+before                 5.09x  (1.79x sent.)      12.5x  (2x sent.)
+after                  1.82x                       3.9x
+480 KB read, CPU-sampled beside the arm:  79.3 s -> 25.0 s
+```
+
+Wall-clock, old (0bcb90d) and final (6c40ab5) back to back:
+
+```
+ sentences   old s   new s   old heap   new heap
+       926    1.66    0.86     130 MB      81 MB
+      1707    6.98    2.54     411 MB     151 MB
+      3051   14.81    4.65    1404 MB     338 MB
+      5904     OOM   13.57         —      486 MB
+```
+
+Two of this pass's own cuts were refused by the differential before they
+landed — `changedOnly` offering only the extras (the LOG hash moved, the
+nodes held), and fold steps applying `updated` before `appended` (an index
+left on a stale canonical at step 5534) — which is what the gate is for.
