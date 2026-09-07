@@ -231,8 +231,23 @@ export function applyObservation(fold, observation) {
   // they already are — and `witnessed` stays present-but-empty so that a
   // caller reading it gets a truthful empty array rather than `undefined`.
   next.witnessed = next.witnessed ?? [];
+  // THE OBSERVATION IS THE RECORD; ITS CHILDREN ARE THE STATE (P164).
+  //
+  // This line used to add the Observation@1 object ITSELF to graphEntries,
+  // beside its own hyperedges and graphEntries. An Observation CONTAINS those
+  // as nested arrays — so the fold held the parent, carrying copies of its
+  // children, in the same array as the children. Measured: 6,603 of the
+  // 10,261 objects nested inside Observations (64%) were also top-level
+  // entries. That is the 2.7 MB "containment copy" of a 6.6 MB fold, and it
+  // is the same defect as P159 step 1 — a record of an act being materialised
+  // into an accumulation of the act's effects.
+  //
+  // Nothing reads an Observation@1 from graphEntries. The graph index takes
+  // observations from the step (reading.js::observationGraph), revision.js
+  // reads `observation.graphEntries` off the observation it is handed, and
+  // the projection filters for referents and hyperedges. The observation
+  // remains in the log, whole, where it was born and where it is the truth.
   const additions = [
-    observation,
     ...(observation.hyperedges ?? []),
     ...(observation.graphEntries ?? []),
   ].filter(graphable);
