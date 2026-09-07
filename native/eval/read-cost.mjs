@@ -71,6 +71,7 @@ import { reviseTextFold } from "../adapters/text/revision.js";
 import { createRecursiveReader } from "../../kernel.js";
 import { projectHypergraph } from "../kernel/hypergraph-projection.js";
 import { reconstruct } from "../kernel/fold.js";
+import { declare as declareRetrieval, carry as carryFrame, say as sayFramed } from "../kernel/retrieval-frame.js";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const POS = JSON.parse(fs.readFileSync(path.join(here, "../../legacy-eoreader6.1/bin/priors/pos/en-ud-ewt.json"), "utf8"));
@@ -218,7 +219,15 @@ export function lineageOf(seedId, byId, { maxDepth = 40 } = {}) {
   return { reached: seen.size, depth, material, dangling };
 }
 
-/** Every referent's lineage, in one reading. `dangling` must be 0 and `material` must be > 0. */
+/**
+ * Every referent's lineage, in one reading — CARRYING ITS FRAME (P161).
+ *
+ * A lineage number is not a property of the referent. It is a property of
+ * (the referent, the conclusion asked of it, the cursor). Reported bare it
+ * reads as a fact about the thing, which is a view from nowhere wearing a
+ * measurement — so the frame rides on the result and `sayFramed` refuses to
+ * print a number without it.
+ */
 export async function lineage(file, bytes) {
   const { reading } = await readPrefix(file, bytes);
   const G = reading.fold?.graphEntries ?? [];
@@ -227,7 +236,13 @@ export async function lineage(file, bytes) {
   const refs = G.filter((e) => e?.schema === "EOReferent@1");
   const rows = refs.map((x) => ({ id: x.id, ...lineageOf(x.id, byId) }));
   const n = rows.length || 1;
-  return {
+  const frame = declareRetrieval({
+    asking: "what fed each referent, and does the trail reach the material?",
+    conclusion: "the addresses reachable by feeder links, and whether they terminate in byte anchors",
+    atSeq: null,
+    organs: ["causalTextPerceiver", "reviseTextFold"],
+  });
+  return carryFrame({
     referents: rows.length,
     meanReached: Number((rows.reduce((s, x) => s + x.reached, 0) / n).toFixed(2)),
     danglingTotal: rows.reduce((s, x) => s + x.dangling, 0),
@@ -236,7 +251,7 @@ export async function lineage(file, bytes) {
     verdict: rows.length && rows.every((x) => x.dangling === 0) && rows.every((x) => x.material > 0)
       ? "every referent reaches its feeders, dangles nowhere, and terminates in material bytes"
       : `${rows.reduce((s, x) => s + x.dangling, 0)} dangling address(es); ${rows.filter((x) => x.material === 0).length} referent(s) reach no bytes`,
-  };
+  }, frame);
 }
 
 /** The gate: the reading's log and its projection at four cursors, hashed. A faster read must be the SAME read. */
@@ -301,6 +316,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   } else if (has("lineage")) {
     const l = await lineage(file, bytes);
     console.log(JSON.stringify(l, null, 1));
+    console.log(`\n  ${sayFramed(l.verdict, l)}`);
     process.exitCode = l.danglingTotal === 0 && l.reachingBytes === l.referents ? 0 : 1;
   } else if (has("projection-identity")) {
     const p = await projectionIdentity(file, bytes);
