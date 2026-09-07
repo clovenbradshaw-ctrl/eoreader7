@@ -110,3 +110,20 @@ Constitution: `../eo-constitution/CONSTITUTION.md` + READING-SPEC.md + the-fold 
 | Chekhov | — | `MATCHERS` bound at 32 | clean, named | a bound of 32 compiled matchers is a budget (memory), not a judgment about material; it is cleared, never evicted by rule |
 | Marshall | II.11 | relations.js:212 `32` | upheld | the one new number is a cache bound, commented as such; earned-constants scans exported constants and this is not one, but it is named here so it is not mistaken for a threshold |
 fixed: 4 (the four changes). struck: none.
+
+## 2026-09-07 — the 480 KB cliff, part 2: identity revision's edges indexed; the hypothesis view answers "what changed"; anchoring's cast built once per array; live alternatives indexed by first token; the index's entries array made lazy (branch `fold-memory-p157`)
+
+Constitution: `../eo-constitution/CONSTITUTION.md` + READING-SPEC.md + the-fold POLICIES.md. Lenses in-session over `kernel/identity.js`, `kernel/hypergraph.js`, `adapters/text/individuation.js`, `adapters/text/revision.js`, `adapters/text/anchoring.js`, `adapters/text/identity-evidence.js` and their tests.
+
+| lens | citation | file:line | verdict | one line |
+|---|---|---|---|---|
+| Feynman | II.10; P159 step 0 | individuation.js `changedOnly` (first cut) | **fixed, by the gate** | the first cut offered only the extras' surfaces on the argument "an append arrives only as an extra"; the 60 KB log hash moved (`bcf5…` → `f784…`) while every node hash held, and a bisect (individuation reverted, identity index kept) put it on this change. Occurrences also enter the fold through the observation's own entries. `pending` — surfaces any delta touched since the last ask — closes the route; the hash is back; a test pins the exact case |
+| Diaconis | II.10 | tests/identity-index.test.js | clean | the reference is the scan the index replaces, reimplemented in the test from `canonicalizeHyperedge` and a `find`; equality at every one of 48 steps through supports, canonicals and attacks; a fixture that produces no CON op (a pair attacked earlier) asserts no REC ops rather than skipping silently |
+| Diaconis | II.10 | tests/individuation-incremental.test.js (admission equality) | clean | admissions under `changedOnly` equal admissions from the full list at 60 steps, order included, from a SEEDED fold whose groups were never offered |
+| Dijkstra | III.4 | identity.js `edgeIndex` | clean | `touchedEdges` uses the same `participantValue` `touches` used; positions kept so operations come out in fold order; an updated edge with unchanged values is swapped in place, any other update recomputes |
+| Holmes | P11 | anchoring.js `normToReferent` | clean | the case-blind fallback kept the FIRST surface whose norm matched (the `break`); Map insertion order reproduces it exactly |
+| Simon | P95 | identity-evidence.js `alternativesIndex` | clean | keyed on the alternatives array the kernel already keeps copy-on-write; a new array with equal content rebuilds and answers identically (asserted) |
+| Chekhov | — | hypergraph.js `graph.entries` | **fixed** | materialised on every index call — three per sentence — for an array no file in either tree reads (the only `.entries` readers are task-log entries); lazy and cached per graph now. My first cut cached it in a module variable shared by every graph; corrected to a WeakMap before any test ran against it |
+| Pearl | II.10 | gates | clean | 60 KB identity unchanged after the fix; 240 KB (123) and 480 KB (120) byte-identical on all five changes together |
+| Marshall | II.11 | all six files | upheld | no new constant; the one memo bound (`MATCHERS`, part 1) is a budget and is named there |
+fixed: 2 (the changedOnly hole, the shared cache). struck: none.

@@ -153,7 +153,8 @@ export async function reviseTextFold({ observations = [], fold = {}, canonicaliz
     }
   }
 
-  for (const hypothesis of descriptorHypothesesWith(fold?.graphEntries ?? [], newDescriptorOccurrences)) {
+  // Only what this sentence could have changed (individuation.js, `changedOnly`): the walk below admits unknown ids and skips known ones, and an untouched group's hypothesis was offered when it last changed.
+  for (const hypothesis of descriptorHypothesesWith(fold?.graphEntries ?? [], newDescriptorOccurrences, { changedOnly: true })) {
     if (known.has(hypothesis.id)) continue;
     known.add(hypothesis.id);
     operations.push(eoOperation({

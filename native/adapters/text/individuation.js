@@ -138,7 +138,7 @@ function hypothesisForGroup(surface, group) {
   return value;
 }
 
-const emptyState = () => ({ groups: new Map(), order: new Map(), out: [], outOrder: [], frozen: null });
+const emptyState = () => ({ groups: new Map(), order: new Map(), out: [], outOrder: [], frozen: null, fresh: true, pending: new Set() });
 
 /** Where `out` holds (or would hold) the hypothesis for a surface: binary search on the kept first-occurrence orders. */
 function slot(st, surface) {
@@ -171,13 +171,13 @@ function foldGroups(st, entries, alsoTouched = []) {
     touched.add(key);
   }
   let changed = false;
-  for (const key of [...touched].sort((a, b) => st.order.get(a) - st.order.get(b))) changed = place(st, key, hypothesisForGroup(key, st.groups.get(key))) || changed;
+  for (const key of [...touched].sort((a, b) => st.order.get(a) - st.order.get(b))) { st.pending.add(key); changed = place(st, key, hypothesisForGroup(key, st.groups.get(key))) || changed; }
   if (changed || !st.frozen) st.frozen = Object.freeze([...st.out]);
   return st;
 }
 
 const surfaceState = chainView(
-  (graphEntries) => foldGroups(emptyState(), graphEntries),
+  (graphEntries) => { const st = foldGroups(emptyState(), graphEntries); st.fresh = true; return st; },
   (st, d) => {
     // AN UPDATE IS REPLACED IN PLACE and its group's hypothesis recomputed
     // (2026-09-07) — the memo is bypassed for that group because a
@@ -215,15 +215,47 @@ export function descriptorHypotheses(graphEntries = []) {
  * semantics: fold-known surfaces in first-occurrence order, new-only
  * surfaces appended in arrival order.
  */
-export function descriptorHypothesesWith(foldEntries = [], extraOccurrences = []) {
+const NOTHING = Object.freeze([]);
+/**
+ * `changedOnly` (2026-09-07): the hypotheses that could have CHANGED since
+ * this state was last asked — every surface a delta touched since then
+ * (`pending`, kept by foldGroups), plus the surfaces this sentence's extras
+ * touch — fold-known ones in first-occurrence order, new-only ones in
+ * arrival order; and the whole list the first time a state is asked (a
+ * state just computed from scratch has offered nothing yet). revision.js
+ * admits hypotheses whose ids the fold lacks and ignores the rest; profiled
+ * at 480 KB it walked every hypothesis every sentence to find the few that
+ * were new (8.5% of the read, growing 36x for 2x the sentences).
+ *
+ * THE FIRST CUT WAS WRONG AND THE GATE CAUGHT IT. It offered only the
+ * extras' surfaces, on the argument that an append arrives only as an
+ * extra. It does not: an occurrence also enters the fold through the
+ * observation's own graphEntries, never through revision's extras, and a
+ * group grown that way was never offered — the 60 KB log hash moved while
+ * the nodes stayed. `pending` closes that route: any group changed by any
+ * delta since the last ask is offered at the next one. `fresh` and
+ * `pending` are consumed by the `changedOnly` asker and by nobody else.
+ */
+export function descriptorHypothesesWith(foldEntries = [], extraOccurrences = [], { changedOnly = false } = {}) {
   const st = surfaceState(foldEntries);
-  if (!extraOccurrences.length) return st.frozen;
+  const offerAll = !changedOnly || st.fresh;
+  const carried = st.pending;
+  if (changedOnly) { st.fresh = false; st.pending = new Set(); }
   const extra = new Map(); // surface -> the group as it would be with the extras (a copy), in extras' arrival order
   for (const x of extraOccurrences) {
     if (x?.schema !== "EOReferentOccurrence@1") continue;
     const key = x.canonicalSurface;
     if (!extra.has(key)) extra.set(key, [...(st.groups.get(key) ?? [])]);
     extra.get(key).push(x);
+  }
+  if (!offerAll) {
+    const touched = new Set([...carried, ...extra.keys()]);
+    if (!touched.size) return NOTHING;
+    const known = [...touched].filter((k) => st.order.has(k)).sort((a, b) => st.order.get(a) - st.order.get(b));
+    const fresh = [...touched].filter((k) => !st.order.has(k));
+    const out = [];
+    for (const key of [...known, ...fresh]) { const h = hypothesisForGroup(key, extra.get(key) ?? st.groups.get(key)); if (h) out.push(h); }
+    return Object.freeze(out);
   }
   if (!extra.size) return st.frozen;
   const known = [...extra.keys()].filter((k) => st.order.has(k)).sort((a, b) => st.order.get(a) - st.order.get(b));

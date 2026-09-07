@@ -74,3 +74,31 @@ test("an occurrence UPDATE is replaced in place and its group's hypothesis recom
   assert.equal(b.relationContexts[0].edge, "edge:1", "the update reached the hypothesis — a memo keyed on the same-length group alone would have answered null");
   assert.deepEqual(ids(descriptorHypotheses(fold.graphEntries)), ids(descriptorHypotheses([...fold.graphEntries])), "and equals the fresh compute");
 });
+
+test("changedOnly ADMITS EXACTLY WHAT THE FULL LIST WOULD, in the same order, at every step — including a seeded state that was never offered", () => {
+  // Simulate revision.js: admit hypotheses whose ids are not yet known, in the order returned.
+  const admitFrom = (list, known) => { const out = []; for (const h of list) { if (known.has(h.id)) continue; known.add(h.id); out.push(h.id); } return out; };
+  // A seeded fold: groups that already qualify but were never offered to anyone.
+  let fold = receivedGround({ graphEntries: [occ(900, "the sun", 900), occ(901, "the sun", 901), occ(902, "the room", 902)] });
+  const knownFull = new Set(), knownChanged = new Set();
+  let foldFull = fold; // the same chain read two ways: the full list is computed on a fresh array (the compute path, no state shared)
+  for (const [i, entries] of stream(60).entries()) {
+    const full = descriptorHypothesesWith([...fold.graphEntries], entries);
+    const changed = descriptorHypothesesWith(fold.graphEntries, entries, { changedOnly: true });
+    assert.deepEqual(admitFrom(changed, knownChanged), admitFrom(full, knownFull), `step ${i}: the same admissions, in the same order`);
+    fold = applyObservation(fold, obs(i, entries), T);
+  }
+  assert.ok(knownChanged.has("identity:descriptor:the_sun"), "the seeded, never-offered hypothesis was admitted at the first ask");
+  assert.ok(knownChanged.size >= 6, `the stream produced hypotheses to admit (${knownChanged.size})`);
+});
+
+test("changedOnly OFFERS WHAT A DELTA GREW without extras — an occurrence that entered through the observation's own entries, never as an extra (the hole the 60 KB gate found)", () => {
+  const admitFrom = (list, known) => { const out = []; for (const h of list) { if (known.has(h.id)) continue; known.add(h.id); out.push(h.id); } return out; };
+  let fold = applyObservation(receivedGround(), obs(0, [occ(0, "the door", 0)]), T);
+  const known = new Set();
+  assert.deepEqual(admitFrom(descriptorHypothesesWith(fold.graphEntries, [], { changedOnly: true }), known), [], "a singleton: nothing yet");
+  // The second occurrence arrives in an observation's graphEntries and is folded by a delta — never offered as an extra.
+  fold = applyObservation(fold, obs(1, [occ(1, "the door", 1)]), T);
+  assert.deepEqual(admitFrom(descriptorHypothesesWith(fold.graphEntries, [], { changedOnly: true }), known), ["identity:descriptor:the_door"], "offered at the next ask, from `pending`");
+  assert.deepEqual(descriptorHypothesesWith(fold.graphEntries, [], { changedOnly: true }), [], "and not again");
+});

@@ -139,9 +139,22 @@ export function indexHypergraphEntries(graph, entries = []) {
     addIndex(graph.relation, keys.relation, entry.id);
     addIndex(graph.sequence, keys.sequence, entry.id);
   }
-  graph.entries = [...graph.byId.values()];
+  // (2026-09-07) `entries` was materialised — every indexed entry copied
+  // into a fresh array — on EVERY call, and reading.js indexes three times
+  // per sentence: O(fold) per sentence, 6% of a 480 KB read growing 16x for
+  // 2x the sentences, for an array nothing in either tree reads. It is now
+  // materialised when read, and the copy is kept until the next index call.
+  MATERIALIZED.delete(graph);
+  if (!Object.getOwnPropertyDescriptor(graph, "entries")?.get) {
+    Object.defineProperty(graph, "entries", { enumerable: true, configurable: true, get() {
+      let m = MATERIALIZED.get(graph);
+      if (!m) { m = [...graph.byId.values()]; MATERIALIZED.set(graph, m); }
+      return m;
+    } });
+  }
   return graph;
 }
+const MATERIALIZED = new WeakMap(); // graph -> its entries array, valid until the next index call
 
 export function buildHypergraph(entries = []) {
   const graph = { schema: "EOHypergraph@1", entries: [], byId: new Map(), incident: new Map(), dependent: new Map(), relation: new Map(), sequence: new Map(), keysById: new Map() };

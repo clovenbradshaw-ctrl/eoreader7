@@ -1,6 +1,6 @@
 // Handle: Ise — after the Ise shrine's Shikinen Sengu: the same shrine persists through total periodic rebuilding. Amendment XVII.
 
-import { eoOperation, deltaFold } from "./fold.js";
+import { eoOperation, deltaFold, chainView } from "./fold.js";
 import { expectation, expectationTransition, openExpectation } from "./expectations.js";
 
 const norm = (x) => String(x ?? "").toLocaleLowerCase().replace(/[^\p{L}\p{N}]+/gu, " ").trim();
@@ -39,13 +39,22 @@ const participantValue = (participant) => {
   return norm(participant?.ref ?? participant?.value ?? participant?.surface);
 };
 
-export function canonicalizeHyperedge(edge, alternatives = []) {
+/** Active alternatives by the value they mention — built once per call site, so a participant asks only the identities that name its value. */
+const activeByValue = (alternatives = []) => {
+  const by = new Map();
+  for (const x of alternatives ?? []) {
+    if (x?.schema !== "EOIdentityAlternative@1" || x.standing === "distinct" || x.standing === "refused") continue;
+    for (const v of [x.left, x.right]) { if (!by.has(v)) by.set(v, []); by.get(v).push(x); }
+  }
+  return by;
+};
+export function canonicalizeHyperedge(edge, alternatives = [], byValue = null) {
   if (edge?.schema !== "EOHyperedge@1") throw new TypeError("canonicalizeHyperedge requires EOHyperedge@1");
-  const active = (alternatives ?? []).filter((x) => x?.schema === "EOIdentityAlternative@1" && x.standing !== "distinct" && x.standing !== "refused");
+  const active = byValue ?? activeByValue(alternatives);
   const participants = (edge.participants ?? []).map((participant) => {
     const value = participantValue(participant);
     const values = new Set([value]);
-    for (const identity of active) {
+    for (const identity of active.get(value) ?? []) {
       if (identity.left === value) values.add(identity.right);
       if (identity.right === value) values.add(identity.left);
     }
@@ -62,12 +71,53 @@ export function canonicalizeHyperedge(edge, alternatives = []) {
   });
 }
 
-const currentCanonical = (fold, edgeId) => (fold?.graphEntries ?? []).find((x) => x?.schema === "EOCanonicalHyperedge@1" && x.sourceEdge === edgeId) ?? null;
-const rawEdges = (fold) => (fold?.graphEntries ?? []).filter((x) => x?.schema === "EOHyperedge@1");
-const touches = (edge, identity) => (edge.participants ?? []).some((p) => {
-  const value = participantValue(p);
-  return value === identity.left || value === identity.right;
-});
+// ── THE EDGES A VALUE STANDS IN, INDEXED (2026-09-07) ─────────────────────
+// recanonicalizationOperations filtered EVERY fold entry for hyperedges,
+// tested each against the identity, and for each touched edge searched the
+// whole fold again for its current canonical — per support, per sentence.
+// Profiled at 480 KB of War and Peace: 13% of the read, growing 24x for 2x
+// the sentences. The index rides the fold's delta stream: hyperedges by
+// participant value (the same `participantValue` `touches` used), each
+// edge's position in fold order (so the operations come out in the order
+// the scan produced them), and the current canonical by source edge (one
+// per edge — `canonical:${edge.id}` — so a lookup is the scan's `find`).
+// An updated edge whose participant values are unchanged is swapped in
+// place; any other update recomputes. Exactness first.
+const valuesOf = (edge) => (edge.participants ?? []).map(participantValue);
+const emptyEdgeIndex = () => ({ byValue: new Map(), byId: new Map(), pos: new Map(), canonical: new Map(), n: 0 });
+const foldEdgeIndex = (st, entries) => {
+  for (const x of entries) {
+    if (x?.schema === "EOCanonicalHyperedge@1") { st.canonical.set(x.sourceEdge, x); continue; }
+    if (x?.schema !== "EOHyperedge@1") continue;
+    st.byId.set(x.id, x);
+    st.pos.set(x.id, st.n++);
+    for (const v of new Set(valuesOf(x))) { if (!st.byValue.has(v)) st.byValue.set(v, []); st.byValue.get(v).push(x); }
+  }
+  return st;
+};
+const edgeIndex = chainView(
+  (list) => foldEdgeIndex(emptyEdgeIndex(), list),
+  (st, d) => {
+    for (const x of d.updated) {
+      if (x?.schema === "EOCanonicalHyperedge@1") { st.canonical.set(x.sourceEdge, x); continue; }
+      if (x?.schema !== "EOHyperedge@1") continue;
+      const old = st.byId.get(x.id);
+      if (!old) return null;
+      const before = [...new Set(valuesOf(old))].sort().join("\u0000"), after = [...new Set(valuesOf(x))].sort().join("\u0000");
+      if (before !== after) return null;
+      for (const v of new Set(valuesOf(x))) { const bucket = st.byValue.get(v); const i = bucket.findIndex((e) => e.id === x.id); if (i < 0) return null; bucket[i] = x; }
+      st.byId.set(x.id, x);
+    }
+    return foldEdgeIndex(st, d.appended);
+  },
+);
+const currentCanonical = (index, edgeId) => index.canonical.get(edgeId) ?? null;
+/** The hyperedges touching an identity's two values, in fold order — what the scan-and-`touches` filter produced. */
+const touchedEdges = (index, identity) => {
+  const seen = new Map();
+  for (const v of [identity.left, identity.right]) for (const e of index.byValue.get(v) ?? []) seen.set(e.id, e);
+  return [...seen.values()].sort((a, b) => index.pos.get(a.id) - index.pos.get(b.id));
+};
 
 // An alternative participates in CANONICAL PROJECTION only at or above the
 // caller's declared corroboration floor (supportRefs count). The floor
@@ -84,11 +134,11 @@ const meetsFloor = (alternative, floor) =>
 
 function recanonicalizationOperations(fold, alternatives, touchedIdentity, witness, floor) {
   const operations = [];
-  const projecting = alternatives.filter((x) => meetsFloor(x, floor));
-  for (const edge of rawEdges(fold)) {
-    if (!touches(edge, touchedIdentity)) continue;
-    const next = canonicalizeHyperedge(edge, projecting);
-    const before = currentCanonical(fold, edge.id);
+  const projecting = activeByValue(alternatives.filter((x) => meetsFloor(x, floor)));
+  const index = edgeIndex(fold?.graphEntries ?? []);
+  for (const edge of touchedEdges(index, touchedIdentity)) {
+    const next = canonicalizeHyperedge(edge, null, projecting);
+    const before = currentCanonical(index, edge.id);
     if (before && stable(before) === stable(next)) continue;
     operations.push(eoOperation({
       op: "REC",
