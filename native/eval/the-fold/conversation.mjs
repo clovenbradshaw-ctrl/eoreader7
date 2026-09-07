@@ -3,7 +3,7 @@
 //
 //   node eval/the-fold/conversation.mjs --source prose=/path/novel.txt [--turns 1000]
 //        [--model gemma2:2b] [--reader-model gemma2:2b] [--seed 3] [--witness on|off]
-//        [--depth 1] [--resolutions 0|1|2|3] [--material auto|passages|snips] [--chunking app|outline] [--retrieval activation|terms] [--resume <dir>]
+//        [--depth 1] [--resolutions 0|1|2|3] [--material auto|passages|snips] [--chunking app|outline] [--retrieval activation|terms] [--admit <ms per turn>] [--resume <dir>]
 //
 // Not the probe bank (long-stream.mjs asks templated questions scored by
 // atoms). This is what a person does over a long conversation about a book:
@@ -53,6 +53,8 @@ const MATERIAL = String(flag("material", "auto"));
 const CHUNKING = String(flag("chunking", "app"));
 // RETRIEVAL: "activation" (the-fold activation-retrieval.js — the question activates referents, hop 0 their sentences, hop 1 what they stand with, cut by dmdWindow; term retrieval only as the disclosed fallback) or "terms" (the turn's own term retrieval over chunks, the old unit).
 const RETRIEVAL = String(flag("retrieval", "activation"));
+// THE READING IS ON THE LOG, ADMITTED PROGRESSIVELY (P98/P99, the page's own arrival read): between turns the driver admits the next stretch of the book under a declared time budget, appends the new ledger entries to a file keyed by corpus and recipe, and replays that file at start — a corpus read once is never read again. 0 turns admission off.
+const ADMIT_MS = Number(flag("admit", 3000));
 const WITNESS = flag("witness", "on") !== "off";
 const RESUME = flag("resume", null);
 const sourceArgs = args.flatMap((a, i) => (a === "--source" && args[i + 1] ? [args[i + 1]] : []));
@@ -71,6 +73,9 @@ const { ANAPHORIC_PRONOUNS } = await import("../../adapters/text/priors.js"); //
 const { makeReferentIndex } = await import(`${FOLD}cast.js`);
 const { dmdWindow } = await import(`${NATIVE}/kernel/activation.js`);
 const { mentionBook, makeActivationRetrieval } = await import(`${FOLD}activation-retrieval.js`);
+const { admitPassages } = await import(`${FOLD}read-on-arrival.js`);
+const { serializeRecord, replayRecord } = await import(`${FOLD}record-log.js`);
+const TL = await import(`${NATIVE}/kernel/task-log.js`);
 let math = null;
 try { math = await import(`${FOLD}node_modules/mathjs/lib/esm/index.js`); } catch { try { math = await import("mathjs"); } catch { math = null; } }
 let nul = null;
@@ -102,11 +107,6 @@ console.log(`  corpus referents: ${corpusIndex.referents.size} (cast.js makeRefe
 const tBook = Date.now();
 const book = RETRIEVAL === "activation" ? mentionBook(chunks, corpusIndex, { splitSentences }) : null;
 if (book) console.log(`  mention book: ${book.sentences.length} sentences carry a referent, ${book.referents} referents addressed, ${book.gaps.length} gaps (${((Date.now() - tBook) / 1000).toFixed(1)}s)`);
-// THE GRAIN OF A SENTENCE IS THE ACT: the corpus reader, built once, hears the acts a candidate sentence states about the active referents (activation-retrieval.js, SENTENCE_CEILING reads per hop at most).
-const tReader = Date.now();
-const corpusReader = book ? O.relationsFor(chunks, { pool: chunks }) : null;
-if (corpusReader) console.log(`  corpus reader built in ${((Date.now() - tReader) / 1000).toFixed(1)}s (vocabulary over ${chunks.length} chunks)`);
-const retrieveWith = book ? makeActivationRetrieval({ index: corpusIndex, book, dmdWindow, fallback: O.retrieve, read: (t) => corpusReader.read(t), notes: () => (state?.hlLog && O.hl?.foldWithStanding ? O.hl.foldWithStanding(state.hlLog) : []), transcript: () => state?.transcript ?? [] }) : null;
 const usage = { calls: 0, promptTokens: 0, completionTokens: 0, readerCalls: 0 };
 async function callWith(model, messages, opts = {}) {
   for (let attempt = 0; attempt < 2; attempt++) {
@@ -132,16 +132,47 @@ mkdirSync(DIR, { recursive: true });
 const BLOCKS_PATH = join(DIR, "blocks.jsonl");
 const TURNS_PATH = join(DIR, "turns.jsonl"), STATE_PATH = join(DIR, "state.json"), CONFIG_PATH = join(DIR, "config.json"), TRANSCRIPT_PATH = join(DIR, "transcript.md");
 const corpusId = createHash("sha256").update(loaded.map((l) => `${l.kind}:${l.name}:${l.sha256}`).join("|")).digest("hex").slice(0, 16);
+// THE LEDGER ON DISK: results/ledgers/<corpusId>-<recipe>.jsonl (append-only task-log entries) + .cursor (how many chunks admitted). Replayed through the kernel's own append; a hole or a bad line is a typed gap at boot, never silence.
+const RESULTS_ROOT = join(NATIVE, "eval/the-fold/results");
+const LEDGER_DIR = join(RESULTS_ROOT, "ledgers"); mkdirSync(LEDGER_DIR, { recursive: true });
+const LEDGER_PATH = join(LEDGER_DIR, `${corpusId}-${O.recipe}.jsonl`), CURSOR_PATH = `${LEDGER_PATH}.cursor`;
+let ledger = null, admitCursor = 0, ledgerLoaded = 0;
+if (existsSync(LEDGER_PATH)) {
+  const lines = readFileSync(LEDGER_PATH, "utf8").split("\n").filter((l) => l.trim());
+  const rep = replayRecord(lines, { createTaskLog: TL.createTaskLog, append: TL.append });
+  ledger = rep.log ?? null; ledgerLoaded = lines.length;
+  admitCursor = existsSync(CURSOR_PATH) ? Number(readFileSync(CURSOR_PATH, "utf8")) || 0 : 0;
+  console.log(`  ledger replayed: ${ledgerLoaded} entries, ${admitCursor}/${chunks.length} chunks admitted so far${rep.gaps?.length ? `, ${rep.gaps.length} gap(s)` : ""}`);
+}
+const witnessFor = (p) => (p?.ref ? `${p.ref}~${O.recipe}` : null);
+// admitNext(): the next stretch of the book, under the declared budget, appended to the file as it lands (serializeRecord from the entry count before).
+function admitNext(budgetMs) {
+  if (!ADMIT_MS || admitCursor >= chunks.length) return { read: 0, heard: 0 };
+  const t0 = Date.now(); let read = 0, heard = 0;
+  while (admitCursor < chunks.length && Date.now() - t0 < budgetMs) {
+    const batch = chunks.slice(admitCursor, admitCursor + 8);
+    const rel = O.relationsFor(batch, { pool: chunks });
+    const before = ledger?.entries?.length ?? 0;
+    const r = admitPassages(O.hl, ledger, batch, { read: rel.read, witnessFor, frame: O.frame });
+    ledger = r.log ?? ledger; heard += r.heard; read += batch.length; admitCursor += batch.length;
+    if (ledger && (ledger.entries?.length ?? 0) > before) appendFileSync(LEDGER_PATH, serializeRecord(ledger, before).join("\n") + "\n");
+    writeFileSync(CURSOR_PATH, String(admitCursor));
+  }
+  return { read, heard, ms: Date.now() - t0 };
+}
+const first = admitNext(ADMIT_MS);
+if (ADMIT_MS) console.log(`  admitted before turn 1: ${first.read} chunks, ${first.heard} heard in ${first.ms} ms; ${admitCursor}/${chunks.length} on the ledger`);
+const retrieveWith = book ? makeActivationRetrieval({ index: corpusIndex, book, dmdWindow, fallback: O.retrieve, notes: () => (ledger && O.hl?.foldWithStanding ? O.hl.foldWithStanding(ledger) : []), transcript: () => state?.transcript ?? [] }) : null;
 const rng = makeRng(SEED);
 let state;
 if (RESUME && existsSync(STATE_PATH)) { state = JSON.parse(readFileSync(STATE_PATH, "utf8")); rng.advanceTo(state.draws ?? 0); console.log(`resuming at turn ${state.turn} from ${DIR}`); }
 else {
   const bank = buildFactBank(chunks, { perSource: 120, rng });
   state = { turn: 0, history: [], transcript: [], hlLog: null, gridLog: null, bank, draws: rng.draws, asked: [], seen: [], coverage: [], useMeasuredCut: false };
-  writeFileSync(CONFIG_PATH, JSON.stringify({ ran: new Date().toISOString(), model: MODEL, readerModel: READER_MODEL, corpusId, depth: DEPTH, turns: TURNS, seed: SEED, witness: WITNESS, resolutions: RESOLUTIONS, material: MATERIAL, chunking: CHUNKING, retrieval: RETRIEVAL, sources: loaded, recipe: O.recipe }, null, 2));
+  writeFileSync(CONFIG_PATH, JSON.stringify({ ran: new Date().toISOString(), model: MODEL, readerModel: READER_MODEL, corpusId, depth: DEPTH, turns: TURNS, seed: SEED, witness: WITNESS, resolutions: RESOLUTIONS, material: MATERIAL, chunking: CHUNKING, retrieval: RETRIEVAL, admitMs: ADMIT_MS, sources: loaded, recipe: O.recipe }, null, 2));
   writeFileSync(TRANSCRIPT_PATH, `# A conversation about ${loaded[0].name}\n\n${MODEL} answering through the real turn; the reader is ${READER_MODEL} phrasing moves computed from the record. Seed ${SEED}. Corpus ${corpusId}.\n\n`);
 }
-console.log(`conversation — ${MODEL} answering, ${READER_MODEL} reading, ${TURNS} turns, witness ${WITNESS ? "on" : "off"}, arithmetic ${math ? "computed" : "UNAVAILABLE"}, resolutions ${RESOLUTIONS} (0 one-line stand-in only, 1 + atmosphere, 2 + lens, 3 + paradigm), material ${MATERIAL}, chunking ${CHUNKING}, retrieval ${RETRIEVAL}`);
+console.log(`conversation — ${MODEL} answering, ${READER_MODEL} reading, ${TURNS} turns, witness ${WITNESS ? "on" : "off"}, arithmetic ${math ? "computed" : "UNAVAILABLE"}, resolutions ${RESOLUTIONS} (0 one-line stand-in only, 1 + atmosphere, 2 + lens, 3 + paradigm), material ${MATERIAL}, chunking ${CHUNKING}, retrieval ${RETRIEVAL}, admit ${ADMIT_MS} ms/turn`);
 for (const l of loaded) console.log(`  ${l.kind.padEnd(8)} ${l.name.padEnd(28)} ${String(l.bytes).padStart(9)} bytes ${String(l.chunks).padStart(5)} chunks  ${l.sha256}`);
 console.log(`  cast/fact bank ${state.bank.length}; recipe ${O.recipe}; corpus ${corpusId}\n  ${DIR}`);
 const LEARNED_PATH = join(NATIVE, "eval/the-fold/results/long-stream", "learned.json");
@@ -246,12 +277,15 @@ for (let turn = state.turn + 1; turn <= TURNS; turn++) {
       chatHistory: history, discourse, depth: DEPTH, learnedStore, transcript: state.transcript,
       resolutions: RESOLUTIONS, dmdWindow, conversationIndex: corpusIndex, records: [], material: MATERIAL, retrieveWith, mentionBook: book,
       math, coverageHistory: state.coverage ?? [], nul, useMeasuredCut: false,
-      hyperlexicon: O.hl, hyperlexiconLog: state.hlLog, hyperlexiconFrame: O.frame, hyperlexiconRecipe: O.recipe,
+      hyperlexicon: O.hl, hyperlexiconLog: ledger ?? state.hlLog, hyperlexiconFrame: O.frame, hyperlexiconRecipe: O.recipe,
+      hyperlexiconUnread: ADMIT_MS && admitCursor < chunks.length ? [{ name: loaded[0]?.name ?? "the book", read: admitCursor, total: chunks.length }] : [],
       grid: O.grid, gridLog: state.gridLog, runCapacity: O.runCapacity,
     });
   } catch (e) { error = String(e?.stack ?? e?.message ?? e).slice(0, 600); }
   const answer = r ? String(r.output ?? "") : "";
-  if (r?.hyperlexiconLog) state.hlLog = r.hyperlexiconLog;
+  if (r?.hyperlexiconLog) { const before = ledger?.entries?.length ?? 0; ledger = r.hyperlexiconLog; state.hlLog = ledger; if ((ledger.entries?.length ?? 0) > before) appendFileSync(LEDGER_PATH, serializeRecord(ledger, before).join("\n") + "\n"); }
+  // Between turns: the next stretch of the book onto the ledger, under the declared budget — reading continues while the conversation projects from what is read so far.
+  const adm = admitNext(ADMIT_MS);
   if (r?.gridLog) state.gridLog = r.gridLog;
   let learnedAdded = 0;
   for (const e of r?.learned ?? []) { const before = learnedStore.length; learnedStore = learn(learnedStore, e); if (learnedStore.length > before) learnedAdded += 1; }
