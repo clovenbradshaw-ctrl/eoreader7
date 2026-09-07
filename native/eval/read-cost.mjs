@@ -197,10 +197,20 @@ export async function scale(file, sizes) {
   }
   // The verdict, computed rather than eyeballed: linear iff ms/sentence does
   // not systematically rise.
+  // THE RATIO ALONE IS A BAD VERDICT, and it misled once already (P159): a
+  // change that made the SMALLEST read 4.7x faster and the largest 3.3x
+  // faster reported a WORSE growth ratio, because the ratio's denominator had
+  // shrunk. Every absolute number had fallen. So the reading reports both —
+  // the shape (is it still super-linear) and the cost (how much does it
+  // actually take) — and never lets the first stand in for the second.
   const first = rows[0]?.msPerSentence ?? 0, last = rows[rows.length - 1]?.msPerSentence ?? 0;
-  return { rows, growth: first > 0 ? Number((last / first).toFixed(1)) : null,
-    linear: first > 0 && last / first < 1.5,
-    verdict: first > 0 && last / first < 1.5 ? "linear" : `SUPER-LINEAR: ms/sentence grew ${(last / first).toFixed(1)}x across this range` };
+  const growth = first > 0 ? last / first : null;
+  const linear = growth != null && growth < 1.5;
+  return { rows, growth: growth == null ? null : Number(growth.toFixed(1)), linear,
+    msPerSentenceAtLargest: last, secondsAtLargest: rows[rows.length - 1]?.seconds ?? null,
+    verdict: linear
+      ? `linear — ${last} ms/sentence at the largest size`
+      : `SUPER-LINEAR (grew ${growth.toFixed(1)}x) — but the cost that matters is ${last} ms/sentence at the largest size, ${rows[rows.length - 1]?.seconds}s total` };
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {

@@ -219,7 +219,18 @@ function graphable(value) {
 export function applyObservation(fold, observation) {
   if (observation?.schema !== "Observation@1") throw new TypeError("applyObservation requires Observation@1");
   const next = copyFold(fold);
-  next.witnessed = upsertById(next.witnessed ?? [], observation);
+  // NOT ACCUMULATED (P159). `witnessed` held every Observation@1 the reading
+  // ever made — 1,465 entries and 3.2 MB, 22% of the fold — and it is
+  // VERBATIM the log's own Observation@1 entries, identical and in order
+  // (measured). Nothing in the tree reads its contents: the only two readers
+  // anywhere are eval/frankenstein.mjs:71 and :93, and both ask only for
+  // `.length`.
+  //
+  // A count that the log can answer is not a reason to keep a second copy of
+  // the log. The observations are still fully available — from the log, where
+  // they already are — and `witnessed` stays present-but-empty so that a
+  // caller reading it gets a truthful empty array rather than `undefined`.
+  next.witnessed = next.witnessed ?? [];
   const additions = [
     observation,
     ...(observation.hyperedges ?? []),
