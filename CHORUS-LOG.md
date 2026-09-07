@@ -157,3 +157,19 @@ Constitution: `../eo-constitution/CONSTITUTION.md` + READING-SPEC.md + the-fold 
 | Chekhov | — | `addresses: "founder"` | clean, named | kept as an opt-in so P165's oscillation stays reproducible in `referent-merge.test.js`; not dead, a control |
 | Marshall | IV.1; P71 | P168, S80, the retired test | upheld | the P165 test's own text asked to be retired "with that finding recorded" when the clustering was stabilised; it now pins the finding under the old rule and its absence under the default, in the same diff as the change |
 fixed: none needed. struck: none.
+
+## 2026-09-07 — the holograph rebuild: three resolutions, compression, the mouth's door, activation retrieval (d053068, 59c887e, 6fe45fa, a965747, 469d09b)
+
+chorus-fast on each: the only FAIL across the five runs was `matrix-client.test.mjs`'s load-flaky pool test (standing entry; passes 21/21 alone, verified 2026-09-07). One real gate catch: the contract test on d053068 (app.js imports the kernel's activation.js) — fixed in 59c887e, not by the marker.
+
+| persona | article | file:line | verdict | summary |
+|---|---|---|---|---|
+| Frankfurt | P55 / the 2026-08-18 address decision | firewall.js `mouthFacing`; holon.js around `call` | fixed | the blocks, expectation facts, re-ask facts, P122's snip block and P125's premise facts all put addresses in the model's view; one wall at the mouth's door strikes them all; the record keeps every address |
+| Dijkstra | P88 | conversation.mjs `--chunking`; holograph-reading.mjs | fixed | the eval read chapter-sized chunks (328) where the page reads paragraphs (3,743); measured a configuration the page does not run |
+| Diaconis | II.11 / P9 | activation-retrieval.js `SENTENCE_CEILING`; resolutions.js `DEPTHS`, `RECURRENCE_FLOOR` | accounted | a declared reader budget per hop, a structural ladder, binding's floor — each stated in place; the cut inside is measured by dmdWindow |
+| Holmes | P11 | activation-retrieval.js, resolutions.js, dialogue.js `candidatesIn` | fixed | every retrieval and every block resolves through the index; the candidate scan offers sub-runs so "Later Razumihin" no longer hides a referent |
+| Ostrom | P41 | resolutions.js `prominence`; `errorOf` authorship null | fixed | a one-off surface ("God Which") no longer names a ground; no expectation → authorship withheld, never 0 |
+| Simon | P97 | activation-retrieval.test.mjs (through the real turn) | measured | reach by referent alone cut the second act about Porfiry — found by the turn-level test, fixed at the grain |
+| Marshall | IV.4 | THE-HOLOGRAPH.md; preregistered-lens-arm.md | upheld | predictions written before the arms; the additive control's null result recorded before the compressed arm ran; the void line in fact-block.js (P55's pin) left standing, flagged |
+
+deferred-with-reason: the P55 void line carries negative knowledge in the prompt (user's own rule) but is a measured pin — the user's call. false-positive-on-review: none.
