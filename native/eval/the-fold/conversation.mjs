@@ -3,7 +3,7 @@
 //
 //   node eval/the-fold/conversation.mjs --source prose=/path/novel.txt [--turns 1000]
 //        [--model gemma2:2b] [--reader-model gemma2:2b] [--seed 3] [--witness on|off]
-//        [--depth 1] [--resume <dir>]
+//        [--depth 1] [--resolutions 0|1|2|3] [--resume <dir>]
 //
 // Not the probe bank (long-stream.mjs asks templated questions scored by
 // atoms). This is what a person does over a long conversation about a book:
@@ -45,6 +45,8 @@ const MODEL = flag("model", "gemma2:2b");
 const READER_MODEL = flag("reader-model", MODEL);
 const DEPTH = Number(flag("depth", 1));
 const SEED = Number(flag("seed", 3));
+// The discourse at three resolutions (the-fold resolutions.js, P171): 0 = today's one-line stand-in only, 1 = + atmosphere, 2 = + lens, 3 = + paradigm. The arm of the measurement, declared here, printed with the configuration, carried on every row.
+const RESOLUTIONS = Number(flag("resolutions", 0));
 const WITNESS = flag("witness", "on") !== "off";
 const RESUME = flag("resume", null);
 const sourceArgs = args.flatMap((a, i) => (a === "--source" && args[i + 1] ? [args[i + 1]] : []));
@@ -111,6 +113,7 @@ const witnessSentences = WITNESS ? (sentences, claims, passages, { maxAsks }) =>
 const stamp = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
 const DIR = RESUME ?? join(NATIVE, "eval/the-fold/results/conversation", `${stamp}-${MODEL.replace(/[^\w.-]+/g, "_")}-${loaded[0].name.replace(/\.[^.]+$/, "")}`);
 mkdirSync(DIR, { recursive: true });
+const BLOCKS_PATH = join(DIR, "blocks.jsonl");
 const TURNS_PATH = join(DIR, "turns.jsonl"), STATE_PATH = join(DIR, "state.json"), CONFIG_PATH = join(DIR, "config.json"), TRANSCRIPT_PATH = join(DIR, "transcript.md");
 const corpusId = createHash("sha256").update(loaded.map((l) => `${l.kind}:${l.name}:${l.sha256}`).join("|")).digest("hex").slice(0, 16);
 const rng = makeRng(SEED);
@@ -119,10 +122,10 @@ if (RESUME && existsSync(STATE_PATH)) { state = JSON.parse(readFileSync(STATE_PA
 else {
   const bank = buildFactBank(chunks, { perSource: 120, rng });
   state = { turn: 0, history: [], transcript: [], hlLog: null, gridLog: null, bank, draws: rng.draws, asked: [], seen: [], coverage: [], useMeasuredCut: false };
-  writeFileSync(CONFIG_PATH, JSON.stringify({ ran: new Date().toISOString(), model: MODEL, readerModel: READER_MODEL, corpusId, depth: DEPTH, turns: TURNS, seed: SEED, witness: WITNESS, sources: loaded, recipe: O.recipe }, null, 2));
+  writeFileSync(CONFIG_PATH, JSON.stringify({ ran: new Date().toISOString(), model: MODEL, readerModel: READER_MODEL, corpusId, depth: DEPTH, turns: TURNS, seed: SEED, witness: WITNESS, resolutions: RESOLUTIONS, sources: loaded, recipe: O.recipe }, null, 2));
   writeFileSync(TRANSCRIPT_PATH, `# A conversation about ${loaded[0].name}\n\n${MODEL} answering through the real turn; the reader is ${READER_MODEL} phrasing moves computed from the record. Seed ${SEED}. Corpus ${corpusId}.\n\n`);
 }
-console.log(`conversation — ${MODEL} answering, ${READER_MODEL} reading, ${TURNS} turns, witness ${WITNESS ? "on" : "off"}, arithmetic ${math ? "computed" : "UNAVAILABLE"}`);
+console.log(`conversation — ${MODEL} answering, ${READER_MODEL} reading, ${TURNS} turns, witness ${WITNESS ? "on" : "off"}, arithmetic ${math ? "computed" : "UNAVAILABLE"}, resolutions ${RESOLUTIONS} (0 one-line stand-in only, 1 + atmosphere, 2 + lens, 3 + paradigm)`);
 for (const l of loaded) console.log(`  ${l.kind.padEnd(8)} ${l.name.padEnd(28)} ${String(l.bytes).padStart(9)} bytes ${String(l.chunks).padStart(5)} chunks  ${l.sha256}`);
 console.log(`  cast/fact bank ${state.bank.length}; recipe ${O.recipe}; corpus ${corpusId}\n  ${DIR}`);
 const LEARNED_PATH = join(NATIVE, "eval/the-fold/results/long-stream", "learned.json");
@@ -225,6 +228,7 @@ for (let turn = state.turn + 1; turn <= TURNS; turn++) {
       makeNameResolver: castFor, makeReferentIndexFor: indexFor, makeRelationReader: O.relationsFor, witnessSentences,
       checkLink: null, planMode: needsDecomposition(question) ? "model" : "flat",
       chatHistory: history, discourse, depth: DEPTH, learnedStore, transcript: state.transcript,
+      resolutions: RESOLUTIONS, dmdWindow, conversationIndex: corpusIndex, records: [],
       math, coverageHistory: state.coverage ?? [], nul, useMeasuredCut: false,
       hyperlexicon: O.hl, hyperlexiconLog: state.hlLog, hyperlexiconFrame: O.frame, hyperlexiconRecipe: O.recipe,
       grid: O.grid, gridLog: state.gridLog, runCapacity: O.runCapacity,
@@ -250,6 +254,7 @@ for (let turn = state.turn + 1; turn <= TURNS; turn++) {
   const row = {
     turn, at: new Date().toISOString(), move: m.move, target: m.target ?? null, targetInSource: m.target ? inSource(m.target) : null, phrasedBy, question, answer,
     earlierTurn: earlier?.turn ?? null, addressed, cited, admitsAbsence: absent, resolved,
+    resolutions: r?.resolutions ? r.resolutions.map((x) => ({ level: x.level, index: x.index, active: x.active?.ids?.length ?? 0, atmosphere: x.atmosphere, lens: x.lens, paradigm: x.paradigm, windows: x.windows })) : null,
     historyDepth: win.depth, historyBasis: win.basis ?? null,
     turnAddressed: r?.addressed ?? null, expectation: r?.expectation ?? null, selfContradictions: r?.selfContradictions ?? [], position: r?.position ?? null,
     ms: Date.now() - t0, calls: usage.calls - calls0, promptTokens: usage.promptTokens - pt0, completionTokens: usage.completionTokens - ct0,
@@ -258,6 +263,7 @@ for (let turn = state.turn + 1; turn <= TURNS; turn++) {
     correction: r?.correction ? { flagged: r.correction.flagged, asked: r.correction.asked, afterFlagged: r.correction.after?.flagged } : null,
     answeredBeforeTheModel: r?.answeredBeforeTheModel ? r.answeredBeforeTheModel.kind : null, recalledTurns: r?.recalledTurns ?? [], learnedAdded, error,
   };
+  if (r?.resolutions?.length) appendFileSync(BLOCKS_PATH, JSON.stringify({ turn, question, blocks: r.resolutions.map((x) => x.text) }) + "\n");
   appendFileSync(TURNS_PATH, JSON.stringify(row) + "\n");
   appendFileSync(TRANSCRIPT_PATH, `**Reader** (turn ${turn}, ${m.move}${m.target ? ` · ${m.target}` : ""}${phrasedBy === "mechanical" ? " · mechanical" : ""}): ${question}\n\n**The Fold**: ${answer.trim() || (error ? `_error: ${trim(error, 120)}_` : "_(no answer)_")}\n\n<sub>${refs.length ? `refs ${refs.slice(0, 4).join(", ")}${refs.length > 4 ? "…" : ""}` : "no refs"} · unsupported ${row.unsupported} · ${row.addressed === null ? "" : row.addressed ? "addressed" : "did not address the target"}${absent ? " · admits absence" : ""}${row.premises?.contradicted ? ` · contradicted ${row.premises.contradicted}` : ""}${row.answeredBeforeTheModel ? ` · before the model: ${row.answeredBeforeTheModel}` : ""}${row.position ? ` · position: ${row.position}` : ""}${row.turnAddressed?.some?.((a) => a.reasked) ? " · re-asked" : ""}${row.expectation?.authorship != null ? ` · authorship ${row.expectation.authorship}` : ""}${row.selfContradictions?.length ? ` · self-contradiction ${row.selfContradictions.length}` : ""} · history ${row.historyDepth} · ${row.calls} calls · ${(row.ms / 1000).toFixed(0)}s</sub>\n\n`);
   if (!error) { state.history.push({ role: "user", content: question }, { role: "assistant", content: answer }); state.transcript.push({ turn, question, answer, move: m.move, target: m.target ?? null, refs, claims, unsupported: row.unsupported }); }
@@ -269,7 +275,7 @@ for (let turn = state.turn + 1; turn <= TURNS; turn++) {
     for (const x of rows) { const b = by[x.move] ??= { n: 0, addressed: 0, resolved: 0, cited: 0, mech: 0 }; b.n++; if (x.addressed) b.addressed++; if (x.resolved) b.resolved++; if (x.cited) b.cited++; if (x.phrasedBy === "mechanical") b.mech++; }
     const line = Object.entries(by).map(([k, b]) => `${k} ${b.n}: addressed ${b.addressed}, resolved ${b.resolved}, cited ${b.cited}${b.mech ? `, mech ${b.mech}` : ""}`).join(" | ");
     const auth = rows.map((x) => x.expectation?.authorship).filter((a) => a != null);
-    console.log(`  — after ${turn}: ${line} | unsupported/answer ${(rows.reduce((a, x) => a + x.unsupported, 0) / rows.length).toFixed(2)} | contradicted ${rows.filter((x) => x.premises?.contradicted).length} | before-the-model ${rows.filter((x) => x.answeredBeforeTheModel).length} | re-asked ${rows.filter((x) => x.turnAddressed?.some?.((a) => a.reasked)).length} | positions ${rows.filter((x) => x.position).length} | self-contradictions ${rows.filter((x) => x.selfContradictions?.length).length} | authorship ${auth.length ? (auth.reduce((a, b) => a + b, 0) / auth.length).toFixed(2) : "—"} (${auth.length}) | history depth ${(rows.reduce((a, x) => a + (x.historyDepth ?? 0), 0) / rows.length).toFixed(1)} | ${(rows.reduce((a, x) => a + x.ms, 0) / rows.length / 1000).toFixed(0)}s/turn`);
+    console.log(`  — after ${turn}: ${line} | unsupported/answer ${(rows.reduce((a, x) => a + x.unsupported, 0) / rows.length).toFixed(2)} | contradicted ${rows.filter((x) => x.premises?.contradicted).length} | before-the-model ${rows.filter((x) => x.answeredBeforeTheModel).length} | re-asked ${rows.filter((x) => x.turnAddressed?.some?.((a) => a.reasked)).length} | positions ${rows.filter((x) => x.position).length} | self-contradictions ${rows.filter((x) => x.selfContradictions?.length).length} | authorship ${auth.length ? (auth.reduce((a, b) => a + b, 0) / auth.length).toFixed(2) : "—"} (${auth.length}) | history depth ${(rows.reduce((a, x) => a + (x.historyDepth ?? 0), 0) / rows.length).toFixed(1)} | ${(rows.reduce((a, x) => a + x.ms, 0) / rows.length / 1000).toFixed(0)}s/turn | resolutions ${RESOLUTIONS}: blocks/turn ${(rows.reduce((a, x) => a + ((x.resolutions ?? []).reduce((b, y) => b + (y.atmosphere ? 1 : 0) + (y.lens ? 1 : 0) + (y.paradigm ? 1 : 0), 0)), 0) / rows.length).toFixed(2)} | prompt tokens/turn ${(rows.reduce((a, x) => a + (x.promptTokens ?? 0), 0) / rows.length).toFixed(0)}`);
   }
 }
 console.log(`done: ${TURNS} turns — ${DIR}`);
