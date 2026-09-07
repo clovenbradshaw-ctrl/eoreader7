@@ -295,8 +295,27 @@ export function applyDelta(fold, delta) {
     operations.push(operation);
     graphUpdates.push(...applyPayload(next, operation));
   }
+  // THE RECORD IS NOT THE STATE (P159).
+  //
+  // `transformationObjects` is the record of ACTS; `graphEntries` is the
+  // accumulation of their EFFECTS. Operations were being written to both, so
+  // 4,447 EOOperation@1 entries — about 30% of the fold — sat in graphEntries
+  // as a second copy of a record the log already holds and this line holds
+  // beside it.
+  //
+  // NUL is the sharpest case and the reason the distinction is not cosmetic.
+  // `eoOperation` and the guard four lines above both refuse a NUL that
+  // carries a mutating payload — "NUL records no transformation" — and
+  // `graphable` then admitted it into graphEntries anyway. A
+  // non-transformation was being materialised into an accumulation of
+  // transformations. It is an act, so it belongs to the record; it has no
+  // effect, so it has no place in the state.
+  //
+  // The graph INDEX is unaffected: reading.js already builds it from
+  // graphEntries AND transformationObjects together, which is where the
+  // duplication was visible from the other side.
   next.transformationObjects = upsertManyById(next.transformationObjects ?? [], operations);
-  next.graphEntries = upsertManyById(next.graphEntries ?? [], [...operations, ...graphUpdates].filter(graphable));
+  next.graphEntries = upsertManyById(next.graphEntries ?? [], graphUpdates.filter(graphable));
   const ref = delta.id ?? `delta:${next.sequence}`;
   next.transformationHistoryRefs = [...(next.transformationHistoryRefs ?? []), ref];
   return next;
