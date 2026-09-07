@@ -1,0 +1,250 @@
+// eval/the-fold/conversation.mjs — a READER in conversation with the real turn
+// about one novel, for as long as you like.
+//
+//   node eval/the-fold/conversation.mjs --source prose=/path/novel.txt [--turns 1000]
+//        [--model gemma2:2b] [--reader-model gemma2:2b] [--seed 3] [--witness on|off]
+//        [--depth 1] [--resume <dir>]
+//
+// Not the probe bank (long-stream.mjs asks templated questions scored by
+// atoms). This is what a person does over a long conversation about a book:
+// reflects on what was just said, asks what a name or a claim meant, follows
+// a thread, asks which passage says so, comes back to something said earlier
+// and asks how the two fit, opens a fresh thread from the cast, asks why.
+//
+// THE MOVE IS COMPUTED; THE MOUTH PHRASES IT (the model is just the mouth).
+// Each turn a move is drawn (seeded) from what the last answer's own record
+// makes available — the names it introduced, whether it cited, whether it
+// left claims unsupported, whether there is an earlier exchange to revisit —
+// and the reader model writes the question in a reader's voice under a
+// guard: a question that does not name its target is retried once and then
+// replaced by a mechanical phrasing, and the record says which. Nothing the
+// reader says is scored by a model. What is recorded per turn: the move and
+// its target, whether the target is a name the book actually contains,
+// whether the answer ADDRESSED the target, CITED a passage, or ADMITTED the
+// book does not say — the three honest outcomes of a clarification — plus
+// everything the long-stream row records about the turn itself.
+//
+// The rig — corpus declared by content (P88), the model call, witnesses,
+// the cast resolver, the learned store, the real turn with its threaded
+// ledgers — is long-stream.mjs's, copied verbatim and named as such; the
+// two drivers should share a lib once the P145 arm's analysis is closed.
+import { readFileSync, writeFileSync, appendFileSync, mkdirSync, existsSync, renameSync } from "node:fs";
+import { createHash } from "node:crypto";
+import { join } from "node:path";
+import { organs as productOrgans } from "./lib/product-assay.mjs";
+import { buildFactBank, makeRng, sentencesOf } from "./lib/long-stream.mjs";
+
+const NATIVE = new URL("../..", import.meta.url).pathname;
+const ROOT = new URL("../../../../", import.meta.url).pathname;
+const FOLD = `${ROOT}the-fold/`;
+const OLLAMA = process.env.OLLAMA ?? "http://127.0.0.1:11434";
+const args = process.argv.slice(2);
+const flag = (name, dflt) => { const i = args.indexOf(`--${name}`); return i >= 0 && args[i + 1] != null ? args[i + 1] : dflt; };
+const TURNS = Number(flag("turns", 1000));
+const MODEL = flag("model", "gemma2:2b");
+const READER_MODEL = flag("reader-model", MODEL);
+const DEPTH = Number(flag("depth", 1));
+const SEED = Number(flag("seed", 3));
+const WITNESS = flag("witness", "on") !== "off";
+const RESUME = flag("resume", null);
+const sourceArgs = args.flatMap((a, i) => (a === "--source" && args[i + 1] ? [args[i + 1]] : []));
+if (!sourceArgs.length) { console.error("usage: --source prose=/path/to/novel.txt is required"); process.exit(2); }
+const SOURCES = sourceArgs.map((s) => { const [kind, ...rest] = s.split("="); return { kind, path: rest.join("=") }; });
+
+const O = await productOrgans();
+const { runHolonicTask, needsDecomposition } = await import(`${FOLD}holon.js`);
+const { makeCastResolver } = await import(`${FOLD}cast.js`);
+const { mechanicalFoldLine, RECENCY_WINDOW } = await import(`${FOLD}fold.js`);
+const { splitSentences } = await import(`${NATIVE}/adapters/text/spans.js`);
+const { learn, correctionsIn, learnable } = await import(`${FOLD}learned.js`);
+let math = null;
+try { math = await import(`${FOLD}node_modules/mathjs/lib/esm/index.js`); } catch { try { math = await import("mathjs"); } catch { math = null; } }
+let nul = null;
+try { nul = await import(`${ROOT}eoreader7/legacy-eoreader6.1/nul/index.js`); } catch { nul = null; }
+const { extractSurfaces, discoverReferents, namesCorefer, diaNorm } = await import(`${NATIVE}/adapters/text/surfaces.js`);
+const { lineIndex, outlineOfIndex } = await import(`${ROOT}eoreader7/legacy-eoreader6.1/packages/engine/perceiver/text/segments.js`);
+const W = await import(`${NATIVE}/organs/index.js`);
+const castFor = makeCastResolver({ splitSentences, extractSurfaces, discoverReferents, namesCorefer, diaNorm });
+
+// ── the rig (long-stream.mjs, verbatim) ───────────────────────────────────
+const windowed = (text, size) => { const out = []; let i = 0; while (i < text.length) { let j = Math.min(text.length, i + size); const nl = text.lastIndexOf("\n", j); const cm = text.lastIndexOf(",", j); const cut = nl > i + size / 2 ? nl + 1 : cm > i + size / 2 ? cm + 1 : j; out.push(text.slice(i, cut)); i = cut; } return out.join("\n\n"); };
+const boundariesOf = (t) => { try { const out = outlineOfIndex(lineIndex(t), { max: 5000 }); if (out.gap || out.headings.length < 2) return null; return out.headings.map((h) => ({ start: h.start, end: h.end })); } catch { return null; } };
+const chunks = []; const loaded = []; const sourceText = {};
+for (const s of SOURCES) {
+  if (!existsSync(s.path)) { console.error(`source missing: ${s.path}`); process.exit(2); }
+  let text = readFileSync(s.path, "utf8");
+  if (!/\n\s*\n/.test(text)) text = windowed(text, 1500);
+  const name = s.path.split("/").pop();
+  sourceText[name] = text;
+  const cs = O.chunkSource(name, text, { boundaries: s.kind === "prose" ? boundariesOf(text) : null }).map((c) => ({ ...c, source: name, kind: s.kind }));
+  chunks.push(...cs);
+  loaded.push({ kind: s.kind, name, path: s.path, bytes: text.length, chunks: cs.length, sha256: createHash("sha256").update(text).digest("hex").slice(0, 16) });
+}
+const usage = { calls: 0, promptTokens: 0, completionTokens: 0, readerCalls: 0 };
+async function callWith(model, messages, opts = {}) {
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      const body = { model, stream: false, options: { temperature: opts.temperature ?? 0, num_predict: opts.maxTokens ?? 512 }, messages };
+      if (opts.json) body.format = opts.json === true ? "json" : opts.json;
+      const res = await fetch(`${OLLAMA}/api/chat`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body), signal: AbortSignal.timeout(600000) });
+      if (!res.ok) throw new Error(`ollama ${res.status}`);
+      const data = await res.json();
+      usage.calls += 1; usage.promptTokens += data.prompt_eval_count ?? 0; usage.completionTokens += data.eval_count ?? 0;
+      return data.message?.content ?? "";
+    } catch (err) { if (attempt === 1) throw err; }
+  }
+}
+const call = (messages, opts) => callWith(MODEL, messages, opts);
+const witnessAsk = async (s, slice) => W.readTestimony(await call(W.buildWitnessMessages(s, slice), { json: W.WITNESS_SCHEMA, maxTokens: 200 }));
+const witnessSelect = async (messages) => { try { return JSON.parse(await call(messages, { json: W.SELECT_SCHEMA, maxTokens: 120 })); } catch { return {}; } };
+const witnessSentences = WITNESS ? (sentences, claims, passages, { maxAsks }) => W.witnessSentences(sentences, claims, passages, { ask: witnessAsk, selectAsk: witnessSelect, splitSentences, testimony: W.readTestimony, maxAsks }) : null;
+
+const stamp = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
+const DIR = RESUME ?? join(NATIVE, "eval/the-fold/results/conversation", `${stamp}-${MODEL.replace(/[^\w.-]+/g, "_")}-${loaded[0].name.replace(/\.[^.]+$/, "")}`);
+mkdirSync(DIR, { recursive: true });
+const TURNS_PATH = join(DIR, "turns.jsonl"), STATE_PATH = join(DIR, "state.json"), CONFIG_PATH = join(DIR, "config.json"), TRANSCRIPT_PATH = join(DIR, "transcript.md");
+const corpusId = createHash("sha256").update(loaded.map((l) => `${l.kind}:${l.name}:${l.sha256}`).join("|")).digest("hex").slice(0, 16);
+const rng = makeRng(SEED);
+let state;
+if (RESUME && existsSync(STATE_PATH)) { state = JSON.parse(readFileSync(STATE_PATH, "utf8")); rng.advanceTo(state.draws ?? 0); console.log(`resuming at turn ${state.turn} from ${DIR}`); }
+else {
+  const bank = buildFactBank(chunks, { perSource: 120, rng });
+  state = { turn: 0, history: [], transcript: [], hlLog: null, gridLog: null, bank, draws: rng.draws, asked: [], seen: [], coverage: [], useMeasuredCut: false };
+  writeFileSync(CONFIG_PATH, JSON.stringify({ ran: new Date().toISOString(), model: MODEL, readerModel: READER_MODEL, corpusId, depth: DEPTH, turns: TURNS, seed: SEED, witness: WITNESS, sources: loaded, recipe: O.recipe }, null, 2));
+  writeFileSync(TRANSCRIPT_PATH, `# A conversation about ${loaded[0].name}\n\n${MODEL} answering through the real turn; the reader is ${READER_MODEL} phrasing moves computed from the record. Seed ${SEED}. Corpus ${corpusId}.\n\n`);
+}
+console.log(`conversation — ${MODEL} answering, ${READER_MODEL} reading, ${TURNS} turns, witness ${WITNESS ? "on" : "off"}, arithmetic ${math ? "computed" : "UNAVAILABLE"}`);
+for (const l of loaded) console.log(`  ${l.kind.padEnd(8)} ${l.name.padEnd(28)} ${String(l.bytes).padStart(9)} bytes ${String(l.chunks).padStart(5)} chunks  ${l.sha256}`);
+console.log(`  cast/fact bank ${state.bank.length}; recipe ${O.recipe}; corpus ${corpusId}\n  ${DIR}`);
+const LEARNED_PATH = join(NATIVE, "eval/the-fold/results/long-stream", "learned.json");
+let learnedStore = [];
+try { if (existsSync(LEARNED_PATH)) { const raw = correctionsIn(JSON.parse(readFileSync(LEARNED_PATH, "utf8"))); learnedStore = raw.filter((e) => !learnable(e.claimed, e.corrected)); } } catch { learnedStore = []; }
+const saveLearned = () => { const tmp = `${LEARNED_PATH}.tmp`; writeFileSync(tmp, JSON.stringify(learnedStore, null, 1)); renameSync(tmp, LEARNED_PATH); };
+const saveState = () => { const tmp = `${STATE_PATH}.tmp`; writeFileSync(tmp, JSON.stringify({ ...state, draws: rng.draws })); renameSync(tmp, STATE_PATH); };
+
+// ── the reader ───────────────────────────────────────────────────────────
+const fold = (t) => String(t ?? "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+const STOP = new Set(["The", "A", "An", "In", "On", "At", "He", "She", "It", "They", "We", "I", "You", "This", "That", "There", "Here", "But", "And", "Or", "So", "If", "When", "Then", "His", "Her", "Their", "Its", "Not", "No", "Yes", "What", "Who", "How", "Why", "Which", "Where", "After", "Before", "Chapter", "Part", "Book", "Passage", "Source"]);
+const trim = (t, n) => { const s = String(t ?? "").replace(/\s+/g, " ").trim(); return s.length > n ? `${s.slice(0, n)}…` : s; };
+const inSource = (name) => Object.values(sourceText).some((t) => t.includes(name));
+/** Names the answer introduces: capitalised runs that are not sentence-initial function words, dedup, in order of appearance. */
+function namesIn(text) {
+  const out = []; const seen = new Set();
+  const re = /(?<![.!?]\s|^)\b([A-Z][\p{L}'’-]+(?:\s+[A-Z][\p{L}'’-]+){0,2})\b/gu;
+  let m; while ((m = re.exec(String(text ?? "")))) { const n = m[1].replace(/['’]s$/, ""); if (STOP.has(n.split(/\s+/)[0]) || n.length < 3 || seen.has(fold(n))) continue; seen.add(fold(n)); out.push(n); }
+  return out;
+}
+const quotedIn = (text) => [...String(text ?? "").matchAll(/[“"]([^”"]{12,120})[”"]/g)].map((m) => m[1]);
+const admitsAbsence = (a) => /\b(do(es)? not (use|mention|say|name)|not (in|found in|present in) (the|these|this) (source|book|novel|text|passage)|nothing (here|in the (book|text|sources))|no passage|isn'?t mentioned|not mentioned)\b/i.test(a);
+const mentions = (a, target) => target ? fold(a).includes(fold(target)) : null;
+
+function chooseMove(last, turn) {
+  if (!last) return { move: "open" };
+  const names = namesIn(last.answer).filter((n) => !state.asked.includes(fold(n)));
+  const quotes = quotedIn(last.answer);
+  const options = [];
+  const push = (move, w, extra = {}) => { if (w > 0) options.push({ move, w, ...extra }); };
+  if (names.length) push("clarify", 0.28, { target: rng.pick(names) });
+  if (quotes.length) push("clarify", 0.10, { target: rng.pick(quotes), quoted: true });
+  if (sentencesOf(last.answer).length >= 2) push("reflect", 0.18);
+  if (names.length) push("deepen", 0.14, { target: rng.pick(names) });
+  push("verify", 0.08 + (last.unsupported > 0 ? 0.14 : 0) + (last.refs.length === 0 ? 0.06 : 0));
+  if (state.transcript.length >= 6) push("revisit", 0.10);
+  if (names.length) push("why", 0.08, { target: rng.pick(names) });
+  push("open", names.length ? 0.04 : 0.30);
+  const total = options.reduce((a, o) => a + o.w, 0);
+  let r = rng.next() * total;
+  for (const o of options) { r -= o.w; if (r <= 0) return o; }
+  return options[options.length - 1];
+}
+function pickEarlier() {
+  const d = rng.pick([5, 10, 20, 40].filter((x) => x < state.transcript.length));
+  const e = state.transcript[state.transcript.length - 1 - (d ?? 1)] ?? state.transcript[0];
+  return e;
+}
+const SYSTEM = (name) => `You are a reader of ${name} in the middle of a long conversation with someone who has read it closely and answers from the text. You ask one question at a time, in your own words, about what they just said or about the book. You may first say, in one short sentence, what you took from their last answer. You never answer your own question, never invent events, and keep the whole thing under forty words. Write only your words to them.`;
+function instructionFor(m, last, earlier) {
+  const said = last ? `They just said: "${trim(last.answer, 700)}"` : "";
+  switch (m.move) {
+    case "clarify": return m.quoted ? `${said}\nYou are not sure what they meant by "${m.target}". Ask them to explain it, in your own words, quoting those words back.` : `${said}\nYou are not sure who or what "${m.target}" is. Ask them to explain who or what ${m.target} is, naming ${m.target}.`;
+    case "reflect": return `${said}\nTell them in one sentence what you took from that, then ask whether that is really what the book says.`;
+    case "deepen": return `${said}\nAsk them to say more about ${m.target} — what happens with ${m.target} before or after this. Name ${m.target}.`;
+    case "why": return `${said}\nAsk why ${m.target} did that, or why it matters for the story. Name ${m.target}.`;
+    case "revisit": return `Earlier you asked: "${trim(earlier.question, 200)}" and they said: "${trim(earlier.answer, 400)}"\n${said}\nAsk how those two fit together, naming ${m.target}.`;
+    case "open": return `Ask what the book says about ${m.target}, naming ${m.target}. You have not discussed ${m.target} yet.`;
+    default: return "";
+  }
+}
+async function phrase(m, last, earlier, name) {
+  if (m.move === "verify") return { question: rng.pick(["Which passage says that? Quote it for me.", "Where in the book is that — can you give me the passage?", "I'd like to see the words themselves. Which passage says so?"]), phrasedBy: "mechanical" };
+  const messages = [{ role: "system", content: SYSTEM(name) }, { role: "user", content: instructionFor(m, last, earlier) }];
+  for (const temperature of [0.2, 0.5]) {
+    let out = "";
+    try { out = await callWith(READER_MODEL, messages, { maxTokens: 90, temperature }); usage.readerCalls += 1; } catch { out = ""; }
+    const q = out.replace(/\s+/g, " ").replace(/^["“]|["”]$/g, "").trim();
+    if (q && q.length <= 320 && /\?/.test(q) && (!m.target || mentions(q, m.target))) return { question: q, phrasedBy: "model" };
+  }
+  const fallback = { clarify: `What do you mean by "${m.target}" — who or what is that?`, deepen: `Can you say more about ${m.target}?`, why: `Why does ${m.target} matter here?`, revisit: `Earlier you told me "${trim(earlier?.answer, 120)}". How does that fit with what you just said about ${m.target}?`, reflect: `So, if I follow you: ${trim(last?.answer, 160)} Is that what the book says?`, open: `What does the book say about ${m.target}?` };
+  return { question: fallback[m.move] ?? `Can you say more about ${m.target}?`, phrasedBy: "mechanical" };
+}
+
+// ── the conversation ─────────────────────────────────────────────────────
+const NAME = loaded[0].name;
+for (let turn = state.turn + 1; turn <= TURNS; turn++) {
+  const last = state.transcript.at(-1) ?? null;
+  const m = chooseMove(last, turn);
+  let earlier = null;
+  if (m.move === "revisit") { earlier = pickEarlier(); m.target = namesIn(earlier.answer)[0] ?? namesIn(last.answer)[0] ?? null; if (!m.target) { m.move = "reflect"; } }
+  if (m.move === "open") { const f = rng.pick(state.bank); m.target = f?.atoms?.find((a) => a.kind === "name")?.value ?? null; if (!m.target) { m.move = "reflect"; if (!last) { m.move = "open"; m.target = "the opening chapter"; } } }
+  const { question, phrasedBy } = await phrase(m, last, earlier, NAME);
+  if (m.target) state.asked.push(fold(m.target));
+
+  const t0 = Date.now(); const calls0 = usage.calls, pt0 = usage.promptTokens, ct0 = usage.completionTokens;
+  const history = state.history.slice(-RECENCY_WINDOW);
+  const discourse = mechanicalFoldLine(state.history.slice(-2).map((h) => h.content).join(" "), "");
+  let r = null, error = null;
+  try {
+    r = await runHolonicTask({
+      task: question, chunks, call, foldedRefs: [], expect: null,
+      makeNameResolver: castFor, makeRelationReader: O.relationsFor, witnessSentences,
+      checkLink: null, planMode: needsDecomposition(question) ? "model" : "flat",
+      chatHistory: history, discourse, depth: DEPTH, learnedStore, transcript: state.transcript,
+      math, coverageHistory: state.coverage ?? [], nul, useMeasuredCut: false,
+      hyperlexicon: O.hl, hyperlexiconLog: state.hlLog, hyperlexiconFrame: O.frame, hyperlexiconRecipe: O.recipe,
+      grid: O.grid, gridLog: state.gridLog, runCapacity: O.runCapacity,
+    });
+  } catch (e) { error = String(e?.stack ?? e?.message ?? e).slice(0, 600); }
+  const answer = r ? String(r.output ?? "") : "";
+  if (r?.hyperlexiconLog) state.hlLog = r.hyperlexiconLog;
+  if (r?.gridLog) state.gridLog = r.gridLog;
+  let learnedAdded = 0;
+  for (const e of r?.learned ?? []) { const before = learnedStore.length; learnedStore = learn(learnedStore, e); if (learnedStore.length > before) learnedAdded += 1; }
+  if (learnedAdded) saveLearned();
+  const refs = r?.refs ?? [];
+  const addressed = m.target ? mentions(answer, m.target) : null;
+  const absent = admitsAbsence(answer);
+  const cited = refs.length > 0;
+  const resolved = m.target ? Boolean(addressed && (cited || absent)) : (m.move === "verify" ? cited : m.move === "reflect" ? Boolean(cited || /\b(yes|no|not quite|that'?s right|correct|actually)\b/i.test(answer)) : null);
+  const row = {
+    turn, at: new Date().toISOString(), move: m.move, target: m.target ?? null, targetInSource: m.target ? inSource(m.target) : null, phrasedBy, question, answer,
+    earlierTurn: earlier?.turn ?? null, addressed, cited, admitsAbsence: absent, resolved,
+    ms: Date.now() - t0, calls: usage.calls - calls0, promptTokens: usage.promptTokens - pt0, completionTokens: usage.completionTokens - ct0,
+    refs, unsupported: (r?.unsupported ?? []).length, unbacked: (r?.unbacked ?? []).length, sections: (r?.sections ?? []).length,
+    premises: r?.premises ? { checked: r.premises.checked, unverified: r.premises.unverified, contradicted: r.premises.contradicted } : null,
+    correction: r?.correction ? { flagged: r.correction.flagged, asked: r.correction.asked, afterFlagged: r.correction.after?.flagged } : null,
+    answeredBeforeTheModel: r?.answeredBeforeTheModel ? r.answeredBeforeTheModel.kind : null, recalledTurns: r?.recalledTurns ?? [], learnedAdded, error,
+  };
+  appendFileSync(TURNS_PATH, JSON.stringify(row) + "\n");
+  appendFileSync(TRANSCRIPT_PATH, `**Reader** (turn ${turn}, ${m.move}${m.target ? ` · ${m.target}` : ""}${phrasedBy === "mechanical" ? " · mechanical" : ""}): ${question}\n\n**The Fold**: ${answer.trim() || (error ? `_error: ${trim(error, 120)}_` : "_(no answer)_")}\n\n<sub>${refs.length ? `refs ${refs.slice(0, 4).join(", ")}${refs.length > 4 ? "…" : ""}` : "no refs"} · unsupported ${row.unsupported} · ${row.addressed === null ? "" : row.addressed ? "addressed" : "did not address the target"}${absent ? " · admits absence" : ""}${row.premises?.contradicted ? ` · contradicted ${row.premises.contradicted}` : ""} · ${row.calls} calls · ${(row.ms / 1000).toFixed(0)}s</sub>\n\n`);
+  if (!error) { state.history.push({ role: "user", content: question }, { role: "assistant", content: answer }); state.transcript.push({ turn, question, answer, move: m.move, target: m.target ?? null, refs, unsupported: row.unsupported }); }
+  state.turn = turn; saveState();
+  console.log(`[${turn}/${TURNS}] ${m.move.padEnd(8)} ${String(Math.round(row.ms / 1000)).padStart(4)}s ${String(row.calls).padStart(2)} calls  ${row.addressed === null ? "  " : row.addressed ? "✓ " : "✗ "}${cited ? "cited " : "      "}${absent ? "absent " : ""}${m.target ? `· ${trim(m.target, 24)} ` : ""}${phrasedBy === "mechanical" ? "(mech) " : ""}${trim(question, 70)}`);
+  if (turn % 25 === 0) {
+    const rows = readFileSync(TURNS_PATH, "utf8").split("\n").filter(Boolean).map((l) => JSON.parse(l));
+    const by = {};
+    for (const x of rows) { const b = by[x.move] ??= { n: 0, addressed: 0, resolved: 0, cited: 0, mech: 0 }; b.n++; if (x.addressed) b.addressed++; if (x.resolved) b.resolved++; if (x.cited) b.cited++; if (x.phrasedBy === "mechanical") b.mech++; }
+    const line = Object.entries(by).map(([k, b]) => `${k} ${b.n}: addressed ${b.addressed}, resolved ${b.resolved}, cited ${b.cited}${b.mech ? `, mech ${b.mech}` : ""}`).join(" | ");
+    console.log(`  — after ${turn}: ${line} | unsupported/answer ${(rows.reduce((a, x) => a + x.unsupported, 0) / rows.length).toFixed(2)} | contradicted ${rows.filter((x) => x.premises?.contradicted).length} | ${(rows.reduce((a, x) => a + x.ms, 0) / rows.length / 1000).toFixed(0)}s/turn`);
+  }
+}
+console.log(`done: ${TURNS} turns — ${DIR}`);
