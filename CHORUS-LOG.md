@@ -77,3 +77,20 @@ Constitution: `../eo-constitution/CONSTITUTION.md` + READING-SPEC.md + the-fold 
 | Chekhov | — | old `unionFind` factory | **fixed** | dead since the incremental state landed (its only reference was its own definition); removed |
 | Marshall | II.10; P159 | the versioned memo | upheld | the old memo keyed on a state object that `foldStep` mutates in place — stale by construction, harmless only because revision.js ignores known ids; now versioned by (count, seq), pinned by a test that folds a delta and asks again |
 fixed: 2. struck: none.
+
+## 2026-09-07 — two more time terms: every known surface in one pass; the hypothesis list maintained (branch `fold-memory-p157`)
+
+Constitution: `../eo-constitution/CONSTITUTION.md` + READING-SPEC.md + the-fold POLICIES.md. Lenses in-session over `native/adapters/text/recursive.js`, `native/adapters/text/individuation.js`, `native/tests/surface-index.test.js`, `native/tests/individuation-incremental.test.js` (new).
+
+| lens | citation | file:line | verdict | one line |
+|---|---|---|---|---|
+| Diaconis | II.10 | tests/surface-index.test.js | clean | the oracle is the single-surface organ itself over 600 real sentences × 27 surfaces, and the test refuses to pass on misses alone (hits > 100 asserted) |
+| Feynman | P157 memo claim | individuation.js (old `HYPOTHESIS` memo) | **fixed** | "an untouched group is the same array, so it hits" was true of the overlay and false of the chain path, where `push` grows the array in place — a stale memo, harmless only because the consumer ignores known ids; versioned by length now, pinned by a test that grows a group by a delta |
+| Dijkstra | III.4 one implementation | recursive.js `surfaceIndex`/`surfacesIn` | clean | one boundary rule, `containsSurface`'s, reached two ways: word-start `startsWith` for needles that begin with a letter or digit, the regex path per needle for the rest; nested surfaces both report (no alternation) |
+| Simon | P95 | `taskTargetOccurrences` | clean, named | still asks `containsSurface` per task target — a handful per sentence, left as is |
+| Holmes | P11 | `referentsInSpan`, `witnessRelatedPairs` | clean | hits sorted by the map's own insertion order, so grouping-by-first-hit and the first-three cut reproduce the original exactly; the gates confirm on 480 KB |
+| Ostrom | P161 | this entry's numbers | clean | 240 KB profile 15.7 s → 5.2 s under the same arm load; not generalised beyond that material and size |
+| Pearl | II.10 | gates + tests | clean | 60 KB identity unchanged; 240 KB (123) and 480 KB (120) byte-identical; incremental == fresh-compute pinned at every one of 40 steps with and without extras |
+| Chekhov | — | `descriptorHypotheses` (fold-only) | clean | returns the state's frozen list, the same array while nothing changed (asserted) |
+| Marshall | II.10, II.11 | both files | upheld | no new constant; no timing asserted anywhere — structure only (identity, equality, counted hits); the `place()` re-index that showed at 7% self was replaced by a binary search before this landed |
+fixed: 1. struck: none.

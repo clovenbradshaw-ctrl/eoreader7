@@ -41,25 +41,85 @@ export function containsSurface(text, surface) {
   return new RegExp(`(^|[^\\p{L}\\p{N}])${escapeRe(needle)}([^\\p{L}\\p{N}]|$)`, "u").test(hay);
 }
 
-function currentReferents(text, refs = []) {
-  return refs.filter((ref) => ref.surfaces.some((surface) => containsSurface(text, surface)));
+// ── EVERY KNOWN SURFACE IN ONE PASS (2026-09-07) ─────────────────────────
+// `currentReferents` and `referentsInSpan` asked `containsSurface` once per
+// known surface per sentence — normalising the sentence again and compiling a
+// fresh RegExp each time. The cast grows with the read, so that is
+// O(surfaces) regexes per sentence: profiled at 240 KB of War and Peace it
+// was 14% of the read and grew 6.4x for 1.79x the sentences.
+//
+// The index is built ONCE per refresh, when the surface map changes, and a
+// sentence is scanned once: at each word start, the surfaces whose first
+// token is that word are checked with `startsWith` and the same after-
+// boundary `containsSurface` uses. It is EXACT to `containsSurface`'s rule
+// — (^|non-alnum) needle (non-alnum|$) over diaNorm'd text — because a
+// needle that begins with a letter or digit can only match at a word start.
+// A needle that begins with anything else keeps the regex path, per needle.
+// Order is carried as the surface map's own insertion order, so every caller
+// that depended on map order (`referentsInSpan`'s grouping,
+// `witnessRelatedPairs`' first-three) reproduces it by sorting hits by it.
+const ALNUM_RE = /[\p{L}\p{N}]/u;
+const WORD_START_RE = /[\p{L}\p{N}]+/gu;
+const alnumAt = (s, i) => i < s.length && ALNUM_RE.test(String.fromCodePoint(s.codePointAt(i)));
+export function surfaceIndex(surfaces) {
+  const byFirst = new Map();   // first token -> [needle]
+  const fallback = [];         // needles not beginning with a letter/digit: the regex path
+  const order = new Map();     // needle -> position in the given order
+  for (const surface of surfaces) {
+    const needle = diaNorm(surface);
+    if (!needle || order.has(needle)) continue;
+    order.set(needle, order.size);
+    const m = needle.match(/^[\p{L}\p{N}]+/u);
+    if (!m) { fallback.push(needle); continue; }
+    if (!byFirst.has(m[0])) byFirst.set(m[0], []);
+    byFirst.get(m[0]).push(needle);
+  }
+  return Object.freeze({ byFirst, fallback, order });
+}
+/** The needles (diaNorm'd surfaces) present in `text`, in the index's own order. */
+export function surfacesIn(text, index) {
+  const hay = diaNorm(text);
+  const present = new Set();
+  WORD_START_RE.lastIndex = 0;
+  let m;
+  while ((m = WORD_START_RE.exec(hay))) {
+    const cands = index.byFirst.get(m[0]);
+    if (!cands) continue;
+    for (const needle of cands) {
+      if (present.has(needle)) continue;
+      if (hay.startsWith(needle, m.index) && !alnumAt(hay, m.index + needle.length)) present.add(needle);
+    }
+  }
+  for (const needle of index.fallback) if (containsSurface(hay, needle)) present.add(needle);
+  return [...present].sort((a, b) => index.order.get(a) - index.order.get(b));
+}
+/** The per-refresh matcher: the index over the surface map, and each referent's own needles. */
+function surfaceMatcher(map, referents) {
+  return Object.freeze({ index: surfaceIndex(map.keys()), map, referents: referents.map((ref) => ({ ref, needles: new Set(ref.surfaces.map(diaNorm).filter(Boolean)) })) });
 }
 
-function referentsInSpan(span, map) {
+function currentReferents(text, matcher) {
+  if (!matcher) return [];
+  const present = new Set(surfacesIn(text, matcher.index));
+  // The referent's own surfaces may not all be keys of the map (the map is
+  // surface -> id after coreference); those are asked one by one, as before.
+  return matcher.referents.filter(({ ref, needles }) => [...needles].some((n) => present.has(n) || (!matcher.index.order.has(n) && containsSurface(text, n)))).map(({ ref }) => ref);
+}
+
+function referentsInSpan(span, matcher) {
   const matches = new Map();
-  for (const [surface, ref] of map) {
-    if (containsSurface(span, surface)) {
-      if (!matches.has(ref)) matches.set(ref, []);
-      matches.get(ref).push(surface);
-    }
+  for (const surface of surfacesIn(span, matcher.index)) {
+    const ref = matcher.map.get(surface);
+    if (!matches.has(ref)) matches.set(ref, []);
+    matches.get(ref).push(surface);
   }
   return matches;
 }
 
-function resolveParticipant(surface, map, sequencePosition, relationIndex, role) {
-  const exact = map.get(diaNorm(surface));
+function resolveParticipant(surface, matcher, sequencePosition, relationIndex, role) {
+  const exact = matcher.map.get(diaNorm(surface));
   if (exact) return { ref: exact, role, standing: "referent", surface, resolution: "exact_surface" };
-  const candidates = referentsInSpan(surface, map);
+  const candidates = referentsInSpan(surface, matcher);
   if (candidates.size === 1) {
     const [[ref, matchedSurfaces]] = candidates;
     return { ref, role, standing: "referent", surface, resolution: "unique_surface_in_span", matchedSurfaces };
@@ -220,22 +280,21 @@ function admittedRelationVerbs(store, minSurfaces) {
  * so "witnessed relating these two beings" is counted once however often that
  * one sentence repeats, exactly as distinct surfaces are counted once each.
  */
-function witnessRelatedPairs(store, sentences, refs) {
+function witnessRelatedPairs(store, sentences, refs, matcher = null) {
   if (!refs?.size || !store.size) return;
-  const surfaces = [...refs.keys()];
+  const index = matcher?.index ?? surfaceIndex(refs.keys());
+  // The verbs were diaNorm'd once per verb per sentence; once per verb.
+  const verbs = [...store].map(([verb, record]) => [diaNorm(verb), record]);
   for (const sentence of sentences) {
     const hay = diaNorm(sentence.text);
-    const present = [];
-    for (const surface of surfaces) {
-      if (containsSurface(sentence.text, surface)) present.push(refs.get(surface));
-      if (present.length > 2) break;
-    }
+    // The first three hits in map order — the original stopped after the third.
+    const present = surfacesIn(sentence.text, index).slice(0, 3).map((surface) => refs.get(surface));
     const distinct = [...new Set(present)];
     if (distinct.length < 2) continue;
     const pairKey = distinct.slice(0, 2).sort().join("\u0000");
-    for (const [verb, record] of store) {
+    for (const [verb, record] of verbs) {
       if (!record.relatedPairs) record.relatedPairs = new Set();
-      if (hay.includes(diaNorm(verb))) record.relatedPairs.add(pairKey);
+      if (hay.includes(verb)) record.relatedPairs.add(pairKey);
     }
   }
 }
@@ -253,7 +312,7 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
   let priorText = "";
   let relationRefreshFrom = 0;
   const relationEvidence = new Map();
-  let cache = { closed: new Set(), refs: new Map(), referents: [], gaps: [], merges: [], reassignments: [], verbs: new Set() };
+  let cache = { closed: new Set(), refs: new Map(), referents: [], matcher: surfaceMatcher(new Map(), []), gaps: [], merges: [], reassignments: [], verbs: new Set() };
   // discoverReferents re-clusters everything on every refresh, so the same
   // merge is rediscovered each time. It lands ONCE, in the observation of the
   // sentence whose refresh first proved it.
@@ -320,12 +379,15 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
     }
     // Fold-conditioned evidence, over the SAME new batch the vocabulary scan
     // uses — never a rescan of everything read so far.
-    witnessRelatedPairs(relationEvidence, batchSentences, surfaceMap(discovered.events));
+    const referents = referentObjects(discovered.events);
+    const matcher = surfaceMatcher(nextRefs, referents);
+    witnessRelatedPairs(relationEvidence, batchSentences, nextRefs, matcher);
     relationRefreshFrom = priorSentences.length;
     cache = {
       closed,
-      refs: surfaceMap(discovered.events),
-      referents: referentObjects(discovered.events),
+      refs: nextRefs,
+      referents,
+      matcher,
       gaps: discovered.gaps,
       // THE MERGE RECORD, KEPT (P165). discoverReferents detects when two
       // surface clusters name one being and records it — `merges.push({kept,
@@ -355,8 +417,8 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
         id: `edge:text:${sequencePosition}:${index}`,
         relation: rel.verb,
         participants: [
-          resolveParticipant(rel.subject, cache.refs, sequencePosition, index, "subject"),
-          resolveParticipant(rel.object, cache.refs, sequencePosition, index, "object"),
+          resolveParticipant(rel.subject, cache.matcher, sequencePosition, index, "subject"),
+          resolveParticipant(rel.object, cache.matcher, sequencePosition, index, "object"),
         ],
         witness: `text:${sequencePosition}:${rel.offset}`,
         scope: { sequencePosition, offset: rel.offset },
@@ -376,7 +438,7 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
         meta: { polarity: rel.polarity, source: encounter.source, encounterRef, compositionStanding: relationStanding(rel.verb, posPrior) },
       }));
 
-      const seenReferents = currentReferents(encounter.material, cache.referents);
+      const seenReferents = currentReferents(encounter.material, cache.matcher);
       // A merge is TESTIMONY, not an inference: it arrives with the surface
       // that proved it. The folded referents are never deleted — the fold is
       // upsert-only and cursor scrubbing depends on replaying the past — they
