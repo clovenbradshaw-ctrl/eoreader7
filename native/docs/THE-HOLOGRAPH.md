@@ -208,7 +208,47 @@ ones with a number attached have that number pending.
   record reports unfilled, so a conversation can be conducted by the
   instrument on both sides with a person as a third witness.
 
-## 6. The walls that stay
+## 6. Activation is the retrieval
+
+Chunks were the container a string matcher needed to score, and the raw
+passage the mouth used to be handed. Under the holograph neither use
+survives, and what replaces them is one mechanism the record already had:
+activation.
+
+A question activates referents — its own, resolved through the index, or
+the last answer's when it names none. The activation spreads one hop over
+what the record holds about them: the mentions the index established (every
+sentence where an active referent stands, with its address), and the notes
+whose ends resolve to them (whose other ends become active at one hop). The
+sentences those mentions and notes were read from are the ground, ranked by
+hop and by how many active referents they carry, and cut where showing one
+more changes nothing about what the question reaches — `dmdWindow` at the
+sentence grain, reach measured as the active referents and acts the shown
+sentences carry. Term retrieval survives only as the fallback for a question
+that resolves to no referent, disclosed as a surface reading.
+
+The grain of the cut is the act, not the referent. Measured the first time
+the organ ran through the turn: with reach counted by referents alone, one
+sentence about Porfiry "covered" him and the next, which said something
+different about him, was cut. So a shown sentence's reach includes the acts
+the relation reader hears in it about the active referents — the same
+claims the Lens block lists — and a sentence adds reach only when it carries
+an act no shown sentence carries. The reader runs over at most a declared
+ceiling of candidate sentences per hop, so a protagonist who stands in a
+thousand sentences never costs a thousand reads at a turn.
+
+So retrieval is not a step before reading; it is a query over the reading.
+The unit is the sentence, because that is what the organs read; the reach is
+the neighbourhood, because that is what a referent is; and the cut is
+measured, because a hand-picked count of chunks was the one number in the
+turn nothing had earned. The address book this needs — referent id to the
+addresses of its mentions — is a projection of the index, which the whole
+novel yields in under two seconds, so nothing in this path waits on the
+relation reader's full admission. The Lens block and the handed sentences
+are two faces of one activation: the claims, and the sentences they were
+read from.
+
+## 7. The walls that stay
 
 The holograph inherits every limit of the reading it compresses. The Lens is
 only as full as the relation reader's recall, and that reader hears a
@@ -219,7 +259,7 @@ oracle on facts can say so (P60's judge, shuffled). And a consumer that
 cannot re-expand — a person reading a block without the record — has a
 summary, not a holograph; the property lives in the pair, not in the text.
 
-## 7. Where it stands in the code
+## 8. Where it stands in the code
 
 - `resolutions.js` — the three blocks, the shared cut, the address strike on
   handed text.
@@ -229,6 +269,8 @@ summary, not a holograph; the property lives in the pair, not in the text.
 - `dialogue.js` — identity through the index for everything the loops decide.
 - `eval/the-fold/conversation.mjs` — `--resolutions`, `--material`,
   `--chunking`; the ladder's arms.
+- `activation-retrieval.js` — the retrieval as activation over mentions and
+  notes, cut at the sentence grain; term retrieval as the disclosed fallback.
 - `eval/the-fold/holograph-reading.mjs` — reading by address against reading
   by string, with a redealt-address control.
 - Pending numbers: the compression ladder (A0, A3, A3p, A2, A1) and the two
