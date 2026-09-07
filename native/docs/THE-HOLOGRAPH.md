@@ -251,6 +251,26 @@ significance, no scripts — and that is the violation §7 records. The Lens
 block and the handed sentences are two faces of one activation: the
 claims, and the sentences they were read from.
 
+**The cut, corrected, and the replacement rule (2026-09-07, the-fold
+`348e1c9`).** The shared cut had offered the whole candidate set as one of
+its own depths, and a set whose every row carries a distinct act agrees
+with itself — the "measured" window was the ceiling wearing a
+measurement's face (the Lens handed 94 lines about one referent; the
+sentence window rode its 48-sentence ceiling on every question of three
+runs). Now only the ladder's rungs below the set are candidates; when none
+reproduces the reach the kernel says so and the ladder's top is handed as
+the declared budget, named a ceiling on the record. And the Lens replaces
+the sentences it was computed from: at a resolution that hands the Lens,
+the sentences are the ones that ground its shown acts (at the ceiling, the
+declared lines' acts), ranked and cut by the same `lensCut` the Lens block
+spends. Measured with no model on the 13 activating questions of a real
+25-turn run: sentences 4,196 characters median at level 1 against 1,059 at
+level 3, every grounding act grounded; the Lens 1,743 characters, at its
+ceiling on 9 of 13 and said so; handed in all 2,772 against 4,196. The
+ladder compresses, and where it cannot it names the budget instead of a
+measurement. (`eval/the-fold/holograph-compression.mjs` reproduces this
+where the reading and the ledger are in the checkout.)
+
 ## 7. The reading policies the holograph stands on
 
 A holograph is only as true as the log it projects from. If the log was
@@ -326,7 +346,20 @@ decision the conversation makes about who is meant — anaphora, the
 restatement, the address check, the absence, self-consistency across
 turns — resolves through that index and never through a string. A
 question-side candidate is every token the index can resolve, in the
-reader's case, not the capitalised ones.
+reader's case, not the capitalised ones. A reader that gives an address at
+birth (S80) leaves the fragments it later folded on the log as separate
+ids, and it records the folding (`EOReferentMerge@1`); the projection
+applies that record transitively, then its coreference organ's own
+containment where a partial form sits inside exactly one fuller being —
+«Luzhin» inside «Mr Luzhin», «Raskolnikov» inside «Rodion Romanovitch
+Raskolnikov» — and keeps a form inside two beings' surfaces («Petrovitch»,
+Luzhin's and Porfiry's) as S17's ambiguous bare form. On Crime and
+Punishment: 113 addresses, 100 beings, 5 ambiguous forms kept. A name
+resolves by its longest registered surfaces, never also by the fragments
+inside them (maximal munch). What this does not fold, said plainly: a
+diminutive («Rodya») and a transliteration variant («Petrovich» for
+«Petrovitch») are received priors with givers, not rules, and are not
+built.
 
 **The frame is declared with the ledger, and the witness carries the
 recipe (S42, S43).** What the reader stood on — assembly, priors,

@@ -179,3 +179,6 @@ deferred-with-reason: the P55 void line carries negative knowledge in the prompt
 - Diaconis (conversation.mjs:189, the resumed reader seeded from `reconstruct`): the perceiver's refresh state restarts on resume — disclosed in the code, not hidden; a fresh read and a resumed read are not byte-identical and the doc does not claim they are.
 - Holmes / Pearl / Ostrom / Alexander (THE-HOLOGRAPH.md §7): prose citing S17, S42/S43, S70/S71, S1/S25 as they read; no mechanism changed in this repo for identity, corroboration or scope.
 - Simon/Chekhov: `conversation.mjs` is an eval driver, imported by no test by design (P19/P27's posture); `lib/conversation-compare.mjs` is read by `tests/conversation-compare.test.js` (S64/S65) — the first cut read `sections[].relations.claims` off a number and threw on the first real run; reshaped to the driver's own row fields (P96).
+
+## 2026-09-07 — S81 written; holograph-compression.mjs; THE-HOLOGRAPH §6/§7 amended (staged: READING-SPEC.md, eval/the-fold/holograph-compression.mjs, docs/THE-HOLOGRAPH.md)
+- chorus-fast: PASS — Generality present on S81; the driver refuses (`fixture_absent`, exit 2) when the reading, the ledger or the run it stands on are absent (S65); it is an eval driver imported by no test by design, and its by-construction rules are pinned in the-fold's resolutions/activation suites.
