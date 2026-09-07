@@ -845,7 +845,36 @@ const deriveMinSentences = (surfaces) => {
  *   floor, exactly as `minSentences` already promises for the
  *   single-document case.
  */
-export const discoverReferents = (surfaces, { minSentences, minPartners, groups, foldToken, sameStem = null } = {}) => {
+/**
+ * `prior` (2026-09-07) — AN ADDRESS IS GIVEN AT BIRTH AND KEPT.
+ *
+ * Every refresh re-clusters from scratch and mints each cluster's id from
+ * whichever member founds it that time. The founder is decided by the
+ * assignment order's tie-breaks (sentences, then mentions), which shift as
+ * counts accrue, so a being's ADDRESS flips between refreshes — measured
+ * on 480 KB of War and Peace: 31 reassignment records, 4 beings whose id
+ * oscillates (vasili <-> prince_vasili, helene <-> princess_helene, ...),
+ * and 25 superseded addresses still carrying mentions: one being's
+ * mentions split across ids. P165 recorded the flips as testimony; the
+ * user's own rule (P160) is that a paradigm has a single address linked
+ * to everything that fed it, and SEED's is identity by consequence, never
+ * by appearance — the founder's spelling is appearance.
+ *
+ * With `prior` — the previous refresh's { refs: Map(diaNorm(surface) -> id),
+ * born: Map(id -> birth seq), next } — the clustering runs EXACTLY as
+ * before (the partition of surfaces into clusters is byte-identical, and
+ * a test pins that), and then each cluster is RENAMED to the earliest-born
+ * prior address among its members. A cluster with no prior member is a
+ * birth and keeps its minted id (suffixed with its birth seq only if that
+ * id already names another being). Two clusters claiming one prior address
+ * are a split: the cluster holding more of its bearers keeps it, the other
+ * takes its next-best or a fresh one, and the moved surfaces surface as
+ * reassignments in the perceiver as before. One cluster holding members of
+ * two prior addresses is a merge of two beings, returned in `merges` with
+ * the cluster's maximal surface as its witness. `addresses` is returned for
+ * the next refresh. Without `prior`, nothing here changes.
+ */
+export const discoverReferents = (surfaces, { minSentences, minPartners, groups, foldToken, sameStem = null, prior = null } = {}) => {
   const events = [];
   const assigned = new Map(); // surface -> referent_id
   const generic = groups
@@ -875,8 +904,20 @@ export const discoverReferents = (surfaces, { minSentences, minPartners, groups,
   // corefer. "Princess Mary" vs "Princess Hélène" -> mary vs helene -> no.
   // "Victor Frankenstein" vs "Frankenstein" -> victor vs (empty) -> falls
   // back to the unstripped test, which containment answers correctly.
-  const individuating = (surface) =>
-    diaNorm(surface).split(/\s+/).filter((t) => t.length > 2 && !generic.has(t));
+  // (2026-09-07) Both are asked once per PAIR by the assignment below —
+  // O(surfaces²) diaNorm/split/filter calls per refresh, on the same
+  // surfaces every time. Profiled at 480 KB: individuating, diaNorm and
+  // tokensOf together 19% of the read, growing 19x for 2x the sentences.
+  // Memoised for the life of THIS call only: `generic` is decided per call,
+  // so a value cannot outlive the evidence it was computed against.
+  const normMemo = new Map();
+  const normOf = (surface) => { let n = normMemo.get(surface); if (n === undefined) { n = diaNorm(surface); normMemo.set(surface, n); } return n; };
+  const indMemo = new Map();
+  const individuating = (surface) => {
+    let v = indMemo.get(surface);
+    if (v === undefined) { v = normOf(surface).split(/\s+/).filter((t) => t.length > 2 && !generic.has(t)); indMemo.set(surface, v); }
+    return v;
+  };
 
   // The singleton-partner rescue's evidence: each token's partner set,
   // counted over EVIDENCE-WORTHY surfaces only (the same sentences floor
@@ -916,16 +957,16 @@ export const discoverReferents = (surfaces, { minSentences, minPartners, groups,
     // and the Network standing organ read the split alias as a top "bond"
     // — self-company, not company.
     const rescued = (bare, other) => {
-      const toks = diaNorm(bare).split(/\s+/).filter((t) => t.length > 2);
+      const toks = normOf(bare).split(/\s+/).filter((t) => t.length > 2);
       if (toks.length !== 1) return false;
       const ps = eligiblePartners.get(toks[0]);
       if (!ps || ps.size !== 1) return false;
       const [only] = ps;
-      return diaNorm(other).split(/\s+/).includes(only);
+      return normOf(other).split(/\s+/).includes(only);
     };
     if (!ia.length && ib.length && rescued(a, b)) return true;
     if (!ib.length && ia.length && rescued(b, a)) return true;
-    return diaNorm(a) === diaNorm(b);
+    return normOf(a) === normOf(b);
   };
 
   // ── assignment: against the group's own strongest evidence, with merges
@@ -1128,6 +1169,52 @@ export const discoverReferents = (surfaces, { minSentences, minPartners, groups,
   // every event names the surviving referent, never a folded alias.
   for (const e of events) e.referent_id = resolveId(e.referent_id);
 
+  // ── addresses: birth-stable renaming (see the header) ───────────────────
+  let addresses = null;
+  if (prior) {
+    const priorBorn = prior.born ?? new Map();
+    let next = prior.next ?? (priorBorn.size ? Math.max(...priorBorn.values()) + 1 : 0);
+    // members per surviving cluster id, in event (assignment) order
+    const members = new Map();
+    for (const e of events) { if (!members.has(e.referent_id)) members.set(e.referent_id, []); members.get(e.referent_id).push(e.surface); }
+    // each cluster's claims on prior addresses: address -> bearer count
+    const claims = new Map();
+    for (const [id, ms] of members) {
+      const c = new Map();
+      for (const m of ms) { const pid = prior.refs?.get(diaNorm(m)); if (pid) c.set(pid, (c.get(pid) ?? 0) + 1); }
+      claims.set(id, c);
+    }
+    // prior addresses are handed out in BIRTH order: the earliest-born being is
+    // named first, to the cluster holding the most of its bearers (ties: the
+    // cluster born first this run).
+    const bornOrder = [...new Set([...claims.values()].flatMap((c) => [...c.keys()]))].sort((a, b) => (priorBorn.get(a) ?? Infinity) - (priorBorn.get(b) ?? Infinity) || (a < b ? -1 : 1));
+    const rename = new Map(); // minted id -> address
+    const taken = new Set();
+    const clusterBorn = (id) => clusters.get(id)?.born ?? Infinity;
+    for (const address of bornOrder) {
+      const holders = [...claims].filter(([id, c]) => c.has(address) && !rename.has(id)).sort((x, y) => y[1].get(address) - x[1].get(address) || clusterBorn(x[0]) - clusterBorn(y[0]));
+      if (!holders.length) continue;
+      rename.set(holders[0][0], address); taken.add(address);
+    }
+    const born = new Map();
+    for (const id of members.keys()) {
+      if (rename.has(id)) { born.set(rename.get(id), priorBorn.get(rename.get(id)) ?? next++); continue; }
+      let fresh = id;
+      if (priorBorn.has(fresh) || taken.has(fresh)) fresh = `${id}:${next}`;
+      rename.set(id, fresh); taken.add(fresh); born.set(fresh, next++);
+    }
+    // merges of prior beings: a cluster whose members bore other prior addresses
+    for (const [id, c] of claims) {
+      const kept = rename.get(id);
+      const folded = [...c.keys()].filter((pid) => pid !== kept && ![...rename.values()].includes(pid));
+      if (folded.length) merges.push({ kept, folded, witness: clusters.get(id)?.maximal ?? members.get(id)[0], basis: "two prior addresses' bearers cluster as one being under this refresh's own evidence" });
+    }
+    for (const e of events) e.referent_id = rename.get(e.referent_id) ?? e.referent_id;
+    for (const m of merges) { m.kept = rename.get(m.kept) ?? m.kept; m.folded = m.folded.map((f) => rename.get(f) ?? f); }
+    for (const a of ambiguities) a.candidates = a.candidates.map((cid) => rename.get(resolveId(cid)) ?? resolveId(cid));
+    addresses = { born, next };
+  }
+
   const referentIds = new Set(events.map((e) => e.referent_id));
   const gaps = [...referentIds].map((id) => ({
     reason: "pronoun_and_descriptor_mentions_unresolved",
@@ -1162,5 +1249,5 @@ export const discoverReferents = (surfaces, { minSentences, minPartners, groups,
     });
   }
 
-  return { events, gaps, merges };
+  return { events, gaps, merges, addresses };
 };

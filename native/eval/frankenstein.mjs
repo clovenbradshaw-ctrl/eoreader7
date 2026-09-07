@@ -68,7 +68,7 @@ const metrics = {
   sourceCharacters: source.length,
   bodyCharacters: stripped.text.length,
   encounters: encounters.length,
-  observations: reading.fold.witnessed?.length ?? 0,
+  observations: reading.log.filter((e) => e?.schema === "Observation@1").length,
   referents: referents.length,
   namedReferents: namedReferents.length,
   discourseReferents: discourseReferents.length,
@@ -90,7 +90,8 @@ const metrics = {
 console.log(JSON.stringify(metrics, null, 2));
 
 if (encounters.length < 1000) throw new Error(`too few encounters for Frankenstein: ${encounters.length}`);
-if ((reading.fold.witnessed?.length ?? 0) < 100) throw new Error("native reading admitted too little witnessed structure");
+// Counted from the log, which is where the observations live (P159).
+if (reading.log.filter((e) => e?.schema === "Observation@1").length < 100) throw new Error("native reading admitted too little witnessed structure");
 if (namedReferents.length < 10) throw new Error(`too few named referents: ${namedReferents.length}`);
 if (edges.length < 10) throw new Error(`too few witnessed relations: ${edges.length}`);
 if (surpriseTurns.length < 10) throw new Error(`too few structurally revising turns: ${surpriseTurns.length}`);

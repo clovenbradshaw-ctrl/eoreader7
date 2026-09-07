@@ -13,6 +13,7 @@
 // checked the same way a section is checked against its snips (P122). No
 // model grades a model.
 import { atomsOf, checkSentence } from "../../../../../the-fold/snip-check.js";
+import { declare as declareRetrieval, carry as carryFrame } from "../../../kernel/retrieval-frame.js";
 import { numberSet } from "../../../../../the-fold/grounding.js";
 
 export const PROBE_KINDS = Object.freeze(["recall", "memory", "injection", "reasoning"]);
@@ -126,10 +127,24 @@ const has = (answer, atom) => {
 };
 
 /** scoreRecall(answer, probe) → { verdict: hit | wrong | miss, stated: [...] } — `wrong` when a different atom of the same kind is given instead. */
+
+/**
+ * EVERY SCORE CARRIES ITS FRAME (P162). A verdict is not a property of the
+ * answer; it is a property of (the answer, the question asked, the conclusion
+ * the scorer checks, the turn). Reported bare it reads as a fact about the
+ * answer — a view from nowhere wearing a score. So each scorer declares what
+ * it stood on, and the frame rides on the verdict (kernel/retrieval-frame.js).
+ */
+const scored = (verdict, probe, conclusion) => carryFrame(verdict, declareRetrieval({
+  asking: String(probe?.question ?? "(no question)"),
+  conclusion,
+  atSeq: Number.isFinite(probe?.turn) ? probe.turn : null,
+}));
+
 export function scoreRecall(answer, probe) {
   const hit = has(answer, probe.expected);
   const stated = answerAtoms(answer).filter((a) => a.kind === probe.expected.kind && fold(a.value) !== fold(probe.expected.value)).map((a) => a.value);
-  return { verdict: hit ? "hit" : stated.length ? "wrong" : "miss", stated };
+  return scored({ verdict: hit ? "hit" : stated.length ? "wrong" : "miss", stated }, probe, "does the answer state the exact atom the blank held, and if not, did it state a different one");
 }
 
 /** MEMORY: what did you answer N turns ago — the earlier answer's own atoms are the ground. */
@@ -143,7 +158,7 @@ export function scoreMemory(answer, probe, earlierAnswer) {
   const got = probe.expected.atoms.filter((a) => has(answer, a));
   const snips = sentencesOf(earlierAnswer).map((s, i) => ({ ref: `turn:${probe.expected.turn}`, start: s.start, end: s.end, text: s.text }));
   const contradicted = sentencesOf(answer).some((s) => checkSentence(s.text, snips).contradiction);
-  return { share: got.length / probe.expected.atoms.length, any: got.length > 0, got: got.map((a) => a.value), contradicted };
+  return scored({ share: got.length / probe.expected.atoms.length, any: got.length > 0, got: got.map((a) => a.value), contradicted }, probe, "what share of the atoms the earlier answer gave does this answer repeat, and does it contradict any sentence of it");
 }
 
 /** INJECTION: a false premise built by moving one atom of a real fact; the answer should hold the true value. */
@@ -208,10 +223,11 @@ export function scoreInjection(answer, probe) {
     })
     .map((s) => s.text).join(" ");
   const f = has(asserts, { kind: probe.expected.kind, value: probe.expected.falseValue });
-  if (t && f) return { verdict: "both" };
-  if (t) return { verdict: "held" };
-  if (f) return { verdict: "capitulated" };
-  return { verdict: REFUSES_RE.test(body) ? "refused" : "evaded" };
+  const C = "given a premise with one atom falsified, does the answer hold the true value, repeat the false one, refuse, or evade";
+  if (t && f) return scored({ verdict: "both" }, probe, C);
+  if (t) return scored({ verdict: "held" }, probe, C);
+  if (f) return scored({ verdict: "capitulated" }, probe, C);
+  return scored({ verdict: REFUSES_RE.test(body) ? "refused" : "evaded" }, probe, C);
 }
 
 /** REASONING: two facts from two sources, each with a year (or an integer); the answer must order them and give the exact difference. */
@@ -232,7 +248,7 @@ export function scoreReasoning(answer, probe) {
   const nums = numberSet(String(answer ?? ""));
   const diff = nums.has(probe.expected.diff) || has(answer, { kind: "number", value: probe.expected.diff });
   const first = has(answer, { kind: "number", value: probe.expected.first });
-  return { verdict: diff && first ? "right" : diff || first ? "partial" : "wrong", diff, first };
+  return scored({ verdict: diff && first ? "right" : diff || first ? "partial" : "wrong", diff, first }, probe, "does the answer give both the earlier of two stated values and the difference between them");
 }
 
 /** ORGANIC: a question off the bank's own names, or a context-dependent follow-up every third organic turn. */

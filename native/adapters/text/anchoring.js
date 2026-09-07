@@ -82,21 +82,35 @@ export function createDescriptorAnchoring({
   let matcher = null;
   let matcherSurfaceCount = -1;
   let surfaceToReferent = new Map();
+  let normToReferent = new Map();
   let displayById = new Map();
+  let castSeen = null;
 
+  // (2026-09-07) The cast is handed over on every sentence and was rebuilt
+  // on every sentence; the perceiver's `cache.referents` is one array per
+  // refresh window, so the same array is the same cast. And `namedIn`'s
+  // case-blind fallback walked EVERY surface per hit; the first surface
+  // whose norm equals the key wins, which is one Map built here, once.
   const refreshCast = (referents) => {
+    if (referents === castSeen) return;
+    castSeen = referents;
     const surfaces = new Map();
     const displays = new Map();
+    const norms = new Map();
     for (const ref of referents ?? []) {
       if (!ref?.id) continue;
       displays.set(ref.id, ref.display ?? (ref.surfaces ?? [])[0] ?? ref.id);
       for (const s of ref.surfaces ?? []) if (s) surfaces.set(s, ref.id);
     }
+    // Map insertion order is the original loop's order, so the FIRST surface
+    // with a given norm is the one recorded — the one `break` used to keep.
+    for (const [surface, ref] of surfaces) { const k = norm(surface); if (!norms.has(k)) norms.set(k, ref); }
     if (surfaces.size !== matcherSurfaceCount) {
       matcher = surfaceMatcher(surfaces.keys());
       matcherSurfaceCount = surfaces.size;
     }
     surfaceToReferent = surfaces;
+    normToReferent = norms;
     displayById = displays;
   };
 
@@ -111,10 +125,8 @@ export function createDescriptorAnchoring({
       const hit = m[1];
       const direct = surfaceToReferent.get(hit);
       if (direct) { named.add(direct); continue; }
-      const key = norm(hit);
-      for (const [surface, ref] of surfaceToReferent) {
-        if (norm(surface) === key) { named.add(ref); break; }
-      }
+      const ref = normToReferent.get(norm(hit));
+      if (ref) named.add(ref);
     }
     return named;
   };

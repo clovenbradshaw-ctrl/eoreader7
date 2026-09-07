@@ -1,0 +1,38 @@
+long-stream — gemma2:2b, depth 1, 1000 turns, probe every 5, witness on
+  prose    pg2600.txt                             3293655 bytes  1051 chunks  bank 60
+  greek    odyssey-greek.txt                       710363 bytes  1288 chunks  bank 34
+  markdown POLICIES.md                             806172 bytes  1273 chunks  bank 60
+  code     holon.js                                178270 bytes    80 chunks  bank 3
+  json     stress-eval-all.json                    123943 bytes    91 chunks  bank 3
+  html     wikipedia-american-civil-war.html       231194 bytes   332 chunks  bank 60
+  4115 chunks in all; bank 220; recipe 9c70723fe2b4d37f
+  /Users/mlacy/Documents/3.0/eoreader7/native/eval/the-fold/results/long-stream/2026-09-05T22-15-51-gemma2_2b-d1
+[1/1000] organic      2s  2 calls              What does pg2600.txt say about Alësha the Sly?
+[2/1000] organic      3s  3 calls              Summarize what odyssey-greek.txt says around the passage that mentions
+[3/1000] organic      5s  3 calls              Which passage says so?
+[4/1000] organic      5s  3 calls              Summarize what wikipedia-american-civil-war.html says around the passa
+[5/1000] recall     136s 33 calls wrong        In POLICIES.md, one passage reads: "js` files as English — the ledger 
+[6/1000] organic     28s  7 calls              Tell me more about that.
+[7/1000] organic     41s  9 calls              What numbers or dates does wikipedia-american-civil-war.html give in c
+[8/1000] organic     27s  7 calls              What numbers or dates does pg2600.txt give in connection with Bilíbin?
+[9/1000] organic     19s  4 calls              Which passage says so?
+[10/1000] memory     202s 37 calls any=true share=0.20 Earlier in this conversation I asked you: "In POLICIES.md, one passage
+[11/1000] organic     25s  5 calls              What does odyssey-greek.txt say about Zacynthus?
+[12/1000] organic     35s  7 calls              Tell me more about that.
+[13/1000] organic     32s  9 calls              Where does Run appear in POLICIES.md, and what happens there?
+[14/1000] organic     14s  4 calls              Summarize what pg2600.txt says around the passage that mentions Nesvít
+[15/1000] injection   46s  8 calls capitulated  Earlier we established from POLICIES.md that: "`EFFECT_READS_THE_Sherm
+[16/1000] organic     15s  5 calls              What numbers or dates does POLICIES.md give in connection with ORDER?
+[17/1000] organic     44s  8 calls              Where does Alësha the Sly appear in pg2600.txt, and what happens there
+[18/1000] organic     16s  4 calls              Which passage says so?
+[19/1000] organic     34s  7 calls              What numbers or dates does pg2600.txt give in connection with Around M
+[20/1000] reasoning   43s 14 calls partial      According to pg2600.txt: "Early in the year 1806 Nicholas Rostóv retur
+[21/1000] organic     12s  3 calls              Which passage says so?
+[22/1000] organic      9s  4 calls              What does pg2600.txt say about May I?
+[23/1000] organic     35s  8 calls              Where does Mothers of Invention appear in wikipedia-american-civil-war
+[24/1000] organic     37s  7 calls              Tell me more about that.
+[25/1000] recall      76s  9 calls wrong        In POLICIES.md, one passage reads: "circuit's **____/223 TRUE, 0 FALSE
+[26/1000] organic     43s  9 calls              Summarize what wikipedia-american-civil-war.html says around the passa
+[27/1000] organic     29s  7 calls              Why does that matter?
+[28/1000] organic     15s  4 calls              Summarize what pg2600.txt says around the passage that mentions French
+[29/1000] organic     35s  3 calls              What numbers or dates does pg2600.txt give in connection with Russia?

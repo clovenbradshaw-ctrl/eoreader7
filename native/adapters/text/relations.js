@@ -182,10 +182,40 @@ const collapseWs = (t) => String(t ?? "").replace(/\s+/g, " ");
 // the English-only "no longer" idiom stays English-only: it is appended
 // ONLY when nothing was injected, never presumed to apply to a vendored
 // language's own closed class.
+// ── BUILT ONCE PER VOCABULARY, NOT ONCE PER SENTENCE (2026-09-07) ─────────
+// extractRelations rebuilt the verb alternation — `[...vocab].map(escapeRe)
+// .join("|")` over every admitted verb — and compiled the matcher from it on
+// EVERY call, though the vocabulary only changes at a refresh (every 25
+// sentences in the perceiver). Profiled at 480 KB of War and Peace: 7% of
+// the read, growing 5.6x for 2x the sentences as the vocabulary grew. The
+// alternations are memoised per Set (a refresh hands over a new Set, so a
+// stale one cannot be reused), the negation regex per word set, and the
+// compiled matcher per pattern source. The match itself is byte-identical:
+// the same source compiles to the same regex, and `lastIndex` is rewound
+// before every use.
+const ALT = new WeakMap(); // a Set or array of forms -> its escaped alternation
+const altOf = (forms) => {
+  let alt = ALT.get(forms);
+  if (alt === undefined) { alt = [...forms].map(escapeRe).join("|"); ALT.set(forms, alt); }
+  return alt;
+};
+const NEGATION_RE = new WeakMap();
 const negationBeforeVerbFor = (words) => {
-  const alt = [...words].map(escapeRe).join("|");
+  let re = NEGATION_RE.get(words);
+  if (re) return re;
+  const alt = altOf(words);
   const extra = words === NEGATION_WORDS ? "|no longer" : "";
-  return new RegExp(bWord(`${alt}${extra}`), "iu");
+  re = new RegExp(bWord(`${alt}${extra}`), "iu");
+  NEGATION_RE.set(words, re);
+  return re;
+};
+const MATCHERS = new Map(); // pattern source -> compiled matcher; a handful live at once
+const matcherFor = (source, flags) => {
+  const key = `${flags}:${source}`;
+  let re = MATCHERS.get(key);
+  if (!re) { if (MATCHERS.size >= 32) MATCHERS.clear(); re = new RegExp(source, flags); MATCHERS.set(key, re); }
+  re.lastIndex = 0;
+  return re;
 };
 
 // The exact complement of W: any run of characters that is not part of a
@@ -722,7 +752,7 @@ export const extractRelations = (text, { verbs, limit = Infinity, functionWords 
     return o;
   };
 
-  const VERB_ALT = [...vocab].map(escapeRe).join("|");
+  const VERB_ALT = altOf(vocab);
   // The object group always requires at least one token (mandatory first
   // `${W}`) — a pronoun or name sitting immediately after the verb is never
   // refused for being function-word-shaped itself ("gave HIM the letter":
@@ -738,7 +768,7 @@ export const extractRelations = (text, { verbs, limit = Infinity, functionWords 
   // no matching verb at all, forcing a full scan): both resolve in single-
   // digit milliseconds.
   const OBJECT_GROUP = functionWords && functionWords.size
-    ? `(${W}(?:\\s+(?!${bWord([...functionWords].map(escapeRe).join("|"))})${W})*)`
+    ? `(${W}(?:\\s+(?!${bWord(altOf(functionWords))})${W})*)`
     : `(.+?)(?:\\.|,|;|$)`;
   // Subject and verb and object are ALL read straight from MATCHER's own
   // m[1]/m[2]/m[3] — a chorus review (CHORUS-LOG.md, Diaconis) found this
@@ -793,7 +823,7 @@ export const extractRelations = (text, { verbs, limit = Infinity, functionWords 
   const SUBJECT_SECOND_GUARD = phrasalPredicates
     ? `(?!\\s+${bWord([...new Set([...auxiliaryVerbs, ...negationWords])].map(escapeRe).join("|"))})`
     : "";
-  const MATCHER = new RegExp(`(?<=^|[^\\p{L}])(${W}(?:${SUBJECT_SECOND_GUARD}\\s+${W})?)\\s+(?:${ASIDE}\\s+)*${AUX_GROUP_RE}(${VERB_ALT})\\s+${OBJECT_GROUP}`, "giu");
+  const MATCHER = matcherFor(`(?<=^|[^\\p{L}])(${W}(?:${SUBJECT_SECOND_GUARD}\\s+${W})?)\\s+(?:${ASIDE}\\s+)*${AUX_GROUP_RE}(${VERB_ALT})\\s+${OBJECT_GROUP}`, "giu");
 
   // The exact terminator set the OLD (pre-function-word-bound) object
   // capture used to reach: `.`, `,`, `;`, or end of string. Used below only

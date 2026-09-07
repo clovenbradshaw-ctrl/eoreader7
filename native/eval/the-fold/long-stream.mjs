@@ -45,6 +45,10 @@ const DEPTH = Number(flag("depth", 1));
 const EVERY = Number(flag("every", 5));
 const SEED = Number(flag("seed", 1));
 const WITNESS = flag("witness", "on") !== "off";
+// P145 arm: the stream forms its own belief about each turn before the model
+// speaks and lets strain spend on it. Off by default so a run is comparable
+// to every run before it; `--expect on` is the arm.
+const EXPECT = flag("expect", "off") === "on";
 const CAP = Number(flag("cap", 0));
 const RESUME = flag("resume", null);
 const PER_SOURCE = Number(flag("bank", 60));
@@ -95,7 +99,34 @@ catch { try { math = await import("mathjs"); } catch { math = null; } }
 // is trusted at all. Absent, the declared floor decides and the run says so.
 let nul = null;
 try { nul = await import(`${ROOT}eoreader7/legacy-eoreader6.1/nul/index.js`); } catch { nul = null; }
-const { rememberCoverage, chooseCut } = await import(`${FOLD}calibration.js`);
+const { rememberCoverage, chooseCut, placeCoverage } = await import(`${FOLD}calibration.js`);
+const PQ = await import(`${FOLD}prequential.js`);
+/**
+ * P145 — the stream's belief about the turn it is ABOUT to take, formed from
+ * the turns it has already taken and from nothing else.
+ *
+ * The outcome is the length-free one (P144): unbacked sentences per word,
+ * called high when above the median rate seen so far. The prior at each cell
+ * of the cube's chain is the posterior of the cell above it (P143). Returned
+ * with the base rate it must be compared against, so strain can tell "worse
+ * than usual here" from "this stream is simply like that".
+ */
+function expectFor({ passages, answeredBeforeTheModel, premiseUnverified }) {
+  const seen = state.seen ?? [];
+  if (seen.length < 12) return null;             // too young to have a regime
+  const labelled = PQ.rateOutcome(seen, { count: "unbacked", size: "words" }).map((x) => ({ ...x, hot: x.high }));
+  const turn = { passages, answeredBeforeTheModel, premiseUnverified, band: PQ.bandFor(passages) };
+  const m = PQ.mixture({ ...turn, cells: PQ.cellsFor(turn) }, labelled.map((x) => ({ ...x, cells: PQ.cellsFor({ ...x, band: PQ.bandFor(x.passages) }) })), null, { key: "hot" });
+  const base = PQ.baseRate(labelled, { key: "hot" });
+  // The stream's own null over its own belief series — the quantity the
+  // measured cut never had. Only asked once there is a series to ask of.
+  let placement = null;
+  if (nul && (state.beliefs ?? []).length >= 12) {
+    try { placement = placeCoverage(m.p, state.beliefs, { nul }); } catch { placement = null; }
+  }
+  state.beliefs = [...(state.beliefs ?? []), m.p].slice(-60);
+  return { p: m.p, base, placement, why: m.why };
+}
 const { discriminating } = await import(`${FOLD}layers.js`);
 const { extractSurfaces, discoverReferents, namesCorefer, diaNorm } = await import(`${NATIVE}/adapters/text/surfaces.js`);
 const { lineIndex, outlineOfIndex } = await import(`${ROOT}eoreader7/legacy-eoreader6.1/packages/engine/perceiver/text/segments.js`);
@@ -178,7 +209,7 @@ if (RESUME && existsSync(STATE_PATH)) {
   console.log(`resumed ${DIR} at turn ${state.turn}`);
 } else {
   const bank = buildFactBank(chunks, { perSource: PER_SOURCE, rng });
-  state = { turn: 0, history: [], transcript: [], hlLog: null, gridLog: null, bank, draws: rng.draws, coverage: [], cutFires: { measured: 0, declared: 0, measurable: 0, turns: 0 }, useMeasuredCut: false };
+  state = { turn: 0, history: [], transcript: [], hlLog: null, gridLog: null, bank, draws: rng.draws, coverage: [], cutFires: { measured: 0, declared: 0, measurable: 0, turns: 0 }, useMeasuredCut: false, seen: [], beliefs: [] };
   writeFileSync(TURNS_PATH, "");
 }
 const config = { ran: new Date().toISOString(), model: MODEL, corpusId, depth: DEPTH, turns: TURNS, every: EVERY, seed: SEED, witness: WITNESS, cap: CAP, bank: PER_SOURCE, sources: loaded, chunks: chunks.length, bankSize: state.bank.length, bankBySource: Object.fromEntries(loaded.map((l) => [l.name, state.bank.filter((f) => f.source === l.name).length])), recencyWindow: RECENCY_WINDOW, frame: O.frame, recipe: O.recipe, ollama: OLLAMA, note: "the fold's turn, headless: retrieval on the question's own words, the product reader, the ledger and grid threaded turn to turn; every fifth turn a probe scored with no model" };
@@ -224,6 +255,10 @@ for (let turn = state.turn + 1; turn <= TURNS; turn++) {
   try {
     r = await runHolonicTask({
       task: question, chunks, call, foldedRefs: [],
+      // P145: formed from the turns already seen and from nothing else — the
+      // firewall is the point, so this is computed before the turn runs and
+      // never revisited afterwards.
+      expect: EXPECT ? expectFor : null,
       makeNameResolver: castFor, makeRelationReader: O.relationsFor, witnessSentences,
       checkLink: null, planMode: needsDecomposition(question) ? "model" : "flat",
       chatHistory: history, discourse, depth: DEPTH, learnedStore,
@@ -247,12 +282,24 @@ for (let turn = state.turn + 1; turn <= TURNS; turn++) {
   // record; both cuts are scored against it; and the audit above decides which
   // cut the NEXT turn is allowed to use. The tower adjusts the layer below it,
   // never itself.
+  // P145: what actually happened, at the same length-free resolution the
+  // belief is formed at (P144) — defects per word, not defects present.
+  // The outcome, recorded on EVERY run whether or not the arm is on, so the
+  // belief has a history to be formed from the moment it is switched on.
+  {
+    const words = Math.max(1, String(answer || "").split(/\s+/).filter(Boolean).length);
+    state.seen.push({
+      passages: (r?.retrieved ?? []).length,
+      answeredBeforeTheModel: Boolean(r?.answeredBeforeTheModel),
+      premiseUnverified: Boolean(r?.premises && r.premises.unverified > 0),
+      unbacked: (r?.unbacked ?? 0), words,
+    });
+  }
   const cov = r?.strain?.[0]?.coverage ?? null;
   if (Number.isFinite(cov)) {
     state.cutFires.turns += 1;
     if (cov < 0.34) state.cutFires.declared += 1;
     if (nul && (state.coverage ?? []).length) {
-      const { placeCoverage } = await import(`${FOLD}calibration.js`);
       const placed = placeCoverage(cov, state.coverage, { nul });
       if (placed.strained === true) state.cutFires.measured += 1;
       if (placed.strained !== null) state.cutFires.measurable += 1;
@@ -281,7 +328,7 @@ for (let turn = state.turn + 1; turn <= TURNS; turn++) {
     correction: r?.correction ? { flagged: r.correction.flagged, asked: r.correction.asked, afterFlagged: r.correction.after?.flagged, outcomes: (r.correction.outcomes ?? []).map((o) => o.outcome) } : null,
     premises: r?.premises ? { checked: r.premises.checked, unverified: r.premises.unverified, contradicted: r.premises.contradicted } : null,
     learnedUsed: r?.learnedUsed ?? [], learnedAdded, learnedTotal: learnedStore.length,
-    strain: r?.strain?.[0] ? { level: r.strain[0].level, recruited: r.strain[0].recruited, coverage: r.strain[0].coverage, cut: r.strain[0].cut } : null,
+    strain: r?.strain?.[0] ? { level: r.strain[0].level, recruited: r.strain[0].recruited, coverage: r.strain[0].coverage, cut: r.strain[0].cut, ...(r.strain[0].expect ? { expect: r.strain[0].expect } : {}) } : null,
     answeredBeforeTheModel: r?.answeredBeforeTheModel ? r.answeredBeforeTheModel.kind : null,
     substituted: (r?.substituted ?? []).length > 0,
     tower: state.lastAudit ? { fires: { measured: state.cutFires.measured, declared: state.cutFires.declared, of: state.cutFires.measurable }, use: state.lastAudit.use } : null,

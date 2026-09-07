@@ -110,32 +110,96 @@ export function directDescriptorOccurrences(text, { encounterRef = "unknown" } =
 
 import { chainView } from "../../kernel/fold.js";
 
-// Incremental over the fold's delta chain: occurrences are add-only, so the
-// per-surface groups persist and each delta folds in O(delta); an UPDATE
-// touching the schema demands the from-scratch path (exactness first).
-// Insertion order of the Map — first occurrence of each surface — is the
-// original's own output order; a full Frankenstein read diffed
-// byte-identical before this landed.
-const surfaceGroups = chainView(
-  (graphEntries) => {
-    const bySurface = new Map();
-    for (const x of graphEntries) {
+// ── THE HYPOTHESIS LIST, MAINTAINED (2026-09-07) ─────────────────────────
+// P157 memoised each group's hypothesis on its group ARRAY and said "an
+// untouched group is the same array, so it hits". On the chain path the
+// group is grown IN PLACE by `push`, so the memo was stale there — harmless
+// only because revision.js admits new ids and ignores known ones. And
+// `descriptorHypothesesWith` copied the whole surface map and walked every
+// group per sentence: profiled at 240 KB it was 12% of the read and grew
+// 7x for 1.79x the sentences.
+//
+// The state now carries the OUTPUT: `out`, the hypotheses in surface
+// first-occurrence order, with each surface's position. A delta touches a
+// few groups; only those are recomputed, and a hypothesis, once earned, is
+// never lost (occurrences are add-only), so `out` only ever replaces in
+// place or inserts. The per-group memo is versioned by the group's LENGTH,
+// which is the only thing that can change on an append-only group. The
+// output order is the original's: fold-known surfaces in first-occurrence
+// order, new-only surfaces appended in arrival order — and the fresh-array
+// compute path and the incremental path are pinned equal.
+const HYPOTHESIS = new WeakMap(); // group array -> { surface, length, value }
+function hypothesisForGroup(surface, group) {
+  const hit = HYPOTHESIS.get(group);
+  if (hit !== undefined && hit.surface === surface && hit.length === group.length) return hit.value;
+  const one = hypothesesFrom(new Map([[surface, group]]));
+  const value = one.length ? one[0] : null;
+  HYPOTHESIS.set(group, { surface, length: group.length, value });
+  return value;
+}
+
+const emptyState = () => ({ groups: new Map(), order: new Map(), out: [], outOrder: [], frozen: null, fresh: true, pending: new Set() });
+
+/** Where `out` holds (or would hold) the hypothesis for a surface: binary search on the kept first-occurrence orders. */
+function slot(st, surface) {
+  const o = st.order.get(surface);
+  let lo = 0, hi = st.outOrder.length;
+  while (lo < hi) { const mid = (lo + hi) >> 1; if (st.outOrder[mid] < o) lo = mid + 1; else hi = mid; }
+  return { at: lo, found: lo < st.outOrder.length && st.outOrder[lo] === o };
+}
+
+/** Put the hypothesis for `surface` into `out` at its first-occurrence position, or replace it there. Returns whether `out` changed. */
+function place(st, surface, value) {
+  const { at, found } = slot(st, surface);
+  if (found) {
+    if (value == null) throw new Error("individuation: a hypothesis once earned cannot be lost on an append-only group");
+    if (st.out[at] === value) return false;
+    st.out[at] = value; return true;
+  }
+  if (value == null) return false;
+  st.out.splice(at, 0, value); st.outOrder.splice(at, 0, st.order.get(surface));
+  return true;
+}
+
+function foldGroups(st, entries, alsoTouched = []) {
+  const touched = new Set(alsoTouched);
+  for (const x of entries) {
+    if (x?.schema !== "EOReferentOccurrence@1") continue;
+    const key = x.canonicalSurface;
+    if (!st.groups.has(key)) { st.groups.set(key, []); st.order.set(key, st.order.size); }
+    st.groups.get(key).push(x);
+    touched.add(key);
+  }
+  let changed = false;
+  for (const key of [...touched].sort((a, b) => st.order.get(a) - st.order.get(b))) { st.pending.add(key); changed = place(st, key, hypothesisForGroup(key, st.groups.get(key))) || changed; }
+  if (changed || !st.frozen) st.frozen = Object.freeze([...st.out]);
+  return st;
+}
+
+const surfaceState = chainView(
+  (graphEntries) => { const st = foldGroups(emptyState(), graphEntries); st.fresh = true; return st; },
+  (st, d) => {
+    // AN UPDATE IS REPLACED IN PLACE and its group's hypothesis recomputed
+    // (2026-09-07) — the memo is bypassed for that group because a
+    // hypothesis reads `edge`, `relation` and `role` off each occurrence and
+    // an update is exactly what changes those. Only a changed surface key,
+    // which would move the occurrence between groups, still recomputes the
+    // whole state.
+    // Appended first, then updated — one call can do both to one id, and the
+    // update is the later fact (see identity.js's edge index for the case
+    // the 480 KB gate caught).
+    foldGroups(st, d.appended);
+    const touched = [];
+    for (const x of d.updated) {
       if (x?.schema !== "EOReferentOccurrence@1") continue;
-      const key = x.canonicalSurface;
-      if (!bySurface.has(key)) bySurface.set(key, []);
-      bySurface.get(key).push(x);
+      const group = st.groups.get(x.canonicalSurface);
+      const i = group ? group.findIndex((g) => g.id === x.id) : -1;
+      if (i < 0) return null;
+      group[i] = x;
+      HYPOTHESIS.delete(group);
+      touched.push(x.canonicalSurface);
     }
-    return bySurface;
-  },
-  (bySurface, d) => {
-    if (d.updated.some((x) => x?.schema === "EOReferentOccurrence@1")) return null;
-    for (const x of d.appended) {
-      if (x?.schema !== "EOReferentOccurrence@1") continue;
-      const key = x.canonicalSurface;
-      if (!bySurface.has(key)) bySurface.set(key, []);
-      bySurface.get(key).push(x);
-    }
-    return bySurface;
+    return touched.length ? foldGroups(st, [], touched) : st;
   },
 );
 
@@ -143,31 +207,76 @@ const surfaceGroups = chainView(
  * Recurrence earns an identity hypothesis, never timeless sameness.
  */
 export function descriptorHypotheses(graphEntries = []) {
-  return hypothesesFrom(surfaceGroups(graphEntries));
+  return surfaceState(graphEntries).frozen;
 }
-
 
 /**
  * The same hypotheses over the FOLD's occurrences plus a handful of
  * not-yet-folded ones — the per-encounter shape reviseTextFold needs. The
- * fold side rides the chain view (O(delta)); the extras overlay affected
- * groups copy-on-read, so the shared cached groups are never mutated with
- * entries the fold does not yet hold. Output order is the original
- * combined-array semantics: fold-known surfaces in first-occurrence order,
- * new-only surfaces appended in arrival order — proven byte-identical on a
- * full Frankenstein read.
+ * fold side rides the chain view; the extras touch a few groups, which are
+ * read copy-on-read so the shared state is never written with entries the
+ * fold does not yet hold. Output order is the original combined-array
+ * semantics: fold-known surfaces in first-occurrence order, new-only
+ * surfaces appended in arrival order.
  */
-export function descriptorHypothesesWith(foldEntries = [], extraOccurrences = []) {
-  const cached = surfaceGroups(foldEntries);
-  if (!extraOccurrences.length) return hypothesesFrom(cached);
-  const overlay = new Map(cached);
+const NOTHING = Object.freeze([]);
+/**
+ * `changedOnly` (2026-09-07): the hypotheses that could have CHANGED since
+ * this state was last asked — every surface a delta touched since then
+ * (`pending`, kept by foldGroups), plus the surfaces this sentence's extras
+ * touch — fold-known ones in first-occurrence order, new-only ones in
+ * arrival order; and the whole list the first time a state is asked (a
+ * state just computed from scratch has offered nothing yet). revision.js
+ * admits hypotheses whose ids the fold lacks and ignores the rest; profiled
+ * at 480 KB it walked every hypothesis every sentence to find the few that
+ * were new (8.5% of the read, growing 36x for 2x the sentences).
+ *
+ * THE FIRST CUT WAS WRONG AND THE GATE CAUGHT IT. It offered only the
+ * extras' surfaces, on the argument that an append arrives only as an
+ * extra. It does not: an occurrence also enters the fold through the
+ * observation's own graphEntries, never through revision's extras, and a
+ * group grown that way was never offered — the 60 KB log hash moved while
+ * the nodes stayed. `pending` closes that route: any group changed by any
+ * delta since the last ask is offered at the next one. `fresh` and
+ * `pending` are consumed by the `changedOnly` asker and by nobody else.
+ */
+export function descriptorHypothesesWith(foldEntries = [], extraOccurrences = [], { changedOnly = false } = {}) {
+  const st = surfaceState(foldEntries);
+  const offerAll = !changedOnly || st.fresh;
+  const carried = st.pending;
+  if (changedOnly) { st.fresh = false; st.pending = new Set(); }
+  const extra = new Map(); // surface -> the group as it would be with the extras (a copy), in extras' arrival order
   for (const x of extraOccurrences) {
     if (x?.schema !== "EOReferentOccurrence@1") continue;
     const key = x.canonicalSurface;
-    const base = overlay.get(key);
-    overlay.set(key, base ? (overlay.get(key) === cached.get(key) ? [...base, x] : (base.push(x), base)) : [x]);
+    if (!extra.has(key)) extra.set(key, [...(st.groups.get(key) ?? [])]);
+    extra.get(key).push(x);
   }
-  return hypothesesFrom(overlay);
+  if (!offerAll) {
+    const touched = new Set([...carried, ...extra.keys()]);
+    if (!touched.size) return NOTHING;
+    const known = [...touched].filter((k) => st.order.has(k)).sort((a, b) => st.order.get(a) - st.order.get(b));
+    const fresh = [...touched].filter((k) => !st.order.has(k));
+    const out = [];
+    for (const key of [...known, ...fresh]) { const h = hypothesisForGroup(key, extra.get(key) ?? st.groups.get(key)); if (h) out.push(h); }
+    return Object.freeze(out);
+  }
+  if (!extra.size) return st.frozen;
+  const known = [...extra.keys()].filter((k) => st.order.has(k)).sort((a, b) => st.order.get(a) - st.order.get(b));
+  const fresh = [...extra.keys()].filter((k) => !st.order.has(k));
+  // Fold-known surfaces: walk `out` in order, replacing or inserting the touched ones at their first-occurrence positions.
+  const out = [];
+  let k = 0;
+  const pushKnown = (limitOrder) => { while (k < known.length && st.order.get(known[k]) < limitOrder) { const h = hypothesisForGroup(known[k], extra.get(known[k])); if (h) out.push(h); k += 1; } };
+  for (let i = 0; i < st.out.length; i += 1) {
+    const o = st.outOrder[i];
+    pushKnown(o);
+    if (k < known.length && st.order.get(known[k]) === o) { const h = hypothesisForGroup(known[k], extra.get(known[k])); if (h) out.push(h); k += 1; }
+    else out.push(st.out[i]);
+  }
+  pushKnown(Infinity);
+  for (const key of fresh) { const h = hypothesisForGroup(key, extra.get(key)); if (h) out.push(h); }
+  return Object.freeze(out);
 }
 
 function hypothesesFrom(bySurface) {

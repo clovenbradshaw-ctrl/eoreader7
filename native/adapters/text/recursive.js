@@ -41,25 +41,85 @@ export function containsSurface(text, surface) {
   return new RegExp(`(^|[^\\p{L}\\p{N}])${escapeRe(needle)}([^\\p{L}\\p{N}]|$)`, "u").test(hay);
 }
 
-function currentReferents(text, refs = []) {
-  return refs.filter((ref) => ref.surfaces.some((surface) => containsSurface(text, surface)));
+// ── EVERY KNOWN SURFACE IN ONE PASS (2026-09-07) ─────────────────────────
+// `currentReferents` and `referentsInSpan` asked `containsSurface` once per
+// known surface per sentence — normalising the sentence again and compiling a
+// fresh RegExp each time. The cast grows with the read, so that is
+// O(surfaces) regexes per sentence: profiled at 240 KB of War and Peace it
+// was 14% of the read and grew 6.4x for 1.79x the sentences.
+//
+// The index is built ONCE per refresh, when the surface map changes, and a
+// sentence is scanned once: at each word start, the surfaces whose first
+// token is that word are checked with `startsWith` and the same after-
+// boundary `containsSurface` uses. It is EXACT to `containsSurface`'s rule
+// — (^|non-alnum) needle (non-alnum|$) over diaNorm'd text — because a
+// needle that begins with a letter or digit can only match at a word start.
+// A needle that begins with anything else keeps the regex path, per needle.
+// Order is carried as the surface map's own insertion order, so every caller
+// that depended on map order (`referentsInSpan`'s grouping,
+// `witnessRelatedPairs`' first-three) reproduces it by sorting hits by it.
+const ALNUM_RE = /[\p{L}\p{N}]/u;
+const WORD_START_RE = /[\p{L}\p{N}]+/gu;
+const alnumAt = (s, i) => i < s.length && ALNUM_RE.test(String.fromCodePoint(s.codePointAt(i)));
+export function surfaceIndex(surfaces) {
+  const byFirst = new Map();   // first token -> [needle]
+  const fallback = [];         // needles not beginning with a letter/digit: the regex path
+  const order = new Map();     // needle -> position in the given order
+  for (const surface of surfaces) {
+    const needle = diaNorm(surface);
+    if (!needle || order.has(needle)) continue;
+    order.set(needle, order.size);
+    const m = needle.match(/^[\p{L}\p{N}]+/u);
+    if (!m) { fallback.push(needle); continue; }
+    if (!byFirst.has(m[0])) byFirst.set(m[0], []);
+    byFirst.get(m[0]).push(needle);
+  }
+  return Object.freeze({ byFirst, fallback, order });
+}
+/** The needles (diaNorm'd surfaces) present in `text`, in the index's own order. */
+export function surfacesIn(text, index) {
+  const hay = diaNorm(text);
+  const present = new Set();
+  WORD_START_RE.lastIndex = 0;
+  let m;
+  while ((m = WORD_START_RE.exec(hay))) {
+    const cands = index.byFirst.get(m[0]);
+    if (!cands) continue;
+    for (const needle of cands) {
+      if (present.has(needle)) continue;
+      if (hay.startsWith(needle, m.index) && !alnumAt(hay, m.index + needle.length)) present.add(needle);
+    }
+  }
+  for (const needle of index.fallback) if (containsSurface(hay, needle)) present.add(needle);
+  return [...present].sort((a, b) => index.order.get(a) - index.order.get(b));
+}
+/** The per-refresh matcher: the index over the surface map, and each referent's own needles. */
+function surfaceMatcher(map, referents) {
+  return Object.freeze({ index: surfaceIndex(map.keys()), map, referents: referents.map((ref) => ({ ref, needles: new Set(ref.surfaces.map(diaNorm).filter(Boolean)) })) });
 }
 
-function referentsInSpan(span, map) {
+function currentReferents(text, matcher) {
+  if (!matcher) return [];
+  const present = new Set(surfacesIn(text, matcher.index));
+  // The referent's own surfaces may not all be keys of the map (the map is
+  // surface -> id after coreference); those are asked one by one, as before.
+  return matcher.referents.filter(({ ref, needles }) => [...needles].some((n) => present.has(n) || (!matcher.index.order.has(n) && containsSurface(text, n)))).map(({ ref }) => ref);
+}
+
+function referentsInSpan(span, matcher) {
   const matches = new Map();
-  for (const [surface, ref] of map) {
-    if (containsSurface(span, surface)) {
-      if (!matches.has(ref)) matches.set(ref, []);
-      matches.get(ref).push(surface);
-    }
+  for (const surface of surfacesIn(span, matcher.index)) {
+    const ref = matcher.map.get(surface);
+    if (!matches.has(ref)) matches.set(ref, []);
+    matches.get(ref).push(surface);
   }
   return matches;
 }
 
-function resolveParticipant(surface, map, sequencePosition, relationIndex, role) {
-  const exact = map.get(diaNorm(surface));
+function resolveParticipant(surface, matcher, sequencePosition, relationIndex, role) {
+  const exact = matcher.map.get(diaNorm(surface));
   if (exact) return { ref: exact, role, standing: "referent", surface, resolution: "exact_surface" };
-  const candidates = referentsInSpan(surface, map);
+  const candidates = referentsInSpan(surface, matcher);
   if (candidates.size === 1) {
     const [[ref, matchedSurfaces]] = candidates;
     return { ref, role, standing: "referent", surface, resolution: "unique_surface_in_span", matchedSurfaces };
@@ -220,27 +280,33 @@ function admittedRelationVerbs(store, minSurfaces) {
  * so "witnessed relating these two beings" is counted once however often that
  * one sentence repeats, exactly as distinct surfaces are counted once each.
  */
-function witnessRelatedPairs(store, sentences, refs) {
+function witnessRelatedPairs(store, sentences, refs, matcher = null) {
   if (!refs?.size || !store.size) return;
-  const surfaces = [...refs.keys()];
+  const index = matcher?.index ?? surfaceIndex(refs.keys());
+  // The verbs were diaNorm'd once per verb per sentence; once per verb.
+  const verbs = [...store].map(([verb, record]) => [diaNorm(verb), record]);
   for (const sentence of sentences) {
     const hay = diaNorm(sentence.text);
-    const present = [];
-    for (const surface of surfaces) {
-      if (containsSurface(sentence.text, surface)) present.push(refs.get(surface));
-      if (present.length > 2) break;
-    }
+    // The first three hits in map order — the original stopped after the third.
+    const present = surfacesIn(sentence.text, index).slice(0, 3).map((surface) => refs.get(surface));
     const distinct = [...new Set(present)];
     if (distinct.length < 2) continue;
     const pairKey = distinct.slice(0, 2).sort().join("\u0000");
-    for (const [verb, record] of store) {
+    for (const [verb, record] of verbs) {
       if (!record.relatedPairs) record.relatedPairs = new Set();
-      if (hay.includes(diaNorm(verb))) record.relatedPairs.add(pairKey);
+      if (hay.includes(verb)) record.relatedPairs.add(pairKey);
     }
   }
 }
 
-export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEvery = 25, posPrior = null, descriptorAnchoring = null } = {}) {
+export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEvery = 25, posPrior = null, descriptorAnchoring = null, addresses = "birth" } = {}) {
+  // `addresses` (2026-09-07): "birth" — the default, decided by measurement
+  // (the-fold POLICIES.md P168) — hands the previous refresh's addresses to
+  // discoverReferents so a being keeps the id it was born with (surfaces.js,
+  // `prior`); "founder" mints a cluster's id from whichever member founds it
+  // at each refresh, the reading as it was until P168, kept so the
+  // oscillation it produces stays reproducible (tests/referent-merge.test.js).
+  if (addresses !== "founder" && addresses !== "birth") throw new TypeError('addresses is "founder" or "birth"');
   if (!Number.isInteger(refreshEvery) || refreshEvery < 1) throw new TypeError("refreshEvery must be a positive integer");
   if (posPrior && (posPrior.schema !== "POSPrior@1" || !posPrior.provenance?.source)) throw new TypeError("posPrior must be a giver-named POSPrior@1");
   // OPT-IN: descriptor anchoring (one-hop activation recall binding
@@ -253,7 +319,11 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
   let priorText = "";
   let relationRefreshFrom = 0;
   const relationEvidence = new Map();
-  let cache = { closed: new Set(), refs: new Map(), referents: [], gaps: [], verbs: new Set() };
+  let cache = { closed: new Set(), refs: new Map(), referents: [], matcher: surfaceMatcher(new Map(), []), gaps: [], merges: [], reassignments: [], verbs: new Set() };
+  // discoverReferents re-clusters everything on every refresh, so the same
+  // merge is rediscovered each time. It lands ONCE, in the observation of the
+  // sentence whose refresh first proved it.
+  const emittedMerges = new Set();
   // THE FOLD IS THE ACTIVATION — nothing is re-read. Each sentence's
   // surface evidence and word counts are folded in ONCE (arithmetic tier:
   // monotone accumulation, S10); refresh() only PROJECTS from the
@@ -278,7 +348,34 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
     const table = { freq: runningFreq, total: runningTotal };
     const closed = earnedClosedClass(table);
     const surfaces = surfacesFromEvidence(surfaceEvidence, { functionWords: closed });
-    const discovered = discoverReferents(surfaces);
+    const discovered = discoverReferents(surfaces, addresses === "birth" ? { prior: { refs: cache.refs, born: cache.born ?? new Map(), next: cache.bornNext ?? 0 } } : {});
+    // REASSIGNMENT ACROSS REFRESHES, RECORDED (P165). discoverReferents
+    // re-clusters from scratch every refresh, longest surface first. So at
+    // refresh k a fragment ("Vasili") that has cleared its sentence floor
+    // gets its own id; at refresh k+1 the fuller name ("Prince Vasili
+    // Kuragin") clears ITS floor, is processed first, the fragment now
+    // corefers with it and is REASSIGNED — but ref:auto:vasili was already
+    // emitted into the fold at refresh k and is never revisited. That orphan
+    // is the "three ids for one being" residue the-fold's P156 found and had
+    // to reconstruct by inference. The `merges` branch does not cover it:
+    // measured on 120 KB of real material it fired 0 times, because its
+    // condition (one surface spanning two established clusters' full token
+    // sets) is nearly unreachable under longest-first assignment.
+    //
+    // The old map is still in hand here. A surface whose id CHANGED is a
+    // reassignment, witnessed by that surface, and it is recorded where it
+    // was decided instead of being inferred downstream from dormancy.
+    const nextRefs = surfaceMap(discovered.events);
+    const originalSurface = new Map();
+    for (const e of discovered.events) if (e?.type === "DEF.admit" && !originalSurface.has(diaNorm(e.surface))) originalSurface.set(diaNorm(e.surface), e.surface);
+    const reassignments = [];
+    // A merge of two prior beings is already testimony (discovered.merges);
+    // its bearers' id changes are not a second record.
+    const foldedByMerge = new Set((discovered.merges ?? []).flatMap((m) => m.folded ?? []));
+    for (const [key, from] of cache.refs ?? []) {
+      const to = nextRefs.get(key);
+      if (to && to !== from && !foldedByMerge.has(from)) reassignments.push({ kept: to, folded: [from], witness: originalSurface.get(key) ?? key, basis: "reassigned on refresh — the fuller name cleared its floor and this surface now corefers with it" });
+    }
     const batchSentences = priorSentences.slice(relationRefreshFrom);
     const batchText = batchSentences.map((sentence) => sentence.text).join("\n");
     if (batchText && surfaces.length) {
@@ -292,13 +389,29 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
     }
     // Fold-conditioned evidence, over the SAME new batch the vocabulary scan
     // uses — never a rescan of everything read so far.
-    witnessRelatedPairs(relationEvidence, batchSentences, surfaceMap(discovered.events));
+    const referents = referentObjects(discovered.events);
+    const matcher = surfaceMatcher(nextRefs, referents);
+    witnessRelatedPairs(relationEvidence, batchSentences, nextRefs, matcher);
     relationRefreshFrom = priorSentences.length;
     cache = {
       closed,
-      refs: surfaceMap(discovered.events),
-      referents: referentObjects(discovered.events),
+      refs: nextRefs,
+      referents,
+      matcher,
       gaps: discovered.gaps,
+      // THE MERGE RECORD, KEPT (P165). discoverReferents detects when two
+      // surface clusters name one being and records it — `merges.push({kept,
+      // folded, witness})` — and this cache used to read `events` and `gaps`
+      // and never `merges`. So the testimony was computed and thrown away,
+      // and the projection's own header — "a node at cursor 500 may be two
+      // nodes at cursor 200, and scrubbing the cursor SHOWS that" — was left
+      // to whoever compared two node lists. the-fold's cursor.js had to
+      // RECONSTRUCT merges from dormancy plus surface capture and mark every
+      // one `inferred`, because the record it needed was unavailable.
+      merges: discovered.merges ?? [],
+      reassignments,
+      born: discovered.addresses?.born ?? cache.born,
+      bornNext: discovered.addresses?.next ?? cache.bornNext,
       verbs: admittedRelationVerbs(relationEvidence, minRelationSurfaces),
     };
   };
@@ -316,8 +429,8 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
         id: `edge:text:${sequencePosition}:${index}`,
         relation: rel.verb,
         participants: [
-          resolveParticipant(rel.subject, cache.refs, sequencePosition, index, "subject"),
-          resolveParticipant(rel.object, cache.refs, sequencePosition, index, "object"),
+          resolveParticipant(rel.subject, cache.matcher, sequencePosition, index, "subject"),
+          resolveParticipant(rel.object, cache.matcher, sequencePosition, index, "object"),
         ],
         witness: `text:${sequencePosition}:${rel.offset}`,
         scope: { sequencePosition, offset: rel.offset },
@@ -337,7 +450,27 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
         meta: { polarity: rel.polarity, source: encounter.source, encounterRef, compositionStanding: relationStanding(rel.verb, posPrior) },
       }));
 
-      const seenReferents = currentReferents(encounter.material, cache.referents);
+      const seenReferents = currentReferents(encounter.material, cache.matcher);
+      // A merge is TESTIMONY, not an inference: it arrives with the surface
+      // that proved it. The folded referents are never deleted — the fold is
+      // upsert-only and cursor scrubbing depends on replaying the past — they
+      // are MARKED, by this entry, as folded into the kept one.
+      const mergeEntries = [];
+      const witnessedMerges = (cache.merges ?? []).map((m) => ({ ...m, basis: m.basis ?? "name-variant coreference — a witnessed merge, recorded where it was decided" }));
+      for (const m of [...witnessedMerges, ...(cache.reassignments ?? [])]) {
+        const key = `${m.kept}|${[...(m.folded ?? [])].sort().join("+")}`;
+        if (emittedMerges.has(key) || !m.kept || !(m.folded ?? []).length) continue;
+        emittedMerges.add(key);
+        mergeEntries.push(Object.freeze({
+          schema: "EOReferentMerge@1",
+          id: `merge:${sequencePosition}:${slug(m.kept)}:${(m.folded ?? []).map(slug).join("+")}`,
+          kept: m.kept,
+          folded: Object.freeze([...(m.folded ?? [])]),
+          witness: m.witness ?? null,
+          encounterRef: `encounter:${sequencePosition}`,
+          provenance: { giver: "surfaces/discoverReferents", tier: "engine", basis: m.basis },
+        }));
+      }
       const mentions = seenReferents.map((ref) => Object.freeze({
         schema: "EOMention@1",
         id: `mention:${sequencePosition}:${slug(ref.id)}`,
@@ -421,7 +554,7 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
             ...targetedOccurrences.map((occ) => ({ occurrence: occ.id, surfaceKey: occ.surfaceKey, taskNominated: true })),
           ],
           hyperedges: edges,
-          graphEntries: [...seenReferents, ...mentions, ...lexicalOccurrences, ...targetedOccurrences, ...gaps, ...anchorEvidence, ...descriptorOccsEmitted],
+          graphEntries: [...seenReferents, ...mergeEntries, ...mentions, ...lexicalOccurrences, ...targetedOccurrences, ...gaps, ...anchorEvidence, ...descriptorOccsEmitted],
         },
         anchor: encounter.anchor,
         evidence: encounter.material,

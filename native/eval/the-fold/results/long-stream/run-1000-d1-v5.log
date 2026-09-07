@@ -1,0 +1,23 @@
+long-stream — gemma2:2b, depth 1, 1000 turns, probe every 5, witness on
+  prose    pg2600.txt                             3293655 bytes  1051 chunks  bank 60
+  greek    odyssey-greek.txt                       710363 bytes  1288 chunks  bank 34
+  markdown POLICIES.md                             817698 bytes  1295 chunks  bank 60
+  code     holon.js                                188613 bytes    81 chunks  bank 3
+  json     stress-eval-all.json                    123943 bytes    91 chunks  bank 3
+  html     wikipedia-american-civil-war.html       231194 bytes   332 chunks  bank 60
+  4138 chunks in all; bank 220; recipe 9c70723fe2b4d37f
+  /Users/mlacy/Documents/3.0/eoreader7/native/eval/the-fold/results/long-stream/2026-09-06T00-16-55-gemma2_2b-d1
+  learned so far: 49 correction(s) carried in from earlier runs — /Users/mlacy/Documents/3.0/eoreader7/native/eval/the-fold/results/long-stream/learned.json
+[1/1000] organic      7s  2 calls              ↺2        What does pg2600.txt say about Alësha the Sly?
+[2/1000] organic     14s  3 calls              f1↺2      Summarize what odyssey-greek.txt says around the passage that mentions
+[3/1000] organic     13s  2 calls                        Which passage says so?
+[4/1000] organic     22s  5 calls              f1→1↺4    Summarize what wikipedia-american-civil-war.html says around the passa
+[5/1000] recall     165s 30 calls hit          f4↺3      In POLICIES.md, one passage reads: "The witness, asked 24 times a sect
+[6/1000] organic     51s  8 calls              f18       Tell me more about that.
+[7/1000] organic     31s  5 calls              f2↺4      What numbers or dates does wikipedia-american-civil-war.html give in c
+[8/1000] organic     34s  3 calls              ↺4        What numbers or dates does pg2600.txt give in connection with Bilíbin?
+[9/1000] organic     13s  2 calls                        Which passage says so?
+[10/1000] memory     226s 29 calls any=false share=0.00 f21→4↺5   Earlier in this conversation I asked you: "In POLICIES.md, one passage
+[11/1000] organic     21s  2 calls              f1→1↺1    What does odyssey-greek.txt say about Zacynthus?
+[12/1000] organic     47s  8 calls              f11       Tell me more about that.
+[13/1000] organic     41s  5 calls              f3→1↺4    Where does DEPTH appear in POLICIES.md, and what happens there?

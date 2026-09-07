@@ -9,6 +9,7 @@ import {
 import {
   appositionalDescriptorBindings,
   projectDiscourseReferents,
+  projectDiscourseReferentsWith,
 } from "./discourse-referents.js";
 import { textIdentityEvidence } from "./identity-evidence.js";
 import { idSetOf, entriesBySchema } from "../../kernel/fold.js";
@@ -100,13 +101,32 @@ export async function reviseTextFold({ observations = [], fold = {}, canonicaliz
       currentGraphEntries.push(entry);
       if (entry?.schema !== "EOReferent@1" || !entry.id || known.has(entry.id)) continue;
       known.add(entry.id);
+      // WHAT FED IT, RECORDED WHERE IT IS KNOWN (P160).
+      //
+      // A paradigm has a single address linked to all the things that fed it.
+      // Measured before this: a referent reached exactly ONE thing — itself.
+      // Fifteen EOMention@1 entries pointed AT `ref:auto:french`, each
+      // carrying real byte offsets; the referent pointed at none of them. The
+      // links only ran upward, so going DOWN from a referent meant scanning
+      // the whole log, and the reverse index that made that bearable was a
+      // substitute for links that should have existed.
+      //
+      // They cost nothing to record. At this instant the observation that
+      // produced the referent is in hand, and the mentions inside it already
+      // name it. `inputs` is a declared field on every operation and was
+      // being left empty while `outputs` was filled — the lineage was
+      // half-written, in the direction that cannot be walked.
+      const fedBy = (observation?.graphEntries ?? [])
+        .filter((x) => x?.id && x.id !== entry.id && (x.referent === entry.id || (x.referentId === entry.id)))
+        .map((x) => x.id);
       operations.push(eoOperation({
         op: "INS",
         grain: "Figure",
         witness: witnessRef,
+        inputs: fedBy,
         outputs: [entry.id],
         consequence: { kind: "referent_admitted", ref: entry.id },
-        payload: { action: "graph-object", value: entry },
+        payload: { action: "graph-object", value: fedBy.length ? { ...entry, fedBy: Object.freeze(fedBy) } : entry },
       }));
     }
 
@@ -133,7 +153,8 @@ export async function reviseTextFold({ observations = [], fold = {}, canonicaliz
     }
   }
 
-  for (const hypothesis of descriptorHypothesesWith(fold?.graphEntries ?? [], newDescriptorOccurrences)) {
+  // Only what this sentence could have changed (individuation.js, `changedOnly`): the walk below admits unknown ids and skips known ones, and an untouched group's hypothesis was offered when it last changed.
+  for (const hypothesis of descriptorHypothesesWith(fold?.graphEntries ?? [], newDescriptorOccurrences, { changedOnly: true })) {
     if (known.has(hypothesis.id)) continue;
     known.add(hypothesis.id);
     operations.push(eoOperation({
@@ -146,11 +167,12 @@ export async function reviseTextFold({ observations = [], fold = {}, canonicaliz
     }));
   }
 
-  const discourseSource = [
-    ...(fold?.graphEntries ?? []),
-    ...currentGraphEntries,
-  ];
-  for (const referent of projectDiscourseReferents(discourseSource)) {
+  // THE FOLD'S OWN ARRAY, NOT A SPREAD OF IT (P157). A fresh array literal
+  // carries no delta link, so the incremental view could never walk back and
+  // recomputed over the entire fold every sentence — measured at zero hits in
+  // 3,392 calls. This is the same shape `descriptorHypothesesWith` above uses,
+  // and for the same reason.
+  for (const referent of projectDiscourseReferentsWith(fold?.graphEntries ?? [], currentGraphEntries)) {
     if (known.has(referent.id)) continue;
     admitGraphObject(referent, {
       op: "INS",
@@ -174,11 +196,12 @@ export async function reviseTextFold({ observations = [], fold = {}, canonicaliz
     identityAttacks.push(...anchorEvidence.attacks);
   }
 
+  // THE FOLD'S OWN ARRAY, NOT A SPREAD OF IT (P157, a third time): the edge
+  // index rides the fold's delta stream; this sentence's admissions go in
+  // beside it as `extraEntries` and are scanned after it, in their order.
   const identityDelta = deriveIdentityRevision({
-    fold: {
-      ...fold,
-      graphEntries: [...(fold?.graphEntries ?? []), ...currentGraphEntries],
-    },
+    fold,
+    extraEntries: currentGraphEntries,
     supports: identitySupports,
     attacks: identityAttacks,
     canonicalizationFloor,

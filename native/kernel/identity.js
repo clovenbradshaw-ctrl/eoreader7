@@ -1,6 +1,6 @@
 // Handle: Ise — after the Ise shrine's Shikinen Sengu: the same shrine persists through total periodic rebuilding. Amendment XVII.
 
-import { eoOperation, deltaFold } from "./fold.js";
+import { eoOperation, deltaFold, chainView } from "./fold.js";
 import { expectation, expectationTransition, openExpectation } from "./expectations.js";
 
 const norm = (x) => String(x ?? "").toLocaleLowerCase().replace(/[^\p{L}\p{N}]+/gu, " ").trim();
@@ -39,13 +39,22 @@ const participantValue = (participant) => {
   return norm(participant?.ref ?? participant?.value ?? participant?.surface);
 };
 
-export function canonicalizeHyperedge(edge, alternatives = []) {
+/** Active alternatives by the value they mention — built once per call site, so a participant asks only the identities that name its value. */
+const activeByValue = (alternatives = []) => {
+  const by = new Map();
+  for (const x of alternatives ?? []) {
+    if (x?.schema !== "EOIdentityAlternative@1" || x.standing === "distinct" || x.standing === "refused") continue;
+    for (const v of [x.left, x.right]) { if (!by.has(v)) by.set(v, []); by.get(v).push(x); }
+  }
+  return by;
+};
+export function canonicalizeHyperedge(edge, alternatives = [], byValue = null) {
   if (edge?.schema !== "EOHyperedge@1") throw new TypeError("canonicalizeHyperedge requires EOHyperedge@1");
-  const active = (alternatives ?? []).filter((x) => x?.schema === "EOIdentityAlternative@1" && x.standing !== "distinct" && x.standing !== "refused");
+  const active = byValue ?? activeByValue(alternatives);
   const participants = (edge.participants ?? []).map((participant) => {
     const value = participantValue(participant);
     const values = new Set([value]);
-    for (const identity of active) {
+    for (const identity of active.get(value) ?? []) {
       if (identity.left === value) values.add(identity.right);
       if (identity.right === value) values.add(identity.left);
     }
@@ -62,12 +71,64 @@ export function canonicalizeHyperedge(edge, alternatives = []) {
   });
 }
 
-const currentCanonical = (fold, edgeId) => (fold?.graphEntries ?? []).find((x) => x?.schema === "EOCanonicalHyperedge@1" && x.sourceEdge === edgeId) ?? null;
-const rawEdges = (fold) => (fold?.graphEntries ?? []).filter((x) => x?.schema === "EOHyperedge@1");
-const touches = (edge, identity) => (edge.participants ?? []).some((p) => {
-  const value = participantValue(p);
-  return value === identity.left || value === identity.right;
-});
+// ── THE EDGES A VALUE STANDS IN, INDEXED (2026-09-07) ─────────────────────
+// recanonicalizationOperations filtered EVERY fold entry for hyperedges,
+// tested each against the identity, and for each touched edge searched the
+// whole fold again for its current canonical — per support, per sentence.
+// Profiled at 480 KB of War and Peace: 13% of the read, growing 24x for 2x
+// the sentences. The index rides the fold's delta stream: hyperedges by
+// participant value (the same `participantValue` `touches` used), each
+// edge's position in fold order (so the operations come out in the order
+// the scan produced them), and the current canonical by source edge (one
+// per edge — `canonical:${edge.id}` — so a lookup is the scan's `find`).
+// An updated edge whose participant values are unchanged is swapped in
+// place; any other update recomputes. Exactness first.
+const valuesOf = (edge) => (edge.participants ?? []).map(participantValue);
+const emptyEdgeIndex = () => ({ byValue: new Map(), byId: new Map(), pos: new Map(), canonical: new Map(), n: 0 });
+const foldEdgeIndex = (st, entries) => {
+  for (const x of entries) {
+    if (x?.schema === "EOCanonicalHyperedge@1") { st.canonical.set(x.sourceEdge, x); continue; }
+    if (x?.schema !== "EOHyperedge@1") continue;
+    st.byId.set(x.id, x);
+    st.pos.set(x.id, st.n++);
+    for (const v of new Set(valuesOf(x))) { if (!st.byValue.has(v)) st.byValue.set(v, []); st.byValue.get(v).push(x); }
+  }
+  return st;
+};
+/** Exported for the test that pins the invariant: how many times the edge index was built from scratch. */
+export const identityStats = { computes: 0 };
+const edgeIndex = chainView(
+  (list) => { identityStats.computes += 1; return foldEdgeIndex(emptyEdgeIndex(), list); },
+  (st, d) => {
+    // APPENDED FIRST, THEN UPDATED. One upsert call can append an entry and
+    // update it in the same breath — a support's REC lands an edge's
+    // canonical and an attack later in the same sentence lands the merged
+    // replacement; the delta records the first as appended and the merged
+    // second as updated. Applying updates first left this index holding the
+    // stale first canonical while the fold held the second; the 480 KB gate
+    // caught it at step 5534 (eleven canonicals carrying an alternative the
+    // fold's did not). Order is time.
+    foldEdgeIndex(st, d.appended);
+    for (const x of d.updated) {
+      if (x?.schema === "EOCanonicalHyperedge@1") { st.canonical.set(x.sourceEdge, x); continue; }
+      if (x?.schema !== "EOHyperedge@1") continue;
+      const old = st.byId.get(x.id);
+      if (!old) return null;
+      const before = [...new Set(valuesOf(old))].sort().join("\u0000"), after = [...new Set(valuesOf(x))].sort().join("\u0000");
+      if (before !== after) return null;
+      for (const v of new Set(valuesOf(x))) { const bucket = st.byValue.get(v); const i = bucket.findIndex((e) => e.id === x.id); if (i < 0) return null; bucket[i] = x; }
+      st.byId.set(x.id, x);
+    }
+    return st;
+  },
+);
+const currentCanonical = (index, edgeId) => index.canonical.get(edgeId) ?? null;
+/** The hyperedges touching an identity's two values, in fold order — what the scan-and-`touches` filter produced. */
+const touchedEdges = (index, identity) => {
+  const seen = new Map();
+  for (const v of [identity.left, identity.right]) for (const e of index.byValue.get(v) ?? []) seen.set(e.id, e);
+  return [...seen.values()].sort((a, b) => index.pos.get(a.id) - index.pos.get(b.id));
+};
 
 // An alternative participates in CANONICAL PROJECTION only at or above the
 // caller's declared corroboration floor (supportRefs count). The floor
@@ -82,13 +143,26 @@ const touches = (edge, identity) => (edge.participants ?? []).some((p) => {
 const meetsFloor = (alternative, floor) =>
   !Number.isFinite(floor) || (alternative.supportRefs ?? []).length >= floor;
 
-function recanonicalizationOperations(fold, alternatives, touchedIdentity, witness, floor) {
+const touchesIdentity = (edge, identity) => valuesOf(edge).some((v) => v === identity.left || v === identity.right);
+
+function recanonicalizationOperations(fold, extraEntries, alternatives, touchedIdentity, witness, floor) {
   const operations = [];
-  const projecting = alternatives.filter((x) => meetsFloor(x, floor));
-  for (const edge of rawEdges(fold)) {
-    if (!touches(edge, touchedIdentity)) continue;
-    const next = canonicalizeHyperedge(edge, projecting);
-    const before = currentCanonical(fold, edge.id);
+  const projecting = activeByValue(alternatives.filter((x) => meetsFloor(x, floor)));
+  // THE FOLD'S OWN ARRAY reaches the index (revision.js used to hand a fresh
+  // spread of it plus this sentence's admissions — P157's shape in a third
+  // place; measured: the index rebuilt from scratch 170 times in 1,707
+  // sentences). This sentence's entries are scanned after it, in their own
+  // order, exactly where the concatenation scan would have met them.
+  const index = edgeIndex(fold?.graphEntries ?? []);
+  const extraCanonical = new Map();
+  const extraEdges = [];
+  for (const x of extraEntries ?? []) {
+    if (x?.schema === "EOCanonicalHyperedge@1" && !extraCanonical.has(x.sourceEdge)) extraCanonical.set(x.sourceEdge, x);
+    else if (x?.schema === "EOHyperedge@1" && touchesIdentity(x, touchedIdentity)) extraEdges.push(x);
+  }
+  for (const edge of [...touchedEdges(index, touchedIdentity), ...extraEdges]) {
+    const next = canonicalizeHyperedge(edge, null, projecting);
+    const before = currentCanonical(index, edge.id) ?? extraCanonical.get(edge.id) ?? null;
     if (before && stable(before) === stable(next)) continue;
     operations.push(eoOperation({
       op: "REC",
@@ -110,7 +184,7 @@ function recanonicalizationOperations(fold, alternatives, touchedIdentity, witne
  * records refusal of the prior identity reading. Canonical relation projections
  * are then REC-written; raw witnessed edges remain untouched.
  */
-export function deriveIdentityRevision({ fold = {}, supports = [], attacks = [], witness = null, giver = null, canonicalizationFloor = undefined } = {}) {
+export function deriveIdentityRevision({ fold = {}, extraEntries = [], supports = [], attacks = [], witness = null, giver = null, canonicalizationFloor = undefined } = {}) {
   if (canonicalizationFloor !== undefined && (!Number.isInteger(canonicalizationFloor) || canonicalizationFloor < 1))
     throw new TypeError("deriveIdentityRevision: canonicalizationFloor, when declared, is a positive integer — how much corroboration licenses canonical projection is never a fraction or a guess");
   const operations = [];
@@ -169,7 +243,7 @@ export function deriveIdentityRevision({ fold = {}, supports = [], attacks = [],
     } else {
       transitionFor(next.id, "strengthened", ref, "expectation_strengthened");
     }
-    operations.push(...recanonicalizationOperations(fold, [...working.values()], next, ref, canonicalizationFloor));
+    operations.push(...recanonicalizationOperations(fold, extraEntries, [...working.values()], next, ref, canonicalizationFloor));
   }
 
   for (const evidence of attacks ?? []) {
@@ -191,7 +265,7 @@ export function deriveIdentityRevision({ fold = {}, supports = [], attacks = [],
       payload: { action: "exclusion", value: Object.freeze({ schema: "EOExclusion@1", id: `exclusion:${prior.id}`, kind: "identity_refused", target: prior.id, witness: ref }) },
     }));
     transitionFor(prior.id, "violated", ref, "expectation_violated");
-    operations.push(...recanonicalizationOperations(fold, [...working.values()], next, ref, canonicalizationFloor));
+    operations.push(...recanonicalizationOperations(fold, extraEntries, [...working.values()], next, ref, canonicalizationFloor));
   }
 
   return deltaFold(operations, { schemaVersion: "EOIdentityRevision@1" });
