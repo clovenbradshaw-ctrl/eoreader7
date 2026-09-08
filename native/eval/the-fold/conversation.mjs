@@ -186,8 +186,12 @@ if (READING === "constitutional") {
     readCursor = Number(cur.cursor) || 0; readSeq = Number(cur.sequence) || 0;
     console.log(`  reading replayed: ${readingLog.length} log entries, ${readCursor}/${chunks.length} chunks read so far`);
   }
-  // A resumed reader is seeded with the fold reconstructed from the persisted log (kernel/fold.js::reconstruct → createRecursiveReader({ seed })); the perceiver's own refresh state restarts — disclosed, not hidden.
+  // A resumed reader is seeded with the fold reconstructed from the persisted
+  // log and replays the persisted encounters into the perceiver's causal
+  // accumulators. A fold seed alone is not enough: refresh state is not itself
+  // a fold entry.
   readingReader = createRecursiveReader({ seed: readingLog.length ? reconstruct(readingLog) : {}, perceivers: [createCausalTextPerceiver({ minRelationSurfaces: 2, refreshEvery: 25, posPrior: POS, descriptorAnchoring: { minActivation: 0.05, minMargin: 0.2 } })], adapters: { revise: reviseTextFold, retrieve: (_fold, evidence) => Object.freeze({ schema: "EORelevantFold@1", witnessed: Object.freeze([...evidence]), provisional: Object.freeze([]), expectations: Object.freeze([]), obligations: Object.freeze([]), exclusions: Object.freeze([]), unresolvedAlternatives: Object.freeze([]), activeFrames: Object.freeze([]), receivedPriors: Object.freeze([]) }) } });
+  if (readingLog.length) await readingReader.restore(readingLog);
   projectReading();
 }
 async function readNext(budgetMs) {
@@ -355,6 +359,7 @@ for (let turn = state.turn + 1; turn <= TURNS; turn++) {
     turn, at: new Date().toISOString(), move: m.move, target: m.target ?? null, targetInSource: m.target ? inSource(m.target) : null, phrasedBy, question, answer,
     earlierTurn: earlier?.turn ?? null, addressed, cited, admitsAbsence: absent, resolved,
     owned: (r?.owned ?? []).length,
+    voidsDeclared: r?.voidsDeclared ?? (r?.sections ?? []).flatMap((s) => s?.voidsDeclared ?? []),
     retrieval: r?.retrieval ? r.retrieval.map((x) => ({ basis: x.basis, grain: x.grain ?? null, actsOnLog: x.actsOnLog ?? 0, active: x.active?.length ?? 0, hop1: x.hop1?.length ?? 0, window: x.window, cutBasis: x.cutBasis ?? null, cutCeiling: x.cutCeiling ?? false, lens: x.lens ?? null, hop0Count: x.hop0Count, hop1Count: x.hop1Count })) : null,
     resolutions: r?.resolutions ? r.resolutions.map((x) => ({ level: x.level, handed: x.handed ?? null, index: x.index, active: x.active?.ids?.length ?? 0, atmosphere: x.atmosphere, lens: x.lens, paradigm: x.paradigm, windows: x.windows })) : null,
     historyDepth: win.depth, historyBasis: win.basis ?? null,

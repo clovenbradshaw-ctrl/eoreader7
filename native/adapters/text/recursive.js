@@ -369,12 +369,9 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
     const originalSurface = new Map();
     for (const e of discovered.events) if (e?.type === "DEF.admit" && !originalSurface.has(diaNorm(e.surface))) originalSurface.set(diaNorm(e.surface), e.surface);
     const reassignments = [];
-    // A merge of two prior beings is already testimony (discovered.merges);
-    // its bearers' id changes are not a second record.
-    const foldedByMerge = new Set((discovered.merges ?? []).flatMap((m) => m.folded ?? []));
     for (const [key, from] of cache.refs ?? []) {
       const to = nextRefs.get(key);
-      if (to && to !== from && !foldedByMerge.has(from)) reassignments.push({ kept: to, folded: [from], witness: originalSurface.get(key) ?? key, basis: "reassigned on refresh — the fuller name cleared its floor and this surface now corefers with it" });
+      if (to && to !== from) reassignments.push({ from, to, surface: originalSurface.get(key) ?? key, basis: "reassigned on refresh — the fuller name cleared its floor and this surface now points at a new address" });
     }
     const batchSentences = priorSentences.slice(relationRefreshFrom);
     const batchText = batchSentences.map((sentence) => sentence.text).join("\n");
@@ -418,6 +415,12 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
 
   return Object.freeze({
     id: "text/recursive",
+    // Restore the perceiver's causal accumulators from the encounters that
+    // produced the persisted log. A Fold seed alone cannot restore these
+    // accumulators; without this replay, a resumed reader is a new instrument.
+    async restore(entries = []) {
+      for (const entry of entries) if (entry?.schema === "Encounter@1") await this.perceive(entry);
+    },
     async perceive(encounter, orientation = {}) {
       if (encounter?.modality !== "text" || typeof encounter.material !== "string") return [];
       const sequencePosition = encounter.sequencePosition ?? priorSentences.length;
@@ -457,7 +460,7 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
       // are MARKED, by this entry, as folded into the kept one.
       const mergeEntries = [];
       const witnessedMerges = (cache.merges ?? []).map((m) => ({ ...m, basis: m.basis ?? "name-variant coreference — a witnessed merge, recorded where it was decided" }));
-      for (const m of [...witnessedMerges, ...(cache.reassignments ?? [])]) {
+      for (const m of witnessedMerges) {
         const key = `${m.kept}|${[...(m.folded ?? [])].sort().join("+")}`;
         if (emittedMerges.has(key) || !m.kept || !(m.folded ?? []).length) continue;
         emittedMerges.add(key);
@@ -469,6 +472,20 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
           witness: m.witness ?? null,
           encounterRef: `encounter:${sequencePosition}`,
           provenance: { giver: "surfaces/discoverReferents", tier: "engine", basis: m.basis },
+        }));
+      }
+      for (const r of cache.reassignments ?? []) {
+        const key = `${r.from}|${r.to}|${r.surface}`;
+        if (emittedMerges.has(`reassignment:${key}`) || !r.from || !r.to || r.from === r.to) continue;
+        emittedMerges.add(`reassignment:${key}`);
+        mergeEntries.push(Object.freeze({
+          schema: "EOReferentReassignment@1",
+          id: `reassignment:${sequencePosition}:${slug(r.from)}:${slug(r.to)}`,
+          from: r.from,
+          to: r.to,
+          surface: r.surface ?? null,
+          encounterRef: `encounter:${sequencePosition}`,
+          provenance: { giver: "surfaces/discoverReferents", tier: "engine", basis: r.basis },
         }));
       }
       const mentions = seenReferents.map((ref) => Object.freeze({

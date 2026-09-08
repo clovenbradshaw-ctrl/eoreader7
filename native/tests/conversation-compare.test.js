@@ -36,6 +36,10 @@ test("no expectation anywhere → authorship null, never 0; empty rows → turns
   assert.deepEqual(summarizeRows([]), { turns: 0 });
 });
 
+test("comparison accepts the driver's legacy `voids` row field while new rows use voidsDeclared", () => {
+  assert.equal(summarizeRows([{ calls: 0, ms: 0, voids: [{ name: "Y" }] }]).voids, 1);
+});
+
 test("compareRuns / renderComparison: one row per figure, labels in order, a null rendered as a dash", () => {
   const cmp = compareRuns([{ label: "A", rows }, { label: "B", rows: rows.slice(0, 1) }]);
   assert.deepEqual(cmp.labels, ["A", "B"]);
