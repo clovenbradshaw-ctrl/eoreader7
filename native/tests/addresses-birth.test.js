@@ -78,7 +78,7 @@ test("A MERGE OF TWO PRIOR BEINGS is testimony with a witness; A SPLIT keeps the
   assert.notEqual(refs3.get("boris"), "ref:auto:anna");
 });
 
-test("ON THE REAL 60 KB PREFIX, the oscillation P165 pinned is gone under the birth rule, and the partition of surfaces into beings is the founder rule's", async () => {
+test("ON THE REAL 60 KB PREFIX, address reassignment is typed apart from merge and birth removes the oscillation", async () => {
   const stripped = stripContainer(fs.readFileSync(BOOK, "utf8").slice(0, 60000));
   const read = async (addresses) => {
     const encounters = textEncounters(stripped.text, { source: "file:pg2600", offset: stripped.offset });
@@ -86,13 +86,14 @@ test("ON THE REAL 60 KB PREFIX, the oscillation P165 pinned is gone under the bi
     return reader.read(encounters);
   };
   const [founder, birth] = await Promise.all([read("founder"), read("birth")]);
-  const merges = (r) => r.fold.graphEntries.filter((g) => g.schema === "EOReferentMerge@1");
-  const cyclic = (ms) => { const into = new Map(); for (const m of ms) for (const f of m.folded) into.set(f, m.kept); return [...into].filter(([f, k]) => into.get(k) === f).length; };
-  assert.ok(cyclic(merges(founder)) >= 1, "the founder rule still oscillates on this prefix (P165's finding stands for the default)");
-  assert.equal(cyclic(merges(birth)), 0, "under the birth rule no address flips back");
+  const transitions = (r) => r.fold.graphEntries.filter((g) => g.schema === "EOReferentMerge@1" || g.schema === "EOReferentReassignment@1");
+  const edges = (r) => transitions(r).flatMap((g) => g.schema === "EOReferentMerge@1" ? (g.folded ?? []).map((from) => [from, g.kept]) : [[g.from, g.to]]);
+  const cyclic = (r) => { const into = new Map(edges(r)); return [...into].filter(([f, k]) => into.get(k) === f).length; };
+  assert.ok(cyclic(founder) >= 1, "the founder rule still oscillates on this prefix (P165's finding stands for the default)");
+  assert.equal(cyclic(birth), 0, "under the birth rule no address flips back");
   // The mentions of one being land on one address: the surfaces named by the final referents partition identically.
   const beings = (r) => { const live = r.fold.graphEntries.filter((g) => g.schema === "EOReferent@1"); return live.map((x) => [...x.surfaces].sort().join("|")).sort(); };
-  const mentionsOnSuperseded = (r) => { const folded = new Set(merges(r).flatMap((m) => m.folded)); return r.fold.graphEntries.filter((g) => g.schema === "EOMention@1" && folded.has(g.referent)).length; };
-  assert.ok(mentionsOnSuperseded(founder) > mentionsOnSuperseded(birth), `mentions stranded on superseded addresses: founder ${mentionsOnSuperseded(founder)}, birth ${mentionsOnSuperseded(birth)}`);
+  const reassigned = (r) => r.fold.graphEntries.filter((g) => g.schema === "EOReferentReassignment@1").length;
+  assert.ok(reassigned(founder) > reassigned(birth), `address reassignment remains more frequent under founder: founder ${reassigned(founder)}, birth ${reassigned(birth)}`);
   assert.ok(beings(birth).length <= beings(founder).length, "no more beings than before");
 });

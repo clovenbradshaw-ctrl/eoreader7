@@ -93,6 +93,9 @@ export function projectHypergraph(log = [], { atSeq = null, seed = {}, standing 
   const merges = graph
     .filter((g) => g?.schema === "EOReferentMerge@1")
     .map((g) => freeze({ id: g.id, kept: g.kept, folded: freeze([...(g.folded ?? [])]), witness: g.witness ?? null, encounterRef: g.encounterRef ?? null }));
+  const reassignments = graph
+    .filter((g) => g?.schema === "EOReferentReassignment@1")
+    .map((g) => freeze({ id: g.id, from: g.from, to: g.to, surface: g.surface ?? null, encounterRef: g.encounterRef ?? null }));
 
   const network = standing
     ? (() => {
@@ -119,6 +122,7 @@ export function projectHypergraph(log = [], { atSeq = null, seed = {}, standing 
     nodes: freeze(nodes),
     links: freeze(links),
     merges: freeze(merges),
+    reassignments: freeze(reassignments),
     network,
     // Downstream projections of THIS cursor read the reconstructed fold's
     // graph entries — the log rows are DELTAS, and a first cut handed the
