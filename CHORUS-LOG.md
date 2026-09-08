@@ -174,6 +174,12 @@ chorus-fast on each: the only FAIL across the five runs was `matrix-client.test.
 
 deferred-with-reason: the P55 void line carries negative knowledge in the prompt (user's own rule) but is a measured pin — the user's call. false-positive-on-review: none.
 
+## 2026-09-07 — Merge `fold-memory-p157` (53 commits: S77 long-stream, the kernel memory work, the holograph evals) into main (branch `fold-memory-p157` → main, scope origin/main..HEAD)
+
+fast: 102 files · 53 affected test files, 526 pass, 0 real fail (the one ✖ is the script handing `tests/earned-constants.json` to `node --test`; false-positive-on-review) · full native `npm test` on the merged tree 711 tests, 690 pass, 0 fail, 1 TODO · law: WARN pre-existing duplicate S17 (and the-fold's P19 P115–P117); WARN cited-not-written P0 P171 P580 P582 (pre-existing on the branch).
+| Alexander | II.10 | native/eval/the-fold/long-stream.mjs, lib/long-stream.mjs | fixed | two conflicts with main's S77 follow-ups (a083898): the branch's side is the superset (top-level `placeCoverage` import and P145 `expectFor`; `scored()` verdicts), main's inline import and bare verdicts dropped; `tests/long-stream.test.js` 8/8, `frontier-25.test.js` 4/4 with `../the-fold` at its paired merge |
+| Simon/Chekhov | — | eval scripts no test imports (read-run, holograph-reading, conversation, read-cost, frankenstein) | noted | evals, reviewed at their commits |
+clean: Diaconis, Feynman, Dijkstra, Holmes, Pearl, Ostrom, Frankfurt, Marshall — the merge itself edits no law.
 ## 2026-09-07 — the driver reads constitutionally and persists the reading; the run figures live in a lib a test reads; THE-HOLOGRAPH §7 is the reading policies (staged: conversation.mjs, lib/conversation-compare.mjs, tests/conversation-compare.test.js, docs/THE-HOLOGRAPH.md, .gitignore)
 - chorus-fast: PASS — 3/3 in the one affected test file; citations resolve except `P0`, which is eoreader6's READING-POLICY.md P0 (the constitutional-reader baseline the doc names by its own register), not a the-fold policy — a cross-repo cite, kept.
 - Diaconis (conversation.mjs:189, the resumed reader seeded from `reconstruct`): the perceiver's refresh state restarts on resume — disclosed in the code, not hidden; a fresh read and a resumed read are not byte-identical and the doc does not claim they are.
@@ -182,3 +188,7 @@ deferred-with-reason: the P55 void line carries negative knowledge in the prompt
 
 ## 2026-09-07 — S81 written; holograph-compression.mjs; THE-HOLOGRAPH §6/§7 amended (staged: READING-SPEC.md, eval/the-fold/holograph-compression.mjs, docs/THE-HOLOGRAPH.md)
 - chorus-fast: PASS — Generality present on S81; the driver refuses (`fixture_absent`, exit 2) when the reading, the ledger or the run it stands on are absent (S65); it is an eval driver imported by no test by design, and its by-construction rules are pinned in the-fold's resolutions/activation suites.
+
+## 2026-09-07 — merge of origin/main into fold-memory-p157 (worktree `fold-memory-p157-merge`)
+- origin/main since the base: a083898 (S77 follow-ups) — its content already stood on this branch; the only conflicts were the two long-stream files (this branch's frame-carrying verdicts and P145's belief kept; main's inner re-import of `placeCoverage`, a duplicate binding, dropped) and this log (both sides kept).
+- Suites in the worktree with the frozen submodule initialised and the vendored packages linked: conformance + tests 694 pass / 0 fail (20 skipped or todo); organs 450 of 452 — the two are environment (`aliases.test.mjs`, which another session is fixing uncommitted in the main tree, where organs pass 462/462; and hl-acquire's adversarial case reading the gitignored local POS prior inside the submodule).
