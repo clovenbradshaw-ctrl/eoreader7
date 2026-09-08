@@ -25,7 +25,9 @@ export { REFUSALS as FRAME_REFUSALS, comparable, declareFrame, framed } from "./
 export * as frame from "./frame.js";
 export { REFUSALS as BINDING_CORE_REFUSALS, bind } from "./binding-core.js";
 export * as bindingCore from "./binding-core.js";
-export { REFUSALS as FOLD_GATE_REFUSALS, reviewMerges } from "./fold-gate.js";
+export { heardSurfaces, isPositionallySigned, POSITIONAL_SIGNATURE, NAMING_CLASSES } from "./heard-surfaces.js";
+export * as heardSurfacesOrgan from "./heard-surfaces.js";
+export { REFUSALS as FOLD_GATE_REFUSALS, reviewMerges, refuteIdentity, reviewIdentityMerges, reviewReferentAssignments } from "./fold-gate.js";
 export * as foldGate from "./fold-gate.js";
 export { DOCUMENT_KINDS, DOCUMENT_KINDS_META, readHeading, speakerAt, speakerSections } from "./speaker.js";
 export * as speaker from "./speaker.js";
