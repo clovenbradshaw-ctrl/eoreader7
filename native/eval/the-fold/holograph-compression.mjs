@@ -40,18 +40,29 @@ const fr = foldReading(entries, organs); const index = readingIndexFromLog(entri
 console.log(`holograph compression — run ${dir.split("/").at(-1)} · corpus ${cfg.corpusId} · recipe ${cfg.recipe} · reading ${cfg.readingAssembly ?? "constitutional"} · notes ${notes.length} · log entries ${entries.length}`);
 console.log(`  identity: ${JSON.stringify(fr.identity)} — beings after the reader's own merges (record) and coreference (containment, one host only); ambiguous forms kept apart`);
 console.log(`  beings ${index.referents.size} · addressed sentences ${book.sentences.length}`);
-const qs = readFileSync(join(dir, "turns.jsonl"), "utf8").split("\n").filter(Boolean).map((l) => JSON.parse(l)).map((r) => r.question);
+const turnRows = readFileSync(join(dir, "turns.jsonl"), "utf8").split("\n").filter(Boolean).map((l) => JSON.parse(l));
 const stat = (a) => { const s = [...a].sort((x, y) => x - y); return s.length ? { med: s[Math.floor(s.length / 2)], max: s.at(-1), mean: Math.round(s.reduce((p, c) => p + c, 0) / s.length) } : null };
 const rows = [];
-for (const q of qs) {
-  const b = activate({ question: q, transcript: [], index, book, notes, dmdWindow, resolutions: 1 });
-  const a = activate({ question: q, transcript: [], index, book, notes, dmdWindow, resolutions: 3 });
+// THE RUN'S OWN TRANSCRIPT, BUILT AS THE TURN BUILT IT (2026-09-08). This
+// used to hand every question `transcript: []` — a question naming no
+// referent of its own binds to nothing (activeReferents falls to "none"
+// instead of the last answer's referents), which is not the condition the
+// live turn ran under. Measured on this exact run before the fix: 13 of 25
+// questions activated and the Lens sat at its ceiling on 9; with the prior
+// turns threaded in as the turn itself saw them, 20 of 25 activate and the
+// Lens is at its ceiling on 13 of 20 — a materially different ladder.
+const transcript = [];
+for (const t of turnRows) {
+  const q = t.question;
+  const b = activate({ question: q, transcript, index, book, notes, dmdWindow, resolutions: 1 });
+  const a = activate({ question: q, transcript, index, book, notes, dmdWindow, resolutions: 3 });
+  transcript.push({ turn: t.turn, question: q, answer: t.answer ?? "", refs: t.refs ?? [] });
   if (b.basis !== "activation") { rows.push({ q, basis: b.basis }); continue; }
-  const act = activeReferents(q, [], index); const lens = lensBlock({ question: q, active: act.ids, index, notes, dmdWindow });
-  rows.push({ q, basis: "activation", active: a.active.map((id) => index.represent(id)), level1: { window: b.window, chars: b.passages.reduce((s, p) => s + p.text.length, 0) }, level3: { window: a.window, chars: a.passages.reduce((s, p) => s + p.text.length, 0), lensChars: lens.text.length, lensWindow: lens.windows?.notes ?? 0, lensCeiling: !!lens.cuts?.notes?.ceiling, lensOf: lens.cuts?.notes?.of ?? null, grounded: a.lens?.grounded ?? 0, groundingOf: a.lens?.groundingOf ?? 0, shownActs: a.lens?.acts ?? 0 } });
+  const act = activeReferents(q, transcript.slice(0, -1), index); const lens = lensBlock({ question: q, active: act.ids, index, notes, dmdWindow });
+  rows.push({ q, basis: "activation", active: a.active.map((id) => index.represent(id)), level1: { window: b.window, chars: b.passages.reduce((s, p) => s + p.text.length, 0), ceiling: b.cutCeiling === true }, level3: { window: a.window, chars: a.passages.reduce((s, p) => s + p.text.length, 0), ceiling: a.cutCeiling === true, lensChars: lens.text.length, lensWindow: lens.windows?.notes ?? 0, lensCeiling: !!lens.cuts?.notes?.ceiling, lensOf: lens.cuts?.notes?.of ?? null, grounded: a.lens?.grounded ?? 0, groundingOf: a.lens?.groundingOf ?? 0, shownActs: a.lens?.acts ?? 0 } });
 }
 const act = rows.filter((r) => r.basis === "activation");
-for (const r of act) console.log(`  ${JSON.stringify(r.q.slice(0, 44))} active ${JSON.stringify(r.active)} · level 1: ${r.level1.window} sentences/${r.level1.chars} chars · level 3: Lens ${r.level3.lensWindow} notes/${r.level3.lensChars} chars${r.level3.lensCeiling ? ` (ceiling of ${r.level3.lensOf})` : ""} + ${r.level3.window} sentences/${r.level3.chars} chars grounding ${r.level3.grounded}/${r.level3.groundingOf}`);
-console.log(`  questions activating: ${act.length} of ${qs.length} (the rest resolve to no referent — term retrieval stands in, disclosed)`);
-console.log(`  level 1 sentences (chars): ${JSON.stringify(stat(act.map((r) => r.level1.chars)))} · level 3 sentences: ${JSON.stringify(stat(act.map((r) => r.level3.chars)))} · Lens: ${JSON.stringify(stat(act.map((r) => r.level3.lensChars)))} · Lens at ceiling ${act.filter((r) => r.level3.lensCeiling).length} of ${act.length}`);
+for (const r of act) console.log(`  ${JSON.stringify(r.q.slice(0, 44))} active ${JSON.stringify(r.active)} · level 1: ${r.level1.window} sentences/${r.level1.chars} chars${r.level1.ceiling ? " (ceiling)" : ""} · level 3: Lens ${r.level3.lensWindow} notes/${r.level3.lensChars} chars${r.level3.lensCeiling ? ` (ceiling of ${r.level3.lensOf})` : ""} + ${r.level3.window} sentences/${r.level3.chars} chars${r.level3.ceiling ? " (ceiling)" : ""} grounding ${r.level3.grounded}/${r.level3.groundingOf}`);
+console.log(`  questions activating: ${act.length} of ${turnRows.length} (the rest resolve to no referent — term retrieval stands in, disclosed) — against the run's OWN transcript, not an empty one`);
+console.log(`  level 1 sentences (chars): ${JSON.stringify(stat(act.map((r) => r.level1.chars)))}, at their ceiling ${act.filter((r) => r.level1.ceiling).length} of ${act.length} · level 3 sentences: ${JSON.stringify(stat(act.map((r) => r.level3.chars)))} · Lens: ${JSON.stringify(stat(act.map((r) => r.level3.lensChars)))} · Lens at ceiling ${act.filter((r) => r.level3.lensCeiling).length} of ${act.length}`);
 console.log(`  handed at level 3 (Lens + sentences): ${JSON.stringify(stat(act.map((r) => r.level3.chars + r.level3.lensChars)))} vs level 1 sentences alone: ${JSON.stringify(stat(act.map((r) => r.level1.chars)))} · grounded share: ${JSON.stringify(stat(act.map((r) => Math.round(100 * r.level3.grounded / Math.max(1, r.level3.groundingOf)))))}%`);

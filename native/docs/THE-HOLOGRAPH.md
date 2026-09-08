@@ -252,7 +252,7 @@ block and the handed sentences are two faces of one activation: the
 claims, and the sentences they were read from.
 
 **The cut, corrected, and the replacement rule (2026-09-07, the-fold
-`43e0b9c`).** The shared cut had offered the whole candidate set as one of
+`0d2cf4d`).** The shared cut had offered the whole candidate set as one of
 its own depths, and a set whose every row carries a distinct act agrees
 with itself — the "measured" window was the ceiling wearing a
 measurement's face (the Lens handed 94 lines about one referent; the
@@ -263,13 +263,19 @@ the declared budget, named a ceiling on the record. And the Lens replaces
 the sentences it was computed from: at a resolution that hands the Lens,
 the sentences are the ones that ground its shown acts (at the ceiling, the
 declared lines' acts), ranked and cut by the same `lensCut` the Lens block
-spends. Measured with no model on the 13 activating questions of a real
-25-turn run: sentences 4,196 characters median at level 1 against 1,059 at
-level 3, every grounding act grounded; the Lens 1,743 characters, at its
-ceiling on 9 of 13 and said so; handed in all 2,772 against 4,196. The
-ladder compresses, and where it cannot it names the budget instead of a
-measurement. (`eval/the-fold/holograph-compression.mjs` reproduces this
-where the reading and the ledger are in the checkout.)
+spends. Measured with no model on a real 25-turn run: sentences 4,287
+characters median at level 1 against 605 at level 3, every grounding act
+grounded; the Lens 1,786 characters, at its ceiling on 13 of 20 and said
+so; handed in all 2,412 against 4,287. The ladder compresses, and where it
+cannot it names the budget instead of a measurement. **Corrected
+2026-09-08** (`results/holograph-compression-RESULTS.md`): the first
+driver ran with an empty transcript on every question, so a follow-up
+naming no referent of its own bound to nothing instead of the last
+answer's — 13 of 25 questions activated and the Lens sat at its ceiling on
+9. Threaded with the run's own transcript, 20 of 25 activate and level 1
+is now shown to be at its 24-sentence ceiling on every one of them — a
+fact the first driver never disclosed. (`eval/the-fold/holograph-compression.mjs`
+reproduces this where the reading and the ledger are in the checkout.)
 
 ## 7. The reading policies the holograph stands on
 
@@ -340,16 +346,16 @@ nobody earned, and it measures the harness (P88).
 
 **Identity is by the order of evidence (S17), and the loops decide on it
 (P170).** Two surfaces are one being when the reader's evidence says so,
-in the order it arrived, and a later refresh may reassign a fragment to
-the fuller name and record that it did (`EOReferentMerge@1`). Every
+in the order it arrived. A later refresh may reassign a surface to a new
+live address and records that change as `EOReferentReassignment@1`; only a
+witnessed identity decision is `EOReferentMerge@1`. Every
 decision the conversation makes about who is meant — anaphora, the
 restatement, the address check, the absence, self-consistency across
 turns — resolves through that index and never through a string. A
 question-side candidate is every token the index can resolve, in the
 reader's case, not the capitalised ones. A reader that gives an address at
-birth (S80) leaves the fragments it later folded on the log as separate
-ids, and it records the folding (`EOReferentMerge@1`); the projection
-applies that record transitively, then its coreference organ's own
+birth (S80) leaves the fragments it later reassigned or folded on the log
+as separate ids; the projection applies merge records transitively, then its coreference organ's own
 containment where a partial form sits inside exactly one fuller being —
 «Luzhin» inside «Mr Luzhin», «Raskolnikov» inside «Rodion Romanovitch
 Raskolnikov» — and keeps a form inside two beings' surfaces («Petrovitch»,
