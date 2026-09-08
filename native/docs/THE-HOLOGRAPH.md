@@ -340,16 +340,16 @@ nobody earned, and it measures the harness (P88).
 
 **Identity is by the order of evidence (S17), and the loops decide on it
 (P170).** Two surfaces are one being when the reader's evidence says so,
-in the order it arrived, and a later refresh may reassign a fragment to
-the fuller name and record that it did (`EOReferentMerge@1`). Every
+in the order it arrived. A later refresh may reassign a surface to a new
+live address and records that change as `EOReferentReassignment@1`; only a
+witnessed identity decision is `EOReferentMerge@1`. Every
 decision the conversation makes about who is meant — anaphora, the
 restatement, the address check, the absence, self-consistency across
 turns — resolves through that index and never through a string. A
 question-side candidate is every token the index can resolve, in the
 reader's case, not the capitalised ones. A reader that gives an address at
-birth (S80) leaves the fragments it later folded on the log as separate
-ids, and it records the folding (`EOReferentMerge@1`); the projection
-applies that record transitively, then its coreference organ's own
+birth (S80) leaves the fragments it later reassigned or folded on the log
+as separate ids; the projection applies merge records transitively, then its coreference organ's own
 containment where a partial form sits inside exactly one fuller being —
 «Luzhin» inside «Mr Luzhin», «Raskolnikov» inside «Rodion Romanovitch
 Raskolnikov» — and keeps a form inside two beings' surfaces («Petrovitch»,

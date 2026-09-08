@@ -94,5 +94,13 @@ export function createRecursiveReader({ seed = {}, priors = [], perceivers = [],
   }
 
   async function read(encounters = []) { const turns = []; for (const item of encounters) turns.push(await step(item)); return Object.freeze({ turns, fold, tasks: Object.freeze(projectTasks(tasks)), taskLog: tasks, log: [...log] }); }
-  return Object.freeze({ step, read, getFold: () => fold, getTasks: () => Object.freeze(projectTasks(tasks)), getTaskLog: () => tasks, getLog: () => [...log] });
+  return Object.freeze({
+    step,
+    read,
+    async restore(entries = []) { for (const perceiver of perceivers) await perceiver.restore?.(entries); },
+    getFold: () => fold,
+    getTasks: () => Object.freeze(projectTasks(tasks)),
+    getTaskLog: () => tasks,
+    getLog: () => [...log],
+  });
 }

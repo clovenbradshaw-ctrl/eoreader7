@@ -49,7 +49,7 @@ export function summarizeRows(rows = []) {
     allNamed: ta.filter((a) => a?.all === true).length,
     addressChecks: ta.length,
     absences: ta.filter((a) => a?.resolvedOn === "absence").length,
-    voids: sum((r) => (r.voidsDeclared ?? []).length),
+    voids: sum((r) => (r.voidsDeclared ?? r.voids ?? []).length),
     positions: rs.filter((r) => r.position).length,
     authorship: auth.length ? Number((auth.reduce((a, b) => a + b, 0) / auth.length).toFixed(2)) : null,
     authorshipTurns: auth.length,
