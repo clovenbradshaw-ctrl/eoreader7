@@ -3,7 +3,7 @@
 //
 //   node eval/the-fold/conversation.mjs --source prose=/path/novel.txt [--turns 1000]
 //        [--model gemma2:2b] [--reader-model gemma2:2b] [--seed 3] [--witness on|off]
-//        [--depth 1] [--resolutions 0|1|2|3] [--material auto|passages|snips] [--chunking app|outline] [--retrieval activation|terms] [--admit <ms per turn>] [--resume <dir>]
+//        [--depth 1] [--resolutions 0|1|2|3] [--material auto|passages|snips] [--chunking app|outline] [--retrieval activation|terms] [--admit <ms per turn>] [--reading constitutional|cast] [--read-ahead all|<ms per turn>] [--resume <dir>]
 //
 // Not the probe bank (long-stream.mjs asks templated questions scored by
 // atoms). This is what a person does over a long conversation about a book:
@@ -46,7 +46,7 @@ const READER_MODEL = flag("reader-model", MODEL);
 const DEPTH = Number(flag("depth", 1));
 const SEED = Number(flag("seed", 3));
 // The discourse at three resolutions (the-fold resolutions.js, P171): 0 = today's one-line stand-in only, 1 = + atmosphere, 2 = + lens, 3 = + paradigm. The arm of the measurement, declared here, printed with the configuration, carried on every row.
-const RESOLUTIONS = Number(flag("resolutions", 0));
+const RESOLUTIONS = Number(flag("resolutions", 3)); // the app's own configuration (app.js RESOLUTIONS_LEVEL = 3) — a bare run measures what the page runs (P88); 0 is the disclosed control
 // What the mouth is handed as material: "auto" = the passages leave at level ≥ 2 (compression), "passages" forces them in (the additive control), "snips" forces them out.
 const MATERIAL = String(flag("material", "auto"));
 // THE READER'S CONFIGURATION (P88): the app chunks by paragraph (source.js chunkSource, no boundaries — 3,743 chunks on this novel, median 135 chars); the long-stream rig this driver copied chunked prose by outline heading (328 chapter-sized chunks, ~3.5 KB), which is not what the page runs and was most of the raw-passage bloat. "app" is the default; "outline" keeps the rig's unit for the runs already recorded under it.
@@ -55,6 +55,9 @@ const CHUNKING = String(flag("chunking", "app"));
 const RETRIEVAL = String(flag("retrieval", "activation"));
 // THE READING IS ON THE LOG, ADMITTED PROGRESSIVELY (P98/P99, the page's own arrival read): between turns the driver admits the next stretch of the book under a declared time budget, appends the new ledger entries to a file keyed by corpus and recipe, and replays that file at start — a corpus read once is never read again. 0 turns admission off.
 const ADMIT_MS = Number(flag("admit", 3000));
+// THE READING (READING-SPEC S1, THE-HOLOGRAPH §7): "constitutional" runs the constitutional reader over the material — read ONCE and persisted (results/readings/<corpusId>-<assembly>.jsonl, replayed at start), the referent index and the address book PROJECTED from its log each turn — no case, no scan; "cast" is the text presence index (P38) kept as a disclosed fallback. --read-ahead all reads the whole material before turn 1 (a complete read is not lookahead — S3 is about scoring a unit with later evidence during the read); a number is ms per turn, progressive.
+const READING = String(flag("reading", "constitutional"));
+const READ_AHEAD = String(flag("read-ahead", "all"));
 const WITNESS = flag("witness", "on") !== "off";
 const RESUME = flag("resume", null);
 const sourceArgs = args.flatMap((a, i) => (a === "--source" && args[i + 1] ? [args[i + 1]] : []));
@@ -74,6 +77,11 @@ const { makeReferentIndex } = await import(`${FOLD}cast.js`);
 const { dmdWindow } = await import(`${NATIVE}/kernel/activation.js`);
 const { mentionBook, makeActivationRetrieval } = await import(`${FOLD}activation-retrieval.js`);
 const { admitPassages } = await import(`${FOLD}read-on-arrival.js`);
+const { readingIndexFromLog, mentionBookFromLog, stepChunks } = await import(`${FOLD}reading-log.js`);
+const { createRecursiveReader } = await import(`${ROOT}eoreader7/kernel.js`);
+const { createCausalTextPerceiver, textEncounters, surfaceIndex, surfacesIn } = await import(`${NATIVE}/adapters/text/recursive.js`);
+const { reviseTextFold } = await import(`${NATIVE}/adapters/text/revision.js`);
+const { reconstruct } = await import(`${NATIVE}/kernel/fold.js`);
 const { serializeRecord, replayRecord } = await import(`${FOLD}record-log.js`);
 const TL = await import(`${NATIVE}/kernel/task-log.js`);
 let math = null;
@@ -160,9 +168,48 @@ function admitNext(budgetMs) {
   }
   return { read, heard, ms: Date.now() - t0 };
 }
+// ── THE CONSTITUTIONAL READER ─────────────────────────────────────────────
+// The reference assembly (eval/read-cost.mjs; P0 names it): the causal text perceiver with the UD POS prior, the text fold reviser, the fold's own retrieve.
+const POS_PRIOR_PATH = `${ROOT}eoreader7/legacy-eoreader6.1/bin/priors/pos/en-ud-ewt.json`;
+const READING_ASSEMBLY = "causalTextPerceiver+reviseTextFold@refresh25";
+const READING_PATH = join(RESULTS_ROOT, "readings", `${corpusId}-${READING_ASSEMBLY.replace(/[^\w.-]+/g, "_")}.jsonl`), READING_CURSOR = `${READING_PATH}.cursor`;
+mkdirSync(join(RESULTS_ROOT, "readings"), { recursive: true });
+let readingLog = [], readCursor = 0, readSeq = 0, readingReader = null, persistedFromReader = 0; // the reader's own log is the entries since THIS session's reader was made; persist only past this offset (a second readNext must not append the first's entries again)
+const readingOrgans = { reconstruct, diaNorm, namesCorefer, surfaceIndex, surfacesIn };
+let readingIndex = null, readingBook = null;
+const projectReading = () => { if (!readingLog.length) return; readingIndex = readingIndexFromLog(readingLog, readingOrgans); readingBook = mentionBookFromLog(readingLog, readingOrgans); };
+if (READING === "constitutional") {
+  const POS = JSON.parse(readFileSync(POS_PRIOR_PATH, "utf8"));
+  if (existsSync(READING_PATH)) {
+    readingLog = readFileSync(READING_PATH, "utf8").split("\n").filter((l) => l.trim()).map((l) => JSON.parse(l));
+    const cur = existsSync(READING_CURSOR) ? JSON.parse(readFileSync(READING_CURSOR, "utf8")) : { cursor: 0, sequence: 0 };
+    readCursor = Number(cur.cursor) || 0; readSeq = Number(cur.sequence) || 0;
+    console.log(`  reading replayed: ${readingLog.length} log entries, ${readCursor}/${chunks.length} chunks read so far`);
+  }
+  // A resumed reader is seeded with the fold reconstructed from the persisted log (kernel/fold.js::reconstruct → createRecursiveReader({ seed })); the perceiver's own refresh state restarts — disclosed, not hidden.
+  readingReader = createRecursiveReader({ seed: readingLog.length ? reconstruct(readingLog) : {}, perceivers: [createCausalTextPerceiver({ minRelationSurfaces: 2, refreshEvery: 25, posPrior: POS, descriptorAnchoring: { minActivation: 0.05, minMargin: 0.2 } })], adapters: { revise: reviseTextFold, retrieve: (_fold, evidence) => Object.freeze({ schema: "EORelevantFold@1", witnessed: Object.freeze([...evidence]), provisional: Object.freeze([]), expectations: Object.freeze([]), obligations: Object.freeze([]), exclusions: Object.freeze([]), unresolvedAlternatives: Object.freeze([]), activeFrames: Object.freeze([]), receivedPriors: Object.freeze([]) }) } });
+  projectReading();
+}
+async function readNext(budgetMs) {
+  if (!readingReader || readCursor >= chunks.length) return { read: 0, ms: 0 };
+  const held = readingLog.length;
+  const r = await stepChunks(readingReader, chunks, { textEncounters, cursor: readCursor, budgetMs, sequence: readSeq });
+  const all = readingReader.getLog(); const fresh = all.slice(persistedFromReader); persistedFromReader = all.length;
+  if (fresh.length) { appendFileSync(READING_PATH, fresh.map((e) => JSON.stringify(e)).join("\n") + "\n"); readingLog = readingLog.concat(fresh); }
+  readCursor = r.cursor; readSeq = r.sequence; writeFileSync(READING_CURSOR, JSON.stringify({ cursor: readCursor, sequence: readSeq }));
+  projectReading();
+  return { read: r.read, ms: r.ms, entries: fresh.length, held };
+}
+if (readingReader && readCursor < chunks.length) {
+  const budget = READ_AHEAD === "all" ? 0 : Number(READ_AHEAD) || 0;
+  const t = Date.now(); const rr = await readNext(budget);
+  console.log(`  read ${READ_AHEAD === "all" ? "the whole material" : `${rr.read} chunks under ${budget} ms`} before turn 1: ${readCursor}/${chunks.length} chunks, ${readingLog.length} log entries, ${readingIndex?.referents.size ?? 0} referents, ${readingBook?.sentences.length ?? 0} addressed sentences (${((Date.now() - t) / 1000).toFixed(0)}s)`);
+}
 const first = admitNext(ADMIT_MS);
 if (ADMIT_MS) console.log(`  admitted before turn 1: ${first.read} chunks, ${first.heard} heard in ${first.ms} ms; ${admitCursor}/${chunks.length} on the ledger`);
-const retrieveWith = book ? makeActivationRetrieval({ index: corpusIndex, book, dmdWindow, fallback: O.retrieve, notes: () => (ledger && O.hl?.foldWithStanding ? O.hl.foldWithStanding(ledger) : []), transcript: () => state?.transcript ?? [] }) : null;
+const liveIndex = () => readingIndex ?? corpusIndex;
+const liveBook = () => readingBook ?? book;
+const retrieveWith = (readingBook ?? book) ? (chunksArg, q, limit, folded) => makeActivationRetrieval({ index: liveIndex(), book: liveBook(), dmdWindow, fallback: O.retrieve, notes: () => (ledger && O.hl?.foldWithStanding ? O.hl.foldWithStanding(ledger) : []), transcript: () => state?.transcript ?? [], resolutions: RESOLUTIONS })(chunksArg, q, limit, folded) : null;
 const rng = makeRng(SEED);
 // Corrections learned at or after this moment are THIS conversation's own; the record owns them on the answer (dialogue.js::ownedLine). A resumed run keeps its original start.
 const RUN_STARTED = (() => { try { return RESUME && existsSync(join(RESUME, "config.json")) ? Date.parse(JSON.parse(readFileSync(join(RESUME, "config.json"), "utf8")).ran) || Date.now() : Date.now(); } catch { return Date.now(); } })();
@@ -171,10 +218,10 @@ if (RESUME && existsSync(STATE_PATH)) { state = JSON.parse(readFileSync(STATE_PA
 else {
   const bank = buildFactBank(chunks, { perSource: 120, rng });
   state = { turn: 0, history: [], transcript: [], hlLog: null, gridLog: null, bank, draws: rng.draws, asked: [], seen: [], coverage: [], useMeasuredCut: false };
-  writeFileSync(CONFIG_PATH, JSON.stringify({ ran: new Date().toISOString(), model: MODEL, readerModel: READER_MODEL, corpusId, depth: DEPTH, turns: TURNS, seed: SEED, witness: WITNESS, resolutions: RESOLUTIONS, material: MATERIAL, chunking: CHUNKING, retrieval: RETRIEVAL, admitMs: ADMIT_MS, sources: loaded, recipe: O.recipe }, null, 2));
+  writeFileSync(CONFIG_PATH, JSON.stringify({ ran: new Date().toISOString(), model: MODEL, readerModel: READER_MODEL, corpusId, depth: DEPTH, turns: TURNS, seed: SEED, witness: WITNESS, resolutions: RESOLUTIONS, material: MATERIAL, chunking: CHUNKING, retrieval: RETRIEVAL, admitMs: ADMIT_MS, reading: READING, readAhead: READ_AHEAD, readingAssembly: READING === "constitutional" ? READING_ASSEMBLY : null, sources: loaded, recipe: O.recipe }, null, 2));
   writeFileSync(TRANSCRIPT_PATH, `# A conversation about ${loaded[0].name}\n\n${MODEL} answering through the real turn; the reader is ${READER_MODEL} phrasing moves computed from the record. Seed ${SEED}. Corpus ${corpusId}.\n\n`);
 }
-console.log(`conversation — ${MODEL} answering, ${READER_MODEL} reading, ${TURNS} turns, witness ${WITNESS ? "on" : "off"}, arithmetic ${math ? "computed" : "UNAVAILABLE"}, resolutions ${RESOLUTIONS} (0 one-line stand-in only, 1 + atmosphere, 2 + lens, 3 + paradigm), material ${MATERIAL}, chunking ${CHUNKING}, retrieval ${RETRIEVAL}, admit ${ADMIT_MS} ms/turn`);
+console.log(`conversation — ${MODEL} answering, ${READER_MODEL} reading, ${TURNS} turns, witness ${WITNESS ? "on" : "off"}, arithmetic ${math ? "computed" : "UNAVAILABLE"}, resolutions ${RESOLUTIONS} (0 one-line stand-in only, 1 + atmosphere, 2 + lens, 3 + paradigm), material ${MATERIAL}, chunking ${CHUNKING}, retrieval ${RETRIEVAL}, admit ${ADMIT_MS} ms/turn, reading ${READING}${READING === "constitutional" ? ` (${READING_ASSEMBLY}, read-ahead ${READ_AHEAD})` : " (the text presence index — P38, a disclosed fallback)"}`);
 for (const l of loaded) console.log(`  ${l.kind.padEnd(8)} ${l.name.padEnd(28)} ${String(l.bytes).padStart(9)} bytes ${String(l.chunks).padStart(5)} chunks  ${l.sha256}`);
 console.log(`  cast/fact bank ${state.bank.length}; recipe ${O.recipe}; corpus ${corpusId}\n  ${DIR}`);
 const LEARNED_PATH = join(NATIVE, "eval/the-fold/results/long-stream", "learned.json");
@@ -187,7 +234,7 @@ const saveState = () => { const tmp = `${STATE_PATH}.tmp`; writeFileSync(tmp, JS
 const fold = (t) => String(t ?? "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
 
 const trim = (t, n) => { const s = String(t ?? "").replace(/\s+/g, " ").trim(); return s.length > n ? `${s.slice(0, n)}…` : s; };
-const inSource = (name) => corpusIndex.resolve(name).size > 0; // a referent the material establishes, not a substring
+const inSource = (name) => liveIndex().resolve(name).size > 0; // a referent the material establishes (the reading's own when it exists), not a substring
 /** Names the answer introduces (ground-ladder.js::namesIn — the one implementation), dedup, in order; a real reader may ask about a name the book never establishes, so all are kept and each is tagged by the corpus index. */
 const pronoun = (n) => ANAPHORIC_PRONOUNS.has(fold(n)) || ANAPHORIC_PRONOUNS.has(String(n).toLowerCase());
 const namesOf = (text) => { const seen = new Set(); return namesIn(String(text ?? "")).map((n) => n.replace(/['’]s$/u, "")).filter((n) => { const k = fold(n); if (!n || pronoun(n) || seen.has(k)) return false; seen.add(k); return true; }); };
@@ -241,7 +288,7 @@ async function phrase(m, last, earlier, name) {
     try { out = await callWith(READER_MODEL, messages, { maxTokens: 90, temperature }); usage.readerCalls += 1; } catch { out = ""; }
     const q = out.replace(/\s+/g, " ").replace(/^["“]|["”]$/g, "").trim();
     // The guard on the mouth's phrasing: the question must still name its target — by REFERENT through the corpus index where the target resolves, by surface only where it does not.
-    const keepsTarget = (text) => { if (!m.target) return true; const ids = corpusIndex.resolve(m.target); return ids.size ? [...ids].every((id) => referentsOf(text, corpusIndex).ids.has(id)) : mentions(text, m.target); };
+    const keepsTarget = (text) => { if (!m.target) return true; const ids = liveIndex().resolve(m.target); return ids.size ? [...ids].every((id) => referentsOf(text, liveIndex()).ids.has(id)) : mentions(text, m.target); };
     if (q && q.length <= 320 && /\?/.test(q) && keepsTarget(q)) return { question: q, phrasedBy: "model" };
   }
   const fallback = { clarify: `What do you mean by "${m.target}" — who or what is that?`, deepen: `Can you say more about ${m.target}?`, why: `Why does ${m.target} matter here?`, revisit: `Earlier you told me "${trim(earlier?.answer, 120)}". How does that fit with what you just said about ${m.target}?`, reflect: `So, if I follow you: ${trim(last?.answer, 160)} Is that what the book says?`, open: `What does the book say about ${m.target}?` };
@@ -267,7 +314,7 @@ for (let turn = state.turn + 1; turn <= TURNS; turn++) {
 
   const t0 = Date.now(); const calls0 = usage.calls, pt0 = usage.promptTokens, ct0 = usage.completionTokens;
   // The history the mouth is handed is MEASURED (dialogue.js::historyWindow via dmdWindow): the shallowest depth at which forgetting the older turns changes nothing the question reaches — RECENCY_WINDOW is the cap, never the count.
-  const win = historyWindow(state.history.slice(-RECENCY_WINDOW * 2), question, { dmdWindow, index: corpusIndex });
+  const win = historyWindow(state.history.slice(-RECENCY_WINDOW * 2), question, { dmdWindow, index: liveIndex() });
   const history = win.messages;
   const discourse = mechanicalFoldLine(state.history.slice(-2).map((h) => h.content).join(" "), "");
   let r = null, error = null;
@@ -277,7 +324,7 @@ for (let turn = state.turn + 1; turn <= TURNS; turn++) {
       makeNameResolver: castFor, makeReferentIndexFor: indexFor, makeRelationReader: O.relationsFor, witnessSentences,
       checkLink: null, planMode: needsDecomposition(question) ? "model" : "flat",
       chatHistory: history, discourse, depth: DEPTH, learnedStore, learnedSince: RUN_STARTED, transcript: state.transcript,
-      resolutions: RESOLUTIONS, dmdWindow, conversationIndex: corpusIndex, records: [], material: MATERIAL, retrieveWith, mentionBook: book,
+      resolutions: RESOLUTIONS, dmdWindow, conversationIndex: liveIndex(), records: [], material: MATERIAL, retrieveWith, mentionBook: liveBook(),
       math, coverageHistory: state.coverage ?? [], nul, useMeasuredCut: false,
       hyperlexicon: O.hl, hyperlexiconLog: ledger ?? state.hlLog, hyperlexiconFrame: O.frame, hyperlexiconRecipe: O.recipe,
       hyperlexiconUnread: ADMIT_MS && admitCursor < chunks.length ? [{ name: loaded[0]?.name ?? "the book", read: admitCursor, total: chunks.length }] : [],
@@ -288,6 +335,7 @@ for (let turn = state.turn + 1; turn <= TURNS; turn++) {
   if (r?.hyperlexiconLog) { const before = ledger?.entries?.length ?? 0; ledger = r.hyperlexiconLog; state.hlLog = ledger; if ((ledger.entries?.length ?? 0) > before) appendFileSync(LEDGER_PATH, serializeRecord(ledger, before).join("\n") + "\n"); }
   // Between turns: the next stretch of the book onto the ledger, under the declared budget — reading continues while the conversation projects from what is read so far.
   const adm = admitNext(ADMIT_MS);
+  if (READ_AHEAD !== "all") await readNext(Number(READ_AHEAD) || 0);
   if (r?.gridLog) state.gridLog = r.gridLog;
   let learnedAdded = 0;
   for (const e of r?.learned ?? []) { const before = learnedStore.length; learnedStore = learn(learnedStore, e); if (learnedStore.length > before) learnedAdded += 1; }
@@ -297,9 +345,9 @@ for (let turn = state.turn + 1; turn <= TURNS; turn++) {
   // The answer's bound claims ride on the transcript for the next turn's self-consistency check (keyed there, through that turn's own index).
   const claims = (r?.sections ?? []).flatMap((s) => (s?.relations?.claims ?? []).filter((c) => c && c.verdict === "bound" && (c.end1 ?? c.subject) != null).map((c) => ({ polarity: c.polarity ?? "+", end1: c.end1 ?? c.subject ?? null, label: c.label ?? c.verb ?? null, end2: c.end2 ?? c.object ?? null })));
   // The driver's own measure of "addressed": by REFERENT — the answer's referents (corpus index) cover the target's.
-  const targetIds = m.target ? corpusIndex.resolve(m.target) : null;
+  const targetIds = m.target ? liveIndex().resolve(m.target) : null;
   // A target the index resolves is scored by identity; a target it does not resolve is UNMEASURED (null), never a substring hit — "I lent you" is not an answer about Lent.
-  const addressed = m.target ? (targetIds.size ? [...targetIds].every((id) => referentsOf(answer, corpusIndex).ids.has(id)) : null) : null;
+  const addressed = m.target ? (targetIds.size ? [...targetIds].every((id) => referentsOf(answer, liveIndex()).ids.has(id)) : null) : null;
   const absent = admitsAbsence(answer);
   const cited = refs.length > 0;
   const resolved = m.target ? Boolean(addressed && (cited || absent)) : (m.move === "verify" ? cited : m.move === "reflect" ? Boolean(cited || /\b(yes|no|not quite|that'?s right|correct|actually)\b/i.test(answer)) : null);
@@ -307,12 +355,12 @@ for (let turn = state.turn + 1; turn <= TURNS; turn++) {
     turn, at: new Date().toISOString(), move: m.move, target: m.target ?? null, targetInSource: m.target ? inSource(m.target) : null, phrasedBy, question, answer,
     earlierTurn: earlier?.turn ?? null, addressed, cited, admitsAbsence: absent, resolved,
     owned: (r?.owned ?? []).length,
-    retrieval: r?.retrieval ? r.retrieval.map((x) => ({ basis: x.basis, grain: x.grain ?? null, active: x.active?.length ?? 0, hop1: x.hop1?.length ?? 0, window: x.window, hop0Count: x.hop0Count, hop1Count: x.hop1Count })) : null,
+    retrieval: r?.retrieval ? r.retrieval.map((x) => ({ basis: x.basis, grain: x.grain ?? null, actsOnLog: x.actsOnLog ?? 0, active: x.active?.length ?? 0, hop1: x.hop1?.length ?? 0, window: x.window, cutBasis: x.cutBasis ?? null, cutCeiling: x.cutCeiling ?? false, lens: x.lens ?? null, hop0Count: x.hop0Count, hop1Count: x.hop1Count })) : null,
     resolutions: r?.resolutions ? r.resolutions.map((x) => ({ level: x.level, handed: x.handed ?? null, index: x.index, active: x.active?.ids?.length ?? 0, atmosphere: x.atmosphere, lens: x.lens, paradigm: x.paradigm, windows: x.windows })) : null,
     historyDepth: win.depth, historyBasis: win.basis ?? null,
     turnAddressed: r?.addressed ?? null, expectation: r?.expectation ?? null, selfContradictions: r?.selfContradictions ?? [], position: r?.position ?? null,
     ms: Date.now() - t0, calls: usage.calls - calls0, promptTokens: usage.promptTokens - pt0, completionTokens: usage.completionTokens - ct0,
-    refs, unsupported: (r?.unsupported ?? []).length, unbacked: (r?.unbacked ?? []).length, sections: (r?.sections ?? []).length,
+    refs, unsupported: (r?.unsupported ?? []).length, unbacked: (r?.unbacked ?? []).length, sections: (r?.sections ?? []).length, boundClaims: claims.length,
     premises: r?.premises ? { checked: r.premises.checked, unverified: r.premises.unverified, contradicted: r.premises.contradicted } : null,
     correction: r?.correction ? { flagged: r.correction.flagged, asked: r.correction.asked, afterFlagged: r.correction.after?.flagged } : null,
     answeredBeforeTheModel: r?.answeredBeforeTheModel ? r.answeredBeforeTheModel.kind : null, recalledTurns: r?.recalledTurns ?? [], learnedAdded, error,
