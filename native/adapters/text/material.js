@@ -11,11 +11,17 @@
 // once; reduce(units, {fraction}) is pure and answers "what would the
 // material look like having read only this much of the real thing so far."
 
-// Bare specifier, not "node:fs" — see packages/host/corpus.js's own note on
-// its identical import: a bundler's fs-fallback stub matches "fs", not the
-// "node:" URI scheme, and load() below is Node-only I/O a non-Node host
-// never calls. Node resolves both identically.
-import fs from "fs";
+// load() below is Node-only I/O a non-Node host never calls — but a STATIC
+// top-level `import fs from "fs"` is resolved and LINKED at module-load
+// time regardless of whether load() is ever invoked, and a bundler-free
+// browser host (no fs-fallback stub, no import map for a bare "fs" — this
+// module is reached by a the-fold Worker with no bundler at all, found
+// 2026-09-08 wiring the constitutional reader into the browser) fails to
+// link the WHOLE module graph on that import alone, whether or not load()
+// runs. A dynamic import() inside load() itself defers resolution to the
+// one call site that actually needs it, so a host that never calls load()
+// never evaluates the import expression at all — Node resolves it exactly
+// as the static form did; nothing about the Node contract changes.
 import { stripContainer } from "./spans.js";
 
 const WORD_RE = /[\p{L}\p{N}']+/gu;
@@ -98,7 +104,10 @@ export const chunkWords = (words, size) => {
  *
  * A text with no markers passes through untouched.
  */
-export const load = async (path) => tokenize(stripContainer(fs.readFileSync(path, "utf8")).text);
+export const load = async (path) => {
+  const { readFileSync } = await import("fs");
+  return tokenize(stripContainer(readFileSync(path, "utf8")).text);
+};
 
 export const reduce = (words, { fraction = 1, chunkSize = 40 } = {}) => {
   const readWords = words.slice(0, Math.max(1, Math.floor(words.length * fraction)));

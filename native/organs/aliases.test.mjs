@@ -4,10 +4,15 @@ import assert from "node:assert/strict";
 import { splitSentences } from "./grounding.js";
 import { splitSentences as offsetlessSentences } from "../adapters/text/spans.js";
 import { declaredAliases, aliasIndex, shapesFrom, ALIAS_REFUSALS } from "./aliases.js";
-import { readFileSync } from "node:fs";
+import { readFileSync, existsSync } from "node:fs";
 
 // The REAL prior, as live_priors built it — never a fixture written here.
-const PRIOR = JSON.parse(readFileSync("/home/user/live_priors/derived-priors/alias-priors/alias-declaration-en.json", "utf8"));
+// Portable, module-relative (S65/P95: a driver refuses what it lacks rather
+// than throwing on a path good for one machine only) — live_priors is a
+// sibling checkout of this repo, same as the-fold and eoreader6.
+const PRIOR_PATH = new URL("../../../live_priors/derived-priors/alias-priors/alias-declaration-en.json", import.meta.url);
+if (!existsSync(PRIOR_PATH)) { console.error(`refused: fixture_absent — live_priors is not checked out as a sibling of this repo: ${PRIOR_PATH}`); process.exit(2); }
+const PRIOR = JSON.parse(readFileSync(PRIOR_PATH, "utf8"));
 const SHAPES = shapesFrom(PRIOR, { minConfirmRate: 0.3, minFires: 100 });
 
 const MIN = 2;

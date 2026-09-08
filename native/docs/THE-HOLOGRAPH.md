@@ -263,13 +263,19 @@ the declared budget, named a ceiling on the record. And the Lens replaces
 the sentences it was computed from: at a resolution that hands the Lens,
 the sentences are the ones that ground its shown acts (at the ceiling, the
 declared lines' acts), ranked and cut by the same `lensCut` the Lens block
-spends. Measured with no model on the 13 activating questions of a real
-25-turn run: sentences 4,196 characters median at level 1 against 1,059 at
-level 3, every grounding act grounded; the Lens 1,743 characters, at its
-ceiling on 9 of 13 and said so; handed in all 2,772 against 4,196. The
-ladder compresses, and where it cannot it names the budget instead of a
-measurement. (`eval/the-fold/holograph-compression.mjs` reproduces this
-where the reading and the ledger are in the checkout.)
+spends. Measured with no model on a real 25-turn run: sentences 4,287
+characters median at level 1 against 605 at level 3, every grounding act
+grounded; the Lens 1,786 characters, at its ceiling on 13 of 20 and said
+so; handed in all 2,412 against 4,287. The ladder compresses, and where it
+cannot it names the budget instead of a measurement. **Corrected
+2026-09-08** (`results/holograph-compression-RESULTS.md`): the first
+driver ran with an empty transcript on every question, so a follow-up
+naming no referent of its own bound to nothing instead of the last
+answer's — 13 of 25 questions activated and the Lens sat at its ceiling on
+9. Threaded with the run's own transcript, 20 of 25 activate and level 1
+is now shown to be at its 24-sentence ceiling on every one of them — a
+fact the first driver never disclosed. (`eval/the-fold/holograph-compression.mjs`
+reproduces this where the reading and the ledger are in the checkout.)
 
 ## 7. The reading policies the holograph stands on
 

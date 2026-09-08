@@ -44,7 +44,7 @@ Priors may condition orientation, nominate perceptions, and focus interrogation.
 
 ## Compatibility
 
-EOReader 7 began from frozen EOReader 6.1 commit `e20e441d3cdfb735d605c75037e6d73892e707c0`. That exact source remains pinned as the `legacy-eoreader6.1` submodule solely for:
+EOReader 7 began from frozen EOReader 6.1 commit `e20e441d3cdfb735d605c75037e6d73892e707c0`. That was the starting point; the `legacy-eoreader6.1` submodule has since advanced for compatibility and parity work (check `git ls-tree HEAD legacy-eoreader6.1` for the live pin, not this line) and is pinned solely for:
 
 1. compatibility with applications that still import historical `packages/engine` / `packages/host` paths;
 2. parity tests while those consumers migrate.
@@ -175,8 +175,10 @@ eleven-persona form is `chorus full`, for audits and PR reviews, not per
 commit. The skill's `SKILL.md` carries the lens questions and the log
 format; the-fold's POLICIES.md P35 is the authority that a chorus is a
 label, not eleven agent calls. The root `npm test` is the legacy 6.1
-conformance suite (2.6 min, nine pre-existing failures as of this date);
-`cd native && npm test` is the live package's suite.
+conformance suite (~2–3 min); run it locally for today's failure count
+rather than trusting a fixed number here — it has already moved at least
+once since this line was written (2026-09-05). `cd native && npm test`
+is the live package's suite.
 
 ## Frontier-25 and the perceivers' seat (2026-09-05)
 
