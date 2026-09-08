@@ -360,6 +360,8 @@ material, and un-typing them would be un-earning them.
 
 ## S17 — Forgetting is a recall mechanism when its shape matches the need-odds; the shape is a prior, then a measurement
 
+*(A second, unrelated entry further below is also numbered S17 — on type-level naming and being-identity. Flagged 2026-09-08, not renumbered — see that entry's own note.)*
+
 > **giver:** earned-here — daccec2
 
 The research and the run: `eval/results/forgetting-for-recall-RESEARCH.md`
@@ -405,6 +407,8 @@ S14's ladder are now measured, and phrasing the law as "power law" where
 a medium's own odds say otherwise is the newly measured way to lose.
 
 ## S17 — The type level names forms; being-identity is decided by evidence order, witnessed downward, and ambiguity is the occurrence layer's question
+
+*(A second, unrelated entry above is also numbered S17 — on forgetting and need-odds recall. This one is on type-level naming. Flagged 2026-09-08, not renumbered.)*
 
 > **giver:** earned-here — 7db127c
 
