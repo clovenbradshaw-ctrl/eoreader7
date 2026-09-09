@@ -1263,6 +1263,141 @@ test("the negation organ is opt-in: omitted, this reader is byte-identical to ev
   }
 });
 
+// ── first-person deixis: "my"/"I" names the SPEAKER, never a stable entity
+// (added 2026-09-09 — POLICIES.md P180 / READING-SPEC S96) ─────────────────
+//
+// Measured live: gemma2:2b asked "what is your favorite color and why?"
+// answered "My favorite color is blue. It reminds me of the sky…", and the
+// FIRST sentence came back `bound`, cited to a generic ESL "10 sentences
+// about my favorite color" example page — two unrelated speakers' "my"
+// collapsed into one claim because "favorite"/"color" both recur as FORMS
+// on that page (endpoint()'s own `useForms` path) and the model's own
+// first-person subject resolved to the identical form identity. The
+// fixture below is modeled on that page's own shape (short first-person
+// sentences, no proper name of its own) rather than a fetched copy of it —
+// the mechanism this closes is general, not tied to those exact bytes.
+const ESL_STYLE_PAGE = {
+  ref: "web:esl-example.com-0#0-500",
+  // "Maria is happy…" is the seed a REAL such page routinely carries (an
+  // attributed example sentence) and is what lets "is" enter this fixture's
+  // vocabulary at all — discoverRelationVocab anchors candidate verbs on a
+  // capitalized surface, and "My favorite color is blue" alone has none.
+  text:
+    "Everyone at school loves Maria. Maria is happy about the color blue. " +
+    "My favorite color is blue. I like blue because it is calm. Blue is the color of the sky and the sea. " +
+    "My favorite color reminds me of summer days. Blue is a favorite color for many people around the world. " +
+    "My favorite color makes me feel happy. Blue is also the color of my school uniform. " +
+    "I chose blue as my favorite color long ago.",
+};
+const FIRST_PERSON_CLAIM = "My favorite color is blue.";
+
+// PINNED TO THE NATIVE PROVIDER, deliberately, not the switchable `PROVIDER`
+// above. The whole exploit depends on `nounPhraseSubjects` (DR4) keeping
+// "My" attached to its noun phrase — this file's own header already
+// discloses that the FROZEN legacy provider does not implement that flag
+// at all (`extractRelations(..., {nounPhraseSubjects:true})` there silently
+// strips the possessive, same as with the flag omitted), so under legacy a
+// first-person subject never reaches `judge()` carrying "my"/"I" as its own
+// first token and this wall has nothing to fire on. Production has run the
+// native provider exclusively since P69 — that is the configuration this
+// fix closes a real bug in, so that is the configuration these tests pin.
+const NATIVE = "../adapters/text/";
+const firstPersonOrgans = async () => {
+  const { splitSentences } = await import(NATIVE + "spans.js");
+  const { extractSurfaces, discoverReferents, namesCorefer, diaNorm } = await import(NATIVE + "surfaces.js");
+  const { discoverRelationVocab, extractRelations } = await import(NATIVE + "relations.js");
+  const { tokenize } = await import(NATIVE + "material.js");
+  const { FIRST_PERSON } = await import(NATIVE + "priors.js");
+  return { splitSentences, extractSurfaces, discoverReferents, namesCorefer, diaNorm, discoverRelationVocab, extractRelations, tokenize, nounPhraseSubjects: true, firstPerson: FIRST_PERSON };
+};
+const bareNativeOrgans = async () => {
+  const { firstPerson, ...rest } = await firstPersonOrgans();
+  return rest;
+};
+
+test("the defect: a model's own first-person claim binds against an unrelated document's first-person text — two different speakers' \"my\" read as one claim", async () => {
+  // Pinned as it actually behaves WITHOUT the organ, so the fix cannot
+  // silently become a no-op if the underlying matcher ever changes.
+  const reader = makeRelationReader(await bareNativeOrgans())([ESL_STYLE_PAGE], { pool: [ESL_STYLE_PAGE] });
+  const claim = reader.read(FIRST_PERSON_CLAIM).claims.find((c) => c.label === "is");
+  assert.ok(claim, JSON.stringify(reader.read(FIRST_PERSON_CLAIM), null, 2));
+  assert.equal(claim.verdict, "bound", "this is the defect: an anonymous page's \"my\" is not the model's \"my\"");
+  assert.equal(claim.formBased, true, "the false binding rides the recurring-FORM identity path, not a real referent");
+  assert.deepEqual(claim.endpoints, { subject: "form", object: "tokens" });
+});
+
+test("a received first-person class closes it — the claim is beyond-reach, never a verdict", async () => {
+  const reader = makeRelationReader(await firstPersonOrgans())([ESL_STYLE_PAGE], { pool: [ESL_STYLE_PAGE] });
+  const claim = reader.read(FIRST_PERSON_CLAIM).claims.find((c) => c.label === "is");
+  assert.ok(claim, "the claim must still be extracted — this tier withholds a verdict, it does not suppress extraction");
+  assert.equal(claim.verdict, "beyond-reach");
+  assert.match(claim.reason, /first-person claim/);
+  assert.equal(relationFindings(reader.read(FIRST_PERSON_CLAIM)).length, 0, "a limit of this check is never a finding against the answer");
+});
+
+test("CONTROL: a THIRD-person claim about the same material still binds normally — the wall is deictic, not blanket", async () => {
+  const reader = makeRelationReader(await firstPersonOrgans())([ESL_STYLE_PAGE], { pool: [ESL_STYLE_PAGE] });
+  const claim = reader.read("Maria is happy about the color blue.").claims.find((c) => c.label === "is");
+  assert.ok(claim, JSON.stringify(reader.read("Maria is happy about the color blue."), null, 2));
+  assert.equal(claim.verdict, "bound", "a subject that is not first-person is never touched by this wall");
+});
+
+test("the first-person organ is opt-in: omitted, this reader is byte-identical to every caller before it", async () => {
+  const plain = makeRelationReader(await bareNativeOrgans())(PASSAGES, { pool: POOL });
+  const withOrgan = makeRelationReader(await firstPersonOrgans())(PASSAGES, { pool: POOL });
+  const face = (r) => r.edges.map((e) => `${e.end1} —${e.label}[${e.polarity}]→ ${e.end2}`).sort();
+  assert.deepEqual(
+    face(plain.read("Pierre Bezukhov married Helene.")),
+    face(withOrgan.read("Pierre Bezukhov married Helene.")),
+    "the material's own edge set never depends on this organ",
+  );
+  assert.equal(plain.read("Pierre Bezukhov married Helene.").claims[0].verdict, "bound");
+  assert.equal(withOrgan.read("Pierre Bezukhov married Helene.").claims[0].verdict, "bound");
+});
+
+// ── the escape hatch: a caller-declared same-speaker signal ────────────────
+// `organs.sameSpeakerRef` restricts which EDGES a first-person claim may be
+// judged against — never wired in production today (nothing yet threads a
+// self-plane passage into this reader's own material list), but tested here
+// so the mechanism itself is proven before anything reaches for it.
+const SELF_AND_WEB = [
+  {
+    // A stand-in for the self plane's own `self:`-addressed record (P15) —
+    // the one source this tier could ever honestly say shares the model's
+    // own speaker.
+    ref: "self:ledger#0-93",
+    text: "Everyone at school likes Sam. Sam is a good friend of mine. My favorite subject is chemistry.",
+  },
+  ESL_STYLE_PAGE,
+];
+const sameSelfSpeaker = (ref) => String(ref ?? "").startsWith("self:");
+
+test("sameSpeakerRef: once ANY same-speaker edge exists, ordinary checking resumes — a genuine miss reads unbound, never a smuggled bind", async () => {
+  // Declaring `sameSpeakerRef` does not grant a blanket pass: it only tells
+  // this claim which edges it may be judged against (here, the one self:
+  // edge — "My favorite subject is chemistry"). That edge's subject shares
+  // no real content with "blue", so a real check runs and correctly finds
+  // nothing — `unbound`, the honest report of a check that ran, not
+  // `beyond-reach`, which this tier reserves for a check it could not run
+  // at all. Either way the unrelated web page never decides the claim.
+  const reader = makeRelationReader({ ...(await firstPersonOrgans()), sameSpeakerRef: sameSelfSpeaker })(SELF_AND_WEB, { pool: SELF_AND_WEB });
+  const claim = reader.read(FIRST_PERSON_CLAIM).claims.find((c) => c.label === "is");
+  assert.equal(claim.verdict, "unbound", "the self plane says nothing about the claim's own object, so it is not bound");
+  assert.ok(
+    (claim.nearest ?? []).every((e) => !/esl-example\.com/.test(JSON.stringify(e.refs ?? []))),
+    "the unrelated web page must never appear as evidence for a first-person claim it does not share a speaker with",
+  );
+});
+
+test("sameSpeakerRef: a genuinely self-attributed edge is allowed to bind, and an unrelated one is not smuggled in beside it", async () => {
+  const reader = makeRelationReader({ ...(await firstPersonOrgans()), sameSpeakerRef: sameSelfSpeaker })(SELF_AND_WEB, { pool: SELF_AND_WEB });
+  const claim = reader.read("My favorite subject is chemistry.").claims.find((c) => c.label === "is");
+  assert.ok(claim, JSON.stringify(reader.read("My favorite subject is chemistry."), null, 2));
+  assert.equal(claim.verdict, "bound", "the self plane's own prior statement of this exact claim is real corroboration");
+  assert.deepEqual(claim.refs, ["self:ledger#0-93"], "only the speaker-matched source is cited — the unrelated page never enters candidateEdges");
+  assert.equal(claim.fillers, undefined, "no cross-document filler bleed once candidateEdges is scoped to the same speaker");
+});
+
 test("queryReferents discloses HOW each open end resolved — the noise gate a caller needs", async () => {
   // Measured live 2026-08-26 over 3,841 edges from four real pages: asking
   // "who was vice president of the United States" with the subject open

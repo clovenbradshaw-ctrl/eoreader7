@@ -861,6 +861,21 @@ export function makeRelationReader(organs) {
     thirdPersonSingular = null,
     determiners = null,
     negationWords: negationClass = null,
+    // `organs.firstPerson` — OPTIONAL, a RECEIVED closed class (priors.js's
+    // own FIRST_PERSON regex, giver "lang/en"), never a word list typed
+    // here. Gates the first-person-deixis wall in `judge()` below (S96 /
+    // the-fold P180): "my", "I", "our", "we" name whoever is SPEAKING,
+    // never a stable entity, so a subject led by one of these must not bind
+    // via ordinary token/form identity across documents. `organs.
+    // sameSpeakerRef` — OPTIONAL, `(ref) => boolean` — is the caller's own
+    // declared test for "this passage's ref shares the answer's speaker"
+    // (e.g. the self plane's own `self:`-addressed record). Omitted, the
+    // wall refuses UNCONDITIONALLY (no evidence anywhere that two documents
+    // share a speaker) rather than silently trusting token overlap; both
+    // omitted, byte-identical to every caller before this pass, exactly
+    // like `verbForms`/`determiners` above.
+    firstPerson = null,
+    sameSpeakerRef = null,
     // `organs.phrasalPredicates`/`organs.nounPhraseSubjects` — OPTIONAL
     // booleans, live_priors' own DR4/DR5 (goldens/reading/DERIVED-RULES.md):
     // the native relations.js organs (eoreader7) now accept these flags
@@ -1551,6 +1566,13 @@ export function makeRelationReader(organs) {
     // disagree about what a negation is on opposite sides of the same read.
     const negationInUse = negationWords ?? negationClass;
     const negationLed = (str) => Boolean(negationInUse?.has(firstToken(str)));
+    // Same shape as `negationLed` above, one closed class over (S96 / the-fold
+    // P180): a span whose FIRST token is a received first-person pronoun is a
+    // span whose REFERENT WAS NEVER ESTABLISHED, because "I"/"my"/"our"/"we"
+    // name whoever is speaking, not a stable entity two different documents
+    // could both be talking about. See `judge()`'s own wall for the full
+    // account and the measured specimen it closes.
+    const firstPersonLed = (str) => Boolean(firstPerson?.test?.(firstToken(str)));
     // THE DENIAL, READ (S69 / the-fold P104). Two shapes the extractor
     // produced left a negation where no comparison could meet it — P43
     // named them and this tier refused them as "polarity never measured":
@@ -1888,6 +1910,41 @@ export function makeRelationReader(organs) {
           reason: `“${t.verb}” is not grammatically a verb here — real usage says ${dominant.thraxClass} (${Math.round(dominant.share * 100)}% of the time) — a limit of this extraction, not a mark against the answer`,
         };
       }
+      // FIRST-PERSON DEIXIS (added 2026-09-09 — POLICIES.md P180 / READING-
+      // SPEC S96). "My favorite color", "I painted the wall", "our record"
+      // — a first-person subject's referent is WHOEVER IS SPEAKING, never a
+      // stable entity this tier can key on. Two different authored texts
+      // that each use "my" are never, by default, talking about the same
+      // "I" — the referent-model-not-pointers failure class this whole
+      // tier exists to avoid, one register in: SVO structural matching
+      // cannot see WHO utters a pronoun, only that the tokens are
+      // identical. Measured live: a model's own first-person answer ("My
+      // favorite color is blue. It reminds me of the sky…") came back
+      // `bound`, cited to a generic ESL "10 sentences about my favorite
+      // color" example page — because "favorite color" and "blue" both
+      // recur as FORMS in that unrelated material (`endpoint()`'s own
+      // `useForms` path), so the claim's subject and the page's subject
+      // resolved to the SAME recurring-form identity despite naming two
+      // entirely different speakers' favorite colors.
+      //
+      // Checked on the RAW subject string, before any endpoint resolution
+      // — a first-person subject must never bind via token/form identity
+      // at all, regardless of which path (named referent, recurring form,
+      // or bare content-word overlap) would otherwise have granted it.
+      // `candidateEdges` narrows what the REST of this function may match
+      // against; every other subject shape leaves it as the full edge set,
+      // byte-identical to before this pass.
+      let candidateEdges = edges;
+      if (firstPersonLed(t.subject)) {
+        candidateEdges = sameSpeakerRef ? edges.filter((e) => (e.refs ?? []).some(sameSpeakerRef)) : [];
+        if (!candidateEdges.length) {
+          return {
+            ...claim,
+            verdict: "beyond-reach",
+            reason: `“${t.subject}” is a first-person claim — “I”/“my” names whoever is speaking, not a stable entity — and nothing here shows this answer and the material share a speaker; comparing them would treat two different people's “I” as one claim — a limit of this check, not a mark against the answer`,
+          };
+        }
+      }
       const subj = endpoint(t.subject, true);
       const obj = endpoint(t.object, Boolean(createLemmatizer));
       // Disclosed on EVERY claim, whatever the verdict — a bound claim
@@ -1945,7 +2002,7 @@ export function makeRelationReader(organs) {
           reason: `the negation in “${t.object}” landed inside the object, not before the verb — this claim's polarity was never measured, so it is not one this tier can check; a limit of this extraction, not a mark against the answer`,
         };
       }
-      const sameSubjVerb = edges.filter(
+      const sameSubjVerb = candidateEdges.filter(
         (e) => sameAct(e.label, t.verb) && intersects(e.subjectEnd.referents, subj.referents),
       );
       // Computed once, attached to every verdict below that reaches this
@@ -2043,7 +2100,7 @@ export function makeRelationReader(organs) {
       // No edge binds this claim. Show what the material DOES bind around
       // it: same subject and verb first (what the subject actually did),
       // then same verb and object (who actually did this to the object).
-      const sameVerbObj = edges.filter(
+      const sameVerbObj = candidateEdges.filter(
         (e) => sameAct(e.label, t.verb) && !sameSubjVerb.includes(e) && endpointsMatch(e.objectEnd, obj),
       );
 
