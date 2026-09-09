@@ -119,6 +119,20 @@ const READ_CHAPTER = Number(process.argv[3] ?? 1);
 const PRIOR_CHAPTERS = (process.argv.find((a) => a.startsWith("--prior=")) ?? "")
   .replace("--prior=", "").split(",").map((x) => Number(x.trim())).filter(Boolean);
 
+// A LEXICON PRIOR is a DIFFERENT kind of prior than the reread above, and it
+// is loaded through a DIFFERENT, narrower door on purpose. --prior=N reads
+// THIS SAME document's own earlier chapter — verbs AND cast, because it is
+// the same beings across the reread. A lexicon crosses documents (S99: a
+// giver-and-provenance resource joins the received-priors tier), and S95's
+// per-document boundary makes referent identity non-transferable across
+// documents — Alice is not a candidate referent for a book that never
+// mentions her. So this loader has NO CODE PATH that reads a `cast` field
+// at all, even an empty one: the file's shape cannot leak identity, by
+// construction, not by the discipline of whoever built the file.
+const LEXICON_PATH = (process.argv.find((a) => a.startsWith("--lexicon=")) ?? "").replace("--lexicon=", "");
+const lexicon = LEXICON_PATH ? JSON.parse(fs.readFileSync(LEXICON_PATH, "utf8")) : null;
+if (lexicon && !lexicon.giver) { console.error("a lexicon prior must name its giver"); process.exit(2); }
+
 // THE ORIGIN HAS CRLF, AND PRESERVING IT EXACTLY MEANS READING AROUND IT,
 // NEVER REWRITING IT. This book's real bytes use \r\n; the chapter file
 // extracted from it earlier this session had been silently normalised to
@@ -320,16 +334,36 @@ const infer = (role, at, basis, extra = {}) =>
 // into this book's flat reading.
 const chapters = [];
 {
-  const RE = /^CHAPTER ([IVXLC]+)\.\s*\n([^\n]*)\n/gm;
+  // A REAL title line is bounded by blank lines on both sides — the same
+  // typographic convention that makes it a heading rather than running
+  // prose. Not every book has one: The Picture of Dorian Gray's chapters
+  // go straight from "CHAPTER I." to prose with no title line at all, and
+  // without this check the regex swallowed the paragraph's own first
+  // physical line as if it were a title — found by recoverability.mjs
+  // (S101) failing on a SECOND text after Alice in Wonderland passed clean,
+  // because AIW's own convention (a real title on every chapter) never
+  // exercised this branch. Requiring a blank line immediately after the
+  // candidate title distinguishes "Down the Rabbit-Hole\n\nAlice was..."
+  // (real title) from "The studio was filled...\nsummer wind..." (prose,
+  // wrapped across the physical line the naive regex captured).
+  const RE = /^CHAPTER ([IVXLC]+)\.\s*\n([^\n]*)\n/gmd;
   let m; const hits = [];
-  while ((m = RE.exec(raw))) hits.push({ start: m.index, num: m[1], title: m[2].trim(), headEnd: m.index + m[0].length });
+  while ((m = RE.exec(raw))) {
+    const candidateEnd = m.index + m[0].length;
+    const hasRealTitle = Boolean(m[2].trim()) && raw[candidateEnd] === "\n";
+    hits.push({
+      start: m.index, num: m[1],
+      title: hasRealTitle ? m[2].trim() : "",
+      headEnd: hasRealTitle ? candidateEnd : m.indices[2][0],
+    });
+  }
   for (let i = 0; i < hits.length; i += 1) {
     const end = i + 1 < hits.length ? hits[i + 1].start : raw.length;
     chapters.push({ ...hits[i], end, ordinal: i + 1 });
   }
   for (const c of chapters) {
-    infer("chapter", [c.start, c.end], "a 'CHAPTER <roman>.' line at line-start followed by a title line and running prose — the table-of-contents copies of the same string are not followed by prose and are not matched", { ordinal: c.ordinal, numeral: c.num, title: c.title });
-    infer("heading", [c.start, c.headEnd], "the chapter line and its title line", { ofChapter: c.ordinal });
+    infer("chapter", [c.start, c.end], "a 'CHAPTER <roman>.' line at line-start followed by running prose (a title line, when the book gives one, is blank-line-bounded like the heading itself) — the table-of-contents copies of the same string are not followed by prose and are not matched", { ordinal: c.ordinal, numeral: c.num, title: c.title });
+    infer("heading", [c.start, c.headEnd], c.title ? "the chapter line and its title line" : "the chapter line alone — this book gives its chapters no title line", { ofChapter: c.ordinal });
   }
 }
 
@@ -616,6 +650,8 @@ const vocabReport = discoverRelationVocab(chapterText, { surfaces, minSurfaces: 
 const ownVerbs = vocabReport?.verbs instanceof Set ? vocabReport.verbs : new Set(vocabReport?.verbs ?? []);
 const verbs = new Set(ownVerbs);
 for (const pr of loadedPriors) for (const v of pr.verbs ?? []) verbs.add(v);
+const lexiconVerbsUsed = new Set();
+if (lexicon) for (const v of lexicon.verbs ?? []) { if (!verbs.has(v)) lexiconVerbsUsed.add(v); verbs.add(v); }
 const opts = { verbs, phrasalPredicates: true, nounPhraseSubjects: true };
 
 const carriesVerb = (t) => String(t ?? "").toLowerCase().split(/[^\p{L}\p{N}’']+/u).some((w) => verbs.has(w));
@@ -932,11 +968,14 @@ emit({
   pass: loadedPriors.length ? 2 : 1,
   chapter: READ_CHAPTER,
   priorsLoaded: loadedPriors.map((p) => ({ chapter: p.chapter, verbs: (p.verbs ?? []).length, cast: (p.cast ?? []).length })),
+  lexiconLoaded: lexicon ? { giver: lexicon.giver, verbsOffered: (lexicon.verbs ?? []).length, verbsNew: lexiconVerbsUsed.size } : null,
   earnedHere: { verbs: ownVerbs.size, castSurfaces: surfaces.length },
   vocabularyAfterUnion: verbs.size,
   disclosure: loadedPriors.length
     ? "A REREAD. This pass legitimately knows what the loaded chapters contain because it has read them; that is rereading, not lookahead. Its reach must not be compared with a first pass's without saying so."
-    : "A FIRST PASS. Nothing here was learned from any later chapter — the vocabulary and cast are earned from this chapter's own bytes.",
+    : lexicon
+      ? "A FIRST PASS ON THIS DOCUMENT, primed with a cross-document vocabulary prior. The cast is still earned from nothing but this chapter's own bytes — the lexicon carries no cast and could not leak one."
+      : "A FIRST PASS. Nothing here was learned from any later chapter — the vocabulary and cast are earned from this chapter's own bytes.",
 });
 
 // ── SURPRISE IS GRADED, AND IT IS MEASURED AROUND THE BEING ──────────────

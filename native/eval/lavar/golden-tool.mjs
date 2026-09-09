@@ -27,8 +27,20 @@ const [cmd, chArg] = process.argv.slice(2);
 const CH = Number(chArg ?? 1);
 
 const raw = fs.readFileSync(BOOK, "utf8");
-const heads = [...raw.matchAll(/^CHAPTER ([IVXLC]+)\.\s*\r?\n([^\r\n]*)\r?\n/gm)];
-const lo = heads[CH - 1].index + heads[CH - 1][0].length;
+// A REAL title line is blank-line-bounded on both sides, same as the
+// heading itself — not every book has one (The Picture of Dorian Gray
+// goes straight from "CHAPTER I." to prose), and without this check a
+// naive \s*\n([^\r\n]*)\r?\n capture swallows the paragraph's own first
+// physical line as a fake title. Found via eval/lavar/recoverability.mjs
+// (S101) failing on a second text after Alice in Wonderland — which has a
+// real title on every chapter and never exercised this branch — and fixed
+// identically in eot-jsonl.mjs and recoverability.mjs.
+const heads = [...raw.matchAll(/^CHAPTER ([IVXLC]+)\.\s*\r?\n([^\r\n]*)\r?\n/gmd)].map((m) => {
+  const candidateEnd = m.index + m[0].length;
+  const hasRealTitle = Boolean(m[2].trim()) && /^\r?\n/.test(raw.slice(candidateEnd));
+  return { ...m, headEnd: hasRealTitle ? candidateEnd : m.indices[2][0], realTitle: hasRealTitle ? m[2].trim() : "" };
+});
+const lo = heads[CH - 1].headEnd;
 const hi = CH < heads.length ? heads[CH].index : raw.length;
 const flat = raw.slice(lo, hi).split(/\s+/).join(" ").trim();
 const sentences = flat.split(/(?<=[.!?”])\s+/).filter((s) => s.trim());
@@ -68,7 +80,7 @@ if (cmd === "sentences") {
     fs.writeFileSync(goldenPath, JSON.stringify({
       ...prior, schema: "EOTGolden@1", chapter: CH,
       source: "01-literature-books/gutenberg/pg11_Alice_s_Adventures_in_Wonderland.txt",
-      title: heads[CH - 1][2].trim(),
+      title: heads[CH - 1].realTitle,
       giver: prior.giver ?? `LaVar (Claude Opus 5) — hand-read clause by clause, 2026-09-09, before scoring. The engine never saw this file.`,
       coverage: { sentences: sentences.length, propositions: rows.length, expectedEmpty: empties.length, sentenceCoverage: 1 },
       propositions: rows, expected_empty: empties,

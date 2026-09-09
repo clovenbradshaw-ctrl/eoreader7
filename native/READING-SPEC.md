@@ -4943,3 +4943,42 @@ S97's corollary: *"the first book we read will be the most surprising book we've
 ### What this pass leaves for later, named rather than silently dropped
 
 Goldens for chapters 5–12 (would let every experiment above run at full-book granularity instead of the 4-chapter calibration set). Feeding the EOT ledger schema through `kernel/hypergraph.js`'s real neighbourhood organ via a translation layer, instead of `drill.mjs`'s direct query. A being-who-is-only-discussed mechanism (Dinah's gap). And the S100 plan itself is untouched by this pass — it is still the ordered list to work through for RECALL; this entry is about a different axis, whether the ledger hears everything it is given, and whether accumulated reading measurably deepens what it hears from the SAME bytes.
+
+## S102 — Spiralling out to a second text found a bug the first text's own convention could never exercise; and a lexicon is a prior, structurally incapable of carrying a referent (2026-09-09)
+
+**Generality:** specimen-scoped for the transfer numbers (measured on The Picture of Dorian Gray only); universal for the heading-detection fix and the lexicon-loader's structural guarantee, both of which are properties of `eot-jsonl.mjs` itself, not of any one book.
+
+**User direction, verbatim:** *"when you're confident, spiral out and do another text and use the priors from this as background for prediction and anything else that makes sense, though obviously not cross pollenating referents."*
+
+### The bug S101's own recoverability check found on contact with a second book
+
+Alice in Wonderland gives every chapter a real title line ("Down the Rabbit-Hole"). `eot-jsonl.mjs`'s chapter-heading regex — duplicated in `golden-tool.mjs` and `recoverability.mjs`, per this repo's own "reconcile, don't just dedupe" rule (`CLAUDE.md`) — captured whatever text sat on the line right after "CHAPTER I." and called it the title, without ever checking whether that line WAS a title. The Picture of Dorian Gray's chapters carry no title line at all — "CHAPTER I." goes straight to prose — and the regex swallowed the paragraph's own first physical line ("The studio was filled with the rich odour of roses, and when the light") as a fake title, shifting the chapter window's start to mid-sentence.
+
+**Caught by the metric this session already built, not by inspection.** `recoverability.mjs 1 <dorian-gray-path>` reported 99.39% instead of 100%, with the gap landing exactly at the swallowed line's second physical line — the sentence that started under the fake "heading" was excluded by the window filter, byte for byte. AIW's own convention never exercised this branch, so it shipped as "100% recoverable, universal metric" in S101 while carrying a defect the corpus hadn't tested for yet — precisely why "spiral out" was worth doing rather than declaring victory on one book.
+
+**The fix, applied identically in all three files:** a real title is bounded by blank lines on both sides, the same convention that makes it a heading rather than running prose. `raw[candidateEnd] === "\n"` (checked in each file's own coordinate space — normalised for `eot-jsonl.mjs`, raw CRLF for `recoverability.mjs`/`golden-tool.mjs`, since ledger addresses must match the origin bytes) distinguishes "Down the Rabbit-Hole\n\nAlice was..." (real title, blank line follows) from "...the light\nsummer wind..." (prose, no blank line follows — the naive capture was one physical line of a wrapped sentence). Regression-checked against all 12 AIW chapters and all 4 goldens after the fix: **identical numbers, byte for byte, zero change** — the fix only ever fires on the branch AIW never took. Dorian Gray chapters 1–3, re-read clean: **100% recoverable, all three.**
+
+### A lexicon prior, made structurally incapable of carrying a referent
+
+S99 places a lexicon in the received-priors tier, distinct from a witness. This entry adds the corollary the user's instruction demanded: a prior that crosses DOCUMENTS must not be able to carry REFERENT IDENTITY across them, because S95's per-document boundary makes identity non-transferable — Alice is not a candidate referent for a book that never mentions her, no matter how the vocabulary transfers.
+
+`eot-jsonl.mjs` gained `--lexicon=<path>`, a loader kept deliberately narrower than `--prior=N` (same-document reread, which legitimately carries `cast` because it is the SAME beings). The lexicon file's shape has **no `cast` field the loader ever reads** — not "an empty array," a missing code path — so a lexicon cannot leak a referent by construction, not by the discipline of whoever built the file. It must name its own `giver` or the driver refuses to run.
+
+**The lexicon built:** every verb earned across all 12 AIW chapters' own `.prior.json` files, unioned — 287 verbs, giver stated as "Alice in Wonderland, chapters 1–12, unioned." Fed into a genuinely cold first read of The Picture of Dorian Gray, chapter 1 (a different author, era-adjacent register, completely disjoint cast, no prior connection to AIW beyond both being English prose):
+
+| | cold (no lexicon) | lexicon-primed |
+|---|---|---|
+| propositions | 285 | 377 (+92, +32%) |
+| verbs earned from ch1's own bytes | 53 | 53 (unchanged — the lexicon adds, never replaces) |
+| vocabulary after union | 53 | 317 (264 of the 287 offered verbs were new to this chapter) |
+| typed absences | 145 | 72 |
+| refusals | 50 | 246 |
+| entities / voids (cast discovery) | 10 / 134 | **10 / 134 — byte-identical** |
+
+**Referent isolation verified empirically, not just designed.** Dorian Gray's cast across chapters 1–3 (Dorian Gray, Lord Henry, Basil Hallward, Lady Brandon, plus known capitalised-word noise already documented elsewhere — Church, English, Greek, Grosvenor, Mr) was grepped against every AIW referent id and surface: zero matches anywhere except the lexicon's own disclosed `giver` string, which NAMES Alice in Wonderland as a citation, not as a referent. The entity/void counts being byte-identical between the cold and lexicon-primed reads is the strongest evidence available that the lexicon touched vocabulary and nothing else — if cast discovery had moved at all, the isolation claim would need re-examining rather than asserting.
+
+**What the transfer bought, honestly.** More propositions ATTEMPTED (yield up 32%), but referent-bearing arrangements did not scale with it (37 with a referent id on the cold read of a smaller pool vs. 25 on the lexicon-primed read of a larger one) — the newly unlocked verbs are disproportionately NOT the ones that resolve to a referent. This mirrors S100's own item-2 observation about the mandatory-object gate: raising yield and raising referent coverage are different axes, and a lever that moves one is not assumed to move the other without checking.
+
+### What this pass leaves for later
+
+Only 3 of Dorian Gray's 20 chapters were read (enough to demonstrate cross-document transfer and referent isolation, not a whole-book claim the way S101 makes one for AIW — no golden exists for this book at all, so no recall number is claimed, only the structural ones above). Whether the transfer gain holds, grows, or saturates across a full second book is real, scoped, unattempted work.

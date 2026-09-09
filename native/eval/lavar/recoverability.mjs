@@ -15,24 +15,38 @@
 // and no drilling, rereading or model witness can recover it: it was never
 // heard in the first place.
 //
-// usage: node recoverability.mjs <ch>   (or "all" for every inferred chapter)
+// usage: node recoverability.mjs <ch> [bookPath]   ("all" for every inferred chapter; bookPath defaults to Alice in Wonderland)
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
-const BOOK = "/Users/mlacy/Documents/3.0/live_priors/01-literature-books/gutenberg/pg11_Alice_s_Adventures_in_Wonderland.txt";
+const BOOK = process.argv[3] ?? "/Users/mlacy/Documents/3.0/live_priors/01-literature-books/gutenberg/pg11_Alice_s_Adventures_in_Wonderland.txt";
+const BASENAME = path.basename(BOOK, ".txt");
 const raw = fs.readFileSync(BOOK, "utf8");
 
 // Same chapter-boundary regex eot-jsonl.mjs itself uses (S95's own window),
 // duplicated rather than imported — eot-jsonl.mjs is a driver script with no
 // exports, and golden-tool.mjs already duplicates this same regex for the
 // same reason: each caller owns its own read of the boundary convention.
-const HEAD_RE = /^CHAPTER ([IVXLC]+)\.\s*\n([^\n]*)\n/gm;
+// Same real-title check eot-jsonl.mjs carries (found via this very script:
+// a book with no title line, e.g. The Picture of Dorian Gray, had its
+// paragraph's own first physical line swallowed as a fake title) — a REAL
+// title is bounded by blank lines on both sides, checked here in raw's own
+// (CRLF-preserving) space since these addresses must match the ledger's.
+const HEAD_RE = /^CHAPTER ([IVXLC]+)\.\s*\n([^\n]*)\n/gmd;
 const heads = [];
 {
   let m;
-  while ((m = HEAD_RE.exec(raw))) heads.push({ start: m.index, headEnd: m.index + m[0].length, title: m[2].trim() });
+  while ((m = HEAD_RE.exec(raw))) {
+    const candidateEnd = m.index + m[0].length;
+    const hasRealTitle = Boolean(m[2].trim()) && /^\r?\n/.test(raw.slice(candidateEnd));
+    heads.push({
+      start: m.index,
+      headEnd: hasRealTitle ? candidateEnd : m.indices[2][0],
+      title: hasRealTitle ? m[2].trim() : "",
+    });
+  }
 }
 for (let i = 0; i < heads.length; i += 1) heads[i].end = i + 1 < heads.length ? heads[i + 1].start : raw.length;
 
@@ -42,7 +56,7 @@ function checkChapter(ch) {
   const WIN = [h.headEnd, h.end];
   const refWords = raw.slice(WIN[0], WIN[1]).split(/\s+/).filter(Boolean);
 
-  const ledgerPath = path.join(HERE, "results", `pg11_Alice_s_Adventures_in_Wonderland-ch${ch}.eot.jsonl`);
+  const ledgerPath = path.join(HERE, "results", `${BASENAME}-ch${ch}.eot.jsonl`);
   if (!fs.existsSync(ledgerPath)) return { chapter: ch, error: `no ledger at ${path.relative(process.cwd(), ledgerPath)}` };
   const lines = fs.readFileSync(ledgerPath, "utf8").split("\n").filter(Boolean).map((l) => JSON.parse(l));
 
