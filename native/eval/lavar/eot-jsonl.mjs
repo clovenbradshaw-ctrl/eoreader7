@@ -54,7 +54,9 @@ import crypto from "node:crypto";
 import { fileURLToPath } from "node:url";
 import { splitSentences, normaliseNewlines } from "../../adapters/text/spans.js";
 import { extractRelations, discoverRelationVocab } from "../../adapters/text/relations.js";
-import { extractSurfaces, scriptCoverageBySentence } from "../../adapters/text/surfaces.js";
+import { extractSurfaces, scriptCoverageBySentence, accumulateSurfaceEvidence, createSurfaceEvidence, surfacesFromEvidence, discoverReferents } from "../../adapters/text/surfaces.js";
+import { bindNarrationFrames } from "../../adapters/text/perspective-claims.js";
+import { boundAnchorSpans } from "../../adapters/text/vocabulary.js";
 import { classifyWord, dominantClass } from "../../adapters/text/wordclass.js";
 import * as cube from "../../kernel/cube.js";
 
@@ -165,11 +167,29 @@ const grainOf = (label) => {
   const thrax = thraxOf(label);
   const spec = thrax ? GRAIN_BY_THRAX[thrax] : null;
   if (!spec) {
+    // TWO DIFFERENT ANSWERS, and collapsing them is what made the earlier
+    // cut of this file either keep junk or delete real Fields.
+    //
+    // UNSETTLED is not a judgement. The received prior has no verdict (the
+    // infinitive marker "to" is UD PART, deliberately outside Thrax's eight
+    // categories), so neither has this reading: a grain gap, and the
+    // observation is KEPT IN FULL. A missing prior produces a typed gap,
+    // never a guessed grain.
+    //
+    // SETTLED AS A CLASS THAT CANNOT HEAD A RELATION is a judgement, and one
+    // the prior licenses. A noun, adjective, adverb, pronoun or article in
+    // the connector slot is not a relation at a different grain — it is an
+    // extraction artifact (`she | eyes | …`, `she | generally | …`, thrown up
+    // by anchoring on a bound pronoun whose next token is not a predicate).
+    // Refusing it is P56's own asymmetry used exactly as written: settled
+    // means REFUSABLE. This is NOT the mistake S95 corrected — that mistake
+    // was refusing a preposition, which heads a real relation at Ground
+    // grain. The line is whether the class can head a relation at all, never
+    // whether it is a verb.
+    if (thrax) return { refused: true, settledAs: thrax };
     return {
-      grain_gap: thrax
-        ? `connector settles as "${thrax}", which this reading has no grain rule for — kept, not discarded`
-        : `connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker "to" is PART) — kept, not discarded`,
-      settledAs: thrax,
+      grain_gap: `connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker "to" is PART) — kept, not discarded`,
+      settledAs: null,
     };
   }
   const cell = cube.cellOf(spec.op, spec.grain);
@@ -357,11 +377,100 @@ for (let i = 0; i < sentences.length; i += 1) {
 
 // ── proposition observations ──────────────────────────────────────────────
 const surfaces = extractSurfaces(sentences);
+
+// THE BOUND-PRONOUN ANCHOR, wired. This is the fix for the defect a
+// word-for-word hand-read of the whole chapter exposed, and it is the
+// difference between reading this chapter and reporting a measurement of
+// the reader's own starvation.
+//
+// WHAT THE HAND-READ FOUND. `discoverRelationVocab` nominates a token as a
+// candidate verb only when it FOLLOWS a candidate referent surface, and
+// surfaces are found by capitalisation (S86). Chapter 1 is narrated almost
+// entirely in pronouns — "she", "it", "her" — so `ran`, `took`, `saw`,
+// `found`, `knelt`, `ventured` were never nominated at all. 22 verbs earned
+// from 11.7 KB of prose, and every main clause carrying the chapter's actual
+// events was missing from the reading: Alice beginning to get tired, the
+// White Rabbit running past her, the Rabbit taking the watch from its
+// pocket, Alice taking down the marmalade jar, Alice finding herself in the
+// long hall. This is S86's capitalisation-only finding biting the VERB tier
+// rather than the being tier — S86/S87/S88 all treat it as a
+// being-discovery problem, and nobody had recorded that the same single
+// signal starves the verb vocabulary too.
+//
+// NOTHING NEW IS BUILT HERE. The lever already existed, tested, and was
+// wired into nothing — not this driver, not `adapters/text/recursive.js`,
+// not `live_priors/scripts/eot-sidecar.mjs` (checked, all three). This is
+// the same shape as the `build-pos-prior.mjs` incident CLAUDE.md's own
+// "search for the organ before you write one" section records: a real organ
+// sitting one directory over, one call away. The chain is
+// `bindNarrationFrames` -> `boundAnchorSpans` -> `discoverRelationVocab
+// ({anchorSpans})`, and `tests/levers.test.js` pins the exact property this
+// needs: "a name anchor and a bound-pronoun anchor SHARE the tally."
+//
+// WHAT IT DOES NOT DO, because the same test file pins that too: "unbound
+// pronouns contribute NOTHING — the wall is positional, the string 'he'
+// anchors nowhere by itself." A pronoun licenses a discovery anchor only
+// once it has been BOUND to a referent. The bare string still licenses
+// nothing, so this widens what can be heard without lowering what must be
+// earned.
+//
+// CHAPTER-LOCAL COORDINATES, deliberately. `boundAnchorSpans`' own contract
+// is "one space in, one space out", so the frame, the binding and the
+// anchors all run in the chapter's own byte space. Nothing here emits an
+// observation — the vocabulary is a Set of strings — so no address leaves
+// this block, and the extraction below keeps using normalised-global
+// offsets mapped through `toRaw` exactly as before.
+const chapterText = raw.slice(WIN[0], WIN[1]);
+const chapterSentences = splitSentences(chapterText);
+const chapterEvidence = accumulateSurfaceEvidence(chapterSentences, createSurfaceEvidence());
+const { events: castEvents } = discoverReferents(surfacesFromEvidence(chapterEvidence), {});
+const surfaceToReferent = new Map(castEvents.map((e) => [e.surface, e.referent_id]));
+
+// Declared, never defaulted — `resolvePronouns` throws without them, and the
+// giver is named rather than a number chosen here: these are
+// `organs/hypergraph.js`'s own PRONOUN_MIN_ACTIVATION / PRONOUN_MIN_MARGIN,
+// the operating point the production reader already runs at, and which that
+// file's own header discloses as unvalidated against a golden.
+const RECALL = { minActivation: 0.05, minMargin: 0.2 };
+
+// ONE FRAME. Chapter 1 has a single third-person narrator and no nested
+// teller, so the honest frame set is one covering the chapter. This is not a
+// simplification of `bindNarrationFrames`' frame-scoping — it is that
+// scoping correctly applied to material with one teller.
+const { boundSentences, perFrame } = bindNarrationFrames({
+  frames: [{ narrator: "narrator", byteStart: 0, byteEnd: chapterText.length }],
+  text: chapterText,
+  offset: 0,
+  surfaceToReferent,
+  recall: RECALL,
+});
+const anchorSpans = boundAnchorSpans(boundSentences, chapterText);
+
 // Vocabulary is earned from THIS CHAPTER's own text, not the whole book —
 // the reading is scoped to the chapter, so what it has been able to learn
 // must be too. Reading chapter 1 with a vocabulary earned from chapter 12
 // would be lookahead, which is the one thing a causal reader may not do.
-const vocabReport = discoverRelationVocab(raw.slice(WIN[0], WIN[1]), { surfaces, minSurfaces: MIN_SURFACES_PER_VERB });
+// THE POS PRIOR GATES THE ARRANGEMENT, NOT THE VOCABULARY — and getting
+// this backwards deleted every Field.
+//
+// Measured, both ways. Wiring anchors WITHOUT any gate doubled the
+// vocabulary (22 -> 43) and half of what it added was not a relation-heading
+// word at all — `in`, `great`, `face`, `best`, `generally`, `very`, `eyes` —
+// because a bound "she" anchors every one of its occurrences and the token
+// after a pronoun is often not a predicate. But passing `posPrior` here, the
+// way the production recipe does, gates the vocabulary to VERB-DOMINANT
+// forms only, and that silently deletes the entire Ground grain: "with",
+// "after" and "or" never enter the vocabulary, so they never become
+// connectors, so `burning | with | curiosity` cannot be found at all.
+// Measured: 84 arrangements, ALL Link, zero Field, zero Distinction.
+//
+// So `posPriorGate` — the production recipe's own vocabulary gate — encodes
+// the Link-only assumption UPSTREAM of grain typing, and S95's rule cannot
+// take effect behind it. The gate belongs on the arrangement's connector
+// (see grainOf), where the same received prior types what was found instead
+// of narrowing what may be found. Same evidence, same P56 asymmetry, one
+// tier later.
+const vocabReport = discoverRelationVocab(chapterText, { surfaces, minSurfaces: MIN_SURFACES_PER_VERB, anchorSpans });
 const verbs = vocabReport?.verbs instanceof Set ? vocabReport.verbs : new Set(vocabReport?.verbs ?? []);
 const opts = { verbs, phrasalPredicates: true, nounPhraseSubjects: true };
 
@@ -391,24 +500,68 @@ function readClause(subject, objText, objStart, depth) {
   if (promoted) { inner.verb = promoted.label; inner.object = promoted.object; }
   const at = addressOf(inner.object, objText, objStart);
   if (!at) return;
+  const gN = grainOf(inner.verb);
+  if (gN.refused) {
+    // A refusal is a line. One that leaves no trace reads as "nothing was
+    // there", which is the exact failure this apparatus exists to stop.
+    emit({ schema: "EOTRefusal@1", at: rawAt(at[0], at[1]), role: "proposition", reason: "connector_class_cannot_head_a_relation",
+           label: inner.verb, settledAs: gN.settledAs });
+    return null;
+  }
   emit({
     schema: "EOTObservation@1", id: id("o"), at: rawAt(at[0], at[1]), role: "proposition",
     end1: subject, label: inner.verb, end2: inner.object,
     subjectBasis: "inherited", // controlled by the matrix subject; no subject of its own in the text
-    ...grainOf(inner.verb),
+    ...gN,
   });
   readClause(subject, inner.object, at[0], depth + 1);
 }
 
 for (const sent of sentences) {
-  for (const e of extractRelations(sent.text, opts)) {
+  const found = extractRelations(sent.text, opts);
+  // A SENTENCE THAT YIELDED NOTHING SAYS SO, AND SAYS WHY.
+  //
+  // Regression caught by the user reading the projection: "why are we not
+  // seeing content for these sentences?" — sentence lines were being emitted
+  // with nothing beneath them and nothing explaining it. The flat form this
+  // ledger replaces was BETTER here (LP10: "one entry per sentence, always —
+  // a real proposition or a typed gap, never a silent absence"), and dropping
+  // that was a loss, not a simplification. An absence with no reason on the
+  // record is indistinguishable from a sentence nobody looked at.
+  //
+  // The two reasons are genuinely different and must not be collapsed:
+  // a vocabulary that never nominated anything in this sentence is a fact
+  // about what this reading has been able to LEARN so far (and is therefore
+  // revisable by a later pass — see the revision lines at the end), whereas
+  // an earned verb that still yields nothing is the extractor's own
+  // mandatory-subject-and-object gate refusing (S90), which no amount of
+  // further reading will change.
+  if (!found.length) {
+    const hasEarnedVerb = carriesVerb(sent.text);
+    emit({
+      schema: "EOTAbsence@1",
+      at: rawAt(sent.offset, sent.offset + sent.text.length),
+      role: "arrangement",
+      reason: hasEarnedVerb ? "gate_refused_no_two_ends" : "no_earned_verb_in_this_sentence",
+      detail: hasEarnedVerb
+        ? "a verb this reading earned occurs here, but extractRelations requires BOTH a subject group and an object group (S90: `if (!subject || !object) continue`) — an exclamation, a bare predicate adjective, or an intransitive clause satisfies neither, and that is a property of the gate, not of the material"
+        : `no token in this sentence was nominated by the ${verbs.size} verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite`,
+    });
+  }
+  for (const e of found) {
     if (!e.subject || !e.object) continue;
     const at = addressOf(e.object, sent.text, sent.offset);
     if (!at) continue;
+    const g = grainOf(e.verb);
+    if (g.refused) {
+      emit({ schema: "EOTRefusal@1", at: rawAt(at[0], at[1]), role: "proposition", reason: "connector_class_cannot_head_a_relation",
+             label: e.verb, settledAs: g.settledAs });
+      continue;
+    }
     emit({
       schema: "EOTObservation@1", id: id("o"), at: rawAt(at[0], at[1]), role: "proposition",
       end1: e.subject, label: e.verb, end2: e.object, subjectBasis: "stated",
-      ...grainOf(e.verb),
+      ...g,
     });
     readClause(e.subject, e.object, at[0], 1);
   }
@@ -464,7 +617,7 @@ const ROLE_RANK = { section: 0, paragraph: 1, sentence: 2, proposition: 3, "scen
 function project(ledger) {
   const superseded = new Set(ledger.filter((l) => l.supersedes).map((l) => l.supersedes));
   const nodes = ledger
-    .filter((l) => l.at && (l.schema === "EOTObservation@1" || l.schema === "EOTRevision@1"))
+    .filter((l) => l.at && (l.schema === "EOTObservation@1" || l.schema === "EOTRevision@1" || l.schema === "EOTAbsence@1"))
     .filter((l) => !superseded.has(l.id))
     .map((l) => ({ ...l, children: [] }))
     .sort((a, b) => (a.at[0] - b.at[0]) || (b.at[1] - a.at[1]) || ((ROLE_RANK[a.role] ?? 9) - (ROLE_RANK[b.role] ?? 9)));
@@ -488,7 +641,7 @@ fs.writeFileSync(path.join(outDir, `${base}.projected.json`), JSON.stringify(tre
 
 const count = (r) => lines.filter((l) => l.role === r && l.schema === "EOTObservation@1").length;
 const depthOf = (n, d = 0) => (n.children.length ? Math.max(...n.children.map((c) => depthOf(c, d + 1))) : d);
-console.log(`${lines.length} lines — ${count("section")} sections, ${count("paragraph")} paragraphs, ${count("sentence")} sentences, ${count("proposition")} propositions, ${lines.filter((l) => l.grain_gap).length} grain gaps, ${lines.filter((l) => l.schema === "EOTRevision@1").length} revisions`);
+console.log(`${lines.length} lines — ${count("section")} sections, ${count("paragraph")} paragraphs, ${count("sentence")} sentences, ${count("proposition")} propositions, ${lines.filter((l) => l.grain_gap).length} grain gaps, ${lines.filter((l) => l.schema === "EOTRefusal@1").length} refusals, ${lines.filter((l) => l.schema === "EOTAbsence@1").length} typed absences, ${lines.filter((l) => l.schema === "EOTRevision@1").length} revisions`);
 console.log(`projection: ${tree.length} roots, max nesting depth ${Math.max(...tree.map((t) => depthOf(t)))}`);
 console.log(`jsonl ${(fs.statSync(jsonlPath).size / 1024).toFixed(1)} KB against a source of ${(raw.length / 1024).toFixed(1)} KB`);
 console.log(`-> ${path.relative(process.cwd(), jsonlPath)}`);

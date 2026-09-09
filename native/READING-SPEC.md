@@ -4672,7 +4672,10 @@ TERRAIN_BY_DOMAIN.Structure = { Ground: "Field", Figure: "Link", Pattern: "Netwo
 | verb, participle | `CON · Figure` | Link · Binding | a discrete act binding two ends |
 | preposition | `CON · Ground` | Field · Tending | a state, a manner, a co-presence |
 | conjunction | `SEG · Figure` | Link · Dissecting | a distinction drawn, not a relation asserted — a different MODE, never a weaker CON |
-| anything else, or unsettled | — | — | **`grain_gap`, and the observation is KEPT IN FULL** |
+| noun, adjective, adverb, pronoun, article | — | — | **REFUSED**, and the refusal is a line — see the amendment below |
+| unsettled | — | — | **`grain_gap`, and the observation is KEPT IN FULL** |
+
+**Amended same day (S96's own measurement forced it).** The last row above was originally "anything else, *or* unsettled → grain gap, kept", and collapsing those two answers is wrong in both directions. **Unsettled is not a judgement**: the received prior has no verdict (the infinitive marker "to" is UD `PART`, deliberately outside Thrax's eight categories), so neither has the reading — a typed gap, observation kept. **Settled as a class that cannot head a relation IS a judgement, and the prior licenses it**: a noun, adjective, adverb or pronoun in the connector slot is not a relation at some other grain, it is an extraction artifact (`she | eyes | …`, `she | generally | …`, thrown up by anchoring on a bound pronoun whose next token is not a predicate). Refusing it is P56's asymmetry used exactly as written — settled means refusable — and it is **not** the mistake this entry corrects. That mistake was refusing a *preposition*, which heads a real relation at Ground grain. **The line is whether the class can head a relation at all, never whether it is a verb.** Measured on Chapter 1: 22 refusals (19 adverb, 3 pronoun), and every Field survives.
 
 Measured on Chapter 1: 61 `CON·Figure·Binding`, 12 `CON·Ground·Tending`, 8 `SEG·Figure·Dissecting`, 54 grain gaps. Before this rule, the twelve Fields (`burning | with | curiosity`, `seen a rabbit | with | a waistcoat-pocket`, `walking hand in hand | with | Dinah`) were **refused as non-verb connectors** — real structure discarded, and the discard reported as a clean gate. P56's asymmetry is unchanged and still binding; what it now refuses is a GRAIN CLAIM, never the observation. A missing prior produces a typed gap, never a guessed grain.
 
@@ -4725,3 +4728,32 @@ The-fold's POLICIES.md **P180** is the paired entry, with the fuller narrative; 
 **Measured live**, not only in the synthetic unit tests: `eval/the-fold/first-person-deixis-eval.mjs` calls the real `gemma2:2b` (seed 1, deterministic) with the reported prompt, reads the real answer through the real production reader against an ESL-shaped fixture, and confirms both the defect (`bound`, cited to the unrelated page) and the fix (`beyond-reach`) end to end — `eval/the-fold/results/first-person-deixis-RESULTS.md`.
 
 **Files.** `native/organs/hypergraph.js` (`organs.firstPerson`/`organs.sameSpeakerRef`, the `firstPersonLed` helper beside `negationLed`, the wall in `judge()`, `candidateEdges` replacing `edges` at the two `sameSubjVerb`/`sameVerbObj` filters). `native/organs/hypergraph.test.mjs` (8 new cases: the defect, the fix, a third-person control proving the wall is deictic and not blanket, opt-in backward-compatibility, and three cases proving the `sameSpeakerRef` escape hatch — refuses by default, resumes ordinary checking once opened, never lets an unrelated ref ride along). `eval/the-fold/first-person-deixis-eval.mjs` + its results doc (new). Full native suite: 1221/1223 passing before and after (the same two pre-existing entries — the `BECOMING copula-tense-aware` TODO and S83's own missing Generality line, confirmed unrelated by isolating this change with `git stash`), zero regressions.
+
+## S96 — Capitalisation starves the VERB tier too, not only being-discovery; the lever that fixes it was built, tested, and wired into nothing (2026-09-09)
+
+**Generality:** universal for the defect (any material narrated in pronouns rather than repeated names — which is most English prose fiction); universal for the lever; specimen-scoped for the counts (Chapter 1 of Alice, 87 sentences).
+
+**Found by reading the whole chapter word for word against its own ledger**, on user direction: *"read the entire extracted chapter word for word. we need this first EOT to be perfect."* It was not perfect. It was not close, and the counts had been hiding it — 133 arrangements over 87 sentences reads like coverage until you check WHICH clauses they are.
+
+**The defect.** `discoverRelationVocab` nominates a token as a candidate verb only when it FOLLOWS a candidate referent surface, and surfaces are found by capitalisation. Chapter 1 is narrated almost entirely in pronouns, so `ran`, `took`, `saw`, `found`, `knelt`, `ventured` were never nominated at all: **22 verbs earned from 11.7 KB of prose.** What the ledger recorded skewed to copulas and to whatever clause happened to sit beside a capitalised name; what it missed was the chapter's actual events — Alice beginning to get tired, the White Rabbit running past her, the Rabbit taking the watch from its pocket, Alice taking down the marmalade jar, Alice finding herself in the long hall. Every published number about this reading was a measurement of the reader's own starvation, not of the material.
+
+This is **S86's capitalisation-only finding biting the VERB tier**. S86, S87 and S88 all treat the single-signal problem as being-discovery; none of them records that the same signal starves the verb vocabulary, which is why an English novel written in pronouns reads as nearly empty rather than as obviously broken.
+
+**The lever already existed and was wired into nothing.** `discoverRelationVocab` accepts `anchorSpans`; `tests/levers.test.js` pins the property that matters — *"a name anchor and a bound-pronoun anchor SHARE the tally"* — and the producer chain is `adapters/text/perspective-claims.js::bindNarrationFrames` → `adapters/text/vocabulary.js::boundAnchorSpans`. Checked all three consumers before writing anything: not this driver, not `adapters/text/recursive.js`, not `live_priors/scripts/eot-sidecar.mjs`. This is the `build-pos-prior.mjs` incident from CLAUDE.md's own "search for the organ before you write one" section, repeating: a real, tested organ one directory over, one call away.
+
+The same test file pins what the lever does NOT do, and it is the reason it is safe: *"unbound pronouns contribute NOTHING — the wall is positional, the string 'he' anchors nowhere by itself."* A pronoun licenses a discovery anchor only once BOUND to a referent. This widens what can be heard without lowering what must be earned.
+
+**THE TRAP, and the reason this entry amends S95's own table.** The obvious move — pass `posPrior` to `discoverRelationVocab` the way the production recipe does, to filter the junk the anchors let in — **deletes the entire Ground grain.** Measured, both ways, on the same chapter:
+
+| configuration | verbs earned | arrangements | Link | Field | Distinction |
+|---|---|---|---|---|---|
+| no anchors (the old reading) | 22 | 133 | 61 | 12 | 8 |
+| anchors, no gate | 43 | 193 | — | — | — |
+| anchors + `posPrior` on the VOCABULARY | 22 (a different, cleaner 22) | 84 | 84 | **0** | **0** |
+| anchors + POS on the ARRANGEMENT | 43 | 162 | 83 | **36** | kept |
+
+`posPriorGate` gates the vocabulary to verb-dominant forms, so "with", "after" and "or" never enter it, never become connectors, and `burning | with | curiosity` cannot be found at all. **The production recipe's own vocabulary gate encodes the Link-only assumption UPSTREAM of grain typing, and S95's rule cannot take effect behind it.** The gate belongs on the arrangement's connector, where the same received prior TYPES what was found instead of NARROWING what may be found — same evidence, same P56 asymmetry, one tier later.
+
+**Still open, named rather than tuned away.** Ambiguous tokens (`very`, `so`, `own`, `my`, `best`) settle at no class under a 0.5 share, so they land in the grain-gap bucket and are kept alongside the legitimate unsettled cases like "to" — 43 grain gaps on this chapter, a mix of real absence-of-verdict and extraction artifact that this reading cannot currently tell apart. Chasing that further would mean fitting one chapter. And the anchors bind 40 of 87 sentences; the other 27 are refused by the recall floor, so their verbs remain unhearable.
+
+**Not migrated.** `adapters/text/recursive.js` (the production reader) and `live_priors/scripts/eot-sidecar.mjs` still pass no `anchorSpans` and still gate the vocabulary rather than the arrangement. Every sidecar in that corpus carries this defect. That migration is real, scoped, unattempted work.
