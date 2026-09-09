@@ -1,0 +1,2421 @@
+{
+ "schema": "EOTGolden@1",
+ "chapter": 4,
+ "source": "01-literature-books/gutenberg/pg11_Alice_s_Adventures_in_Wonderland.txt",
+ "title": "The Rabbit Sends in a Little Bill",
+ "giver": "LaVar (Claude Opus 5) — hand-read clause by clause, 2026-09-09, before scoring. The engine never saw this file.",
+ "coverage": {
+  "sentences": 152,
+  "propositions": 388,
+  "expectedEmpty": 19,
+  "sentenceCoverage": 1
+ },
+ "propositions": [
+  {
+   "end1": "It",
+   "label": "was",
+   "end2": "the White Rabbit",
+   "quote": "It was the White Rabbit"
+  },
+  {
+   "end1": "the White Rabbit",
+   "label": "trotting",
+   "end2": "slowly back again",
+   "quote": "trotting slowly back again"
+  },
+  {
+   "end1": "the White Rabbit",
+   "label": "looking",
+   "end2": "anxiously about as it went",
+   "quote": "looking anxiously about as it went"
+  },
+  {
+   "end1": "it",
+   "label": "had lost",
+   "end2": "something",
+   "quote": "as if it had lost something"
+  },
+  {
+   "end1": "she",
+   "label": "heard",
+   "end2": "it muttering to itself",
+   "quote": "she heard it muttering to itself"
+  },
+  {
+   "end1": "it",
+   "label": "muttering",
+   "end2": "to itself",
+   "quote": "muttering to itself"
+  },
+  {
+   "end1": "she",
+   "label": "will get",
+   "end2": "me executed",
+   "quote": "She’ll get me executed"
+  },
+  {
+   "end1": "ferrets",
+   "label": "are",
+   "end2": "ferrets",
+   "quote": "as sure as ferrets are ferrets"
+  },
+  {
+   "end1": "I",
+   "label": "wonder",
+   "end2": "where I can have dropped them",
+   "quote": "Where _can_ I have dropped them"
+  },
+  {
+   "end1": "I",
+   "label": "have dropped",
+   "end2": "them",
+   "quote": "I wonder"
+  },
+  {
+   "end1": "Alice",
+   "label": "guessed",
+   "end2": "that it was looking for the fan and gloves",
+   "quote": "Alice guessed in a moment"
+  },
+  {
+   "end1": "it",
+   "label": "was looking",
+   "end2": "for the fan and the pair of white kid gloves",
+   "quote": "looking for the fan and the pair of white kid gloves"
+  },
+  {
+   "end1": "she",
+   "label": "began hunting",
+   "end2": "about for them",
+   "quote": "she very good-naturedly began hunting about"
+  },
+  {
+   "end1": "they",
+   "label": "were",
+   "end2": "nowhere to be seen",
+   "quote": "they were nowhere to be seen"
+  },
+  {
+   "end1": "everything",
+   "label": "seemed",
+   "end2": "to have changed since her swim in the pool",
+   "quote": "everything seemed to have changed"
+  },
+  {
+   "end1": "the great hall, with the glass table and the little door",
+   "label": "had vanished",
+   "end2": "completely",
+   "quote": "had vanished completely"
+  },
+  {
+   "end1": "the Rabbit",
+   "label": "noticed",
+   "end2": "Alice",
+   "quote": "Very soon the Rabbit noticed Alice"
+  },
+  {
+   "end1": "she",
+   "label": "went hunting",
+   "end2": "about",
+   "quote": "as she went hunting about"
+  },
+  {
+   "end1": "the Rabbit",
+   "label": "called out",
+   "end2": "to her in an angry tone",
+   "quote": "called out to her in an angry tone"
+  },
+  {
+   "end1": "you",
+   "label": "are doing",
+   "end2": "what out here",
+   "quote": "what _are_ you doing out here"
+  },
+  {
+   "end1": "you",
+   "label": "run home",
+   "end2": "this moment",
+   "quote": "Run home this moment"
+  },
+  {
+   "end1": "you",
+   "label": "fetch",
+   "end2": "me a pair of gloves and a fan",
+   "quote": "fetch me a pair of gloves and a fan"
+  },
+  {
+   "end1": "Alice",
+   "label": "was",
+   "end2": "so much frightened",
+   "quote": "Alice was so much frightened"
+  },
+  {
+   "end1": "she",
+   "label": "ran off",
+   "end2": "at once in the direction it pointed to",
+   "quote": "she ran off at once in the direction"
+  },
+  {
+   "end1": "it",
+   "label": "pointed",
+   "end2": "to the direction",
+   "quote": "in the direction it pointed to"
+  },
+  {
+   "end1": "she",
+   "label": "did not try",
+   "end2": "to explain the mistake it had made",
+   "quote": "without trying to explain the mistake"
+  },
+  {
+   "end1": "it",
+   "label": "had made",
+   "end2": "the mistake",
+   "quote": "the mistake it had made"
+  },
+  {
+   "end1": "He",
+   "label": "took",
+   "end2": "me for his housemaid",
+   "quote": "He took me for his housemaid"
+  },
+  {
+   "end1": "she",
+   "label": "said",
+   "end2": "to herself as she ran",
+   "quote": "she said to herself as she ran"
+  },
+  {
+   "end1": "he",
+   "label": "will be",
+   "end2": "how surprised",
+   "quote": "How surprised he’ll be"
+  },
+  {
+   "end1": "he",
+   "label": "finds out",
+   "end2": "who I am",
+   "quote": "when he finds out who I am"
+  },
+  {
+   "end1": "I",
+   "label": "had better take",
+   "end2": "him his fan and gloves",
+   "quote": "I’d better take him his fan and gloves"
+  },
+  {
+   "end1": "I",
+   "label": "can find",
+   "end2": "them",
+   "quote": "if I can find them"
+  },
+  {
+   "end1": "she",
+   "label": "said",
+   "end2": "this",
+   "quote": "As she said this"
+  },
+  {
+   "end1": "she",
+   "label": "came upon",
+   "end2": "a neat little house",
+   "quote": "she came upon a neat little house"
+  },
+  {
+   "end1": "a bright brass plate",
+   "label": "was",
+   "end2": "on the door of the house",
+   "quote": "a bright brass plate with the name"
+  },
+  {
+   "end1": "the name",
+   "label": "was engraved",
+   "end2": "upon it",
+   "quote": "engraved upon it"
+  },
+  {
+   "end1": "She",
+   "label": "went in",
+   "end2": "without knocking",
+   "quote": "She went in without knocking"
+  },
+  {
+   "end1": "She",
+   "label": "hurried",
+   "end2": "upstairs",
+   "quote": "hurried upstairs"
+  },
+  {
+   "end1": "she",
+   "label": "should meet",
+   "end2": "the real Mary Ann",
+   "quote": "lest she should meet the real Mary Ann"
+  },
+  {
+   "end1": "she",
+   "label": "should be turned out",
+   "end2": "of the house",
+   "quote": "and be turned out of the house"
+  },
+  {
+   "end1": "she",
+   "label": "had found",
+   "end2": "the fan and gloves",
+   "quote": "before she had found the fan and gloves"
+  },
+  {
+   "end1": "it",
+   "label": "seems",
+   "end2": "how queer",
+   "quote": "How queer it seems"
+  },
+  {
+   "end1": "Alice",
+   "label": "said",
+   "end2": "to herself",
+   "quote": "Alice said to herself"
+  },
+  {
+   "end1": "I",
+   "label": "am going",
+   "end2": "messages for a rabbit",
+   "quote": "to be going messages for a rabbit"
+  },
+  {
+   "end1": "I",
+   "label": "suppose",
+   "end2": "Dinah will be sending me on messages next",
+   "quote": "I suppose Dinah’ll be sending me"
+  },
+  {
+   "end1": "Dinah",
+   "label": "will be sending",
+   "end2": "me on messages next",
+   "quote": "sending me on messages next"
+  },
+  {
+   "end1": "she",
+   "label": "began fancying",
+   "end2": "the sort of thing that would happen",
+   "quote": "she began fancying the sort of thing"
+  },
+  {
+   "end1": "the sort of thing",
+   "label": "would happen",
+   "end2": "",
+   "quote": "that would happen"
+  },
+  {
+   "end1": "you",
+   "label": "come",
+   "end2": "here directly",
+   "quote": "Come here directly"
+  },
+  {
+   "end1": "you",
+   "label": "get ready",
+   "end2": "for your walk",
+   "quote": "get ready for your walk"
+  },
+  {
+   "end1": "I",
+   "label": "am coming",
+   "end2": "in a minute, nurse",
+   "quote": "Coming in a minute, nurse"
+  },
+  {
+   "end1": "I",
+   "label": "have got",
+   "end2": "to see that the mouse doesn't get out",
+   "quote": "I’ve got to see that the mouse doesn’t get out"
+  },
+  {
+   "end1": "the mouse",
+   "label": "does not get out",
+   "end2": "",
+   "quote": "doesn’t get out"
+  },
+  {
+   "end1": "Alice",
+   "label": "went on",
+   "end2": "",
+   "quote": "Alice went on"
+  },
+  {
+   "end1": "they",
+   "label": "would let",
+   "end2": "Dinah stop in the house",
+   "quote": "that they’d let Dinah stop in the house"
+  },
+  {
+   "end1": "Dinah",
+   "label": "stop",
+   "end2": "in the house",
+   "quote": "let Dinah stop in the house"
+  },
+  {
+   "end1": "it",
+   "label": "began ordering",
+   "end2": "people about",
+   "quote": "if it began ordering people about like that"
+  },
+  {
+   "end1": "she",
+   "label": "had found",
+   "end2": "her way into a tidy little room",
+   "quote": "By this time she had found her way"
+  },
+  {
+   "end1": "a fan and two or three pairs of tiny white kid gloves",
+   "label": "were",
+   "end2": "on it",
+   "quote": "a fan and two or three pairs of tiny white kid gloves"
+  },
+  {
+   "end1": "she",
+   "label": "had hoped",
+   "end2": "",
+   "quote": "as she had hoped"
+  },
+  {
+   "end1": "she",
+   "label": "took up",
+   "end2": "the fan and a pair of the gloves",
+   "quote": "she took up the fan and a pair of the gloves"
+  },
+  {
+   "end1": "she",
+   "label": "was going",
+   "end2": "to leave the room",
+   "quote": "was just going to leave the room"
+  },
+  {
+   "end1": "her eye",
+   "label": "fell",
+   "end2": "upon a little bottle",
+   "quote": "her eye fell upon a little bottle"
+  },
+  {
+   "end1": "a little bottle",
+   "label": "stood",
+   "end2": "near the looking-glass",
+   "quote": "that stood near the looking-glass"
+  },
+  {
+   "end1": "There",
+   "label": "was not",
+   "end2": "a label this time with the words DRINK ME",
+   "quote": "There was no label this time"
+  },
+  {
+   "end1": "she",
+   "label": "uncorked",
+   "end2": "it",
+   "quote": "she uncorked it"
+  },
+  {
+   "end1": "she",
+   "label": "put",
+   "end2": "it to her lips",
+   "quote": "put it to her lips"
+  },
+  {
+   "end1": "I",
+   "label": "know",
+   "end2": "something interesting is sure to happen",
+   "quote": "I know _something_ interesting is sure to happen"
+  },
+  {
+   "end1": "something interesting",
+   "label": "is",
+   "end2": "sure to happen",
+   "quote": "interesting is sure to happen"
+  },
+  {
+   "end1": "she",
+   "label": "said",
+   "end2": "to herself",
+   "quote": "she said to herself"
+  },
+  {
+   "end1": "I",
+   "label": "eat or drink",
+   "end2": "anything",
+   "quote": "whenever I eat or drink anything"
+  },
+  {
+   "end1": "I",
+   "label": "will see",
+   "end2": "what this bottle does",
+   "quote": "I’ll just see what this bottle does"
+  },
+  {
+   "end1": "I",
+   "label": "hope",
+   "end2": "it'll make me grow large again",
+   "quote": "I do hope it’ll make me grow large again"
+  },
+  {
+   "end1": "it",
+   "label": "will make",
+   "end2": "me grow large again",
+   "quote": "make me grow large again"
+  },
+  {
+   "end1": "I",
+   "label": "am",
+   "end2": "quite tired of being such a tiny little thing",
+   "quote": "I’m quite tired of being such a tiny little thing"
+  },
+  {
+   "end1": "It",
+   "label": "did so",
+   "end2": "indeed",
+   "quote": "It did so indeed"
+  },
+  {
+   "end1": "she",
+   "label": "had expected",
+   "end2": "",
+   "quote": "than she had expected"
+  },
+  {
+   "end1": "she",
+   "label": "had drunk",
+   "end2": "half the bottle",
+   "quote": "before she had drunk half the bottle"
+  },
+  {
+   "end1": "she",
+   "label": "found",
+   "end2": "her head pressing against the ceiling",
+   "quote": "she found her head pressing against the ceiling"
+  },
+  {
+   "end1": "her head",
+   "label": "pressing",
+   "end2": "against the ceiling",
+   "quote": "her head pressing against the ceiling"
+  },
+  {
+   "end1": "she",
+   "label": "had to stoop",
+   "end2": "",
+   "quote": "had to stoop"
+  },
+  {
+   "end1": "she",
+   "label": "save",
+   "end2": "her neck from being broken",
+   "quote": "to save her neck from being broken"
+  },
+  {
+   "end1": "She",
+   "label": "put down",
+   "end2": "the bottle",
+   "quote": "She hastily put down the bottle"
+  },
+  {
+   "end1": "She",
+   "label": "saying",
+   "end2": "to herself",
+   "quote": "saying to herself"
+  },
+  {
+   "end1": "That",
+   "label": "is",
+   "end2": "quite enough",
+   "quote": "That’s quite enough"
+  },
+  {
+   "end1": "I",
+   "label": "hope",
+   "end2": "I shan't grow any more",
+   "quote": "I hope I shan’t grow any more"
+  },
+  {
+   "end1": "I",
+   "label": "can't get out",
+   "end2": "at the door",
+   "quote": "I can’t get out at the door"
+  },
+  {
+   "end1": "I",
+   "label": "wish",
+   "end2": "I hadn't drunk quite so much",
+   "quote": "I do wish I hadn’t drunk quite so much"
+  },
+  {
+   "end1": "it",
+   "label": "was",
+   "end2": "too late to wish that",
+   "quote": "it was too late to wish that"
+  },
+  {
+   "end1": "She",
+   "label": "went on growing",
+   "end2": "",
+   "quote": "She went on growing, and growing"
+  },
+  {
+   "end1": "She",
+   "label": "had to kneel down",
+   "end2": "on the floor",
+   "quote": "had to kneel down on the floor"
+  },
+  {
+   "end1": "there",
+   "label": "was not",
+   "end2": "even room for this",
+   "quote": "there was not even room for this"
+  },
+  {
+   "end1": "she",
+   "label": "tried",
+   "end2": "the effect of lying down",
+   "quote": "she tried the effect of lying down"
+  },
+  {
+   "end1": "she",
+   "label": "lying down",
+   "end2": "with one elbow against the door",
+   "quote": "lying down with one elbow against the door"
+  },
+  {
+   "end1": "the other arm",
+   "label": "curled",
+   "end2": "round her head",
+   "quote": "the other arm curled round her head"
+  },
+  {
+   "end1": "she",
+   "label": "went on growing",
+   "end2": "",
+   "quote": "Still she went on growing"
+  },
+  {
+   "end1": "she",
+   "label": "put",
+   "end2": "one arm out of the window",
+   "quote": "she put one arm out of the window"
+  },
+  {
+   "end1": "she",
+   "label": "put",
+   "end2": "one foot up the chimney",
+   "quote": "one foot up the chimney"
+  },
+  {
+   "end1": "she",
+   "label": "said",
+   "end2": "to herself",
+   "quote": "said to herself"
+  },
+  {
+   "end1": "I",
+   "label": "can do",
+   "end2": "no more, whatever happens",
+   "quote": "Now I can do no more"
+  },
+  {
+   "end1": "What",
+   "label": "will become",
+   "end2": "of me",
+   "quote": "What _will_ become of me"
+  },
+  {
+   "end1": "the little magic bottle",
+   "label": "had had",
+   "end2": "its full effect",
+   "quote": "the little magic bottle had now had its full effect"
+  },
+  {
+   "end1": "she",
+   "label": "grew",
+   "end2": "no larger",
+   "quote": "she grew no larger"
+  },
+  {
+   "end1": "it",
+   "label": "was",
+   "end2": "very uncomfortable",
+   "quote": "it was very uncomfortable"
+  },
+  {
+   "end1": "there",
+   "label": "seemed",
+   "end2": "to be no sort of chance of her getting out of the room again",
+   "quote": "there seemed to be no sort of chance"
+  },
+  {
+   "end1": "she",
+   "label": "felt",
+   "end2": "unhappy",
+   "quote": "no wonder she felt unhappy"
+  },
+  {
+   "end1": "It",
+   "label": "was",
+   "end2": "much pleasanter at home",
+   "quote": "It was much pleasanter at home"
+  },
+  {
+   "end1": "poor Alice",
+   "label": "thought",
+   "end2": "",
+   "quote": "thought poor Alice"
+  },
+  {
+   "end1": "one",
+   "label": "was not",
+   "end2": "always growing larger and smaller",
+   "quote": "one wasn’t always growing larger and smaller"
+  },
+  {
+   "end1": "one",
+   "label": "was being ordered",
+   "end2": "about by mice and rabbits",
+   "quote": "being ordered about by mice and rabbits"
+  },
+  {
+   "end1": "I",
+   "label": "wish",
+   "end2": "I hadn't gone down that rabbit-hole",
+   "quote": "I almost wish I hadn’t gone down that rabbit-hole"
+  },
+  {
+   "end1": "it",
+   "label": "is",
+   "end2": "rather curious, this sort of life",
+   "quote": "it’s rather curious, you know, this sort of life"
+  },
+  {
+   "end1": "I",
+   "label": "wonder",
+   "end2": "what can have happened to me",
+   "quote": "I do wonder what _can_ have happened to me"
+  },
+  {
+   "end1": "I",
+   "label": "used to read",
+   "end2": "fairy-tales",
+   "quote": "When I used to read fairy-tales"
+  },
+  {
+   "end1": "I",
+   "label": "fancied",
+   "end2": "that kind of thing never happened",
+   "quote": "I fancied that kind of thing never happened"
+  },
+  {
+   "end1": "that kind of thing",
+   "label": "never happened",
+   "end2": "",
+   "quote": "that kind of thing never happened"
+  },
+  {
+   "end1": "I",
+   "label": "am",
+   "end2": "here in the middle of one",
+   "quote": "here I am in the middle of one"
+  },
+  {
+   "end1": "There",
+   "label": "ought to be",
+   "end2": "a book written about me",
+   "quote": "There ought to be a book written about me"
+  },
+  {
+   "end1": "I",
+   "label": "grow up",
+   "end2": "",
+   "quote": "when I grow up"
+  },
+  {
+   "end1": "I",
+   "label": "will write",
+   "end2": "one",
+   "quote": "I’ll write one"
+  },
+  {
+   "end1": "I",
+   "label": "am",
+   "end2": "grown up now",
+   "quote": "I’m grown up now"
+  },
+  {
+   "end1": "she",
+   "label": "added",
+   "end2": "in a sorrowful tone",
+   "quote": "she added in a sorrowful tone"
+  },
+  {
+   "end1": "there",
+   "label": "is not",
+   "end2": "room to grow up any more here",
+   "quote": "there’s no room to grow up any more"
+  },
+  {
+   "end1": "Alice",
+   "label": "thought",
+   "end2": "",
+   "quote": "thought Alice"
+  },
+  {
+   "end1": "I",
+   "label": "shall never get",
+   "end2": "any older than I am now",
+   "quote": "shall I _never_ get any older than I am now"
+  },
+  {
+   "end1": "That",
+   "label": "will be",
+   "end2": "a comfort, one way",
+   "quote": "That’ll be a comfort, one way"
+  },
+  {
+   "end1": "I",
+   "label": "never to be",
+   "end2": "an old woman",
+   "quote": "never to be an old woman"
+  },
+  {
+   "end1": "I",
+   "label": "always to have",
+   "end2": "lessons to learn",
+   "quote": "always to have lessons to learn"
+  },
+  {
+   "end1": "I",
+   "label": "should not like",
+   "end2": "that",
+   "quote": "Oh, I shouldn’t like _that!_"
+  },
+  {
+   "end1": "you",
+   "label": "are",
+   "end2": "foolish Alice",
+   "quote": "Oh, you foolish Alice"
+  },
+  {
+   "end1": "she",
+   "label": "answered",
+   "end2": "herself",
+   "quote": "she answered herself"
+  },
+  {
+   "end1": "you",
+   "label": "can learn",
+   "end2": "lessons in here",
+   "quote": "How can you learn lessons in here"
+  },
+  {
+   "end1": "there",
+   "label": "is",
+   "end2": "hardly room for you",
+   "quote": "there’s hardly room for _you_"
+  },
+  {
+   "end1": "there",
+   "label": "is",
+   "end2": "no room at all for any lesson-books",
+   "quote": "no room at all for any lesson-books"
+  },
+  {
+   "end1": "she",
+   "label": "went on",
+   "end2": "",
+   "quote": "And so she went on"
+  },
+  {
+   "end1": "she",
+   "label": "taking",
+   "end2": "first one side and then the other",
+   "quote": "taking first one side and then the other"
+  },
+  {
+   "end1": "she",
+   "label": "making",
+   "end2": "quite a conversation of it altogether",
+   "quote": "making quite a conversation of it altogether"
+  },
+  {
+   "end1": "she",
+   "label": "heard",
+   "end2": "a voice outside",
+   "quote": "she heard a voice outside"
+  },
+  {
+   "end1": "she",
+   "label": "stopped",
+   "end2": "to listen",
+   "quote": "stopped to listen"
+  },
+  {
+   "end1": "the voice",
+   "label": "said",
+   "end2": "",
+   "quote": "said the voice"
+  },
+  {
+   "end1": "you",
+   "label": "fetch",
+   "end2": "me my gloves this moment",
+   "quote": "Fetch me my gloves this moment"
+  },
+  {
+   "end1": "a little pattering of feet",
+   "label": "came",
+   "end2": "on the stairs",
+   "quote": "Then came a little pattering of feet"
+  },
+  {
+   "end1": "Alice",
+   "label": "knew",
+   "end2": "it was the Rabbit coming to look for her",
+   "quote": "Alice knew it was the Rabbit"
+  },
+  {
+   "end1": "it",
+   "label": "was",
+   "end2": "the Rabbit coming to look for her",
+   "quote": "it was the Rabbit coming to look for her"
+  },
+  {
+   "end1": "the Rabbit",
+   "label": "coming",
+   "end2": "to look for her",
+   "quote": "coming to look for her"
+  },
+  {
+   "end1": "she",
+   "label": "trembled",
+   "end2": "till she shook the house",
+   "quote": "she trembled till she shook the house"
+  },
+  {
+   "end1": "she",
+   "label": "shook",
+   "end2": "the house",
+   "quote": "till she shook the house"
+  },
+  {
+   "end1": "she",
+   "label": "was",
+   "end2": "now about a thousand times as large as the Rabbit",
+   "quote": "she was now about a thousand times as large"
+  },
+  {
+   "end1": "she",
+   "label": "had",
+   "end2": "no reason to be afraid of it",
+   "quote": "had no reason to be afraid of it"
+  },
+  {
+   "end1": "the Rabbit",
+   "label": "came up",
+   "end2": "to the door",
+   "quote": "Presently the Rabbit came up to the door"
+  },
+  {
+   "end1": "the Rabbit",
+   "label": "tried",
+   "end2": "to open it",
+   "quote": "tried to open it"
+  },
+  {
+   "end1": "the door",
+   "label": "opened",
+   "end2": "inwards",
+   "quote": "as the door opened inwards"
+  },
+  {
+   "end1": "Alice's elbow",
+   "label": "was pressed",
+   "end2": "hard against it",
+   "quote": "Alice’s elbow was pressed hard against it"
+  },
+  {
+   "end1": "that attempt",
+   "label": "proved",
+   "end2": "a failure",
+   "quote": "that attempt proved a failure"
+  },
+  {
+   "end1": "Alice",
+   "label": "heard",
+   "end2": "it say to itself",
+   "quote": "Alice heard it say to itself"
+  },
+  {
+   "end1": "I",
+   "label": "will go round",
+   "end2": "",
+   "quote": "Then I’ll go round"
+  },
+  {
+   "end1": "I",
+   "label": "will get in",
+   "end2": "at the window",
+   "quote": "get in at the window"
+  },
+  {
+   "end1": "you",
+   "label": "will not",
+   "end2": "that",
+   "quote": "_That_ you won’t!"
+  },
+  {
+   "end1": "Alice",
+   "label": "thought",
+   "end2": "",
+   "quote": "thought Alice"
+  },
+  {
+   "end1": "she",
+   "label": "waited",
+   "end2": "till she fancied she heard the Rabbit",
+   "quote": "after waiting till she fancied"
+  },
+  {
+   "end1": "she",
+   "label": "fancied",
+   "end2": "she heard the Rabbit just under the window",
+   "quote": "she fancied she heard the Rabbit"
+  },
+  {
+   "end1": "she",
+   "label": "heard",
+   "end2": "the Rabbit just under the window",
+   "quote": "she heard the Rabbit just under the window"
+  },
+  {
+   "end1": "she",
+   "label": "spread out",
+   "end2": "her hand",
+   "quote": "she suddenly spread out her hand"
+  },
+  {
+   "end1": "she",
+   "label": "made",
+   "end2": "a snatch in the air",
+   "quote": "made a snatch in the air"
+  },
+  {
+   "end1": "She",
+   "label": "did not get hold",
+   "end2": "of anything",
+   "quote": "She did not get hold of anything"
+  },
+  {
+   "end1": "she",
+   "label": "heard",
+   "end2": "a little shriek and a fall, and a crash of broken glass",
+   "quote": "she heard a little shriek and a fall"
+  },
+  {
+   "end1": "she",
+   "label": "concluded",
+   "end2": "that it was just possible it had fallen into a cucumber-frame",
+   "quote": "she concluded that it was just possible"
+  },
+  {
+   "end1": "it",
+   "label": "had fallen",
+   "end2": "into a cucumber-frame, or something of the sort",
+   "quote": "it had fallen into a cucumber-frame"
+  },
+  {
+   "end1": "an angry voice",
+   "label": "came",
+   "end2": "next",
+   "quote": "Next came an angry voice"
+  },
+  {
+   "end1": "you",
+   "label": "are",
+   "end2": "where",
+   "quote": "Where are you"
+  },
+  {
+   "end1": "a voice",
+   "label": "came",
+   "end2": "then",
+   "quote": "And then a voice"
+  },
+  {
+   "end1": "she",
+   "label": "had never heard",
+   "end2": "it before",
+   "quote": "she had never heard before"
+  },
+  {
+   "end1": "I",
+   "label": "am",
+   "end2": "here",
+   "quote": "Sure then I’m here"
+  },
+  {
+   "end1": "I",
+   "label": "digging",
+   "end2": "for apples",
+   "quote": "Digging for apples, yer honour"
+  },
+  {
+   "end1": "the Rabbit",
+   "label": "echoes",
+   "end2": "Digging for apples, indeed",
+   "quote": "Digging for apples, indeed"
+  },
+  {
+   "end1": "the Rabbit",
+   "label": "said",
+   "end2": "angrily",
+   "quote": "said the Rabbit angrily"
+  },
+  {
+   "end1": "you",
+   "label": "come",
+   "end2": "",
+   "quote": "Come and help me out"
+  },
+  {
+   "end1": "you",
+   "label": "help",
+   "end2": "me out of this",
+   "quote": "help me out of _this!_"
+  },
+  {
+   "end1": "you",
+   "label": "tell",
+   "end2": "me what's that in the window",
+   "quote": "Now tell me, Pat, what’s that in the window"
+  },
+  {
+   "end1": "that",
+   "label": "is",
+   "end2": "what",
+   "quote": "what’s that in the window"
+  },
+  {
+   "end1": "it",
+   "label": "is",
+   "end2": "an arm",
+   "quote": "Sure, it’s an arm, yer honour"
+  },
+  {
+   "end1": "He",
+   "label": "pronounced",
+   "end2": "it arrum",
+   "quote": "He pronounced it “arrum.”"
+  },
+  {
+   "end1": "Who",
+   "label": "saw",
+   "end2": "one that size",
+   "quote": "Who ever saw one that size"
+  },
+  {
+   "end1": "it",
+   "label": "fills",
+   "end2": "the whole window",
+   "quote": "it fills the whole window"
+  },
+  {
+   "end1": "it",
+   "label": "does",
+   "end2": "",
+   "quote": "Sure, it does, yer honour"
+  },
+  {
+   "end1": "it",
+   "label": "is",
+   "end2": "an arm for all that",
+   "quote": "it’s an arm for all that"
+  },
+  {
+   "end1": "it",
+   "label": "has got",
+   "end2": "no business there",
+   "quote": "it’s got no business there"
+  },
+  {
+   "end1": "you",
+   "label": "go",
+   "end2": "",
+   "quote": "go and take it away"
+  },
+  {
+   "end1": "you",
+   "label": "take",
+   "end2": "it away",
+   "quote": "take it away"
+  },
+  {
+   "end1": "There",
+   "label": "was",
+   "end2": "a long silence after this",
+   "quote": "There was a long silence after this"
+  },
+  {
+   "end1": "Alice",
+   "label": "could only hear",
+   "end2": "whispers now and then",
+   "quote": "Alice could only hear whispers now and then"
+  },
+  {
+   "end1": "I",
+   "label": "do not like",
+   "end2": "it",
+   "quote": "Sure, I don’t like it, yer honour"
+  },
+  {
+   "end1": "you",
+   "label": "do",
+   "end2": "as I tell you",
+   "quote": "Do as I tell you, you coward"
+  },
+  {
+   "end1": "she",
+   "label": "spread out",
+   "end2": "her hand again",
+   "quote": "she spread out her hand again"
+  },
+  {
+   "end1": "she",
+   "label": "made",
+   "end2": "another snatch in the air",
+   "quote": "made another snatch in the air"
+  },
+  {
+   "end1": "there",
+   "label": "were",
+   "end2": "two little shrieks, and more sounds of broken glass",
+   "quote": "This time there were _two_ little shrieks"
+  },
+  {
+   "end1": "there",
+   "label": "must be",
+   "end2": "what a number of cucumber-frames",
+   "quote": "What a number of cucumber-frames there must be"
+  },
+  {
+   "end1": "Alice",
+   "label": "thought",
+   "end2": "",
+   "quote": "thought Alice"
+  },
+  {
+   "end1": "I",
+   "label": "wonder",
+   "end2": "what they'll do next",
+   "quote": "I wonder what they’ll do next"
+  },
+  {
+   "end1": "they",
+   "label": "will do",
+   "end2": "what next",
+   "quote": "what they’ll do next"
+  },
+  {
+   "end1": "they",
+   "label": "pulling",
+   "end2": "me out of the window",
+   "quote": "As for pulling me out of the window"
+  },
+  {
+   "end1": "I",
+   "label": "wish",
+   "end2": "they could",
+   "quote": "I only wish they _could!_"
+  },
+  {
+   "end1": "I",
+   "label": "do not want",
+   "end2": "to stay in here any longer",
+   "quote": "don’t want to stay in here any longer"
+  },
+  {
+   "end1": "She",
+   "label": "waited",
+   "end2": "for some time",
+   "quote": "She waited for some time"
+  },
+  {
+   "end1": "She",
+   "label": "did not hear",
+   "end2": "anything more",
+   "quote": "without hearing anything more"
+  },
+  {
+   "end1": "a rumbling of little cartwheels",
+   "label": "came",
+   "end2": "at last",
+   "quote": "at last came a rumbling of little cartwheels"
+  },
+  {
+   "end1": "the sound of a good many voices",
+   "label": "came",
+   "end2": "talking together",
+   "quote": "the sound of a good many voices all talking together"
+  },
+  {
+   "end1": "she",
+   "label": "made out",
+   "end2": "the words",
+   "quote": "she made out the words"
+  },
+  {
+   "end1": "the other ladder",
+   "label": "is",
+   "end2": "where",
+   "quote": "Where’s the other ladder"
+  },
+  {
+   "end1": "I",
+   "label": "had not to bring",
+   "end2": "but one",
+   "quote": "I hadn’t to bring but one"
+  },
+  {
+   "end1": "Bill",
+   "label": "has got",
+   "end2": "the other",
+   "quote": "Bill’s got the other"
+  },
+  {
+   "end1": "you",
+   "label": "fetch",
+   "end2": "it here, lad",
+   "quote": "fetch it here, lad"
+  },
+  {
+   "end1": "you",
+   "label": "put",
+   "end2": "'em up at this corner",
+   "quote": "put ’em up at this corner"
+  },
+  {
+   "end1": "you",
+   "label": "tie",
+   "end2": "'em together first",
+   "quote": "tie ’em together first"
+  },
+  {
+   "end1": "they",
+   "label": "do not reach",
+   "end2": "half high enough yet",
+   "quote": "they don’t reach half high enough yet"
+  },
+  {
+   "end1": "they",
+   "label": "will do",
+   "end2": "well enough",
+   "quote": "they’ll do well enough"
+  },
+  {
+   "end1": "you",
+   "label": "do not be",
+   "end2": "particular",
+   "quote": "don’t be particular"
+  },
+  {
+   "end1": "you",
+   "label": "catch hold",
+   "end2": "of this rope",
+   "quote": "catch hold of this rope"
+  },
+  {
+   "end1": "the roof",
+   "label": "will bear",
+   "end2": "",
+   "quote": "Will the roof bear"
+  },
+  {
+   "end1": "you",
+   "label": "mind",
+   "end2": "that loose slate",
+   "quote": "Mind that loose slate"
+  },
+  {
+   "end1": "it",
+   "label": "is coming down",
+   "end2": "",
+   "quote": "it’s coming down"
+  },
+  {
+   "end1": "Who",
+   "label": "did",
+   "end2": "that",
+   "quote": "who did that"
+  },
+  {
+   "end1": "It",
+   "label": "was",
+   "end2": "Bill",
+   "quote": "It was Bill, I fancy"
+  },
+  {
+   "end1": "Who",
+   "label": "is",
+   "end2": "to go down the chimney",
+   "quote": "Who’s to go down the chimney"
+  },
+  {
+   "end1": "I",
+   "label": "shall not",
+   "end2": "",
+   "quote": "Nay, _I_ shan’t!"
+  },
+  {
+   "end1": "you",
+   "label": "do",
+   "end2": "it",
+   "quote": "_You_ do it!"
+  },
+  {
+   "end1": "I",
+   "label": "will not",
+   "end2": "that",
+   "quote": "_That_ I won’t, then!"
+  },
+  {
+   "end1": "Bill",
+   "label": "is",
+   "end2": "to go down",
+   "quote": "Bill’s to go down"
+  },
+  {
+   "end1": "the master",
+   "label": "says",
+   "end2": "you're to go down the chimney",
+   "quote": "the master says you’re to go down the chimney"
+  },
+  {
+   "end1": "you",
+   "label": "are",
+   "end2": "to go down the chimney",
+   "quote": "you’re to go down the chimney"
+  },
+  {
+   "end1": "Bill",
+   "label": "has got",
+   "end2": "to come down the chimney",
+   "quote": "So Bill’s got to come down the chimney"
+  },
+  {
+   "end1": "Alice",
+   "label": "said",
+   "end2": "to herself",
+   "quote": "said Alice to herself"
+  },
+  {
+   "end1": "they",
+   "label": "seem",
+   "end2": "to put everything upon Bill",
+   "quote": "they seem to put everything upon Bill"
+  },
+  {
+   "end1": "I",
+   "label": "would not be",
+   "end2": "in Bill's place for a good deal",
+   "quote": "I wouldn’t be in Bill’s place"
+  },
+  {
+   "end1": "this fireplace",
+   "label": "is",
+   "end2": "narrow",
+   "quote": "this fireplace is narrow"
+  },
+  {
+   "end1": "I",
+   "label": "think",
+   "end2": "I can kick a little",
+   "quote": "I _think_ I can kick a little"
+  },
+  {
+   "end1": "I",
+   "label": "can kick",
+   "end2": "a little",
+   "quote": "I can kick a little"
+  },
+  {
+   "end1": "She",
+   "label": "drew",
+   "end2": "her foot as far down the chimney as she could",
+   "quote": "She drew her foot as far down the chimney"
+  },
+  {
+   "end1": "She",
+   "label": "waited",
+   "end2": "till she heard a little animal",
+   "quote": "waited till she heard a little animal"
+  },
+  {
+   "end1": "she",
+   "label": "heard",
+   "end2": "a little animal scratching and scrambling",
+   "quote": "she heard a little animal"
+  },
+  {
+   "end1": "she",
+   "label": "could not guess",
+   "end2": "of what sort it was",
+   "quote": "she couldn’t guess of what sort it was"
+  },
+  {
+   "end1": "a little animal",
+   "label": "scratching",
+   "end2": "about in the chimney close above her",
+   "quote": "scratching and scrambling about"
+  },
+  {
+   "end1": "she",
+   "label": "saying",
+   "end2": "to herself",
+   "quote": "saying to herself"
+  },
+  {
+   "end1": "This",
+   "label": "is",
+   "end2": "Bill",
+   "quote": "This is Bill"
+  },
+  {
+   "end1": "she",
+   "label": "gave",
+   "end2": "one sharp kick",
+   "quote": "she gave one sharp kick"
+  },
+  {
+   "end1": "she",
+   "label": "waited",
+   "end2": "to see what would happen next",
+   "quote": "waited to see what would happen next"
+  },
+  {
+   "end1": "The first thing she heard",
+   "label": "was",
+   "end2": "a general chorus of There goes Bill",
+   "quote": "The first thing she heard was a general chorus"
+  },
+  {
+   "end1": "Bill",
+   "label": "goes",
+   "end2": "there",
+   "quote": "There goes Bill"
+  },
+  {
+   "end1": "the Rabbit's voice",
+   "label": "came",
+   "end2": "along",
+   "quote": "then the Rabbit’s voice along"
+  },
+  {
+   "end1": "you",
+   "label": "catch",
+   "end2": "him",
+   "quote": "Catch him, you by the hedge"
+  },
+  {
+   "end1": "silence",
+   "label": "came",
+   "end2": "then",
+   "quote": "then silence"
+  },
+  {
+   "end1": "another confusion of voices",
+   "label": "came",
+   "end2": "then",
+   "quote": "then another confusion of voices"
+  },
+  {
+   "end1": "you",
+   "label": "hold up",
+   "end2": "his head",
+   "quote": "Hold up his head"
+  },
+  {
+   "end1": "you",
+   "label": "do not choke",
+   "end2": "him",
+   "quote": "Don’t choke him"
+  },
+  {
+   "end1": "it",
+   "label": "was",
+   "end2": "how, old fellow",
+   "quote": "How was it, old fellow"
+  },
+  {
+   "end1": "What",
+   "label": "happened",
+   "end2": "to you",
+   "quote": "What happened to you"
+  },
+  {
+   "end1": "you",
+   "label": "tell",
+   "end2": "us all about it",
+   "quote": "Tell us all about it"
+  },
+  {
+   "end1": "a little feeble, squeaking voice",
+   "label": "came",
+   "end2": "last",
+   "quote": "Last came a little feeble, squeaking voice"
+  },
+  {
+   "end1": "That",
+   "label": "is",
+   "end2": "Bill",
+   "quote": "That’s Bill"
+  },
+  {
+   "end1": "Alice",
+   "label": "thought",
+   "end2": "",
+   "quote": "thought Alice"
+  },
+  {
+   "end1": "I",
+   "label": "hardly know",
+   "end2": "",
+   "quote": "Well, I hardly know"
+  },
+  {
+   "end1": "I",
+   "label": "am",
+   "end2": "better now",
+   "quote": "I’m better now"
+  },
+  {
+   "end1": "I",
+   "label": "am",
+   "end2": "a deal too flustered to tell you",
+   "quote": "I’m a deal too flustered to tell you"
+  },
+  {
+   "end1": "something",
+   "label": "comes",
+   "end2": "at me like a Jack-in-the-box",
+   "quote": "something comes at me like a Jack-in-the-box"
+  },
+  {
+   "end1": "I",
+   "label": "goes",
+   "end2": "up like a sky-rocket",
+   "quote": "up I goes like a sky-rocket"
+  },
+  {
+   "end1": "you",
+   "label": "did",
+   "end2": "so, old fellow",
+   "quote": "So you did, old fellow"
+  },
+  {
+   "end1": "the others",
+   "label": "said",
+   "end2": "",
+   "quote": "said the others"
+  },
+  {
+   "end1": "We",
+   "label": "must burn",
+   "end2": "the house down",
+   "quote": "We must burn the house down"
+  },
+  {
+   "end1": "the Rabbit's voice",
+   "label": "said",
+   "end2": "",
+   "quote": "said the Rabbit’s voice"
+  },
+  {
+   "end1": "Alice",
+   "label": "called out",
+   "end2": "as loud as she could",
+   "quote": "Alice called out as loud as she could"
+  },
+  {
+   "end1": "you",
+   "label": "do",
+   "end2": "that",
+   "quote": "If you do"
+  },
+  {
+   "end1": "I",
+   "label": "will set",
+   "end2": "Dinah at you",
+   "quote": "I’ll set Dinah at you"
+  },
+  {
+   "end1": "There",
+   "label": "was",
+   "end2": "a dead silence instantly",
+   "quote": "There was a dead silence instantly"
+  },
+  {
+   "end1": "Alice",
+   "label": "thought",
+   "end2": "to herself",
+   "quote": "Alice thought to herself"
+  },
+  {
+   "end1": "I",
+   "label": "wonder",
+   "end2": "what they will do next",
+   "quote": "I wonder what they _will_ do next"
+  },
+  {
+   "end1": "they",
+   "label": "had",
+   "end2": "any sense",
+   "quote": "If they had any sense"
+  },
+  {
+   "end1": "they",
+   "label": "would take",
+   "end2": "the roof off",
+   "quote": "they’d take the roof off"
+  },
+  {
+   "end1": "they",
+   "label": "began moving",
+   "end2": "about again",
+   "quote": "they began moving about again"
+  },
+  {
+   "end1": "Alice",
+   "label": "heard",
+   "end2": "the Rabbit say",
+   "quote": "Alice heard the Rabbit say"
+  },
+  {
+   "end1": "A barrowful",
+   "label": "will do",
+   "end2": "to begin with",
+   "quote": "A barrowful will do, to begin with"
+  },
+  {
+   "end1": "A barrowful",
+   "label": "is",
+   "end2": "of what",
+   "quote": "A barrowful of _what?_"
+  },
+  {
+   "end1": "Alice",
+   "label": "thought",
+   "end2": "",
+   "quote": "thought Alice"
+  },
+  {
+   "end1": "she",
+   "label": "had not",
+   "end2": "long to doubt",
+   "quote": "she had not long to doubt"
+  },
+  {
+   "end1": "a shower of little pebbles",
+   "label": "came",
+   "end2": "rattling in at the window",
+   "quote": "a shower of little pebbles came rattling"
+  },
+  {
+   "end1": "some of them",
+   "label": "hit",
+   "end2": "her in the face",
+   "quote": "some of them hit her in the face"
+  },
+  {
+   "end1": "I",
+   "label": "will put",
+   "end2": "a stop to this",
+   "quote": "I’ll put a stop to this"
+  },
+  {
+   "end1": "she",
+   "label": "said",
+   "end2": "to herself",
+   "quote": "she said to herself"
+  },
+  {
+   "end1": "she",
+   "label": "shouted out",
+   "end2": "",
+   "quote": "shouted out"
+  },
+  {
+   "end1": "you",
+   "label": "had better not do",
+   "end2": "that again",
+   "quote": "You’d better not do that again"
+  },
+  {
+   "end1": "it",
+   "label": "produced",
+   "end2": "another dead silence",
+   "quote": "which produced another dead silence"
+  },
+  {
+   "end1": "Alice",
+   "label": "noticed",
+   "end2": "with some surprise that the pebbles were turning into little cakes",
+   "quote": "Alice noticed with some surprise"
+  },
+  {
+   "end1": "the pebbles",
+   "label": "were turning",
+   "end2": "into little cakes",
+   "quote": "the pebbles were all turning into little cakes"
+  },
+  {
+   "end1": "they",
+   "label": "lay",
+   "end2": "on the floor",
+   "quote": "as they lay on the floor"
+  },
+  {
+   "end1": "a bright idea",
+   "label": "came",
+   "end2": "into her head",
+   "quote": "a bright idea came into her head"
+  },
+  {
+   "end1": "I",
+   "label": "eat",
+   "end2": "one of these cakes",
+   "quote": "If I eat one of these cakes"
+  },
+  {
+   "end1": "she",
+   "label": "thought",
+   "end2": "",
+   "quote": "she thought"
+  },
+  {
+   "end1": "it",
+   "label": "is",
+   "end2": "sure to make some change in my size",
+   "quote": "it’s sure to make _some_ change in my size"
+  },
+  {
+   "end1": "it",
+   "label": "can not possibly make",
+   "end2": "me larger",
+   "quote": "it can’t possibly make me larger"
+  },
+  {
+   "end1": "it",
+   "label": "must make",
+   "end2": "me smaller",
+   "quote": "it must make me smaller"
+  },
+  {
+   "end1": "she",
+   "label": "swallowed",
+   "end2": "one of the cakes",
+   "quote": "she swallowed one of the cakes"
+  },
+  {
+   "end1": "she",
+   "label": "was",
+   "end2": "delighted to find that she began shrinking",
+   "quote": "was delighted to find"
+  },
+  {
+   "end1": "she",
+   "label": "began shrinking",
+   "end2": "directly",
+   "quote": "she began shrinking directly"
+  },
+  {
+   "end1": "she",
+   "label": "was",
+   "end2": "small enough to get through the door",
+   "quote": "she was small enough to get through the door"
+  },
+  {
+   "end1": "she",
+   "label": "ran out",
+   "end2": "of the house",
+   "quote": "she ran out of the house"
+  },
+  {
+   "end1": "she",
+   "label": "found",
+   "end2": "quite a crowd of little animals and birds waiting outside",
+   "quote": "found quite a crowd of little animals and birds"
+  },
+  {
+   "end1": "little animals and birds",
+   "label": "waiting",
+   "end2": "outside",
+   "quote": "waiting outside"
+  },
+  {
+   "end1": "The poor little Lizard, Bill",
+   "label": "was",
+   "end2": "in the middle",
+   "quote": "The poor little Lizard, Bill, was in the middle"
+  },
+  {
+   "end1": "Bill",
+   "label": "being held up",
+   "end2": "by two guinea-pigs",
+   "quote": "being held up by two guinea-pigs"
+  },
+  {
+   "end1": "two guinea-pigs",
+   "label": "were giving",
+   "end2": "it something out of a bottle",
+   "quote": "were giving it something out of a bottle"
+  },
+  {
+   "end1": "They",
+   "label": "made",
+   "end2": "a rush at Alice",
+   "quote": "They all made a rush at Alice"
+  },
+  {
+   "end1": "she",
+   "label": "appeared",
+   "end2": "",
+   "quote": "the moment she appeared"
+  },
+  {
+   "end1": "she",
+   "label": "ran off",
+   "end2": "as hard as she could",
+   "quote": "she ran off as hard as she could"
+  },
+  {
+   "end1": "she",
+   "label": "found",
+   "end2": "herself safe in a thick wood",
+   "quote": "found herself safe in a thick wood"
+  },
+  {
+   "end1": "I",
+   "label": "have got",
+   "end2": "to do the first thing",
+   "quote": "The first thing I’ve got to do"
+  },
+  {
+   "end1": "Alice",
+   "label": "said",
+   "end2": "to herself",
+   "quote": "said Alice to herself"
+  },
+  {
+   "end1": "she",
+   "label": "wandered",
+   "end2": "about in the wood",
+   "quote": "as she wandered about in the wood"
+  },
+  {
+   "end1": "the first thing",
+   "label": "is",
+   "end2": "to grow to my right size again",
+   "quote": "is to grow to my right size again"
+  },
+  {
+   "end1": "the second thing",
+   "label": "is",
+   "end2": "to find my way into that lovely garden",
+   "quote": "the second thing is to find my way"
+  },
+  {
+   "end1": "I",
+   "label": "think",
+   "end2": "that will be the best plan",
+   "quote": "I think that will be the best plan"
+  },
+  {
+   "end1": "that",
+   "label": "will be",
+   "end2": "the best plan",
+   "quote": "that will be the best plan"
+  },
+  {
+   "end1": "It",
+   "label": "sounded",
+   "end2": "an excellent plan",
+   "quote": "It sounded an excellent plan"
+  },
+  {
+   "end1": "the only difficulty",
+   "label": "was",
+   "end2": "that she had not the smallest idea how to set about it",
+   "quote": "the only difficulty was"
+  },
+  {
+   "end1": "she",
+   "label": "had not",
+   "end2": "the smallest idea how to set about it",
+   "quote": "she had not the smallest idea"
+  },
+  {
+   "end1": "she",
+   "label": "was peering",
+   "end2": "about anxiously among the trees",
+   "quote": "she was peering about anxiously"
+  },
+  {
+   "end1": "a little sharp bark just over her head",
+   "label": "made",
+   "end2": "her look up in a great hurry",
+   "quote": "a little sharp bark just over her head made her look up"
+  },
+  {
+   "end1": "An enormous puppy",
+   "label": "was looking down",
+   "end2": "at her with large round eyes",
+   "quote": "An enormous puppy was looking down at her"
+  },
+  {
+   "end1": "the puppy",
+   "label": "stretching out",
+   "end2": "one paw",
+   "quote": "feebly stretching out one paw"
+  },
+  {
+   "end1": "the puppy",
+   "label": "trying",
+   "end2": "to touch her",
+   "quote": "trying to touch her"
+  },
+  {
+   "end1": "it",
+   "label": "is",
+   "end2": "a poor little thing",
+   "quote": "Poor little thing"
+  },
+  {
+   "end1": "Alice",
+   "label": "said",
+   "end2": "in a coaxing tone",
+   "quote": "said Alice, in a coaxing tone"
+  },
+  {
+   "end1": "she",
+   "label": "tried",
+   "end2": "hard to whistle to it",
+   "quote": "she tried hard to whistle to it"
+  },
+  {
+   "end1": "she",
+   "label": "was",
+   "end2": "terribly frightened all the time",
+   "quote": "she was terribly frightened all the time"
+  },
+  {
+   "end1": "it",
+   "label": "might be",
+   "end2": "hungry",
+   "quote": "at the thought that it might be hungry"
+  },
+  {
+   "end1": "it",
+   "label": "would be",
+   "end2": "very likely to eat her up in spite of all her coaxing",
+   "quote": "it would be very likely to eat her up"
+  },
+  {
+   "end1": "she",
+   "label": "did not know",
+   "end2": "what she did",
+   "quote": "Hardly knowing what she did"
+  },
+  {
+   "end1": "she",
+   "label": "picked up",
+   "end2": "a little bit of stick",
+   "quote": "she picked up a little bit of stick"
+  },
+  {
+   "end1": "she",
+   "label": "held out",
+   "end2": "it to the puppy",
+   "quote": "held it out to the puppy"
+  },
+  {
+   "end1": "the puppy",
+   "label": "jumped",
+   "end2": "into the air off all its feet at once",
+   "quote": "the puppy jumped into the air off all its feet"
+  },
+  {
+   "end1": "the puppy",
+   "label": "rushed",
+   "end2": "at the stick",
+   "quote": "rushed at the stick"
+  },
+  {
+   "end1": "the puppy",
+   "label": "made believe",
+   "end2": "to worry it",
+   "quote": "made believe to worry it"
+  },
+  {
+   "end1": "Alice",
+   "label": "dodged",
+   "end2": "behind a great thistle",
+   "quote": "Alice dodged behind a great thistle"
+  },
+  {
+   "end1": "Alice",
+   "label": "keep",
+   "end2": "herself from being run over",
+   "quote": "to keep herself from being run over"
+  },
+  {
+   "end1": "she",
+   "label": "appeared",
+   "end2": "on the other side",
+   "quote": "the moment she appeared on the other side"
+  },
+  {
+   "end1": "the puppy",
+   "label": "made",
+   "end2": "another rush at the stick",
+   "quote": "the puppy made another rush at the stick"
+  },
+  {
+   "end1": "the puppy",
+   "label": "tumbled",
+   "end2": "head over heels",
+   "quote": "tumbled head over heels"
+  },
+  {
+   "end1": "the puppy",
+   "label": "get hold",
+   "end2": "of it",
+   "quote": "in its hurry to get hold of it"
+  },
+  {
+   "end1": "Alice",
+   "label": "thinking",
+   "end2": "it was very like having a game of play with a cart-horse",
+   "quote": "thinking it was very like having a game of play"
+  },
+  {
+   "end1": "Alice",
+   "label": "expecting",
+   "end2": "every moment to be trampled under its feet",
+   "quote": "expecting every moment to be trampled"
+  },
+  {
+   "end1": "Alice",
+   "label": "ran round",
+   "end2": "the thistle again",
+   "quote": "ran round the thistle again"
+  },
+  {
+   "end1": "the puppy",
+   "label": "began",
+   "end2": "a series of short charges at the stick",
+   "quote": "the puppy began a series of short charges"
+  },
+  {
+   "end1": "the puppy",
+   "label": "running",
+   "end2": "a very little way forwards each time and a long way back",
+   "quote": "running a very little way forwards"
+  },
+  {
+   "end1": "the puppy",
+   "label": "barking",
+   "end2": "hoarsely all the while",
+   "quote": "barking hoarsely all the while"
+  },
+  {
+   "end1": "it",
+   "label": "sat down",
+   "end2": "a good way off",
+   "quote": "it sat down a good way off"
+  },
+  {
+   "end1": "its tongue",
+   "label": "hanging",
+   "end2": "out of its mouth",
+   "quote": "its tongue hanging out of its mouth"
+  },
+  {
+   "end1": "its great eyes",
+   "label": "half shut",
+   "end2": "",
+   "quote": "its great eyes half shut"
+  },
+  {
+   "end1": "This",
+   "label": "seemed",
+   "end2": "to Alice a good opportunity for making her escape",
+   "quote": "This seemed to Alice a good opportunity"
+  },
+  {
+   "end1": "she",
+   "label": "set off",
+   "end2": "at once",
+   "quote": "she set off at once"
+  },
+  {
+   "end1": "she",
+   "label": "ran",
+   "end2": "till she was quite tired and out of breath",
+   "quote": "ran till she was quite tired"
+  },
+  {
+   "end1": "she",
+   "label": "was",
+   "end2": "quite tired and out of breath",
+   "quote": "she was quite tired and out of breath"
+  },
+  {
+   "end1": "the puppy's bark",
+   "label": "sounded",
+   "end2": "quite faint in the distance",
+   "quote": "the puppy’s bark sounded quite faint"
+  },
+  {
+   "end1": "it",
+   "label": "was",
+   "end2": "what a dear little puppy",
+   "quote": "what a dear little puppy it was"
+  },
+  {
+   "end1": "Alice",
+   "label": "said",
+   "end2": "",
+   "quote": "said Alice"
+  },
+  {
+   "end1": "she",
+   "label": "leant",
+   "end2": "against a buttercup to rest herself",
+   "quote": "as she leant against a buttercup"
+  },
+  {
+   "end1": "she",
+   "label": "fanned",
+   "end2": "herself with one of the leaves",
+   "quote": "fanned herself with one of the leaves"
+  },
+  {
+   "end1": "I",
+   "label": "should have liked",
+   "end2": "teaching it tricks very much",
+   "quote": "I should have liked teaching it tricks"
+  },
+  {
+   "end1": "I",
+   "label": "had been",
+   "end2": "the right size to do it",
+   "quote": "if I’d only been the right size"
+  },
+  {
+   "end1": "I",
+   "label": "had nearly forgotten",
+   "end2": "that I've got to grow up again",
+   "quote": "I’d nearly forgotten that I’ve got to grow up again"
+  },
+  {
+   "end1": "I",
+   "label": "have got",
+   "end2": "to grow up again",
+   "quote": "I’ve got to grow up again"
+  },
+  {
+   "end1": "me",
+   "label": "see",
+   "end2": "",
+   "quote": "Let me see"
+  },
+  {
+   "end1": "it",
+   "label": "is",
+   "end2": "to be managed how",
+   "quote": "how _is_ it to be managed"
+  },
+  {
+   "end1": "I",
+   "label": "suppose",
+   "end2": "I ought to eat or drink something or other",
+   "quote": "I suppose I ought to eat or drink something or other"
+  },
+  {
+   "end1": "I",
+   "label": "ought to eat or drink",
+   "end2": "something or other",
+   "quote": "I ought to eat or drink something or other"
+  },
+  {
+   "end1": "the great question",
+   "label": "is",
+   "end2": "what",
+   "quote": "the great question is, what"
+  },
+  {
+   "end1": "The great question",
+   "label": "was",
+   "end2": "what",
+   "quote": "The great question certainly was, what"
+  },
+  {
+   "end1": "Alice",
+   "label": "looked",
+   "end2": "all round her at the flowers and the blades of grass",
+   "quote": "Alice looked all round her"
+  },
+  {
+   "end1": "she",
+   "label": "did not see",
+   "end2": "anything that looked like the right thing to eat or drink under the circumstances",
+   "quote": "she did not see anything"
+  },
+  {
+   "end1": "There",
+   "label": "was",
+   "end2": "a large mushroom growing near her",
+   "quote": "There was a large mushroom growing near her"
+  },
+  {
+   "end1": "the mushroom",
+   "label": "growing",
+   "end2": "near her, about the same height as herself",
+   "quote": "growing near her"
+  },
+  {
+   "end1": "she",
+   "label": "had looked",
+   "end2": "under it, and on both sides of it, and behind it",
+   "quote": "she had looked under it"
+  },
+  {
+   "end1": "it",
+   "label": "occurred",
+   "end2": "to her that she might as well look and see",
+   "quote": "it occurred to her"
+  },
+  {
+   "end1": "she",
+   "label": "look and see",
+   "end2": "what was on the top of it",
+   "quote": "she might as well look and see"
+  },
+  {
+   "end1": "She",
+   "label": "stretched",
+   "end2": "herself up on tiptoe",
+   "quote": "She stretched herself up on tiptoe"
+  },
+  {
+   "end1": "She",
+   "label": "peeped",
+   "end2": "over the edge of the mushroom",
+   "quote": "peeped over the edge of the mushroom"
+  },
+  {
+   "end1": "her eyes",
+   "label": "met",
+   "end2": "those of a large blue caterpillar",
+   "quote": "her eyes immediately met those of a large blue caterpillar"
+  },
+  {
+   "end1": "a large blue caterpillar",
+   "label": "was sitting",
+   "end2": "on the top with its arms folded",
+   "quote": "that was sitting on the top"
+  },
+  {
+   "end1": "the caterpillar",
+   "label": "smoking",
+   "end2": "a long hookah",
+   "quote": "quietly smoking a long hookah"
+  },
+  {
+   "end1": "the caterpillar",
+   "label": "taking",
+   "end2": "not the smallest notice of her or of anything else",
+   "quote": "taking not the smallest notice"
+  }
+ ],
+ "expected_empty": [
+  {
+   "quote": "The Duchess!",
+   "why": "a vocative address called out twice in alarm — no clause, no ends"
+  },
+  {
+   "quote": "Oh my dear paws!",
+   "why": "an exclamation over one's own paws — no clause"
+  },
+  {
+   "quote": "Oh my fur and whiskers!",
+   "why": "an exclamation, same shape — no clause"
+  },
+  {
+   "quote": "Quick, now!”",
+   "why": "an elliptical imperative — no verb, no clause"
+  },
+  {
+   "quote": "RABBIT,”",
+   "why": "the second half of a proper name split across the sentence boundary by the abbreviation’s own period — no new clause"
+  },
+  {
+   "quote": "Miss Alice!",
+   "why": "a vocative address opening an imagined scene — no clause"
+  },
+  {
+   "quote": "Only I don’t think,”",
+   "why": "an interrupted thought completed by the next attribution — no independent clause"
+  },
+  {
+   "quote": "Alas!",
+   "why": "an interjection — no clause"
+  },
+  {
+   "quote": "But then,”",
+   "why": "a discourse particle opening a turn — no proposition"
+  },
+  {
+   "quote": "Mary Ann!",
+   "why": "a vocative address — no clause"
+  },
+  {
+   "quote": "Mary Ann!”",
+   "why": "a vocative address repeated — no clause"
+  },
+  {
+   "quote": "Pat!",
+   "why": "a vocative address, repeated in the next sentence too — no clause"
+  },
+  {
+   "quote": "Here!",
+   "why": "an interjection — no clause"
+  },
+  {
+   "quote": "Sounds of more broken glass.",
+   "why": "a narrated sound-effect, not dialogue — no clause"
+  },
+  {
+   "quote": "An arm, you goose!",
+   "why": "an exclamatory echo naming what was seen — no new clause"
+  },
+  {
+   "quote": "Heads below!”",
+   "why": "an urgent warning cry — no clause"
+  },
+  {
+   "quote": "a loud crash",
+   "why": "a narrated sound-effect, not dialogue — no clause"
+  },
+  {
+   "quote": "Oh!",
+   "why": "an interjection — no clause"
+  },
+  {
+   "quote": "Oh dear!",
+   "why": "an interjection — no clause"
+  }
+ ]
+}

@@ -1,0 +1,419 @@
+[
+ {
+  "chapter": 1,
+  "at": [
+   651,
+   957
+  ],
+  "sentence": "Alice was beginning to get very tired of sitting by her sister on the bank, and of having nothing to do: once or twice she had peeped into t",
+  "pronoun": "her",
+  "cast": [
+   "White Rabbit",
+   "Alice",
+   "I’ll",
+   "Latitude",
+   "Longitude",
+   "Oh"
+  ],
+  "pick1": "Alice",
+  "pick2": "Alice",
+  "verdict": "consistent"
+ },
+ {
+  "chapter": 1,
+  "at": [
+   3954,
+   4062
+  ],
+  "sentence": "(Alice had no idea what Latitude was, or Longitude either, but thought they were nice grand words to say.)",
+  "pronoun": "they",
+  "cast": [
+   "White Rabbit",
+   "Alice",
+   "I’ll",
+   "Latitude",
+   "Longitude",
+   "Oh"
+  ],
+  "pick1": "Alice",
+  "pick2": "Alice",
+  "verdict": "consistent"
+ },
+ {
+  "chapter": 1,
+  "at": [
+   6351,
+   6582
+  ],
+  "sentence": "There were doors all round the hall, but they were all locked; and when Alice had been all the way down one side and up the other, trying ev",
+  "pronoun": "they",
+  "cast": [
+   "White Rabbit",
+   "Alice",
+   "I’ll",
+   "Latitude",
+   "Longitude",
+   "Oh"
+  ],
+  "pick1": "unreadable",
+  "pick2": "Alice",
+  "verdict": "unreadable"
+ },
+ {
+  "chapter": 3,
+  "at": [
+   23600,
+   23800
+  ],
+  "sentence": "They were indeed a queer-looking party that assembled on the bank—the birds with draggled feathers, the animals with their fur clinging clos",
+  "pronoun": "They",
+  "cast": [
+   "Alice",
+   "Mouse",
+   "Dodo",
+   "Lory",
+   "Dinah",
+   "I’ll",
+   "Crab",
+   "Duck",
+   "Eaglet",
+   "English",
+   "Mercia",
+   "Morcar",
+   "We"
+  ],
+  "pick1": "Alice",
+  "pick2": "Dodo",
+  "verdict": "order-sensitive — refused"
+ },
+ {
+  "chapter": 3,
+  "at": [
+   27219,
+   27388
+  ],
+  "sentence": "There was no “One, two, three, and away,” but they began running when they liked, and left off when they liked, so that it was not easy to k",
+  "pronoun": "they",
+  "cast": [
+   "Alice",
+   "Mouse",
+   "Dodo",
+   "Lory",
+   "Dinah",
+   "I’ll",
+   "Crab",
+   "Duck",
+   "Eaglet",
+   "English",
+   "Mercia",
+   "Morcar",
+   "We"
+  ],
+  "pick1": "Mouse",
+  "pick2": "We",
+  "verdict": "order-sensitive — refused"
+ },
+ {
+  "chapter": 3,
+  "at": [
+   29952,
+   30174
+  ],
+  "sentence": "“Fury said to a mouse, That he met in the house, ‘Let us both go to law: _I_ will prosecute _you_.—Come, I’ll take no denial; We must have a",
+  "pronoun": "he",
+  "cast": [
+   "Alice",
+   "Mouse",
+   "Dodo",
+   "Lory",
+   "Dinah",
+   "I’ll",
+   "Crab",
+   "Duck",
+   "Eaglet",
+   "English",
+   "Mercia",
+   "Morcar",
+   "We"
+  ],
+  "pick1": "Mouse",
+  "pick2": "Mouse",
+  "verdict": "consistent"
+ },
+ {
+  "chapter": 5,
+  "at": [
+   47223,
+   47401
+  ],
+  "sentence": "The Caterpillar and Alice looked at each other for some time in silence: at last the Caterpillar took the hookah out of its mouth, and addre",
+  "pronoun": "her",
+  "cast": [
+   "Father William",
+   "Alice",
+   "Caterpillar",
+   "Pigeon",
+   "I’m",
+   "I’ve",
+   "Pray"
+  ],
+  "pick1": "Alice",
+  "pick2": "unreadable",
+  "verdict": "unreadable"
+ },
+ {
+  "chapter": 5,
+  "at": [
+   50859,
+   51053
+  ],
+  "sentence": "“You are old,” said the youth, “and your jaws are too weak For anything tougher than suet; Yet you finished the goose, with the bones and th",
+  "pronoun": "it",
+  "cast": [
+   "Father William",
+   "Alice",
+   "Caterpillar",
+   "Pigeon",
+   "I’m",
+   "I’ve",
+   "Pray"
+  ],
+  "pick1": "Father William",
+  "pick2": "Father William",
+  "verdict": "consistent"
+ },
+ {
+  "chapter": 5,
+  "at": [
+   54895,
+   54945
+  ],
+  "sentence": "And oh, my poor hands, how is it I can’t see you?”",
+  "pronoun": "it",
+  "cast": [
+   "Father William",
+   "Alice",
+   "Caterpillar",
+   "Pigeon",
+   "I’m",
+   "I’ve",
+   "Pray"
+  ],
+  "pick1": "Father William",
+  "pick2": "Alice",
+  "verdict": "order-sensitive — refused"
+ },
+ {
+  "chapter": 7,
+  "at": [
+   73706,
+   73978
+  ],
+  "sentence": "There was a table set out under a tree in front of the house, and the March Hare and the Hatter were having tea at it: a Dormouse was sittin",
+  "pronoun": "it",
+  "cast": [
+   "March Hare",
+   "Alice",
+   "Hatter",
+   "Dormouse",
+   "I’ll",
+   "Queen"
+  ],
+  "pick1": "cannot-tell",
+  "pick2": "Hatter",
+  "verdict": "order-sensitive — refused"
+ },
+ {
+  "chapter": 7,
+  "at": [
+   77603,
+   77729
+  ],
+  "sentence": "Alice felt dreadfully puzzled, The Hatter’s remark seemed to have no sort of meaning in it, and yet it was certainly English.",
+  "pronoun": "it",
+  "cast": [
+   "March Hare",
+   "Alice",
+   "Hatter",
+   "Dormouse",
+   "I’ll",
+   "Queen"
+  ],
+  "pick1": "Hatter",
+  "pick2": "Hatter",
+  "verdict": "consistent"
+ },
+ {
+  "chapter": 7,
+  "at": [
+   81848,
+   81872
+  ],
+  "sentence": "“What did they live on?”",
+  "pronoun": "they",
+  "cast": [
+   "March Hare",
+   "Alice",
+   "Hatter",
+   "Dormouse",
+   "I’ll",
+   "Queen"
+  ],
+  "pick1": "Hatter",
+  "pick2": "cannot-tell",
+  "verdict": "order-sensitive — refused"
+ },
+ {
+  "chapter": 9,
+  "at": [
+   100820,
+   100919
+  ],
+  "sentence": "said the Duchess, as she tucked her arm affectionately into Alice’s, and they walked off together.",
+  "pronoun": "she",
+  "cast": [
+   "Mock Turtle",
+   "Alice",
+   "Gryphon",
+   "Duchess",
+   "Queen",
+   "I’m",
+   "Tortoise",
+   "French",
+   "I’ve",
+   "King"
+  ],
+  "pick1": "Duchess",
+  "pick2": "Duchess",
+  "verdict": "consistent"
+ },
+ {
+  "chapter": 9,
+  "at": [
+   104927,
+   104971
+  ],
+  "sentence": "But she did not venture to say it out loud.",
+  "pronoun": "she",
+  "cast": [
+   "Mock Turtle",
+   "Alice",
+   "Gryphon",
+   "Duchess",
+   "Queen",
+   "I’m",
+   "Tortoise",
+   "French",
+   "I’ve",
+   "King"
+  ],
+  "pick1": "Alice",
+  "pick2": "Alice",
+  "verdict": "consistent"
+ },
+ {
+  "chapter": 9,
+  "at": [
+   108941,
+   109074
+  ],
+  "sentence": "“I’ll tell it her,” said the Mock Turtle in a deep, hollow tone: “sit down, both of you, and don’t speak a word till I’ve finished.”",
+  "pronoun": "it",
+  "cast": [
+   "Mock Turtle",
+   "Alice",
+   "Gryphon",
+   "Duchess",
+   "Queen",
+   "I’m",
+   "Tortoise",
+   "French",
+   "I’ve",
+   "King"
+  ],
+  "pick1": "Mock Turtle",
+  "pick2": "Mock Turtle",
+  "verdict": "consistent"
+ },
+ {
+  "chapter": 11,
+  "at": [
+   125421,
+   125812
+  ],
+  "sentence": "The King and Queen of Hearts were seated on their throne when they arrived, with a great crowd assembled about them—all sorts of little bird",
+  "pronoun": "they",
+  "cast": [
+   "White Rabbit",
+   "March Hare",
+   "King",
+   "Hatter",
+   "Dormouse",
+   "Alice",
+   "Queen",
+   "I’ll",
+   "Majesty",
+   "Hearts",
+   "Gryphon",
+   "I’m",
+   "I’ve"
+  ],
+  "pick1": "White Rabbit",
+  "pick2": "White Rabbit",
+  "verdict": "consistent"
+ },
+ {
+  "chapter": 11,
+  "at": [
+   129221,
+   129343
+  ],
+  "sentence": "“I beg pardon, your Majesty,” he began, “for bringing these in: but I hadn’t quite finished my tea when I was sent for.”",
+  "pronoun": "he",
+  "cast": [
+   "White Rabbit",
+   "March Hare",
+   "King",
+   "Hatter",
+   "Dormouse",
+   "Alice",
+   "Queen",
+   "I’ll",
+   "Majesty",
+   "Hearts",
+   "Gryphon",
+   "I’m",
+   "I’ve"
+  ],
+  "pick1": "King",
+  "pick2": "Hatter",
+  "verdict": "order-sensitive — refused"
+ },
+ {
+  "chapter": 11,
+  "at": [
+   132483,
+   132652
+  ],
+  "sentence": "“Well, at any rate, the Dormouse said—” the Hatter went on, looking anxiously round to see if he would deny it too: but the Dormouse denied ",
+  "pronoun": "he",
+  "cast": [
+   "White Rabbit",
+   "March Hare",
+   "King",
+   "Hatter",
+   "Dormouse",
+   "Alice",
+   "Queen",
+   "I’ll",
+   "Majesty",
+   "Hearts",
+   "Gryphon",
+   "I’m",
+   "I’ve"
+  ],
+  "pick1": "unreadable",
+  "pick2": "Hatter",
+  "verdict": "unreadable"
+ }
+]

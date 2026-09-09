@@ -6,7 +6,7 @@
  "giver": "LaVar (Claude Opus 5) — hand-read clause by clause, 2026-09-09, before scoring. The engine never saw this file.",
  "coverage": {
   "sentences": 125,
-  "propositions": 273,
+  "propositions": 274,
   "expectedEmpty": 10,
   "sentenceCoverage": 1
  },
@@ -1194,6 +1194,12 @@
    "quote": "So she began again"
   },
   {
+   "end1": "Alice",
+   "label": "asked",
+   "end2": "Où est ma chatte",
+   "quote": "Où est ma chatte"
+  },
+  {
    "end1": "which",
    "label": "was",
    "end2": "the first sentence in her French lesson-book",
@@ -1240,6 +1246,12 @@
    "label": "didn't like",
    "end2": "cats",
    "quote": "you didn’t like cats"
+  },
+  {
+   "end1": "the Mouse",
+   "label": "echoes",
+   "end2": "Not like cats!",
+   "quote": "“Not like cats!”"
   },
   {
    "end1": "the Mouse",
@@ -1446,6 +1458,18 @@
    "quote": "I should like to show you"
   },
   {
+   "end1": "the dog",
+   "label": "is",
+   "end2": "a little bright-eyed terrier",
+   "quote": "A little bright-eyed terrier"
+  },
+  {
+   "end1": "the dog",
+   "label": "with",
+   "end2": "such long curly brown hair",
+   "quote": "such long curly brown hair"
+  },
+  {
    "end1": "it",
    "label": "will fetch",
    "end2": "things when you throw them",
@@ -1630,24 +1654,6 @@
    "label": "swam",
    "end2": "to the shore",
    "quote": "the whole party swam to the shore"
-  },
-  {
-   "end1": "the Mouse",
-   "label": "echoes",
-   "end2": "Not like cats!",
-   "quote": "“Not like cats!”"
-  },
-  {
-   "end1": "the dog",
-   "label": "is",
-   "end2": "a little bright-eyed terrier",
-   "quote": "A little bright-eyed terrier"
-  },
-  {
-   "end1": "the dog",
-   "label": "with",
-   "end2": "such long curly brown hair",
-   "quote": "such long curly brown hair"
   }
  ],
  "expected_empty": [
@@ -1668,18 +1674,6 @@
    "why": "an exclamation of pity — no clause"
   },
   {
-   "quote": "“Oh, I beg your pardon!”",
-   "why": "a formula of apology — idiomatic, not an event"
-  },
-  {
-   "quote": "“We indeed!”",
-   "why": "an indignant echo of one word — no clause"
-  },
-  {
-   "quote": "“Mouse dear!",
-   "why": "a vocative address — names the being, asserts nothing"
-  },
-  {
    "quote": "the Duchess, the Duchess!",
    "why": "a name called out twice in alarm — vocative, asserts nothing of her"
   },
@@ -1688,8 +1682,20 @@
    "why": "an interjection"
   },
   {
+   "quote": "“Oh, I beg your pardon!”",
+   "why": "a formula of apology — idiomatic, not an event"
+  },
+  {
    "quote": "“Well, perhaps not,”",
    "why": "an elliptical concession — the predicate is gapped, recoverable only from the prior turn"
+  },
+  {
+   "quote": "“We indeed!”",
+   "why": "an indignant echo of one word — no clause"
+  },
+  {
+   "quote": "“Mouse dear!",
+   "why": "a vocative address — names the being, asserts nothing"
   }
  ]
 }

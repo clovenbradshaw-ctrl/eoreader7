@@ -58,6 +58,8 @@ the White Rabbit | dressed | splendidly | splendidly dressed
 the White Rabbit | with | a pair of white kid gloves in one hand | with a pair of white kid gloves
 he | came trotting along | in a great hurry | he came trotting along in a great hurry
 he | muttering | to himself | muttering to himself
+EMPTY | the Duchess, the Duchess! | a name called out twice in alarm — vocative, asserts nothing of her
+EMPTY | Oh! | an interjection
 she | be | savage | won’t she be savage
 I | have kept | her waiting | if I’ve kept her waiting
 
@@ -223,6 +225,7 @@ it | is | a French mouse | I daresay it’s a French mouse
 it | come over | with William the Conqueror | come over with William the Conqueror
 Alice | had | no very clear notion how long ago anything had happened | no very clear notion how long ago
 she | began | again | So she began again
+Alice | asked | Où est ma chatte | Où est ma chatte
 which | was | the first sentence in her French lesson-book | the first sentence in her French lesson-book
 
 The Mouse | gave | a sudden leap out of the water | The Mouse gave a sudden leap
@@ -234,9 +237,11 @@ she | had hurt | the poor animal's feelings | hurt the poor animal’s feelings
 I | forgot | you didn't like cats | I quite forgot you didn’t like cats
 you | didn't like | cats | you didn’t like cats
 
+the Mouse | echoes | Not like cats! | “Not like cats!”
 the Mouse | cried | Not like cats! | cried the Mouse, in a shrill, passionate voice
 you | like | cats | Would _you_ like cats
 you | were | me | if you were me
+EMPTY | “Well, perhaps not,” | an elliptical concession — the predicate is gapped, recoverable only from the prior turn
 Alice | said | in a soothing tone | said Alice in a soothing tone
 you | don't be | angry about it | don’t be angry about it
 I | wish | I could show you our cat Dinah | I wish I could show you our cat Dinah
@@ -271,6 +276,8 @@ The Mouse | did not answer | | The Mouse did not answer
 Alice | went on | eagerly | Alice went on eagerly
 There | is | such a nice little dog near our house | There is such a nice little dog
 I | should like | to show you | I should like to show you
+the dog | is | a little bright-eyed terrier | A little bright-eyed terrier
+the dog | with | such long curly brown hair | such long curly brown hair
 it | will fetch | things when you throw them | it’ll fetch things when you throw them
 you | throw | them | when you throw them
 it | will sit up | | it’ll sit up
@@ -306,10 +313,3 @@ the birds and animals | had fallen | into it | that had fallen into it
 there | were | a Duck and a Dodo, a Lory and an Eaglet | there were a Duck and a Dodo
 Alice | led | the way | Alice led the way
 the whole party | swam | to the shore | the whole party swam to the shore
-
-EMPTY | the Duchess, the Duchess! | a name called out twice in alarm — vocative, asserts nothing of her
-EMPTY | Oh! | an interjection
-the Mouse | echoes | Not like cats! | “Not like cats!”
-EMPTY | “Well, perhaps not,” | an elliptical concession — the predicate is gapped, recoverable only from the prior turn
-the dog | is | a little bright-eyed terrier | A little bright-eyed terrier
-the dog | with | such long curly brown hair | such long curly brown hair

@@ -6,7 +6,7 @@
  "giver": "LaVar (Claude Opus 5) — hand-read clause by clause, 2026-09-09, before scoring. The engine never saw this file.",
  "coverage": {
   "sentences": 94,
-  "propositions": 271,
+  "propositions": 273,
   "expectedEmpty": 8,
   "sentenceCoverage": 1
  },
@@ -74,7 +74,7 @@
   {
    "end1": "the pleasure of making a daisy-chain",
    "label": "would be worth",
-   "end2": "the trouble of getting up",
+   "end2": "the trouble of getting up and picking the daisies",
    "quote": "worth the trouble of getting up"
   },
   {
@@ -172,6 +172,12 @@
    "label": "had never seen",
    "end2": "a rabbit with either a waistcoat-pocket",
    "quote": "never before seen a rabbit"
+  },
+  {
+   "end1": "she",
+   "label": "had never seen",
+   "end2": "a watch to take out of it",
+   "quote": "or a watch to take out of it"
   },
   {
    "end1": "she",
@@ -349,6 +355,12 @@
   },
   {
    "end1": "she",
+   "label": "feared",
+   "end2": "killing somebody underneath",
+   "quote": "for fear of killing somebody underneath"
+  },
+  {
+   "end1": "she",
    "label": "managed",
    "end2": "to put it into one of the cupboards",
    "quote": "managed to put it into one of the cupboards"
@@ -470,7 +482,7 @@
   {
    "end1": "Alice",
    "label": "had",
-   "end2": "no idea what Latitude was",
+   "end2": "no idea what Latitude was, or Longitude either",
    "quote": "Alice had no idea what Latitude was"
   },
   {
@@ -1110,7 +1122,7 @@
    "quote": "round the neck of the bottle was a paper label"
   },
   {
-   "end1": "the words",
+   "end1": "the words DRINK ME",
    "label": "printed",
    "end2": "on it in large letters",
    "quote": "beautifully printed on it in large letters"

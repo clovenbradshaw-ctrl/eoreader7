@@ -119,6 +119,16 @@ This is the procedure, not the principles. The principles are `eoreader7/native/
 
 **No item is scored on one chapter.** Three goldens exist so that a number moving on one and not the others reads as a specimen effect rather than a gain.
 
+### The whole-book quality bar LaVar must confirm before calling any reading finished
+
+`eoreader7/native/READING-SPEC.md` **S101** sets the first, hardest quality gate: **100% of a chapter's own words must be reconstructable from nothing but its ledger's own `sentence`/`scene-break` addresses.** Not the golden-recall percentage — a structural property of the ledger itself, checkable with `eval/lavar/recoverability.mjs`. Alice in Wonderland, all 12 chapters, all 26,171 words: 100%, zero gaps. A byte range nothing on the ledger addresses is gone for good — no rereading or drilling recovers it, because it was never heard.
+
+Three more things LaVar confirms once recoverability holds, each with its own honest strength, not asserted past what it measured:
+
+- **Rereading with the deepest available prior roughly doubles recall on a thin-prior chapter** (ch1: 12.8%→22.3%; ch2: 14.2%→21.2%) and does almost nothing once a chapter already had a decent prior (ch4: 12.4%→12.9%) — a real, now-measured diminishing-returns curve, not a guess.
+- **A local model is a witness on the ledger's own disclosed gaps (`role:"void"`), never an oracle**: it SELECTS from a candidate list the ledger already named, asked twice with the list order reversed, verdict derived from whether both answers agree — never asked to freely resolve an ambiguity into JSON. Measured: half of gemma2:2b's raw picks were pure position bias, caught by the reorder arm; and even a pick that survives the reorder is not thereby correct (`eval/lavar/witness-referent.mjs`).
+- **Drilling into a referent's whole-book neighbourhood shows WHERE the reading is thin, not just THAT it is** (`eval/lavar/drill.mjs`): Alice has 152 arrangements book-wide and zero with a resolved being on the other end; the White Rabbit's coverage swings entirely on whether a chapter names him or narrates him as "it"; Dinah — talked about constantly, on stage never — has zero.
+
 ### What LaVar must not do
 
 **Do not hand-roll a reading loop.** `kernel/reading.js::createRecursiveReader` returns `surprise`, `tension`, `release` and `relevantFold` from every step. A driver calling `extractRelations` directly throws all four away and reinvents them worse. (Their dynamics are currently inert because nothing injects `ask` into `interrogateCube` — so a naive migration would report `surprise: 0` as though it measured the material. Wire the `ask`, do not fake the number.)
