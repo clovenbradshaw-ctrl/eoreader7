@@ -9,7 +9,7 @@
 // bicameral non-Latin script must NOT be gapped.
 import test from "node:test";
 import assert from "node:assert/strict";
-import { scriptCoverage, extractSurfaces, accumulateSurfaceEvidence, createSurfaceEvidence } from "../adapters/text/surfaces.js";
+import { scriptCoverage, scriptCoverageBySentence, extractSurfaces, accumulateSurfaceEvidence, createSurfaceEvidence } from "../adapters/text/surfaces.js";
 
 const sentencesOf = (...texts) => texts.map((text, order) => ({ text, order }));
 
@@ -175,4 +175,44 @@ test("scriptCoverage reads sentences without mutating them or requiring surfaces
   const before = JSON.stringify(sents);
   scriptCoverage(sents);
   assert.equal(JSON.stringify(sents), before, "input is untouched");
+});
+
+// scriptCoverageBySentence — S92's cross-script fixture. A single document
+// mixing English (Latin, cased) and Mandarin (Han, caseless) sentences is
+// exactly the case a whole-document verdict (scriptCoverage) cannot resolve:
+// folded together, the two scripts would just average into a "mixed but
+// mostly cased" share and the Han sentences would still be silently
+// unreadable to extractSurfaces. This is the invariance fixture Article
+// II.13 requires before any per-segment script claim is admissible.
+test("scriptCoverageBySentence resolves a real English+Mandarin mixed document, per sentence", () => {
+  const sents = sentencesOf(
+    "Alice ran down the hall.",       // English — Latin, cased
+    "爱丽丝跑下了大厅。",                    // Mandarin — Han, caseless
+    "The White Rabbit was late.",     // English again
+  );
+  const cov = scriptCoverageBySentence(sents);
+  assert.equal(cov.length, 3);
+  assert.equal(cov[0].dominant, "cased", "English sentence reads as cased/Latin");
+  assert.equal(cov[0].caselessLetters, 0);
+  assert.equal(cov[1].dominant, "caseless", "Mandarin sentence reads as caseless/Han");
+  assert.equal(cov[1].casedLetters, 0);
+  assert.equal(cov[2].dominant, "cased");
+  // Order is preserved and addressable — a caller can zip this back onto
+  // the same `sentences` array (or its byte spans) by index.
+  assert.deepEqual(cov.map((c) => c.order), [0, 1, 2]);
+});
+
+test("scriptCoverageBySentence: a Latin proper noun inside an otherwise-Han sentence still counts as cased letters in that sentence — this is script detection, not language detection", () => {
+  const sents = sentencesOf("爱丽丝Alice跑下了大厅。");
+  const cov = scriptCoverageBySentence(sents);
+  assert.ok(cov[0].casedLetters > 0, "the Latin substring is counted");
+  assert.ok(cov[0].caselessLetters > 0, "the Han characters are still counted too");
+  assert.equal(cov[0].dominant, "caseless", "Han letters are still the majority of this one sentence");
+});
+
+test("scriptCoverageBySentence: a sentence with no letters at all is dominant:null, not coerced into a bucket", () => {
+  const sents = sentencesOf("42.", "永遠のお友達。");
+  const cov = scriptCoverageBySentence(sents);
+  assert.equal(cov[0].dominant, null);
+  assert.equal(cov[0].casedShare, null);
 });

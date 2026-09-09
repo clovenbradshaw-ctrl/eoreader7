@@ -299,7 +299,47 @@ function witnessRelatedPairs(store, sentences, refs, matcher = null) {
   }
 }
 
-export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEvery = 25, posPrior = null, descriptorAnchoring = null, addresses = "birth" } = {}) {
+export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEvery = 1, posPrior = null, descriptorAnchoring = null, addresses = "birth" } = {}) {
+  // `refreshEvery` (2026-09-09): 1 is the default now — batching is an
+  // engineering compromise, never a model of how reading works ("people
+  // don't read in 25-sentence batches" — user direction, verbatim, the
+  // session this changed). It existed because refresh() used to re-tokenize
+  // and re-scan the WHOLE prefix every call — O(n²), 75s on Frankenstein,
+  // ~80min on Les Misérables (see the surfaceEvidence/foldedTo split above)
+  // — and batching amortized that cost. That fix already landed: refresh()
+  // now folds only the NEW slice since the last call
+  // (`priorSentences.slice(foldedTo)`), so the old O(n²) justification for
+  // batching at all is stale, and refreshEvery=25 was never re-measured
+  // after it stopped being load-bearing.
+  //
+  // Measured this session, real book (Alice in Wonderland, 1687 sentences):
+  // refreshEvery=1 costs 5.68s vs 2.34s at refreshEvery=25 — 2.4x slower,
+  // nowhere near the old O(n²) blowup — and finds MORE structure doing it
+  // (11950 vs 11669 graphEntries): continuous updating isn't just more
+  // faithful to how reading actually works, it recovers real signal even on
+  // long material, because the old batching held the verb vocabulary and
+  // referent cast frozen at whatever a stale earlier refresh had earned.
+  //
+  // The incident that surfaced it: a 14-sentence children's book
+  // (18-childrens-books/.../273_I-Love-My-Mom.txt) read at refreshEvery=25
+  // produced ZERO relation edges and ZERO referent bindings — the text
+  // ended before the reader's very first real refresh (at sentence 25)
+  // ever fired, so extractRelations ran on every sentence with an
+  // eternally-empty verb vocabulary. Not a bug in that one book: any
+  // material shorter than the batch size gets read into a permanently
+  // empty fold, and any material NOT an exact multiple of the batch size
+  // loses coverage on however many trailing sentences fall short of the
+  // next boundary (invisible on a 1963-sentence novel, total on a
+  // 14-sentence one). refreshEvery=1 removes the batch boundary rather
+  // than picking a smaller one — no batch size is safe against every
+  // material length, and derived-not-hand-picked was never possible here
+  // since there is no material-length-derivable minimum: only zero avoids
+  // the failure class outright. A caller reading material it has already
+  // measured to be very long AND performance-critical may still declare a
+  // larger refreshEvery explicitly — that remains a caller's stated
+  // tradeoff, never this file's default. See eoreader7/READING-POLICY.md
+  // A26 and CLAUDE.md's "added 2026-09-09" entry for the full writeup.
+  //
   // `addresses` (2026-09-07): "birth" — the default, decided by measurement
   // (the-fold POLICIES.md P168) — hands the previous refresh's addresses to
   // discoverReferents so a being keeps the id it was born with (surfaces.js,
