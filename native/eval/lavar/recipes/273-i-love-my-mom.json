@@ -1,0 +1,33 @@
+{
+  "sourcePath": "../../../../live_priors/18-childrens-books/global-digital-library/en/273_I-Love-My-Mom.txt",
+  "witness": "primary:live_priors/18-childrens-books/global-digital-library/en/273_I-Love-My-Mom.txt~lavar-hand-read-v1",
+  "frame": {
+    "reader": "LaVar (Claude Sonnet 5, this session), reading directly — no automated organ (no perceiver/text pipeline), no per-text coref prior injected, no kind vocabulary consulted",
+    "method": "word-by-word: each clause read in the order it appears in the story, the proposition it states identified by hand, the exact substring backing it self-verified by lavar-read.mjs against the real file bytes before admission",
+    "scope": "the story only (byte range [106,722) of the source file) — the file's remaining 4270 bytes are StoryWeaver/Room to Read platform boilerplate, credits and CC-BY license text (see live_priors/derived-priors/lavar-priors/273-i-love-my-mom.json's known_limitation), deliberately not read as narrative here",
+    "date": "2026-09-09"
+  },
+  "hearings": [
+    { "end1": "my mom", "label": "is named", "end2": "Lee", "quote": "My mom’s name is Lee." },
+    { "end1": "my mom", "end1Face": "she", "label": "works", "end2": "hard all the time", "quote": "She works hard all the time." },
+    { "end1": "I", "label": "learns so much from", "end2": "my mom", "end2Face": "her", "quote": "I learn so much from her" },
+    { "end1": "my mom", "label": "cooks", "end2": "", "quote": "When my mom cooks" },
+    { "end1": "I", "label": "learns to", "end2": "cook", "quote": "I learn to cook too" },
+    { "end1": "my mom", "end1Face": "she", "label": "waters", "end2": "the flowers", "quote": "she waters the flowers" },
+    { "end1": "I", "label": "learns to", "end2": "water the flowers", "quote": "I learn to water the flowers too" },
+    { "end1": "my mom", "end1Face": "she", "label": "washes", "end2": "our clothes", "quote": "she washes our clothes" },
+    { "end1": "I", "label": "learns to", "end2": "wash our clothes", "quote": "I learn to wash our clothes too" },
+    { "end1": "my mom", "end1Face": "she", "label": "dries", "end2": "our clothes", "quote": "she dries our clothes" },
+    { "end1": "I", "label": "learns to", "end2": "dry our clothes", "quote": "I learn to dry our clothes too" },
+    { "end1": "my mom", "label": "bought", "end2": "me a bicycle", "quote": "My mom also bought me a bicycle" },
+    { "end1": "my mom", "end1Face": "she", "label": "taught", "end2": "me how to ride it", "quote": "she taught me how to ride it" },
+    { "end1": "I", "label": "rides", "end2": "my bicycle", "quote": "I ride my bicycle" },
+    { "end1": "my mom", "label": "smiles", "end2": "", "quote": "my mom smiles" },
+    { "end1": "I", "label": "exclaims", "end2": "WHEEEEEEE", "quote": "I go “WHEEEEEEE!”" },
+    { "end1": "my mom", "label": "makes", "end2": "the bed", "quote": "my mom makes the bed" },
+    { "end1": "I", "label": "learns how to", "end2": "make the bed", "quote": "I learn how to make the bed too" },
+    { "end1": "my mom", "label": "tells", "end2": "me stories", "quote": "my mom tells me stories" },
+    { "end1": "my mom", "label": "sings", "end2": "me a lullaby", "quote": "my mom sings me a lullaby" },
+    { "end1": "I", "label": "loves", "end2": "my mom", "quote": "I love my mom" }
+  ]
+}

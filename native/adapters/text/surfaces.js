@@ -694,6 +694,56 @@ export const scriptCoverage = (sentences, { evidence } = {}) => {
 };
 
 /**
+ * The same Unicode Cased_Letter/L distinction `scriptCoverage` folds across
+ * a whole document, computed PER SENTENCE instead. `scriptCoverage` answers
+ * "can the capitalisation mechanism see this document at all" — one verdict
+ * for the whole file. A document that MIXES scripts (a bilingual specimen;
+ * a caption or pull-quote in another script than the surrounding prose)
+ * needs the finer question answered per segment: WHICH sentences are even
+ * written in a script this mechanism can read. Built for that case — see
+ * `native/READING-SPEC.md` S92 — rather than adding a second, parallel
+ * script-detection mechanism (this file's own header already names that
+ * anti-pattern and reverted it once, II.13).
+ *
+ * Returns one entry per input sentence, in the SAME order:
+ *   { order, casedLetters, caselessLetters, casedShare, dominant }
+ * `dominant` is `"cased"` (a script `extractSurfaces` can read — e.g. Latin,
+ * Greek, Cyrillic), `"caseless"` (one it structurally cannot — e.g. Han,
+ * Hebrew, Devanagari; see `script_without_case` above), `"mixed"` when
+ * neither reaches a majority within that one sentence, or `null` when the
+ * sentence has no letters at all (so nothing is coerced into a bucket it
+ * was never evidence for).
+ *
+ * SCOPE, stated as plainly as this file's other boundaries: this is a
+ * per-character Unicode General_Category test, the same one `scriptCoverage`
+ * already uses — it is script identification (Latin vs. Han vs. …), not
+ * language identification. A Latin-script loanword or proper noun sitting
+ * inside an otherwise-Han sentence still counts toward that sentence's
+ * `casedLetters`, same as it would inside `scriptCoverage`'s whole-document
+ * tally; this function does not, and cannot, tell "this is English" apart
+ * from "this is French written in the Latin alphabet." For the concrete
+ * case this was built for — a document whose sentences are EITHER English
+ * (Latin, cased) OR Mandarin (Han, caseless), never a third script — that
+ * distinction is exactly the one `dominant` needs to draw, and no further
+ * claim is made past it.
+ */
+export const scriptCoverageBySentence = (sentences) =>
+  sentences.map((sent) => {
+    let casedLetters = 0;
+    let caselessLetters = 0;
+    for (const ch of String(sent?.text ?? "")) {
+      if (!ANY_LETTER.test(ch)) continue;
+      if (CASED_LETTER.test(ch)) casedLetters += 1;
+      else caselessLetters += 1;
+    }
+    const letters = casedLetters + caselessLetters;
+    const casedShare = letters === 0 ? null : casedLetters / letters;
+    const dominant =
+      letters === 0 ? null : casedShare > 0.5 ? "cased" : casedShare < 0.5 ? "caseless" : "mixed";
+    return { order: sent.order, casedLetters, caselessLetters, casedShare, dominant };
+  });
+
+/**
  * Cluster candidate surfaces into referents by NAME-variant coreference only.
  * Emits DEF.admit events for referents/index.js::projectReferents — the
  * canonical path, not a parallel string-matching substitute.
