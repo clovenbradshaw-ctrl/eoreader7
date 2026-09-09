@@ -153,7 +153,47 @@ for (const lx of lexicons) if (!lx.giver) { console.error("a lexicon prior must 
 const { text: raw, toRaw } = normaliseNewlines(originBytes);
 const rawAt = (start, end) => [toRaw(start), toRaw(end)];
 
-const POS_PRIOR = JSON.parse(fs.readFileSync(path.join(HERE, "../../priors/pos-eng.json"), "utf8"));
+// LANGUAGE. Defaults to English (this driver's whole history until now).
+// "do other languages... it shows us if we are doing too much of an
+// english shaped solution" (user, this session) — --lang= swaps the ONE
+// thing that is cheaply, honestly portable (a real, giver-cited POS prior
+// already built for these languages from Universal Dependencies treebanks,
+// native/priors/pos-*.json) and the pronoun set the void-detector scans
+// for. Everything else in this driver is left AS-IS on purpose: sentence
+// splitting, capitalisation-based referent discovery, and the whole
+// subject-inheritance nesting model are English/Latin-script assumptions
+// this pass does NOT paper over — the point of this run is to see where
+// those assumptions hold and where they silently produce nothing, not to
+// ship a polished multilingual reader. Every pronoun list below is a
+// small, disclosed, best-effort set (this project's own NEGATION_WORDS/
+// DEFINITE_DETERMINERS precedent — priors.js — narrow lists with their
+// reason stated, never a claim of a complete paradigm), and several
+// languages' own typology makes the list SHORT ON PURPOSE: Korean is
+// pro-drop (third-person pronouns are grammatically optional and rare in
+// real prose, not merely under-listed here), and Hebrew has no neuter
+// "it" at all (every noun is grammatically masculine or feminine).
+const LANG = (process.argv.find((a) => a.startsWith("--lang=")) ?? "--lang=eng").replace("--lang=", "");
+// JavaScript's `\b` is an ASCII-only boundary (defined against `\w` =
+// [A-Za-z0-9_]) even with the `u` flag — it does NOT become Unicode-aware.
+// A boundary check right against a Greek, Hebrew, or Turkish dotless-ı
+// character silently never fires (both sides read as "non-word" to `\b`,
+// so no transition is ever seen there), which is exactly the class of bug
+// this whole pass exists to catch — found here, in the adaptation meant to
+// TEST for English-shaped assumptions, which is its own finding. Fixed
+// with an explicit Unicode-letter/number lookaround instead of `\b`.
+const wordBound = (alts) => new RegExp(`(?<![\\p{L}\\p{N}])(?:${alts})(?![\\p{L}\\p{N}])`, "iu");
+const LANG_PRONOUNS = {
+  eng: wordBound("she|he|it|her|him|they|them"),
+  fra: wordBound("il|elle|ils|elles|lui|leur|leurs"),
+  tur: wordBound("o|onu|ona|onlar|onları|onların"),
+  kor: /(그녀|그것|그들|그는|그가|그를)/,
+  ell: wordBound("αυτός|αυτή|αυτό|αυτοί|αυτές|αυτά|του|της|τους|τις"),
+  heb: /(הוא|היא|הם|הן)/,
+};
+if (!LANG_PRONOUNS[LANG]) { console.error(`no pronoun set declared for --lang=${LANG} (declared: ${Object.keys(LANG_PRONOUNS).join(", ")})`); process.exit(2); }
+const POS_PRIOR_PATH = path.join(HERE, "../../priors", LANG === "eng" ? "pos-eng.json" : `pos-${LANG}.json`);
+if (!fs.existsSync(POS_PRIOR_PATH)) { console.error(`no POS prior at ${POS_PRIOR_PATH} for --lang=${LANG}`); process.exit(2); }
+const POS_PRIOR = JSON.parse(fs.readFileSync(POS_PRIOR_PATH, "utf8"));
 const thraxOf = (label) => {
   const head = String(label ?? "").trim().split(/\s+/).pop()?.toLowerCase();
   if (!head) return null;
@@ -254,8 +294,10 @@ emit({
 // ── line 1: the priors. What "how to read English" meant for this reading. ─
 emit({
   schema: "EOTRecipe@1",
-  language: "en",
-  reader: "makeRelationReader — the POSITIONAL English reader: an end's role is found by its position in the clause, not by case-marking on the word. English word order carries meaning and this reading uses it.",
+  language: LANG,
+  reader: LANG === "eng"
+    ? "makeRelationReader — the POSITIONAL English reader: an end's role is found by its position in the clause, not by case-marking on the word. English word order carries meaning and this reading uses it."
+    : `makeRelationReader — the SAME positional reader used for English, run on --lang=${LANG} WITHOUT a case-marking or word-order adaptation for this language. Only the POS prior and the void-detector's pronoun set were swapped (see the priors below); sentence splitting, capitalisation-based referent discovery, and the positional (not case-marked) end-role assignment are English/Latin-script assumptions carried over UNCHANGED. This is a deliberate stress test of those assumptions, not a claim of adapted support — read the reading's own hand evaluation for what held and what silently produced nothing.`,
 
   // WHAT GROUND / FIGURE / PATTERN MEANS IN THIS CONTEXT, DECLARED ONCE.
   // User direction, verbatim: "dont call them SVO, call the GFP, and then
@@ -302,7 +344,7 @@ emit({
   },
   priors: [
     { name: "earned verb vocabulary", giver: "this material's own recurrence", scope: `a token is nominated as a verb only after following a recurring surface; minSurfaces ${MIN_SURFACES_PER_VERB}, declared` },
-    { name: "POS refusal gate", giver: "Universal Dependencies UD_English-EWT (CC BY-SA 4.0), native/priors/pos-eng.json", scope: `wordclass.js dominantClass at minShare ${GRAMMAR_MIN_SHARE} — REFUSES a relation whose connector settles as a non-verb; never confirms one (P56: settled means refusable, never confirmable)` },
+    { name: "POS refusal gate", giver: `${POS_PRIOR.provenance?.giver ?? "unknown"}, native/priors/pos-${LANG}.json`, scope: `wordclass.js dominantClass at minShare ${GRAMMAR_MIN_SHARE} — REFUSES a relation whose connector settles as a non-verb; never confirms one (P56: settled means refusable, never confirmable)` },
     { name: "inherited subject", giver: "this reading (new, 2026-09-09)", scope: "a nested clause with no subject of its own is read under the matrix subject that controls it" },
     { name: "script coverage per sentence", giver: "Unicode UCD General_Category (Cased_Letter vs L)", scope: "READING-SPEC S92 — tags each sentence cased/caseless so a mixed English+Mandarin document is readable per segment; this chapter is 100% cased" },
     { name: "case-marking prior", giver: "—", scope: "DELIBERATELY OMITTED. This is the positional reader, not makeCaseMarkedRelationReader. Case-marking is another language's prior, not a missing feature of this one." },
@@ -587,7 +629,7 @@ const boundRanges = new Set(boundSentences.map((b) => `${b.start}-${b.end}`));
 for (const cs of chapterSentences) {
   const key = `${cs.offset}-${cs.offset + cs.text.length}`;
   if (boundRanges.has(key)) continue;
-  if (!/\b(she|he|it|her|him|they|them)\b/i.test(cs.text)) continue;
+  if (!LANG_PRONOUNS[LANG].test(cs.text)) continue;
   emit({
     schema: "EOTObservation@1", id: id("v"),
     at: rawAt(WIN[0] + cs.offset, WIN[0] + cs.offset + cs.text.length),
@@ -920,7 +962,7 @@ const CANONICALIZATION_FLOOR = 2;
   emit({
     schema: "EOTPriorState@1",
     received: [
-      { name: "POSPrior@1 (English)", giver: "Universal Dependencies UD_English-EWT, CC BY-SA 4.0", brought: `${Object.keys(forms).length} attested word forms`, used: "types each arrangement's connector into a cube cell; REFUSES a settled non-relational class, never confirms" },
+      { name: `POSPrior@1 (${LANG})`, giver: POS_PRIOR.provenance?.giver ?? "unknown", brought: `${Object.keys(forms).length} attested word forms`, used: "types each arrangement's connector into a cube cell; REFUSES a settled non-relational class, never confirms" },
       { name: "Unicode UCD General_Category", giver: "Unicode Consortium", used: "cased vs caseless per sentence (S92)" },
       { name: "recall floor", giver: "organs/hypergraph.js PRONOUN_MIN_ACTIVATION / PRONOUN_MIN_MARGIN", used: "how faint a pronoun binding may be and still bind — disclosed by that file as unvalidated against a golden" },
     ],

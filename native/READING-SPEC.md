@@ -4992,3 +4992,64 @@ User direction, verbatim, after asking what the loader's no-cast guarantee actua
 **`--lexicon=` now takes a comma-separated list**, composing like `--prior=` already does, each entry independently required to name its own `giver`. Verified live: a genuinely new third text (A Tale of Two Cities, ch1, never read before) offered both lexicons at once — AIW's 287 verbs contributed 281 new, Dorian Gray's 183 contributed 113 more on top of that (70 already covered by AIW+the chapter's own vocabulary), each figure disclosed per-lexicon on the `EOTReadingPass@1` line rather than folded into one opaque total. Propositions found rose 76→90 on the same 20 sentences with zero new bytes read.
 
 **A different, unrelated finding surfaced by the same test, disclosed rather than chased:** A Tale of Two Cities restarts "CHAPTER I." at the start of every Book (Book the First, Book the Second, Book the Third each number their own chapters from I), which `eot-jsonl.mjs`'s flat sequential-ordinal chapter detection does not account for — reading "chapter 1" of this file does not reliably mean what it means for a single-book novel. The scratch read that surfaced this was discarded rather than kept as a result, since its numbers reflect the wrong window, not the material. Fixing multi-book chapter numbering is real, scoped, unattempted work — named here so it is not rediscovered as new.
+
+## S103 — Five languages, hand-evaluated: the ledger's address layer is language-general, the referent layer is not — it doesn't just underperform, it hijacks (2026-09-09)
+
+**Generality:** specimen-scoped for every number (one Wikipedia article per language, one language-agnostic recoverability property tested five ways); universal for the mechanism-level findings (the `\b` boundary bug, the capitalisation-hijack failure mode) — both are properties of code and a script family, not of these five specific articles.
+
+**User direction, verbatim:** *"do 5 more and evaluate by hand. do other languages"* — then, mid-turn, the reason stated directly: *"the other languages is crucial because it shows us if we are doing too much of an english shaped solution."*
+
+### Finding the material: two corpus directories, one already-diagnosed defect, extended
+
+`live_priors/01-literature-books/gutenberg/`'s language-tagged files (`pg10671_The_Iliad__Greek_.txt`, `pg17270_The_Aeneid__Latin_.txt`, `pg2636_Faust__German_.txt`, `pg5196_Don_Quixote__Spanish_.txt`) were checked before use and found to be five DIFFERENT books entirely (Erasmus Darwin's *The Botanic Garden*; an anonymous *Interlude of Wealth and Health*; Rafael Sabatini's *Historical Nights' Entertainment*; an unrelated "Romance of Santa Catalina") — none of it what the filename claims, none of it non-English. A search of other sessions' transcripts (`search_session_transcripts`) surfaced `live_priors/digested/CORPUS-INTEGRITY-FINDING.md`, an existing, more thorough version of the same finding against a DIFFERENT directory, `11-multi-language/gutenberg-non-en/`: **all 20 of 20 files checked disagree with their own path.** That document's own recommendation was followed rather than re-litigated: it names `11-multi-language/wikipedia-lang/` as individually verified, real, giver-cited (Wikipedia, CC BY-SA 4.0, real pageids) text in exactly the languages this pass needed. This entry's own gutenberg/ finding is new information (a THIRD corrupted directory, not the two already on record) and is filed as an addendum to that document rather than a separate one, per its own closing invitation.
+
+### The five readings
+
+French (fra), Turkish (tur), Korean (kor), Modern Greek (ell), Hebrew (heb) — chosen for script spread (Latin / Latin-agglutinative / Hangul / Greek / Hebrew-RTL) with a real POS prior already built for each (`native/priors/pos-{fra,tur,kor,ell,heb}.json`, Universal Dependencies treebanks, built by a concurrent session). Each source is a real Wikipedia "Philosophy" article, wrapped in a bare `CHAPTER I.\n<title>\n\n` header (the ONLY origin modification — the body is byte-identical to the verified corpus file) so `eot-jsonl.mjs`'s chapter-window detection has something to find; a Wikipedia article carries no narrative chapter structure of its own.
+
+**`--lang=` added, deliberately narrow.** Swaps two things only: the POS prior path, and the pronoun regex the void-detector scans for (a small, disclosed, best-effort list per language — this project's own `NEGATION_WORDS`/`DEFINITE_DETERMINERS` precedent, never a claimed-complete paradigm). Everything else — sentence splitting, capitalisation-based referent discovery, the whole subject-inheritance nesting model, the positional (not case-marked) end-role assignment `eot-jsonl.mjs`'s own priors list already calls out by name ("case-marking is another language's prior, not a missing feature of this one") — is carried over from the English reading UNCHANGED, on purpose: the question is where those assumptions hold and where they silently produce nothing, not whether five languages can be made to look adapted.
+
+**A bug found in the adaptation meant to TEST for English-shapedness, which is its own finding.** JavaScript's `\b` is an ASCII-only boundary (`\w` = `[A-Za-z0-9_]`) even with the `u` flag — a boundary check immediately against a Greek letter, a Hebrew letter, or Turkish's dotless-ı never fires, because both sides of the position read as "non-word" to `\b` and no transition is seen. Measured directly (`node -e`) before trusting any downstream number: `/\bαυτός\b/iu.test("και αυτός είναι")` → **false**; the same pattern without `\b` → true. The first pass's Greek reading reported **zero** voids — not because Greek pronouns are rare in the text (10 raw occurrences confirmed by grep) but because the boundary check silently never matched one. Fixed with an explicit `(?<![\p{L}\p{N}])...(?![\p{L}\p{N}])` lookaround; Greek's void count went 0 → 72 on the identical text, and Turkish's went 3 → 0 (the reverse direction — the broken check had been producing false positives there, not false negatives; Turkish's own pro-drop tendency plus this short article's register may simply not use the listed pronouns at the rate assumed). English, French and the Korean/Hebrew substring checks (which never used `\b`) were unaffected — verified by rerunning the AIW goldens byte-for-byte identical after the fix.
+
+### Result 1 — the address layer does not care what language it is holding
+
+`recoverability.mjs` (S101's own metric, made language-parametric via a `bookPath` argument for this pass) reports **100% recoverable, zero gaps, in all five languages** — Hebrew's right-to-left script, Korean's Hangul with no inter-character spacing signal, Greek's diacritics, all included. Sentence-splitting on terminal punctuation and the ledger's address-nesting architecture (S95) are the one part of this whole pipeline that is genuinely, measurably language-general. This is the positive half of the finding, and it should not be read past what it says: it is a claim about BYTE COVERAGE, not about whether anything USEFUL was extracted from those bytes — see Result 2.
+
+### Result 2 — a gradient by script distance from Latin/capitalised, that collapses into something worse than "nothing" for two of five
+
+| language | sentences | propositions | typed absences | entities | voids |
+|---|---|---|---|---|---|
+| French | 316 | 501 | 90 | 52 | 48 |
+| Turkish | 126 | 100 | 67 | 22 | 0 |
+| Greek | 271 | 85 | 178 | 15 | 72 |
+| Korean | 129 | 4 | 127 | 1 | 5 |
+| Hebrew | 136 | 3 | 134 | 4 | 34 |
+
+French and Turkish (Latin script, a capitalisation convention loosely resembling English's) still produced real, if degraded, output — but the degradation is concrete and worth naming, not just "noisier": French produced `None | du | ` and `None | qui | ` (subject-span extraction failing outright on French clause shapes the English-tuned positional reader doesn't recognise, `qui` — a relative pronoun — mistyped as a connector), and `Étude d'un groupe | dans | la littérature grecque` (a citation's own internal apparatus read as if it were a clause of the article). Turkish surfaced `None | of | ` — the English word "of" appearing as a connector LABEL in a Turkish-language reading, because nothing about `--lang=` touches the small closed-class fallback vocabulary `extractRelations` itself carries, which is English.
+
+**Korean and Greek's propositions are dominated by typed absence** (178/271 and 127/129 sentences respectively) — the referent-discovery mechanism (`extractSurfaces`/`discoverReferents`, capitalisation-based) finds almost nothing to anchor a candidate verb against, because Korean's script has no case distinction at all and Greek's does not capitalise common nouns any more freely than English does (the difference is that Greek's own proper-noun capitalisation didn't happen to coincide with much of this particular article's own vocabulary once the extraction chain's other English-shaped links are accounted for).
+
+### Result 3 — the actual headline: capitalisation-based referent discovery doesn't just fail on non-Latin script, it hijacks the reading toward embedded English debris
+
+Korean and Hebrew's propositions were read by hand — all 4, all 3 of them:
+
+```
+Korean:  enny Teichmann | and | Katherine C
+         None | is |
+         abstract | and | very general
+         reason | and | human purpose
+         A Guide | through | the Subject (Oxford University Press
+         None | is |
+
+Hebrew:  The School | of | Athens" by Raffaello Sanzio da Urbino
+         The School | da | Urbino
+         Internet Encyclopedia | of | Philosophyen-US2025-12-13}}
+```
+
+**Every single one of these seven propositions is built from ENGLISH-LANGUAGE citation and image-caption debris embedded in the Korean and Hebrew Wikipedia articles** — a bibliography entry ("Jenny Teichmann and Katherine C[oncannon], *Philosophy: A Guide through the Subject*, Oxford University Press"), an image credit ("The School of Athens by Raffaello Sanzio da Urbino"), a reference-template artifact ("Internet Encyclopedia of Philosophy," a citation timestamp). **None of the actual Korean or Hebrew prose — the article's real content — produced a single proposition in either reading.** This is not the same failure as Korean/Greek's typed-absence collapse above; it is worse, because the reading does not look empty. It looks like it read something, and reports a real cast (`entities: 1` for Korean, `4` for Hebrew) and real arrangements — all of it spurious, all of it English, none of it about the subject the article is actually about.
+
+**The mechanism is legible, not mysterious.** `extractSurfaces`/`discoverReferents`'s capitalisation heuristic has NOTHING to seize on in the surrounding Hangul or Hebrew prose (neither script marks proper nouns by case at all), so the ONLY spans in the whole document that look like candidate referents to an English/Latin-capitalisation-tuned organ are the incidentally-capitalised English fragments sitting in the citation apparatus. Everything downstream — vocabulary discovery, clause extraction — organises itself around those few spurious anchors, because they are the only anchors available. A reader with no signal at all would report absence, honestly, the way most of Korean's 129 sentences did. A reader with a WRONG signal that happens to fire produces something that reads as content and is not — the more dangerous failure mode, and the one a recall percentage alone would never surface (both readings would score identically low against a golden; only reading the actual propositions by hand shows one is honestly empty and the other is confidently wrong).
+
+### What this answers, and what it leaves open
+
+The user's question — is this pipeline too English-shaped — has a real, two-part answer now instead of a guess: the ADDRESS layer (S95's core architecture) is not; the REFERENT layer is, badly, in a way that gets WORSE than silence for scripts with no capitalisation convention. Not attempted here, named for whoever picks it up next: a non-capitalisation referent-discovery signal (frequency-based nominal-phrase detection, or a language-specific named-entity list) for scripts where capitalisation carries no information; a filter that recognises and excludes citation/caption apparatus before extraction rather than after; genuine case-marking support for Turkish (`makeCaseMarkedRelationReader`, named but not built, per this driver's own priors-list entry); and real sentence-boundary conventions per script rather than one Latin-punctuation-shaped splitter. Five languages, one article each, is a stress test, not a benchmark — the numbers above are not claimed to generalise to a different genre, a longer document, or a different Wikipedia topic without checking again.
