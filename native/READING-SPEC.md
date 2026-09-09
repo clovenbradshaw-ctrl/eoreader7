@@ -4843,3 +4843,42 @@ Wiktionary speaks to all three, and to none of them as a thesaurus: **per-sense 
 - **A model joins the WITNESSES.** `organs/testimony.js` holds the discipline: ONE claim, ONE page, ONE binary question asked TWICE (the claim, then its sibling-swapped twin), with the verdict derived mechanically from the pair — because gemma2:2b returned the right `because` and the wrong label, so classification was taken away from the model entirely. Its testimony lands typed beside the byte and structural tiers; it never becomes a prior, and it never gates.
 
 A contested address (two readings of the same bytes, S95) is exactly the shape the witness tier answers: a binary question about one passage. A grain gap is exactly the shape the prior tier answers. Sending either to the other tier is the confusion this entry exists to prevent.
+
+## S100 — The admission door still refuses what S95 says to keep, and the plan that follows from the three-chapter baseline (2026-09-09)
+
+**Generality:** universal for the defect; the ordering below is derived from measurements over Alice ch1–3 and should be re-derived when the corpus widens.
+
+### The defect: the Ground grain survives on an accident of wiring
+
+`organs/hyperlexicon.js::admit` — the door every text reading passes through — carries one English gate:
+
+```js
+c?.settled && c.thraxClass && c.thraxClass !== VERB_CLASS
+  ? { reason: REFUSALS.NOT_A_VERB, detail: `"${label}" settles as ${c.thraxClass}` }
+```
+
+A settled non-verb connector is refused. That refuses **every Field**: `burning | with | curiosity` settles "with" as a preposition and is turned away as "not a verb" — exactly the mistake S95 corrected, sitting live in the admission path.
+
+**It is not firing today, and that is luck rather than design.** `live_priors/scripts/eot-sidecar.mjs` calls `admit(log, edges, { witness })` with no `classifyConnector`, and its recipe documents the organ as "per-EDGE DISCLOSURE ONLY, never gates admission." So the Ground grain is preserved because nobody wired the gate — and a future pass tightening precision would switch it on and silently delete a whole terrain.
+
+**The fix is S96's correction one tier over:** the door should TYPE by grain, not REFUSE by non-verbness. Same received prior, same P56 asymmetry, one decision later — a settled preposition becomes `CON·Ground`, a conjunction `SEG·Figure`, and only a class that cannot head a relation at all (noun, adjective, adverb, pronoun) is refused. This is the third place the same confusion has been found: the vocabulary tier (S96), this driver's own typing (S95), and now the kernel-facing door.
+
+**What the hyperlexicon is actually for, since this keeps being misread.** It is the TEXT FACE of `kernel/notes.js`, and its mechanism is accumulation across sightings — first sighting INS, re-sighting SYN, witnesses and spans unioned. The specimen it was built against was a wrong answer given "because nothing accumulated." Its value is therefore in the MERGE: the same assertion arriving from a second surface. In a single-document sidecar it is given a fresh ledger per file (a shared one would leak identity across documents), so it acts as a door and barely accumulates at all.
+
+### The plan, ordered by measured leverage rather than by appetite
+
+The baseline every item is judged against: **801 hand-authored propositions, 11.4% recall, 454 emitted against 91 a reader would draw** (S98). The ordering constraints are real and are stated with each item, because doing these in the wrong order produces numbers that cannot be interpreted.
+
+**1. Type at the door instead of refusing (this entry).** Not a recall gain — a regression guard. Cheap, and it must land before anyone tries to improve precision, because the obvious precision move is to arm the gate that deletes the Ground grain.
+
+**2. The mandatory-object gate (S90).** `relations.js` requires both a subject group and an object group, so **66 of 801 propositions (8.2%) cannot be admitted under any configuration.** This is the largest measured single gain available and it is a hard floor under everything else. Its own risk is precision: the gate currently suppresses a great deal of junk along with the intransitives, so this must be scored against all three goldens, not one.
+
+**3. Referent coverage.** 26 of 187 arrangements carry a referent in ch1; 11 of 135 in ch3, where the bound-pronoun join reached `inBoundRange: 0`. **Two separate measurements are blocked behind this**: the surprise decay check (S97 — it reports 1.00 novel-rate on both chapters because 26 observations across ~20 verbs cannot recur) and any claim about the being-centred neighbourhood. Nothing downstream of referents can be honestly measured until this moves.
+
+**4. Inject `ask` (S97).** `interrogateCube` reads `ask ? await ask(…) : null`, so `deriveSurprise`/`deriveTension`/`deriveRelease` profile nothing and 87 encounters yield zero operations. **Deliberately after 3**, because wiring the dynamics onto a reading whose referents are 14% covered produces better-typed zeros, not better readings.
+
+**5. Wiktionary as a received prior (S99).** Per-sense transitivity, sense-level POS, closed-class membership — judged on marginal admits, never aggregate coverage, and only after checking the dumps actually carry those markings usably. **Deliberately after 2**, because transitivity's whole value is telling the extraction gate when no object is expected; bought before the gate can act on it, it buys nothing. The already-measured negative on the synonym route (1,404 notes, one candidate) stands and is not reopened.
+
+**6. The precision problem, which is not yet diagnosed.** 454 emitted against 91 real is the largest number on the board and nobody has read the 363 non-matching arrangements to find out what they are. Until someone does, "improve precision" is not a task, it is a wish. This wants its own measurement pass before it becomes work.
+
+**What is deliberately NOT on this list.** Migrating `eot-sidecar.mjs` to the ledger form (LP18/LP19) is real and disclosed, but it changes the artifact rather than the reading, so it buys no recall and should not be sequenced against items that do. And no item here may be scored on one chapter: three goldens exist precisely so that a number moving on one and not the others is visible as a specimen effect rather than a gain.

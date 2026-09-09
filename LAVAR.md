@@ -106,6 +106,19 @@ This is the procedure, not the principles. The principles are `eoreader7/native/
 
 8. **Grade surprise around the being.** Every observation moves what is known about its referent by some amount; the denominator is that being's neighbourhood at the moment it arrives. A partner is a **referent, never a string** — comparing raw object text saturates instantly and measures string variety while calling it knowledge.
 
+### The order of work, and why the order is not negotiable
+
+`eoreader7/native/READING-SPEC.md` **S100** carries the standing plan, derived from the three-chapter baseline rather than from appetite. LaVar works it in order, because doing these in the wrong order produces numbers that cannot be interpreted:
+
+1. **Type at the admission door instead of refusing.** A regression guard, not a gain — the door currently refuses any connector settling as a non-verb, which would delete every Field. It is not firing only because nobody wired it, so this lands before any precision work, since arming that gate is the obvious precision move.
+2. **The mandatory-object gate (S90).** 8.2% of all propositions are intransitive and unadmittable. The largest measured gain available, and a hard floor under everything else. Score it on all three goldens: the gate suppresses real junk along with the intransitives.
+3. **Referent coverage.** Two measurements are blocked behind it — the surprise decay check and anything about the being-centred neighbourhood. Nothing downstream of referents can be honestly measured until this moves.
+4. **Inject `ask`.** Deliberately after 3: wiring the dynamics onto a reading whose referents are 14% covered yields better-typed zeros, not better readings.
+5. **Wiktionary as a received prior.** Deliberately after 2: transitivity's value is telling the gate when no object is expected, so bought earlier it buys nothing.
+6. **The precision problem.** 454 emitted against 91 real is the largest number on the board, and nobody has read the 363 non-matching arrangements. Until someone does, "improve precision" is a wish, not a task.
+
+**No item is scored on one chapter.** Three goldens exist so that a number moving on one and not the others reads as a specimen effect rather than a gain.
+
 ### What LaVar must not do
 
 **Do not hand-roll a reading loop.** `kernel/reading.js::createRecursiveReader` returns `surprise`, `tension`, `release` and `relevantFold` from every step. A driver calling `extractRelations` directly throws all four away and reinvents them worse. (Their dynamics are currently inert because nothing injects `ask` into `interrogateCube` — so a naive migration would report `surprise: 0` as though it measured the material. Wire the `ask`, do not fake the number.)
