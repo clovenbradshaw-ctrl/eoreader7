@@ -4757,3 +4757,35 @@ The same test file pins what the lever does NOT do, and it is the reason it is s
 **Still open, named rather than tuned away.** Ambiguous tokens (`very`, `so`, `own`, `my`, `best`) settle at no class under a 0.5 share, so they land in the grain-gap bucket and are kept alongside the legitimate unsettled cases like "to" — 43 grain gaps on this chapter, a mix of real absence-of-verdict and extraction artifact that this reading cannot currently tell apart. Chasing that further would mean fitting one chapter. And the anchors bind 40 of 87 sentences; the other 27 are refused by the recall floor, so their verbs remain unhearable.
 
 **Not migrated.** `adapters/text/recursive.js` (the production reader) and `live_priors/scripts/eot-sidecar.mjs` still pass no `anchorSpans` and still gate the vocabulary rather than the arrangement. Every sidecar in that corpus carries this defect. That migration is real, scoped, unattempted work.
+
+## S97 — Identity is a centre of expansion; ascending compresses and drilling re-expands; and surprise is graded, measured around the being (2026-09-09)
+
+**Generality:** universal for the three rules; the corpus-decay check below is stated as a falsifiable prediction and is **currently untestable on this instrument** — see the last section, which is the honest part of this entry.
+
+### 1. A referent is a centre of expansion, never a label on an arrangement's end.
+
+`docs/THE-HOLOGRAPH.md` §1: an address expands to "the bytes, the claims around them, **the referent's whole neighbourhood**." So identity is the world folded around a being, and the being is the point the folding happens at. An `end1Ref` hanging off an arrangement is the annotation, not the thing; the thing is what the record can expand that id into. `kernel/reading.js` already wires `relevantNeighborhood` (with `adapters.selectNeighborhood`) for exactly this.
+
+### 2. Ascending the terrain ladder COMPRESSES; drilling down RE-EXPANDS. They are inverses, and the ladder is a compression ladder.
+
+`THE-HOLOGRAPH.md` §2, verbatim: "the level ladder is a compression ladder, and if it does not compress, the abstraction failed, not the consumer." Figure→Pattern (Entity→Kind, Link→Network, Lens→Paradigm) is the ascent. Drilling down is the same move reversed — and the record performs it, never the consumer, because "a model handed an address will write one, and a written address is a fabrication order."
+
+**The top three tiers are admitted by prediction, mechanically.** `kernel/terrain-math.js::interpretiveParadigmModels` refuses to form a Paradigm unless `compressionGain > 0`, with ≥2 members and ≥2 independent grounds. A model that does not predict its members more cheaply than listing them is **not admitted**. Prediction is the entry fee for the Pattern tier; surprise is what later challenges it (`deriveSurprise`'s own `patternEffects`). `shannonEntropy` sits in the same file.
+
+### 3. Surprise is GRADED and measured around the being — never a flag on the few observations that contradict something.
+
+User direction, verbatim: *"it should all be surprising to some degree to move our knowledge of what we learn about alice for example."* Every arrangement moves what is known about the being it concerns, by some amount. The first thing said about Alice moves everything; the twentieth restatement of a relation already recorded moves almost nothing. The denominator is the being's own neighbourhood at the moment the observation arrives, walked in address order (= reading order). Nothing is thresholded: the measure counts what is new — a relation this being was never in, a partner it was never joined to — and the number rides for a consumer to weigh.
+
+**A partner is a REFERENT, never a string.** The first cut used the other end's raw text and saturated instantly (novel-rate 1.00, familiar 0) because a full object phrase never repeats verbatim — measuring string variety and calling it knowledge. Same defect as ends-that-are-strings, one layer up, and worse there because it saturates a measurement rather than merely thinning one.
+
+### 4. The first book read is the most surprising book ever read — and that decay is the instrument's own falsifiable check.
+
+User direction, verbatim: *"the first book we read will be the most surprising book we've ever read."* This follows from the bootstrap with no slack: with no accumulated prior, everything is novel, so surprise is maximal by construction. As priors accumulate the novel-rate must FALL. **If it does not fall across a corpus, the priors are not accumulating and the reading is not learning** — which makes the decay curve a standing test of the whole apparatus, not a nice property of it.
+
+**Measured, and it does not yet run.** Chapter 1 with no prior and Chapter 2 carrying Chapter 1 both report novel-rate **1.00, familiar 0**. Two separate attempts to make the number move failed, and the cause is not the metric: only 26 of 187 arrangements carry a referent at all, and those 26 spread across ~20 distinct verbs, so nothing recurs and every observation is novel by default. **The check is blocked on referent coverage, and is reported as blocked rather than as a passing result** — a decay curve computed over 26 observations would be a number about the sample, not about learning.
+
+### 5. Two bypasses found the same day, both the "organ with no input" shape (P88).
+
+**The driver bypassed the assembled reader.** `eval/lavar/eot-jsonl.mjs` called `extractRelations` directly instead of driving `createRecursiveReader`, and so hand-rolled a reading loop that discards four quantities the assembled reader already returns from every step (`reading.js:93`): `surprise` (`kernel/dynamics.js::deriveSurprise`, the delta's own profile — touched addresses, recanonicalizations, expectation and pattern effects), `tension` (`deriveTension` — open obligations, their interaction network, and how long each has persisted: this is strain), `release` (`deriveRelease`), and `relevantFold` (the neighbourhood). All four were reinvented worse or lost.
+
+**And the assembled reader's dynamics are themselves inert, because nothing injects `ask`.** `kernel/interrogation.js::interrogateCube` reads `const answer = ask ? await ask({…}) : null`, so with no `ask` adapter every cube address answers `changed: false` with no effects, the delta carries no operations, and `deriveSurprise` profiles nothing. Measured: 87 encounters stepped through `createRecursiveReader` over Chapter 1 produce **zero surprise operations on every step** and 14 graph entries. Grepped: `createRecursiveReader` is called only by `tests/` and the docs — no production caller anywhere, and no caller at all injects `ask`. **A naive migration onto the assembled reader would have reported `surprise: 0` as though it were a measurement of the material.** Wiring `ask`/`revise` is the real work this names and does not attempt.

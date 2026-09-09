@@ -55,10 +55,13 @@ import { fileURLToPath } from "node:url";
 import { splitSentences, normaliseNewlines } from "../../adapters/text/spans.js";
 import { extractRelations, discoverRelationVocab } from "../../adapters/text/relations.js";
 import { extractSurfaces, scriptCoverageBySentence, accumulateSurfaceEvidence, createSurfaceEvidence, surfacesFromEvidence, discoverReferents } from "../../adapters/text/surfaces.js";
-import { bindNarrationFrames } from "../../adapters/text/perspective-claims.js";
+import { bindNarrationFrames, pronounResolver } from "../../adapters/text/perspective-claims.js";
 import { boundAnchorSpans } from "../../adapters/text/vocabulary.js";
 import { classifyWord, dominantClass } from "../../adapters/text/wordclass.js";
 import * as cube from "../../kernel/cube.js";
+import { receivedGround, applyDelta } from "../../kernel/fold.js";
+import { deriveIdentityRevision } from "../../kernel/identity.js";
+import { textIdentityEvidence } from "../../adapters/text/identity-evidence.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const LP_ROOT = path.resolve(HERE, "../../../../live_priors");
@@ -98,6 +101,23 @@ if (!sourcePath) { console.error("usage: node eot-jsonl.mjs <path-to-origin-docu
 const originBytes = fs.readFileSync(sourcePath, "utf8");
 const sha256 = crypto.createHash("sha256").update(originBytes, "utf8").digest("hex");
 const READ_CHAPTER = Number(process.argv[3] ?? 1);
+// REREADING. User direction, verbatim: "sometimes it helps to reread a
+// chapter for a person" / "now with CH 1 and Ch2 as priors, reread ch 1".
+//
+// A reread is NOT lookahead, and the difference is the whole justification.
+// A first pass may not use what it has not yet read — that is S3's law and
+// why the vocabulary is earned from the chapter alone. But a REREAD legitimately
+// knows the later chapters, BECAUSE IT HAS READ THEM. The knowledge is
+// declared, its source named, and the pass is marked as a second one, so no
+// reader of the ledger can mistake a reread's reach for a first pass's.
+//
+// What a loaded prior carries is what an earlier reading EARNED: its verb
+// vocabulary and its cast. Nothing about the arrangements is carried — those
+// are re-read from the bytes every time, and where the reread now disagrees
+// with the first pass, the disagreement is appended as a revision rather
+// than overwriting what the first pass honestly saw.
+const PRIOR_CHAPTERS = (process.argv.find((a) => a.startsWith("--prior=")) ?? "")
+  .replace("--prior=", "").split(",").map((x) => Number(x.trim())).filter(Boolean);
 
 // THE ORIGIN HAS CRLF, AND PRESERVING IT EXACTLY MEANS READING AROUND IT,
 // NEVER REWRITING IT. This book's real bytes use \r\n; the chapter file
@@ -326,6 +346,17 @@ if (!chapter) { console.error(`no chapter ${READ_CHAPTER} inferred in this docum
 const WIN = [chapter.headEnd, chapter.end];
 const inWindow = (start, end) => start >= WIN[0] && end <= WIN[1];
 
+// The priors an earlier reading earned, loaded and DISCLOSED. Union, never
+// replacement: what this chapter earns on its own is kept whole, and the
+// prior only ever widens what can be heard.
+const loadedPriors = [];
+for (const n of PRIOR_CHAPTERS) {
+  const f = path.join(HERE, "results", `${path.basename(sourcePath, ".txt")}-ch${n}.prior.json`);
+  if (!fs.existsSync(f)) { console.error(`prior for chapter ${n} not found (${path.basename(f)}) — read it first`); process.exit(2); }
+  loadedPriors.push({ chapter: n, ...JSON.parse(fs.readFileSync(f, "utf8")) });
+}
+
+
 // SCENE BREAKS: a row of asterisks. Chapter 1's flat reading counted all six
 // of these rows as `no_relation_extracted` extraction gaps — they were never
 // noise, they were structure, discarded and then charged against coverage.
@@ -425,6 +456,7 @@ const chapterSentences = splitSentences(chapterText);
 const chapterEvidence = accumulateSurfaceEvidence(chapterSentences, createSurfaceEvidence());
 const { events: castEvents } = discoverReferents(surfacesFromEvidence(chapterEvidence), {});
 const surfaceToReferent = new Map(castEvents.map((e) => [e.surface, e.referent_id]));
+for (const pr of loadedPriors) for (const [sur, ref] of pr.cast ?? []) if (!surfaceToReferent.has(sur)) surfaceToReferent.set(sur, ref);
 
 // Declared, never defaulted — `resolvePronouns` throws without them, and the
 // giver is named rather than a number chosen here: these are
@@ -445,6 +477,115 @@ const { boundSentences, perFrame } = bindNarrationFrames({
   recall: RECALL,
 });
 const anchorSpans = boundAnchorSpans(boundSentences, chapterText);
+
+// ── THE SIG ROW: what is being talked about ──────────────────────────────
+// User's question, verbatim: "we need to be extracting the referents so we
+// actually know what is being talked about, we're missing the SIG row
+// entirely?" Yes — the entire EXISTENCE domain was absent. Every line in
+// this ledger was Structure (CON/SEG: how the material is arranged) or an
+// inferred structural extent. Nothing ever asserted that a BEING is there.
+// Referent ids appeared only as annotations hanging off an arrangement's
+// ends, which makes a being a property of a relation — exactly backwards.
+//
+//   cellOf("SIG","Figure") -> Existence · Relate · terrain ENTITY, stance Binding
+//   cellOf("SIG","Ground") -> Existence · Relate · terrain VOID,   stance Tending
+//   cellOf("SIG","Pattern")-> Existence · Relate · terrain KIND,   stance Tracing
+//
+// TWO ACTS, KEPT APART, because they are in different domains and collapsing
+// them would hide which is revisable. `discoverReferents` emits `DEF.admit`
+// — cellOf("DEF","Figure") = Interpretation · Differentiate · LENS —
+// the READER'S act of judging that these surfaces name one being. The
+// ENTITY is the resulting claim that the being is there. The Lens act can be
+// wrong without the text changing; that is what makes it the revisable one,
+// and why it is recorded rather than folded silently into the Entity.
+const byReferent = new Map();
+for (const ev of castEvents) {
+  if (!byReferent.has(ev.referent_id)) byReferent.set(ev.referent_id, { surfaces: [], provenance: ev.provenance });
+  byReferent.get(ev.referent_id).surfaces.push(ev.surface);
+}
+for (const [refId, info] of byReferent) {
+  // A being's address is where it ENTERS the text — the first occurrence of
+  // any surface it answers to. That makes the entity nest inside the
+  // sentence that introduces it, which is true of the reading and not just
+  // convenient: a being arrives somewhere.
+  let first = Infinity, firstSurface = null;
+  for (const sur of info.surfaces) {
+    const i = chapterText.indexOf(sur);
+    if (i >= 0 && i < first) { first = i; firstSurface = sur; }
+  }
+  if (!Number.isFinite(first)) continue;
+  const occurrences = info.surfaces.reduce((n, sur) => n + chapterText.split(sur).length - 1, 0);
+  const cell = cube.cellOf("SIG", "Figure");
+  emit({
+    schema: "EOTObservation@1", id: id("e"),
+    at: rawAt(WIN[0] + first, WIN[0] + first + firstSurface.length),
+    role: "entity",
+    referent: refId,
+    surfaces: info.surfaces,
+    occurrences,
+    operator: cell.op, grain: cell.grain, terrain: cell.terrain, stance: cell.stance,
+    inferred: true,
+    basis: `${info.provenance?.basis ?? "coreference"} (giver: ${info.provenance?.giver ?? "unknown"}) — the surfaces were clustered by name-variant coreference and this is the being that cluster asserts`,
+  });
+  // The reader's own act, kept as its own line in its own domain.
+  const lens = cube.cellOf("DEF", "Figure");
+  emit({
+    schema: "EOTObservation@1", id: id("d"),
+    at: rawAt(WIN[0] + first, WIN[0] + first + firstSurface.length),
+    role: "admission", referent: refId,
+    operator: lens.op, grain: lens.grain, terrain: lens.terrain, stance: lens.stance,
+    basis: "DEF.admit — surfaces/discoverReferents judged these surfaces to name one being; revisable without the text changing",
+  });
+}
+
+// SIG · Ground — the VOID. A pronoun reached for a being and the reading
+// could not name it. This is not the absence of a record; it is a record of
+// an absence, and it is measurable exactly: `bindNarrationFrames` refused
+// these bindings at the declared recall floor, so the text points at someone
+// and this reader cannot say who.
+const voidCell = cube.cellOf("SIG", "Ground");
+const boundRanges = new Set(boundSentences.map((b) => `${b.start}-${b.end}`));
+for (const cs of chapterSentences) {
+  const key = `${cs.offset}-${cs.offset + cs.text.length}`;
+  if (boundRanges.has(key)) continue;
+  if (!/\b(she|he|it|her|him|they|them)\b/i.test(cs.text)) continue;
+  emit({
+    schema: "EOTObservation@1", id: id("v"),
+    at: rawAt(WIN[0] + cs.offset, WIN[0] + cs.offset + cs.text.length),
+    role: "void", operator: voidCell.op, grain: voidCell.grain,
+    terrain: voidCell.terrain, stance: voidCell.stance,
+    reached: "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
+  });
+}
+
+// ENDS POINT AT REFERENTS, NOT AT STRINGS.
+//
+// User's question, verbatim: "we need it to be pointing at referents, is
+// that happening in the json?" It was not. Every end was a bare surface, so
+// "she" appearing in forty arrangements was forty unlinked strings rather
+// than forty pointers to one being — and the binding that would have linked
+// them was already being computed for the anchors above and then thrown
+// away. A ledger of strings cannot answer "what did Alice do"; that is the
+// whole point of the holograph, and it was missing.
+//
+// `pronounResolver` is the range join built for exactly this
+// (perspective-claims.js): (surface, byteOffset) -> referentId, with every
+// stage counted so a silent no-match is visible rather than reading as "no
+// referent was there". Two ways an end resolves, in order:
+//   1. the surface IS a known name — `surfaceToReferent`, an exact cast hit
+//   2. the surface is a pronoun sitting inside a BOUND sentence range —
+//      the range join, which is why an unbound pronoun still resolves to
+//      nothing at all
+// Anything else records NO referent field. An unresolved end is left as its
+// surface and says so by omission — never guessed, and never quietly
+// pointed at the nearest candidate (P38: an ambiguous bare form is a typed
+// gap with candidates, never a third being).
+const { resolve: resolveEnd, counters: refCounters } = pronounResolver(boundSentences);
+const endRef = (surface, chapterLocalOffset) => {
+  const direct = surfaceToReferent.get(String(surface ?? "").trim());
+  if (direct) return direct;
+  return Number.isFinite(chapterLocalOffset) ? resolveEnd(surface, chapterLocalOffset) : null;
+};
 
 // Vocabulary is earned from THIS CHAPTER's own text, not the whole book —
 // the reading is scoped to the chapter, so what it has been able to learn
@@ -471,7 +612,10 @@ const anchorSpans = boundAnchorSpans(boundSentences, chapterText);
 // of narrowing what may be found. Same evidence, same P56 asymmetry, one
 // tier later.
 const vocabReport = discoverRelationVocab(chapterText, { surfaces, minSurfaces: MIN_SURFACES_PER_VERB, anchorSpans });
-const verbs = vocabReport?.verbs instanceof Set ? vocabReport.verbs : new Set(vocabReport?.verbs ?? []);
+
+const ownVerbs = vocabReport?.verbs instanceof Set ? vocabReport.verbs : new Set(vocabReport?.verbs ?? []);
+const verbs = new Set(ownVerbs);
+for (const pr of loadedPriors) for (const v of pr.verbs ?? []) verbs.add(v);
 const opts = { verbs, phrasalPredicates: true, nounPhraseSubjects: true };
 
 const carriesVerb = (t) => String(t ?? "").toLowerCase().split(/[^\p{L}\p{N}’']+/u).some((w) => verbs.has(w));
@@ -492,7 +636,7 @@ const addressOf = (text, withinText, withinStart) => {
   return raw.slice(start, end) === text ? [start, end] : null;
 };
 
-function readClause(subject, objText, objStart, depth) {
+function readClause(subject, objText, objStart, depth, subjectRef = null) {
   if (depth >= MAX_DEPTH || !carriesVerb(objText)) return;
   const inner = extractRelations(`${subject} ${objText}`, opts)[0];
   if (!inner?.object || inner.object === objText) return;
@@ -512,9 +656,12 @@ function readClause(subject, objText, objStart, depth) {
     schema: "EOTObservation@1", id: id("o"), at: rawAt(at[0], at[1]), role: "proposition",
     end1: subject, label: inner.verb, end2: inner.object,
     subjectBasis: "inherited", // controlled by the matrix subject; no subject of its own in the text
+    // The inherited subject's referent is inherited with it — the nested
+    // clause has no subject of its own to resolve independently.
+    ...(subjectRef ? { end1Ref: subjectRef } : {}),
     ...gN,
   });
-  readClause(subject, inner.object, at[0], depth + 1);
+  readClause(subject, inner.object, at[0], depth + 1, subjectRef);
 }
 
 for (const sent of sentences) {
@@ -552,6 +699,9 @@ for (const sent of sentences) {
     if (!e.subject || !e.object) continue;
     const at = addressOf(e.object, sent.text, sent.offset);
     if (!at) continue;
+    const localBase = sent.offset - WIN[0];
+    const ref1 = endRef(e.subject, localBase + (e.subjectOffset ?? NaN));
+    const ref2 = endRef(e.object, localBase + (e.objectOffset ?? NaN));
     const g = grainOf(e.verb);
     if (g.refused) {
       emit({ schema: "EOTRefusal@1", at: rawAt(at[0], at[1]), role: "proposition", reason: "connector_class_cannot_head_a_relation",
@@ -561,9 +711,11 @@ for (const sent of sentences) {
     emit({
       schema: "EOTObservation@1", id: id("o"), at: rawAt(at[0], at[1]), role: "proposition",
       end1: e.subject, label: e.verb, end2: e.object, subjectBasis: "stated",
+      ...(ref1 ? { end1Ref: ref1 } : {}),
+      ...(ref2 ? { end2Ref: ref2 } : {}),
       ...g,
     });
-    readClause(e.subject, e.object, at[0], 1);
+    readClause(e.subject, e.object, at[0], 1, ref1);
   }
 }
 
@@ -609,6 +761,151 @@ for (const r of REVISIONS) {
   });
 }
 
+// ── SURPRISE, AT THE LEVEL OF MEANING: HOW NEW INFORMATION MOVES WHAT WE
+//    THOUGHT ABOUT A BEING ────────────────────────────────────────────────
+// User direction, verbatim: "surprise must exist on the level of meaning in
+// this sense, how it moves the holograph" / "how new information changes
+// what we thought about Alice for example" / "we;ve built all this before
+// search harder."
+//
+// It was built. Nothing here is new machinery, and the searching is the
+// point: `kernel/expectations.js` carries seven states (open, strengthened,
+// weakened, fulfilled, violated, reframed, superseded) with the cube rows
+// already assigned — opening is INS, a transition is EVA, and a REFRAME is
+// REC. `kernel/identity.js::deriveIdentityRevision` already rides that
+// lifecycle whenever a `canonicalizationFloor` is declared, and already
+// SEG/DEFs a contradicted reading and REC-canonicalizes every relation that
+// depended on the identity it just withdrew. Two tests in
+// `tests/identity-revision.test.js` pin exactly that behaviour and predate
+// this pass.
+//
+// So token-rarity was the wrong measure of surprise and is gone. Surprise
+// here is an expectation VIOLATED; the holograph MOVING is one REFRAMED.
+//
+// READ CAUSALLY, one sentence at a time, because that is the only way the
+// states mean anything: an expectation opened at sentence 12 and fulfilled
+// at sentence 40 is a fact about the READING, and folding the whole chapter
+// at once would collapse it into a verdict with no history.
+//
+// THE FLOOR IS DECLARED, never defaulted — the organ refuses a fraction or a
+// guess. 2 is the value its own tests declare and the reason is structural,
+// not tuned: one witness OPENS an identity as a live hypothesis, and a
+// second, INDEPENDENT witness is what licenses projecting it into the
+// relations that depend on it. Below the floor the identity is a prediction
+// the reading is carrying, which is precisely what an open expectation is.
+const CANONICALIZATION_FLOOR = 2;
+{
+  let fold = receivedGround({});
+  let seen = new Map();
+  for (const cs of chapterSentences) {
+    const alternatives = fold.unresolvedAlternatives ?? [];
+    const ev = textIdentityEvidence(cs.text, { alternatives, witness: `s:${cs.offset}` });
+    if (!ev.supports.length && !ev.attacks.length) continue;
+    const delta = deriveIdentityRevision({
+      fold, supports: ev.supports, attacks: ev.attacks,
+      witness: `s:${cs.offset}`, canonicalizationFloor: CANONICALIZATION_FLOOR,
+    });
+    fold = applyDelta(fold, delta);
+    const at = rawAt(WIN[0] + cs.offset, WIN[0] + cs.offset + cs.text.length);
+    for (const op of delta.operations ?? []) {
+      const kind = op.consequence?.kind ?? null;
+      const value = op.payload?.value;
+      if (value?.schema !== "EOExpectation@1") continue;
+      const prior = seen.get(value.id);
+      seen.set(value.id, value.state);
+      const cell = cube.cellOf(op.operator, op.grain ?? "Figure");
+      emit({
+        schema: "EOTObservation@1", id: id("x"), at,
+        role: "expectation",
+        expectation: value.id,
+        hypothesis: value.hypothesis,
+        state: value.state,
+        movedFrom: prior ?? null,
+        operator: op.operator, grain: cell.grain, terrain: cell.terrain, stance: cell.stance,
+        consequence: kind,
+        // The whole point, named on the line itself so no reader has to infer
+        // it: a violated expectation is where this reading was surprised, and
+        // a reframed one is where the holograph actually moved.
+        movesHolograph: value.state === "reframed" || value.state === "violated",
+        basis: `identity evidence in this sentence (${[...new Set([...ev.supports.map((x) => x.reason), ...ev.attacks.map((x) => x.reason)])].join(", ")}); canonicalizationFloor ${CANONICALIZATION_FLOOR}, declared`,
+      });
+    }
+  }
+}
+
+// ── WE NEVER READ FROM NOWHERE ───────────────────────────────────────────
+// User direction, verbatim: "we never read from nowhere, we read with priors
+// loaded, thogh thats hard because this will technically be our first prior"
+// — arriving with two questions the same minute: "and waht about surprise?"
+// and "and strain".
+//
+// Those are one question. SURPRISE AND STRAIN ARE ONLY DEFINABLE AGAINST AN
+// EXPECTATION. A reader that declares no prior cannot be surprised by
+// anything, and a ledger that records no expectation cannot show where the
+// material pushed back. So this line states what was brought, what was
+// taken, and where the two disagreed — before any arrangement is read.
+//
+// THE THREE ARE DIFFERENT KINDS OF FACT and are kept apart:
+//
+//   RECEIVED — brought to the text, true before it was opened (a treebank,
+//     a Unicode property table). S9's "high sets probability for low".
+//   EARNED   — induced from THIS material and true only of it (the verb
+//     vocabulary, the surfaces, the cast). S9's "low sets possible for high".
+//     Never call this a prior: it is what the reading found, not what it knew.
+//   SURPRISE — the material exceeding the received prior. Measured, not
+//     asserted: tokens the treebank never attests at all.
+//   STRAIN   — received and earned disagreeing about the same token.
+//
+// THE BOOTSTRAP, STATED RATHER THAN HIDDEN. Surprise against an ACCUMULATED
+// READING prior is undefined here, because there is no prior reading — this
+// is the first. Reporting that as zero surprise would be a lie of exactly
+// the kind this ledger exists to prevent, so it is a typed gap. What this
+// reading earns BECOMES the prior the next chapter is read against, and the
+// day that comparison is possible is the day this field carries a number.
+{
+  const forms = POS_PRIOR.forms ?? POS_PRIOR;
+  const tokens = [...new Set((chapterText.toLowerCase().match(/[\p{L}’']+/gu) ?? []))];
+  const unattested = tokens.filter((t) => !forms[t]);
+  const strain = [...verbs].filter((v) => {
+    const t = thraxOf(v);
+    return t && t !== "verb";
+  });
+  emit({
+    schema: "EOTPriorState@1",
+    received: [
+      { name: "POSPrior@1 (English)", giver: "Universal Dependencies UD_English-EWT, CC BY-SA 4.0", brought: `${Object.keys(forms).length} attested word forms`, used: "types each arrangement's connector into a cube cell; REFUSES a settled non-relational class, never confirms" },
+      { name: "Unicode UCD General_Category", giver: "Unicode Consortium", used: "cased vs caseless per sentence (S92)" },
+      { name: "recall floor", giver: "organs/hypergraph.js PRONOUN_MIN_ACTIVATION / PRONOUN_MIN_MARGIN", used: "how faint a pronoun binding may be and still bind — disclosed by that file as unvalidated against a golden" },
+    ],
+    earned: {
+      verbs: verbs.size,
+      surfaces: surfaces.length,
+      referents: byReferent.size,
+      boundSentences: boundSentences.length,
+      note: "induced from this chapter alone. Not a prior — what the reading found, and lookahead-free: nothing here was learned from a later chapter.",
+    },
+    surprise: {
+      againstReceivedPrior: {
+        distinctTokens: tokens.length,
+        unattested: unattested.length,
+        share: Number((unattested.length / tokens.length).toFixed(4)),
+        sample: unattested.slice(0, 12),
+        why_it_matters:
+          "discoverRelationVocab's own gate is `verbDominant = !attested ? (lexiconKnows !== false) : verbShare > 0.5` — a witness cannot refuse what it never saw. So the gate FAILS OPEN on every one of these: the reading is least defended exactly where the material is most surprising.",
+      },
+      againstAccumulatedReadingPrior: null,
+      accumulated_gap:
+        "UNDEFINED, not zero. This is the first reading in this corpus, so there is no earlier reading to be surprised against. What this chapter earned becomes the prior the next is read against; this field carries a number the day that comparison exists.",
+    },
+    strain: {
+      tokens: strain,
+      what_it_is:
+        "earned as a connector by this material's own recurrence, while the received prior settles the same token as a non-verb. Not an error and not noise — this is the tension the grain row resolves: `with`/`after` are Field (CON·Ground), `or`/`either` are Distinction (SEG·Figure), and what settles as a class that cannot head a relation at all is refused with its refusal on the record.",
+    },
+  });
+}
+
+
 // ── PROJECTION: the tree, computed from addresses alone ──────────────────
 // Nothing here is stored. Containment is `a.start >= b.start && a.end <= b.end`
 // with the wider span winning; equal spans break the tie by role rank, which
@@ -630,11 +927,193 @@ function project(ledger) {
   return roots;
 }
 
+emit({
+  schema: "EOTReadingPass@1",
+  pass: loadedPriors.length ? 2 : 1,
+  chapter: READ_CHAPTER,
+  priorsLoaded: loadedPriors.map((p) => ({ chapter: p.chapter, verbs: (p.verbs ?? []).length, cast: (p.cast ?? []).length })),
+  earnedHere: { verbs: ownVerbs.size, castSurfaces: surfaces.length },
+  vocabularyAfterUnion: verbs.size,
+  disclosure: loadedPriors.length
+    ? "A REREAD. This pass legitimately knows what the loaded chapters contain because it has read them; that is rereading, not lookahead. Its reach must not be compared with a first pass's without saying so."
+    : "A FIRST PASS. Nothing here was learned from any later chapter — the vocabulary and cast are earned from this chapter's own bytes.",
+});
+
+// ── SURPRISE IS GRADED, AND IT IS MEASURED AROUND THE BEING ──────────────
+// User direction, verbatim: "yeah it should all be surprising to some degree
+// to move our knowledge of what we learn about alice for example."
+//
+// Surprise is not a flag on the few observations that contradict something.
+// EVERY arrangement moves what is known about the being it concerns, by some
+// amount, and the amount is the point: the first thing said about Alice
+// moves everything, the twentieth repetition of a relation already recorded
+// moves almost nothing. A reading that cannot say which is which cannot say
+// where it learned anything.
+//
+// IDENTITY IS A CENTRE OF EXPANSION, NOT A LABEL — `docs/THE-HOLOGRAPH.md`
+// §1: an address expands to "the bytes, the claims around them, THE
+// REFERENT'S WHOLE NEIGHBOURHOOD". So the honest denominator for surprise is
+// that neighbourhood: what is already folded around this being at the moment
+// the new observation arrives. This walks the arrangements in ADDRESS order,
+// which is reading order, and asks of each what it added that the
+// neighbourhood did not already hold.
+//
+// NOTHING IS THRESHOLDED. The measure is a count of what is new — a relation
+// this being was never in before, a partner it was never joined to before —
+// over the size of what was already there. No cutoff decides "surprising
+// enough"; the number rides and a consumer decides. (`kernel/dynamics.js`
+// ::deriveSurprise computes the same shape structurally over a fold delta,
+// and is the organ this would use if the assembled reader were driving —
+// see the disclosure line below for why it is not.)
+{
+  const known = new Map(); // referent -> {labels:Set, partners:Set, count}
+  const arrangements = lines
+    .filter((l) => l.role === "proposition" && l.schema === "EOTObservation@1" && (l.end1Ref || l.end2Ref))
+    .sort((a, b) => a.at[0] - b.at[0]);
+  for (const a of arrangements) {
+    // A PARTNER IS A REFERENT, NEVER A STRING. The first cut of this measure
+    // used the other end's raw text, and it saturated instantly: novel-rate
+    // 1.00 on both chapters, familiar 0, because a full object phrase almost
+    // never repeats verbatim. That made every observation "novel" and the
+    // decay untestable — the metric measured string variety, not knowledge.
+    // This is the same defect one layer up from where it was already found
+    // (ends that are strings are not a referent model), and it saturates a
+    // measurement instead of merely thinning one.
+    for (const [ref, mine, theirs] of [[a.end1Ref, a.end1, a.end2Ref], [a.end2Ref, a.end2, a.end1Ref]]) {
+      if (!ref) continue;
+      if (!known.has(ref)) known.set(ref, { labels: new Set(), partners: new Set(), count: 0 });
+      const n = known.get(ref);
+      const label = String(a.label ?? "").toLowerCase();
+      const partner = String(theirs ?? "").toLowerCase();
+      const novelLabel = !n.labels.has(label);
+      const novelPartner = !n.partners.has(partner);
+      const before = n.count;
+      n.labels.add(label); if (partner) n.partners.add(partner); n.count += 1;
+      emit({
+        schema: "EOTSurprise@1",
+        at: a.at,
+        about: ref,
+        arrangement: a.id,
+        // What this observation added to the world folded around this being.
+        novelRelation: novelLabel,
+        novelPartner,
+        partnerKnown: Boolean(partner),
+        neighbourhoodBefore: before,
+        // First mention moves everything: there was no neighbourhood to be
+        // unsurprised by. Reported as its own case rather than as a large
+        // number, because a ratio against an empty denominator is not a
+        // measurement.
+        firstOfItsBeing: before === 0,
+      });
+    }
+  }
+}
+
+// ── A REREAD RECORDS ONLY WHAT MOVED ─────────────────────────────────────
+// User direction, verbatim: "we should have it in general so that rereading
+// only records DMD, no redundant information" / "rereading should make our
+// understanding richer, and open opportunities to drill down on ambiguity".
+//
+// Three rules, and the first one is what makes the other two legible:
+//
+//   1. NO REDUNDANCY. An arrangement the earlier reading already recorded at
+//      the same address, with the same ends and label, is NOT written again.
+//      Re-stating it would not be a second observation; it would be the same
+//      observation counted twice, and a ledger that inflates on every reread
+//      cannot be read for what changed.
+//   2. ONLY THE DYNAMICS. What the reread contributes is what MOVED — new
+//      arrangements, and disagreements. That is the reading's own delta,
+//      which is the term `kernel/dmd.js` decomposes: its eigenvalues are
+//      estimated from how the reading EVOLVES, and READING-SPEC's standing
+//      constraint (line ~274) is that a causal consumer streams prefixes
+//      rather than batching a whole reading, because batch DMD over a
+//      finished reading is S3's lookahead verbatim.
+//   3. DISAGREEMENT IS AMBIGUITY, NOT CORRECTION. Where a reread reads the
+//      same bytes differently, the honest record is not "the new one wins".
+//      Both readings saw the same text; the text is ambiguous there, and
+//      that is a place to drill down. It is emitted as a CONTEST carrying
+//      both readings, deliberately UNTYPED — `kernel/notes.js` distinguishes
+//      individuation / provenance / force / grain / contest, and its own
+//      rule is that an untyped disagreement "needs typing, not a source".
+//      Typing it here, automatically, would be inventing the very judgement
+//      the contest exists to request.
+//
+// APPEND, NEVER OVERWRITE. The first cut of the reread replaced ch1's ledger
+// outright — breaking S95's own law ("revisions are lines, not edits") in
+// the very mechanism built to honour it. The pass-1 reading survived only
+// because it had been copied aside by hand.
+let priorLines = [];
+const ledgerPath = path.join(HERE, "results", `${path.basename(sourcePath, ".txt")}-ch${READ_CHAPTER}.eot.jsonl`);
+if (loadedPriors.length && fs.existsSync(ledgerPath)) {
+  priorLines = fs.readFileSync(ledgerPath, "utf8").split("\n").filter(Boolean).map((l) => JSON.parse(l));
+}
+if (priorLines.length) {
+  // Case-folded, because "she" and "She" are the SAME reading of the same
+  // bytes. The first cut compared them raw and reported a contest at every
+  // sentence-initial pronoun — a disagreement that exists only in the
+  // comparison, which would send a reader to drill into an ambiguity that
+  // was never there. A contest has to cost something to be worth raising.
+  const fold = (x) => String(x ?? "").toLocaleLowerCase().replace(/\s+/g, " ").trim();
+  const key = (l) => `${l.at?.[0]}-${l.at?.[1]}|${fold(l.end1)}|${fold(l.label)}|${fold(l.end2)}`;
+  const atKey = (l) => `${l.at?.[0]}-${l.at?.[1]}`;
+  const priorProps = priorLines.filter((l) => l.role === "proposition" && l.schema === "EOTObservation@1" && l.end1);
+  const priorByKey = new Set(priorProps.map(key));
+  const priorByAt = new Map();
+  for (const l of priorProps) (priorByAt.get(atKey(l)) ?? priorByAt.set(atKey(l), []).get(atKey(l))).push(l);
+
+  const mine = lines.filter((l) => l.role === "proposition" && l.schema === "EOTObservation@1" && l.end1);
+  const unchanged = mine.filter((l) => priorByKey.has(key(l)));
+  const fresh = mine.filter((l) => !priorByKey.has(key(l)));
+
+  const delta = [];
+  let nextSeq = Math.max(...priorLines.map((l) => l.seq ?? 0)) + 1;
+  const push = (o) => delta.push({ seq: nextSeq++, ...o });
+
+  push({
+    schema: "EOTReadingPass@1", pass: 2, chapter: READ_CHAPTER,
+    priorsLoaded: loadedPriors.map((p) => ({ chapter: p.chapter, verbs: (p.verbs ?? []).length })),
+    vocabularyAfterUnion: verbs.size,
+    delta: { alreadyRecorded: unchanged.length, new: fresh.length, contests: 0 },
+    disclosure: "A REREAD, appended. It legitimately knows the loaded chapters because it has read them; that is rereading, not lookahead. Only what MOVED is written — an arrangement identical to one already on the record is not restated.",
+  });
+
+  let contests = 0;
+  for (const l of fresh) {
+    const rivals = (priorByAt.get(atKey(l)) ?? []).filter((r) => fold(r.label) !== fold(l.label) || fold(r.end1) !== fold(l.end1) || fold(r.end2) !== fold(l.end2));
+    if (rivals.length) {
+      contests += 1;
+      push({
+        schema: "EOTContest@1", at: l.at, role: "proposition",
+        kind: "untyped",
+        readings: [
+          { pass: 1, end1: rivals[0].end1, label: rivals[0].label, end2: rivals[0].end2 },
+          { pass: 2, end1: l.end1, label: l.label, end2: l.end2 },
+        ],
+        needs: "typing — individuation, provenance, force or grain — before a source can settle it (kernel/notes.js). Both passes read the same bytes, so this address is ambiguous rather than one pass being wrong.",
+      });
+      continue;
+    }
+    push({ ...l, seq: undefined, pass: 2, foundOnReread: true });
+  }
+  delta[0].delta.contests = contests;
+  lines.length = 0;
+  lines.push(...priorLines, ...delta.map((d) => (d.seq === undefined ? { ...d, seq: nextSeq++ } : d)));
+  console.log(`reread delta: ${unchanged.length} already recorded (not restated), ${fresh.length - contests} newly found, ${contests} contested addresses`);
+}
+
 const outDir = path.join(HERE, "results");
 fs.mkdirSync(outDir, { recursive: true });
-const base = path.basename(sourcePath, ".txt");
+const base = `${path.basename(sourcePath, ".txt")}-ch${READ_CHAPTER}`; // a ledger per chapter — one file per reading, never overwritten by the next
 const jsonlPath = path.join(outDir, `${base}.eot.jsonl`);
 fs.writeFileSync(jsonlPath, lines.map((l) => JSON.stringify(l)).join("\n") + "\n");
+
+// This reading's own earned prior, for whatever reads next — including a
+// reread of this same chapter.
+fs.mkdirSync(path.join(HERE, "results"), { recursive: true });
+fs.writeFileSync(
+  path.join(HERE, "results", `${path.basename(sourcePath, ".txt")}-ch${READ_CHAPTER}.prior.json`),
+  JSON.stringify({ chapter: READ_CHAPTER, verbs: [...ownVerbs], cast: [...surfaceToReferent] }, null, 1),
+);
 
 const tree = project(lines);
 fs.writeFileSync(path.join(outDir, `${base}.projected.json`), JSON.stringify(tree, null, 1));
@@ -642,6 +1121,9 @@ fs.writeFileSync(path.join(outDir, `${base}.projected.json`), JSON.stringify(tre
 const count = (r) => lines.filter((l) => l.role === r && l.schema === "EOTObservation@1").length;
 const depthOf = (n, d = 0) => (n.children.length ? Math.max(...n.children.map((c) => depthOf(c, d + 1))) : d);
 console.log(`${lines.length} lines — ${count("section")} sections, ${count("paragraph")} paragraphs, ${count("sentence")} sentences, ${count("proposition")} propositions, ${lines.filter((l) => l.grain_gap).length} grain gaps, ${lines.filter((l) => l.schema === "EOTRefusal@1").length} refusals, ${lines.filter((l) => l.schema === "EOTAbsence@1").length} typed absences, ${lines.filter((l) => l.schema === "EOTRevision@1").length} revisions`);
+console.log(`expectations: ${lines.filter((l) => l.role === "expectation").length} lines, ${lines.filter((l) => l.movesHolograph).length} of which move the holograph`);
+console.log(`SIG row: ${lines.filter((l) => l.role === "entity").length} entities, ${lines.filter((l) => l.role === "void").length} voids, ${lines.filter((l) => l.role === "admission").length} lens acts`);
+console.log(`referent join: ${lines.filter((l) => l.end1Ref || l.end2Ref).length} arrangements carry a referent id; join reach ${JSON.stringify(refCounters)}`);
 console.log(`projection: ${tree.length} roots, max nesting depth ${Math.max(...tree.map((t) => depthOf(t)))}`);
 console.log(`jsonl ${(fs.statSync(jsonlPath).size / 1024).toFixed(1)} KB against a source of ${(raw.length / 1024).toFixed(1)} KB`);
 console.log(`-> ${path.relative(process.cwd(), jsonlPath)}`);

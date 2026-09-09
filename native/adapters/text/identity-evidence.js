@@ -1,4 +1,4 @@
-import { DEFINITE_DETERMINERS, INDEFINITE_DETERMINERS } from "./priors.js";
+import { DEFINITE_DETERMINERS, INDEFINITE_DETERMINERS, COPULA_PARADIGM, SUBJECT_PRONOUNS, NEVER_A_NAME, SENTENCE_TERMINATORS } from "./priors.js";
 
 const WORD = /\p{L}[\p{L}\p{M}'’]*/gu;
 const TITLE = /^\p{Lu}/u;
@@ -39,6 +39,73 @@ const supportEvidence = (text, witness, giver) => {
         reason: "text_appositional_identity",
       }));
     }
+  }
+  return supports;
+};
+
+/**
+ * COPULAR IDENTITY: `<Name> <copula> <determiner> <descriptor>`.
+ *
+ * Built because the two shapes above found ZERO evidence in a whole chapter
+ * of real narrative prose (Alice, ch1) — measured, not assumed. That chapter
+ * states its one explicit identity with a copula ("Dinah was the cat"), and
+ * neither apposition nor separated co-presence reads it. An identity organ
+ * that cannot read the commonest English way of stating an identity is an
+ * organ with no input, and it will pass its own tests forever.
+ *
+ * THE COPULA IS RECEIVED, NEVER TYPED HERE: `COPULA_PARADIGM` (priors.js,
+ * giver lang/en). Its own header's scope warning is inherited and matters —
+ * that table folds `is` with `was` and carries NO tense, so this reads "the
+ * same ACT of identification", never "the same claim at the same time". A
+ * consumer that needs "when" must get it elsewhere; this shape does not
+ * supply it.
+ *
+ * A NOMINAL COMPLEMENT IS REQUIRED, and that requirement is what keeps this
+ * conservative. A copula alone is not identity — "Alice was tired" and "it
+ * was too dark" are predications about a state, not claims that two forms
+ * name one being. Demanding a DETERMINER before the descriptor is what
+ * separates "Dinah was THE CAT" (identity) from "Alice was tired" (not), and
+ * it uses the determiner classes this file already receives rather than a
+ * new part-of-speech test.
+ *
+ * This is EVIDENCE, never a verdict: it opens a `live_hypothesis` that
+ * separated co-presence can still attack, exactly as apposition does.
+ */
+const copularEvidence = (text, witness, giver) => {
+  const rs = rows(text);
+  const supports = [];
+  for (let i = 0; i < rs.length; i += 1) {
+    if (!TITLE.test(rs[i].token)) continue;                 // a naming token
+    // "That was a narrow escape" must not open `a narrow escape <-> that`.
+    // The first cut of this fix added a sentence-initial position rule for
+    // that — wrong twice over: it breaks a legitimate name at position 0
+    // (this organ is called per sentence, so "Dinah was the cat" has Dinah
+    // first), and it was unnecessary, because "that" is ALREADY in both
+    // DEFINITE_DETERMINERS and SUBJECT_PRONOUNS. The received closed classes
+    // covered it; a new positional rule did not need inventing.
+    if (SUBJECT_PRONOUNS.has(rs[i].key) || NEVER_A_NAME.has(rs[i].key) || DETERMINERS.has(rs[i].key)) continue;
+    const cop = rs[i + 1];
+    if (!cop || !COPULA_PARADIGM[cop.key]) continue;        // received copula
+    const det = rs[i + 2];
+    if (!det || !DETERMINERS.has(det.key)) continue;        // nominal, not adjectival
+    // ONE SITE, ONE HYPOTHESIS, AND THE MINIMAL NOMINAL. The first cut
+    // emitted a hypothesis per descriptor length, so one piece of evidence
+    // opened two overlapping live alternatives (`london <-> the capital` AND
+    // `london <-> the capital of`) that could never both be corroborated.
+    // Widening to the longest run was worse: "London was the capital of
+    // Paris" ran the descriptor into the preposition. Determiner + exactly
+    // one descriptor is what this file can defend without a preposition
+    // prior it does not receive — "the cat", "the capital". A multi-word
+    // nominal is real and unread here, named rather than guessed at.
+    const descriptorRows = rs.slice(i + 3, i + 4);
+    if (!descriptorRows.length || !descriptorRows.every((x) => LOWER.test(x.token))) continue;
+    supports.push(Object.freeze({
+      left: rs[i].key,
+      right: [det.key, ...descriptorRows.map((x) => x.key)].join(" "),
+      witness,
+      giver,
+      reason: "text_copular_identity",
+    }));
   }
   return supports;
 };
@@ -142,7 +209,7 @@ const attackEvidence = (text, alternatives, supports, witness, giver) => {
  */
 export function textIdentityEvidence(text, { alternatives = [], witness = null, giver = "lang/en:text-identity@1" } = {}) {
   const source = String(text ?? "");
-  const supports = supportEvidence(source, witness, giver);
+  const supports = [...supportEvidence(source, witness, giver), ...copularEvidence(source, witness, giver)];
   const attacks = attackEvidence(source, alternatives, supports, witness, giver);
   return Object.freeze({
     schema: "EOTextIdentityEvidence@1",

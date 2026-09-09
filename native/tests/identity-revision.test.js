@@ -170,3 +170,44 @@ test("a support below a higher floor STRENGTHENS the expectation; no floor decla
   const bareFold = applyDelta(receivedGround({}), bare);
   assert.equal((bareFold.expectations ?? []).length, 0, "no floor, no expectations — byte-identical to before");
 });
+
+// ── copular identity (added 2026-09-09) ──────────────────────────────────
+// Built because the two prior shapes found ZERO evidence across a whole
+// chapter of real narrative prose (Alice ch1) — measured, not assumed. That
+// chapter states its one explicit identity with a copula, which neither
+// apposition nor separated co-presence reads.
+test("copular identity: a nominal complement is evidence, an adjectival one is not", () => {
+  const fires = textIdentityEvidence("(Dinah was the cat.)", { witness: "w:c1" });
+  assert.equal(fires.supports.length, 1);
+  assert.equal(fires.supports[0].left, "dinah");
+  assert.equal(fires.supports[0].right, "the cat");
+  assert.equal(fires.supports[0].reason, "text_copular_identity");
+
+  // A copula alone is NOT identity. Requiring a determiner is what separates
+  // "Dinah was THE CAT" from a predication about a state — without it this
+  // shape would claim Alice and "tired" name one being.
+  for (const notIdentity of ["Alice was tired.", "it was too dark to see anything", "the well was very deep"]) {
+    assert.equal(textIdentityEvidence(notIdentity, { witness: "w:c2" }).supports.length, 0, notIdentity);
+  }
+});
+
+test("copular identity composes with the existing shapes rather than replacing them", () => {
+  const appos = textIdentityEvidence("The hooded courier, Rowan, returned.", { witness: "w:c3" });
+  assert.equal(appos.supports.length, 1, "apposition still read");
+  assert.equal(appos.supports[0].reason, "text_appositional_identity");
+
+  // And a copular support remains a LIVE HYPOTHESIS, attackable exactly as
+  // an appositional one is — evidence, never a verdict.
+  const live = [{ schema: "EOIdentityAlternative@1", id: "identity:dinah:the_cat", left: "dinah", right: "the cat", standing: "live_hypothesis", supportRefs: ["w:c1"], attackRefs: [] }];
+  // SEPARATION IS THE EVIDENCE, and it has to be real separation — measured
+  // while writing this test, not assumed: two intervening tokens do not
+  // attack ("Dinah slept while the cat crossed…" yields nothing), four do.
+  // The rule is reading co-presence at a distance as two beings sharing a
+  // scene, so a pair sitting almost adjacent is correctly not yet evidence
+  // of anything.
+  const attacked = textIdentityEvidence("Dinah waited at the fountain while the cat crossed behind her.", { alternatives: live, witness: "w:c4" });
+  assert.equal(attacked.attacks.length, 1);
+  assert.equal(attacked.attacks[0].reason, "text_separated_copresentation");
+  assert.equal(textIdentityEvidence("Dinah slept while the cat crossed the yard behind her.", { alternatives: live, witness: "w:c5" }).attacks.length, 0,
+    "near-adjacent co-presence is not separation");
+});
