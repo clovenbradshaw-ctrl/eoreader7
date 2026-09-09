@@ -31,7 +31,7 @@ const CONSULT = Number(process.env.CONSULT ?? 3);
 const OFFLINE = process.env.OFFLINE === "1";
 
 const { makeRelationReader } = await import(`${NATIVE}/organs/hypergraph.js`);
-const { makeHyperlexicon } = await import(`${NATIVE}/organs/hyperlexicon.js`);
+const { makeNotesText } = await import(`${NATIVE}/organs/notes-text.js`);
 const { chunkSource, tokenize, blankLabelRows } = await import(`${NATIVE}/organs/source.js`);
 const { extractReadable, parseSearchResults, hostOf } = await import(`${NATIVE}/organs/web.js`);
 const R = await import(`${NATIVE}/organs/ranke.js`);
@@ -53,7 +53,7 @@ const reader = makeRelationReader({
   blankFurniture: (t) => blankLabelRows(t, { minRun: 4, maxCell: 60 }),
   resolvePronouns, nounPhraseSubjects: true,
 });
-const hl = makeHyperlexicon({ createTaskLog: nativeTaskLog.createTaskLog, append: nativeTaskLog.append, projectTasks: nativeTaskLog.projectTasks, ENTRY_KINDS: nativeTaskLog.ENTRY_KINDS, OPERATOR_BASIS: nativeTaskLog.OPERATOR_BASIS, GRAINS, cellOf });
+const hl = makeNotesText({ createTaskLog: nativeTaskLog.createTaskLog, append: nativeTaskLog.append, projectTasks: nativeTaskLog.projectTasks, ENTRY_KINDS: nativeTaskLog.ENTRY_KINDS, OPERATOR_BASIS: nativeTaskLog.OPERATOR_BASIS, GRAINS, cellOf });
 
 // ── the pages, as the reader sees them and as Ranke sees them ────────────
 const PAGES = [
@@ -62,7 +62,7 @@ const PAGES = [
 ].map((p) => { const html = readFileSync(`${FIX}/${p.ref}`, "utf8"); const face = extractReadable(html); return { ...p, html, host: hostOf(p.url), text: face.text, title: face.title }; });
 
 const t0 = Date.now();
-let log = hl.createHyperlexicon({ frame: { reader: "makeRelationReader", walls: true, posPrior: "POSPrior@1", agent: R.RANKE } });
+let log = hl.createNotes({ frame: { reader: "makeRelationReader", walls: true, posPrior: "POSPrior@1", agent: R.RANKE } });
 let heard = 0;
 for (const pg of PAGES) {
   const passages = chunkSource(pg.ref, pg.text);
@@ -188,7 +188,7 @@ console.log(`  quote leads searched: ${quoteLeads.length} note(s), ${run.chased.
 
 // ── THE CONTROL: the redealt ledger, the same kept faces ─────────────────
 const ids = before.map((n) => n.id);
-let redealt = hl.createHyperlexicon({ frame: { reader: "control", redeal: "end2 rotated by one" } });
+let redealt = hl.createNotes({ frame: { reader: "control", redeal: "end2 rotated by one" } });
 for (let i = 0; i < before.length; i += 1) {
   const n = before[i], m = before[(i + 1) % before.length];
   redealt = hl.hear(redealt, { subject: n.subject, verb: n.verb, object: m.object, witness: n.witnesses[0], spans: [] });

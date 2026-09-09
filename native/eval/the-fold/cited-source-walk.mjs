@@ -56,7 +56,7 @@ const NSOURCES = Number(process.env.SOURCES ?? 16);
 const ARMS = (process.env.ARMS ?? "select").split(",");
 
 const { makeRelationReader } = await import(`${NATIVE}/organs/hypergraph.js`);
-const { makeHyperlexicon } = await import(`${NATIVE}/organs/hyperlexicon.js`);
+const { makeNotesText } = await import(`${NATIVE}/organs/notes-text.js`);
 const { chunkSource, tokenize, blankLabelRows, measureOf, blankBelowMeasure } = await import(`${NATIVE}/organs/source.js`);
 const T = await import(`${NATIVE}/organs/index.js`);
 const { corroborateLedger, distinctSources } = T;
@@ -80,7 +80,7 @@ const reader = makeRelationReader({
   blankFurniture: (t) => blankLabelRows(t, { minRun: 4, maxCell: 60 }),
   resolvePronouns, nounPhraseSubjects: true,
 });
-const hl = makeHyperlexicon({ createTaskLog: ntl.createTaskLog, append: ntl.append, projectTasks: ntl.projectTasks, ENTRY_KINDS: ntl.ENTRY_KINDS, OPERATOR_BASIS: ntl.OPERATOR_BASIS, GRAINS, cellOf });
+const hl = makeNotesText({ createTaskLog: ntl.createTaskLog, append: ntl.append, projectTasks: ntl.projectTasks, ENTRY_KINDS: ntl.ENTRY_KINDS, OPERATOR_BASIS: ntl.OPERATOR_BASIS, GRAINS, cellOf });
 
 // ── the sources: one per shared-text group, most-cited first ─────────────
 const walk = JSON.parse(readFileSync(`${HERE}results/ranke-backwards.json`, "utf8"));
@@ -107,7 +107,7 @@ console.log(`hosts: ${[...new Set(sources.map((s) => s.ref.split("|")[0]))].join
 console.log(`model ${MODEL}; budget ${BUDGET} asks; arm ${ARMS.join(",")}\n`);
 
 // ── the ledger ───────────────────────────────────────────────────────────
-let log = hl.createHyperlexicon({ frame: { reader: "makeRelationReader", walls: true, posPrior: "POSPrior@1", model: MODEL, budget: BUDGET, corpus: "cited-source" } });
+let log = hl.createNotes({ frame: { reader: "makeRelationReader", walls: true, posPrior: "POSPrior@1", model: MODEL, budget: BUDGET, corpus: "cited-source" } });
 let heard = 0; const t0 = Date.now();
 const admitted = [];
 const faceEdges = new Map(); // ref -> [{o, sFace, oFace}] — the ordered read's product
@@ -142,12 +142,12 @@ if (REDEAL !== null) {
 // arm spends the same budget on the selected set instead of a near-random one.
 let admit = admitted;
 if (process.env.FACE_ONLY === "1") {
-  let probe = hl.createHyperlexicon({ frame: { probe: "face-select" } });
+  let probe = hl.createNotes({ frame: { probe: "face-select" } });
   for (const a of admitted) probe = hl.admit(probe, a.edges, { witness: a.witness }).log;
   const F = (t) => [...textFeatures(t)];
   const ov = (a, b) => { const x = F(a), y = F(b); return x.length && y.length && x.some((w) => y.includes(w)); };
   const keep = new Set();
-  for (const n of hl.foldHyperlexicon(probe)) {
+  for (const n of hl.foldNotes(probe)) {
     const own = distinctSources(n.witnesses ?? []);
     for (const src of sources) {
       if (own.has(src.ref)) continue;
@@ -160,7 +160,7 @@ if (process.env.FACE_ONLY === "1") {
   console.log(`FACE_ONLY: ${keep.size} notes reached by the ordered read (of the full ledger); walking only those`);
 }
 for (const a of admit) { const r = hl.admit(log, a.edges, { witness: a.witness }); log = r.log; heard += r.heard.length; }
-const notes0 = hl.foldHyperlexicon(log);
+const notes0 = hl.foldNotes(log);
 const planted = [];
 for (let i = 0; i + 1 < Math.min(notes0.length, 8) && planted.length < 4; i += 2) {
   const a = notes0[i], b = notes0[i + 1];
@@ -168,7 +168,7 @@ for (let i = 0; i + 1 < Math.min(notes0.length, 8) && planted.length < 4; i += 2
   log = hl.hear(log, { subject: a.subject, verb: a.verb, object: b.object, witness: "planted:fabrication", spans: [] });
   planted.push(`${a.subject}|${a.verb}|${b.object}`.toLowerCase());
 }
-const before = hl.foldHyperlexicon(log);
+const before = hl.foldNotes(log);
 const gateBefore = before.filter((n) => distinctSources(n.witnesses).size >= 2).length;
 console.log(`ledger: ${before.length} notes (${heard} heard, ${planted.length} planted) in ${((Date.now() - t0) / 1000).toFixed(0)}s; at >=2 distinct sources before the walk: ${gateBefore}\n`);
 
@@ -189,7 +189,7 @@ for (const name of ARMS) {
   calls = 0; const t1 = Date.now();
   const extra = name === "select" ? { selectAsk, splitSentences } : {};
   const r = await corroborateLedger(log, hl, sources, { ask, testimony, maxAsks: BUDGET, ...extra });
-  const after = hl.foldHyperlexicon(r.log);
+  const after = hl.foldNotes(r.log);
   const gate = after.filter((n) => distinctSources(n.witnesses).size >= 2).length;
   const lied = r.attested.filter((a) => planted.includes(`${a.note?.subject}|${a.note?.verb}|${a.note?.object}`.toLowerCase()));
   const secs = (Date.now() - t1) / 1000;

@@ -1,4 +1,4 @@
-// hyperlexicon.test.mjs — the door, and the accumulation, against the REAL
+// notes-text.test.mjs — the door, and the accumulation, against the REAL
 // task-log and the REAL grammar lens over the REAL treebank prior.
 //
 // The specimen throughout is the live turn that produced this module: the
@@ -10,7 +10,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
-import { makeHyperlexicon, assertionId, REFUSALS, VERB_CLASS } from "./hyperlexicon.js";
+import { makeNotesText, assertionId, REFUSALS, VERB_CLASS } from "./notes-text.js";
 import { makeGrammarLens } from "./grammar-lens.js";
 
 // The provider is a DECLARED switch (hypergraph.test.mjs's own precedent):
@@ -34,7 +34,7 @@ const posPrior = JSON.parse(readFileSync(new URL(useLegacy
   : "../eval/the-fold/fixtures/pos-prior-eng.json", import.meta.url), "utf8"));
 const lens = makeGrammarLens({ classifyWord, dominantClass, posPrior, posPriorMeta: POS_PRIOR_META, thraxMeta: THRAX_META });
 
-const hl = makeHyperlexicon(taskLog);
+const hl = makeNotesText(taskLog);
 
 const span = (ref, start, end, text) => ({ ref, start, end, text });
 // Each edge gets its OWN byte range: a shared `at` would make span identity
@@ -74,13 +74,13 @@ test("what admit reports as heard is what the returned log actually holds", () =
   // `append` returns a NEW log. The first version of `admit` called `hear`
   // against the same original log every time and threw away every result, so
   // it reported ten successes and landed none.
-  const { log, heard } = hl.admit(hl.createHyperlexicon(), LIVE_EDGES, { classifyConnector: lens, witness: "w" });
-  assert.equal(hl.foldHyperlexicon(log).length, heard.length);
+  const { log, heard } = hl.admit(hl.createNotes(), LIVE_EDGES, { classifyConnector: lens, witness: "w" });
+  assert.equal(hl.foldNotes(log).length, heard.length);
   assert.ok(heard.length > 0);
 });
 
 test("the door turns away the connectors that are settled non-verbs, and only those", () => {
-  const log = hl.createHyperlexicon();
+  const log = hl.createNotes();
   const { heard, turnedAway } = hl.admit(log, LIVE_EDGES, { classifyConnector: lens, witness: "web:p" });
 
   const refusedVerbs = turnedAway.map((t) => t.edge.verb).sort();
@@ -101,7 +101,7 @@ test("an out-of-vocabulary connector is ADMITTED, never refused — P56's asymme
   for (const w of ["reigned", "ascended", "era's"]) {
     assert.equal(lens({ verb: w }).found, false, `${w} must be out of vocabulary for this test to mean anything`);
   }
-  const log = hl.createHyperlexicon();
+  const log = hl.createNotes();
   const { heard, turnedAway } = hl.admit(log, [edge("the Victorian", "era's", "hallmark industrialization")], {
     classifyConnector: lens,
   });
@@ -110,32 +110,32 @@ test("an out-of-vocabulary connector is ADMITTED, never refused — P56's asymme
 });
 
 test("NO LENS MEANS NO CHECK, and no check never reports a pass", () => {
-  const log = hl.createHyperlexicon();
+  const log = hl.createNotes();
   const { heard, turnedAway } = hl.admit(log, LIVE_EDGES);
   assert.equal(turnedAway.length, 0);
   assert.equal(heard.length, 10, "without a lens every well-formed edge is heard — the check simply did not run");
 });
 
 test("an assertion with no bytes behind it is refused — P5.2 at the door", () => {
-  const log = hl.createHyperlexicon();
+  const log = hl.createNotes();
   const { heard, turnedAway } = hl.admit(log, [{ subject: "A", verb: "met", object: "B", spans: [] }]);
   assert.equal(heard.length, 0);
   assert.equal(turnedAway[0].reason, REFUSALS.UNADDRESSED);
 });
 
 test("a missing end is refused rather than half-heard", () => {
-  const log = hl.createHyperlexicon();
+  const log = hl.createNotes();
   const { turnedAway } = hl.admit(log, [{ subject: "A", verb: "met", object: "", spans: [span("r", 0, 1, "x")] }]);
   assert.equal(turnedAway[0].reason, REFUSALS.INCOMPLETE);
 });
 
 test("HEARING THE SAME THING TWICE MAKES ONE NOTE WITH TWO WITNESSES, not two notes", () => {
   const claim = (ref) => edge("Robert Peel", "served", "as prime minister", [span(ref, 0, 30, "Robert Peel served as prime minister.")]);
-  let log = hl.createHyperlexicon();
+  let log = hl.createNotes();
   ({ log } = hl.admit(log, [claim("web:a")], { witness: "web:a" }));
   ({ log } = hl.admit(log, [claim("web:b")], { witness: "web:b" }));
 
-  const fold = hl.foldHyperlexicon(log);
+  const fold = hl.foldNotes(log);
   assert.equal(fold.length, 1, "one assertion, however many pages state it");
   assert.deepEqual(fold[0].witnesses.sort(), ["web:a", "web:b"]);
   assert.equal(fold[0].spans.length, 2, "and both sources' bytes are kept — the second never erases the first");
@@ -148,13 +148,13 @@ test("HEARING THE SAME THING TWICE MAKES ONE NOTE WITH TWO WITNESSES, not two no
 });
 
 test("the fold ranks by corroboration, so a cut for room drops the least witnessed", () => {
-  let log = hl.createHyperlexicon();
+  let log = hl.createNotes();
   ({ log } = hl.admit(log, [edge("A", "met", "B")], { witness: "one" }));
   const twice = edge("C", "met", "D", [span("web:x", 0, 12, "C met D.")]);
   ({ log } = hl.admit(log, [twice], { witness: "one" }));
   ({ log } = hl.admit(log, [{ ...twice, spans: [span("web:y", 0, 12, "C met D.")] }], { witness: "two" }));
 
-  const fold = hl.foldHyperlexicon(log);
+  const fold = hl.foldNotes(log);
   assert.equal(fold[0].subject, "C", "the corroborated assertion leads");
   assert.equal(fold[0].witnesses.length, 2);
   assert.equal(fold[1].witnesses.length, 1);
@@ -162,23 +162,23 @@ test("the fold ranks by corroboration, so a cut for room drops the least witness
 
 test("identity folds case and surrounding space, so one assertion is one task", () => {
   assert.equal(assertionId("Robert Peel", "served", "as PM"), assertionId("  robert peel ", "SERVED", " as pm "));
-  let log = hl.createHyperlexicon();
+  let log = hl.createNotes();
   ({ log } = hl.admit(log, [edge("Robert Peel", "served", "as PM")], { witness: "a" }));
   ({ log } = hl.admit(log, [edge("robert peel", "served", "as pm")], { witness: "b" }));
-  assert.equal(hl.foldHyperlexicon(log).length, 1);
+  assert.equal(hl.foldNotes(log).length, 1);
 });
 
 test("the log is the reading — the fold is rebuildable from the entries alone", () => {
-  let log = hl.createHyperlexicon();
+  let log = hl.createNotes();
   ({ log } = hl.admit(log, LIVE_EDGES, { classifyConnector: lens, witness: "web:p" }));
-  const before = hl.foldHyperlexicon(log);
+  const before = hl.foldNotes(log);
   assert.ok(before.length, "the fold has to hold something for a replay check to mean anything");
 
   // Replay every entry through the real `append` into a fresh log, the same
   // resumption property build-log.js and the skill log already hold.
-  let replayed = hl.createHyperlexicon();
+  let replayed = hl.createNotes();
   for (const e of JSON.parse(JSON.stringify(log.entries))) replayed = taskLog.append(replayed, e);
-  assert.deepEqual(hl.foldHyperlexicon(replayed), before);
+  assert.deepEqual(hl.foldNotes(replayed), before);
 });
 
 test("THE SPECIMEN, whole: the door does not rescue a reading that never had the answer", () => {
@@ -188,9 +188,9 @@ test("THE SPECIMEN, whole: the door does not rescue a reading that never had the
   // minister in the fold, because the extractor never found one: the
   // sentence naming ten of them yielded no edge at all. A cleaner reading of
   // a reading that missed the answer is still a reading that missed it.
-  let log = hl.createHyperlexicon();
+  let log = hl.createNotes();
   ({ log } = hl.admit(log, LIVE_EDGES, { classifyConnector: lens, witness: "web:p" }));
-  const fold = hl.foldHyperlexicon(log);
+  const fold = hl.foldNotes(log);
   assert.equal(fold.length, 7, "seven assertions survive the door");
 
   // What the material plainly SAYS, in a raw span the model was handed:

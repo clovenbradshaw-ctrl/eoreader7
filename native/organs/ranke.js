@@ -450,7 +450,7 @@ export async function chaseLedger(log, door, pages, { fetchFace, search = null, 
     : null;
   let next = log;
   const chased = [];
-  const notes = door.foldHyperlexicon(next).filter((n) => standsOnAccountsOnly(n, { isAccount: account }));
+  const notes = door.foldNotes(next).filter((n) => standsOnAccountsOnly(n, { isAccount: account }));
   for (const n of notes) {
     const refs = [...new Set((n.witnesses ?? []).map(sourceOfWitness))].filter((r) => byRef.has(r) && leads(r).citing);
     const merged = { citing: refs.length > 0, links: refs.flatMap((r) => leads(r).links), quotes: refs.flatMap((r) => leads(r).quotes) };

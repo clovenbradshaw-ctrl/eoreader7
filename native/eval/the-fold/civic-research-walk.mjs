@@ -261,7 +261,7 @@ const TASK = process.env.TASK;
 
 // ── the organs, native only ────────────────────────────────────────────────
 const { makeRelationReader } = await import(`${NATIVE}/organs/hypergraph.js`);
-const { makeHyperlexicon } = await import(`${NATIVE}/organs/hyperlexicon.js`);
+const { makeNotesText } = await import(`${NATIVE}/organs/notes-text.js`);
 const { chunkSource, tokenize, blankLabelRows } = await import(`${NATIVE}/organs/source.js`);
 const { extractReadable, parseSearchResults, extractFeed, decodeEntities, unwrapDdgHref, hostOf } = await import(`${NATIVE}/organs/web.js`);
 const { snipClaim } = await import(`${NATIVE}/organs/primary.js`);
@@ -303,7 +303,7 @@ const reader = makeRelationReader({
   blankFurniture: (t) => blankLabelRows(t, { minRun: 4, maxCell: 60 }),
   resolvePronouns, nounPhraseSubjects: true,
 });
-const hl = makeHyperlexicon({
+const hl = makeNotesText({
   createTaskLog: nativeTaskLog.createTaskLog, append: nativeTaskLog.append,
   projectTasks: nativeTaskLog.projectTasks, ENTRY_KINDS: nativeTaskLog.ENTRY_KINDS,
   OPERATOR_BASIS: nativeTaskLog.OPERATOR_BASIS, GRAINS, cellOf,
@@ -626,7 +626,7 @@ askedQuery.add(opening);
 await gather(opening, "preflight");
 
 // ═══ PHASE 2 — READ ═══════════════════════════════════════════════════════
-let log = hl.createHyperlexicon({
+let log = hl.createNotes({
   frame: { reader: "makeRelationReader", walls: true, posPrior: "POSPrior@1", priors: ["determiners", "negation", "pronouns"], agent: R.RANKE, recipe: RECIPE, model: MODEL, task: TASK },
 });
 const passagesOf = new Map();  // ref -> passages
@@ -794,7 +794,7 @@ const witness = { ask, selectAsk, testimony, splitSentences };
 let chase = null;
 try {
   const anchoredNotes = hl.foldWithStanding(log).filter(onAnchor);
-  let scoped = hl.createHyperlexicon({ frame: { reader: "makeRelationReader", scopedTo: "declared subject", recipe: RECIPE } });
+  let scoped = hl.createNotes({ frame: { reader: "makeRelationReader", scopedTo: "declared subject", recipe: RECIPE } });
   for (const n of anchoredNotes) {
     for (const wit of n.witnesses ?? []) {
       const r = hl.admit(scoped, [{ subject: n.end1, verb: n.label, object: n.end2, spans: n.spans ?? [] }], { witness: wit });
@@ -876,7 +876,7 @@ try {
   const objects = [...new Set(real.map((n) => String(n.end2 ?? "").trim()).filter(Boolean))];
   const wordsOf = (t) => T.textFeatures(t);
   const shares = (a, b) => { const fb = wordsOf(b); return [...wordsOf(a)].some((w) => fb.has(w)); };
-  let rl = hl.createHyperlexicon({ frame: { reader: "makeRelationReader", redealt: "gate-surviving", recipe: `${RECIPE}-control` } });
+  let rl = hl.createNotes({ frame: { reader: "makeRelationReader", redealt: "gate-surviving", recipe: `${RECIPE}-control` } });
   // A redealt note needs a REAL ADDRESS, and the door is right to insist:
   // it refuses an unaddressed edge outright ("no addressed span backs it"),
   // which is how the first version of this arm silently built an empty

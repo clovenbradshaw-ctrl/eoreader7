@@ -23,14 +23,14 @@ import { fileURLToPath } from "node:url";
 import { createTaskLog, append, projectTasks, ENTRY_KINDS, OPERATOR_BASIS } from "../../kernel/task-log.js";
 import { GRAINS } from "../../kernel/cube.js";
 import { parseEntity } from "../../../../the-fold/wikidata.js";
-import { makeHyperlexicon } from "../../organs/hyperlexicon.js";
+import { makeNotesText } from "../../organs/notes-text.js";
 import { adaptTaskLog } from "../../../../the-fold/consequence.js";
 import { distinctSources } from "../../organs/corroboration.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const FIXTURES = path.join(HERE, "fixtures", "wikidata");
 const ORACLE = path.join(HERE, "fixtures", "succession-terms.json");
-const foldHl = makeHyperlexicon({ ...adaptTaskLog({ createTaskLog, append, ENTRY_KINDS, OPERATOR_BASIS, GRAINS }), projectTasks });
+const foldHl = makeNotesText({ ...adaptTaskLog({ createTaskLog, append, ENTRY_KINDS, OPERATOR_BASIS, GRAINS }), projectTasks });
 
 const files = fs.readdirSync(FIXTURES).filter((f) => f.endsWith(".json")).sort();
 const raws = new Map(files.map((f) => [f, fs.readFileSync(path.join(FIXTURES, f), "utf8")]));
@@ -71,9 +71,9 @@ function redeal(offered, seedIn) {
   return offered;
 }
 function foldOf(offered) {
-  let log = foldHl.createHyperlexicon();
+  let log = foldHl.createNotes();
   for (const file of files) log = foldHl.admit(log, offered.filter((o) => o.witness === file).map((o) => o.a), { witness: `wikidata/${file}` }).log;
-  return foldHl.foldHyperlexicon(log);
+  return foldHl.foldNotes(log);
 }
 const folded = foldOf(buildOffered());
 

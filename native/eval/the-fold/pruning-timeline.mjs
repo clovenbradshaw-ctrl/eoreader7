@@ -40,7 +40,7 @@ import { auditChemistry, vetoedPairs } from "../../kernel/refutation.js";
 import { createDeclarationLog, proposeCandidate, promote, concede, foldDeclarations } from "../../interpretation/declarations.js";
 
 import { parseEntity } from "../../../../the-fold/wikidata.js";
-import { makeHyperlexicon } from "../../organs/hyperlexicon.js";
+import { makeNotesText } from "../../organs/notes-text.js";
 import { adaptTaskLog } from "../../../../the-fold/consequence.js";
 import { assertionEdges } from "../../../../the-fold/predigest.js";
 
@@ -49,7 +49,7 @@ const FIXTURES = path.join(HERE, "fixtures", "wikidata");
 const OUT = path.join(HERE, "results", "pruning-timeline.json");
 const GIVER = "native/eval/the-fold/pruning-timeline.mjs — per-office succession closure, declared as this driver's own risk";
 
-const foldHl = makeHyperlexicon({ ...adaptTaskLog({ createTaskLog, append, ENTRY_KINDS, OPERATOR_BASIS, GRAINS }), projectTasks });
+const foldHl = makeNotesText({ ...adaptTaskLog({ createTaskLog, append, ENTRY_KINDS, OPERATOR_BASIS, GRAINS }), projectTasks });
 
 // ── the material, addressed and self-verified (P5.2), in arrival order ─────
 const files = fs.readdirSync(FIXTURES).filter((f) => f.endsWith(".json")).sort();
@@ -101,7 +101,7 @@ const chemistryFrom = (log) => affordancesFromDeclarations(foldDeclarations(log)
   .reduce((hl, row) => giveHyperlexiconAffordance(hl, row), createHyperlexicon());
 
 // ── stream the facts, re-auditing after every arrival ─────────────────────
-let hlLog = foldHl.createHyperlexicon();
+let hlLog = foldHl.createNotes();
 let chemistry = chemistryFrom(declLog);
 // ONE substrate that GROWS, never rebuilt per arrival. This is both the
 // faithful model of a reader who has read this much, and the only shape in
@@ -118,9 +118,9 @@ const timeline = [];
 
 for (let i = 0; i < stream.length; i += 1) {
   const fact = stream[i];
-  const before = foldHl.foldHyperlexicon(hlLog).length;
+  const before = foldHl.foldNotes(hlLog).length;
   hlLog = foldHl.admit(hlLog, [fact], { witness: `wikidata/${fact.file}` }).log;
-  const folded = foldHl.foldHyperlexicon(hlLog);
+  const folded = foldHl.foldNotes(hlLog);
   const { edges } = assertionEdges(folded, { hyperedge, source: "wikidata-fixtures" });
 
   // Grow the substrate with what just arrived (already-known edges are
@@ -164,7 +164,7 @@ for (let i = 0; i < stream.length; i += 1) {
 const finalFold = foldDeclarations(declLog);
 const surviving = finalFold.given.map((d) => ({ rel: d.rel, yields: d.yields, giver: d.giver }));
 const finalChem = chemistryFrom(declLog);
-const { edges: finalEdges } = assertionEdges(foldHl.foldHyperlexicon(hlLog), { hyperedge, source: "wikidata-fixtures" });
+const { edges: finalEdges } = assertionEdges(foldHl.foldNotes(hlLog), { hyperedge, source: "wikidata-fixtures" });
 const finalSettled = { derived: substrate.derived(), vetoed: [] };
 const finalWithdrawn = substrate.withdrawn();
 

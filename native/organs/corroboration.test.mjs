@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { proposeCandidates, witnessNote, corroborateLedger, distinctSources, contestedSearch, facesReachable } from "./index.js";
-import { makeHyperlexicon } from "./hyperlexicon.js";
+import { makeNotesText } from "./notes-text.js";
 import { witnessSlice, siblingSwap, foldTestimony } from "./index.js";
 
 // real native task-log bundle — the same one hyperlexicon-stance.test.mjs uses
@@ -9,7 +9,7 @@ const tl = await import("../kernel/task-log.js");
 const { cellOf } = await import("../kernel/cube.js");
 const { GRAINS } = await import("../kernel/cube.js").catch(() => ({ GRAINS: null }));
 const { adaptTaskLog } = await import("../../../the-fold/consequence.js");
-const door = makeHyperlexicon({ ...adaptTaskLog({ createTaskLog: tl.createTaskLog, append: tl.append, ENTRY_KINDS: tl.ENTRY_KINDS, OPERATOR_BASIS: tl.OPERATOR_BASIS, GRAINS: (await import("../kernel/cube.js")).GRAINS }), projectTasks: tl.projectTasks, cellOf });
+const door = makeNotesText({ ...adaptTaskLog({ createTaskLog: tl.createTaskLog, append: tl.append, ENTRY_KINDS: tl.ENTRY_KINDS, OPERATOR_BASIS: tl.OPERATOR_BASIS, GRAINS: (await import("../kernel/cube.js")).GRAINS }), projectTasks: tl.projectTasks, cellOf });
 
 const testimony = { witnessSlice, siblingSwap, foldTestimony };
 
@@ -23,7 +23,7 @@ const SOURCE = {
 };
 
 const seed = () => {
-  let log = door.createHyperlexicon();
+  let log = door.createNotes();
   const r = door.admit(log, [
     // The object carries a name on purpose: cite.js's namesIn refuses a
     // SENTENCE-INITIAL capital as identity (L2 — position is not identity),
@@ -59,7 +59,7 @@ test("facesReachable (S62): a resolved subject face plus either a resolved or a 
 test("corroborateLedger's `reachable` override REPLACES the co-presence admission decision, never ANDs with it (S62)", async () => {
   const far = "x ".repeat(260); // pushes the two names well outside a 400-char window
   const farSource = { ref: "page-far", text: `Alpha appeared here. ${far} Bravo appeared far away.` };
-  const seeded = door.admit(door.createHyperlexicon(), [
+  const seeded = door.admit(door.createNotes(), [
     { subject: "Alpha", verb: "matched", object: "Bravo", spans: [{ ref: "page-seed", at: "page-seed#0-10", text: "..." }] },
   ], { witness: "page-seed" });
   const spy = async () => ({ answer: "yes", because: "Alpha appeared here." });
@@ -81,7 +81,7 @@ test("corroborateLedger's `reachable` override REPLACES the co-presence admissio
   // And the reverse: a note the DEFAULT would admit (both ends literally
   // near each other) is refused when the override says no — proving the
   // override can also CLOSE what co-presence would have opened.
-  const closeSeed = door.admit(door.createHyperlexicon(), [
+  const closeSeed = door.admit(door.createNotes(), [
     { subject: "Kutuzov", verb: "commanded", object: "the Imperial Russian Army", spans: [{ ref: "page-a", at: "page-a#10-40", text: "..." }] },
   ], { witness: "page-a" });
   const withOverrideClosing = await corroborateLedger(closeSeed.log, door, [SOURCE], { ask: spy, testimony, maxAsks: 10, reachable: () => false });
@@ -92,13 +92,13 @@ test("corroborateLedger's `reachable` override REPLACES the co-presence admissio
 test("declared budgets and injected organs are required (P3/P9)", async () => {
   assert.throws(() => proposeCandidates([], "", {}), /declared by the caller/);
   await assert.rejects(() => witnessNote("x", SOURCE, { testimony }), /injected/);
-  await assert.rejects(() => corroborateLedger(door.createHyperlexicon(), door, [], { ask: saysNo, testimony }), /declared by the caller/);
+  await assert.rejects(() => corroborateLedger(door.createNotes(), door, [], { ask: saysNo, testimony }), /declared by the caller/);
 });
 
 test("a 'states' verdict lands as a NAMESPACED witness with the decider's own address in the source", async () => {
   const out = await corroborateLedger(seed(), door, [SOURCE], { ask: saysYesWithDecider, testimony, maxAsks: 10 });
   assert.equal(out.attested.length, 1, JSON.stringify(out.refusals));
-  const notes = door.foldHyperlexicon(out.log);
+  const notes = door.foldNotes(out.log);
   const kutuzov = notes.find((n) => n.subject === "Kutuzov");
   assert.ok(kutuzov.witnesses.includes("testimony:page-b"), kutuzov.witnesses.join());
   assert.equal(distinctSources(kutuzov.witnesses).size, 2, "two DISTINCT sources now vouch");
@@ -114,10 +114,10 @@ test("THE CONTROL, built to fail: a witness that affirms EVERYTHING lands nothin
 });
 
 test("a refusal is nothing — the note stands exactly as it stood, and refusals are tallied typed", async () => {
-  const before = door.foldHyperlexicon(seed());
+  const before = door.foldNotes(seed());
   const out = await corroborateLedger(seed(), door, [SOURCE], { ask: saysNo, testimony, maxAsks: 10 });
   assert.equal(out.attested.length, 0);
-  assert.deepEqual(door.foldHyperlexicon(out.log), before, "a refusal never touches the ledger");
+  assert.deepEqual(door.foldNotes(out.log), before, "a refusal never touches the ledger");
 });
 
 test("a source never seconds its own sighting (Ladha: correlated witnesses are one perspective)", async () => {
@@ -134,7 +134,7 @@ test("the ask budget is a hard wall", async () => {
 
 test("attest refuses a bare, un-namespaced witness — a model vote must never look mechanical", () => {
   const log = seed();
-  const note = door.foldHyperlexicon(log)[0];
+  const note = door.foldNotes(log)[0];
   const r = door.attest(log, note.id, { witness: "page-b" });
   assert.equal(r.refused.type, "untyped_witness");
 });
@@ -217,7 +217,7 @@ import { askValue } from "./index.js";
 const seedTwo = () => {
   // note K: already SETTLED (two distinct sources vouch mechanically);
   // note N: thin (one source) — the only one worth an ask.
-  let log = door.createHyperlexicon();
+  let log = door.createNotes();
   let r = door.admit(log, [
     { subject: "Kutuzov", verb: "commanded", object: "the Imperial Russian Army", spans: [{ ref: "page-a", at: "page-a#10-40", text: "..." }] },
   ], { witness: "page-a" });
@@ -342,7 +342,7 @@ test("a structurally hopeless candidate is SKIPPED WITHOUT AN ASK — no model c
   // note ends that never co-occur in SOURCE: the walk must not ask.
   let calls = 0;
   const counting = async () => { calls += 1; return { answer: "no", because: null }; };
-  let log = door.createHyperlexicon();
+  let log = door.createNotes();
   const r = door.admit(log, [
     { subject: "Bagration", verb: "commanded", object: "the Danube flotilla", spans: [{ ref: "page-a", at: "page-a#1-9", text: "..." }] },
   ], { witness: "page-a" });
@@ -434,7 +434,7 @@ test("a contradiction LANDS ON THE LEDGER — the branch that used to report and
   assert.equal(ds[0].source, "page-b");
   assert.match(ds[0].span.at, /^page-b#\d+-\d+$/, "with the decider addressed in the DISPUTING source's own bytes — the contest is re-openable");
   // and it is not a conviction: the note still stands, still witnessed by page-a
-  const note = door.foldHyperlexicon(out.log).find((n) => n.id === noteId);
+  const note = door.foldNotes(out.log).find((n) => n.id === noteId);
   assert.deepEqual(distinctSources(note.witnesses), new Set(["page-a"]));
   assert.equal(door.standingOf(note).standing, "single-witness");
   assert.equal(door.concededIds(out.log).size, 0);
@@ -443,7 +443,7 @@ test("a contradiction LANDS ON THE LEDGER — the branch that used to report and
 test("CONTROL BUILT TO FAIL: a SECOND walk over the same ledger starts KNOWING the note is contested — on the per-run Map it read `thin` and the third source was never sought", async () => {
   const first = await corroborateLedger(seed(), door, [SOURCE], { ask: contradicting, testimony, maxAsks: 10 });
   const noteId = [...door.disputesOf(first.log).keys()][0];
-  const note = door.foldHyperlexicon(first.log).find((n) => n.id === noteId);
+  const note = door.foldNotes(first.log).find((n) => n.id === noteId);
   const seeded = new Map([...door.disputesOf(first.log)].map(([k, v]) => [k, new Set(v.map((d) => d.source))]));
   assert.deepEqual(askValue(note, { contradictSources: seeded, settleFloor: 2 }), { value: 2, reason: "contested", net: 0 });
   assert.deepEqual(askValue(note, { contradictSources: new Map(), settleFloor: 2 }), { value: 1, reason: "thin", net: 1 },
@@ -468,7 +468,7 @@ test("the WALK's own contradictions land UNTYPED, and an untyped contest is not 
   const r2 = contestedSearch(typed, door, [SOURCE, THIRD, { ref: "page-a", text: "..." }], { limit: 5, kinds: door.NEEDS_THIRD_SOURCE });
   assert.equal(r2.seeking.length, 1);
   assert.deepEqual(r2.seeking[0].candidates.map((c) => c.source.ref), ["page-c"], "neither the stating source nor a disputing one is a third source");
-  assert.equal(contestedSearch(door.createHyperlexicon(), door, [THIRD], { limit: 5, kinds: ["contest"] }).seeking.length, 0);
+  assert.equal(contestedSearch(door.createNotes(), door, [THIRD], { limit: 5, kinds: ["contest"] }).seeking.length, 0);
 });
 
 // ── the SELECT path: activate, then point (never generate) ──────────────

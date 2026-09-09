@@ -30,7 +30,7 @@ const { answerRecord, diffRecords } = await import(`${FOLD}answer-record.js`);
 const { readOnArrival } = await import(`${FOLD}read-on-arrival.js`);
 const { readerFrame } = await import(`${FOLD}reader-frame.js`);
 const { makeRelationReader } = await import(`${NATIVE}/organs/hypergraph.js`);
-const { makeHyperlexicon } = await import(`${NATIVE}/organs/hyperlexicon.js`);
+const { makeNotesText } = await import(`${NATIVE}/organs/notes-text.js`);
 const { chunkSource, tokenize, blankLabelRows } = await import(`${NATIVE}/organs/source.js`);
 const { splitSentences } = await import(`${NATIVE}/adapters/text/spans.js`);
 const { extractSurfaces, discoverReferents, namesCorefer, diaNorm } = await import(`${NATIVE}/adapters/text/surfaces.js`);
@@ -54,7 +54,7 @@ const OPTIONS = {
   blankFurniture: (t) => blankLabelRows(t, { minRun: 4, maxCell: 60 }), resolvePronouns,
 };
 const relationsFor = makeRelationReader(OPTIONS);
-const hl = makeHyperlexicon({ createTaskLog: TL.createTaskLog, append: TL.append, projectTasks: TL.projectTasks, ENTRY_KINDS: TL.ENTRY_KINDS, OPERATOR_BASIS: TL.OPERATOR_BASIS, GRAINS: cube.GRAINS, cellOf: cube.cellOf });
+const hl = makeNotesText({ createTaskLog: TL.createTaskLog, append: TL.append, projectTasks: TL.projectTasks, ENTRY_KINDS: TL.ENTRY_KINDS, OPERATOR_BASIS: TL.OPERATOR_BASIS, GRAINS: cube.GRAINS, cellOf: cube.cellOf });
 const frame = readerFrame({ options: OPTIONS, priors: { posPrior: "POSPrior@1", verbForms: `UniMorph (${verbForms.size})`, morphology: "UniMorph morphology prior", connectorLens: null }, identity: { ends: "makeCastResolver (cast.js)", noteIdentity: null }, model: null });
 const recipe = await hl.recipeId(frame);
 
@@ -66,7 +66,7 @@ for (const [name] of Object.entries(CORPUS)) {
   const r = await readOnArrival({ name, passages: ps, relationsFor, hyperlexicon: hl, ledger, frame, recipe, yieldFn: async () => {} });
   ledger = r.log;
 }
-console.log(`ledger read on arrival: ${hl.foldHyperlexicon(ledger).length} note(s) over ${passages.length} passage(s); reader recipe ${recipe.slice(0, 12)}`);
+console.log(`ledger read on arrival: ${hl.foldNotes(ledger).length} note(s) over ${passages.length} passage(s); reader recipe ${recipe.slice(0, 12)}`);
 
 const call = (model) => async (messages, opts = {}) => {
   const body = { model, stream: false, options: { temperature: 0, num_predict: opts.maxTokens ?? 300 }, messages };

@@ -39,7 +39,7 @@ const ARMS = (process.env.ARMS ?? "select").split(",");
 const SOURCES = Number(process.env.SOURCES ?? 6);
 
 const { makeRelationReader } = await import(`${NATIVE}/organs/hypergraph.js`);
-const { makeHyperlexicon } = await import(`${NATIVE}/organs/hyperlexicon.js`);
+const { makeNotesText } = await import(`${NATIVE}/organs/notes-text.js`);
 const { chunkSource, tokenize, blankLabelRows } = await import(`${NATIVE}/organs/source.js`);
 const T = await import(`${NATIVE}/organs/index.js`);
 const { corroborateLedger, distinctSources } = T;
@@ -60,7 +60,7 @@ const reader = makeRelationReader({
   blankFurniture: (t) => blankLabelRows(t, { minRun: 4, maxCell: 60 }),
   resolvePronouns, nounPhraseSubjects: true,
 });
-const hl = makeHyperlexicon({ createTaskLog: nativeTaskLog.createTaskLog, append: nativeTaskLog.append, projectTasks: nativeTaskLog.projectTasks, ENTRY_KINDS: nativeTaskLog.ENTRY_KINDS, OPERATOR_BASIS: nativeTaskLog.OPERATOR_BASIS, GRAINS, cellOf });
+const hl = makeNotesText({ createTaskLog: nativeTaskLog.createTaskLog, append: nativeTaskLog.append, projectTasks: nativeTaskLog.projectTasks, ENTRY_KINDS: nativeTaskLog.ENTRY_KINDS, OPERATOR_BASIS: nativeTaskLog.OPERATOR_BASIS, GRAINS, cellOf });
 
 // ── the book as N sources, cut at chapter headings inside the slice ──────
 const raw = readFileSync(BOOK, "utf8").replace(/\r\n/g, "\n");
@@ -72,7 +72,7 @@ for (let i = 0; i + 1 < bounds.length; i += 1) sources.push({ ref: `dracula-part
 console.log(`book slice ${slice.length} chars → ${sources.length} sources (${sources.map((s) => s.text.length).join(", ")} chars); model ${MODEL}; budget ${BUDGET} asks`);
 
 // ── the ledger, read in document order with the walls on ─────────────────
-let log = hl.createHyperlexicon({ frame: { reader: "makeRelationReader", walls: true, posPrior: "POSPrior@1", model: MODEL, budget: BUDGET } });
+let log = hl.createNotes({ frame: { reader: "makeRelationReader", walls: true, posPrior: "POSPrior@1", model: MODEL, budget: BUDGET } });
 let heard = 0; const t0 = Date.now();
 for (const s of sources) {
   const passages = chunkSource(s.ref, s.text);
@@ -84,7 +84,7 @@ for (const s of sources) {
     log = r.log; heard += r.heard.length;
   }
 }
-const notes0 = hl.foldHyperlexicon(log);
+const notes0 = hl.foldNotes(log);
 // ── the guard: four fabrications, a real subject+verb with another note's object
 const planted = [];
 for (let i = 0; i + 1 < Math.min(notes0.length, 8) && planted.length < 4; i += 2) {
@@ -93,7 +93,7 @@ for (let i = 0; i + 1 < Math.min(notes0.length, 8) && planted.length < 4; i += 2
   log = hl.hear(log, { subject: a.subject, verb: a.verb, object: b.object, witness: "planted:fabrication", spans: [] });
   planted.push(`${a.subject}|${a.verb}|${b.object}`.toLowerCase());
 }
-const before = hl.foldHyperlexicon(log);
+const before = hl.foldNotes(log);
 const gateBefore = before.filter((n) => distinctSources(n.witnesses).size >= 2).length;
 console.log(`ledger: ${before.length} notes (${heard} heard, ${planted.length} planted) in ${((Date.now() - t0) / 1000).toFixed(0)}s; at >=2 distinct sources before the walk: ${gateBefore}`);
 
@@ -114,7 +114,7 @@ for (const name of ARMS) {
   calls = 0; const t1 = Date.now();
   const extra = name === "select" ? { selectAsk, splitSentences } : {};
   const r = await corroborateLedger(log, hl, sources, { ask, testimony, maxAsks: BUDGET, ...extra });
-  const after = hl.foldHyperlexicon(r.log);
+  const after = hl.foldNotes(r.log);
   const gate = after.filter((n) => distinctSources(n.witnesses).size >= 2).length;
   const lied = r.attested.filter((a) => planted.includes(`${a.note?.subject}|${a.note?.verb}|${a.note?.object}`.toLowerCase()));
   const secs = (Date.now() - t1) / 1000;

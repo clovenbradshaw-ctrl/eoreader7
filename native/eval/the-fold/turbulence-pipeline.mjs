@@ -27,7 +27,7 @@
 // plants it explicitly so a discovery can be scored, not admired.
 import fs from "node:fs";
 import * as K from "../../organs/index.js";
-import * as H from "../../organs/hyperlexicon.js";
+import * as H from "../../organs/notes-text.js";
 import * as TL from "../../kernel/task-log.js";
 import { distinctSources, distinctRecipes } from "../../organs/index.js";
 import { runMeasurement, parseMeasure } from "../../../../the-fold/measure.js";
@@ -170,22 +170,22 @@ const kShuf = K.discoverCompanyKinds(shuffled, VOCAB, FLOORS);
 console.log(`  II.23 shuffle control: ${kShuf.length === 0 ? "kinds dissolve ✓" : "SURVIVED — UNLICENSED: " + kShuf.map((k) => k.name).join(",")}`);
 
 // ── F5: two runs × two instruments into the one ledger ───────────────────
-const hl = H.makeHyperlexicon(TL);
-let log = hl.createHyperlexicon();
+const hl = H.makeNotesText(TL);
+let log = hl.createNotes();
 const land = (kinds, witness, recipe) => { for (const n of K.kindNotes(kinds, { witness, recipe })) log = hl.hear(log, n); };
 land(kHoleA, "flow-run-a", HOLE_RECIPE);
 land(kHoleB, "flow-run-b", HOLE_RECIPE);
 land(kPeakA, "flow-run-a", PEAK_RECIPE);
 land(kPeakB, "flow-run-b", PEAK_RECIPE);
 console.log("  ledger:");
-for (const n of hl.foldHyperlexicon(log)) {
+for (const n of hl.foldNotes(log)) {
   const src = distinctSources(n.witnesses).size, inst = distinctRecipes(n.witnesses).size;
   console.log(`    ${n.id}  sources ${src} · instruments ${inst}` +
     (src >= 2 && inst >= 2 ? "  <- CORROBORATED (independent runs AND independent instruments)"
       : inst < 2 ? "  <- one instrument only" : "  <- one run only"));
 }
 // SCORED against the grammar declared before the run
-const found = hl.foldHyperlexicon(log);
+const found = hl.foldNotes(log);
 const hit = found.filter((n) => n.object === "kind:before=q2" && ["q4", "q1"].includes(n.subject));
 const miss = found.filter((n) => n.object !== "kind:before=q2" || !["q4", "q1"].includes(n.subject));
 console.log(`\nDECLARED GRAMMAR (fixed before the run): an ejection q2 precedes the sweep q4 and the q1 interaction.`);

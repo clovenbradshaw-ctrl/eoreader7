@@ -76,7 +76,7 @@ export const GIVER = "native/eval/the-fold/lib/product-assay.mjs — a stand-in 
 // ── THE PRODUCTION READER, headless ──────────────────────────────────────
 export async function organs() {
   const { makeRelationReader } = await import(`${NATIVE}/organs/hypergraph.js`);
-  const { makeHyperlexicon } = await import(`${NATIVE}/organs/hyperlexicon.js`);
+  const { makeNotesText } = await import(`${NATIVE}/organs/notes-text.js`);
   const { makeDerivation } = await import(`${NATIVE}/organs/derivation.js`);
   const { chunkSource, tokenize, blankLabelRows, retrieve } = await import(`${NATIVE}/organs/source.js`);
   const { proposeCandidates, textFeatures, distinctSources } = await import(`${NATIVE}/organs/corroboration.js`);
@@ -121,7 +121,7 @@ export async function organs() {
   const relationsFor = makeRelationReader(RELATION_READER_OPTIONS);
   const referentIndexFor = makeReferentIndex({ splitSentences, extractSurfaces, discoverReferents, namesCorefer, diaNorm, blankFurniture: RELATION_READER_OPTIONS.blankFurniture });
   const runCapacity = makeCapacityRunner({ referentIndexFor, relationsFor });
-  const hl = makeHyperlexicon({ createTaskLog: TL.createTaskLog, append: TL.append, projectTasks: TL.projectTasks, ENTRY_KINDS: TL.ENTRY_KINDS, OPERATOR_BASIS: TL.OPERATOR_BASIS, GRAINS: cube.GRAINS, cellOf: cube.cellOf });
+  const hl = makeNotesText({ createTaskLog: TL.createTaskLog, append: TL.append, projectTasks: TL.projectTasks, ENTRY_KINDS: TL.ENTRY_KINDS, OPERATOR_BASIS: TL.OPERATOR_BASIS, GRAINS: cube.GRAINS, cellOf: cube.cellOf });
   const D = makeDerivation({ hl, taskLog: { append: TL.append, projectTasks: TL.projectTasks, ENTRY_KINDS: TL.ENTRY_KINDS, OPERATOR_BASIS: TL.OPERATOR_BASIS, GRAIN_RANK: TL.GRAIN_RANK ?? cube.GRAIN_RANK, cellOf: cube.cellOf } });
   const grid = makeGrid({ operators: { TERRAIN_BY_DOMAIN: cube.TERRAIN_BY_DOMAIN, isCurrentOperator: cube.isCurrentOperator }, taskLog: TL });
   grid.withCapacities({ findCapacity, unresolvedCapacity });
@@ -158,7 +158,7 @@ export function readCorpus(O, corpus) {
   const passages = [];
   for (const [name, text] of Object.entries(corpus)) for (const p of O.chunkSource(name, text)) passages.push(p);
   const rel = O.relationsFor(passages, { pool: passages });
-  let log = O.hl.createHyperlexicon({ frame: O.frame });
+  let log = O.hl.createNotes({ frame: O.frame });
   const admitted = [];
   for (const p of passages) {
     const claims = rel.read(String(p.text ?? ""))?.claims ?? [];

@@ -32,7 +32,7 @@ const NSOURCES = Number(process.env.SOURCES ?? 16);
 const DRAWS = Number(process.env.DRAWS ?? 20);
 
 const { makeRelationReader } = await import(`${NATIVE}/organs/hypergraph.js`);
-const { makeHyperlexicon } = await import(`${NATIVE}/organs/hyperlexicon.js`);
+const { makeNotesText } = await import(`${NATIVE}/organs/notes-text.js`);
 const { chunkSource, tokenize, blankLabelRows, measureOf, blankBelowMeasure } = await import(`${NATIVE}/organs/source.js`);
 const { endsCopresentWindow, proposeCandidates, sharedTextGroups, distinctSources } = await import(`${NATIVE}/organs/corroboration.js`);
 const { splitSentences } = await import(`${NATIVE}/adapters/text/spans.js`);
@@ -52,7 +52,7 @@ const reader = makeRelationReader({
   blankFurniture: (t) => blankLabelRows(t, { minRun: 4, maxCell: 60 }),
   resolvePronouns, nounPhraseSubjects: true,
 });
-const hl = makeHyperlexicon({ createTaskLog: ntl.createTaskLog, append: ntl.append, projectTasks: ntl.projectTasks, ENTRY_KINDS: ntl.ENTRY_KINDS, OPERATOR_BASIS: ntl.OPERATOR_BASIS, GRAINS, cellOf });
+const hl = makeNotesText({ createTaskLog: ntl.createTaskLog, append: ntl.append, projectTasks: ntl.projectTasks, ENTRY_KINDS: ntl.ENTRY_KINDS, OPERATOR_BASIS: ntl.OPERATOR_BASIS, GRAINS, cellOf });
 
 // ── the same 16 sources the walk used, one per shared-text group ─────────
 const walkJson = JSON.parse(readFileSync(`${HERE}results/ranke-backwards.json`, "utf8"));
@@ -102,9 +102,9 @@ console.log(`${sources.length} independent sources; ${admitted.reduce((n, a) => 
 // FEASIBILITY: exactly what the walk's prefilter computes, and the only thing
 // that decides which pairs ever reach the witness.
 function feasibility(edgeSets) {
-  let log = hl.createHyperlexicon({ frame: { probe: "null" } });
+  let log = hl.createNotes({ frame: { probe: "null" } });
   for (const a of edgeSets) log = hl.admit(log, a.edges, { witness: a.witness }).log;
-  const notes = hl.foldHyperlexicon(log);
+  const notes = hl.foldNotes(log);
   let feasible = 0, skipped = 0;
   const notesWithAny = new Set();
   for (const src of sources) {

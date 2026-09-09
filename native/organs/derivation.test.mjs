@@ -13,7 +13,7 @@
 // → a different set; licensed ⊆ naive).
 import test from "node:test";
 import assert from "node:assert/strict";
-import * as H from "./hyperlexicon.js";
+import * as H from "./notes-text.js";
 import * as TL from "../kernel/task-log.js";
 import * as cube from "../kernel/cube.js";
 import { createDeclarationLog, proposeCandidate, promote, foldDeclarations } from "../interpretation/declarations.js";
@@ -21,7 +21,7 @@ import { distinctSources } from "./corroboration.js";
 import { makeDerivation, premisesOf, naiveJoin, redeal, isDerivedId, REFUSALS } from "./derivation.js";
 
 const taskLog = { ...TL, cellOf: cube.cellOf };
-const hl = H.makeHyperlexicon(taskLog);
+const hl = H.makeNotesText(taskLog);
 const D = makeDerivation({ hl, taskLog });
 const GIVER = "derivation.test.mjs — a stand-in giver, disclosed: the relay's handover semantics are declared by this test, never by the material";
 const FLOOR = { sources: 2, instruments: 2 };
@@ -32,7 +32,7 @@ const RECIPES = ["read-v1", "read-v2"];
 const CHAIN = ["a", "b", "c", "d", "e"];
 
 function relayLedger({ plantCycle = true, plantSecondPredecessor = false } = {}) {
-  let log = hl.createHyperlexicon();
+  let log = hl.createNotes();
   let i = 0;
   for (const s of SOURCES) for (const r of RECIPES) {
     for (let k = 0; k + 1 < CHAIN.length; k += 1)
@@ -57,10 +57,10 @@ test("the floor is declared, never defaulted", () => {
 });
 
 test("instruments:0 is a declaration — a recipe-less witness (a live chat admission) can stand at it, and only at it", () => {
-  let log = hl.createHyperlexicon();
+  let log = hl.createNotes();
   log = hl.hear(log, { subject: "a", verb: "replaces", object: "b", witness: "pasted.txt#0-40", spans: [span("pasted.txt", 0)] });
   log = hl.hear(log, { subject: "a", verb: "replaces", object: "b", witness: "other.txt#0-40", spans: [span("other.txt", 0)] });
-  const notes = hl.foldHyperlexicon(log);
+  const notes = hl.foldNotes(log);
   const strict = premisesOf(notes, { floor: { sources: 2, instruments: 1 } });
   assert.equal(strict.premises.length, 0);
   assert.equal(strict.stopped[0].instruments, 0, "an undeclared instrument is honestly zero, never silently one");
@@ -72,7 +72,7 @@ test("instruments:0 is a declaration — a recipe-less witness (a live chat admi
 test("the substrate bonds on IDENTITY ends (earned faces in the id), not on display debris — the live 2026-09-02 case", () => {
   // the ledger's own Station-3→4 wire: an object heard with adjunct debris
   // whose face was earned as the bare referent
-  let log = hl.createHyperlexicon();
+  let log = hl.createNotes();
   for (const w of ["s1~r1", "s2~r2"]) {
     log = hl.hear(log, { subject: "Andrew Johnson", verb: "replaced", object: "Hannibal Hamlin in March 1865", objectFace: "Hannibal Hamlin", witness: w, spans: [span(w.slice(0, 2), 1)] });
     log = hl.hear(log, { subject: "Hannibal Hamlin", verb: "replaced", object: "John Breckinridge as vice president", objectFace: "John Breckinridge", witness: w, spans: [span(w.slice(0, 2), 2)] });
@@ -87,7 +87,7 @@ test("the substrate bonds on IDENTITY ends (earned faces in the id), not on disp
 });
 
 test("premises are F5 notes at the floor; a one-witness note is STOPPED, typed with its counts", () => {
-  const notes = hl.foldHyperlexicon(relayLedger());
+  const notes = hl.foldNotes(relayLedger());
   const { premises, stopped } = premisesOf(notes, { floor: FLOOR });
   assert.equal(premises.length, 4, "a→b, b→c, c→d, d→e stand");
   assert.equal(stopped.length, 1);
@@ -115,7 +115,7 @@ test("floor 6 derives never-stated facts from corroborated premises, with proven
 
 test("THE WALL: a derived note has no witnesses, never reads corroborated, and lands nothing on its premises", () => {
   const before = relayLedger();
-  const witnessesBefore = new Map(hl.foldHyperlexicon(before).map((n) => [n.id, [...n.witnesses].sort().join(",")]));
+  const witnessesBefore = new Map(hl.foldNotes(before).map((n) => [n.id, [...n.witnesses].sort().join(",")]));
   const r = D.derive(before, { declarations: licensed(), floor: FLOOR, maxSteps: 8 });
   const derived = D.foldDerived(r.log);
   assert.equal(derived.length, 6);
@@ -125,7 +125,7 @@ test("THE WALL: a derived note has no witnesses, never reads corroborated, and l
     assert.ok(d.premises.length >= 2 && d.provenance.length > 0, "carried by its premises, not by witnesses");
   }
   // F5 consumers never see it
-  const folded = hl.foldHyperlexicon(r.log);
+  const folded = hl.foldNotes(r.log);
   assert.ok(folded.every((n) => !isDerivedId(n.id)), "foldHyperlexicon projects only what was HEARD");
   // the leak assay: landing products changed no premise's witness set
   for (const n of folded) assert.equal([...n.witnesses].sort().join(","), witnessesBefore.get(n.id), `premise ${n.id} unchanged`);
@@ -162,16 +162,16 @@ test("CONTROL (no giver): a candidate licenses nothing — derivation is a measu
 test("CONTROL (perturbation): redealt premises derive a DIFFERENT set; licensed ⊆ naive on both", () => {
   const real = relayLedger({ plantCycle: false });
   const rReal = D.derive(real, { declarations: licensed(), floor: FLOOR, maxSteps: 8 });
-  const notes = hl.foldHyperlexicon(real);
+  const notes = hl.foldNotes(real);
   // the redeal is a different material: rebuild a ledger from the permuted notes
   const dealt = redeal(notes, { seed: 7 });
-  let alt = hl.createHyperlexicon();
+  let alt = hl.createNotes();
   for (const n of dealt) for (const w of n.witnesses) alt = hl.hear(alt, { subject: n.subject, verb: n.verb, object: n.object, witness: w, spans: n.spans });
   const rAlt = D.derive(alt, { declarations: licensed(), floor: FLOOR, maxSteps: 8 });
   const sReal = new Set(rReal.derived.map(triple)), sAlt = new Set(rAlt.derived.map(triple));
   assert.notDeepEqual([...sReal].sort(), [...sAlt].sort(), "the derived set moved when the premises moved");
   // the standing regression: the licensed set is a SUBSET of the unlicensed join
-  for (const [r, ns] of [[rReal, notes], [rAlt, hl.foldHyperlexicon(alt)]]) {
+  for (const [r, ns] of [[rReal, notes], [rAlt, hl.foldNotes(alt)]]) {
     const naive = naiveJoin(premisesOf(ns, { floor: FLOOR }).premises, { base: "replaces", yields: "after" });
     for (const d of r.derived) assert.ok(naive.has(triple(d)), `licensed reached a fact naive did not: ${triple(d)}`);
   }
@@ -195,7 +195,7 @@ test("THE CASCADE: conceding one premise withdraws every product resting on it, 
   assert.deepEqual([...taken].sort(), ["a|after|c", "a|after|d", "a|after|e", "b|after|d", "b|after|e"], "everything through b→c");
   const live = D.foldDerived(c.log).map(triple).sort();
   assert.deepEqual(live, ["c|after|e"], "what did not rest on it stands");
-  assert.ok(!hl.foldHyperlexicon(c.log).some((n) => n.id === bc), "the premise left the F5 projection");
+  assert.ok(!hl.foldNotes(c.log).some((n) => n.id === bc), "the premise left the F5 projection");
   assert.ok(c.log.entries.length > entriesBefore && c.log.entries.length === entriesBefore + 1 + 5, "append-only: one REC for the note, one per product, nothing deleted");
   const depths = Object.fromEntries(D.withdrawnDerived(c.log).map((w) => [triple(w), w.cascadeDepth]));
   assert.equal(depths["a|after|c"], 1, "a→c rests DIRECTLY on b→c");
@@ -230,6 +230,6 @@ test("a derivation the material later STATES is reported as such, never double-c
   const ac = D.foldDerived(log).find((d) => triple(d) === "a|after|c");
   assert.equal(ac.stated, true);
   assert.deepEqual(ac.witnesses, [], "the derived note still carries no witness — the heard note is a separate F5 note");
-  const heard = hl.foldHyperlexicon(log).find((n) => n.id === hl.assertionId("a", "after", "c"));
+  const heard = hl.foldNotes(log).find((n) => n.id === hl.assertionId("a", "after", "c"));
   assert.equal(heard.witnesses.length, 1);
 });

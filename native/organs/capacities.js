@@ -245,8 +245,8 @@ export const CAPACITIES = Object.freeze([
     id: "hear",
     terrain: "Link",
     op: "SYN",
-    module: "hyperlexicon.js",
-    fn: "makeHyperlexicon",
+    module: "notes-text.js",
+    fn: "makeNotesText",
     what: "a re-sighting folds into the same note with witnesses and spans unioned — hear()'s own code types it SUPERSEDE · SYN · Figure (P57); store.js::updateRow carries the identical typing for the database fold",
   }),
   Object.freeze({

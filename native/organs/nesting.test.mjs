@@ -3,21 +3,21 @@
 // that someone SAYS X must give X itself nothing.
 import test from "node:test";
 import assert from "node:assert/strict";
-import * as H from "./hyperlexicon.js";
+import * as H from "./notes-text.js";
 import * as TL from "../kernel/task-log.js";
 import { distinctSources, distinctRecipes } from "./index.js";
 import { claimRef, isClaimRef, innerId, depthOf, attributionsOf, corroborationOf, leakCheck, disagreement } from "./index.js";
 
 const INNER = H.assertionId("napoleon", "fought", "kutuzov");
-const hl = H.makeHyperlexicon(TL);
+const hl = H.makeNotesText(TL);
 // a ledger where the inner claim is stated by ONE source, and TWO sources
 // agree that Tolstoy says it — the exact shape the wall exists for
 function ledgerWithAttributions() {
-  let log = hl.createHyperlexicon();
+  let log = hl.createNotes();
   log = hl.hear(log, { subject: "napoleon", verb: "fought", object: "kutuzov", witness: "borodino-article~read-v1" });
   log = hl.hear(log, { subject: "Tolstoy", verb: "states", object: claimRef(INNER), witness: "critic-a~read-v1" });
   log = hl.hear(log, { subject: "Tolstoy", verb: "states", object: claimRef(INNER), witness: "critic-b~read-v1" });
-  return hl.foldHyperlexicon(log);
+  return hl.foldNotes(log);
 }
 
 test("the namespace: a nested end is `claim:<id>` and nothing else is mistaken for one", () => {
@@ -54,9 +54,9 @@ test("LEAK ASSAY: an attribution's witness must never appear in the claim's own 
 });
 
 test("attributed-but-not-corroborated says so in words, so no consumer has to infer it", () => {
-  let log = hl.createHyperlexicon();
+  let log = hl.createNotes();
   log = hl.hear(log, { subject: "Tolstoy", verb: "states", object: claimRef("x|y|z"), witness: "critic-a~read-v1" });
-  const c = corroborationOf("x|y|z", hl.foldHyperlexicon(log), { distinctSources, distinctRecipes });
+  const c = corroborationOf("x|y|z", hl.foldNotes(log), { distinctSources, distinctRecipes });
   assert.equal(c.onRecord, false, "the inner claim is not itself on the ledger at all");
   assert.equal(c.direct, 0);
   assert.equal(c.attributed, 1);
@@ -64,10 +64,10 @@ test("attributed-but-not-corroborated says so in words, so no consumer has to in
 });
 
 test("DISAGREEMENT WITHOUT CONTRADICTION: both attributions stand, and the claim is contested", () => {
-  let log = hl.createHyperlexicon();
+  let log = hl.createNotes();
   log = hl.hear(log, { subject: "Tolstoy", verb: "states", object: claimRef(INNER), witness: "critic-a~read-v1" });
   log = hl.hear(log, { subject: "Clausewitz", verb: "denies", object: claimRef(INNER), witness: "critic-b~read-v1" });
-  const led = hl.foldHyperlexicon(log);
+  const led = hl.foldNotes(log);
   assert.equal(attributionsOf(INNER, led).length, 2, "the ledger keeps BOTH — neither is dropped");
   const opposes = (a, b) => (a === "states" && b === "denies") || (a === "denies" && b === "states");
   const d = disagreement(INNER, led, { opposes });
@@ -119,9 +119,9 @@ test("THE MODEL'S OWN VOICE is the ordinary shape, not a special case", () => {
   // P39's self:model witness, expressed as nesting: the model asserting X
   // is an outer note, and the wall then refuses to let it corroborate X —
   // which is exactly what mergeTestimony had to special-case before.
-  let log = hl.createHyperlexicon();
+  let log = hl.createNotes();
   log = hl.hear(log, { subject: "self:model", verb: "asserts", object: claimRef(INNER), witness: "turn-14~chat-v1" });
-  const led = hl.foldHyperlexicon(log);
+  const led = hl.foldNotes(log);
   const c = corroborationOf(INNER, led, { distinctSources, distinctRecipes });
   assert.equal(c.direct, 0, "the model asserting it is not evidence for it");
   assert.equal(c.attributions[0].who, "self:model", "and who said so is on the record, verbatim");

@@ -407,7 +407,7 @@ export function contestedSearch(log, door, sources, { limit, kinds, featuresOf =
   const live = door.disputesOf(log);
   const seeking = [], unrouted = [];
   if (!live.size) return { seeking, unrouted };
-  const byId = new Map(door.foldHyperlexicon(log).map((n) => [n.id, n]));
+  const byId = new Map(door.foldNotes(log).map((n) => [n.id, n]));
   for (const [noteId, disputes] of live) {
     const note = byId.get(noteId);
     if (!note) continue; // conceded or otherwise gone; the contest is moot
@@ -1055,7 +1055,7 @@ export async function corroborateLedger(log, door, sources, {
   // (or `reachable`) admission gate, without re-deriving either count.
   let candidatePairs = 0;
   for (const source of sources) {
-    const notes = door.foldHyperlexicon(next);
+    const notes = door.foldNotes(next);
     const proposed = proposeCandidates(notes, source.text, { limit: limitPerSource ?? notes.length, ...(featuresOfSource ? { featuresOfSource } : {}), ...(featuresOfNote ? { featuresOfNote } : {}), ...(render ? { render } : {}) });
     feasible.set(source.ref, new Map(proposed.map((c) => [c.note.id, c])));
     candidatePairs += proposed.length;
@@ -1063,7 +1063,7 @@ export async function corroborateLedger(log, door, sources, {
   const sourceByRef = new Map(sources.map((s) => [s.ref, s]));
 
   while (asks < maxAsks) {
-    const notes = door.foldHyperlexicon(next);
+    const notes = door.foldNotes(next);
     const byId = new Map(notes.map((n) => [n.id, n]));
     // Every feasible, unspent, still-movable (note, source) pair, ranked by
     // value first and overlap only as the tiebreak — the dark-room guard is
@@ -1140,7 +1140,7 @@ export async function corroborateLedger(log, door, sources, {
   // tier, the third-source seeker) can act on, never a flat list of ids.
   const contests = [];
   const live = door.disputesOf(next);
-  for (const n of door.foldHyperlexicon(next)) {
+  for (const n of door.foldNotes(next)) {
     const v = askValue(n, { contradictSources, settleFloor });
     standings[v.reason === "settled" ? "settled" : v.reason === "disconfirmed" ? "disconfirmed" : v.reason === "contested" ? "contested" : "thin"].push(n.id);
     const contra = contradictSources.get(n.id);

@@ -67,7 +67,7 @@ import { createTaskLog, append, projectTasks, ENTRY_KINDS, OPERATOR_BASIS } from
 import { GRAINS } from "../../kernel/cube.js";
 import { acquireCompositionCandidates } from "../../kernel/relation-composition.js";
 
-import { makeHyperlexicon } from "../../organs/hyperlexicon.js";
+import { makeNotesText } from "../../organs/notes-text.js";
 import { adaptTaskLog } from "../../../../the-fold/consequence.js";
 import { assertionEdges } from "../../../../the-fold/predigest.js";
 
@@ -75,7 +75,7 @@ const HERE = path.dirname(fileURLToPath(import.meta.url));
 const FIXTURES = path.join(HERE, "fixtures", "falsification");
 const OUT = path.join(HERE, "results", "falsification-probe.json");
 
-const foldHl = makeHyperlexicon({ ...adaptTaskLog({ createTaskLog, append, ENTRY_KINDS, OPERATOR_BASIS, GRAINS }), projectTasks });
+const foldHl = makeNotesText({ ...adaptTaskLog({ createTaskLog, append, ENTRY_KINDS, OPERATOR_BASIS, GRAINS }), projectTasks });
 
 /**
  * DECLARED GROUND TRUTH — fixed before the probe runs, never adjusted by
@@ -194,10 +194,10 @@ for (const corpus of CORPORA) {
   const relations = [...new Set(facts.map((f) => f.verb))];
 
   // Through the REAL door, then the REAL projection.
-  let log = foldHl.createHyperlexicon();
+  let log = foldHl.createNotes();
   const admitted = foldHl.admit(log, facts, { witness: `falsification/${corpus.file}` });
   log = admitted.log;
-  const folded = foldHl.foldHyperlexicon(log);
+  const folded = foldHl.foldNotes(log);
   const { edges, skipped } = assertionEdges(folded, { hyperedge, source: corpus.file });
 
   // The REAL kernel nominator, at its own >=2-independent-witness floor.
