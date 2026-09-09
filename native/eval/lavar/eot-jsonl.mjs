@@ -129,9 +129,14 @@ const PRIOR_CHAPTERS = (process.argv.find((a) => a.startsWith("--prior=")) ?? ""
 // mentions her. So this loader has NO CODE PATH that reads a `cast` field
 // at all, even an empty one: the file's shape cannot leak identity, by
 // construction, not by the discipline of whoever built the file.
-const LEXICON_PATH = (process.argv.find((a) => a.startsWith("--lexicon=")) ?? "").replace("--lexicon=", "");
-const lexicon = LEXICON_PATH ? JSON.parse(fs.readFileSync(LEXICON_PATH, "utf8")) : null;
-if (lexicon && !lexicon.giver) { console.error("a lexicon prior must name its giver"); process.exit(2); }
+// Comma-separated, like --prior=, so a growing shelf of lexicons (one per
+// document already read — eval/lavar/build-lexicon.mjs writes one per
+// document from that document's own .prior.json files) composes rather
+// than forcing a caller to pre-merge them by hand.
+const lexicons = (process.argv.find((a) => a.startsWith("--lexicon=")) ?? "")
+  .replace("--lexicon=", "").split(",").map((s) => s.trim()).filter(Boolean)
+  .map((p) => JSON.parse(fs.readFileSync(p, "utf8")));
+for (const lx of lexicons) if (!lx.giver) { console.error("a lexicon prior must name its giver"); process.exit(2); }
 
 // THE ORIGIN HAS CRLF, AND PRESERVING IT EXACTLY MEANS READING AROUND IT,
 // NEVER REWRITING IT. This book's real bytes use \r\n; the chapter file
@@ -650,8 +655,14 @@ const vocabReport = discoverRelationVocab(chapterText, { surfaces, minSurfaces: 
 const ownVerbs = vocabReport?.verbs instanceof Set ? vocabReport.verbs : new Set(vocabReport?.verbs ?? []);
 const verbs = new Set(ownVerbs);
 for (const pr of loadedPriors) for (const v of pr.verbs ?? []) verbs.add(v);
-const lexiconVerbsUsed = new Set();
-if (lexicon) for (const v of lexicon.verbs ?? []) { if (!verbs.has(v)) lexiconVerbsUsed.add(v); verbs.add(v); }
+// Per-lexicon, not just aggregate: with a growing shelf of lexicons, one
+// offered second may mostly overlap the first — its OWN marginal
+// contribution is what's worth disclosing, not just the combined total.
+const lexiconStats = lexicons.map((lx) => {
+  let fresh = 0;
+  for (const v of lx.verbs ?? []) { if (!verbs.has(v)) fresh += 1; verbs.add(v); }
+  return { giver: lx.giver, verbsOffered: (lx.verbs ?? []).length, verbsNew: fresh };
+});
 const opts = { verbs, phrasalPredicates: true, nounPhraseSubjects: true };
 
 const carriesVerb = (t) => String(t ?? "").toLowerCase().split(/[^\p{L}\p{N}’']+/u).some((w) => verbs.has(w));
@@ -968,13 +979,13 @@ emit({
   pass: loadedPriors.length ? 2 : 1,
   chapter: READ_CHAPTER,
   priorsLoaded: loadedPriors.map((p) => ({ chapter: p.chapter, verbs: (p.verbs ?? []).length, cast: (p.cast ?? []).length })),
-  lexiconLoaded: lexicon ? { giver: lexicon.giver, verbsOffered: (lexicon.verbs ?? []).length, verbsNew: lexiconVerbsUsed.size } : null,
+  lexiconsLoaded: lexiconStats.length ? lexiconStats : null,
   earnedHere: { verbs: ownVerbs.size, castSurfaces: surfaces.length },
   vocabularyAfterUnion: verbs.size,
   disclosure: loadedPriors.length
     ? "A REREAD. This pass legitimately knows what the loaded chapters contain because it has read them; that is rereading, not lookahead. Its reach must not be compared with a first pass's without saying so."
-    : lexicon
-      ? "A FIRST PASS ON THIS DOCUMENT, primed with a cross-document vocabulary prior. The cast is still earned from nothing but this chapter's own bytes — the lexicon carries no cast and could not leak one."
+    : lexiconStats.length
+      ? "A FIRST PASS ON THIS DOCUMENT, primed with one or more cross-document vocabulary priors. The cast is still earned from nothing but this chapter's own bytes — a lexicon carries no cast and could not leak one."
       : "A FIRST PASS. Nothing here was learned from any later chapter — the vocabulary and cast are earned from this chapter's own bytes.",
 });
 
