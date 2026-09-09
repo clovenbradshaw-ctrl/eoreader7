@@ -1,0 +1,328 @@
+# Hand-rolled golden — Alice in Wonderland, chapter 1, CLAUSE LEVEL.
+# end1 | label | end2 | quote-anchor      ("" end2 = genuinely intransitive)
+# EMPTY | quote-anchor | why              (a sentence a reader draws nothing from)
+
+Alice | was beginning | to get very tired of sitting by her sister | Alice was beginning to get very tired
+Alice | sitting | by her sister on the bank | sitting by her sister on the bank
+Alice | having | nothing to do | having nothing to do
+she | had peeped | into the book | she had peeped into the book
+her sister | was reading | the book | the book her sister was reading
+it | had | no pictures or conversations in it | it had no pictures or conversations
+what | is | the use of a book | what is the use of a book
+Alice | thought | without pictures or conversations | thought Alice “without pictures
+
+she | was considering | in her own mind | she was considering in her own mind
+the hot day | made | her feel very sleepy and stupid | the hot day made her feel very sleepy
+the pleasure of making a daisy-chain | would be worth | the trouble of getting up | worth the trouble of getting up
+a White Rabbit | ran | close by her | a White Rabbit with pink eyes ran close by her
+a White Rabbit | with | pink eyes | White Rabbit with pink eyes
+
+There | was | nothing so very remarkable in that | nothing so _very_ remarkable in that
+Alice | think | it out of the way | nor did Alice think it
+the Rabbit | say | to itself | to hear the Rabbit say to itself
+EMPTY | Oh dear! | an interjection repeated — no clause, no ends
+I | shall be | late | I shall be late
+
+she | thought over | it afterwards | when she thought it over afterwards
+it | occurred | to her | it occurred to her
+she | ought to have wondered | at this | she ought to have wondered at this
+it | seemed | quite natural | it all seemed quite natural
+the Rabbit | took | a watch out of its waistcoat-pocket | _took a watch out of its waistcoat-pocket_
+the Rabbit | looked at | it | and looked at it
+the Rabbit | hurried on | | and then hurried on
+Alice | started | to her feet | Alice started to her feet
+it | flashed | across her mind | it flashed across her mind
+she | had never seen | a rabbit with either a waistcoat-pocket | never before seen a rabbit
+she | burning | with curiosity | burning with curiosity
+she | ran across | the field after it | she ran across the field after it
+she | was | just in time to see it pop down a large rabbit-hole | just in time to see it pop down
+
+Alice | went | down after it | down went Alice after it
+she | considering | how she was to get out again | never once considering how
+she | was to get out | again | she was to get out again
+
+The rabbit-hole | went | straight on like a tunnel for some way | went straight on like a tunnel
+The rabbit-hole | dipped | suddenly down | then dipped suddenly down
+Alice | had not | a moment to think about stopping herself | not a moment to think about stopping
+she | found | herself falling down a very deep well | she found herself falling down
+
+the well | was | very deep | Either the well was very deep
+she | fell | very slowly | or she fell very slowly
+she | had | plenty of time | she had plenty of time
+she | look about | her | to look about her
+she | wonder | what was going to happen next | to wonder what was going to happen
+what | was going to happen | next | what was going to happen next
+
+she | tried | to look down | she tried to look down
+she | make out | what she was coming to | make out what she was coming to
+it | was | too dark to see anything | it was too dark to see anything
+she | looked at | the sides of the well | she looked at the sides of the well
+she | noticed | that they were filled with cupboards | noticed that they were filled
+they | were filled | with cupboards and book-shelves | filled with cupboards and book-shelves
+she | saw | maps and pictures hung upon pegs | she saw maps and pictures
+maps and pictures | hung | upon pegs | hung upon pegs
+
+She | took down | a jar from one of the shelves | She took down a jar
+she | passed | | as she passed
+it | was labelled | ORANGE MARMALADE | it was labelled “ORANGE MARMALADE”
+it | was | empty | it was empty
+she | did not like | to drop the jar | she did not like to drop the jar
+she | managed | to put it into one of the cupboards | managed to put it into one of the cupboards
+she | fell past | it | as she fell past it
+
+EMPTY | “Well!” | an exclamation opening a turn — no clause
+Alice | thought | to herself | thought Alice to herself
+I | shall think | nothing of tumbling down stairs | I shall think nothing of tumbling
+they | will think | me brave at home | How brave they’ll all think me at home
+I | wouldn't say | anything about it | I wouldn’t say anything about it
+I | fell off | the top of the house | even if I fell off the top of the house
+Which | was | very likely true | Which was very likely true
+the fall | come | to an end | Would the fall _never_ come to an end
+
+I | wonder | how many miles I've fallen | I wonder how many miles
+I | have fallen | by this time | I’ve fallen by this time
+she | said | aloud | she said aloud
+I | must be getting | somewhere near the centre of the earth | I must be getting somewhere near the centre
+that | would be | four thousand miles down | that would be four thousand miles down
+
+Alice | had learnt | several things of this sort in her lessons | Alice had learnt several things
+this | was not | a very good opportunity for showing off her knowledge | not a _very_ good opportunity
+there | was | no one to listen to her | there was no one to listen to her
+it | was | good practice to say it over | it was good practice to say it over
+that | is | about the right distance | that’s about the right distance
+I | wonder | what Latitude or Longitude I've got to | what Latitude or Longitude
+
+Alice | had | no idea what Latitude was | Alice had no idea what Latitude was
+Alice | thought | they were nice grand words to say | thought they were nice grand words
+she | began | again | Presently she began again
+
+I | wonder | if I shall fall right through the earth | I wonder if I shall fall right
+I | shall fall | right through the earth | fall right _through_ the earth
+it | will seem | funny to come out among the people | How funny it’ll seem
+the people | walk | with their heads downward | walk with their heads downward
+I | think | The Antipathies | The Antipathies, I think
+
+she | was | rather glad | she was rather glad
+there | was | no one listening | there _was_ no one listening
+it | didn't sound | at all the right word | it didn’t sound at all the right word
+I | shall have to ask | them what the name of the country is | I shall have to ask them
+this | is | New Zealand or Australia | is this New Zealand or Australia
+
+she | tried | to curtsey | she tried to curtsey
+she | spoke | | as she spoke
+you | are falling | through the air | as you’re falling through the air
+you | think | you could manage it | Do you think you could manage it
+she | will think | me an ignorant little girl | what an ignorant little girl she’ll think me
+it | will never do | to ask | it’ll never do to ask
+I | shall see | it written up somewhere | I shall see it written up somewhere
+
+EMPTY | Down, down, down. | a repeated adverb marking the fall — no clause
+There | was | nothing else to do | There was nothing else to do
+Alice | began | talking again | Alice soon began talking again
+
+Dinah | will miss | me very much to-night | Dinah’ll miss me very much
+Dinah | was | the cat | Dinah was the cat
+I | hope | they'll remember her saucer of milk | I hope they’ll remember
+they | will remember | her saucer of milk at tea-time | her saucer of milk at tea-time
+EMPTY | Dinah my dear! | vocative address — names a being, asserts nothing of her
+I | wish | you were down here with me | I wish you were down here with me
+you | were | down here with me | you were down here with me
+There | are | no mice in the air | There are no mice in the air
+you | might catch | a bat | you might catch a bat
+that | is | very like a mouse | that’s very like a mouse
+cats | eat | bats | do cats eat bats
+
+Alice | began | to get rather sleepy | Alice began to get rather sleepy
+Alice | went on saying | to herself | went on saying to herself
+bats | eat | cats | Do bats eat cats
+she | couldn't answer | either question | she couldn’t answer either question
+it | didn't matter | which way she put it | it didn’t much matter which way
+
+She | felt | that she was dozing off | She felt that she was dozing off
+she | was dozing off | | she was dozing off
+she | had begun | to dream | had just begun to dream
+she | was walking | hand in hand with Dinah | walking hand in hand with Dinah
+she | saying | to her very earnestly | saying to her very earnestly
+you | eat | a bat | did you ever eat a bat
+EMPTY | when suddenly, thump! | an onomatopoeic impact — no clause
+EMPTY | thump! | the same, repeated
+
+she | came upon | a heap of sticks and dry leaves | came upon a heap of sticks
+the fall | was | over | the fall was over
+
+Alice | was not | a bit hurt | Alice was not a bit hurt
+she | jumped up | on to her feet | she jumped up on to her feet
+she | looked up | | she looked up
+it | was | all dark overhead | it was all dark overhead
+another long passage | was | before her | before her was another long passage
+the White Rabbit | was | still in sight | the White Rabbit was still in sight
+the White Rabbit | hurrying down | it | hurrying down it
+
+There | was not | a moment to be lost | There was not a moment to be lost
+Alice | went | away like the wind | away went Alice like the wind
+Alice | was | just in time to hear it say | just in time to hear it say
+it | turned | a corner | as it turned a corner
+it | is getting | late | how late it’s getting
+
+She | was | close behind it | She was close behind it
+she | turned | the corner | when she turned the corner
+the Rabbit | was | no longer to be seen | the Rabbit was no longer to be seen
+she | found | herself in a long, low hall | she found herself in a long, low hall
+the hall | was lit up | by a row of lamps | which was lit up by a row of lamps
+a row of lamps | hanging | from the roof | hanging from the roof
+
+There | were | doors all round the hall | There were doors all round the hall
+they | were | all locked | they were all locked
+Alice | had been | all the way down one side and up the other | all the way down one side
+Alice | trying | every door | trying every door
+she | walked | sadly down the middle | she walked sadly down the middle
+she | wondering | how she was ever to get out again | wondering how she was ever
+
+she | came upon | a little three-legged table | came upon a little three-legged table
+the table | made | of solid glass | all made of solid glass
+there | was | nothing on it except a tiny golden key | nothing on it except a tiny golden key
+Alice's first thought | was | that it might belong to one of the doors | first thought was that it might belong
+it | might belong | to one of the doors of the hall | belong to one of the doors of the hall
+
+the locks | were | too large | the locks were too large
+the key | was | too small | the key was too small
+it | would not open | any of them | it would not open any of them
+
+she | came upon | a low curtain | came upon a low curtain
+she | had not noticed | it before | she had not noticed before
+a little door about fifteen inches high | was | behind it | behind it was a little door
+she | tried | the little golden key in the lock | she tried the little golden key
+it | fitted | | to her great delight it fitted
+
+Alice | opened | the door | Alice opened the door
+Alice | found | that it led into a small passage | found that it led into a small passage
+it | led | into a small passage | led into a small passage
+she | knelt down | | she knelt down
+she | looked | along the passage into the loveliest garden | looked along the passage
+
+she | longed | to get out of that dark hall | How she longed to get out
+she | wander about | among those beds of bright flowers | wander about among those beds
+she | could not get | her head through the doorway | could not even get her head through
+my head | would go | through | even if my head would go through
+poor Alice | thought | | thought poor Alice
+it | would be | of very little use without my shoulders | of very little use without my shoulders
+
+I | wish | I could shut up like a telescope | how I wish I could shut up
+I | could shut up | like a telescope | shut up like a telescope
+I | think | I could | I think I could
+I | knew | how to begin | if I only knew how to begin
+
+so many out-of-the-way things | had happened | lately | out-of-the-way things had happened lately
+Alice | had begun | to think | Alice had begun to think
+very few things | were | really impossible | very few things indeed were really impossible
+
+There | seemed to be | no use in waiting by the little door | no use in waiting by the little door
+she | went back | to the table | she went back to the table
+she | half hoping | she might find another key on it | half hoping she might find another key
+she | found | a little bottle on it | she found a little bottle on it
+it | was not | here before | which certainly was not here before
+Alice | said | | said Alice
+a paper label | was | round the neck of the bottle | round the neck of the bottle was a paper label
+the words | printed | on it in large letters | beautifully printed on it in large letters
+
+It | was | all very well to say Drink me | It was all very well to say
+the wise little Alice | was not going | to do that in a hurry | was not going to do _that_ in a hurry
+I | will look | first | I’ll look first
+she | said | | she said
+she | see | whether it's marked poison or not | see whether it’s marked
+she | had read | several nice little histories about children | she had read several nice little histories
+children | had got | burnt | children who had got burnt
+children | eaten up | by wild beasts | eaten up by wild beasts
+they | would not remember | the simple rules | _would_ not remember the simple rules
+their friends | had taught | them | their friends had taught them
+a red-hot poker | will burn | you | a red-hot poker will burn you
+you | hold | it too long | if you hold it too long
+you | cut | your finger very deeply with a knife | if you cut your finger
+it | bleeds | | it usually bleeds
+she | had never forgotten | that | she had never forgotten that
+you | drink | much from a bottle marked poison | if you drink much from a bottle
+it | is | almost certain to disagree with you | almost certain to disagree with you
+
+this bottle | was not marked | poison | this bottle was _not_ marked
+Alice | ventured | to taste it | Alice ventured to taste it
+Alice | finding | it very nice | finding it very nice
+it | had | a sort of mixed flavour of cherry-tart | a sort of mixed flavour of cherry-tart
+she | finished off | it very soon | she very soon finished it off
+
+EMPTY | “What a curious feeling!” | an exclamative — a noun phrase under exclamation, not a clause
+Alice | said | | said Alice
+I | must be shutting up | like a telescope | I must be shutting up like a telescope
+she | was | now only ten inches high | she was now only ten inches high
+her face | brightened up | at the thought | her face brightened up
+she | was | now the right size for going through the little door | the right size for going through
+
+she | waited | for a few minutes | she waited for a few minutes
+she | was going to shrink | any further | she was going to shrink any further
+she | felt | a little nervous about this | she felt a little nervous about this
+it | might end | | for it might end
+Alice | said | to herself | said Alice to herself
+I | going out | altogether like a candle | in my going out altogether
+I | wonder | what I should be like then | I wonder what I should be like
+
+she | tried | to fancy what the flame of a candle is like | she tried to fancy what the flame
+the candle | is blown out | | after the candle is blown out
+she | could not remember | ever having seen such a thing | could not remember ever having seen
+
+nothing more | happened | | finding that nothing more happened
+she | decided on | going into the garden at once | decided on going into the garden
+she | got | to the door | when she got to the door
+she | found | she had forgotten the little golden key | she found she had forgotten
+she | went back | to the table for it | she went back to the table for it
+she | could not reach | it | she could not possibly reach it
+she | could see | it quite plainly through the glass | she could see it quite plainly
+she | tried | her best to climb up one of the legs | she tried her best to climb up
+it | was | too slippery | but it was too slippery
+she | had tired | herself out with trying | she had tired herself out with trying
+the poor little thing | sat down | | the poor little thing sat down
+the poor little thing | cried | | sat down and cried
+
+there | is | no use in crying like that | there’s no use in crying like that
+Alice | said | to herself | said Alice to herself, rather sharply
+I | advise | you to leave off this minute | I advise you to leave off this minute
+She | gave | herself very good advice | She generally gave herself very good advice
+she | followed | it very seldom | she very seldom followed it
+she | scolded | herself so severely | she scolded herself so severely
+she | remembered | trying to box her own ears | she remembered trying to box her own ears
+she | had cheated | herself in a game of croquet | cheated herself in a game of croquet
+she | was playing | against herself | she was playing against herself
+this curious child | was | very fond of pretending to be two people | very fond of pretending to be two people
+it | is | no use now | it’s no use now
+poor Alice | thought | | thought poor Alice
+there | is | hardly enough of me left | there’s hardly enough of me left
+
+her eye | fell | on a little glass box | her eye fell on a little glass box
+a little glass box | was lying | under the table | was lying under the table
+she | opened | it | she opened it
+she | found | in it a very small cake | found in it a very small cake
+the words EAT ME | were marked | in currants | beautifully marked in currants
+I | will eat | it | Well, I’ll eat it
+Alice | said | | said Alice
+it | makes | me grow larger | if it makes me grow larger
+I | can reach | the key | I can reach the key
+it | makes | me grow smaller | if it makes me grow smaller
+I | can creep | under the door | I can creep under the door
+I | will get | into the garden | either way I’ll get into the garden
+I | don't care | which happens | I don’t care which happens
+
+She | ate | a little bit | She ate a little bit
+She | said | anxiously to herself | said anxiously to herself
+she | holding | her hand on the top of her head | holding her hand on the top of her head
+she | feel | which way it was growing | to feel which way it was growing
+she | was | quite surprised to find that she remained the same size | quite surprised to find
+she | remained | the same size | she remained the same size
+this | happens | when one eats cake | this generally happens when one eats cake
+Alice | had got | so much into the way of expecting | Alice had got so much into the way
+it | seemed | quite dull and stupid for life to go on | quite dull and stupid for life to go on
+she | set | to work | So she set to work
+she | finished off | the cake | very soon finished off the cake
+EMPTY | * * * * * * * * * * * * * * * * * * * * | a typographic scene-break row — no letters, no clause
+
+# The dreamy repetition: the same question asked a second time. A repetition
+# is not a duplicate — it is what shows Alice drifting off, and a reader
+# registers the second asking as its own event.
+cats | eat | bats | Do cats eat bats?”

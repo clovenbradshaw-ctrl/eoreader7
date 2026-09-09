@@ -1,0 +1,318 @@
+# Hand-rolled golden — Alice in Wonderland, chapter 3, CLAUSE LEVEL.
+# end1 | label | end2 | quote-anchor (must resolve in the chapter)
+# Authored by reading the chapter paragraph by paragraph, before scoring.
+# "" as end2 marks a genuinely intransitive clause — no object exists.
+
+They | were | a queer-looking party | queer-looking party
+a queer-looking party | assembled | on the bank | assembled on the bank
+the birds | with | draggled feathers | birds with draggled feathers
+the animals | with | their fur clinging close to them | fur clinging close to them
+all | dripping | wet, cross, and uncomfortable | all dripping wet
+
+The first question | was | how to get dry again | The first question of course was
+they | had | a consultation about this | they had a consultation about this
+it | seemed | quite natural to Alice | it seemed quite natural to Alice
+Alice | to find | herself talking familiarly with them | to find herself talking familiarly
+she | had known | them all her life | as if she had known them all her life
+she | had | quite a long argument with the Lory | quite a long argument with the Lory
+the Lory | turned | sulky | at last turned sulky
+I | am | older than you | I am older than you
+I | must know | better | must know better
+Alice | would not allow | this | this Alice would not allow
+Alice | knowing | how old it was | without knowing how old it was
+the Lory | refused | to tell its age | positively refused to tell its age
+there | was | no more to be said | there was no more to be said
+
+the Mouse | seemed | to be a person of authority among them | seemed to be a person of authority
+the Mouse | called out | Sit down, all of you | called out, “Sit down, all of you
+you | listen | to me | listen to me
+I | ll make | you dry enough | soon make you dry enough
+They | sat down | in a large ring | They all sat down at once, in a large ring
+the Mouse | in | the middle | with the Mouse in the middle
+Alice | kept | her eyes anxiously fixed on it | Alice kept her eyes anxiously fixed on it
+she | felt | sure she would catch a bad cold | she felt sure she would catch a bad cold
+she | would catch | a bad cold | she would catch a bad cold
+she | did not get | dry very soon | if she did not get dry very soon
+
+the Mouse | said | Ahem | said the Mouse with an important air
+you | are | all ready | are you all ready
+This | is | the driest thing I know | This is the driest thing I know
+I | know | the driest thing | the driest thing I know
+William the Conqueror | was submitted to | by the English | was soon submitted to by the English
+whose cause | was favoured | by the pope | whose cause was favoured by the pope
+the English | wanted | leaders | who wanted leaders
+the English | had been accustomed | to usurpation and conquest | accustomed to usurpation and conquest
+Edwin and Morcar | were | the earls of Mercia and Northumbria | the earls of Mercia and Northumbria
+
+the Lory | said | Ugh | said the Lory, with a shiver
+the Mouse | said | I beg your pardon | said the Mouse, frowning
+you | did speak | | Did you speak
+the Lory | said | Not I | said the Lory hastily
+I | thought | you did | I thought you did
+I | proceed | | I proceed
+Edwin and Morcar | declared | for him | declared for him
+Stigand | found | it advisable | found it advisable
+Stigand | was | the patriotic archbishop of Canterbury | the patriotic archbishop of Canterbury
+
+the Duck | said | Found what? | said the Duck
+the Mouse | replied | Found it | the Mouse replied rather crossly
+you | know | what it means | you know what ‘it’ means
+the Duck | said | I know what it means well enough | said the Duck
+I | find | a thing | when _I_ find a thing
+it | is | generally a frog or a worm | generally a frog or a worm
+the archbishop | find | what | what did the archbishop find
+
+The Mouse | did not notice | this question | The Mouse did not notice this question
+The Mouse | went on | hurriedly | hurriedly went on
+Stigand | to go | with Edgar Atheling | to go with Edgar Atheling
+Stigand | to meet | William | to meet William
+Stigand | offer | him the crown | offer him the crown
+William's conduct | was | moderate | conduct at first was moderate
+it | continued | turning to Alice | it continued, turning to Alice
+
+Alice | said | As wet as ever | said Alice in a melancholy tone
+it | doesn't seem | to dry me at all | it doesn’t seem to dry me at all
+
+the Dodo | said | In that case | said the Dodo solemnly
+the Dodo | rising | to its feet | rising to its feet
+I | move | that the meeting adjourn | I move that the meeting adjourn
+
+the Eaglet | said | Speak English | said the Eaglet
+I | don't know | the meaning of half those long words | the meaning of half those long words
+I | don't believe | you do either | I don’t believe you do either
+the Eaglet | bent down | its head to hide a smile | the Eaglet bent down its head
+some of the other birds | tittered | audibly | the other birds tittered audibly
+
+the Dodo | said | What I was going to say | said the Dodo in an offended tone
+the best thing to get us dry | would be | a Caucus-race | would be a Caucus-race
+
+Alice | said | What is a Caucus-race? | said Alice
+she | wanted | much to know | not that she wanted much to know
+the Dodo | had paused | | the Dodo had paused
+somebody | ought to speak | | _somebody_ ought to speak
+no one else | seemed | inclined to say anything | no one else seemed inclined
+
+the Dodo | said | the best way to explain it is to do it | said the Dodo
+the best way to explain it | is | to do it | the best way to explain it is to do it
+I | will tell | you how the Dodo managed it | I will tell you how the Dodo managed it
+
+it | marked out | a race-course, in a sort of circle | it marked out a race-course
+the exact shape | doesn't matter | | the exact shape doesn’t matter
+all the party | were placed | along the course | all the party were placed along the course
+they | began | running when they liked | they began running when they liked
+they | left off | when they liked | left off when they liked
+it | was not | easy to know when the race was over | it was not easy to know
+they | had been running | half an hour or so | they had been running half an hour
+they | were | quite dry again | were quite dry again
+the Dodo | called out | The race is over! | the Dodo suddenly called out
+they | crowded round | it, panting | they all crowded round it, panting
+they | asking | But who has won? | asking, “But who has won?
+
+the Dodo | could not answer | this question | This question the Dodo could not answer
+it | sat | for a long time | it sat for a long time
+one finger | pressed | upon its forehead | one finger pressed upon its forehead
+you | see | Shakespeare in the pictures of him | you usually see Shakespeare
+the rest | waited | in silence | the rest waited in silence
+the Dodo | said | Everybody has won | At last the Dodo said
+Everybody | has won | | _Everybody_ has won
+all | must have | prizes | all must have prizes
+
+quite a chorus of voices | asked | But who is to give the prizes? | quite a chorus of voices asked
+the Dodo | said | Why, she, of course | said the Dodo
+the Dodo | pointing | to Alice with one finger | pointing to Alice with one finger
+the whole party | crowded round | her | the whole party at once crowded round her
+the whole party | calling out | Prizes! Prizes! | calling out in a confused way
+
+Alice | had | no idea what to do | Alice had no idea what to do
+she | put | her hand in her pocket | she put her hand in her pocket
+she | pulled out | a box of comfits | pulled out a box of comfits
+the salt water | had not got | into it | the salt water had not got into it
+she | handed | them round as prizes | handed them round as prizes
+There | was | exactly one a-piece | There was exactly one a-piece
+
+the Mouse | said | she must have a prize herself | said the Mouse
+she | must have | a prize herself | she must have a prize herself
+the Dodo | replied | Of course | the Dodo replied very gravely
+you | have got | what else in your pocket | What else have you got in your pocket
+he | went on | turning to Alice | he went on, turning to Alice
+
+Alice | said | Only a thimble | said Alice sadly
+the Dodo | said | Hand it over here | said the Dodo
+
+they | crowded round | her once more | they all crowded round her once more
+the Dodo | presented | the thimble | the Dodo solemnly presented the thimble
+We | beg | your acceptance of this elegant thimble | We beg your acceptance
+it | had finished | this short speech | it had finished this short speech
+they | cheered | | they all cheered
+
+Alice | thought | the whole thing very absurd | Alice thought the whole thing very absurd
+they | looked | so grave | they all looked so grave
+she | did not dare | to laugh | she did not dare to laugh
+she | could not think | of anything to say | she could not think of anything to say
+she | bowed | | she simply bowed
+she | took | the thimble | took the thimble
+she | looking | as solemn as she could | looking as solemn as she could
+
+The next thing | was | to eat the comfits | The next thing was to eat the comfits
+this | caused | some noise and confusion | this caused some noise and confusion
+the large birds | complained | that they could not taste theirs | the large birds complained
+they | could not taste | theirs | they could not taste theirs
+the small ones | choked | | the small ones choked
+the small ones | had to be patted | on the back | had to be patted on the back
+it | was over | at last | it was over at last
+they | sat down | again in a ring | they sat down again in a ring
+they | begged | the Mouse to tell them something more | begged the Mouse to tell them something more
+
+You | promised | to tell me your history | You promised to tell me your history
+Alice | said | and why it is you hate C and D | said Alice
+you | hate | C and D | why it is you hate
+she | added | in a whisper | she added in a whisper
+she | half afraid | that it would be offended again | half afraid that it would be offended again
+
+Mine | is | a long and a sad tale | Mine is a long and a sad tale
+the Mouse | turning | to Alice | turning to Alice, and sighing
+the Mouse | sighing | | and sighing
+
+It | is | a long tail, certainly | It _is_ a long tail, certainly
+Alice | looking down | with wonder at the Mouse's tail | looking down with wonder
+you | call | it sad | why do you call it sad
+she | kept on | puzzling about it | she kept on puzzling about it
+the Mouse | was speaking | | while the Mouse was speaking
+her idea of the tale | was | something like this | her idea of the tale was something like this
+
+Fury | said | to a mouse | Fury said to a mouse
+Fury | met | that in the house | That he met in the house
+us | go | to law | Let us both go to law
+I | will prosecute | you | _I_ will prosecute _you_
+I | will take | no denial | I’ll take no denial
+We | must have | a trial | We must have a trial
+I | have | nothing to do | I’ve nothing to do
+the mouse | said | to the cur | Said the mouse to the cur
+such a trial | would be | wasting our breath | would be wasting our breath
+I | will be | judge | I’ll be judge
+I | will be | jury | I’ll be jury
+cunning old Fury | said | | Said cunning old Fury
+I | will try | the whole cause | I’ll try the whole cause
+I | condemn | you to death | condemn you to death
+
+the Mouse | said | You are not attending! | said the Mouse to Alice severely
+You | are not attending | | You are not attending
+you | are thinking | of what | What are you thinking of
+
+Alice | said | I beg your pardon | said Alice very humbly
+you | had got | to the fifth bend | you had got to the fifth bend
+
+the Mouse | cried | I had not! | cried the Mouse, sharply and very angrily
+
+Alice | said | A knot! | said Alice
+Alice | ready | to make herself useful | always ready to make herself useful
+Alice | looking | anxiously about her | looking anxiously about her
+me | help | to undo it | do let me help to undo it
+
+the Mouse | said | I shall do nothing of the sort | said the Mouse
+I | shall do | nothing of the sort | I shall do nothing of the sort
+the Mouse | getting up | | getting up and walking away
+the Mouse | walking away | | walking away
+You | insult | me | You insult me
+you | talking | such nonsense | by talking such nonsense
+
+Alice | pleaded | I didn't mean it! | pleaded poor Alice
+I | didn't mean | it | I didn’t mean it
+you | are | so easily offended | you’re so easily offended
+
+The Mouse | growled | in reply | The Mouse only growled in reply
+
+Alice | called after | it | Alice called after it
+you | come back | | Please come back
+you | finish | your story | finish your story
+the others | joined in | chorus | the others all joined in chorus
+the Mouse | shook | its head impatiently | shook its head impatiently
+the Mouse | walked | a little quicker | walked a little quicker
+
+the Lory | sighed | What a pity it wouldn't stay! | sighed the Lory
+it | wouldn't stay | | it wouldn’t stay
+it | was | quite out of sight | it was quite out of sight
+an old Crab | took | the opportunity of saying to her daughter | an old Crab took the opportunity
+this | be | a lesson to you | Let this be a lesson to you
+you | never lose | your temper | never to lose _your_ temper
+the young Crab | said | Hold your tongue, Ma! | said the young Crab
+You | are | enough to try the patience of an oyster | enough to try the patience of an oyster
+
+Alice | said | I wish I had our Dinah here | said Alice aloud
+I | wish | I had our Dinah here | I wish I had our Dinah here
+Alice | addressing | nobody in particular | addressing nobody in particular
+She | would fetch | it back | She’d soon fetch it back
+
+the Lory | said | And who is Dinah? | said the Lory
+who | is | Dinah | who is Dinah
+I | venture | to ask the question | if I might venture to ask the question
+
+Alice | replied | eagerly | Alice replied eagerly
+she | was | always ready to talk about her pet | always ready to talk about her pet
+Dinah | is | our cat | Dinah’s our cat
+she | is | such a capital one for catching mice | such a capital one for catching mice
+you | can't think | | you can’t think
+I | wish | you could see her after the birds | I wish you could see her after the birds
+she | will eat | a little bird | she’ll eat a little bird
+
+This speech | caused | a remarkable sensation among the party | This speech caused a remarkable sensation
+Some of the birds | hurried off | at once | Some of the birds hurried off at once
+one old Magpie | began | wrapping itself up very carefully | one old Magpie began wrapping itself up
+I | must be getting | home | I really must be getting home
+the night-air | doesn't suit | my throat | the night-air doesn’t suit my throat
+a Canary | called out | to its children | a Canary called out
+you | come away | | Come away, my dears
+It | is | high time you were all in bed | It’s high time you were all in bed
+they | moved off | | they all moved off
+Alice | was left | alone | Alice was soon left alone
+
+# ── THE CHAPTER'S ENDING, missed by the first hand-read ──────────────────
+# Found by measuring sentence coverage rather than by re-reading: 7 sentences
+# after "Alice was soon left alone" had no golden proposition at all. The
+# first pass stopped at that line and took it for the chapter's close. A
+# golden built by reading alone would still be missing these; the coverage
+# check is what caught it.
+I | wish | I hadn't mentioned Dinah | I wish I hadn’t mentioned Dinah
+she | said | to herself in a melancholy tone | she said to herself in a melancholy tone
+Nobody | seems to like | her, down here | Nobody seems to like her
+I | am sure | she's the best cat in the world | I’m sure she’s the best cat
+she | is | the best cat in the world | the best cat in the world
+I | wonder | if I shall ever see you any more | I wonder if I shall ever see you
+poor Alice | began | to cry again | poor Alice began to cry again
+she | felt | very lonely and low-spirited | she felt very lonely and low-spirited
+she | heard | a little pattering of footsteps in the distance | she again heard a little pattering
+she | looked up | eagerly | she looked up eagerly
+she | half hoping | that the Mouse had changed his mind | half hoping that the Mouse had changed
+the Mouse | had changed | his mind | the Mouse had changed his mind
+the Mouse | was coming back | to finish his story | was coming back to finish his story
+
+# ── attributions the first anchors missed by landing on the other fragment
+the Mouse | said | I proceed | said the Mouse.
+the Duck | said | Found what? | “Found _what_?”
+the Mouse | replied | Found it | “Found _it_,”
+Alice | said | As wet as ever | “As wet as ever,”
+the Dodo | said | In that case | “In that case,”
+the Eaglet | said | Speak English! | “Speak English!”
+the Dodo | said | What I was going to say | “What I was going to say,”
+Alice | said | What is a Caucus-race? | “What _is_ a Caucus-race?”
+a chorus of voices | asked | But who is to give the prizes? | “But who is to give the prizes?”
+the Dodo | said | Why, she, of course | “Why, _she_, of course,”
+the Dodo | replied | Of course | “Of course,”
+Alice | said | Only a thimble | “Only a thimble,”
+the Dodo | said | Hand it over here | “Hand it over here,”
+Alice | said | I beg your pardon | “I beg your pardon,”
+the Mouse | cried | I had not! | “I had _not!_”
+Alice | said | A knot! | “A knot!”
+the young Crab | said | Hold your tongue, Ma! | “Hold your tongue, Ma!”
+the Mouse | said | Silence all round | Silence all round, if you please!
+There | was | no One, two, three, and away | There was no “One, two, three, and away,”
+you | are getting on | how now | How are you getting on now
+
+# ── EXPECTED EMPTY: sentences a reader correctly draws nothing from ──
+EMPTY | “Ahem!” | a throat-clearing interjection — no clause, no ends
+EMPTY | “Ugh!” | interjection
+EMPTY | “Not I!” | elliptical denial; the verb is gapped and recoverable only from the prior turn
+EMPTY | Prizes!” | an exclamation repeated as a shout — a noun, not a clause
+EMPTY | “Why,” | a discourse particle opening a turn, not a proposition
+EMPTY | Oh, my dear Dinah! | vocative address — names a being, asserts nothing of her
+EMPTY | “I beg your pardon!” | a formula; its literal reading (I beg your pardon) is idiomatic, not an event of the chapter

@@ -82,7 +82,43 @@ Advancement requires the revision rate to hold under the gate across two consecu
 
 ---
 
-## 7. Rebuilding the sidecars
+## 7. How LaVar makes an extremely good EOT sidecar
+
+This is the procedure, not the principles. The principles are `eoreader7/native/READING-SPEC.md` S95–S99 and `live_priors/POLICIES.md` LP18–LP19, and they govern where this section is vaguer than they are.
+
+**What LaVar is aiming at, stated as a number rather than a feeling.** Read against 801 hand-authored clause-level propositions (Alice ch1–3), the current reader recalls **11.4%**, emitting 454 arrangements against 91 a reader would draw. It is not under-producing; it is producing mostly the wrong things. **8.2% of all propositions are intransitive** and cannot be admitted at all under the present extraction gate. Any claim of improvement is measured against that reference or it is not a claim.
+
+### The order of work, and why this order
+
+1. **Build the golden BEFORE reading.** Author the reference by hand, clause by clause, then run the reader, then score. Reversed, it is calibration against the answer key. `eval/lavar/golden-tool.mjs` refuses to build a golden that fails either property: every anchor must resolve, and **every sentence must be accounted for** — a proposition, or an explicit `EMPTY` claim naming why a reader draws nothing there. Silence is forbidden, because an omitted sentence cannot be told apart from a missed one. The first golden written for chapter 3 held 47 propositions, its author believed it complete, and it was missing the chapter's entire ending; the coverage check found that, and re-reading would not have.
+
+2. **Read the ORIGIN, never a copy.** A chapter is an observation at `[start,end)` on the preserved document, not a file carved out of it. Front matter is recorded with a role, never stripped. Extracting a chapter to its own file silently normalised CRLF to LF once already — a second origin, drifted, with every address in it wrong by one byte per line.
+
+3. **Emit a ledger, not a document.** One observation per JSONL line, nesting **by address**; the source path appears once, on line 0. The tree is projected, never stored. The flat form this replaces spent 19% of its bytes repeating one path 741 times.
+
+4. **Type every arrangement by its cube cell.** Verb → `CON·Figure` (Link). Preposition → `CON·Ground` (**Field** — a state, not a broken Link). Conjunction → `SEG·Figure`. A class that cannot head a relation at all (noun, adjective, adverb, pronoun) → refused, and **the refusal is a line**. Anything unsettled → `grain_gap`, observation **kept in full**. Never write `subject`, `verb` or `object` onto a record; the English reading of each cell is declared once in the recipe.
+
+5. **Record the SIG row.** Entities, voids, and the reader's own admission acts. A referent is a centre of expansion, not a label on an end — and it is an artifact of PROJECTION, folded out of the recorded admission acts rather than stored as a fact.
+
+6. **Say why nothing was found.** A sentence that yields nothing carries a typed absence naming which: no earned verb in it, or the gate refused for want of two ends. These are different facts — the first is revisable by a later pass, the second is not.
+
+7. **Reread, and record only the delta.** A reread of an earlier chapter carrying later chapters as priors is legitimate — it has read them. It writes only what moved; an arrangement already recorded identically is **not restated**. Where the reread reads the same bytes differently, that is an **ambiguity, not a correction**: both readings stay, as an untyped contest, because an untyped disagreement needs typing rather than a source.
+
+8. **Grade surprise around the being.** Every observation moves what is known about its referent by some amount; the denominator is that being's neighbourhood at the moment it arrives. A partner is a **referent, never a string** — comparing raw object text saturates instantly and measures string variety while calling it knowledge.
+
+### What LaVar must not do
+
+**Do not hand-roll a reading loop.** `kernel/reading.js::createRecursiveReader` returns `surprise`, `tension`, `release` and `relevantFold` from every step. A driver calling `extractRelations` directly throws all four away and reinvents them worse. (Their dynamics are currently inert because nothing injects `ask` into `interrogateCube` — so a naive migration would report `surprise: 0` as though it measured the material. Wire the `ask`, do not fake the number.)
+
+**Do not add a source to the wrong tier.** A lexicon with a giver and a revision joins the **received priors** and may gate, refuse and type. A model joins the **witnesses**: one binary claim at a time, its testimony typed beside the byte and structural tiers, never a prior and never a gate.
+
+**Do not tune against the specimen.** A number that moves on one chapter and is not checked on the other two is a fact about that chapter.
+
+**Search before building.** Four times this session a mechanism was assumed missing and was already built and wired into nothing: the bound-pronoun anchor, the expectation lifecycle, identity revision, and the reading dynamics. The cost of grepping first is seconds.
+
+---
+
+## 7a. Rebuilding the sidecars
 
 Every existing sidecar is discarded and rebuilt with the current recipe, so live priors rest on readings that were reviewed rather than accumulated.
 

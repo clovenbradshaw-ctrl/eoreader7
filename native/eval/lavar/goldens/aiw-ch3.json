@@ -1,0 +1,1712 @@
+{
+ "schema": "EOTGolden@1",
+ "source": "01-literature-books/gutenberg/pg11_Alice_s_Adventures_in_Wonderland.txt",
+ "chapter": 3,
+ "title": "A Caucus-Race and a Long Tale",
+ "giver": "LaVar (Claude Opus 5) — read by hand, paragraph by paragraph, 2026-09-09, BEFORE running the reader on this chapter. The engine never saw this file and this file never saw the engine's output; that ordering is the whole point (CLAUDE.md: 'the engine never sees the reference — it is scored against it after the fact').",
+ "scope": "What a competent reader of English should get from this chapter. Not what this engine can currently reach — where the two differ, the engine is wrong or the gap is real, and neither is decided by lowering this file.",
+ "cast": [
+  {
+   "referent": "alice",
+   "surfaces": [
+    "Alice",
+    "she"
+   ],
+   "note": "present throughout"
+  },
+  {
+   "referent": "the_mouse",
+   "surfaces": [
+    "the Mouse",
+    "it"
+   ],
+   "note": "tells the tale; leaves offended"
+  },
+  {
+   "referent": "the_lory",
+   "surfaces": [
+    "the Lory"
+   ],
+   "note": "argues about age; asks who Dinah is"
+  },
+  {
+   "referent": "the_duck",
+   "surfaces": [
+    "the Duck"
+   ],
+   "note": "interrupts over the word 'it'"
+  },
+  {
+   "referent": "the_dodo",
+   "surfaces": [
+    "the Dodo"
+   ],
+   "note": "proposes and runs the Caucus-race"
+  },
+  {
+   "referent": "the_eaglet",
+   "surfaces": [
+    "the Eaglet"
+   ],
+   "note": "objects to long words"
+  },
+  {
+   "referent": "the_old_crab",
+   "surfaces": [
+    "an old Crab",
+    "Ma"
+   ],
+   "note": "mother"
+  },
+  {
+   "referent": "the_young_crab",
+   "surfaces": [
+    "the young Crab",
+    "her daughter"
+   ],
+   "note": "DISTINCT being from the old Crab — a reader that folds these two has lost the joke"
+  },
+  {
+   "referent": "the_magpie",
+   "surfaces": [
+    "one old Magpie"
+   ]
+  },
+  {
+   "referent": "the_canary",
+   "surfaces": [
+    "a Canary"
+   ]
+  },
+  {
+   "referent": "dinah",
+   "surfaces": [
+    "Dinah"
+   ],
+   "note": "named, absent, and the SAME being as chapter 1's Dinah — this is the cross-chapter test"
+  },
+  {
+   "referent": "fury",
+   "surfaces": [
+    "Fury"
+   ],
+   "note": "inside the Mouse's recited tale — a being in an embedded fiction, not in the party"
+  },
+  {
+   "referent": "tale_mouse",
+   "surfaces": [
+    "a mouse"
+   ],
+   "note": "the mouse INSIDE the tale. Distinct from the_mouse. A reader that merges them has crossed a frame boundary"
+  }
+ ],
+ "identities": [
+  {
+   "left": "dinah",
+   "right": "our cat",
+   "quote": "Dinah’s our cat",
+   "why": "The corroborating witness for the identity chapter 1 opened and left standing ('Dinah was the cat'). Two independent witnesses across two chapters is exactly the canonicalizationFloor of 2, so this should FULFIL that expectation and canonicalize it.",
+   "expected_to_fire": false,
+   "known_blocker": "The copular shape requires a DEFINITE/INDEFINITE determiner, and 'our' is a possessive — not in either received class. The copula is also contracted into 'Dinah’s', which the word tokenizer keeps as one token, so no copula is seen at all. Recorded as a prediction of failure, made before running."
+  }
+ ],
+ "propositions": [
+  {
+   "end1": "They",
+   "label": "were",
+   "end2": "a queer-looking party",
+   "quote": "queer-looking party"
+  },
+  {
+   "end1": "a queer-looking party",
+   "label": "assembled",
+   "end2": "on the bank",
+   "quote": "assembled on the bank"
+  },
+  {
+   "end1": "the birds",
+   "label": "with",
+   "end2": "draggled feathers",
+   "quote": "birds with draggled feathers"
+  },
+  {
+   "end1": "the animals",
+   "label": "with",
+   "end2": "their fur clinging close to them",
+   "quote": "fur clinging close to them"
+  },
+  {
+   "end1": "all",
+   "label": "dripping",
+   "end2": "wet, cross, and uncomfortable",
+   "quote": "all dripping wet"
+  },
+  {
+   "end1": "The first question",
+   "label": "was",
+   "end2": "how to get dry again",
+   "quote": "The first question of course was"
+  },
+  {
+   "end1": "they",
+   "label": "had",
+   "end2": "a consultation about this",
+   "quote": "they had a consultation about this"
+  },
+  {
+   "end1": "it",
+   "label": "seemed",
+   "end2": "quite natural to Alice",
+   "quote": "it seemed quite natural to Alice"
+  },
+  {
+   "end1": "Alice",
+   "label": "to find",
+   "end2": "herself talking familiarly with them",
+   "quote": "to find herself talking familiarly"
+  },
+  {
+   "end1": "she",
+   "label": "had known",
+   "end2": "them all her life",
+   "quote": "as if she had known them all her life"
+  },
+  {
+   "end1": "she",
+   "label": "had",
+   "end2": "quite a long argument with the Lory",
+   "quote": "quite a long argument with the Lory"
+  },
+  {
+   "end1": "the Lory",
+   "label": "turned",
+   "end2": "sulky",
+   "quote": "at last turned sulky"
+  },
+  {
+   "end1": "I",
+   "label": "am",
+   "end2": "older than you",
+   "quote": "I am older than you"
+  },
+  {
+   "end1": "I",
+   "label": "must know",
+   "end2": "better",
+   "quote": "must know better"
+  },
+  {
+   "end1": "Alice",
+   "label": "would not allow",
+   "end2": "this",
+   "quote": "this Alice would not allow"
+  },
+  {
+   "end1": "Alice",
+   "label": "knowing",
+   "end2": "how old it was",
+   "quote": "without knowing how old it was"
+  },
+  {
+   "end1": "the Lory",
+   "label": "refused",
+   "end2": "to tell its age",
+   "quote": "positively refused to tell its age"
+  },
+  {
+   "end1": "there",
+   "label": "was",
+   "end2": "no more to be said",
+   "quote": "there was no more to be said"
+  },
+  {
+   "end1": "the Mouse",
+   "label": "seemed",
+   "end2": "to be a person of authority among them",
+   "quote": "seemed to be a person of authority"
+  },
+  {
+   "end1": "the Mouse",
+   "label": "called out",
+   "end2": "Sit down, all of you",
+   "quote": "called out, “Sit down, all of you"
+  },
+  {
+   "end1": "you",
+   "label": "listen",
+   "end2": "to me",
+   "quote": "listen to me"
+  },
+  {
+   "end1": "I",
+   "label": "ll make",
+   "end2": "you dry enough",
+   "quote": "soon make you dry enough"
+  },
+  {
+   "end1": "They",
+   "label": "sat down",
+   "end2": "in a large ring",
+   "quote": "They all sat down at once, in a large ring"
+  },
+  {
+   "end1": "the Mouse",
+   "label": "in",
+   "end2": "the middle",
+   "quote": "with the Mouse in the middle"
+  },
+  {
+   "end1": "Alice",
+   "label": "kept",
+   "end2": "her eyes anxiously fixed on it",
+   "quote": "Alice kept her eyes anxiously fixed on it"
+  },
+  {
+   "end1": "she",
+   "label": "felt",
+   "end2": "sure she would catch a bad cold",
+   "quote": "she felt sure she would catch a bad cold"
+  },
+  {
+   "end1": "she",
+   "label": "would catch",
+   "end2": "a bad cold",
+   "quote": "she would catch a bad cold"
+  },
+  {
+   "end1": "she",
+   "label": "did not get",
+   "end2": "dry very soon",
+   "quote": "if she did not get dry very soon"
+  },
+  {
+   "end1": "the Mouse",
+   "label": "said",
+   "end2": "Ahem",
+   "quote": "said the Mouse with an important air"
+  },
+  {
+   "end1": "you",
+   "label": "are",
+   "end2": "all ready",
+   "quote": "are you all ready"
+  },
+  {
+   "end1": "This",
+   "label": "is",
+   "end2": "the driest thing I know",
+   "quote": "This is the driest thing I know"
+  },
+  {
+   "end1": "I",
+   "label": "know",
+   "end2": "the driest thing",
+   "quote": "the driest thing I know"
+  },
+  {
+   "end1": "William the Conqueror",
+   "label": "was submitted to",
+   "end2": "by the English",
+   "quote": "was soon submitted to by the English"
+  },
+  {
+   "end1": "whose cause",
+   "label": "was favoured",
+   "end2": "by the pope",
+   "quote": "whose cause was favoured by the pope"
+  },
+  {
+   "end1": "the English",
+   "label": "wanted",
+   "end2": "leaders",
+   "quote": "who wanted leaders"
+  },
+  {
+   "end1": "the English",
+   "label": "had been accustomed",
+   "end2": "to usurpation and conquest",
+   "quote": "accustomed to usurpation and conquest"
+  },
+  {
+   "end1": "Edwin and Morcar",
+   "label": "were",
+   "end2": "the earls of Mercia and Northumbria",
+   "quote": "the earls of Mercia and Northumbria"
+  },
+  {
+   "end1": "the Lory",
+   "label": "said",
+   "end2": "Ugh",
+   "quote": "said the Lory, with a shiver"
+  },
+  {
+   "end1": "the Mouse",
+   "label": "said",
+   "end2": "I beg your pardon",
+   "quote": "said the Mouse, frowning"
+  },
+  {
+   "end1": "you",
+   "label": "did speak",
+   "end2": "",
+   "quote": "Did you speak"
+  },
+  {
+   "end1": "the Lory",
+   "label": "said",
+   "end2": "Not I",
+   "quote": "said the Lory hastily"
+  },
+  {
+   "end1": "I",
+   "label": "thought",
+   "end2": "you did",
+   "quote": "I thought you did"
+  },
+  {
+   "end1": "I",
+   "label": "proceed",
+   "end2": "",
+   "quote": "I proceed"
+  },
+  {
+   "end1": "Edwin and Morcar",
+   "label": "declared",
+   "end2": "for him",
+   "quote": "declared for him"
+  },
+  {
+   "end1": "Stigand",
+   "label": "found",
+   "end2": "it advisable",
+   "quote": "found it advisable"
+  },
+  {
+   "end1": "Stigand",
+   "label": "was",
+   "end2": "the patriotic archbishop of Canterbury",
+   "quote": "the patriotic archbishop of Canterbury"
+  },
+  {
+   "end1": "the Duck",
+   "label": "said",
+   "end2": "Found what?",
+   "quote": "said the Duck"
+  },
+  {
+   "end1": "the Mouse",
+   "label": "replied",
+   "end2": "Found it",
+   "quote": "the Mouse replied rather crossly"
+  },
+  {
+   "end1": "you",
+   "label": "know",
+   "end2": "what it means",
+   "quote": "you know what ‘it’ means"
+  },
+  {
+   "end1": "the Duck",
+   "label": "said",
+   "end2": "I know what it means well enough",
+   "quote": "said the Duck"
+  },
+  {
+   "end1": "I",
+   "label": "find",
+   "end2": "a thing",
+   "quote": "when _I_ find a thing"
+  },
+  {
+   "end1": "it",
+   "label": "is",
+   "end2": "generally a frog or a worm",
+   "quote": "generally a frog or a worm"
+  },
+  {
+   "end1": "the archbishop",
+   "label": "find",
+   "end2": "what",
+   "quote": "what did the archbishop find"
+  },
+  {
+   "end1": "The Mouse",
+   "label": "did not notice",
+   "end2": "this question",
+   "quote": "The Mouse did not notice this question"
+  },
+  {
+   "end1": "The Mouse",
+   "label": "went on",
+   "end2": "hurriedly",
+   "quote": "hurriedly went on"
+  },
+  {
+   "end1": "Stigand",
+   "label": "to go",
+   "end2": "with Edgar Atheling",
+   "quote": "to go with Edgar Atheling"
+  },
+  {
+   "end1": "Stigand",
+   "label": "to meet",
+   "end2": "William",
+   "quote": "to meet William"
+  },
+  {
+   "end1": "Stigand",
+   "label": "offer",
+   "end2": "him the crown",
+   "quote": "offer him the crown"
+  },
+  {
+   "end1": "William's conduct",
+   "label": "was",
+   "end2": "moderate",
+   "quote": "conduct at first was moderate"
+  },
+  {
+   "end1": "it",
+   "label": "continued",
+   "end2": "turning to Alice",
+   "quote": "it continued, turning to Alice"
+  },
+  {
+   "end1": "Alice",
+   "label": "said",
+   "end2": "As wet as ever",
+   "quote": "said Alice in a melancholy tone"
+  },
+  {
+   "end1": "it",
+   "label": "doesn't seem",
+   "end2": "to dry me at all",
+   "quote": "it doesn’t seem to dry me at all"
+  },
+  {
+   "end1": "the Dodo",
+   "label": "said",
+   "end2": "In that case",
+   "quote": "said the Dodo solemnly"
+  },
+  {
+   "end1": "the Dodo",
+   "label": "rising",
+   "end2": "to its feet",
+   "quote": "rising to its feet"
+  },
+  {
+   "end1": "I",
+   "label": "move",
+   "end2": "that the meeting adjourn",
+   "quote": "I move that the meeting adjourn"
+  },
+  {
+   "end1": "the Eaglet",
+   "label": "said",
+   "end2": "Speak English",
+   "quote": "said the Eaglet"
+  },
+  {
+   "end1": "I",
+   "label": "don't know",
+   "end2": "the meaning of half those long words",
+   "quote": "the meaning of half those long words"
+  },
+  {
+   "end1": "I",
+   "label": "don't believe",
+   "end2": "you do either",
+   "quote": "I don’t believe you do either"
+  },
+  {
+   "end1": "the Eaglet",
+   "label": "bent down",
+   "end2": "its head to hide a smile",
+   "quote": "the Eaglet bent down its head"
+  },
+  {
+   "end1": "some of the other birds",
+   "label": "tittered",
+   "end2": "audibly",
+   "quote": "the other birds tittered audibly"
+  },
+  {
+   "end1": "the Dodo",
+   "label": "said",
+   "end2": "What I was going to say",
+   "quote": "said the Dodo in an offended tone"
+  },
+  {
+   "end1": "the best thing to get us dry",
+   "label": "would be",
+   "end2": "a Caucus-race",
+   "quote": "would be a Caucus-race"
+  },
+  {
+   "end1": "Alice",
+   "label": "said",
+   "end2": "What is a Caucus-race?",
+   "quote": "said Alice"
+  },
+  {
+   "end1": "she",
+   "label": "wanted",
+   "end2": "much to know",
+   "quote": "not that she wanted much to know"
+  },
+  {
+   "end1": "the Dodo",
+   "label": "had paused",
+   "end2": "",
+   "quote": "the Dodo had paused"
+  },
+  {
+   "end1": "somebody",
+   "label": "ought to speak",
+   "end2": "",
+   "quote": "_somebody_ ought to speak"
+  },
+  {
+   "end1": "no one else",
+   "label": "seemed",
+   "end2": "inclined to say anything",
+   "quote": "no one else seemed inclined"
+  },
+  {
+   "end1": "the Dodo",
+   "label": "said",
+   "end2": "the best way to explain it is to do it",
+   "quote": "said the Dodo"
+  },
+  {
+   "end1": "the best way to explain it",
+   "label": "is",
+   "end2": "to do it",
+   "quote": "the best way to explain it is to do it"
+  },
+  {
+   "end1": "I",
+   "label": "will tell",
+   "end2": "you how the Dodo managed it",
+   "quote": "I will tell you how the Dodo managed it"
+  },
+  {
+   "end1": "it",
+   "label": "marked out",
+   "end2": "a race-course, in a sort of circle",
+   "quote": "it marked out a race-course"
+  },
+  {
+   "end1": "the exact shape",
+   "label": "doesn't matter",
+   "end2": "",
+   "quote": "the exact shape doesn’t matter"
+  },
+  {
+   "end1": "all the party",
+   "label": "were placed",
+   "end2": "along the course",
+   "quote": "all the party were placed along the course"
+  },
+  {
+   "end1": "they",
+   "label": "began",
+   "end2": "running when they liked",
+   "quote": "they began running when they liked"
+  },
+  {
+   "end1": "they",
+   "label": "left off",
+   "end2": "when they liked",
+   "quote": "left off when they liked"
+  },
+  {
+   "end1": "it",
+   "label": "was not",
+   "end2": "easy to know when the race was over",
+   "quote": "it was not easy to know"
+  },
+  {
+   "end1": "they",
+   "label": "had been running",
+   "end2": "half an hour or so",
+   "quote": "they had been running half an hour"
+  },
+  {
+   "end1": "they",
+   "label": "were",
+   "end2": "quite dry again",
+   "quote": "were quite dry again"
+  },
+  {
+   "end1": "the Dodo",
+   "label": "called out",
+   "end2": "The race is over!",
+   "quote": "the Dodo suddenly called out"
+  },
+  {
+   "end1": "they",
+   "label": "crowded round",
+   "end2": "it, panting",
+   "quote": "they all crowded round it, panting"
+  },
+  {
+   "end1": "they",
+   "label": "asking",
+   "end2": "But who has won?",
+   "quote": "asking, “But who has won?"
+  },
+  {
+   "end1": "the Dodo",
+   "label": "could not answer",
+   "end2": "this question",
+   "quote": "This question the Dodo could not answer"
+  },
+  {
+   "end1": "it",
+   "label": "sat",
+   "end2": "for a long time",
+   "quote": "it sat for a long time"
+  },
+  {
+   "end1": "one finger",
+   "label": "pressed",
+   "end2": "upon its forehead",
+   "quote": "one finger pressed upon its forehead"
+  },
+  {
+   "end1": "you",
+   "label": "see",
+   "end2": "Shakespeare in the pictures of him",
+   "quote": "you usually see Shakespeare"
+  },
+  {
+   "end1": "the rest",
+   "label": "waited",
+   "end2": "in silence",
+   "quote": "the rest waited in silence"
+  },
+  {
+   "end1": "the Dodo",
+   "label": "said",
+   "end2": "Everybody has won",
+   "quote": "At last the Dodo said"
+  },
+  {
+   "end1": "Everybody",
+   "label": "has won",
+   "end2": "",
+   "quote": "_Everybody_ has won"
+  },
+  {
+   "end1": "all",
+   "label": "must have",
+   "end2": "prizes",
+   "quote": "all must have prizes"
+  },
+  {
+   "end1": "quite a chorus of voices",
+   "label": "asked",
+   "end2": "But who is to give the prizes?",
+   "quote": "quite a chorus of voices asked"
+  },
+  {
+   "end1": "the Dodo",
+   "label": "said",
+   "end2": "Why, she, of course",
+   "quote": "said the Dodo"
+  },
+  {
+   "end1": "the Dodo",
+   "label": "pointing",
+   "end2": "to Alice with one finger",
+   "quote": "pointing to Alice with one finger"
+  },
+  {
+   "end1": "the whole party",
+   "label": "crowded round",
+   "end2": "her",
+   "quote": "the whole party at once crowded round her"
+  },
+  {
+   "end1": "the whole party",
+   "label": "calling out",
+   "end2": "Prizes! Prizes!",
+   "quote": "calling out in a confused way"
+  },
+  {
+   "end1": "Alice",
+   "label": "had",
+   "end2": "no idea what to do",
+   "quote": "Alice had no idea what to do"
+  },
+  {
+   "end1": "she",
+   "label": "put",
+   "end2": "her hand in her pocket",
+   "quote": "she put her hand in her pocket"
+  },
+  {
+   "end1": "she",
+   "label": "pulled out",
+   "end2": "a box of comfits",
+   "quote": "pulled out a box of comfits"
+  },
+  {
+   "end1": "the salt water",
+   "label": "had not got",
+   "end2": "into it",
+   "quote": "the salt water had not got into it"
+  },
+  {
+   "end1": "she",
+   "label": "handed",
+   "end2": "them round as prizes",
+   "quote": "handed them round as prizes"
+  },
+  {
+   "end1": "There",
+   "label": "was",
+   "end2": "exactly one a-piece",
+   "quote": "There was exactly one a-piece"
+  },
+  {
+   "end1": "the Mouse",
+   "label": "said",
+   "end2": "she must have a prize herself",
+   "quote": "said the Mouse"
+  },
+  {
+   "end1": "she",
+   "label": "must have",
+   "end2": "a prize herself",
+   "quote": "she must have a prize herself"
+  },
+  {
+   "end1": "the Dodo",
+   "label": "replied",
+   "end2": "Of course",
+   "quote": "the Dodo replied very gravely"
+  },
+  {
+   "end1": "you",
+   "label": "have got",
+   "end2": "what else in your pocket",
+   "quote": "What else have you got in your pocket"
+  },
+  {
+   "end1": "he",
+   "label": "went on",
+   "end2": "turning to Alice",
+   "quote": "he went on, turning to Alice"
+  },
+  {
+   "end1": "Alice",
+   "label": "said",
+   "end2": "Only a thimble",
+   "quote": "said Alice sadly"
+  },
+  {
+   "end1": "the Dodo",
+   "label": "said",
+   "end2": "Hand it over here",
+   "quote": "said the Dodo"
+  },
+  {
+   "end1": "they",
+   "label": "crowded round",
+   "end2": "her once more",
+   "quote": "they all crowded round her once more"
+  },
+  {
+   "end1": "the Dodo",
+   "label": "presented",
+   "end2": "the thimble",
+   "quote": "the Dodo solemnly presented the thimble"
+  },
+  {
+   "end1": "We",
+   "label": "beg",
+   "end2": "your acceptance of this elegant thimble",
+   "quote": "We beg your acceptance"
+  },
+  {
+   "end1": "it",
+   "label": "had finished",
+   "end2": "this short speech",
+   "quote": "it had finished this short speech"
+  },
+  {
+   "end1": "they",
+   "label": "cheered",
+   "end2": "",
+   "quote": "they all cheered"
+  },
+  {
+   "end1": "Alice",
+   "label": "thought",
+   "end2": "the whole thing very absurd",
+   "quote": "Alice thought the whole thing very absurd"
+  },
+  {
+   "end1": "they",
+   "label": "looked",
+   "end2": "so grave",
+   "quote": "they all looked so grave"
+  },
+  {
+   "end1": "she",
+   "label": "did not dare",
+   "end2": "to laugh",
+   "quote": "she did not dare to laugh"
+  },
+  {
+   "end1": "she",
+   "label": "could not think",
+   "end2": "of anything to say",
+   "quote": "she could not think of anything to say"
+  },
+  {
+   "end1": "she",
+   "label": "bowed",
+   "end2": "",
+   "quote": "she simply bowed"
+  },
+  {
+   "end1": "she",
+   "label": "took",
+   "end2": "the thimble",
+   "quote": "took the thimble"
+  },
+  {
+   "end1": "she",
+   "label": "looking",
+   "end2": "as solemn as she could",
+   "quote": "looking as solemn as she could"
+  },
+  {
+   "end1": "The next thing",
+   "label": "was",
+   "end2": "to eat the comfits",
+   "quote": "The next thing was to eat the comfits"
+  },
+  {
+   "end1": "this",
+   "label": "caused",
+   "end2": "some noise and confusion",
+   "quote": "this caused some noise and confusion"
+  },
+  {
+   "end1": "the large birds",
+   "label": "complained",
+   "end2": "that they could not taste theirs",
+   "quote": "the large birds complained"
+  },
+  {
+   "end1": "they",
+   "label": "could not taste",
+   "end2": "theirs",
+   "quote": "they could not taste theirs"
+  },
+  {
+   "end1": "the small ones",
+   "label": "choked",
+   "end2": "",
+   "quote": "the small ones choked"
+  },
+  {
+   "end1": "the small ones",
+   "label": "had to be patted",
+   "end2": "on the back",
+   "quote": "had to be patted on the back"
+  },
+  {
+   "end1": "it",
+   "label": "was over",
+   "end2": "at last",
+   "quote": "it was over at last"
+  },
+  {
+   "end1": "they",
+   "label": "sat down",
+   "end2": "again in a ring",
+   "quote": "they sat down again in a ring"
+  },
+  {
+   "end1": "they",
+   "label": "begged",
+   "end2": "the Mouse to tell them something more",
+   "quote": "begged the Mouse to tell them something more"
+  },
+  {
+   "end1": "You",
+   "label": "promised",
+   "end2": "to tell me your history",
+   "quote": "You promised to tell me your history"
+  },
+  {
+   "end1": "Alice",
+   "label": "said",
+   "end2": "and why it is you hate C and D",
+   "quote": "said Alice"
+  },
+  {
+   "end1": "you",
+   "label": "hate",
+   "end2": "C and D",
+   "quote": "why it is you hate"
+  },
+  {
+   "end1": "she",
+   "label": "added",
+   "end2": "in a whisper",
+   "quote": "she added in a whisper"
+  },
+  {
+   "end1": "she",
+   "label": "half afraid",
+   "end2": "that it would be offended again",
+   "quote": "half afraid that it would be offended again"
+  },
+  {
+   "end1": "Mine",
+   "label": "is",
+   "end2": "a long and a sad tale",
+   "quote": "Mine is a long and a sad tale"
+  },
+  {
+   "end1": "the Mouse",
+   "label": "turning",
+   "end2": "to Alice",
+   "quote": "turning to Alice, and sighing"
+  },
+  {
+   "end1": "the Mouse",
+   "label": "sighing",
+   "end2": "",
+   "quote": "and sighing"
+  },
+  {
+   "end1": "It",
+   "label": "is",
+   "end2": "a long tail, certainly",
+   "quote": "It _is_ a long tail, certainly"
+  },
+  {
+   "end1": "Alice",
+   "label": "looking down",
+   "end2": "with wonder at the Mouse's tail",
+   "quote": "looking down with wonder"
+  },
+  {
+   "end1": "you",
+   "label": "call",
+   "end2": "it sad",
+   "quote": "why do you call it sad"
+  },
+  {
+   "end1": "she",
+   "label": "kept on",
+   "end2": "puzzling about it",
+   "quote": "she kept on puzzling about it"
+  },
+  {
+   "end1": "the Mouse",
+   "label": "was speaking",
+   "end2": "",
+   "quote": "while the Mouse was speaking"
+  },
+  {
+   "end1": "her idea of the tale",
+   "label": "was",
+   "end2": "something like this",
+   "quote": "her idea of the tale was something like this"
+  },
+  {
+   "end1": "Fury",
+   "label": "said",
+   "end2": "to a mouse",
+   "quote": "Fury said to a mouse"
+  },
+  {
+   "end1": "Fury",
+   "label": "met",
+   "end2": "that in the house",
+   "quote": "That he met in the house"
+  },
+  {
+   "end1": "us",
+   "label": "go",
+   "end2": "to law",
+   "quote": "Let us both go to law"
+  },
+  {
+   "end1": "I",
+   "label": "will prosecute",
+   "end2": "you",
+   "quote": "_I_ will prosecute _you_"
+  },
+  {
+   "end1": "I",
+   "label": "will take",
+   "end2": "no denial",
+   "quote": "I’ll take no denial"
+  },
+  {
+   "end1": "We",
+   "label": "must have",
+   "end2": "a trial",
+   "quote": "We must have a trial"
+  },
+  {
+   "end1": "I",
+   "label": "have",
+   "end2": "nothing to do",
+   "quote": "I’ve nothing to do"
+  },
+  {
+   "end1": "the mouse",
+   "label": "said",
+   "end2": "to the cur",
+   "quote": "Said the mouse to the cur"
+  },
+  {
+   "end1": "such a trial",
+   "label": "would be",
+   "end2": "wasting our breath",
+   "quote": "would be wasting our breath"
+  },
+  {
+   "end1": "I",
+   "label": "will be",
+   "end2": "judge",
+   "quote": "I’ll be judge"
+  },
+  {
+   "end1": "I",
+   "label": "will be",
+   "end2": "jury",
+   "quote": "I’ll be jury"
+  },
+  {
+   "end1": "cunning old Fury",
+   "label": "said",
+   "end2": "",
+   "quote": "Said cunning old Fury"
+  },
+  {
+   "end1": "I",
+   "label": "will try",
+   "end2": "the whole cause",
+   "quote": "I’ll try the whole cause"
+  },
+  {
+   "end1": "I",
+   "label": "condemn",
+   "end2": "you to death",
+   "quote": "condemn you to death"
+  },
+  {
+   "end1": "the Mouse",
+   "label": "said",
+   "end2": "You are not attending!",
+   "quote": "said the Mouse to Alice severely"
+  },
+  {
+   "end1": "You",
+   "label": "are not attending",
+   "end2": "",
+   "quote": "You are not attending"
+  },
+  {
+   "end1": "you",
+   "label": "are thinking",
+   "end2": "of what",
+   "quote": "What are you thinking of"
+  },
+  {
+   "end1": "Alice",
+   "label": "said",
+   "end2": "I beg your pardon",
+   "quote": "said Alice very humbly"
+  },
+  {
+   "end1": "you",
+   "label": "had got",
+   "end2": "to the fifth bend",
+   "quote": "you had got to the fifth bend"
+  },
+  {
+   "end1": "the Mouse",
+   "label": "cried",
+   "end2": "I had not!",
+   "quote": "cried the Mouse, sharply and very angrily"
+  },
+  {
+   "end1": "Alice",
+   "label": "said",
+   "end2": "A knot!",
+   "quote": "said Alice"
+  },
+  {
+   "end1": "Alice",
+   "label": "ready",
+   "end2": "to make herself useful",
+   "quote": "always ready to make herself useful"
+  },
+  {
+   "end1": "Alice",
+   "label": "looking",
+   "end2": "anxiously about her",
+   "quote": "looking anxiously about her"
+  },
+  {
+   "end1": "me",
+   "label": "help",
+   "end2": "to undo it",
+   "quote": "do let me help to undo it"
+  },
+  {
+   "end1": "the Mouse",
+   "label": "said",
+   "end2": "I shall do nothing of the sort",
+   "quote": "said the Mouse"
+  },
+  {
+   "end1": "I",
+   "label": "shall do",
+   "end2": "nothing of the sort",
+   "quote": "I shall do nothing of the sort"
+  },
+  {
+   "end1": "the Mouse",
+   "label": "getting up",
+   "end2": "",
+   "quote": "getting up and walking away"
+  },
+  {
+   "end1": "the Mouse",
+   "label": "walking away",
+   "end2": "",
+   "quote": "walking away"
+  },
+  {
+   "end1": "You",
+   "label": "insult",
+   "end2": "me",
+   "quote": "You insult me"
+  },
+  {
+   "end1": "you",
+   "label": "talking",
+   "end2": "such nonsense",
+   "quote": "by talking such nonsense"
+  },
+  {
+   "end1": "Alice",
+   "label": "pleaded",
+   "end2": "I didn't mean it!",
+   "quote": "pleaded poor Alice"
+  },
+  {
+   "end1": "I",
+   "label": "didn't mean",
+   "end2": "it",
+   "quote": "I didn’t mean it"
+  },
+  {
+   "end1": "you",
+   "label": "are",
+   "end2": "so easily offended",
+   "quote": "you’re so easily offended"
+  },
+  {
+   "end1": "The Mouse",
+   "label": "growled",
+   "end2": "in reply",
+   "quote": "The Mouse only growled in reply"
+  },
+  {
+   "end1": "Alice",
+   "label": "called after",
+   "end2": "it",
+   "quote": "Alice called after it"
+  },
+  {
+   "end1": "you",
+   "label": "come back",
+   "end2": "",
+   "quote": "Please come back"
+  },
+  {
+   "end1": "you",
+   "label": "finish",
+   "end2": "your story",
+   "quote": "finish your story"
+  },
+  {
+   "end1": "the others",
+   "label": "joined in",
+   "end2": "chorus",
+   "quote": "the others all joined in chorus"
+  },
+  {
+   "end1": "the Mouse",
+   "label": "shook",
+   "end2": "its head impatiently",
+   "quote": "shook its head impatiently"
+  },
+  {
+   "end1": "the Mouse",
+   "label": "walked",
+   "end2": "a little quicker",
+   "quote": "walked a little quicker"
+  },
+  {
+   "end1": "the Lory",
+   "label": "sighed",
+   "end2": "What a pity it wouldn't stay!",
+   "quote": "sighed the Lory"
+  },
+  {
+   "end1": "it",
+   "label": "wouldn't stay",
+   "end2": "",
+   "quote": "it wouldn’t stay"
+  },
+  {
+   "end1": "it",
+   "label": "was",
+   "end2": "quite out of sight",
+   "quote": "it was quite out of sight"
+  },
+  {
+   "end1": "an old Crab",
+   "label": "took",
+   "end2": "the opportunity of saying to her daughter",
+   "quote": "an old Crab took the opportunity"
+  },
+  {
+   "end1": "this",
+   "label": "be",
+   "end2": "a lesson to you",
+   "quote": "Let this be a lesson to you"
+  },
+  {
+   "end1": "you",
+   "label": "never lose",
+   "end2": "your temper",
+   "quote": "never to lose _your_ temper"
+  },
+  {
+   "end1": "the young Crab",
+   "label": "said",
+   "end2": "Hold your tongue, Ma!",
+   "quote": "said the young Crab"
+  },
+  {
+   "end1": "You",
+   "label": "are",
+   "end2": "enough to try the patience of an oyster",
+   "quote": "enough to try the patience of an oyster"
+  },
+  {
+   "end1": "Alice",
+   "label": "said",
+   "end2": "I wish I had our Dinah here",
+   "quote": "said Alice aloud"
+  },
+  {
+   "end1": "I",
+   "label": "wish",
+   "end2": "I had our Dinah here",
+   "quote": "I wish I had our Dinah here"
+  },
+  {
+   "end1": "Alice",
+   "label": "addressing",
+   "end2": "nobody in particular",
+   "quote": "addressing nobody in particular"
+  },
+  {
+   "end1": "She",
+   "label": "would fetch",
+   "end2": "it back",
+   "quote": "She’d soon fetch it back"
+  },
+  {
+   "end1": "the Lory",
+   "label": "said",
+   "end2": "And who is Dinah?",
+   "quote": "said the Lory"
+  },
+  {
+   "end1": "who",
+   "label": "is",
+   "end2": "Dinah",
+   "quote": "who is Dinah"
+  },
+  {
+   "end1": "I",
+   "label": "venture",
+   "end2": "to ask the question",
+   "quote": "if I might venture to ask the question"
+  },
+  {
+   "end1": "Alice",
+   "label": "replied",
+   "end2": "eagerly",
+   "quote": "Alice replied eagerly"
+  },
+  {
+   "end1": "she",
+   "label": "was",
+   "end2": "always ready to talk about her pet",
+   "quote": "always ready to talk about her pet"
+  },
+  {
+   "end1": "Dinah",
+   "label": "is",
+   "end2": "our cat",
+   "quote": "Dinah’s our cat"
+  },
+  {
+   "end1": "she",
+   "label": "is",
+   "end2": "such a capital one for catching mice",
+   "quote": "such a capital one for catching mice"
+  },
+  {
+   "end1": "you",
+   "label": "can't think",
+   "end2": "",
+   "quote": "you can’t think"
+  },
+  {
+   "end1": "I",
+   "label": "wish",
+   "end2": "you could see her after the birds",
+   "quote": "I wish you could see her after the birds"
+  },
+  {
+   "end1": "she",
+   "label": "will eat",
+   "end2": "a little bird",
+   "quote": "she’ll eat a little bird"
+  },
+  {
+   "end1": "This speech",
+   "label": "caused",
+   "end2": "a remarkable sensation among the party",
+   "quote": "This speech caused a remarkable sensation"
+  },
+  {
+   "end1": "Some of the birds",
+   "label": "hurried off",
+   "end2": "at once",
+   "quote": "Some of the birds hurried off at once"
+  },
+  {
+   "end1": "one old Magpie",
+   "label": "began",
+   "end2": "wrapping itself up very carefully",
+   "quote": "one old Magpie began wrapping itself up"
+  },
+  {
+   "end1": "I",
+   "label": "must be getting",
+   "end2": "home",
+   "quote": "I really must be getting home"
+  },
+  {
+   "end1": "the night-air",
+   "label": "doesn't suit",
+   "end2": "my throat",
+   "quote": "the night-air doesn’t suit my throat"
+  },
+  {
+   "end1": "a Canary",
+   "label": "called out",
+   "end2": "to its children",
+   "quote": "a Canary called out"
+  },
+  {
+   "end1": "you",
+   "label": "come away",
+   "end2": "",
+   "quote": "Come away, my dears"
+  },
+  {
+   "end1": "It",
+   "label": "is",
+   "end2": "high time you were all in bed",
+   "quote": "It’s high time you were all in bed"
+  },
+  {
+   "end1": "they",
+   "label": "moved off",
+   "end2": "",
+   "quote": "they all moved off"
+  },
+  {
+   "end1": "Alice",
+   "label": "was left",
+   "end2": "alone",
+   "quote": "Alice was soon left alone"
+  },
+  {
+   "end1": "I",
+   "label": "wish",
+   "end2": "I hadn't mentioned Dinah",
+   "quote": "I wish I hadn’t mentioned Dinah"
+  },
+  {
+   "end1": "she",
+   "label": "said",
+   "end2": "to herself in a melancholy tone",
+   "quote": "she said to herself in a melancholy tone"
+  },
+  {
+   "end1": "Nobody",
+   "label": "seems to like",
+   "end2": "her, down here",
+   "quote": "Nobody seems to like her"
+  },
+  {
+   "end1": "I",
+   "label": "am sure",
+   "end2": "she's the best cat in the world",
+   "quote": "I’m sure she’s the best cat"
+  },
+  {
+   "end1": "she",
+   "label": "is",
+   "end2": "the best cat in the world",
+   "quote": "the best cat in the world"
+  },
+  {
+   "end1": "I",
+   "label": "wonder",
+   "end2": "if I shall ever see you any more",
+   "quote": "I wonder if I shall ever see you"
+  },
+  {
+   "end1": "poor Alice",
+   "label": "began",
+   "end2": "to cry again",
+   "quote": "poor Alice began to cry again"
+  },
+  {
+   "end1": "she",
+   "label": "felt",
+   "end2": "very lonely and low-spirited",
+   "quote": "she felt very lonely and low-spirited"
+  },
+  {
+   "end1": "she",
+   "label": "heard",
+   "end2": "a little pattering of footsteps in the distance",
+   "quote": "she again heard a little pattering"
+  },
+  {
+   "end1": "she",
+   "label": "looked up",
+   "end2": "eagerly",
+   "quote": "she looked up eagerly"
+  },
+  {
+   "end1": "she",
+   "label": "half hoping",
+   "end2": "that the Mouse had changed his mind",
+   "quote": "half hoping that the Mouse had changed"
+  },
+  {
+   "end1": "the Mouse",
+   "label": "had changed",
+   "end2": "his mind",
+   "quote": "the Mouse had changed his mind"
+  },
+  {
+   "end1": "the Mouse",
+   "label": "was coming back",
+   "end2": "to finish his story",
+   "quote": "was coming back to finish his story"
+  },
+  {
+   "end1": "the Mouse",
+   "label": "said",
+   "end2": "I proceed",
+   "quote": "said the Mouse."
+  },
+  {
+   "end1": "the Duck",
+   "label": "said",
+   "end2": "Found what?",
+   "quote": "“Found _what_?”"
+  },
+  {
+   "end1": "the Mouse",
+   "label": "replied",
+   "end2": "Found it",
+   "quote": "“Found _it_,”"
+  },
+  {
+   "end1": "Alice",
+   "label": "said",
+   "end2": "As wet as ever",
+   "quote": "“As wet as ever,”"
+  },
+  {
+   "end1": "the Dodo",
+   "label": "said",
+   "end2": "In that case",
+   "quote": "“In that case,”"
+  },
+  {
+   "end1": "the Eaglet",
+   "label": "said",
+   "end2": "Speak English!",
+   "quote": "“Speak English!”"
+  },
+  {
+   "end1": "the Dodo",
+   "label": "said",
+   "end2": "What I was going to say",
+   "quote": "“What I was going to say,”"
+  },
+  {
+   "end1": "Alice",
+   "label": "said",
+   "end2": "What is a Caucus-race?",
+   "quote": "“What _is_ a Caucus-race?”"
+  },
+  {
+   "end1": "a chorus of voices",
+   "label": "asked",
+   "end2": "But who is to give the prizes?",
+   "quote": "“But who is to give the prizes?”"
+  },
+  {
+   "end1": "the Dodo",
+   "label": "said",
+   "end2": "Why, she, of course",
+   "quote": "“Why, _she_, of course,”"
+  },
+  {
+   "end1": "the Dodo",
+   "label": "replied",
+   "end2": "Of course",
+   "quote": "“Of course,”"
+  },
+  {
+   "end1": "Alice",
+   "label": "said",
+   "end2": "Only a thimble",
+   "quote": "“Only a thimble,”"
+  },
+  {
+   "end1": "the Dodo",
+   "label": "said",
+   "end2": "Hand it over here",
+   "quote": "“Hand it over here,”"
+  },
+  {
+   "end1": "Alice",
+   "label": "said",
+   "end2": "I beg your pardon",
+   "quote": "“I beg your pardon,”"
+  },
+  {
+   "end1": "the Mouse",
+   "label": "cried",
+   "end2": "I had not!",
+   "quote": "“I had _not!_”"
+  },
+  {
+   "end1": "Alice",
+   "label": "said",
+   "end2": "A knot!",
+   "quote": "“A knot!”"
+  },
+  {
+   "end1": "the young Crab",
+   "label": "said",
+   "end2": "Hold your tongue, Ma!",
+   "quote": "“Hold your tongue, Ma!”"
+  },
+  {
+   "end1": "the Mouse",
+   "label": "said",
+   "end2": "Silence all round",
+   "quote": "Silence all round, if you please!"
+  },
+  {
+   "end1": "There",
+   "label": "was",
+   "end2": "no One, two, three, and away",
+   "quote": "There was no “One, two, three, and away,”"
+  },
+  {
+   "end1": "you",
+   "label": "are getting on",
+   "end2": "how now",
+   "quote": "How are you getting on now"
+  }
+ ],
+ "frames": [
+  {
+   "kind": "embedded_fiction",
+   "quote": "Fury said to a mouse",
+   "why": "The Mouse RECITES a tale. Fury and the tale's mouse are beings inside that recitation, not members of the party on the bank. A reader that admits them to the chapter's cast, or merges the tale's mouse with the Mouse telling it, has crossed a frame boundary. bindNarrationFrames exists for exactly this and this driver passes ONE frame for the whole chapter, so this is a predicted failure."
+  },
+  {
+   "kind": "recited_history",
+   "quote": "William the Conqueror, whose cause was favoured by the pope",
+   "why": "The Mouse reads aloud from a history book. William, Edwin, Morcar, Stigand and Edgar Atheling are named inside that recitation. They are real propositions of the recited text, not events of this chapter — a distinction the ledger currently has no way to draw."
+  }
+ ],
+ "predicted_failures": [
+  "Dinah's our cat will not fire (possessive determiner + contracted copula), so chapter 1's open identity expectation will NOT be fulfilled even though the corroboration is right there.",
+  "Six intransitive propositions above (cheered, bowed, choked, moved off, and others) cannot be admitted while relations.js requires both a subject group and an object group (S90).",
+  "The old Crab and the young Crab share the surface 'Crab' and will likely fold into one referent.",
+  "The two embedded frames will be read as chapter events."
+ ],
+ "coverage": {
+  "sentences": 134,
+  "propositions": 257,
+  "expectedEmpty": 7,
+  "sentenceCoverage": 1
+ },
+ "expected_empty": [
+  {
+   "quote": "“Ahem!”",
+   "why": "a throat-clearing interjection — no clause, no ends"
+  },
+  {
+   "quote": "“Ugh!”",
+   "why": "interjection"
+  },
+  {
+   "quote": "“Not I!”",
+   "why": "elliptical denial; the verb is gapped and recoverable only from the prior turn"
+  },
+  {
+   "quote": "Prizes!”",
+   "why": "an exclamation repeated as a shout — a noun, not a clause"
+  },
+  {
+   "quote": "“Why,”",
+   "why": "a discourse particle opening a turn, not a proposition"
+  },
+  {
+   "quote": "Oh, my dear Dinah!",
+   "why": "vocative address — names a being, asserts nothing of her"
+  },
+  {
+   "quote": "“I beg your pardon!”",
+   "why": "a formula; its literal reading (I beg your pardon) is idiomatic, not an event of the chapter"
+  }
+ ],
+ "frames_note": "Propositions drawn from the Mouse's recited tale (Fury, the tale's mouse) and from the history book (William, Edwin, Morcar, Stigand, Edgar Atheling) are REAL propositions of a recited text, not events on the bank. They are included because a reader does read them, and marked here so a scorer can separate frame-crossing from extraction failure."
+}

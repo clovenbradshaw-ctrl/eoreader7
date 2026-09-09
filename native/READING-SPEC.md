@@ -4789,3 +4789,57 @@ User direction, verbatim: *"the first book we read will be the most surprising b
 **The driver bypassed the assembled reader.** `eval/lavar/eot-jsonl.mjs` called `extractRelations` directly instead of driving `createRecursiveReader`, and so hand-rolled a reading loop that discards four quantities the assembled reader already returns from every step (`reading.js:93`): `surprise` (`kernel/dynamics.js::deriveSurprise`, the delta's own profile — touched addresses, recanonicalizations, expectation and pattern effects), `tension` (`deriveTension` — open obligations, their interaction network, and how long each has persisted: this is strain), `release` (`deriveRelease`), and `relevantFold` (the neighbourhood). All four were reinvented worse or lost.
 
 **And the assembled reader's dynamics are themselves inert, because nothing injects `ask`.** `kernel/interrogation.js::interrogateCube` reads `const answer = ask ? await ask({…}) : null`, so with no `ask` adapter every cube address answers `changed: false` with no effects, the delta carries no operations, and `deriveSurprise` profiles nothing. Measured: 87 encounters stepped through `createRecursiveReader` over Chapter 1 produce **zero surprise operations on every step** and 14 graph entries. Grepped: `createRecursiveReader` is called only by `tests/` and the docs — no production caller anywhere, and no caller at all injects `ask`. **A naive migration onto the assembled reader would have reported `surprise: 0` as though it were a measurement of the material.** Wiring `ask`/`revise` is the real work this names and does not attempt.
+
+## S98 — How a reading is graded: the hand-rolled golden, its two properties, and the first honest baseline (2026-09-09)
+
+**Generality:** universal for the method; the numbers are specimen-scoped (Alice chapters 1–3, 801 hand-authored propositions).
+
+Everything before this entry measured the reader against itself. S98 is the method that stops that, and the first numbers it produced.
+
+### 1. The golden is authored BEFORE the engine runs, and the engine never sees it.
+
+`CLAUDE.md`'s own standing rule — "the engine never sees the reference — it is scored against it after the fact" — applied to reading. Author the golden by reading the chapter; only then run the reader; only then score. Reversing that order produces calibration against the answer key, which is the same defect as tuning a threshold against a golden's own score, aimed at the reference instead of the parameter.
+
+### 2. Two properties make a golden trustworthy, and both were learned by getting them wrong.
+
+**EVERY ANCHOR RESOLVES.** A golden quote absent from the chapter is an assertion about a text that does not exist. Enforced mechanically (`eval/lavar/golden-tool.mjs check`).
+
+**EVERY SENTENCE IS ACCOUNTED FOR — silence is forbidden.** An omitted sentence cannot be distinguished from a missed one. Each sentence carries either a proposition or an explicit `EMPTY` claim naming why a reader draws nothing from it (an interjection, a vocative, an exclamative, a typographic row). This is LP10's "a real proposition or a typed gap, never a silent absence" turned on the reference rather than the reading.
+
+**The incident this rule is named for.** Chapter 3's first golden held 47 propositions, covered 98 of 134 sentences, and its author believed it complete. It was missing the chapter's entire ending — seven sentences after the line that reads like a close. The coverage check caught it; **re-reading would not have, because a second read stops in the same place for the same reason.** The rewritten golden holds 257 propositions at 134/134. A golden that is a highlights reel also flatters the engine: the same reading scored 11% against the thin golden and 6.6% against the complete one.
+
+### 3. Clause level, not salient-event level.
+
+A chapter of ~134 sentences carries ~250 propositions, not ~50. Dialogue attributions (`X said …`) are propositions. Embedded recitations are propositions of a recited text and are marked as such rather than omitted, so a scorer can separate frame-crossing from extraction failure. Intransitive clauses are recorded with an empty second end rather than dropped — they are the reference's own statement that no object exists.
+
+### 4. The first honest baseline.
+
+| chapter | golden propositions | recall | emitted |
+|---|---|---|---|
+| 1 | 271 | 12.9% (35) | 162 |
+| 2 | 273 | 14.3% (39) | 157 |
+| 3 | 257 | 6.6% (17) | 135 |
+| **total** | **801** | **11.4% (91)** | **454** |
+
+**What the shape says, beyond the number.** 454 arrangements emitted against 91 that a reader would draw: the reader is not under-producing, it is producing largely the wrong things, and any work that raises emission without raising recall is moving the wrong quantity. **66 of 801 propositions (8.2%) are intransitive** and cannot be admitted under any configuration while `relations.js` requires both a subject group and an object group (S90) — a hard floor under every other improvement, now measured across three chapters instead of inferred from one.
+
+### 5. Files.
+
+`eval/lavar/golden-tool.mjs` (`sentences` | `check` | `build` | `score`). `eval/lavar/goldens/aiw-ch{1,2,3}.clauses.txt` — the authored source, one proposition per line, pipe-delimited, because hand-typing hundreds of JSON objects is its own error surface. `goldens/aiw-ch{1,2,3}.json` — built only when `check` passes, so a golden that fails either property cannot be scored against.
+
+## S99 — Wiktionary is a prior, a model is a witness, and the two must not be confused (2026-09-09)
+
+**Generality:** universal for the tier rule; the negative measurement it corrects is specimen-scoped and already on the record.
+
+**Search first, and the record already answers half of this.** `docs/WHERE-WE-ARE.md` carries a MEASURED NEGATIVE on the Wiktionary route: across **1,404 notes on two genres, exactly one pair anywhere was blocked by the label alone**, because "a paraphrase never gets as far as having matching ends." Buying Wiktionary synonym sets for note-merging would have bought one candidate. That result stands and is not reopened here.
+
+**What it does not close.** That test was of ONE use — merging paraphrased notes by synonymy. The ambiguity this reader actually carries is a different shape, and the goldens now name it: 66 intransitive clauses that the extraction gate cannot admit; 54 grain gaps in chapter 1 alone, dominated by tokens (`to`, `very`, `so`, `own`) that do not settle in a POS prior; and a possessive determiner (`our`) absent from every received determiner class, which is why a copular identity stated plainly in chapter 3 never fired and chapter 1's expectation is still open with its own corroboration sitting two chapters later.
+
+Wiktionary speaks to all three, and to none of them as a thesaurus: **per-sense transitivity**, **sense-level part of speech**, and **closed-class membership**. Whether the available dumps actually carry those markings usably is unverified and is the first thing to check — a licensing run judged on **marginal admits, never aggregate coverage** (the same discipline LP11 already declares).
+
+**THE TIER RULE, which is the durable part.** `WHERE-WE-ARE.md`, verbatim: *"A Wiktionary revision is a giver we can name and can concede when it is wrong. A model is neither."*
+
+- **A lexicon joins the RECEIVED PRIORS.** It has a giver, a revision, and a concession path. It may gate, refuse, and type.
+- **A model joins the WITNESSES.** `organs/testimony.js` holds the discipline: ONE claim, ONE page, ONE binary question asked TWICE (the claim, then its sibling-swapped twin), with the verdict derived mechanically from the pair — because gemma2:2b returned the right `because` and the wrong label, so classification was taken away from the model entirely. Its testimony lands typed beside the byte and structural tiers; it never becomes a prior, and it never gates.
+
+A contested address (two readings of the same bytes, S95) is exactly the shape the witness tier answers: a binary question about one passage. A grain gap is exactly the shape the prior tier answers. Sending either to the other tier is the confusion this entry exists to prevent.
