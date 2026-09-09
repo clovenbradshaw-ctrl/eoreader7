@@ -27,7 +27,7 @@ const FILL = Number(process.env.FILL ?? 0.8);
 const MIN_RUN = Number(process.env.MIN_RUN ?? 2);
 
 const { makeRelationReader } = await import(`${NATIVE}/organs/hypergraph.js`);
-const { makeHyperlexicon } = await import(`${NATIVE}/organs/hyperlexicon.js`);
+const { makeNotesText } = await import(`${NATIVE}/organs/notes-text.js`);
 const { chunkSource, tokenize, blankLabelRows, measureOf, blankBelowMeasure } = await import(`${NATIVE}/organs/source.js`);
 const { extractReadable } = await import(`${NATIVE}/organs/web.js`);
 const { sourceOfWitness } = await import(`${NATIVE}/kernel/notes.js`);
@@ -48,13 +48,13 @@ const reader = makeRelationReader({
   blankFurniture: (t) => blankLabelRows(t, { minRun: 4, maxCell: 60 }),
   resolvePronouns, nounPhraseSubjects: true,
 });
-const hl = makeHyperlexicon({ createTaskLog: T.createTaskLog, append: T.append, projectTasks: T.projectTasks, ENTRY_KINDS: T.ENTRY_KINDS, OPERATOR_BASIS: T.OPERATOR_BASIS, GRAINS, cellOf });
+const hl = makeNotesText({ createTaskLog: T.createTaskLog, append: T.append, projectTasks: T.projectTasks, ENTRY_KINDS: T.ENTRY_KINDS, OPERATOR_BASIS: T.OPERATOR_BASIS, GRAINS, cellOf });
 
 // The two arms differ in ONE organ: whether the document is passed through the
 // measure blanker before chunking. Blanking is length-preserving, so every
 // byte offset in the second arm still names the same place in the real file.
 function ledgerFor({ door }) {
-  let log = hl.createHyperlexicon({ frame: { probe: "door-measure", door } });
+  let log = hl.createNotes({ frame: { probe: "door-measure", door } });
   const kept = {};
   for (const ref of REFS) {
     const raw = extractReadable(readFileSync(`${FIX}${ref}`, "utf8")).text;

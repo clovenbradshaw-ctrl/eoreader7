@@ -3,7 +3,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { arrangementsFrom, arrangementNotes } from "./index.js";
-import * as H from "./hyperlexicon.js";
+import * as H from "./notes-text.js";
 import * as TL from "../kernel/task-log.js";
 import { distinctSources, distinctRecipes } from "./index.js";
 
@@ -40,8 +40,8 @@ test("END TO END: turbulence arrangements land in the REAL hyperlexicon and corr
   // the turbulence grammar's own event phrases, two runs, two instruments
   const runA = [{ text: "q2 q4 q2 q1" }, { text: "q2 q4 q2 q1" }, { text: "q1 q2 q4 q2 q1" }];
   const runB = [{ text: "q2 q4 q2 q1" }, { text: "q2 q4 q2 q1" }];
-  const hl = H.makeHyperlexicon(TL);
-  let log = hl.createHyperlexicon();
+  const hl = H.makeNotesText(TL);
+  let log = hl.createNotes();
   for (const [witness, recipe, stream] of [
     ["flow-run-a", "quadrant-hole-v1", runA], ["flow-run-b", "quadrant-hole-v1", runB],
     ["flow-run-a", "quadrant-localpeak-v1", runA], ["flow-run-b", "quadrant-localpeak-v1", runB],
@@ -49,7 +49,7 @@ test("END TO END: turbulence arrangements land in the REAL hyperlexicon and corr
     const { arrangements } = arrangementsFrom(stream, { ref: witness, label: "precedes", minRecurrence: 2 });
     for (const n of arrangementNotes(arrangements, { witness, recipe })) log = hl.hear(log, n);
   }
-  const sweep = hl.foldHyperlexicon(log).find((n) => n.subject === "q2" && n.object === "q4");
+  const sweep = hl.foldNotes(log).find((n) => n.subject === "q2" && n.object === "q4");
   assert.ok(sweep, "the ejection-sweep arrangement is ON THE LEDGER as an ordinary note");
   assert.equal(sweep.verb, "precedes");
   assert.equal(distinctSources(sweep.witnesses).size, 2, "two independent runs vouch");

@@ -31,7 +31,7 @@ const SEED = Number(process.env.SEED ?? 0);
 const PAGE_REFS = (process.env.PAGES ?? "wikipedia-battle-of-austerlitz.html,wikipedia-war-of-the-third-coalition.html,wikipedia-battle-of-borodino.html").split(",");
 
 const { makeRelationReader } = await import(`${NATIVE}/organs/hypergraph.js`);
-const { makeHyperlexicon } = await import(`${NATIVE}/organs/hyperlexicon.js`);
+const { makeNotesText } = await import(`${NATIVE}/organs/notes-text.js`);
 const { chunkSource, tokenize, blankLabelRows } = await import(`${NATIVE}/organs/source.js`);
 const { extractReadable } = await import(`${NATIVE}/organs/web.js`);
 const { standingOf, sourceOfWitness } = await import(`${NATIVE}/kernel/notes.js`);
@@ -53,7 +53,7 @@ const reader = makeRelationReader({
   blankFurniture: (t) => blankLabelRows(t, { minRun: 4, maxCell: 60 }),
   resolvePronouns, nounPhraseSubjects: true,
 });
-const hl = makeHyperlexicon({ createTaskLog: nativeTaskLog.createTaskLog, append: nativeTaskLog.append, projectTasks: nativeTaskLog.projectTasks, ENTRY_KINDS: nativeTaskLog.ENTRY_KINDS, OPERATOR_BASIS: nativeTaskLog.OPERATOR_BASIS, GRAINS, cellOf });
+const hl = makeNotesText({ createTaskLog: nativeTaskLog.createTaskLog, append: nativeTaskLog.append, projectTasks: nativeTaskLog.projectTasks, ENTRY_KINDS: nativeTaskLog.ENTRY_KINDS, OPERATOR_BASIS: nativeTaskLog.OPERATOR_BASIS, GRAINS, cellOf });
 
 const PAGES = PAGE_REFS.map((ref) => ({ ref, text: extractReadable(readFileSync(`${FIX}/${ref}`, "utf8")).text }));
 
@@ -89,7 +89,7 @@ function namesIn(u, face) {
 
 const t0 = Date.now();
 const universes = new Map(PAGES.map((p) => [p.ref, universeOf(p.text)]));
-let log = hl.createHyperlexicon({ frame: { reader: "makeRelationReader", walls: true, posPrior: "POSPrior@1", audit: "bridge" } });
+let log = hl.createNotes({ frame: { reader: "makeRelationReader", walls: true, posPrior: "POSPrior@1", audit: "bridge" } });
 for (const pg of PAGES) {
   const passages = chunkSource(pg.ref, pg.text);
   const rel = reader(passages, { pool: passages });

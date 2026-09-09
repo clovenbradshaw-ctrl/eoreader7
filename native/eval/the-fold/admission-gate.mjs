@@ -45,7 +45,7 @@ import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
 import { makeRelationReader } from "../../../../the-fold/hypergraph.js";
-import { makeHyperlexicon } from "../../organs/hyperlexicon.js";
+import { makeNotesText } from "../../organs/notes-text.js";
 import { makeGrammarLens } from "../../organs/grammar-lens.js";
 import { GRAMMAR_MIN_SHARE } from "../../../../the-fold/hypergraph.js";
 import { makeReferentIndex } from "../../../../the-fold/cast.js";
@@ -113,7 +113,7 @@ const relationsForGrounded = makeRelationReader(readerConfig(posPrior));
 // consequence.js's own adapter reconciles native's ordinal GRAINS with the
 // GRAIN_RANK shape hyperlexicon.js reads — the exact construction
 // hyperlexicon-stance.test.mjs already exercises, reused.
-const hyperlexicon = makeHyperlexicon({
+const hyperlexicon = makeNotesText({
   ...adaptTaskLog({
     createTaskLog: nativeTaskLog.createTaskLog, append: nativeTaskLog.append,
     ENTRY_KINDS: nativeTaskLog.ENTRY_KINDS, OPERATOR_BASIS: nativeTaskLog.OPERATOR_BASIS,
@@ -147,7 +147,7 @@ function edgesOf(relationsFor, passage) {
 }
 
 function runArm(name, relationsFor, { classifyConnector = null } = {}) {
-  let log = hyperlexicon.createHyperlexicon();
+  let log = hyperlexicon.createNotes();
   const heardAll = [], turnedAll = [];
   for (const p of passages) {
     const edges = edgesOf(relationsFor, p);
@@ -179,7 +179,7 @@ function verbProfile(heard) {
 }
 
 function corroboration(log) {
-  const notes = hyperlexicon.foldHyperlexicon(log);
+  const notes = hyperlexicon.foldNotes(log);
   const multi = notes.filter((n) => (n.witnesses?.length ?? 0) >= 2);
   return { notes: notes.length, multiWitness: multi.length, multi };
 }
@@ -237,7 +237,7 @@ const sameLemma = (a, b) => {
   return false;
 };
 
-const notesB = hyperlexicon.foldHyperlexicon(B.log);
+const notesB = hyperlexicon.foldNotes(B.log);
 const joins = [];
 for (let i = 0; i < notesB.length; i++) for (let j = i + 1; j < notesB.length; j++) {
   const a = notesB[i], b = notesB[j];

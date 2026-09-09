@@ -21,7 +21,7 @@
 import fs from "node:fs";
 import { execFileSync } from "node:child_process";
 import * as K from "../../organs/index.js";
-import * as H from "../../organs/hyperlexicon.js";
+import * as H from "../../organs/notes-text.js";
 import * as TL from "../../kernel/task-log.js";
 import { wavSamples } from "../../../../the-fold/measure.js";
 import { distinctSources, distinctRecipes, independentReadings } from "../../organs/index.js";
@@ -160,8 +160,8 @@ const kindsShuf = K.discoverCompanyKinds(shuffleWithin(perfA), VOCAB_M, MFLOORS)
 console.log(`  II.23 shuffle control: ${kindsShuf.length === 0 ? "kinds dissolve ✓" : "SURVIVED — UNLICENSED: " + kindsShuf.map((k) => k.name).join(",")}`);
 
 // F5: both performances land their discovered kinds in the ONE hyperlexicon
-const hl = H.makeHyperlexicon(TL);
-let log = hl.createHyperlexicon();
+const hl = H.makeNotesText(TL);
+let log = hl.createNotes();
 for (const n of K.kindNotes(kindsA, { witness: "performance-a.wav", recipe: PITCH_RECIPE })) log = hl.hear(log, n);
 for (const n of K.kindNotes(kindsB, { witness: "performance-b.wav", recipe: PITCH_RECIPE })) log = hl.hear(log, n);
 // the SECOND instrument reads the same two performances
@@ -170,7 +170,7 @@ const kindsBspec = K.discoverCompanyKinds(perfBspec, VOCAB_M, MFLOORS);
 console.log(`  second instrument (${SPEC_RECIPE.split("@")[0]}) discovers: ${kindsAspec.map((k) => k.name + ": " + k.members.join(",")).join(" | ") || "(nothing)"}`);
 for (const n of K.kindNotes(kindsAspec, { witness: "performance-a.wav", recipe: SPEC_RECIPE })) log = hl.hear(log, n);
 for (const n of K.kindNotes(kindsBspec, { witness: "performance-b.wav", recipe: SPEC_RECIPE })) log = hl.hear(log, n);
-const musicNotes = hl.foldHyperlexicon(log).filter((n) => n.witnesses.length >= 2);
+const musicNotes = hl.foldNotes(log).filter((n) => n.witnesses.length >= 2);
 console.log(`  corroborated notes (>=2 witnesses):`);
 for (const n of musicNotes)
   console.log(`    ${n.id}\n      sources ${distinctSources(n.witnesses).size} · instruments ${distinctRecipes(n.witnesses).size} · readings ${independentReadings(n.witnesses).count}` +
@@ -229,7 +229,7 @@ const kindsVShuf = K.discoverCompanyKinds(shuffleWithin(cutA), VOCAB_V, FLOORS);
 console.log(`  II.23 shuffle control: ${kindsVShuf.length === 0 ? "kinds dissolve ✓" : "SURVIVED — UNLICENSED: " + kindsVShuf.map((k) => k.name).join(",")}`);
 for (const n of K.kindNotes(kindsVA, { witness: "cut-a.mp4", recipe: SHOT_RECIPE })) log = hl.hear(log, n);
 for (const n of K.kindNotes(kindsVB, { witness: "cut-b.mp4", recipe: SHOT_RECIPE })) log = hl.hear(log, n);
-const all = hl.foldHyperlexicon(log).filter((n) => n.witnesses.length >= 2);
+const all = hl.foldNotes(log).filter((n) => n.witnesses.length >= 2);
 console.log(`  corroborated notes across the WHOLE ledger now:`);
 for (const n of all)
   console.log(`    ${n.id}  sources ${distinctSources(n.witnesses).size} · instruments ${distinctRecipes(n.witnesses).size}` +

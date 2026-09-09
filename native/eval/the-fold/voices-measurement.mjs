@@ -19,7 +19,7 @@ const PAGE_REFS = (process.env.PAGES ?? "wikipedia-battle-of-gettysburg.html,wik
 const MIN_RUN = Number(process.env.MIN_RUN ?? 40);
 
 const { makeRelationReader } = await import(`${NATIVE}/organs/hypergraph.js`);
-const { makeHyperlexicon } = await import(`${NATIVE}/organs/hyperlexicon.js`);
+const { makeNotesText } = await import(`${NATIVE}/organs/notes-text.js`);
 const { chunkSource, tokenize, blankLabelRows } = await import(`${NATIVE}/organs/source.js`);
 const { extractReadable } = await import(`${NATIVE}/organs/web.js`);
 const { sourceOfWitness } = await import(`${NATIVE}/kernel/notes.js`);
@@ -43,7 +43,7 @@ const reader = makeRelationReader({
   blankFurniture: (t) => blankLabelRows(t, { minRun: 4, maxCell: 60 }),
   resolvePronouns, nounPhraseSubjects: true,
 });
-const hl = makeHyperlexicon({ createTaskLog: nativeTaskLog.createTaskLog, append: nativeTaskLog.append, projectTasks: nativeTaskLog.projectTasks, ENTRY_KINDS: nativeTaskLog.ENTRY_KINDS, OPERATOR_BASIS: nativeTaskLog.OPERATOR_BASIS, GRAINS, cellOf });
+const hl = makeNotesText({ createTaskLog: nativeTaskLog.createTaskLog, append: nativeTaskLog.append, projectTasks: nativeTaskLog.projectTasks, ENTRY_KINDS: nativeTaskLog.ENTRY_KINDS, OPERATOR_BASIS: nativeTaskLog.OPERATOR_BASIS, GRAINS, cellOf });
 
 const shed = (s) => String(s).replace(/[*_`]/g, "").replace(/\s+/g, " ").trim();
 const reproduction = makeReproduction({ fold: normalizedIndex, sameRaw: (a, b) => shed(a) === shed(b) });
@@ -61,7 +61,7 @@ for (const r of repetitions.slice().sort((a, b) => b.units - a.units).slice(0, 3
 
 // ── the ledger, read the way the app reads ──────────────────────────────
 t0 = Date.now();
-let log = hl.createHyperlexicon({ frame: { reader: "makeRelationReader", walls: true, posPrior: "POSPrior@1", lens: lens.name } });
+let log = hl.createNotes({ frame: { reader: "makeRelationReader", walls: true, posPrior: "POSPrior@1", lens: lens.name } });
 for (const pg of PAGES) {
   const passages = chunkSource(pg.id, pg.material);
   const rel = reader(passages, { pool: passages });

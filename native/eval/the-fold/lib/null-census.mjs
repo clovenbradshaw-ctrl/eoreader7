@@ -33,7 +33,7 @@ const NULL_VERDICTS = new Set(["unbound", "unheard", "beyond-reach"]);
 export function runCensus(O, stream, { truncateAt = null, declarations } = {}) {
   const total = stream.length;
   const passages = stream.map((p) => ({ ref: `${p.name}#0-${Buffer.byteLength(p.text, "utf8")}`, source: p.name, text: p.text }));
-  let log = O.hl.createHyperlexicon({ frame: O.frame });
+  let log = O.hl.createNotes({ frame: O.frame });
   const rows = [];
   const verdictAt = {}; // key -> [{cursor, verdict}] (transitions only)
   const closing = {};   // key -> cursor at which the draft first read `bound`

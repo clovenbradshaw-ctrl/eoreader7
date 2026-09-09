@@ -34,7 +34,7 @@ const N = Number(process.env.N ?? 25);
 const NSOURCES = Number(process.env.SOURCES ?? 16);
 
 const { makeRelationReader } = await import(`${NATIVE}/organs/hypergraph.js`);
-const { makeHyperlexicon } = await import(`${NATIVE}/organs/hyperlexicon.js`);
+const { makeNotesText } = await import(`${NATIVE}/organs/notes-text.js`);
 const { chunkSource, tokenize, blankLabelRows, measureOf, blankBelowMeasure } = await import(`${NATIVE}/organs/source.js`);
 const T = await import(`${NATIVE}/organs/index.js`);
 const { witnessNote, endsCopresentWindow, proposeCandidates, sharedTextGroups, distinctSources, textFeatures } = await import(`${NATIVE}/organs/corroboration.js`);
@@ -55,7 +55,7 @@ const reader = makeRelationReader({
   blankFurniture: (t) => blankLabelRows(t, { minRun: 4, maxCell: 60 }),
   resolvePronouns, nounPhraseSubjects: true,
 });
-const hl = makeHyperlexicon({ createTaskLog: ntl.createTaskLog, append: ntl.append, projectTasks: ntl.projectTasks, ENTRY_KINDS: ntl.ENTRY_KINDS, OPERATOR_BASIS: ntl.OPERATOR_BASIS, GRAINS, cellOf });
+const hl = makeNotesText({ createTaskLog: ntl.createTaskLog, append: ntl.append, projectTasks: ntl.projectTasks, ENTRY_KINDS: ntl.ENTRY_KINDS, OPERATOR_BASIS: ntl.OPERATOR_BASIS, GRAINS, cellOf });
 
 const walkJson = JSON.parse(readFileSync(`${HERE}results/ranke-backwards.json`, "utf8"));
 const facesIdx = new Map();
@@ -77,7 +77,7 @@ for (const f of allFaces.sort((a, b) => b.notes - a.notes)) {
 }
 
 // the same face-selected ledger the failed-guard walk used
-let log = hl.createHyperlexicon({ frame: { probe: "select-false-rate" } });
+let log = hl.createNotes({ frame: { probe: "select-false-rate" } });
 const admitted = []; const faceEdges = new Map();
 for (const s of sources) {
   const passages = chunkSource(s.ref, s.text);
@@ -88,12 +88,12 @@ for (const s of sources) {
     if (cl.length) admitted.push({ witness: `${p.ref ?? s.ref}~walls-v1`, edges: cl });
   }
 }
-let probe = hl.createHyperlexicon({ frame: { probe: "sel" } });
+let probe = hl.createNotes({ frame: { probe: "sel" } });
 for (const a of admitted) probe = hl.admit(probe, a.edges, { witness: a.witness }).log;
 const F = (t) => [...textFeatures(t)];
 const ov = (a, b) => { const x = F(a), y = F(b); return x.length && y.length && x.some((w) => y.includes(w)); };
 const keep = new Set();
-for (const n of hl.foldHyperlexicon(probe)) {
+for (const n of hl.foldNotes(probe)) {
   const own = distinctSources(n.witnesses ?? []);
   for (const src of sources) {
     if (own.has(src.ref)) continue;
@@ -104,7 +104,7 @@ for (const a of admitted) {
   const kept = a.edges.filter((e) => keep.has(`${e.subject}|${e.verb}|${e.object}`.toLowerCase()));
   if (kept.length) log = hl.admit(log, kept, { witness: a.witness }).log;
 }
-const notes = hl.foldHyperlexicon(log);
+const notes = hl.foldNotes(log);
 console.log(`${sources.length} sources; face-selected ledger ${notes.length} notes; model ${MODEL}\n`);
 
 // ── the two batches ──────────────────────────────────────────────────────

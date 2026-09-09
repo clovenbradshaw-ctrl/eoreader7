@@ -77,7 +77,7 @@ import { createReactionSubstrate, closureAffordances, nominateFromExperience } f
 import { refuteRelation, auditChemistry, vetoedPairs, afterVeto } from "../../kernel/refutation.js";
 
 import { parseEntity } from "../../../../the-fold/wikidata.js";
-import { makeHyperlexicon } from "../../organs/hyperlexicon.js";
+import { makeNotesText } from "../../organs/notes-text.js";
 import { adaptTaskLog } from "../../../../the-fold/consequence.js";
 import { assertionEdges, loadCompiledPriors } from "../../../../the-fold/predigest.js";
 
@@ -88,7 +88,7 @@ const COMPILED = path.join(HERE, "results", "compiled-priors.json");
 
 const CHEM_GIVER = "wikidata:P1365/P1366 immediate-succession semantics; per-office transitive closure declared by eval/mechanical-reasoning.mjs (cross-office composition is unsound — see this driver's header)";
 
-const foldHl = makeHyperlexicon({ ...adaptTaskLog({ createTaskLog, append, ENTRY_KINDS, OPERATOR_BASIS, GRAINS }), projectTasks });
+const foldHl = makeNotesText({ ...adaptTaskLog({ createTaskLog, append, ENTRY_KINDS, OPERATOR_BASIS, GRAINS }), projectTasks });
 
 // ── read the received files, address every fact into their own bytes ──────
 const files = fs.readdirSync(FIXTURES).filter((f) => f.endsWith(".json")).sort();
@@ -126,7 +126,7 @@ for (let i = 0; i < entities.length; i += 1) {
 }
 
 // ── arm 0: admission through the fold's own door, one witness per file ─────
-let log = foldHl.createHyperlexicon();
+let log = foldHl.createNotes();
 let heardTotal = 0;
 const turnedAwayAll = [];
 for (const file of files) {
@@ -136,7 +136,7 @@ for (const file of files) {
   heardTotal += result.heard.length;
   turnedAwayAll.push(...result.turnedAway);
 }
-const folded = foldHl.foldHyperlexicon(log);
+const folded = foldHl.foldNotes(log);
 const corroborated = folded.filter((a) => a.witnesses.length >= 2);
 
 const { edges, skipped } = assertionEdges(folded, { hyperedge, source: "wikidata-fixtures" });

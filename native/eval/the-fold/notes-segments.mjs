@@ -65,7 +65,7 @@ const reader = makeRelationReader({
   resolvePronouns,
 });
 const notes = makeNotes();
-// The same asymmetric gate organs/hyperlexicon.js builds for the app (P56):
+// The same asymmetric gate organs/notes-text.js builds for the app (P56):
 // a settled non-verb is refused with its class, an out-of-vocabulary label admits.
 const gate = lens ? ({ label }) => { const c = lens({ label }, { minShare: 0.5 }); return c?.settled && c.thraxClass && c.thraxClass !== "verb" ? { reason: "not_a_verb", detail: `${label} settles as ${c.thraxClass}` } : null; } : null;
 

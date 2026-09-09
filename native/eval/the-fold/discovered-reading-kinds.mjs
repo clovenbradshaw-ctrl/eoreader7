@@ -66,13 +66,13 @@ const SPANS_PER_NOTE = Number(process.env.SPANS_PER_NOTE ?? 3);
 const REVIEW_MIN_SHARE = Number(process.env.REVIEW_MIN_SHARE ?? MIN_SHARE);
 
 const { discoverCompanyKinds, kindNotes } = await import(`${NATIVE}/organs/kind-standing.js`);
-const { makeHyperlexicon } = await import(`${NATIVE}/organs/hyperlexicon.js`);
+const { makeNotesText } = await import(`${NATIVE}/organs/notes-text.js`);
 const { sourceOfWitness, recipeOfWitness } = await import(`${NATIVE}/kernel/notes.js`);
 const { cellOf, GRAINS } = await import(`${NATIVE}/kernel/cube.js`);
 const T = await import(`${NATIVE}/kernel/task-log.js`);
-const hl = makeHyperlexicon({ createTaskLog: T.createTaskLog, append: T.append, projectTasks: T.projectTasks, ENTRY_KINDS: T.ENTRY_KINDS, OPERATOR_BASIS: T.OPERATOR_BASIS, GRAINS, cellOf });
+const hl = makeNotesText({ createTaskLog: T.createTaskLog, append: T.append, projectTasks: T.projectTasks, ENTRY_KINDS: T.ENTRY_KINDS, OPERATOR_BASIS: T.OPERATOR_BASIS, GRAINS, cellOf });
 const RECIPE = `shape-cap${CAP}-share${MIN_SHARE}-null${DRAWS}@${ALPHA}`;
-let ledger = hl.createHyperlexicon({ frame: { probe: "discovered-reading-kinds", cap: CAP, minShare: MIN_SHARE, nullArm: { draws: DRAWS, alpha: ALPHA, seed: SEED } } });
+let ledger = hl.createNotes({ frame: { probe: "discovered-reading-kinds", cap: CAP, minShare: MIN_SHARE, nullArm: { draws: DRAWS, alpha: ALPHA, seed: SEED } } });
 const perPage = new Map();
 
 // A line's shape. Characters collapsed to classes, runs collapsed, capped,

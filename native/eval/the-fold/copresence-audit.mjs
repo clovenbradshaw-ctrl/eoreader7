@@ -6,7 +6,7 @@
 import { buildLedger } from "./lib/borodino-ledger.mjs";
 import { endsCopresentWindow, textFeatures } from "../../organs/index.js";
 const { hl, log, sources, planted } = await buildLedger();
-const notes = hl.foldHyperlexicon(log).filter((n) => !planted.includes(`${n.subject}|${n.verb}|${n.object}`.toLowerCase()));
+const notes = hl.foldNotes(log).filter((n) => !planted.includes(`${n.subject}|${n.verb}|${n.object}`.toLowerCase()));
 const WINDOWS = [400, 800, 1600, 3200, Infinity];
 const tally = Object.fromEntries(WINDOWS.map((w) => [w, 0]));
 let pairs = 0, oneEndAbsent = 0, noFeatures = 0;

@@ -44,12 +44,14 @@ export * as capacities from "./capacities.js";
 // quotes) crossed on 2026-09-02 — the closure was moved TOGETHER, so no moved
 // organ imports the surface; the-fold keeps one-line shims at the old paths.
 // The assertion ledger itself is now kernel/notes.js (medium-blind); this
-// hyperlexicon.js is its text face.
-export { assertionId, recipeId, REFUSALS as HYPERLEXICON_REFUSALS, VERB_CLASS, makeHyperlexicon } from "./hyperlexicon.js";
+// notes-text.js is its text face — renamed 2026-09-08 from hyperlexicon.js;
+// see that file's own header for why (the name collided with the real
+// Xushen ledger, kernel/hyperlexicon.js).
+export { assertionId, recipeId, REFUSALS as NOTES_TEXT_REFUSALS, VERB_CLASS, makeNotesText } from "./notes-text.js";
 export { standingOf as noteStanding, sourceOfWitness, recipeOfWitness, kindOfWitness } from "../kernel/notes.js";
 export { RANKE, PRIMARY_KIND, QUOTE_MIN_WORDS, claimOfNote, primaryWitness, standsOnAccountsOnly, leadsOf, footnoteLeads, footnoteLeadsForNote, markersIn, markersOfSpan, documentMatches, archiveAddressFor, chase, chaseLedger } from "./ranke.js";
 export * as ranke from "./ranke.js";
-export * as hyperlexicon from "./hyperlexicon.js";
+export * as notesText from "./notes-text.js";
 export { makeGrammarLens, mismatchedConnectors } from "./grammar-lens.js";
 export * as grammarLens from "./grammar-lens.js";
 export { stageFromEdges } from "./hl.js";

@@ -34,7 +34,7 @@ const testimony = { witnessSlice: T.witnessSlice, siblingSwap: T.siblingSwap, fo
 async function arm(name, extra) {
   calls = 0; const t0 = Date.now();
   const r = await corroborateLedger(log, hl, sources, { ask, testimony, maxAsks: BUDGET, copresenceWindow: WINDOW, ...extra });
-  const after = hl.foldHyperlexicon(r.log);
+  const after = hl.foldNotes(r.log);
   const gate = after.filter((n) => distinctSources(n.witnesses).size >= 2).length;
   const liedOn = r.attested.filter((a) => planted.includes(`${a.note?.subject}|${a.note?.verb}|${a.note?.object}`.toLowerCase())).length;
   console.log(`\n${name} [window ${WINDOW}]: asks ${r.asks}/${BUDGET} · model calls ${calls} · ${((Date.now() - t0) / 1000).toFixed(0)}s`);

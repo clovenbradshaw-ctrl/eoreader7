@@ -200,7 +200,7 @@ test("kindNotes projects a discovered kind into hyperlexicon-hearable, ADDRESSAB
   assert.equal(n.object, "kind:before=zub");
   assert.match(n.because, /before=zub carries \d+% of its before-company/);
   // the address: two organs asking about the same membership get one id
-  const { assertionId } = await import("./hyperlexicon.js");
+  const { assertionId } = await import("./notes-text.js");
   assert.equal(assertionId(n.subject, n.verb, n.object), assertionId("Rolea", "keeps-company", "KIND:BEFORE=ZUB"));
 });
 
@@ -208,16 +208,16 @@ test("a discovered kind lands in the REAL hyperlexicon: one addressable note, wi
   // the whole point of naming the kind: two independent sources that both
   // discover it fold to ONE note with TWO witnesses — kind membership is
   // itself a corroboratable note, riding the same door facts ride (P57).
-  const H = await import("./hyperlexicon.js");
+  const H = await import("./notes-text.js");
   const TL = await import("../kernel/task-log.js");
-  const hl = H.makeHyperlexicon(TL);
-  let log = hl.createHyperlexicon();
+  const hl = H.makeNotesText(TL);
+  let log = hl.createNotes();
   const mk = (share, w) => kindNotes(
     [{ name: "kind:before=zub", signature: "before=zub", members: ["rolea"], share: new Map([["rolea", share]]) }],
     { witness: w });
   for (const n of mk(0.61, "chronicle-a(heard)")) log = hl.hear(log, n);
   for (const n of mk(0.55, "chronicle-b(heard)")) log = hl.hear(log, n);
-  const folded = hl.foldHyperlexicon(log);
+  const folded = hl.foldNotes(log);
   assert.equal(folded.length, 1, "two sightings, one note");
   assert.equal(folded[0].id, "rolea|keeps-company|kind:before=zub", "the kind is addressable by its own name");
   assert.deepEqual(folded[0].witnesses.sort(), ["chronicle-a(heard)", "chronicle-b(heard)"], "witnesses unioned, never replaced");
