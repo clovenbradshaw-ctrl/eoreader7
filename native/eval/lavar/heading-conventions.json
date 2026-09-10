@@ -1,0 +1,33 @@
+{
+  "_disclosure": "A growing, disclosed library of chapter/section-heading conventions this reading agent has actually confirmed against real text — not a closed, hand-typed list of everything English prose might do. Each entry names the exact shape (word, numeral alphabet, whether a period is required) and its provenance: which book required it, and whether it was found mechanically (an already-known convention matched, or a skeleton-recurrence scan proposed a new one on its own) or needed the local-model confirmation tier (structure-rec.mjs's tier 3) before being trusted. See native/READING-SPEC.md S107 for the mechanism this file feeds.",
+  "conventions": [
+    {
+      "name": "CHAPTER <roman>.",
+      "word": "CHAPTER",
+      "numeralType": "roman",
+      "requiresPeriod": true,
+      "foundIn": "this project's own original convention (Alice in Wonderland, Dorian Gray, A Tale of Two Cities — pre-dates this library)",
+      "foundVia": "mechanical",
+      "dateFound": "pre-existing"
+    },
+    {
+      "name": "Chapter <arabic>",
+      "word": "Chapter",
+      "numeralType": "arabic",
+      "requiresPeriod": false,
+      "foundIn": "pg84_Frankenstein.txt",
+      "foundVia": "mechanical",
+      "dateFound": "2026-09-09"
+    },
+    {
+      "name": "<roman>.",
+      "word": null,
+      "numeralType": "roman",
+      "requiresPeriod": true,
+      "titleOnSameLine": true,
+      "foundIn": "real-sherlock-holmes.txt",
+      "foundVia": "mechanical (skeleton recurrence + monotonic numeral)",
+      "dateFound": "2026-09-10"
+    }
+  ]
+}
