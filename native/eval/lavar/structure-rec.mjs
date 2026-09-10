@@ -77,14 +77,14 @@ const MODEL = "gemma2:2b"; // kept small on purpose — [[feedback_local_model_s
 
 const escapeRe = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
-function loadLibrary() {
+export function loadLibrary() {
   return JSON.parse(fs.readFileSync(LIB_PATH, "utf8"));
 }
-function saveLibrary(lib) {
+export function saveLibrary(lib) {
   fs.writeFileSync(LIB_PATH, JSON.stringify(lib, null, 2) + "\n");
 }
 
-function buildRegex(conv) {
+export function buildRegex(conv) {
   const numPattern = conv.numeralType === "roman" ? "[IVXLC]+" : "\\d+";
   const periodPattern = conv.requiresPeriod ? "\\." : "\\.?";
   // `word: null` is a real, distinct shape — a bare numeral heading with no
@@ -112,7 +112,7 @@ function buildRegex(conv) {
 // tried in this order so a bare numeral or a real word-first heading is
 // never miscategorized as carrying a same-line title; anything else is
 // disclosed as unhandled rather than guessed at.
-function deriveConvention(sampleText) {
+export function deriveConvention(sampleText) {
   const wordFirst = sampleText.match(/^([A-Za-z]+)\s+([IVXLC]+|\d+)\.?\s*$/);
   if (wordFirst) {
     const isRoman = /^[IVXLC]+$/.test(wordFirst[2]);
@@ -144,7 +144,7 @@ function tryConvention(raw, conv) {
 }
 
 // TIER 1
-function tier1(raw, lib) {
+export function tier1(raw, lib) {
   let best = null;
   for (const conv of lib.conventions) {
     const hits = tryConvention(raw, conv);
@@ -237,7 +237,7 @@ function isMonotonic(values) {
   return true;
 }
 
-function tier2(raw) {
+export function tier2(raw) {
   const cands = candidateLines(raw);
   const bySkeleton = new Map();
   for (const c of cands) {
@@ -305,6 +305,17 @@ async function tier3(group) {
 }
 
 // ── main ────────────────────────────────────────────────────────────────
+// FOUND WRONG BY WIRING THIS FILE INTO eot-jsonl.mjs (S111): this whole CLI
+// section had no guard at all — every line below ran UNCONDITIONALLY the
+// moment anything imported this file, exactly the "importing a script as
+// a module runs its own top-level body against whatever process.argv the
+// CALLER happened to have" trap `grain-typing.mjs`'s own header (and
+// `table-rec.mjs`'s existing guard) already named. `eot-jsonl.mjs` tried
+// to import `tier1`/`buildRegex` from this file and got this file's own
+// "usage: node structure-rec.mjs..." error instead, because importing it
+// ran this section against eot-jsonl.mjs's own argv. Wrapped the same way
+// `table-rec.mjs` already does it correctly.
+if (import.meta.url === `file://${process.argv[1]}`) {
 const bookPath = process.argv[2];
 if (!bookPath) { console.error("usage: node structure-rec.mjs <path-to-document.txt>"); process.exit(1); }
 const raw = fs.readFileSync(bookPath, "utf8");
@@ -365,4 +376,5 @@ if (verdict.verdict === "structural — confirmed") {
   console.log("Model confirms this is a structural convention, but it carries no numeral this script can build a chapter-ordinal regex from — naming it on the record, not silently promoting it into a numbered-chapter convention it isn't.");
 } else {
   console.log("Refusing to assert a structural convention for this document.");
+}
 }
