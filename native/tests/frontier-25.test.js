@@ -15,7 +15,13 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { TASKS, runFrontier25 } from "../eval/the-fold/lib/frontier-25.mjs";
+import { FoldUnavailableError } from "../eval/the-fold/lib/fold-sibling.mjs";
 
+// A DRIVER REFUSES WHAT ITS CHECKOUT LACKS (READING-SPEC S65 / the-fold
+// P95): `runFrontier25` reaches into a sibling `the-fold` checkout
+// (mathjs, arithmetic.js, shape.js, skills.js, term.js, sql.js) this
+// repo's own CI never checks out. Caught once, here, so every test below
+// is a real, reported skip rather than the whole file crashing at import.
 let server = null;
 try {
   const { bootServer } = await import("../eval/the-fold/frontier-25.mjs");
@@ -23,10 +29,16 @@ try {
 } catch (e) {
   console.log(`  serve.mjs not booted here (${String(e.message).split("\n")[0]}) — python controls skip typed`);
 }
-const run = await runFrontier25({ runPython: server?.runPython ?? null });
+let run = null, SKIP;
+try {
+  run = await runFrontier25({ runPython: server?.runPython ?? null });
+} catch (err) {
+  if (!(err instanceof FoldUnavailableError)) throw err;
+  SKIP = err.message;
+}
 if (server) server.stop();
 
-test("the fixture is twenty-five tasks across five categories, each naming the organ that claims or witnesses it", () => {
+test("the fixture is twenty-five tasks across five categories, each naming the organ that claims or witnesses it", { skip: SKIP }, () => {
   assert.equal(TASKS.length, 25);
   const cats = new Set(TASKS.map((t) => t.category));
   assert.deepEqual([...cats].sort(), ["coding", "creative", "data", "math", "reading"]);
@@ -34,7 +46,7 @@ test("the fixture is twenty-five tasks across five categories, each naming the o
   assert.equal(new Set(TASKS.map((t) => t.id)).size, 25);
 });
 
-test("every task an organ claims outright is answered with no model — computed, read, or declared absent", () => {
+test("every task an organ claims outright is answered with no model — computed, read, or declared absent", { skip: SKIP }, () => {
   const claimed = run.rows.filter((r) => r.mechanical);
   assert.equal(claimed.length, 13, "9 arithmetic/calendar + 3 assay + 1 void");
   const missed = claimed.filter((r) => !r.mechanical.ok).map((r) => `${r.id}: ${r.mechanical.detail}`);
@@ -42,7 +54,7 @@ test("every task an organ claims outright is answered with no model — computed
   for (const r of claimed) console.log(`  ${r.id} ${r.mechanical.organ.split("::")[0].split(" ")[0]} — ${r.mechanical.detail.slice(0, 100)}`);
 });
 
-test("every witness can fail: the reference passes, the wrong answer fails (skills, python via /api/run, sql, form)", () => {
+test("every witness can fail: the reference passes, the wrong answer fails (skills, python via /api/run, sql, form)", { skip: SKIP }, () => {
   const witnessed = run.rows.filter((r) => r.control);
   assert.equal(witnessed.length, 11, "4 skills + 2 python + 1 sql + 4 form");
   const skipped = witnessed.filter((r) => r.control.skipped);
@@ -53,7 +65,7 @@ test("every witness can fail: the reference passes, the wrong answer fails (skil
   for (const r of witnessed.filter((x) => !x.control.skipped)) console.log(`  ${r.id} ${r.claim} — wrong answer refused: ${r.control.wrong.detail.slice(0, 90)}`);
 });
 
-test("the numeric task's witness reads the mouth's LAST number, and the engine's own computation is the expected value", async () => {
+test("the numeric task's witness reads the mouth's LAST number, and the engine's own computation is the expected value", { skip: SKIP }, async () => {
   const { witness } = await import("../eval/the-fold/lib/frontier-25.mjs");
   const task = TASKS.find((t) => t.id === "n1");
   assert.equal((await witness(task, "1000 at 5% for 3 years grows to 1157.63 dollars.")).ok, true);

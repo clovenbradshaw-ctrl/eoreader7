@@ -10,9 +10,30 @@ import { reviseTextFold } from "../adapters/text/revision.js";
 import { createRecursiveReader } from "../../kernel.js";
 import { projectHypergraph } from "../kernel/hypergraph-projection.js";
 
+// A DRIVER REFUSES WHAT ITS CHECKOUT LACKS (READING-SPEC S65 / the-fold
+// P95): this file needs a real, book-length text (War and Peace, Project
+// Gutenberg #2600) that is never committed here — the same posture this
+// repo already takes toward every other real corpus. A single hardcoded
+// absolute path to one developer's own machine (the prior state of this
+// constant) is not a fixture lookup, it is a portability bug: the file
+// crashed at IMPORT time — before node:test could even report a skip —
+// on any checkout but that one machine. `resolveBook()` checks a small,
+// declared set of candidate locations (a sibling `the-fold` checkout, the
+// same layout this repo's own docs assume elsewhere, or an explicit
+// override) and every test below is gated on the result via `{ skip }`
+// rather than crashing the whole file when none exist.
 const here = path.dirname(fileURLToPath(import.meta.url));
 const POS = JSON.parse(fs.readFileSync(path.join(here, "../../legacy-eoreader6.1/bin/priors/pos/en-ud-ewt.json"), "utf8"));
-const BOOK = "/Users/mlacy/Documents/3.0/the-fold/pg2600.txt";
+function resolveBook() {
+  const candidates = [
+    process.env.EOREADER7_WAR_AND_PEACE_FIXTURE,
+    path.join(here, "../../../the-fold/pg2600.txt"),
+    "/Users/mlacy/Documents/3.0/the-fold/pg2600.txt",
+  ].filter(Boolean);
+  return candidates.find((p) => fs.existsSync(p)) ?? null;
+}
+const BOOK = resolveBook();
+const SKIP = BOOK ? undefined : "war-and-peace fixture (pg2600.txt) not found in any known candidate location — set EOREADER7_WAR_AND_PEACE_FIXTURE or check out a sibling the-fold repo";
 const BYTES = 60000;
 let cached = null;
 
@@ -36,7 +57,7 @@ const graph = (r) => r.log.flatMap((e) => e?.schema === "Observation@1" ? (e.gra
 const merges = (r) => graph(r).filter((g) => g?.schema === "EOReferentMerge@1");
 const reassignments = (r) => graph(r).filter((g) => g?.schema === "EOReferentReassignment@1");
 
-test("refresh reassignment is not a merge", async () => {
+test("refresh reassignment is not a merge", { skip: SKIP }, async () => {
   const r = await readAll();
   const rows = reassignments(r);
   assert.ok(rows.length >= 1, "the real prefix contains refresh reassignments");
@@ -48,7 +69,7 @@ test("refresh reassignment is not a merge", async () => {
   }
 });
 
-test("reassignment keeps both live addresses and routes fresh surface lookup to the new one", async () => {
+test("reassignment keeps both live addresses and routes fresh surface lookup to the new one", { skip: SKIP }, async () => {
   const r = await readAll();
   const ids = new Set(graph(r).filter((g) => g?.schema === "EOReferent@1").map((g) => g.id));
   const index = r.fold?.graphEntries ?? [];
@@ -59,14 +80,14 @@ test("reassignment keeps both live addresses and routes fresh surface lookup to 
   }
 });
 
-test("reassignments are emitted once per decided surface transition", async () => {
+test("reassignments are emitted once per decided surface transition", { skip: SKIP }, async () => {
   const rows = reassignments(await readAll());
   const keys = rows.map((x) => `${x.from}|${x.to}|${x.surface}`);
   assert.ok(keys.length);
   assert.equal(new Set(keys).size, keys.length);
 });
 
-test("the projection exposes reassignments separately and leaves node identity additive", async () => {
+test("the projection exposes reassignments separately and leaves node identity additive", { skip: SKIP }, async () => {
   const r = await readAll();
   const p = projectHypergraph(r.log, { atSeq: null });
   assert.ok(p.reassignments.length >= 1);
@@ -74,7 +95,7 @@ test("the projection exposes reassignments separately and leaves node identity a
   for (const n of p.nodes) assert.deepEqual(Object.keys(n).sort(), ["arrivals", "id", "surfaces"]);
 });
 
-test("before and after a reassignment, both beings remain in the cursor projection", async () => {
+test("before and after a reassignment, both beings remain in the cursor projection", { skip: SKIP }, async () => {
   const r = await readAll();
   const row = reassignments(r)[0];
   const seq = r.log.findIndex((e) => e?.schema === "Observation@1" && (e.graphEntries ?? []).some((x) => x?.schema === "EOReferentReassignment@1"));
@@ -87,14 +108,14 @@ test("before and after a reassignment, both beings remain in the cursor projecti
   assert.ok(after.reassignments.some((x) => x.from === row.from && x.to === row.to) || whole.reassignments.some((x) => x.from === row.from && x.to === row.to));
 });
 
-test("the former inferred-fragment finding is now typed as reassignment testimony", async () => {
+test("the former inferred-fragment finding is now typed as reassignment testimony", { skip: SKIP }, async () => {
   const rows = reassignments(await readAll());
   const expected = ["ref:auto:vasili", "ref:auto:prince_vasili"];
   assert.ok(expected.some((id) => rows.some((x) => x.from === id || x.to === id)));
   for (const row of rows) assert.match(row.provenance?.basis ?? "", /reassigned on refresh/);
 });
 
-test("a true discovered merge still remains a union operation", () => {
+test("a true discovered merge still remains a union operation", { skip: SKIP }, () => {
   const entries = [
     { schema: "EOReferent@1", id: "a", surfaces: ["A"] },
     { schema: "EOReferent@1", id: "b", surfaces: ["B"] },
