@@ -19,11 +19,26 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { charToByte } from "./byte-char-index.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const BOOK = process.argv[3] ?? "/Users/mlacy/Documents/3.0/live_priors/01-literature-books/gutenberg/pg11_Alice_s_Adventures_in_Wonderland.txt";
 const BASENAME = path.basename(BOOK, ".txt");
-const raw = fs.readFileSync(BOOK, "utf8");
+const rawBuf = fs.readFileSync(BOOK);
+const raw = rawBuf.toString("utf8");
+// COORDINATE SPACE, DECLARED NEVER MIXED (byte-char-index.mjs's own law).
+// HEAD_RE/SAME_LINE_HEAD_RE below still match against `raw` — the JS
+// STRING — because that is the only space RegExp understands; `byteOf`
+// converts every resulting OFFSET to real UTF-8 bytes immediately, so
+// `heads[].start/.end/.headEnd` and everything downstream (WIN, tiles,
+// gaps, the reconstruction) live in the SAME byte space eot-jsonl.mjs's
+// own `rawAt` now writes to the ledger. Checking a now-byte-addressed
+// ledger by char-slicing this file's own JS string (the shape this file
+// had until this fix) is the exact bug eot-jsonl.mjs's own header names —
+// found here by running it on Alice in Wonderland after that fix landed:
+// small drift-sized "gaps" appeared for the first time near the book's
+// own curly quotes, growing to a full missing sentence by "THE END".
+const byteOf = charToByte(raw);
 
 // Same chapter-boundary regex eot-jsonl.mjs itself uses (S95's own window),
 // duplicated rather than imported — eot-jsonl.mjs is a driver script with no
@@ -66,25 +81,35 @@ const heads = [];
     const candidateEnd = m.index + m[0].length;
     const titleLine = m.groups.titleLine;
     const hasRealTitle = Boolean(titleLine.trim()) && /^\r?\n/.test(raw.slice(candidateEnd));
+    // Converted to real UTF-8 bytes HERE, at construction — every other
+    // field on `heads[]`/`WIN` reads as byte-space from this point on,
+    // never char-space again.
     heads.push({
-      start: m.index,
-      headEnd: hasRealTitle ? candidateEnd : m.indices.groups.titleLine[0],
+      start: byteOf(m.index),
+      headEnd: byteOf(hasRealTitle ? candidateEnd : m.indices.groups.titleLine[0]),
       title: hasRealTitle ? titleLine.trim() : "",
     });
   }
   if (!heads.length) {
     while ((m = SAME_LINE_HEAD_RE.exec(raw))) {
-      heads.push({ start: m.index, headEnd: m.index + m[0].length, title: m.groups.sameLineTitle.trim() });
+      heads.push({ start: byteOf(m.index), headEnd: byteOf(m.index + m[0].length), title: m.groups.sameLineTitle.trim() });
     }
   }
 }
-for (let i = 0; i < heads.length; i += 1) heads[i].end = i + 1 < heads.length ? heads[i + 1].start : raw.length;
+const TOTAL_BYTES = byteOf(raw.length);
+for (let i = 0; i < heads.length; i += 1) heads[i].end = i + 1 < heads.length ? heads[i + 1].start : TOTAL_BYTES;
+
+// sliceBytes(s, e) → decoded UTF-8 text for a real byte range — the one
+// place this file reads actual bytes back out, mirroring eot-jsonl.mjs's
+// own P5.2 self-verification posture (an address is checked against the
+// real bytes it names, never against a JS string standing in for them).
+const sliceBytes = (s, e) => rawBuf.subarray(s, e).toString("utf8");
 
 function checkChapter(ch) {
   const h = heads[ch - 1];
   if (!h) return { chapter: ch, error: "no such chapter inferred" };
   const WIN = [h.headEnd, h.end];
-  const refWords = raw.slice(WIN[0], WIN[1]).split(/\s+/).filter(Boolean);
+  const refWords = sliceBytes(WIN[0], WIN[1]).split(/\s+/).filter(Boolean);
 
   const ledgerPath = path.join(HERE, "results", `${BASENAME}-ch${ch}.eot.jsonl`);
   if (!fs.existsSync(ledgerPath)) return { chapter: ch, error: `no ledger at ${path.relative(process.cwd(), ledgerPath)}` };
@@ -123,16 +148,16 @@ function checkChapter(ch) {
   const gaps = [];
   let cursor = WIN[0];
   for (const [s, e] of merged) {
-    if (s > cursor && raw.slice(cursor, s).trim()) gaps.push([cursor, s, raw.slice(cursor, s)]);
+    if (s > cursor && sliceBytes(cursor, s).trim()) gaps.push([cursor, s, sliceBytes(cursor, s)]);
     cursor = Math.max(cursor, e);
   }
-  if (cursor < WIN[1] && raw.slice(cursor, WIN[1]).trim()) gaps.push([cursor, WIN[1], raw.slice(cursor, WIN[1])]);
+  if (cursor < WIN[1] && sliceBytes(cursor, WIN[1]).trim()) gaps.push([cursor, WIN[1], sliceBytes(cursor, WIN[1])]);
   const overlaps = []; // kept as a field for callers; merging removes the notion of a defect here
 
   // RECONSTRUCTION: concatenate the MERGED tiles in address order and
   // compare word-for-word against the chapter's own reference word
   // sequence — this is the actual "reproduce the verbatim text" test.
-  const reconstructed = merged.map(([s, e]) => raw.slice(s, e)).join(" ").split(/\s+/).filter(Boolean);
+  const reconstructed = merged.map(([s, e]) => sliceBytes(s, e)).join(" ").split(/\s+/).filter(Boolean);
   let firstMismatch = -1;
   const n = Math.min(refWords.length, reconstructed.length);
   for (let i = 0; i < n; i += 1) if (refWords[i] !== reconstructed[i]) { firstMismatch = i; break; }
@@ -146,6 +171,18 @@ function checkChapter(ch) {
   };
 }
 
+// Found by actually running this on a book whose convention neither
+// HEAD_RE nor SAME_LINE_HEAD_RE knows (a "PART ONE"/"PART TWO"/... spelled-
+// out-numeral specimen, structure-rec.mjs S112): with `heads.length === 0`,
+// "all" resolves to an EMPTY chapter list, the loop below runs zero times,
+// `allOk` never gets set false, and the script printed "ALL CHAPTERS
+// CHECKED: 100% recoverable" — a false positive over having checked
+// NOTHING. Absence of a known heading convention is not evidence of
+// recoverability; it is the one case this script cannot speak to at all.
+if (heads.length === 0) {
+  console.log("ERROR — no chapter heads found by either known convention (HEAD_RE, SAME_LINE_HEAD_RE); this book's own convention is not one of the ones this file's independent check knows. Refusing to report recoverability for zero chapters.");
+  process.exit(1);
+}
 const arg = process.argv[2] ?? "all";
 const chapters = arg === "all" ? heads.map((_, i) => i + 1) : [Number(arg)];
 let allOk = true;
