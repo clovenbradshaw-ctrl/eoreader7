@@ -1,0 +1,10 @@
+{
+  "name": "eoreader7-cli",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Commandline entry point onto eoreader7's real reading pipeline.",
+  "bin": {
+    "eoreader7": "./eoreader7.mjs"
+  }
+}
