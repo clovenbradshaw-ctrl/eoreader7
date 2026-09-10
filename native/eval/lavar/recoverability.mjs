@@ -34,17 +34,22 @@ const raw = fs.readFileSync(BOOK, "utf8");
 // paragraph's own first physical line swallowed as a fake title) — a REAL
 // title is bounded by blank lines on both sides, checked here in raw's own
 // (CRLF-preserving) space since these addresses must match the ledger's.
-const HEAD_RE = /^CHAPTER ([IVXLC]+)\.\s*\n([^\n]*)\n/gmd;
+// Same "Chapter 1" sibling convention added to eot-jsonl.mjs's own copy of
+// this regex, for the same reason: a recoverability check on a book that
+// uses Arabic chapter numerals needs the SAME chapter windows the reader
+// itself inferred, or it is checking the wrong boundaries against itself.
+const HEAD_RE = /^(?:CHAPTER (?<roman>[IVXLC]+)\.|Chapter (?<arabic>\d+)\.?)\s*\n(?<titleLine>[^\n]*)\n/gmd;
 const heads = [];
 {
   let m;
   while ((m = HEAD_RE.exec(raw))) {
     const candidateEnd = m.index + m[0].length;
-    const hasRealTitle = Boolean(m[2].trim()) && /^\r?\n/.test(raw.slice(candidateEnd));
+    const titleLine = m.groups.titleLine;
+    const hasRealTitle = Boolean(titleLine.trim()) && /^\r?\n/.test(raw.slice(candidateEnd));
     heads.push({
       start: m.index,
-      headEnd: hasRealTitle ? candidateEnd : m.indices[2][0],
-      title: hasRealTitle ? m[2].trim() : "",
+      headEnd: hasRealTitle ? candidateEnd : m.indices.groups.titleLine[0],
+      title: hasRealTitle ? titleLine.trim() : "",
     });
   }
 }
