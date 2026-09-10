@@ -30,7 +30,7 @@ import { stripContainer } from "../adapters/text/spans.js";
 import { createCausalTextPerceiver, textEncounters } from "../adapters/text/recursive.js";
 import { createTerrainActivation, dmdWindow } from "../kernel/terrain-activation.js";
 
-const POS_PRIOR = JSON.parse(fs.readFileSync(new URL("../../legacy-eoreader6.1/bin/priors/pos/en-ud-ewt.json", import.meta.url), "utf8"));
+const POS_PRIOR = JSON.parse(fs.readFileSync(new URL("../../cli/priors/pos-prior-en.json", import.meta.url), "utf8"));
 const ANCHORING = { minActivation: 0.05, minMargin: 0.2 };
 const WINDOW_CANDIDATES = [8, 16, 32, 64, 128, 256]; // declared: which depths are worth testing
 const PRESENCE_FLOOR = 1; // declared: one full arrival's worth still present — structural, not tuned

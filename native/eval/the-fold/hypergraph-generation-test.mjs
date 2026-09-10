@@ -25,12 +25,12 @@ import { checkGrounding, unsupportedClaims } from "../../../../the-fold/groundin
 import { attribute, attributedRefs } from "../../../../the-fold/cite.js";
 import { CONSTITUTION_PROMPT } from "../../../../the-fold/constitution.js";
 
-import { lineIndex, outlineOfIndex } from "../../../legacy-eoreader6.1/packages/engine/perceiver/text/segments.js";
-import { splitSentences as engineSentences } from "../../../legacy-eoreader6.1/packages/engine/perceiver/text/spans.js";
+import { lineIndex, outlineOfIndex } from "../../adapters/text/segments.js";
+import { splitSentences as engineSentences } from "../../adapters/text/spans.js";
 import {
   extractSurfaces, discoverReferents, namesCorefer, diaNorm,
-} from "../../../legacy-eoreader6.1/packages/engine/perceiver/text/surfaces.js";
-import { discoverRelationVocab, extractRelations } from "../../../legacy-eoreader6.1/packages/engine/perceiver/text/relations.js";
+} from "../../adapters/text/surfaces.js";
+import { discoverRelationVocab, extractRelations } from "../../adapters/text/relations.js";
 import { tokenize } from "../../../../the-fold/source.js";
 
 const HERE = dirname(fileURLToPath(import.meta.url));

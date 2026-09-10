@@ -26,11 +26,11 @@ import { reviseTextFold } from "../adapters/text/revision.js";
 import { createRecursiveReader } from "../../kernel.js";
 import { projectHypergraph } from "../kernel/hypergraph-projection.js";
 import { dmdWindow } from "../kernel/activation.js";
-import { bindLinks } from "../../legacy-eoreader6.1/packages/engine/emergence/binding.js";
-import { score } from "../../legacy-eoreader6.1/goldens/network/read.mjs";
-import { parseLesMisJson } from "../../legacy-eoreader6.1/goldens/network/parsers.mjs";
+import { bindLinks } from "../legacy-ported/packages/engine/emergence/binding.js";
+import { score } from "./fixtures/goldens/network/read.mjs";
+import { parseLesMisJson } from "./fixtures/goldens/network/parsers.mjs";
 
-const POS_PRIOR = JSON.parse(fs.readFileSync(new URL("../../legacy-eoreader6.1/bin/priors/pos/en-ud-ewt.json", import.meta.url), "utf8"));
+const POS_PRIOR = JSON.parse(fs.readFileSync(new URL("../../cli/priors/pos-prior-en.json", import.meta.url), "utf8"));
 const LINK = { draws: 199, alpha: 0.05, seed: 20260812 };
 const WINDOW_CANDIDATES = [8, 16, 32, 64, 128, 256];
 
@@ -74,7 +74,7 @@ async function main() {
   const displayById = new Map(g.nodes.map((n) => [n.id, (n.surfaces?.[0]?.surface ?? n.surfaces?.[0] ?? n.id.replace(/^ref:auto:/, "").replace(/_/g, " "))]));
   const register = g.nodes.map((n) => ({ id: n.id }));
   const edges = g.network.edges.map((e) => ({ a: e.a, b: e.b, weight: e.coArrivals }));
-  const ref = parseLesMisJson(new URL("../../legacy-eoreader6.1/goldens/network/refs/lesmis.json", import.meta.url).pathname);
+  const ref = parseLesMisJson(new URL("./fixtures/goldens/network/refs/lesmis.json", import.meta.url).pathname);
   const result = score(register, edges, ref, (id) => displayById.get(id));
 
   console.log(JSON.stringify({

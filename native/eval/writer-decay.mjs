@@ -40,9 +40,9 @@ import { castSurfaceMap, bindNarrationFrames } from "../adapters/text/perspectiv
 import { resolvePronounsByActivation } from "../adapters/text/pronouns.js";
 import { createActivation } from "../kernel/activation.js";
 import { writerDecay } from "../adapters/text/accessibility.js";
-import { createSession, admitChunked, sessionReferents } from "../../legacy-eoreader6.1/packages/host/corpus.js";
+import { createSession, admitChunked, sessionReferents } from "../legacy-ported/packages/host/corpus.js";
 
-const POS_PRIOR = JSON.parse(fs.readFileSync(new URL("../../legacy-eoreader6.1/bin/priors/pos/en-ud-ewt.json", import.meta.url), "utf8"));
+const POS_PRIOR = JSON.parse(fs.readFileSync(new URL("../../cli/priors/pos-prior-en.json", import.meta.url), "utf8"));
 const PRONOUN_RECALL = { minActivation: 0.05, minMargin: 0.2 };  // host/corpus.js's own operating point, cited not invented
 const PRONOUN_PRESENT = { window: 8, minActivation: 0.2, minMargin: 0.2, createActivation };
 

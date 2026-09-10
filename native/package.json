@@ -4,7 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node --test \"conformance/*.test.mjs\" \"tests/*.test.js\"",
-    "test:organs": "node --test \"organs/*.test.mjs\""
+    "test": "node scripts/check-no-legacy-submodule.mjs && node --test \"conformance/*.test.mjs\" \"tests/*.test.js\"",
+    "test:organs": "node --test \"organs/*.test.mjs\"",
+    "check:no-legacy-submodule": "node scripts/check-no-legacy-submodule.mjs"
   }
 }

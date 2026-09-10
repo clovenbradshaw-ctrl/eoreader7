@@ -31,7 +31,7 @@ import { nativeRegistry } from "../assemblies.js";
 
 const MIN_SURFACES = 2;
 const REFRESH_EVERY = 25;
-const POS_PRIOR = JSON.parse(fs.readFileSync(new URL("../../legacy-eoreader6.1/bin/priors/pos/en-ud-ewt.json", import.meta.url), "utf8"));
+const POS_PRIOR = JSON.parse(fs.readFileSync(new URL("../../cli/priors/pos-prior-en.json", import.meta.url), "utf8"));
 
 function lookahead(sentences) {
   const text = sentences.map((s) => s.text).join("\n");

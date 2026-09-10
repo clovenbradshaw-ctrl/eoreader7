@@ -167,22 +167,22 @@ test("R2 actually fires on the real hl.js stage after promotion — the full loo
 
 // ── end to end: real organs, prose invented for this file ──────────────
 test("end to end, adversarial: real reader + real grammar lens over INVENTED prose no model has seen", async () => {
-  const { splitSentences } = await import("../../legacy-eoreader6.1/packages/engine/perceiver/text/spans.js");
+  const { splitSentences } = await import("../adapters/text/spans.js");
   const { extractSurfaces, discoverReferents, namesCorefer, diaNorm } = await import(
-    "../../legacy-eoreader6.1/packages/engine/perceiver/text/surfaces.js"
+    "../adapters/text/surfaces.js"
   );
   const { discoverRelationVocab, extractRelations } = await import(
-    "../../legacy-eoreader6.1/packages/engine/perceiver/text/relations.js"
+    "../adapters/text/relations.js"
   );
   const { tokenize, buildFrequencyTable, functionWordSet } = await import(
-    "../../legacy-eoreader6.1/packages/engine/perceiver/text/material.js"
+    "../adapters/text/material.js"
   );
-  const { classifyWord, dominantClass } = await import("../../legacy-eoreader6.1/packages/engine/perceiver/text/wordclass.js");
+  const { classifyWord, dominantClass } = await import("../adapters/text/wordclass.js");
   const { makeGrammarLens } = await import("./grammar-lens.js");
   const { makeRelationReader } = await import("../../../the-fold/hypergraph.js");
   const { readFileSync } = await import("node:fs");
 
-  const posPrior = JSON.parse(readFileSync(new URL("../../legacy-eoreader6.1/scripts/corpus/pos-prior-eng.json", import.meta.url), "utf8"));
+  const posPrior = JSON.parse(readFileSync(new URL("../eval/fixtures/corpus/pos-prior-eng.json", import.meta.url), "utf8"));
   const lens = makeGrammarLens({ classifyWord, dominantClass, posPrior });
 
   const organs = {

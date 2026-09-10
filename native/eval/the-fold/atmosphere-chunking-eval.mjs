@@ -22,7 +22,8 @@ import { fileURLToPath } from "node:url";
 import { chunkSource } from "../../../../the-fold/source.js";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
-const ENGINE = join(HERE, "..", "..", "..", "legacy-eoreader6.1", "packages", "engine");
+const TEXT = join(HERE, "..", "..", "adapters", "text");
+const LOOPS = join(HERE, "..", "..", "legacy-ported", "packages", "engine", "loops");
 const REGIME = { window: 5, draws: 256, tolerance: 3, hop: 5 };
 
 const lines = [];
@@ -32,8 +33,8 @@ const say = (s = "") => {
 };
 
 const organs = async () => {
-  const { causalSurprisalSeries } = await import(join(ENGINE, "perceiver/text/material.js"));
-  const { readAtmosphere } = await import(join(ENGINE, "loops/atmosphere.js"));
+  const { causalSurprisalSeries } = await import(join(TEXT, "material.js"));
+  const { readAtmosphere } = await import(join(LOOPS, "atmosphere.js"));
   return { causalSurprisalSeries, readAtmosphere, regime: REGIME };
 };
 

@@ -33,10 +33,10 @@ import { createActivation } from "../kernel/activation.js";
 import { tokenize, buildFrequencyTable, functionWordSet } from "../adapters/text/material.js";
 import { actClosure } from "../adapters/text/morphology.js";
 import { boundAnchorSpans, agencyEvidence } from "../adapters/text/vocabulary.js";
-import { createLemmatizer, loadMorphology } from "../../legacy-eoreader6.1/packages/engine/perceiver/text/morphology.js";
-import { createSession, admitChunked, sessionReferents } from "../../legacy-eoreader6.1/packages/host/corpus.js";
+import { createLemmatizer, morphologyFromPrior } from "../adapters/text/morphology.js";
+import { createSession, admitChunked, sessionReferents } from "../legacy-ported/packages/host/corpus.js";
 
-const POS_PRIOR = JSON.parse(fs.readFileSync(new URL("../../legacy-eoreader6.1/bin/priors/pos/en-ud-ewt.json", import.meta.url), "utf8"));
+const POS_PRIOR = JSON.parse(fs.readFileSync(new URL("../../cli/priors/pos-prior-en.json", import.meta.url), "utf8"));
 const PRONOUN_RECALL = { minActivation: 0.05, minMargin: 0.2 };
 const PRONOUN_PRESENT = { window: 8, minActivation: 0.2, minMargin: 0.2, createActivation };
 const MIN_ARRIVALS = 4; // cited: entity.js admitFromArrivals needs floor(arrivals/2) >= 2 — the Born gate decides at 4, not a pre-filter
@@ -119,7 +119,7 @@ async function main() {
   // ── lever 3: the act closure (morphology) ─────────────────────────────
   // Every attested inflection of a measured act, decided by the engine's
   // own lemmatizer over the vendored UniMorph prior (giver in the file).
-  const morphPrior = loadMorphology(new URL("../priors/morphology-eng.json", import.meta.url).pathname);
+  const morphPrior = morphologyFromPrior(JSON.parse(fs.readFileSync(new URL("../priors/morphology-eng.json", import.meta.url), "utf8")));
   const lemmatizer = createLemmatizer(morphPrior.forms, { language: morphPrior.language });
   const tokenTypes = [...new Set(tokenize(stripped.text))];
   const closure = actClosure(leverVocab.verbs, tokenTypes, lemmatizer);

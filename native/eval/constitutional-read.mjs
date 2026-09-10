@@ -40,7 +40,7 @@ import {
   admitChunked,
   sessionReferents,
   sessionRelations,
-} from "../../legacy-eoreader6.1/packages/host/corpus.js";
+} from "../legacy-ported/packages/host/corpus.js";
 import { stampResult } from "../kernel/assembly.js";
 import { nativeRegistry } from "../assemblies.js";
 
@@ -92,7 +92,7 @@ async function main() {
   // organ chain stays readable beside it.
   const report = stampResult(nativeRegistry(), {
     schema: "EOConstitutionalRead@1",
-    assemblyOrgans: "legacy-eoreader6.1 packages/host — createSession / admitChunked / sessionReferents (discoveredCast: surfaces -> witnessed referents -> pronoun binding -> relation vocabulary) / sessionRelations",
+    assemblyOrgans: "native/legacy-ported/packages/host — createSession / admitChunked / sessionReferents (discoveredCast: surfaces -> witnessed referents -> pronoun binding -> relation vocabulary) / sessionRelations",
     source: sourceId,
     // P3 — which priors were injected. An empty coref slot means an unprimed reader, said as such.
     priorsInjected,

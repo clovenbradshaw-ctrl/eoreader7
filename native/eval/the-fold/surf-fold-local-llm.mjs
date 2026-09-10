@@ -22,9 +22,9 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
-import { createSession, admitChunked } from "../../../legacy-eoreader6.1/packages/host/corpus.js";
-import { executePrompt } from "../../../legacy-eoreader6.1/packages/host/surfer.js";
-import { createTierStack, foldThrough } from "../../../legacy-eoreader6.1/packages/engine/emergence/tiers.js";
+import { createSession, admitChunked } from "../../legacy-ported/packages/host/corpus.js";
+import { executePrompt } from "../../legacy-ported/packages/host/surfer.js";
+import { createTierStack, foldThrough } from "../../legacy-ported/packages/engine/emergence/tiers.js";
 import { tokenize } from "../../../../the-fold/source.js";
 import { checkGrounding } from "../../../../the-fold/grounding.js";
 
@@ -113,7 +113,7 @@ const TURNS = [
 ];
 
 async function main() {
-  const nulPath = join(HERE, "..", "..", "..", "legacy-eoreader6.1", "nul", "index.js");
+  const nulPath = join(HERE, "..", "..", "legacy-ported", "nul", "index.js");
   const text = readFileSync(nulPath, "utf8");
   console.log(`material: nul/index.js (${text.length} chars, ${text.split("\n").length} lines) — the same file CLAUDE.md's own "measuring door" section describes as this repo's flagship statistical engine`);
   console.log(`model: ${MODEL}\n`);

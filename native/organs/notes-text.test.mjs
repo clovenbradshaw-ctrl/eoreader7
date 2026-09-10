@@ -20,17 +20,17 @@ import { makeGrammarLens } from "./grammar-lens.js";
 // configuration the app actually runs, and the one that resolves in a
 // checkout whose legacy submodule is uninitialised.
 import { existsSync } from "node:fs";
-const LEGACY = existsSync(new URL("../../legacy-eoreader6.1/packages/engine/holon/task-log.js", import.meta.url));
-const useLegacy = process.env.ENGINE === "legacy" || (process.env.ENGINE == null && LEGACY && existsSync(new URL("../../legacy-eoreader6.1/scripts/corpus/pos-prior-eng.json", import.meta.url)));
-const taskLog = useLegacy ? await import("../../legacy-eoreader6.1/packages/engine/holon/task-log.js") : await import("../kernel/task-log.js");
+const LEGACY = existsSync(new URL("../legacy-ported/packages/engine/holon/task-log.js", import.meta.url));
+const useLegacy = process.env.ENGINE === "legacy" || (process.env.ENGINE == null && LEGACY && existsSync(new URL("../eval/fixtures/corpus/pos-prior-eng.json", import.meta.url)));
+const taskLog = useLegacy ? await import("../legacy-ported/packages/engine/holon/task-log.js") : await import("../kernel/task-log.js");
 const { classifyWord, dominantClass, THRAX_META, POS_PRIOR_META, THRAX_MAP } = useLegacy
-  ? await import("../../legacy-eoreader6.1/packages/engine/perceiver/text/wordclass.js")
+  ? await import("../legacy-ported/packages/engine/perceiver/text/wordclass.js")
   : await import("../adapters/text/wordclass.js");
 // The committed POSPrior@1 (live_priors' artifact, byte-identical to the one
 // the-fold serves — P74) lives in this repo's own fixtures, so this test needs
 // no sibling checkout; the legacy corpus build is used only under ENGINE=legacy.
 const posPrior = JSON.parse(readFileSync(new URL(useLegacy
-  ? "../../legacy-eoreader6.1/scripts/corpus/pos-prior-eng.json"
+  ? "../eval/fixtures/corpus/pos-prior-eng.json"
   : "../eval/the-fold/fixtures/pos-prior-eng.json", import.meta.url), "utf8"));
 const lens = makeGrammarLens({ classifyWord, dominantClass, posPrior, posPriorMeta: POS_PRIOR_META, thraxMeta: THRAX_META });
 

@@ -58,19 +58,19 @@ import { extractReadable } from "../../../../the-fold/web.js";
 import { seededShuffle, seedFrom } from "../../../../the-fold/asserted.js";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
-const ENGINE = join(HERE, "..", "..", "..", "legacy-eoreader6.1", "packages", "engine");
+const ENGINE = join(HERE, "..", "..", "adapters", "text");
 
 const DRAWS = 200;
 const SEED = 0;
 const SHEET_BUDGET = 24;
 
 const organs = async () => {
-  const { splitSentences } = await import(join(ENGINE, "perceiver/text/spans.js"));
+  const { splitSentences } = await import(join(ENGINE, "spans.js"));
   const { extractSurfaces, discoverReferents, namesCorefer, diaNorm } = await import(
-    join(ENGINE, "perceiver/text/surfaces.js")
+    join(ENGINE, "surfaces.js")
   );
-  const { discoverRelationVocab, extractRelations } = await import(join(ENGINE, "perceiver/text/relations.js"));
-  const { tokenize, buildFrequencyTable, functionWordSet } = await import(join(ENGINE, "perceiver/text/material.js"));
+  const { discoverRelationVocab, extractRelations } = await import(join(ENGINE, "relations.js"));
+  const { tokenize, buildFrequencyTable, functionWordSet } = await import(join(ENGINE, "material.js"));
   return {
     splitSentences,
     extractSurfaces,

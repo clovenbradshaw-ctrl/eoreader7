@@ -10,7 +10,7 @@ import { createCausalTextPerceiver, textEncounters } from "../adapters/text/recu
 import { reviseTextFold } from "../adapters/text/revision.js";
 import { createRecursiveReader } from "../../kernel.js";
 import { projectHypergraph, hyperlexiconAt } from "../kernel/hypergraph-projection.js";
-import { bindLinks, buildLink } from "../../legacy-eoreader6.1/packages/engine/emergence/binding.js";
+import { bindLinks, buildLink } from "../legacy-ported/packages/engine/emergence/binding.js";
 
 const CORPUS = [
   "That morning Elena walked the orchard rows and counted the frost damage.",

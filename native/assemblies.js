@@ -186,7 +186,7 @@ export const CONSTITUTIONAL_HOST = assembly({
   cells: [],
   terrains: ["Void", "Entity", "Link"],
   organs: [
-    "legacy-eoreader6.1/packages/host/corpus.js (createSession / admitChunked / sessionReferents / sessionRelations)",
+    "native/legacy-ported/packages/host/corpus.js (createSession / admitChunked / sessionReferents / sessionRelations)",
   ],
   regimes: {},
   consumes: [],

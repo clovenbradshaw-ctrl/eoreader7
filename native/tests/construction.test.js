@@ -8,7 +8,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import { collapseForm, dominantClass } from "../adapters/text/construction.js";
 
-const formPrior = JSON.parse(fs.readFileSync(new URL("../../legacy-eoreader6.1/bin/priors/pos/en-ud-ewt.json", import.meta.url), "utf8"));
+const formPrior = JSON.parse(fs.readFileSync(new URL("../../cli/priors/pos-prior-en.json", import.meta.url), "utf8"));
 const constructionPrior = JSON.parse(fs.readFileSync(new URL("../priors/construction-eng.json", import.meta.url), "utf8"));
 const opts = (minShare) => ({ constructionPrior, formPrior, minShare });
 
