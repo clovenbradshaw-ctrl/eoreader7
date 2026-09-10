@@ -1,11 +1,11 @@
 [
  {
-  "seq": 26,
+  "seq": 27,
   "schema": "EOTObservation@1",
   "id": "f25",
   "at": [
    0,
-   613
+   621
   ],
   "role": "front-matter",
   "inferred": true,
@@ -13,12 +13,12 @@
   "children": []
  },
  {
-  "seq": 2,
+  "seq": 3,
   "schema": "EOTObservation@1",
   "id": "c1",
   "at": [
-   613,
-   12388
+   621,
+   12622
   ],
   "role": "chapter",
   "inferred": true,
@@ -28,12 +28,12 @@
   "title": "Down the Rabbit-Hole",
   "children": [
    {
-    "seq": 3,
+    "seq": 4,
     "schema": "EOTObservation@1",
     "id": "h2",
     "at": [
-     613,
-     647
+     621,
+     655
     ],
     "role": "heading",
     "inferred": true,
@@ -44,12 +44,12 @@
   ]
  },
  {
-  "seq": 4,
+  "seq": 5,
   "schema": "EOTObservation@1",
   "id": "c3",
   "at": [
-   12388,
-   23551
+   12622,
+   24168
   ],
   "role": "chapter",
   "inferred": true,
@@ -59,12 +59,12 @@
   "title": "The Pool of Tears",
   "children": [
    {
-    "seq": 5,
+    "seq": 6,
     "schema": "EOTObservation@1",
     "id": "h4",
     "at": [
-     12388,
-     12420
+     12622,
+     12654
     ],
     "role": "heading",
     "inferred": true,
@@ -73,36 +73,36 @@
     "children": []
    },
    {
-    "seq": 27,
+    "seq": 28,
     "schema": "EOTObservation@1",
     "id": "s26",
     "at": [
-     12420,
-     23551
+     12654,
+     24168
     ],
     "role": "section",
     "inferred": true,
     "basis": "a run of prose bounded by inferred scene breaks or by the chapter's own edges",
     "children": [
      {
-      "seq": 28,
+      "seq": 29,
       "schema": "EOTObservation@1",
       "id": "p27",
       "at": [
-       12424,
-       13141
+       12658,
+       13403
       ],
       "role": "paragraph",
       "inferred": true,
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 54,
+        "seq": 55,
         "schema": "EOTObservation@1",
         "id": "s53",
         "at": [
-         12424,
-         12450
+         12658,
+         12688
         ],
         "role": "sentence",
         "inferred": true,
@@ -110,12 +110,12 @@
         "script": "cased",
         "children": [
          {
-          "seq": 241,
+          "seq": 242,
           "schema": "EOTObservation@1",
           "id": "o240",
           "at": [
-           12439,
-           12450
+           12675,
+           12688
           ],
           "role": "proposition",
           "end1": "Curiouser",
@@ -132,12 +132,12 @@
         ]
        },
        {
-        "seq": 55,
+        "seq": 56,
         "schema": "EOTObservation@1",
         "id": "s54",
         "at": [
-         12451,
-         12620
+         12689,
+         12862
         ],
         "role": "sentence",
         "inferred": true,
@@ -145,12 +145,12 @@
         "script": "cased",
         "children": [
          {
-          "seq": 185,
+          "seq": 186,
           "schema": "EOTObservation@1",
           "id": "v184",
           "at": [
-           12451,
-           12620
+           12689,
+           12862
           ],
           "role": "void",
           "operator": "SIG",
@@ -160,12 +160,12 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 167,
+            "seq": 168,
             "schema": "EOTObservation@1",
             "id": "e166",
             "at": [
-             12457,
-             12462
+             12695,
+             12700
             ],
             "role": "entity",
             "referent": "ref:auto:alice",
@@ -181,12 +181,12 @@
             "basis": "name-variant coreference (giver: surfaces/discoverReferents) — the surfaces were clustered by name-variant coreference and this is the being that cluster asserts",
             "children": [
              {
-              "seq": 168,
+              "seq": 169,
               "schema": "EOTObservation@1",
               "id": "d167",
               "at": [
-               12457,
-               12462
+               12695,
+               12700
               ],
               "role": "admission",
               "referent": "ref:auto:alice",
@@ -200,12 +200,12 @@
             ]
            },
            {
-            "seq": 242,
+            "seq": 243,
             "schema": "EOTObservation@1",
             "id": "o241",
             "at": [
-             12472,
-             12489
+             12710,
+             12727
             ],
             "role": "proposition",
             "end1": "she",
@@ -220,12 +220,12 @@
             "children": []
            },
            {
-            "seq": 175,
+            "seq": 176,
             "schema": "EOTObservation@1",
             "id": "e174",
             "at": [
-             12547,
-             12554
+             12785,
+             12792
             ],
             "role": "entity",
             "referent": "ref:auto:english",
@@ -241,12 +241,12 @@
             "basis": "name-variant coreference (giver: surfaces/discoverReferents) — the surfaces were clustered by name-variant coreference and this is the being that cluster asserts",
             "children": [
              {
-              "seq": 176,
+              "seq": 177,
               "schema": "EOTObservation@1",
               "id": "d175",
               "at": [
-               12547,
-               12554
+               12785,
+               12792
               ],
               "role": "admission",
               "referent": "ref:auto:english",
@@ -260,12 +260,12 @@
             ]
            },
            {
-            "seq": 169,
+            "seq": 170,
             "schema": "EOTObservation@1",
             "id": "e168",
             "at": [
-             12562,
-             12565
+             12802,
+             12807
             ],
             "role": "entity",
             "referent": "ref:auto:i’m",
@@ -281,12 +281,12 @@
             "basis": "name-variant coreference (giver: surfaces/discoverReferents) — the surfaces were clustered by name-variant coreference and this is the being that cluster asserts",
             "children": [
              {
-              "seq": 170,
+              "seq": 171,
               "schema": "EOTObservation@1",
               "id": "d169",
               "at": [
-               12562,
-               12565
+               12802,
+               12807
               ],
               "role": "admission",
               "referent": "ref:auto:i’m",
@@ -300,12 +300,12 @@
             ]
            },
            {
-            "seq": 244,
+            "seq": 245,
             "schema": "EOTObservation@1",
             "id": "o242",
             "at": [
-             12575,
-             12620
+             12817,
+             12862
             ],
             "role": "proposition",
             "end1": "now I’m",
@@ -325,12 +325,12 @@
         ]
        },
        {
-        "seq": 56,
+        "seq": 57,
         "schema": "EOTObservation@1",
         "id": "s55",
         "at": [
-         12621,
-         12637
+         12863,
+         12881
         ],
         "role": "sentence",
         "inferred": true,
@@ -338,11 +338,11 @@
         "script": "cased",
         "children": [
          {
-          "seq": 246,
+          "seq": 247,
           "schema": "EOTAbsence@1",
           "at": [
-           12621,
-           12637
+           12863,
+           12881
           ],
           "role": "arrangement",
           "reason": "no_earned_verb_in_this_sentence",
@@ -352,12 +352,12 @@
         ]
        },
        {
-        "seq": 57,
+        "seq": 58,
         "schema": "EOTObservation@1",
         "id": "s56",
         "at": [
-         12639,
-         12748
+         12883,
+         12992
         ],
         "role": "sentence",
         "inferred": true,
@@ -365,12 +365,12 @@
         "script": "cased",
         "children": [
          {
-          "seq": 186,
+          "seq": 187,
           "schema": "EOTObservation@1",
           "id": "v185",
           "at": [
-           12639,
-           12748
+           12883,
+           12992
           ],
           "role": "void",
           "operator": "SIG",
@@ -380,12 +380,12 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 247,
+            "seq": 248,
             "schema": "EOTObservation@1",
             "id": "o243",
             "at": [
-             12660,
-             12676
+             12904,
+             12920
             ],
             "role": "proposition",
             "end1": "she",
@@ -404,12 +404,12 @@
         ]
        },
        {
-        "seq": 58,
+        "seq": 59,
         "schema": "EOTObservation@1",
         "id": "s57",
         "at": [
-         12749,
-         12845
+         12993,
+         13091
         ],
         "role": "sentence",
         "inferred": true,
@@ -417,12 +417,12 @@
         "script": "cased",
         "children": [
          {
-          "seq": 248,
+          "seq": 249,
           "schema": "EOTObservation@1",
           "id": "o244",
           "at": [
-           12816,
-           12837
+           13062,
+           13083
           ],
           "role": "proposition",
           "end1": "your shoes",
@@ -439,12 +439,12 @@
         ]
        },
        {
-        "seq": 59,
+        "seq": 60,
         "schema": "EOTObservation@1",
         "id": "s58",
         "at": [
-         12846,
-         12875
+         13092,
+         13125
         ],
         "role": "sentence",
         "inferred": true,
@@ -452,12 +452,12 @@
         "script": "cased",
         "children": [
          {
-          "seq": 249,
+          "seq": 250,
           "schema": "EOTObservation@1",
           "id": "o245",
           "at": [
-           12856,
-           12875
+           13104,
+           13125
           ],
           "role": "proposition",
           "end1": "I’m",
@@ -472,12 +472,12 @@
         ]
        },
        {
-        "seq": 60,
+        "seq": 61,
         "schema": "EOTObservation@1",
         "id": "s59",
         "at": [
-         12876,
-         13075
+         13126,
+         13333
         ],
         "role": "sentence",
         "inferred": true,
@@ -485,12 +485,12 @@
         "script": "cased",
         "children": [
          {
-          "seq": 187,
+          "seq": 188,
           "schema": "EOTObservation@1",
           "id": "v186",
           "at": [
-           12876,
-           13075
+           13126,
+           13333
           ],
           "role": "void",
           "operator": "SIG",
@@ -503,12 +503,12 @@
         ]
        },
        {
-        "seq": 61,
+        "seq": 62,
         "schema": "EOTObservation@1",
         "id": "s60",
         "at": [
-         13076,
-         13141
+         13334,
+         13403
         ],
         "role": "sentence",
         "inferred": true,
@@ -516,12 +516,12 @@
         "script": "cased",
         "children": [
          {
-          "seq": 188,
+          "seq": 189,
           "schema": "EOTObservation@1",
           "id": "v187",
           "at": [
-           13076,
-           13141
+           13334,
+           13403
           ],
           "role": "void",
           "operator": "SIG",
@@ -531,23 +531,23 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 251,
+            "seq": 252,
             "schema": "EOTAbsence@1",
             "at": [
-             13076,
-             13141
+             13334,
+             13403
             ],
             "role": "arrangement",
             "reason": "gate_refused_no_two_ends",
             "detail": "a verb this reading earned occurs here, but extractRelations requires BOTH a subject group and an object group (S90: `if (!subject || !object) continue`) — an exclamation, a bare predicate adjective, or an intransitive clause satisfies neither, and that is a property of the gate, not of the material",
             "children": [
              {
-              "seq": 171,
+              "seq": 172,
               "schema": "EOTObservation@1",
               "id": "e170",
               "at": [
-               13088,
-               13092
+               13346,
+               13352
               ],
               "role": "entity",
               "referent": "ref:auto:i’ll",
@@ -563,12 +563,12 @@
               "basis": "name-variant coreference (giver: surfaces/discoverReferents) — the surfaces were clustered by name-variant coreference and this is the being that cluster asserts",
               "children": [
                {
-                "seq": 172,
+                "seq": 173,
                 "schema": "EOTObservation@1",
                 "id": "d171",
                 "at": [
-                 13088,
-                 13092
+                 13346,
+                 13352
                 ],
                 "role": "admission",
                 "referent": "ref:auto:i’ll",
@@ -590,24 +590,24 @@
       ]
      },
      {
-      "seq": 29,
+      "seq": 30,
       "schema": "EOTObservation@1",
       "id": "p28",
       "at": [
-       13145,
-       13352
+       13407,
+       13624
       ],
       "role": "paragraph",
       "inferred": true,
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 62,
+        "seq": 63,
         "schema": "EOTObservation@1",
         "id": "s61",
         "at": [
-         13145,
-         13205
+         13407,
+         13467
         ],
         "role": "sentence",
         "inferred": true,
@@ -615,12 +615,12 @@
         "script": "cased",
         "children": [
          {
-          "seq": 189,
+          "seq": 190,
           "schema": "EOTObservation@1",
           "id": "v188",
           "at": [
-           13145,
-           13205
+           13407,
+           13467
           ],
           "role": "void",
           "operator": "SIG",
@@ -630,12 +630,12 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 252,
+            "seq": 253,
             "schema": "EOTObservation@1",
             "id": "o246",
             "at": [
-             13158,
-             13204
+             13420,
+             13466
             ],
             "role": "proposition",
             "end1": "she",
@@ -654,12 +654,12 @@
         ]
        },
        {
-        "seq": 63,
+        "seq": 64,
         "schema": "EOTObservation@1",
         "id": "s62",
         "at": [
-         13206,
-         13314
+         13468,
+         13586
         ],
         "role": "sentence",
         "inferred": true,
@@ -667,12 +667,12 @@
         "script": "cased",
         "children": [
          {
-          "seq": 190,
+          "seq": 191,
           "schema": "EOTObservation@1",
           "id": "v189",
           "at": [
-           13206,
-           13314
+           13468,
+           13586
           ],
           "role": "void",
           "operator": "SIG",
@@ -682,12 +682,12 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 253,
+            "seq": 254,
             "schema": "EOTObservation@1",
             "id": "o247",
             "at": [
-             13224,
-             13235
+             13488,
+             13499
             ],
             "role": "proposition",
             "end1": "must go",
@@ -706,40 +706,12 @@
         ]
        },
        {
-        "seq": 64,
+        "seq": 65,
         "schema": "EOTObservation@1",
         "id": "s63",
         "at": [
-         13315,
-         13352
-        ],
-        "role": "sentence",
-        "inferred": true,
-        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
-        "script": "cased",
-        "children": []
-       }
-      ]
-     },
-     {
-      "seq": 30,
-      "schema": "EOTObservation@1",
-      "id": "p29",
-      "at": [
-       13361,
-       13445
-      ],
-      "role": "paragraph",
-      "inferred": true,
-      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
-      "children": [
-       {
-        "seq": 65,
-        "schema": "EOTObservation@1",
-        "id": "s64",
-        "at": [
-         13361,
-         13445
+         13587,
+         13624
         ],
         "role": "sentence",
         "inferred": true,
@@ -752,10 +724,10 @@
      {
       "seq": 31,
       "schema": "EOTObservation@1",
-      "id": "p30",
+      "id": "p29",
       "at": [
-       13449,
-       13485
+       13633,
+       13721
       ],
       "role": "paragraph",
       "inferred": true,
@@ -764,10 +736,38 @@
        {
         "seq": 66,
         "schema": "EOTObservation@1",
+        "id": "s64",
+        "at": [
+         13633,
+         13721
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": []
+       }
+      ]
+     },
+     {
+      "seq": 32,
+      "schema": "EOTObservation@1",
+      "id": "p30",
+      "at": [
+       13725,
+       13765
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "children": [
+       {
+        "seq": 67,
+        "schema": "EOTObservation@1",
         "id": "s65",
         "at": [
-         13449,
-         13485
+         13725,
+         13765
         ],
         "role": "sentence",
         "inferred": true,
@@ -775,11 +775,11 @@
         "script": "cased",
         "children": [
          {
-          "seq": 257,
+          "seq": 258,
           "schema": "EOTAbsence@1",
           "at": [
-           13449,
-           13485
+           13725,
+           13765
           ],
           "role": "arrangement",
           "reason": "gate_refused_no_two_ends",
@@ -791,24 +791,24 @@
       ]
      },
      {
-      "seq": 32,
+      "seq": 33,
       "schema": "EOTObservation@1",
       "id": "p31",
       "at": [
-       13489,
-       13674
+       13769,
+       13954
       ],
       "role": "paragraph",
       "inferred": true,
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 67,
+        "seq": 68,
         "schema": "EOTObservation@1",
         "id": "s66",
         "at": [
-         13489,
-         13674
+         13769,
+         13954
         ],
         "role": "sentence",
         "inferred": true,
@@ -816,12 +816,12 @@
         "script": "cased",
         "children": [
          {
-          "seq": 191,
+          "seq": 192,
           "schema": "EOTObservation@1",
           "id": "v190",
           "at": [
-           13489,
-           13674
+           13769,
+           13954
           ],
           "role": "void",
           "operator": "SIG",
@@ -831,12 +831,12 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 258,
+            "seq": 259,
             "schema": "EOTObservation@1",
             "id": "o248",
             "at": [
-             13562,
-             13590
+             13842,
+             13870
             ],
             "role": "proposition",
             "end1": "she",
@@ -851,12 +851,12 @@
             "children": []
            },
            {
-            "seq": 259,
+            "seq": 260,
             "schema": "EOTObservation@1",
             "id": "o249",
             "at": [
-             13643,
-             13673
+             13923,
+             13953
             ],
             "role": "proposition",
             "end1": "golden key",
@@ -877,24 +877,24 @@
       ]
      },
      {
-      "seq": 33,
+      "seq": 34,
       "schema": "EOTObservation@1",
       "id": "p32",
       "at": [
-       13678,
-       13878
+       13958,
+       14158
       ],
       "role": "paragraph",
       "inferred": true,
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 68,
+        "seq": 69,
         "schema": "EOTObservation@1",
         "id": "s67",
         "at": [
-         13678,
-         13689
+         13958,
+         13969
         ],
         "role": "sentence",
         "inferred": true,
@@ -902,11 +902,11 @@
         "script": "cased",
         "children": [
          {
-          "seq": 261,
+          "seq": 262,
           "schema": "EOTAbsence@1",
           "at": [
-           13678,
-           13689
+           13958,
+           13969
           ],
           "role": "arrangement",
           "reason": "no_earned_verb_in_this_sentence",
@@ -916,12 +916,12 @@
         ]
        },
        {
-        "seq": 69,
+        "seq": 70,
         "schema": "EOTObservation@1",
         "id": "s68",
         "at": [
-         13690,
-         13878
+         13970,
+         14158
         ],
         "role": "sentence",
         "inferred": true,
@@ -929,12 +929,12 @@
         "script": "cased",
         "children": [
          {
-          "seq": 192,
+          "seq": 193,
           "schema": "EOTObservation@1",
           "id": "v191",
           "at": [
-           13690,
-           13878
+           13970,
+           14158
           ],
           "role": "void",
           "operator": "SIG",
@@ -944,12 +944,12 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 262,
+            "seq": 263,
             "schema": "EOTObservation@1",
             "id": "o250",
             "at": [
-             13697,
-             13720
+             13977,
+             14000
             ],
             "role": "proposition",
             "end1": "It",
@@ -963,12 +963,12 @@
             "settledAs": "verb",
             "children": [
              {
-              "seq": 263,
+              "seq": 264,
               "schema": "EOTObservation@1",
               "id": "o251",
               "at": [
-               13718,
-               13720
+               13998,
+               14000
               ],
               "role": "proposition",
               "end1": "It",
@@ -985,12 +985,12 @@
             ]
            },
            {
-            "seq": 265,
+            "seq": 266,
             "schema": "EOTObservation@1",
             "id": "o252",
             "at": [
-             13859,
-             13877
+             14139,
+             14157
             ],
             "role": "proposition",
             "end1": "sat down",
@@ -1011,24 +1011,24 @@
       ]
      },
      {
-      "seq": 34,
+      "seq": 35,
       "schema": "EOTObservation@1",
       "id": "p33",
       "at": [
-       13882,
-       14206
+       14162,
+       14498
       ],
       "role": "paragraph",
       "inferred": true,
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 70,
+        "seq": 71,
         "schema": "EOTObservation@1",
         "id": "s69",
         "at": [
-         13882,
-         14015
+         14162,
+         14305
         ],
         "role": "sentence",
         "inferred": true,
@@ -1036,12 +1036,12 @@
         "script": "cased",
         "children": [
          {
-          "seq": 193,
+          "seq": 194,
           "schema": "EOTObservation@1",
           "id": "v192",
           "at": [
-           13882,
-           14015
+           14162,
+           14305
           ],
           "role": "void",
           "operator": "SIG",
@@ -1051,12 +1051,12 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 266,
+            "seq": 267,
             "schema": "EOTObservation@1",
             "id": "o253",
             "at": [
-             14006,
-             14015
+             14296,
+             14305
             ],
             "role": "proposition",
             "end1": "go on crying",
@@ -1075,12 +1075,12 @@
         ]
        },
        {
-        "seq": 71,
+        "seq": 72,
         "schema": "EOTObservation@1",
         "id": "s70",
         "at": [
-         14016,
-         14047
+         14306,
+         14339
         ],
         "role": "sentence",
         "inferred": true,
@@ -1088,12 +1088,12 @@
         "script": "cased",
         "children": [
          {
-          "seq": 267,
+          "seq": 268,
           "schema": "EOTObservation@1",
           "id": "o254",
           "at": [
-           14042,
-           14047
+           14332,
+           14339
           ],
           "role": "proposition",
           "end1": "I",
@@ -1110,12 +1110,12 @@
         ]
        },
        {
-        "seq": 72,
+        "seq": 73,
         "schema": "EOTObservation@1",
         "id": "s71",
         "at": [
-         14048,
-         14206
+         14340,
+         14498
         ],
         "role": "sentence",
         "inferred": true,
@@ -1123,12 +1123,12 @@
         "script": "cased",
         "children": [
          {
-          "seq": 194,
+          "seq": 195,
           "schema": "EOTObservation@1",
           "id": "v193",
           "at": [
-           14048,
-           14206
+           14340,
+           14498
           ],
           "role": "void",
           "operator": "SIG",
@@ -1138,12 +1138,12 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 268,
+            "seq": 269,
             "schema": "EOTObservation@1",
             "id": "o255",
             "at": [
-             14061,
-             14076
+             14353,
+             14368
             ],
             "role": "proposition",
             "end1": "she",
@@ -1158,12 +1158,12 @@
             "children": []
            },
            {
-            "seq": 270,
+            "seq": 271,
             "schema": "EOTObservation@1",
             "id": "o256",
             "at": [
-             14122,
-             14148
+             14414,
+             14440
             ],
             "role": "proposition",
             "end1": "there",
@@ -1178,12 +1178,12 @@
             "children": []
            },
            {
-            "seq": 271,
+            "seq": 272,
             "schema": "EOTObservation@1",
             "id": "o257",
             "at": [
-             14178,
-             14205
+             14470,
+             14497
             ],
             "role": "proposition",
             "end1": "inches deep",
@@ -1204,24 +1204,24 @@
       ]
      },
      {
-      "seq": 35,
+      "seq": 36,
       "schema": "EOTObservation@1",
       "id": "p34",
       "at": [
-       14210,
-       14915
+       14502,
+       15221
       ],
       "role": "paragraph",
       "inferred": true,
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 73,
+        "seq": 74,
         "schema": "EOTObservation@1",
         "id": "s72",
         "at": [
-         14210,
-         14332
+         14502,
+         14624
         ],
         "role": "sentence",
         "inferred": true,
@@ -1229,12 +1229,12 @@
         "script": "cased",
         "children": [
          {
-          "seq": 195,
+          "seq": 196,
           "schema": "EOTObservation@1",
           "id": "v194",
           "at": [
-           14210,
-           14332
+           14502,
+           14624
           ],
           "role": "void",
           "operator": "SIG",
@@ -1244,12 +1244,12 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 273,
+            "seq": 274,
             "schema": "EOTObservation@1",
             "id": "o258",
             "at": [
-             14263,
-             14275
+             14555,
+             14567
             ],
             "role": "proposition",
             "end1": "a little pattering of feet",
@@ -1264,12 +1264,12 @@
             "children": []
            },
            {
-            "seq": 275,
+            "seq": 276,
             "schema": "EOTObservation@1",
             "id": "o259",
             "at": [
-             14294,
-             14331
+             14586,
+             14623
             ],
             "role": "proposition",
             "end1": "she",
@@ -1280,12 +1280,12 @@
             "settledAs": null,
             "children": [
              {
-              "seq": 276,
+              "seq": 277,
               "schema": "EOTObservation@1",
               "id": "o260",
               "at": [
-               14325,
-               14331
+               14617,
+               14623
               ],
               "role": "proposition",
               "end1": "she",
@@ -1306,12 +1306,12 @@
         ]
        },
        {
-        "seq": 74,
+        "seq": 75,
         "schema": "EOTObservation@1",
         "id": "s73",
         "at": [
-         14333,
-         14543
+         14625,
+         14837
         ],
         "role": "sentence",
         "inferred": true,
@@ -1319,12 +1319,12 @@
         "script": "cased",
         "children": [
          {
-          "seq": 196,
+          "seq": 197,
           "schema": "EOTObservation@1",
           "id": "v195",
           "at": [
-           14333,
-           14543
+           14625,
+           14837
           ],
           "role": "void",
           "operator": "SIG",
@@ -1334,23 +1334,23 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 277,
+            "seq": 278,
             "schema": "EOTAbsence@1",
             "at": [
-             14333,
-             14543
+             14625,
+             14837
             ],
             "role": "arrangement",
             "reason": "gate_refused_no_two_ends",
             "detail": "a verb this reading earned occurs here, but extractRelations requires BOTH a subject group and an object group (S90: `if (!subject || !object) continue`) — an exclamation, a bare predicate adjective, or an intransitive clause satisfies neither, and that is a property of the gate, not of the material",
             "children": [
              {
-              "seq": 183,
+              "seq": 184,
               "schema": "EOTObservation@1",
               "id": "e182",
               "at": [
-               14351,
-               14357
+               14643,
+               14649
               ],
               "role": "entity",
               "referent": "ref:auto:rabbit",
@@ -1366,12 +1366,12 @@
               "basis": "name-variant coreference (giver: surfaces/discoverReferents) — the surfaces were clustered by name-variant coreference and this is the being that cluster asserts",
               "children": [
                {
-                "seq": 184,
+                "seq": 185,
                 "schema": "EOTObservation@1",
                 "id": "d183",
                 "at": [
-                 14351,
-                 14357
+                 14643,
+                 14649
                 ],
                 "role": "admission",
                 "referent": "ref:auto:rabbit",
@@ -1391,39 +1391,12 @@
         ]
        },
        {
-        "seq": 75,
+        "seq": 76,
         "schema": "EOTObservation@1",
         "id": "s74",
         "at": [
-         14544,
-         14570
-        ],
-        "role": "sentence",
-        "inferred": true,
-        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
-        "script": "cased",
-        "children": [
-         {
-          "seq": 278,
-          "schema": "EOTAbsence@1",
-          "at": [
-           14544,
-           14570
-          ],
-          "role": "arrangement",
-          "reason": "gate_refused_no_two_ends",
-          "detail": "a verb this reading earned occurs here, but extractRelations requires BOTH a subject group and an object group (S90: `if (!subject || !object) continue`) — an exclamation, a bare predicate adjective, or an intransitive clause satisfies neither, and that is a property of the gate, not of the material",
-          "children": []
-         }
-        ]
-       },
-       {
-        "seq": 76,
-        "schema": "EOTObservation@1",
-        "id": "s75",
-        "at": [
-         14571,
-         14574
+         14838,
+         14864
         ],
         "role": "sentence",
         "inferred": true,
@@ -1434,8 +1407,35 @@
           "seq": 279,
           "schema": "EOTAbsence@1",
           "at": [
-           14571,
-           14574
+           14838,
+           14864
+          ],
+          "role": "arrangement",
+          "reason": "gate_refused_no_two_ends",
+          "detail": "a verb this reading earned occurs here, but extractRelations requires BOTH a subject group and an object group (S90: `if (!subject || !object) continue`) — an exclamation, a bare predicate adjective, or an intransitive clause satisfies neither, and that is a property of the gate, not of the material",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 77,
+        "schema": "EOTObservation@1",
+        "id": "s75",
+        "at": [
+         14865,
+         14868
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 280,
+          "schema": "EOTAbsence@1",
+          "at": [
+           14865,
+           14868
           ],
           "role": "arrangement",
           "reason": "no_earned_verb_in_this_sentence",
@@ -1445,12 +1445,12 @@
         ]
        },
        {
-        "seq": 77,
+        "seq": 78,
         "schema": "EOTObservation@1",
         "id": "s76",
         "at": [
-         14575,
-         14621
+         14869,
+         14921
         ],
         "role": "sentence",
         "inferred": true,
@@ -1458,12 +1458,12 @@
         "script": "cased",
         "children": [
          {
-          "seq": 197,
+          "seq": 198,
           "schema": "EOTObservation@1",
           "id": "v196",
           "at": [
-           14575,
-           14621
+           14869,
+           14921
           ],
           "role": "void",
           "operator": "SIG",
@@ -1473,12 +1473,12 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 173,
+            "seq": 174,
             "schema": "EOTObservation@1",
             "id": "e172",
             "at": [
-             14598,
-             14602
+             14894,
+             14900
             ],
             "role": "entity",
             "referent": "ref:auto:i’ve",
@@ -1494,12 +1494,12 @@
             "basis": "name-variant coreference (giver: surfaces/discoverReferents) — the surfaces were clustered by name-variant coreference and this is the being that cluster asserts",
             "children": [
              {
-              "seq": 174,
+              "seq": 175,
               "schema": "EOTObservation@1",
               "id": "d173",
               "at": [
-               14598,
-               14602
+               14894,
+               14900
               ],
               "role": "admission",
               "referent": "ref:auto:i’ve",
@@ -1513,12 +1513,12 @@
             ]
            },
            {
-            "seq": 280,
+            "seq": 281,
             "schema": "EOTObservation@1",
             "id": "o261",
             "at": [
-             14608,
-             14621
+             14906,
+             14921
             ],
             "role": "proposition",
             "end1": "I’ve",
@@ -1538,12 +1538,12 @@
         ]
        },
        {
-        "seq": 78,
+        "seq": 79,
         "schema": "EOTObservation@1",
         "id": "s77",
         "at": [
-         14622,
-         14915
+         14922,
+         15221
         ],
         "role": "sentence",
         "inferred": true,
@@ -1551,12 +1551,12 @@
         "script": "cased",
         "children": [
          {
-          "seq": 198,
+          "seq": 199,
           "schema": "EOTObservation@1",
           "id": "v197",
           "at": [
-           14622,
-           14915
+           14922,
+           15221
           ],
           "role": "void",
           "operator": "SIG",
@@ -1566,12 +1566,12 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 281,
+            "seq": 282,
             "schema": "EOTObservation@1",
             "id": "o262",
             "at": [
-             14634,
-             14688
+             14934,
+             14988
             ],
             "role": "proposition",
             "end1": "Alice",
@@ -1586,12 +1586,12 @@
             "settledAs": "verb",
             "children": [
              {
-              "seq": 282,
+              "seq": 283,
               "schema": "EOTObservation@1",
               "id": "o263",
               "at": [
-               14660,
-               14688
+               14960,
+               14988
               ],
               "role": "proposition",
               "end1": "Alice",
@@ -1609,12 +1609,12 @@
             ]
            },
            {
-            "seq": 283,
+            "seq": 284,
             "schema": "EOTObservation@1",
             "id": "o264",
             "at": [
-             14802,
-             14811
+             15108,
+             15117
             ],
             "role": "proposition",
             "end1": "The Rabbit",
@@ -1630,12 +1630,12 @@
             "children": []
            },
            {
-            "seq": 284,
+            "seq": 285,
             "schema": "EOTObservation@1",
             "id": "o265",
             "at": [
-             14847,
-             14854
+             15153,
+             15160
             ],
             "role": "proposition",
             "end1": "kid gloves",
@@ -1656,24 +1656,24 @@
       ]
      },
      {
-      "seq": 36,
+      "seq": 37,
       "schema": "EOTObservation@1",
       "id": "p35",
       "at": [
-       14919,
-       15547
+       15225,
+       15863
       ],
       "role": "paragraph",
       "inferred": true,
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 79,
+        "seq": 80,
         "schema": "EOTObservation@1",
         "id": "s78",
         "at": [
-         14919,
-         15056
+         15225,
+         15364
         ],
         "role": "sentence",
         "inferred": true,
@@ -1681,12 +1681,12 @@
         "script": "cased",
         "children": [
          {
-          "seq": 199,
+          "seq": 200,
           "schema": "EOTObservation@1",
           "id": "v198",
           "at": [
-           14919,
-           15056
+           15225,
+           15364
           ],
           "role": "void",
           "operator": "SIG",
@@ -1696,12 +1696,12 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 287,
+            "seq": 288,
             "schema": "EOTObservation@1",
             "id": "o266",
             "at": [
-             14930,
-             14951
+             15236,
+             15257
             ],
             "role": "proposition",
             "end1": "Alice",
@@ -1717,12 +1717,12 @@
             "children": []
            },
            {
-            "seq": 290,
+            "seq": 291,
             "schema": "EOTObservation@1",
             "id": "o267",
             "at": [
-             14994,
-             15049
+             15300,
+             15357
             ],
             "role": "proposition",
             "end1": "she",
@@ -1741,12 +1741,12 @@
         ]
        },
        {
-        "seq": 80,
+        "seq": 81,
         "schema": "EOTObservation@1",
         "id": "s79",
         "at": [
-         15057,
-         15089
+         15365,
+         15397
         ],
         "role": "sentence",
         "inferred": true,
@@ -1754,12 +1754,12 @@
         "script": "cased",
         "children": [
          {
-          "seq": 292,
+          "seq": 293,
           "schema": "EOTObservation@1",
           "id": "o268",
           "at": [
-           15082,
-           15089
+           15390,
+           15397
           ],
           "role": "proposition",
           "end1": "How queer everything",
@@ -1776,12 +1776,12 @@
         ]
        },
        {
-        "seq": 81,
+        "seq": 82,
         "schema": "EOTObservation@1",
         "id": "s80",
         "at": [
-         15090,
-         15133
+         15398,
+         15441
         ],
         "role": "sentence",
         "inferred": true,
@@ -1789,12 +1789,12 @@
         "script": "cased",
         "children": [
          {
-          "seq": 293,
+          "seq": 294,
           "schema": "EOTObservation@1",
           "id": "o269",
           "at": [
-           15116,
-           15132
+           15424,
+           15440
           ],
           "role": "proposition",
           "end1": "yesterday things",
@@ -1811,12 +1811,12 @@
         ]
        },
        {
-        "seq": 82,
+        "seq": 83,
         "schema": "EOTObservation@1",
         "id": "s81",
         "at": [
-         15135,
-         15178
+         15443,
+         15488
         ],
         "role": "sentence",
         "inferred": true,
@@ -1824,12 +1824,12 @@
         "script": "cased",
         "children": [
          {
-          "seq": 294,
+          "seq": 295,
           "schema": "EOTObservation@1",
           "id": "o270",
           "at": [
-           15157,
-           15178
+           15467,
+           15488
           ],
           "role": "proposition",
           "end1": "I’ve",
@@ -1844,12 +1844,12 @@
           "settledAs": "verb",
           "children": [
            {
-            "seq": 295,
+            "seq": 296,
             "schema": "EOTObservation@1",
             "id": "o271",
             "at": [
-             15168,
-             15178
+             15478,
+             15488
             ],
             "role": "proposition",
             "end1": "I’ve",
@@ -1869,12 +1869,12 @@
         ]
        },
        {
-        "seq": 83,
+        "seq": 84,
         "schema": "EOTObservation@1",
         "id": "s82",
         "at": [
-         15179,
-         15236
+         15489,
+         15546
         ],
         "role": "sentence",
         "inferred": true,
@@ -1883,12 +1883,12 @@
         "children": []
        },
        {
-        "seq": 84,
+        "seq": 85,
         "schema": "EOTObservation@1",
         "id": "s83",
         "at": [
-         15237,
-         15295
+         15547,
+         15605
         ],
         "role": "sentence",
         "inferred": true,
@@ -1896,11 +1896,11 @@
         "script": "cased",
         "children": [
          {
-          "seq": 298,
+          "seq": 299,
           "schema": "EOTAbsence@1",
           "at": [
-           15237,
-           15295
+           15547,
+           15605
           ],
           "role": "arrangement",
           "reason": "no_earned_verb_in_this_sentence",
@@ -1910,26 +1910,12 @@
         ]
        },
        {
-        "seq": 85,
+        "seq": 86,
         "schema": "EOTObservation@1",
         "id": "s84",
         "at": [
-         15296,
-         15366
-        ],
-        "role": "sentence",
-        "inferred": true,
-        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
-        "script": "cased",
-        "children": []
-       },
-       {
-        "seq": 86,
-        "schema": "EOTObservation@1",
-        "id": "s85",
-        "at": [
-         15367,
-         15398
+         15606,
+         15678
         ],
         "role": "sentence",
         "inferred": true,
@@ -1940,10 +1926,24 @@
        {
         "seq": 87,
         "schema": "EOTObservation@1",
+        "id": "s85",
+        "at": [
+         15679,
+         15714
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": []
+       },
+       {
+        "seq": 88,
+        "schema": "EOTObservation@1",
         "id": "s86",
         "at": [
-         15399,
-         15547
+         15715,
+         15863
         ],
         "role": "sentence",
         "inferred": true,
@@ -1951,12 +1951,12 @@
         "script": "cased",
         "children": [
          {
-          "seq": 200,
+          "seq": 201,
           "schema": "EOTObservation@1",
           "id": "v199",
           "at": [
-           15399,
-           15547
+           15715,
+           15863
           ],
           "role": "void",
           "operator": "SIG",
@@ -1966,12 +1966,12 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 301,
+            "seq": 302,
             "schema": "EOTObservation@1",
             "id": "o272",
             "at": [
-             15523,
-             15546
+             15839,
+             15862
             ],
             "role": "proposition",
             "end1": "she",
@@ -1992,24 +1992,24 @@
       ]
      },
      {
-      "seq": 37,
+      "seq": 38,
       "schema": "EOTObservation@1",
       "id": "p36",
       "at": [
-       15551,
-       16507
+       15867,
+       16871
       ],
       "role": "paragraph",
       "inferred": true,
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 88,
+        "seq": 89,
         "schema": "EOTObservation@1",
         "id": "s87",
         "at": [
-         15551,
-         15744
+         15867,
+         16076
         ],
         "role": "sentence",
         "inferred": true,
@@ -2017,12 +2017,12 @@
         "script": "cased",
         "children": [
          {
-          "seq": 201,
+          "seq": 202,
           "schema": "EOTObservation@1",
           "id": "v200",
           "at": [
-           15551,
-           15744
+           15867,
+           16076
           ],
           "role": "void",
           "operator": "SIG",
@@ -2032,12 +2032,12 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 302,
+            "seq": 303,
             "schema": "EOTObservation@1",
             "id": "o273",
             "at": [
-             15561,
-             15572
+             15881,
+             15894
             ],
             "role": "proposition",
             "end1": "I’m",
@@ -2051,12 +2051,12 @@
             "children": []
            },
            {
-            "seq": 303,
+            "seq": 304,
             "schema": "EOTObservation@1",
             "id": "o274",
             "at": [
-             15645,
-             15666
+             15973,
+             15994
             ],
             "role": "proposition",
             "end1": "mine",
@@ -2067,12 +2067,12 @@
             "settledAs": null,
             "children": [
              {
-              "seq": 304,
+              "seq": 305,
               "schema": "EOTObservation@1",
               "id": "o275",
               "at": [
-               15651,
-               15666
+               15979,
+               15994
               ],
               "role": "proposition",
               "end1": "mine",
@@ -2089,12 +2089,12 @@
             ]
            },
            {
-            "seq": 177,
+            "seq": 178,
             "schema": "EOTObservation@1",
             "id": "e176",
             "at": [
-             15693,
-             15698
+             16025,
+             16030
             ],
             "role": "entity",
             "referent": "ref:auto:mabel",
@@ -2110,12 +2110,12 @@
             "basis": "name-variant coreference (giver: surfaces/discoverReferents) — the surfaces were clustered by name-variant coreference and this is the being that cluster asserts",
             "children": [
              {
-              "seq": 178,
+              "seq": 179,
               "schema": "EOTObservation@1",
               "id": "d177",
               "at": [
-               15693,
-               15698
+               16025,
+               16030
               ],
               "role": "admission",
               "referent": "ref:auto:mabel",
@@ -2133,56 +2133,12 @@
         ]
        },
        {
-        "seq": 89,
+        "seq": 90,
         "schema": "EOTObservation@1",
         "id": "s88",
         "at": [
-         15745,
-         15775
-        ],
-        "role": "sentence",
-        "inferred": true,
-        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
-        "script": "cased",
-        "children": [
-         {
-          "seq": 202,
-          "schema": "EOTObservation@1",
-          "id": "v201",
-          "at": [
-           15745,
-           15775
-          ],
-          "role": "void",
-          "operator": "SIG",
-          "grain": "Ground",
-          "terrain": "Void",
-          "stance": "Tending",
-          "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
-          "children": [
-           {
-            "seq": 305,
-            "schema": "EOTAbsence@1",
-            "at": [
-             15745,
-             15775
-            ],
-            "role": "arrangement",
-            "reason": "no_earned_verb_in_this_sentence",
-            "detail": "no token in this sentence was nominated by the 46 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
-            "children": []
-           }
-          ]
-         }
-        ]
-       },
-       {
-        "seq": 90,
-        "schema": "EOTObservation@1",
-        "id": "s89",
-        "at": [
-         15776,
-         15848
+         16077,
+         16107
         ],
         "role": "sentence",
         "inferred": true,
@@ -2192,10 +2148,10 @@
          {
           "seq": 203,
           "schema": "EOTObservation@1",
-          "id": "v202",
+          "id": "v201",
           "at": [
-           15776,
-           15848
+           16077,
+           16107
           ],
           "role": "void",
           "operator": "SIG",
@@ -2208,8 +2164,52 @@
             "seq": 306,
             "schema": "EOTAbsence@1",
             "at": [
-             15776,
-             15848
+             16077,
+             16107
+            ],
+            "role": "arrangement",
+            "reason": "no_earned_verb_in_this_sentence",
+            "detail": "no token in this sentence was nominated by the 46 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+            "children": []
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "seq": 91,
+        "schema": "EOTObservation@1",
+        "id": "s89",
+        "at": [
+         16108,
+         16186
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 204,
+          "schema": "EOTObservation@1",
+          "id": "v202",
+          "at": [
+           16108,
+           16186
+          ],
+          "role": "void",
+          "operator": "SIG",
+          "grain": "Ground",
+          "terrain": "Void",
+          "stance": "Tending",
+          "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
+          "children": [
+           {
+            "seq": 307,
+            "schema": "EOTAbsence@1",
+            "at": [
+             16108,
+             16186
             ],
             "role": "arrangement",
             "reason": "gate_refused_no_two_ends",
@@ -2221,12 +2221,12 @@
         ]
        },
        {
-        "seq": 91,
+        "seq": 92,
         "schema": "EOTObservation@1",
         "id": "s90",
         "at": [
-         15849,
-         15898
+         16187,
+         16238
         ],
         "role": "sentence",
         "inferred": true,
@@ -2234,12 +2234,12 @@
         "script": "cased",
         "children": [
          {
-          "seq": 307,
+          "seq": 308,
           "schema": "EOTObservation@1",
           "id": "o276",
           "at": [
-           15858,
-           15897
+           16198,
+           16237
           ],
           "role": "proposition",
           "end1": "I’ll",
@@ -2257,12 +2257,12 @@
         ]
        },
        {
-        "seq": 92,
+        "seq": 93,
         "schema": "EOTObservation@1",
         "id": "s91",
         "at": [
-         15900,
-         16004
+         16240,
+         16346
         ],
         "role": "sentence",
         "inferred": true,
@@ -2270,12 +2270,12 @@
         "script": "cased",
         "children": [
          {
-          "seq": 309,
+          "seq": 310,
           "schema": "EOTObservation@1",
           "id": "o277",
           "at": [
-           15931,
-           15937
+           16271,
+           16277
           ],
           "role": "proposition",
           "end1": "four times five",
@@ -2290,12 +2290,12 @@
           "children": []
          },
          {
-          "seq": 310,
+          "seq": 311,
           "schema": "EOTObservation@1",
           "id": "o278",
           "at": [
-           15961,
-           15969
+           16301,
+           16309
           ],
           "role": "proposition",
           "end1": "times six",
@@ -2312,12 +2312,12 @@
         ]
        },
        {
-        "seq": 93,
+        "seq": 94,
         "schema": "EOTObservation@1",
         "id": "s92",
         "at": [
-         16005,
-         16047
+         16347,
+         16389
         ],
         "role": "sentence",
         "inferred": true,
@@ -2325,11 +2325,11 @@
         "script": "cased",
         "children": [
          {
-          "seq": 311,
+          "seq": 312,
           "schema": "EOTAbsence@1",
           "at": [
-           16005,
-           16047
+           16347,
+           16389
           ],
           "role": "arrangement",
           "reason": "no_earned_verb_in_this_sentence",
@@ -2339,12 +2339,12 @@
         ]
        },
        {
-        "seq": 94,
+        "seq": 95,
         "schema": "EOTObservation@1",
         "id": "s93",
         "at": [
-         16048,
-         16120
+         16390,
+         16466
         ],
         "role": "sentence",
         "inferred": true,
@@ -2352,12 +2352,12 @@
         "script": "cased",
         "children": [
          {
-          "seq": 312,
+          "seq": 313,
           "schema": "EOTObservation@1",
           "id": "o279",
           "at": [
-           16110,
-           16119
+           16456,
+           16465
           ],
           "role": "proposition",
           "end1": "let’s",
@@ -2374,12 +2374,12 @@
         ]
        },
        {
-        "seq": 95,
+        "seq": 96,
         "schema": "EOTObservation@1",
         "id": "s94",
         "at": [
-         16121,
-         16233
+         16467,
+         16585
         ],
         "role": "sentence",
         "inferred": true,
@@ -2387,12 +2387,12 @@
         "script": "cased",
         "children": [
          {
-          "seq": 435,
+          "seq": 436,
           "schema": "EOTObservation@1",
           "id": "x342",
           "at": [
-           16121,
-           16233
+           16467,
+           16585
           ],
           "role": "expectation",
           "expectation": "expectation:identity:london:the_capital",
@@ -2408,12 +2408,12 @@
           "basis": "identity evidence in this sentence (text_copular_identity); canonicalizationFloor 2, declared",
           "children": [
            {
-            "seq": 436,
+            "seq": 437,
             "schema": "EOTObservation@1",
             "id": "x343",
             "at": [
-             16121,
-             16233
+             16467,
+             16585
             ],
             "role": "expectation",
             "expectation": "expectation:identity:paris:the_capital",
@@ -2434,12 +2434,12 @@
         ]
        },
        {
-        "seq": 96,
+        "seq": 97,
         "schema": "EOTObservation@1",
         "id": "s95",
         "at": [
-         16234,
-         16270
+         16586,
+         16622
         ],
         "role": "sentence",
         "inferred": true,
@@ -2447,12 +2447,12 @@
         "script": "cased",
         "children": [
          {
-          "seq": 314,
+          "seq": 315,
           "schema": "EOTObservation@1",
           "id": "o280",
           "at": [
-           16252,
-           16270
+           16604,
+           16622
           ],
           "role": "proposition",
           "end1": "I",
@@ -2470,12 +2470,12 @@
         ]
        },
        {
-        "seq": 97,
+        "seq": 98,
         "schema": "EOTObservation@1",
         "id": "s96",
         "at": [
-         16271,
-         16507
+         16623,
+         16871
         ],
         "role": "sentence",
         "inferred": true,
@@ -2483,12 +2483,12 @@
         "script": "cased",
         "children": [
          {
-          "seq": 204,
+          "seq": 205,
           "schema": "EOTObservation@1",
           "id": "v203",
           "at": [
-           16271,
-           16507
+           16623,
+           16871
           ],
           "role": "void",
           "operator": "SIG",
@@ -2498,12 +2498,12 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 315,
+            "seq": 316,
             "schema": "EOTObservation@1",
             "id": "o281",
             "at": [
-             16441,
-             16448
+             16803,
+             16810
             ],
             "role": "proposition",
             "end1": "her voice sounded hoarse",
@@ -2518,12 +2518,12 @@
             "children": []
            },
            {
-            "seq": 316,
+            "seq": 317,
             "schema": "EOTObservation@1",
             "id": "o282",
             "at": [
-             16478,
-             16507
+             16840,
+             16871
             ],
             "role": "proposition",
             "end1": "the words",
@@ -2544,24 +2544,24 @@
       ]
      },
      {
-      "seq": 38,
+      "seq": 39,
       "schema": "EOTObservation@1",
       "id": "p37",
       "at": [
-       16511,
-       16633
+       16875,
+       16999
       ],
       "role": "paragraph",
       "inferred": true,
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 98,
+        "seq": 99,
         "schema": "EOTObservation@1",
         "id": "s97",
         "at": [
-         16511,
-         16633
+         16875,
+         16999
         ],
         "role": "sentence",
         "inferred": true,
@@ -2572,24 +2572,24 @@
       ]
      },
      {
-      "seq": 39,
+      "seq": 40,
       "schema": "EOTObservation@1",
       "id": "p38",
       "at": [
-       16637,
-       16766
+       17003,
+       17136
       ],
       "role": "paragraph",
       "inferred": true,
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 99,
+        "seq": 100,
         "schema": "EOTObservation@1",
         "id": "s98",
         "at": [
-         16637,
-         16766
+         17003,
+         17136
         ],
         "role": "sentence",
         "inferred": true,
@@ -2597,12 +2597,12 @@
         "script": "cased",
         "children": [
          {
-          "seq": 205,
+          "seq": 206,
           "schema": "EOTObservation@1",
           "id": "v204",
           "at": [
-           16637,
-           16766
+           17003,
+           17136
           ],
           "role": "void",
           "operator": "SIG",
@@ -2612,12 +2612,12 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 320,
+            "seq": 321,
             "schema": "EOTObservation@1",
             "id": "o283",
             "at": [
-             16740,
-             16766
+             17108,
+             17136
             ],
             "role": "proposition",
             "end1": "little fishes",
@@ -2638,24 +2638,24 @@
       ]
      },
      {
-      "seq": 40,
+      "seq": 41,
       "schema": "EOTObservation@1",
       "id": "p39",
       "at": [
-       16772,
-       17530
+       17142,
+       17938
       ],
       "role": "paragraph",
       "inferred": true,
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 100,
+        "seq": 101,
         "schema": "EOTObservation@1",
         "id": "s99",
         "at": [
-         16772,
-         17020
+         17142,
+         17398
         ],
         "role": "sentence",
         "inferred": true,
@@ -2663,12 +2663,12 @@
         "script": "cased",
         "children": [
          {
-          "seq": 206,
+          "seq": 207,
           "schema": "EOTObservation@1",
           "id": "v205",
           "at": [
-           16772,
-           17020
+           17142,
+           17398
           ],
           "role": "void",
           "operator": "SIG",
@@ -2678,12 +2678,12 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 321,
+            "seq": 322,
             "schema": "EOTObservation@1",
             "id": "o284",
             "at": [
-             16782,
-             16811
+             17156,
+             17185
             ],
             "role": "proposition",
             "end1": "I’m",
@@ -2696,12 +2696,12 @@
             "children": []
            },
            {
-            "seq": 324,
+            "seq": 325,
             "schema": "EOTObservation@1",
             "id": "o285",
             "at": [
-             16908,
-             16911
+             17286,
+             17289
             ],
             "role": "proposition",
             "end1": "be Mabel",
@@ -2717,12 +2717,12 @@
             "children": []
            },
            {
-            "seq": 325,
+            "seq": 326,
             "schema": "EOTObservation@1",
             "id": "o286",
             "at": [
-             16941,
-             16971
+             17319,
+             17349
             ],
             "role": "proposition",
             "end1": "go",
@@ -2736,12 +2736,12 @@
             "settledAs": "conjunction",
             "children": [
              {
-              "seq": 326,
+              "seq": 327,
               "schema": "EOTObservation@1",
               "id": "o287",
               "at": [
-               16949,
-               16971
+               17327,
+               17349
               ],
               "role": "proposition",
               "end1": "go",
@@ -2762,12 +2762,12 @@
         ]
        },
        {
-        "seq": 101,
+        "seq": 102,
         "schema": "EOTObservation@1",
         "id": "s100",
         "at": [
-         17021,
-         17051
+         17399,
+         17429
         ],
         "role": "sentence",
         "inferred": true,
@@ -2775,11 +2775,11 @@
         "script": "cased",
         "children": [
          {
-          "seq": 327,
+          "seq": 328,
           "schema": "EOTAbsence@1",
           "at": [
-           17021,
-           17051
+           17399,
+           17429
           ],
           "role": "arrangement",
           "reason": "no_earned_verb_in_this_sentence",
@@ -2789,12 +2789,12 @@
         ]
        },
        {
-        "seq": 102,
+        "seq": 103,
         "schema": "EOTObservation@1",
         "id": "s101",
         "at": [
-         17052,
-         17122
+         17430,
+         17506
         ],
         "role": "sentence",
         "inferred": true,
@@ -2802,12 +2802,12 @@
         "script": "cased",
         "children": [
          {
-          "seq": 207,
+          "seq": 208,
           "schema": "EOTObservation@1",
           "id": "v206",
           "at": [
-           17052,
-           17122
+           17430,
+           17506
           ],
           "role": "void",
           "operator": "SIG",
@@ -2817,12 +2817,12 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 328,
+            "seq": 329,
             "schema": "EOTObservation@1",
             "id": "o288",
             "at": [
-             17067,
-             17086
+             17447,
+             17466
             ],
             "role": "proposition",
             "end1": "I’ve",
@@ -2838,12 +2838,12 @@
             "children": []
            },
            {
-            "seq": 329,
+            "seq": 330,
             "schema": "EOTObservation@1",
             "id": "o289",
             "at": [
-             17112,
-             17122
+             17496,
+             17506
             ],
             "role": "proposition",
             "end1": "I’ll",
@@ -2863,12 +2863,12 @@
         ]
        },
        {
-        "seq": 103,
+        "seq": 104,
         "schema": "EOTObservation@1",
         "id": "s102",
         "at": [
-         17123,
-         17204
+         17507,
+         17594
         ],
         "role": "sentence",
         "inferred": true,
@@ -2876,12 +2876,12 @@
         "script": "cased",
         "children": [
          {
-          "seq": 208,
+          "seq": 209,
           "schema": "EOTObservation@1",
           "id": "v207",
           "at": [
-           17123,
-           17204
+           17507,
+           17594
           ],
           "role": "void",
           "operator": "SIG",
@@ -2891,12 +2891,12 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 330,
+            "seq": 331,
             "schema": "EOTObservation@1",
             "id": "o290",
             "at": [
-             17175,
-             17196
+             17561,
+             17584
             ],
             "role": "proposition",
             "end1": "their heads down",
@@ -2915,12 +2915,12 @@
         ]
        },
        {
-        "seq": 104,
+        "seq": 105,
         "schema": "EOTObservation@1",
         "id": "s103",
         "at": [
-         17206,
-         17250
+         17596,
+         17642
         ],
         "role": "sentence",
         "inferred": true,
@@ -2928,12 +2928,12 @@
         "script": "cased",
         "children": [
          {
-          "seq": 331,
+          "seq": 332,
           "schema": "EOTObservation@1",
           "id": "o291",
           "at": [
-           17231,
-           17250
+           17621,
+           17642
           ],
           "role": "proposition",
           "end1": "look up",
@@ -2950,12 +2950,12 @@
         ]
        },
        {
-        "seq": 105,
+        "seq": 106,
         "schema": "EOTObservation@1",
         "id": "s104",
         "at": [
-         17251,
-         17392
+         17643,
+         17796
         ],
         "role": "sentence",
         "inferred": true,
@@ -2963,12 +2963,12 @@
         "script": "cased",
         "children": [
          {
-          "seq": 332,
+          "seq": 333,
           "schema": "EOTObservation@1",
           "id": "o292",
           "at": [
-           17321,
-           17331
+           17715,
+           17725
           ],
           "role": "proposition",
           "end1": "I’ll",
@@ -2986,12 +2986,12 @@
         ]
        },
        {
-        "seq": 106,
+        "seq": 107,
         "schema": "EOTObservation@1",
         "id": "s105",
         "at": [
-         17393,
-         17482
+         17797,
+         17888
         ],
         "role": "sentence",
         "inferred": true,
@@ -2999,12 +2999,12 @@
         "script": "cased",
         "children": [
          {
-          "seq": 209,
+          "seq": 210,
           "schema": "EOTObservation@1",
           "id": "v208",
           "at": [
-           17393,
-           17482
+           17797,
+           17888
           ],
           "role": "void",
           "operator": "SIG",
@@ -3014,11 +3014,11 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 334,
+            "seq": 335,
             "schema": "EOTAbsence@1",
             "at": [
-             17393,
-             17482
+             17797,
+             17888
             ],
             "role": "arrangement",
             "reason": "no_earned_verb_in_this_sentence",
@@ -3030,12 +3030,12 @@
         ]
        },
        {
-        "seq": 107,
+        "seq": 108,
         "schema": "EOTObservation@1",
         "id": "s106",
         "at": [
-         17483,
-         17530
+         17889,
+         17938
         ],
         "role": "sentence",
         "inferred": true,
@@ -3043,11 +3043,11 @@
         "script": "cased",
         "children": [
          {
-          "seq": 335,
+          "seq": 336,
           "schema": "EOTAbsence@1",
           "at": [
-           17483,
-           17530
+           17889,
+           17938
           ],
           "role": "arrangement",
           "reason": "no_earned_verb_in_this_sentence",
@@ -3059,24 +3059,24 @@
       ]
      },
      {
-      "seq": 41,
+      "seq": 42,
       "schema": "EOTObservation@1",
       "id": "p40",
       "at": [
-       17534,
-       18097
+       17942,
+       18515
       ],
       "role": "paragraph",
       "inferred": true,
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 108,
+        "seq": 109,
         "schema": "EOTObservation@1",
         "id": "s107",
         "at": [
-         17534,
-         17694
+         17942,
+         18104
         ],
         "role": "sentence",
         "inferred": true,
@@ -3084,12 +3084,12 @@
         "script": "cased",
         "children": [
          {
-          "seq": 210,
+          "seq": 211,
           "schema": "EOTObservation@1",
           "id": "v209",
           "at": [
-           17534,
-           17694
+           17942,
+           18104
           ],
           "role": "void",
           "operator": "SIG",
@@ -3099,12 +3099,12 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 336,
+            "seq": 337,
             "schema": "EOTObservation@1",
             "id": "o293",
             "at": [
-             17562,
-             17579
+             17970,
+             17987
             ],
             "role": "proposition",
             "end1": "she",
@@ -3119,12 +3119,12 @@
             "children": []
            },
            {
-            "seq": 337,
+            "seq": 338,
             "schema": "EOTObservation@1",
             "id": "o294",
             "at": [
-             17686,
-             17693
+             18096,
+             18103
             ],
             "role": "proposition",
             "end1": "she",
@@ -3143,12 +3143,12 @@
         ]
        },
        {
-        "seq": 109,
+        "seq": 110,
         "schema": "EOTObservation@1",
         "id": "s108",
         "at": [
-         17695,
-         17724
+         18105,
+         18138
         ],
         "role": "sentence",
         "inferred": true,
@@ -3156,11 +3156,11 @@
         "script": "cased",
         "children": [
          {
-          "seq": 338,
+          "seq": 339,
           "schema": "EOTAbsence@1",
           "at": [
-           17695,
-           17724
+           18105,
+           18138
           ],
           "role": "arrangement",
           "reason": "no_earned_verb_in_this_sentence",
@@ -3170,12 +3170,12 @@
         ]
        },
        {
-        "seq": 110,
+        "seq": 111,
         "schema": "EOTObservation@1",
         "id": "s109",
         "at": [
-         17725,
-         17737
+         18139,
+         18151
         ],
         "role": "sentence",
         "inferred": true,
@@ -3183,12 +3183,12 @@
         "script": "cased",
         "children": [
          {
-          "seq": 211,
+          "seq": 212,
           "schema": "EOTObservation@1",
           "id": "v210",
           "at": [
-           17725,
-           17737
+           18139,
+           18151
           ],
           "role": "void",
           "operator": "SIG",
@@ -3198,11 +3198,11 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 339,
+            "seq": 340,
             "schema": "EOTAbsence@1",
             "at": [
-             17725,
-             17737
+             18139,
+             18151
             ],
             "role": "arrangement",
             "reason": "gate_refused_no_two_ends",
@@ -3214,12 +3214,12 @@
         ]
        },
        {
-        "seq": 111,
+        "seq": 112,
         "schema": "EOTObservation@1",
         "id": "s110",
         "at": [
-         17738,
-         17771
+         18152,
+         18189
         ],
         "role": "sentence",
         "inferred": true,
@@ -3227,11 +3227,11 @@
         "script": "cased",
         "children": [
          {
-          "seq": 340,
+          "seq": 341,
           "schema": "EOTAbsence@1",
           "at": [
-           17738,
-           17771
+           18152,
+           18189
           ],
           "role": "arrangement",
           "reason": "gate_refused_no_two_ends",
@@ -3241,12 +3241,12 @@
         ]
        },
        {
-        "seq": 112,
+        "seq": 113,
         "schema": "EOTObservation@1",
         "id": "s111",
         "at": [
-         17772,
-         18097
+         18190,
+         18515
         ],
         "role": "sentence",
         "inferred": true,
@@ -3254,12 +3254,12 @@
         "script": "cased",
         "children": [
          {
-          "seq": 341,
+          "seq": 342,
           "schema": "EOTObservation@1",
           "id": "o295",
           "at": [
-           17828,
-           17830
+           18246,
+           18248
           ],
           "role": "proposition",
           "end1": "measure herself",
@@ -3274,12 +3274,12 @@
           "children": []
          },
          {
-          "seq": 342,
+          "seq": 343,
           "schema": "EOTObservation@1",
           "id": "o296",
           "at": [
-           17871,
-           17876
+           18289,
+           18294
           ],
           "role": "proposition",
           "end1": "she",
@@ -3295,12 +3295,12 @@
           "children": []
          },
          {
-          "seq": 343,
+          "seq": 344,
           "schema": "EOTObservation@1",
           "id": "o297",
           "at": [
-           17887,
-           17910
+           18305,
+           18328
           ],
           "role": "proposition",
           "end1": "she",
@@ -3316,12 +3316,12 @@
           "children": []
          },
          {
-          "seq": 345,
+          "seq": 346,
           "schema": "EOTObservation@1",
           "id": "o298",
           "at": [
-           18037,
-           18047
+           18455,
+           18465
           ],
           "role": "proposition",
           "end1": "she",
@@ -3337,12 +3337,12 @@
           "children": []
          },
          {
-          "seq": 346,
+          "seq": 347,
           "schema": "EOTObservation@1",
           "id": "o299",
           "at": [
-           18057,
-           18096
+           18475,
+           18514
           ],
           "role": "proposition",
           "end1": "just",
@@ -3361,24 +3361,24 @@
       ]
      },
      {
-      "seq": 42,
+      "seq": 43,
       "schema": "EOTObservation@1",
       "id": "p41",
       "at": [
-       18101,
-       18578
+       18519,
+       19014
       ],
       "role": "paragraph",
       "inferred": true,
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 113,
+        "seq": 114,
         "schema": "EOTObservation@1",
         "id": "s112",
         "at": [
-         18101,
-         18130
+         18519,
+         18552
         ],
         "role": "sentence",
         "inferred": true,
@@ -3386,11 +3386,11 @@
         "script": "cased",
         "children": [
          {
-          "seq": 347,
+          "seq": 348,
           "schema": "EOTAbsence@1",
           "at": [
-           18101,
-           18130
+           18519,
+           18552
           ],
           "role": "arrangement",
           "reason": "gate_refused_no_two_ends",
@@ -3400,12 +3400,12 @@
         ]
        },
        {
-        "seq": 114,
+        "seq": 115,
         "schema": "EOTObservation@1",
         "id": "s113",
         "at": [
-         18131,
-         18265
+         18553,
+         18691
         ],
         "role": "sentence",
         "inferred": true,
@@ -3413,12 +3413,12 @@
         "script": "cased",
         "children": [
          {
-          "seq": 349,
+          "seq": 350,
           "schema": "EOTObservation@1",
           "id": "o300",
           "at": [
-           18228,
-           18237
+           18650,
+           18659
           ],
           "role": "proposition",
           "end1": "herself still",
@@ -3435,12 +3435,12 @@
         ]
        },
        {
-        "seq": 115,
+        "seq": 116,
         "schema": "EOTObservation@1",
         "id": "s114",
         "at": [
-         18266,
-         18329
+         18692,
+         18755
         ],
         "role": "sentence",
         "inferred": true,
@@ -3448,12 +3448,12 @@
         "script": "cased",
         "children": [
          {
-          "seq": 212,
+          "seq": 213,
           "schema": "EOTObservation@1",
           "id": "v211",
           "at": [
-           18266,
-           18329
+           18692,
+           18755
           ],
           "role": "void",
           "operator": "SIG",
@@ -3463,11 +3463,11 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 351,
+            "seq": 352,
             "schema": "EOTAbsence@1",
             "at": [
-             18266,
-             18329
+             18692,
+             18755
             ],
             "role": "arrangement",
             "reason": "gate_refused_no_two_ends",
@@ -3479,12 +3479,12 @@
         ]
        },
        {
-        "seq": 116,
+        "seq": 117,
         "schema": "EOTObservation@1",
         "id": "s115",
         "at": [
-         18330,
-         18537
+         18756,
+         18969
         ],
         "role": "sentence",
         "inferred": true,
@@ -3492,12 +3492,12 @@
         "script": "cased",
         "children": [
          {
-          "seq": 352,
+          "seq": 353,
           "schema": "EOTObservation@1",
           "id": "o301",
           "at": [
-           18350,
-           18360
+           18776,
+           18786
           ],
           "role": "proposition",
           "end1": "little door",
@@ -3512,12 +3512,12 @@
           "children": []
          },
          {
-          "seq": 353,
+          "seq": 354,
           "schema": "EOTObservation@1",
           "id": "o302",
           "at": [
-           18393,
-           18427
+           18819,
+           18853
           ],
           "role": "proposition",
           "end1": "golden key",
@@ -3534,12 +3534,12 @@
         ]
        },
        {
-        "seq": 117,
+        "seq": 118,
         "schema": "EOTObservation@1",
         "id": "s116",
         "at": [
-         18538,
-         18578
+         18970,
+         19014
         ],
         "role": "sentence",
         "inferred": true,
@@ -3547,12 +3547,12 @@
         "script": "cased",
         "children": [
          {
-          "seq": 213,
+          "seq": 214,
           "schema": "EOTObservation@1",
           "id": "v212",
           "at": [
-           18538,
-           18578
+           18970,
+           19014
           ],
           "role": "void",
           "operator": "SIG",
@@ -3562,11 +3562,11 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 355,
+            "seq": 356,
             "schema": "EOTAbsence@1",
             "at": [
-             18538,
-             18578
+             18970,
+             19014
             ],
             "role": "arrangement",
             "reason": "gate_refused_no_two_ends",
@@ -3580,24 +3580,24 @@
       ]
      },
      {
-      "seq": 43,
+      "seq": 44,
       "schema": "EOTObservation@1",
       "id": "p42",
       "at": [
-       18582,
-       19241
+       19018,
+       19681
       ],
       "role": "paragraph",
       "inferred": true,
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 118,
+        "seq": 119,
         "schema": "EOTObservation@1",
         "id": "s117",
         "at": [
-         18582,
-         18655
+         19018,
+         19091
         ],
         "role": "sentence",
         "inferred": true,
@@ -3605,12 +3605,12 @@
         "script": "cased",
         "children": [
          {
-          "seq": 214,
+          "seq": 215,
           "schema": "EOTObservation@1",
           "id": "v213",
           "at": [
-           18582,
-           18655
+           19018,
+           19091
           ],
           "role": "void",
           "operator": "SIG",
@@ -3620,11 +3620,11 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 356,
+            "seq": 357,
             "schema": "EOTAbsence@1",
             "at": [
-             18582,
-             18655
+             19018,
+             19091
             ],
             "role": "arrangement",
             "reason": "gate_refused_no_two_ends",
@@ -3636,12 +3636,12 @@
         ]
        },
        {
-        "seq": 119,
+        "seq": 120,
         "schema": "EOTObservation@1",
         "id": "s118",
         "at": [
-         18656,
-         18693
+         19092,
+         19129
         ],
         "role": "sentence",
         "inferred": true,
@@ -3649,12 +3649,12 @@
         "script": "cased",
         "children": [
          {
-          "seq": 215,
+          "seq": 216,
           "schema": "EOTObservation@1",
           "id": "v214",
           "at": [
-           18656,
-           18693
+           19092,
+           19129
           ],
           "role": "void",
           "operator": "SIG",
@@ -3664,12 +3664,12 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 357,
+            "seq": 358,
             "schema": "EOTObservation@1",
             "id": "o303",
             "at": [
-             18664,
-             18692
+             19100,
+             19128
             ],
             "role": "proposition",
             "end1": "she",
@@ -3683,12 +3683,12 @@
             "settledAs": "verb",
             "children": [
              {
-              "seq": 358,
+              "seq": 359,
               "schema": "EOTObservation@1",
               "id": "o304",
               "at": [
-               18682,
-               18692
+               19118,
+               19128
               ],
               "role": "proposition",
               "end1": "she",
@@ -3709,12 +3709,12 @@
         ]
        },
        {
-        "seq": 120,
+        "seq": 121,
         "schema": "EOTObservation@1",
         "id": "s119",
         "at": [
-         18694,
-         18822
+         19130,
+         19262
         ],
         "role": "sentence",
         "inferred": true,
@@ -3722,12 +3722,12 @@
         "script": "cased",
         "children": [
          {
-          "seq": 216,
+          "seq": 217,
           "schema": "EOTObservation@1",
           "id": "v215",
           "at": [
-           18694,
-           18822
+           19130,
+           19262
           ],
           "role": "void",
           "operator": "SIG",
@@ -3737,12 +3737,12 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 359,
+            "seq": 360,
             "schema": "EOTObservation@1",
             "id": "o305",
             "at": [
-             18727,
-             18754
+             19163,
+             19190
             ],
             "role": "proposition",
             "end1": "she",
@@ -3757,12 +3757,12 @@
             "children": []
            },
            {
-            "seq": 361,
+            "seq": 362,
             "schema": "EOTObservation@1",
             "id": "o306",
             "at": [
-             18792,
-             18799
+             19230,
+             19237
             ],
             "role": "proposition",
             "end1": "go back",
@@ -3781,12 +3781,12 @@
         ]
        },
        {
-        "seq": 121,
+        "seq": 122,
         "schema": "EOTObservation@1",
         "id": "s120",
         "at": [
-         18823,
-         19241
+         19263,
+         19681
         ],
         "role": "sentence",
         "inferred": true,
@@ -3794,12 +3794,12 @@
         "script": "cased",
         "children": [
          {
-          "seq": 217,
+          "seq": 218,
           "schema": "EOTObservation@1",
           "id": "v216",
           "at": [
-           18823,
-           19241
+           19263,
+           19681
           ],
           "role": "void",
           "operator": "SIG",
@@ -3809,12 +3809,12 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 362,
+            "seq": 363,
             "schema": "EOTObservation@1",
             "id": "o307",
             "at": [
-             18863,
-             18871
+             19303,
+             19311
             ],
             "role": "proposition",
             "end1": "seaside once",
@@ -3829,12 +3829,12 @@
             "children": []
            },
            {
-            "seq": 363,
+            "seq": 364,
             "schema": "EOTObservation@1",
             "id": "o308",
             "at": [
-             18886,
-             18911
+             19326,
+             19351
             ],
             "role": "proposition",
             "end1": "and",
@@ -3849,12 +3849,12 @@
             "children": []
            },
            {
-            "seq": 365,
+            "seq": 366,
             "schema": "EOTObservation@1",
             "id": "o309",
             "at": [
-             19035,
-             19062
+             19475,
+             19502
             ],
             "role": "proposition",
             "end1": "children digging",
@@ -3869,12 +3869,12 @@
             "children": []
            },
            {
-            "seq": 367,
+            "seq": 368,
             "schema": "EOTObservation@1",
             "id": "o310",
             "at": [
-             19226,
-             19240
+             19666,
+             19680
             ],
             "role": "proposition",
             "end1": "she",
@@ -3895,24 +3895,24 @@
       ]
      },
      {
-      "seq": 44,
+      "seq": 45,
       "schema": "EOTObservation@1",
       "id": "p43",
       "at": [
-       19245,
-       19497
+       19685,
+       19947
       ],
       "role": "paragraph",
       "inferred": true,
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 122,
+        "seq": 123,
         "schema": "EOTObservation@1",
         "id": "s121",
         "at": [
-         19245,
-         19277
+         19685,
+         19723
         ],
         "role": "sentence",
         "inferred": true,
@@ -3920,11 +3920,11 @@
         "script": "cased",
         "children": [
          {
-          "seq": 368,
+          "seq": 369,
           "schema": "EOTAbsence@1",
           "at": [
-           19245,
-           19277
+           19685,
+           19723
           ],
           "role": "arrangement",
           "reason": "no_earned_verb_in_this_sentence",
@@ -3934,12 +3934,12 @@
         ]
        },
        {
-        "seq": 123,
+        "seq": 124,
         "schema": "EOTObservation@1",
         "id": "s122",
         "at": [
-         19278,
-         19337
+         19724,
+         19783
         ],
         "role": "sentence",
         "inferred": true,
@@ -3947,12 +3947,12 @@
         "script": "cased",
         "children": [
          {
-          "seq": 218,
+          "seq": 219,
           "schema": "EOTObservation@1",
           "id": "v217",
           "at": [
-           19278,
-           19337
+           19724,
+           19783
           ],
           "role": "void",
           "operator": "SIG",
@@ -3962,11 +3962,11 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 369,
+            "seq": 370,
             "schema": "EOTAbsence@1",
             "at": [
-             19278,
-             19337
+             19724,
+             19783
             ],
             "role": "arrangement",
             "reason": "no_earned_verb_in_this_sentence",
@@ -3978,12 +3978,12 @@
         ]
        },
        {
-        "seq": 124,
+        "seq": 125,
         "schema": "EOTObservation@1",
         "id": "s123",
         "at": [
-         19338,
-         19416
+         19784,
+         19864
         ],
         "role": "sentence",
         "inferred": true,
@@ -3991,12 +3991,12 @@
         "script": "cased",
         "children": [
          {
-          "seq": 219,
+          "seq": 220,
           "schema": "EOTObservation@1",
           "id": "v218",
           "at": [
-           19338,
-           19416
+           19784,
+           19864
           ],
           "role": "void",
           "operator": "SIG",
@@ -4006,12 +4006,12 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 370,
+            "seq": 371,
             "schema": "EOTObservation@1",
             "id": "o311",
             "at": [
-             19403,
-             19416
+             19851,
+             19864
             ],
             "role": "proposition",
             "end1": "being drowned",
@@ -4030,12 +4030,12 @@
         ]
        },
        {
-        "seq": 125,
+        "seq": 126,
         "schema": "EOTObservation@1",
         "id": "s124",
         "at": [
-         19417,
-         19459
+         19865,
+         19907
         ],
         "role": "sentence",
         "inferred": true,
@@ -4043,11 +4043,11 @@
         "script": "cased",
         "children": [
          {
-          "seq": 371,
+          "seq": 372,
           "schema": "EOTAbsence@1",
           "at": [
-           19417,
-           19459
+           19865,
+           19907
           ],
           "role": "arrangement",
           "reason": "gate_refused_no_two_ends",
@@ -4057,12 +4057,12 @@
         ]
        },
        {
-        "seq": 126,
+        "seq": 127,
         "schema": "EOTObservation@1",
         "id": "s125",
         "at": [
-         19460,
-         19497
+         19908,
+         19947
         ],
         "role": "sentence",
         "inferred": true,
@@ -4070,12 +4070,12 @@
         "script": "cased",
         "children": [
          {
-          "seq": 372,
+          "seq": 373,
           "schema": "EOTObservation@1",
           "id": "o312",
           "at": [
-           19483,
-           19495
+           19931,
+           19943
           ],
           "role": "proposition",
           "end1": "everything",
@@ -4094,24 +4094,24 @@
       ]
      },
      {
-      "seq": 45,
+      "seq": 46,
       "schema": "EOTObservation@1",
       "id": "p44",
       "at": [
-       19501,
-       19811
+       19951,
+       20261
       ],
       "role": "paragraph",
       "inferred": true,
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 127,
+        "seq": 128,
         "schema": "EOTObservation@1",
         "id": "s126",
         "at": [
-         19501,
-         19811
+         19951,
+         20261
         ],
         "role": "sentence",
         "inferred": true,
@@ -4119,12 +4119,12 @@
         "script": "cased",
         "children": [
          {
-          "seq": 220,
+          "seq": 221,
           "schema": "EOTObservation@1",
           "id": "v219",
           "at": [
-           19501,
-           19811
+           19951,
+           20261
           ],
           "role": "void",
           "operator": "SIG",
@@ -4134,12 +4134,12 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 373,
+            "seq": 374,
             "schema": "EOTObservation@1",
             "id": "o313",
             "at": [
-             19645,
-             19680
+             20095,
+             20130
             ],
             "role": "proposition",
             "end1": "she",
@@ -4154,12 +4154,12 @@
             "children": []
            },
            {
-            "seq": 374,
+            "seq": 375,
             "schema": "EOTObservation@1",
             "id": "o314",
             "at": [
-             19725,
-             19728
+             20175,
+             20178
             ],
             "role": "proposition",
             "end1": "small she",
@@ -4174,12 +4174,12 @@
             "children": []
            },
            {
-            "seq": 375,
+            "seq": 376,
             "schema": "EOTObservation@1",
             "id": "o315",
             "at": [
-             19787,
-             19810
+             20237,
+             20260
             ],
             "role": "proposition",
             "end1": "mouse",
@@ -4193,12 +4193,12 @@
             "settledAs": "verb",
             "children": [
              {
-              "seq": 376,
+              "seq": 377,
               "schema": "EOTObservation@1",
               "id": "o316",
               "at": [
-               19798,
-               19810
+               20248,
+               20260
               ],
               "role": "proposition",
               "end1": "mouse",
@@ -4221,24 +4221,24 @@
       ]
      },
      {
-      "seq": 46,
+      "seq": 47,
       "schema": "EOTObservation@1",
       "id": "p45",
       "at": [
-       19815,
-       20476
+       20265,
+       20954
       ],
       "role": "paragraph",
       "inferred": true,
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 128,
+        "seq": 129,
         "schema": "EOTObservation@1",
         "id": "s127",
         "at": [
-         19815,
-         19885
+         20265,
+         20341
         ],
         "role": "sentence",
         "inferred": true,
@@ -4246,12 +4246,12 @@
         "script": "cased",
         "children": [
          {
-          "seq": 221,
+          "seq": 222,
           "schema": "EOTObservation@1",
           "id": "v220",
           "at": [
-           19815,
-           19885
+           20265,
+           20341
           ],
           "role": "void",
           "operator": "SIG",
@@ -4261,11 +4261,11 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 377,
+            "seq": 378,
             "schema": "EOTAbsence@1",
             "at": [
-             19815,
-             19885
+             20265,
+             20341
             ],
             "role": "arrangement",
             "reason": "gate_refused_no_two_ends",
@@ -4277,12 +4277,12 @@
         ]
        },
        {
-        "seq": 129,
+        "seq": 130,
         "schema": "EOTObservation@1",
         "id": "s128",
         "at": [
-         19887,
-         20016
+         20343,
+         20476
         ],
         "role": "sentence",
         "inferred": true,
@@ -4290,12 +4290,12 @@
         "script": "cased",
         "children": [
          {
-          "seq": 222,
+          "seq": 223,
           "schema": "EOTObservation@1",
           "id": "v221",
           "at": [
-           19887,
-           20016
+           20343,
+           20476
           ],
           "role": "void",
           "operator": "SIG",
@@ -4305,12 +4305,12 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 378,
+            "seq": 379,
             "schema": "EOTObservation@1",
             "id": "o317",
             "at": [
-             19901,
-             19928
+             20357,
+             20384
             ],
             "role": "proposition",
             "end1": "Everything",
@@ -4325,12 +4325,12 @@
             "children": []
            },
            {
-            "seq": 379,
+            "seq": 380,
             "schema": "EOTObservation@1",
             "id": "o318",
             "at": [
-             20008,
-             20014
+             20466,
+             20472
             ],
             "role": "proposition",
             "end1": "there’s no harm",
@@ -4349,12 +4349,12 @@
         ]
        },
        {
-        "seq": 130,
+        "seq": 131,
         "schema": "EOTObservation@1",
         "id": "s129",
         "at": [
-         20017,
-         20079
+         20477,
+         20541
         ],
         "role": "sentence",
         "inferred": true,
@@ -4362,12 +4362,12 @@
         "script": "cased",
         "children": [
          {
-          "seq": 223,
+          "seq": 224,
           "schema": "EOTObservation@1",
           "id": "v222",
           "at": [
-           20017,
-           20079
+           20477,
+           20541
           ],
           "role": "void",
           "operator": "SIG",
@@ -4377,12 +4377,12 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 181,
+            "seq": 182,
             "schema": "EOTObservation@1",
             "id": "e180",
             "at": [
-             20033,
-             20040
+             20495,
+             20502
             ],
             "role": "entity",
             "referent": "ref:auto:o_mouse",
@@ -4398,12 +4398,12 @@
             "basis": "name-variant coreference (giver: surfaces/discoverReferents) — the surfaces were clustered by name-variant coreference and this is the being that cluster asserts",
             "children": [
              {
-              "seq": 182,
+              "seq": 183,
               "schema": "EOTObservation@1",
               "id": "d181",
               "at": [
-               20033,
-               20040
+               20495,
+               20502
               ],
               "role": "admission",
               "referent": "ref:auto:o_mouse",
@@ -4421,12 +4421,12 @@
         ]
        },
        {
-        "seq": 131,
+        "seq": 132,
         "schema": "EOTObservation@1",
         "id": "s130",
         "at": [
-         20080,
-         20130
+         20542,
+         20594
         ],
         "role": "sentence",
         "inferred": true,
@@ -4434,11 +4434,11 @@
         "script": "cased",
         "children": [
          {
-          "seq": 381,
+          "seq": 382,
           "schema": "EOTAbsence@1",
           "at": [
-           20080,
-           20130
+           20542,
+           20594
           ],
           "role": "arrangement",
           "reason": "gate_refused_no_two_ends",
@@ -4448,12 +4448,12 @@
         ]
        },
        {
-        "seq": 132,
+        "seq": 133,
         "schema": "EOTObservation@1",
         "id": "s131",
         "at": [
-         20131,
-         20476
+         20595,
+         20954
         ],
         "role": "sentence",
         "inferred": true,
@@ -4461,12 +4461,12 @@
         "script": "cased",
         "children": [
          {
-          "seq": 224,
+          "seq": 225,
           "schema": "EOTObservation@1",
           "id": "v223",
           "at": [
-           20131,
-           20476
+           20595,
+           20954
           ],
           "role": "void",
           "operator": "SIG",
@@ -4476,12 +4476,12 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 382,
+            "seq": 383,
             "schema": "EOTObservation@1",
             "id": "o319",
             "at": [
-             20206,
-             20236
+             20670,
+             20700
             ],
             "role": "proposition",
             "end1": "she",
@@ -4496,12 +4496,12 @@
             "children": []
            },
            {
-            "seq": 383,
+            "seq": 384,
             "schema": "EOTObservation@1",
             "id": "o320",
             "at": [
-             20273,
-             20300
+             20737,
+             20766
             ],
             "role": "proposition",
             "end1": "having seen",
@@ -4522,24 +4522,24 @@
       ]
      },
      {
-      "seq": 47,
+      "seq": 48,
       "schema": "EOTObservation@1",
       "id": "p46",
       "at": [
-       20480,
-       21047
+       20958,
+       21554
       ],
       "role": "paragraph",
       "inferred": true,
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 133,
+        "seq": 134,
         "schema": "EOTObservation@1",
         "id": "s132",
         "at": [
-         20480,
-         20607
+         20958,
+         21097
         ],
         "role": "sentence",
         "inferred": true,
@@ -4547,12 +4547,12 @@
         "script": "cased",
         "children": [
          {
-          "seq": 225,
+          "seq": 226,
           "schema": "EOTObservation@1",
           "id": "v224",
           "at": [
-           20480,
-           20607
+           20958,
+           21097
           ],
           "role": "void",
           "operator": "SIG",
@@ -4562,12 +4562,12 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 384,
+            "seq": 385,
             "schema": "EOTObservation@1",
             "id": "o321",
             "at": [
-             20500,
-             20518
+             20982,
+             21000
             ],
             "role": "proposition",
             "end1": "it",
@@ -4580,12 +4580,12 @@
             "children": []
            },
            {
-            "seq": 179,
+            "seq": 180,
             "schema": "EOTObservation@1",
             "id": "e178",
             "at": [
-             20555,
-             20561
+             21043,
+             21049
             ],
             "role": "entity",
             "referent": "ref:auto:french",
@@ -4601,12 +4601,12 @@
             "basis": "name-variant coreference (giver: surfaces/discoverReferents) — the surfaces were clustered by name-variant coreference and this is the being that cluster asserts",
             "children": [
              {
-              "seq": 180,
+              "seq": 181,
               "schema": "EOTObservation@1",
               "id": "d179",
               "at": [
-               20555,
-               20561
+               21043,
+               21049
               ],
               "role": "admission",
               "referent": "ref:auto:french",
@@ -4624,12 +4624,12 @@
         ]
        },
        {
-        "seq": 134,
+        "seq": 135,
         "schema": "EOTObservation@1",
         "id": "s133",
         "at": [
-         20608,
-         20758
+         21098,
+         21253
         ],
         "role": "sentence",
         "inferred": true,
@@ -4637,12 +4637,12 @@
         "script": "cased",
         "children": [
          {
-          "seq": 226,
+          "seq": 227,
           "schema": "EOTObservation@1",
           "id": "v225",
           "at": [
-           20608,
-           20758
+           21098,
+           21253
           ],
           "role": "void",
           "operator": "SIG",
@@ -4652,12 +4652,12 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 386,
+            "seq": 387,
             "schema": "EOTObservation@1",
             "id": "o322",
             "at": [
-             20708,
-             20716
+             21198,
+             21206
             ],
             "role": "proposition",
             "end1": "ago anything",
@@ -4676,12 +4676,12 @@
         ]
        },
        {
-        "seq": 135,
+        "seq": 136,
         "schema": "EOTObservation@1",
         "id": "s134",
         "at": [
-         20759,
-         20815
+         21254,
+         21310
         ],
         "role": "sentence",
         "inferred": true,
@@ -4689,12 +4689,12 @@
         "script": "cased",
         "children": [
          {
-          "seq": 227,
+          "seq": 228,
           "schema": "EOTObservation@1",
           "id": "v226",
           "at": [
-           20759,
-           20815
+           21254,
+           21310
           ],
           "role": "void",
           "operator": "SIG",
@@ -4704,11 +4704,11 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 388,
+            "seq": 389,
             "schema": "EOTAbsence@1",
             "at": [
-             20759,
-             20815
+             21254,
+             21310
             ],
             "role": "arrangement",
             "reason": "gate_refused_no_two_ends",
@@ -4720,12 +4720,12 @@
         ]
        },
        {
-        "seq": 136,
+        "seq": 137,
         "schema": "EOTObservation@1",
         "id": "s135",
         "at": [
-         20816,
-         20907
+         21311,
+         21402
         ],
         "role": "sentence",
         "inferred": true,
@@ -4734,12 +4734,12 @@
         "children": []
        },
        {
-        "seq": 137,
+        "seq": 138,
         "schema": "EOTObservation@1",
         "id": "s136",
         "at": [
-         20908,
-         20932
+         21403,
+         21431
         ],
         "role": "sentence",
         "inferred": true,
@@ -4747,11 +4747,11 @@
         "script": "cased",
         "children": [
          {
-          "seq": 390,
+          "seq": 391,
           "schema": "EOTAbsence@1",
           "at": [
-           20908,
-           20932
+           21403,
+           21431
           ],
           "role": "arrangement",
           "reason": "no_earned_verb_in_this_sentence",
@@ -4761,12 +4761,12 @@
         ]
        },
        {
-        "seq": 138,
+        "seq": 139,
         "schema": "EOTObservation@1",
         "id": "s137",
         "at": [
-         20933,
-         21007
+         21432,
+         21508
         ],
         "role": "sentence",
         "inferred": true,
@@ -4774,12 +4774,12 @@
         "script": "cased",
         "children": [
          {
-          "seq": 228,
+          "seq": 229,
           "schema": "EOTObservation@1",
           "id": "v227",
           "at": [
-           20933,
-           21007
+           21432,
+           21508
           ],
           "role": "void",
           "operator": "SIG",
@@ -4789,12 +4789,12 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 391,
+            "seq": 392,
             "schema": "EOTObservation@1",
             "id": "o323",
             "at": [
-             20975,
-             21006
+             21474,
+             21507
             ],
             "role": "proposition",
             "end1": "she",
@@ -4813,53 +4813,12 @@
         ]
        },
        {
-        "seq": 139,
+        "seq": 140,
         "schema": "EOTObservation@1",
         "id": "s138",
         "at": [
-         21008,
-         21047
-        ],
-        "role": "sentence",
-        "inferred": true,
-        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
-        "script": "cased",
-        "children": [
-         {
-          "seq": 393,
-          "schema": "EOTAbsence@1",
-          "at": [
-           21008,
-           21047
-          ],
-          "role": "arrangement",
-          "reason": "no_earned_verb_in_this_sentence",
-          "detail": "no token in this sentence was nominated by the 46 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
-          "children": []
-         }
-        ]
-       }
-      ]
-     },
-     {
-      "seq": 48,
-      "schema": "EOTObservation@1",
-      "id": "p47",
-      "at": [
-       21051,
-       21156
-      ],
-      "role": "paragraph",
-      "inferred": true,
-      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
-      "children": [
-       {
-        "seq": 140,
-        "schema": "EOTObservation@1",
-        "id": "s139",
-        "at": [
-         21051,
-         21067
+         21509,
+         21554
         ],
         "role": "sentence",
         "inferred": true,
@@ -4870,49 +4829,8 @@
           "seq": 394,
           "schema": "EOTAbsence@1",
           "at": [
-           21051,
-           21067
-          ],
-          "role": "arrangement",
-          "reason": "no_earned_verb_in_this_sentence",
-          "detail": "no token in this sentence was nominated by the 46 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
-          "children": []
-         }
-        ]
-       },
-       {
-        "seq": 141,
-        "schema": "EOTObservation@1",
-        "id": "s140",
-        "at": [
-         21068,
-         21115
-        ],
-        "role": "sentence",
-        "inferred": true,
-        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
-        "script": "cased",
-        "children": []
-       },
-       {
-        "seq": 142,
-        "schema": "EOTObservation@1",
-        "id": "s141",
-        "at": [
-         21116,
-         21156
-        ],
-        "role": "sentence",
-        "inferred": true,
-        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
-        "script": "cased",
-        "children": [
-         {
-          "seq": 396,
-          "schema": "EOTAbsence@1",
-          "at": [
-           21116,
-           21156
+           21509,
+           21554
           ],
           "role": "arrangement",
           "reason": "no_earned_verb_in_this_sentence",
@@ -4926,22 +4844,22 @@
      {
       "seq": 49,
       "schema": "EOTObservation@1",
-      "id": "p48",
+      "id": "p47",
       "at": [
-       21160,
-       21827
+       21558,
+       21671
       ],
       "role": "paragraph",
       "inferred": true,
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 143,
+        "seq": 141,
         "schema": "EOTObservation@1",
-        "id": "s142",
+        "id": "s139",
         "at": [
-         21160,
-         21238
+         21558,
+         21578
         ],
         "role": "sentence",
         "inferred": true,
@@ -4949,12 +4867,94 @@
         "script": "cased",
         "children": [
          {
-          "seq": 229,
+          "seq": 395,
+          "schema": "EOTAbsence@1",
+          "at": [
+           21558,
+           21578
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 46 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 142,
+        "schema": "EOTObservation@1",
+        "id": "s140",
+        "at": [
+         21579,
+         21626
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": []
+       },
+       {
+        "seq": 143,
+        "schema": "EOTObservation@1",
+        "id": "s141",
+        "at": [
+         21627,
+         21671
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 397,
+          "schema": "EOTAbsence@1",
+          "at": [
+           21627,
+           21671
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 46 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 50,
+      "schema": "EOTObservation@1",
+      "id": "p48",
+      "at": [
+       21675,
+       22374
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "children": [
+       {
+        "seq": 144,
+        "schema": "EOTObservation@1",
+        "id": "s142",
+        "at": [
+         21675,
+         21761
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 230,
           "schema": "EOTObservation@1",
           "id": "v228",
           "at": [
-           21160,
-           21238
+           21675,
+           21761
           ],
           "role": "void",
           "operator": "SIG",
@@ -4964,11 +4964,11 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 397,
+            "seq": 398,
             "schema": "EOTAbsence@1",
             "at": [
-             21160,
-             21238
+             21675,
+             21761
             ],
             "role": "arrangement",
             "reason": "gate_refused_no_two_ends",
@@ -4980,12 +4980,12 @@
         ]
        },
        {
-        "seq": 144,
+        "seq": 145,
         "schema": "EOTObservation@1",
         "id": "s143",
         "at": [
-         21239,
-         21348
+         21762,
+         21873
         ],
         "role": "sentence",
         "inferred": true,
@@ -4993,12 +4993,12 @@
         "script": "cased",
         "children": [
          {
-          "seq": 398,
+          "seq": 399,
           "schema": "EOTObservation@1",
           "id": "o324",
           "at": [
-           21335,
-           21347
+           21860,
+           21872
           ],
           "role": "proposition",
           "end1": "you",
@@ -5015,12 +5015,12 @@
         ]
        },
        {
-        "seq": 145,
+        "seq": 146,
         "schema": "EOTObservation@1",
         "id": "s144",
         "at": [
-         21349,
-         21653
+         21874,
+         22192
         ],
         "role": "sentence",
         "inferred": true,
@@ -5028,12 +5028,12 @@
         "script": "cased",
         "children": [
          {
-          "seq": 230,
+          "seq": 231,
           "schema": "EOTObservation@1",
           "id": "v229",
           "at": [
-           21349,
-           21653
+           21874,
+           22192
           ],
           "role": "void",
           "operator": "SIG",
@@ -5043,12 +5043,12 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 399,
+            "seq": 400,
             "schema": "EOTObservation@1",
             "id": "o325",
             "at": [
-             21394,
-             21396
+             21921,
+             21923
             ],
             "role": "proposition",
             "end1": "Alice",
@@ -5064,12 +5064,12 @@
             "children": []
            },
            {
-            "seq": 400,
+            "seq": 401,
             "schema": "EOTObservation@1",
             "id": "o326",
             "at": [
-             21444,
-             21452
+             21971,
+             21979
             ],
             "role": "proposition",
             "end1": "swam lazily about",
@@ -5084,12 +5084,12 @@
             "children": []
            },
            {
-            "seq": 402,
+            "seq": 403,
             "schema": "EOTObservation@1",
             "id": "o327",
             "at": [
-             21489,
-             21497
+             22018,
+             22026
             ],
             "role": "proposition",
             "end1": "nicely",
@@ -5108,12 +5108,12 @@
         ]
        },
        {
-        "seq": 146,
+        "seq": 147,
         "schema": "EOTObservation@1",
         "id": "s145",
         "at": [
-         21654,
-         21770
+         22193,
+         22309
         ],
         "role": "sentence",
         "inferred": true,
@@ -5121,12 +5121,12 @@
         "script": "cased",
         "children": [
          {
-          "seq": 231,
+          "seq": 232,
           "schema": "EOTObservation@1",
           "id": "v230",
           "at": [
-           21654,
-           21770
+           22193,
+           22309
           ],
           "role": "void",
           "operator": "SIG",
@@ -5136,12 +5136,12 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 404,
+            "seq": 405,
             "schema": "EOTObservation@1",
             "id": "o328",
             "at": [
-             21735,
-             21769
+             22274,
+             22308
             ],
             "role": "proposition",
             "end1": "she",
@@ -5155,12 +5155,12 @@
             "settledAs": "verb",
             "children": [
              {
-              "seq": 405,
+              "seq": 406,
               "schema": "EOTObservation@1",
               "id": "o329",
               "at": [
-               21743,
-               21769
+               22282,
+               22308
               ],
               "role": "proposition",
               "end1": "she",
@@ -5178,12 +5178,12 @@
         ]
        },
        {
-        "seq": 147,
+        "seq": 148,
         "schema": "EOTObservation@1",
         "id": "s146",
         "at": [
-         21771,
-         21827
+         22310,
+         22374
         ],
         "role": "sentence",
         "inferred": true,
@@ -5191,12 +5191,12 @@
         "script": "cased",
         "children": [
          {
-          "seq": 232,
+          "seq": 233,
           "schema": "EOTObservation@1",
           "id": "v231",
           "at": [
-           21771,
-           21827
+           22310,
+           22374
           ],
           "role": "void",
           "operator": "SIG",
@@ -5206,11 +5206,11 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 406,
+            "seq": 407,
             "schema": "EOTAbsence@1",
             "at": [
-             21771,
-             21827
+             22310,
+             22374
             ],
             "role": "arrangement",
             "reason": "no_earned_verb_in_this_sentence",
@@ -5224,24 +5224,24 @@
       ]
      },
      {
-      "seq": 50,
+      "seq": 51,
       "schema": "EOTObservation@1",
       "id": "p49",
       "at": [
-       21831,
-       22045
+       22378,
+       22602
       ],
       "role": "paragraph",
       "inferred": true,
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 148,
+        "seq": 149,
         "schema": "EOTObservation@1",
         "id": "s147",
         "at": [
-         21831,
-         21843
+         22378,
+         22394
         ],
         "role": "sentence",
         "inferred": true,
@@ -5249,11 +5249,11 @@
         "script": "cased",
         "children": [
          {
-          "seq": 407,
+          "seq": 408,
           "schema": "EOTAbsence@1",
           "at": [
-           21831,
-           21843
+           22378,
+           22394
           ],
           "role": "arrangement",
           "reason": "no_earned_verb_in_this_sentence",
@@ -5263,12 +5263,12 @@
         ]
        },
        {
-        "seq": 149,
+        "seq": 150,
         "schema": "EOTObservation@1",
         "id": "s148",
         "at": [
-         21844,
-         21908
+         22395,
+         22459
         ],
         "role": "sentence",
         "inferred": true,
@@ -5277,39 +5277,12 @@
         "children": []
        },
        {
-        "seq": 150,
+        "seq": 151,
         "schema": "EOTObservation@1",
         "id": "s149",
         "at": [
-         21909,
-         21949
-        ],
-        "role": "sentence",
-        "inferred": true,
-        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
-        "script": "cased",
-        "children": [
-         {
-          "seq": 410,
-          "schema": "EOTAbsence@1",
-          "at": [
-           21909,
-           21949
-          ],
-          "role": "arrangement",
-          "reason": "no_earned_verb_in_this_sentence",
-          "detail": "no token in this sentence was nominated by the 46 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
-          "children": []
-         }
-        ]
-       },
-       {
-        "seq": 151,
-        "schema": "EOTObservation@1",
-        "id": "s150",
-        "at": [
-         21950,
-         22009
+         22460,
+         22502
         ],
         "role": "sentence",
         "inferred": true,
@@ -5320,8 +5293,8 @@
           "seq": 411,
           "schema": "EOTAbsence@1",
           "at": [
-           21950,
-           22009
+           22460,
+           22502
           ],
           "role": "arrangement",
           "reason": "no_earned_verb_in_this_sentence",
@@ -5333,10 +5306,10 @@
        {
         "seq": 152,
         "schema": "EOTObservation@1",
-        "id": "s151",
+        "id": "s150",
         "at": [
-         22010,
-         22045
+         22503,
+         22562
         ],
         "role": "sentence",
         "inferred": true,
@@ -5347,8 +5320,35 @@
           "seq": 412,
           "schema": "EOTAbsence@1",
           "at": [
-           22010,
-           22045
+           22503,
+           22562
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 46 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 153,
+        "schema": "EOTObservation@1",
+        "id": "s151",
+        "at": [
+         22563,
+         22602
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 413,
+          "schema": "EOTAbsence@1",
+          "at": [
+           22563,
+           22602
           ],
           "role": "arrangement",
           "reason": "gate_refused_no_two_ends",
@@ -5360,51 +5360,24 @@
       ]
      },
      {
-      "seq": 51,
+      "seq": 52,
       "schema": "EOTObservation@1",
       "id": "p50",
       "at": [
-       22049,
-       22850
+       22606,
+       23451
       ],
       "role": "paragraph",
       "inferred": true,
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 153,
+        "seq": 154,
         "schema": "EOTObservation@1",
         "id": "s152",
         "at": [
-         22049,
-         22066
-        ],
-        "role": "sentence",
-        "inferred": true,
-        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
-        "script": "cased",
-        "children": [
-         {
-          "seq": 413,
-          "schema": "EOTAbsence@1",
-          "at": [
-           22049,
-           22066
-          ],
-          "role": "arrangement",
-          "reason": "no_earned_verb_in_this_sentence",
-          "detail": "no token in this sentence was nominated by the 46 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
-          "children": []
-         }
-        ]
-       },
-       {
-        "seq": 154,
-        "schema": "EOTObservation@1",
-        "id": "s153",
-        "at": [
-         22067,
-         22135
+         22606,
+         22629
         ],
         "role": "sentence",
         "inferred": true,
@@ -5415,12 +5388,12 @@
           "seq": 414,
           "schema": "EOTAbsence@1",
           "at": [
-           22067,
-           22135
+           22606,
+           22629
           ],
           "role": "arrangement",
-          "reason": "gate_refused_no_two_ends",
-          "detail": "a verb this reading earned occurs here, but extractRelations requires BOTH a subject group and an object group (S90: `if (!subject || !object) continue`) — an exclamation, a bare predicate adjective, or an intransitive clause satisfies neither, and that is a property of the gate, not of the material",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 46 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
           "children": []
          }
         ]
@@ -5428,10 +5401,10 @@
        {
         "seq": 155,
         "schema": "EOTObservation@1",
-        "id": "s154",
+        "id": "s153",
         "at": [
-         22136,
-         22170
+         22630,
+         22698
         ],
         "role": "sentence",
         "inferred": true,
@@ -5442,12 +5415,12 @@
           "seq": 415,
           "schema": "EOTAbsence@1",
           "at": [
-           22136,
-           22170
+           22630,
+           22698
           ],
           "role": "arrangement",
-          "reason": "no_earned_verb_in_this_sentence",
-          "detail": "no token in this sentence was nominated by the 46 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "reason": "gate_refused_no_two_ends",
+          "detail": "a verb this reading earned occurs here, but extractRelations requires BOTH a subject group and an object group (S90: `if (!subject || !object) continue`) — an exclamation, a bare predicate adjective, or an intransitive clause satisfies neither, and that is a property of the gate, not of the material",
           "children": []
          }
         ]
@@ -5455,10 +5428,10 @@
        {
         "seq": 156,
         "schema": "EOTObservation@1",
-        "id": "s155",
+        "id": "s154",
         "at": [
-         22171,
-         22299
+         22699,
+         22743
         ],
         "role": "sentence",
         "inferred": true,
@@ -5469,12 +5442,12 @@
           "seq": 416,
           "schema": "EOTAbsence@1",
           "at": [
-           22171,
-           22299
+           22699,
+           22743
           ],
           "role": "arrangement",
-          "reason": "gate_refused_no_two_ends",
-          "detail": "a verb this reading earned occurs here, but extractRelations requires BOTH a subject group and an object group (S90: `if (!subject || !object) continue`) — an exclamation, a bare predicate adjective, or an intransitive clause satisfies neither, and that is a property of the gate, not of the material",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 46 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
           "children": []
          }
         ]
@@ -5482,10 +5455,10 @@
        {
         "seq": 157,
         "schema": "EOTObservation@1",
-        "id": "s156",
+        "id": "s155",
         "at": [
-         22300,
-         22377
+         22744,
+         22874
         ],
         "role": "sentence",
         "inferred": true,
@@ -5496,8 +5469,35 @@
           "seq": 417,
           "schema": "EOTAbsence@1",
           "at": [
-           22300,
-           22377
+           22744,
+           22874
+          ],
+          "role": "arrangement",
+          "reason": "gate_refused_no_two_ends",
+          "detail": "a verb this reading earned occurs here, but extractRelations requires BOTH a subject group and an object group (S90: `if (!subject || !object) continue`) — an exclamation, a bare predicate adjective, or an intransitive clause satisfies neither, and that is a property of the gate, not of the material",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 158,
+        "schema": "EOTObservation@1",
+        "id": "s156",
+        "at": [
+         22875,
+         22952
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 418,
+          "schema": "EOTAbsence@1",
+          "at": [
+           22875,
+           22952
           ],
           "role": "arrangement",
           "reason": "no_earned_verb_in_this_sentence",
@@ -5507,12 +5507,12 @@
         ]
        },
        {
-        "seq": 158,
+        "seq": 159,
         "schema": "EOTObservation@1",
         "id": "s157",
         "at": [
-         22378,
-         22614
+         22953,
+         23203
         ],
         "role": "sentence",
         "inferred": true,
@@ -5520,12 +5520,12 @@
         "script": "cased",
         "children": [
          {
-          "seq": 233,
+          "seq": 234,
           "schema": "EOTObservation@1",
           "id": "v232",
           "at": [
-           22378,
-           22614
+           22953,
+           23203
           ],
           "role": "void",
           "operator": "SIG",
@@ -5535,12 +5535,12 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 418,
+            "seq": 419,
             "schema": "EOTObservation@1",
             "id": "o330",
             "at": [
-             22444,
-             22462
+             23023,
+             23041
             ],
             "role": "proposition",
             "end1": "it’ll sit up",
@@ -5559,12 +5559,12 @@
         ]
        },
        {
-        "seq": 159,
+        "seq": 160,
         "schema": "EOTObservation@1",
         "id": "s158",
         "at": [
-         22615,
-         22659
+         23204,
+         23252
         ],
         "role": "sentence",
         "inferred": true,
@@ -5572,12 +5572,12 @@
         "script": "cased",
         "children": [
          {
-          "seq": 234,
+          "seq": 235,
           "schema": "EOTObservation@1",
           "id": "v233",
           "at": [
-           22615,
-           22659
+           23204,
+           23252
           ],
           "role": "void",
           "operator": "SIG",
@@ -5590,12 +5590,12 @@
         ]
        },
        {
-        "seq": 160,
+        "seq": 161,
         "schema": "EOTObservation@1",
         "id": "s159",
         "at": [
-         22660,
-         22730
+         23253,
+         23331
         ],
         "role": "sentence",
         "inferred": true,
@@ -5603,12 +5603,12 @@
         "script": "cased",
         "children": [
          {
-          "seq": 235,
+          "seq": 236,
           "schema": "EOTObservation@1",
           "id": "v234",
           "at": [
-           22660,
-           22730
+           23253,
+           23331
           ],
           "role": "void",
           "operator": "SIG",
@@ -5618,12 +5618,12 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 420,
+            "seq": 421,
             "schema": "EOTObservation@1",
             "id": "o331",
             "at": [
-             22675,
-             22691
+             23268,
+             23284
             ],
             "role": "proposition",
             "end1": "cried Alice",
@@ -5639,12 +5639,12 @@
             "children": []
            },
            {
-            "seq": 421,
+            "seq": 422,
             "schema": "EOTObservation@1",
             "id": "o332",
             "at": [
-             22706,
-             22730
+             23303,
+             23331
             ],
             "role": "proposition",
             "end1": "I’m",
@@ -5657,12 +5657,12 @@
             "settledAs": null,
             "children": [
              {
-              "seq": 422,
+              "seq": 423,
               "schema": "EOTObservation@1",
               "id": "o333",
               "at": [
-               22720,
-               22730
+               23319,
+               23331
               ],
               "role": "proposition",
               "end1": "I’m",
@@ -5681,12 +5681,12 @@
         ]
        },
        {
-        "seq": 161,
+        "seq": 162,
         "schema": "EOTObservation@1",
         "id": "s160",
         "at": [
-         22731,
-         22850
+         23332,
+         23451
         ],
         "role": "sentence",
         "inferred": true,
@@ -5694,12 +5694,12 @@
         "script": "cased",
         "children": [
          {
-          "seq": 236,
+          "seq": 237,
           "schema": "EOTObservation@1",
           "id": "v235",
           "at": [
-           22731,
-           22850
+           23332,
+           23451
           ],
           "role": "void",
           "operator": "SIG",
@@ -5709,12 +5709,12 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 423,
+            "seq": 424,
             "schema": "EOTObservation@1",
             "id": "o334",
             "at": [
-             22793,
-             22795
+             23394,
+             23396
             ],
             "role": "proposition",
             "end1": "it",
@@ -5735,24 +5735,24 @@
       ]
      },
      {
-      "seq": 52,
+      "seq": 53,
       "schema": "EOTObservation@1",
       "id": "p51",
       "at": [
-       22854,
-       23273
+       23455,
+       23890
       ],
       "role": "paragraph",
       "inferred": true,
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 162,
+        "seq": 163,
         "schema": "EOTObservation@1",
         "id": "s161",
         "at": [
-         22854,
-         22897
+         23455,
+         23500
         ],
         "role": "sentence",
         "inferred": true,
@@ -5760,12 +5760,12 @@
         "script": "cased",
         "children": [
          {
-          "seq": 237,
+          "seq": 238,
           "schema": "EOTObservation@1",
           "id": "v236",
           "at": [
-           22854,
-           22897
+           23455,
+           23500
           ],
           "role": "void",
           "operator": "SIG",
@@ -5775,12 +5775,12 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 425,
+            "seq": 426,
             "schema": "EOTObservation@1",
             "id": "o335",
             "at": [
-             22881,
-             22883
+             23482,
+             23484
             ],
             "role": "proposition",
             "end1": "called softly",
@@ -5799,12 +5799,12 @@
         ]
        },
        {
-        "seq": 163,
+        "seq": 164,
         "schema": "EOTObservation@1",
         "id": "s162",
         "at": [
-         22898,
-         22988
+         23501,
+         23597
         ],
         "role": "sentence",
         "inferred": true,
@@ -5812,12 +5812,12 @@
         "script": "cased",
         "children": [
          {
-          "seq": 238,
+          "seq": 239,
           "schema": "EOTObservation@1",
           "id": "v237",
           "at": [
-           22898,
-           22988
+           23501,
+           23597
           ],
           "role": "void",
           "operator": "SIG",
@@ -5827,12 +5827,12 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 426,
+            "seq": 427,
             "schema": "EOTObservation@1",
             "id": "o336",
             "at": [
-             22906,
-             22916
+             23509,
+             23519
             ],
             "role": "proposition",
             "end1": "Do",
@@ -5851,12 +5851,12 @@
         ]
        },
        {
-        "seq": 164,
+        "seq": 165,
         "schema": "EOTObservation@1",
         "id": "s163",
         "at": [
-         22989,
-         23273
+         23598,
+         23890
         ],
         "role": "sentence",
         "inferred": true,
@@ -5864,12 +5864,12 @@
         "script": "cased",
         "children": [
          {
-          "seq": 239,
+          "seq": 240,
           "schema": "EOTObservation@1",
           "id": "v238",
           "at": [
-           22989,
-           23273
+           23598,
+           23890
           ],
           "role": "void",
           "operator": "SIG",
@@ -5879,12 +5879,12 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 427,
+            "seq": 428,
             "schema": "EOTObservation@1",
             "id": "o337",
             "at": [
-             23076,
-             23100
+             23685,
+             23709
             ],
             "role": "proposition",
             "end1": "its face",
@@ -5899,12 +5899,12 @@
             "children": []
            },
            {
-            "seq": 429,
+            "seq": 430,
             "schema": "EOTObservation@1",
             "id": "o338",
             "at": [
-             23251,
-             23271
+             23866,
+             23886
             ],
             "role": "proposition",
             "end1": "it",
@@ -5918,12 +5918,12 @@
             "settledAs": "verb",
             "children": [
              {
-              "seq": 430,
+              "seq": 431,
               "schema": "EOTObservation@1",
               "id": "o339",
               "at": [
-               23267,
-               23271
+               23882,
+               23886
               ],
               "role": "proposition",
               "end1": "it",
@@ -5946,24 +5946,24 @@
       ]
      },
      {
-      "seq": 53,
+      "seq": 54,
       "schema": "EOTObservation@1",
       "id": "p52",
       "at": [
-       23277,
-       23541
+       23894,
+       24158
       ],
       "role": "paragraph",
       "inferred": true,
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 165,
+        "seq": 166,
         "schema": "EOTObservation@1",
         "id": "s164",
         "at": [
-         23277,
-         23482
+         23894,
+         24099
         ],
         "role": "sentence",
         "inferred": true,
@@ -5971,12 +5971,12 @@
         "script": "cased",
         "children": [
          {
-          "seq": 240,
+          "seq": 241,
           "schema": "EOTObservation@1",
           "id": "v239",
           "at": [
-           23277,
-           23482
+           23894,
+           24099
           ],
           "role": "void",
           "operator": "SIG",
@@ -5986,12 +5986,12 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 431,
+            "seq": 432,
             "schema": "EOTObservation@1",
             "id": "o340",
             "at": [
-             23284,
-             23299
+             23901,
+             23916
             ],
             "role": "proposition",
             "end1": "It",
@@ -6006,12 +6006,12 @@
             "children": []
            },
            {
-            "seq": 432,
+            "seq": 433,
             "schema": "EOTObservation@1",
             "id": "o341",
             "at": [
-             23435,
-             23444
+             24052,
+             24061
             ],
             "role": "proposition",
             "end1": "a Lory",
@@ -6030,12 +6030,12 @@
         ]
        },
        {
-        "seq": 166,
+        "seq": 167,
         "schema": "EOTObservation@1",
         "id": "s165",
         "at": [
-         23483,
-         23541
+         24100,
+         24158
         ],
         "role": "sentence",
         "inferred": true,
@@ -6050,12 +6050,12 @@
   ]
  },
  {
-  "seq": 6,
+  "seq": 7,
   "schema": "EOTObservation@1",
   "id": "c5",
   "at": [
-   23551,
-   33027
+   24168,
+   34044
   ],
   "role": "chapter",
   "inferred": true,
@@ -6065,12 +6065,12 @@
   "title": "A Caucus-Race and a Long Tale",
   "children": [
    {
-    "seq": 7,
+    "seq": 8,
     "schema": "EOTObservation@1",
     "id": "h6",
     "at": [
-     23551,
-     23596
+     24168,
+     24213
     ],
     "role": "heading",
     "inferred": true,
@@ -6081,12 +6081,12 @@
   ]
  },
  {
-  "seq": 8,
+  "seq": 9,
   "schema": "EOTObservation@1",
   "id": "c7",
   "at": [
-   33027,
-   47180
+   34044,
+   48687
   ],
   "role": "chapter",
   "inferred": true,
@@ -6096,12 +6096,12 @@
   "title": "The Rabbit Sends in a Little Bill",
   "children": [
    {
-    "seq": 9,
+    "seq": 10,
     "schema": "EOTObservation@1",
     "id": "h8",
     "at": [
-     33027,
-     33075
+     34044,
+     34092
     ],
     "role": "heading",
     "inferred": true,
@@ -6112,12 +6112,12 @@
   ]
  },
  {
-  "seq": 10,
+  "seq": 11,
   "schema": "EOTObservation@1",
   "id": "c9",
   "at": [
-   47180,
-   59495
+   48687,
+   61572
   ],
   "role": "chapter",
   "inferred": true,
@@ -6127,12 +6127,12 @@
   "title": "Advice from a Caterpillar",
   "children": [
    {
-    "seq": 11,
+    "seq": 12,
     "schema": "EOTObservation@1",
     "id": "h10",
     "at": [
-     47180,
-     47219
+     48687,
+     48726
     ],
     "role": "heading",
     "inferred": true,
@@ -6143,12 +6143,12 @@
   ]
  },
  {
-  "seq": 12,
+  "seq": 13,
   "schema": "EOTObservation@1",
   "id": "c11",
   "at": [
-   59495,
-   73671
+   61572,
+   76326
   ],
   "role": "chapter",
   "inferred": true,
@@ -6158,12 +6158,12 @@
   "title": "Pig and Pepper",
   "children": [
    {
-    "seq": 13,
+    "seq": 14,
     "schema": "EOTObservation@1",
     "id": "h12",
     "at": [
-     59495,
-     59524
+     61572,
+     61601
     ],
     "role": "heading",
     "inferred": true,
@@ -6174,12 +6174,12 @@
   ]
  },
  {
-  "seq": 14,
+  "seq": 15,
   "schema": "EOTObservation@1",
   "id": "c13",
   "at": [
-   73671,
-   86724
+   76326,
+   90191
   ],
   "role": "chapter",
   "inferred": true,
@@ -6189,12 +6189,12 @@
   "title": "A Mad Tea-Party",
   "children": [
    {
-    "seq": 15,
+    "seq": 16,
     "schema": "EOTObservation@1",
     "id": "h14",
     "at": [
-     73671,
-     73702
+     76326,
+     76357
     ],
     "role": "heading",
     "inferred": true,
@@ -6205,12 +6205,12 @@
   ]
  },
  {
-  "seq": 16,
+  "seq": 17,
   "schema": "EOTObservation@1",
   "id": "c15",
   "at": [
-   86724,
-   100707
+   90191,
+   104690
   ],
   "role": "chapter",
   "inferred": true,
@@ -6220,12 +6220,12 @@
   "title": "The Queen’s Croquet-Ground",
   "children": [
    {
-    "seq": 17,
+    "seq": 18,
     "schema": "EOTObservation@1",
     "id": "h16",
     "at": [
-     86724,
-     86767
+     90191,
+     90236
     ],
     "role": "heading",
     "inferred": true,
@@ -6236,12 +6236,12 @@
   ]
  },
  {
-  "seq": 18,
+  "seq": 19,
   "schema": "EOTObservation@1",
   "id": "c17",
   "at": [
-   100707,
-   113665
+   104690,
+   118418
   ],
   "role": "chapter",
   "inferred": true,
@@ -6251,12 +6251,12 @@
   "title": "The Mock Turtle’s Story",
   "children": [
    {
-    "seq": 19,
+    "seq": 20,
     "schema": "EOTObservation@1",
     "id": "h18",
     "at": [
-     100707,
-     100745
+     104690,
+     104730
     ],
     "role": "heading",
     "inferred": true,
@@ -6267,12 +6267,12 @@
   ]
  },
  {
-  "seq": 20,
+  "seq": 21,
   "schema": "EOTObservation@1",
   "id": "c19",
   "at": [
-   113665,
-   125382
+   118418,
+   130841
   ],
   "role": "chapter",
   "inferred": true,
@@ -6282,12 +6282,12 @@
   "title": "The Lobster Quadrille",
   "children": [
    {
-    "seq": 21,
+    "seq": 22,
     "schema": "EOTObservation@1",
     "id": "h20",
     "at": [
-     113665,
-     113700
+     118418,
+     118453
     ],
     "role": "heading",
     "inferred": true,
@@ -6298,12 +6298,12 @@
   ]
  },
  {
-  "seq": 22,
+  "seq": 23,
   "schema": "EOTObservation@1",
   "id": "c21",
   "at": [
-   125382,
-   136036
+   130841,
+   142011
   ],
   "role": "chapter",
   "inferred": true,
@@ -6313,12 +6313,12 @@
   "title": "Who Stole the Tarts?",
   "children": [
    {
-    "seq": 23,
+    "seq": 24,
     "schema": "EOTObservation@1",
     "id": "h22",
     "at": [
-     125382,
-     125417
+     130841,
+     130876
     ],
     "role": "heading",
     "inferred": true,
@@ -6329,12 +6329,12 @@
   ]
  },
  {
-  "seq": 24,
+  "seq": 25,
   "schema": "EOTObservation@1",
   "id": "c23",
   "at": [
-   136036,
-   147978
+   142011,
+   154473
   ],
   "role": "chapter",
   "inferred": true,
@@ -6344,12 +6344,12 @@
   "title": "Alice’s Evidence",
   "children": [
    {
-    "seq": 25,
+    "seq": 26,
     "schema": "EOTObservation@1",
     "id": "h24",
     "at": [
-     136036,
-     136068
+     142011,
+     142045
     ],
     "role": "heading",
     "inferred": true,

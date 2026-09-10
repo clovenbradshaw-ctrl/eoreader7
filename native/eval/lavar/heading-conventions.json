@@ -38,6 +38,37 @@
       "foundIn": "pg1661_The_Adventures_of_Tom_Sawyer.txt",
       "foundVia": "mechanical (skeleton recurrence + monotonic numeral)",
       "dateFound": "2026-09-10"
+    },
+    {
+      "name": "PART <word>",
+      "word": "PART",
+      "numeralType": "word",
+      "numeralCase": "upper",
+      "requiresPeriod": false,
+      "titleOnSameLine": false,
+      "foundIn": "synthetic-spelled-out.txt",
+      "foundVia": "mechanical (skeleton recurrence + monotonic numeral)",
+      "dateFound": "2026-09-10"
+    },
+    {
+      "name": "APPENDIX <letter>",
+      "word": "APPENDIX",
+      "numeralType": "letter",
+      "requiresPeriod": false,
+      "titleOnSameLine": false,
+      "foundIn": "synthetic-appendix-letters.txt",
+      "foundVia": "mechanical (skeleton recurrence + monotonic numeral)",
+      "dateFound": "2026-09-10"
+    },
+    {
+      "name": "Article <arabic>",
+      "numeralType": "arabic",
+      "word": "Article",
+      "requiresPeriod": false,
+      "titleOnSameLine": false,
+      "foundIn": "udhr-eng.txt",
+      "foundVia": "mechanical (skeleton recurrence + monotonic numeral), auto-wired from eot-jsonl.mjs",
+      "dateFound": "2026-09-10"
     }
   ]
 }

@@ -62,7 +62,10 @@ import { makeGrainTyper } from "./grain-typing.mjs";
 import { receivedGround, applyDelta } from "../../kernel/fold.js";
 import { deriveIdentityRevision } from "../../kernel/identity.js";
 import { textIdentityEvidence } from "../../adapters/text/identity-evidence.js";
-import { loadLibrary, saveLibrary, tier1, tier2, deriveConvention, buildRegex } from "./structure-rec.mjs";
+import { loadLibrary, saveLibrary, tier1, tier2, tier3, deriveConvention, buildRegex, numeralValue } from "./structure-rec.mjs";
+import { currentRecipe } from "./recipe-id.mjs";
+import { findSurprise, settle } from "./helix-read.mjs";
+import { charToByte } from "./byte-char-index.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const LP_ROOT = path.resolve(HERE, "../../../../live_priors");
@@ -101,6 +104,19 @@ const sourcePath = process.argv[2];
 if (!sourcePath) { console.error("usage: node eot-jsonl.mjs <path-to-origin-document> [chapterNumber]"); process.exit(1); }
 const originBytes = fs.readFileSync(sourcePath, "utf8");
 const sha256 = crypto.createHash("sha256").update(originBytes, "utf8").digest("hex");
+
+// COORDINATE SPACE, DECLARED NEVER MIXED — byte-char-index.mjs's own
+// header carries the full law and the Pride and Prejudice measurement
+// that found this gap. `byteOf`, composed into `rawAt` below, is the ONE
+// place every address this file emits already passes through — no
+// detection logic anywhere else changes. `originBytes.length` (its own
+// misleading name: a JS string's `.length` is code UNITS, not bytes) had
+// been standing in for a real byte count uncaught, because every book
+// tested until now (Alice, Frankenstein, Dorian Gray, Tom Sawyer,
+// Sherlock Holmes, the English UDHR) is close enough to pure ASCII that
+// the two spaces are numerically identical there.
+const byteOf = charToByte(originBytes);
+const RECIPE = currentRecipe();
 const READ_CHAPTER = Number(process.argv[3] ?? 1);
 // REREADING. User direction, verbatim: "sometimes it helps to reread a
 // chapter for a person" / "now with CH 1 and Ch2 as priors, reread ch 1".
@@ -168,7 +184,11 @@ for (const lx of lexicons) if (!lx.giver) { console.error("a lexicon prior must 
 // what lands on the ledger addresses the ORIGIN's own coordinates. The origin
 // file is never touched.
 const { text: raw, toRaw } = normaliseNewlines(originBytes);
-const rawAt = (start, end) => [toRaw(start), toRaw(end)];
+// Composed with byteOf (above): toRaw undoes CRLF normalisation (char
+// space -> origin char space), byteOf then converts origin char space ->
+// real UTF-8 byte space. Two coordinate transforms, one function, applied
+// in the order they actually nest.
+const rawAt = (start, end) => [byteOf(toRaw(start)), byteOf(toRaw(end))];
 
 // LANGUAGE. Defaults to English (this driver's whole history until now).
 // "do other languages... it shows us if we are doing too much of an
@@ -251,14 +271,17 @@ emit({
   schema: "EOTSource@1",
   path: path.relative(LP_ROOT, path.resolve(sourcePath)),
   sha256,
-  bytes: originBytes.length,
+  bytes: byteOf(originBytes.length), // real UTF-8 bytes (Buffer.byteLength), not the JS string's own .length — see charToByte's header above
   newlines: originBytes.includes("\r\n") ? "crlf — addresses below are in the ORIGIN's own coordinates, mapped back through spans.js::normaliseNewlines (S26)" : "lf",
-  addressing: "every `at` below is [start,end) into THIS source; containment is computed from those numbers, never declared",
+  addressing: "every `at` below is [start,end) UTF-8 BYTE offsets into THIS source's real bytes (charToByte, above); containment is computed from those numbers, never declared",
 });
 
 // ── line 1: the priors. What "how to read English" meant for this reading. ─
 emit({
   schema: "EOTRecipe@1",
+  recipeId: RECIPE.recipeId,
+  recipeGit: RECIPE.git,
+  recipeNote: "a hash over the actual bytes of this pipeline's own detector files (recipe-id.mjs::RECIPE_FILES) — never a git commit, since this directory routinely carries uncommitted capability changes. Two sidecars with different recipeId were read by genuinely different code, regardless of what got committed when.",
   language: LANG,
   reader: LANG === "eng"
     ? "makeRelationReader — the POSITIONAL English reader: an end's role is found by its position in the clause, not by case-marking on the word. English word order carries meaning and this reading uses it."
@@ -362,13 +385,21 @@ const chapters = [];
   // itself, so the NEXT book with the same shape is a tier-1 hit here
   // too, the same way it already is for `structure-rec.mjs`'s own CLI.
   //
-  // Tier 3 (the model witness) is deliberately NOT called here: it only
-  // ever confirms "this looks structural," and confirming that is not
-  // the same as knowing a numeral to build chapter ordinals from — a
-  // reader that can infer WHICH chapter something is in needs the
-  // numeral tier 2 already requires, not just a yes/no. A tier-3-only
-  // verdict, with no numeral, is a real, disclosed case this reader
-  // still cannot open a book from — named here rather than forced.
+  // Tier 3 (the model witness) IS now called when tier 2 finds a recurring
+  // skeleton with no monotonic numeral to confirm it mechanically — it USED
+  // to be skipped here on the reasoning that "confirmed structural" alone
+  // was not the same as knowing a numeral to build chapter ordinals from.
+  // That reasoning conflated two different things: this reader's own
+  // chapter-ordinal assignment (`ordinal: i + 1`, below) was ALREADY by
+  // document order, never by a parsed numeral value — the numeral was only
+  // ever needed to build a MATCHING REGEX, via `deriveConvention`. Once
+  // `deriveConvention` gained a `numeralType: "none"` shape (a literal
+  // marker, no numeral captured at all — "INTERLUDE" repeated between acts,
+  // never "INTERLUDE ONE"), a tier-3 "structural — confirmed" verdict is
+  // enough to build a real regex from, and the ordinal mechanism needs no
+  // change at all. The model's own confirmation is what licenses this —
+  // `deriveConvention`'s "none" branch has no way on its own to tell a real
+  // recurring marker from a recurring refrain.
   const lib = loadLibrary();
   let conv = null;
   const t1 = tier1(raw, lib);
@@ -380,19 +411,36 @@ const chapters = [];
       const parsed = deriveConvention(t2.group.members[0].text);
       const consistent = parsed && t2.group.members.every((mem) => {
         const p = deriveConvention(mem.text);
-        return p && p.word === parsed.word && p.numeralType === parsed.numeralType && p.requiresPeriod === parsed.requiresPeriod && p.titleOnSameLine === parsed.titleOnSameLine;
+        return p && p.word === parsed.word && p.numeralType === parsed.numeralType && p.requiresPeriod === parsed.requiresPeriod && p.titleOnSameLine === parsed.titleOnSameLine && p.numeralCase === parsed.numeralCase;
       });
       if (consistent) {
         conv = { name: `${parsed.word ? parsed.word + " " : ""}<${parsed.numeralType}>${parsed.requiresPeriod ? "." : ""}`, ...parsed };
-        const alreadyKnown = lib.conventions.some((c) => c.word === conv.word && c.numeralType === conv.numeralType && c.requiresPeriod === conv.requiresPeriod && Boolean(c.titleOnSameLine) === Boolean(conv.titleOnSameLine));
+        const alreadyKnown = lib.conventions.some((c) => c.word === conv.word && c.numeralType === conv.numeralType && c.requiresPeriod === conv.requiresPeriod && Boolean(c.titleOnSameLine) === Boolean(conv.titleOnSameLine) && c.numeralCase === conv.numeralCase);
         if (!alreadyKnown) {
           lib.conventions.push({ ...conv, foundIn: path.basename(sourcePath), foundVia: "mechanical (skeleton recurrence + monotonic numeral), auto-wired from eot-jsonl.mjs", dateFound: new Date().toISOString().slice(0, 10) });
           saveLibrary(lib);
         }
       }
+    } else if (t2 && !t2.monotonic) {
+      const verdict = await tier3(t2.group);
+      if (verdict.verdict === "structural — confirmed") {
+        const parsed = deriveConvention(t2.group.members[0].text);
+        const consistent = parsed && parsed.numeralType === "none" && t2.group.members.every((mem) => {
+          const p = deriveConvention(mem.text);
+          return p && p.word === parsed.word && p.numeralType === "none" && p.requiresPeriod === parsed.requiresPeriod;
+        });
+        if (consistent) {
+          conv = { name: `"${parsed.word}" (no numeral)${parsed.requiresPeriod ? "." : ""}`, ...parsed };
+          const alreadyKnown = lib.conventions.some((c) => c.word === conv.word && c.numeralType === "none" && c.requiresPeriod === conv.requiresPeriod);
+          if (!alreadyKnown) {
+            lib.conventions.push({ ...conv, foundIn: path.basename(sourcePath), foundVia: "model witness (tier 3, confirmed structural, no numeral — ordinals assigned by document order), auto-wired from eot-jsonl.mjs", dateFound: new Date().toISOString().slice(0, 10) });
+            saveLibrary(lib);
+          }
+        }
+      }
     }
   }
-  if (!conv) { console.error("no chapter heading convention could be determined for this document (neither a known convention nor a new one with a usable numeral)"); process.exit(2); }
+  if (!conv) { console.error("no chapter heading convention could be determined for this document (neither a known convention, nor a new mechanical one with a usable numeral, nor a tier-3-confirmed literal marker)"); process.exit(2); }
 
   const RE = buildRegex(conv);
   let m; const hits = [];
@@ -416,6 +464,24 @@ const chapters = [];
     // — its own regex cannot match at all unless a title is present, so
     // the match's own end is already the heading's end.
     const hasRealTitle = conv.titleOnSameLine || (Boolean(titleLine.trim()) && raw[candidateEnd] === "\n");
+    // A TABLE-OF-CONTENTS LISTING IS NOT A CHAPTER (found on UDHR: 2026-09-10,
+    // widening buildRegex's anchor to `^[ \t]*` — needed so a uniformly-
+    // indented document like UDHR can be read at all — also let Frankenstein's
+    // own ToC ("CONTENTS\r\n Letter 1\r\n Letter 2\r\n... Chapter 1\r\n Chapter
+    // 2\r\n...", one leading space, no blank line between entries) match 24
+    // times as 24 spurious ~25-byte "chapters". Before this fix the strict
+    // column-0 anchor rejected the ToC's leading space by ACCIDENT, never by
+    // design — real protection, not a real mechanism. The actual, general
+    // signal: for a `titleOnSameLine:false` convention, titleLine is either
+    // genuinely BLANK (a real "no title" chapter — Dorian Gray, Frankenstein's
+    // own real headings) or non-blank AND confirmed followed by its own blank
+    // line (a real title — Alice). A NON-BLANK titleLine that is NOT so
+    // confirmed is neither shape: it is the convention's own next occurrence
+    // sitting immediately on the following line, which is exactly what a
+    // listing looks like and prose never does. Rejected outright, not merely
+    // stripped of its title text (which is what `hasRealTitle` alone used to
+    // gate) — pinned in eot-jsonl.test.mjs.
+    if (!conv.titleOnSameLine && titleLine.trim() && !hasRealTitle) continue;
     hits.push({
       start: m.index, num: m.groups.numeral,
       convention: conv.name,
@@ -423,10 +489,139 @@ const chapters = [];
       headEnd: conv.titleOnSameLine ? candidateEnd : (hasRealTitle ? candidateEnd : m.indices.groups.titleLine[0]),
     });
   }
-  for (let i = 0; i < hits.length; i += 1) {
-    const end = i + 1 < hits.length ? hits[i + 1].start : raw.length;
-    chapters.push({ ...hits[i], end, ordinal: i + 1 });
+  for (const h of hits) chapters.push({ ...h }); // end/ordinal assigned below, AFTER the hunt — a recovered heading moves both
+
+  // ── THE HELIX SURPRISE HUNT, WIRED IN FOR REAL ──────────────────────────
+  // User direction, verbatim, from the session that built helix-read.mjs:
+  // "this needs to not be a rule about chapter headings. it needs to be a
+  // rule about how when there is something surprising in an identity set
+  // (e.g. monotonic increase) you must hunt to minimize surprise and try
+  // different senses" / "it needs to be triggered by curiosity not 'let's
+  // me be sure I get all the chapters right'". That module was built,
+  // validated against the real P&P 59-of-60 specimen, and left unwired —
+  // no real sidecar had ever run it. This is the wiring.
+  //
+  // The IDENTITY SET is this document's own chapter numerals — whatever
+  // `conv` just matched, read through `numeralValue` (the one place this
+  // project knows every numeral system). `findSurprise` asks a question
+  // `recoverability.mjs` cannot: not "did every match resolve" but "does
+  // this set's OWN shape, tested against a redeal of its own span, imply a
+  // missing member" — real curiosity about the set's regularity, not a
+  // coverage count.
+  //
+  // Skipped, not silently: a `numeralType: "none"` convention (a literal
+  // marker like "INTERLUDE", ordinals assigned by document order alone)
+  // has no numeral to place on a line at all — there is nothing for
+  // `findSurprise` to be surprised about. Fewer than 3 heads is
+  // `findSurprise`'s own declared floor for inducing a regularity model.
+  let helixOutcome = null;
+  if (conv.numeralType !== "none" && chapters.length >= 3) {
+    const positionOf = (c) => numeralValue(c.num);
+    const before = findSurprise(chapters, positionOf, { seed: 1 });
+
+    // THE SENSE: reads the shared convention library (`heading-conventions
+    // .json`, the exact resource tier 1 already consults) rather than
+    // inventing a second heading-detection mechanism — the same
+    // "search for the organ before you write one" discipline this file's
+    // own header names. A real book can genuinely mix conventions (an
+    // appendix in letters after chapters in arabic numerals is a real,
+    // already-supported case); this sense asks, for each GAP the identity
+    // set implies, whether some OTHER known convention has a heading — in
+    // the byte range between the gap's two real neighbours — whose own
+    // numeral value is exactly the missing position. `turn()`/`settle()`
+    // independently re-measure whatever this proposes; a candidate that
+    // does not genuinely reduce surprise is conceded, never trusted
+    // because the sense claimed success.
+    const librarySense = {
+      name: "alternate-convention-library-scan",
+      async look(surpriseRaw, ground) {
+        const lib = loadLibrary();
+        const others = lib.conventions.filter((c) => !(
+          c.word === conv.word && c.numeralType === conv.numeralType &&
+          c.requiresPeriod === conv.requiresPeriod &&
+          Boolean(c.titleOnSameLine) === Boolean(conv.titleOnSameLine) &&
+          c.numeralCase === conv.numeralCase
+        ));
+        if (!others.length) return { settled: false, ground, reason: "no other convention in the shared library to try" };
+
+        const members = ground.members.slice();
+        const attempts = [];
+        let found = 0;
+        for (const s of surpriseRaw.surprises ?? []) {
+          if (s.kind !== "prediction-error") continue;
+          const before2 = s.between?.[0] ?? null;
+          const after2 = s.between?.[1] ?? null;
+          const windowStart = before2 ? before2.end ?? before2.start : 0;
+          const windowEnd = after2 ? after2.start : raw.length;
+          let recovered = null;
+          for (const altConv of others) {
+            const RE2 = buildRegex(altConv);
+            let m2;
+            while ((m2 = RE2.exec(raw))) {
+              if (m2.index < windowStart || m2.index >= windowEnd) continue;
+              if (numeralValue(m2.groups.numeral ?? "") !== s.position) continue;
+              const titleLine2 = m2.groups.titleLine ?? "";
+              const candidateEnd2 = m2.index + m2[0].length;
+              const hasRealTitle2 = altConv.titleOnSameLine || (Boolean(titleLine2.trim()) && raw[candidateEnd2] === "\n");
+              recovered = {
+                start: m2.index, num: m2.groups.numeral,
+                convention: altConv.name ?? `${altConv.word ?? ""}<${altConv.numeralType}>`,
+                title: hasRealTitle2 ? titleLine2.trim() : "",
+                headEnd: altConv.titleOnSameLine ? candidateEnd2 : (hasRealTitle2 ? candidateEnd2 : m2.indices.groups.titleLine[0]),
+              };
+              break;
+            }
+            if (recovered) break;
+          }
+          attempts.push({ position: s.position, recoveredVia: recovered?.convention ?? null });
+          if (recovered) { members.push(recovered); found += 1; }
+        }
+        if (!found) return { settled: false, ground, reason: `tried ${others.length} other known convention(s) against ${(surpriseRaw.surprises ?? []).length} gap(s) — none landed in-window at the expected numeral`, attempts };
+        return { settled: true, ground: { ...ground, members }, reason: `recovered ${found} of ${(surpriseRaw.surprises ?? []).length} gap(s) from the shared convention library`, attempts };
+      },
+    };
+
+    // A COPY, not the live `chapters` reference — `chapters` is cleared and
+    // rebuilt from `helixOutcome.ground.members` right below, and turn()'s
+    // own "already settled, nothing to do" path returns the SAME ground
+    // object it was handed rather than a new one; aliasing the two arrays
+    // would make `chapters.length = 0` empty the settled result too.
+    const ground = { kind: "identity-set", members: chapters.slice(), positionOf, surpriseOpts: { seed: 1 }, sourceId: `${path.basename(sourcePath)}::chapter-numerals` };
+    helixOutcome = await settle(ground, [librarySense], { maxTurns: 6 });
+    chapters.length = 0;
+    chapters.push(...helixOutcome.ground.members);
+
+    for (const t of helixOutcome.trace) {
+      emit({
+        schema: "EOTHelixTurn@1", kind: "identity-set", subject: "chapter numerals",
+        turn: t.turn, moved: t.moved, conceded: t.conceded, via: t.via, reason: t.reason,
+      });
+    }
+    emit({
+      schema: "EOTHelixTurn@1", kind: "identity-set", subject: "chapter numerals", summary: true,
+      before: { regular: before.regular, p: before.p ?? null, surprises: before.regular ? before.surprises.length : null, reason: before.regular ? null : before.reason },
+      after: { settled: helixOutcome.settled, turns: helixOutcome.turns, stoppedBy: helixOutcome.stoppedBy },
+      disclosure: before.regular && before.surprises.length === 0
+        ? "the chapter numerals were checked against their own redealt null (helix-read.mjs::findSurprise) — regular and complete; nothing to hunt."
+        : before.regular
+          ? `the chapter numerals implied ${before.surprises.length} missing member(s) against their own redealt null; the hunt ${helixOutcome.settled ? "settled" : "did not fully settle"} them (${helixOutcome.stoppedBy}).`
+          : `the chapter numerals could not be distinguished from a redeal of their own span (${before.reason}) — no regularity model to be surprised against, so nothing was hunted.`,
+    });
+  } else {
+    emit({
+      schema: "EOTHelixTurn@1", kind: "identity-set", subject: "chapter numerals", ran: false,
+      reason: conv.numeralType === "none"
+        ? "this book's chapter convention carries no numeral (a literal marker, ordinals assigned by document order alone) — nothing to place on an identity line"
+        : `only ${chapters.length} chapter head(s) detected — findSurprise needs at least 3 placed members to induce a regularity model`,
+    });
   }
+
+  chapters.sort((a, b) => a.start - b.start);
+  for (let i = 0; i < chapters.length; i += 1) {
+    chapters[i].end = i + 1 < chapters.length ? chapters[i + 1].start : raw.length;
+    chapters[i].ordinal = i + 1;
+  }
+
   for (const c of chapters) {
     // The basis names the CONVENTION THIS HEADING ACTUALLY MATCHED, not
     // just "the Roman-numeral form" unconditionally — found wrong on the
