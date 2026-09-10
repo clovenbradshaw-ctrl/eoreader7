@@ -365,15 +365,25 @@ const chapters = [];
   // (literal all-caps, required period) is UNCHANGED, so nothing already
   // verified against AIW or Dorian Gray can start matching differently;
   // this only adds a second alternative the first branch never reached.
-  const RE = /^(?:CHAPTER (?<roman>[IVXLC]+)\.|Chapter (?<arabic>\d+)\.?)\s*\n(?<titleLine>[^\n]*)\n/gmd;
+  // A THIRD SIBLING, found reading the real Tom Sawyer for the first time
+  // (structure-rec.mjs's own "sniff" identified it mechanically, via
+  // skeleton recurrence, before this file was touched by hand at all):
+  // "CHAPTER I" — all-caps, Roman numeral, no trailing period. The first
+  // branch's own required period means this book's heads[] came back
+  // empty even though the word and numeral alphabet both matched AIW's
+  // own convention; the fix is one more alternative, tried only after the
+  // period-requiring form has already had its chance, so nothing already
+  // verified can start matching a bare-numeral candidate instead.
+  const RE = /^(?:CHAPTER (?<roman>[IVXLC]+)\.|Chapter (?<arabic>\d+)\.?|CHAPTER (?<romanBare>[IVXLC]+))\s*\n(?<titleLine>[^\n]*)\n/gmd;
   let m; const hits = [];
   while ((m = RE.exec(raw))) {
     const candidateEnd = m.index + m[0].length;
     const titleLine = m.groups.titleLine;
     const hasRealTitle = Boolean(titleLine.trim()) && raw[candidateEnd] === "\n";
+    const convention = m.groups.roman !== undefined ? "CHAPTER <roman>." : m.groups.arabic !== undefined ? "Chapter <arabic>" : "CHAPTER <roman>";
     hits.push({
-      start: m.index, num: m.groups.roman ?? m.groups.arabic,
-      convention: m.groups.roman !== undefined ? "CHAPTER <roman>." : "Chapter <arabic>",
+      start: m.index, num: m.groups.roman ?? m.groups.arabic ?? m.groups.romanBare,
+      convention,
       title: hasRealTitle ? titleLine.trim() : "",
       headEnd: hasRealTitle ? candidateEnd : m.indices.groups.titleLine[0],
     });
