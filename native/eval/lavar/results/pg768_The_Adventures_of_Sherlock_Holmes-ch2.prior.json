@@ -1,0 +1,303 @@
+{
+ "chapter": 2,
+ "verbs": [
+  "pulled",
+  "here",
+  "has",
+  "tradesman",
+  "chain",
+  "started",
+  "coin",
+  "laughed",
+  "to",
+  "chuckled",
+  "of",
+  "was",
+  "millionaire",
+  "had",
+  "when",
+  "seemed",
+  "said",
+  "would",
+  "as",
+  "and",
+  "evening",
+  "did",
+  "the",
+  "took",
+  "or",
+  "sat",
+  "we",
+  "music",
+  "stopped",
+  "presented",
+  "branch",
+  "is",
+  "rather",
+  "at",
+  "that",
+  "in",
+  "gloomily",
+  "murder",
+  "treasure",
+  "night",
+  "one",
+  "with",
+  "remarked",
+  "severely",
+  "perched",
+  "fell",
+  "banks",
+  "should",
+  "gold",
+  "shot",
+  "from",
+  "swing",
+  "clutched",
+  "blandly",
+  "answered",
+  "serenely",
+  "abutted",
+  "offices",
+  "wrote",
+  "chest",
+  "greatcoat",
+  "thick",
+  "but",
+  "head",
+  "ought",
+  "mind",
+  "pictures",
+  "died",
+  "red",
+  "enormous",
+  "hair",
+  "pushed",
+  "got",
+  "plunged",
+  "seized",
+  "hands",
+  "might",
+  "flaming",
+  "name",
+  "suddenly",
+  "chair",
+  "pipe",
+  "walked",
+  "waved",
+  "hand",
+  "heel",
+  "saw",
+  "words",
+  "track",
+  "yet",
+  "made",
+  "accomplice’s"
+ ],
+ "cast": [
+  [
+   "Mr Duncan Ross",
+   "ref:auto:mr_duncan_ross"
+  ],
+  [
+   "Mr Jabez Wilson",
+   "ref:auto:mr_jabez_wilson"
+  ],
+  [
+   "Jabez Wilson",
+   "ref:auto:mr_jabez_wilson"
+  ],
+  [
+   "John Clay",
+   "ref:auto:john_clay"
+  ],
+  [
+   "Pope Court",
+   "ref:auto:pope_court"
+  ],
+  [
+   "Sherlock Holmes",
+   "ref:auto:sherlock_holmes"
+  ],
+  [
+   "Vincent Spaulding",
+   "ref:auto:vincent_spaulding"
+  ],
+  [
+   "Coburg Square",
+   "ref:auto:coburg_square"
+  ],
+  [
+   "Encyclopædia Britannica",
+   "ref:auto:encyclopædia_britannica"
+  ],
+  [
+   "Ezekiah Hopkins",
+   "ref:auto:ezekiah_hopkins"
+  ],
+  [
+   "Mr John Clay",
+   "ref:auto:john_clay"
+  ],
+  [
+   "Mr Sherlock Holmes",
+   "ref:auto:sherlock_holmes"
+  ],
+  [
+   "Scotland Yard",
+   "ref:auto:scotland_yard"
+  ],
+  [
+   "St James Hall",
+   "ref:auto:st_james_hall"
+  ],
+  [
+   "Suburban Bank",
+   "ref:auto:suburban_bank"
+  ],
+  [
+   "Holmes",
+   "ref:auto:sherlock_holmes"
+  ],
+  [
+   "Mr Wilson",
+   "ref:auto:mr_jabez_wilson"
+  ],
+  [
+   "League",
+   "ref:auto:league"
+  ],
+  [
+   "Mr Holmes",
+   "ref:auto:sherlock_holmes"
+  ],
+  [
+   "Mr Merryweather",
+   "ref:auto:mr_merryweather"
+  ],
+  [
+   "Jones",
+   "ref:auto:jones"
+  ],
+  [
+   "Watson",
+   "ref:auto:watson"
+  ],
+  [
+   "London",
+   "ref:auto:london"
+  ],
+  [
+   "Mr Duncan",
+   "ref:auto:mr_duncan_ross"
+  ],
+  [
+   "Mr Jabez",
+   "ref:auto:mr_jabez_wilson"
+  ],
+  [
+   "China",
+   "ref:auto:china"
+  ],
+  [
+   "Encyclopædia",
+   "ref:auto:encyclopædia_britannica"
+  ],
+  [
+   "Saturday",
+   "ref:auto:saturday"
+  ],
+  [
+   "Spaulding",
+   "ref:auto:vincent_spaulding"
+  ],
+  [
+   "Baker",
+   "ref:auto:baker"
+  ],
+  [
+   "Baker Street",
+   "ref:auto:baker"
+  ],
+  [
+   "Coburg",
+   "ref:auto:coburg_square"
+  ],
+  [
+   "French",
+   "ref:auto:french"
+  ],
+  [
+   "Jabez",
+   "ref:auto:mr_jabez_wilson"
+  ],
+  [
+   "John",
+   "ref:auto:john_clay"
+  ],
+  [
+   "Merryweather",
+   "ref:auto:mr_merryweather"
+  ],
+  [
+   "Pope",
+   "ref:auto:pope_court"
+  ],
+  [
+   "Scotland",
+   "ref:auto:scotland_yard"
+  ],
+  [
+   "Sherlock",
+   "ref:auto:sherlock_holmes"
+  ],
+  [
+   "Vincent",
+   "ref:auto:vincent_spaulding"
+  ],
+  [
+   "American",
+   "ref:auto:american"
+  ],
+  [
+   "Ezekiah",
+   "ref:auto:ezekiah_hopkins"
+  ],
+  [
+   "Monday",
+   "ref:auto:monday"
+  ],
+  [
+   "Mr John",
+   "ref:auto:john_clay"
+  ],
+  [
+   "Mr Jones",
+   "ref:auto:jones"
+  ],
+  [
+   "Mr Sherlock",
+   "ref:auto:sherlock_holmes"
+  ],
+  [
+   "Oxford",
+   "ref:auto:oxford"
+  ],
+  [
+   "St James",
+   "ref:auto:st_james_hall"
+  ],
+  [
+   "Suburban",
+   "ref:auto:suburban_bank"
+  ],
+  [
+   "Mr",
+   "ref:auto:mr"
+  ],
+  [
+   "St",
+   "ref:auto:st"
+  ]
+ ]
+}
