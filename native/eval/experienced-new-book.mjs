@@ -50,7 +50,7 @@ const GIVER = "reader:experienced-new-book";
 const PRODUCER = { assembly: ATMOSPHERE.id, version: ATMOSPHERE.version };
 const CANONICALIZATION_FLOOR = 2; // binding.js's structural minimum, as elsewhere in this suite
 const ANCHORING = { minActivation: 0.05, minMargin: 0.2 };
-const POS_PRIOR = JSON.parse(fs.readFileSync(new URL("../../legacy-eoreader6.1/bin/priors/pos/en-ud-ewt.json", import.meta.url), "utf8"));
+const POS_PRIOR = JSON.parse(fs.readFileSync(new URL("../../cli/priors/pos-prior-en.json", import.meta.url), "utf8"));
 
 const arg = (flag, fallback) => {
   const i = process.argv.indexOf(flag);

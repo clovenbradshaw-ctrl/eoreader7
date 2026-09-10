@@ -34,18 +34,18 @@ import { makeRelationReader } from "../../../../the-fold/hypergraph.js";
 const here = dirname(fileURLToPath(import.meta.url));
 
 async function organs() {
-  const { splitSentences } = await import("../../../legacy-eoreader6.1/packages/engine/perceiver/text/spans.js");
+  const { splitSentences } = await import("../../adapters/text/spans.js");
   const { extractSurfaces, discoverReferents, namesCorefer, diaNorm } = await import(
-    "../../../legacy-eoreader6.1/packages/engine/perceiver/text/surfaces.js"
+    "../../adapters/text/surfaces.js"
   );
   const { discoverRelationVocab, extractRelations } = await import(
-    "../../../legacy-eoreader6.1/packages/engine/perceiver/text/relations.js"
+    "../../adapters/text/relations.js"
   );
   const { tokenize, buildFrequencyTable, functionWordSet } = await import(
-    "../../../legacy-eoreader6.1/packages/engine/perceiver/text/material.js"
+    "../../adapters/text/material.js"
   );
   const { DEFINITE_DETERMINERS, INDEFINITE_DETERMINERS } = await import(
-    "../../../legacy-eoreader6.1/packages/engine/perceiver/text/priors.js"
+    "../../adapters/text/priors.js"
   );
   return {
     splitSentences,

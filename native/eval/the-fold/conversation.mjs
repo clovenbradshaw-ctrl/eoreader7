@@ -87,9 +87,9 @@ const TL = await import(`${NATIVE}/kernel/task-log.js`);
 let math = null;
 try { math = await import(`${FOLD}node_modules/mathjs/lib/esm/index.js`); } catch { try { math = await import("mathjs"); } catch { math = null; } }
 let nul = null;
-try { nul = await import(`${ROOT}eoreader7/legacy-eoreader6.1/nul/index.js`); } catch { nul = null; }
+try { nul = await import(`${NATIVE}/legacy-ported/nul/index.js`); } catch { nul = null; }
 const { extractSurfaces, discoverReferents, namesCorefer, diaNorm } = await import(`${NATIVE}/adapters/text/surfaces.js`);
-const { lineIndex, outlineOfIndex } = await import(`${ROOT}eoreader7/legacy-eoreader6.1/packages/engine/perceiver/text/segments.js`);
+const { lineIndex, outlineOfIndex } = await import(`${NATIVE}/adapters/text/segments.js`);
 const W = await import(`${NATIVE}/organs/index.js`);
 const castFor = makeCastResolver({ splitSentences, extractSurfaces, discoverReferents, namesCorefer, diaNorm });
 // THE REFERENT INDEX (P11): the turn gets one per part over its passages; the reader's moves and the driver's own measures use one over the whole corpus.
@@ -170,7 +170,7 @@ function admitNext(budgetMs) {
 }
 // ── THE CONSTITUTIONAL READER ─────────────────────────────────────────────
 // The reference assembly (eval/read-cost.mjs; P0 names it): the causal text perceiver with the UD POS prior, the text fold reviser, the fold's own retrieve.
-const POS_PRIOR_PATH = `${ROOT}eoreader7/legacy-eoreader6.1/bin/priors/pos/en-ud-ewt.json`;
+const POS_PRIOR_PATH = `${ROOT}eoreader7/cli/priors/pos-prior-en.json`;
 const READING_ASSEMBLY = "causalTextPerceiver+reviseTextFold@refresh25";
 const READING_PATH = join(RESULTS_ROOT, "readings", `${corpusId}-${READING_ASSEMBLY.replace(/[^\w.-]+/g, "_")}.jsonl`), READING_CURSOR = `${READING_PATH}.cursor`;
 mkdirSync(join(RESULTS_ROOT, "readings"), { recursive: true });

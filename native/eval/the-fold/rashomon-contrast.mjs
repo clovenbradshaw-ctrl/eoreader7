@@ -78,7 +78,7 @@ const P = await import(`${NATIVE}/adapters/text/priors.js`);
 const { makeGrid } = await import(`${FOLD}grid.js`);
 const { makeCapacityRunner, landAct, perSourceReadings, mergeTestimony, findCapacity, unresolvedCapacity } =
   await import(`${NATIVE}/organs/index.js`);
-const LEGACY = new URL("../../../legacy-eoreader6.1/packages/engine/", import.meta.url).pathname;
+const LEGACY = new URL("../../legacy-ported/packages/engine/", import.meta.url).pathname;
 const operators = await import(`${LEGACY}operators.js`);
 const taskLog = await import(`${LEGACY}holon/task-log.js`);
 

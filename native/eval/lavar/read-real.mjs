@@ -41,7 +41,7 @@ const REPO_ROOT = path.resolve(HERE, "../../.."); // native/eval/lavar -> native
 const GIVER = "reader:lavar-read-real";
 const CANONICALIZATION_FLOOR = 2;
 const ANCHORING = { minActivation: 0.05, minMargin: 0.2 };
-const POS_PRIOR = JSON.parse(fs.readFileSync(path.join(REPO_ROOT, "legacy-eoreader6.1/bin/priors/pos/en-ud-ewt.json"), "utf8"));
+const POS_PRIOR = JSON.parse(fs.readFileSync(path.join(REPO_ROOT, "cli/priors/pos-prior-en.json"), "utf8"));
 
 const emptyRetrieve = (_fold, evidence) => Object.freeze({
   schema: "EORelevantFold@1", witnessed: Object.freeze([...evidence]), provisional: Object.freeze([]),

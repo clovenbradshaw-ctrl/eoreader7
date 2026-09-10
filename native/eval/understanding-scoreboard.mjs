@@ -98,7 +98,7 @@ const CANONICALIZATION_FLOOR = 2;
 // the file) gates descriptor HEADS to noun-hood; without it "the most" /
 // "the first" bind as descriptors (measured — recursive.js's own comment).
 const POS_PRIOR = JSON.parse(
-  fs.readFileSync(new URL("../../legacy-eoreader6.1/bin/priors/pos/en-ud-ewt.json", import.meta.url), "utf8"),
+  fs.readFileSync(new URL("../../cli/priors/pos-prior-en.json", import.meta.url), "utf8"),
 );
 
 function makeReader() {

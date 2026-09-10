@@ -28,15 +28,16 @@ import { readFileSync } from "node:fs";
 // silently; `ENGINE=native node --test hypergraph.test.mjs` runs the
 // PRODUCTION configuration, and the delta between them is a measurement
 // anyone can take instead of a surprise.
-// In THIS repo the frozen provider is a submodule that may be uninitialised;
-// when it is absent the switch resolves to native (the production
-// configuration, P69) rather than to a file that cannot load — `ENGINE=legacy`
-// still pins the frozen provider wherever it exists.
+// The frozen provider was ported out of the legacy-eoreader6.1 submodule to
+// native/legacy-ported/packages/engine/perceiver/text/ on 2026-09-10 (see
+// eoreader7/CLAUDE.md), so it is now always present in this checkout;
+// `ENGINE=legacy` still pins it explicitly and `ENGINE=native` (the
+// production configuration, P69) opts into the adapters tree instead.
 import { existsSync } from "node:fs";
-const LEGACY_PRESENT = existsSync(new URL("../../legacy-eoreader6.1/packages/engine/perceiver/text/spans.js", import.meta.url));
+const LEGACY_PRESENT = existsSync(new URL("../legacy-ported/packages/engine/perceiver/text/spans.js", import.meta.url));
 const PROVIDER = process.env.ENGINE === "native" || (process.env.ENGINE !== "legacy" && !LEGACY_PRESENT)
   ? "../adapters/text/"
-  : "../../legacy-eoreader6.1/packages/engine/perceiver/text/";
+  : "../legacy-ported/packages/engine/perceiver/text/";
 
 const organs = async () => {
   const { splitSentences } = await import(PROVIDER + "spans.js");

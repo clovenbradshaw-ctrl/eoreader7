@@ -36,9 +36,9 @@ import { createCausalTextPerceiver, textEncounters } from "../adapters/text/recu
 import { discoverRelationVocab } from "../adapters/text/relations.js";
 import { descriptorBeings } from "../adapters/text/anchoring.js";
 import { castSurfaceMap } from "../adapters/text/perspective-claims.js";
-import { createSession, admitChunked, sessionReferents } from "../../legacy-eoreader6.1/packages/host/corpus.js";
+import { createSession, admitChunked, sessionReferents } from "../legacy-ported/packages/host/corpus.js";
 
-const POS_PRIOR = JSON.parse(fs.readFileSync(new URL("../../legacy-eoreader6.1/bin/priors/pos/en-ud-ewt.json", import.meta.url), "utf8"));
+const POS_PRIOR = JSON.parse(fs.readFileSync(new URL("../../cli/priors/pos-prior-en.json", import.meta.url), "utf8"));
 const PRONOUN_RECALL = { minActivation: 0.05, minMargin: 0.2 };
 const MIN_ARRIVALS = 4; // levers.mjs's own declared value, cited there to entity.js's Born gate
 const MIN_SURFACES = 2; // the perceiver's own minRelationSurfaces default

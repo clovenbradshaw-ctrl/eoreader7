@@ -11,7 +11,7 @@ import { createRecursiveReader } from "../../kernel.js";
 import { projectHypergraph } from "../kernel/hypergraph-projection.js";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
-const POS = JSON.parse(fs.readFileSync(path.join(here, "../../legacy-eoreader6.1/bin/priors/pos/en-ud-ewt.json"), "utf8"));
+const POS = JSON.parse(fs.readFileSync(path.join(here, "../../cli/priors/pos-prior-en.json"), "utf8"));
 const BOOK = "/Users/mlacy/Documents/3.0/the-fold/pg2600.txt";
 const BYTES = 60000;
 let cached = null;

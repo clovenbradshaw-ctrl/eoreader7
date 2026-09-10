@@ -37,7 +37,7 @@ import { tokens, codeOf, encodeFrame } from "../memory/activation.js";
 import { createStreamingDmd } from "../kernel/dmd-stream.js";
 import { dominantClass } from "../adapters/text/construction.js";
 
-const POS_PRIOR = JSON.parse(fs.readFileSync(new URL("../../legacy-eoreader6.1/bin/priors/pos/en-ud-ewt.json", import.meta.url), "utf8"));
+const POS_PRIOR = JSON.parse(fs.readFileSync(new URL("../../cli/priors/pos-prior-en.json", import.meta.url), "utf8"));
 // UD's own closed-class inventory, received verbatim from the giver's taxonomy
 const UD_CLOSED = new Set(["ADP", "AUX", "CCONJ", "DET", "NUM", "PART", "PRON", "SCONJ"]);
 

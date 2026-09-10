@@ -12,7 +12,7 @@ import { reviseTextFold } from "../adapters/text/revision.js";
 import { createRecursiveReader } from "../../kernel.js";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
-const POS = JSON.parse(fs.readFileSync(path.join(here, "../../legacy-eoreader6.1/bin/priors/pos/en-ud-ewt.json"), "utf8"));
+const POS = JSON.parse(fs.readFileSync(path.join(here, "../../cli/priors/pos-prior-en.json"), "utf8"));
 const BOOK = "/Users/mlacy/Documents/3.0/the-fold/pg2600.txt";
 const partition = (events) => { const by = new Map(); for (const e of events) { if (e.type !== "DEF.admit") continue; if (!by.has(e.referent_id)) by.set(e.referent_id, []); by.get(e.referent_id).push(e.surface); } return [...by.values()].map((xs) => xs.sort().join("|")).sort(); };
 const refsOf = (events) => { const m = new Map(); for (const e of events) if (e.type === "DEF.admit") m.set(diaNorm(e.surface), e.referent_id); return m; };

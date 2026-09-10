@@ -24,7 +24,7 @@ import { makePhasepost, headVerb, COPULA_FORMS } from "../adapters/text/phasepos
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const { cellOf } = await import(path.join(HERE, "..", "kernel", "cube.js"));
 const priors = await import(path.join(HERE, "..", "adapters", "text", "priors.js"));
-const morph = await import(path.join(HERE, "..", "..", "legacy-eoreader6.1", "packages", "engine", "perceiver", "text", "morphology.js"));
+const morph = await import(path.join(HERE, "..", "legacy-ported", "packages", "engine", "perceiver", "text", "morphology.js"));
 
 const actPrior = JSON.parse(fs.readFileSync(path.join(HERE, "..", "..", "..", "live_priors", "derived-priors", "act-priors", "act-prior-en.json"), "utf8"));
 const morphPrior = JSON.parse(fs.readFileSync(path.join(HERE, "..", "eval", "the-fold", "fixtures", "unimorph-morphology-prior.json"), "utf8"));

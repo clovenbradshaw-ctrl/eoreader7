@@ -381,13 +381,13 @@ test("thirdSourceCandidates: excludes sources already vouching, requires per-end
   assert.deepEqual(got.map((g) => g.source.ref), ["page-c"], "only the new, feasible source is proposed");
 });
 
-test("THE KUTÚZOV CASE: the fold makes the real novel visible to an unaccented claim — against the real bytes", { skip: !existsSync("/Users/mlacy/Documents/3.0/eoreader7/legacy-eoreader6.1/scripts/corpus/pg2600-war-and-peace.txt") }, () => {
+test("THE KUTÚZOV CASE: the fold makes the real novel visible to an unaccented claim — against the real bytes", { skip: !existsSync("/Users/mlacy/Documents/3.0/eoreader7/native/eval/fixtures/corpus/pg2600-war-and-peace.txt") }, () => {
   // The Maude translation writes Kutúzov 524 times. An unfolded feature
   // set makes the novel invisible to a claim about "Kutuzov" — the exact
   // Bezúkhov bug class, recurring at the fifth turn. This test reads the
   // REAL novel bytes; if the fold ever regresses, the third-source seeker
   // goes blind to accented sources and this fails.
-  const novel = readFileSync("/Users/mlacy/Documents/3.0/eoreader7/legacy-eoreader6.1/scripts/corpus/pg2600-war-and-peace.txt", "utf8");
+  const novel = readFileSync("/Users/mlacy/Documents/3.0/eoreader7/native/eval/fixtures/corpus/pg2600-war-and-peace.txt", "utf8");
   const note = { id: "n", subject: "Napoleon", verb: "fought", object: "Kutuzov", witnesses: ["battle-of-borodino"] };
   const got = thirdSourceCandidates(note, [{ ref: "pg2600", text: novel }], { limit: 3 });
   assert.equal(got.length, 1, "the novel is a feasible third source despite writing Kutúzov");

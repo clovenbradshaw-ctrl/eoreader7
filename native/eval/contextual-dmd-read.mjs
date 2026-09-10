@@ -20,7 +20,7 @@ import { tokens, codeOf, encodeFrame } from "../memory/activation.js";
 import { contextualModes } from "../adapters/text/contextual-dmd.js";
 import { dominantClass } from "../adapters/text/construction.js";
 
-const POS_PRIOR = JSON.parse(fs.readFileSync(new URL("../../legacy-eoreader6.1/bin/priors/pos/en-ud-ewt.json", import.meta.url), "utf8"));
+const POS_PRIOR = JSON.parse(fs.readFileSync(new URL("../../cli/priors/pos-prior-en.json", import.meta.url), "utf8"));
 const UD_CLOSED = new Set(["ADP", "AUX", "CCONJ", "DET", "NUM", "PART", "PRON", "SCONJ"]);
 
 function main() {

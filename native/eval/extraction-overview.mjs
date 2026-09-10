@@ -32,7 +32,7 @@ import { extractSurfaces, discoverReferents } from "../adapters/text/surfaces.js
 import { discoverRelationVocab, extractRelations } from "../adapters/text/relations.js";
 
 const MIN_SURFACES = 2; // the engine's own recurrence discipline, declared by the caller
-const POS_PRIOR = JSON.parse(fs.readFileSync(new URL("../../legacy-eoreader6.1/bin/priors/pos/en-ud-ewt.json", import.meta.url), "utf8"));
+const POS_PRIOR = JSON.parse(fs.readFileSync(new URL("../../cli/priors/pos-prior-en.json", import.meta.url), "utf8"));
 
 function overview(path) {
   const stripped = stripContainer(fs.readFileSync(path, "utf8"));

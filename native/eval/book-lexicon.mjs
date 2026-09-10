@@ -24,7 +24,7 @@ import { projectLexicon } from "../kernel/lexicon.js";
 
 const CANONICALIZATION_FLOOR = 2;
 const ANCHORING = { minActivation: 0.05, minMargin: 0.2 };
-const POS_PRIOR = JSON.parse(fs.readFileSync(new URL("../../legacy-eoreader6.1/bin/priors/pos/en-ud-ewt.json", import.meta.url), "utf8"));
+const POS_PRIOR = JSON.parse(fs.readFileSync(new URL("../../cli/priors/pos-prior-en.json", import.meta.url), "utf8"));
 
 const emptyRetrieve = (_fold, evidence) => Object.freeze({
   schema: "EORelevantFold@1", witnessed: Object.freeze([...evidence]), provisional: Object.freeze([]),

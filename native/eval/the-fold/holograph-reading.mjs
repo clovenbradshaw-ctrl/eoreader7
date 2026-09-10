@@ -38,7 +38,7 @@ const { admitPassages } = await import(`${FOLD}read-on-arrival.js`);
 const { referentsOf } = await import(`${FOLD}dialogue.js`);
 const { splitSentences } = await import(`${NATIVE}/adapters/text/spans.js`);
 const { extractSurfaces, discoverReferents, namesCorefer, diaNorm } = await import(`${NATIVE}/adapters/text/surfaces.js`);
-const { lineIndex, outlineOfIndex } = await import(`${ROOT}eoreader7/legacy-eoreader6.1/packages/engine/perceiver/text/segments.js`);
+const { lineIndex, outlineOfIndex } = await import(`${NATIVE}/adapters/text/segments.js`);
 const indexFor = makeReferentIndex({ splitSentences, extractSurfaces, discoverReferents, namesCorefer, diaNorm });
 const boundariesOf = (t) => { try { const out = outlineOfIndex(lineIndex(t), { max: 5000 }); if (out.gap || out.headings.length < 2) return null; return out.headings.map((h) => ({ start: h.start, end: h.end })); } catch { return null; } };
 

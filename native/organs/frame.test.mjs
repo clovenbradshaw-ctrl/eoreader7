@@ -70,7 +70,7 @@ test("THE LIVE SPECIMEN, end to end: the two REAL engine providers as two declar
     };
   };
   const PROVIDERS = {
-    legacy: "../../legacy-eoreader6.1/packages/engine/perceiver/text/",
+    legacy: "../legacy-ported/packages/engine/perceiver/text/",
     native: "../adapters/text/",
   };
   const verdicts = {}, frames = {};
