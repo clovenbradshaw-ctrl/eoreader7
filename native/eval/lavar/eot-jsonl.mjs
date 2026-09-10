@@ -357,15 +357,25 @@ const chapters = [];
   // candidate title distinguishes "Down the Rabbit-Hole\n\nAlice was..."
   // (real title) from "The studio was filled...\nsummer wind..." (prose,
   // wrapped across the physical line the naive regex captured).
-  const RE = /^CHAPTER ([IVXLC]+)\.\s*\n([^\n]*)\n/gmd;
+  // A SECOND, SIBLING CONVENTION, added after reading Frankenstein for the
+  // first time: "Chapter 1" (title-case word, Arabic numeral, no trailing
+  // period) has zero matches under the Roman-numeral form above — this
+  // book's heads[] would come back empty and every chapter read as "no
+  // chapter N inferred". The Roman-numeral branch's own exact shape
+  // (literal all-caps, required period) is UNCHANGED, so nothing already
+  // verified against AIW or Dorian Gray can start matching differently;
+  // this only adds a second alternative the first branch never reached.
+  const RE = /^(?:CHAPTER (?<roman>[IVXLC]+)\.|Chapter (?<arabic>\d+)\.?)\s*\n(?<titleLine>[^\n]*)\n/gmd;
   let m; const hits = [];
   while ((m = RE.exec(raw))) {
     const candidateEnd = m.index + m[0].length;
-    const hasRealTitle = Boolean(m[2].trim()) && raw[candidateEnd] === "\n";
+    const titleLine = m.groups.titleLine;
+    const hasRealTitle = Boolean(titleLine.trim()) && raw[candidateEnd] === "\n";
     hits.push({
-      start: m.index, num: m[1],
-      title: hasRealTitle ? m[2].trim() : "",
-      headEnd: hasRealTitle ? candidateEnd : m.indices[2][0],
+      start: m.index, num: m.groups.roman ?? m.groups.arabic,
+      convention: m.groups.roman !== undefined ? "CHAPTER <roman>." : "Chapter <arabic>",
+      title: hasRealTitle ? titleLine.trim() : "",
+      headEnd: hasRealTitle ? candidateEnd : m.indices.groups.titleLine[0],
     });
   }
   for (let i = 0; i < hits.length; i += 1) {
@@ -373,7 +383,14 @@ const chapters = [];
     chapters.push({ ...hits[i], end, ordinal: i + 1 });
   }
   for (const c of chapters) {
-    infer("chapter", [c.start, c.end], "a 'CHAPTER <roman>.' line at line-start followed by running prose (a title line, when the book gives one, is blank-line-bounded like the heading itself) — the table-of-contents copies of the same string are not followed by prose and are not matched", { ordinal: c.ordinal, numeral: c.num, title: c.title });
+    // The basis names the CONVENTION THIS HEADING ACTUALLY MATCHED, not
+    // just "the Roman-numeral form" unconditionally — found wrong on the
+    // very first book read under the new "Chapter <arabic>" branch
+    // (Frankenstein: all 24 chapters logged as "'CHAPTER <roman>.'" while
+    // every one was really "Chapter 1".."Chapter 24"). A basis that names
+    // the wrong evidence is the exact failure `infer`'s own header warns
+    // against — an inference recorded as if it were a different fact.
+    infer("chapter", [c.start, c.end], `a '${c.convention}' line at line-start followed by running prose (a title line, when the book gives one, is blank-line-bounded like the heading itself) — the table-of-contents copies of the same string are not followed by prose and are not matched`, { ordinal: c.ordinal, numeral: c.num, title: c.title });
     infer("heading", [c.start, c.headEnd], c.title ? "the chapter line and its title line" : "the chapter line alone — this book gives its chapters no title line", { ofChapter: c.ordinal });
   }
 }
