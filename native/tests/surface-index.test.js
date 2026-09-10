@@ -3,19 +3,39 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { containsSurface, surfaceIndex, surfacesIn } from "../adapters/text/recursive.js";
 import { diaNorm } from "../adapters/text/surfaces.js";
 
-const BOOK = "/Users/mlacy/Documents/3.0/the-fold/pg2600.txt";
-const text = fs.readFileSync(BOOK, "utf8").slice(20000, 140000);
-const sentences = text.split(/(?<=[.!?])\s+/).filter((s) => s.length > 20).slice(0, 600);
+// A DRIVER REFUSES WHAT ITS CHECKOUT LACKS (READING-SPEC S65 / the-fold
+// P95): only the FIRST test below reads a real, book-length text (War and
+// Peace, Project Gutenberg #2600) — never committed here, the same posture
+// this repo takes toward every other real corpus. The prior hardcoded
+// absolute path to one developer's own machine crashed at IMPORT time —
+// before node:test could even report a skip — on any other checkout.
+// `resolveBook()` checks a small, declared set of candidate locations; the
+// one test that needs it is gated via `{ skip }`, the other four (which
+// only ever exercise hand-built strings) are untouched either way.
+const here = path.dirname(fileURLToPath(import.meta.url));
+function resolveBook() {
+  const candidates = [
+    process.env.EOREADER7_WAR_AND_PEACE_FIXTURE,
+    path.join(here, "../../../the-fold/pg2600.txt"),
+    "/Users/mlacy/Documents/3.0/the-fold/pg2600.txt",
+  ].filter(Boolean);
+  return candidates.find((p) => fs.existsSync(p)) ?? null;
+}
+const BOOK = resolveBook();
+const SKIP = BOOK ? undefined : "war-and-peace fixture (pg2600.txt) not found in any known candidate location — set EOREADER7_WAR_AND_PEACE_FIXTURE or check out a sibling the-fold repo";
+const sentences = BOOK ? fs.readFileSync(BOOK, "utf8").slice(20000, 140000).split(/(?<=[.!?])\s+/).filter((s) => s.length > 20).slice(0, 600) : [];
 
 // Surfaces of every shape the cast produces: single names, multi-word names,
 // diacritics, an apostrophe, a title with a period, nested surfaces (one a
 // prefix of another), and a needle that begins with a non-letter.
 const SURFACES = ["Prince", "Prince Andrew", "Andrew", "Pierre", "Anna Pávlovna", "Anna", "Pávlovna", "St. Petersburg", "the Emperor", "Emperor", "Kutúzov", "Bolkónski", "Prince Vasíli", "Vasíli", "Hélène", "Dólokhov", "'tis", "l'Empereur", "Natásha", "Rostóv", "the old prince", "Bald Hills", "Moscow", "Boris", "Nikolai", "Mademoiselle Bourienne", "Bourienne"];
 
-test("EXACT to containsSurface for every (sentence, surface) pair over real material — the reference is the single-surface organ", () => {
+test("EXACT to containsSurface for every (sentence, surface) pair over real material — the reference is the single-surface organ", { skip: SKIP }, () => {
   const index = surfaceIndex(SURFACES);
   let pairs = 0, hits = 0;
   for (const sentence of sentences) {

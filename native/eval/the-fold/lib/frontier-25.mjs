@@ -34,6 +34,7 @@
 
 import { createRequire } from "node:module";
 import { readFileSync } from "node:fs";
+import { requireFoldAvailable } from "./fold-sibling.mjs";
 
 export const NATIVE = new URL("../../../", import.meta.url).pathname;
 export const FOLD = new URL("../../../../../the-fold/", import.meta.url).pathname;
@@ -44,6 +45,10 @@ let organsPromise = null;
 export function foldOrgans() {
   if (!organsPromise) {
     organsPromise = (async () => {
+      // Refuse typed (P95/S65) before requireFold's own bare-specifier
+      // resolution walks up the directory tree and throws an uncaught
+      // MODULE_NOT_FOUND when the-fold isn't a sibling checkout at all.
+      requireFoldAvailable(import.meta.url, "../../../../../the-fold/", "frontier-25.mjs::foldOrgans needs mathjs/arithmetic.js/shape.js/skills.js/term.js/sql.js from it");
       const math = requireFold("mathjs");
       const arithmetic = await import(`${FOLD}arithmetic.js`);
       const shape = await import(`${FOLD}shape.js`);

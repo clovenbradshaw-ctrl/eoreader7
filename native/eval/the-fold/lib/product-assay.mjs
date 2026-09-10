@@ -25,6 +25,7 @@
 
 import { readFileSync, existsSync } from "node:fs";
 import { createHash } from "node:crypto";
+import { requireFoldAvailable } from "./fold-sibling.mjs";
 
 const NATIVE = new URL("../../..", import.meta.url).pathname;
 const FOLD = new URL("../../../../../the-fold/", import.meta.url).pathname;
@@ -74,9 +75,34 @@ export const FABRICATIONS = Object.freeze([
 export const GIVER = "native/eval/the-fold/lib/product-assay.mjs — a stand-in giver, DISCLOSED: that `preceded` composes with itself is declared by this assay for its built corpus, never read off the material";
 
 // ── THE PRODUCTION READER, headless ──────────────────────────────────────
-export async function organs() {
+// `language` — ADDITIVE, default "eng", byte-identical to every existing
+// caller that omits it. Found necessary 2026-09-08 running a real
+// conversation over the Greek New Testament: this factory hardcoded an
+// ENGLISH posPrior AND an English verbForms/oovLexicon set with no
+// language parameter anywhere, and the second one is worse than silent —
+// `discoverRelationVocab`'s own gate (`lexiconKnows = verbForms.has(token)`)
+// returns FALSE, never null, for a Greek word absent from an English verb
+// set, so `verbDominant = (lexiconKnows !== false)` is false for every
+// single Greek connector — not "cannot refuse what it never saw" (the
+// gate's own stated, safe default for an unattested word), but an active,
+// wrong refusal of everything, because an English lexicon was asked about
+// a word it was never going to recognize regardless of whether that word
+// is a real verb. Measured: 0 heard across 81 admitted chunks of real
+// Matthew prose. A non-English `posPrior` is loaded from this file's own
+// fixtures/ (`pos-prior-<lang>.json`) when present; `verbForms`/
+// `oovLexicon`/`createLemmatizer`'s English UniMorph data are wired ONLY
+// for English — the safe default (never refuse what a gate was never
+// built to judge) for every other language, matching live_priors'
+// eot-digest.mjs's own established posture for the identical question.
+export async function organs({ language = "eng" } = {}) {
+  // Everything above this point is native/'s own; only `grid.js`/
+  // `reader-frame.js` below reach into the sibling the-fold checkout —
+  // refuse THAT typed, before any of the native imports below even run,
+  // rather than let node's own uncaught MODULE_NOT_FOUND take the whole
+  // caller down.
+  requireFoldAvailable(import.meta.url, "../../../../../the-fold/", "product-assay.mjs::organs needs grid.js and reader-frame.js from it");
   const { makeRelationReader } = await import(`${NATIVE}/organs/hypergraph.js`);
-  const { makeNotesText } = await import(`${NATIVE}/organs/notes-text.js`);
+  const { makeHyperlexicon } = await import(`${NATIVE}/organs/hyperlexicon.js`);
   const { makeDerivation } = await import(`${NATIVE}/organs/derivation.js`);
   const { chunkSource, tokenize, blankLabelRows, retrieve } = await import(`${NATIVE}/organs/source.js`);
   const { proposeCandidates, textFeatures, distinctSources } = await import(`${NATIVE}/organs/corroboration.js`);
@@ -95,10 +121,15 @@ export async function organs() {
   const { makeGrid } = await import(`${FOLD}grid.js`);
   const { readerFrame } = await import(`${FOLD}reader-frame.js`);
 
-  const posPrior = JSON.parse(readFileSync(`${FIX}pos-prior-eng.json`, "utf8"));
-  const verbForms = new Set(JSON.parse(readFileSync(`${FIX}unimorph-eng-verb-forms.json`, "utf8")));
-  const prior = M.morphologyFromPrior(JSON.parse(readFileSync(`${FIX}unimorph-morphology-prior.json`, "utf8")));
-  const sameAct = M.createLemmatizer(prior.forms, { language: prior.language }).sameAct;
+  const isEnglish = language === "eng";
+  const posPriorPath = isEnglish ? `${FIX}pos-prior-eng.json` : `${FIX}pos-prior-${language}.json`;
+  const posPrior = existsSync(posPriorPath) ? JSON.parse(readFileSync(posPriorPath, "utf8")) : null;
+  // English only, per the header note above — a non-English caller degrades
+  // to no lexical widening/lemma-folding rather than a wrong one.
+  const verbForms = isEnglish ? new Set(JSON.parse(readFileSync(`${FIX}unimorph-eng-verb-forms.json`, "utf8"))) : null;
+  const sameAct = isEnglish
+    ? M.createLemmatizer(M.morphologyFromPrior(JSON.parse(readFileSync(`${FIX}unimorph-morphology-prior.json`, "utf8"))).forms, { language: "eng" }).sameAct
+    : null;
 
   // The app's own RELATION_READER_OPTIONS (app.js), key for key, so the
   // frame this assay records is the frame a live turn records. Differences
@@ -107,11 +138,15 @@ export async function organs() {
   // null at the door — the door's own disclosed behaviour.
   const RELATION_READER_OPTIONS = {
     splitSentences, extractSurfaces, discoverReferents, namesCorefer, diaNorm, discoverRelationVocab, extractRelations, tokenize,
-    posPriorFor: () => posPrior,
+    posPriorFor: posPrior ? () => posPrior : null,
     verbForms, oovLexicon: verbForms,
     nounPhraseSubjects: true, phrasalPredicates: true, attestedVerbs: true,
     objectSpecificity: true,
-    createLemmatizer: () => ({ sameAct }),
+    // null (not a function returning a null sameAct) for a non-English
+    // caller — matches makeRelationReader's own default exactly, rather
+    // than handing every downstream consumer a sameAct it must itself
+    // remember to null-check.
+    createLemmatizer: sameAct ? () => ({ sameAct }) : null,
     morphologyIndex: {},
     determiners: new Set([...P.DEFINITE_DETERMINERS, ...P.INDEFINITE_DETERMINERS]),
     negationWords: P.NEGATION_WORDS,
@@ -121,7 +156,7 @@ export async function organs() {
   const relationsFor = makeRelationReader(RELATION_READER_OPTIONS);
   const referentIndexFor = makeReferentIndex({ splitSentences, extractSurfaces, discoverReferents, namesCorefer, diaNorm, blankFurniture: RELATION_READER_OPTIONS.blankFurniture });
   const runCapacity = makeCapacityRunner({ referentIndexFor, relationsFor });
-  const hl = makeNotesText({ createTaskLog: TL.createTaskLog, append: TL.append, projectTasks: TL.projectTasks, ENTRY_KINDS: TL.ENTRY_KINDS, OPERATOR_BASIS: TL.OPERATOR_BASIS, GRAINS: cube.GRAINS, cellOf: cube.cellOf });
+  const hl = makeHyperlexicon({ createTaskLog: TL.createTaskLog, append: TL.append, projectTasks: TL.projectTasks, ENTRY_KINDS: TL.ENTRY_KINDS, OPERATOR_BASIS: TL.OPERATOR_BASIS, GRAINS: cube.GRAINS, cellOf: cube.cellOf });
   const D = makeDerivation({ hl, taskLog: { append: TL.append, projectTasks: TL.projectTasks, ENTRY_KINDS: TL.ENTRY_KINDS, OPERATOR_BASIS: TL.OPERATOR_BASIS, GRAIN_RANK: TL.GRAIN_RANK ?? cube.GRAIN_RANK, cellOf: cube.cellOf } });
   const grid = makeGrid({ operators: { TERRAIN_BY_DOMAIN: cube.TERRAIN_BY_DOMAIN, isCurrentOperator: cube.isCurrentOperator }, taskLog: TL });
   grid.withCapacities({ findCapacity, unresolvedCapacity });
@@ -129,10 +164,11 @@ export async function organs() {
   const frame = readerFrame({
     options: RELATION_READER_OPTIONS,
     priors: {
-      posPrior: posPrior.schema ?? "POSPrior@1",
-      posGate: "on (type-level vocabulary gate over POSPrior@1)",
-      verbForms: `UniMorph eng verb forms (${verbForms.size})`,
-      morphology: "UniMorph morphology prior (sameAct)",
+      language,
+      posPrior: posPrior ? (posPrior.schema ?? "POSPrior@1") : `omitted — no fixtures/pos-prior-${language}.json in this checkout`,
+      posGate: posPrior ? "on (type-level vocabulary gate over POSPrior@1)" : "off — no prior loaded",
+      verbForms: verbForms ? `UniMorph eng verb forms (${verbForms.size})` : "omitted — English only",
+      morphology: sameAct ? "UniMorph morphology prior (sameAct)" : "omitted — English only",
       connectorLens: null,
     },
     identity: { ends: "makeCastResolver (cast.js)", noteIdentity: null },
@@ -158,7 +194,7 @@ export function readCorpus(O, corpus) {
   const passages = [];
   for (const [name, text] of Object.entries(corpus)) for (const p of O.chunkSource(name, text)) passages.push(p);
   const rel = O.relationsFor(passages, { pool: passages });
-  let log = O.hl.createNotes({ frame: O.frame });
+  let log = O.hl.createHyperlexicon({ frame: O.frame });
   const admitted = [];
   for (const p of passages) {
     const claims = rel.read(String(p.text ?? ""))?.claims ?? [];

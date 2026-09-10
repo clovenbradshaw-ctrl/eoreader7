@@ -11,8 +11,22 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { runProductAssay, QUESTIONS, FABRICATIONS } from "../eval/the-fold/lib/product-assay.mjs";
+import { FoldUnavailableError } from "../eval/the-fold/lib/fold-sibling.mjs";
 
-const run = await runProductAssay();
+// A DRIVER REFUSES WHAT ITS CHECKOUT LACKS (READING-SPEC S65 / the-fold
+// P95): `runProductAssay` reaches into a sibling `the-fold` checkout
+// (grid.js, reader-frame.js) this repo's own CI never checks out.
+// `product-assay.mjs::organs` now throws a typed `FoldUnavailableError`
+// instead of letting node's own MODULE_NOT_FOUND crash this file at
+// import time — caught here, once, so every test below is a real,
+// reported skip rather than the whole file silently never running.
+let run = null, SKIP;
+try {
+  run = await runProductAssay();
+} catch (err) {
+  if (!(err instanceof FoldUnavailableError)) throw err;
+  SKIP = err.message;
+}
 const wall = (n) => run.walls.find((w) => w.n === n);
 // The walls the circuit EARNS today. A breach here is a regression in an
 // organ (hypergraph, hyperlexicon, derivation, notes, grid, cast), never in
@@ -22,12 +36,12 @@ const EARNED = ["0", "1", "2", "3", "3b", "4b", "4c", "5", "7", "8"];
 // tokensShare). Disclosed, logged, not frozen as targets.
 const DISCLOSED = ["4a", "6"];
 
-test("every earned wall holds — configuration, address, standing, derivation, contest on the record, determinism, recourse", () => {
+test("every earned wall holds — configuration, address, standing, derivation, contest on the record, determinism, recourse", { skip: SKIP }, () => {
   const breached = EARNED.map(wall).filter((w) => !w || !w.ok);
   assert.deepEqual(breached.map((w) => `${w?.n} ${w?.name}: ${w?.detail}`), []);
 });
 
-test("the two disclosed walls carry a mechanism, and their state is logged, not pinned", () => {
+test("the two disclosed walls carry a mechanism, and their state is logged, not pinned", { skip: SKIP }, () => {
   for (const n of DISCLOSED) {
     const w = wall(n);
     assert.ok(w, `wall ${n} is reported`);
@@ -36,7 +50,7 @@ test("the two disclosed walls carry a mechanism, and their state is logged, not 
   }
 });
 
-test("built material: 2 passages, 5 links and 1 cut (the denial is a SEG note, never a link with a sign), 1 corroborated, 1 derived with a giver and 0 without, 1 contest landed with no leak", () => {
+test("built material: 2 passages, 5 links and 1 cut (the denial is a SEG note, never a link with a sign), 1 corroborated, 1 derived with a giver and 0 without, 1 contest landed with no leak", { skip: SKIP }, () => {
   const n = run.numbers;
   assert.equal(n.passages, 2);
   assert.equal(n.notes, 5);
@@ -48,7 +62,7 @@ test("built material: 2 passages, 5 links and 1 cut (the denial is a SEG note, n
   assert.deepEqual(n.contests.refusals, { self_witness: 0, read_nothing: 0, no_bytes: 0, not_a_contest: 0 });
 });
 
-test("the answer record: one per question, claims byte-addressed and deduplicated by identity, standing phrased, frame and recipe and constitutions carried", () => {
+test("the answer record: one per question, claims byte-addressed and deduplicated by identity, standing phrased, frame and recipe and constitutions carried", { skip: SKIP }, () => {
   assert.equal(run.records.length, QUESTIONS.length);
   for (const r of run.records) {
     assert.ok(r.claims.length >= 1);
@@ -67,26 +81,26 @@ test("the answer record: one per question, claims byte-addressed and deduplicate
   }
 });
 
-test("the shuffled arm differs: a control that can fail, and did not", () => {
+test("the shuffled arm differs: a control that can fail, and did not", { skip: SKIP }, () => {
   const s = run.numbers.shuffle;
   assert.ok(s.real >= 5 && s.deranged >= 1);
   assert.ok(s.shared < s.real, `the deranged corpus shares ${s.shared} of ${s.real} claim ids — the record measured nothing if these were equal`);
 });
 
-test("recourse: exposure names what falls before the act; conceding withdraws exactly that; the record only grows", () => {
+test("recourse: exposure names what falls before the act; conceding withdraws exactly that; the record only grows", { skip: SKIP }, () => {
   const c = run.numbers.concession;
   assert.equal(c.exposed, 1);
   assert.equal(c.withdrawn, 1);
   assert.ok(c.entriesAfter > c.entriesBefore);
 });
 
-test("the fabrication set is the declared one and the reader's verdicts are reported per sentence", () => {
+test("the fabrication set is the declared one and the reader's verdicts are reported per sentence", { skip: SKIP }, () => {
   assert.equal(FABRICATIONS.length, 4);
   assert.ok(Number.isInteger(run.numbers.fabricationsBound));
   console.log(`  fabrications bound at the reader: ${run.numbers.fabricationsBound}/${FABRICATIONS.length} (2026-09-05: 1 — the sub-floor tokensShare mechanism, wall 6)`);
 });
 
-test("the void through time (wall 9): refused without scope, a reader fact when unread, open before the mouth, re-zeroed by one arrival, both events on the timeline", () => {
+test("the void through time (wall 9): refused without scope, a reader fact when unread, open before the mouth, re-zeroed by one arrival, both events on the timeline", { skip: SKIP }, () => {
   const v = run.numbers.void;
   assert.equal(v.noScopeRefused, "no_scope");
   assert.equal(v.unreadReached, false);
