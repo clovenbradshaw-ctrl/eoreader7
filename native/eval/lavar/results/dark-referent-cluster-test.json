@@ -1,0 +1,50 @@
+{
+ "rows": [
+  {
+   "specimen": "puppy (ch4)",
+   "fieldSize": 150,
+   "topK": 15,
+   "siblingPairs": 2,
+   "cueHits": 1,
+   "cueSigHits": 0,
+   "controlRate": 0.167,
+   "controlExpected": 0.33
+  },
+  {
+   "specimen": "hedgehog (ch8)",
+   "fieldSize": 168,
+   "topK": 17,
+   "siblingPairs": 6,
+   "cueHits": 5,
+   "cueSigHits": 3,
+   "controlRate": 0.156,
+   "controlExpected": 0.93
+  },
+  {
+   "specimen": "jury (ch11)",
+   "fieldSize": 176,
+   "topK": 18,
+   "siblingPairs": 2,
+   "cueHits": 2,
+   "cueSigHits": 2,
+   "controlRate": 0.1,
+   "controlExpected": 0.2
+  },
+  {
+   "specimen": "jury (ch12)",
+   "fieldSize": 152,
+   "topK": 15,
+   "siblingPairs": 2,
+   "cueHits": 2,
+   "cueSigHits": 2,
+   "controlRate": 0.033,
+   "controlExpected": 0.07
+  }
+ ],
+ "totals": {
+  "totalPairs": 12,
+  "cueHits": 10,
+  "cueSigHits": 7,
+  "controlHitsSum": 1.5333333333333332
+ }
+}
