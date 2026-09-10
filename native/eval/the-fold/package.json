@@ -1,0 +1,10 @@
+{
+  "name": "eoreader7-eval-the-fold-tools",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Isolated dependencies for eval/the-fold's own driver scripts (e.g. date-normalize.mjs) so npm install never touches the shared legacy-eoreader6.1/package.json the repo root symlinks to.",
+  "dependencies": {
+    "pyodide": "^0.26.4"
+  }
+}
