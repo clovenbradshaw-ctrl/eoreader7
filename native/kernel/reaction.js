@@ -96,6 +96,7 @@ import { compositionAffordance, normalizeHyperlexicon } from "./hyperlexicon.js"
 import { createTerrainActivation } from "./terrain-activation.js";
 import { hyperedge } from "./hypergraph.js";
 import { experienceRelationVocabulary } from "./experience-priors.js";
+import { refuteRelation, afterVeto } from "./refutation.js";
 
 const freeze = (value) => Object.freeze(value);
 const slug = (value) => String(value ?? "").toLowerCase().replace(/[^\p{L}\p{N}]+/gu, "_").replace(/^_+|_+$/g, "");
@@ -134,6 +135,59 @@ export function affordancesFromDeclarations(fold = {}) {
     if (d.declKind === "composes" && d.yields) return [...closureAffordances({ base: d.rel, yields: d.yields, giver: d.giver })];
     return [];
   }));
+}
+
+/**
+ * refutedAffordances(fold, entries, { expectUnique, cycleLimit, intervalOf })
+ * — `affordancesFromDeclarations`, FORCED through refutation.js's own veto
+ * first. Never call `affordancesFromDeclarations` directly on a live
+ * `fold` when `entries` is the material a relation's own premises came
+ * from — this is the entry point that does, and the reason it exists is a
+ * measured failure, not a hypothetical one.
+ *
+ * Measured live (2026-09-10, the-fold's `eval/the-fold/mechanical-logic-
+ * battery.mjs` TC4): three premises stating `alice > bob > carol > alice`
+ * under a declared-transitive `older_than` — a plain, positive cycle —
+ * were handed to `step()`/`settle()` WITHOUT running `refuteRelation`
+ * first, and composition did not refuse. It derived a fully circular
+ * belief set (`alice —older_than→ carol`, `bob —older_than→ alice`,
+ * `carol —older_than→ bob` — every referent now "older than" every other
+ * one). `step()` has no notion of "this contradicts itself"; it only ever
+ * asks "does a licensed affordance exist," and a cycle does not make an
+ * affordance stop existing on its own. Refutation was already built,
+ * already correctly catches this exact case (`refuteRelation` returns
+ * `refuted: true, reasons: ["cycle"]` on the identical premises), and
+ * already has the assembly rule for exactly this situation
+ * (`afterVeto` — one relation's clean scan is not a licence, and one
+ * relation's refuted scan removes it from what a giver's declarations may
+ * license). What was missing was FORCING that assembly to run before
+ * declarations become chemistry, rather than leaving it a caller's own
+ * discipline to remember — `refutation-wall.test.js`'s own law
+ * ("no code path can turn 'not refuted' into 'admitted'") stated for
+ * absence of refutation; this closes the parallel gap for absence of
+ * the CALL to refute at all.
+ *
+ * A GIVEN declaration whose relation `refuteRelation` reports refuted for
+ * is dropped before `affordancesFromDeclarations` ever sees it — composing
+ * over that relation is not merely inadvisable, it is unreachable. A
+ * relation `refuteRelation` reports `insufficient` power for (fewer than
+ * two resolved edges) survives: refutation requires a positive
+ * counterexample, and an under-examined relation has supplied none — the
+ * same asymmetry `refutation.js`'s own header states (absence of a
+ * refusal is not a check, but it is also not itself a refutation).
+ */
+export function refutedAffordances(fold = {}, entries = [], { expectUnique = false, cycleLimit = 3, intervalOf = null } = {}) {
+  const given = (fold.given ?? []).filter((d) => d.rel && d.giver);
+  const scans = new Map(given.map((d) => [d.rel, refuteRelation(entries, d.rel, { expectUnique, cycleLimit, intervalOf })]));
+  const { survivors, vetoed } = afterVeto(given.map((d) => d.rel), scans);
+  const survivorSet = new Set(survivors);
+  const guardedFold = freeze({ ...fold, given: freeze(given.filter((d) => survivorSet.has(d.rel))) });
+  return freeze({
+    affordances: affordancesFromDeclarations(guardedFold),
+    survivors: freeze([...survivorSet]),
+    vetoed: freeze(vetoed),
+    scans: freeze(Object.fromEntries(scans)),
+  });
 }
 
 /**
