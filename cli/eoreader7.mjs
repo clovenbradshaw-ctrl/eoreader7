@@ -27,7 +27,12 @@ const GIVER = "reader:eoreader7-cli";
 const CANONICALIZATION_FLOOR = 2;
 const ANCHORING = { minActivation: 0.05, minMargin: 0.2 };
 
-const DEFAULT_POS_PRIOR = path.join(REPO_ROOT, "legacy-eoreader6.1/bin/priors/pos/en-ud-ewt.json");
+// Bundled here, not read from the legacy-eoreader6.1 submodule — a plain
+// `git clone` (no --recurse-submodules) leaves that submodule empty, which
+// broke the CLI's default path entirely. Same file
+// (legacy-eoreader6.1/bin/priors/pos/en-ud-ewt.json), copied in, so the CLI
+// has no submodule dependency at all.
+const DEFAULT_POS_PRIOR = path.join(HERE, "priors/pos-prior-en.json");
 // live_priors is a sibling checkout (see reference_live_priors_github_repo
 // memory) — not vendored here, and not auto-pulled. Resolve it relative to
 // this repo's parent directory, same layout as the eoreader6.1 workspace.
