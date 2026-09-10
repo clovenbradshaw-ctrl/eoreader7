@@ -1,0 +1,93 @@
+{
+ "chapter": 2,
+ "verbs": [
+  "appeared",
+  "came",
+  "said",
+  "fetch",
+  "shook",
+  "gwine",
+  "like",
+  "give",
+  "began",
+  "show",
+  "was",
+  "hove",
+  "went",
+  "stared",
+  "surveyed",
+  "ranged",
+  "wheeled",
+  "going",
+  "contemplated",
+  "resumed",
+  "stopped",
+  "swept",
+  "watching",
+  "considered",
+  "let",
+  "wanted",
+  "fixed",
+  "be",
+  "afeard",
+  "gave",
+  "worked",
+  "had",
+  "for",
+  "bought",
+  "consists",
+  "is",
+  "who",
+  "always",
+  "arms",
+  "sides",
+  "’s",
+  "would"
+ ],
+ "cast": [
+  [
+   "Aunt Polly",
+   "ref:auto:aunt_polly"
+  ],
+  [
+   "Big Missouri",
+   "ref:auto:big_missouri"
+  ],
+  [
+   "Jim",
+   "ref:auto:jim"
+  ],
+  [
+   "Mars Tom",
+   "ref:auto:mars_tom"
+  ],
+  [
+   "Ben",
+   "ref:auto:ben"
+  ],
+  [
+   "I’ll",
+   "ref:auto:i’ll"
+  ],
+  [
+   "Mars",
+   "ref:auto:mars_tom"
+  ],
+  [
+   "Aunt",
+   "ref:auto:aunt_polly"
+  ],
+  [
+   "Big",
+   "ref:auto:big_missouri"
+  ],
+  [
+   "I’d",
+   "ref:auto:i’d"
+  ],
+  [
+   "Tom",
+   "ref:auto:mars_tom"
+  ]
+ ]
+}

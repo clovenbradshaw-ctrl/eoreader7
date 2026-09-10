@@ -33,7 +33,7 @@
     "id": "h2",
     "at": [
      32158,
-     32173
+     32169
     ],
     "role": "heading",
     "inferred": true,
@@ -46,7 +46,7 @@
     "schema": "EOTObservation@1",
     "id": "s50",
     "at": [
-     32173,
+     32169,
      42483
     ],
     "role": "section",
@@ -5262,7 +5262,7 @@
     "id": "h4",
     "at": [
      42483,
-     42498
+     42494
     ],
     "role": "heading",
     "inferred": true,
@@ -5293,7 +5293,7 @@
     "id": "h6",
     "at": [
      55405,
-     55420
+     55416
     ],
     "role": "heading",
     "inferred": true,
@@ -5324,7 +5324,7 @@
     "id": "h8",
     "at": [
      70936,
-     70951
+     70947
     ],
     "role": "heading",
     "inferred": true,
@@ -5355,7 +5355,7 @@
     "id": "h10",
     "at": [
      85605,
-     85620
+     85616
     ],
     "role": "heading",
     "inferred": true,
@@ -5386,7 +5386,7 @@
     "id": "h12",
     "at": [
      98838,
-     98853
+     98849
     ],
     "role": "heading",
     "inferred": true,
@@ -5409,7 +5409,7 @@
   "basis": "a 'Chapter <arabic>' line at line-start followed by running prose (a title line, when the book gives one, is blank-line-bounded like the heading itself) — the table-of-contents copies of the same string are not followed by prose and are not matched",
   "ordinal": 7,
   "numeral": "7",
-  "title": "On my return, I found the following letter from my father:—",
+  "title": "",
   "children": [
    {
     "seq": 15,
@@ -5417,11 +5417,11 @@
     "id": "h14",
     "at": [
      114620,
-     114696
+     114631
     ],
     "role": "heading",
     "inferred": true,
-    "basis": "the chapter line and its title line",
+    "basis": "the chapter line alone — this book gives its chapters no title line",
     "ofChapter": 7,
     "children": []
    }
@@ -5448,7 +5448,7 @@
     "id": "h16",
     "at": [
      134847,
-     134862
+     134858
     ],
     "role": "heading",
     "inferred": true,
@@ -5479,7 +5479,7 @@
     "id": "h18",
     "at": [
      152427,
-     152442
+     152438
     ],
     "role": "heading",
     "inferred": true,
@@ -5510,7 +5510,7 @@
     "id": "h20",
     "at": [
      165081,
-     165097
+     165093
     ],
     "role": "heading",
     "inferred": true,
@@ -5541,7 +5541,7 @@
     "id": "h22",
     "at": [
      178307,
-     178323
+     178319
     ],
     "role": "heading",
     "inferred": true,
@@ -5572,7 +5572,7 @@
     "id": "h24",
     "at": [
      194498,
-     194514
+     194510
     ],
     "role": "heading",
     "inferred": true,
@@ -5603,7 +5603,7 @@
     "id": "h26",
     "at": [
      206693,
-     206709
+     206705
     ],
     "role": "heading",
     "inferred": true,
@@ -5634,7 +5634,7 @@
     "id": "h28",
     "at": [
      218481,
-     218497
+     218493
     ],
     "role": "heading",
     "inferred": true,
@@ -5665,7 +5665,7 @@
     "id": "h30",
     "at": [
      229115,
-     229131
+     229127
     ],
     "role": "heading",
     "inferred": true,
@@ -5696,7 +5696,7 @@
     "id": "h32",
     "at": [
      246562,
-     246578
+     246574
     ],
     "role": "heading",
     "inferred": true,
@@ -5727,7 +5727,7 @@
     "id": "h34",
     "at": [
      264432,
-     264448
+     264444
     ],
     "role": "heading",
     "inferred": true,
@@ -5758,7 +5758,7 @@
     "id": "h36",
     "at": [
      274875,
-     274891
+     274887
     ],
     "role": "heading",
     "inferred": true,
@@ -5789,7 +5789,7 @@
     "id": "h38",
     "at": [
      291336,
-     291352
+     291348
     ],
     "role": "heading",
     "inferred": true,
@@ -5820,7 +5820,7 @@
     "id": "h40",
     "at": [
      306408,
-     306424
+     306420
     ],
     "role": "heading",
     "inferred": true,
@@ -5851,7 +5851,7 @@
     "id": "h42",
     "at": [
      325776,
-     325792
+     325788
     ],
     "role": "heading",
     "inferred": true,
@@ -5882,7 +5882,7 @@
     "id": "h44",
     "at": [
      346601,
-     346617
+     346613
     ],
     "role": "heading",
     "inferred": true,
@@ -5913,7 +5913,7 @@
     "id": "h46",
     "at": [
      365982,
-     365998
+     365994
     ],
     "role": "heading",
     "inferred": true,
@@ -5944,7 +5944,7 @@
     "id": "h48",
     "at": [
      380276,
-     380292
+     380288
     ],
     "role": "heading",
     "inferred": true,

@@ -25,7 +25,7 @@
   "basis": "a 'CHAPTER <roman>' line at line-start followed by running prose (a title line, when the book gives one, is blank-line-bounded like the heading itself) — the table-of-contents copies of the same string are not followed by prose and are not matched",
   "ordinal": 1,
   "numeral": "I",
-  "title": "“Tom!”",
+  "title": "",
   "children": [
    {
     "seq": 3,
@@ -33,11 +33,11 @@
     "id": "h2",
     "at": [
      7147,
-     7170
+     7158
     ],
     "role": "heading",
     "inferred": true,
-    "basis": "the chapter line and its title line",
+    "basis": "the chapter line alone — this book gives its chapters no title line",
     "ofChapter": 1,
     "children": []
    },
@@ -46,7 +46,7 @@
     "schema": "EOTObservation@1",
     "id": "s72",
     "at": [
-     7170,
+     7158,
      20385
     ],
     "role": "section",
@@ -58,49 +58,8 @@
       "schema": "EOTObservation@1",
       "id": "p73",
       "at": [
-       7172,
-       7182
-      ],
-      "role": "paragraph",
-      "inferred": true,
-      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
-      "children": [
-       {
-        "seq": 183,
-        "schema": "EOTObservation@1",
-        "id": "s182",
-        "at": [
-         7172,
-         7182
-        ],
-        "role": "sentence",
-        "inferred": true,
-        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
-        "script": "cased",
-        "children": [
-         {
-          "seq": 489,
-          "schema": "EOTAbsence@1",
-          "at": [
-           7172,
-           7182
-          ],
-          "role": "arrangement",
-          "reason": "no_earned_verb_in_this_sentence",
-          "detail": "no token in this sentence was nominated by the 51 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
-          "children": []
-         }
-        ]
-       }
-      ]
-     },
-     {
-      "seq": 75,
-      "schema": "EOTObservation@1",
-      "id": "p74",
-      "at": [
-       7186,
-       7192
+       7162,
+       7168
       ],
       "role": "paragraph",
       "inferred": true,
@@ -111,8 +70,8 @@
         "schema": "EOTObservation@1",
         "id": "s183",
         "at": [
-         7186,
-         7192
+         7162,
+         7168
         ],
         "role": "sentence",
         "inferred": true,
@@ -120,23 +79,23 @@
         "script": "cased",
         "children": [
          {
-          "seq": 490,
+          "seq": 491,
           "schema": "EOTAbsence@1",
           "at": [
-           7186,
-           7192
+           7162,
+           7168
           ],
           "role": "arrangement",
           "reason": "no_earned_verb_in_this_sentence",
           "detail": "no token in this sentence was nominated by the 51 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
           "children": [
            {
-            "seq": 403,
+            "seq": 405,
             "schema": "EOTObservation@1",
-            "id": "e402",
+            "id": "e404",
             "at": [
-             7187,
-             7190
+             7163,
+             7166
             ],
             "role": "entity",
             "referent": "ref:auto:tom",
@@ -144,7 +103,7 @@
              "Tom",
              "TOM"
             ],
-            "occurrences": 34,
+            "occurrences": 35,
             "operator": "SIG",
             "grain": "Figure",
             "terrain": "Entity",
@@ -153,12 +112,12 @@
             "basis": "name-variant coreference (giver: surfaces/discoverReferents) — the surfaces were clustered by name-variant coreference and this is the being that cluster asserts",
             "children": [
              {
-              "seq": 404,
+              "seq": 406,
               "schema": "EOTObservation@1",
-              "id": "d403",
+              "id": "d405",
               "at": [
-               7187,
-               7190
+               7163,
+               7166
               ],
               "role": "admission",
               "referent": "ref:auto:tom",
@@ -178,12 +137,12 @@
       ]
      },
      {
-      "seq": 76,
+      "seq": 75,
       "schema": "EOTObservation@1",
-      "id": "p75",
+      "id": "p74",
       "at": [
-       7196,
-       7206
+       7172,
+       7182
       ],
       "role": "paragraph",
       "inferred": true,
@@ -194,8 +153,8 @@
         "schema": "EOTObservation@1",
         "id": "s184",
         "at": [
-         7196,
-         7206
+         7172,
+         7182
         ],
         "role": "sentence",
         "inferred": true,
@@ -203,11 +162,52 @@
         "script": "cased",
         "children": [
          {
-          "seq": 491,
+          "seq": 492,
           "schema": "EOTAbsence@1",
           "at": [
-           7196,
-           7206
+           7172,
+           7182
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 51 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 76,
+      "schema": "EOTObservation@1",
+      "id": "p75",
+      "at": [
+       7186,
+       7192
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "children": [
+       {
+        "seq": 186,
+        "schema": "EOTObservation@1",
+        "id": "s185",
+        "at": [
+         7186,
+         7192
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 493,
+          "schema": "EOTAbsence@1",
+          "at": [
+           7186,
+           7192
           ],
           "role": "arrangement",
           "reason": "no_earned_verb_in_this_sentence",
@@ -223,47 +223,20 @@
       "schema": "EOTObservation@1",
       "id": "p76",
       "at": [
-       7210,
-       7257
+       7196,
+       7206
       ],
       "role": "paragraph",
       "inferred": true,
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 186,
-        "schema": "EOTObservation@1",
-        "id": "s185",
-        "at": [
-         7210,
-         7247
-        ],
-        "role": "sentence",
-        "inferred": true,
-        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
-        "script": "cased",
-        "children": [
-         {
-          "seq": 492,
-          "schema": "EOTAbsence@1",
-          "at": [
-           7210,
-           7247
-          ],
-          "role": "arrangement",
-          "reason": "no_earned_verb_in_this_sentence",
-          "detail": "no token in this sentence was nominated by the 51 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
-          "children": []
-         }
-        ]
-       },
-       {
         "seq": 187,
         "schema": "EOTObservation@1",
         "id": "s186",
         "at": [
-         7248,
-         7257
+         7196,
+         7206
         ],
         "role": "sentence",
         "inferred": true,
@@ -271,11 +244,11 @@
         "script": "cased",
         "children": [
          {
-          "seq": 493,
+          "seq": 494,
           "schema": "EOTAbsence@1",
           "at": [
-           7248,
-           7257
+           7196,
+           7206
           ],
           "role": "arrangement",
           "reason": "no_earned_verb_in_this_sentence",
@@ -291,8 +264,8 @@
       "schema": "EOTObservation@1",
       "id": "p77",
       "at": [
-       7261,
-       7271
+       7210,
+       7257
       ],
       "role": "paragraph",
       "inferred": true,
@@ -303,8 +276,8 @@
         "schema": "EOTObservation@1",
         "id": "s187",
         "at": [
-         7261,
-         7271
+         7210,
+         7247
         ],
         "role": "sentence",
         "inferred": true,
@@ -312,11 +285,38 @@
         "script": "cased",
         "children": [
          {
-          "seq": 494,
+          "seq": 495,
           "schema": "EOTAbsence@1",
           "at": [
-           7261,
-           7271
+           7210,
+           7247
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 51 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 189,
+        "schema": "EOTObservation@1",
+        "id": "s188",
+        "at": [
+         7248,
+         7257
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 496,
+          "schema": "EOTAbsence@1",
+          "at": [
+           7248,
+           7257
           ],
           "role": "arrangement",
           "reason": "no_earned_verb_in_this_sentence",
@@ -332,6 +332,47 @@
       "schema": "EOTObservation@1",
       "id": "p78",
       "at": [
+       7261,
+       7271
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "children": [
+       {
+        "seq": 190,
+        "schema": "EOTObservation@1",
+        "id": "s189",
+        "at": [
+         7261,
+         7271
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 497,
+          "schema": "EOTAbsence@1",
+          "at": [
+           7261,
+           7271
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 51 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 80,
+      "schema": "EOTObservation@1",
+      "id": "p79",
+      "at": [
        7275,
        7744
       ],
@@ -340,9 +381,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 189,
+        "seq": 191,
         "schema": "EOTObservation@1",
-        "id": "s188",
+        "id": "s190",
         "at": [
          7275,
          7400
@@ -353,9 +394,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 411,
+          "seq": 413,
           "schema": "EOTObservation@1",
-          "id": "v410",
+          "id": "v412",
           "at": [
            7275,
            7400
@@ -371,9 +412,9 @@
         ]
        },
        {
-        "seq": 190,
+        "seq": 192,
         "schema": "EOTObservation@1",
-        "id": "s189",
+        "id": "s191",
         "at": [
          7401,
          7629
@@ -384,9 +425,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 412,
+          "seq": 414,
           "schema": "EOTObservation@1",
-          "id": "v411",
+          "id": "v413",
           "at": [
            7401,
            7629
@@ -399,9 +440,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 496,
+            "seq": 499,
             "schema": "EOTObservation@1",
-            "id": "o488",
+            "id": "o490",
             "at": [
              7448,
              7473
@@ -419,9 +460,9 @@
             "children": []
            },
            {
-            "seq": 498,
+            "seq": 501,
             "schema": "EOTObservation@1",
-            "id": "o489",
+            "id": "o491",
             "at": [
              7515,
              7524
@@ -439,9 +480,9 @@
             "children": []
            },
            {
-            "seq": 499,
+            "seq": 502,
             "schema": "EOTObservation@1",
-            "id": "o490",
+            "id": "o492",
             "at": [
              7545,
              7551
@@ -459,9 +500,9 @@
             "children": []
            },
            {
-            "seq": 500,
+            "seq": 503,
             "schema": "EOTObservation@1",
-            "id": "o491",
+            "id": "o493",
             "at": [
              7587,
              7628
@@ -483,9 +524,9 @@
         ]
        },
        {
-        "seq": 191,
+        "seq": 193,
         "schema": "EOTObservation@1",
-        "id": "s190",
+        "id": "s192",
         "at": [
          7631,
          7744
@@ -496,9 +537,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 413,
+          "seq": 415,
           "schema": "EOTObservation@1",
-          "id": "v412",
+          "id": "v414",
           "at": [
            7631,
            7744
@@ -511,9 +552,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 502,
+            "seq": 505,
             "schema": "EOTObservation@1",
-            "id": "o492",
+            "id": "o494",
             "at": [
              7656,
              7664
@@ -531,9 +572,9 @@
             "children": []
            },
            {
-            "seq": 504,
+            "seq": 507,
             "schema": "EOTObservation@1",
-            "id": "o493",
+            "id": "o495",
             "at": [
              7722,
              7744
@@ -557,9 +598,9 @@
       ]
      },
      {
-      "seq": 80,
+      "seq": 81,
       "schema": "EOTObservation@1",
-      "id": "p79",
+      "id": "p80",
       "at": [
        7748,
        7788
@@ -569,9 +610,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 192,
+        "seq": 194,
         "schema": "EOTObservation@1",
-        "id": "s191",
+        "id": "s193",
         "at": [
          7748,
          7788
@@ -582,9 +623,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 506,
+          "seq": 509,
           "schema": "EOTObservation@1",
-          "id": "o494",
+          "id": "o496",
           "at": [
            7778,
            7788
@@ -602,9 +643,9 @@
           "settledAs": "preposition",
           "children": [
            {
-            "seq": 405,
+            "seq": 407,
             "schema": "EOTObservation@1",
-            "id": "e404",
+            "id": "e406",
             "at": [
              7782,
              7786
@@ -623,9 +664,9 @@
             "basis": "name-variant coreference (giver: surfaces/discoverReferents) — the surfaces were clustered by name-variant coreference and this is the being that cluster asserts",
             "children": [
              {
-              "seq": 406,
+              "seq": 408,
               "schema": "EOTObservation@1",
-              "id": "d405",
+              "id": "d407",
               "at": [
                7782,
                7786
@@ -648,9 +689,9 @@
       ]
      },
      {
-      "seq": 81,
+      "seq": 82,
       "schema": "EOTObservation@1",
-      "id": "p80",
+      "id": "p81",
       "at": [
        7792,
        7987
@@ -660,9 +701,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 193,
+        "seq": 195,
         "schema": "EOTObservation@1",
-        "id": "s192",
+        "id": "s194",
         "at": [
          7792,
          7950
@@ -673,9 +714,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 414,
+          "seq": 416,
           "schema": "EOTObservation@1",
-          "id": "v413",
+          "id": "v415",
           "at": [
            7792,
            7950
@@ -688,9 +729,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 507,
+            "seq": 510,
             "schema": "EOTObservation@1",
-            "id": "o495",
+            "id": "o497",
             "at": [
              7800,
              7810
@@ -712,9 +753,9 @@
         ]
        },
        {
-        "seq": 194,
+        "seq": 196,
         "schema": "EOTObservation@1",
-        "id": "s193",
+        "id": "s195",
         "at": [
          7951,
          7987
@@ -725,9 +766,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 415,
+          "seq": 417,
           "schema": "EOTObservation@1",
-          "id": "v414",
+          "id": "v416",
           "at": [
            7951,
            7987
@@ -745,9 +786,9 @@
       ]
      },
      {
-      "seq": 82,
+      "seq": 83,
       "schema": "EOTObservation@1",
-      "id": "p81",
+      "id": "p82",
       "at": [
        7991,
        8030
@@ -757,9 +798,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 195,
+        "seq": 197,
         "schema": "EOTObservation@1",
-        "id": "s194",
+        "id": "s196",
         "at": [
          7991,
          8030
@@ -770,9 +811,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 511,
+          "seq": 514,
           "schema": "EOTObservation@1",
-          "id": "o496",
+          "id": "o498",
           "at": [
            8004,
            8030
@@ -794,9 +835,9 @@
       ]
      },
      {
-      "seq": 83,
+      "seq": 84,
       "schema": "EOTObservation@1",
-      "id": "p82",
+      "id": "p83",
       "at": [
        8034,
        8248
@@ -806,9 +847,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 196,
+        "seq": 198,
         "schema": "EOTObservation@1",
-        "id": "s195",
+        "id": "s197",
         "at": [
          8034,
          8163
@@ -819,9 +860,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 416,
+          "seq": 418,
           "schema": "EOTObservation@1",
-          "id": "v415",
+          "id": "v417",
           "at": [
            8034,
            8163
@@ -837,9 +878,9 @@
         ]
        },
        {
-        "seq": 197,
+        "seq": 199,
         "schema": "EOTObservation@1",
-        "id": "s196",
+        "id": "s198",
         "at": [
          8164,
          8171
@@ -850,7 +891,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 514,
+          "seq": 517,
           "schema": "EOTAbsence@1",
           "at": [
            8164,
@@ -864,9 +905,9 @@
         ]
        },
        {
-        "seq": 198,
+        "seq": 200,
         "schema": "EOTObservation@1",
-        "id": "s197",
+        "id": "s199",
         "at": [
          8172,
          8248
@@ -877,9 +918,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 417,
+          "seq": 419,
           "schema": "EOTObservation@1",
-          "id": "v416",
+          "id": "v418",
           "at": [
            8172,
            8248
@@ -892,9 +933,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 515,
+            "seq": 518,
             "schema": "EOTObservation@1",
-            "id": "o497",
+            "id": "o499",
             "at": [
              8227,
              8248
@@ -918,9 +959,9 @@
       ]
      },
      {
-      "seq": 84,
+      "seq": 85,
       "schema": "EOTObservation@1",
-      "id": "p83",
+      "id": "p84",
       "at": [
        8252,
        8266
@@ -930,9 +971,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 199,
+        "seq": 201,
         "schema": "EOTObservation@1",
-        "id": "s198",
+        "id": "s200",
         "at": [
          8252,
          8266
@@ -943,7 +984,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 516,
+          "seq": 519,
           "schema": "EOTAbsence@1",
           "at": [
            8252,
@@ -959,9 +1000,9 @@
       ]
      },
      {
-      "seq": 85,
+      "seq": 86,
       "schema": "EOTObservation@1",
-      "id": "p84",
+      "id": "p85",
       "at": [
        8270,
        8409
@@ -971,9 +1012,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 200,
+        "seq": 202,
         "schema": "EOTObservation@1",
-        "id": "s199",
+        "id": "s201",
         "at": [
          8270,
          8409
@@ -984,9 +1025,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 418,
+          "seq": 420,
           "schema": "EOTObservation@1",
-          "id": "v417",
+          "id": "v419",
           "at": [
            8270,
            8409
@@ -999,9 +1040,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 802,
+            "seq": 805,
             "schema": "EOTObservation@1",
-            "id": "x599",
+            "id": "x601",
             "at": [
              8270,
              8409
@@ -1027,9 +1068,9 @@
       ]
      },
      {
-      "seq": 86,
+      "seq": 87,
       "schema": "EOTObservation@1",
-      "id": "p85",
+      "id": "p86",
       "at": [
        8413,
        8488
@@ -1039,9 +1080,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 201,
+        "seq": 203,
         "schema": "EOTObservation@1",
-        "id": "s200",
+        "id": "s202",
         "at": [
          8413,
          8420
@@ -1052,7 +1093,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 518,
+          "seq": 521,
           "schema": "EOTAbsence@1",
           "at": [
            8413,
@@ -1066,9 +1107,9 @@
         ]
        },
        {
-        "seq": 202,
+        "seq": 204,
         "schema": "EOTObservation@1",
-        "id": "s201",
+        "id": "s203",
         "at": [
          8421,
          8456
@@ -1079,9 +1120,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 519,
+          "seq": 522,
           "schema": "EOTObservation@1",
-          "id": "o498",
+          "id": "o500",
           "at": [
            8444,
            8455
@@ -1101,9 +1142,9 @@
         ]
        },
        {
-        "seq": 203,
+        "seq": 205,
         "schema": "EOTObservation@1",
-        "id": "s202",
+        "id": "s204",
         "at": [
          8457,
          8488
@@ -1114,7 +1155,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 520,
+          "seq": 523,
           "schema": "EOTAbsence@1",
           "at": [
            8457,
@@ -1130,9 +1171,9 @@
       ]
      },
      {
-      "seq": 87,
+      "seq": 88,
       "schema": "EOTObservation@1",
-      "id": "p86",
+      "id": "p87",
       "at": [
        8492,
        8502
@@ -1142,9 +1183,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 204,
+        "seq": 206,
         "schema": "EOTObservation@1",
-        "id": "s203",
+        "id": "s205",
         "at": [
          8492,
          8502
@@ -1155,7 +1196,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 521,
+          "seq": 524,
           "schema": "EOTAbsence@1",
           "at": [
            8492,
@@ -1171,9 +1212,9 @@
       ]
      },
      {
-      "seq": 88,
+      "seq": 89,
       "schema": "EOTObservation@1",
-      "id": "p87",
+      "id": "p88",
       "at": [
        8506,
        8583
@@ -1183,9 +1224,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 205,
+        "seq": 207,
         "schema": "EOTObservation@1",
-        "id": "s204",
+        "id": "s206",
         "at": [
          8506,
          8515
@@ -1196,7 +1237,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 522,
+          "seq": 525,
           "schema": "EOTAbsence@1",
           "at": [
            8506,
@@ -1210,9 +1251,9 @@
         ]
        },
        {
-        "seq": 206,
+        "seq": 208,
         "schema": "EOTObservation@1",
-        "id": "s205",
+        "id": "s207",
         "at": [
          8516,
          8535
@@ -1223,7 +1264,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 523,
+          "seq": 526,
           "schema": "EOTAbsence@1",
           "at": [
            8516,
@@ -1237,9 +1278,9 @@
         ]
        },
        {
-        "seq": 207,
+        "seq": 209,
         "schema": "EOTObservation@1",
-        "id": "s206",
+        "id": "s208",
         "at": [
          8536,
          8559
@@ -1250,7 +1291,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 524,
+          "seq": 527,
           "schema": "EOTAbsence@1",
           "at": [
            8536,
@@ -1264,9 +1305,9 @@
         ]
        },
        {
-        "seq": 208,
+        "seq": 210,
         "schema": "EOTObservation@1",
-        "id": "s207",
+        "id": "s209",
         "at": [
          8560,
          8583
@@ -1277,7 +1318,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 525,
+          "seq": 528,
           "schema": "EOTAbsence@1",
           "at": [
            8560,
@@ -1293,9 +1334,9 @@
       ]
      },
      {
-      "seq": 89,
+      "seq": 90,
       "schema": "EOTObservation@1",
-      "id": "p88",
+      "id": "p89",
       "at": [
        8587,
        8608
@@ -1305,9 +1346,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 209,
+        "seq": 211,
         "schema": "EOTObservation@1",
-        "id": "s208",
+        "id": "s210",
         "at": [
          8587,
          8608
@@ -1318,7 +1359,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 526,
+          "seq": 529,
           "schema": "EOTAbsence@1",
           "at": [
            8587,
@@ -1334,9 +1375,9 @@
       ]
      },
      {
-      "seq": 90,
+      "seq": 91,
       "schema": "EOTObservation@1",
-      "id": "p89",
+      "id": "p90",
       "at": [
        8612,
        8746
@@ -1346,9 +1387,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 210,
+        "seq": 212,
         "schema": "EOTObservation@1",
-        "id": "s209",
+        "id": "s211",
         "at": [
          8612,
          8626
@@ -1359,7 +1400,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 527,
+          "seq": 530,
           "schema": "EOTAbsence@1",
           "at": [
            8612,
@@ -1373,9 +1414,9 @@
         ]
        },
        {
-        "seq": 211,
+        "seq": 213,
         "schema": "EOTObservation@1",
-        "id": "s210",
+        "id": "s212",
         "at": [
          8627,
          8654
@@ -1386,9 +1427,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 419,
+          "seq": 421,
           "schema": "EOTObservation@1",
-          "id": "v418",
+          "id": "v420",
           "at": [
            8627,
            8654
@@ -1401,7 +1442,7 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 528,
+            "seq": 531,
             "schema": "EOTAbsence@1",
             "at": [
              8627,
@@ -1417,9 +1458,9 @@
         ]
        },
        {
-        "seq": 212,
+        "seq": 214,
         "schema": "EOTObservation@1",
-        "id": "s211",
+        "id": "s213",
         "at": [
          8655,
          8724
@@ -1430,9 +1471,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 409,
+          "seq": 411,
           "schema": "EOTObservation@1",
-          "id": "e408",
+          "id": "e410",
           "at": [
            8667,
            8671
@@ -1451,9 +1492,9 @@
           "basis": "name-variant coreference (giver: surfaces/discoverReferents) — the surfaces were clustered by name-variant coreference and this is the being that cluster asserts",
           "children": [
            {
-            "seq": 410,
+            "seq": 412,
             "schema": "EOTObservation@1",
-            "id": "d409",
+            "id": "d411",
             "at": [
              8667,
              8671
@@ -1470,9 +1511,9 @@
           ]
          },
          {
-          "seq": 529,
+          "seq": 532,
           "schema": "EOTObservation@1",
-          "id": "o499",
+          "id": "o501",
           "at": [
            8696,
            8723
@@ -1492,9 +1533,9 @@
         ]
        },
        {
-        "seq": 213,
+        "seq": 215,
         "schema": "EOTObservation@1",
-        "id": "s212",
+        "id": "s214",
         "at": [
          8725,
          8746
@@ -1505,7 +1546,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 531,
+          "seq": 534,
           "schema": "EOTAbsence@1",
           "at": [
            8725,
@@ -1521,9 +1562,9 @@
       ]
      },
      {
-      "seq": 91,
+      "seq": 92,
       "schema": "EOTObservation@1",
-      "id": "p90",
+      "id": "p91",
       "at": [
        8750,
        8804
@@ -1533,9 +1574,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 214,
+        "seq": 216,
         "schema": "EOTObservation@1",
-        "id": "s213",
+        "id": "s215",
         "at": [
          8750,
          8804
@@ -1549,9 +1590,9 @@
       ]
      },
      {
-      "seq": 92,
+      "seq": 93,
       "schema": "EOTObservation@1",
-      "id": "p91",
+      "id": "p92",
       "at": [
        8808,
        8836
@@ -1561,9 +1602,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 215,
+        "seq": 217,
         "schema": "EOTObservation@1",
-        "id": "s214",
+        "id": "s216",
         "at": [
          8808,
          8812
@@ -1574,7 +1615,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 533,
+          "seq": 536,
           "schema": "EOTAbsence@1",
           "at": [
            8808,
@@ -1588,9 +1629,9 @@
         ]
        },
        {
-        "seq": 216,
+        "seq": 218,
         "schema": "EOTObservation@1",
-        "id": "s215",
+        "id": "s217",
         "at": [
          8813,
          8836
@@ -1601,7 +1642,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 534,
+          "seq": 537,
           "schema": "EOTAbsence@1",
           "at": [
            8813,
@@ -1617,9 +1658,9 @@
       ]
      },
      {
-      "seq": 93,
+      "seq": 94,
       "schema": "EOTObservation@1",
-      "id": "p92",
+      "id": "p93",
       "at": [
        8840,
        8997
@@ -1629,9 +1670,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 217,
+        "seq": 219,
         "schema": "EOTObservation@1",
-        "id": "s216",
+        "id": "s218",
         "at": [
          8840,
          8906
@@ -1642,9 +1683,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 420,
+          "seq": 422,
           "schema": "EOTObservation@1",
-          "id": "v419",
+          "id": "v421",
           "at": [
            8840,
            8906
@@ -1657,9 +1698,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 535,
+            "seq": 538,
             "schema": "EOTObservation@1",
-            "id": "o500",
+            "id": "o502",
             "at": [
              8899,
              8905
@@ -1681,9 +1722,9 @@
         ]
        },
        {
-        "seq": 218,
+        "seq": 220,
         "schema": "EOTObservation@1",
-        "id": "s217",
+        "id": "s219",
         "at": [
          8908,
          8997
@@ -1694,9 +1735,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 421,
+          "seq": 423,
           "schema": "EOTObservation@1",
-          "id": "v420",
+          "id": "v422",
           "at": [
            8908,
            8997
@@ -1714,9 +1755,9 @@
       ]
      },
      {
-      "seq": 94,
+      "seq": 95,
       "schema": "EOTObservation@1",
-      "id": "p93",
+      "id": "p94",
       "at": [
        9001,
        9078
@@ -1726,9 +1767,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 219,
+        "seq": 221,
         "schema": "EOTObservation@1",
-        "id": "s218",
+        "id": "s220",
         "at": [
          9001,
          9078
@@ -1739,9 +1780,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 401,
+          "seq": 403,
           "schema": "EOTObservation@1",
-          "id": "e400",
+          "id": "e402",
           "at": [
            9010,
            9015
@@ -1761,9 +1802,9 @@
           "basis": "name-variant coreference (giver: surfaces/discoverReferents) — the surfaces were clustered by name-variant coreference and this is the being that cluster asserts",
           "children": [
            {
-            "seq": 402,
+            "seq": 404,
             "schema": "EOTObservation@1",
-            "id": "d401",
+            "id": "d403",
             "at": [
              9010,
              9015
@@ -1780,9 +1821,9 @@
           ]
          },
          {
-          "seq": 538,
+          "seq": 541,
           "schema": "EOTObservation@1",
-          "id": "o501",
+          "id": "o503",
           "at": [
            9022,
            9040
@@ -1805,9 +1846,9 @@
       ]
      },
      {
-      "seq": 95,
+      "seq": 96,
       "schema": "EOTObservation@1",
-      "id": "p94",
+      "id": "p95",
       "at": [
        9082,
        10510
@@ -1817,9 +1858,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 220,
+        "seq": 222,
         "schema": "EOTObservation@1",
-        "id": "s219",
+        "id": "s221",
         "at": [
          9082,
          9126
@@ -1830,9 +1871,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 541,
+          "seq": 544,
           "schema": "EOTObservation@1",
-          "id": "o502",
+          "id": "o504",
           "at": [
            9117,
            9126
@@ -1852,9 +1893,9 @@
         ]
        },
        {
-        "seq": 221,
+        "seq": 223,
         "schema": "EOTObservation@1",
-        "id": "s220",
+        "id": "s222",
         "at": [
          9127,
          9217
@@ -1865,9 +1906,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 422,
+          "seq": 424,
           "schema": "EOTObservation@1",
-          "id": "v421",
+          "id": "v423",
           "at": [
            9127,
            9217
@@ -1880,9 +1921,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 542,
+            "seq": 545,
             "schema": "EOTObservation@1",
-            "id": "o503",
+            "id": "o505",
             "at": [
              9166,
              9217
@@ -1896,9 +1937,9 @@
             "settledAs": null,
             "children": [
              {
-              "seq": 543,
+              "seq": 546,
               "schema": "EOTObservation@1",
-              "id": "o504",
+              "id": "o506",
               "at": [
                9175,
                9217
@@ -1915,9 +1956,9 @@
               "settledAs": "preposition",
               "children": [
                {
-                "seq": 544,
+                "seq": 547,
                 "schema": "EOTObservation@1",
-                "id": "o505",
+                "id": "o507",
                 "at": [
                  9184,
                  9217
@@ -1943,9 +1984,9 @@
         ]
        },
        {
-        "seq": 222,
+        "seq": 224,
         "schema": "EOTObservation@1",
-        "id": "s221",
+        "id": "s223",
         "at": [
          9218,
          9263
@@ -1957,9 +1998,9 @@
         "children": []
        },
        {
-        "seq": 223,
+        "seq": 225,
         "schema": "EOTObservation@1",
-        "id": "s222",
+        "id": "s224",
         "at": [
          9264,
          9317
@@ -1970,9 +2011,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 546,
+          "seq": 549,
           "schema": "EOTObservation@1",
-          "id": "o506",
+          "id": "o508",
           "at": [
            9276,
            9297
@@ -1992,9 +2033,9 @@
         ]
        },
        {
-        "seq": 224,
+        "seq": 226,
         "schema": "EOTObservation@1",
-        "id": "s223",
+        "id": "s225",
         "at": [
          9318,
          9413
@@ -2006,9 +2047,9 @@
         "children": []
        },
        {
-        "seq": 225,
+        "seq": 227,
         "schema": "EOTObservation@1",
-        "id": "s224",
+        "id": "s226",
         "at": [
          9414,
          9618
@@ -2019,9 +2060,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 549,
+          "seq": 552,
           "schema": "EOTObservation@1",
-          "id": "o507",
+          "id": "o509",
           "at": [
            9454,
            9490
@@ -2040,9 +2081,9 @@
           "children": []
          },
          {
-          "seq": 550,
+          "seq": 553,
           "schema": "EOTObservation@1",
-          "id": "o508",
+          "id": "o510",
           "at": [
            9521,
            9568
@@ -2060,9 +2101,9 @@
           "settledAs": "verb",
           "children": [
            {
-            "seq": 551,
+            "seq": 554,
             "schema": "EOTObservation@1",
-            "id": "o509",
+            "id": "o511",
             "at": [
              9543,
              9568
@@ -2085,40 +2126,12 @@
         ]
        },
        {
-        "seq": 226,
-        "schema": "EOTObservation@1",
-        "id": "s225",
-        "at": [
-         9619,
-         9699
-        ],
-        "role": "sentence",
-        "inferred": true,
-        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
-        "script": "cased",
-        "children": []
-       },
-       {
-        "seq": 227,
-        "schema": "EOTObservation@1",
-        "id": "s226",
-        "at": [
-         9700,
-         9758
-        ],
-        "role": "sentence",
-        "inferred": true,
-        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
-        "script": "cased",
-        "children": []
-       },
-       {
         "seq": 228,
         "schema": "EOTObservation@1",
         "id": "s227",
         "at": [
-         9759,
-         9814
+         9619,
+         9699
         ],
         "role": "sentence",
         "inferred": true,
@@ -2131,6 +2144,34 @@
         "schema": "EOTObservation@1",
         "id": "s228",
         "at": [
+         9700,
+         9758
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": []
+       },
+       {
+        "seq": 230,
+        "schema": "EOTObservation@1",
+        "id": "s229",
+        "at": [
+         9759,
+         9814
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": []
+       },
+       {
+        "seq": 231,
+        "schema": "EOTObservation@1",
+        "id": "s230",
+        "at": [
          9815,
          9859
         ],
@@ -2140,9 +2181,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 423,
+          "seq": 425,
           "schema": "EOTObservation@1",
-          "id": "v422",
+          "id": "v424",
           "at": [
            9815,
            9859
@@ -2155,9 +2196,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 558,
+            "seq": 561,
             "schema": "EOTObservation@1",
-            "id": "o510",
+            "id": "o512",
             "at": [
              9828,
              9843
@@ -2179,9 +2220,9 @@
         ]
        },
        {
-        "seq": 230,
+        "seq": 232,
         "schema": "EOTObservation@1",
-        "id": "s229",
+        "id": "s231",
         "at": [
          9860,
          9952
@@ -2192,9 +2233,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 424,
+          "seq": 426,
           "schema": "EOTObservation@1",
-          "id": "v423",
+          "id": "v425",
           "at": [
            9860,
            9952
@@ -2207,9 +2248,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 560,
+            "seq": 563,
             "schema": "EOTObservation@1",
-            "id": "o511",
+            "id": "o513",
             "at": [
              9920,
              9941
@@ -2231,9 +2272,9 @@
         ]
        },
        {
-        "seq": 231,
+        "seq": 233,
         "schema": "EOTObservation@1",
-        "id": "s230",
+        "id": "s232",
         "at": [
          9953,
          10061
@@ -2244,9 +2285,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 425,
+          "seq": 427,
           "schema": "EOTObservation@1",
-          "id": "v424",
+          "id": "v426",
           "at": [
            9953,
            10061
@@ -2259,9 +2300,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 562,
+            "seq": 565,
             "schema": "EOTObservation@1",
-            "id": "o512",
+            "id": "o514",
             "at": [
              9970,
              9977
@@ -2283,9 +2324,9 @@
         ]
        },
        {
-        "seq": 232,
+        "seq": 234,
         "schema": "EOTObservation@1",
-        "id": "s231",
+        "id": "s233",
         "at": [
          10062,
          10183
@@ -2296,9 +2337,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 426,
+          "seq": 428,
           "schema": "EOTObservation@1",
-          "id": "v425",
+          "id": "v427",
           "at": [
            10062,
            10183
@@ -2311,9 +2352,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 563,
+            "seq": 566,
             "schema": "EOTObservation@1",
-            "id": "o513",
+            "id": "o515",
             "at": [
              10096,
              10136
@@ -2330,9 +2371,9 @@
             "settledAs": "preposition",
             "children": [
              {
-              "seq": 564,
+              "seq": 567,
               "schema": "EOTObservation@1",
-              "id": "o514",
+              "id": "o516",
               "at": [
                10108,
                10136
@@ -2349,9 +2390,9 @@
               "settledAs": "preposition",
               "children": [
                {
-                "seq": 565,
+                "seq": 568,
                 "schema": "EOTObservation@1",
-                "id": "o515",
+                "id": "o517",
                 "at": [
                  10129,
                  10136
@@ -2377,9 +2418,9 @@
         ]
        },
        {
-        "seq": 233,
+        "seq": 235,
         "schema": "EOTObservation@1",
-        "id": "s232",
+        "id": "s234",
         "at": [
          10184,
          10288
@@ -2390,9 +2431,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 427,
+          "seq": 429,
           "schema": "EOTObservation@1",
-          "id": "v426",
+          "id": "v428",
           "at": [
            10184,
            10288
@@ -2408,9 +2449,9 @@
         ]
        },
        {
-        "seq": 234,
+        "seq": 236,
         "schema": "EOTObservation@1",
-        "id": "s233",
+        "id": "s235",
         "at": [
          10289,
          10510
@@ -2421,9 +2462,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 428,
+          "seq": 430,
           "schema": "EOTObservation@1",
-          "id": "v427",
+          "id": "v429",
           "at": [
            10289,
            10510
@@ -2436,9 +2477,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 803,
+            "seq": 806,
             "schema": "EOTObservation@1",
-            "id": "x600",
+            "id": "x602",
             "at": [
              10289,
              10510
@@ -2457,9 +2498,9 @@
             "basis": "identity evidence in this sentence (text_copular_identity); canonicalizationFloor 2, declared",
             "children": [
              {
-              "seq": 568,
+              "seq": 571,
               "schema": "EOTObservation@1",
-              "id": "o516",
+              "id": "o518",
               "at": [
                10315,
                10333
@@ -2477,9 +2518,9 @@
               "children": []
              },
              {
-              "seq": 570,
+              "seq": 573,
               "schema": "EOTObservation@1",
-              "id": "o517",
+              "id": "o519",
               "at": [
                10401,
                10423
@@ -2497,9 +2538,9 @@
               "children": []
              },
              {
-              "seq": 571,
+              "seq": 574,
               "schema": "EOTObservation@1",
-              "id": "o518",
+              "id": "o520",
               "at": [
                10455,
                10469
@@ -2525,9 +2566,9 @@
       ]
      },
      {
-      "seq": 96,
+      "seq": 97,
       "schema": "EOTObservation@1",
-      "id": "p95",
+      "id": "p96",
       "at": [
        10514,
        10546
@@ -2537,9 +2578,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 235,
+        "seq": 237,
         "schema": "EOTObservation@1",
-        "id": "s234",
+        "id": "s236",
         "at": [
          10514,
          10546
@@ -2550,9 +2591,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 573,
+          "seq": 576,
           "schema": "EOTObservation@1",
-          "id": "o519",
+          "id": "o521",
           "at": [
            10535,
            10546
@@ -2574,9 +2615,9 @@
       ]
      },
      {
-      "seq": 97,
+      "seq": 98,
       "schema": "EOTObservation@1",
-      "id": "p96",
+      "id": "p97",
       "at": [
        10550,
        11018
@@ -2586,9 +2627,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 236,
+        "seq": 238,
         "schema": "EOTObservation@1",
-        "id": "s235",
+        "id": "s237",
         "at": [
          10550,
          10599
@@ -2599,9 +2640,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 429,
+          "seq": 431,
           "schema": "EOTObservation@1",
-          "id": "v428",
+          "id": "v430",
           "at": [
            10550,
            10599
@@ -2614,9 +2655,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 574,
+            "seq": 577,
             "schema": "EOTObservation@1",
-            "id": "o520",
+            "id": "o522",
             "at": [
              10558,
              10569
@@ -2639,9 +2680,9 @@
         ]
        },
        {
-        "seq": 237,
+        "seq": 239,
         "schema": "EOTObservation@1",
-        "id": "s236",
+        "id": "s238",
         "at": [
          10600,
          10831
@@ -2652,9 +2693,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 430,
+          "seq": 432,
           "schema": "EOTObservation@1",
-          "id": "v429",
+          "id": "v431",
           "at": [
            10600,
            10831
@@ -2667,9 +2708,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 576,
+            "seq": 579,
             "schema": "EOTObservation@1",
-            "id": "o521",
+            "id": "o523",
             "at": [
              10769,
              10830
@@ -2686,9 +2727,9 @@
             "settledAs": "verb",
             "children": [
              {
-              "seq": 577,
+              "seq": 580,
               "schema": "EOTObservation@1",
-              "id": "o522",
+              "id": "o524",
               "at": [
                10797,
                10830
@@ -2705,9 +2746,9 @@
               "settledAs": "conjunction",
               "children": [
                {
-                "seq": 578,
+                "seq": 581,
                 "schema": "EOTObservation@1",
-                "id": "o523",
+                "id": "o525",
                 "at": [
                  10805,
                  10830
@@ -2733,9 +2774,9 @@
         ]
        },
        {
-        "seq": 238,
+        "seq": 240,
         "schema": "EOTObservation@1",
-        "id": "s237",
+        "id": "s239",
         "at": [
          10833,
          11018
@@ -2746,9 +2787,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 431,
+          "seq": 433,
           "schema": "EOTObservation@1",
-          "id": "v430",
+          "id": "v432",
           "at": [
            10833,
            11018
@@ -2761,9 +2802,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 407,
+            "seq": 409,
             "schema": "EOTObservation@1",
-            "id": "e406",
+            "id": "e408",
             "at": [
              10880,
              10883
@@ -2782,9 +2823,9 @@
             "basis": "name-variant coreference (giver: surfaces/discoverReferents) — the surfaces were clustered by name-variant coreference and this is the being that cluster asserts",
             "children": [
              {
-              "seq": 408,
+              "seq": 410,
               "schema": "EOTObservation@1",
-              "id": "d407",
+              "id": "d409",
               "at": [
                10880,
                10883
@@ -2801,9 +2842,9 @@
             ]
            },
            {
-            "seq": 579,
+            "seq": 582,
             "schema": "EOTObservation@1",
-            "id": "o524",
+            "id": "o526",
             "at": [
              10922,
              10949
@@ -2821,9 +2862,9 @@
             "children": []
            },
            {
-            "seq": 582,
+            "seq": 585,
             "schema": "EOTObservation@1",
-            "id": "o525",
+            "id": "o527",
             "at": [
              10984,
              10998
@@ -2847,9 +2888,9 @@
       ]
      },
      {
-      "seq": 98,
+      "seq": 99,
       "schema": "EOTObservation@1",
-      "id": "p97",
+      "id": "p98",
       "at": [
        11022,
        11458
@@ -2859,9 +2900,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 239,
+        "seq": 241,
         "schema": "EOTObservation@1",
-        "id": "s238",
+        "id": "s240",
         "at": [
          11022,
          11223
@@ -2872,9 +2913,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 432,
+          "seq": 434,
           "schema": "EOTObservation@1",
-          "id": "v431",
+          "id": "v433",
           "at": [
            11022,
            11223
@@ -2887,9 +2928,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 583,
+            "seq": 586,
             "schema": "EOTObservation@1",
-            "id": "o526",
+            "id": "o528",
             "at": [
              11036,
              11053
@@ -2908,9 +2949,9 @@
             "children": []
            },
            {
-            "seq": 584,
+            "seq": 587,
             "schema": "EOTObservation@1",
-            "id": "o527",
+            "id": "o529",
             "at": [
              11116,
              11153
@@ -2928,9 +2969,9 @@
             "settledAs": "verb",
             "children": [
              {
-              "seq": 585,
+              "seq": 588,
               "schema": "EOTObservation@1",
-              "id": "o528",
+              "id": "o530",
               "at": [
                11148,
                11153
@@ -2955,9 +2996,9 @@
         ]
        },
        {
-        "seq": 240,
+        "seq": 242,
         "schema": "EOTObservation@1",
-        "id": "s239",
+        "id": "s241",
         "at": [
          11224,
          11448
@@ -2968,9 +3009,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 433,
+          "seq": 435,
           "schema": "EOTObservation@1",
-          "id": "v432",
+          "id": "v434",
           "at": [
            11224,
            11448
@@ -2983,9 +3024,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 586,
+            "seq": 589,
             "schema": "EOTObservation@1",
-            "id": "o529",
+            "id": "o531",
             "at": [
              11305,
              11360
@@ -3007,9 +3048,9 @@
         ]
        },
        {
-        "seq": 241,
+        "seq": 243,
         "schema": "EOTObservation@1",
-        "id": "s240",
+        "id": "s242",
         "at": [
          11449,
          11458
@@ -3020,7 +3061,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 588,
+          "seq": 591,
           "schema": "EOTAbsence@1",
           "at": [
            11449,
@@ -3036,9 +3077,9 @@
       ]
      },
      {
-      "seq": 99,
+      "seq": 100,
       "schema": "EOTObservation@1",
-      "id": "p98",
+      "id": "p99",
       "at": [
        11462,
        11511
@@ -3048,9 +3089,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 242,
+        "seq": 244,
         "schema": "EOTObservation@1",
-        "id": "s241",
+        "id": "s243",
         "at": [
          11462,
          11511
@@ -3061,9 +3102,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 434,
+          "seq": 436,
           "schema": "EOTObservation@1",
-          "id": "v433",
+          "id": "v435",
           "at": [
            11462,
            11511
@@ -3076,9 +3117,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 589,
+            "seq": 592,
             "schema": "EOTObservation@1",
-            "id": "o530",
+            "id": "o532",
             "at": [
              11475,
              11498
@@ -3102,9 +3143,9 @@
       ]
      },
      {
-      "seq": 100,
+      "seq": 101,
       "schema": "EOTObservation@1",
-      "id": "p99",
+      "id": "p100",
       "at": [
        11515,
        11523
@@ -3114,9 +3155,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 243,
+        "seq": 245,
         "schema": "EOTObservation@1",
-        "id": "s242",
+        "id": "s244",
         "at": [
          11515,
          11523
@@ -3127,7 +3168,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 590,
+          "seq": 593,
           "schema": "EOTAbsence@1",
           "at": [
            11515,
@@ -3143,9 +3184,9 @@
       ]
      },
      {
-      "seq": 101,
+      "seq": 102,
       "schema": "EOTObservation@1",
-      "id": "p100",
+      "id": "p101",
       "at": [
        11527,
        11554
@@ -3155,9 +3196,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 244,
+        "seq": 246,
         "schema": "EOTObservation@1",
-        "id": "s243",
+        "id": "s245",
         "at": [
          11527,
          11554
@@ -3168,9 +3209,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 435,
+          "seq": 437,
           "schema": "EOTObservation@1",
-          "id": "v434",
+          "id": "v436",
           "at": [
            11527,
            11554
@@ -3183,7 +3224,7 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 591,
+            "seq": 594,
             "schema": "EOTAbsence@1",
             "at": [
              11527,
@@ -3201,9 +3242,9 @@
       ]
      },
      {
-      "seq": 102,
+      "seq": 103,
       "schema": "EOTObservation@1",
-      "id": "p101",
+      "id": "p102",
       "at": [
        11558,
        11566
@@ -3213,9 +3254,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 245,
+        "seq": 247,
         "schema": "EOTObservation@1",
-        "id": "s244",
+        "id": "s246",
         "at": [
          11558,
          11566
@@ -3226,7 +3267,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 592,
+          "seq": 595,
           "schema": "EOTAbsence@1",
           "at": [
            11558,
@@ -3242,9 +3283,9 @@
       ]
      },
      {
-      "seq": 103,
+      "seq": 104,
       "schema": "EOTObservation@1",
-      "id": "p102",
+      "id": "p103",
       "at": [
        11570,
        11613
@@ -3254,9 +3295,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 246,
+        "seq": 248,
         "schema": "EOTObservation@1",
-        "id": "s245",
+        "id": "s247",
         "at": [
          11570,
          11613
@@ -3267,7 +3308,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 593,
+          "seq": 596,
           "schema": "EOTAbsence@1",
           "at": [
            11570,
@@ -3283,9 +3324,9 @@
       ]
      },
      {
-      "seq": 104,
+      "seq": 105,
       "schema": "EOTObservation@1",
-      "id": "p103",
+      "id": "p104",
       "at": [
        11617,
        11755
@@ -3295,9 +3336,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 247,
+        "seq": 249,
         "schema": "EOTObservation@1",
-        "id": "s246",
+        "id": "s248",
         "at": [
          11617,
          11686
@@ -3308,9 +3349,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 594,
+          "seq": 597,
           "schema": "EOTObservation@1",
-          "id": "o531",
+          "id": "o533",
           "at": [
            11626,
            11685
@@ -3331,9 +3372,9 @@
         ]
        },
        {
-        "seq": 248,
+        "seq": 250,
         "schema": "EOTObservation@1",
-        "id": "s247",
+        "id": "s249",
         "at": [
          11687,
          11743
@@ -3344,9 +3385,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 436,
+          "seq": 438,
           "schema": "EOTObservation@1",
-          "id": "v435",
+          "id": "v437",
           "at": [
            11687,
            11743
@@ -3359,7 +3400,7 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 596,
+            "seq": 599,
             "schema": "EOTAbsence@1",
             "at": [
              11687,
@@ -3375,9 +3416,9 @@
         ]
        },
        {
-        "seq": 249,
+        "seq": 251,
         "schema": "EOTObservation@1",
-        "id": "s248",
+        "id": "s250",
         "at": [
          11744,
          11755
@@ -3388,7 +3429,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 597,
+          "seq": 600,
           "schema": "EOTAbsence@1",
           "at": [
            11744,
@@ -3404,9 +3445,9 @@
       ]
      },
      {
-      "seq": 105,
+      "seq": 106,
       "schema": "EOTObservation@1",
-      "id": "p104",
+      "id": "p105",
       "at": [
        11759,
        11786
@@ -3416,9 +3457,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 250,
+        "seq": 252,
         "schema": "EOTObservation@1",
-        "id": "s249",
+        "id": "s251",
         "at": [
          11759,
          11786
@@ -3429,7 +3470,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 598,
+          "seq": 601,
           "schema": "EOTAbsence@1",
           "at": [
            11759,
@@ -3445,9 +3486,9 @@
       ]
      },
      {
-      "seq": 106,
+      "seq": 107,
       "schema": "EOTObservation@1",
-      "id": "p105",
+      "id": "p106",
       "at": [
        11790,
        11855
@@ -3457,9 +3498,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 251,
+        "seq": 253,
         "schema": "EOTObservation@1",
-        "id": "s250",
+        "id": "s252",
         "at": [
          11790,
          11855
@@ -3470,9 +3511,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 437,
+          "seq": 439,
           "schema": "EOTObservation@1",
-          "id": "v436",
+          "id": "v438",
           "at": [
            11790,
            11855
@@ -3485,9 +3526,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 599,
+            "seq": 602,
             "schema": "EOTObservation@1",
-            "id": "o532",
+            "id": "o534",
             "at": [
              11833,
              11844
@@ -3512,9 +3553,9 @@
       ]
      },
      {
-      "seq": 107,
+      "seq": 108,
       "schema": "EOTObservation@1",
-      "id": "p106",
+      "id": "p107",
       "at": [
        11859,
        12144
@@ -3524,9 +3565,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 252,
+        "seq": 254,
         "schema": "EOTObservation@1",
-        "id": "s251",
+        "id": "s253",
         "at": [
          11859,
          11896
@@ -3537,7 +3578,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 600,
+          "seq": 603,
           "schema": "EOTAbsence@1",
           "at": [
            11859,
@@ -3551,9 +3592,9 @@
         ]
        },
        {
-        "seq": 253,
+        "seq": 255,
         "schema": "EOTObservation@1",
-        "id": "s252",
+        "id": "s254",
         "at": [
          11897,
          12041
@@ -3564,9 +3605,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 438,
+          "seq": 440,
           "schema": "EOTObservation@1",
-          "id": "v437",
+          "id": "v439",
           "at": [
            11897,
            12041
@@ -3579,7 +3620,7 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 601,
+            "seq": 604,
             "schema": "EOTAbsence@1",
             "at": [
              11897,
@@ -3595,9 +3636,9 @@
         ]
        },
        {
-        "seq": 254,
+        "seq": 256,
         "schema": "EOTObservation@1",
-        "id": "s253",
+        "id": "s255",
         "at": [
          12042,
          12097
@@ -3608,9 +3649,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 439,
+          "seq": 441,
           "schema": "EOTObservation@1",
-          "id": "v438",
+          "id": "v440",
           "at": [
            12042,
            12097
@@ -3623,9 +3664,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 602,
+            "seq": 605,
             "schema": "EOTObservation@1",
-            "id": "o533",
+            "id": "o535",
             "at": [
              12058,
              12061
@@ -3643,9 +3684,9 @@
             "children": []
            },
            {
-            "seq": 603,
+            "seq": 606,
             "schema": "EOTObservation@1",
-            "id": "o534",
+            "id": "o536",
             "at": [
              12073,
              12091
@@ -3668,9 +3709,9 @@
         ]
        },
        {
-        "seq": 255,
+        "seq": 257,
         "schema": "EOTObservation@1",
-        "id": "s254",
+        "id": "s256",
         "at": [
          12098,
          12144
@@ -3681,9 +3722,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 440,
+          "seq": 442,
           "schema": "EOTObservation@1",
-          "id": "v439",
+          "id": "v441",
           "at": [
            12098,
            12144
@@ -3701,9 +3742,9 @@
       ]
      },
      {
-      "seq": 108,
+      "seq": 109,
       "schema": "EOTObservation@1",
-      "id": "p107",
+      "id": "p108",
       "at": [
        12148,
        12202
@@ -3713,9 +3754,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 256,
+        "seq": 258,
         "schema": "EOTObservation@1",
-        "id": "s255",
+        "id": "s257",
         "at": [
          12148,
          12196
@@ -3726,9 +3767,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 606,
+          "seq": 609,
           "schema": "EOTObservation@1",
-          "id": "o535",
+          "id": "o537",
           "at": [
            12157,
            12195
@@ -3748,9 +3789,9 @@
         ]
        },
        {
-        "seq": 257,
+        "seq": 259,
         "schema": "EOTObservation@1",
-        "id": "s256",
+        "id": "s258",
         "at": [
          12197,
          12202
@@ -3761,7 +3802,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 607,
+          "seq": 610,
           "schema": "EOTAbsence@1",
           "at": [
            12197,
@@ -3777,9 +3818,9 @@
       ]
      },
      {
-      "seq": 109,
+      "seq": 110,
       "schema": "EOTObservation@1",
-      "id": "p108",
+      "id": "p109",
       "at": [
        12206,
        12345
@@ -3789,9 +3830,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 258,
+        "seq": 260,
         "schema": "EOTObservation@1",
-        "id": "s257",
+        "id": "s259",
         "at": [
          12206,
          12312
@@ -3802,9 +3843,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 441,
+          "seq": 443,
           "schema": "EOTObservation@1",
-          "id": "v440",
+          "id": "v442",
           "at": [
            12206,
            12312
@@ -3817,9 +3858,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 608,
+            "seq": 611,
             "schema": "EOTObservation@1",
-            "id": "o536",
+            "id": "o538",
             "at": [
              12268,
              12291
@@ -3841,9 +3882,9 @@
         ]
        },
        {
-        "seq": 259,
+        "seq": 261,
         "schema": "EOTObservation@1",
-        "id": "s258",
+        "id": "s260",
         "at": [
          12313,
          12345
@@ -3854,7 +3895,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 610,
+          "seq": 613,
           "schema": "EOTAbsence@1",
           "at": [
            12313,
@@ -3870,9 +3911,9 @@
       ]
      },
      {
-      "seq": 110,
+      "seq": 111,
       "schema": "EOTObservation@1",
-      "id": "p109",
+      "id": "p110",
       "at": [
        12349,
        12469
@@ -3882,9 +3923,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 260,
+        "seq": 262,
         "schema": "EOTObservation@1",
-        "id": "s259",
+        "id": "s261",
         "at": [
          12349,
          12446
@@ -3895,9 +3936,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 442,
+          "seq": 444,
           "schema": "EOTObservation@1",
-          "id": "v441",
+          "id": "v443",
           "at": [
            12349,
            12446
@@ -3913,9 +3954,9 @@
         ]
        },
        {
-        "seq": 261,
+        "seq": 263,
         "schema": "EOTObservation@1",
-        "id": "s260",
+        "id": "s262",
         "at": [
          12447,
          12469
@@ -3926,7 +3967,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 612,
+          "seq": 615,
           "schema": "EOTAbsence@1",
           "at": [
            12447,
@@ -3942,9 +3983,9 @@
       ]
      },
      {
-      "seq": 111,
+      "seq": 112,
       "schema": "EOTObservation@1",
-      "id": "p110",
+      "id": "p111",
       "at": [
        12473,
        12572
@@ -3954,9 +3995,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 262,
+        "seq": 264,
         "schema": "EOTObservation@1",
-        "id": "s261",
+        "id": "s263",
         "at": [
          12473,
          12512
@@ -3967,9 +4008,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 613,
+          "seq": 616,
           "schema": "EOTObservation@1",
-          "id": "o537",
+          "id": "o539",
           "at": [
            12501,
            12511
@@ -3990,9 +4031,9 @@
         ]
        },
        {
-        "seq": 263,
+        "seq": 265,
         "schema": "EOTObservation@1",
-        "id": "s262",
+        "id": "s264",
         "at": [
          12513,
          12534
@@ -4003,9 +4044,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 443,
+          "seq": 445,
           "schema": "EOTObservation@1",
-          "id": "v442",
+          "id": "v444",
           "at": [
            12513,
            12534
@@ -4018,7 +4059,7 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 614,
+            "seq": 617,
             "schema": "EOTAbsence@1",
             "at": [
              12513,
@@ -4034,9 +4075,9 @@
         ]
        },
        {
-        "seq": 264,
+        "seq": 266,
         "schema": "EOTObservation@1",
-        "id": "s263",
+        "id": "s265",
         "at": [
          12535,
          12572
@@ -4050,9 +4091,9 @@
       ]
      },
      {
-      "seq": 112,
+      "seq": 113,
       "schema": "EOTObservation@1",
-      "id": "p111",
+      "id": "p112",
       "at": [
        12576,
        12779
@@ -4062,9 +4103,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 265,
+        "seq": 267,
         "schema": "EOTObservation@1",
-        "id": "s264",
+        "id": "s266",
         "at": [
          12576,
          12584
@@ -4075,7 +4116,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 616,
+          "seq": 619,
           "schema": "EOTAbsence@1",
           "at": [
            12576,
@@ -4089,9 +4130,9 @@
         ]
        },
        {
-        "seq": 266,
+        "seq": 268,
         "schema": "EOTObservation@1",
-        "id": "s265",
+        "id": "s267",
         "at": [
          12585,
          12609
@@ -4102,7 +4143,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 617,
+          "seq": 620,
           "schema": "EOTAbsence@1",
           "at": [
            12585,
@@ -4116,9 +4157,9 @@
         ]
        },
        {
-        "seq": 267,
+        "seq": 269,
         "schema": "EOTObservation@1",
-        "id": "s266",
+        "id": "s268",
         "at": [
          12610,
          12665
@@ -4129,7 +4170,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 618,
+          "seq": 621,
           "schema": "EOTAbsence@1",
           "at": [
            12610,
@@ -4143,9 +4184,9 @@
         ]
        },
        {
-        "seq": 268,
+        "seq": 270,
         "schema": "EOTObservation@1",
-        "id": "s267",
+        "id": "s269",
         "at": [
          12666,
          12688
@@ -4156,7 +4197,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 619,
+          "seq": 622,
           "schema": "EOTAbsence@1",
           "at": [
            12666,
@@ -4170,9 +4211,9 @@
         ]
        },
        {
-        "seq": 269,
+        "seq": 271,
         "schema": "EOTObservation@1",
-        "id": "s268",
+        "id": "s270",
         "at": [
          12689,
          12765
@@ -4184,9 +4225,9 @@
         "children": []
        },
        {
-        "seq": 270,
+        "seq": 272,
         "schema": "EOTObservation@1",
-        "id": "s269",
+        "id": "s271",
         "at": [
          12766,
          12779
@@ -4197,7 +4238,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 622,
+          "seq": 625,
           "schema": "EOTAbsence@1",
           "at": [
            12766,
@@ -4213,9 +4254,9 @@
       ]
      },
      {
-      "seq": 113,
+      "seq": 114,
       "schema": "EOTObservation@1",
-      "id": "p112",
+      "id": "p113",
       "at": [
        12783,
        12899
@@ -4225,9 +4266,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 271,
+        "seq": 273,
         "schema": "EOTObservation@1",
-        "id": "s270",
+        "id": "s272",
         "at": [
          12783,
          12899
@@ -4238,9 +4279,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 444,
+          "seq": 446,
           "schema": "EOTObservation@1",
-          "id": "v443",
+          "id": "v445",
           "at": [
            12783,
            12899
@@ -4253,9 +4294,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 623,
+            "seq": 626,
             "schema": "EOTObservation@1",
-            "id": "o538",
+            "id": "o540",
             "at": [
              12791,
              12829
@@ -4272,9 +4313,9 @@
             "settledAs": "verb",
             "children": [
              {
-              "seq": 624,
+              "seq": 627,
               "schema": "EOTObservation@1",
-              "id": "o539",
+              "id": "o541",
               "at": [
                12819,
                12829
@@ -4294,9 +4335,9 @@
             ]
            },
            {
-            "seq": 625,
+            "seq": 628,
             "schema": "EOTObservation@1",
-            "id": "o540",
+            "id": "o542",
             "at": [
              12859,
              12898
@@ -4314,9 +4355,9 @@
             "settledAs": "verb",
             "children": [
              {
-              "seq": 626,
+              "seq": 629,
               "schema": "EOTObservation@1",
-              "id": "o541",
+              "id": "o543",
               "at": [
                12894,
                12898
@@ -4343,9 +4384,9 @@
       ]
      },
      {
-      "seq": 114,
+      "seq": 115,
       "schema": "EOTObservation@1",
-      "id": "p113",
+      "id": "p114",
       "at": [
        12903,
        12919
@@ -4355,9 +4396,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 272,
+        "seq": 274,
         "schema": "EOTObservation@1",
-        "id": "s271",
+        "id": "s273",
         "at": [
          12903,
          12919
@@ -4368,7 +4409,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 627,
+          "seq": 630,
           "schema": "EOTAbsence@1",
           "at": [
            12903,
@@ -4384,9 +4425,9 @@
       ]
      },
      {
-      "seq": 115,
+      "seq": 116,
       "schema": "EOTObservation@1",
-      "id": "p114",
+      "id": "p115",
       "at": [
        12923,
        13010
@@ -4396,9 +4437,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 273,
+        "seq": 275,
         "schema": "EOTObservation@1",
-        "id": "s272",
+        "id": "s274",
         "at": [
          12923,
          13010
@@ -4412,9 +4453,9 @@
       ]
      },
      {
-      "seq": 116,
+      "seq": 117,
       "schema": "EOTObservation@1",
-      "id": "p115",
+      "id": "p116",
       "at": [
        13014,
        13050
@@ -4424,9 +4465,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 274,
+        "seq": 276,
         "schema": "EOTObservation@1",
-        "id": "s273",
+        "id": "s275",
         "at": [
          13014,
          13044
@@ -4437,9 +4478,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 445,
+          "seq": 447,
           "schema": "EOTObservation@1",
-          "id": "v444",
+          "id": "v446",
           "at": [
            13014,
            13044
@@ -4452,9 +4493,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 629,
+            "seq": 632,
             "schema": "EOTObservation@1",
-            "id": "o542",
+            "id": "o544",
             "at": [
              13026,
              13044
@@ -4476,9 +4517,9 @@
         ]
        },
        {
-        "seq": 275,
+        "seq": 277,
         "schema": "EOTObservation@1",
-        "id": "s274",
+        "id": "s276",
         "at": [
          13045,
          13050
@@ -4489,7 +4530,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 630,
+          "seq": 633,
           "schema": "EOTAbsence@1",
           "at": [
            13045,
@@ -4505,9 +4546,9 @@
       ]
      },
      {
-      "seq": 117,
+      "seq": 118,
       "schema": "EOTObservation@1",
-      "id": "p116",
+      "id": "p117",
       "at": [
        13054,
        13124
@@ -4517,9 +4558,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 276,
+        "seq": 278,
         "schema": "EOTObservation@1",
-        "id": "s275",
+        "id": "s277",
         "at": [
          13054,
          13088
@@ -4530,9 +4571,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 631,
+          "seq": 634,
           "schema": "EOTObservation@1",
-          "id": "o543",
+          "id": "o545",
           "at": [
            13066,
            13087
@@ -4550,9 +4591,9 @@
           "settledAs": "verb",
           "children": [
            {
-            "seq": 632,
+            "seq": 635,
             "schema": "EOTObservation@1",
-            "id": "o544",
+            "id": "o546",
             "at": [
              13079,
              13087
@@ -4575,9 +4616,9 @@
         ]
        },
        {
-        "seq": 277,
+        "seq": 279,
         "schema": "EOTObservation@1",
-        "id": "s276",
+        "id": "s278",
         "at": [
          13089,
          13124
@@ -4588,9 +4629,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 634,
+          "seq": 637,
           "schema": "EOTObservation@1",
-          "id": "o545",
+          "id": "o547",
           "at": [
            13100,
            13124
@@ -4613,9 +4654,9 @@
       ]
      },
      {
-      "seq": 118,
+      "seq": 119,
       "schema": "EOTObservation@1",
-      "id": "p117",
+      "id": "p118",
       "at": [
        13128,
        13160
@@ -4625,9 +4666,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 278,
+        "seq": 280,
         "schema": "EOTObservation@1",
-        "id": "s277",
+        "id": "s279",
         "at": [
          13128,
          13160
@@ -4638,9 +4679,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 636,
+          "seq": 639,
           "schema": "EOTObservation@1",
-          "id": "o546",
+          "id": "o548",
           "at": [
            13146,
            13158
@@ -4655,9 +4696,9 @@
           "settledAs": null,
           "children": [
            {
-            "seq": 637,
+            "seq": 640,
             "schema": "EOTObservation@1",
-            "id": "o547",
+            "id": "o549",
             "at": [
              13154,
              13158
@@ -4682,9 +4723,9 @@
       ]
      },
      {
-      "seq": 119,
+      "seq": 120,
       "schema": "EOTObservation@1",
-      "id": "p118",
+      "id": "p119",
       "at": [
        13164,
        13355
@@ -4694,9 +4735,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 279,
+        "seq": 281,
         "schema": "EOTObservation@1",
-        "id": "s278",
+        "id": "s280",
         "at": [
          13164,
          13346
@@ -4707,9 +4748,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 446,
+          "seq": 448,
           "schema": "EOTObservation@1",
-          "id": "v445",
+          "id": "v447",
           "at": [
            13164,
            13346
@@ -4725,9 +4766,9 @@
         ]
        },
        {
-        "seq": 280,
+        "seq": 282,
         "schema": "EOTObservation@1",
-        "id": "s279",
+        "id": "s281",
         "at": [
          13347,
          13355
@@ -4738,7 +4779,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 640,
+          "seq": 643,
           "schema": "EOTAbsence@1",
           "at": [
            13347,
@@ -4754,9 +4795,9 @@
       ]
      },
      {
-      "seq": 120,
+      "seq": 121,
       "schema": "EOTObservation@1",
-      "id": "p119",
+      "id": "p120",
       "at": [
        13359,
        13626
@@ -4766,9 +4807,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 281,
+        "seq": 283,
         "schema": "EOTObservation@1",
-        "id": "s280",
+        "id": "s282",
         "at": [
          13359,
          13406
@@ -4779,9 +4820,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 447,
+          "seq": 449,
           "schema": "EOTObservation@1",
-          "id": "v446",
+          "id": "v448",
           "at": [
            13359,
            13406
@@ -4794,9 +4835,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 641,
+            "seq": 644,
             "schema": "EOTObservation@1",
-            "id": "o548",
+            "id": "o550",
             "at": [
              13402,
              13405
@@ -4819,9 +4860,9 @@
         ]
        },
        {
-        "seq": 282,
+        "seq": 284,
         "schema": "EOTObservation@1",
-        "id": "s281",
+        "id": "s283",
         "at": [
          13407,
          13419
@@ -4832,9 +4873,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 448,
+          "seq": 450,
           "schema": "EOTObservation@1",
-          "id": "v447",
+          "id": "v449",
           "at": [
            13407,
            13419
@@ -4847,7 +4888,7 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 642,
+            "seq": 645,
             "schema": "EOTAbsence@1",
             "at": [
              13407,
@@ -4863,9 +4904,9 @@
         ]
        },
        {
-        "seq": 283,
+        "seq": 285,
         "schema": "EOTObservation@1",
-        "id": "s282",
+        "id": "s284",
         "at": [
          13420,
          13492
@@ -4876,9 +4917,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 643,
+          "seq": 646,
           "schema": "EOTObservation@1",
-          "id": "o549",
+          "id": "o551",
           "at": [
            13440,
            13453
@@ -4894,9 +4935,9 @@
           "children": []
          },
          {
-          "seq": 644,
+          "seq": 647,
           "schema": "EOTObservation@1",
-          "id": "o550",
+          "id": "o552",
           "at": [
            13478,
            13491
@@ -4913,9 +4954,9 @@
         ]
        },
        {
-        "seq": 284,
+        "seq": 286,
         "schema": "EOTObservation@1",
-        "id": "s283",
+        "id": "s285",
         "at": [
          13493,
          13571
@@ -4927,9 +4968,9 @@
         "children": []
        },
        {
-        "seq": 285,
+        "seq": 287,
         "schema": "EOTObservation@1",
-        "id": "s284",
+        "id": "s286",
         "at": [
          13572,
          13609
@@ -4940,9 +4981,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 646,
+          "seq": 649,
           "schema": "EOTObservation@1",
-          "id": "o551",
+          "id": "o553",
           "at": [
            13596,
            13608
@@ -4957,9 +4998,9 @@
           "settledAs": null,
           "children": [
            {
-            "seq": 647,
+            "seq": 650,
             "schema": "EOTObservation@1",
-            "id": "o552",
+            "id": "o554",
             "at": [
              13604,
              13608
@@ -4981,9 +5022,9 @@
         ]
        },
        {
-        "seq": 286,
+        "seq": 288,
         "schema": "EOTObservation@1",
-        "id": "s285",
+        "id": "s287",
         "at": [
          13610,
          13626
@@ -4994,9 +5035,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 449,
+          "seq": 451,
           "schema": "EOTObservation@1",
-          "id": "v448",
+          "id": "v450",
           "at": [
            13610,
            13626
@@ -5009,9 +5050,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 648,
+            "seq": 651,
             "schema": "EOTObservation@1",
-            "id": "o553",
+            "id": "o555",
             "at": [
              13621,
              13626
@@ -5036,9 +5077,9 @@
       ]
      },
      {
-      "seq": 121,
+      "seq": 122,
       "schema": "EOTObservation@1",
-      "id": "p120",
+      "id": "p121",
       "at": [
        13630,
        13727
@@ -5048,9 +5089,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 287,
+        "seq": 289,
         "schema": "EOTObservation@1",
-        "id": "s286",
+        "id": "s288",
         "at": [
          13630,
          13670
@@ -5061,9 +5102,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 450,
+          "seq": 452,
           "schema": "EOTObservation@1",
-          "id": "v449",
+          "id": "v451",
           "at": [
            13630,
            13670
@@ -5079,9 +5120,9 @@
         ]
        },
        {
-        "seq": 288,
+        "seq": 290,
         "schema": "EOTObservation@1",
-        "id": "s287",
+        "id": "s289",
         "at": [
          13671,
          13727
@@ -5092,7 +5133,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 650,
+          "seq": 653,
           "schema": "EOTAbsence@1",
           "at": [
            13671,
@@ -5108,9 +5149,9 @@
       ]
      },
      {
-      "seq": 122,
+      "seq": 123,
       "schema": "EOTObservation@1",
-      "id": "p121",
+      "id": "p122",
       "at": [
        13731,
        14805
@@ -5120,9 +5161,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 289,
+        "seq": 291,
         "schema": "EOTObservation@1",
-        "id": "s288",
+        "id": "s290",
         "at": [
          13731,
          13799
@@ -5133,9 +5174,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 451,
+          "seq": 453,
           "schema": "EOTObservation@1",
-          "id": "v450",
+          "id": "v452",
           "at": [
            13731,
            13799
@@ -5148,9 +5189,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 651,
+            "seq": 654,
             "schema": "EOTObservation@1",
-            "id": "o554",
+            "id": "o556",
             "at": [
              13772,
              13798
@@ -5172,9 +5213,9 @@
         ]
        },
        {
-        "seq": 290,
+        "seq": 292,
         "schema": "EOTObservation@1",
-        "id": "s289",
+        "id": "s291",
         "at": [
          13800,
          14075
@@ -5186,9 +5227,9 @@
         "children": []
        },
        {
-        "seq": 291,
+        "seq": 293,
         "schema": "EOTObservation@1",
-        "id": "s290",
+        "id": "s292",
         "at": [
          14076,
          14220
@@ -5199,9 +5240,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 656,
+          "seq": 659,
           "schema": "EOTObservation@1",
-          "id": "o555",
+          "id": "o557",
           "at": [
            14183,
            14219
@@ -5222,9 +5263,9 @@
         ]
        },
        {
-        "seq": 292,
+        "seq": 294,
         "schema": "EOTObservation@1",
-        "id": "s291",
+        "id": "s293",
         "at": [
          14221,
          14465
@@ -5235,9 +5276,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 658,
+          "seq": 661,
           "schema": "EOTObservation@1",
-          "id": "o556",
+          "id": "o558",
           "at": [
            14275,
            14288
@@ -5255,9 +5296,9 @@
           "children": []
          },
          {
-          "seq": 659,
+          "seq": 662,
           "schema": "EOTObservation@1",
-          "id": "o557",
+          "id": "o559",
           "at": [
            14449,
            14464
@@ -5278,9 +5319,9 @@
         ]
        },
        {
-        "seq": 293,
+        "seq": 295,
         "schema": "EOTObservation@1",
-        "id": "s292",
+        "id": "s294",
         "at": [
          14466,
          14615
@@ -5291,9 +5332,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 452,
+          "seq": 454,
           "schema": "EOTObservation@1",
-          "id": "v451",
+          "id": "v453",
           "at": [
            14466,
            14615
@@ -5306,9 +5347,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 662,
+            "seq": 665,
             "schema": "EOTObservation@1",
-            "id": "o558",
+            "id": "o560",
             "at": [
              14576,
              14614
@@ -5325,9 +5366,9 @@
             "settledAs": "preposition",
             "children": [
              {
-              "seq": 663,
+              "seq": 666,
               "schema": "EOTObservation@1",
-              "id": "o559",
+              "id": "o561",
               "at": [
                14605,
                14614
@@ -5351,9 +5392,9 @@
         ]
        },
        {
-        "seq": 294,
+        "seq": 296,
         "schema": "EOTObservation@1",
-        "id": "s293",
+        "id": "s295",
         "at": [
          14616,
          14805
@@ -5364,9 +5405,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 664,
+          "seq": 667,
           "schema": "EOTObservation@1",
-          "id": "o560",
+          "id": "o562",
           "at": [
            14661,
            14693
@@ -5384,9 +5425,9 @@
           "children": []
          },
          {
-          "seq": 666,
+          "seq": 669,
           "schema": "EOTObservation@1",
-          "id": "o561",
+          "id": "o563",
           "at": [
            14771,
            14783
@@ -5408,9 +5449,9 @@
       ]
      },
      {
-      "seq": 123,
+      "seq": 124,
       "schema": "EOTObservation@1",
-      "id": "p122",
+      "id": "p123",
       "at": [
        14809,
        15749
@@ -5420,9 +5461,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 295,
+        "seq": 297,
         "schema": "EOTObservation@1",
-        "id": "s294",
+        "id": "s296",
         "at": [
          14809,
          14839
@@ -5433,7 +5474,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 669,
+          "seq": 672,
           "schema": "EOTAbsence@1",
           "at": [
            14809,
@@ -5447,9 +5488,9 @@
         ]
        },
        {
-        "seq": 296,
+        "seq": 298,
         "schema": "EOTObservation@1",
-        "id": "s295",
+        "id": "s297",
         "at": [
          14840,
          14861
@@ -5460,9 +5501,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 453,
+          "seq": 455,
           "schema": "EOTObservation@1",
-          "id": "v452",
+          "id": "v454",
           "at": [
            14840,
            14861
@@ -5475,9 +5516,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 670,
+            "seq": 673,
             "schema": "EOTObservation@1",
-            "id": "o562",
+            "id": "o564",
             "at": [
              14847,
              14855
@@ -5499,9 +5540,9 @@
         ]
        },
        {
-        "seq": 297,
+        "seq": 299,
         "schema": "EOTObservation@1",
-        "id": "s296",
+        "id": "s298",
         "at": [
          14862,
          14897
@@ -5512,9 +5553,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 671,
+          "seq": 674,
           "schema": "EOTObservation@1",
-          "id": "o563",
+          "id": "o565",
           "at": [
            14885,
            14896
@@ -5535,9 +5576,9 @@
         ]
        },
        {
-        "seq": 298,
+        "seq": 300,
         "schema": "EOTObservation@1",
-        "id": "s297",
+        "id": "s299",
         "at": [
          14898,
          14959
@@ -5548,9 +5589,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 454,
+          "seq": 456,
           "schema": "EOTObservation@1",
-          "id": "v453",
+          "id": "v455",
           "at": [
            14898,
            14959
@@ -5563,9 +5604,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 672,
+            "seq": 675,
             "schema": "EOTObservation@1",
-            "id": "o564",
+            "id": "o566",
             "at": [
              14951,
              14958
@@ -5587,9 +5628,9 @@
         ]
        },
        {
-        "seq": 299,
+        "seq": 301,
         "schema": "EOTObservation@1",
-        "id": "s298",
+        "id": "s300",
         "at": [
          14960,
          15078
@@ -5601,9 +5642,9 @@
         "children": []
        },
        {
-        "seq": 300,
+        "seq": 302,
         "schema": "EOTObservation@1",
-        "id": "s299",
+        "id": "s301",
         "at": [
          15079,
          15138
@@ -5614,9 +5655,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 674,
+          "seq": 677,
           "schema": "EOTObservation@1",
-          "id": "o565",
+          "id": "o567",
           "at": [
            15093,
            15105
@@ -5636,9 +5677,9 @@
         ]
        },
        {
-        "seq": 301,
+        "seq": 303,
         "schema": "EOTObservation@1",
-        "id": "s300",
+        "id": "s302",
         "at": [
          15139,
          15167
@@ -5649,7 +5690,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 676,
+          "seq": 679,
           "schema": "EOTAbsence@1",
           "at": [
            15139,
@@ -5663,9 +5704,9 @@
         ]
        },
        {
-        "seq": 302,
+        "seq": 304,
         "schema": "EOTObservation@1",
-        "id": "s301",
+        "id": "s303",
         "at": [
          15168,
          15284
@@ -5676,9 +5717,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 678,
+          "seq": 681,
           "schema": "EOTObservation@1",
-          "id": "o566",
+          "id": "o568",
           "at": [
            15242,
            15255
@@ -5698,9 +5739,9 @@
         ]
        },
        {
-        "seq": 303,
+        "seq": 305,
         "schema": "EOTObservation@1",
-        "id": "s302",
+        "id": "s304",
         "at": [
          15285,
          15325
@@ -5711,9 +5752,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 455,
+          "seq": 457,
           "schema": "EOTObservation@1",
-          "id": "v454",
+          "id": "v456",
           "at": [
            15285,
            15325
@@ -5726,9 +5767,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 679,
+            "seq": 682,
             "schema": "EOTObservation@1",
-            "id": "o567",
+            "id": "o569",
             "at": [
              15313,
              15324
@@ -5750,9 +5791,9 @@
         ]
        },
        {
-        "seq": 304,
+        "seq": 306,
         "schema": "EOTObservation@1",
-        "id": "s303",
+        "id": "s305",
         "at": [
          15326,
          15374
@@ -5763,9 +5804,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 456,
+          "seq": 458,
           "schema": "EOTObservation@1",
-          "id": "v455",
+          "id": "v457",
           "at": [
            15326,
            15374
@@ -5778,9 +5819,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 681,
+            "seq": 684,
             "schema": "EOTObservation@1",
-            "id": "o568",
+            "id": "o570",
             "at": [
              15367,
              15373
@@ -5802,9 +5843,9 @@
         ]
        },
        {
-        "seq": 305,
+        "seq": 307,
         "schema": "EOTObservation@1",
-        "id": "s304",
+        "id": "s306",
         "at": [
          15375,
          15434
@@ -5815,9 +5856,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 457,
+          "seq": 459,
           "schema": "EOTObservation@1",
-          "id": "v456",
+          "id": "v458",
           "at": [
            15375,
            15434
@@ -5833,9 +5874,9 @@
         ]
        },
        {
-        "seq": 306,
+        "seq": 308,
         "schema": "EOTObservation@1",
-        "id": "s305",
+        "id": "s307",
         "at": [
          15435,
          15596
@@ -5846,9 +5887,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 458,
+          "seq": 460,
           "schema": "EOTObservation@1",
-          "id": "v457",
+          "id": "v459",
           "at": [
            15435,
            15596
@@ -5861,9 +5902,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 683,
+            "seq": 686,
             "schema": "EOTObservation@1",
-            "id": "o569",
+            "id": "o571",
             "at": [
              15456,
              15478
@@ -5883,9 +5924,9 @@
         ]
        },
        {
-        "seq": 307,
+        "seq": 309,
         "schema": "EOTObservation@1",
-        "id": "s306",
+        "id": "s308",
         "at": [
          15597,
          15615
@@ -5896,7 +5937,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 685,
+          "seq": 688,
           "schema": "EOTAbsence@1",
           "at": [
            15597,
@@ -5910,9 +5951,9 @@
         ]
        },
        {
-        "seq": 308,
+        "seq": 310,
         "schema": "EOTObservation@1",
-        "id": "s307",
+        "id": "s309",
         "at": [
          15616,
          15731
@@ -5923,9 +5964,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 459,
+          "seq": 461,
           "schema": "EOTObservation@1",
-          "id": "v458",
+          "id": "v460",
           "at": [
            15616,
            15731
@@ -5941,9 +5982,9 @@
         ]
        },
        {
-        "seq": 309,
+        "seq": 311,
         "schema": "EOTObservation@1",
-        "id": "s308",
+        "id": "s310",
         "at": [
          15732,
          15749
@@ -5954,7 +5995,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 688,
+          "seq": 691,
           "schema": "EOTAbsence@1",
           "at": [
            15732,
@@ -5970,9 +6011,9 @@
       ]
      },
      {
-      "seq": 124,
+      "seq": 125,
       "schema": "EOTObservation@1",
-      "id": "p123",
+      "id": "p124",
       "at": [
        15753,
        15770
@@ -5982,9 +6023,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 310,
+        "seq": 312,
         "schema": "EOTObservation@1",
-        "id": "s309",
+        "id": "s311",
         "at": [
          15753,
          15770
@@ -5995,9 +6036,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 689,
+          "seq": 692,
           "schema": "EOTObservation@1",
-          "id": "o570",
+          "id": "o572",
           "at": [
            15765,
            15770
@@ -6016,9 +6057,9 @@
       ]
      },
      {
-      "seq": 125,
+      "seq": 126,
       "schema": "EOTObservation@1",
-      "id": "p124",
+      "id": "p125",
       "at": [
        15774,
        15803
@@ -6028,9 +6069,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 311,
+        "seq": 313,
         "schema": "EOTObservation@1",
-        "id": "s310",
+        "id": "s312",
         "at": [
          15774,
          15803
@@ -6041,9 +6082,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 460,
+          "seq": 462,
           "schema": "EOTObservation@1",
-          "id": "v459",
+          "id": "v461",
           "at": [
            15774,
            15803
@@ -6056,9 +6097,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 690,
+            "seq": 693,
             "schema": "EOTObservation@1",
-            "id": "o571",
+            "id": "o573",
             "at": [
              15784,
              15801
@@ -6079,9 +6120,9 @@
       ]
      },
      {
-      "seq": 126,
+      "seq": 127,
       "schema": "EOTObservation@1",
-      "id": "p125",
+      "id": "p126",
       "at": [
        15807,
        15827
@@ -6091,9 +6132,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 312,
+        "seq": 314,
         "schema": "EOTObservation@1",
-        "id": "s311",
+        "id": "s313",
         "at": [
          15807,
          15827
@@ -6104,9 +6145,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 461,
+          "seq": 463,
           "schema": "EOTObservation@1",
-          "id": "v460",
+          "id": "v462",
           "at": [
            15807,
            15827
@@ -6119,9 +6160,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 691,
+            "seq": 694,
             "schema": "EOTObservation@1",
-            "id": "o572",
+            "id": "o574",
             "at": [
              15820,
              15825
@@ -6145,9 +6186,9 @@
       ]
      },
      {
-      "seq": 127,
+      "seq": 128,
       "schema": "EOTObservation@1",
-      "id": "p126",
+      "id": "p127",
       "at": [
        15831,
        15854
@@ -6157,9 +6198,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 313,
+        "seq": 315,
         "schema": "EOTObservation@1",
-        "id": "s312",
+        "id": "s314",
         "at": [
          15831,
          15854
@@ -6170,7 +6211,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 692,
+          "seq": 695,
           "schema": "EOTAbsence@1",
           "at": [
            15831,
@@ -6186,9 +6227,9 @@
       ]
      },
      {
-      "seq": 128,
+      "seq": 129,
       "schema": "EOTObservation@1",
-      "id": "p127",
+      "id": "p128",
       "at": [
        15858,
        15870
@@ -6198,9 +6239,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 314,
+        "seq": 316,
         "schema": "EOTObservation@1",
-        "id": "s313",
+        "id": "s315",
         "at": [
          15858,
          15870
@@ -6211,7 +6252,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 693,
+          "seq": 696,
           "schema": "EOTAbsence@1",
           "at": [
            15858,
@@ -6227,9 +6268,9 @@
       ]
      },
      {
-      "seq": 129,
+      "seq": 130,
       "schema": "EOTObservation@1",
-      "id": "p128",
+      "id": "p129",
       "at": [
        15874,
        15889
@@ -6239,9 +6280,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 315,
+        "seq": 317,
         "schema": "EOTObservation@1",
-        "id": "s314",
+        "id": "s316",
         "at": [
          15874,
          15889
@@ -6252,7 +6293,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 694,
+          "seq": 697,
           "schema": "EOTAbsence@1",
           "at": [
            15874,
@@ -6268,9 +6309,9 @@
       ]
      },
      {
-      "seq": 130,
+      "seq": 131,
       "schema": "EOTObservation@1",
-      "id": "p129",
+      "id": "p130",
       "at": [
        15893,
        15901
@@ -6280,9 +6321,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 316,
+        "seq": 318,
         "schema": "EOTObservation@1",
-        "id": "s315",
+        "id": "s317",
         "at": [
          15893,
          15901
@@ -6293,7 +6334,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 695,
+          "seq": 698,
           "schema": "EOTAbsence@1",
           "at": [
            15893,
@@ -6309,9 +6350,9 @@
       ]
      },
      {
-      "seq": 131,
+      "seq": 132,
       "schema": "EOTObservation@1",
-      "id": "p130",
+      "id": "p131",
       "at": [
        15905,
        15917
@@ -6321,9 +6362,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 317,
+        "seq": 319,
         "schema": "EOTObservation@1",
-        "id": "s316",
+        "id": "s318",
         "at": [
          15905,
          15917
@@ -6334,7 +6375,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 696,
+          "seq": 699,
           "schema": "EOTAbsence@1",
           "at": [
            15905,
@@ -6350,9 +6391,9 @@
       ]
      },
      {
-      "seq": 132,
+      "seq": 133,
       "schema": "EOTObservation@1",
-      "id": "p131",
+      "id": "p132",
       "at": [
        15921,
        15927
@@ -6362,9 +6403,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 318,
+        "seq": 320,
         "schema": "EOTObservation@1",
-        "id": "s317",
+        "id": "s319",
         "at": [
          15921,
          15927
@@ -6375,7 +6416,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 697,
+          "seq": 700,
           "schema": "EOTAbsence@1",
           "at": [
            15921,
@@ -6391,9 +6432,9 @@
       ]
      },
      {
-      "seq": 133,
+      "seq": 134,
       "schema": "EOTObservation@1",
-      "id": "p132",
+      "id": "p133",
       "at": [
        15931,
        15939
@@ -6403,9 +6444,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 319,
+        "seq": 321,
         "schema": "EOTObservation@1",
-        "id": "s318",
+        "id": "s320",
         "at": [
          15931,
          15939
@@ -6416,7 +6457,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 698,
+          "seq": 701,
           "schema": "EOTAbsence@1",
           "at": [
            15931,
@@ -6432,9 +6473,9 @@
       ]
      },
      {
-      "seq": 134,
+      "seq": 135,
       "schema": "EOTObservation@1",
-      "id": "p133",
+      "id": "p134",
       "at": [
        15943,
        15981
@@ -6444,9 +6485,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 320,
+        "seq": 322,
         "schema": "EOTObservation@1",
-        "id": "s319",
+        "id": "s321",
         "at": [
          15943,
          15966
@@ -6457,7 +6498,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 699,
+          "seq": 702,
           "schema": "EOTAbsence@1",
           "at": [
            15943,
@@ -6471,9 +6512,9 @@
         ]
        },
        {
-        "seq": 321,
+        "seq": 323,
         "schema": "EOTObservation@1",
-        "id": "s320",
+        "id": "s322",
         "at": [
          15967,
          15981
@@ -6484,7 +6525,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 700,
+          "seq": 703,
           "schema": "EOTAbsence@1",
           "at": [
            15967,
@@ -6500,9 +6541,9 @@
       ]
      },
      {
-      "seq": 135,
+      "seq": 136,
       "schema": "EOTObservation@1",
-      "id": "p134",
+      "id": "p135",
       "at": [
        15985,
        16004
@@ -6512,9 +6553,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 322,
+        "seq": 324,
         "schema": "EOTObservation@1",
-        "id": "s321",
+        "id": "s323",
         "at": [
          15985,
          16004
@@ -6525,7 +6566,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 701,
+          "seq": 704,
           "schema": "EOTAbsence@1",
           "at": [
            15985,
@@ -6541,9 +6582,9 @@
       ]
      },
      {
-      "seq": 136,
+      "seq": 137,
       "schema": "EOTObservation@1",
-      "id": "p135",
+      "id": "p136",
       "at": [
        16008,
        16046
@@ -6553,9 +6594,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 323,
+        "seq": 325,
         "schema": "EOTObservation@1",
-        "id": "s322",
+        "id": "s324",
         "at": [
          16008,
          16046
@@ -6566,9 +6607,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 702,
+          "seq": 705,
           "schema": "EOTObservation@1",
-          "id": "o573",
+          "id": "o575",
           "at": [
            16024,
            16037
@@ -6590,9 +6631,9 @@
       ]
      },
      {
-      "seq": 137,
+      "seq": 138,
       "schema": "EOTObservation@1",
-      "id": "p136",
+      "id": "p137",
       "at": [
        16050,
        16091
@@ -6602,9 +6643,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 324,
+        "seq": 326,
         "schema": "EOTObservation@1",
-        "id": "s323",
+        "id": "s325",
         "at": [
          16050,
          16091
@@ -6615,9 +6656,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 462,
+          "seq": 464,
           "schema": "EOTObservation@1",
-          "id": "v461",
+          "id": "v463",
           "at": [
            16050,
            16091
@@ -6630,7 +6671,7 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 703,
+            "seq": 706,
             "schema": "EOTAbsence@1",
             "at": [
              16050,
@@ -6648,9 +6689,9 @@
       ]
      },
      {
-      "seq": 138,
+      "seq": 139,
       "schema": "EOTObservation@1",
-      "id": "p137",
+      "id": "p138",
       "at": [
        16095,
        16116
@@ -6660,9 +6701,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 325,
+        "seq": 327,
         "schema": "EOTObservation@1",
-        "id": "s324",
+        "id": "s326",
         "at": [
          16095,
          16116
@@ -6673,7 +6714,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 704,
+          "seq": 707,
           "schema": "EOTAbsence@1",
           "at": [
            16095,
@@ -6689,9 +6730,9 @@
       ]
      },
      {
-      "seq": 139,
+      "seq": 140,
       "schema": "EOTObservation@1",
-      "id": "p138",
+      "id": "p139",
       "at": [
        16120,
        16146
@@ -6701,9 +6742,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 326,
+        "seq": 328,
         "schema": "EOTObservation@1",
-        "id": "s325",
+        "id": "s327",
         "at": [
          16120,
          16146
@@ -6714,7 +6755,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 705,
+          "seq": 708,
           "schema": "EOTAbsence@1",
           "at": [
            16120,
@@ -6730,9 +6771,9 @@
       ]
      },
      {
-      "seq": 140,
+      "seq": 141,
       "schema": "EOTObservation@1",
-      "id": "p139",
+      "id": "p140",
       "at": [
        16150,
        16180
@@ -6742,9 +6783,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 327,
+        "seq": 329,
         "schema": "EOTObservation@1",
-        "id": "s326",
+        "id": "s328",
         "at": [
          16150,
          16168
@@ -6755,7 +6796,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 706,
+          "seq": 709,
           "schema": "EOTAbsence@1",
           "at": [
            16150,
@@ -6769,9 +6810,9 @@
         ]
        },
        {
-        "seq": 328,
+        "seq": 330,
         "schema": "EOTObservation@1",
-        "id": "s327",
+        "id": "s329",
         "at": [
          16169,
          16180
@@ -6782,7 +6823,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 707,
+          "seq": 710,
           "schema": "EOTAbsence@1",
           "at": [
            16169,
@@ -6798,9 +6839,9 @@
       ]
      },
      {
-      "seq": 141,
+      "seq": 142,
       "schema": "EOTObservation@1",
-      "id": "p140",
+      "id": "p141",
       "at": [
        16184,
        16297
@@ -6810,9 +6851,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 329,
+        "seq": 331,
         "schema": "EOTObservation@1",
-        "id": "s328",
+        "id": "s330",
         "at": [
          16184,
          16232
@@ -6823,7 +6864,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 708,
+          "seq": 711,
           "schema": "EOTAbsence@1",
           "at": [
            16184,
@@ -6837,9 +6878,9 @@
         ]
        },
        {
-        "seq": 330,
+        "seq": 332,
         "schema": "EOTObservation@1",
-        "id": "s329",
+        "id": "s331",
         "at": [
          16233,
          16297
@@ -6850,7 +6891,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 709,
+          "seq": 712,
           "schema": "EOTAbsence@1",
           "at": [
            16233,
@@ -6866,9 +6907,9 @@
       ]
      },
      {
-      "seq": 142,
+      "seq": 143,
       "schema": "EOTObservation@1",
-      "id": "p141",
+      "id": "p142",
       "at": [
        16301,
        16355
@@ -6878,9 +6919,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 331,
+        "seq": 333,
         "schema": "EOTObservation@1",
-        "id": "s330",
+        "id": "s332",
         "at": [
          16301,
          16329
@@ -6891,9 +6932,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 463,
+          "seq": 465,
           "schema": "EOTObservation@1",
-          "id": "v462",
+          "id": "v464",
           "at": [
            16301,
            16329
@@ -6906,7 +6947,7 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 710,
+            "seq": 713,
             "schema": "EOTAbsence@1",
             "at": [
              16301,
@@ -6922,9 +6963,9 @@
         ]
        },
        {
-        "seq": 332,
+        "seq": 334,
         "schema": "EOTObservation@1",
-        "id": "s331",
+        "id": "s333",
         "at": [
          16330,
          16355
@@ -6935,9 +6976,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 464,
+          "seq": 466,
           "schema": "EOTObservation@1",
-          "id": "v463",
+          "id": "v465",
           "at": [
            16330,
            16355
@@ -6950,9 +6991,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 711,
+            "seq": 714,
             "schema": "EOTObservation@1",
-            "id": "o574",
+            "id": "o576",
             "at": [
              16348,
              16353
@@ -6976,9 +7017,9 @@
       ]
      },
      {
-      "seq": 143,
+      "seq": 144,
       "schema": "EOTObservation@1",
-      "id": "p142",
+      "id": "p143",
       "at": [
        16359,
        16396
@@ -6988,9 +7029,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 333,
+        "seq": 335,
         "schema": "EOTObservation@1",
-        "id": "s332",
+        "id": "s334",
         "at": [
          16359,
          16396
@@ -7001,7 +7042,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 712,
+          "seq": 715,
           "schema": "EOTAbsence@1",
           "at": [
            16359,
@@ -7017,9 +7058,9 @@
       ]
      },
      {
-      "seq": 144,
+      "seq": 145,
       "schema": "EOTObservation@1",
-      "id": "p143",
+      "id": "p144",
       "at": [
        16400,
        16450
@@ -7029,9 +7070,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 334,
+        "seq": 336,
         "schema": "EOTObservation@1",
-        "id": "s333",
+        "id": "s335",
         "at": [
          16400,
          16450
@@ -7042,9 +7083,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 713,
+          "seq": 716,
           "schema": "EOTObservation@1",
-          "id": "o575",
+          "id": "o577",
           "at": [
            16418,
            16448
@@ -7067,9 +7108,9 @@
       ]
      },
      {
-      "seq": 145,
+      "seq": 146,
       "schema": "EOTObservation@1",
-      "id": "p144",
+      "id": "p145",
       "at": [
        16454,
        16522
@@ -7079,9 +7120,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 335,
+        "seq": 337,
         "schema": "EOTObservation@1",
-        "id": "s334",
+        "id": "s336",
         "at": [
          16454,
          16462
@@ -7092,7 +7133,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 715,
+          "seq": 718,
           "schema": "EOTAbsence@1",
           "at": [
            16454,
@@ -7106,9 +7147,9 @@
         ]
        },
        {
-        "seq": 336,
+        "seq": 338,
         "schema": "EOTObservation@1",
-        "id": "s335",
+        "id": "s337",
         "at": [
          16463,
          16505
@@ -7119,7 +7160,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 716,
+          "seq": 719,
           "schema": "EOTAbsence@1",
           "at": [
            16463,
@@ -7133,9 +7174,9 @@
         ]
        },
        {
-        "seq": 337,
+        "seq": 339,
         "schema": "EOTObservation@1",
-        "id": "s336",
+        "id": "s338",
         "at": [
          16506,
          16522
@@ -7149,9 +7190,9 @@
       ]
      },
      {
-      "seq": 146,
+      "seq": 147,
       "schema": "EOTObservation@1",
-      "id": "p145",
+      "id": "p146",
       "at": [
        16526,
        16647
@@ -7161,9 +7202,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 338,
+        "seq": 340,
         "schema": "EOTObservation@1",
-        "id": "s337",
+        "id": "s339",
         "at": [
          16526,
          16570
@@ -7174,9 +7215,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 465,
+          "seq": 467,
           "schema": "EOTObservation@1",
-          "id": "v464",
+          "id": "v466",
           "at": [
            16526,
            16570
@@ -7189,9 +7230,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 718,
+            "seq": 721,
             "schema": "EOTObservation@1",
-            "id": "o576",
+            "id": "o578",
             "at": [
              16535,
              16569
@@ -7208,9 +7249,9 @@
             "settledAs": "verb",
             "children": [
              {
-              "seq": 719,
+              "seq": 722,
               "schema": "EOTObservation@1",
-              "id": "o577",
+              "id": "o579",
               "at": [
                16567,
                16569
@@ -7231,9 +7272,9 @@
         ]
        },
        {
-        "seq": 339,
+        "seq": 341,
         "schema": "EOTObservation@1",
-        "id": "s338",
+        "id": "s340",
         "at": [
          16571,
          16647
@@ -7244,9 +7285,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 466,
+          "seq": 468,
           "schema": "EOTObservation@1",
-          "id": "v465",
+          "id": "v467",
           "at": [
            16571,
            16647
@@ -7259,9 +7300,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 720,
+            "seq": 723,
             "schema": "EOTObservation@1",
-            "id": "o578",
+            "id": "o580",
             "at": [
              16624,
              16645
@@ -7285,9 +7326,9 @@
       ]
      },
      {
-      "seq": 147,
+      "seq": 148,
       "schema": "EOTObservation@1",
-      "id": "p146",
+      "id": "p147",
       "at": [
        16651,
        16667
@@ -7297,9 +7338,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 340,
+        "seq": 342,
         "schema": "EOTObservation@1",
-        "id": "s339",
+        "id": "s341",
         "at": [
          16651,
          16667
@@ -7313,9 +7354,9 @@
       ]
      },
      {
-      "seq": 148,
+      "seq": 149,
       "schema": "EOTObservation@1",
-      "id": "p147",
+      "id": "p148",
       "at": [
        16671,
        16688
@@ -7325,9 +7366,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 341,
+        "seq": 343,
         "schema": "EOTObservation@1",
-        "id": "s340",
+        "id": "s342",
         "at": [
          16671,
          16688
@@ -7338,7 +7379,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 723,
+          "seq": 726,
           "schema": "EOTAbsence@1",
           "at": [
            16671,
@@ -7354,9 +7395,9 @@
       ]
      },
      {
-      "seq": 149,
+      "seq": 150,
       "schema": "EOTObservation@1",
-      "id": "p148",
+      "id": "p149",
       "at": [
        16692,
        16739
@@ -7366,9 +7407,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 342,
+        "seq": 344,
         "schema": "EOTObservation@1",
-        "id": "s341",
+        "id": "s343",
         "at": [
          16692,
          16739
@@ -7379,9 +7420,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 467,
+          "seq": 469,
           "schema": "EOTObservation@1",
-          "id": "v466",
+          "id": "v468",
           "at": [
            16692,
            16739
@@ -7399,9 +7440,9 @@
       ]
      },
      {
-      "seq": 150,
+      "seq": 151,
       "schema": "EOTObservation@1",
-      "id": "p149",
+      "id": "p150",
       "at": [
        16743,
        16760
@@ -7411,9 +7452,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 343,
+        "seq": 345,
         "schema": "EOTObservation@1",
-        "id": "s342",
+        "id": "s344",
         "at": [
          16743,
          16760
@@ -7424,7 +7465,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 725,
+          "seq": 728,
           "schema": "EOTAbsence@1",
           "at": [
            16743,
@@ -7440,9 +7481,9 @@
       ]
      },
      {
-      "seq": 151,
+      "seq": 152,
       "schema": "EOTObservation@1",
-      "id": "p150",
+      "id": "p151",
       "at": [
        16764,
        16853
@@ -7452,9 +7493,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 344,
+        "seq": 346,
         "schema": "EOTObservation@1",
-        "id": "s343",
+        "id": "s345",
         "at": [
          16764,
          16853
@@ -7465,7 +7506,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 726,
+          "seq": 729,
           "schema": "EOTAbsence@1",
           "at": [
            16764,
@@ -7481,9 +7522,9 @@
       ]
      },
      {
-      "seq": 152,
+      "seq": 153,
       "schema": "EOTObservation@1",
-      "id": "p151",
+      "id": "p152",
       "at": [
        16857,
        16884
@@ -7493,9 +7534,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 345,
+        "seq": 347,
         "schema": "EOTObservation@1",
-        "id": "s344",
+        "id": "s346",
         "at": [
          16857,
          16884
@@ -7506,7 +7547,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 727,
+          "seq": 730,
           "schema": "EOTAbsence@1",
           "at": [
            16857,
@@ -7522,9 +7563,9 @@
       ]
      },
      {
-      "seq": 153,
+      "seq": 154,
       "schema": "EOTObservation@1",
-      "id": "p152",
+      "id": "p153",
       "at": [
        16888,
        16904
@@ -7534,9 +7575,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 346,
+        "seq": 348,
         "schema": "EOTObservation@1",
-        "id": "s345",
+        "id": "s347",
         "at": [
          16888,
          16904
@@ -7547,7 +7588,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 728,
+          "seq": 731,
           "schema": "EOTAbsence@1",
           "at": [
            16888,
@@ -7563,9 +7604,9 @@
       ]
      },
      {
-      "seq": 154,
+      "seq": 155,
       "schema": "EOTObservation@1",
-      "id": "p153",
+      "id": "p154",
       "at": [
        16908,
        17034
@@ -7575,9 +7616,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 347,
+        "seq": 349,
         "schema": "EOTObservation@1",
-        "id": "s346",
+        "id": "s348",
         "at": [
          16908,
          16941
@@ -7588,9 +7629,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 468,
+          "seq": 470,
           "schema": "EOTObservation@1",
-          "id": "v467",
+          "id": "v469",
           "at": [
            16908,
            16941
@@ -7603,7 +7644,7 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 729,
+            "seq": 732,
             "schema": "EOTAbsence@1",
             "at": [
              16908,
@@ -7619,9 +7660,9 @@
         ]
        },
        {
-        "seq": 348,
+        "seq": 350,
         "schema": "EOTObservation@1",
-        "id": "s347",
+        "id": "s349",
         "at": [
          16942,
          16982
@@ -7632,7 +7673,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 730,
+          "seq": 733,
           "schema": "EOTAbsence@1",
           "at": [
            16942,
@@ -7646,9 +7687,9 @@
         ]
        },
        {
-        "seq": 349,
+        "seq": 351,
         "schema": "EOTObservation@1",
-        "id": "s348",
+        "id": "s350",
         "at": [
          16983,
          17005
@@ -7659,9 +7700,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 469,
+          "seq": 471,
           "schema": "EOTObservation@1",
-          "id": "v468",
+          "id": "v470",
           "at": [
            16983,
            17005
@@ -7674,7 +7715,7 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 731,
+            "seq": 734,
             "schema": "EOTAbsence@1",
             "at": [
              16983,
@@ -7690,9 +7731,9 @@
         ]
        },
        {
-        "seq": 350,
+        "seq": 352,
         "schema": "EOTObservation@1",
-        "id": "s349",
+        "id": "s351",
         "at": [
          17006,
          17034
@@ -7703,9 +7744,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 470,
+          "seq": 472,
           "schema": "EOTObservation@1",
-          "id": "v469",
+          "id": "v471",
           "at": [
            17006,
            17034
@@ -7718,7 +7759,7 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 732,
+            "seq": 735,
             "schema": "EOTAbsence@1",
             "at": [
              17006,
@@ -7736,9 +7777,9 @@
       ]
      },
      {
-      "seq": 155,
+      "seq": 156,
       "schema": "EOTObservation@1",
-      "id": "p154",
+      "id": "p155",
       "at": [
        17038,
        17057
@@ -7748,9 +7789,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 351,
+        "seq": 353,
         "schema": "EOTObservation@1",
-        "id": "s350",
+        "id": "s352",
         "at": [
          17038,
          17057
@@ -7761,7 +7802,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 733,
+          "seq": 736,
           "schema": "EOTAbsence@1",
           "at": [
            17038,
@@ -7777,9 +7818,9 @@
       ]
      },
      {
-      "seq": 156,
+      "seq": 157,
       "schema": "EOTObservation@1",
-      "id": "p155",
+      "id": "p156",
       "at": [
        17061,
        17071
@@ -7789,9 +7830,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 352,
+        "seq": 354,
         "schema": "EOTObservation@1",
-        "id": "s351",
+        "id": "s353",
         "at": [
          17061,
          17071
@@ -7802,7 +7843,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 734,
+          "seq": 737,
           "schema": "EOTAbsence@1",
           "at": [
            17061,
@@ -7818,9 +7859,9 @@
       ]
      },
      {
-      "seq": 157,
+      "seq": 158,
       "schema": "EOTObservation@1",
-      "id": "p156",
+      "id": "p157",
       "at": [
        17075,
        17085
@@ -7830,9 +7871,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 353,
+        "seq": 355,
         "schema": "EOTObservation@1",
-        "id": "s352",
+        "id": "s354",
         "at": [
          17075,
          17085
@@ -7843,7 +7884,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 735,
+          "seq": 738,
           "schema": "EOTAbsence@1",
           "at": [
            17075,
@@ -7859,9 +7900,9 @@
       ]
      },
      {
-      "seq": 158,
+      "seq": 159,
       "schema": "EOTObservation@1",
-      "id": "p157",
+      "id": "p158",
       "at": [
        17089,
        17099
@@ -7871,9 +7912,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 354,
+        "seq": 356,
         "schema": "EOTObservation@1",
-        "id": "s353",
+        "id": "s355",
         "at": [
          17089,
          17099
@@ -7884,7 +7925,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 736,
+          "seq": 739,
           "schema": "EOTAbsence@1",
           "at": [
            17089,
@@ -7900,9 +7941,9 @@
       ]
      },
      {
-      "seq": 159,
+      "seq": 160,
       "schema": "EOTObservation@1",
-      "id": "p158",
+      "id": "p159",
       "at": [
        17103,
        17216
@@ -7912,9 +7953,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 355,
+        "seq": 357,
         "schema": "EOTObservation@1",
-        "id": "s354",
+        "id": "s356",
         "at": [
          17103,
          17163
@@ -7925,7 +7966,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 737,
+          "seq": 740,
           "schema": "EOTAbsence@1",
           "at": [
            17103,
@@ -7939,9 +7980,9 @@
         ]
        },
        {
-        "seq": 356,
+        "seq": 358,
         "schema": "EOTObservation@1",
-        "id": "s355",
+        "id": "s357",
         "at": [
          17164,
          17206
@@ -7952,9 +7993,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 471,
+          "seq": 473,
           "schema": "EOTObservation@1",
-          "id": "v470",
+          "id": "v472",
           "at": [
            17164,
            17206
@@ -7967,7 +8008,7 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 738,
+            "seq": 741,
             "schema": "EOTAbsence@1",
             "at": [
              17164,
@@ -7983,9 +8024,9 @@
         ]
        },
        {
-        "seq": 357,
+        "seq": 359,
         "schema": "EOTObservation@1",
-        "id": "s356",
+        "id": "s358",
         "at": [
          17207,
          17216
@@ -7996,7 +8037,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 739,
+          "seq": 742,
           "schema": "EOTAbsence@1",
           "at": [
            17207,
@@ -8012,9 +8053,9 @@
       ]
      },
      {
-      "seq": 160,
+      "seq": 161,
       "schema": "EOTObservation@1",
-      "id": "p159",
+      "id": "p160",
       "at": [
        17220,
        17241
@@ -8024,9 +8065,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 358,
+        "seq": 360,
         "schema": "EOTObservation@1",
-        "id": "s357",
+        "id": "s359",
         "at": [
          17220,
          17241
@@ -8037,7 +8078,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 740,
+          "seq": 743,
           "schema": "EOTAbsence@1",
           "at": [
            17220,
@@ -8053,9 +8094,9 @@
       ]
      },
      {
-      "seq": 161,
+      "seq": 162,
       "schema": "EOTObservation@1",
-      "id": "p160",
+      "id": "p161",
       "at": [
        17245,
        17264
@@ -8065,9 +8106,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 359,
+        "seq": 361,
         "schema": "EOTObservation@1",
-        "id": "s358",
+        "id": "s360",
         "at": [
          17245,
          17264
@@ -8078,7 +8119,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 741,
+          "seq": 744,
           "schema": "EOTAbsence@1",
           "at": [
            17245,
@@ -8094,9 +8135,9 @@
       ]
      },
      {
-      "seq": 162,
+      "seq": 163,
       "schema": "EOTObservation@1",
-      "id": "p161",
+      "id": "p162",
       "at": [
        17268,
        17278
@@ -8106,9 +8147,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 360,
+        "seq": 362,
         "schema": "EOTObservation@1",
-        "id": "s359",
+        "id": "s361",
         "at": [
          17268,
          17278
@@ -8119,7 +8160,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 742,
+          "seq": 745,
           "schema": "EOTAbsence@1",
           "at": [
            17268,
@@ -8135,9 +8176,9 @@
       ]
      },
      {
-      "seq": 163,
+      "seq": 164,
       "schema": "EOTObservation@1",
-      "id": "p162",
+      "id": "p163",
       "at": [
        17282,
        17299
@@ -8147,9 +8188,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 361,
+        "seq": 363,
         "schema": "EOTObservation@1",
-        "id": "s360",
+        "id": "s362",
         "at": [
          17282,
          17299
@@ -8160,7 +8201,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 743,
+          "seq": 746,
           "schema": "EOTAbsence@1",
           "at": [
            17282,
@@ -8176,9 +8217,9 @@
       ]
      },
      {
-      "seq": 164,
+      "seq": 165,
       "schema": "EOTObservation@1",
-      "id": "p163",
+      "id": "p164",
       "at": [
        17303,
        17591
@@ -8188,9 +8229,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 362,
+        "seq": 364,
         "schema": "EOTObservation@1",
-        "id": "s361",
+        "id": "s363",
         "at": [
          17303,
          17443
@@ -8201,9 +8242,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 472,
+          "seq": 474,
           "schema": "EOTObservation@1",
-          "id": "v471",
+          "id": "v473",
           "at": [
            17303,
            17443
@@ -8219,9 +8260,9 @@
         ]
        },
        {
-        "seq": 363,
+        "seq": 365,
         "schema": "EOTObservation@1",
-        "id": "s362",
+        "id": "s364",
         "at": [
          17444,
          17480
@@ -8232,7 +8273,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 745,
+          "seq": 748,
           "schema": "EOTAbsence@1",
           "at": [
            17444,
@@ -8246,9 +8287,9 @@
         ]
        },
        {
-        "seq": 364,
+        "seq": 366,
         "schema": "EOTObservation@1",
-        "id": "s363",
+        "id": "s365",
         "at": [
          17481,
          17591
@@ -8259,7 +8300,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 746,
+          "seq": 749,
           "schema": "EOTAbsence@1",
           "at": [
            17481,
@@ -8275,9 +8316,9 @@
       ]
      },
      {
-      "seq": 165,
+      "seq": 166,
       "schema": "EOTObservation@1",
-      "id": "p164",
+      "id": "p165",
       "at": [
        17595,
        17733
@@ -8287,9 +8328,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 365,
+        "seq": 367,
         "schema": "EOTObservation@1",
-        "id": "s364",
+        "id": "s366",
         "at": [
          17595,
          17622
@@ -8301,9 +8342,9 @@
         "children": []
        },
        {
-        "seq": 366,
+        "seq": 368,
         "schema": "EOTObservation@1",
-        "id": "s365",
+        "id": "s367",
         "at": [
          17623,
          17733
@@ -8314,9 +8355,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 473,
+          "seq": 475,
           "schema": "EOTObservation@1",
-          "id": "v472",
+          "id": "v474",
           "at": [
            17623,
            17733
@@ -8329,9 +8370,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 748,
+            "seq": 751,
             "schema": "EOTObservation@1",
-            "id": "o579",
+            "id": "o581",
             "at": [
              17633,
              17654
@@ -8350,9 +8391,9 @@
             "children": []
            },
            {
-            "seq": 749,
+            "seq": 752,
             "schema": "EOTObservation@1",
-            "id": "o580",
+            "id": "o582",
             "at": [
              17668,
              17701
@@ -8370,9 +8411,9 @@
             "children": []
            },
            {
-            "seq": 750,
+            "seq": 753,
             "schema": "EOTObservation@1",
-            "id": "o581",
+            "id": "o583",
             "at": [
              17717,
              17726
@@ -8397,9 +8438,9 @@
       ]
      },
      {
-      "seq": 166,
+      "seq": 167,
       "schema": "EOTObservation@1",
-      "id": "p165",
+      "id": "p166",
       "at": [
        17737,
        17910
@@ -8409,9 +8450,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 367,
+        "seq": 369,
         "schema": "EOTObservation@1",
-        "id": "s366",
+        "id": "s368",
         "at": [
          17737,
          17774
@@ -8422,9 +8463,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 751,
+          "seq": 754,
           "schema": "EOTObservation@1",
-          "id": "o582",
+          "id": "o584",
           "at": [
            17757,
            17774
@@ -8444,9 +8485,9 @@
         ]
        },
        {
-        "seq": 368,
+        "seq": 370,
         "schema": "EOTObservation@1",
-        "id": "s367",
+        "id": "s369",
         "at": [
          17775,
          17876
@@ -8457,9 +8498,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 474,
+          "seq": 476,
           "schema": "EOTObservation@1",
-          "id": "v473",
+          "id": "v475",
           "at": [
            17775,
            17876
@@ -8472,9 +8513,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 752,
+            "seq": 755,
             "schema": "EOTObservation@1",
-            "id": "o583",
+            "id": "o585",
             "at": [
              17814,
              17835
@@ -8492,9 +8533,9 @@
             "children": []
            },
            {
-            "seq": 753,
+            "seq": 756,
             "schema": "EOTObservation@1",
-            "id": "o584",
+            "id": "o586",
             "at": [
              17844,
              17869
@@ -8516,9 +8557,9 @@
         ]
        },
        {
-        "seq": 369,
+        "seq": 371,
         "schema": "EOTObservation@1",
-        "id": "s368",
+        "id": "s370",
         "at": [
          17879,
          17910
@@ -8529,7 +8570,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 754,
+          "seq": 757,
           "schema": "EOTAbsence@1",
           "at": [
            17879,
@@ -8545,9 +8586,9 @@
       ]
      },
      {
-      "seq": 167,
+      "seq": 168,
       "schema": "EOTObservation@1",
-      "id": "p166",
+      "id": "p167",
       "at": [
        17914,
        17929
@@ -8557,9 +8598,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 370,
+        "seq": 372,
         "schema": "EOTObservation@1",
-        "id": "s369",
+        "id": "s371",
         "at": [
          17914,
          17929
@@ -8573,9 +8614,9 @@
       ]
      },
      {
-      "seq": 168,
+      "seq": 169,
       "schema": "EOTObservation@1",
-      "id": "p167",
+      "id": "p168",
       "at": [
        17933,
        17969
@@ -8585,9 +8626,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 371,
+        "seq": 373,
         "schema": "EOTObservation@1",
-        "id": "s370",
+        "id": "s372",
         "at": [
          17933,
          17969
@@ -8598,9 +8639,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 475,
+          "seq": 477,
           "schema": "EOTObservation@1",
-          "id": "v474",
+          "id": "v476",
           "at": [
            17933,
            17969
@@ -8613,9 +8654,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 756,
+            "seq": 759,
             "schema": "EOTObservation@1",
-            "id": "o585",
+            "id": "o587",
             "at": [
              17962,
              17967
@@ -8639,9 +8680,9 @@
       ]
      },
      {
-      "seq": 169,
+      "seq": 170,
       "schema": "EOTObservation@1",
-      "id": "p168",
+      "id": "p169",
       "at": [
        17973,
        18028
@@ -8651,9 +8692,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 372,
+        "seq": 374,
         "schema": "EOTObservation@1",
-        "id": "s371",
+        "id": "s373",
         "at": [
          17973,
          18028
@@ -8667,9 +8708,9 @@
       ]
      },
      {
-      "seq": 170,
+      "seq": 171,
       "schema": "EOTObservation@1",
-      "id": "p169",
+      "id": "p170",
       "at": [
        18032,
        18153
@@ -8679,9 +8720,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 373,
+        "seq": 375,
         "schema": "EOTObservation@1",
-        "id": "s372",
+        "id": "s374",
         "at": [
          18032,
          18106
@@ -8692,7 +8733,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 758,
+          "seq": 761,
           "schema": "EOTAbsence@1",
           "at": [
            18032,
@@ -8706,9 +8747,9 @@
         ]
        },
        {
-        "seq": 374,
+        "seq": 376,
         "schema": "EOTObservation@1",
-        "id": "s373",
+        "id": "s375",
         "at": [
          18107,
          18153
@@ -8719,9 +8760,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 759,
+          "seq": 762,
           "schema": "EOTObservation@1",
-          "id": "o586",
+          "id": "o588",
           "at": [
            18128,
            18151
@@ -8743,9 +8784,9 @@
       ]
      },
      {
-      "seq": 171,
+      "seq": 172,
       "schema": "EOTObservation@1",
-      "id": "p170",
+      "id": "p171",
       "at": [
        18157,
        18201
@@ -8755,9 +8796,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 375,
+        "seq": 377,
         "schema": "EOTObservation@1",
-        "id": "s374",
+        "id": "s376",
         "at": [
          18157,
          18201
@@ -8768,7 +8809,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 761,
+          "seq": 764,
           "schema": "EOTAbsence@1",
           "at": [
            18157,
@@ -8784,9 +8825,9 @@
       ]
      },
      {
-      "seq": 172,
+      "seq": 173,
       "schema": "EOTObservation@1",
-      "id": "p171",
+      "id": "p172",
       "at": [
        18205,
        18257
@@ -8796,9 +8837,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 376,
+        "seq": 378,
         "schema": "EOTObservation@1",
-        "id": "s375",
+        "id": "s377",
         "at": [
          18205,
          18257
@@ -8809,9 +8850,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 476,
+          "seq": 478,
           "schema": "EOTObservation@1",
-          "id": "v475",
+          "id": "v477",
           "at": [
            18205,
            18257
@@ -8824,9 +8865,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 762,
+            "seq": 765,
             "schema": "EOTObservation@1",
-            "id": "o587",
+            "id": "o589",
             "at": [
              18219,
              18230
@@ -8850,9 +8891,9 @@
       ]
      },
      {
-      "seq": 173,
+      "seq": 174,
       "schema": "EOTObservation@1",
-      "id": "p172",
+      "id": "p173",
       "at": [
        18261,
        18307
@@ -8862,9 +8903,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 377,
+        "seq": 379,
         "schema": "EOTObservation@1",
-        "id": "s376",
+        "id": "s378",
         "at": [
          18261,
          18307
@@ -8875,7 +8916,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 763,
+          "seq": 766,
           "schema": "EOTAbsence@1",
           "at": [
            18261,
@@ -8891,9 +8932,9 @@
       ]
      },
      {
-      "seq": 174,
+      "seq": 175,
       "schema": "EOTObservation@1",
-      "id": "p173",
+      "id": "p174",
       "at": [
        18311,
        18362
@@ -8903,9 +8944,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 378,
+        "seq": 380,
         "schema": "EOTObservation@1",
-        "id": "s377",
+        "id": "s379",
         "at": [
          18311,
          18362
@@ -8916,9 +8957,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 477,
+          "seq": 479,
           "schema": "EOTObservation@1",
-          "id": "v476",
+          "id": "v478",
           "at": [
            18311,
            18362
@@ -8931,7 +8972,7 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 764,
+            "seq": 767,
             "schema": "EOTAbsence@1",
             "at": [
              18311,
@@ -8949,9 +8990,9 @@
       ]
      },
      {
-      "seq": 175,
+      "seq": 176,
       "schema": "EOTObservation@1",
-      "id": "p174",
+      "id": "p175",
       "at": [
        18366,
        18407
@@ -8961,9 +9002,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 379,
+        "seq": 381,
         "schema": "EOTObservation@1",
-        "id": "s378",
+        "id": "s380",
         "at": [
          18366,
          18376
@@ -8974,7 +9015,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 765,
+          "seq": 768,
           "schema": "EOTAbsence@1",
           "at": [
            18366,
@@ -8988,9 +9029,9 @@
         ]
        },
        {
-        "seq": 380,
+        "seq": 382,
         "schema": "EOTObservation@1",
-        "id": "s379",
+        "id": "s381",
         "at": [
          18377,
          18407
@@ -9001,9 +9042,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 478,
+          "seq": 480,
           "schema": "EOTObservation@1",
-          "id": "v477",
+          "id": "v479",
           "at": [
            18377,
            18407
@@ -9016,7 +9057,7 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 766,
+            "seq": 769,
             "schema": "EOTAbsence@1",
             "at": [
              18377,
@@ -9034,9 +9075,9 @@
       ]
      },
      {
-      "seq": 176,
+      "seq": 177,
       "schema": "EOTObservation@1",
-      "id": "p175",
+      "id": "p176",
       "at": [
        18411,
        18960
@@ -9046,9 +9087,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 381,
+        "seq": 383,
         "schema": "EOTObservation@1",
-        "id": "s380",
+        "id": "s382",
         "at": [
          18411,
          18497
@@ -9059,7 +9100,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 767,
+          "seq": 770,
           "schema": "EOTAbsence@1",
           "at": [
            18411,
@@ -9073,9 +9114,9 @@
         ]
        },
        {
-        "seq": 382,
+        "seq": 384,
         "schema": "EOTObservation@1",
-        "id": "s381",
+        "id": "s383",
         "at": [
          18498,
          18528
@@ -9086,9 +9127,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 479,
+          "seq": 481,
           "schema": "EOTObservation@1",
-          "id": "v478",
+          "id": "v480",
           "at": [
            18498,
            18528
@@ -9101,9 +9142,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 768,
+            "seq": 771,
             "schema": "EOTObservation@1",
-            "id": "o588",
+            "id": "o590",
             "at": [
              18509,
              18527
@@ -9126,9 +9167,9 @@
         ]
        },
        {
-        "seq": 383,
+        "seq": 385,
         "schema": "EOTObservation@1",
-        "id": "s382",
+        "id": "s384",
         "at": [
          18529,
          18793
@@ -9139,9 +9180,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 480,
+          "seq": 482,
           "schema": "EOTObservation@1",
-          "id": "v479",
+          "id": "v481",
           "at": [
            18529,
            18793
@@ -9154,9 +9195,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 771,
+            "seq": 774,
             "schema": "EOTObservation@1",
-            "id": "o589",
+            "id": "o591",
             "at": [
              18615,
              18619
@@ -9175,9 +9216,9 @@
         ]
        },
        {
-        "seq": 384,
+        "seq": 386,
         "schema": "EOTObservation@1",
-        "id": "s383",
+        "id": "s385",
         "at": [
          18794,
          18935
@@ -9188,9 +9229,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 481,
+          "seq": 483,
           "schema": "EOTObservation@1",
-          "id": "v480",
+          "id": "v482",
           "at": [
            18794,
            18935
@@ -9206,9 +9247,9 @@
         ]
        },
        {
-        "seq": 385,
+        "seq": 387,
         "schema": "EOTObservation@1",
-        "id": "s384",
+        "id": "s386",
         "at": [
          18936,
          18951
@@ -9219,7 +9260,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 775,
+          "seq": 778,
           "schema": "EOTAbsence@1",
           "at": [
            18936,
@@ -9233,9 +9274,9 @@
         ]
        },
        {
-        "seq": 386,
+        "seq": 388,
         "schema": "EOTObservation@1",
-        "id": "s385",
+        "id": "s387",
         "at": [
          18952,
          18960
@@ -9246,7 +9287,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 776,
+          "seq": 779,
           "schema": "EOTAbsence@1",
           "at": [
            18952,
@@ -9262,9 +9303,9 @@
       ]
      },
      {
-      "seq": 177,
+      "seq": 178,
       "schema": "EOTObservation@1",
-      "id": "p176",
+      "id": "p177",
       "at": [
        18964,
        19035
@@ -9274,9 +9315,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 387,
+        "seq": 389,
         "schema": "EOTObservation@1",
-        "id": "s386",
+        "id": "s388",
         "at": [
          18964,
          19003
@@ -9287,7 +9328,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 777,
+          "seq": 780,
           "schema": "EOTAbsence@1",
           "at": [
            18964,
@@ -9301,9 +9342,9 @@
         ]
        },
        {
-        "seq": 388,
+        "seq": 390,
         "schema": "EOTObservation@1",
-        "id": "s387",
+        "id": "s389",
         "at": [
          19004,
          19035
@@ -9314,9 +9355,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 482,
+          "seq": 484,
           "schema": "EOTObservation@1",
-          "id": "v481",
+          "id": "v483",
           "at": [
            19004,
            19035
@@ -9329,9 +9370,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 778,
+            "seq": 781,
             "schema": "EOTObservation@1",
-            "id": "o590",
+            "id": "o592",
             "at": [
              19011,
              19034
@@ -9355,9 +9396,9 @@
       ]
      },
      {
-      "seq": 178,
+      "seq": 179,
       "schema": "EOTObservation@1",
-      "id": "p177",
+      "id": "p178",
       "at": [
        19039,
        19080
@@ -9367,9 +9408,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 389,
+        "seq": 391,
         "schema": "EOTObservation@1",
-        "id": "s388",
+        "id": "s390",
         "at": [
          19039,
          19080
@@ -9380,7 +9421,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 779,
+          "seq": 782,
           "schema": "EOTAbsence@1",
           "at": [
            19039,
@@ -9396,9 +9437,9 @@
       ]
      },
      {
-      "seq": 179,
+      "seq": 180,
       "schema": "EOTObservation@1",
-      "id": "p178",
+      "id": "p179",
       "at": [
        19084,
        19163
@@ -9408,9 +9449,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 390,
+        "seq": 392,
         "schema": "EOTObservation@1",
-        "id": "s389",
+        "id": "s391",
         "at": [
          19084,
          19133
@@ -9422,9 +9463,9 @@
         "children": []
        },
        {
-        "seq": 391,
+        "seq": 393,
         "schema": "EOTObservation@1",
-        "id": "s390",
+        "id": "s392",
         "at": [
          19134,
          19163
@@ -9435,9 +9476,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 483,
+          "seq": 485,
           "schema": "EOTObservation@1",
-          "id": "v482",
+          "id": "v484",
           "at": [
            19134,
            19163
@@ -9450,7 +9491,7 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 781,
+            "seq": 784,
             "schema": "EOTAbsence@1",
             "at": [
              19134,
@@ -9468,9 +9509,9 @@
       ]
      },
      {
-      "seq": 180,
+      "seq": 181,
       "schema": "EOTObservation@1",
-      "id": "p179",
+      "id": "p180",
       "at": [
        19167,
        19243
@@ -9480,9 +9521,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 392,
+        "seq": 394,
         "schema": "EOTObservation@1",
-        "id": "s391",
+        "id": "s393",
         "at": [
          19167,
          19190
@@ -9493,9 +9534,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 782,
+          "seq": 785,
           "schema": "EOTObservation@1",
-          "id": "o591",
+          "id": "o593",
           "at": [
            19186,
            19189
@@ -9515,9 +9556,9 @@
         ]
        },
        {
-        "seq": 393,
+        "seq": 395,
         "schema": "EOTObservation@1",
-        "id": "s392",
+        "id": "s394",
         "at": [
          19191,
          19243
@@ -9528,7 +9569,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 783,
+          "seq": 786,
           "schema": "EOTAbsence@1",
           "at": [
            19191,
@@ -9544,9 +9585,9 @@
       ]
      },
      {
-      "seq": 181,
+      "seq": 182,
       "schema": "EOTObservation@1",
-      "id": "p180",
+      "id": "p181",
       "at": [
        19247,
        20074
@@ -9556,9 +9597,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 394,
+        "seq": 396,
         "schema": "EOTObservation@1",
-        "id": "s393",
+        "id": "s395",
         "at": [
          19247,
          19451
@@ -9569,9 +9610,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 484,
+          "seq": 486,
           "schema": "EOTObservation@1",
-          "id": "v483",
+          "id": "v485",
           "at": [
            19247,
            19451
@@ -9584,9 +9625,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 784,
+            "seq": 787,
             "schema": "EOTObservation@1",
-            "id": "o592",
+            "id": "o594",
             "at": [
              19264,
              19302
@@ -9608,9 +9649,9 @@
         ]
        },
        {
-        "seq": 395,
+        "seq": 397,
         "schema": "EOTObservation@1",
-        "id": "s394",
+        "id": "s396",
         "at": [
          19454,
          19682
@@ -9621,9 +9662,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 485,
+          "seq": 487,
           "schema": "EOTObservation@1",
-          "id": "v484",
+          "id": "v486",
           "at": [
            19454,
            19682
@@ -9636,9 +9677,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 787,
+            "seq": 790,
             "schema": "EOTObservation@1",
-            "id": "o593",
+            "id": "o595",
             "at": [
              19477,
              19487
@@ -9657,9 +9698,9 @@
             "children": []
            },
            {
-            "seq": 788,
+            "seq": 791,
             "schema": "EOTObservation@1",
-            "id": "o594",
+            "id": "o596",
             "at": [
              19551,
              19589
@@ -9677,9 +9718,9 @@
             "children": []
            },
            {
-            "seq": 790,
+            "seq": 793,
             "schema": "EOTObservation@1",
-            "id": "o595",
+            "id": "o597",
             "at": [
              19670,
              19681
@@ -9698,74 +9739,12 @@
         ]
        },
        {
-        "seq": 396,
-        "schema": "EOTObservation@1",
-        "id": "s395",
-        "at": [
-         19683,
-         19747
-        ],
-        "role": "sentence",
-        "inferred": true,
-        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
-        "script": "cased",
-        "children": [
-         {
-          "seq": 486,
-          "schema": "EOTObservation@1",
-          "id": "v485",
-          "at": [
-           19683,
-           19747
-          ],
-          "role": "void",
-          "operator": "SIG",
-          "grain": "Ground",
-          "terrain": "Void",
-          "stance": "Tending",
-          "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
-          "children": []
-         }
-        ]
-       },
-       {
-        "seq": 397,
-        "schema": "EOTObservation@1",
-        "id": "s396",
-        "at": [
-         19748,
-         19904
-        ],
-        "role": "sentence",
-        "inferred": true,
-        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
-        "script": "cased",
-        "children": [
-         {
-          "seq": 487,
-          "schema": "EOTObservation@1",
-          "id": "v486",
-          "at": [
-           19748,
-           19904
-          ],
-          "role": "void",
-          "operator": "SIG",
-          "grain": "Ground",
-          "terrain": "Void",
-          "stance": "Tending",
-          "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
-          "children": []
-         }
-        ]
-       },
-       {
         "seq": 398,
         "schema": "EOTObservation@1",
         "id": "s397",
         "at": [
-         19905,
-         20009
+         19683,
+         19747
         ],
         "role": "sentence",
         "inferred": true,
@@ -9777,8 +9756,8 @@
           "schema": "EOTObservation@1",
           "id": "v487",
           "at": [
-           19905,
-           20009
+           19683,
+           19747
           ],
           "role": "void",
           "operator": "SIG",
@@ -9795,6 +9774,68 @@
         "schema": "EOTObservation@1",
         "id": "s398",
         "at": [
+         19748,
+         19904
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 489,
+          "schema": "EOTObservation@1",
+          "id": "v488",
+          "at": [
+           19748,
+           19904
+          ],
+          "role": "void",
+          "operator": "SIG",
+          "grain": "Ground",
+          "terrain": "Void",
+          "stance": "Tending",
+          "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 400,
+        "schema": "EOTObservation@1",
+        "id": "s399",
+        "at": [
+         19905,
+         20009
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 490,
+          "schema": "EOTObservation@1",
+          "id": "v489",
+          "at": [
+           19905,
+           20009
+          ],
+          "role": "void",
+          "operator": "SIG",
+          "grain": "Ground",
+          "terrain": "Void",
+          "stance": "Tending",
+          "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 401,
+        "schema": "EOTObservation@1",
+        "id": "s400",
+        "at": [
          20010,
          20074
         ],
@@ -9804,9 +9845,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 797,
+          "seq": 800,
           "schema": "EOTObservation@1",
-          "id": "o596",
+          "id": "o598",
           "at": [
            20021,
            20025
@@ -9825,9 +9866,9 @@
           "children": []
          },
          {
-          "seq": 798,
+          "seq": 801,
           "schema": "EOTObservation@1",
-          "id": "o597",
+          "id": "o599",
           "at": [
            20040,
            20073
@@ -9850,9 +9891,9 @@
       ]
      },
      {
-      "seq": 182,
+      "seq": 183,
       "schema": "EOTObservation@1",
-      "id": "p181",
+      "id": "p182",
       "at": [
        20078,
        20375
@@ -9862,9 +9903,9 @@
       "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
       "children": [
        {
-        "seq": 400,
+        "seq": 402,
         "schema": "EOTObservation@1",
-        "id": "s399",
+        "id": "s401",
         "at": [
          20078,
          20375
@@ -9875,9 +9916,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 799,
+          "seq": 802,
           "schema": "EOTObservation@1",
-          "id": "o598",
+          "id": "o600",
           "at": [
            20085,
            20112
@@ -9923,7 +9964,7 @@
     "id": "h4",
     "at": [
      20385,
-     20401
+     20397
     ],
     "role": "heading",
     "inferred": true,
@@ -9954,7 +9995,7 @@
     "id": "h6",
     "at": [
      31091,
-     31108
+     31104
     ],
     "role": "heading",
     "inferred": true,
@@ -9985,7 +10026,7 @@
     "id": "h8",
     "at": [
      43581,
-     43597
+     43593
     ],
     "role": "heading",
     "inferred": true,
@@ -10016,7 +10057,7 @@
     "id": "h10",
     "at": [
      62982,
-     62997
+     62993
     ],
     "role": "heading",
     "inferred": true,
@@ -10047,7 +10088,7 @@
     "id": "h12",
     "at": [
      73832,
-     73848
+     73844
     ],
     "role": "heading",
     "inferred": true,
@@ -10078,7 +10119,7 @@
     "id": "h14",
     "at": [
      93524,
-     93541
+     93537
     ],
     "role": "heading",
     "inferred": true,
@@ -10109,7 +10150,7 @@
     "id": "h16",
     "at": [
      103875,
-     103893
+     103889
     ],
     "role": "heading",
     "inferred": true,
@@ -10140,7 +10181,7 @@
     "id": "h18",
     "at": [
      113842,
-     113858
+     113854
     ],
     "role": "heading",
     "inferred": true,
@@ -10171,7 +10212,7 @@
     "id": "h20",
     "at": [
      125873,
-     125888
+     125884
     ],
     "role": "heading",
     "inferred": true,
@@ -10202,7 +10243,7 @@
     "id": "h22",
     "at": [
      137449,
-     137465
+     137461
     ],
     "role": "heading",
     "inferred": true,
@@ -10233,7 +10274,7 @@
     "id": "h24",
     "at": [
      145926,
-     145943
+     145939
     ],
     "role": "heading",
     "inferred": true,
@@ -10264,7 +10305,7 @@
     "id": "h26",
     "at": [
      155366,
-     155384
+     155380
     ],
     "role": "heading",
     "inferred": true,
@@ -10295,7 +10336,7 @@
     "id": "h28",
     "at": [
      169260,
-     169277
+     169273
     ],
     "role": "heading",
     "inferred": true,
@@ -10326,7 +10367,7 @@
     "id": "h30",
     "at": [
      181079,
-     181095
+     181091
     ],
     "role": "heading",
     "inferred": true,
@@ -10357,7 +10398,7 @@
     "id": "h32",
     "at": [
      190422,
-     190439
+     190435
     ],
     "role": "heading",
     "inferred": true,
@@ -10388,7 +10429,7 @@
     "id": "h34",
     "at": [
      208389,
-     208407
+     208403
     ],
     "role": "heading",
     "inferred": true,
@@ -10419,7 +10460,7 @@
     "id": "h36",
     "at": [
      214971,
-     214990
+     214986
     ],
     "role": "heading",
     "inferred": true,
@@ -10450,7 +10491,7 @@
     "id": "h38",
     "at": [
      230857,
-     230874
+     230870
     ],
     "role": "heading",
     "inferred": true,
@@ -10481,7 +10522,7 @@
     "id": "h40",
     "at": [
      234942,
-     234958
+     234954
     ],
     "role": "heading",
     "inferred": true,
@@ -10512,7 +10553,7 @@
     "id": "h42",
     "at": [
      244329,
-     244346
+     244342
     ],
     "role": "heading",
     "inferred": true,
@@ -10543,7 +10584,7 @@
     "id": "h44",
     "at": [
      257262,
-     257280
+     257276
     ],
     "role": "heading",
     "inferred": true,
@@ -10574,7 +10615,7 @@
     "id": "h46",
     "at": [
      262991,
-     263010
+     263006
     ],
     "role": "heading",
     "inferred": true,
@@ -10605,7 +10646,7 @@
     "id": "h48",
     "at": [
      274170,
-     274188
+     274184
     ],
     "role": "heading",
     "inferred": true,
@@ -10636,7 +10677,7 @@
     "id": "h50",
     "at": [
      276486,
-     276503
+     276499
     ],
     "role": "heading",
     "inferred": true,
@@ -10667,7 +10708,7 @@
     "id": "h52",
     "at": [
      288072,
-     288090
+     288086
     ],
     "role": "heading",
     "inferred": true,
@@ -10698,7 +10739,7 @@
     "id": "h54",
     "at": [
      302895,
-     302914
+     302910
     ],
     "role": "heading",
     "inferred": true,
@@ -10729,7 +10770,7 @@
     "id": "h56",
     "at": [
      308115,
-     308135
+     308131
     ],
     "role": "heading",
     "inferred": true,
@@ -10760,7 +10801,7 @@
     "id": "h58",
     "at": [
      314051,
-     314069
+     314065
     ],
     "role": "heading",
     "inferred": true,
@@ -10791,7 +10832,7 @@
     "id": "h60",
     "at": [
      328473,
-     328490
+     328486
     ],
     "role": "heading",
     "inferred": true,
@@ -10822,7 +10863,7 @@
     "id": "h62",
     "at": [
      345440,
-     345458
+     345454
     ],
     "role": "heading",
     "inferred": true,
@@ -10853,7 +10894,7 @@
     "id": "h64",
     "at": [
      362165,
-     362184
+     362180
     ],
     "role": "heading",
     "inferred": true,
@@ -10884,7 +10925,7 @@
     "id": "h66",
     "at": [
      367885,
-     367905
+     367901
     ],
     "role": "heading",
     "inferred": true,
@@ -10915,7 +10956,7 @@
     "id": "h68",
     "at": [
      386424,
-     386443
+     386439
     ],
     "role": "heading",
     "inferred": true,
@@ -10946,7 +10987,7 @@
     "id": "h70",
     "at": [
      391321,
-     391339
+     391335
     ],
     "role": "heading",
     "inferred": true,

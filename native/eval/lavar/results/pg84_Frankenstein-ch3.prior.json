@@ -23,6 +23,8 @@
   "desired",
   "intended",
   "omitted",
+  "pursuits",
+  "colleague",
   "appeared",
   "temples",
   "head",
@@ -35,6 +37,7 @@
   "own",
   "statement",
   "instructor",
+  "advice",
   "attended",
   "laboratory",
   "various"
@@ -63,50 +66,6 @@
   [
    "Paracelsus",
    "ref:auto:paracelsus"
-  ],
-  [
-   "Beaufort",
-   "ref:auto:beaufort"
-  ],
-  [
-   "Italy",
-   "ref:auto:italy"
-  ],
-  [
-   "Caroline",
-   "ref:auto:caroline"
-  ],
-  [
-   "Milan",
-   "ref:auto:milan"
-  ],
-  [
-   "Albertus Magnus",
-   "ref:auto:albertus_magnus"
-  ],
-  [
-   "Cornelius Agrippa",
-   "ref:auto:cornelius_agrippa"
-  ],
-  [
-   "Geneva",
-   "ref:auto:geneva"
-  ],
-  [
-   "Agrippa",
-   "ref:auto:cornelius_agrippa"
-  ],
-  [
-   "Albertus",
-   "ref:auto:albertus_magnus"
-  ],
-  [
-   "Belrive",
-   "ref:auto:belrive"
-  ],
-  [
-   "Cornelius",
-   "ref:auto:cornelius_agrippa"
   ]
  ]
 }
