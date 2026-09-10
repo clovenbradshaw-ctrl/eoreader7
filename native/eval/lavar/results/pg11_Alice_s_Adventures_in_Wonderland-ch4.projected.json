@@ -264,9 +264,10 @@
             "children": []
            },
            {
-            "seq": 305,
-            "schema": "EOTObservation@1",
-            "id": "o303",
+            "seq": 833,
+            "schema": "EOTRevision@1",
+            "supersedes": "o303",
+            "id": "r550",
             "at": [
              33217,
              33253
@@ -275,12 +276,9 @@
             "end1": "she",
             "label": "heard",
             "end2": "it muttering to itself “The Duchess!",
-            "subjectBasis": "stated",
-            "operator": "CON",
-            "grain": "Figure",
-            "terrain": "Link",
-            "stance": "Binding",
-            "settledAs": "verb",
+            "end2Ref": "ref:auto:duchess",
+            "because": "the clause is unchanged from the prior pass, but this pass's resolver newly binds a referent the earlier pass's endRef left bare",
+            "witness": "eot-jsonl.mjs endRef, automatic reread rebinding",
             "children": [
              {
               "seq": 306,
@@ -1452,9 +1450,10 @@
           ]
          },
          {
-          "seq": 344,
-          "schema": "EOTObservation@1",
-          "id": "o325",
+          "seq": 834,
+          "schema": "EOTRevision@1",
+          "supersedes": "o325",
+          "id": "r551",
           "at": [
            34750,
            34779
@@ -1463,12 +1462,9 @@
           "end1": "suppose Dinah’ll",
           "label": "be",
           "end2": "sending me on messages next!”",
-          "subjectBasis": "stated",
-          "operator": "CON",
-          "grain": "Figure",
-          "terrain": "Link",
-          "stance": "Binding",
-          "settledAs": "verb",
+          "end1Ref": "ref:auto:dinah",
+          "because": "the clause is unchanged from the prior pass, but this pass's resolver newly binds a referent the earlier pass's endRef left bare",
+          "witness": "eot-jsonl.mjs endRef, automatic reread rebinding",
           "children": []
          }
         ]
@@ -1556,30 +1552,7 @@
           "terrain": "Link",
           "stance": "Binding",
           "settledAs": "verb",
-          "children": [
-           {
-            "seq": 780,
-            "schema": "EOTObservation@1",
-            "id": "o325",
-            "at": [
-             34894,
-             34905
-            ],
-            "role": "proposition",
-            "end1": "and",
-            "label": "for",
-            "end2": "your walk!’",
-            "subjectBasis": "inherited",
-            "operator": "CON",
-            "grain": "Ground",
-            "terrain": "Field",
-            "stance": "Tending",
-            "settledAs": "preposition",
-            "pass": 2,
-            "foundOnReread": true,
-            "children": []
-           }
-          ]
+          "children": []
          }
         ]
        },
@@ -3082,30 +3055,7 @@
             "role": "arrangement",
             "reason": "gate_refused_no_two_ends",
             "detail": "a verb this reading earned occurs here, but extractRelations requires BOTH a subject group and an object group (S90: `if (!subject || !object) continue`) — an exclamation, a bare predicate adjective, or an intransitive clause satisfies neither, and that is a property of the gate, not of the material",
-            "children": [
-             {
-              "seq": 790,
-              "schema": "EOTObservation@1",
-              "id": "o365",
-              "at": [
-               37218,
-               37223
-              ],
-              "role": "proposition",
-              "end1": "this",
-              "label": "of",
-              "end2": "life!",
-              "subjectBasis": "stated",
-              "operator": "CON",
-              "grain": "Ground",
-              "terrain": "Field",
-              "stance": "Tending",
-              "settledAs": "preposition",
-              "pass": 2,
-              "foundOnReread": true,
-              "children": []
-             }
-            ]
+            "children": []
            }
           ]
          }
@@ -3326,9 +3276,10 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 408,
-            "schema": "EOTObservation@1",
-            "id": "o365",
+            "seq": 835,
+            "schema": "EOTRevision@1",
+            "supersedes": "o365",
+            "id": "r552",
             "at": [
              37482,
              37506
@@ -3337,13 +3288,9 @@
             "end1": "I’ll",
             "label": "write",
             "end2": "one—but I’m grown up now",
-            "subjectBasis": "stated",
-            "end1Ref": "ref:auto:i’ll",
-            "operator": "CON",
-            "grain": "Figure",
-            "terrain": "Link",
-            "stance": "Binding",
-            "settledAs": "verb",
+            "end2Ref": "ref:auto:i’m",
+            "because": "the clause is unchanged from the prior pass, but this pass's resolver newly binds a referent the earlier pass's endRef left bare",
+            "witness": "eot-jsonl.mjs endRef, automatic reread rebinding",
             "children": [
              {
               "seq": 409,
@@ -3700,30 +3647,7 @@
             "role": "arrangement",
             "reason": "no_earned_verb_in_this_sentence",
             "detail": "no token in this sentence was nominated by the 127 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
-            "children": [
-             {
-              "seq": 797,
-              "schema": "EOTObservation@1",
-              "id": "o382",
-              "at": [
-               37842,
-               37849
-              ],
-              "role": "proposition",
-              "end1": "she",
-              "label": "answered",
-              "end2": "herself",
-              "subjectBasis": "stated",
-              "operator": "CON",
-              "grain": "Figure",
-              "terrain": "Link",
-              "stance": "Binding",
-              "settledAs": "verb",
-              "pass": 2,
-              "foundOnReread": true,
-              "children": []
-             }
-            ]
+            "children": []
            }
           ]
          }
@@ -3787,52 +3711,7 @@
           "role": "arrangement",
           "reason": "gate_refused_no_two_ends",
           "detail": "a verb this reading earned occurs here, but extractRelations requires BOTH a subject group and an object group (S90: `if (!subject || !object) continue`) — an exclamation, a bare predicate adjective, or an intransitive clause satisfies neither, and that is a property of the gate, not of the material",
-          "children": [
-           {
-            "seq": 798,
-            "schema": "EOTObservation@1",
-            "id": "o384",
-            "at": [
-             37917,
-             37922
-            ],
-            "role": "proposition",
-            "end1": "there’s hardly room",
-            "label": "for",
-            "end2": "_you_",
-            "subjectBasis": "stated",
-            "operator": "CON",
-            "grain": "Ground",
-            "terrain": "Field",
-            "stance": "Tending",
-            "settledAs": "preposition",
-            "pass": 2,
-            "foundOnReread": true,
-            "children": []
-           },
-           {
-            "seq": 799,
-            "schema": "EOTObservation@1",
-            "id": "o385",
-            "at": [
-             37948,
-             37966
-            ],
-            "role": "proposition",
-            "end1": "at all",
-            "label": "for",
-            "end2": "any lesson-books!”",
-            "subjectBasis": "stated",
-            "operator": "CON",
-            "grain": "Ground",
-            "terrain": "Field",
-            "stance": "Tending",
-            "settledAs": "preposition",
-            "pass": 2,
-            "foundOnReread": true,
-            "children": []
-           }
-          ]
+          "children": []
          }
         ]
        }
@@ -3879,44 +3758,24 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 800,
+            "seq": 423,
             "schema": "EOTObservation@1",
-            "id": "o386",
+            "id": "o374",
             "at": [
-             38007,
+             38016,
              38030
             ],
             "role": "proposition",
-            "end1": "taking first",
-            "label": "one",
-            "end2": "side and then the other",
+            "end1": "one side",
+            "label": "and",
+            "end2": "then the other",
             "subjectBasis": "stated",
-            "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
-            "settledAs": null,
-            "pass": 2,
-            "foundOnReread": true,
-            "children": [
-             {
-              "seq": 423,
-              "schema": "EOTObservation@1",
-              "id": "o374",
-              "at": [
-               38016,
-               38030
-              ],
-              "role": "proposition",
-              "end1": "one side",
-              "label": "and",
-              "end2": "then the other",
-              "subjectBasis": "stated",
-              "operator": "SEG",
-              "grain": "Figure",
-              "terrain": "Link",
-              "stance": "Dissecting",
-              "settledAs": "conjunction",
-              "children": []
-             }
-            ]
+            "operator": "SEG",
+            "grain": "Figure",
+            "terrain": "Link",
+            "stance": "Dissecting",
+            "settledAs": "conjunction",
+            "children": []
            },
            {
             "seq": 426,
@@ -4111,9 +3970,10 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 436,
-            "schema": "EOTObservation@1",
-            "id": "o377",
+            "seq": 836,
+            "schema": "EOTRevision@1",
+            "supersedes": "o377",
+            "id": "r553",
             "at": [
              38445,
              38464
@@ -4122,9 +3982,9 @@
             "end1": "thousand times",
             "label": "as",
             "end2": "large as the Rabbit",
-            "subjectBasis": "stated",
-            "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
-            "settledAs": null,
+            "end2Ref": "ref:auto:rabbit",
+            "because": "the clause is unchanged from the prior pass, but this pass's resolver newly binds a referent the earlier pass's endRef left bare",
+            "witness": "eot-jsonl.mjs endRef, automatic reread rebinding",
             "children": [
              {
               "seq": 437,
@@ -4250,9 +4110,10 @@
             "children": []
            },
            {
-            "seq": 443,
-            "schema": "EOTObservation@1",
-            "id": "o382",
+            "seq": 837,
+            "schema": "EOTRevision@1",
+            "supersedes": "o382",
+            "id": "r554",
             "at": [
              38627,
              38650
@@ -4261,12 +4122,9 @@
             "end1": "Alice’s elbow",
             "label": "was",
             "end2": "pressed hard against it",
-            "subjectBasis": "stated",
-            "operator": "CON",
-            "grain": "Figure",
-            "terrain": "Link",
-            "stance": "Binding",
-            "settledAs": "verb",
+            "end1Ref": "ref:auto:alice",
+            "because": "the clause is unchanged from the prior pass, but this pass's resolver newly binds a referent the earlier pass's endRef left bare",
+            "witness": "eot-jsonl.mjs endRef, automatic reread rebinding",
             "children": []
            }
           ]
@@ -4302,9 +4160,10 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 445,
-            "schema": "EOTObservation@1",
-            "id": "o383",
+            "seq": 838,
+            "schema": "EOTRevision@1",
+            "supersedes": "o383",
+            "id": "r555",
             "at": [
              38728,
              38758
@@ -4313,17 +4172,15 @@
             "end1": "Then I’ll",
             "label": "go",
             "end2": "round and get in at the window",
-            "subjectBasis": "stated",
-            "operator": "CON",
-            "grain": "Figure",
-            "terrain": "Link",
-            "stance": "Binding",
-            "settledAs": "verb",
+            "end1Ref": "ref:auto:i’ll",
+            "because": "the clause is unchanged from the prior pass, but this pass's resolver newly binds a referent the earlier pass's endRef left bare",
+            "witness": "eot-jsonl.mjs endRef, automatic reread rebinding",
             "children": [
              {
-              "seq": 446,
-              "schema": "EOTObservation@1",
-              "id": "o384",
+              "seq": 839,
+              "schema": "EOTRevision@1",
+              "supersedes": "o384",
+              "id": "r556",
               "at": [
                38742,
                38758
@@ -4332,17 +4189,15 @@
               "end1": "Then I’ll",
               "label": "and get",
               "end2": "in at the window",
-              "subjectBasis": "inherited",
-              "operator": "CON",
-              "grain": "Figure",
-              "terrain": "Link",
-              "stance": "Binding",
-              "settledAs": "verb",
+              "end1Ref": "ref:auto:i’ll",
+              "because": "the clause is unchanged from the prior pass, but this pass's resolver newly binds a referent the earlier pass's endRef left bare",
+              "witness": "eot-jsonl.mjs endRef, automatic reread rebinding",
               "children": [
                {
-                "seq": 447,
-                "schema": "EOTObservation@1",
-                "id": "o385",
+                "seq": 840,
+                "schema": "EOTRevision@1",
+                "supersedes": "o385",
+                "id": "r557",
                 "at": [
                  38745,
                  38758
@@ -4351,12 +4206,9 @@
                 "end1": "Then I’ll",
                 "label": "in",
                 "end2": "at the window",
-                "subjectBasis": "inherited",
-                "operator": "CON",
-                "grain": "Ground",
-                "terrain": "Field",
-                "stance": "Tending",
-                "settledAs": "preposition",
+                "end1Ref": "ref:auto:i’ll",
+                "because": "the clause is unchanged from the prior pass, but this pass's resolver newly binds a referent the earlier pass's endRef left bare",
+                "witness": "eot-jsonl.mjs endRef, automatic reread rebinding",
                 "children": []
                }
               ]
@@ -4437,9 +4289,10 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 449,
-            "schema": "EOTObservation@1",
-            "id": "o386",
+            "seq": 841,
+            "schema": "EOTRevision@1",
+            "supersedes": "o386",
+            "id": "r558",
             "at": [
              38846,
              38878
@@ -4448,12 +4301,9 @@
             "end1": "she",
             "label": "heard",
             "end2": "the Rabbit just under the window",
-            "subjectBasis": "stated",
-            "operator": "CON",
-            "grain": "Figure",
-            "terrain": "Link",
-            "stance": "Binding",
-            "settledAs": "verb",
+            "end2Ref": "ref:auto:rabbit",
+            "because": "the clause is unchanged from the prior pass, but this pass's resolver newly binds a referent the earlier pass's endRef left bare",
+            "witness": "eot-jsonl.mjs endRef, automatic reread rebinding",
             "children": []
            }
           ]
@@ -4506,30 +4356,7 @@
             "terrain": "Link",
             "stance": "Binding",
             "settledAs": "verb",
-            "children": [
-             {
-              "seq": 801,
-              "schema": "EOTObservation@1",
-              "id": "o401",
-              "at": [
-               38969,
-               38977
-              ],
-              "role": "proposition",
-              "end1": "She",
-              "label": "of",
-              "end2": "anything",
-              "subjectBasis": "inherited",
-              "operator": "CON",
-              "grain": "Ground",
-              "terrain": "Field",
-              "stance": "Tending",
-              "settledAs": "preposition",
-              "pass": 2,
-              "foundOnReread": true,
-              "children": []
-             }
-            ]
+            "children": []
            },
            {
             "seq": 452,
@@ -4549,28 +4376,6 @@
             "terrain": "Link",
             "stance": "Binding",
             "settledAs": "verb",
-            "children": []
-           },
-           {
-            "seq": 802,
-            "schema": "EOTObservation@1",
-            "id": "o403",
-            "at": [
-             39157,
-             39165
-            ],
-            "role": "proposition",
-            "end1": "something",
-            "label": "of",
-            "end2": "the sort",
-            "subjectBasis": "stated",
-            "operator": "CON",
-            "grain": "Ground",
-            "terrain": "Field",
-            "stance": "Tending",
-            "settledAs": "preposition",
-            "pass": 2,
-            "foundOnReread": true,
             "children": []
            }
           ]
@@ -5589,68 +5394,26 @@
           "detail": "a verb this reading earned occurs here, but extractRelations requires BOTH a subject group and an object group (S90: `if (!subject || !object) continue`) — an exclamation, a bare predicate adjective, or an intransitive clause satisfies neither, and that is a property of the gate, not of the material",
           "children": [
            {
-            "seq": 806,
+            "seq": 808,
             "schema": "EOTObservation@1",
-            "id": "o416",
+            "id": "o418",
             "at": [
-             40087,
-             40107
-            ],
-            "role": "proposition",
-            "end1": "time there",
-            "label": "were",
-            "end2": "_two_ little shrieks",
-            "subjectBasis": "stated",
-            "operator": "CON",
-            "grain": "Figure",
-            "terrain": "Link",
-            "stance": "Binding",
-            "settledAs": "verb",
-            "pass": 2,
-            "foundOnReread": true,
-            "children": []
-           },
-           {
-            "seq": 807,
-            "schema": "EOTObservation@1",
-            "id": "o417",
-            "at": [
-             40118,
+             40128,
              40140
             ],
             "role": "proposition",
             "end1": "and",
-            "label": "more",
-            "end2": "sounds of broken glass",
-            "subjectBasis": "stated",
-            "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
-            "settledAs": null,
+            "label": "of",
+            "end2": "broken glass",
+            "subjectBasis": "inherited",
+            "operator": "CON",
+            "grain": "Ground",
+            "terrain": "Field",
+            "stance": "Tending",
+            "settledAs": "preposition",
             "pass": 2,
             "foundOnReread": true,
-            "children": [
-             {
-              "seq": 808,
-              "schema": "EOTObservation@1",
-              "id": "o418",
-              "at": [
-               40128,
-               40140
-              ],
-              "role": "proposition",
-              "end1": "and",
-              "label": "of",
-              "end2": "broken glass",
-              "subjectBasis": "inherited",
-              "operator": "CON",
-              "grain": "Ground",
-              "terrain": "Field",
-              "stance": "Tending",
-              "settledAs": "preposition",
-              "pass": 2,
-              "foundOnReread": true,
-              "children": []
-             }
-            ]
+            "children": []
            }
           ]
          }
@@ -5670,47 +5433,24 @@
         "script": "cased",
         "children": [
          {
-          "seq": 809,
+          "seq": 484,
           "schema": "EOTObservation@1",
-          "id": "o419",
+          "id": "o399",
           "at": [
-           40161,
+           40188,
            40192
           ],
           "role": "proposition",
-          "end1": "a number",
-          "label": "of",
-          "end2": "cucumber-frames there must be!”",
+          "end1": "number of cucumber-frames there",
+          "label": "must",
+          "end2": "be!”",
           "subjectBasis": "stated",
           "operator": "CON",
-          "grain": "Ground",
-          "terrain": "Field",
-          "stance": "Tending",
-          "settledAs": "preposition",
-          "pass": 2,
-          "foundOnReread": true,
-          "children": [
-           {
-            "seq": 484,
-            "schema": "EOTObservation@1",
-            "id": "o399",
-            "at": [
-             40188,
-             40192
-            ],
-            "role": "proposition",
-            "end1": "number of cucumber-frames there",
-            "label": "must",
-            "end2": "be!”",
-            "subjectBasis": "stated",
-            "operator": "CON",
-            "grain": "Figure",
-            "terrain": "Link",
-            "stance": "Binding",
-            "settledAs": "verb",
-            "children": []
-           }
-          ]
+          "grain": "Figure",
+          "terrain": "Link",
+          "stance": "Binding",
+          "settledAs": "verb",
+          "children": []
          }
         ]
        },
@@ -5834,9 +5574,10 @@
             "children": []
            },
            {
-            "seq": 489,
-            "schema": "EOTObservation@1",
-            "id": "o401",
+            "seq": 842,
+            "schema": "EOTRevision@1",
+            "supersedes": "o401",
+            "id": "r559",
             "at": [
              40314,
              40357
@@ -5845,14 +5586,15 @@
             "end1": "_ I’m",
             "label": "sure",
             "end2": "_I_ don’t want to stay in here any longer!”",
-            "subjectBasis": "stated",
-            "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
-            "settledAs": null,
+            "end1Ref": "ref:auto:i’m",
+            "because": "the clause is unchanged from the prior pass, but this pass's resolver newly binds a referent the earlier pass's endRef left bare",
+            "witness": "eot-jsonl.mjs endRef, automatic reread rebinding",
             "children": [
              {
-              "seq": 490,
-              "schema": "EOTObservation@1",
-              "id": "o402",
+              "seq": 843,
+              "schema": "EOTRevision@1",
+              "supersedes": "o402",
+              "id": "r560",
               "at": [
                40337,
                40357
@@ -5861,17 +5603,15 @@
               "end1": "_ I’m",
               "label": "to stay",
               "end2": "in here any longer!”",
-              "subjectBasis": "inherited",
-              "operator": "CON",
-              "grain": "Figure",
-              "terrain": "Link",
-              "stance": "Binding",
-              "settledAs": "verb",
+              "end1Ref": "ref:auto:i’m",
+              "because": "the clause is unchanged from the prior pass, but this pass's resolver newly binds a referent the earlier pass's endRef left bare",
+              "witness": "eot-jsonl.mjs endRef, automatic reread rebinding",
               "children": [
                {
-                "seq": 491,
-                "schema": "EOTObservation@1",
-                "id": "o403",
+                "seq": 844,
+                "schema": "EOTRevision@1",
+                "supersedes": "o403",
+                "id": "r561",
                 "at": [
                  40340,
                  40357
@@ -5880,12 +5620,9 @@
                 "end1": "_ I’m",
                 "label": "in",
                 "end2": "here any longer!”",
-                "subjectBasis": "inherited",
-                "operator": "CON",
-                "grain": "Ground",
-                "terrain": "Field",
-                "stance": "Tending",
-                "settledAs": "preposition",
+                "end1Ref": "ref:auto:i’m",
+                "because": "the clause is unchanged from the prior pass, but this pass's resolver newly binds a referent the earlier pass's endRef left bare",
+                "witness": "eot-jsonl.mjs endRef, automatic reread rebinding",
                 "children": []
                }
               ]
@@ -6330,9 +6067,10 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 503,
-            "schema": "EOTObservation@1",
-            "id": "o410",
+            "seq": 845,
+            "schema": "EOTRevision@1",
+            "supersedes": "o410",
+            "id": "r562",
             "at": [
              41071,
              41080
@@ -6341,12 +6079,9 @@
             "end1": "Bill’s",
             "label": "go",
             "end2": "down—Here",
-            "subjectBasis": "stated",
-            "operator": "CON",
-            "grain": "Figure",
-            "terrain": "Link",
-            "stance": "Binding",
-            "settledAs": "verb",
+            "end1Ref": "ref:auto:bill",
+            "because": "the clause is unchanged from the prior pass, but this pass's resolver newly binds a referent the earlier pass's endRef left bare",
+            "witness": "eot-jsonl.mjs endRef, automatic reread rebinding",
             "children": []
            }
           ]
@@ -6497,9 +6232,10 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 508,
-            "schema": "EOTObservation@1",
-            "id": "o414",
+            "seq": 846,
+            "schema": "EOTRevision@1",
+            "supersedes": "o414",
+            "id": "r563",
             "at": [
              41159,
              41183
@@ -6508,17 +6244,15 @@
             "end1": "Bill’s",
             "label": "got",
             "end2": "to come down the chimney",
-            "subjectBasis": "stated",
-            "operator": "CON",
-            "grain": "Figure",
-            "terrain": "Link",
-            "stance": "Binding",
-            "settledAs": "verb",
+            "end1Ref": "ref:auto:bill",
+            "because": "the clause is unchanged from the prior pass, but this pass's resolver newly binds a referent the earlier pass's endRef left bare",
+            "witness": "eot-jsonl.mjs endRef, automatic reread rebinding",
             "children": [
              {
-              "seq": 509,
-              "schema": "EOTObservation@1",
-              "id": "o415",
+              "seq": 847,
+              "schema": "EOTRevision@1",
+              "supersedes": "o415",
+              "id": "r564",
               "at": [
                41167,
                41183
@@ -6527,12 +6261,9 @@
               "end1": "Bill’s",
               "label": "come",
               "end2": "down the chimney",
-              "subjectBasis": "inherited",
-              "operator": "CON",
-              "grain": "Figure",
-              "terrain": "Link",
-              "stance": "Binding",
-              "settledAs": "verb",
+              "end1Ref": "ref:auto:bill",
+              "because": "the clause is unchanged from the prior pass, but this pass's resolver newly binds a referent the earlier pass's endRef left bare",
+              "witness": "eot-jsonl.mjs endRef, automatic reread rebinding",
               "children": []
              }
             ]
@@ -6555,9 +6286,10 @@
         "script": "cased",
         "children": [
          {
-          "seq": 511,
-          "schema": "EOTObservation@1",
-          "id": "o416",
+          "seq": 848,
+          "schema": "EOTRevision@1",
+          "supersedes": "o416",
+          "id": "r565",
           "at": [
            41209,
            41216
@@ -6566,9 +6298,9 @@
           "end1": "said Alice",
           "label": "to",
           "end2": "herself",
-          "subjectBasis": "stated",
-          "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
-          "settledAs": null,
+          "end1Ref": "ref:auto:alice",
+          "because": "the clause is unchanged from the prior pass, but this pass's resolver newly binds a referent the earlier pass's endRef left bare",
+          "witness": "eot-jsonl.mjs endRef, automatic reread rebinding",
           "children": []
          }
         ]
@@ -6602,9 +6334,10 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 512,
-            "schema": "EOTObservation@1",
-            "id": "o417",
+            "seq": 849,
+            "schema": "EOTRevision@1",
+            "supersedes": "o417",
+            "id": "r566",
             "at": [
              41237,
              41262
@@ -6613,9 +6346,9 @@
             "end1": "they",
             "label": "to",
             "end2": "put everything upon Bill!",
-            "subjectBasis": "stated",
-            "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
-            "settledAs": null,
+            "end2Ref": "ref:auto:bill",
+            "because": "the clause is unchanged from the prior pass, but this pass's resolver newly binds a referent the earlier pass's endRef left bare",
+            "witness": "eot-jsonl.mjs endRef, automatic reread rebinding",
             "children": [
              {
               "seq": 513,
@@ -6657,9 +6390,10 @@
         "script": "cased",
         "children": [
          {
-          "seq": 514,
-          "schema": "EOTObservation@1",
-          "id": "o419",
+          "seq": 850,
+          "schema": "EOTRevision@1",
+          "supersedes": "o419",
+          "id": "r567",
           "at": [
            41281,
            41335
@@ -6668,36 +6402,10 @@
           "end1": "I",
           "label": "be in",
           "end2": "Bill’s place for a good deal: this fireplace is narrow",
-          "subjectBasis": "stated",
-          "operator": "CON",
-          "grain": "Ground",
-          "terrain": "Field",
-          "stance": "Tending",
-          "settledAs": "preposition",
-          "children": [
-           {
-            "seq": 810,
-            "schema": "EOTObservation@1",
-            "id": "o440",
-            "at": [
-             41298,
-             41335
-            ],
-            "role": "proposition",
-            "end1": "I",
-            "label": "for",
-            "end2": "a good deal: this fireplace is narrow",
-            "subjectBasis": "inherited",
-            "operator": "CON",
-            "grain": "Ground",
-            "terrain": "Field",
-            "stance": "Tending",
-            "settledAs": "preposition",
-            "pass": 2,
-            "foundOnReread": true,
-            "children": []
-           }
-          ]
+          "end2Ref": "ref:auto:bill",
+          "because": "the clause is unchanged from the prior pass, but this pass's resolver newly binds a referent the earlier pass's endRef left bare",
+          "witness": "eot-jsonl.mjs endRef, automatic reread rebinding",
+          "children": []
          },
          {
           "seq": 516,
@@ -7027,9 +6735,10 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 529,
-            "schema": "EOTObservation@1",
-            "id": "o430",
+            "seq": 851,
+            "schema": "EOTRevision@1",
+            "supersedes": "o430",
+            "id": "r568",
             "at": [
              41732,
              41774
@@ -7038,12 +6747,9 @@
             "end1": "she",
             "label": "heard",
             "end2": "was a general chorus of “There goes Bill!”",
-            "subjectBasis": "stated",
-            "operator": "CON",
-            "grain": "Figure",
-            "terrain": "Link",
-            "stance": "Binding",
-            "settledAs": "verb",
+            "end2Ref": "ref:auto:bill",
+            "because": "the clause is unchanged from the prior pass, but this pass's resolver newly binds a referent the earlier pass's endRef left bare",
+            "witness": "eot-jsonl.mjs endRef, automatic reread rebinding",
             "children": []
            }
           ]
@@ -7482,9 +7188,10 @@
             ]
            },
            {
-            "seq": 549,
-            "schema": "EOTObservation@1",
-            "id": "o440",
+            "seq": 852,
+            "schema": "EOTRevision@1",
+            "supersedes": "o440",
+            "id": "r569",
             "at": [
              42448,
              42462
@@ -7493,13 +7200,9 @@
             "end1": "I’ll",
             "label": "set",
             "end2": "Dinah at you!”",
-            "subjectBasis": "stated",
-            "end1Ref": "ref:auto:i’ll",
-            "operator": "CON",
-            "grain": "Figure",
-            "terrain": "Link",
-            "stance": "Binding",
-            "settledAs": "verb",
+            "end2Ref": "ref:auto:dinah",
+            "because": "the clause is unchanged from the prior pass, but this pass's resolver newly binds a referent the earlier pass's endRef left bare",
+            "witness": "eot-jsonl.mjs endRef, automatic reread rebinding",
             "children": [
              {
               "seq": 550,
@@ -7738,9 +7441,10 @@
             "children": []
            },
            {
-            "seq": 557,
-            "schema": "EOTObservation@1",
-            "id": "o446",
+            "seq": 853,
+            "schema": "EOTRevision@1",
+            "supersedes": "o446",
+            "id": "r570",
             "at": [
              42691,
              42705
@@ -7749,13 +7453,9 @@
             "end1": "Alice",
             "label": "heard",
             "end2": "the Rabbit say",
-            "subjectBasis": "stated",
-            "end1Ref": "ref:auto:alice",
-            "operator": "CON",
-            "grain": "Figure",
-            "terrain": "Link",
-            "stance": "Binding",
-            "settledAs": "verb",
+            "end2Ref": "ref:auto:rabbit",
+            "because": "the clause is unchanged from the prior pass, but this pass's resolver newly binds a referent the earlier pass's endRef left bare",
+            "witness": "eot-jsonl.mjs endRef, automatic reread rebinding",
             "children": []
            },
            {
@@ -7827,9 +7527,10 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 814,
-            "schema": "EOTObservation@1",
-            "id": "o465",
+            "seq": 854,
+            "schema": "EOTRevision@1",
+            "supersedes": "o465",
+            "id": "r571",
             "at": [
              42764,
              42786
@@ -7838,14 +7539,9 @@
             "end1": "A barrowful",
             "label": "of",
             "end2": "_what?_” thought Alice",
-            "subjectBasis": "stated",
-            "operator": "CON",
-            "grain": "Ground",
-            "terrain": "Field",
-            "stance": "Tending",
-            "settledAs": "preposition",
-            "pass": 2,
-            "foundOnReread": true,
+            "end2Ref": "ref:auto:alice",
+            "because": "the clause is unchanged from the prior pass, but this pass's resolver newly binds a referent the earlier pass's endRef left bare",
+            "witness": "eot-jsonl.mjs endRef, automatic reread rebinding",
             "children": []
            },
            {
@@ -7887,47 +7583,24 @@
             ]
            },
            {
-            "seq": 815,
+            "seq": 562,
             "schema": "EOTObservation@1",
-            "id": "o468",
+            "id": "o449",
             "at": [
-             42912,
+             42928,
              42936
             ],
             "role": "proposition",
-            "end1": "some",
-            "label": "of",
-            "end2": "them hit her in the face",
+            "end1": "hit her",
+            "label": "in",
+            "end2": "the face",
             "subjectBasis": "stated",
             "operator": "CON",
             "grain": "Ground",
             "terrain": "Field",
             "stance": "Tending",
             "settledAs": "preposition",
-            "pass": 2,
-            "foundOnReread": true,
-            "children": [
-             {
-              "seq": 562,
-              "schema": "EOTObservation@1",
-              "id": "o449",
-              "at": [
-               42928,
-               42936
-              ],
-              "role": "proposition",
-              "end1": "hit her",
-              "label": "in",
-              "end2": "the face",
-              "subjectBasis": "stated",
-              "operator": "CON",
-              "grain": "Ground",
-              "terrain": "Field",
-              "stance": "Tending",
-              "settledAs": "preposition",
-              "children": []
-             }
-            ]
+            "children": []
            }
           ]
          }
@@ -8648,25 +8321,7 @@
             "subjectBasis": "stated",
             "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
             "settledAs": null,
-            "children": [
-             {
-              "seq": 586,
-              "schema": "EOTObservation@1",
-              "id": "o465",
-              "at": [
-               43867,
-               43876
-              ],
-              "role": "proposition",
-              "end1": "ran off",
-              "label": "as",
-              "end2": "she could",
-              "subjectBasis": "inherited",
-              "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
-              "settledAs": null,
-              "children": []
-             }
-            ]
+            "children": []
            },
            {
             "seq": 587,
@@ -8735,9 +8390,10 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 589,
-            "schema": "EOTObservation@1",
-            "id": "o467",
+            "seq": 855,
+            "schema": "EOTRevision@1",
+            "supersedes": "o467",
+            "id": "r572",
             "at": [
              43953,
              43958
@@ -8746,17 +8402,15 @@
             "end1": "first thing I’ve",
             "label": "got",
             "end2": "to do",
-            "subjectBasis": "stated",
-            "operator": "CON",
-            "grain": "Figure",
-            "terrain": "Link",
-            "stance": "Binding",
-            "settledAs": "verb",
+            "end1Ref": "ref:auto:i’ve",
+            "because": "the clause is unchanged from the prior pass, but this pass's resolver newly binds a referent the earlier pass's endRef left bare",
+            "witness": "eot-jsonl.mjs endRef, automatic reread rebinding",
             "children": [
              {
-              "seq": 590,
-              "schema": "EOTObservation@1",
-              "id": "o468",
+              "seq": 856,
+              "schema": "EOTRevision@1",
+              "supersedes": "o468",
+              "id": "r573",
               "at": [
                43956,
                43958
@@ -8765,17 +8419,18 @@
               "end1": "first thing I’ve",
               "label": "to",
               "end2": "do",
-              "subjectBasis": "inherited",
-              "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
-              "settledAs": null,
+              "end1Ref": "ref:auto:i’ve",
+              "because": "the clause is unchanged from the prior pass, but this pass's resolver newly binds a referent the earlier pass's endRef left bare",
+              "witness": "eot-jsonl.mjs endRef, automatic reread rebinding",
               "children": []
              }
             ]
            },
            {
-            "seq": 591,
-            "schema": "EOTObservation@1",
-            "id": "o469",
+            "seq": 857,
+            "schema": "EOTRevision@1",
+            "supersedes": "o469",
+            "id": "r574",
             "at": [
              43975,
              43982
@@ -8784,9 +8439,9 @@
             "end1": "said Alice",
             "label": "to",
             "end2": "herself",
-            "subjectBasis": "stated",
-            "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
-            "settledAs": null,
+            "end1Ref": "ref:auto:alice",
+            "because": "the clause is unchanged from the prior pass, but this pass's resolver newly binds a referent the earlier pass's endRef left bare",
+            "witness": "eot-jsonl.mjs endRef, automatic reread rebinding",
             "children": []
            },
            {
@@ -9406,9 +9061,10 @@
             ]
            },
            {
-            "seq": 622,
-            "schema": "EOTObservation@1",
-            "id": "o490",
+            "seq": 858,
+            "schema": "EOTRevision@1",
+            "supersedes": "o490",
+            "id": "r575",
             "at": [
              45106,
              45128
@@ -9417,9 +9073,9 @@
             "end1": "then Alice",
             "label": "dodged",
             "end2": "behind a great thistle",
-            "subjectBasis": "stated",
-            "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
-            "settledAs": null,
+            "end1Ref": "ref:auto:alice",
+            "because": "the clause is unchanged from the prior pass, but this pass's resolver newly binds a referent the earlier pass's endRef left bare",
+            "witness": "eot-jsonl.mjs endRef, automatic reread rebinding",
             "children": []
            },
            {
@@ -9672,9 +9328,10 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 642,
-            "schema": "EOTObservation@1",
-            "id": "o499",
+            "seq": 859,
+            "schema": "EOTRevision@1",
+            "supersedes": "o499",
+            "id": "r576",
             "at": [
              45794,
              45840
@@ -9683,9 +9340,9 @@
             "end1": "This",
             "label": "to",
             "end2": "Alice a good opportunity for making her escape",
-            "subjectBasis": "stated",
-            "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
-            "settledAs": null,
+            "end2Ref": "ref:auto:alice",
+            "because": "the clause is unchanged from the prior pass, but this pass's resolver newly binds a referent the earlier pass's endRef left bare",
+            "witness": "eot-jsonl.mjs endRef, automatic reread rebinding",
             "children": []
            },
            {

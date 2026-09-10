@@ -258,6 +258,38 @@
   [
    "Miss",
    "ref:auto:miss"
+  ],
+  [
+   "Lobster Quadrille",
+   "ref:auto:lobster_quadrille"
+  ],
+  [
+   "Soup",
+   "ref:auto:soup"
+  ],
+  [
+   "Owl",
+   "ref:auto:owl"
+  ],
+  [
+   "Panther",
+   "ref:auto:panther"
+  ],
+  [
+   "Hearts",
+   "ref:auto:hearts"
+  ],
+  [
+   "Lizard",
+   "ref:auto:lizard"
+  ],
+  [
+   "Adventures",
+   "ref:auto:adventures"
+  ],
+  [
+   "Wonderland",
+   "ref:auto:wonderland"
   ]
  ]
 }

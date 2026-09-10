@@ -219,6 +219,82 @@
   [
    "Cheshire",
    "ref:auto:cheshire"
+  ],
+  [
+   "Cheshire Cat",
+   "ref:auto:cheshire_cat"
+  ],
+  [
+   "King",
+   "ref:auto:king"
+  ],
+  [
+   "Five",
+   "ref:auto:five"
+  ],
+  [
+   "Knave",
+   "ref:auto:knave"
+  ],
+  [
+   "Seven",
+   "ref:auto:seven"
+  ],
+  [
+   "Majesty",
+   "ref:auto:majesty"
+  ],
+  [
+   "Miss",
+   "ref:auto:miss"
+  ],
+  [
+   "Mock Turtle",
+   "ref:auto:mock_turtle"
+  ],
+  [
+   "Mock",
+   "ref:auto:mock_turtle"
+  ],
+  [
+   "Gryphon",
+   "ref:auto:gryphon"
+  ],
+  [
+   "Tortoise",
+   "ref:auto:tortoise"
+  ],
+  [
+   "Lobster Quadrille",
+   "ref:auto:lobster_quadrille"
+  ],
+  [
+   "Soup",
+   "ref:auto:soup"
+  ],
+  [
+   "Owl",
+   "ref:auto:owl"
+  ],
+  [
+   "Panther",
+   "ref:auto:panther"
+  ],
+  [
+   "Hearts",
+   "ref:auto:hearts"
+  ],
+  [
+   "Lizard",
+   "ref:auto:lizard"
+  ],
+  [
+   "Adventures",
+   "ref:auto:adventures"
+  ],
+  [
+   "Wonderland",
+   "ref:auto:wonderland"
   ]
  ]
 }

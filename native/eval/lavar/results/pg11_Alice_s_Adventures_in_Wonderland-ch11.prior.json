@@ -51,7 +51,6 @@
   "as",
   "read",
   "neighbour",
-  "came",
   "got"
  ],
  "cast": [
@@ -282,6 +281,18 @@
   [
    "Panther",
    "ref:auto:panther"
+  ],
+  [
+   "Lizard",
+   "ref:auto:lizard"
+  ],
+  [
+   "Adventures",
+   "ref:auto:adventures"
+  ],
+  [
+   "Wonderland",
+   "ref:auto:wonderland"
   ]
  ]
 }

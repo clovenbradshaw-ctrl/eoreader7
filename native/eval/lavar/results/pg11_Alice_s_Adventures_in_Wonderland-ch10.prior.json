@@ -273,6 +273,22 @@
   [
    "Tortoise",
    "ref:auto:tortoise"
+  ],
+  [
+   "Hearts",
+   "ref:auto:hearts"
+  ],
+  [
+   "Lizard",
+   "ref:auto:lizard"
+  ],
+  [
+   "Adventures",
+   "ref:auto:adventures"
+  ],
+  [
+   "Wonderland",
+   "ref:auto:wonderland"
   ]
  ]
 }

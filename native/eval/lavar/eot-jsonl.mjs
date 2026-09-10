@@ -626,10 +626,53 @@ for (const cs of chapterSentences) {
 // pointed at the nearest candidate (P38: an ambiguous bare form is a typed
 // gap with candidates, never a third being).
 const { resolve: resolveEnd, counters: refCounters } = pronounResolver(boundSentences);
+
+// TIER 3, added after S104's field-lens-boost.mjs was found to be a
+// complete no-op (READING-SPEC.md S104, "the 68 propositions are not
+// new"). That script tried to recover under-covered referents by re-running
+// extractRelations on Field-recalled sentences — but extractRelations is a
+// pure function of (sentence text, vocabulary), and this driver's own main
+// loop already runs it on every sentence in the chapter with identical
+// vocabulary, so a Field-recalled candidate reproduces byte-identical
+// output. There is no sentence the Field can find that this loop has not
+// already read. Re-extraction was never going to find anything new; the
+// gap was always downstream of extraction, in resolution.
+//
+// It IS downstream, and it is real: tiers 1 and 2 above only ever match a
+// BARE surface (an exact cast name, or a single pronoun token). Neither
+// attempts a captured phrase that CONTAINS a known name alongside other
+// words — "our Dinah here", "poor Alice", "The White Rabbit" — which
+// extractRelations produces constantly (subject/object groups keep their
+// determiners and modifiers) and which nothing downstream has ever tried
+// to unwrap. Confirmed directly: chapter 3's own ledger already carries
+// `I | had | our Dinah here` with end1Ref/end2Ref both unset — the main
+// pass already found and typed this clause; it just never looked inside
+// the object phrase for the name it was carrying.
+//
+// Committed ONLY when exactly one referent's own surface (>=3 chars, whole
+// word/phrase, case-sensitive against the raw capitalisation) is found
+// inside the candidate text — the same "never guessed" floor as P38: two
+// different referents' surfaces both matching is an ambiguous containment,
+// left unresolved rather than pointed at either one.
+const surfaceContainmentRef = (text) => {
+  const s = String(text ?? "").trim();
+  if (!s) return null;
+  let hit = null;
+  for (const [sur, ref] of surfaceToReferent) {
+    if (!sur || sur.length < 3) continue;
+    const re = new RegExp(`\\b${sur.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`);
+    if (!re.test(s)) continue;
+    if (hit && hit !== ref) return null;
+    hit = ref;
+  }
+  return hit;
+};
 const endRef = (surface, chapterLocalOffset) => {
   const direct = surfaceToReferent.get(String(surface ?? "").trim());
   if (direct) return direct;
-  return Number.isFinite(chapterLocalOffset) ? resolveEnd(surface, chapterLocalOffset) : null;
+  const viaPronoun = Number.isFinite(chapterLocalOffset) ? resolveEnd(surface, chapterLocalOffset) : null;
+  if (viaPronoun) return viaPronoun;
+  return surfaceContainmentRef(surface);
 };
 
 // Vocabulary is earned from THIS CHAPTER's own text, not the whole book —
@@ -1114,6 +1157,7 @@ if (priorLines.length) {
   const atKey = (l) => `${l.at?.[0]}-${l.at?.[1]}`;
   const priorProps = priorLines.filter((l) => l.role === "proposition" && l.schema === "EOTObservation@1" && l.end1);
   const priorByKey = new Set(priorProps.map(key));
+  const priorLineByKey = new Map(priorProps.map((l) => [key(l), l]));
   const priorByAt = new Map();
   for (const l of priorProps) (priorByAt.get(atKey(l)) ?? priorByAt.set(atKey(l), []).get(atKey(l))).push(l);
 
@@ -1121,20 +1165,88 @@ if (priorLines.length) {
   const unchanged = mine.filter((l) => priorByKey.has(key(l)));
   const fresh = mine.filter((l) => !priorByKey.has(key(l)));
 
+  // AN UNCHANGED CLAUSE CAN STILL CARRY NEW INFORMATION. "unchanged" above
+  // means the SAME key — same address, same end1/label/end2 text — so the
+  // line kept on the record is the OLD priorLine, verbatim (see the push
+  // below: `lines.push(...priorLines, ...)`). But a fuller resolver (this
+  // pass's own vocabulary/prior union, or a later-added tier in `endRef`
+  // itself) can bind a referent to an end the earlier pass's resolver left
+  // bare, WITHOUT the clause's own text moving at all — and a same-key
+  // comparison is blind to that by construction, since it never looks past
+  // end1/label/end2. Found exactly this way: ch3's "I | had | our Dinah
+  // here" kept end1Ref/end2Ref unset across a real regeneration with
+  // `endRef`'s new surface-containment tier active, because the OLD line
+  // (with no Dinah binding) was the one kept — the fresh extraction that
+  // DID resolve it was silently discarded as "already recorded."
+  //
+  // The fix is not to overwrite the old line (S95's law, restated at the
+  // top of this block) — it is to say so as its own kind of revision: same
+  // clause, same bytes, a referent bound today that yesterday's resolver
+  // could not reach. `EOTRevision@1` already carries exactly this shape
+  // (`supersedes: <id>`, both kept) for the hand-checked corrections below;
+  // this is the same schema, triggered mechanically instead of by hand.
+  const rebound = [];
+  for (const l of unchanged) {
+    const prior = priorLineByKey.get(key(l));
+    if (!prior) continue;
+    const gained1 = l.end1Ref && !prior.end1Ref;
+    const gained2 = l.end2Ref && !prior.end2Ref;
+    if (!gained1 && !gained2) continue;
+    rebound.push({
+      supersedes: prior.id, at: prior.at, end1: prior.end1, label: prior.label, end2: prior.end2,
+      ...(gained1 ? { end1Ref: l.end1Ref } : {}),
+      ...(gained2 ? { end2Ref: l.end2Ref } : {}),
+    });
+  }
+
   const delta = [];
   let nextSeq = Math.max(...priorLines.map((l) => l.seq ?? 0)) + 1;
   const push = (o) => delta.push({ seq: nextSeq++, ...o });
 
+  // `delta.new` is filled in AFTER the loop below, not here — filling it
+  // with the raw `fresh.length` at push time was the pre-existing shape,
+  // and it overcounted by exactly the contest count: every fresh candidate
+  // that turns out to be a contest, or (below) one already settled, is a
+  // candidate that COULD have been new, not one that was. The ledger's own
+  // `delta` field must say what was actually written, the same standard
+  // the disclosure line already claims for it.
   push({
     schema: "EOTReadingPass@1", pass: 2, chapter: READ_CHAPTER,
     priorsLoaded: loadedPriors.map((p) => ({ chapter: p.chapter, verbs: (p.verbs ?? []).length })),
     vocabularyAfterUnion: verbs.size,
-    delta: { alreadyRecorded: unchanged.length, new: fresh.length, contests: 0 },
-    disclosure: "A REREAD, appended. It legitimately knows the loaded chapters because it has read them; that is rereading, not lookahead. Only what MOVED is written — an arrangement identical to one already on the record is not restated.",
+    delta: { alreadyRecorded: unchanged.length, new: 0, contests: 0, alreadySettled: 0, rebound: rebound.length },
+    disclosure: "A REREAD, appended. It legitimately knows the loaded chapters because it has read them; that is rereading, not lookahead. Only what MOVED is written — an arrangement identical to one already on the record is not restated. 'rebound' is the one exception to 'not restated': the SAME clause, kept, with a referent this pass's resolver newly bound — recorded as a revision, never by editing the old line. 'alreadySettled' is a candidate that reproduces a contest's own losing reading from an earlier pass — also not restated.",
   });
 
-  let contests = 0;
+  for (const r of rebound) {
+    push({
+      schema: "EOTRevision@1", supersedes: r.supersedes, id: id("r"), at: r.at, role: "proposition",
+      end1: r.end1, label: r.label, end2: r.end2,
+      ...(r.end1Ref ? { end1Ref: r.end1Ref } : {}),
+      ...(r.end2Ref ? { end2Ref: r.end2Ref } : {}),
+      because: "the clause is unchanged from the prior pass, but this pass's resolver newly binds a referent the earlier pass's endRef left bare",
+      witness: "eot-jsonl.mjs endRef, automatic reread rebinding",
+    });
+  }
+
+  // A CONTEST, ONCE RECORDED, IS NOT RELITIGATED. Found running this same
+  // pass a second time at the SAME prior depth (to measure this pass's own
+  // fix in isolation, against a chapter that had already been reread once
+  // before): 13 of ch2's contests came back as EXACT duplicates of ones
+  // already on the record — the proposition dedup above only ever checks
+  // `priorProps` (schema EOTObservation@1), so a contest's own losing-side
+  // reading, which is never pushed as an observation, has nothing recorded
+  // to match against and gets re-detected, and re-pushed, every time. Same
+  // "not restated" discipline as propositions, extended to the one other
+  // place a reread's own output can recur.
+  const priorContestKeys = new Set(
+    priorLines.filter((l) => l.schema === "EOTContest@1")
+      .flatMap((l) => (l.readings ?? []).map((r) => key({ at: l.at, end1: r.end1, label: r.label, end2: r.end2 })))
+  );
+
+  let contests = 0, alreadySettled = 0, newCount = 0;
   for (const l of fresh) {
+    if (priorContestKeys.has(key(l))) { alreadySettled += 1; continue; }
     const rivals = (priorByAt.get(atKey(l)) ?? []).filter((r) => fold(r.label) !== fold(l.label) || fold(r.end1) !== fold(l.end1) || fold(r.end2) !== fold(l.end2));
     if (rivals.length) {
       contests += 1;
@@ -1149,12 +1261,15 @@ if (priorLines.length) {
       });
       continue;
     }
+    newCount += 1;
     push({ ...l, seq: undefined, pass: 2, foundOnReread: true });
   }
+  delta[0].delta.new = newCount;
   delta[0].delta.contests = contests;
+  delta[0].delta.alreadySettled = alreadySettled;
   lines.length = 0;
   lines.push(...priorLines, ...delta.map((d) => (d.seq === undefined ? { ...d, seq: nextSeq++ } : d)));
-  console.log(`reread delta: ${unchanged.length} already recorded (not restated), ${fresh.length - contests} newly found, ${contests} contested addresses`);
+  console.log(`reread delta: ${unchanged.length} already recorded (not restated), ${newCount} newly found, ${contests} contested addresses, ${alreadySettled} already-settled contests (not restated), ${rebound.length} rebound (same clause, newly resolved referent)`);
 }
 
 const outDir = path.join(HERE, "results");
