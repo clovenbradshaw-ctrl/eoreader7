@@ -62,6 +62,7 @@ import { makeGrainTyper } from "./grain-typing.mjs";
 import { receivedGround, applyDelta } from "../../kernel/fold.js";
 import { deriveIdentityRevision } from "../../kernel/identity.js";
 import { textIdentityEvidence } from "../../adapters/text/identity-evidence.js";
+import { loadLibrary, saveLibrary, tier1, tier2, deriveConvention, buildRegex } from "./structure-rec.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const LP_ROOT = path.resolve(HERE, "../../../../live_priors");
@@ -345,47 +346,81 @@ const infer = (role, at, basis, extra = {}) =>
 // into this book's flat reading.
 const chapters = [];
 {
-  // A REAL title line is bounded by blank lines on both sides — the same
-  // typographic convention that makes it a heading rather than running
-  // prose. Not every book has one: The Picture of Dorian Gray's chapters
-  // go straight from "CHAPTER I." to prose with no title line at all, and
-  // without this check the regex swallowed the paragraph's own first
-  // physical line as if it were a title — found by recoverability.mjs
-  // (S101) failing on a SECOND text after Alice in Wonderland passed clean,
-  // because AIW's own convention (a real title on every chapter) never
-  // exercised this branch. Requiring a blank line immediately after the
-  // candidate title distinguishes "Down the Rabbit-Hole\n\nAlice was..."
-  // (real title) from "The studio was filled...\nsummer wind..." (prose,
-  // wrapped across the physical line the naive regex captured).
-  // A SECOND, SIBLING CONVENTION, added after reading Frankenstein for the
-  // first time: "Chapter 1" (title-case word, Arabic numeral, no trailing
-  // period) has zero matches under the Roman-numeral form above — this
-  // book's heads[] would come back empty and every chapter read as "no
-  // chapter N inferred". The Roman-numeral branch's own exact shape
-  // (literal all-caps, required period) is UNCHANGED, so nothing already
-  // verified against AIW or Dorian Gray can start matching differently;
-  // this only adds a second alternative the first branch never reached.
-  // A THIRD SIBLING, found reading the real Tom Sawyer for the first time
-  // (structure-rec.mjs's own "sniff" identified it mechanically, via
-  // skeleton recurrence, before this file was touched by hand at all):
-  // "CHAPTER I" — all-caps, Roman numeral, no trailing period. The first
-  // branch's own required period means this book's heads[] came back
-  // empty even though the word and numeral alphabet both matched AIW's
-  // own convention; the fix is one more alternative, tried only after the
-  // period-requiring form has already had its chance, so nothing already
-  // verified can start matching a bare-numeral candidate instead.
-  const RE = /^(?:CHAPTER (?<roman>[IVXLC]+)\.|Chapter (?<arabic>\d+)\.?|CHAPTER (?<romanBare>[IVXLC]+))\s*\n(?<titleLine>[^\n]*)\n/gmd;
+  // WIRED IN, not hand-patched: this block used to carry its own growing
+  // regex alternation, one branch added by hand every time a new book
+  // used a convention the file didn't know yet (S102's Dorian Gray title
+  // check, S107's Frankenstein "Chapter 1", S110's Tom Sawyer "CHAPTER I"
+  // with no period) — three real fixes, and three separate times a human
+  // had to notice the failure and edit this file before the book could be
+  // read at all. `structure-rec.mjs` already does this mechanically:
+  // tier 1 tries every convention this project has confirmed so far
+  // (`heading-conventions.json`); tier 2, only if tier 1 finds nothing,
+  // looks for a recurring skeleton with a monotonic numeral and can
+  // propose a NEW convention without a human touching this file. This
+  // reader now calls both directly, in order, and — the part that closes
+  // the loop for real — PERSISTS a tier-2 find to the shared library
+  // itself, so the NEXT book with the same shape is a tier-1 hit here
+  // too, the same way it already is for `structure-rec.mjs`'s own CLI.
+  //
+  // Tier 3 (the model witness) is deliberately NOT called here: it only
+  // ever confirms "this looks structural," and confirming that is not
+  // the same as knowing a numeral to build chapter ordinals from — a
+  // reader that can infer WHICH chapter something is in needs the
+  // numeral tier 2 already requires, not just a yes/no. A tier-3-only
+  // verdict, with no numeral, is a real, disclosed case this reader
+  // still cannot open a book from — named here rather than forced.
+  const lib = loadLibrary();
+  let conv = null;
+  const t1 = tier1(raw, lib);
+  if (t1) {
+    conv = t1.conv;
+  } else {
+    const t2 = tier2(raw);
+    if (t2 && t2.monotonic) {
+      const parsed = deriveConvention(t2.group.members[0].text);
+      const consistent = parsed && t2.group.members.every((mem) => {
+        const p = deriveConvention(mem.text);
+        return p && p.word === parsed.word && p.numeralType === parsed.numeralType && p.requiresPeriod === parsed.requiresPeriod && p.titleOnSameLine === parsed.titleOnSameLine;
+      });
+      if (consistent) {
+        conv = { name: `${parsed.word ? parsed.word + " " : ""}<${parsed.numeralType}>${parsed.requiresPeriod ? "." : ""}`, ...parsed };
+        const alreadyKnown = lib.conventions.some((c) => c.word === conv.word && c.numeralType === conv.numeralType && c.requiresPeriod === conv.requiresPeriod && Boolean(c.titleOnSameLine) === Boolean(conv.titleOnSameLine));
+        if (!alreadyKnown) {
+          lib.conventions.push({ ...conv, foundIn: path.basename(sourcePath), foundVia: "mechanical (skeleton recurrence + monotonic numeral), auto-wired from eot-jsonl.mjs", dateFound: new Date().toISOString().slice(0, 10) });
+          saveLibrary(lib);
+        }
+      }
+    }
+  }
+  if (!conv) { console.error("no chapter heading convention could be determined for this document (neither a known convention nor a new one with a usable numeral)"); process.exit(2); }
+
+  const RE = buildRegex(conv);
   let m; const hits = [];
   while ((m = RE.exec(raw))) {
     const candidateEnd = m.index + m[0].length;
     const titleLine = m.groups.titleLine;
-    const hasRealTitle = Boolean(titleLine.trim()) && raw[candidateEnd] === "\n";
-    const convention = m.groups.roman !== undefined ? "CHAPTER <roman>." : m.groups.arabic !== undefined ? "Chapter <arabic>" : "CHAPTER <roman>";
+    // A REAL title line is bounded by blank lines on both sides — the same
+    // typographic convention that makes it a heading rather than running
+    // prose. Not every book has one: The Picture of Dorian Gray's chapters
+    // go straight from "CHAPTER I." to prose with no title line at all, and
+    // without this check the regex swallowed the paragraph's own first
+    // physical line as if it were a title — found by recoverability.mjs
+    // (S101) failing on a SECOND text after Alice in Wonderland passed
+    // clean, because AIW's own convention (a real title on every chapter)
+    // never exercised this branch. Requiring a blank line immediately
+    // after the candidate title distinguishes "Down the
+    // Rabbit-Hole\n\nAlice was..." (real title) from "The studio was
+    // filled...\nsummer wind..." (prose, wrapped across the physical line
+    // the naive regex captured). A `titleOnSameLine` convention (Sherlock
+    // Holmes's "I. A SCANDAL IN BOHEMIA") has no such ambiguity to resolve
+    // — its own regex cannot match at all unless a title is present, so
+    // the match's own end is already the heading's end.
+    const hasRealTitle = conv.titleOnSameLine || (Boolean(titleLine.trim()) && raw[candidateEnd] === "\n");
     hits.push({
-      start: m.index, num: m.groups.roman ?? m.groups.arabic ?? m.groups.romanBare,
-      convention,
+      start: m.index, num: m.groups.numeral,
+      convention: conv.name,
       title: hasRealTitle ? titleLine.trim() : "",
-      headEnd: hasRealTitle ? candidateEnd : m.indices.groups.titleLine[0],
+      headEnd: conv.titleOnSameLine ? candidateEnd : (hasRealTitle ? candidateEnd : m.indices.groups.titleLine[0]),
     });
   }
   for (let i = 0; i < hits.length; i += 1) {

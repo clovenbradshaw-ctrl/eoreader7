@@ -42,6 +42,23 @@ const raw = fs.readFileSync(BOOK, "utf8");
 // period (Tom Sawyer, found via structure-rec.mjs's own sniff) both live
 // here now.
 const HEAD_RE = /^(?:CHAPTER (?<roman>[IVXLC]+)\.|Chapter (?<arabic>\d+)\.?|CHAPTER (?<romanBare>[IVXLC]+))\s*\n(?<titleLine>[^\n]*)\n/gmd;
+// A FOURTH sibling convention — "I. A SCANDAL IN BOHEMIA", numeral and
+// title sharing one line, no marker word at all — found live wiring
+// eot-jsonl.mjs to structure-rec.mjs's own shared detector (S111) and
+// reading the real Sherlock Holmes text for the first time: eot-jsonl.mjs
+// read it correctly (that convention was already in the shared library),
+// but this file's own independent regex had no branch for it at all and
+// came back with zero heads. Kept as a SEPARATE regex, tried only if the
+// first finds nothing, rather than folded into one alternation — the
+// title lives IN the match here, not on a following line, so the
+// "is there a real title" ambiguity the other three branches all share
+// does not apply to this one at all: a match cannot exist without a title.
+// [ \t]+ ONLY, not \s+ — found wrong by running it: \s+ happily spans a
+// blank line, so a BARE "I." heading (Sherlock Holmes carries one of
+// these too, a second, separate marker line before the real prose)
+// greedily matched all the way past the blank line into the next
+// paragraph's own opening sentence as if it were that heading's title.
+const SAME_LINE_HEAD_RE = /^(?<romanSameLine>[IVXLC]+)\.[ \t]+(?<sameLineTitle>\S[^\n]*)\n/gmd;
 const heads = [];
 {
   let m;
@@ -54,6 +71,11 @@ const heads = [];
       headEnd: hasRealTitle ? candidateEnd : m.indices.groups.titleLine[0],
       title: hasRealTitle ? titleLine.trim() : "",
     });
+  }
+  if (!heads.length) {
+    while ((m = SAME_LINE_HEAD_RE.exec(raw))) {
+      heads.push({ start: m.index, headEnd: m.index + m[0].length, title: m.groups.sameLineTitle.trim() });
+    }
   }
 }
 for (let i = 0; i < heads.length; i += 1) heads[i].end = i + 1 < heads.length ? heads[i + 1].start : raw.length;
