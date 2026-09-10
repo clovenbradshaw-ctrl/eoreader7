@@ -57,8 +57,8 @@ import { extractRelations, discoverRelationVocab } from "../../adapters/text/rel
 import { extractSurfaces, scriptCoverageBySentence, accumulateSurfaceEvidence, createSurfaceEvidence, surfacesFromEvidence, discoverReferents } from "../../adapters/text/surfaces.js";
 import { bindNarrationFrames, pronounResolver } from "../../adapters/text/perspective-claims.js";
 import { boundAnchorSpans } from "../../adapters/text/vocabulary.js";
-import { classifyWord, dominantClass } from "../../adapters/text/wordclass.js";
 import * as cube from "../../kernel/cube.js";
+import { makeGrainTyper } from "./grain-typing.mjs";
 import { receivedGround, applyDelta } from "../../kernel/fold.js";
 import { deriveIdentityRevision } from "../../kernel/identity.js";
 import { textIdentityEvidence } from "../../adapters/text/identity-evidence.js";
@@ -138,6 +138,22 @@ const lexicons = (process.argv.find((a) => a.startsWith("--lexicon=")) ?? "")
   .map((p) => JSON.parse(fs.readFileSync(p, "utf8")));
 for (const lx of lexicons) if (!lx.giver) { console.error("a lexicon prior must name its giver"); process.exit(2); }
 
+// THE FIELD-LENS BOOST lives in its own script, eval/lavar/field-lens-
+// boost.mjs, deliberately NOT inline here. A first cut ran it as a step
+// inside this same invocation, after the reread-delta reconciliation above
+// — measured to actually regress a golden score (ch2: 58/274 -> 54/274)
+// the moment it composed with a fresh reread in the SAME pass, for reasons
+// not worth chasing blind: two structural interventions (reread's own
+// contest/dedup reconciliation, and the boost's separate dedup-by-referent)
+// touching the same `lines` array in one invocation is exactly the kind of
+// compound change this project's own measurement discipline refuses to
+// trust without isolating each half. The boost is a pure POST-HOC pass
+// instead — it reads an already-finished ledger, its own .prior.json
+// vocabulary, and the raw source, and only ever APPENDS; it never
+// re-enters this file's own read/reread machinery. Run it after a chapter
+// is otherwise finished being read (or reread), never inside the same
+// invocation as either.
+
 // THE ORIGIN HAS CRLF, AND PRESERVING IT EXACTLY MEANS READING AROUND IT,
 // NEVER REWRITING IT. This book's real bytes use \r\n; the chapter file
 // extracted from it earlier this session had been silently normalised to
@@ -194,13 +210,7 @@ if (!LANG_PRONOUNS[LANG]) { console.error(`no pronoun set declared for --lang=${
 const POS_PRIOR_PATH = path.join(HERE, "../../priors", LANG === "eng" ? "pos-eng.json" : `pos-${LANG}.json`);
 if (!fs.existsSync(POS_PRIOR_PATH)) { console.error(`no POS prior at ${POS_PRIOR_PATH} for --lang=${LANG}`); process.exit(2); }
 const POS_PRIOR = JSON.parse(fs.readFileSync(POS_PRIOR_PATH, "utf8"));
-const thraxOf = (label) => {
-  const head = String(label ?? "").trim().split(/\s+/).pop()?.toLowerCase();
-  if (!head) return null;
-  return dominantClass(classifyWord(head, { posPrior: POS_PRIOR }), { minShare: GRAMMAR_MIN_SHARE })?.thraxClass ?? null;
-};
-
-// GRAIN, NOT ERROR. The correction that produced this function, user's own
+// GRAIN, NOT ERROR. The correction that produced this typing, user's own
 // question: "are we convinced this is wrong? isn't this Ground Figure
 // Pattern?"
 //
@@ -222,58 +232,12 @@ const thraxOf = (label) => {
 // and then counted the discard as cleanliness.
 //
 // So the connector's settled part of speech now TYPES the observation's
-// grain instead of gating its admission. Same evidence, same received prior,
-// same P56 asymmetry (settled is refusable, never confirmable) — but what it
-// refuses is now a GRAIN CLAIM, not the observation itself:
-//
-//   verb / participle  -> CON · Figure   (Link, Binding)   a discrete act
-//   preposition        -> CON · Ground   (Field, Tending)  a state, a co-presence
-//   conjunction        -> SEG · Figure   (Link, Dissecting) a distinction drawn
-//   anything else,
-//   or unsettled       -> grain gap, and the observation is KEPT
-//
-// The last line is the important one. "to" is UD PART, deliberately outside
-// Thrax's eight categories, so it settles as nothing — that is a GRAIN GAP,
-// a typed absence carried on the record, never a reason to drop what was
-// seen. A missing prior produces a gap, never a guessed value.
-const GRAIN_BY_THRAX = Object.freeze({
-  verb: { op: "CON", grain: "Figure" },
-  participle: { op: "CON", grain: "Figure" },
-  preposition: { op: "CON", grain: "Ground" },
-  conjunction: { op: "SEG", grain: "Figure" },
-});
-const grainOf = (label) => {
-  const thrax = thraxOf(label);
-  const spec = thrax ? GRAIN_BY_THRAX[thrax] : null;
-  if (!spec) {
-    // TWO DIFFERENT ANSWERS, and collapsing them is what made the earlier
-    // cut of this file either keep junk or delete real Fields.
-    //
-    // UNSETTLED is not a judgement. The received prior has no verdict (the
-    // infinitive marker "to" is UD PART, deliberately outside Thrax's eight
-    // categories), so neither has this reading: a grain gap, and the
-    // observation is KEPT IN FULL. A missing prior produces a typed gap,
-    // never a guessed grain.
-    //
-    // SETTLED AS A CLASS THAT CANNOT HEAD A RELATION is a judgement, and one
-    // the prior licenses. A noun, adjective, adverb, pronoun or article in
-    // the connector slot is not a relation at a different grain — it is an
-    // extraction artifact (`she | eyes | …`, `she | generally | …`, thrown up
-    // by anchoring on a bound pronoun whose next token is not a predicate).
-    // Refusing it is P56's own asymmetry used exactly as written: settled
-    // means REFUSABLE. This is NOT the mistake S95 corrected — that mistake
-    // was refusing a preposition, which heads a real relation at Ground
-    // grain. The line is whether the class can head a relation at all, never
-    // whether it is a verb.
-    if (thrax) return { refused: true, settledAs: thrax };
-    return {
-      grain_gap: `connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker "to" is PART) — kept, not discarded`,
-      settledAs: null,
-    };
-  }
-  const cell = cube.cellOf(spec.op, spec.grain);
-  return { operator: spec.op, grain: spec.grain, terrain: cell.terrain, stance: cell.stance, settledAs: thrax };
-};
+// grain instead of gating its admission — moved into grain-typing.mjs (a
+// pure module, POS prior passed in rather than read from a fixed --lang
+// path) so a second caller doing a targeted re-read of one candidate
+// sentence (field-lens-boost.mjs) types its own findings with the
+// identical logic, never a second, driftable copy of it.
+const { thraxOf, grainOf } = makeGrainTyper(POS_PRIOR);
 
 const lines = [];
 let seq = 0;
