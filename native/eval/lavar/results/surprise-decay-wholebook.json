@@ -1,0 +1,98 @@
+[
+ {
+  "ch": 1,
+  "totalArrangements": 246,
+  "referentBearingEnds": 29,
+  "novel": 20,
+  "familiar": 9,
+  "novelRate": 0.6896551724137931
+ },
+ {
+  "ch": 2,
+  "totalArrangements": 245,
+  "referentBearingEnds": 23,
+  "novel": 17,
+  "familiar": 6,
+  "novelRate": 0.7391304347826086
+ },
+ {
+  "ch": 3,
+  "totalArrangements": 170,
+  "referentBearingEnds": 11,
+  "novel": 5,
+  "familiar": 6,
+  "novelRate": 0.45454545454545453
+ },
+ {
+  "ch": 4,
+  "totalArrangements": 271,
+  "referentBearingEnds": 28,
+  "novel": 20,
+  "familiar": 8,
+  "novelRate": 0.7142857142857143
+ },
+ {
+  "ch": 5,
+  "totalArrangements": 173,
+  "referentBearingEnds": 30,
+  "novel": 16,
+  "familiar": 14,
+  "novelRate": 0.5333333333333333
+ },
+ {
+  "ch": 6,
+  "totalArrangements": 196,
+  "referentBearingEnds": 27,
+  "novel": 13,
+  "familiar": 14,
+  "novelRate": 0.48148148148148145
+ },
+ {
+  "ch": 7,
+  "totalArrangements": 198,
+  "referentBearingEnds": 25,
+  "novel": 11,
+  "familiar": 14,
+  "novelRate": 0.44
+ },
+ {
+  "ch": 8,
+  "totalArrangements": 236,
+  "referentBearingEnds": 23,
+  "novel": 13,
+  "familiar": 10,
+  "novelRate": 0.5652173913043478
+ },
+ {
+  "ch": 9,
+  "totalArrangements": 194,
+  "referentBearingEnds": 24,
+  "novel": 9,
+  "familiar": 15,
+  "novelRate": 0.375
+ },
+ {
+  "ch": 10,
+  "totalArrangements": 160,
+  "referentBearingEnds": 23,
+  "novel": 10,
+  "familiar": 13,
+  "novelRate": 0.43478260869565216
+ },
+ {
+  "ch": 11,
+  "totalArrangements": 159,
+  "referentBearingEnds": 18,
+  "novel": 12,
+  "familiar": 6,
+  "novelRate": 0.6666666666666666
+ },
+ {
+  "ch": 12,
+  "totalArrangements": 170,
+  "referentBearingEnds": 13,
+  "novel": 8,
+  "familiar": 5,
+  "novelRate": 0.6153846153846154
+ }
+]

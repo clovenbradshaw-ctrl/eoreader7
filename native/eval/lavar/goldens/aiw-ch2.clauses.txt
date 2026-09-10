@@ -1,0 +1,315 @@
+# Hand-rolled golden — Alice in Wonderland, chapter 2, CLAUSE LEVEL.
+# end1 | label | end2 | quote-anchor      ("" end2 = genuinely intransitive)
+# EMPTY | quote-anchor | why              (a sentence a reader draws nothing from)
+
+EMPTY | “Curiouser and curiouser!” | an exclamative comparative — no clause, no ends
+Alice | cried | | cried Alice
+she | was | so much surprised | she was so much surprised
+she | forgot | how to speak good English | she quite forgot how to speak good English
+I | am opening out | like the largest telescope | now I’m opening out
+EMPTY | Good-bye, feet!” | a farewell address — names her feet, asserts nothing of them
+she | looked down | at her feet | when she looked down at her feet
+they | seemed | to be almost out of sight | they seemed to be almost out of sight
+they | were getting | so far off | they were getting so far off
+
+I | wonder | who will put on your shoes and stockings | I wonder who will put on your shoes
+I | shall not be | able | _I_ shan’t be able
+I | shall be | a great deal too far off | I shall be a great deal too far off
+you | must manage | the best way you can | you must manage the best way you can
+I | must be | kind to them | I must be kind to them
+Alice | thought | | thought Alice
+they | won't walk | the way I want to go | they won’t walk the way I want to go
+I | will give | them a new pair of boots every Christmas | I’ll give them a new pair of boots
+she | went on planning | to herself how she would manage it | she went on planning to herself
+They | must go | by the carrier | They must go by the carrier
+she | thought | | she thought
+it | will seem | funny, sending presents to one's own feet | how funny it’ll seem
+the directions | will look | odd | how odd the directions will look
+EMPTY | _Alice’s Right Foot, Esq., Hearthrug, near the Fender,_ (_with Alice’s love_). | an address block imagined on a parcel — a label, not a clause
+I | am talking | what nonsense | what nonsense I’m talking
+
+her head | struck | against the roof of the hall | her head struck against the roof
+she | was | now more than nine feet high | she was now more than nine feet high
+she | took up | the little golden key | she at once took up the little golden key
+she | hurried off | to the garden door | hurried off to the garden door
+EMPTY | Poor Alice! | an exclamation of pity — no clause
+It | was | as much as she could do to look through into the garden | as much as she could do
+she | lying down | on one side | lying down on one side
+to get through | was | more hopeless than ever | to get through was more hopeless
+she | sat down | | she sat down
+she | began | to cry again | began to cry again
+
+You | ought to be | ashamed of yourself | You ought to be ashamed of yourself
+Alice | said | | said Alice
+you | are | a great girl | a great girl like you
+she | might say | this well | she might well say this
+you | go on | crying in this way | to go on crying in this way
+I | tell | you | I tell you
+she | went on | all the same | she went on all the same
+she | shedding | gallons of tears | shedding gallons of tears
+there | was | a large pool all round her | there was a large pool all round her
+the pool | reaching | half down the hall | reaching half down the hall
+
+she | heard | a little pattering of feet in the distance | she heard a little pattering of feet
+she | dried | her eyes | she hastily dried her eyes
+she | see | what was coming | to see what was coming
+It | was | the White Rabbit returning | It was the White Rabbit returning
+the White Rabbit | dressed | splendidly | splendidly dressed
+the White Rabbit | with | a pair of white kid gloves in one hand | with a pair of white kid gloves
+he | came trotting along | in a great hurry | he came trotting along in a great hurry
+he | muttering | to himself | muttering to himself
+EMPTY | the Duchess, the Duchess! | a name called out twice in alarm — vocative, asserts nothing of her
+EMPTY | Oh! | an interjection
+she | be | savage | won’t she be savage
+I | have kept | her waiting | if I’ve kept her waiting
+
+Alice | felt | so desperate | Alice felt so desperate
+she | was | ready to ask help of any one | ready to ask help of any one
+the Rabbit | came near | her | when the Rabbit came near her
+she | began | in a low, timid voice | she began, in a low, timid voice
+The Rabbit | started | violently | The Rabbit started violently
+The Rabbit | dropped | the white kid gloves and the fan | dropped the white kid gloves
+The Rabbit | skurried away | into the darkness | skurried away into the darkness
+
+Alice | took up | the fan and gloves | Alice took up the fan and gloves
+the hall | was | very hot | the hall was very hot
+she | kept fanning | herself | she kept fanning herself
+she | went on | talking | she went on talking
+everything | is | queer to-day | How queer everything is to-day
+things | went on | just as usual | yesterday things went on just as usual
+I | wonder | if I've been changed in the night | I wonder if I’ve been changed
+I | was | the same when I got up this morning | was I the same when I got up
+I | can remember | feeling a little different | I can remember feeling a little different
+I | am not | the same | if I’m not the same
+Who | am | I | Who in the world am I
+that | is | the great puzzle | _that’s_ the great puzzle
+
+she | began | thinking over all the children she knew | she began thinking over all the children
+the children | were | of the same age as herself | of the same age as herself
+she | see | if she could have been changed for any of them | to see if she could have been changed
+I | am not | Ada | I’m sure I’m not Ada
+she | said | | she said
+her hair | goes | in such long ringlets | her hair goes in such long ringlets
+mine | doesn't go | in ringlets at all | mine doesn’t go in ringlets
+I | can't be | Mabel | I can’t be Mabel
+I | know | all sorts of things | I know all sorts of things
+she | knows | such a very little | she knows such a very little
+she | is | she | _she’s_ she
+I | am | I | _I’m_ I
+it | is | puzzling | how puzzling it all is
+
+I | will try | if I know all the things I used to know | I’ll try if I know all the things
+four times five | is | twelve | four times five is twelve
+four times six | is | thirteen | four times six is thirteen
+I | shall never get | to twenty at that rate | I shall never get to twenty
+the Multiplication Table | doesn't signify | | the Multiplication Table doesn’t signify
+London | is | the capital of Paris | London is the capital of Paris
+Paris | is | the capital of Rome | Paris is the capital of Rome
+that | is | all wrong | _that’s_ all wrong
+I | must have been changed | for Mabel | I must have been changed for Mabel
+I | will try | and say How doth the little | I’ll try and say
+
+she | crossed | her hands on her lap | she crossed her hands on her lap
+she | were saying | lessons | as if she were saying lessons
+she | began | to repeat it | began to repeat it
+her voice | sounded | hoarse and strange | her voice sounded hoarse and strange
+the words | did not come | the same as they used to do | the words did not come the same
+the little crocodile | improve | his shining tail | Improve his shining tail
+the little crocodile | pour | the waters of the Nile | pour the waters of the Nile
+he | seems | to grin cheerfully | How cheerfully he seems to grin
+he | spread | his claws neatly | How neatly spread his claws
+he | welcome | little fishes in | welcome little fishes in
+
+those | are not | the right words | those are not the right words
+poor Alice | said | | said poor Alice
+her eyes | filled | with tears again | her eyes filled with tears again
+I | must be | Mabel after all | I must be Mabel after all
+I | shall have to go | and live in that poky little house | go and live in that poky little house
+I | have | next to no toys to play with | next to no toys to play with
+I | have | ever so many lessons to learn | ever so many lessons to learn
+I | have made up | my mind about it | I’ve made up my mind about it
+I | am | Mabel | if I’m Mabel
+I | will stay | down here | I’ll stay down here
+It | will be | no use their putting their heads down | It’ll be no use their putting their heads down
+I | shall look up | | I shall only look up
+I | say | Who am I then | say ‘Who am I then
+you | tell | me that first | Tell me that first
+I | like | being that person | if I like being that person
+I | will come up | | I’ll come up
+I | will stay | down here till I'm somebody else | I’ll stay down here till I’m somebody else
+
+Alice | cried | with a sudden burst of tears | cried Alice, with a sudden burst of tears
+I | wish | they would put their heads down | I do wish they _would_ put their heads down
+I | am | so very tired of being all alone here | so _very_ tired of being all alone here
+
+she | looked down | at her hands | she looked down at her hands
+she | was surprised | to see that she had put on one of the gloves | was surprised to see
+she | had put on | one of the Rabbit's little white kid gloves | she had put on one of the Rabbit’s
+she | was talking | | while she was talking
+I | have done | that | How _can_ I have done that
+she | thought | | she thought
+I | must be growing | small again | I must be growing small again
+
+She | got up | | She got up
+She | went | to the table | went to the table
+She | measure | herself by it | to measure herself by it
+She | found | that she was now about two feet high | found that, as nearly as she could guess
+she | was | now about two feet high | she was now about two feet high
+she | was going on shrinking | rapidly | was going on shrinking rapidly
+she | found out | that the cause of this was the fan | she soon found out that the cause
+the cause of this | was | the fan she was holding | the cause of this was the fan
+she | dropped | it hastily | she dropped it hastily
+she | avoid | shrinking away altogether | to avoid shrinking away altogether
+
+That | was | a narrow escape | That _was_ a narrow escape
+Alice | said | | said Alice
+Alice | frightened | at the sudden change | frightened at the sudden change
+Alice | glad | to find herself still in existence | glad to find herself still in existence
+she | ran | with all speed back to the little door | she ran with all speed back
+the little door | was shut | again | the little door was shut again
+the little golden key | was lying | on the glass table | the little golden key was lying
+things | are | worse than ever | things are worse than ever
+the poor child | thought | | thought the poor child
+I | was | so small as this before | I never was so small as this before
+I | declare | it's too bad | I declare it’s too bad
+
+her foot | slipped | | her foot slipped
+she | was | up to her chin in salt water | she was up to her chin in salt water
+Her first idea | was | that she had somehow fallen into the sea | Her first idea was that she had somehow fallen
+I | can go back | by railway | I can go back by railway
+she | said | to herself | she said to herself
+Alice | had been | to the seaside once in her life | Alice had been to the seaside once
+Alice | had come | to the general conclusion | had come to the general conclusion
+you | find | a number of bathing machines in the sea | you find a number of bathing machines
+some children | digging | in the sand with wooden spades | some children digging in the sand
+she | made out | that she was in the pool of tears | she soon made out that she was in the pool
+she | had wept | the pool | which she had wept
+she | was | nine feet high | when she was nine feet high
+
+I | wish | I hadn't cried so much | I wish I hadn’t cried so much
+Alice | said | | said Alice
+she | swam about | | as she swam about
+she | trying | to find her way out | trying to find her way out
+I | shall be punished | for it now | I shall be punished for it now
+I | being drowned | in my own tears | by being drowned in my own tears
+That | will be | a queer thing | That _will_ be a queer thing
+everything | is | queer to-day | everything is queer to-day
+
+she | heard | something splashing about in the pool | she heard something splashing about
+she | swam nearer | | she swam nearer
+she | make out | what it was | to make out what it was
+she | thought | it must be a walrus or hippopotamus | she thought it must be a walrus
+she | remembered | how small she was now | she remembered how small she was now
+it | was | only a mouse that had slipped in like herself | only a mouse that had slipped in
+
+it | be | of any use | Would it be of any use
+Alice | thought | | thought Alice
+Alice | speak | to this mouse | to speak to this mouse
+Everything | is | so out-of-the-way down here | Everything is so out-of-the-way down here
+it | can talk | | very likely it can talk
+there | is | no harm in trying | there’s no harm in trying
+she | began | | So she began
+you | know | the way out of this pool | do you know the way out of this pool
+I | am | very tired of swimming about here | I am very tired of swimming about here
+
+Alice | thought | this must be the right way of speaking to a mouse | this must be the right way of speaking
+she | had never done | such a thing before | she had never done such a thing before
+she | remembered | having seen in her brother's Latin Grammar | she remembered having seen
+The Mouse | looked at | her rather inquisitively | The Mouse looked at her rather inquisitively
+The Mouse | seemed | to wink with one of its little eyes | seemed to her to wink
+it | said | nothing | but it said nothing
+
+it | doesn't understand | English | Perhaps it doesn’t understand English
+Alice | thought | | thought Alice
+it | is | a French mouse | I daresay it’s a French mouse
+it | come over | with William the Conqueror | come over with William the Conqueror
+Alice | had | no very clear notion how long ago anything had happened | no very clear notion how long ago
+she | began | again | So she began again
+Alice | asked | Où est ma chatte | Où est ma chatte
+which | was | the first sentence in her French lesson-book | the first sentence in her French lesson-book
+
+The Mouse | gave | a sudden leap out of the water | The Mouse gave a sudden leap
+The Mouse | seemed | to quiver all over with fright | seemed to quiver all over with fright
+EMPTY | “Oh, I beg your pardon!” | a formula of apology — idiomatic, not an event
+Alice | cried | hastily | cried Alice hastily
+Alice | afraid | that she had hurt the poor animal's feelings | afraid that she had hurt
+she | had hurt | the poor animal's feelings | hurt the poor animal’s feelings
+I | forgot | you didn't like cats | I quite forgot you didn’t like cats
+you | didn't like | cats | you didn’t like cats
+
+the Mouse | echoes | Not like cats! | “Not like cats!”
+the Mouse | cried | Not like cats! | cried the Mouse, in a shrill, passionate voice
+you | like | cats | Would _you_ like cats
+you | were | me | if you were me
+EMPTY | “Well, perhaps not,” | an elliptical concession — the predicate is gapped, recoverable only from the prior turn
+Alice | said | in a soothing tone | said Alice in a soothing tone
+you | don't be | angry about it | don’t be angry about it
+I | wish | I could show you our cat Dinah | I wish I could show you our cat Dinah
+Dinah | is | our cat | our cat Dinah
+you | would take | a fancy to cats | you’d take a fancy to cats
+you | see | her | if you could only see her
+She | is | such a dear quiet thing | She is such a dear quiet thing
+Alice | went on | half to herself | Alice went on, half to herself
+she | swam | lazily about in the pool | as she swam lazily about in the pool
+she | sits | purring so nicely by the fire | she sits purring so nicely by the fire
+she | licking | her paws | licking her paws
+she | washing | her face | washing her face
+she | is | such a nice soft thing to nurse | such a nice soft thing to nurse
+she | is | such a capital one for catching mice | such a capital one for catching mice
+
+Alice | cried | again | cried Alice again
+the Mouse | was bristling | all over | the Mouse was bristling all over
+she | felt | certain it must be really offended | she felt certain it must be really offended
+We | won't talk | about her any more | We won’t talk about her any more
+EMPTY | “We indeed!” | an indignant echo of one word — no clause
+the Mouse | cried | | cried the Mouse
+the Mouse | was trembling | down to the end of his tail | trembling down to the end of his tail
+I | would talk | on such a subject | As if _I_ would talk on such a subject
+Our family | hated | cats | Our family always _hated_ cats
+you | don't let | me hear the name again | Don’t let me hear the name again
+
+I | won't | indeed | I won’t indeed
+Alice | said | in a great hurry | said Alice, in a great hurry
+Alice | change | the subject of conversation | to change the subject of conversation
+you | are | fond of dogs | are you fond—of—of dogs
+The Mouse | did not answer | | The Mouse did not answer
+Alice | went on | eagerly | Alice went on eagerly
+There | is | such a nice little dog near our house | There is such a nice little dog
+I | should like | to show you | I should like to show you
+the dog | is | a little bright-eyed terrier | A little bright-eyed terrier
+the dog | with | such long curly brown hair | such long curly brown hair
+it | will fetch | things when you throw them | it’ll fetch things when you throw them
+you | throw | them | when you throw them
+it | will sit up | | it’ll sit up
+it | beg | for its dinner | beg for its dinner
+I | can't remember | half of them | I can’t remember half of them
+it | belongs | to a farmer | it belongs to a farmer
+he | says | it's so useful | he says it’s so useful
+it | is | worth a hundred pounds | it’s worth a hundred pounds
+He | says | it kills all the rats | He says it kills all the rats
+it | kills | all the rats | it kills all the rats
+
+Alice | cried | in a sorrowful tone | cried Alice in a sorrowful tone
+I | have offended | it again | I’ve offended it again
+the Mouse | was swimming away | from her as hard as it could go | the Mouse was swimming away
+the Mouse | making | quite a commotion in the pool | making quite a commotion in the pool
+she | called | softly after it | she called softly after it
+EMPTY | “Mouse dear! | a vocative address — names the being, asserts nothing
+you | come back | again | Do come back again
+we | won't talk | about cats or dogs either | we won’t talk about cats or dogs
+
+the Mouse | heard | this | When the Mouse heard this
+it | turned round | | it turned round
+it | swam | slowly back to her | swam slowly back to her
+its face | was | quite pale | its face was quite pale
+it | said | in a low trembling voice | it said in a low trembling voice
+us | get | to the shore | Let us get to the shore
+I | will tell | you my history | I’ll tell you my history
+you | will understand | why it is I hate cats and dogs | you’ll understand why it is I hate
+
+It | was | high time to go | It was high time to go
+the pool | was getting | quite crowded | the pool was getting quite crowded
+the birds and animals | had fallen | into it | that had fallen into it
+there | were | a Duck and a Dodo, a Lory and an Eaglet | there were a Duck and a Dodo
+Alice | led | the way | Alice led the way
+the whole party | swam | to the shore | the whole party swam to the shore

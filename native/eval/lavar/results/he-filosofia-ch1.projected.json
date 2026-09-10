@@ -1,0 +1,5160 @@
+[
+ {
+  "seq": 2,
+  "schema": "EOTObservation@1",
+  "id": "c1",
+  "at": [
+   0,
+   13475
+  ],
+  "role": "chapter",
+  "inferred": true,
+  "basis": "a 'CHAPTER <roman>.' line at line-start followed by running prose (a title line, when the book gives one, is blank-line-bounded like the heading itself) — the table-of-contents copies of the same string are not followed by prose and are not matched",
+  "ordinal": 1,
+  "numeral": "I",
+  "title": "פילוסופיה",
+  "children": [
+   {
+    "seq": 3,
+    "schema": "EOTObservation@1",
+    "id": "h2",
+    "at": [
+     0,
+     21
+    ],
+    "role": "heading",
+    "inferred": true,
+    "basis": "the chapter line and its title line",
+    "ofChapter": 1,
+    "children": []
+   },
+   {
+    "seq": 4,
+    "schema": "EOTObservation@1",
+    "id": "s3",
+    "at": [
+     21,
+     13475
+    ],
+    "role": "section",
+    "inferred": true,
+    "basis": "a run of prose bounded by inferred scene breaks or by the chapter's own edges",
+    "children": [
+     {
+      "seq": 5,
+      "schema": "EOTObservation@1",
+      "id": "p4",
+      "at": [
+       22,
+       920
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "children": [
+       {
+        "seq": 53,
+        "schema": "EOTObservation@1",
+        "id": "s52",
+        "at": [
+         22,
+         119
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 195,
+          "schema": "EOTObservation@1",
+          "id": "e194",
+          "at": [
+           32,
+           38
+          ],
+          "role": "entity",
+          "referent": "ref:auto:school",
+          "surfaces": [
+           "School"
+          ],
+          "occurrences": 1,
+          "operator": "SIG",
+          "grain": "Figure",
+          "terrain": "Entity",
+          "stance": "Binding",
+          "inferred": true,
+          "basis": "name-variant coreference (giver: surfaces/discoverReferents) — the surfaces were clustered by name-variant coreference and this is the being that cluster asserts",
+          "children": [
+           {
+            "seq": 196,
+            "schema": "EOTObservation@1",
+            "id": "d195",
+            "at": [
+             32,
+             38
+            ],
+            "role": "admission",
+            "referent": "ref:auto:school",
+            "operator": "DEF",
+            "grain": "Figure",
+            "terrain": "Lens",
+            "stance": "Dissecting",
+            "basis": "DEF.admit — surfaces/discoverReferents judged these surfaces to name one being; revisable without the text changing",
+            "children": []
+           }
+          ]
+         },
+         {
+          "seq": 231,
+          "schema": "EOTObservation@1",
+          "id": "o230",
+          "at": [
+           42,
+           79
+          ],
+          "role": "proposition",
+          "end1": "The School",
+          "label": "of",
+          "end2": "Athens\" by Raffaello Sanzio da Urbino",
+          "subjectBasis": "stated",
+          "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
+          "settledAs": null,
+          "children": [
+           {
+            "seq": 193,
+            "schema": "EOTObservation@1",
+            "id": "e192",
+            "at": [
+             42,
+             48
+            ],
+            "role": "entity",
+            "referent": "ref:auto:athens",
+            "surfaces": [
+             "Athens"
+            ],
+            "occurrences": 1,
+            "operator": "SIG",
+            "grain": "Figure",
+            "terrain": "Entity",
+            "stance": "Binding",
+            "inferred": true,
+            "basis": "name-variant coreference (giver: surfaces/discoverReferents) — the surfaces were clustered by name-variant coreference and this is the being that cluster asserts",
+            "children": [
+             {
+              "seq": 194,
+              "schema": "EOTObservation@1",
+              "id": "d193",
+              "at": [
+               42,
+               48
+              ],
+              "role": "admission",
+              "referent": "ref:auto:athens",
+              "operator": "DEF",
+              "grain": "Figure",
+              "terrain": "Lens",
+              "stance": "Dissecting",
+              "basis": "DEF.admit — surfaces/discoverReferents judged these surfaces to name one being; revisable without the text changing",
+              "children": []
+             }
+            ]
+           },
+           {
+            "seq": 191,
+            "schema": "EOTObservation@1",
+            "id": "e190",
+            "at": [
+             53,
+             69
+            ],
+            "role": "entity",
+            "referent": "ref:auto:raffaello_sanzio",
+            "surfaces": [
+             "Raffaello Sanzio",
+             "Raffaello"
+            ],
+            "occurrences": 2,
+            "operator": "SIG",
+            "grain": "Figure",
+            "terrain": "Entity",
+            "stance": "Binding",
+            "inferred": true,
+            "basis": "name-variant coreference (giver: surfaces/discoverReferents) — the surfaces were clustered by name-variant coreference and this is the being that cluster asserts",
+            "children": [
+             {
+              "seq": 192,
+              "schema": "EOTObservation@1",
+              "id": "d191",
+              "at": [
+               53,
+               69
+              ],
+              "role": "admission",
+              "referent": "ref:auto:raffaello_sanzio",
+              "operator": "DEF",
+              "grain": "Figure",
+              "terrain": "Lens",
+              "stance": "Dissecting",
+              "basis": "DEF.admit — surfaces/discoverReferents judged these surfaces to name one being; revisable without the text changing",
+              "children": []
+             }
+            ]
+           },
+           {
+            "seq": 232,
+            "schema": "EOTObservation@1",
+            "id": "o231",
+            "at": [
+             73,
+             79
+            ],
+            "role": "proposition",
+            "end1": "The School",
+            "label": "da",
+            "end2": "Urbino",
+            "subjectBasis": "inherited",
+            "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
+            "settledAs": null,
+            "children": []
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "seq": 54,
+        "schema": "EOTObservation@1",
+        "id": "s53",
+        "at": [
+         120,
+         322
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 233,
+          "schema": "EOTAbsence@1",
+          "at": [
+           120,
+           322
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 55,
+        "schema": "EOTObservation@1",
+        "id": "s54",
+        "at": [
+         323,
+         442
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 197,
+          "schema": "EOTObservation@1",
+          "id": "v196",
+          "at": [
+           323,
+           442
+          ],
+          "role": "void",
+          "operator": "SIG",
+          "grain": "Ground",
+          "terrain": "Void",
+          "stance": "Tending",
+          "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
+          "children": [
+           {
+            "seq": 234,
+            "schema": "EOTAbsence@1",
+            "at": [
+             323,
+             442
+            ],
+            "role": "arrangement",
+            "reason": "no_earned_verb_in_this_sentence",
+            "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+            "children": []
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "seq": 56,
+        "schema": "EOTObservation@1",
+        "id": "s55",
+        "at": [
+         443,
+         669
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 189,
+          "schema": "EOTObservation@1",
+          "id": "e188",
+          "at": [
+           616,
+           637
+          ],
+          "role": "entity",
+          "referent": "ref:auto:internet_encyclopedia",
+          "surfaces": [
+           "Internet Encyclopedia",
+           "Internet"
+          ],
+          "occurrences": 2,
+          "operator": "SIG",
+          "grain": "Figure",
+          "terrain": "Entity",
+          "stance": "Binding",
+          "inferred": true,
+          "basis": "name-variant coreference (giver: surfaces/discoverReferents) — the surfaces were clustered by name-variant coreference and this is the being that cluster asserts",
+          "children": [
+           {
+            "seq": 190,
+            "schema": "EOTObservation@1",
+            "id": "d189",
+            "at": [
+             616,
+             637
+            ],
+            "role": "admission",
+            "referent": "ref:auto:internet_encyclopedia",
+            "operator": "DEF",
+            "grain": "Figure",
+            "terrain": "Lens",
+            "stance": "Dissecting",
+            "basis": "DEF.admit — surfaces/discoverReferents judged these surfaces to name one being; revisable without the text changing",
+            "children": []
+           }
+          ]
+         },
+         {
+          "seq": 235,
+          "schema": "EOTObservation@1",
+          "id": "o232",
+          "at": [
+           641,
+           668
+          ],
+          "role": "proposition",
+          "end1": "Internet Encyclopedia",
+          "label": "of",
+          "end2": "Philosophyen-US2025-12-13}}",
+          "subjectBasis": "stated",
+          "end1Ref": "ref:auto:internet_encyclopedia",
+          "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
+          "settledAs": null,
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 57,
+        "schema": "EOTObservation@1",
+        "id": "s56",
+        "at": [
+         670,
+         768
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 198,
+          "schema": "EOTObservation@1",
+          "id": "v197",
+          "at": [
+           670,
+           768
+          ],
+          "role": "void",
+          "operator": "SIG",
+          "grain": "Ground",
+          "terrain": "Void",
+          "stance": "Tending",
+          "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
+          "children": [
+           {
+            "seq": 236,
+            "schema": "EOTAbsence@1",
+            "at": [
+             670,
+             768
+            ],
+            "role": "arrangement",
+            "reason": "no_earned_verb_in_this_sentence",
+            "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+            "children": []
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "seq": 58,
+        "schema": "EOTObservation@1",
+        "id": "s57",
+        "at": [
+         769,
+         920
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 237,
+          "schema": "EOTAbsence@1",
+          "at": [
+           769,
+           920
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 6,
+      "schema": "EOTObservation@1",
+      "id": "p5",
+      "at": [
+       922,
+       1984
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "children": [
+       {
+        "seq": 59,
+        "schema": "EOTObservation@1",
+        "id": "s58",
+        "at": [
+         922,
+         982
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 238,
+          "schema": "EOTAbsence@1",
+          "at": [
+           922,
+           982
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 60,
+        "schema": "EOTObservation@1",
+        "id": "s59",
+        "at": [
+         983,
+         1071
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 239,
+          "schema": "EOTAbsence@1",
+          "at": [
+           983,
+           1071
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 61,
+        "schema": "EOTObservation@1",
+        "id": "s60",
+        "at": [
+         1072,
+         1174
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 199,
+          "schema": "EOTObservation@1",
+          "id": "v198",
+          "at": [
+           1072,
+           1174
+          ],
+          "role": "void",
+          "operator": "SIG",
+          "grain": "Ground",
+          "terrain": "Void",
+          "stance": "Tending",
+          "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
+          "children": [
+           {
+            "seq": 240,
+            "schema": "EOTAbsence@1",
+            "at": [
+             1072,
+             1174
+            ],
+            "role": "arrangement",
+            "reason": "no_earned_verb_in_this_sentence",
+            "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+            "children": []
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "seq": 62,
+        "schema": "EOTObservation@1",
+        "id": "s61",
+        "at": [
+         1175,
+         1310
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 241,
+          "schema": "EOTAbsence@1",
+          "at": [
+           1175,
+           1310
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 63,
+        "schema": "EOTObservation@1",
+        "id": "s62",
+        "at": [
+         1311,
+         1386
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 242,
+          "schema": "EOTAbsence@1",
+          "at": [
+           1311,
+           1386
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 64,
+        "schema": "EOTObservation@1",
+        "id": "s63",
+        "at": [
+         1387,
+         1532
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 243,
+          "schema": "EOTAbsence@1",
+          "at": [
+           1387,
+           1532
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 65,
+        "schema": "EOTObservation@1",
+        "id": "s64",
+        "at": [
+         1533,
+         1591
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 244,
+          "schema": "EOTAbsence@1",
+          "at": [
+           1533,
+           1591
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 66,
+        "schema": "EOTObservation@1",
+        "id": "s65",
+        "at": [
+         1592,
+         1731
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 245,
+          "schema": "EOTAbsence@1",
+          "at": [
+           1592,
+           1731
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 67,
+        "schema": "EOTObservation@1",
+        "id": "s66",
+        "at": [
+         1732,
+         1838
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 246,
+          "schema": "EOTAbsence@1",
+          "at": [
+           1732,
+           1838
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 68,
+        "schema": "EOTObservation@1",
+        "id": "s67",
+        "at": [
+         1839,
+         1882
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 247,
+          "schema": "EOTAbsence@1",
+          "at": [
+           1839,
+           1882
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 69,
+        "schema": "EOTObservation@1",
+        "id": "s68",
+        "at": [
+         1883,
+         1984
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 200,
+          "schema": "EOTObservation@1",
+          "id": "v199",
+          "at": [
+           1883,
+           1984
+          ],
+          "role": "void",
+          "operator": "SIG",
+          "grain": "Ground",
+          "terrain": "Void",
+          "stance": "Tending",
+          "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
+          "children": [
+           {
+            "seq": 248,
+            "schema": "EOTAbsence@1",
+            "at": [
+             1883,
+             1984
+            ],
+            "role": "arrangement",
+            "reason": "no_earned_verb_in_this_sentence",
+            "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+            "children": []
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 7,
+      "schema": "EOTObservation@1",
+      "id": "p6",
+      "at": [
+       1987,
+       2003
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "children": [
+       {
+        "seq": 70,
+        "schema": "EOTObservation@1",
+        "id": "s69",
+        "at": [
+         1987,
+         2003
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 249,
+          "schema": "EOTAbsence@1",
+          "at": [
+           1987,
+           2003
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 8,
+      "schema": "EOTObservation@1",
+      "id": "p7",
+      "at": [
+       2007,
+       2017
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "children": [
+       {
+        "seq": 71,
+        "schema": "EOTObservation@1",
+        "id": "s70",
+        "at": [
+         2007,
+         2017
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 250,
+          "schema": "EOTAbsence@1",
+          "at": [
+           2007,
+           2017
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 9,
+      "schema": "EOTObservation@1",
+      "id": "p8",
+      "at": [
+       2021,
+       2052
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "children": [
+       {
+        "seq": 72,
+        "schema": "EOTObservation@1",
+        "id": "s71",
+        "at": [
+         2021,
+         2052
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 251,
+          "schema": "EOTAbsence@1",
+          "at": [
+           2021,
+           2052
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 10,
+      "schema": "EOTObservation@1",
+      "id": "p9",
+      "at": [
+       2055,
+       2336
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "children": [
+       {
+        "seq": 73,
+        "schema": "EOTObservation@1",
+        "id": "s72",
+        "at": [
+         2055,
+         2156
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 252,
+          "schema": "EOTAbsence@1",
+          "at": [
+           2055,
+           2156
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 74,
+        "schema": "EOTObservation@1",
+        "id": "s73",
+        "at": [
+         2157,
+         2244
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 253,
+          "schema": "EOTAbsence@1",
+          "at": [
+           2157,
+           2244
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 75,
+        "schema": "EOTObservation@1",
+        "id": "s74",
+        "at": [
+         2245,
+         2336
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 254,
+          "schema": "EOTAbsence@1",
+          "at": [
+           2245,
+           2336
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 11,
+      "schema": "EOTObservation@1",
+      "id": "p10",
+      "at": [
+       2339,
+       3131
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "children": [
+       {
+        "seq": 76,
+        "schema": "EOTObservation@1",
+        "id": "s75",
+        "at": [
+         2339,
+         2446
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 255,
+          "schema": "EOTAbsence@1",
+          "at": [
+           2339,
+           2446
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 77,
+        "schema": "EOTObservation@1",
+        "id": "s76",
+        "at": [
+         2447,
+         2582
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 201,
+          "schema": "EOTObservation@1",
+          "id": "v200",
+          "at": [
+           2447,
+           2582
+          ],
+          "role": "void",
+          "operator": "SIG",
+          "grain": "Ground",
+          "terrain": "Void",
+          "stance": "Tending",
+          "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
+          "children": [
+           {
+            "seq": 256,
+            "schema": "EOTAbsence@1",
+            "at": [
+             2447,
+             2582
+            ],
+            "role": "arrangement",
+            "reason": "no_earned_verb_in_this_sentence",
+            "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+            "children": []
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "seq": 78,
+        "schema": "EOTObservation@1",
+        "id": "s77",
+        "at": [
+         2583,
+         2652
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 257,
+          "schema": "EOTAbsence@1",
+          "at": [
+           2583,
+           2652
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 79,
+        "schema": "EOTObservation@1",
+        "id": "s78",
+        "at": [
+         2653,
+         2749
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 202,
+          "schema": "EOTObservation@1",
+          "id": "v201",
+          "at": [
+           2653,
+           2749
+          ],
+          "role": "void",
+          "operator": "SIG",
+          "grain": "Ground",
+          "terrain": "Void",
+          "stance": "Tending",
+          "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
+          "children": [
+           {
+            "seq": 258,
+            "schema": "EOTAbsence@1",
+            "at": [
+             2653,
+             2749
+            ],
+            "role": "arrangement",
+            "reason": "no_earned_verb_in_this_sentence",
+            "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+            "children": []
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "seq": 80,
+        "schema": "EOTObservation@1",
+        "id": "s79",
+        "at": [
+         2750,
+         2852
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 203,
+          "schema": "EOTObservation@1",
+          "id": "v202",
+          "at": [
+           2750,
+           2852
+          ],
+          "role": "void",
+          "operator": "SIG",
+          "grain": "Ground",
+          "terrain": "Void",
+          "stance": "Tending",
+          "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
+          "children": [
+           {
+            "seq": 259,
+            "schema": "EOTAbsence@1",
+            "at": [
+             2750,
+             2852
+            ],
+            "role": "arrangement",
+            "reason": "no_earned_verb_in_this_sentence",
+            "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+            "children": []
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "seq": 81,
+        "schema": "EOTObservation@1",
+        "id": "s80",
+        "at": [
+         2853,
+         2948
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 260,
+          "schema": "EOTAbsence@1",
+          "at": [
+           2853,
+           2948
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 82,
+        "schema": "EOTObservation@1",
+        "id": "s81",
+        "at": [
+         2949,
+         3022
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 204,
+          "schema": "EOTObservation@1",
+          "id": "v203",
+          "at": [
+           2949,
+           3022
+          ],
+          "role": "void",
+          "operator": "SIG",
+          "grain": "Ground",
+          "terrain": "Void",
+          "stance": "Tending",
+          "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
+          "children": [
+           {
+            "seq": 261,
+            "schema": "EOTAbsence@1",
+            "at": [
+             2949,
+             3022
+            ],
+            "role": "arrangement",
+            "reason": "no_earned_verb_in_this_sentence",
+            "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+            "children": []
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "seq": 83,
+        "schema": "EOTObservation@1",
+        "id": "s82",
+        "at": [
+         3023,
+         3131
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 205,
+          "schema": "EOTObservation@1",
+          "id": "v204",
+          "at": [
+           3023,
+           3131
+          ],
+          "role": "void",
+          "operator": "SIG",
+          "grain": "Ground",
+          "terrain": "Void",
+          "stance": "Tending",
+          "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
+          "children": [
+           {
+            "seq": 262,
+            "schema": "EOTAbsence@1",
+            "at": [
+             3023,
+             3131
+            ],
+            "role": "arrangement",
+            "reason": "no_earned_verb_in_this_sentence",
+            "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+            "children": []
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 12,
+      "schema": "EOTObservation@1",
+      "id": "p11",
+      "at": [
+       3134,
+       3144
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "children": [
+       {
+        "seq": 84,
+        "schema": "EOTObservation@1",
+        "id": "s83",
+        "at": [
+         3134,
+         3144
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 263,
+          "schema": "EOTAbsence@1",
+          "at": [
+           3134,
+           3144
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 13,
+      "schema": "EOTObservation@1",
+      "id": "p12",
+      "at": [
+       3148,
+       3162
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "children": [
+       {
+        "seq": 85,
+        "schema": "EOTObservation@1",
+        "id": "s84",
+        "at": [
+         3148,
+         3162
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 264,
+          "schema": "EOTAbsence@1",
+          "at": [
+           3148,
+           3162
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 14,
+      "schema": "EOTObservation@1",
+      "id": "p13",
+      "at": [
+       3166,
+       4534
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "children": [
+       {
+        "seq": 86,
+        "schema": "EOTObservation@1",
+        "id": "s85",
+        "at": [
+         3166,
+         3201
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 265,
+          "schema": "EOTAbsence@1",
+          "at": [
+           3166,
+           3201
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 87,
+        "schema": "EOTObservation@1",
+        "id": "s86",
+        "at": [
+         3202,
+         3346
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 206,
+          "schema": "EOTObservation@1",
+          "id": "v205",
+          "at": [
+           3202,
+           3346
+          ],
+          "role": "void",
+          "operator": "SIG",
+          "grain": "Ground",
+          "terrain": "Void",
+          "stance": "Tending",
+          "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
+          "children": [
+           {
+            "seq": 266,
+            "schema": "EOTAbsence@1",
+            "at": [
+             3202,
+             3346
+            ],
+            "role": "arrangement",
+            "reason": "no_earned_verb_in_this_sentence",
+            "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+            "children": []
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "seq": 88,
+        "schema": "EOTObservation@1",
+        "id": "s87",
+        "at": [
+         3347,
+         3434
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 267,
+          "schema": "EOTAbsence@1",
+          "at": [
+           3347,
+           3434
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 89,
+        "schema": "EOTObservation@1",
+        "id": "s88",
+        "at": [
+         3435,
+         3488
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 207,
+          "schema": "EOTObservation@1",
+          "id": "v206",
+          "at": [
+           3435,
+           3488
+          ],
+          "role": "void",
+          "operator": "SIG",
+          "grain": "Ground",
+          "terrain": "Void",
+          "stance": "Tending",
+          "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
+          "children": [
+           {
+            "seq": 268,
+            "schema": "EOTAbsence@1",
+            "at": [
+             3435,
+             3488
+            ],
+            "role": "arrangement",
+            "reason": "no_earned_verb_in_this_sentence",
+            "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+            "children": []
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "seq": 90,
+        "schema": "EOTObservation@1",
+        "id": "s89",
+        "at": [
+         3489,
+         3494
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 269,
+          "schema": "EOTAbsence@1",
+          "at": [
+           3489,
+           3494
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 91,
+        "schema": "EOTObservation@1",
+        "id": "s90",
+        "at": [
+         3497,
+         3656
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 208,
+          "schema": "EOTObservation@1",
+          "id": "v207",
+          "at": [
+           3497,
+           3656
+          ],
+          "role": "void",
+          "operator": "SIG",
+          "grain": "Ground",
+          "terrain": "Void",
+          "stance": "Tending",
+          "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
+          "children": [
+           {
+            "seq": 270,
+            "schema": "EOTAbsence@1",
+            "at": [
+             3497,
+             3656
+            ],
+            "role": "arrangement",
+            "reason": "no_earned_verb_in_this_sentence",
+            "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+            "children": []
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "seq": 92,
+        "schema": "EOTObservation@1",
+        "id": "s91",
+        "at": [
+         3659,
+         3752
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 271,
+          "schema": "EOTAbsence@1",
+          "at": [
+           3659,
+           3752
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 93,
+        "schema": "EOTObservation@1",
+        "id": "s92",
+        "at": [
+         3755,
+         3903
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 272,
+          "schema": "EOTAbsence@1",
+          "at": [
+           3755,
+           3903
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 94,
+        "schema": "EOTObservation@1",
+        "id": "s93",
+        "at": [
+         3905,
+         3973
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 273,
+          "schema": "EOTAbsence@1",
+          "at": [
+           3905,
+           3973
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 95,
+        "schema": "EOTObservation@1",
+        "id": "s94",
+        "at": [
+         3975,
+         4153
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 274,
+          "schema": "EOTAbsence@1",
+          "at": [
+           3975,
+           4153
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 96,
+        "schema": "EOTObservation@1",
+        "id": "s95",
+        "at": [
+         4155,
+         4275
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 275,
+          "schema": "EOTAbsence@1",
+          "at": [
+           4155,
+           4275
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 97,
+        "schema": "EOTObservation@1",
+        "id": "s96",
+        "at": [
+         4276,
+         4375
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 276,
+          "schema": "EOTAbsence@1",
+          "at": [
+           4276,
+           4375
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 98,
+        "schema": "EOTObservation@1",
+        "id": "s97",
+        "at": [
+         4377,
+         4534
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 209,
+          "schema": "EOTObservation@1",
+          "id": "v208",
+          "at": [
+           4377,
+           4534
+          ],
+          "role": "void",
+          "operator": "SIG",
+          "grain": "Ground",
+          "terrain": "Void",
+          "stance": "Tending",
+          "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
+          "children": [
+           {
+            "seq": 277,
+            "schema": "EOTAbsence@1",
+            "at": [
+             4377,
+             4534
+            ],
+            "role": "arrangement",
+            "reason": "no_earned_verb_in_this_sentence",
+            "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+            "children": []
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 15,
+      "schema": "EOTObservation@1",
+      "id": "p14",
+      "at": [
+       4537,
+       4550
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "children": [
+       {
+        "seq": 99,
+        "schema": "EOTObservation@1",
+        "id": "s98",
+        "at": [
+         4537,
+         4550
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 278,
+          "schema": "EOTAbsence@1",
+          "at": [
+           4537,
+           4550
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 16,
+      "schema": "EOTObservation@1",
+      "id": "p15",
+      "at": [
+       4554,
+       4710
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "children": [
+       {
+        "seq": 100,
+        "schema": "EOTObservation@1",
+        "id": "s99",
+        "at": [
+         4554,
+         4710
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 279,
+          "schema": "EOTAbsence@1",
+          "at": [
+           4554,
+           4710
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 17,
+      "schema": "EOTObservation@1",
+      "id": "p16",
+      "at": [
+       4712,
+       4719
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "children": [
+       {
+        "seq": 101,
+        "schema": "EOTObservation@1",
+        "id": "s100",
+        "at": [
+         4712,
+         4719
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 280,
+          "schema": "EOTAbsence@1",
+          "at": [
+           4712,
+           4719
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 18,
+      "schema": "EOTObservation@1",
+      "id": "p17",
+      "at": [
+       4721,
+       5301
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "children": [
+       {
+        "seq": 102,
+        "schema": "EOTObservation@1",
+        "id": "s101",
+        "at": [
+         4721,
+         4862
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 210,
+          "schema": "EOTObservation@1",
+          "id": "v209",
+          "at": [
+           4721,
+           4862
+          ],
+          "role": "void",
+          "operator": "SIG",
+          "grain": "Ground",
+          "terrain": "Void",
+          "stance": "Tending",
+          "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
+          "children": [
+           {
+            "seq": 281,
+            "schema": "EOTAbsence@1",
+            "at": [
+             4721,
+             4862
+            ],
+            "role": "arrangement",
+            "reason": "no_earned_verb_in_this_sentence",
+            "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+            "children": []
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "seq": 103,
+        "schema": "EOTObservation@1",
+        "id": "s102",
+        "at": [
+         4863,
+         5017
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 211,
+          "schema": "EOTObservation@1",
+          "id": "v210",
+          "at": [
+           4863,
+           5017
+          ],
+          "role": "void",
+          "operator": "SIG",
+          "grain": "Ground",
+          "terrain": "Void",
+          "stance": "Tending",
+          "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
+          "children": [
+           {
+            "seq": 282,
+            "schema": "EOTAbsence@1",
+            "at": [
+             4863,
+             5017
+            ],
+            "role": "arrangement",
+            "reason": "no_earned_verb_in_this_sentence",
+            "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+            "children": []
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "seq": 104,
+        "schema": "EOTObservation@1",
+        "id": "s103",
+        "at": [
+         5018,
+         5130
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 283,
+          "schema": "EOTAbsence@1",
+          "at": [
+           5018,
+           5130
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 105,
+        "schema": "EOTObservation@1",
+        "id": "s104",
+        "at": [
+         5131,
+         5181
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 212,
+          "schema": "EOTObservation@1",
+          "id": "v211",
+          "at": [
+           5131,
+           5181
+          ],
+          "role": "void",
+          "operator": "SIG",
+          "grain": "Ground",
+          "terrain": "Void",
+          "stance": "Tending",
+          "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
+          "children": [
+           {
+            "seq": 284,
+            "schema": "EOTAbsence@1",
+            "at": [
+             5131,
+             5181
+            ],
+            "role": "arrangement",
+            "reason": "no_earned_verb_in_this_sentence",
+            "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+            "children": []
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "seq": 106,
+        "schema": "EOTObservation@1",
+        "id": "s105",
+        "at": [
+         5182,
+         5301
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 285,
+          "schema": "EOTAbsence@1",
+          "at": [
+           5182,
+           5301
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 19,
+      "schema": "EOTObservation@1",
+      "id": "p18",
+      "at": [
+       5304,
+       5311
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "children": [
+       {
+        "seq": 107,
+        "schema": "EOTObservation@1",
+        "id": "s106",
+        "at": [
+         5304,
+         5311
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 286,
+          "schema": "EOTAbsence@1",
+          "at": [
+           5304,
+           5311
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 20,
+      "schema": "EOTObservation@1",
+      "id": "p19",
+      "at": [
+       5314,
+       5348
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "children": [
+       {
+        "seq": 108,
+        "schema": "EOTObservation@1",
+        "id": "s107",
+        "at": [
+         5314,
+         5348
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 287,
+          "schema": "EOTAbsence@1",
+          "at": [
+           5314,
+           5348
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 21,
+      "schema": "EOTObservation@1",
+      "id": "p20",
+      "at": [
+       5351,
+       5390
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "children": [
+       {
+        "seq": 109,
+        "schema": "EOTObservation@1",
+        "id": "s108",
+        "at": [
+         5351,
+         5390
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 288,
+          "schema": "EOTAbsence@1",
+          "at": [
+           5351,
+           5390
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 22,
+      "schema": "EOTObservation@1",
+      "id": "p21",
+      "at": [
+       5393,
+       5804
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "children": [
+       {
+        "seq": 110,
+        "schema": "EOTObservation@1",
+        "id": "s109",
+        "at": [
+         5393,
+         5547
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 289,
+          "schema": "EOTAbsence@1",
+          "at": [
+           5393,
+           5547
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 111,
+        "schema": "EOTObservation@1",
+        "id": "s110",
+        "at": [
+         5548,
+         5732
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 290,
+          "schema": "EOTAbsence@1",
+          "at": [
+           5548,
+           5732
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 112,
+        "schema": "EOTObservation@1",
+        "id": "s111",
+        "at": [
+         5733,
+         5804
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 291,
+          "schema": "EOTAbsence@1",
+          "at": [
+           5733,
+           5804
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 23,
+      "schema": "EOTObservation@1",
+      "id": "p22",
+      "at": [
+       5806,
+       6381
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "children": [
+       {
+        "seq": 113,
+        "schema": "EOTObservation@1",
+        "id": "s112",
+        "at": [
+         5806,
+         5955
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 213,
+          "schema": "EOTObservation@1",
+          "id": "v212",
+          "at": [
+           5806,
+           5955
+          ],
+          "role": "void",
+          "operator": "SIG",
+          "grain": "Ground",
+          "terrain": "Void",
+          "stance": "Tending",
+          "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
+          "children": [
+           {
+            "seq": 292,
+            "schema": "EOTAbsence@1",
+            "at": [
+             5806,
+             5955
+            ],
+            "role": "arrangement",
+            "reason": "no_earned_verb_in_this_sentence",
+            "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+            "children": []
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "seq": 114,
+        "schema": "EOTObservation@1",
+        "id": "s113",
+        "at": [
+         5956,
+         6087
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 293,
+          "schema": "EOTAbsence@1",
+          "at": [
+           5956,
+           6087
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 115,
+        "schema": "EOTObservation@1",
+        "id": "s114",
+        "at": [
+         6088,
+         6294
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 294,
+          "schema": "EOTAbsence@1",
+          "at": [
+           6088,
+           6294
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 116,
+        "schema": "EOTObservation@1",
+        "id": "s115",
+        "at": [
+         6295,
+         6381
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 295,
+          "schema": "EOTAbsence@1",
+          "at": [
+           6295,
+           6381
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 24,
+      "schema": "EOTObservation@1",
+      "id": "p23",
+      "at": [
+       6383,
+       7011
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "children": [
+       {
+        "seq": 117,
+        "schema": "EOTObservation@1",
+        "id": "s116",
+        "at": [
+         6383,
+         6601
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 214,
+          "schema": "EOTObservation@1",
+          "id": "v213",
+          "at": [
+           6383,
+           6601
+          ],
+          "role": "void",
+          "operator": "SIG",
+          "grain": "Ground",
+          "terrain": "Void",
+          "stance": "Tending",
+          "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
+          "children": [
+           {
+            "seq": 296,
+            "schema": "EOTAbsence@1",
+            "at": [
+             6383,
+             6601
+            ],
+            "role": "arrangement",
+            "reason": "no_earned_verb_in_this_sentence",
+            "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+            "children": []
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "seq": 118,
+        "schema": "EOTObservation@1",
+        "id": "s117",
+        "at": [
+         6602,
+         6727
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 215,
+          "schema": "EOTObservation@1",
+          "id": "v214",
+          "at": [
+           6602,
+           6727
+          ],
+          "role": "void",
+          "operator": "SIG",
+          "grain": "Ground",
+          "terrain": "Void",
+          "stance": "Tending",
+          "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
+          "children": [
+           {
+            "seq": 297,
+            "schema": "EOTAbsence@1",
+            "at": [
+             6602,
+             6727
+            ],
+            "role": "arrangement",
+            "reason": "no_earned_verb_in_this_sentence",
+            "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+            "children": []
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "seq": 119,
+        "schema": "EOTObservation@1",
+        "id": "s118",
+        "at": [
+         6728,
+         6810
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 216,
+          "schema": "EOTObservation@1",
+          "id": "v215",
+          "at": [
+           6728,
+           6810
+          ],
+          "role": "void",
+          "operator": "SIG",
+          "grain": "Ground",
+          "terrain": "Void",
+          "stance": "Tending",
+          "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
+          "children": [
+           {
+            "seq": 298,
+            "schema": "EOTAbsence@1",
+            "at": [
+             6728,
+             6810
+            ],
+            "role": "arrangement",
+            "reason": "no_earned_verb_in_this_sentence",
+            "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+            "children": []
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "seq": 120,
+        "schema": "EOTObservation@1",
+        "id": "s119",
+        "at": [
+         6811,
+         6920
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 217,
+          "schema": "EOTObservation@1",
+          "id": "v216",
+          "at": [
+           6811,
+           6920
+          ],
+          "role": "void",
+          "operator": "SIG",
+          "grain": "Ground",
+          "terrain": "Void",
+          "stance": "Tending",
+          "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
+          "children": [
+           {
+            "seq": 299,
+            "schema": "EOTAbsence@1",
+            "at": [
+             6811,
+             6920
+            ],
+            "role": "arrangement",
+            "reason": "no_earned_verb_in_this_sentence",
+            "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+            "children": []
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "seq": 121,
+        "schema": "EOTObservation@1",
+        "id": "s120",
+        "at": [
+         6921,
+         7011
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 300,
+          "schema": "EOTAbsence@1",
+          "at": [
+           6921,
+           7011
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 25,
+      "schema": "EOTObservation@1",
+      "id": "p24",
+      "at": [
+       7013,
+       7654
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "children": [
+       {
+        "seq": 122,
+        "schema": "EOTObservation@1",
+        "id": "s121",
+        "at": [
+         7013,
+         7193
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 218,
+          "schema": "EOTObservation@1",
+          "id": "v217",
+          "at": [
+           7013,
+           7193
+          ],
+          "role": "void",
+          "operator": "SIG",
+          "grain": "Ground",
+          "terrain": "Void",
+          "stance": "Tending",
+          "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
+          "children": [
+           {
+            "seq": 301,
+            "schema": "EOTAbsence@1",
+            "at": [
+             7013,
+             7193
+            ],
+            "role": "arrangement",
+            "reason": "no_earned_verb_in_this_sentence",
+            "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+            "children": []
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "seq": 123,
+        "schema": "EOTObservation@1",
+        "id": "s122",
+        "at": [
+         7194,
+         7287
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 219,
+          "schema": "EOTObservation@1",
+          "id": "v218",
+          "at": [
+           7194,
+           7287
+          ],
+          "role": "void",
+          "operator": "SIG",
+          "grain": "Ground",
+          "terrain": "Void",
+          "stance": "Tending",
+          "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
+          "children": [
+           {
+            "seq": 302,
+            "schema": "EOTAbsence@1",
+            "at": [
+             7194,
+             7287
+            ],
+            "role": "arrangement",
+            "reason": "no_earned_verb_in_this_sentence",
+            "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+            "children": []
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "seq": 124,
+        "schema": "EOTObservation@1",
+        "id": "s123",
+        "at": [
+         7288,
+         7437
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 220,
+          "schema": "EOTObservation@1",
+          "id": "v219",
+          "at": [
+           7288,
+           7437
+          ],
+          "role": "void",
+          "operator": "SIG",
+          "grain": "Ground",
+          "terrain": "Void",
+          "stance": "Tending",
+          "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
+          "children": [
+           {
+            "seq": 303,
+            "schema": "EOTAbsence@1",
+            "at": [
+             7288,
+             7437
+            ],
+            "role": "arrangement",
+            "reason": "no_earned_verb_in_this_sentence",
+            "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+            "children": []
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "seq": 125,
+        "schema": "EOTObservation@1",
+        "id": "s124",
+        "at": [
+         7438,
+         7524
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 304,
+          "schema": "EOTAbsence@1",
+          "at": [
+           7438,
+           7524
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 126,
+        "schema": "EOTObservation@1",
+        "id": "s125",
+        "at": [
+         7525,
+         7654
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 305,
+          "schema": "EOTAbsence@1",
+          "at": [
+           7525,
+           7654
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 26,
+      "schema": "EOTObservation@1",
+      "id": "p25",
+      "at": [
+       7657,
+       7673
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "children": [
+       {
+        "seq": 127,
+        "schema": "EOTObservation@1",
+        "id": "s126",
+        "at": [
+         7657,
+         7673
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 306,
+          "schema": "EOTAbsence@1",
+          "at": [
+           7657,
+           7673
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 27,
+      "schema": "EOTObservation@1",
+      "id": "p26",
+      "at": [
+       7677,
+       7694
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "children": [
+       {
+        "seq": 128,
+        "schema": "EOTObservation@1",
+        "id": "s127",
+        "at": [
+         7677,
+         7694
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 307,
+          "schema": "EOTAbsence@1",
+          "at": [
+           7677,
+           7694
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 28,
+      "schema": "EOTObservation@1",
+      "id": "p27",
+      "at": [
+       7697,
+       8598
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "children": [
+       {
+        "seq": 129,
+        "schema": "EOTObservation@1",
+        "id": "s128",
+        "at": [
+         7697,
+         7824
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 308,
+          "schema": "EOTAbsence@1",
+          "at": [
+           7697,
+           7824
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 130,
+        "schema": "EOTObservation@1",
+        "id": "s129",
+        "at": [
+         7825,
+         7937
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 309,
+          "schema": "EOTAbsence@1",
+          "at": [
+           7825,
+           7937
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 131,
+        "schema": "EOTObservation@1",
+        "id": "s130",
+        "at": [
+         7938,
+         8029
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 310,
+          "schema": "EOTAbsence@1",
+          "at": [
+           7938,
+           8029
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 132,
+        "schema": "EOTObservation@1",
+        "id": "s131",
+        "at": [
+         8030,
+         8144
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 221,
+          "schema": "EOTObservation@1",
+          "id": "v220",
+          "at": [
+           8030,
+           8144
+          ],
+          "role": "void",
+          "operator": "SIG",
+          "grain": "Ground",
+          "terrain": "Void",
+          "stance": "Tending",
+          "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
+          "children": [
+           {
+            "seq": 311,
+            "schema": "EOTAbsence@1",
+            "at": [
+             8030,
+             8144
+            ],
+            "role": "arrangement",
+            "reason": "no_earned_verb_in_this_sentence",
+            "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+            "children": []
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "seq": 133,
+        "schema": "EOTObservation@1",
+        "id": "s132",
+        "at": [
+         8145,
+         8221
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 222,
+          "schema": "EOTObservation@1",
+          "id": "v221",
+          "at": [
+           8145,
+           8221
+          ],
+          "role": "void",
+          "operator": "SIG",
+          "grain": "Ground",
+          "terrain": "Void",
+          "stance": "Tending",
+          "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
+          "children": [
+           {
+            "seq": 312,
+            "schema": "EOTAbsence@1",
+            "at": [
+             8145,
+             8221
+            ],
+            "role": "arrangement",
+            "reason": "no_earned_verb_in_this_sentence",
+            "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+            "children": []
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "seq": 134,
+        "schema": "EOTObservation@1",
+        "id": "s133",
+        "at": [
+         8222,
+         8365
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 313,
+          "schema": "EOTAbsence@1",
+          "at": [
+           8222,
+           8365
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 135,
+        "schema": "EOTObservation@1",
+        "id": "s134",
+        "at": [
+         8366,
+         8552
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 314,
+          "schema": "EOTAbsence@1",
+          "at": [
+           8366,
+           8552
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 136,
+        "schema": "EOTObservation@1",
+        "id": "s135",
+        "at": [
+         8553,
+         8598
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 315,
+          "schema": "EOTAbsence@1",
+          "at": [
+           8553,
+           8598
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 29,
+      "schema": "EOTObservation@1",
+      "id": "p28",
+      "at": [
+       8601,
+       8617
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "children": [
+       {
+        "seq": 137,
+        "schema": "EOTObservation@1",
+        "id": "s136",
+        "at": [
+         8601,
+         8617
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 316,
+          "schema": "EOTAbsence@1",
+          "at": [
+           8601,
+           8617
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 30,
+      "schema": "EOTObservation@1",
+      "id": "p29",
+      "at": [
+       8620,
+       9238
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "children": [
+       {
+        "seq": 138,
+        "schema": "EOTObservation@1",
+        "id": "s137",
+        "at": [
+         8620,
+         8710
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 223,
+          "schema": "EOTObservation@1",
+          "id": "v222",
+          "at": [
+           8620,
+           8710
+          ],
+          "role": "void",
+          "operator": "SIG",
+          "grain": "Ground",
+          "terrain": "Void",
+          "stance": "Tending",
+          "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
+          "children": [
+           {
+            "seq": 317,
+            "schema": "EOTAbsence@1",
+            "at": [
+             8620,
+             8710
+            ],
+            "role": "arrangement",
+            "reason": "no_earned_verb_in_this_sentence",
+            "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+            "children": []
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "seq": 139,
+        "schema": "EOTObservation@1",
+        "id": "s138",
+        "at": [
+         8711,
+         8797
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 318,
+          "schema": "EOTAbsence@1",
+          "at": [
+           8711,
+           8797
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 140,
+        "schema": "EOTObservation@1",
+        "id": "s139",
+        "at": [
+         8798,
+         8973
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 319,
+          "schema": "EOTAbsence@1",
+          "at": [
+           8798,
+           8973
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 141,
+        "schema": "EOTObservation@1",
+        "id": "s140",
+        "at": [
+         8974,
+         9036
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 320,
+          "schema": "EOTAbsence@1",
+          "at": [
+           8974,
+           9036
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 142,
+        "schema": "EOTObservation@1",
+        "id": "s141",
+        "at": [
+         9037,
+         9147
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 321,
+          "schema": "EOTAbsence@1",
+          "at": [
+           9037,
+           9147
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 143,
+        "schema": "EOTObservation@1",
+        "id": "s142",
+        "at": [
+         9148,
+         9238
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 322,
+          "schema": "EOTAbsence@1",
+          "at": [
+           9148,
+           9238
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 31,
+      "schema": "EOTObservation@1",
+      "id": "p30",
+      "at": [
+       9241,
+       9257
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "children": [
+       {
+        "seq": 144,
+        "schema": "EOTObservation@1",
+        "id": "s143",
+        "at": [
+         9241,
+         9257
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 323,
+          "schema": "EOTAbsence@1",
+          "at": [
+           9241,
+           9257
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 32,
+      "schema": "EOTObservation@1",
+      "id": "p31",
+      "at": [
+       9260,
+       9665
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "children": [
+       {
+        "seq": 145,
+        "schema": "EOTObservation@1",
+        "id": "s144",
+        "at": [
+         9260,
+         9450
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 224,
+          "schema": "EOTObservation@1",
+          "id": "v223",
+          "at": [
+           9260,
+           9450
+          ],
+          "role": "void",
+          "operator": "SIG",
+          "grain": "Ground",
+          "terrain": "Void",
+          "stance": "Tending",
+          "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
+          "children": [
+           {
+            "seq": 324,
+            "schema": "EOTAbsence@1",
+            "at": [
+             9260,
+             9450
+            ],
+            "role": "arrangement",
+            "reason": "no_earned_verb_in_this_sentence",
+            "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+            "children": []
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "seq": 146,
+        "schema": "EOTObservation@1",
+        "id": "s145",
+        "at": [
+         9451,
+         9665
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 225,
+          "schema": "EOTObservation@1",
+          "id": "v224",
+          "at": [
+           9451,
+           9665
+          ],
+          "role": "void",
+          "operator": "SIG",
+          "grain": "Ground",
+          "terrain": "Void",
+          "stance": "Tending",
+          "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
+          "children": [
+           {
+            "seq": 325,
+            "schema": "EOTAbsence@1",
+            "at": [
+             9451,
+             9665
+            ],
+            "role": "arrangement",
+            "reason": "no_earned_verb_in_this_sentence",
+            "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+            "children": []
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 33,
+      "schema": "EOTObservation@1",
+      "id": "p32",
+      "at": [
+       9668,
+       9690
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "children": [
+       {
+        "seq": 147,
+        "schema": "EOTObservation@1",
+        "id": "s146",
+        "at": [
+         9668,
+         9690
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 326,
+          "schema": "EOTAbsence@1",
+          "at": [
+           9668,
+           9690
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 34,
+      "schema": "EOTObservation@1",
+      "id": "p33",
+      "at": [
+       9693,
+       10455
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "children": [
+       {
+        "seq": 148,
+        "schema": "EOTObservation@1",
+        "id": "s147",
+        "at": [
+         9693,
+         9765
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 327,
+          "schema": "EOTAbsence@1",
+          "at": [
+           9693,
+           9765
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 149,
+        "schema": "EOTObservation@1",
+        "id": "s148",
+        "at": [
+         9766,
+         9808
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 328,
+          "schema": "EOTAbsence@1",
+          "at": [
+           9766,
+           9808
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 150,
+        "schema": "EOTObservation@1",
+        "id": "s149",
+        "at": [
+         9809,
+         9878
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 329,
+          "schema": "EOTAbsence@1",
+          "at": [
+           9809,
+           9878
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 151,
+        "schema": "EOTObservation@1",
+        "id": "s150",
+        "at": [
+         9879,
+         9986
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 226,
+          "schema": "EOTObservation@1",
+          "id": "v225",
+          "at": [
+           9879,
+           9986
+          ],
+          "role": "void",
+          "operator": "SIG",
+          "grain": "Ground",
+          "terrain": "Void",
+          "stance": "Tending",
+          "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
+          "children": [
+           {
+            "seq": 330,
+            "schema": "EOTAbsence@1",
+            "at": [
+             9879,
+             9986
+            ],
+            "role": "arrangement",
+            "reason": "no_earned_verb_in_this_sentence",
+            "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+            "children": []
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "seq": 152,
+        "schema": "EOTObservation@1",
+        "id": "s151",
+        "at": [
+         9987,
+         10085
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 227,
+          "schema": "EOTObservation@1",
+          "id": "v226",
+          "at": [
+           9987,
+           10085
+          ],
+          "role": "void",
+          "operator": "SIG",
+          "grain": "Ground",
+          "terrain": "Void",
+          "stance": "Tending",
+          "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
+          "children": [
+           {
+            "seq": 331,
+            "schema": "EOTAbsence@1",
+            "at": [
+             9987,
+             10085
+            ],
+            "role": "arrangement",
+            "reason": "no_earned_verb_in_this_sentence",
+            "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+            "children": []
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "seq": 153,
+        "schema": "EOTObservation@1",
+        "id": "s152",
+        "at": [
+         10086,
+         10196
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 228,
+          "schema": "EOTObservation@1",
+          "id": "v227",
+          "at": [
+           10086,
+           10196
+          ],
+          "role": "void",
+          "operator": "SIG",
+          "grain": "Ground",
+          "terrain": "Void",
+          "stance": "Tending",
+          "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
+          "children": [
+           {
+            "seq": 332,
+            "schema": "EOTAbsence@1",
+            "at": [
+             10086,
+             10196
+            ],
+            "role": "arrangement",
+            "reason": "no_earned_verb_in_this_sentence",
+            "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+            "children": []
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "seq": 154,
+        "schema": "EOTObservation@1",
+        "id": "s153",
+        "at": [
+         10197,
+         10356
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 333,
+          "schema": "EOTAbsence@1",
+          "at": [
+           10197,
+           10356
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 155,
+        "schema": "EOTObservation@1",
+        "id": "s154",
+        "at": [
+         10357,
+         10455
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 334,
+          "schema": "EOTAbsence@1",
+          "at": [
+           10357,
+           10455
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 35,
+      "schema": "EOTObservation@1",
+      "id": "p34",
+      "at": [
+       10458,
+       10472
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "children": [
+       {
+        "seq": 156,
+        "schema": "EOTObservation@1",
+        "id": "s155",
+        "at": [
+         10458,
+         10472
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 335,
+          "schema": "EOTAbsence@1",
+          "at": [
+           10458,
+           10472
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 36,
+      "schema": "EOTObservation@1",
+      "id": "p35",
+      "at": [
+       10475,
+       11209
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "children": [
+       {
+        "seq": 157,
+        "schema": "EOTObservation@1",
+        "id": "s156",
+        "at": [
+         10475,
+         10565
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 336,
+          "schema": "EOTAbsence@1",
+          "at": [
+           10475,
+           10565
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 158,
+        "schema": "EOTObservation@1",
+        "id": "s157",
+        "at": [
+         10566,
+         10633
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 337,
+          "schema": "EOTAbsence@1",
+          "at": [
+           10566,
+           10633
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 159,
+        "schema": "EOTObservation@1",
+        "id": "s158",
+        "at": [
+         10634,
+         10829
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 338,
+          "schema": "EOTAbsence@1",
+          "at": [
+           10634,
+           10829
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 160,
+        "schema": "EOTObservation@1",
+        "id": "s159",
+        "at": [
+         10830,
+         11209
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 229,
+          "schema": "EOTObservation@1",
+          "id": "v228",
+          "at": [
+           10830,
+           11209
+          ],
+          "role": "void",
+          "operator": "SIG",
+          "grain": "Ground",
+          "terrain": "Void",
+          "stance": "Tending",
+          "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
+          "children": [
+           {
+            "seq": 339,
+            "schema": "EOTAbsence@1",
+            "at": [
+             10830,
+             11209
+            ],
+            "role": "arrangement",
+            "reason": "no_earned_verb_in_this_sentence",
+            "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+            "children": []
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 37,
+      "schema": "EOTObservation@1",
+      "id": "p36",
+      "at": [
+       11211,
+       11365
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "children": [
+       {
+        "seq": 161,
+        "schema": "EOTObservation@1",
+        "id": "s160",
+        "at": [
+         11211,
+         11365
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 230,
+          "schema": "EOTObservation@1",
+          "id": "v229",
+          "at": [
+           11211,
+           11365
+          ],
+          "role": "void",
+          "operator": "SIG",
+          "grain": "Ground",
+          "terrain": "Void",
+          "stance": "Tending",
+          "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
+          "children": [
+           {
+            "seq": 340,
+            "schema": "EOTAbsence@1",
+            "at": [
+             11211,
+             11365
+            ],
+            "role": "arrangement",
+            "reason": "no_earned_verb_in_this_sentence",
+            "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+            "children": []
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 38,
+      "schema": "EOTObservation@1",
+      "id": "p37",
+      "at": [
+       11367,
+       11373
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "children": [
+       {
+        "seq": 162,
+        "schema": "EOTObservation@1",
+        "id": "s161",
+        "at": [
+         11367,
+         11373
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 341,
+          "schema": "EOTAbsence@1",
+          "at": [
+           11367,
+           11373
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 39,
+      "schema": "EOTObservation@1",
+      "id": "p38",
+      "at": [
+       11375,
+       11393
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "children": [
+       {
+        "seq": 163,
+        "schema": "EOTObservation@1",
+        "id": "s162",
+        "at": [
+         11375,
+         11393
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 342,
+          "schema": "EOTAbsence@1",
+          "at": [
+           11375,
+           11393
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 40,
+      "schema": "EOTObservation@1",
+      "id": "p39",
+      "at": [
+       11396,
+       11430
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "children": [
+       {
+        "seq": 164,
+        "schema": "EOTObservation@1",
+        "id": "s163",
+        "at": [
+         11396,
+         11430
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 343,
+          "schema": "EOTAbsence@1",
+          "at": [
+           11396,
+           11430
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 41,
+      "schema": "EOTObservation@1",
+      "id": "p40",
+      "at": [
+       11433,
+       11538
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "children": [
+       {
+        "seq": 165,
+        "schema": "EOTObservation@1",
+        "id": "s164",
+        "at": [
+         11433,
+         11538
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 344,
+          "schema": "EOTAbsence@1",
+          "at": [
+           11433,
+           11538
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 42,
+      "schema": "EOTObservation@1",
+      "id": "p41",
+      "at": [
+       11541,
+       11558
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "children": [
+       {
+        "seq": 166,
+        "schema": "EOTObservation@1",
+        "id": "s165",
+        "at": [
+         11541,
+         11558
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 345,
+          "schema": "EOTAbsence@1",
+          "at": [
+           11541,
+           11558
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 43,
+      "schema": "EOTObservation@1",
+      "id": "p42",
+      "at": [
+       11561,
+       11589
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "children": [
+       {
+        "seq": 167,
+        "schema": "EOTObservation@1",
+        "id": "s166",
+        "at": [
+         11561,
+         11589
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 346,
+          "schema": "EOTAbsence@1",
+          "at": [
+           11561,
+           11589
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 44,
+      "schema": "EOTObservation@1",
+      "id": "p43",
+      "at": [
+       11591,
+       11603
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "children": [
+       {
+        "seq": 168,
+        "schema": "EOTObservation@1",
+        "id": "s167",
+        "at": [
+         11591,
+         11603
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 347,
+          "schema": "EOTAbsence@1",
+          "at": [
+           11591,
+           11603
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 45,
+      "schema": "EOTObservation@1",
+      "id": "p44",
+      "at": [
+       11606,
+       12427
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "children": [
+       {
+        "seq": 169,
+        "schema": "EOTObservation@1",
+        "id": "s168",
+        "at": [
+         11606,
+         11648
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 348,
+          "schema": "EOTAbsence@1",
+          "at": [
+           11606,
+           11648
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 170,
+        "schema": "EOTObservation@1",
+        "id": "s169",
+        "at": [
+         11649,
+         11652
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 349,
+          "schema": "EOTAbsence@1",
+          "at": [
+           11649,
+           11652
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 171,
+        "schema": "EOTObservation@1",
+        "id": "s170",
+        "at": [
+         11653,
+         11685
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 350,
+          "schema": "EOTAbsence@1",
+          "at": [
+           11653,
+           11685
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 172,
+        "schema": "EOTObservation@1",
+        "id": "s171",
+        "at": [
+         11686,
+         11688
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 351,
+          "schema": "EOTAbsence@1",
+          "at": [
+           11686,
+           11688
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 173,
+        "schema": "EOTObservation@1",
+        "id": "s172",
+        "at": [
+         11689,
+         11710
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 352,
+          "schema": "EOTAbsence@1",
+          "at": [
+           11689,
+           11710
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 174,
+        "schema": "EOTObservation@1",
+        "id": "s173",
+        "at": [
+         11711,
+         11724
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 353,
+          "schema": "EOTAbsence@1",
+          "at": [
+           11711,
+           11724
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 175,
+        "schema": "EOTObservation@1",
+        "id": "s174",
+        "at": [
+         11726,
+         11804
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 354,
+          "schema": "EOTAbsence@1",
+          "at": [
+           11726,
+           11804
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 176,
+        "schema": "EOTObservation@1",
+        "id": "s175",
+        "at": [
+         11806,
+         11914
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 355,
+          "schema": "EOTAbsence@1",
+          "at": [
+           11806,
+           11914
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 177,
+        "schema": "EOTObservation@1",
+        "id": "s176",
+        "at": [
+         11916,
+         12014
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 356,
+          "schema": "EOTAbsence@1",
+          "at": [
+           11916,
+           12014
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 178,
+        "schema": "EOTObservation@1",
+        "id": "s177",
+        "at": [
+         12016,
+         12092
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 357,
+          "schema": "EOTAbsence@1",
+          "at": [
+           12016,
+           12092
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 179,
+        "schema": "EOTObservation@1",
+        "id": "s178",
+        "at": [
+         12094,
+         12163
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 358,
+          "schema": "EOTAbsence@1",
+          "at": [
+           12094,
+           12163
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 180,
+        "schema": "EOTObservation@1",
+        "id": "s179",
+        "at": [
+         12165,
+         12355
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 359,
+          "schema": "EOTAbsence@1",
+          "at": [
+           12165,
+           12355
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 181,
+        "schema": "EOTObservation@1",
+        "id": "s180",
+        "at": [
+         12357,
+         12427
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 360,
+          "schema": "EOTAbsence@1",
+          "at": [
+           12357,
+           12427
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 46,
+      "schema": "EOTObservation@1",
+      "id": "p45",
+      "at": [
+       12429,
+       12445
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "children": [
+       {
+        "seq": 182,
+        "schema": "EOTObservation@1",
+        "id": "s181",
+        "at": [
+         12429,
+         12445
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 361,
+          "schema": "EOTAbsence@1",
+          "at": [
+           12429,
+           12445
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 47,
+      "schema": "EOTObservation@1",
+      "id": "p46",
+      "at": [
+       12447,
+       12840
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "children": [
+       {
+        "seq": 183,
+        "schema": "EOTObservation@1",
+        "id": "s182",
+        "at": [
+         12447,
+         12840
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 362,
+          "schema": "EOTAbsence@1",
+          "at": [
+           12447,
+           12840
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 48,
+      "schema": "EOTObservation@1",
+      "id": "p47",
+      "at": [
+       12844,
+       13008
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "children": [
+       {
+        "seq": 184,
+        "schema": "EOTObservation@1",
+        "id": "s183",
+        "at": [
+         12844,
+         13008
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 363,
+          "schema": "EOTAbsence@1",
+          "at": [
+           12844,
+           13008
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 49,
+      "schema": "EOTObservation@1",
+      "id": "p48",
+      "at": [
+       13012,
+       13349
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "children": [
+       {
+        "seq": 185,
+        "schema": "EOTObservation@1",
+        "id": "s184",
+        "at": [
+         13012,
+         13349
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 364,
+          "schema": "EOTAbsence@1",
+          "at": [
+           13012,
+           13349
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 50,
+      "schema": "EOTObservation@1",
+      "id": "p49",
+      "at": [
+       13353,
+       13437
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "children": [
+       {
+        "seq": 186,
+        "schema": "EOTObservation@1",
+        "id": "s185",
+        "at": [
+         13353,
+         13437
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 365,
+          "schema": "EOTAbsence@1",
+          "at": [
+           13353,
+           13437
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 51,
+      "schema": "EOTObservation@1",
+      "id": "p50",
+      "at": [
+       13444,
+       13456
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "children": [
+       {
+        "seq": 187,
+        "schema": "EOTObservation@1",
+        "id": "s186",
+        "at": [
+         13444,
+         13456
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 366,
+          "schema": "EOTAbsence@1",
+          "at": [
+           13444,
+           13456
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 52,
+      "schema": "EOTObservation@1",
+      "id": "p51",
+      "at": [
+       13458,
+       13475
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "children": [
+       {
+        "seq": 188,
+        "schema": "EOTObservation@1",
+        "id": "s187",
+        "at": [
+         13458,
+         13475
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "caseless",
+        "children": [
+         {
+          "seq": 367,
+          "schema": "EOTAbsence@1",
+          "at": [
+           13458,
+           13475
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 2 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ }
+]

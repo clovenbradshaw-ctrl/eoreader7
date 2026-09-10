@@ -4672,7 +4672,10 @@ TERRAIN_BY_DOMAIN.Structure = { Ground: "Field", Figure: "Link", Pattern: "Netwo
 | verb, participle | `CON · Figure` | Link · Binding | a discrete act binding two ends |
 | preposition | `CON · Ground` | Field · Tending | a state, a manner, a co-presence |
 | conjunction | `SEG · Figure` | Link · Dissecting | a distinction drawn, not a relation asserted — a different MODE, never a weaker CON |
-| anything else, or unsettled | — | — | **`grain_gap`, and the observation is KEPT IN FULL** |
+| noun, adjective, adverb, pronoun, article | — | — | **REFUSED**, and the refusal is a line — see the amendment below |
+| unsettled | — | — | **`grain_gap`, and the observation is KEPT IN FULL** |
+
+**Amended same day (S96's own measurement forced it).** The last row above was originally "anything else, *or* unsettled → grain gap, kept", and collapsing those two answers is wrong in both directions. **Unsettled is not a judgement**: the received prior has no verdict (the infinitive marker "to" is UD `PART`, deliberately outside Thrax's eight categories), so neither has the reading — a typed gap, observation kept. **Settled as a class that cannot head a relation IS a judgement, and the prior licenses it**: a noun, adjective, adverb or pronoun in the connector slot is not a relation at some other grain, it is an extraction artifact (`she | eyes | …`, `she | generally | …`, thrown up by anchoring on a bound pronoun whose next token is not a predicate). Refusing it is P56's asymmetry used exactly as written — settled means refusable — and it is **not** the mistake this entry corrects. That mistake was refusing a *preposition*, which heads a real relation at Ground grain. **The line is whether the class can head a relation at all, never whether it is a verb.** Measured on Chapter 1: 22 refusals (19 adverb, 3 pronoun), and every Field survives.
 
 Measured on Chapter 1: 61 `CON·Figure·Binding`, 12 `CON·Ground·Tending`, 8 `SEG·Figure·Dissecting`, 54 grain gaps. Before this rule, the twelve Fields (`burning | with | curiosity`, `seen a rabbit | with | a waistcoat-pocket`, `walking hand in hand | with | Dinah`) were **refused as non-verb connectors** — real structure discarded, and the discard reported as a clean gate. P56's asymmetry is unchanged and still binding; what it now refuses is a GRAIN CLAIM, never the observation. A missing prior produces a typed gap, never a guessed grain.
 
@@ -4725,3 +4728,434 @@ The-fold's POLICIES.md **P180** is the paired entry, with the fuller narrative; 
 **Measured live**, not only in the synthetic unit tests: `eval/the-fold/first-person-deixis-eval.mjs` calls the real `gemma2:2b` (seed 1, deterministic) with the reported prompt, reads the real answer through the real production reader against an ESL-shaped fixture, and confirms both the defect (`bound`, cited to the unrelated page) and the fix (`beyond-reach`) end to end — `eval/the-fold/results/first-person-deixis-RESULTS.md`.
 
 **Files.** `native/organs/hypergraph.js` (`organs.firstPerson`/`organs.sameSpeakerRef`, the `firstPersonLed` helper beside `negationLed`, the wall in `judge()`, `candidateEdges` replacing `edges` at the two `sameSubjVerb`/`sameVerbObj` filters). `native/organs/hypergraph.test.mjs` (8 new cases: the defect, the fix, a third-person control proving the wall is deictic and not blanket, opt-in backward-compatibility, and three cases proving the `sameSpeakerRef` escape hatch — refuses by default, resumes ordinary checking once opened, never lets an unrelated ref ride along). `eval/the-fold/first-person-deixis-eval.mjs` + its results doc (new). Full native suite: 1221/1223 passing before and after (the same two pre-existing entries — the `BECOMING copula-tense-aware` TODO and S83's own missing Generality line, confirmed unrelated by isolating this change with `git stash`), zero regressions.
+
+## S96 — Capitalisation starves the VERB tier too, not only being-discovery; the lever that fixes it was built, tested, and wired into nothing (2026-09-09)
+
+**Generality:** universal for the defect (any material narrated in pronouns rather than repeated names — which is most English prose fiction); universal for the lever; specimen-scoped for the counts (Chapter 1 of Alice, 87 sentences).
+
+**Found by reading the whole chapter word for word against its own ledger**, on user direction: *"read the entire extracted chapter word for word. we need this first EOT to be perfect."* It was not perfect. It was not close, and the counts had been hiding it — 133 arrangements over 87 sentences reads like coverage until you check WHICH clauses they are.
+
+**The defect.** `discoverRelationVocab` nominates a token as a candidate verb only when it FOLLOWS a candidate referent surface, and surfaces are found by capitalisation. Chapter 1 is narrated almost entirely in pronouns, so `ran`, `took`, `saw`, `found`, `knelt`, `ventured` were never nominated at all: **22 verbs earned from 11.7 KB of prose.** What the ledger recorded skewed to copulas and to whatever clause happened to sit beside a capitalised name; what it missed was the chapter's actual events — Alice beginning to get tired, the White Rabbit running past her, the Rabbit taking the watch from its pocket, Alice taking down the marmalade jar, Alice finding herself in the long hall. Every published number about this reading was a measurement of the reader's own starvation, not of the material.
+
+This is **S86's capitalisation-only finding biting the VERB tier**. S86, S87 and S88 all treat the single-signal problem as being-discovery; none of them records that the same signal starves the verb vocabulary, which is why an English novel written in pronouns reads as nearly empty rather than as obviously broken.
+
+**The lever already existed and was wired into nothing.** `discoverRelationVocab` accepts `anchorSpans`; `tests/levers.test.js` pins the property that matters — *"a name anchor and a bound-pronoun anchor SHARE the tally"* — and the producer chain is `adapters/text/perspective-claims.js::bindNarrationFrames` → `adapters/text/vocabulary.js::boundAnchorSpans`. Checked all three consumers before writing anything: not this driver, not `adapters/text/recursive.js`, not `live_priors/scripts/eot-sidecar.mjs`. This is the `build-pos-prior.mjs` incident from CLAUDE.md's own "search for the organ before you write one" section, repeating: a real, tested organ one directory over, one call away.
+
+The same test file pins what the lever does NOT do, and it is the reason it is safe: *"unbound pronouns contribute NOTHING — the wall is positional, the string 'he' anchors nowhere by itself."* A pronoun licenses a discovery anchor only once BOUND to a referent. This widens what can be heard without lowering what must be earned.
+
+**THE TRAP, and the reason this entry amends S95's own table.** The obvious move — pass `posPrior` to `discoverRelationVocab` the way the production recipe does, to filter the junk the anchors let in — **deletes the entire Ground grain.** Measured, both ways, on the same chapter:
+
+| configuration | verbs earned | arrangements | Link | Field | Distinction |
+|---|---|---|---|---|---|
+| no anchors (the old reading) | 22 | 133 | 61 | 12 | 8 |
+| anchors, no gate | 43 | 193 | — | — | — |
+| anchors + `posPrior` on the VOCABULARY | 22 (a different, cleaner 22) | 84 | 84 | **0** | **0** |
+| anchors + POS on the ARRANGEMENT | 43 | 162 | 83 | **36** | kept |
+
+`posPriorGate` gates the vocabulary to verb-dominant forms, so "with", "after" and "or" never enter it, never become connectors, and `burning | with | curiosity` cannot be found at all. **The production recipe's own vocabulary gate encodes the Link-only assumption UPSTREAM of grain typing, and S95's rule cannot take effect behind it.** The gate belongs on the arrangement's connector, where the same received prior TYPES what was found instead of NARROWING what may be found — same evidence, same P56 asymmetry, one tier later.
+
+**Still open, named rather than tuned away.** Ambiguous tokens (`very`, `so`, `own`, `my`, `best`) settle at no class under a 0.5 share, so they land in the grain-gap bucket and are kept alongside the legitimate unsettled cases like "to" — 43 grain gaps on this chapter, a mix of real absence-of-verdict and extraction artifact that this reading cannot currently tell apart. Chasing that further would mean fitting one chapter. And the anchors bind 40 of 87 sentences; the other 27 are refused by the recall floor, so their verbs remain unhearable.
+
+**Not migrated.** `adapters/text/recursive.js` (the production reader) and `live_priors/scripts/eot-sidecar.mjs` still pass no `anchorSpans` and still gate the vocabulary rather than the arrangement. Every sidecar in that corpus carries this defect. That migration is real, scoped, unattempted work.
+
+## S97 — Identity is a centre of expansion; ascending compresses and drilling re-expands; and surprise is graded, measured around the being (2026-09-09)
+
+**Generality:** universal for the three rules; the corpus-decay check below is stated as a falsifiable prediction and is **currently untestable on this instrument** — see the last section, which is the honest part of this entry.
+
+### 1. A referent is a centre of expansion, never a label on an arrangement's end.
+
+`docs/THE-HOLOGRAPH.md` §1: an address expands to "the bytes, the claims around them, **the referent's whole neighbourhood**." So identity is the world folded around a being, and the being is the point the folding happens at. An `end1Ref` hanging off an arrangement is the annotation, not the thing; the thing is what the record can expand that id into. `kernel/reading.js` already wires `relevantNeighborhood` (with `adapters.selectNeighborhood`) for exactly this.
+
+### 2. Ascending the terrain ladder COMPRESSES; drilling down RE-EXPANDS. They are inverses, and the ladder is a compression ladder.
+
+`THE-HOLOGRAPH.md` §2, verbatim: "the level ladder is a compression ladder, and if it does not compress, the abstraction failed, not the consumer." Figure→Pattern (Entity→Kind, Link→Network, Lens→Paradigm) is the ascent. Drilling down is the same move reversed — and the record performs it, never the consumer, because "a model handed an address will write one, and a written address is a fabrication order."
+
+**The top three tiers are admitted by prediction, mechanically.** `kernel/terrain-math.js::interpretiveParadigmModels` refuses to form a Paradigm unless `compressionGain > 0`, with ≥2 members and ≥2 independent grounds. A model that does not predict its members more cheaply than listing them is **not admitted**. Prediction is the entry fee for the Pattern tier; surprise is what later challenges it (`deriveSurprise`'s own `patternEffects`). `shannonEntropy` sits in the same file.
+
+### 3. Surprise is GRADED and measured around the being — never a flag on the few observations that contradict something.
+
+User direction, verbatim: *"it should all be surprising to some degree to move our knowledge of what we learn about alice for example."* Every arrangement moves what is known about the being it concerns, by some amount. The first thing said about Alice moves everything; the twentieth restatement of a relation already recorded moves almost nothing. The denominator is the being's own neighbourhood at the moment the observation arrives, walked in address order (= reading order). Nothing is thresholded: the measure counts what is new — a relation this being was never in, a partner it was never joined to — and the number rides for a consumer to weigh.
+
+**A partner is a REFERENT, never a string.** The first cut used the other end's raw text and saturated instantly (novel-rate 1.00, familiar 0) because a full object phrase never repeats verbatim — measuring string variety and calling it knowledge. Same defect as ends-that-are-strings, one layer up, and worse there because it saturates a measurement rather than merely thinning one.
+
+### 4. The first book read is the most surprising book ever read — and that decay is the instrument's own falsifiable check.
+
+User direction, verbatim: *"the first book we read will be the most surprising book we've ever read."* This follows from the bootstrap with no slack: with no accumulated prior, everything is novel, so surprise is maximal by construction. As priors accumulate the novel-rate must FALL. **If it does not fall across a corpus, the priors are not accumulating and the reading is not learning** — which makes the decay curve a standing test of the whole apparatus, not a nice property of it.
+
+**Measured, and it does not yet run.** Chapter 1 with no prior and Chapter 2 carrying Chapter 1 both report novel-rate **1.00, familiar 0**. Two separate attempts to make the number move failed, and the cause is not the metric: only 26 of 187 arrangements carry a referent at all, and those 26 spread across ~20 distinct verbs, so nothing recurs and every observation is novel by default. **The check is blocked on referent coverage, and is reported as blocked rather than as a passing result** — a decay curve computed over 26 observations would be a number about the sample, not about learning.
+
+### 5. Two bypasses found the same day, both the "organ with no input" shape (P88).
+
+**The driver bypassed the assembled reader.** `eval/lavar/eot-jsonl.mjs` called `extractRelations` directly instead of driving `createRecursiveReader`, and so hand-rolled a reading loop that discards four quantities the assembled reader already returns from every step (`reading.js:93`): `surprise` (`kernel/dynamics.js::deriveSurprise`, the delta's own profile — touched addresses, recanonicalizations, expectation and pattern effects), `tension` (`deriveTension` — open obligations, their interaction network, and how long each has persisted: this is strain), `release` (`deriveRelease`), and `relevantFold` (the neighbourhood). All four were reinvented worse or lost.
+
+**And the assembled reader's dynamics are themselves inert, because nothing injects `ask`.** `kernel/interrogation.js::interrogateCube` reads `const answer = ask ? await ask({…}) : null`, so with no `ask` adapter every cube address answers `changed: false` with no effects, the delta carries no operations, and `deriveSurprise` profiles nothing. Measured: 87 encounters stepped through `createRecursiveReader` over Chapter 1 produce **zero surprise operations on every step** and 14 graph entries. Grepped: `createRecursiveReader` is called only by `tests/` and the docs — no production caller anywhere, and no caller at all injects `ask`. **A naive migration onto the assembled reader would have reported `surprise: 0` as though it were a measurement of the material.** Wiring `ask`/`revise` is the real work this names and does not attempt.
+
+## S98 — How a reading is graded: the hand-rolled golden, its two properties, and the first honest baseline (2026-09-09)
+
+**Generality:** universal for the method; the numbers are specimen-scoped (Alice chapters 1–3, 801 hand-authored propositions).
+
+Everything before this entry measured the reader against itself. S98 is the method that stops that, and the first numbers it produced.
+
+### 1. The golden is authored BEFORE the engine runs, and the engine never sees it.
+
+`CLAUDE.md`'s own standing rule — "the engine never sees the reference — it is scored against it after the fact" — applied to reading. Author the golden by reading the chapter; only then run the reader; only then score. Reversing that order produces calibration against the answer key, which is the same defect as tuning a threshold against a golden's own score, aimed at the reference instead of the parameter.
+
+### 2. Two properties make a golden trustworthy, and both were learned by getting them wrong.
+
+**EVERY ANCHOR RESOLVES.** A golden quote absent from the chapter is an assertion about a text that does not exist. Enforced mechanically (`eval/lavar/golden-tool.mjs check`).
+
+**EVERY SENTENCE IS ACCOUNTED FOR — silence is forbidden.** An omitted sentence cannot be distinguished from a missed one. Each sentence carries either a proposition or an explicit `EMPTY` claim naming why a reader draws nothing from it (an interjection, a vocative, an exclamative, a typographic row). This is LP10's "a real proposition or a typed gap, never a silent absence" turned on the reference rather than the reading.
+
+**The incident this rule is named for.** Chapter 3's first golden held 47 propositions, covered 98 of 134 sentences, and its author believed it complete. It was missing the chapter's entire ending — seven sentences after the line that reads like a close. The coverage check caught it; **re-reading would not have, because a second read stops in the same place for the same reason.** The rewritten golden holds 257 propositions at 134/134. A golden that is a highlights reel also flatters the engine: the same reading scored 11% against the thin golden and 6.6% against the complete one.
+
+### 3. Clause level, not salient-event level.
+
+A chapter of ~134 sentences carries ~250 propositions, not ~50. Dialogue attributions (`X said …`) are propositions. Embedded recitations are propositions of a recited text and are marked as such rather than omitted, so a scorer can separate frame-crossing from extraction failure. Intransitive clauses are recorded with an empty second end rather than dropped — they are the reference's own statement that no object exists.
+
+### 4. The first honest baseline.
+
+| chapter | golden propositions | recall | emitted |
+|---|---|---|---|
+| 1 | 271 | 12.9% (35) | 162 |
+| 2 | 273 | 14.3% (39) | 157 |
+| 3 | 257 | 6.6% (17) | 135 |
+| **total** | **801** | **11.4% (91)** | **454** |
+
+**What the shape says, beyond the number.** 454 arrangements emitted against 91 that a reader would draw: the reader is not under-producing, it is producing largely the wrong things, and any work that raises emission without raising recall is moving the wrong quantity. **66 of 801 propositions (8.2%) are intransitive** and cannot be admitted under any configuration while `relations.js` requires both a subject group and an object group (S90) — a hard floor under every other improvement, now measured across three chapters instead of inferred from one.
+
+### 5. Files.
+
+`eval/lavar/golden-tool.mjs` (`sentences` | `check` | `build` | `score`). `eval/lavar/goldens/aiw-ch{1,2,3}.clauses.txt` — the authored source, one proposition per line, pipe-delimited, because hand-typing hundreds of JSON objects is its own error surface. `goldens/aiw-ch{1,2,3}.json` — built only when `check` passes, so a golden that fails either property cannot be scored against.
+
+## S99 — Wiktionary is a prior, a model is a witness, and the two must not be confused (2026-09-09)
+
+**Generality:** universal for the tier rule; the negative measurement it corrects is specimen-scoped and already on the record.
+
+**Search first, and the record already answers half of this.** `docs/WHERE-WE-ARE.md` carries a MEASURED NEGATIVE on the Wiktionary route: across **1,404 notes on two genres, exactly one pair anywhere was blocked by the label alone**, because "a paraphrase never gets as far as having matching ends." Buying Wiktionary synonym sets for note-merging would have bought one candidate. That result stands and is not reopened here.
+
+**What it does not close.** That test was of ONE use — merging paraphrased notes by synonymy. The ambiguity this reader actually carries is a different shape, and the goldens now name it: 66 intransitive clauses that the extraction gate cannot admit; 54 grain gaps in chapter 1 alone, dominated by tokens (`to`, `very`, `so`, `own`) that do not settle in a POS prior; and a possessive determiner (`our`) absent from every received determiner class, which is why a copular identity stated plainly in chapter 3 never fired and chapter 1's expectation is still open with its own corroboration sitting two chapters later.
+
+Wiktionary speaks to all three, and to none of them as a thesaurus: **per-sense transitivity**, **sense-level part of speech**, and **closed-class membership**. Whether the available dumps actually carry those markings usably is unverified and is the first thing to check — a licensing run judged on **marginal admits, never aggregate coverage** (the same discipline LP11 already declares).
+
+**THE TIER RULE, which is the durable part.** `WHERE-WE-ARE.md`, verbatim: *"A Wiktionary revision is a giver we can name and can concede when it is wrong. A model is neither."*
+
+- **A lexicon joins the RECEIVED PRIORS.** It has a giver, a revision, and a concession path. It may gate, refuse, and type.
+- **A model joins the WITNESSES.** `organs/testimony.js` holds the discipline: ONE claim, ONE page, ONE binary question asked TWICE (the claim, then its sibling-swapped twin), with the verdict derived mechanically from the pair — because gemma2:2b returned the right `because` and the wrong label, so classification was taken away from the model entirely. Its testimony lands typed beside the byte and structural tiers; it never becomes a prior, and it never gates.
+
+A contested address (two readings of the same bytes, S95) is exactly the shape the witness tier answers: a binary question about one passage. A grain gap is exactly the shape the prior tier answers. Sending either to the other tier is the confusion this entry exists to prevent.
+
+## S100 — The admission door still refuses what S95 says to keep, and the plan that follows from the three-chapter baseline (2026-09-09)
+
+**Generality:** universal for the defect; the ordering below is derived from measurements over Alice ch1–3 and should be re-derived when the corpus widens.
+
+### The defect: the Ground grain survives on an accident of wiring
+
+`organs/hyperlexicon.js::admit` — the door every text reading passes through — carries one English gate:
+
+```js
+c?.settled && c.thraxClass && c.thraxClass !== VERB_CLASS
+  ? { reason: REFUSALS.NOT_A_VERB, detail: `"${label}" settles as ${c.thraxClass}` }
+```
+
+A settled non-verb connector is refused. That refuses **every Field**: `burning | with | curiosity` settles "with" as a preposition and is turned away as "not a verb" — exactly the mistake S95 corrected, sitting live in the admission path.
+
+**It is not firing today, and that is luck rather than design.** `live_priors/scripts/eot-sidecar.mjs` calls `admit(log, edges, { witness })` with no `classifyConnector`, and its recipe documents the organ as "per-EDGE DISCLOSURE ONLY, never gates admission." So the Ground grain is preserved because nobody wired the gate — and a future pass tightening precision would switch it on and silently delete a whole terrain.
+
+**The fix is S96's correction one tier over:** the door should TYPE by grain, not REFUSE by non-verbness. Same received prior, same P56 asymmetry, one decision later — a settled preposition becomes `CON·Ground`, a conjunction `SEG·Figure`, and only a class that cannot head a relation at all (noun, adjective, adverb, pronoun) is refused. This is the third place the same confusion has been found: the vocabulary tier (S96), this driver's own typing (S95), and now the kernel-facing door.
+
+**What the hyperlexicon is actually for, since this keeps being misread.** It is the TEXT FACE of `kernel/notes.js`, and its mechanism is accumulation across sightings — first sighting INS, re-sighting SYN, witnesses and spans unioned. The specimen it was built against was a wrong answer given "because nothing accumulated." Its value is therefore in the MERGE: the same assertion arriving from a second surface. In a single-document sidecar it is given a fresh ledger per file (a shared one would leak identity across documents), so it acts as a door and barely accumulates at all.
+
+### The plan, ordered by measured leverage rather than by appetite
+
+The baseline every item is judged against: **801 hand-authored propositions, 11.4% recall, 454 emitted against 91 a reader would draw** (S98). The ordering constraints are real and are stated with each item, because doing these in the wrong order produces numbers that cannot be interpreted.
+
+**1. Type at the door instead of refusing (this entry).** Not a recall gain — a regression guard. Cheap, and it must land before anyone tries to improve precision, because the obvious precision move is to arm the gate that deletes the Ground grain.
+
+**2. The mandatory-object gate (S90).** `relations.js` requires both a subject group and an object group, so **66 of 801 propositions (8.2%) cannot be admitted under any configuration.** This is the largest measured single gain available and it is a hard floor under everything else. Its own risk is precision: the gate currently suppresses a great deal of junk along with the intransitives, so this must be scored against all three goldens, not one.
+
+**3. Referent coverage.** 26 of 187 arrangements carry a referent in ch1; 11 of 135 in ch3, where the bound-pronoun join reached `inBoundRange: 0`. **Two separate measurements are blocked behind this**: the surprise decay check (S97 — it reports 1.00 novel-rate on both chapters because 26 observations across ~20 verbs cannot recur) and any claim about the being-centred neighbourhood. Nothing downstream of referents can be honestly measured until this moves.
+
+**4. Inject `ask` (S97).** `interrogateCube` reads `ask ? await ask(…) : null`, so `deriveSurprise`/`deriveTension`/`deriveRelease` profile nothing and 87 encounters yield zero operations. **Deliberately after 3**, because wiring the dynamics onto a reading whose referents are 14% covered produces better-typed zeros, not better readings.
+
+**5. Wiktionary as a received prior (S99).** Per-sense transitivity, sense-level POS, closed-class membership — judged on marginal admits, never aggregate coverage, and only after checking the dumps actually carry those markings usably. **Deliberately after 2**, because transitivity's whole value is telling the extraction gate when no object is expected; bought before the gate can act on it, it buys nothing. The already-measured negative on the synonym route (1,404 notes, one candidate) stands and is not reopened.
+
+**6. The precision problem, which is not yet diagnosed.** 454 emitted against 91 real is the largest number on the board and nobody has read the 363 non-matching arrangements to find out what they are. Until someone does, "improve precision" is not a task, it is a wish. This wants its own measurement pass before it becomes work.
+
+**What is deliberately NOT on this list.** Migrating `eot-sidecar.mjs` to the ledger form (LP18/LP19) is real and disclosed, but it changes the artifact rather than the reading, so it buys no recall and should not be sequenced against items that do. And no item here may be scored on one chapter: three goldens exist precisely so that a number moving on one and not the others is visible as a specimen effect rather than a gain.
+
+## S101 — 100% of a book's own words are recoverable from its ledger alone; the whole-book baseline, and four honest experiments against it (2026-09-09)
+
+**Generality:** specimen-scoped. The recoverability metric itself is meant universally — it is a property `eot-jsonl.mjs` must hold for any chapter of any document — but the numbers in this entry (the 100%-recoverable result, the rereading gains, the witness-consistency rate, the drill-down shapes, the surprise-decay correlation) are all measured on one book, Alice in Wonderland chapters 1–12, and are reported at the strength they earned there, not generalized past it.
+
+### The metric, stated so it can be checked, not asserted
+
+User's own test, verbatim: *"can you reproduce the verbatim text from the holograph? that's the test."* `eval/lavar/recoverability.mjs` makes this literal: take every `role:"sentence"` and `role:"scene-break"` address on a chapter's ledger (the two roles `eot-jsonl.mjs` emits unconditionally, for every span, whether or not a proposition was ever extracted from it), merge them into a non-overlapping tiling of the chapter's byte window, and diff the reconstructed word sequence against the chapter's own words, in order. A byte range nothing addresses is a GAP — text nothing on the ledger ever heard, which no amount of drilling or rereading downstream could recover, because it was never admitted in the first place. This is deliberately NOT the golden-recall metric (S98) — it is a structural property of the ledger's own address coverage, independent of how much semantic content was extracted from what it covers.
+
+One false positive found and fixed before trusting the number: ch1's two asterisk scene-break rows are tiled by BOTH `scene-break` and `sentence` roles (`splitSentences` treats each asterisk line as its own degenerate sentence too) — a `sentence` and a `scene-break` address citing the SAME bytes is not a defect, it is the holograph's own design ("every part points at the whole," plural lenses on one span), so the script merges overlapping tiles before checking for gaps rather than flagging the overlap as a failure.
+
+**Measured, all 12 chapters, after reading each with every earlier chapter's earned vocabulary and cast as prior (26,171 words total): 100% recoverable, zero gaps, in every chapter.** `node eval/lavar/recoverability.mjs all`.
+
+### The whole-book reading itself
+
+Every chapter of Alice in Wonderland now has a ledger (`eval/lavar/results/pg11_Alice_s_Adventures_in_Wonderland-ch{1..12}.eot.jsonl`), each read with `--prior=` naming every chapter before it — the same reread mechanism S97 built, run the length of the book rather than three chapters deep. Hand-rolled clause-level goldens exist for chapters 1–4 (1,192 propositions total, each independently verified for zero unresolved anchors and full sentence coverage, per S98's own discipline) as the calibration set; extending goldens to chapters 5–12 is real, scoped, unattempted work, not required for the recoverability bar above, which holds over the whole book regardless.
+
+### Experiment 1 — the power of rereading, measured against a much deeper prior than S97 tried
+
+S97 reread ch1 with ch2 as prior. This pass rereads ch1, ch2, ch3 and ch4 each with **every other chapter in the book** as prior (ch1 gets 2–12; ch2 gets 1,3–12; and so on) — the deepest prior a reread of this book can carry.
+
+| chapter | recall before | recall after whole-book reread | propositions found | contested addresses |
+|---|---|---|---|---|
+| ch1 | 12.8% (35/273) | **22.3% (61/273)** | +84 new, 82 unchanged | 18 |
+| ch2 | 14.2% (39/274) | **21.2% (58/274)** | +88 new, 99 unchanged | 19 |
+| ch3 | 8.2%\* | 8.2% (21/257) | +35 new, 83 unchanged | 12 |
+| ch4 | 12.4% (48/388) | 12.9% (50/388) | +54 new, 176 unchanged | 13 |
+
+\*ch3's golden was rebuilt mid-session (S98); the "before" figure here is its first post-rebuild score, already carrying ch1–2 as prior.
+
+Recall nearly DOUBLED on ch1 and ch2 from rereading alone — zero new bytes read, zero code changed, purely from a fuller earned vocabulary letting the reader recognize verbs and relations in the SAME sentences it had already seen. `getting up | and | picking the daisies` — the exact coordinate branch hand-added to ch1's golden earlier this session as a fix for a truncated coordination — was independently found by the engine on this reread, confirming that fix targeted real, recoverable content rather than an artifact of hand-authoring.
+
+**The gain is not uniform, and the reason is legible, not mysterious.** ch1 and ch2's FIRST readings had the thinnest priors (ch1: none; ch2: ch1 only), so a full-book reread had the most vocabulary left to add. ch4's first reading already carried priors 1–3, so most of the available gain was already banked before this pass — rereading has diminishing returns once a reasonable prior is already loaded, which is itself a testable, now-measured claim rather than an assumption.
+
+**Every reread stayed inside S95's own rule.** `reread delta: N already recorded (not restated), M newly found, K contested addresses` on every run — nothing was overwritten; disagreements at the same address (e.g. ch1: `it | to | her that she ought to have wondered` [pass 1] vs `it occurred | to | her that...` [pass 2], where "occurred" only became an earned verb after reading the rest of the book) landed as typed `EOTContest@1` lines, untyped by kind per `kernel/notes.js`'s own rule, not silently resolved. And the whole book still passed the recoverability check above AFTER all four rereads — the append-only mechanism holds under a harder test than S97 ran it against.
+
+### Experiment 2 — a local model as a witness on the ledger's own disclosed ambiguity, never as an oracle
+
+Target: `role:"void"` lines — a third-person pronoun the reader's own recall floor already refused to bind (S95's SIG·Ground), not invented ambiguity. User's framing, verbatim: *"experiment with a local model pushing the 'physics' or 'chemistry' (not json oracle-ing)."* The discipline held to is `organs/testimony.js`'s own (S99): the model (gemma2:2b — kept small on purpose) never generates a referent from nothing; it SELECTS a number from a candidate list drawn from the chapter's own cast, and it is never trusted on one answer — the identical question is asked twice with the candidate list order reversed, a perturbation carrying no semantic content, and the verdict is DERIVED mechanically from whether the two answers name the same candidate. A pick that flips under mere reordering is echoing list position, not discriminating the referent, and is refused exactly as testimony.js refuses a witness whose verdict does not move under its own sibling-swap arm.
+
+**Measured, 18 probes across 6 chapters (`eval/lavar/witness-referent.mjs`, results in `eval/lavar/results/witness-referent-results.json`): 9 consistent, 6 order-sensitive (refused), 3 unreadable.** Half the model's raw picks were pure position bias — exactly the failure mode this design exists to catch, caught.
+
+**Consistency is not correctness, and one case proves it rather than just asserting it.** The model consistently picked "Mouse" for "he" in `Fury said to a mouse, That he met in the house` — surviving the reorder-arm cleanly — but ch3's own hand-built golden (line 184: `Fury | met | that in the house`) already resolves "he" as FURY, the poem's subject, not the mouse it met. A garden-path pronoun in embedded verse defeated a small model stably and confidently. The experiment's real finding is not "9 referents resolved" — it is that order-invariance is a necessary filter, not a sufficient one, and every "consistent" verdict here ships disclosed as unverified against ground truth, never as settled.
+
+### Experiment 3 — drilling down: a referent's whole-book neighbourhood, and what its shape reveals
+
+`kernel/hypergraph.js` + `kernel/interrogation.js` already carry a real neighbourhood-expansion organ (checked before writing anything new, per CLAUDE.md's own rule) — set aside with a stated reason, not missed: it walks the OLDER `Observation@1`/`EOHyperedge@1` schema family, and this session's `EOTObservation@1` ledger (S95) is a different schema it has no case for; feeding it this ledger directly would silently return an empty neighbourhood every run (P88's own trap). `eval/lavar/drill.mjs` does the same THING against the schema this session actually produces: union a referent's touches across all 12 chapters by surface (a being's auto-id is discovered fresh per chapter — S95's per-document boundary — so the same character can carry different ids book-wide).
+
+- **Alice: 152 arrangements across all 12 chapters, 61 distinct labels — and ZERO with a resolved being-partner on the other end.** Every one of Alice's bound actions is with an object, not another being. This is the referent-coverage gap named in S100 item 3, now shown at whole-book scale rather than single-chapter: the reader knows what Alice DOES far better than who she does it WITH or TO.
+- **The White Rabbit: 4 arrangements total, all in chapters 11–12.** Not a bug — checked directly against the ledger's own entity lines, which DO cast the Rabbit in chapters 1, 2 and 4. In those early chapters the Rabbit is narrated almost entirely as "it" (background, scurrying, rarely named), and those pronoun occurrences mostly land as unbound `void` lines rather than resolved arrangements. In the trial (ch11–12) the Rabbit is a named court official, repeatedly called "the White Rabbit," and those explicit namings bind cleanly. The SAME character's referent coverage swings on narrative register — pronoun-density versus name-density — not on anything about the character.
+- **Dinah: zero arrangements, anywhere in the book**, despite being one of the most emotionally load-bearing referents in the text (Alice's homesickness token, invoked in nearly every chapter) — because Dinah is always talked ABOUT from a distance ("I wish you could see her," "she is such a dear quiet thing"), never physically on stage, and those embedded, reported-speech mentions sit outside the local-binding window the recall floor uses. The reader currently has no mechanism for a being who is only ever discussed, never present.
+
+### Experiment 4 — the surprise-decay corollary, re-run at n=12 instead of n=2
+
+S97's corollary: *"the first book we read will be the most surprising book we've ever read"* predicts novel-rate should FALL as priors accumulate. S97 measured this within single chapters and found it BLOCKED — novel-rate pinned at 1.00 on both ch1 (no prior) and ch2 (ch1 prior), because each chapter's own surprise tracker reset to zero every process run, independent of the vocabulary prior, and only 26-of-187 / 11-of-135 arrangements carried any referent to test recurrence against at all.
+
+`eval/lavar/surprise-decay-wholebook.mjs` walks all 12 chapters' ledgers as ONE continuous stream, keeping a single `known` registry (labels/partners seen per referent) across chapter boundaries — the fix the single-chapter version was missing, not just more data. **The block is resolved: novel-rate is no longer pinned at 1.00 anywhere** (it ranges 0.375–0.739 across the 12 chapters). **The predicted direction holds, weakly: Pearson r = −0.330 between chapter order and novel-rate (ch1: 0.690 → ch12: 0.615), explaining roughly 11% of the variance.** This is real signal, not noise dressed up — but it is not a clean monotonic decay (ch3 dips to 0.455, ch4 rebounds to 0.714, ch9 is the actual floor at 0.375, and ch11–12's trial reintroduces old characters in new courtroom actions, landing in the middle of the range rather than at a new low). Reported at the strength it earned: the corollary is no longer unmeasurable, and the one measurement available leans its way, weakly.
+
+### What this pass leaves for later, named rather than silently dropped
+
+Goldens for chapters 5–12 (would let every experiment above run at full-book granularity instead of the 4-chapter calibration set). Feeding the EOT ledger schema through `kernel/hypergraph.js`'s real neighbourhood organ via a translation layer, instead of `drill.mjs`'s direct query. A being-who-is-only-discussed mechanism (Dinah's gap). And the S100 plan itself is untouched by this pass — it is still the ordered list to work through for RECALL; this entry is about a different axis, whether the ledger hears everything it is given, and whether accumulated reading measurably deepens what it hears from the SAME bytes.
+
+## S102 — Spiralling out to a second text found a bug the first text's own convention could never exercise; and a lexicon is a prior, structurally incapable of carrying a referent (2026-09-09)
+
+**Generality:** specimen-scoped for the transfer numbers (measured on The Picture of Dorian Gray only); universal for the heading-detection fix and the lexicon-loader's structural guarantee, both of which are properties of `eot-jsonl.mjs` itself, not of any one book.
+
+**User direction, verbatim:** *"when you're confident, spiral out and do another text and use the priors from this as background for prediction and anything else that makes sense, though obviously not cross pollenating referents."*
+
+### The bug S101's own recoverability check found on contact with a second book
+
+Alice in Wonderland gives every chapter a real title line ("Down the Rabbit-Hole"). `eot-jsonl.mjs`'s chapter-heading regex — duplicated in `golden-tool.mjs` and `recoverability.mjs`, per this repo's own "reconcile, don't just dedupe" rule (`CLAUDE.md`) — captured whatever text sat on the line right after "CHAPTER I." and called it the title, without ever checking whether that line WAS a title. The Picture of Dorian Gray's chapters carry no title line at all — "CHAPTER I." goes straight to prose — and the regex swallowed the paragraph's own first physical line ("The studio was filled with the rich odour of roses, and when the light") as a fake title, shifting the chapter window's start to mid-sentence.
+
+**Caught by the metric this session already built, not by inspection.** `recoverability.mjs 1 <dorian-gray-path>` reported 99.39% instead of 100%, with the gap landing exactly at the swallowed line's second physical line — the sentence that started under the fake "heading" was excluded by the window filter, byte for byte. AIW's own convention never exercised this branch, so it shipped as "100% recoverable, universal metric" in S101 while carrying a defect the corpus hadn't tested for yet — precisely why "spiral out" was worth doing rather than declaring victory on one book.
+
+**The fix, applied identically in all three files:** a real title is bounded by blank lines on both sides, the same convention that makes it a heading rather than running prose. `raw[candidateEnd] === "\n"` (checked in each file's own coordinate space — normalised for `eot-jsonl.mjs`, raw CRLF for `recoverability.mjs`/`golden-tool.mjs`, since ledger addresses must match the origin bytes) distinguishes "Down the Rabbit-Hole\n\nAlice was..." (real title, blank line follows) from "...the light\nsummer wind..." (prose, no blank line follows — the naive capture was one physical line of a wrapped sentence). Regression-checked against all 12 AIW chapters and all 4 goldens after the fix: **identical numbers, byte for byte, zero change** — the fix only ever fires on the branch AIW never took. Dorian Gray chapters 1–3, re-read clean: **100% recoverable, all three.**
+
+### A lexicon prior, made structurally incapable of carrying a referent
+
+S99 places a lexicon in the received-priors tier, distinct from a witness. This entry adds the corollary the user's instruction demanded: a prior that crosses DOCUMENTS must not be able to carry REFERENT IDENTITY across them, because S95's per-document boundary makes identity non-transferable — Alice is not a candidate referent for a book that never mentions her, no matter how the vocabulary transfers.
+
+`eot-jsonl.mjs` gained `--lexicon=<path>`, a loader kept deliberately narrower than `--prior=N` (same-document reread, which legitimately carries `cast` because it is the SAME beings). The lexicon file's shape has **no `cast` field the loader ever reads** — not "an empty array," a missing code path — so a lexicon cannot leak a referent by construction, not by the discipline of whoever built the file. It must name its own `giver` or the driver refuses to run.
+
+**The lexicon built:** every verb earned across all 12 AIW chapters' own `.prior.json` files, unioned — 287 verbs, giver stated as "Alice in Wonderland, chapters 1–12, unioned." Fed into a genuinely cold first read of The Picture of Dorian Gray, chapter 1 (a different author, era-adjacent register, completely disjoint cast, no prior connection to AIW beyond both being English prose):
+
+| | cold (no lexicon) | lexicon-primed |
+|---|---|---|
+| propositions | 285 | 377 (+92, +32%) |
+| verbs earned from ch1's own bytes | 53 | 53 (unchanged — the lexicon adds, never replaces) |
+| vocabulary after union | 53 | 317 (264 of the 287 offered verbs were new to this chapter) |
+| typed absences | 145 | 72 |
+| refusals | 50 | 246 |
+| entities / voids (cast discovery) | 10 / 134 | **10 / 134 — byte-identical** |
+
+**Referent isolation verified empirically, not just designed.** Dorian Gray's cast across chapters 1–3 (Dorian Gray, Lord Henry, Basil Hallward, Lady Brandon, plus known capitalised-word noise already documented elsewhere — Church, English, Greek, Grosvenor, Mr) was grepped against every AIW referent id and surface: zero matches anywhere except the lexicon's own disclosed `giver` string, which NAMES Alice in Wonderland as a citation, not as a referent. The entity/void counts being byte-identical between the cold and lexicon-primed reads is the strongest evidence available that the lexicon touched vocabulary and nothing else — if cast discovery had moved at all, the isolation claim would need re-examining rather than asserting.
+
+**What the transfer bought, honestly.** More propositions ATTEMPTED (yield up 32%), but referent-bearing arrangements did not scale with it (37 with a referent id on the cold read of a smaller pool vs. 25 on the lexicon-primed read of a larger one) — the newly unlocked verbs are disproportionately NOT the ones that resolve to a referent. This mirrors S100's own item-2 observation about the mandatory-object gate: raising yield and raising referent coverage are different axes, and a lever that moves one is not assumed to move the other without checking.
+
+### What this pass leaves for later
+
+Only 3 of Dorian Gray's 20 chapters were read (enough to demonstrate cross-document transfer and referent isolation, not a whole-book claim the way S101 makes one for AIW — no golden exists for this book at all, so no recall number is claimed, only the structural ones above). Whether the transfer gain holds, grows, or saturates across a full second book is real, scoped, unattempted work.
+
+### Addendum — the lexicon wired up as a standing, composable resource, not a one-off file
+
+User direction, verbatim, after asking what the loader's no-cast guarantee actually meant: *"do we need it?"* then *"ok wire it up"* once the answer held up. Two changes:
+
+**`eval/lavar/build-lexicon.mjs`** generalizes the inline one-off script that built the AIW lexicon: given a document's basename, it unions every `.prior.json` that document has earned (all chapters, or a named subset) into a `<basename>.lexicon.json`, giver stated automatically from the chapters it drew on. It reads `.prior.json` files and writes `{giver, verbs}` — the same structural guarantee as the loader (no code path here ever looks at `.cast` either). Regenerating AIW's lexicon through this tool reproduced the original 287-verb set byte for byte; a second lexicon was built for Dorian Gray (183 verbs, its own 3 read chapters) — the shelf now has two entries, growing with every document read rather than staying a single hand-built artifact.
+
+**`--lexicon=` now takes a comma-separated list**, composing like `--prior=` already does, each entry independently required to name its own `giver`. Verified live: a genuinely new third text (A Tale of Two Cities, ch1, never read before) offered both lexicons at once — AIW's 287 verbs contributed 281 new, Dorian Gray's 183 contributed 113 more on top of that (70 already covered by AIW+the chapter's own vocabulary), each figure disclosed per-lexicon on the `EOTReadingPass@1` line rather than folded into one opaque total. Propositions found rose 76→90 on the same 20 sentences with zero new bytes read.
+
+**A different, unrelated finding surfaced by the same test, disclosed rather than chased:** A Tale of Two Cities restarts "CHAPTER I." at the start of every Book (Book the First, Book the Second, Book the Third each number their own chapters from I), which `eot-jsonl.mjs`'s flat sequential-ordinal chapter detection does not account for — reading "chapter 1" of this file does not reliably mean what it means for a single-book novel. The scratch read that surfaced this was discarded rather than kept as a result, since its numbers reflect the wrong window, not the material. Fixing multi-book chapter numbering is real, scoped, unattempted work — named here so it is not rediscovered as new.
+
+## S103 — Five languages, hand-evaluated: the ledger's address layer is language-general, the referent layer is not — it doesn't just underperform, it hijacks (2026-09-09)
+
+**Generality:** specimen-scoped for every number (one Wikipedia article per language, one language-agnostic recoverability property tested five ways); universal for the mechanism-level findings (the `\b` boundary bug, the capitalisation-hijack failure mode) — both are properties of code and a script family, not of these five specific articles.
+
+**User direction, verbatim:** *"do 5 more and evaluate by hand. do other languages"* — then, mid-turn, the reason stated directly: *"the other languages is crucial because it shows us if we are doing too much of an english shaped solution."*
+
+### Finding the material: two corpus directories, one already-diagnosed defect, extended
+
+`live_priors/01-literature-books/gutenberg/`'s language-tagged files (`pg10671_The_Iliad__Greek_.txt`, `pg17270_The_Aeneid__Latin_.txt`, `pg2636_Faust__German_.txt`, `pg5196_Don_Quixote__Spanish_.txt`) were checked before use and found to be five DIFFERENT books entirely (Erasmus Darwin's *The Botanic Garden*; an anonymous *Interlude of Wealth and Health*; Rafael Sabatini's *Historical Nights' Entertainment*; an unrelated "Romance of Santa Catalina") — none of it what the filename claims, none of it non-English. A search of other sessions' transcripts (`search_session_transcripts`) surfaced `live_priors/digested/CORPUS-INTEGRITY-FINDING.md`, an existing, more thorough version of the same finding against a DIFFERENT directory, `11-multi-language/gutenberg-non-en/`: **all 20 of 20 files checked disagree with their own path.** That document's own recommendation was followed rather than re-litigated: it names `11-multi-language/wikipedia-lang/` as individually verified, real, giver-cited (Wikipedia, CC BY-SA 4.0, real pageids) text in exactly the languages this pass needed. This entry's own gutenberg/ finding is new information (a THIRD corrupted directory, not the two already on record) and is filed as an addendum to that document rather than a separate one, per its own closing invitation.
+
+### The five readings
+
+French (fra), Turkish (tur), Korean (kor), Modern Greek (ell), Hebrew (heb) — chosen for script spread (Latin / Latin-agglutinative / Hangul / Greek / Hebrew-RTL) with a real POS prior already built for each (`native/priors/pos-{fra,tur,kor,ell,heb}.json`, Universal Dependencies treebanks, built by a concurrent session). Each source is a real Wikipedia "Philosophy" article, wrapped in a bare `CHAPTER I.\n<title>\n\n` header (the ONLY origin modification — the body is byte-identical to the verified corpus file) so `eot-jsonl.mjs`'s chapter-window detection has something to find; a Wikipedia article carries no narrative chapter structure of its own.
+
+**`--lang=` added, deliberately narrow.** Swaps two things only: the POS prior path, and the pronoun regex the void-detector scans for (a small, disclosed, best-effort list per language — this project's own `NEGATION_WORDS`/`DEFINITE_DETERMINERS` precedent, never a claimed-complete paradigm). Everything else — sentence splitting, capitalisation-based referent discovery, the whole subject-inheritance nesting model, the positional (not case-marked) end-role assignment `eot-jsonl.mjs`'s own priors list already calls out by name ("case-marking is another language's prior, not a missing feature of this one") — is carried over from the English reading UNCHANGED, on purpose: the question is where those assumptions hold and where they silently produce nothing, not whether five languages can be made to look adapted.
+
+**A bug found in the adaptation meant to TEST for English-shapedness, which is its own finding.** JavaScript's `\b` is an ASCII-only boundary (`\w` = `[A-Za-z0-9_]`) even with the `u` flag — a boundary check immediately against a Greek letter, a Hebrew letter, or Turkish's dotless-ı never fires, because both sides of the position read as "non-word" to `\b` and no transition is seen. Measured directly (`node -e`) before trusting any downstream number: `/\bαυτός\b/iu.test("και αυτός είναι")` → **false**; the same pattern without `\b` → true. The first pass's Greek reading reported **zero** voids — not because Greek pronouns are rare in the text (10 raw occurrences confirmed by grep) but because the boundary check silently never matched one. Fixed with an explicit `(?<![\p{L}\p{N}])...(?![\p{L}\p{N}])` lookaround; Greek's void count went 0 → 72 on the identical text, and Turkish's went 3 → 0 (the reverse direction — the broken check had been producing false positives there, not false negatives; Turkish's own pro-drop tendency plus this short article's register may simply not use the listed pronouns at the rate assumed). English, French and the Korean/Hebrew substring checks (which never used `\b`) were unaffected — verified by rerunning the AIW goldens byte-for-byte identical after the fix.
+
+### Result 1 — the address layer does not care what language it is holding
+
+`recoverability.mjs` (S101's own metric, made language-parametric via a `bookPath` argument for this pass) reports **100% recoverable, zero gaps, in all five languages** — Hebrew's right-to-left script, Korean's Hangul with no inter-character spacing signal, Greek's diacritics, all included. Sentence-splitting on terminal punctuation and the ledger's address-nesting architecture (S95) are the one part of this whole pipeline that is genuinely, measurably language-general. This is the positive half of the finding, and it should not be read past what it says: it is a claim about BYTE COVERAGE, not about whether anything USEFUL was extracted from those bytes — see Result 2.
+
+### Result 2 — a gradient by script distance from Latin/capitalised, that collapses into something worse than "nothing" for two of five
+
+| language | sentences | propositions | typed absences | entities | voids |
+|---|---|---|---|---|---|
+| French | 316 | 501 | 90 | 52 | 48 |
+| Turkish | 126 | 100 | 67 | 22 | 0 |
+| Greek | 271 | 85 | 178 | 15 | 72 |
+| Korean | 129 | 4 | 127 | 1 | 5 |
+| Hebrew | 136 | 3 | 134 | 4 | 34 |
+
+French and Turkish (Latin script, a capitalisation convention loosely resembling English's) still produced real, if degraded, output — but the degradation is concrete and worth naming, not just "noisier": French produced `None | du | ` and `None | qui | ` (subject-span extraction failing outright on French clause shapes the English-tuned positional reader doesn't recognise, `qui` — a relative pronoun — mistyped as a connector), and `Étude d'un groupe | dans | la littérature grecque` (a citation's own internal apparatus read as if it were a clause of the article). Turkish surfaced `None | of | ` — the English word "of" appearing as a connector LABEL in a Turkish-language reading, because nothing about `--lang=` touches the small closed-class fallback vocabulary `extractRelations` itself carries, which is English.
+
+**Korean and Greek's propositions are dominated by typed absence** (178/271 and 127/129 sentences respectively) — the referent-discovery mechanism (`extractSurfaces`/`discoverReferents`, capitalisation-based) finds almost nothing to anchor a candidate verb against, because Korean's script has no case distinction at all and Greek's does not capitalise common nouns any more freely than English does (the difference is that Greek's own proper-noun capitalisation didn't happen to coincide with much of this particular article's own vocabulary once the extraction chain's other English-shaped links are accounted for).
+
+### Result 3 — the actual headline: capitalisation-based referent discovery doesn't just fail on non-Latin script, it hijacks the reading toward embedded English debris
+
+Korean and Hebrew's propositions were read by hand — all 4, all 3 of them:
+
+```
+Korean:  enny Teichmann | and | Katherine C
+         None | is |
+         abstract | and | very general
+         reason | and | human purpose
+         A Guide | through | the Subject (Oxford University Press
+         None | is |
+
+Hebrew:  The School | of | Athens" by Raffaello Sanzio da Urbino
+         The School | da | Urbino
+         Internet Encyclopedia | of | Philosophyen-US2025-12-13}}
+```
+
+**Every single one of these seven propositions is built from ENGLISH-LANGUAGE citation and image-caption debris embedded in the Korean and Hebrew Wikipedia articles** — a bibliography entry ("Jenny Teichmann and Katherine C[oncannon], *Philosophy: A Guide through the Subject*, Oxford University Press"), an image credit ("The School of Athens by Raffaello Sanzio da Urbino"), a reference-template artifact ("Internet Encyclopedia of Philosophy," a citation timestamp). **None of the actual Korean or Hebrew prose — the article's real content — produced a single proposition in either reading.** This is not the same failure as Korean/Greek's typed-absence collapse above; it is worse, because the reading does not look empty. It looks like it read something, and reports a real cast (`entities: 1` for Korean, `4` for Hebrew) and real arrangements — all of it spurious, all of it English, none of it about the subject the article is actually about.
+
+**The mechanism is legible, not mysterious.** `extractSurfaces`/`discoverReferents`'s capitalisation heuristic has NOTHING to seize on in the surrounding Hangul or Hebrew prose (neither script marks proper nouns by case at all), so the ONLY spans in the whole document that look like candidate referents to an English/Latin-capitalisation-tuned organ are the incidentally-capitalised English fragments sitting in the citation apparatus. Everything downstream — vocabulary discovery, clause extraction — organises itself around those few spurious anchors, because they are the only anchors available. A reader with no signal at all would report absence, honestly, the way most of Korean's 129 sentences did. A reader with a WRONG signal that happens to fire produces something that reads as content and is not — the more dangerous failure mode, and the one a recall percentage alone would never surface (both readings would score identically low against a golden; only reading the actual propositions by hand shows one is honestly empty and the other is confidently wrong).
+
+### What this answers, and what it leaves open
+
+The user's question — is this pipeline too English-shaped — has a real, two-part answer now instead of a guess: the ADDRESS layer (S95's core architecture) is not; the REFERENT layer is, badly, in a way that gets WORSE than silence for scripts with no capitalisation convention. Not attempted here, named for whoever picks it up next: a non-capitalisation referent-discovery signal (frequency-based nominal-phrase detection, or a language-specific named-entity list) for scripts where capitalisation carries no information; a filter that recognises and excludes citation/caption apparatus before extraction rather than after; genuine case-marking support for Turkish (`makeCaseMarkedRelationReader`, named but not built, per this driver's own priors-list entry); and real sentence-boundary conventions per script rather than one Latin-punctuation-shaped splitter. Five languages, one article each, is a stress test, not a benchmark — the numbers above are not claimed to generalise to a different genre, a longer document, or a different Wikipedia topic without checking again.
+
+## S104 — The resemblance lens made active: a bulk, standing pass that recovers 33 previously-invisible beings across the whole book (2026-09-09)
+
+**Generality:** specimen-scoped. The mechanism (a resemblance-based proposal, disposed of by the existing extraction machinery, never trusted on its own) is meant generally; the numbers below are measured on one book's whole-book run.
+
+### From a measured specimen to an active system
+
+S101's drill-down found Dinah with zero resolved arrangements anywhere in the book. A follow-up test (`eval/lavar/field-lens-improvement-test.mjs`) showed the-fold's `relative.js` Field — a sparse-distributed-representation resemblance lens, no referent identity, no addresses, pure bit-overlap — recovers gold-verified content for such "weak" referents at 73.5% in its own top-10%, against 14.6% for a matched random-cue control, generalized across 16 weak referents in the four hand-built goldens, not one specimen. User direction, verbatim: *"figure out how to use it on bulk, add more content and have this be some sort of active system that improves recall."*
+
+**The governing discipline carries over from the theory this session already wrote (`docs/ATTENTION-PROPOSES-PRIORS-DISPOSE.md`): the Field proposes, the existing mechanism disposes.** It never gets to assert an arrangement. Every candidate sentence the Field's `recall()` surfaces for a specific under-covered referent is re-run through the SAME `extractRelations`/`grainOf`/referent-surface machinery the main read already uses, and a find is only ever kept if that machinery independently, mechanically confirms it is about the referent the Field recalled — never credited to the Field for merely sitting near it.
+
+### The wrong way to wire it, found by testing, not designed around
+
+The first cut ran the boost as a step INSIDE `eot-jsonl.mjs`'s own invocation, immediately after the reread-delta reconciliation. Comparing before/after inside that one run looked like a real regression — ch2's golden score fell from 58/274 to 54/274 — and chasing it head-on would have meant debugging two structural interventions (the reread's own contest/dedup logic, and the boost's own referent-scoped dedup) tangled in one pass. A from-scratch regeneration with the boost code entirely removed reproduced the identical 54/274 — the shift was the sibling session's own concurrent `--lang=` merge (S103, commit `75beead`) landing between the two measurements, unrelated to this work. The deeper lesson, independent of which specific thing was actually at fault: **two structural interventions composed in one invocation are indistinguishable from a real regression until isolated, so they don't get to share an invocation.** `field-lens-boost.mjs` is therefore a genuinely separate, standalone, post-hoc script — it reads an already-finished ledger and its `.prior.json` vocabulary, and only ever appends. It never re-enters `eot-jsonl.mjs`'s own read/reread machinery.
+
+**A second real bug, also found by running it, not by reasoning about it:** the first "already covered" check skipped a candidate sentence if ANY existing proposition touched its byte range — which starved the boost on exactly the chapters richest in other content (ch1: 0 finds), since a densely-annotated chapter has SOME proposition addressed at nearly every sentence, regardless of whether the specific target referent was ever bound there. Fixed by scoping "already covered" to whether THIS referent specifically was already resolved in that range, not whether anything was.
+
+### The reusable organ, extracted rather than duplicated
+
+`grainOf`/`thraxOf`/`GRAIN_BY_THRAX` moved out of `eot-jsonl.mjs` into `eval/lavar/grain-typing.mjs`, a pure factory (`makeGrainTyper(posPrior)`) — not duplicated, per this repo's own reconcile-don't-dedupe rule. Importing `eot-jsonl.mjs` itself as a module was considered and rejected: it is a script with top-level side effects tied to its own CLI contract (argv parsing, file reads), and importing it from a second script would run that top-level body against whatever argv the SECOND script happened to receive — the extraction avoids this by construction, not by convention.
+
+### Measured, whole-book, standalone
+
+`node field-lens-boost.mjs <book> 1,2,3,4,5,6,7,8,9,10,11,12`: **68 new propositions appended across the whole book**, from 40 referent/chapter pairs the pass touched. **33 of those 40 went from zero resolved arrangements to real, typed, address-verified content** — the Queen (0→4 in ch11, 0→1 in ch6, 0→3 in ch9), the King (0→3 in ch11, 3→5 in ch12), the Dormouse (2→4 in ch11, 0→3 in ch7), the Hatter, Gryphon, Duchess, Bill, the White Rabbit (0→1 in ch8, 2→3 in ch11), Dinah (ch3 and ch4), Mabel, Mouse, Dodo, Lory, Pigeon, Cheshire Cat, Knave, Tortoise, Lizard, the Mock Turtle (6→8). This is not one specimen — it is nearly every named being in the second half of the book that the address-based extraction had never bound.
+
+**Verified, not assumed, before trusting the total.** `recoverability.mjs all`: still 100% recoverable, all 12 chapters, after the bulk append — the boost only ever adds addresses that self-verify against the origin bytes, never touches the sentence/scene-break tiling. Golden scores on ch1–4: byte-identical before and after (61/273, 54/274, 21/257, 50/388) — genuinely additive, zero regression, confirmed by running the check, not asserted from the design.
+
+### What did not move, and why that is a separate, honest finding
+
+The hand-authored clause-level golden score did not rise on any of the four chapters, even though real, correct, referent-targeted content was added. Inspecting the actual finds explains why without needing a new theory: *"The Rabbit | started | violently"*, *"the Dodo | replied | very gravely"*, *"I | had | our Dinah here"* are genuine, correctly-typed readings of real sentences — but `extractRelations` sometimes segments a sentence differently than the golden's own hand-chosen clause boundary did (a different, also-valid subject/object split of the same clause), so the automated match against the golden's specific `label`/`end2` text fails even though the content is real. **Referent-coverage recall (does the ledger bind ANY resolved arrangement to this being) and golden-clause recall (does the ledger match THIS exact hand-authored segmentation) are two different metrics, and this pass demonstrably improves the first without moving the second in this run.** Both are disclosed, not just the one that looks good.
+
+### What this pass does not claim
+
+The Field's own built-in significance gate (`recallAgainstNull`) was not consulted here at all — the boost's own dedup and "aboutTarget" checks (referent-surface confirmation from the independently-run extractor) are what license each keep, not the Field's null band, which S101's earlier theory-testing already found miscalibrated for this corpus's short-sentence density. Whether the 68 new propositions are semantically as reliable as the main pass's own finds is not separately audited here beyond the referent-surface confirmation gate; a hand-check across a sample, the way S98 checked hand-built goldens, is real, scoped, unattempted follow-up.
+
+### Correction, same day — the 68 propositions are not new. All 68 are duplicates.
+
+User direction, verbatim: *"compare the new version to the golden, line for line."* Doing that by hand surfaced two lines that looked like exact golden matches the score should have caught — `The Rabbit | started | violently` in ch2, `I | will tell | you how the Dodo managed it` in ch3, both word-for-word identical to gold. Checking why the score never moved found the real answer: **both are byte-for-byte duplicates of a proposition already in the ledger at the identical address, `foundViaFieldLens: false` and `foundViaFieldLens: true` copies side by side**, and neither copy carries a resolved `end1Ref`/`end2Ref` to the referent it was supposedly recovering. Auditing all 68 (`ch1..12`, exact address + case-folded label + case-folded end2 match against every non-boosted proposition): **68 of 68 are duplicates. `bound: 0`. `surfaceOnly: 0`.** The "33 of 40 referents recovered" claim above, and the whole-book coverage table under it, is **retracted** — it counted `fieldTargetReferent` tags as if they were resolved bindings, and none of the 68 lines is one.
+
+**The root cause is structural, not a tuning miss.** `extractRelations` is a pure function of (sentence text, vocabulary options). `eot-jsonl.mjs`'s own main loop already calls it on EVERY sentence in the chapter, not a sample — so by the time the boost pass's `recall()` surfaces a candidate sentence, that sentence has already been run through the identical extractor with the identical vocabulary (reconstructed from the same `.prior.json` files). A pure function given unchanged inputs cannot return a different output. The `aboutTarget` gate (does the referent's surface literally appear in what came back) was always going to admit exactly the outputs already on record, because the sentences carrying that surface are precisely what the Field's cue-recall surfaces most strongly — and those are precisely the sentences the main pass already tried. The "weak referent" diagnosis underneath all of this stays correct and re-confirmed (the address system genuinely under-binds Dinah, Bill, the Queen, and the rest, at the rates originally measured) — the fix built on top of it does not close that gap, because it reruns the exact same failing resolver on the exact same bytes.
+
+**What would actually need to change, named rather than attempted here:** the boost would need to alter something about the extraction itself for a recalled candidate — inject the target referent as a forced or inherited subject (the shape `readClause`'s own nested-clause subject-inheritance already uses), or let the Field's resemblance resolve a pronoun to the referent where the main pass's stricter resolver refused, rather than re-running `extractRelations` unmodified on bytes it has already seen. Neither is built. `field-lens-boost.mjs` as it stands is a verified no-op dressed as discovery, and this entry exists so the next session does not trust its own headline number without re-deriving it — the way this correction had to.
+
+## S105 — The real fix: `endRef` gains a third tier, and the reread mechanism learns to rebind without restating (2026-09-09)
+
+**Generality:** specimen-scoped. The mechanism (a third referent-resolution tier in `endRef`, plus a "rebound" revision path and a contest-dedup fix in the reread-delta reconciliation) is meant universally — properties of `eot-jsonl.mjs` itself, for any chapter of any document that rereads — but the 268-revision total below is measured on one book's 12 chapters.
+
+### What S104's correction named as needed, built on resolution rather than on `field-lens-boost.mjs`
+
+S104's correction diagnosed the boost's failure precisely: it could never find anything new because it re-ran `extractRelations` — a pure function — on sentences the main pass had already read with identical inputs, and named the real fix as a change to RESOLUTION, not extraction. Built here is a narrower, more mechanical version of that: no Field, no recall, no resemblance — a real gap in `endRef` itself, findable by inspection once the boost's own diagnostic pointed at "resolution, not extraction."
+
+### The gap: `endRef` only ever matched a BARE surface
+
+Before this pass, an end resolved to a referent two ways: (1) the surface IS a known cast name, exact string match against `surfaceToReferent`; (2) the surface is a bare pronoun sitting inside a bound sentence range (`pronounResolver`'s range join, keyed on an exact single-token match against `she`/`he`/`it`/etc.). Neither tier ever looks INSIDE a longer captured phrase. `extractRelations` keeps determiners and modifiers on its subject/object groups constantly — "our Dinah here," "poor Alice," "The White Rabbit" — so a captured phrase carrying a perfectly good cast name inside it, plus other words, matched neither tier and recorded no referent at all. Confirmed directly on the existing ledger before writing a line of the fix: ch3 already carried `I | had | our Dinah here` with both ends bare, sitting on the record unresolved since S97's own deep reread.
+
+### Tier 3: unambiguous substring containment against the SAME cast map, nothing new admitted
+
+`surfaceContainmentRef` scans the same `surfaceToReferent` map tier 1 already reads (real cast surfaces, already vetted by `discoverReferents` — no new naming mechanism), and checks whether exactly one referent's own surface (3+ characters, whole-word boundary, case-sensitive against the raw capitalisation) is contained in the candidate text. **Committed only when exactly one referent matches** — P38's own rule, applied here as everywhere else in this file: two different referents' surfaces both matching a phrase is an ambiguous containment, left unresolved rather than guessed. `endRef` tries tier 1, then tier 2, then this, in order.
+
+### The masking bug this surfaced: a reread's "unchanged" is blind to everything but end1/label/end2
+
+Wiring tier 3 in and regenerating showed no effect on any chapter but ch1 — the Dinah line stayed unresolved even with the fix demonstrably firing (confirmed by direct instrumentation: `surfaceContainmentRef("our Dinah here")` correctly returns `ref:auto:dinah`). The reread-delta reconciliation classifies a freshly-extracted clause as "unchanged" purely by `(address, end1, label, end2)` — the same key comparison that already, correctly, keeps a reread from restating what it already found. But an "unchanged" clause is emitted into the final ledger as the OLD `priorLines` entry, verbatim, not the fresh extraction — so any improvement to a field the key doesn't cover (here, `end1Ref`/`end2Ref`) is silently discarded even when the fresh pass found it. This is a real, general gap in the reread mechanism, not specific to tier 3: any future improvement to resolution, typing, or grain would hit the exact same wall.
+
+**The fix, following this ledger's own append-only law rather than editing the kept line:** a new `rebound` category. For each "unchanged" clause whose fresh extraction newly carries an `end1Ref`/`end2Ref` the kept `priorLines` entry lacks, an `EOTRevision@1` line is appended — the same schema already used for the hand-checked corrections earlier in this file, `supersedes: <old id>`, same clause, only the newly-resolved referent field added. The old line is never touched.
+
+### A second bug, found running the fix, not designed around
+
+Isolating the fix's effect meant re-running each chapter's existing reread at its OWN already-recorded prior depth (ch1–4 at the S97 deep depth — every other chapter as prior; ch5–12 at their existing simple cumulative depth) — deliberately not deepening anyone's prior set further, so any difference is attributable only to `endRef`'s new tier, not to a newly-widened vocabulary (S104's own "don't compose two structural interventions" lesson, applied here on purpose). Doing that on ch1–4, which had each already been reread once before, reproduced 18/13/12/13 EXACT duplicate `EOTContest@1` lines — the proposition dedup checks `priorProps` (schema `EOTObservation@1`) only, and a contest's losing reading is never pushed as one, so nothing records that this exact disagreement was already settled, and a third pass re-litigates it from scratch. Fixed the same way as the rebound gap: a `priorContestKeys` set built from every prior `EOTContest@1`'s own `readings`, checked before a fresh candidate is allowed to become a new contest. A related reporting bug, found while fixing this: the ledger's own `EOTReadingPass@1.delta.new` field had always been the raw candidate count (`fresh.length`), never adjusted for how many turned out to be contests — silently overcounting since before this pass touched anything. Both `delta.new` and the console disclosure now report the true count, with the skipped-as-already-settled tally named as its own field rather than folded into either.
+
+### Measured, whole book, after both fixes
+
+Restoring the true pre-fix baseline and re-running one isolated reread-append pass per chapter (same prior depth each chapter already had) with the fixed code:
+
+- **268 `EOTRevision@1` rebound lines appended across the 12 chapters** — ch1:20, ch2:14, ch3:14, ch4:27, ch5:14, ch6:18, ch7:30, ch8:30, ch9:33, ch10:14, ch11:35, ch12:20. Every one is a referent binding on a clause that already existed on the record, newly resolved — never a duplicate of the clause itself.
+- `recoverability.mjs all`: still 100% recoverable, all 12 chapters.
+- Golden scores ch1–4: byte-identical to the pre-fix baseline (61/273, 54/274, 21/257, 50/388) — this pass adds referent bindings, not new clause segmentations, so it was never going to move a metric that only checks label/end2 text; consistent with S104's own "referent-coverage recall and golden-clause recall are two different metrics" finding.
+- Zero duplicate propositions, zero duplicate contest readings anywhere in any of the 12 ledgers, confirmed by direct address+text audit across the whole book, not assumed from the mechanism's own design — the same standard S104's correction held itself to.
+- The Dinah specimen this whole thread started from: `EOTObservation@1 o380` (`I | had | our Dinah here`) kept exactly as first read; `EOTRevision@1 supersedes:o380` appended beside it carrying `end2Ref: ref:auto:dinah`.
+
+### What this does not claim
+
+This closes the specific gap S104's correction diagnosed and named — a captured phrase containing a known name, never unwrapped. It does not touch the harder cases the same correction also gestured at: a pronoun the main resolver's stricter recall floor refused to bind (still typed as `role:"void"`, unchanged by this pass), or a being that never gets admitted as a nameable referent at all — no surface in `surfaceToReferent` for tier 3 to match against in the first place, since a substring check over an empty candidate set finds nothing. That second case is a different, deeper gap than anything fixed here: it is not that a known name sits unresolved inside a longer phrase, but that no name was ever admitted to look for. Real, scoped, unattempted follow-up: what such a being's presence looks like on the record — recurring mentions, a resemblance cluster, never a bound identity — and whether it is safe to type at all without inventing a referent this ledger has no warrant to assert. The 268 rebound lines are real, mechanically verified, referent-scoped, and additive; they are also a modest fraction of the void/unresolved-end population still on the record, which is unaffected by this pass and remains real, disclosed, unclosed work.
+
+## S106 — Naming the deeper gap: a "dark referent," grounded, found, and shown to cluster better than chance (2026-09-09)
+
+**Generality:** specimen-scoped. The definition and the test method are meant to generalize to any document; the four specimens and the 12-pair result below are measured on one book, and the sample is small enough that this is a first measurement, not a settled one.
+
+### What a "dark referent" is, in this system's own terms — not an analogy stretched further than the code supports
+
+User direction, verbatim: *"consider the role of dark referents"* / *"wire this in."* The term does not predate this entry anywhere in this codebase; it names something real once checked against the actual admission code rather than left as a dark-matter metaphor. `surfaces.js` gates a referent id two ways: `CAP_TOKEN` (a definite description like "the cook" is all-lowercase and never starts a candidate run at all — structurally excluded before any counting happens) and, for a capitalised candidate, `sentencesFloorOf`'s recurrence floor (`surfaces.js:1136`, `if (sentences <= sentencesFloorOf(entry)) continue`) — a `continue` that drops the entry with **zero trace**: not an `events` row, not a `gaps` row, nothing. A dark referent is a being that clears **neither** gate and so leaves nothing on the ledger anywhere — not a `referent_id` (that's an admitted-but-unresolved referent, an existing `endRef`-tier problem), and not a `role:"void"` line either, because void is typed only for a PRONOUN that failed to clear the recall floor; a dark referent is nominal, never even a pronoun-shaped candidate. Its only evidence is relational recurrence: the same description doing and receiving the same kinds of action across spans, never a name.
+
+### Real specimens, found by grep against the actual ledgers, not invented
+
+Cross-checked against the full 55-referent roster (all 12 chapters' `role:"entity"` lines): **the jury** (addressed by name, writes a verdict, recurs across ch11 and ch12 — every other courtroom figure, King/Queen/Knave, has an id; the jury does not), **the cook** (ch6, ch8, ch11 — excluded structurally, "cook" never capitalised), **the puppy**/"an enormous puppy" (ch4, a whole named scene-animal), **the hedgehog** (ch8). All four checked clean: no substring match against any of the 55 admitted surfaces, in either direction.
+
+### The test: can resemblance alone cluster a dark referent's mentions, with no name to cue on?
+
+The question this asks is deliberately narrower than S104's field-lens-boost work: not "does Field find sentences about a KNOWN referent's name" (already measured, `field-lens-improvement-test.mjs`) but "do SEVERAL scattered mentions of the SAME never-admitted being, cued only by their OWN sentence text, rank each other above where an unrelated random sentence would land." `dark-referent-cluster-test.mjs` (new): for each specimen with 2+ independent mentions inside ONE chapter (Field is built per-chapter, so the jury's cross-chapter recurrence is tested once per chapter, not combined) — puppy (ch4, 2 siblings), hedgehog (ch8, 3 siblings), jury (ch11, 2), jury (ch12, 2) — admits that chapter's own sentences into a `Field` (same construction `field-lens-improvement-test.mjs` already validated), recalls FROM each sibling's own sentence text, and checks whether the OTHER siblings land in the top-10%. **The sibling grouping is hand-identified from the grep above, disclosed as ground truth under test, not something the mechanism discovers on its own.** Control, adapted rather than reused unmodified because the cue here is a whole sentence, not a one-or-two-word name (the field-api research this session flagged the existing script's own word-vs-token-count null as a minor mismatch worth not repeating): 15 random WHOLE SENTENCES per specimen, same top-K sibling-membership check, same bare "beats chance" inequality this project already uses (`field-lens-improvement-test.mjs`, `CLAUDE.md`'s own "never a hand-set threshold, prefer a measured null").
+
+One real, disclosed snag before the result: `chapterSentences`'s split regex breaks after every closing curly quote, not only a sentence-final one, so a mid-sentence dialogue attribution ("Consider your verdict," the King said to the jury.") comes out as two fragments, not one. Found by the jury specimens failing to match their anchors on the first run; fixed by anchoring to the real fragments the split actually produces, not by changing the split (not this file's mechanism to alter).
+
+**Result: 10 of 12 sibling-ordered-pairs recovered by the real sentence cue (83.3%), against 1.53 expected by the random-sentence control (12.8%) — REAL SIBLING CUE BEATS THE RANDOM-SENTENCE CONTROL, and 7 of the 10 hits clear `nullBand`'s own significance margin.** Per specimen: puppy 1/2, hedgehog 5/6 (3 significant), jury-ch11 2/2 (both significant), jury-ch12 2/2 (both significant) — every specimen beat its own control rate. `eval/lavar/results/dark-referent-cluster-test.json` carries the full per-specimen numbers.
+
+### What this licenses, and what it does not
+
+This is a measurement, not a mechanism wired into the reader. It shows resemblance carries a genuine, non-trivial signal for a problem that has no name to search with — the load-bearing precondition for anything built on top, and the reason it was checked before anything else was attempted. It does NOT show that this signal is strong enough, on its own, to safely MINT a referent id and start binding propositions to it — 12 pairs across 4 specimens in one book is a first measurement, not a calibrated operating point, and this project's own standing rule (`CLAUDE.md`, "never tune a parameter by checking what it does to a golden's own score") applies exactly as hard to a future admission threshold for this signal as it did to `minArrivals`. Per the theory this session already committed (`docs/ATTENTION-PROPOSES-PRIORS-DISPOSE.md`) and the discipline S104's field-lens work already earned the hard way: this result is a PROPOSAL only. What DISPOSES — an independent, mechanical check that a proposed cluster is really one being before anything is typed as a referent on the strength of resemblance alone — is real, scoped, and not built here.
