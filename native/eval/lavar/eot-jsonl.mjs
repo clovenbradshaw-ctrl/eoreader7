@@ -263,6 +263,25 @@ const LANG_PRONOUNS = {
   // pos-swh.json cannot be built without fabricating a prior — READING
   // STAYS BLOCKED at that gate below, disclosed rather than faked.
   swh: wordBound("yeye|wao"),
+  // rus: Russian third-person personal pronouns, nominative + the common
+  // oblique forms (genitive/accusative/dative) a void-detector scan needs
+  // to catch a bound referent in ordinary prose, not just subject position
+  // — он/она/оно/они (he/she/it/they) plus его/её/их (him-or-its/her/them)
+  // and ему/ей/им (to-him/to-her/to-them). Cyrillic has real letter case
+  // (this project's own P70 already reads Russian Wikipedia through
+  // resolvePronouns' English-only default and correctly gets zero
+  // attempts — a disclosed absence, not a claim this list fixes that
+  // organ; this is only eot-jsonl.mjs's own narrower void-pronoun scan).
+  rus: wordBound("он|она|оно|они|его|её|их|ему|ей|им|него|неё|них"),
+  // fin: Finnish grammaticalises NO gender at all — a real typological
+  // fact, not an under-listed set. hän (person, he-or-she) and se (thing,
+  // it) cover the singular; the plural forms he (people) and ne (things)
+  // are genuinely distinct words, not he/it pluralised the way English
+  // pluralises "they". Oblique forms (hänet/hänen/häneltä etc.) are
+  // Finland's own rich case system doing to a pronoun what it does to
+  // every noun — left out, the same disclosed-narrow posture kor/heb/swh
+  // already hold, not a claim of covering every declined form.
+  fin: wordBound("hän|se|he|ne"),
 };
 if (!LANG_PRONOUNS[LANG]) { console.error(`no pronoun set declared for --lang=${LANG} (declared: ${Object.keys(LANG_PRONOUNS).join(", ")})`); process.exit(2); }
 const POS_PRIOR_PATH = path.join(HERE, "../../priors", LANG === "eng" ? "pos-eng.json" : `pos-${LANG}.json`);
