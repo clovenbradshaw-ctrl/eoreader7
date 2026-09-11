@@ -9,14 +9,20 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { makeNotesText } from "./notes-text.js";
-import { adaptTaskLog } from "../../../the-fold/consequence.js";
+import { FoldUnavailableError, resolveFoldSibling } from "../eval/the-fold/lib/fold-sibling.mjs";
 import * as cube from "../kernel/cube.js";
 import * as nativeTaskLog from "../kernel/task-log.js";
 import * as experiencePriors from "../kernel/experience-priors.js";
 
+const { path: FOLD_PATH, available: FOLD_OK } = resolveFoldSibling(import.meta.url, "../../../the-fold/");
+const SKIP = FOLD_OK ? undefined : `the sibling the-fold checkout is not available: consequence.js (looked for ${FOLD_PATH})`;
+const { adaptTaskLog } = FOLD_OK
+  ? await import(`${FOLD_PATH}consequence.js`)
+  : { adaptTaskLog: () => { throw new FoldUnavailableError(SKIP); } };
+
 // `consequence.js`'s own adapter reconciles native's ordinal GRAINS with the
 // GRAIN_RANK shape this module reads — reused rather than a second mapping.
-const taskLog = {
+const taskLog = SKIP ? null : {
   ...adaptTaskLog({
     createTaskLog: nativeTaskLog.createTaskLog, append: nativeTaskLog.append,
     ENTRY_KINDS: nativeTaskLog.ENTRY_KINDS, OPERATOR_BASIS: nativeTaskLog.OPERATOR_BASIS,
@@ -32,10 +38,10 @@ const span = (ref, start, end, text) => ({ ref, start, end, text });
 // mode/domain/terrain/stance from that pair. These pin that it is READ, not
 // chosen, and that it never touches the world-facing plane.
 
-const hlCube = makeNotesText({ ...taskLog, cellOf: cube.cellOf });
+const hlCube = SKIP ? null : makeNotesText({ ...taskLog, cellOf: cube.cellOf });
 const sp = (n) => [span(`w${n}`, 0, 3, "abc")];
 
-test("the admitting act carries the cell the cube derives, not a restated literal", () => {
+test("the admitting act carries the cell the cube derives, not a restated literal", { skip: SKIP }, () => {
   let log = hlCube.createNotes();
   log = hlCube.admit(log, [{ subject: "A", verb: "replaces", object: "B", spans: sp(1) }], { witness: "p1" }).log;
   log = hlCube.admit(log, [{ subject: "A", verb: "replaces", object: "B", spans: sp(2) }], { witness: "p2" }).log;
@@ -54,7 +60,7 @@ test("the admitting act carries the cell the cube derives, not a restated litera
   assert.equal(again.terrain, "Link");
 });
 
-test("with no cellOf injected an entry is byte-identical — an absent cube is stated, never supplied", () => {
+test("with no cellOf injected an entry is byte-identical — an absent cube is stated, never supplied", { skip: SKIP }, () => {
   const plain = makeNotesText(taskLog);
   let a = plain.createNotes();
   a = plain.admit(a, [{ subject: "A", verb: "replaces", object: "B", spans: sp(1) }], { witness: "p1" }).log;
@@ -64,7 +70,7 @@ test("with no cellOf injected an entry is byte-identical — an absent cube is s
   }
 });
 
-test("a cube that gaps is carried as a gap, never smoothed into a plausible cell", () => {
+test("a cube that gaps is carried as a gap, never smoothed into a plausible cell", { skip: SKIP }, () => {
   const gapping = makeNotesText({ ...taskLog, cellOf: () => ({ gap: "unknown_spec", reason: "no such operator" }) });
   let log = gapping.createNotes();
   log = gapping.admit(log, [{ subject: "A", verb: "replaces", object: "B", spans: sp(1) }], { witness: "p1" }).log;
@@ -72,7 +78,7 @@ test("a cube that gaps is carried as a gap, never smoothed into a plausible cell
   assert.ok(!("stance" in log.entries[0]), "a gapped cell must not also carry a stance");
 });
 
-test("the posture projection carries the ACT only — no world-facing field crosses the plane", () => {
+test("the posture projection carries the ACT only — no world-facing field crosses the plane", { skip: SKIP }, () => {
   let log = hlCube.createNotes();
   log = hlCube.admit(log, [{ subject: "Hamlin", verb: "replaces", object: "Breckinridge", spans: sp(1) }], { witness: "en.wikipedia.org/Hamlin" }).log;
   const reading = hlCube.readingFromNotes(log, { source: "work1" });
@@ -87,20 +93,20 @@ test("the posture projection carries the ACT only — no world-facing field cros
   assert.equal(reading.postures, 1);
 });
 
-test("a log with no declared cube sediments nothing rather than a default posture", () => {
+test("a log with no declared cube sediments nothing rather than a default posture", { skip: SKIP }, () => {
   const plain = makeNotesText(taskLog);
   let a = plain.createNotes();
   a = plain.admit(a, [{ subject: "A", verb: "replaces", object: "B", spans: sp(1) }], { witness: "p1" }).log;
   assert.equal(plain.readingFromNotes(a, { source: "w" }).postures, 0);
 });
 
-test("an unattributed reading is refused — cross-work memory needs a source", () => {
+test("an unattributed reading is refused — cross-work memory needs a source", { skip: SKIP }, () => {
   let log = hlCube.createNotes();
   log = hlCube.admit(log, [{ subject: "A", verb: "replaces", object: "B", spans: sp(1) }], { witness: "p1" }).log;
   assert.throws(() => hlCube.readingFromNotes(log), /source is named/);
 });
 
-test("postures sediment across works through the real experience-priors organ", () => {
+test("postures sediment across works through the real experience-priors organ", { skip: SKIP }, () => {
   // Each pair carries its OWN witness (`w-${i}`) rather than reusing one
   // witness across every call in the same work: a re-sighting witnessed by
   // the exact same source, offering the exact same span, teaches this log

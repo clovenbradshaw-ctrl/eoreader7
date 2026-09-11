@@ -15,11 +15,17 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { makeNotesText, VERB_CLASS } from "./notes-text.js";
-import { adaptTaskLog } from "../../../the-fold/consequence.js";
+import { FoldUnavailableError, resolveFoldSibling } from "../eval/the-fold/lib/fold-sibling.mjs";
 import * as cube from "../kernel/cube.js";
 import * as nativeTaskLog from "../kernel/task-log.js";
 
-const taskLog = {
+const { path: FOLD_PATH, available: FOLD_OK } = resolveFoldSibling(import.meta.url, "../../../the-fold/");
+const SKIP = FOLD_OK ? undefined : `the sibling the-fold checkout is not available: consequence.js (looked for ${FOLD_PATH})`;
+const { adaptTaskLog } = FOLD_OK
+  ? await import(`${FOLD_PATH}consequence.js`)
+  : { adaptTaskLog: () => { throw new FoldUnavailableError(SKIP); } };
+
+const taskLog = SKIP ? null : {
   ...adaptTaskLog({
     createTaskLog: nativeTaskLog.createTaskLog, append: nativeTaskLog.append,
     ENTRY_KINDS: nativeTaskLog.ENTRY_KINDS, OPERATOR_BASIS: nativeTaskLog.OPERATOR_BASIS,
@@ -39,7 +45,7 @@ const toyIdentity = (subject, verb, object) => {
   return { subject: end(subject), verb: v === "withdrew" ? "withdraws" : v, object: end(object) };
 };
 
-test("without a noteIdentity organ, identity stays the exact triple — two wordings are two notes (byte-identical default)", () => {
+test("without a noteIdentity organ, identity stays the exact triple — two wordings are two notes (byte-identical default)", { skip: SKIP }, () => {
   const hl = makeNotesText(taskLog);
   let log = hl.createNotes();
   log = hl.admit(log, [{ subject: "The Russian army", verb: "withdraws", object: "the next day", spans: span("a") }], { witness: "a" }).log;
@@ -49,7 +55,7 @@ test("without a noteIdentity organ, identity stays the exact triple — two word
   assert.ok(notes.every((n) => n.witnesses.length === 1));
 });
 
-test("an injected identity folds two restatements into ONE note with TWO witnesses — the corroboration mechanism is reachable", () => {
+test("an injected identity folds two restatements into ONE note with TWO witnesses — the corroboration mechanism is reachable", { skip: SKIP }, () => {
   const hl = makeNotesText({ ...taskLog, noteIdentity: toyIdentity });
   let log = hl.createNotes();
   log = hl.admit(log, [{ subject: "The Russian army", verb: "withdraws", object: "the next day", spans: span("borodino.txt#1-9") }], { witness: "borodino.txt#1-9" }).log;
@@ -60,7 +66,7 @@ test("an injected identity folds two restatements into ONE note with TWO witness
   assert.equal(notes[0].spans.length, 2);
 });
 
-test("the FIRST reading's face wins the display — evidence accumulates, the words do not drift", () => {
+test("the FIRST reading's face wins the display — evidence accumulates, the words do not drift", { skip: SKIP }, () => {
   const hl = makeNotesText({ ...taskLog, noteIdentity: toyIdentity });
   let log = hl.createNotes();
   log = hl.admit(log, [{ subject: "The Russian army", verb: "withdraws", object: "the next day", spans: span("a") }], { witness: "a" }).log;
@@ -71,7 +77,7 @@ test("the FIRST reading's face wins the display — evidence accumulates, the wo
   assert.equal(note.object, "the next day");
 });
 
-test("a gapping identity organ falls back to surface identity per field and never blocks admission", () => {
+test("a gapping identity organ falls back to surface identity per field and never blocks admission", { skip: SKIP }, () => {
   const hl = makeNotesText({ ...taskLog, noteIdentity: () => null });
   let log = hl.createNotes();
   const r = hl.admit(log, [{ subject: "Anatole", verb: "loses", object: "a leg", spans: span("w") }], { witness: "w" });
@@ -88,7 +94,7 @@ test("a gapping identity organ falls back to surface identity per field and neve
   assert.equal(notes[0].witnesses.length, 2);
 });
 
-test("the grammar gate composes with the identity seam: a settled non-verb is refused BEFORE identity ever runs", () => {
+test("the grammar gate composes with the identity seam: a settled non-verb is refused BEFORE identity ever runs", { skip: SKIP }, () => {
   // A stub lens shaped exactly as makeGrammarLens's return: settled
   // conjunction for "and", out-of-vocabulary for everything else.
   const lens = ({ verb }) =>

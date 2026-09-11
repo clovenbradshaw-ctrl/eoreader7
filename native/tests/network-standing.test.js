@@ -4,11 +4,17 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { networkStanding } from "../kernel/network-standing.js";
-import { bindLinks } from "../../legacy-eoreader6.1/packages/engine/emergence/binding.js";
+import { resolveLegacySibling } from "../eval/the-fold/lib/legacy-sibling.mjs";
+
+const { path: LEGACY_PATH, available: LEGACY_OK } = resolveLegacySibling(import.meta.url, "../../legacy-eoreader6.1/");
+const SKIP = LEGACY_OK ? undefined : `the sibling legacy-eoreader6.1 checkout is not available: binding.js (looked for ${LEGACY_PATH})`;
+const { bindLinks } = LEGACY_OK
+  ? await import(`${LEGACY_PATH}packages/engine/emergence/binding.js`)
+  : { bindLinks: undefined };
 
 const DECLARED = { bindLinks, window: 2, draws: 199, seed: 20260812, alpha: 0.05 };
 
-test("a genuinely co-arriving pair earns an edge; an everywhere-being's big count is refused — the null, not the count, decides", () => {
+test("a genuinely co-arriving pair earns an edge; an everywhere-being's big count is refused — the null, not the count, decides", { skip: SKIP }, () => {
   // A and B share three tight scenes. C is on every fifth unit — raw
   // overlap with A is six, bigger than many real bonds, and exactly what a
   // shuffle also produces (probed against the real null: p = 0.15).
@@ -26,13 +32,13 @@ test("a genuinely co-arriving pair earns an edge; an everywhere-being's big coun
     "and its raw count was NOT small — the count is exactly what must not decide");
 });
 
-test("the organ and the cut are the caller's to declare — nothing defaulted, nothing reimplemented", () => {
+test("the organ and the cut are the caller's to declare — nothing defaulted, nothing reimplemented", { skip: SKIP }, () => {
   assert.throws(() => networkStanding([], { window: 2, draws: 199, seed: 1, alpha: 0.05 }), /injected/);
   assert.throws(() => networkStanding([], { bindLinks, window: 2, draws: 199, seed: 1 }), /alpha/);
   assert.throws(() => networkStanding([{ id: "a", arrivals: [1, 3] }, { id: "b", arrivals: [1, 3] }], { bindLinks, draws: 199, seed: 1, alpha: 0.05 }), /window/);
 });
 
-test("one arrival has no co-arrival to test — the floor is binding's own structural minimum, and it closes a measured false door", () => {
+test("one arrival has no co-arrival to test — the floor is binding's own structural minimum, and it closes a measured false door", { skip: SKIP }, () => {
   // Measured before this wall existed: a single shared arrival produced a
   // DEGENERATE null (nowhere to displace to) that read p = 0 — standing
   // granted precisely where the test could not run.
@@ -48,9 +54,11 @@ test("one arrival has no co-arrival to test — the floor is binding's own struc
 
 // ── the directed pass ───────────────────────────────────────────────────
 import { directedEdges } from "../kernel/network-standing.js";
-import { buildLink } from "../../legacy-eoreader6.1/packages/engine/emergence/binding.js";
+const { buildLink } = LEGACY_OK
+  ? await import(`${LEGACY_PATH}packages/engine/emergence/binding.js`)
+  : { buildLink: undefined };
 
-test("direction comes from the reversal null, or stays typed undetermined — never guessed from raw asymmetry", () => {
+test("direction comes from the reversal null, or stays typed undetermined — never guessed from raw asymmetry", { skip: SKIP }, () => {
   // A leads, B follows one unit later, forty times over — a real
   // directional structure the reversal null can orient.
   const lead = Array.from({ length: 40 }, (_, i) => i * 7);

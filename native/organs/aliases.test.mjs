@@ -11,14 +11,14 @@ import { readFileSync, existsSync } from "node:fs";
 // than throwing on a path good for one machine only) — live_priors is a
 // sibling checkout of this repo, same as the-fold and eoreader6.
 const PRIOR_PATH = new URL("../../../live_priors/derived-priors/alias-priors/alias-declaration-en.json", import.meta.url);
-if (!existsSync(PRIOR_PATH)) { console.error(`refused: fixture_absent — live_priors is not checked out as a sibling of this repo: ${PRIOR_PATH}`); process.exit(2); }
-const PRIOR = JSON.parse(readFileSync(PRIOR_PATH, "utf8"));
-const SHAPES = shapesFrom(PRIOR, { minConfirmRate: 0.3, minFires: 100 });
+const SKIP = existsSync(PRIOR_PATH) ? undefined : `live_priors is not checked out as a sibling of this repo: ${PRIOR_PATH}`;
+const PRIOR = SKIP ? null : JSON.parse(readFileSync(PRIOR_PATH, "utf8"));
+const SHAPES = SKIP ? null : shapesFrom(PRIOR, { minConfirmRate: 0.3, minFires: 100 });
 
 const MIN = 2;
 const run = (t) => declaredAliases(t, { splitSentences, minUses: MIN, shapes: SHAPES });
 
-test("a glossed name the text goes on to use is admitted, with its address", () => {
+test("a glossed name the text goes on to use is admitted, with its address", { skip: SKIP }, () => {
   const t = "The Regional Transit Authority (RTA) covers downtown. The RTA budget was rejected by the board.";
   const { aliases } = run(t);
   const a = aliases.find((x) => x.alias === "RTA");
@@ -27,7 +27,7 @@ test("a glossed name the text goes on to use is admitted, with its address", () 
   assert.equal(t.slice(a.start, a.end), a.sentence, "the address must read back from the bytes");
 });
 
-test("an initialism is admitted as ONE SUBTYPE of alias, with no rule about initials", () => {
+test("an initialism is admitted as ONE SUBTYPE of alias, with no rule about initials", { skip: SKIP }, () => {
   // The alias here shares no initials with its full name at all; it is
   // admitted on exactly the same evidence as RTA above — the text declared
   // it and then used it. Nothing in the organ knows what an acronym is.
@@ -36,27 +36,27 @@ test("an initialism is admitted as ONE SUBTYPE of alias, with no rule about init
   assert.ok(aliases.some((x) => x.alias === "the Trust"), "a non-initial short form is an alias too");
 });
 
-test("a gloss the text never uses again is refused, not dropped silently", () => {
+test("a gloss the text never uses again is refused, not dropped silently", { skip: SKIP }, () => {
   const t = "The Regional Transit Authority (RTA) covers downtown. Nothing further was said.";
   const { aliases, refused } = run(t);
   assert.equal(aliases.length, 0);
   assert.equal(refused.find((r) => r.alias === "RTA")?.why, ALIAS_REFUSALS.USED_ONCE);
 });
 
-test("a parenthetical that is not a name is refused", () => {
+test("a parenthetical that is not a name is refused", { skip: SKIP }, () => {
   const t = "The County Commission (which met on Tuesday night after a long debate) voted. The County Commission voted again.";
   const { aliases, refused } = run(t);
   assert.equal(aliases.length, 0);
   assert.ok(refused.some((r) => r.why === ALIAS_REFUSALS.NOT_A_NAME));
 });
 
-test("a year in parentheses is never an alias", () => {
+test("a year in parentheses is never an alias", { skip: SKIP }, () => {
   const t = "The Riverside Housing Trust (2026) filed. The 2026 filing was late and 2026 was busy.";
   const { aliases } = run(t);
   assert.equal(aliases.length, 0);
 });
 
-test("every floor and the vocabulary itself are declared by the caller, never here", () => {
+test("every floor and the vocabulary itself are declared by the caller, never here", { skip: SKIP }, () => {
   assert.throws(() => declaredAliases("x", { splitSentences, shapes: SHAPES }), /minUses is declared/);
   assert.throws(() => declaredAliases("x", { minUses: 2, shapes: SHAPES }), /splitSentences is injected/);
   assert.throws(() => declaredAliases("x", { splitSentences, minUses: 2 }), /shapes are received/);
@@ -64,7 +64,7 @@ test("every floor and the vocabulary itself are declared by the caller, never he
   assert.throws(() => shapesFrom(PRIOR, {}), /declared by the caller/);
 });
 
-test("the prior is received with its giver, and its shapes carry the evidence that earned them", () => {
+test("the prior is received with its giver, and its shapes carry the evidence that earned them", { skip: SKIP }, () => {
   assert.equal(PRIOR.schema, "AliasDeclarationPrior@1");
   assert.ok(PRIOR.provenance?.built_by, "a prior names what built it");
   assert.ok(PRIOR.provenance?.files_read > 0, "a prior names how much it read");
@@ -72,7 +72,7 @@ test("the prior is received with its giver, and its shapes carry the evidence th
   for (const sh of SHAPES) assert.ok(sh.evidence.fires > 0 && sh.evidence.confirm_rate > 0, `${sh.id} carries its evidence`);
 });
 
-test("a shape the corpus never confirmed does not reach the reader", () => {
+test("a shape the corpus never confirmed does not reach the reader", { skip: SKIP }, () => {
   // "short for" and "d/b/a" never fired in the corpus; at any honest floor
   // they are absent, and their absence is readable in the prior itself.
   const ids = SHAPES.map((s) => s.id);
@@ -80,7 +80,7 @@ test("a shape the corpus never confirmed does not reach the reader", () => {
   assert.equal(PRIOR.shapes["short-for"].fires, 0, "and the prior says why");
 });
 
-test("two fulls glossed to one alias are both kept, never resolved for the reader", () => {
+test("two fulls glossed to one alias are both kept, never resolved for the reader", { skip: SKIP }, () => {
   const t = "The Regional Transit Authority (RTA) met. The River Trail Association (RTA) also met. RTA is ambiguous here and RTA recurs.";
   const { aliases } = run(t);
   const idx = aliasIndex(aliases);
@@ -89,7 +89,7 @@ test("two fulls glossed to one alias are both kept, never resolved for the reade
   assert.equal(e.fulls.length, 2, "both full names are kept");
 });
 
-test("real prose from a fetched page: the material's own declarations are read", () => {
+test("real prose from a fetched page: the material's own declarations are read", { skip: SKIP }, () => {
   const t = "Concerns intensified this week. The Regional Transit Authority (RTA) manages the district. RTA officials confirmed the change, and RTA submitted a revised budget.";
   const { aliases } = run(t);
   const a = aliases.find((x) => x.alias === "RTA");
@@ -98,7 +98,7 @@ test("real prose from a fetched page: the material's own declarations are read",
   assert.ok(a.uses >= 3, `RTA is used ${a.uses} times`);
 });
 
-test("a sentence organ that carries no offsets yields no alias — an address that cannot be verified is never shipped", () => {
+test("a sentence organ that carries no offsets yields no alias — an address that cannot be verified is never shipped", { skip: SKIP }, () => {
   // spans.js's splitSentences returns text without a start; P5.2 says an
   // address that does not read back is refused, and this is that refusal
   // reached from the one direction a caller can actually cause.

@@ -3,13 +3,20 @@ import assert from "node:assert/strict";
 import { proposeCandidates, witnessNote, corroborateLedger, distinctSources, contestedSearch, facesReachable } from "./index.js";
 import { makeNotesText } from "./notes-text.js";
 import { witnessSlice, siblingSwap, foldTestimony } from "./index.js";
+import { FoldUnavailableError, resolveFoldSibling } from "../eval/the-fold/lib/fold-sibling.mjs";
 
 // real native task-log bundle — the same one hyperlexicon-stance.test.mjs uses
 const tl = await import("../kernel/task-log.js");
 const { cellOf } = await import("../kernel/cube.js");
 const { GRAINS } = await import("../kernel/cube.js").catch(() => ({ GRAINS: null }));
-const { adaptTaskLog } = await import("../../../the-fold/consequence.js");
-const door = makeNotesText({ ...adaptTaskLog({ createTaskLog: tl.createTaskLog, append: tl.append, ENTRY_KINDS: tl.ENTRY_KINDS, OPERATOR_BASIS: tl.OPERATOR_BASIS, GRAINS: (await import("../kernel/cube.js")).GRAINS }), projectTasks: tl.projectTasks, cellOf });
+const { path: FOLD_PATH, available: FOLD_OK } = resolveFoldSibling(import.meta.url, "../../../the-fold/");
+const SKIP = FOLD_OK ? undefined : `the sibling the-fold checkout is not available: consequence.js (looked for ${FOLD_PATH})`;
+const { adaptTaskLog } = FOLD_OK
+  ? await import(`${FOLD_PATH}consequence.js`)
+  : { adaptTaskLog: () => { throw new FoldUnavailableError(SKIP); } };
+const door = FOLD_OK
+  ? makeNotesText({ ...adaptTaskLog({ createTaskLog: tl.createTaskLog, append: tl.append, ENTRY_KINDS: tl.ENTRY_KINDS, OPERATOR_BASIS: tl.OPERATOR_BASIS, GRAINS: (await import("../kernel/cube.js")).GRAINS }), projectTasks: tl.projectTasks, cellOf })
+  : null;
 
 const testimony = { witnessSlice, siblingSwap, foldTestimony };
 
@@ -46,7 +53,7 @@ const saysYesWithDecider = async (sentence) =>
 const saysYesToEverything = async () => ({ answer: "yes", because: "Marshal Kutuzov commanded the Imperial Russian Army through the retreat." });
 const saysNo = async () => ({ answer: "no", because: null });
 
-test("facesReachable (S62): a resolved subject face plus either a resolved or a raw object match reaches; an unresolved subject face never does", () => {
+test("facesReachable (S62): a resolved subject face plus either a resolved or a raw object match reaches; an unresolved subject face never does", { skip: SKIP }, () => {
   const bothResolved = [{ s: "the crew", o: "the vessel", sFace: "Captain Ahab", oFace: "the Pequod" }];
   assert.equal(facesReachable(bothResolved, { end1: "Ahab", end2: "Pequod" }), true, "both ends resolve through their faces");
   const objectRaw = [{ s: "the crew", o: "the vessel", sFace: "Captain Ahab", oFace: null }];
@@ -56,7 +63,7 @@ test("facesReachable (S62): a resolved subject face plus either a resolved or a 
   assert.equal(facesReachable([], { end1: "Ahab", end2: "Pequod" }), false, "no edges, nothing to check against");
 });
 
-test("corroborateLedger's `reachable` override REPLACES the co-presence admission decision, never ANDs with it (S62)", async () => {
+test("corroborateLedger's `reachable` override REPLACES the co-presence admission decision, never ANDs with it (S62)", { skip: SKIP }, async () => {
   const far = "x ".repeat(260); // pushes the two names well outside a 400-char window
   const farSource = { ref: "page-far", text: `Alpha appeared here. ${far} Bravo appeared far away.` };
   const seeded = door.admit(door.createNotes(), [
@@ -89,13 +96,13 @@ test("corroborateLedger's `reachable` override REPLACES the co-presence admissio
   assert.equal(withOverrideClosing.skippedNoCopresence, 1);
 });
 
-test("declared budgets and injected organs are required (P3/P9)", async () => {
+test("declared budgets and injected organs are required (P3/P9)", { skip: SKIP }, async () => {
   assert.throws(() => proposeCandidates([], "", {}), /declared by the caller/);
   await assert.rejects(() => witnessNote("x", SOURCE, { testimony }), /injected/);
   await assert.rejects(() => corroborateLedger(door.createNotes(), door, [], { ask: saysNo, testimony }), /declared by the caller/);
 });
 
-test("a 'states' verdict lands as a NAMESPACED witness with the decider's own address in the source", async () => {
+test("a 'states' verdict lands as a NAMESPACED witness with the decider's own address in the source", { skip: SKIP }, async () => {
   const out = await corroborateLedger(seed(), door, [SOURCE], { ask: saysYesWithDecider, testimony, maxAsks: 10 });
   assert.equal(out.attested.length, 1, JSON.stringify(out.refusals));
   const notes = door.foldNotes(out.log);
@@ -107,49 +114,49 @@ test("a 'states' verdict lands as a NAMESPACED witness with the decider's own ad
   assert.match(span.at, /^page-b#\d+-\d+$/, "with a real address in the corroborating source's own bytes");
 });
 
-test("THE CONTROL, built to fail: a witness that affirms EVERYTHING lands nothing — the sibling arm catches it as insensitive", async () => {
+test("THE CONTROL, built to fail: a witness that affirms EVERYTHING lands nothing — the sibling arm catches it as insensitive", { skip: SKIP }, async () => {
   const out = await corroborateLedger(seed(), door, [SOURCE], { ask: saysYesToEverything, testimony, maxAsks: 10 });
   assert.equal(out.attested.length, 0, "an indiscriminate witness must never produce a vote");
   assert.ok(out.refusals.insensitive >= 1, JSON.stringify(out.refusals));
 });
 
-test("a refusal is nothing — the note stands exactly as it stood, and refusals are tallied typed", async () => {
+test("a refusal is nothing — the note stands exactly as it stood, and refusals are tallied typed", { skip: SKIP }, async () => {
   const before = door.foldNotes(seed());
   const out = await corroborateLedger(seed(), door, [SOURCE], { ask: saysNo, testimony, maxAsks: 10 });
   assert.equal(out.attested.length, 0);
   assert.deepEqual(door.foldNotes(out.log), before, "a refusal never touches the ledger");
 });
 
-test("a source never seconds its own sighting (Ladha: correlated witnesses are one perspective)", async () => {
+test("a source never seconds its own sighting (Ladha: correlated witnesses are one perspective)", { skip: SKIP }, async () => {
   const sameSource = { ref: "page-a", text: SOURCE.text };
   const out = await corroborateLedger(seed(), door, [sameSource], { ask: saysYesWithDecider, testimony, maxAsks: 10 });
   assert.equal(out.attested.length, 0, "page-a already witnessed these notes mechanically");
   assert.equal(out.asks, 0, "and no model call is even spent on it");
 });
 
-test("the ask budget is a hard wall", async () => {
+test("the ask budget is a hard wall", { skip: SKIP }, async () => {
   const out = await corroborateLedger(seed(), door, [SOURCE], { ask: saysYesWithDecider, testimony, maxAsks: 1 });
   assert.equal(out.asks, 1);
 });
 
-test("attest refuses a bare, un-namespaced witness — a model vote must never look mechanical", () => {
+test("attest refuses a bare, un-namespaced witness — a model vote must never look mechanical", { skip: SKIP }, () => {
   const log = seed();
   const note = door.foldNotes(log)[0];
   const r = door.attest(log, note.id, { witness: "page-b" });
   assert.equal(r.refused.type, "untyped_witness");
 });
 
-test("attest refuses an unknown note — testimony attaches to what exists", () => {
+test("attest refuses an unknown note — testimony attaches to what exists", { skip: SKIP }, () => {
   const r = door.attest(seed(), "assert:nope", { witness: "testimony:page-b" });
   assert.equal(r.refused.type, "unknown_note");
 });
 
-test("distinctSources collapses a mechanical and a testimony vote from ONE source into one", () => {
+test("distinctSources collapses a mechanical and a testimony vote from ONE source into one", { skip: SKIP }, () => {
   assert.equal(distinctSources(["page-a", "testimony:page-a"]).size, 1);
   assert.equal(distinctSources(["page-a", "testimony:page-b"]).size, 2);
 });
 
-test("DISCLOSED LIMIT: a note whose only name is its SUBJECT ships unarmed — sentence-initial capitals are position, not identity (L2)", async () => {
+test("DISCLOSED LIMIT: a note whose only name is its SUBJECT ships unarmed — sentence-initial capitals are position, not identity (L2)", { skip: SKIP }, async () => {
   // Found while building this module, and pinned rather than worked around:
   // cite.js's namesIn vetoes a sentence-initial capital, so siblingSwap has
   // no claim-side name to swap and returns null. foldTestimony then folds
@@ -173,7 +180,7 @@ test("DISCLOSED LIMIT: a note whose only name is its SUBJECT ships unarmed — s
 });
 
 // ── II.11: medium-blindness EARNED, not declared ────────────────────────
-test("the protocol carries to a NON-TEXT medium — same code, a synthetic score", async () => {
+test("the protocol carries to a NON-TEXT medium — same code, a synthetic score", { skip: SKIP }, async () => {
   // A "source" is a bar of music; a "note" is an arrangement between two
   // motifs; features are motif ids, not words. No string in this test is
   // read as language by the module: the featurizer and the renderer are the
@@ -193,7 +200,7 @@ test("the protocol carries to a NON-TEXT medium — same code, a synthetic score
   assert.ok(proposed[0].shared > 0.5, `overlap measured in motifs, not words: ${proposed[0].shared}`);
 });
 
-test("CONTROL for medium-blindness: the default featurizer is a TEXT adapter and drops what it cannot see", () => {
+test("CONTROL for medium-blindness: the default featurizer is a TEXT adapter and drops what it cannot see", { skip: SKIP }, () => {
   // Named rather than hidden: the default is Latin-script biased by
   // construction (\p{L}{4,} — a two-character CJK word is invisible to it),
   // which is exactly why featuresOf is injectable. This test pins the
@@ -230,7 +237,7 @@ const seedTwo = () => {
   return r.log;
 };
 
-test("THE DARK-ROOM CONTROL: a settled note gets ZERO asks even with budget left and the best overlap", async () => {
+test("THE DARK-ROOM CONTROL: a settled note gets ZERO asks even with budget left and the best overlap", { skip: SKIP }, async () => {
   // The first cut of this module ranked by overlap descending — it would
   // have spent this budget on the settled Kutuzov note (maximal overlap
   // with the source) and never asked about Bagration. If this test ever
@@ -243,12 +250,12 @@ test("THE DARK-ROOM CONTROL: a settled note gets ZERO asks even with budget left
   assert.ok(out.standings.settled.length >= 1, "and the settled note is reported settled, not silently skipped");
 });
 
-test("the walk stops ITSELF when everything reachable is settled or spent — before the budget does", async () => {
+test("the walk stops ITSELF when everything reachable is settled or spent — before the budget does", { skip: SKIP }, async () => {
   const out = await corroborateLedger(seedTwo(), door, [SOURCE], { ask: saysNo, testimony, maxAsks: 100 });
   assert.ok(out.asks < 100, `the budget is a ceiling, not a target: ${out.asks} asks`);
 });
 
-test("askValue: contested outranks thin outranks settled/disconfirmed — the value IS expected movement", () => {
+test("askValue: contested outranks thin outranks settled/disconfirmed — the value IS expected movement", { skip: SKIP }, () => {
   const floor = { settleFloor: 2 };
   const thin = askValue({ id: "t", witnesses: ["page-a"] }, { contradictSources: new Map(), ...floor });
   const settled = askValue({ id: "s", witnesses: ["page-a", "testimony:page-b"] }, { contradictSources: new Map(), ...floor });
@@ -261,7 +268,7 @@ test("askValue: contested outranks thin outranks settled/disconfirmed — the va
   assert.ok(contested.value > thin.value, "a live disagreement is the highest-information ask available");
 });
 
-test("LAMPORT FOR FREE: a contradiction drops the net, so a 'settled' note reopens and needs a third source", () => {
+test("LAMPORT FOR FREE: a contradiction drops the net, so a 'settled' note reopens and needs a third source", { skip: SKIP }, () => {
   // Two sources vouch (net +2, settled). One contradiction arrives: net +1,
   // contested — the walk asks again. That is 'the third source is
   // qualitatively different' falling out of the arithmetic, not a special
@@ -274,7 +281,7 @@ test("LAMPORT FOR FREE: a contradiction drops the net, so a 'settled' note reope
   assert.ok(after.value > 0, "the contradiction bought more asks");
 });
 
-test("a spent pair is spent — a refusal never earns a re-ask of the same note against the same source", async () => {
+test("a spent pair is spent — a refusal never earns a re-ask of the same note against the same source", { skip: SKIP }, async () => {
   let calls = 0;
   const countingNo = async () => { calls += 1; return { answer: "no", because: null }; };
   const out = await corroborateLedger(seed(), door, [SOURCE], { ask: countingNo, testimony, maxAsks: 50 });
@@ -286,7 +293,7 @@ test("a spent pair is spent — a refusal never earns a re-ask of the same note 
 });
 
 // ── the decider-company wall (P31's company law aimed at the decider) ────
-test("THE LIVE SPECIMEN: a byte-verbatim decider that does not state the claim is REFUSED — the Tolstoy sentence never lands a vote again", async () => {
+test("THE LIVE SPECIMEN: a byte-verbatim decider that does not state the claim is REFUSED — the Tolstoy sentence never lands a vote again", { skip: SKIP }, async () => {
   // The exact shape of the first note ever through the >=2-source mouth:
   // the witness says yes and points at a sentence genuinely present in the
   // slice — about something else entirely. Byte containment passed; company
@@ -312,7 +319,7 @@ test("THE LIVE SPECIMEN: a byte-verbatim decider that does not state the claim i
   assert.equal(w.missingEnd, "end1", "the decider mentions end2 verbatim — it is end1 it is silent on");
 });
 
-test("CONTROL: a decider that genuinely keeps the claim's company still lands", async () => {
+test("CONTROL: a decider that genuinely keeps the claim's company still lands", { skip: SKIP }, async () => {
   const src = {
     ref: "wp2",
     text: "Napoleon and Prince Mikhail Kutuzov faced each other across the field. The morning was cold.",
@@ -329,7 +336,7 @@ test("CONTROL: a decider that genuinely keeps the claim's company still lands", 
 // ── the co-presence prefilter and slice centering (Pass 1) ──────────────
 import { endsCopresentWindow } from "./index.js";
 
-test("endsCopresentWindow: finds the window where both ends' features co-occur, null when they never do", () => {
+test("endsCopresentWindow: finds the window where both ends' features co-occur, null when they never do", { skip: SKIP }, () => {
   const text = "A long preamble about weather. Marshal Kutuzov faced Napoleon at the river that morning. Unrelated epilogue.";
   const w = endsCopresentWindow(text, { end1: "Napoleon", end2: "Kutuzov" });
   assert.ok(w, "both ends co-occur — a window exists");
@@ -338,7 +345,7 @@ test("endsCopresentWindow: finds the window where both ends' features co-occur, 
   assert.equal(endsCopresentWindow(text, { end1: "Napoleon", end2: "Bagration" }), null, "Bagration is nowhere — no window, ever");
 });
 
-test("a structurally hopeless candidate is SKIPPED WITHOUT AN ASK — no model call is spent where the wall could never pass", async () => {
+test("a structurally hopeless candidate is SKIPPED WITHOUT AN ASK — no model call is spent where the wall could never pass", { skip: SKIP }, async () => {
   // note ends that never co-occur in SOURCE: the walk must not ask.
   let calls = 0;
   const counting = async () => { calls += 1; return { answer: "no", because: null }; };
@@ -352,7 +359,7 @@ test("a structurally hopeless candidate is SKIPPED WITHOUT AN ASK — no model c
   assert.equal(out.skippedNoCopresence, 1, "and the skip is tallied apart from witness refusals");
 });
 
-test("CONTROL: the prefilter must NOT shield a fabricated-but-copresent claim — the witness still judges it", async () => {
+test("CONTROL: the prefilter must NOT shield a fabricated-but-copresent claim — the witness still judges it", { skip: SKIP }, async () => {
   // 'Kutuzov commanded the Imperial Russian Army' has co-present ends in
   // SOURCE, so the prefilter passes it through and the WITNESS is what
   // refuses or confirms. If the prefilter ever blocks copresent
@@ -368,7 +375,7 @@ test("CONTROL: the prefilter must NOT shield a fabricated-but-copresent claim �
 import { thirdSourceCandidates, WITNESS_OPERATING_POINT } from "./index.js";
 import { readFileSync, existsSync } from "node:fs";
 
-test("thirdSourceCandidates: excludes sources already vouching, requires per-end feasibility, declared limit (P9)", () => {
+test("thirdSourceCandidates: excludes sources already vouching, requires per-end feasibility, declared limit (P9)", { skip: SKIP }, () => {
   const note = { id: "k", subject: "Kutuzov", verb: "commanded", object: "the Russian army", witnesses: ["page-a", "testimony:page-b"] };
   const sources = [
     { ref: "page-a", text: "Kutuzov led the Russian army east." },            // already vouches (mechanical)
@@ -381,7 +388,7 @@ test("thirdSourceCandidates: excludes sources already vouching, requires per-end
   assert.deepEqual(got.map((g) => g.source.ref), ["page-c"], "only the new, feasible source is proposed");
 });
 
-test("THE KUTÚZOV CASE: the fold makes the real novel visible to an unaccented claim — against the real bytes", { skip: !existsSync("/Users/mlacy/Documents/3.0/eoreader7/legacy-eoreader6.1/scripts/corpus/pg2600-war-and-peace.txt") }, () => {
+test("THE KUTÚZOV CASE: the fold makes the real novel visible to an unaccented claim — against the real bytes", { skip: SKIP || (!existsSync("/Users/mlacy/Documents/3.0/eoreader7/legacy-eoreader6.1/scripts/corpus/pg2600-war-and-peace.txt") && "the pg2600 War and Peace fixture is not beside this repo") }, () => {
   // The Maude translation writes Kutúzov 524 times. An unfolded feature
   // set makes the novel invisible to a claim about "Kutuzov" — the exact
   // Bezúkhov bug class, recurring at the fifth turn. This test reads the
@@ -394,7 +401,7 @@ test("THE KUTÚZOV CASE: the fold makes the real novel visible to an unaccented 
   assert.match(got[0].window.text, /Kut[uú]zov/u, "and the window really contains him");
 });
 
-test("DEF·Pattern: the operating point is declared with method and date, and rides every walk report", async () => {
+test("DEF·Pattern: the operating point is declared with method and date, and rides every walk report", { skip: SKIP }, async () => {
   assert.equal(WITNESS_OPERATING_POINT.models["gemma2:2b"].falseStates, 0);
   assert.ok(WITNESS_OPERATING_POINT.method.length > 20, "the method is named, not implied");
   const out = await corroborateLedger(seed(), door, [SOURCE], { ask: saysNo, testimony, maxAsks: 2 });
@@ -414,7 +421,7 @@ const contradicting = async (sentence) =>
     ? { answer: "no", because: null }
     : { answer: "yes", because: "Marshal Kutuzov commanded the Imperial Russian Army through the retreat." };
 
-test("CON·Pattern: a contradiction lands in the contests structure with BOTH sides named", async () => {
+test("CON·Pattern: a contradiction lands in the contests structure with BOTH sides named", { skip: SKIP }, async () => {
   const out = await corroborateLedger(seed(), door, [SOURCE], { ask: contradicting, testimony, maxAsks: 10 });
   assert.equal(out.contradicted.length, 1, "the scripted contradiction is REACHED — asserted, never assumed");
   assert.equal(out.contests.length, 1);
@@ -424,7 +431,7 @@ test("CON·Pattern: a contradiction lands in the contests structure with BOTH si
   assert.equal(c.disputes[0].source, "page-b");
 });
 
-test("a contradiction LANDS ON THE LEDGER — the branch that used to report and drop", async () => {
+test("a contradiction LANDS ON THE LEDGER — the branch that used to report and drop", { skip: SKIP }, async () => {
   const out = await corroborateLedger(seed(), door, [SOURCE], { ask: contradicting, testimony, maxAsks: 10 });
   assert.equal(out.contradicted[0].landed, true);
   assert.ok(out.contradicted[0].disputeId, "the contest has an id on the record");
@@ -440,7 +447,7 @@ test("a contradiction LANDS ON THE LEDGER — the branch that used to report and
   assert.equal(door.concededIds(out.log).size, 0);
 });
 
-test("CONTROL BUILT TO FAIL: a SECOND walk over the same ledger starts KNOWING the note is contested — on the per-run Map it read `thin` and the third source was never sought", async () => {
+test("CONTROL BUILT TO FAIL: a SECOND walk over the same ledger starts KNOWING the note is contested — on the per-run Map it read `thin` and the third source was never sought", { skip: SKIP }, async () => {
   const first = await corroborateLedger(seed(), door, [SOURCE], { ask: contradicting, testimony, maxAsks: 10 });
   const noteId = [...door.disputesOf(first.log).keys()][0];
   const note = door.foldNotes(first.log).find((n) => n.id === noteId);
@@ -454,7 +461,7 @@ test("CONTROL BUILT TO FAIL: a SECOND walk over the same ledger starts KNOWING t
   assert.equal(door.disputesOf(second.log).size, 1, "the contest survives a second run without being re-heard");
 });
 
-test("the WALK's own contradictions land UNTYPED, and an untyped contest is not routed to a third source — the model cannot type what it produced", async () => {
+test("the WALK's own contradictions land UNTYPED, and an untyped contest is not routed to a third source — the model cannot type what it produced", { skip: SKIP }, async () => {
   const first = await corroborateLedger(seed(), door, [SOURCE], { ask: contradicting, testimony, maxAsks: 10 });
   const THIRD = { ref: "page-c", text: "Kutuzov commanded the Imperial Russian Army from August 1812. Bagration commanded the Second Army." };
   const noteId = [...door.disputesOf(first.log).keys()][0];
@@ -487,7 +494,7 @@ const splitSentences = (t) => {
   return out;
 };
 
-test("foldSelect: a valid pick returns the candidate VERBATIM; an out-of-range or no-pick refuses", () => {
+test("foldSelect: a valid pick returns the candidate VERBATIM; an out-of-range or no-pick refuses", { skip: SKIP }, () => {
   const cands = ["Napoleon faced Kutuzov at the river.", "The weather was cold."];
   assert.deepEqual(foldSelect({ stated: "yes", sentence: 1 }, cands), { verdict: "states", because: "Napoleon faced Kutuzov at the river.", index: 1 });
   assert.equal(foldSelect({ stated: "yes", sentence: 9 }, cands).refused, "no-valid-pick");
@@ -495,7 +502,7 @@ test("foldSelect: a valid pick returns the candidate VERBATIM; an out-of-range o
   assert.equal(foldSelect("not json", cands).refused, "unreadable");
 });
 
-test("SELECT PATH: the decider is a real source sentence BY CONSTRUCTION — the echo mode cannot occur", async () => {
+test("SELECT PATH: the decider is a real source sentence BY CONSTRUCTION — the echo mode cannot occur", { skip: SKIP }, async () => {
   // Marshal Davout appears IN a candidate sentence so the ARM has a
   // competing filler to swap in — the arm's ammunition comes from the
   // candidates themselves (the population a picker could confuse the end
@@ -526,7 +533,7 @@ test("SELECT PATH: the decider is a real source sentence BY CONSTRUCTION — the
   assert.equal(src.text.slice(a, b), w.because, "the carried address names exactly the decider's own bytes");
 });
 
-test("SELECT CONTROL, built to fail: a selector that picks a NON-EXISTENT index is refused, never fabricated", async () => {
+test("SELECT CONTROL, built to fail: a selector that picks a NON-EXISTENT index is refused, never fabricated", { skip: SKIP }, async () => {
   const src = { ref: "novel", text: "Napoleon faced Kutuzov at the river." };
   const selectAsk = async () => ({ stated: "yes", sentence: 7 }); // no such candidate
   const w = await witnessNote("Napoleon fought against Kutuzov", src,
@@ -536,7 +543,7 @@ test("SELECT CONTROL, built to fail: a selector that picks a NON-EXISTENT index 
   assert.equal(w.via, "select");
 });
 
-test("a select refusal does NOT silently retry the wanderable generate path on the same slice", async () => {
+test("a select refusal does NOT silently retry the wanderable generate path on the same slice", { skip: SKIP }, async () => {
   const src = { ref: "novel", text: "Napoleon faced Kutuzov at the river." };
   let generateCalls = 0;
   const ask = async () => { generateCalls += 1; return { answer: "yes", because: "Napoleon fought against Kutuzov" }; };
@@ -548,7 +555,7 @@ test("a select refusal does NOT silently retry the wanderable generate path on t
   assert.equal(generateCalls, 0, "select engaged, so generate was never called");
 });
 
-test("no segmenter or no selectAsk: the generate path runs unchanged (opt-in, byte-compatible)", async () => {
+test("no segmenter or no selectAsk: the generate path runs unchanged (opt-in, byte-compatible)", { skip: SKIP }, async () => {
   const out = await corroborateLedger(seed(), door, [SOURCE], { ask: saysYesWithDecider, testimony, maxAsks: 10 });
   assert.equal(out.attested.length, 1, "generate path still lands its clean vote when select is not wired");
 });
@@ -566,7 +573,7 @@ const splitWithOffsets = (t) => {
   return out;
 };
 
-test("statingCandidates gathers both-ends sentences across the WHOLE source, density-ranked, declared limit, OFFSETS CARRIED FROM THE CUT", () => {
+test("statingCandidates gathers both-ends sentences across the WHOLE source, density-ranked, declared limit, OFFSETS CARRIED FROM THE CUT", { skip: SKIP }, () => {
   const src = "Alpha alone here. Napoleon met Kutuzov at the ford and again Napoleon pressed Kutuzov hard. Kutuzov alone. Napoleon and Kutuzov spoke once.";
   assert.throws(() => statingCandidates(src, { end1: "Napoleon", end2: "Kutuzov" }, { splitSentences: splitWithOffsets }), /declared by the caller/);
   const got = statingCandidates(src, { end1: "Napoleon", end2: "Kutuzov" }, { splitSentences: splitWithOffsets, limit: 5 });
@@ -578,7 +585,7 @@ test("statingCandidates gathers both-ends sentences across the WHOLE source, den
   assert.equal(src.slice(got[0].start, got[0].end), got[0].raw, "the carried span names exactly the sentence's own bytes");
 });
 
-test("the generic-title gate is SOURCE-MEASURED, no hand-list: a word that also lives lowercase is generic", () => {
+test("the generic-title gate is SOURCE-MEASURED, no hand-list: a word that also lives lowercase is generic", { skip: SKIP }, () => {
   // "general" lives lowercase in this source ("the general said"), so it is
   // generic and must not activate candidates by itself; "Kutuzov" never
   // lives lowercase, so it is the distinctive token that carries end2.
@@ -597,7 +604,7 @@ test("the generic-title gate is SOURCE-MEASURED, no hand-list: a word that also 
 // becomes it, the todo flag comes off and the referent is inhabited.
 // Grep `BECOMING` across the repo's tests to read the whole aspiration map.
 
-test("BECOMING heard-clean — INHABITED: the generic gate survives a case-stripped source via a DISCOVERED kind", async () => {
+test("BECOMING heard-clean — INHABITED: the generic gate survives a case-stripped source via a DISCOVERED kind", { skip: SKIP }, async () => {
   // THE HEARD RULE (user, 2026-09-01, verbatim): "the system must be able
   // to work equally well if it only heard the novel and didn't read it."
   // Written as a {todo:true} referent the same day the S1 gate shipped;
@@ -629,7 +636,7 @@ test("BECOMING heard-clean — INHABITED: the generic gate survives a case-strip
   assert.ok(got.every((c) => c.shown.includes("kutuzov")), "every candidate carries the real referent, not the title");
 });
 
-test("without the injection, the default gate stays the declared S1 rule — no caller moves", () => {
+test("without the injection, the default gate stays the declared S1 rule — no caller moves", { skip: SKIP }, () => {
   // the same heard-only fixture under the DEFAULT gate: case-stripped input
   // defeats the capitalization measure, so candidates leak title-only
   // sentences. This is the S1 stratum's disclosed limit, pinned so the
@@ -642,7 +649,7 @@ test("without the injection, the default gate stays the declared S1 rule — no 
 // ── instrument independence (2026-09-01, from the omnimodal run) ─────────
 import { independentReadings, distinctRecipes } from "./index.js";
 
-test("THE SHARED-INSTRUMENT CASE, from the live music failure: two sources, one decoder = 2 sources but 1 instrument", () => {
+test("THE SHARED-INSTRUMENT CASE, from the live music failure: two sources, one decoder = 2 sources but 1 instrument", { skip: SKIP }, () => {
   // the exact witness shape the omnimodal driver produced a false kind on
   const shared = ["performance-a.wav~pitch-autocorr-v1", "performance-b.wav~pitch-autocorr-v1"];
   assert.equal(distinctSources(shared).size, 2, "genuinely two sources — that part was never wrong");
@@ -652,20 +659,20 @@ test("THE SHARED-INSTRUMENT CASE, from the live music failure: two sources, one 
   assert.ok(distinctRecipes(shared).size < 2, "an instrument-sensitive claim is NOT corroborated here");
 });
 
-test("two sources read by two different instruments ARE instrument-independent", () => {
+test("two sources read by two different instruments ARE instrument-independent", { skip: SKIP }, () => {
   const w = ["performance-a.wav~pitch-autocorr-v1", "performance-b.wav~pitch-yin-v2"];
   assert.equal(distinctSources(w).size, 2);
   assert.equal(distinctRecipes(w).size, 2, "a systematic artifact of one tracker cannot land in both");
 });
 
-test("one source read by two instruments is ONE source and two readings — the two questions stay apart", () => {
+test("one source read by two instruments is ONE source and two readings — the two questions stay apart", { skip: SKIP }, () => {
   const w = ["novel.txt~parse-v1", "novel.txt~parse-v2"];
   assert.equal(distinctSources(w).size, 1, "still one perspective on the world");
   assert.equal(distinctRecipes(w).size, 2, "but two instruments agreeing rules out a decoder artifact");
   assert.equal(independentReadings(w).count, 2);
 });
 
-test("an undeclared witness is UNDECLARED, never silently independent — and never silently merged", () => {
+test("an undeclared witness is UNDECLARED, never silently independent — and never silently merged", { skip: SKIP }, () => {
   const w = ["page-a", "page-b", "page-c~recipe-x"];
   const ind = independentReadings(w);
   assert.equal(ind.undeclared, 2, "the count of witnesses that did not say how they read");
@@ -675,7 +682,7 @@ test("an undeclared witness is UNDECLARED, never silently independent — and ne
   assert.equal(distinctSources(["battle-of-borodino", "testimony:war-and-peace"]).size, 2);
 });
 
-test("the ARM needs ammunition: candidates holding only the two ends refuse `unarmed-select`, never a free pass", async () => {
+test("the ARM needs ammunition: candidates holding only the two ends refuse `unarmed-select`, never a free pass", { skip: SKIP }, async () => {
   // a picker that is never challenged is a rubber stamp; when the material
   // offers no competing filler, the honest state is unarmed — refused
   const src = { ref: "novel", text: "A preamble. Napoleon faced General Mikhail Kutuzov across the field. An epilogue." };
@@ -686,7 +693,7 @@ test("the ARM needs ammunition: candidates holding only the two ends refuse `una
   assert.equal(w.refused, "unarmed-select");
 });
 
-test("INDISCRIMINATE: a picker that also points at the arm decides nothing — its yes is refused", async () => {
+test("INDISCRIMINATE: a picker that also points at the arm decides nothing — its yes is refused", { skip: SKIP }, async () => {
   const src = { ref: "novel", text: "A preamble. Napoleon faced General Mikhail Kutuzov near Marshal Davout across the field. An epilogue." };
   const selectAsk = async () => ({ stated: "yes", sentence: 1 }); // says yes to everything
   const w = await witnessNote("Napoleon fought against General Mikhail Kutuzov", src,
@@ -696,7 +703,7 @@ test("INDISCRIMINATE: a picker that also points at the arm decides nothing — i
   assert.match(w.arm, /Marshal Davout/, "the arm names the competing filler it swapped in");
 });
 
-test("competingFiller excludes BOTH ends — swapping end2 for end1 would be a rubber stamp, not an arm", () => {
+test("competingFiller excludes BOTH ends — swapping end2 for end1 would be a rubber stamp, not an arm", { skip: SKIP }, () => {
   const cands = ["Napoleon faced General Mikhail Kutuzov near Marshal Davout across the field."];
   assert.equal(competingFiller("General Mikhail Kutuzov", cands, { exclude: ["Napoleon"] }), "Marshal Davout");
   // the live bug needs the other end to WIN on frequency, which is the
@@ -714,7 +721,7 @@ test("competingFiller excludes BOTH ends — swapping end2 for end1 would be a r
     "no competitor in the material -> null, never a guess");
 });
 
-test("INSENSITIVITY IS THE SAME INDEX, not merely a second yes — the arm that killed all recall", async () => {
+test("INSENSITIVITY IS THE SAME INDEX, not merely a second yes — the arm that killed all recall", { skip: SKIP }, async () => {
   // Measured live: refusing any arm that answers "states" killed 3 of 3 true
   // positives, because a competing filler drawn FROM the candidates really
   // does occur in them — a yes about it is not by itself an error. What
@@ -741,7 +748,7 @@ test("INSENSITIVITY IS THE SAME INDEX, not merely a second yes — the arm that 
 import { calibrationFrames } from "./index.js";
 import { framed, comparable } from "./index.js";
 
-test("the two witness protocols are two DECLARED interpretive grounds — cross-protocol numbers refuse comparison, naming what differs", async () => {
+test("the two witness protocols are two DECLARED interpretive grounds — cross-protocol numbers refuse comparison, naming what differs", { skip: SKIP }, async () => {
   const frames = await calibrationFrames();
   assert.notEqual(frames.generate.id, frames.select.id, "different declared grounds, different frames");
 
@@ -757,7 +764,7 @@ test("the two witness protocols are two DECLARED interpretive grounds — cross-
   assert.equal(same.comparable, true);
 });
 
-test("the frames are rebuilt from the operating point's OWN declarations — a moved number moves the frame id", async () => {
+test("the frames are rebuilt from the operating point's OWN declarations — a moved number moves the frame id", { skip: SKIP }, async () => {
   const a = await calibrationFrames();
   const b = await calibrationFrames();
   assert.equal(a.generate.id, b.generate.id, "content-addressed: same declaration, same frame, every time");
@@ -765,7 +772,7 @@ test("the frames are rebuilt from the operating point's OWN declarations — a m
 });
 
 // ── the company wall folds morphology when given the organ (2026-09-02) ──
-test("the decider-company wall admits an inflected end-word through an injected sameForm, and stays exact without it", async () => {
+test("the decider-company wall admits an inflected end-word through an injected sameForm, and stays exact without it", { skip: SKIP }, async () => {
   const source = { ref: "s", text: "After the Battle of Smolensk, the Tsar replaced Barclay de Tolly with Mikhail Kutuzov, who on 18 August took over the army and ordered his soldiers to prepare for battle. Kutuzov strengthened the line with earthworks." };
   const sentence = "After that, the Russian army prepared for battle.";
   // ends where MORPHOLOGY is the only gap: "soldiers" is verbatim in the decider, "prepared" is there only as "prepare"
@@ -787,7 +794,7 @@ test("the decider-company wall admits an inflected end-word through an injected 
 
 // ── a witness's SOURCE is its ref without the address (2026-09-02) ────────
 import { sourceOfWitness } from "./corroboration.js";
-test("a chunk-addressed mechanical witness and a testimony vote from the same file are ONE source — the self-attestation the first book walk counted as two", () => {
+test("a chunk-addressed mechanical witness and a testimony vote from the same file are ONE source — the self-attestation the first book walk counted as two", { skip: SKIP }, () => {
   assert.equal(sourceOfWitness("dracula-part-1.txt#178-275~walls-v1"), "dracula-part-1.txt");
   assert.equal(sourceOfWitness("testimony:dracula-part-1.txt"), "dracula-part-1.txt");
   assert.equal(distinctSources(["dracula-part-1.txt#178-275~walls-v1", "testimony:dracula-part-1.txt", "dracula-part-1.txt#900-960~walls-v1"]).size, 1, "two chunks of one file plus its own testimony: one perspective");
@@ -812,7 +819,7 @@ const PARAPHRASE = {
 const PARA_ENDS = { end1: "Armstrong", end2: "his descent to the lunar surface" };
 const PARA_CLAIM = "Armstrong began his descent to the lunar surface";
 
-test("injected candidates reach the select protocol where statingCandidates is structurally empty", async () => {
+test("injected candidates reach the select protocol where statingCandidates is structurally empty", { skip: SKIP }, async () => {
   // the premise, pinned rather than assumed: end2's words are absent, so
   // the default gatherer offers nothing at all on this source
   assert.equal(
@@ -835,7 +842,7 @@ test("injected candidates reach the select protocol where statingCandidates is s
   assert.equal(PARAPHRASE.text.slice(a, b), w.because, "the carried address still names the decider's own bytes");
 });
 
-test("CONTROL, built to fail: an injected candidate set cannot buy a yes — the arm still convicts an indiscriminate picker", async () => {
+test("CONTROL, built to fail: an injected candidate set cannot buy a yes — the arm still convicts an indiscriminate picker", { skip: SKIP }, async () => {
   const cands = splitSentences(PARAPHRASE.text).map((s) => ({
     shown: s.text.replace(/\s+/g, " ").trim(), raw: s.text, start: s.offset, end: s.offset + s.text.length,
   }));
@@ -849,7 +856,7 @@ test("CONTROL, built to fail: an injected candidate set cannot buy a yes — the
   assert.ok(w.arm && w.arm !== PARA_CLAIM, "the arm really swapped a competing filler into end2's slot");
 });
 
-test("candidates omitted: statingCandidates runs unchanged (opt-in, byte-compatible)", async () => {
+test("candidates omitted: statingCandidates runs unchanged (opt-in, byte-compatible)", { skip: SKIP }, async () => {
   const src = { ref: "novel", text: "A preamble. Napoleon faced General Mikhail Kutuzov near Marshal Davout across the field that day." };
   const selectAsk = async (messages) =>
     /fought against General Mikhail Kutuzov/.test(messages.at(-1).content) ? { stated: "yes", sentence: 1 } : { stated: "no", sentence: 0 };
@@ -866,7 +873,7 @@ test("candidates omitted: statingCandidates runs unchanged (opt-in, byte-compati
 // for two distinct reasons. Each widening is pinned here with its own control
 // showing the default is untouched.
 
-test("wall 1 — a candidate set whose only names ARE the ends offers no competitor; a declared pool reaches one, and never outranks the candidates", () => {
+test("wall 1 — a candidate set whose only names ARE the ends offers no competitor; a declared pool reaches one, and never outranks the candidates", { skip: SKIP }, () => {
   // The measured corpus shape: ONE retrieved candidate, both ends in it, and
   // nothing else capitalized. Candidate-only, this is an empty pool.
   const lone = ["Countess Hélène Bezúkhova had suddenly died of that terrible malady."];
@@ -892,7 +899,7 @@ test("wall 1 — a candidate set whose only names ARE the ends offers no competi
     "a pool surface that IS the end is not a competitor");
 });
 
-test("wall 2 — a claim that paraphrases its own end2 cannot be swapped literally; armEitherEnd swaps the end the claim does say", async () => {
+test("wall 2 — a claim that paraphrases its own end2 cannot be swapped literally; armEitherEnd swaps the end the claim does say", { skip: SKIP }, async () => {
   // The measured specimen: end2 is "inhabitants", the claim says "the people
   // who had abandoned it". The literal replace is a no-op, so the arm equals
   // the claim and refuses — with a perfectly good filler in hand.
@@ -918,7 +925,7 @@ test("wall 2 — a claim that paraphrases its own end2 cannot be swapped literal
   assert.equal(on.verdict, "states", "widened: end1 is literally present, so a real arm exists and the picker discriminated");
 });
 
-test("armEitherEnd widens what can be ARMED, never what a yes is worth — an indiscriminate picker is still refused", async () => {
+test("armEitherEnd widens what can be ARMED, never what a yes is worth — an indiscriminate picker is still refused", { skip: SKIP }, async () => {
   const src = { ref: "novel", text: "A preamble. Moscow was burned by its own inhabitants, not by the Russians who marched past. The Russians camped nearby. An epilogue." };
   const stuck = async () => ({ stated: "yes", sentence: 1 }); // same index whatever it is asked
   const w = await witnessNote("Moscow was burned by the people who had abandoned it", src,

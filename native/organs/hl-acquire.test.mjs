@@ -18,8 +18,18 @@ import assert from "node:assert/strict";
 import { scanFunctionalCandidates, acquireCandidates, recheckCandidates, promoteAndDeclare, EVIDENCE_FLOOR } from "./hl-acquire.js";
 import { createDeclarationLog, foldDeclarations } from "../interpretation/declarations.js";
 import { createStage, addAnchor, addEdge, read, BOUND, CONTRADICTED, UNBOUND } from "../interpretation/hl.js";
+import { resolveFoldSibling } from "../eval/the-fold/lib/fold-sibling.mjs";
+import { resolveLegacySibling } from "../eval/the-fold/lib/legacy-sibling.mjs";
 
 const edge = (subject, verb, object, ref) => ({ subject, verb, object, polarity: "+", refs: [ref] });
+
+const { path: FOLD_PATH, available: FOLD_OK } = resolveFoldSibling(import.meta.url, "../../../the-fold/");
+const { path: LEGACY_PATH, available: LEGACY_OK } = resolveLegacySibling(import.meta.url, "../../legacy-eoreader6.1/");
+const E2E_SKIP = !LEGACY_OK
+  ? `the sibling legacy-eoreader6.1 checkout is not available (looked for ${LEGACY_PATH})`
+  : !FOLD_OK
+    ? `the sibling the-fold checkout is not available: hypergraph.js (looked for ${FOLD_PATH})`
+    : undefined;
 
 test("minShare is declared by the caller, never a silent default, ONLY when a real classifyConnector is supplied — pinned as a regression", () => {
   // Found live, same bug class as grammar-lens.js's own fixed
@@ -166,7 +176,7 @@ test("R2 actually fires on the real hl.js stage after promotion — the full loo
 });
 
 // ── end to end: real organs, prose invented for this file ──────────────
-test("end to end, adversarial: real reader + real grammar lens over INVENTED prose no model has seen", async () => {
+test("end to end, adversarial: real reader + real grammar lens over INVENTED prose no model has seen", { skip: E2E_SKIP }, async () => {
   const { splitSentences } = await import("../../legacy-eoreader6.1/packages/engine/perceiver/text/spans.js");
   const { extractSurfaces, discoverReferents, namesCorefer, diaNorm } = await import(
     "../../legacy-eoreader6.1/packages/engine/perceiver/text/surfaces.js"

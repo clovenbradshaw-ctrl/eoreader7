@@ -137,7 +137,10 @@ test("S13: the dmdWindow / dmd.js name collision is disclosed where a reader wou
 });
 
 // ── S14: the operator order derives from the engine's own axes ──────────
-test("S14: domain-major, mode-minor over the engine's own DOMAINS x MODES yields the canonical helix", async () => {
+test("S14: domain-major, mode-minor over the engine's own DOMAINS x MODES yields the canonical helix", { skip: (() => {
+  const p = new URL("../../legacy-eoreader6.1/", import.meta.url).pathname;
+  return (fs.existsSync(p) && fs.existsSync(`${p}package.json`)) ? undefined : `the sibling legacy-eoreader6.1 checkout is not available: operators.js (looked for ${p})`;
+})() }, async () => {
   const m = await import("../../legacy-eoreader6.1/packages/engine/operators.js");
   const derived = [...m.OPERATOR_ORDER].sort((a, b) => {
     const A = m.operatorOf(a), B = m.operatorOf(b);

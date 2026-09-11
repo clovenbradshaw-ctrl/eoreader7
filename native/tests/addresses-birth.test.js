@@ -20,7 +20,9 @@ import { createRecursiveReader } from "../../kernel.js";
 // are gated via `{ skip }` — the other two (synthetic `S(...)` fixtures)
 // are untouched either way.
 const here = path.dirname(fileURLToPath(import.meta.url));
-const POS = JSON.parse(fs.readFileSync(path.join(here, "../../legacy-eoreader6.1/bin/priors/pos/en-ud-ewt.json"), "utf8"));
+const POS_PATH = path.join(here, "../../legacy-eoreader6.1/bin/priors/pos/en-ud-ewt.json");
+const POS_SKIP = fs.existsSync(POS_PATH) ? undefined : `the sibling legacy-eoreader6.1 checkout is not available: en-ud-ewt.json (looked for ${POS_PATH})`;
+const POS = POS_SKIP ? null : JSON.parse(fs.readFileSync(POS_PATH, "utf8"));
 function resolveBook() {
   const candidates = [
     process.env.EOREADER7_WAR_AND_PEACE_FIXTURE,
@@ -30,7 +32,9 @@ function resolveBook() {
   return candidates.find((p) => fs.existsSync(p)) ?? null;
 }
 const BOOK = resolveBook();
-const SKIP = BOOK ? undefined : "war-and-peace fixture (pg2600.txt) not found in any known candidate location — set EOREADER7_WAR_AND_PEACE_FIXTURE or check out a sibling the-fold repo";
+const SKIP = !BOOK
+  ? "war-and-peace fixture (pg2600.txt) not found in any known candidate location — set EOREADER7_WAR_AND_PEACE_FIXTURE or check out a sibling the-fold repo"
+  : POS_SKIP;
 const partition = (events) => { const by = new Map(); for (const e of events) { if (e.type !== "DEF.admit") continue; if (!by.has(e.referent_id)) by.set(e.referent_id, []); by.get(e.referent_id).push(e.surface); } return [...by.values()].map((xs) => xs.sort().join("|")).sort(); };
 const refsOf = (events) => { const m = new Map(); for (const e of events) if (e.type === "DEF.admit") m.set(diaNorm(e.surface), e.referent_id); return m; };
 
@@ -95,7 +99,7 @@ test("A MERGE OF TWO PRIOR BEINGS is testimony with a witness; A SPLIT keeps the
   assert.notEqual(refs3.get("boris"), "ref:auto:anna");
 });
 
-test("ON THE REAL 60 KB PREFIX, address reassignment is typed apart from merge and birth removes the oscillation", { skip: SKIP }, async () => {
+test("ON THE REAL 60 KB PREFIX, address reassignment is typed apart from merge and birth removes the oscillation", { skip: SKIP || POS_SKIP }, async () => {
   const stripped = stripContainer(fs.readFileSync(BOOK, "utf8").slice(0, 60000));
   const read = async (addresses) => {
     const encounters = textEncounters(stripped.text, { source: "file:pg2600", offset: stripped.offset });

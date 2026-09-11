@@ -16,18 +16,27 @@ import fs from "node:fs";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
+import { resolveFoldSibling } from "./lib/fold-sibling.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const DRIVER = path.join(HERE, "derivation-precision.mjs");
 const OUT = path.join(HERE, "results", "derivation-precision.json");
 
+// derivation-precision.mjs itself reaches into the sibling the-fold
+// checkout (wikidata.js, consequence.js, predigest.js) — spawning it when
+// that sibling is absent would surface an uncaught subprocess crash one
+// layer removed from the import that actually fails. Same refusal posture
+// as every other driver here: check before spawning (S65/P95).
+const { path: FOLD_PATH, available: FOLD_OK } = resolveFoldSibling(import.meta.url, "../../../../the-fold/");
+const SKIP = FOLD_OK ? undefined : `the sibling the-fold checkout is not available: wikidata.js/consequence.js/predigest.js (looked for ${FOLD_PATH})`;
+
 // run the real driver rather than trusting a committed artifact — a stale file
 // would make this test pass on a measurement nobody took.
-execFileSync(process.execPath, [DRIVER], { cwd: path.join(HERE, "..", "..", ".."), stdio: "ignore" });
-const report = JSON.parse(fs.readFileSync(OUT, "utf8"));
+if (FOLD_OK) execFileSync(process.execPath, [DRIVER], { cwd: path.join(HERE, "..", "..", ".."), stdio: "ignore" });
+const report = FOLD_OK ? JSON.parse(fs.readFileSync(OUT, "utf8")) : null;
 const arm = (needle) => report.arms.find((a) => a.arm.includes(needle));
 
-test("the licensed chemistry is a subset of the naive join — a filter, not a generator", () => {
+test("the licensed chemistry is a subset of the naive join — a filter, not a generator", { skip: SKIP }, () => {
   const licensed = new Set(arm("A shipped").factKeys);
   const naive = new Set(arm("C naive").factKeys);
   const extra = [...licensed].filter((k) => !naive.has(k));
@@ -36,20 +45,20 @@ test("the licensed chemistry is a subset of the naive join — a filter, not a g
     "reaction.js's header claims it is a filter, and that claim is now false. Rewrite the header, then this test.");
 });
 
-test("the licensed chemistry's precision is at least the naive join's", () => {
+test("the licensed chemistry's precision is at least the naive join's", { skip: SKIP }, () => {
   const a = arm("A shipped").precisionOnDecided, c = arm("C naive").precisionOnDecided;
   assert.ok(a !== null && c !== null, "both arms must decide at least one fact for the comparison to mean anything");
   assert.ok(a >= c, `licensing must not lower precision: shipped ${a} vs naive ${c}`);
 });
 
-test("the naive control is genuinely unapparatused — it derives strictly more than the gate allows", () => {
+test("the naive control is genuinely unapparatused — it derives strictly more than the gate allows", { skip: SKIP }, () => {
   // guards against the control silently becoming a copy of the shipped arm,
   // which would make the subset assertion above vacuously true.
   assert.ok(arm("C naive").derived > arm("A shipped").derived,
     "the naive control no longer out-derives the gated arm; the comparison has gone vacuous");
 });
 
-test("the closure reaches past one hop — a partial collapse is loud, not silent", () => {
+test("the closure reaches past one hop — a partial collapse is loud, not silent", { skip: SKIP }, () => {
   // MEASURED HOLE (2026-08-28): with arm A planted down to a single fact, all
   // three tests above still passed — the subset property is one-sided (the
   // empty set is a subset of everything) and the null-check only catches a

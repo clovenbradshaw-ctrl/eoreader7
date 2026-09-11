@@ -24,9 +24,33 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
-const { Field } = await import(path.join(HERE, "..", "..", "..", "..", "the-fold", "relative.js"));
+const FOLD_PATH = path.join(HERE, "..", "..", "..", "..", "the-fold") + path.sep;
+const FOLD_OK = fs.existsSync(FOLD_PATH) && fs.existsSync(path.join(FOLD_PATH, "package.json"));
 
-const BOOK = "/Users/mlacy/Documents/3.0/live_priors/01-literature-books/gutenberg/pg11_Alice_s_Adventures_in_Wonderland.txt";
+function resolveBook() {
+  const candidates = [
+    process.env.EOREADER7_ALICE_FIXTURE,
+    path.join(HERE, "..", "..", "..", "..", "live_priors", "01-literature-books", "gutenberg", "pg11_Alice_s_Adventures_in_Wonderland.txt"),
+    "/Users/mlacy/Documents/3.0/live_priors/01-literature-books/gutenberg/pg11_Alice_s_Adventures_in_Wonderland.txt",
+  ].filter(Boolean);
+  return candidates.find((p) => fs.existsSync(p)) ?? null;
+}
+const BOOK = resolveBook();
+
+// A DRIVER REFUSES WHAT ITS CHECKOUT LACKS (S65/P95): this is a standalone
+// eval script (no node:test test()), so under `node --test` (which globs
+// *-test.mjs) it must not crash the whole run when the-fold or the
+// live_priors book fixture is absent — print a typed skip and exit 0.
+if (!FOLD_OK || !BOOK) {
+  console.log(
+    !FOLD_OK
+      ? `SKIP: the sibling the-fold checkout is not available (looked for ${FOLD_PATH}) — this driver needs relative.js.`
+      : "SKIP: live_priors Alice fixture not found in any known candidate location — set EOREADER7_ALICE_FIXTURE or check out a sibling live_priors repo"
+  );
+  process.exitCode = 0;
+} else {
+
+const { Field } = await import(`${FOLD_PATH}relative.js`);
 const raw = fs.readFileSync(BOOK, "utf8");
 const heads = [...raw.matchAll(/^CHAPTER ([IVXLC]+)\.\s*\r?\n([^\r\n]*)\r?\n/gm)];
 
@@ -142,3 +166,5 @@ console.log(`recovered by an average random-word cue: ${controlHitsSum.toFixed(1
 console.log(cueHits > controlHitsSum ? "REAL CUE BEATS THE RANDOM-WORD CONTROL" : "REAL CUE DOES NOT CLEARLY BEAT THE CONTROL");
 
 fs.writeFileSync(path.join(HERE, "results", "field-lens-improvement-test.json"), JSON.stringify({ perReferentRows, totals: { totalWeakReferents, totalUnresolvedAnchors, cueHits, cueSignificantHits, controlHitsSum } }, null, 1));
+
+}
