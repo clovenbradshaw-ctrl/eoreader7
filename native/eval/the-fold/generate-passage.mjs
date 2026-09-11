@@ -32,7 +32,11 @@ import { readFileSync } from "node:fs";
 
 const NATIVE = new URL("../..", import.meta.url).pathname;
 const FIX = new URL("./fixtures/", import.meta.url).pathname;
-const FOLD = "/home/user/the-fold";
+// The fold's compose/hl live one level up from this repo's native tree in
+// the shared checkout (the-fold sits beside eoreader7 under 3.0/). Resolved
+// from this file's own location rather than a hardcoded path, so the driver
+// runs wherever it is checked out.
+const FOLD = new URL("../../../../the-fold/", import.meta.url).pathname;
 const MATERIAL = process.env.MATERIAL ?? `${FIX}succession-tenures-wide.json`;
 const LIMIT = Number(process.env.LIMIT ?? 14);
 
@@ -176,6 +180,38 @@ const out = compose(items, {
   // nobody declared.
   orderBy: (x, y) => String(x.claim.label).localeCompare(String(y.claim.label)) || x.claim.depth - y.claim.depth,
 });
+
+// ── THE GENERATED CONTENT IS LINTED FOR COHERENCE, NOT JUST PRINTED ────────
+//
+// The passage above is NOVEL content — no record states any of it. It is
+// exactly the case the reasoning linter (organs/reasoning-lint.js) exists
+// for: content the system itself generated, converted to EOT and read
+// through the holograph, checked for logical coherence at three strictness
+// levels. The claims are EOT-shaped already (`claim.end1/label/end2` with a
+// verdict the derivation assigned); they are admitted into a fresh notes
+// ledger and linted. A generated passage that closes in a circle, or
+// composes a step nothing licensed, is flagged before it ships.
+const { makeHyperlexicon: makeLintLedger } = await import(`${NATIVE}/organs/hyperlexicon.js`);
+const { lintLedger } = await import(`${NATIVE}/organs/reasoning-lint.js`);
+const taskLogBundle = { ...(await import(`${NATIVE}/kernel/task-log.js`)), cellOf: (await import(`${NATIVE}/kernel/cube.js`)).cellOf };
+const lintDoor = makeLintLedger(taskLogBundle);
+let lintLog = lintDoor.createHyperlexicon({ frame: { reader: "generate-passage", giver: GIVER } });
+const lintArrangements = items.map((it) => ({
+  subject: it.claim.end1, verb: it.claim.label, object: it.claim.end2,
+  spans: [{ at: `wikidata:${it.claim.end1}#derived`, ref: `wikidata:${it.claim.end1}`, text: renderClaim(it.merged, it.claim) }],
+}));
+const lintAdmitted = lintDoor.admit(lintLog, lintArrangements, { witness: "generate-passage" });
+lintLog = lintAdmitted.log;
+for (const strictness of ["report", "standard", "strict"]) {
+  const lint = lintLedger(lintLog, { door: lintDoor, taskLog: taskLogBundle, strictness });
+  const bad = lint.findings.filter((f) => f.severity === "error");
+  if (bad.length) {
+    console.log(`\nREASONING LINT @ ${strictness}: ${bad.length} incoherence(s) in the generated passage — ${lint.ok ? "" : "NOT coherent"}`);
+    for (const f of bad) console.log(`  [${f.level}·${f.severity}] ${f.kind}: ${f.detail}`);
+  } else {
+    console.log(`\nREASONING LINT @ ${strictness}: coherent (${lint.findings.length} finding(s), none an error)`);
+  }
+}
 
 console.log("=".repeat(72));
 console.log("GENERATED PASSAGE — every fact derived, no model, no record states any of it");
