@@ -16,10 +16,12 @@ export default async ({ client, project, directory, $ }) => {
       const providerId = input?.provider?.info?.id ?? input?.model?.providerID ?? "";
       if (!["er7", "eoreader"].includes(providerId)) return;
       const sessionID = input?.sessionID;
+      const workspace = input?.workspace ?? input?.directory ?? directory;
       if (sessionID) {
         output.headers = {
           ...(output.headers ?? {}),
           "x-er7-session": sessionID,
+          "x-er7-workspace": workspace ? String(workspace) : "",
         };
       }
     },

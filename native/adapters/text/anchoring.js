@@ -62,6 +62,33 @@ const surfaceMatcher = (surfaces) => {
  *   indefinite ("a servant") never implies one being and is skipped, the
  *   same rule referentFromDescriptorHypothesis already states).
  * `referents`  the currently-admitted cast: [{id, display, surfaces}]
+ *
+ * TWO MODES, THE SAME MARGIN DISCIPLINE:
+ *
+ * A. `declared` (default) — floors are fixed constants the caller names
+ *    (minActivation / minMargin). The legacy operating point (0.05 / 0.2)
+ *    lives here. Byte-identical to everything the fold has ever measured.
+ *
+ * B. `born` — the floors are CONTEXTUAL, derived from the material's own
+ *    activation distribution rather than hand-picked per host. The raw
+ *    recall scores are arbitrary-scale (cue length, idf, completion all
+ *    rescale them; measured 59.1/12.2 on one corpus and 0.0003 on another),
+ *    so a fixed raw floor is meaningless ACROSS materials: too high for a
+ *    short chat session (never fires) and too low for a dense book (fires
+ *    on noise). The Born rule maps amplitude to probability mass —
+ *       p_i  =  a_i^2 / Σ a^2
+ *    — the same map quantum mechanics uses, applied because the shape is
+ *    right for the job: it preserves rank, it rewards a leader's lead
+ *    quadratically (a strong echo is e.g. 0.96 mass against a runner-up's
+ *    0.04 between the same two raw scores), and it is scale-free by
+ *    construction. The floors then ARE the session's own earlier verdicts:
+ *       minActivation = median of the top candidate's born mass seen so far
+ *       minMargin     = median of the leader's mass lead (p_1 − p_2) so far
+ *    A new descriptor must be at least as confident as a typical earlier
+ *    binding on THIS material to bind. The first minWindow scenes have no
+ *    past to consult, so they borrow the caller's DECLARED bootstrap values
+ *    (bornActivationFloor / bornMarginFloor) — the contract survives: a
+ *    floor is never a default, it is only ever derived or declared.
  */
 export function createDescriptorAnchoring({
   minActivation,
@@ -71,11 +98,24 @@ export function createDescriptorAnchoring({
   completion = DEFAULT_COMPLETION,
   topEdges = DEFAULT_TOP_EDGES,
   edgeSlots = DEFAULT_EDGE_SLOTS,
+  born = false,
+  bornActivationFloor,
+  bornMarginFloor,
+  minWindow = 4,
 } = {}) {
-  if (!Number.isFinite(minActivation) || minActivation < 0)
-    throw new TypeError("createDescriptorAnchoring: minActivation is declared — how much recall counts as a real echo is never a default");
-  if (!Number.isFinite(minMargin) || minMargin < 0)
-    throw new TypeError("createDescriptorAnchoring: minMargin is declared — how far a candidate must lead the runner-up is never a default");
+  if (born) {
+    if (!Number.isFinite(bornActivationFloor) || bornActivationFloor <= 0 || bornActivationFloor >= 1)
+      throw new TypeError("createDescriptorAnchoring (born): bornActivationFloor is declared — the bootstrap share a leader must clear before the material has spoken");
+    if (!Number.isFinite(bornMarginFloor) || bornMarginFloor <= 0)
+      throw new TypeError("createDescriptorAnchoring (born): bornMarginFloor is declared — the bootstrap lead the leader must keep before the material has spoken");
+    if (!Number.isInteger(minWindow) || minWindow < 1)
+      throw new TypeError("createDescriptorAnchoring (born): minWindow is declared — how many scenes give a floor before the material itself says");
+  } else {
+    if (!Number.isFinite(minActivation) || minActivation < 0)
+      throw new TypeError("createDescriptorAnchoring: minActivation is declared — how much recall counts as a real echo is never a default");
+    if (!Number.isFinite(minMargin) || minMargin < 0)
+      throw new TypeError("createDescriptorAnchoring: minMargin is declared — how far a candidate must lead the runner-up is never a default");
+  }
 
   const state = { df: new Map(), gramDf: new Map(), posting: new Map(), edges: new Map(), read: 0 };
   const namedByFrame = new Map(); // sentence order -> Set(referentId)
@@ -85,6 +125,28 @@ export function createDescriptorAnchoring({
   let normToReferent = new Map();
   let displayById = new Map();
   let castSeen = null;
+
+  // Contextual born-rule state: the session's own verdict history, causal —
+  // only scenes already read contribute, each scene once.
+  const bornTops = [];
+  const bornMargins = [];
+  const median = (a) => {
+    if (!a.length) return null;
+    const b = [...a].sort((x, y) => x - y);
+    const mid = b.length >> 1;
+    return b.length % 2 ? b[mid] : (b[mid - 1] + b[mid]) / 2;
+  };
+  const bornFloors = () => {
+    const activation = bornTops.length >= minWindow ? median(bornTops) : bornActivationFloor;
+    const margin = bornMargins.length >= minWindow ? median(bornMargins) : bornMarginFloor;
+    return { activation, margin, contextual: bornTops.length >= minWindow };
+  };
+  const bornOf = (candidates) => {
+    let sq = 0;
+    for (const [, a] of candidates) sq += a * a;
+    if (!(sq > 0)) return null;
+    return candidates.map(([r, a]) => [r, (a * a) / sq]);
+  };
 
   // (2026-09-07) The cast is handed over on every sentence and was rebuilt
   // on every sentence; the perceiver's `cache.referents` is one array per
@@ -175,14 +237,36 @@ export function createDescriptorAnchoring({
           continue;
         }
         const [topRef, topScore] = candidates[0];
-        if (topScore < minActivation) {
-          gaps.push({ reason: "descriptor_below_floor", tier: "engine", sentenceOrder: sentence.order, descriptor: occ.canonicalSurface, top: topRef, activation: topScore, detail: `top candidate's recall (${topScore.toFixed(3)}) does not clear minActivation (${minActivation})` });
+        // In born mode the activation floor and margin are the session's own
+        // past verdicts on THIS material, computed BEFORE this scene records
+        // itself (a floor that could see the scene it judges would leak the
+        // outcome into the test). Raw recall scores are arbitrary-scale, so
+        // the comparison is done in born mass (p_i = a_i² / Σa²): a leader's
+        // lead is rewarded quadratically and the scale disappears entirely.
+        const judged = born
+          ? bornOf(candidates)
+          : candidates.map(([r, a]) => [r, a / (candidates[0]?.[1] ?? 1)]);
+        const judgedTop = judged[0]?.[1] ?? 0;
+        const judgedSecond = judged[1]?.[1] ?? 0;
+        const marginOf = judgedTop > 0 ? Math.max(0, (judgedTop - judgedSecond) / judgedTop) : 0;
+        const floor = born ? bornFloors() : { activation: minActivation, margin: minMargin, contextual: false };
+
+        if (born) {
+          bornTops.push(judgedTop);
+          bornMargins.push(marginOf);
+        }
+        if (judgedTop < floor.activation) {
+          gaps.push({ reason: "descriptor_below_floor", tier: "engine", sentenceOrder: sentence.order, descriptor: occ.canonicalSurface, top: topRef, activation: born ? judgedTop : topScore, contextual: floor.contextual, detail: born
+            ? `top candidate's born mass (${judgedTop.toFixed(3)}) does not clear the floor ${floor.contextual ? `the session's own median (${floor.activation.toFixed(3)})` : `(bootstrap ${floor.activation.toFixed(3)})`}`
+            : `top candidate's recall (${topScore.toFixed(3)}) does not clear minActivation (${minActivation})` });
           continue;
         }
         const second = candidates[1]?.[1] ?? 0;
         const margin = topScore > 0 ? (topScore - second) / topScore : 0;
-        if (margin < minMargin) {
-          gaps.push({ reason: "descriptor_no_margin", tier: "engine", sentenceOrder: sentence.order, descriptor: occ.canonicalSurface, top: topRef, runnerUp: candidates[1]?.[0] ?? null, margin, detail: `top candidate leads the runner-up by only ${(margin * 100).toFixed(1)}%, short of minMargin (${(minMargin * 100).toFixed(1)}%)` });
+        if (marginOf < floor.margin) {
+          gaps.push({ reason: "descriptor_no_margin", tier: "engine", sentenceOrder: sentence.order, descriptor: occ.canonicalSurface, top: topRef, runnerUp: candidates[1]?.[0] ?? null, margin: born ? marginOf : margin, contextual: floor.contextual, detail: born
+            ? `top candidate leads the runner-up by only ${(marginOf * 100).toFixed(1)}% born mass, short of ${floor.contextual ? `the session's own median lead (${(floor.margin * 100).toFixed(1)}%)` : `the bootstrap lead (${(floor.margin * 100).toFixed(1)}%)`}`
+            : `top candidate leads the runner-up by only ${(margin * 100).toFixed(1)}%, short of minMargin (${(minMargin * 100).toFixed(1)}%)` });
           continue;
         }
         evidence.push(Object.freeze({
@@ -201,13 +285,16 @@ export function createDescriptorAnchoring({
           referent: topRef,
           referentSurface: displayById.get(topRef) ?? topRef,
           activation: topScore,
+          bornMass: born ? judgedTop : undefined,
           margin,
           sentenceOrder: sentence.order,
           witness: `text:${sentence.order}:anchor:${slug(occ.canonicalSurface)}`,
           provenance: Object.freeze({
             giver: "text/anchoring::createDescriptorAnchoring",
             tier: "engine",
-            basis: "one-hop activation recall over the already-admitted cast, floors declared by the caller",
+            basis: born
+              ? `one-hop activation recall over the already-admitted cast, contextual born floors — p_i = a_i^2 / Σa^2, floors from the session's own prior verdicts (${floor.contextual ? "material-derived" : "declared bootstrap"})`
+              : "one-hop activation recall over the already-admitted cast, floors declared by the caller",
           }),
         }));
       }

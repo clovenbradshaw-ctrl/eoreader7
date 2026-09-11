@@ -37,8 +37,8 @@ const corpus = (descriptorLine) => {
   return lines;
 };
 
-const run = (lines, referents = REFERENTS) => {
-  const anchoring = createDescriptorAnchoring(OPTS);
+const runWith = (lines, opts = OPTS, referents = REFERENTS) => {
+  const anchoring = createDescriptorAnchoring(opts);
   const all = { evidence: [], gaps: [] };
   lines.forEach((text, order) => {
     const sentence = { text, order, offset: order * 1000 };
@@ -50,9 +50,41 @@ const run = (lines, referents = REFERENTS) => {
   return all;
 };
 
+const run = (lines, referents = REFERENTS) => runWith(lines, OPTS, referents);
+
 test("anchoring operating point is declared, never defaulted", () => {
   assert.throws(() => createDescriptorAnchoring(), /minActivation/);
   assert.throws(() => createDescriptorAnchoring({ minActivation: 0 }), /minMargin/);
+});
+
+test("born mode: floors are declared bootstrap values until the material speaks, then the session's own medians", () => {
+  assert.throws(() => createDescriptorAnchoring({ born: true }), /bornActivationFloor/);
+  assert.throws(() => createDescriptorAnchoring({ born: true, bornActivationFloor: 0.5 }), /bornMarginFloor/);
+  assert.throws(() => createDescriptorAnchoring({ born: true, bornActivationFloor: 0, bornMarginFloor: 0.3 }), /bornActivationFloor/);
+
+  // Same material as the declared-mode test: a name-free garden descriptor
+  // scene must bind to Elena, and carry the Born mass of the winner with it.
+  const { evidence } = runWith(corpus("The gardener knelt by the garden roses in the light, working the garden soil."), {
+    born: true,
+    bornActivationFloor: 0.5,
+    bornMarginFloor: 0.3,
+    minWindow: 4,
+  });
+  const bound = evidence.find((e) => e.descriptor === "the gardener");
+  assert.ok(bound, "born mode binds the descriptor");
+  assert.equal(bound.referent, "ref:elena");
+  assert.ok(Number.isFinite(bound.bornMass) && bound.bornMass > 0.9, "the binding carries its Born mass");
+});
+
+test("born mode refuses a context that recalls no referent-bearing frame, with a typed gap", () => {
+  const { evidence, gaps } = runWith(
+    corpus("The visitor reviewed the ordinary letters and accounts of the afternoon before the quiet errands."),
+    { born: true, bornActivationFloor: 0.5, bornMarginFloor: 0.3, minWindow: 4 },
+  );
+  assert.equal(evidence.find((e) => e.descriptor === "the visitor"), undefined);
+  const gap = gaps.find((g) => g.descriptor === "the visitor");
+  assert.ok(gap, "born mode reports a typed gap");
+  assert.match(gap.reason, /descriptor_(no_margin|no_candidate|below_floor)/);
 });
 
 test("a name-free descriptor scene binds to the thematically recalled referent", () => {

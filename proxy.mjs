@@ -1,19 +1,49 @@
 import http from "node:http";
 import { parseProxyRequest, toOpenAIModelList, reprefixOllamaTags, openAIResponse, openAIStreamLines, ollamaChatResponse, ollamaChatStreamLines } from "./proxy-api.mjs";
-import { offeredOllamaModels, runProxyTurn } from "./proxy-runner.mjs";
+import { offeredOllamaModels, runProxyTurn, keepModelHot, hotModelSet, OLLAMA_KEEP_ALIVE_S } from "./proxy-runner.mjs";
+import { warmPostprocess } from "./postprocess.mjs";
 
 const PORT = Number(process.env.ER7_PROXY_PORT) || 11436;
 const UPSTREAM = process.env.ER7_UPSTREAM || "http://localhost:11434";
 const { hostname: UP_HOST, port: UP_PORT } = new URL(UPSTREAM);
+const KEEP_WARM_INTERVAL_MS = Number(process.env.ER7_KEEP_WARM_INTERVAL_MS ?? 120000);
 
 const ts = () => new Date().toISOString().slice(11, 23);
 const log = (msg) => process.stderr.write(`[${ts()}] [er7-proxy] ${msg}\n`);
+
+const _warnedOnce = new Set();
 
 function sessionIdFromHeaders(req) {
   const h = req.headers;
   const id = h["x-er7-session"] || h["x-session-id"] || h["x-conversation-id"];
   if (id && typeof id === "string" && id.length <= 128) return id;
-  return `er7-session-${req.socket?.remoteAddress?.replace(/[^a-z0-9]/gi, "") || "local"}-${Date.now()}`;
+  // Stable, not timestamped: a client that never sends a session header (raw
+  // evals, curl, py scripts) must STILL accumulate one fold across turns —
+  // a timestamped fallback silently reset the fold every request, which is
+  // exactly the fold-forgetting the proxy exists to prevent.
+  const scope = workspaceFromHeaders(req)
+    ? `-${requireCrc32(workspaceFromHeaders(req))}`
+    : "";
+  return `er7-session-${req.socket?.remoteAddress?.replace(/[^a-z0-9]/gi, "") || "local"}${scope}`;
+}
+
+let _crc32cache = new Map();
+function requireCrc32(str) {
+  if (_crc32cache.has(str)) return _crc32cache.get(str);
+  let crc = 0xffffffff;
+  for (let i = 0; i < str.length; i++) {
+    crc ^= str.charCodeAt(i);
+    for (let k = 0; k < 8; k++) crc = crc & 1 ? (crc >>> 1) ^ 0xedb88320 : crc >>> 1;
+  }
+  const out = (crc ^ 0xffffffff) >>> 0;
+  _crc32cache.set(str, out);
+  return out;
+}
+
+function workspaceFromHeaders(req) {
+  const ws = String(req.headers["x-er7-workspace"] ?? "").trim();
+  if (!ws || ws.length > 2048) return "";
+  return ws;
 }
 
 function forward(req, res) {
@@ -109,7 +139,8 @@ const server = http.createServer(async (req, res) => {
       }
 
       const sessionId = sessionIdFromHeaders(req);
-      log(`turn → session=${sessionId} model=${reqData.model} taskLength=${reqData.task.length} stream=${reqData.stream}`);
+      const workspace = workspaceFromHeaders(req);
+      log(`turn → session=${sessionId} model=${reqData.model} taskLength=${reqData.task.length} stream=${reqData.stream} workspace=${workspace ? `"${workspace}"` : "none"}`);
 
       const created = Math.floor(Date.now() / 1000);
       const id = `er7-${Date.now()}`;
@@ -157,13 +188,14 @@ const server = http.createServer(async (req, res) => {
         const onNote = reqData.discloseThinking ? emitNote : null;
 
         try {
-          const result = await runProxyTurn({ sessionId, ...reqData }, emit, onNote);
+          const result = await runProxyTurn({ sessionId, workspace, ...reqData }, emit, onNote);
           res.write(`data: ${JSON.stringify({
             id, object: "chat.completion.chunk", created, model: parsed.model,
             choices: [{ index: 0, delta: {}, finish_reason: "stop" }],
             reading: {
               sessionId, relationEdges: result.relationEdges, referentBindings: result.referentBindings,
               hyperlexiconCandidates: result.hyperlexiconCandidates, turn: result.turn,
+              workspace: result.workspace ?? null, post: result.post ?? null,
             },
           })}\n\n`);
           res.write("data: [DONE]\n\n");
@@ -177,7 +209,7 @@ const server = http.createServer(async (req, res) => {
         }
       } else {
         try {
-          const result = await runProxyTurn({ sessionId, ...reqData });
+          const result = await runProxyTurn({ sessionId, workspace, ...reqData });
           const resp = openAIResponse({ id, model: parsed.model, text: result.text, created, usage: result.usage, reading: result });
           resp.reading.sessionId = sessionId;
           res.writeHead(200, { "content-type": "application/json" });
@@ -215,7 +247,8 @@ const server = http.createServer(async (req, res) => {
       }
 
       const sessionId = sessionIdFromHeaders(req);
-      log(`ollama chat turn → session=${sessionId} model=${reqData.model} taskLength=${reqData.task.length}`);
+      const workspace = workspaceFromHeaders(req);
+      log(`ollama chat turn → session=${sessionId} model=${reqData.model} taskLength=${reqData.task.length} workspace=${workspace ? `"${workspace}"` : "none"}`);
 
       const createdAt = new Date().toISOString();
 
@@ -229,7 +262,7 @@ const server = http.createServer(async (req, res) => {
 
         try {
           let first = true;
-          await runProxyTurn({ sessionId, ...reqData }, (token) => {
+          await runProxyTurn({ sessionId, workspace, ...reqData }, (token) => {
             if (!token) return;
             res.write(JSON.stringify({
               model: parsed.model, created_at: createdAt,
@@ -255,7 +288,7 @@ const server = http.createServer(async (req, res) => {
         }
       } else {
         try {
-          const result = await runProxyTurn({ sessionId, ...reqData });
+          const result = await runProxyTurn({ sessionId, workspace, ...reqData });
           const resp = ollamaChatResponse({ model: parsed.model, text: result.text, createdAt, usage: result.usage, reading: result });
           resp.reading = { ...(result.reading ?? result), sessionId };
           res.writeHead(200, { "content-type": "application/json" });
@@ -279,6 +312,37 @@ server.listen(PORT, "127.0.0.1", () => {
   log(`eoreader7 proxy listening on http://127.0.0.1:${PORT}`);
   log(`upstream: ${UPSTREAM}`);
   log(`opencode → http://127.0.0.1:${PORT}/v1`);
+  // Pre-load pyodide (WASM Python) in the background so the FIRST turn's
+  // post-processing does not pay the ~10-16s cold-load. Fire-and-forget.
+  warmPostprocess().then(({ available, error }) => {
+    log(`post-processing runtime: ${available ? "pyodide ready" : `pyodide unavailable (${error})`}`);
+  });
+
+  // Keep models hot. Ollama unloads a model after its keep_alive window, and
+  // an idle gap between turns then pays a multi-GB cold-load on the next
+  // turn. Real requests already carry a long keep_alive; this interval makes
+  // sure models that were used (or listed in ER7_HOT_MODELS) never drop
+  // between turns. Fires every KEEP_WARM_INTERVAL_MS for every hot model.
+  const warmSet = hotModelSet();
+  if (warmSet.size) log(`keep-warm: will hold resident: ${[...warmSet].join(", ")} (keep_alive ${OLLAMA_KEEP_ALIVE_S}s)`);
+  // Warm at boot NOW — do not wait the first interval. A cold load here (~1-2
+  // min) is paid ONCE, so the first real turn is hot. Await before serving so
+  // the very first request doesn't race the loader.
+  for (const model of warmSet) {
+    keepModelHot(model).then((ok) => {
+      log(`keep-warm: ${model} ${ok ? "resident" : "NOT CONFIRMED"}`);
+    });
+  }
+  setInterval(() => {
+    for (const model of hotModelSet()) {
+      keepModelHot(model).then((ok) => {
+        if (!ok && !_warnedOnce.has(model)) {
+          _warnedOnce.add(model);
+          log(`keep-warm: ${model} did not confirm (was it pulled?)`);
+        }
+      });
+    }
+  }, KEEP_WARM_INTERVAL_MS);
 });
 
 process.on("SIGINT", () => {
