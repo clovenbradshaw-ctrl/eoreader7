@@ -45,7 +45,8 @@ export function parseProxyRequest(body) {
   const turn = turnFromMessages(body?.messages);
   if (turn.error) return { error: turn.error };
   const stream = Boolean(body?.stream);
-  return { model, ...turn, stream };
+  const discloseThinking = body?.discloseThinking ?? true;
+  return { model, ...turn, stream, discloseThinking };
 }
 
 export function toOpenAIModelList(realNames, { createdAt = 0 } = {}) {
