@@ -103,7 +103,11 @@ export function humanizeNote(note) {
     case "resolutions":
       return `Resolved the discourse at level ${note.level} (${note.ms}ms); active referents: ${note.active?.length ?? 0}.`;
     case "surfaced":
-      return `Surfaced material via ${note.operator} (${note.fan} candidate window(s)).`;
+      return note.operator === "FIELD"
+        ? `Recalled ${note.fan} passage(s) by resemblance (the field; above its null band).`
+        : note.operator === "FIELD+SEG"
+          ? `Surfaced via the address ladder + the field's resemblance (${note.fan} total, ${note.boost} by resemblance).`
+          : `Surfaced material via ${note.operator} (${note.fan} candidate window(s)).`;
     case "void":
       return `Nothing addressed the question (${note.gap}${note.reason ? `: ${note.reason}` : ""}).`;
     case "composed":
@@ -122,10 +126,18 @@ export function humanizeNote(note) {
       return `Gore's gather boundary: kept ${note.kept} of ${note.of} result(s) — ${note.basis}.`;
     case "gore":
       return `Gore: gathering sources on "${note.cue}".`;
+    case "gore_landed":
+      return `Gore's strike on "${note.cue}" landed: ${note.pages} page(s) folded into the reading while the section was being written.`;
+    case "strike_revision":
+      return `Revision: the reading grew — "${note.section}" rewritten with the new material (${note.reason}).`;
     case "competency":
       return note.reached
         ? `Competency reached: the reading was no longer meaningfully surprised by ${note.url} (${note.salient} salient, ${note.noise} noise) — we understand why, more sources would add noise.`
         : `Still learning from ${note.url} (${note.salient} salient, ${note.noise} noise).`;
+    case "ignored":
+      return `Ignored ${note.url}: shares only ${note.score} of the question's words — retained, not read.`;
+    case "eot_ized":
+      return `EOT-ized ${note.url} at ${note.resolution} resolution (${note.salient} salient moves).`;
     case "web_blocked":
       return `Web search blocked by bot-challenge.`;
     case "web_no_results":

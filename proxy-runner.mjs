@@ -20,6 +20,11 @@ import { tokenize } from "./native/the-fold/source.js";
 import { readingIndexFromLog } from "./native/the-fold/reading-log.js";
 import { createDocumentLedger, appendDocumentObservation, appendLedgerLine, projectDocument, documentChangeLog, admitPart, serializeLedger, snipsFromSources, checkEssayShape, ledgerFilePath, renderApaFootnotes } from "./native/the-fold/document-ledger.js";
 import { goreBoundary, gatherPlan, cueGoDeeperPlan, doubleCheckPlan } from "./native/the-fold/gore.js";
+// The keyless field (GFP Pass 35, the-fold c232779): recall by partial-cue
+// resemblance, resolution by state — no absolute address. Surf's SECOND
+// witness, beside the absolute-address ladder (executePrompt): when that
+// ladder returns a void or nothing, the field recalls what the cue resembles.
+import { Field } from "./native/the-fold/relative.js";
 import { dmdWindow } from "./native/kernel/activation.js";
 // Web organ: the pure half of search and page ingestion (extractReadable,
 // parseSearchResults, extractUrls, normalizeUrl). The network egress lives
@@ -89,6 +94,41 @@ async function enrichFromWikipedia(composition, maxConcepts = WIKI_MAX_CONCEPTS)
   const terms = [...new Set(scored.map((e) => String(e.left || e.right || "").trim()).filter(Boolean))].slice(0, maxConcepts);
   const summaries = await Promise.all(terms.map(async (term) => ({ term, snippet: await wikipediaSummary(term) })));
   return summaries.filter((s) => s.snippet);
+}
+
+// ── EOT-ize only the salient, at multiple resolutions ──────────────────────
+// Stepping every sentence of every fetched page through the reader bloats the
+// holograph with irrelevant material. Resolution levels, coarse to fine:
+//   NONE   — the page shares no salient token with the task: bytes retained
+//            (S101 recoverable) but NOT admitted to the reading — it is
+//            ignored. The reading does not absorb what it does not need.
+//   COARSE — the page shares salient tokens with the task: step it through
+//            the reader (build surfaces/referents/notes) so surf can address
+//            it — but only the sentences that actually relate (fine EOT-ize
+//            of the related stretches, not the whole page blindly).
+//   FINE   — the page is on-task AND moves the reading (expectation effects
+//            / REC): fully EOT-ized.
+// And the FORGET path: a page that was admitted but added nothing is marked
+// forgotten — its corpus text stops reaching surf and its reading admission
+// is superseded. Forgetting is a decision, recorded like every other.
+const RESOLUTION_NONE = "none", RESOLUTION_COARSE = "coarse", RESOLUTION_FINE = "fine";
+
+// Coarse screen: how much of the task's content-bearing vocabulary appears in
+// the page? A page that shares < SALIENCE_MIN of the task's distinctive words
+// is not about the task — retain, don't read.
+function salienceOf(pageText, task) {
+  const taskWords = new Set(String(task).toLowerCase().split(/[^a-z']+/).filter((w) => w.length > 3));
+  if (!taskWords.size) return { score: 1, shared: [], taskWords: 0, resolution: RESOLUTION_FINE };
+  const lower = String(pageText).toLowerCase();
+  const shared = [...taskWords].filter((w) => lower.includes(w));
+  return { score: shared.length / taskWords.size, shared, taskWords: taskWords.size, resolution: RESOLUTION_NONE };
+}
+
+// The decision, from the screen: retain-then-read, retain-only, or forget.
+function resolutionFor(score, sharedCount, { coarseAt = 0.2, fineAt = 0.6 } = {}) {
+  if (score >= fineAt) return RESOLUTION_FINE;
+  if (score >= coarseAt && sharedCount >= 1) return RESOLUTION_COARSE;
+  return RESOLUTION_NONE;
 }
 
 // ── shell detection via pyodide's HTMLParser (structural, not regex) ───────
@@ -279,43 +319,72 @@ async function searchAndAdmitWeb(session, sessionId, query, onNote, { move = "ga
         continue;
       }
       const srcId = `web:${sessionId}:${admittedPages}:${r.url}`;
-      admitChunked(session.corpus, { text, sourceId: srcId });
-      // RETAIN the full text — 100% recoverable from the ledger's addresses.
-      // The URL is the source's line 0; every address below is a byte range
-      // into THIS text, so a projection can rebuild the whole page from the
-      // ledger alone even when parsing found no structure in a stretch.
+      // THE SHADOW / MNEME — the memory of the visit itself, preserved ALWAYS
+      // whether or not the content is absorbed. A visit is a fact: the site
+      // was seen, its text was retained (S101 recoverable), its address is
+      // real. Even a page we decline to EOT-ize (not salient) keeps its
+      // shadow — the reading did not absorb it, but the instrument remembers
+      // it was there. Nothing is erased by a salience decision.
+      //
+      // The shadow is a DERIVED, DELETABLE projection (the-fold field-store.js
+      // Pass 33): it keeps the FULL passage text on purpose — that is what
+      // reanchor searches when the ground moves (find the note's words in
+      // whatever sources exist now and mint the address anew), and what a turn
+      // gets handed as passages. Its SDR states are UNPERSISTED — they rebuild
+      // by re-hashing the text, so the text is the storage. Clearing the shadow
+      // loses nothing: it rebuilds from the retained sources. The size story
+      // is durability, never compression (measured pg2600: 4,582 KB shadow =
+      // 1.42x the 3,216 KB source, 68% of it the passage text it must keep).
       const offset = session.webSources.get(r.url)?.length ?? 0;
       const full = (session.webSources.get(r.url) ?? "") + (offset ? "\n\n" : "") + text;
       session.webSources.set(r.url, full);
+      if (!session.shadow) session.shadow = [];
+      session.shadow.push({ url: r.url, title: r.title || r.url, seenAt: new Date().toISOString(), chars: text.length, resolution: null });
       appendDocumentObservation(session.webLedger, {
         role: "source", title: r.title || r.url, text,
-        basis: `web fetch, EOT-retained (full ${text.length} chars recoverable)`,
+        basis: `web fetch, shadow-preserved (full ${text.length} chars recoverable)`,
         at: [offset, offset + text.length],
       });
-      // EOT-ize: step the web page's encounters through the reader so it
-      // builds the same holograph surfaces/referents/notes as local material.
-      // Competency signal: aggregate the reading's OWN surprise over the page
-      // — the expectation effects (strengthened/weakened/fulfilled/violated/
-      // reframed) and recanonicalizations, NOT raw token novelty. A page that
-      // moves what the reading expected is SALIENT; a page full of new words
-      // that touches no expectation is noise and must not keep a quest alive.
-      const encounters = textEncounters(text, { source: `web:${r.url}`, offset: 0 });
+
+      // SALIENCE-GATED EOT-IZATION, MULTIPLE RESOLUTIONS. Only what is salient
+      // is absorbed into the reading. The screen is COARSE first (does the page
+      // share the task's words?), then FINE (does it move the reading's
+      // expectations?). A page that fails the coarse screen is ignored by the
+      // reading — its shadow stays, its content is retained, but the holograph
+      // does not absorb what it does not need.
+      const sal = salienceOf(text, query);
+      const resolution = resolutionFor(sal.score, sal.shared.length);
+      const shadowEntry = session.shadow[session.shadow.length - 1];
+      if (shadowEntry) shadowEntry.resolution = resolution;
       let pageSurprise = { salient: 0, noise: 0, effects: 0, recanonicalizations: 0 };
-      for (const enc of encounters) {
-        const step = await session.reader.step(enc);
-        const s = step?.surprise;
-        if (!s) { await yieldToEventLoop(); continue; }
-        const effects = s.expectationEffects?.length ?? 0;
-        const recan = s.recanonicalizations?.length ?? 0;
-        const ops = s.operations?.length ?? 0;
-        // SALIENT: expectations moved or the fold re-zeroed (REC). NOISE: many
-        // raw operations that touched nothing expected (a dense new-vocabulary
-        // page) — that is volume, not understanding.
-        if (effects > 0 || recan > 0) pageSurprise.salient++;
-        else if (ops > 0) pageSurprise.noise++;
-        if (effects) pageSurprise.effects += effects;
-        if (recan) pageSurprise.recanonicalizations += recan;
-        await yieldToEventLoop();
+      if (resolution === RESOLUTION_NONE) {
+        // Retain, don't read. The page is kept recoverable and its shadow is
+        // on the record; it just does not enter the reading. Ignore is a
+        // positive decision, recorded — not an accident.
+        admitChunked(session.corpus, { text, sourceId: srcId });
+        if (onNote) onNote({ move: "ignored", url: r.url, score: sal.score.toFixed(2), shared: sal.shared.slice(0, 5) });
+      } else {
+        // COARSE or FINE: EOT-ize it. FINE additionally steps it through the
+        // reader (which is where the holograph absorbs it). COARSE admits the
+        // text to the corpus (surf can address it) and steps it through the
+        // reader too — the reader's own surprise is the fine-resolution gate
+        // on whether it actually moved the reading.
+        admitChunked(session.corpus, { text, sourceId: srcId });
+        const encounters = textEncounters(text, { source: `web:${r.url}`, offset: 0 });
+        for (const enc of encounters) {
+          const step = await session.reader.step(enc);
+          const s = step?.surprise;
+          if (!s) { await yieldToEventLoop(); continue; }
+          const effects = s.expectationEffects?.length ?? 0;
+          const recan = s.recanonicalizations?.length ?? 0;
+          const ops = s.operations?.length ?? 0;
+          if (effects > 0 || recan > 0) pageSurprise.salient++;
+          else if (ops > 0) pageSurprise.noise++;
+          if (effects) pageSurprise.effects += effects;
+          if (recan) pageSurprise.recanonicalizations += recan;
+          await yieldToEventLoop();
+        }
+        if (onNote) onNote({ move: "eot_ized", url: r.url, resolution, score: sal.score.toFixed(2), salient: pageSurprise.salient });
       }
       session.lastPageSurprise = pageSurprise;
       // Competency: if this page barely moved the reading's expectations
@@ -323,7 +392,7 @@ async function searchAndAdmitWeb(session, sessionId, query, onNote, { move = "ga
       // sources would only add noise. Stop the quest. This is the DMD
       // boundary made about MEANING, not token counts.
       if (pageSurprise.salient < COMPETENCY_SALIENT_MIN) competencyReached = true;
-      if (onNote) onNote({ move: "competency", url: r.url, salient: pageSurprise.salient, noise: pageSurprise.noise, reached: competencyReached });
+      if (onNote) onNote({ move: "competency", url: r.url, salient: pageSurprise.salient, noise: pageSurprise.noise, reached: competencyReached, resolution });
       admittedChars += text.length;
       admittedPages++;
     } catch { /* skip failed fetches silently */ }
@@ -381,6 +450,9 @@ function shapeFromMaterial({ material = [], referents = null, surfacedSegments =
   }
   const recurring = [...seen.values()]
     .filter((r) => r.count >= 2)
+    // Boilerplate never becomes a section: navigation, site chrome, essay-mill
+    // labels ("Table of Contents", "Home", "Essay Examples", "Related Posts").
+    .filter((r) => !/table of contents|home|menu|search|related|essay example|free essay|skip to|read more|recent posts|subscribe|share this|^page\b|^home\b|login|sign in|sign up|contact|about us|privacy|cookie/i.test(r.line))
     .sort((a, b) => b.count - a.count)
     .slice(0, 6);
   for (const r of recurring) {
@@ -578,7 +650,7 @@ function getSession(sessionId) {
     return s;
   }
   const reader = createSessionReader();
-  const entry = { reader, corpus: null, corpusIndex: null, lastChatText: "", turnCount: 0, lastAccess: now, indexSig: null, referents: null, webLedger: null, webSources: new Map() };
+  const entry = { reader, corpus: null, corpusIndex: null, lastChatText: "", turnCount: 0, lastAccess: now, indexSig: null, referents: null, webLedger: null, webSources: new Map(), field: null, shadow: [] };
   sessions.set(sessionId, entry);
   return entry;
 }
@@ -706,6 +778,51 @@ function readWorkspaceFile(entry, onNote) {
   }
 }
 
+// ── the field: surf's SECOND witness (GFP Pass 35, relative.js) ────────────
+// The absolute-address ladder (executePrompt) is a key, a lookup, exact or
+// nothing. The field is the OTHER way: recall by partial-cue resemblance,
+// resolution by state. When the ladder returns a void or nothing, the field
+// recalls what the question's words resemble — measured (the-fold c232779):
+// lexical 215/240, the field 240/240 on the GFP battery.
+function ensureField(session) {
+  if (session.field) return session.field;
+  const f = new Field({ spread: 0.25, steps: 1 });
+  if (session.corpus) {
+    for (const [sourceId, doc] of session.corpus.documents.entries()) {
+      const text = String(doc?.text ?? doc ?? "").trim();
+      if (!text) continue;
+      // Admit as SENTENCE-CHUNKS, not whole docs: the field needs many nodes
+      // (a rich vocabulary) for the null band to be meaningful — a handful of
+      // whole documents makes every random cue overlap by topic word. Chunks
+      // keep the temporal-adjacency synapses (sentences joined in order) that
+      // the field's spread uses.
+      const sentences = text.split(/(?<=[.!?])\s+(?=[A-Z])/).map((s) => s.trim()).filter((s) => s.length > 30);
+      for (const s of sentences) f.admit(s, { sourceId });
+    }
+  }
+  session.field = f;
+  return f;
+}
+
+function fieldRecall(session, cue, { max = SURF_MAX_SEGMENTS } = {}) {
+  try {
+    const f = ensureField(session);
+    if (!f.size) return { recalled: [], band: null };
+    const words = cue.toLowerCase().split(/[^a-z']+/).filter((w) => w.length > 2).length || 1;
+    const band = f.nullBand(words, { draws: 120 });
+    const r = f.recallAgainstNull(cue, { band });
+    if (r.kind !== "figure") return { recalled: [], kind: r.kind, band: r.band };
+    const ranked = r.ranked.slice(0, max).filter((x) => x.activation > 0);
+    const recalled = ranked.map((x) => ({
+      text: String(x.node.text ?? "").slice(0, SURF_MAX_SEGMENT_CHARS),
+      _ledger: { source: x.node.payload?.sourceId ?? null, heading: null, addressed_by: "field", bytes: null, activation: x.activation },
+    }));
+    return { recalled, kind: "figure", band: r.band };
+  } catch {
+    return { recalled: [] };
+  }
+}
+
 // THE SURF — the real mechanical address ladder against the session's corpus.
 // Returns the addressed segment(s) TEXT ONLY. The address (source, heading,
 // byte range, addressed_by) is reported to the ledger/notes — it is NEVER
@@ -747,6 +864,15 @@ return { segments: [], void: true, reason: "no corpus yet" };
   if (!candidates.length) {
     const first = result.fan?.[0] ?? result;
     const gap = result.gap ?? first?.gap ?? "content_not_found";
+    // SECOND WITNESS: the absolute ladder found nothing — the field recalls
+    // what the question's words RESEMBLE. A real recall is kept (addressed_by
+    // "field"); a recall inside the null band is not a recall, and the void
+    // is disclosed as a void, never dressed up as a match.
+    const field = fieldRecall(session, task);
+    if (field.recalled.length) {
+      if (onNote) onNote({ move: "surfaced", operator: "FIELD", fan: field.recalled.length, docs: session.corpus.documents.size, kind: field.kind, band: field.band ? { hi: field.band.hi } : null });
+      return { segments: field.recalled, void: false, addressedBy: true, addressedByWitness: "field", band: field.band ? { hi: field.band.hi } : null };
+    }
     if (onNote) onNote({ move: "void", gap, reason: result.reason ?? first?.reason ?? null });
     return { segments: [], void: true, gap, reason: result.reason ?? first?.reason ?? null };
   }
@@ -764,6 +890,23 @@ return { segments: [], void: true, reason: "no corpus yet" };
   };
   candidates.sort((a, b) => rank(b) - rank(a));
   const selected = candidates.slice(0, SURF_MAX_SEGMENTS);
+  // WEAK-MATCH BOOST: if the best the absolute ladder returned is only a
+  // disclosed windowed fallback (rank 1 — no clean content match, no heading),
+  // ask the field whether the cue RESEMBLES a stronger passage. The field
+  // joins the offered set, never replaces it; only a recall above the null
+  // band counts (measured, never chosen).
+  if (selected.length && rank(selected[0]) <= 1) {
+    const field = fieldRecall(session, task);
+    if (field.recalled.length) {
+      const existingSources = new Set(segments.map((s) => s._ledger?.source));
+      for (const r of field.recalled) {
+        if (existingSources.has(r._ledger?.source)) continue;
+        selected.push(r);
+        existingSources.add(r._ledger?.source);
+      }
+      if (onNote) onNote({ move: "surfaced", operator: "FIELD+SEG", fan: selected.length, kind: field.kind, boost: field.recalled.length });
+    }
+  }
   const segments = [];
   let total = 0;
   for (const s of selected) {
@@ -918,7 +1061,13 @@ const res = await fetch(`${OLLAMA}/api/chat`, {
           model,
           messages,
           stream: true,
-          keep_alive: `${OLLAMA_KEEP_ALIVE_S}s`,
+          // Keep the model resident for the DURATION of the work. A long
+          // composition runs 5-10+ minutes, longer than Ollama's default 5-min
+          // keep_alive — without this the model unloads mid-essay and the draw
+          // hangs retrying. This is a per-request floor, NOT the keep-warm
+          // machinery: even with ER7_KEEP_ALIVE_S=0 the model stays up for the
+          // time it takes to answer, then Ollama's own unload applies.
+          keep_alive: `${Math.max(OLLAMA_KEEP_ALIVE_S, 1200)}s`,
           ...(json ? { format: json === true ? "json" : json } : {}),
           options: { num_predict: maxTokens ?? CALL_MAX_TOKENS, num_ctx: Math.max(NUM_CTX, Math.ceil(PROMPT_MAX_CHARS / 3) + (maxTokens ?? CALL_MAX_TOKENS)) },
         }),
@@ -1389,44 +1538,22 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
       return { buf, stopped };
     };
     if (sections.length) {
-      // ── WRITING IS REWRITING ─────────────────────────────────────────────
-      // 1. OUTLINE — the model sets the essay's structure natively (thesis +
-      //    the sections that support it), from the material. The shape is not
-      //    imposed as a rigid list; the model proposes it and the reading
-      //    checks it.
-      // 2. FILL — each section is drawn generously, carrying the outline and
-      //    what came before it.
-      // 3. EVA vs DEF — the assembled piece is checked mechanically against
-      //    the declared essay shape (thesis opening, themes covered, closing).
-      // 4. REC — a bounded rewrite pass names exactly what the EVA found and
-      //    re-draws the missing part; each rewrite is a revision line in the
-      //    ledger (supersede), so the before/after stays on the record.
+      // ── WRITING IS REWRITING, AND WRITING COMES FIRST ─────────────────────────
+      // A writer starts writing before the research is done and goes back for
+      // more when a section needs it. So: no blocking outline draw — the
+      // sections the material's own structure gives us ARE the plan. Each
+      // section is written immediately, carries the essay's state forward,
+      // and strikes Gore for its own source only when it needs one. The
+      // outline is never a separate 56s model call that stalls the piece.
       const topic = topicPhrase(task);
-      // The OUTLINE is a living document-ledger line. It is drawn first, then
-      // REC supersedes it whenever the reading (as sections are written) turns
-      // up a theme the outline did not cover. REC is the secret sauce: the
-      // outline is allowed to evolve as the essay is written, and each
-      // evolution is a revision line — the before/after stays on the record.
-      let outlineId = null;
-      if (onThinking) onThinking(`\n### Outline\n\n`);
-      const outlineTask = sections.length > 3
-        ? `We're writing a piece on ${topic}. First, give an outline: the opening thesis, then ${Math.min(sections.length, 5)} sections that support it, then a conclusion. Write it as a short list of section headings.`
-        : `We're writing a piece on ${topic}. Here are its sections: ${sections.map((s) => `"${s}"`).join(", ")}. Write them as an outline of headings.`;
-      const outline = await draw(
-        [
-          { role: "system", content: systemContent },
-          ...keptChat,
-          { role: "user", content: outlineTask },
-        ],
-        300,
-        { capture: true }, // the outline is process, not content — it steers the sections but never enters the essay body
-      );
-      if (onThinking) onThinking(outline.buf + "\n\n");
-      if (outline.stopped) { /* outline capped, continue with planned sections */ }
-
+      const outlineBuf = sections.length
+        ? sections.map((s, i) => `${i + 1}. ${s}`).join("\n")
+        : `1. ${topic}`;
+      let outlineId = null; // REC supersedes the outline line when the reading grows it
       const plannedSections = [...sections];
       const recoffered = new Set(); // REC offers each evolving theme once — never loops forever
       const goredThemes = new Set(); // Gore strikes each theme once — no re-fetch of the same cue
+      if (onThinking) onThinking(`\n### Outline\n${outlineBuf}\n`);
       // Evolve the outline as sections land: re-read the reading's referents;
       // a being the essay has not yet covered is a theme the outline missed.
       // REC: supersede the outline line and add the section.
@@ -1440,28 +1567,44 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
           continue;
         }
         // Gore: go back for more on this section's cue — a targeted strike for
-        // the specific theme, so the section has its own source (the way a
-        // writer gathers sources for each part of the essay, not one big fetch).
+        // the specific theme. THIS RUNS CONCURRENTLY with the section draw:
+        // whichever is ready first goes. The model starts writing the section
+        // from what is already grounded; the strike's admitted material is
+        // available for the NEXT sections (the reading grows). A fetch that
+        // lands later is never wasted — it feeds the piece that follows.
+        let goreStrike = Promise.resolve({ landed: false });
         if (WEB_SEARCH_ON && documentLedger && section && !goredThemes.has(section)) {
           goredThemes.add(section);
           const cuePlan = cueGoDeeperPlan(section, { query: `${topic} ${section}` });
           if (onNote) onNote({ move: "gore", cue: section, query: cuePlan.query });
           if (onThinking) onThinking(`\n[Gore: gathering on "${section}"]\n`);
-          await searchAndAdmitWeb(session, sessionId, cuePlan.query, onNote, { move: "go-deeper", maxPages: 2 });
+          goreStrike = searchAndAdmitWeb(session, sessionId, cuePlan.query, onNote, { move: "go-deeper", maxPages: 2 })
+            .then((r) => ({ landed: true, result: r }))
+            .catch(() => ({ landed: false }));
         }
         const priorParts = documentLines.map((_, j) => `"${plannedSections[j]}"`).join(", ");
         const sectionTask = plannedSections.length > 1
-          ? `We're writing a piece on ${topic}. ${outline.buf.trim() ? `Here is the outline:\n${outline.buf.trim()}\n\n` : ""}${priorParts ? `So far it has these parts: ${priorParts}. ` : ""}Now write the part on ${section}, developing it fully from the material.`
+          ? `We're writing a piece on ${topic}. ${outlineBuf.trim() ? `Here is the outline:\n${outlineBuf.trim()}\n\n` : ""}${priorParts ? `So far it has these parts: ${priorParts}. ` : ""}Now write the part on ${section}, developing it fully from the material.`
           : `Write the piece on ${topic}, developing it fully from the material.`;
         if (onThinking) onThinking(`\n### ${section}\n\n`);
-        const { buf, stopped } = await draw(
-          [
-            { role: "system", content: systemContent },
-            ...keptChat,
-            { role: "user", content: sectionTask },
-          ],
-          SECTION_MAX_TOKENS,
-        );
+        // The draw runs NOW, in parallel with the Gore strike. Whichever lands
+        // first flows; the strike's result is folded into the reading whenever
+        // it arrives.
+        const [drawRes, goreRes] = await Promise.allSettled([
+          draw(
+            [
+              { role: "system", content: systemContent },
+              ...keptChat,
+              { role: "user", content: sectionTask },
+            ],
+            SECTION_MAX_TOKENS,
+          ),
+          goreStrike,
+        ]);
+        const { buf = "", stopped = false } = drawRes.status === "fulfilled" ? drawRes.value : {};
+        if (goreRes.status === "fulfilled" && goreRes.value?.landed && onNote) {
+          onNote({ move: "gore_landed", cue: section, pages: goreRes.value.result?.pages ?? 0 });
+        }
         if (stopped) break;
         if (onThinking) onThinking(buf + (i < plannedSections.length - 1 ? "\n\n" : ""));
         if (documentLedger) {
@@ -1492,7 +1635,7 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
             plannedSections.push(newTheme);
             if (outlineId || documentLedger) {
               outlineId = appendLedgerLine(documentLedger, {
-                role: "outline", title: "Outline (evolved)", text: `${outline.buf.trim()}\n- ${newTheme}`,
+                role: "outline", title: "Outline (evolved)", text: `${outlineBuf.trim()}\n- ${newTheme}`,
                 supersedes: outlineId ?? null, giver: "eoreader7:reading",
                 basis: `REC: the reading established "${newTheme}" as sections were written — the outline grows to include it`,
               }, { dir: ESSAY_LEDGER_DIR });
@@ -1538,6 +1681,60 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
           const rechecked = checkEssayShape(documentLines.join("\n\n"), { parts: plannedSections.length, themes: plannedSections });
           if (onNote) onNote({ move: "shape_recheck", ok: rechecked.ok, failures: rechecked.failures.map((f) => f.detail) });
           if (rechecked.ok) break;
+        }
+      }
+
+      // ── READING IS WRITING: a landed strike may revise EARLIER sections ──
+      // Everything is revisable — the ledger is append-only, so a revision to
+      // section 2 after section 4 is just a line that supersedes it. After the
+      // sections and strikes, re-read the reading: a section whose theme the
+      // grown material now covers more fully (more referents, more notes) is
+      // worth revising — a writer returns to an earlier part when the later
+      // research deepens it. Bounded: one revision pass, each section at most
+      // once, and only when the fold genuinely grew.
+      if (documentLedger && !truncated && plannedSections.length > 1 && session.reader) {
+        const fresh = sessionReferentIndex(session, onNote);
+        const afterCount = fresh?.referents?.size ?? 0;
+        // The FIRST time a session composes, there is no "before" — the baseline
+        // is set, nothing is revised on the first pass. Revision requires the
+        // reading to have ACTUALLY grown mid-composition (a later strike landed
+        // and deepened the fold), never a first-run artifact.
+        const beforeCount = session.lastReferentCount;
+        session.lastReferentCount = afterCount;
+        if (beforeCount != null && afterCount > beforeCount + 1) {
+          // The reading grew substantially mid-writing. Revise the earliest
+          // section whose theme the new referents touch.
+          const newRefs = [...(fresh?.referents?.values?.() ?? [])]
+            .map((r) => [...(r.surfaces ?? [])][0])
+            .filter((n) => n && n.length > 3);
+          const reviseTarget = plannedSections.findIndex((s) => newRefs.some((n) => s.toLowerCase().includes(n.toLowerCase()) || n.toLowerCase().includes(s.toLowerCase())));
+          if (reviseTarget >= 0) {
+            const section = plannedSections[reviseTarget];
+            if (onNote) onNote({ move: "strike_revision", section, reason: `the reading grew from ${beforeCount} to ${afterCount} referents — the section can be deepened` });
+            if (onThinking) onThinking(`\n### Revising earlier section: ${section}\n\n`);
+            const revise = await draw(
+              [
+                { role: "system", content: systemContent },
+                ...keptChat,
+                { role: "user", content: `The piece on ${topic} has a section on "${section}". The research since it was written turned up more. Rewrite that section, deepened by the new material.` },
+              ],
+              SECTION_MAX_TOKENS,
+            );
+            if (!revise.stopped && revise.buf.trim()) {
+              const revisedText = revise.buf.trim();
+              if (documentLedger) {
+                // The revision SUPERSEDES the earlier section in the ledger —
+                // both stay on the record; the projection takes the survivor.
+                appendLedgerLine(documentLedger, {
+                  role: "revision", title: `revision: ${section}`, text: revisedText, giver: model,
+                  supersedes: null, basis: `REC: the reading grew (${beforeCount}→${afterCount} referents) — "${section}" rewritten with the new material`,
+                }, { dir: ESSAY_LEDGER_DIR });
+              }
+              documentLines[reviseTarget] = revisedText;
+              fullText += `\n\n${revisedText}`;
+              if (onToken) onToken(`\n\n${revisedText}`);
+            }
+          }
         }
       }
       if (documentLedger) {
