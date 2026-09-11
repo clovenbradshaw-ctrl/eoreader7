@@ -54,6 +54,7 @@ import crypto from "node:crypto";
 import { fileURLToPath } from "node:url";
 import { splitSentences, normaliseNewlines } from "../../adapters/text/spans.js";
 import { extractRelations, discoverRelationVocab } from "../../adapters/text/relations.js";
+import { relationPriorOptionsFor } from "../../adapters/text/relation-priors-i18n.js";
 import { extractSurfaces, scriptCoverageBySentence, accumulateSurfaceEvidence, createSurfaceEvidence, surfacesFromEvidence, discoverReferents } from "../../adapters/text/surfaces.js";
 import { bindNarrationFrames, pronounResolver } from "../../adapters/text/perspective-claims.js";
 import { boundAnchorSpans } from "../../adapters/text/vocabulary.js";
@@ -997,7 +998,16 @@ const endRef = (surface, chapterLocalOffset) => {
 // (see grainOf), where the same received prior types what was found instead
 // of narrowing what may be found. Same evidence, same P56 asymmetry, one
 // tier later.
-const vocabReport = discoverRelationVocab(chapterText, { surfaces, minSurfaces: MIN_SURFACES_PER_VERB, anchorSpans });
+// LANG_RELATION_PRIORS. Real, giver-cited closed classes (auxiliary verbs,
+// subject pronouns, determiners, clause openers, negation) for the
+// languages this project has verified readings for — see
+// relation-priors-i18n.js's own header for why this exists and what it
+// does not close (Mandarin's word-segmentation gap in particular). `null`
+// for every language without a registered set (including "eng"), which
+// leaves `extractRelations`/`discoverRelationVocab`'s own English defaults
+// exactly as they were — byte-identical for every prior caller.
+const LANG_RELATION_PRIORS = relationPriorOptionsFor(LANG);
+const vocabReport = discoverRelationVocab(chapterText, { surfaces, minSurfaces: MIN_SURFACES_PER_VERB, anchorSpans, ...(LANG_RELATION_PRIORS ? { auxiliaryVerbs: LANG_RELATION_PRIORS.auxiliaryVerbs, negationWords: LANG_RELATION_PRIORS.negationWords } : {}) });
 
 const ownVerbs = vocabReport?.verbs instanceof Set ? vocabReport.verbs : new Set(vocabReport?.verbs ?? []);
 const verbs = new Set(ownVerbs);
@@ -1010,7 +1020,7 @@ const lexiconStats = lexicons.map((lx) => {
   for (const v of lx.verbs ?? []) { if (!verbs.has(v)) fresh += 1; verbs.add(v); }
   return { giver: lx.giver, verbsOffered: (lx.verbs ?? []).length, verbsNew: fresh };
 });
-const opts = { verbs, phrasalPredicates: true, nounPhraseSubjects: true };
+const opts = { verbs, phrasalPredicates: true, nounPhraseSubjects: true, ...(LANG_RELATION_PRIORS ?? {}) };
 
 const carriesVerb = (t) => String(t ?? "").toLowerCase().split(/[^\p{L}\p{N}’']+/u).some((w) => verbs.has(w));
 const promoteLabel = (label, objectText) => {
