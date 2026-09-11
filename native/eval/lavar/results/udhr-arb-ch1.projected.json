@@ -697,8 +697,8 @@
          311
         ],
         "role": "arrangement",
-        "reason": "no_earned_verb_in_this_sentence",
-        "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+        "reason": "gate_refused_no_two_ends",
+        "detail": "a verb this reading earned occurs here, but extractRelations requires BOTH a subject group and an object group (S90: `if (!subject || !object) continue`) — an exclamation, a bare predicate adjective, or an intransitive clause satisfies neither, and that is a property of the gate, not of the material",
         "children": []
        }
       ]
@@ -744,20 +744,7 @@
         "terrain": "Void",
         "stance": "Tending",
         "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
-        "children": [
-         {
-          "seq": 251,
-          "schema": "EOTAbsence@1",
-          "at": [
-           319,
-           563
-          ],
-          "role": "arrangement",
-          "reason": "no_earned_verb_in_this_sentence",
-          "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
-          "children": []
-         }
-        ]
+        "children": []
        }
       ]
      }
@@ -805,14 +792,22 @@
         "children": [
          {
           "seq": 252,
-          "schema": "EOTAbsence@1",
+          "schema": "EOTObservation@1",
+          "id": "o248",
           "at": [
-           571,
-           723
+           587,
+           722
           ],
-          "role": "arrangement",
-          "reason": "no_earned_verb_in_this_sentence",
-          "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "role": "proposition",
+          "end1": "ولما",
+          "label": "كان",
+          "end2": "تناسي حقوق الإنسان وازدراؤها قد أفضيا إلى أعمال همجية آذت الضمير الإنساني",
+          "subjectBasis": "stated",
+          "operator": "CON",
+          "grain": "Figure",
+          "terrain": "Link",
+          "stance": "Binding",
+          "settledAs": "verb",
           "children": []
          }
         ]
@@ -833,16 +828,39 @@
       "script": "caseless",
       "children": [
        {
-        "seq": 253,
-        "schema": "EOTAbsence@1",
+        "seq": 254,
+        "schema": "EOTObservation@1",
+        "id": "o249",
         "at": [
-         724,
-         919
+         774,
+         918
         ],
-        "role": "arrangement",
-        "reason": "no_earned_verb_in_this_sentence",
-        "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
-        "children": []
+        "role": "proposition",
+        "end1": "وكان غاية ما يرنو إليه",
+        "label": "عامة",
+        "end2": "البشر انبثاق عالم يتمتع فيه الفرد بحرية القول والعقيدة ويتحرر من الفزع والفاقة",
+        "subjectBasis": "stated",
+        "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
+        "settledAs": null,
+        "children": [
+         {
+          "seq": 255,
+          "schema": "EOTObservation@1",
+          "id": "o250",
+          "at": [
+           825,
+           918
+          ],
+          "role": "proposition",
+          "end1": "وكان غاية ما يرنو إليه",
+          "label": "فيه",
+          "end2": "الفرد بحرية القول والعقيدة ويتحرر من الفزع والفاقة",
+          "subjectBasis": "inherited",
+          "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
+          "settledAs": null,
+          "children": []
+         }
+        ]
        }
       ]
      }
@@ -874,16 +892,45 @@
       "script": "caseless",
       "children": [
        {
-        "seq": 254,
-        "schema": "EOTAbsence@1",
+        "seq": 257,
+        "schema": "EOTObservation@1",
+        "id": "o251",
         "at": [
-         927,
-         1137
+         948,
+         1136
         ],
-        "role": "arrangement",
-        "reason": "no_earned_verb_in_this_sentence",
-        "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
-        "children": []
+        "role": "proposition",
+        "end1": "ولما",
+        "label": "كان من",
+        "end2": "الضروري أن يتولى القانون حماية حقوق الإنسان لكيلا يضطر المرء آخر الأمر إلى التمرد على الاستبداد والظلم",
+        "subjectBasis": "stated",
+        "operator": "CON",
+        "grain": "Ground",
+        "terrain": "Field",
+        "stance": "Tending",
+        "settledAs": "preposition",
+        "children": [
+         {
+          "seq": 258,
+          "schema": "EOTObservation@1",
+          "id": "o252",
+          "at": [
+           968,
+           1136
+          ],
+          "role": "proposition",
+          "end1": "ولما",
+          "label": "أن",
+          "end2": "يتولى القانون حماية حقوق الإنسان لكيلا يضطر المرء آخر الأمر إلى التمرد على الاستبداد والظلم",
+          "subjectBasis": "inherited",
+          "operator": "SEG",
+          "grain": "Figure",
+          "terrain": "Link",
+          "stance": "Dissecting",
+          "settledAs": "conjunction",
+          "children": []
+         }
+        ]
        }
       ]
      }
@@ -915,15 +962,23 @@
       "script": "caseless",
       "children": [
        {
-        "seq": 255,
-        "schema": "EOTAbsence@1",
+        "seq": 260,
+        "schema": "EOTObservation@1",
+        "id": "o253",
         "at": [
-         1145,
-         1570
+         1163,
+         1569
         ],
-        "role": "arrangement",
-        "reason": "no_earned_verb_in_this_sentence",
-        "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+        "role": "proposition",
+        "end1": "ولما",
+        "label": "كانت",
+        "end2": "شعوب الأمم المتحدة قد أكدت في الميثاق من جديد إيمانها بحقوق الإنسان الأساسية وبكرامة الفرد وقدره وبما للرجال والنساء من حقوق متساوية وحزمت أمرها على أن تدفع بالرقي الاجتماعي قدمًا وأن ترفع مستوى الحياة في جو من الحرية أفسح",
+        "subjectBasis": "stated",
+        "operator": "CON",
+        "grain": "Figure",
+        "terrain": "Link",
+        "stance": "Binding",
+        "settledAs": "verb",
         "children": []
        }
       ]
@@ -954,20 +1009,7 @@
       "inferred": true,
       "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
       "script": "caseless",
-      "children": [
-       {
-        "seq": 256,
-        "schema": "EOTAbsence@1",
-        "at": [
-         1578,
-         1803
-        ],
-        "role": "arrangement",
-        "reason": "no_earned_verb_in_this_sentence",
-        "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
-        "children": []
-       }
-      ]
+      "children": []
      }
     ]
    },
@@ -1012,16 +1054,60 @@
         "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
         "children": [
          {
-          "seq": 257,
-          "schema": "EOTAbsence@1",
+          "seq": 263,
+          "schema": "EOTObservation@1",
+          "id": "o254",
           "at": [
-           1811,
-           1966
+           1827,
+           1965
           ],
-          "role": "arrangement",
-          "reason": "no_earned_verb_in_this_sentence",
-          "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
-          "children": []
+          "role": "proposition",
+          "end1": "ولما",
+          "label": "كان",
+          "end2": "للإدراك العام لهذه الحقوق والحريات الأهمية الكبرى للوفاء التام بهذا التعهد",
+          "subjectBasis": "stated",
+          "operator": "CON",
+          "grain": "Figure",
+          "terrain": "Link",
+          "stance": "Binding",
+          "settledAs": "verb",
+          "children": [
+           {
+            "seq": 264,
+            "schema": "EOTObservation@1",
+            "id": "o255",
+            "at": [
+             1862,
+             1965
+            ],
+            "role": "proposition",
+            "end1": "ولما",
+            "label": "لهذه",
+            "end2": "الحقوق والحريات الأهمية الكبرى للوفاء التام بهذا التعهد",
+            "subjectBasis": "inherited",
+            "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
+            "settledAs": null,
+            "children": [
+             {
+              "seq": 265,
+              "schema": "EOTObservation@1",
+              "id": "o256",
+              "at": [
+               1892,
+               1965
+              ],
+              "role": "proposition",
+              "end1": "ولما",
+              "label": "والحريات",
+              "end2": "الأهمية الكبرى للوفاء التام بهذا التعهد",
+              "subjectBasis": "inherited",
+              "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
+              "settledAs": null,
+              "children": []
+             }
+            ]
+           }
+          ]
          }
         ]
        }
@@ -1055,7 +1141,7 @@
       "script": "caseless",
       "children": [
        {
-        "seq": 258,
+        "seq": 266,
         "schema": "EOTAbsence@1",
         "at": [
          1974,
@@ -1063,7 +1149,7 @@
         ],
         "role": "arrangement",
         "reason": "no_earned_verb_in_this_sentence",
-        "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+        "detail": "no token in this sentence was nominated by the 357 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
         "children": []
        }
       ]
@@ -1137,7 +1223,20 @@
         "terrain": "Void",
         "stance": "Tending",
         "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
-        "children": []
+        "children": [
+         {
+          "seq": 268,
+          "schema": "EOTAbsence@1",
+          "at": [
+           2099,
+           2728
+          ],
+          "role": "arrangement",
+          "reason": "gate_refused_no_two_ends",
+          "detail": "a verb this reading earned occurs here, but extractRelations requires BOTH a subject group and an object group (S90: `if (!subject || !object) continue`) — an exclamation, a bare predicate adjective, or an intransitive clause satisfies neither, and that is a property of the gate, not of the material",
+          "children": []
+         }
+        ]
        }
       ]
      }
@@ -1169,7 +1268,7 @@
       "script": "caseless",
       "children": [
        {
-        "seq": 261,
+        "seq": 269,
         "schema": "EOTAbsence@1",
         "at": [
          2739,
@@ -1177,7 +1276,7 @@
         ],
         "role": "arrangement",
         "reason": "no_earned_verb_in_this_sentence",
-        "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+        "detail": "no token in this sentence was nominated by the 357 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
         "children": []
        }
       ]
@@ -1208,20 +1307,7 @@
       "inferred": true,
       "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
       "script": "caseless",
-      "children": [
-       {
-        "seq": 262,
-        "schema": "EOTAbsence@1",
-        "at": [
-         2761,
-         2855
-        ],
-        "role": "arrangement",
-        "reason": "no_earned_verb_in_this_sentence",
-        "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
-        "children": []
-       }
-      ]
+      "children": []
      },
      {
       "seq": 110,
@@ -1252,15 +1338,23 @@
         "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
         "children": [
          {
-          "seq": 263,
-          "schema": "EOTAbsence@1",
+          "seq": 271,
+          "schema": "EOTObservation@1",
+          "id": "o257",
           "at": [
-           2856,
-           2973
+           2918,
+           2972
           ],
-          "role": "arrangement",
-          "reason": "no_earned_verb_in_this_sentence",
-          "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "role": "proposition",
+          "end1": "ا وعليهم",
+          "label": "أن",
+          "end2": "يعامل بعضهم بعضًا بروح الإخاء",
+          "subjectBasis": "stated",
+          "operator": "SEG",
+          "grain": "Figure",
+          "terrain": "Link",
+          "stance": "Dissecting",
+          "settledAs": "conjunction",
           "children": []
          }
         ]
@@ -1295,7 +1389,7 @@
       "script": "caseless",
       "children": [
        {
-        "seq": 264,
+        "seq": 272,
         "schema": "EOTAbsence@1",
         "at": [
          2984,
@@ -1303,7 +1397,7 @@
         ],
         "role": "arrangement",
         "reason": "no_earned_verb_in_this_sentence",
-        "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+        "detail": "no token in this sentence was nominated by the 357 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
         "children": []
        }
       ]
@@ -1336,7 +1430,7 @@
       "script": "caseless",
       "children": [
        {
-        "seq": 265,
+        "seq": 273,
         "schema": "EOTAbsence@1",
         "at": [
          3006,
@@ -1392,15 +1486,23 @@
         "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
         "children": [
          {
-          "seq": 266,
-          "schema": "EOTAbsence@1",
+          "seq": 274,
+          "schema": "EOTObservation@1",
+          "id": "o258",
           "at": [
-           3497,
-           3933
+           3542,
+           3932
           ],
-          "role": "arrangement",
-          "reason": "no_earned_verb_in_this_sentence",
-          "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "role": "proposition",
+          "end1": "عما تقدم فلن",
+          "label": "يكون",
+          "end2": "هناك أي تمييز أساسه الوضع السياسي أو القانوني أو الدولي لبلد أو البقعة التي ينتمي إليها الفرد سواء كان هذا البلد أو تلك البقعة مستقلاً أو تحت الوصاية أو غير متمتع بالحكم الذاتي أو كانت سيادته خاضعة لأي قيد من القيود",
+          "subjectBasis": "stated",
+          "operator": "CON",
+          "grain": "Figure",
+          "terrain": "Link",
+          "stance": "Binding",
+          "settledAs": "verb",
           "children": []
          }
         ]
@@ -1435,7 +1537,7 @@
       "script": "caseless",
       "children": [
        {
-        "seq": 267,
+        "seq": 276,
         "schema": "EOTAbsence@1",
         "at": [
          3944,
@@ -1443,7 +1545,7 @@
         ],
         "role": "arrangement",
         "reason": "no_earned_verb_in_this_sentence",
-        "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+        "detail": "no token in this sentence was nominated by the 357 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
         "children": []
        }
       ]
@@ -1476,15 +1578,15 @@
       "script": "caseless",
       "children": [
        {
-        "seq": 268,
+        "seq": 277,
         "schema": "EOTAbsence@1",
         "at": [
          3966,
          4044
         ],
         "role": "arrangement",
-        "reason": "no_earned_verb_in_this_sentence",
-        "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+        "reason": "gate_refused_no_two_ends",
+        "detail": "a verb this reading earned occurs here, but extractRelations requires BOTH a subject group and an object group (S90: `if (!subject || !object) continue`) — an exclamation, a bare predicate adjective, or an intransitive clause satisfies neither, and that is a property of the gate, not of the material",
         "children": []
        }
       ]
@@ -1517,7 +1619,7 @@
       "script": "caseless",
       "children": [
        {
-        "seq": 269,
+        "seq": 278,
         "schema": "EOTAbsence@1",
         "at": [
          4055,
@@ -1525,7 +1627,7 @@
         ],
         "role": "arrangement",
         "reason": "no_earned_verb_in_this_sentence",
-        "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+        "detail": "no token in this sentence was nominated by the 357 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
         "children": []
        }
       ]
@@ -1558,16 +1660,60 @@
       "script": "caseless",
       "children": [
        {
-        "seq": 270,
-        "schema": "EOTAbsence@1",
+        "seq": 279,
+        "schema": "EOTObservation@1",
+        "id": "o259",
         "at": [
-         4077,
-         4138
+         4106,
+         4137
         ],
-        "role": "arrangement",
-        "reason": "no_earned_verb_in_this_sentence",
-        "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
-        "children": []
+        "role": "proposition",
+        "end1": "لا يجوز",
+        "label": "إسترقاق",
+        "end2": "أو إستعباد أي شخص",
+        "subjectBasis": "stated",
+        "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
+        "settledAs": null,
+        "children": [
+         {
+          "seq": 280,
+          "schema": "EOTObservation@1",
+          "id": "o260",
+          "at": [
+           4111,
+           4137
+          ],
+          "role": "proposition",
+          "end1": "لا يجوز",
+          "label": "أو",
+          "end2": "إستعباد أي شخص",
+          "subjectBasis": "inherited",
+          "operator": "SEG",
+          "grain": "Figure",
+          "terrain": "Link",
+          "stance": "Dissecting",
+          "settledAs": "conjunction",
+          "children": [
+           {
+            "seq": 281,
+            "schema": "EOTObservation@1",
+            "id": "o261",
+            "at": [
+             4126,
+             4137
+            ],
+            "role": "proposition",
+            "end1": "لا يجوز",
+            "label": "إستعباد",
+            "end2": "أي شخص",
+            "subjectBasis": "inherited",
+            "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
+            "settledAs": null,
+            "children": []
+           }
+          ]
+         }
+        ]
        }
       ]
      },
@@ -1600,15 +1746,20 @@
         "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
         "children": [
          {
-          "seq": 271,
-          "schema": "EOTAbsence@1",
+          "seq": 282,
+          "schema": "EOTObservation@1",
+          "id": "o262",
           "at": [
-           4139,
-           4223
+           4206,
+           4222
           ],
-          "role": "arrangement",
-          "reason": "no_earned_verb_in_this_sentence",
-          "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "role": "proposition",
+          "end1": "ويحظر الإسترقاق وتجارة الرقيق",
+          "label": "بكافة",
+          "end2": "أوضاعهما",
+          "subjectBasis": "stated",
+          "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
+          "settledAs": null,
           "children": []
          }
         ]
@@ -1643,7 +1794,7 @@
       "script": "caseless",
       "children": [
        {
-        "seq": 272,
+        "seq": 283,
         "schema": "EOTAbsence@1",
         "at": [
          4234,
@@ -1651,7 +1802,7 @@
         ],
         "role": "arrangement",
         "reason": "no_earned_verb_in_this_sentence",
-        "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+        "detail": "no token in this sentence was nominated by the 357 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
         "children": []
        }
       ]
@@ -1684,15 +1835,20 @@
       "script": "caseless",
       "children": [
        {
-        "seq": 273,
-        "schema": "EOTAbsence@1",
+        "seq": 284,
+        "schema": "EOTObservation@1",
+        "id": "o263",
         "at": [
-         4256,
-         4419
+         4275,
+         4418
         ],
-        "role": "arrangement",
-        "reason": "no_earned_verb_in_this_sentence",
-        "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+        "role": "proposition",
+        "end1": "لا يعرض",
+        "label": "أي",
+        "end2": "إنسان للتعذيب ولا للعقوبات أو المعاملات القاسية أو الوحشية أو الحاطة بالكرامة",
+        "subjectBasis": "stated",
+        "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
+        "settledAs": null,
         "children": []
        }
       ]
@@ -1725,7 +1881,7 @@
       "script": "caseless",
       "children": [
        {
-        "seq": 274,
+        "seq": 286,
         "schema": "EOTAbsence@1",
         "at": [
          4430,
@@ -1733,7 +1889,7 @@
         ],
         "role": "arrangement",
         "reason": "no_earned_verb_in_this_sentence",
-        "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+        "detail": "no token in this sentence was nominated by the 357 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
         "children": []
        }
       ]
@@ -1766,15 +1922,15 @@
       "script": "caseless",
       "children": [
        {
-        "seq": 275,
+        "seq": 287,
         "schema": "EOTAbsence@1",
         "at": [
          4452,
          4552
         ],
         "role": "arrangement",
-        "reason": "no_earned_verb_in_this_sentence",
-        "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+        "reason": "gate_refused_no_two_ends",
+        "detail": "a verb this reading earned occurs here, but extractRelations requires BOTH a subject group and an object group (S90: `if (!subject || !object) continue`) — an exclamation, a bare predicate adjective, or an intransitive clause satisfies neither, and that is a property of the gate, not of the material",
         "children": []
        }
       ]
@@ -1807,7 +1963,7 @@
       "script": "caseless",
       "children": [
        {
-        "seq": 276,
+        "seq": 288,
         "schema": "EOTAbsence@1",
         "at": [
          4563,
@@ -1815,7 +1971,7 @@
         ],
         "role": "arrangement",
         "reason": "no_earned_verb_in_this_sentence",
-        "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+        "detail": "no token in this sentence was nominated by the 357 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
         "children": []
        }
       ]
@@ -1861,7 +2017,20 @@
         "terrain": "Void",
         "stance": "Tending",
         "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
-        "children": []
+        "children": [
+         {
+          "seq": 289,
+          "schema": "EOTAbsence@1",
+          "at": [
+           4585,
+           4912
+          ],
+          "role": "arrangement",
+          "reason": "gate_refused_no_two_ends",
+          "detail": "a verb this reading earned occurs here, but extractRelations requires BOTH a subject group and an object group (S90: `if (!subject || !object) continue`) — an exclamation, a bare predicate adjective, or an intransitive clause satisfies neither, and that is a property of the gate, not of the material",
+          "children": []
+         }
+        ]
        }
       ]
      }
@@ -1893,7 +2062,7 @@
       "script": "caseless",
       "children": [
        {
-        "seq": 278,
+        "seq": 290,
         "schema": "EOTAbsence@1",
         "at": [
          4923,
@@ -1901,7 +2070,7 @@
         ],
         "role": "arrangement",
         "reason": "no_earned_verb_in_this_sentence",
-        "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+        "detail": "no token in this sentence was nominated by the 357 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
         "children": []
        }
       ]
@@ -1934,15 +2103,15 @@
       "script": "caseless",
       "children": [
        {
-        "seq": 279,
+        "seq": 291,
         "schema": "EOTAbsence@1",
         "at": [
          4945,
          5156
         ],
         "role": "arrangement",
-        "reason": "no_earned_verb_in_this_sentence",
-        "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+        "reason": "gate_refused_no_two_ends",
+        "detail": "a verb this reading earned occurs here, but extractRelations requires BOTH a subject group and an object group (S90: `if (!subject || !object) continue`) — an exclamation, a bare predicate adjective, or an intransitive clause satisfies neither, and that is a property of the gate, not of the material",
         "children": []
        }
       ]
@@ -1975,7 +2144,7 @@
       "script": "caseless",
       "children": [
        {
-        "seq": 280,
+        "seq": 292,
         "schema": "EOTAbsence@1",
         "at": [
          5167,
@@ -1983,7 +2152,7 @@
         ],
         "role": "arrangement",
         "reason": "no_earned_verb_in_this_sentence",
-        "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+        "detail": "no token in this sentence was nominated by the 357 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
         "children": []
        }
       ]
@@ -2014,20 +2183,7 @@
       "inferred": true,
       "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
       "script": "caseless",
-      "children": [
-       {
-        "seq": 281,
-        "schema": "EOTAbsence@1",
-        "at": [
-         5189,
-         5278
-        ],
-        "role": "arrangement",
-        "reason": "no_earned_verb_in_this_sentence",
-        "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
-        "children": []
-       }
-      ]
+      "children": []
      }
     ]
    },
@@ -2057,7 +2213,7 @@
       "script": "caseless",
       "children": [
        {
-        "seq": 282,
+        "seq": 294,
         "schema": "EOTAbsence@1",
         "at": [
          5289,
@@ -2065,7 +2221,7 @@
         ],
         "role": "arrangement",
         "reason": "no_earned_verb_in_this_sentence",
-        "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+        "detail": "no token in this sentence was nominated by the 357 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
         "children": []
        }
       ]
@@ -2113,15 +2269,15 @@
         "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
         "children": [
          {
-          "seq": 283,
+          "seq": 295,
           "schema": "EOTAbsence@1",
           "at": [
            5312,
            5611
           ],
           "role": "arrangement",
-          "reason": "no_earned_verb_in_this_sentence",
-          "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "reason": "gate_refused_no_two_ends",
+          "detail": "a verb this reading earned occurs here, but extractRelations requires BOTH a subject group and an object group (S90: `if (!subject || !object) continue`) — an exclamation, a bare predicate adjective, or an intransitive clause satisfies neither, and that is a property of the gate, not of the material",
           "children": []
          }
         ]
@@ -2156,7 +2312,7 @@
       "script": "caseless",
       "children": [
        {
-        "seq": 284,
+        "seq": 296,
         "schema": "EOTAbsence@1",
         "at": [
          5622,
@@ -2164,7 +2320,7 @@
         ],
         "role": "arrangement",
         "reason": "no_earned_verb_in_this_sentence",
-        "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+        "detail": "no token in this sentence was nominated by the 357 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
         "children": []
        }
       ]
@@ -2212,15 +2368,15 @@
         "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
         "children": [
          {
-          "seq": 285,
+          "seq": 297,
           "schema": "EOTAbsence@1",
           "at": [
            5651,
            5861
           ],
           "role": "arrangement",
-          "reason": "no_earned_verb_in_this_sentence",
-          "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "reason": "gate_refused_no_two_ends",
+          "detail": "a verb this reading earned occurs here, but extractRelations requires BOTH a subject group and an object group (S90: `if (!subject || !object) continue`) — an exclamation, a bare predicate adjective, or an intransitive clause satisfies neither, and that is a property of the gate, not of the material",
           "children": []
          }
         ]
@@ -2255,15 +2411,20 @@
       "script": "caseless",
       "children": [
        {
-        "seq": 286,
-        "schema": "EOTAbsence@1",
+        "seq": 298,
+        "schema": "EOTObservation@1",
+        "id": "o264",
         "at": [
-         5875,
-         6107
+         5894,
+         6106
         ],
-        "role": "arrangement",
-        "reason": "no_earned_verb_in_this_sentence",
-        "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+        "role": "proposition",
+        "end1": "لا يدان",
+        "label": "أي",
+        "end2": "شخص من جراء أداء عمل أو الإمتناع عن أداء عمل إلاّ إذا كان ذلك يعتبر جرماً وفقاً للقانون الوطني أو الدولي وقت الارتكاب",
+        "subjectBasis": "stated",
+        "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
+        "settledAs": null,
         "children": []
        }
       ]
@@ -2282,15 +2443,23 @@
       "script": "caseless",
       "children": [
        {
-        "seq": 287,
-        "schema": "EOTAbsence@1",
+        "seq": 300,
+        "schema": "EOTObservation@1",
+        "id": "o265",
         "at": [
-         6108,
-         6245
+         6163,
+         6244
         ],
-        "role": "arrangement",
-        "reason": "no_earned_verb_in_this_sentence",
-        "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+        "role": "proposition",
+        "end1": "كذلك لا توقع عليه عقوبة أشد",
+        "label": "من",
+        "end2": "تلك التي كان يجوز توقيعها وقت ارتكاب الجريمة",
+        "subjectBasis": "stated",
+        "operator": "CON",
+        "grain": "Ground",
+        "terrain": "Field",
+        "stance": "Tending",
+        "settledAs": "preposition",
         "children": []
        }
       ]
@@ -2323,7 +2492,7 @@
       "script": "caseless",
       "children": [
        {
-        "seq": 288,
+        "seq": 302,
         "schema": "EOTAbsence@1",
         "at": [
          6258,
@@ -2331,7 +2500,7 @@
         ],
         "role": "arrangement",
         "reason": "no_earned_verb_in_this_sentence",
-        "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+        "detail": "no token in this sentence was nominated by the 357 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
         "children": []
        }
       ]
@@ -2362,20 +2531,7 @@
       "inferred": true,
       "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
       "script": "caseless",
-      "children": [
-       {
-        "seq": 289,
-        "schema": "EOTAbsence@1",
-        "at": [
-         6281,
-         6454
-        ],
-        "role": "arrangement",
-        "reason": "no_earned_verb_in_this_sentence",
-        "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
-        "children": []
-       }
-      ]
+      "children": []
      },
      {
       "seq": 137,
@@ -2389,20 +2545,7 @@
       "inferred": true,
       "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
       "script": "caseless",
-      "children": [
-       {
-        "seq": 290,
-        "schema": "EOTAbsence@1",
-        "at": [
-         6455,
-         6570
-        ],
-        "role": "arrangement",
-        "reason": "no_earned_verb_in_this_sentence",
-        "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
-        "children": []
-       }
-      ]
+      "children": []
      }
     ]
    },
@@ -2432,7 +2575,7 @@
       "script": "caseless",
       "children": [
        {
-        "seq": 291,
+        "seq": 305,
         "schema": "EOTAbsence@1",
         "at": [
          6581,
@@ -2440,7 +2583,7 @@
         ],
         "role": "arrangement",
         "reason": "no_earned_verb_in_this_sentence",
-        "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+        "detail": "no token in this sentence was nominated by the 357 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
         "children": []
        }
       ]
@@ -2473,15 +2616,15 @@
       "script": "caseless",
       "children": [
        {
-        "seq": 292,
+        "seq": 306,
         "schema": "EOTAbsence@1",
         "at": [
          6610,
          6711
         ],
         "role": "arrangement",
-        "reason": "no_earned_verb_in_this_sentence",
-        "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+        "reason": "gate_refused_no_two_ends",
+        "detail": "a verb this reading earned occurs here, but extractRelations requires BOTH a subject group and an object group (S90: `if (!subject || !object) continue`) — an exclamation, a bare predicate adjective, or an intransitive clause satisfies neither, and that is a property of the gate, not of the material",
         "children": []
        }
       ]
@@ -2514,15 +2657,15 @@
       "script": "caseless",
       "children": [
        {
-        "seq": 293,
+        "seq": 307,
         "schema": "EOTAbsence@1",
         "at": [
          6725,
          6847
         ],
         "role": "arrangement",
-        "reason": "no_earned_verb_in_this_sentence",
-        "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+        "reason": "gate_refused_no_two_ends",
+        "detail": "a verb this reading earned occurs here, but extractRelations requires BOTH a subject group and an object group (S90: `if (!subject || !object) continue`) — an exclamation, a bare predicate adjective, or an intransitive clause satisfies neither, and that is a property of the gate, not of the material",
         "children": []
        }
       ]
@@ -2555,7 +2698,7 @@
       "script": "caseless",
       "children": [
        {
-        "seq": 294,
+        "seq": 308,
         "schema": "EOTAbsence@1",
         "at": [
          6860,
@@ -2563,7 +2706,7 @@
         ],
         "role": "arrangement",
         "reason": "no_earned_verb_in_this_sentence",
-        "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+        "detail": "no token in this sentence was nominated by the 357 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
         "children": []
        }
       ]
@@ -2596,15 +2739,15 @@
       "script": "caseless",
       "children": [
        {
-        "seq": 295,
+        "seq": 309,
         "schema": "EOTAbsence@1",
         "at": [
          6889,
          7026
         ],
         "role": "arrangement",
-        "reason": "no_earned_verb_in_this_sentence",
-        "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+        "reason": "gate_refused_no_two_ends",
+        "detail": "a verb this reading earned occurs here, but extractRelations requires BOTH a subject group and an object group (S90: `if (!subject || !object) continue`) — an exclamation, a bare predicate adjective, or an intransitive clause satisfies neither, and that is a property of the gate, not of the material",
         "children": []
        }
       ]
@@ -2635,20 +2778,7 @@
       "inferred": true,
       "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
       "script": "caseless",
-      "children": [
-       {
-        "seq": 296,
-        "schema": "EOTAbsence@1",
-        "at": [
-         7040,
-         7222
-        ],
-        "role": "arrangement",
-        "reason": "no_earned_verb_in_this_sentence",
-        "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
-        "children": []
-       }
-      ]
+      "children": []
      }
     ]
    },
@@ -2678,7 +2808,7 @@
       "script": "caseless",
       "children": [
        {
-        "seq": 297,
+        "seq": 311,
         "schema": "EOTAbsence@1",
         "at": [
          7235,
@@ -2686,7 +2816,7 @@
         ],
         "role": "arrangement",
         "reason": "no_earned_verb_in_this_sentence",
-        "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+        "detail": "no token in this sentence was nominated by the 357 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
         "children": []
        }
       ]
@@ -2719,15 +2849,15 @@
       "script": "caseless",
       "children": [
        {
-        "seq": 298,
+        "seq": 312,
         "schema": "EOTAbsence@1",
         "at": [
          7264,
          7314
         ],
         "role": "arrangement",
-        "reason": "no_earned_verb_in_this_sentence",
-        "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+        "reason": "gate_refused_no_two_ends",
+        "detail": "a verb this reading earned occurs here, but extractRelations requires BOTH a subject group and an object group (S90: `if (!subject || !object) continue`) — an exclamation, a bare predicate adjective, or an intransitive clause satisfies neither, and that is a property of the gate, not of the material",
         "children": []
        }
       ]
@@ -2758,20 +2888,7 @@
       "inferred": true,
       "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
       "script": "caseless",
-      "children": [
-       {
-        "seq": 299,
-        "schema": "EOTAbsence@1",
-        "at": [
-         7328,
-         7432
-        ],
-        "role": "arrangement",
-        "reason": "no_earned_verb_in_this_sentence",
-        "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
-        "children": []
-       }
-      ]
+      "children": []
      }
     ]
    },
@@ -2801,7 +2918,7 @@
       "script": "caseless",
       "children": [
        {
-        "seq": 300,
+        "seq": 314,
         "schema": "EOTAbsence@1",
         "at": [
          7445,
@@ -2809,7 +2926,7 @@
         ],
         "role": "arrangement",
         "reason": "no_earned_verb_in_this_sentence",
-        "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+        "detail": "no token in this sentence was nominated by the 357 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
         "children": []
        }
       ]
@@ -2840,20 +2957,7 @@
       "inferred": true,
       "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
       "script": "caseless",
-      "children": [
-       {
-        "seq": 301,
-        "schema": "EOTAbsence@1",
-        "at": [
-         7474,
-         7629
-        ],
-        "role": "arrangement",
-        "reason": "no_earned_verb_in_this_sentence",
-        "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
-        "children": []
-       }
-      ]
+      "children": []
      },
      {
       "seq": 149,
@@ -2884,15 +2988,20 @@
         "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
         "children": [
          {
-          "seq": 302,
-          "schema": "EOTAbsence@1",
+          "seq": 316,
+          "schema": "EOTObservation@1",
+          "id": "o266",
           "at": [
-           7630,
-           7733
+           7665,
+           7732
           ],
-          "role": "arrangement",
-          "reason": "no_earned_verb_in_this_sentence",
-          "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "role": "proposition",
+          "end1": "ولهما",
+          "label": "متساوية",
+          "end2": "عند الزواج وأثناء قيامه وعند انحلاله",
+          "subjectBasis": "stated",
+          "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
+          "settledAs": null,
           "children": []
          }
         ]
@@ -2925,20 +3034,7 @@
       "inferred": true,
       "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
       "script": "caseless",
-      "children": [
-       {
-        "seq": 303,
-        "schema": "EOTAbsence@1",
-        "at": [
-         7747,
-         7888
-        ],
-        "role": "arrangement",
-        "reason": "no_earned_verb_in_this_sentence",
-        "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
-        "children": []
-       }
-      ]
+      "children": []
      }
     ]
    },
@@ -2981,20 +3077,7 @@
         "terrain": "Void",
         "stance": "Tending",
         "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
-        "children": [
-         {
-          "seq": 304,
-          "schema": "EOTAbsence@1",
-          "at": [
-           7902,
-           8052
-          ],
-          "role": "arrangement",
-          "reason": "no_earned_verb_in_this_sentence",
-          "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
-          "children": []
-         }
-        ]
+        "children": []
        }
       ]
      }
@@ -3026,7 +3109,7 @@
       "script": "caseless",
       "children": [
        {
-        "seq": 305,
+        "seq": 320,
         "schema": "EOTAbsence@1",
         "at": [
          8065,
@@ -3034,7 +3117,7 @@
         ],
         "role": "arrangement",
         "reason": "no_earned_verb_in_this_sentence",
-        "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+        "detail": "no token in this sentence was nominated by the 357 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
         "children": []
        }
       ]
@@ -3067,15 +3150,15 @@
       "script": "caseless",
       "children": [
        {
-        "seq": 306,
+        "seq": 321,
         "schema": "EOTAbsence@1",
         "at": [
          8094,
          8177
         ],
         "role": "arrangement",
-        "reason": "no_earned_verb_in_this_sentence",
-        "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+        "reason": "gate_refused_no_two_ends",
+        "detail": "a verb this reading earned occurs here, but extractRelations requires BOTH a subject group and an object group (S90: `if (!subject || !object) continue`) — an exclamation, a bare predicate adjective, or an intransitive clause satisfies neither, and that is a property of the gate, not of the material",
         "children": []
        }
       ]
@@ -3106,20 +3189,7 @@
       "inferred": true,
       "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
       "script": "caseless",
-      "children": [
-       {
-        "seq": 307,
-        "schema": "EOTAbsence@1",
-        "at": [
-         8191,
-         8248
-        ],
-        "role": "arrangement",
-        "reason": "no_earned_verb_in_this_sentence",
-        "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
-        "children": []
-       }
-      ]
+      "children": []
      }
     ]
    },
@@ -3149,7 +3219,7 @@
       "script": "caseless",
       "children": [
        {
-        "seq": 308,
+        "seq": 323,
         "schema": "EOTAbsence@1",
         "at": [
          8261,
@@ -3157,7 +3227,7 @@
         ],
         "role": "arrangement",
         "reason": "no_earned_verb_in_this_sentence",
-        "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+        "detail": "no token in this sentence was nominated by the 357 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
         "children": []
        }
       ]
@@ -3190,15 +3260,15 @@
       "script": "caseless",
       "children": [
        {
-        "seq": 309,
+        "seq": 324,
         "schema": "EOTAbsence@1",
         "at": [
          8284,
          8364
         ],
         "role": "arrangement",
-        "reason": "no_earned_verb_in_this_sentence",
-        "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+        "reason": "gate_refused_no_two_ends",
+        "detail": "a verb this reading earned occurs here, but extractRelations requires BOTH a subject group and an object group (S90: `if (!subject || !object) continue`) — an exclamation, a bare predicate adjective, or an intransitive clause satisfies neither, and that is a property of the gate, not of the material",
         "children": []
        }
       ]
@@ -3230,20 +3300,7 @@
         "terrain": "Void",
         "stance": "Tending",
         "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
-        "children": [
-         {
-          "seq": 310,
-          "schema": "EOTAbsence@1",
-          "at": [
-           8365,
-           8622
-          ],
-          "role": "arrangement",
-          "reason": "no_earned_verb_in_this_sentence",
-          "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
-          "children": []
-         }
-        ]
+        "children": []
        }
       ]
      }
@@ -3275,7 +3332,7 @@
       "script": "caseless",
       "children": [
        {
-        "seq": 311,
+        "seq": 326,
         "schema": "EOTAbsence@1",
         "at": [
          8633,
@@ -3283,7 +3340,7 @@
         ],
         "role": "arrangement",
         "reason": "no_earned_verb_in_this_sentence",
-        "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+        "detail": "no token in this sentence was nominated by the 357 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
         "children": []
        }
       ]
@@ -3316,15 +3373,15 @@
       "script": "caseless",
       "children": [
        {
-        "seq": 312,
+        "seq": 327,
         "schema": "EOTAbsence@1",
         "at": [
          8656,
          8721
         ],
         "role": "arrangement",
-        "reason": "no_earned_verb_in_this_sentence",
-        "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+        "reason": "gate_refused_no_two_ends",
+        "detail": "a verb this reading earned occurs here, but extractRelations requires BOTH a subject group and an object group (S90: `if (!subject || !object) continue`) — an exclamation, a bare predicate adjective, or an intransitive clause satisfies neither, and that is a property of the gate, not of the material",
         "children": []
        }
       ]
@@ -3341,20 +3398,7 @@
       "inferred": true,
       "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
       "script": "caseless",
-      "children": [
-       {
-        "seq": 313,
-        "schema": "EOTAbsence@1",
-        "at": [
-         8722,
-         8965
-        ],
-        "role": "arrangement",
-        "reason": "no_earned_verb_in_this_sentence",
-        "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
-        "children": []
-       }
-      ]
+      "children": []
      }
     ]
    },
@@ -3384,7 +3428,7 @@
       "script": "caseless",
       "children": [
        {
-        "seq": 314,
+        "seq": 329,
         "schema": "EOTAbsence@1",
         "at": [
          8976,
@@ -3392,7 +3436,7 @@
         ],
         "role": "arrangement",
         "reason": "no_earned_verb_in_this_sentence",
-        "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+        "detail": "no token in this sentence was nominated by the 357 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
         "children": []
        }
       ]
@@ -3425,15 +3469,15 @@
       "script": "caseless",
       "children": [
        {
-        "seq": 315,
+        "seq": 330,
         "schema": "EOTAbsence@1",
         "at": [
          9005,
          9115
         ],
         "role": "arrangement",
-        "reason": "no_earned_verb_in_this_sentence",
-        "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+        "reason": "gate_refused_no_two_ends",
+        "detail": "a verb this reading earned occurs here, but extractRelations requires BOTH a subject group and an object group (S90: `if (!subject || !object) continue`) — an exclamation, a bare predicate adjective, or an intransitive clause satisfies neither, and that is a property of the gate, not of the material",
         "children": []
        }
       ]
@@ -3466,15 +3510,20 @@
       "script": "caseless",
       "children": [
        {
-        "seq": 316,
-        "schema": "EOTAbsence@1",
+        "seq": 331,
+        "schema": "EOTObservation@1",
+        "id": "o267",
         "at": [
-         9129,
-         9208
+         9154,
+         9207
         ],
-        "role": "arrangement",
-        "reason": "no_earned_verb_in_this_sentence",
-        "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+        "role": "proposition",
+        "end1": "لا يجوز",
+        "label": "إرغام",
+        "end2": "أحد على الانضمام إلى جمعية ما",
+        "subjectBasis": "stated",
+        "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
+        "settledAs": null,
         "children": []
        }
       ]
@@ -3507,7 +3556,7 @@
       "script": "caseless",
       "children": [
        {
-        "seq": 317,
+        "seq": 333,
         "schema": "EOTAbsence@1",
         "at": [
          9221,
@@ -3515,7 +3564,7 @@
         ],
         "role": "arrangement",
         "reason": "no_earned_verb_in_this_sentence",
-        "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+        "detail": "no token in this sentence was nominated by the 357 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
         "children": []
        }
       ]
@@ -3548,15 +3597,15 @@
       "script": "caseless",
       "children": [
        {
-        "seq": 318,
+        "seq": 334,
         "schema": "EOTAbsence@1",
         "at": [
          9250,
          9440
         ],
         "role": "arrangement",
-        "reason": "no_earned_verb_in_this_sentence",
-        "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+        "reason": "gate_refused_no_two_ends",
+        "detail": "a verb this reading earned occurs here, but extractRelations requires BOTH a subject group and an object group (S90: `if (!subject || !object) continue`) — an exclamation, a bare predicate adjective, or an intransitive clause satisfies neither, and that is a property of the gate, not of the material",
         "children": []
        }
       ]
@@ -3589,15 +3638,15 @@
       "script": "caseless",
       "children": [
        {
-        "seq": 319,
+        "seq": 335,
         "schema": "EOTAbsence@1",
         "at": [
          9454,
          9564
         ],
         "role": "arrangement",
-        "reason": "no_earned_verb_in_this_sentence",
-        "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+        "reason": "gate_refused_no_two_ends",
+        "detail": "a verb this reading earned occurs here, but extractRelations requires BOTH a subject group and an object group (S90: `if (!subject || !object) continue`) — an exclamation, a bare predicate adjective, or an intransitive clause satisfies neither, and that is a property of the gate, not of the material",
         "children": []
        }
       ]
@@ -3643,20 +3692,7 @@
         "terrain": "Void",
         "stance": "Tending",
         "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
-        "children": [
-         {
-          "seq": 320,
-          "schema": "EOTAbsence@1",
-          "at": [
-           9578,
-           9902
-          ],
-          "role": "arrangement",
-          "reason": "no_earned_verb_in_this_sentence",
-          "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
-          "children": []
-         }
-        ]
+        "children": []
        }
       ]
      }
@@ -3688,7 +3724,7 @@
       "script": "caseless",
       "children": [
        {
-        "seq": 321,
+        "seq": 337,
         "schema": "EOTAbsence@1",
         "at": [
          9915,
@@ -3696,7 +3732,7 @@
         ],
         "role": "arrangement",
         "reason": "no_earned_verb_in_this_sentence",
-        "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+        "detail": "no token in this sentence was nominated by the 357 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
         "children": []
        }
       ]
@@ -3744,15 +3780,15 @@
         "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
         "children": [
          {
-          "seq": 322,
+          "seq": 338,
           "schema": "EOTAbsence@1",
           "at": [
            9938,
            10350
           ],
           "role": "arrangement",
-          "reason": "no_earned_verb_in_this_sentence",
-          "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "reason": "gate_refused_no_two_ends",
+          "detail": "a verb this reading earned occurs here, but extractRelations requires BOTH a subject group and an object group (S90: `if (!subject || !object) continue`) — an exclamation, a bare predicate adjective, or an intransitive clause satisfies neither, and that is a property of the gate, not of the material",
           "children": []
          }
         ]
@@ -3787,7 +3823,7 @@
       "script": "caseless",
       "children": [
        {
-        "seq": 323,
+        "seq": 339,
         "schema": "EOTAbsence@1",
         "at": [
          10361,
@@ -3795,7 +3831,7 @@
         ],
         "role": "arrangement",
         "reason": "no_earned_verb_in_this_sentence",
-        "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+        "detail": "no token in this sentence was nominated by the 357 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
         "children": []
        }
       ]
@@ -3828,15 +3864,15 @@
       "script": "caseless",
       "children": [
        {
-        "seq": 324,
+        "seq": 340,
         "schema": "EOTAbsence@1",
         "at": [
          10390,
          10552
         ],
         "role": "arrangement",
-        "reason": "no_earned_verb_in_this_sentence",
-        "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+        "reason": "gate_refused_no_two_ends",
+        "detail": "a verb this reading earned occurs here, but extractRelations requires BOTH a subject group and an object group (S90: `if (!subject || !object) continue`) — an exclamation, a bare predicate adjective, or an intransitive clause satisfies neither, and that is a property of the gate, not of the material",
         "children": []
        }
       ]
@@ -3869,15 +3905,15 @@
       "script": "caseless",
       "children": [
        {
-        "seq": 325,
+        "seq": 341,
         "schema": "EOTAbsence@1",
         "at": [
          10566,
          10646
         ],
         "role": "arrangement",
-        "reason": "no_earned_verb_in_this_sentence",
-        "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+        "reason": "gate_refused_no_two_ends",
+        "detail": "a verb this reading earned occurs here, but extractRelations requires BOTH a subject group and an object group (S90: `if (!subject || !object) continue`) — an exclamation, a bare predicate adjective, or an intransitive clause satisfies neither, and that is a property of the gate, not of the material",
         "children": []
        }
       ]
@@ -3910,15 +3946,15 @@
       "script": "caseless",
       "children": [
        {
-        "seq": 326,
+        "seq": 342,
         "schema": "EOTAbsence@1",
         "at": [
          10660,
          10904
         ],
         "role": "arrangement",
-        "reason": "no_earned_verb_in_this_sentence",
-        "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+        "reason": "gate_refused_no_two_ends",
+        "detail": "a verb this reading earned occurs here, but extractRelations requires BOTH a subject group and an object group (S90: `if (!subject || !object) continue`) — an exclamation, a bare predicate adjective, or an intransitive clause satisfies neither, and that is a property of the gate, not of the material",
         "children": []
        }
       ]
@@ -3951,15 +3987,15 @@
       "script": "caseless",
       "children": [
        {
-        "seq": 327,
+        "seq": 343,
         "schema": "EOTAbsence@1",
         "at": [
          10918,
          11017
         ],
         "role": "arrangement",
-        "reason": "no_earned_verb_in_this_sentence",
-        "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+        "reason": "gate_refused_no_two_ends",
+        "detail": "a verb this reading earned occurs here, but extractRelations requires BOTH a subject group and an object group (S90: `if (!subject || !object) continue`) — an exclamation, a bare predicate adjective, or an intransitive clause satisfies neither, and that is a property of the gate, not of the material",
         "children": []
        }
       ]
@@ -3992,7 +4028,7 @@
       "script": "caseless",
       "children": [
        {
-        "seq": 328,
+        "seq": 344,
         "schema": "EOTAbsence@1",
         "at": [
          11030,
@@ -4000,7 +4036,7 @@
         ],
         "role": "arrangement",
         "reason": "no_earned_verb_in_this_sentence",
-        "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+        "detail": "no token in this sentence was nominated by the 357 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
         "children": []
        }
       ]
@@ -4033,15 +4069,15 @@
       "script": "caseless",
       "children": [
        {
-        "seq": 329,
+        "seq": 345,
         "schema": "EOTAbsence@1",
         "at": [
          11053,
          11237
         ],
         "role": "arrangement",
-        "reason": "no_earned_verb_in_this_sentence",
-        "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+        "reason": "gate_refused_no_two_ends",
+        "detail": "a verb this reading earned occurs here, but extractRelations requires BOTH a subject group and an object group (S90: `if (!subject || !object) continue`) — an exclamation, a bare predicate adjective, or an intransitive clause satisfies neither, and that is a property of the gate, not of the material",
         "children": []
        }
       ]
@@ -4074,7 +4110,7 @@
       "script": "caseless",
       "children": [
        {
-        "seq": 330,
+        "seq": 346,
         "schema": "EOTAbsence@1",
         "at": [
          11248,
@@ -4082,7 +4118,7 @@
         ],
         "role": "arrangement",
         "reason": "no_earned_verb_in_this_sentence",
-        "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+        "detail": "no token in this sentence was nominated by the 357 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
         "children": []
        }
       ]
@@ -4130,15 +4166,15 @@
         "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
         "children": [
          {
-          "seq": 331,
+          "seq": 347,
           "schema": "EOTAbsence@1",
           "at": [
            11277,
            11417
           ],
           "role": "arrangement",
-          "reason": "no_earned_verb_in_this_sentence",
-          "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "reason": "gate_refused_no_two_ends",
+          "detail": "a verb this reading earned occurs here, but extractRelations requires BOTH a subject group and an object group (S90: `if (!subject || !object) continue`) — an exclamation, a bare predicate adjective, or an intransitive clause satisfies neither, and that is a property of the gate, not of the material",
           "children": []
          }
         ]
@@ -4157,20 +4193,7 @@
       "inferred": true,
       "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
       "script": "caseless",
-      "children": [
-       {
-        "seq": 332,
-        "schema": "EOTAbsence@1",
-        "at": [
-         11418,
-         11575
-        ],
-        "role": "arrangement",
-        "reason": "no_earned_verb_in_this_sentence",
-        "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
-        "children": []
-       }
-      ]
+      "children": []
      },
      {
       "seq": 180,
@@ -4186,15 +4209,23 @@
       "script": "caseless",
       "children": [
        {
-        "seq": 333,
-        "schema": "EOTAbsence@1",
+        "seq": 349,
+        "schema": "EOTObservation@1",
+        "id": "o268",
         "at": [
-         11576,
-         11817
+         11597,
+         11816
         ],
-        "role": "arrangement",
-        "reason": "no_earned_verb_in_this_sentence",
-        "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+        "role": "proposition",
+        "end1": "وله",
+        "label": "في",
+        "end2": "تأمين معيشته في حالات البطالة والمرض والعجز والترمل والشيخوخة وغير ذلك من فقدان وسائل العيش نتيجة لظروف خارجة عن إرادته",
+        "subjectBasis": "stated",
+        "operator": "CON",
+        "grain": "Ground",
+        "terrain": "Field",
+        "stance": "Tending",
+        "settledAs": "preposition",
         "children": []
        }
       ]
@@ -4225,20 +4256,7 @@
       "inferred": true,
       "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
       "script": "caseless",
-      "children": [
-       {
-        "seq": 334,
-        "schema": "EOTAbsence@1",
-        "at": [
-         11831,
-         11916
-        ],
-        "role": "arrangement",
-        "reason": "no_earned_verb_in_this_sentence",
-        "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
-        "children": []
-       }
-      ]
+      "children": []
      },
      {
       "seq": 182,
@@ -4267,20 +4285,7 @@
         "terrain": "Void",
         "stance": "Tending",
         "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
-        "children": [
-         {
-          "seq": 335,
-          "schema": "EOTAbsence@1",
-          "at": [
-           11917,
-           12098
-          ],
-          "role": "arrangement",
-          "reason": "no_earned_verb_in_this_sentence",
-          "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
-          "children": []
-         }
-        ]
+        "children": []
        }
       ]
      }
@@ -4312,7 +4317,7 @@
       "script": "caseless",
       "children": [
        {
-        "seq": 336,
+        "seq": 353,
         "schema": "EOTAbsence@1",
         "at": [
          12111,
@@ -4320,7 +4325,7 @@
         ],
         "role": "arrangement",
         "reason": "no_earned_verb_in_this_sentence",
-        "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+        "detail": "no token in this sentence was nominated by the 357 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
         "children": []
        }
       ]
@@ -4353,15 +4358,15 @@
       "script": "caseless",
       "children": [
        {
-        "seq": 337,
+        "seq": 354,
         "schema": "EOTAbsence@1",
         "at": [
          12140,
          12181
         ],
         "role": "arrangement",
-        "reason": "no_earned_verb_in_this_sentence",
-        "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+        "reason": "gate_refused_no_two_ends",
+        "detail": "a verb this reading earned occurs here, but extractRelations requires BOTH a subject group and an object group (S90: `if (!subject || !object) continue`) — an exclamation, a bare predicate adjective, or an intransitive clause satisfies neither, and that is a property of the gate, not of the material",
         "children": []
        }
       ]
@@ -4395,16 +4400,63 @@
         "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
         "children": [
          {
-          "seq": 338,
-          "schema": "EOTAbsence@1",
+          "seq": 355,
+          "schema": "EOTObservation@1",
+          "id": "o269",
           "at": [
-           12182,
-           12581
+           12205,
+           12580
           ],
-          "role": "arrangement",
-          "reason": "no_earned_verb_in_this_sentence",
-          "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
-          "children": []
+          "role": "proposition",
+          "end1": "ويجب",
+          "label": "يكون",
+          "end2": "التعليم في مراحله الأولى والأساسية على الأقل بالمجان، وأن يكون التعليم الأولي إلزاميا وينبغي أن يعمم التعليم الفني والمهني، وأن ييسر القبول للتعليم العالي على قدم المساواة التامة للجميع وعلى أساس الكفاءة",
+          "subjectBasis": "stated",
+          "operator": "CON",
+          "grain": "Figure",
+          "terrain": "Link",
+          "stance": "Binding",
+          "settledAs": "verb",
+          "children": [
+           {
+            "seq": 356,
+            "schema": "EOTObservation@1",
+            "id": "o270",
+            "at": [
+             12225,
+             12580
+            ],
+            "role": "proposition",
+            "end1": "ويجب",
+            "label": "في",
+            "end2": "مراحله الأولى والأساسية على الأقل بالمجان، وأن يكون التعليم الأولي إلزاميا وينبغي أن يعمم التعليم الفني والمهني، وأن ييسر القبول للتعليم العالي على قدم المساواة التامة للجميع وعلى أساس الكفاءة",
+            "subjectBasis": "inherited",
+            "operator": "CON",
+            "grain": "Ground",
+            "terrain": "Field",
+            "stance": "Tending",
+            "settledAs": "preposition",
+            "children": [
+             {
+              "seq": 357,
+              "schema": "EOTObservation@1",
+              "id": "o271",
+              "at": [
+               12238,
+               12580
+              ],
+              "role": "proposition",
+              "end1": "ويجب",
+              "label": "مراحله",
+              "end2": "الأولى والأساسية على الأقل بالمجان، وأن يكون التعليم الأولي إلزاميا وينبغي أن يعمم التعليم الفني والمهني، وأن ييسر القبول للتعليم العالي على قدم المساواة التامة للجميع وعلى أساس الكفاءة",
+              "subjectBasis": "inherited",
+              "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
+              "settledAs": null,
+              "children": []
+             }
+            ]
+           }
+          ]
          }
         ]
        }
@@ -4453,16 +4505,63 @@
         "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
         "children": [
          {
-          "seq": 339,
-          "schema": "EOTAbsence@1",
+          "seq": 358,
+          "schema": "EOTObservation@1",
+          "id": "o272",
           "at": [
-           12595,
-           13009
+           12607,
+           13008
           ],
-          "role": "arrangement",
-          "reason": "no_earned_verb_in_this_sentence",
-          "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
-          "children": []
+          "role": "proposition",
+          "end1": "يجب",
+          "label": "أن",
+          "end2": "تهدف التربية إلى إنماء شخصية الإنسان إنماء كاملا، وإلى تعزيز احترام الإنسان والحريات الأساسية وتنمية التفاهم والتسامح والصداقة بين جميع الشعوب والجماعات العنصرية أو الدينية، وإلى زيادة مجهود الأمم المتحدة لحفظ السلام",
+          "subjectBasis": "stated",
+          "operator": "SEG",
+          "grain": "Figure",
+          "terrain": "Link",
+          "stance": "Dissecting",
+          "settledAs": "conjunction",
+          "children": [
+           {
+            "seq": 359,
+            "schema": "EOTObservation@1",
+            "id": "o273",
+            "at": [
+             12638,
+             13008
+            ],
+            "role": "proposition",
+            "end1": "يجب",
+            "label": "إلى",
+            "end2": "إنماء شخصية الإنسان إنماء كاملا، وإلى تعزيز احترام الإنسان والحريات الأساسية وتنمية التفاهم والتسامح والصداقة بين جميع الشعوب والجماعات العنصرية أو الدينية، وإلى زيادة مجهود الأمم المتحدة لحفظ السلام",
+            "subjectBasis": "inherited",
+            "operator": "CON",
+            "grain": "Ground",
+            "terrain": "Field",
+            "stance": "Tending",
+            "settledAs": "preposition",
+            "children": [
+             {
+              "seq": 360,
+              "schema": "EOTObservation@1",
+              "id": "o274",
+              "at": [
+               12649,
+               13008
+              ],
+              "role": "proposition",
+              "end1": "يجب",
+              "label": "إنماء",
+              "end2": "شخصية الإنسان إنماء كاملا، وإلى تعزيز احترام الإنسان والحريات الأساسية وتنمية التفاهم والتسامح والصداقة بين جميع الشعوب والجماعات العنصرية أو الدينية، وإلى زيادة مجهود الأمم المتحدة لحفظ السلام",
+              "subjectBasis": "inherited",
+              "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
+              "settledAs": null,
+              "children": []
+             }
+            ]
+           }
+          ]
          }
         ]
        }
@@ -4511,15 +4610,20 @@
         "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
         "children": [
          {
-          "seq": 340,
-          "schema": "EOTAbsence@1",
+          "seq": 361,
+          "schema": "EOTObservation@1",
+          "id": "o275",
           "at": [
-           13023,
-           13107
+           13056,
+           13106
           ],
-          "role": "arrangement",
-          "reason": "no_earned_verb_in_this_sentence",
-          "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "role": "proposition",
+          "end1": "للآباء",
+          "label": "الأول",
+          "end2": "في اختيار نوع تربية أولادهم",
+          "subjectBasis": "stated",
+          "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
+          "settledAs": null,
           "children": []
          }
         ]
@@ -4554,7 +4658,7 @@
       "script": "caseless",
       "children": [
        {
-        "seq": 341,
+        "seq": 363,
         "schema": "EOTAbsence@1",
         "at": [
          13120,
@@ -4562,7 +4666,7 @@
         ],
         "role": "arrangement",
         "reason": "no_earned_verb_in_this_sentence",
-        "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+        "detail": "no token in this sentence was nominated by the 357 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
         "children": []
        }
       ]
@@ -4610,15 +4714,15 @@
         "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
         "children": [
          {
-          "seq": 342,
+          "seq": 364,
           "schema": "EOTAbsence@1",
           "at": [
            13149,
            13389
           ],
           "role": "arrangement",
-          "reason": "no_earned_verb_in_this_sentence",
-          "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "reason": "gate_refused_no_two_ends",
+          "detail": "a verb this reading earned occurs here, but extractRelations requires BOTH a subject group and an object group (S90: `if (!subject || !object) continue`) — an exclamation, a bare predicate adjective, or an intransitive clause satisfies neither, and that is a property of the gate, not of the material",
           "children": []
          }
         ]
@@ -4653,15 +4757,15 @@
       "script": "caseless",
       "children": [
        {
-        "seq": 343,
+        "seq": 365,
         "schema": "EOTAbsence@1",
         "at": [
          13403,
          13573
         ],
         "role": "arrangement",
-        "reason": "no_earned_verb_in_this_sentence",
-        "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+        "reason": "gate_refused_no_two_ends",
+        "detail": "a verb this reading earned occurs here, but extractRelations requires BOTH a subject group and an object group (S90: `if (!subject || !object) continue`) — an exclamation, a bare predicate adjective, or an intransitive clause satisfies neither, and that is a property of the gate, not of the material",
         "children": []
        }
       ]
@@ -4694,7 +4798,7 @@
       "script": "caseless",
       "children": [
        {
-        "seq": 344,
+        "seq": 366,
         "schema": "EOTAbsence@1",
         "at": [
          13586,
@@ -4702,7 +4806,7 @@
         ],
         "role": "arrangement",
         "reason": "no_earned_verb_in_this_sentence",
-        "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+        "detail": "no token in this sentence was nominated by the 357 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
         "children": []
        }
       ]
@@ -4733,7 +4837,20 @@
       "inferred": true,
       "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
       "script": "caseless",
-      "children": []
+      "children": [
+       {
+        "seq": 367,
+        "schema": "EOTAbsence@1",
+        "at": [
+         13609,
+         13814
+        ],
+        "role": "arrangement",
+        "reason": "gate_refused_no_two_ends",
+        "detail": "a verb this reading earned occurs here, but extractRelations requires BOTH a subject group and an object group (S90: `if (!subject || !object) continue`) — an exclamation, a bare predicate adjective, or an intransitive clause satisfies neither, and that is a property of the gate, not of the material",
+        "children": []
+       }
+      ]
      }
     ]
    },
@@ -4763,7 +4880,7 @@
       "script": "caseless",
       "children": [
        {
-        "seq": 346,
+        "seq": 368,
         "schema": "EOTAbsence@1",
         "at": [
          13825,
@@ -4771,7 +4888,7 @@
         ],
         "role": "arrangement",
         "reason": "no_earned_verb_in_this_sentence",
-        "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+        "detail": "no token in this sentence was nominated by the 357 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
         "children": []
        }
       ]
@@ -4804,15 +4921,15 @@
       "script": "caseless",
       "children": [
        {
-        "seq": 347,
+        "seq": 369,
         "schema": "EOTAbsence@1",
         "at": [
          13854,
          13998
         ],
         "role": "arrangement",
-        "reason": "no_earned_verb_in_this_sentence",
-        "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+        "reason": "gate_refused_no_two_ends",
+        "detail": "a verb this reading earned occurs here, but extractRelations requires BOTH a subject group and an object group (S90: `if (!subject || !object) continue`) — an exclamation, a bare predicate adjective, or an intransitive clause satisfies neither, and that is a property of the gate, not of the material",
         "children": []
        }
       ]
@@ -4845,16 +4962,42 @@
       "script": "caseless",
       "children": [
        {
-        "seq": 348,
-        "schema": "EOTAbsence@1",
+        "seq": 370,
+        "schema": "EOTObservation@1",
+        "id": "o276",
         "at": [
-         14012,
-         14368
+         14037,
+         14367
         ],
-        "role": "arrangement",
-        "reason": "no_earned_verb_in_this_sentence",
-        "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
-        "children": []
+        "role": "proposition",
+        "end1": "يخضع",
+        "label": "في",
+        "end2": "ممارسته حقوقه لتلك القيود التي يقررها القانون فقط، لضمان الاعتراف بحقوق الغير وحرياته واحترامها ولتحقيق المقتضيات العادلة للنظام العام والمصلحة العامة والأخلاق في مجتمع ديمقراطي",
+        "subjectBasis": "stated",
+        "operator": "CON",
+        "grain": "Ground",
+        "terrain": "Field",
+        "stance": "Tending",
+        "settledAs": "preposition",
+        "children": [
+         {
+          "seq": 371,
+          "schema": "EOTObservation@1",
+          "id": "o277",
+          "at": [
+           14063,
+           14367
+          ],
+          "role": "proposition",
+          "end1": "يخضع",
+          "label": "حقوقه",
+          "end2": "لتلك القيود التي يقررها القانون فقط، لضمان الاعتراف بحقوق الغير وحرياته واحترامها ولتحقيق المقتضيات العادلة للنظام العام والمصلحة العامة والأخلاق في مجتمع ديمقراطي",
+          "subjectBasis": "inherited",
+          "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
+          "settledAs": null,
+          "children": []
+         }
+        ]
        }
       ]
      }
@@ -4886,15 +5029,23 @@
       "script": "caseless",
       "children": [
        {
-        "seq": 349,
-        "schema": "EOTAbsence@1",
+        "seq": 373,
+        "schema": "EOTObservation@1",
+        "id": "o278",
         "at": [
-         14382,
-         14539
+         14403,
+         14538
         ],
-        "role": "arrangement",
-        "reason": "no_earned_verb_in_this_sentence",
-        "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+        "role": "proposition",
+        "end1": "يصح بحال",
+        "label": "من",
+        "end2": "الأحوال أن تمارس هذه الحقوق ممارسة تتناقض مع أغراض الأمم المتحدة ومبادئها",
+        "subjectBasis": "stated",
+        "operator": "CON",
+        "grain": "Ground",
+        "terrain": "Field",
+        "stance": "Tending",
+        "settledAs": "preposition",
         "children": []
        }
       ]
@@ -4927,7 +5078,7 @@
       "script": "caseless",
       "children": [
        {
-        "seq": 350,
+        "seq": 375,
         "schema": "EOTAbsence@1",
         "at": [
          14552,
@@ -4935,7 +5086,7 @@
         ],
         "role": "arrangement",
         "reason": "no_earned_verb_in_this_sentence",
-        "detail": "no token in this sentence was nominated by the 4 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+        "detail": "no token in this sentence was nominated by the 357 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
         "children": []
        }
       ]
@@ -4966,7 +5117,20 @@
       "inferred": true,
       "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
       "script": "caseless",
-      "children": []
+      "children": [
+       {
+        "seq": 376,
+        "schema": "EOTAbsence@1",
+        "at": [
+         14575,
+         14835
+        ],
+        "role": "arrangement",
+        "reason": "gate_refused_no_two_ends",
+        "detail": "a verb this reading earned occurs here, but extractRelations requires BOTH a subject group and an object group (S90: `if (!subject || !object) continue`) — an exclamation, a bare predicate adjective, or an intransitive clause satisfies neither, and that is a property of the gate, not of the material",
+        "children": []
+       }
+      ]
      }
     ]
    }

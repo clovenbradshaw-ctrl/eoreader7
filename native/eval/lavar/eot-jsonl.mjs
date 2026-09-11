@@ -55,6 +55,7 @@ import { fileURLToPath } from "node:url";
 import { splitSentences, normaliseNewlines } from "../../adapters/text/spans.js";
 import { extractRelations, discoverRelationVocab } from "../../adapters/text/relations.js";
 import { relationPriorOptionsFor } from "../../adapters/text/relation-priors-i18n.js";
+import { recurringFormAnchorSpans, scriptIsCaseless } from "../../adapters/text/recurring-form-anchors.js";
 import { extractSurfaces, scriptCoverageBySentence, accumulateSurfaceEvidence, createSurfaceEvidence, surfacesFromEvidence, discoverReferents } from "../../adapters/text/surfaces.js";
 import { bindNarrationFrames, pronounResolver } from "../../adapters/text/perspective-claims.js";
 import { boundAnchorSpans } from "../../adapters/text/vocabulary.js";
@@ -820,7 +821,52 @@ const { boundSentences, perFrame } = bindNarrationFrames({
   surfaceToReferent,
   recall: RECALL,
 });
-const anchorSpans = boundAnchorSpans(boundSentences, chapterText);
+const boundPronounAnchors = boundAnchorSpans(boundSentences, chapterText);
+
+// RECURRING-FORM ANCHORS, additive, STEERED BY A DETECTED PROPERTY OF THE
+// MATERIAL — never by `--lang=`. The bound-pronoun anchors above are
+// ENTIRELY downstream of `surfaces` (extractSurfaces' capitalisation-
+// significance test, surfaces.js) — castEvents, then surfaceToReferent,
+// then bindNarrationFrames' own binding all trace back to it. For a
+// script with no letter case at all (Arabic, Han) that whole chain starts
+// and ends empty, which is exactly why a real Arabic UDHR reading
+// extracted zero real propositions from its own body text even with real
+// closed-class priors wired in (see relation-priors-i18n.js's own header).
+// recurringFormAnchorSpans is a SEPARATE, script-agnostic candidate
+// source — a real occurrence's own span, admitted only once its form has
+// recurred across at least FORM_MIN_ARRIVALS (hypergraph.js) = 2 distinct
+// sentences, the same structural minimum reused rather than re-derived.
+//
+// GATED ON scriptIsCaseless(chapterText), NOT on "does this --lang= have a
+// registered relation-priors entry" — measured live, the wrong gate: the
+// first cut fired this for every language with a relation-priors entry
+// (spa included), and Spanish's recall against its own golden REGRESSED
+// (22.3% -> 16.0%) because Spanish's capitalisation-based extraction
+// already works and the extra recurring-form candidates only add noise to
+// an already-working signal, never help it. "This fixed Arabic" does not
+// license "so it helps every language this session happens to have
+// priors for" — the two are unrelated questions, and conflating them is
+// the exact un-generalized mistake this project's own generality gate
+// (P71) exists to catch. Steering on a measured property of the bytes
+// themselves (does this script carry ANY uppercase letters at all) is
+// language-agnostic and self-correcting: it fires for Arabic and Han
+// (correctly, since neither script has case), stays off for Spanish/
+// English/every other case-bearing script (correctly, since their real
+// mechanism already works), and needs no hand-maintained per-language
+// list that could silently go stale as more languages are added.
+const langPriorsForAnchors = relationPriorOptionsFor(LANG);
+const materialIsCaseless = scriptIsCaseless(chapterText) === true;
+const formFunctionWords = langPriorsForAnchors
+  ? new Set([
+      ...langPriorsForAnchors.subjectPronouns, ...langPriorsForAnchors.auxiliaryVerbs,
+      ...langPriorsForAnchors.definiteDeterminers, ...langPriorsForAnchors.indefiniteDeterminers,
+      ...langPriorsForAnchors.clauseOpeners, ...langPriorsForAnchors.negationWords,
+    ])
+  : null;
+const recurringAnchors = materialIsCaseless
+  ? recurringFormAnchorSpans(chapterText, { sentences: chapterSentences, minArrivals: 2, functionWords: formFunctionWords })
+  : [];
+const anchorSpans = [...boundPronounAnchors, ...recurringAnchors];
 
 // ── THE SIG ROW: what is being talked about ──────────────────────────────
 // User's question, verbatim: "we need to be extracting the referents so we
@@ -1006,7 +1052,9 @@ const endRef = (surface, chapterLocalOffset) => {
 // for every language without a registered set (including "eng"), which
 // leaves `extractRelations`/`discoverRelationVocab`'s own English defaults
 // exactly as they were — byte-identical for every prior caller.
-const LANG_RELATION_PRIORS = relationPriorOptionsFor(LANG);
+// Reused, not re-derived — computed above (langPriorsForAnchors) where the
+// recurring-form anchors needed it first.
+const LANG_RELATION_PRIORS = langPriorsForAnchors;
 const vocabReport = discoverRelationVocab(chapterText, { surfaces, minSurfaces: MIN_SURFACES_PER_VERB, anchorSpans, ...(LANG_RELATION_PRIORS ? { auxiliaryVerbs: LANG_RELATION_PRIORS.auxiliaryVerbs, negationWords: LANG_RELATION_PRIORS.negationWords } : {}) });
 
 const ownVerbs = vocabReport?.verbs instanceof Set ? vocabReport.verbs : new Set(vocabReport?.verbs ?? []);
