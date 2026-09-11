@@ -107,8 +107,16 @@ for (const row of golden.rows ?? []) {
   // golden's own door — never trust a coordinate conversion silently.
   const sliceBuf = Buffer.from(raw, "utf8").subarray(bStart, bEnd);
   const slice = collapse(sliceBuf.toString("utf8"));
+  // Case-INSENSITIVE containment: a sentence-initial English relation word
+  // ("Proclaims") is capitalised in the real bytes but hand-typed lowercase
+  // in the golden — a real bug found running this on udhr.golden.json
+  // itself (English row 16 refused on exactly this), not a defect in the
+  // address. build-goldens.mjs's own self-verify (collapse + toLowerCase
+  // on both sides) already makes this comparison case-insensitive; this
+  // re-verification now matches that discipline instead of being stricter
+  // than the door it is re-checking.
   const relHead = collapse(relation).split(" ").pop();
-  if (relHead && !slice.includes(relHead)) {
+  if (relHead && !slice.toLowerCase().includes(relHead.toLowerCase())) {
     emit({ schema: "EOTRefusal@1", at: [bStart, bEnd], role: "proposition", reason: "byte_reslice_lost_relation_word", label: relation });
     refused += 1;
     continue;
