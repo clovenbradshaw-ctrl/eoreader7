@@ -210,6 +210,17 @@ const rawAt = (start, end) => [byteOf(toRaw(start)), byteOf(toRaw(end))];
 // real prose, not merely under-listed here), and Hebrew has no neuter
 // "it" at all (every noun is grammatically masculine or feminine).
 const LANG = (process.argv.find((a) => a.startsWith("--lang=")) ?? "--lang=eng").replace("--lang=", "");
+// WHOLE-DOCUMENT READING. A short article-structured document (the UDHR's
+// Articles, each often one sentence) starves per-chapter vocabulary earning
+// when split into 30 article-chunks — almost nothing recurs within a single
+// sentence, so almost no real EOTObservation@1 propositions are produced.
+// --whole reads the entire origin document as ONE chapter instead of letting
+// structure-rec's heading-convention detection carve it into per-article
+// chapters. This is not a new mechanism: it is the same chapter/window shape
+// every other reading already uses, just with the window widened to the
+// whole document. Front matter is folded in rather than split out, since
+// there is no narrower chapter to draw the front-matter boundary against.
+const WHOLE_DOC = process.argv.includes("--whole");
 // JavaScript's `\b` is an ASCII-only boundary (defined against `\w` =
 // [A-Za-z0-9_]) even with the `u` flag — it does NOT become Unicode-aware.
 // A boundary check right against a Greek, Hebrew, or Turkish dotless-ı
@@ -222,6 +233,7 @@ const wordBound = (alts) => new RegExp(`(?<![\\p{L}\\p{N}])(?:${alts})(?![\\p{L}
 const LANG_PRONOUNS = {
   eng: wordBound("she|he|it|her|him|they|them"),
   fra: wordBound("il|elle|ils|elles|lui|leur|leurs"),
+  spa: wordBound("él|ella|ellos|ellas|lo|la|los|las|le|les|su|sus"),
   tur: wordBound("o|onu|ona|onlar|onları|onların"),
   kor: /(그녀|그것|그들|그는|그가|그를)/,
   ell: wordBound("αυτός|αυτή|αυτό|αυτοί|αυτές|αυτά|του|της|τους|τις"),
@@ -368,7 +380,7 @@ const infer = (role, at, basis, extra = {}) =>
 // take the TOC, which is exactly the failure that put a table of contents
 // into this book's flat reading.
 const chapters = [];
-{
+if (!WHOLE_DOC) {
   // WIRED IN, not hand-patched: this block used to carry its own growing
   // regex alternation, one branch added by hand every time a new book
   // used a convention the file didn't know yet (S102's Dorian Gray title
@@ -633,6 +645,12 @@ const chapters = [];
     infer("chapter", [c.start, c.end], `a '${c.convention}' line at line-start followed by running prose (a title line, when the book gives one, is blank-line-bounded like the heading itself) — the table-of-contents copies of the same string are not followed by prose and are not matched`, { ordinal: c.ordinal, numeral: c.num, title: c.title });
     infer("heading", [c.start, c.headEnd], c.title ? "the chapter line and its title line" : "the chapter line alone — this book gives its chapters no title line", { ofChapter: c.ordinal });
   }
+} else {
+  // --whole: one chapter, the entire origin document. No heading detection
+  // is run at all (so this never touches or pollutes heading-conventions.json),
+  // and there is no narrower front-matter boundary to draw, so none is
+  // inferred — the whole document IS the read window.
+  chapters.push({ start: 0, end: raw.length, headEnd: 0, ordinal: 1, convention: "whole-document (--whole)", num: null, title: "" });
 }
 
 // FRONT MATTER: everything before the first real chapter. Recorded, never

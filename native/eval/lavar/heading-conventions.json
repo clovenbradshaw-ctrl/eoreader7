@@ -69,6 +69,16 @@
       "foundIn": "udhr-eng.txt",
       "foundVia": "mechanical (skeleton recurrence + monotonic numeral), auto-wired from eot-jsonl.mjs",
       "dateFound": "2026-09-10"
+    },
+    {
+      "name": "Artículo <arabic>",
+      "numeralType": "arabic",
+      "word": "Artículo",
+      "requiresPeriod": false,
+      "titleOnSameLine": false,
+      "foundIn": "udhr-spa.txt",
+      "foundVia": "mechanical (skeleton recurrence + monotonic numeral), auto-wired from eot-jsonl.mjs",
+      "dateFound": "2026-09-10"
     }
   ]
 }
