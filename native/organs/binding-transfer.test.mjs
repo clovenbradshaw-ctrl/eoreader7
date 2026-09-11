@@ -6,9 +6,14 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { bind, BINDING_CORE_REFUSALS as REFUSALS } from "./index.js";
-import { makeReferentIndex } from "../../../the-fold/cast.js";
-import { makeRelationReader } from "../../../the-fold/hypergraph.js";
+import { FoldUnavailableError, resolveFoldSibling } from "../eval/the-fold/lib/fold-sibling.mjs";
 import { foldSelect, buildSelectMessages } from "./index.js";
+
+const { path: FOLD_PATH, available: FOLD_OK } = resolveFoldSibling(import.meta.url, "../../../the-fold/");
+const SKIP = FOLD_OK ? undefined : `the sibling the-fold checkout is not available: cast.js/hypergraph.js (looked for ${FOLD_PATH})`;
+const throwUnavailable = () => { throw new FoldUnavailableError(SKIP); };
+const { makeReferentIndex } = FOLD_OK ? await import(`${FOLD_PATH}cast.js`) : { makeReferentIndex: throwUnavailable };
+const { makeRelationReader } = FOLD_OK ? await import(`${FOLD_PATH}hypergraph.js`) : { makeRelationReader: throwUnavailable };
 
 const N = "../adapters/text/";
 async function organs() {
@@ -22,7 +27,7 @@ async function organs() {
   };
 }
 
-test("THE WALL FIRST: the core contains no domain vocabulary at all (contest.js's own enforcement)", () => {
+test("THE WALL FIRST: the core contains no domain vocabulary at all (contest.js's own enforcement)", { skip: SKIP }, () => {
   const src = readFileSync(new URL("./binding-core.js", import.meta.url), "utf8");
   const body = src.slice(src.indexOf("export const REFUSALS")); // the header may DISCUSS domains; the code may not
   for (const word of ["mention", "referent", "edge", "claim", "verdict", "witness", "sentence", "verb", "surface", "testimony"])
@@ -30,7 +35,7 @@ test("THE WALL FIRST: the core contains no domain vocabulary at all (contest.js'
 });
 
 // ── ARITHMETIC / Existence: mention -> referent (SIG·Figure, cast) ───────
-test("arithmetic adapter: agrees with the REAL referent index on a resolution AND an ambiguity", async () => {
+test("arithmetic adapter: agrees with the REAL referent index on a resolution AND an ambiguity", { skip: SKIP }, async () => {
   const passages = [{ ref: "p", text:
     "Pierre Bezukhov walked into the salon. Natasha Rostova greeted Pierre Bezukhov warmly. " +
     "Pierre Bezukhov smiled at Natasha Rostova. Nikolai Rostov arrived late." }];
@@ -78,7 +83,7 @@ test("arithmetic adapter: agrees with the REAL referent index on a resolution AN
 });
 
 // ── GEOMETRY / Structure: claim -> edge (CON·Figure, relations) ──────────
-test("geometry adapter: agrees with the REAL relation reader's bound AND unbound verdicts on real material", async () => {
+test("geometry adapter: agrees with the REAL relation reader's bound AND unbound verdicts on real material", { skip: SKIP }, async () => {
   const passages = [{ ref: "m", text:
     "Abraham Lincoln appointed Hannibal Hamlin. Abraham Lincoln appointed Andrew Johnson. Hannibal Hamlin visited Abraham Lincoln." }];
   const reader = makeRelationReader(await organs())(passages, { pool: passages });
@@ -112,7 +117,7 @@ test("geometry adapter: agrees with the REAL relation reader's bound AND unbound
 });
 
 // ── CALCULUS / Interpretation: testimony -> verdict (EVA·Figure) ─────────
-test("calculus adapter: reproduces the ARMED SELECT protocol's decisions — states, indiscriminate, and no-testimony", () => {
+test("calculus adapter: reproduces the ARMED SELECT protocol's decisions — states, indiscriminate, and no-testimony", { skip: SKIP }, () => {
   // THE ADAPTER, whole: the field is the candidate sentences; the score is
   // the picker's own answer (1 for its pick, nothing else finite); the FOIL
   // is the arm — a picker whose criterion also clears the sibling-swapped
@@ -143,7 +148,7 @@ test("calculus adapter: reproduces the ARMED SELECT protocol's decisions — sta
   assert.equal(nothing.refused, "below_criterion");
 });
 
-test("THE VERDICT: one core file, three domains, zero core edits between them", () => {
+test("THE VERDICT: one core file, three domains, zero core edits between them", { skip: SKIP }, () => {
   // Structural half of §VIII.1's claim: the three adapters above import ONE
   // bind() and never monkey-patch it; each adapter's whole contribution is
   // a score function, a floor, and domain-owned margin/foil choices. If a

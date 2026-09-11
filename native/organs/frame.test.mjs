@@ -7,9 +7,15 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { declareFrame, framed, comparable, FRAME_REFUSALS as REFUSALS } from "./index.js";
-import { makeRelationReader } from "../../../the-fold/hypergraph.js";
+import { FoldUnavailableError, resolveFoldSibling } from "../eval/the-fold/lib/fold-sibling.mjs";
 
-test("the declaration gate: nothing defaulted, refusals name exactly what is missing (the NUL·Ground sibling's grammar)", async () => {
+const { path: FOLD_PATH, available: FOLD_OK } = resolveFoldSibling(import.meta.url, "../../../the-fold/");
+const SKIP = FOLD_OK ? undefined : `the sibling the-fold checkout is not available: hypergraph.js (looked for ${FOLD_PATH})`;
+const { makeRelationReader } = FOLD_OK
+  ? await import(`${FOLD_PATH}hypergraph.js`)
+  : { makeRelationReader: () => { throw new FoldUnavailableError(SKIP); } };
+
+test("the declaration gate: nothing defaulted, refusals name exactly what is missing (the NUL·Ground sibling's grammar)", { skip: SKIP }, async () => {
   const whole = await declareFrame({
     organs: { provider: "native/adapters/text" },
     givers: { determiners: "UD_English-EWT via priors.js (lang/en)" },
@@ -31,7 +37,7 @@ test("the declaration gate: nothing defaulted, refusals name exactly what is mis
   assert.ok(empty.frame, "an explicitly empty ground is a declared ground");
 });
 
-test("the id is content-addressed: same declaration, same frame; any component moved, different frame", async () => {
+test("the id is content-addressed: same declaration, same frame; any component moved, different frame", { skip: SKIP }, async () => {
   const a = await declareFrame({ organs: { p: "legacy" }, givers: {}, numbers: { n: 1 } });
   const b = await declareFrame({ numbers: { n: 1 }, givers: {}, organs: { p: "legacy" } }); // order must not matter
   const c = await declareFrame({ organs: { p: "native" }, givers: {}, numbers: { n: 1 } });
@@ -39,7 +45,7 @@ test("the id is content-addressed: same declaration, same frame; any component m
   assert.notEqual(a.frame.id, c.frame.id);
 });
 
-test("THE WALL: cross-frame verdicts refuse comparison, NAMING the components that differ; unframed verdicts join nothing", async () => {
+test("THE WALL: cross-frame verdicts refuse comparison, NAMING the components that differ; unframed verdicts join nothing", { skip: SKIP }, async () => {
   const legacy = (await declareFrame({ organs: { provider: "legacy-eoreader6.1" }, givers: {}, numbers: {} })).frame;
   const native = (await declareFrame({ organs: { provider: "native" }, givers: {}, numbers: {} })).frame;
   const va = framed({ verdict: "bound", passing: 54 }, legacy);
@@ -57,7 +63,7 @@ test("THE WALL: cross-frame verdicts refuse comparison, NAMING the components th
   assert.equal(comparable({ verdict: "bound" }, va).refused, "unframed");
 });
 
-test("THE LIVE SPECIMEN, end to end: the two REAL engine providers as two declared frames over one material", async () => {
+test("THE LIVE SPECIMEN, end to end: the two REAL engine providers as two declared frames over one material", { skip: SKIP }, async () => {
   const material = [{ ref: "wp.txt#0-300", text: "Abraham Lincoln appointed Hannibal Hamlin. Abraham Lincoln appointed Andrew Johnson. Hannibal Hamlin visited Abraham Lincoln." }];
   const load = async (root) => {
     const sp = await import(root + "spans.js"), su = await import(root + "surfaces.js");

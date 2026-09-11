@@ -10,7 +10,13 @@ import { createCausalTextPerceiver, textEncounters } from "../adapters/text/recu
 import { reviseTextFold } from "../adapters/text/revision.js";
 import { createRecursiveReader } from "../../kernel.js";
 import { projectHypergraph, hyperlexiconAt } from "../kernel/hypergraph-projection.js";
-import { bindLinks, buildLink } from "../../legacy-eoreader6.1/packages/engine/emergence/binding.js";
+import { resolveLegacySibling } from "../eval/the-fold/lib/legacy-sibling.mjs";
+
+const { path: LEGACY_PATH, available: LEGACY_OK } = resolveLegacySibling(import.meta.url, "../../legacy-eoreader6.1/");
+const SKIP = LEGACY_OK ? undefined : `the sibling legacy-eoreader6.1 checkout is not available: binding.js (looked for ${LEGACY_PATH})`;
+const { bindLinks, buildLink } = LEGACY_OK
+  ? await import(`${LEGACY_PATH}packages/engine/emergence/binding.js`)
+  : { bindLinks: undefined, buildLink: undefined };
 
 const CORPUS = [
   "That morning Elena walked the orchard rows and counted the frost damage.",
@@ -54,7 +60,7 @@ test("the hypergraph replays the log to a cursor — an earlier cursor knows les
   assert.match(whole.network.absence, /inject/);
 });
 
-test("the S10 ladder rides the projection whole: count possible, null standing, TE direction — each rung typed when its organ is absent", async () => {
+test("the S10 ladder rides the projection whole: count possible, null standing, TE direction — each rung typed when its organ is absent", { skip: SKIP }, async () => {
   const reading = await readCorpus();
   const withoutDirection = projectHypergraph(reading.log, {
     standing: { bindLinks, window: 2, draws: 199, seed: 20260812, alpha: 0.05 },

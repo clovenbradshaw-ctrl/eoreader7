@@ -23,7 +23,9 @@ import { projectHypergraph } from "../kernel/hypergraph-projection.js";
 // override) and every test below is gated on the result via `{ skip }`
 // rather than crashing the whole file when none exist.
 const here = path.dirname(fileURLToPath(import.meta.url));
-const POS = JSON.parse(fs.readFileSync(path.join(here, "../../legacy-eoreader6.1/bin/priors/pos/en-ud-ewt.json"), "utf8"));
+const POS_PATH = path.join(here, "../../legacy-eoreader6.1/bin/priors/pos/en-ud-ewt.json");
+const POS_SKIP = fs.existsSync(POS_PATH) ? undefined : `the sibling legacy-eoreader6.1 checkout is not available: en-ud-ewt.json (looked for ${POS_PATH})`;
+const POS = POS_SKIP ? null : JSON.parse(fs.readFileSync(POS_PATH, "utf8"));
 function resolveBook() {
   const candidates = [
     process.env.EOREADER7_WAR_AND_PEACE_FIXTURE,
@@ -33,7 +35,9 @@ function resolveBook() {
   return candidates.find((p) => fs.existsSync(p)) ?? null;
 }
 const BOOK = resolveBook();
-const SKIP = BOOK ? undefined : "war-and-peace fixture (pg2600.txt) not found in any known candidate location — set EOREADER7_WAR_AND_PEACE_FIXTURE or check out a sibling the-fold repo";
+const SKIP = !BOOK
+  ? "war-and-peace fixture (pg2600.txt) not found in any known candidate location — set EOREADER7_WAR_AND_PEACE_FIXTURE or check out a sibling the-fold repo"
+  : POS_SKIP;
 const BYTES = 60000;
 let cached = null;
 

@@ -1,8 +1,15 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { witnessSentences, endsFor, settledBy, rowFor } from "./witness-sentences.js";
-import * as T from "../../../the-fold/testimony.js";
+import { FoldUnavailableError, resolveFoldSibling } from "../eval/the-fold/lib/fold-sibling.mjs";
 import { splitSentences } from "../adapters/text/spans.js";
+
+const { path: FOLD_PATH, available: FOLD_OK } = resolveFoldSibling(import.meta.url, "../../../the-fold/");
+const SKIP = FOLD_OK ? undefined : `the sibling the-fold checkout is not available: testimony.js (looked for ${FOLD_PATH})`;
+const throwUnavailable = () => { throw new FoldUnavailableError(SKIP); };
+const T = FOLD_OK
+  ? await import(`${FOLD_PATH}testimony.js`)
+  : { witnessSlice: throwUnavailable, siblingSwap: throwUnavailable, foldTestimony: throwUnavailable, buildSelectMessages: throwUnavailable, foldSelect: throwUnavailable };
 
 // The live specimen (2026-09-02): one answer, two sentences — a TRUE
 // paraphrase the relation tier could not bind, and a FALSE sentence whose
@@ -31,32 +38,32 @@ const selectAsk = async (messages) => {
 };
 const ask = async () => ({ verdict: null, refused: "no-testimony" });
 
-test("a true paraphrase the relation tier left unbound is witnessed as stated, by a passage's own sentence", async () => {
+test("a true paraphrase the relation tier left unbound is witnessed as stated, by a passage's own sentence", { skip: SKIP }, async () => {
   const { rows, asks } = await witnessSentences([trueS], claims, passages, { ask, selectAsk, splitSentences, testimony, maxAsks: 4 });
   if (rows[0].witness !== "states") console.log("ROW:", JSON.stringify(rows[0]));
   assert.equal(rows[0].witness, "states");
   assert.match(rows[0].decider ?? "", /replaced the unpopular Barclay de Tolly with Mikhail Kutuzov/);
   assert.ok(asks >= 1);
 });
-test("a false sentence nothing states is refused — marked, never convicted", async () => {
+test("a false sentence nothing states is refused — marked, never convicted", { skip: SKIP }, async () => {
   const { rows } = await witnessSentences([falseS], claims, passages, { ask, selectAsk, splitSentences, testimony, maxAsks: 4 });
   assert.equal(rows[0].witness, "refused");
   assert.ok(rows[0].why);
 });
-test("a sentence the relation tier already bound is skipped without an ask; the budget is declared and holds", async () => {
+test("a sentence the relation tier already bound is skipped without an ask; the budget is declared and holds", { skip: SKIP }, async () => {
   const bound = [{ ...claims[0], verdict: "bound" }];
   const { rows, asks } = await witnessSentences([trueS, falseS], bound.concat(claims[1]), passages, { ask, selectAsk, splitSentences, testimony, maxAsks: 0 });
   assert.equal(rows[0].witness, "skipped"); assert.equal(rows[1].witness, "skipped"); assert.equal(asks, 0);
   await assert.rejects(witnessSentences([trueS], claims, passages, { ask, selectAsk, splitSentences, testimony }), /maxAsks is declared/);
 });
-test("ends come from the claim when there is one, else from the sentence's own words — never invented", () => {
+test("ends come from the claim when there is one, else from the sentence's own words — never invented", { skip: SKIP }, () => {
   assert.equal(endsFor(trueS, claims).from, "claim");
   assert.equal(endsFor("Moscow burned for days afterwards.", []).from, "longest-words");
   assert.equal(endsFor("It was.", []), null);
   assert.equal(settledBy(trueS, [{ ...claims[0], verdict: "bound" }]), true);
 });
 
-test("only the model's own 'no' is a refusal; a protocol non-verdict is a typed skip that draws nothing", () => {
+test("only the model's own 'no' is a refusal; a protocol non-verdict is a typed skip that draws nothing", { skip: SKIP }, () => {
   assert.equal(rowFor({ verdict: "states", because: "x" }).witness, "states");
   assert.equal(rowFor({ refused: "no-testimony", via: "select" }).witness, "refused");
   for (const r of ["decider_unrelated", "unarmed-select", "indiscriminate", "no-slice", "uncontained"]) assert.equal(rowFor({ refused: r }).witness, "skipped", r);

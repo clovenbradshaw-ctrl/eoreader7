@@ -12,7 +12,19 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 
 import { makeGrammarLens, mismatchedConnectors } from "./grammar-lens.js";
-import { makeRelationReader } from "../../../the-fold/hypergraph.js";
+import { FoldUnavailableError, resolveFoldSibling } from "../eval/the-fold/lib/fold-sibling.mjs";
+import { resolveLegacySibling } from "../eval/the-fold/lib/legacy-sibling.mjs";
+
+const { path: FOLD_PATH, available: FOLD_OK } = resolveFoldSibling(import.meta.url, "../../../the-fold/");
+const { path: LEGACY_PATH, available: LEGACY_OK } = resolveLegacySibling(import.meta.url, "../../legacy-eoreader6.1/");
+const SKIP = !FOLD_OK
+  ? `the sibling the-fold checkout is not available: hypergraph.js (looked for ${FOLD_PATH})`
+  : !LEGACY_OK
+    ? `the sibling legacy-eoreader6.1 checkout is not available (looked for ${LEGACY_PATH})`
+    : undefined;
+const { makeRelationReader } = FOLD_OK
+  ? await import(`${FOLD_PATH}hypergraph.js`)
+  : { makeRelationReader: () => { throw new FoldUnavailableError(SKIP); } };
 
 const POS_PRIOR = {
   schema: "POSPrior@1",
@@ -58,7 +70,7 @@ const organs = async () => {
 // golden's score, applied to this file's own fixture).
 const MIN_SHARE = 0.5;
 
-test("minShare is declared by the caller, never a silent default — the fixed bug, pinned as a regression", async () => {
+test("minShare is declared by the caller, never a silent default — the fixed bug, pinned as a regression", { skip: SKIP }, async () => {
   // Found live: classifyConnector used to read `{ minShare = 0.9 }`,
   // contradicting this file's own header AND dominantClass's own thrown
   // error ("minShare is declared — how dominant a candidate must be is
@@ -75,7 +87,7 @@ test("minShare is declared by the caller, never a silent default — the fixed b
   assert.throws(() => lens({ subject: "they", verb: "married", object: "young" }), /minShare is declared/);
 });
 
-test("the crosslingual eval's own disclosed junk triples: none of 'this', 'still', 'book' read as a verb under the Thrax lens", async () => {
+test("the crosslingual eval's own disclosed junk triples: none of 'this', 'still', 'book' read as a verb under the Thrax lens", { skip: SKIP }, async () => {
   const { classifyWord, dominantClass } = await organs();
   const lens = makeGrammarLens({ classifyWord, dominantClass, posPrior: POS_PRIOR });
 
@@ -91,14 +103,14 @@ test("the crosslingual eval's own disclosed junk triples: none of 'this', 'still
   assert.notEqual(found.find((f) => f.edge.verb === "this").classification.thraxClass, "verb");
 });
 
-test("a genuine verb edge, read straight, is never flagged as a mismatch", async () => {
+test("a genuine verb edge, read straight, is never flagged as a mismatch", { skip: SKIP }, async () => {
   const { classifyWord, dominantClass } = await organs();
   const lens = makeGrammarLens({ classifyWord, dominantClass, posPrior: POS_PRIOR });
   const goodEdges = [{ subject: "Pierre Bezukhov", verb: "spoke", object: "of the wedding" }];
   assert.equal(mismatchedConnectors(goodEdges, lens, { minShare: MIN_SHARE }).length, 0);
 });
 
-test("disclosed cost of a strict floor: a genuine verb use ('married') can still fail to settle at a high declared minShare", async () => {
+test("disclosed cost of a strict floor: a genuine verb use ('married') can still fail to settle at a high declared minShare", { skip: SKIP }, async () => {
   const { classifyWord, dominantClass } = await organs();
   const lens = makeGrammarLens({ classifyWord, dominantClass, posPrior: POS_PRIOR });
   const edge = { subject: "Pierre", verb: "married", object: "Helene" };
@@ -108,7 +120,7 @@ test("disclosed cost of a strict floor: a genuine verb use ('married') can still
   assert.equal(strict.settled, false, "at a strict floor, VERB 4/7 vs ADJ 3/7 honestly does not clear it");
 });
 
-test("an unfound word (out of the prior's vocabulary) is a disclosed gap, never a mismatch or a guess", async () => {
+test("an unfound word (out of the prior's vocabulary) is a disclosed gap, never a mismatch or a guess", { skip: SKIP }, async () => {
   const { classifyWord, dominantClass } = await organs();
   const lens = makeGrammarLens({ classifyWord, dominantClass, posPrior: POS_PRIOR });
   const edges = [{ subject: "x", verb: "zzznotaword", object: "y" }];
@@ -122,14 +134,14 @@ test("an unfound word (out of the prior's vocabulary) is a disclosed gap, never 
 // reader of this file's own classification. Fixed by accepting both as two
 // more optional injected organs.
 
-test("givers is null when posPriorMeta/thraxMeta are never injected — a disclosed absence, byte-identical to before this fix", async () => {
+test("givers is null when posPriorMeta/thraxMeta are never injected — a disclosed absence, byte-identical to before this fix", { skip: SKIP }, async () => {
   const { classifyWord, dominantClass } = await organs();
   const lens = makeGrammarLens({ classifyWord, dominantClass, posPrior: POS_PRIOR });
   const classification = lens({ subject: "Pierre", verb: "spoke", object: "softly" }, { minShare: MIN_SHARE });
   assert.equal(classification.givers, null);
 });
 
-test("givers forwards wordclass.js's own named POS_PRIOR_META and THRAX_META when injected — the giver a reader of edge.connectorClass can now actually see", async () => {
+test("givers forwards wordclass.js's own named POS_PRIOR_META and THRAX_META when injected — the giver a reader of edge.connectorClass can now actually see", { skip: SKIP }, async () => {
   const { classifyWord, dominantClass } = await organs();
   const { POS_PRIOR_META, THRAX_META } = await import("../../legacy-eoreader6.1/packages/engine/perceiver/text/wordclass.js");
   const lens = makeGrammarLens({ classifyWord, dominantClass, posPrior: POS_PRIOR, posPriorMeta: POS_PRIOR_META, thraxMeta: THRAX_META });
@@ -148,7 +160,7 @@ test("givers forwards wordclass.js's own named POS_PRIOR_META and THRAX_META whe
 });
 
 // ── end to end against the REAL extraction pipeline, not just hand-built edges ──
-test("end to end: a real edge extracted by the real engine from real material reads as a genuine verb", async () => {
+test("end to end: a real edge extracted by the real engine from real material reads as a genuine verb", { skip: SKIP }, async () => {
   const PASSAGES = [
     {
       ref: "wp.txt#0-400",

@@ -16,11 +16,19 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { execSync } from "node:child_process";
-import * as nul from "../../nul/index.js";
+import { existsSync } from "node:fs";
 import { parseMeasure, runMeasurement, phrase, DECODABLE, seriesFromMedia } from "../organs/measure.js";
 import * as img from "../adapters/image/material.js";
 import * as vid from "../adapters/video/material.js";
 import * as aud from "../adapters/audio/material.js";
+
+// `nul/` is a symlink to `legacy-eoreader6.1/nul` (the-fold's frozen 6.1
+// submodule), so this door — like every other reach into that sibling —
+// refuses typed when the submodule is uninitialised, rather than an
+// uncaught MODULE_NOT_FOUND (S65/P95).
+const NUL_PATH = new URL("../../nul/index.js", import.meta.url);
+const SKIP = existsSync(NUL_PATH) ? undefined : `the sibling legacy-eoreader6.1 checkout is not available: nul/index.js (looked for ${NUL_PATH})`;
+const nul = SKIP ? null : await import("../../nul/index.js");
 
 const FIX = new URL("../eval/the-fold/fixtures/media/", import.meta.url).pathname;
 const reduce = { audio: aud.reduce, image: img.reduce, video: vid.reduce };
@@ -42,7 +50,7 @@ test("a bare audio reduce function still means audio, byte-identical to before: 
   assert.equal(asFn.series.length, 20);
 });
 
-test("the probe teaches each decoded medium its one channel, and names the decoder gap for an undecoded container", async (t) => {
+test("the probe teaches each decoded medium its one channel, and names the decoder gap for an undecoded container", { skip: SKIP }, async (t) => {
   if (!hasFfmpeg) return t.skip("ffmpeg absent — decoding is the perceivers' own ffmpeg");
   const image = { kind: "image", ...(await img.load(FIX + "gradient.png", { w: 64, h: 64 })) };
   const video = { kind: "video", frames: await vid.load(FIX + "cut.mp4", { fps: 10, w: 32, h: 18 }), w: 32, h: 18, fps: 10 };
@@ -55,7 +63,7 @@ test("the probe teaches each decoded medium its one channel, and names the decod
   assert.ok(DECODABLE.has("mp4") && DECODABLE.has("png"));
 });
 
-test("image: scanline luminance placed against the shuffle null holds on the gradient; the wrong channel is refused by name", async (t) => {
+test("image: scanline luminance placed against the shuffle null holds on the gradient; the wrong channel is refused by name", { skip: SKIP }, async (t) => {
   if (!hasFfmpeg) return t.skip("ffmpeg absent");
   const image = { kind: "image", ...(await img.load(FIX + "gradient.png", { w: 64, h: 64 })) };
   const r = run("/measure gradient.png channel:luminance frame:1 as:burstiness broken:shuffle draws:200 window:8", image);
@@ -67,7 +75,7 @@ test("image: scanline luminance placed against the shuffle null holds on the gra
   assert.match(wrong.refused.detail, /channel:luminance/);
 });
 
-test("video: the two-shot fixture's motion series has one transition, and the burstiness/shuffle pairing collapses — a typed fact about the pairing", async (t) => {
+test("video: the two-shot fixture's motion series has one transition, and the burstiness/shuffle pairing collapses — a typed fact about the pairing", { skip: SKIP }, async (t) => {
   if (!hasFfmpeg) return t.skip("ffmpeg absent");
   const frames = await vid.load(FIX + "cut.mp4", { fps: 10, w: 32, h: 18 });
   const video = { kind: "video", frames, w: 32, h: 18, fps: 10 };
@@ -79,7 +87,7 @@ test("video: the two-shot fixture's motion series has one transition, and the bu
   assert.equal(r.refused?.type, "degenerate_ground");
 });
 
-test("decoded PCM: compressed audio decoded by the perceiver's loader measures as rms/flux with its container named", async (t) => {
+test("decoded PCM: compressed audio decoded by the perceiver's loader measures as rms/flux with its container named", { skip: SKIP }, async (t) => {
   if (!hasFfmpeg) return t.skip("ffmpeg absent");
   const pcm = { kind: "pcm", samples: await aud.load(FIX + "real-60s.wav", { sampleRate: 8000 }), sampleRate: 8000, container: "wav" };
   const r = run("/measure real-60s.wav channel:rms frame:400 as:burstiness broken:shuffle draws:200 window:20", pcm);
