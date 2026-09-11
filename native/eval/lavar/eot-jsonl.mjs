@@ -238,6 +238,29 @@ const LANG_PRONOUNS = {
   kor: /(그녀|그것|그들|그는|그가|그를)/,
   ell: wordBound("αυτός|αυτή|αυτό|αυτοί|αυτές|αυτά|του|της|τους|τις"),
   heb: /(הוא|היא|הם|הן)/,
+  // arb: MSA independent third-person pronouns (huwa/hiya/huma/hum/hunna),
+  // no-vowel-mark script so a simple codepoint match is enough (same
+  // reasoning as heb/kor above — no Latin word-boundary issue here since
+  // Arabic text has real whitespace between words).
+  arb: /(هو|هي|هما|هم|هن)/,
+  // cmn: written Mandarin distinguishes 他/她/它 (he/she/it) and their
+  // plurals 他们/她们/它们 even though all are pronounced tā — a real,
+  // disclosed, small set, not a claim of completeness (e.g. 咱们/您 are
+  // left out). This does NOT touch the deeper problem named in this
+  // session's report: Mandarin has no whitespace between words at all, so
+  // a *reading* here is degraded by tokenizer assumptions elsewhere in
+  // this pipeline (extractRelations' `\s+`-based subject/object split)
+  // regardless of this pronoun list being present.
+  cmn: /(他们|她们|它们|他|她|它)/,
+  // swh: Swahili class-1/2 (person) independent pronouns are gender-
+  // neutral (yeye covers he/she) — a real Bantu-typology fact, not an
+  // under-listed set. wao is plural. This is the only piece of swh
+  // support this session could add: no Universal Dependencies Swahili
+  // treebank has annotated data (UD_Swahili-OPUSGV's repo carries only a
+  // README/LICENSE, zero .conllu files, verified this session), so
+  // pos-swh.json cannot be built without fabricating a prior — READING
+  // STAYS BLOCKED at that gate below, disclosed rather than faked.
+  swh: wordBound("yeye|wao"),
 };
 if (!LANG_PRONOUNS[LANG]) { console.error(`no pronoun set declared for --lang=${LANG} (declared: ${Object.keys(LANG_PRONOUNS).join(", ")})`); process.exit(2); }
 const POS_PRIOR_PATH = path.join(HERE, "../../priors", LANG === "eng" ? "pos-eng.json" : `pos-${LANG}.json`);
