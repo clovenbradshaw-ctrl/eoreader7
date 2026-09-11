@@ -18,7 +18,12 @@ import { postprocessAnswer, warmPostprocess } from "./postprocess.mjs";
 import { resolutionBlocks } from "./native/the-fold/resolutions.js";
 import { tokenize } from "./native/the-fold/source.js";
 import { readingIndexFromLog } from "./native/the-fold/reading-log.js";
+import { createDocumentLedger, appendDocumentObservation, projectDocument, documentChangeLog, admitPart, serializeLedger, snipsFromSources } from "./native/the-fold/document-ledger.js";
 import { dmdWindow } from "./native/kernel/activation.js";
+// Web organ: the pure half of search and page ingestion (extractReadable,
+// parseSearchResults, extractUrls, normalizeUrl). The network egress lives
+// inline below — the proxy is the one sanctioned crossing (P13).
+import { extractReadable, parseSearchResults, extractUrls, normalizeUrl, WEB_SEARCH_MAX_RESULTS } from "./native/organs/web.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const GIVER = "reader:eoreader7-proxy";
@@ -35,13 +40,20 @@ export const OLLAMA = process.env.ER7_OLLAMA_URL ?? "http://localhost:11434";
 // one — which is exactly the failure we just ate. Real request bodies carry a
 // long keep_alive, and the proxy pings recently-used models on an interval
 // (keepModelHot) so the load never drops between turns. In seconds.
-export const OLLAMA_KEEP_ALIVE_S = Number(process.env.ER7_KEEP_ALIVE_S ?? 3600);
+// Off by default: one small model, loaded on demand, unloaded on Ollama's own
+// schedule. Keep-warm pinning is a real feature for later, but on a 24GB
+// machine it fought itself (every model touched got an hour of residency,
+// three models stacked up, the box dragged). ER7_KEEP_ALIVE_S > 0 re-enables it.
+export const OLLAMA_KEEP_ALIVE_S = Number(process.env.ER7_KEEP_ALIVE_S ?? 0);
 
-// --- feature toggles (defaults: hyperlexicon ON, wikipedia enrichment OFF) -----
+// --- feature toggles (defaults: hyperlexicon ON, wikipedia enrichment OFF,
+//     web search OFF — the proxy is the sanctioned egress, P13) -------------
 const HYPERLEXICON_ON = (process.env.ER7_HYPERLEXICON ?? "1") !== "0";
 const WIKIPEDIA_ON = (process.env.ER7_WIKIPEDIA ?? "0") === "1";
 const WIKI_MAX_CONCEPTS = Number(process.env.ER7_WIKI_MAX_CONCEPTS ?? 3);
 const WIKI_TIMEOUT_MS = Number(process.env.ER7_WIKI_TIMEOUT_MS ?? 3500);
+const WEB_SEARCH_ON = (process.env.ER7_WEB_SEARCH ?? "0") === "1";
+const WEB_MAX_PAGES = Number(process.env.ER7_WEB_MAX_PAGES ?? 3);
 
 const wikiSummaryCache = new Map();
 
@@ -77,6 +89,201 @@ async function enrichFromWikipedia(composition, maxConcepts = WIKI_MAX_CONCEPTS)
   const summaries = await Promise.all(terms.map(async (term) => ({ term, snippet: await wikipediaSummary(term) })));
   return summaries.filter((s) => s.snippet);
 }
+
+// ── web search organ: the proxy's one sanctioned egress (P13) ──────────────
+// Searches DuckDuckGo (no key), fetches pages, extracts readable text, and
+// admits the results as chunks into the same corpus session as workspace files.
+// The web material then flows through the exact same grounding ladder (surf,
+// fold, resolutions) as local files — no separate path, no model compression.
+async function searchAndAdmitWeb(session, sessionId, query, onNote) {
+  if (!WEB_SEARCH_ON || !query.trim()) return { searched: false, pages: 0, chars: 0 };
+  const started = Date.now();
+  const searchUrl = `https://html.duckduckgo.com/html/?q=${encodeURIComponent(query)}`;
+  let searchHtml;
+  try {
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), 20000);
+    const res = await fetch(searchUrl, { signal: ctrl.signal, headers: { "user-agent": "the-fold-explore/0.1 (local research instrument; one page per explicit request)" } });
+    clearTimeout(t);
+    if (!res.ok) throw new Error(`search ${res.status}`);
+    searchHtml = await res.text();
+  } catch (err) {
+    if (onNote) onNote({ move: "web_error", detail: err.message });
+    return { searched: true, pages: 0, chars: 0, error: err.message };
+  }
+  // Minimal search result parsing: extract links and snippets from DDG HTML.
+  const results = [];
+  const seen = new Set();
+  const re = /<a[^>]*class="[^"]*result__a[^"]*"[^>]*href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/gi;
+  let m;
+  while ((m = re.exec(searchHtml)) && results.length < 12) {
+    let href = m[1];
+    if (/[?&]uddg=([^&]+)/.test(href)) {
+      try { href = decodeURIComponent(href.match(/[?&]uddg=([^&]+)/)[1]); } catch { continue; }
+    }
+    if (!/^https?:\/\//i.test(href) || /duckduckgo\.com\//.test(href)) continue;
+    if (seen.has(href)) continue;
+    seen.add(href);
+    results.push({ url: href, title: m[2].replace(/<[^>]+>/g, "").trim() });
+  }
+  if (!results.length) {
+    if (onNote) onNote({ move: "web_no_results" });
+    return { searched: true, pages: 0, chars: 0 };
+  }
+  // Fetch the top pages, extract readable text, admit as chunks — AND step
+  // them through the constitutional reader (EOT-ize), exactly like workspace
+  // files: the web material becomes part of the holograph, the referents,
+  // the hyperlexicon. Surf then addresses REAL structure, not raw bytes.
+  //
+  // EOT RETAINS THE FULL TEXT (S101): even when parsing misses structure,
+  // the ledger must reconstruct 100% of the page's words. So each source's
+  // FULL readable text is kept on the session (webSources, addressable by
+  // URL), and the web ledger records a source line + recoverable range —
+  // the parse is layered on top, never a replacement for the bytes.
+  let admittedChars = 0;
+  let admittedPages = 0;
+  if (!session.corpus) session.corpus = createCorpusSession();
+  if (!session.webLedger) {
+    session.webLedger = createDocumentLedger({ docId: `${sessionId}:web`, title: `Web research — ${query}` });
+  }
+  for (const r of results) {
+    if (admittedPages >= WEB_MAX_PAGES) break;
+    try {
+      const ctrl = new AbortController();
+      const t = setTimeout(() => ctrl.abort(), 20000);
+      const res = await fetch(r.url, { signal: ctrl.signal, headers: { "user-agent": "the-fold-explore/0.1 (local research instrument; one page per explicit request)" } });
+      clearTimeout(t);
+      if (!res.ok) continue;
+      const html = await res.text();
+      // The real web organ's extraction: strips scripts/styles/nav/header/
+      // footer and decodes entities — not the inline stripper that left
+      // "Dolphin&#039;s" in the text face (search before building).
+      const { text } = extractReadable(html);
+      if (!text || text.length < 50) continue;
+      const srcId = `web:${sessionId}:${admittedPages}:${r.url}`;
+      admitChunked(session.corpus, { text, sourceId: srcId });
+      // RETAIN the full text — 100% recoverable from the ledger's addresses.
+      // The URL is the source's line 0; every address below is a byte range
+      // into THIS text, so a projection can rebuild the whole page from the
+      // ledger alone even when parsing found no structure in a stretch.
+      const offset = session.webSources.get(r.url)?.length ?? 0;
+      const full = (session.webSources.get(r.url) ?? "") + (offset ? "\n\n" : "") + text;
+      session.webSources.set(r.url, full);
+      appendDocumentObservation(session.webLedger, {
+        role: "source", title: r.title || r.url, text,
+        basis: `web fetch, EOT-retained (full ${text.length} chars recoverable)`,
+        at: [offset, offset + text.length],
+      });
+      // EOT-ize: step the web page's encounters through the reader so it
+      // builds the same holograph surfaces/referents/notes as local material.
+      const encounters = textEncounters(text, { source: `web:${r.url}`, offset: 0 });
+      for (const enc of encounters) {
+        await session.reader.step(enc);
+        await yieldToEventLoop();
+      }
+      admittedChars += text.length;
+      admittedPages++;
+    } catch { /* skip failed fetches silently */ }
+  }
+  if (onNote) onNote({ move: "web_searched", query, pages: admittedPages, chars: admittedChars, ms: Date.now() - started });
+  return { searched: true, pages: admittedPages, chars: admittedChars };
+}
+
+// ── void-detection: determine answer shape before the model speaks ─────────
+// Zero the space first, then see what is still empty. A greeting needs one
+// sentence; a command needs acknowledgment; a research question needs
+// grounded material; a void needs a disclosed fact (P32). This steers the
+// model toward the proper length and modality without relying on the model
+// to figure out the shape itself.
+function detectAnswerShape(task, hasWorkspace, hasWeb, surfVoid, surfacedSegments, resolutions) {
+  const t = task.toLowerCase().trim();
+  if (/^(hi|hello|hey|howdy|greetings|good\s+(morning|afternoon|evening))[\s,!?]*$/.test(t))
+    return { shape: "greeting", maxTokens: 64, modality: "brief" };
+  if (/^(clear|reset|help|status|what\s+can\s+you\s+do|who\s+are\s+you)[\s,!?]*$/.test(t))
+    return { shape: "command", maxTokens: 128, modality: "brief" };
+  if (/^(count|list|enumerate)\s+(to\s+)?\d+/.test(t))
+    return { shape: "trivial", maxTokens: 64, modality: "direct" };
+  if (surfVoid && !surfacedSegments.length)
+    return { shape: "void", maxTokens: 256, modality: "disclosed-fact" };
+  // Composition tasks — essay/explain/describe/write about — are decomposed
+  // into briefer grounded parts (see planComposition) rather than answered
+  // in one long draw. The overall concept lives in the unconscious notes
+  // (reading digest, hyperlexicon, resolutions); each part is brief + grounded.
+  if (/\b(essay|write|explain|describe|summarize|outline|compose|report|discuss|analyze)\b/.test(t) && (hasWorkspace || hasWeb || surfacedSegments.length))
+    return { shape: "composition", maxTokens: CALL_MAX_TOKENS, modality: "grounded" };
+  if (hasWorkspace || hasWeb)
+    return { shape: "research", maxTokens: CALL_MAX_TOKENS, modality: "grounded" };
+  return { shape: "open", maxTokens: CALL_MAX_TOKENS, modality: "concise" };
+}
+
+// ── composition planning: derive section structure from the READING ────────
+// A natural topic phrase out of a task, for the essay's own voice: "Write a
+// five-page essay on dolphins" → "dolphins"; "explain how the kernel works"
+// → "how the kernel works". Never an apparatus name.
+function topicPhrase(task) {
+  const t = String(task ?? "").trim();
+  const on = /\bon\b\s+([^.!?]+)/i.exec(t)?.[1] ?? null;
+  if (on) return on.trim().replace(/\s+/g, " ");
+  const about = /\babout\b\s+([^.!?]+)/i.exec(t)?.[1] ?? null;
+  if (about) return about.trim().replace(/\s+/g, " ");
+  const short = t.slice(0, 80).replace(/^(write|explain|describe|summarize|outline|compose|report|discuss|analyze)\s+/i, "").trim();
+  return short || "this";
+}
+// LaVar's rule, applied: do not hand-roll a reading loop. The composition's
+// shape comes from the reading's OWN structure — the beings the
+// constitutional reader established (readingIndexFromLog's referents, each
+// with its surfaces and the mentions that fed it), the hyperlexicon's given
+// affordances (what recurs between whom), and the holograph's reconstructed
+// record. Each section is a real node in the material, not a model's
+// invention, and the overall concept stays in the unconscious notes (the
+// digest + resolutions) while each task is brief + grounded.
+function planComposition({ index, hyperlexicon, resolutions, surfacedSegments, topicSource }) {
+  const sections = [];
+  // Source 1: the reading's own beings, ranked by how many mentions fed them.
+  const referents = index?.referents ?? new Map();
+  const beings = [...referents.values()]
+    .map((r) => ({ ...r, fed: r.fedBy?.size ?? 0, name: [...(r.surfaces ?? [])][0] ?? null }))
+    .filter((r) => r.name)
+    .sort((a, b) => b.fed - a.fed);
+  for (const b of beings.slice(0, 4)) {
+    if (sections.includes(b.name)) continue;
+    sections.push(b.name);
+  }
+  // Source 2: hyperlexicon given affordances (what recurs between whom).
+  const hl = hyperlexicon?.composition ?? {};
+  for (const e of Object.values(hl)) {
+    if (e?.standing !== "given") continue;
+    const title = `${e.left} and ${e.right}`;
+    if (!sections.includes(title)) sections.push(title);
+    if (sections.length >= 5) break;
+  }
+  // Source 3: surfed segment sources — the addressed material's own blocks.
+  if (surfacedSegments?.length) {
+    for (const s of surfacedSegments) {
+      const title = String(s?._ledger?.heading ?? s?.heading ?? "").trim() || String(s?.source ?? "").trim();
+      if (title && !sections.includes(title)) sections.push(title);
+      if (sections.length >= 5) break;
+    }
+  }
+  // Fallback: mechanical essay structure. The reading is thin (few referents,
+  // no headings) but the task is a composition — split the essay's topic into
+  // the classic parts so the piece still has real sections to write. These are
+  // the parts an essay NEEDS, not the model's invention.
+  if (!sections.length) {
+    const topic = topicPhrase(topicSource ?? "");
+    if (topic && topic !== "this") {
+      sections.push("Introduction");
+      sections.push(`What is ${topic}`);
+      sections.push(`How ${topic} live`);
+      sections.push(`Why ${topic} matter`);
+      sections.push("Conclusion");
+    }
+  }
+  // Fallback: a single grounded part — no decomposition when the reading
+  // established nothing to decompose into.
+  return sections.slice(0, 5);
+}
+
 export const REQUEST_TIMEOUT_MS = Number(process.env.ER7_REQUEST_TIMEOUT_MS) || 290000;
 
 function normalizePosPrior(prior, sourcePath) {
@@ -130,7 +337,7 @@ function getSession(sessionId) {
     return s;
   }
   const reader = createSessionReader();
-  const entry = { reader, corpus: null, corpusIndex: null, lastChatText: "", turnCount: 0, lastAccess: now, indexSig: null, referents: null };
+  const entry = { reader, corpus: null, corpusIndex: null, lastChatText: "", turnCount: 0, lastAccess: now, indexSig: null, referents: null, webLedger: null, webSources: new Map() };
   sessions.set(sessionId, entry);
   return entry;
 }
@@ -202,12 +409,10 @@ function workspaceEntries(absRoot, onNote, { maxFiles = MAX_WORKSPACE_FILES, max
         continue;
       }
       if (stat.size > MAX_FILE_CHARS) {
-        if (onNote) onNote({ span: "workspace", kind: "skipped_big", rel: full.slice(absRoot.length).replace(/^\//, ""), bytes: stat.size });
-        continue;
+continue;
       }
       if (readChars + stat.size > maxChars) {
-        if (onNote) onNote({ span: "workspace", kind: "skipped_budget", rel: full.slice(absRoot.length).replace(/^\//, ""), bytes: stat.size });
-        continue;
+continue;
       }
       readChars += stat.size;
       entries.push({ abs: full, rel: full.slice(absRoot.length).replace(/^\//, ""), size: stat.size, mtimeMs: stat.mtimeMs });
@@ -240,7 +445,7 @@ async function admitWorkspaceEntries(session, entries, onNote) {
       const turn = await session.reader.step(enc);
       if (turn?.tasks?.open && onNote) {
         for (const t of turn.tasks.open) {
-          onNote({ span: "workspace", kind: "task", rel: e.rel, task_id: t.task_id ?? null, description: t.description ?? null });
+          onNote({ move: "open_question", rel: e.rel, task_id: t.task_id ?? null, description: t.description ?? null });
         }
       }
       await yieldToEventLoop();
@@ -255,7 +460,7 @@ function readWorkspaceFile(entry, onNote) {
     const text = fs.readFileSync(entry.abs, "utf8").slice(0, MAX_FILE_CHARS);
     return text;
   } catch (err) {
-    if (onNote) onNote({ span: "workspace", kind: "read_error", rel: entry.rel, error: err.message });
+    if (onNote) onNote({ move: "read_error", rel: entry.rel, error: err.message });
     return null;
   }
 }
@@ -266,11 +471,12 @@ function readWorkspaceFile(entry, onNote) {
 // placed in the model's context.
 function surfTask(session, task, onNote) {
   if (!session.corpus || session.corpus.documents.size === 0) {
-    if (onNote) onNote({ span: "surf", kind: "no_corpus" });
-    return { segments: [], void: true, reason: "no corpus yet" };
+return { segments: [], void: true, reason: "no corpus yet" };
   }
   const result = executePrompt(session.corpus, task);
-  if (onNote) onNote({ span: "surf", kind: "addressed", operator: result.operator ?? null, fan: Array.isArray(result.fan) ? result.fan.length : 0 });
+  if (onNote) onNote({ move: "surfaced", operator: result.operator ?? null, fan: Array.isArray(result.fan) ? result.fan.length : 0, docs: session.corpus.documents.size, resultGap: result.gap ?? null });
+  // DEBUG: dump the raw surf result
+  try { fs.writeFileSync("/tmp/er7-surf-debug.json", JSON.stringify({ docs: session.corpus.documents.size, operator: result.operator, gap: result.gap, fan: Array.isArray(result.fan) ? result.fan.map(f => ({ addressed_by: f.addressed_by, gap: f.gap, text: (f.text ?? "").slice(0, 60) })) : "not-array", keys: Object.keys(result) }, null, 2)); } catch {}
 
   // A truthy `.gap` is not always a hard refusal (addressDoc's no-outline
   // fallback still spreads real text beside a disclosed label) — only a
@@ -279,7 +485,7 @@ function surfTask(session, task, onNote) {
   if (!candidates.length) {
     const first = result.fan?.[0] ?? result;
     const gap = result.gap ?? first?.gap ?? "content_not_found";
-    if (onNote) onNote({ span: "surf", kind: "void", gap, reason: result.reason ?? first?.reason ?? null });
+    if (onNote) onNote({ move: "void", gap, reason: result.reason ?? first?.reason ?? null });
     return { segments: [], void: true, gap, reason: result.reason ?? first?.reason ?? null };
   }
 
@@ -310,8 +516,7 @@ function surfTask(session, task, onNote) {
     });
     if (onNote) {
       const l = segments[segments.length - 1]._ledger;
-      onNote({ span: "surf", kind: "segment", source: l.source, addressed_by: l.addressed_by, heading: l.heading, bytes: l.bytes, chars: text.length });
-    }
+}
   }
   return { segments, void: false, addressedBy: segments.length > 0 };
 }
@@ -443,8 +648,7 @@ async function* streamOllamaChat(model, messages, { maxTokens, json, onNote } = 
     const ctrl = new AbortController();
     const timer = setTimeout(() => ctrl.abort(), REQUEST_TIMEOUT_MS);
     try {
-      if (onNote) onNote({ span: "ollama", kind: "request", model, attempt: attempt + 1 });
-      const res = await fetch(`${OLLAMA}/api/chat`, {
+const res = await fetch(`${OLLAMA}/api/chat`, {
         method: "POST",
         headers: { "content-type": "application/json" },
         signal: ctrl.signal,
@@ -458,11 +662,12 @@ async function* streamOllamaChat(model, messages, { maxTokens, json, onNote } = 
         }),
       });
       if (!res.ok) throw new Error(`ollama ${res.status}`);
-      if (onNote) onNote({ span: "ollama", kind: "streaming" });
-
-      const reader = res.body.getReader();
+const reader = res.body.getReader();
       const decoder = new TextDecoder();
       let buffer = "";
+      let emittedTokens = 0;
+      const TOKEN_BUDGET = maxTokens ?? CALL_MAX_TOKENS;
+      let overBudget = false;
 
       while (true) {
         const { done, value } = await reader.read();
@@ -476,9 +681,22 @@ async function* streamOllamaChat(model, messages, { maxTokens, json, onNote } = 
           try {
             const obj = JSON.parse(trimmed);
             if (obj.error) throw new Error(`ollama: ${obj.error}`);
-            if (obj.message?.content) yield obj.message.content;
+            if (obj.message?.content) {
+              // HARD CAP: never let the model run away past its budget. The
+              // tip of consciousness must not loop. Count output tokens; when
+              // the budget is exhausted, stop yielding AND stop the reader so
+              // the server stops generating (abort, not just stop reading).
+              emittedTokens++;
+              if (emittedTokens > TOKEN_BUDGET) {
+                overBudget = true;
+                ctrl.abort();
+                yield { done: true, truncated: true, prompt_eval_count: 0, eval_count: emittedTokens };
+                return;
+              }
+              yield obj.message.content;
+            }
             if (obj.done) {
-              yield { done: true, prompt_eval_count: obj.prompt_eval_count ?? 0, eval_count: obj.eval_count ?? 0 };
+              yield { done: true, truncated: overBudget, prompt_eval_count: obj.prompt_eval_count ?? 0, eval_count: obj.eval_count ?? 0 };
               return;
             }
           } catch { /* skip malformed lines */ }
@@ -575,25 +793,24 @@ function sessionReferentIndex(session, onNote) {
   }
   session.indexSig = sig;
   session.referents = index;
-  if (onNote) onNote({ span: "reading", kind: "referent_index", referents: index?.referents?.size ?? 0, events: index?.events?.length ?? 0, encounters: index?.encounters ?? 0, ms: Date.now() - started, basis: index?.basis ?? null });
+  if (onNote) onNote({ move: "referent_index", referents: index?.referents?.size ?? 0, events: index?.events?.length ?? 0, encounters: index?.encounters ?? 0, ms: Date.now() - started, basis: index?.basis ?? null });
   return index;
 }
 
-export async function runProxyTurn({ sessionId, model, task, chatHistory = [], discourse = "", workspace = "" }, onToken, onNote = null) {
+export async function runProxyTurn({ sessionId, model, task, chatHistory = [], discourse = "", workspace = "" }, onToken, onNote = null, onThinking = null) {
   const usage = { promptTokens: 0, completionTokens: 0 };
   const session = getSession(sessionId);
   _hot.add(model); // this turn is using it — hold it resident after
 
   // 0. Preflight — fail fast, don't hang.
-  if (onNote) onNote({ span: "logic", kind: "preflight", target: OLLAMA });
-  const modelsUp = await ollamaReachable();
+const modelsUp = await ollamaReachable();
   if (modelsUp === null) {
-    if (onNote) onNote({ span: "logic", kind: "upstream_down", target: OLLAMA });
+    if (onNote) onNote({ move: "upstream_down", target: OLLAMA });
     throw new Error(`Ollama upstream ${OLLAMA} is not responding — check 'er7-proxy log' and that Ollama is running.`);
   }
   const modelKnown = modelsUp.some((m) => (m.name ?? m.model) === model);
   if (modelsUp.length && !modelKnown) {
-    if (onNote) onNote({ span: "logic", kind: "model_missing", model, available: modelsUp.map((m) => m.name ?? m.model) });
+    if (onNote) onNote({ move: "model_missing", model, available: modelsUp.map((m) => m.name ?? m.model) });
   }
 
   // 1. Workspace — admit real files into the session corpus, then SURF the
@@ -604,17 +821,23 @@ export async function runProxyTurn({ sessionId, model, task, chatHistory = [], d
   let surfVoid = false;
   let surfVoidInfo = null;
   if (workspace && fs.existsSync(workspace)) {
-    if (onNote) onNote({ span: "workspace", kind: "scan", root: workspace });
+    if (onNote) onNote({ move: "scanning", root: workspace });
     const entries = workspaceEntries(workspace, onNote);
-    if (onNote) onNote({ span: "workspace", kind: "files", count: entries.length, chars: entries.reduce((a, e) => a + e.size, 0) });
+    if (onNote) onNote({ move: "files_found", count: entries.length, chars: entries.reduce((a, e) => a + e.size, 0) });
     const admit = await admitWorkspaceEntries(session, entries, onNote);
     workspaceStats.files += entries.length;
     workspaceStats.chars += admit.chars;
 
     // Step surfaced segment text through the fold too, so holograph/hyperlexicon
     // build from the code being discussed — not just the task prose.
-    if (admit.admitted > 0 && onNote) onNote({ span: "workspace", kind: "admitted", files: admit.admitted });
+    if (admit.admitted > 0 && onNote) onNote({ move: "admitted", files: admit.admitted });
   }
+
+  // 1.5 WEB SEARCH — the proxy's sanctioned egress (P13). Search results are
+  // admitted as chunks into the SAME corpus session as workspace files, so
+  // they flow through the exact same grounding ladder (surf, fold, resolutions).
+  const webResult = await searchAndAdmitWeb(session, sessionId, task, onNote);
+  const hasWeb = webResult.pages > 0;
 
   // 2. Surf AND fold the conversation itself: the chat history is admitted to
   // the same corpus session as the workspace (unique per-turn sourceId, so
@@ -641,20 +864,18 @@ export async function runProxyTurn({ sessionId, model, task, chatHistory = [], d
     if (delta.trim().length >= 8) {
       const srcId = `chat:${sessionId}:turn-${session.turnCount}${materialText.startsWith(prevText) ? "" : ":reset"}`;
       admitChunked(session.corpus, { text: delta, sourceId: srcId });
-      if (onNote) onNote({ span: "workspace", kind: "conversation_admitted", sourceId: srcId, chars: delta.length, reset: !materialText.startsWith(prevText) });
+      if (onNote) onNote({ move: "conversation_folded", sourceId: srcId, chars: delta.length, reset: !materialText.startsWith(prevText) });
     }
     session.lastChatText = materialText;
   }
-
-  if (onNote) onNote({ span: "reading", kind: "begin", encounters: null, chars: materialText.length });
-  const encounters = textEncounters(materialText, { source: `proxy:session:${sessionId}`, offset: 0 });
-  if (onNote) onNote({ span: "reading", kind: "encounters", count: encounters.length, chars: materialText.length });
+const encounters = textEncounters(materialText, { source: `proxy:session:${sessionId}`, offset: 0 });
+  if (onNote) onNote({ move: "reading", count: encounters.length, chars: materialText.length });
 
   for (const enc of encounters) {
     const turn = await session.reader.step(enc);
     if (turn?.tasks?.open && onNote) {
       for (const t of turn.tasks.open) {
-        onNote({ span: "reading", kind: "task", task_id: t.task_id ?? null, description: t.description ?? null, questions: t.questions ?? [] });
+        onNote({ move: "open_question", task_id: t.task_id ?? null, description: t.description ?? null, questions: t.questions ?? [] });
       }
     }
     await yieldToEventLoop();
@@ -667,7 +888,7 @@ export async function runProxyTurn({ sessionId, model, task, chatHistory = [], d
   if (onNote && taskLog.length) {
     for (const t of taskLog) {
       if (t?.status === "open" || t?.result) {
-        onNote({ span: "logic", kind: "note", task_id: t.task_id ?? null, description: t.description ?? null, result: t.result ?? null });
+        onNote({ move: "reader_note", task_id: t.task_id ?? null, description: t.description ?? null, result: t.result ?? null });
       }
     }
   }
@@ -682,7 +903,7 @@ export async function runProxyTurn({ sessionId, model, task, chatHistory = [], d
     meta: { independentSupport: c.meta?.support ?? 0, rememberedLeft: false, rememberedRight: false },
   })));
 
-  if (onNote) onNote({ span: "composition", kind: "digest", relations: stats.relationEdges, bindings: stats.referentBindings, hyperlexicon: Object.keys(hyperlexicon.composition ?? {}).length });
+  if (onNote) onNote({ move: "composed", relations: stats.relationEdges, bindings: stats.referentBindings, hyperlexicon: Object.keys(hyperlexicon.composition ?? {}).length });
 
   // 3. SURF the task against the session corpus — the mechanical address
   // ladder (source→heading→content→window). Content only reaches the model
@@ -697,8 +918,7 @@ export async function runProxyTurn({ sessionId, model, task, chatHistory = [], d
     workspaceStats.segments = surfacedSegments.length;
     if (surf.void) workspaceStats.refusals = 1;
   } else if (onNote) {
-    onNote({ span: "surf", kind: "no_corpus" });
-  }
+}
 
   // 3.5 THE THREE RESOLUTIONS — the discourse restated by the reading's own
   // organs at three grains (atmosphere / lens / paradigm). This is
@@ -725,11 +945,11 @@ export async function runProxyTurn({ sessionId, model, task, chatHistory = [], d
           prominence: null,
         });
       } catch (err) {
-        if (onNote) onNote({ span: "reading", kind: "resolutions_failed", error: err.message });
+        if (onNote) onNote({ move: "resolutions_failed", error: err.message });
       }
       if (onNote && resolutions) {
         onNote({
-          span: "reading", kind: "resolutions", level: resolutions.level,
+          move: "resolutions", level: resolutions.level,
           active: resolutions.active ?? null,
           atmosphere: resolutions.atmosphere ? { basis: resolutions.atmosphere.basis } : null,
           lens: resolutions.lens ? { windows: resolutions.lens.windows, cuts: resolutions.lens.cuts } : null,
@@ -747,27 +967,43 @@ export async function runProxyTurn({ sessionId, model, task, chatHistory = [], d
     const wikiNotes = await enrichFromWikipedia(digestInfo.composition);
     if (wikiNotes.length > 0) {
       readingDigest += `\n[Wikipedia grounding: ${wikiNotes.map((w) => `${w.term} — ${w.snippet}`).join(" | ")}]`;
-      if (onNote) onNote({ span: "composition", kind: "wiki", notes: wikiNotes.map((w) => w.term) });
+      if (onNote) onNote({ move: "wiki_lookup", notes: wikiNotes.map((w) => w.term) });
     }
   }
   if (resolutions?.text) {
     readingDigest += `\n\n[The conversation at three resolutions]\n${resolutions.text}`;
   }
 
-  // 5. Build messages for Ollama under a MAX prompt budget — filled close to
-  // the ceiling, never starved: the essential system context (role, discourse,
-  // digest, the three resolutions) is always kept whole; the CHAT HISTORY has
-  // precedence over surfaced material (continuity lives on the turn's own
-  // recent talk); the addressed segments then fill the room that remains.
-  // The model sees surfed byte TEXT — never the byte addresses, never the
-  // source names, never the headings. The address is the proxy's ledger, not
-  // the model's confabulandum.
+  // ── void-detection: steer answer shape ───────────────────────────────────
+  // Zero the space first, then see what is still empty. A greeting needs one
+  // sentence; a command needs acknowledgment; a research question needs
+  // grounded material; a void needs a disclosed fact (P32). Composition
+  // tasks decompose into brief grounded sections. This steers the model
+  // toward the proper length and modality without relying on the model to
+  // figure out the shape itself — the shape is the READING's verdict.
+  const answerShape = detectAnswerShape(task, workspaceStats.files > 0, hasWeb, surfVoid, surfacedSegments, resolutions);
+  if (onNote) onNote({ move: "answer_shape", shape: answerShape.shape, modality: answerShape.modality });
+
+  // 5. Build messages for Ollama. THE MODEL IS THE MOUTH — the prompt speaks
+  // the way a collaborator speaks, never as an instrument. No "you are a
+  // reading instrument", no apparatus names, no session ids, no relation
+  // counts. The essay's user-turn is in the essay's voice; the surfaced
+  // material is "here's what came up", not "material was surfaced from the
+  // workspace" (the-fold firewall.js: nothing here names a part of this
+  // instrument, so there is no word to borrow).
+  const readingContext = resolutions?.text
+    ? `\n\nWhere the conversation stands:\n${resolutions.text}`
+    : "";
   const systemCore = [
-    "You are EOReader7, a precise reading instrument. Answer accurately based on the material provided.",
-    discourse ? `Context: ${discourse}` : null,
-    readingDigest ? readingDigest : null,
+    // Composition: the frame is "we're writing an essay about X" — never an
+    // instruction to the model about its own identity or process.
+    answerShape.shape === "composition"
+      ? `We're working on a piece about ${topicPhrase(task)}.`
+      : "You're helping answer a question. Here's the context we have.",
+    discourse ? `\n${discourse}` : null,
+    readingContext || null,
     surfVoidInfo
-      ? `\nNothing in the workspace addressed the question: surf returned ${surfVoidInfo.gap}${surfVoidInfo.reason ? ` (${surfVoidInfo.reason})` : ""}. The material below is what the surrogate actually read — answer from it or say you cannot.`
+      ? `\n\nWe looked for something on this and couldn't find it (${surfVoidInfo.gap}). Say plainly that nothing here answers it, rather than answering from something else.`
       : null,
   ].filter(Boolean).join("\n");
 
@@ -800,9 +1036,9 @@ export async function runProxyTurn({ sessionId, model, task, chatHistory = [], d
 
   let systemContent = systemCore;
   if (material.length) {
-    systemContent += `\n\nThe following material was surfaced from the workspace for this question:\n\n"""\n${material.join("\n\n")}\n"""`;
+    systemContent += `\n\nHere's what came up on this:\n\n"""\n${material.join("\n\n")}\n"""`;
   }
-  if (onNote) onNote({ span: "ollama", kind: "prompt_budget", system: systemCore.length, chat: keptChat.length, chatChars: chatLen, materialSegments: material.length, materialChars: used, taskChars: taskLen, max: PROMPT_MAX_CHARS });
+  if (onNote) onNote({ move: "prompt_budget", system: systemCore.length, chat: keptChat.length, chatChars: chatLen, materialSegments: material.length, materialChars: used, taskChars: taskLen, max: PROMPT_MAX_CHARS });
 
   const ollamaMessages = [];
   ollamaMessages.push({ role: "system", content: systemContent });
@@ -811,17 +1047,120 @@ export async function runProxyTurn({ sessionId, model, task, chatHistory = [], d
   }
   ollamaMessages.push({ role: "user", content: task });
 
-  // 6. Stream tokens from Ollama, forward each to caller — through the single eval slot.
+  // DEBUG: dump the exact prompt sent to the model.
+  try { fs.writeFileSync("/tmp/er7-prompt-debug.json", JSON.stringify(ollamaMessages, null, 2)); } catch {}
+
+  // 6. Stream tokens from Ollama, forward each to caller — through the single
+  // eval slot. COMPOSITION: when the answer shape is a composition and the
+  // reading established real structure, the overall concept stays in the
+  // unconscious notes (systemCore: digest + resolutions + grounded material)
+  // while each section is generated as a BRIEF, separate task. The model is
+  // never asked to hold the whole essay in one draw — it is asked to write
+  // each section against the same ground, briefly, and the assembly is the
+  // reading's own structure (LaVar: the shape comes from the record, never
+  // the model).
+  const sections = answerShape.shape === "composition"
+    ? planComposition({ index: sessionReferentIndex(session, onNote), hyperlexicon, resolutions, surfacedSegments, topicSource: task })
+    : [];
+  // A generated composition is a DOCUMENT LEDGER (EOT): every part admitted
+  // is a line, every revision is a line, and the text a person reads is a
+  // PROJECTION of the ledger — the full revision history is always re-foldable.
+  // DEF (declare the shape) and EVA/REC (admit or revise each part) are the
+  // runtime gates here; only their outcome lands in the ledger.
+  const documentLedger = sections.length
+    ? createDocumentLedger({ docId: `${sessionId}:${session.turnCount}`, title: task.slice(0, 60), path: sections.map((s) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-")).join("_") })
+    : null;
+  const documentLines = [];
   let fullText = "";
+  let truncated = false;
+  // The model is the tip of consciousness: it must never run away. A hard
+  // cap on total generated chars protects the turn from a repetition loop
+  // (num_predict is not always honored by these models). When the cap hits,
+  // generation stops and the answer is disclosed as truncated — never silent.
+  const MAX_OUTPUT_CHARS = Number(process.env.ER7_MAX_OUTPUT_CHARS ?? 30000);
   await withSlot(async () => {
-    for await (const chunk of streamOllamaChat(model, ollamaMessages, { maxTokens: CALL_MAX_TOKENS, onNote })) {
-      if (typeof chunk === "string") {
-        fullText += chunk;
-        if (onToken) onToken(chunk);
-      } else if (chunk?.done) {
-        usage.promptTokens += chunk.prompt_eval_count;
-        usage.completionTokens += chunk.eval_count;
+    const draw = async (msgs, maxTokens) => {
+      let buf = "";
+      let stopped = false;
+      for await (const chunk of streamOllamaChat(model, msgs, { maxTokens, onNote })) {
+        if (typeof chunk === "string") {
+          if (fullText.length >= MAX_OUTPUT_CHARS) { truncated = true; stopped = true; break; }
+          fullText += chunk;
+          buf += chunk;
+          if (onToken) onToken(chunk);
+        } else if (chunk?.done) {
+          usage.promptTokens += chunk.prompt_eval_count;
+          usage.completionTokens += chunk.eval_count;
+          if (chunk?.truncated) truncated = true;
+        }
       }
+      return { buf, stopped };
+    };
+    if (sections.length) {
+      for (const [i, section] of sections.entries()) {
+        if (onNote) onNote({ move: "composing_section", index: i + 1, of: sections.length, section });
+        // EVA gate: candidate admitted only if grounded (some surfed material
+        // addresses this part) — a section with no ground is a fabrication order.
+        const grounded = material.length > 0;
+        const eva = admitPart({ text: section, grounded, minChars: 0 });
+        if (!eva.ok) {
+          if (onNote) onNote({ move: "composing_skip", section, because: eva.because });
+          continue;
+        }
+        // The section task carries the essay's state forward — mechanically, the
+        // way the-fold iterates a widget across turns: the model is never told
+        // it is iterating; it is handed where the piece is and asked to write
+        // the next part, in the essay's own voice.
+        const priorParts = documentLines.map((_, j) => `"${sections[j]}"`).join(", ");
+        const sectionTask = sections.length > 1
+          ? `We're writing a piece on ${topicPhrase(task)}. ${priorParts ? `So far it has these parts: ${priorParts}. ` : ""}Now write the part on ${section}.`
+          : `Write the piece on ${topicPhrase(task)}.`;
+        if (onThinking) onThinking(`\n### ${section}\n\n`);
+        const { buf, stopped } = await draw(
+          [
+            { role: "system", content: systemContent },
+            ...keptChat,
+            { role: "user", content: sectionTask },
+          ],
+          Math.min(CALL_MAX_TOKENS, 512),
+        );
+        if (stopped) break;
+        if (onThinking) onThinking(buf + (i < sections.length - 1 ? "\n\n" : ""));
+        if (documentLedger) {
+          appendDocumentObservation(documentLedger, {
+            role: "part", title: section, text: buf.trim(), giver: model,
+            basis: "composition section admitted by the reading's own structure",
+          });
+          documentLines.push(buf.trim());
+        }
+        if (i < sections.length - 1 && onToken) onToken("\n\n");
+      }
+      if (documentLedger) {
+        const def = sections.map((s) => `"${s}"`).join(", ");
+        if (onNote) onNote({ move: "document_ledger", docId: documentLedger.docId, parts: documentLines.length, declared: def });
+      }
+      // Verbatim snips (citations) — taken mechanically from the EOT-retained
+      // web sources, never generated by the model. Appended as their own
+      // document-ledger observation after the sections, with source URLs.
+      if (documentLedger && session.webSources && session.webSources.size) {
+        const snips = snipsFromSources(session.webSources);
+        if (snips.length) {
+          const citationsText = snips.map((s) => `- "${s.snip}" — ${s.url}`).join("\n");
+          appendDocumentObservation(documentLedger, {
+            role: "citations", title: "Sources (verbatim)", text: citationsText,
+            giver: "eoreader7:web-organ",
+            basis: "verbatim snips taken mechanically from EOT-retained web sources — never generated",
+          });
+          if (onThinking) onThinking(`\n### Sources (verbatim)\n\n${citationsText}\n`);
+          const citationBlock = `\n\n## Sources (verbatim)\n\n${citationsText}`;
+          documentLines.push(citationBlock);
+          fullText += citationBlock;
+          if (onToken) onToken(citationBlock);
+        }
+      }
+    } else {
+      const r = await draw(ollamaMessages, CALL_MAX_TOKENS);
+      if (r?.stopped) truncated = true;
     }
   });
 
@@ -831,7 +1170,6 @@ export async function runProxyTurn({ sessionId, model, task, chatHistory = [], d
   // model never sees the fixup transcript — only the repaired answer.
   // Latency guard: warmed at boot, timeboxed per turn; if the budget is
   // exceeded the original text is returned untouched — the unconscious
-  // system never holds the response hostage.
   let post = null;
   let text = fullText;
   if (fullText.trim()) {
@@ -840,6 +1178,19 @@ export async function runProxyTurn({ sessionId, model, task, chatHistory = [], d
       text = post.text;
     }
   }
+
+  // ── the thinking affordance: what the unconscious did, in plain English ──
+  // Disclosed only when the client asks (discloseThinking). The grounding
+  // summary — what was read, what surfaced, what the reading established —
+  // shown as readable lines, never apparatus, never addresses.
+  const thinkingLines = [];
+  if (workspaceStats.files) thinkingLines.push(`Read ${workspaceStats.files} file(s), ${workspaceStats.chars.toLocaleString()} chars.`);
+  if (hasWeb) thinkingLines.push(`Researched the web: ${webResult.pages} page(s), ${webResult.chars.toLocaleString()} chars.`);
+  if (surfacedSegments.length) thinkingLines.push(`Found ${surfacedSegments.length} passage(s) addressing the question.`);
+  if (surfVoidInfo) thinkingLines.push(`Nothing here answered the question (${surfVoidInfo.gap}).`);
+  if (stats.relationEdges) thinkingLines.push(`The reading holds ${stats.relationEdges} relation edge(s), ${stats.referentBindings} referent binding(s).`);
+  if (resolutions?.active?.length) thinkingLines.push(`Active referents: ${resolutions.active.map((a) => a?.id ?? a).join(", ")}.`);
+  const thinkingBlock = thinkingLines.length ? thinkingLines.join("\n") : null;
 
   return {
     text,
@@ -851,6 +1202,17 @@ export async function runProxyTurn({ sessionId, model, task, chatHistory = [], d
     surfed: surfacedSegments.map((s) => s._ledger),
     post: post ? { blocks: post.blocks?.length ?? 0, linted: post.linted ?? false, reordered: post.reordered ?? false, notes: post.notes ?? [] } : null,
     resolutions: resolutions ? { level: resolutions.level, text: resolutions.text, active: resolutions.active ?? null, atmosphere: resolutions.atmosphere ? { basis: resolutions.atmosphere.basis, ground: resolutions.atmosphere.ground ?? null } : null, lens: resolutions.lens ? { basis: resolutions.lens.basis, windows: resolutions.lens.windows ?? null } : null, paradigm: resolutions.paradigm ? { basis: resolutions.paradigm.basis, window: resolutions.paradigm.window ?? null } : null } : null,
+    document: documentLedger
+      ? {
+          docId: documentLedger.docId,
+          projection: projectDocument(documentLedger),
+          changelog: documentChangeLog(documentLedger, { declaredParts: sections }),
+          ledger: serializeLedger(documentLedger),
+        }
+      : null,
     usage,
+    truncated,
+    thinking: thinkingBlock || null,
+    answerShape: answerShape.shape,
   };
 }

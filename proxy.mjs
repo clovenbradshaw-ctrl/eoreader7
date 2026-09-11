@@ -1,5 +1,5 @@
 import http from "node:http";
-import { parseProxyRequest, toOpenAIModelList, reprefixOllamaTags, openAIResponse, openAIStreamLines, ollamaChatResponse, ollamaChatStreamLines } from "./proxy-api.mjs";
+import { parseProxyRequest, toOpenAIModelList, reprefixOllamaTags, openAIResponse, openAIStreamLines, ollamaChatResponse, ollamaChatStreamLines, humanizeNote } from "./proxy-api.mjs";
 import { offeredOllamaModels, runProxyTurn, keepModelHot, hotModelSet, OLLAMA_KEEP_ALIVE_S } from "./proxy-runner.mjs";
 import { warmPostprocess } from "./postprocess.mjs";
 
@@ -168,10 +168,32 @@ const server = http.createServer(async (req, res) => {
           first = false;
           res.write(`data: ${JSON.stringify(chunk)}\n\n`);
         };
-        // EOReader7's own logic notes — surfaced as reasoning deltas so the
-        // naked model's answer stays visually distinct from the reading notes.
+        // EOReader7's own reading-pipeline notes — humanized to plain English
+        // (never a raw JSON dump) and surfaced as reasoning deltas, one per
+        // line, so the naked model's answer stays visually distinct from the
+        // reading process. Notes with no readable form (per-file scan noise,
+        // raw ollama bookkeeping) are silently dropped by humanizeNote.
         const emitNote = (note) => {
-          const text = `[${note.span}] ${note.kind}: ${JSON.stringify({ ...note, span: undefined, kind: undefined })}`;
+          const text = humanizeNote(note);
+          if (!text) return;
+          const chunk = {
+            id, object: "chat.completion.chunk", created, model: parsed.model,
+            choices: [{
+              index: 0,
+              delta: { reasoning_content: `${text}\n` },
+              finish_reason: null,
+            }],
+          };
+          reasoningOpen = true;
+          res.write(`data: ${JSON.stringify(chunk)}\n\n`);
+        };
+
+        // Client asked to not stream but mis-set stream: assume default on.
+        const onNote = reqData.discloseThinking ? emitNote : null;
+        // Realtime generation: composition section content streams as
+        // reasoning_content so the user sees the essay/code being built live.
+        const emitThinking = (text) => {
+          if (!text) return;
           const chunk = {
             id, object: "chat.completion.chunk", created, model: parsed.model,
             choices: [{
@@ -183,12 +205,18 @@ const server = http.createServer(async (req, res) => {
           reasoningOpen = true;
           res.write(`data: ${JSON.stringify(chunk)}\n\n`);
         };
-
-        // Client asked to not stream but mis-set stream: assume default on.
-        const onNote = reqData.discloseThinking ? emitNote : null;
+        const onThinking = reqData.discloseThinking ? emitThinking : null;
 
         try {
-          const result = await runProxyTurn({ sessionId, workspace, ...reqData }, emit, onNote);
+          const result = await runProxyTurn({ sessionId, workspace, ...reqData }, emit, onNote, onThinking);
+          // Thinking affordance: when discloseThinking is on, emit the grounding
+          // block as reasoning_content before the final chunk.
+          if (reqData.discloseThinking && result.thinking) {
+            res.write(`data: ${JSON.stringify({
+              id, object: "chat.completion.chunk", created, model: parsed.model,
+              choices: [{ index: 0, delta: { reasoning_content: result.thinking }, finish_reason: null }],
+            })}\n\n`);
+          }
           res.write(`data: ${JSON.stringify({
             id, object: "chat.completion.chunk", created, model: parsed.model,
             choices: [{ index: 0, delta: {}, finish_reason: "stop" }],
@@ -196,6 +224,10 @@ const server = http.createServer(async (req, res) => {
               sessionId, relationEdges: result.relationEdges, referentBindings: result.referentBindings,
               hyperlexiconCandidates: result.hyperlexiconCandidates, turn: result.turn,
               workspace: result.workspace ?? null, post: result.post ?? null,
+              thinking: result.thinking ?? null,
+              answerShape: result.answerShape ?? null,
+              truncated: result.truncated ?? false,
+              document: result.document ?? null,
             },
           })}\n\n`);
           res.write("data: [DONE]\n\n");
@@ -212,6 +244,10 @@ const server = http.createServer(async (req, res) => {
           const result = await runProxyTurn({ sessionId, workspace, ...reqData });
           const resp = openAIResponse({ id, model: parsed.model, text: result.text, created, usage: result.usage, reading: result });
           resp.reading.sessionId = sessionId;
+          resp.reading.thinking = result.thinking ?? null;
+          resp.reading.answerShape = result.answerShape ?? null;
+          resp.reading.truncated = result.truncated ?? false;
+          resp.reading.document = result.document ?? null;
           res.writeHead(200, { "content-type": "application/json" });
           res.end(JSON.stringify(resp));
         } catch (err) {
@@ -318,31 +354,29 @@ server.listen(PORT, "127.0.0.1", () => {
     log(`post-processing runtime: ${available ? "pyodide ready" : `pyodide unavailable (${error})`}`);
   });
 
-  // Keep models hot. Ollama unloads a model after its keep_alive window, and
-  // an idle gap between turns then pays a multi-GB cold-load on the next
-  // turn. Real requests already carry a long keep_alive; this interval makes
-  // sure models that were used (or listed in ER7_HOT_MODELS) never drop
-  // between turns. Fires every KEEP_WARM_INTERVAL_MS for every hot model.
-  const warmSet = hotModelSet();
-  if (warmSet.size) log(`keep-warm: will hold resident: ${[...warmSet].join(", ")} (keep_alive ${OLLAMA_KEEP_ALIVE_S}s)`);
-  // Warm at boot NOW — do not wait the first interval. A cold load here (~1-2
-  // min) is paid ONCE, so the first real turn is hot. Await before serving so
-  // the very first request doesn't race the loader.
-  for (const model of warmSet) {
-    keepModelHot(model).then((ok) => {
-      log(`keep-warm: ${model} ${ok ? "resident" : "NOT CONFIRMED"}`);
-    });
-  }
-  setInterval(() => {
-    for (const model of hotModelSet()) {
+  // Keep models hot — OFF BY DEFAULT (ER7_KEEP_ALIVE_S=0). On a 24GB box every
+  // model that got touched once earned a long keep_alive and they stacked up
+  // (three models resident, the box dragging). Set ER7_KEEP_ALIVE_S > 0 to
+  // turn this back on for a single pinned model (ER7_HOT_MODELS).
+  if (OLLAMA_KEEP_ALIVE_S > 0) {
+    const warmSet = hotModelSet();
+    if (warmSet.size) log(`keep-warm: will hold resident: ${[...warmSet].join(", ")} (keep_alive ${OLLAMA_KEEP_ALIVE_S}s)`);
+    for (const model of warmSet) {
       keepModelHot(model).then((ok) => {
-        if (!ok && !_warnedOnce.has(model)) {
-          _warnedOnce.add(model);
-          log(`keep-warm: ${model} did not confirm (was it pulled?)`);
-        }
+        log(`keep-warm: ${model} ${ok ? "resident" : "NOT CONFIRMED"}`);
       });
     }
-  }, KEEP_WARM_INTERVAL_MS);
+    setInterval(() => {
+      for (const model of hotModelSet()) {
+        keepModelHot(model).then((ok) => {
+          if (!ok && !_warnedOnce.has(model)) {
+            _warnedOnce.add(model);
+            log(`keep-warm: ${model} did not confirm (was it pulled?)`);
+          }
+        });
+      }
+    }, KEEP_WARM_INTERVAL_MS);
+  }
 });
 
 process.on("SIGINT", () => {

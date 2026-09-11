@@ -45,7 +45,12 @@ export function parseProxyRequest(body) {
   const turn = turnFromMessages(body?.messages);
   if (turn.error) return { error: turn.error };
   const stream = Boolean(body?.stream);
-  const discloseThinking = body?.discloseThinking ?? true;
+  // Off by default: the reading pipeline (surf, fold, resolutions,
+  // hyperlexicon) still runs — it just does its work UNCONSCIOUSLY, the
+  // model gets the grounded prompt and answers, no narration in between.
+  // Pass discloseThinking: true to see it (humanized — see humanizeNote,
+  // never a raw JSON dump).
+  const discloseThinking = body?.discloseThinking === true;
   return { model, ...turn, stream, discloseThinking };
 }
 
@@ -61,6 +66,79 @@ export function reprefixOllamaTags(realTagsJson) {
   return {
     models: models.map((m) => ({ ...m, name: prefixModel(m.name ?? m.model ?? ""), model: prefixModel(m.model ?? m.name ?? "") })),
   };
+}
+
+// humanizeNote — turns one internal reading-pipeline note ({move, ...})
+// into a plain-English line, or null to suppress it as noise.
+// This is what a client renders as "reasoning" — prose, never a JSON dump.
+// `move` names the actual reasoning step (searching, reading, surfacing,
+// composing, resolving, answering) — no artificial span/kind taxonomy.
+export function humanizeNote(note) {
+  const { move } = note ?? {};
+  switch (move) {
+    case "upstream_down":
+      return `Ollama isn't responding at ${note.target}.`;
+    case "model_missing":
+      return `Model "${note.model}" isn't pulled — available: ${(note.available ?? []).join(", ") || "(none)"}.`;
+    case "reader_note":
+      return note.description ? `Reader note: ${note.description}${note.result ? ` — ${note.result}` : ""}` : null;
+    case "scanning":
+      return `Scanning workspace: ${note.root}`;
+    case "files_found":
+      return `Found ${note.count} file(s), ${note.chars.toLocaleString()} chars.`;
+    case "admitted":
+      return `Admitted ${note.files} file(s) into the reading.`;
+    case "conversation_folded":
+      return `Folded ${note.chars} new char(s) of the conversation into the reading.`;
+    case "read_error":
+      return `Couldn't read ${note.rel}: ${note.error}`;
+    case "reading":
+      return `Reading: ${note.count} encounter(s) across ${note.chars} chars.`;
+    case "open_question":
+      return note.description ? `Open question noticed while reading: ${note.description}` : null;
+    case "referent_index":
+      return `Referent index: ${note.referents} referent(s) from ${note.encounters} encounter(s) (${note.ms}ms).`;
+    case "resolutions_failed":
+      return `Resolutions failed: ${note.error}`;
+    case "resolutions":
+      return `Resolved the discourse at level ${note.level} (${note.ms}ms); active referents: ${note.active?.length ?? 0}.`;
+    case "surfaced":
+      return `Surfaced material via ${note.operator} (${note.fan} candidate window(s)).`;
+    case "void":
+      return `Nothing addressed the question (${note.gap}${note.reason ? `: ${note.reason}` : ""}).`;
+    case "composed":
+      return `Composed ${note.relations} relation edge(s), ${note.bindings} referent binding(s), ${note.hyperlexicon} hyperlexicon entr${note.hyperlexicon === 1 ? "y" : "ies"}.`;
+    case "wiki_lookup":
+      return `Looked up background on: ${(note.notes ?? []).join(", ")}`;
+    case "prompt_budget":
+      return `Prompt: system ${note.system}c + chat ${note.chatChars}c (${note.chat} msg) + material ${note.materialChars}c (${note.materialSegments} seg) + task ${note.taskChars}c, of ${note.max}c max.`;
+    case "post_note":
+      return note.message ?? null;
+    case "post_timeout":
+      return `Post-processing timed out — returned the model's original text.`;
+    case "web_searched":
+      return `Searched the web: ${note.pages} page(s) fetched, ${note.chars?.toLocaleString() ?? 0} chars admitted.`;
+    case "web_blocked":
+      return `Web search blocked by bot-challenge.`;
+    case "web_no_results":
+      return `Web search returned no results.`;
+    case "web_error":
+      return `Web search error: ${note.detail}`;
+    case "code_gist":
+      return `Code structure: ${note.entities} entit${note.entities === 1 ? "y" : "ies"}, ${note.edges} edge(s).`;
+    case "composing_section":
+      return `Composing section ${note.index} of ${note.of}: ${note.section}`;
+    case "composing_skip":
+      return `Skipped section "${note.section}": ${note.because}`;
+    case "document_ledger":
+      return `Document ledger ${note.docId}: ${note.parts} part(s) admitted. Declared shape: ${note.declared}`;
+    case "answer_shape":
+      return `Answer shape: ${note.shape} (${note.modality}).`;
+    // Deliberately suppressed: per-file scan skips, per-segment surf detail,
+    // and raw ollama request/streaming bookkeeping — all noise, no signal.
+    default:
+      return null;
+  }
 }
 
 export function openAIResponse({ id, model, text, created, usage, reading }) {
