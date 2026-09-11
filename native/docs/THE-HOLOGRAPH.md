@@ -81,8 +81,9 @@ the whole through its address, not through superposition.
 memory content-addressable: a partial pattern recovers a whole one. Kanerva's
 Sparse Distributed Memory (1988) addressed memory by high-dimensional
 similarity, which this instrument uses directly — the keyless field of
-`relative.js` is a 4,096-bit sparse representation with a measured null band
-(GFP Pass 32). Plate's Holographic Reduced Representations (1995) bind
+`relative.js` (the shadow, `THE_SHADOW` — the addressless memory): a 4,096-bit sparse representation with a measured null band
+(GFP Pass 32). Its thin form is the impression (`THE_IMPRESSION` — the minimum we remember: a state and a pointer, no words,
+recall-only, never re-expandable; the sealed form to share). Plate's Holographic Reduced Representations (1995) bind
 structures into fixed-width vectors by circular convolution and recover the
 components approximately; it is the nearest technical use of the word, and
 the point of difference is exact: HRRs recover approximately from a
@@ -433,7 +434,7 @@ holograph is the reading of the wrong reader.
 of every mention; claims (Link) with spans, witnesses and standing;
 recurrence (Network) from witness counts; the material's atmosphere as a
 regime with its re-zero points; kinds (Kind) with their nulls; declared
-voids and cuts with their timelines; and the keyless field for recall by
+voids and cuts with their timelines; and the keyless field (the shadow) for recall by
 cue. Each is addressed to bytes that read back, and each is a projection
 some consumer can be handed without the material.
 
