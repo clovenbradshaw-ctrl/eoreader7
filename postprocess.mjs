@@ -313,3 +313,12 @@ export async function pyodideAvailable() {
   await loadPyodideOnce();
   return { available: Boolean(_pyodide), error: _pyodideError?.message ?? null };
 }
+
+// The shared pyodide singleton — one WASM runtime, reused by every caller
+// (postprocess lint, web-content shell detection). Importing pyodide twice
+// boots a second interpreter; callers must go through this accessor.
+export async function getPyodide() {
+  const py = await loadPyodideOnce();
+  if (!py && _pyodideError) throw new Error(`pyodide unavailable: ${_pyodideError.message}`);
+  return py;
+}

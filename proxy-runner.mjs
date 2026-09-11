@@ -11,19 +11,20 @@ import { createHyperlexicon, admitHyperlexiconCandidates } from "./native/kernel
 import { createRelationCompositionLedger, acquireCompositionCandidates } from "./native/kernel/relation-composition.js";
 import { createSession as createCorpusSession, admitChunked } from "./legacy-eoreader6.1/packages/host/corpus.js";
 import { executePrompt } from "./legacy-eoreader6.1/packages/host/surfer.js";
-import { postprocessAnswer, warmPostprocess } from "./postprocess.mjs";
+import { postprocessAnswer, warmPostprocess, getPyodide } from "./postprocess.mjs";
 // The three resolutions — brought in from the-fold (vendored at
 // native/the-fold/): the discourse restated at three grains by the reading's
 // own organs (atmosphere, lens, paradigm), never by a model's compression.
 import { resolutionBlocks } from "./native/the-fold/resolutions.js";
 import { tokenize } from "./native/the-fold/source.js";
 import { readingIndexFromLog } from "./native/the-fold/reading-log.js";
-import { createDocumentLedger, appendDocumentObservation, projectDocument, documentChangeLog, admitPart, serializeLedger, snipsFromSources } from "./native/the-fold/document-ledger.js";
+import { createDocumentLedger, appendDocumentObservation, appendLedgerLine, projectDocument, documentChangeLog, admitPart, serializeLedger, snipsFromSources, checkEssayShape, ledgerFilePath, renderApaFootnotes } from "./native/the-fold/document-ledger.js";
+import { goreBoundary, gatherPlan, cueGoDeeperPlan, doubleCheckPlan } from "./native/the-fold/gore.js";
 import { dmdWindow } from "./native/kernel/activation.js";
 // Web organ: the pure half of search and page ingestion (extractReadable,
 // parseSearchResults, extractUrls, normalizeUrl). The network egress lives
 // inline below — the proxy is the one sanctioned crossing (P13).
-import { extractReadable, parseSearchResults, extractUrls, normalizeUrl, WEB_SEARCH_MAX_RESULTS } from "./native/organs/web.js";
+import { extractReadable, parseSearchResults, extractUrls, normalizeUrl, WEB_SEARCH_MAX_RESULTS, looksLikeShell } from "./native/organs/web.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const GIVER = "reader:eoreader7-proxy";
@@ -90,12 +91,88 @@ async function enrichFromWikipedia(composition, maxConcepts = WIKI_MAX_CONCEPTS)
   return summaries.filter((s) => s.snippet);
 }
 
-// ── web search organ: the proxy's one sanctioned egress (P13) ──────────────
+// ── shell detection via pyodide's HTMLParser (structural, not regex) ───────
+// The regex `looksLikeShell` on the TEXT face catches the "couldn't load"
+// apology. But a shell can hide behind a normal text face — its STRUCTURE is
+// the tell: a real article has text-bearing block elements (p, article,
+// section, h1-h6, li, td) with real content; a JS/error shell is dominated by
+// script, iframe, svg, and boilerplate divs that hold the loader message.
+// This reads the DOM with Python's stdlib HTMLParser (no bs4 wheel needed;
+// the shared pyodide runtime is already warm from postprocess.mjs), and
+// returns a typed verdict. Cached + timeboxed so a slow parse never stalls a
+// fetch; on any pyodide failure it falls back to "unknown" (the regex
+// already ran) rather than blocking the harvest.
+let _shellVerdict = null;
+async function pyodideShellVerdict(html) {
+  if (!html || html.length > 3_000_000) return { shell: false, basis: "declined" };
+  try {
+    const py = await getPyodide();
+    const key = `__shell_${(Math.random() * 1e9) | 0}`;
+    py.globals.set(key, html);
+    py.runPython(`
+from html.parser import HTMLParser
+import re
+
+class T(HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.depth = 0
+        self.text_chars = 0
+        self.block_chars = {}
+        self.script = 0
+        self.iframe = 0
+        self.svg = 0
+        self.in_script = False
+    def handle_starttag(self, tag, attrs):
+        if tag in ("script", "style", "iframe", "svg", "canvas", "noscript", "template"):
+            self.depth += 1
+            if tag == "script": self.script += 1
+            if tag == "iframe": self.iframe += 1
+            if tag == "svg": self.svg += 1
+        elif tag in ("p", "article", "section", "h1", "h2", "h3", "h4", "li", "td", "blockquote", "pre", "figcaption"):
+            self.block_chars[tag] = self.block_chars.get(tag, 0)
+    def handle_startendtag(self, tag, attrs):
+        pass
+    def handle_endtag(self, tag):
+        if tag in ("script", "style", "iframe", "svg", "canvas", "noscript", "template"):
+            self.depth = max(0, self.depth - 1)
+    def handle_data(self, data):
+        if self.depth == 0:
+            s = re.sub(r"\\s+", " ", data).strip()
+            self.text_chars += len(s)
+`)
+    py.runPython("__t = T(); __t.feed(" + key + "); __verdict = __t")
+    const t = py.globals.get("__verdict");
+    const textChars = t.text_chars;
+    const scripts = t.script, iframes = t.iframe, svgs = t.svg;
+    const text = textChars || 0;
+    // A shell: the page is DOMINATED by loader machinery (script/iframe/svg)
+    // with no real article text outside it. A real page's text lives in
+    // paragraphs; a shell's text lives in the error/loader divs. Structure
+    // dominates: scripts+iframes+svgs >= 2 with thin text is a shell.
+    let shell = false;
+    let basis = "content";
+    const machinery = scripts + iframes + svgs;
+    if (text < 400 && machinery >= 2) { shell = true; basis = `shell: ${text} text chars vs ${scripts} scripts, ${iframes} iframes, ${svgs} svgs`; }
+    else if (text < 150 && machinery >= 1) { shell = true; basis = `thin-shell: ${text} chars, ${machinery} script/iframe/svg element(s)`; }
+    else if (text < 250 && scripts >= 2) { shell = true; basis = `loader-shell: ${text} chars, ${scripts} scripts`; }
+    try { _shellVerdict = { shell, basis, textChars: text, scripts, iframes, svgs }; } catch {}
+    return { shell, basis, textChars: text, scripts, iframes, svgs };
+  } catch (err) {
+    return { shell: false, basis: `pyodide unavailable: ${err.message}`, declined: true };
+  }
+}
+
+// ── web search organ: Gore, the proxy's one sanctioned egress (P13) ────────
 // Searches DuckDuckGo (no key), fetches pages, extracts readable text, and
 // admits the results as chunks into the same corpus session as workspace files.
 // The web material then flows through the exact same grounding ladder (surf,
 // fold, resolutions) as local files — no separate path, no model compression.
-async function searchAndAdmitWeb(session, sessionId, query, onNote) {
+//
+// Gore is ITERATIVE, bounded by a DMD boundary (gore.js): gather is capped
+// where additional results stop adding reach; a composition calls back with
+// cueGoDeeper for a theme the piece needs, and doubleCheck on a claim's atoms.
+async function searchAndAdmitWeb(session, sessionId, query, onNote, { move = "gather", maxPages = WEB_MAX_PAGES } = {}) {
   if (!WEB_SEARCH_ON || !query.trim()) return { searched: false, pages: 0, chars: 0 };
   const started = Date.now();
   const searchUrl = `https://html.duckduckgo.com/html/?q=${encodeURIComponent(query)}`;
@@ -130,6 +207,17 @@ async function searchAndAdmitWeb(session, sessionId, query, onNote) {
     if (onNote) onNote({ move: "web_no_results" });
     return { searched: true, pages: 0, chars: 0 };
   }
+  // Gore's DMD boundary: gather stops where additional results add no reach.
+  // Go-deeper and double-check are targeted strikes — they take their cap
+  // directly rather than expanding the harvest.
+  let keepResults = results;
+  if (move === "gather") {
+    const boundary = goreBoundary(results, { maxResults: maxPages });
+    keepResults = results.slice(0, boundary.keep);
+    if (onNote) onNote({ move: "gore_boundary", query, kept: boundary.keep, of: results.length, basis: boundary.basis });
+  } else {
+    keepResults = results.slice(0, maxPages);
+  }
   // Fetch the top pages, extract readable text, admit as chunks — AND step
   // them through the constitutional reader (EOT-ize), exactly like workspace
   // files: the web material becomes part of the holograph, the referents,
@@ -146,8 +234,19 @@ async function searchAndAdmitWeb(session, sessionId, query, onNote) {
   if (!session.webLedger) {
     session.webLedger = createDocumentLedger({ docId: `${sessionId}:web`, title: `Web research — ${query}` });
   }
-  for (const r of results) {
+  // ── competency gate: a quest stops when the reading is no longer
+  // meaningfully surprised. This is the WHOLE point of gathering — not to
+  // fill the page-count but to reach the point where what we know is no
+  // longer surprising BECAUSE we understand why it is the way it is. A page
+  // that collapses surprise (little salient signal) ends the gather: more
+  // pages would only add noise. Surprise collapse, never token volume, is
+  // the stop — and it is also a guide on writing: the piece is done when it
+  // explains the why, not when it has reached a length.
+  let competencyReached = false;
+  const COMPETENCY_SALIENT_MIN = 1; // meaningful surprise = at least one expectation moved or a REC
+  for (const r of keepResults) {
     if (admittedPages >= WEB_MAX_PAGES) break;
+    if (competencyReached) break;
     try {
       const ctrl = new AbortController();
       const t = setTimeout(() => ctrl.abort(), 20000);
@@ -160,6 +259,25 @@ async function searchAndAdmitWeb(session, sessionId, query, onNote) {
       // "Dolphin&#039;s" in the text face (search before building).
       const { text } = extractReadable(html);
       if (!text || text.length < 50) continue;
+      // A JS-shell / error page is not content (measured live: "A required
+      // part of this site couldn't load… disable any ad blockers" came back as
+      // 209 chars of shell). Two checks: the fast regex on the text face, then
+      // the structural DOM read via pyodide (script/iframe/svg dominance with
+      // near-zero real text). A shell is skipped — Gore fetches the NEXT
+      // result instead of quoting a shell's apology as source material.
+      const fastShell = looksLikeShell(text);
+      let struct = null;
+      if (!fastShell) {
+        struct = await pyodideShellVerdict(html);
+        if (struct?.shell) {
+          if (onNote) onNote({ move: "web_skipped", url: r.url, why: "structural-shell", basis: struct.basis });
+          continue;
+        }
+      }
+      if (fastShell) {
+        if (onNote) onNote({ move: "web_skipped", url: r.url, why: "shell" });
+        continue;
+      }
       const srcId = `web:${sessionId}:${admittedPages}:${r.url}`;
       admitChunked(session.corpus, { text, sourceId: srcId });
       // RETAIN the full text — 100% recoverable from the ledger's addresses.
@@ -176,17 +294,141 @@ async function searchAndAdmitWeb(session, sessionId, query, onNote) {
       });
       // EOT-ize: step the web page's encounters through the reader so it
       // builds the same holograph surfaces/referents/notes as local material.
+      // Competency signal: aggregate the reading's OWN surprise over the page
+      // — the expectation effects (strengthened/weakened/fulfilled/violated/
+      // reframed) and recanonicalizations, NOT raw token novelty. A page that
+      // moves what the reading expected is SALIENT; a page full of new words
+      // that touches no expectation is noise and must not keep a quest alive.
       const encounters = textEncounters(text, { source: `web:${r.url}`, offset: 0 });
+      let pageSurprise = { salient: 0, noise: 0, effects: 0, recanonicalizations: 0 };
       for (const enc of encounters) {
-        await session.reader.step(enc);
+        const step = await session.reader.step(enc);
+        const s = step?.surprise;
+        if (!s) { await yieldToEventLoop(); continue; }
+        const effects = s.expectationEffects?.length ?? 0;
+        const recan = s.recanonicalizations?.length ?? 0;
+        const ops = s.operations?.length ?? 0;
+        // SALIENT: expectations moved or the fold re-zeroed (REC). NOISE: many
+        // raw operations that touched nothing expected (a dense new-vocabulary
+        // page) — that is volume, not understanding.
+        if (effects > 0 || recan > 0) pageSurprise.salient++;
+        else if (ops > 0) pageSurprise.noise++;
+        if (effects) pageSurprise.effects += effects;
+        if (recan) pageSurprise.recanonicalizations += recan;
         await yieldToEventLoop();
       }
+      session.lastPageSurprise = pageSurprise;
+      // Competency: if this page barely moved the reading's expectations
+      // (salient ≈ 0), we now understand the material well enough that more
+      // sources would only add noise. Stop the quest. This is the DMD
+      // boundary made about MEANING, not token counts.
+      if (pageSurprise.salient < COMPETENCY_SALIENT_MIN) competencyReached = true;
+      if (onNote) onNote({ move: "competency", url: r.url, salient: pageSurprise.salient, noise: pageSurprise.noise, reached: competencyReached });
       admittedChars += text.length;
       admittedPages++;
     } catch { /* skip failed fetches silently */ }
   }
-  if (onNote) onNote({ move: "web_searched", query, pages: admittedPages, chars: admittedChars, ms: Date.now() - started });
+  if (onNote) onNote({ move: "web_searched", query, pages: admittedPages, chars: admittedChars, ms: Date.now() - started, goreMove: move });
   return { searched: true, pages: admittedPages, chars: admittedChars };
+}
+
+// ── the essay's shape: DEF before composition, from a prior or the web ────
+// An essay has a shape — a thesis in the opening, thematic body sections that
+// each support it, a conclusion that returns to it. The shape is not invented
+// by the model and not invented by us: it is a RECEIVED structure (a shape
+// prior with a named giver), and when no prior covers the task, it is HUNTED
+// online the way the web organ hunts a fact — recorded egress, never assumed.
+// The shape is stated POSITIVELY to the model (the-fold shapeSuffix), never as
+// a prohibition, so the model aims at it natively.
+const ESSAY_SHAPE_PRIOR = Object.freeze({
+  schema: "ShapePrior@1",
+  form: "essay",
+  giver: "eoreader7:shape-prior:essay-v1",
+  basis: "the essay's classical form — thesis opening, thematic body sections supporting it, conclusion returning to it; stated as the shape the piece aims at, never a prohibition",
+  parts: Object.freeze([
+    { role: "opening", label: "an opening that states the thesis" },
+    { role: "body", label: "body sections, each advancing one theme of the thesis" },
+    { role: "closing", label: "a conclusion that returns to the thesis" },
+  ]),
+});
+
+// The shape of a composition is EXTRACTED from the material, never steered:
+// the recurring short lines the material's own structure shows (structure-rec
+// tier2's discipline — short, blank-bounded, not quoted), plus the beings the
+// reading established. If the material has real section markers, those become
+// the essay's sections; only when it has none do we fall back — and the
+// fallback is disclosed as such, never dressed up as the material's shape.
+function shapeFromMaterial({ material = [], referents = null, surfacedSegments = [] }) {
+  const sections = [];
+  const text = (material.length ? material.join("\n\n") : "") + "\n\n" + (surfacedSegments.length ? surfacedSegments.map((s) => s.text ?? "").join("\n\n") : "");
+  // Extract the material's own structure: recurring short lines (its heading
+  // convention), using structure-rec's candidate-line discipline — short,
+  // blank-bounded, not quoted dialogue.
+  const lines = String(text).split("\n").map((l) => l.trim());
+  const seen = new Map();
+  for (let i = 0; i < lines.length; i++) {
+    const l = lines[i];
+    if (!l || l.length > 80 || l.length < 4) continue;
+    if (/^[“"'‘]|[”"'’]$/.test(l)) continue; // quoted dialogue, not a heading
+    if (/^(http|www\.)/i.test(l)) continue;
+    if (/^[-*•]/.test(l)) continue; // a list item, not a heading
+    if (l.includes("…") || /\.{2,}/.test(l)) continue;
+    const key = l.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+    if (key.length < 4) continue;
+    const rec = seen.get(key) ?? { count: 0, line: l };
+    rec.count++;
+    seen.set(key, rec);
+  }
+  const recurring = [...seen.values()]
+    .filter((r) => r.count >= 2)
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 6);
+  for (const r of recurring) {
+    if (!sections.includes(r.line)) sections.push(r.line);
+  }
+  // Add the beings the reading established (they are the material's actual
+  // subjects), then the material's own section-like single lines.
+  const beings = [...(referents?.values?.() ?? [])]
+    .map((r) => [...(r.surfaces ?? [])][0])
+    .filter((n) => n && n.length > 3)
+    .slice(0, 3);
+  for (const b of beings) {
+    if (!sections.includes(b)) sections.push(b);
+  }
+  // The material's first substantial lines that look like section titles
+  // ("## ..." or a short title at the start of a block).
+  if (sections.length < 3) {
+    for (const l of lines) {
+      if (sections.length >= 5) break;
+      if (/^#{1,4}\s+/.test(l)) {
+        const t = l.replace(/^#{1,4}\s+/, "").trim();
+        if (t && t.length < 90 && !sections.includes(t)) sections.push(t);
+      }
+    }
+  }
+  return sections.slice(0, 6);
+}
+function essayThemes({ task, surfacedSegments, material }) {
+  const themes = [];
+  // From the material's own sentences: the themes the sources actually raise.
+  const text = (material && material.length ? material.join(" ") : "") + " " + (surfacedSegments?.length ? surfacedSegments.map((s) => s.text ?? "").join(" ") : "");
+  const sentences = String(text)
+    .replace(/\s+/g, " ")
+    .split(/(?<=[.!?])\s+(?=[A-Z])/)
+    .map((s) => s.trim())
+    .filter((s) => s.length > 60 && s.length < 220);
+  // Pick up to 3 sentences that look like topic carriers (not the essay-site
+  // boilerplate the search surface often leads with).
+  const seen = new Set();
+  for (const s of sentences) {
+    if (themes.length >= 3) break;
+    if (/^(dolphin essay|short essay|welcome to|table of contents|in this (section|session|essay))/i.test(s)) continue;
+    const head = s.slice(0, 90);
+    if (seen.has(head) || seen.size > 12) continue;
+    seen.add(head);
+    themes.push(head);
+  }
+  return themes.length ? themes : ["the world of the subject", "how the subject lives", "why the subject matters"];
 }
 
 // ── void-detection: determine answer shape before the model speaks ─────────
@@ -205,11 +447,11 @@ function detectAnswerShape(task, hasWorkspace, hasWeb, surfVoid, surfacedSegment
     return { shape: "trivial", maxTokens: 64, modality: "direct" };
   if (surfVoid && !surfacedSegments.length)
     return { shape: "void", maxTokens: 256, modality: "disclosed-fact" };
-  // Composition tasks — essay/explain/describe/write about — are decomposed
-  // into briefer grounded parts (see planComposition) rather than answered
-  // in one long draw. The overall concept lives in the unconscious notes
-  // (reading digest, hyperlexicon, resolutions); each part is brief + grounded.
-  if (/\b(essay|write|explain|describe|summarize|outline|compose|report|discuss|analyze)\b/.test(t) && (hasWorkspace || hasWeb || surfacedSegments.length))
+  // Composition tasks — any generation that has material to write from (an
+  // essay, a paper, a report, a spec, an explanation). The shape is whatever
+  // the material actually has (shapeFromMaterial); the same organs serve any
+  // task. A short answer or a one-off question stays a single draw.
+  if (/\b(essay|write|explain|describe|summarize|outline|compose|report|discuss|analyze|paper|review|spec|guide|explain|tell\s+me\s+about)\b/.test(t) && (hasWorkspace || hasWeb || surfacedSegments.length))
     return { shape: "composition", maxTokens: CALL_MAX_TOKENS, modality: "grounded" };
   if (hasWorkspace || hasWeb)
     return { shape: "research", maxTokens: CALL_MAX_TOKENS, modality: "grounded" };
@@ -237,8 +479,16 @@ function topicPhrase(task) {
 // record. Each section is a real node in the material, not a model's
 // invention, and the overall concept stays in the unconscious notes (the
 // digest + resolutions) while each task is brief + grounded.
-function planComposition({ index, hyperlexicon, resolutions, surfacedSegments, topicSource }) {
+function planComposition({ index, hyperlexicon, resolutions, surfacedSegments, topicSource, material }) {
   const sections = [];
+  // PRIMARY: the material's OWN structure — its recurring short lines (its
+  // heading convention) and the beings the reading established. The shape of
+  // any generated piece is whatever the material actually has, never a shape
+  // imposed on it. Same organs, any task: an essay, a paper, a report, a
+  // spec — the sections are the material's, not ours.
+  const fromMaterial = shapeFromMaterial({ material, referents: index?.referents, surfacedSegments });
+  for (const s of fromMaterial) sections.push(s);
+
   // Source 1: the reading's own beings, ranked by how many mentions fed them.
   const referents = index?.referents ?? new Map();
   const beings = [...referents.values()]
@@ -255,33 +505,24 @@ function planComposition({ index, hyperlexicon, resolutions, surfacedSegments, t
     if (e?.standing !== "given") continue;
     const title = `${e.left} and ${e.right}`;
     if (!sections.includes(title)) sections.push(title);
-    if (sections.length >= 5) break;
+    if (sections.length >= 6) break;
   }
   // Source 3: surfed segment sources — the addressed material's own blocks.
   if (surfacedSegments?.length) {
     for (const s of surfacedSegments) {
       const title = String(s?._ledger?.heading ?? s?.heading ?? "").trim() || String(s?.source ?? "").trim();
       if (title && !sections.includes(title)) sections.push(title);
-      if (sections.length >= 5) break;
+      if (sections.length >= 6) break;
     }
   }
-  // Fallback: mechanical essay structure. The reading is thin (few referents,
-  // no headings) but the task is a composition — split the essay's topic into
-  // the classic parts so the piece still has real sections to write. These are
-  // the parts an essay NEEDS, not the model's invention.
+  // LAST RESORT, disclosed as what it is: the material had no structure the
+  // organs could extract — a single grounded part, written against the whole
+  // of what came up. Never a rigid invented list; the model writes freely.
   if (!sections.length) {
-    const topic = topicPhrase(topicSource ?? "");
-    if (topic && topic !== "this") {
-      sections.push("Introduction");
-      sections.push(`What is ${topic}`);
-      sections.push(`How ${topic} live`);
-      sections.push(`Why ${topic} matter`);
-      sections.push("Conclusion");
-    }
+    sections.push("All of it"); // one part, whole material, honest
   }
-  // Fallback: a single grounded part — no decomposition when the reading
-  // established nothing to decompose into.
-  return sections.slice(0, 5);
+  // Final bound.
+  return sections.slice(0, 6);
 }
 
 export const REQUEST_TIMEOUT_MS = Number(process.env.ER7_REQUEST_TIMEOUT_MS) || 290000;
@@ -469,9 +710,30 @@ function readWorkspaceFile(entry, onNote) {
 // Returns the addressed segment(s) TEXT ONLY. The address (source, heading,
 // byte range, addressed_by) is reported to the ledger/notes — it is NEVER
 // placed in the model's context.
-function surfTask(session, task, onNote) {
+function surfTask(session, task, onNote, { composition = false } = {}) {
   if (!session.corpus || session.corpus.documents.size === 0) {
 return { segments: [], void: true, reason: "no corpus yet" };
+  }
+  // COMPOSITION SURF: an essay needs MULTIPLE sources — one windowed segment
+  // per corpus document (the web pages each carry their own theme), not the
+  // single best address the one-shot organ returns. Each essay section then
+  // has its own grounded source.
+  if (composition && session.corpus.documents.size > 1) {
+    const segments = [];
+    for (const [sourceId, doc] of session.corpus.documents.entries()) {
+      if (segments.length >= SURF_MAX_SEGMENTS) break;
+      const text = String(doc?.text ?? doc ?? "").trim();
+      if (!text || text.length < 50) continue;
+      const capped = text.slice(0, SURF_MAX_SEGMENT_CHARS);
+      segments.push({
+        text: capped,
+        _ledger: { source: sourceId, heading: null, addressed_by: "composition", bytes: [0, capped.length] },
+      });
+    }
+    if (segments.length) {
+      if (onNote) onNote({ move: "surfaced", operator: "SEG", fan: segments.length, docs: session.corpus.documents.size, composition: true });
+      return { segments, void: false, addressedBy: true, composition: true };
+    }
   }
   const result = executePrompt(session.corpus, task);
   if (onNote) onNote({ move: "surfaced", operator: result.operator ?? null, fan: Array.isArray(result.fan) ? result.fan.length : 0, docs: session.corpus.documents.size, resultGap: result.gap ?? null });
@@ -833,10 +1095,12 @@ const modelsUp = await ollamaReachable();
     if (admit.admitted > 0 && onNote) onNote({ move: "admitted", files: admit.admitted });
   }
 
-  // 1.5 WEB SEARCH — the proxy's sanctioned egress (P13). Search results are
-  // admitted as chunks into the SAME corpus session as workspace files, so
-  // they flow through the exact same grounding ladder (surf, fold, resolutions).
-  const webResult = await searchAndAdmitWeb(session, sessionId, task, onNote);
+  // 1.5 WEB SEARCH — Gore, the proxy's sanctioned egress (P13). The initial
+  // GATHER is capped at the DMD boundary (gore.js): fetch until additional
+  // results add no reach, then stop — a scatter is a waste. The composition
+  // loop below calls Gore again per section (cueGoDeeper) and on shape-check
+  // failure (doubleCheck), each a recorded, bounded strike.
+  const webResult = await searchAndAdmitWeb(session, sessionId, task, onNote, { move: "gather" });
   const hasWeb = webResult.pages > 0;
 
   // 2. Surf AND fold the conversation itself: the chat history is admitted to
@@ -911,7 +1175,12 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
   // pattern: a fact about what the corpus does NOT hold, never a behavioral
   // instruction stacked on top of it).
   if (session.corpus && session.corpus.documents.size > 0) {
-    const surf = surfTask(session, task, onNote);
+    // A generation task (essay/paper/report/spec — any task with material to
+    // write from) wants the multi-doc surf: one windowed segment per source,
+    // so each section has its own grounded material — not the single best
+    // address a one-shot answer needs.
+    const looksComposition = /\b(essay|write|explain|describe|summarize|outline|compose|report|discuss|analyze|paper|review|spec|guide|tell\s+me\s+about)\b/i.test(task);
+    const surf = surfTask(session, task, onNote, { composition: looksComposition });
     surfacedSegments = surf.segments;
     surfVoid = surf.void;
     surfVoidInfo = surf.void ? { gap: surf.gap ?? "content_not_found", reason: surf.reason ?? null } : null;
@@ -1038,6 +1307,16 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
   if (material.length) {
     systemContent += `\n\nHere's what came up on this:\n\n"""\n${material.join("\n\n")}\n"""`;
   }
+  // Verbatim snips (citations) available to the composition so the essay can
+  // QUOTE the sources — the model weaves real source text into its sections,
+  // and the mechanical Sources appendix below still lists the same snips.
+  // Never paraphrased: the model is handed the sources' own sentences.
+  if (answerShape.shape === "composition" && session.webSources && session.webSources.size) {
+    const snips = snipsFromSources(session.webSources, { maxSnips: 8, maxChars: 200 });
+    if (snips.length) {
+      systemContent += `\n\nVerbatim from the sources (quote these where they support your writing, never invent a quote):\n\n"""\n${snips.map((s) => `- "${s.snip}"`).join("\n")}\n"""`;
+    }
+  }
   if (onNote) onNote({ move: "prompt_budget", system: systemCore.length, chat: keptChat.length, chatChars: chatLen, materialSegments: material.length, materialChars: used, taskChars: taskLen, max: PROMPT_MAX_CHARS });
 
   const ollamaMessages = [];
@@ -1060,7 +1339,7 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
   // reading's own structure (LaVar: the shape comes from the record, never
   // the model).
   const sections = answerShape.shape === "composition"
-    ? planComposition({ index: sessionReferentIndex(session, onNote), hyperlexicon, resolutions, surfacedSegments, topicSource: task })
+    ? planComposition({ index: sessionReferentIndex(session, onNote), hyperlexicon, resolutions, surfacedSegments, topicSource: task, material })
     : [];
   // A generated composition is a DOCUMENT LEDGER (EOT): every part admitted
   // is a line, every revision is a line, and the text a person reads is a
@@ -1070,6 +1349,13 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
   const documentLedger = sections.length
     ? createDocumentLedger({ docId: `${sessionId}:${session.turnCount}`, title: task.slice(0, 60), path: sections.map((s) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-")).join("_") })
     : null;
+  // The essay LIVES as a JSONL file on disk (not just in memory) so its state
+  // is projectable at any moment — even mid-writing. Each observation appends
+  // as one line; the projection re-folds the file.
+  const ESSAY_LEDGER_DIR = path.join(HERE, "documents");
+  if (documentLedger) {
+    try { fs.mkdirSync(ESSAY_LEDGER_DIR, { recursive: true }); } catch {}
+  }
   const documentLines = [];
   let fullText = "";
   let truncated = false;
@@ -1077,17 +1363,23 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
   // cap on total generated chars protects the turn from a repetition loop
   // (num_predict is not always honored by these models). When the cap hits,
   // generation stops and the answer is disclosed as truncated — never silent.
-  const MAX_OUTPUT_CHARS = Number(process.env.ER7_MAX_OUTPUT_CHARS ?? 30000);
+  // But the cap is GENEROUS: the model writes as much as it is comfortable
+  // doing — writing is rewriting, and a cramped budget is a cramped essay.
+  const MAX_OUTPUT_CHARS = Number(process.env.ER7_MAX_OUTPUT_CHARS ?? 40000);
+  const SECTION_MAX_TOKENS = Number(process.env.ER7_SECTION_MAX_TOKENS ?? 1200);
+  const MAX_REWRITE_ROUNDS = Number(process.env.ER7_MAX_REWRITE_ROUNDS ?? 1);
   await withSlot(async () => {
-    const draw = async (msgs, maxTokens) => {
+    const draw = async (msgs, maxTokens, { capture = false } = {}) => {
       let buf = "";
       let stopped = false;
       for await (const chunk of streamOllamaChat(model, msgs, { maxTokens, onNote })) {
         if (typeof chunk === "string") {
           if (fullText.length >= MAX_OUTPUT_CHARS) { truncated = true; stopped = true; break; }
-          fullText += chunk;
+          if (!capture) {
+            fullText += chunk;
+            if (onToken) onToken(chunk);
+          }
           buf += chunk;
-          if (onToken) onToken(chunk);
         } else if (chunk?.done) {
           usage.promptTokens += chunk.prompt_eval_count;
           usage.completionTokens += chunk.eval_count;
@@ -1097,24 +1389,70 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
       return { buf, stopped };
     };
     if (sections.length) {
-      for (const [i, section] of sections.entries()) {
-        if (onNote) onNote({ move: "composing_section", index: i + 1, of: sections.length, section });
-        // EVA gate: candidate admitted only if grounded (some surfed material
-        // addresses this part) — a section with no ground is a fabrication order.
+      // ── WRITING IS REWRITING ─────────────────────────────────────────────
+      // 1. OUTLINE — the model sets the essay's structure natively (thesis +
+      //    the sections that support it), from the material. The shape is not
+      //    imposed as a rigid list; the model proposes it and the reading
+      //    checks it.
+      // 2. FILL — each section is drawn generously, carrying the outline and
+      //    what came before it.
+      // 3. EVA vs DEF — the assembled piece is checked mechanically against
+      //    the declared essay shape (thesis opening, themes covered, closing).
+      // 4. REC — a bounded rewrite pass names exactly what the EVA found and
+      //    re-draws the missing part; each rewrite is a revision line in the
+      //    ledger (supersede), so the before/after stays on the record.
+      const topic = topicPhrase(task);
+      // The OUTLINE is a living document-ledger line. It is drawn first, then
+      // REC supersedes it whenever the reading (as sections are written) turns
+      // up a theme the outline did not cover. REC is the secret sauce: the
+      // outline is allowed to evolve as the essay is written, and each
+      // evolution is a revision line — the before/after stays on the record.
+      let outlineId = null;
+      if (onThinking) onThinking(`\n### Outline\n\n`);
+      const outlineTask = sections.length > 3
+        ? `We're writing a piece on ${topic}. First, give an outline: the opening thesis, then ${Math.min(sections.length, 5)} sections that support it, then a conclusion. Write it as a short list of section headings.`
+        : `We're writing a piece on ${topic}. Here are its sections: ${sections.map((s) => `"${s}"`).join(", ")}. Write them as an outline of headings.`;
+      const outline = await draw(
+        [
+          { role: "system", content: systemContent },
+          ...keptChat,
+          { role: "user", content: outlineTask },
+        ],
+        300,
+        { capture: true }, // the outline is process, not content — it steers the sections but never enters the essay body
+      );
+      if (onThinking) onThinking(outline.buf + "\n\n");
+      if (outline.stopped) { /* outline capped, continue with planned sections */ }
+
+      const plannedSections = [...sections];
+      const recoffered = new Set(); // REC offers each evolving theme once — never loops forever
+      const goredThemes = new Set(); // Gore strikes each theme once — no re-fetch of the same cue
+      // Evolve the outline as sections land: re-read the reading's referents;
+      // a being the essay has not yet covered is a theme the outline missed.
+      // REC: supersede the outline line and add the section.
+      for (let i = 0; i < plannedSections.length && !truncated; i++) {
+        const section = plannedSections[i];
+        if (onNote) onNote({ move: "composing_section", index: i + 1, of: plannedSections.length, section });
         const grounded = material.length > 0;
         const eva = admitPart({ text: section, grounded, minChars: 0 });
         if (!eva.ok) {
           if (onNote) onNote({ move: "composing_skip", section, because: eva.because });
           continue;
         }
-        // The section task carries the essay's state forward — mechanically, the
-        // way the-fold iterates a widget across turns: the model is never told
-        // it is iterating; it is handed where the piece is and asked to write
-        // the next part, in the essay's own voice.
-        const priorParts = documentLines.map((_, j) => `"${sections[j]}"`).join(", ");
-        const sectionTask = sections.length > 1
-          ? `We're writing a piece on ${topicPhrase(task)}. ${priorParts ? `So far it has these parts: ${priorParts}. ` : ""}Now write the part on ${section}.`
-          : `Write the piece on ${topicPhrase(task)}.`;
+        // Gore: go back for more on this section's cue — a targeted strike for
+        // the specific theme, so the section has its own source (the way a
+        // writer gathers sources for each part of the essay, not one big fetch).
+        if (WEB_SEARCH_ON && documentLedger && section && !goredThemes.has(section)) {
+          goredThemes.add(section);
+          const cuePlan = cueGoDeeperPlan(section, { query: `${topic} ${section}` });
+          if (onNote) onNote({ move: "gore", cue: section, query: cuePlan.query });
+          if (onThinking) onThinking(`\n[Gore: gathering on "${section}"]\n`);
+          await searchAndAdmitWeb(session, sessionId, cuePlan.query, onNote, { move: "go-deeper", maxPages: 2 });
+        }
+        const priorParts = documentLines.map((_, j) => `"${plannedSections[j]}"`).join(", ");
+        const sectionTask = plannedSections.length > 1
+          ? `We're writing a piece on ${topic}. ${outline.buf.trim() ? `Here is the outline:\n${outline.buf.trim()}\n\n` : ""}${priorParts ? `So far it has these parts: ${priorParts}. ` : ""}Now write the part on ${section}, developing it fully from the material.`
+          : `Write the piece on ${topic}, developing it fully from the material.`;
         if (onThinking) onThinking(`\n### ${section}\n\n`);
         const { buf, stopped } = await draw(
           [
@@ -1122,18 +1460,85 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
             ...keptChat,
             { role: "user", content: sectionTask },
           ],
-          Math.min(CALL_MAX_TOKENS, 512),
+          SECTION_MAX_TOKENS,
         );
         if (stopped) break;
-        if (onThinking) onThinking(buf + (i < sections.length - 1 ? "\n\n" : ""));
+        if (onThinking) onThinking(buf + (i < plannedSections.length - 1 ? "\n\n" : ""));
         if (documentLedger) {
-          appendDocumentObservation(documentLedger, {
+          appendLedgerLine(documentLedger, {
             role: "part", title: section, text: buf.trim(), giver: model,
             basis: "composition section admitted by the reading's own structure",
-          });
+          }, { dir: ESSAY_LEDGER_DIR });
           documentLines.push(buf.trim());
         }
-        if (i < sections.length - 1 && onToken) onToken("\n\n");
+        if (i < plannedSections.length - 1 && onToken) onToken("\n\n");
+
+        // ── REC: does the reading now hold a being the outline missed? ─────
+        // The web material was EOT-ized; as sections are written the fold's
+        // referents settle. A newly-established referent not yet covered is a
+        // theme the outline must grow to include. Bounded: the same being is
+        // never offered twice (the reading does not grow mid-composition, so
+        // without this guard the loop re-offers the same theme forever).
+        if (documentLedger && !truncated && plannedSections.length < 7) {
+          const fresh = sessionReferentIndex(session, onNote);
+          const beings = [...(fresh?.referents ?? new Map()).values()]
+            .map((r) => [...(r.surfaces ?? [])][0])
+            .filter((n) => n && n.length > 3)
+            .filter((n) => !plannedSections.some((s) => s.toLowerCase().includes(n.toLowerCase()) || n.toLowerCase().includes(s.toLowerCase())))
+            .filter((n) => !recoffered.has(n));
+          if (beings.length) {
+            const newTheme = beings[0];
+            recoffered.add(newTheme);
+            plannedSections.push(newTheme);
+            if (outlineId || documentLedger) {
+              outlineId = appendLedgerLine(documentLedger, {
+                role: "outline", title: "Outline (evolved)", text: `${outline.buf.trim()}\n- ${newTheme}`,
+                supersedes: outlineId ?? null, giver: "eoreader7:reading",
+                basis: `REC: the reading established "${newTheme}" as sections were written — the outline grows to include it`,
+              }, { dir: ESSAY_LEDGER_DIR });
+            }
+            if (onNote) onNote({ move: "outline_evolved", added: newTheme, total: plannedSections.length });
+            if (onThinking) onThinking(`\n### Outline evolved: added ${newTheme}\n\n`);
+            i -= 1; // run the new section immediately, not at the end
+          }
+        }
+      }
+
+      // ── EVA vs DEF: check the assembled shape, then REC the gaps ─────────
+      const assembled = documentLines.join("\n\n");
+      const shapeCheck = checkEssayShape(assembled, { parts: plannedSections.length, themes: plannedSections });
+      if (onNote) onNote({ move: "shape_check", ok: shapeCheck.ok, failures: shapeCheck.failures.map((f) => f.detail) });
+      if (!shapeCheck.ok && !truncated) {
+        for (let round = 0; round < MAX_REWRITE_ROUNDS && !truncated; round++) {
+          for (const fail of shapeCheck.failures) {
+            if (truncated) break;
+            const fixTask = `The piece we're writing is missing something: ${fail.detail}. Write the part that supplies it, in the same voice, from the material.`;
+            if (onThinking) onThinking(`\n### Revision: ${fail.detail}\n\n`);
+            const fix = await draw(
+              [
+                { role: "system", content: systemContent },
+                ...keptChat,
+                { role: "user", content: `The piece on ${topic} needs this part added: ${fail.detail}. Write it.` },
+              ],
+              SECTION_MAX_TOKENS,
+            );
+            if (fix.stopped) { truncated = true; break; }
+            if (onThinking) onThinking(fix.buf + "\n\n");
+            const fixText = fix.buf.trim();
+            if (documentLedger) {
+              appendLedgerLine(documentLedger, {
+                role: "revision", title: `revision: ${fail.kind}`, text: fixText, giver: model,
+                supersedes: null, basis: `REC: EVA found ${fail.kind} — ${fail.detail}`,
+              }, { dir: ESSAY_LEDGER_DIR });
+            }
+            documentLines.push(fixText);
+            fullText += `\n\n${fixText}`;
+            if (onToken) onToken(`\n\n${fixText}`);
+          }
+          const rechecked = checkEssayShape(documentLines.join("\n\n"), { parts: plannedSections.length, themes: plannedSections });
+          if (onNote) onNote({ move: "shape_recheck", ok: rechecked.ok, failures: rechecked.failures.map((f) => f.detail) });
+          if (rechecked.ok) break;
+        }
       }
       if (documentLedger) {
         const def = sections.map((s) => `"${s}"`).join(", ");
@@ -1144,13 +1549,30 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
       // document-ledger observation after the sections, with source URLs.
       if (documentLedger && session.webSources && session.webSources.size) {
         const snips = snipsFromSources(session.webSources);
+        // APA footnotes: each essay sentence attributed mechanically to its
+        // best source, with the VERBATIM span it borrows from — the Fold's
+        // cite.js discipline (an address is attached, never requested).
+        const assembledBody = documentLines.join("\n\n");
+        const footnoteBlock = renderApaFootnotes(assembledBody, session.webSources);
+        if (footnoteBlock) {
+          appendLedgerLine(documentLedger, {
+            role: "citations", title: "Footnotes (APA)", text: footnoteBlock,
+            giver: "eoreader7:cite",
+            basis: "mechanical attribution of each essay sentence to its best-supporting web source, with the verbatim borrowed span",
+          }, { dir: ESSAY_LEDGER_DIR });
+          if (onThinking) onThinking(`\n### Footnotes (APA)\n\n${footnoteBlock}\n`);
+          const block = `\n${footnoteBlock}`;
+          documentLines.push(block);
+          fullText += block;
+          if (onToken) onToken(block);
+        }
         if (snips.length) {
           const citationsText = snips.map((s) => `- "${s.snip}" — ${s.url}`).join("\n");
-          appendDocumentObservation(documentLedger, {
+          appendLedgerLine(documentLedger, {
             role: "citations", title: "Sources (verbatim)", text: citationsText,
             giver: "eoreader7:web-organ",
             basis: "verbatim snips taken mechanically from EOT-retained web sources — never generated",
-          });
+          }, { dir: ESSAY_LEDGER_DIR });
           if (onThinking) onThinking(`\n### Sources (verbatim)\n\n${citationsText}\n`);
           const citationBlock = `\n\n## Sources (verbatim)\n\n${citationsText}`;
           documentLines.push(citationBlock);
@@ -1208,6 +1630,7 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
           projection: projectDocument(documentLedger),
           changelog: documentChangeLog(documentLedger, { declaredParts: sections }),
           ledger: serializeLedger(documentLedger),
+          ledgerFile: documentLedger ? ledgerFilePath(ESSAY_LEDGER_DIR, documentLedger.docId) : null,
         }
       : null,
     usage,

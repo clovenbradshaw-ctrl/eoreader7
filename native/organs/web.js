@@ -265,6 +265,23 @@ export function looksLikeChallenge({ title, textChars }) {
   return (textChars ?? 0) < 200 && /just a moment|attention required|access denied|are you a (?:robot|human)|enable javascript and cookies|verify you are|checking your browser|captcha/i.test(String(title ?? ""));
 }
 
+/**
+ * A page whose readable face is a JS-required / error shell is NOT content.
+ * Measured live 2026-09-11: a site answered with "A required part of this
+ * site couldn't load… disable any ad blockers" — 209 readable chars of
+ * error shell, zero article. `extractReadable` strips the markup faithfully;
+ * what came out was the shell's own apology. This names the situation so a
+ * caller (Gore, the web searcher) can skip the page and fetch the next
+ * result instead of quoting "please disable your ad blocker" as source
+ * material. A marker on the CONTENT, not the title: some shells keep a
+ * normal title while the body apologizes.
+ */
+export function looksLikeShell(text = "") {
+  const t = String(text ?? "");
+  if (t.length > 1500) return false; // a real page has real content
+  return /(?:couldn'?t\s+load|required part of this site|disable (?:any )?ad blockers|enable javascript|checking your browser|content not available|something went wrong|an error occurred|enable js|browser settings)/i.test(t);
+}
+
 // ── search-result parsing ───────────────────────────────────────────────────
 // DuckDuckGo's two no-key HTML faces (html.duckduckgo.com/html and
 // lite.duckduckgo.com/lite). Both wrap result links in a redirect

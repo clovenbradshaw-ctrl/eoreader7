@@ -118,10 +118,20 @@ export function humanizeNote(note) {
       return `Post-processing timed out — returned the model's original text.`;
     case "web_searched":
       return `Searched the web: ${note.pages} page(s) fetched, ${note.chars?.toLocaleString() ?? 0} chars admitted.`;
+    case "gore_boundary":
+      return `Gore's gather boundary: kept ${note.kept} of ${note.of} result(s) — ${note.basis}.`;
+    case "gore":
+      return `Gore: gathering sources on "${note.cue}".`;
+    case "competency":
+      return note.reached
+        ? `Competency reached: the reading was no longer meaningfully surprised by ${note.url} (${note.salient} salient, ${note.noise} noise) — we understand why, more sources would add noise.`
+        : `Still learning from ${note.url} (${note.salient} salient, ${note.noise} noise).`;
     case "web_blocked":
       return `Web search blocked by bot-challenge.`;
     case "web_no_results":
       return `Web search returned no results.`;
+    case "web_skipped":
+      return `Skipped a page that isn't content: ${note.url} (${note.why}${note.basis ? ` — ${note.basis}` : ""}).`;
     case "web_error":
       return `Web search error: ${note.detail}`;
     case "code_gist":
@@ -134,6 +144,12 @@ export function humanizeNote(note) {
       return `Document ledger ${note.docId}: ${note.parts} part(s) admitted. Declared shape: ${note.declared}`;
     case "answer_shape":
       return `Answer shape: ${note.shape} (${note.modality}).`;
+    case "shape_check":
+      return `Shape check: ${note.ok ? "the piece matches its declared form." : `missing — ${(note.failures ?? []).join("; ")}`}`;
+    case "shape_recheck":
+      return `Shape recheck: ${note.ok ? "the piece now matches its declared form." : `still missing — ${(note.failures ?? []).join("; ")}`}`;
+    case "outline_evolved":
+      return `Outline evolved: the reading established "${note.added}" — added as a section (${note.total} total).`;
     // Deliberately suppressed: per-file scan skips, per-segment surf detail,
     // and raw ollama request/streaming bookkeeping — all noise, no signal.
     default:

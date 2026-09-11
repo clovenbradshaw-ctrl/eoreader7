@@ -1,7 +1,12 @@
 import http from "node:http";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { parseProxyRequest, toOpenAIModelList, reprefixOllamaTags, openAIResponse, openAIStreamLines, ollamaChatResponse, ollamaChatStreamLines, humanizeNote } from "./proxy-api.mjs";
 import { offeredOllamaModels, runProxyTurn, keepModelHot, hotModelSet, OLLAMA_KEEP_ALIVE_S } from "./proxy-runner.mjs";
 import { warmPostprocess } from "./postprocess.mjs";
+import { ledgerFilePath, projectLedgerFile } from "./native/the-fold/document-ledger.js";
+
+const HERE = path.dirname(fileURLToPath(import.meta.url));
 
 const PORT = Number(process.env.ER7_PROXY_PORT) || 11436;
 const UPSTREAM = process.env.ER7_UPSTREAM || "http://localhost:11434";
@@ -114,6 +119,28 @@ const server = http.createServer(async (req, res) => {
     } catch (err) {
       res.writeHead(502, { "content-type": "application/json" });
       res.end(JSON.stringify({ error: { message: `failed to fetch tags from upstream: ${err.message}` } }));
+    }
+    return;
+  }
+
+  // The essay lives as a JSONL file; GET /v1/documents/:id projects its
+  // CURRENT state at any moment (even mid-writing). The projection is a fold
+  // of the append-only ledger — never a stored tree.
+  if (req.method === "GET" && req.url.startsWith("/v1/documents/")) {
+    try {
+      const docId = decodeURIComponent(req.url.slice("/v1/documents/".length));
+      const file = ledgerFilePath(path.join(HERE, "documents"), docId);
+      const projection = projectLedgerFile(file);
+      if (projection == null) {
+        res.writeHead(404, { "content-type": "application/json" });
+        res.end(JSON.stringify({ error: { message: `no ledger for ${docId}` } }));
+        return;
+      }
+      res.writeHead(200, { "content-type": "text/plain; charset=utf-8" });
+      res.end(projection);
+    } catch (err) {
+      res.writeHead(500, { "content-type": "application/json" });
+      res.end(JSON.stringify({ error: { message: err.message } }));
     }
     return;
   }

@@ -129,6 +129,38 @@ export function revisePart({ ledger, targetId, title, text, basis }) {
   });
 }
 
+// ── EVA: does the composed piece match its declared essay shape? ────────────
+// The DEF for a composition is the essay's classical form (thesis opening,
+// thematic body, conclusion). EVA checks the ASSEMBLED text mechanically
+// against that declared shape and reports which parts are missing — never
+// trusts the model to self-judge. Returns {ok, failures:[{kind, detail}]}.
+export function checkEssayShape(text, { parts = 3, themes = [] } = {}) {
+  const t = String(text ?? "");
+  const failures = [];
+  const lower = t.toLowerCase();
+  const words = t.replace(/\s+/g, " ").trim();
+  // Opening: does the piece state a thesis early (a claim about the subject)?
+  const first300 = words.slice(0, 300);
+  const hasThesis = /\b(this essay|we\b|dolphins are|the subject|here we|let'?s|in this (piece|essay))\b/.test(first300) || first300.length > 60;
+  if (!hasThesis) failures.push({ kind: "opening", detail: "the piece opens without stating its thesis" });
+  // Body: are the declared themes actually addressed?
+  for (const theme of themes.slice(0, parts)) {
+    const probe = String(theme ?? "").slice(0, 60);
+    if (!probe) continue;
+    const tokens = probe.toLowerCase().split(/[^a-z]+/).filter((w) => w.length > 3);
+    const hit = tokens.filter((w) => lower.includes(w)).length / Math.max(tokens.length, 1);
+    if (tokens.length && hit < 0.5) failures.push({ kind: "body", detail: `the theme "${probe}" is not actually covered` });
+  }
+  // Conclusion: does the piece return to the thesis at the end?
+  const last300 = words.slice(-300);
+  const hasConclusion = /\b(in conclusion|to conclude|ultimately|finally|in the end|as we|let us|we have seen)\b/.test(last300) || last300.length > 40;
+  if (!hasConclusion) failures.push({ kind: "closing", detail: "the piece ends without returning to its thesis" });
+  return { ok: failures.length === 0, failures };
+}
+
+// ── REC: a rewrite pass names exactly what the EVA found, and the ledger
+//    records the revision (supersede) so the before/after stays on file. ────
+
 // ── verbatim source snips (citations, never generated) ─────────────────────
 // The Fold's snip discipline (snip-check.js): "What the sources say, verbatim".
 // Sentences are taken mechanically from the EOT-retained source text — never
@@ -155,4 +187,111 @@ export function snipsFromSources(webSources, { maxSnips = 6, maxChars = 240 } = 
 // ── serialization ───────────────────────────────────────────────────────────
 export function serializeLedger(ledger) {
   return JSON.stringify(ledger, null, 2);
+}
+
+// ── APA footnotes with the verbatim span ───────────────────────────────────
+// The essay's sentences are attributed to the web sources MECHANICALLY —
+// never by the model choosing its citations. For each sentence that stands
+// on a source, render an APA-style footnote carrying (a) the source's host
+// and year, and (b) the VERBATIM sentence from the source it borrows from
+// (the span, taken from the EOT-retained text, never paraphrased). The
+// source's URL is the address; the borrowed sentence is the evidence.
+export function renderApaFootnotes(essay, webSources = new Map(), { maxFootnotes = 12 } = {}) {
+  if (!webSources.size) return "";
+  // Split the essay into sentences.
+  const sentences = String(essay ?? "")
+    .replace(/\s+/g, " ")
+    .split(/(?<=[.!?])\s+(?=[A-Z])/)
+    .map((s) => s.trim())
+    .filter((s) => s.length > 25);
+  const notes = [];
+  for (const sentence of sentences) {
+    if (notes.length >= maxFootnotes) break;
+    const terms = sentence.toLowerCase().split(/[^a-z]+/).filter((w) => w.length > 3);
+    if (terms.length < 4) continue;
+    // Best-supporting source by token overlap (cite.js discipline: a word is
+    // not evidence; a phrase shared with the source is).
+    let best = null, bestScore = 0;
+    for (const [url, text] of webSources.entries()) {
+      if (!text) continue;
+      const src = text.toLowerCase();
+      const hits = terms.filter((t) => src.includes(t)).length;
+      if (hits > bestScore) { bestScore = hits; best = url; }
+    }
+    if (!best || bestScore < 3) continue; // not grounded enough to cite
+    const srcText = String(webSources.get(best) ?? "");
+    // The verbatim span: the source's sentence most overlapping this one.
+    const srcSentences = srcText.replace(/\s+/g, " ").split(/(?<=[.!?])\s+(?=[A-Z])/).map((s) => s.trim());
+    let span = null, spanScore = 0;
+    for (const ss of srcSentences) {
+      const hits = terms.filter((t) => ss.toLowerCase().includes(t)).length;
+      if (hits > spanScore) { spanScore = hits; span = ss; }
+    }
+    if (!span || spanScore < 3) continue;
+    // APA-ish author/year: host + year from the URL's page (no publication
+    // date available to a fetch — the host is the named source, the year is
+    // the retrieval year, disclosed honestly).
+    let host = "Unknown";
+    try { host = new URL(best).hostname.replace(/^www\./, ""); } catch {}
+    const year = new Date().getFullYear();
+    notes.push({ sentence, host, year, url: best, span });
+  }
+  if (!notes.length) return "";
+  // Footnotes: numbered in the essay, then the block at the end.
+  const block = notes.map((n, i) => `${i + 1}. (${n.host}, ${n.year}). "${n.span}" — ${n.url}`).join("\n");
+  return `\n\n## Footnotes\n\n${block}`;
+}
+
+// ── disk persistence: the essay LIVES as a JSONL file, projectable anytime ─
+// The working essay is never just in-memory: every observation is appended as
+// one JSONL line to <dir>/<docId>.jsonl, and the CURRENT state is always the
+// projection of that file — the same fold discipline the reader's own log
+// holds (S78: the log is the artifact, the tree is a projection). A later
+// edit appends; nothing rewrites in place. projectLedgerFile re-folds the
+// file at any moment, so a long essay can be re-projected mid-writing.
+import fs from "node:fs";
+import path from "node:path";
+
+export function ledgerFilePath(dir, docId) {
+  return path.join(dir, `${String(docId).replace(/[^a-z0-9:_-]/gi, "_")}.jsonl`);
+}
+
+export function appendLedgerLine(ledger, entry, { dir = null } = {}) {
+  const line = appendDocumentObservation(ledger, entry);
+  if (dir) {
+    try {
+      fs.appendFileSync(ledgerFilePath(dir, ledger.docId), JSON.stringify(line) + "\n");
+    } catch { /* disk off: the in-memory ledger still holds the record */ }
+  }
+  return line;
+}
+
+export function projectLedgerFile(filePath, { includeTitle = true } = {}) {
+  let text = "";
+  try { text = fs.readFileSync(filePath, "utf8"); } catch { return null; }
+  const ledger = { schema: SCHEMA, docId: path.basename(filePath, ".jsonl"), title: "", lines: [], superseded: new Set(), nextAddress: 0 };
+  for (const line of String(text).split("\n")) {
+    if (!line.trim()) continue;
+    let obj;
+    try { obj = JSON.parse(line); } catch { continue; }
+    if (!obj || typeof obj.id !== "string") continue;
+    ledger.lines.push(obj);
+    if (obj.supersedes) ledger.superseded.add(obj.supersedes);
+  }
+  return projectDocument(ledger, { includeTitle });
+}
+
+export function projectLedgerChangelog(filePath, { declaredParts = null } = {}) {
+  let text = "";
+  try { text = fs.readFileSync(filePath, "utf8"); } catch { return null; }
+  const ledger = { schema: SCHEMA, docId: path.basename(filePath, ".jsonl"), title: "", lines: [], superseded: new Set(), nextAddress: 0 };
+  for (const line of String(text).split("\n")) {
+    if (!line.trim()) continue;
+    let obj;
+    try { obj = JSON.parse(line); } catch { continue; }
+    if (!obj || typeof obj.id !== "string") continue;
+    ledger.lines.push(obj);
+    if (obj.supersedes) ledger.superseded.add(obj.supersedes);
+  }
+  return documentChangeLog(ledger, { declaredParts });
 }
