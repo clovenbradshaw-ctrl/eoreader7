@@ -2036,7 +2036,20 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
             .then((r) => ({ landed: true, result: r }))
             .catch(() => ({ landed: false }));
         }
-        // WHERE THE ESSAY STANDS — folded, never dumped. The earlier sections
+        // The GROUNDING TEXT is what the EVA checks measure a section against:
+      // the FULL retained web corpus (every fetched page, addressable) plus
+      // the surfaced windows. The surfaced sample alone is too thin for a
+      // 24-cell essay — a section naming Tragelaphus eurycerus is grounded,
+      // but the surf may only have returned two windows. Grounding against
+      // the whole corpus is the honest test: did the section use the real
+      // material's words, not just the two most-surfaced segments?
+      const groundingText = () => {
+        const parts = [];
+        if (session.webSources?.size) for (const text of session.webSources.values()) if (text) parts.push(String(text));
+        for (const s of surfacedSegments ?? []) if (s?.text) parts.push(String(s.text));
+        return parts.join("\n").slice(0, 200000);
+      };
+      // WHERE THE ESSAY STANDS — folded, never dumped. The earlier sections
         // are read as the essay's own conversation and folded at resolutions
         // (atmosphere/lens/paradigm), so this section knows what the piece has
         // established and can COMPOSE with it — transition, build, never
@@ -2104,7 +2117,7 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
         // meta, thin are the editor's brief, which reads the WHOLE essay and
         // fixes every finding in one holistic pass instead of patching each
         // section in isolation (the loop-on-loops this replaces).
-        const sectionEva = satisfactionOfSection(buf, { theme: section, material: material.join("\n"), prior: documentLines.length ? documentLines[documentLines.length - 1] : "" });
+        const sectionEva = satisfactionOfSection(buf, { theme: section, material: groundingText(), prior: documentLines.length ? documentLines[documentLines.length - 1] : "" });
         const strainAdded = sectionEva.strain;
         totalStrain += strainAdded;
         if (onNote) onNote({ move: "strain", section, strain: strainAdded, failures: sectionEva.failures.map((f) => f.kind) });
@@ -2165,7 +2178,7 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
         // Nothing is filtered out: an ungrounded section is fixable too (it
         // must be rewritten FROM the material), and the loop is bounded by
         // `applied` (a round that lands nothing stops) and MAX_REWRITE_ROUNDS.
-        const findings = aggregateEssayFindings({ sections: plannedSections, documentLines, material: material.join("\n"), shapeCheck });
+        const findings = aggregateEssayFindings({ sections: plannedSections, documentLines, material: groundingText(), shapeCheck });
         const fixable = findings;
         if (!fixable.length) break;
         if (onNote) onNote({ move: "murch", round: round + 1, findings: fixable.map((f) => `${f.kind}${f.sectionIndex != null ? `@${f.sectionIndex}` : ""}`) });
@@ -2393,7 +2406,7 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
     // ask whether it is FILLED. We know we've learned when the void we
     // declared — across its nine operators — is filled by sections that pass
     // its admission test. Strain is the REC pressure the void demanded.
-    satisfaction: documentLedger ? fillCheck(voidDeclaration, documentLines, plannedSectionsOut, { material: material.join("\n") }) : null,
+    satisfaction: documentLedger ? fillCheck(voidDeclaration, documentLines, plannedSectionsOut, { material: groundingText() }) : null,
     totalStrain,
     thinking: thinkingBlock || null,
     answerShape: answerShape.shape,
