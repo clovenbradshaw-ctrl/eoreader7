@@ -138,6 +138,8 @@ export function humanizeNote(note) {
       return `Section check failed: ${(note.failures ?? []).join("; ")} (strain ${note.strain}).`;
     case "strain":
       return `Strain on "${note.section}": ${note.strain}.`;
+    case "citation_ledger":
+      return `Citation ledger written: ${note.citations} verbatim span(s) with byte addresses → ${note.path}`;
     case "strike_revision":
       return `Revision: the reading grew — "${note.section}" rewritten with the new material (${note.reason}).`;
     case "competency":

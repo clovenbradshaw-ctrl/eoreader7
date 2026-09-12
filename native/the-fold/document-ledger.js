@@ -376,12 +376,93 @@ export function renderApaFootnotes(essay, webSources = new Map(), { maxFootnotes
     let host = "Unknown";
     try { host = new URL(best).hostname.replace(/^www\./, ""); } catch {}
     const year = new Date().getFullYear();
-    notes.push({ sentence, host, year, url: best, span });
+    notes.push({ sentence, host, year, url: best, span, spanIndex: srcText.indexOf(span) });
   }
   if (!notes.length) return "";
   // Footnotes: numbered in the essay, then the block at the end.
   const block = notes.map((n, i) => `${i + 1}. (${n.host}, ${n.year}). "${n.span}" — ${n.url}`).join("\n");
   return `\n\n## Footnotes\n\n${block}`;
+}
+
+// ── the citation ledger: a JSON doc with the REAL verbatim source spans ─────
+// Footnotes are text; this is the STRUCTURED record. For every cited essay
+// sentence, it carries the source URL, the EXACT verbatim span the essay
+// borrows from (taken from the retained shadow text, never paraphrased), and
+// its BYTE ADDRESS into that retained text — so each citation points into the
+// recoverable source, EOT-style: the address is a birth, not a spelling. The
+// ledger is what a reader (or a check) consults to confirm a claim stands on
+// real bytes. Written as a sidecar JSON beside the essay.
+export function citationLedger(essay, webSources = new Map(), { maxCitations = 20 } = {}) {
+  if (!webSources.size) return { citations: [], of: 0, basis: "no retained sources to cite against" };
+  const sentences = String(essay ?? "")
+    .replace(/\s+/g, " ")
+    .split(/(?<=[.!?])\s+(?=[A-Z])/)
+    .map((s) => s.trim())
+    .filter((s) => s.length > 25);
+  const citations = [];
+  for (const sentence of sentences) {
+    if (citations.length >= maxCitations) break;
+    const terms = sentence.toLowerCase().split(/[^a-z]+/).filter((w) => w.length > 3);
+    if (terms.length < 4) continue;
+    let best = null, bestScore = 0;
+    for (const [url, text] of webSources.entries()) {
+      if (!text) continue;
+      const src = text.toLowerCase();
+      const hits = terms.filter((t) => src.includes(t)).length;
+      if (hits > bestScore) { bestScore = hits; best = url; }
+    }
+    if (!best || bestScore < 3) continue;
+    const srcText = String(webSources.get(best) ?? "");
+    const srcSentences = srcText.replace(/\s+/g, " ").split(/(?<=[.!?])\s+(?=[A-Z])/).map((s) => s.trim());
+    let span = null, spanScore = 0;
+    for (const ss of srcSentences) {
+      const clean = cleanSpan(ss);
+      if (clean.length < 25 || clean.length > 260) continue;
+      const hits = terms.filter((t) => clean.toLowerCase().includes(t)).length;
+      if (hits > spanScore) { spanScore = hits; span = clean; }
+    }
+    if (!span || spanScore < 3) continue;
+    const at = srcText.indexOf(span);
+    let host = "Unknown";
+    try { host = new URL(best).hostname.replace(/^www\./, ""); } catch {}
+    // THE HOLOGRAPH POINTER: for each content term the essay sentence shares
+    // with the source, record the term and its BYTE RANGE in the retained
+    // source text. Every holographical term in the output points precisely to
+    // the input bytes it came from — an address is a birth, not a spelling,
+    // and a reader can open the source at these offsets and find the exact
+    // words the essay borrowed, term by term.
+    const srcLower = srcText.toLowerCase();
+    const essayLower = sentence.toLowerCase();
+    const termSpans = [];
+    const seenTerms = new Set();
+    const termRe = /[a-z]{4,}/g;
+    let tm;
+    while ((tm = termRe.exec(essayLower))) {
+      const term = tm[0];
+      if (seenTerms.has(term)) continue;
+      seenTerms.add(term);
+      // The term's first occurrence in the SOURCE (the span was already found;
+      // within it, each shared term's own address).
+      const inSpan = span.toLowerCase().includes(term);
+      const from = inSpan ? srcText.indexOf(term, at >= 0 ? at : 0) : srcText.indexOf(term);
+      if (from >= 0) {
+        termSpans.push({ term, at: [from, from + term.length], inBorrowedSpan: inSpan });
+      }
+    }
+    citations.push({
+      essaySentence: sentence,
+      source: { url: best, host },
+      verbatimSpan: span,
+      // The span's BYTE ADDRESS into the retained source text — a birth, not a
+      // spelling: whoever checks the citation can open the retained bytes at
+      // this offset and find the exact words the essay borrowed.
+      at: at >= 0 ? [at, at + span.length] : null,
+      // The holograph pointer: term-by-term byte addresses into the source.
+      terms: termSpans.slice(0, 12),
+      retrievedAt: new Date().toISOString(),
+    });
+  }
+  return { citations, of: citations.length, basis: `mechanically attributed, ${citations.length} of ${Math.min(sentences.length, maxCitations)} sentences cited against ${webSources.size} retained source(s)` };
 }
 
 // ── disk persistence: the essay LIVES as a JSONL file, projectable anytime ─

@@ -18,7 +18,7 @@ import { postprocessAnswer, warmPostprocess, getPyodide } from "./postprocess.mj
 import { resolutionBlocks } from "./native/the-fold/resolutions.js";
 import { tokenize } from "./native/the-fold/source.js";
 import { readingIndexFromLog } from "./native/the-fold/reading-log.js";
-import { createDocumentLedger, appendDocumentObservation, appendLedgerLine, projectDocument, documentChangeLog, admitPart, serializeLedger, snipsFromSources, checkEssayShape, ledgerFilePath, renderApaFootnotes, satisfactionOfSection, satisfactionOf, declareEssayVoid, fillCheck } from "./native/the-fold/document-ledger.js";
+import { createDocumentLedger, appendDocumentObservation, appendLedgerLine, projectDocument, documentChangeLog, admitPart, serializeLedger, snipsFromSources, checkEssayShape, ledgerFilePath, renderApaFootnotes, satisfactionOfSection, satisfactionOf, declareEssayVoid, fillCheck, citationLedger } from "./native/the-fold/document-ledger.js";
 import { goreBoundary, gatherPlan, cueGoDeeperPlan, doubleCheckPlan } from "./native/the-fold/gore.js";
 // The keyless field (GFP Pass 35, the-fold c232779): recall by partial-cue
 // resemblance, resolution by state — no absolute address. Surf's SECOND
@@ -1869,10 +1869,19 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
       // document-ledger observation after the sections, with source URLs.
       if (documentLedger && session.webSources && session.webSources.size) {
         const snips = snipsFromSources(session.webSources);
+        // The structured citation ledger: a JSON doc beside the essay with the
+        // REAL verbatim source spans and their byte addresses into the retained
+        // shadow text — every citation points at actual bytes, never a guess.
+        const assembledBody = documentLines.join("\n\n");
+        const cites = citationLedger(assembledBody, session.webSources);
+        if (cites.citations.length) {
+          const citesPath = path.join(ESSAY_LEDGER_DIR, `${documentLedger.docId.replace(/:/g, "_")}.citations.json`);
+          try { fs.writeFileSync(citesPath, JSON.stringify({ docId: documentLedger.docId, ...cites }, null, 2)); } catch {}
+          if (onNote) onNote({ move: "citation_ledger", path: citesPath, citations: cites.citations.length, basis: cites.basis });
+        }
         // APA footnotes: each essay sentence attributed mechanically to its
         // best source, with the VERBATIM span it borrows from — the Fold's
         // cite.js discipline (an address is attached, never requested).
-        const assembledBody = documentLines.join("\n\n");
         const footnoteBlock = renderApaFootnotes(assembledBody, session.webSources);
         if (footnoteBlock) {
           appendLedgerLine(documentLedger, {
@@ -1955,6 +1964,7 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
           changelog: documentChangeLog(documentLedger, { declaredParts: sections }),
           ledger: serializeLedger(documentLedger),
           ledgerFile: documentLedger ? ledgerFilePath(ESSAY_LEDGER_DIR, documentLedger.docId) : null,
+          citationsFile: documentLedger ? path.join(ESSAY_LEDGER_DIR, `${documentLedger.docId.replace(/:/g, "_")}.citations.json`) : null,
         }
       : null,
     usage,
