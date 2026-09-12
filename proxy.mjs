@@ -438,18 +438,21 @@ const server = http.createServer(async (req, res) => {
           }
         }
       } else {
-        try {
-          // RESILIENCE: bound the non-streaming turn too — a wedged turn must
-          // return a typed error, never leave the client hanging.
-          const turnAbort = new AbortController();
-          const onDisconnect = () => {
+        // RESILIENCE: bound the non-streaming turn too — a wedged turn must
+        // return a typed error, never leave the client hanging. HOISTED above
+        // the try/catch (same as the streaming path): the catch block must be
+        // able to clearTimeout the deadline and remove the disconnect listener
+        // without a ReferenceError killing the whole server.
+        const turnAbort = new AbortController();
+        const onDisconnect = () => {
           if (res.writableEnded) return; // response finished — not a disconnect
           if (!turnAbort.signal.aborted) turnAbort.abort();
         };
-          res.on("close", onDisconnect);
-          const turnDeadline = setTimeout(() => {
-            if (!turnAbort.signal.aborted) turnAbort.abort();
-          }, TURN_DEADLINE_MS);
+        res.on("close", onDisconnect);
+        const turnDeadline = setTimeout(() => {
+          if (!turnAbort.signal.aborted) turnAbort.abort();
+        }, TURN_DEADLINE_MS);
+        try {
           const result = await runProxyTurn({ sessionId, userId, workspace, signal: turnAbort.signal, ...reqData });
           clearTimeout(turnDeadline);
           res.removeListener("close", onDisconnect);
@@ -556,17 +559,19 @@ const server = http.createServer(async (req, res) => {
           }
         }
       } else {
-        try {
-          // RESILIENCE: same abort + deadline for the non-streaming shape.
-          const turnAbort = new AbortController();
-          const onDisconnect = () => {
+        // RESILIENCE: same abort + deadline for the non-streaming shape.
+        // HOISTED above the try/catch so the catch block can clear the
+        // deadline without a ReferenceError killing the server.
+        const turnAbort = new AbortController();
+        const onDisconnect = () => {
           if (res.writableEnded) return; // response finished — not a disconnect
           if (!turnAbort.signal.aborted) turnAbort.abort();
         };
-          res.on("close", onDisconnect);
-          const turnDeadline = setTimeout(() => {
-            if (!turnAbort.signal.aborted) turnAbort.abort();
-          }, TURN_DEADLINE_MS);
+        res.on("close", onDisconnect);
+        const turnDeadline = setTimeout(() => {
+          if (!turnAbort.signal.aborted) turnAbort.abort();
+        }, TURN_DEADLINE_MS);
+        try {
           const result = await runProxyTurn({ sessionId, userId, workspace, signal: turnAbort.signal, ...reqData });
           clearTimeout(turnDeadline);
           res.removeListener("close", onDisconnect);
