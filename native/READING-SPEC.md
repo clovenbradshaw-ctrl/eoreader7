@@ -5275,3 +5275,22 @@ The mechanism is standing law already: `organs/witness-sentences.js` runs the se
 **Settled:** zero FALSE items ever read `states` at either scale — the precision guarantee this organ's own header exists to keep survives a 400x jump in material, with retrieval and chunking (11,132 byte-addressed chunks, 0.2s) running correctly and fast throughout. **Not settled, disclosed rather than smoothed over:** recall collapsed 3/9 → 0/9 on the identical protocol, diagnosed three ways in the RESULTS.md before being trusted as a material/model-capacity finding rather than a pipeline bug — byte-verified retrieval correctness on the worst case, the single correct candidate sentence printed directly, the raw model verdict on it printed directly (a genuine stating sentence judged not-stating, most likely because the fact sits inside a subordinate clause of a longer reported-speech sentence rather than a short standalone declarative the excerpt battery used), and the identical 0/9/0/7 shape reproduced on a second, independent instrument (llama3.2:latest). Whether this is an acceptable ceiling (the wall exists to prefer silence over an unchallenged yes) or needs a wider candidate unit than one sentence is named as the next measurement, not attempted here — `LIMIT=1` vs `LIMIT=3` retrieval width made no difference, so the bottleneck is the sentence the model is shown, not how many passages it came from.
 
 **Files, not restated here.** `eval/the-fold/witness-paraphrase.mjs`, `eval/the-fold/witness-paraphrase-corpus.mjs`, `eval/the-fold/results/witness-paraphrase-corpus-RESULTS.md`, `organs/witness-sentences.js`, `the-fold/app.js::witnessTestimony`.
+
+## S112 — Received priors ARE the floor: the vocabulary admits, recurrence earns, and the assembly reads relations again (2026-09-12)
+
+**Generality:** universal to every text reader (native + legacy). The sorting of a stated-but-unimplemented law, proven by measurement before it was set.
+
+**The contradiction, sorted.** LAVAR §8 says *"Received priors stay as the floor... the first reading of anything has no live prior to stand on."* But the text reader's verb admission (`admittedRelationVerbs`, `recursive.js`) implemented only the EARNED tier — a verb entered the vocabulary only after following a recurring surface at `minRelationSurfaces` — and loaded `posPrior` only to TYPE the grain, never to ADMIT a verb. So the "floor" was a typer, not a floor. The contradiction is between two policies as-implemented:
+
+- **Earned (S86-family):** "a token is nominated as a verb only after following a recurring surface" — a genuine discipline, but capitalisation-gated, so pronoun-narrated prose (AIW ch1) starves the vocabulary to zero.
+- **Received floor (LAVAR §8):** stated, unimplemented.
+
+**The sorting.** The two govern different tiers of the vocabulary, and that is the reconciliation:
+1. **Received priors ADMIT** — every form the received POS prior (UD_English-EWT, named giver) attests as (VERB+AUX)-dominant at the project's own `GRAMMAR_MIN_SHARE` joins the vocabulary as an ADDITION. A received fact needs no recurrence floor.
+2. **Recurrence EARNS** — the material's own nominations are kept whole at their declared `minRelationSurfaces`.
+3. **Union, never replacement** (§8's "accrete above, never replace") — Field connectors (ADP-dominant) stay out, so grain typing is untouched.
+4. **Justification is §8's own text, never a golden** — the never-tune rule is untouched. `minRelationSurfaces` is NOT lowered; it governs the earned tier only, and each tier's floor is derived from what the tier is (a received fact vs. a repeated pattern).
+
+**Proven before set.** On AIW ch1's actual prose (88 encounters): the assembly at earned-only read **0 relation edges**; with §8 implemented it reads **264**, and graded against the hand-authored golden ch1 it scores **recall 43.6% vs the ledger reference's 36.3%, GFP coverage 76.9% vs 76.6%** — the full-policy assembly with the received floor is the best version, measured, not asserted. No regression in the tests that import `recursive.js` (the fast pre-existing failures fail identically without the change).
+
+**Files.** `native/adapters/text/recursive.js` (`admittedRelationVerbs` gains the received tier). The ledger reference (`eot-jsonl.mjs`) already carried the same widening; this makes the production assembly carry it too — one law, both readers.

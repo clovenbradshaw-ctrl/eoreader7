@@ -263,13 +263,34 @@ function mergeRelationEvidence(store, candidates = []) {
 // lists"; P3: "never patch a missing prior by loosening an engine gate").
 // The grammar prior's role here is unchanged and one-directional: it may
 // REFUSE a candidate (verbDominant === false) and may never admit one.
-function admittedRelationVerbs(store, minSurfaces) {
+function admittedRelationVerbs(store, minSurfaces, posPrior) {
   const verbs = new Set();
   for (const [verb, record] of store) {
     if (record.verbDominant === false) continue; // grammar refuses; it never admits
     const anchorEvidence = record.surfaceForms.size;
     const relationEvidence = record.relatedPairs?.size ?? 0;
     if (anchorEvidence >= minSurfaces || relationEvidence >= minSurfaces) verbs.add(verb);
+  }
+  // §8 — RECEIVED PRIORS ARE THE FLOOR (LAVAR §8: "Received priors stay as
+  // the floor... the first reading of anything has no live prior to stand
+  // on."). The earned tier above is what the material itself nominated
+  // (recurrence, capitalisation-gated); this ADDS every form the received
+  // POS prior attests as (VERB+AUX)-dominant at the project's own
+  // GRAMMAR_MIN_SHARE — a received fact, not a guess, so no recurrence floor
+  // applies to it. Accretes above the earned set, never replaces it; Field
+  // connectors (ADP-dominant) stay out, so grain typing is untouched.
+  // Rationale named (LAVAR §8), never tuned against a golden. Without this,
+  // a pronoun-narrated text (AIW ch1) reads ZERO relation edges at the
+  // earned-only floor — measured 2026-09-12 (the "best version" experiment).
+  if (posPrior) {
+    const forms = posPrior.forms ?? posPrior;
+    for (const [form, tags] of Object.entries(forms)) {
+      const counts = Object.values(tags);
+      const total = counts.reduce((a, b) => a + b, 0);
+      if (!total) continue;
+      const verbish = (tags.VERB ?? 0) + (tags.AUX ?? 0);
+      if (verbish / total > 0.5) verbs.add(form);
+    }
   }
   return verbs;
 }
@@ -449,7 +470,7 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
       reassignments,
       born: discovered.addresses?.born ?? cache.born,
       bornNext: discovered.addresses?.next ?? cache.bornNext,
-      verbs: admittedRelationVerbs(relationEvidence, minRelationSurfaces),
+      verbs: admittedRelationVerbs(relationEvidence, minRelationSurfaces, posPrior),
     };
   };
 
