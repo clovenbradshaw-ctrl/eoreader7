@@ -43,7 +43,7 @@ import { styleGrade as strunkWhiteGrade } from "./native/organs/strunk-white.js"
 import { pacingGrade as murchPacing } from "./native/organs/pacing.js";
 import { storyShape as vonnegutShape } from "./native/organs/vonnegut.js";
 import { classifyArc } from "./native/organs/story-shapes.js";
-import { essayVoidHolarchy } from "./native/organs/void-holarchy.js";
+import { voidHolarchy } from "./native/organs/void-holarchy.js";
 import { execFileSync } from "node:child_process";
 // The earned cast — the per-turn instruction set. Vendored at the
 // native/the-fold seam. PURE; the proxy feeds real conversation state and
@@ -3042,17 +3042,39 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
     vonnegut: documentLedger && rawEntries?.length && documentLines.length
       ? classifyArc(vonnegutShape(documentLines, { materialPropositions: notesFromEdges(rawEntries), index: sessionReferentIndex(session) }))
       : null,
-    // THE VOID HOLARCHY — the piece's nested voids, every level a WHOLE (its own
-    // nine-operator DEF) and a PART (a filler covering an extent in the level
-    // above). The law of holons: low sets possibility for high, high
-    // probability for low — the clause's void bounds what the sentence can
-    // assert; the document's declared shape spawns the section-voids. A level
-    // left under-specified is a visible gap, never a silent default.
+    // THE VOID HOLARCHY — the artifact's nested voids, every level a WHOLE (its
+    // own nine-operator DEF) and a PART (a filler covering an extent in the
+    // level above). OMNIMODAL (S6): the levels are structural — whole → part
+    // → sub-part — and the modality only names them (the whole is the piece
+    // in text, the work in music, the artifact in code). The law of holons:
+    // low sets possibility for high, high probability for low — a sub-part's
+    // void bounds what its part can assert; the whole's declared shape spawns
+    // the part-voids. A level left under-specified is a visible gap.
     voidHolarchy: sections.length
-      ? essayVoidHolarchy({
-          title: task.slice(0, 60),
-          topic: topicPhrase(task),
-          sections,
+      ? voidHolarchy({
+          modality: "text",
+          fieldsByLevel: {
+            whole: {
+              slot: task.slice(0, 60),
+              anchor: topicPhrase(task),
+              admits: "a part",
+              extent: sections.length ? { from: 1, to: sections.length + 1 } : null,
+              relation: "is a part of",
+              composition: sections.length ? "the parts compose the whole" : null,
+              cardinality: sections.length || null,
+              admission: "a part with real content, grounded, written as the artifact itself",
+              reopensOn: "a part that is thin, ungrounded, or meta-commentary",
+            },
+            part: {
+              slot: sections.length ? `${sections.length} part(s)` : null,
+              admits: "a sub-part",
+              extent: sections.length ? { from: 1, to: sections.length + 1 } : null,
+              relation: "is a part of",
+              cardinality: sections.length || null,
+              admission: "a sub-part with real content, grounded",
+              reopensOn: "a sub-part that is thin or ungrounded",
+            },
+          },
         })
       : null,
     totalStrain,

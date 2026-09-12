@@ -375,6 +375,28 @@ const server = http.createServer(async (req, res) => {
         };
         const onThinking = reqData.discloseThinking ? emitThinking : null;
 
+        // ── OPERATIONAL DISCLOSURE ────────────────────────────────────────────
+        // The user's own question, answered in the thinking panel: how long
+        // will this take, and how busy is the box. The bridge (Heimdall)
+        // forwards x-heimdall-* headers when it steers; when the proxy is hit
+        // directly (no bridge), the fields are simply absent and nothing is
+        // claimed. This is disclosure about the INSTRUMENT'S OWN STATE — the
+        // one place it is allowed to be visible — never part of the answer.
+        const eta = String(req.headers["x-heimdall-eta"] ?? "").trim();
+        const cpuBusy = String(req.headers["x-heimdall-cpu"] ?? "").trim();
+        const gpuBusy = String(req.headers["x-heimdall-gpu"] ?? "").trim();
+        const disclosureLine = (() => {
+          const parts = [];
+          if (eta && eta !== "now") parts.push(`about ${eta} to respond`);
+          else if (eta === "now") parts.push("no wait ahead");
+          if (cpuBusy) parts.push(`CPU ~${cpuBusy}% busy`);
+          if (gpuBusy) parts.push(`GPU ~${gpuBusy}% busy`);
+          return parts.length ? `Heimdall: ${parts.join(" · ")}.` : null;
+        })();
+        if (reqData.discloseThinking && disclosureLine) {
+          emitThinking(`\n${disclosureLine}\n`);
+        }
+
         try {
           const result = await runProxyTurn({ sessionId, userId, workspace, signal: turnAbort.signal, ...reqData }, emit, onNote, onThinking);
           clearTurn();
