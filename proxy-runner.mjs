@@ -2033,6 +2033,7 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
   // and adds themes as the reading grows). Hoisted so the satisfaction check
   // reads the plan the essay actually wrote, whether or not the block ran.
   let plannedSectionsOut = [...sections];
+  let rankeTotalFindings = 0; // Ranke's rewrite count, hoisted for the thinking surface (scoped across the composition block)
   // A generated composition is a DOCUMENT LEDGER (EOT): every part admitted
   // is a line, every revision is a line, and the text a person reads is a
   // PROJECTION of the ledger — the full revision history is always re-foldable.
@@ -2354,7 +2355,6 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
       // Bounded: each section rewritten at most MAX_REWRITE_ROUNDS across the
       // pass; a section that still fails becomes a declared gap, never churned.
       const rankeAttempts = new Map(); // sectionIndex -> rewrite count, persists across rounds
-      let rankeTotalFindings = 0; // hoisted for the thinking surface
       for (let round = 0; round < MAX_REWRITE_ROUNDS && !truncated; round++) {
         const rankeFindings = [];
         // RANKE FOLDS THE ESSAY AT THE MATERIAL'S OWN POINTS. The material was
