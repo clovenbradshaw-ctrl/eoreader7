@@ -199,7 +199,7 @@ export function humanizeNote(note) {
     case "murch":
       return `Murch, pass ${note.round}: editing the whole — ${(note.findings ?? []).join(", ")}.`;
     case "fisher":
-      return `Fisher: the openings repeat above chance (p=${note.p}, ${note.repeated} section(s) share a construction) — Oliveros will vary them.`;
+      return `Fisher: the openings repeat above chance (p=${note.p}, ${note.repeated} section(s) share a construction) — Sacks will vary them.`;
     case "murch_applied":
       return `Murch applied ${note.applied} revision(s) this pass.`;
     case "ranke":

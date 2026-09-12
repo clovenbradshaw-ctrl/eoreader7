@@ -38,6 +38,11 @@ import { extractReadable, parseSearchResults, extractUrls, normalizeUrl, WEB_SEA
 // disagreement, and a text→image render for text whose formatting the
 // plain-text reader is reading wrong.
 import { isImageFileName, lookAtImage, lookAtText, shouldLook, weirdFormattingScore } from "./native/organs/look.js";
+// The earned cast — the per-turn instruction set. Vendored at the
+// native/the-fold seam. PURE; the proxy feeds real conversation state and
+// receives ONLY the cued facts for this turn. The mouth is never told it is
+// playing a role: cueBundle's `mouth` is object-level facts alone.
+import { classifySpeech, cueBundle, bannedHits } from "./native/the-fold/earned-cast.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const GIVER = "reader:eoreader7-proxy";
@@ -831,6 +836,36 @@ function planComposition({ index, hyperlexicon, resolutions, surfacedSegments, t
 }
 
 export const REQUEST_TIMEOUT_MS = Number(process.env.ER7_REQUEST_TIMEOUT_MS) || 290000;
+
+// ── the earned cast, per turn: the model gets ONLY the facts this turn
+// earned, and never a role. `cueBundle` classifies the turn's speech act
+// against the real conversation state (the person's own prior assertions,
+// known gaps) and returns object-level facts. We append only `mouth`
+// (firewall-clean, covert-clean, cast-name-free by construction) to the
+// system content — never a persona name, never a "you are X" role line.
+// The ban is enforced here too: a leak drops the cue, never ships it.
+function earnedCue({ task, chatHistory = [], surfVoidInfo = null }) {
+  try {
+    const personClaims = (chatHistory ?? [])
+      .filter((m) => m?.role === "user" && typeof m.content === "string" && m.content.trim())
+      .slice(-3)
+      .map((m) => m.content.trim());
+    const state = {
+      personClaims,
+      // A confirmed absence is a gap with its path, never a defeatist stop.
+      ...(surfVoidInfo ? { gaps: [surfVoidInfo.gap ?? "nothing here answers it"] } : {}),
+      ...(surfVoidInfo ? { notEstablished: [surfVoidInfo.gap ?? "it"] } : {}),
+    };
+    const bundle = cueBundle({ act: classifySpeech(task), state, depth: 1 });
+    const mouth = String(bundle.mouth ?? "").trim();
+    if (!mouth) return null;
+    const leaks = bannedHits(mouth);
+    if (leaks.length) return null; // a leaking cue is dropped, never shipped
+    return { mouth, act: bundle.act, strain: bundle.strain, eligible: bundle.eligible };
+  } catch {
+    return null; // the cue must never break a turn
+  }
+}
 
 function normalizePosPrior(prior, sourcePath) {
   if (!prior || prior.schema !== "POSPrior@1") throw new Error(`${sourcePath} is not a POSPrior@1 file`);
@@ -1974,6 +2009,15 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
   }
   if (onNote) onNote({ move: "prompt_budget", system: systemCore.length, chat: keptChat.length, chatChars: chatLen, materialSegments: material.length, materialChars: used, taskChars: taskLen, max: PROMPT_MAX_CHARS });
 
+  // ── the earned cast, this turn only. The model is never told it is
+  // playing a role — it receives exactly the facts this turn earned, at the
+  // object level, and nothing else. A cue with nothing to say adds nothing.
+  const cue = earnedCue({ task, chatHistory: keptChat, surfVoidInfo });
+  if (cue?.mouth) {
+    systemContent += `\n\nA few things to keep in mind as you answer:\n${cue.mouth}`;
+    if (onNote) onNote({ move: "earned_cue", act: cue.act, strain: cue.strain, attentions: cue.eligible, chars: cue.mouth.length });
+  }
+
   const ollamaMessages = [];
   ollamaMessages.push({ role: "system", content: systemContent });
   for (const m of keptChat) {
@@ -2466,7 +2510,7 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
         // neighbor-overlap check misses): five paragraphs opening "The bongo
         // antelope, scientifically classified as..." recur ABOVE CHANCE
         // (p from a word-order-scramble null). Fisher names the repeated
-        // openings; Murch flags them; OLIVEROS varies them.
+        // openings; Murch flags them; SACKS varies them.
         const fisher = detectRepetition(documentLines, { shuffles: 400 });
         if (fisher.significant && fisher.repeated.length) {
           if (onNote) onNote({ move: "fisher", p: fisher.p, observed: fisher.observed, repeated: fisher.repeated.length, basis: fisher.basis });
@@ -2509,13 +2553,16 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
           }
           // A section finding (meta/repetition/thin/ungrounded) — rewrite that
           // specific section from the material, keeping the piece's voice.
-          // OLIVEROS's deep-listening instruction rides the repetition
-          // finding: vary the OPENING so it does not echo the other sections'
-          // construction — the pulse of the piece must not fall into a rut.
-          const oliverosNote = f.kind === "repetition"
-            ? " Open differently — do not begin the way the other sections begin; vary the construction, the rhythm, the first phrase. Listen to what the piece has already said and start somewhere it has not."
+          // SACKS's science-communicator instruction rides the repetition finding:
+          // the piece must be ACCURATE and WORTH READING — the dash of
+          // surprise, of off-kilterness, of the human particular that makes
+          // exact science alive. Vary the opening so it does not echo the
+          // other sections' construction — open where the piece has not
+          // already started.
+          const sacksNote = f.kind === "repetition"
+            ? " Open differently — do not begin the way the other sections begin. Make it alive, off-kilter, surprising: an exact fact landed in a way the reader did not expect, the way a striking case makes neurology vivid. Vary the construction and the rhythm."
             : "";
-          const fixMsg = `We're editing a piece on ${topic}. ${editorStanding ? `Where the piece stands: ${editorStanding}\n\n` : ""}The editor found this problem in one section:\n- [${f.kind}] ${f.detail}\n\nThe current section reads:\n"""\n${String(targetSection ?? "").slice(0, 1200)}\n"""\n\nRewrite that section from the material, in the piece's own voice — a substantial passage, several sentences, the material's own facts and wording, no introduction, no commentary about writing.${oliverosNote} Write only the corrected section.`;
+          const fixMsg = `We're editing a piece on ${topic}. ${editorStanding ? `Where the piece stands: ${editorStanding}\n\n` : ""}The editor found this problem in one section:\n- [${f.kind}] ${f.detail}\n\nThe current section reads:\n"""\n${String(targetSection ?? "").slice(0, 1200)}\n"""\n\nRewrite that section from the material, in the piece's own voice — a substantial passage, several sentences, the material's own facts and wording, no introduction, no commentary about writing.${sacksNote} Write only the corrected section.`;
           const fix = await draw(
             [{ role: "system", content: systemContent }, ...keptChat, { role: "user", content: fixMsg }],
             SECTION_MAX_TOKENS,
