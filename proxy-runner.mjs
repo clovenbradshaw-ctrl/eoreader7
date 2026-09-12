@@ -1565,7 +1565,13 @@ const modelsUp = await ollamaReachable();
   // Gore's initial gather: hunt the FIRST question (the most basic: "What is
   // X?") to seed the reading — then the per-section loop below strikes each
   // remaining question for its own shape.
-  const seedQuery = voidQuestions[0] ?? topic;
+  // The SEED QUERY is the clean TOPIC, never the first void question — a
+  // question like "What is the bongo antelope, marked off from everything
+  // adjacent to it — what space is this essay..." is a terrible web search
+  // string (measured: it returned nothing, so the ground was the chat text
+  // alone and every section failed grounding). The topic is a real search
+  // term; the void questions are the SECTIONS, not the search queries.
+  const seedQuery = topic;
   const webResult = await searchAndAdmitWeb(session, sessionId, seedQuery, onNote, { move: "gather" });
   const hasWeb = webResult.pages > 0;
 
@@ -2226,7 +2232,7 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
       // each fixing exactly one finding, and the shape is re-checked — the
       // film made in the cut.
       const assembled = documentLines.join("\n\n");
-      const shapeCheck = checkEssayShape(assembled, { parts: plannedSections.length, themes: plannedSections });
+      const shapeCheck = checkEssayShape(assembled, { parts: plannedSections.length, themes: plannedSections, subject: topic });
       if (onNote) onNote({ move: "shape_check", ok: shapeCheck.ok, failures: shapeCheck.failures.map((f) => f.detail) });
       const editorIndex = sessionReferentIndex(session, onNote);
       for (let round = 0; round < MAX_REWRITE_ROUNDS && !truncated; round++) {
@@ -2291,7 +2297,7 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
         }
         if (onNote) onNote({ move: "murch_applied", round: round + 1, applied });
         if (!applied) break; // nothing landed — stop, don't loop forever
-        const rechecked = checkEssayShape(documentLines.join("\n\n"), { parts: plannedSections.length, themes: plannedSections });
+        const rechecked = checkEssayShape(documentLines.join("\n\n"), { parts: plannedSections.length, themes: plannedSections, subject: topic });
         if (onNote) onNote({ move: "shape_recheck", ok: rechecked.ok, failures: rechecked.failures.map((f) => f.detail) });
         shapeCheck.ok = rechecked.ok;
         shapeCheck.failures = rechecked.failures;

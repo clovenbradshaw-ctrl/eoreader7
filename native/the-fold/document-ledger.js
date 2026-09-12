@@ -139,7 +139,7 @@ export function revisePart({ ledger, targetId, title, text, basis }) {
 // thematic body, conclusion). EVA checks the ASSEMBLED text mechanically
 // against that declared shape and reports which parts are missing — never
 // trusts the model to self-judge. Returns {ok, failures:[{kind, detail}]}.
-export function checkEssayShape(text, { parts = 3, themes = [] } = {}) {
+export function checkEssayShape(text, { parts = 3, themes = [], subject = "" } = {}) {
   const t = String(text ?? "");
   const failures = [];
   const lower = t.toLowerCase();
@@ -148,13 +148,20 @@ export function checkEssayShape(text, { parts = 3, themes = [] } = {}) {
   const first300 = words.slice(0, 300);
   const hasThesis = /\b(this essay|we\b|dolphins are|the subject|here we|let'?s|in this (piece|essay))\b/.test(first300) || first300.length > 60;
   if (!hasThesis) failures.push({ kind: "opening", detail: "the piece opens without stating its thesis" });
-  // Body: are the declared themes actually addressed?
-  for (const theme of themes.slice(0, parts)) {
-    const probe = String(theme ?? "").slice(0, 60);
-    if (!probe) continue;
-    const tokens = probe.toLowerCase().split(/[^a-z]+/).filter((w) => w.length > 3);
-    const hit = tokens.filter((w) => lower.includes(w)).length / Math.max(tokens.length, 1);
-    if (tokens.length && hit < 0.5) failures.push({ kind: "body", detail: `the theme "${probe}" is not actually covered` });
+  // Body: is the SUBJECT genuinely addressed across the piece? The themes are
+  // the void's questions; the essay ANSWERS them as grounded prose and never
+  // echoes the question's own scaffolding words ("what space is this essay").
+  // So the body check probes the SUBJECT's content nouns (what the piece must
+  // actually be about), not the question text — a section that names the
+  // bongo's genus, coat, and habitat IS the answer to "What KIND is X", even
+  // though it never says the word "kind" (measured: the old probe falsely
+  // failed 5 themes and Murch appended redundant sections forever).
+  const probeText = String(subject || themes[0] || "").slice(0, 80);
+  const stop = new Set(["what","which","where","when","why","how","does","is","are","the","a","an","and","of","to","in","on","at","for","that","this","from","with","its","it","one","be","so","or","your","our"]);
+  const tokens = probeText.toLowerCase().split(/[^a-z]+/).filter((w) => w.length > 3 && !stop.has(w));
+  if (tokens.length) {
+    const hit = tokens.filter((w) => lower.includes(w)).length / tokens.length;
+    if (hit < 0.5) failures.push({ kind: "body", detail: `the piece barely mentions ${subject || "its subject"} — the themes are not actually addressed` });
   }
   // Conclusion: does the piece return to the thesis at the end?
   const last300 = words.slice(-300);
