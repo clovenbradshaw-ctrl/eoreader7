@@ -1257,7 +1257,7 @@ function sessionReferentIndex(session, onNote) {
   return index;
 }
 
-export async function runProxyTurn({ sessionId, model, task, chatHistory = [], discourse = "", workspace = "", holonLevel = "section" }, onToken, onNote = null, onThinking = null) {
+export async function runProxyTurn({ sessionId, model, task, chatHistory = [], discourse = "", workspace = "", holonLevel = "section", resumeAnswered = [], resumePlan = null }, onToken, onNote = null, onThinking = null) {
   const usage = { promptTokens: 0, completionTokens: 0 };
   const session = getSession(sessionId);
   _hot.add(model); // this turn is using it — hold it resident after
@@ -1575,7 +1575,15 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
       compositionPlan = { questions: enriched.cells.filter((c) => c.relevant).map((c) => c.question), declaration: null };
     }
   }
-  const sections = compositionPlan.questions;
+  // On a RESUMED run, the sections are the STORED void plan (from the ledger) —
+  // the same shape the crashed run DEF'd — minus the already-answered parts.
+  // Never re-derive a different shape after a crash: the plan is the shape.
+  const sections = (resumePlan ?? compositionPlan.questions)
+    // CRASH RESILIENCE: questions already answered (part titles in the existing
+    // ledger) are skipped on a resumed run — the essay continues, it never
+    // restarts. The ledger already holds those parts; appending is the only write.
+    .filter((q) => !resumeAnswered.includes(String(q).toLowerCase().trim()))
+    .slice(0, 12);
   // A generated composition is a DOCUMENT LEDGER (EOT): every part admitted
   // is a line, every revision is a line, and the text a person reads is a
   // PROJECTION of the ledger — the full revision history is always re-foldable.
@@ -1584,6 +1592,16 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
   const documentLedger = sections.length
     ? createDocumentLedger({ docId: `${sessionId}:${session.turnCount}`, title: task.slice(0, 60), path: sections.map((s) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-")).join("_") })
     : null;
+  // Store the VOID PLAN (every question the essay must answer) as the ledger's
+  // first line — so a resumed run reads the SAME plan back and continues the
+  // unanswered questions, never re-deriving a different shape after a crash.
+  if (documentLedger && sections.length) {
+    appendLedgerLine(documentLedger, {
+      role: "plan", title: "Void plan", text: sections.map((s) => `- ${s}`).join("\n"),
+      giver: "eoreader7:void",
+      basis: "the DEF'd void questions this essay must answer — resumed runs continue from these, never re-derive",
+    }, { dir: ESSAY_LEDGER_DIR });
+  }
   // THE VOID, DEF'd: the essay's shape declared across all nine operators
   // BEFORE writing begins. This is what "done" means — the void filled by
   // parts that pass its admission test. The meno question is answered by the
@@ -1716,7 +1734,7 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
           ),
           goreStrike,
         ]);
-        const { buf = "", stopped = false } = drawRes.status === "fulfilled" ? drawRes.value : {};
+        let { buf = "", stopped = false } = drawRes.status === "fulfilled" ? drawRes.value : {};
         if (goreRes.status === "fulfilled" && goreRes.value?.landed && onNote) {
           onNote({ move: "gore_landed", cue: section, pages: goreRes.value.result?.pages ?? 0 });
         }
@@ -2044,7 +2062,7 @@ export function documentJobIds() {
 // Start a composition job. Returns { docId, sessionId } immediately; the
 // work continues in the background. `onToken` receives each streamed chunk;
 // the projection file is rewritten as sections land.
-export async function startDocumentJob({ task, model, workspace = "", sessionId = null, holonLevel = "section" } = {}) {
+export async function startDocumentJob({ task, model, workspace = "", sessionId = null, holonLevel = "section", resumeDocId = null } = {}) {
   const sid = sessionId ?? `er7-doc-${Date.now()}`;
   const jobId = sid; // the essay's ledger lives at ${sessionId}:${turnCount} — use the SAME id so the projection finds it
   const job = {
@@ -2061,6 +2079,23 @@ export async function startDocumentJob({ task, model, workspace = "", sessionId 
   const ledgerDocId = `${sid}:1`;
   const mdFile = path.join(ESSAY_LEDGER_DIR, `${jobId.replace(/:/g, "_")}.md`);
   try { fs.mkdirSync(ESSAY_LEDGER_DIR, { recursive: true }); } catch {}
+  // CRASH RESILIENCE: if this session already has a ledger (a previous run
+  // was interrupted), read the VOID PLAN (the full question set) and which
+  // questions are ALREADY answered (the `part` titles) so a resumed run
+  // continues the UNANSWERED cells and appends — never restarts, never
+  // rewrites. The plan lives in the ledger, so the shape survives a crash.
+  const existingFile = ledgerFilePath(ESSAY_LEDGER_DIR, ledgerDocId);
+  let answeredTitles = [];
+  let planQuestions = null;
+  try {
+    if (fs.existsSync(existingFile)) {
+      const rows = fs.readFileSync(existingFile, "utf8").trim().split("\n").map((l) => { try { return JSON.parse(l); } catch { return null; } }).filter(Boolean);
+      answeredTitles = rows.filter((r) => r.role === "part" && r.title).map((r) => String(r.title).toLowerCase().trim());
+      const plan = rows.find((r) => r.role === "plan");
+      if (plan?.text) planQuestions = plan.text.split("\n").map((l) => l.replace(/^-\s*/, "").trim()).filter(Boolean);
+    }
+  } catch {}
+  job.resumedFrom = answeredTitles.length ? answeredTitles.length : 0;
   // Run detached — the caller returns immediately.
   (async () => {
     try {
@@ -2086,7 +2121,7 @@ export async function startDocumentJob({ task, model, workspace = "", sessionId 
         } catch {}
       }, 1500);
       const result = await runProxyTurn(
-        { sessionId: sid, model, task, workspace, holonLevel: job.holonLevel },
+        { sessionId: sid, model, task, workspace, holonLevel: job.holonLevel, resumeAnswered: answeredTitles, resumePlan: planQuestions },
         (chunk) => { job.chars += chunk.length; job.updatedAt = Date.now(); },
         (note) => { if (note?.move === "composing_section") job.sections++; },
         (thinking) => job.updatedAt = Date.now(),
