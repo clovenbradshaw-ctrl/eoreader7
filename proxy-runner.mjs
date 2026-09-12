@@ -687,11 +687,13 @@ function detectAnswerShape(task, hasWorkspace, hasWeb, surfVoid, surfacedSegment
 // → "how the kernel works". Never an apparatus name.
 function topicPhrase(task) {
   const t = String(task ?? "").trim();
-  // The topic is the leading noun-phrase, NOT everything after "about" —
-  // "about the bongo antelope: its habitat, its diet…" must yield "the bongo
-  // antelope", else every void cell question echoes the whole 200-char task.
-  const on = /\bon\b\s+([^,;:.!?]+)/i.exec(t)?.[1] ?? null;
-  if (on) return on.trim().replace(/\s+/g, " ");
+  // The topic is the leading noun-phrase, NOT any "about"/"on" — "what she
+  // wrote about the Analytical Engine" must not hijack the essay's subject.
+  // Prefer the most SPECIFIC pattern first (a biography/analysis/history OF
+  // X names the subject directly), then the FIRST "about" (the essay's own
+  // frame), then a leading noun phrase.
+  const ofSubject = /\b(?:biography|account|history|analysis|study)\s+of\s+([^,;:.!?]+)/i.exec(t)?.[1] ?? null;
+  if (ofSubject) return ofSubject.trim().replace(/\s+/g, " ");
   const about = /\babout\b\s+([^,;:.!?]+)/i.exec(t)?.[1] ?? null;
   if (about) return about.trim().replace(/\s+/g, " ");
   const short = t.slice(0, 80).replace(/^(write|explain|describe|summarize|outline|compose|report|discuss|analyze)\s+/i, "").trim();
