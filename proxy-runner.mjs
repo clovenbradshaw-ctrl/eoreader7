@@ -38,6 +38,7 @@ import { extractReadable, parseSearchResults, extractUrls, normalizeUrl, WEB_SEA
 // disagreement, and a text→image render for text whose formatting the
 // plain-text reader is reading wrong.
 import { isImageFileName, lookAtImage, lookAtText, shouldLook, weirdFormattingScore } from "./native/organs/look.js";
+import { mechanicalRevision, variedDraw } from "./native/organs/variation.js";
 // The earned cast — the per-turn instruction set. Vendored at the
 // native/the-fold seam. PURE; the proxy feeds real conversation state and
 // receives ONLY the cued facts for this turn. The mouth is never told it is
@@ -2214,6 +2215,30 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
       }
       return { buf, stopped };
     };
+    // ── VARIATION, OWNED BY THE ORGAN ──────────────────────────────────────
+    // The variation machinery (rejection-sampling draw + opening identity)
+    // lives in organs/variation.js (Handle: Brillat-Savarin) — universal,
+    // aliased, reusable by any caller. The runner builds the SYNONYM POOL
+    // here (the reading's surfaces for the subject — referents + hyperlexicon
+    // composition), which the organ injects into the draw.
+    const synonymPool = (() => {
+      const seen = new Set();
+      const out = [];
+      const idx = sessionReferentIndex(session, onNote);
+      for (const r of idx?.referents?.values?.() ?? []) {
+        for (const s of r.surfaces ?? []) {
+          const n = String(s ?? "").trim();
+          if (n.length > 3 && !seen.has(n.toLowerCase())) { seen.add(n.toLowerCase()); out.push(n); }
+        }
+      }
+      for (const e of Object.values(hyperlexicon?.composition ?? {})) {
+        for (const n of [e?.left, e?.right]) {
+          const s = String(n ?? "").trim();
+          if (s.length > 3 && !seen.has(s.toLowerCase())) { seen.add(s.toLowerCase()); out.push(s); }
+        }
+      }
+      return out.slice(0, 16);
+    })();
     if (sections.length) {
       // ── WOLFE WRITES, FIRST ────────────────────────────────────────────────────
       // A writer starts writing before the research is done and goes back for
@@ -2605,20 +2630,70 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
                 : " Open differently — do not begin the way the other sections begin. Season it: land an exact fact with a surprising, chosen measure of flavor — a detail the reader did not expect, the way a striking detail makes a dish memorable. Vary the construction and the rhythm; do not add random spice, add the right one.")
             : "";
           const fixMsg = `We're editing a piece on ${topic}. ${editorStanding ? `Where the piece stands: ${editorStanding}\n\n` : ""}The editor found this problem in one section:\n- [${f.kind}] ${f.detail}\n\nThe current section reads:\n"""\n${String(targetSection ?? "").slice(0, 1200)}\n"""\n\nRewrite that section from the material, in the piece's own voice — a substantial passage, several sentences, the material's own facts and wording, no introduction, no commentary about writing.${brillatNote} Write only the corrected section.`;
-          const fix = await draw(
-            [{ role: "system", content: systemContent }, ...keptChat, { role: "user", content: fixMsg }],
-            SECTION_MAX_TOKENS,
-            { kelsen: Math.max(compositionKelsen, 0.9) }, // Murch is literal, never impressionistic
-          );
-          if (fix.stopped) { truncated = true; break; }
-          const fixText = fix.buf.trim();
+          // VARIATION BY SEARCH: for the repetition family, try the MECHANICAL
+          // snip FIRST (free, deterministic, EOT-recorded — no model call),
+          // then fall to drawVaried's rejection sampling at rising
+          // temperature with the material's synonym surfaces. The revision
+          // LADDER: mechanical (free, certain) → varied draw (model, small).
+          // Every mechanical edit lands as an EOT TRANSFORMATION line: the
+          // op (INS·swap / SYN·rotate / SEG·cut), the `from` (superseded
+          // bytes), and the `to` — always auditable, always re-foldable.
+          const isVariation = f.kind === "repetition" || f.kind === "repeated-fact" || f.kind === "repeated-template";
+          const blocked = isVariation
+            ? documentLines.map((_, i) => i === f.sectionIndex ? "" : documentLines[i]).filter(Boolean)
+            : [];
+          let fixText = null, fixOp = null;
+          if (isVariation) {
+            // THE MECHANICAL SNIP — no model call. If it produces a genuine,
+            // different opening, it is the edit: recorded as an EOT transform
+            // with the op and the before/after bytes.
+            const mech = mechanicalRevision(String(targetSection ?? ""), {
+              kind: f.kind, synonyms: synonymPool, others: blocked,
+            });
+            if (mech) {
+              fixText = mech.to;
+              fixOp = mech.op;
+              if (onNote) onNote({ move: "mechanical", op: mech.op, kind: f.kind, basis: mech.basis });
+            }
+          }
+          if (!fixText) {
+            // FALL TO THE MODEL — the mouth, when no mechanical transform
+            // expresses the needed change.
+            const fix = isVariation
+              ? await variedDraw({
+                  draw,
+                  msgs: [{ role: "system", content: systemContent }, ...keptChat, { role: "user", content: fixMsg }],
+                  maxTokens: SECTION_MAX_TOKENS,
+                  blockedOpenings: blocked,
+                  synonyms: synonymPool,
+                  onReject: (r) => { if (onNote) onNote({ move: "rejected_draw", ...r }); },
+                })
+            : await draw(
+                [{ role: "system", content: systemContent }, ...keptChat, { role: "user", content: fixMsg }],
+                SECTION_MAX_TOKENS,
+                { kelsen: Math.max(compositionKelsen, 0.9) }, // Murch is literal, never impressionistic
+              );
+            if (fix.stopped) { truncated = true; break; }
+            fixText = fix.buf.trim();
+            fixOp = "INS·rewrite";
+          }
           if (!fixText) continue;
           if (f.sectionIndex != null && documentLines[f.sectionIndex]) {
             documentLines[f.sectionIndex] = fixText;
           } else {
             documentLines.push(fixText);
           }
-          if (documentLedger) appendLedgerLine(documentLedger, { role: "revision", title: `murch: ${f.kind} ${f.sectionIndex != null ? `@ ${f.sectionIndex + 1}` : "whole"}`, text: fixText, giver: model, supersedes: null, basis: `MURCH: EVA found ${f.kind} — ${f.detail}` }, { dir: ESSAY_LEDGER_DIR });
+          // THE EOT TRANSFORMATION: every edit — mechanical or model — lands
+          // as a typed transformation line carrying the OP and the superseded
+          // bytes (`from` in the basis), so the edit is always auditable and
+          // the piece re-foldable to any point. A mechanical edit is free and
+          // deterministic; a model edit is the mouth's. Both are recorded the
+          // same way: a revision that supersedes, never an in-place write.
+          if (documentLedger) appendLedgerLine(documentLedger, {
+            role: "revision", title: `murch: ${f.kind} ${f.sectionIndex != null ? `@ ${f.sectionIndex + 1}` : "whole"}`,
+            text: fixText, giver: model, supersedes: null,
+            basis: `${fixOp ?? "revision"}: EVA found ${f.kind} — ${f.detail}`,
+          }, { dir: ESSAY_LEDGER_DIR });
           applied++;
         }
         if (onNote) onNote({ move: "murch_applied", round: round + 1, applied });
