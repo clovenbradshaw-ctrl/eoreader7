@@ -1752,7 +1752,10 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
     // ledger) are skipped on a resumed run — the essay continues, it never
     // restarts. The ledger already holds those parts; appending is the only write.
     .filter((q) => !resumeAnswered.includes(String(q).toLowerCase().trim()))
-    .slice(0, 12);
+    // The essay's extent is the void's own — a generous cap against runaway,
+    // not a fixed truncation of the DEF'd shape. A 27-cell sweep can stay
+    // relevant; ER7_MAX_SECTIONS raises it for long pieces.
+    .slice(0, Number(process.env.ER7_MAX_SECTIONS ?? 20));
   // The composition block below may EVOLVE the plan (REC supersedes the outline
   // and adds themes as the reading grows). Hoisted so the satisfaction check
   // reads the plan the essay actually wrote, whether or not the block ran.
@@ -1830,7 +1833,11 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
   // generation stops and the answer is disclosed as truncated — never silent.
   // But the cap is GENEROUS: the model writes as much as it is comfortable
   // doing — writing is rewriting, and a cramped budget is a cramped essay.
-  const MAX_OUTPUT_CHARS = Number(process.env.ER7_MAX_OUTPUT_CHARS ?? 40000);
+  // The assembled answer's budget. This is the LONG-FORM ceiling, not a
+  // single call's — sections accumulate into it (a 12-section essay is
+  // legitimately >40K chars), so the default is a generous guard against a
+  // runaway loop, not a per-turn truncation. Lower it only for chat turns.
+  const MAX_OUTPUT_CHARS = Number(process.env.ER7_MAX_OUTPUT_CHARS ?? 200000);
   const SECTION_MAX_TOKENS = Number(process.env.ER7_SECTION_MAX_TOKENS ?? 1200);
   const MAX_REWRITE_ROUNDS = Number(process.env.ER7_MAX_REWRITE_ROUNDS ?? 1);
   // Online REC: when a shape gap names a missing theme, hunt it on the web
