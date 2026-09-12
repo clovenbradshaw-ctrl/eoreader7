@@ -56,8 +56,83 @@ test("ends come from the claim when there is one, else from the sentence's own w
   assert.equal(settledBy(trueS, [{ ...claims[0], verdict: "bound" }]), true);
 });
 
+// BUG (2026-09-08): the fallback used to sort a sentence's own content words
+// by raw length, so a denial's own vocabulary ("mentioned", "sources") beat
+// the actual topic word ("goats") whenever it happened to be longer —
+// guaranteeing the witness a zero-candidate search over a source that
+// states the fact verbatim. Fixed by preferring words the source itself
+// actually uses; only when nothing overlaps does length-only ranking run.
+test("the fallback prefers a word the source actually uses over a merely longer one, and a single shared word anchors both ends", () => {
+  const src = "Did you know Google had hundreds of live goats to cut the grass in the past?";
+  const e = endsFor("Nope, goats were not mentioned in the sources.", [], src);
+  assert.equal(e.end1, "goats");
+  assert.equal(e.end2, "goats");
+});
+test("two words shared with the source win outright over the sentence's own longer, unshared vocabulary", () => {
+  const src = "What did you think about the Disney movie Frozen?";
+  const e = endsFor("The sources do not mention a Disney movie.", [], src);
+  assert.equal(new Set([e.end1, e.end2]).size, 2);
+  assert.ok([e.end1, e.end2].every((w) => ["disney", "movie"].includes(w)));
+});
+test("no source text, or no word shared with it, keeps the old length-only fallback byte-identical", () => {
+  const noOverlap = endsFor("Nope, goats were not mentioned in the sources.", [], "An entirely unrelated passage about something else.");
+  assert.deepEqual(noOverlap, endsFor("Nope, goats were not mentioned in the sources.", []));
+});
+
+// BUG, found driving the real, fixed app live (2026-09-08): two words can
+// each genuinely be in the source and STILL fail statingCandidates' AND-gate
+// if the source never states them in the SAME sentence. A real dialogue
+// ("What about them?" ... "Did you know Google had hundreds of live goats
+// ...") makes "about" tie "goats" for longest present word, and no sentence
+// carries both — so the presence-only fix above still searched for a pair
+// nothing states together. Handing the real segmenter in fixes it: a
+// co-occurring pair is preferred, and when none exists the single word that
+// IS in the stating sentence anchors both ends instead of a doomed pair.
+test("two present words that never co-occur in one source sentence do not out-rank a single word that does — the anchor is checked with the real segmenter, not merely present", () => {
+  const src = "Hey, did you see the new landscaping crew at the Google campus? No, what about them? Did you know Google had hundreds of live goats to cut the grass in the past? Really? That sounds hilarious. What did you think about the Disney movie Frozen?";
+  const sentence = "They did not mention anything about goats.";
+  const withoutSegmenter = endsFor(sentence, [], src);
+  assert.deepEqual(new Set([withoutSegmenter.end1, withoutSegmenter.end2]), new Set(["about", "goats"]), "control: presence-then-length alone still picks the non-co-occurring pair ('about' occurs twice, tying 'goats' on length)");
+  const withSegmenter = endsFor(sentence, [], src, splitSentences);
+  assert.equal(withSegmenter.end1, "goats");
+  assert.equal(withSegmenter.end2, "goats");
+});
+test("witnessSentences hands the joined passages to endsFor, so the anchor fix applies through the real call, not only when called directly", async () => {
+  const goatsPassages = [{ ref: "p1", text: "Did you know Google had hundreds of live goats to cut the grass in the past?" }];
+  const goatsSentence = "Nope, goats were not mentioned in the sources.";
+  // a DISCRIMINATING witness (mirrors selectAsk above): "yes" to a candidate
+  // naming goats only when asked about the real claim, "no" for its
+  // sibling-swapped twin — so a real "states" verdict requires the pair to
+  // actually be told apart, not just the same candidate answered both ways.
+  const selectAsk2 = async (messages) => {
+    const user = messages.find((m) => m.role === "user").content;
+    const claim = (user.match(/^Claim: "([\s\S]*?)"/) ?? [])[1] ?? "";
+    const cands = [...user.matchAll(/^(\d+)\. (.*)$/gm)];
+    const hit = claim === goatsSentence ? cands.find(([, , c]) => /goats/.test(c)) : null;
+    return hit ? { stated: "yes", sentence: Number(hit[1]) } : { stated: "no", sentence: 0 };
+  };
+  const { rows } = await witnessSentences([goatsSentence], [], goatsPassages, { ask, selectAsk: selectAsk2, splitSentences, testimony, maxAsks: 4 });
+  assert.equal(rows[0].witness, "states");
+});
+
 test("only the model's own 'no' is a refusal; a protocol non-verdict is a typed skip that draws nothing", () => {
   assert.equal(rowFor({ verdict: "states", because: "x" }).witness, "states");
   assert.equal(rowFor({ refused: "no-testimony", via: "select" }).witness, "refused");
   for (const r of ["decider_unrelated", "unarmed-select", "indiscriminate", "no-slice", "uncontained"]) assert.equal(rowFor({ refused: r }).witness, "skipped", r);
+});
+
+test("GFP Pass 41: a sentence the expectation already authors (matched) costs NOTHING to check — skipped, no ask spent; a novel or contradicted one is still witnessed", async () => {
+  const matched = new Set([trueS]);
+  const { rows, asks } = await witnessSentences([trueS, falseS], claims, passages, { ask, selectAsk, splitSentences, testimony, maxAsks: 4, matched });
+  assert.equal(rows[0].witness, "skipped", "the matched sentence is not asked — the expectation already carried its address");
+  assert.match(rows[0].why, /already expected/);
+  assert.equal(rows[1].witness, "refused", "the novel sentence is still witnessed — error spends the budget");
+  assert.ok(asks >= 1, "the error claim was asked");
+  // control: without the matched set, the true sentence IS asked
+  const { asks: asks2 } = await witnessSentences([trueS], claims, passages, { ask, selectAsk, splitSentences, testimony, maxAsks: 4 });
+  assert.ok(asks2 >= 1, "no matched set → the sentence is witnessed as before");
+  // contradicted claims are never in the matched set (errorOf keeps them apart) — they are still asked
+  const matchedContradicted = new Set();
+  const c = witnessSentences;
+  assert.ok(settledBy(falseS, [{ sentence: falseS, verdict: "contradicted" }], matchedContradicted) === false, "a contradicted claim is never 'already expected'");
 });
