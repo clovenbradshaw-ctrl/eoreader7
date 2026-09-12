@@ -204,6 +204,8 @@ export function humanizeNote(note) {
       return `${note.kind === "repeated-fact" ? "Repeated fact" : note.kind === "repeated-template" ? "Repeated construction" : "Redundancy"}: ${note.detail} — Brillat-Savarin seasons it (chosen, never random).`;
     case "mechanical":
       return `Mechanical ${note.op}: ${note.basis} — a free, deterministic edit, EOT-recorded.`;
+    case "pacing":
+      return `Murch on pacing: ${note.basis}`;
     case "murch_applied":
       return `Murch applied ${note.applied} revision(s) this pass.`;
     case "ranke":

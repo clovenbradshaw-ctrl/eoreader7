@@ -41,6 +41,8 @@ import { isImageFileName, lookAtImage, lookAtText, shouldLook, weirdFormattingSc
 import { mechanicalRevision, variedDraw } from "./native/organs/variation.js";
 import { styleGrade as strunkWhiteGrade } from "./native/organs/strunk-white.js";
 import { pacingGrade as murchPacing } from "./native/organs/pacing.js";
+import { storyShape as vonnegutShape } from "./native/organs/vonnegut.js";
+import { classifyArc } from "./native/organs/story-shapes.js";
 import { execFileSync } from "node:child_process";
 // The earned cast — the per-turn instruction set. Vendored at the
 // native/the-fold seam. PURE; the proxy feeds real conversation state and
@@ -3031,6 +3033,14 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
     // points (a short sentence landing after long ones), and the dense
     // sentences — the emotional arc of the cut.
     murch: documentLines.length ? murchPacing(documentLines.join("\n\n")) : null,
+    // VONNEGUT — the WRITER's arc: the shape of the piece's story, classified
+    // into the full EO taxonomy (27 cells) and the reader-facing Vonnegut
+    // eight. Fortune is the reader's conviction over the piece; the shape is
+    // the arc it traces — man-in-hole (thesis surprises, body climbs),
+    // rags-to-riches (steady creation), flatline (argues nothing).
+    vonnegut: documentLedger && rawEntries?.length && documentLines.length
+      ? classifyArc(vonnegutShape(documentLines, { materialPropositions: notesFromEdges(rawEntries), index: sessionReferentIndex(session) }))
+      : null,
     totalStrain,
     thinking: thinkingBlock || null,
     answerShape: answerShape.shape,

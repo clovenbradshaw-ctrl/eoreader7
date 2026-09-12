@@ -288,14 +288,12 @@ const server = http.createServer(async (req, res) => {
         // is a generous whole-turn backstop over and above it.
         const turnAbort = new AbortController();
         const onDisconnect = () => { if (!turnAbort.signal.aborted) turnAbort.abort(); };
-        req.on("close", onDisconnect);
         res.on("close", onDisconnect);
         const turnDeadline = setTimeout(() => {
           if (!turnAbort.signal.aborted) turnAbort.abort();
         }, TURN_DEADLINE_MS);
         const clearTurn = () => {
           clearTimeout(turnDeadline);
-          req.removeListener("close", onDisconnect);
           res.removeListener("close", onDisconnect);
         };
 
@@ -399,14 +397,12 @@ const server = http.createServer(async (req, res) => {
           // return a typed error, never leave the client hanging.
           const turnAbort = new AbortController();
           const onDisconnect = () => { if (!turnAbort.signal.aborted) turnAbort.abort(); };
-          req.on("close", onDisconnect);
           res.on("close", onDisconnect);
           const turnDeadline = setTimeout(() => {
             if (!turnAbort.signal.aborted) turnAbort.abort();
           }, TURN_DEADLINE_MS);
           const result = await runProxyTurn({ sessionId, userId, workspace, signal: turnAbort.signal, ...reqData });
           clearTimeout(turnDeadline);
-          req.removeListener("close", onDisconnect);
           res.removeListener("close", onDisconnect);
           const resp = openAIResponse({ id, model: parsed.model, text: result.text, created, usage: result.usage, reading: result });
           resp.reading.sessionId = sessionId;
@@ -418,7 +414,6 @@ const server = http.createServer(async (req, res) => {
           res.end(JSON.stringify(resp));
         } catch (err) {
           clearTimeout(turnDeadline);
-          req.removeListener("close", onDisconnect);
           res.removeListener("close", onDisconnect);
           log(`proxy execution error: ${err.message}`);
           if (!res.headersSent) {
@@ -469,14 +464,12 @@ const server = http.createServer(async (req, res) => {
         // ── RESILIENCE SCAFFOLDING (hoisted — the catch must see these) ──
         const turnAbort = new AbortController();
         const onDisconnect = () => { if (!turnAbort.signal.aborted) turnAbort.abort(); };
-        req.on("close", onDisconnect);
         res.on("close", onDisconnect);
         const turnDeadline = setTimeout(() => {
           if (!turnAbort.signal.aborted) turnAbort.abort();
         }, TURN_DEADLINE_MS);
         const clearTurn = () => {
           clearTimeout(turnDeadline);
-          req.removeListener("close", onDisconnect);
           res.removeListener("close", onDisconnect);
         };
 
@@ -515,14 +508,12 @@ const server = http.createServer(async (req, res) => {
           // RESILIENCE: same abort + deadline for the non-streaming shape.
           const turnAbort = new AbortController();
           const onDisconnect = () => { if (!turnAbort.signal.aborted) turnAbort.abort(); };
-          req.on("close", onDisconnect);
           res.on("close", onDisconnect);
           const turnDeadline = setTimeout(() => {
             if (!turnAbort.signal.aborted) turnAbort.abort();
           }, TURN_DEADLINE_MS);
           const result = await runProxyTurn({ sessionId, userId, workspace, signal: turnAbort.signal, ...reqData });
           clearTimeout(turnDeadline);
-          req.removeListener("close", onDisconnect);
           res.removeListener("close", onDisconnect);
           const resp = ollamaChatResponse({ model: parsed.model, text: result.text, createdAt, usage: result.usage, reading: result });
           resp.reading = { ...(result.reading ?? result), sessionId };
@@ -530,7 +521,6 @@ const server = http.createServer(async (req, res) => {
           res.end(JSON.stringify(resp));
         } catch (err) {
           clearTimeout(turnDeadline);
-          req.removeListener("close", onDisconnect);
           res.removeListener("close", onDisconnect);
           log(`proxy execution error: ${err.message}`);
           if (!res.headersSent) {
