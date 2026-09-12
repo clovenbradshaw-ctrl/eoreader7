@@ -2,7 +2,7 @@ import http from "node:http";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { parseProxyRequest, toOpenAIModelList, reprefixOllamaTags, openAIResponse, openAIStreamLines, ollamaChatResponse, ollamaChatStreamLines, humanizeNote } from "./proxy-api.mjs";
-import { offeredOllamaModels, runProxyTurn, keepModelHot, hotModelSet, OLLAMA_KEEP_ALIVE_S } from "./proxy-runner.mjs";
+import { offeredOllamaModels, runProxyTurn, keepModelHot, hotModelSet, OLLAMA_KEEP_ALIVE_S, startDocumentJob, documentJobStatus } from "./proxy-runner.mjs";
 import { warmPostprocess } from "./postprocess.mjs";
 import { ledgerFilePath, projectLedgerFile } from "./native/the-fold/document-ledger.js";
 
@@ -123,21 +123,48 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
-  // The essay lives as a JSONL file; GET /v1/documents/:id projects its
-  // CURRENT state at any moment (even mid-writing). The projection is a fold
-  // of the append-only ledger — never a stored tree.
+  // Start a document composition JOB (detached — returns immediately, the
+  // essay is written to disk in real time, pollable and resumable).
+  if (req.method === "POST" && req.url === "/v1/documents") {
+    let body = "";
+    req.on("data", (c) => (body += c));
+    req.on("end", async () => {
+      try {
+        const parsed = JSON.parse(body);
+        const job = await startDocumentJob({
+          task: String(parsed.task ?? "").trim(),
+          model: parsed.model ?? "gemma2:2b",
+          workspace: parsed.workspace ?? "",
+          sessionId: parsed.sessionId ?? null,
+          holonLevel: parsed.holonLevel ?? "section",
+        });
+        res.writeHead(202, { "content-type": "application/json" });
+        res.end(JSON.stringify(job));
+      } catch (err) {
+        res.writeHead(400, { "content-type": "application/json" });
+        res.end(JSON.stringify({ error: { message: err.message } }));
+      }
+    });
+    return;
+  }
+
+  // GET /v1/documents/:id — poll a job: its status + the CURRENT projection
+  // (the essay as written so far, re-folded from the append-only ledger).
   if (req.method === "GET" && req.url.startsWith("/v1/documents/")) {
     try {
       const docId = decodeURIComponent(req.url.slice("/v1/documents/".length));
-      const file = ledgerFilePath(path.join(HERE, "documents"), docId);
-      const projection = projectLedgerFile(file);
-      if (projection == null) {
-        res.writeHead(404, { "content-type": "application/json" });
-        res.end(JSON.stringify({ error: { message: `no ledger for ${docId}` } }));
-        return;
-      }
-      res.writeHead(200, { "content-type": "text/plain; charset=utf-8" });
-      res.end(projection);
+      // The ledger is `${sessionId}:${turnCount}`; accept the jobId directly
+      // (a fresh job's ledger is `${jobId}:1`).
+      const docsDir = path.join(HERE, "documents");
+      let projection = projectLedgerFile(ledgerFilePath(docsDir, docId));
+      if (projection == null) projection = projectLedgerFile(ledgerFilePath(docsDir, `${docId}:1`));
+      const job = documentJobStatus(docId);
+      res.writeHead(200, { "content-type": "application/json" });
+      res.end(JSON.stringify({
+        status: job?.status ?? (projection != null ? "complete" : "unknown"),
+        projection: projection ?? "",
+        job: job ? { jobId: job.jobId, chars: job.chars, sections: job.sections, createdAt: job.createdAt, updatedAt: job.updatedAt, error: job.error ?? null } : null,
+      }));
     } catch (err) {
       res.writeHead(500, { "content-type": "application/json" });
       res.end(JSON.stringify({ error: { message: err.message } }));

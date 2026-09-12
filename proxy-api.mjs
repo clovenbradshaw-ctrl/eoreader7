@@ -124,10 +124,20 @@ export function humanizeNote(note) {
       return `Searched the web: ${note.pages} page(s) fetched, ${note.chars?.toLocaleString() ?? 0} chars admitted.`;
     case "gore_boundary":
       return `Gore's gather boundary: kept ${note.kept} of ${note.of} result(s) — ${note.basis}.`;
+    case "gore_tier":
+      return `Source tiers: preferred ${note.tiers?.preferred ?? 0}, last-resort ${note.tiers?.lastResort ?? 0}. Leading: ${(note.top ?? []).join(", ")}`;
     case "gore":
       return `Gore: gathering sources on "${note.cue}".`;
     case "gore_landed":
       return `Gore's strike on "${note.cue}" landed: ${note.pages} page(s) folded into the reading while the section was being written.`;
+    case "double_check":
+      return `REC hunting online: searching the web for "${note.cue}" to fill the shape gap.`;
+    case "void_declared":
+      return `Void declared: "${note.slot}" — ${note.cardinality ?? 0} part(s), grounded against a shadow of ${note.shadowSites ?? 0} visited site(s).`;
+    case "section_eva":
+      return `Section check failed: ${(note.failures ?? []).join("; ")} (strain ${note.strain}).`;
+    case "strain":
+      return `Strain on "${note.section}": ${note.strain}.`;
     case "strike_revision":
       return `Revision: the reading grew — "${note.section}" rewritten with the new material (${note.reason}).`;
     case "competency":

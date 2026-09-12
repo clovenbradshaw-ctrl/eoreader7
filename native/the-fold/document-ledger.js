@@ -158,6 +158,132 @@ export function checkEssayShape(text, { parts = 3, themes = [] } = {}) {
   return { ok: failures.length === 0, failures };
 }
 
+// ── SATISFACTION and STRAIN ─────────────────────────────────────────────────
+// Satisfaction is not "wrote N sections" — it is whether the DECLARED VOID is
+// filled. The meno question ("how do we know when we've learned something we
+// do not know?") answers itself only if we DEF the shape of the void FIRST:
+// the essay is done when the void we declared — across all nine operators —
+// is filled by content that passes its admission test. We know we've learned
+// when nothing the void named is still missing.
+//
+// DEF the void: NUL (the essay itself), SIG (the topic that must resolve),
+// INS (what kind of thing fills it), SEG (its extent), CON (what binds a
+// section to the topic), SYN (how sections compose), DEF (how many), EVA (the
+// admission test a section must pass), REC (what forces the declaration to be
+// revised). EVA then checks the written piece against this declaration, and
+// REC re-opens whatever the void still names as missing.
+import { cellOf } from "../kernel/cube.js";
+import { declareVoid, zeroSpace, fill, voidsOf } from "./void-shape.js";
+
+// Declare the essay's void. `sections` is the DEF'd structure (the pieces the
+// piece must have); the extent is the whole essay; EVA is the admission test
+// a section must pass (real content, grounded, not meta-commentary).
+//
+// THE SHAPE IS THE MNEME'S. The void is not declared from the classical form
+// in the abstract — it is declared AGAINST what the instrument has already
+// encountered (the shadow / Mneme: every site visited, its text retained).
+// What we can know is bounded by what we've seen; the void is the shape of
+// what is still missing RELATIVE to that shadow. A void declared with no
+// shadow states that the shadow is empty — an honest gap, never a wish. The
+// shadow grounds the declaration: SIG (what must resolve) is bounded by the
+// referents the shadow's reading established; SEG (extent) by how much the
+// material can support; EVA (admission) is measured against the shadow's
+// retained text, not against nothing.
+export function declareEssayVoid({ title, topic, sections = [], holonLevel = "section", shadow = [], webSources = null } = {}) {
+  const shadowChars = (webSources ?? new Map()).size
+    ? [...(webSources ?? new Map()).values()].reduce((a, t) => a + String(t ?? "").length, 0)
+    : 0;
+  const declaration = declareVoid(
+    {
+      slot: title || "the piece",
+      anchor: topic ?? null, // SIG: what must resolve — bounded by the shadow's referents
+      admits: holonLevel ?? "section", // INS: what kind of part fills it
+      extent: sections.length ? { from: 1, to: sections.length + 1 } : null, // SEG: how many parts
+      relation: "is a part of", // CON
+      composition: sections.length ? "the parts compose the whole" : null, // SYN
+      cardinality: sections.length || null, // DEF: how many
+      admission: "a part with real content, grounded in the shadow's material, written as the piece itself", // EVA
+      reopensOn: "a part that is thin, ungrounded, or meta-commentary", // REC
+      mneme: {
+        // The void's ground: what the instrument has already encountered.
+        shadowSites: (shadow ?? []).length,
+        shadowChars,
+        basis: shadowChars ? "the void is declared against the retained shadow — what we have seen bounds what the piece can fill" : "the shadow is empty — the void names a gap we have not yet begun to fill",
+      },
+    },
+    { cellOf },
+  );
+  return declaration;
+}
+
+// The MENO CHECK: given the void declaration and the written piece, is the
+// void filled? EVA measures each declared part against the admission test;
+// voidsOf reports any unfilled extent. {ok, filled, of, failures, strain}.
+export function fillCheck(declaration, documentLines = [], sections = [], { material = "" } = {}) {
+  const failures = [];
+  let totalStrain = 0;
+  let filled = 0;
+  for (let i = 0; i < sections.length; i++) {
+    const text = documentLines[i] ?? "";
+    const r = satisfactionOfSection(text, { theme: sections[i], material, isFirst: i === 0 });
+    totalStrain += r.strain;
+    if (r.ok) filled++;
+    else for (const f of r.failures) failures.push({ index: i, theme: sections[i], ...f });
+  }
+  // The void's own extent check: any declared part with no section at all is
+  // an unfilled hole in the void's shape, not merely a weak one.
+  for (let i = filled; i < sections.length; i++) {
+    if (!documentLines[i]) {
+      failures.push({ index: i, theme: sections[i], kind: "unfilled", detail: `the void declared a part ("${sections[i]}") that was never written` });
+      totalStrain++;
+    }
+  }
+  const ok = filled === sections.length && sections.length > 0;
+  return { ok, filled, of: sections.length, failures, totalStrain };
+}
+const META_COMMENTARY_RE = /\b(here's|here is|let me know if you|i'd like to|you can|would you|consider|things to consider|you'll want to|remember to|feel free|brainstorm|explanation:|note that|as an ai|i can't|i cannot)\b/i;
+
+// EVA a single section against the DEF and the material. Returns {ok,
+// failures:[{kind,detail}], strain:number} — strain 0 when clean, +1 per
+// failure found (each correction the piece will need).
+export function satisfactionOfSection(sectionText, { theme = "", material = "", isFirst = false } = {}) {
+  const t = String(sectionText ?? "").trim();
+  const failures = [];
+  let strain = 0;
+  if (t.length < 40) { failures.push({ kind: "thin", detail: "the section has almost no content" }); strain++; }
+  // Meta-commentary is a SHAPE error: the model wrote ABOUT the piece instead
+  // of writing it ("Here's a potential start... Explanation:... Let me know").
+  if (META_COMMENTARY_RE.test(t)) { failures.push({ kind: "meta", detail: "the section describes the writing instead of being the piece" }); strain++; }
+  // Grounding: does the section share content with the material? A section
+  // with no overlap is fabricated, not written from the ground.
+  if (material && material.length > 30) {
+    const m = String(material).toLowerCase();
+    const tokens = t.toLowerCase().split(/[^a-z']+/).filter((w) => w.length > 4);
+    if (tokens.length) {
+      const shared = tokens.filter((w) => m.includes(w)).length / tokens.length;
+      if (shared < 0.08) { failures.push({ kind: "ungrounded", detail: "the section shares almost nothing with the material — it is not written from the ground" }); strain++; }
+    }
+  }
+  return { ok: failures.length === 0, failures, strain };
+}
+
+// The whole-document satisfaction: every planned section satisfied. Returns
+// {ok, satisfied:number, of:number, failures:[...], totalStrain:number}.
+export function satisfactionOf(documentLines = [], sections = [], { material = "" } = {}) {
+  const failures = [];
+  let totalStrain = 0;
+  let satisfied = 0;
+  for (let i = 0; i < sections.length; i++) {
+    const text = documentLines[i] ?? "";
+    const r = satisfactionOfSection(text, { theme: sections[i], material, isFirst: i === 0 });
+    totalStrain += r.strain;
+    if (r.ok) satisfied++;
+    else for (const f of r.failures) failures.push({ index: i, theme: sections[i], ...f });
+  }
+  const ok = satisfied === sections.length;
+  return { ok, satisfied, of: sections.length, failures, totalStrain };
+}
+
 // ── REC: a rewrite pass names exactly what the EVA found, and the ledger
 //    records the revision (supersede) so the before/after stays on file. ────
 
@@ -178,10 +304,22 @@ export function snipsFromSources(webSources, { maxSnips = 6, maxChars = 240 } = 
       .filter((s) => s.length > 40 && s.length <= maxChars);
     for (const s of sentences) {
       if (out.length >= maxSnips) break;
-      out.push({ url, snip: s });
+      out.push({ url, snip: cleanSpan(s) });
     }
   }
   return out;
+}
+
+// Clean a verbatim span: strip the citation/reference debris a source page
+// carries in its own text — Wikipedia's "[ 89 ]", bracketed ref numbers,
+// and the trailing whitespace they leave — so a quoted span is the source's
+// own words, not its apparatus. Mechanical, never paraphrasing.
+export function cleanSpan(s = "") {
+  return String(s)
+    .replace(/\[\s*\d+(?:\s*,?\s*\d+)*\s*\]/g, "")
+    .replace(/\s{2,}/g, " ")
+    .replace(/\(\s*\)/g, "")
+    .trim();
 }
 
 // ── serialization ───────────────────────────────────────────────────────────
@@ -220,12 +358,16 @@ export function renderApaFootnotes(essay, webSources = new Map(), { maxFootnotes
     }
     if (!best || bestScore < 3) continue; // not grounded enough to cite
     const srcText = String(webSources.get(best) ?? "");
-    // The verbatim span: the source's sentence most overlapping this one.
+    // The verbatim span: the source's sentence most overlapping this one,
+    // CLEANED of citation debris and capped so a footnote is a quotable
+    // sentence, never a whole-page reproduction.
     const srcSentences = srcText.replace(/\s+/g, " ").split(/(?<=[.!?])\s+(?=[A-Z])/).map((s) => s.trim());
     let span = null, spanScore = 0;
     for (const ss of srcSentences) {
-      const hits = terms.filter((t) => ss.toLowerCase().includes(t)).length;
-      if (hits > spanScore) { spanScore = hits; span = ss; }
+      const clean = cleanSpan(ss);
+      if (clean.length < 25 || clean.length > 260) continue;
+      const hits = terms.filter((t) => clean.toLowerCase().includes(t)).length;
+      if (hits > spanScore) { spanScore = hits; span = clean; }
     }
     if (!span || spanScore < 3) continue;
     // APA-ish author/year: host + year from the URL's page (no publication

@@ -18,7 +18,7 @@ import { postprocessAnswer, warmPostprocess, getPyodide } from "./postprocess.mj
 import { resolutionBlocks } from "./native/the-fold/resolutions.js";
 import { tokenize } from "./native/the-fold/source.js";
 import { readingIndexFromLog } from "./native/the-fold/reading-log.js";
-import { createDocumentLedger, appendDocumentObservation, appendLedgerLine, projectDocument, documentChangeLog, admitPart, serializeLedger, snipsFromSources, checkEssayShape, ledgerFilePath, renderApaFootnotes } from "./native/the-fold/document-ledger.js";
+import { createDocumentLedger, appendDocumentObservation, appendLedgerLine, projectDocument, documentChangeLog, admitPart, serializeLedger, snipsFromSources, checkEssayShape, ledgerFilePath, renderApaFootnotes, satisfactionOfSection, satisfactionOf, declareEssayVoid, fillCheck } from "./native/the-fold/document-ledger.js";
 import { goreBoundary, gatherPlan, cueGoDeeperPlan, doubleCheckPlan } from "./native/the-fold/gore.js";
 // The keyless field (GFP Pass 35, the-fold c232779): recall by partial-cue
 // resemblance, resolution by state — no absolute address. Surf's SECOND
@@ -55,7 +55,7 @@ export const OLLAMA_KEEP_ALIVE_S = Number(process.env.ER7_KEEP_ALIVE_S ?? 0);
 // --- feature toggles (defaults: hyperlexicon ON, wikipedia enrichment OFF,
 //     web search OFF — the proxy is the sanctioned egress, P13) -------------
 const HYPERLEXICON_ON = (process.env.ER7_HYPERLEXICON ?? "1") !== "0";
-const WIKIPEDIA_ON = (process.env.ER7_WIKIPEDIA ?? "0") === "1";
+const WIKIPEDIA_ON = (process.env.ER7_WIKIPEDIA ?? "1") === "1"; // on by default: the hyperlexicon's Wiktionary/Wikipedia enrichment grounds compositions
 const WIKI_MAX_CONCEPTS = Number(process.env.ER7_WIKI_MAX_CONCEPTS ?? 3);
 const WIKI_TIMEOUT_MS = Number(process.env.ER7_WIKI_TIMEOUT_MS ?? 3500);
 const WEB_SEARCH_ON = (process.env.ER7_WEB_SEARCH ?? "0") === "1";
@@ -247,6 +247,24 @@ async function searchAndAdmitWeb(session, sessionId, query, onNote, { move = "ga
     if (onNote) onNote({ move: "web_no_results" });
     return { searched: true, pages: 0, chars: 0 };
   }
+  // Source tiering: prefer encyclopedic / primary sources (Wikipedia as an
+  // INDEX, then journals, .gov/.edu, primary orgs) over essay-mills and
+  // content farms. The user's rule: Wikipedia is an index, primary sources
+  // are the material. A page about WRITING essays (earthreminder's
+  // "dolphin-essay-in-english") poisons a composition — the model starts
+  // writing about writing. Tier 0 = preferred, tier 2 = last resort.
+  const tierOf = (url, title = "") => {
+    const t = String(title ?? "").toLowerCase();
+    const h = String(url ?? "").toLowerCase();
+    if (/wikipedia\.org|wikisource|wiktionary/.test(h)) return 0; // index — preferred entry
+    if (/\.(gov|edu)\b/.test(h) || /pmc\.ncbi|pubmed|nature\.com|science\.org|doi\.org|sciencedirect|springer|plos|mdpi|frontiersin/.test(h)) return 0; // primary/peer-reviewed
+    if (/essay|gradesfixer|studymode|bartleby|coursehero|chegg|brainly|examples\.com|templates\.|articlewriting|essaywriting|writinghelper/.test(t)) return 2; // essay-mill — poisons compositions
+    if (/\.org|\.io|museum|national|foundation|university|institute/.test(h)) return 1; // institutional
+    return 1;
+  };
+  results.sort((a, b) => (tierOf(a.url, a.title) - tierOf(b.url, b.title)) || 0);
+  if (onNote && results.length) onNote({ move: "gore_tier", top: results.slice(0, 3).map((r) => r.url), tiers: { preferred: results.filter((r) => tierOf(r.url, r.title) === 0).length, lastResort: results.filter((r) => tierOf(r.url, r.title) === 2).length } });
+
   // Gore's DMD boundary: gather stops where additional results add no reach.
   // Go-deeper and double-check are targeted strikes — they take their cap
   // directly rather than expanding the harvest.
@@ -339,7 +357,7 @@ async function searchAndAdmitWeb(session, sessionId, query, onNote, { move = "ga
       const full = (session.webSources.get(r.url) ?? "") + (offset ? "\n\n" : "") + text;
       session.webSources.set(r.url, full);
       if (!session.shadow) session.shadow = [];
-      session.shadow.push({ url: r.url, title: r.title || r.url, seenAt: new Date().toISOString(), chars: text.length, resolution: null });
+      session.shadow.push({ url: r.url, title: r.title || r.url, seenAt: new Date().toISOString(), chars: text.length, resolution: null, reading: null });
       appendDocumentObservation(session.webLedger, {
         role: "source", title: r.title || r.url, text,
         basis: `web fetch, shadow-preserved (full ${text.length} chars recoverable)`,
@@ -385,6 +403,25 @@ async function searchAndAdmitWeb(session, sessionId, query, onNote, { move = "ga
           await yieldToEventLoop();
         }
         if (onNote) onNote({ move: "eot_ized", url: r.url, resolution, score: sal.score.toFixed(2), salient: pageSurprise.salient });
+        // THE SHADOW IS THE READING, SHAPED BY THE PRIORS. After stepping the
+        // source through the reader (which runs under the received POS prior
+        // and the born anchoring), capture what the priors caused the reading
+        // to ESTABLISH — the referents it resolved, with their surfaces. That
+        // is the shadow of this visit: not the bytes, not a receipt, but the
+        // prior-shaped memory of what was here. It is derived (rebuildable by
+        // re-reading the retained bytes under the same priors) and deletable.
+        const shadowEntry = session.shadow[session.shadow.length - 1];
+        if (shadowEntry) {
+          const idx = sessionReferentIndex(session, null);
+          shadowEntry.reading = {
+            referents: [...(idx?.referents ?? new Map()).values()]
+              .slice(-12)
+              .map((ref) => [...(ref.surfaces ?? [])][0] ?? null)
+              .filter(Boolean),
+            salient: pageSurprise.salient,
+            prior: "pos:en-ud-ewt + born anchoring",
+          };
+        }
       }
       session.lastPageSurprise = pageSurprise;
       // Competency: if this page barely moved the reading's expectations
@@ -450,22 +487,28 @@ function shapeFromMaterial({ material = [], referents = null, surfacedSegments =
   }
   const recurring = [...seen.values()]
     .filter((r) => r.count >= 2)
+    // A real section heading is a capitalized noun phrase, not lowercase
+    // chrome or navigation ("for other uses", "see also", "jump to content").
+    .filter((r) => /^[A-Z]/.test(r.line))
     // Boilerplate never becomes a section: navigation, site chrome, essay-mill
-    // labels ("Table of Contents", "Home", "Essay Examples", "Related Posts").
-    .filter((r) => !/table of contents|home|menu|search|related|essay example|free essay|skip to|read more|recent posts|subscribe|share this|^page\b|^home\b|login|sign in|sign up|contact|about us|privacy|cookie/i.test(r.line))
+    // labels, disambiguation leads.
+    .filter((r) => !/table of contents|home|menu|search|related|essay example|free essay|skip to|read more|also read|recent posts|subscribe|share this|^page\b|^home\b|login|sign in|sign up|contact|about us|privacy|cookie|conclusion of the essay|within this section|you'll find|jump to content|from wikipedia|the free encyclopedia|navigation|current events|contents|help about|learn to edit|community portal|recent changes|what links here|related changes|special pages|permanent link|page information|cite this page|wikidata item|download as|toggle|coordinates|tools|interaction|print.?\w*export|search wikipedia|donate|create account|for other uses|see also|disambiguation|see .*\(disambiguation\)/i.test(r.line))
     .sort((a, b) => b.count - a.count)
     .slice(0, 6);
-  for (const r of recurring) {
-    if (!sections.includes(r.line)) sections.push(r.line);
-  }
-  // Add the beings the reading established (they are the material's actual
-  // subjects), then the material's own section-like single lines.
+  // PREFER the reading's beings first: they are the material's ACTUAL
+  // subjects ("Dolphin", "Tursiops truncatus"), far better sections than any
+  // chrome line. Recurring short lines join only after, and only when they
+  // survived the chrome filter.
   const beings = [...(referents?.values?.() ?? [])]
     .map((r) => [...(r.surfaces ?? [])][0])
-    .filter((n) => n && n.length > 3)
+    .filter((n) => n && n.length > 3 && n.length < 60)
+    .filter((n) => !/jump to|wikipedia|navigation|search|contents|edit|main|talk|article|portal|help|special|tools/i.test(n))
     .slice(0, 3);
   for (const b of beings) {
     if (!sections.includes(b)) sections.push(b);
+  }
+  for (const r of recurring) {
+    if (!sections.includes(r.line)) sections.push(r.line);
   }
   // The material's first substantial lines that look like section titles
   // ("## ..." or a short title at the start of a block).
@@ -1208,7 +1251,7 @@ function sessionReferentIndex(session, onNote) {
   return index;
 }
 
-export async function runProxyTurn({ sessionId, model, task, chatHistory = [], discourse = "", workspace = "" }, onToken, onNote = null, onThinking = null) {
+export async function runProxyTurn({ sessionId, model, task, chatHistory = [], discourse = "", workspace = "", holonLevel = "section" }, onToken, onNote = null, onThinking = null) {
   const usage = { promptTokens: 0, completionTokens: 0 };
   const session = getSession(sessionId);
   _hot.add(model); // this turn is using it — hold it resident after
@@ -1246,10 +1289,12 @@ const modelsUp = await ollamaReachable();
 
   // 1.5 WEB SEARCH — Gore, the proxy's sanctioned egress (P13). The initial
   // GATHER is capped at the DMD boundary (gore.js): fetch until additional
-  // results add no reach, then stop — a scatter is a waste. The composition
-  // loop below calls Gore again per section (cueGoDeeper) and on shape-check
-  // failure (doubleCheck), each a recorded, bounded strike.
-  const webResult = await searchAndAdmitWeb(session, sessionId, task, onNote, { move: "gather" });
+  // results add no reach, then stop — a scatter is a waste. The gather query
+  // is the TOPIC, not the whole task: "essay about dolphins" surfaces
+  // essay-mills, "dolphins" surfaces Wikipedia and primary sources (the
+  // user's rule: Wikipedia is an index, primary sources are the material).
+  const gatherQuery = /\b(essay|write|paper|report|review|spec|guide|explain|describe|about)\b/i.test(task) ? topicPhrase(task) : task;
+  const webResult = await searchAndAdmitWeb(session, sessionId, gatherQuery, onNote, { move: "gather" });
   const hasWeb = webResult.pages > 0;
 
   // 2. Surf AND fold the conversation itself: the chat history is admitted to
@@ -1384,7 +1429,7 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
   if (WIKIPEDIA_ON) {
     const wikiNotes = await enrichFromWikipedia(digestInfo.composition);
     if (wikiNotes.length > 0) {
-      readingDigest += `\n[Wikipedia grounding: ${wikiNotes.map((w) => `${w.term} — ${w.snippet}`).join(" | ")}]`;
+      readingDigest += `\n\nA reference on the terms at play:\n${wikiNotes.map((w) => `- ${w.term}: ${w.snippet}`).join("\n")}`;
       if (onNote) onNote({ move: "wiki_lookup", notes: wikiNotes.map((w) => w.term) });
     }
   }
@@ -1498,14 +1543,28 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
   const documentLedger = sections.length
     ? createDocumentLedger({ docId: `${sessionId}:${session.turnCount}`, title: task.slice(0, 60), path: sections.map((s) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-")).join("_") })
     : null;
+  // THE VOID, DEF'd: the essay's shape declared across all nine operators
+  // BEFORE writing begins. This is what "done" means — the void filled by
+  // parts that pass its admission test. The meno question is answered by the
+  // declaration: we know we've learned when nothing the void named is missing.
+  const voidDeclaration = documentLedger
+    ? declareEssayVoid({ title: task.slice(0, 60), topic: topicPhrase(task), sections, holonLevel, shadow: session.shadow ?? [], webSources: session.webSources })
+    : null;
+  if (documentLedger && onNote) onNote({
+    move: "void_declared", slot: voidDeclaration?.slot ?? null,
+    cardinality: voidDeclaration?.cells?.find((c) => c.op === "DEF")?.declared ?? null,
+    extent: voidDeclaration?.cells?.find((c) => c.op === "SEG")?.declared ?? null,
+    mneme: voidDeclaration?.cells?.find((c) => c.op === "SIG")?.declared ? null : voidDeclaration?.mneme ?? null,
+    shadowSites: session.shadow?.length ?? 0,
+  });
   // The essay LIVES as a JSONL file on disk (not just in memory) so its state
   // is projectable at any moment — even mid-writing. Each observation appends
   // as one line; the projection re-folds the file.
-  const ESSAY_LEDGER_DIR = path.join(HERE, "documents");
   if (documentLedger) {
     try { fs.mkdirSync(ESSAY_LEDGER_DIR, { recursive: true }); } catch {}
   }
   const documentLines = [];
+  let totalStrain = 0; // the cumulative correction load — how hard the piece was to write
   let fullText = "";
   let truncated = false;
   // The model is the tip of consciousness: it must never run away. A hard
@@ -1517,6 +1576,11 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
   const MAX_OUTPUT_CHARS = Number(process.env.ER7_MAX_OUTPUT_CHARS ?? 40000);
   const SECTION_MAX_TOKENS = Number(process.env.ER7_SECTION_MAX_TOKENS ?? 1200);
   const MAX_REWRITE_ROUNDS = Number(process.env.ER7_MAX_REWRITE_ROUNDS ?? 1);
+  // Online REC: when a shape gap names a missing theme, hunt it on the web
+  // BEFORE rewriting (adds a Gore strike per gap — richer, slower). Off by
+  // default: the rewrite happens against current ground, faster. Experiment:
+  // ER7_ONLINE_REC=1 toggles the hunt.
+  const ONLINE_REC = (process.env.ER7_ONLINE_REC ?? "0") === "1";
   await withSlot(async () => {
     const draw = async (msgs, maxTokens, { capture = false } = {}) => {
       let buf = "";
@@ -1583,10 +1647,17 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
             .catch(() => ({ landed: false }));
         }
         const priorParts = documentLines.map((_, j) => `"${plannedSections[j]}"`).join(", ");
+        // HOLON LEVEL: the granularity of the task is an experimentable
+        // variable. "section" writes the whole part in one draw; "paragraph"
+        // asks for a paragraph; "sentence" asks for a few focused sentences
+        // per draw (smallest, most granular — a task generated at the level
+        // the piece actually needs, decided per-call, never fixed).
+        const holonPhrase = holonLevel === "sentence" ? "in a few focused sentences" : holonLevel === "paragraph" ? "as a short paragraph" : "as a full section";
         const sectionTask = plannedSections.length > 1
-          ? `We're writing a piece on ${topic}. ${outlineBuf.trim() ? `Here is the outline:\n${outlineBuf.trim()}\n\n` : ""}${priorParts ? `So far it has these parts: ${priorParts}. ` : ""}Now write the part on ${section}, developing it fully from the material.`
-          : `Write the piece on ${topic}, developing it fully from the material.`;
-        if (onThinking) onThinking(`\n### ${section}\n\n`);
+          ? `We're writing a piece on ${topic}. ${priorParts ? `So far it has these parts: ${priorParts}. ` : ""}Now write the part on ${section}, ${holonPhrase}, from the material.`
+          : `Write the piece on ${topic}, ${holonPhrase}, from the material.`;
+        const holonBudget = holonLevel === "sentence" ? Math.min(SECTION_MAX_TOKENS, 220) : holonLevel === "paragraph" ? Math.min(SECTION_MAX_TOKENS, 450) : SECTION_MAX_TOKENS;
+        if (onThinking) onThinking(`\n### ${section} (${holonLevel})\n\n`);
         // The draw runs NOW, in parallel with the Gore strike. Whichever lands
         // first flows; the strike's result is folded into the reading whenever
         // it arrives.
@@ -1597,7 +1668,7 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
               ...keptChat,
               { role: "user", content: sectionTask },
             ],
-            SECTION_MAX_TOKENS,
+            holonBudget,
           ),
           goreStrike,
         ]);
@@ -1607,10 +1678,43 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
         }
         if (stopped) break;
         if (onThinking) onThinking(buf + (i < plannedSections.length - 1 ? "\n\n" : ""));
+
+        // ── PER-SECTION SATISFACTION (EVA) → immediate correction (REC) ─────
+        // Strain is measured HERE, as each section lands, not at the end. A
+        // section that is thin, meta-commentary, or ungrounded is corrected
+        // BEFORE it enters the ledger — one bounded rewrite per failure, each
+        // rewrite adding strain. The piece converges toward the DEF, and the
+        // strain profile is the honest report of how hard each part was.
+        const sectionEva = satisfactionOfSection(buf, { theme: section, material: material.join("\n") });
+        if (!sectionEva.ok && !truncated && sectionEva.strain > 0) {
+          const attempts = Math.min(sectionEva.strain, 1);
+          let corrected = buf;
+          for (let a = 0; a < attempts && !truncated; a++) {
+            const failureDetail = sectionEva.failures[0]?.detail ?? "the section needs to be rewritten from the material";
+            if (onNote) onNote({ move: "section_eva", section, failures: sectionEva.failures.map((f) => f.detail), strain: sectionEva.strain });
+            if (onThinking) onThinking(`\n### Correcting "${section}": ${failureDetail}\n\n`);
+            const fix = await draw(
+              [
+                { role: "system", content: systemContent },
+                ...keptChat,
+                { role: "user", content: `Write the part on ${section} from the material — the previous attempt ${failureDetail.toLowerCase()}. Write it as the piece itself, not a note about writing it.` },
+              ],
+              holonBudget,
+            );
+            if (fix.stopped) { truncated = true; break; }
+            corrected = fix.buf;
+            const re = satisfactionOfSection(corrected, { theme: section, material: material.join("\n") });
+            if (re.ok) break;
+          }
+          buf = corrected;
+        }
+        const strainAdded = sectionEva.strain;
+        totalStrain += strainAdded;
+        if (onNote) onNote({ move: "strain", section, strain: strainAdded });
         if (documentLedger) {
           appendLedgerLine(documentLedger, {
             role: "part", title: section, text: buf.trim(), giver: model,
-            basis: "composition section admitted by the reading's own structure",
+            basis: `composition section, strain ${strainAdded}`,
           }, { dir: ESSAY_LEDGER_DIR });
           documentLines.push(buf.trim());
         }
@@ -1648,6 +1752,12 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
       }
 
       // ── EVA vs DEF: check the assembled shape, then REC the gaps ─────────
+      // ONLINE DEF/EVA/REC: when the shape check finds a gap, REC first goes
+      // BACK to the web for it (Gore doubleCheck — search the missing theme,
+      // admit the new material into the reading), THEN rewrites the section
+      // against the grown ground. The cycle experiments online until the
+      // shape holds: EVA names the gap, REC hunts it, the rewrite lands, EVA
+      // re-checks.
       const assembled = documentLines.join("\n\n");
       const shapeCheck = checkEssayShape(assembled, { parts: plannedSections.length, themes: plannedSections });
       if (onNote) onNote({ move: "shape_check", ok: shapeCheck.ok, failures: shapeCheck.failures.map((f) => f.detail) });
@@ -1655,6 +1765,19 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
         for (let round = 0; round < MAX_REWRITE_ROUNDS && !truncated; round++) {
           for (const fail of shapeCheck.failures) {
             if (truncated) break;
+            // REC's ONLINE half: hunt the gap on the web before rewriting it.
+            // The missing theme is a cue; Gore strikes it, the material joins
+            // the reading, and the rewrite has ground to stand on.
+            if (WEB_SEARCH_ON && ONLINE_REC && session.corpus && fail.kind === "body") {
+              const cue = String(fail.detail ?? "").replace(/^the theme "|" is not actually covered$/g, "").trim();
+              if (cue && !goredThemes.has(cue)) {
+                goredThemes.add(cue);
+                const plan = doubleCheckPlan([cue], { query: `${topic} ${cue}` });
+                if (onNote) onNote({ move: "double_check", cue, query: plan.query });
+                if (onThinking) onThinking(`\n[REC: hunting "${cue}" online]\n`);
+                await searchAndAdmitWeb(session, sessionId, plan.query, onNote, { move: "double-check", maxPages: 1 });
+              }
+            }
             const fixTask = `The piece we're writing is missing something: ${fail.detail}. Write the part that supplies it, in the same voice, from the material.`;
             if (onThinking) onThinking(`\n### Revision: ${fail.detail}\n\n`);
             const fix = await draw(
@@ -1805,6 +1928,10 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
   const thinkingLines = [];
   if (workspaceStats.files) thinkingLines.push(`Read ${workspaceStats.files} file(s), ${workspaceStats.chars.toLocaleString()} chars.`);
   if (hasWeb) thinkingLines.push(`Researched the web: ${webResult.pages} page(s), ${webResult.chars.toLocaleString()} chars.`);
+  if (session.shadow?.length) {
+    const res = session.shadow.map((s) => `${s.resolution ?? "?"}:${s.chars}${s.reading?.referents?.length ? ` (${s.reading.referents.length} refs)` : ""}`).join(", ");
+    thinkingLines.push(`Shadow (Mneme, shaped by the POS prior + born anchoring): ${session.shadow.length} site(s) — ${res}`);
+  }
   if (surfacedSegments.length) thinkingLines.push(`Found ${surfacedSegments.length} passage(s) addressing the question.`);
   if (surfVoidInfo) thinkingLines.push(`Nothing here answered the question (${surfVoidInfo.gap}).`);
   if (stats.relationEdges) thinkingLines.push(`The reading holds ${stats.relationEdges} relation edge(s), ${stats.referentBindings} referent binding(s).`);
@@ -1832,7 +1959,102 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
       : null,
     usage,
     truncated,
+    shadow: session.shadow ?? [],
+    // The MENO CHECK: the void was DEF'd when the composition started; here we
+    // ask whether it is FILLED. We know we've learned when the void we
+    // declared — across its nine operators — is filled by sections that pass
+    // its admission test. Strain is the REC pressure the void demanded.
+    satisfaction: documentLedger ? fillCheck(voidDeclaration, documentLines, plannedSections, { material: material.join("\n") }) : null,
+    totalStrain,
     thinking: thinkingBlock || null,
     answerShape: answerShape.shape,
   };
+}
+
+const ESSAY_LEDGER_DIR = path.join(HERE, "documents");
+
+// ── document jobs: a composition as a detached, resumable, real-time file ──
+// A long essay is not one blocking completion — it is a JOB. It starts
+// detached, writes its projection to <dir>/<docId>.md in REAL TIME as each
+// section lands, keeps the append-only JSONL ledger, and can be polled or
+// picked back up at any moment (the state lives in the ledger file + the
+// session, never only in a request).
+const _jobs = new Map();
+export function documentJobStatus(docId) {
+  return _jobs.get(docId) ?? null;
+}
+export function documentJobIds() {
+  return [..._jobs.keys()];
+}
+
+// Start a composition job. Returns { docId, sessionId } immediately; the
+// work continues in the background. `onToken` receives each streamed chunk;
+// the projection file is rewritten as sections land.
+export async function startDocumentJob({ task, model, workspace = "", sessionId = null, holonLevel = "section" } = {}) {
+  const sid = sessionId ?? `er7-doc-${Date.now()}`;
+  const jobId = sid; // the essay's ledger lives at ${sessionId}:${turnCount} — use the SAME id so the projection finds it
+  const job = {
+    jobId, sessionId: sid, model, task, workspace, holonLevel,
+    status: "writing", createdAt: Date.now(), updatedAt: Date.now(),
+    chars: 0, sections: 0, error: null,
+  };
+  _jobs.set(jobId, job);
+  _jobs.set(sid, job);
+  // The essay's ledger is `${sessionId}:${turnCount}` — turnCount starts at 1
+  // for a fresh session, so the file is ${sid}:1.jsonl. The .md projection
+  // mirrors it. (A reused sessionId with a higher turnCount would shift this;
+  // the job creates its own fresh session, so :1 is correct here.)
+  const ledgerDocId = `${sid}:1`;
+  const mdFile = path.join(ESSAY_LEDGER_DIR, `${jobId.replace(/:/g, "_")}.md`);
+  try { fs.mkdirSync(ESSAY_LEDGER_DIR, { recursive: true }); } catch {}
+  // Run detached — the caller returns immediately.
+  (async () => {
+    try {
+      // The JSONL is the ARTIFACT: it appears first, growing append-only as
+      // each section/revision lands. The .md is its PROJECTION, re-folded
+      // from the JSONL each pass (each time the ledger changes) — JSONL is
+      // the source of truth, the .md is derived, deletable, rebuilt from it.
+      const file = ledgerFilePath(ESSAY_LEDGER_DIR, ledgerDocId);
+      const flushProjection = () => {
+        try {
+          const projection = projectLedgerFile(file);
+          if (projection != null) fs.writeFileSync(mdFile, projection);
+        } catch {}
+      };
+      // Re-fold whenever the JSONL grows (each pass): poll the ledger file's
+      // size; when it changes, rewrite the .md projection from it.
+      let lastJsonlBytes = 0;
+      try { lastJsonlBytes = fs.statSync(file).size; } catch {}
+      const pollTimer = setInterval(() => {
+        try {
+          const size = fs.statSync(file).size;
+          if (size !== lastJsonlBytes) { lastJsonlBytes = size; flushProjection(); }
+        } catch {}
+      }, 1500);
+      const result = await runProxyTurn(
+        { sessionId: sid, model, task, workspace, holonLevel: job.holonLevel },
+        (chunk) => { job.chars += chunk.length; job.updatedAt = Date.now(); },
+        (note) => { if (note?.move === "composing_section") job.sections++; },
+        (thinking) => job.updatedAt = Date.now(),
+      );
+      clearInterval(pollTimer);
+      flushProjection();
+      // Completion is SATISFACTION-gated: the job is "complete" only when the
+      // DEF shape is realized (all sections satisfied). If it is not satisfied
+      // after the correction budget, it is "unsatisfied" — a finding about the
+      // pipeline (mis-sized task, thin ground), never a silent pass.
+      const sat = result?.satisfaction;
+      job.status = result?.truncated ? "truncated" : (sat?.ok ? "complete" : "unsatisfied");
+      job.satisfaction = sat ?? null;
+      job.totalStrain = result?.totalStrain ?? 0;
+      job.result = result;
+      job.updatedAt = Date.now();
+      flushProjection();
+    } catch (err) {
+      job.status = "error";
+      job.error = err.message;
+      job.updatedAt = Date.now();
+    }
+  })();
+  return { jobId, sessionId: sid, status: job.status, mdFile };
 }
