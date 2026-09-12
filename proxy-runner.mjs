@@ -2093,7 +2093,13 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
   // essay's shape). The questions were asked BEFORE the hunt (preVoid); after
   // the gather, the reading's OWN open questions and the shadow's referents
   // enrich them — the material's unresolved distinctions deepen the void.
-  let compositionPlan = { questions: [...voidQuestions], declaration: null };
+  // CRITICAL GATE: only a true COMPOSITION shape gets the multi-section
+  // plan. A plain question ("name one river") must take the FAST single-draw
+  // path — running the essay pipeline on every question makes even a
+  // one-line ask compose six sections and take 30-60s (measured live). The
+  // void questions are still computed (they inform the shape), but they only
+  // become SECTIONS when the shape is composition.
+  let compositionPlan = { questions: answerShape.shape === "composition" ? [...voidQuestions] : [], declaration: null };
   if (answerShape.shape === "composition") {
     const idx = sessionReferentIndex(session, onNote);
     const refs = [...(idx?.referents?.values?.() ?? [])].map((r) => [...(r.surfaces ?? [])][0]).filter((n) => n && n.length > 3).slice(0, 3);
