@@ -18,7 +18,7 @@ import { postprocessAnswer, warmPostprocess, getPyodide } from "./postprocess.mj
 import { resolutionBlocks } from "./native/the-fold/resolutions.js";
 import { tokenize } from "./native/the-fold/source.js";
 import { readingIndexFromLog } from "./native/the-fold/reading-log.js";
-import { createDocumentLedger, appendDocumentObservation, appendLedgerLine, projectDocument, documentChangeLog, admitPart, serializeLedger, snipsFromSources, checkEssayShape, ledgerFilePath, renderApaFootnotes, satisfactionOfSection, satisfactionOf, declareEssayVoid, fillCheck, citationLedger } from "./native/the-fold/document-ledger.js";
+import { createDocumentLedger, appendDocumentObservation, appendLedgerLine, projectDocument, documentChangeLog, admitPart, serializeLedger, snipsFromSources, checkEssayShape, ledgerFilePath, renderApaFootnotes, satisfactionOfSection, satisfactionOf, declareEssayVoid, fillCheck, citationLedger, voidCellsFor } from "./native/the-fold/document-ledger.js";
 import { goreBoundary, gatherPlan, cueGoDeeperPlan, doubleCheckPlan } from "./native/the-fold/gore.js";
 // The keyless field (GFP Pass 35, the-fold c232779): recall by partial-cue
 // resemblance, resolution by state — no absolute address. Surf's SECOND
@@ -1293,14 +1293,32 @@ const modelsUp = await ollamaReachable();
     if (admit.admitted > 0 && onNote) onNote({ move: "admitted", files: admit.admitted });
   }
 
-  // 1.5 WEB SEARCH — Gore, the proxy's sanctioned egress (P13). The initial
-  // GATHER is capped at the DMD boundary (gore.js): fetch until additional
-  // results add no reach, then stop — a scatter is a waste. The gather query
-  // is the TOPIC, not the whole task: "essay about dolphins" surfaces
-  // essay-mills, "dolphins" surfaces Wikipedia and primary sources (the
-  // user's rule: Wikipedia is an index, primary sources are the material).
-  const gatherQuery = /\b(essay|write|paper|report|review|spec|guide|explain|describe|about)\b/i.test(task) ? topicPhrase(task) : task;
-  const webResult = await searchAndAdmitWeb(session, sessionId, gatherQuery, onNote, { move: "gather" });
+  // 1.5 DEF THE VOID BY ASKING QUESTIONS, THEN HUNT ITS SHAPE. The essay's
+  // shape is NOT the source's own headings — it is the QUESTIONS the piece
+  // must answer. We ask them FIRST (from the task + topic; the reading is
+  // still empty, so no material can steer the shape), then Gore HUNTS each
+  // question to find the shape of what's wanted: each question is a void,
+  // and its hunt finds the material that fills it. Wikipedia is an index,
+  // primary sources are the material.
+  const topic = topicPhrase(task);
+  // The reading state the born gate consults: what the hunt actually found.
+  // Available BEFORE the full read: sources retained + the reader's running
+  // state. `stats`/`session.referents` fill in later (the enriched re-ask).
+  const readingState = (partial = {}) => ({
+    referents: session.referents?.referents?.size ?? 0,
+    relations: partial.relations ?? 0,
+    sources: session.webSources?.size ?? 0,
+    disputes: (session.lastPageSurprise?.salient ?? 0) > 2,
+    surprise: session.lastPageSurprise?.salient ?? 0,
+  });
+  const preVoid = voidCellsFor({ topic, question: task, openQuestions: [], shadowReferents: [], reading: readingState() });
+  const voidQuestions = preVoid.cells.filter((c) => c.relevant).map((c) => c.question);
+  if (onNote) onNote({ move: "void_questions", of: voidQuestions.length, cells: `${preVoid.relevant} relevant / ${preVoid.notRelevant} not-applicable of 27`, questions: voidQuestions.slice(0, 5) });
+  // Gore's initial gather: hunt the FIRST question (the most basic: "What is
+  // X?") to seed the reading — then the per-section loop below strikes each
+  // remaining question for its own shape.
+  const seedQuery = voidQuestions[0] ?? topic;
+  const webResult = await searchAndAdmitWeb(session, sessionId, seedQuery, onNote, { move: "gather" });
   const hasWeb = webResult.pages > 0;
 
   // 2. Surf AND fold the conversation itself: the chat history is admitted to
@@ -1538,9 +1556,26 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
   // each section against the same ground, briefly, and the assembly is the
   // reading's own structure (LaVar: the shape comes from the record, never
   // the model).
-  const sections = answerShape.shape === "composition"
-    ? planComposition({ index: sessionReferentIndex(session, onNote), hyperlexicon, resolutions, surfacedSegments, topicSource: task, material })
-    : [];
+  // The essay's shape is the VOID, DEF'd by ASKING QUESTIONS — never by
+  // copying the source's own headings (Wikipedia's taxonomy table is not the
+  // essay's shape). The questions were asked BEFORE the hunt (preVoid); after
+  // the gather, the reading's OWN open questions and the shadow's referents
+  // enrich them — the material's unresolved distinctions deepen the void.
+  let compositionPlan = { questions: [...voidQuestions], declaration: null };
+  if (answerShape.shape === "composition") {
+    const idx = sessionReferentIndex(session, onNote);
+    const refs = [...(idx?.referents?.values?.() ?? [])].map((r) => [...(r.surfaces ?? [])][0]).filter((n) => n && n.length > 3).slice(0, 3);
+    const openQ = (session.reader.getTasks?.() ?? [])
+      .filter((t) => t?.status === "open" && t?.questions?.length)
+      .flatMap((t) => t.questions ?? [])
+      .filter((q) => q && q.length > 10)
+      .slice(0, 2);
+    if (openQ.length || refs.length) {
+      const enriched = voidCellsFor({ topic, question: task, openQuestions: openQ, shadowReferents: refs, reading: readingState({ relations: stats?.relationEdges ?? 0 }) });
+      compositionPlan = { questions: enriched.cells.filter((c) => c.relevant).map((c) => c.question), declaration: null };
+    }
+  }
+  const sections = compositionPlan.questions;
   // A generated composition is a DOCUMENT LEDGER (EOT): every part admitted
   // is a line, every revision is a line, and the text a person reads is a
   // PROJECTION of the ledger — the full revision history is always re-foldable.
@@ -1554,7 +1589,7 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
   // parts that pass its admission test. The meno question is answered by the
   // declaration: we know we've learned when nothing the void named is missing.
   const voidDeclaration = documentLedger
-    ? declareEssayVoid({ title: task.slice(0, 60), topic: topicPhrase(task), sections, holonLevel, shadow: session.shadow ?? [], webSources: session.webSources })
+    ? (compositionPlan.declaration ?? declareEssayVoid({ title: task.slice(0, 60), topic: topicPhrase(task), sections, holonLevel, shadow: session.shadow ?? [], webSources: session.webSources }))
     : null;
   if (documentLedger && onNote) onNote({
     move: "void_declared", slot: voidDeclaration?.slot ?? null,
@@ -1659,8 +1694,11 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
         // per draw (smallest, most granular — a task generated at the level
         // the piece actually needs, decided per-call, never fixed).
         const holonPhrase = holonLevel === "sentence" ? "in a few focused sentences" : holonLevel === "paragraph" ? "as a short paragraph" : "as a full section";
+        // The part is a QUESTION the essay must ANSWER — the void DEF'd it.
+        // The writing is an answer, never a section echoing a source heading.
+        const isQuestion = /[?？]$/.test(section.trim());
         const sectionTask = plannedSections.length > 1
-          ? `We're writing a piece on ${topic}. ${priorParts ? `So far it has these parts: ${priorParts}. ` : ""}Now write the part on ${section}, ${holonPhrase}, from the material.`
+          ? `We're writing a piece on ${topic}. ${priorParts ? `So far it has these parts: ${priorParts}. ` : ""}Now ${isQuestion ? `answer this: ${section}` : `write the part on ${section}`}, ${holonPhrase}, from the material.`
           : `Write the piece on ${topic}, ${holonPhrase}, from the material.`;
         const holonBudget = holonLevel === "sentence" ? Math.min(SECTION_MAX_TOKENS, 220) : holonLevel === "paragraph" ? Math.min(SECTION_MAX_TOKENS, 450) : SECTION_MAX_TOKENS;
         if (onThinking) onThinking(`\n### ${section} (${holonLevel})\n\n`);

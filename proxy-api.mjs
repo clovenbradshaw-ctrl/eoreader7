@@ -134,6 +134,8 @@ export function humanizeNote(note) {
       return `REC hunting online: searching the web for "${note.cue}" to fill the shape gap.`;
     case "void_declared":
       return `Void declared: "${note.slot}" — ${note.cardinality ?? 0} part(s), grounded against a shadow of ${note.shadowSites ?? 0} visited site(s).`;
+    case "void_questions":
+      return `The void, DEF'd by asking: ${note.of} question(s) the piece must answer${note.open ? ` (${note.open} from the reading's own open questions)` : ""}. First: ${(note.questions ?? []).join(" | ")}`;
     case "section_eva":
       return `Section check failed: ${(note.failures ?? []).join("; ")} (strain ${note.strain}).`;
     case "strain":
