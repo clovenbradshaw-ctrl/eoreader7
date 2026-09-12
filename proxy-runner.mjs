@@ -2203,6 +2203,17 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
             for (const f of r.failures) if (f.kind === "ungrounded") rankeFindings.push({ ...f, sectionIndex: i });
           }
         }
+        // LAVAR'S LOW-RECALL FINDING: a section that resolves to the material
+        // but re-states none of its propositions is grounded-but-generic —
+        // LaVar grades it (recall), and Ranke rewrites it to CARRY the
+        // material's claims, not just mention the subject. The material's
+        // propositions are its EOT graph entries.
+        if (rankeIndex && rawEntries?.length) {
+          const lavar = lavarGradeEssay(documentLines, plannedSections, { materialPropositions: notesFromEdges(rawEntries), index: rankeIndex });
+          if (lavar.recall < 0.5 && lavar.ofPropositions > 0) {
+            if (onNote) onNote({ move: "lavar", recall: lavar.recall, covered: lavar.covered, of: lavar.ofPropositions });
+          }
+        }
         if (!rankeFindings.length) break;
         if (onNote) onNote({ move: "ranke", round: round + 1, ungrounded: rankeFindings.map((f) => f.sectionIndex) });
         // CONVERGENCE GUARD: a section that stays ungrounded after the rewrite
