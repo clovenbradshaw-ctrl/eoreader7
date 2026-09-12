@@ -1970,6 +1970,19 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
   const MAX_OUTPUT_CHARS = Number(process.env.ER7_MAX_OUTPUT_CHARS ?? 200000);
   const SECTION_MAX_TOKENS = Number(process.env.ER7_SECTION_MAX_TOKENS ?? 1200);
   const MAX_REWRITE_ROUNDS = Number(process.env.ER7_MAX_REWRITE_ROUNDS ?? 2);
+  // The GROUNDING TEXT is what Ranke measures a section against: the FULL
+  // retained web corpus (every fetched page, addressable) plus the surfaced
+  // windows. The surfaced sample alone is too thin for a 24-cell essay — a
+  // section naming Tragelaphus eurycerus is grounded, but the surf may only
+  // have returned two windows. Grounding against the whole corpus is the
+  // honest test. Hoisted to function scope so the section loop, Murch, and
+  // the final satisfaction check all measure against the same ground.
+  const groundingText = () => {
+    const parts = [];
+    if (session.webSources?.size) for (const text of session.webSources.values()) if (text) parts.push(String(text));
+    for (const s of surfacedSegments ?? []) if (s?.text) parts.push(String(s.text));
+    return parts.join("\n").slice(0, 200000);
+  };
   await withSlot(async () => {
     const draw = async (msgs, maxTokens, { capture = false, kelsen = null } = {}) => {
       let buf = "";
@@ -2036,20 +2049,7 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
             .then((r) => ({ landed: true, result: r }))
             .catch(() => ({ landed: false }));
         }
-        // The GROUNDING TEXT is what the EVA checks measure a section against:
-      // the FULL retained web corpus (every fetched page, addressable) plus
-      // the surfaced windows. The surfaced sample alone is too thin for a
-      // 24-cell essay — a section naming Tragelaphus eurycerus is grounded,
-      // but the surf may only have returned two windows. Grounding against
-      // the whole corpus is the honest test: did the section use the real
-      // material's words, not just the two most-surfaced segments?
-      const groundingText = () => {
-        const parts = [];
-        if (session.webSources?.size) for (const text of session.webSources.values()) if (text) parts.push(String(text));
-        for (const s of surfacedSegments ?? []) if (s?.text) parts.push(String(s.text));
-        return parts.join("\n").slice(0, 200000);
-      };
-      // WHERE THE ESSAY STANDS — folded, never dumped. The earlier sections
+        // WHERE THE ESSAY STANDS — folded, never dumped. The earlier sections
         // are read as the essay's own conversation and folded at resolutions
         // (atmosphere/lens/paradigm), so this section knows what the piece has
         // established and can COMPOSE with it — transition, build, never
@@ -2161,25 +2161,73 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
         }
       }
 
+      // ── RANKE VERIFIES THE GROUND, BEFORE MURCH EDITS ────────────────────────
+      // Wolfe's first draft is written. RANKE (Leopold von Ranke's
+      // Quellenkritik: the account is judged by the document it stands on)
+      // checks whether each section's claims are grounded in the retained
+      // documents. An ungrounded section — prose that shares almost nothing
+      // with the material — is rewritten FROM the material, fact-fidelity
+      // restored before any stylistic work. Murch then edits the SHAPE of
+      // the grounded prose; he never touches grounding (that is Ranke's).
+      // Bounded: each section rewritten at most once per pass, MAX_REWRITE_ROUNDS.
+      for (let round = 0; round < MAX_REWRITE_ROUNDS && !truncated; round++) {
+        const rankeFindings = [];
+        for (let i = 0; i < documentLines.length; i++) {
+          const r = satisfactionOfSection(documentLines[i], {
+            theme: plannedSections[i] ?? "",
+            material: groundingText(),
+            prior: i > 0 ? documentLines[i - 1] : "",
+          });
+          for (const f of r.failures) if (f.kind === "ungrounded") rankeFindings.push({ ...f, sectionIndex: i });
+        }
+        if (!rankeFindings.length) break;
+        if (onNote) onNote({ move: "ranke", round: round + 1, ungrounded: rankeFindings.map((f) => f.sectionIndex) });
+        for (const f of rankeFindings) {
+          if (truncated) break;
+          const i = f.sectionIndex;
+          const sectionText = documentLines[i];
+          if (!sectionText) continue;
+          if (onThinking) onThinking(`\n### Ranke, section ${i + 1}: ${f.detail}\n\n`);
+          // Ranke rewrites the section FROM the documents — the material's
+          // own facts and wording, nothing invented.
+          const rankeMsg = `We're writing a piece on ${topic}. One section drifted from the material — it names almost none of the source's own facts. The section reads:\n"""\n${String(sectionText).slice(0, 1200)}\n"""\n\nRewrite it strictly FROM the material: use the sources' own facts, names, figures, and wording. Write it as the piece itself, several sentences, no introduction, no commentary about writing. Write only the corrected section.`;
+          const rewrite = await draw(
+            [{ role: "system", content: systemContent }, ...keptChat, { role: "user", content: rankeMsg }],
+            SECTION_MAX_TOKENS,
+            { kelsen: Math.max(compositionKelsen, 0.9) }, // Ranke is literal, never impressionistic
+          );
+          if (rewrite.stopped) { truncated = true; break; }
+          const fixText = rewrite.buf.trim();
+          if (!fixText) continue;
+          documentLines[i] = fixText;
+          if (documentLedger) appendLedgerLine(documentLedger, { role: "revision", title: `ranke: ungrounded @ ${i + 1}`, text: fixText, giver: model, supersedes: null, basis: `RANKE: ${f.detail}` }, { dir: ESSAY_LEDGER_DIR });
+        }
+      }
+
       // ── MURCH EDITS: EVA the whole, then REC the shape ────────────────────────
-      // Wolfe's first draft is written. Now MURCH reads the assembled whole
-      // (folded at resolutions, never dumped) and is handed every typed
-      // finding — the shape check's opening/closing/body gaps AND each
-      // section's repetition/meta/thin/ungrounded verdicts. He produces one
-      // batch of bounded rewrites, each fixing exactly one finding, and the
-      // shape is re-checked. This is one holistic second pass — the film made
-      // in the cut — not three isolated loops patching symptoms.
+      // Wolfe's first draft is written, and Ranke has grounded it. Now MURCH
+      // reads the assembled whole (folded at resolutions, never dumped) and is
+      // handed the STYLISTIC findings — the shape check's opening/closing/body
+      // gaps and each section's repetition/meta/thin verdicts. GROUNDING is
+      // not Murch's: an ungrounded section is Ranke's fact-fidelity finding,
+      // already rewritten above. Murch produces one batch of bounded rewrites,
+      // each fixing exactly one finding, and the shape is re-checked — the
+      // film made in the cut.
       const assembled = documentLines.join("\n\n");
       const shapeCheck = checkEssayShape(assembled, { parts: plannedSections.length, themes: plannedSections });
       if (onNote) onNote({ move: "shape_check", ok: shapeCheck.ok, failures: shapeCheck.failures.map((f) => f.detail) });
       const editorIndex = sessionReferentIndex(session, onNote);
       for (let round = 0; round < MAX_REWRITE_ROUNDS && !truncated; round++) {
         // Aggregate EVERY finding across the whole essay — Murch's brief.
-        // Nothing is filtered out: an ungrounded section is fixable too (it
-        // must be rewritten FROM the material), and the loop is bounded by
-        // `applied` (a round that lands nothing stops) and MAX_REWRITE_ROUNDS.
+        // Murch is a STYLISTIC editor: his findings are the shape of the prose —
+        // repetition, meta-commentary, thin sections, and the whole-essay
+        // opening/closing/body gaps. GROUNDING is RANKE's job (Quellenkritik:
+        // does the prose stand on the documents?), so `ungrounded` is not
+        // handed to Murch — a section that fails grounding is a fact-fidelity
+        // failure for Ranke, not a style problem for the editor. The loop is
+        // bounded by `applied` and MAX_REWRITE_ROUNDS.
         const findings = aggregateEssayFindings({ sections: plannedSections, documentLines, material: groundingText(), shapeCheck });
-        const fixable = findings;
+        const fixable = findings.filter((f) => f.kind !== "ungrounded");
         if (!fixable.length) break;
         if (onNote) onNote({ move: "murch", round: round + 1, findings: fixable.map((f) => `${f.kind}${f.sectionIndex != null ? `@${f.sectionIndex}` : ""}`) });
         const editorStanding = essayResolutions({ sections: plannedSections, documentLines, index: editorIndex, rawEntries, onNote });

@@ -188,6 +188,8 @@ export function humanizeNote(note) {
       return `Murch, pass ${note.round}: editing the whole — ${(note.findings ?? []).join(", ")}.`;
     case "murch_applied":
       return `Murch applied ${note.applied} revision(s) this pass.`;
+    case "ranke":
+      return `Ranke, pass ${note.round}: ${note.ungrounded.length} section(s) drifted from the material — rewritten from the documents (Quellenkritik).`;
     case "outline_evolved":
       return `Outline evolved: the reading established "${note.added}" — added as a section (${note.total} total).`;
     // Deliberately suppressed: per-file scan skips, per-segment surf detail,
