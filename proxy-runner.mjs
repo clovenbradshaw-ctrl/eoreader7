@@ -358,11 +358,17 @@ async function searchAndAdmitWeb(session, sessionId, query, onNote, { move = "ga
       session.webSources.set(r.url, full);
       if (!session.shadow) session.shadow = [];
       session.shadow.push({ url: r.url, title: r.title || r.url, seenAt: new Date().toISOString(), chars: text.length, resolution: null, reading: null });
-      appendDocumentObservation(session.webLedger, {
+      // The web ledger is PERSISTED to disk (the shadow's source text lives as
+      // a file, S101 recoverable) — so the citation byte-addresses resolve
+      // against real bytes, not memory. An address into a vanished session is
+      // a spelling; this keeps it a birth.
+      const WEB_LEDGER_DIR = path.join(HERE, "documents");
+      try { fs.mkdirSync(WEB_LEDGER_DIR, { recursive: true }); } catch {}
+      appendLedgerLine(session.webLedger, {
         role: "source", title: r.title || r.url, text,
         basis: `web fetch, shadow-preserved (full ${text.length} chars recoverable)`,
         at: [offset, offset + text.length],
-      });
+      }, { dir: WEB_LEDGER_DIR });
 
       // SALIENCE-GATED EOT-IZATION, MULTIPLE RESOLUTIONS. Only what is salient
       // is absorbed into the reading. The screen is COARSE first (does the page

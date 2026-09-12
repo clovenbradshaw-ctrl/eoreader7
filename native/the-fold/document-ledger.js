@@ -361,7 +361,8 @@ export function renderApaFootnotes(essay, webSources = new Map(), { maxFootnotes
     // The verbatim span: the source's sentence most overlapping this one,
     // CLEANED of citation debris and capped so a footnote is a quotable
     // sentence, never a whole-page reproduction.
-    const srcSentences = srcText.replace(/\s+/g, " ").split(/(?<=[.!?])\s+(?=[A-Z])/).map((s) => s.trim());
+    const srcNorm = srcText.replace(/\s+/g, " ");
+    const srcSentences = srcNorm.split(/(?<=[.!?])\s+(?=[A-Z])/).map((s) => s.trim());
     let span = null, spanScore = 0;
     for (const ss of srcSentences) {
       const clean = cleanSpan(ss);
@@ -384,16 +385,25 @@ export function renderApaFootnotes(essay, webSources = new Map(), { maxFootnotes
   return `\n\n## Footnotes\n\n${block}`;
 }
 
-// ── the citation ledger: a JSON doc with the REAL verbatim source spans ─────
-// Footnotes are text; this is the STRUCTURED record. For every cited essay
-// sentence, it carries the source URL, the EXACT verbatim span the essay
-// borrows from (taken from the retained shadow text, never paraphrased), and
-// its BYTE ADDRESS into that retained text — so each citation points into the
-// recoverable source, EOT-style: the address is a birth, not a spelling. The
-// ledger is what a reader (or a check) consults to confirm a claim stands on
-// real bytes. Written as a sidecar JSON beside the essay.
+// ── the citation ledger: the holograph pointer, at the true levels of borrow ─
+// Footnotes are text; this is the STRUCTURED record — the whole point of EOT
+// and the holograph: every output term points precisely to the input bytes it
+// came from. Borrowing is a SPECTRUM, and it is RARELY whole-sentence
+// verbatim (the Fold's cite.js / snip-check.js discipline):
+//
+//   VERBATIM  — the whole span exists byte-exact in the source (rare).
+//               The span carries a full byte address + per-atom pointers.
+//   COMPANY   — the claim's ATOMS (numbers, years, names) each sit in the
+//               source BESIDE a content word of the sentence (P31's company
+//               rule). This is the COMMON case: the essay paraphrased, but
+//               every carried fact is traceable to real source bytes.
+//   UNSUPPORTED — no source carries the claim's atoms with company. A
+//               disclosed gap — never a silent un-cited claim.
+//
+// Every atom that IS supported records its real byte address in the retained
+// source text: an address is a birth, not a spelling.
 export function citationLedger(essay, webSources = new Map(), { maxCitations = 20 } = {}) {
-  if (!webSources.size) return { citations: [], of: 0, basis: "no retained sources to cite against" };
+  if (!webSources.size) return { citations: [], of: 0, verbatim: 0, company: 0, unsupported: 0, basis: "no retained sources to cite against" };
   const sentences = String(essay ?? "")
     .replace(/\s+/g, " ")
     .split(/(?<=[.!?])\s+(?=[A-Z])/)
@@ -404,6 +414,14 @@ export function citationLedger(essay, webSources = new Map(), { maxCitations = 2
     if (citations.length >= maxCitations) break;
     const terms = sentence.toLowerCase().split(/[^a-z]+/).filter((w) => w.length > 3);
     if (terms.length < 4) continue;
+    // The claim's ATOMS: numbers (incl. years) and names (capitalized words).
+    const atoms = [];
+    const numRe = /\b(?:\d[\d.,]*(?:[mkg]?m|k?g|%|ft|in|m|km|mph)?|1[5-9]\d\d|20\d\d)\b/g;
+    let nm;
+    while ((nm = numRe.exec(sentence))) atoms.push({ kind: /^1[5-9]\d\d$|^20\d\d$/.test(nm[0]) ? "year" : "number", value: nm[0] });
+    const nameRe = /\b[A-Z][a-z]{2,}\b/g;
+    while ((nm = nameRe.exec(sentence))) atoms.push({ kind: "name", value: nm[0] });
+    // Best source by token overlap (the claim's words against the source).
     let best = null, bestScore = 0;
     for (const [url, text] of webSources.entries()) {
       if (!text) continue;
@@ -411,9 +429,15 @@ export function citationLedger(essay, webSources = new Map(), { maxCitations = 2
       const hits = terms.filter((t) => src.includes(t)).length;
       if (hits > bestScore) { bestScore = hits; best = url; }
     }
-    if (!best || bestScore < 3) continue;
+    if (!best || bestScore < 3) { citations.push({ essaySentence: sentence, source: null, kind: "unsupported", atoms: [], basis: "no source shares enough of the claim's words" }); continue; }
     const srcText = String(webSources.get(best) ?? "");
-    const srcSentences = srcText.replace(/\s+/g, " ").split(/(?<=[.!?])\s+(?=[A-Z])/).map((s) => s.trim());
+    const srcNorm = srcText.replace(/\s+/g, " ");
+    const srcLower = srcNorm.toLowerCase();
+    const essayLower = sentence.toLowerCase();
+    // Company words: the sentence's content words, excluding the atom's own.
+    const cw = terms.filter((t) => t.length > 3);
+    // The verbatim span, if one exists (byte-exact in the source).
+    const srcSentences = srcNorm.split(/(?<=[.!?])\s+(?=[A-Z])/).map((s) => s.trim());
     let span = null, spanScore = 0;
     for (const ss of srcSentences) {
       const clean = cleanSpan(ss);
@@ -421,48 +445,44 @@ export function citationLedger(essay, webSources = new Map(), { maxCitations = 2
       const hits = terms.filter((t) => clean.toLowerCase().includes(t)).length;
       if (hits > spanScore) { spanScore = hits; span = clean; }
     }
-    if (!span || spanScore < 3) continue;
-    const at = srcText.indexOf(span);
+    const at = span && spanScore >= 3 ? srcNorm.indexOf(span) : -1;
+    const verbatim = at >= 0;
+    // The HOLOGRAPH POINTER per atom: each atom's byte address in the source,
+    // found BESIDE a company word (P31) when it exists, else marked unsupported.
+    const atomSpans = [];
+    const seenAtoms = new Set();
+    for (const atom of atoms) {
+      const key = `${atom.kind}:${atom.value.toLowerCase()}`;
+      if (seenAtoms.has(key)) continue;
+      seenAtoms.add(key);
+      const needle = atom.value.toLowerCase();
+      const needleAt = srcLower.indexOf(needle);
+      if (needleAt < 0) { atomSpans.push({ ...atom, at: null, supported: false, company: [] }); continue; }
+      // Company: does a content word of the sentence sit within ±60 chars of
+      // the atom in the source? (The atom beside the claim's other words.)
+      const win = srcNorm.slice(Math.max(0, needleAt - 60), Math.min(srcNorm.length, needleAt + needle.length + 60)).toLowerCase();
+      const company = cw.filter((w) => w !== needle && win.includes(w));
+      atomSpans.push({ ...atom, at: [needleAt, needleAt + needle.length], supported: true, company: company.slice(0, 5) });
+    }
+    const supportedAtoms = atomSpans.filter((a) => a.supported);
     let host = "Unknown";
     try { host = new URL(best).hostname.replace(/^www\./, ""); } catch {}
-    // THE HOLOGRAPH POINTER: for each content term the essay sentence shares
-    // with the source, record the term and its BYTE RANGE in the retained
-    // source text. Every holographical term in the output points precisely to
-    // the input bytes it came from — an address is a birth, not a spelling,
-    // and a reader can open the source at these offsets and find the exact
-    // words the essay borrowed, term by term.
-    const srcLower = srcText.toLowerCase();
-    const essayLower = sentence.toLowerCase();
-    const termSpans = [];
-    const seenTerms = new Set();
-    const termRe = /[a-z]{4,}/g;
-    let tm;
-    while ((tm = termRe.exec(essayLower))) {
-      const term = tm[0];
-      if (seenTerms.has(term)) continue;
-      seenTerms.add(term);
-      // The term's first occurrence in the SOURCE (the span was already found;
-      // within it, each shared term's own address).
-      const inSpan = span.toLowerCase().includes(term);
-      const from = inSpan ? srcText.indexOf(term, at >= 0 ? at : 0) : srcText.indexOf(term);
-      if (from >= 0) {
-        termSpans.push({ term, at: [from, from + term.length], inBorrowedSpan: inSpan });
-      }
-    }
+    // Grade the borrow: verbatim span > all atoms company-supported > partial.
+    const allSupported = supportedAtoms.length === atomSpans.length && atomSpans.length > 0;
+    const kind = verbatim ? "verbatim" : allSupported ? "company" : "unsupported";
     citations.push({
       essaySentence: sentence,
       source: { url: best, host },
-      verbatimSpan: span,
-      // The span's BYTE ADDRESS into the retained source text — a birth, not a
-      // spelling: whoever checks the citation can open the retained bytes at
-      // this offset and find the exact words the essay borrowed.
-      at: at >= 0 ? [at, at + span.length] : null,
-      // The holograph pointer: term-by-term byte addresses into the source.
-      terms: termSpans.slice(0, 12),
+      verbatimSpan: span && verbatim ? span : null,
+      kind,
+      at: verbatim ? [at, at + span.length] : null,
+      // The holograph pointer: each carried atom with its real byte address.
+      atoms: atomSpans,
       retrievedAt: new Date().toISOString(),
     });
   }
-  return { citations, of: citations.length, basis: `mechanically attributed, ${citations.length} of ${Math.min(sentences.length, maxCitations)} sentences cited against ${webSources.size} retained source(s)` };
+  const counts = { verbatim: citations.filter((c) => c.kind === "verbatim").length, company: citations.filter((c) => c.kind === "company").length, unsupported: citations.filter((c) => c.kind === "unsupported").length };
+  return { citations, of: citations.length, ...counts, basis: `mechanically attributed against ${webSources.size} retained source(s): ${counts.verbatim} verbatim, ${counts.company} company-supported (paraphrase, atoms byte-addressed), ${counts.unsupported} unsupported (disclosed)` };
 }
 
 // ── disk persistence: the essay LIVES as a JSONL file, projectable anytime ─
