@@ -54,8 +54,6 @@ import crypto from "node:crypto";
 import { fileURLToPath } from "node:url";
 import { splitSentences, normaliseNewlines } from "../../adapters/text/spans.js";
 import { extractRelations, discoverRelationVocab } from "../../adapters/text/relations.js";
-import { relationPriorOptionsFor } from "../../adapters/text/relation-priors-i18n.js";
-import { recurringFormAnchorSpans, scriptIsCaseless } from "../../adapters/text/recurring-form-anchors.js";
 import { extractSurfaces, scriptCoverageBySentence, accumulateSurfaceEvidence, createSurfaceEvidence, surfacesFromEvidence, discoverReferents } from "../../adapters/text/surfaces.js";
 import { bindNarrationFrames, pronounResolver } from "../../adapters/text/perspective-claims.js";
 import { boundAnchorSpans } from "../../adapters/text/vocabulary.js";
@@ -64,10 +62,6 @@ import { makeGrainTyper } from "./grain-typing.mjs";
 import { receivedGround, applyDelta } from "../../kernel/fold.js";
 import { deriveIdentityRevision } from "../../kernel/identity.js";
 import { textIdentityEvidence } from "../../adapters/text/identity-evidence.js";
-import { loadLibrary, saveLibrary, tier1, tier2, tier3, deriveConvention, buildRegex, numeralValue } from "./structure-rec.mjs";
-import { currentRecipe } from "./recipe-id.mjs";
-import { findSurprise, settle } from "./helix-read.mjs";
-import { charToByte } from "./byte-char-index.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const LP_ROOT = path.resolve(HERE, "../../../../live_priors");
@@ -106,19 +100,6 @@ const sourcePath = process.argv[2];
 if (!sourcePath) { console.error("usage: node eot-jsonl.mjs <path-to-origin-document> [chapterNumber]"); process.exit(1); }
 const originBytes = fs.readFileSync(sourcePath, "utf8");
 const sha256 = crypto.createHash("sha256").update(originBytes, "utf8").digest("hex");
-
-// COORDINATE SPACE, DECLARED NEVER MIXED — byte-char-index.mjs's own
-// header carries the full law and the Pride and Prejudice measurement
-// that found this gap. `byteOf`, composed into `rawAt` below, is the ONE
-// place every address this file emits already passes through — no
-// detection logic anywhere else changes. `originBytes.length` (its own
-// misleading name: a JS string's `.length` is code UNITS, not bytes) had
-// been standing in for a real byte count uncaught, because every book
-// tested until now (Alice, Frankenstein, Dorian Gray, Tom Sawyer,
-// Sherlock Holmes, the English UDHR) is close enough to pure ASCII that
-// the two spaces are numerically identical there.
-const byteOf = charToByte(originBytes);
-const RECIPE = currentRecipe();
 const READ_CHAPTER = Number(process.argv[3] ?? 1);
 // REREADING. User direction, verbatim: "sometimes it helps to reread a
 // chapter for a person" / "now with CH 1 and Ch2 as priors, reread ch 1".
@@ -186,11 +167,7 @@ for (const lx of lexicons) if (!lx.giver) { console.error("a lexicon prior must 
 // what lands on the ledger addresses the ORIGIN's own coordinates. The origin
 // file is never touched.
 const { text: raw, toRaw } = normaliseNewlines(originBytes);
-// Composed with byteOf (above): toRaw undoes CRLF normalisation (char
-// space -> origin char space), byteOf then converts origin char space ->
-// real UTF-8 byte space. Two coordinate transforms, one function, applied
-// in the order they actually nest.
-const rawAt = (start, end) => [byteOf(toRaw(start)), byteOf(toRaw(end))];
+const rawAt = (start, end) => [toRaw(start), toRaw(end)];
 
 // LANGUAGE. Defaults to English (this driver's whole history until now).
 // "do other languages... it shows us if we are doing too much of an
@@ -212,17 +189,6 @@ const rawAt = (start, end) => [byteOf(toRaw(start)), byteOf(toRaw(end))];
 // real prose, not merely under-listed here), and Hebrew has no neuter
 // "it" at all (every noun is grammatically masculine or feminine).
 const LANG = (process.argv.find((a) => a.startsWith("--lang=")) ?? "--lang=eng").replace("--lang=", "");
-// WHOLE-DOCUMENT READING. A short article-structured document (the UDHR's
-// Articles, each often one sentence) starves per-chapter vocabulary earning
-// when split into 30 article-chunks — almost nothing recurs within a single
-// sentence, so almost no real EOTObservation@1 propositions are produced.
-// --whole reads the entire origin document as ONE chapter instead of letting
-// structure-rec's heading-convention detection carve it into per-article
-// chapters. This is not a new mechanism: it is the same chapter/window shape
-// every other reading already uses, just with the window widened to the
-// whole document. Front matter is folded in rather than split out, since
-// there is no narrower chapter to draw the front-matter boundary against.
-const WHOLE_DOC = process.argv.includes("--whole");
 // JavaScript's `\b` is an ASCII-only boundary (defined against `\w` =
 // [A-Za-z0-9_]) even with the `u` flag — it does NOT become Unicode-aware.
 // A boundary check right against a Greek, Hebrew, or Turkish dotless-ı
@@ -235,53 +201,10 @@ const wordBound = (alts) => new RegExp(`(?<![\\p{L}\\p{N}])(?:${alts})(?![\\p{L}
 const LANG_PRONOUNS = {
   eng: wordBound("she|he|it|her|him|they|them"),
   fra: wordBound("il|elle|ils|elles|lui|leur|leurs"),
-  spa: wordBound("él|ella|ellos|ellas|lo|la|los|las|le|les|su|sus"),
   tur: wordBound("o|onu|ona|onlar|onları|onların"),
   kor: /(그녀|그것|그들|그는|그가|그를)/,
   ell: wordBound("αυτός|αυτή|αυτό|αυτοί|αυτές|αυτά|του|της|τους|τις"),
   heb: /(הוא|היא|הם|הן)/,
-  // arb: MSA independent third-person pronouns (huwa/hiya/huma/hum/hunna),
-  // no-vowel-mark script so a simple codepoint match is enough (same
-  // reasoning as heb/kor above — no Latin word-boundary issue here since
-  // Arabic text has real whitespace between words).
-  arb: /(هو|هي|هما|هم|هن)/,
-  // cmn: written Mandarin distinguishes 他/她/它 (he/she/it) and their
-  // plurals 他们/她们/它们 even though all are pronounced tā — a real,
-  // disclosed, small set, not a claim of completeness (e.g. 咱们/您 are
-  // left out). This does NOT touch the deeper problem named in this
-  // session's report: Mandarin has no whitespace between words at all, so
-  // a *reading* here is degraded by tokenizer assumptions elsewhere in
-  // this pipeline (extractRelations' `\s+`-based subject/object split)
-  // regardless of this pronoun list being present.
-  cmn: /(他们|她们|它们|他|她|它)/,
-  // swh: Swahili class-1/2 (person) independent pronouns are gender-
-  // neutral (yeye covers he/she) — a real Bantu-typology fact, not an
-  // under-listed set. wao is plural. This is the only piece of swh
-  // support this session could add: no Universal Dependencies Swahili
-  // treebank has annotated data (UD_Swahili-OPUSGV's repo carries only a
-  // README/LICENSE, zero .conllu files, verified this session), so
-  // pos-swh.json cannot be built without fabricating a prior — READING
-  // STAYS BLOCKED at that gate below, disclosed rather than faked.
-  swh: wordBound("yeye|wao"),
-  // rus: Russian third-person personal pronouns, nominative + the common
-  // oblique forms (genitive/accusative/dative) a void-detector scan needs
-  // to catch a bound referent in ordinary prose, not just subject position
-  // — он/она/оно/они (he/she/it/they) plus его/её/их (him-or-its/her/them)
-  // and ему/ей/им (to-him/to-her/to-them). Cyrillic has real letter case
-  // (this project's own P70 already reads Russian Wikipedia through
-  // resolvePronouns' English-only default and correctly gets zero
-  // attempts — a disclosed absence, not a claim this list fixes that
-  // organ; this is only eot-jsonl.mjs's own narrower void-pronoun scan).
-  rus: wordBound("он|она|оно|они|его|её|их|ему|ей|им|него|неё|них"),
-  // fin: Finnish grammaticalises NO gender at all — a real typological
-  // fact, not an under-listed set. hän (person, he-or-she) and se (thing,
-  // it) cover the singular; the plural forms he (people) and ne (things)
-  // are genuinely distinct words, not he/it pluralised the way English
-  // pluralises "they". Oblique forms (hänet/hänen/häneltä etc.) are
-  // Finland's own rich case system doing to a pronoun what it does to
-  // every noun — left out, the same disclosed-narrow posture kor/heb/swh
-  // already hold, not a claim of covering every declined form.
-  fin: wordBound("hän|se|he|ne"),
 };
 if (!LANG_PRONOUNS[LANG]) { console.error(`no pronoun set declared for --lang=${LANG} (declared: ${Object.keys(LANG_PRONOUNS).join(", ")})`); process.exit(2); }
 const POS_PRIOR_PATH = path.join(HERE, "../../priors", LANG === "eng" ? "pos-eng.json" : `pos-${LANG}.json`);
@@ -327,17 +250,14 @@ emit({
   schema: "EOTSource@1",
   path: path.relative(LP_ROOT, path.resolve(sourcePath)),
   sha256,
-  bytes: byteOf(originBytes.length), // real UTF-8 bytes (Buffer.byteLength), not the JS string's own .length — see charToByte's header above
+  bytes: originBytes.length,
   newlines: originBytes.includes("\r\n") ? "crlf — addresses below are in the ORIGIN's own coordinates, mapped back through spans.js::normaliseNewlines (S26)" : "lf",
-  addressing: "every `at` below is [start,end) UTF-8 BYTE offsets into THIS source's real bytes (charToByte, above); containment is computed from those numbers, never declared",
+  addressing: "every `at` below is [start,end) into THIS source; containment is computed from those numbers, never declared",
 });
 
 // ── line 1: the priors. What "how to read English" meant for this reading. ─
 emit({
   schema: "EOTRecipe@1",
-  recipeId: RECIPE.recipeId,
-  recipeGit: RECIPE.git,
-  recipeNote: "a hash over the actual bytes of this pipeline's own detector files (recipe-id.mjs::RECIPE_FILES) — never a git commit, since this directory routinely carries uncommitted capability changes. Two sidecars with different recipeId were read by genuinely different code, regardless of what got committed when.",
   language: LANG,
   reader: LANG === "eng"
     ? "makeRelationReader — the POSITIONAL English reader: an end's role is found by its position in the clause, not by case-marking on the word. English word order carries meaning and this reading uses it."
@@ -424,260 +344,44 @@ const infer = (role, at, basis, extra = {}) =>
 // take the TOC, which is exactly the failure that put a table of contents
 // into this book's flat reading.
 const chapters = [];
-if (!WHOLE_DOC) {
-  // WIRED IN, not hand-patched: this block used to carry its own growing
-  // regex alternation, one branch added by hand every time a new book
-  // used a convention the file didn't know yet (S102's Dorian Gray title
-  // check, S107's Frankenstein "Chapter 1", S110's Tom Sawyer "CHAPTER I"
-  // with no period) — three real fixes, and three separate times a human
-  // had to notice the failure and edit this file before the book could be
-  // read at all. `structure-rec.mjs` already does this mechanically:
-  // tier 1 tries every convention this project has confirmed so far
-  // (`heading-conventions.json`); tier 2, only if tier 1 finds nothing,
-  // looks for a recurring skeleton with a monotonic numeral and can
-  // propose a NEW convention without a human touching this file. This
-  // reader now calls both directly, in order, and — the part that closes
-  // the loop for real — PERSISTS a tier-2 find to the shared library
-  // itself, so the NEXT book with the same shape is a tier-1 hit here
-  // too, the same way it already is for `structure-rec.mjs`'s own CLI.
-  //
-  // Tier 3 (the model witness) IS now called when tier 2 finds a recurring
-  // skeleton with no monotonic numeral to confirm it mechanically — it USED
-  // to be skipped here on the reasoning that "confirmed structural" alone
-  // was not the same as knowing a numeral to build chapter ordinals from.
-  // That reasoning conflated two different things: this reader's own
-  // chapter-ordinal assignment (`ordinal: i + 1`, below) was ALREADY by
-  // document order, never by a parsed numeral value — the numeral was only
-  // ever needed to build a MATCHING REGEX, via `deriveConvention`. Once
-  // `deriveConvention` gained a `numeralType: "none"` shape (a literal
-  // marker, no numeral captured at all — "INTERLUDE" repeated between acts,
-  // never "INTERLUDE ONE"), a tier-3 "structural — confirmed" verdict is
-  // enough to build a real regex from, and the ordinal mechanism needs no
-  // change at all. The model's own confirmation is what licenses this —
-  // `deriveConvention`'s "none" branch has no way on its own to tell a real
-  // recurring marker from a recurring refrain.
-  const lib = loadLibrary();
-  let conv = null;
-  const t1 = tier1(raw, lib);
-  if (t1) {
-    conv = t1.conv;
-  } else {
-    const t2 = tier2(raw);
-    if (t2 && t2.monotonic) {
-      const parsed = deriveConvention(t2.group.members[0].text);
-      const consistent = parsed && t2.group.members.every((mem) => {
-        const p = deriveConvention(mem.text);
-        return p && p.word === parsed.word && p.numeralType === parsed.numeralType && p.requiresPeriod === parsed.requiresPeriod && p.titleOnSameLine === parsed.titleOnSameLine && p.numeralCase === parsed.numeralCase;
-      });
-      if (consistent) {
-        conv = { name: `${parsed.word ? parsed.word + " " : ""}<${parsed.numeralType}>${parsed.requiresPeriod ? "." : ""}`, ...parsed };
-        const alreadyKnown = lib.conventions.some((c) => c.word === conv.word && c.numeralType === conv.numeralType && c.requiresPeriod === conv.requiresPeriod && Boolean(c.titleOnSameLine) === Boolean(conv.titleOnSameLine) && c.numeralCase === conv.numeralCase);
-        if (!alreadyKnown) {
-          lib.conventions.push({ ...conv, foundIn: path.basename(sourcePath), foundVia: "mechanical (skeleton recurrence + monotonic numeral), auto-wired from eot-jsonl.mjs", dateFound: new Date().toISOString().slice(0, 10) });
-          saveLibrary(lib);
-        }
-      }
-    } else if (t2 && !t2.monotonic) {
-      const verdict = await tier3(t2.group);
-      if (verdict.verdict === "structural — confirmed") {
-        const parsed = deriveConvention(t2.group.members[0].text);
-        const consistent = parsed && parsed.numeralType === "none" && t2.group.members.every((mem) => {
-          const p = deriveConvention(mem.text);
-          return p && p.word === parsed.word && p.numeralType === "none" && p.requiresPeriod === parsed.requiresPeriod;
-        });
-        if (consistent) {
-          conv = { name: `"${parsed.word}" (no numeral)${parsed.requiresPeriod ? "." : ""}`, ...parsed };
-          const alreadyKnown = lib.conventions.some((c) => c.word === conv.word && c.numeralType === "none" && c.requiresPeriod === conv.requiresPeriod);
-          if (!alreadyKnown) {
-            lib.conventions.push({ ...conv, foundIn: path.basename(sourcePath), foundVia: "model witness (tier 3, confirmed structural, no numeral — ordinals assigned by document order), auto-wired from eot-jsonl.mjs", dateFound: new Date().toISOString().slice(0, 10) });
-            saveLibrary(lib);
-          }
-        }
-      }
-    }
-  }
-  if (!conv) { console.error("no chapter heading convention could be determined for this document (neither a known convention, nor a new mechanical one with a usable numeral, nor a tier-3-confirmed literal marker)"); process.exit(2); }
-
-  const RE = buildRegex(conv);
+{
+  // A REAL title line is bounded by blank lines on both sides — the same
+  // typographic convention that makes it a heading rather than running
+  // prose. Not every book has one: The Picture of Dorian Gray's chapters
+  // go straight from "CHAPTER I." to prose with no title line at all, and
+  // without this check the regex swallowed the paragraph's own first
+  // physical line as if it were a title — found by recoverability.mjs
+  // (S101) failing on a SECOND text after Alice in Wonderland passed clean,
+  // because AIW's own convention (a real title on every chapter) never
+  // exercised this branch. Requiring a blank line immediately after the
+  // candidate title distinguishes "Down the Rabbit-Hole\n\nAlice was..."
+  // (real title) from "The studio was filled...\nsummer wind..." (prose,
+  // wrapped across the physical line the naive regex captured).
+  // A SECOND, SIBLING CONVENTION, added after reading Frankenstein for the
+  // first time: "Chapter 1" (title-case word, Arabic numeral, no trailing
+  // period) has zero matches under the Roman-numeral form above — this
+  // book's heads[] would come back empty and every chapter read as "no
+  // chapter N inferred". The Roman-numeral branch's own exact shape
+  // (literal all-caps, required period) is UNCHANGED, so nothing already
+  // verified against AIW or Dorian Gray can start matching differently;
+  // this only adds a second alternative the first branch never reached.
+  const RE = /^(?:CHAPTER (?<roman>[IVXLC]+)\.|Chapter (?<arabic>\d+)\.?)\s*\n(?<titleLine>[^\n]*)\n/gmd;
   let m; const hits = [];
   while ((m = RE.exec(raw))) {
     const candidateEnd = m.index + m[0].length;
     const titleLine = m.groups.titleLine;
-    // A REAL title line is bounded by blank lines on both sides — the same
-    // typographic convention that makes it a heading rather than running
-    // prose. Not every book has one: The Picture of Dorian Gray's chapters
-    // go straight from "CHAPTER I." to prose with no title line at all, and
-    // without this check the regex swallowed the paragraph's own first
-    // physical line as if it were a title — found by recoverability.mjs
-    // (S101) failing on a SECOND text after Alice in Wonderland passed
-    // clean, because AIW's own convention (a real title on every chapter)
-    // never exercised this branch. Requiring a blank line immediately
-    // after the candidate title distinguishes "Down the
-    // Rabbit-Hole\n\nAlice was..." (real title) from "The studio was
-    // filled...\nsummer wind..." (prose, wrapped across the physical line
-    // the naive regex captured). A `titleOnSameLine` convention (Sherlock
-    // Holmes's "I. A SCANDAL IN BOHEMIA") has no such ambiguity to resolve
-    // — its own regex cannot match at all unless a title is present, so
-    // the match's own end is already the heading's end.
-    const hasRealTitle = conv.titleOnSameLine || (Boolean(titleLine.trim()) && raw[candidateEnd] === "\n");
-    // A TABLE-OF-CONTENTS LISTING IS NOT A CHAPTER (found on UDHR: 2026-09-10,
-    // widening buildRegex's anchor to `^[ \t]*` — needed so a uniformly-
-    // indented document like UDHR can be read at all — also let Frankenstein's
-    // own ToC ("CONTENTS\r\n Letter 1\r\n Letter 2\r\n... Chapter 1\r\n Chapter
-    // 2\r\n...", one leading space, no blank line between entries) match 24
-    // times as 24 spurious ~25-byte "chapters". Before this fix the strict
-    // column-0 anchor rejected the ToC's leading space by ACCIDENT, never by
-    // design — real protection, not a real mechanism. The actual, general
-    // signal: for a `titleOnSameLine:false` convention, titleLine is either
-    // genuinely BLANK (a real "no title" chapter — Dorian Gray, Frankenstein's
-    // own real headings) or non-blank AND confirmed followed by its own blank
-    // line (a real title — Alice). A NON-BLANK titleLine that is NOT so
-    // confirmed is neither shape: it is the convention's own next occurrence
-    // sitting immediately on the following line, which is exactly what a
-    // listing looks like and prose never does. Rejected outright, not merely
-    // stripped of its title text (which is what `hasRealTitle` alone used to
-    // gate) — pinned in eot-jsonl.test.mjs.
-    if (!conv.titleOnSameLine && titleLine.trim() && !hasRealTitle) continue;
+    const hasRealTitle = Boolean(titleLine.trim()) && raw[candidateEnd] === "\n";
     hits.push({
-      start: m.index, num: m.groups.numeral,
-      convention: conv.name,
+      start: m.index, num: m.groups.roman ?? m.groups.arabic,
+      convention: m.groups.roman !== undefined ? "CHAPTER <roman>." : "Chapter <arabic>",
       title: hasRealTitle ? titleLine.trim() : "",
-      headEnd: conv.titleOnSameLine ? candidateEnd : (hasRealTitle ? candidateEnd : m.indices.groups.titleLine[0]),
+      headEnd: hasRealTitle ? candidateEnd : m.indices.groups.titleLine[0],
     });
   }
-  for (const h of hits) chapters.push({ ...h }); // end/ordinal assigned below, AFTER the hunt — a recovered heading moves both
-
-  // ── THE HELIX SURPRISE HUNT, WIRED IN FOR REAL ──────────────────────────
-  // User direction, verbatim, from the session that built helix-read.mjs:
-  // "this needs to not be a rule about chapter headings. it needs to be a
-  // rule about how when there is something surprising in an identity set
-  // (e.g. monotonic increase) you must hunt to minimize surprise and try
-  // different senses" / "it needs to be triggered by curiosity not 'let's
-  // me be sure I get all the chapters right'". That module was built,
-  // validated against the real P&P 59-of-60 specimen, and left unwired —
-  // no real sidecar had ever run it. This is the wiring.
-  //
-  // The IDENTITY SET is this document's own chapter numerals — whatever
-  // `conv` just matched, read through `numeralValue` (the one place this
-  // project knows every numeral system). `findSurprise` asks a question
-  // `recoverability.mjs` cannot: not "did every match resolve" but "does
-  // this set's OWN shape, tested against a redeal of its own span, imply a
-  // missing member" — real curiosity about the set's regularity, not a
-  // coverage count.
-  //
-  // Skipped, not silently: a `numeralType: "none"` convention (a literal
-  // marker like "INTERLUDE", ordinals assigned by document order alone)
-  // has no numeral to place on a line at all — there is nothing for
-  // `findSurprise` to be surprised about. Fewer than 3 heads is
-  // `findSurprise`'s own declared floor for inducing a regularity model.
-  let helixOutcome = null;
-  if (conv.numeralType !== "none" && chapters.length >= 3) {
-    const positionOf = (c) => numeralValue(c.num);
-    const before = findSurprise(chapters, positionOf, { seed: 1 });
-
-    // THE SENSE: reads the shared convention library (`heading-conventions
-    // .json`, the exact resource tier 1 already consults) rather than
-    // inventing a second heading-detection mechanism — the same
-    // "search for the organ before you write one" discipline this file's
-    // own header names. A real book can genuinely mix conventions (an
-    // appendix in letters after chapters in arabic numerals is a real,
-    // already-supported case); this sense asks, for each GAP the identity
-    // set implies, whether some OTHER known convention has a heading — in
-    // the byte range between the gap's two real neighbours — whose own
-    // numeral value is exactly the missing position. `turn()`/`settle()`
-    // independently re-measure whatever this proposes; a candidate that
-    // does not genuinely reduce surprise is conceded, never trusted
-    // because the sense claimed success.
-    const librarySense = {
-      name: "alternate-convention-library-scan",
-      async look(surpriseRaw, ground) {
-        const lib = loadLibrary();
-        const others = lib.conventions.filter((c) => !(
-          c.word === conv.word && c.numeralType === conv.numeralType &&
-          c.requiresPeriod === conv.requiresPeriod &&
-          Boolean(c.titleOnSameLine) === Boolean(conv.titleOnSameLine) &&
-          c.numeralCase === conv.numeralCase
-        ));
-        if (!others.length) return { settled: false, ground, reason: "no other convention in the shared library to try" };
-
-        const members = ground.members.slice();
-        const attempts = [];
-        let found = 0;
-        for (const s of surpriseRaw.surprises ?? []) {
-          if (s.kind !== "prediction-error") continue;
-          const before2 = s.between?.[0] ?? null;
-          const after2 = s.between?.[1] ?? null;
-          const windowStart = before2 ? before2.end ?? before2.start : 0;
-          const windowEnd = after2 ? after2.start : raw.length;
-          let recovered = null;
-          for (const altConv of others) {
-            const RE2 = buildRegex(altConv);
-            let m2;
-            while ((m2 = RE2.exec(raw))) {
-              if (m2.index < windowStart || m2.index >= windowEnd) continue;
-              if (numeralValue(m2.groups.numeral ?? "") !== s.position) continue;
-              const titleLine2 = m2.groups.titleLine ?? "";
-              const candidateEnd2 = m2.index + m2[0].length;
-              const hasRealTitle2 = altConv.titleOnSameLine || (Boolean(titleLine2.trim()) && raw[candidateEnd2] === "\n");
-              recovered = {
-                start: m2.index, num: m2.groups.numeral,
-                convention: altConv.name ?? `${altConv.word ?? ""}<${altConv.numeralType}>`,
-                title: hasRealTitle2 ? titleLine2.trim() : "",
-                headEnd: altConv.titleOnSameLine ? candidateEnd2 : (hasRealTitle2 ? candidateEnd2 : m2.indices.groups.titleLine[0]),
-              };
-              break;
-            }
-            if (recovered) break;
-          }
-          attempts.push({ position: s.position, recoveredVia: recovered?.convention ?? null });
-          if (recovered) { members.push(recovered); found += 1; }
-        }
-        if (!found) return { settled: false, ground, reason: `tried ${others.length} other known convention(s) against ${(surpriseRaw.surprises ?? []).length} gap(s) — none landed in-window at the expected numeral`, attempts };
-        return { settled: true, ground: { ...ground, members }, reason: `recovered ${found} of ${(surpriseRaw.surprises ?? []).length} gap(s) from the shared convention library`, attempts };
-      },
-    };
-
-    // A COPY, not the live `chapters` reference — `chapters` is cleared and
-    // rebuilt from `helixOutcome.ground.members` right below, and turn()'s
-    // own "already settled, nothing to do" path returns the SAME ground
-    // object it was handed rather than a new one; aliasing the two arrays
-    // would make `chapters.length = 0` empty the settled result too.
-    const ground = { kind: "identity-set", members: chapters.slice(), positionOf, surpriseOpts: { seed: 1 }, sourceId: `${path.basename(sourcePath)}::chapter-numerals` };
-    helixOutcome = await settle(ground, [librarySense], { maxTurns: 6 });
-    chapters.length = 0;
-    chapters.push(...helixOutcome.ground.members);
-
-    for (const t of helixOutcome.trace) {
-      emit({
-        schema: "EOTHelixTurn@1", kind: "identity-set", subject: "chapter numerals",
-        turn: t.turn, moved: t.moved, conceded: t.conceded, via: t.via, reason: t.reason,
-      });
-    }
-    emit({
-      schema: "EOTHelixTurn@1", kind: "identity-set", subject: "chapter numerals", summary: true,
-      before: { regular: before.regular, p: before.p ?? null, surprises: before.regular ? before.surprises.length : null, reason: before.regular ? null : before.reason },
-      after: { settled: helixOutcome.settled, turns: helixOutcome.turns, stoppedBy: helixOutcome.stoppedBy },
-      disclosure: before.regular && before.surprises.length === 0
-        ? "the chapter numerals were checked against their own redealt null (helix-read.mjs::findSurprise) — regular and complete; nothing to hunt."
-        : before.regular
-          ? `the chapter numerals implied ${before.surprises.length} missing member(s) against their own redealt null; the hunt ${helixOutcome.settled ? "settled" : "did not fully settle"} them (${helixOutcome.stoppedBy}).`
-          : `the chapter numerals could not be distinguished from a redeal of their own span (${before.reason}) — no regularity model to be surprised against, so nothing was hunted.`,
-    });
-  } else {
-    emit({
-      schema: "EOTHelixTurn@1", kind: "identity-set", subject: "chapter numerals", ran: false,
-      reason: conv.numeralType === "none"
-        ? "this book's chapter convention carries no numeral (a literal marker, ordinals assigned by document order alone) — nothing to place on an identity line"
-        : `only ${chapters.length} chapter head(s) detected — findSurprise needs at least 3 placed members to induce a regularity model`,
-    });
+  for (let i = 0; i < hits.length; i += 1) {
+    const end = i + 1 < hits.length ? hits[i + 1].start : raw.length;
+    chapters.push({ ...hits[i], end, ordinal: i + 1 });
   }
-
-  chapters.sort((a, b) => a.start - b.start);
-  for (let i = 0; i < chapters.length; i += 1) {
-    chapters[i].end = i + 1 < chapters.length ? chapters[i + 1].start : raw.length;
-    chapters[i].ordinal = i + 1;
-  }
-
   for (const c of chapters) {
     // The basis names the CONVENTION THIS HEADING ACTUALLY MATCHED, not
     // just "the Roman-numeral form" unconditionally — found wrong on the
@@ -689,12 +393,6 @@ if (!WHOLE_DOC) {
     infer("chapter", [c.start, c.end], `a '${c.convention}' line at line-start followed by running prose (a title line, when the book gives one, is blank-line-bounded like the heading itself) — the table-of-contents copies of the same string are not followed by prose and are not matched`, { ordinal: c.ordinal, numeral: c.num, title: c.title });
     infer("heading", [c.start, c.headEnd], c.title ? "the chapter line and its title line" : "the chapter line alone — this book gives its chapters no title line", { ofChapter: c.ordinal });
   }
-} else {
-  // --whole: one chapter, the entire origin document. No heading detection
-  // is run at all (so this never touches or pollutes heading-conventions.json),
-  // and there is no narrower front-matter boundary to draw, so none is
-  // inferred — the whole document IS the read window.
-  chapters.push({ start: 0, end: raw.length, headEnd: 0, ordinal: 1, convention: "whole-document (--whole)", num: null, title: "" });
 }
 
 // FRONT MATTER: everything before the first real chapter. Recorded, never
@@ -840,52 +538,7 @@ const { boundSentences, perFrame } = bindNarrationFrames({
   surfaceToReferent,
   recall: RECALL,
 });
-const boundPronounAnchors = boundAnchorSpans(boundSentences, chapterText);
-
-// RECURRING-FORM ANCHORS, additive, STEERED BY A DETECTED PROPERTY OF THE
-// MATERIAL — never by `--lang=`. The bound-pronoun anchors above are
-// ENTIRELY downstream of `surfaces` (extractSurfaces' capitalisation-
-// significance test, surfaces.js) — castEvents, then surfaceToReferent,
-// then bindNarrationFrames' own binding all trace back to it. For a
-// script with no letter case at all (Arabic, Han) that whole chain starts
-// and ends empty, which is exactly why a real Arabic UDHR reading
-// extracted zero real propositions from its own body text even with real
-// closed-class priors wired in (see relation-priors-i18n.js's own header).
-// recurringFormAnchorSpans is a SEPARATE, script-agnostic candidate
-// source — a real occurrence's own span, admitted only once its form has
-// recurred across at least FORM_MIN_ARRIVALS (hypergraph.js) = 2 distinct
-// sentences, the same structural minimum reused rather than re-derived.
-//
-// GATED ON scriptIsCaseless(chapterText), NOT on "does this --lang= have a
-// registered relation-priors entry" — measured live, the wrong gate: the
-// first cut fired this for every language with a relation-priors entry
-// (spa included), and Spanish's recall against its own golden REGRESSED
-// (22.3% -> 16.0%) because Spanish's capitalisation-based extraction
-// already works and the extra recurring-form candidates only add noise to
-// an already-working signal, never help it. "This fixed Arabic" does not
-// license "so it helps every language this session happens to have
-// priors for" — the two are unrelated questions, and conflating them is
-// the exact un-generalized mistake this project's own generality gate
-// (P71) exists to catch. Steering on a measured property of the bytes
-// themselves (does this script carry ANY uppercase letters at all) is
-// language-agnostic and self-correcting: it fires for Arabic and Han
-// (correctly, since neither script has case), stays off for Spanish/
-// English/every other case-bearing script (correctly, since their real
-// mechanism already works), and needs no hand-maintained per-language
-// list that could silently go stale as more languages are added.
-const langPriorsForAnchors = relationPriorOptionsFor(LANG);
-const materialIsCaseless = scriptIsCaseless(chapterText) === true;
-const formFunctionWords = langPriorsForAnchors
-  ? new Set([
-      ...langPriorsForAnchors.subjectPronouns, ...langPriorsForAnchors.auxiliaryVerbs,
-      ...langPriorsForAnchors.definiteDeterminers, ...langPriorsForAnchors.indefiniteDeterminers,
-      ...langPriorsForAnchors.clauseOpeners, ...langPriorsForAnchors.negationWords,
-    ])
-  : null;
-const recurringAnchors = materialIsCaseless
-  ? recurringFormAnchorSpans(chapterText, { sentences: chapterSentences, minArrivals: 2, functionWords: formFunctionWords })
-  : [];
-const anchorSpans = [...boundPronounAnchors, ...recurringAnchors];
+const anchorSpans = boundAnchorSpans(boundSentences, chapterText);
 
 // ── THE SIG ROW: what is being talked about ──────────────────────────────
 // User's question, verbatim: "we need to be extracting the referents so we
@@ -1063,18 +716,7 @@ const endRef = (surface, chapterLocalOffset) => {
 // (see grainOf), where the same received prior types what was found instead
 // of narrowing what may be found. Same evidence, same P56 asymmetry, one
 // tier later.
-// LANG_RELATION_PRIORS. Real, giver-cited closed classes (auxiliary verbs,
-// subject pronouns, determiners, clause openers, negation) for the
-// languages this project has verified readings for — see
-// relation-priors-i18n.js's own header for why this exists and what it
-// does not close (Mandarin's word-segmentation gap in particular). `null`
-// for every language without a registered set (including "eng"), which
-// leaves `extractRelations`/`discoverRelationVocab`'s own English defaults
-// exactly as they were — byte-identical for every prior caller.
-// Reused, not re-derived — computed above (langPriorsForAnchors) where the
-// recurring-form anchors needed it first.
-const LANG_RELATION_PRIORS = langPriorsForAnchors;
-const vocabReport = discoverRelationVocab(chapterText, { surfaces, minSurfaces: MIN_SURFACES_PER_VERB, anchorSpans, ...(LANG_RELATION_PRIORS ? { auxiliaryVerbs: LANG_RELATION_PRIORS.auxiliaryVerbs, negationWords: LANG_RELATION_PRIORS.negationWords } : {}) });
+const vocabReport = discoverRelationVocab(chapterText, { surfaces, minSurfaces: MIN_SURFACES_PER_VERB, anchorSpans });
 
 const ownVerbs = vocabReport?.verbs instanceof Set ? vocabReport.verbs : new Set(vocabReport?.verbs ?? []);
 const verbs = new Set(ownVerbs);
@@ -1087,7 +729,7 @@ const lexiconStats = lexicons.map((lx) => {
   for (const v of lx.verbs ?? []) { if (!verbs.has(v)) fresh += 1; verbs.add(v); }
   return { giver: lx.giver, verbsOffered: (lx.verbs ?? []).length, verbsNew: fresh };
 });
-const opts = { verbs, phrasalPredicates: true, nounPhraseSubjects: true, ...(LANG_RELATION_PRIORS ?? {}) };
+const opts = { verbs, phrasalPredicates: true, nounPhraseSubjects: true };
 
 const carriesVerb = (t) => String(t ?? "").toLowerCase().split(/[^\p{L}\p{N}’']+/u).some((w) => verbs.has(w));
 const promoteLabel = (label, objectText) => {

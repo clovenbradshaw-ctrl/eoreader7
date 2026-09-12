@@ -68,6 +68,13 @@ export * as witnessSentencesOrgan from "./witness-sentences.js";
 export { DERIVED_PREFIX, REFUSALS as DERIVATION_REFUSALS, isDerivedId, premisesOf, chemistryFor, substrateEdges, naiveJoin, redeal, makeDerivation } from "./derivation.js";
 export * as derivation from "./derivation.js";
 
+// Degrees Kelsen — the reasoning linter (2026-09-11) — the seed's
+// precedence order run over the holograph; consumes regime.js's tag +
+// isSettled + precedence through an injected notes door, and produces typed
+// coherence findings at three declared strictness levels.
+export { LINT_STRICTNESS, SEVERITY, findClaimCycle, lintContent, lintInferences, lintLedger, lintReport, lintTimeline, findingKey } from "./reasoning-lint.js";
+export * as reasoningLint from "./reasoning-lint.js";
+
 // Phase 3 (2026-09-02) — the reading closure crosses: the-fold keeps only the surface.
 // Generated off each organ's own `export` statements; a name already exported by
 // another organ is aliased under this organ's prefix, never silently dropped.

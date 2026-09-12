@@ -1,8 +1,9 @@
-// tests/reasoning-lint-content.test.js — the demo corpora pinned as
-// regression tests. The demo's two content cases (the speed essay and the
-// math/code sheet) and the seed's §7 falsifiable corpus are read through
-// the REAL notes ledger, the REAL oracle, and organs/reasoning-lint.js, and
-// the exact finding-kind SIGNATURE at each strictness level is asserted.
+// tests/reasoning-lint-content.test.js — Degrees Kelsen's demo corpora
+// pinned as regression tests. The demo's two content cases (the speed essay
+// and the math/code sheet) and the seed's §7 falsifiable corpus are read
+// through the REAL notes ledger, the REAL oracle, and
+// organs/reasoning-lint.js, and the exact finding-kind SIGNATURE at each
+// strictness level is asserted.
 //
 // This is the "these are all correct, save it for regression" pin: the
 // findings themselves (REASONING-LINT-RESULTS.md) were verified correct by
@@ -102,4 +103,32 @@ test("the math corpus is incoherent at standard — the oracle refutes the wrong
   const strict = math.runs.find((r) => r.strictness === "strict");
   assert.equal(strict.findings.some((f) => f.kind === "licensed_inference" && f.severity === "info"), true);
   assert.equal(strict.findings.some((f) => f.kind === "unlicensed_inference" && f.severity === "error"), true);
+});
+
+// ── the science stack case: exact stats, numeric, graph, executed code ─────
+
+const SCIENCE = {
+  report: { "standard:error:claim_fails_oracle": 1, "report:info:oracle_withheld": 2, "report:info:claim_holds": 4 },
+  standard: { "standard:error:claim_fails_oracle": 1, "report:info:oracle_withheld": 2, "report:info:claim_holds": 4 },
+  strict: { "standard:error:claim_fails_oracle": 1, "report:info:oracle_withheld": 2, "report:info:claim_holds": 4 },
+};
+
+test("the science case pins its signature: executed code fails, unexecutable code is withheld, stats/numeric/graph hold", async () => {
+  const cases = await runAll();
+  const science = cases.find((c) => c.id === "science");
+  assert.ok(science, "the science corpus is present");
+  for (const strictness of ["report", "standard", "strict"]) {
+    const run = science.runs.find((r) => r.strictness === strictness);
+    assert.ok(run, `science: a run exists at ${strictness}`);
+    assert.deepEqual(signature(run), SCIENCE[strictness], `science @ ${strictness}: signature drifted`);
+  }
+  const run = science.runs.find((r) => r.strictness === "standard");
+  // The executed average() genuinely returns 1.67, not 2.00 — the claim that
+  // it "returns the arithmetic mean" is refuted by RUNNING it.
+  const fail = run.findings.find((f) => f.kind === "claim_fails_oracle");
+  assert.match(fail.detail, /average=1.67/);
+  // The JS/Java blocks are gaps, never convictions.
+  assert.equal(run.findings.some((f) => f.kind === "oracle_withheld" && f.severity === "error"), false);
+  // The exact nulls compute: Fisher p=0.035, hypergeometric closed form.
+  assert.equal(run.findings.filter((f) => f.kind === "claim_holds").length, 4);
 });
