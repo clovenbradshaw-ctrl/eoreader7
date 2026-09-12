@@ -357,13 +357,22 @@ export function satisfactionOfSection(sectionText, { theme = "", material = "", 
   // of writing it ("Here's a potential start... Explanation:... Let me know").
   if (META_COMMENTARY_RE.test(t)) { failures.push({ kind: "meta", detail: "the section describes the writing instead of being the piece" }); strain++; }
   // Grounding: does the section share content with the material? A section
-  // with no overlap is fabricated, not written from the ground.
+  // with no overlap is fabricated, not written from the ground. The test is
+  // LENGTH-AWARE: a long section's ratio is diluted by connective prose, so
+  // it must also clear a floor of DISTINCT material-tokens actually used —
+  // a section that names real material facts (Cameroon, Congo Basin, 200
+  // pounds) is grounded even when its prose is expansive.
   if (material && material.length > 30) {
     const m = String(material).toLowerCase();
     const tokens = t.toLowerCase().split(/[^a-z']+/).filter((w) => w.length > 4);
     if (tokens.length) {
-      const shared = tokens.filter((w) => m.includes(w)).length / tokens.length;
-      if (shared < 0.08) { failures.push({ kind: "ungrounded", detail: "the section shares almost nothing with the material — it is not written from the ground" }); strain++; }
+      const used = new Set(tokens.filter((w) => m.includes(w)));
+      const ratio = used.size / tokens.length;
+      const distinct = used.size;
+      if (ratio < 0.08 && distinct < 5) {
+        failures.push({ kind: "ungrounded", detail: `the section shares almost nothing with the material (${distinct} material words of ${tokens.length}) — it is not written from the ground` });
+        strain++;
+      }
     }
   }
   // Continuity: does the section merely RESTATE the preceding one? An essay

@@ -2154,52 +2154,58 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
       const editorIndex = sessionReferentIndex(session, onNote);
       for (let round = 0; round < MAX_REWRITE_ROUNDS && !truncated; round++) {
         // Aggregate EVERY finding across the whole essay — Murch's brief.
+        // Nothing is filtered out: an ungrounded section is fixable too (it
+        // must be rewritten FROM the material), and the loop is bounded by
+        // `applied` (a round that lands nothing stops) and MAX_REWRITE_ROUNDS.
         const findings = aggregateEssayFindings({ sections: plannedSections, documentLines, material: material.join("\n"), shapeCheck });
-        const fixable = findings.filter((f) => f.kind !== "ungrounded");
+        const fixable = findings;
         if (!fixable.length) break;
         if (onNote) onNote({ move: "murch", round: round + 1, findings: fixable.map((f) => `${f.kind}${f.sectionIndex != null ? `@${f.sectionIndex}` : ""}`) });
         const editorStanding = essayResolutions({ sections: plannedSections, documentLines, index: editorIndex, rawEntries, onNote });
         const brief = fixable.map((f, idx) => `${idx + 1}. [${f.kind}${f.sectionIndex != null ? `, section ${f.sectionIndex + 1}` : " the piece as a whole"}] ${f.detail}`).join("\n");
         if (onThinking) onThinking(`\n### Murch, pass ${round + 1}\n${brief}\n\n`);
-        // Murch reads the WHOLE essay (at resolutions) and writes the
-        // fixes for the specific findings — never an open-ended "improve".
-        const editorMsg = `We're editing a piece on ${topic}. ${editorStanding ? `Where the piece stands: ${editorStanding}\n\n` : ""}The editor has found these problems, each with a number:\n${brief}\n\nFix them one at a time, in order. For each, write the corrected passage in the piece's own voice, from the material — never about the writing. Return your fixes numbered exactly like the findings.`;
-        const edit = await draw(
-          [
-            { role: "system", content: systemContent },
-            ...keptChat,
-            { role: "user", content: editorMsg },
-          ],
-          Math.min(SECTION_MAX_TOKENS * 2, 2400),
-          { kelsen: Math.max(compositionKelsen, 0.9) }, // the editor is literal, never impressionistic
-        );
-        if (edit.stopped) { truncated = true; break; }
-        const edits = String(edit.buf ?? "");
-        if (onThinking) onThinking(edits + "\n\n");
-        // Land the edits as ledger revisions, applied in order. A numbered
-        // "N. ..." block replaces the finding it names; unnumbered prose is
-        // appended as a revision of the whole (an opening/closing fix).
-        const blocks = edits.split(/(?=^\d+\.\s)/m).map((b) => b.trim()).filter(Boolean);
+        // Murch fixes ONE finding per draw — the reliable grain for a 2B
+        // mouth (the voice design: one proposition per call). Each draw is
+        // small, targeted, and replaces the specific section it names; the
+        // whole-essay context is the resolutions fold, never the raw bytes.
         let applied = 0;
-        for (const b of blocks) {
-          const num = /^(\d+)\.\s/.exec(b);
-          const idx = num ? Number(num[1]) - 1 : -1;
-          const target = idx >= 0 && idx < fixable.length ? fixable[idx] : null;
-          const fixText = String(num ? b.replace(/^\d+\.\s/, "") : b).trim();
+        for (let fi = 0; fi < fixable.length && !truncated; fi++) {
+          const f = fixable[fi];
+          const targetSection = f.sectionIndex != null ? documentLines[f.sectionIndex] : null;
+          if (f.kind === "body") {
+            // A theme is uncovered — write a section that covers it, appended.
+            const bodyMsg = `The piece on ${topic} is missing this: ${f.detail}. ${editorStanding ? `The piece so far: ${editorStanding}` : ""}\n\nWrite the missing section from the material, in the piece's own voice — a substantial passage, several sentences, the material's own facts and wording, no introduction, no commentary about writing.`;
+            const body = await draw(
+              [{ role: "system", content: systemContent }, ...keptChat, { role: "user", content: bodyMsg }],
+              SECTION_MAX_TOKENS,
+              { kelsen: Math.max(compositionKelsen, 0.9) },
+            );
+            if (body.stopped) { truncated = true; break; }
+            const bodyText = body.buf.trim();
+            if (bodyText) {
+              documentLines.push(bodyText);
+              if (documentLedger) appendLedgerLine(documentLedger, { role: "revision", title: `murch: body`, text: bodyText, giver: model, supersedes: null, basis: `MURCH: ${f.detail}` }, { dir: ESSAY_LEDGER_DIR });
+              applied++;
+            }
+            continue;
+          }
+          // A section finding (meta/repetition/thin/ungrounded) — rewrite that
+          // specific section from the material, keeping the piece's voice.
+          const fixMsg = `We're editing a piece on ${topic}. ${editorStanding ? `Where the piece stands: ${editorStanding}\n\n` : ""}The editor found this problem in one section:\n- [${f.kind}] ${f.detail}\n\nThe current section reads:\n"""\n${String(targetSection ?? "").slice(0, 1200)}\n"""\n\nRewrite that section from the material, in the piece's own voice — a substantial passage, several sentences, the material's own facts and wording, no introduction, no commentary about writing. Write only the corrected section.`;
+          const fix = await draw(
+            [{ role: "system", content: systemContent }, ...keptChat, { role: "user", content: fixMsg }],
+            SECTION_MAX_TOKENS,
+            { kelsen: Math.max(compositionKelsen, 0.9) }, // Murch is literal, never impressionistic
+          );
+          if (fix.stopped) { truncated = true; break; }
+          const fixText = fix.buf.trim();
           if (!fixText) continue;
-          if (target && target.sectionIndex != null && documentLines[target.sectionIndex]) {
-            documentLines[target.sectionIndex] = fixText;
-            if (documentLedger) appendLedgerLine(documentLedger, {
-              role: "revision", title: `murch: ${target.kind} @ ${target.sectionIndex + 1}`, text: fixText, giver: model,
-              supersedes: null, basis: `EDITOR: EVA found ${target.kind} — ${target.detail}`,
-            }, { dir: ESSAY_LEDGER_DIR });
+          if (f.sectionIndex != null && documentLines[f.sectionIndex]) {
+            documentLines[f.sectionIndex] = fixText;
           } else {
             documentLines.push(fixText);
-            if (documentLedger) appendLedgerLine(documentLedger, {
-              role: "revision", title: `murch: ${target ? target.kind : "whole"}`, text: fixText, giver: model,
-              supersedes: null, basis: `EDITOR: ${target ? target.detail : "the piece as a whole"}`,
-            }, { dir: ESSAY_LEDGER_DIR });
           }
+          if (documentLedger) appendLedgerLine(documentLedger, { role: "revision", title: `murch: ${f.kind} ${f.sectionIndex != null ? `@ ${f.sectionIndex + 1}` : "whole"}`, text: fixText, giver: model, supersedes: null, basis: `MURCH: EVA found ${f.kind} — ${f.detail}` }, { dir: ESSAY_LEDGER_DIR });
           applied++;
         }
         if (onNote) onNote({ move: "murch_applied", round: round + 1, applied });
