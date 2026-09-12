@@ -190,11 +190,13 @@ function htmlToText(html) {
     .replace(/\n[ \t]+/g, "\n")
     .replace(/\n{3,}/g, "\n\n")
     .trim();
-  // Drop Wikisource's own scaffolding lines (nav, page numbers, headers).
+  // Drop Wikisource's own scaffolding lines (nav, page numbers, headers) and
+  // the style blocks MediaWiki inlines (the .mw-… and .wst-… classes carry no
+  // prose). Only the work's words should reach the reading.
   return text
     .split("\n")
     .map((l) => l.trim())
-    .filter((l) => l && !/^(page|header|footer|edit|jump to|wikisource)/i.test(l))
+    .filter((l) => l && !/^\.?(mw|wst)-/i.test(l) && !/^(page|header|footer|edit|jump to|wikisource)/i.test(l) && !/for works with similar titles/i.test(l))
     .join("\n");
 }
 
