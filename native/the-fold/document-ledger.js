@@ -195,55 +195,59 @@ export function checkEssayShape(text, { parts = 3, themes = [] } = {}) {
 //   Tending/Binding/Tracing · Cultivating/Making/Composing.
 const VOID_CELLS = [
   // ── Existence · what exists ──
-  { op: "NUL", grain: "Ground", terrain: "Void", ask: (s) => `What is ${s}, marked off from everything adjacent to it — what space is this essay, and what is it NOT?`, relevant: () => true }, // every essay marks its subject off
+  // HOLON (the law: low sets possibility for high, high probability for low).
+  // LOW cells ask about the SUBJECT — X itself, its kinds, beings, relations,
+  // extent, story — and are the sections Wolfe writes. HIGH cells ask about
+  // the ESSAY — its frame, thesis, claims, parts, revisions, the account it
+  // instantiates — and are the shape Murch checks and Ranke grounds, never a
+  // reader-facing section.
+  { op: "NUL", grain: "Ground", terrain: "Void", holon: "low", ask: (s) => `What is ${s}, marked off from everything adjacent to it — what space is this essay, and what is it NOT?`, relevant: () => true }, // every essay marks its subject off
   // BORN: relevant only when the material actually shows multiple beings/kinds
   // (several referents) or the question asks about kinds.
-  { op: "NUL", grain: "Figure", terrain: "Entity", ask: (s) => `Does ${s} name ONE being that clears its ground, or several that must be kept apart?`, relevant: (q, r) => /(?:species|subspecies|kinds?|types?|varieties?)/i.test(q) || /\b(?:several|multiple|many|both|either)\b/i.test(q) || (r?.referents ?? 0) > 3 },
-  { op: "NUL", grain: "Pattern", terrain: "Kind", ask: (s) => `What KIND is ${s} — and do its kinds hold as kinds against the material, or are they unresolved?`, relevant: () => true },
-  { op: "SIG", grain: "Ground", terrain: "Void", ask: (s) => `What is absent and must be found for the essay about ${s} to exist — what presence is currently missing?`, relevant: (q, r) => /(?:unknown|unclear|undocumented|scarcely|rarely|little known|not well)/i.test(q) || (r?.surprise ?? 0) === 0 },
-  { op: "SIG", grain: "Figure", terrain: "Entity", ask: (s) => `Which ${s} is this — the names and the referent, so one being is meant, not a byte string?`, relevant: () => true }, // every essay resolves its subject
+  { op: "NUL", grain: "Figure", terrain: "Entity", holon: "low", ask: (s) => `Does ${s} name ONE being that clears its ground, or several that must be kept apart?`, relevant: (q, r) => /(?:species|subspecies|kinds?|types?|varieties?)/i.test(q) || /\b(?:several|multiple|many|both|either)\b/i.test(q) || (r?.referents ?? 0) > 3 },
+  { op: "NUL", grain: "Pattern", terrain: "Kind", holon: "low", ask: (s) => `What KIND is ${s} — and do its kinds hold as kinds against the material, or are they unresolved?`, relevant: () => true },
+  { op: "SIG", grain: "Ground", terrain: "Void", holon: "high", ask: (s) => `What is absent and must be found for the essay about ${s} to exist — what presence is currently missing?`, relevant: (q, r) => /(?:unknown|unclear|undocumented|scarcely|rarely|little known|not well)/i.test(q) || (r?.surprise ?? 0) === 0 },
+  { op: "SIG", grain: "Figure", terrain: "Entity", holon: "low", ask: (s) => `Which ${s} is this — the names and the referent, so one being is meant, not a byte string?`, relevant: () => true }, // every essay resolves its subject
   // BORN: relevant when the material has multiple kinds/forms (subspecies, races).
-  { op: "SIG", grain: "Pattern", terrain: "Kind", ask: (s) => `How many distinct ${s} keep recurring as the same kind across the sources — each candidate signed as a proposal?`, relevant: (q, r) => /(?:subspecies|populations?|variants?|forms?|races?)/i.test(q) || (r?.referents ?? 0) > 3 },
-  { op: "INS", grain: "Ground", terrain: "Void", ask: (s) => `What baseline account of ${s} must be built before any judgment can land on it?`, relevant: () => true },
-  { op: "INS", grain: "Figure", terrain: "Entity", ask: (s) => `What does the essay bring into being about ${s} — the portrait, the thesis — what is born here that did not exist before?`, relevant: (q) => /\b(?:essay|paper|portrait|account|thesis|history)\b/i.test(q) },
-  { op: "INS", grain: "Pattern", terrain: "Kind", ask: (s) => `What established kind of account does the essay on ${s} instantiate — species description, conservation assessment, natural-history narrative?`, relevant: () => true },
+  { op: "SIG", grain: "Pattern", terrain: "Kind", holon: "low", ask: (s) => `How many distinct ${s} keep recurring as the same kind across the sources — each candidate signed as a proposal?`, relevant: (q, r) => /(?:subspecies|populations?|variants?|forms?|races?)/i.test(q) || (r?.referents ?? 0) > 3 },
+  { op: "INS", grain: "Ground", terrain: "Void", holon: "low", ask: (s) => `What baseline account of ${s} must be built before any judgment can land on it?`, relevant: () => true },
+  { op: "INS", grain: "Figure", terrain: "Entity", holon: "high", ask: (s) => `What does the essay bring into being about ${s} — the portrait, the thesis — what is born here that did not exist before?`, relevant: (q) => /\b(?:essay|paper|portrait|account|thesis|history)\b/i.test(q) },
+  { op: "INS", grain: "Pattern", terrain: "Kind", holon: "high", ask: (s) => `What established kind of account does the essay on ${s} instantiate — species description, conservation assessment, natural-history narrative?`, relevant: () => true },
   // ── Structure · how things hang together ──
-  { op: "SEG", grain: "Ground", terrain: "Field", ask: (s) => `What extent must the essay cover, and in what units — ${s}'s range, scale, span — so a hole is a visible uncovered stretch?`, relevant: () => true },
-  { op: "SEG", grain: "Figure", terrain: "Link", ask: (s) => `What does the essay cut apart, and is the cut derived off the material's own bytes (ecology from anatomy, not a model's label)?`, relevant: (q) => /(?:geograph|range|habitat|distribution|extent|how far|where)/i.test(q) },
-  { op: "SEG", grain: "Pattern", terrain: "Network", ask: (s) => `Where do the parts of ${s}'s story part at natural seams — what separates into distinct chapters at the material's own bridges?`, relevant: (q) => /(?:chapter|section|part|stages?|phases?|periods?)/i.test(q) },
+  { op: "SEG", grain: "Ground", terrain: "Field", holon: "low", ask: (s) => `What extent must the essay cover, and in what units — ${s}'s range, scale, span — so a hole is a visible uncovered stretch?`, relevant: () => true },
+  { op: "SEG", grain: "Figure", terrain: "Link", holon: "high", ask: (s) => `What does the essay cut apart, and is the cut derived off the material's own bytes (ecology from anatomy, not a model's label)?`, relevant: (q) => /(?:geograph|range|habitat|distribution|extent|how far|where)/i.test(q) },
+  { op: "SEG", grain: "Pattern", terrain: "Network", holon: "low", ask: (s) => `Where do the parts of ${s}'s story part at natural seams — what separates into distinct chapters at the material's own bridges?`, relevant: (q) => /(?:chapter|section|part|stages?|phases?|periods?)/i.test(q) },
   // BORN: relevant when the material has relations (edges) to bind.
-  { op: "CON", grain: "Ground", terrain: "Field", ask: (s) => `What connective field do ${s}'s relations live in — the ambient of possible relations before any single one is confirmed?`, relevant: (q, r) => /\b(?:predat|prey|habitat|relat|depend|threat|interact)\b/i.test(q) || (r?.relations ?? 0) > 0 },
-  { op: "CON", grain: "Figure", terrain: "Link", ask: (s) => `What binds each named thing to ${s} — the material's own edges: predator→prey, ${s}→forest, each span-verified?`, relevant: () => true }, // every essay binds its subject
-  { op: "CON", grain: "Pattern", terrain: "Network", ask: (s) => `What recurring relation runs through ${s}'s story — the same cycle (habitat loss → decline) found at a real recurrence floor?`, relevant: (q, r) => /(?:cycle|recurr|repeated|again|trend|pattern)/i.test(q) || (r?.relations ?? 0) > 2 },
+  { op: "CON", grain: "Ground", terrain: "Field", holon: "low", ask: (s) => `What connective field do ${s}'s relations live in — the ambient of possible relations before any single one is confirmed?`, relevant: (q, r) => /\b(?:predat|prey|habitat|relat|depend|threat|interact)\b/i.test(q) || (r?.relations ?? 0) > 0 },
+  { op: "CON", grain: "Figure", terrain: "Link", holon: "low", ask: (s) => `What binds each named thing to ${s} — the material's own edges: predator→prey, ${s}→forest, each span-verified?`, relevant: () => true }, // every essay binds its subject
+  { op: "CON", grain: "Pattern", terrain: "Network", holon: "low", ask: (s) => `What recurring relation runs through ${s}'s story — the same cycle (habitat loss → decline) found at a real recurrence floor?`, relevant: (q, r) => /(?:cycle|recurr|repeated|again|trend|pattern)/i.test(q) || (r?.relations ?? 0) > 2 },
   // BORN: relevant when multiple sources were actually retained.
-  { op: "SYN", grain: "Ground", terrain: "Field", ask: (s) => `What received readings of ${s} merge into ONE carried ground the essay stands on — which accounts compile, with typed gaps for absences?`, relevant: (q, r) => /(?:source|record|account|history|literature|several)/i.test(q) || (r?.sources ?? 0) > 1 },
-  { op: "SYN", grain: "Figure", terrain: "Link", ask: (s) => `Where do two sources about ${s} agree into one claim with two witnesses — which re-sightings fold into the same note?`, relevant: (q, r) => /(?:agree|corroborat|witness|confirm|support|both)/i.test(q) || (r?.sources ?? 0) > 1 },
-  { op: "SYN", grain: "Pattern", terrain: "Network", ask: (s) => `How do the essay's parts about ${s} compose — how do its relations chain so a reader walks from one section to the next without repetition?`, relevant: () => true },
-  // ── Interpretation · what the reader holds ──
-  { op: "DEF", grain: "Ground", terrain: "Atmosphere", ask: (s) => `What interpretive frame is the essay on ${s} declared in — conservation alarm, natural-history wonder, extinction narrative?`, relevant: () => true },
-  { op: "DEF", grain: "Figure", terrain: "Lens", ask: (s) => `How many answers does the essay on ${s} hold — one thesis or several — DECLARED, never read off grammar?`, relevant: () => true },
+  { op: "SYN", grain: "Ground", terrain: "Field", holon: "high", ask: (s) => `What received readings of ${s} merge into ONE carried ground the essay stands on — which accounts compile, with typed gaps for absences?`, relevant: (q, r) => /(?:source|record|account|history|literature|several)/i.test(q) || (r?.sources ?? 0) > 1 },
+  { op: "SYN", grain: "Figure", terrain: "Link", holon: "low", ask: (s) => `Where do two sources about ${s} agree into one claim with two witnesses — which re-sightings fold into the same note?`, relevant: (q, r) => /(?:agree|corroborat|witness|confirm|support|both)/i.test(q) || (r?.sources ?? 0) > 1 },
+  { op: "SYN", grain: "Pattern", terrain: "Network", holon: "high", ask: (s) => `How do the essay's parts about ${s} compose — how do its relations chain so a reader walks from one section to the next without repetition?`, relevant: () => true },
+  // ── Interpretation · what the reader holds ── (the essay's HIGH: Murch/Ranke)
+  { op: "DEF", grain: "Ground", terrain: "Atmosphere", holon: "high", ask: (s) => `What interpretive frame is the essay on ${s} declared in — conservation alarm, natural-history wonder, extinction narrative?`, relevant: () => true },
+  { op: "DEF", grain: "Figure", terrain: "Lens", holon: "high", ask: (s) => `How many answers does the essay on ${s} hold — one thesis or several — DECLARED, never read off grammar?`, relevant: () => true },
   // BORN: relevant when the material shows a genuine dispute.
-  { op: "DEF", grain: "Pattern", terrain: "Paradigm", ask: (s) => `What candidate framings of ${s} are proposed, which are REFUTED by the material, and which stay candidate — never given?`, relevant: (q, r) => /(?:debate|dispute|controv|interpret|framing|theor|argue)/i.test(q) || r?.disputes === true },
-  { op: "EVA", grain: "Ground", terrain: "Atmosphere", ask: (s) => `What does the essay owe the reader's accumulated picture of ${s} — and when does that ground MOVE (surprise contracts the window)?`, relevant: (q, r) => /(?:surpris|expect|known|assum|picture|assume)/i.test(q) || (r?.surprise ?? 0) > 0 },
-  { op: "EVA", grain: "Figure", terrain: "Lens", ask: (s) => `What test must each claim about ${s} pass — grounded in the retained material, witnessed, within the declared extent?`, relevant: () => true }, // every essay tests its claims
+  { op: "DEF", grain: "Pattern", terrain: "Paradigm", holon: "high", ask: (s) => `What candidate framings of ${s} are proposed, which are REFUTED by the material, and which stay candidate — never given?`, relevant: (q, r) => /(?:debate|dispute|controv|interpret|framing|theor|argue)/i.test(q) || r?.disputes === true },
+  { op: "EVA", grain: "Ground", terrain: "Atmosphere", holon: "high", ask: (s) => `What does the essay owe the reader's accumulated picture of ${s} — and when does that ground MOVE (surprise contracts the window)?`, relevant: (q, r) => /(?:surpris|expect|known|assum|picture|assume)/i.test(q) || (r?.surprise ?? 0) > 0 },
+  { op: "EVA", grain: "Figure", terrain: "Lens", holon: "high", ask: (s) => `What test must each claim about ${s} pass — grounded in the retained material, witnessed, within the declared extent?`, relevant: () => true }, // every essay tests its claims
   // BORN: relevant when multiple witnesses exist (several sources).
-  { op: "EVA", grain: "Pattern", terrain: "Paradigm", ask: (s) => `What is each claim about ${s}'s standing across all its witnesses — agree, single, disputed, contradicted, undetermined?`, relevant: (q, r) => /(?:several|multiple|sources?|studies?|reports?|claims?|findings?)/i.test(q) || (r?.sources ?? 0) > 1 },
-  { op: "REC", grain: "Ground", terrain: "Atmosphere", ask: (s) => `When does the essay about ${s} concede its frame and re-zero — what arrival starts a fresh atmosphere?`, relevant: () => true },
-  { op: "REC", grain: "Figure", terrain: "Lens", ask: (s) => `What would make the essay about ${s} take back a specific claim — and what new ground would be born with it?`, relevant: () => true },
+  { op: "EVA", grain: "Pattern", terrain: "Paradigm", holon: "high", ask: (s) => `What is each claim about ${s}'s standing across all its witnesses — agree, single, disputed, contradicted, undetermined?`, relevant: (q, r) => /(?:several|multiple|sources?|studies?|reports?|claims?|findings?)/i.test(q) || (r?.sources ?? 0) > 1 },
+  { op: "REC", grain: "Ground", terrain: "Atmosphere", holon: "high", ask: (s) => `When does the essay about ${s} concede its frame and re-zero — what arrival starts a fresh atmosphere?`, relevant: () => true },
+  { op: "REC", grain: "Figure", terrain: "Lens", holon: "high", ask: (s) => `What would make the essay about ${s} take back a specific claim — and what new ground would be born with it?`, relevant: () => true },
   // BORN: relevant when the material shows status/finding change.
-  { op: "REC", grain: "Pattern", terrain: "Paradigm", ask: (s) => `What finding about ${s} forces the whole declaration to be revised — a new subspecies, a changed status, a reversed trajectory?`, relevant: (q, r) => /(?:status|change|new|revis|discover|updat|finding)/i.test(q) || (r?.surprise ?? 0) > 3 },
+  { op: "REC", grain: "Pattern", terrain: "Paradigm", holon: "high", ask: (s) => `What finding about ${s} forces the whole declaration to be revised — a new subspecies, a changed status, a reversed trajectory?`, relevant: (q, r) => /(?:status|change|new|revis|discover|updat|finding)/i.test(q) || (r?.surprise ?? 0) > 3 },
 ];
 
 // Which cells produce ESSAY CONTENT (a section the reader sees) vs. SHAPE
 // INSTRUMENTS (a question about the essay's own frame/declaration/revision —
 // conversation instruments that steer the composition loop but are not
-// sections of a standalone piece). Declared by operator: the material-ground
-// cells ask for grounded prose; the meta cells ask about the essay itself.
-const ESSAY_CONTENT_OPS = new Set(["NUL", "SIG", "INS", "SEG", "CON", "SYN", "DEF", "EVA"]);
-// SIG·Ground (what is absent) and EVA·Ground (what the reader owes) and all
-// REC cells (when would the essay revise) are shape instruments.
-const ESSAY_SHAPE_CELLS = new Set(["SIG·Ground", "EVA·Ground", "REC·Ground", "REC·Figure", "REC·Pattern", "DEF·Figure"]);
-const isEssayCell = (op, grain) => ESSAY_CONTENT_OPS.has(op) && !ESSAY_SHAPE_CELLS.has(`${op}·${grain}`);
+// sections of a standalone piece). THE LAW OF HOLONS decides: LOW asks about
+// the SUBJECT (sets possibility for the essay's claims — these are the
+// sections Wolfe writes); HIGH asks about the ESSAY (the frame/claims/
+// revisions Murch edits and Ranke grounds — never a reader-facing section).
+const isEssayCell = (op, grain, holon) => holon === "low";
 
 // Generate the VOID CELLS for a subject: all 27 considered, the relevant ones
 // emitted as questions (with their cell metadata), the rest typed not-relevant.
@@ -272,8 +276,8 @@ export function voidCellsFor({ topic, question = "", openQuestions = [], shadowR
   // is born from what was found, never a fixed count.
   for (const cell of VOID_CELLS) {
     const relevant = cell.relevant(question ?? "", reading ?? {});
-    if (relevant) push(cell.ask(t), { op: cell.op, grain: cell.grain, terrain: cell.terrain, relevant: true, cell: `${cell.op}·${cell.grain}`, essay: isEssayCell(cell.op, cell.grain) });
-    else cells.push({ question: null, op: cell.op, grain: cell.grain, terrain: cell.terrain, relevant: false, cell: `${cell.op}·${cell.grain}`, essay: isEssayCell(cell.op, cell.grain) });
+    if (relevant) push(cell.ask(t), { op: cell.op, grain: cell.grain, terrain: cell.terrain, relevant: true, cell: `${cell.op}·${cell.grain}`, essay: isEssayCell(cell.op, cell.grain, cell.holon) });
+    else cells.push({ question: null, op: cell.op, grain: cell.grain, terrain: cell.terrain, relevant: false, cell: `${cell.op}·${cell.grain}`, essay: isEssayCell(cell.op, cell.grain, cell.holon) });
   }
   return { cells, of: cells.length, relevant: cells.filter((c) => c.relevant).length, notRelevant: cells.filter((c) => !c.relevant).length, subject: t };
 }
