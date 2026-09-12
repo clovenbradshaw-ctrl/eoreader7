@@ -215,6 +215,7 @@ const items = derived
   .slice(0, LIMIT)
   .map((f) => ({
     claim: { end1: labelOf(person(f.a)), label: `held ${officeName(f.office)} after`, end2: labelOf(person(f.b)), depth: f.depth, verdict: judge(f) },
+    qids: { a: person(f.a), b: person(f.b), office: f.office },
     merged: {
       case: "SINGLE",
       standing: f.depth > 1 ? "single" : "corroborated",
@@ -233,8 +234,12 @@ const withheldReasons = new Map();
 {
   let notes = reasoningHl.createHyperlexicon({ frame: { reader: "generate-passage", giver: "eoreader7", corpus: "wikidata succession" } });
   for (const f of derived) {
+    // Admit with the QID ENDS — the real referent ids — so the assertion id
+    // and the lint's address (which folds through setResolveEnd to QIDs) are
+    // THE SAME unit: the referent, never the display label. A contradiction
+    // between "Lincoln" and "Abraham Lincoln" is one address.
     notes = reasoningHl.hear(notes, {
-      subject: labelOf(person(f.a)), verb: `held ${officeName(f.office)} after`, object: labelOf(person(f.b)),
+      subject: person(f.a), verb: `held ${f.office} after`, object: person(f.b),
       witness: `wikidata:${person(f.a)}#derived`, spans: [],
     });
   }
@@ -242,6 +247,8 @@ const withheldReasons = new Map();
   for (const f of poolFindings.findings ?? []) {
     if (f.severity !== "error") continue;
     if (["standing_contradiction", "expired_in_conflict", "expired_premise", "contested_premise", "circular"].includes(f.kind) && f.at) {
+      // The finding's `at` is the reference-based address (q91|held x after).
+      // Withhold EVERY candidate that is half of a flagged pair.
       withheldReasons.set(String(f.at), f.kind);
     }
   }
@@ -260,7 +267,9 @@ const withheldReasons = new Map();
 // joining things that never closed.
 const renderClaim = (merged, claim) => `${claim.end1} ${claim.label} ${claim.end2}.`;
 
-const assertionIdOf = (it) => `${it.claim.end1}|${it.claim.label}|${it.claim.end2}`;
+// The referent-based assertion id — the SAME unit the linter folds through
+// setResolveEnd (QIDs): qid_a|held <office> after|qid_b, folded.
+const assertionIdOf = (it) => `${String(it.qids.a).toLowerCase()}|held ${it.qids.office} after|${String(it.qids.b).toLowerCase()}`;
 // A candidate is withheld when it is HALF of a flagged pair: the linter's
 // standing-contradiction `at` joins two claims with "+"; a candidate whose
 // id appears in any flagged pair is the subject of that contradiction and
@@ -270,6 +279,10 @@ const composeItems = items.filter((it) => {
   const id = assertionIdOf(it);
   return !withheldAt.some((pair) => String(pair).split("+").includes(id));
 });
+if (withheldAt.length) {
+  const actuallyWithheld = items.length - composeItems.length;
+  if (actuallyWithheld > 0) console.log(`SEAT 2 applied: ${actuallyWithheld} of ${items.length} candidate(s) withheld from prose`);
+}
 
 const out = compose(composeItems.length ? composeItems : items, {
   renderClaim,
