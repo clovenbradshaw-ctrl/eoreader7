@@ -202,6 +202,8 @@ export function humanizeNote(note) {
       return `Fisher: the openings repeat above chance (p=${note.p}, ${note.repeated} section(s) share a construction) — Brillat-Savarin will season them.`;
     case "redundancy":
       return `${note.kind === "repeated-fact" ? "Repeated fact" : note.kind === "repeated-template" ? "Repeated construction" : "Redundancy"}: ${note.detail} — Brillat-Savarin seasons it (chosen, never random).`;
+    case "mechanical":
+      return `Mechanical ${note.op}: ${note.basis} — a free, deterministic edit, EOT-recorded.`;
     case "murch_applied":
       return `Murch applied ${note.applied} revision(s) this pass.`;
     case "ranke":

@@ -13,6 +13,14 @@ const PORT = Number(process.env.ER7_PROXY_PORT) || 11436;
 const UPSTREAM = process.env.ER7_UPSTREAM || "http://localhost:11434";
 const { hostname: UP_HOST, port: UP_PORT } = new URL(UPSTREAM);
 const KEEP_WARM_INTERVAL_MS = Number(process.env.ER7_KEEP_WARM_INTERVAL_MS ?? 120000);
+// A whole-turn wall clock, independent of the per-call stream timeout inside
+// runProxyTurn. The client must always get a terminal chunk; a turn that is
+// slow in its post-stream work must not hang the stream forever.
+const TURN_DEADLINE_MS = Number(process.env.ER7_TURN_DEADLINE_MS ?? 120000);
+// The idle watchdog: how long a stream may go silent (no token, no note)
+// before it is treated as wedged and aborted. An ACTIVE stream is never
+// killed — long generations keep flowing; only silence is suspicious.
+const TURN_IDLE_MS = Number(process.env.ER7_TURN_IDLE_MS ?? 45000);
 
 const ts = () => new Date().toISOString().slice(11, 23);
 const log = (msg) => process.stderr.write(`[${ts()}] [er7-proxy] ${msg}\n`);
@@ -262,10 +270,35 @@ const server = http.createServer(async (req, res) => {
           "x-er7-session": sessionId,
         });
 
+        // ── RESILIENCE SCAFFOLDING (hoisted: the catch block must see these) ──
+        // A client that disconnects must not leave a zombie turn holding the
+        // generation slot. And an ACTIVE stream is never killed — only a turn
+        // that goes silent for TURN_IDLE_MS (no token, no note) is aborted,
+        // so long but lively generations keep streaming to completion.
+        const turnAbort = new AbortController();
+        let lastProgress = Date.now();
+        const bumpProgress = () => { lastProgress = Date.now(); };
+        const onDisconnect = () => { if (!turnAbort.signal.aborted) turnAbort.abort(); };
+        req.on("close", onDisconnect);
+        res.on("close", onDisconnect);
+        const idleWatchdog = setInterval(() => {
+          if (Date.now() - lastProgress > TURN_IDLE_MS && !turnAbort.signal.aborted) turnAbort.abort();
+        }, Math.max(1000, Math.floor(TURN_IDLE_MS / 4)));
+        const turnDeadline = setTimeout(() => {
+          if (!turnAbort.signal.aborted) turnAbort.abort();
+        }, TURN_DEADLINE_MS);
+        const clearTurn = () => {
+          clearTimeout(turnDeadline);
+          clearInterval(idleWatchdog);
+          req.removeListener("close", onDisconnect);
+          res.removeListener("close", onDisconnect);
+        };
+
         let first = true;
         let reasoningOpen = false;
         const emit = (token) => {
           if (!token) return;
+          bumpProgress();
           const chunk = {
             id, object: "chat.completion.chunk", created, model: parsed.model,
             choices: [{
@@ -285,6 +318,7 @@ const server = http.createServer(async (req, res) => {
         const emitNote = (note) => {
           const text = humanizeNote(note);
           if (!text) return;
+          bumpProgress();
           const chunk = {
             id, object: "chat.completion.chunk", created, model: parsed.model,
             choices: [{
@@ -303,6 +337,7 @@ const server = http.createServer(async (req, res) => {
         // reasoning_content so the user sees the essay/code being built live.
         const emitThinking = (text) => {
           if (!text) return;
+          bumpProgress();
           const chunk = {
             id, object: "chat.completion.chunk", created, model: parsed.model,
             choices: [{
@@ -317,7 +352,8 @@ const server = http.createServer(async (req, res) => {
         const onThinking = reqData.discloseThinking ? emitThinking : null;
 
         try {
-          const result = await runProxyTurn({ sessionId, userId, workspace, ...reqData }, emit, onNote, onThinking);
+          const result = await runProxyTurn({ sessionId, userId, workspace, signal: turnAbort.signal, ...reqData }, emit, onNote, onThinking);
+          clearTurn();
           // Thinking affordance: when discloseThinking is on, emit the grounding
           // block as reasoning_content before the final chunk.
           if (reqData.discloseThinking && result.thinking) {
@@ -342,15 +378,34 @@ const server = http.createServer(async (req, res) => {
           res.write("data: [DONE]\n\n");
           res.end();
         } catch (err) {
+          clearTurn();
           log(`proxy execution error: ${err.message}`);
-          const errChunk = { id, object: "chat.completion.chunk", created, model: parsed.model, choices: [{ index: 0, delta: { content: `\n[EOReader7 error: ${err.message}]` }, finish_reason: "stop" }] };
-          res.write(`data: ${JSON.stringify(errChunk)}\n\n`);
-          res.write("data: [DONE]\n\n");
-          res.end();
+          // A cancelled turn is not an error to the client that is still
+          // listening; it is a clean stop. A dead client gets nothing (it is
+          // gone) and the slot is freed, which is the whole point.
+          const cancelled = err?.message === "cancelled";
+          if (!res.writableEnded) {
+            const errChunk = { id, object: "chat.completion.chunk", created, model: parsed.model, choices: [{ index: 0, delta: { content: cancelled ? "" : `\n[EOReader7 error: ${err.message}]` }, finish_reason: "stop" }] };
+            res.write(`data: ${JSON.stringify(errChunk)}\n\n`);
+            res.write("data: [DONE]\n\n");
+            res.end();
+          }
         }
       } else {
         try {
-          const result = await runProxyTurn({ sessionId, userId, workspace, ...reqData });
+          // RESILIENCE: bound the non-streaming turn too — a wedged turn must
+          // return a typed error, never leave the client hanging.
+          const turnAbort = new AbortController();
+          const onDisconnect = () => { if (!turnAbort.signal.aborted) turnAbort.abort(); };
+          req.on("close", onDisconnect);
+          res.on("close", onDisconnect);
+          const turnDeadline = setTimeout(() => {
+            if (!turnAbort.signal.aborted) turnAbort.abort();
+          }, TURN_DEADLINE_MS);
+          const result = await runProxyTurn({ sessionId, userId, workspace, signal: turnAbort.signal, ...reqData });
+          clearTimeout(turnDeadline);
+          req.removeListener("close", onDisconnect);
+          res.removeListener("close", onDisconnect);
           const resp = openAIResponse({ id, model: parsed.model, text: result.text, created, usage: result.usage, reading: result });
           resp.reading.sessionId = sessionId;
           resp.reading.thinking = result.thinking ?? null;
@@ -360,9 +415,12 @@ const server = http.createServer(async (req, res) => {
           res.writeHead(200, { "content-type": "application/json" });
           res.end(JSON.stringify(resp));
         } catch (err) {
+          clearTimeout(turnDeadline);
+          req.removeListener("close", onDisconnect);
+          res.removeListener("close", onDisconnect);
           log(`proxy execution error: ${err.message}`);
           if (!res.headersSent) {
-            res.writeHead(500, { "content-type": "application/json" });
+            res.writeHead(err?.message === "cancelled" ? 499 : 500, { "content-type": "application/json" });
           }
           res.end(JSON.stringify({ error: { message: err.message } }));
         }
@@ -406,10 +464,31 @@ const server = http.createServer(async (req, res) => {
           "x-er7-session": sessionId,
         });
 
+        // ── RESILIENCE SCAFFOLDING (hoisted — the catch must see these) ──
+        const turnAbort = new AbortController();
+        let lastProgress = Date.now();
+        const bumpProgress = () => { lastProgress = Date.now(); };
+        const onDisconnect = () => { if (!turnAbort.signal.aborted) turnAbort.abort(); };
+        req.on("close", onDisconnect);
+        res.on("close", onDisconnect);
+        const idleWatchdog = setInterval(() => {
+          if (Date.now() - lastProgress > TURN_IDLE_MS && !turnAbort.signal.aborted) turnAbort.abort();
+        }, Math.max(1000, Math.floor(TURN_IDLE_MS / 4)));
+        const turnDeadline = setTimeout(() => {
+          if (!turnAbort.signal.aborted) turnAbort.abort();
+        }, TURN_DEADLINE_MS);
+        const clearTurn = () => {
+          clearTimeout(turnDeadline);
+          clearInterval(idleWatchdog);
+          req.removeListener("close", onDisconnect);
+          res.removeListener("close", onDisconnect);
+        };
+
         try {
           let first = true;
-          await runProxyTurn({ sessionId, workspace, ...reqData }, (token) => {
+          await runProxyTurn({ sessionId, userId, workspace, signal: turnAbort.signal, ...reqData }, (token) => {
             if (!token) return;
+            bumpProgress();
             res.write(JSON.stringify({
               model: parsed.model, created_at: createdAt,
               message: { role: "assistant", content: token },
@@ -417,6 +496,7 @@ const server = http.createServer(async (req, res) => {
             }) + "\n");
             first = false;
           });
+          clearTurn();
           res.write(JSON.stringify({
             model: parsed.model, created_at: createdAt,
             message: { role: "assistant", content: "" },
@@ -424,25 +504,42 @@ const server = http.createServer(async (req, res) => {
           }) + "\n");
           res.end();
         } catch (err) {
+          clearTurn();
           log(`proxy execution error: ${err.message}`);
-          res.write(JSON.stringify({
-            model: parsed.model, created_at: createdAt,
-            message: { role: "assistant", content: `[EOReader7 error: ${err.message}]` },
-            done: true, done_reason: "error",
-          }) + "\n");
-          res.end();
+          if (!res.writableEnded) {
+            res.write(JSON.stringify({
+              model: parsed.model, created_at: createdAt,
+              message: { role: "assistant", content: err?.message === "cancelled" ? "" : `[EOReader7 error: ${err.message}]` },
+              done: true, done_reason: err?.message === "cancelled" ? "stop" : "error",
+            }) + "\n");
+            res.end();
+          }
         }
       } else {
         try {
-          const result = await runProxyTurn({ sessionId, userId, workspace, ...reqData });
+          // RESILIENCE: same abort + deadline for the non-streaming shape.
+          const turnAbort = new AbortController();
+          const onDisconnect = () => { if (!turnAbort.signal.aborted) turnAbort.abort(); };
+          req.on("close", onDisconnect);
+          res.on("close", onDisconnect);
+          const turnDeadline = setTimeout(() => {
+            if (!turnAbort.signal.aborted) turnAbort.abort();
+          }, TURN_DEADLINE_MS);
+          const result = await runProxyTurn({ sessionId, userId, workspace, signal: turnAbort.signal, ...reqData });
+          clearTimeout(turnDeadline);
+          req.removeListener("close", onDisconnect);
+          res.removeListener("close", onDisconnect);
           const resp = ollamaChatResponse({ model: parsed.model, text: result.text, createdAt, usage: result.usage, reading: result });
           resp.reading = { ...(result.reading ?? result), sessionId };
           res.writeHead(200, { "content-type": "application/json" });
           res.end(JSON.stringify(resp));
         } catch (err) {
+          clearTimeout(turnDeadline);
+          req.removeListener("close", onDisconnect);
+          res.removeListener("close", onDisconnect);
           log(`proxy execution error: ${err.message}`);
           if (!res.headersSent) {
-            res.writeHead(500, { "content-type": "application/json" });
+            res.writeHead(err?.message === "cancelled" ? 499 : 500, { "content-type": "application/json" });
           }
           res.end(JSON.stringify({ error: { message: err.message } }));
         }

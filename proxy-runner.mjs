@@ -39,6 +39,8 @@ import { extractReadable, parseSearchResults, extractUrls, normalizeUrl, WEB_SEA
 // plain-text reader is reading wrong.
 import { isImageFileName, lookAtImage, lookAtText, shouldLook, weirdFormattingScore } from "./native/organs/look.js";
 import { mechanicalRevision, variedDraw } from "./native/organs/variation.js";
+import { styleGrade as strunkWhiteGrade } from "./native/organs/strunk-white.js";
+import { execFileSync } from "node:child_process";
 // The earned cast — the per-turn instruction set. Vendored at the
 // native/the-fold seam. PURE; the proxy feeds real conversation state and
 // receives ONLY the cued facts for this turn. The mouth is never told it is
@@ -1434,9 +1436,14 @@ const RESOLUTIONS_LEVEL = (() => { const v = Number(process.env.ER7_RESOLUTIONS 
 // creativity may hold tension, never a silent pick. ER7_KELSEN_MODALITY.
 const KELSEN_MODALITY = (() => { const v = Number(process.env.ER7_KELSEN_MODALITY ?? ""); return [0, 0.5, 1].includes(v) ? v : 1; })();
 
-async function* streamOllamaChat(model, messages, { maxTokens, json, onNote, kelsen, logitsBias } = {}) {
+async function* streamOllamaChat(model, messages, { maxTokens, json, onNote, kelsen, logitsBias, signal } = {}) {
   for (let attempt = 0; attempt < CALL_RETRIES; attempt++) {
     const ctrl = new AbortController();
+    const onAbort = () => ctrl.abort();
+    if (signal) {
+      if (signal.aborted) throw new Error("aborted");
+      signal.addEventListener("abort", onAbort, { once: true });
+    }
     const timer = setTimeout(() => ctrl.abort(), REQUEST_TIMEOUT_MS);
     try {
 const res = await fetch(`${OLLAMA}/api/chat`, {
@@ -1483,6 +1490,7 @@ const reader = res.body.getReader();
       let overBudget = false;
 
       while (true) {
+        if (signal?.aborted) throw new Error("cancelled");
         const { done, value } = await reader.read();
         if (done) break;
         buffer += decoder.decode(value, { stream: true });
@@ -1520,6 +1528,7 @@ const reader = res.body.getReader();
       if (attempt === CALL_RETRIES - 1) throw err;
     } finally {
       clearTimeout(timer);
+      if (signal) signal.removeEventListener("abort", onAbort);
     }
   }
 }
@@ -1679,7 +1688,7 @@ function essayResolutions({ sections, documentLines, index, rawEntries, onNote }
   }
 }
 
-export async function runProxyTurn({ sessionId, userId = null, model, task, chatHistory = [], discourse = "", workspace = "", holonLevel = "section", resumeAnswered = [], resumePlan = null, kelsen = null }, onToken, onNote = null, onThinking = null) {
+export async function runProxyTurn({ sessionId, userId = null, model, task, chatHistory = [], discourse = "", workspace = "", holonLevel = "section", resumeAnswered = [], resumePlan = null, kelsen = null, signal = null }, onToken, onNote = null, onThinking = null) {
   const usage = { promptTokens: 0, completionTokens: 0 };
   const session = getSession(sessionId);
   _hot.add(model); // this turn is using it — hold it resident after
@@ -2195,11 +2204,30 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
     for (const s of surfacedSegments ?? []) if (s?.text) parts.push(String(s.text));
     return parts.join("\n").slice(0, 200000);
   };
+  // READABILITY — how the piece READS, in addition to what it repeats.
+  // Prefer textstat (exact, via the venv) when it is reachable; fall back to
+  // the JS organ (free, in-process, trend-accurate) when it is not. The grade
+  // is EOT-recordable like every other measure. textstat's exact numbers come
+  // from a real syllable dictionary; the JS heuristic is deterministic but
+  // approximate — the trend agrees, the absolute values differ slightly.
+  const PYTHON_VENV = process.env.ER7_GRAM_PYTHON ?? "/var/folders/ck/tztwm60n4s9dxwrjfwlsmz3m0000gn/T/opencode/gram/bin/python";
+  // STRUNK & WHITE — the style agent: readability (textstat when reachable,
+  // JS heuristic otherwise) PLUS the Elements-of-Style rule violations. The
+  // textstat function is injected into the organ.
+  const textstatOf = (text) => {
+    if (!PYTHON_VENV) return null;
+    try {
+      const script = `import textstat, json, sys\nt = sys.argv[1]\nprint(json.dumps({"flesch": round(textstat.flesch_reading_ease(t),1), "grade": round(textstat.flesch_kincaid_grade(t),1), "fog": round(textstat.gunning_fog(t),1), "band": "readable" if textstat.flesch_reading_ease(t)>=60 else "dense", "words": textstat.lexicon_count(t)}))`;
+      const out = execFileSync(PYTHON_VENV, ["-c", script, String(text ?? "")], { encoding: "utf8", timeout: 8000 });
+      return JSON.parse(out.trim());
+    } catch { return null; }
+  };
+  const readabilityOf = (text) => strunkWhiteGrade(text, { textstat: textstatOf });
   await withSlot(async () => {
     const draw = async (msgs, maxTokens, { capture = false, kelsen = null } = {}) => {
       let buf = "";
       let stopped = false;
-      for await (const chunk of streamOllamaChat(model, msgs, { maxTokens, onNote, kelsen })) {
+      for await (const chunk of streamOllamaChat(model, msgs, { maxTokens, onNote, kelsen, signal })) {
         if (typeof chunk === "string") {
           if (fullText.length >= MAX_OUTPUT_CHARS) { truncated = true; stopped = true; break; }
           if (!capture) {
@@ -2960,6 +2988,14 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
           index: sessionReferentIndex(session),
         })
       : null,
+    // READABILITY: how the piece READS — textstat when reachable, else the
+    // JS heuristic. A piece can avoid all repetition and still be too dense;
+    // this is the "how good does it read" measure beside the redundancy
+    // detectors.
+    // STRUNK & WHITE: how the piece READS and the style rules it breaks. A
+    // piece can avoid all repetition and still be dense or hedged; this is
+    // the style agent's report beside the redundancy detectors.
+    strunkAndWhite: documentLines.length ? readabilityOf(documentLines.join("\n\n")) : null,
     totalStrain,
     thinking: thinkingBlock || null,
     answerShape: answerShape.shape,
