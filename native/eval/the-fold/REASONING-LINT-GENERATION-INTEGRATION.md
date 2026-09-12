@@ -1,7 +1,8 @@
-# Reasoning-lint × generation — integration instructions
+# Degrees Kelsen × generation — integration instructions
 
 Handoff for the agent working the generation pipeline. The task: wire
-`organs/reasoning-lint.js` into the derive → compose chain so an incoherent
+`organs/reasoning-lint.js` (Handle: Degrees Kelsen) into the derive →
+compose chain so an incoherent
 generation is **withheld before it ships**, not merely reported after. The
 linter is pure (zero model calls, zero IO); the gate it provides must run
 at the point where it can still change what ships (G1/L5), never only as a

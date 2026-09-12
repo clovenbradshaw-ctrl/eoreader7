@@ -1,6 +1,12 @@
 // organs/reasoning-lint.js — the reasoning seed's section 4–5, run as a
 // linter over the holograph (the notes ledger's projected record).
 //
+// Handle: Degrees Kelsen — after Hans Kelsen, the jurist who formalized how
+// norms in a hierarchy resolve conflict: validity first, then lex specialis,
+// then lex posterior, never a silent pick. "Degrees" because the order is a
+// fixed scale read at the query time — like temperature, it is measured,
+// never tuned.
+//
 // WHAT THIS IS. The seed ("The Reasoning Seed", 2026-09-10) says
 // transitivity and circularity checks catch bad CHAINS and nothing else:
 // they say nothing about whether a claim should chain classically at all
@@ -79,7 +85,40 @@ export const SEVERITY = Object.freeze({ INFO: "info", WARN: "warn", ERROR: "erro
 /** Would this finding surface at the requested strictness? */
 const shownAt = (finding, strictness) => LEVEL_RANK.get(finding.level) <= LEVEL_RANK.get(strictness);
 
-const finding = (kind, level, severity, detail, { at = null, note = null } = {}) => Object.freeze({ kind, level, severity, detail, ...(at ? { at } : {}), ...(note ? { note } : {}) });
+const finding = (kind, level, severity, detail, { at = null, note = null, referents = null, spans = null } = {}) =>
+  Object.freeze({ kind, level, severity, detail, ...(at ? { at } : {}), ...(note ? { note } : {}), ...(referents?.end1 || referents?.end2 ? { referents } : {}), ...(spans?.length ? { spans } : {}) });
+
+// ── the holograph's own referents and raw spans, on every finding ──────────
+//
+// A finding that names a note should point INTO the record, not just at its
+// id: WHICH referents its two ends resolve to (through the caller's
+// cast.js::makeReferentIndex — the SAME identity the surface reads, injected
+// cast.js-style), and the RAW BYTE SPANS the note carries (P5.2 addresses
+// into the material, opened by the record, never a paraphrase). Both ride
+// the finding; an absent index means ends stay folded surfaces (disclosed
+// on the return), never a guessed referent.
+const resolveEnds = (referentIndex, end1, end2) => {
+  if (!referentIndex?.resolve) return null;
+  const ids = (name) => { try { const r = referentIndex.resolve(String(name ?? "")); return r instanceof Set ? [...r] : [...(r ?? [])]; } catch { return []; } };
+  const a = ids(end1), b = ids(end2);
+  const id = (x) => { try { return referentIndex.represent?.(x) ?? x; } catch { return x; } };
+  return {
+    end1: a.length ? a.map(id) : null,
+    end2: b.length ? b.map(id) : null,
+    // Absent on either end is a typed absence, never a guessed being.
+    gaps: { end1: !a.length, end2: !b.length },
+  };
+};
+
+/** The holograph context a finding should carry: referents + raw spans. */
+const contextOf = (note, { referentIndex = null } = {}) => {
+  const refs = resolveEnds(referentIndex, note?.end1 ?? note?.subject, note?.end2 ?? note?.object);
+  const spans = (note?.spans ?? []).map((s) => s?.at ?? s?.ref ?? null).filter(Boolean);
+  return {
+    ...(refs ? { referents: refs } : {}),
+    ...(spans.length ? { spans: Object.freeze(spans) } : {}),
+  };
+};
 
 // ── reading the holograph through the injected door ───────────────────────
 
@@ -111,25 +150,8 @@ function workingTag(note, task, disputed, tags, queryTime) {
   });
 }
 
-// The lint is ABOUT REFERENTS, never surface text. Two names that name the
-// same being are one address — "Lincoln" and "Abraham Lincoln" are the same
-// entity to the reading, and a contradiction between them is a real
-// contradiction, not two different strings. So the linter folds each end
-// through an INJECTED referent resolver (cast discipline: the algebra is
-// injected, never imported): `resolve(end)` returns the referent id a name
-// resolves to (the reading's own EOReferent@1 identity face), or the folded
-// text when the reading has not established it. Same-being names then share
-// an address by construction; the address is the referent, not the spelling.
-let _resolveEnd = null;
-export function setResolveEnd(resolve) { _resolveEnd = typeof resolve === "function" ? resolve : null; }
-const foldEnd = (t) => {
-  const folded = foldText(t);
-  if (!folded || !_resolveEnd) return folded;
-  const ref = _resolveEnd(String(t ?? ""));
-  return ref ? `ref:${String(ref).toLowerCase()}` : folded;
-};
 const foldText = (t) => String(t ?? "").trim().toLowerCase();
-const addressOf = (note) => `${foldEnd(note.end1)}|${foldText(note.label)}`;
+const addressOf = (note) => `${foldText(note.end1)}|${foldText(note.label)}`;
 
 // ── cycle detection (begging the question, strict) ─────────────────────────
 
@@ -138,7 +160,7 @@ const addressOf = (note) => `${foldEnd(note.end1)}|${foldText(note.label)}`;
 export function findClaimCycle(notes) {
   const adj = new Map();
   for (const n of notes ?? []) {
-    const a = foldEnd(n.end1), b = foldEnd(n.end2);
+    const a = foldText(n.end1), b = foldText(n.end2);
     if (!a || !b || a === b) continue;
     if (!adj.has(a)) adj.set(a, []);
     adj.get(a).push({ to: b, id: n.id, end2: n.end2 });
@@ -173,7 +195,7 @@ export function findClaimCycle(notes) {
  * map (regime.js `tagClaim` output), `conditions` the query's declared
  * scope conditions (lex specialis), `strictness` one of LINT_STRICTNESS.
  */
-export function lintLedger(log, { door, taskLog, tags = new Map(), queryTime = Date.now(), conditions = [], strictness = "standard" } = {}) {
+export function lintLedger(log, { door, taskLog, tags = new Map(), queryTime = Date.now(), conditions = [], strictness = "standard", referentIndex = null } = {}) {
   if (!door || !taskLog || typeof taskLog.projectTasks !== "function")
     throw new TypeError("reasoning-lint.lintLedger: door (notes bundle) and taskLog (with projectTasks) are injected");
   const findings = [];
@@ -183,6 +205,8 @@ export function lintLedger(log, { door, taskLog, tags = new Map(), queryTime = D
   const conceded = concededOf(door, log);
   const tasks = new Map(taskLog.projectTasks(log).map((t) => [t.task_id, t]));
   const byId = new Map(fold.map((n) => [n.id, n]));
+  // The holograph context for a note: referents + raw spans, or empty (absent index).
+  const ctx = (n) => contextOf(n, { referentIndex });
 
   // The seed's "resolve to a cube cell before reasoning": every live note
   // resolves to a cell (operator × grain), read off the ledger.
@@ -191,7 +215,7 @@ export function lintLedger(log, { door, taskLog, tags = new Map(), queryTime = D
     if (!task?.operator || !task?.grain || !task?.cell) {
       findings.push(finding("unresolved_cell", "report", SEVERITY.INFO,
         `"${n.end1} —${n.label}→ ${n.end2}" never resolved to a cube cell (operator × grain) — it cannot participate in ordered reasoning until it does`,
-        { at: n.id, note: n.id }));
+        { at: n.id, note: n.id, ...ctx(n) }));
     }
   }
 
@@ -206,17 +230,17 @@ export function lintLedger(log, { door, taskLog, tags = new Map(), queryTime = D
       contestedNotes.add(n.id);
       findings.push(finding("contested_open", "report", SEVERITY.WARN,
         `"${n.end1} —${n.label}→ ${n.end2}" is under an open contest (${disp.map((d) => d.source).join(", ")}) — route to landContest (contraction only), never resolve it`,
-        { at: n.id, note: n.id }));
+        { at: n.id, note: n.id, ...ctx(n) }));
     }
     if (tag.validity && tag.validity.open === false && !tag.inScope) {
       findings.push(finding("expired_out_of_scope", "report", SEVERITY.WARN,
         `"${n.end1} —${n.label}→ ${n.end2}" is out of its validity window at the query time — it fails the validity-window check before force or entrenchment is ever consulted`,
-        { at: n.id, note: n.id }));
+        { at: n.id, note: n.id, ...ctx(n) }));
     }
     if (n.witnesses?.length && (n.witnesses ?? []).every((w) => String(w).startsWith("testimony:")) && new Set(n.witnesses.map((w) => String(w).split("#")[0].split("~")[0])).size === 1) {
       findings.push(finding("testimony_only", "report", SEVERITY.INFO,
         `"${n.end1} —${n.label}→ ${n.end2}" rests on a single voice's testimony (${n.witnesses.join(", ")}) — an account, never corroboration`,
-        { at: n.id, note: n.id }));
+        { at: n.id, note: n.id, ...ctx(n) }));
     }
   }
 
@@ -236,21 +260,25 @@ export function lintLedger(log, { door, taskLog, tags = new Map(), queryTime = D
     if (group.length < 2) continue;
     for (let i = 0; i < group.length; i += 1) for (let j = i + 1; j < group.length; j += 1) {
       const a = group[i], b = group[j];
-      if (foldEnd(a.end2) === foldEnd(b.end2)) continue;
+      if (foldText(a.end2) === foldText(b.end2)) continue;
       const aDisputed = contestedNotes.has(a.id), bDisputed = contestedNotes.has(b.id);
       const aTag = workingTag(a, tasks.get(a.id), aDisputed, tags, queryTime);
       const bTag = workingTag(b, tasks.get(b.id), bDisputed, tags, queryTime);
       if (!aDisputed && !bDisputed && aTag.cell && bTag.cell && aTag.grain && bTag.grain) {
         const r = precedence({ tag: aTag, grain: aTag.grain }, { tag: bTag, grain: bTag.grain }, { queryTime, conditions });
+        // A pair finding carries BOTH notes' holograph context — the two raw
+        // spans and the resolved referents of each side, so a reader can open
+        // either claim in the material.
+        const pairCtx = { at: `${a.id}+${b.id}`, ...ctx(a), ...ctx(b) };
         if (r.reason === "tied") {
           findings.push(finding("standing_contradiction", "standard", SEVERITY.ERROR,
             `two live claims at "${address}" disagree (${a.end2} vs ${b.end2}) and no declared rule separates them — ${r.detail} — a caller-declared tiebreak or a landContest is required, never a silent pick`,
-            { at: `${a.id}+${b.id}` }));
+            pairCtx));
         } else if (r.reason === "validity_window") {
           const loser = r.winner === "a" ? b : a;
           findings.push(finding("expired_in_conflict", "standard", SEVERITY.ERROR,
             `at "${address}", precedence resolved by validity_window (the ${r.winner === "a" ? "second" : "first"} claim is out of its window) — the expired claim fails BEFORE force or entrenchment is consulted`,
-            { at: `${a.id}+${b.id}` }));
+            pairCtx));
         } else {
           const reason = r.reason === "force" ? "force (O beats default beats P)"
             : r.reason === "specificity" ? "specificity (lex specialis)"
@@ -258,14 +286,14 @@ export function lintLedger(log, { door, taskLog, tags = new Map(), queryTime = D
             : r.reason === "entrenchment" ? "entrenchment (grain as Spohn rank)" : r.reason;
           findings.push(finding("resolved_by_order", "standard", SEVERITY.INFO,
             `at "${address}", precedence resolved ${a.end2} vs ${b.end2} by ${reason} in favour of the ${r.winner === "a" ? "first" : "second"} claim`,
-            { at: `${a.id}+${b.id}` }));
+            pairCtx));
         }
       } else if (aDisputed || bDisputed) {
         // The seed's bug 3, live: a contested claim in a disagreement must
         // route to landContest, never be picked as the winner.
         findings.push(finding("contested_disagreement", "report", SEVERITY.WARN,
           `at "${address}", ${aDisputed ? a.end2 : b.end2} is under contest — precedence refuses to pick a winner here; route to landContest (contraction only)`,
-          { at: `${a.id}+${b.id}` }));
+          { at: `${a.id}+${b.id}`, ...ctx(a), ...ctx(b) }));
       }
     }
   }
@@ -277,7 +305,7 @@ export function lintLedger(log, { door, taskLog, tags = new Map(), queryTime = D
     if (link && !(disputed.get(link.id)?.length)) {
       findings.push(finding("unrouted_cut", "standard", SEVERITY.ERROR,
         `"${c.end1} —${c.label}→ ${c.end2}" was denied (cut) but no contest is on the record for the link — the denial was heard and dropped, exactly the silence the seed's section 5 forbids`,
-        { at: c.id, note: link.id }));
+        { at: c.id, note: link.id, ...ctx(link) }));
     }
   }
 
@@ -297,12 +325,12 @@ export function lintLedger(log, { door, taskLog, tags = new Map(), queryTime = D
       if (pTag.validity && pTag.validity.open === false && !pTag.inScope) {
         findings.push(finding("expired_premise", "standard", SEVERITY.ERROR,
           `the derived product "${t.description ?? t.task_id}" rests on "${premise.end1} —${premise.label}→ ${premise.end2}", which is out of its validity window at the query time — the sunset clause had to expire it before it was built on`,
-          { at: t.task_id, note: pid }));
+          { at: t.task_id, note: pid, ...ctx(premise) }));
       }
       if (pDisputed && restsOnContested === 0) {
         findings.push(finding("contested_premise", "standard", SEVERITY.ERROR,
           `the derived product "${t.description ?? t.task_id}" rests on the contested note "${premise.end1} —${premise.label}→ ${premise.end2}" and records no contested ground (restsOn.contested = 0) — it claims a settled base it does not have`,
-          { at: t.task_id, note: pid }));
+          { at: t.task_id, note: pid, ...ctx(premise) }));
       }
     }
   }
@@ -311,9 +339,12 @@ export function lintLedger(log, { door, taskLog, tags = new Map(), queryTime = D
   // the question — the claims justify each other in a loop.
   const cyc = findClaimCycle(fold.filter((n) => !conceded.has(n.id)));
   if (cyc) {
+    // The cycle's notes, each with its own referents and raw spans — a
+    // reader can open every leg of the loop in the material.
+    const cycleNotes = fold.filter((n) => cyc.cycle.includes(foldText(n.end1)) || cyc.cycle.includes(foldText(n.end2)));
     findings.push(finding("circular", "strict", SEVERITY.ERROR,
       `the claim graph contains a directed cycle: ${cyc.cycle.join(" → ")} — the claims justify each other in a loop (begging the question)`,
-      { at: cyc.edge?.id ?? cyc.cycle[0] }));
+      { at: cyc.edge?.id ?? cyc.cycle[0], ...(cycleNotes.length ? { notes: cycleNotes.map((n) => ({ ...ctx(n), id: n.id, claim: `${n.end1} —${n.label}→ ${n.end2}` })) } : {}) }));
   }
 
   const visible = findings.filter((f) => shownAt(f, strictness));
@@ -357,7 +388,12 @@ export async function lintInferences(inferences = [], { licenses = null, verify 
   // thenable so both work; a sync oracle's value passes through unchanged.
   const resolve = async (x) => (x && typeof x.then === "function" ? await x : x);
   for (const inf of inferences ?? []) {
+    // An inference finding points at the claim's source ref AND, when the
+    // caller declared raw spans, at those byte addresses into the material —
+    // the holograph discipline applied to the inference tier.
     const at = inf.ref ?? inf.end1;
+    const infSpans = (inf.spans ?? []).map((s) => s?.at ?? s?.ref ?? null).filter(Boolean);
+    const atCtx = { at, ...(infSpans.length ? { spans: Object.freeze(infSpans) } : {}) };
     switch (inf.kind) {
       case "deduction":
       case "same-reasoning": {
@@ -365,11 +401,11 @@ export async function lintInferences(inferences = [], { licenses = null, verify 
         if (!licensed) {
           findings.push(finding("unlicensed_inference", "strict", SEVERITY.ERROR,
             `"${inf.end1} ${inf.label} ${inf.end2}" composes ${inf.relation} into ${inf.yields ?? "…"} with no declared licence — structure never licenses composition; only a named giver can (R1)`,
-            { at }));
+            { ...atCtx }));
         } else {
           findings.push(finding("licensed_inference", "strict", SEVERITY.INFO,
             `"${inf.end1} ${inf.label} ${inf.end2}" is licensed (${inf.relation}→${inf.yields}) by a declared giver`,
-            { at }));
+            { ...atCtx }));
         }
         break;
       }
@@ -379,18 +415,18 @@ export async function lintInferences(inferences = [], { licenses = null, verify 
         if (r?.refuted) {
           findings.push(finding("universal_refuted", "standard", SEVERITY.ERROR,
             `"${inf.end1} ${inf.label} ${inf.end2}" claims to hold universally and a counterexample refutes it (${r.detail}) — refutation is a veto, never a licence, and here it vetoes`,
-            { at }));
+            { ...atCtx }));
         } else if (r?.detail) {
           findings.push(finding("universal_checked", "report", SEVERITY.INFO,
             `"${inf.end1} ${inf.label} ${inf.end2}" survived the declared counterexample search (${r.detail})`,
-            { at }));
+            { ...atCtx }));
         }
         break;
       }
       case "vacuous":
         findings.push(finding("vacuous_support", "report", SEVERITY.INFO,
           `"${inf.end1} ${inf.label} ${inf.end2}" justifies by a tautology (${inf.detail ?? "X = X"}) — the stated reason adds nothing the step does not already assert`,
-          { at }));
+          { ...atCtx }));
         break;
       case "equation": {
         if (typeof verify !== "function") break;
@@ -398,26 +434,33 @@ export async function lintInferences(inferences = [], { licenses = null, verify 
         if (v?.verdict === "false" || v?.ok === false) {
           findings.push(finding("claim_fails_oracle", "standard", SEVERITY.ERROR,
             `"${inf.statement ?? inf.end1}" — the material asserts it, the declared oracle refutes it (${v.detail})`,
-            { at }));
+            { ...atCtx }));
         } else if (v?.verdict === "ambiguous") {
           findings.push(finding("convention_dispute", "report", SEVERITY.INFO,
             `"${inf.statement ?? inf.end1}" — ${v.detail} — a convention, not a settled value`,
-            { at }));
+            { ...atCtx }));
         } else if (v?.verdict === "undefined") {
           findings.push(finding("undefined_claim", "standard", SEVERITY.ERROR,
             `"${inf.statement ?? inf.end1}" — ${v.detail}`,
-            { at }));
+            { ...atCtx }));
         } else if (v?.verdict === "holds") {
           findings.push(finding("claim_holds", "report", SEVERITY.INFO,
             `"${inf.statement ?? inf.end1}" — the declared oracle confirms it (${v.detail ?? "holds"})`,
-            { at }));
+            { ...atCtx }));
+        } else if (v?.verdict === "unchecked") {
+          // A claim the oracle cannot reach is a GAP, never a conviction: it
+          // is disclosed and withheld, exactly the R19 posture (a verifier
+          // that cannot compute the truth of a claim never guesses it).
+          findings.push(finding("oracle_withheld", "report", SEVERITY.INFO,
+            `"${inf.statement ?? inf.end1}" — the oracle cannot compute this claim (${v.detail}) — disclosed, never guessed`,
+            { ...atCtx }));
         }
         break;
       }
       default:
         findings.push(finding("unknown_inference_kind", "report", SEVERITY.WARN,
           `an inference was declared with kind "${inf.kind}" — the linter knows deduction | same-reasoning | universal | vacuous | equation, never a guessed one`,
-          { at }));
+          { ...atCtx }));
     }
   }
   const visible = findings.filter((f) => shownAt(f, strictness));
@@ -438,7 +481,7 @@ export async function lintInferences(inferences = [], { licenses = null, verify 
  * `tagsOf(id, note)` may supply the admission-time tag per note (the
  * seed's "tagged at admission, not reasoned about").
  */
-export async function lintContent({ text, convert, source = "lint-source", makeLedger, frame = null, strictness = "standard", queryTime = Date.now(), conditions = [], tagsOf = null, verify = null, refute = null, licenses = null, taskLog = { projectTasks } } = {}) {
+export async function lintContent({ text, convert, source = "lint-source", makeLedger, frame = null, strictness = "standard", queryTime = Date.now(), conditions = [], tagsOf = null, verify = null, refute = null, licenses = null, taskLog = { projectTasks }, referentIndex = null } = {}) {
   if (typeof convert !== "function" || typeof makeLedger !== "function")
     throw new TypeError("reasoning-lint.lintContent: convert (text → arrangements) and makeLedger (fresh notes bundle) are injected");
   const { arrangements = [], inferences = [] } = convert(String(text ?? ""), { source }) ?? {};
@@ -447,7 +490,7 @@ export async function lintContent({ text, convert, source = "lint-source", makeL
   const tags = new Map();
   const admitted = door.admit ? door.admit(log, arrangements, { witness: source }) : { log, heard: [] };
   if (tagsOf) for (const h of admitted.heard ?? []) { const t = tagsOf(h.id, h); if (t) tags.set(h.id, t); }
-  const ledger = lintLedger(admitted.log, { door, taskLog, tags, queryTime, conditions, strictness });
+  const ledger = lintLedger(admitted.log, { door, taskLog, tags, queryTime, conditions, strictness, referentIndex });
   const inference = await lintInferences(inferences, { licenses, verify, refute, strictness });
   const findings = [...ledger.findings, ...inference.findings];
   return Object.freeze({
@@ -459,6 +502,74 @@ export async function lintContent({ text, convert, source = "lint-source", makeL
     inference,
     admitted: Object.freeze({ heard: admitted.heard ?? [], turnedAway: admitted.turnedAway ?? [] }),
   });
+}
+
+// ── the linter through time: fold the universe, compare the folds ──────────
+
+/**
+ * The identity a finding is compared on across cursors: kind × level ×
+ * severity × the note/ref it points at — never the prose. A finding that
+ * resolves a referent differently at a later fold is the SAME finding with
+ * different context, not a new one (the holograph's own identity rule:
+ * a node at cursor 500 may be two nodes at cursor 200).
+ */
+export const findingKey = (f) => `${f.kind}|${f.level}|${f.severity}|${f.note ?? f.at ?? ""}`;
+
+/**
+ * lintTimeline({ log, door, taskLog, cursors, strictness, tags, queryTime, conditions, referentIndex })
+ * — the record folds at declared points; this lints EACH fold and reports
+ * what changed between consecutive folds.
+ *
+ * `cursors` are seq positions (0..log.nextSeq) — the fold points to compare.
+ * Default: every entry boundary (each hearing is a fold), capped by
+ * MAX_FOLDS so a long ledger's timeline stays readable — the holograph's own
+ * posture ("the fold condenses only the objects it is about"). Each fold is
+ * `{entries: log.entries.slice(0, cursor)}` — the same log, walked to a
+ * cursor, exactly as `projectTasks`-based reads already fold.
+ *
+ * Returns `folds` (one lint result per cursor, with its `cursor` and a
+ * `signature`) and `transitions` (between consecutive folds: what APPEARED,
+ * what RESOLVED, what PERSISTED) — so a reader can see the universe fold:
+ * a contested note appears at the fold its dispute lands; a sunset expires
+ * an obligation at the fold its window passes.
+ */
+export function lintTimeline({ log, door, taskLog, cursors = null, strictness = "standard", tags = new Map(), queryTime = Date.now(), conditions = [], referentIndex = null, maxFolds = 40 } = {}) {
+  if (!log?.entries?.length) return Object.freeze({ ok: true, strictness, folds: Object.freeze([]), transitions: Object.freeze([]) });
+  const all = log.entries.map((e) => e.seq);
+  const points = cursors && cursors.length
+    ? cursors
+    : all.length <= maxFolds ? all : all.filter((_, i) => i % Math.ceil(all.length / maxFolds) === 0).concat(all.at(-1));
+  const folds = [];
+  const seen = new Set();
+  for (const cursor of points) {
+    if (seen.has(cursor)) continue;
+    seen.add(cursor);
+    // A fold at cursor N is the state where the next write would be N: it
+    // includes every entry with seq < N, never seq <= N. The holograph's own
+    // rule — a query at a cursor sees the reading AS OF that point, not the
+    // write that lands there. A caller passing `log.nextSeq` after a dispute
+    // gets the dispute; a caller passing the pre-dispute `nextSeq` does not.
+    const at = Object.freeze({ ...log, entries: Object.freeze(log.entries.filter((e) => e.seq < cursor)) });
+    const lint = lintLedger(at, { door, taskLog, tags, queryTime, conditions, strictness, referentIndex });
+    folds.push(Object.freeze({ cursor, ...lint, signature: Object.freeze(lint.findings.map(findingKey)) }));
+  }
+  const key = (f) => findingKey(f);
+  const transitions = [];
+  for (let i = 1; i < folds.length; i += 1) {
+    const prev = new Map(folds[i - 1].findings.map((f) => [key(f), f]));
+    const now = new Map(folds[i].findings.map((f) => [key(f), f]));
+    const appeared = folds[i].findings.filter((f) => !prev.has(key(f)));
+    const resolved = folds[i - 1].findings.filter((f) => !now.has(key(f)));
+    const persisted = folds[i].findings.filter((f) => prev.has(key(f)));
+    transitions.push(Object.freeze({
+      from: folds[i - 1].cursor, to: folds[i].cursor,
+      appeared: Object.freeze(appeared),
+      resolved: Object.freeze(resolved),
+      persisted: Object.freeze(persisted),
+      counts: Object.freeze({ appeared: appeared.length, resolved: resolved.length, persisted: persisted.length }),
+    }));
+  }
+  return Object.freeze({ ok: folds.every((f) => f.ok), strictness, folds: Object.freeze(folds), transitions: Object.freeze(transitions) });
 }
 
 // ── the report ─────────────────────────────────────────────────────────────
