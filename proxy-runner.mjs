@@ -43,6 +43,7 @@ import { styleGrade as strunkWhiteGrade } from "./native/organs/strunk-white.js"
 import { pacingGrade as murchPacing } from "./native/organs/pacing.js";
 import { storyShape as vonnegutShape } from "./native/organs/vonnegut.js";
 import { classifyArc } from "./native/organs/story-shapes.js";
+import { essayVoidHolarchy } from "./native/organs/void-holarchy.js";
 import { execFileSync } from "node:child_process";
 // The earned cast — the per-turn instruction set. Vendored at the
 // native/the-fold seam. PURE; the proxy feeds real conversation state and
@@ -3040,6 +3041,18 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
     // rags-to-riches (steady creation), flatline (argues nothing).
     vonnegut: documentLedger && rawEntries?.length && documentLines.length
       ? classifyArc(vonnegutShape(documentLines, { materialPropositions: notesFromEdges(rawEntries), index: sessionReferentIndex(session) }))
+      : null,
+    // THE VOID HOLARCHY — the piece's nested voids, every level DEF'd by the
+    // nine operators and its features. Omnimodal: the same structure holds
+    // for a film, a score, or code; the adapters name the levels. The work's
+    // void is the essay's DEF; the section voids are its questions.
+    voidHolarchy: sections.length
+      ? essayVoidHolarchy({
+          title: task.slice(0, 60),
+          topic: topicPhrase(task),
+          sections,
+          modality: "text",
+        })
       : null,
     totalStrain,
     thinking: thinkingBlock || null,
