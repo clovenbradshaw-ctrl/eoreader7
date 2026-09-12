@@ -33,6 +33,21 @@ function sessionIdFromHeaders(req) {
   return `er7-session-${req.socket?.remoteAddress?.replace(/[^a-z0-9]/gi, "") || "local"}${scope}`;
 }
 
+// The person's DURABLE identity — the key the theory of mind persists under.
+// Distinct from the session id: a person is one across sessions (their
+// asserted claims and their standing survive), while a session is one
+// conversation (its specifics stay in the chat history). Falls back to the
+// same stable base the anonymous session uses, so a person who never sends
+// a header is still one person across turns.
+function userIdFromHeaders(req) {
+  const u = String(req.headers["x-er7-user"] ?? "").trim();
+  if (u && u.length <= 128) return u;
+  const scope = workspaceFromHeaders(req)
+    ? `-${requireCrc32(workspaceFromHeaders(req))}`
+    : "";
+  return `user-${req.socket?.remoteAddress?.replace(/[^a-z0-9]/gi, "") || "local"}${scope}`;
+}
+
 let _crc32cache = new Map();
 function requireCrc32(str) {
   if (_crc32cache.has(str)) return _crc32cache.get(str);
@@ -233,7 +248,8 @@ const server = http.createServer(async (req, res) => {
 
       const sessionId = sessionIdFromHeaders(req);
       const workspace = workspaceFromHeaders(req);
-      log(`turn → session=${sessionId} model=${reqData.model} taskLength=${reqData.task.length} stream=${reqData.stream} workspace=${workspace ? `"${workspace}"` : "none"}`);
+      const userId = userIdFromHeaders(req);
+      log(`turn → session=${sessionId} user=${userId} model=${reqData.model} taskLength=${reqData.task.length} stream=${reqData.stream} workspace=${workspace ? `"${workspace}"` : "none"}`);
 
       const created = Math.floor(Date.now() / 1000);
       const id = `er7-${Date.now()}`;
@@ -301,7 +317,7 @@ const server = http.createServer(async (req, res) => {
         const onThinking = reqData.discloseThinking ? emitThinking : null;
 
         try {
-          const result = await runProxyTurn({ sessionId, workspace, ...reqData }, emit, onNote, onThinking);
+          const result = await runProxyTurn({ sessionId, userId, workspace, ...reqData }, emit, onNote, onThinking);
           // Thinking affordance: when discloseThinking is on, emit the grounding
           // block as reasoning_content before the final chunk.
           if (reqData.discloseThinking && result.thinking) {
@@ -334,7 +350,7 @@ const server = http.createServer(async (req, res) => {
         }
       } else {
         try {
-          const result = await runProxyTurn({ sessionId, workspace, ...reqData });
+          const result = await runProxyTurn({ sessionId, userId, workspace, ...reqData });
           const resp = openAIResponse({ id, model: parsed.model, text: result.text, created, usage: result.usage, reading: result });
           resp.reading.sessionId = sessionId;
           resp.reading.thinking = result.thinking ?? null;
@@ -377,7 +393,8 @@ const server = http.createServer(async (req, res) => {
 
       const sessionId = sessionIdFromHeaders(req);
       const workspace = workspaceFromHeaders(req);
-      log(`ollama chat turn → session=${sessionId} model=${reqData.model} taskLength=${reqData.task.length} workspace=${workspace ? `"${workspace}"` : "none"}`);
+      const userId = userIdFromHeaders(req);
+      log(`ollama chat turn → session=${sessionId} user=${userId} model=${reqData.model} taskLength=${reqData.task.length} workspace=${workspace ? `"${workspace}"` : "none"}`);
 
       const createdAt = new Date().toISOString();
 
@@ -417,7 +434,7 @@ const server = http.createServer(async (req, res) => {
         }
       } else {
         try {
-          const result = await runProxyTurn({ sessionId, workspace, ...reqData });
+          const result = await runProxyTurn({ sessionId, userId, workspace, ...reqData });
           const resp = ollamaChatResponse({ model: parsed.model, text: result.text, createdAt, usage: result.usage, reading: result });
           resp.reading = { ...(result.reading ?? result), sessionId };
           res.writeHead(200, { "content-type": "application/json" });

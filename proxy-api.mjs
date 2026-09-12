@@ -199,7 +199,9 @@ export function humanizeNote(note) {
     case "murch":
       return `Murch, pass ${note.round}: editing the whole — ${(note.findings ?? []).join(", ")}.`;
     case "fisher":
-      return `Fisher: the openings repeat above chance (p=${note.p}, ${note.repeated} section(s) share a construction) — Sacks will vary them.`;
+      return `Fisher: the openings repeat above chance (p=${note.p}, ${note.repeated} section(s) share a construction) — Brillat-Savarin will season them.`;
+    case "redundancy":
+      return `${note.kind === "repeated-fact" ? "Repeated fact" : note.kind === "repeated-template" ? "Repeated construction" : "Redundancy"}: ${note.detail} — Brillat-Savarin seasons it (chosen, never random).`;
     case "murch_applied":
       return `Murch applied ${note.applied} revision(s) this pass.`;
     case "ranke":

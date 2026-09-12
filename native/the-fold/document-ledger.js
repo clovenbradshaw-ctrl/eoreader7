@@ -489,6 +489,90 @@ export function detectRepetition(documentLines = [], { shuffles = 400, pValue = 
   };
 }
 
+// ── ALL BORING REDUNDANCY, NOT JUST OPENINGS ──────────────────────────────
+// A maximally rational argument is maximally predictable — every step
+// follows, every sentence is "X is a Y characterized by Z" — and that
+// predictability is the boredom Sacks exists to spice. `detectRedundancy`
+// catches every form:
+//   1. REPEATED OPENINGS (Fisher's null, above).
+//   2. REPEATED FACTS — the same claim (subject+relation+object) stated in
+//      multiple sections ("third-largest antelope" 3x, "100 mountain
+//      bongos" 4x). A fact once is a finding; a fact five times is a crutch.
+//   3. REPEATED SENTENCE TEMPLATES — the same sentence-initial construction
+//      or the same claim-phrase recurring ANYWHERE in the piece, not only at
+//      the paragraph head.
+// Each finding names the sections involved so Sacks varies them WITHOUT
+// randomness — the spice is a chosen off-kilter landing, never a shuffle.
+export function detectRedundancy(documentLines = [], { shuffles = 300, pValue = 0.05 } = {}) {
+  const sections = (documentLines ?? []).map((l) => String(l ?? "").trim()).filter((l) => l.length > 20);
+  const findings = [];
+  // 1. REPEATED OPENINGS — Fisher's test over the section heads.
+  const openRep = detectRepetition(sections, { shuffles, pValue });
+  if (openRep.significant && openRep.repeated.length) {
+    findings.push({ kind: "repetition", detail: openRep.basis, sections: sections.map((s, i) => (openRep.repeated.includes(s) ? i : -1)).filter((i) => i >= 0) });
+  }
+  // 2. REPEATED FACTS — a claim phrase (subject + relation + object) that
+  //    appears verbatim in more than one section. The fact is stated once,
+  //    then restated — the restatement is the redundancy.
+  if (sections.length >= 2) {
+    const factCount = new Map(); // normalized claim phrase -> [sectionIndexes]
+    for (let i = 0; i < sections.length; i++) {
+      const sentences = sections[i].split(/(?<=[.!?])\s+/).map((s) => s.trim()).filter((s) => s.length > 25);
+      for (const s of sentences) {
+        // The claim's core: subject + relation + object, normalized (drop
+        // numbers and function words) — "the third-largest antelope in the
+        // world" is the same fact in any clothing.
+        const norm = s.toLowerCase().replace(/[\d.,%]+/g, "").replace(/[^a-z' ]+/g, " ").replace(/\s+/g, " ").trim();
+        const words = norm.split(" ").filter((w) => w.length > 4 && !STOP_WORDS.has(w));
+        if (words.length < 4) continue;
+        const key = words.slice(0, 8).join(" ");
+        if (!factCount.has(key)) factCount.set(key, []);
+        factCount.get(key).push(i);
+      }
+    }
+    for (const [key, idxs] of factCount) {
+      if (idxs.length < 2) continue; // a fact once is a finding
+      // Only flag when the SAME fact appears in 2+ DIFFERENT sections.
+      const distinct = [...new Set(idxs)];
+      if (distinct.length >= 2) {
+        findings.push({
+          kind: "repeated-fact",
+          detail: `the claim "${key}" is stated in ${distinct.length} section(s) (${distinct.map((i) => `#${i + 1}`).join(", ")}) — a fact once is a finding, five times is a crutch`,
+          sections: distinct,
+        });
+      }
+    }
+  }
+  // 3. REPEATED SENTENCE TEMPLATES — the same sentence-INITIAL construction
+  //    ("The bongo antelope, scientifically classified as...") appearing at
+  //    the start of multiple sentences anywhere, not just paragraph heads.
+  if (sections.length >= 2) {
+    const initCount = new Map();
+    for (let i = 0; i < sections.length; i++) {
+      const sentences = sections[i].split(/(?<=[.!?])\s+/).map((s) => s.trim()).filter((s) => s.length > 25);
+      for (const s of sentences) {
+        const first = s.split(/\s+/).slice(0, 6).map((w) => w.toLowerCase().replace(/[^a-z']/g, "")).join(" ");
+        if (first.split(" ").filter(Boolean).length < 5) continue;
+        if (!initCount.has(first)) initCount.set(first, []);
+        initCount.get(first).push(i);
+      }
+    }
+    for (const [key, idxs] of initCount) {
+      const distinct = [...new Set(idxs)];
+      if (distinct.length >= 2) {
+        findings.push({
+          kind: "repeated-template",
+          detail: `the sentence construction "${key}" opens sentences in ${distinct.length} section(s) (${distinct.map((i) => `#${i + 1}`).join(", ")}) — the same scaffolding everywhere is the boredom`,
+          sections: distinct,
+        });
+      }
+    }
+  }
+  return findings;
+}
+
+const STOP_WORDS = new Set("the and for with that this from under through after during was were are is had has have by to of in on at it its their there here which where when how what who into across over been being not but or as than then so such only also very just".split(" "));
+
 // The whole-document satisfaction: every planned section satisfied. Returns
 // {ok, satisfied:number, of:number, failures:[...], totalStrain:number}.
 export function satisfactionOf(documentLines = [], sections = [], { material = "" } = {}) {

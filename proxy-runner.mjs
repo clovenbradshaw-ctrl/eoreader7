@@ -19,7 +19,7 @@ import { resolutionBlocks } from "./native/the-fold/resolutions.js";
 import { tokenize } from "./native/the-fold/source.js";
 import { logitBiasFor, logitsBiasObject } from "./native/organs/gemma2-tokenizer.mjs";
 import { readingIndexFromLog } from "./native/the-fold/reading-log.js";
-import { createDocumentLedger, appendDocumentObservation, appendLedgerLine, projectDocument, documentChangeLog, admitPart, serializeLedger, snipsFromSources, checkEssayShape, ledgerFilePath, renderApaFootnotes, satisfactionOfSection, satisfactionOf, declareEssayVoid, fillCheck, citationLedger, voidCellsFor, holographicSatisfaction, lavarGradeEssay, competencyGrade, lavarGradeReading, kelsenGrade, embedInlineCitations, renderLiveEssayHtml, detectRepetition } from "./native/the-fold/document-ledger.js";
+import { createDocumentLedger, appendDocumentObservation, appendLedgerLine, projectDocument, documentChangeLog, admitPart, serializeLedger, snipsFromSources, checkEssayShape, ledgerFilePath, renderApaFootnotes, satisfactionOfSection, satisfactionOf, declareEssayVoid, fillCheck, citationLedger, voidCellsFor, holographicSatisfaction, lavarGradeEssay, competencyGrade, lavarGradeReading, kelsenGrade, embedInlineCitations, renderLiveEssayHtml, detectRepetition, detectRedundancy } from "./native/the-fold/document-ledger.js";
 import { precedence, tagClaim } from "./native/organs/regime.js";
 import { goreBoundary, gatherPlan, cueGoDeeperPlan } from "./native/the-fold/gore.js";
 // The keyless field (GFP Pass 35, the-fold c232779): recall by partial-cue
@@ -43,6 +43,10 @@ import { isImageFileName, lookAtImage, lookAtText, shouldLook, weirdFormattingSc
 // receives ONLY the cued facts for this turn. The mouth is never told it is
 // playing a role: cueBundle's `mouth` is object-level facts alone.
 import { classifySpeech, cueBundle, bannedHits } from "./native/the-fold/earned-cast.js";
+// The durable theory of mind — type-level continuity about the person
+// across sessions. SPECIFICS stay in the per-session chat history; this
+// store holds only what the person has asserted and its standing.
+import { loadSpeakerModel, saveSpeakerModel, updateSpeakerModel, durableFacts } from "./native/the-fold/speaker-model.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const GIVER = "reader:eoreader7-proxy";
@@ -836,6 +840,13 @@ function planComposition({ index, hyperlexicon, resolutions, surfacedSegments, t
 }
 
 export const REQUEST_TIMEOUT_MS = Number(process.env.ER7_REQUEST_TIMEOUT_MS) || 290000;
+
+// The mouth's standing character — the same neutral, stable voice every
+// session begins with. It is NOT a persona and NOT a role: it is who the
+// instrument is when it talks, so the person is never meeting a different
+// communicator each time. Firewall-clean (no apparatus noun, no cast name).
+export const NEUTRAL_CHARACTER =
+  "You're a careful, plain-speaking reader. You work from what a person gives you, answer what they actually asked, say plainly when something isn't established rather than filling the gap, and you may hold the person to what they've told you before — gently, never to win.";
 
 // ── the earned cast, per turn: the model gets ONLY the facts this turn
 // earned, and never a role. `cueBundle` classifies the turn's speech act
@@ -1667,10 +1678,17 @@ function essayResolutions({ sections, documentLines, index, rawEntries, onNote }
   }
 }
 
-export async function runProxyTurn({ sessionId, model, task, chatHistory = [], discourse = "", workspace = "", holonLevel = "section", resumeAnswered = [], resumePlan = null, kelsen = null }, onToken, onNote = null, onThinking = null) {
+export async function runProxyTurn({ sessionId, userId = null, model, task, chatHistory = [], discourse = "", workspace = "", holonLevel = "section", resumeAnswered = [], resumePlan = null, kelsen = null }, onToken, onNote = null, onThinking = null) {
   const usage = { promptTokens: 0, completionTokens: 0 };
   const session = getSession(sessionId);
   _hot.add(model); // this turn is using it — hold it resident after
+
+  // The person's durable theory of mind — loaded at the turn's start so the
+  // character carries continuity across sessions, while this conversation's
+  // SPECIFICS stay in chatHistory. A null userId means an anonymous caller:
+  // the durable model is a no-op, never a fabrication about who they are.
+  const speakerModel = userId ? loadSpeakerModel(userId) : null;
+  const durable = speakerModel ? durableFacts(speakerModel) : [];
 
   // 0. Preflight — fail fast, don't hang.
 const modelsUp = await ollamaReachable();
@@ -1954,11 +1972,16 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
     ? `\n\nWhere the conversation stands:\n${resolutions.text}`
     : "";
   const systemCore = [
+    // The standing character — the same neutral voice every session begins
+    // with, plus the durable theory of mind (what the person has asserted
+    // and its standing), type-level only. Never a persona name, never a role.
+    NEUTRAL_CHARACTER,
+    ...(durable.length ? [`\nWhat you remember about this person (from before):\n${durable.map((f) => `- ${f}`).join("\n")}`] : []),
     // Composition: the frame is "we're writing an essay about X" — never an
     // instruction to the model about its own identity or process.
     answerShape.shape === "composition"
-      ? `We're working on a piece about ${topicPhrase(task)}.`
-      : "You're helping answer a question. Here's the context we have.",
+      ? `\nWe're working on a piece about ${topicPhrase(task)}.`
+      : "\nYou're helping answer a question. Here's the context we have.",
     discourse ? `\n${discourse}` : null,
     readingContext || null,
     surfVoidInfo
@@ -2510,7 +2533,7 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
         // neighbor-overlap check misses): five paragraphs opening "The bongo
         // antelope, scientifically classified as..." recur ABOVE CHANCE
         // (p from a word-order-scramble null). Fisher names the repeated
-        // openings; Murch flags them; SACKS varies them.
+        // openings; Murch flags them; BRILLAT-SAVARIN seasons them.
         const fisher = detectRepetition(documentLines, { shuffles: 400 });
         if (fisher.significant && fisher.repeated.length) {
           if (onNote) onNote({ move: "fisher", p: fisher.p, observed: fisher.observed, repeated: fisher.repeated.length, basis: fisher.basis });
@@ -2518,6 +2541,20 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
             if (fisher.repeated.includes(documentLines[fi])) {
               findings.push({ kind: "repetition", sectionIndex: fi, detail: `the opening repeats another section's — Fisher's null shows it recurs above chance (${fisher.repeated.length} section(s) share the same opening construction)` });
             }
+          }
+        }
+        // REDUNDANCY — ALL of it, not just openings. A maximally rational
+        // argument is maximally predictable, and that predictability is the
+        // boredom Brillat-Savarin seasons. detectRedundancy catches repeated
+        // facts (the same claim stated in N sections) and repeated sentence
+        // templates (the same construction opening sentences everywhere) —
+        // each finding names the sections, so the seasoning is chosen, never
+        // random.
+        const redundancy = detectRedundancy(documentLines, { shuffles: 300 });
+        for (const r of redundancy) {
+          if (onNote) onNote({ move: "redundancy", kind: r.kind, sections: r.sections, detail: r.detail });
+          for (const si of r.sections ?? []) {
+            findings.push({ kind: r.kind, sectionIndex: si, detail: r.detail });
           }
         }
         const fixable = findings.filter((f) => f.kind !== "ungrounded");
@@ -2553,16 +2590,21 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
           }
           // A section finding (meta/repetition/thin/ungrounded) — rewrite that
           // specific section from the material, keeping the piece's voice.
-          // SACKS's science-communicator instruction rides the repetition finding:
-          // the piece must be ACCURATE and WORTH READING — the dash of
-          // surprise, of off-kilterness, of the human particular that makes
-          // exact science alive. Vary the opening so it does not echo the
-          // other sections' construction — open where the piece has not
-          // already started.
-          const sacksNote = f.kind === "repetition"
-            ? " Open differently — do not begin the way the other sections begin. Make it alive, off-kilter, surprising: an exact fact landed in a way the reader did not expect, the way a striking case makes neurology vivid. Vary the construction and the rhythm."
+          // BRILLAT-SAVARIN's seasoning instruction rides the repetition finding: the
+          // piece must be accurate (Ranke) and FLAVORED (Brillat-Savarin) —
+          // the chosen off-kilter detail, the exact fact landed with the right
+          // measure of surprise, never a shower of random spice. Season the
+          // opening so it does not echo the other sections' construction —
+          // vary the construction and the rhythm the way a good dish varies
+          // its course: a new flavor, not more of the same.
+          const brillatNote = (f.kind === "repetition" || f.kind === "repeated-fact" || f.kind === "repeated-template")
+            ? (f.kind === "repeated-fact"
+              ? " This fact is a crutch — it is stated in more than one section. State it ONCE, in its best form, and let the other section move on: a fact once is a finding, twice is a crutch. Season the section by advancing something the reader has not already been told."
+              : f.kind === "repeated-template"
+                ? " This construction repeats across the piece — the same scaffolding everywhere is the boredom. Season it: vary the construction, the rhythm, the first phrase, the way a good dish varies its course. Do not add random spice; add the right one."
+                : " Open differently — do not begin the way the other sections begin. Season it: land an exact fact with a surprising, chosen measure of flavor — a detail the reader did not expect, the way a striking detail makes a dish memorable. Vary the construction and the rhythm; do not add random spice, add the right one.")
             : "";
-          const fixMsg = `We're editing a piece on ${topic}. ${editorStanding ? `Where the piece stands: ${editorStanding}\n\n` : ""}The editor found this problem in one section:\n- [${f.kind}] ${f.detail}\n\nThe current section reads:\n"""\n${String(targetSection ?? "").slice(0, 1200)}\n"""\n\nRewrite that section from the material, in the piece's own voice — a substantial passage, several sentences, the material's own facts and wording, no introduction, no commentary about writing.${sacksNote} Write only the corrected section.`;
+          const fixMsg = `We're editing a piece on ${topic}. ${editorStanding ? `Where the piece stands: ${editorStanding}\n\n` : ""}The editor found this problem in one section:\n- [${f.kind}] ${f.detail}\n\nThe current section reads:\n"""\n${String(targetSection ?? "").slice(0, 1200)}\n"""\n\nRewrite that section from the material, in the piece's own voice — a substantial passage, several sentences, the material's own facts and wording, no introduction, no commentary about writing.${brillatNote} Write only the corrected section.`;
           const fix = await draw(
             [{ role: "system", content: systemContent }, ...keptChat, { role: "user", content: fixMsg }],
             SECTION_MAX_TOKENS,
@@ -2755,6 +2797,19 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
         tagClaim,
       })
     : null;
+
+  // ── the durable theory of mind, updated and persisted at the turn's end.
+  // Type-level only: the person's assertion and the standing this turn's
+  // record earned for it. The conversation's SPECIFICS stay in the session.
+  if (speakerModel && userId) {
+    const updated = updateSpeakerModel(speakerModel, {
+      task,
+      classification: (() => { try { return classifySpeech(task); } catch { return "question"; } })(),
+      surfVoid,
+      surfaced: surfacedSegments.length,
+    });
+    saveSpeakerModel(userId, updated);
+  }
 
   return {
     text,
