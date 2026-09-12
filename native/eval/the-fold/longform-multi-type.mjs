@@ -99,6 +99,9 @@ async function run() {
   const n = Number(process.env.CASES ?? CASES.length);
   const battery = CASES.slice(0, n);
   const rows = [];
+  const stamp = new Date().toISOString().replace(/[:.]/g, "-");
+  const dir = join(RESULTS, `longform-multi-type-${stamp}`);
+  mkdirSync(dir, { recursive: true });
   for (const c of battery) {
     const startedAt = Date.now();
     process.stdout.write(`\n▸ ${c.name}: "${c.task.slice(0, 60)}…" — starting job…\n`);
@@ -109,6 +112,10 @@ async function run() {
       const secs = ((Date.now() - startedAt) / 1000).toFixed(0);
       rows.push({ ...c, jobId: job.jobId, status: j.status, secs, ...s });
       process.stdout.write(`  ${j.status} in ${secs}s · ${s.chars} chars · covered ${s.covered}/${s.of} expected terms${s.missing.length ? ` · MISSING: ${s.missing.join(", ")}` : ""}\n`);
+      // Flush per case: a partial run (timeout, proxy restart) still records
+      // the cases that DID complete — the results are never lost to a crash.
+      writeFileSync(join(dir, "cases.json"), JSON.stringify(rows, null, 2));
+      writeFileSync(join(dir, "errors.json"), JSON.stringify(errors, null, 2));
     } catch (err) {
       errors.push({ case: c.name, error: err.message });
       rows.push({ ...c, status: "error", error: err.message });
@@ -117,10 +124,7 @@ async function run() {
     await new Promise((r) => setTimeout(r, IDLE_MS)); // let the proxy breathe between long jobs
   }
 
-  // ── the run's record ──
-  const stamp = new Date().toISOString().replace(/[:.]/g, "-");
-  const dir = join(RESULTS, `longform-multi-type-${stamp}`);
-  mkdirSync(dir, { recursive: true });
+  // ── the run's record (same dir as the per-case flushes) ──
   writeFileSync(join(dir, "cases.json"), JSON.stringify(rows, null, 2));
   writeFileSync(join(dir, "errors.json"), JSON.stringify(errors, null, 2));
 
