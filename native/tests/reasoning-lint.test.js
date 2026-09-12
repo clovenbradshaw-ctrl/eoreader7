@@ -587,6 +587,15 @@ test("an equation with no oracle injected is left alone for the same reason", as
   assert.equal(r.ok, true);
 });
 
+test("an oracle that withholds (unchecked) produces a disclosed gap, never a conviction", async () => {
+  const r = await lintInferences([
+    { kind: "equation", statement: "this JS function computes the factorial", ref: "code.txt" },
+  ], { verify: () => ({ verdict: "unchecked", detail: "javascript cannot be executed by this oracle" }), strictness: "standard" });
+  assert.equal(r.findings.some((f) => f.kind === "oracle_withheld" && f.severity === "info"), true, "a withheld claim is disclosed");
+  assert.equal(r.findings.some((f) => f.severity === "error"), false, "withholding never convicts");
+  assert.equal(r.ok, true, "a gap is not an error");
+});
+
 test("mixed verdicts in one call: counts keep both, and one error fails the whole", async () => {
   const r = await lintInferences([
     { kind: "equation", statement: "2 + 2 = 4", ref: "a.txt" },

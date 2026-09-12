@@ -180,23 +180,42 @@ The oracle and the linter are now part of the generation loop, not only the
 demo:
 
 - **`lintInferences` and `lintContent` are async-capable.** The oracle may
-  be sync (the tests' stubs, the demo's JS fallback) or async (sympy via
-  pyodide). A thenable is awaited; a sync value passes through unchanged —
-  so all 52 linter tests and the 4 content pins keep passing with both.
-- **The demo's math case uses the real sympy oracle** when pyodide is
+  be sync (the tests' stubs, the demo's JS fallback) or async (pyodide). A
+  thenable is awaited; a sync value passes through unchanged — so all the
+  linter tests and content pins keep passing with both.
+- **The demo's math case uses the real pyodide oracle** when pyodide is
   installed, falling back to the JS arithmetic oracle (disclosed on the
-  blurb) when it is not. The pinned signatures were re-verified: sympy
-  computes `√16 = 4` (holds, the principal value — the old convention
-  dispute is now *computed* rather than typed), the harmonic series
-  diverges (`oo` → false, distinct from `nan`/`zoo` → undefined), and
-  `1/0` → `zoo` → undefined, never false.
+  blurb) when it is not. Sympy computes `√16 = 4` (holds, the principal
+  value), the harmonic series diverges (`oo` → false, distinct from
+  `nan`/`zoo` → undefined), and `1/0` → `zoo` → undefined, never false.
 - **`generate-passage.mjs` lints its own composed output.** The generated
   passage — facts no record states, derived through the substrate — is
   admitted into a fresh notes ledger and linted at all three strictness
   levels before it ships. Live run: 229 derived facts → 14 composed,
   14/14 true against the term-date oracle, and the lint reports coherent at
-  every strictness (a well-formed transitive closure is not incoherent —
-  the honest result, not a silent pass). The driver's `FOLD` path was also
-  fixed to resolve from the file's own location instead of a hardcoded
-  `/home/user/the-fold`, so the generation loop runs where it is checked
-  out.
+  every strictness. The driver's `FOLD` path was also fixed to resolve from
+  the file's own location instead of a hardcoded `/home/user/the-fold`.
+
+## The whole pyodide science stack, wired in (added 2026-09-11)
+
+`lib/pyodide-oracle.mjs` generalizes the sympy oracle into a full
+computation oracle — one boot, one verdict vocabulary, five engines. A
+claim carries one engine field and the right library runs it:
+
+| engine | what it verifies | example (all computed live) |
+|---|---|---|
+| `sympy` | symbolic algebra | ∫₀¹x²dx=½ → false (diff −1/6) |
+| `scipy` | **exact** statistical nulls (Fisher, hypergeometric, binomial) — the P70 exact-hypergeometric precedent, from the library not a hand-derived closed form | [[8,2],[1,5]] association → holds (Fisher p=0.0350) |
+| `numpy` | numeric claims | [[1,2],[2,4]] singular → holds (det=0) |
+| `networkx` | graph claims | C4 bipartite → holds (2-colorable) |
+| `code` | **executes generated code** — a function is run on real inputs, verified by running it, never by looking at it | `average([1,2,3])` returns 1.67, expected 2.00 → false (skips nums[0]) |
+
+A claim the oracle cannot reach is `unchecked` → the linter's new
+`oracle_withheld` finding, a disclosed gap at info severity — **never a
+conviction** (R19). JS/Java code blocks are withheld exactly that way; the
+CH-independence claim is withheld because it is metamathematics.
+
+New demo case (science): pinned signature at every strictness — 1
+`claim_fails_oracle` (the executed `average`), 2 `oracle_withheld`
+(unexecutable JS/Java), 4 `claim_holds` (Fisher, hypergeometric,
+singularity, bipartite). Tests: 58 passing (linter 53, content-pin 5).

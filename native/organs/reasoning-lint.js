@@ -400,6 +400,13 @@ export async function lintInferences(inferences = [], { licenses = null, verify 
           findings.push(finding("claim_holds", "report", SEVERITY.INFO,
             `"${inf.statement ?? inf.end1}" — the declared oracle confirms it (${v.detail ?? "holds"})`,
             { at }));
+        } else if (v?.verdict === "unchecked") {
+          // A claim the oracle cannot reach is a GAP, never a conviction: it
+          // is disclosed and withheld, exactly the R19 posture (a verifier
+          // that cannot compute the truth of a claim never guesses it).
+          findings.push(finding("oracle_withheld", "report", SEVERITY.INFO,
+            `"${inf.statement ?? inf.end1}" — the oracle cannot compute this claim (${v.detail}) — disclosed, never guessed`,
+            { at }));
         }
         break;
       }

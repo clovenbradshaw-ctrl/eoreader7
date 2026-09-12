@@ -32,7 +32,7 @@ import * as cube from "../../kernel/cube.js";
 import { makeHyperlexicon } from "../../organs/hyperlexicon.js";
 import { tagClaim } from "../../organs/regime.js";
 import { lintLedger, lintInferences, lintReport } from "../../organs/reasoning-lint.js";
-import { verify as sympyVerify, refute as sympyRefute, bootSympy } from "./lib/sympy-math-oracle.mjs";
+import { verify as pyVerify, refute as pyRefute, bootPyodide } from "./lib/pyodide-oracle.mjs";
 
 const taskLog = { ...TL, cellOf: cube.cellOf };
 const hl = makeHyperlexicon(taskLog);
@@ -155,18 +155,19 @@ async function mathCase() {
   const file = FIX + "math-code.txt";
   const src = "math-code.txt";
 
-  // THE REAL ORACLE — sympy through the vendored pyodide (the P21 wheel
-  // organ's own mirror; the date-normalize.mjs loadPattern). Each verdict is
-  // COMPUTED by symbolic algebra, never a hand-typed answer. When pyodide is
-  // not installed in this checkout the demo falls back to the same JS
-  // arithmetic oracle it used before, and says so on the blurb.
-  let usingSympy = false;
+  // THE REAL ORACLE — the full pyodide science stack (sympy, scipy, numpy,
+  // networkx, code execution) through the vendored pyodide (the P21 wheel
+  // organ's own mirror; the date-normalize.mjs loadPattern). Every verdict
+  // is COMPUTED, never a hand-typed answer. When pyodide is not installed
+  // in this checkout the demo falls back to the same JS arithmetic oracle it
+  // used before, and says so on the blurb.
+  let usingPyodide = false;
   let verify, refute;
   try {
-    await bootSympy();
-    usingSympy = true;
-    verify = sympyVerify;
-    refute = sympyRefute;
+    await bootPyodide();
+    usingPyodide = true;
+    verify = pyVerify;
+    refute = pyRefute;
   } catch {
     verify = jsVerify;
     refute = jsRefute;
@@ -208,7 +209,7 @@ res` },
   };
 
   const c = await lintCorpus("math", "3. math-code.txt — statements and blocks, several wrong, checked by a REAL oracle", file, src, convert, { verify, refute, licenses: new Set([">→>"]) });
-  c.blurb = `${c.blurb} oracle: ${usingSympy ? "sympy via pyodide (computed symbolically)" : "JS arithmetic fallback (pyodide unavailable)"}.`;
+  c.blurb = `${c.blurb} oracle: ${usingPyodide ? "the pyodide science stack (sympy · scipy · numpy · networkx · code, computed)" : "JS arithmetic fallback (pyodide unavailable)"}.`;
   return c;
 }
 
@@ -292,7 +293,71 @@ async function chCase() {
 /** runAll() — every case, structured, so the terminal and the browser report
  * render the SAME numbers (never two implementations). */
 export async function runAll() {
-  return [seedCase(), await essayCase(), await mathCase(), await chCase()];
+  return [seedCase(), await essayCase(), await mathCase(), await chCase(), await scienceCase()];
+}
+
+// ── 5. THE SCIENCE STACK — exact stats, numeric, graph, and EXECUTED code ──
+//
+// The pyodide oracle is more than symbolic algebra. This case exercises the
+// engines the math case does not: scipy.stats exact nulls (the P70
+// hypergeometric/Fisher precedent, computed by the library not hand-derived),
+// numpy numeric claims, networkx graph claims, and — the one the generation
+// loop cares about most — GENERATED CODE EXECUTED to check it does what its
+// claim says. The code blocks are the fixture's own (math-code.txt), run on
+// real inputs; a claim that a function "returns the average" is verified by
+// running it, never by looking at it.
+
+async function scienceCase() {
+  const src = "math-code.txt";
+
+  // The code blocks from the fixture, verbatim, each with the test that
+  // would catch its error if it has one. `test` runs the generated module
+  // and ends by setting `result` — the verdict the oracle computes.
+  const codeClaims = [
+    { statement: "average(nums) returns the arithmetic mean", kind: "equation", code: {
+      src: "def average(nums):\n    total = 0\n    for i in range(1, len(nums)):\n        total += nums[i]\n    return total / len(nums)",
+      test: `import _gen\nout = _gen.average([1, 2, 3])\nresult = "HOLDS:%.2f" % out if abs(out - 2.0) < 1e-9 else "FALSE:average=%.2f, expected 2.00 (skips nums[0])" % out`,
+    }, ref: src },
+    { statement: "factorial(n) computes n! for n ≥ 1", kind: "equation", code: {
+      src: "function factorial(n) { let result = 1; for (let i = n; i >= 0; i--) { result *= i; } return result; }",
+      test: `import _gen\nresult = "UNCHECKED:javascript cannot be executed by this python oracle — disclosed, never a conviction"`,
+    }, ref: src },
+    { statement: "divide(a, b) never divides by zero without checking", kind: "equation", code: {
+      src: "public int divide(int a, int b) { return a / b; }",
+      test: `import _gen\nresult = "UNCHECKED:java cannot be executed by this python oracle — disclosed, never a conviction"`,
+    }, ref: src },
+  ];
+
+  // The non-code engines: exact stats, numeric, graph — all computed.
+  const engineClaims = [
+    { statement: "the 2×2 table [[8,2],[1,5]] shows a real association", kind: "equation", scipy: `
+a = np.array([[8, 2], [1, 5]])
+p = stats.fisher_exact(a)[1]
+result = "HOLDS:p=%.4f, below the 0.05 bar" % p if p < 0.05 else "FALSE:p=%.4f" % p
+`, ref: src },
+    { statement: "drawing 3 marked balls in 5 draws from 2-marked-of-20 is unlikely", kind: "equation", scipy: `
+p = stats.hypergeom.sf(2, 20, 2, 5)
+result = "HOLDS:p=%.5f, exact closed form" % p if p < 0.05 else "FALSE:p=%.5f" % p
+`, ref: src },
+    { statement: "the matrix [[1,2],[2,4]] is singular", kind: "equation", numpy: `
+A = np.array([[1.0, 2.0], [2.0, 4.0]])
+result = "HOLDS:det=%.3g ~ 0" % np.linalg.det(A) if abs(np.linalg.det(A)) < 1e-12 else "FALSE:det=%.3g" % np.linalg.det(A)
+`, ref: src },
+    { statement: "a four-cycle is bipartite", kind: "equation", networkx: `
+G = nx.cycle_graph(4)
+result = "HOLDS:four-cycle is 2-colorable" if nx.is_bipartite(G) else "FALSE:not bipartite"
+`, ref: src },
+  ];
+
+  const text = readFileSync(FIX + "math-code.txt", "utf8");
+  const log = hl.createHyperlexicon({ frame: { reader: "demo", giver: "reasoning-lint-demo.mjs", corpus: src } });
+  const queries = await lintInferences([...codeClaims, ...engineClaims], { verify: pyVerify, refute: pyRefute, strictness: "standard" });
+  const runs = STRICTNESS.map((strictness) => {
+    const full = { ok: queries.ok, strictness, findings: queries.findings, counts: queries.counts };
+    return { ok: full.ok, strictness, findings: [...queries.findings], counts: { ...queries.counts } };
+  });
+  void text; void log;
+  return { id: "science", title: "5. the pyodide science stack — exact stats, numeric, graph, and EXECUTED code", blurb: "scipy.stats exact nulls (Fisher, hypergeometric), numpy singularity, networkx bipartiteness, and the fixture's generated code run on real inputs — every verdict computed.", note: null, runs };
 }
 
 /** The terminal face: one line per finding per strictness. */
