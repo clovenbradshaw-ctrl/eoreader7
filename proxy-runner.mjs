@@ -2019,6 +2019,33 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
       // Gore for its own source only when it needs one. The outline is never a
       // separate 56s model call that stalls the piece.
       const topic = topicPhrase(task);
+      // THE MATERIAL'S OWN PROPOSITIONS — what LaVar grades the essay on.
+      // Wolfe writes FROM these so the essay RE-STATES the record (the holon
+      // law: the essay, high, makes the material's claims, low, probable).
+      // Each section is handed the propositions that share referents with its
+      // theme, resolved through the material's own index — the record's
+      // claims about the beings the section is about, never generic prose.
+      const materialProps = rawEntries?.length ? notesFromEdges(rawEntries) : [];
+      const propsIndex = sessionReferentIndex(session, onNote);
+      const propsForSection = (section) => {
+        if (!materialProps.length || !propsIndex?.resolveIn) return [];
+        const themeIds = propsIndex.resolveIn(String(section ?? ""));
+        if (!themeIds?.size) return materialProps.slice(0, 10); // no theme referents: show the top claims
+        const shown = new Set();
+        const out = [];
+        for (const p of materialProps) {
+          if (out.length >= 12) break;
+          const subj = String(p.end1 ?? ""); const obj = String(p.end2 ?? "");
+          const sIds = propsIndex.resolveIn(subj); const oIds = propsIndex.resolveIn(obj);
+          if ([...themeIds].some((id) => sIds.has(id) || oIds.has(id))) {
+            const key = `${subj}|${p.label}|${obj}`;
+            if (shown.has(key)) continue;
+            shown.add(key);
+            out.push(p);
+          }
+        }
+        return out.length ? out : materialProps.slice(0, 10);
+      };
       const outlineBuf = sections.length
         ? sections.map((s, i) => `${i + 1}. ${s}`).join("\n")
         : `1. ${topic}`;
@@ -2084,7 +2111,7 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
         // check). This is the measured speed lever — 12 of 18 sections were
         // being corrected once, each correction a full second draw (~50s).
         const sectionTask = plannedSections.length > 1
-          ? `We're writing a piece on ${topic}. ${priorParts ? `Where the piece stands so far: ${priorParts}\n\n` : ""}Now ${isQuestion ? `answer this: ${section}` : `write the part on ${section}`}, ${holonPhrase}. Write it as a substantial passage of the piece itself — several sentences. ANSWER WITH THE MATERIAL'S OWN FACTS about ${topic}: its real names, places, numbers, and relationships as the sources state them. Do not discuss the essay, the writing, the question, or the material itself. It continues what the piece has already established — build on it, transition from it, do not restate it.`
+          ? `We're writing a piece on ${topic}. ${priorParts ? `Where the piece stands so far: ${priorParts}\n\n` : ""}Now ${isQuestion ? `answer this: ${section}` : `write the part on ${section}`}, ${holonPhrase}. Write it as a substantial passage of the piece itself — several sentences. ANSWER WITH THE MATERIAL'S OWN FACTS about ${topic}: its real names, places, numbers, and relationships as the sources state them. ${(() => { const sp = propsForSection(section); return sp.length ? `Here are the material's claims this part should carry:\n${sp.map((p) => `- ${p.end1 ?? ""} ${p.label} ${p.end2 ?? ""}`).join("\n")}` : ""; })()}\nDo not discuss the essay, the writing, the question, or the material itself. It continues what the piece has already established — build on it, transition from it, do not restate it.`
           : `Write the piece on ${topic}, ${holonPhrase}, as a substantial passage — several sentences about ${topic} using the material's own facts, names, and figures as the sources state them. Do not discuss the essay, the writing, or the material.`;
         const holonBudget = holonLevel === "sentence" ? Math.min(SECTION_MAX_TOKENS, 220) : holonLevel === "paragraph" ? Math.min(SECTION_MAX_TOKENS, 450) : SECTION_MAX_TOKENS;
         if (onThinking) onThinking(`\n### ${section} (${holonLevel})\n\n`);
