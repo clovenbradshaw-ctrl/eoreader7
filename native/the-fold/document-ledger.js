@@ -414,13 +414,23 @@ export function citationLedger(essay, webSources = new Map(), { maxCitations = 2
     if (citations.length >= maxCitations) break;
     const terms = sentence.toLowerCase().split(/[^a-z]+/).filter((w) => w.length > 3);
     if (terms.length < 4) continue;
-    // The claim's ATOMS: numbers (incl. years) and names (capitalized words).
+    // The claim's ATOMS: numbers (incl. years) and real NAMES (capitalized
+    // words that are not sentence-initial function words — "They", "Though",
+    // "One", "This" are positions, not atoms; a name is a proper noun).
     const atoms = [];
     const numRe = /\b(?:\d[\d.,]*(?:[mkg]?m|k?g|%|ft|in|m|km|mph)?|1[5-9]\d\d|20\d\d)\b/g;
     let nm;
     while ((nm = numRe.exec(sentence))) atoms.push({ kind: /^1[5-9]\d\d$|^20\d\d$/.test(nm[0]) ? "year" : "number", value: nm[0] });
     const nameRe = /\b[A-Z][a-z]{2,}\b/g;
-    while ((nm = nameRe.exec(sentence))) atoms.push({ kind: "name", value: nm[0] });
+    const SENTENCE_HEAD = /\b(?:The|A|An|This|These|Those|Their|They|Though|One|Two|He|She|It|His|Her|Its|While|Because|However|Therefore|Moreover|Additionally|Finally|Some|Most|Many|Dolphins)\b/;
+    const nameSeen = new Set();
+    while ((nm = nameRe.exec(sentence))) {
+      const value = nm[0];
+      if (SENTENCE_HEAD.test(value)) continue;
+      if (nameSeen.has(value)) continue;
+      nameSeen.add(value);
+      atoms.push({ kind: "name", value });
+    }
     // Best source by token overlap (the claim's words against the source).
     let best = null, bestScore = 0;
     for (const [url, text] of webSources.entries()) {
@@ -467,12 +477,43 @@ export function citationLedger(essay, webSources = new Map(), { maxCitations = 2
     const supportedAtoms = atomSpans.filter((a) => a.supported);
     let host = "Unknown";
     try { host = new URL(best).hostname.replace(/^www\./, ""); } catch {}
-    // Grade the borrow: verbatim span > all atoms company-supported > partial.
-    const allSupported = supportedAtoms.length === atomSpans.length && atomSpans.length > 0;
-    const kind = verbatim ? "verbatim" : allSupported ? "company" : "unsupported";
+    // THE GROUNDING TEXT: the verbatim source sentence(s) that actually
+    // contain the supported atoms — what the source SAYS, not just where the
+    // atoms sit. A citation must show the words that ground the claim, so a
+    // reader (or a check) sees the source's own sentence the claim stands on.
+    // Falls back to the span for verbatim borrows. For claims with no
+    // numeric/name atoms, match on the claim's own content words instead.
+    const groundingSentences = [];
+    const srcSentencesFlat = srcSentences.map((ss) => cleanSpan(ss));
+    const groundByAtom = (needle) => srcSentencesFlat.find((ss) => ss.toLowerCase().includes(needle));
+    for (const atom of supportedAtoms) {
+      const needle = atom.value.toLowerCase();
+      const srcSentence = groundByAtom(needle);
+      if (srcSentence && !groundingSentences.includes(srcSentence)) groundingSentences.push(srcSentence);
+    }
+    if (!groundingSentences.length) {
+      // No atoms found a home — try the claim's distinctive content words
+      // (the non-generic terms that make this claim about THIS thing).
+      const distinctive = cw.filter((w) => w.length > 4).sort((a, b) => b.length - a.length);
+      for (const word of distinctive) {
+        const srcSentence = groundByAtom(word);
+        if (srcSentence && !groundingSentences.includes(srcSentence)) groundingSentences.push(srcSentence);
+        if (groundingSentences.length >= 2) break;
+      }
+    }
+    const groundingText = verbatim && span ? span : groundingSentences[0] ?? null;
+    // Grade the borrow: verbatim span > company-supported (a source sentence
+    // grounds the claim's words, with atoms byte-addressed where they exist)
+    // > unsupported (nothing grounds it). A claim with no numeric/name atoms
+    // but a grounding sentence is still company — the source's own words are
+    // the evidence, not only the atoms.
+    const allSupported = atomSpans.length === 0 ? groundingSentences.length > 0 : supportedAtoms.length === atomSpans.length;
+    const kind = verbatim ? "verbatim" : allSupported && groundingText ? "company" : "unsupported";
     citations.push({
       essaySentence: sentence,
       source: { url: best, host },
+      // The VERBATIM WORDS that ground this claim — never an address alone.
+      groundingText,
       verbatimSpan: span && verbatim ? span : null,
       kind,
       at: verbatim ? [at, at + span.length] : null,
