@@ -123,7 +123,10 @@ function scoreCase(c, j) {
 
 async function run() {
   const n = Number(process.env.CASES ?? CASES.length);
-  const battery = CASES.slice(0, n);
+  // CASES_ONLY="3,5" runs only those 1-based indices (for re-running the
+  // cases a partial run didn't prove).
+  const only = (process.env.CASES_ONLY ?? "").split(",").map((s) => Number(s.trim())).filter((x) => Number.isInteger(x) && x >= 1);
+  const battery = (only.length ? only.map((i) => CASES[i - 1]).filter(Boolean) : CASES.slice(0, n));
   const rows = [];
   const stamp = new Date().toISOString().replace(/[:.]/g, "-");
   const dir = join(RESULTS, `longform-multi-type-${stamp}`);
