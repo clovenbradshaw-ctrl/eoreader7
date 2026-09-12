@@ -86,7 +86,7 @@ function seedCase() {
     [plotId, tagClaim({}, { operator: "INS", force: "default", queryTime })],
   ]);
 
-  const runs = STRICTNESS.map((strictness) => asRun(lintLedger(derived, { door: hl, taskLog, tags, queryTime, strictness })));
+  const runs = STRICTNESS.map((strictness) => asRun(lintLedger(derived, { door: hl, taskLog, tags, queryTime, strictness, referentIndex: declaredReferentIndex("operators must file an annual report the plot belongs to the city") })));
   return {
     id: "seed", title: "1. The seed's falsifiable case (§7): a sunset ordinance + a contested claim",
     blurb: "one corpus, both bugs the seed names: the contest must never be resolved, the sunset must expire the obligation before force or entrenchment.",
@@ -128,11 +128,11 @@ async function essayCase() {
     return { arrangements, inferences };
   };
 
-  return lintCorpus("essay", "2. speed-essay.txt — persuasion posing as reasoning, read as the system's own output", file, src, convert, null);
+  return lintCorpus("essay", "2. speed-essay.txt — persuasion posing as reasoning, read as the system's own output", file, src, convert, null, declaredReferentIndex(readFileSync(file, "utf8")));
 }
 
 /** Shared corpus harness: read → admit → tag → lint at all three levels. */
-async function lintCorpus(id, title, file, src, convert, oracle) {
+async function lintCorpus(id, title, file, src, convert, oracle, referentIndex = null) {
   const text = readFileSync(file, "utf8");
   const { arrangements, inferences } = convert(text);
   const log = hl.createHyperlexicon({ frame: { reader: "demo", giver: "reasoning-lint-demo.mjs", corpus: src } });
@@ -142,11 +142,33 @@ async function lintCorpus(id, title, file, src, convert, oracle) {
   for (const h of admitted.heard) tags.set(h.id, tagClaim({}, { operator: "INS", force: "default", queryTime }));
   const runs = [];
   for (const strictness of STRICTNESS) {
-    const ledger = lintLedger(admitted.log, { door: hl, taskLog, tags, queryTime, strictness });
+    const ledger = lintLedger(admitted.log, { door: hl, taskLog, tags, queryTime, strictness, referentIndex });
     const inference = await lintInferences(inferences, { ...(oracle ?? {}), strictness });
     runs.push({ ok: ledger.ok && inference.ok, strictness, findings: [...ledger.findings, ...inference.findings], counts: { ...ledger.counts, ...inference.counts } });
   }
   return { id, title, blurb: `admitted ${admitted.heard.length} of ${arrangements.length} arrangement(s); ${inferences.length} inference(s) declared; spans byte-verified (P5.2).`, note: null, runs };
+}
+
+/** A declared referent index over a corpus's own text — the demo's declared
+ * reading resolves its ends the way production resolves them through a real
+ * cast.js::makeReferentIndex: a name points at the beings the corpus
+ * establishes, never at a bare folded string. The demo's index is a folded-
+ * surface index over the corpus bytes; production injects the engine's own. */
+function declaredReferentIndex(text) {
+  const folded = (s) => String(s ?? "").toLowerCase().trim();
+  const surfaces = new Map();
+  for (const t of folded(text).split(/[^a-z0-9]+/)) if (t.length >= 4) surfaces.set(t, t);
+  return {
+    referents: new Set([...surfaces.keys()]),
+    resolve: (name) => {
+      const n = folded(name);
+      const hits = new Set();
+      if (!n) return hits;
+      for (const s of surfaces.keys()) if (s.includes(n) || n.includes(s)) hits.add(`r:${s}`);
+      return hits;
+    },
+    represent: (id) => id.replace(/^r:/, ""),
+  };
 }
 
 // ── 3. MATH + CODE — computed, never declared ──────────────────────────────
@@ -287,7 +309,7 @@ async function chCase() {
     return { arrangements, inferences };
   };
 
-  return lintCorpus("ch", "4. continuum-hypothesis.txt — a corrected encyclopedia article, checked for routing coherence", file, src, convert, null);
+  return lintCorpus("ch", "4. continuum-hypothesis.txt — a corrected encyclopedia article, checked for routing coherence", file, src, convert, null, declaredReferentIndex(readFileSync(file, "utf8")));
 }
 
 /** runAll() — every case, structured, so the terminal and the browser report
@@ -367,7 +389,11 @@ export function printReport(cases = []) {
     if (c.blurb) line(`     ${c.blurb}`);
     for (const run of c.runs) {
       line(`\n  ─ strictness: ${run.strictness} ─  ok: ${run.ok}`);
-      for (const f of run.findings ?? []) line(`  [${f.level}·${f.severity}] ${f.kind}: ${f.detail}`);
+      for (const f of run.findings ?? []) {
+        const refs = f.referents ? ` → ${JSON.stringify(f.referents)}` : "";
+        const sp = f.spans?.length ? ` @ ${f.spans.join(", ")}` : "";
+        line(`  [${f.level}·${f.severity}] ${f.kind}: ${f.detail}${refs}${sp}`);
+      }
     }
     if (c.note) { line(""); for (const n of c.note.split("\n")) line(`  ${n}`); }
   }

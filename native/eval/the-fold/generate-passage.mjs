@@ -202,12 +202,33 @@ const lintArrangements = items.map((it) => ({
 }));
 const lintAdmitted = lintDoor.admit(lintLog, lintArrangements, { witness: "generate-passage" });
 lintLog = lintAdmitted.log;
+// The referent index over the material's own people: the derived passage is
+// linted with WHICH referent each end resolves to on the finding — the
+// material's labels, resolved through a real index (the entity faces), never
+// a bare folded id. The index is built from the corpus's own labels.
+const { makeReferentIndex } = await import(`${NATIVE}/organs/cast.js`);
+const labelIndex = {
+  referents: new Set(Object.keys(material.entities ?? {}).map((q) => `r:${q}`)),
+  resolve: (name) => {
+    const folded = String(name ?? "").toLowerCase();
+    const hits = new Set();
+    for (const [q, ent] of Object.entries(material.entities ?? {})) {
+      const label = String(ent?.label ?? material.labels?.[q] ?? q ?? "").toLowerCase();
+      if (label && (label.includes(folded) || folded.includes(label))) hits.add(`r:${q}`);
+    }
+    return hits;
+  },
+  represent: (id) => {
+    const q = String(id).replace(/^r:/, "");
+    return material.entities?.[q]?.label ?? material.labels?.[q] ?? q;
+  },
+};
 for (const strictness of ["report", "standard", "strict"]) {
-  const lint = lintLedger(lintLog, { door: lintDoor, taskLog: taskLogBundle, strictness });
+  const lint = lintLedger(lintLog, { door: lintDoor, taskLog: taskLogBundle, strictness, referentIndex: labelIndex });
   const bad = lint.findings.filter((f) => f.severity === "error");
   if (bad.length) {
     console.log(`\nREASONING LINT @ ${strictness}: ${bad.length} incoherence(s) in the generated passage — ${lint.ok ? "" : "NOT coherent"}`);
-    for (const f of bad) console.log(`  [${f.level}·${f.severity}] ${f.kind}: ${f.detail}`);
+    for (const f of bad) console.log(`  [${f.level}·${f.severity}] ${f.kind}: ${f.detail}${f.referents ? ` → ${JSON.stringify(f.referents)}` : ""}${f.spans?.length ? ` @ ${f.spans.join(", ")}` : ""}`);
   } else {
     console.log(`\nREASONING LINT @ ${strictness}: coherent (${lint.findings.length} finding(s), none an error)`);
   }

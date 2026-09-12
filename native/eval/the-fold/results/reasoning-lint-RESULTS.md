@@ -219,3 +219,24 @@ New demo case (science): pinned signature at every strictness — 1
 `claim_fails_oracle` (the executed `average`), 2 `oracle_withheld`
 (unexecutable JS/Java), 4 `claim_holds` (Fisher, hypergeometric,
 singularity, bipartite). Tests: 58 passing (linter 53, content-pin 5).
+
+## The holograph on every finding: referents + raw spans (added 2026-09-11)
+
+A finding that names a note now points INTO the record, not just at its id:
+
+- **Referents** — each end resolves through the caller's injected referent
+  index (cast.js::makeReferentIndex, the SAME identity the surface reads):
+  `referents: { end1: ["Count Dracula"], end2: ["Castle Dracula"], gaps }`.
+  An absent index leaves ends as folded surfaces — a typed absence, never a
+  guessed being (P38's discipline, applied to the findings).
+- **Raw spans** — the note's byte-addressed spans (P5.2) ride the finding:
+  `spans: ["city.txt#0-30"]`, opened by the record, never a paraphrase.
+
+Wired through `lintLedger` (via the injected `referentIndex`), `lintContent`,
+and the demo's `declaredReferentIndex` (a folded-surface index over the
+corpus bytes; production injects the engine's own). Pair findings carry
+BOTH notes' context; the circular finding carries every leg of the loop;
+inference findings carry their declared spans. The generation loop builds a
+label index over the Wikidata material and lints with referents on the
+findings. Pinned by a dedicated unit test (referents + spans ride;
+absent index → no invented referents). Tests: 59 passing.

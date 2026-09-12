@@ -424,6 +424,34 @@ test("a note under two open contests names both sources and is in the contested 
   assert.equal(r.contested.includes(id), true);
 });
 
+test("a finding carries the holograph's referents AND its raw byte spans — never just the note id", () => {
+  const { door, log } = fresh();
+  let l = HEAR(log, "Count-Dracula", "lives-in", "Castle-Dracula", "dracula.txt", 1);
+  const id = hl.assertionId("Count-Dracula", "lives-in", "Castle-Dracula");
+  const d = hl.dispute(l, id, { source: "critic.txt", because: "critic denies it", span: span("critic.txt", 2, "Dracula does not live there"), kind: hl.DISPUTE_KINDS.CONTEST });
+  l = d.refused ? l : d.log;
+  // A REAL-shaped referent index (the seam cast.js::makeReferentIndex
+  // builds): resolve returns a Set of ids, represent returns the face.
+  const index = {
+    referents: new Set(["r:dracula"]),
+    resolve: (name) => /dracula|count/i.test(String(name)) ? new Set(["r:dracula"]) : new Set(),
+    represent: (id) => (id === "r:dracula" ? "Count Dracula" : null),
+  };
+  const r = lintLedger(l, { door, taskLog, strictness: "report", referentIndex: index });
+  const co = r.findings.find((f) => f.kind === "contested_open");
+  assert.ok(co, "the contested finding fires");
+  assert.deepEqual(co.referents?.end1, ["Count Dracula"], "end1 resolves to its referent face");
+  assert.deepEqual(co.referents?.end2, ["Count Dracula"], "end2 resolves to its referent face");
+  assert.deepEqual(co.referents?.gaps, { end1: false, end2: false });
+  assert.ok(co.spans?.some((s) => s.startsWith("dracula.txt#")), "the raw byte span rides the finding");
+  // Without an index, referents are a typed absence — the ends stay folded
+  // surfaces, never a guessed being.
+  const noIndex = lintLedger(l, { door, taskLog, strictness: "report" });
+  const co2 = noIndex.findings.find((f) => f.kind === "contested_open");
+  assert.equal(co2.referents, undefined, "no index → no invented referents");
+  assert.ok(co2.spans?.length > 0, "raw spans ride regardless of the index");
+});
+
 test("a note whose cell never resolved is reported, and is excluded from disagreement resolution", () => {
   // The real door always resolves a cell, so this boundary is reached with
   // a deliberately minimal stub door/taskLog — the only stub in this file.
