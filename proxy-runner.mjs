@@ -687,9 +687,12 @@ function detectAnswerShape(task, hasWorkspace, hasWeb, surfVoid, surfacedSegment
 // → "how the kernel works". Never an apparatus name.
 function topicPhrase(task) {
   const t = String(task ?? "").trim();
-  const on = /\bon\b\s+([^.!?]+)/i.exec(t)?.[1] ?? null;
+  // The topic is the leading noun-phrase, NOT everything after "about" —
+  // "about the bongo antelope: its habitat, its diet…" must yield "the bongo
+  // antelope", else every void cell question echoes the whole 200-char task.
+  const on = /\bon\b\s+([^,;:.!?]+)/i.exec(t)?.[1] ?? null;
   if (on) return on.trim().replace(/\s+/g, " ");
-  const about = /\babout\b\s+([^.!?]+)/i.exec(t)?.[1] ?? null;
+  const about = /\babout\b\s+([^,;:.!?]+)/i.exec(t)?.[1] ?? null;
   if (about) return about.trim().replace(/\s+/g, " ");
   const short = t.slice(0, 80).replace(/^(write|explain|describe|summarize|outline|compose|report|discuss|analyze)\s+/i, "").trim();
   return short || "this";
@@ -1049,7 +1052,9 @@ return { segments: [], void: true, reason: "no corpus yet" };
   if (selected.length && rank(selected[0]) <= 1) {
     const field = fieldRecall(session, task);
     if (field.recalled.length) {
-      const existingSources = new Set(segments.map((s) => s._ledger?.source));
+      // The boost only adds sources the absolute ladder did NOT already select
+      // (selected, not segments — segments are built below, after the boost).
+      const existingSources = new Set(selected.map((s) => s._ledger?.source).filter(Boolean));
       for (const r of field.recalled) {
         if (existingSources.has(r._ledger?.source)) continue;
         selected.push(r);
