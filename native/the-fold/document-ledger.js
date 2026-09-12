@@ -555,6 +555,83 @@ export function lavarGradeEssay(documentLines = [], sections = [], { materialPro
   };
 }
 
+// ── COMPETENCY: the essay reduces the surprise of its own thesis ───────────
+// The user's principle: an essay opens with a surprising, assertive claim
+// ("the Titanic was sunk through capitalistic hubris") and its competency is
+// how well the retrieved GROUNDED evidence retroactively reduces that
+// surprise. Competency is NOT how much the essay re-states the material
+// (LaVar recall) and NOT length — it is the surprise-reduction: the opening
+// thesis creates an expectation gap; the body's grounded evidence closes it
+// by explaining the why. Measured here:
+//   thesisSurprise — how many of the material's propositions the opening
+//     asserts AGAINST (its claim moves the reading's expectations): the
+//     opening is surprising when its specific nouns/acts are NOT what the
+//     material's ordinary account would state first.
+//   evidenceGrounding — how many distinct material propositions the body
+//     carries that bear on the thesis's own terms (the why behind the claim).
+//   surpriseReduction — the ratio: the body's grounded evidence relative to
+//     the thesis's surprise. An essay whose thesis is surprising but whose
+//     body carries no grounding for it is INCOMPETENT (a claim with no why).
+// `opening` is the first section's text; `body` the rest. `index` resolves
+// both against the material's referents. Returns a grade in [0,1].
+export function competencyGrade({ opening = "", body = [], materialPropositions = [], index = null } = {}) {
+  const norm = (t) => String(t ?? "").split(/\s+/).join(" ").toLowerCase().trim();
+  const props = (materialPropositions ?? []).filter((p) => p && norm(p.label));
+  const resolveIn = (text) => {
+    try {
+      const r = index?.resolveIn?.(String(text ?? ""));
+      return r instanceof Set ? r : new Set(r ?? []);
+    } catch { return new Set(); }
+  };
+  const represent = (id) => { try { return index?.represent?.(id) ?? id; } catch { return id; } };
+  // The thesis's own terms: the material referents the opening asserts, and
+  // the content words it uses (a surprising claim uses unexpected terms).
+  const thesisIds = resolveIn(opening);
+  const thesisNames = [...thesisIds].map(represent).map(norm).filter(Boolean);
+  const thesisWords = new Set(norm(opening).split(/[^a-z']+/).filter((w) => w.length > 4));
+  // Surprise: the opening asserts a claim that moves the material's ordinary
+  // account — its content words are NOT the material's most-repeated terms.
+  // Measured as the fraction of the thesis's words that are NOT in any of the
+  // material's propositions (unexpected vocabulary = a surprising claim).
+  const materialWords = new Set();
+  for (const p of props) { for (const w of norm(`${p.end1} ${p.label} ${p.end2}`).split(/[^a-z']+/)) if (w.length > 4) materialWords.add(w); }
+  const surprisingWords = [...thesisWords].filter((w) => !materialWords.has(w));
+  const thesisSurprise = thesisWords.size ? surprisingWords.length / thesisWords.size : 0;
+  // Evidence grounding: how many of the material's propositions the body
+  // actually carries (the why behind the thesis's terms).
+  const bodyText = norm((body ?? []).join(" "));
+  let evidenceCarried = 0;
+  for (const p of props) {
+    const lab = norm(p.label); if (!lab) continue;
+    const e2 = norm(p.end2);
+    const labHit = lab.length > 2 && bodyText.includes(lab);
+    const e2Hit = !e2 || e2.length <= 2 || bodyText.includes(e2);
+    if (labHit && e2Hit) evidenceCarried++;
+  }
+  const evidenceGrounding = props.length ? evidenceCarried / props.length : 0;
+  // SURPRISE-REDUCTION: the body's grounded evidence relative to the thesis's
+  // surprise. A surprising thesis (high thesisSurprise) needs grounding to
+  // reduce it; an unsurprising thesis needs none. The essay is competent when
+  // it explains the why — evidenceGrounding covering the thesis's surprise.
+  // When the thesis asserts nothing surprising, the bar is simply that the
+  // body carries the material (the essay is a description, not an argument).
+  const surpriseReduction = thesisSurprise > 0.2
+    ? Math.min(1, evidenceGrounding / thesisSurprise)
+    : evidenceGrounding;
+  return {
+    ok: surpriseReduction >= 0.5,
+    grade: Number(surpriseReduction.toFixed(3)),
+    thesisSurprise: Number(thesisSurprise.toFixed(3)),
+    evidenceGrounding: Number(evidenceGrounding.toFixed(3)),
+    surprisingWords: surprisingWords.slice(0, 6),
+    evidenceCarried,
+    ofPropositions: props.length,
+    basis: thesisSurprise > 0.2
+      ? `the thesis is surprising (${surprisingWords.length} unexpected terms); the body carries ${evidenceCarried} of ${props.length} material propositions — ${(surpriseReduction * 100).toFixed(0)}% surprise-reduction`
+      : `the opening is descriptive (${surprisingWords.length} unexpected terms); the body carries ${evidenceCarried} of ${props.length} material propositions — ${(surpriseReduction * 100).toFixed(0)}% grounded`,
+  };
+}
+
 // ── REC: a rewrite pass names exactly what the EVA found, and the ledger
 //    records the revision (supersede) so the before/after stays on file. ────
 

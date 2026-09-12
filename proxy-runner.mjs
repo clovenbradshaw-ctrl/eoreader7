@@ -19,7 +19,7 @@ import { resolutionBlocks } from "./native/the-fold/resolutions.js";
 import { tokenize } from "./native/the-fold/source.js";
 import { logitBiasFor, logitsBiasObject } from "./native/organs/gemma2-tokenizer.mjs";
 import { readingIndexFromLog } from "./native/the-fold/reading-log.js";
-import { createDocumentLedger, appendDocumentObservation, appendLedgerLine, projectDocument, documentChangeLog, admitPart, serializeLedger, snipsFromSources, checkEssayShape, ledgerFilePath, renderApaFootnotes, satisfactionOfSection, satisfactionOf, declareEssayVoid, fillCheck, citationLedger, voidCellsFor, holographicSatisfaction, lavarGradeEssay } from "./native/the-fold/document-ledger.js";
+import { createDocumentLedger, appendDocumentObservation, appendLedgerLine, projectDocument, documentChangeLog, admitPart, serializeLedger, snipsFromSources, checkEssayShape, ledgerFilePath, renderApaFootnotes, satisfactionOfSection, satisfactionOf, declareEssayVoid, fillCheck, citationLedger, voidCellsFor, holographicSatisfaction, lavarGradeEssay, competencyGrade } from "./native/the-fold/document-ledger.js";
 import { goreBoundary, gatherPlan, cueGoDeeperPlan } from "./native/the-fold/gore.js";
 // The keyless field (GFP Pass 35, the-fold c232779): recall by partial-cue
 // resemblance, resolution by state — no absolute address. Surf's SECOND
@@ -2110,8 +2110,20 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
         // material (the ungrounded check), and as the piece itself (the meta
         // check). This is the measured speed lever — 12 of 18 sections were
         // being corrected once, each correction a full second draw (~50s).
+        // THE OPENING IS A THESIS, NOT AN ANSWER. The essay opens with a SURPRISING
+        // assertion about the subject — a claim the reader does not expect —
+        // and the body's grounded evidence then RETROACTIVELY REDUCES that
+        // surprise. This is the competency principle: an essay is competent
+        // when the retrieval explains the why until the surprise collapses
+        // (the gathering gate's own stop). The thesis is drawn from the
+        // material's propositions but stated as a POSITION, never a
+        // description — "the bongo is a forest antelope" is not a thesis;
+        // "the bongo's survival hangs on the very forests it hides in" is.
+        const isOpening = i === 0;
         const sectionTask = plannedSections.length > 1
-          ? `We're writing a piece on ${topic}. ${priorParts ? `Where the piece stands so far: ${priorParts}\n\n` : ""}Now ${isQuestion ? `answer this: ${section}` : `write the part on ${section}`}, ${holonPhrase}. Write it as a substantial passage of the piece itself — several sentences. ANSWER WITH THE MATERIAL'S OWN FACTS about ${topic}: its real names, places, numbers, and relationships as the sources state them. ${(() => { const sp = propsForSection(section); return sp.length ? `Here are the material's claims this part should carry:\n${sp.map((p) => `- ${p.end1 ?? ""} ${p.label} ${p.end2 ?? ""}`).join("\n")}` : ""; })()}\nDo not discuss the essay, the writing, the question, or the material itself. It continues what the piece has already established — build on it, transition from it, do not restate it.`
+          ? (isOpening
+            ? `We're writing a piece on ${topic}. ${(() => { const sp = propsForSection(section); return sp.length ? `Here is what the material actually holds about ${topic}:\n${sp.map((p) => `- ${p.end1 ?? ""} ${p.label} ${p.end2 ?? ""}`).join("\n")}` : ""; })()}\n\nOPEN THE PIECE WITH A THESIS: a single, definite, surprising claim about ${topic} that the reader would not expect — a position, never a description. It must be grounded in what the material holds (a real fact or relation), but stated as an argument: something someone could disagree with. Then in 1-2 sentences, name why the claim matters. This is the opening of the piece itself — no introduction, no "in this essay", no commentary about writing.`
+            : `We're writing a piece on ${topic}. ${priorParts ? `Where the piece stands so far: ${priorParts}\n\n` : ""}Now ${isQuestion ? `answer this: ${section}` : `write the part on ${section}`}, ${holonPhrase}. Write it as a substantial passage of the piece itself — several sentences. ANSWER WITH THE MATERIAL'S OWN FACTS about ${topic}: its real names, places, numbers, and relationships as the sources state them. ${(() => { const sp = propsForSection(section); return sp.length ? `Here are the material's claims this part should carry:\n${sp.map((p) => `- ${p.end1 ?? ""} ${p.label} ${p.end2 ?? ""}`).join("\n")}` : ""; })()}\nDo not discuss the essay, the writing, the question, or the material itself. It continues what the piece has already established — build on it, transition from it, do not restate it.`)
           : `Write the piece on ${topic}, ${holonPhrase}, as a substantial passage — several sentences about ${topic} using the material's own facts, names, and figures as the sources state them. Do not discuss the essay, the writing, or the material.`;
         const holonBudget = holonLevel === "sentence" ? Math.min(SECTION_MAX_TOKENS, 220) : holonLevel === "paragraph" ? Math.min(SECTION_MAX_TOKENS, 450) : SECTION_MAX_TOKENS;
         if (onThinking) onThinking(`\n### ${section} (${holonLevel})\n\n`);
@@ -2544,6 +2556,19 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
         : sessionReferentIndex(session)
           ? holographicSatisfaction(documentLines, plannedSectionsOut, { index: sessionReferentIndex(session) })
           : fillCheck(voidDeclaration, documentLines, plannedSectionsOut, { material: groundingText() }))
+      : null,
+    // COMPETENCY: does the essay reduce the surprise of its own opening
+    // thesis? The opening asserts a surprising claim; the body's grounded
+    // evidence must retroactively reduce that surprise. Competency is the
+    // surprise-reduction — never length, never token volume (the gathering
+    // gate's own stop: the piece is done when it explains the why).
+    competency: documentLedger && rawEntries?.length && documentLines.length
+      ? competencyGrade({
+          opening: documentLines[0] ?? "",
+          body: documentLines.slice(1),
+          materialPropositions: notesFromEdges(rawEntries),
+          index: sessionReferentIndex(session),
+        })
       : null,
     totalStrain,
     thinking: thinkingBlock || null,
