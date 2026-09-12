@@ -51,7 +51,13 @@ export function parseProxyRequest(body) {
   // Pass discloseThinking: true to see it (humanized — see humanizeNote,
   // never a raw JSON dump).
   const discloseThinking = body?.discloseThinking === true;
-  return { model, ...turn, stream, discloseThinking };
+  // Per-turn Kelsen override (degrees in Kelsen, K°): how tightly the
+  // composition is bound to the material's ground. Normally driven by the
+  // target's shape (see kelsenFromShape in the runner); a caller may pass
+  // `kelsen` explicitly to force a binding (high = literal/bound, low =
+  // impressionistic/free). null = let the shape decide.
+  const kelsen = Number.isFinite(Number(body?.kelsen)) ? Number(body?.kelsen) : null;
+  return { model, ...turn, stream, discloseThinking, kelsen };
 }
 
 export function toOpenAIModelList(realNames, { createdAt = 0 } = {}) {
@@ -136,6 +142,8 @@ export function humanizeNote(note) {
       return `Void declared: "${note.slot}" — ${note.cardinality ?? 0} part(s), grounded against a shadow of ${note.shadowSites ?? 0} visited site(s).`;
     case "void_questions":
       return `The void, DEF'd by asking: ${note.of} question(s) the piece must answer${note.open ? ` (${note.open} from the reading's own open questions)` : ""}. First: ${(note.questions ?? []).join(" | ")}`;
+    case "kelsen":
+      return `Kelsen ${note.value}° — bound to the material's ground by the shape (${note.grounded} grounded cells of ${note.cells}): ${note.value >= 0.7 ? "literal, bound" : note.value <= 0.4 ? "impressionistic, freer" : "balanced"}.`;
     case "section_eva":
       return `Section check failed: ${(note.failures ?? []).join("; ")} (strain ${note.strain}).`;
     case "strain":

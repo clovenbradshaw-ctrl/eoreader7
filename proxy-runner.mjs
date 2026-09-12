@@ -1080,6 +1080,16 @@ export function hotModelSet() {
 
 const CALL_MAX_TOKENS = 1024;
 const CALL_RETRIES = 2;
+// Degrees in Kelsen (K°): how tightly the composition is bound to the
+// material's normative ground — Kelsen's Stufenbau, where validity flows
+// down a hierarchy of degrees and each level is bound by the norm above.
+// HIGH Kelsen-degrees (the default) — literal, grounded, faithful to the
+// retained text. LOWER Kelsen-degrees let the model compose more
+// IMPRESSIONISTICALLY (freer, looser prose) at the cost of faithfulness.
+// This is our own gauge, driven by the SHAPE of the target (see
+// kelsenFromShape), not a physics metaphor. ER7_KELSEN sets the default; a
+// caller may pass kelsen per turn. 1.0 = fully bound, 0.1 = fully free.
+const DEFAULT_KELSEN = Number(process.env.ER7_KELSEN ?? 0.9);
 // A MAX prompt budget, not a timid one: the context is filled to near this
 // ceiling every turn, chat history with precedence (the turn's own recent
 // line of talk is what continuity lives on), then masked/grounded material
@@ -1097,7 +1107,7 @@ const POSTPROCESS_TIMEOUT_MS = Number(process.env.ER7_POSTPROCESS_TIMEOUT_MS) ||
 // 0 = nearest verbatim only, 1 = + atmosphere, 2 = + lens, 3 = + paradigm.
 const RESOLUTIONS_LEVEL = (() => { const v = Number(process.env.ER7_RESOLUTIONS ?? ""); return [0, 1, 2, 3].includes(v) ? v : 3; })();
 
-async function* streamOllamaChat(model, messages, { maxTokens, json, onNote } = {}) {
+async function* streamOllamaChat(model, messages, { maxTokens, json, onNote, kelsen } = {}) {
   for (let attempt = 0; attempt < CALL_RETRIES; attempt++) {
     const ctrl = new AbortController();
     const timer = setTimeout(() => ctrl.abort(), REQUEST_TIMEOUT_MS);
@@ -1118,7 +1128,16 @@ const res = await fetch(`${OLLAMA}/api/chat`, {
           // time it takes to answer, then Ollama's own unload applies.
           keep_alive: `${Math.max(OLLAMA_KEEP_ALIVE_S, 1200)}s`,
           ...(json ? { format: json === true ? "json" : json } : {}),
-          options: { num_predict: maxTokens ?? CALL_MAX_TOKENS, num_ctx: Math.max(NUM_CTX, Math.ceil(PROMPT_MAX_CHARS / 3) + (maxTokens ?? CALL_MAX_TOKENS)) },
+          options: {
+            num_predict: maxTokens ?? CALL_MAX_TOKENS,
+            num_ctx: Math.max(NUM_CTX, Math.ceil(PROMPT_MAX_CHARS / 3) + (maxTokens ?? CALL_MAX_TOKENS)),
+            // KELSEN-DEGREES → Ollama's native temperature: high Kelsen
+            // (bound to the material) maps to low temperature; low Kelsen
+            // (impressionistic) maps high. Our gauge is how tightly the
+            // composition is bound to the ground; Ollama's sampler parameter
+            // is how we express that to the model.
+            temperature: 0.1 + (1 - (kelsen ?? DEFAULT_KELSEN)) * 0.8,
+          },
         }),
       });
       if (!res.ok) throw new Error(`ollama ${res.status}`);
@@ -1257,7 +1276,7 @@ function sessionReferentIndex(session, onNote) {
   return index;
 }
 
-export async function runProxyTurn({ sessionId, model, task, chatHistory = [], discourse = "", workspace = "", holonLevel = "section", resumeAnswered = [], resumePlan = null }, onToken, onNote = null, onThinking = null) {
+export async function runProxyTurn({ sessionId, model, task, chatHistory = [], discourse = "", workspace = "", holonLevel = "section", resumeAnswered = [], resumePlan = null, kelsen = null }, onToken, onNote = null, onThinking = null) {
   const usage = { promptTokens: 0, completionTokens: 0 };
   const session = getSession(sessionId);
   _hot.add(model); // this turn is using it — hold it resident after
@@ -1616,6 +1635,31 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
     mneme: voidDeclaration?.cells?.find((c) => c.op === "SIG")?.declared ? null : voidDeclaration?.mneme ?? null,
     shadowSites: session.shadow?.length ?? 0,
   });
+
+  // OUR OWN KELSEN GAUGE, driven by the SHAPE of the target — not a raw number.
+  // The void's cells say how determinate the target is: grounded, tested,
+  // bounded cells (EVA the claim is witnessed, SEG the extent is cut, DEF the
+  // cardinality is declared) want HIGH Kelsen-degrees — literal, bound to the
+  // material. Generative, open cells (INS what kind, SYN how it composes, REC
+  // what would revise, NUL the space it clears) allow LOWER Kelsen-degrees —
+  // the prose can be more impressionistic, freer. Kelsen is a function of the
+  // shape, so an open subject composes loosely while a fact-ledger composes
+  // literally. A caller may still override via the turn's `kelsen` field.
+  const kelsenFromShape = () => {
+    if (kelsen != null) return kelsen;
+    const cells = voidDeclaration?.cells ?? [];
+    if (!cells.length) return DEFAULT_KELSEN;
+    const grounded = cells.filter((c) => ["EVA", "SEG", "DEF"].includes(c.op)).length;
+    const ratio = grounded / Math.max(1, cells.length);
+    return Number((0.3 + ratio * 0.6).toFixed(2)); // 0.3 (all generative) … 0.9 (all grounded)
+  };
+  const compositionKelsen = kelsenFromShape();
+  if (onNote) onNote({
+    move: "kelsen", value: compositionKelsen,
+    shape: voidDeclaration?.cells?.map((c) => c.op).filter(Boolean).join(" ") ?? "none",
+    grounded: voidDeclaration?.cells?.filter((c) => ["EVA", "SEG", "DEF"].includes(c.op)).length ?? 0,
+    cells: voidDeclaration?.cells?.length ?? 0,
+  });
   // The essay LIVES as a JSONL file on disk (not just in memory) so its state
   // is projectable at any moment — even mid-writing. Each observation appends
   // as one line; the projection re-folds the file.
@@ -1641,10 +1685,10 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
   // ER7_ONLINE_REC=1 toggles the hunt.
   const ONLINE_REC = (process.env.ER7_ONLINE_REC ?? "0") === "1";
   await withSlot(async () => {
-    const draw = async (msgs, maxTokens, { capture = false } = {}) => {
+    const draw = async (msgs, maxTokens, { capture = false, kelsen = null } = {}) => {
       let buf = "";
       let stopped = false;
-      for await (const chunk of streamOllamaChat(model, msgs, { maxTokens, onNote })) {
+      for await (const chunk of streamOllamaChat(model, msgs, { maxTokens, onNote, kelsen })) {
         if (typeof chunk === "string") {
           if (fullText.length >= MAX_OUTPUT_CHARS) { truncated = true; stopped = true; break; }
           if (!capture) {
@@ -1731,6 +1775,7 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
               { role: "user", content: sectionTask },
             ],
             holonBudget,
+            { kelsen: compositionKelsen },
           ),
           goreStrike,
         ]);
@@ -1762,6 +1807,7 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
                 { role: "user", content: `Write the part on ${section} from the material — the previous attempt ${failureDetail.toLowerCase()}. Write it as the piece itself, not a note about writing it.` },
               ],
               holonBudget,
+              { kelsen: Math.max(compositionKelsen, 0.9) }, // corrections are literal, never impressionistic
             );
             if (fix.stopped) { truncated = true; break; }
             corrected = fix.buf;
@@ -1849,6 +1895,7 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
                 { role: "user", content: `The piece on ${topic} needs this part added: ${fail.detail}. Write it.` },
               ],
               SECTION_MAX_TOKENS,
+              { kelsen: Math.max(compositionKelsen, 0.9) },
             );
             if (fix.stopped) { truncated = true; break; }
             if (onThinking) onThinking(fix.buf + "\n\n");
@@ -1904,6 +1951,7 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
                 { role: "user", content: `The piece on ${topic} has a section on "${section}". The research since it was written turned up more. Rewrite that section, deepened by the new material.` },
               ],
               SECTION_MAX_TOKENS,
+              { kelsen: Math.max(compositionKelsen, 0.9) },
             );
             if (!revise.stopped && revise.buf.trim()) {
               const revisedText = revise.buf.trim();
@@ -1972,7 +2020,7 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
         }
       }
     } else {
-      const r = await draw(ollamaMessages, CALL_MAX_TOKENS);
+      const r = await draw(ollamaMessages, CALL_MAX_TOKENS, { kelsen: compositionKelsen });
       if (r?.stopped) truncated = true;
     }
   });
