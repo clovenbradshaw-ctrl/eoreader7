@@ -36,7 +36,7 @@ import { fileURLToPath } from "node:url";
 import { createTaskLog, append, projectTasks, ENTRY_KINDS, OPERATOR_BASIS } from "../../kernel/task-log.js";
 import { GRAINS } from "../../kernel/cube.js";
 import { parseEntity } from "../../../../the-fold/wikidata.js";
-import { makeHyperlexicon } from "../../organs/hyperlexicon.js";
+import { makeNotesText } from "../../organs/notes-text.js";
 import { adaptTaskLog } from "../../../../the-fold/consequence.js";
 import { makeDerivation, premisesOf } from "../../organs/derivation.js";
 import { contestedSearch } from "../../organs/corroboration.js";
@@ -60,7 +60,7 @@ const GIVER = "native/eval/the-fold/contest-ladder.mjs — per-office succession
 const MAX_STEPS = Number(process.env.MAX_STEPS ?? 6);
 
 const taskLog = { ...adaptTaskLog({ createTaskLog, append, ENTRY_KINDS, OPERATOR_BASIS, GRAINS }), projectTasks };
-const hl = makeHyperlexicon(taskLog);
+const hl = makeNotesText(taskLog);
 const D = makeDerivation({ hl, taskLog });
 
 // ── the material, addressed into its own bytes (P5.2) ─────────────────────
@@ -114,9 +114,9 @@ if (process.env.REDEAL_SEED) {
 }
 
 // ── hear it into a real ledger ────────────────────────────────────────────
-let log = hl.createHyperlexicon();
+let log = hl.createNotes();
 for (const o of offered) log = hl.hear(log, { subject: o.subject, verb: o.verb, object: o.object, witness: o.witness, spans: o.spans });
-const notes = hl.foldHyperlexicon(log);
+const notes = hl.foldNotes(log);
 
 // ── the licence, from the register's GIVEN tier alone ─────────────────────
 const relations = [...new Set(offered.map((o) => o.verb))];

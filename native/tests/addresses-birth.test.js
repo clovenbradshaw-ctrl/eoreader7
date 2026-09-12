@@ -11,13 +11,34 @@ import { createCausalTextPerceiver, textEncounters } from "../adapters/text/recu
 import { reviseTextFold } from "../adapters/text/revision.js";
 import { createRecursiveReader } from "../../kernel.js";
 
+// A DRIVER REFUSES WHAT ITS CHECKOUT LACKS (READING-SPEC S65 / the-fold
+// P95): two of the four tests below read a real, book-length text (War
+// and Peace, Project Gutenberg #2600) — never committed here. The prior
+// hardcoded absolute path to one developer's own machine crashed at
+// IMPORT time on any other checkout. `resolveBook()` checks a small,
+// declared set of candidate locations; only the two tests that need it
+// are gated via `{ skip }` — the other two (synthetic `S(...)` fixtures)
+// are untouched either way.
 const here = path.dirname(fileURLToPath(import.meta.url));
-const POS = JSON.parse(fs.readFileSync(path.join(here, "../../legacy-eoreader6.1/bin/priors/pos/en-ud-ewt.json"), "utf8"));
-const BOOK = "/Users/mlacy/Documents/3.0/the-fold/pg2600.txt";
+const POS_PATH = path.join(here, "../../legacy-eoreader6.1/bin/priors/pos/en-ud-ewt.json");
+const POS_SKIP = fs.existsSync(POS_PATH) ? undefined : `the sibling legacy-eoreader6.1 checkout is not available: en-ud-ewt.json (looked for ${POS_PATH})`;
+const POS = POS_SKIP ? null : JSON.parse(fs.readFileSync(POS_PATH, "utf8"));
+function resolveBook() {
+  const candidates = [
+    process.env.EOREADER7_WAR_AND_PEACE_FIXTURE,
+    path.join(here, "../../../the-fold/pg2600.txt"),
+    "/Users/mlacy/Documents/3.0/the-fold/pg2600.txt",
+  ].filter(Boolean);
+  return candidates.find((p) => fs.existsSync(p)) ?? null;
+}
+const BOOK = resolveBook();
+const SKIP = !BOOK
+  ? "war-and-peace fixture (pg2600.txt) not found in any known candidate location — set EOREADER7_WAR_AND_PEACE_FIXTURE or check out a sibling the-fold repo"
+  : POS_SKIP;
 const partition = (events) => { const by = new Map(); for (const e of events) { if (e.type !== "DEF.admit") continue; if (!by.has(e.referent_id)) by.set(e.referent_id, []); by.get(e.referent_id).push(e.surface); } return [...by.values()].map((xs) => xs.sort().join("|")).sort(); };
 const refsOf = (events) => { const m = new Map(); for (const e of events) if (e.type === "DEF.admit") m.set(diaNorm(e.surface), e.referent_id); return m; };
 
-test("THE PARTITION IS BYTE-IDENTICAL: the birth rule renames clusters and never changes which surfaces cluster together — on real material, refresh by refresh", () => {
+test("THE PARTITION IS BYTE-IDENTICAL: the birth rule renames clusters and never changes which surfaces cluster together — on real material, refresh by refresh", { skip: SKIP }, () => {
   const text = stripContainer(fs.readFileSync(BOOK, "utf8").slice(0, 120000)).text;
   const sentences = splitSentences(text).map((s, i) => ({ text: String(s?.text ?? s), order: i }));
   const evidence = { capCounts: new Map(), lowerCounts: new Map(), sentenceIndex: new Map() };
@@ -78,7 +99,7 @@ test("A MERGE OF TWO PRIOR BEINGS is testimony with a witness; A SPLIT keeps the
   assert.notEqual(refs3.get("boris"), "ref:auto:anna");
 });
 
-test("ON THE REAL 60 KB PREFIX, address reassignment is typed apart from merge and birth removes the oscillation", async () => {
+test("ON THE REAL 60 KB PREFIX, address reassignment is typed apart from merge and birth removes the oscillation", { skip: SKIP || POS_SKIP }, async () => {
   const stripped = stripContainer(fs.readFileSync(BOOK, "utf8").slice(0, 60000));
   const read = async (addresses) => {
     const encounters = textEncounters(stripped.text, { source: "file:pg2600", offset: stripped.offset });

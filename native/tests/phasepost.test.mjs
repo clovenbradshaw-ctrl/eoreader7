@@ -20,17 +20,27 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { makePhasepost, headVerb, COPULA_FORMS } from "../adapters/text/phasepost.js";
+import { resolveLegacySibling } from "../eval/the-fold/lib/legacy-sibling.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const { cellOf } = await import(path.join(HERE, "..", "kernel", "cube.js"));
 const priors = await import(path.join(HERE, "..", "adapters", "text", "priors.js"));
-const morph = await import(path.join(HERE, "..", "..", "legacy-eoreader6.1", "packages", "engine", "perceiver", "text", "morphology.js"));
 
-const actPrior = JSON.parse(fs.readFileSync(path.join(HERE, "..", "..", "..", "live_priors", "derived-priors", "act-priors", "act-prior-en.json"), "utf8"));
+const { path: LEGACY_PATH, available: LEGACY_OK } = resolveLegacySibling(import.meta.url, "../../legacy-eoreader6.1/");
+const ACT_PRIOR_PATH = path.join(HERE, "..", "..", "..", "live_priors", "derived-priors", "act-priors", "act-prior-en.json");
+const ACT_PRIOR_OK = fs.existsSync(ACT_PRIOR_PATH);
+const SKIP = !LEGACY_OK
+  ? `the sibling legacy-eoreader6.1 checkout is not available: morphology.js (looked for ${LEGACY_PATH})`
+  : !ACT_PRIOR_OK
+    ? `live_priors is not checked out as a sibling of this repo: act-prior-en.json (looked for ${ACT_PRIOR_PATH})`
+    : undefined;
+
+const morph = LEGACY_OK ? await import(`${LEGACY_PATH}packages/engine/perceiver/text/morphology.js`) : null;
+const actPrior = ACT_PRIOR_OK ? JSON.parse(fs.readFileSync(ACT_PRIOR_PATH, "utf8")) : null;
 const morphPrior = JSON.parse(fs.readFileSync(path.join(HERE, "..", "eval", "the-fold", "fixtures", "unimorph-morphology-prior.json"), "utf8"));
-const { lemmasOf } = morph.createLemmatizer(morphPrior.forms, { language: morphPrior.language });
+const lemmasOf = SKIP ? null : morph.createLemmatizer(morphPrior.forms, { language: morphPrior.language }).lemmasOf;
 
-const pp = makePhasepost({
+const pp = SKIP ? null : makePhasepost({
   actPrior,
   cellOf,
   definiteDeterminers: priors.DEFINITE_DETERMINERS,
@@ -38,7 +48,7 @@ const pp = makePhasepost({
   lemmasOf: (f) => lemmasOf(f),
 });
 
-test("a unanimous lexical verb lands its declared act with the engine's own cell", () => {
+test("a unanimous lexical verb lands its declared act with the engine's own cell", { skip: SKIP }, () => {
   const v = pp.classify({ subject: "the storm", verb: "destroyed", object: "the granary" });
   assert.equal(v.op, "NUL");
   assert.equal(v.standing, "lexical");
@@ -47,7 +57,7 @@ test("a unanimous lexical verb lands its declared act with the engine's own cell
   assert.match(v.via, /destroyed->destroy/); // the regular-inflection rule widened it
 });
 
-test("cell fields come from the injected engine cube, never restated", () => {
+test("cell fields come from the injected engine cube, never restated", { skip: SKIP }, () => {
   const v = pp.classify({ subject: "the sculptor", verb: "believed", object: "the marble held a figure" });
   assert.equal(v.op, "EVA");
   assert.equal(v.grain, "Figure");
@@ -55,7 +65,7 @@ test("cell fields come from the injected engine cube, never restated", () => {
   assert.equal(v.cell.stance, "Binding");
 });
 
-test("a contested form stays a candidate set — never a coin-flip (P56)", () => {
+test("a contested form stays a candidate set — never a coin-flip (P56)", { skip: SKIP }, () => {
   // "run" directly: VerbNet holds it in SIG (motion), CON (use/conduct) and
   // SYN (preparing) classes. NOTE, disclosed: the inflected "ran" does NOT
   // reach here — UniMorph's irregular table maps ran->rin (a dialectal
@@ -67,14 +77,14 @@ test("a contested form stays a candidate set — never a coin-flip (P56)", () =>
   assert.ok(v.candidates.every((c) => c.cell && c.op));
 });
 
-test("an unattested verb is a typed gap, never a guess", () => {
+test("an unattested verb is a typed gap, never a guess", { skip: SKIP }, () => {
   const v = pp.classify({ subject: "the engine", verb: "quixnorped", object: "the manifold" });
   assert.equal(v.standing, "gap");
   assert.equal(v.op, null);
   assert.match(v.because, /unattested/);
 });
 
-test("the lemmatizer widens an inflected form to its attested lemma", () => {
+test("the lemmatizer widens an inflected form to its attested lemma", { skip: SKIP }, () => {
   const v = pp.classify({ subject: "the clerk", verb: "drew", object: "a boundary line" });
   // drew -> draw via the UniMorph irregular table; draw itself is contested
   // in VerbNet, so the verdict is contested VIA the lemma — proving the
@@ -83,39 +93,39 @@ test("the lemmatizer widens an inflected form to its attested lemma", () => {
   assert.match(v.via, /drew->draw/);
 });
 
-test("existential-negative subject reads NUL·Ground mechanically (A4)", () => {
+test("existential-negative subject reads NUL·Ground mechanically (A4)", { skip: SKIP }, () => {
   const v = pp.classify({ subject: "nothing of consequence", verb: "was", object: "in the ledger" });
   assert.equal(v.op, "NUL");
   assert.equal(v.grain, "Ground");
   assert.equal(v.standing, "mechanical");
 });
 
-test("copula + kind predicate reads SIG·Pattern (rule 2)", () => {
+test("copula + kind predicate reads SIG·Pattern (rule 2)", { skip: SKIP }, () => {
   const v = pp.classify({ subject: "the harbormaster", verb: "is", object: "a meticulous keeper of tides" });
   assert.equal(v.op, "SIG");
   assert.equal(v.grain, "Pattern");
   assert.equal(v.standing, "copula");
 });
 
-test("copula + unique-role predicate reads SIG·Figure (rule 3)", () => {
+test("copula + unique-role predicate reads SIG·Figure (rule 3)", { skip: SKIP }, () => {
   const v = pp.classify({ subject: "the lighthouse", verb: "is", object: "the tallest structure on the cape" });
   assert.equal(v.op, "SIG");
   assert.equal(v.grain, "Figure");
 });
 
-test("copula + locative predicate reads SIG·Ground (rule 5)", () => {
+test("copula + locative predicate reads SIG·Ground (rule 5)", { skip: SKIP }, () => {
   const v = pp.classify({ subject: "the archive", verb: "was", object: "in the cellar during the flood" });
   assert.equal(v.op, "SIG");
   assert.equal(v.grain, "Ground");
 });
 
-test("copula + participle routes to the participial verb's own act (rule 1)", () => {
+test("copula + participle routes to the participial verb's own act (rule 1)", { skip: SKIP }, () => {
   const v = pp.classify({ subject: "the bell tower", verb: "was", object: "destroyed by the quake" });
   assert.equal(v.op, "NUL");
   assert.equal(v.standing, "copula-participle");
 });
 
-test("a phrasal relation strips its auxiliary group to the act-bearing head", () => {
+test("a phrasal relation strips its auxiliary group to the act-bearing head", { skip: SKIP }, () => {
   assert.equal(headVerb("have pledged themselves to achieve").head, "pledged");
   assert.equal(headVerb("is considered").head, "considered");
   assert.equal(headVerb("is considered").copula, true);
@@ -123,31 +133,31 @@ test("a phrasal relation strips its auxiliary group to the act-bearing head", ()
   assert.equal(headVerb("was").copula, true);
 });
 
-test("universal-quantified subject promotes grain to Pattern", () => {
+test("universal-quantified subject promotes grain to Pattern", { skip: SKIP }, () => {
   const v = pp.classify({ subject: "all migratory cranes", verb: "cross", object: "the delta" });
   assert.equal(v.grain, "Pattern");
 });
 
-test("no object lands Ground grain — an intransitive's own unfolding", () => {
+test("no object lands Ground grain — an intransitive's own unfolding", { skip: SKIP }, () => {
   const g = pp.grainOf({ subject: "the sentry", object: null });
   assert.equal(g.grain, "Ground");
 });
 
-test("the overlay never edits the edge it reads", () => {
+test("the overlay never edits the edge it reads", { skip: SKIP }, () => {
   const edge = Object.freeze({ subject: "the crate", verb: "contained", object: "the survey maps" });
   const v = pp.classify(edge);
   assert.equal(v.op, "CON"); // contain-15.4/comprise-107.2/fit-54.3 — unanimous
   assert.equal(edge.verb, "contained");
 });
 
-test("have/has/had standing alone is the possession main verb, never stripped as auxiliary", () => {
+test("have/has/had standing alone is the possession main verb, never stripped as auxiliary", { skip: SKIP }, () => {
   assert.equal(headVerb("had").head, "have");
   assert.equal(headVerb("have pledged").head, "pledged");
   const v = pp.classify({ subject: "the atlas", verb: "had", object: "forty plates of the coastline" });
   assert.notEqual(v.standing, "gap");
 });
 
-test("a productive re- prefix offers REC as a disclosed candidate, never an override", () => {
+test("a productive re- prefix offers REC as a disclosed candidate, never an override", { skip: SKIP }, () => {
   const v = pp.classify({ subject: "the council", verb: "reaffirmed", object: "its charter" });
   assert.equal(v.standing, "contested");
   assert.ok(v.candidates.some((c) => c.op === "REC"));

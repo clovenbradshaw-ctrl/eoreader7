@@ -1,0 +1,50 @@
+{
+ "chapter": 1,
+ "verbs": [
+  "has",
+  "wished",
+  "is",
+  "the",
+  "daughters",
+  "nieces",
+  "will",
+  "began",
+  "had",
+  "amends",
+  "kindness"
+ ],
+ "cast": [
+  [
+   "Mr Bingley",
+   "ref:auto:mr_bingley"
+  ],
+  [
+   "Mr Bennet",
+   "ref:auto:mr_bennet"
+  ],
+  [
+   "Mrs",
+   "ref:auto:mrs"
+  ],
+  [
+   "Kitty",
+   "ref:auto:kitty"
+  ],
+  [
+   "I’m",
+   "ref:auto:i’m"
+  ],
+  [
+   "Lizzy",
+   "ref:auto:lizzy"
+  ],
+  [
+   "Mary",
+   "ref:auto:mary"
+  ],
+  [
+   "Mr",
+   "ref:auto:mr"
+  ]
+ ]
+}

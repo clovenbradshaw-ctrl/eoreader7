@@ -358,7 +358,7 @@ export function makeDerivation({ hl, taskLog } = {}) {
     // cue with no floor fell through to `floor: null` — the ungated control
     // arm — and reported itself as gated. Found by the test, not by review.
     if (cue !== null && !Number.isFinite(presenceFloor)) throw new TypeError("derive: " + REFUSALS.no_presence);
-    const notes = hl.foldHyperlexicon(log);
+    const notes = hl.foldNotes(log);
     const { premises, stopped, contested, carried } = premisesOf(notes, { floor, carry });
     // The evidentiary LEVEL of every note, so a product can carry the level
     // of its WEAKEST ground rather than pretend its premises were equal.

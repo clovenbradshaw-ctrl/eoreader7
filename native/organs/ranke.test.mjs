@@ -6,7 +6,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync, existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { makeHyperlexicon } from "./hyperlexicon.js";
+import { makeNotesText } from "./notes-text.js";
 import { RANKE, PRIMARY_KIND, QUOTE_MIN_WORDS, claimOfNote, primaryWitness, standsOnAccountsOnly, leadsOf, footnoteLeads as leadsOfFootnotes, footnoteLeadsForNote, markersIn, markersOfSpan, documentMatches, archiveAddressFor, chase, chaseLedger } from "./ranke.js";
 import { kindOfWitness, sourceOfWitness } from "../kernel/notes.js";
 import { distinctSources, independentReadings } from "./corroboration.js";
@@ -50,7 +50,7 @@ const HAVE_DRACULA = existsSync(DRACULA);
 
 const FIX = new URL("../eval/the-fold/fixtures/", import.meta.url).pathname;
 const html = readFileSync(`${FIX}/wikipedia-battle-of-austerlitz.html`, "utf8");
-const hl = makeHyperlexicon({ createTaskLog: nativeTaskLog.createTaskLog, append: nativeTaskLog.append, projectTasks: nativeTaskLog.projectTasks, ENTRY_KINDS: nativeTaskLog.ENTRY_KINDS, OPERATOR_BASIS: nativeTaskLog.OPERATOR_BASIS, GRAINS, cellOf });
+const hl = makeNotesText({ createTaskLog: nativeTaskLog.createTaskLog, append: nativeTaskLog.append, projectTasks: nativeTaskLog.projectTasks, ENTRY_KINDS: nativeTaskLog.ENTRY_KINDS, OPERATOR_BASIS: nativeTaskLog.OPERATOR_BASIS, GRAINS, cellOf });
 const PAGE = "wikipedia-battle-of-austerlitz.html";
 const pages = [{ ref: PAGE, html, host: "en.wikipedia.org", text: "" }];
 
@@ -60,7 +60,7 @@ const pages = [{ ref: PAGE, html, host: "en.wikipedia.org", text: "" }];
 const titled = (url, text, links) => `${(links ?? []).find((l) => l.url === url)?.text ?? ""} ${text}`;
 
 const ledger = () => {
-  let log = hl.createHyperlexicon({ frame: { reader: "test", walls: true } });
+  let log = hl.createNotes({ frame: { reader: "test", walls: true } });
   log = hl.hear(log, { subject: "Napoleon", verb: "defeated", object: "the Third Coalition", witness: `${PAGE}#100-160~walls-v1`, spans: [{ ref: PAGE, at: `${PAGE}#100-160`, text: "x" }] });
   log = hl.hear(log, { subject: "Kutuzov", verb: "commanded", object: "the Allied army", witness: `${PAGE}#300-360~walls-v1`, spans: [{ ref: PAGE, at: `${PAGE}#300-360`, text: "y" }] });
   return log;
@@ -89,7 +89,7 @@ test("THE GATE: a novel cites nothing, so its thousands of quotation marks are n
   assert.equal(l.citing, false);
   assert.equal(l.refused.type, "no_citations");
   assert.deepEqual(l.quotes, []);
-  let log = hl.createHyperlexicon({ frame: { reader: "test" } });
+  let log = hl.createNotes({ frame: { reader: "test" } });
   log = hl.hear(log, { subject: "Renfield", verb: "grows", object: "more interesting", witness: "dracula.txt#10-40~walls-v1", spans: [] });
   let searches = 0, fetches = 0;
   const r = await chaseLedger(log, hl, [novel], { fetchFace: async () => { fetches += 1; return { gap: { type: "x" } }; }, search: async () => { searches += 1; return []; }, maxFetches: 10, maxSearches: 10 });
@@ -108,7 +108,7 @@ test("a note that only a citing page states stands on accounts only; a chased no
 
 test("chase by link: the stating primary attests the note with an addressed primary: witness; a silent primary is a result, not a refutation; a failed fetch is a typed gap; standing keeps the kinds apart", async () => {
   const log = ledger();
-  const note = hl.foldHyperlexicon(log).find((n) => n.subject === "Napoleon");
+  const note = hl.foldNotes(log).find((n) => n.subject === "Napoleon");
   const leads = leadsOf(pages[0]);
   const faces = {
     stating: "In the winter of 1805 the Emperor took the field. Napoleon defeated the armies of the Third Coalition at Austerlitz on 2 December. The peace followed within weeks.",
@@ -166,9 +166,9 @@ test("chase by quote: an unsourced quotation on a citing page is searched, the r
   assert.equal(l.quotes.length, 1, "one quotation of >= QUOTE_MIN_WORDS words with no link of its own");
   assert.ok(l.quotes[0].words.length >= QUOTE_MIN_WORDS);
   assert.equal(text.slice(l.quotes[0].start, l.quotes[0].end), l.quotes[0].text, "the quote is addressed into the text face");
-  let log = hl.createHyperlexicon({ frame: { reader: "test" } });
+  let log = hl.createNotes({ frame: { reader: "test" } });
   log = hl.hear(log, { subject: "the Emperor", verb: "is", object: "master of the field", witness: "report.html#60-120~walls-v1", spans: [] });
-  const [note] = hl.foldHyperlexicon(log);
+  const [note] = hl.foldNotes(log);
   const searched = [];
   const search = async (q) => { searched.push(q); return [{ url: "https://archive.example/bulletin-30", host: "archive.example", title: "30th Bulletin" }]; };
   const fetchFace = async (url) => ({ url, host: "archive.example", text: url.includes("gazette") ? "Prices of grain in December." : "Bulletin of the Grande Armée. The enemy has been routed at every point and the Emperor is master of the field, Marshal Berthier wrote. Signed at Austerlitz." }); // the stating sentence carries a competing name (Berthier), so the select protocol can ARM its same-index check — a stating sentence with no other capitalized surface refuses `unarmed-select` by the protocol's own posture (competingFiller draws the arm from the candidate sentences themselves)
@@ -204,7 +204,7 @@ test("chaseLedger: one face is read once across notes, budgets are declared and 
   // CONTROL (II.23): the same face, the ends redealt — end2 of each note
   // swapped for the other's. Containment now needs both ends' words in one
   // sentence, which the real face does not offer for the swapped pairs.
-  let bad = hl.createHyperlexicon({ frame: { reader: "test" } });
+  let bad = hl.createNotes({ frame: { reader: "test" } });
   bad = hl.hear(bad, { subject: "Napoleon", verb: "defeated", object: "the Allied army", witness: `${PAGE}#100-160~walls-v1`, spans: [] });
   bad = hl.hear(bad, { subject: "Kutuzov", verb: "commanded", object: "the Third Coalition", witness: `${PAGE}#300-360~walls-v1`, spans: [] });
   const c = await chaseLedger(bad, hl, pages, { fetchFace, maxFetches: 2, consult: 1, witness: stubWitness(["Napoleon defeated the Third Coalition", "Kutuzov commanded the Allied army"]) });
@@ -249,9 +249,9 @@ test("footnote binding: a marker in the prose is an in-page link to one numbered
   // a note with no marker binds nothing — and is still chased by overlap
   assert.deepEqual(footnoteLeadsForNote({ ...note, spans: [{ text: "At 02:51 Armstrong began his descent." }] }, fn), []);
   // in chase, the footnote lead is consulted FIRST
-  let log = hl.createHyperlexicon({ frame: { reader: "test" } });
+  let log = hl.createNotes({ frame: { reader: "test" } });
   log = hl.hear(log, { subject: "Armstrong", verb: "began", object: "his descent to the lunar surface", witness: "apollo#1-2~r", spans: [{ ref: "apollo", at: "apollo#1-2", text: note.spans[0].text }] });
-  const [n] = hl.foldHyperlexicon(log);
+  const [n] = hl.foldNotes(log);
   const urls = [];
   const r = await chase(log, hl, n, { leads: leadsOf(pg), footnotes: fn, fetchFace: async (u) => { urls.push(u); return { gap: { type: "x" } }; }, consult: 2 });
   assert.equal(r.consulted[0].via, "footnote");
@@ -269,9 +269,9 @@ test("a marker at the start of a span is the previous sentence's; the sentence's
   assert.equal(archiveAddressFor("https://hq.nasa.gov/alsj/a11/a11.landing.html"), "https://web.archive.org/web/2/https://hq.nasa.gov/alsj/a11/a11.landing.html");
   // in chase: a bound lead whose face is another document → the archive copy is fetched and read
   const fn = { byNumber: new Map([[7, [{ url: "https://hq.nasa.gov/alsj/a11/a11.landing.html", host: "hq.nasa.gov", text: cite, index: 0, structuralClass: "other", overlap: 0 }]]]) };
-  let log = hl.createHyperlexicon({ frame: { reader: "test" } });
+  let log = hl.createNotes({ frame: { reader: "test" } });
   log = hl.hear(log, { subject: "Aldrin", verb: "joined", object: "Armstrong on the surface", witness: "apollo#1-2~r", spans: [{ ref: "apollo", at: "apollo#1-2", text: "Aldrin joined Armstrong on the surface. [ 7 ]" }] });
-  const [n] = hl.foldHyperlexicon(log);
+  const [n] = hl.foldNotes(log);
   const fetched = [];
   const fetchFace = async (u) => { fetched.push(u); return /web\.archive\.org/.test(u)
     ? { text: "Apollo Lunar Surface Journal. Apollo 11 landing transcript. Aldrin joined Armstrong on the surface at 109:43, and Houston acknowledged. Collins circled above.", url: u, host: "hq.nasa.gov" }

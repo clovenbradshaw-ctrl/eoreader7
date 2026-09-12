@@ -6,7 +6,7 @@ import { readFileSync } from "node:fs";
 const FOLD = new URL("../../../../../the-fold/", import.meta.url).pathname;
 const NATIVE = new URL("../../..", import.meta.url).pathname;
 const { makeRelationReader } = await import(`${FOLD}/hypergraph.js`);
-const { makeHyperlexicon } = await import(`${FOLD}/hyperlexicon.js`);
+const { makeNotesText } = await import(`${FOLD}/hyperlexicon.js`);
 const { adaptTaskLog } = await import(`${FOLD}/consequence.js`);
 const { chunkSource, blankLabelRows } = await import(`${FOLD}/source.js`);
 const { extractReadable } = await import(`${FOLD}/web.js`);
@@ -38,7 +38,7 @@ const relationsFor = makeRelationReader({
   ...(process.env.WIDEN ? { verbForms: new Set(JSON.parse(readFileSync(`${NATIVE}/eval/the-fold/fixtures/unimorph-eng-verb-forms.json`, "utf8"))) } : {}), // production widens with this set (app.js)
   ...(process.env.VERB_FORMS ? { oovLexicon: new Set(JSON.parse(readFileSync(`${NATIVE}/eval/the-fold/fixtures/unimorph-eng-verb-forms.json`, "utf8"))) } : {}),
 });
-const hl = makeHyperlexicon({ ...adaptTaskLog({ createTaskLog: nativeTaskLog.createTaskLog, append: nativeTaskLog.append, ENTRY_KINDS: nativeTaskLog.ENTRY_KINDS, OPERATOR_BASIS: nativeTaskLog.OPERATOR_BASIS, GRAINS }), projectTasks: nativeTaskLog.projectTasks, cellOf });
+const hl = makeNotesText({ ...adaptTaskLog({ createTaskLog: nativeTaskLog.createTaskLog, append: nativeTaskLog.append, ENTRY_KINDS: nativeTaskLog.ENTRY_KINDS, OPERATOR_BASIS: nativeTaskLog.OPERATOR_BASIS, GRAINS }), projectTasks: nativeTaskLog.projectTasks, cellOf });
 
 // The default pair is unchanged, so every existing caller reads the same
 // ledger it always did. `pages` lets a caller name a different pair —
@@ -56,7 +56,7 @@ for (const name of pages) {
     : (() => { const f = extractReadable(readFileSync(`${FIX}/wikipedia-${name}.html`, "utf8")); return typeof f === "string" ? f : f?.text ?? ""; })();
   sources.push({ ref: name.endsWith(".txt") ? name : `${name}.txt`, text });
 }
-let log = hl.createHyperlexicon();
+let log = hl.createNotes();
 let heard = 0;
 for (const s of sources) {
   const passages = chunkSource(s.ref, s.text).slice(0, cap); // declared cap — one page's worth of the reader's own passages
@@ -71,7 +71,7 @@ for (const s of sources) {
 }
 // PLANTED FABRICATIONS — the precision guard: real notes with the object
 // swapped for another note's object; an attest on any of these is a lie.
-const notes0 = hl.foldHyperlexicon(log);
+const notes0 = hl.foldNotes(log);
 const planted = [];
 for (let i = 0; i + 1 < Math.min(notes0.length, 8); i += 2) {
   const a = notes0[i], b = notes0[i + 1];
@@ -79,7 +79,7 @@ for (let i = 0; i + 1 < Math.min(notes0.length, 8); i += 2) {
   log = hl.hear(log, { subject: a.subject, verb: a.verb, object: b.object, witness: "planted:fabrication", spans: [] });
   planted.push(`${a.subject}|${a.verb}|${b.object}`.toLowerCase());
 }
-const before = hl.foldHyperlexicon(log);
+const before = hl.foldNotes(log);
 return { log, hl, sources, planted, heard, before };
 }
 export { splitSentences, distinctSources, corroborateLedger, T };

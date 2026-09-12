@@ -61,7 +61,7 @@ import { createHyperlexicon, giveHyperlexiconAffordance } from "../../kernel/hyp
 import { createReactionSubstrate } from "../../kernel/reaction.js";
 import { auditChemistry } from "../../kernel/refutation.js";
 
-import { makeHyperlexicon } from "../../organs/hyperlexicon.js";
+import { makeNotesText } from "../../organs/notes-text.js";
 import { adaptTaskLog } from "../../../../the-fold/consequence.js";
 import { assertionEdges } from "../../../../the-fold/predigest.js";
 import { entityUrl, isQid } from "../../../../the-fold/wikidata.js";
@@ -160,15 +160,15 @@ async function main() {
   const unaddressedChildren = victoriaChildren.filter((q) => !addressOf(victoriaRaw, q));
 
   // ── admit through the-fold's own P57 door ───────────────────────────────
-  const foldHl = makeHyperlexicon({ ...adaptTaskLog({ createTaskLog, append, ENTRY_KINDS, OPERATOR_BASIS, GRAINS }), projectTasks });
-  let log = foldHl.createHyperlexicon();
+  const foldHl = makeNotesText({ ...adaptTaskLog({ createTaskLog, append, ENTRY_KINDS, OPERATOR_BASIS, GRAINS }), projectTasks });
+  let log = foldHl.createNotes();
   const turnedAwayAll = [];
   for (const assertion of offered) {
     const result = foldHl.admit(log, [assertion], { witness: assertion.witness });
     log = result.log;
     turnedAwayAll.push(...result.turnedAway);
   }
-  const folded = foldHl.foldHyperlexicon(log);
+  const folded = foldHl.foldNotes(log);
 
   const { edges, skipped } = assertionEdges(folded, { hyperedge, source: "wikidata-live" });
 

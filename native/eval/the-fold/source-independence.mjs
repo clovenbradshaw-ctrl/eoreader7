@@ -28,7 +28,7 @@ const DRAWS = Number(process.env.DRAWS ?? 40);
 const SEED = Number(process.env.SEED ?? 0);
 
 const { makeRelationReader } = await import(`${NATIVE}/organs/hypergraph.js`);
-const { makeHyperlexicon } = await import(`${NATIVE}/organs/hyperlexicon.js`);
+const { makeNotesText } = await import(`${NATIVE}/organs/notes-text.js`);
 const { chunkSource, tokenize, blankLabelRows, measureOf, blankBelowMeasure } = await import(`${NATIVE}/organs/source.js`);
 const { extractReadable } = await import(`${NATIVE}/organs/web.js`);
 const { sharedTextGroups, distinctSources } = await import(`${NATIVE}/organs/corroboration.js`);
@@ -49,7 +49,7 @@ const reader = makeRelationReader({
   blankFurniture: (t) => blankLabelRows(t, { minRun: 4, maxCell: 60 }),
   resolvePronouns, nounPhraseSubjects: true,
 });
-const hl = makeHyperlexicon({ createTaskLog: T.createTaskLog, append: T.append, projectTasks: T.projectTasks, ENTRY_KINDS: T.ENTRY_KINDS, OPERATOR_BASIS: T.OPERATOR_BASIS, GRAINS, cellOf });
+const hl = makeNotesText({ createTaskLog: T.createTaskLog, append: T.append, projectTasks: T.projectTasks, ENTRY_KINDS: T.ENTRY_KINDS, OPERATOR_BASIS: T.OPERATOR_BASIS, GRAINS, cellOf });
 
 const pages = REFS.map((ref) => ({ ref, text: extractReadable(readFileSync(`${FIX}${ref}`, "utf8")).text }));
 const DECL = { minSentenceLength: MIN_LEN, minShared: MIN_SHARED, splitSentences };
@@ -113,7 +113,7 @@ console.log(above === 0
 // admission door builds. The door and source-independence answer DIFFERENT
 // halves of the same problem, so the honest number is what survives both.
 const ledgerFrom = (src) => {
-  let log = hl.createHyperlexicon({ frame: { probe: "source-independence" } });
+  let log = hl.createNotes({ frame: { probe: "source-independence" } });
   for (const pg of src) {
     const passages = chunkSource(pg.ref, pg.text);
     const rel = reader(passages, { pool: passages });
@@ -129,7 +129,7 @@ const doorNotes = ledgerFrom(forGrouping);
 const doorCorr = doorNotes.filter((n) => distinctSources(n.witnesses ?? []).size >= 2);
 const bothCorr = doorNotes.filter((n) => distinctSources(n.witnesses ?? [], { groupOf: real.groupOf }).size >= 2);
 
-let log = hl.createHyperlexicon({ frame: { probe: "source-independence" } });
+let log = hl.createNotes({ frame: { probe: "source-independence" } });
 for (const pg of pages) {
   const passages = chunkSource(pg.ref, pg.text);
   const rel = reader(passages, { pool: passages });

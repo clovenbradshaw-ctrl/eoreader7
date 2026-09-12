@@ -51,7 +51,7 @@ const OFFLINE = process.env.OFFLINE === "1";
 const WINDOW = 3;
 
 const { makeRelationReader } = await import(`${NATIVE}/organs/hypergraph.js`);
-const { makeHyperlexicon } = await import(`${NATIVE}/organs/hyperlexicon.js`);
+const { makeNotesText } = await import(`${NATIVE}/organs/notes-text.js`);
 const { chunkSource, tokenize, blankLabelRows } = await import(`${NATIVE}/organs/source.js`);
 const { extractReadable, hostOf } = await import(`${NATIVE}/organs/web.js`);
 const { rankPrimary } = await import(`${NATIVE}/organs/primary.js`);
@@ -84,14 +84,14 @@ const reader = makeRelationReader({
   // this rich ALWAYS"); RICH=0 reproduces every run before S61 byte for byte.
   ...(process.env.RICH !== "0" ? (() => { const forms = new Set(); for (const [k, v] of Object.entries(morph.forms ?? {})) { forms.add(String(k).toLowerCase()); for (const x of Array.isArray(v) ? v : [v]) if (typeof x === "string") forms.add(x.toLowerCase()); } for (const [w, att] of Object.entries(posPrior.forms ?? {})) { const t = Object.values(att).reduce((a, b) => a + b, 0); if (t > 0 && ((att.VERB ?? 0) + (att.AUX ?? 0)) / t > 0.5) forms.add(w.toLowerCase()); } return { phrasalPredicates: true, verbForms: forms, attestedVerbs: true, createLemmatizer, morphologyIndex: morph.forms, morphologyLanguage: morph.language }; })() : {}),
 });
-const hl = makeHyperlexicon({ createTaskLog: nativeTaskLog.createTaskLog, append: nativeTaskLog.append, projectTasks: nativeTaskLog.projectTasks, ENTRY_KINDS: nativeTaskLog.ENTRY_KINDS, OPERATOR_BASIS: nativeTaskLog.OPERATOR_BASIS, GRAINS, cellOf });
+const hl = makeNotesText({ createTaskLog: nativeTaskLog.createTaskLog, append: nativeTaskLog.append, projectTasks: nativeTaskLog.projectTasks, ENTRY_KINDS: nativeTaskLog.ENTRY_KINDS, OPERATOR_BASIS: nativeTaskLog.OPERATOR_BASIS, GRAINS, cellOf });
 
 // ── the page and its ledger ───────────────────────────────────────────────
 const html = readFileSync(`${FIX}/${PAGE}`, "utf8");
 const face = extractReadable(html);
 const page = { ref: PAGE, url: PAGE_URL, host: hostOf(PAGE_URL), html, text: face.text };
 const t0 = Date.now();
-let log = hl.createHyperlexicon({ frame: { reader: "makeRelationReader", walls: true, posPrior: "POSPrior@1", agent: R.RANKE, purpose: "backwards" } });
+let log = hl.createNotes({ frame: { reader: "makeRelationReader", walls: true, posPrior: "POSPrior@1", agent: R.RANKE, purpose: "backwards" } });
 const passages = chunkSource(PAGE, page.text);
 const rel = reader(passages, { pool: passages });
 for (const p of passages) {

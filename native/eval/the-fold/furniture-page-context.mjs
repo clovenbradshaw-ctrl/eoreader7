@@ -28,7 +28,7 @@ const NATIVE = new URL("../..", import.meta.url).pathname;
 const FIX = new URL("./fixtures/", import.meta.url).pathname;
 
 const { makeRelationReader } = await import(`${NATIVE}/organs/hypergraph.js`);
-const { makeHyperlexicon } = await import(`${NATIVE}/organs/hyperlexicon.js`);
+const { makeNotesText } = await import(`${NATIVE}/organs/notes-text.js`);
 const { chunkSource, tokenize, blankLabelRows } = await import(`${NATIVE}/organs/source.js`);
 const { extractReadable } = await import(`${NATIVE}/organs/web.js`);
 const { splitSentences, normaliseNewlines } = await import(`${NATIVE}/adapters/text/spans.js`);
@@ -78,7 +78,7 @@ const reader = makeRelationReader({
   normaliseNewlines,
   resolvePronouns, nounPhraseSubjects: true,
 });
-const hl = makeHyperlexicon({ createTaskLog: taskLog.createTaskLog, append: taskLog.append, projectTasks: taskLog.projectTasks, ENTRY_KINDS: taskLog.ENTRY_KINDS, OPERATOR_BASIS: taskLog.OPERATOR_BASIS, GRAINS, cellOf });
+const hl = makeNotesText({ createTaskLog: taskLog.createTaskLog, append: taskLog.append, projectTasks: taskLog.projectTasks, ENTRY_KINDS: taskLog.ENTRY_KINDS, OPERATOR_BASIS: taskLog.OPERATOR_BASIS, GRAINS, cellOf });
 
 // Probe-only closed-class tally — the SAME disclosed hand list
 // hyperlexicon-door-probe.mjs uses, so the two drivers' "junk label" numbers
@@ -106,7 +106,7 @@ function verdicts(passages) {
 }
 
 function readLedger(passages) {
-  let log = hl.createHyperlexicon({ frame: { reader: "makeRelationReader", posPrior: posPrior ? "POSPrior@1" : null } });
+  let log = hl.createNotes({ frame: { reader: "makeRelationReader", posPrior: posPrior ? "POSPrior@1" : null } });
   const rel = reader(passages, { pool: passages });
   let bound = 0;
   for (const p of passages) {

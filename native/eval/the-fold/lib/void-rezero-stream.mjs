@@ -52,7 +52,7 @@ export function shuffled(items, seed) {
 export function runStream(O, stream, { truncateAt = null } = {}) {
   const names = stream.map((p) => p.name);
   const total = stream.length;
-  let log = O.hl.createHyperlexicon({ frame: O.frame });
+  let log = O.hl.createNotes({ frame: O.frame });
   const ids = {};
   for (const v of VOIDS_BEFORE_READING) {
     const r = O.hl.declareVoid(log, { end1: v.end1, label: v.label, end2: v.end2 ?? null, scope: { sources: names, read: 0, total }, because: "declared before reading" });

@@ -1,22 +1,34 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { FoldUnavailableError } from "../eval/the-fold/lib/fold-sibling.mjs";
 import { runSettlementByArrival } from "../eval/the-fold/lib/settlement-by-arrival.mjs";
 
-const { numbers: n } = await runSettlementByArrival();
+// A DRIVER REFUSES WHAT ITS CHECKOUT LACKS (READING-SPEC S65 / the-fold
+// P95): this driver reaches into a sibling the-fold checkout via
+// product-assay.mjs::organs. Caught once, here, so every test below is a
+// real, reported skip rather than the whole file crashing at import.
+let n = null, SKIP;
+try {
+  ({ numbers: n } = await runSettlementByArrival());
+} catch (err) {
+  if (!(err instanceof FoldUnavailableError)) throw err;
+  SKIP = err.message;
+}
 
-test("after the cut meets its link one contest is open, typed contest, disputed by the denier", () => {
+
+test("after the cut meets its link one contest is open, typed contest, disputed by the denier", { skip: SKIP }, () => {
   assert.equal(n.contestsAfterAB, 1);
   assert.deepEqual(n.disputedBy, ["northgate-b.txt"]);
   assert.equal(n.kind, "contest");
 });
 
-test("a third source that restates the link corroborates it and settles nothing (P89)", () => {
+test("a third source that restates the link corroborates it and settles nothing (P89)", { skip: SKIP }, () => {
   assert.equal(n.restated.sources, 2);
   assert.deepEqual(n.restated.disputedBy, ["northgate-b.txt"]);
   assert.equal(n.restated.contestsOpen, 1);
 });
 
-test("a silent third source leaves the contest open and is no candidate; a co-present one is a candidate and never a landing; a source that spoke never is", () => {
+test("a silent third source leaves the contest open and is no candidate; a co-present one is a candidate and never a landing; a source that spoke never is", { skip: SKIP }, () => {
   assert.equal(n.silent.contestsOpen, 1);
   assert.equal(n.silent.candidates, 0);
   assert.equal(n.copresent.seeking, 1);
@@ -27,13 +39,13 @@ test("a silent third source leaves the contest open and is no candidate; a co-pr
   assert.equal(n.copresent.defaultCandidates, 0, "the default featurizer is blind to a numeric end — disclosed, declared around in the driver");
 });
 
-test("controls: a kind the door did not land is unrouted with its reason; undeclared kinds are refused", () => {
+test("controls: a kind the door did not land is unrouted with its reason; undeclared kinds are refused", { skip: SKIP }, () => {
   assert.equal(n.controls.wrongKindSeeking, 0);
   assert.equal(n.controls.wrongKindUnrouted, 1);
   assert.equal(n.controls.undeclaredRefused, true);
 });
 
-test("only settleDispute settles: upheld leaves link and cut live and the contest settled; conceded hands back the concession that takes the link down", () => {
+test("only settleDispute settles: upheld leaves link and cut live and the contest settled; conceded hands back the concession that takes the link down", { skip: SKIP }, () => {
   assert.deepEqual(n.upheld.timeline, ["link", "cut", "contest", "settled"]);
   assert.deepEqual(n.upheld.standing, { link: "live", cut: "live", contest: "settled" });
   assert.deepEqual(n.upheld.disputedBy, []);

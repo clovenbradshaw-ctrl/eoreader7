@@ -28,10 +28,16 @@
   "hurried",
   "splashed",
   "ordering",
+  "sent",
+  "should",
   "one",
-  "trusts",
+  "know",
   "liked",
   "certainly",
+  "slate",
+  "face",
+  "found",
+  "now",
   "head",
   "sister"
  ],
@@ -87,194 +93,6 @@
   [
    "Wonderland",
    "ref:auto:wonderland"
-  ],
-  [
-   "I’ll",
-   "ref:auto:i’ll"
-  ],
-  [
-   "Latitude",
-   "ref:auto:latitude"
-  ],
-  [
-   "Longitude",
-   "ref:auto:longitude"
-  ],
-  [
-   "Oh",
-   "ref:auto:oh"
-  ],
-  [
-   "I’m",
-   "ref:auto:i’m"
-  ],
-  [
-   "I’ve",
-   "ref:auto:i’ve"
-  ],
-  [
-   "English",
-   "ref:auto:english"
-  ],
-  [
-   "Mabel",
-   "ref:auto:mabel"
-  ],
-  [
-   "French",
-   "ref:auto:french"
-  ],
-  [
-   "O Mouse",
-   "ref:auto:o_mouse"
-  ],
-  [
-   "Rabbit",
-   "ref:auto:rabbit"
-  ],
-  [
-   "Mouse",
-   "ref:auto:mouse"
-  ],
-  [
-   "Dodo",
-   "ref:auto:dodo"
-  ],
-  [
-   "Lory",
-   "ref:auto:lory"
-  ],
-  [
-   "Dinah",
-   "ref:auto:dinah"
-  ],
-  [
-   "Crab",
-   "ref:auto:crab"
-  ],
-  [
-   "Duck",
-   "ref:auto:duck"
-  ],
-  [
-   "Eaglet",
-   "ref:auto:eaglet"
-  ],
-  [
-   "Mercia",
-   "ref:auto:mercia"
-  ],
-  [
-   "Morcar",
-   "ref:auto:morcar"
-  ],
-  [
-   "We",
-   "ref:auto:we"
-  ],
-  [
-   "Mary Ann",
-   "ref:auto:mary_ann"
-  ],
-  [
-   "Bill",
-   "ref:auto:bill"
-  ],
-  [
-   "Ann",
-   "ref:auto:mary_ann"
-  ],
-  [
-   "I’d",
-   "ref:auto:i’d"
-  ],
-  [
-   "Mary",
-   "ref:auto:mary_ann"
-  ],
-  [
-   "Father William",
-   "ref:auto:father_william"
-  ],
-  [
-   "Caterpillar",
-   "ref:auto:caterpillar"
-  ],
-  [
-   "Pigeon",
-   "ref:auto:pigeon"
-  ],
-  [
-   "Pray",
-   "ref:auto:pray"
-  ],
-  [
-   "March Hare",
-   "ref:auto:march_hare"
-  ],
-  [
-   "Cat",
-   "ref:auto:cat"
-  ],
-  [
-   "Duchess",
-   "ref:auto:duchess"
-  ],
-  [
-   "March",
-   "ref:auto:march_hare"
-  ],
-  [
-   "Cheshire",
-   "ref:auto:cheshire"
-  ],
-  [
-   "Hatter",
-   "ref:auto:hatter"
-  ],
-  [
-   "Dormouse",
-   "ref:auto:dormouse"
-  ],
-  [
-   "Cheshire Cat",
-   "ref:auto:cheshire_cat"
-  ],
-  [
-   "Five",
-   "ref:auto:five"
-  ],
-  [
-   "Seven",
-   "ref:auto:seven"
-  ],
-  [
-   "Miss",
-   "ref:auto:miss"
-  ],
-  [
-   "Tortoise",
-   "ref:auto:tortoise"
-  ],
-  [
-   "Lobster Quadrille",
-   "ref:auto:lobster_quadrille"
-  ],
-  [
-   "Soup",
-   "ref:auto:soup"
-  ],
-  [
-   "Owl",
-   "ref:auto:owl"
-  ],
-  [
-   "Panther",
-   "ref:auto:panther"
-  ],
-  [
-   "Hearts",
-   "ref:auto:hearts"
   ]
  ]
 }

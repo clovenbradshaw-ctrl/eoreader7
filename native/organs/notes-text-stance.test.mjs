@@ -1,6 +1,6 @@
 // The admitting act's cell, and its sedimentation into cross-work memory.
 //
-// SEPARATE FILE, ON PURPOSE. `hyperlexicon.test.mjs` reaches the engine through
+// SEPARATE FILE, ON PURPOSE. `notes-text.test.mjs` reaches the engine through
 // `legacy-eoreader6.1`, an uninitialised submodule in some checkouts (this one
 // included) — so that whole file cannot load here and a test appended to it
 // would never run. `void-loop.test.mjs`/`void-shape.test.mjs` already set the
@@ -8,15 +8,21 @@
 // wall is actually exercised wherever this repo is checked out.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { makeHyperlexicon } from "./hyperlexicon.js";
-import { adaptTaskLog } from "../../../the-fold/consequence.js";
+import { makeNotesText } from "./notes-text.js";
+import { FoldUnavailableError, resolveFoldSibling } from "../eval/the-fold/lib/fold-sibling.mjs";
 import * as cube from "../kernel/cube.js";
 import * as nativeTaskLog from "../kernel/task-log.js";
 import * as experiencePriors from "../kernel/experience-priors.js";
 
+const { path: FOLD_PATH, available: FOLD_OK } = resolveFoldSibling(import.meta.url, "../../../the-fold/");
+const SKIP = FOLD_OK ? undefined : `the sibling the-fold checkout is not available: consequence.js (looked for ${FOLD_PATH})`;
+const { adaptTaskLog } = FOLD_OK
+  ? await import(`${FOLD_PATH}consequence.js`)
+  : { adaptTaskLog: () => { throw new FoldUnavailableError(SKIP); } };
+
 // `consequence.js`'s own adapter reconciles native's ordinal GRAINS with the
 // GRAIN_RANK shape this module reads — reused rather than a second mapping.
-const taskLog = {
+const taskLog = SKIP ? null : {
   ...adaptTaskLog({
     createTaskLog: nativeTaskLog.createTaskLog, append: nativeTaskLog.append,
     ENTRY_KINDS: nativeTaskLog.ENTRY_KINDS, OPERATOR_BASIS: nativeTaskLog.OPERATOR_BASIS,
@@ -32,11 +38,11 @@ const span = (ref, start, end, text) => ({ ref, start, end, text });
 // mode/domain/terrain/stance from that pair. These pin that it is READ, not
 // chosen, and that it never touches the world-facing plane.
 
-const hlCube = makeHyperlexicon({ ...taskLog, cellOf: cube.cellOf });
+const hlCube = SKIP ? null : makeNotesText({ ...taskLog, cellOf: cube.cellOf });
 const sp = (n) => [span(`w${n}`, 0, 3, "abc")];
 
-test("the admitting act carries the cell the cube derives, not a restated literal", () => {
-  let log = hlCube.createHyperlexicon();
+test("the admitting act carries the cell the cube derives, not a restated literal", { skip: SKIP }, () => {
+  let log = hlCube.createNotes();
   log = hlCube.admit(log, [{ subject: "A", verb: "replaces", object: "B", spans: sp(1) }], { witness: "p1" }).log;
   log = hlCube.admit(log, [{ subject: "A", verb: "replaces", object: "B", spans: sp(2) }], { witness: "p2" }).log;
   const [birth, again] = log.entries;
@@ -54,9 +60,9 @@ test("the admitting act carries the cell the cube derives, not a restated litera
   assert.equal(again.terrain, "Link");
 });
 
-test("with no cellOf injected an entry is byte-identical — an absent cube is stated, never supplied", () => {
-  const plain = makeHyperlexicon(taskLog);
-  let a = plain.createHyperlexicon();
+test("with no cellOf injected an entry is byte-identical — an absent cube is stated, never supplied", { skip: SKIP }, () => {
+  const plain = makeNotesText(taskLog);
+  let a = plain.createNotes();
   a = plain.admit(a, [{ subject: "A", verb: "replaces", object: "B", spans: sp(1) }], { witness: "p1" }).log;
   const e = a.entries[0];
   for (const k of ["cell", "stance", "terrain", "mode", "domain"]) {
@@ -64,18 +70,18 @@ test("with no cellOf injected an entry is byte-identical — an absent cube is s
   }
 });
 
-test("a cube that gaps is carried as a gap, never smoothed into a plausible cell", () => {
-  const gapping = makeHyperlexicon({ ...taskLog, cellOf: () => ({ gap: "unknown_spec", reason: "no such operator" }) });
-  let log = gapping.createHyperlexicon();
+test("a cube that gaps is carried as a gap, never smoothed into a plausible cell", { skip: SKIP }, () => {
+  const gapping = makeNotesText({ ...taskLog, cellOf: () => ({ gap: "unknown_spec", reason: "no such operator" }) });
+  let log = gapping.createNotes();
   log = gapping.admit(log, [{ subject: "A", verb: "replaces", object: "B", spans: sp(1) }], { witness: "p1" }).log;
   assert.equal(log.entries[0].cell_gap, "unknown_spec");
   assert.ok(!("stance" in log.entries[0]), "a gapped cell must not also carry a stance");
 });
 
-test("the posture projection carries the ACT only — no world-facing field crosses the plane", () => {
-  let log = hlCube.createHyperlexicon();
+test("the posture projection carries the ACT only — no world-facing field crosses the plane", { skip: SKIP }, () => {
+  let log = hlCube.createNotes();
   log = hlCube.admit(log, [{ subject: "Hamlin", verb: "replaces", object: "Breckinridge", spans: sp(1) }], { witness: "en.wikipedia.org/Hamlin" }).log;
-  const reading = hlCube.readingFromHyperlexicon(log, { source: "work1" });
+  const reading = hlCube.readingFromNotes(log, { source: "work1" });
   const serialized = JSON.stringify(reading);
   // stance is reader-structure and defeasible; witnesses and spans are
   // world-facing and corroborable. A prior that learned the second from the
@@ -87,20 +93,20 @@ test("the posture projection carries the ACT only — no world-facing field cros
   assert.equal(reading.postures, 1);
 });
 
-test("a log with no declared cube sediments nothing rather than a default posture", () => {
-  const plain = makeHyperlexicon(taskLog);
-  let a = plain.createHyperlexicon();
+test("a log with no declared cube sediments nothing rather than a default posture", { skip: SKIP }, () => {
+  const plain = makeNotesText(taskLog);
+  let a = plain.createNotes();
   a = plain.admit(a, [{ subject: "A", verb: "replaces", object: "B", spans: sp(1) }], { witness: "p1" }).log;
-  assert.equal(plain.readingFromHyperlexicon(a, { source: "w" }).postures, 0);
+  assert.equal(plain.readingFromNotes(a, { source: "w" }).postures, 0);
 });
 
-test("an unattributed reading is refused — cross-work memory needs a source", () => {
-  let log = hlCube.createHyperlexicon();
+test("an unattributed reading is refused — cross-work memory needs a source", { skip: SKIP }, () => {
+  let log = hlCube.createNotes();
   log = hlCube.admit(log, [{ subject: "A", verb: "replaces", object: "B", spans: sp(1) }], { witness: "p1" }).log;
-  assert.throws(() => hlCube.readingFromHyperlexicon(log), /source is named/);
+  assert.throws(() => hlCube.readingFromNotes(log), /source is named/);
 });
 
-test("postures sediment across works through the real experience-priors organ", () => {
+test("postures sediment across works through the real experience-priors organ", { skip: SKIP }, () => {
   // Each pair carries its OWN witness (`w-${i}`) rather than reusing one
   // witness across every call in the same work: a re-sighting witnessed by
   // the exact same source, offering the exact same span, teaches this log
@@ -109,15 +115,15 @@ test("postures sediment across works through the real experience-priors organ", 
   // observations, so each one is given a distinct witness, as a real
   // second reader (or a later re-fetch) would actually have.
   const build = (pairs, w) => {
-    let log = hlCube.createHyperlexicon();
+    let log = hlCube.createNotes();
     pairs.forEach(([a, b], i) => {
       log = hlCube.admit(log, [{ subject: a, verb: "replaces", object: b, spans: sp(`${w}-${i}`) }], { witness: `${w}-${i}` }).log;
     });
-    return hlCube.readingFromHyperlexicon(log, { source: w });
+    return hlCube.readingFromNotes(log, { source: w });
   };
   const prior = experiencePriors.deriveExperiencePrior(
     [build([["A", "B"], ["B", "C"], ["A", "B"]], "work1"), build([["X", "Y"], ["X", "Y"]], "work2")],
-    { giver: "hyperlexicon.test.mjs admission postures" },
+    { giver: "notes-text.test.mjs admission postures" },
   );
   const making = prior.stanceExpectations.find((s) => s.stance === "Making");
   assert.equal(making.occurrences, 5, "three births and two re-sightings are five Generate·Figure acts");

@@ -1,0 +1,279 @@
+[
+ {
+  "seq": 10,
+  "schema": "EOTObservation@1",
+  "id": "f9",
+  "at": [
+   0,
+   60
+  ],
+  "role": "front-matter",
+  "inferred": true,
+  "basis": "everything preceding the first inferred chapter heading — title, byline, edition line and the table of contents",
+  "children": []
+ },
+ {
+  "seq": 2,
+  "schema": "EOTObservation@1",
+  "id": "c1",
+  "at": [
+   60,
+   454
+  ],
+  "role": "chapter",
+  "inferred": true,
+  "basis": "a 'PART <word>' line at line-start followed by running prose (a title line, when the book gives one, is blank-line-bounded like the heading itself) — the table-of-contents copies of the same string are not followed by prose and are not matched",
+  "ordinal": 1,
+  "numeral": "ONE",
+  "title": "",
+  "children": [
+   {
+    "seq": 3,
+    "schema": "EOTObservation@1",
+    "id": "h2",
+    "at": [
+     60,
+     69
+    ],
+    "role": "heading",
+    "inferred": true,
+    "basis": "the chapter line alone — this book gives its chapters no title line",
+    "ofChapter": 1,
+    "children": []
+   }
+  ]
+ },
+ {
+  "seq": 4,
+  "schema": "EOTObservation@1",
+  "id": "c3",
+  "at": [
+   454,
+   774
+  ],
+  "role": "chapter",
+  "inferred": true,
+  "basis": "a 'PART <word>' line at line-start followed by running prose (a title line, when the book gives one, is blank-line-bounded like the heading itself) — the table-of-contents copies of the same string are not followed by prose and are not matched",
+  "ordinal": 2,
+  "numeral": "TWO",
+  "title": "",
+  "children": [
+   {
+    "seq": 5,
+    "schema": "EOTObservation@1",
+    "id": "h4",
+    "at": [
+     454,
+     463
+    ],
+    "role": "heading",
+    "inferred": true,
+    "basis": "the chapter line alone — this book gives its chapters no title line",
+    "ofChapter": 2,
+    "children": []
+   },
+   {
+    "seq": 11,
+    "schema": "EOTObservation@1",
+    "id": "s10",
+    "at": [
+     463,
+     774
+    ],
+    "role": "section",
+    "inferred": true,
+    "basis": "a run of prose bounded by inferred scene breaks or by the chapter's own edges",
+    "children": [
+     {
+      "seq": 12,
+      "schema": "EOTObservation@1",
+      "id": "p11",
+      "at": [
+       464,
+       731
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "children": [
+       {
+        "seq": 14,
+        "schema": "EOTObservation@1",
+        "id": "s13",
+        "at": [
+         464,
+         577
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 18,
+          "schema": "EOTAbsence@1",
+          "at": [
+           464,
+           577
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 0 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 15,
+        "schema": "EOTObservation@1",
+        "id": "s14",
+        "at": [
+         578,
+         731
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 19,
+          "schema": "EOTAbsence@1",
+          "at": [
+           578,
+           731
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 0 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 13,
+      "schema": "EOTObservation@1",
+      "id": "p12",
+      "at": [
+       733,
+       771
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "children": [
+       {
+        "seq": 16,
+        "schema": "EOTObservation@1",
+        "id": "s15",
+        "at": [
+         733,
+         771
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 17,
+          "schema": "EOTObservation@1",
+          "id": "v16",
+          "at": [
+           733,
+           771
+          ],
+          "role": "void",
+          "operator": "SIG",
+          "grain": "Ground",
+          "terrain": "Void",
+          "stance": "Tending",
+          "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
+          "children": [
+           {
+            "seq": 20,
+            "schema": "EOTAbsence@1",
+            "at": [
+             733,
+             771
+            ],
+            "role": "arrangement",
+            "reason": "no_earned_verb_in_this_sentence",
+            "detail": "no token in this sentence was nominated by the 0 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+            "children": []
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "seq": 6,
+  "schema": "EOTObservation@1",
+  "id": "c5",
+  "at": [
+   774,
+   969
+  ],
+  "role": "chapter",
+  "inferred": true,
+  "basis": "a 'PART <word>' line at line-start followed by running prose (a title line, when the book gives one, is blank-line-bounded like the heading itself) — the table-of-contents copies of the same string are not followed by prose and are not matched",
+  "ordinal": 3,
+  "numeral": "THREE",
+  "title": "",
+  "children": [
+   {
+    "seq": 7,
+    "schema": "EOTObservation@1",
+    "id": "h6",
+    "at": [
+     774,
+     785
+    ],
+    "role": "heading",
+    "inferred": true,
+    "basis": "the chapter line alone — this book gives its chapters no title line",
+    "ofChapter": 3,
+    "children": []
+   }
+  ]
+ },
+ {
+  "seq": 8,
+  "schema": "EOTObservation@1",
+  "id": "c7",
+  "at": [
+   969,
+   1099
+  ],
+  "role": "chapter",
+  "inferred": true,
+  "basis": "a 'PART <word>' line at line-start followed by running prose (a title line, when the book gives one, is blank-line-bounded like the heading itself) — the table-of-contents copies of the same string are not followed by prose and are not matched",
+  "ordinal": 4,
+  "numeral": "FOUR",
+  "title": "",
+  "children": [
+   {
+    "seq": 9,
+    "schema": "EOTObservation@1",
+    "id": "h8",
+    "at": [
+     969,
+     979
+    ],
+    "role": "heading",
+    "inferred": true,
+    "basis": "the chapter line alone — this book gives its chapters no title line",
+    "ofChapter": 4,
+    "children": []
+   }
+  ]
+ }
+]

@@ -12,9 +12,38 @@
 // either appears in the answer or does not; a rewrite of the transcript is
 // checked the same way a section is checked against its snips (P122). No
 // model grades a model.
-import { atomsOf, checkSentence } from "../../../../../the-fold/snip-check.js";
 import { declare as declareRetrieval, carry as carryFrame } from "../../../kernel/retrieval-frame.js";
-import { numberSet } from "../../../../../the-fold/grounding.js";
+import { resolveFoldSibling, FoldUnavailableError } from "./fold-sibling.mjs";
+
+// A DRIVER REFUSES WHAT ITS CHECKOUT LACKS (READING-SPEC S65 / the-fold
+// P95): `snip-check.js`/`grounding.js` are real modules in a sibling
+// `the-fold` checkout this repo's own CI never checks out. These used to
+// be STATIC imports — the worst-case failure shape, since a missing
+// sibling crashed this WHOLE module (and therefore every test that
+// imports anything from it, including probes that need none of this)
+// at parse time, before any typed refusal could even run.
+//
+// `atomsOf`/`checkSentence`/`numberSet` are used SYNCHRONOUSLY at their
+// real call sites below (inside `.filter()`/`.has()` chains, some in
+// non-async functions) — so this cannot become a lazy ASYNC loader
+// without changing real, working behavior at every call site to fix a
+// CI-only problem. Instead: a top-level `await import(...)` (still runs
+// once, still typed, still never a bare crash) resolves the real
+// synchronous functions when the-fold is present; when it is not,
+// `atomsOf`/`checkSentence`/`numberSet` are synchronous stubs that throw
+// `FoldUnavailableError` the moment anything actually calls them —
+// `FOLD_UNAVAILABLE` is exported so a caller can check up front and skip
+// a whole test before ever reaching that throw, the same posture
+// `product-assay.mjs`/`frontier-25.mjs` hold.
+const { path: FOLD_PATH, available: FOLD_OK } = resolveFoldSibling(import.meta.url, "../../../../../the-fold/");
+export const FOLD_UNAVAILABLE = FOLD_OK ? null : `snip-check.js/grounding.js not found under ${FOLD_PATH} — is a sibling the-fold checkout present?`;
+const throwUnavailable = () => { throw new FoldUnavailableError(FOLD_UNAVAILABLE); };
+export const { atomsOf, checkSentence } = FOLD_OK
+  ? await import(`${FOLD_PATH}snip-check.js`)
+  : { atomsOf: throwUnavailable, checkSentence: throwUnavailable };
+export const { numberSet } = FOLD_OK
+  ? await import(`${FOLD_PATH}grounding.js`)
+  : { numberSet: throwUnavailable };
 
 export const PROBE_KINDS = Object.freeze(["recall", "memory", "injection", "reasoning"]);
 export const MEMORY_DISTANCES = Object.freeze([5, 20, 50, 100, 200, 500]); // turns back; declared, the run's own rungs

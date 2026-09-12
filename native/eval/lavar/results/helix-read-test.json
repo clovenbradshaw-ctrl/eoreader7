@@ -1,0 +1,104 @@
+{
+ "pass": 22,
+ "fail": 0,
+ "results": [
+  {
+   "name": "broken (forced-linear) read fails its own shuffle null",
+   "ok": true,
+   "detail": "p=1"
+  },
+  {
+   "name": "settle() finds a reading that clears its own null",
+   "ok": true,
+   "detail": "p=0.004975124378109453"
+  },
+  {
+   "name": "settle() did it in exactly one turn (single vision escalation)",
+   "ok": true,
+   "detail": "turns=1"
+  },
+  {
+   "name": "the resolved reading has more real lines than the interleaved one",
+   "ok": true,
+   "detail": "121 vs 55"
+  },
+  {
+   "name": "the 15-line slice is a real, not-yet-settled ground (narrowly fails its null)",
+   "ok": true,
+   "detail": "p=0.05970149253731343"
+  },
+  {
+   "name": "the adversarial candidate really is worse (higher p) than the original",
+   "ok": true,
+   "detail": "1 vs 0.05970149253731343"
+  },
+  {
+   "name": "turn() concedes rather than accepting a worse candidate",
+   "ok": true
+  },
+  {
+   "name": "the conceded ground keeps the ORIGINAL lines, not the reversed ones",
+   "ok": true
+  },
+  {
+   "name": "the failed sense is recorded on the returned ground so it isn't retried blindly",
+   "ok": true,
+   "detail": "[\"adversarial-reverse-order\"]"
+  },
+  {
+   "name": "a second turn against the SAME conceded ground does not re-try the blocked sense",
+   "ok": true
+  },
+  {
+   "name": "a real turn that resolves via a sense is recorded into the library",
+   "ok": true,
+   "detail": "signature=hyphen-join::/private/tmp/claude-501/-Users-mlacy-Documents-3-0/10e18e8f-5a2d-4a2e-be59-760fe71f3814/scratchpad/uploaded-images/img_magazine.png::psm6(forced-linear)"
+  },
+  {
+   "name": "a reread of the SAME source resolves via the library with zero senses available",
+   "ok": true
+  },
+  {
+   "name": "the library-served reading is the same fix already found",
+   "ok": true
+  },
+  {
+   "name": "stream-conventions.json on disk carries the real, confirmed magazine resolution",
+   "ok": true
+  },
+  {
+   "name": "a reread against the ON-DISK library also resolves for free",
+   "ok": true
+  },
+  {
+   "name": "a library entry does not generalize to a different source (deliberately narrow key)",
+   "ok": true,
+   "detail": "hyphen-join::/some/other/image.png::psm6(forced-linear)"
+  },
+  {
+   "name": "turn() on an already-settled ground does nothing (moved=false, conceded=false)",
+   "ok": true
+  },
+  {
+   "name": "settle() on an already-settled ground returns immediately at turns=0",
+   "ok": true
+  },
+  {
+   "name": "small-N set with one hole honestly fails to clear alpha (limited power, not the old tautology)",
+   "ok": true,
+   "detail": "p=0.36318407960199006"
+  },
+  {
+   "name": "turn() on an identity-set ground dispatches to findSurprise without crashing",
+   "ok": true
+  },
+  {
+   "name": "turn() correctly reports no productive move rather than fabricating one",
+   "ok": true
+  },
+  {
+   "name": "settle() reports settled:false honestly for a ground its own statistic cannot currently certify as regular",
+   "ok": true
+  }
+ ]
+}

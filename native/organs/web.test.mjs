@@ -21,6 +21,10 @@ import {
   parseSearchResults,
   unwrapDdgHref,
   foldWebHistory,
+  dueToForget,
+  filesStillNeeded,
+  renderCondensedFace,
+  WEB_FORGET_AFTER_MS,
   archiveUrlFrom,
   extForContentType,
   pageFaceUrl,
@@ -291,6 +295,48 @@ test("foldWebHistory: later lines patch by id (the archive result lands late), n
   assert.equal(entries[1].url, "https://x.org", "patch keeps the original fields");
   assert.equal(entries[1].archive.status, "saved");
   assert.deepEqual(foldWebHistory(""), { entries: [], skipped: 0 });
+});
+
+// ── forgetting the uncited ──────────────────────────────────────────────────
+test("dueToForget: never cited, never already condensed, has a fold to shrink to, old enough — and nothing else", () => {
+  const now = new Date("2026-09-10T00:00:00Z");
+  const fold = { lines: [{ text: "x" }], of: 3, kept: 1 };
+  const base = { id: "a", textPath: "web/pages/a.txt", fold, retrievedAt: "2026-09-01T00:00:00Z" };
+  assert.deepEqual(dueToForget([base], { now }), [base], "old, uncited, uncondensed, with a fold — due");
+  assert.deepEqual(dueToForget([{ ...base, cited: true }], { now }), [], "ever cited — never forgotten, however old");
+  assert.deepEqual(dueToForget([{ ...base, condensed: true }], { now }), [], "already condensed — idempotent");
+  assert.deepEqual(dueToForget([{ ...base, fold: null }], { now }), [], "nothing to condense TO — left alone");
+  assert.deepEqual(dueToForget([{ ...base, fold: { gap: { silence: "computed-and-empty" } } }], { now }), [], "a fold that itself gapped has nothing to shrink to");
+  assert.deepEqual(dueToForget([{ ...base, textPath: null }], { now }), [], "no text face (a binary download) — nothing to shrink");
+  assert.deepEqual(
+    dueToForget([{ ...base, retrievedAt: "2026-09-09T23:00:00Z" }], { now }),
+    [],
+    "under a day old — not yet due",
+  );
+  assert.deepEqual(dueToForget([base], {}), [], "no injected clock — refuses rather than guessing the time");
+  assert.ok(WEB_FORGET_AFTER_MS > 0);
+});
+
+test("filesStillNeeded: a file named by any kept entry survives, even one shared with a victim (content addressing)", () => {
+  const entries = [
+    { id: "a", rawPath: "r/shared.html", textPath: "t/a.txt" },
+    { id: "b", rawPath: "r/shared.html", textPath: "t/b.txt", cited: true },
+    { id: "c", rawPath: "r/lonely.html", textPath: "t/c.txt" },
+  ];
+  const victims = [entries[0], entries[2]]; // a and c are due; b (same raw file as a) is cited
+  const needed = filesStillNeeded(entries, victims);
+  assert.ok(needed.has("r/shared.html"), "a's raw file is still needed — b shares it and is cited");
+  assert.ok(needed.has("t/b.txt"));
+  assert.ok(!needed.has("t/a.txt"), "a's own text face is not otherwise referenced");
+  assert.ok(!needed.has("r/lonely.html"), "c's files are referenced by nothing kept");
+  assert.ok(!needed.has("t/c.txt"));
+});
+
+test("renderCondensedFace: verbatim fold lines with a disclosed header, never a re-generated paraphrase", () => {
+  const fold = { lines: [{ text: "First kept sentence." }, { text: "Second kept sentence." }], of: 9, kept: 2 };
+  const face = renderCondensedFace(fold, { url: "https://example.org/p" });
+  assert.match(face, /^\[condensed —.*not cited.*2 of 9.*example\.org\/p\]/);
+  assert.match(face, /First kept sentence\.\nSecond kept sentence\./);
 });
 
 // ── archive.org ─────────────────────────────────────────────────────────────

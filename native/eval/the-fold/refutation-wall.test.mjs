@@ -13,15 +13,23 @@ import fs from "node:fs";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
+import { resolveFoldSibling } from "./lib/fold-sibling.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const PROBE = path.join(HERE, "falsification-probe.mjs");
 const OUT = path.join(HERE, "results", "falsification-probe.json");
 
-execFileSync(process.execPath, [PROBE], { cwd: path.join(HERE, "..", "..", ".."), stdio: "ignore" });
-const probe = JSON.parse(fs.readFileSync(OUT, "utf8"));
+// falsification-probe.mjs itself reaches into the sibling the-fold checkout
+// (consequence.js, predigest.js) — check before spawning rather than let an
+// uncaught subprocess crash surface one layer removed from the real import
+// failure (S65/P95, same posture as derivation-filter.test.mjs).
+const { path: FOLD_PATH, available: FOLD_OK } = resolveFoldSibling(import.meta.url, "../../../../the-fold/");
+const SKIP = FOLD_OK ? undefined : `the sibling the-fold checkout is not available: consequence.js/predigest.js (looked for ${FOLD_PATH})`;
 
-test("the six pre-declared corpora still run", () => {
+if (FOLD_OK) execFileSync(process.execPath, [PROBE], { cwd: path.join(HERE, "..", "..", ".."), stdio: "ignore" });
+const probe = FOLD_OK ? JSON.parse(fs.readFileSync(OUT, "utf8")) : null;
+
+test("the six pre-declared corpora still run", { skip: SKIP }, () => {
   assert.ok(probe.rows.length >= 6, `expected the full corpus set, got ${probe.rows.length}`);
   for (const r of probe.rows) {
     assert.ok(typeof r.declared?.composesSoundly === "boolean",
@@ -29,7 +37,7 @@ test("the six pre-declared corpora still run", () => {
   }
 });
 
-test("the twins remain indistinguishable — structure does not license composition", () => {
+test("the twins remain indistinguishable — structure does not license composition", { skip: SKIP }, () => {
   const succession = probe.rows.find((r) => r.corpus.startsWith("succession-clean"));
   const dominance = probe.rows.find((r) => r.corpus.startsWith("defeated-acyclic"));
   assert.ok(succession && dominance, "the decisive twin pair is missing from the corpus set");
@@ -41,7 +49,7 @@ test("the twins remain indistinguishable — structure does not license composit
     "either way a human must look before anything downstream treats it as a licence.");
 });
 
-test("no source in this repo admits on absence of refutation", () => {
+test("no source in this repo admits on absence of refutation", { skip: SKIP }, () => {
   // the sources this wall audits: the-fold's surface and remaining organs, the moved organs, and these drivers (Phase 2 split, 2026-09-02)
   const roots = [path.join(HERE, "..", "..", "..", "..", "the-fold"), path.join(HERE, "..", "..", "organs"), HERE];
   const offenders = [];

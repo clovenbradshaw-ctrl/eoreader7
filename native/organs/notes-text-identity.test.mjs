@@ -1,8 +1,8 @@
 // The identity seam (P73): which two sightings are ONE note is an
 // injectable question, never a string accident.
 //
-// SEPARATE FILE, the same reason hyperlexicon-stance.test.mjs states in its
-// own header: `hyperlexicon.test.mjs` reaches the engine through
+// SEPARATE FILE, the same reason notes-text-stance.test.mjs states in its
+// own header: `notes-text.test.mjs` reaches the engine through
 // `legacy-eoreader6.1`, an uninitialised submodule in some checkouts, so a
 // test appended there can silently never run. These import eoreader7's
 // NATIVE kernel — a real sibling — so the seam is exercised wherever this
@@ -14,12 +14,18 @@
 // so the >=2-witness ledger block was structurally unreachable on prose.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { makeHyperlexicon, VERB_CLASS } from "./hyperlexicon.js";
-import { adaptTaskLog } from "../../../the-fold/consequence.js";
+import { makeNotesText, VERB_CLASS } from "./notes-text.js";
+import { FoldUnavailableError, resolveFoldSibling } from "../eval/the-fold/lib/fold-sibling.mjs";
 import * as cube from "../kernel/cube.js";
 import * as nativeTaskLog from "../kernel/task-log.js";
 
-const taskLog = {
+const { path: FOLD_PATH, available: FOLD_OK } = resolveFoldSibling(import.meta.url, "../../../the-fold/");
+const SKIP = FOLD_OK ? undefined : `the sibling the-fold checkout is not available: consequence.js (looked for ${FOLD_PATH})`;
+const { adaptTaskLog } = FOLD_OK
+  ? await import(`${FOLD_PATH}consequence.js`)
+  : { adaptTaskLog: () => { throw new FoldUnavailableError(SKIP); } };
+
+const taskLog = SKIP ? null : {
   ...adaptTaskLog({
     createTaskLog: nativeTaskLog.createTaskLog, append: nativeTaskLog.append,
     ENTRY_KINDS: nativeTaskLog.ENTRY_KINDS, OPERATOR_BASIS: nativeTaskLog.OPERATOR_BASIS,
@@ -39,56 +45,56 @@ const toyIdentity = (subject, verb, object) => {
   return { subject: end(subject), verb: v === "withdrew" ? "withdraws" : v, object: end(object) };
 };
 
-test("without a noteIdentity organ, identity stays the exact triple — two wordings are two notes (byte-identical default)", () => {
-  const hl = makeHyperlexicon(taskLog);
-  let log = hl.createHyperlexicon();
+test("without a noteIdentity organ, identity stays the exact triple — two wordings are two notes (byte-identical default)", { skip: SKIP }, () => {
+  const hl = makeNotesText(taskLog);
+  let log = hl.createNotes();
   log = hl.admit(log, [{ subject: "The Russian army", verb: "withdraws", object: "the next day", spans: span("a") }], { witness: "a" }).log;
   log = hl.admit(log, [{ subject: "Russian army", verb: "withdrew", object: "the next day", spans: span("b") }], { witness: "b" }).log;
-  const notes = hl.foldHyperlexicon(log);
+  const notes = hl.foldNotes(log);
   assert.equal(notes.length, 2);
   assert.ok(notes.every((n) => n.witnesses.length === 1));
 });
 
-test("an injected identity folds two restatements into ONE note with TWO witnesses — the corroboration mechanism is reachable", () => {
-  const hl = makeHyperlexicon({ ...taskLog, noteIdentity: toyIdentity });
-  let log = hl.createHyperlexicon();
+test("an injected identity folds two restatements into ONE note with TWO witnesses — the corroboration mechanism is reachable", { skip: SKIP }, () => {
+  const hl = makeNotesText({ ...taskLog, noteIdentity: toyIdentity });
+  let log = hl.createNotes();
   log = hl.admit(log, [{ subject: "The Russian army", verb: "withdraws", object: "the next day", spans: span("borodino.txt#1-9") }], { witness: "borodino.txt#1-9" }).log;
   log = hl.admit(log, [{ subject: "Russian army", verb: "withdrew", object: "The next day", spans: span("war-and-peace.txt#2-9") }], { witness: "war-and-peace.txt#2-9" }).log;
-  const notes = hl.foldHyperlexicon(log);
+  const notes = hl.foldNotes(log);
   assert.equal(notes.length, 1);
   assert.equal(notes[0].witnesses.length, 2);
   assert.equal(notes[0].spans.length, 2);
 });
 
-test("the FIRST reading's face wins the display — evidence accumulates, the words do not drift", () => {
-  const hl = makeHyperlexicon({ ...taskLog, noteIdentity: toyIdentity });
-  let log = hl.createHyperlexicon();
+test("the FIRST reading's face wins the display — evidence accumulates, the words do not drift", { skip: SKIP }, () => {
+  const hl = makeNotesText({ ...taskLog, noteIdentity: toyIdentity });
+  let log = hl.createNotes();
   log = hl.admit(log, [{ subject: "The Russian army", verb: "withdraws", object: "the next day", spans: span("a") }], { witness: "a" }).log;
   log = hl.admit(log, [{ subject: "russian ARMY", verb: "withdrew", object: "the Next Day", spans: span("b") }], { witness: "b" }).log;
-  const [note] = hl.foldHyperlexicon(log);
+  const [note] = hl.foldNotes(log);
   assert.equal(note.subject, "The Russian army");
   assert.equal(note.verb, "withdraws");
   assert.equal(note.object, "the next day");
 });
 
-test("a gapping identity organ falls back to surface identity per field and never blocks admission", () => {
-  const hl = makeHyperlexicon({ ...taskLog, noteIdentity: () => null });
-  let log = hl.createHyperlexicon();
+test("a gapping identity organ falls back to surface identity per field and never blocks admission", { skip: SKIP }, () => {
+  const hl = makeNotesText({ ...taskLog, noteIdentity: () => null });
+  let log = hl.createNotes();
   const r = hl.admit(log, [{ subject: "Anatole", verb: "loses", object: "a leg", spans: span("w") }], { witness: "w" });
   assert.equal(r.heard.length, 1);
   assert.equal(r.turnedAway.length, 0);
-  assert.equal(hl.foldHyperlexicon(r.log).length, 1);
+  assert.equal(hl.foldNotes(r.log).length, 1);
 
-  const half = makeHyperlexicon({ ...taskLog, noteIdentity: (s) => ({ subject: s.toLowerCase(), verb: "", object: undefined }) });
-  let log2 = half.createHyperlexicon();
+  const half = makeNotesText({ ...taskLog, noteIdentity: (s) => ({ subject: s.toLowerCase(), verb: "", object: undefined }) });
+  let log2 = half.createNotes();
   log2 = half.admit(log2, [{ subject: "Anatole", verb: "loses", object: "a leg", spans: span("x") }], { witness: "x" }).log;
   log2 = half.admit(log2, [{ subject: "ANATOLE", verb: "loses", object: "a leg", spans: span("y") }], { witness: "y" }).log;
-  const notes = half.foldHyperlexicon(log2);
+  const notes = half.foldNotes(log2);
   assert.equal(notes.length, 1, "the one canonical field still folds; the gapped fields fall back to surface forms");
   assert.equal(notes[0].witnesses.length, 2);
 });
 
-test("the grammar gate composes with the identity seam: a settled non-verb is refused BEFORE identity ever runs", () => {
+test("the grammar gate composes with the identity seam: a settled non-verb is refused BEFORE identity ever runs", { skip: SKIP }, () => {
   // A stub lens shaped exactly as makeGrammarLens's return: settled
   // conjunction for "and", out-of-vocabulary for everything else.
   const lens = ({ verb }) =>
@@ -96,15 +102,15 @@ test("the grammar gate composes with the identity seam: a settled non-verb is re
       ? { settled: true, thraxClass: "conjunction", givers: null }
       : { settled: false, thraxClass: null, givers: null };
   assert.notEqual(VERB_CLASS, "conjunction");
-  const hl = makeHyperlexicon({ ...taskLog, noteIdentity: toyIdentity });
-  const r = hl.admit(hl.createHyperlexicon(), [
+  const hl = makeNotesText({ ...taskLog, noteIdentity: toyIdentity });
+  const r = hl.admit(hl.createNotes(), [
     { subject: "Anatole Kuragin", verb: "and", object: "Prince Andrei", spans: span("p") },
     { subject: "Anatole", verb: "loses", object: "a leg", spans: span("p") },
   ], { witness: "p", classifyConnector: lens });
   assert.equal(r.heard.length, 1);
   assert.equal(r.turnedAway.length, 1);
   assert.equal(r.turnedAway[0].reason, "not_a_verb");
-  const notes = hl.foldHyperlexicon(r.log);
+  const notes = hl.foldNotes(r.log);
   assert.equal(notes.length, 1);
   assert.equal(notes[0].verb, "loses");
 });

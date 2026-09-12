@@ -89,8 +89,6 @@
   "thought",
   "said",
   "exclaimed",
-  "white",
-  "bare",
   "cried"
  ],
  "cast": [
@@ -245,54 +243,6 @@
   [
    "Mr",
    "ref:auto:mr"
-  ],
-  [
-   "Basil Hallward",
-   "ref:auto:basil_hallward"
-  ],
-  [
-   "Lady Brandon",
-   "ref:auto:lady_brandon"
-  ],
-  [
-   "Mr Dorian Gray",
-   "ref:auto:dorian_gray"
-  ],
-  [
-   "Hallward",
-   "ref:auto:basil_hallward"
-  ],
-  [
-   "Church",
-   "ref:auto:church"
-  ],
-  [
-   "Gray",
-   "ref:auto:dorian_gray"
-  ],
-  [
-   "Greek",
-   "ref:auto:greek"
-  ],
-  [
-   "Grosvenor",
-   "ref:auto:grosvenor"
-  ],
-  [
-   "Mr Dorian",
-   "ref:auto:dorian_gray"
-  ],
-  [
-   "Lord Henry Wotton",
-   "ref:auto:lord_henry_wotton"
-  ],
-  [
-   "June",
-   "ref:auto:june"
-  ],
-  [
-   "Orleans",
-   "ref:auto:orleans"
   ]
  ]
 }

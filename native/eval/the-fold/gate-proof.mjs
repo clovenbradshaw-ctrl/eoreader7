@@ -37,7 +37,7 @@ const BOOK = process.env.BOOK ?? "/home/user/live_priors/01-literature-books/gut
 const SLICE = Number(process.env.SLICE ?? 200000);
 
 const { makeRelationReader } = await import(`${NATIVE}/organs/hypergraph.js`);
-const { makeHyperlexicon } = await import(`${NATIVE}/organs/hyperlexicon.js`);
+const { makeNotesText } = await import(`${NATIVE}/organs/notes-text.js`);
 const { chunkSource, tokenize, blankLabelRows } = await import(`${NATIVE}/organs/source.js`);
 const { extractReadable, hostOf } = await import(`${NATIVE}/organs/web.js`);
 const R = await import(`${NATIVE}/organs/ranke.js`);
@@ -60,11 +60,11 @@ const reader = makeRelationReader({
   blankFurniture: (t) => blankLabelRows(t, { minRun: 4, maxCell: 60 }),
   resolvePronouns, nounPhraseSubjects: true,
 });
-const hl = makeHyperlexicon({ createTaskLog: nativeTaskLog.createTaskLog, append: nativeTaskLog.append, projectTasks: nativeTaskLog.projectTasks, ENTRY_KINDS: nativeTaskLog.ENTRY_KINDS, OPERATOR_BASIS: nativeTaskLog.OPERATOR_BASIS, GRAINS, cellOf });
+const hl = makeNotesText({ createTaskLog: nativeTaskLog.createTaskLog, append: nativeTaskLog.append, projectTasks: nativeTaskLog.projectTasks, ENTRY_KINDS: nativeTaskLog.ENTRY_KINDS, OPERATOR_BASIS: nativeTaskLog.OPERATOR_BASIS, GRAINS, cellOf });
 const content = (s) => String(s ?? "").toLowerCase().split(/[^\p{L}\p{N}'’]+/u).map((w) => w.replace(/['’]s$/, "")).filter((w) => w.length > 2 && !CLAIM_STOPWORDS.has(w));
 
 function readLedger(sources, frame) {
-  let log = hl.createHyperlexicon({ frame });
+  let log = hl.createNotes({ frame });
   for (const s of sources) {
     const passages = chunkSource(s.ref, s.text);
     const rel = reader(passages, { pool: passages });
@@ -89,7 +89,7 @@ if (existsSync(INDEX)) {
   const kept = async (url) => { const k = createHash("sha256").update(url).digest("hex").slice(0, 16); const e = index[k]; if (!e || e.gap) return { gap: e?.gap ?? { type: "not-kept" } }; return { text: readFileSync(`${FIX}/primary-faces/${k}.txt`, "utf8"), url, host: e.host, path: `primary-faces/${k}.txt` }; };
   const r = await R.chaseLedger(pagesLog, hl, PAGES, { fetchFace: kept, maxFetches: 1e9, consult: 3 });
   pagesLog = r.log;
-  console.log(`pages ledger: ${hl.foldHyperlexicon(pagesLog).length} notes; Ranke offline over kept faces: ${r.notesAttested} note(s) with a primary witness`);
+  console.log(`pages ledger: ${hl.foldNotes(pagesLog).length} notes; Ranke offline over kept faces: ${r.notesAttested} note(s) with a primary witness`);
 }
 
 // ── material 2: a book this project had not read, cut at chapters ────────
@@ -103,7 +103,7 @@ if (existsSync(BOOK)) {
   const parts = [];
   for (let i = 0; i + 1 < bounds.length; i += 1) parts.push({ ref: `book-part-${i + 1}.txt`, text: slice.slice(bounds[i], bounds[i + 1]) });
   bookLog = readLedger(parts, { reader: "makeRelationReader", walls: true, book: BOOK.split("/").pop() });
-  console.log(`book ledger (${BOOK.split("/").pop()}, ${parts.length} parts): ${hl.foldHyperlexicon(bookLog).length} notes`);
+  console.log(`book ledger (${BOOK.split("/").pop()}, ${parts.length} parts): ${hl.foldNotes(bookLog).length} notes`);
 }
 
 // ── the model ─────────────────────────────────────────────────────────────
@@ -135,7 +135,7 @@ function questionsFrom(log, n, seed) {
 const hit = (answer, q) => { const a = new Set(content(answer)); return q.answerWords.some((w) => a.has(w)); };
 
 async function arm(name, log, qs, project) {
-  const door = { ...hl, foldWithStanding: (l) => project(hl.foldWithStanding(l)), foldHyperlexicon: (l) => project(hl.foldHyperlexicon(hl.foldWithStanding(l).length ? l : l)).map((x) => x) };
+  const door = { ...hl, foldWithStanding: (l) => project(hl.foldWithStanding(l)), foldHyperlexicon: (l) => project(hl.foldNotes(hl.foldWithStanding(l).length ? l : l)).map((x) => x) };
   const rows = [];
   for (const q of qs) {
     const sent = [];

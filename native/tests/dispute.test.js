@@ -23,7 +23,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { makeNotes, noteId } from "../kernel/notes.js";
-import * as H from "../organs/hyperlexicon.js";
+import * as H from "../organs/notes-text.js";
 import * as TL from "../kernel/task-log.js";
 import * as cube from "../kernel/cube.js";
 import { makeDerivation, premisesOf } from "../organs/derivation.js";
@@ -33,7 +33,7 @@ import { createDeclarationLog, proposeCandidate, promote } from "../interpretati
 
 const notes = makeNotes();
 const taskLog = { ...TL, cellOf: cube.cellOf };
-const hl = H.makeHyperlexicon(taskLog);
+const hl = H.makeNotesText(taskLog);
 const D = makeDerivation({ hl, taskLog });
 
 const ID = noteId("lincoln", "was succeeded by", "hamlin");
@@ -198,7 +198,7 @@ test("a dispute carries its KIND, and an invented kind is refused", () => {
 
 const CHAIN = ["a", "b", "c", "d", "e"];
 const relayLedger = () => {
-  let log = hl.createHyperlexicon();
+  let log = hl.createNotes();
   let i = 0;
   for (const s of ["log-1", "log-2"]) for (const r of ["read-v1", "read-v2"])
     for (let k = 0; k + 1 < CHAIN.length; k += 1)
@@ -216,7 +216,7 @@ const PREMISE = hl.assertionId("b", "replaces", "c");
 test("a contested premise is ADMITTED and REPORTED, never withheld — you may build on a challenged base provided the structure carries what would fall", () => {
   const built = D.derive(relayLedger(), { declarations: licensed(), floor: FLOOR, maxSteps: 4 });
   const contestedLog = hl.dispute(built.log, PREMISE, { source: "log-3", because: "c replaces b, not the other way round." }).log;
-  const p = premisesOf(hl.foldHyperlexicon(contestedLog), { floor: FLOOR });
+  const p = premisesOf(hl.foldNotes(contestedLog), { floor: FLOOR });
   assert.ok(p.premises.some((n) => n.id === PREMISE), "a live dispute does not disqualify a premise");
   assert.equal(p.contested.length, 1);
   assert.equal(p.contested[0].id, PREMISE);
@@ -281,7 +281,7 @@ test("the OTHER way it can go: a contest settled UPHELD leaves the note and ever
   assert.equal(s.concession, null, "an upheld contest hands back no concession");
   assert.equal(hl.disputedIds(s.log).size, 0);
   assert.deepEqual(D.foldDerived(s.log).map((x) => x.id).sort(), derivedBefore);
-  assert.equal(premisesOf(hl.foldHyperlexicon(s.log), { floor: FLOOR }).contested.length, 0);
+  assert.equal(premisesOf(hl.foldNotes(s.log), { floor: FLOOR }).contested.length, 0);
   assert.equal(notes.disputeHistory(s.log)[0].settled.outcome, "upheld", "and the challenge stays on the record even though it failed");
 });
 
@@ -294,7 +294,7 @@ test("the OTHER way it can go: a contest settled UPHELD leaves the note and ever
 // not lowering the gate, it is carrying the fragility and keeping the fall.
 
 const soloLedger = () => {
-  let log = hl.createHyperlexicon();
+  let log = hl.createNotes();
   let i = 0;
   for (let k = 0; k + 1 < CHAIN.length; k += 1)
     log = hl.hear(log, { subject: CHAIN[k], verb: "replaces", object: CHAIN[k + 1], witness: "log-1~read-v1", spans: [{ at: `log-1#${i * 10}-${i++ * 10 + 7}`, ref: "log-1", text: "handover" }] });
@@ -324,12 +324,12 @@ test("carry:true builds on n=1 and says so — the count rides as a LABEL instea
 
 test("carry is declared, never inferred from the floor", () => {
   assert.throws(() => premisesOf([], { floor: FLOOR, carry: "yes" }), /declared boolean/);
-  assert.equal(premisesOf(hl.foldHyperlexicon(soloLedger()), { floor: FLOOR, carry: true }).premises.length, 4);
-  assert.equal(premisesOf(hl.foldHyperlexicon(soloLedger()), { floor: FLOOR, carry: false }).premises.length, 0);
+  assert.equal(premisesOf(hl.foldNotes(soloLedger()), { floor: FLOOR, carry: true }).premises.length, 4);
+  assert.equal(premisesOf(hl.foldNotes(soloLedger()), { floor: FLOOR, carry: false }).premises.length, 0);
 });
 
 test("the weakest link is a MIN, never a mean — a strong premise cannot launder a single-source one", () => {
-  let log = hl.createHyperlexicon();
+  let log = hl.createNotes();
   let i = 0;
   for (const s of ["log-1", "log-2"]) for (const r of ["read-v1", "read-v2"])
     for (let k = 0; k + 1 < CHAIN.length; k += 1) {

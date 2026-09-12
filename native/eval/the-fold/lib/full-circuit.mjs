@@ -14,7 +14,7 @@
 import { findSignal, phrase } from "../../../organs/index.js";
 import { discoverCompanyKinds } from "../../../organs/index.js";
 import { arrangementsFrom, arrangementNotes } from "../../../organs/index.js";
-import { makeHyperlexicon } from "../../../organs/hyperlexicon.js";
+import { makeNotesText } from "../../../organs/notes-text.js";
 import { distinctSources, distinctRecipes } from "../../../organs/index.js";
 import { acquireCandidates, promoteAndDeclare } from "../../../organs/hl-acquire.js";
 import { stageFromEdges } from "../../../organs/hl.js";
@@ -89,8 +89,8 @@ const noiseOnly = await findSignal(
 wall(1, "(noise arm)", !noiseOnly.refused && noiseOnly.findings.length === 0, `noise: ${noiseOnly.findings?.length ?? "refused"} findings — a measured absence`);
 
 // ── 2. ARRANGEMENTS (ostension) + 3. CORROBORATION (triangulation) ───────
-const hl = makeHyperlexicon(TL);
-let log = hl.createHyperlexicon();
+const hl = makeNotesText(TL);
+let log = hl.createNotes();
 let spanChecks = 0;
 for (const src of SOURCES) for (const inst of INSTRUMENTS) {
   const stream = inst.discretize(src.material);
@@ -98,7 +98,7 @@ for (const src of SOURCES) for (const inst of INSTRUMENTS) {
   spanChecks += arrangements.reduce((n, a) => n + a.spans.length, 0);
   for (const n of arrangementNotes(arrangements, { witness: src.ref, recipe: inst.recipe })) log = hl.hear(log, n);
 }
-const notes = hl.foldHyperlexicon(log).filter((n) => n.verb === "precedes" && CHAIN.includes(n.subject) && CHAIN.includes(n.object));
+const notes = hl.foldNotes(log).filter((n) => n.verb === "precedes" && CHAIN.includes(n.subject) && CHAIN.includes(n.object));
 say(`\n2. ARRANGEMENTS — ${notes.length} chain notes on the ledger, ${spanChecks} event-ordinal spans self-verified at the cut`);
 wall(2, "ostension", spanChecks > 0 && notes.every((n) => n.spans.length > 0), "every note carries addresses in its stream's own coordinates");
 

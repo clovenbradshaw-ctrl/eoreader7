@@ -39,7 +39,7 @@ const NSOURCES = Number(process.env.SOURCES ?? 16);
 const DRAWS = Number(process.env.DRAWS ?? 20);
 
 const { makeRelationReader } = await import(`${NATIVE}/organs/hypergraph.js`);
-const { makeHyperlexicon } = await import(`${NATIVE}/organs/hyperlexicon.js`);
+const { makeNotesText } = await import(`${NATIVE}/organs/notes-text.js`);
 const { chunkSource, tokenize, blankLabelRows, measureOf, blankBelowMeasure } = await import(`${NATIVE}/organs/source.js`);
 const { endsCopresentWindow, textFeatures, sharedTextGroups, distinctSources } = await import(`${NATIVE}/organs/corroboration.js`);
 const { splitSentences } = await import(`${NATIVE}/adapters/text/spans.js`);
@@ -59,7 +59,7 @@ const reader = makeRelationReader({
   blankFurniture: (t) => blankLabelRows(t, { minRun: 4, maxCell: 60 }),
   resolvePronouns, nounPhraseSubjects: true,
 });
-const hl = makeHyperlexicon({ createTaskLog: ntl.createTaskLog, append: ntl.append, projectTasks: ntl.projectTasks, ENTRY_KINDS: ntl.ENTRY_KINDS, OPERATOR_BASIS: ntl.OPERATOR_BASIS, GRAINS, cellOf });
+const hl = makeNotesText({ createTaskLog: ntl.createTaskLog, append: ntl.append, projectTasks: ntl.projectTasks, ENTRY_KINDS: ntl.ENTRY_KINDS, OPERATOR_BASIS: ntl.OPERATOR_BASIS, GRAINS, cellOf });
 
 const walkJson = JSON.parse(readFileSync(`${HERE}results/ranke-backwards.json`, "utf8"));
 // The fixture rule (the-fold P95 / S65, lib/walk-fixtures.mjs): a face the
@@ -117,9 +117,9 @@ const F = (t) => [...textFeatures(t)];
 const overlaps = (a, b) => { const x = F(a), y = F(b); return x.length && y.length && x.some((w) => y.includes(w)); };
 
 function reach(edgeSets) {
-  let log = hl.createHyperlexicon({ frame: { probe: "ordered-read" } });
+  let log = hl.createNotes({ frame: { probe: "ordered-read" } });
   for (const a of edgeSets) log = hl.admit(log, a.edges, { witness: a.witness }).log;
-  const notes = hl.foldHyperlexicon(log);
+  const notes = hl.foldNotes(log);
   let onlyA = 0, onlyB = 0, both = 0, neither = 0;
   for (const n of notes) {
     const own = distinctSources(n.witnesses ?? []);

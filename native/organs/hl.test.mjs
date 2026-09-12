@@ -10,14 +10,20 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { BOUND, CONTRADICTED, UNBOUND, declareFunctional, read, stageFromEdges } from "./hl.js";
-import { makeRelationReader } from "../../../the-fold/hypergraph.js";
+import { FoldUnavailableError, resolveFoldSibling } from "../eval/the-fold/lib/fold-sibling.mjs";
 
-test("re-export surface: the engine's full API is reachable from ./hl.js unchanged", () => {
+const { path: FOLD_PATH, available: FOLD_OK } = resolveFoldSibling(import.meta.url, "../../../the-fold/");
+const SKIP = FOLD_OK ? undefined : `the sibling the-fold checkout is not available: hypergraph.js (looked for ${FOLD_PATH})`;
+const { makeRelationReader } = FOLD_OK
+  ? await import(`${FOLD_PATH}hypergraph.js`)
+  : { makeRelationReader: () => { throw new FoldUnavailableError(SKIP); } };
+
+test("re-export surface: the engine's full API is reachable from ./hl.js unchanged", { skip: SKIP }, () => {
   assert.equal(typeof read, "function");
   assert.equal(typeof declareFunctional, "function");
 });
 
-test("adapter: hypergraph's public edge face becomes a stage, honestly labeled", () => {
+test("adapter: hypergraph's public edge face becomes a stage, honestly labeled", { skip: SKIP }, () => {
   const edges = [
     { subject: "Lincoln", verb: "defeated", object: "Douglas", polarity: "+", refs: ["src#0-10"] },
     { subject: "Lincoln", verb: "married", object: "Mary Todd", polarity: "+", refs: ["src#11-30"] },
@@ -30,7 +36,7 @@ test("adapter: hypergraph's public edge face becomes a stage, honestly labeled",
   assert.equal(read(H, ["atom", "married", "lincoln", "douglas"]), CONTRADICTED);
 });
 
-test("adapter: injected anchorOf wins over folded strings", () => {
+test("adapter: injected anchorOf wins over folded strings", { skip: SKIP }, () => {
   const edges = [{ subject: "President Lincoln", verb: "signed", object: "the Proclamation", polarity: "+", refs: ["r"] }];
   const resolve = (text) => (/lincoln/i.test(text) ? "ref:lincoln" : /proclamation/i.test(text) ? "ref:procl" : null);
   const H = stageFromEdges(edges, { anchorOf: resolve });
@@ -38,7 +44,7 @@ test("adapter: injected anchorOf wins over folded strings", () => {
   assert.equal(read(H, ["atom", "signed", "ref:lincoln", "ref:procl"]), BOUND);
 });
 
-test("end to end against the REAL engine organs: reader edges → stage → R2", async () => {
+test("end to end against the REAL engine organs: reader edges → stage → R2", { skip: SKIP }, async () => {
   const { splitSentences } = await import("../../legacy-eoreader6.1/packages/engine/perceiver/text/spans.js");
   const { extractSurfaces, discoverReferents, namesCorefer, diaNorm } = await import(
     "../../legacy-eoreader6.1/packages/engine/perceiver/text/surfaces.js"

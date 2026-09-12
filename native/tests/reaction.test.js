@@ -6,6 +6,7 @@ import { createDeclarationLog, proposeCandidate, promote, foldDeclarations } fro
 import { deriveExperiencePrior } from "../kernel/experience-priors.js";
 import {
   affordancesFromDeclarations,
+  refutedAffordances,
   closureAffordances,
   nominateFromExperience,
   createReactionSubstrate,
@@ -84,6 +85,62 @@ test("affordancesFromDeclarations: GIVEN transitive yields; candidates and funct
   assert.equal(rows.length, 1); // functional, though GIVEN, licenses no composition
   assert.deepEqual({ left: rows[0].left, right: rows[0].right, yields: rows[0].meta.yields, giver: rows[0].giver },
     { left: "before", right: "before", yields: "before", giver: "test:temporal-order" });
+});
+
+// ── refutedAffordances: a relation may not compose on its own contradiction ─
+//
+// The gap the-fold's mechanical-logic-battery.mjs TC4 measured (2026-09-10):
+// step()/settle() have no notion of "this relation's own premises already
+// contradict each other" — composing over a cyclic relation still derives
+// a fully circular belief set. refutedAffordances is affordancesFromDeclarations
+// forced through refutation.js's afterVeto first, so a relation whose raw
+// edges contain a positive cycle or uniqueness counterexample never becomes
+// chemistry at all.
+
+test("refutedAffordances: a cyclic relation's own declaration is dropped before it ever becomes chemistry", () => {
+  const cyclic = [
+    hyperedge({ id: "c1", relation: "older_than", participants: [{ ref: "alice", standing: "referent" }, { ref: "bob", standing: "referent" }], witness: "text:c1" }),
+    hyperedge({ id: "c2", relation: "older_than", participants: [{ ref: "bob", standing: "referent" }, { ref: "carol", standing: "referent" }], witness: "text:c2" }),
+    hyperedge({ id: "c3", relation: "older_than", participants: [{ ref: "carol", standing: "referent" }, { ref: "alice", standing: "referent" }], witness: "text:c3" }),
+  ];
+  const fold = { given: [{ rel: "older_than", declKind: "transitive", giver: "test:cycle" }] };
+  const guarded = refutedAffordances(fold, cyclic, { expectUnique: true });
+  assert.equal(guarded.affordances.length, 0, "a refuted relation licenses no composition at all");
+  assert.deepEqual(guarded.survivors, []);
+  assert.equal(guarded.vetoed.length, 1);
+  assert.equal(guarded.vetoed[0].key, "older_than");
+  assert.deepEqual(guarded.vetoed[0].reasons, ["cycle"]);
+
+  // Composing WITHOUT the guard, over the identical cyclic premises, is the
+  // regression this test exists to prevent silently reappearing: it still
+  // derives a circular belief set, because step() itself has no veto by
+  // default.
+  const unguarded = createReactionSubstrate({ entries: cyclic, hyperlexicon: givenAll(affordancesFromDeclarations(fold)), window: null });
+  const unguardedResult = unguarded.settle({ cue: null, floor: null, maxSteps: 10 });
+  assert.ok(unguardedResult.derived.length > 0, "confirms the unguarded path is genuinely unsafe — if this ever derives nothing, the regression this test guards against may already be fixed elsewhere and this assertion should be revisited, not silently loosened");
+
+  // The guarded substrate, by contrast, derives nothing over the same cycle.
+  const guardedSubstrate = createReactionSubstrate({ entries: cyclic, hyperlexicon: givenAll(guarded.affordances), window: null });
+  const guardedResult = guardedSubstrate.settle({ cue: null, floor: null, maxSteps: 10 });
+  assert.equal(guardedResult.derived.length, 0, "the guarded path composes nothing over a relation its own premises refute");
+});
+
+test("refutedAffordances: a clean, non-contradictory relation composes exactly as affordancesFromDeclarations alone would", () => {
+  const fold = { given: [{ rel: "replaces", declKind: "composes", yields: "after", giver: "test:succession-semantics" }] };
+  const guarded = refutedAffordances(fold, CHAIN);
+  assert.deepEqual(guarded.survivors, ["replaces"]);
+  assert.equal(guarded.vetoed.length, 0);
+  const substrate = createReactionSubstrate({ entries: CHAIN, hyperlexicon: givenAll(guarded.affordances), window: null });
+  const settled = substrate.settle({ cue: null, floor: null, maxSteps: 10 });
+  assert.deepEqual(factSet(settled.derived), EXPECTED_CLOSURE);
+});
+
+test("refutedAffordances: an under-examined relation (below refutation's own power floor) survives — insufficient power is not a refutation", () => {
+  const thin = [hyperedge({ id: "t1", relation: "older_than", participants: [{ ref: "alice", standing: "referent" }, { ref: "bob", standing: "referent" }], witness: "text:t1" })];
+  const fold = { given: [{ rel: "older_than", declKind: "transitive", giver: "test:thin" }] };
+  const guarded = refutedAffordances(fold, thin);
+  assert.deepEqual(guarded.survivors, ["older_than"]);
+  assert.equal(guarded.vetoed.length, 0);
 });
 
 // ── the wall: no given affordance, no derivation ───────────────────────────

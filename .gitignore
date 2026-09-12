@@ -55,3 +55,8 @@ native/eval/the-fold/results/*-READING.md
 native/eval/the-fold/results/readings/
 native/eval/the-fold/results/ledgers/
 native/eval/the-fold/results/conversation/
+
+# EOReader7 proxy runtime
+proxy.log
+.er7-proxy.pid
+test run/

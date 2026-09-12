@@ -20,7 +20,7 @@
 
 /**
  * @param {object} m — modules and material, assembled by the caller:
- *   readerFor(withPrior) → relationsFor; hyperlexiconFor (makeHyperlexicon
+ *   readerFor(withPrior) → relationsFor; hyperlexiconFor (makeNotesText
  *   product); lens (grammar lens or null); retrieve; allChunks; questions;
  *   closed (the probe's disclosed hand list); posPrior (or null).
  * @returns {{A, B, C}} — per arm: verdicts, offered, away, notes, closedLabels,
@@ -44,7 +44,7 @@ export function runDoorProbe(m) {
           .map((c) => ({ subject: c.end1, verb: c.label, object: c.end2, spans: c.spans ?? [] })); // claims carry the earned names since the wipe; the ledger keeps its own subject/verb/object shape
         if (!edges.length) continue;
         offered += edges.length;
-        const r = hyperlexiconFor.admit(log ?? hyperlexiconFor.createHyperlexicon(), edges, {
+        const r = hyperlexiconFor.admit(log ?? hyperlexiconFor.createNotes(), edges, {
           witness: p.ref ?? null,
           classifyConnector: gate ? lens : null,
         });
@@ -52,7 +52,7 @@ export function runDoorProbe(m) {
         for (const t of r.turnedAway ?? []) away[t.reason ?? "?"] = (away[t.reason ?? "?"] ?? 0) + 1;
       }
     }
-    const folded = log ? hyperlexiconFor.foldHyperlexicon(log) : [];
+    const folded = log ? hyperlexiconFor.foldNotes(log) : [];
     const notes = folded.map((n) => ({ subject: n.subject, verb: n.verb, object: n.object, witnesses: n.witnesses.length }));
     const closedLabels = folded.filter((n) => closed.has(String(n.verb).toLowerCase()));
     const corroborated = folded.filter((n) => n.witnesses.length >= 2);
@@ -92,7 +92,7 @@ export const QUESTIONS = [
  */
 export async function assembleDoorProbe({ fold, native, fixtures, readFileSync, existsSync }) {
   const { makeRelationReader } = await import(`${fold}/hypergraph.js`);
-  const { makeHyperlexicon } = await import(`${fold}/hyperlexicon.js`);
+  const { makeNotesText } = await import(`${fold}/hyperlexicon.js`);
   const { adaptTaskLog } = await import(`${fold}/consequence.js`);
   const { makeGrammarLens } = await import(`${fold}/grammar-lens.js`);
   const { chunkSource, retrieve, tokenize, blankLabelRows } = await import(`${fold}/source.js`);
@@ -119,7 +119,7 @@ export async function assembleDoorProbe({ fold, native, fixtures, readFileSync, 
     blankFurniture: (text) => blankLabelRows(text, { minRun: 4, maxCell: 60 }),
     resolvePronouns,
   });
-  const hyperlexiconFor = makeHyperlexicon({
+  const hyperlexiconFor = makeNotesText({
     ...adaptTaskLog({
       createTaskLog: nativeTaskLog.createTaskLog, append: nativeTaskLog.append,
       ENTRY_KINDS: nativeTaskLog.ENTRY_KINDS, OPERATOR_BASIS: nativeTaskLog.OPERATOR_BASIS, GRAINS,

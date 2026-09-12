@@ -1,5 +1,23 @@
 # Chorus log — append-only, one entry per lint run
 
+## 2026-09-08 — organs/hyperlexicon.js renamed to notes-text.js, and every collision it caused (branch `rename-notes-text-face`)
+
+fast: 5 staged files (+ ~40 mechanically-edited importers, `git add -A` pending) · 11 affected test files, 178/178 pass · law: ok (citations resolve; two pre-existing dup-header WARNs — P115/P116/P117/P19 in the-fold, S17 here — neither touched by this diff, confirmed identical on `git stash`)
+
+Not a new feature: `native/organs/hyperlexicon.js` (the text face of `kernel/notes.js`) shared its name with the real Xushen affordance ledger, `kernel/hyperlexicon.js` — five eval files had already hand-aliased the collision (`createChemistry`) rather than name it. Renamed the file and every colliding export (`makeHyperlexicon`→`makeNotesText`, member `createHyperlexicon`→`createNotes`, `foldHyperlexicon`→`foldNotes`, `readingFromHyperlexicon`→pass-through `readingFromNotes`); `kernel/hyperlexicon.js` itself untouched. ~40 importers fixed mechanically (import path + the four renamed identifiers, dotted-property-safe so the 5 dual-importers' kernel-side `createHyperlexicon` was never touched); `capacities.js`'s registry row and `organs/index.js`'s re-exports updated to match. Cross-repo: the-fold's 332-byte shim (`hyperlexicon.js`) re-pointed at the new path — required, not optional: `native/eval/the-fold/lib/{door-probe,borodino-ledger}.mjs` and `live_priors/scripts/eot-digest.mjs` all reach the organ through that shim, and `kind-standing.test.mjs` (this repo's own suite) failed with `ERR_MODULE_NOT_FOUND` through it before the fix. Two one-line aliased imports (`makeNotesText as makeHyperlexicon`) keep the-fold's `app.js` (~30 local uses of `hyperlexiconFor`) and live_priors' driver byte-identical downstream of the rename.
+
+| lens | citation | file:line | verdict | one line |
+|---|---|---|---|---|
+| Feynman | — (no constant/skip introduced) | notes-text-identity.test.mjs:14 | clean | comment restates a real measured finding (0/29 witnessed) with a pre-existing, slightly stale driver-path shorthand — not touched by this diff |
+| Dijkstra | — (no locale/hash logic introduced) | notes-text-identity.test.mjs:35 | clean | `toLowerCase`+determiner-strip is self-labeled "A TOY canonicalizer, test-only" in the same comment block — disclosed stub, pre-existing, unmodified by the rename |
+| Holmes | P73 (identity seam) | notes-text-identity.test.mjs:1 | clean | file is about identity by design; rename touched names only, not the merge logic |
+| Pearl | P73 corroboration mechanism | notes-text-identity.test.mjs:48 | clean | the two witnesses are two distinct sources (`borodino.txt#1-9`, `war-and-peace.txt#2-9`) — no shared-cause conflation |
+| Frankfurt | — (test double) | notes-text-identity.test.mjs:84 | clean | comment explicitly discloses it as "A stub lens shaped exactly as makeGrammarLens's return" |
+| Alexander | composition seam | notes-text-identity.test.mjs:83 | clean | test genuinely asserts gate-before-identity ordering (a settled non-verb refused, a real verb still admitted through identity) — read in full, not superficial |
+
+clean: Marshall (no law edited or cited beyond the two pre-existing, untouched WARNs), Simon/Chekhov (`notes-text.js` flagged "new" by the git-rename heuristic; false positive — it's the byte-identical prior module, imported by 4 direct test files plus ~40 more transitively, all passing)
+
+
 ## 2026-09-05 — the audit finished: fixture refusal, four lib/test extractions, audit runner (branch `p94-audit-pass13`, S65 / the-fold P95)
 
 Constitution: `../eo-constitution/CONSTITUTION.md` + this repo's READING-SPEC.md / CLAUDE.md and the-fold's POLICIES.md. Reviewed diff: `git diff --cached` on `p94-audit-pass13` (36 files; new `eval/the-fold/lib/{walk-fixtures,mhc-control,full-circuit,door-probe,object-boundary,reasoning-e2e}.mjs`, six new `tests/*.test.js`, `audit-results.sh`, nine driver edits, S65, eleven results-doc stamps). The ten cell personas were launched as parallel subagents and all ten were terminated by the session rate limit before reporting; the ten lenses were then run sequentially in-session per the skill's fallback, Marshall last.

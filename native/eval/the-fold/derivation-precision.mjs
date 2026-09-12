@@ -50,7 +50,7 @@ import { createReactionSubstrate, closureAffordances } from "../../kernel/reacti
 import { refuteRelation, afterVeto } from "../../kernel/refutation.js";
 
 import { parseEntity } from "../../../../the-fold/wikidata.js";
-import { makeHyperlexicon } from "../../organs/hyperlexicon.js";
+import { makeNotesText } from "../../organs/notes-text.js";
 import { adaptTaskLog } from "../../../../the-fold/consequence.js";
 import { assertionEdges } from "../../../../the-fold/predigest.js";
 
@@ -60,7 +60,7 @@ const ORACLE = path.join(HERE, "fixtures", "succession-terms.json");
 const OUT = process.env.OUT_PATH ?? path.join(HERE, "results", "derivation-precision.json");
 const GIVER = "native/eval/the-fold/derivation-precision.mjs — per-office transitive closure, declared as this driver's own risk";
 
-const foldHl = makeHyperlexicon({ ...adaptTaskLog({ createTaskLog, append, ENTRY_KINDS, OPERATOR_BASIS, GRAINS }), projectTasks });
+const foldHl = makeNotesText({ ...adaptTaskLog({ createTaskLog, append, ENTRY_KINDS, OPERATOR_BASIS, GRAINS }), projectTasks });
 
 // ── the material, addressed into its own bytes (P5.2) ─────────────────────
 const files = fs.readdirSync(FIXTURES).filter((f) => f.endsWith(".json")).sort();
@@ -119,11 +119,11 @@ if (process.env.REDEAL_SEED) {
   }
 }
 
-let log = foldHl.createHyperlexicon();
+let log = foldHl.createNotes();
 for (const file of files) {
   log = foldHl.admit(log, offered.filter((o) => o.witness === file).map((o) => o.a), { witness: `wikidata/${file}` }).log;
 }
-const folded = foldHl.foldHyperlexicon(log);
+const folded = foldHl.foldNotes(log);
 const { edges } = assertionEdges(folded, { hyperedge, source: "wikidata-fixtures" });
 const offices = [...new Set(folded.map((a) => a.verb))].map((v) => v.split(":")[1]);
 const raw = folded.map((a) => ({ office: a.verb.split(":")[1], from: a.subject.toUpperCase(), to: a.object.toUpperCase() }));
@@ -182,10 +182,10 @@ function tenureMaterial(nameOf) {
 }
 const personOf = (ref) => String(ref).split("#")[0].toUpperCase();
 function tenureArm(nameOf) {
-  let l = foldHl.createHyperlexicon();
+  let l = foldHl.createNotes();
   const off = tenureMaterial(nameOf);
   for (const file of files) l = foldHl.admit(l, off.filter((o) => o.witness === file).map((o) => o.a), { witness: `wikidata/${file}` }).log;
-  const fold = foldHl.foldHyperlexicon(l);
+  const fold = foldHl.foldNotes(l);
   const { edges: tEdges } = assertionEdges(fold, { hyperedge, source: "wikidata-tenures" });
   const tOffices = [...new Set(fold.map((a) => a.verb))].map((v) => v.split(":")[1]);
   const hl = tOffices

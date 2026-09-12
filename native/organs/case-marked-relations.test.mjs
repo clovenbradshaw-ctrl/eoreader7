@@ -7,11 +7,19 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import path from "node:path";
+import fs from "node:fs";
 import { fileURLToPath } from "node:url";
 import { makeCaseMarkedRelationReader } from "./hypergraph.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const NATIVE = path.join(HERE, "..");
+
+// defaultLatinCasePrior() (adapters/text/relations-case-marked.js) lazily
+// reads a live_priors fixture the-fold-style repos vendor as a sibling —
+// never committed here (S65/P95). Checked at the same path that module
+// itself reads, so the skip is real rather than guessed.
+const CASE_PRIOR_PATH = path.join(NATIVE, "..", "..", "live_priors", "derived-priors", "case-priors", "case-marking-lat.json");
+const SKIP = fs.existsSync(CASE_PRIOR_PATH) ? undefined : `live_priors is not checked out as a sibling of this repo: case-marking-lat.json (looked for ${CASE_PRIOR_PATH})`;
 
 async function loadOrgans() {
   const spans = await import(path.join(NATIVE, "adapters/text/spans.js"));
@@ -28,7 +36,7 @@ test("declared organs required — never a silent private reimplementation", () 
   assert.throws(() => makeCaseMarkedRelationReader({ splitSentences: () => [] }), /extractCaseMarkedRelation is injected/);
 });
 
-test("a real VOS (verb-object-subject) Latin sentence binds correctly, with byte-accurate spans", async () => {
+test("a real VOS (verb-object-subject) Latin sentence binds correctly, with byte-accurate spans", { skip: SKIP }, async () => {
   const { relationsFor } = await loadOrgans();
   const text = "possedit cetera pontus.";
   const report = relationsFor([{ ref: "ovid.txt", text }]);
@@ -46,7 +54,7 @@ test("a real VOS (verb-object-subject) Latin sentence binds correctly, with byte
   assert.equal(span.ref, "ovid.txt");
 });
 
-test("the shape is {end1, label, end2} natively -- never subject/verb/object (P72's whole point, checked at the integration boundary too)", async () => {
+test("the shape is {end1, label, end2} natively -- never subject/verb/object (P72's whole point, checked at the integration boundary too)", { skip: SKIP }, async () => {
   const { relationsFor } = await loadOrgans();
   const report = relationsFor([{ ref: "a.txt", text: "Maxima pars unda rapitur." }]);
   for (const e of report.edges) {
@@ -55,7 +63,7 @@ test("the shape is {end1, label, end2} natively -- never subject/verb/object (P7
   }
 });
 
-test("a gap is a real, reported result -- never silently dropped from the reading", async () => {
+test("a gap is a real, reported result -- never silently dropped from the reading", { skip: SKIP }, async () => {
   const { relationsFor } = await loadOrgans();
   // A multi-verb sentence is out of this organ's declared scope (clause
   // segmentation, unbuilt) -- it must surface as a gap, not vanish.
@@ -66,7 +74,7 @@ test("a gap is a real, reported result -- never silently dropped from the readin
   assert.equal(report.gaps[0].ref, "b.txt");
 });
 
-test("multiple passages and multiple sentences per passage all get read", async () => {
+test("multiple passages and multiple sentences per passage all get read", { skip: SKIP }, async () => {
   const { relationsFor } = await loadOrgans();
   const report = relationsFor([
     { ref: "a.txt", text: "possedit cetera pontus." },

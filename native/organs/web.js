@@ -265,6 +265,23 @@ export function looksLikeChallenge({ title, textChars }) {
   return (textChars ?? 0) < 200 && /just a moment|attention required|access denied|are you a (?:robot|human)|enable javascript and cookies|verify you are|checking your browser|captcha/i.test(String(title ?? ""));
 }
 
+/**
+ * A page whose readable face is a JS-required / error shell is NOT content.
+ * Measured live 2026-09-11: a site answered with "A required part of this
+ * site couldn't load… disable any ad blockers" — 209 readable chars of
+ * error shell, zero article. `extractReadable` strips the markup faithfully;
+ * what came out was the shell's own apology. This names the situation so a
+ * caller (Gore, the web searcher) can skip the page and fetch the next
+ * result instead of quoting "please disable your ad blocker" as source
+ * material. A marker on the CONTENT, not the title: some shells keep a
+ * normal title while the body apologizes.
+ */
+export function looksLikeShell(text = "") {
+  const t = String(text ?? "");
+  if (t.length > 1500) return false; // a real page has real content
+  return /(?:couldn'?t\s+load|required part of this site|disable (?:any )?ad blockers|enable javascript|checking your browser|content not available|something went wrong|an error occurred|enable js|browser settings)/i.test(t);
+}
+
 // ── search-result parsing ───────────────────────────────────────────────────
 // DuckDuckGo's two no-key HTML faces (html.duckduckgo.com/html and
 // lite.duckduckgo.com/lite). Both wrap result links in a redirect
@@ -362,6 +379,74 @@ export function foldWebHistory(jsonl) {
   }
   const entries = [...byId.values()].sort((a, b) => String(b.retrievedAt ?? "").localeCompare(String(a.retrievedAt ?? "")));
   return { entries, skipped };
+}
+
+// ── forgetting the uncited (added 2026-09-09) ───────────────────────────────
+// User direction, in three steps: don't keep a fetched page's full content
+// once it turns out not to matter; "if it doesn't get cited, it's not
+// relevant"; and — because citation is decided by a LATER turn, possibly in
+// a different conversation, and the saved text is content-addressed and so
+// may be shared across every entry that ever names the same sha256 —
+// "let's have it forget over time" rather than compact the instant one turn
+// doesn't cite it. This is READING-POLICY P1's own law ("activation decays,
+// identity does not") applied to fetched material instead of conversational
+// turns: a page nobody has cited after a while is not deleted (the history
+// LINE stays, append-only, forever — P13's own rule) — only its full SAVED
+// TEXT is replaced with the mechanical fold `fetchAndKeep` already computes
+// on every fetch (foldExtract's own coverage summary, never a paraphrase),
+// so what remains is the page's own shape rather than its every byte.
+//
+// A page a person or a turn HAS cited never decays, at any age — `cited`
+// rides as an ordinary patch line (`{id, cited: true, citedAt}`), the exact
+// shape `archive`'s own late-landing patch already uses, folded by the same
+// `foldWebHistory` above with no change to it. And a page already condensed
+// stays condensed; this is idempotent, never re-summarizing what nothing
+// referenced the last time either.
+export const WEB_FORGET_AFTER_MS = 24 * 60 * 60 * 1000; // one day — a first, disclosed starting point (P9), not derived from a measurement; easy to widen once real usage says otherwise
+
+/**
+ * Which folded history entries are due to have their full text replaced by
+ * their own mechanical fold: never cited, never already condensed, carrying
+ * a fold to condense TO (a page with no text face — a binary download — has
+ * nothing to shrink and is left alone), and older than `forgetAfterMs`. Pure
+ * and time-injected (the `now`/cast.js pattern) so it is deterministic to
+ * test — the caller supplies the wall clock, this never reads one itself.
+ */
+export function dueToForget(entries, { now, forgetAfterMs = WEB_FORGET_AFTER_MS } = {}) {
+  if (!(now instanceof Date) || Number.isNaN(now.getTime())) return [];
+  return (entries ?? []).filter((e) => {
+    if (!e || e.cited || e.condensed || !e.textPath || !e.fold || e.fold.gap) return false;
+    const at = Date.parse(e.retrievedAt ?? "");
+    return Number.isFinite(at) && now.getTime() - at >= forgetAfterMs;
+  });
+}
+
+/**
+ * The set of saved-file paths (raw and text) still needed after removing or
+ * condensing `victims` from `entries` — the SAME reference-counting rule
+ * `/api/web/clear` already applies (saved content is content-addressed and
+ * may be shared between visits; a file named by any entry NOT in `victims`,
+ * or by a victim's own `cited`/kept sibling, is never touched), pulled out
+ * here so clearing and forgetting share one implementation rather than two
+ * that could drift.
+ */
+export function filesStillNeeded(entries, victims = []) {
+  const victimIds = new Set((victims ?? []).map((v) => v.id));
+  const kept = (entries ?? []).filter((e) => !victimIds.has(e?.id));
+  return new Set(kept.flatMap((e) => [e.rawPath, e.textPath].filter(Boolean)));
+}
+
+/**
+ * The condensed text face's own content — plain lines, verbatim from the
+ * fold (never re-rendered prose), each with its own character address, so
+ * a citation address computed against the full text still resolves to
+ * REAL bytes of the page rather than 404ing against a file that shrank out
+ * from under it. Disclosed at the top: what this is, and how much was kept.
+ */
+export function renderCondensedFace(fold, { url } = {}) {
+  const lines = fold?.lines ?? [];
+  const header = `[condensed — the full page was not cited and has aged out; this is its own mechanical coverage fold, ${fold?.kept ?? 0} of ${fold?.of ?? 0} sentence(s), never a paraphrase${url ? ` — ${url}` : ""}]`;
+  return [header, "", ...lines.map((l) => l.text)].join("\n");
 }
 
 // ── archive.org ─────────────────────────────────────────────────────────────
