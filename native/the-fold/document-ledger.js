@@ -423,6 +423,72 @@ export function satisfactionOfSection(sectionText, { theme = "", material = "", 
   return { ok: failures.length === 0, failures, strain };
 }
 
+// ── FISHER'S NULL TEST FOR REPETITION ──────────────────────────────────────
+// Handle: Fisher — after Ronald Fisher's permutation test: a figure is a
+// placement against a null built by shuffling, or it is refused. Repetition
+// is only REAL when the openings recur more than a shuffled baseline would
+// — five paragraphs opening "The bongo antelope, scientifically classified
+// as..." is repetition only if shuffling the openings would not produce the
+// same recurrences by chance. `detectRepetition` measures the sentence/
+// paragraph OPENINGS across the essay, compares the recurrence count to a
+// null built by shuffling the openings, and reports the openings that recur
+// above chance (p < 0.05 by permutation). This is the DETECTOR; Murch flags
+// its findings, Oliveros varies them.
+export function detectRepetition(documentLines = [], { shuffles = 400, pValue = 0.05 } = {}) {
+  const openings = (documentLines ?? [])
+    .map((l) => String(l ?? "").trim())
+    .filter((l) => l.length > 20)
+    .map((l) => {
+      const words = l.split(/\s+/);
+      const start = words.slice(0, 14).map((w) => w.toLowerCase().replace(/[^a-z']/g, ""));
+      return { full: l, words: start };
+    });
+  if (openings.length < 2) return { repeated: [], p: 1, n: openings.length, basis: "fewer than two sections — nothing to test" };
+  // The observed statistic: the LONGEST shared leading-word prefix across any
+  // pair of openings. "The bongo antelope, scientifically classified as
+  // Tragelaphus eurycerus" = 8+ shared words; a varied essay shares 1-2.
+  const maxSharedPrefix = (list) => {
+    let best = 0;
+    for (let i = 0; i < list.length; i++) {
+      for (let j = i + 1; j < list.length; j++) {
+        const a = list[i].words, b = list[j].words;
+        const min = Math.min(a.length, b.length);
+        let shared = 0;
+        for (let k = 0; k < min; k++) if (a[k] === b[k]) shared++; else break;
+        if (shared > best) best = shared;
+      }
+    }
+    return best;
+  };
+  const observed = maxSharedPrefix(openings);
+  // THE NULL (Fisher): each opening's words are SHUFFLED WITHIN itself — the
+  // word-distribution is kept, but the ORDER is destroyed. A long leading
+  // prefix is real repetition only if it exceeds what word-order-scramble
+  // would produce by chance. This is the honest null: order matters.
+  let above = 0;
+  for (let s = 0; s < shuffles; s++) {
+    const scrambled = openings.map((o) => ({ ...o, words: [...o.words].sort(() => Math.random() - 0.5) }));
+    if (maxSharedPrefix(scrambled) >= observed) above++;
+  }
+  const p = (above + 1) / (shuffles + 1); // +1: the observed is itself a draw
+  const repeated = p < pValue ? openings
+    .filter((o) => {
+      const prefix = o.words.slice(0, 3).join(" ");
+      return openings.some((x) => x !== o && x.words.slice(0, 3).join(" ") === prefix);
+    })
+    .map((o) => o.full) : [];
+  return {
+    p: Number(p.toFixed(3)),
+    repeated,
+    n: openings.length,
+    observed,
+    significant: p < pValue,
+    basis: p < pValue
+      ? `Fisher: the longest shared opening-prefix is ${observed} words — word-order scramble gives that ${(p * 100).toFixed(0)}% of the time (p=${p.toFixed(3)}), so the openings repeat, not by chance`
+      : `Fisher: the longest shared opening-prefix is ${observed} words — word-order scramble gives that ${(p * 100).toFixed(0)}% of the time (p=${p.toFixed(3)}), within chance`,
+  };
+}
+
 // The whole-document satisfaction: every planned section satisfied. Returns
 // {ok, satisfied:number, of:number, failures:[...], totalStrain:number}.
 export function satisfactionOf(documentLines = [], sections = [], { material = "" } = {}) {

@@ -198,6 +198,8 @@ export function humanizeNote(note) {
       return `The essay's own conversation, folded: ${note.sections} section(s) written, ${note.active} active referent(s) — Wolfe composes against this, never the raw prose.`;
     case "murch":
       return `Murch, pass ${note.round}: editing the whole — ${(note.findings ?? []).join(", ")}.`;
+    case "fisher":
+      return `Fisher: the openings repeat above chance (p=${note.p}, ${note.repeated} section(s) share a construction) — Oliveros will vary them.`;
     case "murch_applied":
       return `Murch applied ${note.applied} revision(s) this pass.`;
     case "ranke":

@@ -19,7 +19,7 @@ import { resolutionBlocks } from "./native/the-fold/resolutions.js";
 import { tokenize } from "./native/the-fold/source.js";
 import { logitBiasFor, logitsBiasObject } from "./native/organs/gemma2-tokenizer.mjs";
 import { readingIndexFromLog } from "./native/the-fold/reading-log.js";
-import { createDocumentLedger, appendDocumentObservation, appendLedgerLine, projectDocument, documentChangeLog, admitPart, serializeLedger, snipsFromSources, checkEssayShape, ledgerFilePath, renderApaFootnotes, satisfactionOfSection, satisfactionOf, declareEssayVoid, fillCheck, citationLedger, voidCellsFor, holographicSatisfaction, lavarGradeEssay, competencyGrade, lavarGradeReading, kelsenGrade, embedInlineCitations, renderLiveEssayHtml } from "./native/the-fold/document-ledger.js";
+import { createDocumentLedger, appendDocumentObservation, appendLedgerLine, projectDocument, documentChangeLog, admitPart, serializeLedger, snipsFromSources, checkEssayShape, ledgerFilePath, renderApaFootnotes, satisfactionOfSection, satisfactionOf, declareEssayVoid, fillCheck, citationLedger, voidCellsFor, holographicSatisfaction, lavarGradeEssay, competencyGrade, lavarGradeReading, kelsenGrade, embedInlineCitations, renderLiveEssayHtml, detectRepetition } from "./native/the-fold/document-ledger.js";
 import { precedence, tagClaim } from "./native/organs/regime.js";
 import { goreBoundary, gatherPlan, cueGoDeeperPlan } from "./native/the-fold/gore.js";
 // The keyless field (GFP Pass 35, the-fold c232779): recall by partial-cue
@@ -2462,6 +2462,20 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
         // failure for Ranke, not a style problem for the editor. The loop is
         // bounded by `applied` and MAX_REWRITE_ROUNDS.
         const findings = aggregateEssayFindings({ sections: plannedSections, documentLines, material: groundingText(), shapeCheck });
+        // FISHER DETECTS THE WHOLE-ESSAY OPENING REPETITION (the gate the
+        // neighbor-overlap check misses): five paragraphs opening "The bongo
+        // antelope, scientifically classified as..." recur ABOVE CHANCE
+        // (p from a word-order-scramble null). Fisher names the repeated
+        // openings; Murch flags them; OLIVEROS varies them.
+        const fisher = detectRepetition(documentLines, { shuffles: 400 });
+        if (fisher.significant && fisher.repeated.length) {
+          if (onNote) onNote({ move: "fisher", p: fisher.p, observed: fisher.observed, repeated: fisher.repeated.length, basis: fisher.basis });
+          for (let fi = 0; fi < documentLines.length; fi++) {
+            if (fisher.repeated.includes(documentLines[fi])) {
+              findings.push({ kind: "repetition", sectionIndex: fi, detail: `the opening repeats another section's — Fisher's null shows it recurs above chance (${fisher.repeated.length} section(s) share the same opening construction)` });
+            }
+          }
+        }
         const fixable = findings.filter((f) => f.kind !== "ungrounded");
         if (!fixable.length) break;
         if (onNote) onNote({ move: "murch", round: round + 1, findings: fixable.map((f) => `${f.kind}${f.sectionIndex != null ? `@${f.sectionIndex}` : ""}`) });
@@ -2495,7 +2509,13 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
           }
           // A section finding (meta/repetition/thin/ungrounded) — rewrite that
           // specific section from the material, keeping the piece's voice.
-          const fixMsg = `We're editing a piece on ${topic}. ${editorStanding ? `Where the piece stands: ${editorStanding}\n\n` : ""}The editor found this problem in one section:\n- [${f.kind}] ${f.detail}\n\nThe current section reads:\n"""\n${String(targetSection ?? "").slice(0, 1200)}\n"""\n\nRewrite that section from the material, in the piece's own voice — a substantial passage, several sentences, the material's own facts and wording, no introduction, no commentary about writing. Write only the corrected section.`;
+          // OLIVEROS's deep-listening instruction rides the repetition
+          // finding: vary the OPENING so it does not echo the other sections'
+          // construction — the pulse of the piece must not fall into a rut.
+          const oliverosNote = f.kind === "repetition"
+            ? " Open differently — do not begin the way the other sections begin; vary the construction, the rhythm, the first phrase. Listen to what the piece has already said and start somewhere it has not."
+            : "";
+          const fixMsg = `We're editing a piece on ${topic}. ${editorStanding ? `Where the piece stands: ${editorStanding}\n\n` : ""}The editor found this problem in one section:\n- [${f.kind}] ${f.detail}\n\nThe current section reads:\n"""\n${String(targetSection ?? "").slice(0, 1200)}\n"""\n\nRewrite that section from the material, in the piece's own voice — a substantial passage, several sentences, the material's own facts and wording, no introduction, no commentary about writing.${oliverosNote} Write only the corrected section.`;
           const fix = await draw(
             [{ role: "system", content: systemContent }, ...keptChat, { role: "user", content: fixMsg }],
             SECTION_MAX_TOKENS,
