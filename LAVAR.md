@@ -4,6 +4,8 @@
 
 *Standing: directive. Written against `eoreader7@cbf97b4` and `the-fold@e3bbd12`, 8 September 2026. Every measurement cited was run in this session. Named for LeVar Burton. Ships incrementally; no phase deletes anything until the phase after it measures better.*
 
+**Constitution:** eo-constitution **II.6** (the book test — LaVar reads the source itself, never a surrogate), **II.2** (every prior LaVar lands names its giver), **II.9** (revision — the autonomy spiral is a witnessed revision of the reader; arrival is never verdict), **II.23** (every null LaVar's canon relies on carries a control built to fail), **III.3** (a missing prior is a typed gap, never a silently wrong number), **IV.4** (every LaVar revision cites the addresses and the entries that produced it). This charter is **agent policy under the constitution**, not an amendment: it changes no constitution text and carries no changed conformance test (IV.1), and per IV.2 it stands proposed for human disposal.
+
 ---
 
 ## 1. The problem it exists to solve
@@ -145,6 +147,10 @@ Three more things LaVar confirms once recoverability holds, each with its own ho
 
 **Competing witnesses for that exact question, one retired, one tried and refused, a prior corrected twice after running it for real.** `READING-SPEC.md` S109, direct user framing: *"try different competing programs on things to find the one that provides the most meaningful signal, global workspace theory type stuff"* / *"let's not underestimate CV and OCR systems"* / *"we don't know the ground truth, we are always ever asymptotically approaching the referent... the noumena rather."* A plausible mechanical hypothesis (cross-column cell-length variance) was measured wrong on the first real counterexample — confounded by lexical category length, not by row/column shape — and retired to disclosure-only rather than diluted into a vote. A second mechanical specialist (blank-cell clustering by column) survived both real specimens tried and decides alone whenever it has evidence. A local vision model, shown an actual rendered screenshot of the real table, hallucinated a plausible-but-wrong structure — identically, twice in a row: the disclosed lesson is that self-consistency is not correctness, and this project's own "ask twice, trust on agreement" discipline only catches a witness that flips under reorder, not one that is simply, confidently, consistently wrong. Built, tested, excluded until it earns a seat. A per-document prior (memory shaping the CURRENT read, the way a recognized scene sharpens the next percept rather than commenting on it afterward) was added, then twice caught overriding a specialist's own direct, checked vote — the same class of error as the confounded specialist, just relocated — and fixed structurally: a prior never outvotes a specialist that actually casts one; it only decides when every earned witness abstains. Tuples, finally emitted and address-verified for both real specimens, shape-informed rather than assuming one universal shape.
 
+**Sniff, form a working thesis, test it, revise it — exercised end to end on a real, never-before-read book.** `READING-SPEC.md` S110, direct user framing: *"we sniff then try and try to create a single working thesis on what it is we're experiencing, always revisable."* On the freshly-corrected Tom Sawyer text: the cheap senses (`structure-rec.mjs`, `table-rec.mjs`) sniffed a real, fourth heading convention — `CHAPTER <roman>`, no period — mechanically, no model call needed. The working thesis this implied ("should read cleanly now") was tested against the actual reader, not assumed, and found wrong in its unstated half: knowing a convention exists and the reader recognizing it are different facts — `eot-jsonl.mjs` had no branch for a bare Roman numeral and reported "no chapter 1 inferred." Revised (a third regex alternative alongside the Dorian Gray and Frankenstein fixes), regression-checked clean against AIW/Dorian Gray/Frankenstein, then re-tested and confirmed: Tom Sawyer ch1 reads at 100% recoverability. The second time in one session this exact discipline caught its own thesis wrong before trusting it — S109's prior-arbitration bugs were the first.
+
+**The gap named four times, actually closed.** `READING-SPEC.md` S111, direct user framing: *"wire it all in."* `eot-jsonl.mjs` no longer carries its own hand-maintained heading regex — it now imports `structure-rec.mjs`'s tiered detector directly, tries every known convention mechanically, falls back to skeleton-recurrence discovery for a genuinely new one, and PERSISTS a new find to the shared library itself, so the next book with the same shape needs no human at all. Two more real bugs found wiring it in: `structure-rec.mjs`'s own CLI section had no `import.meta.url` guard, so importing its functions ran its "usage:" exit against the caller's own argv; and extending `recoverability.mjs` with the same fourth convention used `\s+` where it needed `[ \t]+`, silently spanning a blank line into the next paragraph and producing a degenerate `0/0 words, 100% recoverable` false positive. Both fixed, and the actual payoff collected: the real Sherlock Holmes text, a convention this reader was never hand-coded for, read correctly on the first attempt — zero manual editing — then verified at 100% recoverability, with all five previously-earned specimens (AIW, Dorian Gray, Frankenstein, Tom Sawyer) unchanged through the same new code path.
+
 ### What LaVar must not do
 
 **Do not hand-roll a reading loop.** `kernel/reading.js::createRecursiveReader` returns `surprise`, `tension`, `release` and `relevantFold` from every step. A driver calling `extractRelations` directly throws all four away and reinvents them worse. (Their dynamics are currently inert because nothing injects `ask` into `interrogateCube` — so a naive migration would report `surprise: 0` as though it measured the material. Wire the `ask`, do not fake the number.)
@@ -276,3 +282,53 @@ Deferred, by the user's explicit choice, not by default: the self-contradiction 
 **2026-09-09, second pass — sidecar archiving and the reading canon.** The five existing sidecars (`eoreader7/native/eval/the-fold/results/readings/*.jsonl`, recipe `causalTextPerceiver_reviseTextFold_refresh25`) were moved to `readings/archive/` per §7 rather than deleted — the user's instruction was to "wipe" them, but §7 itself requires archiving because one of the five (`022805d79a1d4edf-...jsonl`) carries the actual Marmeladov specimen §1 is written against; deleting it would have destroyed the before-and-after this whole effort measures against. `readings/archive/README.md` records which hash holds the specimen and flags the other four as unreviewed rather than assumed clean. `readings/` itself is now empty and ready for the rebuild.
 
 Section 13, "LaVar's reading canon," was added: a pointer-plus-checklist (not a duplicate) into `READING-POLICY.md`'s P0–P7 and this repo's `CLAUDE.md` incident log, aimed specifically at what makes a sidecar gradable and what makes a LaVar revision trustworthy — assembly discipline, stage-by-stage checking, prior-tier attribution (the Marmeladov bug restated as "which tier decided this"), gaps-as-results, byte-offset self-verification, stated configuration, search-before-flagging-a-miss, never-tune-on-the-score, reachability of a finding, and supersede-never-overwrite. This directly answers the user's "be sure LaVar is an absolute reading expert grounded in everything we've learned about reading" and "I'm most interested in him creating the best quality sidecars" — the canon is the part of LaVar's expertise that has to be read from the project's own record, not invented fresh.
+
+## 2026-09-12 — Omni-lingual check: §8 transfers to Russian, the shape is language-general, and the received floor has one named gap (UniMorph rus full forms)
+
+The Meno/loops/shape experiments threatened to become English-shaped, and were tested before they could. Real Russian War and Peace (`11-multi-language/war-and-peace/ru/voyna-i-mir_Tolstoy_wikisource.txt`) through the ledger reader with `--lang=rus` (pronoun set added; `pos-rus.json` already present):
+
+**What held (not English-shaped):**
+- The §8 received floor (S112) transfers: real Russian meaning is read — `Анна Павловна | кашляла | несколько дней`, `Он | говорил | на том изысканном французском`, `грипп | был | тогда новое слово`. The received verb-admission is not English-shaped.
+- The GOLDEN-FREE SHAPE is language-general: recoverability 100% (the address layer, S103 again), void rate, referent purity, signal-over-noise all computed identically in Russian. The ideal-shape loop can be chased in any language **with no golden**.
+
+**What broke (the English-shaped assumptions, disclosed where S40/S103 predicted):**
+- Referent purity 0.111 — capitalisation does not mark Russian proper nouns, so capitalisation-based discovery admits junk.
+- Pronoun binding 0 — Russian pro-drop (and the aristocratic French opening) starve third-person pronouns.
+- Inflected verbs (`кашляла`, `смутясь`) are HEARD by earned recurrence but not TYPED — `pos-rus.json` attests only lemmas, so the grain settles as a gap.
+
+**What needed to happen (the note):**
+1. **Fetch UniMorph `rus` full forms.** The project already has the rus DECLENSION half (`priors/declension-rus.json`, provenance `github.com/unimorph/rus` — 89 suffix rules) but never fetched the full paradigm forms, unlike English (`unimorph-eng-verb-forms.json`, 103k forms). The inflected-verb typing gap closes exactly there — the received floor completed for Russian's rich inflection. Then re-run the Russian shape.
+2. **Music is the honest boundary, named not built.** The reading experiments are text-scoped; the SHAPE and the received/earned loop are reader-agnostic concepts, and the project already shows the golden-free discipline on audio (kind organs, signal.js's noise control), but the Meno/loops harness has not been wired onto the audio reader.
+3. **The shape is the golden-free future instrument** — every language, every medium, no golden required. Chasing it is the point.
+
+## 2026-09-12 — Wilson's standing laws (the swarm, made law)
+
+**Constitution:** eo-constitution **II.2** (the hierarchy is received — Commons's MHC orders are a gift that names its giver; the swarm may descend, never redefine), **II.9** (no final answer — "best" is a revision, never a verdict; convergence is a pause, never a finish), **III.2** (we read in order — the engine has no future; a disclosed reread is a prior, never lookahead), **IV.5** (consequences are revisable — nothing the swarm settles is grandfathered). Agent policy under the constitution, proposed not self-enacted (IV.2); prose with no enforcement test, not an amendment (IV.1).
+
+Wilson is the archon of the swarm (the evolutionary swarm-storm of reading
+variants under the cube and the received MHC hierarchy). Three laws govern
+it, and they are binding on every agent it spawns:
+
+1. **There is no final answer.** The swarm is always asymptotically
+   approaching the limit, never arriving. "Current best, always revisable"
+   replaces "verdict"/"final" everywhere: a reading, a shape, a configuration
+   is the current approach to the referent (the noumena), never the referent
+   itself. Convergence is a pause, never a finish.
+
+2. **We read in order; no agent does otherwise.** Every agent reads
+   CAUSALLY — a sentence is scored only with what came before it (S3, P1).
+   No agent reads the future to score the present. The only exception is a
+   DISCLOSED second pass: a reread that has legitimately read the material
+   may use it as prior, and must say so (EOTReadingPass pass:2) — that is
+   rereading, never lookahead. The correction chase scores first-read
+   (causal) then corrected-read (disclosed reread); the causal shape is the
+   honest one.
+
+3. **The hierarchy is received; the swarm descends it, never reorders it.**
+   Commons owns the MHC orders; Wilson owns the swarm's process. Bad
+   extraction (a below-noise shape) triggers a descent (REC) down the
+   received ladder — Wilson may descend, never redefine.
+
+Every swarm output that says "best" means "best so far"; every shape is a
+point on an asymptotic curve; every agent reads the material in order and
+nothing else.

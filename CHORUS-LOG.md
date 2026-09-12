@@ -229,3 +229,17 @@ A compliance review (2026-09-07, this session) found ten defects across the P162
 deferred-with-reason: `individuation.js::place()` throws on a lost hypothesis under an update that changes an occurrence's own encounter id — judged unreachable in current callers, disclosed rather than hardened this pass.
 
 false-positive-on-review: none.
+
+## 2026-09-12 — Marshall reconciliation: agent laws (LaVar, Wilson, Kelsen, Ranke) linked to the constitution (working, 3 repos)
+
+fast: 3 files (LAVAR.md, native/READING-SPEC.md, native/organs/reasoning-lint.js) · 57/57 affected tests pass · law: ok (S110 written and resolving; pre-existing dup-header WARNs P115/P116/P117/P19 in the-fold and S17/S96 here; S0 cite WARN is from unreviewed concurrent swarm work already in the working tree, not this diff)
+
+LaVar's charter, Wilson's swarm laws, and the Kelsen seed now carry eo-constitution article citations (IV.4) with their IV.1/IV.2 status disclosed: agent policy under the constitution, proposed not self-enacted, amends no constitution text. S110 — reserved in the sequence since 2026-09-09 but never written — was written from the LAVAR record in the house format with a Generality line. The two divergent LAVAR.md copies (eoreader7, live_priors) were reconciled to one union; live_priors/LAVAR.md is now byte-identical to eoreader7/LAVAR.md. Ranke's P84/P182 received their constitution citations in the-fold.
+
+| lens | citation | file:line | verdict | one line |
+|---|---|---|---|---|
+| Marshall | IV.4; IV.1/IV.2; II.6/II.2/II.9/II.23/III.2/III.3 | LAVAR.md:7, LAVAR.md:303; reasoning-lint.js:10-15; READING-SPEC.md S110 | fixed | every agent law now cites the articles that produce it; status disclosed as proposed-not-self-enacted; the one dangling citation (S110) written, not waived |
+| Diaconis | II.23 | LAVAR.md constitution line | clean | the II.23 citation restates the article's control-built-to-fail requirement; no number introduced |
+| Pearl | II.22 (etak) | the-fold POLICIES.md P182 | fixed | independence is argued, never assumed — the mandate's corroboration line now cites II.22, whose text matches (a mirror under another host is one channel) |
+
+clean: Feynman/Dijkstra/Holmes/Ostrom/Simon-Chekhov lens hits were all routed by unreviewed concurrent swarm working-tree files (native/eval/lavar/read-real.mjs, the results JSONL), not by this diff; none of this diff's lines introduced a constant, skip, identity, corroboration, or unwired module.

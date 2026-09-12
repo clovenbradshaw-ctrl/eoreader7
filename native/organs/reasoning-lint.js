@@ -7,6 +7,14 @@
 // fixed scale read at the query time — like temperature, it is measured,
 // never tuned.
 //
+// CONSTITUTION. eo-constitution II.2 — the precedence order is received
+// (giver: Hans Kelsen), never derived from material and never tuned against
+// it; III.2 — a validity window is a declared tag on an entry, never a clock
+// the engine owns; IV.4 — every finding cites the tags and ledger entries
+// that produced it. This seed is agent policy under the constitution,
+// proposed not self-enacted (IV.2), not an amendment to the constitution's
+// own text (IV.1).
+//
 // WHAT THIS IS. The seed ("The Reasoning Seed", 2026-09-10) says
 // transitivity and circularity checks catch bad CHAINS and nothing else:
 // they say nothing about whether a claim should chain classically at all
