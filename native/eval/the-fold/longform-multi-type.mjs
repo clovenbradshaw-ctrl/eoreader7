@@ -57,6 +57,12 @@ const notes = []; // the run's disclosed moves, one per completed job
 const errors = [];
 
 async function startJob(c) {
+  // WARM OLLAMA first: a long-form case's setup (Gore gather + Wikisource
+  // primary admission) can run 10+ minutes before the FIRST draw, during
+  // which Ollama's keep_alive expires and the model unloads — then the first
+  // draw cold-starts and can blow the per-case timeout. One tiny call before
+  // the job pins the model resident.
+  await warmOllama();
   const res = await fetch(`${PROXY}/v1/documents`, {
     method: "POST",
     headers: { "content-type": "application/json" },
@@ -66,8 +72,28 @@ async function startJob(c) {
   return res.json();
 }
 
+const _ollamaWarmed = { at: 0 };
+async function warmOllama() {
+  // A tiny call is cheap; doing it per case keeps the model resident across
+  // the whole battery. Throttled to once per 5 minutes (a case that finishes
+  // fast should not pay a warm-up each time).
+  if (Date.now() - _ollamaWarmed.at < 300000) return;
+  try {
+    const up = await fetch(`${PROXY.replace(":11436", ":11434")}/api/chat`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ model: "gemma2:2b", messages: [{ role: "user", content: "OK" }], stream: false, num_predict: 2 }),
+    });
+    if (up.ok) _ollamaWarmed.at = Date.now();
+  } catch { /* best effort — the job's own draws will warm it */ }
+}
+
 async function pollJob(jobId, c, startedAt) {
-  const timeout = Number(process.env.TIMEOUT_MS ?? 12 * 60 * 1000);
+  // Wikisource-heavy cases (a primary text admission in setup) take longer
+  // before the first section lands — give them a bigger budget.
+  const timeout = c.primarySource
+    ? Number(process.env.TIMEOUT_MS ?? 12 * 60 * 1000) + 300000
+    : Number(process.env.TIMEOUT_MS ?? 12 * 60 * 1000);
   let last = null;
   while (Date.now() - startedAt < timeout) {
     const res = await fetch(`${PROXY}/v1/documents/${encodeURIComponent(jobId)}`);
