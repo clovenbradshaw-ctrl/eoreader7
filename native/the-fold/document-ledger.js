@@ -1080,8 +1080,12 @@ export function renderLiveEssayHtml({ docId, title = "the piece", jsonlPath, cit
       const lines = ledgerText.split('\\n').map(l => { try { return JSON.parse(l); } catch { return null; } }).filter(Boolean);
       const superseded = new Set(lines.filter(l => l.supersedes).map(l => l.supersedes));
       const alive = lines.filter(l => !superseded.has(l.id));
-      const proseLines = alive.filter(l => l.role === 'part' || l.role === 'citations');
-      const projection = proseLines.map(l => l.text ?? '').join('\\n\\n');
+      // THE PROSE IS THE PARTS ONLY — the citations-role lines carry the
+      // footnote BLOCK, which the page renders separately from the structured
+      // citations.json. Folding citations into the prose AND rendering the
+      // footnote list from citations.json would show every footnote TWICE.
+      const proseLines = alive.filter(l => l.role === 'part');
+      let projection = proseLines.map(l => l.text ?? '').join('\\n\\n');
       const thinkingText = alive.filter(l => l.role === 'thinking' || l.role === 'plan').map(l => l.text ?? '').join('\\n\\n');
       // The CITATIONS: the structured ledger (the holograph pointer).
       let citations = [];
@@ -1089,6 +1093,20 @@ export function renderLiveEssayHtml({ docId, title = "the piece", jsonlPath, cit
         const cRes = await fetch('${esc(citationsPath)}');
         if (cRes.ok) { const cj = await cRes.json(); citations = cj.citations ?? []; }
       } catch { citations = []; }
+      // INLINE MARKERS, applied CLIENT-SIDE: each citation's essaySentence is
+      // found in the folded prose and [n] is appended after it — the markers
+      // are computed here (never duplicated, never stored twice).
+      citations.forEach((c, i) => {
+        const sentence = String(c.essaySentence ?? '').trim();
+        if (!sentence) return;
+        const lead = sentence.slice(0, 40).replace(/\\s+/g, ' ');
+        const idx = projection.indexOf(lead);
+        if (idx < 0) return;
+        let end = idx + lead.length;
+        while (end < projection.length && !/[.!?]["'”]?\\s*$/.test(projection.slice(Math.max(0, end - 3), end + 1)) && !/[.!?]\\s/.test(projection.slice(end, end + 2))) end++;
+        if (end > projection.length) end = projection.length;
+        projection = projection.slice(0, end) + ' [' + (i + 1) + ']' + projection.slice(end);
+      });
       fold = { projection, citations, thinkingText };
       render();
       status.textContent = 'live — ' + alive.length + ' ledger line(s), ' + citations.length + ' citation(s)';

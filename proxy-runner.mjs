@@ -2609,13 +2609,11 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
         // best source, with the VERBATIM span it borrows from — the Fold's
         // cite.js discipline (an address is attached, never requested).
         const footnoteBlock = renderApaFootnotes(assembledBody, session.webSources, { givers: essayGivers });
-        // INLINE CITATION MARKERS — ALWAYS. The citations are embedded in the
-        // text ([1], [2] after each cited sentence), not only in the footnote
-        // block. The reader sees, AT THE CLAIM, that it is sourced (or stated
-        // by the model). The essay body is rewritten with the markers; the
-        // original body and the marked body are both kept (the ledger's
-        // projection shows the marked one).
-        const inlineMarkedBody = embedInlineCitations(assembledBody, cites.citations);
+        // INLINE CITATION MARKERS are applied CLIENT-SIDE by the live HTML
+        // (each citation's essaySentence gets [n] after it in the folded
+        // prose). The server stores the STRUCTURED citations (citations.json)
+        // and the footnote block as a `citations` ledger line — never a
+        // duplicate inline-marked body, never the footnotes twice.
         if (footnoteBlock) {
           appendLedgerLine(documentLedger, {
             role: "citations", title: "Footnotes (APA)", text: footnoteBlock,
@@ -2624,13 +2622,6 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
           }, { dir: ESSAY_LEDGER_DIR });
           if (onThinking) onThinking(`\n### Footnotes (APA)\n\n${footnoteBlock}\n`);
           const block = `\n${footnoteBlock}`;
-          // The ledger's PARTS get the INLINE-MARKED body — the citation is
-          // embedded in the prose, never only appended at the end.
-          documentLines[0] = inlineMarkedBody;
-          if (documentLedger) appendLedgerLine(documentLedger, {
-            role: "part", title: "inline-cited body", text: inlineMarkedBody, giver: "eoreader7:cite",
-            basis: "the essay body with inline [n] citation markers embedded after each cited sentence",
-          }, { dir: ESSAY_LEDGER_DIR });
           documentLines.push(block);
           fullText += block;
           if (onToken) onToken(block);
