@@ -15,12 +15,10 @@ const { hostname: UP_HOST, port: UP_PORT } = new URL(UPSTREAM);
 const KEEP_WARM_INTERVAL_MS = Number(process.env.ER7_KEEP_WARM_INTERVAL_MS ?? 120000);
 // A whole-turn wall clock, independent of the per-call stream timeout inside
 // runProxyTurn. The client must always get a terminal chunk; a turn that is
-// slow in its post-stream work must not hang the stream forever.
-const TURN_DEADLINE_MS = Number(process.env.ER7_TURN_DEADLINE_MS ?? 120000);
-// The idle watchdog: how long a stream may go silent (no token, no note)
-// before it is treated as wedged and aborted. An ACTIVE stream is never
-// killed — long generations keep flowing; only silence is suspicious.
-const TURN_IDLE_MS = Number(process.env.ER7_TURN_IDLE_MS ?? 45000);
+// slow in its post-stream work must not hang the stream forever. Generous on
+// purpose: it is a backstop over the per-call REQUEST_TIMEOUT_MS, never a
+// way to kill a slow-but-active stream.
+const TURN_DEADLINE_MS = Number(process.env.ER7_TURN_DEADLINE_MS ?? 300000);
 
 const ts = () => new Date().toISOString().slice(11, 23);
 const log = (msg) => process.stderr.write(`[${ts()}] [er7-proxy] ${msg}\n`);
@@ -272,24 +270,23 @@ const server = http.createServer(async (req, res) => {
 
         // ── RESILIENCE SCAFFOLDING (hoisted: the catch block must see these) ──
         // A client that disconnects must not leave a zombie turn holding the
-        // generation slot. And an ACTIVE stream is never killed — only a turn
-        // that goes silent for TURN_IDLE_MS (no token, no note) is aborted,
-        // so long but lively generations keep streaming to completion.
+        // generation slot — that is what wedges every later request. The turn
+        // is aborted the moment the socket closes. There is NO idle watchdog
+        // and no short wall-clock: a slow model on a loaded box can sit quiet
+        // for a minute between notes and its first content token, and an
+        // ACTIVE stream must never be killed for being slow — only a turn
+        // whose client is gone is a zombie. The model call itself is already
+        // bounded by REQUEST_TIMEOUT_MS inside streamOllamaChat; TURN_DEADLINE
+        // is a generous whole-turn backstop over and above it.
         const turnAbort = new AbortController();
-        let lastProgress = Date.now();
-        const bumpProgress = () => { lastProgress = Date.now(); };
         const onDisconnect = () => { if (!turnAbort.signal.aborted) turnAbort.abort(); };
         req.on("close", onDisconnect);
         res.on("close", onDisconnect);
-        const idleWatchdog = setInterval(() => {
-          if (Date.now() - lastProgress > TURN_IDLE_MS && !turnAbort.signal.aborted) turnAbort.abort();
-        }, Math.max(1000, Math.floor(TURN_IDLE_MS / 4)));
         const turnDeadline = setTimeout(() => {
           if (!turnAbort.signal.aborted) turnAbort.abort();
         }, TURN_DEADLINE_MS);
         const clearTurn = () => {
           clearTimeout(turnDeadline);
-          clearInterval(idleWatchdog);
           req.removeListener("close", onDisconnect);
           res.removeListener("close", onDisconnect);
         };
@@ -298,7 +295,6 @@ const server = http.createServer(async (req, res) => {
         let reasoningOpen = false;
         const emit = (token) => {
           if (!token) return;
-          bumpProgress();
           const chunk = {
             id, object: "chat.completion.chunk", created, model: parsed.model,
             choices: [{
@@ -318,7 +314,6 @@ const server = http.createServer(async (req, res) => {
         const emitNote = (note) => {
           const text = humanizeNote(note);
           if (!text) return;
-          bumpProgress();
           const chunk = {
             id, object: "chat.completion.chunk", created, model: parsed.model,
             choices: [{
@@ -337,7 +332,6 @@ const server = http.createServer(async (req, res) => {
         // reasoning_content so the user sees the essay/code being built live.
         const emitThinking = (text) => {
           if (!text) return;
-          bumpProgress();
           const chunk = {
             id, object: "chat.completion.chunk", created, model: parsed.model,
             choices: [{
@@ -466,20 +460,14 @@ const server = http.createServer(async (req, res) => {
 
         // ── RESILIENCE SCAFFOLDING (hoisted — the catch must see these) ──
         const turnAbort = new AbortController();
-        let lastProgress = Date.now();
-        const bumpProgress = () => { lastProgress = Date.now(); };
         const onDisconnect = () => { if (!turnAbort.signal.aborted) turnAbort.abort(); };
         req.on("close", onDisconnect);
         res.on("close", onDisconnect);
-        const idleWatchdog = setInterval(() => {
-          if (Date.now() - lastProgress > TURN_IDLE_MS && !turnAbort.signal.aborted) turnAbort.abort();
-        }, Math.max(1000, Math.floor(TURN_IDLE_MS / 4)));
         const turnDeadline = setTimeout(() => {
           if (!turnAbort.signal.aborted) turnAbort.abort();
         }, TURN_DEADLINE_MS);
         const clearTurn = () => {
           clearTimeout(turnDeadline);
-          clearInterval(idleWatchdog);
           req.removeListener("close", onDisconnect);
           res.removeListener("close", onDisconnect);
         };
@@ -488,7 +476,6 @@ const server = http.createServer(async (req, res) => {
           let first = true;
           await runProxyTurn({ sessionId, userId, workspace, signal: turnAbort.signal, ...reqData }, (token) => {
             if (!token) return;
-            bumpProgress();
             res.write(JSON.stringify({
               model: parsed.model, created_at: createdAt,
               message: { role: "assistant", content: token },
