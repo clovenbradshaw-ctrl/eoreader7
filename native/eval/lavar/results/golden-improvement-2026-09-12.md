@@ -126,3 +126,29 @@ with its enforcement:
 All additive: the golden scores after wiring are byte-identical to before
 (recall 35.9/31.0/19.5/18.3, precision 18.4/20.1/14.8/12.8, GFP coverage
 76.6/65.0/44.4/60.3).
+
+## Second chase (same day) — reduced participial clauses, the golden's #1 miss-theme
+
+The `participial-reduced` miss-theme dominated every chapter (15-43 uncovered).
+Hand-read showed two shapes: comma-introduced reduced clauses ("the White
+Rabbit, trotting slowly back again") sit OUTSIDE the matrix object span, so
+no recursion ever reaches them; nested ones are blocked by NOUN-dominant
+intermediates ("beginning": VERB 7 / NOUN 11). Wired a reduced-clause reader
+into the sentence loop: the LAST comma + vocabulary-present-participle tail
+of a sentence is emitted as its own arrangement, subject inherited from the
+noun phrase before the comma, address = the participial phrase's own byte
+span (P5.2 — reconstructing the phrase WITHOUT the comma fails byte-verification;
+found live). Recovers AIW ch1-12 to 100% recoverability (the stale ch5-12
+ledgers from the old boundaries were regenerated).
+
+| | GFP coverage | recall |
+|---|---|---|
+| ch1 | 76.6 → 76.6 | 35.9 → 36.3 |
+| ch2 | 65.0 → 65.7 | 31.0 → 31.8 |
+| ch3 | 44.4 → **49.4** | 19.5 → 21.0 |
+| ch4 | 60.3 → **63.4** | 18.3 → 19.8 |
+| Σ weighted | 61.7% → **63.9%** | — |
+
+Null floor stable (184 → 189 in word-shuffled noise; the pass adds ~5 in
+noise, negligible). Precision roughly flat (tiny dip on ch1/ch2 from more
+emissions, +0.9/+0.5 on ch3/ch4).

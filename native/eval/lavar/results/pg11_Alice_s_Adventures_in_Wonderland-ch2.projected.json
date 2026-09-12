@@ -887,6 +887,26 @@
             "stance": "Binding",
             "settledAs": "verb",
             "children": []
+           },
+           {
+            "seq": 264,
+            "schema": "EOTObservation@1",
+            "id": "o257",
+            "at": [
+             13277,
+             13314
+            ],
+            "role": "proposition",
+            "end1": "and how funny it’ll seem",
+            "label": "sending",
+            "end2": "presents to one’s own feet!",
+            "subjectBasis": "inherited (reduced clause — the noun before the comma)",
+            "operator": "CON",
+            "grain": "Figure",
+            "terrain": "Link",
+            "stance": "Binding",
+            "settledAs": "verb",
+            "children": []
            }
           ]
          }
@@ -962,7 +982,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 266,
+          "seq": 267,
           "schema": "EOTAbsence@1",
           "at": [
            13449,
@@ -1018,9 +1038,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 267,
+            "seq": 268,
             "schema": "EOTObservation@1",
-            "id": "o257",
+            "id": "o258",
             "at": [
              13562,
              13590
@@ -1038,9 +1058,9 @@
             "children": []
            },
            {
-            "seq": 268,
+            "seq": 269,
             "schema": "EOTObservation@1",
-            "id": "o258",
+            "id": "o259",
             "at": [
              13643,
              13673
@@ -1089,7 +1109,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 270,
+          "seq": 271,
           "schema": "EOTAbsence@1",
           "at": [
            13678,
@@ -1131,9 +1151,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 271,
+            "seq": 272,
             "schema": "EOTObservation@1",
-            "id": "o259",
+            "id": "o260",
             "at": [
              13697,
              13720
@@ -1150,9 +1170,9 @@
             "settledAs": "verb",
             "children": [
              {
-              "seq": 272,
+              "seq": 273,
               "schema": "EOTObservation@1",
-              "id": "o260",
+              "id": "o261",
               "at": [
                13718,
                13720
@@ -1172,18 +1192,18 @@
             ]
            },
            {
-            "seq": 273,
+            "seq": 277,
             "schema": "EOTObservation@1",
-            "id": "o261",
+            "id": "o265",
             "at": [
-             13850,
-             13877
+             13721,
+             13878
             ],
             "role": "proposition",
-            "end1": "she",
-            "label": "sat",
-            "end2": "down and began to cry again",
-            "subjectBasis": "stated",
+            "end1": "s as much as she could do",
+            "label": "lying",
+            "end2": "down on one side, to\nlook through into the garden with one eye; but to get through was more\nhopeless than ever: she sat down and began to cry again.",
+            "subjectBasis": "inherited (reduced clause — the noun before the comma)",
             "operator": "CON",
             "grain": "Figure",
             "terrain": "Link",
@@ -1195,14 +1215,14 @@
               "schema": "EOTObservation@1",
               "id": "o262",
               "at": [
-               13865,
+               13850,
                13877
               ],
               "role": "proposition",
               "end1": "she",
-              "label": "and began",
-              "end2": "to cry again",
-              "subjectBasis": "inherited",
+              "label": "sat",
+              "end2": "down and began to cry again",
+              "subjectBasis": "stated",
               "operator": "CON",
               "grain": "Figure",
               "terrain": "Link",
@@ -1214,20 +1234,41 @@
                 "schema": "EOTObservation@1",
                 "id": "o263",
                 "at": [
-                 13872,
+                 13865,
                  13877
                 ],
                 "role": "proposition",
                 "end1": "she",
-                "label": "cry",
-                "end2": "again",
+                "label": "and began",
+                "end2": "to cry again",
                 "subjectBasis": "inherited",
                 "operator": "CON",
                 "grain": "Figure",
                 "terrain": "Link",
                 "stance": "Binding",
                 "settledAs": "verb",
-                "children": []
+                "children": [
+                 {
+                  "seq": 276,
+                  "schema": "EOTObservation@1",
+                  "id": "o264",
+                  "at": [
+                   13872,
+                   13877
+                  ],
+                  "role": "proposition",
+                  "end1": "she",
+                  "label": "cry",
+                  "end2": "again",
+                  "subjectBasis": "inherited",
+                  "operator": "CON",
+                  "grain": "Figure",
+                  "terrain": "Link",
+                  "stance": "Binding",
+                  "settledAs": "verb",
+                  "children": []
+                 }
+                ]
                }
               ]
              }
@@ -1280,9 +1321,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 276,
+            "seq": 278,
             "schema": "EOTObservation@1",
-            "id": "o264",
+            "id": "o266",
             "at": [
              13893,
              13918
@@ -1299,9 +1340,9 @@
             "settledAs": "verb",
             "children": [
              {
-              "seq": 277,
+              "seq": 279,
               "schema": "EOTObservation@1",
-              "id": "o265",
+              "id": "o267",
               "at": [
                13899,
                13918
@@ -1321,9 +1362,9 @@
             ]
            },
            {
-            "seq": 278,
+            "seq": 280,
             "schema": "EOTObservation@1",
-            "id": "o266",
+            "id": "o268",
             "at": [
              13970,
              13984
@@ -1340,9 +1381,9 @@
             "settledAs": "verb",
             "children": [
              {
-              "seq": 279,
+              "seq": 281,
               "schema": "EOTObservation@1",
-              "id": "o267",
+              "id": "o269",
               "at": [
                13979,
                13984
@@ -1362,9 +1403,9 @@
             ]
            },
            {
-            "seq": 280,
+            "seq": 282,
             "schema": "EOTObservation@1",
-            "id": "o268",
+            "id": "o270",
             "at": [
              13993,
              14015
@@ -1381,9 +1422,9 @@
             "settledAs": "verb",
             "children": [
              {
-              "seq": 281,
+              "seq": 283,
               "schema": "EOTObservation@1",
-              "id": "o269",
+              "id": "o271",
               "at": [
                14006,
                14015
@@ -1420,9 +1461,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 282,
+          "seq": 284,
           "schema": "EOTObservation@1",
-          "id": "o270",
+          "id": "o272",
           "at": [
            14042,
            14047
@@ -1470,9 +1511,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 283,
+            "seq": 285,
             "schema": "EOTObservation@1",
-            "id": "o271",
+            "id": "o273",
             "at": [
              14061,
              14076
@@ -1490,9 +1531,9 @@
             "children": []
            },
            {
-            "seq": 285,
+            "seq": 287,
             "schema": "EOTObservation@1",
-            "id": "o272",
+            "id": "o274",
             "at": [
              14122,
              14148
@@ -1510,9 +1551,9 @@
             "children": []
            },
            {
-            "seq": 286,
+            "seq": 288,
             "schema": "EOTObservation@1",
-            "id": "o273",
+            "id": "o275",
             "at": [
              14178,
              14205
@@ -1529,9 +1570,9 @@
             "settledAs": "conjunction",
             "children": [
              {
-              "seq": 287,
+              "seq": 289,
               "schema": "EOTObservation@1",
-              "id": "o274",
+              "id": "o276",
               "at": [
                14187,
                14205
@@ -1597,9 +1638,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 289,
+            "seq": 291,
             "schema": "EOTObservation@1",
-            "id": "o275",
+            "id": "o277",
             "at": [
              14233,
              14275
@@ -1616,9 +1657,9 @@
             "settledAs": "verb",
             "children": [
              {
-              "seq": 290,
+              "seq": 292,
               "schema": "EOTObservation@1",
-              "id": "o276",
+              "id": "o278",
               "at": [
                14263,
                14275
@@ -1638,9 +1679,9 @@
             ]
            },
            {
-            "seq": 292,
+            "seq": 294,
             "schema": "EOTObservation@1",
-            "id": "o277",
+            "id": "o279",
             "at": [
              14294,
              14331
@@ -1654,9 +1695,9 @@
             "settledAs": null,
             "children": [
              {
-              "seq": 293,
+              "seq": 295,
               "schema": "EOTObservation@1",
-              "id": "o278",
+              "id": "o280",
               "at": [
                14300,
                14331
@@ -1673,9 +1714,9 @@
               "settledAs": "verb",
               "children": [
                {
-                "seq": 294,
+                "seq": 296,
                 "schema": "EOTObservation@1",
-                "id": "o279",
+                "id": "o281",
                 "at": [
                  14316,
                  14331
@@ -1729,7 +1770,7 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 295,
+            "seq": 297,
             "schema": "EOTAbsence@1",
             "at": [
              14333,
@@ -1799,7 +1840,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 296,
+          "seq": 298,
           "schema": "EOTAbsence@1",
           "at": [
            14544,
@@ -1826,7 +1867,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 297,
+          "seq": 299,
           "schema": "EOTAbsence@1",
           "at": [
            14571,
@@ -1868,9 +1909,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 298,
+            "seq": 300,
             "schema": "EOTObservation@1",
-            "id": "o280",
+            "id": "o282",
             "at": [
              14588,
              14621
@@ -1928,9 +1969,9 @@
               ]
              },
              {
-              "seq": 299,
+              "seq": 301,
               "schema": "EOTObservation@1",
-              "id": "o281",
+              "id": "o283",
               "at": [
                14608,
                14621
@@ -1982,9 +2023,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 300,
+            "seq": 302,
             "schema": "EOTObservation@1",
-            "id": "o282",
+            "id": "o284",
             "at": [
              14634,
              14688
@@ -2002,9 +2043,9 @@
             "settledAs": "verb",
             "children": [
              {
-              "seq": 301,
+              "seq": 303,
               "schema": "EOTObservation@1",
-              "id": "o283",
+              "id": "o285",
               "at": [
                14660,
                14688
@@ -2022,9 +2063,9 @@
               "settledAs": "verb",
               "children": [
                {
-                "seq": 302,
+                "seq": 304,
                 "schema": "EOTObservation@1",
-                "id": "o284",
+                "id": "o286",
                 "at": [
                  14673,
                  14688
@@ -2047,9 +2088,9 @@
             ]
            },
            {
-            "seq": 303,
+            "seq": 305,
             "schema": "EOTObservation@1",
-            "id": "o285",
+            "id": "o287",
             "at": [
              14802,
              14811
@@ -2068,9 +2109,9 @@
             "children": []
            },
            {
-            "seq": 304,
+            "seq": 306,
             "schema": "EOTObservation@1",
-            "id": "o286",
+            "id": "o288",
             "at": [
              14847,
              14854
@@ -2134,9 +2175,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 307,
+            "seq": 309,
             "schema": "EOTObservation@1",
-            "id": "o287",
+            "id": "o289",
             "at": [
              14930,
              14951
@@ -2155,9 +2196,9 @@
             "children": []
            },
            {
-            "seq": 310,
+            "seq": 312,
             "schema": "EOTObservation@1",
-            "id": "o288",
+            "id": "o290",
             "at": [
              14994,
              15049
@@ -2192,9 +2233,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 312,
+          "seq": 314,
           "schema": "EOTObservation@1",
-          "id": "o289",
+          "id": "o291",
           "at": [
            15082,
            15089
@@ -2227,9 +2268,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 313,
+          "seq": 315,
           "schema": "EOTObservation@1",
-          "id": "o290",
+          "id": "o292",
           "at": [
            15116,
            15132
@@ -2262,9 +2303,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 314,
+          "seq": 316,
           "schema": "EOTObservation@1",
-          "id": "o291",
+          "id": "o293",
           "at": [
            15144,
            15178
@@ -2282,9 +2323,9 @@
           "settledAs": "verb",
           "children": [
            {
-            "seq": 315,
+            "seq": 317,
             "schema": "EOTObservation@1",
-            "id": "o292",
+            "id": "o294",
             "at": [
              15165,
              15178
@@ -2333,7 +2374,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 318,
+          "seq": 320,
           "schema": "EOTAbsence@1",
           "at": [
            15237,
@@ -2403,7 +2444,7 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 321,
+            "seq": 323,
             "schema": "EOTAbsence@1",
             "at": [
              15399,
@@ -2461,9 +2502,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 322,
+            "seq": 324,
             "schema": "EOTObservation@1",
-            "id": "o293",
+            "id": "o295",
             "at": [
              15561,
              15572
@@ -2481,9 +2522,9 @@
             "children": []
            },
            {
-            "seq": 323,
+            "seq": 325,
             "schema": "EOTObservation@1",
-            "id": "o294",
+            "id": "o296",
             "at": [
              15645,
              15666
@@ -2497,9 +2538,9 @@
             "settledAs": null,
             "children": [
              {
-              "seq": 324,
+              "seq": 326,
               "schema": "EOTObservation@1",
-              "id": "o295",
+              "id": "o297",
               "at": [
                15651,
                15666
@@ -2519,9 +2560,9 @@
             ]
            },
            {
-            "seq": 325,
+            "seq": 327,
             "schema": "EOTObservation@1",
-            "id": "o296",
+            "id": "o298",
             "at": [
              15693,
              15698
@@ -2581,9 +2622,9 @@
             ]
            },
            {
-            "seq": 326,
+            "seq": 328,
             "schema": "EOTObservation@1",
-            "id": "o297",
+            "id": "o299",
             "at": [
              15711,
              15730
@@ -2633,7 +2674,7 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 327,
+            "seq": 329,
             "schema": "EOTAbsence@1",
             "at": [
              15745,
@@ -2677,7 +2718,7 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 328,
+            "seq": 330,
             "schema": "EOTAbsence@1",
             "at": [
              15776,
@@ -2706,9 +2747,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 329,
+          "seq": 331,
           "schema": "EOTObservation@1",
-          "id": "o298",
+          "id": "o300",
           "at": [
            15858,
            15897
@@ -2726,9 +2767,9 @@
           "settledAs": "verb",
           "children": [
            {
-            "seq": 330,
+            "seq": 332,
             "schema": "EOTObservation@1",
-            "id": "o299",
+            "id": "o301",
             "at": [
              15868,
              15897
@@ -2764,9 +2805,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 332,
+          "seq": 334,
           "schema": "EOTObservation@1",
-          "id": "o300",
+          "id": "o302",
           "at": [
            15931,
            15937
@@ -2784,9 +2825,9 @@
           "children": []
          },
          {
-          "seq": 333,
+          "seq": 335,
           "schema": "EOTObservation@1",
-          "id": "o301",
+          "id": "o303",
           "at": [
            15961,
            15969
@@ -2819,7 +2860,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 334,
+          "seq": 336,
           "schema": "EOTAbsence@1",
           "at": [
            16005,
@@ -2846,9 +2887,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 335,
+          "seq": 337,
           "schema": "EOTObservation@1",
-          "id": "o302",
+          "id": "o304",
           "at": [
            16110,
            16119
@@ -2881,9 +2922,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 507,
+          "seq": 511,
           "schema": "EOTObservation@1",
-          "id": "x429",
+          "id": "x433",
           "at": [
            16121,
            16233
@@ -2902,9 +2943,9 @@
           "basis": "identity evidence in this sentence (text_copular_identity); canonicalizationFloor 2, declared",
           "children": [
            {
-            "seq": 508,
+            "seq": 512,
             "schema": "EOTObservation@1",
-            "id": "x430",
+            "id": "x434",
             "at": [
              16121,
              16233
@@ -2941,9 +2982,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 337,
+          "seq": 339,
           "schema": "EOTObservation@1",
-          "id": "o303",
+          "id": "o305",
           "at": [
            16260,
            16270
@@ -2992,9 +3033,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 338,
+            "seq": 340,
             "schema": "EOTObservation@1",
-            "id": "o304",
+            "id": "o306",
             "at": [
              16331,
              16381
@@ -3011,9 +3052,9 @@
             "settledAs": "verb",
             "children": [
              {
-              "seq": 339,
+              "seq": 341,
               "schema": "EOTObservation@1",
-              "id": "o305",
+              "id": "o307",
               "at": [
                16374,
                16381
@@ -3033,9 +3074,9 @@
             ]
            },
            {
-            "seq": 340,
+            "seq": 342,
             "schema": "EOTObservation@1",
-            "id": "o306",
+            "id": "o308",
             "at": [
              16394,
              16406
@@ -3053,9 +3094,9 @@
             "children": []
            },
            {
-            "seq": 341,
+            "seq": 343,
             "schema": "EOTObservation@1",
-            "id": "o307",
+            "id": "o309",
             "at": [
              16430,
              16448
@@ -3072,9 +3113,9 @@
             "settledAs": "verb",
             "children": [
              {
-              "seq": 342,
+              "seq": 344,
               "schema": "EOTObservation@1",
-              "id": "o308",
+              "id": "o310",
               "at": [
                16441,
                16448
@@ -3094,9 +3135,9 @@
             ]
            },
            {
-            "seq": 343,
+            "seq": 345,
             "schema": "EOTObservation@1",
-            "id": "o309",
+            "id": "o311",
             "at": [
              16478,
              16507
@@ -3145,9 +3186,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 345,
+          "seq": 347,
           "schema": "EOTObservation@1",
-          "id": "o310",
+          "id": "o312",
           "at": [
            16555,
            16571
@@ -3209,9 +3250,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 347,
+            "seq": 349,
             "schema": "EOTObservation@1",
-            "id": "o311",
+            "id": "o313",
             "at": [
              16662,
              16669
@@ -3229,9 +3270,9 @@
             "children": []
            },
            {
-            "seq": 348,
+            "seq": 350,
             "schema": "EOTObservation@1",
-            "id": "o312",
+            "id": "o314",
             "at": [
              16694,
              16703
@@ -3249,9 +3290,9 @@
             "children": []
            },
            {
-            "seq": 350,
+            "seq": 352,
             "schema": "EOTObservation@1",
-            "id": "o313",
+            "id": "o315",
             "at": [
              16740,
              16766
@@ -3268,9 +3309,9 @@
             "settledAs": "preposition",
             "children": [
              {
-              "seq": 351,
+              "seq": 353,
               "schema": "EOTObservation@1",
-              "id": "o314",
+              "id": "o316",
               "at": [
                16760,
                16766
@@ -3336,9 +3377,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 352,
+            "seq": 354,
             "schema": "EOTObservation@1",
-            "id": "o315",
+            "id": "o317",
             "at": [
              16782,
              16811
@@ -3354,9 +3395,9 @@
             "children": []
            },
            {
-            "seq": 354,
+            "seq": 356,
             "schema": "EOTObservation@1",
-            "id": "o316",
+            "id": "o318",
             "at": [
              16852,
              16883
@@ -3373,9 +3414,9 @@
             "settledAs": "verb",
             "children": [
              {
-              "seq": 361,
+              "seq": 363,
               "schema": "EOTObservation@1",
-              "id": "o322",
+              "id": "o324",
               "at": [
                16852,
                16856
@@ -3395,9 +3436,9 @@
             ]
            },
            {
-            "seq": 356,
+            "seq": 358,
             "schema": "EOTObservation@1",
-            "id": "o317",
+            "id": "o319",
             "at": [
              16896,
              16911
@@ -3415,9 +3456,9 @@
             "settledAs": "verb",
             "children": [
              {
-              "seq": 357,
+              "seq": 359,
               "schema": "EOTObservation@1",
-              "id": "o318",
+              "id": "o320",
               "at": [
                16908,
                16911
@@ -3437,9 +3478,9 @@
             ]
            },
            {
-            "seq": 358,
+            "seq": 360,
             "schema": "EOTObservation@1",
-            "id": "o319",
+            "id": "o321",
             "at": [
              16931,
              16971
@@ -3456,9 +3497,9 @@
             "settledAs": "verb",
             "children": [
              {
-              "seq": 359,
+              "seq": 361,
               "schema": "EOTObservation@1",
-              "id": "o320",
+              "id": "o322",
               "at": [
                16937,
                16971
@@ -3475,9 +3516,9 @@
               "settledAs": "verb",
               "children": [
                {
-                "seq": 360,
+                "seq": 362,
                 "schema": "EOTObservation@1",
-                "id": "o321",
+                "id": "o323",
                 "at": [
                  16946,
                  16971
@@ -3516,7 +3557,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 362,
+          "seq": 364,
           "schema": "EOTAbsence@1",
           "at": [
            17021,
@@ -3558,9 +3599,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 363,
+            "seq": 365,
             "schema": "EOTObservation@1",
-            "id": "o323",
+            "id": "o325",
             "at": [
              17067,
              17086
@@ -3579,9 +3620,9 @@
             "children": []
            },
            {
-            "seq": 364,
+            "seq": 366,
             "schema": "EOTObservation@1",
-            "id": "o324",
+            "id": "o326",
             "at": [
              17112,
              17122
@@ -3632,9 +3673,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 365,
+            "seq": 367,
             "schema": "EOTObservation@1",
-            "id": "o325",
+            "id": "o327",
             "at": [
              17133,
              17196
@@ -3651,9 +3692,9 @@
             "settledAs": "verb",
             "children": [
              {
-              "seq": 366,
+              "seq": 368,
               "schema": "EOTObservation@1",
-              "id": "o326",
+              "id": "o328",
               "at": [
                17140,
                17196
@@ -3670,9 +3711,9 @@
               "settledAs": "verb",
               "children": [
                {
-                "seq": 367,
+                "seq": 369,
                 "schema": "EOTObservation@1",
-                "id": "o327",
+                "id": "o329",
                 "at": [
                  17154,
                  17196
@@ -3711,9 +3752,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 368,
+          "seq": 370,
           "schema": "EOTObservation@1",
-          "id": "o328",
+          "id": "o330",
           "at": [
            17214,
            17250
@@ -3730,9 +3771,9 @@
           "settledAs": "verb",
           "children": [
            {
-            "seq": 369,
+            "seq": 371,
             "schema": "EOTObservation@1",
-            "id": "o329",
+            "id": "o331",
             "at": [
              17224,
              17250
@@ -3749,9 +3790,9 @@
             "settledAs": "verb",
             "children": [
              {
-              "seq": 370,
+              "seq": 372,
               "schema": "EOTObservation@1",
-              "id": "o330",
+              "id": "o332",
               "at": [
                17235,
                17250
@@ -3788,9 +3829,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 371,
+          "seq": 373,
           "schema": "EOTObservation@1",
-          "id": "o331",
+          "id": "o333",
           "at": [
            17298,
            17309
@@ -3808,9 +3849,9 @@
           "children": []
          },
          {
-          "seq": 372,
+          "seq": 374,
           "schema": "EOTObservation@1",
-          "id": "o332",
+          "id": "o334",
           "at": [
            17321,
            17331
@@ -3859,9 +3900,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 374,
+            "seq": 376,
             "schema": "EOTObservation@1",
-            "id": "o333",
+            "id": "o335",
             "at": [
              17448,
              17482
@@ -3878,9 +3919,9 @@
             "settledAs": "verb",
             "children": [
              {
-              "seq": 375,
+              "seq": 377,
               "schema": "EOTObservation@1",
-              "id": "o334",
+              "id": "o336",
               "at": [
                17465,
                17482
@@ -3917,9 +3958,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 376,
+          "seq": 378,
           "schema": "EOTObservation@1",
-          "id": "o335",
+          "id": "o337",
           "at": [
            17514,
            17530
@@ -3981,9 +4022,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 377,
+            "seq": 379,
             "schema": "EOTObservation@1",
-            "id": "o336",
+            "id": "o338",
             "at": [
              17546,
              17579
@@ -4000,9 +4041,9 @@
             "settledAs": "verb",
             "children": [
              {
-              "seq": 378,
+              "seq": 380,
               "schema": "EOTObservation@1",
-              "id": "o337",
+              "id": "o339",
               "at": [
                17562,
                17579
@@ -4022,9 +4063,9 @@
             ]
            },
            {
-            "seq": 379,
+            "seq": 381,
             "schema": "EOTObservation@1",
-            "id": "o338",
+            "id": "o340",
             "at": [
              17686,
              17693
@@ -4059,9 +4100,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 380,
+          "seq": 382,
           "schema": "EOTObservation@1",
-          "id": "o339",
+          "id": "o341",
           "at": [
            17718,
            17724
@@ -4109,7 +4150,7 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 381,
+            "seq": 383,
             "schema": "EOTAbsence@1",
             "at": [
              17725,
@@ -4138,9 +4179,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 382,
+          "seq": 384,
           "schema": "EOTObservation@1",
-          "id": "o340",
+          "id": "o342",
           "at": [
            17758,
            17769
@@ -4173,9 +4214,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 383,
+          "seq": 385,
           "schema": "EOTObservation@1",
-          "id": "o341",
+          "id": "o343",
           "at": [
            17828,
            17830
@@ -4193,9 +4234,9 @@
           "children": []
          },
          {
-          "seq": 384,
+          "seq": 386,
           "schema": "EOTObservation@1",
-          "id": "o342",
+          "id": "o344",
           "at": [
            17842,
            17846
@@ -4213,9 +4254,9 @@
           "children": []
          },
          {
-          "seq": 385,
+          "seq": 387,
           "schema": "EOTObservation@1",
-          "id": "o343",
+          "id": "o345",
           "at": [
            17871,
            17876
@@ -4233,9 +4274,9 @@
           "children": []
          },
          {
-          "seq": 386,
+          "seq": 388,
           "schema": "EOTObservation@1",
-          "id": "o344",
+          "id": "o346",
           "at": [
            17887,
            17910
@@ -4254,9 +4295,9 @@
           "children": []
          },
          {
-          "seq": 387,
+          "seq": 389,
           "schema": "EOTObservation@1",
-          "id": "o345",
+          "id": "o347",
           "at": [
            17964,
            18018
@@ -4274,9 +4315,9 @@
           "children": []
          },
          {
-          "seq": 388,
+          "seq": 390,
           "schema": "EOTObservation@1",
-          "id": "o346",
+          "id": "o348",
           "at": [
            18037,
            18047
@@ -4295,9 +4336,9 @@
           "children": []
          },
          {
-          "seq": 389,
+          "seq": 391,
           "schema": "EOTObservation@1",
-          "id": "o347",
+          "id": "o349",
           "at": [
            18057,
            18096
@@ -4314,9 +4355,9 @@
           "settledAs": "preposition",
           "children": [
            {
-            "seq": 390,
+            "seq": 392,
             "schema": "EOTObservation@1",
-            "id": "o348",
+            "id": "o350",
             "at": [
              18071,
              18096
@@ -4365,7 +4406,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 391,
+          "seq": 393,
           "schema": "EOTAbsence@1",
           "at": [
            18101,
@@ -4392,9 +4433,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 393,
+          "seq": 395,
           "schema": "EOTObservation@1",
-          "id": "o349",
+          "id": "o351",
           "at": [
            18211,
            18237
@@ -4411,9 +4452,9 @@
           "settledAs": "verb",
           "children": [
            {
-            "seq": 394,
+            "seq": 396,
             "schema": "EOTObservation@1",
-            "id": "o350",
+            "id": "o352",
             "at": [
              18228,
              18237
@@ -4463,7 +4504,7 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 396,
+            "seq": 398,
             "schema": "EOTAbsence@1",
             "at": [
              18266,
@@ -4492,9 +4533,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 397,
+          "seq": 399,
           "schema": "EOTObservation@1",
-          "id": "o351",
+          "id": "o353",
           "at": [
            18355,
            18360
@@ -4512,9 +4553,9 @@
           "children": []
          },
          {
-          "seq": 398,
+          "seq": 400,
           "schema": "EOTObservation@1",
-          "id": "o352",
+          "id": "o354",
           "at": [
            18399,
            18427
@@ -4562,7 +4603,7 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 400,
+            "seq": 402,
             "schema": "EOTAbsence@1",
             "at": [
              18538,
@@ -4620,9 +4661,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 401,
+            "seq": 403,
             "schema": "EOTObservation@1",
-            "id": "o353",
+            "id": "o355",
             "at": [
              18594,
              18622
@@ -4640,9 +4681,9 @@
             "children": []
            },
            {
-            "seq": 402,
+            "seq": 404,
             "schema": "EOTObservation@1",
-            "id": "o354",
+            "id": "o356",
             "at": [
              18631,
              18645
@@ -4692,9 +4733,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 403,
+            "seq": 405,
             "schema": "EOTObservation@1",
-            "id": "o355",
+            "id": "o357",
             "at": [
              18664,
              18692
@@ -4711,9 +4752,9 @@
             "settledAs": "verb",
             "children": [
              {
-              "seq": 404,
+              "seq": 406,
               "schema": "EOTObservation@1",
-              "id": "o356",
+              "id": "o358",
               "at": [
                18682,
                18692
@@ -4765,9 +4806,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 405,
+            "seq": 407,
             "schema": "EOTObservation@1",
-            "id": "o357",
+            "id": "o359",
             "at": [
              18727,
              18754
@@ -4784,9 +4825,9 @@
             "settledAs": "verb",
             "children": [
              {
-              "seq": 406,
+              "seq": 408,
               "schema": "EOTObservation@1",
-              "id": "o358",
+              "id": "o360",
               "at": [
                18742,
                18754
@@ -4806,9 +4847,9 @@
             ]
            },
            {
-            "seq": 408,
+            "seq": 410,
             "schema": "EOTObservation@1",
-            "id": "o359",
+            "id": "o361",
             "at": [
              18792,
              18799
@@ -4826,9 +4867,9 @@
             "children": []
            },
            {
-            "seq": 409,
+            "seq": 411,
             "schema": "EOTObservation@1",
-            "id": "o360",
+            "id": "o362",
             "at": [
              18811,
              18821
@@ -4878,9 +4919,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 410,
+            "seq": 412,
             "schema": "EOTObservation@1",
-            "id": "o361",
+            "id": "o363",
             "at": [
              18863,
              18871
@@ -4898,9 +4939,9 @@
             "children": []
            },
            {
-            "seq": 411,
+            "seq": 413,
             "schema": "EOTObservation@1",
-            "id": "o362",
+            "id": "o364",
             "at": [
              18886,
              18911
@@ -4918,9 +4959,9 @@
             "children": []
            },
            {
-            "seq": 413,
+            "seq": 415,
             "schema": "EOTObservation@1",
-            "id": "o363",
+            "id": "o365",
             "at": [
              19035,
              19062
@@ -4938,9 +4979,9 @@
             "children": []
            },
            {
-            "seq": 415,
+            "seq": 417,
             "schema": "EOTObservation@1",
-            "id": "o364",
+            "id": "o366",
             "at": [
              19226,
              19240
@@ -4989,9 +5030,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 416,
+          "seq": 418,
           "schema": "EOTObservation@1",
-          "id": "o365",
+          "id": "o367",
           "at": [
            19253,
            19277
@@ -5008,9 +5049,9 @@
           "settledAs": "verb",
           "children": [
            {
-            "seq": 417,
+            "seq": 419,
             "schema": "EOTObservation@1",
-            "id": "o366",
+            "id": "o368",
             "at": [
              19268,
              19277
@@ -5060,7 +5101,7 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 418,
+            "seq": 420,
             "schema": "EOTAbsence@1",
             "at": [
              19278,
@@ -5069,7 +5110,28 @@
             "role": "arrangement",
             "reason": "gate_refused_no_two_ends",
             "detail": "a verb this reading earned occurs here, but extractRelations requires BOTH a subject group and an object group (S90: `if (!subject || !object) continue`) — an exclamation, a bare predicate adjective, or an intransitive clause satisfies neither, and that is a property of the gate, not of the material",
-            "children": []
+            "children": [
+             {
+              "seq": 421,
+              "schema": "EOTObservation@1",
+              "id": "o369",
+              "at": [
+               19308,
+               19337
+              ],
+              "role": "proposition",
+              "end1": "as she swam about",
+              "label": "trying",
+              "end2": "to find her way out.",
+              "subjectBasis": "inherited (reduced clause — the noun before the comma)",
+              "operator": "CON",
+              "grain": "Figure",
+              "terrain": "Link",
+              "stance": "Binding",
+              "settledAs": "verb",
+              "children": []
+             }
+            ]
            }
           ]
          }
@@ -5104,9 +5166,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 419,
+            "seq": 422,
             "schema": "EOTObservation@1",
-            "id": "o367",
+            "id": "o370",
             "at": [
              19350,
              19369
@@ -5141,9 +5203,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 420,
+          "seq": 423,
           "schema": "EOTObservation@1",
-          "id": "o368",
+          "id": "o371",
           "at": [
            19432,
            19445
@@ -5161,9 +5223,9 @@
           "children": []
          },
          {
-          "seq": 421,
+          "seq": 424,
           "schema": "EOTObservation@1",
-          "id": "o369",
+          "id": "o372",
           "at": [
            19454,
            19459
@@ -5196,9 +5258,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 422,
+          "seq": 425,
           "schema": "EOTObservation@1",
-          "id": "o370",
+          "id": "o373",
           "at": [
            19483,
            19495
@@ -5260,9 +5322,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 423,
+            "seq": 426,
             "schema": "EOTObservation@1",
-            "id": "o371",
+            "id": "o374",
             "at": [
              19645,
              19680
@@ -5279,9 +5341,9 @@
             "settledAs": "verb",
             "children": [
              {
-              "seq": 424,
+              "seq": 427,
               "schema": "EOTObservation@1",
-              "id": "o372",
+              "id": "o375",
               "at": [
                19656,
                19680
@@ -5301,9 +5363,9 @@
             ]
            },
            {
-            "seq": 425,
+            "seq": 428,
             "schema": "EOTObservation@1",
-            "id": "o373",
+            "id": "o376",
             "at": [
              19725,
              19728
@@ -5321,9 +5383,9 @@
             "children": []
            },
            {
-            "seq": 426,
+            "seq": 429,
             "schema": "EOTObservation@1",
-            "id": "o374",
+            "id": "o377",
             "at": [
              19795,
              19810
@@ -5387,9 +5449,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 427,
+            "seq": 430,
             "schema": "EOTObservation@1",
-            "id": "o375",
+            "id": "o378",
             "at": [
              19828,
              19838
@@ -5439,9 +5501,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 428,
+            "seq": 431,
             "schema": "EOTObservation@1",
-            "id": "o376",
+            "id": "o379",
             "at": [
              19901,
              19928
@@ -5459,9 +5521,9 @@
             "children": []
            },
            {
-            "seq": 429,
+            "seq": 432,
             "schema": "EOTObservation@1",
-            "id": "o377",
+            "id": "o380",
             "at": [
              19970,
              19987
@@ -5479,9 +5541,9 @@
             "children": []
            },
            {
-            "seq": 430,
+            "seq": 433,
             "schema": "EOTObservation@1",
-            "id": "o378",
+            "id": "o381",
             "at": [
              20008,
              20014
@@ -5571,9 +5633,9 @@
             ]
            },
            {
-            "seq": 431,
+            "seq": 434,
             "schema": "EOTObservation@1",
-            "id": "o379",
+            "id": "o382",
             "at": [
              20054,
              20079
@@ -5608,7 +5670,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 433,
+          "seq": 436,
           "schema": "EOTAbsence@1",
           "at": [
            20080,
@@ -5650,9 +5712,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 434,
+            "seq": 437,
             "schema": "EOTObservation@1",
-            "id": "o380",
+            "id": "o383",
             "at": [
              20186,
              20236
@@ -5669,9 +5731,9 @@
             "settledAs": "verb",
             "children": [
              {
-              "seq": 435,
+              "seq": 438,
               "schema": "EOTObservation@1",
-              "id": "o381",
+              "id": "o384",
               "at": [
                20217,
                20236
@@ -5691,9 +5753,9 @@
             ]
            },
            {
-            "seq": 436,
+            "seq": 439,
             "schema": "EOTObservation@1",
-            "id": "o382",
+            "id": "o385",
             "at": [
              20258,
              20300
@@ -5710,9 +5772,9 @@
             "settledAs": "verb",
             "children": [
              {
-              "seq": 437,
+              "seq": 440,
               "schema": "EOTObservation@1",
-              "id": "o383",
+              "id": "o386",
               "at": [
                20270,
                20300
@@ -5729,9 +5791,9 @@
               "settledAs": "verb",
               "children": [
                {
-                "seq": 438,
+                "seq": 441,
                 "schema": "EOTObservation@1",
-                "id": "o384",
+                "id": "o387",
                 "at": [
                  20273,
                  20300
@@ -5753,9 +5815,9 @@
             ]
            },
            {
-            "seq": 439,
+            "seq": 442,
             "schema": "EOTObservation@1",
-            "id": "o385",
+            "id": "o388",
             "at": [
              20468,
              20475
@@ -5819,9 +5881,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 440,
+            "seq": 443,
             "schema": "EOTObservation@1",
-            "id": "o386",
+            "id": "o389",
             "at": [
              20500,
              20518
@@ -5836,9 +5898,9 @@
             "settledAs": null,
             "children": [
              {
-              "seq": 441,
+              "seq": 444,
               "schema": "EOTObservation@1",
-              "id": "o387",
+              "id": "o390",
               "at": [
                20511,
                20518
@@ -5930,9 +5992,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 443,
+            "seq": 446,
             "schema": "EOTObservation@1",
-            "id": "o388",
+            "id": "o391",
             "at": [
              20708,
              20716
@@ -5950,9 +6012,9 @@
             "children": []
            },
            {
-            "seq": 444,
+            "seq": 447,
             "schema": "EOTObservation@1",
-            "id": "o389",
+            "id": "o392",
             "at": [
              20732,
              20758
@@ -6002,7 +6064,7 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 446,
+            "seq": 449,
             "schema": "EOTAbsence@1",
             "at": [
              20759,
@@ -6045,9 +6107,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 448,
+          "seq": 451,
           "schema": "EOTObservation@1",
-          "id": "o390",
+          "id": "o393",
           "at": [
            20919,
            20932
@@ -6095,9 +6157,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 449,
+            "seq": 452,
             "schema": "EOTObservation@1",
-            "id": "o391",
+            "id": "o394",
             "at": [
              20980,
              21006
@@ -6132,7 +6194,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 451,
+          "seq": 454,
           "schema": "EOTAbsence@1",
           "at": [
            21008,
@@ -6173,7 +6235,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 452,
+          "seq": 455,
           "schema": "EOTAbsence@1",
           "at": [
            21051,
@@ -6200,7 +6262,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 453,
+          "seq": 456,
           "schema": "EOTAbsence@1",
           "at": [
            21068,
@@ -6227,9 +6289,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 454,
+          "seq": 457,
           "schema": "EOTObservation@1",
-          "id": "o392",
+          "id": "o395",
           "at": [
            21152,
            21156
@@ -6291,7 +6353,7 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 455,
+            "seq": 458,
             "schema": "EOTAbsence@1",
             "at": [
              21160,
@@ -6320,9 +6382,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 456,
+          "seq": 459,
           "schema": "EOTObservation@1",
-          "id": "o393",
+          "id": "o396",
           "at": [
            21306,
            21347
@@ -6339,9 +6401,9 @@
           "settledAs": "verb",
           "children": [
            {
-            "seq": 457,
+            "seq": 460,
             "schema": "EOTObservation@1",
-            "id": "o394",
+            "id": "o397",
             "at": [
              21335,
              21347
@@ -6358,9 +6420,9 @@
             "settledAs": "verb",
             "children": [
              {
-              "seq": 458,
+              "seq": 461,
               "schema": "EOTObservation@1",
-              "id": "o395",
+              "id": "o398",
               "at": [
                21344,
                21347
@@ -6412,9 +6474,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 459,
+            "seq": 462,
             "schema": "EOTObservation@1",
-            "id": "o396",
+            "id": "o399",
             "at": [
              21394,
              21396
@@ -6433,9 +6495,9 @@
             "children": []
            },
            {
-            "seq": 460,
+            "seq": 463,
             "schema": "EOTObservation@1",
-            "id": "o397",
+            "id": "o400",
             "at": [
              21444,
              21452
@@ -6453,9 +6515,9 @@
             "children": []
            },
            {
-            "seq": 462,
+            "seq": 465,
             "schema": "EOTObservation@1",
-            "id": "o398",
+            "id": "o401",
             "at": [
              21489,
              21497
@@ -6470,6 +6532,26 @@
             "terrain": "Field",
             "stance": "Tending",
             "settledAs": "preposition",
+            "children": []
+           },
+           {
+            "seq": 467,
+            "schema": "EOTObservation@1",
+            "id": "o402",
+            "at": [
+             21498,
+             21653
+            ],
+            "role": "proposition",
+            "end1": "ing so nicely by the fire",
+            "label": "licking",
+            "end2": "her\npaws and washing her face—and she is such a nice soft thing to\nnurse—and she’s such a capital one for catching mice—oh, I beg your\npardon!”",
+            "subjectBasis": "inherited (reduced clause — the noun before the comma)",
+            "operator": "CON",
+            "grain": "Figure",
+            "terrain": "Link",
+            "stance": "Binding",
+            "settledAs": "verb",
             "children": []
            }
           ]
@@ -6505,9 +6587,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 464,
+            "seq": 468,
             "schema": "EOTObservation@1",
-            "id": "o399",
+            "id": "o403",
             "at": [
              21735,
              21769
@@ -6524,9 +6606,9 @@
             "settledAs": "verb",
             "children": [
              {
-              "seq": 465,
+              "seq": 469,
               "schema": "EOTObservation@1",
-              "id": "o400",
+              "id": "o404",
               "at": [
                21743,
                21769
@@ -6540,9 +6622,9 @@
               "settledAs": null,
               "children": [
                {
-                "seq": 466,
+                "seq": 470,
                 "schema": "EOTObservation@1",
-                "id": "o401",
+                "id": "o405",
                 "at": [
                  21754,
                  21769
@@ -6596,9 +6678,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 467,
+            "seq": 471,
             "schema": "EOTObservation@1",
-            "id": "o402",
+            "id": "o406",
             "at": [
              21787,
              21825
@@ -6647,7 +6729,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 468,
+          "seq": 472,
           "schema": "EOTAbsence@1",
           "at": [
            21831,
@@ -6688,9 +6770,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 470,
+          "seq": 474,
           "schema": "EOTObservation@1",
-          "id": "o403",
+          "id": "o407",
           "at": [
            21931,
            21949
@@ -6723,7 +6805,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 471,
+          "seq": 475,
           "schema": "EOTAbsence@1",
           "at": [
            21950,
@@ -6750,7 +6832,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 472,
+          "seq": 476,
           "schema": "EOTAbsence@1",
           "at": [
            22010,
@@ -6791,7 +6873,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 473,
+          "seq": 477,
           "schema": "EOTAbsence@1",
           "at": [
            22049,
@@ -6818,7 +6900,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 474,
+          "seq": 478,
           "schema": "EOTAbsence@1",
           "at": [
            22067,
@@ -6845,7 +6927,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 475,
+          "seq": 479,
           "schema": "EOTAbsence@1",
           "at": [
            22136,
@@ -6872,9 +6954,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 476,
+          "seq": 480,
           "schema": "EOTObservation@1",
-          "id": "o404",
+          "id": "o408",
           "at": [
            22282,
            22299
@@ -6891,9 +6973,9 @@
           "settledAs": "verb",
           "children": [
            {
-            "seq": 477,
+            "seq": 481,
             "schema": "EOTObservation@1",
-            "id": "o405",
+            "id": "o409",
             "at": [
              22295,
              22299
@@ -6928,7 +7010,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 478,
+          "seq": 482,
           "schema": "EOTAbsence@1",
           "at": [
            22300,
@@ -6970,9 +7052,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 479,
+            "seq": 483,
             "schema": "EOTObservation@1",
-            "id": "o406",
+            "id": "o410",
             "at": [
              22417,
              22421
@@ -6990,9 +7072,9 @@
             "children": []
            },
            {
-            "seq": 480,
+            "seq": 484,
             "schema": "EOTObservation@1",
-            "id": "o407",
+            "id": "o411",
             "at": [
              22437,
              22462
@@ -7009,9 +7091,9 @@
             "settledAs": "verb",
             "children": [
              {
-              "seq": 481,
+              "seq": 485,
               "schema": "EOTObservation@1",
-              "id": "o408",
+              "id": "o412",
               "at": [
                22448,
                22462
@@ -7031,9 +7113,9 @@
             ]
            },
            {
-            "seq": 482,
+            "seq": 486,
             "schema": "EOTObservation@1",
-            "id": "o409",
+            "id": "o413",
             "at": [
              22506,
              22545
@@ -7050,9 +7132,9 @@
             "settledAs": "verb",
             "children": [
              {
-              "seq": 483,
+              "seq": 487,
               "schema": "EOTObservation@1",
-              "id": "o410",
+              "id": "o414",
               "at": [
                22534,
                22545
@@ -7072,9 +7154,9 @@
             ]
            },
            {
-            "seq": 484,
+            "seq": 488,
             "schema": "EOTObservation@1",
-            "id": "o411",
+            "id": "o415",
             "at": [
              22570,
              22584
@@ -7124,9 +7206,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 485,
+            "seq": 489,
             "schema": "EOTObservation@1",
-            "id": "o412",
+            "id": "o416",
             "at": [
              22624,
              22659
@@ -7143,9 +7225,9 @@
             "settledAs": "verb",
             "children": [
              {
-              "seq": 486,
+              "seq": 490,
               "schema": "EOTObservation@1",
-              "id": "o413",
+              "id": "o417",
               "at": [
                22633,
                22659
@@ -7197,9 +7279,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 488,
+            "seq": 492,
             "schema": "EOTObservation@1",
-            "id": "o414",
+            "id": "o418",
             "at": [
              22675,
              22691
@@ -7218,9 +7300,9 @@
             "children": []
            },
            {
-            "seq": 489,
+            "seq": 493,
             "schema": "EOTObservation@1",
-            "id": "o415",
+            "id": "o419",
             "at": [
              22706,
              22730
@@ -7236,9 +7318,9 @@
             "settledAs": null,
             "children": [
              {
-              "seq": 490,
+              "seq": 494,
               "schema": "EOTObservation@1",
-              "id": "o416",
+              "id": "o420",
               "at": [
                22720,
                22730
@@ -7288,9 +7370,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 491,
+            "seq": 495,
             "schema": "EOTObservation@1",
-            "id": "o417",
+            "id": "o421",
             "at": [
              22793,
              22795
@@ -7354,9 +7436,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 493,
+            "seq": 497,
             "schema": "EOTObservation@1",
-            "id": "o418",
+            "id": "o422",
             "at": [
              22868,
              22883
@@ -7373,9 +7455,9 @@
             "settledAs": "verb",
             "children": [
              {
-              "seq": 494,
+              "seq": 498,
               "schema": "EOTObservation@1",
-              "id": "o419",
+              "id": "o423",
               "at": [
                22881,
                22883
@@ -7427,9 +7509,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 495,
+            "seq": 499,
             "schema": "EOTObservation@1",
-            "id": "o420",
+            "id": "o424",
             "at": [
              22937,
              22962
@@ -7479,9 +7561,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 496,
+            "seq": 500,
             "schema": "EOTObservation@1",
-            "id": "o421",
+            "id": "o425",
             "at": [
              23076,
              23100
@@ -7498,9 +7580,9 @@
             "settledAs": "verb",
             "children": [
              {
-              "seq": 497,
+              "seq": 501,
               "schema": "EOTObservation@1",
-              "id": "o422",
+              "id": "o426",
               "at": [
                23087,
                23100
@@ -7520,9 +7602,9 @@
             ]
            },
            {
-            "seq": 498,
+            "seq": 502,
             "schema": "EOTObservation@1",
-            "id": "o423",
+            "id": "o427",
             "at": [
              23169,
              23181
@@ -7540,9 +7622,9 @@
             "children": []
            },
            {
-            "seq": 500,
+            "seq": 504,
             "schema": "EOTObservation@1",
-            "id": "o424",
+            "id": "o428",
             "at": [
              23241,
              23271
@@ -7559,9 +7641,9 @@
             "settledAs": "verb",
             "children": [
              {
-              "seq": 501,
+              "seq": 505,
               "schema": "EOTObservation@1",
-              "id": "o425",
+              "id": "o429",
               "at": [
                23251,
                23271
@@ -7578,9 +7660,9 @@
               "settledAs": "verb",
               "children": [
                {
-                "seq": 502,
+                "seq": 506,
                 "schema": "EOTObservation@1",
-                "id": "o426",
+                "id": "o430",
                 "at": [
                  23258,
                  23271
@@ -7648,9 +7730,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 503,
+            "seq": 507,
             "schema": "EOTObservation@1",
-            "id": "o427",
+            "id": "o431",
             "at": [
              23284,
              23299
@@ -7668,9 +7750,9 @@
             "children": []
            },
            {
-            "seq": 504,
+            "seq": 508,
             "schema": "EOTObservation@1",
-            "id": "o428",
+            "id": "o432",
             "at": [
              23435,
              23444
