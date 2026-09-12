@@ -632,8 +632,147 @@ export function competencyGrade({ opening = "", body = [], materialPropositions 
   };
 }
 
+// ── KELSEN: THE PRIMARY MODALITY — the essay's claims resolve by the norm
+//    hierarchy, and the RESOLUTION IS SHOWN (teaching). ────────────────────
+// Kelsen's order (regime.js precedence): validity window first, then
+// specificity (lex specialis), then force, then recency (lex posterior),
+// then entrenchment — never a silent pick. The essay's propositions are
+// graded through this: when two claims the essay carries conflict, the
+// order names a winner and WHY. The default mode is HYPER-GROUNDED — every
+// claim is a norm in a hierarchy, and the essay teaches the reader the
+// order by showing each resolution: "claim A prevails because claim B is
+// out of its validity window (lex specialis: the specific beats the
+// general; lex posterior: the later enactment beats the earlier)."
+// `propositions` are the essay's claims (the material's EOT entries it
+// carries); `index` resolves them; `precedence` and `tagClaim` are the
+// regime organs, injected. Returns {ok, resolutions, conflicts, basis}.
+export function kelsenGrade({ propositions = [], index = null, precedence = null, tagClaim = null, queryTime = Date.now() } = {}) {
+  if (typeof precedence !== "function") {
+    return { ok: true, resolutions: [], conflicts: [], basis: "no precedence organ injected — the Kelsen grade is declared, not measured (the regime organ lives in organs/regime.js)" };
+  }
+  const norm = (t) => String(t ?? "").split(/\s+/).join(" ").toLowerCase().trim();
+  const props = (propositions ?? []).filter((p) => p && norm(p.label));
+  const resolveIn = (text) => {
+    try {
+      const r = index?.resolveIn?.(String(text ?? ""));
+      return r instanceof Set ? r : new Set(r ?? []);
+    } catch { return new Set(); }
+  };
+  const represent = (id) => { try { return index?.represent?.(id) ?? id; } catch { return id; } };
+  // Group the essay's claims by their SUBJECT (the referent they resolve to),
+  // then resolve conflicts WITHIN each subject's claim-set through Kelsen.
+  const bySubject = new Map();
+  for (const p of props) {
+    const ids = resolveIn(`${p.end1 ?? ""} ${p.label ?? ""} ${p.end2 ?? ""}`);
+    const subject = ids.size ? [...ids].map(represent).join(", ") : norm(p.end1 ?? "?");
+    if (!bySubject.has(subject)) bySubject.set(subject, []);
+    bySubject.get(subject).push(p);
+  }
+  const resolutions = [];
+  let conflicts = 0;
+  for (const [subject, claims] of bySubject) {
+    if (claims.length < 2) continue; // a single claim on a subject has nothing to resolve
+    // Tag each claim (default force/validity, different enactedAt per claim
+    // index so lex posterior is exercised) and pairwise resolve.
+    for (let i = 0; i < claims.length; i++) {
+      for (let j = i + 1; j < claims.length; j++) {
+        const a = claims[i], b = claims[j];
+        // A CONFLICT is same relation, different object — a functional
+        // relation with two fillers ("is nocturnal" vs "is diurnal"), the
+        // Lincoln vice-president case. Two claims about the same subject
+        // with DIFFERENT relations are complementary facts, not a conflict
+        // ("is nocturnal" + "found in Kenya" both hold — no resolution
+        // needed). A genuine Kelsen conflict is the functional clash.
+        const sameAct = norm(a.label) === norm(b.label);
+        const sameObject = norm(a.end2) === norm(b.end2);
+        if (!sameAct || sameObject) continue; // not a functional clash — no conflict
+        let aTag = null, bTag = null;
+        if (typeof tagClaim === "function") {
+          try { aTag = tagClaim(a, { operator: "CON", enactedAt: i, queryTime }); } catch { aTag = null; }
+          try { bTag = tagClaim(b, { operator: "CON", enactedAt: j, queryTime }); } catch { bTag = null; }
+        }
+        if (!aTag || !bTag) continue;
+        try {
+          const r = precedence({ tag: aTag, grain: "Figure" }, { tag: bTag, grain: "Figure" }, { queryTime });
+          conflicts++;
+          // THE TEACHING SURFACE: name the resolution, never hide it. The
+          // reader sees why one claim prevails under the norm hierarchy.
+          resolutions.push({
+            subject,
+            a: `${a.end1 ?? ""} ${a.label} ${a.end2 ?? ""}`.trim(),
+            b: `${b.end1 ?? ""} ${b.label} ${b.end2 ?? ""}`.trim(),
+            winner: r.winner === "a" ? "a" : r.winner === "b" ? "b" : null,
+            reason: r.reason ?? null,
+            why: r.reason === "validity_window"
+              ? `${r.winner === "a" ? a.end1 : b.end1} prevails: the other claim is out of its validity window — validity is checked before force or specificity is ever consulted`
+              : r.reason === "specificity"
+                ? `${r.winner === "a" ? a.end1 : b.end1} prevails: lex specialis — the more specific claim beats the general`
+                : r.reason === "force"
+                  ? `${r.winner === "a" ? a.end1 : b.end1} prevails on force — the higher-ranked norm binds`
+                  : r.reason === "recency"
+                    ? `${r.winner === "a" ? a.end1 : b.end1} prevails: lex posterior — the later enactment beats the earlier`
+                    : r.reason === "entrenchment"
+                      ? `${r.winner === "a" ? a.end1 : b.end1} prevails on entrenchment — the deeper grain binds`
+                      : r.reason === "tied" ? "tied: same force, same grain, no decisive recency — a declared tiebreak is needed, never guessed" : r.detail ?? null,
+          });
+        } catch { /* an unresolved pair is not graded — never a guess */ }
+      }
+    }
+  }
+  return {
+    ok: conflicts > 0 ? resolutions.every((r) => r.winner) : true,
+    conflicts,
+    resolved: resolutions.filter((r) => r.winner).length,
+    tied: resolutions.filter((r) => !r.winner).length,
+    resolutions,
+    basis: conflicts ? `Kelsen resolved ${resolutions.filter((r) => r.winner).length} of ${conflicts} conflicts among the essay's claims — each resolution named` : "Kelsen: no conflicting claims among the essay's propositions — nothing to resolve",
+  };
+}
+
 // ── REC: a rewrite pass names exactly what the EVA found, and the ledger
 //    records the revision (supersede) so the before/after stays on file. ────
+
+// ── LAVAR TELLS US IF WE ARE READING WELL ──────────────────────────────────
+// The user's standing: LaVar should tell us if we are reading well, and be
+// adapted as needed to help trigger "looking". This grade answers the first
+// half on a single source: did the reader actually READ the bytes, or was
+// it misreading a text whose formatting it structurally cannot see (a table,
+// a column, box-drawing, sub-sentence lines)? When the reader is reading
+// wrong, `shouldLook` fires — the CV/OCR "looking" pass — so the source is
+// rendered and read the way a person would see it. The gate is mechanical
+// (weirdFormattingScore from native/organs/look.js, injected here so this
+// file stays dependency-free): a source is "not read well" when its own
+// bytes carry layout the plain-text reader cannot see, or when the reading
+// produced zero propositions from a source that should have had some.
+export function lavarGradeReading({ source = "", text = "", propositions = [], weirdFormattingScore = null, expectedFloor = 3 } = {}) {
+  const failures = [];
+  const norm = (t) => String(t ?? "").split(/\s+/).join(" ").toLowerCase().trim();
+  const gate = typeof weirdFormattingScore === "function" ? weirdFormattingScore(text) : null;
+  const props = (propositions ?? []).filter((p) => p && norm(p.label));
+  if (gate && gate.score > 0) {
+    failures.push({ kind: "misread_formatting", detail: `the text's own formatting is being read wrong (${(gate.signals ?? []).join(", ")}) — should look at it` });
+  }
+  // A real source that produced nothing is a silent miss — the reader read
+  // the bytes and heard nothing, which is as bad as a fabricated proposition
+  // (the same withheld-not-convict posture: an empty read is not a reading).
+  const meaningful = norm(text).split(/\s+/).filter(Boolean).length;
+  if (meaningful >= 80 && props.length === 0) {
+    failures.push({ kind: "silent_read", detail: "a substantial source yielded zero propositions — the reader heard nothing it could admit" });
+  }
+  const readingWell = failures.length === 0;
+  return {
+    ok: readingWell,
+    readingWell,
+    shouldLook: Boolean(gate && gate.score > 0),
+    signals: gate?.signals ?? [],
+    source,
+    propositions: props.length,
+    basis: readingWell
+      ? "LaVar: this source was read well — its bytes yielded propositions and its formatting was not being misread"
+      : `LaVar: this source was NOT read well — ${failures.map((f) => f.detail).join("; ")}`,
+    failures,
+  };
+}
 
 // ── verbatim source snips (citations, never generated) ─────────────────────
 // The Fold's snip discipline (snip-check.js): "What the sources say, verbatim".
@@ -682,7 +821,7 @@ export function serializeLedger(ledger) {
 // and year, and (b) the VERBATIM sentence from the source it borrows from
 // (the span, taken from the EOT-retained text, never paraphrased). The
 // source's URL is the address; the borrowed sentence is the evidence.
-export function renderApaFootnotes(essay, webSources = new Map(), { maxFootnotes = 12 } = {}) {
+export function renderApaFootnotes(essay, webSources = new Map(), { maxFootnotes = 12, givers = [] } = {}) {
   if (!webSources.size) return "";
   // Split the essay into sentences.
   const sentences = String(essay ?? "")
@@ -718,7 +857,22 @@ export function renderApaFootnotes(essay, webSources = new Map(), { maxFootnotes
       const hits = terms.filter((t) => clean.toLowerCase().includes(t)).length;
       if (hits > spanScore) { spanScore = hits; span = clean; }
     }
-    if (!span || spanScore < 3) continue;
+    if (!span || spanScore < 3) {
+      // NOT GROUNDED IN A SOURCE — the sentence is the essay's OWN statement.
+      // Cite its giver (the model) rather than silently dropping it or
+      // passing it off as material (the user's discipline: the model stating
+      // something is a giver that should be cited).
+      notes.push({
+        sentence,
+        host: givers.find((g) => g?.role === "model")?.name ?? "the model",
+        year: new Date().getFullYear(),
+        url: null,
+        span: null,
+        spanIndex: -1,
+        modelClaim: true,
+      });
+      continue;
+    }
     // APA-ish author/year: host + year from the URL's page (no publication
     // date available to a fetch — the host is the named source, the year is
     // the retrieval year, disclosed honestly).
@@ -728,8 +882,12 @@ export function renderApaFootnotes(essay, webSources = new Map(), { maxFootnotes
     notes.push({ sentence, host, year, url: best, span, spanIndex: srcText.indexOf(span) });
   }
   if (!notes.length) return "";
-  // Footnotes: numbered in the essay, then the block at the end.
-  const block = notes.map((n, i) => `${i + 1}. (${n.host}, ${n.year}). "${n.span}" — ${n.url}`).join("\n");
+  // Footnotes: numbered in the essay, then the block at the end. A model-
+  // stated claim is disclosed as such — its giver is the model, never a
+  // source that did not say it.
+  const block = notes.map((n, i) => n.modelClaim
+    ? `${i + 1}. (${n.host}, ${n.year}). "${n.sentence.slice(0, 160)}…" — stated by ${n.host} (the essay's own claim; no retained source states it)`
+    : `${i + 1}. (${n.host}, ${n.year}). "${n.span}" — ${n.url}`).join("\n");
   return `\n\n## Footnotes\n\n${block}`;
 }
 
@@ -750,8 +908,8 @@ export function renderApaFootnotes(essay, webSources = new Map(), { maxFootnotes
 //
 // Every atom that IS supported records its real byte address in the retained
 // source text: an address is a birth, not a spelling.
-export function citationLedger(essay, webSources = new Map(), { maxCitations = 20 } = {}) {
-  if (!webSources.size) return { citations: [], of: 0, verbatim: 0, company: 0, unsupported: 0, basis: "no retained sources to cite against" };
+export function citationLedger(essay, webSources = new Map(), { maxCitations = 20, givers = [] } = {}) {
+  if (!webSources.size) return { citations: [], of: 0, verbatim: 0, company: 0, unsupported: 0, basis: "no retained sources to cite against", givers };
   const sentences = String(essay ?? "")
     .replace(/\s+/g, " ")
     .split(/(?<=[.!?])\s+(?=[A-Z])/)
@@ -787,7 +945,22 @@ export function citationLedger(essay, webSources = new Map(), { maxCitations = 2
       const hits = terms.filter((t) => src.includes(t)).length;
       if (hits > bestScore) { bestScore = hits; best = url; }
     }
-    if (!best || bestScore < 3) { citations.push({ essaySentence: sentence, source: null, kind: "unsupported", atoms: [], basis: "no source shares enough of the claim's words" }); continue; }
+    if (!best || bestScore < 3) {
+      // UNSOURCED = THE MODEL'S CLAIM, never a nameless guess. The model
+      // stated it; the model is the giver, and the citation says so (the
+      // user's discipline: the model stating something is a giver that
+      // should be cited — and priors that steered are cited too).
+      citations.push({
+        essaySentence: sentence,
+        source: null,
+        kind: "unsupported",
+        giver: givers.find((g) => g?.role === "model")?.name ?? "the model",
+        priors: givers.filter((g) => g?.role === "prior").map((g) => g.name),
+        atoms: [],
+        basis: "no source shares enough of the claim's words — this is the essay's own statement, cited to its giver (the model) rather than passed off as material",
+      });
+      continue;
+    }
     const srcText = String(webSources.get(best) ?? "");
     const srcNorm = srcText.replace(/\s+/g, " ");
     const srcLower = srcNorm.toLowerCase();
@@ -860,6 +1033,11 @@ export function citationLedger(essay, webSources = new Map(), { maxCitations = 2
     citations.push({
       essaySentence: sentence,
       source: { url: best, host },
+      // THE GIVER: the source states the claim; the source is the giver
+      // (cited, byte-addressed). Priors that steered the composition are
+      // cited too — a prior's steer is a provenance, never invisible.
+      giver: host,
+      priors: givers.filter((g) => g?.role === "prior").map((g) => g.name),
       // The VERBATIM WORDS that ground this claim — never an address alone.
       groundingText,
       verbatimSpan: span && verbatim ? span : null,

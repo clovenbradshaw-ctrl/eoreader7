@@ -124,6 +124,18 @@ export function humanizeNote(note) {
       return `Prompt: system ${note.system}c + chat ${note.chatChars}c (${note.chat} msg) + material ${note.materialChars}c (${note.materialSegments} seg) + task ${note.taskChars}c, of ${note.max}c max.`;
     case "post_note":
       return note.message ?? null;
+    case "look":
+      return `Looked at "${note.rel}" — the text's formatting was being misread (${(note.signals ?? []).join(", ") || note.reason}). Rendered it and read the image: ${note.boxes} region(s), ${note.vision ? "a vision read" : "no vision model"}.`;
+    case "look_image":
+      return `Looked at image "${note.rel}": ${note.boxes} box(es), ${note.connectors} connector(s), ${note.vision ? "a vision model read it" : "no vision model"}, ${note.settled ? "senses agreed" : "senses still disagree"}.`;
+    case "look_images_done":
+      return `Looked at ${note.files} image(s) in the workspace.`;
+    case "look_error":
+      return `Couldn't look at "${note.rel}": ${note.error}`;
+    case "lavar_reading":
+      return note.well
+        ? `LaVar: "${note.rel}" was read well — its bytes yielded propositions and its formatting was not being misread.`
+        : `LaVar: "${note.rel}" was NOT read well — ${note.basis ?? "reading quality in doubt"}${note.shouldLook ? " Looking at it." : ""}`;
     case "post_timeout":
       return `Post-processing timed out — returned the model's original text.`;
     case "web_searched":

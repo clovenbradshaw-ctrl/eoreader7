@@ -261,6 +261,32 @@ And the part LaVar is most likely to get wrong, because it looks like quality co
 
 ---
 
+## 14. LaVar tells us if we are reading well — and triggers "looking"
+
+The user's standing, verbatim: *"LaVar should tell us if we are reading well and should be adapted as needed to help trigger 'looking.'"* This is the section that makes that a native capacity, not an aspiration.
+
+**A reading can be wrong in a way nothing above the log can see (§1).** The Marmeladov fold was a perfectly-faithful projection of a wrong reading. "Looking" is the same problem one register down, at the SENSE level: a text whose *formatting* the plain-text reader structurally cannot see — a table, a column, a box-drawn diagram, sub-sentence lines that are cells not sentences — gets read wrong *before* a single referent resolves. The reader reads the flat bytes; the thing is not the flat bytes. When that happens, the answer is not to read harder, it is to **look** at the thing: render it to an image and read the image with CV/OCR + a vision model.
+
+**The organ.** `native/organs/look.js` — the native "looking" capacity, ported from the fold's browser-side `/visual` machinery. Two senses, judged like the project's own corroboration/witness machinery judges everywhere else:
+
+- **Mechanical:** OpenCV box/connector detection + per-region Tesseract OCR (`visual-rec.mjs`/`visual-detect.py`), landing detected structure as addressed EOT ledger lines.
+- **Vision:** a local vision model's holistic read of the whole image, escalated to a larger model only on a real, named disagreement with the mechanical facts (the fold's `settleImageRead` escalation loop).
+- **Text → image:** `weirdFormattingScore` names *when* the reader is reading text wrong (table rows, box-drawing, very-short lines, wide whitespace runs); `renderTextToImage` renders those bytes the way a person would see them; `lookAtImage` reads the render. The looked-at reading is admitted as its own source (`<rel>::look`) so the model speaks from what the thing IS.
+
+**What LaVar now does.** `lavarGradeReading` in `native/the-fold/document-ledger.js` returns, per source, `readingWell` — did the reader read these bytes well, or was it misreading formatting / hearing nothing from a substantial source? A `shouldLook` verdict on a source is exactly what triggers the looking pass. The proxy's workspace admission runs it: a source whose own bytes carry layout the plain-text reader cannot see gets a `lavar_reading` note (`"was NOT read well — should look at it"`) and the looking pass fires.
+
+**The discipline, inherited and applied here:**
+
+- **Looking is triggered by a measured misread, never speculatively.** `weirdFormattingScore` is a mechanical gate on the source's own bytes — it fires because the text IS a table, not because LaVar "felt" it was odd. The fold's own rule is carried whole: escalate only on a real, named disagreement, stop on measured settlement.
+- **A vision read is a witness, never an oracle.** The same `VISION_STANDING` the fold already carries applies: moondream (and qwen2.5vl) have measured hallucination on precise factual detail. The mechanical facts are trusted for precise claims; the vision read for the general "what is this a picture of" a mechanical detector cannot answer. Where they disagree, the disagreement is disclosed, not settled by whoever talks last.
+- **A missing sense degrades loudly, never silently.** `renderTextToImage` refuses off-macOS; `visual-rec` refuses without `VISUAL_DETECT_PYTHON`. A missing dependency should fail loudly, not produce an empty, falsely-clean read.
+- **A looked-at reading supersedes nothing.** The original flat bytes stay admitted; the looked-at reading is a SEPARATE source. The reader never edits the origin in place — the discipline §13 already holds for revisions, applied one level down.
+- **Search before building.** The mechanical detector, the ledger writers, the escalation loop, the vision ladder — all existed in `native/eval/lavar/` and the fold before this section was written. The organ imports them; it does not reimplement them.
+
+**What refutes this.** If `weirdFormattingScore` fires on normal prose at a meaningful rate, the gate is measuring the wrong thing and looking becomes noise. And a looked-at reading is still a reading *of an image* — if the vision sense hallucinates and the mechanical sense is empty, looking produces a confident wrong answer, which is worse than silence. Both are checkable on real material and should be checked before the looking pass is trusted at scale.
+
+---
+
 ## Prep log (before the corpus)
 
 Ahead of the live_priors children's-book corpus landing, the live-priors production half of §3 was prepped and smoke-tested — the piece the user asked to prep first, over the checker, the archive mechanism, and the ladder/autonomy machinery, all deferred:

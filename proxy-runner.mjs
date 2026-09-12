@@ -19,7 +19,8 @@ import { resolutionBlocks } from "./native/the-fold/resolutions.js";
 import { tokenize } from "./native/the-fold/source.js";
 import { logitBiasFor, logitsBiasObject } from "./native/organs/gemma2-tokenizer.mjs";
 import { readingIndexFromLog } from "./native/the-fold/reading-log.js";
-import { createDocumentLedger, appendDocumentObservation, appendLedgerLine, projectDocument, documentChangeLog, admitPart, serializeLedger, snipsFromSources, checkEssayShape, ledgerFilePath, renderApaFootnotes, satisfactionOfSection, satisfactionOf, declareEssayVoid, fillCheck, citationLedger, voidCellsFor, holographicSatisfaction, lavarGradeEssay, competencyGrade } from "./native/the-fold/document-ledger.js";
+import { createDocumentLedger, appendDocumentObservation, appendLedgerLine, projectDocument, documentChangeLog, admitPart, serializeLedger, snipsFromSources, checkEssayShape, ledgerFilePath, renderApaFootnotes, satisfactionOfSection, satisfactionOf, declareEssayVoid, fillCheck, citationLedger, voidCellsFor, holographicSatisfaction, lavarGradeEssay, competencyGrade, lavarGradeReading, kelsenGrade } from "./native/the-fold/document-ledger.js";
+import { precedence, tagClaim } from "./native/organs/regime.js";
 import { goreBoundary, gatherPlan, cueGoDeeperPlan } from "./native/the-fold/gore.js";
 // The keyless field (GFP Pass 35, the-fold c232779): recall by partial-cue
 // resemblance, resolution by state — no absolute address. Surf's SECOND
@@ -31,6 +32,12 @@ import { dmdWindow } from "./native/kernel/activation.js";
 // parseSearchResults, extractUrls, normalizeUrl). The network egress lives
 // inline below — the proxy is the one sanctioned crossing (P13).
 import { extractReadable, parseSearchResults, extractUrls, normalizeUrl, WEB_SEARCH_MAX_RESULTS, looksLikeShell } from "./native/organs/web.js";
+// The look organ (native/organs/look.js): the native "looking" capacity,
+// ported from the fold's browser-side /visual machinery. CV (OpenCV boxes +
+// per-region OCR) and OCR, a vision-model read, judge + escalation on
+// disagreement, and a text→image render for text whose formatting the
+// plain-text reader is reading wrong.
+import { isImageFileName, lookAtImage, lookAtText, shouldLook, weirdFormattingScore } from "./native/organs/look.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const GIVER = "reader:eoreader7-proxy";
@@ -38,6 +45,35 @@ const CANONICALIZATION_FLOOR = 2;
 const ANCHORING = (process.env.ER7_ANCHORING ?? "born") === "born"
   ? { born: true, bornActivationFloor: Number(process.env.ER7_BORN_ACTIVATION_FLOOR ?? 0.5), bornMarginFloor: Number(process.env.ER7_BORN_MARGIN_FLOOR ?? 0.3), minWindow: Number(process.env.ER7_BORN_MIN_WINDOW ?? 4) }
   : { minActivation: Number(process.env.ER7_MIN_ACTIVATION ?? 0.05), minMargin: Number(process.env.ER7_MIN_MARGIN ?? 0.2) };
+
+// ── THE MODEL, NAMED — a giver with an identity, never an anonymous string.
+// Every claim the model states is cited to THIS giver (the user's
+// discipline: the model stating something is a giver that should be cited,
+// with what we know about it — its name, its release, its home). The model
+// is gemma-2-2b (Google DeepMind, 2024): a 2B-parameter decoder-only
+// transformer, Apache-2.0, quantized and served locally via Ollama. This is
+// the single small model the pipeline runs today; model-hunting (choosing
+// the best model for a task) is future work. The registry is data, not code:
+// a caller who runs a different model replaces this entry and every
+// citation renames the giver.
+const MODEL_REGISTRY = Object.freeze({
+  id: "gemma2:2b", // the Ollama id the proxy serves
+  hf: "google/gemma-2-2b",
+  hfUrl: "https://huggingface.co/google/gemma-2-2b",
+  name: "Gemma 2 2B",
+  family: "Gemma 2",
+  org: "Google DeepMind",
+  released: "2024-06-27",
+  license: "Apache-2.0",
+  params: "2B",
+  note: "decoder-only transformer; Apache-2.0; served locally via Ollama (Q4_0). The pipeline's single small model — model-hunting (selecting per task) is future work.",
+  quant: "Q4_0",
+});
+export const MODEL_GIVER = (model) => {
+  const m = String(model ?? "").replace(/^er7:/, "").replace(/:q\d+(_\d+)?$/, "");
+  if (m === "gemma2:2b" || m === "gemma2:2b-it" || m === "gemma2:2b:latest") return MODEL_REGISTRY;
+  return { id: model ?? "?", hfUrl: null, name: String(model ?? "?") };
+};
 const DEFAULT_POS_PRIOR = path.join(HERE, "legacy-eoreader6.1/bin/priors/pos/en-ud-ewt.json");
 
 export const OLLAMA = process.env.ER7_OLLAMA_URL ?? "http://localhost:11434";
@@ -847,7 +883,7 @@ function getSession(sessionId) {
     return s;
   }
   const reader = createSessionReader();
-  const entry = { reader, corpus: null, corpusIndex: null, lastChatText: "", turnCount: 0, lastAccess: now, indexSig: null, referents: null, webLedger: null, webSources: new Map(), field: null, shadow: [] };
+  const entry = { reader, corpus: null, corpusIndex: null, lookIndex: null, lastChatText: "", turnCount: 0, lastAccess: now, indexSig: null, referents: null, webLedger: null, webSources: new Map(), field: null, shadow: [] };
   sessions.set(sessionId, entry);
   return entry;
 }
@@ -941,6 +977,7 @@ async function admitWorkspaceEntries(session, entries, onNote) {
   const index = session.corpusIndex ?? new Map();
   let admitted = 0;
   let chars = 0;
+  let looked = 0;
   for (const e of entries) {
     const prev = index.get(e.rel);
     if (prev && prev.size === e.size && prev.mtimeMs === e.mtimeMs) continue;
@@ -960,9 +997,95 @@ async function admitWorkspaceEntries(session, entries, onNote) {
       }
       await yieldToEventLoop();
     }
+    // LOOK AT IT — the native "looking" capacity, ported from the fold's
+    // /visual machinery. Text whose formatting the plain-text reader is
+    // reading WRONG (a table, a column, box-drawing, sub-sentence lines)
+    // is rendered to an image and read by CV/OCR + a vision model, and the
+    // looked-at reading is admitted as its own source — so the model
+    // speaks from what the thing IS, not from the flat bytes it misread.
+    if (onNote) {
+      const gate = shouldLook({ fileName: e.rel, text });
+      if (gate.look && session.lookIndex?.get(e.rel) !== `${e.size}:${e.mtimeMs}`) {
+        // LaVar tells us if we are reading well — the misread-formatting
+        // verdict is exactly what triggers the looking pass below.
+        try {
+          const grade = lavarGradeReading({ source: e.rel, text, propositions: [], weirdFormattingScore });
+          onNote({ move: "lavar_reading", rel: e.rel, well: grade.readingWell, shouldLook: grade.shouldLook, signals: grade.signals ?? [], basis: grade.basis });
+        } catch { /* grading must never block looking */ }
+        try {
+          const lookedText = await lookAtText(text, { source: e.rel, label: `er7-${e.rel.replace(/[^a-z0-9]+/gi, "-")}` });
+          if (lookedText.text) {
+            const lookRes = admitChunked(session.corpus, { text: lookedText.text, sourceId: `${e.rel}::look` });
+            if (!lookRes.deduped) {
+              looked += 1;
+              const lookEncounters = textEncounters(lookedText.text, { source: `look:${e.rel}`, offset: 0 });
+              for (const enc of lookEncounters) { await session.reader.step(enc); await yieldToEventLoop(); }
+            }
+            if (!session.lookIndex) session.lookIndex = new Map();
+            session.lookIndex.set(e.rel, `${e.size}:${e.mtimeMs}`);
+            onNote({ move: "look", rel: e.rel, reason: gate.reason, signals: gate.signals ?? [], boxes: lookedText.boxCount ?? 0, vision: Boolean(lookedText.visionRead) });
+          }
+        } catch (err) {
+          if (onNote) onNote({ move: "look_error", rel: e.rel, error: err.message });
+        }
+      }
+    }
   }
   session.corpusIndex = index;
-  return { admitted, chars };
+  return { admitted, chars, looked };
+}
+
+// Look at the workspace's IMAGE files (currently skipped by the text scan —
+// isTextFile refuses them) so the reading can actually SEE a diagram, a
+// screenshot, a chart. Each image's looked-at reading is admitted as its own
+// source, exactly like a text file. Bounded: MAX_LOOK_IMAGES per turn, and
+// only files this session has not already looked at.
+const MAX_LOOK_IMAGES = 6;
+async function lookWorkspaceImages(session, absRoot, onNote) {
+  if (!fs.existsSync(absRoot)) return { looked: 0 };
+  const images = [];
+  const walk = (dir, depth) => {
+    if (depth > 6 || images.length >= MAX_LOOK_IMAGES) return;
+    let names;
+    try { names = fs.readdirSync(dir, { withFileTypes: true }); } catch { return; }
+    names.sort((a, b) => (a.name < b.name ? -1 : 1));
+    for (const ent of names) {
+      if (images.length >= MAX_LOOK_IMAGES) return;
+      if (ent.name.startsWith(".") || SKIP_DIRS.has(ent.name)) continue;
+      const full = path.join(dir, ent.name);
+      if (ent.isDirectory()) { walk(full, depth + 1); continue; }
+      if (!ent.isFile() || ent.isSymbolicLink()) continue;
+      if (!isImageFileName(ent.name)) continue;
+      let stat;
+      try { stat = fs.statSync(full); } catch { continue; }
+      if (stat.size > 12 * 1024 * 1024) continue; // a 12MB image is not something to look at every turn
+      images.push({ abs: full, rel: full.slice(absRoot.length).replace(/^\//, ""), size: stat.size, mtimeMs: stat.mtimeMs });
+    }
+  };
+  walk(absRoot, 0);
+  let looked = 0;
+  for (const img of images) {
+    const key = `${img.size}:${img.mtimeMs}`;
+    if (session.lookIndex?.get(img.rel) === key) continue;
+    try {
+      const result = await lookAtImage(img.abs, { name: img.rel });
+      if (result.text) {
+        if (!session.corpus) session.corpus = createCorpusSession();
+        const res = admitChunked(session.corpus, { text: result.text, sourceId: `${img.rel}::look` });
+        if (!res.deduped) {
+          looked += 1;
+          const encs = textEncounters(result.text, { source: `look:${img.rel}`, offset: 0 });
+          for (const enc of encs) { await session.reader.step(enc); await yieldToEventLoop(); }
+        }
+        if (!session.lookIndex) session.lookIndex = new Map();
+        session.lookIndex.set(img.rel, key);
+        if (onNote) onNote({ move: "look_image", rel: img.rel, boxes: result.boxCount ?? 0, connectors: result.edgeCount ?? 0, vision: Boolean(result.visionRead), settled: result.visionSettled ?? true, chars: result.text.length });
+      }
+    } catch (err) {
+      if (onNote) onNote({ move: "look_error", rel: img.rel, error: err.message });
+    }
+  }
+  return { looked };
 }
 
 function readWorkspaceFile(entry, onNote) {
@@ -1256,6 +1379,13 @@ const POSTPROCESS_TIMEOUT_MS = Number(process.env.ER7_POSTPROCESS_TIMEOUT_MS) ||
 // The discourse at three resolutions (vendored the-fold resolutions.js, P171):
 // 0 = nearest verbatim only, 1 = + atmosphere, 2 = + lens, 3 = + paradigm.
 const RESOLUTIONS_LEVEL = (() => { const v = Number(process.env.ER7_RESOLUTIONS ?? ""); return [0, 1, 2, 3].includes(v) ? v : 3; })();
+// The KELSEN MODALITY — the norm-hierarchy linter's force. Default (1) is the
+// hyper-grounded posture: conflicting claims resolve by the declared order,
+// and resolutions are shown. For CREATIVE work (a poem, a speculative piece,
+// a fiction) the modality is turned DOWN (0 or 0.5): the linter still runs
+// and names conflicts, but a tie or an unresolved pair is not a failure —
+// creativity may hold tension, never a silent pick. ER7_KELSEN_MODALITY.
+const KELSEN_MODALITY = (() => { const v = Number(process.env.ER7_KELSEN_MODALITY ?? ""); return [0, 0.5, 1].includes(v) ? v : 1; })();
 
 async function* streamOllamaChat(model, messages, { maxTokens, json, onNote, kelsen, logitsBias } = {}) {
   for (let attempt = 0; attempt < CALL_RETRIES; attempt++) {
@@ -1536,6 +1666,13 @@ const modelsUp = await ollamaReachable();
     // Step surfaced segment text through the fold too, so holograph/hyperlexicon
     // build from the code being discussed — not just the task prose.
     if (admit.admitted > 0 && onNote) onNote({ move: "admitted", files: admit.admitted });
+
+    // LOOK AT IT — the native "looking" capacity: images in the workspace
+    // are read by CV/OCR + a vision model and admitted as sources, so the
+    // reading can actually SEE a diagram/screenshot/chart it would otherwise
+    // never be given (the text scan refuses them).
+    const lookedImages = await lookWorkspaceImages(session, workspace, onNote);
+    if (lookedImages.looked > 0 && onNote) onNote({ move: "look_images_done", files: lookedImages.looked });
   }
 
   // 1.5 DEF THE VOID BY ASKING QUESTIONS, THEN HUNT ITS SHAPE. The essay's
@@ -2217,6 +2354,7 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
       // Bounded: each section rewritten at most MAX_REWRITE_ROUNDS across the
       // pass; a section that still fails becomes a declared gap, never churned.
       const rankeAttempts = new Map(); // sectionIndex -> rewrite count, persists across rounds
+      let rankeTotalFindings = 0; // hoisted for the thinking surface
       for (let round = 0; round < MAX_REWRITE_ROUNDS && !truncated; round++) {
         const rankeFindings = [];
         // RANKE FOLDS THE ESSAY AT THE MATERIAL'S OWN POINTS. The material was
@@ -2263,6 +2401,7 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
           }
         }
         if (!rankeFindings.length) break;
+        rankeTotalFindings += rankeFindings.length;
         if (onNote) onNote({ move: "ranke", round: round + 1, ungrounded: rankeFindings.map((f) => f.sectionIndex) });
         // CONVERGENCE GUARD: a section that stays ungrounded after the rewrite
         // budget becomes a DECLARED GAP — typed and disclosed, never silently
@@ -2449,7 +2588,18 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
         // REAL verbatim source spans and their byte addresses into the retained
         // shadow text — every citation points at actual bytes, never a guess.
         const assembledBody = documentLines.join("\n\n");
-        const cites = citationLedger(assembledBody, session.webSources);
+        // THE GIVERS, ALL CITED (the user's discipline): the model is a giver
+        // when it states something; every prior that steered the composition
+        // is a giver too (the shape prior, the POS prior + born anchoring
+        // that shaped the reading). None invisible.
+        const essayGivers = [
+          // THE MODEL, CITED WITH ITS IDENTITY: what it is, when it
+          // released, where it lives — a giver is named, never anonymous.
+          (() => { const m = MODEL_GIVER(model); return { role: "model", name: m.name, id: m.id, hfUrl: m.hfUrl, released: m.released, license: m.license, note: m.note }; })(),
+          { role: "prior", name: "eoreader7:shape-prior:essay-v1", basis: "the essay's received form — thesis opening, body, closing" },
+          { role: "prior", name: "pos:en-ud-ewt + born anchoring", basis: "the reading's shape prior — what the priors caused the shadow to retain" },
+        ];
+        const cites = citationLedger(assembledBody, session.webSources, { givers: essayGivers });
         if (cites.citations.length) {
           const citesPath = path.join(ESSAY_LEDGER_DIR, `${documentLedger.docId.replace(/:/g, "_")}.citations.json`);
           try { fs.writeFileSync(citesPath, JSON.stringify({ docId: documentLedger.docId, ...cites }, null, 2)); } catch {}
@@ -2458,7 +2608,7 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
         // APA footnotes: each essay sentence attributed mechanically to its
         // best source, with the VERBATIM span it borrows from — the Fold's
         // cite.js discipline (an address is attached, never requested).
-        const footnoteBlock = renderApaFootnotes(assembledBody, session.webSources);
+        const footnoteBlock = renderApaFootnotes(assembledBody, session.webSources, { givers: essayGivers });
         if (footnoteBlock) {
           appendLedgerLine(documentLedger, {
             role: "citations", title: "Footnotes (APA)", text: footnoteBlock,
@@ -2523,6 +2673,17 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
   if (resolutions?.active?.length) thinkingLines.push(`Active referents: ${resolutions.active.map((a) => a?.id ?? a).join(", ")}.`);
   const thinkingBlock = thinkingLines.length ? thinkingLines.join("\n") : null;
 
+  // KELSEN: THE PRIMARY MODALITY — computed once so the result AND the
+  // thinking surface both read it.
+  const resultKelsen = documentLedger && rawEntries?.length
+    ? kelsenGrade({
+        propositions: notesFromEdges(rawEntries),
+        index: sessionReferentIndex(session),
+        precedence,
+        tagClaim,
+      })
+    : null;
+
   return {
     text,
     relationEdges: stats.relationEdges,
@@ -2541,6 +2702,26 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
           ledger: serializeLedger(documentLedger),
           ledgerFile: documentLedger ? ledgerFilePath(ESSAY_LEDGER_DIR, documentLedger.docId) : null,
           citationsFile: documentLedger ? path.join(ESSAY_LEDGER_DIR, `${documentLedger.docId.replace(/:/g, "_")}.citations.json`) : null,
+          // THE THINKING SURFACE — teaches, never just delivers. The reader
+          // sees HOW the essay reasoned: the void questions it DEF'd, the
+          // claims it carries and the conflicts Kelsen resolved (with WHY),
+          // and the grounded witnesses Ranke verified. The reader can check
+          // each step and learn the method — the system does not do the
+          // thinking for them, it shows the thinking so they can do it.
+          thinking: (() => {
+            const rows = [];
+            const m = MODEL_GIVER(model);
+            rows.push(`Written by ${m.name} (${m.released}, ${m.license}${m.hfUrl ? ` — ${m.hfUrl}` : ""}): every claim it states is cited to it; claims grounded in a source are cited to the source.`);
+            if (sections.length) rows.push(`The essay DEF'd its shape by asking ${sections.length} questions (the void):\n${sections.slice(0, 6).map((s, i) => `${i + 1}. ${s}`).join("\n")}${sections.length > 6 ? `\n… and ${sections.length - 6} more.` : ""}`);
+            const k = resultKelsen;
+            if (k?.resolutions?.length) {
+              rows.push(`\nConflicting claims the essay carried, resolved by the norm hierarchy (Kelsen — validity, then lex specialis, then force, then lex posterior, then entrenchment):`);
+              for (const r of k.resolutions.slice(0, 8)) rows.push(`- ${r.subject}: “${r.a}” vs “${r.b}” → ${r.winner ? (r.winner === "a" ? r.a : r.b) : "tied"} — ${r.why ?? r.reason}`);
+              if (k.resolutions.length > 8) rows.push(`… ${k.resolutions.length - 8} more.`);
+            } else if (k?.basis) rows.push(`\nKelsen: ${k.basis}`);
+            if (rankeTotalFindings) rows.push(`\nRanke found ${rankeTotalFindings} section(s) that drifted from the material and rewrote them from the record.`);
+            return rows.join("\n");
+          })(),
         }
       : null,
     usage,
@@ -2557,6 +2738,13 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
           ? holographicSatisfaction(documentLines, plannedSectionsOut, { index: sessionReferentIndex(session) })
           : fillCheck(voidDeclaration, documentLines, plannedSectionsOut, { material: groundingText() }))
       : null,
+    // KELSEN: THE PRIMARY MODALITY — the essay's claims resolve by the norm
+    // hierarchy (validity → lex specialis → force → lex posterior →
+    // entrenchment), and the resolutions are NAMED. This is the default
+    // hyper-grounded posture: the essay is a set of claims in a hierarchy,
+    // conflicts resolved by a declared order, never a silent pick. The
+    // reader is taught the order by seeing each resolution.
+    kelsen: resultKelsen,
     // COMPETENCY: does the essay reduce the surprise of its own opening
     // thesis? The opening asserts a surprising claim; the body's grounded
     // evidence must retroactively reduce that surprise. Competency is the
