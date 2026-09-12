@@ -71,7 +71,12 @@ export function appendDocumentObservation(ledger, entry) {
 export function projectDocument(ledger, { includeTitle = true } = {}) {
   const alive = ledger.lines.filter((l) => !ledger.superseded.has(l.id));
   alive.sort((a, b) => (a.at[0] - b.at[0]) || (a.at[1] - b.at[1]));
-  const body = alive.map((l) => l.text).join("\n\n");
+  // The projection is the READABLE ESSAY: the written parts and the citation
+  // block. The plan, the outline, and the reading's internal scaffolding are
+  // ledger facts, not essay prose — a reader of the piece must never see the
+  // void questions or the outline machinery.
+  const prose = alive.filter((l) => l.role === "part" || l.role === "citations");
+  const body = prose.map((l) => l.text).join("\n\n");
   if (!includeTitle || !ledger.title) return body;
   return ledger.title ? `# ${ledger.title}\n\n${body}`.trim() : body;
 }
@@ -338,12 +343,12 @@ export function fillCheck(declaration, documentLines = [], sections = [], { mate
   const ok = filled === sections.length && sections.length > 0;
   return { ok, filled, of: sections.length, failures, totalStrain };
 }
-const META_COMMENTARY_RE = /\b(here's|here is|let me know if you|i'd like to|you can|would you|consider|things to consider|you'll want to|remember to|feel free|brainstorm|explanation:|note that|as an ai|i can't|i cannot)\b/i;
+const META_COMMENTARY_RE = /\b(here's|here is|let me know if you|i'd like to|you can|would you|consider|things to consider|you'll want to|remember to|feel free|brainstorm|explanation:|note that|as an ai|i can't|i cannot|this essay instantiates|this essay is|this essay seeks|this essay aims|this essay will|this essay holds|the essay begins|the essay then|the essay concludes|the essay's purpose|the essay explores|the essay delves|the essay argues|this essay cuts|this essay on|this account will|the essay must|the essay's narrative|in this essay|this essay examines|this essay analyzes|the essay focuses)\b/i;
 
 // EVA a single section against the DEF and the material. Returns {ok,
 // failures:[{kind,detail}], strain:number} — strain 0 when clean, +1 per
 // failure found (each correction the piece will need).
-export function satisfactionOfSection(sectionText, { theme = "", material = "", isFirst = false } = {}) {
+export function satisfactionOfSection(sectionText, { theme = "", material = "", isFirst = false, prior = "" } = {}) {
   const t = String(sectionText ?? "").trim();
   const failures = [];
   let strain = 0;
@@ -359,6 +364,22 @@ export function satisfactionOfSection(sectionText, { theme = "", material = "", 
     if (tokens.length) {
       const shared = tokens.filter((w) => m.includes(w)).length / tokens.length;
       if (shared < 0.08) { failures.push({ kind: "ungrounded", detail: "the section shares almost nothing with the material — it is not written from the ground" }); strain++; }
+    }
+  }
+  // Continuity: does the section merely RESTATE the preceding one? An essay
+  // composes — each section builds on what came before, never re-explains it
+  // from scratch. High overlap with the immediate prior section (beyond a
+  // connective phrase) means it restarted instead of continuing.
+  if (prior && String(prior).trim().length > 60) {
+    const p = String(prior).toLowerCase();
+    const tokens = t.toLowerCase().split(/[^a-z']+/).filter((w) => w.length > 4);
+    if (tokens.length) {
+      const shared = tokens.filter((w) => p.includes(w)).length / tokens.length;
+      // The prior's OWN tokens, so a section full of connective scaffolding
+      // ("the essay", "the piece", "the material") is not counted as overlap.
+      const priorTokens = new Set(p.split(/[^a-z']+/).filter((w) => w.length > 4));
+      const real = tokens.filter((w) => priorTokens.has(w)).length / tokens.length;
+      if (real >= 0.7) { failures.push({ kind: "repetition", detail: `the section restates the previous one (${Math.round(real * 100)}% of its content-tokens already appeared) — it should build on, not repeat` }); strain++; }
     }
   }
   return { ok: failures.length === 0, failures, strain };

@@ -733,8 +733,12 @@ function topicPhrase(task) {
   if (ofSubject) return ofSubject.trim().replace(/\s+/g, " ");
   const about = /\babout\b\s+([^,;:.!?]+)/i.exec(t)?.[1] ?? null;
   if (about) return about.trim().replace(/\s+/g, " ");
+  // Fallback: the leading phrase, cut at a word boundary and stripped of a
+  // dangling fragment — "explaining how reference counting works…" must not
+  // truncate mid-noun into "…JavaScript en" or leave a trailing "the".
   const short = t.slice(0, 80).replace(/^(write|explain|describe|summarize|outline|compose|report|discuss|analyze)\s+/i, "").trim();
-  return short || "this";
+  const cut = short.replace(/\s+[a-z]+$/, "").trim(); // drop a trailing dangling word
+  return (cut || short || "this").replace(/\s+/g, " ").trim();
 }
 // LaVar's rule, applied: do not hand-roll a reading loop. The composition's
 // shape comes from the reading's OWN structure — the beings the
@@ -1429,6 +1433,46 @@ function sessionReferentIndex(session, onNote) {
   return index;
 }
 
+// ── THE ESSAY AS A CONVERSATION, FOLDED AT RESOLUTIONS ─────────────────────
+// The accumulated prose is NOT handed to the mouth whole — that violates the
+// point of resolutions (past content is folded COMPUTED, never dumped). Each
+// written section is one exchange of the essay's own conversation: its void
+// question and its written answer. resolutionBlocks reads that transcript the
+// same way it reads a chat — atmosphere (where the essay stands), lens (what
+// is said about its active referents), paradigm (what recurs) — and the mouth
+// is handed the fold, not the bytes. This is what lets a later section COMPOSE
+// with the earlier ones instead of restarting cold: it knows what the piece
+// has established without being buried in it.
+function essayResolutions({ sections, documentLines, index, rawEntries, onNote }) {
+  const written = [];
+  for (let j = 0; j < documentLines.length; j++) {
+    const text = String(documentLines[j] ?? "").trim();
+    if (!text) continue;
+    written.push({ turn: j + 1, question: String(sections[j] ?? ""), answer: text, refs: [] });
+  }
+  if (!written.length) return null;
+  try {
+    const notes = notesFromEdges(rawEntries);
+    const r = resolutionBlocks({
+      level: RESOLUTIONS_LEVEL,
+      question: String(sections[written.length] ?? sections.at(-1) ?? ""),
+      transcript: written,
+      index,
+      notes,
+      voids: [],
+      records: [],
+      dmdWindow,
+      prominence: null,
+    });
+    if (!r.text) return null;
+    if (onNote) onNote({ move: "essay_resolutions", level: r.level, sections: written.length, active: r.active?.ids?.length ?? 0 });
+    return r.text;
+  } catch (err) {
+    if (onNote) onNote({ move: "essay_resolutions_failed", error: err.message });
+    return null;
+  }
+}
+
 export async function runProxyTurn({ sessionId, model, task, chatHistory = [], discourse = "", workspace = "", holonLevel = "section", resumeAnswered = [], resumePlan = null, kelsen = null }, onToken, onNote = null, onThinking = null) {
   const usage = { promptTokens: 0, completionTokens: 0 };
   const session = getSession(sessionId);
@@ -1959,7 +2003,18 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
             .then((r) => ({ landed: true, result: r }))
             .catch(() => ({ landed: false }));
         }
-        const priorParts = documentLines.map((_, j) => `"${plannedSections[j]}"`).join(", ");
+        // WHERE THE ESSAY STANDS — folded, never dumped. The earlier sections
+        // are read as the essay's own conversation and folded at resolutions
+        // (atmosphere/lens/paradigm), so this section knows what the piece has
+        // established and can COMPOSE with it — transition, build, never
+        // restate — without the mouth being buried in the raw prose.
+        const essayIndex = sessionReferentIndex(session, onNote);
+        const essayStanding = documentLines.length
+          ? essayResolutions({ sections: plannedSections, documentLines, index: essayIndex, rawEntries, onNote })
+          : null;
+        const priorParts = essayStanding
+          ? essayStanding
+          : documentLines.map((_, j) => `"${plannedSections[j]}"`).join(", ");
         // HOLON LEVEL: the granularity of the task is an experimentable
         // variable. "section" writes the whole part in one draw; "paragraph"
         // asks for a paragraph; "sentence" asks for a few focused sentences
@@ -1977,7 +2032,7 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
         // check). This is the measured speed lever — 12 of 18 sections were
         // being corrected once, each correction a full second draw (~50s).
         const sectionTask = plannedSections.length > 1
-          ? `We're writing a piece on ${topic}. ${priorParts ? `So far it has these parts: ${priorParts}. ` : ""}Now ${isQuestion ? `answer this: ${section}` : `write the part on ${section}`}, ${holonPhrase}. Write it as a substantial passage of the piece itself — several sentences, using the material's own facts and wording, no introduction, no "here is", no commentary about writing.`
+          ? `We're writing a piece on ${topic}. ${priorParts ? `Where the piece stands so far: ${priorParts}\n\n` : ""}Now ${isQuestion ? `answer this: ${section}` : `write the part on ${section}`}, ${holonPhrase}. Write it as a substantial passage of the piece itself — several sentences, using the material's own facts and wording, no introduction, no "here is", no commentary about writing. It continues what the piece has already established — build on it, transition from it, do not restate it.`
           : `Write the piece on ${topic}, ${holonPhrase}, as a substantial passage, from the material's own facts and wording — no introduction, no commentary about writing.`;
         const holonBudget = holonLevel === "sentence" ? Math.min(SECTION_MAX_TOKENS, 220) : holonLevel === "paragraph" ? Math.min(SECTION_MAX_TOKENS, 450) : SECTION_MAX_TOKENS;
         if (onThinking) onThinking(`\n### ${section} (${holonLevel})\n\n`);
@@ -2016,7 +2071,7 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
         // BEFORE it enters the ledger — one bounded rewrite per failure, each
         // rewrite adding strain. The piece converges toward the DEF, and the
         // strain profile is the honest report of how hard each part was.
-        const sectionEva = satisfactionOfSection(buf, { theme: section, material: material.join("\n") });
+        const sectionEva = satisfactionOfSection(buf, { theme: section, material: material.join("\n"), prior: documentLines.length ? documentLines[documentLines.length - 1] : "" });
         if (!sectionEva.ok && !truncated && sectionEva.strain > 0) {
           const attempts = Math.min(sectionEva.strain, 1);
           let corrected = buf;
@@ -2035,7 +2090,7 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
             );
             if (fix.stopped) { truncated = true; break; }
             corrected = fix.buf;
-            const re = satisfactionOfSection(corrected, { theme: section, material: material.join("\n") });
+            const re = satisfactionOfSection(corrected, { theme: section, material: material.join("\n"), prior: documentLines.length ? documentLines[documentLines.length - 1] : "" });
             if (re.ok) break;
           }
           buf = corrected;
