@@ -2208,10 +2208,19 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
         // LaVar grades it (recall), and Ranke rewrites it to CARRY the
         // material's claims, not just mention the subject. The material's
         // propositions are its EOT graph entries.
+        const lavarProps = rankeIndex && rawEntries?.length ? notesFromEdges(rawEntries) : [];
         if (rankeIndex && rawEntries?.length) {
-          const lavar = lavarGradeEssay(documentLines, plannedSections, { materialPropositions: notesFromEdges(rawEntries), index: rankeIndex });
+          const lavar = lavarGradeEssay(documentLines, plannedSections, { materialPropositions: lavarProps, index: rankeIndex });
           if (lavar.recall < 0.5 && lavar.ofPropositions > 0) {
             if (onNote) onNote({ move: "lavar", recall: lavar.recall, covered: lavar.covered, of: lavar.ofPropositions });
+            // LAVAR'S LOW-RECALL is a RANKE FINDING: a section that carries
+            // none of the material's propositions is grounded-but-generic —
+            // Ranke rewrites it to re-state the record's claims.
+            for (const ps of lavar.perSection ?? []) {
+              if (ps.carried === 0 && documentLines[ps.sectionIndex]?.trim()) {
+                rankeFindings.push({ kind: "low-recall", sectionIndex: ps.sectionIndex, detail: `the section re-states none of the material's EOT propositions — LaVar grades it 0` });
+              }
+            }
           }
         }
         if (!rankeFindings.length) break;
@@ -2233,8 +2242,12 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
           rankeAttempts.set(i, tried + 1);
           if (onThinking) onThinking(`\n### Ranke, section ${i + 1}: ${f.detail}\n\n`);
           // Ranke rewrites the section FROM the documents — the material's
-          // own facts and wording, nothing invented.
-          const rankeMsg = `We're writing a piece on ${topic}. One section drifted from the material — it names almost none of the source's own facts. The section reads:\n"""\n${String(sectionText).slice(0, 1200)}\n"""\n\nRewrite it strictly FROM the material: use the sources' own facts, names, figures, and wording about ${topic}. Write it as the piece itself, several sentences, no introduction, no commentary about writing, no discussion of the essay or the question. Write only the corrected section.`;
+          // own facts and wording, nothing invented. The material's ACTUAL
+          // claims are handed over (LaVar grades on whether the section
+          // re-states them), so the model can carry the record's
+          // propositions rather than generic prose.
+          const propBlock = lavarProps.slice(0, 14).map((p) => `- ${p.end1 ?? ""} ${p.label} ${p.end2 ?? ""}`).join("\n");
+          const rankeMsg = `We're writing a piece on ${topic}. One section drifted from the material — it names almost none of the source's own claims. The section reads:\n"""\n${String(sectionText).slice(0, 1200)}\n"""\n\nThese are the material's actual claims about ${topic}:\n${propBlock}\n\nRewrite the section so it carries these claims — use the material's own facts, names, and figures, several sentences, as the piece itself. No introduction, no commentary about writing, no discussion of the essay or the question. Write only the corrected section.`;
           const rewrite = await draw(
             [{ role: "system", content: systemContent }, ...keptChat, { role: "user", content: rankeMsg }],
             SECTION_MAX_TOKENS,

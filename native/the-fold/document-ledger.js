@@ -513,6 +513,7 @@ export function lavarGradeEssay(documentLines = [], sections = [], { materialPro
   const represent = (id) => { try { return index?.represent?.(id) ?? id; } catch { return id; } };
   let covered = 0;
   const coveredKeys = new Set();
+  const perSection = [];
   for (let i = 0; i < documentLines.length; i++) {
     const text = String(documentLines[i] ?? "");
     const resolved = resolveIn(text);
@@ -522,6 +523,7 @@ export function lavarGradeEssay(documentLines = [], sections = [], { materialPro
       failures.push({ kind: "unresolved", sectionIndex: i, detail: `section ${i + 1} folds to no material referent — LaVar cannot grade prose the record does not carry` });
     }
     // Recall: does the section re-state the material's propositions?
+    let sectionCovered = 0;
     for (const p of props) {
       const lab = norm(p.label);
       if (!lab || coveredKeys.has(lab)) continue;
@@ -531,8 +533,9 @@ export function lavarGradeEssay(documentLines = [], sections = [], { materialPro
       const textLower = text.toLowerCase();
       const labHit = lab.length > 2 && textLower.includes(lab);
       const e2Hit = !e2 || e2.length <= 2 || textLower.includes(e2) || names.some((n) => n && (e2.includes(n) || n.includes(e2)));
-      if (labHit && e2Hit) { coveredKeys.add(lab); covered++; }
+      if (labHit && e2Hit) { coveredKeys.add(lab); covered++; sectionCovered++; }
     }
+    perSection.push({ sectionIndex: i, carried: sectionCovered });
   }
   const recall = props.length ? covered / props.length : 0;
   // LaVar's grade is the recall: how much of the material's own EOT fold the
@@ -548,6 +551,7 @@ export function lavarGradeEssay(documentLines = [], sections = [], { materialPro
     covered,
     ofPropositions: props.length,
     basis: props.length ? `LaVar: the essay re-states ${covered} of the material's ${props.length} EOT propositions (${(recall * 100).toFixed(0)}% recall)` : "LaVar: the material carried no propositions to grade against",
+    perSection,
   };
 }
 
