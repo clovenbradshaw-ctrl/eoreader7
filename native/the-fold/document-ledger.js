@@ -483,7 +483,8 @@ export function holographicSatisfaction(documentLines = [], sections = [], { ind
       failures.push({ kind: "unresolved", sectionIndex: i, detail: `the section folds to no material referent — it is not written from the record (resolved: ${resolvedNames.join(", ") || "none"})` });
     }
   }
-  return { ok: failures.length === 0, failures, fold, materialCount: materialIds.size };
+  const ok = failures.length === 0;
+  return { ok, filled: documentLines.length - failures.length, of: documentLines.length, failures, totalStrain: failures.length, fold, materialCount: materialIds.size };
 }
 
 // ── REC: a rewrite pass names exactly what the EVA found, and the ledger
