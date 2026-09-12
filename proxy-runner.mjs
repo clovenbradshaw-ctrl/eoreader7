@@ -17,6 +17,7 @@ import { postprocessAnswer, warmPostprocess, getPyodide } from "./postprocess.mj
 // own organs (atmosphere, lens, paradigm), never by a model's compression.
 import { resolutionBlocks } from "./native/the-fold/resolutions.js";
 import { tokenize } from "./native/the-fold/source.js";
+import { logitBiasFor, logitsBiasObject } from "./native/organs/gemma2-tokenizer.mjs";
 import { readingIndexFromLog } from "./native/the-fold/reading-log.js";
 import { createDocumentLedger, appendDocumentObservation, appendLedgerLine, projectDocument, documentChangeLog, admitPart, serializeLedger, snipsFromSources, checkEssayShape, ledgerFilePath, renderApaFootnotes, satisfactionOfSection, satisfactionOf, declareEssayVoid, fillCheck, citationLedger, voidCellsFor } from "./native/the-fold/document-ledger.js";
 import { goreBoundary, gatherPlan, cueGoDeeperPlan, doubleCheckPlan } from "./native/the-fold/gore.js";
@@ -56,6 +57,14 @@ export const OLLAMA_KEEP_ALIVE_S = Number(process.env.ER7_KEEP_ALIVE_S ?? 0);
 //     web search OFF — the proxy is the sanctioned egress, P13) -------------
 const HYPERLEXICON_ON = (process.env.ER7_HYPERLEXICON ?? "1") !== "0";
 const WIKIPEDIA_ON = (process.env.ER7_WIKIPEDIA ?? "1") === "1"; // on by default: the hyperlexicon's Wiktionary/Wikipedia enrichment grounds compositions
+// Wikisource door: the hyperlexicon's terms can point at a PUBLIC-DOMAIN
+// PRIMARY TEXT (a work, an author, a speech, a treaty). Wikipedia gives a
+// summary of what a term is; Wikisource gives the work itself — the primary
+// bytes the relations should be read against. When a composition term
+// resolves to a Wikisource page, the FULL text is admitted to the corpus
+// (same door as a web source), so the reading absorbs the primary source,
+// not a secondhand digest. Off unless a term actually resolves there.
+const WIKISOURCE_ON = (process.env.ER7_WIKISOURCE ?? "1") === "1";
 const WIKI_MAX_CONCEPTS = Number(process.env.ER7_WIKI_MAX_CONCEPTS ?? 3);
 const WIKI_TIMEOUT_MS = Number(process.env.ER7_WIKI_TIMEOUT_MS ?? 3500);
 const WEB_SEARCH_ON = (process.env.ER7_WEB_SEARCH ?? "0") === "1";
@@ -94,6 +103,99 @@ async function enrichFromWikipedia(composition, maxConcepts = WIKI_MAX_CONCEPTS)
   const terms = [...new Set(scored.map((e) => String(e.left || e.right || "").trim()).filter(Boolean))].slice(0, maxConcepts);
   const summaries = await Promise.all(terms.map(async (term) => ({ term, snippet: await wikipediaSummary(term) })));
   return summaries.filter((s) => s.snippet);
+}
+
+// ── Wikisource: the hyperlexicon's primary-source door ───────────────────
+// Wikipedia gives a summary; Wikisource gives the WORK. The reliable API for
+// a full public-domain text here is `action=parse&prop=text` (with
+// redirects + disablepp): it resolves transclusions (a Wikisource work page
+// is a container of Page: namespace leaves) and returns the rendered HTML,
+// which we strip to plain text. Resolved by title first (a term IS the work's
+// name), then by search (a term is an author or a concept a work covers).
+// Returns null when nothing resolves — never a model guess.
+const wikisourceCache = new Map();
+const WIKISOURCE_BASE = "https://en.wikisource.org/w/api.php";
+const WIKISOURCE_MAX_CHARS = Number(process.env.ER7_WIKISOURCE_MAX_CHARS ?? 60000);
+
+async function wikisourceText(term, { maxChars = WIKISOURCE_MAX_CHARS } = {}) {
+  const key = `${term}:${maxChars}`;
+  if (wikisourceCache.has(key)) return wikisourceCache.get(key);
+  const controller = new AbortController();
+  const t = setTimeout(() => controller.abort(), WIKI_TIMEOUT_MS);
+  const parsePage = async (title) => {
+    const u = new URL(WIKISOURCE_BASE);
+    u.searchParams.set("action", "parse");
+    u.searchParams.set("page", title);
+    u.searchParams.set("prop", "text");
+    u.searchParams.set("redirects", "1");
+    u.searchParams.set("disablepp", "1");
+    u.searchParams.set("format", "json");
+    u.searchParams.set("formatversion", "2");
+    const res = await fetch(u, { signal: controller.signal, headers: { "user-agent": "eoreader7-proxy" } });
+    if (!res.ok) return null;
+    const data = await res.json();
+    if (data.error || !data.parse?.text) return null;
+    const html = String(data.parse.text);
+    const text = htmlToText(html);
+    if (!text) return null;
+    return { title: data.parse.title ?? title, text: text.slice(0, maxChars) };
+  };
+  const fetchSearch = async (term) => {
+    const u = new URL(WIKISOURCE_BASE);
+    u.searchParams.set("action", "query");
+    u.searchParams.set("list", "search");
+    u.searchParams.set("srsearch", term);
+    u.searchParams.set("srlimit", "3");
+    u.searchParams.set("format", "json");
+    u.searchParams.set("formatversion", "2");
+    const res = await fetch(u, { signal: controller.signal, headers: { "user-agent": "eoreader7-proxy" } });
+    if (!res.ok) return null;
+    const data = await res.json();
+    const hit = data?.query?.search?.[0];
+    return hit && !hit.missing ? await parsePage(hit.title) : null;
+  };
+  try {
+    // 1) The term IS the title (a work's name, an author's page). 2) Failing
+    // that, a search for the term as a subject. Only a page that actually
+    // exists on Wikisource resolves.
+    let out = (await parsePage(term)) ?? (await fetchSearch(term));
+    wikisourceCache.set(key, out);
+    return out;
+  } catch (err) {
+    wikisourceCache.set(key, null);
+    return null;
+  } finally {
+    clearTimeout(t);
+  }
+}
+
+// Strip rendered HTML to plain text — the same fold the web fetcher applies
+// to ordinary pages. Tables, notes, and interwiki links collapse to their
+// visible text; the result is the work's prose, whitespace-folded.
+function htmlToText(html) {
+  const withoutNotes = html
+    .replace(/<style[\s\S]*?<\/style>/gi, " ")
+    .replace(/<script[\s\S]*?<\/script>/gi, " ");
+  const text = withoutNotes
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<\/p>|<\/div>|<\/li>|<\/h[1-6]>|<\/td>/gi, "\n")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/[ \t]+/g, " ")
+    .replace(/\n[ \t]+/g, "\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+  // Drop Wikisource's own scaffolding lines (nav, page numbers, headers).
+  return text
+    .split("\n")
+    .map((l) => l.trim())
+    .filter((l) => l && !/^(page|header|footer|edit|jump to|wikisource)/i.test(l))
+    .join("\n");
 }
 
 // ── EOT-ize only the salient, at multiple resolutions ──────────────────────
@@ -1107,7 +1209,7 @@ const POSTPROCESS_TIMEOUT_MS = Number(process.env.ER7_POSTPROCESS_TIMEOUT_MS) ||
 // 0 = nearest verbatim only, 1 = + atmosphere, 2 = + lens, 3 = + paradigm.
 const RESOLUTIONS_LEVEL = (() => { const v = Number(process.env.ER7_RESOLUTIONS ?? ""); return [0, 1, 2, 3].includes(v) ? v : 3; })();
 
-async function* streamOllamaChat(model, messages, { maxTokens, json, onNote, kelsen } = {}) {
+async function* streamOllamaChat(model, messages, { maxTokens, json, onNote, kelsen, logitsBias } = {}) {
   for (let attempt = 0; attempt < CALL_RETRIES; attempt++) {
     const ctrl = new AbortController();
     const timer = setTimeout(() => ctrl.abort(), REQUEST_TIMEOUT_MS);
@@ -1137,6 +1239,13 @@ const res = await fetch(`${OLLAMA}/api/chat`, {
             // composition is bound to the ground; Ollama's sampler parameter
             // is how we express that to the model.
             temperature: 0.1 + (1 - (kelsen ?? DEFAULT_KELSEN)) * 0.8,
+            // LOGIT PUSHING: the voice pipeline's mechanism for making the
+            // mouth mechanical. For a one-claim call the output is tiny, so
+            // we can bias the sampler toward the claim's own tokens
+            // (gemma2-tokenizer.mjs → logitBiasFor). Positive bias on the
+            // claim's words pulls the sampling toward them — fidelity
+            // becomes mechanical, not hoped for.
+            ...(logitsBias && Object.keys(logitsBias).length ? { logits_bias: logitsBias } : {}),
           },
         }),
       });
@@ -1476,6 +1585,42 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
       if (onNote) onNote({ move: "wiki_lookup", notes: wikiNotes.map((w) => w.term) });
     }
   }
+  // WIKISOURCE — the hyperlexicon's PRIMARY-SOURCE door. The composition's
+  // terms can name a public-domain work (or an author/speaker a work covers);
+  // when one resolves on Wikisource, the FULL text is admitted to the corpus
+  // and stepped through the reader — the same admission a web source gets —
+  // so the reading absorbs the primary bytes, not a secondhand digest. The
+  // hyperlexicon then reads real relations from the work itself. Never a
+  // guess: only a page that actually exists resolves.
+  if (WIKISOURCE_ON && digestInfo.composition?.length) {
+    const hlTerms = [...new Set(
+      Object.values(digestInfo.composition)
+        .filter((e) => e?.standing === "given")
+        .flatMap((e) => [e.left, e.right].map((s) => String(s ?? "").trim()).filter(Boolean)),
+    )].slice(0, WIKI_MAX_CONCEPTS);
+    const primary = [];
+    for (const term of hlTerms) {
+      const got = await wikisourceText(term);
+      if (got) primary.push({ term, ...got });
+    }
+    for (const p of primary) {
+      const srcId = `wikisource:${sessionId}:${p.term}`;
+      admitChunked(session.corpus, { text: p.text, sourceId: srcId });
+      const encounters = textEncounters(p.text, { source: srcId, offset: 0 });
+      let surprise = { salient: 0 };
+      for (const enc of encounters) {
+        const step = await session.reader.step(enc);
+        const s = step?.surprise;
+        if (!s) { await yieldToEventLoop(); continue; }
+        if ((s.expectationEffects?.length ?? 0) > 0 || (s.recanonicalizations?.length ?? 0) > 0) surprise.salient++;
+      }
+      // Keep the shadow + a note so the reader's movement is disclosed, and
+      // fold the primary source INTO the digest so the mouth speaks from it.
+      session.shadow.push({ url: `https://en.wikisource.org/wiki/${encodeURIComponent(p.title.replace(/ /g, "_"))}`, title: p.title, seenAt: new Date().toISOString(), chars: p.text.length, resolution: "fine", reading: surprise.salient });
+      readingDigest += `\n\n[A primary source: ${p.title}]\n${p.text.slice(0, 3000)}${p.text.length > 3000 ? "…" : ""}`;
+      if (onNote) onNote({ move: "wikisource_primary", term: p.term, title: p.title, chars: p.text.length, salient: surprise.salient });
+    }
+  }
   if (resolutions?.text) {
     readingDigest += `\n\n[The conversation at three resolutions]\n${resolutions.text}`;
   }
@@ -1603,6 +1748,10 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
     // restarts. The ledger already holds those parts; appending is the only write.
     .filter((q) => !resumeAnswered.includes(String(q).toLowerCase().trim()))
     .slice(0, 12);
+  // The composition block below may EVOLVE the plan (REC supersedes the outline
+  // and adds themes as the reading grows). Hoisted so the satisfaction check
+  // reads the plan the essay actually wrote, whether or not the block ran.
+  let plannedSectionsOut = [...sections];
   // A generated composition is a DOCUMENT LEDGER (EOT): every part admitted
   // is a line, every revision is a line, and the text a person reads is a
   // PROJECTION of the ledger — the full revision history is always re-foldable.
@@ -1717,7 +1866,7 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
         ? sections.map((s, i) => `${i + 1}. ${s}`).join("\n")
         : `1. ${topic}`;
       let outlineId = null; // REC supersedes the outline line when the reading grows it
-      const plannedSections = [...sections];
+      const plannedSections = plannedSectionsOut; // the hoisted plan — REC's additions are visible to the satisfaction check
       const recoffered = new Set(); // REC offers each evolving theme once — never loops forever
       const goredThemes = new Set(); // Gore strikes each theme once — no re-fetch of the same cue
       if (onThinking) onThinking(`\n### Outline\n${outlineBuf}\n`);
@@ -2084,7 +2233,7 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
     // ask whether it is FILLED. We know we've learned when the void we
     // declared — across its nine operators — is filled by sections that pass
     // its admission test. Strain is the REC pressure the void demanded.
-    satisfaction: documentLedger ? fillCheck(voidDeclaration, documentLines, plannedSections, { material: material.join("\n") }) : null,
+    satisfaction: documentLedger ? fillCheck(voidDeclaration, documentLines, plannedSectionsOut, { material: material.join("\n") }) : null,
     totalStrain,
     thinking: thinkingBlock || null,
     answerShape: answerShape.shape,
