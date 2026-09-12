@@ -19,7 +19,7 @@ import { resolutionBlocks } from "./native/the-fold/resolutions.js";
 import { tokenize } from "./native/the-fold/source.js";
 import { logitBiasFor, logitsBiasObject } from "./native/organs/gemma2-tokenizer.mjs";
 import { readingIndexFromLog } from "./native/the-fold/reading-log.js";
-import { createDocumentLedger, appendDocumentObservation, appendLedgerLine, projectDocument, documentChangeLog, admitPart, serializeLedger, snipsFromSources, checkEssayShape, ledgerFilePath, renderApaFootnotes, satisfactionOfSection, satisfactionOf, declareEssayVoid, fillCheck, citationLedger, voidCellsFor } from "./native/the-fold/document-ledger.js";
+import { createDocumentLedger, appendDocumentObservation, appendLedgerLine, projectDocument, documentChangeLog, admitPart, serializeLedger, snipsFromSources, checkEssayShape, ledgerFilePath, renderApaFootnotes, satisfactionOfSection, satisfactionOf, declareEssayVoid, fillCheck, citationLedger, voidCellsFor, holographicSatisfaction } from "./native/the-fold/document-ledger.js";
 import { goreBoundary, gatherPlan, cueGoDeeperPlan } from "./native/the-fold/gore.js";
 // The keyless field (GFP Pass 35, the-fold c232779): recall by partial-cue
 // resemblance, resolution by state — no absolute address. Surf's SECOND
@@ -2180,13 +2180,28 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
       const rankeAttempts = new Map(); // sectionIndex -> rewrite count, persists across rounds
       for (let round = 0; round < MAX_REWRITE_ROUNDS && !truncated; round++) {
         const rankeFindings = [];
-        for (let i = 0; i < documentLines.length; i++) {
-          const r = satisfactionOfSection(documentLines[i], {
-            theme: plannedSections[i] ?? "",
-            material: groundingText(),
-            prior: i > 0 ? documentLines[i - 1] : "",
-          });
-          for (const f of r.failures) if (f.kind === "ungrounded") rankeFindings.push({ ...f, sectionIndex: i });
+        // RANKE FOLDS THE ESSAY AT THE MATERIAL'S OWN POINTS. The material was
+        // folded through the reader into a referent index; Ranke folds each
+        // section through THAT SAME index. A section that resolves to the
+        // material's beings is grounded IN THE RECORD (its referents and their
+        // byte spans ride the finding — P5.2, 54a5622). A section that folds
+        // to nothing invented a being the material never carried: that is
+        // Ranke's `unresolved` — typed, never a guess. This replaces the
+        // token-overlap "ungrounded" test: the check is holographic, the
+        // record is the ground.
+        const rankeIndex = sessionReferentIndex(session, onNote);
+        const holo = rankeIndex ? holographicSatisfaction(documentLines, plannedSections, { index: rankeIndex }) : null;
+        if (holo) {
+          for (const f of holo.failures) if (f.kind === "unresolved") rankeFindings.push({ ...f, sectionIndex: f.sectionIndex });
+        } else {
+          for (let i = 0; i < documentLines.length; i++) {
+            const r = satisfactionOfSection(documentLines[i], {
+              theme: plannedSections[i] ?? "",
+              material: groundingText(),
+              prior: i > 0 ? documentLines[i - 1] : "",
+            });
+            for (const f of r.failures) if (f.kind === "ungrounded") rankeFindings.push({ ...f, sectionIndex: i });
+          }
         }
         if (!rankeFindings.length) break;
         if (onNote) onNote({ move: "ranke", round: round + 1, ungrounded: rankeFindings.map((f) => f.sectionIndex) });
@@ -2472,7 +2487,11 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
     // ask whether it is FILLED. We know we've learned when the void we
     // declared — across its nine operators — is filled by sections that pass
     // its admission test. Strain is the REC pressure the void demanded.
-    satisfaction: documentLedger ? fillCheck(voidDeclaration, documentLines, plannedSectionsOut, { material: groundingText() }) : null,
+    satisfaction: documentLedger
+      ? (sessionReferentIndex(session)
+        ? holographicSatisfaction(documentLines, plannedSectionsOut, { index: sessionReferentIndex(session) })
+        : fillCheck(voidDeclaration, documentLines, plannedSectionsOut, { material: groundingText() }))
+      : null,
     totalStrain,
     thinking: thinkingBlock || null,
     answerShape: answerShape.shape,

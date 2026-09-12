@@ -440,6 +440,52 @@ export function satisfactionOf(documentLines = [], sections = [], { material = "
   return { ok, satisfied, of: sections.length, failures, totalStrain };
 }
 
+// ── THE HOLOGRAPHIC CHECK: the essay is folded at the SAME points the
+//    material was folded, and the fold-points are compared. ────────────────
+// The material was folded through the reader into a referent index; the essay
+// is folded through THAT SAME index (`resolveIn`). A section that names the
+// material's own beings (Tragelaphus, the Congo Basin, the coat's stripes)
+// resolves to real material referents — it is grounded IN THE RECORD, with
+// the beings' byte-addressed spans riding the finding (P5.2, 54a5622). A
+// section that names a being the material never folded ("Diceros bicornis
+// longipes" for the bongo) resolves to NOTHING — it is a fabrication, typed
+// `unresolved`, never a guess. This is the answer checked holographically:
+// fold the essay, compare the fold-points, the record is the ground.
+// `index` is the material's referent index (readingIndexFromLog's resolveIn).
+// Returns {ok, failures:[{kind,detail,sectionIndex,resolved,unresolved}], fold}.
+export function holographicSatisfaction(documentLines = [], sections = [], { index = null } = {}) {
+  const failures = [];
+  const fold = [];
+  const resolveIn = (text) => {
+    try {
+      const r = index?.resolveIn?.(String(text ?? ""));
+      return r instanceof Set ? r : new Set(r ?? []);
+    } catch { return new Set(); }
+  };
+  const represent = (id) => { try { return index?.represent?.(id) ?? id; } catch { return id; } };
+  const materialIds = new Set([...(index?.referents?.keys?.() ?? [])]);
+  for (let i = 0; i < documentLines.length; i++) {
+    const text = String(documentLines[i] ?? "");
+    const resolved = resolveIn(text);
+    const inMaterial = [...resolved].filter((id) => materialIds.has(id));
+    const resolvedNames = [...new Set([...inMaterial].map(represent))].filter(Boolean);
+    fold.push({ sectionIndex: i, theme: sections[i] ?? "", resolved: resolvedNames });
+    if (!text.trim()) {
+      failures.push({ kind: "thin", sectionIndex: i, detail: "the section has no content" });
+      continue;
+    }
+    // A section must resolve to at least ONE material being to be grounded.
+    // If it resolves to none, it is folded against an empty fold-point: the
+    // essay invented beings the material never carried (measured: the model
+    // wrote "Diceros bicornis longipes" — a black rhino — for the bongo; the
+    // holographic fold resolves it to nothing and names the fabrication).
+    if (!inMaterial.length) {
+      failures.push({ kind: "unresolved", sectionIndex: i, detail: `the section folds to no material referent — it is not written from the record (resolved: ${resolvedNames.join(", ") || "none"})` });
+    }
+  }
+  return { ok: failures.length === 0, failures, fold, materialCount: materialIds.size };
+}
+
 // ── REC: a rewrite pass names exactly what the EVA found, and the ledger
 //    records the revision (supersede) so the before/after stays on file. ────
 
