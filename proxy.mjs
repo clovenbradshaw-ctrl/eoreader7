@@ -48,6 +48,14 @@ function sessionIdFromHeaders(req) {
 function userIdFromHeaders(req) {
   const u = String(req.headers["x-er7-user"] ?? "").trim();
   if (u && u.length <= 128) return u;
+  // No explicit identity: fall back to the SESSION's own base, never to the
+  // bare remote address. On a local machine every header-less client IS
+  // 127.0.0.1, so keying the durable speaker model off the address would
+  // merge every local user into one person. A client that sends a session
+  // id gets that session's lane (its own theory of mind, never a stranger's);
+  // a client that sends nothing keeps the stable machine+workspace fallback.
+  const session = sessionIdFromHeaders(req);
+  if (session) return `user-session-${requireCrc32(session)}`;
   const scope = workspaceFromHeaders(req)
     ? `-${requireCrc32(workspaceFromHeaders(req))}`
     : "";

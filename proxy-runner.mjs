@@ -40,6 +40,7 @@ import { extractReadable, parseSearchResults, extractUrls, normalizeUrl, WEB_SEA
 import { isImageFileName, lookAtImage, lookAtText, shouldLook, weirdFormattingScore } from "./native/organs/look.js";
 import { mechanicalRevision, variedDraw } from "./native/organs/variation.js";
 import { styleGrade as strunkWhiteGrade } from "./native/organs/strunk-white.js";
+import { pacingGrade as murchPacing } from "./native/organs/pacing.js";
 import { execFileSync } from "node:child_process";
 // The earned cast — the per-turn instruction set. Vendored at the
 // native/the-fold seam. PURE; the proxy feeds real conversation state and
@@ -1318,13 +1319,27 @@ async function ollamaReachable({ timeoutMs = 3000 } = {}) {
 }
 
 // --- concurrency gate --------------------------------------------------------
-// A single slot for Ollama generation (num_parallel=1).
-// Reading pipelines run concurrently; only generation is serialized.
-let generationSlot = Promise.resolve();
-async function withSlot(work) {
-  const run = generationSlot.then(work, work);
-  generationSlot = run.catch(() => {});
-  return run;
+// One slot PER MODEL for Ollama generation (num_parallel=1). Reading pipelines
+// run concurrently; generation is serialized PER MODEL, never globally: Ollama
+// queues per model (FIFO, OLLAMA_NUM_PARALLEL=1 default), so a global slot
+// would let one user's long turn on gemma2:2b block every other user's turn
+// on qwen3:30b for no reason. Same-model requests serialize exactly as the
+// daemon would serialize them anyway. A different model is a different lane.
+const generationSlots = new Map(); // model -> Promise
+export function generationSlotHealth() {
+  const out = {};
+  for (const [model, slot] of generationSlots) out[model] = slot ? "busy" : "idle";
+  return out;
+}
+async function withSlot(model, work) {
+  const prev = generationSlots.get(model) ?? Promise.resolve();
+  const run = prev.then(work, work);
+  generationSlots.set(model, run.catch(() => {}));
+  try {
+    return await run;
+  } finally {
+    if (generationSlots.get(model) === run.catch(() => {})) generationSlots.delete(model);
+  }
 }
 
 // Yield to the event loop between CPU-heavy steps so other sessions can
@@ -2223,7 +2238,7 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
     } catch { return null; }
   };
   const readabilityOf = (text) => strunkWhiteGrade(text, { textstat: textstatOf });
-  await withSlot(async () => {
+  await withSlot(model, async () => {
     const draw = async (msgs, maxTokens, { capture = false, kelsen = null } = {}) => {
       let buf = "";
       let stopped = false;
@@ -2610,6 +2625,16 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
             findings.push({ kind: r.kind, sectionIndex: si, detail: r.detail });
           }
         }
+        // MURCH'S PACING — the blink of an eye. A flatline piece (sentence
+        // lengths never vary, no blinks) has no emotional cut. When the whole
+        // essay paces flat, Murch flags it as a pacing finding so Brillat-
+        // Savarin varies the sentence rhythm — a short landing after a long
+        // sentence, the blink where the thought turns.
+        const pacing = murchPacing(documentLines.join("\n\n"));
+        if (pacing.flatline) {
+          if (onNote) onNote({ move: "pacing", basis: pacing.basis });
+          findings.push({ kind: "pacing", sectionIndex: null, detail: pacing.basis });
+        }
         const fixable = findings.filter((f) => f.kind !== "ungrounded");
         if (!fixable.length) break;
         if (onNote) onNote({ move: "murch", round: round + 1, findings: fixable.map((f) => `${f.kind}${f.sectionIndex != null ? `@${f.sectionIndex}` : ""}`) });
@@ -2650,8 +2675,10 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
           // opening so it does not echo the other sections' construction —
           // vary the construction and the rhythm the way a good dish varies
           // its course: a new flavor, not more of the same.
-          const brillatNote = (f.kind === "repetition" || f.kind === "repeated-fact" || f.kind === "repeated-template")
-            ? (f.kind === "repeated-fact"
+          const brillatNote = (f.kind === "repetition" || f.kind === "repeated-fact" || f.kind === "repeated-template" || f.kind === "pacing")
+            ? (f.kind === "pacing"
+              ? " This piece paces flat — the sentences are all the same length, no blink, no cut. Murch edits where the blink falls: let a SHORT sentence land after a long one, vary the rhythm, let the reader's eye rest where the thought turns. Dense information reads slow; release it with a short sentence."
+              : f.kind === "repeated-fact"
               ? " This fact is a crutch — it is stated in more than one section. State it ONCE, in its best form, and let the other section move on: a fact once is a finding, twice is a crutch. Season the section by advancing something the reader has not already been told."
               : f.kind === "repeated-template"
                 ? " This construction repeats across the piece — the same scaffolding everywhere is the boredom. Season it: vary the construction, the rhythm, the first phrase, the way a good dish varies its course. Do not add random spice; add the right one."
@@ -2996,6 +3023,14 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
     // piece can avoid all repetition and still be dense or hedged; this is
     // the style agent's report beside the redundancy detectors.
     strunkAndWhite: documentLines.length ? readabilityOf(documentLines.join("\n\n")) : null,
+    // MURCH'S PACING — the blink of an eye. The film is edited where the
+    // blink falls: the reader's eye rests at a sentence boundary, and the
+    // cut (the variation) lands where the thought turns. A piece that never
+    // varies its sentence length has no blinks — a flatline, Murch's boredom
+    // at the rhythm grain. The pacing grade reports the variance, the blink
+    // points (a short sentence landing after long ones), and the dense
+    // sentences — the emotional arc of the cut.
+    murch: documentLines.length ? murchPacing(documentLines.join("\n\n")) : null,
     totalStrain,
     thinking: thinkingBlock || null,
     answerShape: answerShape.shape,
