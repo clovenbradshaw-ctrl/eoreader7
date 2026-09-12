@@ -1,8 +1,9 @@
-// tests/reasoning-lint-content.test.js — the demo corpora pinned as
-// regression tests. The demo's two content cases (the speed essay and the
-// math/code sheet) and the seed's §7 falsifiable corpus are read through
-// the REAL notes ledger, the REAL oracle, and organs/reasoning-lint.js, and
-// the exact finding-kind SIGNATURE at each strictness level is asserted.
+// tests/reasoning-lint-content.test.js — Degrees Kelsen's demo corpora
+// pinned as regression tests. The demo's two content cases (the speed essay
+// and the math/code sheet) and the seed's §7 falsifiable corpus are read
+// through the REAL notes ledger, the REAL oracle, and
+// organs/reasoning-lint.js, and the exact finding-kind SIGNATURE at each
+// strictness level is asserted.
 //
 // This is the "these are all correct, save it for regression" pin: the
 // findings themselves (REASONING-LINT-RESULTS.md) were verified correct by

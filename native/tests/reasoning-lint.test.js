@@ -1,4 +1,4 @@
-// tests/reasoning-lint.test.js — the reasoning linter's walls, against the
+// tests/reasoning-lint.test.js — Degrees Kelsen's walls, against the
 // REAL machinery: kernel/notes.js (via organs/hyperlexicon.js), the kernel
 // task-log, and regime.js's own tagClaim. No stubs; the ledger is real.
 import test from "node:test";

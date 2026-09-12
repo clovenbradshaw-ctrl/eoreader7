@@ -1,6 +1,12 @@
 // organs/reasoning-lint.js — the reasoning seed's section 4–5, run as a
 // linter over the holograph (the notes ledger's projected record).
 //
+// Handle: Degrees Kelsen — after Hans Kelsen, the jurist who formalized how
+// norms in a hierarchy resolve conflict: validity first, then lex specialis,
+// then lex posterior, never a silent pick. "Degrees" because the order is a
+// fixed scale read at the query time — like temperature, it is measured,
+// never tuned.
+//
 // WHAT THIS IS. The seed ("The Reasoning Seed", 2026-09-10) says
 // transitivity and circularity checks catch bad CHAINS and nothing else:
 // they say nothing about whether a claim should chain classically at all

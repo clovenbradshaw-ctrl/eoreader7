@@ -3,7 +3,7 @@
 // (the exact loadPattern scripts/date-normalize.mjs uses; sympy+mpmath are
 // in node_modules/pyodide/pyodide-lock.json, the P21 wheel organ's mirror).
 //
-// WHY THIS FILE. The reasoning linter (organs/reasoning-lint.js) takes an
+// WHY THIS FILE. Degrees Kelsen (organs/reasoning-lint.js) takes an
 // injected `verify`/`refute` — the caller's oracle. Until now the demo
 // hand-typed verdicts. A math verifier is only worth the name if the
 // verdicts are COMPUTED, not declared: sympy does symbolic differentiation,

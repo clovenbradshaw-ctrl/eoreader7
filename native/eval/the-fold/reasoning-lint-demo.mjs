@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// eval/the-fold/reasoning-lint-demo.mjs — the reasoning linter, run LIVE on
+// eval/the-fold/reasoning-lint-demo.mjs — Degrees Kelsen, run LIVE on
 // three corpora:
 //
 //   1. the seed's own falsifiable case (§7) — one ordinance with a sunset

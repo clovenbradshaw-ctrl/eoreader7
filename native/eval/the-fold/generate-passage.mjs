@@ -184,7 +184,7 @@ const out = compose(items, {
 // ── THE GENERATED CONTENT IS LINTED FOR COHERENCE, NOT JUST PRINTED ────────
 //
 // The passage above is NOVEL content — no record states any of it. It is
-// exactly the case the reasoning linter (organs/reasoning-lint.js) exists
+// exactly the case Degrees Kelsen (organs/reasoning-lint.js) exists
 // for: content the system itself generated, converted to EOT and read
 // through the holograph, checked for logical coherence at three strictness
 // levels. The claims are EOT-shaped already (`claim.end1/label/end2` with a
