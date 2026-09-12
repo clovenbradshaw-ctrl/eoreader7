@@ -25,33 +25,26 @@ const BOOK = process.argv[3] ?? "/Users/mlacy/Documents/3.0/live_priors/01-liter
 const BASENAME = path.basename(BOOK, ".txt");
 const raw = fs.readFileSync(BOOK, "utf8");
 
-// Same chapter-boundary regex eot-jsonl.mjs itself uses (S95's own window),
-// duplicated rather than imported — eot-jsonl.mjs is a driver script with no
-// exports, and golden-tool.mjs already duplicates this same regex for the
-// same reason: each caller owns its own read of the boundary convention.
-// Same real-title check eot-jsonl.mjs carries (found via this very script:
-// a book with no title line, e.g. The Picture of Dorian Gray, had its
-// paragraph's own first physical line swallowed as a fake title) — a REAL
-// title is bounded by blank lines on both sides, checked here in raw's own
-// (CRLF-preserving) space since these addresses must match the ledger's.
-// Same "Chapter 1" sibling convention added to eot-jsonl.mjs's own copy of
-// this regex, for the same reason: a recoverability check on a book that
-// uses Arabic chapter numerals needs the SAME chapter windows the reader
-// itself inferred, or it is checking the wrong boundaries against itself.
-const HEAD_RE = /^(?:CHAPTER (?<roman>[IVXLC]+)\.|Chapter (?<arabic>\d+)\.?)\s*\n(?<titleLine>[^\n]*)\n/gmd;
+// Same chapter-boundary conventions the reader itself uses — via structure-
+// rec.mjs's SHARED detector (2026-09-12, S111 made true: eot-jsonl.mjs and
+// this gate no longer carry their own drifting hand regexes, which is why
+// this gate could not even FIND Tom Sawyer's or Sherlock's chapters before —
+// their conventions (bare "CHAPTER <roman>", "<roman>. TITLE") were found
+// by structure-rec on the lavar-spiral-fixes branch and never crossed here).
+// A real title is blank-line-bounded on both sides (S102's Dorian Gray
+// defect). This reads the ORIGIN's own bytes (CRLF or LF), so the addresses
+// it computes are in the same coordinates the ledger carries.
+import { detectAndMatch } from "./structure-rec.mjs";
+const detected = detectAndMatch(raw);
 const heads = [];
-{
-  let m;
-  while ((m = HEAD_RE.exec(raw))) {
-    const candidateEnd = m.index + m[0].length;
-    const titleLine = m.groups.titleLine;
-    const hasRealTitle = Boolean(titleLine.trim()) && /^\r?\n/.test(raw.slice(candidateEnd));
-    heads.push({
-      start: m.index,
-      headEnd: hasRealTitle ? candidateEnd : m.indices.groups.titleLine[0],
-      title: hasRealTitle ? titleLine.trim() : "",
-    });
-  }
+for (const h of detected.hits) {
+  const afterTitle = h.titleLineEnd + (raw[h.titleLineEnd] === "\r" ? 2 : 1);
+  const hasRealTitle = Boolean(h.titleLine.trim()) && (raw[afterTitle] === "\n" || raw[afterTitle] === "\r");
+  heads.push({
+    start: h.start,
+    headEnd: hasRealTitle ? h.titleLineEnd : h.titleLineStart,
+    title: hasRealTitle ? h.titleLine.trim() : "",
+  });
 }
 for (let i = 0; i < heads.length; i += 1) heads[i].end = i + 1 < heads.length ? heads[i + 1].start : raw.length;
 

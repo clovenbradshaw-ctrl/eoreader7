@@ -101,6 +101,49 @@ function buildRegex(conv) {
   return new RegExp(`^${prefix}(?<numeral>${numPattern})${periodPattern}[ \\t]*\\r?\\n(?<titleLine>[^\\r\\n]*)\\r?\\n`, "gmd");
 }
 
+// ── THE PROGRAMMATIC DOOR (2026-09-12) ─────────────────────────────────────
+// eot-jsonl.mjs and recoverability.mjs both carry their own hand-maintained
+// heading regexes that have drifted from this library (S110/S111's fixes
+// never crossed to them — LAVAR.md's claim that eot-jsonl "consults
+// structure-rec's shared detector directly" was FALSE on this branch,
+// found 2026-09-12). This is the one implementation both call: run the
+// known-conventions tier, then the mechanical skeleton-recurrence tier
+// (NO model tier here — a reader producing a ledger must not depend on a
+// local-model witness being reachable), and return the best convention with
+// its concrete heading matches. A caller builds its chapter boundaries from
+// the hits (real-title check, ordinals, ends) exactly as before.
+export function detectAndMatch(raw) {
+  const lib = loadLibrary();
+  const t1 = tier1(raw, lib);
+  if (t1) return { convention: t1.conv, hits: t1.hits.map((h) => ({ start: h.start, numeral: h.numeral, titleLine: h.titleLine, titleLineStart: h.titleLineStart, titleLineEnd: h.titleLineEnd })) };
+  const t2 = tier2(raw);
+  if (!t2) return { convention: null, hits: [] };
+  if (!t2.monotonic) return { convention: null, hits: [] };
+  const parsed = deriveConvention(t2.group.members[0].text);
+  if (!parsed) return { convention: null, hits: [] };
+  const consistent = t2.group.members.every((m) => {
+    const p = deriveConvention(m.text);
+    return p && p.word === parsed.word && p.numeralType === parsed.numeralType && p.requiresPeriod === parsed.requiresPeriod && p.titleOnSameLine === parsed.titleOnSameLine;
+  });
+  if (!consistent) return { convention: null, hits: [] };
+  const conv = { name: `${parsed.word ? parsed.word + " " : ""}<${parsed.numeralType}>${parsed.requiresPeriod ? "." : ""}`, ...parsed, foundIn: path.basename(process.argv[2] ?? ""), foundVia: "mechanical (skeleton recurrence + monotonic numeral)" };
+  if (!lib.conventions.some((c) => c.word === conv.word && c.numeralType === conv.numeralType && c.requiresPeriod === conv.requiresPeriod && Boolean(c.titleOnSameLine) === Boolean(conv.titleOnSameLine))) {
+    lib.conventions.push(conv);
+    saveLibrary(lib);
+  }
+  const hits = [];
+  const re = buildRegex(conv);
+  let m;
+  while ((m = re.exec(raw))) hits.push({
+    start: m.index,
+    numeral: m.groups.numeral,
+    titleLine: m.groups.titleLine,
+    titleLineStart: m.indices.groups.titleLine[0],
+    titleLineEnd: m.indices.groups.titleLine[1],
+  });
+  return { convention: conv, hits };
+}
+
 // Turn one sample candidate line into a convention's own {word,
 // numeralType, requiresPeriod, titleOnSameLine} shape — done by PARSING
 // the line into its parts, never by taking the first letter-run as "the
@@ -139,7 +182,7 @@ function tryConvention(raw, conv) {
   const re = buildRegex(conv);
   const hits = [];
   let m;
-  while ((m = re.exec(raw))) hits.push({ start: m.index, numeral: m.groups.numeral, titleLine: m.groups.titleLine });
+  while ((m = re.exec(raw))) hits.push({ start: m.index, numeral: m.groups.numeral, titleLine: m.groups.titleLine, titleLineStart: m.indices.groups.titleLine[0], titleLineEnd: m.indices.groups.titleLine[1] });
   return hits;
 }
 
@@ -305,6 +348,16 @@ async function tier3(group) {
 }
 
 // ── main ────────────────────────────────────────────────────────────────
+// The CLI is a STANDALONE door, guarded by the import check — the exact
+// guard S111's record says this file already had and its own missing-import-
+// guard bug (the reason a "usage:" exit fired against a CALLER's argv) warns
+// was once fixed here and has regressed. Found live 2026-09-12: importing
+// this module from eot-jsonl.mjs ran the CLI main UNCONDITIONALLY — process
+//.exit(0) on a tier-1 hit killed the reader mid-read (its first book under
+// the shared detector read nothing and wrote no ledger). The programmatic
+// door is detectAndMatch (above); this block runs only when the file is the
+// entry point.
+if (import.meta.url === `file://${process.argv[1]}`) {
 const bookPath = process.argv[2];
 if (!bookPath) { console.error("usage: node structure-rec.mjs <path-to-document.txt>"); process.exit(1); }
 const raw = fs.readFileSync(bookPath, "utf8");
@@ -365,4 +418,5 @@ if (verdict.verdict === "structural — confirmed") {
   console.log("Model confirms this is a structural convention, but it carries no numeral this script can build a chapter-ordinal regex from — naming it on the record, not silently promoting it into a numbered-chapter convention it isn't.");
 } else {
   console.log("Refusing to assert a structural convention for this document.");
+}
 }

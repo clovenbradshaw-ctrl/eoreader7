@@ -62,6 +62,7 @@ import { makeGrainTyper } from "./grain-typing.mjs";
 import { receivedGround, applyDelta } from "../../kernel/fold.js";
 import { deriveIdentityRevision } from "../../kernel/identity.js";
 import { textIdentityEvidence } from "../../adapters/text/identity-evidence.js";
+import { detectAndMatch } from "./structure-rec.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const LP_ROOT = path.resolve(HERE, "../../../../live_priors");
@@ -308,6 +309,7 @@ emit({
   },
   priors: [
     { name: "earned verb vocabulary", giver: "this material's own recurrence", scope: `a token is nominated as a verb only after following a recurring surface; minSurfaces ${MIN_SURFACES_PER_VERB}, declared` },
+    { name: "received verb widening", giver: `${POS_PRIOR.provenance?.giver ?? "unknown"}, native/priors/pos-${LANG}.json`, scope: `every form the received prior attests as (VERB+AUX)-dominant at minShare ${GRAMMAR_MIN_SHARE} joins the vocabulary as an ADDITION — participles, copulas and modals the recurrence gate can never earn on capitalisation-starved prose (2026-09-12, the two dominant GFP miss-themes); never removes an earned form, and Field connectors stay out (ADP-dominant)` },
     { name: "POS refusal gate", giver: `${POS_PRIOR.provenance?.giver ?? "unknown"}, native/priors/pos-${LANG}.json`, scope: `wordclass.js dominantClass at minShare ${GRAMMAR_MIN_SHARE} — REFUSES a relation whose connector settles as a non-verb; never confirms one (P56: settled means refusable, never confirmable)` },
     { name: "inherited subject", giver: "this reading (new, 2026-09-09)", scope: "a nested clause with no subject of its own is read under the matrix subject that controls it" },
     { name: "script coverage per sentence", giver: "Unicode UCD General_Category (Cased_Letter vs L)", scope: "READING-SPEC S92 — tags each sentence cased/caseless so a mixed English+Mandarin document is readable per segment; this chapter is 100% cased" },
@@ -365,17 +367,27 @@ const chapters = [];
   // (literal all-caps, required period) is UNCHANGED, so nothing already
   // verified against AIW or Dorian Gray can start matching differently;
   // this only adds a second alternative the first branch never reached.
-  const RE = /^(?:CHAPTER (?<roman>[IVXLC]+)\.|Chapter (?<arabic>\d+)\.?)\s*\n(?<titleLine>[^\n]*)\n/gmd;
+  // THE CONVENTION IS FOUND BY THE SHARED DETECTOR, never a hand regex —
+  // S111's claim made true (2026-09-12). structure-rec.mjs's detectAndMatch
+  // runs the known-conventions library (heading-conventions.json — AIW's
+  // "CHAPTER <roman>.", Frankenstein's "Chapter <arabic>", Tom Sawyer's
+  // bare "CHAPTER <roman>" no-period same-line title, Sherlock's bare
+  // "<roman>. TITLE") then the mechanical skeleton-recurrence tier; a new
+  // convention is PERSISTED into the library, so the next book with the
+  // same shape is a tier-1 hit with no human. A real title is blank-line-
+  // bounded (S102's Dorian Gray defect — the swallowed paragraph's first
+  // physical line); the table-of-contents copies of the same string are not
+  // followed by prose and are not matched.
+  const detected = detectAndMatch(raw);
   let m; const hits = [];
-  while ((m = RE.exec(raw))) {
-    const candidateEnd = m.index + m[0].length;
-    const titleLine = m.groups.titleLine;
-    const hasRealTitle = Boolean(titleLine.trim()) && raw[candidateEnd] === "\n";
+  for (const h of detected.hits) {
+    const afterTitle = h.titleLineEnd + (raw[h.titleLineEnd] === "\r" ? 2 : 1);
+    const hasRealTitle = Boolean(h.titleLine.trim()) && (raw[afterTitle] === "\n" || raw[afterTitle] === "\r");
     hits.push({
-      start: m.index, num: m.groups.roman ?? m.groups.arabic,
-      convention: m.groups.roman !== undefined ? "CHAPTER <roman>." : "Chapter <arabic>",
-      title: hasRealTitle ? titleLine.trim() : "",
-      headEnd: hasRealTitle ? candidateEnd : m.indices.groups.titleLine[0],
+      start: h.start, num: h.numeral,
+      convention: detected.convention?.name ?? "inferred",
+      title: hasRealTitle ? h.titleLine.trim() : "",
+      headEnd: hasRealTitle ? h.titleLineEnd : h.titleLineStart,
     });
   }
   for (let i = 0; i < hits.length; i += 1) {
@@ -390,15 +402,15 @@ const chapters = [];
     // every one was really "Chapter 1".."Chapter 24"). A basis that names
     // the wrong evidence is the exact failure `infer`'s own header warns
     // against — an inference recorded as if it were a different fact.
-    infer("chapter", [c.start, c.end], `a '${c.convention}' line at line-start followed by running prose (a title line, when the book gives one, is blank-line-bounded like the heading itself) — the table-of-contents copies of the same string are not followed by prose and are not matched`, { ordinal: c.ordinal, numeral: c.num, title: c.title });
-    infer("heading", [c.start, c.headEnd], c.title ? "the chapter line and its title line" : "the chapter line alone — this book gives its chapters no title line", { ofChapter: c.ordinal });
+    infer("chapter", [c.start, c.end], `a '${c.convention}' line at line-start followed by running prose (a title line, when the book gives one, is blank-line-bounded like the heading itself) — the table-of-contents copies of the same string are not followed by prose and are not matched (S111 — the shared structure-rec detector; S107: an inference's basis names the evidence that licensed it)`, { ordinal: c.ordinal, numeral: c.num, title: c.title });
+    infer("heading", [c.start, c.headEnd], c.title ? "the chapter line and its title line" : "the chapter line alone — this book gives its chapters no title line (S111 — shared detector, headEnd at the real-title boundary; S102: a real title is blank-line-bounded)", { ofChapter: c.ordinal });
   }
 }
 
 // FRONT MATTER: everything before the first real chapter. Recorded, never
 // stripped — deleting it would shift every offset after it.
 if (chapters.length && chapters[0].start > 0) {
-  infer("front-matter", [0, chapters[0].start], "everything preceding the first inferred chapter heading — title, byline, edition line and the table of contents");
+  infer("front-matter", [0, chapters[0].start], "everything preceding the first inferred chapter heading — title, byline, edition line and the table of contents (S95 — front matter is recorded with a role, never stripped)");
 }
 
 // Everything below is read WITHIN one chapter's address range. The chapter
@@ -426,7 +438,7 @@ const ASTERISK_ROW = /^[ \t]*(?:\*[ \t]*){3,}$/gm;
 const breaks = [...raw.matchAll(ASTERISK_ROW)]
   .map((m) => ({ start: m.index, end: m.index + m[0].length }))
   .filter((b) => inWindow(b.start, b.end));
-for (const b of breaks) infer("scene-break", [b.start, b.end], "a line of three or more asterisks — the printed convention for a break in time or scene");
+for (const b of breaks) infer("scene-break", [b.start, b.end], "a line of three or more asterisks — the printed convention for a break in time or scene (S95 — structure is an inferred observation carrying the evidence that licensed it)");
 
 // SECTIONS: the runs of prose BETWEEN scene breaks, inside the chapter.
 {
@@ -434,7 +446,7 @@ for (const b of breaks) infer("scene-break", [b.start, b.end], "a line of three 
   for (let i = 0; i < cuts.length - 1; i += 2) {
     const [start, end] = [cuts[i], cuts[i + 1]];
     if (end > start && raw.slice(start, end).trim()) {
-      infer("section", [start, end], "a run of prose bounded by inferred scene breaks or by the chapter's own edges");
+      infer("section", [start, end], "a run of prose bounded by inferred scene breaks or by the chapter's own edges (S95 — an inferred extent with the evidence that licensed it)");
     }
   }
 }
@@ -454,7 +466,7 @@ for (const b of breaks) infer("scene-break", [b.start, b.end], "a line of three 
     if (ASTERISK_ROW.test(text.trim())) continue; // already observed as a scene break
     const lead = text.length - text.trimStart().length;
     const tail = text.length - text.trimEnd().length;
-    infer("paragraph", [start + lead, end - tail], "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own");
+    infer("paragraph", [start + lead, end - tail], "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own (S95 — an inferred extent with the evidence that licensed it)");
   }
 }
 
@@ -464,7 +476,7 @@ const script = scriptCoverageBySentence(sentences);
 for (let i = 0; i < sentences.length; i += 1) {
   const s = sentences[i];
   infer("sentence", [s.offset, s.offset + s.text.length],
-    "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+    "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
     { script: script[i]?.dominant ?? null });
 }
 
@@ -729,6 +741,35 @@ const lexiconStats = lexicons.map((lx) => {
   for (const v of lx.verbs ?? []) { if (!verbs.has(v)) fresh += 1; verbs.add(v); }
   return { giver: lx.giver, verbsOffered: (lx.verbs ?? []).length, verbsNew: fresh };
 });
+// RECEIVED VERB WIDENING (2026-09-12). The earned vocabulary is starved:
+// discoverRelationVocab nominates a verb only when it FOLLOWS a surface,
+// and surfaces are capitalisation-based (S86), so real narrative verbs
+// (said/went/thought), present participles (trotting/looking/sitting) and
+// copulas (was/were/is) — the exact clause shapes the GFP-coverage hand-
+// read found most often left unbroken (participial-reduced and
+// copula-complement are the two dominant miss-themes on every golden
+// chapter) — never enter the vocabulary at all. This ADDS every form the
+// received POS prior attests as (VERB+AUX)-dominant at GRAMMAR_MIN_SHARE —
+// the SAME received UD_English-EWT prior already typing the grain, so AUX
+// (copula/auxiliary) settles as verb via THRAX_MAP and emits a Link rather
+// than a refusal. Pure addition: nothing earned is removed, and the Field
+// connectors (into/down/with) stay out because their share is ADP-dominant.
+// A named giver and a declared share floor — received-prior widening,
+// never a number tuned against a golden.
+const receivedVerbs = [];
+{
+  const forms = POS_PRIOR.forms ?? POS_PRIOR;
+  for (const [form, tags] of Object.entries(forms)) {
+    const counts = Object.values(tags);
+    const total = counts.reduce((a, b) => a + b, 0);
+    if (!total) continue;
+    const verbish = (tags.VERB ?? 0) + (tags.AUX ?? 0);
+    if (verbish / total > GRAMMAR_MIN_SHARE && !verbs.has(form)) {
+      verbs.add(form);
+      receivedVerbs.push(form);
+    }
+  }
+}
 const opts = { verbs, phrasalPredicates: true, nounPhraseSubjects: true };
 
 const carriesVerb = (t) => String(t ?? "").toLowerCase().split(/[^\p{L}\p{N}’']+/u).some((w) => verbs.has(w));
@@ -826,6 +867,14 @@ for (const sent of sentences) {
       end1: e.subject, label: e.verb, end2: e.object, subjectBasis: "stated",
       ...(ref1 ? { end1Ref: ref1 } : {}),
       ...(ref2 ? { end2Ref: ref2 } : {}),
+      // THE READER CATCHES ITS OWN FOLDS (2026-09-12, Holmes lens — LAVAR §9's
+      // self-contradiction check "runs before LaVar is invoked" because the
+      // reader never ran it). An irreflexive relation whose TWO ENDS resolve
+      // to ONE referent is the Marmeladov shape caught at the proposition's
+      // own admission: both ends point at the same being, so the arrangement
+      // folds a being into itself. Flagged on the record, never edited away —
+      // the flag is what makes the fold inspectable without an oracle.
+      ...(ref1 && ref2 && ref1 === ref2 ? { selfReferent: true } : {}),
       ...g,
     });
     readClause(e.subject, e.object, at[0], 1, ref1);
@@ -1046,10 +1095,10 @@ emit({
   chapter: READ_CHAPTER,
   priorsLoaded: loadedPriors.map((p) => ({ chapter: p.chapter, verbs: (p.verbs ?? []).length, cast: (p.cast ?? []).length })),
   lexiconsLoaded: lexiconStats.length ? lexiconStats : null,
-  earnedHere: { verbs: ownVerbs.size, castSurfaces: surfaces.length },
+  earnedHere: { verbs: ownVerbs.size, castSurfaces: surfaces.length, receivedVerbsAdded: receivedVerbs.length },
   vocabularyAfterUnion: verbs.size,
   disclosure: loadedPriors.length
-    ? "A REREAD. This pass legitimately knows what the loaded chapters contain because it has read them; that is rereading, not lookahead. Its reach must not be compared with a first pass's without saying so."
+    ? "A REREAD. This pass legitimately knows what the loaded chapters contain because it has read them; that is rereading, not lookahead. Its reach must not be compared with a first pass's without saying so. CORROBORATION SCOPE (2026-09-12, Pearl lens): where this pass agrees with the earlier pass, that agreement is SAME-INSTRUMENT corroboration — the identical extractor run on the identical bytes — a shared common cause (the extractor's own bias), never independence. A contest it records is the honest form of that: two passes of one reader disagreeing, which is ambiguity, not two sources."
     : lexiconStats.length
       ? "A FIRST PASS ON THIS DOCUMENT, primed with one or more cross-document vocabulary priors. The cast is still earned from nothing but this chapter's own bytes — a lexicon carries no cast and could not leak one."
       : "A FIRST PASS. Nothing here was learned from any later chapter — the vocabulary and cast are earned from this chapter's own bytes.",

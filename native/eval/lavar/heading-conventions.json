@@ -28,6 +28,16 @@
       "foundIn": "real-sherlock-holmes.txt",
       "foundVia": "mechanical (skeleton recurrence + monotonic numeral)",
       "dateFound": "2026-09-10"
+    },
+    {
+      "name": "CHAPTER <roman>",
+      "word": "CHAPTER",
+      "numeralType": "roman",
+      "requiresPeriod": false,
+      "titleOnSameLine": false,
+      "foundIn": "pg1661_The_Adventures_of_Tom_Sawyer.txt",
+      "foundVia": "mechanical (skeleton recurrence + monotonic numeral)",
+      "dateFound": "2026-09-12"
     }
   ]
 }
