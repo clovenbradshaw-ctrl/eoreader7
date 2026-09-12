@@ -891,6 +891,262 @@ export function renderApaFootnotes(essay, webSources = new Map(), { maxFootnotes
   return `\n\n## Footnotes\n\n${block}`;
 }
 
+// ── INLINE CITATION MARKERS: the citation is EMBEDDED in the text, not only
+//    in a footnote block. Each sentence that carries a citation gets [n] right
+//    after it, pointing to the footnote list — the reader sees, AT THE CLAIM,
+//    that it is sourced (or stated by the model). This is the teaching
+//    surface at the sentence grain: you never read a claim without seeing
+//    where it comes from. `citations` is the citationLedger's output.
+export function embedInlineCitations(essay, citations = []) {
+  if (!citations?.length) return String(essay ?? "");
+  let text = String(essay ?? "");
+  // Match each citation's sentence back into the text and append [n].
+  // A sentence is inserted only ONCE (the first occurrence), so a repeated
+  // sentence in the essay keeps its first marker. Citations are applied in
+  // order; the marker's number is the footnote index (1-based).
+  const placed = new Set();
+  for (let i = 0; i < citations.length; i++) {
+    const c = citations[i];
+    const sentence = String(c.essaySentence ?? "").trim();
+    if (!sentence) continue;
+    if (placed.has(sentence)) continue;
+    placed.add(sentence);
+    // Find the sentence in the running text — the first occurrence. Match on
+    // the leading chunk (the sentence's first 40 chars) so whitespace
+    // differences don't defeat the insertion.
+    const lead = sentence.slice(0, 40).replace(/\s+/g, " ");
+    const idx = text.indexOf(lead);
+    if (idx < 0) continue;
+    // Walk forward to the sentence's end (its own punctuation) — the text may
+    // continue past what the ledger captured, so insert AFTER the sentence's
+    // own terminator, not mid-way.
+    let end = idx + lead.length;
+    while (end < text.length && !/[.!?]["'”]?\s*$/.test(text.slice(Math.max(0, end - 3), end + 1)) && !/[.!?]\s/.test(text.slice(end, end + 2))) {
+      end++;
+    }
+    if (end > text.length) end = text.length;
+    text = text.slice(0, end) + ` [${i + 1}]` + text.slice(end);
+  }
+  return text;
+}
+
+// ── THE HTML SURFACE: citations togglable, style switchable (APA ⇄ MLA). ──
+// A self-contained HTML page of the essay: the inline [n] markers are
+// clickable links to the footnote list; a toolbar toggles the citations
+// ON/OFF (show just the prose, or the prose with markers and footnotes) and
+// switches the footnote STYLE between APA and MLA. Both styles are rendered
+// from the same citation data — never two lists that drift.
+// `citations` is the citationLedger output (each has essaySentence, giver,
+// source{url,host}, kind, groundingText).
+export function renderEssayHtml({ title = "the piece", prose = "", citations = [], thinking = "" } = {}) {
+  const esc = (s) => String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  // APA: (Host, Year). "Verbatim span" — URL. MLA: Host, "Title of Page," Year, URL.
+  const apa = (c, i) => {
+    const host = c.giver && c.kind !== "unsupported" ? (c.source?.host ?? "source") : c.giver ?? "the model";
+    const year = new Date().getFullYear();
+    const span = c.groundingText ? `&ldquo;${esc(c.groundingText.slice(0, 160))}${c.groundingText.length > 160 ? "…" : ""}&rdquo;` : "";
+    return c.kind === "unsupported"
+      ? `<span class="model-claim">${host}, ${year}. &ldquo;${esc(c.essaySentence.slice(0, 120))}…&rdquo; — stated by ${host} (the essay's own claim; no retained source states it)</span>`
+      : `(${esc(host)}, ${year}). ${span}${c.source?.url ? ` &mdash; ${esc(c.source.url)}` : ""}`;
+  };
+  const mla = (c, i) => {
+    const host = c.giver && c.kind !== "unsupported" ? (c.source?.host ?? "Source") : c.giver ?? "the model";
+    const year = new Date().getFullYear();
+    const span = c.groundingText ? `&ldquo;${esc(c.groundingText.slice(0, 160))}${c.groundingText.length > 160 ? "…" : ""}&rdquo;` : "";
+    return c.kind === "unsupported"
+      ? `<span class="model-claim">${esc(host)}, ${year}. &ldquo;${esc(c.essaySentence.slice(0, 120))}…&rdquo; &mdash; stated by ${host} (no retained source states it)</span>`
+      : `${esc(host)}, ${year}${c.source?.url ? `, ${esc(c.source.url)}` : ""}${span ? `. ${span}` : ""}.`;
+  };
+  const footnotesApa = citations.map((c, i) => `<li id="fn-${i + 1}">${apa(c, i)}</li>`).join("\n");
+  const footnotesMla = citations.map((c, i) => `<li id="fn-mla-${i + 1}">${mla(c, i)}</li>`).join("\n");
+  return `<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>${esc(title)}</title>
+<style>
+  body { font-family: Georgia, serif; max-width: 46rem; margin: 2rem auto; padding: 0 1.5rem; line-height: 1.7; color: #1a1a1a; }
+  h1 { font-size: 1.6rem; line-height: 1.3; }
+  .toolbar { position: sticky; top: 0; background: #fafafa; border-bottom: 1px solid #ddd; padding: .6rem 1.5rem; margin: -2rem -1.5rem 1.5rem; display: flex; gap: 1rem; align-items: center; font-family: sans-serif; font-size: .85rem; }
+  .toolbar label { display: flex; align-items: center; gap: .35rem; }
+  .prose { font-size: 1.05rem; }
+  .prose p { margin: 1em 0; }
+  .cite { color: #0b5; cursor: pointer; font-size: .8em; vertical-align: super; text-decoration: none; }
+  .cite:hover { color: #070; }
+  .fn { font-size: .9rem; color: #444; }
+  .fn li { margin: .4em 0; }
+  .model-claim { font-style: italic; color: #777; }
+  .thinking { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid #ddd; font-size: .85rem; color: #666; font-family: sans-serif; white-space: pre-wrap; }
+  body.no-cites .cite { display: none; }
+  body.no-cites .fn, body.no-cites .fn-block { display: none; }
+  .footnotes-apa, .footnotes-mla { display: none; }
+  body.style-apa .footnotes-apa { display: block; }
+  body.style-mla .footnotes-mla { display: block; }
+</style></head>
+<body class="style-apa">
+<div class="toolbar">
+  <label><input type="checkbox" id="toggle-cites" checked> citations</label>
+  <label>style:
+    <select id="toggle-style">
+      <option value="apa">APA</option>
+      <option value="mla">MLA</option>
+    </select>
+  </label>
+</div>
+<h1>${esc(title)}</h1>
+<div class="prose">${esc(prose).replace(/\n\n+/g, "</p><p>").replace(/\n/g, "<br>")}</div>
+<h2 class="fn-block">Footnotes</h2>
+<ol class="fn footnotes-apa" id="fns-apa">${footnotesApa}</ol>
+<ol class="fn footnotes-mla" id="fns-mla">${footnotesMla}</ol>
+${thinking ? `<div class="thinking">${esc(thinking)}</div>` : ""}
+<script>
+  const body = document.body;
+  document.getElementById('toggle-cites').addEventListener('change', e => body.classList.toggle('no-cites', !e.target.checked));
+  document.getElementById('toggle-style').addEventListener('change', e => { body.classList.toggle('style-apa', e.target.value === 'apa'); body.classList.toggle('style-mla', e.target.value === 'mla'); });
+  // Make inline [n] markers clickable links to the footnote.
+  document.querySelectorAll('.prose').forEach(p => { p.innerHTML = p.innerHTML.replace(/\\[(\d+)\\]/g, '<a class="cite" href="#fn-\\$1">[\\$1]</a>'); });
+</script>
+</body></html>`;
+}
+
+// ── THE LIVE HTML PROJECTION: the HTML is the projection, fed by the JSONL.
+//    The .html shell fetches the ledger's JSONL and the citations JSON on
+//    EVERY load, folds them client-side, and renders. Refreshing the page
+//    re-folds the latest JSONL — the essay is never a stale .md snapshot.
+//    The toolbar can hide/show citations and switch footnote style (APA ⇄
+//    MLA), and EXPORT the current fold as Markdown or as JSON. The MD is an
+//    export, never the default projection.
+export function renderLiveEssayHtml({ docId, title = "the piece", jsonlPath, citationsPath } = {}) {
+  const esc = (s) => String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  return `<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>${esc(title)}</title>
+<style>
+  body { font-family: Georgia, serif; max-width: 46rem; margin: 2rem auto; padding: 0 1.5rem; line-height: 1.7; color: #1a1a1a; }
+  h1 { font-size: 1.6rem; line-height: 1.3; }
+  .toolbar { position: sticky; top: 0; background: #fafafa; border-bottom: 1px solid #ddd; padding: .6rem 1.5rem; margin: -2rem -1.5rem 1.5rem; display: flex; gap: 1rem; align-items: center; font-family: sans-serif; font-size: .85rem; flex-wrap: wrap; }
+  .toolbar label { display: flex; align-items: center; gap: .35rem; }
+  .toolbar button { font-family: sans-serif; font-size: .8rem; padding: .25rem .6rem; cursor: pointer; }
+  .prose { font-size: 1.05rem; }
+  .prose p { margin: 1em 0; }
+  .cite { color: #0b5; cursor: pointer; font-size: .8em; vertical-align: super; text-decoration: none; }
+  .fn { font-size: .9rem; color: #444; }
+  .fn li { margin: .4em 0; }
+  .model-claim { font-style: italic; color: #777; }
+  .thinking { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid #ddd; font-size: .85rem; color: #666; font-family: sans-serif; white-space: pre-wrap; }
+  body.no-cites .cite { display: none; }
+  body.no-cites .fn, body.no-cites .fn-block { display: none; }
+  .footnotes-apa, .footnotes-mla { display: none; }
+  body.style-apa .footnotes-apa { display: block; }
+  body.style-mla .footnotes-mla { display: block; }
+  .status { font-family: sans-serif; font-size: .8rem; color: #999; }
+</style></head>
+<body class="style-apa">
+<div class="toolbar">
+  <span class="status" id="status">loading…</span>
+  <label><input type="checkbox" id="toggle-cites" checked> citations</label>
+  <label>style:
+    <select id="toggle-style">
+      <option value="apa">APA</option>
+      <option value="mla">MLA</option>
+    </select>
+  </label>
+  <button id="export-md">export .md</button>
+  <button id="export-json">export .json</button>
+</div>
+<h1 id="essay-title">${esc(title)}</h1>
+<div class="prose" id="prose">…</div>
+<h2 class="fn-block">Footnotes</h2>
+<ol class="fn footnotes-apa" id="fns-apa"></ol>
+<ol class="fn footnotes-mla" id="fns-mla"></ol>
+<div class="thinking" id="thinking" hidden></div>
+<script>
+  // ── THE LIVE FOLD: fetch the ledger's JSONL + citations on every load ──
+  const esc = s => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  const status = document.getElementById('status');
+  const prose = document.getElementById('prose');
+  const fnsApa = document.getElementById('fns-apa');
+  const fnsMla = document.getElementById('fns-mla');
+  const thinking = document.getElementById('thinking');
+  const body = document.body;
+  let fold = { projection: '', citations: [], thinkingText: '' };
+
+  async function load() {
+    status.textContent = 'refreshing from the ledger…';
+    try {
+      // The LEDGER: append-only JSONL — the artifact. Fold client-side: the
+      // parts + citations lines in address order, superseded dropped (the
+      // same fold projectLedgerFile does server-side; here it runs in the
+      // page so a refresh is always current).
+      const ledgerRes = await fetch('${esc(jsonlPath)}');
+      if (!ledgerRes.ok) throw new Error('ledger ' + ledgerRes.status);
+      const ledgerText = await ledgerRes.text();
+      const lines = ledgerText.split('\\n').map(l => { try { return JSON.parse(l); } catch { return null; } }).filter(Boolean);
+      const superseded = new Set(lines.filter(l => l.supersedes).map(l => l.supersedes));
+      const alive = lines.filter(l => !superseded.has(l.id));
+      const proseLines = alive.filter(l => l.role === 'part' || l.role === 'citations');
+      const projection = proseLines.map(l => l.text ?? '').join('\\n\\n');
+      const thinkingText = alive.filter(l => l.role === 'thinking' || l.role === 'plan').map(l => l.text ?? '').join('\\n\\n');
+      // The CITATIONS: the structured ledger (the holograph pointer).
+      let citations = [];
+      try {
+        const cRes = await fetch('${esc(citationsPath)}');
+        if (cRes.ok) { const cj = await cRes.json(); citations = cj.citations ?? []; }
+      } catch { citations = []; }
+      fold = { projection, citations, thinkingText };
+      render();
+      status.textContent = 'live — ' + alive.length + ' ledger line(s), ' + citations.length + ' citation(s)';
+    } catch (err) {
+      status.textContent = 'error: ' + err.message;
+    }
+  }
+
+  function apa(c, i) {
+    const host = c.giver && c.kind !== 'unsupported' ? (c.source?.host ?? 'source') : c.giver ?? 'the model';
+    const year = new Date().getFullYear();
+    const span = c.groundingText ? '\\u201c' + esc(c.groundingText.slice(0, 160)) + (c.groundingText.length > 160 ? '…' : '') + '\\u201d' : '';
+    return c.kind === 'unsupported'
+      ? '<span class="model-claim">' + esc(host) + ', ' + year + '. \\u201c' + esc(c.essaySentence.slice(0, 120)) + '…\\u201d — stated by ' + esc(host) + ' (the essay\\'s own claim; no retained source states it)</span>'
+      : '(' + esc(host) + ', ' + year + '). ' + span + (c.source?.url ? ' — ' + esc(c.source.url) : '');
+  }
+  function mla(c, i) {
+    const host = c.giver && c.kind !== 'unsupported' ? (c.source?.host ?? 'Source') : c.giver ?? 'the model';
+    const year = new Date().getFullYear();
+    const span = c.groundingText ? '\\u201c' + esc(c.groundingText.slice(0, 160)) + (c.groundingText.length > 160 ? '…' : '') + '\\u201d' : '';
+    return c.kind === 'unsupported'
+      ? '<span class="model-claim">' + esc(host) + ', ' + year + '. \\u201c' + esc(c.essaySentence.slice(0, 120)) + '…\\u201d — stated by ' + esc(host) + ' (no retained source states it)</span>'
+      : esc(host) + ', ' + year + (c.source?.url ? ', ' + esc(c.source.url) : '') + (span ? '. ' + span : '') + '.';
+  }
+  function render() {
+    // Inline [n] markers -> clickable links to the footnote.
+    let html = esc(fold.projection).replace(/\\n\\n+/g, '</p><p>').replace(/\\n/g, '<br>');
+    html = html.replace(/\\[(\\d+)\\]/g, '<a class="cite" href="#fn-\\$1">[\\$1]</a>');
+    prose.innerHTML = '<p>' + html + '</p>';
+    fnsApa.innerHTML = fold.citations.map((c, i) => '<li id="fn-' + (i + 1) + '">' + apa(c, i) + '</li>').join('\\n');
+    fnsMla.innerHTML = fold.citations.map((c, i) => '<li id="fn-mla-' + (i + 1) + '">' + mla(c, i) + '</li>').join('\\n');
+    if (fold.thinkingText) { thinking.hidden = false; thinking.textContent = fold.thinkingText; }
+  }
+
+  // ── EXPORT: the current fold as Markdown or as JSON ──
+  function download(name, text, mime) {
+    const blob = new Blob([text], { type: mime });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = name; a.click();
+    URL.revokeObjectURL(a.href);
+  }
+  document.getElementById('export-md').addEventListener('click', () => {
+    const proseText = fold.projection;
+    const fnBlock = fold.citations.length
+      ? '\\n\\n## Footnotes\\n\\n' + fold.citations.map((c, i) => (i + 1) + '. ' + apa(c, i).replace(/<[^>]+>/g, '')).join('\\n')
+      : '';
+    download('${docId}'.replace(/[^a-z0-9_-]/gi, '_') + '.md', esc(proseText).replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"') + fnBlock, 'text/markdown');
+  });
+  document.getElementById('export-json').addEventListener('click', () => {
+    download('${docId}'.replace(/[^a-z0-9_-]/gi, '_') + '.json', JSON.stringify(fold, null, 2), 'application/json');
+  });
+  document.getElementById('toggle-cites').addEventListener('change', e => body.classList.toggle('no-cites', !e.target.checked));
+  document.getElementById('toggle-style').addEventListener('change', e => { body.classList.toggle('style-apa', e.target.value === 'apa'); body.classList.toggle('style-mla', e.target.value === 'mla'); });
+  load();
+</script>
+</body></html>`;
+}
+
 // ── the citation ledger: the holograph pointer, at the true levels of borrow ─
 // Footnotes are text; this is the STRUCTURED record — the whole point of EOT
 // and the holograph: every output term points precisely to the input bytes it

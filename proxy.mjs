@@ -148,6 +148,44 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  // GET /v1/documents/:id.html — the LIVE HTML projection (fetches the JSONL
+  // + citations on every refresh and folds client-side; MD/JSON are exports).
+  // GET /v1/documents/:id.jsonl — the raw append-only ledger (the artifact).
+  // GET /v1/documents/:id.citations.json — the structured citation ledger.
+  if (req.method === "GET" && /^\/v1\/documents\/[^/]+\.(html|jsonl|citations\.json)$/.test(req.url)) {
+    try {
+      const base = decodeURIComponent(req.url.split("/").pop());
+      const docsDir = path.join(HERE, "documents");
+      const resolved = { html: base.replace(/\.html$/, ""), jsonl: base.replace(/\.jsonl$/, ""), citations: base.replace(/\.citations\.json$/, "") };
+      let file = null, mime = null;
+      if (base.endsWith(".html")) {
+        // The shell is written by the job as <jobId>_1.html; the JSONL is
+        // served relative to it, so the live fold finds both.
+        file = path.join(docsDir, `${resolved.html.replace(/:/g, "_")}_1.html`);
+        mime = "text/html";
+      } else if (base.endsWith(".jsonl")) {
+        // The shell fetches <jobId>_1.jsonl (underscore form); the ledger is
+        // <jobId>:1.jsonl (colon form). Resolve both.
+        const stem = resolved.jsonl; // e.g. er7-doc-123_1
+        const colonForm = stem.replace(/_(\d+)$/, ":$1");
+        file = ledgerFilePath(docsDir, `${colonForm}`);
+        if (!fs.existsSync(file)) file = ledgerFilePath(docsDir, `${stem}`);
+        mime = "application/x-ndjson";
+      } else if (base.endsWith(".citations.json")) {
+        file = path.join(docsDir, `${resolved.citations.replace(/:/g, "_")}.citations.json`);
+        mime = "application/json";
+      }
+      if (!file || !fs.existsSync(file)) { res.writeHead(404, { "content-type": "text/plain" }); res.end("not found"); return; }
+      const data = fs.readFileSync(file, "utf8");
+      res.writeHead(200, { "content-type": mime, "cache-control": "no-store" });
+      res.end(data);
+    } catch (err) {
+      res.writeHead(500, { "content-type": "text/plain" });
+      res.end(String(err.message));
+    }
+    return;
+  }
+
   // GET /v1/documents/:id — poll a job: its status + the CURRENT projection
   // (the essay as written so far, re-folded from the append-only ledger).
   if (req.method === "GET" && req.url.startsWith("/v1/documents/")) {

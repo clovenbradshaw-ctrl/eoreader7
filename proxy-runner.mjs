@@ -19,7 +19,7 @@ import { resolutionBlocks } from "./native/the-fold/resolutions.js";
 import { tokenize } from "./native/the-fold/source.js";
 import { logitBiasFor, logitsBiasObject } from "./native/organs/gemma2-tokenizer.mjs";
 import { readingIndexFromLog } from "./native/the-fold/reading-log.js";
-import { createDocumentLedger, appendDocumentObservation, appendLedgerLine, projectDocument, documentChangeLog, admitPart, serializeLedger, snipsFromSources, checkEssayShape, ledgerFilePath, renderApaFootnotes, satisfactionOfSection, satisfactionOf, declareEssayVoid, fillCheck, citationLedger, voidCellsFor, holographicSatisfaction, lavarGradeEssay, competencyGrade, lavarGradeReading, kelsenGrade } from "./native/the-fold/document-ledger.js";
+import { createDocumentLedger, appendDocumentObservation, appendLedgerLine, projectDocument, documentChangeLog, admitPart, serializeLedger, snipsFromSources, checkEssayShape, ledgerFilePath, renderApaFootnotes, satisfactionOfSection, satisfactionOf, declareEssayVoid, fillCheck, citationLedger, voidCellsFor, holographicSatisfaction, lavarGradeEssay, competencyGrade, lavarGradeReading, kelsenGrade, embedInlineCitations, renderLiveEssayHtml } from "./native/the-fold/document-ledger.js";
 import { precedence, tagClaim } from "./native/organs/regime.js";
 import { goreBoundary, gatherPlan, cueGoDeeperPlan } from "./native/the-fold/gore.js";
 // The keyless field (GFP Pass 35, the-fold c232779): recall by partial-cue
@@ -2609,6 +2609,13 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
         // best source, with the VERBATIM span it borrows from — the Fold's
         // cite.js discipline (an address is attached, never requested).
         const footnoteBlock = renderApaFootnotes(assembledBody, session.webSources, { givers: essayGivers });
+        // INLINE CITATION MARKERS — ALWAYS. The citations are embedded in the
+        // text ([1], [2] after each cited sentence), not only in the footnote
+        // block. The reader sees, AT THE CLAIM, that it is sourced (or stated
+        // by the model). The essay body is rewritten with the markers; the
+        // original body and the marked body are both kept (the ledger's
+        // projection shows the marked one).
+        const inlineMarkedBody = embedInlineCitations(assembledBody, cites.citations);
         if (footnoteBlock) {
           appendLedgerLine(documentLedger, {
             role: "citations", title: "Footnotes (APA)", text: footnoteBlock,
@@ -2617,6 +2624,13 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
           }, { dir: ESSAY_LEDGER_DIR });
           if (onThinking) onThinking(`\n### Footnotes (APA)\n\n${footnoteBlock}\n`);
           const block = `\n${footnoteBlock}`;
+          // The ledger's PARTS get the INLINE-MARKED body — the citation is
+          // embedded in the prose, never only appended at the end.
+          documentLines[0] = inlineMarkedBody;
+          if (documentLedger) appendLedgerLine(documentLedger, {
+            role: "part", title: "inline-cited body", text: inlineMarkedBody, giver: "eoreader7:cite",
+            basis: "the essay body with inline [n] citation markers embedded after each cited sentence",
+          }, { dir: ESSAY_LEDGER_DIR });
           documentLines.push(block);
           fullText += block;
           if (onToken) onToken(block);
@@ -2798,7 +2812,12 @@ export async function startDocumentJob({ task, model, workspace = "", sessionId 
   // mirrors it. (A reused sessionId with a higher turnCount would shift this;
   // the job creates its own fresh session, so :1 is correct here.)
   const ledgerDocId = `${sid}:1`;
-  const mdFile = path.join(ESSAY_LEDGER_DIR, `${jobId.replace(/:/g, "_")}.md`);
+  // THE PROJECTION IS THE LIVE HTML, fed by the JSONL + citations on every
+  // refresh — never a stale .md snapshot. MD and JSON are EXPORTS from that
+  // HTML, not the default projection.
+  const htmlFile = path.join(ESSAY_LEDGER_DIR, `${jobId.replace(/:/g, "_")}_1.html`);
+  const jsonlFile = ledgerFilePath(ESSAY_LEDGER_DIR, ledgerDocId);
+  const citationsFile = path.join(ESSAY_LEDGER_DIR, `${ledgerDocId.replace(/:/g, "_")}.citations.json`);
   try { fs.mkdirSync(ESSAY_LEDGER_DIR, { recursive: true }); } catch {}
   // CRASH RESILIENCE: if this session already has a ledger (a previous run
   // was interrupted), read the VOID PLAN (the full question set) and which
@@ -2821,18 +2840,26 @@ export async function startDocumentJob({ task, model, workspace = "", sessionId 
   (async () => {
     try {
       // The JSONL is the ARTIFACT: it appears first, growing append-only as
-      // each section/revision lands. The .md is its PROJECTION, re-folded
-      // from the JSONL each pass (each time the ledger changes) — JSONL is
-      // the source of truth, the .md is derived, deletable, rebuilt from it.
+      // each section/revision lands. The .html is its LIVE PROJECTION — a
+      // shell that fetches the JSONL + citations on every load and folds
+      // client-side, so a refresh is always current. The shell is written
+      // once (it reads the data, not the other way round); MD and JSON are
+      // EXPORTS from it, never the default projection.
       const file = ledgerFilePath(ESSAY_LEDGER_DIR, ledgerDocId);
       const flushProjection = () => {
         try {
-          const projection = projectLedgerFile(file);
-          if (projection != null) fs.writeFileSync(mdFile, projection);
+          const shell = renderLiveEssayHtml({
+            docId: ledgerDocId, title: task.slice(0, 60),
+            jsonlPath: `${jobId.replace(/:/g, "_")}_1.jsonl`,
+            citationsPath: `${ledgerDocId.replace(/:/g, "_")}.citations.json`,
+          });
+          fs.writeFileSync(htmlFile, shell);
         } catch {}
       };
-      // Re-fold whenever the JSONL grows (each pass): poll the ledger file's
-      // size; when it changes, rewrite the .md projection from it.
+      flushProjection();
+      // Re-fold the LIVE shell whenever the JSONL grows (each pass): poll the
+      // ledger file's size; the shell itself needs no rewrite (it reads the
+      // JSONL on refresh), but the job's in-memory projection status updates.
       let lastJsonlBytes = 0;
       try { lastJsonlBytes = fs.statSync(file).size; } catch {}
       const pollTimer = setInterval(() => {
