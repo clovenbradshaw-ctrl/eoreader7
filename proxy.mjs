@@ -126,6 +126,27 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  // /heimdall — the bridge's full status (vitals, every surface, the
+  // DEF/EVA/REC log tail), forwarded from the surface Heimdall steers. A
+  // person asks ANY surface this path and gets the whole box. Falls back to
+  // a typed gap if the bridge is not up, never a silent hang.
+  if (req.method === "GET" && req.url === "/heimdall") {
+    const steerPort = Number(process.env.ER7_HEIMDALL_PORT ?? 11437);
+    try {
+      const ctrl = new AbortController();
+      const t = setTimeout(() => ctrl.abort(), 3000);
+      const up = await fetch(`http://127.0.0.1:${steerPort}/heimdall`, { signal: ctrl.signal });
+      clearTimeout(t);
+      const body = await up.text();
+      res.writeHead(up.status, { "content-type": "application/json" });
+      res.end(body);
+    } catch {
+      res.writeHead(503, { "content-type": "application/json" });
+      res.end(JSON.stringify({ error: { message: "heimdall bridge not reachable", type: "bridge_down" } }));
+    }
+    return;
+  }
+
   if (req.method === "GET" && req.url === "/v1/models") {
     try {
       const tags = await offeredOllamaModels();
