@@ -1920,15 +1920,22 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
         // The part is a QUESTION the essay must ANSWER — the void DEF'd it.
         // The writing is an answer, never a section echoing a source heading.
         const isQuestion = /[?？]$/.test(section.trim());
+        // WRITE RIGHT THE FIRST TIME: the section prompt states the bar the
+        // EVA test enforces, so the model meets it in one draw instead of
+        // being corrected. Three demands, each mirroring a satisfactionOfSection
+        // failure: a real amount of prose (the holon phrase), written FROM the
+        // material (the ungrounded check), and as the piece itself (the meta
+        // check). This is the measured speed lever — 12 of 18 sections were
+        // being corrected once, each correction a full second draw (~50s).
         const sectionTask = plannedSections.length > 1
-          ? `We're writing a piece on ${topic}. ${priorParts ? `So far it has these parts: ${priorParts}. ` : ""}Now ${isQuestion ? `answer this: ${section}` : `write the part on ${section}`}, ${holonPhrase}, from the material.`
-          : `Write the piece on ${topic}, ${holonPhrase}, from the material.`;
+          ? `We're writing a piece on ${topic}. ${priorParts ? `So far it has these parts: ${priorParts}. ` : ""}Now ${isQuestion ? `answer this: ${section}` : `write the part on ${section}`}, ${holonPhrase}. Write it as a substantial passage of the piece itself — several sentences, using the material's own facts and wording, no introduction, no "here is", no commentary about writing.`
+          : `Write the piece on ${topic}, ${holonPhrase}, as a substantial passage, from the material's own facts and wording — no introduction, no commentary about writing.`;
         const holonBudget = holonLevel === "sentence" ? Math.min(SECTION_MAX_TOKENS, 220) : holonLevel === "paragraph" ? Math.min(SECTION_MAX_TOKENS, 450) : SECTION_MAX_TOKENS;
         if (onThinking) onThinking(`\n### ${section} (${holonLevel})\n\n`);
         // The draw runs NOW, in parallel with the Gore strike. Whichever lands
         // first flows; the strike's result is folded into the reading whenever
         // it arrives.
-        const [drawRes, goreRes] = await Promise.allSettled([
+        const [drawRes] = await Promise.allSettled([
           draw(
             [
               { role: "system", content: systemContent },
@@ -1938,12 +1945,19 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
             holonBudget,
             { kelsen: compositionKelsen },
           ),
-          goreStrike,
         ]);
-        let { buf = "", stopped = false } = drawRes.status === "fulfilled" ? drawRes.value : {};
-        if (goreRes.status === "fulfilled" && goreRes.value?.landed && onNote) {
-          onNote({ move: "gore_landed", cue: section, pages: goreRes.value.result?.pages ?? 0 });
+        // The Gore strike is FIRE-AND-FORGET: it never gates the section. The
+        // draw is the only thing the section waits for. Whatever the strike
+        // lands is admitted to the reading and feeds the sections that follow;
+        // if it has not returned by then, this section simply does not use it.
+        // (Previously Promise.allSettled awaited BOTH, so a slow web fetch
+        // stretched every section to max(draw, gore) — the speed killer.)
+        if (goreStrike?.then) {
+          goreStrike
+            .then((r) => { if (r?.landed && onNote) onNote({ move: "gore_landed", cue: section, pages: r.result?.pages ?? 0 }); })
+            .catch(() => {});
         }
+        let { buf = "", stopped = false } = drawRes.status === "fulfilled" ? drawRes.value : {};
         if (stopped) break;
         if (onThinking) onThinking(buf + (i < plannedSections.length - 1 ? "\n\n" : ""));
 
@@ -1965,7 +1979,7 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
               [
                 { role: "system", content: systemContent },
                 ...keptChat,
-                { role: "user", content: `Write the part on ${section} from the material — the previous attempt ${failureDetail.toLowerCase()}. Write it as the piece itself, not a note about writing it.` },
+                { role: "user", content: `Write the part on ${section} from the material — the previous attempt ${failureDetail.toLowerCase()}. Write it as a substantial passage of the piece itself, several sentences, using the material's own facts and wording, no introduction, no commentary about writing.` },
               ],
               holonBudget,
               { kelsen: Math.max(compositionKelsen, 0.9) }, // corrections are literal, never impressionistic
