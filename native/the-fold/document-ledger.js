@@ -487,6 +487,70 @@ export function holographicSatisfaction(documentLines = [], sections = [], { ind
   return { ok, filled: documentLines.length - failures.length, of: documentLines.length, failures, totalStrain: failures.length, fold, materialCount: materialIds.size };
 }
 
+// ── LAVAR GRADES THE READING INTO EOT ─────────────────────────────────────
+// LaVar's method (native/eval/lavar/golden-tool.mjs): the reading is scored
+// by RECALL — how many of the material's own propositions the reading
+// re-states, matched on label + end2 (never prose). Here the essay is the
+// reading, the material's EOT fold (its graph entries) is the golden, and
+// each essay section is graded as a set of EOT propositions: does it carry
+// the material's claims (label + end2 recall), resolved through the referent
+// index? This is "LaVar grades our reading into EOT" — the essay is scored
+// against what the material actually holds, never against how it is phrased.
+// `materialPropositions` are the material's own {label, end2, end1} claims
+// (the reader's graph entries); `index` resolves the essay's words to them.
+export function lavarGradeEssay(documentLines = [], sections = [], { materialPropositions = [], index = null } = {}) {
+  const failures = [];
+  const norm = (t) => String(t ?? "").split(/\s+/).join(" ").toLowerCase().trim();
+  const props = (materialPropositions ?? []).filter((p) => p && norm(p.label));
+  // The essay's claims: fold each section through the material's referent
+  // index, and match its label+end2 against the material's own propositions.
+  const resolveIn = (text) => {
+    try {
+      const r = index?.resolveIn?.(String(text ?? ""));
+      return r instanceof Set ? r : new Set(r ?? []);
+    } catch { return new Set(); }
+  };
+  const represent = (id) => { try { return index?.represent?.(id) ?? id; } catch { return id; } };
+  let covered = 0;
+  const coveredKeys = new Set();
+  for (let i = 0; i < documentLines.length; i++) {
+    const text = String(documentLines[i] ?? "");
+    const resolved = resolveIn(text);
+    const names = [...resolved].map(represent).map(norm).filter(Boolean);
+    // A section is grounded if it resolves to at least one material being.
+    if (!resolved.size && text.trim()) {
+      failures.push({ kind: "unresolved", sectionIndex: i, detail: `section ${i + 1} folds to no material referent — LaVar cannot grade prose the record does not carry` });
+    }
+    // Recall: does the section re-state the material's propositions?
+    for (const p of props) {
+      const lab = norm(p.label);
+      if (!lab || coveredKeys.has(lab)) continue;
+      const e2 = norm(p.end2);
+      // The section carries the proposition's act (label) and (when named)
+      // its object — the same recall golden-tool.mjs scores on.
+      const textLower = text.toLowerCase();
+      const labHit = lab.length > 2 && textLower.includes(lab);
+      const e2Hit = !e2 || e2.length <= 2 || textLower.includes(e2) || names.some((n) => n && (e2.includes(n) || n.includes(e2)));
+      if (labHit && e2Hit) { coveredKeys.add(lab); covered++; }
+    }
+  }
+  const recall = props.length ? covered / props.length : 0;
+  // LaVar's grade is the recall: how much of the material's own EOT fold the
+  // essay re-states. A section that fails to resolve is a fabrication; the
+  // recall score is the honest grade — a 0-recall essay is not a reading.
+  return {
+    ok: failures.length === 0 && recall >= 0.5,
+    filled: documentLines.length - failures.length,
+    of: documentLines.length,
+    failures,
+    totalStrain: failures.length + (recall < 0.5 ? 1 : 0),
+    recall: Number(recall.toFixed(3)),
+    covered,
+    ofPropositions: props.length,
+    basis: props.length ? `LaVar: the essay re-states ${covered} of the material's ${props.length} EOT propositions (${(recall * 100).toFixed(0)}% recall)` : "LaVar: the material carried no propositions to grade against",
+  };
+}
+
 // ── REC: a rewrite pass names exactly what the EVA found, and the ledger
 //    records the revision (supersede) so the before/after stays on file. ────
 

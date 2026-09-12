@@ -19,7 +19,7 @@ import { resolutionBlocks } from "./native/the-fold/resolutions.js";
 import { tokenize } from "./native/the-fold/source.js";
 import { logitBiasFor, logitsBiasObject } from "./native/organs/gemma2-tokenizer.mjs";
 import { readingIndexFromLog } from "./native/the-fold/reading-log.js";
-import { createDocumentLedger, appendDocumentObservation, appendLedgerLine, projectDocument, documentChangeLog, admitPart, serializeLedger, snipsFromSources, checkEssayShape, ledgerFilePath, renderApaFootnotes, satisfactionOfSection, satisfactionOf, declareEssayVoid, fillCheck, citationLedger, voidCellsFor, holographicSatisfaction } from "./native/the-fold/document-ledger.js";
+import { createDocumentLedger, appendDocumentObservation, appendLedgerLine, projectDocument, documentChangeLog, admitPart, serializeLedger, snipsFromSources, checkEssayShape, ledgerFilePath, renderApaFootnotes, satisfactionOfSection, satisfactionOf, declareEssayVoid, fillCheck, citationLedger, voidCellsFor, holographicSatisfaction, lavarGradeEssay } from "./native/the-fold/document-ledger.js";
 import { goreBoundary, gatherPlan, cueGoDeeperPlan } from "./native/the-fold/gore.js";
 // The keyless field (GFP Pass 35, the-fold c232779): recall by partial-cue
 // resemblance, resolution by state — no absolute address. Surf's SECOND
@@ -2488,9 +2488,11 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
     // declared — across its nine operators — is filled by sections that pass
     // its admission test. Strain is the REC pressure the void demanded.
     satisfaction: documentLedger
-      ? (sessionReferentIndex(session)
-        ? holographicSatisfaction(documentLines, plannedSectionsOut, { index: sessionReferentIndex(session) })
-        : fillCheck(voidDeclaration, documentLines, plannedSectionsOut, { material: groundingText() }))
+      ? (sessionReferentIndex(session) && rawEntries?.length
+        ? lavarGradeEssay(documentLines, plannedSectionsOut, { materialPropositions: notesFromEdges(rawEntries), index: sessionReferentIndex(session) })
+        : sessionReferentIndex(session)
+          ? holographicSatisfaction(documentLines, plannedSectionsOut, { index: sessionReferentIndex(session) })
+          : fillCheck(voidDeclaration, documentLines, plannedSectionsOut, { material: groundingText() }))
       : null,
     totalStrain,
     thinking: thinkingBlock || null,
