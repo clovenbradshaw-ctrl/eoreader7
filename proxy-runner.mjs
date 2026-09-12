@@ -1557,8 +1557,11 @@ const modelsUp = await ollamaReachable();
     surprise: session.lastPageSurprise?.salient ?? 0,
   });
   const preVoid = voidCellsFor({ topic, question: task, openQuestions: [], shadowReferents: [], reading: readingState() });
-  const voidQuestions = preVoid.cells.filter((c) => c.relevant).map((c) => c.question);
-  if (onNote) onNote({ move: "void_questions", of: voidQuestions.length, cells: `${preVoid.relevant} relevant / ${preVoid.notRelevant} not-applicable of 27`, questions: voidQuestions.slice(0, 5) });
+  // The essay's SECTIONS are the CONTENT cells (grounded prose about the
+  // subject); the shape-instrument cells steer internally but are not reader
+  // sections. The seed question is still the first content question.
+  const voidQuestions = preVoid.cells.filter((c) => c.relevant && c.essay).map((c) => c.question);
+  if (onNote) onNote({ move: "void_questions", of: voidQuestions.length, cells: `${preVoid.cells.filter((c) => c.relevant && c.essay).length} content / ${preVoid.cells.filter((c) => c.relevant && !c.essay).length} shape of ${preVoid.relevant} relevant`, questions: voidQuestions.slice(0, 5) });
   // Gore's initial gather: hunt the FIRST question (the most basic: "What is
   // X?") to seed the reading — then the per-section loop below strikes each
   // remaining question for its own shape.
@@ -1863,7 +1866,12 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
       .slice(0, 2);
     if (openQ.length || refs.length) {
       const enriched = voidCellsFor({ topic, question: task, openQuestions: openQ, shadowReferents: refs, reading: readingState({ relations: stats?.relationEdges ?? 0 }) });
-      compositionPlan = { questions: enriched.cells.filter((c) => c.relevant).map((c) => c.question), declaration: null };
+      // The SECTIONS are the ESSAY-CONTENT cells (the reader-facing prose).
+      // The shape-instrument cells (when would the essay revise, what does it
+      // declare) steer the composition internally but are not sections of a
+      // standalone piece — an essay about the bongo does not have a section
+      // titled "when would the essay concede its frame."
+      compositionPlan = { questions: enriched.cells.filter((c) => c.relevant && c.essay).map((c) => c.question), declaration: null };
     }
   }
   // On a RESUMED run, the sections are the STORED void plan (from the ledger) —

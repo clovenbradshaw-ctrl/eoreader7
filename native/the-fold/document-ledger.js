@@ -234,9 +234,27 @@ const VOID_CELLS = [
   { op: "REC", grain: "Pattern", terrain: "Paradigm", ask: (s) => `What finding about ${s} forces the whole declaration to be revised — a new subspecies, a changed status, a reversed trajectory?`, relevant: (q, r) => /(?:status|change|new|revis|discover|updat|finding)/i.test(q) || (r?.surprise ?? 0) > 3 },
 ];
 
+// Which cells produce ESSAY CONTENT (a section the reader sees) vs. SHAPE
+// INSTRUMENTS (a question about the essay's own frame/declaration/revision —
+// conversation instruments that steer the composition loop but are not
+// sections of a standalone piece). Declared by operator: the material-ground
+// cells ask for grounded prose; the meta cells ask about the essay itself.
+const ESSAY_CONTENT_OPS = new Set(["NUL", "SIG", "INS", "SEG", "CON", "SYN", "DEF", "EVA"]);
+// SIG·Ground (what is absent) and EVA·Ground (what the reader owes) and all
+// REC cells (when would the essay revise) are shape instruments.
+const ESSAY_SHAPE_CELLS = new Set(["SIG·Ground", "EVA·Ground", "REC·Ground", "REC·Figure", "REC·Pattern", "DEF·Figure"]);
+const isEssayCell = (op, grain) => ESSAY_CONTENT_OPS.has(op) && !ESSAY_SHAPE_CELLS.has(`${op}·${grain}`);
+
 // Generate the VOID CELLS for a subject: all 27 considered, the relevant ones
 // emitted as questions (with their cell metadata), the rest typed not-relevant.
-// Returns { cells: [{question, op, grain, terrain, relevant, ...}], of, relevant, notRelevant }.
+// Returns { cells: [{question, op, grain, terrain, relevant, essay, ...}], of, relevant, notRelevant }.
+// `essay` marks whether the cell's question asks for ESSAY CONTENT (grounded
+// prose about the subject) vs. an ESSAY-SHAPE instrument (a question about
+// the essay itself — how it is framed, what it declares, when it would
+// revise). Content cells become sections the reader sees; shape cells steer
+// the composition loop internally and are not emitted as reader-facing
+// sections — a "when would the essay take back a claim" question is a
+// conversation instrument, not a section of a standalone piece.
 export function voidCellsFor({ topic, question = "", openQuestions = [], shadowReferents = [], reading = null } = {}) {
   const t = String(topic ?? "").trim() || "this subject";
   const cells = [];
@@ -245,17 +263,17 @@ export function voidCellsFor({ topic, question = "", openQuestions = [], shadowR
     const k = questionText.toLowerCase().replace(/\s+/g, " ").trim();
     if (k && !seen.has(k)) { seen.add(k); cells.push({ question: questionText, ...meta }); }
   };
-  for (const q of openQuestions ?? []) push(String(q ?? "").replace(/[?？]\s*$/, "") + "?", { op: "open", grain: null, terrain: null, relevant: true });
+  for (const q of openQuestions ?? []) push(String(q ?? "").replace(/[?？]\s*$/, "") + "?", { op: "open", grain: null, terrain: null, relevant: true, essay: false });
   const refs = (shadowReferents ?? []).filter((r) => r && typeof r === "string" && r !== t).slice(0, 3);
-  for (const ref of refs) push(`What is ${ref}, and how does it relate to ${t}?`, { op: "SIG", grain: "Figure", terrain: "Entity", relevant: true });
+  for (const ref of refs) push(`What is ${ref}, and how does it relate to ${t}?`, { op: "SIG", grain: "Figure", terrain: "Entity", relevant: true, essay: true });
   // THE BORN GATE: relevance is decided by the MATERIAL the hunt actually
   // found (reading), not only the question's words. A cell is relevant when
   // either the question asks it OR the reading's state demands it — the void
   // is born from what was found, never a fixed count.
   for (const cell of VOID_CELLS) {
     const relevant = cell.relevant(question ?? "", reading ?? {});
-    if (relevant) push(cell.ask(t), { op: cell.op, grain: cell.grain, terrain: cell.terrain, relevant: true, cell: `${cell.op}·${cell.grain}` });
-    else cells.push({ question: null, op: cell.op, grain: cell.grain, terrain: cell.terrain, relevant: false, cell: `${cell.op}·${cell.grain}` });
+    if (relevant) push(cell.ask(t), { op: cell.op, grain: cell.grain, terrain: cell.terrain, relevant: true, cell: `${cell.op}·${cell.grain}`, essay: isEssayCell(cell.op, cell.grain) });
+    else cells.push({ question: null, op: cell.op, grain: cell.grain, terrain: cell.terrain, relevant: false, cell: `${cell.op}·${cell.grain}`, essay: isEssayCell(cell.op, cell.grain) });
   }
   return { cells, of: cells.length, relevant: cells.filter((c) => c.relevant).length, notRelevant: cells.filter((c) => !c.relevant).length, subject: t };
 }
