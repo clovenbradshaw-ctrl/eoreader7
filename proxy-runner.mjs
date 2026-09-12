@@ -2078,8 +2078,8 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
         // check). This is the measured speed lever — 12 of 18 sections were
         // being corrected once, each correction a full second draw (~50s).
         const sectionTask = plannedSections.length > 1
-          ? `We're writing a piece on ${topic}. ${priorParts ? `Where the piece stands so far: ${priorParts}\n\n` : ""}Now ${isQuestion ? `answer this: ${section}` : `write the part on ${section}`}, ${holonPhrase}. Write it as a substantial passage of the piece itself — several sentences, using the material's own facts and wording, no introduction, no "here is", no commentary about writing. It continues what the piece has already established — build on it, transition from it, do not restate it.`
-          : `Write the piece on ${topic}, ${holonPhrase}, as a substantial passage, from the material's own facts and wording — no introduction, no commentary about writing.`;
+          ? `We're writing a piece on ${topic}. ${priorParts ? `Where the piece stands so far: ${priorParts}\n\n` : ""}Now ${isQuestion ? `answer this: ${section}` : `write the part on ${section}`}, ${holonPhrase}. Write it as a substantial passage of the piece itself — several sentences. ANSWER WITH THE MATERIAL'S OWN FACTS about ${topic}: its real names, places, numbers, and relationships as the sources state them. Do not discuss the essay, the writing, the question, or the material itself. It continues what the piece has already established — build on it, transition from it, do not restate it.`
+          : `Write the piece on ${topic}, ${holonPhrase}, as a substantial passage — several sentences about ${topic} using the material's own facts, names, and figures as the sources state them. Do not discuss the essay, the writing, or the material.`;
         const holonBudget = holonLevel === "sentence" ? Math.min(SECTION_MAX_TOKENS, 220) : holonLevel === "paragraph" ? Math.min(SECTION_MAX_TOKENS, 450) : SECTION_MAX_TOKENS;
         if (onThinking) onThinking(`\n### ${section} (${holonLevel})\n\n`);
         // The draw runs NOW, in parallel with the Gore strike. Whichever lands
@@ -2169,7 +2169,9 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
       // with the material — is rewritten FROM the material, fact-fidelity
       // restored before any stylistic work. Murch then edits the SHAPE of
       // the grounded prose; he never touches grounding (that is Ranke's).
-      // Bounded: each section rewritten at most once per pass, MAX_REWRITE_ROUNDS.
+      // Bounded: each section rewritten at most MAX_REWRITE_ROUNDS across the
+      // pass; a section that still fails becomes a declared gap, never churned.
+      const rankeAttempts = new Map(); // sectionIndex -> rewrite count, persists across rounds
       for (let round = 0; round < MAX_REWRITE_ROUNDS && !truncated; round++) {
         const rankeFindings = [];
         for (let i = 0; i < documentLines.length; i++) {
@@ -2182,15 +2184,25 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
         }
         if (!rankeFindings.length) break;
         if (onNote) onNote({ move: "ranke", round: round + 1, ungrounded: rankeFindings.map((f) => f.sectionIndex) });
+        // CONVERGENCE GUARD: a section that stays ungrounded after the rewrite
+        // budget becomes a DECLARED GAP — typed and disclosed, never silently
+        // dropped, and never churned forever. Ranke is bounded per section,
+        // and the count persists across rounds.
         for (const f of rankeFindings) {
           if (truncated) break;
           const i = f.sectionIndex;
           const sectionText = documentLines[i];
           if (!sectionText) continue;
+          const tried = (rankeAttempts.get(i) ?? 0);
+          if (tried >= MAX_REWRITE_ROUNDS) {
+            if (onNote) onNote({ move: "ranke_gap", sectionIndex: i, theme: plannedSections[i] ?? "", detail: f.detail });
+            continue; // declared gap — Ranke has done its budget
+          }
+          rankeAttempts.set(i, tried + 1);
           if (onThinking) onThinking(`\n### Ranke, section ${i + 1}: ${f.detail}\n\n`);
           // Ranke rewrites the section FROM the documents — the material's
           // own facts and wording, nothing invented.
-          const rankeMsg = `We're writing a piece on ${topic}. One section drifted from the material — it names almost none of the source's own facts. The section reads:\n"""\n${String(sectionText).slice(0, 1200)}\n"""\n\nRewrite it strictly FROM the material: use the sources' own facts, names, figures, and wording. Write it as the piece itself, several sentences, no introduction, no commentary about writing. Write only the corrected section.`;
+          const rankeMsg = `We're writing a piece on ${topic}. One section drifted from the material — it names almost none of the source's own facts. The section reads:\n"""\n${String(sectionText).slice(0, 1200)}\n"""\n\nRewrite it strictly FROM the material: use the sources' own facts, names, figures, and wording about ${topic}. Write it as the piece itself, several sentences, no introduction, no commentary about writing, no discussion of the essay or the question. Write only the corrected section.`;
           const rewrite = await draw(
             [{ role: "system", content: systemContent }, ...keptChat, { role: "user", content: rankeMsg }],
             SECTION_MAX_TOKENS,
