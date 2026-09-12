@@ -3042,16 +3042,17 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
     vonnegut: documentLedger && rawEntries?.length && documentLines.length
       ? classifyArc(vonnegutShape(documentLines, { materialPropositions: notesFromEdges(rawEntries), index: sessionReferentIndex(session) }))
       : null,
-    // THE VOID HOLARCHY — the piece's nested voids, every level DEF'd by the
-    // nine operators and its features. Omnimodal: the same structure holds
-    // for a film, a score, or code; the adapters name the levels. The work's
-    // void is the essay's DEF; the section voids are its questions.
+    // THE VOID HOLARCHY — the piece's nested voids, every level a WHOLE (its own
+    // nine-operator DEF) and a PART (a filler covering an extent in the level
+    // above). The law of holons: low sets possibility for high, high
+    // probability for low — the clause's void bounds what the sentence can
+    // assert; the document's declared shape spawns the section-voids. A level
+    // left under-specified is a visible gap, never a silent default.
     voidHolarchy: sections.length
       ? essayVoidHolarchy({
           title: task.slice(0, 60),
           topic: topicPhrase(task),
           sections,
-          modality: "text",
         })
       : null,
     totalStrain,

@@ -308,7 +308,10 @@ const server = http.createServer(async (req, res) => {
         // bounded by REQUEST_TIMEOUT_MS inside streamOllamaChat; TURN_DEADLINE
         // is a generous whole-turn backstop over and above it.
         const turnAbort = new AbortController();
-        const onDisconnect = () => { if (!turnAbort.signal.aborted) turnAbort.abort(); };
+        const onDisconnect = () => {
+          if (res.writableEnded) return; // response finished — not a disconnect
+          if (!turnAbort.signal.aborted) turnAbort.abort();
+        };
         res.on("close", onDisconnect);
         const turnDeadline = setTimeout(() => {
           if (!turnAbort.signal.aborted) turnAbort.abort();
@@ -417,7 +420,10 @@ const server = http.createServer(async (req, res) => {
           // RESILIENCE: bound the non-streaming turn too — a wedged turn must
           // return a typed error, never leave the client hanging.
           const turnAbort = new AbortController();
-          const onDisconnect = () => { if (!turnAbort.signal.aborted) turnAbort.abort(); };
+          const onDisconnect = () => {
+          if (res.writableEnded) return; // response finished — not a disconnect
+          if (!turnAbort.signal.aborted) turnAbort.abort();
+        };
           res.on("close", onDisconnect);
           const turnDeadline = setTimeout(() => {
             if (!turnAbort.signal.aborted) turnAbort.abort();
@@ -484,7 +490,10 @@ const server = http.createServer(async (req, res) => {
 
         // ── RESILIENCE SCAFFOLDING (hoisted — the catch must see these) ──
         const turnAbort = new AbortController();
-        const onDisconnect = () => { if (!turnAbort.signal.aborted) turnAbort.abort(); };
+        const onDisconnect = () => {
+          if (res.writableEnded) return; // response finished — not a disconnect
+          if (!turnAbort.signal.aborted) turnAbort.abort();
+        };
         res.on("close", onDisconnect);
         const turnDeadline = setTimeout(() => {
           if (!turnAbort.signal.aborted) turnAbort.abort();
@@ -528,7 +537,10 @@ const server = http.createServer(async (req, res) => {
         try {
           // RESILIENCE: same abort + deadline for the non-streaming shape.
           const turnAbort = new AbortController();
-          const onDisconnect = () => { if (!turnAbort.signal.aborted) turnAbort.abort(); };
+          const onDisconnect = () => {
+          if (res.writableEnded) return; // response finished — not a disconnect
+          if (!turnAbort.signal.aborted) turnAbort.abort();
+        };
           res.on("close", onDisconnect);
           const turnDeadline = setTimeout(() => {
             if (!turnAbort.signal.aborted) turnAbort.abort();
