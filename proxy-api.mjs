@@ -182,6 +182,12 @@ export function humanizeNote(note) {
       return `Shape check: ${note.ok ? "the piece matches its declared form." : `missing — ${(note.failures ?? []).join("; ")}`}`;
     case "shape_recheck":
       return `Shape recheck: ${note.ok ? "the piece now matches its declared form." : `still missing — ${(note.failures ?? []).join("; ")}`}`;
+    case "essay_resolutions":
+      return `The essay's own conversation, folded: ${note.sections} section(s) written, ${note.active} active referent(s) — Wolfe composes against this, never the raw prose.`;
+    case "murch":
+      return `Murch, pass ${note.round}: editing the whole — ${(note.findings ?? []).join(", ")}.`;
+    case "murch_applied":
+      return `Murch applied ${note.applied} revision(s) this pass.`;
     case "outline_evolved":
       return `Outline evolved: the reading established "${note.added}" — added as a section (${note.total} total).`;
     // Deliberately suppressed: per-file scan skips, per-segment surf detail,

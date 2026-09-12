@@ -20,7 +20,7 @@ import { tokenize } from "./native/the-fold/source.js";
 import { logitBiasFor, logitsBiasObject } from "./native/organs/gemma2-tokenizer.mjs";
 import { readingIndexFromLog } from "./native/the-fold/reading-log.js";
 import { createDocumentLedger, appendDocumentObservation, appendLedgerLine, projectDocument, documentChangeLog, admitPart, serializeLedger, snipsFromSources, checkEssayShape, ledgerFilePath, renderApaFootnotes, satisfactionOfSection, satisfactionOf, declareEssayVoid, fillCheck, citationLedger, voidCellsFor } from "./native/the-fold/document-ledger.js";
-import { goreBoundary, gatherPlan, cueGoDeeperPlan, doubleCheckPlan } from "./native/the-fold/gore.js";
+import { goreBoundary, gatherPlan, cueGoDeeperPlan } from "./native/the-fold/gore.js";
 // The keyless field (GFP Pass 35, the-fold c232779): recall by partial-cue
 // resemblance, resolution by state — no absolute address. Surf's SECOND
 // witness, beside the absolute-address ladder (executePrompt): when that
@@ -1433,6 +1433,35 @@ function sessionReferentIndex(session, onNote) {
   return index;
 }
 
+// ── MURCH, THE EDITOR PASS ─────────────────────────────────────────────────
+// The essay's first draft is written by Wolfe; MURCH then reads the assembled
+// whole and fixes its SHAPE — the way Walter Murch edits a film: the film is
+// made in the cut, and the edit is where it becomes a composition rather than
+// a pile of shots. This replaces the loop-on-loops — three separate rewrite
+// passes (per-section EVA correction, shape-check REC, strike revision) each
+// patching one symptom in isolation. Murch is given the MACHINE-TYPED findings
+// across the whole essay (opening without a thesis, no closing, a section that
+// repeats the prior, meta-commentary, a theme uncovered) and the essay folded
+// at resolutions — never the raw bytes, never an open-ended "improve this".
+// Each finding becomes one bounded rewrite that lands as a ledger revision;
+// the shape is re-checked. Murch is a WRITER'S second pass, not a judgment: he
+// is told exactly what to fix and writes the fixed prose.
+function aggregateEssayFindings({ sections, documentLines, material, shapeCheck }) {
+  const findings = [];
+  if (shapeCheck) {
+    for (const f of shapeCheck.failures ?? []) findings.push({ ...f, sectionIndex: null });
+  }
+  for (let i = 0; i < documentLines.length; i++) {
+    const r = satisfactionOfSection(documentLines[i], {
+      theme: sections[i] ?? "",
+      material,
+      prior: i > 0 ? documentLines[i - 1] : "",
+    });
+    for (const f of r.failures) findings.push({ ...f, sectionIndex: i });
+  }
+  return findings;
+}
+
 // ── THE ESSAY AS A CONVERSATION, FOLDED AT RESOLUTIONS ─────────────────────
 // The accumulated prose is NOT handed to the mouth whole — that violates the
 // point of resolutions (past content is folded COMPUTED, never dumped). Each
@@ -1440,9 +1469,9 @@ function sessionReferentIndex(session, onNote) {
 // question and its written answer. resolutionBlocks reads that transcript the
 // same way it reads a chat — atmosphere (where the essay stands), lens (what
 // is said about its active referents), paradigm (what recurs) — and the mouth
-// is handed the fold, not the bytes. This is what lets a later section COMPOSE
-// with the earlier ones instead of restarting cold: it knows what the piece
-// has established without being buried in it.
+// is handed the fold, not the bytes. This is what lets WOLFE's later sections
+// COMPOSE with the earlier ones instead of restarting cold: he knows what the
+// piece has established without being buried in it.
 function essayResolutions({ sections, documentLines, index, rawEntries, onNote }) {
   const written = [];
   for (let j = 0; j < documentLines.length; j++) {
@@ -1932,12 +1961,7 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
   // runaway loop, not a per-turn truncation. Lower it only for chat turns.
   const MAX_OUTPUT_CHARS = Number(process.env.ER7_MAX_OUTPUT_CHARS ?? 200000);
   const SECTION_MAX_TOKENS = Number(process.env.ER7_SECTION_MAX_TOKENS ?? 1200);
-  const MAX_REWRITE_ROUNDS = Number(process.env.ER7_MAX_REWRITE_ROUNDS ?? 1);
-  // Online REC: when a shape gap names a missing theme, hunt it on the web
-  // BEFORE rewriting (adds a Gore strike per gap — richer, slower). Off by
-  // default: the rewrite happens against current ground, faster. Experiment:
-  // ER7_ONLINE_REC=1 toggles the hunt.
-  const ONLINE_REC = (process.env.ER7_ONLINE_REC ?? "0") === "1";
+  const MAX_REWRITE_ROUNDS = Number(process.env.ER7_MAX_REWRITE_ROUNDS ?? 2);
   await withSlot(async () => {
     const draw = async (msgs, maxTokens, { capture = false, kelsen = null } = {}) => {
       let buf = "";
@@ -1959,13 +1983,14 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
       return { buf, stopped };
     };
     if (sections.length) {
-      // ── WRITING IS REWRITING, AND WRITING COMES FIRST ─────────────────────────
+      // ── WOLFE WRITES, FIRST ────────────────────────────────────────────────────
       // A writer starts writing before the research is done and goes back for
       // more when a section needs it. So: no blocking outline draw — the
-      // sections the material's own structure gives us ARE the plan. Each
-      // section is written immediately, carries the essay's state forward,
-      // and strikes Gore for its own source only when it needs one. The
-      // outline is never a separate 56s model call that stalls the piece.
+      // sections the material's own structure gives us ARE the plan. WOLFE
+      // (Virginia Woolf's composed, continuous prose is the voice) writes each
+      // section immediately, carries the essay's state forward, and strikes
+      // Gore for its own source only when it needs one. The outline is never a
+      // separate 56s model call that stalls the piece.
       const topic = topicPhrase(task);
       const outlineBuf = sections.length
         ? sections.map((s, i) => `${i + 1}. ${s}`).join("\n")
@@ -2065,39 +2090,16 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
         if (stopped) break;
         if (onThinking) onThinking(buf + (i < plannedSections.length - 1 ? "\n\n" : ""));
 
-        // ── PER-SECTION SATISFACTION (EVA) → immediate correction (REC) ─────
-        // Strain is measured HERE, as each section lands, not at the end. A
-        // section that is thin, meta-commentary, or ungrounded is corrected
-        // BEFORE it enters the ledger — one bounded rewrite per failure, each
-        // rewrite adding strain. The piece converges toward the DEF, and the
-        // strain profile is the honest report of how hard each part was.
+        // ── FIRST DRAFT LANDS; the EDITOR corrects, not this loop ──────────
+        // The section lands as its first draft (admission already guaranteed it
+        // is not a wholly empty part). Its strain is RECORDED here — repetition,
+        // meta, thin are the editor's brief, which reads the WHOLE essay and
+        // fixes every finding in one holistic pass instead of patching each
+        // section in isolation (the loop-on-loops this replaces).
         const sectionEva = satisfactionOfSection(buf, { theme: section, material: material.join("\n"), prior: documentLines.length ? documentLines[documentLines.length - 1] : "" });
-        if (!sectionEva.ok && !truncated && sectionEva.strain > 0) {
-          const attempts = Math.min(sectionEva.strain, 1);
-          let corrected = buf;
-          for (let a = 0; a < attempts && !truncated; a++) {
-            const failureDetail = sectionEva.failures[0]?.detail ?? "the section needs to be rewritten from the material";
-            if (onNote) onNote({ move: "section_eva", section, failures: sectionEva.failures.map((f) => f.detail), strain: sectionEva.strain });
-            if (onThinking) onThinking(`\n### Correcting "${section}": ${failureDetail}\n\n`);
-            const fix = await draw(
-              [
-                { role: "system", content: systemContent },
-                ...keptChat,
-                { role: "user", content: `Write the part on ${section} from the material — the previous attempt ${failureDetail.toLowerCase()}. Write it as a substantial passage of the piece itself, several sentences, using the material's own facts and wording, no introduction, no commentary about writing.` },
-              ],
-              holonBudget,
-              { kelsen: Math.max(compositionKelsen, 0.9) }, // corrections are literal, never impressionistic
-            );
-            if (fix.stopped) { truncated = true; break; }
-            corrected = fix.buf;
-            const re = satisfactionOfSection(corrected, { theme: section, material: material.join("\n"), prior: documentLines.length ? documentLines[documentLines.length - 1] : "" });
-            if (re.ok) break;
-          }
-          buf = corrected;
-        }
         const strainAdded = sectionEva.strain;
         totalStrain += strainAdded;
-        if (onNote) onNote({ move: "strain", section, strain: strainAdded });
+        if (onNote) onNote({ move: "strain", section, strain: strainAdded, failures: sectionEva.failures.map((f) => f.kind) });
         if (documentLedger) {
           appendLedgerLine(documentLedger, {
             role: "part", title: section, text: buf.trim(), giver: model,
@@ -2138,61 +2140,75 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
         }
       }
 
-      // ── EVA vs DEF: check the assembled shape, then REC the gaps ─────────
-      // ONLINE DEF/EVA/REC: when the shape check finds a gap, REC first goes
-      // BACK to the web for it (Gore doubleCheck — search the missing theme,
-      // admit the new material into the reading), THEN rewrites the section
-      // against the grown ground. The cycle experiments online until the
-      // shape holds: EVA names the gap, REC hunts it, the rewrite lands, EVA
-      // re-checks.
+      // ── MURCH EDITS: EVA the whole, then REC the shape ────────────────────────
+      // Wolfe's first draft is written. Now MURCH reads the assembled whole
+      // (folded at resolutions, never dumped) and is handed every typed
+      // finding — the shape check's opening/closing/body gaps AND each
+      // section's repetition/meta/thin/ungrounded verdicts. He produces one
+      // batch of bounded rewrites, each fixing exactly one finding, and the
+      // shape is re-checked. This is one holistic second pass — the film made
+      // in the cut — not three isolated loops patching symptoms.
       const assembled = documentLines.join("\n\n");
       const shapeCheck = checkEssayShape(assembled, { parts: plannedSections.length, themes: plannedSections });
       if (onNote) onNote({ move: "shape_check", ok: shapeCheck.ok, failures: shapeCheck.failures.map((f) => f.detail) });
-      if (!shapeCheck.ok && !truncated) {
-        for (let round = 0; round < MAX_REWRITE_ROUNDS && !truncated; round++) {
-          for (const fail of shapeCheck.failures) {
-            if (truncated) break;
-            // REC's ONLINE half: hunt the gap on the web before rewriting it.
-            // The missing theme is a cue; Gore strikes it, the material joins
-            // the reading, and the rewrite has ground to stand on.
-            if (WEB_SEARCH_ON && ONLINE_REC && session.corpus && fail.kind === "body") {
-              const cue = String(fail.detail ?? "").replace(/^the theme "|" is not actually covered$/g, "").trim();
-              if (cue && !goredThemes.has(cue)) {
-                goredThemes.add(cue);
-                const plan = doubleCheckPlan([cue], { query: `${topic} ${cue}` });
-                if (onNote) onNote({ move: "double_check", cue, query: plan.query });
-                if (onThinking) onThinking(`\n[REC: hunting "${cue}" online]\n`);
-                await searchAndAdmitWeb(session, sessionId, plan.query, onNote, { move: "double-check", maxPages: 1 });
-              }
-            }
-            const fixTask = `The piece we're writing is missing something: ${fail.detail}. Write the part that supplies it, in the same voice, from the material.`;
-            if (onThinking) onThinking(`\n### Revision: ${fail.detail}\n\n`);
-            const fix = await draw(
-              [
-                { role: "system", content: systemContent },
-                ...keptChat,
-                { role: "user", content: `The piece on ${topic} needs this part added: ${fail.detail}. Write it.` },
-              ],
-              SECTION_MAX_TOKENS,
-              { kelsen: Math.max(compositionKelsen, 0.9) },
-            );
-            if (fix.stopped) { truncated = true; break; }
-            if (onThinking) onThinking(fix.buf + "\n\n");
-            const fixText = fix.buf.trim();
-            if (documentLedger) {
-              appendLedgerLine(documentLedger, {
-                role: "revision", title: `revision: ${fail.kind}`, text: fixText, giver: model,
-                supersedes: null, basis: `REC: EVA found ${fail.kind} — ${fail.detail}`,
-              }, { dir: ESSAY_LEDGER_DIR });
-            }
+      const editorIndex = sessionReferentIndex(session, onNote);
+      for (let round = 0; round < MAX_REWRITE_ROUNDS && !truncated; round++) {
+        // Aggregate EVERY finding across the whole essay — Murch's brief.
+        const findings = aggregateEssayFindings({ sections: plannedSections, documentLines, material: material.join("\n"), shapeCheck });
+        const fixable = findings.filter((f) => f.kind !== "ungrounded");
+        if (!fixable.length) break;
+        if (onNote) onNote({ move: "murch", round: round + 1, findings: fixable.map((f) => `${f.kind}${f.sectionIndex != null ? `@${f.sectionIndex}` : ""}`) });
+        const editorStanding = essayResolutions({ sections: plannedSections, documentLines, index: editorIndex, rawEntries, onNote });
+        const brief = fixable.map((f, idx) => `${idx + 1}. [${f.kind}${f.sectionIndex != null ? `, section ${f.sectionIndex + 1}` : " the piece as a whole"}] ${f.detail}`).join("\n");
+        if (onThinking) onThinking(`\n### Murch, pass ${round + 1}\n${brief}\n\n`);
+        // Murch reads the WHOLE essay (at resolutions) and writes the
+        // fixes for the specific findings — never an open-ended "improve".
+        const editorMsg = `We're editing a piece on ${topic}. ${editorStanding ? `Where the piece stands: ${editorStanding}\n\n` : ""}The editor has found these problems, each with a number:\n${brief}\n\nFix them one at a time, in order. For each, write the corrected passage in the piece's own voice, from the material — never about the writing. Return your fixes numbered exactly like the findings.`;
+        const edit = await draw(
+          [
+            { role: "system", content: systemContent },
+            ...keptChat,
+            { role: "user", content: editorMsg },
+          ],
+          Math.min(SECTION_MAX_TOKENS * 2, 2400),
+          { kelsen: Math.max(compositionKelsen, 0.9) }, // the editor is literal, never impressionistic
+        );
+        if (edit.stopped) { truncated = true; break; }
+        const edits = String(edit.buf ?? "");
+        if (onThinking) onThinking(edits + "\n\n");
+        // Land the edits as ledger revisions, applied in order. A numbered
+        // "N. ..." block replaces the finding it names; unnumbered prose is
+        // appended as a revision of the whole (an opening/closing fix).
+        const blocks = edits.split(/(?=^\d+\.\s)/m).map((b) => b.trim()).filter(Boolean);
+        let applied = 0;
+        for (const b of blocks) {
+          const num = /^(\d+)\.\s/.exec(b);
+          const idx = num ? Number(num[1]) - 1 : -1;
+          const target = idx >= 0 && idx < fixable.length ? fixable[idx] : null;
+          const fixText = String(num ? b.replace(/^\d+\.\s/, "") : b).trim();
+          if (!fixText) continue;
+          if (target && target.sectionIndex != null && documentLines[target.sectionIndex]) {
+            documentLines[target.sectionIndex] = fixText;
+            if (documentLedger) appendLedgerLine(documentLedger, {
+              role: "revision", title: `murch: ${target.kind} @ ${target.sectionIndex + 1}`, text: fixText, giver: model,
+              supersedes: null, basis: `EDITOR: EVA found ${target.kind} — ${target.detail}`,
+            }, { dir: ESSAY_LEDGER_DIR });
+          } else {
             documentLines.push(fixText);
-            fullText += `\n\n${fixText}`;
-            if (onToken) onToken(`\n\n${fixText}`);
+            if (documentLedger) appendLedgerLine(documentLedger, {
+              role: "revision", title: `murch: ${target ? target.kind : "whole"}`, text: fixText, giver: model,
+              supersedes: null, basis: `EDITOR: ${target ? target.detail : "the piece as a whole"}`,
+            }, { dir: ESSAY_LEDGER_DIR });
           }
-          const rechecked = checkEssayShape(documentLines.join("\n\n"), { parts: plannedSections.length, themes: plannedSections });
-          if (onNote) onNote({ move: "shape_recheck", ok: rechecked.ok, failures: rechecked.failures.map((f) => f.detail) });
-          if (rechecked.ok) break;
+          applied++;
         }
+        if (onNote) onNote({ move: "murch_applied", round: round + 1, applied });
+        if (!applied) break; // nothing landed — stop, don't loop forever
+        const rechecked = checkEssayShape(documentLines.join("\n\n"), { parts: plannedSections.length, themes: plannedSections });
+        if (onNote) onNote({ move: "shape_recheck", ok: rechecked.ok, failures: rechecked.failures.map((f) => f.detail) });
+        shapeCheck.ok = rechecked.ok;
+        shapeCheck.failures = rechecked.failures;
+        if (rechecked.ok) break;
       }
 
       // ── READING IS WRITING: a landed strike may revise EARLIER sections ──
