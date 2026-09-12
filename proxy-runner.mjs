@@ -2392,12 +2392,30 @@ export async function startDocumentJob({ task, model, workspace = "", sessionId 
           if (size !== lastJsonlBytes) { lastJsonlBytes = size; flushProjection(); }
         } catch {}
       }, 1500);
-      const result = await runProxyTurn(
-        { sessionId: sid, model, task, workspace, holonLevel: job.holonLevel, resumeAnswered: answeredTitles, resumePlan: planQuestions },
-        (chunk) => { job.chars += chunk.length; job.updatedAt = Date.now(); },
-        (note) => { if (note?.move === "composing_section") job.sections++; },
-        (thinking) => job.updatedAt = Date.now(),
-      );
+      // Transient-Ollama resilience: the preflight can fail when Ollama is
+      // momentarily busy (unloading after a long job, or the residency ping's
+      // request lingering). A bounded short retry rides out the blip instead
+      // of failing the whole job. The retry waits on Ollama directly, so it
+      // recovers as soon as the upstream answers.
+      const result = await (async () => {
+        let lastErr = null;
+        for (let attempt = 0; attempt < 3; attempt++) {
+          try {
+            return await runProxyTurn(
+              { sessionId: sid, model, task, workspace, holonLevel: job.holonLevel, resumeAnswered: answeredTitles, resumePlan: planQuestions },
+              (chunk) => { job.chars += chunk.length; job.updatedAt = Date.now(); },
+              (note) => { if (note?.move === "composing_section") job.sections++; },
+              (thinking) => job.updatedAt = Date.now(),
+            );
+          } catch (err) {
+            lastErr = err;
+            const busy = /not responding|ECONNREFUSED|fetch failed|upstream_down/i.test(String(err?.message ?? ""));
+            if (!busy || attempt === 2) break;
+            await new Promise((r) => setTimeout(r, 8000 * (attempt + 1))); // 8s, 16s
+          }
+        }
+        throw lastErr;
+      })();
       clearInterval(pollTimer);
       flushProjection();
       // Completion is SATISFACTION-gated: the job is "complete" only when the
