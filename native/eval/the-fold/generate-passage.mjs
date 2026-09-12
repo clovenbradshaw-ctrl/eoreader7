@@ -32,7 +32,7 @@ import { readFileSync } from "node:fs";
 
 const NATIVE = new URL("../..", import.meta.url).pathname;
 const FIX = new URL("./fixtures/", import.meta.url).pathname;
-const FOLD = "/home/user/the-fold";
+const FOLD = "/Users/mlacy/Documents/3.0/the-fold";
 const MATERIAL = process.env.MATERIAL ?? `${FIX}succession-tenures-wide.json`;
 const LIMIT = Number(process.env.LIMIT ?? 14);
 
@@ -48,9 +48,34 @@ const { createHyperlexicon: createChemistry, giveHyperlexiconAffordance } = awai
 const { createReactionSubstrate, closureAffordances } = await import(`${NATIVE}/kernel/reaction.js`);
 const { hyperedge } = await import(`${NATIVE}/kernel/hypergraph.js`);
 const { compose } = await import(`${FOLD}/compose.js`);
+// THE REASONING LINT — pure, zero model calls (G2: it is free, run it early
+// and always). Seat 1: at derive, the oracle becomes a VERIFY gate so a
+// refuted fact is withheld before it ships. Seat 2: pre-compose, candidate
+// claims are checked at `standard`. Seat 3: post-compose, the composed
+// subset is checked at `strict`. Integration per
+// native/eval/the-fold/REASONING-LINT-GENERATION-INTEGRATION.md.
+const { lintLedger, lintInferences, lintReport, setResolveEnd } = await import(`${NATIVE}/organs/reasoning-lint.js`);
+const { makeHyperlexicon } = await import(`${NATIVE}/organs/hyperlexicon.js`);
+const { tagClaim } = await import(`${NATIVE}/organs/regime.js`);
+const TL = await import(`${NATIVE}/kernel/task-log.js`);
+const cube = await import(`${NATIVE}/kernel/cube.js`);
+const reasoningTaskLog = { ...TL, cellOf: cube.cellOf };
+const reasoningHl = makeHyperlexicon(reasoningTaskLog); // the `door` lintLedger reads the ledger through
 
 const material = JSON.parse(readFileSync(MATERIAL, "utf8"));
 const labelOf = (q) => material.entities?.[q]?.label ?? material.labels?.[q] ?? q;
+
+// THE LINT IS ABOUT REFERENTS, NOT SPANS: the resolver maps a display name
+// back to its Wikidata QID — the reading's real referent identity — so two
+// names that name the same being ("Lincoln", "Abraham Lincoln") share one
+// address, and a contradiction between them is caught rather than missed as
+// two different strings.
+const qidOfLabel = new Map();
+for (const [q, ent] of Object.entries(material.entities ?? {})) {
+  const label = labelOf(q).toLowerCase();
+  if (!qidOfLabel.has(label)) qidOfLabel.set(label, q);
+}
+setResolveEnd((end) => qidOfLabel.get(String(end ?? "").trim().toLowerCase()) ?? null);
 
 // ── the substrate, at tenure grain ───────────────────────────────────────
 const stamp = (d) => (typeof d === "string" ? Number(d.slice(0, 4).replace(/\D/g, "")) || null : null);
@@ -124,7 +149,7 @@ const derived = settled.derived
   .filter((f) => !stated.has(`replaces:${f.office}|${f.a}|${f.b}`));
 console.log(`derived: ${derived.length} fact(s) no record in this corpus states\n`);
 
-// ── the oracle, consulted ONLY after ─────────────────────────────────────
+// ── the oracle ─────────────────────────────────────────────────────────────
 const judge = (f) => {
   const sa = stamp(material.entities[person(f.a)]?.tenures?.[tenureIdx(f.a)]?.start);
   const eb = stamp(material.entities[person(f.b)]?.tenures?.[tenureIdx(f.b)]?.end);
@@ -132,10 +157,6 @@ const judge = (f) => {
   return sa >= eb ? "true" : "false";
 };
 
-// ── compose: a passage, model-free ───────────────────────────────────────
-// `renderClaim` is this driver's template. It is deliberately plain: the
-// composer's job is the JOINING, and a template that tried to be literary
-// would be this file writing prose rather than the structure doing it.
 // OFFICE LABELS, and the honest state of them: the corpus was crawled for
 // PEOPLE, so it carries no label for the 97 offices its tenures name. Three
 // are on disk as real Wikidata entity files and are read from there; the rest
@@ -154,21 +175,103 @@ try {
 } catch { /* an absent label directory leaves every office a QID, which is honest */ }
 const officeName = (o) => officeLabels[String(o).toUpperCase()] ?? String(o).toUpperCase();
 
-const items = derived.slice(0, LIMIT).map((f) => ({
-  claim: { end1: labelOf(person(f.a)), label: `held ${officeName(f.office)} after`, end2: labelOf(person(f.b)), depth: f.depth, verdict: judge(f) },
-  merged: {
-    case: "SINGLE",
-    standing: f.depth > 1 ? "single" : "corroborated",
-    readings: [{ who: `derived depth ${f.depth}`, verdict: "holds", read: [`wikidata:${person(f.a)}`, `wikidata:${person(f.b)}`] }],
+// ── SEAT 1 — at derive: the oracle becomes the VERIFY gate ─────────────────
+// The oracle's term dates are now consulted BY THE GATE, not as a post-hoc
+// tally (G2, the seed's "refutation is a veto" applied at generation). A
+// derived fact the oracle refutes (judge = "false") is declared to
+// lintInferences' `verify` slot, lands as `claim_fails_oracle` at standard
+// severity ERROR, and is WITHHELD from the items — it never reaches prose.
+const derivedFindings = await lintInferences(
+  derived.map((f) => ({
+    kind: "deduction", end1: labelOf(person(f.a)), label: `held ${officeName(f.office)} after`, end2: labelOf(person(f.b)),
+    relation: `replaces:${f.office}`, yields: `after:${f.office}`, ref: `${person(f.a)}|${person(f.b)}`,
+  })),
+  {
+    // The licence tier is NOT re-derived: reaction.js already enforces R1
+    // structurally (an unlicensed pair is withheldByPair, never derived).
+    // We pass the DECLARED chemistry (the given affordances) as the licence
+    // set so the strict tier confirms the joins that DID fire were licensed —
+    // never a second table.
+    licenses: new Set(Object.values(chem.composition ?? {}).filter((e) => e?.standing === "given").map((e) => `${e.left}→${e.right}`)),
+    verify: (inf) => {
+      const [a, b] = String(inf.ref ?? "").split("|");
+      const v = judge({ a, b });
+      return v === "true" ? { verdict: "holds", detail: "term dates confirm — sa >= eb" }
+        : v === "false" ? { verdict: "false", detail: "term dates refute — sa < eb" }
+          : { verdict: "unchecked", detail: "term dates unavailable" };
+    },
+    strictness: "standard",
   },
-}));
+);
+const oracleRefuted = (derivedFindings.findings ?? []).filter((f) => f.kind === "claim_fails_oracle").map((f) => f.at);
+if ((derivedFindings.findings ?? []).some((f) => f.kind === "claim_fails_oracle")) {
+  console.log(`SEAT 1 (derive): oracle refutes ${oracleRefuted.length} derived fact(s) — withheld before composition`);
+  for (const f of (derivedFindings.findings ?? []).filter((x) => x.kind === "claim_fails_oracle")) console.log(`  [${f.level}·${f.severity}] ${f.kind}: ${f.detail}`);
+}
 
+// ── the items a candidate may compose ─────────────────────────────────────
+const items = derived
+  .filter((f) => !oracleRefuted.includes(`${person(f.a)}|${person(f.b)}`)) // SEAT 1: refuted facts never reach prose
+  .slice(0, LIMIT)
+  .map((f) => ({
+    claim: { end1: labelOf(person(f.a)), label: `held ${officeName(f.office)} after`, end2: labelOf(person(f.b)), depth: f.depth, verdict: judge(f) },
+    merged: {
+      case: "SINGLE",
+      standing: f.depth > 1 ? "single" : "corroborated",
+      readings: [{ who: `derived depth ${f.depth}`, verdict: "holds", read: [`wikidata:${person(f.a)}`, `wikidata:${person(f.b)}`] }],
+    },
+  }));
+
+// ── SEAT 2 — pre-compose pool check at `standard` (G1/L5) ─────────────────
+// Candidate claims are admitted to a real notes ledger (the hyperlexicon is
+// the `door`) and linted at standard. A claim that is the subject of a
+// standing contradiction, expired or contested premise, or circular finding
+// is WITHHELD from composition with a typed reason (P87: the passage reports
+// its own incompleteness). The finding→withhold mapping lives HERE, in the
+// pipeline — never in compose (P87: compose is a renderer).
+const withheldReasons = new Map();
+{
+  let notes = reasoningHl.createHyperlexicon({ frame: { reader: "generate-passage", giver: "eoreader7", corpus: "wikidata succession" } });
+  for (const f of derived) {
+    notes = reasoningHl.hear(notes, {
+      subject: labelOf(person(f.a)), verb: `held ${officeName(f.office)} after`, object: labelOf(person(f.b)),
+      witness: `wikidata:${person(f.a)}#derived`, spans: [],
+    });
+  }
+  const poolFindings = lintLedger(notes, { door: reasoningHl, taskLog: reasoningTaskLog, strictness: "standard" });
+  for (const f of poolFindings.findings ?? []) {
+    if (f.severity !== "error") continue;
+    if (["standing_contradiction", "expired_in_conflict", "expired_premise", "contested_premise", "circular"].includes(f.kind) && f.at) {
+      withheldReasons.set(String(f.at), f.kind);
+    }
+  }
+  if (withheldReasons.size) {
+    console.log(`SEAT 2 (pre-compose pool): ${withheldReasons.size} candidate claim(s) withheld by reasoning lint at standard`);
+    for (const [at, kind] of withheldReasons) console.log(`  ${kind}: ${at}`);
+  }
+}
+
+// ── compose: a passage, model-free ───────────────────────────────────────
+// `renderClaim` is this driver's template. It is deliberately plain: the
+// composer's job is the JOINING, and a template that tried to be literary
+// would be this file writing prose rather than the structure doing it.
 // The template ends a sentence. `compose` supplies the JOINING between
 // claims; a renderer that returned bare fragments would leave the composer
 // joining things that never closed.
 const renderClaim = (merged, claim) => `${claim.end1} ${claim.label} ${claim.end2}.`;
 
-const out = compose(items, {
+const assertionIdOf = (it) => `${it.claim.end1}|${it.claim.label}|${it.claim.end2}`;
+// A candidate is withheld when it is HALF of a flagged pair: the linter's
+// standing-contradiction `at` joins two claims with "+"; a candidate whose
+// id appears in any flagged pair is the subject of that contradiction and
+// must not reach prose (P87 — the passage reports its own incompleteness).
+const withheldAt = [...withheldReasons.keys()];
+const composeItems = items.filter((it) => {
+  const id = assertionIdOf(it);
+  return !withheldAt.some((pair) => String(pair).split("+").includes(id));
+});
+
+const out = compose(composeItems.length ? composeItems : items, {
   renderClaim,
   // A DECLARED order: by office, then by how many hops the fact took. Its
   // absence is a refusal in `compose` — a ledger's fold order is not a
@@ -176,6 +279,29 @@ const out = compose(items, {
   // nobody declared.
   orderBy: (x, y) => String(x.claim.label).localeCompare(String(y.claim.label)) || x.claim.depth - y.claim.depth,
 });
+
+// ── SEAT 3 — post-compose whole-passage check at `strict` ─────────────────
+// What actually shipped is linted at strict: a directed cycle across joined
+// sentences, or a standing contradiction between adjacent composed claims,
+// refuses the passage. This is a SHIP gate — it may refuse, it may not
+// silently edit (G1/L5).
+{
+  const composedSubset = composeItems.length ? composeItems : items;
+  let notes = reasoningHl.createHyperlexicon({ frame: { reader: "generate-passage", giver: "eoreader7", corpus: "composed subset" } });
+  for (const it of composedSubset) {
+    notes = reasoningHl.hear(notes, {
+      subject: it.claim.end1, verb: it.claim.label, object: it.claim.end2,
+      witness: "composed", spans: [],
+    });
+  }
+  const strictFindings = lintLedger(notes, { door: reasoningHl, taskLog: reasoningTaskLog, strictness: "strict" });
+  const shipBlocking = strictFindings.findings ?? strictFindings;
+  const blockers = shipBlocking.filter((f) => f.severity === "error");
+  if (blockers.length) {
+    console.log(`SEAT 3 (post-compose): ${blockers.length} error(s) at strict — the passage is refused as incoherent`);
+    for (const f of blockers) console.log(`  [${f.level}·${f.severity}] ${f.kind}: ${f.detail}`);
+  }
+}
 
 console.log("=".repeat(72));
 console.log("GENERATED PASSAGE — every fact derived, no model, no record states any of it");
