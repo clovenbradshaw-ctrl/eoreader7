@@ -504,6 +504,74 @@ export async function lintContent({ text, convert, source = "lint-source", makeL
   });
 }
 
+// ── the linter through time: fold the universe, compare the folds ──────────
+
+/**
+ * The identity a finding is compared on across cursors: kind × level ×
+ * severity × the note/ref it points at — never the prose. A finding that
+ * resolves a referent differently at a later fold is the SAME finding with
+ * different context, not a new one (the holograph's own identity rule:
+ * a node at cursor 500 may be two nodes at cursor 200).
+ */
+export const findingKey = (f) => `${f.kind}|${f.level}|${f.severity}|${f.note ?? f.at ?? ""}`;
+
+/**
+ * lintTimeline({ log, door, taskLog, cursors, strictness, tags, queryTime, conditions, referentIndex })
+ * — the record folds at declared points; this lints EACH fold and reports
+ * what changed between consecutive folds.
+ *
+ * `cursors` are seq positions (0..log.nextSeq) — the fold points to compare.
+ * Default: every entry boundary (each hearing is a fold), capped by
+ * MAX_FOLDS so a long ledger's timeline stays readable — the holograph's own
+ * posture ("the fold condenses only the objects it is about"). Each fold is
+ * `{entries: log.entries.slice(0, cursor)}` — the same log, walked to a
+ * cursor, exactly as `projectTasks`-based reads already fold.
+ *
+ * Returns `folds` (one lint result per cursor, with its `cursor` and a
+ * `signature`) and `transitions` (between consecutive folds: what APPEARED,
+ * what RESOLVED, what PERSISTED) — so a reader can see the universe fold:
+ * a contested note appears at the fold its dispute lands; a sunset expires
+ * an obligation at the fold its window passes.
+ */
+export function lintTimeline({ log, door, taskLog, cursors = null, strictness = "standard", tags = new Map(), queryTime = Date.now(), conditions = [], referentIndex = null, maxFolds = 40 } = {}) {
+  if (!log?.entries?.length) return Object.freeze({ ok: true, strictness, folds: Object.freeze([]), transitions: Object.freeze([]) });
+  const all = log.entries.map((e) => e.seq);
+  const points = cursors && cursors.length
+    ? cursors
+    : all.length <= maxFolds ? all : all.filter((_, i) => i % Math.ceil(all.length / maxFolds) === 0).concat(all.at(-1));
+  const folds = [];
+  const seen = new Set();
+  for (const cursor of points) {
+    if (seen.has(cursor)) continue;
+    seen.add(cursor);
+    // A fold at cursor N is the state where the next write would be N: it
+    // includes every entry with seq < N, never seq <= N. The holograph's own
+    // rule — a query at a cursor sees the reading AS OF that point, not the
+    // write that lands there. A caller passing `log.nextSeq` after a dispute
+    // gets the dispute; a caller passing the pre-dispute `nextSeq` does not.
+    const at = Object.freeze({ ...log, entries: Object.freeze(log.entries.filter((e) => e.seq < cursor)) });
+    const lint = lintLedger(at, { door, taskLog, tags, queryTime, conditions, strictness, referentIndex });
+    folds.push(Object.freeze({ cursor, ...lint, signature: Object.freeze(lint.findings.map(findingKey)) }));
+  }
+  const key = (f) => findingKey(f);
+  const transitions = [];
+  for (let i = 1; i < folds.length; i += 1) {
+    const prev = new Map(folds[i - 1].findings.map((f) => [key(f), f]));
+    const now = new Map(folds[i].findings.map((f) => [key(f), f]));
+    const appeared = folds[i].findings.filter((f) => !prev.has(key(f)));
+    const resolved = folds[i - 1].findings.filter((f) => !now.has(key(f)));
+    const persisted = folds[i].findings.filter((f) => prev.has(key(f)));
+    transitions.push(Object.freeze({
+      from: folds[i - 1].cursor, to: folds[i].cursor,
+      appeared: Object.freeze(appeared),
+      resolved: Object.freeze(resolved),
+      persisted: Object.freeze(persisted),
+      counts: Object.freeze({ appeared: appeared.length, resolved: resolved.length, persisted: persisted.length }),
+    }));
+  }
+  return Object.freeze({ ok: folds.every((f) => f.ok), strictness, folds: Object.freeze(folds), transitions: Object.freeze(transitions) });
+}
+
 // ── the report ─────────────────────────────────────────────────────────────
 
 /** One plain line per finding, grouped by severity — what a reader sees. */

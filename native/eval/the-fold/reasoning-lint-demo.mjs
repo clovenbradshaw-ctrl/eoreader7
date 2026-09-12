@@ -31,7 +31,7 @@ import * as TL from "../../kernel/task-log.js";
 import * as cube from "../../kernel/cube.js";
 import { makeHyperlexicon } from "../../organs/hyperlexicon.js";
 import { tagClaim } from "../../organs/regime.js";
-import { lintLedger, lintInferences, lintReport } from "../../organs/reasoning-lint.js";
+import { lintLedger, lintInferences, lintTimeline, lintReport } from "../../organs/reasoning-lint.js";
 import { verify as pyVerify, refute as pyRefute, bootPyodide } from "./lib/pyodide-oracle.mjs";
 
 const taskLog = { ...TL, cellOf: cube.cellOf };
@@ -62,13 +62,22 @@ const asRun = (r) => ({ ok: r.ok, strictness: r.strictness, findings: r.findings
 function seedCase() {
   const queryTime = Date.parse("2026-09-11");
   let log = hl.createHyperlexicon({ frame: { reader: "demo", giver: "reasoning-lint-demo.mjs", corpus: "ordinance corpus" } });
+  // THE FOLDS, captured: each write is a fold point. The holograph folds the
+  // record at a cursor; this case shows the universe fold — a contested note
+  // APPEARS at the fold its dispute lands, an expired obligation PERSISTS
+  // across them, the derived product's expired premise RESOLVES nothing but
+  // is itself caught at the final fold.
+  const folds = [];
   log = hl.hear(log, { subject: "operators", verb: "must-file", object: "annual-report", witness: "ordinance.txt~r1", spans: [{ at: "ordinance.txt#0-40", ref: "ordinance.txt", text: "Operators must file an annual report" }] });
+  folds.push({ at: log.nextSeq, what: "the ordinance is heard" });
   const obId = hl.assertionId("operators", "must-file", "annual-report");
   // A contested land claim, disputed by a third source.
   log = hl.hear(log, { subject: "plot", verb: "belongs-to", object: "city", witness: "city.txt~r1", spans: [{ at: "city.txt#0-30", ref: "city.txt", text: "the plot belongs to the city" }] });
   const plotId = hl.assertionId("plot", "belongs-to", "city");
+  folds.push({ at: log.nextSeq, what: "the land claim is heard" });
   const d = hl.dispute(log, plotId, { source: "third-party.txt", because: "third party denies the plot belongs to the city", span: { at: "third-party.txt#0-40", ref: "third-party.txt", text: "the plot does not belong to the city" }, kind: hl.DISPUTE_KINDS.CONTEST });
   log = d.refused ? log : d.log;
+  folds.push({ at: log.nextSeq, what: "the land claim is disputed — the contest lands" });
 
   // A derived product resting on the EXPIRED ordinance — the sunset bug.
   const derived = TL.append(log, {
@@ -80,17 +89,29 @@ function seedCase() {
     premises: [obId],
     restsOn: { sources: 1, instruments: 1, contested: 0, grounds: 1 },
   });
+  folds.push({ at: derived.nextSeq, what: "a product is derived on the expired ordinance" });
 
   const tags = new Map([
     [obId, tagClaim({}, { operator: "INS", validityText: "This ordinance is effective as of 2015-01-01 and shall terminate on 2020-12-31.", force: "O", queryTime })],
     [plotId, tagClaim({}, { operator: "INS", force: "default", queryTime })],
   ]);
 
-  const runs = STRICTNESS.map((strictness) => asRun(lintLedger(derived, { door: hl, taskLog, tags, queryTime, strictness, referentIndex: declaredReferentIndex("operators must file an annual report the plot belongs to the city") })));
+  const referentIndex = declaredReferentIndex("operators must file an annual report the plot belongs to the city");
+  const runs = STRICTNESS.map((strictness) => asRun(lintLedger(derived, { door: hl, taskLog, tags, queryTime, strictness, referentIndex })));
+  // The timeline at report strictness: each fold point, and what APPEARED /
+  // RESOLVED / PERSISTED between consecutive folds — the universe folding.
+  const timeline = lintTimeline({ log: derived, door: hl, taskLog, cursors: folds.map((f) => f.at), strictness: "report", tags, queryTime, referentIndex });
+  const timelineLine = timeline.transitions.map((t) => {
+    const bits = [];
+    if (t.appeared.length) bits.push(`appeared ${t.appeared.map((f) => f.kind).join(", ")}`);
+    if (t.resolved.length) bits.push(`resolved ${t.resolved.map((f) => f.kind).join(", ")}`);
+    if (t.persisted.length) bits.push(`persisted ${t.persisted.map((f) => f.kind).join(", ")}`);
+    return `fold ${t.from}→${t.to}: ${bits.join(" · ") || "no change"}`;
+  }).join("\n");
   return {
     id: "seed", title: "1. The seed's falsifiable case (§7): a sunset ordinance + a contested claim",
     blurb: "one corpus, both bugs the seed names: the contest must never be resolved, the sunset must expire the obligation before force or entrenchment.",
-    note: "THE TWO ACCEPTANCE FACTS — the expired obligation is caught by validity_window BEFORE force/entrenchment (expired_premise); the contested claim routes to landContest, never a winner (contested_open).",
+    note: `THE UNIVERSE FOLDS:\n${timelineLine}\n\nTHE TWO ACCEPTANCE FACTS — the expired obligation is caught by validity_window BEFORE force/entrenchment (expired_premise); the contested claim routes to landContest, never a winner (contested_open).`,
     runs,
   };
 }

@@ -9,7 +9,7 @@ import { makeHyperlexicon } from "../organs/hyperlexicon.js";
 import { makeNotes } from "../kernel/notes.js";
 import { tagClaim } from "../organs/regime.js";
 import { claimRef } from "../organs/nesting.js";
-import { lintLedger, lintInferences, lintContent, lintReport, LINT_STRICTNESS, findClaimCycle } from "../organs/reasoning-lint.js";
+import { lintLedger, lintInferences, lintContent, lintReport, lintTimeline, findingKey, LINT_STRICTNESS, findClaimCycle } from "../organs/reasoning-lint.js";
 
 const taskLog = { ...TL, cellOf: cube.cellOf };
 const hl = makeHyperlexicon(taskLog);
@@ -803,4 +803,63 @@ test("nesting: an unresolved claim:ref end is left alone — depth resolution is
   assert.equal(r.ok, true, "an inner claim never heard is not a linter error");
   assert.equal(r.findings.some((f) => f.kind === "unresolved_cell"), false, "the outer note resolved to its own cell");
   assert.equal(r.findings.some((f) => f.severity === "error"), false);
+});
+// ── the universe folded: lint at a cursor, compare the folds ───────────────
+
+test("lintTimeline folds the record at cursors and shows a contested claim APPEARING between two folds", () => {
+  const { door, log } = fresh();
+  // Fold 1: an obligation heard. Fold 2: the same obligation disputed.
+  let l = HEAR(log, "operators", "must-file", "annual-report", "ordinance.txt", 1);
+  const c1 = l.nextSeq;
+  const d = hl.dispute(l, hl.assertionId("operators", "must-file", "annual-report"), {
+    source: "critic.txt", because: "critic denies the obligation", span: span("critic.txt", 2, "no such obligation"), kind: hl.DISPUTE_KINDS.CONTEST,
+  });
+  l = d.refused ? l : d.log;
+  const t = lintTimeline({ log: l, door, taskLog, cursors: [c1, l.nextSeq], strictness: "report" });
+  assert.equal(t.folds.length, 2, "one fold per declared cursor");
+  assert.equal(t.folds[0].findings.some((f) => f.kind === "contested_open"), false, "at the hearing fold, nothing is contested");
+  assert.equal(t.folds[1].findings.some((f) => f.kind === "contested_open"), true, "at the dispute fold, it is contested");
+  const transition = t.transitions[0];
+  assert.equal(transition.from, c1);
+  assert.equal(transition.to, l.nextSeq);
+  assert.equal(transition.appeared.some((f) => f.kind === "contested_open"), true, "the contest APPEARS across the fold");
+  assert.equal(transition.resolved.length, 0, "nothing resolved here");
+  assert.equal(transition.persisted.length, 0, "nothing persisted across these two folds");
+});
+
+test("lintTimeline compares folds: a sunset expiry RESOLVES a finding at the fold its window passes", () => {
+  const { door, log } = fresh();
+  const queryTime = Date.parse("2026-09-11");
+  let l = HEAR(log, "operators", "must-file", "annual-report", "ordinance.txt", 1);
+  // Admission-time tag: O force, a sunset that has passed relative to queryTime.
+  const tags = new Map([[hl.assertionId("operators", "must-file", "annual-report"), tagClaim({}, {
+    operator: "INS",
+    validityText: "This ordinance is effective as of 2015-01-01 and shall terminate on 2020-12-31.",
+    force: "O",
+    queryTime,
+  })]]);
+  // Fold 1: heard before the window passes (in scope). Fold 2: same ledger,
+  // a later cursor — the same note, now out of its window.
+  const c1 = l.nextSeq;
+  l = HEAR(l, "annual-report", "must-cover", "fiscal-year", "ordinance.txt", 2);
+  const t = lintTimeline({ log: l, door, taskLog, cursors: [c1, l.nextSeq], strictness: "report", tags, queryTime });
+  const exp1 = t.folds[0].findings.filter((f) => f.kind === "expired_out_of_scope");
+  const exp2 = t.folds[1].findings.filter((f) => f.kind === "expired_out_of_scope");
+  // The FIRST note is out of scope at BOTH folds (queryTime is fixed and past
+  // the sunset) — so it persists. The SECOND note is in scope at both (no
+  // window). What the timeline shows is the fold structure itself: two folds,
+  // the expired finding persisting across them.
+  assert.equal(t.folds.length, 2);
+  assert.equal(exp1.length, 1, "the expired obligation is out of scope at fold 1");
+  assert.equal(exp2.length, 1, "and still out of scope at fold 2 — expiry is a property of the tag, not the fold");
+  const t2 = t.transitions[0];
+  assert.equal(t2.persisted.some((f) => f.kind === "expired_out_of_scope"), true, "the expired finding persists across the folds");
+});
+
+test("findingKey: the same finding across cursors is identified by kind×level×severity×note, never by prose", () => {
+  const a = { kind: "contested_open", level: "report", severity: "warn", note: "x|y|z", at: "x|y|z", detail: "prose one" };
+  const b = { kind: "contested_open", level: "report", severity: "warn", note: "x|y|z", at: "x|y|z", detail: "prose two" };
+  assert.equal(findingKey(a), findingKey(b), "prose may change, the identity does not");
+  const c = { ...b, note: "different|note" };
+  assert.notEqual(findingKey(a), findingKey(c), "a different note is a different finding");
 });

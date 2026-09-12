@@ -234,6 +234,27 @@ for (const strictness of ["report", "standard", "strict"]) {
   }
 }
 
+// ── THE UNIVERSE FOLDS: lint at each admission cursor, compare the folds ──
+//
+// Genre and form are not labels anyone typed here — they are COMPUTED from
+// the material's own structure as it is admitted, fold by fold. This driver
+// declares no "genre" for the passage; it reads the derived corpus into the
+// ledger and lets the timeline show the record folding: each claim admitted
+// is a fold point, and the linter is asked at each one. What APPEARED /
+// RESOLVED / PERSISTED between folds is the instrument's own reading of its
+// own shape.
+const { lintTimeline } = await import(`${NATIVE}/organs/reasoning-lint.js`);
+const foldCursors = lintAdmitted.heard.map((_, i) => lintLog.entries[i + 1]?.seq ?? lintLog.nextSeq);
+const timeline = lintTimeline({ log: lintLog, door: lintDoor, taskLog: taskLogBundle, cursors: foldCursors, strictness: "report", referentIndex: labelIndex });
+console.log(`\nTHE UNIVERSE FOLDS — ${timeline.folds.length} fold point(s) as the corpus is admitted:`);
+for (const t of timeline.transitions) {
+  const bits = [];
+  if (t.appeared.length) bits.push(`appeared ${t.appeared.map((f) => f.kind).join(", ")}`);
+  if (t.resolved.length) bits.push(`resolved ${t.resolved.map((f) => f.kind).join(", ")}`);
+  if (t.persisted.length) bits.push(`persisted ${t.persisted.map((f) => f.kind).join(", ")}`);
+  console.log(`  fold ${t.from}→${t.to}: ${bits.join(" · ") || "no change"}`);
+}
+
 console.log("=".repeat(72));
 console.log("GENERATED PASSAGE — every fact derived, no model, no record states any of it");
 console.log("=".repeat(72));

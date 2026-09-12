@@ -70,7 +70,7 @@ export * as derivation from "./derivation.js";
 // precedence order run over the holograph; consumes regime.js's tag +
 // isSettled + precedence through an injected notes door, and produces typed
 // coherence findings at three declared strictness levels.
-export { LINT_STRICTNESS, SEVERITY, findClaimCycle, lintContent, lintInferences, lintLedger, lintReport } from "./reasoning-lint.js";
+export { LINT_STRICTNESS, SEVERITY, findClaimCycle, lintContent, lintInferences, lintLedger, lintReport, lintTimeline, findingKey } from "./reasoning-lint.js";
 export * as reasoningLint from "./reasoning-lint.js";
 
 // Phase 3 (2026-09-02) — the reading closure crosses: the-fold keeps only the surface.
