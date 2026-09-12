@@ -2911,5 +2911,5 @@ export async function startDocumentJob({ task, model, workspace = "", sessionId 
       job.updatedAt = Date.now();
     }
   })();
-  return { jobId, sessionId: sid, status: job.status, mdFile };
+  return { jobId, sessionId: sid, status: job.status, htmlFile, ledgerFile: jsonlFile, citationsFile };
 }
