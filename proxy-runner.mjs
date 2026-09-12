@@ -105,6 +105,41 @@ async function enrichFromWikipedia(composition, maxConcepts = WIKI_MAX_CONCEPTS)
   return summaries.filter((s) => s.snippet);
 }
 
+// ── residency ping during blocking setup ─────────────────────────────────
+// Ollama unloads a model after its keep_alive window (5m default). A
+// long-form job's setup (Gore gather + Wikisource admission) can run longer
+// than that BEFORE the first draw, so the first draw cold-loads and can blow
+// a job timeout. This is NOT keep-warm (ER7_KEEP_ALIVE_S stays 0): it is a
+// scoped ping that runs only while setup is actively working, and the caller
+// clears it when done. Returns the timer handle.
+function keepResidentDuringSetup() {
+  const model = "gemma2:2b";
+  let running = false;
+  const ping = async () => {
+    if (running) return;
+    running = true;
+    try {
+      const controller = new AbortController();
+      const t = setTimeout(() => controller.abort(), 4000);
+      await fetch(`${OLLAMA}/api/chat`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        signal: controller.signal,
+        body: JSON.stringify({
+          model,
+          messages: [{ role: "user", content: "OK" }],
+          stream: false, num_predict: 1,
+          keep_alive: "1200s", // keep the load alive past the setup's tail
+        }),
+      });
+      clearTimeout(t);
+    } catch { /* best effort — the next draw warms it anyway */ }
+    finally { running = false; }
+  };
+  ping();
+  return setInterval(ping, 120000); // every 2 minutes while setup runs
+}
+
 // ── Wikisource: the hyperlexicon's primary-source door ───────────────────
 // Wikipedia gives a summary; Wikisource gives the WORK. The reliable API for
 // a full public-domain text here is `action=parse&prop=text` (with
@@ -1602,6 +1637,13 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
   // hyperlexicon then reads real relations from the work itself. Never a
   // guess: only a page that actually exists resolves.
   if (WIKISOURCE_ON && digestInfo.composition?.length) {
+    // The admission below is BLOCKING setup before the first draw (fetch +
+    // reader-step up to 11K chars of primary text). Ollama's keep_alive
+    // expires during it, so the first draw cold-loads and can blow the job
+    // timeout. This is NOT keep-warm (which stays off): it is a scoped
+    // residency ping for the duration of active setup work, cleared after.
+    const residentTimer = keepResidentDuringSetup();
+    try {
     const hlTerms = [...new Set(
       Object.values(digestInfo.composition)
         .filter((e) => e?.standing === "given")
@@ -1628,6 +1670,9 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
       session.shadow.push({ url: `https://en.wikisource.org/wiki/${encodeURIComponent(p.title.replace(/ /g, "_"))}`, title: p.title, seenAt: new Date().toISOString(), chars: p.text.length, resolution: "fine", reading: surprise.salient });
       readingDigest += `\n\n[A primary source: ${p.title}]\n${p.text.slice(0, 3000)}${p.text.length > 3000 ? "…" : ""}`;
       if (onNote) onNote({ move: "wikisource_primary", term: p.term, title: p.title, chars: p.text.length, salient: surprise.salient });
+    }
+    } finally {
+      clearInterval(residentTimer);
     }
   }
   if (resolutions?.text) {
