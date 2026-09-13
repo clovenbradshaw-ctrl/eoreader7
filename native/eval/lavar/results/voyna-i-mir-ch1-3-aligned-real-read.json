@@ -1,0 +1,4254 @@
+{
+  "schema": "LaVarRealRead@1",
+  "declared": {
+    "source": "file:voyna-i-mir-ch1-3-aligned.txt",
+    "encounters": 301,
+    "limit": null,
+    "canonicalizationFloor": 2,
+    "anchoring": {
+      "minActivation": 0.05,
+      "minMargin": 0.2
+    },
+    "giver": "reader:lavar-read-real",
+    "recipe": "causalTextPerceiver_reviseTextFold_refresh1"
+  },
+  "holograph": {
+    "relationEdges": 17,
+    "referentBindings": 0,
+    "chainSites": 1,
+    "pairTypes": 1,
+    "repeatedPairTypes": 0,
+    "projectedBindings": 0,
+    "graphEntries": [
+      {
+        "schema": "EOLexicalOccurrence@1",
+        "id": "lex:2:0",
+        "surfaceKey": "surface:genes",
+        "surface": "Gênes",
+        "upos": "NOUN",
+        "standing": "occurrence",
+        "encounterRef": "encounter:2",
+        "offset": 0,
+        "witness": "text:2:0"
+      },
+      {
+        "schema": "EOLexicalOccurrence@1",
+        "id": "lex:2:1",
+        "surfaceKey": "surface:que",
+        "surface": "que",
+        "upos": "NOUN",
+        "standing": "occurrence",
+        "encounterRef": "encounter:2",
+        "offset": 30,
+        "witness": "text:2:30"
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:buonaparte",
+        "surfaces": [
+          "Buonaparte"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:lucques",
+        "surfaces": [
+          "Lucques"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOLexicalOccurrence@1",
+        "id": "lex:3:0",
+        "surfaceKey": "surface:que",
+        "surface": "que",
+        "upos": "NOUN",
+        "standing": "occurrence",
+        "encounterRef": "encounter:3",
+        "offset": 23,
+        "witness": "text:3:23"
+      },
+      {
+        "schema": "EOLexicalOccurrence@1",
+        "id": "lex:3:1",
+        "surfaceKey": "surface:que",
+        "surface": "que",
+        "upos": "NOUN",
+        "standing": "occurrence",
+        "encounterRef": "encounter:3",
+        "offset": 52,
+        "witness": "text:3:52"
+      },
+      {
+        "schema": "EOLexicalOccurrence@1",
+        "id": "lex:3:2",
+        "surfaceKey": "surface:ma",
+        "surface": "ma",
+        "upos": "NOUN",
+        "standing": "occurrence",
+        "encounterRef": "encounter:3",
+        "offset": 180,
+        "witness": "text:3:180"
+      },
+      {
+        "schema": "EOLexicalOccurrence@1",
+        "id": "lex:3:3",
+        "surfaceKey": "surface:parole",
+        "surface": "parole",
+        "upos": "NOUN",
+        "standing": "occurrence",
+        "encounterRef": "encounter:3",
+        "offset": 183,
+        "witness": "text:3:183"
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:antichrist",
+        "surfaces": [
+          "Antichrist"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOLexicalOccurrence@1",
+        "id": "lex:5:0",
+        "surfaceKey": "surface:que",
+        "surface": "que",
+        "upos": "NOUN",
+        "standing": "occurrence",
+        "encounterRef": "encounter:5",
+        "offset": 8,
+        "witness": "text:5:8"
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:анна_павловна_шерер",
+        "surfaces": [
+          "анна"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ],
+        "fedBy": [
+          "mention:7:ref_auto_анна_павловна_шерер",
+          "gap:referent:ref_auto_анна_павловна_шерер"
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:марии_феодоровны",
+        "surfaces": [
+          "Марии Феодоровны",
+          "Марии"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          },
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:василия",
+        "surfaces": [
+          "Василия"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:7:ref_auto_анна_павловна_шерер",
+        "referent": "ref:auto:анна_павловна_шерер",
+        "encounterRef": "encounter:7",
+        "anchor": {
+          "start": 702,
+          "end": 836
+        },
+        "witness": "text:7",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOReferentGap@1",
+        "id": "gap:referent:ref_auto_анна_павловна_шерер",
+        "reason": "pronoun_and_descriptor_mentions_unresolved",
+        "referent": "ref:auto:анна_павловна_шерер",
+        "tier": "model",
+        "needsWitness": true,
+        "detail": "name-variant coreference is engine-tier and complete; binding pronouns and definite descriptions to this referent is not derivable (eoreader5 measured distributional coref failing twice). Supply a per-text prior to close this gap."
+      },
+      {
+        "schema": "EOLexicalOccurrence@1",
+        "id": "lex:10:0",
+        "surfaceKey": "surface:perspective",
+        "surface": "perspective",
+        "upos": "NOUN",
+        "standing": "occurrence",
+        "encounterRef": "encounter:10",
+        "offset": 36,
+        "witness": "text:10:36"
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:анне_павловне",
+        "surfaces": [
+          "Анне Павловне",
+          "Анне"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          },
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:scherer",
+        "surfaces": [
+          "Scherer"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOLexicalOccurrence@1",
+        "id": "lex:16:0",
+        "surfaceKey": "surface:avant",
+        "surface": "Avant",
+        "upos": "NOUN",
+        "standing": "occurrence",
+        "encounterRef": "encounter:16",
+        "offset": 2,
+        "witness": "text:16:2"
+      },
+      {
+        "schema": "EOLexicalOccurrence@1",
+        "id": "lex:16:1",
+        "surfaceKey": "surface:comment",
+        "surface": "comment",
+        "upos": "NOUN",
+        "standing": "occurrence",
+        "encounterRef": "encounter:16",
+        "offset": 24,
+        "witness": "text:16:24"
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:21:ref_auto_анна_павловна_шерер",
+        "referent": "ref:auto:анна_павловна_шерер",
+        "encounterRef": "encounter:21",
+        "anchor": {
+          "start": 2025,
+          "end": 2049
+        },
+        "witness": "text:21",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOLexicalOccurrence@1",
+        "id": "lex:28:0",
+        "surfaceKey": "surface:que",
+        "surface": "que",
+        "upos": "NOUN",
+        "standing": "occurrence",
+        "encounterRef": "encounter:28",
+        "offset": 14,
+        "witness": "text:28:14"
+      },
+      {
+        "schema": "EOLexicalOccurrence@1",
+        "id": "lex:37:0",
+        "surfaceKey": "surface:que",
+        "surface": "que",
+        "upos": "NOUN",
+        "standing": "occurrence",
+        "encounterRef": "encounter:37",
+        "offset": 12,
+        "witness": "text:37:12"
+      },
+      {
+        "schema": "EOLexicalOccurrence@1",
+        "id": "lex:37:1",
+        "surfaceKey": "surface:que",
+        "surface": "que",
+        "upos": "NOUN",
+        "standing": "occurrence",
+        "encounterRef": "encounter:37",
+        "offset": 62,
+        "witness": "text:37:62"
+      },
+      {
+        "schema": "EOLexicalOccurrence@1",
+        "id": "lex:37:2",
+        "surfaceKey": "surface:train",
+        "surface": "train",
+        "upos": "NOUN",
+        "standing": "occurrence",
+        "encounterRef": "encounter:37",
+        "offset": 81,
+        "witness": "text:37:81"
+      },
+      {
+        "schema": "EOReferentOccurrence@1",
+        "id": "ref-occ:encounter:37:direct:1:27",
+        "surface": "a brûlé",
+        "canonicalSurface": "a brûlé",
+        "head": "brûlé",
+        "determination": "indefinite",
+        "role": null,
+        "encounterRef": "encounter:37",
+        "edge": null,
+        "relation": null,
+        "standing": "unresolved_identity",
+        "provenance": {
+          "giver": "text/individuation::directDescriptorOccurrences",
+          "basis": "closed-class determiner plus witnessed lexical form"
+        }
+      },
+      {
+        "schema": "EOReferentOccurrence@1",
+        "id": "ref-occ:file:voyna-i-mir-ch1-3-aligned.txt:2711:direct:0:3",
+        "surface": "a décidé",
+        "canonicalSurface": "a décidé",
+        "head": "décidé",
+        "determination": "indefinite",
+        "role": null,
+        "encounterRef": "file:voyna-i-mir-ch1-3-aligned.txt:2711",
+        "edge": null,
+        "relation": null,
+        "standing": "unresolved_identity",
+        "provenance": {
+          "giver": "text/individuation::directDescriptorOccurrences",
+          "basis": "closed-class determiner plus witnessed lexical form"
+        }
+      },
+      {
+        "schema": "EOReferentOccurrence@1",
+        "id": "ref-occ:file:voyna-i-mir-ch1-3-aligned.txt:2711:direct:1:27",
+        "surface": "a brûlé",
+        "canonicalSurface": "a brûlé",
+        "head": "brûlé",
+        "determination": "indefinite",
+        "role": null,
+        "encounterRef": "file:voyna-i-mir-ch1-3-aligned.txt:2711",
+        "edge": null,
+        "relation": null,
+        "standing": "unresolved_identity",
+        "provenance": {
+          "giver": "text/individuation::directDescriptorOccurrences",
+          "basis": "closed-class determiner plus witnessed lexical form"
+        }
+      },
+      {
+        "schema": "EOIdentityHypothesis@1",
+        "id": "identity:descriptor:a_brûlé",
+        "surface": "a brûlé",
+        "determinations": [
+          "indefinite"
+        ],
+        "occurrenceRefs": [
+          "ref-occ:encounter:37:direct:1:27",
+          "ref-occ:file:voyna-i-mir-ch1-3-aligned.txt:2711:direct:1:27"
+        ],
+        "encounterRefs": [
+          "encounter:37",
+          "file:voyna-i-mir-ch1-3-aligned.txt:2711"
+        ],
+        "relationContexts": [
+          {
+            "edge": null,
+            "relation": null,
+            "role": null
+          },
+          {
+            "edge": null,
+            "relation": null,
+            "role": null
+          }
+        ],
+        "standing": "live_hypothesis",
+        "provenance": {
+          "giver": "text/individuation::descriptorHypotheses",
+          "basis": "same descriptor recurred across distinct encounters; identity remains defeasible"
+        }
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:40:ref_auto_анна_павловна_шерер",
+        "referent": "ref:auto:анна_павловна_шерер",
+        "encounterRef": "encounter:40",
+        "anchor": {
+          "start": 2897,
+          "end": 2994
+        },
+        "witness": "text:40",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:когда",
+        "surfaces": [
+          "когда"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:43:ref_auto_анна_павловна_шерер",
+        "referent": "ref:auto:анна_павловна_шерер",
+        "encounterRef": "encounter:43",
+        "anchor": {
+          "start": 3417,
+          "end": 3492
+        },
+        "witness": "text:43",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:она",
+        "surfaces": [
+          "она"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ],
+        "fedBy": [
+          "mention:55:ref_auto_она",
+          "gap:referent:ref_auto_она"
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:мне",
+        "surfaces": [
+          "мне"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:так",
+        "surfaces": [
+          "так"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:55:ref_auto_она",
+        "referent": "ref:auto:она",
+        "encounterRef": "encounter:55",
+        "anchor": {
+          "start": 4215,
+          "end": 4266
+        },
+        "witness": "text:55",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOReferentGap@1",
+        "id": "gap:referent:ref_auto_она",
+        "reason": "pronoun_and_descriptor_mentions_unresolved",
+        "referent": "ref:auto:она",
+        "tier": "model",
+        "needsWitness": true,
+        "detail": "name-variant coreference is engine-tier and complete; binding pronouns and definite descriptions to this referent is not derivable (eoreader5 measured distributional coref failing twice). Supply a per-text prior to close this gap."
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:ничего",
+        "surfaces": [
+          "ничего"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ],
+        "fedBy": [
+          "mention:62:ref_auto_ничего",
+          "gap:referent:ref_auto_ничего"
+        ]
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:62:ref_auto_ничего",
+        "referent": "ref:auto:ничего",
+        "encounterRef": "encounter:62",
+        "anchor": {
+          "start": 4499,
+          "end": 4592
+        },
+        "witness": "text:62",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOReferentGap@1",
+        "id": "gap:referent:ref_auto_ничего",
+        "reason": "pronoun_and_descriptor_mentions_unresolved",
+        "referent": "ref:auto:ничего",
+        "tier": "model",
+        "needsWitness": true,
+        "detail": "name-variant coreference is engine-tier and complete; binding pronouns and definite descriptions to this referent is not derivable (eoreader5 measured distributional coref failing twice). Supply a per-text prior to close this gap."
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:67:ref_auto_она",
+        "referent": "ref:auto:она",
+        "encounterRef": "encounter:67",
+        "anchor": {
+          "start": 4799,
+          "end": 4865
+        },
+        "witness": "text:67",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:69:ref_auto_так",
+        "referent": "ref:auto:так",
+        "encounterRef": "encounter:69",
+        "anchor": {
+          "start": 5014,
+          "end": 5034
+        },
+        "witness": "text:69",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOReferentGap@1",
+        "id": "gap:referent:ref_auto_так",
+        "reason": "pronoun_and_descriptor_mentions_unresolved",
+        "referent": "ref:auto:так",
+        "tier": "model",
+        "needsWitness": true,
+        "detail": "name-variant coreference is engine-tier and complete; binding pronouns and definite descriptions to this referent is not derivable (eoreader5 measured distributional coref failing twice). Supply a per-text prior to close this gap."
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:70:ref_auto_мне",
+        "referent": "ref:auto:мне",
+        "encounterRef": "encounter:70",
+        "anchor": {
+          "start": 5035,
+          "end": 5053
+        },
+        "witness": "text:70",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOReferentGap@1",
+        "id": "gap:referent:ref_auto_мне",
+        "reason": "pronoun_and_descriptor_mentions_unresolved",
+        "referent": "ref:auto:мне",
+        "tier": "model",
+        "needsWitness": true,
+        "detail": "name-variant coreference is engine-tier and complete; binding pronouns and definite descriptions to this referent is not derivable (eoreader5 measured distributional coref failing twice). Supply a per-text prior to close this gap."
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:72:ref_auto_она",
+        "referent": "ref:auto:она",
+        "encounterRef": "encounter:72",
+        "anchor": {
+          "start": 5065,
+          "end": 5259
+        },
+        "witness": "text:72",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOReferentOccurrence@1",
+        "id": "ref-occ:encounter:72:direct:0:0",
+        "surface": "A propos",
+        "canonicalSurface": "a propos",
+        "head": "propos",
+        "determination": "indefinite",
+        "role": null,
+        "encounterRef": "encounter:72",
+        "edge": null,
+        "relation": null,
+        "standing": "unresolved_identity",
+        "provenance": {
+          "giver": "text/individuation::directDescriptorOccurrences",
+          "basis": "closed-class determiner plus witnessed lexical form"
+        }
+      },
+      {
+        "schema": "EOReferentOccurrence@1",
+        "id": "ref-occ:file:voyna-i-mir-ch1-3-aligned.txt:5065:direct:0:0",
+        "surface": "A propos",
+        "canonicalSurface": "a propos",
+        "head": "propos",
+        "determination": "indefinite",
+        "role": null,
+        "encounterRef": "file:voyna-i-mir-ch1-3-aligned.txt:5065",
+        "edge": null,
+        "relation": null,
+        "standing": "unresolved_identity",
+        "provenance": {
+          "giver": "text/individuation::directDescriptorOccurrences",
+          "basis": "closed-class determiner plus witnessed lexical form"
+        }
+      },
+      {
+        "schema": "EOIdentityHypothesis@1",
+        "id": "identity:descriptor:a_propos",
+        "surface": "a propos",
+        "determinations": [
+          "indefinite"
+        ],
+        "occurrenceRefs": [
+          "ref-occ:encounter:72:direct:0:0",
+          "ref-occ:file:voyna-i-mir-ch1-3-aligned.txt:5065:direct:0:0"
+        ],
+        "encounterRefs": [
+          "encounter:72",
+          "file:voyna-i-mir-ch1-3-aligned.txt:5065"
+        ],
+        "relationContexts": [
+          {
+            "edge": null,
+            "relation": null,
+            "role": null
+          },
+          {
+            "edge": null,
+            "relation": null,
+            "role": null
+          }
+        ],
+        "standing": "live_hypothesis",
+        "provenance": {
+          "giver": "text/individuation::descriptorHypotheses",
+          "basis": "same descriptor recurred across distinct encounters; identity remains defeasible"
+        }
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:василий",
+        "surfaces": [
+          "Василий"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:нынче",
+        "surfaces": [
+          "нынче"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:это",
+        "surfaces": [
+          "это"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:82:ref_auto_анна_павловна_шерер",
+        "referent": "ref:auto:анна_павловна_шерер",
+        "encounterRef": "encounter:82",
+        "anchor": {
+          "start": 5850,
+          "end": 5984
+        },
+        "witness": "text:82",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:82:ref_auto_она",
+        "referent": "ref:auto:она",
+        "encounterRef": "encounter:82",
+        "anchor": {
+          "start": 5850,
+          "end": 5984
+        },
+        "witness": "text:82",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:83:ref_auto_она",
+        "referent": "ref:auto:она",
+        "encounterRef": "encounter:83",
+        "anchor": {
+          "start": 5986,
+          "end": 6110
+        },
+        "witness": "text:83",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOReferentOccurrence@1",
+        "id": "ref-occ:encounter:83:direct:0:29",
+        "surface": "a été",
+        "canonicalSurface": "a été",
+        "head": "été",
+        "determination": "indefinite",
+        "role": null,
+        "encounterRef": "encounter:83",
+        "edge": null,
+        "relation": null,
+        "standing": "unresolved_identity",
+        "provenance": {
+          "giver": "text/individuation::directDescriptorOccurrences",
+          "basis": "closed-class determiner plus witnessed lexical form"
+        }
+      },
+      {
+        "schema": "EOReferentOccurrence@1",
+        "id": "ref-occ:file:voyna-i-mir-ch1-3-aligned.txt:5986:direct:0:29",
+        "surface": "a été",
+        "canonicalSurface": "a été",
+        "head": "été",
+        "determination": "indefinite",
+        "role": null,
+        "encounterRef": "file:voyna-i-mir-ch1-3-aligned.txt:5986",
+        "edge": null,
+        "relation": null,
+        "standing": "unresolved_identity",
+        "provenance": {
+          "giver": "text/individuation::directDescriptorOccurrences",
+          "basis": "closed-class determiner plus witnessed lexical form"
+        }
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:84:ref_auto_анна_павловна_шерер",
+        "referent": "ref:auto:анна_павловна_шерер",
+        "encounterRef": "encounter:84",
+        "anchor": {
+          "start": 6111,
+          "end": 6360
+        },
+        "witness": "text:84",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:84:ref_auto_она",
+        "referent": "ref:auto:она",
+        "encounterRef": "encounter:84",
+        "anchor": {
+          "start": 6111,
+          "end": 6360
+        },
+        "witness": "text:84",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:84:ref_auto_когда",
+        "referent": "ref:auto:когда",
+        "encounterRef": "encounter:84",
+        "anchor": {
+          "start": 6111,
+          "end": 6360
+        },
+        "witness": "text:84",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOReferentGap@1",
+        "id": "gap:referent:ref_auto_когда",
+        "reason": "pronoun_and_descriptor_mentions_unresolved",
+        "referent": "ref:auto:когда",
+        "tier": "model",
+        "needsWitness": true,
+        "detail": "name-variant coreference is engine-tier and complete; binding pronouns and definite descriptions to this referent is not derivable (eoreader5 measured distributional coref failing twice). Supply a per-text prior to close this gap."
+      },
+      {
+        "schema": "EOIdentityHypothesis@1",
+        "id": "identity:descriptor:a_été",
+        "surface": "a été",
+        "determinations": [
+          "indefinite"
+        ],
+        "occurrenceRefs": [
+          "ref-occ:encounter:83:direct:0:29",
+          "ref-occ:file:voyna-i-mir-ch1-3-aligned.txt:5986:direct:0:29"
+        ],
+        "encounterRefs": [
+          "encounter:83",
+          "file:voyna-i-mir-ch1-3-aligned.txt:5986"
+        ],
+        "relationContexts": [
+          {
+            "edge": null,
+            "relation": null,
+            "role": null
+          },
+          {
+            "edge": null,
+            "relation": null,
+            "role": null
+          }
+        ],
+        "standing": "live_hypothesis",
+        "provenance": {
+          "giver": "text/individuation::descriptorHypotheses",
+          "basis": "same descriptor recurred across distinct encounters; identity remains defeasible"
+        }
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:функе",
+        "surfaces": [
+          "Функе"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:87:ref_auto_анна_павловна_шерер",
+        "referent": "ref:auto:анна_павловна_шерер",
+        "encounterRef": "encounter:87",
+        "anchor": {
+          "start": 6508,
+          "end": 6720
+        },
+        "witness": "text:87",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:87:ref_auto_так",
+        "referent": "ref:auto:так",
+        "encounterRef": "encounter:87",
+        "anchor": {
+          "start": 6508,
+          "end": 6720
+        },
+        "witness": "text:87",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:88:ref_auto_она",
+        "referent": "ref:auto:она",
+        "encounterRef": "encounter:88",
+        "anchor": {
+          "start": 6722,
+          "end": 6857
+        },
+        "witness": "text:88",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:91:ref_auto_анна_павловна_шерер",
+        "referent": "ref:auto:анна_павловна_шерер",
+        "encounterRef": "encounter:91",
+        "anchor": {
+          "start": 6948,
+          "end": 7237
+        },
+        "witness": "text:91",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:92:ref_auto_она",
+        "referent": "ref:auto:она",
+        "encounterRef": "encounter:92",
+        "anchor": {
+          "start": 7238,
+          "end": 7413
+        },
+        "witness": "text:92",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOLexicalOccurrence@1",
+        "id": "lex:95:0",
+        "surfaceKey": "surface:que",
+        "surface": "Que",
+        "upos": "NOUN",
+        "standing": "occurrence",
+        "encounterRef": "encounter:95",
+        "offset": 2,
+        "witness": "text:95:2"
+      },
+      {
+        "schema": "EOLexicalOccurrence@1",
+        "id": "lex:96:0",
+        "surfaceKey": "surface:que",
+        "surface": "que",
+        "upos": "NOUN",
+        "standing": "occurrence",
+        "encounterRef": "encounter:96",
+        "offset": 19,
+        "witness": "text:96:19"
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:102:ref_auto_василий",
+        "referent": "ref:auto:василий",
+        "encounterRef": "encounter:102",
+        "anchor": {
+          "start": 7900,
+          "end": 7925
+        },
+        "witness": "text:102",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOReferentGap@1",
+        "id": "gap:referent:ref_auto_василий",
+        "reason": "pronoun_and_descriptor_mentions_unresolved",
+        "referent": "ref:auto:василий",
+        "tier": "model",
+        "needsWitness": true,
+        "detail": "name-variant coreference is engine-tier and complete; binding pronouns and definite descriptions to this referent is not derivable (eoreader5 measured distributional coref failing twice). Supply a per-text prior to close this gap."
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:103:ref_auto_мне",
+        "referent": "ref:auto:мне",
+        "encounterRef": "encounter:103",
+        "anchor": {
+          "start": 7927,
+          "end": 7947
+        },
+        "witness": "text:103",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:вот",
+        "surfaces": [
+          "вот"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:109:ref_auto_анна_павловна_шерер",
+        "referent": "ref:auto:анна_павловна_шерер",
+        "encounterRef": "encounter:109",
+        "anchor": {
+          "start": 8380,
+          "end": 8494
+        },
+        "witness": "text:109",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOLexicalOccurrence@1",
+        "id": "lex:111:0",
+        "surfaceKey": "surface:existence",
+        "surface": "existence",
+        "upos": "NOUN",
+        "standing": "occurrence",
+        "encounterRef": "encounter:111",
+        "offset": 39,
+        "witness": "text:111:39"
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:112:ref_auto_это",
+        "referent": "ref:auto:это",
+        "encounterRef": "encounter:112",
+        "anchor": {
+          "start": 8608,
+          "end": 8622
+        },
+        "witness": "text:112",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOReferentGap@1",
+        "id": "gap:referent:ref_auto_это",
+        "reason": "pronoun_and_descriptor_mentions_unresolved",
+        "referent": "ref:auto:это",
+        "tier": "model",
+        "needsWitness": true,
+        "detail": "name-variant coreference is engine-tier and complete; binding pronouns and definite descriptions to this referent is not derivable (eoreader5 measured distributional coref failing twice). Supply a per-text prior to close this gap."
+      },
+      {
+        "schema": "EOLexicalOccurrence@1",
+        "id": "lex:114:0",
+        "surfaceKey": "surface:que",
+        "surface": "Que",
+        "upos": "NOUN",
+        "standing": "occurrence",
+        "encounterRef": "encounter:114",
+        "offset": 0,
+        "witness": "text:114:0"
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:116:ref_auto_анна_павловна_шерер",
+        "referent": "ref:auto:анна_павловна_шерер",
+        "encounterRef": "encounter:116",
+        "anchor": {
+          "start": 8727,
+          "end": 8752
+        },
+        "witness": "text:116",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:анатоля",
+        "surfaces": [
+          "Анатоля"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:120:ref_auto_василий",
+        "referent": "ref:auto:василий",
+        "encounterRef": "encounter:120",
+        "anchor": {
+          "start": 9058,
+          "end": 9219
+        },
+        "witness": "text:120",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:анатоль",
+        "surfaces": [
+          "Анатоль"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:123:ref_auto_это",
+        "referent": "ref:auto:это",
+        "encounterRef": "encounter:123",
+        "anchor": {
+          "start": 9369,
+          "end": 9418
+        },
+        "witness": "text:123",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:131:ref_auto_вот",
+        "referent": "ref:auto:вот",
+        "encounterRef": "encounter:131",
+        "anchor": {
+          "start": 9744,
+          "end": 9815
+        },
+        "witness": "text:131",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOReferentGap@1",
+        "id": "gap:referent:ref_auto_вот",
+        "reason": "pronoun_and_descriptor_mentions_unresolved",
+        "referent": "ref:auto:вот",
+        "tier": "model",
+        "needsWitness": true,
+        "detail": "name-variant coreference is engine-tier and complete; binding pronouns and definite descriptions to this referent is not derivable (eoreader5 measured distributional coref failing twice). Supply a per-text prior to close this gap."
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:анна_павловна",
+        "surfaces": [
+          "Анна Павловна"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferentReassignment@1",
+        "id": "reassignment:132:ref_auto_анна_павловна_шерер:ref_auto_анна_павловна",
+        "from": "ref:auto:анна_павловна_шерер",
+        "to": "ref:auto:анна_павловна",
+        "surface": "Анна Павловна",
+        "encounterRef": "encounter:132",
+        "provenance": {
+          "giver": "surfaces/discoverReferents",
+          "tier": "engine",
+          "basis": "reassigned on refresh — the fuller name cleared its floor and this surface now points at a new address"
+        }
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:132:ref_auto_нынче",
+        "referent": "ref:auto:нынче",
+        "encounterRef": "encounter:132",
+        "anchor": {
+          "start": 9816,
+          "end": 9838
+        },
+        "witness": "text:132",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOReferentGap@1",
+        "id": "gap:referent:ref_auto_нынче",
+        "reason": "pronoun_and_descriptor_mentions_unresolved",
+        "referent": "ref:auto:нынче",
+        "tier": "model",
+        "needsWitness": true,
+        "detail": "name-variant coreference is engine-tier and complete; binding pronouns and definite descriptions to this referent is not derivable (eoreader5 measured distributional coref failing twice). Supply a per-text prior to close this gap."
+      },
+      {
+        "schema": "EOLexicalOccurrence@1",
+        "id": "lex:134:0",
+        "surfaceKey": "surface:pan",
+        "surface": "pan",
+        "upos": "NOUN",
+        "standing": "occurrence",
+        "encounterRef": "encounter:134",
+        "offset": 184,
+        "witness": "text:134:184"
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:annette",
+        "surfaces": [
+          "annette",
+          "Annette"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          },
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:cette",
+        "surfaces": [
+          "cette"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:138:ref_auto_анна_павловна_шерер",
+        "referent": "ref:auto:анна_павловна_шерер",
+        "encounterRef": "encounter:138",
+        "anchor": {
+          "start": 10346,
+          "end": 10393
+        },
+        "witness": "text:138",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:138:ref_auto_анна_павловна",
+        "referent": "ref:auto:анна_павловна",
+        "encounterRef": "encounter:138",
+        "anchor": {
+          "start": 10346,
+          "end": 10393
+        },
+        "witness": "text:138",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOReferentGap@1",
+        "id": "gap:referent:ref_auto_анна_павловна",
+        "reason": "pronoun_and_descriptor_mentions_unresolved",
+        "referent": "ref:auto:анна_павловна",
+        "tier": "model",
+        "needsWitness": true,
+        "detail": "name-variant coreference is engine-tier and complete; binding pronouns and definite descriptions to this referent is not derivable (eoreader5 measured distributional coref failing twice). Supply a per-text prior to close this gap."
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:139:ref_auto_нынче",
+        "referent": "ref:auto:нынче",
+        "encounterRef": "encounter:139",
+        "anchor": {
+          "start": 10394,
+          "end": 10452
+        },
+        "witness": "text:139",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:lise",
+        "surfaces": [
+          "Lise"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:болконский",
+        "surfaces": [
+          "Болконский"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:140:ref_auto_это",
+        "referent": "ref:auto:это",
+        "encounterRef": "encounter:140",
+        "anchor": {
+          "start": 10453,
+          "end": 10481
+        },
+        "witness": "text:140",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOLexicalOccurrence@1",
+        "id": "lex:141:0",
+        "surfaceKey": "surface:que",
+        "surface": "que",
+        "upos": "NOUN",
+        "standing": "occurrence",
+        "encounterRef": "encounter:141",
+        "offset": 28,
+        "witness": "text:141:28"
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:анны_павловны",
+        "surfaces": [
+          "Анны Павловны",
+          "Анны"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          },
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:145:ref_auto_она",
+        "referent": "ref:auto:она",
+        "encounterRef": "encounter:145",
+        "anchor": {
+          "start": 10862,
+          "end": 10896
+        },
+        "witness": "text:145",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:приехала",
+        "surfaces": [
+          "приехала"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:болконская",
+        "surfaces": [
+          "Болконская"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:147:ref_auto_василия",
+        "referent": "ref:auto:василия",
+        "encounterRef": "encounter:147",
+        "anchor": {
+          "start": 11140,
+          "end": 11258
+        },
+        "witness": "text:147",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOReferentGap@1",
+        "id": "gap:referent:ref_auto_василия",
+        "reason": "pronoun_and_descriptor_mentions_unresolved",
+        "referent": "ref:auto:василия",
+        "tier": "model",
+        "needsWitness": true,
+        "detail": "name-variant coreference is engine-tier and complete; binding pronouns and definite descriptions to this referent is not derivable (eoreader5 measured distributional coref failing twice). Supply a per-text prior to close this gap."
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:ипполит",
+        "surfaces": [
+          "Ипполит"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOLexicalOccurrence@1",
+        "id": "lex:148:0",
+        "surfaceKey": "surface:ma",
+        "surface": "ma",
+        "upos": "NOUN",
+        "standing": "occurrence",
+        "encounterRef": "encounter:148",
+        "offset": 43,
+        "witness": "text:148:43"
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:149:ref_auto_анна_павловна_шерер",
+        "referent": "ref:auto:анна_павловна_шерер",
+        "encounterRef": "encounter:149",
+        "anchor": {
+          "start": 11313,
+          "end": 11577
+        },
+        "witness": "text:149",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:149:ref_auto_анна_павловна",
+        "referent": "ref:auto:анна_павловна",
+        "encounterRef": "encounter:149",
+        "anchor": {
+          "start": 11313,
+          "end": 11577
+        },
+        "witness": "text:149",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOLexicalOccurrence@1",
+        "id": "lex:149:0",
+        "surfaceKey": "surface:ma",
+        "surface": "ma",
+        "upos": "NOUN",
+        "standing": "occurrence",
+        "encounterRef": "encounter:149",
+        "offset": 237,
+        "witness": "text:149:237"
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:151:ref_auto_анна_павловна_шерер",
+        "referent": "ref:auto:анна_павловна_шерер",
+        "encounterRef": "encounter:151",
+        "anchor": {
+          "start": 11681,
+          "end": 11780
+        },
+        "witness": "text:151",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:151:ref_auto_анна_павловна",
+        "referent": "ref:auto:анна_павловна",
+        "encounterRef": "encounter:151",
+        "anchor": {
+          "start": 11681,
+          "end": 11780
+        },
+        "witness": "text:151",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOLexicalOccurrence@1",
+        "id": "lex:152:0",
+        "surfaceKey": "surface:ma",
+        "surface": "Ma",
+        "upos": "NOUN",
+        "standing": "occurrence",
+        "encounterRef": "encounter:152",
+        "offset": 0,
+        "witness": "text:152:0"
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:все",
+        "surfaces": [
+          "все"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:154:ref_auto_приехала",
+        "referent": "ref:auto:приехала",
+        "encounterRef": "encounter:154",
+        "anchor": {
+          "start": 12112,
+          "end": 12190
+        },
+        "witness": "text:154",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:154:ref_auto_болконская",
+        "referent": "ref:auto:болконская",
+        "encounterRef": "encounter:154",
+        "anchor": {
+          "start": 12112,
+          "end": 12190
+        },
+        "witness": "text:154",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOReferentGap@1",
+        "id": "gap:referent:ref_auto_приехала",
+        "reason": "pronoun_and_descriptor_mentions_unresolved",
+        "referent": "ref:auto:приехала",
+        "tier": "model",
+        "needsWitness": true,
+        "detail": "name-variant coreference is engine-tier and complete; binding pronouns and definite descriptions to this referent is not derivable (eoreader5 measured distributional coref failing twice). Supply a per-text prior to close this gap."
+      },
+      {
+        "schema": "EOReferentGap@1",
+        "id": "gap:referent:ref_auto_болконская",
+        "reason": "pronoun_and_descriptor_mentions_unresolved",
+        "referent": "ref:auto:болконская",
+        "tier": "model",
+        "needsWitness": true,
+        "detail": "name-variant coreference is engine-tier and complete; binding pronouns and definite descriptions to this referent is not derivable (eoreader5 measured distributional coref failing twice). Supply a per-text prior to close this gap."
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:155:ref_auto_она",
+        "referent": "ref:auto:она",
+        "encounterRef": "encounter:155",
+        "anchor": {
+          "start": 12191,
+          "end": 12360
+        },
+        "witness": "text:155",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:156:ref_auto_это",
+        "referent": "ref:auto:это",
+        "encounterRef": "encounter:156",
+        "anchor": {
+          "start": 12361,
+          "end": 12515
+        },
+        "witness": "text:156",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:160:ref_auto_это",
+        "referent": "ref:auto:это",
+        "encounterRef": "encounter:160",
+        "anchor": {
+          "start": 12937,
+          "end": 12956
+        },
+        "witness": "text:160",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:161:ref_auto_она",
+        "referent": "ref:auto:она",
+        "encounterRef": "encounter:161",
+        "anchor": {
+          "start": 12958,
+          "end": 13220
+        },
+        "witness": "text:161",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:162:ref_auto_она",
+        "referent": "ref:auto:она",
+        "encounterRef": "encounter:162",
+        "anchor": {
+          "start": 13222,
+          "end": 13318
+        },
+        "witness": "text:162",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:всем",
+        "surfaces": [
+          "всем"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:163:ref_auto_она",
+        "referent": "ref:auto:она",
+        "encounterRef": "encounter:163",
+        "anchor": {
+          "start": 13320,
+          "end": 13405
+        },
+        "witness": "text:163",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:163:ref_auto_annette",
+        "referent": "ref:auto:annette",
+        "encounterRef": "encounter:163",
+        "anchor": {
+          "start": 13320,
+          "end": 13405
+        },
+        "witness": "text:163",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOLexicalOccurrence@1",
+        "id": "lex:163:0",
+        "surfaceKey": "surface:tour",
+        "surface": "tour",
+        "upos": "NOUN",
+        "standing": "occurrence",
+        "encounterRef": "encounter:163",
+        "offset": 48,
+        "witness": "text:163:48"
+      },
+      {
+        "schema": "EOReferentGap@1",
+        "id": "gap:referent:ref_auto_annette",
+        "reason": "pronoun_and_descriptor_mentions_unresolved",
+        "referent": "ref:auto:annette",
+        "tier": "model",
+        "needsWitness": true,
+        "detail": "name-variant coreference is engine-tier and complete; binding pronouns and definite descriptions to this referent is not derivable (eoreader5 measured distributional coref failing twice). Supply a per-text prior to close this gap."
+      },
+      {
+        "schema": "EOLexicalOccurrence@1",
+        "id": "lex:164:0",
+        "surfaceKey": "surface:que",
+        "surface": "que",
+        "upos": "NOUN",
+        "standing": "occurrence",
+        "encounterRef": "encounter:164",
+        "offset": 21,
+        "witness": "text:164:21"
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:166:ref_auto_lise",
+        "referent": "ref:auto:lise",
+        "encounterRef": "encounter:166",
+        "anchor": {
+          "start": 13625,
+          "end": 13711
+        },
+        "witness": "text:166",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:166:ref_auto_анна_павловна_шерер",
+        "referent": "ref:auto:анна_павловна_шерер",
+        "encounterRef": "encounter:166",
+        "anchor": {
+          "start": 13625,
+          "end": 13711
+        },
+        "witness": "text:166",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:166:ref_auto_анна_павловна",
+        "referent": "ref:auto:анна_павловна",
+        "encounterRef": "encounter:166",
+        "anchor": {
+          "start": 13625,
+          "end": 13711
+        },
+        "witness": "text:166",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOReferentGap@1",
+        "id": "gap:referent:ref_auto_lise",
+        "reason": "pronoun_and_descriptor_mentions_unresolved",
+        "referent": "ref:auto:lise",
+        "tier": "model",
+        "needsWitness": true,
+        "detail": "name-variant coreference is engine-tier and complete; binding pronouns and definite descriptions to this referent is not derivable (eoreader5 measured distributional coref failing twice). Supply a per-text prior to close this gap."
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:168:ref_auto_василия",
+        "referent": "ref:auto:василия",
+        "encounterRef": "encounter:168",
+        "anchor": {
+          "start": 13825,
+          "end": 13970
+        },
+        "witness": "text:168",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:168:ref_auto_cette",
+        "referent": "ref:auto:cette",
+        "encounterRef": "encounter:168",
+        "anchor": {
+          "start": 13825,
+          "end": 13970
+        },
+        "witness": "text:168",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOReferentGap@1",
+        "id": "gap:referent:ref_auto_cette",
+        "reason": "pronoun_and_descriptor_mentions_unresolved",
+        "referent": "ref:auto:cette",
+        "tier": "model",
+        "needsWitness": true,
+        "detail": "name-variant coreference is engine-tier and complete; binding pronouns and definite descriptions to this referent is not derivable (eoreader5 measured distributional coref failing twice). Supply a per-text prior to close this gap."
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:элен",
+        "surfaces": [
+          "Элен"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:169:ref_auto_cette",
+        "referent": "ref:auto:cette",
+        "encounterRef": "encounter:169",
+        "anchor": {
+          "start": 13972,
+          "end": 14029
+        },
+        "witness": "text:169",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOLexicalOccurrence@1",
+        "id": "lex:169:0",
+        "surfaceKey": "surface:que",
+        "surface": "que",
+        "upos": "NOUN",
+        "standing": "occurrence",
+        "encounterRef": "encounter:169",
+        "offset": 30,
+        "witness": "text:169:30"
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:170:ref_auto_василий",
+        "referent": "ref:auto:василий",
+        "encounterRef": "encounter:170",
+        "anchor": {
+          "start": 14030,
+          "end": 14072
+        },
+        "witness": "text:170",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:приехал",
+        "surfaces": [
+          "приехал"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:174:ref_auto_анна_павловна_шерер",
+        "referent": "ref:auto:анна_павловна_шерер",
+        "encounterRef": "encounter:174",
+        "anchor": {
+          "start": 14491,
+          "end": 14588
+        },
+        "witness": "text:174",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:174:ref_auto_анна_павловна",
+        "referent": "ref:auto:анна_павловна",
+        "encounterRef": "encounter:174",
+        "anchor": {
+          "start": 14491,
+          "end": 14588
+        },
+        "witness": "text:174",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:175:ref_auto_анны_павловны",
+        "referent": "ref:auto:анны_павловны",
+        "encounterRef": "encounter:175",
+        "anchor": {
+          "start": 14589,
+          "end": 14824
+        },
+        "witness": "text:175",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOReferentGap@1",
+        "id": "gap:referent:ref_auto_анны_павловны",
+        "reason": "pronoun_and_descriptor_mentions_unresolved",
+        "referent": "ref:auto:анны_павловны",
+        "tier": "model",
+        "needsWitness": true,
+        "detail": "name-variant coreference is engine-tier and complete; binding pronouns and definite descriptions to this referent is not derivable (eoreader5 measured distributional coref failing twice). Supply a per-text prior to close this gap."
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:177:ref_auto_анна_павловна_шерер",
+        "referent": "ref:auto:анна_павловна_шерер",
+        "encounterRef": "encounter:177",
+        "anchor": {
+          "start": 15048,
+          "end": 15228
+        },
+        "witness": "text:177",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:177:ref_auto_анна_павловна",
+        "referent": "ref:auto:анна_павловна",
+        "encounterRef": "encounter:177",
+        "anchor": {
+          "start": 15048,
+          "end": 15228
+        },
+        "witness": "text:177",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:180:ref_auto_анны_павловны",
+        "referent": "ref:auto:анны_павловны",
+        "encounterRef": "encounter:180",
+        "anchor": {
+          "start": 15403,
+          "end": 15522
+        },
+        "witness": "text:180",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:пьер",
+        "surfaces": [
+          "пьер",
+          "Пьер"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          },
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:181:ref_auto_анна_павловна_шерер",
+        "referent": "ref:auto:анна_павловна_шерер",
+        "encounterRef": "encounter:181",
+        "anchor": {
+          "start": 15523,
+          "end": 15570
+        },
+        "witness": "text:181",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:181:ref_auto_анна_павловна",
+        "referent": "ref:auto:анна_павловна",
+        "encounterRef": "encounter:181",
+        "anchor": {
+          "start": 15523,
+          "end": 15570
+        },
+        "witness": "text:181",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:морио",
+        "surfaces": [
+          "Морио"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:187:ref_auto_пьер",
+        "referent": "ref:auto:пьер",
+        "encounterRef": "encounter:187",
+        "anchor": {
+          "start": 15753,
+          "end": 15890
+        },
+        "witness": "text:187",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:187:ref_auto_анна_павловна_шерер",
+        "referent": "ref:auto:анна_павловна_шерер",
+        "encounterRef": "encounter:187",
+        "anchor": {
+          "start": 15753,
+          "end": 15890
+        },
+        "witness": "text:187",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:187:ref_auto_анна_павловна",
+        "referent": "ref:auto:анна_павловна",
+        "encounterRef": "encounter:187",
+        "anchor": {
+          "start": 15753,
+          "end": 15890
+        },
+        "witness": "text:187",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOReferentGap@1",
+        "id": "gap:referent:ref_auto_пьер",
+        "reason": "pronoun_and_descriptor_mentions_unresolved",
+        "referent": "ref:auto:пьер",
+        "tier": "model",
+        "needsWitness": true,
+        "detail": "name-variant coreference is engine-tier and complete; binding pronouns and definite descriptions to this referent is not derivable (eoreader5 measured distributional coref failing twice). Supply a per-text prior to close this gap."
+      },
+      {
+        "schema": "EOHyperedge@1",
+        "id": "edge:text:189:0",
+        "relation": "был",
+        "participants": [
+          {
+            "ref": "occ:189:0:subject",
+            "occurrence": "occ:189:0:subject",
+            "surfaceKey": "surface:план_аббата",
+            "role": "subject",
+            "standing": "unresolved_surface",
+            "surface": "план аббата",
+            "candidateReferents": []
+          },
+          {
+            "ref": "occ:189:0:object",
+            "occurrence": "occ:189:0:object",
+            "surfaceKey": "surface:химера",
+            "role": "object",
+            "standing": "unresolved_surface",
+            "surface": "химера",
+            "candidateReferents": []
+          }
+        ],
+        "witness": "text:189:98",
+        "scope": {
+          "sequencePosition": 189,
+          "offset": 98
+        },
+        "eo": {
+          "op": "CON",
+          "grain": "Figure"
+        },
+        "meta": {
+          "polarity": "+",
+          "source": "file:voyna-i-mir-ch1-3-aligned.txt",
+          "encounterRef": "encounter:189",
+          "compositionStanding": {
+            "eligible": true,
+            "basis": "no received evidence about this form; absence is not a refusal"
+          }
+        }
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:189:ref_auto_анне_павловне",
+        "referent": "ref:auto:анне_павловне",
+        "encounterRef": "encounter:189",
+        "anchor": {
+          "start": 16021,
+          "end": 16142
+        },
+        "witness": "text:189",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOReferentGap@1",
+        "id": "gap:referent:ref_auto_анне_павловне",
+        "reason": "pronoun_and_descriptor_mentions_unresolved",
+        "referent": "ref:auto:анне_павловне",
+        "tier": "model",
+        "needsWitness": true,
+        "detail": "name-variant coreference is engine-tier and complete; binding pronouns and definite descriptions to this referent is not derivable (eoreader5 measured distributional coref failing twice). Supply a per-text prior to close this gap."
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:190:ref_auto_анна_павловна_шерер",
+        "referent": "ref:auto:анна_павловна_шерер",
+        "encounterRef": "encounter:190",
+        "anchor": {
+          "start": 16144,
+          "end": 16200
+        },
+        "witness": "text:190",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:190:ref_auto_анна_павловна",
+        "referent": "ref:auto:анна_павловна",
+        "encounterRef": "encounter:190",
+        "anchor": {
+          "start": 16144,
+          "end": 16200
+        },
+        "witness": "text:190",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:192:ref_auto_анна_павловна_шерер",
+        "referent": "ref:auto:анна_павловна_шерер",
+        "encounterRef": "encounter:192",
+        "anchor": {
+          "start": 16410,
+          "end": 16851
+        },
+        "witness": "text:192",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:192:ref_auto_анна_павловна",
+        "referent": "ref:auto:анна_павловна",
+        "encounterRef": "encounter:192",
+        "anchor": {
+          "start": 16410,
+          "end": 16851
+        },
+        "witness": "text:192",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOHyperedge@1",
+        "id": "edge:text:193:0",
+        "relation": "был",
+        "participants": [
+          {
+            "ref": "occ:193:0:subject",
+            "occurrence": "occ:193:0:subject",
+            "surfaceKey": "surface:всё_виден",
+            "role": "subject",
+            "standing": "unresolved_surface",
+            "surface": "всё виден",
+            "candidateReferents": []
+          },
+          {
+            "ref": "ref:auto:пьер",
+            "role": "object",
+            "standing": "referent",
+            "surface": "в ней особенный страх за Пьера",
+            "resolution": "containment_surface_in_span",
+            "matchedSurfaces": [
+              "пьер"
+            ]
+          }
+        ],
+        "witness": "text:193:20",
+        "scope": {
+          "sequencePosition": 193,
+          "offset": 20
+        },
+        "eo": {
+          "op": "CON",
+          "grain": "Figure"
+        },
+        "meta": {
+          "polarity": "+",
+          "source": "file:voyna-i-mir-ch1-3-aligned.txt",
+          "encounterRef": "encounter:193",
+          "compositionStanding": {
+            "eligible": true,
+            "basis": "no received evidence about this form; absence is not a refusal"
+          }
+        }
+      },
+      {
+        "schema": "EOHyperedge@1",
+        "id": "edge:text:195:0",
+        "relation": "был",
+        "participants": [
+          {
+            "ref": "ref:auto:анны_павловны",
+            "role": "subject",
+            "standing": "referent",
+            "surface": "Анны Павловны",
+            "resolution": "exact_surface"
+          },
+          {
+            "ref": "occ:195:0:object",
+            "occurrence": "occ:195:0:object",
+            "surfaceKey": "surface:первый",
+            "role": "object",
+            "standing": "unresolved_surface",
+            "surface": "первый",
+            "candidateReferents": []
+          }
+        ],
+        "witness": "text:195:48",
+        "scope": {
+          "sequencePosition": 195,
+          "offset": 48
+        },
+        "eo": {
+          "op": "CON",
+          "grain": "Figure"
+        },
+        "meta": {
+          "polarity": "+",
+          "source": "file:voyna-i-mir-ch1-3-aligned.txt",
+          "encounterRef": "encounter:195",
+          "compositionStanding": {
+            "eligible": true,
+            "basis": "no received evidence about this form; absence is not a refusal"
+          }
+        }
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:пьера",
+        "surfaces": [
+          "Пьера"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ],
+        "fedBy": [
+          "mention:195:ref_auto_пьера",
+          "gap:referent:ref_auto_пьера"
+        ]
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:195:ref_auto_анны_павловны",
+        "referent": "ref:auto:анны_павловны",
+        "encounterRef": "encounter:195",
+        "anchor": {
+          "start": 17072,
+          "end": 17172
+        },
+        "witness": "text:195",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:195:ref_auto_пьера",
+        "referent": "ref:auto:пьера",
+        "encounterRef": "encounter:195",
+        "anchor": {
+          "start": 17072,
+          "end": 17172
+        },
+        "witness": "text:195",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOReferentGap@1",
+        "id": "gap:referent:ref_auto_пьера",
+        "reason": "pronoun_and_descriptor_mentions_unresolved",
+        "referent": "ref:auto:пьера",
+        "tier": "model",
+        "needsWitness": true,
+        "detail": "name-variant coreference is engine-tier and complete; binding pronouns and definite descriptions to this referent is not derivable (eoreader5 measured distributional coref failing twice). Supply a per-text prior to close this gap."
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:петербурга",
+        "surfaces": [
+          "Петербурга"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:199:ref_auto_морио",
+        "referent": "ref:auto:морио",
+        "encounterRef": "encounter:199",
+        "anchor": {
+          "start": 17466,
+          "end": 17494
+        },
+        "witness": "text:199",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOReferentGap@1",
+        "id": "gap:referent:ref_auto_морио",
+        "reason": "pronoun_and_descriptor_mentions_unresolved",
+        "referent": "ref:auto:морио",
+        "tier": "model",
+        "needsWitness": true,
+        "detail": "name-variant coreference is engine-tier and complete; binding pronouns and definite descriptions to this referent is not derivable (eoreader5 measured distributional coref failing twice). Supply a per-text prior to close this gap."
+      },
+      {
+        "schema": "EOHyperedge@1",
+        "id": "edge:text:202:0",
+        "relation": "был",
+        "participants": [
+          {
+            "ref": "ref:auto:анны_павловны",
+            "role": "subject",
+            "standing": "referent",
+            "surface": "Анны Павловны",
+            "resolution": "exact_surface"
+          },
+          {
+            "ref": "occ:202:0:object",
+            "occurrence": "occ:202:0:object",
+            "surfaceKey": "surface:пущен",
+            "role": "object",
+            "standing": "unresolved_surface",
+            "surface": "пущен",
+            "candidateReferents": []
+          }
+        ],
+        "witness": "text:202:6",
+        "scope": {
+          "sequencePosition": 202,
+          "offset": 6
+        },
+        "eo": {
+          "op": "CON",
+          "grain": "Figure"
+        },
+        "meta": {
+          "polarity": "+",
+          "source": "file:voyna-i-mir-ch1-3-aligned.txt",
+          "encounterRef": "encounter:202",
+          "compositionStanding": {
+            "eligible": true,
+            "basis": "no received evidence about this form; absence is not a refusal"
+          }
+        }
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:202:ref_auto_анны_павловны",
+        "referent": "ref:auto:анны_павловны",
+        "encounterRef": "encounter:202",
+        "anchor": {
+          "start": 17618,
+          "end": 17648
+        },
+        "witness": "text:202",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOLexicalOccurrence@1",
+        "id": "lex:204:0",
+        "surfaceKey": "surface:ma",
+        "surface": "ma",
+        "upos": "NOUN",
+        "standing": "occurrence",
+        "encounterRef": "encounter:204",
+        "offset": 6,
+        "witness": "text:204:6"
+      },
+      {
+        "schema": "EOHyperedge@1",
+        "id": "edge:text:205:0",
+        "relation": "был",
+        "participants": [
+          {
+            "ref": "occ:205:0:subject",
+            "occurrence": "occ:205:0:subject",
+            "surfaceKey": "surface:центром",
+            "role": "subject",
+            "standing": "unresolved_surface",
+            "surface": "центром",
+            "candidateReferents": []
+          },
+          {
+            "ref": "occ:205:0:object",
+            "occurrence": "occ:205:0:object",
+            "surfaceKey": "surface:аббат",
+            "role": "object",
+            "standing": "unresolved_surface",
+            "surface": "аббат",
+            "candidateReferents": []
+          }
+        ],
+        "witness": "text:205:24",
+        "scope": {
+          "sequencePosition": 205,
+          "offset": 24
+        },
+        "eo": {
+          "op": "CON",
+          "grain": "Figure"
+        },
+        "meta": {
+          "polarity": "+",
+          "source": "file:voyna-i-mir-ch1-3-aligned.txt",
+          "encounterRef": "encounter:205",
+          "compositionStanding": {
+            "eligible": true,
+            "basis": "no received evidence about this form; absence is not a refusal"
+          }
+        }
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:205:ref_auto_василия",
+        "referent": "ref:auto:василия",
+        "encounterRef": "encounter:205",
+        "anchor": {
+          "start": 17873,
+          "end": 18066
+        },
+        "witness": "text:205",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:205:ref_auto_болконская",
+        "referent": "ref:auto:болконская",
+        "encounterRef": "encounter:205",
+        "anchor": {
+          "start": 17873,
+          "end": 18066
+        },
+        "witness": "text:205",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:205:ref_auto_элен",
+        "referent": "ref:auto:элен",
+        "encounterRef": "encounter:205",
+        "anchor": {
+          "start": 17873,
+          "end": 18066
+        },
+        "witness": "text:205",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOReferentGap@1",
+        "id": "gap:referent:ref_auto_элен",
+        "reason": "pronoun_and_descriptor_mentions_unresolved",
+        "referent": "ref:auto:элен",
+        "tier": "model",
+        "needsWitness": true,
+        "detail": "name-variant coreference is engine-tier and complete; binding pronouns and definite descriptions to this referent is not derivable (eoreader5 measured distributional coref failing twice). Supply a per-text prior to close this gap."
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:206:ref_auto_анна_павловна_шерер",
+        "referent": "ref:auto:анна_павловна_шерер",
+        "encounterRef": "encounter:206",
+        "anchor": {
+          "start": 18067,
+          "end": 18102
+        },
+        "witness": "text:206",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:206:ref_auto_анна_павловна",
+        "referent": "ref:auto:анна_павловна",
+        "encounterRef": "encounter:206",
+        "anchor": {
+          "start": 18067,
+          "end": 18102
+        },
+        "witness": "text:206",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOHyperedge@1",
+        "id": "edge:text:207:0",
+        "relation": "был",
+        "participants": [
+          {
+            "ref": "occ:207:0:subject",
+            "occurrence": "occ:207:0:subject",
+            "surfaceKey": "surface:виконт",
+            "role": "subject",
+            "standing": "unresolved_surface",
+            "surface": "Виконт",
+            "candidateReferents": []
+          },
+          {
+            "ref": "occ:207:0:object",
+            "occurrence": "occ:207:0:object",
+            "surfaceKey": "surface:миловидный",
+            "role": "object",
+            "standing": "unresolved_surface",
+            "surface": "миловидный",
+            "candidateReferents": []
+          }
+        ],
+        "witness": "text:207:0",
+        "scope": {
+          "sequencePosition": 207,
+          "offset": 0
+        },
+        "eo": {
+          "op": "CON",
+          "grain": "Figure"
+        },
+        "meta": {
+          "polarity": "+",
+          "source": "file:voyna-i-mir-ch1-3-aligned.txt",
+          "encounterRef": "encounter:207",
+          "compositionStanding": {
+            "eligible": true,
+            "basis": "no received evidence about this form; absence is not a refusal"
+          }
+        }
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:208:ref_auto_анна_павловна_шерер",
+        "referent": "ref:auto:анна_павловна_шерер",
+        "encounterRef": "encounter:208",
+        "anchor": {
+          "start": 18322,
+          "end": 18371
+        },
+        "witness": "text:208",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:208:ref_auto_анна_павловна",
+        "referent": "ref:auto:анна_павловна",
+        "encounterRef": "encounter:208",
+        "anchor": {
+          "start": 18322,
+          "end": 18371
+        },
+        "witness": "text:208",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:209:ref_auto_анна_павловна_шерер",
+        "referent": "ref:auto:анна_павловна_шерер",
+        "encounterRef": "encounter:209",
+        "anchor": {
+          "start": 18372,
+          "end": 18655
+        },
+        "witness": "text:209",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:209:ref_auto_анна_павловна",
+        "referent": "ref:auto:анна_павловна",
+        "encounterRef": "encounter:209",
+        "anchor": {
+          "start": 18372,
+          "end": 18655
+        },
+        "witness": "text:209",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:мортемара",
+        "surfaces": [
+          "Мортемара"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:виконт",
+        "surfaces": [
+          "виконт"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:214:ref_auto_анна_павловна_шерер",
+        "referent": "ref:auto:анна_павловна_шерер",
+        "encounterRef": "encounter:214",
+        "anchor": {
+          "start": 18857,
+          "end": 19005
+        },
+        "witness": "text:214",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:214:ref_auto_анна_павловна",
+        "referent": "ref:auto:анна_павловна",
+        "encounterRef": "encounter:214",
+        "anchor": {
+          "start": 18857,
+          "end": 19005
+        },
+        "witness": "text:214",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:215:ref_auto_виконт",
+        "referent": "ref:auto:виконт",
+        "encounterRef": "encounter:215",
+        "anchor": {
+          "start": 19007,
+          "end": 19062
+        },
+        "witness": "text:215",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOReferentGap@1",
+        "id": "gap:referent:ref_auto_виконт",
+        "reason": "pronoun_and_descriptor_mentions_unresolved",
+        "referent": "ref:auto:виконт",
+        "tier": "model",
+        "needsWitness": true,
+        "detail": "name-variant coreference is engine-tier and complete; binding pronouns and definite descriptions to this referent is not derivable (eoreader5 measured distributional coref failing twice). Supply a per-text prior to close this gap."
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:216:ref_auto_анна_павловна_шерер",
+        "referent": "ref:auto:анна_павловна_шерер",
+        "encounterRef": "encounter:216",
+        "anchor": {
+          "start": 19063,
+          "end": 19142
+        },
+        "witness": "text:216",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:216:ref_auto_анна_павловна",
+        "referent": "ref:auto:анна_павловна",
+        "encounterRef": "encounter:216",
+        "anchor": {
+          "start": 19063,
+          "end": 19142
+        },
+        "witness": "text:216",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:217:ref_auto_анна_павловна_шерер",
+        "referent": "ref:auto:анна_павловна_шерер",
+        "encounterRef": "encounter:217",
+        "anchor": {
+          "start": 19144,
+          "end": 19236
+        },
+        "witness": "text:217",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:217:ref_auto_анна_павловна",
+        "referent": "ref:auto:анна_павловна",
+        "encounterRef": "encounter:217",
+        "anchor": {
+          "start": 19144,
+          "end": 19236
+        },
+        "witness": "text:217",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOReferentOccurrence@1",
+        "id": "ref-occ:encounter:217:direct:0:13",
+        "surface": "a été",
+        "canonicalSurface": "a été",
+        "head": "été",
+        "determination": "indefinite",
+        "role": null,
+        "encounterRef": "encounter:217",
+        "edge": null,
+        "relation": null,
+        "standing": "unresolved_identity",
+        "provenance": {
+          "giver": "text/individuation::directDescriptorOccurrences",
+          "basis": "closed-class determiner plus witnessed lexical form"
+        }
+      },
+      {
+        "schema": "EOReferentOccurrence@1",
+        "id": "ref-occ:file:voyna-i-mir-ch1-3-aligned.txt:19144:direct:0:13",
+        "surface": "a été",
+        "canonicalSurface": "a été",
+        "head": "été",
+        "determination": "indefinite",
+        "role": null,
+        "encounterRef": "file:voyna-i-mir-ch1-3-aligned.txt:19144",
+        "edge": null,
+        "relation": null,
+        "standing": "unresolved_identity",
+        "provenance": {
+          "giver": "text/individuation::directDescriptorOccurrences",
+          "basis": "closed-class determiner plus witnessed lexical form"
+        }
+      },
+      {
+        "schema": "EOHyperedge@1",
+        "id": "edge:text:219:0",
+        "relation": "был",
+        "participants": [
+          {
+            "ref": "ref:auto:виконт",
+            "role": "subject",
+            "standing": "referent",
+            "surface": "виконт",
+            "resolution": "exact_surface"
+          },
+          {
+            "ref": "occ:219:0:object",
+            "occurrence": "occ:219:0:object",
+            "surfaceKey": "surface:подан_обществу",
+            "role": "object",
+            "standing": "unresolved_surface",
+            "surface": "подан обществу",
+            "candidateReferents": []
+          }
+        ],
+        "witness": "text:219:71",
+        "scope": {
+          "sequencePosition": 219,
+          "offset": 71
+        },
+        "eo": {
+          "op": "CON",
+          "grain": "Figure"
+        },
+        "meta": {
+          "polarity": "+",
+          "source": "file:voyna-i-mir-ch1-3-aligned.txt",
+          "encounterRef": "encounter:219",
+          "compositionStanding": {
+            "eligible": true,
+            "basis": "no received evidence about this form; absence is not a refusal"
+          }
+        }
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:219:ref_auto_виконт",
+        "referent": "ref:auto:виконт",
+        "encounterRef": "encounter:219",
+        "anchor": {
+          "start": 19301,
+          "end": 19492
+        },
+        "witness": "text:219",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:220:ref_auto_виконт",
+        "referent": "ref:auto:виконт",
+        "encounterRef": "encounter:220",
+        "anchor": {
+          "start": 19494,
+          "end": 19549
+        },
+        "witness": "text:220",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:221:ref_auto_анна_павловна_шерер",
+        "referent": "ref:auto:анна_павловна_шерер",
+        "encounterRef": "encounter:221",
+        "anchor": {
+          "start": 19551,
+          "end": 19681
+        },
+        "witness": "text:221",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:221:ref_auto_анна_павловна",
+        "referent": "ref:auto:анна_павловна",
+        "encounterRef": "encounter:221",
+        "anchor": {
+          "start": 19551,
+          "end": 19681
+        },
+        "witness": "text:221",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:222:ref_auto_элен",
+        "referent": "ref:auto:элен",
+        "encounterRef": "encounter:222",
+        "anchor": {
+          "start": 19683,
+          "end": 19808
+        },
+        "witness": "text:222",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:223:ref_auto_анне_павловне",
+        "referent": "ref:auto:анне_павловне",
+        "encounterRef": "encounter:223",
+        "anchor": {
+          "start": 19809,
+          "end": 20219
+        },
+        "witness": "text:223",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:223:ref_auto_всем",
+        "referent": "ref:auto:всем",
+        "encounterRef": "encounter:223",
+        "anchor": {
+          "start": 19809,
+          "end": 20219
+        },
+        "witness": "text:223",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOReferentGap@1",
+        "id": "gap:referent:ref_auto_всем",
+        "reason": "pronoun_and_descriptor_mentions_unresolved",
+        "referent": "ref:auto:всем",
+        "tier": "model",
+        "needsWitness": true,
+        "detail": "name-variant coreference is engine-tier and complete; binding pronouns and definite descriptions to this referent is not derivable (eoreader5 measured distributional coref failing twice). Supply a per-text prior to close this gap."
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:между",
+        "surfaces": [
+          "между"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:224:ref_auto_элен",
+        "referent": "ref:auto:элен",
+        "encounterRef": "encounter:224",
+        "anchor": {
+          "start": 20220,
+          "end": 20409
+        },
+        "witness": "text:224",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:228:ref_auto_виконт",
+        "referent": "ref:auto:виконт",
+        "encounterRef": "encounter:228",
+        "anchor": {
+          "start": 20530,
+          "end": 20696
+        },
+        "witness": "text:228",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOHyperedge@1",
+        "id": "edge:text:229:0",
+        "relation": "pour",
+        "participants": [
+          {
+            "ref": "occ:229:0:subject",
+            "occurrence": "occ:229:0:subject",
+            "surfaceKey": "surface:je_crains",
+            "role": "subject",
+            "standing": "unresolved_surface",
+            "surface": "je crains",
+            "candidateReferents": []
+          },
+          {
+            "ref": "occ:229:0:object",
+            "occurrence": "occ:229:0:object",
+            "surfaceKey": "surface:mes_moyens_devant_un_pareil_auditoire",
+            "role": "object",
+            "standing": "unresolved_surface",
+            "surface": "mes moyens devant un pareil auditoire",
+            "candidateReferents": []
+          }
+        ],
+        "witness": "text:229:10",
+        "scope": {
+          "sequencePosition": 229,
+          "offset": 10
+        },
+        "eo": {
+          "op": "CON",
+          "grain": "Figure"
+        },
+        "meta": {
+          "polarity": "+",
+          "source": "file:voyna-i-mir-ch1-3-aligned.txt",
+          "encounterRef": "encounter:229",
+          "compositionStanding": {
+            "eligible": true,
+            "dominantClass": "VERB",
+            "share": 1,
+            "basis": "treebank-dominant VERB — eligible as portable relation memory",
+            "giver": "UD_English-EWT via bin/priors/pos/en-ud-ewt.json"
+          }
+        }
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:княжна",
+        "surfaces": [
+          "княжна"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:232:ref_auto_все",
+        "referent": "ref:auto:все",
+        "encounterRef": "encounter:232",
+        "anchor": {
+          "start": 20914,
+          "end": 21354
+        },
+        "witness": "text:232",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:232:ref_auto_когда",
+        "referent": "ref:auto:когда",
+        "encounterRef": "encounter:232",
+        "anchor": {
+          "start": 20914,
+          "end": 21354
+        },
+        "witness": "text:232",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOReferentGap@1",
+        "id": "gap:referent:ref_auto_все",
+        "reason": "pronoun_and_descriptor_mentions_unresolved",
+        "referent": "ref:auto:все",
+        "tier": "model",
+        "needsWitness": true,
+        "detail": "name-variant coreference is engine-tier and complete; binding pronouns and definite descriptions to this referent is not derivable (eoreader5 measured distributional coref failing twice). Supply a per-text prior to close this gap."
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:233:ref_auto_элен",
+        "referent": "ref:auto:элен",
+        "encounterRef": "encounter:233",
+        "anchor": {
+          "start": 21355,
+          "end": 21414
+        },
+        "witness": "text:233",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:voyons",
+        "surfaces": [
+          "voyons"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:239:ref_auto_ипполит",
+        "referent": "ref:auto:ипполит",
+        "encounterRef": "encounter:239",
+        "anchor": {
+          "start": 21760,
+          "end": 21858
+        },
+        "witness": "text:239",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOReferentGap@1",
+        "id": "gap:referent:ref_auto_ипполит",
+        "reason": "pronoun_and_descriptor_mentions_unresolved",
+        "referent": "ref:auto:ипполит",
+        "tier": "model",
+        "needsWitness": true,
+        "detail": "name-variant coreference is engine-tier and complete; binding pronouns and definite descriptions to this referent is not derivable (eoreader5 measured distributional coref failing twice). Supply a per-text prior to close this gap."
+      },
+      {
+        "schema": "EOHyperedge@1",
+        "id": "edge:text:240:0",
+        "relation": "был",
+        "participants": [
+          {
+            "ref": "occ:240:0:subject",
+            "occurrence": "occ:240:0:subject",
+            "surfaceKey": "surface:он",
+            "role": "subject",
+            "standing": "unresolved_surface",
+            "surface": "он",
+            "candidateReferents": []
+          },
+          {
+            "ref": "occ:240:0:object",
+            "occurrence": "occ:240:0:object",
+            "surfaceKey": "surface:поразительно_дурен_собой",
+            "role": "object",
+            "standing": "unresolved_surface",
+            "surface": "поразительно дурен собой",
+            "candidateReferents": []
+          }
+        ],
+        "witness": "text:240:126",
+        "scope": {
+          "sequencePosition": 240,
+          "offset": 126
+        },
+        "eo": {
+          "op": "CON",
+          "grain": "Figure"
+        },
+        "meta": {
+          "polarity": "+",
+          "source": "file:voyna-i-mir-ch1-3-aligned.txt",
+          "encounterRef": "encounter:240",
+          "compositionStanding": {
+            "eligible": true,
+            "basis": "no received evidence about this form; absence is not a refusal"
+          }
+        }
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:241:ref_auto_все",
+        "referent": "ref:auto:все",
+        "encounterRef": "encounter:241",
+        "anchor": {
+          "start": 22019,
+          "end": 22318
+        },
+        "witness": "text:241",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:242:ref_auto_все",
+        "referent": "ref:auto:все",
+        "encounterRef": "encounter:242",
+        "anchor": {
+          "start": 22319,
+          "end": 22458
+        },
+        "witness": "text:242",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:246:ref_auto_ипполит",
+        "referent": "ref:auto:ипполит",
+        "encounterRef": "encounter:246",
+        "anchor": {
+          "start": 22714,
+          "end": 22880
+        },
+        "witness": "text:246",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOLexicalOccurrence@1",
+        "id": "lex:246:0",
+        "surfaceKey": "surface:que",
+        "surface": "que",
+        "upos": "NOUN",
+        "standing": "occurrence",
+        "encounterRef": "encounter:246",
+        "offset": 8,
+        "witness": "text:246:8"
+      },
+      {
+        "schema": "EOHyperedge@1",
+        "id": "edge:text:248:0",
+        "relation": "был",
+        "participants": [
+          {
+            "ref": "occ:248:0:subject",
+            "occurrence": "occ:248:0:subject",
+            "surfaceKey": "surface:он",
+            "role": "subject",
+            "standing": "unresolved_surface",
+            "surface": "Он",
+            "candidateReferents": []
+          },
+          {
+            "ref": "occ:248:0:object",
+            "occurrence": "occ:248:0:object",
+            "surfaceKey": "surface:в_темнозеленом_фраке",
+            "role": "object",
+            "standing": "unresolved_surface",
+            "surface": "в темнозеленом фраке",
+            "candidateReferents": []
+          }
+        ],
+        "witness": "text:248:0",
+        "scope": {
+          "sequencePosition": 248,
+          "offset": 0
+        },
+        "eo": {
+          "op": "CON",
+          "grain": "Figure"
+        },
+        "meta": {
+          "polarity": "+",
+          "source": "file:voyna-i-mir-ch1-3-aligned.txt",
+          "encounterRef": "encounter:248",
+          "compositionStanding": {
+            "eligible": true,
+            "basis": "no received evidence about this form; absence is not a refusal"
+          }
+        }
+      },
+      {
+        "schema": "EOHyperedge@1",
+        "id": "edge:text:249:0",
+        "relation": "был",
+        "participants": [
+          {
+            "ref": "occ:249:0:subject",
+            "occurrence": "occ:249:0:subject",
+            "surfaceKey": "surface:которому_он",
+            "role": "subject",
+            "standing": "unresolved_surface",
+            "surface": "которому он",
+            "candidateReferents": []
+          },
+          {
+            "ref": "occ:249:0:object",
+            "occurrence": "occ:249:0:object",
+            "surfaceKey": "surface:подвержен",
+            "role": "object",
+            "standing": "unresolved_surface",
+            "surface": "подвержен",
+            "candidateReferents": []
+          }
+        ],
+        "witness": "text:249:292",
+        "scope": {
+          "sequencePosition": 249,
+          "offset": 292
+        },
+        "eo": {
+          "op": "CON",
+          "grain": "Figure"
+        },
+        "meta": {
+          "polarity": "+",
+          "source": "file:voyna-i-mir-ch1-3-aligned.txt",
+          "encounterRef": "encounter:249",
+          "compositionStanding": {
+            "eligible": true,
+            "basis": "no received evidence about this form; absence is not a refusal"
+          }
+        }
+      },
+      {
+        "schema": "EOHyperedge@1",
+        "id": "edge:text:250:0",
+        "relation": "был",
+        "participants": [
+          {
+            "ref": "occ:250:0:subject",
+            "occurrence": "occ:250:0:subject",
+            "surfaceKey": "surface:рассказ",
+            "role": "subject",
+            "standing": "unresolved_surface",
+            "surface": "Рассказ",
+            "candidateReferents": []
+          },
+          {
+            "ref": "occ:250:0:object",
+            "occurrence": "occ:250:0:object",
+            "surfaceKey": "surface:очень_мил",
+            "role": "object",
+            "standing": "unresolved_surface",
+            "surface": "очень мил",
+            "candidateReferents": []
+          }
+        ],
+        "witness": "text:250:0",
+        "scope": {
+          "sequencePosition": 250,
+          "offset": 0
+        },
+        "eo": {
+          "op": "CON",
+          "grain": "Figure"
+        },
+        "meta": {
+          "polarity": "+",
+          "source": "file:voyna-i-mir-ch1-3-aligned.txt",
+          "encounterRef": "encounter:250",
+          "compositionStanding": {
+            "eligible": true,
+            "basis": "no received evidence about this form; absence is not a refusal"
+          }
+        }
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:бонапарте",
+        "surfaces": [
+          "Бонапарте"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:энгиенский",
+        "surfaces": [
+          "Энгиенский"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:251:ref_auto_анна_павловна_шерер",
+        "referent": "ref:auto:анна_павловна_шерер",
+        "encounterRef": "encounter:251",
+        "anchor": {
+          "start": 23711,
+          "end": 23795
+        },
+        "witness": "text:251",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:251:ref_auto_анна_павловна",
+        "referent": "ref:auto:анна_павловна",
+        "encounterRef": "encounter:251",
+        "anchor": {
+          "start": 23711,
+          "end": 23795
+        },
+        "witness": "text:251",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:253:ref_auto_виконт",
+        "referent": "ref:auto:виконт",
+        "encounterRef": "encounter:253",
+        "anchor": {
+          "start": 23950,
+          "end": 24225
+        },
+        "witness": "text:253",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:253:ref_auto_анна_павловна_шерер",
+        "referent": "ref:auto:анна_павловна_шерер",
+        "encounterRef": "encounter:253",
+        "anchor": {
+          "start": 23950,
+          "end": 24225
+        },
+        "witness": "text:253",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:253:ref_auto_анна_павловна",
+        "referent": "ref:auto:анна_павловна",
+        "encounterRef": "encounter:253",
+        "anchor": {
+          "start": 23950,
+          "end": 24225
+        },
+        "witness": "text:253",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:255:ref_auto_анне_павловне",
+        "referent": "ref:auto:анне_павловне",
+        "encounterRef": "encounter:255",
+        "anchor": {
+          "start": 24425,
+          "end": 24519
+        },
+        "witness": "text:255",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:европы",
+        "surfaces": [
+          "Европы"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:россия",
+        "surfaces": [
+          "россия"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:259:ref_auto_пьер",
+        "referent": "ref:auto:пьер",
+        "encounterRef": "encounter:259",
+        "anchor": {
+          "start": 24809,
+          "end": 24952
+        },
+        "witness": "text:259",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:259:ref_auto_пьера",
+        "referent": "ref:auto:пьера",
+        "encounterRef": "encounter:259",
+        "anchor": {
+          "start": 24809,
+          "end": 24952
+        },
+        "witness": "text:259",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:259:ref_auto_анна_павловна_шерер",
+        "referent": "ref:auto:анна_павловна_шерер",
+        "encounterRef": "encounter:259",
+        "anchor": {
+          "start": 24809,
+          "end": 24952
+        },
+        "witness": "text:259",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:259:ref_auto_анна_павловна",
+        "referent": "ref:auto:анна_павловна",
+        "encounterRef": "encounter:259",
+        "anchor": {
+          "start": 24809,
+          "end": 24952
+        },
+        "witness": "text:259",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOHyperedge@1",
+        "id": "edge:text:262:0",
+        "relation": "для",
+        "participants": [
+          {
+            "ref": "ref:auto:анна_павловна",
+            "role": "subject",
+            "standing": "referent",
+            "surface": "Павловна",
+            "resolution": "containment_surface_in_span",
+            "matchedSurfaces": [
+              "анна павловна"
+            ]
+          },
+          {
+            "ref": "occ:262:0:object",
+            "occurrence": "occ:262:0:object",
+            "surfaceKey": "surface:удобства_наблюдения_присоединила_их",
+            "role": "object",
+            "standing": "unresolved_surface",
+            "surface": "удобства наблюдения присоединила их",
+            "candidateReferents": []
+          }
+        ],
+        "witness": "text:262:32",
+        "scope": {
+          "sequencePosition": 262,
+          "offset": 32
+        },
+        "eo": {
+          "op": "CON",
+          "grain": "Figure"
+        },
+        "meta": {
+          "polarity": "+",
+          "source": "file:voyna-i-mir-ch1-3-aligned.txt",
+          "encounterRef": "encounter:262",
+          "compositionStanding": {
+            "eligible": true,
+            "basis": "no received evidence about this form; absence is not a refusal"
+          }
+        }
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:262:ref_auto_пьера",
+        "referent": "ref:auto:пьера",
+        "encounterRef": "encounter:262",
+        "anchor": {
+          "start": 25270,
+          "end": 25372
+        },
+        "witness": "text:262",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:262:ref_auto_анна_павловна_шерер",
+        "referent": "ref:auto:анна_павловна_шерер",
+        "encounterRef": "encounter:262",
+        "anchor": {
+          "start": 25270,
+          "end": 25372
+        },
+        "witness": "text:262",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:262:ref_auto_анна_павловна",
+        "referent": "ref:auto:анна_павловна",
+        "encounterRef": "encounter:262",
+        "anchor": {
+          "start": 25270,
+          "end": 25372
+        },
+        "witness": "text:262",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOHyperedge@1",
+        "id": "edge:text:264:0",
+        "relation": "был",
+        "participants": [
+          {
+            "ref": "occ:264:0:subject",
+            "occurrence": "occ:264:0:subject",
+            "surfaceKey": "surface:лицо_это",
+            "role": "subject",
+            "standing": "unresolved_surface",
+            "surface": "лицо это",
+            "candidateReferents": []
+          },
+          {
+            "ref": "ref:auto:болконский",
+            "role": "object",
+            "standing": "referent",
+            "surface": "молодой князь Андрей Болконский",
+            "resolution": "unique_surface_in_span",
+            "matchedSurfaces": [
+              "болконский"
+            ]
+          }
+        ],
+        "witness": "text:264:6",
+        "scope": {
+          "sequencePosition": 264,
+          "offset": 6
+        },
+        "eo": {
+          "op": "CON",
+          "grain": "Figure"
+        },
+        "meta": {
+          "polarity": "+",
+          "source": "file:voyna-i-mir-ch1-3-aligned.txt",
+          "encounterRef": "encounter:264",
+          "compositionStanding": {
+            "eligible": true,
+            "basis": "no received evidence about this form; absence is not a refusal"
+          }
+        }
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:264:ref_auto_болконский",
+        "referent": "ref:auto:болконский",
+        "encounterRef": "encounter:264",
+        "anchor": {
+          "start": 25415,
+          "end": 25489
+        },
+        "witness": "text:264",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOReferentGap@1",
+        "id": "gap:referent:ref_auto_болконский",
+        "reason": "pronoun_and_descriptor_mentions_unresolved",
+        "referent": "ref:auto:болконский",
+        "tier": "model",
+        "needsWitness": true,
+        "detail": "name-variant coreference is engine-tier and complete; binding pronouns and definite descriptions to this referent is not derivable (eoreader5 measured distributional coref failing twice). Supply a per-text prior to close this gap."
+      },
+      {
+        "schema": "EOHyperedge@1",
+        "id": "edge:text:265:0",
+        "relation": "был",
+        "participants": [
+          {
+            "ref": "ref:auto:болконский",
+            "role": "subject",
+            "standing": "referent",
+            "surface": "Князь Болконский",
+            "resolution": "unique_surface_in_span",
+            "matchedSurfaces": [
+              "болконский"
+            ]
+          },
+          {
+            "ref": "occ:265:0:object",
+            "occurrence": "occ:265:0:object",
+            "surfaceKey": "surface:небольшого_роста",
+            "role": "object",
+            "standing": "unresolved_surface",
+            "surface": "небольшого роста",
+            "candidateReferents": []
+          }
+        ],
+        "witness": "text:265:0",
+        "scope": {
+          "sequencePosition": 265,
+          "offset": 0
+        },
+        "eo": {
+          "op": "CON",
+          "grain": "Figure"
+        },
+        "meta": {
+          "polarity": "+",
+          "source": "file:voyna-i-mir-ch1-3-aligned.txt",
+          "encounterRef": "encounter:265",
+          "compositionStanding": {
+            "eligible": true,
+            "basis": "no received evidence about this form; absence is not a refusal"
+          }
+        }
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:265:ref_auto_болконский",
+        "referent": "ref:auto:болконский",
+        "encounterRef": "encounter:265",
+        "anchor": {
+          "start": 25490,
+          "end": 25594
+        },
+        "witness": "text:265",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:270:ref_auto_анны_павловны",
+        "referent": "ref:auto:анны_павловны",
+        "encounterRef": "encounter:270",
+        "anchor": {
+          "start": 26054,
+          "end": 26118
+        },
+        "witness": "text:270",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOHyperedge@1",
+        "id": "edge:text:271:0",
+        "relation": "pour",
+        "participants": [
+          {
+            "ref": "occ:271:0:subject",
+            "occurrence": "occ:271:0:subject",
+            "surfaceKey": "surface:vous_enrolez",
+            "role": "subject",
+            "standing": "unresolved_surface",
+            "surface": "vous enrôlez",
+            "candidateReferents": []
+          },
+          {
+            "ref": "occ:271:0:object",
+            "occurrence": "occ:271:0:object",
+            "surfaceKey": "surface:la_guerre",
+            "role": "object",
+            "standing": "unresolved_surface",
+            "surface": "la guerre",
+            "candidateReferents": []
+          }
+        ],
+        "witness": "text:271:7",
+        "scope": {
+          "sequencePosition": 271,
+          "offset": 7
+        },
+        "eo": {
+          "op": "CON",
+          "grain": "Figure"
+        },
+        "meta": {
+          "polarity": "+",
+          "source": "file:voyna-i-mir-ch1-3-aligned.txt",
+          "encounterRef": "encounter:271",
+          "compositionStanding": {
+            "eligible": true,
+            "dominantClass": "VERB",
+            "share": 1,
+            "basis": "treebank-dominant VERB — eligible as portable relation memory",
+            "giver": "UD_English-EWT via bin/priors/pos/en-ud-ewt.json"
+          }
+        }
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:272:ref_auto_анна_павловна_шерер",
+        "referent": "ref:auto:анна_павловна_шерер",
+        "encounterRef": "encounter:272",
+        "anchor": {
+          "start": 26168,
+          "end": 26192
+        },
+        "witness": "text:272",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:272:ref_auto_анна_павловна",
+        "referent": "ref:auto:анна_павловна",
+        "encounterRef": "encounter:272",
+        "anchor": {
+          "start": 26168,
+          "end": 26192
+        },
+        "witness": "text:272",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOHyperedge@1",
+        "id": "edge:text:273:0",
+        "relation": "pour",
+        "participants": [
+          {
+            "ref": "occ:273:0:subject",
+            "occurrence": "occ:273:0:subject",
+            "surfaceKey": "surface:de_moi",
+            "role": "subject",
+            "standing": "unresolved_surface",
+            "surface": "de moi",
+            "candidateReferents": []
+          },
+          {
+            "ref": "occ:273:0:object",
+            "occurrence": "occ:273:0:object",
+            "surfaceKey": "surface:aide",
+            "role": "object",
+            "standing": "unresolved_surface",
+            "surface": "aide",
+            "candidateReferents": []
+          }
+        ],
+        "witness": "text:273:106",
+        "scope": {
+          "sequencePosition": 273,
+          "offset": 106
+        },
+        "eo": {
+          "op": "CON",
+          "grain": "Figure"
+        },
+        "meta": {
+          "polarity": "+",
+          "source": "file:voyna-i-mir-ch1-3-aligned.txt",
+          "encounterRef": "encounter:273",
+          "compositionStanding": {
+            "eligible": true,
+            "dominantClass": "VERB",
+            "share": 1,
+            "basis": "treebank-dominant VERB — eligible as portable relation memory",
+            "giver": "UD_English-EWT via bin/priors/pos/en-ud-ewt.json"
+          }
+        }
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:273:ref_auto_болконский",
+        "referent": "ref:auto:болконский",
+        "encounterRef": "encounter:273",
+        "anchor": {
+          "start": 26194,
+          "end": 26327
+        },
+        "witness": "text:273",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOReferentOccurrence@1",
+        "id": "ref-occ:encounter:273:direct:0:93",
+        "surface": "a bien",
+        "canonicalSurface": "a bien",
+        "head": "bien",
+        "determination": "indefinite",
+        "role": null,
+        "encounterRef": "encounter:273",
+        "edge": null,
+        "relation": null,
+        "standing": "unresolved_identity",
+        "provenance": {
+          "giver": "text/individuation::directDescriptorOccurrences",
+          "basis": "closed-class determiner plus witnessed lexical form"
+        }
+      },
+      {
+        "schema": "EOReferentOccurrence@1",
+        "id": "ref-occ:file:voyna-i-mir-ch1-3-aligned.txt:26194:direct:0:93",
+        "surface": "a bien",
+        "canonicalSurface": "a bien",
+        "head": "bien",
+        "determination": "indefinite",
+        "role": null,
+        "encounterRef": "file:voyna-i-mir-ch1-3-aligned.txt:26194",
+        "edge": null,
+        "relation": null,
+        "standing": "unresolved_identity",
+        "provenance": {
+          "giver": "text/individuation::directDescriptorOccurrences",
+          "basis": "closed-class determiner plus witnessed lexical form"
+        }
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:274:ref_auto_lise",
+        "referent": "ref:auto:lise",
+        "encounterRef": "encounter:274",
+        "anchor": {
+          "start": 26330,
+          "end": 26353
+        },
+        "witness": "text:274",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOIdentityHypothesis@1",
+        "id": "identity:descriptor:a_bien",
+        "surface": "a bien",
+        "determinations": [
+          "indefinite"
+        ],
+        "occurrenceRefs": [
+          "ref-occ:encounter:273:direct:0:93",
+          "ref-occ:file:voyna-i-mir-ch1-3-aligned.txt:26194:direct:0:93"
+        ],
+        "encounterRefs": [
+          "encounter:273",
+          "file:voyna-i-mir-ch1-3-aligned.txt:26194"
+        ],
+        "relationContexts": [
+          {
+            "edge": null,
+            "relation": null,
+            "role": null
+          },
+          {
+            "edge": null,
+            "relation": null,
+            "role": null
+          }
+        ],
+        "standing": "live_hypothesis",
+        "provenance": {
+          "giver": "text/individuation::descriptorHypotheses",
+          "basis": "same descriptor recurred across distinct encounters; identity remains defeasible"
+        }
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:277:ref_auto_виконт",
+        "referent": "ref:auto:виконт",
+        "encounterRef": "encounter:277",
+        "anchor": {
+          "start": 26434,
+          "end": 26609
+        },
+        "witness": "text:277",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:277:ref_auto_бонапарте",
+        "referent": "ref:auto:бонапарте",
+        "encounterRef": "encounter:277",
+        "anchor": {
+          "start": 26434,
+          "end": 26609
+        },
+        "witness": "text:277",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOReferentGap@1",
+        "id": "gap:referent:ref_auto_бонапарте",
+        "reason": "pronoun_and_descriptor_mentions_unresolved",
+        "referent": "ref:auto:бонапарте",
+        "tier": "model",
+        "needsWitness": true,
+        "detail": "name-variant coreference is engine-tier and complete; binding pronouns and definite descriptions to this referent is not derivable (eoreader5 measured distributional coref failing twice). Supply a per-text prior to close this gap."
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:андрей",
+        "surfaces": [
+          "Андрей"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:279:ref_auto_пьер",
+        "referent": "ref:auto:пьер",
+        "encounterRef": "encounter:279",
+        "anchor": {
+          "start": 26649,
+          "end": 26780
+        },
+        "witness": "text:279",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:280:ref_auto_пьера",
+        "referent": "ref:auto:пьера",
+        "encounterRef": "encounter:280",
+        "anchor": {
+          "start": 26781,
+          "end": 26969
+        },
+        "witness": "text:280",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:280:ref_auto_андрей",
+        "referent": "ref:auto:андрей",
+        "encounterRef": "encounter:280",
+        "anchor": {
+          "start": 26781,
+          "end": 26969
+        },
+        "witness": "text:280",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOReferentGap@1",
+        "id": "gap:referent:ref_auto_андрей",
+        "reason": "pronoun_and_descriptor_mentions_unresolved",
+        "referent": "ref:auto:андрей",
+        "tier": "model",
+        "needsWitness": true,
+        "detail": "name-variant coreference is engine-tier and complete; binding pronouns and definite descriptions to this referent is not derivable (eoreader5 measured distributional coref failing twice). Supply a per-text prior to close this gap."
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:281:ref_auto_вот",
+        "referent": "ref:auto:вот",
+        "encounterRef": "encounter:281",
+        "anchor": {
+          "start": 26971,
+          "end": 26983
+        },
+        "witness": "text:281",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:пьеру",
+        "surfaces": [
+          "Пьеру"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:284:ref_auto_пьер",
+        "referent": "ref:auto:пьер",
+        "encounterRef": "encounter:284",
+        "anchor": {
+          "start": 27026,
+          "end": 27066
+        },
+        "witness": "text:284",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:287:ref_auto_андрей",
+        "referent": "ref:auto:андрей",
+        "encounterRef": "encounter:287",
+        "anchor": {
+          "start": 27180,
+          "end": 27288
+        },
+        "witness": "text:287",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:287:ref_auto_пьеру",
+        "referent": "ref:auto:пьеру",
+        "encounterRef": "encounter:287",
+        "anchor": {
+          "start": 27180,
+          "end": 27288
+        },
+        "witness": "text:287",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOReferentGap@1",
+        "id": "gap:referent:ref_auto_пьеру",
+        "reason": "pronoun_and_descriptor_mentions_unresolved",
+        "referent": "ref:auto:пьеру",
+        "tier": "model",
+        "needsWitness": true,
+        "detail": "name-variant coreference is engine-tier and complete; binding pronouns and definite descriptions to this referent is not derivable (eoreader5 measured distributional coref failing twice). Supply a per-text prior to close this gap."
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:288:ref_auto_василий",
+        "referent": "ref:auto:василий",
+        "encounterRef": "encounter:288",
+        "anchor": {
+          "start": 27289,
+          "end": 27406
+        },
+        "witness": "text:288",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:289:ref_auto_виконт",
+        "referent": "ref:auto:виконт",
+        "encounterRef": "encounter:289",
+        "anchor": {
+          "start": 27408,
+          "end": 27544
+        },
+        "witness": "text:289",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:289:ref_auto_василий",
+        "referent": "ref:auto:василий",
+        "encounterRef": "encounter:289",
+        "anchor": {
+          "start": 27408,
+          "end": 27544
+        },
+        "witness": "text:289",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:291:ref_auto_анне_павловне",
+        "referent": "ref:auto:анне_павловне",
+        "encounterRef": "encounter:291",
+        "anchor": {
+          "start": 27627,
+          "end": 27706
+        },
+        "witness": "text:291",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:292:ref_auto_элен",
+        "referent": "ref:auto:элен",
+        "encounterRef": "encounter:292",
+        "anchor": {
+          "start": 27708,
+          "end": 27836
+        },
+        "witness": "text:292",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:292:ref_auto_княжна",
+        "referent": "ref:auto:княжна",
+        "encounterRef": "encounter:292",
+        "anchor": {
+          "start": 27708,
+          "end": 27836
+        },
+        "witness": "text:292",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:292:ref_auto_между",
+        "referent": "ref:auto:между",
+        "encounterRef": "encounter:292",
+        "anchor": {
+          "start": 27708,
+          "end": 27836
+        },
+        "witness": "text:292",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOReferentGap@1",
+        "id": "gap:referent:ref_auto_княжна",
+        "reason": "pronoun_and_descriptor_mentions_unresolved",
+        "referent": "ref:auto:княжна",
+        "tier": "model",
+        "needsWitness": true,
+        "detail": "name-variant coreference is engine-tier and complete; binding pronouns and definite descriptions to this referent is not derivable (eoreader5 measured distributional coref failing twice). Supply a per-text prior to close this gap."
+      },
+      {
+        "schema": "EOReferentGap@1",
+        "id": "gap:referent:ref_auto_между",
+        "reason": "pronoun_and_descriptor_mentions_unresolved",
+        "referent": "ref:auto:между",
+        "tier": "model",
+        "needsWitness": true,
+        "detail": "name-variant coreference is engine-tier and complete; binding pronouns and definite descriptions to this referent is not derivable (eoreader5 measured distributional coref failing twice). Supply a per-text prior to close this gap."
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:слегка",
+        "surfaces": [
+          "слегка"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:293:ref_auto_пьер",
+        "referent": "ref:auto:пьер",
+        "encounterRef": "encounter:293",
+        "anchor": {
+          "start": 27837,
+          "end": 27938
+        },
+        "witness": "text:293",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:294:ref_auto_андрей",
+        "referent": "ref:auto:андрей",
+        "encounterRef": "encounter:294",
+        "anchor": {
+          "start": 27940,
+          "end": 27978
+        },
+        "witness": "text:294",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:295:ref_auto_пьер",
+        "referent": "ref:auto:пьер",
+        "encounterRef": "encounter:295",
+        "anchor": {
+          "start": 27980,
+          "end": 28003
+        },
+        "witness": "text:295",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:296:ref_auto_анне_павловне",
+        "referent": "ref:auto:анне_павловне",
+        "encounterRef": "encounter:296",
+        "anchor": {
+          "start": 28005,
+          "end": 28083
+        },
+        "witness": "text:296",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:296:ref_auto_василий",
+        "referent": "ref:auto:василий",
+        "encounterRef": "encounter:296",
+        "anchor": {
+          "start": 28005,
+          "end": 28083
+        },
+        "witness": "text:296",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:296:ref_auto_пьера",
+        "referent": "ref:auto:пьера",
+        "encounterRef": "encounter:296",
+        "anchor": {
+          "start": 28005,
+          "end": 28083
+        },
+        "witness": "text:296",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:298:ref_auto_вот",
+        "referent": "ref:auto:вот",
+        "encounterRef": "encounter:298",
+        "anchor": {
+          "start": 28129,
+          "end": 28192
+        },
+        "witness": "text:298",
+        "source": "file:voyna-i-mir-ch1-3-aligned.txt"
+      }
+    ]
+  },
+  "hyperlexicon": {
+    "schema": "EOHyperlexicon@1",
+    "entries": 0,
+    "given": [],
+    "candidates": [],
+    "disclosure": "no prior work has been read at this rung yet, so nothing can be a cross-work memory — every candidate here is nominated from recurrence inside this one text alone, and none is GIVEN"
+  },
+  "taskLog": {
+    "entries": 0
+  }
+}
