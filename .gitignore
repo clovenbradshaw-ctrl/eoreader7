@@ -25,6 +25,9 @@ node_modules/
 native/eval/the-fold/fixtures/primary-faces/
 native/eval/the-fold/results/*.json
 native/eval/results/*.json
+native/eval/lavar/results/*-test.json
+native/eval/the-fold/results/longform-multi-type-*/
+native/eval/the-fold/results/longform-code-*/
 
 # Fetched third-party PAGES cached for offline replay — the same category as
 # primary-faces above, extended 2026-09-04 when a 512 KB news page landed in a
@@ -60,3 +63,12 @@ native/eval/the-fold/results/conversation/
 proxy.log
 .er7-proxy.pid
 test run/
+documents/
+heimdall-log.jsonl
+native/the-fold/speaker-models/*.json
+_dbg_*.mjs
+_diag_*.mjs
+_smoke_*.mjs
+cli/alice.txt
+proxy-debug.mjs
+*.bak
