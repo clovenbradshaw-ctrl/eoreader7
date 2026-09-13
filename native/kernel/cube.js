@@ -3,6 +3,11 @@
 // This is intentionally smaller than the historical engine/operators.js.
 // The kernel needs only the closed EO algebra. App verbs, organ routing,
 // and historical registries remain compatibility concerns.
+//
+// THE WHEEL, IN THE CUBE (native/docs/THE-WHEEL.md). The three grains are
+// the wheel's registers: Ground is the Void (the hub, the rebuilt ground),
+// Figure is the Beings (the spokes, the particulars), Pattern is the Fold
+// (the rim, the difference the being made). 0 / n / 1.
 
 export const MODES = Object.freeze(["Differentiate", "Relate", "Generate"]);
 export const DOMAINS = Object.freeze(["Existence", "Structure", "Interpretation"]);

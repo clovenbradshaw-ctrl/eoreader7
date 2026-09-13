@@ -109,6 +109,12 @@ row that follows:
 Read a cell like `EVA·Figure` as: row EVA (Relate, Interpretation) ×
 column Figure → **Lens, Binding**. This is the whole of `cube.js`.
 
+*The wheel names these three grains once (`native/docs/THE-WHEEL.md`,
+canonical): Ground is the **Void** (the hub — "the void is an event with a
+cursor, never a state"), Figure is the **Beings** (the spokes — "a being is
+the fold at a point"), Pattern is the **Fold** (the rim — the difference the
+being made). The census cites the wheel's naming and never re-derives it.*
+
 ---
 
 ## 3. Headline finding — every cell is independently corroborated, and the ground row is thin everywhere, not just in three cells

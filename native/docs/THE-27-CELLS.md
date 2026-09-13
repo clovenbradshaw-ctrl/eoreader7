@@ -60,6 +60,12 @@ assertGeometry` — 7 checks.
 read against; **Figure** — one difference from its ground; **Pattern** —
 the difference a figure made to the next ground, a recurrence.
 
+*The wheel names the three grains once (`native/docs/THE-WHEEL.md`,
+canonical): Ground is the **Void** (the hub), Figure is the **Beings** (the
+spokes — "a being is the fold at a point"), Pattern is the **Fold** (the
+rim). The cells are the moves; the wheel is the naming of the one act
+behind them. This document cites the wheel and never re-derives it.*
+
 **The rule above all of it: cells classify MOVES, never content.**
 95.7% of cell assignments survived shuffling the words inside 2,527
 paragraphs — deriving a cell from a passage is a refuted move, and it

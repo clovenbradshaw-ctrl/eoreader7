@@ -10,6 +10,10 @@
 // The law of holons, for voids: low sets possibility for high, high
 // probability for low — the smallest void bounds what the level above can
 // assert. A level left under-specified is a VISIBLE GAP, never hidden.
+//
+// THE WHEEL (native/docs/THE-WHEEL.md): this organ is the VOID itself —
+// literally the hub, the nothing against which; the holarchy is the hub
+// opening, level by level. Void / Beings / Fold, the one act three ways.
 
 // The nine canonical operators, in the chain's own order (cube.js) — the
 // surface every level is DEF'd across.

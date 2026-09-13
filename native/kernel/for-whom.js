@@ -12,6 +12,10 @@
 // through that frame and is gated by whether the reading makes a
 // difference to its question.
 //
+// THE WHEEL (native/docs/THE-WHEEL.md): the beings are the particulars —
+// the spokes, the span-free referent nodes. A for-whom is a being's
+// jurisdiction: identity exists only for-whom (S113), the spoke's witness.
+//
 // THE GATE IS THREE LEGS (2026-09-13, measured): DMD coherence (the
 // trajectory has order-dependent structure above its shuffled null),
 // material discovery (it found the text at all), and QUESTION RELEVANCE

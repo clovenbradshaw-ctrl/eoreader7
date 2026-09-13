@@ -93,6 +93,13 @@ materialises everything eagerly, as though identity were storage-time. The
 declared principle and the implementation disagree, and the implementation is
 the one costing 340 MB.
 
+*The wheel names this register once (`native/docs/THE-WHEEL.md`, canonical):
+the referent born at first admission is a **Being** — the spokes, "a being is
+the fold at a point"; the fold this document rebuilds from the log is the
+**Fold** — the rim, the pattern; the ground it is read against is the
+**Void** — the hub. This document cites the wheel's naming, never re-derives
+it.*
+
 ## The change
 
 **Resident: the log.** Append-only, immutable, 7.3 MB as JSON and 490 KB

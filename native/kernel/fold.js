@@ -1,3 +1,8 @@
+// kernel/fold.js — the fold: the transient projection of the log along the
+// reader's chain (S78), a forward delta stream that retains nothing. THE
+// WHEEL (native/docs/THE-WHEEL.md): this is the RIM — the Fold grain, the
+// difference the being made on the next ground, an event never a state.
+
 import { cellOf } from "./cube.js";
 
 const STATES = new Set(["open", "strengthened", "weakened", "fulfilled", "violated", "reframed", "superseded"]);

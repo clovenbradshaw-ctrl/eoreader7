@@ -1,4 +1,7 @@
 // Handle: Vasana — after the residual impressions of past experience that condition later perception without being perceived themselves. Amendment XVII.
+// THE WHEEL (native/docs/THE-WHEEL.md): these are the VOID's — the earned
+// and received, the character the hub carries into the next read; Vasana is
+// the wheel's own figure, the re-formed prior that primes the next ground.
 
 const freeze = (value) => Object.freeze(value);
 

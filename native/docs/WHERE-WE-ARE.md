@@ -50,6 +50,13 @@ another, and confusing them is how a pass ends up tuning the wrong stage.
 | **Stations (0–9)** | the pipeline, end to end | all built and lit; **station 5 starves the rest** |
 | **Ways of knowing (9)** | epistemic surface | all nine present; the hub is five enforced walls |
 
+*The wheel is the naming of the hub and its spokes (`native/docs/THE-WHEEL.md`,
+canonical): the hub is the **Void** (Ground — "the void is an event with a
+cursor, never a state"), the spokes are the **Beings** (the particulars),
+the rim is the **Fold** (the emergent pattern) — "from nothing, the many;
+from the many, the one." The ladders below climb that one act; this document
+cites the wheel's naming, never re-derives it.*
+
 ### Floors — F6 is open, F5 is the choke
 
 Floors are operand grade: F0 units → F1 referents → F2 arrangements → F3

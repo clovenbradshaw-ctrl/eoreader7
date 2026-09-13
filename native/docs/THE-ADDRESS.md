@@ -42,6 +42,12 @@ elsewhere in the codebase:
    (`identity-is-the-fold-at-a-point.md`) — never by appearance, not even
    in principle.
 
+   *The wheel names this register (`native/docs/THE-WHEEL.md`, canonical):
+   the being minted at first admission is a **Being** — the spokes; the
+   fold at a point is the **Fold** — the rim; the ground the address stands
+   on is the **Void** — the hub. This document cites the wheel's naming
+   and never re-derives it.*
+
 3. **It self-verifies against the bytes it names (P5.2).** Byte-offset
    self-verification is mandatory; every span reads back as its own pair or
    it throws. A normalisation that changes length (`normaliseNewlines`)

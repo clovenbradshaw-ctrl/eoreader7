@@ -1,6 +1,10 @@
 // the-fold · experiencer.js — every belief names who is believing it.
 // Handle: Panini — after the karaka grammar, which names the experiencer as its own case role: every belief carries who is undergoing it. Amendment XVII.
 //
+// THE WHEEL (native/docs/THE-WHEEL.md): the experiencer is the BEINGS'
+// witness — the spokes, the span-free particulars; every belief names which
+// being (for-whom) holds it.
+//
 // THE FINDING THIS CLOSES (user direction, verbatim: "everything isn't just
 // given by a source it is believed BY an experiencer"). Measured live this
 // session: comparing hypergraph.js's own extraction against Wikidata and

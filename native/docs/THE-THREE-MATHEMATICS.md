@@ -92,6 +92,13 @@ So the 27 cells read as **which mathematics × which order of difference**,
 and a cell like EVA·Figure ("compare this difference's accumulation to
 its bound") is almost self-computing.
 
+*The wheel names this section's arithmetic once (`native/docs/THE-WHEEL.md`,
+canonical): the void holds no count (0 — the Ground), the beings are the
+many (n — the Figures), the fold is the one (1 — the Pattern) — "from
+nothing, the many; from the many, the one." The SEED rows' constant /
+value / rate are 0 / n / 1 in the wheel's terms; this document cites the
+naming, never re-derives it.*
+
 ## IV. The terrain face: the same maths as OBJECTS
 
 Project the modes out (domain × grain) and each mathematics' column is

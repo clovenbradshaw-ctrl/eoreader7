@@ -1,3 +1,6 @@
+// adapters/text/recursive.js — the text perceiver: void → being → fold per
+// encounter (native/docs/THE-WHEEL.md) — the hub re-hollowed, the referent
+// born (a being), the difference folded (the rim). One wheel per turn.
 import { sha256hex } from "./sha256hex.js";
 import { tokenize, buildFrequencyTable, functionWordSet } from "./material.js";
 import { splitSentences } from "./spans.js";

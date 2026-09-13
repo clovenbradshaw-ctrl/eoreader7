@@ -36,10 +36,8 @@
 // applied: a descriptor is not reliably gendered, and a wrong hard filter
 // is worse than none — disclosed, not hidden.
 
-import { createHash } from "node:crypto";
+import { sha256hex } from "./sha256hex.js";
 import { tokens, codeOf, recall, encodeFrame } from "../../memory/activation.js";
-
-const sha256hex = (text) => createHash("sha256").update(String(text ?? "")).digest("hex").slice(0, 32);
 
 const DEFAULT_COMPLETION = 0.5;
 const DEFAULT_TOP_EDGES = 6;

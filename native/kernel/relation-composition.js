@@ -1,4 +1,7 @@
 // Handle: Tarski — after the calculus of relations. Amendment XVII.
+// THE WHEEL (native/docs/THE-WHEEL.md): composition chains are the FOLD at
+// the referent bridges — the rim, the difference the being made, carried
+// from one being to the next.
 
 import { compositionAffordance } from "./hyperlexicon.js";
 
@@ -282,7 +285,15 @@ function evaluateChains(chains = [], hyperlexicon = null) {
   const withheld = [];
   const licensed = [];
   for (const chain of chains) {
-    const affordance = compositionAffordance(hyperlexicon, chain.leftEdge.relation, chain.rightEdge.relation);
+    // The structural affordance is keyed on the GRAIN (the cube's medium-blind
+    // Figure/Pattern axis), never the relation label — VERB/AUX are English
+    // lenses, the grain is not (LAVAR.md 2026-09-13, S115). reaction.js passes
+    // the chains' eo.grain; this seam must do the same or production composition
+    // stays label-bound while only the measurement harness composes structurally.
+    const affordance = compositionAffordance(hyperlexicon, chain.leftEdge.relation, chain.rightEdge.relation, {
+      leftGrain: chain.leftEdge.eo?.grain ?? null,
+      rightGrain: chain.rightEdge.eo?.grain ?? null,
+    });
     const base = {
       from: chain.from,
       bridge: chain.bridge,

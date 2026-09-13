@@ -11,6 +11,9 @@
 // never O(everything read). A reader whose per-proposition cost grows with
 // the book is re-reading, not reading (READING-SPEC S4).
 //
+// THE WHEEL (native/docs/THE-WHEEL.md): activation is the SPOKE's reach —
+// one hop, the beings' presence; the fold lit at the present is the rim.
+//
 // This is a different thing from lexicon.js: the lexicon is PERSISTENCE
 // projected from the log (identity — never forgets); this is ACTIVATION
 // (presence — always fading). P1's table says the reader needs both and

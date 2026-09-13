@@ -20,6 +20,13 @@ by difference from a ground you rebuild"), and `nul/index.js` implements
 it as `PERTURBATIONS × STATISTICS` with a `LICENSED` table. Everything
 below is that, wearing different clothes.
 
+*The wheel names this one act once (`native/docs/THE-WHEEL.md`, canonical):
+the rebuilt ground is the **Void** — the hub, "the void is an event with a
+cursor, never a state"; the figure admitted against it is a **Being** — the
+spokes, "a being is the fold at a point"; the difference the being made is
+the **Fold** — the rim. The mechanism is the wheel's one act, named; this
+document cites the wheel and never re-derives it.*
+
 ## The census — what each finder destroys
 
 | finder | the relation it destroys | what survives |

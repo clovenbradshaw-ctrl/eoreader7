@@ -2,6 +2,10 @@
 // structural (engine-tier) coreference between them. No word sets anywhere:
 // every filter here is derived from the text's own statistics.
 //
+// THE WHEEL (native/docs/THE-WHEEL.md): this is where the BEINGS are born —
+// the spokes, particulars admitted at first admission (S80: an address is a
+// birth, not a spelling). A referent is the fold at a point.
+//
 // SCOPE (Constitution II.13, script earning test): diaNorm below folds only
 // the five Latin vowels' acute/grave/circumflex/umlaut diacritics (á/à/â/ä
 // ... ú/ù/û/ü). It is disclosed-narrow, not script-agnostic: it does NOT

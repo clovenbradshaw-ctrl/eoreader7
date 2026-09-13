@@ -38,6 +38,12 @@ Two controls ship with the organ (II.23): no giver → a measured zero, and
 `redeal` (objects permuted within a relation) → a different derived set,
 with the licensed set a subset of the unlicensed join throughout.
 
+*The wheel names the operand ladder's spine once (`native/docs/THE-WHEEL.md`,
+canonical): F1's referents are the **Beings** — the spokes, born at first
+admission, "a being is the fold at a point"; the ground a floor reads against
+is the **Void** — the hub; the pattern a floor leaves behind is the **Fold**
+— the rim. This document cites the wheel's naming, never re-derives it.*
+
 ## Ladder 2 — STRATA: what channel of evidence
 
 Which channel of the material a mechanism is licensed to DECIDE from.

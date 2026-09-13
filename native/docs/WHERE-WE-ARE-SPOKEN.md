@@ -38,6 +38,8 @@ Stations: the pipeline itself, from raw bytes through to the answer. All ten bui
 
 And ways of knowing: the epistemic surface. Nine of them, all present, arranged around a hub that is deliberately empty.
 
+The wheel gives that hub and its spokes their conceptual names (native/docs/THE-WHEEL.md, the canonical naming): the hub is the Void — the ground, the nothing the reading stands on; the spokes are the Beings — the particulars, born at first admission; and the rim is the Fold — the pattern, the difference the being made. Hub, spokes, rim is the picture; Void, Beings, Fold is the engineering. This is a pointing, not a proof — the wheel is cited, never re-derived.
+
 ### Floors
 
 Floors are about the grade of thing you're operating on. Units, then referents, then arrangements, then claims, then nested claims, then corroborated notes, and finally premises.

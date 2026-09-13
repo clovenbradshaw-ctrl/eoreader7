@@ -4,6 +4,9 @@
 // HL is not a vocabulary or synonym table. It is an explicit ledger of
 // relation-composition affordances. Experience may nominate candidates; only
 // a GIVEN affordance with a named giver licenses composition.
+//
+// THE WHEEL (native/docs/THE-WHEEL.md): HL is the FIELD — the accumulated
+// ground the reading stands on, the void's own content (register name TBD).
 
 const freeze = (value) => Object.freeze(value);
 const stable = (value) => typeof value === "string" ? value : JSON.stringify(value);

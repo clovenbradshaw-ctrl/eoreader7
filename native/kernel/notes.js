@@ -45,6 +45,10 @@
 // is tested against — where the source itself turned — is the caller's,
 // never read here.
 //
+// THE WHEEL (native/docs/THE-WHEEL.md): the ledger is where the MANY live —
+// the beings' assertions, n, held as events; the fold (1) is projected from
+// them, never their sum.
+//
 // NOTHING NAMED. This file's executable body names no medium: no sentence,
 // word, verb, note-as-music, bar, frame-of-film. `notes.test.js` reads this
 // source and fails if one appears.

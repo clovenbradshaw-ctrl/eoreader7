@@ -14,6 +14,10 @@
 // observable space, so the Hilbert-space structure here is measured rather
 // than asserted.
 //
+// THE WHEEL (native/docs/THE-WHEEL.md): DMD decomposes the RIM's dynamics —
+// the Fold grain, the difference the being made, at its own growth and its
+// own frequency. The fold is one (1), the mode the many (n) excite.
+//
 // WHY DECOMPOSITION AND NOT A DEEPER SPREAD. memory/activation.js rejects
 // multi-hop spreading activation by name: a diffuse spread "pools inside a
 // passage's own dense vocabulary and drowns the distant target," so it stops

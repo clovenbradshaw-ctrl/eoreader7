@@ -156,6 +156,13 @@ The nine spokes share one hub, and the hub is empty — and the emptiness
 is load-bearing, not vacant. Three givers converge on this exact
 structure, none of them ours:
 
+*The wheel is this same structure with its three positions named
+(`native/docs/THE-WHEEL.md`, canonical): the hub is the **Void** (Ground),
+the spokes are the **Beings** (Particulars — "a being is the fold at a
+point"), the rim is the **Fold** (Emergent pattern). Hub / Spokes / Rim is
+the image; Void / Beings / Fold is the metaphysics and the engineering.
+This document cites the wheel's naming and never re-derives it.*
+
 - **Tao Te Ching 11:** thirty spokes share one hub; it is the hole at
   the center that makes the wheel useful.
 - **Advaita's *sākṣin*:** the witness of all knowing that is never

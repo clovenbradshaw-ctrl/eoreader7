@@ -1,3 +1,7 @@
+// kernel/reading.js — the reader's step chain: per encounter the void
+// (receivedGround, the hub re-hollowed) admits a being (the spokes) and
+// folds the difference the being made (the rim). THE WHEEL, one step:
+// void → being → fold, 0 → n → 1 (native/docs/THE-WHEEL.md).
 import { receivedGround, applyObservation, applyDelta, deltaFold, reconstruct } from "./fold.js";
 import { deriveOrientation } from "./orientation.js";
 import { perceive as defaultPerceive } from "./perception.js";

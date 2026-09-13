@@ -111,6 +111,13 @@ cut: every block is trimmed where showing one more line changes nothing about
 what the question reaches (`dmdWindow`, the same measurement the record
 window and the history window spend).
 
+*The wheel names those grains once (`native/docs/THE-WHEEL.md`, canonical):
+Ground is the **Void** (the hub), Figure is the **Beings** (the spokes — the
+span-free referent nodes born at first admission, S80/S113), Pattern is the
+**Fold** (the rim — "identity is the fold at a point"). What the holograph
+hands is a pattern; the wheel is where the one act behind it is named. This
+document cites the wheel and never re-derives it.*
+
 **The log as truth.** Event sourcing, and the Choreo lineage this project's
 own `store.js` names ("the log is truth, projection is convenience"): the
 record is append-only, the fold is a transient projection (P159), and a

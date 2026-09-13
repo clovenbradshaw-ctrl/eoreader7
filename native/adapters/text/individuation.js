@@ -1,4 +1,4 @@
-import { createHash } from "node:crypto";
+import { sha256hex } from "./sha256hex.js";
 import {
   ANAPHORIC_PRONOUNS,
   DEFINITE_DETERMINERS,
@@ -13,7 +13,6 @@ import {
 // encounterRef stays IN the content so two sources never collide. The
 // `identity:descriptor:` hypothesis and `ref:descriptor:` projection are
 // BEINGS — A2, birth-named — left untouched.
-const sha256hex = (text) => createHash("sha256").update(String(text ?? "")).digest("hex").slice(0, 32);
 const occurrenceContent = ({ encounterRef, canonicalSurface, head, determination, role, index }) =>
   `ref-occ|enc:${encounterRef ?? "unknown"}|canon:${canonicalSurface}|head:${head}|det:${determination}|role:${role ?? ""}|at:${index ?? ""}`;
 

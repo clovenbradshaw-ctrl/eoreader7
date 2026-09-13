@@ -2,6 +2,10 @@
 // notice when the ground starts to close. Pure; numbers arrive as
 // arguments (the cast.js pattern), nothing is imported.
 //
+// THE WHEEL (native/docs/THE-WHEEL.md): this is the HUB's own watch — the
+// Void, the nothing against which; the witness measures its openness, never
+// its fullness, and re-ground is the hub's re-hollowing.
+//
 // THE REFRAME THAT NAMES THIS ORGAN (2026-09-13). The holograph is
 // ATTENTION — an act, not a record: the fold at a cursor IS the present,
 // and every part points at the whole. The hyperlexicon is AWARENESS — a

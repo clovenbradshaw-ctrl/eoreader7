@@ -5,6 +5,10 @@
 // finding: a quantity may not be named after a state its measurement does not establish.
 // Amendment XVII.
 //
+// THE WHEEL (native/docs/THE-WHEEL.md): pathos is the RIM — the felt shape of
+// the fold, the Pattern grain, the difference the being made. The felt shape
+// is the fold's own body: the emergent pattern, one (1).
+//
 // THREE MACHINES, ONE LAW. pacing.js (Murch) holds the rhythm — the cut where the blink
 // falls. kernel/dynamics.js holds the surprise/tension/release curve — the felt shape of
 // the fold. organs/experiencer.js (Panini) holds the for-whom. This organ composes them

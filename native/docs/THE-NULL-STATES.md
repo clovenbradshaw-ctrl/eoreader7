@@ -6,6 +6,14 @@
 
 Every organ here perceives by difference from a nothing it rebuilds (SEED; eo-constitution II.8). So the instrument's whole vocabulary of *what it knows* is a vocabulary of *what it built as nothing and what failed to clear it*. A positive finding is one shape; a null is twenty-seven. `nul/index.js`'s own header says it in one line: every gap type is the same act at a different grain — refusing a claim. The ways-of-knowing register names the spoke: APOPHASIS, knowing-the-absence, whose validity condition is that the refusal REACHED its object, and whose corruption is silence read as anything at all.
 
+*The wheel is the naming of this document's whole subject
+(`native/docs/THE-WHEEL.md`, canonical): the void is the **Void** — the
+hub, the rebuilt ground, "the void is an event with a cursor, never a
+state"; the referents that clear it are the **Beings** — the spokes; the
+difference they leave behind is the **Fold** — the rim. This census of the
+nulls is a census of the hub; it cites the wheel's naming and never
+re-derives it.*
+
 This document does two things. It places every null the code already declares at its cell, so a new organ finds the null it owes before writing one. And it names the cells whose null is not yet declared — which, in a project that perceives only by difference, is exactly where the next capacity is.
 
 ## The laws every null obeys

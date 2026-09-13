@@ -11,6 +11,9 @@
 // order-destroyed null — so this is a property of the kind "novel", not of
 // one book, which is exactly what makes it portable.
 //
+// THE WHEEL (native/docs/THE-WHEEL.md): rhythm is the FOLD's pacing — the
+// rim's WHEN, the interval at which a being is re-admitted to the fold.
+//
 // Deliberately written to experience-priors.js's OWN conventions, so the two
 // halves compose rather than compete: same input shape (completed readings,
 // or already-sedimented priors), same `giver` requirement, same

@@ -1,4 +1,4 @@
-import { createHash } from "node:crypto";
+import { sha256hex } from "./sha256hex.js";
 
 // THE-ADDRESS.md applied (2026-09-13). `ref-occ:` ids name OCCURRENCES —
 // content, so A4: each id is the SHA-256 of (encounterRef + exactSurface +
@@ -7,7 +7,6 @@ import { createHash } from "node:crypto";
 // two occurrences — A5: hashed over (left + right + kind). The
 // `ref:discourse:` projection names a BEING — A2, birth-named — left
 // untouched.
-const sha256hex = (text) => createHash("sha256").update(String(text ?? "")).digest("hex").slice(0, 32);
 
 const WORD = /[\p{L}\p{N}]+(?:['’][\p{L}\p{N}]+)*/gu;
 const norm = (x) => (String(x ?? "").toLowerCase().match(WORD) ?? []).join(" ");
