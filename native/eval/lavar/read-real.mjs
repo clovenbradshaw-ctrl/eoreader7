@@ -130,7 +130,10 @@ async function main() {
         if ((psurf.includes(cs) || cs.includes(psurf)) && (n.encounters.size === 0 || n.encounters.has(`encounter:${pEnc}`))) { node = n; break; }
       }
       if (!node) continue;
-      p.standing = "referent"; p.referent = node.ref; p.canonicalSurface = node.canonicalSurface;
+      // The participant is a frozen perceiver object — never mutate it. The
+      // ledger resolves standing from the EODefiniteBinding below
+      // (resolveEndpoint: binding lookup by occurrence), so the stamp lives
+      // in the binding, not on the edge.
       participantBindings.push(Object.freeze({
         schema: "EODefiniteBinding@1",
         id: `definite-binding:meta:${p.occurrence}`,
@@ -180,7 +183,8 @@ async function main() {
         holdings.set(hkey, hypothesis);
         rawEntries.push(hypothesis); // the holding lands on the record
       }
-      p.standing = "hypothesis"; p.identityHypothesis = hypothesis.id; p.canonicalSurface = noun; p.possessiveAnchor = owner;
+      // Frozen participant — the holding binding below carries the
+      // resolution; never mutate the edge (same rule as the bridge above).
       participantBindings.push(Object.freeze({
         schema: "EODefiniteBinding@1",
         id: `definite-binding:poss:${p.occurrence}`,
@@ -222,7 +226,12 @@ async function main() {
       pairTypes: stats.pairTypes,
       repeatedPairTypes: stats.repeatedPairTypes,
       projectedBindings: projectedBindings.length,
-      graphEntries: rawEntries,
+      // Persist the FULL record, not rawEntries: the EODefiniteBinding
+      // entries (span-free node bridge + possessive holdings) are what make
+      // the composition ledger reach 31 pairTypes / 34 chainSites. A
+      // downstream re-read of this artifact must reproduce the chemistry,
+      // not a graph that re-reads at 0.
+      graphEntries: entries,
     },
     hyperlexicon: {
       schema: hyperlexicon.schema,

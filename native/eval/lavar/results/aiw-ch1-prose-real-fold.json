@@ -2334,39 +2334,6 @@
     },
     {
       "schema": "EOIdentityHypothesis@1",
-      "id": "identity:descriptor:my_head",
-      "surface": "my head",
-      "determinations": [
-        "possessive"
-      ],
-      "occurrenceRefs": [
-        "ref-occ:file:aiw-ch1-prose.txt:6598:direct:5:193",
-        "ref-occ:encounter:56:occ:56:3:subject"
-      ],
-      "encounterRefs": [
-        "file:aiw-ch1-prose.txt:6598",
-        "encounter:56"
-      ],
-      "relationContexts": [
-        {
-          "edge": null,
-          "relation": null,
-          "role": null
-        },
-        {
-          "edge": "edge:text:56:3",
-          "relation": "would",
-          "role": "subject"
-        }
-      ],
-      "standing": "live_hypothesis",
-      "provenance": {
-        "giver": "text/individuation::descriptorHypotheses",
-        "basis": "same descriptor recurred across distinct encounters; identity remains defeasible"
-      }
-    },
-    {
-      "schema": "EOIdentityHypothesis@1",
       "id": "identity:descriptor:those_beds",
       "surface": "those beds",
       "determinations": [
@@ -2441,6 +2408,39 @@
       "occurrenceRefs": [
         "ref-occ:encounter:56:direct:4:167",
         "ref-occ:file:aiw-ch1-prose.txt:6598:direct:4:167"
+      ],
+      "encounterRefs": [
+        "encounter:56",
+        "file:aiw-ch1-prose.txt:6598"
+      ],
+      "relationContexts": [
+        {
+          "edge": null,
+          "relation": null,
+          "role": null
+        },
+        {
+          "edge": null,
+          "relation": null,
+          "role": null
+        }
+      ],
+      "standing": "live_hypothesis",
+      "provenance": {
+        "giver": "text/individuation::descriptorHypotheses",
+        "basis": "same descriptor recurred across distinct encounters; identity remains defeasible"
+      }
+    },
+    {
+      "schema": "EOIdentityHypothesis@1",
+      "id": "identity:descriptor:my_head",
+      "surface": "my head",
+      "determinations": [
+        "possessive"
+      ],
+      "occurrenceRefs": [
+        "ref-occ:encounter:56:direct:5:193",
+        "ref-occ:file:aiw-ch1-prose.txt:6598:direct:5:193"
       ],
       "encounterRefs": [
         "encounter:56",
@@ -3632,7 +3632,7 @@
       "openedAt": null,
       "scope": null,
       "consequences": [],
-      "state": "violated"
+      "state": "open"
     },
     {
       "schema": "EOExpectation@1",
@@ -3675,11 +3675,11 @@
     },
     {
       "schema": "EOExpectation@1",
-      "id": "expectation:identity:longitude:the_wind",
-      "hypothesis": "corroboration expected: longitude <-> the wind",
+      "id": "expectation:identity:dinah:the_wind",
+      "hypothesis": "corroboration expected: dinah <-> the wind",
       "giver": "text/anchoring::createDescriptorAnchoring",
       "grounds": [
-        "identity:longitude:the_wind"
+        "identity:dinah:the_wind"
       ],
       "openedAt": null,
       "scope": null,
@@ -3688,11 +3688,11 @@
     },
     {
       "schema": "EOExpectation@1",
-      "id": "expectation:identity:longitude:my_ears",
-      "hypothesis": "corroboration expected: longitude <-> my ears",
+      "id": "expectation:identity:dinah:my_ears",
+      "hypothesis": "corroboration expected: dinah <-> my ears",
       "giver": "text/anchoring::createDescriptorAnchoring",
       "grounds": [
-        "identity:longitude:my_ears"
+        "identity:dinah:my_ears"
       ],
       "openedAt": null,
       "scope": null,
@@ -3711,19 +3711,6 @@
       "scope": null,
       "consequences": [],
       "state": "open"
-    },
-    {
-      "schema": "EOExpectation@1",
-      "id": "expectation:identity:longitude:my_head",
-      "hypothesis": "corroboration expected: longitude <-> my head",
-      "giver": "text/anchoring::createDescriptorAnchoring",
-      "grounds": [
-        "identity:longitude:my_head"
-      ],
-      "openedAt": null,
-      "scope": null,
-      "consequences": [],
-      "state": "strengthened"
     },
     {
       "schema": "EOExpectation@1",
@@ -3766,76 +3753,24 @@
     },
     {
       "schema": "EOExpectation@1",
+      "id": "expectation:identity:longitude:my_head",
+      "hypothesis": "corroboration expected: longitude <-> my head",
+      "giver": "text/anchoring::createDescriptorAnchoring",
+      "grounds": [
+        "identity:longitude:my_head"
+      ],
+      "openedAt": null,
+      "scope": null,
+      "consequences": [],
+      "state": "open"
+    },
+    {
+      "schema": "EOExpectation@1",
       "id": "expectation:identity:longitude:my_shoulders",
       "hypothesis": "corroboration expected: longitude <-> my shoulders",
       "giver": "text/anchoring::createDescriptorAnchoring",
       "grounds": [
         "identity:longitude:my_shoulders"
-      ],
-      "openedAt": null,
-      "scope": null,
-      "consequences": [],
-      "state": "open"
-    },
-    {
-      "schema": "EOExpectation@1",
-      "id": "expectation:identity:oh:the_table",
-      "hypothesis": "corroboration expected: oh <-> the table",
-      "giver": "text/anchoring::createDescriptorAnchoring",
-      "grounds": [
-        "identity:oh:the_table"
-      ],
-      "openedAt": null,
-      "scope": null,
-      "consequences": [],
-      "state": "fulfilled"
-    },
-    {
-      "schema": "EOExpectation@1",
-      "id": "expectation:identity:oh:this_time",
-      "hypothesis": "corroboration expected: oh <-> this time",
-      "giver": "text/anchoring::createDescriptorAnchoring",
-      "grounds": [
-        "identity:oh:this_time"
-      ],
-      "openedAt": null,
-      "scope": null,
-      "consequences": [],
-      "state": "open"
-    },
-    {
-      "schema": "EOExpectation@1",
-      "id": "expectation:identity:oh:the_neck",
-      "hypothesis": "corroboration expected: oh <-> the neck",
-      "giver": "text/anchoring::createDescriptorAnchoring",
-      "grounds": [
-        "identity:oh:the_neck"
-      ],
-      "openedAt": null,
-      "scope": null,
-      "consequences": [],
-      "state": "open"
-    },
-    {
-      "schema": "EOExpectation@1",
-      "id": "expectation:identity:oh:the_bottle",
-      "hypothesis": "corroboration expected: oh <-> the bottle",
-      "giver": "text/anchoring::createDescriptorAnchoring",
-      "grounds": [
-        "identity:oh:the_bottle"
-      ],
-      "openedAt": null,
-      "scope": null,
-      "consequences": [],
-      "state": "open"
-    },
-    {
-      "schema": "EOExpectation@1",
-      "id": "expectation:identity:oh:the_words",
-      "hypothesis": "corroboration expected: oh <-> the words",
-      "giver": "text/anchoring::createDescriptorAnchoring",
-      "grounds": [
-        "identity:oh:the_words"
       ],
       "openedAt": null,
       "scope": null,
@@ -3896,32 +3831,6 @@
     },
     {
       "schema": "EOExpectation@1",
-      "id": "expectation:identity:oh:the_flame",
-      "hypothesis": "corroboration expected: oh <-> the flame",
-      "giver": "text/anchoring::createDescriptorAnchoring",
-      "grounds": [
-        "identity:oh:the_flame"
-      ],
-      "openedAt": null,
-      "scope": null,
-      "consequences": [],
-      "state": "open"
-    },
-    {
-      "schema": "EOExpectation@1",
-      "id": "expectation:identity:oh:the_candle",
-      "hypothesis": "corroboration expected: oh <-> the candle",
-      "giver": "text/anchoring::createDescriptorAnchoring",
-      "grounds": [
-        "identity:oh:the_candle"
-      ],
-      "openedAt": null,
-      "scope": null,
-      "consequences": [],
-      "state": "open"
-    },
-    {
-      "schema": "EOExpectation@1",
       "id": "expectation:identity:oh:the_door",
       "hypothesis": "corroboration expected: oh <-> the door",
       "giver": "text/anchoring::createDescriptorAnchoring",
@@ -3932,6 +3841,19 @@
       "scope": null,
       "consequences": [],
       "state": "open"
+    },
+    {
+      "schema": "EOExpectation@1",
+      "id": "expectation:identity:oh:the_table",
+      "hypothesis": "corroboration expected: oh <-> the table",
+      "giver": "text/anchoring::createDescriptorAnchoring",
+      "grounds": [
+        "identity:oh:the_table"
+      ],
+      "openedAt": null,
+      "scope": null,
+      "consequences": [],
+      "state": "strengthened"
     },
     {
       "schema": "EOExpectation@1",
@@ -4000,15 +3922,7 @@
     }
   ],
   "obligations": [],
-  "exclusions": [
-    {
-      "schema": "EOExclusion@1",
-      "id": "exclusion:identity:longitude:this_time",
-      "kind": "identity_refused",
-      "target": "identity:longitude:this_time",
-      "witness": "text:60:anchor:this_time"
-    }
-  ],
+  "exclusions": [],
   "unresolvedAlternatives": [
     {
       "schema": "EOIdentityAlternative@1",
@@ -4039,13 +3953,11 @@
       "id": "identity:longitude:this_time",
       "left": "longitude",
       "right": "this time",
-      "standing": "distinct",
+      "standing": "live_hypothesis",
       "supportRefs": [
         "text:27:anchor:this_time"
       ],
-      "attackRefs": [
-        "text:60:anchor:this_time"
-      ],
+      "attackRefs": [],
       "giver": "text/anchoring::createDescriptorAnchoring"
     },
     {
@@ -4086,8 +3998,8 @@
     },
     {
       "schema": "EOIdentityAlternative@1",
-      "id": "identity:longitude:the_wind",
-      "left": "longitude",
+      "id": "identity:dinah:the_wind",
+      "left": "dinah",
       "right": "the wind",
       "standing": "live_hypothesis",
       "supportRefs": [
@@ -4098,8 +4010,8 @@
     },
     {
       "schema": "EOIdentityAlternative@1",
-      "id": "identity:longitude:my_ears",
-      "left": "longitude",
+      "id": "identity:dinah:my_ears",
+      "left": "dinah",
       "right": "my ears",
       "standing": "live_hypothesis",
       "supportRefs": [
@@ -4116,18 +4028,6 @@
       "standing": "live_hypothesis",
       "supportRefs": [
         "text:54:anchor:the_lock"
-      ],
-      "attackRefs": [],
-      "giver": "text/anchoring::createDescriptorAnchoring"
-    },
-    {
-      "schema": "EOIdentityAlternative@1",
-      "id": "identity:longitude:my_head",
-      "left": "longitude",
-      "right": "my head",
-      "standing": "live_hypothesis",
-      "supportRefs": [
-        "text:56:anchor:my_head"
       ],
       "attackRefs": [],
       "giver": "text/anchoring::createDescriptorAnchoring"
@@ -4171,73 +4071,24 @@
     },
     {
       "schema": "EOIdentityAlternative@1",
+      "id": "identity:longitude:my_head",
+      "left": "longitude",
+      "right": "my head",
+      "standing": "live_hypothesis",
+      "supportRefs": [
+        "text:56:anchor:my_head"
+      ],
+      "attackRefs": [],
+      "giver": "text/anchoring::createDescriptorAnchoring"
+    },
+    {
+      "schema": "EOIdentityAlternative@1",
       "id": "identity:longitude:my_shoulders",
       "left": "longitude",
       "right": "my shoulders",
       "standing": "live_hypothesis",
       "supportRefs": [
         "text:56:anchor:my_shoulders"
-      ],
-      "attackRefs": [],
-      "giver": "text/anchoring::createDescriptorAnchoring"
-    },
-    {
-      "schema": "EOIdentityAlternative@1",
-      "id": "identity:oh:the_table",
-      "left": "oh",
-      "right": "the table",
-      "standing": "live_hypothesis",
-      "supportRefs": [
-        "text:60:anchor:the_table",
-        "text:74:anchor:the_table"
-      ],
-      "attackRefs": [],
-      "giver": "text/anchoring::createDescriptorAnchoring"
-    },
-    {
-      "schema": "EOIdentityAlternative@1",
-      "id": "identity:oh:this_time",
-      "left": "oh",
-      "right": "this time",
-      "standing": "live_hypothesis",
-      "supportRefs": [
-        "text:60:anchor:this_time"
-      ],
-      "attackRefs": [],
-      "giver": "text/anchoring::createDescriptorAnchoring"
-    },
-    {
-      "schema": "EOIdentityAlternative@1",
-      "id": "identity:oh:the_neck",
-      "left": "oh",
-      "right": "the neck",
-      "standing": "live_hypothesis",
-      "supportRefs": [
-        "text:60:anchor:the_neck"
-      ],
-      "attackRefs": [],
-      "giver": "text/anchoring::createDescriptorAnchoring"
-    },
-    {
-      "schema": "EOIdentityAlternative@1",
-      "id": "identity:oh:the_bottle",
-      "left": "oh",
-      "right": "the bottle",
-      "standing": "live_hypothesis",
-      "supportRefs": [
-        "text:60:anchor:the_bottle"
-      ],
-      "attackRefs": [],
-      "giver": "text/anchoring::createDescriptorAnchoring"
-    },
-    {
-      "schema": "EOIdentityAlternative@1",
-      "id": "identity:oh:the_words",
-      "left": "oh",
-      "right": "the words",
-      "standing": "live_hypothesis",
-      "supportRefs": [
-        "text:60:anchor:the_words"
       ],
       "attackRefs": [],
       "giver": "text/anchoring::createDescriptorAnchoring"
@@ -4292,36 +4143,24 @@
     },
     {
       "schema": "EOIdentityAlternative@1",
-      "id": "identity:oh:the_flame",
-      "left": "oh",
-      "right": "the flame",
-      "standing": "live_hypothesis",
-      "supportRefs": [
-        "text:72:anchor:the_flame"
-      ],
-      "attackRefs": [],
-      "giver": "text/anchoring::createDescriptorAnchoring"
-    },
-    {
-      "schema": "EOIdentityAlternative@1",
-      "id": "identity:oh:the_candle",
-      "left": "oh",
-      "right": "the candle",
-      "standing": "live_hypothesis",
-      "supportRefs": [
-        "text:72:anchor:the_candle"
-      ],
-      "attackRefs": [],
-      "giver": "text/anchoring::createDescriptorAnchoring"
-    },
-    {
-      "schema": "EOIdentityAlternative@1",
       "id": "identity:oh:the_door",
       "left": "oh",
       "right": "the door",
       "standing": "live_hypothesis",
       "supportRefs": [
         "text:74:anchor:the_door"
+      ],
+      "attackRefs": [],
+      "giver": "text/anchoring::createDescriptorAnchoring"
+    },
+    {
+      "schema": "EOIdentityAlternative@1",
+      "id": "identity:oh:the_table",
+      "left": "oh",
+      "right": "the table",
+      "standing": "live_hypothesis",
+      "supportRefs": [
+        "text:74:anchor:the_table"
       ],
       "attackRefs": [],
       "giver": "text/anchoring::createDescriptorAnchoring"
@@ -4452,13 +4291,12 @@
       "relation": "was",
       "participants": [
         {
-          "ref": "occ:1:0:subject",
-          "occurrence": "occ:1:0:subject",
-          "surfaceKey": "surface:her_sister",
+          "ref": "identity:poss:sister:her",
           "role": "subject",
-          "standing": "unresolved_surface",
+          "standing": "hypothesis",
           "surface": "her sister",
-          "candidateReferents": []
+          "resolution": "possessive_holding",
+          "possessiveAnchor": "her"
         },
         {
           "ref": "occ:1:0:object",
@@ -5060,6 +4898,20 @@
       }
     },
     {
+      "schema": "EOReferent@1",
+      "id": "ref:auto:alice",
+      "surfaces": [
+        "Alice"
+      ],
+      "provenance": [
+        {
+          "giver": "surfaces/discoverReferents",
+          "tier": "engine",
+          "basis": "name-variant coreference"
+        }
+      ]
+    },
+    {
       "schema": "EOLexicalOccurrence@1",
       "id": "lex:2:0",
       "surfaceKey": "surface:mind",
@@ -5640,20 +5492,22 @@
     },
     {
       "schema": "EOReferent@1",
-      "id": "ref:auto:alice",
+      "id": "ref:auto:white_rabbit",
       "surfaces": [
-        "Alice"
+        "White Rabbit",
+        "White"
       ],
       "provenance": [
         {
           "giver": "surfaces/discoverReferents",
           "tier": "engine",
           "basis": "name-variant coreference"
+        },
+        {
+          "giver": "surfaces/discoverReferents",
+          "tier": "engine",
+          "basis": "name-variant coreference"
         }
-      ],
-      "fedBy": [
-        "mention:3:ref_auto_alice",
-        "gap:referent:ref_auto_alice"
       ]
     },
     {
@@ -8589,6 +8443,20 @@
       }
     },
     {
+      "schema": "EOReferent@1",
+      "id": "ref:auto:oh",
+      "surfaces": [
+        "Oh"
+      ],
+      "provenance": [
+        {
+          "giver": "surfaces/discoverReferents",
+          "tier": "engine",
+          "basis": "name-variant coreference"
+        }
+      ]
+    },
+    {
       "schema": "EOLexicalOccurrence@1",
       "id": "lex:10:0",
       "surfaceKey": "surface:sides",
@@ -10251,6 +10119,20 @@
       }
     },
     {
+      "schema": "EOReferent@1",
+      "id": "ref:auto:i’ve",
+      "surfaces": [
+        "Longitude"
+      ],
+      "provenance": [
+        {
+          "giver": "surfaces/discoverReferents",
+          "tier": "engine",
+          "basis": "name-variant coreference"
+        }
+      ]
+    },
+    {
       "schema": "EOIdentityHypothesis@1",
       "id": "identity:descriptor:this_time",
       "surface": "this time",
@@ -10879,36 +10761,6 @@
           "giver": "UD_English-EWT via bin/priors/pos/en-ud-ewt.json"
         }
       }
-    },
-    {
-      "schema": "EOReferent@1",
-      "id": "ref:auto:i’ve",
-      "surfaces": [
-        "Longitude I’ve",
-        "I’ve",
-        "Longitude"
-      ],
-      "provenance": [
-        {
-          "giver": "surfaces/discoverReferents",
-          "tier": "engine",
-          "basis": "name-variant coreference"
-        },
-        {
-          "giver": "surfaces/discoverReferents",
-          "tier": "engine",
-          "basis": "name-variant coreference"
-        },
-        {
-          "giver": "surfaces/discoverReferents",
-          "tier": "engine",
-          "basis": "name-variant coreference"
-        }
-      ],
-      "fedBy": [
-        "mention:22:ref_auto_i_ve",
-        "gap:referent:ref_auto_i_ve"
-      ]
     },
     {
       "schema": "EOMention@1",
@@ -12546,13 +12398,11 @@
       "id": "identity:longitude:this_time",
       "left": "longitude",
       "right": "this time",
-      "standing": "distinct",
+      "standing": "live_hypothesis",
       "supportRefs": [
         "text:27:anchor:this_time"
       ],
-      "attackRefs": [
-        "text:60:anchor:this_time"
-      ],
+      "attackRefs": [],
       "giver": "text/anchoring::createDescriptorAnchoring"
     },
     {
@@ -12566,7 +12416,7 @@
       "openedAt": null,
       "scope": null,
       "consequences": [],
-      "state": "violated"
+      "state": "open"
     },
     {
       "schema": "EOIdentityAlternative@1",
@@ -13727,6 +13577,20 @@
       }
     },
     {
+      "schema": "EOReferent@1",
+      "id": "ref:auto:dinah",
+      "surfaces": [
+        "dinah"
+      ],
+      "provenance": [
+        {
+          "giver": "surfaces/discoverReferents",
+          "tier": "engine",
+          "basis": "name-variant coreference"
+        }
+      ]
+    },
+    {
       "schema": "EOHyperedge@1",
       "id": "edge:text:38:0",
       "relation": "are",
@@ -14806,6 +14670,18 @@
       }
     },
     {
+      "schema": "EOMention@1",
+      "id": "mention:44:ref_auto_dinah",
+      "referent": "ref:auto:dinah",
+      "encounterRef": "encounter:44",
+      "anchor": {
+        "start": 4741,
+        "end": 4939
+      },
+      "witness": "text:44",
+      "source": "file:aiw-ch1-prose.txt"
+    },
+    {
       "schema": "EOLexicalOccurrence@1",
       "id": "lex:44:0",
       "surfaceKey": "surface:dream",
@@ -14859,6 +14735,15 @@
       "encounterRef": "encounter:44",
       "offset": 193,
       "witness": "text:44:193"
+    },
+    {
+      "schema": "EOReferentGap@1",
+      "id": "gap:referent:ref_auto_dinah",
+      "reason": "pronoun_and_descriptor_mentions_unresolved",
+      "referent": "ref:auto:dinah",
+      "tier": "model",
+      "needsWitness": true,
+      "detail": "name-variant coreference is engine-tier and complete; binding pronouns and definite descriptions to this referent is not derivable (eoreader5 measured distributional coref failing twice). Supply a per-text prior to close this gap."
     },
     {
       "schema": "EOReferentOccurrence@1",
@@ -16086,10 +15971,10 @@
       "determination": "definite",
       "occurrenceRef": "ref-occ:encounter:49:direct:1:56",
       "participantOccurrence": null,
-      "referent": "ref:auto:i’ve",
-      "referentSurface": "Longitude",
-      "activation": 8.82176338399891,
-      "margin": 0.9556447240813033,
+      "referent": "ref:auto:dinah",
+      "referentSurface": "dinah",
+      "activation": 18.853453201082818,
+      "margin": 0.5320876610820428,
       "sentenceOrder": 49,
       "witness": "text:49:anchor:the_wind",
       "provenance": {
@@ -16105,10 +15990,10 @@
       "determination": "possessive",
       "occurrenceRef": "ref-occ:encounter:49:direct:3:130",
       "participantOccurrence": null,
-      "referent": "ref:auto:i’ve",
-      "referentSurface": "Longitude",
-      "activation": 8.82176338399891,
-      "margin": 0.9556447240813033,
+      "referent": "ref:auto:dinah",
+      "referentSurface": "dinah",
+      "activation": 18.853453201082818,
+      "margin": 0.5320876610820428,
       "sentenceOrder": 49,
       "witness": "text:49:anchor:my_ears",
       "provenance": {
@@ -16339,8 +16224,8 @@
     },
     {
       "schema": "EOIdentityAlternative@1",
-      "id": "identity:longitude:the_wind",
-      "left": "longitude",
+      "id": "identity:dinah:the_wind",
+      "left": "dinah",
       "right": "the wind",
       "standing": "live_hypothesis",
       "supportRefs": [
@@ -16351,11 +16236,11 @@
     },
     {
       "schema": "EOExpectation@1",
-      "id": "expectation:identity:longitude:the_wind",
-      "hypothesis": "corroboration expected: longitude <-> the wind",
+      "id": "expectation:identity:dinah:the_wind",
+      "hypothesis": "corroboration expected: dinah <-> the wind",
       "giver": "text/anchoring::createDescriptorAnchoring",
       "grounds": [
-        "identity:longitude:the_wind"
+        "identity:dinah:the_wind"
       ],
       "openedAt": null,
       "scope": null,
@@ -16364,8 +16249,8 @@
     },
     {
       "schema": "EOIdentityAlternative@1",
-      "id": "identity:longitude:my_ears",
-      "left": "longitude",
+      "id": "identity:dinah:my_ears",
+      "left": "dinah",
       "right": "my ears",
       "standing": "live_hypothesis",
       "supportRefs": [
@@ -16376,11 +16261,11 @@
     },
     {
       "schema": "EOExpectation@1",
-      "id": "expectation:identity:longitude:my_ears",
-      "hypothesis": "corroboration expected: longitude <-> my ears",
+      "id": "expectation:identity:dinah:my_ears",
+      "hypothesis": "corroboration expected: dinah <-> my ears",
       "giver": "text/anchoring::createDescriptorAnchoring",
       "grounds": [
-        "identity:longitude:my_ears"
+        "identity:dinah:my_ears"
       ],
       "openedAt": null,
       "scope": null,
@@ -16485,13 +16370,14 @@
       "relation": "was",
       "participants": [
         {
-          "ref": "occ:50:2:subject",
-          "occurrence": "occ:50:2:subject",
-          "surfaceKey": "surface:rabbit",
+          "ref": "ref:auto:white_rabbit",
           "role": "subject",
-          "standing": "unresolved_surface",
+          "standing": "referent",
           "surface": "Rabbit",
-          "candidateReferents": []
+          "resolution": "containment_surface_in_span",
+          "matchedSurfaces": [
+            "white rabbit"
+          ]
         },
         {
           "ref": "occ:50:2:object",
@@ -16763,6 +16649,15 @@
       "encounterRef": "encounter:50",
       "offset": 184,
       "witness": "text:50:184"
+    },
+    {
+      "schema": "EOReferentGap@1",
+      "id": "gap:referent:ref_auto_white_rabbit",
+      "reason": "pronoun_and_descriptor_mentions_unresolved",
+      "referent": "ref:auto:white_rabbit",
+      "tier": "model",
+      "needsWitness": true,
+      "detail": "name-variant coreference is engine-tier and complete; binding pronouns and definite descriptions to this referent is not derivable (eoreader5 measured distributional coref failing twice). Supply a per-text prior to close this gap."
     },
     {
       "schema": "EOReferentOccurrence@1",
@@ -19393,13 +19288,12 @@
       "relation": "would",
       "participants": [
         {
-          "ref": "occ:56:3:subject",
-          "occurrence": "occ:56:3:subject",
-          "surfaceKey": "surface:my_head",
+          "ref": "identity:poss:head:my",
           "role": "subject",
-          "standing": "unresolved_surface",
+          "standing": "hypothesis",
           "surface": "my head",
-          "candidateReferents": []
+          "resolution": "possessive_holding",
+          "possessiveAnchor": "my"
         },
         {
           "ref": "occ:56:3:object",
@@ -19582,25 +19476,6 @@
     },
     {
       "schema": "EOAnchorEvidence@1",
-      "id": "anchor:56:my_head",
-      "descriptor": "my head",
-      "determination": "possessive",
-      "occurrenceRef": "ref-occ:encounter:56:direct:5:193",
-      "participantOccurrence": null,
-      "referent": "ref:auto:i’ve",
-      "referentSurface": "Longitude",
-      "activation": 6.3281830953283205,
-      "margin": 0.22237851865014152,
-      "sentenceOrder": 56,
-      "witness": "text:56:anchor:my_head",
-      "provenance": {
-        "giver": "text/anchoring::createDescriptorAnchoring",
-        "tier": "engine",
-        "basis": "one-hop activation recall over the already-admitted cast, floors declared by the caller"
-      }
-    },
-    {
-      "schema": "EOAnchorEvidence@1",
       "id": "anchor:56:those_beds",
       "descriptor": "those beds",
       "determination": "definite",
@@ -19658,6 +19533,25 @@
     },
     {
       "schema": "EOAnchorEvidence@1",
+      "id": "anchor:56:my_head",
+      "descriptor": "my head",
+      "determination": "possessive",
+      "occurrenceRef": "ref-occ:encounter:56:direct:5:193",
+      "participantOccurrence": null,
+      "referent": "ref:auto:i’ve",
+      "referentSurface": "Longitude",
+      "activation": 6.3281830953283205,
+      "margin": 0.22237851865014152,
+      "sentenceOrder": 56,
+      "witness": "text:56:anchor:my_head",
+      "provenance": {
+        "giver": "text/anchoring::createDescriptorAnchoring",
+        "tier": "engine",
+        "basis": "one-hop activation recall over the already-admitted cast, floors declared by the caller"
+      }
+    },
+    {
+      "schema": "EOAnchorEvidence@1",
       "id": "anchor:56:my_shoulders",
       "descriptor": "my shoulders",
       "determination": "possessive",
@@ -19674,24 +19568,6 @@
         "tier": "engine",
         "basis": "one-hop activation recall over the already-admitted cast, floors declared by the caller"
       }
-    },
-    {
-      "schema": "EOReferentOccurrence@1",
-      "id": "ref-occ:encounter:56:occ:56:3:subject",
-      "surface": "my head",
-      "canonicalSurface": "my head",
-      "head": "head",
-      "determination": "possessive",
-      "role": "subject",
-      "encounterRef": "encounter:56",
-      "edge": "edge:text:56:3",
-      "relation": "would",
-      "standing": "unresolved_identity",
-      "provenance": {
-        "giver": "text/individuation::descriptorOccurrence",
-        "basis": "determiner-marked unresolved relation participant"
-      },
-      "participantOccurrence": "occ:56:3:subject"
     },
     {
       "schema": "EOReferentOccurrence@1",
@@ -19997,91 +19873,6 @@
       }
     },
     {
-      "schema": "EOIdentityHypothesis@1",
-      "id": "identity:descriptor:my_head",
-      "surface": "my head",
-      "determinations": [
-        "possessive"
-      ],
-      "occurrenceRefs": [
-        "ref-occ:file:aiw-ch1-prose.txt:6598:direct:5:193",
-        "ref-occ:encounter:56:occ:56:3:subject"
-      ],
-      "encounterRefs": [
-        "file:aiw-ch1-prose.txt:6598",
-        "encounter:56"
-      ],
-      "relationContexts": [
-        {
-          "edge": null,
-          "relation": null,
-          "role": null
-        },
-        {
-          "edge": "edge:text:56:3",
-          "relation": "would",
-          "role": "subject"
-        }
-      ],
-      "standing": "live_hypothesis",
-      "provenance": {
-        "giver": "text/individuation::descriptorHypotheses",
-        "basis": "same descriptor recurred across distinct encounters; identity remains defeasible"
-      }
-    },
-    {
-      "schema": "EOIdentityAlternative@1",
-      "id": "identity:longitude:my_head",
-      "left": "longitude",
-      "right": "my head",
-      "standing": "live_hypothesis",
-      "supportRefs": [
-        "text:56:anchor:my_head"
-      ],
-      "attackRefs": [],
-      "giver": "text/anchoring::createDescriptorAnchoring"
-    },
-    {
-      "schema": "EOExpectation@1",
-      "id": "expectation:identity:longitude:my_head",
-      "hypothesis": "corroboration expected: longitude <-> my head",
-      "giver": "text/anchoring::createDescriptorAnchoring",
-      "grounds": [
-        "identity:longitude:my_head"
-      ],
-      "openedAt": null,
-      "scope": null,
-      "consequences": [],
-      "state": "strengthened"
-    },
-    {
-      "schema": "EOCanonicalHyperedge@1",
-      "id": "canonical:edge:text:56:3",
-      "sourceEdge": "edge:text:56:3",
-      "relation": "would",
-      "participants": [
-        {
-          "role": "subject",
-          "value": "my head",
-          "alternatives": [
-            "my head"
-          ]
-        },
-        {
-          "role": "object",
-          "value": "go through",
-          "alternatives": [
-            "go through"
-          ]
-        }
-      ],
-      "witness": "text:56:193",
-      "scope": {
-        "sequencePosition": 56,
-        "offset": 193
-      }
-    },
-    {
       "schema": "EOIdentityAlternative@1",
       "id": "identity:longitude:those_beds",
       "left": "longitude",
@@ -20159,6 +19950,31 @@
     },
     {
       "schema": "EOIdentityAlternative@1",
+      "id": "identity:longitude:my_head",
+      "left": "longitude",
+      "right": "my head",
+      "standing": "live_hypothesis",
+      "supportRefs": [
+        "text:56:anchor:my_head"
+      ],
+      "attackRefs": [],
+      "giver": "text/anchoring::createDescriptorAnchoring"
+    },
+    {
+      "schema": "EOExpectation@1",
+      "id": "expectation:identity:longitude:my_head",
+      "hypothesis": "corroboration expected: longitude <-> my head",
+      "giver": "text/anchoring::createDescriptorAnchoring",
+      "grounds": [
+        "identity:longitude:my_head"
+      ],
+      "openedAt": null,
+      "scope": null,
+      "consequences": [],
+      "state": "open"
+    },
+    {
+      "schema": "EOIdentityAlternative@1",
       "id": "identity:longitude:my_shoulders",
       "left": "longitude",
       "right": "my shoulders",
@@ -20227,24 +20043,6 @@
           "giver": "UD_English-EWT via bin/priors/pos/en-ud-ewt.json"
         }
       }
-    },
-    {
-      "schema": "EOReferent@1",
-      "id": "ref:auto:oh",
-      "surfaces": [
-        "Oh"
-      ],
-      "provenance": [
-        {
-          "giver": "surfaces/discoverReferents",
-          "tier": "engine",
-          "basis": "name-variant coreference"
-        }
-      ],
-      "fedBy": [
-        "mention:57:ref_auto_oh",
-        "gap:referent:ref_auto_oh"
-      ]
     },
     {
       "schema": "EOMention@1",
@@ -20377,6 +20175,39 @@
       "occurrenceRefs": [
         "ref-occ:encounter:56:direct:4:167",
         "ref-occ:file:aiw-ch1-prose.txt:6598:direct:4:167"
+      ],
+      "encounterRefs": [
+        "encounter:56",
+        "file:aiw-ch1-prose.txt:6598"
+      ],
+      "relationContexts": [
+        {
+          "edge": null,
+          "relation": null,
+          "role": null
+        },
+        {
+          "edge": null,
+          "relation": null,
+          "role": null
+        }
+      ],
+      "standing": "live_hypothesis",
+      "provenance": {
+        "giver": "text/individuation::descriptorHypotheses",
+        "basis": "same descriptor recurred across distinct encounters; identity remains defeasible"
+      }
+    },
+    {
+      "schema": "EOIdentityHypothesis@1",
+      "id": "identity:descriptor:my_head",
+      "surface": "my head",
+      "determinations": [
+        "possessive"
+      ],
+      "occurrenceRefs": [
+        "ref-occ:encounter:56:direct:5:193",
+        "ref-occ:file:aiw-ch1-prose.txt:6598:direct:5:193"
       ],
       "encounterRefs": [
         "encounter:56",
@@ -21365,101 +21196,6 @@
       "witness": "text:60:415"
     },
     {
-      "schema": "EOAnchorEvidence@1",
-      "id": "anchor:60:the_table",
-      "descriptor": "the table",
-      "determination": "definite",
-      "occurrenceRef": "ref-occ:encounter:60:direct:1:77",
-      "participantOccurrence": null,
-      "referent": "ref:auto:oh",
-      "referentSurface": "Oh",
-      "activation": 9.76174515511362,
-      "margin": 0.7755471250833612,
-      "sentenceOrder": 60,
-      "witness": "text:60:anchor:the_table",
-      "provenance": {
-        "giver": "text/anchoring::createDescriptorAnchoring",
-        "tier": "engine",
-        "basis": "one-hop activation recall over the already-admitted cast, floors declared by the caller"
-      }
-    },
-    {
-      "schema": "EOAnchorEvidence@1",
-      "id": "anchor:60:this_time",
-      "descriptor": "this time",
-      "determination": "definite",
-      "occurrenceRef": "ref-occ:encounter:60:direct:5:205",
-      "participantOccurrence": null,
-      "referent": "ref:auto:oh",
-      "referentSurface": "Oh",
-      "activation": 9.76174515511362,
-      "margin": 0.7755471250833612,
-      "sentenceOrder": 60,
-      "witness": "text:60:anchor:this_time",
-      "provenance": {
-        "giver": "text/anchoring::createDescriptorAnchoring",
-        "tier": "engine",
-        "basis": "one-hop activation recall over the already-admitted cast, floors declared by the caller"
-      }
-    },
-    {
-      "schema": "EOAnchorEvidence@1",
-      "id": "anchor:60:the_neck",
-      "descriptor": "the neck",
-      "determination": "definite",
-      "occurrenceRef": "ref-occ:encounter:60:direct:7:311",
-      "participantOccurrence": null,
-      "referent": "ref:auto:oh",
-      "referentSurface": "Oh",
-      "activation": 9.76174515511362,
-      "margin": 0.7755471250833612,
-      "sentenceOrder": 60,
-      "witness": "text:60:anchor:the_neck",
-      "provenance": {
-        "giver": "text/anchoring::createDescriptorAnchoring",
-        "tier": "engine",
-        "basis": "one-hop activation recall over the already-admitted cast, floors declared by the caller"
-      }
-    },
-    {
-      "schema": "EOAnchorEvidence@1",
-      "id": "anchor:60:the_bottle",
-      "descriptor": "the bottle",
-      "determination": "definite",
-      "occurrenceRef": "ref-occ:encounter:60:direct:8:323",
-      "participantOccurrence": null,
-      "referent": "ref:auto:oh",
-      "referentSurface": "Oh",
-      "activation": 9.76174515511362,
-      "margin": 0.7755471250833612,
-      "sentenceOrder": 60,
-      "witness": "text:60:anchor:the_bottle",
-      "provenance": {
-        "giver": "text/anchoring::createDescriptorAnchoring",
-        "tier": "engine",
-        "basis": "one-hop activation recall over the already-admitted cast, floors declared by the caller"
-      }
-    },
-    {
-      "schema": "EOAnchorEvidence@1",
-      "id": "anchor:60:the_words",
-      "descriptor": "the words",
-      "determination": "definite",
-      "occurrenceRef": "ref-occ:encounter:60:direct:10:358",
-      "participantOccurrence": null,
-      "referent": "ref:auto:oh",
-      "referentSurface": "Oh",
-      "activation": 9.76174515511362,
-      "margin": 0.7755471250833612,
-      "sentenceOrder": 60,
-      "witness": "text:60:anchor:the_words",
-      "provenance": {
-        "giver": "text/anchoring::createDescriptorAnchoring",
-        "tier": "engine",
-        "basis": "one-hop activation recall over the already-admitted cast, floors declared by the caller"
-      }
-    },
-    {
       "schema": "EOReferentOccurrence@1",
       "id": "ref-occ:encounter:60:occ:60:6:object",
       "surface": "a paper label",
@@ -21849,139 +21585,6 @@
         "giver": "text/individuation::descriptorHypotheses",
         "basis": "same descriptor recurred across distinct encounters; identity remains defeasible"
       }
-    },
-    {
-      "schema": "EOIdentityAlternative@1",
-      "id": "identity:oh:the_table",
-      "left": "oh",
-      "right": "the table",
-      "standing": "live_hypothesis",
-      "supportRefs": [
-        "text:60:anchor:the_table",
-        "text:74:anchor:the_table"
-      ],
-      "attackRefs": [],
-      "giver": "text/anchoring::createDescriptorAnchoring"
-    },
-    {
-      "schema": "EOExpectation@1",
-      "id": "expectation:identity:oh:the_table",
-      "hypothesis": "corroboration expected: oh <-> the table",
-      "giver": "text/anchoring::createDescriptorAnchoring",
-      "grounds": [
-        "identity:oh:the_table"
-      ],
-      "openedAt": null,
-      "scope": null,
-      "consequences": [],
-      "state": "fulfilled"
-    },
-    {
-      "schema": "EOIdentityAlternative@1",
-      "id": "identity:oh:this_time",
-      "left": "oh",
-      "right": "this time",
-      "standing": "live_hypothesis",
-      "supportRefs": [
-        "text:60:anchor:this_time"
-      ],
-      "attackRefs": [],
-      "giver": "text/anchoring::createDescriptorAnchoring"
-    },
-    {
-      "schema": "EOExpectation@1",
-      "id": "expectation:identity:oh:this_time",
-      "hypothesis": "corroboration expected: oh <-> this time",
-      "giver": "text/anchoring::createDescriptorAnchoring",
-      "grounds": [
-        "identity:oh:this_time"
-      ],
-      "openedAt": null,
-      "scope": null,
-      "consequences": [],
-      "state": "open"
-    },
-    {
-      "schema": "EOIdentityAlternative@1",
-      "id": "identity:oh:the_neck",
-      "left": "oh",
-      "right": "the neck",
-      "standing": "live_hypothesis",
-      "supportRefs": [
-        "text:60:anchor:the_neck"
-      ],
-      "attackRefs": [],
-      "giver": "text/anchoring::createDescriptorAnchoring"
-    },
-    {
-      "schema": "EOExpectation@1",
-      "id": "expectation:identity:oh:the_neck",
-      "hypothesis": "corroboration expected: oh <-> the neck",
-      "giver": "text/anchoring::createDescriptorAnchoring",
-      "grounds": [
-        "identity:oh:the_neck"
-      ],
-      "openedAt": null,
-      "scope": null,
-      "consequences": [],
-      "state": "open"
-    },
-    {
-      "schema": "EOIdentityAlternative@1",
-      "id": "identity:oh:the_bottle",
-      "left": "oh",
-      "right": "the bottle",
-      "standing": "live_hypothesis",
-      "supportRefs": [
-        "text:60:anchor:the_bottle"
-      ],
-      "attackRefs": [],
-      "giver": "text/anchoring::createDescriptorAnchoring"
-    },
-    {
-      "schema": "EOExpectation@1",
-      "id": "expectation:identity:oh:the_bottle",
-      "hypothesis": "corroboration expected: oh <-> the bottle",
-      "giver": "text/anchoring::createDescriptorAnchoring",
-      "grounds": [
-        "identity:oh:the_bottle"
-      ],
-      "openedAt": null,
-      "scope": null,
-      "consequences": [],
-      "state": "open"
-    },
-    {
-      "schema": "EOIdentityAlternative@1",
-      "id": "identity:oh:the_words",
-      "left": "oh",
-      "right": "the words",
-      "standing": "live_hypothesis",
-      "supportRefs": [
-        "text:60:anchor:the_words"
-      ],
-      "attackRefs": [],
-      "giver": "text/anchoring::createDescriptorAnchoring"
-    },
-    {
-      "schema": "EOExpectation@1",
-      "id": "expectation:identity:oh:the_words",
-      "hypothesis": "corroboration expected: oh <-> the words",
-      "giver": "text/anchoring::createDescriptorAnchoring",
-      "grounds": [
-        "identity:oh:the_words"
-      ],
-      "openedAt": null,
-      "scope": null,
-      "consequences": [],
-      "state": "open"
-    },
-    {
-      "schema": "EOExclusion@1",
-      "id": "exclusion:identity:longitude:this_time",
-      "kind": "identity_refused",
-      "target": "identity:longitude:this_time",
-      "witness": "text:60:anchor:this_time"
     },
     {
       "schema": "EOHyperedge@1",
@@ -25319,44 +24922,6 @@
       "witness": "text:72:140"
     },
     {
-      "schema": "EOAnchorEvidence@1",
-      "id": "anchor:72:the_flame",
-      "descriptor": "the flame",
-      "determination": "definite",
-      "occurrenceRef": "ref-occ:encounter:72:direct:0:28",
-      "participantOccurrence": null,
-      "referent": "ref:auto:oh",
-      "referentSurface": "Oh",
-      "activation": 14.096098392339364,
-      "margin": 0.9499821562142082,
-      "sentenceOrder": 72,
-      "witness": "text:72:anchor:the_flame",
-      "provenance": {
-        "giver": "text/anchoring::createDescriptorAnchoring",
-        "tier": "engine",
-        "basis": "one-hop activation recall over the already-admitted cast, floors declared by the caller"
-      }
-    },
-    {
-      "schema": "EOAnchorEvidence@1",
-      "id": "anchor:72:the_candle",
-      "descriptor": "the candle",
-      "determination": "definite",
-      "occurrenceRef": "ref-occ:encounter:72:direct:2:64",
-      "participantOccurrence": null,
-      "referent": "ref:auto:oh",
-      "referentSurface": "Oh",
-      "activation": 14.096098392339364,
-      "margin": 0.9499821562142082,
-      "sentenceOrder": 72,
-      "witness": "text:72:anchor:the_candle",
-      "provenance": {
-        "giver": "text/anchoring::createDescriptorAnchoring",
-        "tier": "engine",
-        "basis": "one-hop activation recall over the already-admitted cast, floors declared by the caller"
-      }
-    },
-    {
       "schema": "EOReferentOccurrence@1",
       "id": "ref-occ:encounter:72:direct:0:28",
       "surface": "the flame",
@@ -25491,56 +25056,6 @@
         "giver": "text/individuation::directDescriptorOccurrences",
         "basis": "closed-class determiner plus witnessed lexical form"
       }
-    },
-    {
-      "schema": "EOIdentityAlternative@1",
-      "id": "identity:oh:the_flame",
-      "left": "oh",
-      "right": "the flame",
-      "standing": "live_hypothesis",
-      "supportRefs": [
-        "text:72:anchor:the_flame"
-      ],
-      "attackRefs": [],
-      "giver": "text/anchoring::createDescriptorAnchoring"
-    },
-    {
-      "schema": "EOExpectation@1",
-      "id": "expectation:identity:oh:the_flame",
-      "hypothesis": "corroboration expected: oh <-> the flame",
-      "giver": "text/anchoring::createDescriptorAnchoring",
-      "grounds": [
-        "identity:oh:the_flame"
-      ],
-      "openedAt": null,
-      "scope": null,
-      "consequences": [],
-      "state": "open"
-    },
-    {
-      "schema": "EOIdentityAlternative@1",
-      "id": "identity:oh:the_candle",
-      "left": "oh",
-      "right": "the candle",
-      "standing": "live_hypothesis",
-      "supportRefs": [
-        "text:72:anchor:the_candle"
-      ],
-      "attackRefs": [],
-      "giver": "text/anchoring::createDescriptorAnchoring"
-    },
-    {
-      "schema": "EOExpectation@1",
-      "id": "expectation:identity:oh:the_candle",
-      "hypothesis": "corroboration expected: oh <-> the candle",
-      "giver": "text/anchoring::createDescriptorAnchoring",
-      "grounds": [
-        "identity:oh:the_candle"
-      ],
-      "openedAt": null,
-      "scope": null,
-      "consequences": [],
-      "state": "open"
     },
     {
       "schema": "EOHyperedge@1",
@@ -26092,13 +25607,12 @@
           "candidateReferents": []
         },
         {
-          "ref": "occ:74:7:object",
-          "occurrence": "occ:74:7:object",
-          "surfaceKey": "surface:her_best",
+          "ref": "identity:poss:best:her",
           "role": "object",
-          "standing": "unresolved_surface",
+          "standing": "hypothesis",
           "surface": "her best",
-          "candidateReferents": []
+          "resolution": "possessive_holding",
+          "possessiveAnchor": "her"
         }
       ],
       "witness": "text:74:214",
@@ -26383,7 +25897,7 @@
       "referent": "ref:auto:oh",
       "referentSurface": "Oh",
       "activation": 10.106112510805547,
-      "margin": 0.8522232592449236,
+      "margin": 0.2265856213779857,
       "sentenceOrder": 74,
       "witness": "text:74:anchor:the_door",
       "provenance": {
@@ -26402,7 +25916,7 @@
       "referent": "ref:auto:oh",
       "referentSurface": "Oh",
       "activation": 10.106112510805547,
-      "margin": 0.8522232592449236,
+      "margin": 0.2265856213779857,
       "sentenceOrder": 74,
       "witness": "text:74:anchor:the_table",
       "provenance": {
@@ -26421,7 +25935,7 @@
       "referent": "ref:auto:oh",
       "referentSurface": "Oh",
       "activation": 10.106112510805547,
-      "margin": 0.8522232592449236,
+      "margin": 0.2265856213779857,
       "sentenceOrder": 74,
       "witness": "text:74:anchor:the_glass",
       "provenance": {
@@ -26440,7 +25954,7 @@
       "referent": "ref:auto:oh",
       "referentSurface": "Oh",
       "activation": 10.106112510805547,
-      "margin": 0.8522232592449236,
+      "margin": 0.2265856213779857,
       "sentenceOrder": 74,
       "witness": "text:74:anchor:the_legs",
       "provenance": {
@@ -26754,6 +26268,31 @@
         "sequencePosition": 55,
         "offset": 0
       }
+    },
+    {
+      "schema": "EOIdentityAlternative@1",
+      "id": "identity:oh:the_table",
+      "left": "oh",
+      "right": "the table",
+      "standing": "live_hypothesis",
+      "supportRefs": [
+        "text:74:anchor:the_table"
+      ],
+      "attackRefs": [],
+      "giver": "text/anchoring::createDescriptorAnchoring"
+    },
+    {
+      "schema": "EOExpectation@1",
+      "id": "expectation:identity:oh:the_table",
+      "hypothesis": "corroboration expected: oh <-> the table",
+      "giver": "text/anchoring::createDescriptorAnchoring",
+      "grounds": [
+        "identity:oh:the_table"
+      ],
+      "openedAt": null,
+      "scope": null,
+      "consequences": [],
+      "state": "strengthened"
     },
     {
       "schema": "EOIdentityAlternative@1",
@@ -27899,13 +27438,12 @@
       "relation": "fell",
       "participants": [
         {
-          "ref": "occ:80:0:subject",
-          "occurrence": "occ:80:0:subject",
-          "surfaceKey": "surface:her_eye",
+          "ref": "identity:poss:eye:her",
           "role": "subject",
-          "standing": "unresolved_surface",
+          "standing": "hypothesis",
           "surface": "her eye",
-          "candidateReferents": []
+          "resolution": "possessive_holding",
+          "possessiveAnchor": "her"
         },
         {
           "ref": "occ:80:0:object",
@@ -28952,6 +28490,20 @@
       }
     },
     {
+      "schema": "EOReferent@1",
+      "id": "ref:auto:i’ll",
+      "surfaces": [
+        "I’ll"
+      ],
+      "provenance": [
+        {
+          "giver": "surfaces/discoverReferents",
+          "tier": "engine",
+          "basis": "name-variant coreference"
+        }
+      ]
+    },
+    {
       "schema": "EOLexicalOccurrence@1",
       "id": "lex:82:0",
       "surfaceKey": "surface:bit",
@@ -29627,7 +29179,7 @@
       "referent": "ref:auto:i’ve",
       "referentSurface": "Longitude",
       "activation": 11.471335658528103,
-      "margin": 0.9544906239051363,
+      "margin": 0.9427084377066719,
       "sentenceOrder": 83,
       "witness": "text:83:anchor:the_same_size",
       "provenance": {
@@ -29646,7 +29198,7 @@
       "referent": "ref:auto:i’ve",
       "referentSurface": "Longitude",
       "activation": 11.471335658528103,
-      "margin": 0.9544906239051363,
+      "margin": 0.9427084377066719,
       "sentenceOrder": 83,
       "witness": "text:83:anchor:her_hand",
       "provenance": {
@@ -29665,7 +29217,7 @@
       "referent": "ref:auto:i’ve",
       "referentSurface": "Longitude",
       "activation": 11.471335658528103,
-      "margin": 0.9544906239051363,
+      "margin": 0.9427084377066719,
       "sentenceOrder": 83,
       "witness": "text:83:anchor:her_head",
       "provenance": {
@@ -29684,7 +29236,7 @@
       "referent": "ref:auto:i’ve",
       "referentSurface": "Longitude",
       "activation": 11.471335658528103,
-      "margin": 0.9544906239051363,
+      "margin": 0.9427084377066719,
       "sentenceOrder": 83,
       "witness": "text:83:anchor:the_way",
       "provenance": {
@@ -30229,6 +29781,74 @@
         "giver": "text/individuation::descriptorHypotheses",
         "basis": "same descriptor recurred across distinct encounters; identity remains defeasible"
       }
+    },
+    {
+      "schema": "EOIdentityHypothesis@1",
+      "id": "identity:poss:sister:her",
+      "surface": "her sister",
+      "canonicalSurface": "sister",
+      "parameter": {
+        "slot": "sister",
+        "of": "her"
+      },
+      "standing": "open",
+      "adjudicatedBy": "read-real.mjs possessive-holding — Wilson's swarm",
+      "provenance": {
+        "giver": "read-real.mjs possessive-holding",
+        "basis": "S88's fourth signal — a common noun under a possessive determiner is a parameterized being in HOLDING; the possessive resolves to its owner, the slot awaits a witness; ALL mentions share this one holding",
+        "canonicalOccurrence": "sister"
+      }
+    },
+    {
+      "schema": "EOIdentityHypothesis@1",
+      "id": "identity:poss:head:my",
+      "surface": "my head",
+      "canonicalSurface": "head",
+      "parameter": {
+        "slot": "head",
+        "of": "my"
+      },
+      "standing": "open",
+      "adjudicatedBy": "read-real.mjs possessive-holding — Wilson's swarm",
+      "provenance": {
+        "giver": "read-real.mjs possessive-holding",
+        "basis": "S88's fourth signal — a common noun under a possessive determiner is a parameterized being in HOLDING; the possessive resolves to its owner, the slot awaits a witness; ALL mentions share this one holding",
+        "canonicalOccurrence": "head"
+      }
+    },
+    {
+      "schema": "EOIdentityHypothesis@1",
+      "id": "identity:poss:best:her",
+      "surface": "her best",
+      "canonicalSurface": "best",
+      "parameter": {
+        "slot": "best",
+        "of": "her"
+      },
+      "standing": "open",
+      "adjudicatedBy": "read-real.mjs possessive-holding — Wilson's swarm",
+      "provenance": {
+        "giver": "read-real.mjs possessive-holding",
+        "basis": "S88's fourth signal — a common noun under a possessive determiner is a parameterized being in HOLDING; the possessive resolves to its owner, the slot awaits a witness; ALL mentions share this one holding",
+        "canonicalOccurrence": "best"
+      }
+    },
+    {
+      "schema": "EOIdentityHypothesis@1",
+      "id": "identity:poss:eye:her",
+      "surface": "her eye",
+      "canonicalSurface": "eye",
+      "parameter": {
+        "slot": "eye",
+        "of": "her"
+      },
+      "standing": "open",
+      "adjudicatedBy": "read-real.mjs possessive-holding — Wilson's swarm",
+      "provenance": {
+        "giver": "read-real.mjs possessive-holding",
+        "basis": "S88's fourth signal — a common noun under a possessive determiner is a parameterized being in HOLDING; the possessive resolves to its owner, the slot awaits a witness; ALL mentions share this one holding",
+        "canonicalOccurrence": "eye"
+      }
     }
   ],
   "transformationObjects": [
@@ -30520,7 +30140,7 @@
         "edge": "edge:text:1:0"
       },
       "inputs": [
-        "occ:1:0:subject",
+        "identity:poss:sister:her",
         "occ:1:0:object"
       ],
       "outputs": [
@@ -30534,13 +30154,12 @@
           "relation": "was",
           "participants": [
             {
-              "ref": "occ:1:0:subject",
-              "occurrence": "occ:1:0:subject",
-              "surfaceKey": "surface:her_sister",
+              "ref": "identity:poss:sister:her",
               "role": "subject",
-              "standing": "unresolved_surface",
+              "standing": "hypothesis",
               "surface": "her sister",
-              "candidateReferents": []
+              "resolution": "possessive_holding",
+              "possessiveAnchor": "her"
             },
             {
               "ref": "occ:1:0:object",
@@ -31059,6 +30678,42 @@
     {
       "schema": "EOOperation@1",
       "id": "delta:3:op:8",
+      "mode": "Generate",
+      "domain": "Existence",
+      "grain": "Figure",
+      "operator": "INS",
+      "terrain": "Entity",
+      "stance": "Making",
+      "witness": "observation:2:0",
+      "consequence": {
+        "kind": "referent_admitted",
+        "ref": "ref:auto:alice"
+      },
+      "inputs": [],
+      "outputs": [
+        "ref:auto:alice"
+      ],
+      "payload": {
+        "action": "graph-object",
+        "value": {
+          "schema": "EOReferent@1",
+          "id": "ref:auto:alice",
+          "surfaces": [
+            "Alice"
+          ],
+          "provenance": [
+            {
+              "giver": "surfaces/discoverReferents",
+              "tier": "engine",
+              "basis": "name-variant coreference"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "schema": "EOOperation@1",
+      "id": "delta:3:op:9",
       "mode": "Relate",
       "domain": "Structure",
       "grain": "Figure",
@@ -31129,7 +30784,7 @@
     },
     {
       "schema": "EOOperation@1",
-      "id": "delta:3:op:9",
+      "id": "delta:3:op:10",
       "mode": "Relate",
       "domain": "Structure",
       "grain": "Figure",
@@ -31200,7 +30855,7 @@
     },
     {
       "schema": "EOOperation@1",
-      "id": "delta:3:op:10",
+      "id": "delta:3:op:11",
       "mode": "Generate",
       "domain": "Existence",
       "grain": "Ground",
@@ -31239,7 +30894,7 @@
     },
     {
       "schema": "EOOperation@1",
-      "id": "delta:3:op:11",
+      "id": "delta:3:op:12",
       "mode": "Relate",
       "domain": "Structure",
       "grain": "Figure",
@@ -31310,7 +30965,7 @@
     },
     {
       "schema": "EOOperation@1",
-      "id": "delta:3:op:12",
+      "id": "delta:3:op:13",
       "mode": "Relate",
       "domain": "Structure",
       "grain": "Figure",
@@ -31381,7 +31036,7 @@
     },
     {
       "schema": "EOOperation@1",
-      "id": "delta:3:op:13",
+      "id": "delta:3:op:14",
       "mode": "Relate",
       "domain": "Structure",
       "grain": "Figure",
@@ -31453,7 +31108,7 @@
     },
     {
       "schema": "EOOperation@1",
-      "id": "delta:3:op:14",
+      "id": "delta:3:op:15",
       "mode": "Relate",
       "domain": "Structure",
       "grain": "Figure",
@@ -31511,7 +31166,7 @@
     },
     {
       "schema": "EOOperation@1",
-      "id": "delta:3:op:15",
+      "id": "delta:3:op:16",
       "mode": "Relate",
       "domain": "Structure",
       "grain": "Figure",
@@ -31569,7 +31224,7 @@
     },
     {
       "schema": "EOOperation@1",
-      "id": "delta:3:op:16",
+      "id": "delta:3:op:17",
       "mode": "Relate",
       "domain": "Structure",
       "grain": "Figure",
@@ -31627,7 +31282,7 @@
     },
     {
       "schema": "EOOperation@1",
-      "id": "delta:3:op:17",
+      "id": "delta:3:op:18",
       "mode": "Relate",
       "domain": "Structure",
       "grain": "Figure",
@@ -31773,33 +31428,32 @@
       "witness": "observation:3:0",
       "consequence": {
         "kind": "referent_admitted",
-        "ref": "ref:auto:alice"
+        "ref": "ref:auto:white_rabbit"
       },
-      "inputs": [
-        "mention:3:ref_auto_alice",
-        "gap:referent:ref_auto_alice"
-      ],
+      "inputs": [],
       "outputs": [
-        "ref:auto:alice"
+        "ref:auto:white_rabbit"
       ],
       "payload": {
         "action": "graph-object",
         "value": {
           "schema": "EOReferent@1",
-          "id": "ref:auto:alice",
+          "id": "ref:auto:white_rabbit",
           "surfaces": [
-            "Alice"
+            "White Rabbit",
+            "White"
           ],
           "provenance": [
             {
               "giver": "surfaces/discoverReferents",
               "tier": "engine",
               "basis": "name-variant coreference"
+            },
+            {
+              "giver": "surfaces/discoverReferents",
+              "tier": "engine",
+              "basis": "name-variant coreference"
             }
-          ],
-          "fedBy": [
-            "mention:3:ref_auto_alice",
-            "gap:referent:ref_auto_alice"
           ]
         }
       }
@@ -35457,6 +35111,42 @@
     {
       "schema": "EOOperation@1",
       "id": "delta:11:op:2",
+      "mode": "Generate",
+      "domain": "Existence",
+      "grain": "Figure",
+      "operator": "INS",
+      "terrain": "Entity",
+      "stance": "Making",
+      "witness": "observation:10:0",
+      "consequence": {
+        "kind": "referent_admitted",
+        "ref": "ref:auto:oh"
+      },
+      "inputs": [],
+      "outputs": [
+        "ref:auto:oh"
+      ],
+      "payload": {
+        "action": "graph-object",
+        "value": {
+          "schema": "EOReferent@1",
+          "id": "ref:auto:oh",
+          "surfaces": [
+            "Oh"
+          ],
+          "provenance": [
+            {
+              "giver": "surfaces/discoverReferents",
+              "tier": "engine",
+              "basis": "name-variant coreference"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "schema": "EOOperation@1",
+      "id": "delta:11:op:3",
       "mode": "Relate",
       "domain": "Structure",
       "grain": "Figure",
@@ -35527,7 +35217,7 @@
     },
     {
       "schema": "EOOperation@1",
-      "id": "delta:11:op:3",
+      "id": "delta:11:op:4",
       "mode": "Relate",
       "domain": "Structure",
       "grain": "Figure",
@@ -35598,7 +35288,7 @@
     },
     {
       "schema": "EOOperation@1",
-      "id": "delta:11:op:4",
+      "id": "delta:11:op:5",
       "mode": "Relate",
       "domain": "Structure",
       "grain": "Figure",
@@ -35669,7 +35359,7 @@
     },
     {
       "schema": "EOOperation@1",
-      "id": "delta:11:op:5",
+      "id": "delta:11:op:6",
       "mode": "Relate",
       "domain": "Structure",
       "grain": "Figure",
@@ -35740,7 +35430,7 @@
     },
     {
       "schema": "EOOperation@1",
-      "id": "delta:11:op:6",
+      "id": "delta:11:op:7",
       "mode": "Relate",
       "domain": "Structure",
       "grain": "Figure",
@@ -35811,7 +35501,7 @@
     },
     {
       "schema": "EOOperation@1",
-      "id": "delta:11:op:7",
+      "id": "delta:11:op:8",
       "mode": "Relate",
       "domain": "Structure",
       "grain": "Figure",
@@ -35882,7 +35572,7 @@
     },
     {
       "schema": "EOOperation@1",
-      "id": "delta:11:op:8",
+      "id": "delta:11:op:9",
       "mode": "Relate",
       "domain": "Structure",
       "grain": "Figure",
@@ -35953,7 +35643,7 @@
     },
     {
       "schema": "EOOperation@1",
-      "id": "delta:11:op:9",
+      "id": "delta:11:op:10",
       "mode": "Relate",
       "domain": "Structure",
       "grain": "Figure",
@@ -36024,7 +35714,7 @@
     },
     {
       "schema": "EOOperation@1",
-      "id": "delta:11:op:10",
+      "id": "delta:11:op:11",
       "mode": "Relate",
       "domain": "Structure",
       "grain": "Figure",
@@ -36095,7 +35785,7 @@
     },
     {
       "schema": "EOOperation@1",
-      "id": "delta:11:op:11",
+      "id": "delta:11:op:12",
       "mode": "Relate",
       "domain": "Structure",
       "grain": "Figure",
@@ -38209,6 +37899,42 @@
     {
       "schema": "EOOperation@1",
       "id": "delta:21:op:0",
+      "mode": "Generate",
+      "domain": "Existence",
+      "grain": "Figure",
+      "operator": "INS",
+      "terrain": "Entity",
+      "stance": "Making",
+      "witness": "observation:20:0",
+      "consequence": {
+        "kind": "referent_admitted",
+        "ref": "ref:auto:i’ve"
+      },
+      "inputs": [],
+      "outputs": [
+        "ref:auto:i’ve"
+      ],
+      "payload": {
+        "action": "graph-object",
+        "value": {
+          "schema": "EOReferent@1",
+          "id": "ref:auto:i’ve",
+          "surfaces": [
+            "I’ve"
+          ],
+          "provenance": [
+            {
+              "giver": "surfaces/discoverReferents",
+              "tier": "engine",
+              "basis": "name-variant coreference"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "schema": "EOOperation@1",
+      "id": "delta:21:op:1",
       "mode": "Relate",
       "domain": "Structure",
       "grain": "Figure",
@@ -38279,7 +38005,7 @@
     },
     {
       "schema": "EOOperation@1",
-      "id": "delta:21:op:1",
+      "id": "delta:21:op:2",
       "mode": "Relate",
       "domain": "Structure",
       "grain": "Figure",
@@ -38760,49 +38486,6 @@
     {
       "schema": "EOOperation@1",
       "id": "delta:23:op:7",
-      "mode": "Generate",
-      "domain": "Existence",
-      "grain": "Figure",
-      "operator": "INS",
-      "terrain": "Entity",
-      "stance": "Making",
-      "witness": "observation:22:0",
-      "consequence": {
-        "kind": "referent_admitted",
-        "ref": "ref:auto:i’ve"
-      },
-      "inputs": [
-        "mention:22:ref_auto_i_ve",
-        "gap:referent:ref_auto_i_ve"
-      ],
-      "outputs": [
-        "ref:auto:i’ve"
-      ],
-      "payload": {
-        "action": "graph-object",
-        "value": {
-          "schema": "EOReferent@1",
-          "id": "ref:auto:i’ve",
-          "surfaces": [
-            "I’ve"
-          ],
-          "provenance": [
-            {
-              "giver": "surfaces/discoverReferents",
-              "tier": "engine",
-              "basis": "name-variant coreference"
-            }
-          ],
-          "fedBy": [
-            "mention:22:ref_auto_i_ve",
-            "gap:referent:ref_auto_i_ve"
-          ]
-        }
-      }
-    },
-    {
-      "schema": "EOOperation@1",
-      "id": "delta:23:op:8",
       "mode": "Relate",
       "domain": "Structure",
       "grain": "Figure",
@@ -38873,7 +38556,7 @@
     },
     {
       "schema": "EOOperation@1",
-      "id": "delta:23:op:9",
+      "id": "delta:23:op:8",
       "mode": "Relate",
       "domain": "Structure",
       "grain": "Figure",
@@ -38944,7 +38627,7 @@
     },
     {
       "schema": "EOOperation@1",
-      "id": "delta:23:op:10",
+      "id": "delta:23:op:9",
       "mode": "Relate",
       "domain": "Structure",
       "grain": "Figure",
@@ -39015,7 +38698,7 @@
     },
     {
       "schema": "EOOperation@1",
-      "id": "delta:23:op:11",
+      "id": "delta:23:op:10",
       "mode": "Relate",
       "domain": "Structure",
       "grain": "Figure",
@@ -39086,7 +38769,7 @@
     },
     {
       "schema": "EOOperation@1",
-      "id": "delta:23:op:12",
+      "id": "delta:23:op:11",
       "mode": "Relate",
       "domain": "Structure",
       "grain": "Figure",
@@ -39157,7 +38840,7 @@
     },
     {
       "schema": "EOOperation@1",
-      "id": "delta:23:op:13",
+      "id": "delta:23:op:12",
       "mode": "Relate",
       "domain": "Structure",
       "grain": "Figure",
@@ -39228,7 +38911,7 @@
     },
     {
       "schema": "EOOperation@1",
-      "id": "delta:23:op:14",
+      "id": "delta:23:op:13",
       "mode": "Relate",
       "domain": "Structure",
       "grain": "Figure",
@@ -39299,7 +38982,7 @@
     },
     {
       "schema": "EOOperation@1",
-      "id": "delta:23:op:15",
+      "id": "delta:23:op:14",
       "mode": "Relate",
       "domain": "Structure",
       "grain": "Figure",
@@ -39370,7 +39053,7 @@
     },
     {
       "schema": "EOOperation@1",
-      "id": "delta:23:op:16",
+      "id": "delta:23:op:15",
       "mode": "Relate",
       "domain": "Structure",
       "grain": "Figure",
@@ -39441,7 +39124,7 @@
     },
     {
       "schema": "EOOperation@1",
-      "id": "delta:23:op:17",
+      "id": "delta:23:op:16",
       "mode": "Relate",
       "domain": "Structure",
       "grain": "Figure",
@@ -39513,7 +39196,7 @@
     },
     {
       "schema": "EOOperation@1",
-      "id": "delta:23:op:18",
+      "id": "delta:23:op:17",
       "mode": "Relate",
       "domain": "Structure",
       "grain": "Figure",
@@ -39571,7 +39254,7 @@
     },
     {
       "schema": "EOOperation@1",
-      "id": "delta:23:op:19",
+      "id": "delta:23:op:18",
       "mode": "Relate",
       "domain": "Structure",
       "grain": "Figure",
@@ -43126,6 +42809,42 @@
     {
       "schema": "EOOperation@1",
       "id": "delta:38:op:0",
+      "mode": "Generate",
+      "domain": "Existence",
+      "grain": "Figure",
+      "operator": "INS",
+      "terrain": "Entity",
+      "stance": "Making",
+      "witness": "observation:37:0",
+      "consequence": {
+        "kind": "referent_admitted",
+        "ref": "ref:auto:dinah"
+      },
+      "inputs": [],
+      "outputs": [
+        "ref:auto:dinah"
+      ],
+      "payload": {
+        "action": "graph-object",
+        "value": {
+          "schema": "EOReferent@1",
+          "id": "ref:auto:dinah",
+          "surfaces": [
+            "dinah"
+          ],
+          "provenance": [
+            {
+              "giver": "surfaces/discoverReferents",
+              "tier": "engine",
+              "basis": "name-variant coreference"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "schema": "EOOperation@1",
+      "id": "delta:38:op:1",
       "mode": "Relate",
       "domain": "Structure",
       "grain": "Figure",
@@ -46600,21 +46319,21 @@
       "witness": "text:49:anchor:the_wind",
       "consequence": {
         "kind": "identity_hypothesis_opened",
-        "identity": "identity:longitude:the_wind"
+        "identity": "identity:dinah:the_wind"
       },
       "inputs": [
-        "longitude",
+        "dinah",
         "the wind"
       ],
       "outputs": [
-        "identity:longitude:the_wind"
+        "identity:dinah:the_wind"
       ],
       "payload": {
         "action": "alternative",
         "value": {
           "schema": "EOIdentityAlternative@1",
-          "id": "identity:longitude:the_wind",
-          "left": "longitude",
+          "id": "identity:dinah:the_wind",
+          "left": "dinah",
           "right": "the wind",
           "standing": "live_hypothesis",
           "supportRefs": [
@@ -46637,24 +46356,24 @@
       "witness": "text:49:anchor:the_wind",
       "consequence": {
         "kind": "expectation_opened",
-        "expectation": "expectation:identity:longitude:the_wind",
-        "identity": "identity:longitude:the_wind"
+        "expectation": "expectation:identity:dinah:the_wind",
+        "identity": "identity:dinah:the_wind"
       },
       "inputs": [
-        "identity:longitude:the_wind"
+        "identity:dinah:the_wind"
       ],
       "outputs": [
-        "expectation:identity:longitude:the_wind"
+        "expectation:identity:dinah:the_wind"
       ],
       "payload": {
         "action": "expectation",
         "value": {
           "schema": "EOExpectation@1",
-          "id": "expectation:identity:longitude:the_wind",
-          "hypothesis": "corroboration expected: longitude <-> the wind",
+          "id": "expectation:identity:dinah:the_wind",
+          "hypothesis": "corroboration expected: dinah <-> the wind",
           "giver": "text/anchoring::createDescriptorAnchoring",
           "grounds": [
-            "identity:longitude:the_wind"
+            "identity:dinah:the_wind"
           ],
           "openedAt": null,
           "scope": null,
@@ -46675,21 +46394,21 @@
       "witness": "text:49:anchor:my_ears",
       "consequence": {
         "kind": "identity_hypothesis_opened",
-        "identity": "identity:longitude:my_ears"
+        "identity": "identity:dinah:my_ears"
       },
       "inputs": [
-        "longitude",
+        "dinah",
         "my ears"
       ],
       "outputs": [
-        "identity:longitude:my_ears"
+        "identity:dinah:my_ears"
       ],
       "payload": {
         "action": "alternative",
         "value": {
           "schema": "EOIdentityAlternative@1",
-          "id": "identity:longitude:my_ears",
-          "left": "longitude",
+          "id": "identity:dinah:my_ears",
+          "left": "dinah",
           "right": "my ears",
           "standing": "live_hypothesis",
           "supportRefs": [
@@ -46712,24 +46431,24 @@
       "witness": "text:49:anchor:my_ears",
       "consequence": {
         "kind": "expectation_opened",
-        "expectation": "expectation:identity:longitude:my_ears",
-        "identity": "identity:longitude:my_ears"
+        "expectation": "expectation:identity:dinah:my_ears",
+        "identity": "identity:dinah:my_ears"
       },
       "inputs": [
-        "identity:longitude:my_ears"
+        "identity:dinah:my_ears"
       ],
       "outputs": [
-        "expectation:identity:longitude:my_ears"
+        "expectation:identity:dinah:my_ears"
       ],
       "payload": {
         "action": "expectation",
         "value": {
           "schema": "EOExpectation@1",
-          "id": "expectation:identity:longitude:my_ears",
-          "hypothesis": "corroboration expected: longitude <-> my ears",
+          "id": "expectation:identity:dinah:my_ears",
+          "hypothesis": "corroboration expected: dinah <-> my ears",
           "giver": "text/anchoring::createDescriptorAnchoring",
           "grounds": [
-            "identity:longitude:my_ears"
+            "identity:dinah:my_ears"
           ],
           "openedAt": null,
           "scope": null,
@@ -47129,7 +46848,7 @@
         "edge": "edge:text:50:2"
       },
       "inputs": [
-        "occ:50:2:subject",
+        "ref:auto:white_rabbit",
         "occ:50:2:object"
       ],
       "outputs": [
@@ -47143,13 +46862,14 @@
           "relation": "was",
           "participants": [
             {
-              "ref": "occ:50:2:subject",
-              "occurrence": "occ:50:2:subject",
-              "surfaceKey": "surface:rabbit",
+              "ref": "ref:auto:white_rabbit",
               "role": "subject",
-              "standing": "unresolved_surface",
+              "standing": "referent",
               "surface": "Rabbit",
-              "candidateReferents": []
+              "resolution": "containment_surface_in_span",
+              "matchedSurfaces": [
+                "white rabbit"
+              ]
             },
             {
               "ref": "occ:50:2:object",
@@ -51371,45 +51091,6 @@
     {
       "schema": "EOOperation@1",
       "id": "delta:57:op:10",
-      "mode": "Generate",
-      "domain": "Existence",
-      "grain": "Ground",
-      "operator": "INS",
-      "terrain": "Void",
-      "stance": "Cultivating",
-      "witness": "observation:56:0",
-      "consequence": {
-        "kind": "referent_occurrence_witnessed",
-        "occurrence": "ref-occ:encounter:56:occ:56:3:subject"
-      },
-      "inputs": [],
-      "outputs": [
-        "ref-occ:encounter:56:occ:56:3:subject"
-      ],
-      "payload": {
-        "action": "graph-object",
-        "value": {
-          "schema": "EOReferentOccurrence@1",
-          "id": "ref-occ:encounter:56:occ:56:3:subject",
-          "surface": "my head",
-          "canonicalSurface": "my head",
-          "head": "head",
-          "determination": "possessive",
-          "role": "subject",
-          "encounterRef": "encounter:56",
-          "edge": "edge:text:56:3",
-          "relation": "would",
-          "standing": "unresolved_identity",
-          "provenance": {
-            "giver": "text/individuation::descriptorOccurrence",
-            "basis": "determiner-marked unresolved relation participant"
-          }
-        }
-      }
-    },
-    {
-      "schema": "EOOperation@1",
-      "id": "delta:57:op:11",
       "mode": "Relate",
       "domain": "Structure",
       "grain": "Figure",
@@ -51422,7 +51103,7 @@
         "edge": "edge:text:56:3"
       },
       "inputs": [
-        "occ:56:3:subject",
+        "identity:poss:head:my",
         "occ:56:3:object"
       ],
       "outputs": [
@@ -51436,13 +51117,12 @@
           "relation": "would",
           "participants": [
             {
-              "ref": "occ:56:3:subject",
-              "occurrence": "occ:56:3:subject",
-              "surfaceKey": "surface:my_head",
+              "ref": "identity:poss:head:my",
               "role": "subject",
-              "standing": "unresolved_surface",
+              "standing": "hypothesis",
               "surface": "my head",
-              "candidateReferents": []
+              "resolution": "possessive_holding",
+              "possessiveAnchor": "my"
             },
             {
               "ref": "occ:56:3:object",
@@ -51480,7 +51160,7 @@
     },
     {
       "schema": "EOOperation@1",
-      "id": "delta:57:op:12",
+      "id": "delta:57:op:11",
       "mode": "Relate",
       "domain": "Structure",
       "grain": "Figure",
@@ -51551,7 +51231,7 @@
     },
     {
       "schema": "EOOperation@1",
-      "id": "delta:57:op:13",
+      "id": "delta:57:op:12",
       "mode": "Relate",
       "domain": "Structure",
       "grain": "Figure",
@@ -51622,7 +51302,7 @@
     },
     {
       "schema": "EOOperation@1",
-      "id": "delta:57:op:14",
+      "id": "delta:57:op:13",
       "mode": "Relate",
       "domain": "Structure",
       "grain": "Figure",
@@ -51680,7 +51360,7 @@
     },
     {
       "schema": "EOOperation@1",
-      "id": "delta:57:op:15",
+      "id": "delta:57:op:14",
       "mode": "Relate",
       "domain": "Structure",
       "grain": "Figure",
@@ -51738,7 +51418,7 @@
     },
     {
       "schema": "EOOperation@1",
-      "id": "delta:57:op:16",
+      "id": "delta:57:op:15",
       "mode": "Relate",
       "domain": "Structure",
       "grain": "Figure",
@@ -51796,210 +51476,7 @@
     },
     {
       "schema": "EOOperation@1",
-      "id": "delta:57:op:17",
-      "mode": "Relate",
-      "domain": "Structure",
-      "grain": "Figure",
-      "operator": "CON",
-      "terrain": "Link",
-      "stance": "Binding",
-      "witness": null,
-      "consequence": {
-        "kind": "identity_hypothesis_opened",
-        "hypothesis": "identity:descriptor:my_head"
-      },
-      "inputs": [
-        "ref-occ:file:aiw-ch1-prose.txt:6598:direct:5:193",
-        "ref-occ:encounter:56:occ:56:3:subject"
-      ],
-      "outputs": [
-        "identity:descriptor:my_head"
-      ],
-      "payload": {
-        "action": "provisional",
-        "value": {
-          "schema": "EOIdentityHypothesis@1",
-          "id": "identity:descriptor:my_head",
-          "surface": "my head",
-          "determinations": [
-            "possessive"
-          ],
-          "occurrenceRefs": [
-            "ref-occ:file:aiw-ch1-prose.txt:6598:direct:5:193",
-            "ref-occ:encounter:56:occ:56:3:subject"
-          ],
-          "encounterRefs": [
-            "file:aiw-ch1-prose.txt:6598",
-            "encounter:56"
-          ],
-          "relationContexts": [
-            {
-              "edge": null,
-              "relation": null,
-              "role": null
-            },
-            {
-              "edge": "edge:text:56:3",
-              "relation": "would",
-              "role": "subject"
-            }
-          ],
-          "standing": "live_hypothesis",
-          "provenance": {
-            "giver": "text/individuation::descriptorHypotheses",
-            "basis": "same descriptor recurred across distinct encounters; identity remains defeasible"
-          }
-        }
-      }
-    },
-    {
-      "schema": "EOOperation@1",
-      "id": "delta:57:op:18",
-      "mode": "Relate",
-      "domain": "Structure",
-      "grain": "Figure",
-      "operator": "CON",
-      "terrain": "Link",
-      "stance": "Binding",
-      "witness": "text:56:anchor:my_head",
-      "consequence": {
-        "kind": "identity_hypothesis_opened",
-        "identity": "identity:longitude:my_head"
-      },
-      "inputs": [
-        "longitude",
-        "my head"
-      ],
-      "outputs": [
-        "identity:longitude:my_head"
-      ],
-      "payload": {
-        "action": "alternative",
-        "value": {
-          "schema": "EOIdentityAlternative@1",
-          "id": "identity:longitude:my_head",
-          "left": "longitude",
-          "right": "my head",
-          "standing": "live_hypothesis",
-          "supportRefs": [
-            "text:56:anchor:my_head"
-          ],
-          "attackRefs": [],
-          "giver": "text/anchoring::createDescriptorAnchoring"
-        }
-      }
-    },
-    {
-      "schema": "EOOperation@1",
-      "id": "delta:57:op:19",
-      "mode": "Generate",
-      "domain": "Existence",
-      "grain": "Figure",
-      "operator": "INS",
-      "terrain": "Entity",
-      "stance": "Making",
-      "witness": "text:56:anchor:my_head",
-      "consequence": {
-        "kind": "expectation_opened",
-        "expectation": "expectation:identity:longitude:my_head",
-        "identity": "identity:longitude:my_head"
-      },
-      "inputs": [
-        "identity:longitude:my_head"
-      ],
-      "outputs": [
-        "expectation:identity:longitude:my_head"
-      ],
-      "payload": {
-        "action": "expectation",
-        "value": {
-          "schema": "EOExpectation@1",
-          "id": "expectation:identity:longitude:my_head",
-          "hypothesis": "corroboration expected: longitude <-> my head",
-          "giver": "text/anchoring::createDescriptorAnchoring",
-          "grounds": [
-            "identity:longitude:my_head"
-          ],
-          "openedAt": null,
-          "scope": null,
-          "consequences": [],
-          "state": "open"
-        }
-      }
-    },
-    {
-      "schema": "EOOperation@1",
-      "id": "delta:57:op:20",
-      "mode": "Generate",
-      "domain": "Interpretation",
-      "grain": "Figure",
-      "operator": "REC",
-      "terrain": "Lens",
-      "stance": "Making",
-      "witness": "text:56:anchor:my_head",
-      "consequence": {
-        "kind": "relation_recanonicalized",
-        "sourceEdge": "edge:text:56:3",
-        "identity": "identity:longitude:my_head",
-        "from": null,
-        "to": [
-          {
-            "role": "subject",
-            "value": "my head",
-            "alternatives": [
-              "my head"
-            ]
-          },
-          {
-            "role": "object",
-            "value": "go through",
-            "alternatives": [
-              "go through"
-            ]
-          }
-        ]
-      },
-      "inputs": [
-        "edge:text:56:3",
-        "identity:longitude:my_head"
-      ],
-      "outputs": [
-        "canonical:edge:text:56:3"
-      ],
-      "payload": {
-        "action": "graph-object",
-        "value": {
-          "schema": "EOCanonicalHyperedge@1",
-          "id": "canonical:edge:text:56:3",
-          "sourceEdge": "edge:text:56:3",
-          "relation": "would",
-          "participants": [
-            {
-              "role": "subject",
-              "value": "my head",
-              "alternatives": [
-                "my head"
-              ]
-            },
-            {
-              "role": "object",
-              "value": "go through",
-              "alternatives": [
-                "go through"
-              ]
-            }
-          ],
-          "witness": "text:56:193",
-          "scope": {
-            "sequencePosition": 56,
-            "offset": 193
-          }
-        }
-      }
-    },
-    {
-      "schema": "EOOperation@1",
-      "id": "delta:57:op:21",
+      "id": "delta:57:op:16",
       "mode": "Relate",
       "domain": "Structure",
       "grain": "Figure",
@@ -52036,7 +51513,7 @@
     },
     {
       "schema": "EOOperation@1",
-      "id": "delta:57:op:22",
+      "id": "delta:57:op:17",
       "mode": "Generate",
       "domain": "Existence",
       "grain": "Figure",
@@ -52074,7 +51551,7 @@
     },
     {
       "schema": "EOOperation@1",
-      "id": "delta:57:op:23",
+      "id": "delta:57:op:18",
       "mode": "Relate",
       "domain": "Structure",
       "grain": "Figure",
@@ -52111,7 +51588,7 @@
     },
     {
       "schema": "EOOperation@1",
-      "id": "delta:57:op:24",
+      "id": "delta:57:op:19",
       "mode": "Generate",
       "domain": "Existence",
       "grain": "Figure",
@@ -52149,7 +51626,7 @@
     },
     {
       "schema": "EOOperation@1",
-      "id": "delta:57:op:25",
+      "id": "delta:57:op:20",
       "mode": "Relate",
       "domain": "Structure",
       "grain": "Figure",
@@ -52186,7 +51663,7 @@
     },
     {
       "schema": "EOOperation@1",
-      "id": "delta:57:op:26",
+      "id": "delta:57:op:21",
       "mode": "Generate",
       "domain": "Existence",
       "grain": "Figure",
@@ -52224,7 +51701,7 @@
     },
     {
       "schema": "EOOperation@1",
-      "id": "delta:57:op:27",
+      "id": "delta:57:op:22",
       "mode": "Relate",
       "domain": "Structure",
       "grain": "Figure",
@@ -52233,7 +51710,7 @@
       "stance": "Binding",
       "witness": "text:56:anchor:my_head",
       "consequence": {
-        "kind": "identity_hypothesis_supported",
+        "kind": "identity_hypothesis_opened",
         "identity": "identity:longitude:my_head"
       },
       "inputs": [
@@ -52261,21 +51738,21 @@
     },
     {
       "schema": "EOOperation@1",
-      "id": "delta:57:op:28",
-      "mode": "Relate",
-      "domain": "Interpretation",
+      "id": "delta:57:op:23",
+      "mode": "Generate",
+      "domain": "Existence",
       "grain": "Figure",
-      "operator": "EVA",
-      "terrain": "Lens",
-      "stance": "Binding",
+      "operator": "INS",
+      "terrain": "Entity",
+      "stance": "Making",
       "witness": "text:56:anchor:my_head",
       "consequence": {
-        "kind": "expectation_strengthened",
+        "kind": "expectation_opened",
         "expectation": "expectation:identity:longitude:my_head",
         "identity": "identity:longitude:my_head"
       },
       "inputs": [
-        "expectation:identity:longitude:my_head"
+        "identity:longitude:my_head"
       ],
       "outputs": [
         "expectation:identity:longitude:my_head"
@@ -52293,83 +51770,13 @@
           "openedAt": null,
           "scope": null,
           "consequences": [],
-          "state": "strengthened"
+          "state": "open"
         }
       }
     },
     {
       "schema": "EOOperation@1",
-      "id": "delta:57:op:29",
-      "mode": "Generate",
-      "domain": "Interpretation",
-      "grain": "Figure",
-      "operator": "REC",
-      "terrain": "Lens",
-      "stance": "Making",
-      "witness": "text:56:anchor:my_head",
-      "consequence": {
-        "kind": "relation_recanonicalized",
-        "sourceEdge": "edge:text:56:3",
-        "identity": "identity:longitude:my_head",
-        "from": null,
-        "to": [
-          {
-            "role": "subject",
-            "value": "my head",
-            "alternatives": [
-              "my head"
-            ]
-          },
-          {
-            "role": "object",
-            "value": "go through",
-            "alternatives": [
-              "go through"
-            ]
-          }
-        ]
-      },
-      "inputs": [
-        "edge:text:56:3",
-        "identity:longitude:my_head"
-      ],
-      "outputs": [
-        "canonical:edge:text:56:3"
-      ],
-      "payload": {
-        "action": "graph-object",
-        "value": {
-          "schema": "EOCanonicalHyperedge@1",
-          "id": "canonical:edge:text:56:3",
-          "sourceEdge": "edge:text:56:3",
-          "relation": "would",
-          "participants": [
-            {
-              "role": "subject",
-              "value": "my head",
-              "alternatives": [
-                "my head"
-              ]
-            },
-            {
-              "role": "object",
-              "value": "go through",
-              "alternatives": [
-                "go through"
-              ]
-            }
-          ],
-          "witness": "text:56:193",
-          "scope": {
-            "sequencePosition": 56,
-            "offset": 193
-          }
-        }
-      }
-    },
-    {
-      "schema": "EOOperation@1",
-      "id": "delta:57:op:30",
+      "id": "delta:57:op:24",
       "mode": "Relate",
       "domain": "Structure",
       "grain": "Figure",
@@ -52406,7 +51813,7 @@
     },
     {
       "schema": "EOOperation@1",
-      "id": "delta:57:op:31",
+      "id": "delta:57:op:25",
       "mode": "Generate",
       "domain": "Existence",
       "grain": "Figure",
@@ -52484,49 +51891,6 @@
     {
       "schema": "EOOperation@1",
       "id": "delta:58:op:1",
-      "mode": "Generate",
-      "domain": "Existence",
-      "grain": "Figure",
-      "operator": "INS",
-      "terrain": "Entity",
-      "stance": "Making",
-      "witness": "observation:57:0",
-      "consequence": {
-        "kind": "referent_admitted",
-        "ref": "ref:auto:oh"
-      },
-      "inputs": [
-        "mention:57:ref_auto_oh",
-        "gap:referent:ref_auto_oh"
-      ],
-      "outputs": [
-        "ref:auto:oh"
-      ],
-      "payload": {
-        "action": "graph-object",
-        "value": {
-          "schema": "EOReferent@1",
-          "id": "ref:auto:oh",
-          "surfaces": [
-            "Oh"
-          ],
-          "provenance": [
-            {
-              "giver": "surfaces/discoverReferents",
-              "tier": "engine",
-              "basis": "name-variant coreference"
-            }
-          ],
-          "fedBy": [
-            "mention:57:ref_auto_oh",
-            "gap:referent:ref_auto_oh"
-          ]
-        }
-      }
-    },
-    {
-      "schema": "EOOperation@1",
-      "id": "delta:58:op:2",
       "mode": "Relate",
       "domain": "Structure",
       "grain": "Figure",
@@ -52597,7 +51961,7 @@
     },
     {
       "schema": "EOOperation@1",
-      "id": "delta:58:op:3",
+      "id": "delta:58:op:2",
       "mode": "Relate",
       "domain": "Structure",
       "grain": "Figure",
@@ -52655,7 +52019,7 @@
     },
     {
       "schema": "EOOperation@1",
-      "id": "delta:58:op:4",
+      "id": "delta:58:op:3",
       "mode": "Relate",
       "domain": "Structure",
       "grain": "Figure",
@@ -52713,7 +52077,7 @@
     },
     {
       "schema": "EOOperation@1",
-      "id": "delta:58:op:5",
+      "id": "delta:58:op:4",
       "mode": "Relate",
       "domain": "Structure",
       "grain": "Figure",
@@ -52744,6 +52108,64 @@
           "occurrenceRefs": [
             "ref-occ:encounter:56:direct:4:167",
             "ref-occ:file:aiw-ch1-prose.txt:6598:direct:4:167"
+          ],
+          "encounterRefs": [
+            "encounter:56",
+            "file:aiw-ch1-prose.txt:6598"
+          ],
+          "relationContexts": [
+            {
+              "edge": null,
+              "relation": null,
+              "role": null
+            },
+            {
+              "edge": null,
+              "relation": null,
+              "role": null
+            }
+          ],
+          "standing": "live_hypothesis",
+          "provenance": {
+            "giver": "text/individuation::descriptorHypotheses",
+            "basis": "same descriptor recurred across distinct encounters; identity remains defeasible"
+          }
+        }
+      }
+    },
+    {
+      "schema": "EOOperation@1",
+      "id": "delta:58:op:5",
+      "mode": "Relate",
+      "domain": "Structure",
+      "grain": "Figure",
+      "operator": "CON",
+      "terrain": "Link",
+      "stance": "Binding",
+      "witness": null,
+      "consequence": {
+        "kind": "identity_hypothesis_opened",
+        "hypothesis": "identity:descriptor:my_head"
+      },
+      "inputs": [
+        "ref-occ:encounter:56:direct:5:193",
+        "ref-occ:file:aiw-ch1-prose.txt:6598:direct:5:193"
+      ],
+      "outputs": [
+        "identity:descriptor:my_head"
+      ],
+      "payload": {
+        "action": "provisional",
+        "value": {
+          "schema": "EOIdentityHypothesis@1",
+          "id": "identity:descriptor:my_head",
+          "surface": "my head",
+          "determinations": [
+            "possessive"
+          ],
+          "occurrenceRefs": [
+            "ref-occ:encounter:56:direct:5:193",
+            "ref-occ:file:aiw-ch1-prose.txt:6598:direct:5:193"
           ],
           "encounterRefs": [
             "encounter:56",
@@ -54577,489 +53999,6 @@
             "giver": "text/individuation::descriptorHypotheses",
             "basis": "same descriptor recurred across distinct encounters; identity remains defeasible"
           }
-        }
-      }
-    },
-    {
-      "schema": "EOOperation@1",
-      "id": "delta:61:op:22",
-      "mode": "Relate",
-      "domain": "Structure",
-      "grain": "Figure",
-      "operator": "CON",
-      "terrain": "Link",
-      "stance": "Binding",
-      "witness": "text:60:anchor:the_table",
-      "consequence": {
-        "kind": "identity_hypothesis_opened",
-        "identity": "identity:oh:the_table"
-      },
-      "inputs": [
-        "oh",
-        "the table"
-      ],
-      "outputs": [
-        "identity:oh:the_table"
-      ],
-      "payload": {
-        "action": "alternative",
-        "value": {
-          "schema": "EOIdentityAlternative@1",
-          "id": "identity:oh:the_table",
-          "left": "oh",
-          "right": "the table",
-          "standing": "live_hypothesis",
-          "supportRefs": [
-            "text:60:anchor:the_table"
-          ],
-          "attackRefs": [],
-          "giver": "text/anchoring::createDescriptorAnchoring"
-        }
-      }
-    },
-    {
-      "schema": "EOOperation@1",
-      "id": "delta:61:op:23",
-      "mode": "Generate",
-      "domain": "Existence",
-      "grain": "Figure",
-      "operator": "INS",
-      "terrain": "Entity",
-      "stance": "Making",
-      "witness": "text:60:anchor:the_table",
-      "consequence": {
-        "kind": "expectation_opened",
-        "expectation": "expectation:identity:oh:the_table",
-        "identity": "identity:oh:the_table"
-      },
-      "inputs": [
-        "identity:oh:the_table"
-      ],
-      "outputs": [
-        "expectation:identity:oh:the_table"
-      ],
-      "payload": {
-        "action": "expectation",
-        "value": {
-          "schema": "EOExpectation@1",
-          "id": "expectation:identity:oh:the_table",
-          "hypothesis": "corroboration expected: oh <-> the table",
-          "giver": "text/anchoring::createDescriptorAnchoring",
-          "grounds": [
-            "identity:oh:the_table"
-          ],
-          "openedAt": null,
-          "scope": null,
-          "consequences": [],
-          "state": "open"
-        }
-      }
-    },
-    {
-      "schema": "EOOperation@1",
-      "id": "delta:61:op:24",
-      "mode": "Relate",
-      "domain": "Structure",
-      "grain": "Figure",
-      "operator": "CON",
-      "terrain": "Link",
-      "stance": "Binding",
-      "witness": "text:60:anchor:this_time",
-      "consequence": {
-        "kind": "identity_hypothesis_opened",
-        "identity": "identity:oh:this_time"
-      },
-      "inputs": [
-        "oh",
-        "this time"
-      ],
-      "outputs": [
-        "identity:oh:this_time"
-      ],
-      "payload": {
-        "action": "alternative",
-        "value": {
-          "schema": "EOIdentityAlternative@1",
-          "id": "identity:oh:this_time",
-          "left": "oh",
-          "right": "this time",
-          "standing": "live_hypothesis",
-          "supportRefs": [
-            "text:60:anchor:this_time"
-          ],
-          "attackRefs": [],
-          "giver": "text/anchoring::createDescriptorAnchoring"
-        }
-      }
-    },
-    {
-      "schema": "EOOperation@1",
-      "id": "delta:61:op:25",
-      "mode": "Generate",
-      "domain": "Existence",
-      "grain": "Figure",
-      "operator": "INS",
-      "terrain": "Entity",
-      "stance": "Making",
-      "witness": "text:60:anchor:this_time",
-      "consequence": {
-        "kind": "expectation_opened",
-        "expectation": "expectation:identity:oh:this_time",
-        "identity": "identity:oh:this_time"
-      },
-      "inputs": [
-        "identity:oh:this_time"
-      ],
-      "outputs": [
-        "expectation:identity:oh:this_time"
-      ],
-      "payload": {
-        "action": "expectation",
-        "value": {
-          "schema": "EOExpectation@1",
-          "id": "expectation:identity:oh:this_time",
-          "hypothesis": "corroboration expected: oh <-> this time",
-          "giver": "text/anchoring::createDescriptorAnchoring",
-          "grounds": [
-            "identity:oh:this_time"
-          ],
-          "openedAt": null,
-          "scope": null,
-          "consequences": [],
-          "state": "open"
-        }
-      }
-    },
-    {
-      "schema": "EOOperation@1",
-      "id": "delta:61:op:26",
-      "mode": "Relate",
-      "domain": "Structure",
-      "grain": "Figure",
-      "operator": "CON",
-      "terrain": "Link",
-      "stance": "Binding",
-      "witness": "text:60:anchor:the_neck",
-      "consequence": {
-        "kind": "identity_hypothesis_opened",
-        "identity": "identity:oh:the_neck"
-      },
-      "inputs": [
-        "oh",
-        "the neck"
-      ],
-      "outputs": [
-        "identity:oh:the_neck"
-      ],
-      "payload": {
-        "action": "alternative",
-        "value": {
-          "schema": "EOIdentityAlternative@1",
-          "id": "identity:oh:the_neck",
-          "left": "oh",
-          "right": "the neck",
-          "standing": "live_hypothesis",
-          "supportRefs": [
-            "text:60:anchor:the_neck"
-          ],
-          "attackRefs": [],
-          "giver": "text/anchoring::createDescriptorAnchoring"
-        }
-      }
-    },
-    {
-      "schema": "EOOperation@1",
-      "id": "delta:61:op:27",
-      "mode": "Generate",
-      "domain": "Existence",
-      "grain": "Figure",
-      "operator": "INS",
-      "terrain": "Entity",
-      "stance": "Making",
-      "witness": "text:60:anchor:the_neck",
-      "consequence": {
-        "kind": "expectation_opened",
-        "expectation": "expectation:identity:oh:the_neck",
-        "identity": "identity:oh:the_neck"
-      },
-      "inputs": [
-        "identity:oh:the_neck"
-      ],
-      "outputs": [
-        "expectation:identity:oh:the_neck"
-      ],
-      "payload": {
-        "action": "expectation",
-        "value": {
-          "schema": "EOExpectation@1",
-          "id": "expectation:identity:oh:the_neck",
-          "hypothesis": "corroboration expected: oh <-> the neck",
-          "giver": "text/anchoring::createDescriptorAnchoring",
-          "grounds": [
-            "identity:oh:the_neck"
-          ],
-          "openedAt": null,
-          "scope": null,
-          "consequences": [],
-          "state": "open"
-        }
-      }
-    },
-    {
-      "schema": "EOOperation@1",
-      "id": "delta:61:op:28",
-      "mode": "Relate",
-      "domain": "Structure",
-      "grain": "Figure",
-      "operator": "CON",
-      "terrain": "Link",
-      "stance": "Binding",
-      "witness": "text:60:anchor:the_bottle",
-      "consequence": {
-        "kind": "identity_hypothesis_opened",
-        "identity": "identity:oh:the_bottle"
-      },
-      "inputs": [
-        "oh",
-        "the bottle"
-      ],
-      "outputs": [
-        "identity:oh:the_bottle"
-      ],
-      "payload": {
-        "action": "alternative",
-        "value": {
-          "schema": "EOIdentityAlternative@1",
-          "id": "identity:oh:the_bottle",
-          "left": "oh",
-          "right": "the bottle",
-          "standing": "live_hypothesis",
-          "supportRefs": [
-            "text:60:anchor:the_bottle"
-          ],
-          "attackRefs": [],
-          "giver": "text/anchoring::createDescriptorAnchoring"
-        }
-      }
-    },
-    {
-      "schema": "EOOperation@1",
-      "id": "delta:61:op:29",
-      "mode": "Generate",
-      "domain": "Existence",
-      "grain": "Figure",
-      "operator": "INS",
-      "terrain": "Entity",
-      "stance": "Making",
-      "witness": "text:60:anchor:the_bottle",
-      "consequence": {
-        "kind": "expectation_opened",
-        "expectation": "expectation:identity:oh:the_bottle",
-        "identity": "identity:oh:the_bottle"
-      },
-      "inputs": [
-        "identity:oh:the_bottle"
-      ],
-      "outputs": [
-        "expectation:identity:oh:the_bottle"
-      ],
-      "payload": {
-        "action": "expectation",
-        "value": {
-          "schema": "EOExpectation@1",
-          "id": "expectation:identity:oh:the_bottle",
-          "hypothesis": "corroboration expected: oh <-> the bottle",
-          "giver": "text/anchoring::createDescriptorAnchoring",
-          "grounds": [
-            "identity:oh:the_bottle"
-          ],
-          "openedAt": null,
-          "scope": null,
-          "consequences": [],
-          "state": "open"
-        }
-      }
-    },
-    {
-      "schema": "EOOperation@1",
-      "id": "delta:61:op:30",
-      "mode": "Relate",
-      "domain": "Structure",
-      "grain": "Figure",
-      "operator": "CON",
-      "terrain": "Link",
-      "stance": "Binding",
-      "witness": "text:60:anchor:the_words",
-      "consequence": {
-        "kind": "identity_hypothesis_opened",
-        "identity": "identity:oh:the_words"
-      },
-      "inputs": [
-        "oh",
-        "the words"
-      ],
-      "outputs": [
-        "identity:oh:the_words"
-      ],
-      "payload": {
-        "action": "alternative",
-        "value": {
-          "schema": "EOIdentityAlternative@1",
-          "id": "identity:oh:the_words",
-          "left": "oh",
-          "right": "the words",
-          "standing": "live_hypothesis",
-          "supportRefs": [
-            "text:60:anchor:the_words"
-          ],
-          "attackRefs": [],
-          "giver": "text/anchoring::createDescriptorAnchoring"
-        }
-      }
-    },
-    {
-      "schema": "EOOperation@1",
-      "id": "delta:61:op:31",
-      "mode": "Generate",
-      "domain": "Existence",
-      "grain": "Figure",
-      "operator": "INS",
-      "terrain": "Entity",
-      "stance": "Making",
-      "witness": "text:60:anchor:the_words",
-      "consequence": {
-        "kind": "expectation_opened",
-        "expectation": "expectation:identity:oh:the_words",
-        "identity": "identity:oh:the_words"
-      },
-      "inputs": [
-        "identity:oh:the_words"
-      ],
-      "outputs": [
-        "expectation:identity:oh:the_words"
-      ],
-      "payload": {
-        "action": "expectation",
-        "value": {
-          "schema": "EOExpectation@1",
-          "id": "expectation:identity:oh:the_words",
-          "hypothesis": "corroboration expected: oh <-> the words",
-          "giver": "text/anchoring::createDescriptorAnchoring",
-          "grounds": [
-            "identity:oh:the_words"
-          ],
-          "openedAt": null,
-          "scope": null,
-          "consequences": [],
-          "state": "open"
-        }
-      }
-    },
-    {
-      "schema": "EOOperation@1",
-      "id": "delta:61:op:32",
-      "mode": "Differentiate",
-      "domain": "Structure",
-      "grain": "Figure",
-      "operator": "SEG",
-      "terrain": "Link",
-      "stance": "Dissecting",
-      "witness": "text:60:anchor:this_time",
-      "consequence": {
-        "kind": "identity_split",
-        "identity": "identity:longitude:this_time",
-        "reason": "descriptor_bound_to_different_referent"
-      },
-      "inputs": [
-        "identity:longitude:this_time"
-      ],
-      "outputs": [
-        "identity:longitude:this_time"
-      ],
-      "payload": {
-        "action": "alternative",
-        "value": {
-          "schema": "EOIdentityAlternative@1",
-          "id": "identity:longitude:this_time",
-          "left": "longitude",
-          "right": "this time",
-          "standing": "distinct",
-          "supportRefs": [
-            "text:27:anchor:this_time"
-          ],
-          "attackRefs": [
-            "text:60:anchor:this_time"
-          ],
-          "giver": "text/anchoring::createDescriptorAnchoring"
-        }
-      }
-    },
-    {
-      "schema": "EOOperation@1",
-      "id": "delta:61:op:33",
-      "mode": "Differentiate",
-      "domain": "Interpretation",
-      "grain": "Figure",
-      "operator": "DEF",
-      "terrain": "Lens",
-      "stance": "Dissecting",
-      "witness": "text:60:anchor:this_time",
-      "consequence": {
-        "kind": "identity_reading_refused",
-        "identity": "identity:longitude:this_time"
-      },
-      "inputs": [
-        "identity:longitude:this_time"
-      ],
-      "outputs": [
-        "exclusion:identity:longitude:this_time"
-      ],
-      "payload": {
-        "action": "exclusion",
-        "value": {
-          "schema": "EOExclusion@1",
-          "id": "exclusion:identity:longitude:this_time",
-          "kind": "identity_refused",
-          "target": "identity:longitude:this_time",
-          "witness": "text:60:anchor:this_time"
-        }
-      }
-    },
-    {
-      "schema": "EOOperation@1",
-      "id": "delta:61:op:34",
-      "mode": "Relate",
-      "domain": "Interpretation",
-      "grain": "Figure",
-      "operator": "EVA",
-      "terrain": "Lens",
-      "stance": "Binding",
-      "witness": "text:60:anchor:this_time",
-      "consequence": {
-        "kind": "expectation_violated",
-        "expectation": "expectation:identity:longitude:this_time",
-        "identity": "identity:longitude:this_time"
-      },
-      "inputs": [
-        "expectation:identity:longitude:this_time"
-      ],
-      "outputs": [
-        "expectation:identity:longitude:this_time"
-      ],
-      "payload": {
-        "action": "expectation",
-        "value": {
-          "schema": "EOExpectation@1",
-          "id": "expectation:identity:longitude:this_time",
-          "hypothesis": "corroboration expected: longitude <-> this time",
-          "giver": "text/anchoring::createDescriptorAnchoring",
-          "grounds": [
-            "identity:longitude:this_time"
-          ],
-          "openedAt": null,
-          "scope": null,
-          "consequences": [],
-          "state": "violated"
         }
       }
     },
@@ -60108,156 +59047,6 @@
     },
     {
       "schema": "EOOperation@1",
-      "id": "delta:73:op:8",
-      "mode": "Relate",
-      "domain": "Structure",
-      "grain": "Figure",
-      "operator": "CON",
-      "terrain": "Link",
-      "stance": "Binding",
-      "witness": "text:72:anchor:the_flame",
-      "consequence": {
-        "kind": "identity_hypothesis_opened",
-        "identity": "identity:oh:the_flame"
-      },
-      "inputs": [
-        "oh",
-        "the flame"
-      ],
-      "outputs": [
-        "identity:oh:the_flame"
-      ],
-      "payload": {
-        "action": "alternative",
-        "value": {
-          "schema": "EOIdentityAlternative@1",
-          "id": "identity:oh:the_flame",
-          "left": "oh",
-          "right": "the flame",
-          "standing": "live_hypothesis",
-          "supportRefs": [
-            "text:72:anchor:the_flame"
-          ],
-          "attackRefs": [],
-          "giver": "text/anchoring::createDescriptorAnchoring"
-        }
-      }
-    },
-    {
-      "schema": "EOOperation@1",
-      "id": "delta:73:op:9",
-      "mode": "Generate",
-      "domain": "Existence",
-      "grain": "Figure",
-      "operator": "INS",
-      "terrain": "Entity",
-      "stance": "Making",
-      "witness": "text:72:anchor:the_flame",
-      "consequence": {
-        "kind": "expectation_opened",
-        "expectation": "expectation:identity:oh:the_flame",
-        "identity": "identity:oh:the_flame"
-      },
-      "inputs": [
-        "identity:oh:the_flame"
-      ],
-      "outputs": [
-        "expectation:identity:oh:the_flame"
-      ],
-      "payload": {
-        "action": "expectation",
-        "value": {
-          "schema": "EOExpectation@1",
-          "id": "expectation:identity:oh:the_flame",
-          "hypothesis": "corroboration expected: oh <-> the flame",
-          "giver": "text/anchoring::createDescriptorAnchoring",
-          "grounds": [
-            "identity:oh:the_flame"
-          ],
-          "openedAt": null,
-          "scope": null,
-          "consequences": [],
-          "state": "open"
-        }
-      }
-    },
-    {
-      "schema": "EOOperation@1",
-      "id": "delta:73:op:10",
-      "mode": "Relate",
-      "domain": "Structure",
-      "grain": "Figure",
-      "operator": "CON",
-      "terrain": "Link",
-      "stance": "Binding",
-      "witness": "text:72:anchor:the_candle",
-      "consequence": {
-        "kind": "identity_hypothesis_opened",
-        "identity": "identity:oh:the_candle"
-      },
-      "inputs": [
-        "oh",
-        "the candle"
-      ],
-      "outputs": [
-        "identity:oh:the_candle"
-      ],
-      "payload": {
-        "action": "alternative",
-        "value": {
-          "schema": "EOIdentityAlternative@1",
-          "id": "identity:oh:the_candle",
-          "left": "oh",
-          "right": "the candle",
-          "standing": "live_hypothesis",
-          "supportRefs": [
-            "text:72:anchor:the_candle"
-          ],
-          "attackRefs": [],
-          "giver": "text/anchoring::createDescriptorAnchoring"
-        }
-      }
-    },
-    {
-      "schema": "EOOperation@1",
-      "id": "delta:73:op:11",
-      "mode": "Generate",
-      "domain": "Existence",
-      "grain": "Figure",
-      "operator": "INS",
-      "terrain": "Entity",
-      "stance": "Making",
-      "witness": "text:72:anchor:the_candle",
-      "consequence": {
-        "kind": "expectation_opened",
-        "expectation": "expectation:identity:oh:the_candle",
-        "identity": "identity:oh:the_candle"
-      },
-      "inputs": [
-        "identity:oh:the_candle"
-      ],
-      "outputs": [
-        "expectation:identity:oh:the_candle"
-      ],
-      "payload": {
-        "action": "expectation",
-        "value": {
-          "schema": "EOExpectation@1",
-          "id": "expectation:identity:oh:the_candle",
-          "hypothesis": "corroboration expected: oh <-> the candle",
-          "giver": "text/anchoring::createDescriptorAnchoring",
-          "grounds": [
-            "identity:oh:the_candle"
-          ],
-          "openedAt": null,
-          "scope": null,
-          "consequences": [],
-          "state": "open"
-        }
-      }
-    },
-    {
-      "schema": "EOOperation@1",
       "id": "delta:74:op:0",
       "mode": "Generate",
       "domain": "Existence",
@@ -61443,7 +60232,7 @@
       },
       "inputs": [
         "occ:74:7:subject",
-        "occ:74:7:object"
+        "identity:poss:best:her"
       ],
       "outputs": [
         "edge:text:74:7"
@@ -61465,13 +60254,12 @@
               "candidateReferents": []
             },
             {
-              "ref": "occ:74:7:object",
-              "occurrence": "occ:74:7:object",
-              "surfaceKey": "surface:her_best",
+              "ref": "identity:poss:best:her",
               "role": "object",
-              "standing": "unresolved_surface",
+              "standing": "hypothesis",
               "surface": "her best",
-              "candidateReferents": []
+              "resolution": "possessive_holding",
+              "possessiveAnchor": "her"
             }
           ],
           "witness": "text:74:214",
@@ -61996,7 +60784,7 @@
       "stance": "Binding",
       "witness": "text:74:anchor:the_table",
       "consequence": {
-        "kind": "identity_hypothesis_supported",
+        "kind": "identity_hypothesis_opened",
         "identity": "identity:oh:the_table"
       },
       "inputs": [
@@ -62015,7 +60803,6 @@
           "right": "the table",
           "standing": "live_hypothesis",
           "supportRefs": [
-            "text:60:anchor:the_table",
             "text:74:anchor:the_table"
           ],
           "attackRefs": [],
@@ -62026,20 +60813,20 @@
     {
       "schema": "EOOperation@1",
       "id": "delta:75:op:25",
-      "mode": "Relate",
-      "domain": "Interpretation",
+      "mode": "Generate",
+      "domain": "Existence",
       "grain": "Figure",
-      "operator": "EVA",
-      "terrain": "Lens",
-      "stance": "Binding",
+      "operator": "INS",
+      "terrain": "Entity",
+      "stance": "Making",
       "witness": "text:74:anchor:the_table",
       "consequence": {
-        "kind": "expectation_fulfilled",
+        "kind": "expectation_opened",
         "expectation": "expectation:identity:oh:the_table",
         "identity": "identity:oh:the_table"
       },
       "inputs": [
-        "expectation:identity:oh:the_table"
+        "identity:oh:the_table"
       ],
       "outputs": [
         "expectation:identity:oh:the_table"
@@ -62057,7 +60844,7 @@
           "openedAt": null,
           "scope": null,
           "consequences": [],
-          "state": "fulfilled"
+          "state": "open"
         }
       }
     },
@@ -62241,11 +61028,48 @@
           "right": "the table",
           "standing": "live_hypothesis",
           "supportRefs": [
-            "text:60:anchor:the_table",
             "text:74:anchor:the_table"
           ],
           "attackRefs": [],
           "giver": "text/anchoring::createDescriptorAnchoring"
+        }
+      }
+    },
+    {
+      "schema": "EOOperation@1",
+      "id": "delta:75:op:31",
+      "mode": "Relate",
+      "domain": "Interpretation",
+      "grain": "Figure",
+      "operator": "EVA",
+      "terrain": "Lens",
+      "stance": "Binding",
+      "witness": "text:74:anchor:the_table",
+      "consequence": {
+        "kind": "expectation_strengthened",
+        "expectation": "expectation:identity:oh:the_table",
+        "identity": "identity:oh:the_table"
+      },
+      "inputs": [
+        "expectation:identity:oh:the_table"
+      ],
+      "outputs": [
+        "expectation:identity:oh:the_table"
+      ],
+      "payload": {
+        "action": "expectation",
+        "value": {
+          "schema": "EOExpectation@1",
+          "id": "expectation:identity:oh:the_table",
+          "hypothesis": "corroboration expected: oh <-> the table",
+          "giver": "text/anchoring::createDescriptorAnchoring",
+          "grounds": [
+            "identity:oh:the_table"
+          ],
+          "openedAt": null,
+          "scope": null,
+          "consequences": [],
+          "state": "strengthened"
         }
       }
     },
@@ -64035,7 +62859,7 @@
         "edge": "edge:text:80:0"
       },
       "inputs": [
-        "occ:80:0:subject",
+        "identity:poss:eye:her",
         "occ:80:0:object"
       ],
       "outputs": [
@@ -64049,13 +62873,12 @@
           "relation": "fell",
           "participants": [
             {
-              "ref": "occ:80:0:subject",
-              "occurrence": "occ:80:0:subject",
-              "surfaceKey": "surface:her_eye",
+              "ref": "identity:poss:eye:her",
               "role": "subject",
-              "standing": "unresolved_surface",
+              "standing": "hypothesis",
               "surface": "her eye",
-              "candidateReferents": []
+              "resolution": "possessive_holding",
+              "possessiveAnchor": "her"
             },
             {
               "ref": "occ:80:0:object",
@@ -65181,6 +64004,42 @@
     {
       "schema": "EOOperation@1",
       "id": "delta:83:op:1",
+      "mode": "Generate",
+      "domain": "Existence",
+      "grain": "Figure",
+      "operator": "INS",
+      "terrain": "Entity",
+      "stance": "Making",
+      "witness": "observation:82:0",
+      "consequence": {
+        "kind": "referent_admitted",
+        "ref": "ref:auto:i’ll"
+      },
+      "inputs": [],
+      "outputs": [
+        "ref:auto:i’ll"
+      ],
+      "payload": {
+        "action": "graph-object",
+        "value": {
+          "schema": "EOReferent@1",
+          "id": "ref:auto:i’ll",
+          "surfaces": [
+            "I’ll"
+          ],
+          "provenance": [
+            {
+              "giver": "surfaces/discoverReferents",
+              "tier": "engine",
+              "basis": "name-variant coreference"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "schema": "EOOperation@1",
+      "id": "delta:83:op:2",
       "mode": "Relate",
       "domain": "Structure",
       "grain": "Figure",
@@ -65251,7 +64110,7 @@
     },
     {
       "schema": "EOOperation@1",
-      "id": "delta:83:op:2",
+      "id": "delta:83:op:3",
       "mode": "Relate",
       "domain": "Structure",
       "grain": "Figure",

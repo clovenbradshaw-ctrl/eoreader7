@@ -152,13 +152,12 @@
         "relation": "was",
         "participants": [
           {
-            "ref": "occ:1:0:subject",
-            "occurrence": "occ:1:0:subject",
-            "surfaceKey": "surface:her_sister",
+            "ref": "identity:poss:sister:her",
             "role": "subject",
-            "standing": "unresolved_surface",
+            "standing": "hypothesis",
             "surface": "her sister",
-            "candidateReferents": []
+            "resolution": "possessive_holding",
+            "possessiveAnchor": "her"
           },
           {
             "ref": "occ:1:0:object",
@@ -247,13 +246,12 @@
         "relation": "was",
         "participants": [
           {
-            "ref": "occ:1:0:subject",
-            "occurrence": "occ:1:0:subject",
-            "surfaceKey": "surface:her_sister",
+            "ref": "identity:poss:sister:her",
             "role": "subject",
-            "standing": "unresolved_surface",
+            "standing": "hypothesis",
             "surface": "her sister",
-            "candidateReferents": []
+            "resolution": "possessive_holding",
+            "possessiveAnchor": "her"
           },
           {
             "ref": "occ:1:0:object",
@@ -800,7 +798,7 @@
           "edge": "edge:text:1:0"
         },
         "inputs": [
-          "occ:1:0:subject",
+          "identity:poss:sister:her",
           "occ:1:0:object"
         ],
         "outputs": [
@@ -814,13 +812,12 @@
             "relation": "was",
             "participants": [
               {
-                "ref": "occ:1:0:subject",
-                "occurrence": "occ:1:0:subject",
-                "surfaceKey": "surface:her_sister",
+                "ref": "identity:poss:sister:her",
                 "role": "subject",
-                "standing": "unresolved_surface",
+                "standing": "hypothesis",
                 "surface": "her sister",
-                "candidateReferents": []
+                "resolution": "possessive_holding",
+                "possessiveAnchor": "her"
               },
               {
                 "ref": "occ:1:0:object",
@@ -1368,6 +1365,20 @@
     ],
     "graphEntries": [
       {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:alice",
+        "surfaces": [
+          "Alice"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
         "schema": "EOLexicalOccurrence@1",
         "id": "lex:2:0",
         "surfaceKey": "surface:mind",
@@ -1864,6 +1875,42 @@
               "giver": "text/individuation::directDescriptorOccurrences",
               "basis": "closed-class determiner plus witnessed lexical form"
             }
+          }
+        }
+      },
+      {
+        "schema": "EOOperation@1",
+        "id": null,
+        "mode": "Generate",
+        "domain": "Existence",
+        "grain": "Figure",
+        "operator": "INS",
+        "terrain": "Entity",
+        "stance": "Making",
+        "witness": "observation:2:0",
+        "consequence": {
+          "kind": "referent_admitted",
+          "ref": "ref:auto:alice"
+        },
+        "inputs": [],
+        "outputs": [
+          "ref:auto:alice"
+        ],
+        "payload": {
+          "action": "graph-object",
+          "value": {
+            "schema": "EOReferent@1",
+            "id": "ref:auto:alice",
+            "surfaces": [
+              "Alice"
+            ],
+            "provenance": [
+              {
+                "giver": "surfaces/discoverReferents",
+                "tier": "engine",
+                "basis": "name-variant coreference"
+              }
+            ]
           }
         }
       },
@@ -2677,6 +2724,40 @@
     "graphEntries": [
       {
         "schema": "EOReferent@1",
+        "id": "ref:auto:white_rabbit",
+        "surfaces": [
+          "White Rabbit",
+          "White"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          },
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:alice",
+        "surfaces": [
+          "Alice"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
         "id": "ref:auto:alice",
         "surfaces": [
           "Alice"
@@ -2870,33 +2951,32 @@
         "witness": "observation:3:0",
         "consequence": {
           "kind": "referent_admitted",
-          "ref": "ref:auto:alice"
+          "ref": "ref:auto:white_rabbit"
         },
-        "inputs": [
-          "mention:3:ref_auto_alice",
-          "gap:referent:ref_auto_alice"
-        ],
+        "inputs": [],
         "outputs": [
-          "ref:auto:alice"
+          "ref:auto:white_rabbit"
         ],
         "payload": {
           "action": "graph-object",
           "value": {
             "schema": "EOReferent@1",
-            "id": "ref:auto:alice",
+            "id": "ref:auto:white_rabbit",
             "surfaces": [
-              "Alice"
+              "White Rabbit",
+              "White"
             ],
             "provenance": [
               {
                 "giver": "surfaces/discoverReferents",
                 "tier": "engine",
                 "basis": "name-variant coreference"
+              },
+              {
+                "giver": "surfaces/discoverReferents",
+                "tier": "engine",
+                "basis": "name-variant coreference"
               }
-            ],
-            "fedBy": [
-              "mention:3:ref_auto_alice",
-              "gap:referent:ref_auto_alice"
             ]
           }
         }
@@ -3426,7 +3506,22 @@
         }
       }
     ],
-    "graphEntries": [],
+    "graphEntries": [
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:alice",
+        "surfaces": [
+          "Alice"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      }
+    ],
     "provenance": {
       "source": "file:aiw-ch1-prose.txt",
       "modality": "text",
@@ -4221,6 +4316,20 @@
       }
     ],
     "graphEntries": [
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:alice",
+        "surfaces": [
+          "Alice"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
       {
         "schema": "EOReferent@1",
         "id": "ref:auto:alice",
@@ -5832,6 +5941,26 @@
     ],
     "graphEntries": [
       {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:white_rabbit",
+        "surfaces": [
+          "White Rabbit",
+          "White"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          },
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
         "schema": "EOLexicalOccurrence@1",
         "id": "lex:7:0",
         "surfaceKey": "surface:moment",
@@ -6863,6 +6992,26 @@
       }
     ],
     "graphEntries": [
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:white_rabbit",
+        "surfaces": [
+          "White Rabbit",
+          "White"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          },
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
       {
         "schema": "EOLexicalOccurrence@1",
         "id": "lex:8:0",
@@ -8126,6 +8275,26 @@
       }
     ],
     "graphEntries": [
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:white_rabbit",
+        "surfaces": [
+          "White Rabbit",
+          "White"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          },
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
       {
         "schema": "EOLexicalOccurrence@1",
         "id": "lex:9:0",
@@ -9580,6 +9749,40 @@
     ],
     "graphEntries": [
       {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:white_rabbit",
+        "surfaces": [
+          "White Rabbit",
+          "White"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          },
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:oh",
+        "surfaces": [
+          "Oh"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
         "schema": "EOLexicalOccurrence@1",
         "id": "lex:10:0",
         "surfaceKey": "surface:sides",
@@ -9729,6 +9932,42 @@
               "giver": "text/individuation::directDescriptorOccurrences",
               "basis": "closed-class determiner plus witnessed lexical form"
             }
+          }
+        }
+      },
+      {
+        "schema": "EOOperation@1",
+        "id": null,
+        "mode": "Generate",
+        "domain": "Existence",
+        "grain": "Figure",
+        "operator": "INS",
+        "terrain": "Entity",
+        "stance": "Making",
+        "witness": "observation:10:0",
+        "consequence": {
+          "kind": "referent_admitted",
+          "ref": "ref:auto:oh"
+        },
+        "inputs": [],
+        "outputs": [
+          "ref:auto:oh"
+        ],
+        "payload": {
+          "action": "graph-object",
+          "value": {
+            "schema": "EOReferent@1",
+            "id": "ref:auto:oh",
+            "surfaces": [
+              "Oh"
+            ],
+            "provenance": [
+              {
+                "giver": "surfaces/discoverReferents",
+                "tier": "engine",
+                "basis": "name-variant coreference"
+              }
+            ]
           }
         }
       },
@@ -11033,6 +11272,40 @@
       }
     ],
     "graphEntries": [
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:white_rabbit",
+        "surfaces": [
+          "White Rabbit",
+          "White"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          },
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:oh",
+        "surfaces": [
+          "Oh"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
       {
         "schema": "EOLexicalOccurrence@1",
         "id": "lex:11:0",
@@ -12404,6 +12677,40 @@
     ],
     "graphEntries": [
       {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:white_rabbit",
+        "surfaces": [
+          "White Rabbit",
+          "White"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          },
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:oh",
+        "surfaces": [
+          "Oh"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
         "schema": "EOLexicalOccurrence@1",
         "id": "lex:13:0",
         "surfaceKey": "surface:fall",
@@ -12667,6 +12974,40 @@
       }
     ],
     "graphEntries": [
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:white_rabbit",
+        "surfaces": [
+          "White Rabbit",
+          "White"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          },
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:oh",
+        "surfaces": [
+          "Oh"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
       {
         "schema": "EOLexicalOccurrence@1",
         "id": "lex:14:0",
@@ -12991,6 +13332,40 @@
       }
     ],
     "graphEntries": [
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:white_rabbit",
+        "surfaces": [
+          "White Rabbit",
+          "White"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          },
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:oh",
+        "surfaces": [
+          "Oh"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
       {
         "schema": "EOLexicalOccurrence@1",
         "id": "lex:15:0",
@@ -13348,7 +13723,42 @@
         }
       }
     ],
-    "graphEntries": [],
+    "graphEntries": [
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:white_rabbit",
+        "surfaces": [
+          "White Rabbit",
+          "White"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          },
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:oh",
+        "surfaces": [
+          "Oh"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      }
+    ],
     "provenance": {
       "source": "file:aiw-ch1-prose.txt",
       "modality": "text",
@@ -13613,6 +14023,40 @@
       }
     ],
     "graphEntries": [
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:white_rabbit",
+        "surfaces": [
+          "White Rabbit",
+          "White"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          },
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:oh",
+        "surfaces": [
+          "Oh"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
       {
         "schema": "EOLexicalOccurrence@1",
         "id": "lex:18:0",
@@ -13938,6 +14382,40 @@
       }
     ],
     "graphEntries": [
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:white_rabbit",
+        "surfaces": [
+          "White Rabbit",
+          "White"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          },
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:oh",
+        "surfaces": [
+          "Oh"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
       {
         "schema": "EOLexicalOccurrence@1",
         "id": "lex:19:0",
@@ -14312,7 +14790,56 @@
         }
       }
     ],
-    "graphEntries": [],
+    "graphEntries": [
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:white_rabbit",
+        "surfaces": [
+          "White Rabbit",
+          "White"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          },
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:i’ve",
+        "surfaces": [
+          "I’ve"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:oh",
+        "surfaces": [
+          "Oh"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      }
+    ],
     "provenance": {
       "source": "file:aiw-ch1-prose.txt",
       "modality": "text",
@@ -14326,6 +14853,42 @@
   {
     "schema": "DeltaFold@1",
     "operations": [
+      {
+        "schema": "EOOperation@1",
+        "id": null,
+        "mode": "Generate",
+        "domain": "Existence",
+        "grain": "Figure",
+        "operator": "INS",
+        "terrain": "Entity",
+        "stance": "Making",
+        "witness": "observation:20:0",
+        "consequence": {
+          "kind": "referent_admitted",
+          "ref": "ref:auto:i’ve"
+        },
+        "inputs": [],
+        "outputs": [
+          "ref:auto:i’ve"
+        ],
+        "payload": {
+          "action": "graph-object",
+          "value": {
+            "schema": "EOReferent@1",
+            "id": "ref:auto:i’ve",
+            "surfaces": [
+              "I’ve"
+            ],
+            "provenance": [
+              {
+                "giver": "surfaces/discoverReferents",
+                "tier": "engine",
+                "basis": "name-variant coreference"
+              }
+            ]
+          }
+        }
+      },
       {
         "schema": "EOOperation@1",
         "id": null,
@@ -14561,6 +15124,54 @@
       }
     ],
     "graphEntries": [
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:white_rabbit",
+        "surfaces": [
+          "White Rabbit",
+          "White"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          },
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:i’ve",
+        "surfaces": [
+          "I’ve"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:oh",
+        "surfaces": [
+          "Oh"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
       {
         "schema": "EOLexicalOccurrence@1",
         "id": "lex:21:0",
@@ -15547,6 +16158,54 @@
     "graphEntries": [
       {
         "schema": "EOReferent@1",
+        "id": "ref:auto:white_rabbit",
+        "surfaces": [
+          "White Rabbit",
+          "White"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          },
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:i’ve",
+        "surfaces": [
+          "I’ve"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:oh",
+        "surfaces": [
+          "Oh"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
         "id": "ref:auto:i’ve",
         "surfaces": [
           "I’ve"
@@ -16020,49 +16679,6 @@
               "giver": "text/individuation::directDescriptorOccurrences",
               "basis": "closed-class determiner plus witnessed lexical form"
             }
-          }
-        }
-      },
-      {
-        "schema": "EOOperation@1",
-        "id": null,
-        "mode": "Generate",
-        "domain": "Existence",
-        "grain": "Figure",
-        "operator": "INS",
-        "terrain": "Entity",
-        "stance": "Making",
-        "witness": "observation:22:0",
-        "consequence": {
-          "kind": "referent_admitted",
-          "ref": "ref:auto:i’ve"
-        },
-        "inputs": [
-          "mention:22:ref_auto_i_ve",
-          "gap:referent:ref_auto_i_ve"
-        ],
-        "outputs": [
-          "ref:auto:i’ve"
-        ],
-        "payload": {
-          "action": "graph-object",
-          "value": {
-            "schema": "EOReferent@1",
-            "id": "ref:auto:i’ve",
-            "surfaces": [
-              "I’ve"
-            ],
-            "provenance": [
-              {
-                "giver": "surfaces/discoverReferents",
-                "tier": "engine",
-                "basis": "name-variant coreference"
-              }
-            ],
-            "fedBy": [
-              "mention:22:ref_auto_i_ve",
-              "gap:referent:ref_auto_i_ve"
-            ]
           }
         }
       },
@@ -17110,6 +17726,80 @@
       },
       {
         "schema": "EOReferent@1",
+        "id": "ref:auto:white_rabbit",
+        "surfaces": [
+          "White Rabbit",
+          "White"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          },
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:latitude",
+        "surfaces": [
+          "Latitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:oh",
+        "surfaces": [
+          "Oh"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:i’ve",
+        "surfaces": [
+          "Longitude I’ve",
+          "I’ve",
+          "Longitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          },
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          },
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
         "id": "ref:auto:latitude",
         "surfaces": [
           "Latitude"
@@ -17712,7 +18402,36 @@
         }
       }
     ],
-    "graphEntries": [],
+    "graphEntries": [
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:latitude",
+        "surfaces": [
+          "Latitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:i’ve",
+        "surfaces": [
+          "Longitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      }
+    ],
     "provenance": {
       "source": "file:aiw-ch1-prose.txt",
       "modality": "text",
@@ -17972,6 +18691,34 @@
       }
     ],
     "graphEntries": [
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:latitude",
+        "surfaces": [
+          "Latitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:i’ve",
+        "surfaces": [
+          "Longitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
       {
         "schema": "EOLexicalOccurrence@1",
         "id": "lex:25:0",
@@ -18475,6 +19222,34 @@
       }
     ],
     "graphEntries": [
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:latitude",
+        "surfaces": [
+          "Latitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:i’ve",
+        "surfaces": [
+          "Longitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
       {
         "schema": "EOLexicalOccurrence@1",
         "id": "lex:26:0",
@@ -19058,6 +19833,34 @@
       }
     ],
     "graphEntries": [
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:latitude",
+        "surfaces": [
+          "Latitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:i’ve",
+        "surfaces": [
+          "Longitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
       {
         "schema": "EOLexicalOccurrence@1",
         "id": "lex:27:0",
@@ -20504,6 +21307,34 @@
     ],
     "graphEntries": [
       {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:latitude",
+        "surfaces": [
+          "Latitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:i’ve",
+        "surfaces": [
+          "Longitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
         "schema": "EOLexicalOccurrence@1",
         "id": "lex:29:0",
         "surfaceKey": "surface:air",
@@ -20896,6 +21727,34 @@
       }
     ],
     "graphEntries": [
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:latitude",
+        "surfaces": [
+          "Latitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:i’ve",
+        "surfaces": [
+          "Longitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
       {
         "schema": "EOLexicalOccurrence@1",
         "id": "lex:30:0",
@@ -21393,7 +22252,36 @@
         }
       }
     ],
-    "graphEntries": [],
+    "graphEntries": [
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:latitude",
+        "surfaces": [
+          "Latitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:i’ve",
+        "surfaces": [
+          "Longitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      }
+    ],
     "provenance": {
       "source": "file:aiw-ch1-prose.txt",
       "modality": "text",
@@ -21800,7 +22688,36 @@
         }
       }
     ],
-    "graphEntries": [],
+    "graphEntries": [
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:latitude",
+        "surfaces": [
+          "Latitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:i’ve",
+        "surfaces": [
+          "Longitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      }
+    ],
     "provenance": {
       "source": "file:aiw-ch1-prose.txt",
       "modality": "text",
@@ -22126,6 +23043,34 @@
       }
     ],
     "graphEntries": [
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:latitude",
+        "surfaces": [
+          "Latitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:i’ve",
+        "surfaces": [
+          "Longitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
       {
         "schema": "EOLexicalOccurrence@1",
         "id": "lex:34:0",
@@ -22478,6 +23423,34 @@
       }
     ],
     "graphEntries": [
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:latitude",
+        "surfaces": [
+          "Latitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:i’ve",
+        "surfaces": [
+          "Longitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
       {
         "schema": "EOLexicalOccurrence@1",
         "id": "lex:35:0",
@@ -23220,7 +24193,50 @@
         }
       }
     ],
-    "graphEntries": [],
+    "graphEntries": [
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:dinah",
+        "surfaces": [
+          "dinah"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:latitude",
+        "surfaces": [
+          "Latitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:i’ve",
+        "surfaces": [
+          "Longitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      }
+    ],
     "provenance": {
       "source": "file:aiw-ch1-prose.txt",
       "modality": "text",
@@ -23234,6 +24250,42 @@
   {
     "schema": "DeltaFold@1",
     "operations": [
+      {
+        "schema": "EOOperation@1",
+        "id": null,
+        "mode": "Generate",
+        "domain": "Existence",
+        "grain": "Figure",
+        "operator": "INS",
+        "terrain": "Entity",
+        "stance": "Making",
+        "witness": "observation:37:0",
+        "consequence": {
+          "kind": "referent_admitted",
+          "ref": "ref:auto:dinah"
+        },
+        "inputs": [],
+        "outputs": [
+          "ref:auto:dinah"
+        ],
+        "payload": {
+          "action": "graph-object",
+          "value": {
+            "schema": "EOReferent@1",
+            "id": "ref:auto:dinah",
+            "surfaces": [
+              "dinah"
+            ],
+            "provenance": [
+              {
+                "giver": "surfaces/discoverReferents",
+                "tier": "engine",
+                "basis": "name-variant coreference"
+              }
+            ]
+          }
+        }
+      },
       {
         "schema": "EOOperation@1",
         "id": null,
@@ -23490,6 +24542,48 @@
       }
     ],
     "graphEntries": [
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:dinah",
+        "surfaces": [
+          "dinah"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:latitude",
+        "surfaces": [
+          "Latitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:i’ve",
+        "surfaces": [
+          "Longitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
       {
         "schema": "EOLexicalOccurrence@1",
         "id": "lex:38:0",
@@ -23960,6 +25054,48 @@
     ],
     "graphEntries": [
       {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:dinah",
+        "surfaces": [
+          "dinah"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:latitude",
+        "surfaces": [
+          "Latitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:i’ve",
+        "surfaces": [
+          "Longitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
         "schema": "EOLexicalOccurrence@1",
         "id": "lex:39:0",
         "surfaceKey": "surface:cats",
@@ -24421,6 +25557,48 @@
     ],
     "graphEntries": [
       {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:dinah",
+        "surfaces": [
+          "dinah"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:latitude",
+        "surfaces": [
+          "Latitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:i’ve",
+        "surfaces": [
+          "Longitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
         "schema": "EOLexicalOccurrence@1",
         "id": "lex:40:0",
         "surfaceKey": "surface:sort",
@@ -24838,6 +26016,48 @@
     ],
     "graphEntries": [
       {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:dinah",
+        "surfaces": [
+          "dinah"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:latitude",
+        "surfaces": [
+          "Latitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:i’ve",
+        "surfaces": [
+          "Longitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
         "schema": "EOLexicalOccurrence@1",
         "id": "lex:41:0",
         "surfaceKey": "surface:cats",
@@ -25093,6 +26313,48 @@
     ],
     "graphEntries": [
       {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:dinah",
+        "surfaces": [
+          "dinah"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:latitude",
+        "surfaces": [
+          "Latitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:i’ve",
+        "surfaces": [
+          "Longitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
         "schema": "EOLexicalOccurrence@1",
         "id": "lex:42:0",
         "surfaceKey": "surface:cats",
@@ -25305,6 +26567,48 @@
     ],
     "graphEntries": [
       {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:dinah",
+        "surfaces": [
+          "dinah"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:latitude",
+        "surfaces": [
+          "Latitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:i’ve",
+        "surfaces": [
+          "Longitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
         "schema": "EOLexicalOccurrence@1",
         "id": "lex:43:0",
         "surfaceKey": "surface:answer",
@@ -25456,6 +26760,12 @@
       "end": 4939
     },
     "distinctions": [
+      {
+        "referent": "ref:auto:dinah",
+        "surfaces": [
+          "dinah"
+        ]
+      },
       {
         "relation": "felt",
         "participants": [
@@ -25900,6 +27210,74 @@
     ],
     "graphEntries": [
       {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:dinah",
+        "surfaces": [
+          "dinah"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:latitude",
+        "surfaces": [
+          "Latitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:i’ve",
+        "surfaces": [
+          "Longitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:dinah",
+        "surfaces": [
+          "dinah"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOMention@1",
+        "id": "mention:44:ref_auto_dinah",
+        "referent": "ref:auto:dinah",
+        "encounterRef": "encounter:44",
+        "anchor": {
+          "start": 4741,
+          "end": 4939
+        },
+        "witness": "text:44",
+        "source": "file:aiw-ch1-prose.txt"
+      },
+      {
         "schema": "EOLexicalOccurrence@1",
         "id": "lex:44:0",
         "surfaceKey": "surface:dream",
@@ -25953,6 +27331,15 @@
         "encounterRef": "encounter:44",
         "offset": 193,
         "witness": "text:44:193"
+      },
+      {
+        "schema": "EOReferentGap@1",
+        "id": "gap:referent:ref_auto_dinah",
+        "reason": "pronoun_and_descriptor_mentions_unresolved",
+        "referent": "ref:auto:dinah",
+        "tier": "model",
+        "needsWitness": true,
+        "detail": "name-variant coreference is engine-tier and complete; binding pronouns and definite descriptions to this referent is not derivable (eoreader5 measured distributional coref failing twice). Supply a per-text prior to close this gap."
       },
       {
         "schema": "EOReferentOccurrence@1",
@@ -26933,6 +28320,48 @@
     ],
     "graphEntries": [
       {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:dinah",
+        "surfaces": [
+          "dinah"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:latitude",
+        "surfaces": [
+          "Latitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:i’ve",
+        "surfaces": [
+          "Longitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
         "schema": "EOLexicalOccurrence@1",
         "id": "lex:47:0",
         "surfaceKey": "surface:fall",
@@ -27748,6 +29177,48 @@
       }
     ],
     "graphEntries": [
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:dinah",
+        "surfaces": [
+          "dinah"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:latitude",
+        "surfaces": [
+          "Latitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:i’ve",
+        "surfaces": [
+          "Longitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
       {
         "schema": "EOLexicalOccurrence@1",
         "id": "lex:48:0",
@@ -29110,6 +30581,68 @@
     ],
     "graphEntries": [
       {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:white_rabbit",
+        "surfaces": [
+          "White Rabbit",
+          "White"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          },
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:dinah",
+        "surfaces": [
+          "dinah"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:latitude",
+        "surfaces": [
+          "Latitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:i’ve",
+        "surfaces": [
+          "Longitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
         "schema": "EOLexicalOccurrence@1",
         "id": "lex:49:0",
         "surfaceKey": "surface:moment",
@@ -29171,10 +30704,10 @@
         "determination": "definite",
         "occurrenceRef": "ref-occ:encounter:49:direct:1:56",
         "participantOccurrence": null,
-        "referent": "ref:auto:i’ve",
-        "referentSurface": "Longitude",
-        "activation": 8.82176338399891,
-        "margin": 0.9556447240813033,
+        "referent": "ref:auto:dinah",
+        "referentSurface": "dinah",
+        "activation": 18.853453201082818,
+        "margin": 0.5320876610820428,
         "sentenceOrder": 49,
         "witness": "text:49:anchor:the_wind",
         "provenance": {
@@ -29190,10 +30723,10 @@
         "determination": "possessive",
         "occurrenceRef": "ref-occ:encounter:49:direct:3:130",
         "participantOccurrence": null,
-        "referent": "ref:auto:i’ve",
-        "referentSurface": "Longitude",
-        "activation": 8.82176338399891,
-        "margin": 0.9556447240813033,
+        "referent": "ref:auto:dinah",
+        "referentSurface": "dinah",
+        "activation": 18.853453201082818,
+        "margin": 0.5320876610820428,
         "sentenceOrder": 49,
         "witness": "text:49:anchor:my_ears",
         "provenance": {
@@ -30051,21 +31584,21 @@
         "witness": "text:49:anchor:the_wind",
         "consequence": {
           "kind": "identity_hypothesis_opened",
-          "identity": "identity:longitude:the_wind"
+          "identity": "identity:dinah:the_wind"
         },
         "inputs": [
-          "longitude",
+          "dinah",
           "the wind"
         ],
         "outputs": [
-          "identity:longitude:the_wind"
+          "identity:dinah:the_wind"
         ],
         "payload": {
           "action": "alternative",
           "value": {
             "schema": "EOIdentityAlternative@1",
-            "id": "identity:longitude:the_wind",
-            "left": "longitude",
+            "id": "identity:dinah:the_wind",
+            "left": "dinah",
             "right": "the wind",
             "standing": "live_hypothesis",
             "supportRefs": [
@@ -30088,24 +31621,24 @@
         "witness": "text:49:anchor:the_wind",
         "consequence": {
           "kind": "expectation_opened",
-          "expectation": "expectation:identity:longitude:the_wind",
-          "identity": "identity:longitude:the_wind"
+          "expectation": "expectation:identity:dinah:the_wind",
+          "identity": "identity:dinah:the_wind"
         },
         "inputs": [
-          "identity:longitude:the_wind"
+          "identity:dinah:the_wind"
         ],
         "outputs": [
-          "expectation:identity:longitude:the_wind"
+          "expectation:identity:dinah:the_wind"
         ],
         "payload": {
           "action": "expectation",
           "value": {
             "schema": "EOExpectation@1",
-            "id": "expectation:identity:longitude:the_wind",
-            "hypothesis": "corroboration expected: longitude <-> the wind",
+            "id": "expectation:identity:dinah:the_wind",
+            "hypothesis": "corroboration expected: dinah <-> the wind",
             "giver": "text/anchoring::createDescriptorAnchoring",
             "grounds": [
-              "identity:longitude:the_wind"
+              "identity:dinah:the_wind"
             ],
             "openedAt": null,
             "scope": null,
@@ -30126,21 +31659,21 @@
         "witness": "text:49:anchor:my_ears",
         "consequence": {
           "kind": "identity_hypothesis_opened",
-          "identity": "identity:longitude:my_ears"
+          "identity": "identity:dinah:my_ears"
         },
         "inputs": [
-          "longitude",
+          "dinah",
           "my ears"
         ],
         "outputs": [
-          "identity:longitude:my_ears"
+          "identity:dinah:my_ears"
         ],
         "payload": {
           "action": "alternative",
           "value": {
             "schema": "EOIdentityAlternative@1",
-            "id": "identity:longitude:my_ears",
-            "left": "longitude",
+            "id": "identity:dinah:my_ears",
+            "left": "dinah",
             "right": "my ears",
             "standing": "live_hypothesis",
             "supportRefs": [
@@ -30163,24 +31696,24 @@
         "witness": "text:49:anchor:my_ears",
         "consequence": {
           "kind": "expectation_opened",
-          "expectation": "expectation:identity:longitude:my_ears",
-          "identity": "identity:longitude:my_ears"
+          "expectation": "expectation:identity:dinah:my_ears",
+          "identity": "identity:dinah:my_ears"
         },
         "inputs": [
-          "identity:longitude:my_ears"
+          "identity:dinah:my_ears"
         ],
         "outputs": [
-          "expectation:identity:longitude:my_ears"
+          "expectation:identity:dinah:my_ears"
         ],
         "payload": {
           "action": "expectation",
           "value": {
             "schema": "EOExpectation@1",
-            "id": "expectation:identity:longitude:my_ears",
-            "hypothesis": "corroboration expected: longitude <-> my ears",
+            "id": "expectation:identity:dinah:my_ears",
+            "hypothesis": "corroboration expected: dinah <-> my ears",
             "giver": "text/anchoring::createDescriptorAnchoring",
             "grounds": [
-              "identity:longitude:my_ears"
+              "identity:dinah:my_ears"
             ],
             "openedAt": null,
             "scope": null,
@@ -30262,13 +31795,14 @@
         "relation": "was",
         "participants": [
           {
-            "ref": "occ:50:2:subject",
-            "occurrence": "occ:50:2:subject",
-            "surfaceKey": "surface:rabbit",
+            "ref": "ref:auto:white_rabbit",
             "role": "subject",
-            "standing": "unresolved_surface",
+            "standing": "referent",
             "surface": "Rabbit",
-            "candidateReferents": []
+            "resolution": "containment_surface_in_span",
+            "matchedSurfaces": [
+              "white rabbit"
+            ]
           },
           {
             "ref": "occ:50:2:object",
@@ -30498,13 +32032,14 @@
         "relation": "was",
         "participants": [
           {
-            "ref": "occ:50:2:subject",
-            "occurrence": "occ:50:2:subject",
-            "surfaceKey": "surface:rabbit",
+            "ref": "ref:auto:white_rabbit",
             "role": "subject",
-            "standing": "unresolved_surface",
+            "standing": "referent",
             "surface": "Rabbit",
-            "candidateReferents": []
+            "resolution": "containment_surface_in_span",
+            "matchedSurfaces": [
+              "white rabbit"
+            ]
           },
           {
             "ref": "occ:50:2:object",
@@ -30725,6 +32260,82 @@
     ],
     "graphEntries": [
       {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:white_rabbit",
+        "surfaces": [
+          "White Rabbit",
+          "White"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          },
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:dinah",
+        "surfaces": [
+          "dinah"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:latitude",
+        "surfaces": [
+          "Latitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:i’ve",
+        "surfaces": [
+          "Longitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:oh",
+        "surfaces": [
+          "Oh"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
         "schema": "EOLexicalOccurrence@1",
         "id": "lex:50:0",
         "surfaceKey": "surface:corner",
@@ -30778,6 +32389,15 @@
         "encounterRef": "encounter:50",
         "offset": 184,
         "witness": "text:50:184"
+      },
+      {
+        "schema": "EOReferentGap@1",
+        "id": "gap:referent:ref_auto_white_rabbit",
+        "reason": "pronoun_and_descriptor_mentions_unresolved",
+        "referent": "ref:auto:white_rabbit",
+        "tier": "model",
+        "needsWitness": true,
+        "detail": "name-variant coreference is engine-tier and complete; binding pronouns and definite descriptions to this referent is not derivable (eoreader5 measured distributional coref failing twice). Supply a per-text prior to close this gap."
       },
       {
         "schema": "EOReferentOccurrence@1",
@@ -31253,7 +32873,7 @@
           "edge": "edge:text:50:2"
         },
         "inputs": [
-          "occ:50:2:subject",
+          "ref:auto:white_rabbit",
           "occ:50:2:object"
         ],
         "outputs": [
@@ -31267,13 +32887,14 @@
             "relation": "was",
             "participants": [
               {
-                "ref": "occ:50:2:subject",
-                "occurrence": "occ:50:2:subject",
-                "surfaceKey": "surface:rabbit",
+                "ref": "ref:auto:white_rabbit",
                 "role": "subject",
-                "standing": "unresolved_surface",
+                "standing": "referent",
                 "surface": "Rabbit",
-                "candidateReferents": []
+                "resolution": "containment_surface_in_span",
+                "matchedSurfaces": [
+                  "white rabbit"
+                ]
               },
               {
                 "ref": "occ:50:2:object",
@@ -32233,6 +33854,82 @@
       }
     ],
     "graphEntries": [
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:white_rabbit",
+        "surfaces": [
+          "White Rabbit",
+          "White"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          },
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:dinah",
+        "surfaces": [
+          "dinah"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:latitude",
+        "surfaces": [
+          "Latitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:i’ve",
+        "surfaces": [
+          "Longitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:oh",
+        "surfaces": [
+          "Oh"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
       {
         "schema": "EOLexicalOccurrence@1",
         "id": "lex:51:0",
@@ -33427,6 +35124,82 @@
     ],
     "graphEntries": [
       {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:white_rabbit",
+        "surfaces": [
+          "White Rabbit",
+          "White"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          },
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:dinah",
+        "surfaces": [
+          "dinah"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:latitude",
+        "surfaces": [
+          "Latitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:i’ve",
+        "surfaces": [
+          "Longitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:oh",
+        "surfaces": [
+          "Oh"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
         "schema": "EOLexicalOccurrence@1",
         "id": "lex:52:0",
         "surfaceKey": "surface:table",
@@ -34340,6 +36113,82 @@
     ],
     "graphEntries": [
       {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:white_rabbit",
+        "surfaces": [
+          "White Rabbit",
+          "White"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          },
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:dinah",
+        "surfaces": [
+          "dinah"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:latitude",
+        "surfaces": [
+          "Latitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:i’ve",
+        "surfaces": [
+          "Longitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:oh",
+        "surfaces": [
+          "Oh"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
         "schema": "EOLexicalOccurrence@1",
         "id": "lex:53:0",
         "surfaceKey": "surface:locks",
@@ -35164,6 +37013,82 @@
       }
     ],
     "graphEntries": [
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:white_rabbit",
+        "surfaces": [
+          "White Rabbit",
+          "White"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          },
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:dinah",
+        "surfaces": [
+          "dinah"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:latitude",
+        "surfaces": [
+          "Latitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:i’ve",
+        "surfaces": [
+          "Longitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:oh",
+        "surfaces": [
+          "Oh"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
       {
         "schema": "EOLexicalOccurrence@1",
         "id": "lex:54:0",
@@ -36491,6 +38416,82 @@
     ],
     "graphEntries": [
       {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:white_rabbit",
+        "surfaces": [
+          "White Rabbit",
+          "White"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          },
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:dinah",
+        "surfaces": [
+          "dinah"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:latitude",
+        "surfaces": [
+          "Latitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:i’ve",
+        "surfaces": [
+          "Longitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:oh",
+        "surfaces": [
+          "Oh"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
         "schema": "EOLexicalOccurrence@1",
         "id": "lex:55:0",
         "surfaceKey": "surface:door",
@@ -37353,13 +39354,12 @@
         "relation": "would",
         "participants": [
           {
-            "ref": "occ:56:3:subject",
-            "occurrence": "occ:56:3:subject",
-            "surfaceKey": "surface:my_head",
+            "ref": "identity:poss:head:my",
             "role": "subject",
-            "standing": "unresolved_surface",
+            "standing": "hypothesis",
             "surface": "my head",
-            "candidateReferents": []
+            "resolution": "possessive_holding",
+            "possessiveAnchor": "my"
           },
           {
             "ref": "occ:56:3:object",
@@ -37589,13 +39589,12 @@
         "relation": "would",
         "participants": [
           {
-            "ref": "occ:56:3:subject",
-            "occurrence": "occ:56:3:subject",
-            "surfaceKey": "surface:my_head",
+            "ref": "identity:poss:head:my",
             "role": "subject",
-            "standing": "unresolved_surface",
+            "standing": "hypothesis",
             "surface": "my head",
-            "candidateReferents": []
+            "resolution": "possessive_holding",
+            "possessiveAnchor": "my"
           },
           {
             "ref": "occ:56:3:object",
@@ -37724,6 +39723,82 @@
     ],
     "graphEntries": [
       {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:white_rabbit",
+        "surfaces": [
+          "White Rabbit",
+          "White"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          },
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:dinah",
+        "surfaces": [
+          "dinah"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:latitude",
+        "surfaces": [
+          "Latitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:i’ve",
+        "surfaces": [
+          "Longitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:oh",
+        "surfaces": [
+          "Oh"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
         "schema": "EOLexicalOccurrence@1",
         "id": "lex:56:0",
         "surfaceKey": "surface:hall",
@@ -37777,25 +39852,6 @@
         "encounterRef": "encounter:56",
         "offset": 196,
         "witness": "text:56:196"
-      },
-      {
-        "schema": "EOAnchorEvidence@1",
-        "id": "anchor:56:my_head",
-        "descriptor": "my head",
-        "determination": "possessive",
-        "occurrenceRef": "ref-occ:encounter:56:occ:56:3:subject",
-        "participantOccurrence": "occ:56:3:subject",
-        "referent": "ref:auto:i’ve",
-        "referentSurface": "Longitude",
-        "activation": 6.3281830953283205,
-        "margin": 0.22237851865014152,
-        "sentenceOrder": 56,
-        "witness": "text:56:anchor:my_head",
-        "provenance": {
-          "giver": "text/anchoring::createDescriptorAnchoring",
-          "tier": "engine",
-          "basis": "one-hop activation recall over the already-admitted cast, floors declared by the caller"
-        }
       },
       {
         "schema": "EOAnchorEvidence@1",
@@ -37891,24 +39947,6 @@
           "tier": "engine",
           "basis": "one-hop activation recall over the already-admitted cast, floors declared by the caller"
         }
-      },
-      {
-        "schema": "EOReferentOccurrence@1",
-        "id": "ref-occ:encounter:56:occ:56:3:subject",
-        "surface": "my head",
-        "canonicalSurface": "my head",
-        "head": "head",
-        "determination": "possessive",
-        "role": "subject",
-        "encounterRef": "encounter:56",
-        "edge": "edge:text:56:3",
-        "relation": "would",
-        "standing": "unresolved_identity",
-        "provenance": {
-          "giver": "text/individuation::descriptorOccurrence",
-          "basis": "determiner-marked unresolved relation participant"
-        },
-        "participantOccurrence": "occ:56:3:subject"
       },
       {
         "schema": "EOReferentOccurrence@1",
@@ -38498,45 +40536,6 @@
       {
         "schema": "EOOperation@1",
         "id": null,
-        "mode": "Generate",
-        "domain": "Existence",
-        "grain": "Ground",
-        "operator": "INS",
-        "terrain": "Void",
-        "stance": "Cultivating",
-        "witness": "observation:56:0",
-        "consequence": {
-          "kind": "referent_occurrence_witnessed",
-          "occurrence": "ref-occ:encounter:56:occ:56:3:subject"
-        },
-        "inputs": [],
-        "outputs": [
-          "ref-occ:encounter:56:occ:56:3:subject"
-        ],
-        "payload": {
-          "action": "graph-object",
-          "value": {
-            "schema": "EOReferentOccurrence@1",
-            "id": "ref-occ:encounter:56:occ:56:3:subject",
-            "surface": "my head",
-            "canonicalSurface": "my head",
-            "head": "head",
-            "determination": "possessive",
-            "role": "subject",
-            "encounterRef": "encounter:56",
-            "edge": "edge:text:56:3",
-            "relation": "would",
-            "standing": "unresolved_identity",
-            "provenance": {
-              "giver": "text/individuation::descriptorOccurrence",
-              "basis": "determiner-marked unresolved relation participant"
-            }
-          }
-        }
-      },
-      {
-        "schema": "EOOperation@1",
-        "id": null,
         "mode": "Relate",
         "domain": "Structure",
         "grain": "Figure",
@@ -38549,7 +40548,7 @@
           "edge": "edge:text:56:3"
         },
         "inputs": [
-          "occ:56:3:subject",
+          "identity:poss:head:my",
           "occ:56:3:object"
         ],
         "outputs": [
@@ -38563,13 +40562,12 @@
             "relation": "would",
             "participants": [
               {
-                "ref": "occ:56:3:subject",
-                "occurrence": "occ:56:3:subject",
-                "surfaceKey": "surface:my_head",
+                "ref": "identity:poss:head:my",
                 "role": "subject",
-                "standing": "unresolved_surface",
+                "standing": "hypothesis",
                 "surface": "my head",
-                "candidateReferents": []
+                "resolution": "possessive_holding",
+                "possessiveAnchor": "my"
               },
               {
                 "ref": "occ:56:3:object",
@@ -38930,209 +40928,6 @@
         "operator": "CON",
         "terrain": "Link",
         "stance": "Binding",
-        "witness": null,
-        "consequence": {
-          "kind": "identity_hypothesis_opened",
-          "hypothesis": "identity:descriptor:my_head"
-        },
-        "inputs": [
-          "ref-occ:file:aiw-ch1-prose.txt:6598:direct:5:193",
-          "ref-occ:encounter:56:occ:56:3:subject"
-        ],
-        "outputs": [
-          "identity:descriptor:my_head"
-        ],
-        "payload": {
-          "action": "provisional",
-          "value": {
-            "schema": "EOIdentityHypothesis@1",
-            "id": "identity:descriptor:my_head",
-            "surface": "my head",
-            "determinations": [
-              "possessive"
-            ],
-            "occurrenceRefs": [
-              "ref-occ:file:aiw-ch1-prose.txt:6598:direct:5:193",
-              "ref-occ:encounter:56:occ:56:3:subject"
-            ],
-            "encounterRefs": [
-              "file:aiw-ch1-prose.txt:6598",
-              "encounter:56"
-            ],
-            "relationContexts": [
-              {
-                "edge": null,
-                "relation": null,
-                "role": null
-              },
-              {
-                "edge": "edge:text:56:3",
-                "relation": "would",
-                "role": "subject"
-              }
-            ],
-            "standing": "live_hypothesis",
-            "provenance": {
-              "giver": "text/individuation::descriptorHypotheses",
-              "basis": "same descriptor recurred across distinct encounters; identity remains defeasible"
-            }
-          }
-        }
-      },
-      {
-        "schema": "EOOperation@1",
-        "id": null,
-        "mode": "Relate",
-        "domain": "Structure",
-        "grain": "Figure",
-        "operator": "CON",
-        "terrain": "Link",
-        "stance": "Binding",
-        "witness": "text:56:anchor:my_head",
-        "consequence": {
-          "kind": "identity_hypothesis_opened",
-          "identity": "identity:longitude:my_head"
-        },
-        "inputs": [
-          "longitude",
-          "my head"
-        ],
-        "outputs": [
-          "identity:longitude:my_head"
-        ],
-        "payload": {
-          "action": "alternative",
-          "value": {
-            "schema": "EOIdentityAlternative@1",
-            "id": "identity:longitude:my_head",
-            "left": "longitude",
-            "right": "my head",
-            "standing": "live_hypothesis",
-            "supportRefs": [
-              "text:56:anchor:my_head"
-            ],
-            "attackRefs": [],
-            "giver": "text/anchoring::createDescriptorAnchoring"
-          }
-        }
-      },
-      {
-        "schema": "EOOperation@1",
-        "id": null,
-        "mode": "Generate",
-        "domain": "Existence",
-        "grain": "Figure",
-        "operator": "INS",
-        "terrain": "Entity",
-        "stance": "Making",
-        "witness": "text:56:anchor:my_head",
-        "consequence": {
-          "kind": "expectation_opened",
-          "expectation": "expectation:identity:longitude:my_head",
-          "identity": "identity:longitude:my_head"
-        },
-        "inputs": [
-          "identity:longitude:my_head"
-        ],
-        "outputs": [
-          "expectation:identity:longitude:my_head"
-        ],
-        "payload": {
-          "action": "expectation",
-          "value": {
-            "schema": "EOExpectation@1",
-            "id": "expectation:identity:longitude:my_head",
-            "hypothesis": "corroboration expected: longitude <-> my head",
-            "giver": "text/anchoring::createDescriptorAnchoring",
-            "grounds": [
-              "identity:longitude:my_head"
-            ],
-            "openedAt": null,
-            "scope": null,
-            "consequences": [],
-            "state": "open"
-          }
-        }
-      },
-      {
-        "schema": "EOOperation@1",
-        "id": null,
-        "mode": "Generate",
-        "domain": "Interpretation",
-        "grain": "Figure",
-        "operator": "REC",
-        "terrain": "Lens",
-        "stance": "Making",
-        "witness": "text:56:anchor:my_head",
-        "consequence": {
-          "kind": "relation_recanonicalized",
-          "sourceEdge": "edge:text:56:3",
-          "identity": "identity:longitude:my_head",
-          "from": null,
-          "to": [
-            {
-              "role": "subject",
-              "value": "my head",
-              "alternatives": [
-                "my head"
-              ]
-            },
-            {
-              "role": "object",
-              "value": "go through",
-              "alternatives": [
-                "go through"
-              ]
-            }
-          ]
-        },
-        "inputs": [
-          "edge:text:56:3",
-          "identity:longitude:my_head"
-        ],
-        "outputs": [
-          "canonical:edge:text:56:3"
-        ],
-        "payload": {
-          "action": "graph-object",
-          "value": {
-            "schema": "EOCanonicalHyperedge@1",
-            "id": "canonical:edge:text:56:3",
-            "sourceEdge": "edge:text:56:3",
-            "relation": "would",
-            "participants": [
-              {
-                "role": "subject",
-                "value": "my head",
-                "alternatives": [
-                  "my head"
-                ]
-              },
-              {
-                "role": "object",
-                "value": "go through",
-                "alternatives": [
-                  "go through"
-                ]
-              }
-            ],
-            "witness": "text:56:193",
-            "scope": {
-              "sequencePosition": 56,
-              "offset": 193
-            }
-          }
-        }
-      },
-      {
-        "schema": "EOOperation@1",
-        "id": null,
-        "mode": "Relate",
-        "domain": "Structure",
-        "grain": "Figure",
-        "operator": "CON",
-        "terrain": "Link",
-        "stance": "Binding",
         "witness": "text:56:anchor:those_beds",
         "consequence": {
           "kind": "identity_hypothesis_opened",
@@ -39360,7 +41155,7 @@
         "stance": "Binding",
         "witness": "text:56:anchor:my_head",
         "consequence": {
-          "kind": "identity_hypothesis_supported",
+          "kind": "identity_hypothesis_opened",
           "identity": "identity:longitude:my_head"
         },
         "inputs": [
@@ -39389,20 +41184,20 @@
       {
         "schema": "EOOperation@1",
         "id": null,
-        "mode": "Relate",
-        "domain": "Interpretation",
+        "mode": "Generate",
+        "domain": "Existence",
         "grain": "Figure",
-        "operator": "EVA",
-        "terrain": "Lens",
-        "stance": "Binding",
+        "operator": "INS",
+        "terrain": "Entity",
+        "stance": "Making",
         "witness": "text:56:anchor:my_head",
         "consequence": {
-          "kind": "expectation_strengthened",
+          "kind": "expectation_opened",
           "expectation": "expectation:identity:longitude:my_head",
           "identity": "identity:longitude:my_head"
         },
         "inputs": [
-          "expectation:identity:longitude:my_head"
+          "identity:longitude:my_head"
         ],
         "outputs": [
           "expectation:identity:longitude:my_head"
@@ -39420,77 +41215,7 @@
             "openedAt": null,
             "scope": null,
             "consequences": [],
-            "state": "strengthened"
-          }
-        }
-      },
-      {
-        "schema": "EOOperation@1",
-        "id": null,
-        "mode": "Generate",
-        "domain": "Interpretation",
-        "grain": "Figure",
-        "operator": "REC",
-        "terrain": "Lens",
-        "stance": "Making",
-        "witness": "text:56:anchor:my_head",
-        "consequence": {
-          "kind": "relation_recanonicalized",
-          "sourceEdge": "edge:text:56:3",
-          "identity": "identity:longitude:my_head",
-          "from": null,
-          "to": [
-            {
-              "role": "subject",
-              "value": "my head",
-              "alternatives": [
-                "my head"
-              ]
-            },
-            {
-              "role": "object",
-              "value": "go through",
-              "alternatives": [
-                "go through"
-              ]
-            }
-          ]
-        },
-        "inputs": [
-          "edge:text:56:3",
-          "identity:longitude:my_head"
-        ],
-        "outputs": [
-          "canonical:edge:text:56:3"
-        ],
-        "payload": {
-          "action": "graph-object",
-          "value": {
-            "schema": "EOCanonicalHyperedge@1",
-            "id": "canonical:edge:text:56:3",
-            "sourceEdge": "edge:text:56:3",
-            "relation": "would",
-            "participants": [
-              {
-                "role": "subject",
-                "value": "my head",
-                "alternatives": [
-                  "my head"
-                ]
-              },
-              {
-                "role": "object",
-                "value": "go through",
-                "alternatives": [
-                  "go through"
-                ]
-              }
-            ],
-            "witness": "text:56:193",
-            "scope": {
-              "sequencePosition": 56,
-              "offset": 193
-            }
+            "state": "open"
           }
         }
       },
@@ -39673,6 +41398,82 @@
     "graphEntries": [
       {
         "schema": "EOReferent@1",
+        "id": "ref:auto:white_rabbit",
+        "surfaces": [
+          "White Rabbit",
+          "White"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          },
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:dinah",
+        "surfaces": [
+          "dinah"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:latitude",
+        "surfaces": [
+          "Latitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:i’ve",
+        "surfaces": [
+          "Longitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:oh",
+        "surfaces": [
+          "Oh"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
         "id": "ref:auto:oh",
         "surfaces": [
           "Oh"
@@ -39773,49 +41574,6 @@
               "giver": "text/individuation::directDescriptorOccurrences",
               "basis": "closed-class determiner plus witnessed lexical form"
             }
-          }
-        }
-      },
-      {
-        "schema": "EOOperation@1",
-        "id": null,
-        "mode": "Generate",
-        "domain": "Existence",
-        "grain": "Figure",
-        "operator": "INS",
-        "terrain": "Entity",
-        "stance": "Making",
-        "witness": "observation:57:0",
-        "consequence": {
-          "kind": "referent_admitted",
-          "ref": "ref:auto:oh"
-        },
-        "inputs": [
-          "mention:57:ref_auto_oh",
-          "gap:referent:ref_auto_oh"
-        ],
-        "outputs": [
-          "ref:auto:oh"
-        ],
-        "payload": {
-          "action": "graph-object",
-          "value": {
-            "schema": "EOReferent@1",
-            "id": "ref:auto:oh",
-            "surfaces": [
-              "Oh"
-            ],
-            "provenance": [
-              {
-                "giver": "surfaces/discoverReferents",
-                "tier": "engine",
-                "basis": "name-variant coreference"
-              }
-            ],
-            "fedBy": [
-              "mention:57:ref_auto_oh",
-              "gap:referent:ref_auto_oh"
-            ]
           }
         }
       },
@@ -40076,6 +41834,64 @@
         "witness": null,
         "consequence": {
           "kind": "identity_hypothesis_opened",
+          "hypothesis": "identity:descriptor:my_head"
+        },
+        "inputs": [
+          "ref-occ:encounter:56:direct:5:193",
+          "ref-occ:file:aiw-ch1-prose.txt:6598:direct:5:193"
+        ],
+        "outputs": [
+          "identity:descriptor:my_head"
+        ],
+        "payload": {
+          "action": "provisional",
+          "value": {
+            "schema": "EOIdentityHypothesis@1",
+            "id": "identity:descriptor:my_head",
+            "surface": "my head",
+            "determinations": [
+              "possessive"
+            ],
+            "occurrenceRefs": [
+              "ref-occ:encounter:56:direct:5:193",
+              "ref-occ:file:aiw-ch1-prose.txt:6598:direct:5:193"
+            ],
+            "encounterRefs": [
+              "encounter:56",
+              "file:aiw-ch1-prose.txt:6598"
+            ],
+            "relationContexts": [
+              {
+                "edge": null,
+                "relation": null,
+                "role": null
+              },
+              {
+                "edge": null,
+                "relation": null,
+                "role": null
+              }
+            ],
+            "standing": "live_hypothesis",
+            "provenance": {
+              "giver": "text/individuation::descriptorHypotheses",
+              "basis": "same descriptor recurred across distinct encounters; identity remains defeasible"
+            }
+          }
+        }
+      },
+      {
+        "schema": "EOOperation@1",
+        "id": null,
+        "mode": "Relate",
+        "domain": "Structure",
+        "grain": "Figure",
+        "operator": "CON",
+        "terrain": "Link",
+        "stance": "Binding",
+        "witness": null,
+        "consequence": {
+          "kind": "identity_hypothesis_opened",
           "hypothesis": "identity:descriptor:my_shoulders"
         },
         "inputs": [
@@ -40286,7 +42102,84 @@
         }
       }
     ],
-    "graphEntries": [],
+    "graphEntries": [
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:white_rabbit",
+        "surfaces": [
+          "White Rabbit",
+          "White"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          },
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:dinah",
+        "surfaces": [
+          "dinah"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:latitude",
+        "surfaces": [
+          "Latitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:i’ve",
+        "surfaces": [
+          "Longitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:oh",
+        "surfaces": [
+          "Oh"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      }
+    ],
     "provenance": {
       "source": "file:aiw-ch1-prose.txt",
       "modality": "text",
@@ -40818,6 +42711,82 @@
       }
     ],
     "graphEntries": [
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:white_rabbit",
+        "surfaces": [
+          "White Rabbit",
+          "White"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          },
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:dinah",
+        "surfaces": [
+          "dinah"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:latitude",
+        "surfaces": [
+          "Latitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:i’ve",
+        "surfaces": [
+          "Longitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:oh",
+        "surfaces": [
+          "Oh"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
       {
         "schema": "EOLexicalOccurrence@1",
         "id": "lex:59:0",
@@ -41935,6 +43904,82 @@
     ],
     "graphEntries": [
       {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:white_rabbit",
+        "surfaces": [
+          "White Rabbit",
+          "White"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          },
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:dinah",
+        "surfaces": [
+          "dinah"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:latitude",
+        "surfaces": [
+          "Latitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:i’ve",
+        "surfaces": [
+          "Longitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:oh",
+        "surfaces": [
+          "Oh"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
         "schema": "EOLexicalOccurrence@1",
         "id": "lex:60:0",
         "surfaceKey": "surface:door",
@@ -42087,101 +44132,6 @@
         "encounterRef": "encounter:60",
         "offset": 415,
         "witness": "text:60:415"
-      },
-      {
-        "schema": "EOAnchorEvidence@1",
-        "id": "anchor:60:the_table",
-        "descriptor": "the table",
-        "determination": "definite",
-        "occurrenceRef": "ref-occ:encounter:60:direct:1:77",
-        "participantOccurrence": null,
-        "referent": "ref:auto:oh",
-        "referentSurface": "Oh",
-        "activation": 9.76174515511362,
-        "margin": 0.7755471250833612,
-        "sentenceOrder": 60,
-        "witness": "text:60:anchor:the_table",
-        "provenance": {
-          "giver": "text/anchoring::createDescriptorAnchoring",
-          "tier": "engine",
-          "basis": "one-hop activation recall over the already-admitted cast, floors declared by the caller"
-        }
-      },
-      {
-        "schema": "EOAnchorEvidence@1",
-        "id": "anchor:60:this_time",
-        "descriptor": "this time",
-        "determination": "definite",
-        "occurrenceRef": "ref-occ:encounter:60:direct:5:205",
-        "participantOccurrence": null,
-        "referent": "ref:auto:oh",
-        "referentSurface": "Oh",
-        "activation": 9.76174515511362,
-        "margin": 0.7755471250833612,
-        "sentenceOrder": 60,
-        "witness": "text:60:anchor:this_time",
-        "provenance": {
-          "giver": "text/anchoring::createDescriptorAnchoring",
-          "tier": "engine",
-          "basis": "one-hop activation recall over the already-admitted cast, floors declared by the caller"
-        }
-      },
-      {
-        "schema": "EOAnchorEvidence@1",
-        "id": "anchor:60:the_neck",
-        "descriptor": "the neck",
-        "determination": "definite",
-        "occurrenceRef": "ref-occ:encounter:60:direct:7:311",
-        "participantOccurrence": null,
-        "referent": "ref:auto:oh",
-        "referentSurface": "Oh",
-        "activation": 9.76174515511362,
-        "margin": 0.7755471250833612,
-        "sentenceOrder": 60,
-        "witness": "text:60:anchor:the_neck",
-        "provenance": {
-          "giver": "text/anchoring::createDescriptorAnchoring",
-          "tier": "engine",
-          "basis": "one-hop activation recall over the already-admitted cast, floors declared by the caller"
-        }
-      },
-      {
-        "schema": "EOAnchorEvidence@1",
-        "id": "anchor:60:the_bottle",
-        "descriptor": "the bottle",
-        "determination": "definite",
-        "occurrenceRef": "ref-occ:encounter:60:direct:8:323",
-        "participantOccurrence": null,
-        "referent": "ref:auto:oh",
-        "referentSurface": "Oh",
-        "activation": 9.76174515511362,
-        "margin": 0.7755471250833612,
-        "sentenceOrder": 60,
-        "witness": "text:60:anchor:the_bottle",
-        "provenance": {
-          "giver": "text/anchoring::createDescriptorAnchoring",
-          "tier": "engine",
-          "basis": "one-hop activation recall over the already-admitted cast, floors declared by the caller"
-        }
-      },
-      {
-        "schema": "EOAnchorEvidence@1",
-        "id": "anchor:60:the_words",
-        "descriptor": "the words",
-        "determination": "definite",
-        "occurrenceRef": "ref-occ:encounter:60:direct:10:358",
-        "participantOccurrence": null,
-        "referent": "ref:auto:oh",
-        "referentSurface": "Oh",
-        "activation": 9.76174515511362,
-        "margin": 0.7755471250833612,
-        "sentenceOrder": 60,
-        "witness": "text:60:anchor:the_words",
-        "provenance": {
-          "giver": "text/anchoring::createDescriptorAnchoring",
-          "tier": "engine",
-          "basis": "one-hop activation recall over the already-admitted cast, floors declared by the caller"
-        }
       },
       {
         "schema": "EOReferentOccurrence@1",
@@ -43483,489 +45433,6 @@
             }
           }
         }
-      },
-      {
-        "schema": "EOOperation@1",
-        "id": null,
-        "mode": "Relate",
-        "domain": "Structure",
-        "grain": "Figure",
-        "operator": "CON",
-        "terrain": "Link",
-        "stance": "Binding",
-        "witness": "text:60:anchor:the_table",
-        "consequence": {
-          "kind": "identity_hypothesis_opened",
-          "identity": "identity:oh:the_table"
-        },
-        "inputs": [
-          "oh",
-          "the table"
-        ],
-        "outputs": [
-          "identity:oh:the_table"
-        ],
-        "payload": {
-          "action": "alternative",
-          "value": {
-            "schema": "EOIdentityAlternative@1",
-            "id": "identity:oh:the_table",
-            "left": "oh",
-            "right": "the table",
-            "standing": "live_hypothesis",
-            "supportRefs": [
-              "text:60:anchor:the_table"
-            ],
-            "attackRefs": [],
-            "giver": "text/anchoring::createDescriptorAnchoring"
-          }
-        }
-      },
-      {
-        "schema": "EOOperation@1",
-        "id": null,
-        "mode": "Generate",
-        "domain": "Existence",
-        "grain": "Figure",
-        "operator": "INS",
-        "terrain": "Entity",
-        "stance": "Making",
-        "witness": "text:60:anchor:the_table",
-        "consequence": {
-          "kind": "expectation_opened",
-          "expectation": "expectation:identity:oh:the_table",
-          "identity": "identity:oh:the_table"
-        },
-        "inputs": [
-          "identity:oh:the_table"
-        ],
-        "outputs": [
-          "expectation:identity:oh:the_table"
-        ],
-        "payload": {
-          "action": "expectation",
-          "value": {
-            "schema": "EOExpectation@1",
-            "id": "expectation:identity:oh:the_table",
-            "hypothesis": "corroboration expected: oh <-> the table",
-            "giver": "text/anchoring::createDescriptorAnchoring",
-            "grounds": [
-              "identity:oh:the_table"
-            ],
-            "openedAt": null,
-            "scope": null,
-            "consequences": [],
-            "state": "open"
-          }
-        }
-      },
-      {
-        "schema": "EOOperation@1",
-        "id": null,
-        "mode": "Relate",
-        "domain": "Structure",
-        "grain": "Figure",
-        "operator": "CON",
-        "terrain": "Link",
-        "stance": "Binding",
-        "witness": "text:60:anchor:this_time",
-        "consequence": {
-          "kind": "identity_hypothesis_opened",
-          "identity": "identity:oh:this_time"
-        },
-        "inputs": [
-          "oh",
-          "this time"
-        ],
-        "outputs": [
-          "identity:oh:this_time"
-        ],
-        "payload": {
-          "action": "alternative",
-          "value": {
-            "schema": "EOIdentityAlternative@1",
-            "id": "identity:oh:this_time",
-            "left": "oh",
-            "right": "this time",
-            "standing": "live_hypothesis",
-            "supportRefs": [
-              "text:60:anchor:this_time"
-            ],
-            "attackRefs": [],
-            "giver": "text/anchoring::createDescriptorAnchoring"
-          }
-        }
-      },
-      {
-        "schema": "EOOperation@1",
-        "id": null,
-        "mode": "Generate",
-        "domain": "Existence",
-        "grain": "Figure",
-        "operator": "INS",
-        "terrain": "Entity",
-        "stance": "Making",
-        "witness": "text:60:anchor:this_time",
-        "consequence": {
-          "kind": "expectation_opened",
-          "expectation": "expectation:identity:oh:this_time",
-          "identity": "identity:oh:this_time"
-        },
-        "inputs": [
-          "identity:oh:this_time"
-        ],
-        "outputs": [
-          "expectation:identity:oh:this_time"
-        ],
-        "payload": {
-          "action": "expectation",
-          "value": {
-            "schema": "EOExpectation@1",
-            "id": "expectation:identity:oh:this_time",
-            "hypothesis": "corroboration expected: oh <-> this time",
-            "giver": "text/anchoring::createDescriptorAnchoring",
-            "grounds": [
-              "identity:oh:this_time"
-            ],
-            "openedAt": null,
-            "scope": null,
-            "consequences": [],
-            "state": "open"
-          }
-        }
-      },
-      {
-        "schema": "EOOperation@1",
-        "id": null,
-        "mode": "Relate",
-        "domain": "Structure",
-        "grain": "Figure",
-        "operator": "CON",
-        "terrain": "Link",
-        "stance": "Binding",
-        "witness": "text:60:anchor:the_neck",
-        "consequence": {
-          "kind": "identity_hypothesis_opened",
-          "identity": "identity:oh:the_neck"
-        },
-        "inputs": [
-          "oh",
-          "the neck"
-        ],
-        "outputs": [
-          "identity:oh:the_neck"
-        ],
-        "payload": {
-          "action": "alternative",
-          "value": {
-            "schema": "EOIdentityAlternative@1",
-            "id": "identity:oh:the_neck",
-            "left": "oh",
-            "right": "the neck",
-            "standing": "live_hypothesis",
-            "supportRefs": [
-              "text:60:anchor:the_neck"
-            ],
-            "attackRefs": [],
-            "giver": "text/anchoring::createDescriptorAnchoring"
-          }
-        }
-      },
-      {
-        "schema": "EOOperation@1",
-        "id": null,
-        "mode": "Generate",
-        "domain": "Existence",
-        "grain": "Figure",
-        "operator": "INS",
-        "terrain": "Entity",
-        "stance": "Making",
-        "witness": "text:60:anchor:the_neck",
-        "consequence": {
-          "kind": "expectation_opened",
-          "expectation": "expectation:identity:oh:the_neck",
-          "identity": "identity:oh:the_neck"
-        },
-        "inputs": [
-          "identity:oh:the_neck"
-        ],
-        "outputs": [
-          "expectation:identity:oh:the_neck"
-        ],
-        "payload": {
-          "action": "expectation",
-          "value": {
-            "schema": "EOExpectation@1",
-            "id": "expectation:identity:oh:the_neck",
-            "hypothesis": "corroboration expected: oh <-> the neck",
-            "giver": "text/anchoring::createDescriptorAnchoring",
-            "grounds": [
-              "identity:oh:the_neck"
-            ],
-            "openedAt": null,
-            "scope": null,
-            "consequences": [],
-            "state": "open"
-          }
-        }
-      },
-      {
-        "schema": "EOOperation@1",
-        "id": null,
-        "mode": "Relate",
-        "domain": "Structure",
-        "grain": "Figure",
-        "operator": "CON",
-        "terrain": "Link",
-        "stance": "Binding",
-        "witness": "text:60:anchor:the_bottle",
-        "consequence": {
-          "kind": "identity_hypothesis_opened",
-          "identity": "identity:oh:the_bottle"
-        },
-        "inputs": [
-          "oh",
-          "the bottle"
-        ],
-        "outputs": [
-          "identity:oh:the_bottle"
-        ],
-        "payload": {
-          "action": "alternative",
-          "value": {
-            "schema": "EOIdentityAlternative@1",
-            "id": "identity:oh:the_bottle",
-            "left": "oh",
-            "right": "the bottle",
-            "standing": "live_hypothesis",
-            "supportRefs": [
-              "text:60:anchor:the_bottle"
-            ],
-            "attackRefs": [],
-            "giver": "text/anchoring::createDescriptorAnchoring"
-          }
-        }
-      },
-      {
-        "schema": "EOOperation@1",
-        "id": null,
-        "mode": "Generate",
-        "domain": "Existence",
-        "grain": "Figure",
-        "operator": "INS",
-        "terrain": "Entity",
-        "stance": "Making",
-        "witness": "text:60:anchor:the_bottle",
-        "consequence": {
-          "kind": "expectation_opened",
-          "expectation": "expectation:identity:oh:the_bottle",
-          "identity": "identity:oh:the_bottle"
-        },
-        "inputs": [
-          "identity:oh:the_bottle"
-        ],
-        "outputs": [
-          "expectation:identity:oh:the_bottle"
-        ],
-        "payload": {
-          "action": "expectation",
-          "value": {
-            "schema": "EOExpectation@1",
-            "id": "expectation:identity:oh:the_bottle",
-            "hypothesis": "corroboration expected: oh <-> the bottle",
-            "giver": "text/anchoring::createDescriptorAnchoring",
-            "grounds": [
-              "identity:oh:the_bottle"
-            ],
-            "openedAt": null,
-            "scope": null,
-            "consequences": [],
-            "state": "open"
-          }
-        }
-      },
-      {
-        "schema": "EOOperation@1",
-        "id": null,
-        "mode": "Relate",
-        "domain": "Structure",
-        "grain": "Figure",
-        "operator": "CON",
-        "terrain": "Link",
-        "stance": "Binding",
-        "witness": "text:60:anchor:the_words",
-        "consequence": {
-          "kind": "identity_hypothesis_opened",
-          "identity": "identity:oh:the_words"
-        },
-        "inputs": [
-          "oh",
-          "the words"
-        ],
-        "outputs": [
-          "identity:oh:the_words"
-        ],
-        "payload": {
-          "action": "alternative",
-          "value": {
-            "schema": "EOIdentityAlternative@1",
-            "id": "identity:oh:the_words",
-            "left": "oh",
-            "right": "the words",
-            "standing": "live_hypothesis",
-            "supportRefs": [
-              "text:60:anchor:the_words"
-            ],
-            "attackRefs": [],
-            "giver": "text/anchoring::createDescriptorAnchoring"
-          }
-        }
-      },
-      {
-        "schema": "EOOperation@1",
-        "id": null,
-        "mode": "Generate",
-        "domain": "Existence",
-        "grain": "Figure",
-        "operator": "INS",
-        "terrain": "Entity",
-        "stance": "Making",
-        "witness": "text:60:anchor:the_words",
-        "consequence": {
-          "kind": "expectation_opened",
-          "expectation": "expectation:identity:oh:the_words",
-          "identity": "identity:oh:the_words"
-        },
-        "inputs": [
-          "identity:oh:the_words"
-        ],
-        "outputs": [
-          "expectation:identity:oh:the_words"
-        ],
-        "payload": {
-          "action": "expectation",
-          "value": {
-            "schema": "EOExpectation@1",
-            "id": "expectation:identity:oh:the_words",
-            "hypothesis": "corroboration expected: oh <-> the words",
-            "giver": "text/anchoring::createDescriptorAnchoring",
-            "grounds": [
-              "identity:oh:the_words"
-            ],
-            "openedAt": null,
-            "scope": null,
-            "consequences": [],
-            "state": "open"
-          }
-        }
-      },
-      {
-        "schema": "EOOperation@1",
-        "id": null,
-        "mode": "Differentiate",
-        "domain": "Structure",
-        "grain": "Figure",
-        "operator": "SEG",
-        "terrain": "Link",
-        "stance": "Dissecting",
-        "witness": "text:60:anchor:this_time",
-        "consequence": {
-          "kind": "identity_split",
-          "identity": "identity:longitude:this_time",
-          "reason": "descriptor_bound_to_different_referent"
-        },
-        "inputs": [
-          "identity:longitude:this_time"
-        ],
-        "outputs": [
-          "identity:longitude:this_time"
-        ],
-        "payload": {
-          "action": "alternative",
-          "value": {
-            "schema": "EOIdentityAlternative@1",
-            "id": "identity:longitude:this_time",
-            "left": "longitude",
-            "right": "this time",
-            "standing": "distinct",
-            "supportRefs": [
-              "text:27:anchor:this_time"
-            ],
-            "attackRefs": [
-              "text:60:anchor:this_time"
-            ],
-            "giver": "text/anchoring::createDescriptorAnchoring"
-          }
-        }
-      },
-      {
-        "schema": "EOOperation@1",
-        "id": null,
-        "mode": "Differentiate",
-        "domain": "Interpretation",
-        "grain": "Figure",
-        "operator": "DEF",
-        "terrain": "Lens",
-        "stance": "Dissecting",
-        "witness": "text:60:anchor:this_time",
-        "consequence": {
-          "kind": "identity_reading_refused",
-          "identity": "identity:longitude:this_time"
-        },
-        "inputs": [
-          "identity:longitude:this_time"
-        ],
-        "outputs": [
-          "exclusion:identity:longitude:this_time"
-        ],
-        "payload": {
-          "action": "exclusion",
-          "value": {
-            "schema": "EOExclusion@1",
-            "id": "exclusion:identity:longitude:this_time",
-            "kind": "identity_refused",
-            "target": "identity:longitude:this_time",
-            "witness": "text:60:anchor:this_time"
-          }
-        }
-      },
-      {
-        "schema": "EOOperation@1",
-        "id": null,
-        "mode": "Relate",
-        "domain": "Interpretation",
-        "grain": "Figure",
-        "operator": "EVA",
-        "terrain": "Lens",
-        "stance": "Binding",
-        "witness": "text:60:anchor:this_time",
-        "consequence": {
-          "kind": "expectation_violated",
-          "expectation": "expectation:identity:longitude:this_time",
-          "identity": "identity:longitude:this_time"
-        },
-        "inputs": [
-          "expectation:identity:longitude:this_time"
-        ],
-        "outputs": [
-          "expectation:identity:longitude:this_time"
-        ],
-        "payload": {
-          "action": "expectation",
-          "value": {
-            "schema": "EOExpectation@1",
-            "id": "expectation:identity:longitude:this_time",
-            "hypothesis": "corroboration expected: longitude <-> this time",
-            "giver": "text/anchoring::createDescriptorAnchoring",
-            "grounds": [
-              "identity:longitude:this_time"
-            ],
-            "openedAt": null,
-            "scope": null,
-            "consequences": [],
-            "state": "violated"
-          }
-        }
       }
     ]
   },
@@ -44206,6 +45673,82 @@
       }
     ],
     "graphEntries": [
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:white_rabbit",
+        "surfaces": [
+          "White Rabbit",
+          "White"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          },
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:dinah",
+        "surfaces": [
+          "dinah"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:latitude",
+        "surfaces": [
+          "Latitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:i’ve",
+        "surfaces": [
+          "Longitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:oh",
+        "surfaces": [
+          "Oh"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
       {
         "schema": "EOLexicalOccurrence@1",
         "id": "lex:61:0",
@@ -45803,6 +47346,82 @@
       }
     ],
     "graphEntries": [
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:white_rabbit",
+        "surfaces": [
+          "White Rabbit",
+          "White"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          },
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:dinah",
+        "surfaces": [
+          "dinah"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:latitude",
+        "surfaces": [
+          "Latitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:i’ve",
+        "surfaces": [
+          "Longitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:oh",
+        "surfaces": [
+          "Oh"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
       {
         "schema": "EOLexicalOccurrence@1",
         "id": "lex:62:0",
@@ -48100,6 +49719,82 @@
     ],
     "graphEntries": [
       {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:white_rabbit",
+        "surfaces": [
+          "White Rabbit",
+          "White"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          },
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:dinah",
+        "surfaces": [
+          "dinah"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:latitude",
+        "surfaces": [
+          "Latitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:i’ve",
+        "surfaces": [
+          "Longitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:oh",
+        "surfaces": [
+          "Oh"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
         "schema": "EOLexicalOccurrence@1",
         "id": "lex:63:0",
         "surfaceKey": "surface:bottle",
@@ -49156,6 +50851,82 @@
     ],
     "graphEntries": [
       {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:white_rabbit",
+        "surfaces": [
+          "White Rabbit",
+          "White"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          },
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:dinah",
+        "surfaces": [
+          "dinah"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:latitude",
+        "surfaces": [
+          "Latitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:i’ve",
+        "surfaces": [
+          "Longitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:oh",
+        "surfaces": [
+          "Oh"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
         "schema": "EOReferentOccurrence@1",
         "id": "ref-occ:encounter:68:direct:0:40",
         "surface": "a telescope",
@@ -49688,6 +51459,82 @@
       }
     ],
     "graphEntries": [
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:white_rabbit",
+        "surfaces": [
+          "White Rabbit",
+          "White"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          },
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:dinah",
+        "surfaces": [
+          "dinah"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:latitude",
+        "surfaces": [
+          "Latitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:i’ve",
+        "surfaces": [
+          "Longitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:oh",
+        "surfaces": [
+          "Oh"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
       {
         "schema": "EOLexicalOccurrence@1",
         "id": "lex:69:0",
@@ -50864,6 +52711,82 @@
     ],
     "graphEntries": [
       {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:white_rabbit",
+        "surfaces": [
+          "White Rabbit",
+          "White"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          },
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:dinah",
+        "surfaces": [
+          "dinah"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:latitude",
+        "surfaces": [
+          "Latitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:i’ve",
+        "surfaces": [
+          "Longitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:oh",
+        "surfaces": [
+          "Oh"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
         "schema": "EOLexicalOccurrence@1",
         "id": "lex:70:0",
         "surfaceKey": "surface:minutes",
@@ -51770,7 +53693,84 @@
         }
       }
     ],
-    "graphEntries": [],
+    "graphEntries": [
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:white_rabbit",
+        "surfaces": [
+          "White Rabbit",
+          "White"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          },
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:dinah",
+        "surfaces": [
+          "dinah"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:latitude",
+        "surfaces": [
+          "Latitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:i’ve",
+        "surfaces": [
+          "Longitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:oh",
+        "surfaces": [
+          "Oh"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      }
+    ],
     "provenance": {
       "source": "file:aiw-ch1-prose.txt",
       "modality": "text",
@@ -52303,6 +54303,82 @@
     ],
     "graphEntries": [
       {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:white_rabbit",
+        "surfaces": [
+          "White Rabbit",
+          "White"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          },
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:dinah",
+        "surfaces": [
+          "dinah"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:latitude",
+        "surfaces": [
+          "Latitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:i’ve",
+        "surfaces": [
+          "Longitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:oh",
+        "surfaces": [
+          "Oh"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
         "schema": "EOLexicalOccurrence@1",
         "id": "lex:72:0",
         "surfaceKey": "surface:candle",
@@ -52334,44 +54410,6 @@
         "encounterRef": "encounter:72",
         "offset": 140,
         "witness": "text:72:140"
-      },
-      {
-        "schema": "EOAnchorEvidence@1",
-        "id": "anchor:72:the_flame",
-        "descriptor": "the flame",
-        "determination": "definite",
-        "occurrenceRef": "ref-occ:encounter:72:direct:0:28",
-        "participantOccurrence": null,
-        "referent": "ref:auto:oh",
-        "referentSurface": "Oh",
-        "activation": 14.096098392339364,
-        "margin": 0.9499821562142082,
-        "sentenceOrder": 72,
-        "witness": "text:72:anchor:the_flame",
-        "provenance": {
-          "giver": "text/anchoring::createDescriptorAnchoring",
-          "tier": "engine",
-          "basis": "one-hop activation recall over the already-admitted cast, floors declared by the caller"
-        }
-      },
-      {
-        "schema": "EOAnchorEvidence@1",
-        "id": "anchor:72:the_candle",
-        "descriptor": "the candle",
-        "determination": "definite",
-        "occurrenceRef": "ref-occ:encounter:72:direct:2:64",
-        "participantOccurrence": null,
-        "referent": "ref:auto:oh",
-        "referentSurface": "Oh",
-        "activation": 14.096098392339364,
-        "margin": 0.9499821562142082,
-        "sentenceOrder": 72,
-        "witness": "text:72:anchor:the_candle",
-        "provenance": {
-          "giver": "text/anchoring::createDescriptorAnchoring",
-          "tier": "engine",
-          "basis": "one-hop activation recall over the already-admitted cast, floors declared by the caller"
-        }
       },
       {
         "schema": "EOReferentOccurrence@1",
@@ -52894,156 +54932,6 @@
             }
           }
         }
-      },
-      {
-        "schema": "EOOperation@1",
-        "id": null,
-        "mode": "Relate",
-        "domain": "Structure",
-        "grain": "Figure",
-        "operator": "CON",
-        "terrain": "Link",
-        "stance": "Binding",
-        "witness": "text:72:anchor:the_flame",
-        "consequence": {
-          "kind": "identity_hypothesis_opened",
-          "identity": "identity:oh:the_flame"
-        },
-        "inputs": [
-          "oh",
-          "the flame"
-        ],
-        "outputs": [
-          "identity:oh:the_flame"
-        ],
-        "payload": {
-          "action": "alternative",
-          "value": {
-            "schema": "EOIdentityAlternative@1",
-            "id": "identity:oh:the_flame",
-            "left": "oh",
-            "right": "the flame",
-            "standing": "live_hypothesis",
-            "supportRefs": [
-              "text:72:anchor:the_flame"
-            ],
-            "attackRefs": [],
-            "giver": "text/anchoring::createDescriptorAnchoring"
-          }
-        }
-      },
-      {
-        "schema": "EOOperation@1",
-        "id": null,
-        "mode": "Generate",
-        "domain": "Existence",
-        "grain": "Figure",
-        "operator": "INS",
-        "terrain": "Entity",
-        "stance": "Making",
-        "witness": "text:72:anchor:the_flame",
-        "consequence": {
-          "kind": "expectation_opened",
-          "expectation": "expectation:identity:oh:the_flame",
-          "identity": "identity:oh:the_flame"
-        },
-        "inputs": [
-          "identity:oh:the_flame"
-        ],
-        "outputs": [
-          "expectation:identity:oh:the_flame"
-        ],
-        "payload": {
-          "action": "expectation",
-          "value": {
-            "schema": "EOExpectation@1",
-            "id": "expectation:identity:oh:the_flame",
-            "hypothesis": "corroboration expected: oh <-> the flame",
-            "giver": "text/anchoring::createDescriptorAnchoring",
-            "grounds": [
-              "identity:oh:the_flame"
-            ],
-            "openedAt": null,
-            "scope": null,
-            "consequences": [],
-            "state": "open"
-          }
-        }
-      },
-      {
-        "schema": "EOOperation@1",
-        "id": null,
-        "mode": "Relate",
-        "domain": "Structure",
-        "grain": "Figure",
-        "operator": "CON",
-        "terrain": "Link",
-        "stance": "Binding",
-        "witness": "text:72:anchor:the_candle",
-        "consequence": {
-          "kind": "identity_hypothesis_opened",
-          "identity": "identity:oh:the_candle"
-        },
-        "inputs": [
-          "oh",
-          "the candle"
-        ],
-        "outputs": [
-          "identity:oh:the_candle"
-        ],
-        "payload": {
-          "action": "alternative",
-          "value": {
-            "schema": "EOIdentityAlternative@1",
-            "id": "identity:oh:the_candle",
-            "left": "oh",
-            "right": "the candle",
-            "standing": "live_hypothesis",
-            "supportRefs": [
-              "text:72:anchor:the_candle"
-            ],
-            "attackRefs": [],
-            "giver": "text/anchoring::createDescriptorAnchoring"
-          }
-        }
-      },
-      {
-        "schema": "EOOperation@1",
-        "id": null,
-        "mode": "Generate",
-        "domain": "Existence",
-        "grain": "Figure",
-        "operator": "INS",
-        "terrain": "Entity",
-        "stance": "Making",
-        "witness": "text:72:anchor:the_candle",
-        "consequence": {
-          "kind": "expectation_opened",
-          "expectation": "expectation:identity:oh:the_candle",
-          "identity": "identity:oh:the_candle"
-        },
-        "inputs": [
-          "identity:oh:the_candle"
-        ],
-        "outputs": [
-          "expectation:identity:oh:the_candle"
-        ],
-        "payload": {
-          "action": "expectation",
-          "value": {
-            "schema": "EOExpectation@1",
-            "id": "expectation:identity:oh:the_candle",
-            "hypothesis": "corroboration expected: oh <-> the candle",
-            "giver": "text/anchoring::createDescriptorAnchoring",
-            "grounds": [
-              "identity:oh:the_candle"
-            ],
-            "openedAt": null,
-            "scope": null,
-            "consequences": [],
-            "state": "open"
-          }
-        }
       }
     ]
   },
@@ -53141,6 +55029,82 @@
       }
     ],
     "graphEntries": [
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:white_rabbit",
+        "surfaces": [
+          "White Rabbit",
+          "White"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          },
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:dinah",
+        "surfaces": [
+          "dinah"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:latitude",
+        "surfaces": [
+          "Latitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:i’ve",
+        "surfaces": [
+          "Longitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:oh",
+        "surfaces": [
+          "Oh"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
       {
         "schema": "EOReferentOccurrence@1",
         "id": "ref-occ:encounter:73:direct:2:77",
@@ -53731,13 +55695,12 @@
             "candidateReferents": []
           },
           {
-            "ref": "occ:74:7:object",
-            "occurrence": "occ:74:7:object",
-            "surfaceKey": "surface:her_best",
+            "ref": "identity:poss:best:her",
             "role": "object",
-            "standing": "unresolved_surface",
+            "standing": "hypothesis",
             "surface": "her best",
-            "candidateReferents": []
+            "resolution": "possessive_holding",
+            "possessiveAnchor": "her"
           }
         ]
       },
@@ -54202,13 +56165,12 @@
             "candidateReferents": []
           },
           {
-            "ref": "occ:74:7:object",
-            "occurrence": "occ:74:7:object",
-            "surfaceKey": "surface:her_best",
+            "ref": "identity:poss:best:her",
             "role": "object",
-            "standing": "unresolved_surface",
+            "standing": "hypothesis",
             "surface": "her best",
-            "candidateReferents": []
+            "resolution": "possessive_holding",
+            "possessiveAnchor": "her"
           }
         ],
         "witness": "text:74:214",
@@ -54420,6 +56382,82 @@
     ],
     "graphEntries": [
       {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:white_rabbit",
+        "surfaces": [
+          "White Rabbit",
+          "White"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          },
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:dinah",
+        "surfaces": [
+          "dinah"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:latitude",
+        "surfaces": [
+          "Latitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:i’ve",
+        "surfaces": [
+          "Longitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:oh",
+        "surfaces": [
+          "Oh"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
         "schema": "EOLexicalOccurrence@1",
         "id": "lex:74:0",
         "surfaceKey": "surface:door",
@@ -54495,7 +56533,7 @@
         "referent": "ref:auto:oh",
         "referentSurface": "Oh",
         "activation": 10.106112510805547,
-        "margin": 0.8522232592449236,
+        "margin": 0.2265856213779857,
         "sentenceOrder": 74,
         "witness": "text:74:anchor:the_door",
         "provenance": {
@@ -54514,7 +56552,7 @@
         "referent": "ref:auto:oh",
         "referentSurface": "Oh",
         "activation": 10.106112510805547,
-        "margin": 0.8522232592449236,
+        "margin": 0.2265856213779857,
         "sentenceOrder": 74,
         "witness": "text:74:anchor:the_table",
         "provenance": {
@@ -54533,7 +56571,7 @@
         "referent": "ref:auto:oh",
         "referentSurface": "Oh",
         "activation": 10.106112510805547,
-        "margin": 0.8522232592449236,
+        "margin": 0.2265856213779857,
         "sentenceOrder": 74,
         "witness": "text:74:anchor:the_glass",
         "provenance": {
@@ -54552,7 +56590,7 @@
         "referent": "ref:auto:oh",
         "referentSurface": "Oh",
         "activation": 10.106112510805547,
-        "margin": 0.8522232592449236,
+        "margin": 0.2265856213779857,
         "sentenceOrder": 74,
         "witness": "text:74:anchor:the_legs",
         "provenance": {
@@ -54571,7 +56609,7 @@
         "referent": "ref:auto:oh",
         "referentSurface": "Oh",
         "activation": 10.106112510805547,
-        "margin": 0.8522232592449236,
+        "margin": 0.2265856213779857,
         "sentenceOrder": 74,
         "witness": "text:74:anchor:the_table",
         "provenance": {
@@ -55504,7 +57542,7 @@
         },
         "inputs": [
           "occ:74:7:subject",
-          "occ:74:7:object"
+          "identity:poss:best:her"
         ],
         "outputs": [
           "edge:text:74:7"
@@ -55526,13 +57564,12 @@
                 "candidateReferents": []
               },
               {
-                "ref": "occ:74:7:object",
-                "occurrence": "occ:74:7:object",
-                "surfaceKey": "surface:her_best",
+                "ref": "identity:poss:best:her",
                 "role": "object",
-                "standing": "unresolved_surface",
+                "standing": "hypothesis",
                 "surface": "her best",
-                "candidateReferents": []
+                "resolution": "possessive_holding",
+                "possessiveAnchor": "her"
               }
             ],
             "witness": "text:74:214",
@@ -56057,7 +58094,7 @@
         "stance": "Binding",
         "witness": "text:74:anchor:the_table",
         "consequence": {
-          "kind": "identity_hypothesis_supported",
+          "kind": "identity_hypothesis_opened",
           "identity": "identity:oh:the_table"
         },
         "inputs": [
@@ -56076,7 +58113,6 @@
             "right": "the table",
             "standing": "live_hypothesis",
             "supportRefs": [
-              "text:60:anchor:the_table",
               "text:74:anchor:the_table"
             ],
             "attackRefs": [],
@@ -56087,20 +58123,20 @@
       {
         "schema": "EOOperation@1",
         "id": null,
-        "mode": "Relate",
-        "domain": "Interpretation",
+        "mode": "Generate",
+        "domain": "Existence",
         "grain": "Figure",
-        "operator": "EVA",
-        "terrain": "Lens",
-        "stance": "Binding",
+        "operator": "INS",
+        "terrain": "Entity",
+        "stance": "Making",
         "witness": "text:74:anchor:the_table",
         "consequence": {
-          "kind": "expectation_fulfilled",
+          "kind": "expectation_opened",
           "expectation": "expectation:identity:oh:the_table",
           "identity": "identity:oh:the_table"
         },
         "inputs": [
-          "expectation:identity:oh:the_table"
+          "identity:oh:the_table"
         ],
         "outputs": [
           "expectation:identity:oh:the_table"
@@ -56118,7 +58154,7 @@
             "openedAt": null,
             "scope": null,
             "consequences": [],
-            "state": "fulfilled"
+            "state": "open"
           }
         }
       },
@@ -56302,11 +58338,48 @@
             "right": "the table",
             "standing": "live_hypothesis",
             "supportRefs": [
-              "text:60:anchor:the_table",
               "text:74:anchor:the_table"
             ],
             "attackRefs": [],
             "giver": "text/anchoring::createDescriptorAnchoring"
+          }
+        }
+      },
+      {
+        "schema": "EOOperation@1",
+        "id": null,
+        "mode": "Relate",
+        "domain": "Interpretation",
+        "grain": "Figure",
+        "operator": "EVA",
+        "terrain": "Lens",
+        "stance": "Binding",
+        "witness": "text:74:anchor:the_table",
+        "consequence": {
+          "kind": "expectation_strengthened",
+          "expectation": "expectation:identity:oh:the_table",
+          "identity": "identity:oh:the_table"
+        },
+        "inputs": [
+          "expectation:identity:oh:the_table"
+        ],
+        "outputs": [
+          "expectation:identity:oh:the_table"
+        ],
+        "payload": {
+          "action": "expectation",
+          "value": {
+            "schema": "EOExpectation@1",
+            "id": "expectation:identity:oh:the_table",
+            "hypothesis": "corroboration expected: oh <-> the table",
+            "giver": "text/anchoring::createDescriptorAnchoring",
+            "grounds": [
+              "identity:oh:the_table"
+            ],
+            "openedAt": null,
+            "scope": null,
+            "consequences": [],
+            "state": "strengthened"
           }
         }
       }
@@ -56405,7 +58478,84 @@
         }
       }
     ],
-    "graphEntries": [],
+    "graphEntries": [
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:white_rabbit",
+        "surfaces": [
+          "White Rabbit",
+          "White"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          },
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:dinah",
+        "surfaces": [
+          "dinah"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:latitude",
+        "surfaces": [
+          "Latitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:i’ve",
+        "surfaces": [
+          "Longitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:oh",
+        "surfaces": [
+          "Oh"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      }
+    ],
     "provenance": {
       "source": "file:aiw-ch1-prose.txt",
       "modality": "text",
@@ -56776,6 +58926,82 @@
       }
     ],
     "graphEntries": [
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:white_rabbit",
+        "surfaces": [
+          "White Rabbit",
+          "White"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          },
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:dinah",
+        "surfaces": [
+          "dinah"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:latitude",
+        "surfaces": [
+          "Latitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:i’ve",
+        "surfaces": [
+          "Longitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:oh",
+        "surfaces": [
+          "Oh"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
       {
         "schema": "EOLexicalOccurrence@1",
         "id": "lex:76:0",
@@ -57613,6 +59839,82 @@
       }
     ],
     "graphEntries": [
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:white_rabbit",
+        "surfaces": [
+          "White Rabbit",
+          "White"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          },
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:dinah",
+        "surfaces": [
+          "dinah"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:latitude",
+        "surfaces": [
+          "Latitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:i’ve",
+        "surfaces": [
+          "Longitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:oh",
+        "surfaces": [
+          "Oh"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
       {
         "schema": "EOLexicalOccurrence@1",
         "id": "lex:77:0",
@@ -58749,6 +61051,82 @@
     ],
     "graphEntries": [
       {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:white_rabbit",
+        "surfaces": [
+          "White Rabbit",
+          "White"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          },
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:dinah",
+        "surfaces": [
+          "dinah"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:latitude",
+        "surfaces": [
+          "Latitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:i’ve",
+        "surfaces": [
+          "Longitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:oh",
+        "surfaces": [
+          "Oh"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
         "schema": "EOLexicalOccurrence@1",
         "id": "lex:78:0",
         "surfaceKey": "surface:people",
@@ -59133,6 +61511,82 @@
     ],
     "graphEntries": [
       {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:white_rabbit",
+        "surfaces": [
+          "White Rabbit",
+          "White"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          },
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:dinah",
+        "surfaces": [
+          "dinah"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:latitude",
+        "surfaces": [
+          "Latitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:i’ve",
+        "surfaces": [
+          "Longitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:oh",
+        "surfaces": [
+          "Oh"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
         "schema": "EOLexicalOccurrence@1",
         "id": "lex:79:0",
         "surfaceKey": "surface:person",
@@ -59255,13 +61709,12 @@
         "relation": "fell",
         "participants": [
           {
-            "ref": "occ:80:0:subject",
-            "occurrence": "occ:80:0:subject",
-            "surfaceKey": "surface:her_eye",
+            "ref": "identity:poss:eye:her",
             "role": "subject",
-            "standing": "unresolved_surface",
+            "standing": "hypothesis",
             "surface": "her eye",
-            "candidateReferents": []
+            "resolution": "possessive_holding",
+            "possessiveAnchor": "her"
           },
           {
             "ref": "occ:80:0:object",
@@ -59404,13 +61857,12 @@
         "relation": "fell",
         "participants": [
           {
-            "ref": "occ:80:0:subject",
-            "occurrence": "occ:80:0:subject",
-            "surfaceKey": "surface:her_eye",
+            "ref": "identity:poss:eye:her",
             "role": "subject",
-            "standing": "unresolved_surface",
+            "standing": "hypothesis",
             "surface": "her eye",
-            "candidateReferents": []
+            "resolution": "possessive_holding",
+            "possessiveAnchor": "her"
           },
           {
             "ref": "occ:80:0:object",
@@ -59630,6 +62082,82 @@
       }
     ],
     "graphEntries": [
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:white_rabbit",
+        "surfaces": [
+          "White Rabbit",
+          "White"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          },
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:dinah",
+        "surfaces": [
+          "dinah"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:latitude",
+        "surfaces": [
+          "Latitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:i’ve",
+        "surfaces": [
+          "Longitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:oh",
+        "surfaces": [
+          "Oh"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
       {
         "schema": "EOLexicalOccurrence@1",
         "id": "lex:80:0",
@@ -60010,7 +62538,7 @@
           "edge": "edge:text:80:0"
         },
         "inputs": [
-          "occ:80:0:subject",
+          "identity:poss:eye:her",
           "occ:80:0:object"
         ],
         "outputs": [
@@ -60024,13 +62552,12 @@
             "relation": "fell",
             "participants": [
               {
-                "ref": "occ:80:0:subject",
-                "occurrence": "occ:80:0:subject",
-                "surfaceKey": "surface:her_eye",
+                "ref": "identity:poss:eye:her",
                 "role": "subject",
-                "standing": "unresolved_surface",
+                "standing": "hypothesis",
                 "surface": "her eye",
-                "candidateReferents": []
+                "resolution": "possessive_holding",
+                "possessiveAnchor": "her"
               },
               {
                 "ref": "occ:80:0:object",
@@ -60864,6 +63391,82 @@
       }
     ],
     "graphEntries": [
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:white_rabbit",
+        "surfaces": [
+          "White Rabbit",
+          "White"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          },
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:dinah",
+        "surfaces": [
+          "dinah"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:latitude",
+        "surfaces": [
+          "Latitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:i’ve",
+        "surfaces": [
+          "Longitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:oh",
+        "surfaces": [
+          "Oh"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
       {
         "schema": "EOLexicalOccurrence@1",
         "id": "lex:81:0",
@@ -61827,6 +64430,96 @@
     ],
     "graphEntries": [
       {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:white_rabbit",
+        "surfaces": [
+          "White Rabbit",
+          "White"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          },
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:dinah",
+        "surfaces": [
+          "dinah"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:i’ll",
+        "surfaces": [
+          "I’ll"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:latitude",
+        "surfaces": [
+          "Latitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:i’ve",
+        "surfaces": [
+          "Longitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:oh",
+        "surfaces": [
+          "Oh"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
         "schema": "EOLexicalOccurrence@1",
         "id": "lex:82:0",
         "surfaceKey": "surface:bit",
@@ -61898,6 +64591,42 @@
               "giver": "text/individuation::directDescriptorOccurrences",
               "basis": "closed-class determiner plus witnessed lexical form"
             }
+          }
+        }
+      },
+      {
+        "schema": "EOOperation@1",
+        "id": null,
+        "mode": "Generate",
+        "domain": "Existence",
+        "grain": "Figure",
+        "operator": "INS",
+        "terrain": "Entity",
+        "stance": "Making",
+        "witness": "observation:82:0",
+        "consequence": {
+          "kind": "referent_admitted",
+          "ref": "ref:auto:i’ll"
+        },
+        "inputs": [],
+        "outputs": [
+          "ref:auto:i’ll"
+        ],
+        "payload": {
+          "action": "graph-object",
+          "value": {
+            "schema": "EOReferent@1",
+            "id": "ref:auto:i’ll",
+            "surfaces": [
+              "I’ll"
+            ],
+            "provenance": [
+              {
+                "giver": "surfaces/discoverReferents",
+                "tier": "engine",
+                "basis": "name-variant coreference"
+              }
+            ]
           }
         }
       },
@@ -62885,6 +65614,96 @@
     ],
     "graphEntries": [
       {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:white_rabbit",
+        "surfaces": [
+          "White Rabbit",
+          "White"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          },
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:dinah",
+        "surfaces": [
+          "dinah"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:i’ll",
+        "surfaces": [
+          "I’ll"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:latitude",
+        "surfaces": [
+          "Latitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:i’ve",
+        "surfaces": [
+          "Longitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:oh",
+        "surfaces": [
+          "Oh"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
         "schema": "EOLexicalOccurrence@1",
         "id": "lex:83:0",
         "surfaceKey": "surface:way",
@@ -63015,7 +65834,7 @@
         "referent": "ref:auto:i’ve",
         "referentSurface": "Longitude",
         "activation": 11.471335658528103,
-        "margin": 0.9544906239051363,
+        "margin": 0.9427084377066719,
         "sentenceOrder": 83,
         "witness": "text:83:anchor:the_same_size",
         "provenance": {
@@ -63034,7 +65853,7 @@
         "referent": "ref:auto:i’ve",
         "referentSurface": "Longitude",
         "activation": 11.471335658528103,
-        "margin": 0.9544906239051363,
+        "margin": 0.9427084377066719,
         "sentenceOrder": 83,
         "witness": "text:83:anchor:her_hand",
         "provenance": {
@@ -63053,7 +65872,7 @@
         "referent": "ref:auto:i’ve",
         "referentSurface": "Longitude",
         "activation": 11.471335658528103,
-        "margin": 0.9544906239051363,
+        "margin": 0.9427084377066719,
         "sentenceOrder": 83,
         "witness": "text:83:anchor:her_head",
         "provenance": {
@@ -63072,7 +65891,7 @@
         "referent": "ref:auto:i’ve",
         "referentSurface": "Longitude",
         "activation": 11.471335658528103,
-        "margin": 0.9544906239051363,
+        "margin": 0.9427084377066719,
         "sentenceOrder": 83,
         "witness": "text:83:anchor:the_way",
         "provenance": {
@@ -64861,6 +67680,96 @@
       }
     ],
     "graphEntries": [
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:white_rabbit",
+        "surfaces": [
+          "White Rabbit",
+          "White"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          },
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:dinah",
+        "surfaces": [
+          "dinah"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:i’ll",
+        "surfaces": [
+          "I’ll"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:latitude",
+        "surfaces": [
+          "Latitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:i’ve",
+        "surfaces": [
+          "Longitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:oh",
+        "surfaces": [
+          "Oh"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
       {
         "schema": "EOLexicalOccurrence@1",
         "id": "lex:84:0",

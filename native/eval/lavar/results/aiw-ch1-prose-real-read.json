@@ -14,11 +14,11 @@
   },
   "holograph": {
     "relationEdges": 264,
-    "referentBindings": 32,
-    "chainSites": 0,
-    "pairTypes": 0,
+    "referentBindings": 114,
+    "chainSites": 34,
+    "pairTypes": 31,
     "repeatedPairTypes": 0,
-    "projectedBindings": 32,
+    "projectedBindings": 25,
     "graphEntries": [
       {
         "schema": "EOLexicalOccurrence@1",
@@ -82,13 +82,12 @@
         "relation": "was",
         "participants": [
           {
-            "ref": "occ:1:0:subject",
-            "occurrence": "occ:1:0:subject",
-            "surfaceKey": "surface:her_sister",
+            "ref": "identity:poss:sister:her",
             "role": "subject",
-            "standing": "unresolved_surface",
+            "standing": "hypothesis",
             "surface": "her sister",
-            "candidateReferents": []
+            "resolution": "possessive_holding",
+            "possessiveAnchor": "her"
           },
           {
             "ref": "occ:1:0:object",
@@ -690,6 +689,20 @@
         }
       },
       {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:alice",
+        "surfaces": [
+          "Alice"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
         "schema": "EOLexicalOccurrence@1",
         "id": "lex:2:0",
         "surfaceKey": "surface:mind",
@@ -1270,20 +1283,22 @@
       },
       {
         "schema": "EOReferent@1",
-        "id": "ref:auto:alice",
+        "id": "ref:auto:white_rabbit",
         "surfaces": [
-          "Alice"
+          "White Rabbit",
+          "White"
         ],
         "provenance": [
           {
             "giver": "surfaces/discoverReferents",
             "tier": "engine",
             "basis": "name-variant coreference"
+          },
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
           }
-        ],
-        "fedBy": [
-          "mention:3:ref_auto_alice",
-          "gap:referent:ref_auto_alice"
         ]
       },
       {
@@ -4219,6 +4234,20 @@
         }
       },
       {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:oh",
+        "surfaces": [
+          "Oh"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
         "schema": "EOLexicalOccurrence@1",
         "id": "lex:10:0",
         "surfaceKey": "surface:sides",
@@ -5881,6 +5910,20 @@
         }
       },
       {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:i’ve",
+        "surfaces": [
+          "Longitude"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
         "schema": "EOIdentityHypothesis@1",
         "id": "identity:descriptor:this_time",
         "surface": "this time",
@@ -6509,36 +6552,6 @@
             "giver": "UD_English-EWT via bin/priors/pos/en-ud-ewt.json"
           }
         }
-      },
-      {
-        "schema": "EOReferent@1",
-        "id": "ref:auto:i’ve",
-        "surfaces": [
-          "Longitude I’ve",
-          "I’ve",
-          "Longitude"
-        ],
-        "provenance": [
-          {
-            "giver": "surfaces/discoverReferents",
-            "tier": "engine",
-            "basis": "name-variant coreference"
-          },
-          {
-            "giver": "surfaces/discoverReferents",
-            "tier": "engine",
-            "basis": "name-variant coreference"
-          },
-          {
-            "giver": "surfaces/discoverReferents",
-            "tier": "engine",
-            "basis": "name-variant coreference"
-          }
-        ],
-        "fedBy": [
-          "mention:22:ref_auto_i_ve",
-          "gap:referent:ref_auto_i_ve"
-        ]
       },
       {
         "schema": "EOMention@1",
@@ -8176,13 +8189,11 @@
         "id": "identity:longitude:this_time",
         "left": "longitude",
         "right": "this time",
-        "standing": "distinct",
+        "standing": "live_hypothesis",
         "supportRefs": [
           "text:27:anchor:this_time"
         ],
-        "attackRefs": [
-          "text:60:anchor:this_time"
-        ],
+        "attackRefs": [],
         "giver": "text/anchoring::createDescriptorAnchoring"
       },
       {
@@ -8196,7 +8207,7 @@
         "openedAt": null,
         "scope": null,
         "consequences": [],
-        "state": "violated"
+        "state": "open"
       },
       {
         "schema": "EOIdentityAlternative@1",
@@ -9357,6 +9368,20 @@
         }
       },
       {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:dinah",
+        "surfaces": [
+          "dinah"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
         "schema": "EOHyperedge@1",
         "id": "edge:text:38:0",
         "relation": "are",
@@ -10436,6 +10461,18 @@
         }
       },
       {
+        "schema": "EOMention@1",
+        "id": "mention:44:ref_auto_dinah",
+        "referent": "ref:auto:dinah",
+        "encounterRef": "encounter:44",
+        "anchor": {
+          "start": 4741,
+          "end": 4939
+        },
+        "witness": "text:44",
+        "source": "file:aiw-ch1-prose.txt"
+      },
+      {
         "schema": "EOLexicalOccurrence@1",
         "id": "lex:44:0",
         "surfaceKey": "surface:dream",
@@ -10489,6 +10526,15 @@
         "encounterRef": "encounter:44",
         "offset": 193,
         "witness": "text:44:193"
+      },
+      {
+        "schema": "EOReferentGap@1",
+        "id": "gap:referent:ref_auto_dinah",
+        "reason": "pronoun_and_descriptor_mentions_unresolved",
+        "referent": "ref:auto:dinah",
+        "tier": "model",
+        "needsWitness": true,
+        "detail": "name-variant coreference is engine-tier and complete; binding pronouns and definite descriptions to this referent is not derivable (eoreader5 measured distributional coref failing twice). Supply a per-text prior to close this gap."
       },
       {
         "schema": "EOReferentOccurrence@1",
@@ -11716,10 +11762,10 @@
         "determination": "definite",
         "occurrenceRef": "ref-occ:encounter:49:direct:1:56",
         "participantOccurrence": null,
-        "referent": "ref:auto:i’ve",
-        "referentSurface": "Longitude",
-        "activation": 8.82176338399891,
-        "margin": 0.9556447240813033,
+        "referent": "ref:auto:dinah",
+        "referentSurface": "dinah",
+        "activation": 18.853453201082818,
+        "margin": 0.5320876610820428,
         "sentenceOrder": 49,
         "witness": "text:49:anchor:the_wind",
         "provenance": {
@@ -11735,10 +11781,10 @@
         "determination": "possessive",
         "occurrenceRef": "ref-occ:encounter:49:direct:3:130",
         "participantOccurrence": null,
-        "referent": "ref:auto:i’ve",
-        "referentSurface": "Longitude",
-        "activation": 8.82176338399891,
-        "margin": 0.9556447240813033,
+        "referent": "ref:auto:dinah",
+        "referentSurface": "dinah",
+        "activation": 18.853453201082818,
+        "margin": 0.5320876610820428,
         "sentenceOrder": 49,
         "witness": "text:49:anchor:my_ears",
         "provenance": {
@@ -11969,8 +12015,8 @@
       },
       {
         "schema": "EOIdentityAlternative@1",
-        "id": "identity:longitude:the_wind",
-        "left": "longitude",
+        "id": "identity:dinah:the_wind",
+        "left": "dinah",
         "right": "the wind",
         "standing": "live_hypothesis",
         "supportRefs": [
@@ -11981,11 +12027,11 @@
       },
       {
         "schema": "EOExpectation@1",
-        "id": "expectation:identity:longitude:the_wind",
-        "hypothesis": "corroboration expected: longitude <-> the wind",
+        "id": "expectation:identity:dinah:the_wind",
+        "hypothesis": "corroboration expected: dinah <-> the wind",
         "giver": "text/anchoring::createDescriptorAnchoring",
         "grounds": [
-          "identity:longitude:the_wind"
+          "identity:dinah:the_wind"
         ],
         "openedAt": null,
         "scope": null,
@@ -11994,8 +12040,8 @@
       },
       {
         "schema": "EOIdentityAlternative@1",
-        "id": "identity:longitude:my_ears",
-        "left": "longitude",
+        "id": "identity:dinah:my_ears",
+        "left": "dinah",
         "right": "my ears",
         "standing": "live_hypothesis",
         "supportRefs": [
@@ -12006,11 +12052,11 @@
       },
       {
         "schema": "EOExpectation@1",
-        "id": "expectation:identity:longitude:my_ears",
-        "hypothesis": "corroboration expected: longitude <-> my ears",
+        "id": "expectation:identity:dinah:my_ears",
+        "hypothesis": "corroboration expected: dinah <-> my ears",
         "giver": "text/anchoring::createDescriptorAnchoring",
         "grounds": [
-          "identity:longitude:my_ears"
+          "identity:dinah:my_ears"
         ],
         "openedAt": null,
         "scope": null,
@@ -12115,13 +12161,14 @@
         "relation": "was",
         "participants": [
           {
-            "ref": "occ:50:2:subject",
-            "occurrence": "occ:50:2:subject",
-            "surfaceKey": "surface:rabbit",
+            "ref": "ref:auto:white_rabbit",
             "role": "subject",
-            "standing": "unresolved_surface",
+            "standing": "referent",
             "surface": "Rabbit",
-            "candidateReferents": []
+            "resolution": "containment_surface_in_span",
+            "matchedSurfaces": [
+              "white rabbit"
+            ]
           },
           {
             "ref": "occ:50:2:object",
@@ -12393,6 +12440,15 @@
         "encounterRef": "encounter:50",
         "offset": 184,
         "witness": "text:50:184"
+      },
+      {
+        "schema": "EOReferentGap@1",
+        "id": "gap:referent:ref_auto_white_rabbit",
+        "reason": "pronoun_and_descriptor_mentions_unresolved",
+        "referent": "ref:auto:white_rabbit",
+        "tier": "model",
+        "needsWitness": true,
+        "detail": "name-variant coreference is engine-tier and complete; binding pronouns and definite descriptions to this referent is not derivable (eoreader5 measured distributional coref failing twice). Supply a per-text prior to close this gap."
       },
       {
         "schema": "EOReferentOccurrence@1",
@@ -15023,13 +15079,12 @@
         "relation": "would",
         "participants": [
           {
-            "ref": "occ:56:3:subject",
-            "occurrence": "occ:56:3:subject",
-            "surfaceKey": "surface:my_head",
+            "ref": "identity:poss:head:my",
             "role": "subject",
-            "standing": "unresolved_surface",
+            "standing": "hypothesis",
             "surface": "my head",
-            "candidateReferents": []
+            "resolution": "possessive_holding",
+            "possessiveAnchor": "my"
           },
           {
             "ref": "occ:56:3:object",
@@ -15212,25 +15267,6 @@
       },
       {
         "schema": "EOAnchorEvidence@1",
-        "id": "anchor:56:my_head",
-        "descriptor": "my head",
-        "determination": "possessive",
-        "occurrenceRef": "ref-occ:encounter:56:direct:5:193",
-        "participantOccurrence": null,
-        "referent": "ref:auto:i’ve",
-        "referentSurface": "Longitude",
-        "activation": 6.3281830953283205,
-        "margin": 0.22237851865014152,
-        "sentenceOrder": 56,
-        "witness": "text:56:anchor:my_head",
-        "provenance": {
-          "giver": "text/anchoring::createDescriptorAnchoring",
-          "tier": "engine",
-          "basis": "one-hop activation recall over the already-admitted cast, floors declared by the caller"
-        }
-      },
-      {
-        "schema": "EOAnchorEvidence@1",
         "id": "anchor:56:those_beds",
         "descriptor": "those beds",
         "determination": "definite",
@@ -15288,6 +15324,25 @@
       },
       {
         "schema": "EOAnchorEvidence@1",
+        "id": "anchor:56:my_head",
+        "descriptor": "my head",
+        "determination": "possessive",
+        "occurrenceRef": "ref-occ:encounter:56:direct:5:193",
+        "participantOccurrence": null,
+        "referent": "ref:auto:i’ve",
+        "referentSurface": "Longitude",
+        "activation": 6.3281830953283205,
+        "margin": 0.22237851865014152,
+        "sentenceOrder": 56,
+        "witness": "text:56:anchor:my_head",
+        "provenance": {
+          "giver": "text/anchoring::createDescriptorAnchoring",
+          "tier": "engine",
+          "basis": "one-hop activation recall over the already-admitted cast, floors declared by the caller"
+        }
+      },
+      {
+        "schema": "EOAnchorEvidence@1",
         "id": "anchor:56:my_shoulders",
         "descriptor": "my shoulders",
         "determination": "possessive",
@@ -15304,24 +15359,6 @@
           "tier": "engine",
           "basis": "one-hop activation recall over the already-admitted cast, floors declared by the caller"
         }
-      },
-      {
-        "schema": "EOReferentOccurrence@1",
-        "id": "ref-occ:encounter:56:occ:56:3:subject",
-        "surface": "my head",
-        "canonicalSurface": "my head",
-        "head": "head",
-        "determination": "possessive",
-        "role": "subject",
-        "encounterRef": "encounter:56",
-        "edge": "edge:text:56:3",
-        "relation": "would",
-        "standing": "unresolved_identity",
-        "provenance": {
-          "giver": "text/individuation::descriptorOccurrence",
-          "basis": "determiner-marked unresolved relation participant"
-        },
-        "participantOccurrence": "occ:56:3:subject"
       },
       {
         "schema": "EOReferentOccurrence@1",
@@ -15627,91 +15664,6 @@
         }
       },
       {
-        "schema": "EOIdentityHypothesis@1",
-        "id": "identity:descriptor:my_head",
-        "surface": "my head",
-        "determinations": [
-          "possessive"
-        ],
-        "occurrenceRefs": [
-          "ref-occ:file:aiw-ch1-prose.txt:6598:direct:5:193",
-          "ref-occ:encounter:56:occ:56:3:subject"
-        ],
-        "encounterRefs": [
-          "file:aiw-ch1-prose.txt:6598",
-          "encounter:56"
-        ],
-        "relationContexts": [
-          {
-            "edge": null,
-            "relation": null,
-            "role": null
-          },
-          {
-            "edge": "edge:text:56:3",
-            "relation": "would",
-            "role": "subject"
-          }
-        ],
-        "standing": "live_hypothesis",
-        "provenance": {
-          "giver": "text/individuation::descriptorHypotheses",
-          "basis": "same descriptor recurred across distinct encounters; identity remains defeasible"
-        }
-      },
-      {
-        "schema": "EOIdentityAlternative@1",
-        "id": "identity:longitude:my_head",
-        "left": "longitude",
-        "right": "my head",
-        "standing": "live_hypothesis",
-        "supportRefs": [
-          "text:56:anchor:my_head"
-        ],
-        "attackRefs": [],
-        "giver": "text/anchoring::createDescriptorAnchoring"
-      },
-      {
-        "schema": "EOExpectation@1",
-        "id": "expectation:identity:longitude:my_head",
-        "hypothesis": "corroboration expected: longitude <-> my head",
-        "giver": "text/anchoring::createDescriptorAnchoring",
-        "grounds": [
-          "identity:longitude:my_head"
-        ],
-        "openedAt": null,
-        "scope": null,
-        "consequences": [],
-        "state": "strengthened"
-      },
-      {
-        "schema": "EOCanonicalHyperedge@1",
-        "id": "canonical:edge:text:56:3",
-        "sourceEdge": "edge:text:56:3",
-        "relation": "would",
-        "participants": [
-          {
-            "role": "subject",
-            "value": "my head",
-            "alternatives": [
-              "my head"
-            ]
-          },
-          {
-            "role": "object",
-            "value": "go through",
-            "alternatives": [
-              "go through"
-            ]
-          }
-        ],
-        "witness": "text:56:193",
-        "scope": {
-          "sequencePosition": 56,
-          "offset": 193
-        }
-      },
-      {
         "schema": "EOIdentityAlternative@1",
         "id": "identity:longitude:those_beds",
         "left": "longitude",
@@ -15789,6 +15741,31 @@
       },
       {
         "schema": "EOIdentityAlternative@1",
+        "id": "identity:longitude:my_head",
+        "left": "longitude",
+        "right": "my head",
+        "standing": "live_hypothesis",
+        "supportRefs": [
+          "text:56:anchor:my_head"
+        ],
+        "attackRefs": [],
+        "giver": "text/anchoring::createDescriptorAnchoring"
+      },
+      {
+        "schema": "EOExpectation@1",
+        "id": "expectation:identity:longitude:my_head",
+        "hypothesis": "corroboration expected: longitude <-> my head",
+        "giver": "text/anchoring::createDescriptorAnchoring",
+        "grounds": [
+          "identity:longitude:my_head"
+        ],
+        "openedAt": null,
+        "scope": null,
+        "consequences": [],
+        "state": "open"
+      },
+      {
+        "schema": "EOIdentityAlternative@1",
         "id": "identity:longitude:my_shoulders",
         "left": "longitude",
         "right": "my shoulders",
@@ -15857,24 +15834,6 @@
             "giver": "UD_English-EWT via bin/priors/pos/en-ud-ewt.json"
           }
         }
-      },
-      {
-        "schema": "EOReferent@1",
-        "id": "ref:auto:oh",
-        "surfaces": [
-          "Oh"
-        ],
-        "provenance": [
-          {
-            "giver": "surfaces/discoverReferents",
-            "tier": "engine",
-            "basis": "name-variant coreference"
-          }
-        ],
-        "fedBy": [
-          "mention:57:ref_auto_oh",
-          "gap:referent:ref_auto_oh"
-        ]
       },
       {
         "schema": "EOMention@1",
@@ -16007,6 +15966,39 @@
         "occurrenceRefs": [
           "ref-occ:encounter:56:direct:4:167",
           "ref-occ:file:aiw-ch1-prose.txt:6598:direct:4:167"
+        ],
+        "encounterRefs": [
+          "encounter:56",
+          "file:aiw-ch1-prose.txt:6598"
+        ],
+        "relationContexts": [
+          {
+            "edge": null,
+            "relation": null,
+            "role": null
+          },
+          {
+            "edge": null,
+            "relation": null,
+            "role": null
+          }
+        ],
+        "standing": "live_hypothesis",
+        "provenance": {
+          "giver": "text/individuation::descriptorHypotheses",
+          "basis": "same descriptor recurred across distinct encounters; identity remains defeasible"
+        }
+      },
+      {
+        "schema": "EOIdentityHypothesis@1",
+        "id": "identity:descriptor:my_head",
+        "surface": "my head",
+        "determinations": [
+          "possessive"
+        ],
+        "occurrenceRefs": [
+          "ref-occ:encounter:56:direct:5:193",
+          "ref-occ:file:aiw-ch1-prose.txt:6598:direct:5:193"
         ],
         "encounterRefs": [
           "encounter:56",
@@ -16995,101 +16987,6 @@
         "witness": "text:60:415"
       },
       {
-        "schema": "EOAnchorEvidence@1",
-        "id": "anchor:60:the_table",
-        "descriptor": "the table",
-        "determination": "definite",
-        "occurrenceRef": "ref-occ:encounter:60:direct:1:77",
-        "participantOccurrence": null,
-        "referent": "ref:auto:oh",
-        "referentSurface": "Oh",
-        "activation": 9.76174515511362,
-        "margin": 0.7755471250833612,
-        "sentenceOrder": 60,
-        "witness": "text:60:anchor:the_table",
-        "provenance": {
-          "giver": "text/anchoring::createDescriptorAnchoring",
-          "tier": "engine",
-          "basis": "one-hop activation recall over the already-admitted cast, floors declared by the caller"
-        }
-      },
-      {
-        "schema": "EOAnchorEvidence@1",
-        "id": "anchor:60:this_time",
-        "descriptor": "this time",
-        "determination": "definite",
-        "occurrenceRef": "ref-occ:encounter:60:direct:5:205",
-        "participantOccurrence": null,
-        "referent": "ref:auto:oh",
-        "referentSurface": "Oh",
-        "activation": 9.76174515511362,
-        "margin": 0.7755471250833612,
-        "sentenceOrder": 60,
-        "witness": "text:60:anchor:this_time",
-        "provenance": {
-          "giver": "text/anchoring::createDescriptorAnchoring",
-          "tier": "engine",
-          "basis": "one-hop activation recall over the already-admitted cast, floors declared by the caller"
-        }
-      },
-      {
-        "schema": "EOAnchorEvidence@1",
-        "id": "anchor:60:the_neck",
-        "descriptor": "the neck",
-        "determination": "definite",
-        "occurrenceRef": "ref-occ:encounter:60:direct:7:311",
-        "participantOccurrence": null,
-        "referent": "ref:auto:oh",
-        "referentSurface": "Oh",
-        "activation": 9.76174515511362,
-        "margin": 0.7755471250833612,
-        "sentenceOrder": 60,
-        "witness": "text:60:anchor:the_neck",
-        "provenance": {
-          "giver": "text/anchoring::createDescriptorAnchoring",
-          "tier": "engine",
-          "basis": "one-hop activation recall over the already-admitted cast, floors declared by the caller"
-        }
-      },
-      {
-        "schema": "EOAnchorEvidence@1",
-        "id": "anchor:60:the_bottle",
-        "descriptor": "the bottle",
-        "determination": "definite",
-        "occurrenceRef": "ref-occ:encounter:60:direct:8:323",
-        "participantOccurrence": null,
-        "referent": "ref:auto:oh",
-        "referentSurface": "Oh",
-        "activation": 9.76174515511362,
-        "margin": 0.7755471250833612,
-        "sentenceOrder": 60,
-        "witness": "text:60:anchor:the_bottle",
-        "provenance": {
-          "giver": "text/anchoring::createDescriptorAnchoring",
-          "tier": "engine",
-          "basis": "one-hop activation recall over the already-admitted cast, floors declared by the caller"
-        }
-      },
-      {
-        "schema": "EOAnchorEvidence@1",
-        "id": "anchor:60:the_words",
-        "descriptor": "the words",
-        "determination": "definite",
-        "occurrenceRef": "ref-occ:encounter:60:direct:10:358",
-        "participantOccurrence": null,
-        "referent": "ref:auto:oh",
-        "referentSurface": "Oh",
-        "activation": 9.76174515511362,
-        "margin": 0.7755471250833612,
-        "sentenceOrder": 60,
-        "witness": "text:60:anchor:the_words",
-        "provenance": {
-          "giver": "text/anchoring::createDescriptorAnchoring",
-          "tier": "engine",
-          "basis": "one-hop activation recall over the already-admitted cast, floors declared by the caller"
-        }
-      },
-      {
         "schema": "EOReferentOccurrence@1",
         "id": "ref-occ:encounter:60:occ:60:6:object",
         "surface": "a paper label",
@@ -17479,139 +17376,6 @@
           "giver": "text/individuation::descriptorHypotheses",
           "basis": "same descriptor recurred across distinct encounters; identity remains defeasible"
         }
-      },
-      {
-        "schema": "EOIdentityAlternative@1",
-        "id": "identity:oh:the_table",
-        "left": "oh",
-        "right": "the table",
-        "standing": "live_hypothesis",
-        "supportRefs": [
-          "text:60:anchor:the_table",
-          "text:74:anchor:the_table"
-        ],
-        "attackRefs": [],
-        "giver": "text/anchoring::createDescriptorAnchoring"
-      },
-      {
-        "schema": "EOExpectation@1",
-        "id": "expectation:identity:oh:the_table",
-        "hypothesis": "corroboration expected: oh <-> the table",
-        "giver": "text/anchoring::createDescriptorAnchoring",
-        "grounds": [
-          "identity:oh:the_table"
-        ],
-        "openedAt": null,
-        "scope": null,
-        "consequences": [],
-        "state": "fulfilled"
-      },
-      {
-        "schema": "EOIdentityAlternative@1",
-        "id": "identity:oh:this_time",
-        "left": "oh",
-        "right": "this time",
-        "standing": "live_hypothesis",
-        "supportRefs": [
-          "text:60:anchor:this_time"
-        ],
-        "attackRefs": [],
-        "giver": "text/anchoring::createDescriptorAnchoring"
-      },
-      {
-        "schema": "EOExpectation@1",
-        "id": "expectation:identity:oh:this_time",
-        "hypothesis": "corroboration expected: oh <-> this time",
-        "giver": "text/anchoring::createDescriptorAnchoring",
-        "grounds": [
-          "identity:oh:this_time"
-        ],
-        "openedAt": null,
-        "scope": null,
-        "consequences": [],
-        "state": "open"
-      },
-      {
-        "schema": "EOIdentityAlternative@1",
-        "id": "identity:oh:the_neck",
-        "left": "oh",
-        "right": "the neck",
-        "standing": "live_hypothesis",
-        "supportRefs": [
-          "text:60:anchor:the_neck"
-        ],
-        "attackRefs": [],
-        "giver": "text/anchoring::createDescriptorAnchoring"
-      },
-      {
-        "schema": "EOExpectation@1",
-        "id": "expectation:identity:oh:the_neck",
-        "hypothesis": "corroboration expected: oh <-> the neck",
-        "giver": "text/anchoring::createDescriptorAnchoring",
-        "grounds": [
-          "identity:oh:the_neck"
-        ],
-        "openedAt": null,
-        "scope": null,
-        "consequences": [],
-        "state": "open"
-      },
-      {
-        "schema": "EOIdentityAlternative@1",
-        "id": "identity:oh:the_bottle",
-        "left": "oh",
-        "right": "the bottle",
-        "standing": "live_hypothesis",
-        "supportRefs": [
-          "text:60:anchor:the_bottle"
-        ],
-        "attackRefs": [],
-        "giver": "text/anchoring::createDescriptorAnchoring"
-      },
-      {
-        "schema": "EOExpectation@1",
-        "id": "expectation:identity:oh:the_bottle",
-        "hypothesis": "corroboration expected: oh <-> the bottle",
-        "giver": "text/anchoring::createDescriptorAnchoring",
-        "grounds": [
-          "identity:oh:the_bottle"
-        ],
-        "openedAt": null,
-        "scope": null,
-        "consequences": [],
-        "state": "open"
-      },
-      {
-        "schema": "EOIdentityAlternative@1",
-        "id": "identity:oh:the_words",
-        "left": "oh",
-        "right": "the words",
-        "standing": "live_hypothesis",
-        "supportRefs": [
-          "text:60:anchor:the_words"
-        ],
-        "attackRefs": [],
-        "giver": "text/anchoring::createDescriptorAnchoring"
-      },
-      {
-        "schema": "EOExpectation@1",
-        "id": "expectation:identity:oh:the_words",
-        "hypothesis": "corroboration expected: oh <-> the words",
-        "giver": "text/anchoring::createDescriptorAnchoring",
-        "grounds": [
-          "identity:oh:the_words"
-        ],
-        "openedAt": null,
-        "scope": null,
-        "consequences": [],
-        "state": "open"
-      },
-      {
-        "schema": "EOExclusion@1",
-        "id": "exclusion:identity:longitude:this_time",
-        "kind": "identity_refused",
-        "target": "identity:longitude:this_time",
-        "witness": "text:60:anchor:this_time"
       },
       {
         "schema": "EOHyperedge@1",
@@ -20949,44 +20713,6 @@
         "witness": "text:72:140"
       },
       {
-        "schema": "EOAnchorEvidence@1",
-        "id": "anchor:72:the_flame",
-        "descriptor": "the flame",
-        "determination": "definite",
-        "occurrenceRef": "ref-occ:encounter:72:direct:0:28",
-        "participantOccurrence": null,
-        "referent": "ref:auto:oh",
-        "referentSurface": "Oh",
-        "activation": 14.096098392339364,
-        "margin": 0.9499821562142082,
-        "sentenceOrder": 72,
-        "witness": "text:72:anchor:the_flame",
-        "provenance": {
-          "giver": "text/anchoring::createDescriptorAnchoring",
-          "tier": "engine",
-          "basis": "one-hop activation recall over the already-admitted cast, floors declared by the caller"
-        }
-      },
-      {
-        "schema": "EOAnchorEvidence@1",
-        "id": "anchor:72:the_candle",
-        "descriptor": "the candle",
-        "determination": "definite",
-        "occurrenceRef": "ref-occ:encounter:72:direct:2:64",
-        "participantOccurrence": null,
-        "referent": "ref:auto:oh",
-        "referentSurface": "Oh",
-        "activation": 14.096098392339364,
-        "margin": 0.9499821562142082,
-        "sentenceOrder": 72,
-        "witness": "text:72:anchor:the_candle",
-        "provenance": {
-          "giver": "text/anchoring::createDescriptorAnchoring",
-          "tier": "engine",
-          "basis": "one-hop activation recall over the already-admitted cast, floors declared by the caller"
-        }
-      },
-      {
         "schema": "EOReferentOccurrence@1",
         "id": "ref-occ:encounter:72:direct:0:28",
         "surface": "the flame",
@@ -21121,56 +20847,6 @@
           "giver": "text/individuation::directDescriptorOccurrences",
           "basis": "closed-class determiner plus witnessed lexical form"
         }
-      },
-      {
-        "schema": "EOIdentityAlternative@1",
-        "id": "identity:oh:the_flame",
-        "left": "oh",
-        "right": "the flame",
-        "standing": "live_hypothesis",
-        "supportRefs": [
-          "text:72:anchor:the_flame"
-        ],
-        "attackRefs": [],
-        "giver": "text/anchoring::createDescriptorAnchoring"
-      },
-      {
-        "schema": "EOExpectation@1",
-        "id": "expectation:identity:oh:the_flame",
-        "hypothesis": "corroboration expected: oh <-> the flame",
-        "giver": "text/anchoring::createDescriptorAnchoring",
-        "grounds": [
-          "identity:oh:the_flame"
-        ],
-        "openedAt": null,
-        "scope": null,
-        "consequences": [],
-        "state": "open"
-      },
-      {
-        "schema": "EOIdentityAlternative@1",
-        "id": "identity:oh:the_candle",
-        "left": "oh",
-        "right": "the candle",
-        "standing": "live_hypothesis",
-        "supportRefs": [
-          "text:72:anchor:the_candle"
-        ],
-        "attackRefs": [],
-        "giver": "text/anchoring::createDescriptorAnchoring"
-      },
-      {
-        "schema": "EOExpectation@1",
-        "id": "expectation:identity:oh:the_candle",
-        "hypothesis": "corroboration expected: oh <-> the candle",
-        "giver": "text/anchoring::createDescriptorAnchoring",
-        "grounds": [
-          "identity:oh:the_candle"
-        ],
-        "openedAt": null,
-        "scope": null,
-        "consequences": [],
-        "state": "open"
       },
       {
         "schema": "EOHyperedge@1",
@@ -21722,13 +21398,12 @@
             "candidateReferents": []
           },
           {
-            "ref": "occ:74:7:object",
-            "occurrence": "occ:74:7:object",
-            "surfaceKey": "surface:her_best",
+            "ref": "identity:poss:best:her",
             "role": "object",
-            "standing": "unresolved_surface",
+            "standing": "hypothesis",
             "surface": "her best",
-            "candidateReferents": []
+            "resolution": "possessive_holding",
+            "possessiveAnchor": "her"
           }
         ],
         "witness": "text:74:214",
@@ -22013,7 +21688,7 @@
         "referent": "ref:auto:oh",
         "referentSurface": "Oh",
         "activation": 10.106112510805547,
-        "margin": 0.8522232592449236,
+        "margin": 0.2265856213779857,
         "sentenceOrder": 74,
         "witness": "text:74:anchor:the_door",
         "provenance": {
@@ -22032,7 +21707,7 @@
         "referent": "ref:auto:oh",
         "referentSurface": "Oh",
         "activation": 10.106112510805547,
-        "margin": 0.8522232592449236,
+        "margin": 0.2265856213779857,
         "sentenceOrder": 74,
         "witness": "text:74:anchor:the_table",
         "provenance": {
@@ -22051,7 +21726,7 @@
         "referent": "ref:auto:oh",
         "referentSurface": "Oh",
         "activation": 10.106112510805547,
-        "margin": 0.8522232592449236,
+        "margin": 0.2265856213779857,
         "sentenceOrder": 74,
         "witness": "text:74:anchor:the_glass",
         "provenance": {
@@ -22070,7 +21745,7 @@
         "referent": "ref:auto:oh",
         "referentSurface": "Oh",
         "activation": 10.106112510805547,
-        "margin": 0.8522232592449236,
+        "margin": 0.2265856213779857,
         "sentenceOrder": 74,
         "witness": "text:74:anchor:the_legs",
         "provenance": {
@@ -22384,6 +22059,31 @@
           "sequencePosition": 55,
           "offset": 0
         }
+      },
+      {
+        "schema": "EOIdentityAlternative@1",
+        "id": "identity:oh:the_table",
+        "left": "oh",
+        "right": "the table",
+        "standing": "live_hypothesis",
+        "supportRefs": [
+          "text:74:anchor:the_table"
+        ],
+        "attackRefs": [],
+        "giver": "text/anchoring::createDescriptorAnchoring"
+      },
+      {
+        "schema": "EOExpectation@1",
+        "id": "expectation:identity:oh:the_table",
+        "hypothesis": "corroboration expected: oh <-> the table",
+        "giver": "text/anchoring::createDescriptorAnchoring",
+        "grounds": [
+          "identity:oh:the_table"
+        ],
+        "openedAt": null,
+        "scope": null,
+        "consequences": [],
+        "state": "strengthened"
       },
       {
         "schema": "EOIdentityAlternative@1",
@@ -23529,13 +23229,12 @@
         "relation": "fell",
         "participants": [
           {
-            "ref": "occ:80:0:subject",
-            "occurrence": "occ:80:0:subject",
-            "surfaceKey": "surface:her_eye",
+            "ref": "identity:poss:eye:her",
             "role": "subject",
-            "standing": "unresolved_surface",
+            "standing": "hypothesis",
             "surface": "her eye",
-            "candidateReferents": []
+            "resolution": "possessive_holding",
+            "possessiveAnchor": "her"
           },
           {
             "ref": "occ:80:0:object",
@@ -24582,6 +24281,20 @@
         }
       },
       {
+        "schema": "EOReferent@1",
+        "id": "ref:auto:i’ll",
+        "surfaces": [
+          "I’ll"
+        ],
+        "provenance": [
+          {
+            "giver": "surfaces/discoverReferents",
+            "tier": "engine",
+            "basis": "name-variant coreference"
+          }
+        ]
+      },
+      {
         "schema": "EOLexicalOccurrence@1",
         "id": "lex:82:0",
         "surfaceKey": "surface:bit",
@@ -25257,7 +24970,7 @@
         "referent": "ref:auto:i’ve",
         "referentSurface": "Longitude",
         "activation": 11.471335658528103,
-        "margin": 0.9544906239051363,
+        "margin": 0.9427084377066719,
         "sentenceOrder": 83,
         "witness": "text:83:anchor:the_same_size",
         "provenance": {
@@ -25276,7 +24989,7 @@
         "referent": "ref:auto:i’ve",
         "referentSurface": "Longitude",
         "activation": 11.471335658528103,
-        "margin": 0.9544906239051363,
+        "margin": 0.9427084377066719,
         "sentenceOrder": 83,
         "witness": "text:83:anchor:her_hand",
         "provenance": {
@@ -25295,7 +25008,7 @@
         "referent": "ref:auto:i’ve",
         "referentSurface": "Longitude",
         "activation": 11.471335658528103,
-        "margin": 0.9544906239051363,
+        "margin": 0.9427084377066719,
         "sentenceOrder": 83,
         "witness": "text:83:anchor:her_head",
         "provenance": {
@@ -25314,7 +25027,7 @@
         "referent": "ref:auto:i’ve",
         "referentSurface": "Longitude",
         "activation": 11.471335658528103,
-        "margin": 0.9544906239051363,
+        "margin": 0.9427084377066719,
         "sentenceOrder": 83,
         "witness": "text:83:anchor:the_way",
         "provenance": {
@@ -25858,6 +25571,1754 @@
         "provenance": {
           "giver": "text/individuation::descriptorHypotheses",
           "basis": "same descriptor recurred across distinct encounters; identity remains defeasible"
+        }
+      },
+      {
+        "schema": "EOIdentityHypothesis@1",
+        "id": "identity:poss:sister:her",
+        "surface": "her sister",
+        "canonicalSurface": "sister",
+        "parameter": {
+          "slot": "sister",
+          "of": "her"
+        },
+        "standing": "open",
+        "adjudicatedBy": "read-real.mjs possessive-holding — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs possessive-holding",
+          "basis": "S88's fourth signal — a common noun under a possessive determiner is a parameterized being in HOLDING; the possessive resolves to its owner, the slot awaits a witness; ALL mentions share this one holding",
+          "canonicalOccurrence": "sister"
+        }
+      },
+      {
+        "schema": "EOIdentityHypothesis@1",
+        "id": "identity:poss:head:my",
+        "surface": "my head",
+        "canonicalSurface": "head",
+        "parameter": {
+          "slot": "head",
+          "of": "my"
+        },
+        "standing": "open",
+        "adjudicatedBy": "read-real.mjs possessive-holding — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs possessive-holding",
+          "basis": "S88's fourth signal — a common noun under a possessive determiner is a parameterized being in HOLDING; the possessive resolves to its owner, the slot awaits a witness; ALL mentions share this one holding",
+          "canonicalOccurrence": "head"
+        }
+      },
+      {
+        "schema": "EOIdentityHypothesis@1",
+        "id": "identity:poss:best:her",
+        "surface": "her best",
+        "canonicalSurface": "best",
+        "parameter": {
+          "slot": "best",
+          "of": "her"
+        },
+        "standing": "open",
+        "adjudicatedBy": "read-real.mjs possessive-holding — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs possessive-holding",
+          "basis": "S88's fourth signal — a common noun under a possessive determiner is a parameterized being in HOLDING; the possessive resolves to its owner, the slot awaits a witness; ALL mentions share this one holding",
+          "canonicalOccurrence": "best"
+        }
+      },
+      {
+        "schema": "EOIdentityHypothesis@1",
+        "id": "identity:poss:eye:her",
+        "surface": "her eye",
+        "canonicalSurface": "eye",
+        "parameter": {
+          "slot": "eye",
+          "of": "her"
+        },
+        "standing": "open",
+        "adjudicatedBy": "read-real.mjs possessive-holding — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs possessive-holding",
+          "basis": "S88's fourth signal — a common noun under a possessive determiner is a parameterized being in HOLDING; the possessive resolves to its owner, the slot awaits a witness; ALL mentions share this one holding",
+          "canonicalOccurrence": "eye"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:anchor:25:the_earth",
+        "occurrence": "ref-occ:encounter:25:direct:0:42",
+        "referent": "ref:auto:i’ve",
+        "surface": "the earth",
+        "witness": "text:25:anchor:the_earth",
+        "provenance": {
+          "giver": "text/anchoring::anchorAsDefiniteBinding",
+          "basis": "projection of a witnessed EOAnchorEvidence@1 — an anchored descriptor occurrence IS a definite binding",
+          "activation": 6.174018656560204,
+          "margin": 0.9480295554473827
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:anchor:27:the_antipathies",
+        "occurrence": "ref-occ:encounter:27:direct:0:0",
+        "referent": "ref:auto:i’ve",
+        "surface": "the antipathies",
+        "witness": "text:27:anchor:the_antipathies",
+        "provenance": {
+          "giver": "text/anchoring::anchorAsDefiniteBinding",
+          "basis": "projection of a witnessed EOAnchorEvidence@1 — an anchored descriptor occurrence IS a definite binding",
+          "activation": 20.592053056887544,
+          "margin": 0.9817069095016387
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:anchor:27:this_time",
+        "occurrence": "ref-occ:encounter:27:direct:1:78",
+        "referent": "ref:auto:i’ve",
+        "surface": "this time",
+        "witness": "text:27:anchor:this_time",
+        "provenance": {
+          "giver": "text/anchoring::anchorAsDefiniteBinding",
+          "basis": "projection of a witnessed EOAnchorEvidence@1 — an anchored descriptor occurrence IS a definite binding",
+          "activation": 20.592053056887544,
+          "margin": 0.9817069095016387
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:anchor:27:the_name",
+        "occurrence": "ref-occ:encounter:27:direct:3:167",
+        "referent": "ref:auto:i’ve",
+        "surface": "the name",
+        "witness": "text:27:anchor:the_name",
+        "provenance": {
+          "giver": "text/anchoring::anchorAsDefiniteBinding",
+          "basis": "projection of a witnessed EOAnchorEvidence@1 — an anchored descriptor occurrence IS a definite binding",
+          "activation": 20.592053056887544,
+          "margin": 0.9817069095016387
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:anchor:27:the_country",
+        "occurrence": "ref-occ:encounter:27:direct:4:179",
+        "referent": "ref:auto:i’ve",
+        "surface": "the country",
+        "witness": "text:27:anchor:the_country",
+        "provenance": {
+          "giver": "text/anchoring::anchorAsDefiniteBinding",
+          "basis": "projection of a witnessed EOAnchorEvidence@1 — an anchored descriptor occurrence IS a definite binding",
+          "activation": 20.592053056887544,
+          "margin": 0.9817069095016387
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:anchor:49:the_wind",
+        "occurrence": "ref-occ:encounter:49:direct:1:56",
+        "referent": "ref:auto:dinah",
+        "surface": "the wind",
+        "witness": "text:49:anchor:the_wind",
+        "provenance": {
+          "giver": "text/anchoring::anchorAsDefiniteBinding",
+          "basis": "projection of a witnessed EOAnchorEvidence@1 — an anchored descriptor occurrence IS a definite binding",
+          "activation": 18.853453201082818,
+          "margin": 0.5320876610820428
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:anchor:49:my_ears",
+        "occurrence": "ref-occ:encounter:49:direct:3:130",
+        "referent": "ref:auto:dinah",
+        "surface": "my ears",
+        "witness": "text:49:anchor:my_ears",
+        "provenance": {
+          "giver": "text/anchoring::anchorAsDefiniteBinding",
+          "basis": "projection of a witnessed EOAnchorEvidence@1 — an anchored descriptor occurrence IS a definite binding",
+          "activation": 18.853453201082818,
+          "margin": 0.5320876610820428
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:anchor:54:the_lock",
+        "occurrence": "ref-occ:encounter:54:direct:4:185",
+        "referent": "ref:auto:i’ve",
+        "surface": "the lock",
+        "witness": "text:54:anchor:the_lock",
+        "provenance": {
+          "giver": "text/anchoring::anchorAsDefiniteBinding",
+          "basis": "projection of a witnessed EOAnchorEvidence@1 — an anchored descriptor occurrence IS a definite binding",
+          "activation": 1.288902879344736,
+          "margin": 0.6864056030385781
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:anchor:56:those_beds",
+        "occurrence": "ref-occ:encounter:56:direct:1:68",
+        "referent": "ref:auto:i’ve",
+        "surface": "those beds",
+        "witness": "text:56:anchor:those_beds",
+        "provenance": {
+          "giver": "text/anchoring::anchorAsDefiniteBinding",
+          "basis": "projection of a witnessed EOAnchorEvidence@1 — an anchored descriptor occurrence IS a definite binding",
+          "activation": 6.3281830953283205,
+          "margin": 0.22237851865014152
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:anchor:56:her_head",
+        "occurrence": "ref-occ:encounter:56:direct:3:150",
+        "referent": "ref:auto:i’ve",
+        "surface": "her head",
+        "witness": "text:56:anchor:her_head",
+        "provenance": {
+          "giver": "text/anchoring::anchorAsDefiniteBinding",
+          "basis": "projection of a witnessed EOAnchorEvidence@1 — an anchored descriptor occurrence IS a definite binding",
+          "activation": 6.3281830953283205,
+          "margin": 0.22237851865014152
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:anchor:56:the_doorway",
+        "occurrence": "ref-occ:encounter:56:direct:4:167",
+        "referent": "ref:auto:i’ve",
+        "surface": "the doorway",
+        "witness": "text:56:anchor:the_doorway",
+        "provenance": {
+          "giver": "text/anchoring::anchorAsDefiniteBinding",
+          "basis": "projection of a witnessed EOAnchorEvidence@1 — an anchored descriptor occurrence IS a definite binding",
+          "activation": 6.3281830953283205,
+          "margin": 0.22237851865014152
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:anchor:56:my_head",
+        "occurrence": "ref-occ:encounter:56:direct:5:193",
+        "referent": "ref:auto:i’ve",
+        "surface": "my head",
+        "witness": "text:56:anchor:my_head",
+        "provenance": {
+          "giver": "text/anchoring::anchorAsDefiniteBinding",
+          "basis": "projection of a witnessed EOAnchorEvidence@1 — an anchored descriptor occurrence IS a definite binding",
+          "activation": 6.3281830953283205,
+          "margin": 0.22237851865014152
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:anchor:56:my_shoulders",
+        "occurrence": "ref-occ:encounter:56:direct:6:280",
+        "referent": "ref:auto:i’ve",
+        "surface": "my shoulders",
+        "witness": "text:56:anchor:my_shoulders",
+        "provenance": {
+          "giver": "text/anchoring::anchorAsDefiniteBinding",
+          "basis": "projection of a witnessed EOAnchorEvidence@1 — an anchored descriptor occurrence IS a definite binding",
+          "activation": 6.3281830953283205,
+          "margin": 0.22237851865014152
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:anchor:62:the_simple_rules_their_friends",
+        "occurrence": "occ:62:5:object",
+        "referent": "ref:auto:i’ve",
+        "surface": "the simple rules their friends",
+        "witness": "text:62:anchor:the_simple_rules_their_friends",
+        "provenance": {
+          "giver": "text/anchoring::anchorAsDefiniteBinding",
+          "basis": "projection of a witnessed EOAnchorEvidence@1 — an anchored descriptor occurrence IS a definite binding",
+          "activation": 17.182766871236645,
+          "margin": 0.5257057660375387
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:anchor:62:their_friends",
+        "occurrence": "ref-occ:encounter:62:direct:1:275",
+        "referent": "ref:auto:i’ve",
+        "surface": "their friends",
+        "witness": "text:62:anchor:their_friends",
+        "provenance": {
+          "giver": "text/anchoring::anchorAsDefiniteBinding",
+          "basis": "projection of a witnessed EOAnchorEvidence@1 — an anchored descriptor occurrence IS a definite binding",
+          "activation": 17.182766871236645,
+          "margin": 0.5257057660375387
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:anchor:62:your_finger",
+        "occurrence": "ref-occ:encounter:62:direct:4:395",
+        "referent": "ref:auto:i’ve",
+        "surface": "your finger",
+        "witness": "text:62:anchor:your_finger",
+        "provenance": {
+          "giver": "text/anchoring::anchorAsDefiniteBinding",
+          "basis": "projection of a witnessed EOAnchorEvidence@1 — an anchored descriptor occurrence IS a definite binding",
+          "activation": 17.182766871236645,
+          "margin": 0.5257057660375387
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:anchor:69:her_face",
+        "occurrence": "ref-occ:encounter:69:direct:0:60",
+        "referent": "ref:auto:i’ve",
+        "surface": "her face",
+        "witness": "text:69:anchor:her_face",
+        "provenance": {
+          "giver": "text/anchoring::anchorAsDefiniteBinding",
+          "basis": "projection of a witnessed EOAnchorEvidence@1 — an anchored descriptor occurrence IS a definite binding",
+          "activation": 11.844959404909847,
+          "margin": 0.5800093215700661
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:anchor:74:the_door",
+        "occurrence": "ref-occ:encounter:74:direct:0:16",
+        "referent": "ref:auto:oh",
+        "surface": "the door",
+        "witness": "text:74:anchor:the_door",
+        "provenance": {
+          "giver": "text/anchoring::anchorAsDefiniteBinding",
+          "basis": "projection of a witnessed EOAnchorEvidence@1 — an anchored descriptor occurrence IS a definite binding",
+          "activation": 10.106112510805547,
+          "margin": 0.2265856213779857
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:anchor:74:the_table",
+        "occurrence": "ref-occ:encounter:74:direct:6:268",
+        "referent": "ref:auto:oh",
+        "surface": "the table",
+        "witness": "text:74:anchor:the_table",
+        "provenance": {
+          "giver": "text/anchoring::anchorAsDefiniteBinding",
+          "basis": "projection of a witnessed EOAnchorEvidence@1 — an anchored descriptor occurrence IS a definite binding",
+          "activation": 10.106112510805547,
+          "margin": 0.2265856213779857
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:anchor:74:the_glass",
+        "occurrence": "ref-occ:encounter:74:direct:3:203",
+        "referent": "ref:auto:oh",
+        "surface": "the glass",
+        "witness": "text:74:anchor:the_glass",
+        "provenance": {
+          "giver": "text/anchoring::anchorAsDefiniteBinding",
+          "basis": "projection of a witnessed EOAnchorEvidence@1 — an anchored descriptor occurrence IS a definite binding",
+          "activation": 10.106112510805547,
+          "margin": 0.2265856213779857
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:anchor:74:the_legs",
+        "occurrence": "ref-occ:encounter:74:direct:5:256",
+        "referent": "ref:auto:oh",
+        "surface": "the legs",
+        "witness": "text:74:anchor:the_legs",
+        "provenance": {
+          "giver": "text/anchoring::anchorAsDefiniteBinding",
+          "basis": "projection of a witnessed EOAnchorEvidence@1 — an anchored descriptor occurrence IS a definite binding",
+          "activation": 10.106112510805547,
+          "margin": 0.2265856213779857
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:anchor:83:the_same_size",
+        "occurrence": "occ:83:4:object",
+        "referent": "ref:auto:i’ve",
+        "surface": "the same size",
+        "witness": "text:83:anchor:the_same_size",
+        "provenance": {
+          "giver": "text/anchoring::anchorAsDefiniteBinding",
+          "basis": "projection of a witnessed EOAnchorEvidence@1 — an anchored descriptor occurrence IS a definite binding",
+          "activation": 11.471335658528103,
+          "margin": 0.9427084377066719
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:anchor:83:her_hand",
+        "occurrence": "ref-occ:encounter:83:direct:0:21",
+        "referent": "ref:auto:i’ve",
+        "surface": "her hand",
+        "witness": "text:83:anchor:her_hand",
+        "provenance": {
+          "giver": "text/anchoring::anchorAsDefiniteBinding",
+          "basis": "projection of a witnessed EOAnchorEvidence@1 — an anchored descriptor occurrence IS a definite binding",
+          "activation": 11.471335658528103,
+          "margin": 0.9427084377066719
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:anchor:83:her_head",
+        "occurrence": "ref-occ:encounter:83:direct:2:44",
+        "referent": "ref:auto:i’ve",
+        "surface": "her head",
+        "witness": "text:83:anchor:her_head",
+        "provenance": {
+          "giver": "text/anchoring::anchorAsDefiniteBinding",
+          "basis": "projection of a witnessed EOAnchorEvidence@1 — an anchored descriptor occurrence IS a definite binding",
+          "activation": 11.471335658528103,
+          "margin": 0.9427084377066719
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:anchor:83:the_way",
+        "occurrence": "ref-occ:encounter:83:direct:5:242",
+        "referent": "ref:auto:i’ve",
+        "surface": "the way",
+        "witness": "text:83:anchor:the_way",
+        "provenance": {
+          "giver": "text/anchoring::anchorAsDefiniteBinding",
+          "basis": "projection of a witnessed EOAnchorEvidence@1 — an anchored descriptor occurrence IS a definite binding",
+          "activation": 11.471335658528103,
+          "margin": 0.9427084377066719
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:meta:occ:1:1:object",
+        "occurrence": "occ:1:1:object",
+        "referent": "the use of a book",
+        "metaId": "the use of a book",
+        "surface": "the use of a book",
+        "adjudicatedBy": "read-real.mjs span-free node bridge — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs span-free node bridge",
+          "basis": "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans",
+          "canonicalOccurrence": "the use of a book"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:meta:occ:2:2:object",
+        "occurrence": "occ:2:2:object",
+        "referent": "the daisies",
+        "metaId": "the daisies",
+        "surface": "the daisies",
+        "adjudicatedBy": "read-real.mjs span-free node bridge — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs span-free node bridge",
+          "basis": "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans",
+          "canonicalOccurrence": "the daisies"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:meta:occ:3:1:subject",
+        "occurrence": "occ:3:1:subject",
+        "referent": "the way",
+        "metaId": "the way",
+        "surface": "way",
+        "adjudicatedBy": "read-real.mjs span-free node bridge — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs span-free node bridge",
+          "basis": "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans",
+          "canonicalOccurrence": "the way"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:meta:occ:3:1:object",
+        "occurrence": "occ:3:1:object",
+        "referent": "the rabbit",
+        "metaId": "the rabbit",
+        "surface": "the Rabbit say to itself",
+        "adjudicatedBy": "read-real.mjs span-free node bridge — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs span-free node bridge",
+          "basis": "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans",
+          "canonicalOccurrence": "the rabbit"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:meta:occ:6:1:subject",
+        "occurrence": "occ:6:1:subject",
+        "referent": "the rabbit",
+        "metaId": "the rabbit",
+        "surface": "it",
+        "adjudicatedBy": "read-real.mjs span-free node bridge — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs span-free node bridge",
+          "basis": "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans",
+          "canonicalOccurrence": "the rabbit"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:meta:occ:6:5:object",
+        "occurrence": "occ:6:5:object",
+        "referent": "her feet",
+        "metaId": "her feet",
+        "surface": "to her feet",
+        "adjudicatedBy": "read-real.mjs span-free node bridge — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs span-free node bridge",
+          "basis": "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans",
+          "canonicalOccurrence": "her feet"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:meta:occ:6:6:object",
+        "occurrence": "occ:6:6:object",
+        "referent": "a rabbit",
+        "metaId": "a rabbit",
+        "surface": "never before seen a rabbit with either a waistcoat-pocket",
+        "adjudicatedBy": "read-real.mjs span-free node bridge — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs span-free node bridge",
+          "basis": "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans",
+          "canonicalOccurrence": "a rabbit"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:meta:occ:6:7:subject",
+        "occurrence": "occ:6:7:subject",
+        "referent": "the rabbit",
+        "metaId": "the rabbit",
+        "surface": "a",
+        "adjudicatedBy": "read-real.mjs span-free node bridge — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs span-free node bridge",
+          "basis": "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans",
+          "canonicalOccurrence": "the rabbit"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:meta:occ:8:2:subject",
+        "occurrence": "occ:8:2:subject",
+        "referent": "a moment",
+        "metaId": "a moment",
+        "surface": "moment",
+        "adjudicatedBy": "read-real.mjs span-free node bridge — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs span-free node bridge",
+          "basis": "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans",
+          "canonicalOccurrence": "a moment"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:meta:occ:9:4:subject",
+        "occurrence": "occ:9:4:subject",
+        "referent": "ref:auto:i’ve",
+        "metaId": "ref:auto:i’ve",
+        "surface": "to",
+        "adjudicatedBy": "read-real.mjs span-free node bridge — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs span-free node bridge",
+          "basis": "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans",
+          "canonicalOccurrence": "ref:auto:i’ve"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:meta:occ:9:5:subject",
+        "occurrence": "occ:9:5:subject",
+        "referent": "ref:auto:i’ve",
+        "metaId": "ref:auto:i’ve",
+        "surface": "to",
+        "adjudicatedBy": "read-real.mjs span-free node bridge — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs span-free node bridge",
+          "basis": "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans",
+          "canonicalOccurrence": "ref:auto:i’ve"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:meta:occ:10:2:object",
+        "occurrence": "occ:10:2:object",
+        "referent": "ref:auto:i’ve",
+        "metaId": "ref:auto:i’ve",
+        "surface": "to",
+        "adjudicatedBy": "read-real.mjs span-free node bridge — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs span-free node bridge",
+          "basis": "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans",
+          "canonicalOccurrence": "ref:auto:i’ve"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:meta:occ:10:4:subject",
+        "occurrence": "occ:10:4:subject",
+        "referent": "ref:auto:i’ve",
+        "metaId": "ref:auto:i’ve",
+        "surface": "to",
+        "adjudicatedBy": "read-real.mjs span-free node bridge — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs span-free node bridge",
+          "basis": "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans",
+          "canonicalOccurrence": "ref:auto:i’ve"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:meta:occ:11:0:subject",
+        "occurrence": "occ:11:0:subject",
+        "referent": "the shelves",
+        "metaId": "the shelves",
+        "surface": "She",
+        "adjudicatedBy": "read-real.mjs span-free node bridge — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs span-free node bridge",
+          "basis": "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans",
+          "canonicalOccurrence": "the shelves"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:meta:occ:11:3:subject",
+        "occurrence": "occ:11:3:subject",
+        "referent": "the shelves",
+        "metaId": "the shelves",
+        "surface": "she",
+        "adjudicatedBy": "read-real.mjs span-free node bridge — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs span-free node bridge",
+          "basis": "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans",
+          "canonicalOccurrence": "the shelves"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:meta:occ:11:4:subject",
+        "occurrence": "occ:11:4:subject",
+        "referent": "ref:auto:i’ve",
+        "metaId": "ref:auto:i’ve",
+        "surface": "to",
+        "adjudicatedBy": "read-real.mjs span-free node bridge — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs span-free node bridge",
+          "basis": "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans",
+          "canonicalOccurrence": "ref:auto:i’ve"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:meta:occ:11:4:object",
+        "occurrence": "occ:11:4:object",
+        "referent": "the jar",
+        "metaId": "the jar",
+        "surface": "the jar",
+        "adjudicatedBy": "read-real.mjs span-free node bridge — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs span-free node bridge",
+          "basis": "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans",
+          "canonicalOccurrence": "the jar"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:meta:occ:11:7:subject",
+        "occurrence": "occ:11:7:subject",
+        "referent": "the shelves",
+        "metaId": "the shelves",
+        "surface": "she",
+        "adjudicatedBy": "read-real.mjs span-free node bridge — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs span-free node bridge",
+          "basis": "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans",
+          "canonicalOccurrence": "the shelves"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:meta:occ:15:1:subject",
+        "occurrence": "occ:15:1:subject",
+        "referent": "ref:auto:i’ve",
+        "metaId": "ref:auto:i’ve",
+        "surface": "I",
+        "adjudicatedBy": "read-real.mjs span-free node bridge — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs span-free node bridge",
+          "basis": "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans",
+          "canonicalOccurrence": "ref:auto:i’ve"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:meta:occ:18:0:object",
+        "occurrence": "occ:18:0:object",
+        "referent": "an end",
+        "metaId": "an end",
+        "surface": "to an end",
+        "adjudicatedBy": "read-real.mjs span-free node bridge — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs span-free node bridge",
+          "basis": "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans",
+          "canonicalOccurrence": "an end"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:meta:occ:19:0:subject",
+        "occurrence": "occ:19:0:subject",
+        "referent": "this time",
+        "metaId": "this time",
+        "surface": "I",
+        "adjudicatedBy": "read-real.mjs span-free node bridge — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs span-free node bridge",
+          "basis": "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans",
+          "canonicalOccurrence": "this time"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:meta:occ:19:0:object",
+        "occurrence": "occ:19:0:object",
+        "referent": "this time",
+        "metaId": "this time",
+        "surface": "how many miles I’ve fallen by this time",
+        "adjudicatedBy": "read-real.mjs span-free node bridge — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs span-free node bridge",
+          "basis": "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans",
+          "canonicalOccurrence": "this time"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:meta:occ:22:2:subject",
+        "occurrence": "occ:22:2:subject",
+        "referent": "this sort",
+        "metaId": "this sort",
+        "surface": "this",
+        "adjudicatedBy": "read-real.mjs span-free node bridge — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs span-free node bridge",
+          "basis": "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans",
+          "canonicalOccurrence": "this sort"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:meta:occ:22:5:subject",
+        "occurrence": "occ:22:5:subject",
+        "referent": "ref:auto:i’ve",
+        "metaId": "ref:auto:i’ve",
+        "surface": "to",
+        "adjudicatedBy": "read-real.mjs span-free node bridge — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs span-free node bridge",
+          "basis": "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans",
+          "canonicalOccurrence": "ref:auto:i’ve"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:meta:occ:22:5:object",
+        "occurrence": "occ:22:5:object",
+        "referent": "ref:auto:i’ve",
+        "metaId": "ref:auto:i’ve",
+        "surface": "to",
+        "adjudicatedBy": "read-real.mjs span-free node bridge — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs span-free node bridge",
+          "basis": "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans",
+          "canonicalOccurrence": "ref:auto:i’ve"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:meta:occ:22:7:subject",
+        "occurrence": "occ:22:7:subject",
+        "referent": "ref:auto:i’ve",
+        "metaId": "ref:auto:i’ve",
+        "surface": "to",
+        "adjudicatedBy": "read-real.mjs span-free node bridge — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs span-free node bridge",
+          "basis": "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans",
+          "canonicalOccurrence": "ref:auto:i’ve"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:meta:occ:22:9:object",
+        "occurrence": "occ:22:9:object",
+        "referent": "ref:auto:i’ve",
+        "metaId": "ref:auto:i’ve",
+        "surface": "to",
+        "adjudicatedBy": "read-real.mjs span-free node bridge — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs span-free node bridge",
+          "basis": "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans",
+          "canonicalOccurrence": "ref:auto:i’ve"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:meta:occ:25:0:subject",
+        "occurrence": "occ:25:0:subject",
+        "referent": "ref:auto:i’ve",
+        "metaId": "ref:auto:i’ve",
+        "surface": "I",
+        "adjudicatedBy": "read-real.mjs span-free node bridge — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs span-free node bridge",
+          "basis": "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans",
+          "canonicalOccurrence": "ref:auto:i’ve"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:meta:occ:25:1:subject",
+        "occurrence": "occ:25:1:subject",
+        "referent": "ref:auto:i’ve",
+        "metaId": "ref:auto:i’ve",
+        "surface": "I",
+        "adjudicatedBy": "read-real.mjs span-free node bridge — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs span-free node bridge",
+          "basis": "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans",
+          "canonicalOccurrence": "ref:auto:i’ve"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:meta:occ:26:1:subject",
+        "occurrence": "occ:26:1:subject",
+        "referent": "the people",
+        "metaId": "the people",
+        "surface": "people",
+        "adjudicatedBy": "read-real.mjs span-free node bridge — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs span-free node bridge",
+          "basis": "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans",
+          "canonicalOccurrence": "the people"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:meta:occ:26:1:object",
+        "occurrence": "occ:26:1:object",
+        "referent": "their heads",
+        "metaId": "their heads",
+        "surface": "with their heads downward",
+        "adjudicatedBy": "read-real.mjs span-free node bridge — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs span-free node bridge",
+          "basis": "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans",
+          "canonicalOccurrence": "their heads"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:meta:occ:27:1:subject",
+        "occurrence": "occ:27:1:subject",
+        "referent": "this time",
+        "metaId": "this time",
+        "surface": "I",
+        "adjudicatedBy": "read-real.mjs span-free node bridge — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs span-free node bridge",
+          "basis": "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans",
+          "canonicalOccurrence": "this time"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:meta:occ:27:2:subject",
+        "occurrence": "occ:27:2:subject",
+        "referent": "ref:auto:i’ve",
+        "metaId": "ref:auto:i’ve",
+        "surface": "to",
+        "adjudicatedBy": "read-real.mjs span-free node bridge — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs span-free node bridge",
+          "basis": "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans",
+          "canonicalOccurrence": "ref:auto:i’ve"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:meta:occ:34:1:subject",
+        "occurrence": "occ:34:1:subject",
+        "referent": "ref:auto:i’ve",
+        "metaId": "ref:auto:i’ve",
+        "surface": "I",
+        "adjudicatedBy": "read-real.mjs span-free node bridge — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs span-free node bridge",
+          "basis": "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans",
+          "canonicalOccurrence": "ref:auto:i’ve"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:meta:occ:35:0:subject",
+        "occurrence": "occ:35:0:subject",
+        "referent": "ref:auto:dinah",
+        "metaId": "ref:auto:dinah",
+        "surface": "Dinah",
+        "adjudicatedBy": "read-real.mjs span-free node bridge — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs span-free node bridge",
+          "basis": "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans",
+          "canonicalOccurrence": "ref:auto:dinah"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:meta:occ:35:0:object",
+        "occurrence": "occ:35:0:object",
+        "referent": "the cat",
+        "metaId": "the cat",
+        "surface": "the cat",
+        "adjudicatedBy": "read-real.mjs span-free node bridge — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs span-free node bridge",
+          "basis": "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans",
+          "canonicalOccurrence": "the cat"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:meta:occ:35:1:subject",
+        "occurrence": "occ:35:1:subject",
+        "referent": "ref:auto:i’ve",
+        "metaId": "ref:auto:i’ve",
+        "surface": "I",
+        "adjudicatedBy": "read-real.mjs span-free node bridge — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs span-free node bridge",
+          "basis": "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans",
+          "canonicalOccurrence": "ref:auto:i’ve"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:meta:occ:37:0:subject",
+        "occurrence": "occ:37:0:subject",
+        "referent": "ref:auto:i’ve",
+        "metaId": "ref:auto:i’ve",
+        "surface": "I",
+        "adjudicatedBy": "read-real.mjs span-free node bridge — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs span-free node bridge",
+          "basis": "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans",
+          "canonicalOccurrence": "ref:auto:i’ve"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:meta:occ:44:4:object",
+        "occurrence": "occ:44:4:object",
+        "referent": "ref:auto:i’ve",
+        "metaId": "ref:auto:i’ve",
+        "surface": "to",
+        "adjudicatedBy": "read-real.mjs span-free node bridge — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs span-free node bridge",
+          "basis": "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans",
+          "canonicalOccurrence": "ref:auto:i’ve"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:meta:occ:44:5:object",
+        "occurrence": "occ:44:5:object",
+        "referent": "a bat",
+        "metaId": "a bat",
+        "surface": "a bat",
+        "adjudicatedBy": "read-real.mjs span-free node bridge — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs span-free node bridge",
+          "basis": "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans",
+          "canonicalOccurrence": "a bat"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:meta:occ:47:2:subject",
+        "occurrence": "occ:47:2:subject",
+        "referent": "the fall",
+        "metaId": "the fall",
+        "surface": "fall",
+        "adjudicatedBy": "read-real.mjs span-free node bridge — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs span-free node bridge",
+          "basis": "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans",
+          "canonicalOccurrence": "the fall"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:meta:occ:48:0:object",
+        "occurrence": "occ:48:0:object",
+        "referent": "another long passage",
+        "metaId": "another long passage",
+        "surface": "not",
+        "adjudicatedBy": "read-real.mjs span-free node bridge — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs span-free node bridge",
+          "basis": "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans",
+          "canonicalOccurrence": "another long passage"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:meta:occ:48:3:subject",
+        "occurrence": "occ:48:3:subject",
+        "referent": "a bit",
+        "metaId": "a bit",
+        "surface": "it",
+        "adjudicatedBy": "read-real.mjs span-free node bridge — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs span-free node bridge",
+          "basis": "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans",
+          "canonicalOccurrence": "a bit"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:meta:occ:48:4:subject",
+        "occurrence": "occ:48:4:subject",
+        "referent": "her feet",
+        "metaId": "her feet",
+        "surface": "her",
+        "adjudicatedBy": "read-real.mjs span-free node bridge — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs span-free node bridge",
+          "basis": "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans",
+          "canonicalOccurrence": "her feet"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:meta:occ:48:4:object",
+        "occurrence": "occ:48:4:object",
+        "referent": "another long passage",
+        "metaId": "another long passage",
+        "surface": "another long passage",
+        "adjudicatedBy": "read-real.mjs span-free node bridge — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs span-free node bridge",
+          "basis": "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans",
+          "canonicalOccurrence": "another long passage"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:meta:occ:49:1:subject",
+        "occurrence": "occ:49:1:subject",
+        "referent": "a moment",
+        "metaId": "a moment",
+        "surface": "moment",
+        "adjudicatedBy": "read-real.mjs span-free node bridge — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs span-free node bridge",
+          "basis": "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans",
+          "canonicalOccurrence": "a moment"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:meta:occ:49:5:object",
+        "occurrence": "occ:49:5:object",
+        "referent": "a corner",
+        "metaId": "a corner",
+        "surface": "a corner",
+        "adjudicatedBy": "read-real.mjs span-free node bridge — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs span-free node bridge",
+          "basis": "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans",
+          "canonicalOccurrence": "a corner"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:meta:occ:50:1:object",
+        "occurrence": "occ:50:1:object",
+        "referent": "the corner",
+        "metaId": "the corner",
+        "surface": "the corner",
+        "adjudicatedBy": "read-real.mjs span-free node bridge — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs span-free node bridge",
+          "basis": "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans",
+          "canonicalOccurrence": "the corner"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:meta:occ:50:3:subject",
+        "occurrence": "occ:50:3:subject",
+        "referent": "ref:auto:i’ve",
+        "metaId": "ref:auto:i’ve",
+        "surface": "to",
+        "adjudicatedBy": "read-real.mjs span-free node bridge — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs span-free node bridge",
+          "basis": "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans",
+          "canonicalOccurrence": "ref:auto:i’ve"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:meta:occ:51:5:subject",
+        "occurrence": "occ:51:5:subject",
+        "referent": "ref:auto:i’ve",
+        "metaId": "ref:auto:i’ve",
+        "surface": "to",
+        "adjudicatedBy": "read-real.mjs span-free node bridge — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs span-free node bridge",
+          "basis": "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans",
+          "canonicalOccurrence": "ref:auto:i’ve"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:meta:occ:52:1:subject",
+        "occurrence": "occ:52:1:subject",
+        "referent": "the hall",
+        "metaId": "the hall",
+        "surface": "all",
+        "adjudicatedBy": "read-real.mjs span-free node bridge — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs span-free node bridge",
+          "basis": "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans",
+          "canonicalOccurrence": "the hall"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:meta:occ:53:0:subject",
+        "occurrence": "occ:53:0:subject",
+        "referent": "the locks",
+        "metaId": "the locks",
+        "surface": "locks",
+        "adjudicatedBy": "read-real.mjs span-free node bridge — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs span-free node bridge",
+          "basis": "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans",
+          "canonicalOccurrence": "the locks"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:meta:occ:54:2:object",
+        "occurrence": "occ:54:2:object",
+        "referent": "a little door about fifteen inches high",
+        "metaId": "a little door about fifteen inches high",
+        "surface": "a little door about fifteen inches high",
+        "adjudicatedBy": "read-real.mjs span-free node bridge — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs span-free node bridge",
+          "basis": "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans",
+          "canonicalOccurrence": "a little door about fifteen inches high"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:meta:occ:54:3:object",
+        "occurrence": "occ:54:3:object",
+        "referent": "the little golden key",
+        "metaId": "the little golden key",
+        "surface": "the little golden key",
+        "adjudicatedBy": "read-real.mjs span-free node bridge — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs span-free node bridge",
+          "basis": "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans",
+          "canonicalOccurrence": "the little golden key"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:meta:occ:55:0:object",
+        "occurrence": "occ:55:0:object",
+        "referent": "the door",
+        "metaId": "the door",
+        "surface": "the door",
+        "adjudicatedBy": "read-real.mjs span-free node bridge — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs span-free node bridge",
+          "basis": "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans",
+          "canonicalOccurrence": "the door"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:meta:occ:56:1:object",
+        "occurrence": "occ:56:1:object",
+        "referent": "those beds",
+        "metaId": "those beds",
+        "surface": "about among those beds",
+        "adjudicatedBy": "read-real.mjs span-free node bridge — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs span-free node bridge",
+          "basis": "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans",
+          "canonicalOccurrence": "those beds"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:meta:occ:56:5:object",
+        "occurrence": "occ:56:5:object",
+        "referent": "my shoulders",
+        "metaId": "my shoulders",
+        "surface": "without my shoulders",
+        "adjudicatedBy": "read-real.mjs span-free node bridge — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs span-free node bridge",
+          "basis": "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans",
+          "canonicalOccurrence": "my shoulders"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:meta:occ:58:0:subject",
+        "occurrence": "occ:58:0:subject",
+        "referent": "ref:auto:i’ve",
+        "metaId": "ref:auto:i’ve",
+        "surface": "I",
+        "adjudicatedBy": "read-real.mjs span-free node bridge — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs span-free node bridge",
+          "basis": "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans",
+          "canonicalOccurrence": "ref:auto:i’ve"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:meta:occ:59:2:subject",
+        "occurrence": "occ:59:2:subject",
+        "referent": "ref:auto:i’ve",
+        "metaId": "ref:auto:i’ve",
+        "surface": "to",
+        "adjudicatedBy": "read-real.mjs span-free node bridge — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs span-free node bridge",
+          "basis": "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans",
+          "canonicalOccurrence": "ref:auto:i’ve"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:meta:occ:60:1:subject",
+        "occurrence": "occ:60:1:subject",
+        "referent": "ref:auto:dinah",
+        "metaId": "ref:auto:dinah",
+        "surface": "in",
+        "adjudicatedBy": "read-real.mjs span-free node bridge — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs span-free node bridge",
+          "basis": "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans",
+          "canonicalOccurrence": "ref:auto:dinah"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:meta:occ:60:4:object",
+        "occurrence": "occ:60:4:object",
+        "referent": "a little bottle on",
+        "metaId": "a little bottle on",
+        "surface": "a little bottle on",
+        "adjudicatedBy": "read-real.mjs span-free node bridge — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs span-free node bridge",
+          "basis": "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans",
+          "canonicalOccurrence": "a little bottle on"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:meta:occ:60:6:subject",
+        "occurrence": "occ:60:6:subject",
+        "referent": "the bottle",
+        "metaId": "the bottle",
+        "surface": "bottle",
+        "adjudicatedBy": "read-real.mjs span-free node bridge — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs span-free node bridge",
+          "basis": "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans",
+          "canonicalOccurrence": "the bottle"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:meta:occ:60:6:object",
+        "occurrence": "occ:60:6:object",
+        "referent": "a paper label",
+        "metaId": "a paper label",
+        "surface": "a paper label",
+        "adjudicatedBy": "read-real.mjs span-free node bridge — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs span-free node bridge",
+          "basis": "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans",
+          "canonicalOccurrence": "a paper label"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:meta:occ:60:7:object",
+        "occurrence": "occ:60:7:object",
+        "referent": "a little bottle on",
+        "metaId": "a little bottle on",
+        "surface": "on",
+        "adjudicatedBy": "read-real.mjs span-free node bridge — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs span-free node bridge",
+          "basis": "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans",
+          "canonicalOccurrence": "a little bottle on"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:meta:occ:61:2:subject",
+        "occurrence": "occ:61:2:subject",
+        "referent": "ref:auto:i’ve",
+        "metaId": "ref:auto:i’ve",
+        "surface": "to",
+        "adjudicatedBy": "read-real.mjs span-free node bridge — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs span-free node bridge",
+          "basis": "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans",
+          "canonicalOccurrence": "ref:auto:i’ve"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:meta:occ:62:5:object",
+        "occurrence": "occ:62:5:object",
+        "referent": "the simple rules their friends",
+        "metaId": "the simple rules their friends",
+        "surface": "the simple rules their friends",
+        "adjudicatedBy": "read-real.mjs span-free node bridge — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs span-free node bridge",
+          "basis": "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans",
+          "canonicalOccurrence": "the simple rules their friends"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:meta:occ:62:8:subject",
+        "occurrence": "occ:62:8:subject",
+        "referent": "your finger",
+        "metaId": "your finger",
+        "surface": "you",
+        "adjudicatedBy": "read-real.mjs span-free node bridge — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs span-free node bridge",
+          "basis": "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans",
+          "canonicalOccurrence": "your finger"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:meta:occ:62:9:subject",
+        "occurrence": "occ:62:9:subject",
+        "referent": "your finger",
+        "metaId": "your finger",
+        "surface": "you",
+        "adjudicatedBy": "read-real.mjs span-free node bridge — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs span-free node bridge",
+          "basis": "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans",
+          "canonicalOccurrence": "your finger"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:meta:occ:62:9:object",
+        "occurrence": "occ:62:9:object",
+        "referent": "your finger",
+        "metaId": "your finger",
+        "surface": "your finger _very_ deeply with",
+        "adjudicatedBy": "read-real.mjs span-free node bridge — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs span-free node bridge",
+          "basis": "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans",
+          "canonicalOccurrence": "your finger"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:meta:occ:62:11:subject",
+        "occurrence": "occ:62:11:subject",
+        "referent": "your finger very deeply with",
+        "metaId": "your finger very deeply with",
+        "surface": "it",
+        "adjudicatedBy": "read-real.mjs span-free node bridge — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs span-free node bridge",
+          "basis": "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans",
+          "canonicalOccurrence": "your finger very deeply with"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:meta:occ:62:12:subject",
+        "occurrence": "occ:62:12:subject",
+        "referent": "ref:auto:i’ve",
+        "metaId": "ref:auto:i’ve",
+        "surface": "to",
+        "adjudicatedBy": "read-real.mjs span-free node bridge — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs span-free node bridge",
+          "basis": "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans",
+          "canonicalOccurrence": "ref:auto:i’ve"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:meta:occ:62:12:object",
+        "occurrence": "occ:62:12:object",
+        "referent": "your finger very deeply with",
+        "metaId": "your finger very deeply with",
+        "surface": "with",
+        "adjudicatedBy": "read-real.mjs span-free node bridge — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs span-free node bridge",
+          "basis": "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans",
+          "canonicalOccurrence": "your finger very deeply with"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:meta:occ:63:0:subject",
+        "occurrence": "occ:63:0:subject",
+        "referent": "this bottle",
+        "metaId": "this bottle",
+        "surface": "this bottle",
+        "adjudicatedBy": "read-real.mjs span-free node bridge — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs span-free node bridge",
+          "basis": "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans",
+          "canonicalOccurrence": "this bottle"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:meta:occ:71:0:subject",
+        "occurrence": "occ:71:0:subject",
+        "referent": "ref:auto:i’ve",
+        "metaId": "ref:auto:i’ve",
+        "surface": "I",
+        "adjudicatedBy": "read-real.mjs span-free node bridge — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs span-free node bridge",
+          "basis": "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans",
+          "canonicalOccurrence": "ref:auto:i’ve"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:meta:occ:72:1:subject",
+        "occurrence": "occ:72:1:subject",
+        "referent": "a candle",
+        "metaId": "a candle",
+        "surface": "candle",
+        "adjudicatedBy": "read-real.mjs span-free node bridge — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs span-free node bridge",
+          "basis": "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans",
+          "canonicalOccurrence": "a candle"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:meta:occ:72:2:subject",
+        "occurrence": "occ:72:2:subject",
+        "referent": "a candle",
+        "metaId": "a candle",
+        "surface": "candle",
+        "adjudicatedBy": "read-real.mjs span-free node bridge — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs span-free node bridge",
+          "basis": "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans",
+          "canonicalOccurrence": "a candle"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:meta:occ:74:0:object",
+        "occurrence": "occ:74:0:object",
+        "referent": "ref:auto:i’ve",
+        "metaId": "ref:auto:i’ve",
+        "surface": "to",
+        "adjudicatedBy": "read-real.mjs span-free node bridge — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs span-free node bridge",
+          "basis": "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans",
+          "canonicalOccurrence": "ref:auto:i’ve"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:meta:occ:74:2:object",
+        "occurrence": "occ:74:2:object",
+        "referent": "the door",
+        "metaId": "the door",
+        "surface": "the",
+        "adjudicatedBy": "read-real.mjs span-free node bridge — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs span-free node bridge",
+          "basis": "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans",
+          "canonicalOccurrence": "the door"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:meta:occ:74:8:subject",
+        "occurrence": "occ:74:8:subject",
+        "referent": "ref:auto:i’ve",
+        "metaId": "ref:auto:i’ve",
+        "surface": "to",
+        "adjudicatedBy": "read-real.mjs span-free node bridge — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs span-free node bridge",
+          "basis": "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans",
+          "canonicalOccurrence": "ref:auto:i’ve"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:meta:occ:76:0:subject",
+        "occurrence": "occ:76:0:subject",
+        "referent": "this minute",
+        "metaId": "this minute",
+        "surface": "I",
+        "adjudicatedBy": "read-real.mjs span-free node bridge — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs span-free node bridge",
+          "basis": "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans",
+          "canonicalOccurrence": "this minute"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:meta:occ:76:1:subject",
+        "occurrence": "occ:76:1:subject",
+        "referent": "ref:auto:i’ve",
+        "metaId": "ref:auto:i’ve",
+        "surface": "to",
+        "adjudicatedBy": "read-real.mjs span-free node bridge — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs span-free node bridge",
+          "basis": "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans",
+          "canonicalOccurrence": "ref:auto:i’ve"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:meta:occ:76:1:object",
+        "occurrence": "occ:76:1:object",
+        "referent": "this minute",
+        "metaId": "this minute",
+        "surface": "off this minute",
+        "adjudicatedBy": "read-real.mjs span-free node bridge — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs span-free node bridge",
+          "basis": "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans",
+          "canonicalOccurrence": "this minute"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:meta:occ:77:2:subject",
+        "occurrence": "occ:77:2:subject",
+        "referent": "ref:auto:i’ve",
+        "metaId": "ref:auto:i’ve",
+        "surface": "to",
+        "adjudicatedBy": "read-real.mjs span-free node bridge — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs span-free node bridge",
+          "basis": "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans",
+          "canonicalOccurrence": "ref:auto:i’ve"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:meta:occ:80:3:object",
+        "occurrence": "occ:80:3:object",
+        "referent": "ref:auto:dinah",
+        "metaId": "ref:auto:dinah",
+        "surface": "in",
+        "adjudicatedBy": "read-real.mjs span-free node bridge — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs span-free node bridge",
+          "basis": "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans",
+          "canonicalOccurrence": "ref:auto:dinah"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:meta:occ:81:2:object",
+        "occurrence": "occ:81:2:object",
+        "referent": "the key",
+        "metaId": "the key",
+        "surface": "the key",
+        "adjudicatedBy": "read-real.mjs span-free node bridge — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs span-free node bridge",
+          "basis": "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans",
+          "canonicalOccurrence": "the key"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:meta:occ:81:4:subject",
+        "occurrence": "occ:81:4:subject",
+        "referent": "ref:auto:i’ve",
+        "metaId": "ref:auto:i’ve",
+        "surface": "I",
+        "adjudicatedBy": "read-real.mjs span-free node bridge — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs span-free node bridge",
+          "basis": "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans",
+          "canonicalOccurrence": "ref:auto:i’ve"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:meta:occ:82:0:object",
+        "occurrence": "occ:82:0:object",
+        "referent": "ref:auto:i’ve",
+        "metaId": "ref:auto:i’ve",
+        "surface": "a",
+        "adjudicatedBy": "read-real.mjs span-free node bridge — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs span-free node bridge",
+          "basis": "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans",
+          "canonicalOccurrence": "ref:auto:i’ve"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:meta:occ:83:0:subject",
+        "occurrence": "occ:83:0:subject",
+        "referent": "her head",
+        "metaId": "her head",
+        "surface": "head",
+        "adjudicatedBy": "read-real.mjs span-free node bridge — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs span-free node bridge",
+          "basis": "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans",
+          "canonicalOccurrence": "her head"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:meta:occ:83:3:subject",
+        "occurrence": "occ:83:3:subject",
+        "referent": "ref:auto:i’ve",
+        "metaId": "ref:auto:i’ve",
+        "surface": "to",
+        "adjudicatedBy": "read-real.mjs span-free node bridge — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs span-free node bridge",
+          "basis": "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans",
+          "canonicalOccurrence": "ref:auto:i’ve"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:meta:occ:83:4:object",
+        "occurrence": "occ:83:4:object",
+        "referent": "the same size",
+        "metaId": "the same size",
+        "surface": "the same size",
+        "adjudicatedBy": "read-real.mjs span-free node bridge — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs span-free node bridge",
+          "basis": "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans",
+          "canonicalOccurrence": "the same size"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:meta:occ:83:5:subject",
+        "occurrence": "occ:83:5:subject",
+        "referent": "ref:auto:i’ve",
+        "metaId": "ref:auto:i’ve",
+        "surface": "to",
+        "adjudicatedBy": "read-real.mjs span-free node bridge — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs span-free node bridge",
+          "basis": "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans",
+          "canonicalOccurrence": "ref:auto:i’ve"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:poss:undefined",
+        "referent": "identity:poss:sister:her",
+        "metaId": "sister",
+        "surface": "her sister",
+        "possessiveAnchor": "her",
+        "adjudicatedBy": "read-real.mjs possessive-holding — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs possessive-holding",
+          "basis": "a possessive definite description is a HOLDING identity hypothesis, shared across mentions, resolved later by a witness",
+          "canonicalOccurrence": "sister"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:poss:undefined",
+        "referent": "identity:poss:head:my",
+        "metaId": "head",
+        "surface": "my head",
+        "possessiveAnchor": "my",
+        "adjudicatedBy": "read-real.mjs possessive-holding — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs possessive-holding",
+          "basis": "a possessive definite description is a HOLDING identity hypothesis, shared across mentions, resolved later by a witness",
+          "canonicalOccurrence": "head"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:poss:undefined",
+        "referent": "identity:poss:best:her",
+        "metaId": "best",
+        "surface": "her best",
+        "possessiveAnchor": "her",
+        "adjudicatedBy": "read-real.mjs possessive-holding — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs possessive-holding",
+          "basis": "a possessive definite description is a HOLDING identity hypothesis, shared across mentions, resolved later by a witness",
+          "canonicalOccurrence": "best"
+        }
+      },
+      {
+        "schema": "EODefiniteBinding@1",
+        "id": "definite-binding:poss:undefined",
+        "referent": "identity:poss:eye:her",
+        "metaId": "eye",
+        "surface": "her eye",
+        "possessiveAnchor": "her",
+        "adjudicatedBy": "read-real.mjs possessive-holding — Wilson's swarm",
+        "provenance": {
+          "giver": "read-real.mjs possessive-holding",
+          "basis": "a possessive definite description is a HOLDING identity hypothesis, shared across mentions, resolved later by a witness",
+          "canonicalOccurrence": "eye"
         }
       }
     ]
